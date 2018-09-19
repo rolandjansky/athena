@@ -3,8 +3,11 @@
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h"
 #include <algorithm>
 #include <iterator>
+#include "TBuffer.h"
+#include "TDirectory.h"
 
 //=============================================
 //======= TFCSParametrizationChain =========
@@ -149,3 +152,124 @@ void TFCSParametrizationChain::Print(Option_t *option) const
     count++;
   }
 }
+
+void TFCSParametrizationChain::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class TFCSParametrizationChain.
+
+   UInt_t R__s, R__c;
+   TDirectory* dir=nullptr;
+   
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c); 
+      if (R__v==1) {
+        R__b.SetBufferOffset(R__s);
+        R__b.ReadClassBuffer(TFCSParametrizationChain::Class(),this);
+      } else {
+        TFCSParametrization::Streamer(R__b);
+
+        TObject* parent=R__b.GetParent();
+        //cout<<"  do split! parent="<<parent<<endl;
+        if(R__b.GetParent()) { 
+          //cout<<"  parent class="<<parent->ClassName()<<endl;
+          //cout<<"  parent name="<<parent->GetName()<<endl;
+          //cout<<"  parent title="<<parent->GetTitle()<<endl;
+          if(parent->InheritsFrom(TDirectory::Class())) {
+            //cout<<"  parent inherits from TDirectory"<<endl;
+            dir=(TDirectory*)parent;
+            //dir->ls();
+          }
+        }
+
+        TFCSParametrizationChain::Chain_t &R__stl =  m_chain;
+        R__stl.clear();
+        TClass *R__tcl1 = TFCSParametrizationBase::Class();
+        if (R__tcl1==0) {
+          Error("m_chain streamer","Missing the TClass object for class TFCSParametrizationBase *!");
+          return;
+        }
+        int R__i, R__n;
+        R__b >> R__n;
+        R__stl.reserve(R__n);
+        //cout<<"Streamer() "<<this<<" ("<<GetName()<<") read "<<R__n<<" elements"<<endl;
+        for (R__i = 0; R__i < R__n; R__i++) {
+          TFCSParametrizationBase* R__t;
+          //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read element"<<endl;
+          R__t = (TFCSParametrizationBase*)R__b.ReadObjectAny(R__tcl1);
+          //if(R__t==nullptr) {
+          //  cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read nullptr"<<endl;
+          //} else {
+          // cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read element done="<<R__t<<" ("<<R__t->GetName()<<") "<<endl;
+          //}
+          if(R__t!=nullptr) {
+            if(R__t->InheritsFrom(TFCSParametrizationPlaceholder::Class())) {
+              //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read element is placeholder="<<R__t<<" ("<<R__t->GetName()<<") "<<endl;
+              TFCSParametrizationBase* new_R__t=nullptr;
+              if(dir) {
+                new_R__t=(TFCSParametrizationBase*)dir->Get(R__t->GetName());
+              }
+              if(new_R__t) {
+                //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read placeholder="<<new_R__t<<" ("<<new_R__t->GetName()<<") "<<endl;
+                delete R__t;
+                R__t=new_R__t;
+              } else {
+                Error("TFCSParametrizationChain::Streamer","Found placeholder object in the parametrization chain, but could not read the real object from the file!");
+              }
+            }
+          }
+          R__stl.push_back(R__t);
+        }
+
+        R__b.CheckByteCount(R__s, R__c, TFCSParametrizationChain::IsA());
+      }  
+   } else {
+      R__c = R__b.WriteVersion(TFCSParametrizationChain::IsA(), kTRUE);
+      TFCSParametrization::Streamer(R__b);
+
+      if(SplitChainObjects()) {
+        TObject* parent=R__b.GetParent();
+        //cout<<"  do split! parent="<<parent<<endl;
+        if(R__b.GetParent()) { 
+          //cout<<"  parent class="<<parent->ClassName()<<endl;
+          //cout<<"  parent name="<<parent->GetName()<<endl;
+          //cout<<"  parent title="<<parent->GetTitle()<<endl;
+          if(parent->InheritsFrom(TDirectory::Class())) {
+            //cout<<"  parent inherits from TDirectory"<<endl;
+            dir=(TDirectory*)parent;
+            //dir->ls();
+          }
+        }
+      }
+
+      TFCSParametrizationChain::Chain_t &R__stl =  m_chain;
+      int R__n=int(R__stl.size());
+      R__b << R__n;
+      //cout<<"Streamer() "<<this<<" ("<<GetName()<<") write "<<R__n<<" elements"<<endl;
+      if(R__n) {
+        TFCSParametrizationChain::Chain_t::iterator R__k;
+        int R__i=0;
+        for (R__k = R__stl.begin(); R__k != R__stl.end(); ++R__k) {
+          TFCSParametrizationBase* R__t = *R__k;
+          TFCSParametrizationBase* new_R__t=nullptr;
+          if(dir && R__t!=nullptr) {
+            //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element as extra key to file"<<endl;
+            dir->WriteTObject(R__t);
+            //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element as extra key to file done"<<endl;
+            new_R__t=new TFCSParametrizationPlaceholder(R__t->GetName(),TString("Placeholder for: ")+R__t->GetTitle());
+            R__t=new_R__t;
+          }
+          //if(R__t==nullptr) {
+          //  cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write nullptr"<<endl;
+          //} else {
+          //  cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element="<<R__t<<" ("<<R__t->GetName()<<") "<<endl;
+          //}
+          R__b << R__t;
+          //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element done"<<endl;
+          if(new_R__t) delete new_R__t;
+          ++R__i;
+        }
+      }
+      R__b.SetByteCount(R__c, kTRUE);
+   }
+}
+
