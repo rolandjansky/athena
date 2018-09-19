@@ -4,16 +4,19 @@
 
 #pragma once
 
+// ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
-
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
+// PACKAGE
+#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
+
+// STL
 #include <string>
 
 namespace InDetDD {
@@ -40,12 +43,13 @@ private:
   
   SG::ReadHandleKey<EventInfo> m_evt {this,"EvtInfo", "McEventInfo", "EventInfo name"};
 
-  SG::WriteCondHandleKey<GeoAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
+  SG::WriteCondHandleKey<ActsAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
   Gaudi::Property<std::string> m_dbKey {this, "Key_DB", "X2", "explicit dbKey for cond handle"};
   Gaudi::Property<double> m_zShiftPerLB {this, "ZShiftPerLB", 10.5, ""};
 
   ServiceHandle<ICondSvc> m_cs;
+  ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
   ServiceHandle<StoreGateSvc> m_detStore;
   const InDetDD::SiDetectorManager* p_pixelManager;

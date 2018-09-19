@@ -21,8 +21,15 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 
+// PACKAGE
+#include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/ActsDetectorElement.h"
+
 // ACTS
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Detector/DetectorElementBase.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 
 // STL
 #include <thread>
@@ -34,6 +41,7 @@ GeomShiftCondAlg::GeomShiftCondAlg( const std::string& name,
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_cs("CondSvc",name),
+  m_trackingGeometrySvc("ActsTrackingGeometrySvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name)
 {
 }
@@ -87,7 +95,7 @@ StatusCode GeomShiftCondAlg::execute() {
                 << " e: " << evt->event_ID()->event_number() );
 
 
-  SG::WriteCondHandle<GeoAlignmentStore> wch(m_wchk);
+  SG::WriteCondHandle<ActsAlignmentStore> wch(m_wchk);
 
   EventIDBase now(getContext().eventID());
 
@@ -124,7 +132,7 @@ StatusCode GeomShiftCondAlg::execute() {
 
     EventIDRange r(start, end);
 
-    GeoAlignmentStore* alignStore = new GeoAlignmentStore();
+    ActsAlignmentStore* alignStore = new ActsAlignmentStore();
     
     const InDetDD::PixelDetectorManager* pixMgr 
       = dynamic_cast<const InDetDD::PixelDetectorManager*>(p_pixelManager);
@@ -156,6 +164,20 @@ StatusCode GeomShiftCondAlg::execute() {
       ATH_MSG_DEBUG("add delta: " << alTrf << " -> (z=" << val << ")");
       alignStore->setDelta(alTrf, Amg::EigenTransformToCLHEP(delta));
     }
+    
+    auto trkGeom = m_trackingGeometrySvc->trackingGeometry();
+
+    // deltas are set, now populate sensitive element transforms
+    ATH_MSG_DEBUG("Populating ActsAlignmentStore for IOV");
+    size_t nElems = 0;
+    trkGeom->visitSurfaces(
+      [alignStore, &nElems](const Acts::Surface* srf) {
+      const Acts::DetectorElementBase* detElem = srf->associatedDetectorElement();
+      const auto* gmde = dynamic_cast<const ActsDetectorElement*>(detElem);
+      gmde->storeTransform(alignStore);
+      nElems++;
+    });
+    ATH_MSG_DEBUG("ActsAlignmentStore populated for " << nElems << " detector elements");
 
 
     if (wch.record(r, alignStore).isFailure()) {

@@ -47,14 +47,14 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
 # nominal alignment: all deltas are identity
-condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
-                                                     OutputLevel=VERBOSE)
+# condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
+                                                     # OutputLevel=VERBOSE)
 
 # periodic shift alignment. Configurable z-shift per lumiblock.
 # (currently pixel only)
-# condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
-                                            # ZShiftPerLB=0.5,
-                                            # OutputLevel=VERBOSE)
+condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
+                                            ZShiftPerLB=0.5,
+                                            OutputLevel=VERBOSE)
 ## END OF CONDITIONS SETUP
 
 
