@@ -169,15 +169,9 @@ void TFCSParametrizationChain::Streamer(TBuffer &R__b)
         TFCSParametrization::Streamer(R__b);
 
         TObject* parent=R__b.GetParent();
-        //cout<<GetName()<<":  do split="<<SplitChainObjects()<<", parent="<<parent<<endl;
         if(R__b.GetParent()) { 
-          //cout<<"  parent class="<<parent->ClassName()<<endl;
-          //cout<<"  parent name="<<parent->GetName()<<endl;
-          //cout<<"  parent title="<<parent->GetTitle()<<endl;
           if(parent->InheritsFrom(TDirectory::Class())) {
-            //if(SplitChainObjects()) cout<<GetName()<<":  parent inherits from TDirectory"<<endl;
             dir=(TDirectory*)parent;
-            //dir->ls();
           }
         }
 
@@ -191,27 +185,16 @@ void TFCSParametrizationChain::Streamer(TBuffer &R__b)
         int R__i, R__n;
         R__b >> R__n;
         R__stl.reserve(R__n);
-        //cout<<"Streamer() "<<this<<" ("<<GetName()<<") read "<<R__n<<" elements"<<endl;
         for (R__i = 0; R__i < R__n; R__i++) {
           TFCSParametrizationBase* R__t;
-          //if(SplitChainObjects()) cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read element"<<endl;
           R__t = (TFCSParametrizationBase*)R__b.ReadObjectAny(R__tcl1);
-          //if(SplitChainObjects()) {
-          //  if(R__t==nullptr) {
-          //    cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read nullptr"<<endl;
-          //  } else {
-          //    cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read element done="<<R__t<<" ("<<R__t->GetName()<<") "<<endl;
-          //  }
-          //}  
           if(R__t!=nullptr) {
             if(R__t->InheritsFrom(TFCSParametrizationPlaceholder::Class())) {
-              //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read element is placeholder="<<R__t<<" ("<<R__t->GetName()<<") "<<endl;
               TFCSParametrizationBase* new_R__t=nullptr;
-              if(dir) {
-                new_R__t=(TFCSParametrizationBase*)dir->Get(R__t->GetName());
-              }
+
+              if(dir) new_R__t=(TFCSParametrizationBase*)dir->Get(R__t->GetName());
+
               if(new_R__t) {
-                //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") read placeholder="<<new_R__t<<" ("<<new_R__t->GetName()<<") "<<endl;
                 delete R__t;
                 R__t=new_R__t;
               } else {
@@ -230,15 +213,9 @@ void TFCSParametrizationChain::Streamer(TBuffer &R__b)
 
       if(SplitChainObjects()) {
         TObject* parent=R__b.GetParent();
-        //cout<<"  do split! parent="<<parent<<endl;
         if(R__b.GetParent()) { 
-          //cout<<"  parent class="<<parent->ClassName()<<endl;
-          //cout<<"  parent name="<<parent->GetName()<<endl;
-          //cout<<"  parent title="<<parent->GetTitle()<<endl;
           if(parent->InheritsFrom(TDirectory::Class())) {
-            //cout<<"  parent inherits from TDirectory"<<endl;
             dir=(TDirectory*)parent;
-            //dir->ls();
           }
         }
       }
@@ -246,7 +223,6 @@ void TFCSParametrizationChain::Streamer(TBuffer &R__b)
       TFCSParametrizationChain::Chain_t &R__stl =  m_chain;
       int R__n=int(R__stl.size());
       R__b << R__n;
-      //cout<<"Streamer() "<<this<<" ("<<GetName()<<") write "<<R__n<<" elements"<<endl;
       if(R__n) {
         TFCSParametrizationChain::Chain_t::iterator R__k;
         int R__i=0;
@@ -254,19 +230,11 @@ void TFCSParametrizationChain::Streamer(TBuffer &R__b)
           TFCSParametrizationBase* R__t = *R__k;
           TFCSParametrizationBase* new_R__t=nullptr;
           if(dir && R__t!=nullptr) {
-            //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element as extra key to file"<<endl;
             dir->WriteTObject(R__t);
-            //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element as extra key to file done="<<R__t<<" ("<<R__t->GetName()<<") "<<endl;
             new_R__t=new TFCSParametrizationPlaceholder(R__t->GetName(),TString("Placeholder for: ")+R__t->GetTitle());
             R__t=new_R__t;
           }
-          //if(R__t==nullptr) {
-          //  cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write nullptr"<<endl;
-          //} else {
-          //  cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element="<<R__t<<" ("<<R__t->GetName()<<") "<<endl;
-          //}
           R__b << R__t;
-          //cout<<"  "<<R__i<<": Streamer() "<<this<<" ("<<GetName()<<") write element done"<<endl;
 
           //delete new_R__t only after the end of read/write operations by calling TFCSParametrizationBase::DoCleanup();
           if(new_R__t) s_cleanup_list.push_back(new_R__t);
