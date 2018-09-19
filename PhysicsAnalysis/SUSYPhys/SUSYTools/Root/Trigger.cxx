@@ -374,8 +374,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
     return trig_sf;
   }
 
-  unsigned runNumber = (unsigned) this->GetRandomRunNumber();
-
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
@@ -405,10 +403,10 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
 
   CP::CorrectionCode result;
   if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( runNumber, elec_trig, muon_trig, trig_sf);
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
   }
   else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_multiLep->getEfficiencyScaleFactor( runNumber, elec_trig, muon_trig, trig_sf);
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
   }
  
   switch (result) {
@@ -436,8 +434,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
     return trig_eff;
   }
 
-  unsigned runNumber = (unsigned) this->GetRandomRunNumber();
-
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
@@ -467,10 +463,10 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   CP::CorrectionCode result;
   if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
   }
   else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
   }
  
   switch (result) {
