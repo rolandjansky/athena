@@ -83,7 +83,7 @@ class ringerVersion (JobProperty):
     """ Version ringer tunes """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='RingerSelectorTools/TrigL2_20180125_v8/'
+    StoredValue='RingerSelectorTools/TrigL2_20180903_v9/'
 
 _flags.append(ringerVersion)
 
