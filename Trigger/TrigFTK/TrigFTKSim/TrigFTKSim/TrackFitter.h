@@ -82,9 +82,13 @@ protected:
   FTKPlaneMap *m_pmap; // plane-map, needed to know hits dimension
 
   int m_ntracks; // counter of the stored tracks
+  int m_ntracks_pre_hw; // counter of the stored tracks before HW filter
 
   std::list<FTKTrack> m_tracks; // list of output tracks
   std::list<FTKTrack> m_tracks_pre_hw; // list of output tracks before HW filter
+
+  std::list<FTKTrack> m_tracks_hits; // list of stored tracks that pass hit requirements
+  std::list<FTKTrack> m_tracks_pattern; // list of stored tracks with patterns
 
   int m_ncombs; // number of combinations
   int m_nfits; // number of fits tryied in a road
@@ -110,6 +114,8 @@ protected:
   int *m_hitcnt; // counter that enumerates current hit in FTKHit array
 
   bool m_identify_badhit; // the flag enables the identification of the bad hits for the recovery
+
+  bool m_saveStepByStepTracks; // true if you want to save incompelte tracks
 
   virtual void processor_init(int);
   virtual void processor(const FTKRoad &);
@@ -167,6 +173,9 @@ public:
 
   int getKeepRejected() const { return m_keep_rejected; }
   void setKeepRejected(int v) { m_keep_rejected = v; }
+
+  void setSaveStepByStepTracks(bool flag) { m_saveStepByStepTracks = flag; }
+  bool getSaveStepByStepTracks() const { return m_saveStepByStepTracks; }
 
   void loadHWConf(const char*);
 
