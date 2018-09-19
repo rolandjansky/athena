@@ -1,5 +1,9 @@
-#ifndef GEOMACTS_EXCELLWRITER_SERVICE
-#define GEOMACTS_EXCELLWRITER_SERVICE
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_EXCELLWRITERSVC_H
+#define ACTSGEOMETRY_EXCELLWRITERSVC_H
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"

@@ -1,5 +1,9 @@
-#ifndef GEOMACTS_MATERIALTRACKWRITER_SERVICE
-#define GEOMACTS_MATERIALTRACKWRITER_SERVICE
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_MATERIALTRACKWRITERSVC_H
+#define ACTSGEOMETRY_MATERIALTRACKWRITERSVC_H
 
 #include "ActsGeometry/IMaterialTrackWriterSvc.h"
 

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
 
 // ATHENA
@@ -7,11 +11,9 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/TRT_ID.h"
 

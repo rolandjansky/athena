@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // PACKAGE
 #include "ActsGeometry/ActsLayerBuilder.h"
 #include "ActsInterop/IdentityHelper.h"

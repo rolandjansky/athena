@@ -1,5 +1,9 @@
-#ifndef GEOMACTS_ACTS_OBJWRITERTOOL_H
-#define GEOMACTS_ACTS_OBJWRITERTOOL_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_OBJWRITERTOOL_H
+#define ACTSGEOMETRY_OBJWRITERTOOL_H
 
 #include <vector>
 

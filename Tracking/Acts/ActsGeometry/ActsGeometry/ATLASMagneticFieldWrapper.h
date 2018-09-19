@@ -1,5 +1,9 @@
-#ifndef ActsGeometry_ATLASMagneticFieldWrapper_h
-#define ActsGeometry_ATLASMagneticFieldWrapper_h
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_ATLASMAGNETICFIELDWRAPPER_H
+#define ACTSGEOMETRY_ATLASMAGNETICFIELDWRAPPER_H
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "Acts/Utilities/Definitions.hpp"

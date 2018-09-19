@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "ActsGeometry/ActsExtrapolationAlg.h"
 #include "ActsGeometry/ActsWriteTrackingGeometry.h"
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"

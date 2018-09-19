@@ -10,7 +10,7 @@
 
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
-#include "ActsGeometry/ATLASMagneticFieldWrapper.hpp"
+#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "ActsInterop/Logger.h"
 
 // ACTS

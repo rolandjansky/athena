@@ -1,5 +1,9 @@
-#ifndef GEOMACTS_IEXCELLWRITER_SERVICE
-#define GEOMACTS_IEXCELLWRITER_SERVICE
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_IEXCELLWRITERSVC_H
+#define ACTSGEOMETRY_IEXCELLWRITERSVC_H
 
 #include "GaudiKernel/IInterface.h"
 #include "Acts/EventData/TrackParameters.hpp"
