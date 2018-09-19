@@ -179,7 +179,8 @@ runArgsFromTrfOptionalTF = {
     'SSFTRMinEta': 1.0,
     'SSFTRMaxEta': 1.4,
     'ModuleLUTPath2nd': "",
-    'Save1stStageTrks': False
+    'Save1stStageTrks': False,
+    'SaveStepByStepTrks': False
     }
 
 #JDC:Find files from ConstantsDir, use to set certain attributes
@@ -949,6 +950,10 @@ else:
 #check if we want to save 1st stage tracks
 if hasattr(runArgs,'Save1stStageTrks'):
     FTKTrackFitter.Save1stStageTrks = runArgs.Save1stStageTrks
+
+#check if we want to save step-by-step tracks
+if hasattr(runArgs,'SaveStepByStepTrks'):
+    FTKTrackFitter.SaveStepByStepTrks = runArgs.SaveStepByStepTrks
 
 # check if the second stage is going to be used
 if not hasattr(runArgs,'doAuxFW'):
