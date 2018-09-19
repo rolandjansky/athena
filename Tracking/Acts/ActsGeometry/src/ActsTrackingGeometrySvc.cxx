@@ -165,8 +165,8 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
       //auto id_a = a->identify();
       //auto id_b = b->identify();
     
-      Acts::IdentityHelper idA = a->identityHelper();
-      Acts::IdentityHelper idB = b->identityHelper();
+      IdentityHelper idA = a->identityHelper();
+      IdentityHelper idB = b->identityHelper();
 
       // check if same bec
       // can't be same if not

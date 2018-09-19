@@ -5,24 +5,24 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 
-Acts::IdentityHelper::IdentityHelper(const InDetDD::SiDetectorElement *elem)
+IdentityHelper::IdentityHelper(const InDetDD::SiDetectorElement *elem)
   : m_elem(elem)
 {}
   
 
 const PixelID* 
-Acts::IdentityHelper::getPixelIDHelper() const 
+IdentityHelper::getPixelIDHelper() const 
 {
   return dynamic_cast<const PixelID*>(m_elem->getIdHelper());
 }
 const SCT_ID* 
-Acts::IdentityHelper::getSCTIDHelper() const
+IdentityHelper::getSCTIDHelper() const
 {
   return dynamic_cast<const SCT_ID*>(m_elem->getIdHelper());
 }
 
 int 
-Acts::IdentityHelper::bec() const 
+IdentityHelper::bec() const 
 {
   auto id = m_elem->identify();
   if (m_elem->isPixel()) {
@@ -34,7 +34,7 @@ Acts::IdentityHelper::bec() const
 }
 
 int 
-Acts::IdentityHelper::layer_disk() const
+IdentityHelper::layer_disk() const
 {
   auto id = m_elem->identify();
   if (m_elem->isPixel()) {
@@ -46,7 +46,7 @@ Acts::IdentityHelper::layer_disk() const
 }
 
 int 
-Acts::IdentityHelper::phi_module() const
+IdentityHelper::phi_module() const
 {
   auto id = m_elem->identify();
   if (m_elem->isPixel()) {
@@ -58,7 +58,7 @@ Acts::IdentityHelper::phi_module() const
 }
 
 int 
-Acts::IdentityHelper::eta_module() const
+IdentityHelper::eta_module() const
 {
   auto id = m_elem->identify();
   if (m_elem->isPixel()) {
@@ -70,7 +70,7 @@ Acts::IdentityHelper::eta_module() const
 }
 
 int 
-Acts::IdentityHelper::side() const
+IdentityHelper::side() const
 {
   auto id = m_elem->identify();
   if (m_elem->isPixel()) {
@@ -82,7 +82,7 @@ Acts::IdentityHelper::side() const
 }
 
 int 
-Acts::IdentityHelper::phi_module_max() const
+IdentityHelper::phi_module_max() const
 {
   auto id = m_elem->identify();
   if (m_elem->isPixel()) {
@@ -94,7 +94,7 @@ Acts::IdentityHelper::phi_module_max() const
 }
 
 int 
-Acts::IdentityHelper::eta_module_max() const
+IdentityHelper::eta_module_max() const
 {
   auto id = m_elem->identify();
   if (m_elem->isPixel()) {

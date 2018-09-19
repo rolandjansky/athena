@@ -7,7 +7,6 @@ namespace InDetDD {
 class PixelID;
 class SCT_ID;
 
-namespace Acts {
 class IdentityHelper {
 
 public:
@@ -30,5 +29,3 @@ private:
 
   
 };
-}
-
