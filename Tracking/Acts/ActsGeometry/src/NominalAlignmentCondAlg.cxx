@@ -103,13 +103,13 @@ StatusCode NominalAlignmentCondAlg::execute() {
 
     // populate the alignment store with all detector elements
     auto trkGeom = m_trackingGeometrySvc->trackingGeometry();
-    const Acts::TrackingVolume* trkVol = trkGeom->highestTrackingVolume();
 
     
     ATH_MSG_DEBUG("Populating ActsAlignmentStore for IOV");
     size_t nElems = 0;
-    trkVol->visitDetectorElements(
-      [alignmentStore, &nElems](const Acts::DetectorElementBase* detElem) {
+    trkGeom->visitSurfaces(
+      [alignmentStore, &nElems](const Acts::Surface* srf) {
+      const Acts::DetectorElementBase* detElem = srf->associatedDetectorElement();
       const auto* gmde = dynamic_cast<const ActsDetectorElement*>(detElem);
       gmde->storeTransform(alignmentStore);
       nElems++;
