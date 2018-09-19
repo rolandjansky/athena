@@ -108,10 +108,6 @@ namespace xAOD {
       bool getDetail( const std::string& name,
                       std::vector< uint32_t >& value ) const;
 
-      /// Get a vector<short> detail from the object
-      bool getDetail( const std::string& name,
-                      std::vector< int16_t >& value ) const;
-
       /// Get a vector<unsigned short> detail from the object
       bool getDetail( const std::string& name,
                       std::vector< uint16_t >& value ) const;

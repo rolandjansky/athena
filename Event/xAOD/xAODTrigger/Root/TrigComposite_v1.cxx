@@ -59,7 +59,6 @@ namespace xAOD {
 
    template<>
    bool TrigComposite_v1::hasDetail<std::string>( const std::string& name ) const {
-     std::cout << " TTTEEEESSSSTTT " << std::endl;
      return hasDetail<std::vector<int32_t>>(name);
    }
 
