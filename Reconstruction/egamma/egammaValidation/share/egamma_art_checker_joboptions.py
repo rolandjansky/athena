@@ -8,6 +8,11 @@ from AthenaCommon.AlgSequence               import AlgSequence
 from GaudiSvc.GaudiSvcConf                  import THistSvc
 import AthenaRootComps.ReadAthenaxAODHybrid
 
+
+from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+MCClassifier = MCTruthClassifier( name                      = "MCTruthClassifier",
+                                  ParticleCaloExtensionTool = "" )
+ToolSvc += MCClassifier
 # Ouput Message Level
 svcMgr.MessageSvc.OutputLevel = INFO
 
