@@ -19,9 +19,9 @@ public:
   class Hit
   {
     public:
-    Hit():m_eta_x(0.),m_phi_y(0.),m_z(0.),m_E(0.),m_useXYZ(false) {}; // for hits with the same energy, m_E should normalized to E(layer)/nhit
-    Hit(float eta, float phi, float E):m_eta_x(eta),m_phi_y(phi),m_E(E),m_useXYZ(false) {};
-    Hit(float x, float y, float z, float E):m_eta_x(x),m_phi_y(y),m_z(z),m_E(E),m_useXYZ(true) {};
+    Hit():m_eta_x(0.),m_phi_y(0.),m_z(0.),m_E(0.),m_useXYZ(false),m_center_r(0.),m_center_z(0.),m_center_eta(0.),m_center_phi(0.) {}; // for hits with the same energy, m_E should normalized to E(layer)/nhit
+    Hit(float eta, float phi, float E):m_eta_x(eta),m_phi_y(phi),m_E(E),m_useXYZ(false),m_center_r(0.),m_center_z(0.),m_center_eta(0.),m_center_phi(0.) {};
+    Hit(float x, float y, float z, float E):m_eta_x(x),m_phi_y(y),m_z(z),m_E(E),m_useXYZ(true),m_center_r(0.),m_center_z(0.),m_center_eta(0.),m_center_phi(0.) {};
     
     inline void setEtaPhiZE(float eta,float phi,float z, float E){
       m_eta_x=eta;
