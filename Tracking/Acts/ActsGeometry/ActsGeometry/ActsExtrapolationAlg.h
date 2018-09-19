@@ -26,8 +26,8 @@
 #include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 
 // PACKAGE
-#include "ActsGeometry/ObjWriterTool.h"
-#include "ActsGeometry/IExCellWriterSvc.h"
+#include "ActsGeometry/ActsObjWriterTool.h"
+#include "ActsGeometry/IActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsExtrapolationTool.h"
 
 // STL
@@ -38,11 +38,11 @@
 namespace Acts {
   class TrackingGeometry;
   
-  class IMaterialTrackWriterSvc;
-  
   template<typename>
   class ExtrapolationCell;
 }
+
+class IActsMaterialTrackWriterSvc;
 
 template<typename>
 class RootExCellWriter;
@@ -57,7 +57,7 @@ public:
   StatusCode finalize() override;
   
 private:
-  ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
+  ServiceHandle<IActsExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
 
   ToolHandle<ActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
@@ -79,7 +79,7 @@ private:
   Gaudi::Property<std::vector<double>> m_ptRange{this, "PtRange", {0.1, 1000}, ""};
 
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
-  ServiceHandle<Acts::IMaterialTrackWriterSvc> m_materialTrackWriterSvc;
+  ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
   
   // we need alignment, even though it should be nominal
   SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};

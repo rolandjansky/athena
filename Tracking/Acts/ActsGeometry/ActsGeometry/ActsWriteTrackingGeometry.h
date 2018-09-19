@@ -14,8 +14,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 // PACKAGE
-#include "ActsGeometry/ObjWriterTool.h"
-#include "ActsGeometry/IExCellWriterSvc.h"
+#include "ActsGeometry/ActsObjWriterTool.h"
 
 // STL
 #include <fstream>
@@ -40,7 +39,7 @@ private:
 
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 
-  ToolHandle<Acts::ObjWriterTool> m_objWriterTool{this, "ObjWriterTool", "Acts__ObjWriterTool"};
+  ToolHandle<ActsObjWriterTool> m_objWriterTool{this, "ObjWriterTool", "ActsObjWriterTool"};
 
 };
 

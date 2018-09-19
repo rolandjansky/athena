@@ -46,7 +46,6 @@ private:
   Gaudi::Property<double> m_zShiftPerLB {this, "ZShiftPerLB", 10.5, ""};
 
   ServiceHandle<ICondSvc> m_cs;
-  //ServiceHandle<IASCIICondDbSvc> m_cds;
 
   ServiceHandle<StoreGateSvc> m_detStore;
   const InDetDD::SiDetectorManager* p_pixelManager;

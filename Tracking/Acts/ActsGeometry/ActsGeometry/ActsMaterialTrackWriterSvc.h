@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ACTSGEOMETRY_MATERIALTRACKWRITERSVC_H
-#define ACTSGEOMETRY_MATERIALTRACKWRITERSVC_H
+#ifndef ACTSGEOMETRY_ACTSMATERIALTRACKWRITERSVC_H
+#define ACTSGEOMETRY_ACTSMATERIALTRACKWRITERSVC_H
 
-#include "ActsGeometry/IMaterialTrackWriterSvc.h"
+#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
@@ -23,23 +23,23 @@
 #include "TFile.h"
 
 namespace Acts {
-
   class MaterialTrack;
+}
 
-class MaterialTrackWriterSvc : public extends<AthService, IMaterialTrackWriterSvc> {
+class ActsMaterialTrackWriterSvc : public extends<AthService, IActsMaterialTrackWriterSvc> {
 public:
     
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
     
-  MaterialTrackWriterSvc( const std::string& name, ISvcLocator* svc );
+  ActsMaterialTrackWriterSvc( const std::string& name, ISvcLocator* svc );
 
   void
-  write(const MaterialTrack& mTrack) override;
+  write(const Acts::MaterialTrack& mTrack) override;
 
 private:
 
-  std::deque<MaterialTrack> m_mTracks;
+  std::deque<Acts::MaterialTrack> m_mTracks;
   std::mutex m_writeMutex;
   std::thread m_writeThread;
   std::atomic<bool> m_doEnd;
@@ -75,7 +75,7 @@ private:
 
 
   void writerThread();
-  void doWrite(const MaterialTrack &mTrack);
+  void doWrite(const Acts::MaterialTrack &mTrack);
 
   // jobOptions properties
   Gaudi::Property<std::string> m_filePath{this, "FilePath", "MaterialTracks.root", "Output root file for charged particle"};
@@ -83,8 +83,6 @@ private:
   Gaudi::Property<size_t> m_maxQueueSize{this, "MaxQueueSize", 5000, "Limit the write queue to this size"};
 
 };
-
-}
 
 
 #endif 

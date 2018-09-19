@@ -2,14 +2,14 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ACTSGEOMETRY_EXCELLWRITERSVC_H
-#define ACTSGEOMETRY_EXCELLWRITERSVC_H
+#ifndef ACTSGEOMETRY_ACTSEXCELLWRITERSVC_H
+#define ACTSGEOMETRY_ACTSEXCELLWRITERSVC_H
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
-#include "ActsGeometry/IExCellWriterSvc.h"
+#include "ActsGeometry/IActsExCellWriterSvc.h"
 
 #include "Acts/EventData/TrackParameters.hpp"
 
@@ -28,14 +28,16 @@ namespace Acts {
 template <class>
 class ExtrapolationCell;
 
+}
 
-class ExCellWriterSvc : public extends<AthService, IExCellWriterSvc> {
+
+class ActsExCellWriterSvc : public extends<AthService, IActsExCellWriterSvc> {
 public:
     
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
     
-  ExCellWriterSvc( const std::string& name, ISvcLocator* svc );
+  ActsExCellWriterSvc( const std::string& name, ISvcLocator* svc );
 
   void
   store(std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>& ecells) override;
@@ -63,8 +65,6 @@ private:
 
 
 };
-
-}
 
 
 #endif 

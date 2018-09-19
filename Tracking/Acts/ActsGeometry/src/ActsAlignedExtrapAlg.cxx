@@ -13,7 +13,7 @@
 #include "ActsInterop/Logger.h"
 
 // PACKAGE
-#include "ActsGeometry/IExCellWriterSvc.h"
+#include "ActsGeometry/IActsExCellWriterSvc.h"
 
 // ACTS
 #include "Acts/Utilities/Logger.hpp"

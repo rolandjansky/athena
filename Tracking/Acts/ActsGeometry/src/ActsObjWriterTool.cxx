@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsGeometry/ObjWriterTool.h"
+#include "ActsGeometry/ActsObjWriterTool.h"
 
 // std
 #include <iostream>
@@ -19,7 +19,7 @@
 #include "util/ObjTrackingGeometryWriter.h"
 
 
-Acts::ObjWriterTool::ObjWriterTool(const std::string& type, const std::string& name,
+ActsObjWriterTool::ActsObjWriterTool(const std::string& type, const std::string& name,
     const IInterface* parent) 
   : AthAlgTool(type, name, parent)
 {
@@ -28,12 +28,12 @@ Acts::ObjWriterTool::ObjWriterTool(const std::string& type, const std::string& n
 }
   
 StatusCode 
-Acts::ObjWriterTool::initialize()
+ActsObjWriterTool::initialize()
 {
 
   using namespace std::string_literals;
 
-  std::vector<std::shared_ptr<ObjSurfaceWriter>> subWriters;
+  std::vector<std::shared_ptr<Acts::ObjSurfaceWriter>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>           subStreams;
 
   for (const auto& sdet : m_subDetectors) {
@@ -41,7 +41,7 @@ Acts::ObjWriterTool::initialize()
     std::string sdOutputName = m_outputDirectory + "/"s + sdet + ".obj"s;
     sdStream->open(sdOutputName);
     // object surface writers
-    ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
+    Acts::ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
         Acts::Logging::INFO);
     sdObjWriterConfig.filePrefix         = "";
     sdObjWriterConfig.outputPhiSegments  = 10;
@@ -52,14 +52,14 @@ Acts::ObjWriterTool::initialize()
     sdObjWriterConfig.outputLayerSurface = false;
     sdObjWriterConfig.outputStream       = sdStream;
     auto sdObjWriter
-      = std::make_shared<ObjSurfaceWriter>(sdObjWriterConfig);
+      = std::make_shared<Acts::ObjSurfaceWriter>(sdObjWriterConfig);
     // push back
     subWriters.push_back(sdObjWriter);
     subStreams.push_back(sdStream);
   }
 
   // configure the tracking geometry writer
-  ObjTrackingGeometryWriter::Config tgObjWriterConfig(
+  Acts::ObjTrackingGeometryWriter::Config tgObjWriterConfig(
       "ObjTrackingGeometryWriter", Acts::Logging::INFO);
   tgObjWriterConfig.surfaceWriters       = subWriters;
   tgObjWriterConfig.filePrefix           = "";
@@ -67,14 +67,14 @@ Acts::ObjWriterTool::initialize()
   tgObjWriterConfig.layerPrefix          = "";
   // the tracking geometry writers
   m_tgObjWriter
-    = std::make_shared<ObjTrackingGeometryWriter>(tgObjWriterConfig);
+    = std::make_shared<Acts::ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
 
   return StatusCode::SUCCESS;
 }
 
 void
-Acts::ObjWriterTool::write(const Acts::TrackingGeometry& tg)
+ActsObjWriterTool::write(const Acts::TrackingGeometry& tg)
 {
   m_tgObjWriter->write(tg);
 }

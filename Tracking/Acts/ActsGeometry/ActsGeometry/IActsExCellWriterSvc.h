@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ACTSGEOMETRY_IEXCELLWRITERSVC_H
-#define ACTSGEOMETRY_IEXCELLWRITERSVC_H
+#ifndef ACTSGEOMETRY_IACTSEXCELLWRITERSVC_H
+#define ACTSGEOMETRY_IACTSEXCELLWRITERSVC_H
 
 #include "GaudiKernel/IInterface.h"
 #include "Acts/EventData/TrackParameters.hpp"
@@ -13,21 +13,21 @@ namespace Acts {
 template <class>
 class ExtrapolationCell;
 
+}
 
-class IExCellWriterSvc : virtual public IInterface {
+
+class IActsExCellWriterSvc : virtual public IInterface {
 public:
     
-  DeclareInterfaceID(IExCellWriterSvc, 1, 0);
+  DeclareInterfaceID(IActsExCellWriterSvc, 1, 0);
 
-  IExCellWriterSvc() {;}
+  IActsExCellWriterSvc() {;}
     
   void
   virtual
   store(std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>& ecells) = 0;
 
 };
-
-}
 
 
 #endif 

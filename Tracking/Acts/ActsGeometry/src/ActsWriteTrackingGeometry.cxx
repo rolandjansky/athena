@@ -12,7 +12,6 @@
 
 // PACKAGE
 #include "ActsGeometry/IActsTrackingGeometrySvc.h"
-#include "ActsGeometry/IExCellWriterSvc.h"
 
 // STL
 #include <string>

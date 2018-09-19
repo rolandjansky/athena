@@ -13,7 +13,7 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // PACKAGE
-#include "ActsGeometry/IExCellWriterSvc.h"
+#include "ActsGeometry/IActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsExtrapolationTool.h"
 
 // STL
@@ -47,7 +47,7 @@ private:
   
   SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
-  ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
+  ServiceHandle<IActsExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
   
   ToolHandle<ActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};

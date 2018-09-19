@@ -16,9 +16,9 @@
 
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
-#include "ActsGeometry/IExCellWriterSvc.h"
+#include "ActsGeometry/IActsExCellWriterSvc.h"
 #include "ActsInterop/Logger.h"
-#include "ActsGeometry/IMaterialTrackWriterSvc.h"
+#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
 #include "CLHEP/Random/RandomEngine.h"
@@ -30,9 +30,9 @@
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
-      m_exCellWriterSvc("ExCellWriterSvc", name),
+      m_exCellWriterSvc("ActsExCellWriterSvc", name),
       m_rndmGenSvc("AthRNGSvc", name),
-      m_materialTrackWriterSvc("MaterialTrackWriterSvc", name)
+      m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
 {
 }
 

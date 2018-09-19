@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsGeometry/MaterialTrackWriterSvc.h"
+#include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
 #include "GaudiKernel/IInterface.h"
 
 #include "TTree.h"
@@ -14,18 +14,17 @@
 
 using namespace Acts::VectorHelpers;
 
-
 #include <vector>
 #include <deque>
 #include <mutex>
 #include <thread>
 
-Acts::MaterialTrackWriterSvc::MaterialTrackWriterSvc( const std::string& name, ISvcLocator* svc )
+ActsMaterialTrackWriterSvc::ActsMaterialTrackWriterSvc( const std::string& name, ISvcLocator* svc )
 : base_class(name, svc) {
 }
 
 StatusCode
-Acts::MaterialTrackWriterSvc::initialize()
+ActsMaterialTrackWriterSvc::initialize()
 {
 
   std::string filePath = m_filePath;
@@ -62,13 +61,13 @@ Acts::MaterialTrackWriterSvc::initialize()
   ATH_MSG_INFO("Starting writer thread");
   ATH_MSG_DEBUG("Maximum queue size is set to:" << m_maxQueueSize);
   m_doEnd = false;
-  m_writeThread = std::thread(&MaterialTrackWriterSvc::writerThread, this);
+  m_writeThread = std::thread(&ActsMaterialTrackWriterSvc::writerThread, this);
 
   return StatusCode::SUCCESS;
 }
   
 StatusCode 
-Acts::MaterialTrackWriterSvc::finalize()
+ActsMaterialTrackWriterSvc::finalize()
 {
 
   ATH_MSG_INFO("Waiting for writer thread to finish.");
@@ -88,7 +87,7 @@ Acts::MaterialTrackWriterSvc::finalize()
 }
 
 void 
-Acts::MaterialTrackWriterSvc::write(const Acts::MaterialTrack& mTrack)
+ActsMaterialTrackWriterSvc::write(const Acts::MaterialTrack& mTrack)
 {
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
@@ -97,7 +96,7 @@ Acts::MaterialTrackWriterSvc::write(const Acts::MaterialTrack& mTrack)
 }
 
 void
-Acts::MaterialTrackWriterSvc::writerThread()
+ActsMaterialTrackWriterSvc::writerThread()
 {
   using namespace std::chrono_literals;
   // wait until we have events
@@ -129,7 +128,7 @@ Acts::MaterialTrackWriterSvc::writerThread()
       // just pop one
       ATH_MSG_VERBOSE("Queue at " << m_mTracks.size() << "/" << m_maxQueueSize 
           << ": Pop entry and write");
-      MaterialTrack mTrack = std::move(m_mTracks.front());
+      Acts::MaterialTrack mTrack = std::move(m_mTracks.front());
       m_mTracks.pop_front();
       // writing can now happen without lock
       lock.unlock();
@@ -154,7 +153,7 @@ Acts::MaterialTrackWriterSvc::writerThread()
 }
 
 void
-Acts::MaterialTrackWriterSvc::doWrite(const Acts::MaterialTrack& mTrack)
+ActsMaterialTrackWriterSvc::doWrite(const Acts::MaterialTrack& mTrack)
 {
   ATH_MSG_VERBOSE("Write to tree");
   size_t nSteps = mTrack.materialSteps().size();
@@ -201,9 +200,9 @@ Acts::MaterialTrackWriterSvc::doWrite(const Acts::MaterialTrack& mTrack)
   m_treedInL0 = 0;
 
   for(const auto& step : mTrack.materialSteps()) {
-    const MaterialProperties& matProp = step.materialProperties();
-    const Material& mat = matProp.material();
-    const Vector3D pos = step.position();
+    const Acts::MaterialProperties& matProp = step.materialProperties();
+    const Acts::Material& mat = matProp.material();
+    const Acts::Vector3D pos = step.position();
 
     m_treeStepPosX.push_back(pos.x());
     m_treeStepPosY.push_back(pos.y());

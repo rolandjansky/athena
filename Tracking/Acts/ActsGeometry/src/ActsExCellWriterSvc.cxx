@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsGeometry/ExCellWriterSvc.h"
+#include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "GaudiKernel/IInterface.h"
 
 #include "GaudiKernel/Kernel.h"
@@ -16,12 +16,12 @@
 
 #include "util/RootExCellWriter.h"
 
-Acts::ExCellWriterSvc::ExCellWriterSvc( const std::string& name, ISvcLocator* svc )
+ActsExCellWriterSvc::ActsExCellWriterSvc( const std::string& name, ISvcLocator* svc )
 : base_class(name, svc) {
 }
 
 StatusCode
-Acts::ExCellWriterSvc::initialize()
+ActsExCellWriterSvc::initialize()
 {
   RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
   reccWriterConfig.filePath       = m_filePath;
@@ -36,13 +36,13 @@ Acts::ExCellWriterSvc::initialize()
 
   ATH_MSG_INFO("Starting writer thread");
   m_doEnd = false;
-  m_writeThread = std::thread(&ExCellWriterSvc::doWrite, this);
+  m_writeThread = std::thread(&ActsExCellWriterSvc::doWrite, this);
 
   return StatusCode::SUCCESS;
 }
   
 StatusCode 
-Acts::ExCellWriterSvc::finalize()
+ActsExCellWriterSvc::finalize()
 {
   ATH_MSG_INFO("Waiting for writer thread to finish.");
   m_doEnd = true;
@@ -53,7 +53,7 @@ Acts::ExCellWriterSvc::finalize()
 }
 
 void 
-Acts::ExCellWriterSvc::store(std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>& ecells)
+ActsExCellWriterSvc::store(std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>& ecells)
 {
   
   auto ctx = Gaudi::Hive::currentContext();
@@ -66,7 +66,7 @@ Acts::ExCellWriterSvc::store(std::vector<Acts::ExtrapolationCell<Acts::TrackPara
 }
 
 void
-Acts::ExCellWriterSvc::doWrite()
+ActsExCellWriterSvc::doWrite()
 {
   using namespace std::chrono_literals;
   // wait until we have events

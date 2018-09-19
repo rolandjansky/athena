@@ -73,7 +73,7 @@ trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.OutputLevel = INFO
 ServiceMgr += trkGeomSvc
 
-exCellWriterSvc = CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
+exCellWriterSvc = CfgMgr.ActsExCellWriterSvc("ExCellWriterSvc")
 exCellWriterSvc.FilePath = "excells_charged.root"
 ServiceMgr += exCellWriterSvc
 
@@ -113,7 +113,7 @@ alg.Cardinality = 0
 
 alg.WriteMaterialTracks = True
 # we only need this if the extrap alg is set up to write mat tracks
-mTrackWriterSvc = CfgMgr.Acts__MaterialTrackWriterSvc("MaterialTrackWriterSvc")
+mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
 mTrackWriterSvc.OutputLevel = DEBUG
 mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
 ServiceMgr += mTrackWriterSvc
