@@ -2,8 +2,8 @@
   Copyright- (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAVALIDATION_ELECTRONPLOTS_H
-#define EGAMMAVALIDATION_ELECTRONPLOTS_H
+#ifndef EGAMMAVALIDATION_RECOELECTRONHISTOGRAMS_H
+#define EGAMMAVALIDATION_RECOELECTRONHISTOGRAMS_H
 
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -13,26 +13,24 @@
 
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
-#include "ParticlePlots.h"
+#include "ParticleHistograms.h"
 
 #include "TH1.h"
 
 namespace egammaMonitoring{
 
-  class ElectronPlots : public ParticlePlots
+  class RecoElectronHistograms : public ParticleHistograms
   {
 
   public:
 
-  ElectronPlots() : ParticlePlots() {}
-
     // Electron Plot(s)
-    TH1D *TrkToEl = nullptr; //!
-    
-    using ParticlePlots::initializePlots;
-    void initializePlots();
+    TH1* TrkToEl; //!
+    using ParticleHistograms::ParticleHistograms;   
+    using ParticleHistograms::initializePlots;
+    StatusCode initializePlots();
 
-    using ParticlePlots::fill;
+    using ParticleHistograms::fill;
     void fill(const xAOD::Electron& elrec);
 
   private:    

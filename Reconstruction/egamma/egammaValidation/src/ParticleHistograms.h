@@ -2,8 +2,8 @@
 Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAVALIDATION_PARTICLEPLOTS_H
-#define EGAMMAVALIDATION_PARTICLEPLOTS_H
+#ifndef EGAMMAVALIDATION_PARTICLEHISTOGRAMS_H
+#define EGAMMAVALIDATION_PARTICLEHISTOGRAMS_H
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
@@ -14,22 +14,20 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
-#include "TH1.h"
+#include "TH1D.h"
+
+#include "IHistograms.h"
 
 namespace egammaMonitoring{
   
-  class ParticlePlots{
+  class ParticleHistograms: public IHistograms {
   public:
 
-    ParticlePlots();
 
-    // Photon Histos
-
-    TH1D *pT_prtcl   = nullptr; //!
-    TH1D *eta_prtcl  = nullptr; //!
-    TH1D *phi_prtcl  = nullptr; //!
+    using IHistograms::IHistograms;
     
-    void initializePlots();
+    StatusCode initializePlots();
+
     void fill(const xAOD::IParticle& egamma);
 
   private:
