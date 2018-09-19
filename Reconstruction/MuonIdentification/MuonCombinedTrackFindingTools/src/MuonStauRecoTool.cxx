@@ -592,6 +592,7 @@ namespace MuonCombined {
       rpcTimeCalibration(id,time,er);
       float sh = 0;
       bool isEta = !m_idHelper->measuresPhi(id); 
+      if(isEta) tech=MuGirlNS::RPCETA_STAU_HIT;
       float propTime = 0;
       float tof = muonBetaCalculationUtils.calculateTof(1,distance);
       float beta = muonBetaCalculationUtils.calculateBeta(time+tof,distance);
