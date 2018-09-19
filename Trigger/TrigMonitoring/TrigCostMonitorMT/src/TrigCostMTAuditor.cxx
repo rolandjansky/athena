@@ -52,8 +52,8 @@ void TrigCostMTAuditor::after(StandardEventType evt, const std::string& caller, 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 void TrigCostMTAuditor::callService(const std::string& caller, ITrigCostMTSvc::AuditType type) {
-  // Note: Using ​ThreadLocalContext.h, better would be for the auditor to be told the Context
-  if (m_trigCostSvcHandle->processAlg(caller, Gaudi::Hive::currentContext(), type).isFailure()) {
+  // Note: Using ThreadLocalContext.h, better would be for the auditor to be told the Context
+  if (m_trigCostSvcHandle->processAlg(Gaudi::Hive::currentContext(), caller, type).isFailure()) {
     ATH_MSG_FATAL("Error in TrigCostMTSvc called by TrigCostMTAuditor, auditing algorithm: " << caller);
     throw std::runtime_error("TrigCostMTAuditor exception");
   }

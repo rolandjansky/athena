@@ -6,11 +6,14 @@
 
 #include "TrigCostMonitorMT/TrigCostDataStore.h"
 
-StatusCode TrigCostDataStore::insert(const std::string& caller, const EventContext& context, const TrigTimeStamp& stamp, MsgStream& msg) {
+StatusCode TrigCostDataStore::insert(const EventContext& context, const std::string& caller, MsgStream& msg, const TrigTimeStamp& stamp) {
   m_store.grow_to_at_least( context.slot() + 1, AITimerMapTBB() ); // Ensure we have one map per processing slot
+  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>()->proxy();
+  if (proxy == nullptr) return StatusCode::FAILURE;
+  const bool isView = (dynamic_cast<const SG::View*>(proxy) != nullptr);
+  const AlgorithmIdentifier ai(caller, proxy->name(), isView);
   AITimerMapTBB& mapReference = m_store.at( context.slot() );
   AITimerMapTBB::accessor a;
-  const AlgorithmIdentifier ai(caller, context.getExtension<Atlas::ExtendedEventContext>()->proxy());
   if (mapReference.insert(a, std::move(ai))) {
     // Obtains lock on the key value 'name' until 'a' goes out of scope or calls release()
     a->second = stamp;
@@ -20,26 +23,62 @@ StatusCode TrigCostDataStore::insert(const std::string& caller, const EventConte
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigCostDataStore::retrieve(const std::string& caller, const EventContext& context, MsgStream& msg, TrigTimeStamp& result) const {
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode TrigCostDataStore::retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const {
+  // Use proxy from given context
+  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>()->proxy();
+  if (proxy == nullptr) return StatusCode::FAILURE;
+  return retrieve(context, proxy->name(), caller, msg, result);
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode TrigCostDataStore::retrieve(const EventContext& context, const std::string& proxyName, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const {
+  // Bundle supplied proxy name & caller into an AlgorithmIdentifier rather than using proxy from context
+  const AlgorithmIdentifier ai(caller, proxyName);
+  return retrieve(context, ai, msg, result);
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode TrigCostDataStore::retrieve(const EventContext& context, const AlgorithmIdentifier& ai, MsgStream& msg, TrigTimeStamp& result) const {
   if (m_store.size() <= context.slot()) {
     msg << MSG::ERROR << "Nothing yet stored for slot #" << context.slot() << endmsg;
     return StatusCode::FAILURE;
   }
   const AITimerMapTBB& mapReference = m_store.at( context.slot() );
-  const AlgorithmIdentifier ai(caller, context.getExtension<Atlas::ExtendedEventContext>()->proxy());
   AITimerMapTBB::const_accessor ca; // Does not lock other const_accessor
   if (!mapReference.find(ca, ai)) {
-    msg << MSG::ERROR << "Cannot access key caller:'" << ai.m_caller << "' store:'" << ai.m_store << "' from the the TrigCostDataStore" << endmsg;
+    if (msg.level() <= MSG::INFO) {
+      msg << MSG::INFO << "Cannot access key caller:'" << ai.m_caller << "' store:'" << ai.m_store << "' from the the TrigCostDataStore" << endmsg;
+    }
     return StatusCode::FAILURE;
   }
   result = ca->second;
   return StatusCode::SUCCESS; 
 }
 
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 StatusCode TrigCostDataStore::clear(const EventContext& context, MsgStream& msg) {
   m_store.grow_to_at_least( context.slot() + 1, AITimerMapTBB() ); // Ensure we have one map per processing slot
   AITimerMapTBB& mapReference = m_store.at( context.slot() );
   mapReference.clear();
-  if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "End of event in slot " << context.slot() << endmsg;
+  if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "Clearing slot " << context.slot() << endmsg;
   return StatusCode::SUCCESS;  
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode TrigCostDataStore::getIterators(const EventContext& context, MsgStream& msg, AITimerMapTBB::const_iterator& begin, AITimerMapTBB::const_iterator& end) {
+  if (m_store.size() <= context.slot()) {
+    msg << MSG::ERROR << "Nothing yet stored for slot #" << context.slot() << endmsg;
+    return StatusCode::FAILURE;
+  }
+  const AITimerMapTBB& mapReference = m_store.at( context.slot() );
+  begin = mapReference.begin();
+  end = mapReference.end();
+  return StatusCode::SUCCESS;
 }

@@ -3,10 +3,13 @@
  */
 
 #ifndef TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H
-#define TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H
+#define TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H 1
 
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/EventContext.h"
+
+#include "xAODTrigger/TrigCompositeContainer.h"
+#include "StoreGate/WriteHandle.h"
 
 #include <string>
 
@@ -21,9 +24,11 @@ public:
 
   enum AuditType { Before, After };
 
-  virtual StatusCode processAlg(const std::string&, const EventContext& context, const AuditType type) = 0; 
+  virtual StatusCode startEvent(const EventContext&, const bool enableMonitoring) = 0; 
 
-  virtual StatusCode endEvent(const EventContext& context) = 0; 
+  virtual StatusCode processAlg(const EventContext&, const std::string&, const AuditType) = 0; 
+
+  virtual StatusCode endEvent(const EventContext&, SG::WriteHandle<xAOD::TrigCompositeContainer>&) = 0; 
 
 };
 

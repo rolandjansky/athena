@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthViews
                           Trigger/TrigTools/TrigTimeAlgs
+                          Event/xAOD/xAODTrigger
                           TestPolicy )
 
 # Component(s) in the package:
@@ -21,7 +22,7 @@ atlas_add_component( TrigCostMonitorMT
                      src/*.cxx
                      src/components/*.cxx 
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AthViews TrigTimeAlgsLib ${TBB_LIBRARIES} )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AthViews TrigTimeAlgsLib xAODTrigger ${TBB_LIBRARIES} )
 
 # Install files from the package:
 atlas_install_headers( TrigCostMonitorMT )
