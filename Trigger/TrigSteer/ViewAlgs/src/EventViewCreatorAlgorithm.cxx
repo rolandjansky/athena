@@ -83,6 +83,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 	newDecision = outputDecisions.get()->back();
 	newDecision->setObjectLink( "seedEnd", ElementLink<TrigCompositeUtils::DecisionContainer>( inputHandle.key(), inputCounter ) );
 	insertDecisions( inputDecision, newDecision );
+	ATH_MSG_DEBUG("No need to create another output decision object, just adding decision IDs");
       }
       
       // search for existing view
@@ -108,10 +109,8 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       	viewMap[roiDescriptor]=viewVector->size()-1;
 	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
 
-
 	ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
-	ATH_CHECK( placeRoIInView( roiDescriptor, viewVector->back(), contexts.back() ) );
-	
+	ATH_CHECK( placeRoIInView( roiDescriptor, viewVector->back(), contexts.back() ) );	
       }
     }
     
@@ -119,19 +118,16 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
     ATH_CHECK( outputHandles[outputIndex].record( std::move( outputDecisions ), std::move( decAux ) ) );
   }
 
-  
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector.get(),           // Vector containing views
 					m_viewNodeName,             // CF node to attach views to
 					context,                    // Source context
 					m_scheduler.get() ) );
-
   
   // store views
   auto viewsHandle = SG::makeHandle( m_viewsKey );
   ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
-
 
   size_t validInputCount = countInputHandles( context );  
   size_t validOutputCount = 0;
@@ -145,9 +141,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
     ATH_MSG_ERROR("Found " << validInputCount << " inputs and " << validOutputCount << " outputs");
     return StatusCode::FAILURE;
   }
-
-  printDecisions( outputHandles );
-     
+  printDecisions( outputHandles );     
   return StatusCode::SUCCESS;
 }
 
@@ -171,13 +165,13 @@ void EventViewCreatorAlgorithm::printDecisions( const std::vector<SG::WriteHandl
   for ( auto outHandle: outputHandles ) {
     if( not outHandle.isValid() ) continue;
     ATH_MSG_DEBUG(outHandle.key() << " with " << outHandle->size() << " decisions:");
-    for ( auto outdecision:  *outHandle ) {
+    for ( auto outDecision:  *outHandle ) {
       TrigCompositeUtils::DecisionIDContainer objDecisions;      
-      TrigCompositeUtils::decisionIDs( outdecision, objDecisions );
+      TrigCompositeUtils::decisionIDs( outDecision, objDecisions );
       
       ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
       
-      for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+      for ( TrigCompositeUtils::DecisionID id : TrigCompositeUtils::decisionIDs(outDecision) ) {
 	ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
       }  
     }
@@ -186,8 +180,11 @@ void EventViewCreatorAlgorithm::printDecisions( const std::vector<SG::WriteHandl
 
 void EventViewCreatorAlgorithm::insertDecisions( const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest ) const  {
   using namespace TrigCompositeUtils;
-  decisionIDs(dest).reserve( decisionIDs(dest).size() + decisionIDs(src).size() );
-  decisionIDs(dest).insert( decisionIDs(dest).end(), decisionIDs(src).begin(), decisionIDs(src).end() );
+  DecisionIDContainer ids;
+  decisionIDs( dest, ids );
+  decisionIDs( src, ids );
+  decisionIDs( dest ).clear(); 
+  decisionIDs(dest).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
 }	
 
 StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils::Decision* inputDecision, SG::View* newView ) const {

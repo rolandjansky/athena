@@ -147,7 +147,6 @@ theElectronFex.OutputLevel=VERBOSE
 
 filterCaloRoIsAlg = RoRSeqFilter("filterCaloRoIsAlg")
 caloHypoDecisions = findAlgorithm(egammaCaloStep, "L2CaloHypo").HypoOutputDecisions
-print "kkkk ", caloHypoDecisions
 filterCaloRoIsAlg.Input = [caloHypoDecisions]
 filterCaloRoIsAlg.Output = ["Filtered" + caloHypoDecisions]
 filterCaloRoIsAlg.Chains = testChains
@@ -184,6 +183,7 @@ theElectronHypo.HypoOutputDecisions = "ElectronL2Decisions"
 theElectronHypo.Electrons = theElectronFex.ElectronsName
 
 theElectronHypo.OutputLevel = VERBOSE
+print 'kkk', theElectronHypo
 
 theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName( c,c ) for c in testChains ]
 
@@ -192,8 +192,34 @@ for t in theElectronHypo.HypoTools:
 # topSequence += theElectronHypo
 # InDetCacheCreatorTrigViews,
 electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs, theElectronHypo ] )
-
 egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ electronSequence ] )
+
+
+
+filterL2ElectronRoIsAlg = RoRSeqFilter("filterL2ElectronRoIsAlg")
+electronHypoDecisions = findAlgorithm(egammaIDStep, "TrigL2ElectronHypoAlgMT").HypoOutputDecisions
+
+filterL2ElectronRoIsAlg.Input = [electronHypoDecisions]
+filterL2ElectronRoIsAlg.Output = ["Filtered" + electronHypoDecisions]
+filterL2ElectronRoIsAlg.Chains = testChains
+filterL2ElectronRoIsAlg.OutputLevel = DEBUG
+
+
+efClusterViewsMaker = EventViewCreatorAlgorithm("efClusterViewsMaker", OutputLevel=DEBUG)
+efClusterViewsMaker.InputMakerInputDecisions = [ filterL2ElectronRoIsAlg.Output[0] ] # output of L2CaloHypo
+efClusterViewsMaker.RoIsLink = "roi" # -||-
+efClusterViewsMaker.InViewRoIs = "CaloRoIs" # contract with the fastCalo
+efClusterViewsMaker.Views = "EFCaloViews"
+efClusterViewsMaker.ViewFallThrough = True
+efClusterViewsMaker.InputMakerOutputDecisions = ["EFClusterLinks"]
+
+
+
+
+efClusterSequence = seqAND("efClusterSequence", [efClusterViewsMaker] )
+egammaEFCaloStep = stepSeq("egammaEFCalotep", filterL2ElectronRoIsAlg, [ efClusterSequence ] )
+
+
 
 
 # CF construction
@@ -208,6 +234,7 @@ summaryStep0.OutputLevel = DEBUG
 
 step0 = parOR("step0", [ egammaCaloStep, summaryStep0 ] )
 step1 = parOR("step1", [ egammaIDStep ] )
+step2 = parOR("step2", [ egammaEFCaloStep ] )
 
 
 egammaCaloStepRR = createFastCaloSequence( rerun=True )
@@ -246,10 +273,11 @@ summary.OutputLevel = DEBUG
 
 step0filter = parOR("step0filter", [ findAlgorithm( egammaCaloStep, "filterL1RoIsAlg") ] )
 step1filter = parOR("step1filter", [ findAlgorithm(egammaIDStep, "filterCaloRoIsAlg") ] )
+step2filter = parOR("step2filter", [ findAlgorithm(egammaEFCaloStep, "filterL2ElectronRoIsAlg") ] )
 step0rfilter = parOR("step0rfilter", [ findAlgorithm(egammaCaloStepRR, "Rerurn_filterL1RoIsAlg") ] )
 
 
-steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step0rfilter, step0r ]  )
+steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step2filter, step2,  step0rfilter, step0r ]  )
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
