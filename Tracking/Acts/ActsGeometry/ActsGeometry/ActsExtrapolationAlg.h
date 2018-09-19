@@ -28,7 +28,7 @@
 // PACKAGE
 #include "ActsGeometry/ObjWriterTool.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
-#include "ActsGeometry/IExtrapolationTool.h"
+#include "ActsGeometry/ActsExtrapolationTool.h"
 
 // STL
 #include <memory>
@@ -60,7 +60,7 @@ private:
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
 
-  ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "Acts__ExtrapolationTool"};
+  ToolHandle<ActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
 
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>> m_exCells;
   std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;

@@ -14,7 +14,7 @@
 
 // PACKAGE
 #include "ActsGeometry/IExCellWriterSvc.h"
-#include "ActsGeometry/IExtrapolationTool.h"
+#include "ActsGeometry/ActsExtrapolationTool.h"
 
 // STL
 #include <string>
@@ -50,7 +50,7 @@ private:
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
   
-  ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
+  ToolHandle<ActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
 
 };
 

@@ -15,7 +15,7 @@
 #include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 
 // PACKAGE
-#include "ActsGeometry/IExtrapolationTool.h"
+#include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/IMaterialTrackWriterSvc.h"

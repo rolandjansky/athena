@@ -9,7 +9,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 // PACKAGE
-#include "ActsGeometry/IExtrapolationTool.h"
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.hpp"
 #include "ActsInterop/Logger.h"
@@ -31,7 +30,7 @@
 
 ActsExtrapolationTool::ActsExtrapolationTool(const std::string& type, const std::string& name,
     const IInterface* parent) 
-  : Acts::IExtrapolationTool(type, name, parent),
+  : AthAlgTool(type, name, parent),
     m_fieldServiceHandle("AtlasFieldSvc", name)
 {
 

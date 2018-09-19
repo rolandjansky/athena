@@ -15,7 +15,6 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
-#include "ActsGeometry/IExtrapolationTool.h"
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // ACTS
@@ -29,7 +28,9 @@ class BoundaryCheck;
 class ExtrapolationEngine;
 }
 
-class ActsExtrapolationTool : public Acts::IExtrapolationTool
+static const InterfaceID IID_ActsExtrapolationTool("ActsExtrapolationTool", 1, 0);
+
+class ActsExtrapolationTool : public AthAlgTool
 {
 
 public:
@@ -38,17 +39,16 @@ public:
   ActsExtrapolationTool(const std::string& type, const std::string& name,
 	           const IInterface* parent);
 
-  virtual Acts::ExtrapolationCode
+  Acts::ExtrapolationCode
   extrapolate(Acts::ExCellCharged&       ecCharged,
-              const Acts::Surface*       sf,
-              const Acts::BoundaryCheck& bcheck) const;
+              const Acts::Surface*       sf = nullptr,
+              const Acts::BoundaryCheck& bcheck = true) const;
 
-  virtual Acts::ExtrapolationCode
+  Acts::ExtrapolationCode
   extrapolate(Acts::ExCellNeutral&       ecNeutral,
-              const Acts::Surface*       sf,
-              const Acts::BoundaryCheck& bcheck) const;
+              const Acts::Surface*       sf = nullptr,
+              const Acts::BoundaryCheck& bcheck = true) const;
 
-  virtual
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine() const;
 
   void

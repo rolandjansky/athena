@@ -13,7 +13,6 @@
 #include "ActsInterop/Logger.h"
 
 // PACKAGE
-#include "ActsGeometry/IExtrapolationTool.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
 
 // ACTS
