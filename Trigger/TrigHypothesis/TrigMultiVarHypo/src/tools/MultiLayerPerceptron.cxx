@@ -18,13 +18,14 @@
 #include <cstddef>
 #include <vector>
 #include <cmath>
+#include <stdexcept>
 
-MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n, 
-                                           std::vector<REAL> &w, 
+MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
+                                           std::vector<REAL> &w,
                                            std::vector<REAL> &b,
-                                           REAL etmin, 
-                                           REAL etmax, 
-                                           REAL etamin, 
+                                           REAL etmin,
+                                           REAL etmax,
+                                           REAL etamin,
                                            REAL etamax,
                                            REAL mumin,
                                            REAL mumax)
@@ -41,7 +42,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
     m_mumax(mumax)
 {
   if ( !n.size() )  throw BAD_BIAS_SIZE; //Nothing to do
-  
+
   //Verifying weight vector size
   unsigned wSize=0;
   for (unsigned k=0; k<n.size()-1; ++k) wSize+=n[k]*n[k+1];
@@ -62,11 +63,11 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
     throw;
   }
   //First bias dimension
-  try{    
+  try{
     m_bias = new REAL *[n.size()-1]; //number of layers excluding input
   }catch (std::bad_alloc xa){
     m_bias = nullptr;
-    throw;    
+    throw;
   }
 
   //First multiplication dimension
@@ -74,12 +75,12 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
     m_neuronOutputs   = new REAL *[n.size()];
     m_layerOutputs = new REAL *[n.size()]; //number of layers including input
   } catch (std::bad_alloc xa){
-    m_layerOutputs = nullptr; 
+    m_layerOutputs = nullptr;
     m_neuronOutputs   = nullptr;
     throw;
   }
 
-  for (unsigned l = 0; l<n.size(); ++l){ 
+  for (unsigned l = 0; l<n.size(); ++l){
     //Checks if no bad_alloc happened to layerOutputs
     if(m_layerOutputs){
       try{
@@ -105,7 +106,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
 
   std::vector<REAL>::const_iterator itrB = b.begin();
   std::vector<REAL>::const_iterator itrW = w.begin();
-  for (unsigned l = 0; l < n.size()-1; ++l){  
+  for (unsigned l = 0; l < n.size()-1; ++l){
     //Checks if no bad_alloc happened to bias
     if(m_bias){
       try{
@@ -117,7 +118,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
       }
     }
     //Checks if no bad_alloc happened to m_weights
-    if(m_weights){ 
+    if(m_weights){
       try{
         //Second dimension of weights
         m_weights[l] = new REAL*[n[l+1]]; //number of nodes in next layer
@@ -126,7 +127,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
         throw;
       }
     }
-    for (unsigned i=0; i<n[l+1]; i++){ 
+    for (unsigned i=0; i<n[l+1]; i++){
       //Checks if no bad_alloc happened to weights[l]
       if(m_weights){
         if(m_weights[l]){
@@ -171,7 +172,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
           m_neuronOutputs[l][i]=0;
         }
       }
-    }   
+    }
   }
 
 }
@@ -185,9 +186,9 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
       }else{
         delete[] m_bias[l]; //Deletes array of values at second dimension of bias
       }
-    } 
+    }
     for (unsigned i=0; i<m_nodes[l+1]; i++){
-      if (m_weights){ 
+      if (m_weights){
         if(m_weights[l]){
           if (m_weights[l][i]==nullptr){
             delete m_weights[l][i]; //Deletes null pointer
@@ -203,7 +204,7 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
       }else{
         delete[] m_weights[l]; //Deletes array of pointers at second dimension of weights
       }
-    } 
+    }
   }//Layers
 
   for (unsigned l=0; l<m_nodes.size(); l++){
@@ -236,6 +237,11 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
 }
 
 float MultiLayerPerceptron::propagate(std::vector<float> &input){
+  if ( input.size() != m_nodes[0] ){
+    throw std::out_of_range( std::string("Input size (") +
+        std::to_string(input.size()) + std::string(") does not match number of nodes:") +
+        std::to_string(m_nodes[0]));
+  }
 
   for(unsigned i=0; i<input.size();i++){
     m_layerOutputs[0][i]=(REAL)input[i];

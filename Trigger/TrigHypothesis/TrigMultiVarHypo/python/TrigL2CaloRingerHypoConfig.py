@@ -4,6 +4,7 @@
 
 from TrigMultiVarHypo.TrigMultiVarHypoConf        import TrigL2CaloRingerFex, TrigL2CaloRingerHypo
 from AthenaCommon.SystemOfUnits                   import GeV
+from TriggerMenu.egamma.EgammaSliceFlags          import EgammaSliceFlags
 
 
 
@@ -24,13 +25,13 @@ class TrigL2CaloRingerPidConfs:
   }
 
   _pidMap = {
-      'tight'   : 'tight' , 
-      'medium'  :'medium' , 
-      'loose'   :'loose'  , 
+      'tight'   : 'tight' ,
+      'medium'  :'medium' ,
+      'loose'   :'loose'  ,
       'vloose'  :'vloose' ,
-      'lhtight' : 'tight' , 
-      'lhmedium': 'medium', 
-      'lhloose' :'loose'  , 
+      'lhtight' : 'tight' ,
+      'lhmedium': 'medium',
+      'lhloose' :'loose'  ,
       'lhvloose': 'vloose'
       }
 
@@ -39,15 +40,14 @@ class TrigL2CaloRingerPidConfs:
   # MC15c tuning if pileup corrention using data 2016 (periods A to K) to fix all thresholds values
   _default_basepath = 'RingerSelectorTools/TrigL2_20170221_v6'
 
-  def __init__(self):
-    
+  def __init__(self, version ):
+
     from AthenaCommon.Logging import logging
     self._logger = logging.getLogger("TrigMultiVarHypo.TrigL2CaloRingerPidConfs")
 
     #TODO: Use this to configurate the calib path from triggerMenu flags
-    from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-    if EgammaSliceFlags.ringerVersion():
-      self._basePath = EgammaSliceFlags.ringerVersion()
+    if version():
+      self._basePath = version()
       self._logger.info('TrigMultiVarHypo version: %s',self._basePath)
     else:
       self._basePath = self._default_basepath
@@ -81,7 +81,7 @@ class TrigL2CaloRingerPidConfs:
         'tight'  : 'TrigL2CaloRingerPhotonTightThresholds.root',
         }
 
-    
+
   def get_constants_path(self, trigType, IDinfo):
     if not (trigType[0] in self._signatureDict['signature']):
       raise RuntimeError('Bad signature')
@@ -89,7 +89,7 @@ class TrigL2CaloRingerPidConfs:
     if self._signatureDict['signature'][0] in trigType:
       return self._basePath + '/' +self._electronConstants[self._pidMap[IDinfo]]
     else: #is Photon
-      #TODO: this will be uncoment when we have photon tuning 
+      #TODO: this will be uncoment when we have photon tuning
       #return self._basePath + '/' +self._photonConstants[self._pidMap[IDinfo]]
       return str()
 
@@ -100,13 +100,14 @@ class TrigL2CaloRingerPidConfs:
     if self._signatureDict['signature'][0] in trigType:
       return self._basePath + '/' +self._electronCutDefs[self._pidMap[IDinfo]]
     else: #is Photon
-      #TODO: this will be uncoment when we have photon tuning 
+      #TODO: this will be uncoment when we have photon tuning
       #return self._basePath + '/' +self._photonCutDefs[self._pidMap[IDinfo]]
-      return str() 
+      return str()
 
 # Instance object here!
 # For future use this object to call all paths
-theRingerConfig = TrigL2CaloRingerPidConfs()
+theRingerConfig      = TrigL2CaloRingerPidConfs( EgammaSliceFlags.ringerVersion      )
+theRingerNoHadBelow15GeVConfig = TrigL2CaloRingerPidConfs( EgammaSliceFlags.ringerNoHadBelow15GeVVersion )
 
 
 # Call all Trigger Ringer Fast configurations here!
@@ -120,10 +121,10 @@ class TrigL2CaloRingerFexBase( TrigL2CaloRingerFex ):
     from TrigMultiVarHypo.TrigL2CaloRingerHypoMonitoring import TrigL2CaloRingerHypoValidationMonitoring, \
                                                                 TrigL2CaloRingerHypoOnlineMonitoring,\
                                                                 TrigL2CaloRingerHypoTimeMonitoring
-    validation = TrigL2CaloRingerHypoValidationMonitoring()       
+    validation = TrigL2CaloRingerHypoValidationMonitoring()
     online     = TrigL2CaloRingerHypoOnlineMonitoring()
     time       = TrigL2CaloRingerHypoTimeMonitoring()
-    
+
     self.AthenaMonTools = [ time, validation, online ]
     self.doTiming = True
 
@@ -135,14 +136,14 @@ class TrigL2CaloRingerFexBase( TrigL2CaloRingerFex ):
 class TrigL2CaloRingerFex( TrigL2CaloRingerFexBase ):
   __slots__ = []
   def __init__(self, name, threshold, IDinfo, trigType):
-    super( TrigL2CaloRingerFex, self ).__init__( name ) 
+    super( TrigL2CaloRingerFex, self ).__init__( name )
 
     from AthenaCommon.AppMgr import ToolSvc
     from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
     ToolSvc += LuminosityToolOnline()
     #if this is empty, the fex will work like EtCut
-    self.CalibPath = theRingerConfig.get_constants_path(trigType, IDinfo) 
-   
+    self.CalibPath = theRingerConfig.get_constants_path(trigType, IDinfo)
+
     # The standard preproc to normalize the rings
     from TrigMultiVarHypo.TrigRingerPreprocessorDefs import Norm1
     preproc = Norm1()
@@ -151,12 +152,28 @@ class TrigL2CaloRingerFex( TrigL2CaloRingerFexBase ):
     self.NormalisationRings =  preproc.NormalisationRings
     self.NRings = preproc.NRings
 
-
+class TrigL2CaloRingerNoHadBelow15GeVFex( TrigL2CaloRingerFex ):
+  def __init__(self, name, threshold, IDinfo, trigType):
+    super( TrigL2CaloRingerNoHadBelow15GeVFex, self ).__init__( name, threshold, IDinfo, trigType )
+    self.CalibPath = theRingerNoHadBelow15GeVConfig.get_constants_path(trigType, IDinfo)
+    self.UseHad = False
+    self.NoHadUB = 15
+    #from AthenaCommon.Constants import VERBOSE, DEBUG
+    #self.OutputLevel = VERBOSE
+    from TrigMultiVarHypo.TrigRingerPreprocessorDefs import Norm1, Norm1_NoHad
+    preproc = Norm1()
+    self.SectionRings = preproc.SectionRings
+    self.NormalisationRings =  preproc.NormalisationRings
+    self.NRings = preproc.NRings
+    preprocNoHad = Norm1_NoHad()
+    self.SectionRingsNoHad = preprocNoHad.SectionRings
+    self.NormalisationRingsNoHad =  preprocNoHad.NormalisationRings
+    self.NRingsNoHad = preprocNoHad.NRings
 
 class TrigL2CaloRingerFex_Empty( TrigL2CaloRingerFexBase ):
   __slots__ = []
   def __init__(self, name):
-    super( TrigL2CaloRingerFex_Empty, self ).__init__( name ) 
+    super( TrigL2CaloRingerFex_Empty, self ).__init__( name )
 
 
 
@@ -165,7 +182,7 @@ class TrigL2CaloRingerFex_Empty( TrigL2CaloRingerFexBase ):
   photons chains for future. Because the neural output store,
   you must put the Fex and Hypo together in the same sequence
   list. For example:
-    L2SequenceList = [theT2CaloEgamma_Ringer, 
+    L2SequenceList = [theT2CaloEgamma_Ringer,
     theTrigL2CaloRingerFex, theTrigL2CaloRingerHypo]
 
   the same configuration must be passed to fex and hypo when
@@ -175,32 +192,38 @@ class TrigL2CaloRingerHypo_e_ID(TrigL2CaloRingerHypo):
   __slots__ = []
 
   def __init__(self, name, threshold, IDinfo, trigType):
-    super( TrigL2CaloRingerHypo_e_ID, self ).__init__( name ) 
+    super( TrigL2CaloRingerHypo_e_ID, self ).__init__( name )
 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
     self.EmEtCut    = (float(threshold) - 3)*GeV
-    self.CalibPath = theRingerConfig.get_cutDefs_path(trigType, IDinfo) 
+    self.CalibPath = theRingerConfig.get_cutDefs_path(trigType, IDinfo)
 
+class TrigL2CaloRingerNoHadHypo_e_ID(TrigL2CaloRingerHypo_e_ID):
+  __slots__ = []
+
+  def __init__(self, name, threshold, IDinfo, trigType):
+    super( TrigL2CaloRingerNoHadHypo_e_ID, self ).__init__( name, threshold, IDinfo, trigType )
+    self.CalibPath = theRingerNoHadBelow15GeVConfig.get_cutDefs_path(trigType, IDinfo)
 
 
 class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
   __slots__ = []
 
   def __init__(self, name, threshold, IDinfo, trigType):
-    super( TrigL2CaloRingerHypo_g_ID, self ).__init__( name ) 
+    super( TrigL2CaloRingerHypo_g_ID, self ).__init__( name )
 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
     self.EmEtCut    = (float(threshold) - 3)*GeV
-    self.CalibPath = theRingerConfig.get_cutDefs_path(trigType, IDinfo) 
+    self.CalibPath = theRingerConfig.get_cutDefs_path(trigType, IDinfo)
 
 
 class TrigL2CaloRingerHypo_NoCut(TrigL2CaloRingerHypo):
   __slots__ = []
 
   def __init__(self, name):
-    super( TrigL2CaloRingerHypo_NoCut, self ).__init__( name ) 
+    super( TrigL2CaloRingerHypo_NoCut, self ).__init__( name )
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = True
 
@@ -208,7 +231,7 @@ class TrigL2CaloRingerHypo_EtCut(TrigL2CaloRingerHypo):
   __slots__ = []
 
   def __init__(self, name, threshold):
-    super( TrigL2CaloRingerHypo_EtCut, self ).__init__( name ) 
+    super( TrigL2CaloRingerHypo_EtCut, self ).__init__( name )
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
     self.EmEtCut    = (float(threshold) - 3)*GeV
@@ -219,6 +242,10 @@ class TrigL2CaloRingerHypo_EtCut(TrigL2CaloRingerHypo):
 def TrigL2CaloRingerFexHypo_e_ID(threshold, IDinfo, trigType):
   return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_e"+str(threshold)+'_'+IDinfo, threshold,IDinfo,trigType),\
           TrigL2CaloRingerHypo_e_ID("TrigL2CaloRingerHypo_e"+str(threshold)+'_'+str(IDinfo), threshold,IDinfo,trigType)
+
+def TrigL2CaloRingerFexHypoNoHadBelow15GeV_e_ID(threshold, IDinfo, trigType):
+  return  TrigL2CaloRingerNoHadBelow15GeVFex("TrigL2CaloRingerNoHadBelow15GeVFex_e"+str(threshold)+'_'+IDinfo, threshold,IDinfo,trigType),\
+          TrigL2CaloRingerNoHadHypo_e_ID("TrigL2CaloRingerNoHadHypo_e"+str(threshold)+'_'+str(IDinfo), threshold,IDinfo,trigType)
 
 #helper function for combined
 def TrigL2CaloRingerFexHypo_g_ID(threshold, IDinfo, trigType):

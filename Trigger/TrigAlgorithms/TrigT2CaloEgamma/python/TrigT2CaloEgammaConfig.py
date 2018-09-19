@@ -73,7 +73,7 @@ class T2CaloEgamma_eGamma (T2CaloEgamma):
        self.RhoMiddleLayer= [1756.75, 1757.91, 1757.06, 1758.25, 1757.40, # Eta range: 0.00 ~ 0.05 ~ 0.10 ~ 0.15 ~ 0.20 ~ 0.25
                              1758.75, 1757.90, 1756.01, 1754.76, 1748.07, # Eta range: 0.25 ~ 0.30 ~ 0.35 ~ 0.40 ~ 0.45 ~ 0.50
                              1740.84, 1735.52, 1732.03, 1721.71, 1716.65, # Eta range: 0.50 ~ 0.55 ~ 0.60 ~ 0.65 ~ 0.70 ~ 0.75
-                             1710.82, 1739.15, 1728.36, 1722.92, 1716.45, # Eta range: 0.75 ~ 0.80 ~ 0.85 ~ 0.90 ~ 0.95 ~ 1.00 
+                             1710.82, 1739.15, 1728.36, 1722.92, 1716.45, # Eta range: 0.75 ~ 0.80 ~ 0.85 ~ 0.90 ~ 0.95 ~ 1.00
                              1707.56, 1697.96, 1689.75, 1684.23, 1671.07, # Eta range: 1.00 ~ 1.05 ~ 1.10 ~ 1.15 ~ 1.20 ~ 1.25
                              1663.98, 1662.04];                           # Eta range: 1.25 ~ 1.30 ~ 1.37
 
@@ -301,7 +301,6 @@ class RingerFexConfig( RingerFex ):
   __slots__ = []
   def __init__(self, name = "RingerFexConfig"):
     super(RingerFexConfig, self).__init__(name)
-
     self.HltFeature = "HLT_TrigT2CaloEgamma"
     self.Feature = "TrigT2CaloEgamma"
     self.EtaBins = [0.0000, 2.5000] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
@@ -325,6 +324,38 @@ class RingerFexConfig( RingerFex ):
                         ];
     self.NLayersRings = [2, 2, 2, 2, 4, 5, 4];
     self.NMaxCells = [320, 512, 272, 128, 128, 128, 128];
+    #from AthenaCommon.Constants import VERBOSE,DEBUG
+    #self.OutputLevel = VERBOSE
+
+#class RingerFexNoHadConfig( RingerFexConfig ):
+#  __slots__ = []
+#  def __init__(self, name = "RingerFexNoHadConfig"):
+#    super(RingerFexNoHadConfig, self).__init__(name)
+#    from TrigT2CaloEgamma.RingerConstants import Layer
+#    self.DEtaRings = [0.025, 0.003125, 0.025, 0.05];
+#    self.DPhiRings = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170];
+#    self.NRings = [8, 64, 8, 8];
+#    self.LayersRings = [
+#                        Layer.PreSamplerB,Layer.PreSamplerE,
+#                        Layer.EMB1,       Layer.EME1,
+#                        Layer.EMB2,       Layer.EME2,
+#                        Layer.EMB3,       Layer.EME3,
+#                        ];
+#    self.NLayersRings = [2, 2, 2, 2];
+#    self.NMaxCells = [320, 512, 272, 128];
+#    self.UseHAD = False
+#    self.NoHadUB = 99e3 # 99 TeV should be high enough
+#    #from AthenaCommon.Constants import VERBOSE,DEBUG
+#    #self.OutputLevel = VERBOSE
+
+class RingerFexNoHadBelow15GeVConfig( RingerFexConfig ):
+  __slots__ = []
+  def __init__(self, name = "RingerFexNoHadBelow15GeVConfig"):
+    super(RingerFexNoHadBelow15GeVConfig, self).__init__(name)
+    self.UseHad = False
+    self.NoHadUB = 15
+    #from AthenaCommon.Constants import VERBOSE,DEBUG
+    #self.OutputLevel = VERBOSE
 
 
 class RingerFexEndCapConfig( RingerFex ):
@@ -368,5 +399,14 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
        # here put your customizations
        self.IAlgToolList += [RingerFexConfig()]
        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
+       self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
+
+class T2CaloEgamma_Ringer_NoHadBelow15GeV (T2CaloEgamma_eGamma):
+   __slots__ = []
+   def __init__ (self, name="T2CaloEgamma_Ringer_NoHadBelow15GeV"):
+       super(T2CaloEgamma_Ringer_NoHadBelow15GeV, self).__init__(name)
+       # here put your customizations
+       self.IAlgToolList += [RingerFexNoHadBelow15GeVConfig()]
+       self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger_NoHad"
        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 

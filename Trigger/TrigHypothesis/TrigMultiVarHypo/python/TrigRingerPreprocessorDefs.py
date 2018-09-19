@@ -26,7 +26,25 @@ class Norm1(object):
     # default configuration from RingerFex
     self.NRings = [8, 64, 8, 8, 4, 4, 4]
 
- 
+class Norm1_NoHad(object):
+
+  def __init__(self):
+    from TrigT2CaloEgamma.RingerConstants import Section, Normalisation
+
+    # this part config the TrigRingerPrepoc
+    self.NormalisationRings = [Normalisation.EVENT,
+                               Normalisation.EVENT,
+                               Normalisation.EVENT,
+                               Normalisation.EVENT];
+
+    self.SectionRings = [Section.EM,
+                         Section.EM,
+                         Section.EM,
+                         Section.EM];
+
+    # Only change this if you know what you are doing
+    # default configuration from RingerFex
+    self.NRings = [8, 64, 8, 8]
 
 class Sequential(object):
 
@@ -54,4 +72,4 @@ class Sequential(object):
     # default configuration from RingerFex
     self.NRings = [8, 64, 8, 8, 4, 4, 4]
 
- 
+

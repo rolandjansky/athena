@@ -1353,6 +1353,14 @@ def setupMenu():
         ['2e24_lhvloose_nod0_sc',                   'L1_2EM20VH', [], [PhysicsStream, 'express'], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         ['g35_medium_sc_L1EM20VH',                    'L1_EM20VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
+        # ATR-18724 Special chains to reduce ROS access
+        ['e5_lhvloose_nod0_ringer_nohadfc_bBeexM6000t',  '',   ['L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['2e5_lhvloose_nod0_ringer_nohadfc_bBeexM6000t',  '',   ['L1_EM3','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        # and the corresponding single-lepton chain
+        ['e5_lhvloose_nod0_ringer_nohadfc',            'L1_EM3',       [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+
+
+
 			 ]
 
 

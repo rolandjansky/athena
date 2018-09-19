@@ -11,9 +11,9 @@ __version__="$Revision: 1.42 $"
 __doc__="Egamma slice specific flags  "
 
 log = logging.getLogger( 'TriggerMenu.EgammaSliceFlags' )
-_flags = [] 
+_flags = []
 class doSiTrack(JobProperty):
-    """ do or not to do SiTrack algo """ 
+    """ do or not to do SiTrack algo """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
@@ -21,7 +21,7 @@ class doSiTrack(JobProperty):
 _flags.append(doSiTrack)
 
 class doIDSCAN(JobProperty):
-    """ do or not to do IDSCAN algo """ 
+    """ do or not to do IDSCAN algo """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
@@ -30,7 +30,7 @@ _flags.append(doIDSCAN)
 
 
 class doTrigEgammaRec(JobProperty):
-    """ do or not to do TrigEgammaRec (EF algorithm) algo """ 
+    """ do or not to do TrigEgammaRec (EF algorithm) algo """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
@@ -54,21 +54,21 @@ class doFastElectronFex(JobProperty):
 _flags.append(doFastElectronFex)
 
 class doRinger(JobProperty):
-    '''apply ringer selection for Electron chains'''
+    '''apply ringer selection for electron chains'''
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
 
-_flags.append(doRinger) 
+_flags.append(doRinger)
 
 
 class doRingerBelow15GeV(JobProperty):
-    '''apply ringer selection for Electron chains below 15GeV'''
+    '''apply ringer selection for electron chains below 15GeV'''
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
 
-_flags.append(doRingerBelow15GeV) 
+_flags.append(doRingerBelow15GeV)
 
 
 class doSuperClusters(JobProperty):
@@ -77,15 +77,23 @@ class doSuperClusters(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-_flags.append(doSuperClusters) 
+_flags.append(doSuperClusters)
 
 class ringerVersion (JobProperty):
-    """ Version ringer tunes """
+    """ Version of ringer tunes for the main chains """
     statusOn=True
     allowedTypes=['str']
     StoredValue='RingerSelectorTools/TrigL2_20180125_v8/'
 
 _flags.append(ringerVersion)
+
+class ringerNoHadBelow15GeVVersion (JobProperty):
+    """ Version of Ringer tunes for nohadfc chains """
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue='RingerSelectorTools/TrigL2_20180915_v9_nohad15/'
+
+_flags.append(ringerNoHadBelow15GeVVersion)
 
 class pidVersion (JobProperty):
     """ Version of PID tunes
