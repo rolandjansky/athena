@@ -17,12 +17,12 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 
 // PACKAGE
 #include "ActsGeometry/NominalAlignmentCondAlg.h"
 #include "ActsGeometry/ActsDetectorElement.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
 
 // ACTS
 #include "Acts/Utilities/Definitions.hpp"
@@ -73,7 +73,7 @@ StatusCode NominalAlignmentCondAlg::finalize() {
 StatusCode NominalAlignmentCondAlg::execute() {
   ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
 
-  SG::WriteCondHandle<GeoAlignmentStore> wch(m_wchk);
+  SG::WriteCondHandle<ActsAlignmentStore> wch(m_wchk);
 
   EventIDBase now(getContext().eventID());
 
@@ -99,14 +99,14 @@ StatusCode NominalAlignmentCondAlg::execute() {
     ATH_MSG_DEBUG("Will register nominal alignment for range: " << r);
 
     // create empty alignment store, no deltas
-    GeoAlignmentStore* alignmentStore = new GeoAlignmentStore();
+    ActsAlignmentStore* alignmentStore = new ActsAlignmentStore();
 
     // populate the alignment store with all detector elements
     auto trkGeom = m_trackingGeometrySvc->trackingGeometry();
     const Acts::TrackingVolume* trkVol = trkGeom->highestTrackingVolume();
 
     
-    ATH_MSG_DEBUG("Populating GeoAlignmentStore for IOV");
+    ATH_MSG_DEBUG("Populating ActsAlignmentStore for IOV");
     size_t nElems = 0;
     trkVol->visitDetectorElements(
       [alignmentStore, &nElems](const Acts::DetectorElementBase* detElem) {
@@ -114,11 +114,11 @@ StatusCode NominalAlignmentCondAlg::execute() {
       gmde->storeTransform(alignmentStore);
       nElems++;
     });
-    ATH_MSG_DEBUG("GeoAlignmentStore populated for " << nElems << " detector elements");
+    ATH_MSG_DEBUG("ActsAlignmentStore populated for " << nElems << " detector elements");
 
 
     if (wch.record(r, alignmentStore).isFailure()) {
-      ATH_MSG_ERROR("could not record nominal GeoAlignmentStore " << wch.key() 
+      ATH_MSG_ERROR("could not record nominal ActsAlignmentStore " << wch.key() 
 		    << " = " << alignmentStore
                     << " with EventRange " << r);
       return StatusCode::FAILURE;
@@ -128,5 +128,3 @@ StatusCode NominalAlignmentCondAlg::execute() {
   }
   return StatusCode::SUCCESS;
 }
-
-      // loop over the layers

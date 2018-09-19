@@ -14,6 +14,7 @@
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 // ACTS
 #include "Acts/Detector/DetectorElementBase.hpp"
@@ -21,8 +22,6 @@
 #include "Acts/Surfaces/RectangleBounds.hpp"
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
 
-#include "GaudiKernel/ContextSpecificPtr.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // STL
 #include <mutex>
@@ -33,6 +32,7 @@
 
 
 class ActsTrackingGeometrySvc;
+class ActsAlignmentStore;
 
 class IdentityHelper;
 
@@ -66,7 +66,7 @@ public:
   transform() const final override;
   
   void
-  storeTransform(GeoAlignmentStore* gas) const;
+  storeTransform(ActsAlignmentStore* gas) const;
 
 
   /// Return surface associated with this identifier, which should come from the

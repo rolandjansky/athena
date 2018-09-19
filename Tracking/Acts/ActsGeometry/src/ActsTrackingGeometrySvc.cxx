@@ -8,13 +8,11 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 // ACTS
@@ -33,6 +31,7 @@
 #include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsInterop/IdentityHelper.h"
 #include "ActsInterop/Logger.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
 
 
 ActsTrackingGeometrySvc::ActsTrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
@@ -261,14 +260,14 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 }
 
 void
-ActsTrackingGeometrySvc::setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) 
+ActsTrackingGeometrySvc::setAlignmentStore(const ActsAlignmentStore* gas, const EventContext& ctx) 
 {
   std::lock_guard<std::mutex> lock(m_gasMapMutex);
   m_gasMap[ctx.slot()] = gas;
 }
 
-const GeoAlignmentStore*
-ActsTrackingGeometrySvc::getGeoAlignmentStore(const EventContext& ctx) const
+const ActsAlignmentStore*
+ActsTrackingGeometrySvc::getAlignmentStore(const EventContext& ctx) const
 {
   std::lock_guard<std::mutex> lock(m_gasMapMutex);
   if (m_gasMap.find(ctx.slot()) == m_gasMap.end()) return nullptr;

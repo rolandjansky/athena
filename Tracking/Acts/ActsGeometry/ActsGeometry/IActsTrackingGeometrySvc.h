@@ -8,7 +8,7 @@
 #include "GaudiKernel/IInterface.h"
 
 class EventContext;
-class GeoAlignmentStore;
+class ActsAlignmentStore;
 
 namespace Acts {
   class TrackingGeometry;
@@ -28,11 +28,11 @@ class IActsTrackingGeometrySvc : virtual public IInterface {
 
   virtual
   void 
-  setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) = 0;
+  setAlignmentStore(const ActsAlignmentStore* gas, const EventContext& ctx) = 0;
   
   virtual
-  const GeoAlignmentStore*
-  getGeoAlignmentStore(const EventContext& ctx) const = 0;
+  const ActsAlignmentStore*
+  getAlignmentStore(const EventContext& ctx) const = 0;
 
 };
 

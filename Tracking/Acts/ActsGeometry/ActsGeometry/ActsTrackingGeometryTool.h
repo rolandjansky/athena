@@ -13,11 +13,11 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
 
 // ACTS
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
@@ -47,7 +47,7 @@ private:
 
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
-  SG::ReadCondHandleKey<GeoAlignmentStore> m_rchk {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
+  SG::ReadCondHandleKey<ActsAlignmentStore> m_rchk {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
 
 };

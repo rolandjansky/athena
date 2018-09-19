@@ -26,7 +26,7 @@ namespace InDetDD {
 }
 
 class TRT_ID;
-class GeoAlignmentStore;
+class ActsAlignmentStore;
 
 class ActsDetectorElement;
 
@@ -54,10 +54,10 @@ public:
   trackingGeometry() override;
   
   void 
-  setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) override;
+  setAlignmentStore(const ActsAlignmentStore* gas, const EventContext& ctx) override;
     
-  const GeoAlignmentStore*
-  getGeoAlignmentStore(const EventContext& ctx) const override;
+  const ActsAlignmentStore*
+  getAlignmentStore(const EventContext& ctx) const override;
 
 
 private:
@@ -79,7 +79,7 @@ private:
   Gaudi::Property<std::vector<size_t>> m_barrelMaterialBins{this, "BarrelMaterialBins", {10, 10}};
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
   
-  mutable std::unordered_map<EventContext::ContextID_t, const GeoAlignmentStore*> m_gasMap;
+  mutable std::unordered_map<EventContext::ContextID_t, const ActsAlignmentStore*> m_gasMap;
   mutable std::mutex m_gasMapMutex;
 
 

@@ -7,10 +7,9 @@
 // ATHENA
 #include "GaudiKernel/IInterface.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // PACKAGE
-//#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
 
 // STL
 #include <iostream>
@@ -45,17 +44,17 @@ StatusCode
 ActsTrackingGeometryTool::prepareAlignment() const
 {
   ATH_MSG_DEBUG("Setting up alignment for this event");
-  SG::ReadCondHandle<GeoAlignmentStore> rch(m_rchk);
+  SG::ReadCondHandle<ActsAlignmentStore> rch(m_rchk);
 
   if (!rch.isValid()) {
     ATH_MSG_ERROR("Preparing alignment not possible, ReadCondHandle invalid");
     return StatusCode::FAILURE;
   }
   
-  const GeoAlignmentStore* gas = *rch;
+  const ActsAlignmentStore* gas = *rch;
 
-  m_trackingGeometrySvc->setGeoAlignmentStore(gas, Gaudi::Hive::currentContext());
-  ATH_MSG_DEBUG("GeoAlignmentStore registered successfully");
+  m_trackingGeometrySvc->setAlignmentStore(gas, Gaudi::Hive::currentContext());
+  ATH_MSG_DEBUG("ActsAlignmentStore registered successfully");
 
   return StatusCode::SUCCESS;
 }

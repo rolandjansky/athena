@@ -11,10 +11,10 @@
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // PACKAGE
 #include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
 
 // STL
 #include <string>
@@ -22,7 +22,7 @@
 
 /// @class NominalAlignmentCondAlg
 /// Conditions algorithm which produces an (effectively)
-/// infinitely valid GeoAlignmentStore which has
+/// infinitely valid ActsAlignmentStore which has
 /// nominal alignments (= identity deltas)
 ///
 class NominalAlignmentCondAlg  :  public AthAlgorithm {
@@ -40,7 +40,7 @@ public:
 
 private:
   
-  SG::WriteCondHandleKey<GeoAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
+  SG::WriteCondHandleKey<ActsAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
   ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;

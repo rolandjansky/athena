@@ -15,10 +15,10 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
 
 // ACTS
 #include "Acts/Surfaces/StrawSurface.hpp"
@@ -148,27 +148,27 @@ ActsDetectorElement::transform() const
   }
 
   // retrieve GAS from tracking geometry svc
-  const GeoAlignmentStore* alignmentStore = m_trackingGeometrySvc->getGeoAlignmentStore(ctx);
+  const ActsAlignmentStore* alignmentStore = m_trackingGeometrySvc->getAlignmentStore(ctx);
 
   // no GAS, is this initialization?
   if (alignmentStore == nullptr) {
-    throw std::runtime_error("GeoAlignmentStore could not be found for valid context.");
+    throw std::runtime_error("ActsAlignmentStore could not be found for valid context.");
   }
 
   const Transform3D* cachedTrf = alignmentStore->getTransform(this);
   if (cachedTrf == nullptr) {
-    throw std::runtime_error("Detector transform not found in GeoAlignmentStore.");
+    throw std::runtime_error("Detector transform not found in ActsAlignmentStore.");
   }
 
   return *cachedTrf;
 }
 
 void
-ActsDetectorElement::storeTransform(GeoAlignmentStore* gas) const
+ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 {
   struct get_transform : public boost::static_visitor<Transform3D>
   {
-    get_transform(GeoAlignmentStore* gas, const Transform3D* trtTrf)
+    get_transform(ActsAlignmentStore* gas, const Transform3D* trtTrf)
       : m_store(gas), m_trtTrf(trtTrf) {}
 
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
@@ -184,7 +184,7 @@ ActsDetectorElement::storeTransform(GeoAlignmentStore* gas) const
       return *m_trtTrf;
     }
 
-    GeoAlignmentStore* m_store;
+    ActsAlignmentStore* m_store;
     const Transform3D* m_trtTrf;
   };
 
