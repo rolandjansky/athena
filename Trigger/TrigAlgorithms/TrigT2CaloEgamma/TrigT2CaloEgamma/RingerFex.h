@@ -7,7 +7,7 @@
  * $Author: damazio $
  * $Revision: 351944 $
  * $Date$
- * 
+ *
  */
 
 #ifndef RINGERFEX_H
@@ -39,16 +39,16 @@ protected:
 
   // Helper class used to build ringsets
   class RingSet {
-    
+
   public: //interface
-   
+
     /**
      * Builds a new RingSet, starting from a ring definition. The RingSet
      * starts empty.
      *
      */
     RingSet (unsigned int max, unsigned int maxCells, double etasz, double phisz, const std::vector<CaloSampling::CaloSample> &detectors);
-    
+
     /**
      * to create an empty RingSet is possible, but watch out, you can't do
      * much with it...
@@ -59,7 +59,7 @@ protected:
      * Virtualises the destructor
      */
     virtual ~RingSet();
-    
+
     /**
      * Access the configuration for this object
      */
@@ -69,7 +69,7 @@ protected:
     inline size_t maxCells(void) const { return m_maxCells; }
     const std::vector<CaloSampling::CaloSample>& detectors(void) const
       { return m_detector; }
-    
+
     /**
      * Adds some set of cells to this RingSet.
      *
@@ -79,17 +79,17 @@ protected:
      */
     void add (const std::vector<const CaloCell *>& c,
 	      const double& eta_center, const double& phi_center);
-    
+
     /**
      * Returns the (current) ring values.
      */
     inline Pattern& pattern (void) { return m_val; }
-    
+
     /**
      * Resets all current values
      */
     inline void reset (void) { for (unsigned int i = 0; i < m_val.size(); ++i) m_val[i] = 0; }
-    
+
   private: //representation
 
     double m_etasz; ///< the width of rings, in eta
@@ -97,29 +97,29 @@ protected:
     size_t m_max; ///< the amount of rings to produce
     size_t m_maxCells; ///< the amount of cells to gather
     std::vector<CaloSampling::CaloSample> m_detector; ///< I'm good for those
-    
+
     Pattern m_val; ///< my current values
-    
+
     mutable float m_cachedOverEtasize; ///< cached value of 1/m_config.eta_size() for optimizations
     mutable float m_cachedOverPhisize; ///< cached value of 1/m_config.phi_size() for optimizations
-    
+
   };
 
   // Start of central methods
-public: 
+public:
 
   using IAlgToolCalo::execute;
 
   RingerFex (const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~RingerFex() { }
-  
+
   StatusCode initialize();
   StatusCode finalize();
   //StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, double etamin, double etamax, double phimin, double phimax);
   StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi);
 
 private: // Representation
-    
+
   std::string m_hlt_feature;
   std::string m_feature;
   std::string m_key;
@@ -134,6 +134,11 @@ private: // Representation
   std::vector<unsigned int> m_maxCells;
   std::vector<float> m_etaBins;
 
+  /// Specialization for the algorithm without retrieving hadronic information
+  bool m_useHad;
+  /// Upper bound to not retrieve hadronic information
+  float m_noHadGeV_limit;
+
 
   unsigned int m_maxCellsAccumulated;
   unsigned int m_maxRingsAccumulated;
@@ -142,27 +147,27 @@ private: // Representation
 
   bool             m_global_center;           // Should I use a global center at e.m. 2?
   double           m_etaSearchWindowSize;     // The window size in eta for searching the hot cell.
-  double           m_phiSearchWindowSize;     // The window size in phi for searching the hot cell. 
-  
+  double           m_phiSearchWindowSize;     // The window size in phi for searching the hot cell.
+
   std::vector<RingSet>	m_ringsSet;	      // It will containg the raw rings generated and their configuration.
-  std::vector< std::vector<const CaloCell *> > m_cell_for_br; 
+  std::vector< std::vector<const CaloCell *> > m_cell_for_br;
 
   bool m_saveRoI;                             // Should I save the RoI information on the StoreGate? (necessary to dump it on the Ringer CBNT algo!)
 
   /**
    * This method is responsible to generating the rings, by accessing the RoI cells supplied.
-   * 
+   *
    * @return An object containing the generated rings.
    */
   xAOD::TrigRingerRings *getRings();
   inline StatusCode   getCells(double etamin, double etamax, double phimin, double phimax,
 		                    std::vector<RingSet>& rset, bool global_center,
-		                    const double& eta, const double& phi, 
+		                    const double& et, const double& eta, const double& phi,
 		                    const double& eta_window,
 		                    const double& phi_window);
   //void         storeDebugRoI(const std::string &hltFeatureLabel, const xAOD::TrigEMCluster &rtrig);
   //void storeDebugRoI();
-  
+
 protected:
   // For timing
   TrigTimer *m_generateClusterTimer, *m_saveRoITimer; ///< For timing.
@@ -196,7 +201,7 @@ public:
     }
     return phi_value;
   }
-  
+
 private:
 
   /**
@@ -213,7 +218,7 @@ private:
    * @param phi_window The window size in phi, to use when considering peak finding
   void build_rings(const std::vector<const CaloCell *> &vecCells,
 		   std::vector<RingSet>& rset, bool global_center,
-		   const double& eta, const double& phi, 
+		   const double& eta, const double& phi,
 		   const double& eta_window,
 		   const double& phi_window);
   **/

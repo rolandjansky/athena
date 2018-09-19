@@ -29,7 +29,7 @@
 const double RingerFex::ENERGY_THRESHOLD = 0.001;
 const double RingerFex::PI_THRESHOLD = 1.0;
 //!=================================================================================
-RingerFex::RingerFex(const std::string& type, const std::string& name, const IInterface* parent) 
+RingerFex::RingerFex(const std::string& type, const std::string& name, const IInterface* parent)
   : IAlgToolCalo(type, name, parent)
 {
   declareProperty("EtaBins",              m_etaBins                             );
@@ -45,6 +45,8 @@ RingerFex::RingerFex(const std::string& type, const std::string& name, const IIn
   declareProperty("HltFeature",           m_hlt_feature = "HLT_TrigT2CaloEgamma");
   declareProperty("Feature",              m_feature     = "TrigT2CaloEgamma"    );
   declareProperty("HistLabel",            m_histLabel   = ""                    );
+  declareProperty("UseHad",               m_useHad      = true, "Whether to use hadronic information or not" );
+  declareProperty("NoHadUB",              m_noHadGeV_limit = 15, "Upper bound to not retrieve hadronic information [GeV]" );
 
   m_key = "";
   m_caloDDE = 0;
@@ -110,6 +112,8 @@ StatusCode RingerFex::initialize() {
   ATH_MSG_DEBUG( "Using Global Center               : " << m_global_center );
   ATH_MSG_DEBUG( "Search Window in Eta              : " << m_etaSearchWindowSize );
   ATH_MSG_DEBUG( "Search Window in Phi              : " << m_phiSearchWindowSize );
+  ATH_MSG_DEBUG( "Using HAD information             : " << m_useHad );
+  ATH_MSG_DEBUG( "Not using HAD limit up to [GeV]   : " << m_noHadGeV_limit );
 
   // reserve space for cells, better do it now than later
   m_maxCellsAccumulated = std::accumulate(m_maxCells.begin()+4, m_maxCells.end(), 0);
@@ -138,10 +142,10 @@ xAOD::TrigRingerRings *RingerFex::getRings() {
   return these_rings;
 }
 //!=================================================================================
-void RingerFex::maxCell (const std::vector<const CaloCell*>& vcell, 
-			 double& eta, double& phi, const double& eta_ref, 
-			 const double& phi_ref, const double& eta_window, 
-			 const double& phi_window) 
+void RingerFex::maxCell (const std::vector<const CaloCell*>& vcell,
+			 double& eta, double& phi, const double& eta_ref,
+			 const double& phi_ref, const double& eta_window,
+			 const double& phi_window)
 {
   double current = -999e30;
   double this_eta = 0.0;
@@ -156,7 +160,7 @@ void RingerFex::maxCell (const std::vector<const CaloCell*>& vcell,
   //are we, possibly at the wrap-around region for phi?
   bool wrap = check_wrap_around(phi_ref, false);
   bool reverse_wrap = check_wrap_around(phi_ref, true);
- 
+
   //get at least the first cell, in case of panic (all zeroes for instance)
   for (std::vector<const CaloCell*>::const_iterator it = vcell.begin();
        it != vcell.end(); ++it) {
@@ -190,20 +194,20 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
   m_error = 0x0;
   bool accept=false;
   float eta=std::fabs(rtrigEmCluster.eta());
-  
+
   ATH_MSG_DEBUG( "Event with eta =  " << eta );
-  
+
   if (m_timersvc) m_RingerFexExecuteTimer->start();
   if (m_timersvc) m_getRingsTimer->start();
 
-  ///find eta bin  
+  ///find eta bin
   for(unsigned i=0; i<m_etaBins.size();i+=2){
     if((eta > m_etaBins[i]) && (eta <= m_etaBins[i+1])){
       ATH_MSG_DEBUG("Eta bins accept are :" << m_etaBins[i] << " < |eta| <= " << m_etaBins[i+1]);
       accept=true;
     }
-  }  
-  
+  }
+
   if(!accept)
   {
     ATH_MSG_DEBUG( "Event with |eta| = " << eta << " was rejected." );
@@ -211,7 +215,8 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
   }
 
   if ((getCells(roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), m_ringsSet, m_global_center,/*
-             */ rtrigEmCluster.eta(), rtrigEmCluster.phi(), m_etaSearchWindowSize, m_phiSearchWindowSize)).isFailure()) {
+             */ rtrigEmCluster.et(), rtrigEmCluster.eta(), rtrigEmCluster.phi(), m_etaSearchWindowSize, 
+                m_phiSearchWindowSize)).isFailure()) {
 
     ATH_MSG_ERROR( "Failed to get cells from Region Selector." );
     return StatusCode::FAILURE;
@@ -238,12 +243,14 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
 }
 //!=================================================================================
 StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, double phimax,
-			                         std::vector<RingSet>& rset, 
+			                         std::vector<RingSet>& rset,
 			                         bool global_center,
-			                         const double& eta, const double& phi, 
+			                         const double& et, const double& eta, const double& phi,
 			                         const double& eta_window,
 			                         const double& phi_window)
 {
+  const bool retrieveHad = m_useHad || ( et > (m_noHadGeV_limit * 1e3) );
+
   const CaloCell *it_tmp;
   const TileCell *itt_tmp;
   unsigned int rs = 0;
@@ -264,11 +271,12 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
 
   // Getting LAr cells and populating RingSets
   // Code has to be repetitve to make it really fast
-  for (unsigned det = TTEM; det <= TTHEC; det++){
+  const unsigned lastdet = (retrieveHad)?TTHEC:TTEM;
+  for (unsigned det = TTEM; det <= lastdet; det++){
     for (int sampling = 0; sampling < 4; ++sampling, rs++) {
-      
+
       if (rs == 7) rs--;
-      else { 
+      else {
         rset.at(rs).reset();
         m_cell_for_br[rs].clear();
       }
@@ -285,7 +293,7 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
       }
       if (m_timersvc) m_RingerRegSelTimer->pause();
       std::vector<const CaloCell*> &vecTemp = m_cell_for_br[rs];
-      
+
       if(rs < 4){
         if(!global_center){
           double current = -999e30;
@@ -296,10 +304,10 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
           const double etamin2 = eta - (0.5 * eta_window);
           const double etamax2 = eta + (0.5 * eta_window);
           const double phimin2 = phi - (0.5 * phi_window);
-          const double phimax2 = phi + (0.5 * phi_window);         
+          const double phimax2 = phi + (0.5 * phi_window);
 
           for(m_it = m_iBegin; m_it != m_iEnd; ++m_it) {
-            it_tmp = (CaloCell *) *m_it;    
+            it_tmp = (CaloCell *) *m_it;
             bool found=false;
             for (std::vector<CaloSampling::CaloSample>::const_iterator kt=dets.begin(); kt!=dets.end(); ++kt) {
 	            if (((CaloSampling::CaloSample) (*kt)) == it_tmp->caloDDE()->getSampling()){
@@ -364,64 +372,73 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
     } // end of loop over samplings
   } // end of loop over detectors
 
+  if (retrieveHad){
+    // Getting TileCal cells and populating RingSets
+    if (m_timersvc) m_RingerRegSelTimer->resume();
+    m_data->RegionSelector(0,etamin,etamax,phimin,phimax,TILE);
+    //m_cell.clear();
+    for (unsigned int iR=0;iR<m_data->TileContSize();++iR) {
+      if ( m_data->LoadCollections(m_itBegin, m_itEnd,iR,!iR).isFailure() ) {
+        ATH_MSG_ERROR( "Error retrieving TileCalorimeter cells!" );
+        return StatusCode::FAILURE;
+      }
+      for(m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) { //loop over cells
+        itt_tmp = *m_itt;
+        m_cell.push_back((CaloCell *) itt_tmp);
+      } // end of loop over cells
+    } // end of loop over containers
+    if (m_timersvc) m_RingerRegSelTimer->stop();
 
-  // Getting TileCal cells and populating RingSets
-  if (m_timersvc) m_RingerRegSelTimer->resume();
-  m_data->RegionSelector(0,etamin,etamax,phimin,phimax,TILE);
-  //m_cell.clear();
-  for (unsigned int iR=0;iR<m_data->TileContSize();++iR) {
-    if ( m_data->LoadCollections(m_itBegin, m_itEnd,iR,!iR).isFailure() ) {
-      ATH_MSG_ERROR( "Error retrieving TileCalorimeter cells!" );
-      return StatusCode::FAILURE;
+    rs = 4;
+    CaloSampling::CaloSample cs_temp;
+    for (std::vector<RingSet>::iterator jt=rset.begin()+rs; jt!=rset.end(); ++jt, rs++) {
+      const std::vector<CaloSampling::CaloSample>& dets = jt->detectors();
+      for (std::vector<const CaloCell *>::const_iterator ct = m_cell.begin(); ct != m_cell.end(); ++ct) {
+        //cs_temp = CaloSampling::getSampling(*(*ct));
+        cs_temp = (*ct)->caloDDE()->getSampling();
+        for (std::vector<CaloSampling::CaloSample>::const_iterator kt=dets.begin(); kt!=dets.end(); ++kt) {
+          if (((CaloSampling::CaloSample) (*kt)) == cs_temp){
+            (m_cell_for_br[rs]).push_back(*ct);
+          }
+        } // for relevant detectors
+      } // end of loop over cells
+      if ( !(m_cell_for_br[rs]).size() ) {
+        continue;
+      }
+      if (!global_center) {
+        double my_eta, my_phi;
+        maxCell(m_cell_for_br[rs], my_eta, my_phi, eta, phi, eta_window, phi_window);
+        jt->add(m_cell_for_br[rs], my_eta, my_phi);
+      }
+      else {
+        jt->add(m_cell_for_br[rs], eta, phi);
+      }
+    } // end of loop over ringsets
+  } else {
+    // Reset hadronic information:
+    for (std::vector<RingSet>::iterator jt=rset.begin()+4; jt!=rset.end(); ++jt){
+      jt->reset();
     }
-    for(m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) { //loop over cells
-      itt_tmp = *m_itt;
-      m_cell.push_back((CaloCell *) itt_tmp);
-    } // end of loop over cells
-  } // end of loop over containers
-  if (m_timersvc) m_RingerRegSelTimer->stop();
-  
-  rs = 4;
-  CaloSampling::CaloSample cs_temp;
-  for (std::vector<RingSet>::iterator jt=rset.begin()+rs; jt!=rset.end(); ++jt, rs++) {
-    const std::vector<CaloSampling::CaloSample>& dets = jt->detectors();
-    for (std::vector<const CaloCell *>::const_iterator ct = m_cell.begin(); ct != m_cell.end(); ++ct) {
-      //cs_temp = CaloSampling::getSampling(*(*ct));
-      cs_temp = (*ct)->caloDDE()->getSampling();
-      for (std::vector<CaloSampling::CaloSample>::const_iterator kt=dets.begin(); kt!=dets.end(); ++kt) {
-	      if (((CaloSampling::CaloSample) (*kt)) == cs_temp){
-	        (m_cell_for_br[rs]).push_back(*ct);
-        }
-      } // for relevant detectors
-    } // end of loop over cells
-    if ( !(m_cell_for_br[rs]).size() ) {
-      continue;
-    }
-    if (!global_center) {
-      double my_eta, my_phi;
-      maxCell(m_cell_for_br[rs], my_eta, my_phi, eta, phi, eta_window, phi_window);
-      jt->add(m_cell_for_br[rs], my_eta, my_phi);
-    }
-    else {
-      jt->add(m_cell_for_br[rs], eta, phi);
-    }
-  } // end of loop over ringsets
- 
+  }
+
 
   // debug RingSet
   if(msgLvl(MSG::DEBUG))
   {
     ATH_MSG_DEBUG("--------------- Cluster Information  ----------------");
+    ATH_MSG_DEBUG( "Cluster et is " << et << ". Retrieve hadronic information was set to:" << ((retrieveHad)?"true":"false") );
+
+    unsigned c = 0;
     for(unsigned rs=0; rs<rset.size(); ++rs){
-      ATH_MSG_DEBUG("RingSet number is: " << rs);  
+      ATH_MSG_DEBUG("RingSet number is: " << rs);
       for(unsigned i=0;i<rset.at(rs).detectors().size();i++)
         ATH_MSG_DEBUG("   Calo layer ID is : "<< rset.at(rs).detectors()[i] );
       ATH_MSG_DEBUG("search eta window: " << eta_window << " search phi window: " << phi_window);
       ATH_MSG_DEBUG("deta: " << m_detaRings[rs] << " dphi: " << m_dphiRings[rs]);
       ATH_MSG_DEBUG("eta: " << my_eta << " phi: " << my_phi);
       ATH_MSG_DEBUG("Pattern has size equal than: " << rset.at(rs).pattern().size());
-      for(unsigned i=0;i<rset.at(rs).pattern().size();++i)
-        ATH_MSG_DEBUG("   sample " << i << " energy:  " << rset.at(rs).pattern()[i] << " MeVs.");
+      for(unsigned i=0;i<rset.at(rs).pattern().size();++i, ++c)
+        ATH_MSG_DEBUG("   sample " << i << " ("<< c << ") energy:  " << rset.at(rs).pattern()[i] << " MeVs.");
     }// Loop over ringSets
     ATH_MSG_DEBUG("---------------- End of information -----------------");
   }
@@ -469,7 +486,7 @@ void RingerFex::RingSet::add (const std::vector<const CaloCell*>& c,
 
   // Used later to multiply by the ring energy and get Et instead of E
   const double one_over = 1 / std::cosh(std::fabs(eta_center));
-  
+
   //are we, possibly at the wrap-around region for phi?
   const bool wrap = RingerFex::check_wrap_around(phi_center, false);
   const bool reverse_wrap = RingerFex::check_wrap_around(phi_center, true);
@@ -478,12 +495,12 @@ void RingerFex::RingSet::add (const std::vector<const CaloCell*>& c,
   for (vec_type::const_iterator it=c.begin(); it!=c.end(); ++it) {
 
     //std::cout << "current caloDDE->getSampling() is: " << (*it)->caloDDE()->getSampling() << std::endl;
-    
+
     //if I get here, is because I have to include the cell energy. It
     //calculates which ring the cells should be added to, then, it adds
     //up the cell value there and goes to the next cell. No need to do
     //anything later, because the sums are already correct!
-    
+
     double phi_use = (*it)->phi(); //use this value for phi (wrap protection)
     if (wrap) phi_use = RingerFex::fix_wrap_around(phi_use, false);
     else if (reverse_wrap) phi_use = RingerFex::fix_wrap_around(phi_use, true);
@@ -501,7 +518,7 @@ void RingerFex::RingSet::add (const std::vector<const CaloCell*>& c,
       //give us Et instead of E
       m_val[i] += (*it)->energy();
     }
-    
+
   } //end for all cells
 
   for (unsigned i=0; i < m_val.size(); i++) {

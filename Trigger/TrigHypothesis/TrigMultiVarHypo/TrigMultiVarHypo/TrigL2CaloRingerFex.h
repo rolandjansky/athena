@@ -25,7 +25,7 @@
 
 
 class TrigL2CaloRingerFex: public HLT::FexAlgo {
- 
+
   public:
 
     TrigL2CaloRingerFex(const std::string & name, ISvcLocator* pSvcLocator);
@@ -60,17 +60,27 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     bool        m_useLumiTool;
     bool        m_useEtaVar;
     bool        m_useLumiVar;
-    
+		/// Specialization for the algorithm without retrieving hadronic information
+		bool m_useHad;
+		/// Upper bound to not retrieve hadronic information
+		float m_noHadGeV_limit;
+
+
     //LumiTool
     ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
     ///Prepoc configuration
     std::vector<unsigned int>  m_nRings;
     std::vector<unsigned int>  m_normRings;
     std::vector<unsigned int>  m_sectionRings;
-    
-    ///Discriminator holder 
+    ///Prepoc configuration
+    std::vector<unsigned int>  m_nRingsNoHad;
+    std::vector<unsigned int>  m_normRingsNoHad;
+    std::vector<unsigned int>  m_sectionRingsNoHad;
+
+    ///Discriminator holder
     std::vector<MultiLayerPerceptron*>       m_discriminators;
-    std::vector<TrigRingerPreprocessor*>     m_preproc; 
+    std::vector<TrigRingerPreprocessor*>     m_preproc;
+    std::vector<TrigRingerPreprocessor*>     m_preprocNoHad;
     TrigL2CaloRingerReader                   m_reader;
 
 };

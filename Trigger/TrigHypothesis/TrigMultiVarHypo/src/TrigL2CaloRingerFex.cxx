@@ -18,26 +18,51 @@
 #include <new>
 #include <cmath>
 
-#define SIZEOF_NODES            3 
+#define SIZEOF_NODES            3
 #define SIZEOF_RINGSETS         7
 
 #include <iostream>
 using namespace std;
+namespace {
+
+/// Helper operator for printing the contents of vectors (MsgStream)
+template <typename T>
+MsgStream& operator<< ( MsgStream& out, const std::vector< T >& vec )
+{
+  // A little prefix:
+  out << "[";
+  // Print the contents:
+  for( size_t i = 0; i < vec.size(); ++i ) {
+     out << vec[ i ];
+     if( i < vec.size() - 1 ) { out << ", "; }
+  }
+  // A little postfix:
+  out << "]";
+  // Return the stream:
+  return out;
+}
+}
 
 //!===============================================================================================
 TrigL2CaloRingerFex::TrigL2CaloRingerFex(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::FexAlgo(name, pSvcLocator), m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
   m_reader("TrigL2CaloRingerReader")
-{  
-  declareProperty("HltFeature"        , m_hlt_feature = "TrigRingerNeuralFex" );  
-  declareProperty("Feature"           , m_feature = "TrigT2CaloEgamma"        );  
-  declareProperty("NormalisationRings", m_normRings                           );
-  declareProperty("SectionRings"      , m_sectionRings                        );
-  declareProperty("NRings"            , m_nRings                              );
-  declareProperty("CalibPath"         , m_calibPath = ""                      );
-  declareProperty("LuminosityTool"    , m_lumiBlockMuTool, "Luminosity Tool"  );
-  declareMonitoredVariable("NeuralNetworkOutput", m_output                    );
-  
+{
+  declareProperty("HltFeature",              m_hlt_feature = "TrigRingerNeuralFex"                                                                        );
+  declareProperty("Feature",                 m_feature = "TrigT2CaloEgamma"                                                                               );
+  declareProperty("NormalisationRings",      m_normRings                                                                                                  );
+  declareProperty("SectionRings",            m_sectionRings                                                                                               );
+  declareProperty("NRings",                  m_nRings                                                                                                     );
+  declareProperty("NormalisationRingsNoHad", m_normRingsNoHad                                                                                             );
+  declareProperty("SectionRingsNoHad",       m_sectionRingsNoHad                                                                                          );
+  declareProperty("NRingsNoHad",             m_nRingsNoHad                                                                                                );
+  declareProperty("CalibPath",               m_calibPath = ""                                                                                             );
+  declareProperty("LuminosityTool",          m_lumiBlockMuTool,     "Luminosity Tool"                                                                     );
+  declareProperty("UseHad",                  m_useHad = true,       "Whether this ringer chains used hadronic information or not when building the rings" );
+  declareProperty("NoHadUB",                 m_noHadGeV_limit = 15, "Upper bound to the kinematic region where hadronic rings are not built [GeV]"        );
+
+  declareMonitoredVariable("NeuralNetworkOutput", m_output );
+
   m_reader.setMsgStream(msg());
   m_useLumiVar=false;
   m_useEtaVar=false;
@@ -45,7 +70,7 @@ TrigL2CaloRingerFex::TrigL2CaloRingerFex(const std::string& name, ISvcLocator* p
 }
 
 //!===============================================================================================
-HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize() 
+HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
 {
   // Retrieve the NeuralNetwork list
   if(!m_calibPath.empty()){
@@ -81,7 +106,19 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     ///Hold the pointer configuration
     m_preproc.push_back(preproc);
   }///Loop over discriminators
-  
+
+  for(unsigned i=0; i<m_discriminators.size(); ++i)
+  {
+    TrigRingerPreprocessor *preproc;
+    try{
+      preproc = new TrigRingerPreprocessor(m_nRingsNoHad,m_normRingsNoHad,m_sectionRingsNoHad);
+    }catch(std::bad_alloc xa){
+      ATH_MSG_ERROR( "Bad alloc for TrigRingerPrepoc(NoHAD)." );
+      return StatusCode::FAILURE;
+    }
+    ///Hold the pointer configuration
+    m_preprocNoHad.push_back(preproc);
+  }///Loop over discriminators
 
   ///Monitoring hitograms
   if(doTiming()){
@@ -97,17 +134,19 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     m_useLumiTool=true; // Tell to the execute that the LumiTool is available...
     ATH_MSG_INFO("Successfully retrieved Luminosity Tool");
   }
- 
-  ATH_MSG_INFO("Using the Luminosity tool? " <<  (m_useLumiTool ? "Yes":"No") );
-  ATH_MSG_INFO("Using lumiVar?             " <<  (m_useLumiVar ? "Yes":"No") );
-  ATH_MSG_INFO("Using etaVar?              " <<  (m_useEtaVar ? "Yes":"No") );
-  
+
+  ATH_MSG_INFO("Using the Luminosity tool?                 " << (m_useLumiTool ? "Yes":"No") );
+  ATH_MSG_INFO("Using lumiVar?                             " << (m_useLumiVar ?  "Yes":"No") );
+  ATH_MSG_INFO("Using etaVar?                              " << (m_useEtaVar ?   "Yes":"No") );
+  ATH_MSG_INFO("Using hadronic information?                " << (m_useHad ?      "Yes":"No") );
+  ATH_MSG_INFO("Max energy where no hadronic info is used: " << m_noHadGeV_limit );
+
   ATH_MSG_INFO( "TrigL2CaloRingerHypo initialization completed successfully." );
 
   return HLT::OK;
 }
 //!===============================================================================================
-HLT::ErrorCode TrigL2CaloRingerFex::hltFinalize() {  
+HLT::ErrorCode TrigL2CaloRingerFex::hltFinalize() {
   ///release memory
   for(unsigned i=0; i<m_discriminators.size();++i){
     if(m_preproc.at(i))         delete m_preproc.at(i);
@@ -120,7 +159,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltFinalize() {
 //!===============================================================================================
 HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, HLT::TriggerElement* outputTE){
 
-  // For now, this must be [avgmu, rnnOutputWithTansig, rnnOutputWithoutTansig] 
+  // For now, this must be [avgmu, rnnOutputWithTansig, rnnOutputWithoutTansig]
   m_output=-999;
   std::vector<float> output;
 
@@ -148,7 +187,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   TrigRingerPreprocessor  *preproc = nullptr;
 
   float eta = std::fabs(emCluster->eta());
-  float et  = emCluster->et()*1e-3; ///in GeV 
+  float et  = emCluster->et()*1e-3; ///in GeV
   float avgmu, mu = 0.0;
 
   if(m_useLumiTool){
@@ -156,7 +195,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
       mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
       avgmu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
       ATH_MSG_DEBUG("Retrieved Mu Value : " << mu);
-      ATH_MSG_DEBUG("Average Mu Value   : " << avgmu);   
+      ATH_MSG_DEBUG("Average Mu Value   : " << avgmu);
     }
   }
 
@@ -166,35 +205,40 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   output.push_back(avgmu);
 
   if(doTiming())  m_decisionTimer->start();
-  
+
   if(m_discriminators.size() > 0){
-      
+
+    const bool retrieveHad = et > m_noHadGeV_limit || m_useHad;
+
+    ATH_MSG_DEBUG( "retrieve hadronic information was set to: " << retrieveHad );
     for(unsigned i=0; i<m_discriminators.size(); ++i){
       if(avgmu > m_discriminators[i]->mumin() && avgmu <= m_discriminators[i]->mumax()){
         if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
           if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
             discr   = m_discriminators[i];
-            preproc = m_preproc[i];
+            if (retrieveHad){
+              preproc = m_preproc[i];
+            } else {
+              preproc = m_preprocNoHad[i];
+            }
             break;
-          }// mu conditions
-        }///eta conditions
-      }///Et conditions
+          }///eta conditions
+        }///Et conditions
+      }// mu conditions
     }///Loop over discriminators
 
-    ATH_MSG_DEBUG( "Et = " << et << " GeV, |eta| = " << eta );
-    
     ///Apply the discriminator
     if(discr){
 
       const std::vector<float> rings = ringerShape->rings();
-      std::vector<float> refRings(rings.size());
+      std::size_t ringsSize(rings.size());
+      std::vector<float> refRings(ringsSize, 0.);
       refRings.assign(rings.begin(), rings.end());
 
       ///pre-processing ringer shape (default is Norm1...)
       if(doTiming())  m_normTimer->start();
       if(preproc)     preproc->ppExecute(refRings);
       if(doTiming())  m_normTimer->stop();
-
 
       float eta_norm=0.0;
       float avgmu_norm=0.0;
@@ -214,12 +258,13 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
         }
       }
 
+      ATH_MSG_DEBUG( "Rings fed to the discriminator (size:" << refRings.size() << "/et:" << et << "GeV): " << refRings );
       m_output=discr->propagate(refRings);
       output.push_back(m_output);
       output.push_back(discr->getOutputBeforeTheActivationFunction());
     }// has discr?
   }else{
-    ATH_MSG_DEBUG( "There is no discriminator into this Fex." );
+    ATH_MSG_DEBUG( "Could not find a discriminator corresponding to this FEX" );
   }
 
   if(doTiming())  m_decisionTimer->stop();
@@ -229,10 +274,10 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   if(doTiming())  m_storeTimer->start();
   ///Store outout information for monitoring and studys
   xAOD::TrigRNNOutput *rnnOutput = new xAOD::TrigRNNOutput();
-  rnnOutput->makePrivateStore(); 
+  rnnOutput->makePrivateStore();
   rnnOutput->setRnnDecision(output);
 
-  ///Get the ringer link to store into TrigRNNOuput  
+  ///Get the ringer link to store into TrigRNNOuput
   HLT::ErrorCode hltStatus;
   ElementLink<xAOD::TrigRingerRingsContainer> ringer_link;
   hltStatus = getFeatureLink<xAOD::TrigRingerRingsContainer,xAOD::TrigRingerRings>(outputTE, ringer_link);
