@@ -2,11 +2,11 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ACTSGEOMETRY_GEOMODELLAYERBUILDER_H
-#define ACTSGEOMETRY_GEOMODELLAYERBUILDER_H
+#ifndef ACTSGEOMETRY_ACTSLAYERBUILDER_H
+#define ACTSGEOMETRY_ACTSLAYERBUILDER_H
 
 // PACKAGE
-#include "ActsGeometry/GeoModelDetectorElement.hpp"
+#include "ActsGeometry/ActsDetectorElement.h"
 
 // ATHENA
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -31,15 +31,15 @@
 class ActsTrackingGeomtrySvc;
 
 namespace Acts {
-
 class Surface;
+}
 
-/// @class GeoModelLayerBuilder
-class GeoModelLayerBuilder : public ILayerBuilder
+/// @class ActsLayerBuilder
+class ActsLayerBuilder : public Acts::ILayerBuilder
 {
 public:
   using ElementVector
-      = std::vector<std::shared_ptr<const GeoModelDetectorElement>>;
+      = std::vector<std::shared_ptr<const ActsDetectorElement>>;
 
   /// @struct Config
   /// nested configuration struct for steering of the layer builder
@@ -48,19 +48,19 @@ public:
   {
     /// string based identification
     std::string                          configurationName = "undefined";
-    GeoModelDetectorElement::Subdetector subdetector
-        = GeoModelDetectorElement::Subdetector::Pixel;
+    ActsDetectorElement::Subdetector subdetector
+        = ActsDetectorElement::Subdetector::Pixel;
     const InDetDD::SiDetectorManager*   mng;
-    std::shared_ptr<const LayerCreator> layerCreator = nullptr;
+    std::shared_ptr<const Acts::LayerCreator> layerCreator = nullptr;
     /// the binning type of the contained surfaces in phi
     /// (equidistant/arbitrary)
-    BinningType bTypePhi = equidistant;
+    Acts::BinningType bTypePhi = Acts::equidistant;
     /// the binning type of the contained surfaces in r
     /// (equidistant/arbitrary)
-    BinningType bTypeR = equidistant;
+    Acts::BinningType bTypeR = Acts::equidistant;
     /// the binning type of the contained surfaces in z
     /// (equidistant/arbitrary)
-    BinningType                    bTypeZ = equidistant;
+    Acts::BinningType                    bTypeZ = Acts::equidistant;
     std::shared_ptr<ElementVector> elementStore;
 
     std::pair<size_t, size_t> endcapMaterialBins = {20, 5};
@@ -72,9 +72,9 @@ public:
   /// Constructor
   /// @param cfg is the configuration struct
   /// @param logger the local logging instance
-  GeoModelLayerBuilder(const Config&                cfg,
-                       std::unique_ptr<const Logger> logger
-                       = getDefaultLogger("GMLayBldr", Logging::INFO))
+  ActsLayerBuilder(const Config&                cfg,
+                       std::unique_ptr<const Acts::Logger> logger
+                       = Acts::getDefaultLogger("GMLayBldr", Acts::Logging::INFO))
     : m_logger(std::move(logger))
   {
     // std::cout << "GMLB construct" << std::endl;
@@ -82,15 +82,15 @@ public:
   }
 
   /// Destructor
-  ~GeoModelLayerBuilder() {}
+  ~ActsLayerBuilder() {}
 
-  const LayerVector
+  const Acts::LayerVector
   negativeLayers() const override;
 
-  const LayerVector
+  const Acts::LayerVector
   centralLayers() const override;
 
-  const LayerVector
+  const Acts::LayerVector
   positiveLayers() const override;
 
   /// Name identification
@@ -106,7 +106,7 @@ public:
   // Config
   // getConfiguration() const;
 
-  GeoModelLayerBuilder::Config
+  ActsLayerBuilder::Config
   getConfiguration() const
   {
     return m_cfg;
@@ -120,35 +120,34 @@ public:
 
   /// set logging instance
   void
-  setLogger(std::unique_ptr<const Logger> logger);
+  setLogger(std::unique_ptr<const Acts::Logger> logger);
 
 private:
   /// configruation object
   Config m_cfg;
 
   /// Private access to the logger
-  const Logger&
+  const Acts::Logger&
   logger() const
   {
     return *m_logger;
   }
 
-  std::vector<std::shared_ptr<const GeoModelDetectorElement>>
+  std::vector<std::shared_ptr<const ActsDetectorElement>>
   getDetectorElements() const;
 
   /// logging instance
-  std::unique_ptr<const Logger> m_logger;
+  std::unique_ptr<const Acts::Logger> m_logger;
 
-  ///// @todo make clear where the GeoModelDetectorElement lives
-  //std::vector<std::shared_ptr<const GeoModelDetectorElement>> m_elementStore;
+  ///// @todo make clear where the ActsDetectorElement lives
+  //std::vector<std::shared_ptr<const ActsDetectorElement>> m_elementStore;
 
 
   // Private helper method : build layers
   // @param layers is goint to be filled
   // @param type is the indication which ones to build -1 | 0 | 1
   void
-  buildLayers(LayerVector& layersOutput, int type = 0);
+  buildLayers(Acts::LayerVector& layersOutput, int type = 0);
 };
-}
 
 #endif

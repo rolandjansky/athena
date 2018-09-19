@@ -2,6 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "ActsGeometry/ActsDetectorElement.h"
+
 // ATHENA
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
@@ -16,7 +18,6 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // PACKAGE
-#include "ActsGeometry/GeoModelDetectorElement.hpp"
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
 
 // ACTS
@@ -31,8 +32,10 @@
 #include <boost/variant/get.hpp>
 
 
+using Acts::Transform3D;
+using Acts::Surface;
 
-Acts::GeoModelDetectorElement::GeoModelDetectorElement(
+ActsDetectorElement::ActsDetectorElement(
     const InDetDD::SiDetectorElement* detElem,
     const ActsTrackingGeometrySvc* trkSvc)
   : m_trackingGeometrySvc(trkSvc)
@@ -56,13 +59,13 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     double hlX = design.width()/2.;
     double hlY = design.length()/2.;
 
-    auto rectangleBounds = std::make_shared<const RectangleBounds>(
+    auto rectangleBounds = std::make_shared<const Acts::RectangleBounds>(
         hlX, hlY);
 
     m_bounds = rectangleBounds;
 
     m_surface
-      = std::make_shared<const PlaneSurface>(rectangleBounds, *this);
+      = std::make_shared<const Acts::PlaneSurface>(rectangleBounds, *this);
 
   } else if (boundsType == Trk::SurfaceBounds::Trapezoid) {
 
@@ -75,20 +78,20 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     double maxHlX = design.maxWidth()/2.;
     double hlY    = design.length()/2.;
 
-    auto trapezoidBounds = std::make_shared<const TrapezoidBounds>(
+    auto trapezoidBounds = std::make_shared<const Acts::TrapezoidBounds>(
         minHlX, maxHlX, hlY);
 
     m_bounds = trapezoidBounds;
 
     m_surface
-      = std::make_shared<const PlaneSurface>(trapezoidBounds, *this);
+      = std::make_shared<const Acts::PlaneSurface>(trapezoidBounds, *this);
 
   } else {
-    throw std::domain_error("GeoModelDetectorElement does not support this surface type");
+    throw std::domain_error("ActsDetectorElement does not support this surface type");
   }
 }
 
-Acts::GeoModelDetectorElement::GeoModelDetectorElement(
+ActsDetectorElement::ActsDetectorElement(
     std::shared_ptr<const Transform3D> trf,
     const InDetDD::TRT_BaseElement* detElem,
     const Identifier& id,
@@ -120,8 +123,8 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
   m_surface = straw;
 }
 
-Acts::IdentityHelper 
-Acts::GeoModelDetectorElement::identityHelper() const 
+IdentityHelper 
+ActsDetectorElement::identityHelper() const 
 {
   size_t which = m_detElement.which();
   if (which == 0) {
@@ -132,7 +135,7 @@ Acts::GeoModelDetectorElement::identityHelper() const
 }
   
 const Acts::Transform3D&
-Acts::GeoModelDetectorElement::transform() const
+ActsDetectorElement::transform() const
 {
 
 
@@ -161,7 +164,7 @@ Acts::GeoModelDetectorElement::transform() const
 }
 
 void
-Acts::GeoModelDetectorElement::storeTransform(GeoAlignmentStore* gas) const
+ActsDetectorElement::storeTransform(GeoAlignmentStore* gas) const
 {
   struct get_transform : public boost::static_visitor<Transform3D>
   {
@@ -196,7 +199,7 @@ Acts::GeoModelDetectorElement::storeTransform(GeoAlignmentStore* gas) const
 }
 
 const Acts::Transform3D&
-Acts::GeoModelDetectorElement::getDefaultTransformMutexed() const
+ActsDetectorElement::getDefaultTransformMutexed() const
 {
   struct get_default_transform : public boost::static_visitor<Transform3D>
   {
@@ -231,19 +234,19 @@ Acts::GeoModelDetectorElement::getDefaultTransformMutexed() const
 }
 
 const Acts::Surface&
-Acts::GeoModelDetectorElement::surface() const
+ActsDetectorElement::surface() const
 {
   return (*m_surface);
 }
 
 double
-Acts::GeoModelDetectorElement::thickness() const
+ActsDetectorElement::thickness() const
 {
   return m_thickness;
 }
 
 Identifier
-Acts::GeoModelDetectorElement::identify() const
+ActsDetectorElement::identify() const
 {
   return boost::apply_visitor(IdVisitor(m_explicitIdentifier), m_detElement);
 }

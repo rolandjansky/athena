@@ -1,5 +1,5 @@
 // PACKAGE
-#include "ActsGeometry/GeoModelStrawLayerBuilder.hpp"
+#include "ActsGeometry/ActsStrawLayerBuilder.h"
 
 // ATHENA
 #include "InDetReadoutGeometry/TRT_Numerology.h"
@@ -15,34 +15,37 @@
 #include <iostream>
 #include <fstream>
 
+using Acts::Transform3D;
+using Acts::Vector3D;
+
 const Acts::LayerVector
-Acts::GeoModelStrawLayerBuilder::negativeLayers() const
+ActsStrawLayerBuilder::negativeLayers() const
 {
   // @todo Remove this hack once the m_elementStore mess is sorted out
-  auto        mutableThis = const_cast<GeoModelStrawLayerBuilder*>(this);
+  auto        mutableThis = const_cast<ActsStrawLayerBuilder*>(this);
   return mutableThis->endcapLayers(-1);
 }
 
 const Acts::LayerVector
-Acts::GeoModelStrawLayerBuilder::centralLayers() const
+ActsStrawLayerBuilder::centralLayers() const
 {
   // @todo Remove this hack once the m_elementStore mess is sorted out
-  auto        mutableThis = const_cast<GeoModelStrawLayerBuilder*>(this);
+  auto        mutableThis = const_cast<ActsStrawLayerBuilder*>(this);
   return mutableThis->centralLayers();
 }
 
 const Acts::LayerVector
-Acts::GeoModelStrawLayerBuilder::positiveLayers() const
+ActsStrawLayerBuilder::positiveLayers() const
 {
   // @todo Remove this hack once the m_elementStore mess is sorted out
-  auto        mutableThis = const_cast<GeoModelStrawLayerBuilder*>(this);
+  auto        mutableThis = const_cast<ActsStrawLayerBuilder*>(this);
   return mutableThis->endcapLayers(1);
 
 }
 
 
 const Acts::LayerVector
-Acts::GeoModelStrawLayerBuilder::centralLayers()
+ActsStrawLayerBuilder::centralLayers()
 {
   ACTS_VERBOSE("Building central Straw layers")
 
@@ -56,13 +59,13 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
   Acts::LayerVector layers;
 
-  std::vector<ProtoLayer> protoLayers;
+  std::vector<Acts::ProtoLayer> protoLayers;
 
   for(size_t iring=0; iring < nBarrelRings;iring++) {
     ACTS_VERBOSE("- Collecting elements for ring " << iring);
   
     // were calculating min/max radius while were at it.
-    ProtoLayer pl;
+    Acts::ProtoLayer pl;
     pl.minR = std::numeric_limits<double>::max();
     pl.maxR = std::numeric_limits<double>::lowest();
     pl.minZ = std::numeric_limits<double>::max();
@@ -75,7 +78,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
     double fudge = 0;
     // RING in TRT speak is translated to Layer in ACTS speak
-    std::vector<const Surface*> layerSurfaces;
+    std::vector<const Acts::Surface*> layerSurfaces;
 
     size_t nBarrelLayers = trtNums->getNBarrelLayers(iring);
     ACTS_VERBOSE("  - Numerology reports: " << nBarrelLayers << " layers in ring " << iring);
@@ -106,7 +109,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
                          //istraw);
             //ACTS_VERBOSE("BRL: " << straw_id);
 
-            auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
+            auto elem = std::make_shared<const ActsDetectorElement>(
                 trf, brlElem, straw_id, m_cfg.trackingGeometrySvc);
 
             m_cfg.elementStore->push_back(elem);
@@ -134,11 +137,11 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
     if(iring > 0) {
       // match outer radius of previous ring
-      const ProtoLayer &prev = protoLayers.at(iring-1);
+      const Acts::ProtoLayer &prev = protoLayers.at(iring-1);
       pl.minR = prev.maxR + prev.envR.second + pl.envR.first + fudge;
     }
 
-    std::shared_ptr<Layer> layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 100, 1, pl);
+    std::shared_ptr<Acts::Layer> layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 100, 1, pl);
     layers.push_back(layer);
 
     protoLayers.push_back(pl);
@@ -149,7 +152,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 }
 
 const Acts::LayerVector
-Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
+ActsStrawLayerBuilder::endcapLayers(int side)
 {
   ACTS_VERBOSE("Building endcap Straw layers")
 
@@ -169,10 +172,10 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
     size_t nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
     ACTS_VERBOSE("  - Numerology reports: " << nEndcapLayers << " layers in wheel " << iwheel);
     for(size_t ilayer=0;ilayer<nEndcapLayers;++ilayer) {
-      std::vector<const Surface*> wheelSurfaces;
+      std::vector<const Acts::Surface*> wheelSurfaces;
 
             
-      ProtoLayer pl;
+      Acts::ProtoLayer pl;
       pl.minR = std::numeric_limits<double>::max();
       pl.maxR = std::numeric_limits<double>::lowest();
       pl.minZ = std::numeric_limits<double>::max();
@@ -205,7 +208,7 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
                        //istraw);
           //ACTS_VERBOSE("EC:" << straw_id);
 
-          auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
+          auto elem = std::make_shared<const ActsDetectorElement>(
               trf, ecElem, straw_id, m_cfg.trackingGeometrySvc);
 
           m_cfg.elementStore->push_back(elem);
@@ -226,7 +229,7 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
         }
       }
 
-      std::shared_ptr<Layer> layer = m_cfg.layerCreator->discLayer(wheelSurfaces, 1, 100, pl);
+      std::shared_ptr<Acts::Layer> layer = m_cfg.layerCreator->discLayer(wheelSurfaces, 1, 100, pl);
       layers.push_back(layer);
       ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
     }

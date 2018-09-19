@@ -1,5 +1,5 @@
 // PACKAGE
-#include "ActsGeometry/GeoModelLayerBuilder.hpp"
+#include "ActsGeometry/ActsLayerBuilder.h"
 #include "ActsInterop/IdentityHelper.h"
 
 // ACTS
@@ -11,46 +11,50 @@
 #include "Acts/Layers/GenericApproachDescriptor.hpp"
 #include "Acts/Utilities/ApproachDescriptor.hpp"
 
+using Acts::Surface;
+using Acts::Transform3D;
+using Acts::Translation3D;
+
 const Acts::LayerVector
-Acts::GeoModelLayerBuilder::negativeLayers() const
+ActsLayerBuilder::negativeLayers() const
 {
   ACTS_VERBOSE("Building negative layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
-  auto        mutableThis = const_cast<GeoModelLayerBuilder*>(this);
-  LayerVector nVector;
+  auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
+  Acts::LayerVector nVector;
   mutableThis->buildLayers(nVector, -1);
   return nVector;
 }
 
 const Acts::LayerVector
-Acts::GeoModelLayerBuilder::centralLayers() const
+ActsLayerBuilder::centralLayers() const
 {
   ACTS_VERBOSE("Building central layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
-  auto        mutableThis = const_cast<GeoModelLayerBuilder*>(this);
-  LayerVector cVector;
+  auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
+  Acts::LayerVector cVector;
   mutableThis->buildLayers(cVector, 0);
   return cVector;
 }
 
 const Acts::LayerVector
-Acts::GeoModelLayerBuilder::positiveLayers() const
+ActsLayerBuilder::positiveLayers() const
 {
   ACTS_VERBOSE("Building positive layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
-  auto        mutableThis = const_cast<GeoModelLayerBuilder*>(this);
-  LayerVector pVector;
+  auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
+  Acts::LayerVector pVector;
   mutableThis->buildLayers(pVector, 1);
   return pVector;
 
 }
 
-std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>
-Acts::GeoModelLayerBuilder::getDetectorElements() const
+std::vector<std::shared_ptr<const ActsDetectorElement>>
+ActsLayerBuilder::getDetectorElements() const
 {
   auto siDetMng = static_cast<const InDetDD::SiDetectorManager*>(m_cfg.mng);
   
-  std::vector<std::shared_ptr<const GeoModelDetectorElement>> elements;
+  std::vector<std::shared_ptr<const ActsDetectorElement>> elements;
 
   //if (siDetMng) {
     InDetDD::SiDetectorElementCollection::const_iterator iter;
@@ -60,12 +64,12 @@ Acts::GeoModelLayerBuilder::getDetectorElements() const
       const InDetDD::SiDetectorElement* siDetElement = *iter;
       //elements.emplace_back(siDetElement, m_cfg.trackingGeometrySvc);
       elements.push_back(
-          std::make_shared<const GeoModelDetectorElement>(
+          std::make_shared<const ActsDetectorElement>(
             siDetElement, m_cfg.trackingGeometrySvc));
     }
   //}
   //else {
-    //throw std::domain_error("GeoModelLayerBuilder does not know how "
+    //throw std::domain_error("ActsLayerBuilder does not know how "
                             //"to operate on this type of Detector Manager");
   //}
 
@@ -73,10 +77,10 @@ Acts::GeoModelLayerBuilder::getDetectorElements() const
 }
 
 void
-Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
+ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
 {
 
-  std::vector<std::shared_ptr<const GeoModelDetectorElement>> elements = getDetectorElements();
+  std::vector<std::shared_ptr<const ActsDetectorElement>> elements = getDetectorElements();
 
 
   std::map<std::pair<int, int>, std::vector<const Surface*>> layers;
@@ -145,7 +149,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
     for (const auto& layerPair : layers) {
       std::vector<const Surface*> layerSurfaces = layerPair.second;
       auto key = layerPair.first;
-      ProtoLayer pl(layerSurfaces);
+      Acts::ProtoLayer pl(layerSurfaces);
       ACTS_VERBOSE("Layer #" << n << " with layerKey: ("
           << key.first << ", " << key.second << ")");
       if (type == 0) {  // BARREL
@@ -162,13 +166,13 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
   for (const auto& layerPair : layers) {
 
     std::unique_ptr<Acts::ApproachDescriptor> approachDescriptor = nullptr;
-    std::shared_ptr<const SurfaceMaterialProxy> materialProxy = nullptr;
+    std::shared_ptr<const Acts::SurfaceMaterialProxy> materialProxy = nullptr;
 
     std::vector<const Surface*> layerSurfaces = layerPair.second;
 
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
-      ProtoLayer pl(layerSurfaces);
+      Acts::ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
       pl.envZ    = {20, 20};
         
@@ -204,7 +208,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
             binsZ, -layerHalfZ, layerHalfZ, Acts::open, Acts::binZ, transform);
 
       materialProxy
-        = std::make_shared<const SurfaceMaterialProxy>(materialBinUtil);
+        = std::make_shared<const Acts::SurfaceMaterialProxy>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
@@ -228,15 +232,15 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
                                                outerBoundary}));
 
       auto layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 
-                                                     equidistant, 
-                                                     equidistant, 
+                                                     Acts::equidistant, 
+                                                     Acts::equidistant, 
                                                      pl, 
                                                      transform,
                                                      std::move(approachDescriptor));
 
       layersOutput.push_back(layer);
     } else {  // ENDCAP
-      ProtoLayer pl(layerSurfaces);
+      Acts::ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
       pl.envZ    = {30, 30};
 
@@ -280,7 +284,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
           matBinsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
       
       materialProxy
-        = std::make_shared<const SurfaceMaterialProxy>(materialBinUtil);
+        = std::make_shared<const Acts::SurfaceMaterialProxy>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
@@ -301,7 +305,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
 
       // want to figure out bins in phi
       for (const auto& srf : layerSurfaces) {
-        auto elm = dynamic_cast<const GeoModelDetectorElement*>(srf->associatedDetectorElement());
+        auto elm = dynamic_cast<const ActsDetectorElement*>(srf->associatedDetectorElement());
         auto id = elm->identityHelper();
         int phi_mod_max = id.phi_module_max();
         int eta_mod_max = id.eta_module_max();

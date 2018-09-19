@@ -26,9 +26,9 @@
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 
 // PACKAGE
-#include "ActsGeometry/GeoModelLayerBuilder.hpp"
-#include "ActsGeometry/GeoModelStrawLayerBuilder.hpp"
-#include "ActsGeometry/GeoModelDetectorElement.hpp"
+#include "ActsGeometry/ActsLayerBuilder.h"
+#include "ActsGeometry/ActsStrawLayerBuilder.h"
+#include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsInterop/IdentityHelper.h"
 #include "ActsInterop/Logger.h"
 
@@ -37,7 +37,7 @@ ActsTrackingGeometrySvc::ActsTrackingGeometrySvc(const std::string& name, ISvcLo
    : base_class(name,svc),
    m_detStore("StoreGateSvc/DetectorStore", name)
 {
-  m_elementStore = std::make_shared<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>>();
+  m_elementStore = std::make_shared<std::vector<std::shared_ptr<const ActsDetectorElement>>>();
 }
 
 StatusCode
@@ -120,11 +120,6 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 
   Eigen::Vector3d ctrAvg(0, 0, 0);
 
-  using GMLB = Acts::GeoModelLayerBuilder;
-
-
-  // auto gmLayerBuilder = GMLB(cfg);
-  //GMLB gmLayerBuilder(cfg);
   std::shared_ptr<const Acts::ILayerBuilder> gmLayerBuilder;
   if (manager->getName() == "TRT") {
     auto matcher = [](Acts::BinningValue /*bValue*/, const Acts::Surface* /*aS*/,
@@ -144,13 +139,13 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     auto layerCreator = std::make_shared<Acts::LayerCreator>(
         lcCfg, Acts::makeAthenaLogger(this, "LayCrtr", "ActsTGSvc"));
 
-    Acts::GeoModelStrawLayerBuilder::Config cfg;
+    ActsStrawLayerBuilder::Config cfg;
     cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
     cfg.trackingGeometrySvc = this;
     cfg.idHelper = m_TRT_idHelper;
-    gmLayerBuilder = std::make_shared<const Acts::GeoModelStrawLayerBuilder>(cfg,
+    gmLayerBuilder = std::make_shared<const ActsStrawLayerBuilder>(cfg,
       Acts::makeAthenaLogger(this, "GMSLayBldr", "ActsTGSvc"));
 
     //gmLayerBuilder->centralLayers();
@@ -161,9 +156,9 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
                       const Acts::Surface* bS) -> bool {
 
-      auto a = dynamic_cast<const Acts::GeoModelDetectorElement*>(
+      auto a = dynamic_cast<const ActsDetectorElement*>(
           aS->associatedDetectorElement());
-      auto b = dynamic_cast<const Acts::GeoModelDetectorElement*>(
+      auto b = dynamic_cast<const ActsDetectorElement*>(
           bS->associatedDetectorElement());
 
 
@@ -210,13 +205,13 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 
 
 
-    GMLB::Config cfg;
+    ActsLayerBuilder::Config cfg;
     
     if(managerName == "Pixel") {
-      cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::Pixel;
+      cfg.subdetector = ActsDetectorElement::Subdetector::Pixel;
     }
     else {
-      cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::SCT;
+      cfg.subdetector = ActsDetectorElement::Subdetector::SCT;
     }
 
     // set bins from configuration
@@ -240,7 +235,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     cfg.layerCreator = layerCreator;
     cfg.trackingGeometrySvc = this;
 
-    gmLayerBuilder = std::make_shared<const GMLB>(cfg,
+    gmLayerBuilder = std::make_shared<const ActsLayerBuilder>(cfg,
       Acts::makeAthenaLogger(this, "GMLayBldr", "ActsTGSvc"));
   }
 

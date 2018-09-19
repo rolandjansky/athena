@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ACTSGEOMETRY_GEOMODELDETECTORELEMENT_H
-#define ACTSGEOMETRY_GEOMODELDETECTORELEMENT_H
+#ifndef ACTSGEOMETRY_ACTSDETECTORELEMENT_H
+#define ACTSGEOMETRY_ACTSDETECTORELEMENT_H
 
 // ATHENA INCLUDES
 #include "InDetIdentifier/PixelID.h"
@@ -34,37 +34,35 @@
 
 class ActsTrackingGeometrySvc;
 
-namespace Acts {
-
 class IdentityHelper;
 
-/// @class GeoModelDetectorElement
+/// @class ActsDetectorElement
 ///
-class GeoModelDetectorElement : public DetectorElementBase
+class ActsDetectorElement : public Acts::DetectorElementBase
 {
   using DetElemVariant = boost::variant<const InDetDD::SiDetectorElement*, const InDetDD::TRT_BaseElement*>;
 public:
   enum class Subdetector { Pixel, SCT, TRT };
 
-  GeoModelDetectorElement(const InDetDD::SiDetectorElement* detElem,
+  ActsDetectorElement(const InDetDD::SiDetectorElement* detElem,
                           const ActsTrackingGeometrySvc* trkSvc);
 
   /// Constructor for a straw surface.
   /// @param transform Transform to the straw system
-  GeoModelDetectorElement(std::shared_ptr<const Transform3D> trf, 
+  ActsDetectorElement(std::shared_ptr<const Acts::Transform3D> trf, 
                           const InDetDD::TRT_BaseElement* detElem,
                           const Identifier& id, // we need explicit ID here b/c of straws
                           const ActsTrackingGeometrySvc* trkSvc);
 
   ///  Destructor
-  virtual ~GeoModelDetectorElement() {}
+  virtual ~ActsDetectorElement() {}
 
   /// Identifier
   Identifier
   identify() const;
 
   /// Return local to global transform associated with this identifier
-  virtual const Transform3D&
+  virtual const Acts::Transform3D&
   transform() const final override;
   
   void
@@ -72,7 +70,7 @@ public:
 
 
   /// Return surface associated with this identifier, which should come from the
-  virtual const Surface&
+  virtual const Acts::Surface&
   surface() const final override;
 
   /// Returns the thickness of the module
@@ -87,7 +85,7 @@ private:
   /// Returns default transform. For TRT this is static and set in constructor.
   /// For silicon detectors it is calulated from GM, and stored. Thus the method 
   /// is not const. The store is mutexed.
-  const Transform3D&
+  const Acts::Transform3D&
   getDefaultTransformMutexed() const;
 
   struct IdVisitor : public boost::static_visitor<Identifier>
@@ -112,28 +110,26 @@ private:
   /// Detector element as variant
   DetElemVariant m_detElement;
   /// Boundaries of the detector element
-  std::shared_ptr<const SurfaceBounds> m_bounds;
+  std::shared_ptr<const Acts::SurfaceBounds> m_bounds;
   ///  Thickness of this detector element
   double m_thickness;
   /// Corresponding Surface
-  std::shared_ptr<const Surface> m_surface;
-  std::vector<std::shared_ptr<const Surface>> m_surfaces;
+  std::shared_ptr<const Acts::Surface> m_surface;
+  std::vector<std::shared_ptr<const Acts::Surface>> m_surfaces;
 
   // this is pretty much only used single threaded, so
   // the mutex does not hurt
   mutable std::mutex m_cacheMutex;
-  mutable std::shared_ptr<const Transform3D> m_defTransform;
+  mutable std::shared_ptr<const Acts::Transform3D> m_defTransform;
 
   const ActsTrackingGeometrySvc* m_trackingGeometrySvc;
   
   Identifier m_explicitIdentifier;
 
   // this is threadsafe!
-  //mutable Gaudi::Hive::ContextSpecificData<Transform3D> m_ctxSpecificTransform;
+  //mutable Gaudi::Hive::ContextSpecificData<Acts::Transform3D> m_ctxSpecificTransform;
 
 
 };
-
-}
 
 #endif

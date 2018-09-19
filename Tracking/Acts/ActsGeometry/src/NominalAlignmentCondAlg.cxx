@@ -22,7 +22,7 @@
 
 // PACKAGE
 #include "ActsGeometry/NominalAlignmentCondAlg.h"
-#include "ActsGeometry/GeoModelDetectorElement.hpp"
+#include "ActsGeometry/ActsDetectorElement.h"
 
 // ACTS
 #include "Acts/Utilities/Definitions.hpp"
@@ -110,8 +110,7 @@ StatusCode NominalAlignmentCondAlg::execute() {
     size_t nElems = 0;
     trkVol->visitDetectorElements(
       [alignmentStore, &nElems](const Acts::DetectorElementBase* detElem) {
-      using GMDE = Acts::GeoModelDetectorElement;
-      const GMDE* gmde = dynamic_cast<const GMDE*>(detElem);
+      const auto* gmde = dynamic_cast<const ActsDetectorElement*>(detElem);
       gmde->storeTransform(alignmentStore);
       nElems++;
     });
