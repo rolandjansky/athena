@@ -1018,9 +1018,7 @@ bool DQTGlobalWZFinderTool::goodElectrons(const xAOD::EventInfo* thisEventInfo,
 		  			  const xAOD::Vertex* pVtx, 
 		   			  bool isBad){
   bool isGood = false;
-
-  // for now just use muon pt cut for electrons as they should be the same
-  //Float_t m_electronEtCut = 25; 
+  Float_t m_electronEtCut = m_muonPtCut; 
 
   bool passSel = false;
   if (!((electron_itr)->passSelection(passSel, "LHMedium"))) ATH_MSG_WARNING("Electron ID WP Not Defined");
@@ -1042,8 +1040,7 @@ bool DQTGlobalWZFinderTool::goodElectrons(const xAOD::EventInfo* thisEventInfo,
     }
   }
 
-  // using muon pt cut for electrons
-  if ( ((electron_itr)->pt() > m_muonPtCut*GeV) &&
+  if ( ((electron_itr)->pt() > m_electronEtCut*GeV) &&
        fabs((electron_itr)->caloCluster()->etaBE(2)) < 2.4 &&
        passSel &&
        m_isolationSelectionTool->accept(*electron_itr) &&
