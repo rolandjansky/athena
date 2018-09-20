@@ -128,6 +128,9 @@ HWIdentifier LArMCSymTool::symOnline(const HWIdentifier & id)  const
 {
 
   const Identifier offid = m_cablingService->cnvToIdentifier(id);
+  if (!offid.is_valid()) {
+    return HWIdentifier();
+  }
   return symOnline(offid);
 }
 
