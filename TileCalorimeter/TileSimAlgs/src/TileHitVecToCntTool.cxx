@@ -914,7 +914,6 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     std::vector<TileHit *>::iterator iHit = m_allHits.begin();
     std::vector<TileHit *>::iterator lastHit = m_allHits.end();
     std::vector<TileHit *>::iterator iHit_DigiHSTruth = m_allHits_DigiHSTruth.begin();
-    std::vector<TileHit *>::iterator lastHit_DigiHSTruth = m_allHits_DigiHSTruth.end();
 
     int nHitUni = 0;
     double eHitInTime = 0.0;
@@ -973,9 +972,6 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //loop over all hits in TileHitContainer and take energy deposited in certain period of time
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
   
-  TileHitNonConstContainer::iterator collIt = m_hits->begin();
-  TileHitNonConstContainer::iterator endcoll = m_hits->end();
-
   TileHitNonConstContainer::iterator collIt_DigiHSTruth; 
   TileHitNonConstContainer::iterator endColl_DigiHSTruth;
 	if(m_doDigiTruth) collIt_DigiHSTruth = m_hits_DigiHSTruth->begin();
