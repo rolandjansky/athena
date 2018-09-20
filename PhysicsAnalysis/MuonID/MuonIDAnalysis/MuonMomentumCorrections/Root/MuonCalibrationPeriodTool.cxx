@@ -13,25 +13,29 @@ namespace CP {
     
     
     StatusCode MuonCalibrationPeriodTool::beginEvent() {
-        static const unsigned int mc16a_period_number = 284500;
-        static const unsigned int mc16d_period_number = 300000;
-        static const unsigned int mc16e_period_number = 310000;
         // I've copied the run number ranges from SUSYTools
         // https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/SUSYPhys/SUSYTools/Root/SUSYObjDef_xAOD.cxx#L2438
         static const unsigned int last_run_16  = 320000;
         static const unsigned int last_run_17  = 350000;
         // Not the appropiate value but okay we can fix it afterwards
         static const unsigned int last_run_18  = 500000;
-              
+      
         const xAOD::EventInfo* info = nullptr;
         ATH_CHECK(evtStore()->retrieve(info, "EventInfo"));
      
         unsigned int run = info->runNumber();
         bool isData = !info->eventType(xAOD::EventInfo::IS_SIMULATION);        
-        if ( (isData  && run <= last_run_16) || (!isData && run == mc16a_period_number) ) m_activeTool = m_calibTool_1516.get();
-        else if ( (isData  && run <= last_run_17) || (!isData && run == mc16d_period_number) ) m_activeTool = m_calibTool_17.get();
-        else if ( (isData  && run <= last_run_18) || (!isData && run == mc16e_period_number) ) m_activeTool = m_calibTool_18.get();
-        else {
+        
+        if ( (isData  && run <= last_run_16) || (!isData && std::find(m_MCperiods1516.begin(), m_MCperiods1516.end(),run) != m_MCperiods1516.end()) ){
+             ATH_MSG_DEBUG("The current run "<<run<<" corresponds to data 15-16 / mc16a");
+             m_activeTool = m_calibTool_1516.get();
+        } else if ( (isData  && run <= last_run_17) || (!isData && std::find(m_MCperiods17.begin(), m_MCperiods17.end(),run) != m_MCperiods17.end()) ) {
+            ATH_MSG_DEBUG("The current run "<<run<<" corresponds to data 17 / mc16d");
+            m_activeTool = m_calibTool_17.get();
+        } else if ( (isData  && run <= last_run_18) || (!isData && std::find(m_MCperiods18.begin(), m_MCperiods18.end(),run) != m_MCperiods18.end()) ){
+            ATH_MSG_DEBUG("The current run "<<run<<" corresponds to data 18 / mc16e");
+            m_activeTool = m_calibTool_18.get();
+        } else {
             ATH_MSG_FATAL("Could not determine on which year we are running");
             return StatusCode::FAILURE;
         }
@@ -40,6 +44,16 @@ namespace CP {
     }
 
     StatusCode MuonCalibrationPeriodTool::initialize() {
+        if(m_MCperiods1516.empty()) {
+            ATH_MSG_FATAL("No period numbers have been provided for mc16a");
+            return StatusCode::FAILURE;
+        } else if (m_MCperiods17.empty()){
+            ATH_MSG_FATAL("No period numbers have been provided for mc16d");
+            return StatusCode::FAILURE;
+        } else if (m_MCperiods18.empty()){
+            ATH_MSG_FATAL("No period numbers have been provided for mc16e");
+            return StatusCode::FAILURE;
+        }
         if (!m_calibTool_1516.isUserConfigured()){
             ATH_MSG_INFO("Setup the MuonMomentum calibration tool for 2015-2016 & mc16a");
             m_calibTool_1516.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+name()+"_1516");
@@ -72,11 +86,10 @@ namespace CP {
             ATH_CHECK(m_calibTool_18.setProperty("SagittaCorr", false));
             ATH_CHECK(m_calibTool_18.setProperty("doSagittaMCDistortion", true));
             ATH_CHECK(m_calibTool_18.setProperty("SagittaCorrPhaseSpace", true));
-        }        
+        }
         ATH_CHECK(m_calibTool_1516.retrieve());
         ATH_CHECK(m_calibTool_17.retrieve());
         ATH_CHECK(m_calibTool_18.retrieve());
-        
         return StatusCode::SUCCESS;
     }
     
@@ -89,7 +102,10 @@ namespace CP {
         m_sagittaRelease1516("sagittaBiasDataAll_25_07_17"),
         m_sagittaRelease17("sagittaBiasDataAll_30_07_18"),
         m_sagittaRelease18("sagittaBiasDataAll_30_07_18"),
-        m_release("Recs2017_08_02"){
+        m_release("Recs2017_08_02"),
+        m_MCperiods1516(),
+        m_MCperiods17(),
+        m_MCperiods18() {
 
         m_calibTool_1516.declarePropertyFor(this, "CalibrationTool1516", "Parse the configured instance of the calibration tool for 15&16 data or mc16a");
         m_calibTool_17.declarePropertyFor(this, "CalibrationTool17", "Parse the configured instance of the calibration tool for 17 data or mc16d");
@@ -98,6 +114,11 @@ namespace CP {
         declareProperty("SagittaRelease17", m_sagittaRelease17);
         declareProperty("SagittaRelease18", m_sagittaRelease18);
         declareProperty("Release", m_release);
+        
+        declareProperty("MCperiods1516", m_MCperiods1516 = {284500});
+        declareProperty("MCperiods17", m_MCperiods17 = {300000, 304000, 305000});
+        declareProperty("MCperiods18", m_MCperiods18 = {310000});
+        // run 304000/305000 correspond to 13/7 TeV low-mu data in 2017
     }
     MuonCalibrationPeriodTool::~MuonCalibrationPeriodTool(){}
 
