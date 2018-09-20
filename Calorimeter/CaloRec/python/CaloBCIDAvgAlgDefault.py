@@ -28,8 +28,10 @@ def CaloBCIDAvgAlgDefault():
         else: #MC case
             from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
             from LArRecUtils.LArAutoCorrTotalCondAlgDefault import  LArAutoCorrTotalCondAlgDefault
-            LArOFCCondAlgDefault()
+            from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+            LArADC2MeVCondAlgDefault()
             LArAutoCorrTotalCondAlgDefault()
+            LArOFCCondAlgDefault()
             from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
             theBunchCrossingTool = BunchCrossingTool()
             conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/Shape",className="LArShape32MC")
