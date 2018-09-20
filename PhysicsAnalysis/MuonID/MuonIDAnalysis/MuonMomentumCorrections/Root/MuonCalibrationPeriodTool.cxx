@@ -116,9 +116,9 @@ namespace CP {
         declareProperty("Release", m_release);
         
         declareProperty("MCperiods1516", m_MCperiods1516 = {284500});
-        declareProperty("MCperiods17", m_MCperiods17 = {300000});
+        declareProperty("MCperiods17", m_MCperiods17 = {300000, 304000, 305000});
         declareProperty("MCperiods18", m_MCperiods18 = {310000});
-        
+        // run 304000/305000 correspond to 13/7 TeV low-mu data in 2017
     }
     MuonCalibrationPeriodTool::~MuonCalibrationPeriodTool(){}
 
