@@ -29,7 +29,9 @@ class egammaTopoClusterCopier : public AthReentrantAlgorithm {
   
   private:
 
-  StatusCode  checkEMFraction (const xAOD::CaloCluster *clus, float &emFrac) const;
+  // note: cluster passed is not const since it gets decorated
+  bool passSelection(xAOD::CaloCluster *clus) const;
+
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputTopoCollection {this,
       "InputTopoCollection", "CaloTopoCluster", "input topocluster collection"};
 
