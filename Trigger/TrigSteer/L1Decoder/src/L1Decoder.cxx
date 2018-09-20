@@ -102,7 +102,7 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
     const static HLT::Identifier costMonitorChain(m_costMonitoringChain);
     const auto activeCostMonIt = std::find(activeChains.begin(), activeChains.end(), costMonitorChain);
     const bool doCostMonitoring = (activeCostMonIt != activeChains.end());
-    ATH_ATH_CHECK(m_trigCostSvcHandle->startEvent(ctx, doCostMonitoring));
+    ATH_CHECK(m_trigCostSvcHandle->startEvent(ctx, doCostMonitoring));
   }
 
   ATH_MSG_DEBUG( "Unpacking RoIs" );  
