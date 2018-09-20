@@ -26,7 +26,8 @@ def CaloBCIDAvgAlgDefault():
 
             topSequence+=CaloBCIDAvgAlg(isMC=False,LumiTool=theLumiTool,ShapeKey="LArShape32")
         else: #MC case
-            from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault,LArAutoCorrTotalCondAlgDefault
+            from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
+            from LArRecUtils.LArAutoCorrTotalCondAlgDefault import  LArAutoCorrTotalCondAlgDefault
             LArOFCCondAlgDefault()
             LArAutoCorrTotalCondAlgDefault()
             from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
