@@ -38,6 +38,15 @@ class SCT_ReadoutData {
 
   SCT_ReadoutData(IMessageSvc* msgSvc=nullptr);
   virtual ~SCT_ReadoutData();
+
+  // Default copy constructor
+  SCT_ReadoutData(const SCT_ReadoutData&) = default;
+  // Default assignment operator
+  SCT_ReadoutData& operator=(const SCT_ReadoutData&) = default;
+  // Default move constructor
+  SCT_ReadoutData(SCT_ReadoutData&&) = default;
+  // Default move assignment operator
+  SCT_ReadoutData& operator=(SCT_ReadoutData&&) = default;
   
   /** Find the ID of the input chip for chip*/ 
   SCT_Parameters::ChipType inputChip(const SCT_Chip& chip) const {
