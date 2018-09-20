@@ -60,18 +60,19 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_17;
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_18;
         
-        // The runnumber of the file to be read once the file is opened and closed 
+        // The runNumber/periodNumber is checked at the beginning 
+        // of each event. 
         const CP::IMuonCalibrationAndSmearingTool* m_activeTool;
         
         std::string m_sagittaRelease1516;
         std::string m_sagittaRelease17;
         std::string m_sagittaRelease18;
         std::string m_release;
-        
-        
-        
-
-
+ 
+        std::vector<unsigned int> m_MCperiods1516;
+        std::vector<unsigned int> m_MCperiods17;
+        std::vector<unsigned int> m_MCperiods18;
+ 
   }; 
 
 } // namespace CP
