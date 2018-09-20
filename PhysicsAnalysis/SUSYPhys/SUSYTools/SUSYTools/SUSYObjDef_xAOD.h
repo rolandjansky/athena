@@ -130,6 +130,9 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
+    bool eleIsoSFExist(std::string eleWP);
+    bool muIsoSFExist(std::string muWP);
+
     bool isData() const override final {return m_dataSource == Data;}
     bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 

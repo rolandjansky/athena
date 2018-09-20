@@ -2444,6 +2444,33 @@ int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
   return 2018;
 }
 
+bool SUSYObjDef_xAOD::eleIsoSFExist(std::string eleWP){
+
+  std::vector<std::string> knownIso = {"FixedCutHighMuLoose", "FixedCutHighMuTight",
+				       "FixedCutHighMuTrackOnly","FixedCutHighPtCaloOnly",
+				       "FixedCutLoose","FixedCutPflowLoose",
+				       "FixedCutPflowTight","FixedCutTight",
+				       "FixedCutTightTrackOnly","Gradient",
+				       "GradientLoose","Loose","LooseTrackOnly","FixedCutTrackCone40"};
+
+  return (std::find(knownIso.begin(), knownIso.end(), eleWP) != knownIso.end());
+
+}
+
+bool SUSYObjDef_xAOD::muIsoSFExist(std::string muWP){
+
+  std::vector<std::string> knownIso = {"FixedCutHighMuLoose", "FixedCutHighMuTight",
+				       "FixedCutHighMuTrackOnly","FixedCutHighPtTrackOnly",
+				       "FixedCutLoose","FixedCutPflowLoose",
+				       "FixedCutPflowTight","FixedCutTight",
+				       "FixedCutTightTrackOnly","Gradient",
+				       "GradientLoose","Loose","LooseTrackOnly"};
+
+  return (std::find(knownIso.begin(), knownIso.end(), muWP) != knownIso.end());
+
+}
+
+
 SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
 
 #ifdef XAOD_STANDALONE
