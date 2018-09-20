@@ -94,7 +94,7 @@ Accepted command line options:
      --tcmalloc                       ...  use tcmalloc.so for memory allocation [DEFAULT]. This disables leak-check
      --stdcmalloc                     ...  use libc malloc for memory allocation
      --stdcmath                       ...  use glibc math functions [DEFAULT]
-     --imf                            ...  use Intel Math Function library: may give different numerical results from --stdcmath
+     --imf                            ...  use Intel Math Function library: faster, but may give different numerical results from --stdcmath
      --preloadlib=<lib>               ...  localized preload of library <lib>
      --nprocs=n                       ...  enable AthenaMP if n>=1 or n==-1
      --threads=n                      ...  number of threads for AthenaMT
