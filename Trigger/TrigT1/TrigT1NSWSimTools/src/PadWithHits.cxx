@@ -109,7 +109,7 @@ namespace NSWL1 {
 
   PadWithHits::PadWithHits(const int &ieta, const int &iphi,
                            const int &multiplet,
-                           const int &l, const int &sector, const int &sectortype, const int &side, const int &module) :
+                           const int &l, const int &sector, const int &/*sectortype*/, const int &side, const int &module) :
     Pad(ieta, iphi, multiplet, l, sector, side, module),
     m_totEnergy(0.), m_avgEta(0.), m_avgPhi(0.),
     m_minEta(FLT_MAX), m_minPhi(FLT_MAX), m_maxEta(FLT_MIN), m_maxPhi(FLT_MIN)
