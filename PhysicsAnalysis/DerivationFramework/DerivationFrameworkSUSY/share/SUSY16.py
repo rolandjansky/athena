@@ -36,6 +36,9 @@ DerivationFrameworkJob += SeqSUSY16
 muonsRequirements = '(Muons.pt > 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 3*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 photonsRequirements = '(abs(Photons.eta)<2.6) && (Photons.pt > 20*GeV)'
+if not DerivationFrameworkIsMonteCarlo:
+  muonsRequirements = '(Muons.pt > 3.0*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+  
 
 #====================================================================
 # Trigger navigation thinning
