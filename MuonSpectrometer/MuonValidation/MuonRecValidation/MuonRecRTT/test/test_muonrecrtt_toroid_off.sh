@@ -10,6 +10,6 @@
 
 set -x
 
-fileList="['${ArtInFile//,/', '}']"
+echo "List of files = " ${ArtInFile}
 
-Reco_tf.py --maxEvents=7500 --conditionsTag RAWtoESD:CONDBR2-BLKPA-2017-12 --geometryVersion ATLAS-R2-2016-01-00-01 --inputBSFile=$fileList --outputAODFile=MuonToroidOff_Reco.AOD.pool.root --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
+Reco_tf.py --maxEvents=7500 --conditionsTag RAWtoESD:CONDBR2-BLKPA-2017-12 --geometryVersion ATLAS-R2-2016-01-00-01 --inputBSFile=${ArtInFile} --outputAODFile=MuonToroidOff_Reco.AOD.pool.root --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
