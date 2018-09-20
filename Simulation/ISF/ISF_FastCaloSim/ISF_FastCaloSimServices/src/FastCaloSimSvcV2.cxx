@@ -187,7 +187,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   ATH_MSG_INFO("NEW PARTICLE! FastCaloSimSvcV2 called with ISFParticle: " << isfp);
 
   int pdgid = fabs(isfp.pdgCode());
-  int barcode=isfp.barcode();
+  //int barcode=isfp.barcode();
 
   Amg::Vector3D particle_position =  isfp.position();  
   /*
