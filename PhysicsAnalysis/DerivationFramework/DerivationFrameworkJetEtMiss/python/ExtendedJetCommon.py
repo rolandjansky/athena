@@ -11,6 +11,8 @@ import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
+from DerivationFrameworkFlavourTag.HbbCommon import (
+    buildVRJets, linkVRJetsToLargeRJets)
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -431,7 +433,7 @@ def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
                             ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
 def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
-                    **kwargs):
+                    addGetters=None, **kwargs):
     extjetlog.info("Building jet collection with modifier sequence {0}".format(constmods))
     constmodstr = "".join(constmods)
     jetname = "{0}{1}{2}{3}Jets".format(jetalg,int(radius*10),constmodstr,inputtype)
@@ -470,6 +472,8 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
     # Generate the getter list including ghosts from that for the standard list for the input type
     getterbase = inputtype.lower()
     getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
+    if addGetters:
+        getters += addGetters
 
     # Pass the configuration to addStandardJets
     # The modifiers will be taken from the 
@@ -484,6 +488,20 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
     jetfindargs.update(kwargs)
 
     addStandardJets(**jetfindargs)
+
+def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
+    vrJetName, vrGhostLabel = buildVRJets(
+        sequence, do_ghost=True, logger=logger)
+
+    linkVRJetsToLargeRJets(sequence, vrJetName, vrGhostLabel)
+
+    addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], sequence, seq_name,
+                    ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed",
+                    addGetters=[vrGhostLabel.lower()])
+    addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
+                    algseq=sequence, outputGroup=seq_name,
+                    writeUngroomed=True, mods="lctopo_groomed",
+                    constmods=["CS", "SK"])
 
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")

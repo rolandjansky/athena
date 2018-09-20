@@ -18,6 +18,7 @@ FullListOfSmartContainers = [
    "AntiKt4EMTopoJets",
    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+   "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASubJets",

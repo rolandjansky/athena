@@ -5,6 +5,8 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+    addCSSKSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 
@@ -126,6 +128,7 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
 addTCCTrimmedJets(jetm1Seq,"JETM1")
+addCSSKSoftDropJets(jetm1Seq, "JETM1")
 
 if DerivationFrameworkIsMonteCarlo:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)

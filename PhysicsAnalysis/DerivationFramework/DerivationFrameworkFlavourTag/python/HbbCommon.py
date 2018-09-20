@@ -4,6 +4,12 @@
 # import Common Algs
 from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
 
+# I wish we didn't need this
+from BTagging.BTaggingConfiguration import getConfiguration
+ConfInst=getConfiguration()
+
+from GaudiKernel.Configurable import WARNING
+
 # Import star stuff (it was like that when I got here)
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
@@ -196,7 +202,6 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
 def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
-    from JetRec.JetRecStandard import jtm
     from AthenaCommon import Logging
 
     if logger is None:
@@ -208,6 +213,12 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
     # there are no issues with train safety.
     if opts or pos_opts:
         logger.error('Options specified for VR jets, they will be ignored')
+
+    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger)
+    linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
+
+def buildVRJets(sequence, do_ghost, logger):
+    from JetRec.JetRecStandard import jtm
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track"
     VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
@@ -316,16 +327,23 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
           SkipNegativeEnergy = True,
           GhostScale = 1.e-20,                                                   # this makes the PseudoJet Ghosts, and thus the reco flow will treat them as such
         )
+    return VRJetName, VRGhostLabel
 
+def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
+                           baseGetterMap='lctopo',
+                           baseLargeRJets='AntiKt10LCTopo',
+                           modifiers="lctopo_ungroomed"):
+    from JetRec.JetRecStandard import jtm
+    pjgettername = VRGhostLabel.lower()
     #==========================================================
     # Re-cluster large-R jet with VR ghost associated on it
     # AntiKt10LCTopo hard-coded for now
     #==========================================================
-    LargeRJetAlg     = "jfind_akt10lctopo_%s" %(VRJetName.lower())
-    LargeRJets       = "AKt10LCTopo_%sJets"   %(VRJetName)
-    LargeRJetPrefix  = "AKt10LCTopo_%s"       %(VRJetName)
-    newLCTopo        = "lctopo_%s"            %(VRJetName.lower())
-    LinkTransferAlg  = "LinkTransfer_%s"     %(VRJetName)
+    LargeRJetAlg     = "jfind_%s_%s" %(baseLargeRJets.lower(), VRJetName.lower())
+    LargeRJets       = "%s_%sJets"   %(baseLargeRJets, VRJetName)
+    LargeRJetPrefix  = "%s_%s"       %(baseLargeRJets, VRJetName)
+    newLCTopo        = "%s_%s"            %(baseGetterMap, VRJetName.lower())
+    LinkTransferAlg  = "LinkTransfer_%s_%s"     %(baseLargeRJets, VRJetName)
 
     if LargeRJetAlg in DFJetAlgs:
         print "  Found ", LargeRJetAlg," in DFJetAlgs in", sequence
@@ -341,9 +359,9 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
         else:
             print "  Create new ", LargeRJets,"in", sequence
             OutputJets.setdefault("CustomJets" , [] ).append(LargeRJets)
-            jtm.gettersMap[newLCTopo] = list(jtm.gettersMap["lctopo"])
+            jtm.gettersMap[newLCTopo] = list(jtm.gettersMap[baseGetterMap])
             jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ]
-            jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , "lctopo_ungroomed",
+            jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , modifiers,
                              ghostArea = 0 , ptmin = 40000, ptminFilter = 50000,
                              calibOpt = "none")
 
@@ -358,8 +376,10 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
     # Solution: decouple the following part with parts above
     #==========================================================
 
-    jetassoctool = getJetExternalAssocTool('AntiKt10LCTopo', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
-    applyJetAugmentation('AntiKt10LCTopo', LinkTransferAlg, sequence, jetassoctool)
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+        getJetExternalAssocTool, applyJetAugmentation)
+    jetassoctool = getJetExternalAssocTool(baseLargeRJets, LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
+    applyJetAugmentation(baseLargeRJets, LinkTransferAlg, sequence, jetassoctool)
 
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10TCCjet with ghost VR and copy ghost link to AntiKt10TCC - Copy and pasting this defintion is an ugly temporary solution. We need to properly rewrite this for a more general use and remove the hardcoded jet collection.
@@ -475,7 +495,8 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
     # Issue here: If addVRJets() is called more than once for different VR, only link to first VR would be transferred
     # Solution: decouple the following part with parts above
     #==========================================================
-
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+        getJetExternalAssocTool, applyJetAugmentation)
     jetassoctool = getJetExternalAssocTool('AntiKt10TrackCaloCluster', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
     applyJetAugmentation('AntiKt10TrackCaloCluster', LinkTransferAlg, sequence, jetassoctool)
 

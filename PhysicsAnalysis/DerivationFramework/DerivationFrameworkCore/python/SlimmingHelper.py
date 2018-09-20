@@ -396,6 +396,9 @@ class SlimmingHelper:
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
                         items.extend(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20JetsCPContent)
+                elif collectionName=="AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent import AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent
+                        items.extend(AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent)
                 elif collectionName=="AntiKt4EMPFlowJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
