@@ -189,13 +189,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   int pdgid = fabs(isfp.pdgCode());
   int barcode=isfp.barcode();
 
-  if(barcode!=10001)
-  {
-    ATH_MSG_INFO("ISF particle barcode is barcode "<<barcode<<". Go to next Particle.");
-    return StatusCode::SUCCESS; 
-  }
-
-  Amg::Vector3D particle_position =  isfp.position();
+  Amg::Vector3D particle_position =  isfp.position();  
   /*
   float eta_isfp = particle_position.eta();             // isfp eta and phi, in case we need them
   //float phi_isfp = particle_position.phi();  
