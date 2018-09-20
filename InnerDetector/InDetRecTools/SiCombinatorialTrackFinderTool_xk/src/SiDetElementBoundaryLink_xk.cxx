@@ -87,48 +87,17 @@ if (not B) {
   
   m_dR = B->R();
   
-  Sl*=0.8;
+  std::vector < std::pair < double, double > > corners = B->corners();
   
-  std::pair<Amg::Vector3D,Amg::Vector3D> strip0(Si->endsOfStrip(InDetDD::SiLocalPosition( Sl+m_dR, Swmax-1.,0))); 
-  Amg::Vector3D a0(strip0.first ); 
-  Amg::Vector3D b0(strip0.second);  
-  double x0 = a0[0]*Ax[0]+a0[1]*Ax[1];
-  double y0 = a0[0]*Ay[0]+a0[1]*Ay[1];
-  double x1 = b0[0]*Ax[0]+b0[1]*Ax[1];
-  double y1 = b0[0]*Ay[0]+b0[1]*Ay[1];
-  if(y1 > y0) {x[0] = x1; y[0] = y1;} else  {x[0] = x0; y[0] = y0;}
+  x[0] =  corners.at(0).first;
+  x[1] =  corners.at(1).first;
+  x[2] =  corners.at(2).first;
+  x[3] =  corners.at(3).first;
   
-  std::pair<Amg::Vector3D,Amg::Vector3D> strip1(Si->endsOfStrip(InDetDD::SiLocalPosition(-Sl+m_dR, Swmin-1.,0))); 
-  Amg::Vector3D a1(strip1.first ); 
-  Amg::Vector3D b1(strip1.second);  
-  x0        = a1[0]*Ax[0]+a1[1]*Ax[1];
-  y0        = a1[0]*Ay[0]+a1[1]*Ay[1];
-  x1        = b1[0]*Ax[0]+b1[1]*Ax[1];
-  y1        = b1[0]*Ay[0]+b1[1]*Ay[1];
-  if(y1 < y0) {x[1] = x1; y[1] = y1;} else  {x[1] = x0; y[1] = y0;}
-  
-  std::pair<Amg::Vector3D,Amg::Vector3D> strip2(Si->endsOfStrip(InDetDD::SiLocalPosition(-Sl+m_dR,-Swmin-1.,0))); 
-  Amg::Vector3D a2(strip2.first ); 
-  Amg::Vector3D b2(strip2.second);  
-  x0        = a2[0]*Ax[0]+a2[1]*Ax[1];
-  y0        = a2[0]*Ay[0]+a2[1]*Ay[1];
-  x1        = b2[0]*Ax[0]+b2[1]*Ax[1];
-  y1        = b2[0]*Ay[0]+b2[1]*Ay[1];
-  if(y1 < y0) {x[2] = x1; y[2] = y1;} else  {x[2] = x0; y[2] = y0;}
-  
-  std::pair<Amg::Vector3D,Amg::Vector3D> strip3(Si->endsOfStrip(InDetDD::SiLocalPosition( Sl+m_dR,-Swmax+2.,0))); 
-  Amg::Vector3D a3(strip3.first ); 
-  Amg::Vector3D b3(strip3.second);  
-  x0        = a3[0]*Ax[0]+a3[1]*Ax[1];
-  y0        = a3[0]*Ay[0]+a3[1]*Ay[1];
-  x1        = b3[0]*Ax[0]+b3[1]*Ax[1];
-  y1        = b3[0]*Ay[0]+b3[1]*Ay[1];
-  if(y1 > y0) {x[3] = x1; y[3] = y1;} else  {x[3] = x0; y[3] = y0;}
-  
-  y[0]-=m_dR;
-  y[1]-=m_dR;
-  y[2]-=m_dR;
-  y[3]-=m_dR;
+  y[0]=corners.at(0).second - m_dR;
+  y[1]=corners.at(1).second - m_dR;
+  y[2]=corners.at(2).second - m_dR;
+  y[3]=corners.at(3).second - m_dR;
   
   for(int i=0; i!=4; ++i) {
     

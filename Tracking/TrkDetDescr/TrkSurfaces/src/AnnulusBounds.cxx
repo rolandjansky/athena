@@ -181,8 +181,6 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
 
 }
 
-
-
 // copy constructor
 Trk::AnnulusBounds::AnnulusBounds(const AnnulusBounds& annbo) :
     Trk::SurfaceBounds(),
@@ -613,7 +611,17 @@ bool Trk::AnnulusBounds::EllipseIntersectLine(const Amg::Vector2D& locpo, double
 
 }
 
-
+std::vector< std::pair < double, double > > Trk::AnnulusBounds::corners() const {
+  
+  std::vector< std::pair < double, double > > corners;
+  
+  corners.push_back(std::make_pair(m_solution_R_max.at(0),m_solution_R_max.at(1)));
+  corners.push_back(std::make_pair(m_solution_R_min.at(0),m_solution_R_min.at(1)));
+  corners.push_back(std::make_pair(m_solution_L_min.at(0),m_solution_L_min.at(1)));
+  corners.push_back(std::make_pair(m_solution_L_max.at(0),m_solution_L_max.at(1)));
+  
+  return corners;
+}
 
 
 

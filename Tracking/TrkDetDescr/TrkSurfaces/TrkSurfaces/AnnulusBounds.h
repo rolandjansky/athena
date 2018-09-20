@@ -93,8 +93,9 @@ namespace Trk {
       /**This method returns the tilt angle*/
       double phiS() const;
       
-      
-
+      /**This method returns the four corners of the bounds*/
+      /**Strating from the upper right and continuing clock-wise*/
+      std::vector< std::pair < double, double > > corners() const;
       
       /**This method returns the maximal extension on the local plane*/
       virtual double r() const override;
