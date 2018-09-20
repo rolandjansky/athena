@@ -53,7 +53,7 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
     ATH_MSG_FATAL(m_readKeyModule.key() << " is incorrect.");
     return StatusCode::FAILURE;
   }
-  if((m_readKeyMur.key()!=s_coolMurFolderName) and (m_readKeyMur.key()!=s_coolMurFolderName2)) {
+  if ((m_readKeyMur.key()!=s_coolMurFolderName) and (m_readKeyMur.key()!=s_coolMurFolderName2)) {
     ATH_MSG_FATAL(m_readKeyMur.key() << " is incorrect.");
     return StatusCode::FAILURE;
   }
@@ -72,7 +72,7 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( m_readoutTool.retrieve() );
+  ATH_CHECK(m_readoutTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -112,7 +112,7 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
   // Define validity of the output cond obbject and record it
   // rangeDetEle is run-lumi. Others are time.
   EventIDRange rangeW{EventIDRange::intersect(rangeChannel, rangeModule, rangeMur/*, rangeDetEle*/)};
-  if(rangeW.start()>rangeW.stop()) {
+  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << rangeChannel << " " << rangeModule << " " << rangeMur/* << " " << rangeDetEle*/);
     return StatusCode::FAILURE;
   }

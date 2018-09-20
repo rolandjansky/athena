@@ -247,7 +247,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___SCT_DigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.SCT_DigitizationTool'
-        expected_property_list = ['BarrelOnly', 'DetStore', 'EnableHits', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEnd', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'RndmSvc', 'SurfaceChargesGenerator']
+        expected_property_list = ['BarrelOnly', 'DetStore', 'EnableHits', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEnd', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'RandomDisabledCellGenerator', 'RndmSvc', 'SurfaceChargesGenerator']
         expected_nonstring_properties = {'LastXing': '25', 'FirstXing': '-50'}
         expected_string_properties = {'InputObjectName': 'SCT_Hits', 'OutputObjectName': 'SCT_RDOs', 'OutputSDOName': 'SCT_SDO_Map'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -271,7 +271,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'ToolSvc.LArPileUpTool'
-        expected_property_list = ['AutoCorrNoiseTool', 'DetStore', 'DigitContainer', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
+        expected_property_list = ['AutoCorrNoiseTool', 'DetStore', 'DigitContainer', 'DoDigiTruthReconstruction', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
         expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4', 'EmBarrelHitContainerName': '["LArHitEMB"]', 'EmEndCapHitContainerName': '["LArHitEMEC"]', 'ForWardHitContainerName': '["LArHitFCAL"]', 'HecHitContainerName': '["LArHitHEC"]'}
         expected_string_properties = {'DigitContainer': 'LArDigitContainer_MC'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -283,7 +283,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TileHitVecToCntTool_properties(self):
         tested_configurable_name = 'ToolSvc.TileHitVecToCntTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'RndmSvc', 'TileHitContainer', 'TileHitVectors', 'TileInfoName', 'TriggerTimeTool']
+        expected_property_list = ['DetStore', 'DoHSTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'RndmSvc', 'TileHitContainer', 'TileHitContainer_DigiHSTruth', 'TileHitVectors', 'TileInfoName', 'TriggerTimeTool']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-200', 'TileHitVectors': '["TileHitVec", "MBTSHits"]'}
         expected_string_properties = {'TileHitContainer': 'TileHitCnt'}
         self._detailed_ConfigurablePropertiesCheck(

@@ -7,11 +7,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -31,7 +30,7 @@ class SCT_DCSConditionsTempCondAlg : public AthAlgorithm
 
   ServiceHandle<ICondSvc> m_condSvc;
 
-  BooleanProperty m_returnHVTemp;
+  BooleanProperty m_returnHVTemp{this, "ReturnHVTemp", true};
 };
 
 #endif // SCT_DCSCONDITIONSTEMPCONDALG

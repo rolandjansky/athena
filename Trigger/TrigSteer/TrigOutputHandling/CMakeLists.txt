@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODTrigEgamma
 			  Event/xAOD/xAODTrigger
 			  Event/xAOD/xAODTracking
+			  Trigger/TrigDataAccess/TrigSerializeResult
 			  Event/xAOD/xAODTrigMuon
 			  Event/xAOD/xAODMuon
 			  )
@@ -27,8 +28,8 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
-                   LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent 
-                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon )                   
+                   LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib
+                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon )                 
 
 atlas_add_component( TrigOutputHandling
                      src/components/*.cxx                      

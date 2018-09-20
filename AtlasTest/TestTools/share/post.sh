@@ -208,6 +208,9 @@ PP="$PP"'|no interpreter information for class TSelectorCint'
 #  Warning in <TInterpreter::ReadRootmapFile>: enum  xAOD::Type::ObjectType found in libxAODBaseDict.so  libEventKernelDict.so  libxAODBaseDict.so  libEventKernelDict.so  is already in libxAODBaseDict.so  libEventKernelDict.so 
 PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
 
+# Ignore sourceID message from EventSelector.
+PP="$PP"'|Disconnecting input sourceID'
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"

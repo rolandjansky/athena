@@ -179,6 +179,7 @@ StatusCode EMBremCollectionBuilder::execute()
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrkPart,
                                                TrackCollection* finalTracks,
                                                xAOD::TrackParticleContainer* finalTrkPartContainer,
@@ -218,11 +219,12 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   //Setup the Trk::Track Refit 
   std::unique_ptr<Trk::Track> trk_refit; 
   if( nSiliconHits_trk >= m_MinNoSiHits ) {
-    StatusCode status = m_trkRefitTool->refitTrackParticle(tmpTrkPart);
+    IegammaTrkRefitterTool::Cache cache{};
+    StatusCode status = m_trkRefitTool->refitTrackParticle(tmpTrkPart,cache);
     if (status == StatusCode::SUCCESS){
       ATH_MSG_DEBUG("FIT SUCCESS ");
       ++(counter.refittedTracks); 
-      trk_refit.reset(m_trkRefitTool->refittedTrack()); //this is a Trk::Track
+      trk_refit.reset(cache.refittedTrack.release()); 
       m_summaryTool->updateTrack(*trk_refit);   
     }
     else{

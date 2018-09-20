@@ -1,6 +1,6 @@
-#include "../HLTByteStreamCreator.h"
+#include "../HLTResultCreatorByteStream.h"
 #include "../HLTEDMCreator.h"
 
-DECLARE_COMPONENT( HLTByteStreamCreator )
+DECLARE_COMPONENT( HLTResultCreatorByteStream )
 DECLARE_COMPONENT( HLTEDMCreator )
 

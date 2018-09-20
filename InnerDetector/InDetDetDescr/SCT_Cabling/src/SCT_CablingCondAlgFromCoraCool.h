@@ -13,19 +13,19 @@
  *   @date 08/03/2018
  */
 
-//STL includes
-#include <string>
-
-//Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ICondSvc.h"
-
 //Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "SCT_Cabling/SCT_CablingData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
+
+//Gaudi includes
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ICondSvc.h"
+
+//STL includes
+#include <string>
 
 /**
  *    @class SCT_CablingCondAlgFromCoraCool

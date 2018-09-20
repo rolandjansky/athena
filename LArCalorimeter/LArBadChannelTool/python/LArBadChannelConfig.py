@@ -7,13 +7,13 @@ def LArBadChannelCfg(configFlags):
 
     result=LArOnOffIdMappingCfg(configFlags)[0]
     
-    if configFlags.get("global.isOnline") or configFlags.get("global.isMC"):
+    if configFlags.Common.isOnline or configFlags.Input.isMC:
         foldername="/LAR/BadChannels/BadChannels"
     else:
         foldername="/LAR/BadChannelsOfl/BadChannels"
         pass
     
-    if configFlags.get("global.isOnline"): 
+    if configFlags.Common.isOnline: 
         dbname="LAR"
     else:
         dbname="LAR_OFL"
@@ -28,13 +28,13 @@ def LArBadChannelCfg(configFlags):
 def LArBadFebCfg(configFlags):
     result=ComponentAccumulator()
 
-    if configFlags.get("global.isOnline") or configFlags.get("global.isMC"):
+    if configFlags.Common.isOnline or configFlags.Input.isMC:
         foldername="/LAR/BadChannels/MissingFEBs"
     else:
         foldername="/LAR/BadChannelsOfl/MissingFEBs"
         pass
 
-    if configFlags.get("global.isOnline"): 
+    if configFlags.Common.isOnline: 
         dbname="LAR"
     else:
         dbname="LAR_OFL"
@@ -61,8 +61,8 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     log.setLevel(DEBUG)
 
-    ConfigFlags.set("global.isMC",False)
-    ConfigFlags.set("global.InputFiles",["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"])
+    ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"]
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()

@@ -312,8 +312,8 @@ bool TrigL2ElectronFexMT::extrapolate(const xAOD::TrigEMCluster *clus, const xAO
     layersToSelect.insert(CaloSampling::CaloSample::EME2); 
     // extrapolate track using tool
     // get calo extension 
-    std::unique_ptr<Trk::CaloExtension> caloExtension = nullptr; 
-    if( !m_caloExtensionTool->caloExtension(*trk,caloExtension) || caloExtension->caloLayerIntersections().empty() ) {
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(*trk); 
+    if( !caloExtension || caloExtension->caloLayerIntersections().empty() ) {
         ATH_MSG_VERBOSE("extrapolator failed 1");
         m_extrapolator_failed++;  
         return false;

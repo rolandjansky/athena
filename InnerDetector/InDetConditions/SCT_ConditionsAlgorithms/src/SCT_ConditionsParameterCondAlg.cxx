@@ -4,14 +4,15 @@
 
 #include "SCT_ConditionsParameterCondAlg.h"
 
-#include <memory>
-
-#include "SCT_ConditionsData/SCT_Chip.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "Identifier/IdentifierHash.h"
+#include "SCT_ConditionsData/SCT_Chip.h"
+
 #include "GaudiKernel/EventIDRange.h"
 
-namespace {//anonymous namespace introduces file-scoped functions
+#include <memory>
+
+namespace { //anonymous namespace introduces file-scoped functions
   //is the value 'Not-a-Number' ?
   template <typename T>
   bool is_nan(const T& val) {
@@ -61,9 +62,9 @@ namespace {//anonymous namespace introduces file-scoped functions
   void parseResponseCurveArguments(float* p, const  std::string& arguments) {
     //string is of form:
     //p0 1.284730e+03 p1 5.830000e+00 p2 -5.989900e+02
-    float *p0{&p[0]};
-    float *p1{&p[1]};
-    float *p2{&p[2]};
+    float* p0{&p[0]};
+    float* p1{&p[1]};
+    float* p2{&p[2]};
     std::sscanf(arguments.c_str(), "p0 %50e p1 %50e p2 %50e", p0, p1, p2);
   }
   //folder to retrieve for threshold parameters
@@ -87,7 +88,7 @@ StatusCode SCT_ConditionsParameterCondAlg::initialize() {
   ATH_CHECK(m_readKey.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -128,9 +129,9 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
   std::unique_ptr<SCT_CondParameterData> writeCdo{std::make_unique<SCT_CondParameterData>()};
 
   // Loop over elements (i.e groups of 6 chips) in DB folder 
-  const unsigned int nChipsPerModule{12};
-  const unsigned int nChipsPerSide{6};
-  const float mVperDacBit{2.5};
+  static const unsigned int nChipsPerModule{12};
+  static const unsigned int nChipsPerSide{6};
+  static const float mVperDacBit{2.5};
   CondAttrListVec::const_iterator modItr{readCdo->begin()};
   CondAttrListVec::const_iterator modEnd{readCdo->end()};
   for (; modItr != modEnd; modItr += nChipsPerModule) {

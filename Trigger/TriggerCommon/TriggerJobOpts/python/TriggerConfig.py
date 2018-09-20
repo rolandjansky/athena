@@ -140,8 +140,8 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.set("Trigger.L1Decoder.forceEnableAllChains",True)
-    ConfigFlags.set('global.InputFiles',["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",])
+    ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = True
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",]
     ConfigFlags.lock()    
     
     acc = triggerRunCfg( ConfigFlags, lambda x: (ComponentAccumulator(), seqAND("whatever") ) )
