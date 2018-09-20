@@ -44,6 +44,9 @@ photonChains = [
       ]
 
 testChains = photonChains
+EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
+topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
+
 #topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_g5_etcut:2"]
 
 ##########################################
