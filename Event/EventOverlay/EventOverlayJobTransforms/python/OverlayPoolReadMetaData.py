@@ -396,14 +396,23 @@ def tagInfoMetaDataCheck(sigtaginfodict,pileuptaginfodict):
     result = True
     """Check the metadata for pre-mixed pileup RDO File"""
     pileupkeys = pileuptaginfodict.keys()
+    logOverlayPoolReadMetadata.debug("Signal /TagInfo ", sigtaginfodict)
+    logOverlayPoolReadMetadata.debug("Pileup /TagInfo ", pileuptaginfodict)
     sigkeys = sigtaginfodict.keys()
     pileupType = "PreMixed"
+    sigOnlyDict = dict()
     sigOnlyKeySet = set(sigkeys).difference(set(pileupkeys))
-    logOverlayPoolReadMetadata.info("The following keys only appear in Signal /TagInfo MetaData:")
-    print sigOnlyKeySet
+    logOverlayPoolReadMetadata.debug("The following keys only appear in Signal /TagInfo MetaData:")
+    logOverlayPoolReadMetadata.debug(sigOnlyKeySet)
+    for key in sigOnlyKeySet:
+        sigOnlyDict[key] = sigtaginfodict[key]
+        logOverlayPoolReadMetadata.debug("key: ", key, "value: ", sigtaginfodict[key])
+        pass
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    overlayFlags.extraTagInfoPairs = sigOnlyDict
     keysToCompareSet = set(sigkeys).intersection(set(pileupkeys))
-    logOverlayPoolReadMetadata.info("The following keys appear in Signal and PreMixed /TagInfo MetaData:")
-    print keysToCompareSet
+    logOverlayPoolReadMetadata.debug("The following keys appear in Signal and PreMixed /TagInfo MetaData:")
+    logOverlayPoolReadMetadata.debug(keysToCompareSet)
     return result
 
 def readInputFileMetadata():
