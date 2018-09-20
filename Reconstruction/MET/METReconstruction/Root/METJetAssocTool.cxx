@@ -40,7 +40,8 @@ namespace met {
   ////////////////
   METJetAssocTool::METJetAssocTool(const std::string& name) :
     AsgTool(name),
-    METAssociator(name)
+    METAssociator(name),
+    m_jetContKey("")
   {
     declareProperty( "MatchRadius",       m_matchRadius = 0.4               );
   }
@@ -56,6 +57,11 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    //Initialise ReadHandles
+    ATH_CHECK( m_jetContKey.assign(m_input_data_key));
+    ATH_CHECK( m_jetContKey.initialize());
+
+
     return StatusCode::SUCCESS;
   }
 
@@ -84,11 +90,12 @@ namespace met {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
     // Retrieve the jet container
-    const JetContainer* jetCont = 0;
-    if( evtStore()->retrieve(jetCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::JetContainer> jetCont(m_jetContKey);
+    if (!jetCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input jet container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved jet collection");
 
     ConstitHolder constits;

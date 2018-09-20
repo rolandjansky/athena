@@ -16,6 +16,9 @@
 
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
+//Includes for DataHandles
+#include "StoreGate/DataHandle.h"
+
 
 namespace met{
   class METTauAssociator final
@@ -69,6 +72,7 @@ namespace met{
  
     /// Default constructor: 
     METTauAssociator();
+    SG::ReadHandleKey<xAOD::TauJetContainer> m_tauContKey;
 
   }; 
 

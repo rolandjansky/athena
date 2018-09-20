@@ -15,6 +15,8 @@
 // METReconstruction includes
 #include "METReconstruction/METTruthAssociator.h"
 
+#include "StoreGate/DataHandle.h"
+
 // xAOD EDM
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODJet/JetContainer.h"
@@ -47,13 +49,13 @@ namespace met {
     METAssociator(name)
   {
 
-    declareProperty("RecoJetKey", m_recoJetKey               );
-    declareProperty("RecoElKey",  m_recoElKey  = "Electrons" );
-    declareProperty("RecoMuKey",  m_recoMuKey  = "Muons"     );
-    declareProperty("RecoGamKey", m_recoGamKey = "Photons"   );
-    declareProperty("RecoTauKey", m_recoTauKey = "TauJets"   );
+    declareProperty("RecoJetKey", m_recoJet               );
+    declareProperty("RecoElKey",  m_recoEl  = "Electrons" );
+    declareProperty("RecoMuKey",  m_recoMu  = "Muons"     );
+    declareProperty("RecoGamKey", m_recoGam = "Photons"   );
+    declareProperty("RecoTauKey", m_recoTau = "TauJets"   );
 
-    declareProperty("TruthEventKey", m_truthEventKey = "TruthEvents" );
+    declareProperty("TruthEventKey", m_truthEvent = "TruthEvents" );
   }
 
   // Destructor
@@ -67,6 +69,20 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    //initialise ReadHandleKeys
+    ATH_CHECK( m_recoElKey.assign(m_recoEl));
+    ATH_CHECK( m_recoElKey.initialize());
+    ATH_CHECK( m_recoJetKey.assign(m_recoJet));
+    ATH_CHECK( m_recoJetKey.initialize());
+    ATH_CHECK( m_recoMuKey.assign(m_recoMu));
+    ATH_CHECK( m_recoMuKey.initialize());
+    ATH_CHECK( m_recoGamKey.assign(m_recoGam));
+    ATH_CHECK( m_recoGamKey.initialize());
+    ATH_CHECK( m_recoTauKey.assign(m_recoTau));
+    ATH_CHECK( m_recoTauKey.initialize());
+    ATH_CHECK( m_truthEventKey.assign(m_truthEvent));
+    ATH_CHECK( m_truthEventKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -94,47 +110,50 @@ namespace met {
 
     ATH_CHECK( associateJets(metMap) );
 
-    const ElectronContainer* electronCont(0);
-    if( evtStore()->retrieve(electronCont, m_recoElKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input electron container " << m_recoElKey);
+    SG::ReadHandle<xAOD::ElectronContainer> electronCont(m_recoElKey);
+    if (!electronCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input electron container " << m_recoEl);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved electron collection");
-    if(fillAssocMap(metMap,electronCont).isFailure()) {
-      ATH_MSG_WARNING("Unable to fill map with electron container " << m_recoElKey);
+    if(fillAssocMap(metMap,electronCont.cptr()).isFailure()) {
+      ATH_MSG_WARNING("Unable to fill map with electron container " << m_recoEl);
       return StatusCode::FAILURE;
     }
 
-    const PhotonContainer* photonCont(0);
-    if( evtStore()->retrieve(photonCont, m_recoGamKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input photon container " << m_recoGamKey);
+    SG::ReadHandle<xAOD::PhotonContainer> photonCont(m_recoGamKey);
+    if (!photonCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input photon container " << m_recoGam);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved photon collection");
-    if(fillAssocMap(metMap,photonCont).isFailure()) {
-      ATH_MSG_WARNING("Unable to fill map with photon container " << m_recoGamKey);
+    if(fillAssocMap(metMap,photonCont.cptr()).isFailure()) {
+      ATH_MSG_WARNING("Unable to fill map with photon container " << m_recoGam);
       return StatusCode::FAILURE;
     }
 
-    const MuonContainer* muonCont(0);
-    if( evtStore()->retrieve(muonCont, m_recoMuKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input muon container " << m_recoMuKey);
+    SG::ReadHandle<xAOD::MuonContainer> muonCont(m_recoMuKey);
+    if (!muonCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input muon container " << m_recoMu);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved muon collection");
-    if(fillAssocMap(metMap,muonCont).isFailure()) {
-      ATH_MSG_WARNING("Unable to fill map with muon container " << m_recoMuKey);
+    if(fillAssocMap(metMap,muonCont.cptr()).isFailure()) {
+      ATH_MSG_WARNING("Unable to fill map with muon container " << m_recoMu);
       return StatusCode::FAILURE;
     }
 
-    const TauJetContainer* tauCont(0);
-    if( evtStore()->retrieve(tauCont, m_recoTauKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input tau container " << m_recoTauKey);
+    SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_recoTauKey);
+    if (!tauCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input tau container " << m_recoTau);
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Successfully retrieved tau collection");
-    if(fillAssocMap(metMap,tauCont).isFailure()) {
-      ATH_MSG_WARNING("Unable to fill map with tau container " << m_recoTauKey);
+    if(fillAssocMap(metMap,tauCont.cptr()).isFailure()) {
+      ATH_MSG_WARNING("Unable to fill map with tau container " << m_recoTau);
       return StatusCode::FAILURE;
     }
 
@@ -152,9 +171,9 @@ namespace met {
   StatusCode METTruthAssociator::associateJets(xAOD::MissingETAssociationMap* metMap) const
   {
     // Retrieve the jet container
-    const JetContainer* jetCont = 0;
-    if( evtStore()->retrieve(jetCont, m_recoJetKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input jet container " << m_recoJetKey);
+    SG::ReadHandle<xAOD::JetContainer> jetCont(m_recoJetKey);
+    if (!jetCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input jet container " << m_recoJet);
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Successfully retrieved jet collection");
@@ -217,9 +236,10 @@ namespace met {
 
     ATH_MSG_VERBOSE("Added core terms.");
 
-    const TruthEventContainer* truthEventCont(0);
-    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
+    // Retrieve the truth container
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
+    if (!truthEventCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEvent);
       return StatusCode::FAILURE;
     }
 
@@ -296,11 +316,13 @@ namespace met {
     //   if(truth && truth!=eltruth) truthlist.push_back(truth);
     // }
 
-    const TruthEventContainer* truthEventCont(0);
-    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
-      return StatusCode::FAILURE;
+    // Retrieve the truth container
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
+    if (!truthEventCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEvent);
+      return StatusCode::SUCCESS;
     }
+
 
     // First truth event is the hard scatter
     const TruthEvent* hsevent = truthEventCont->front();
@@ -388,10 +410,11 @@ namespace met {
     //   }
     // }
 
-    const TruthEventContainer* truthEventCont(0);
-    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
-      return StatusCode::FAILURE;
+    // Retrieve the truth container
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
+    if (!truthEventCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEvent);
+      return StatusCode::SUCCESS;
     }
 
     // First truth event is the hard scatter
