@@ -513,7 +513,9 @@ namespace ST {
     std::string m_eleIdBaseline;
     std::string m_eleConfig;
     std::string m_eleConfigBaseline;
+    std::string m_eleBaselineIso_WP;
     bool        m_eleIdExpert;
+    bool        m_doEleBaselineIso;
     int         m_muId;
     int         m_muIdBaseline;
     std::string m_photonId;
@@ -525,8 +527,12 @@ namespace ST {
     std::string m_eleIsoHighPt_WP;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
+    std::string m_photonBaselineIso_WP;
+    bool        m_doPhotonBaselineIso;
     std::string m_photonIso_WP;
     std::string m_photonTriggerName;
+    std::string m_muBaselineIso_WP;
+    bool        m_doMuBaselineIso;
     std::string m_muIso_WP;
     std::string m_BtagWP;
     std::string m_BtagTagger;
@@ -755,6 +761,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
     //
