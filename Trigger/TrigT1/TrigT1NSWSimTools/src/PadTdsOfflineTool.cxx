@@ -474,11 +474,6 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     void PadTdsOfflineTool::printStgcGeometryFromAgdd() const
     {
-        if(true) {
-            const std::vector<AGDDDetector*> &stgcList = AGDDDetectorStore::GetDetectorStore()->GetDetectorsByType("sTGC");
-            std::vector<AGDDDetector*>::const_iterator it = stgcList.begin();
-            std::vector<AGDDDetector*>::const_iterator end = stgcList.end();
-        }
     }
     //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::is_pad_digit(const sTgcDigit* digit) const
