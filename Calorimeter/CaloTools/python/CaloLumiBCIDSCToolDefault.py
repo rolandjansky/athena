@@ -29,7 +29,6 @@ def CaloLumiBCIDSCToolDefault(name='CaloLumiBCIDSCToolDefault'):
                       isSC=True,
                       LArOFCTool = theOFCTool,BunchCrossingTool = theBunchCrossingTool,
                       keyMinBiasAverge='LArMinBiasAverageSC',
-                      keyShape='LArShapeSC',
-                      #keyOFC='',
+                      keyShape='LArShapeSC'
                       )
     return theTool

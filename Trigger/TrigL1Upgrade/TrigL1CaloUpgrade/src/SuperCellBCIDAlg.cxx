@@ -47,7 +47,6 @@ SuperCellBCIDAlg::execute()
 	CaloCellContainer* new_scell_cont = new CaloCellContainer();
 	ATH_CHECK( evtStore()->record(new_scell_cont, "SCellBCID") );
 	new_scell_cont->reserve( scells_from_sg->size() );
-	int ii=0;
 	for(auto sc : *scells_from_sg){
 		if ( !sc ) continue;
 		CaloCell* cell = sc->clone();
