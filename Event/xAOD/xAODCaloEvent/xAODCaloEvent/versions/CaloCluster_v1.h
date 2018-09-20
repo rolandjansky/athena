@@ -226,7 +226,54 @@ namespace xAOD {
          /// and pi-
          ENG_CALIB_FRAC_HAD     = 10052,
          ///  Calibration Hit energy inside the cluster caused by other particles
-         ENG_CALIB_FRAC_REST    = 10053
+         ENG_CALIB_FRAC_REST    = 10053,
+
+
+         ENERGY_DigiHSTruth         = 40101, ///< First Moment in \f$\phi\f$
+         ETA_DigiHSTruth         = 401024, ///< Eta moment that I am trying to include
+         PHI_DigiHSTruth         = 401034, ///< phi moment I would like to have
+         TIME_DigiHSTruth         = 40104, ///< First Moment in \f$\phi\f$
+         ENERGY_CALIB_DigiHSTruth         = 40105, ///< First Moment in \f$\phi\f$
+         ETA_CALIB_DigiHSTruth         = 40106, ///< First Moment in \f$\phi\f$
+         PHI_CALIB_DigiHSTruth         = 40107, ///< First Moment in \f$\phi\f$
+         TIME_CALIB_DigiHSTruth         = 40108, ///< First Moment in \f$\phi\f$
+         FIRST_PHI_DigiHSTruth         = 50101, ///< First Moment in \f$\phi\f$
+         FIRST_ETA_DigiHSTruth         = 50102, ///< First Moment in \f$\eta\f$
+         SECOND_R_DigiHSTruth          = 50201, ///< Second Moment in \f$r\f$
+         SECOND_LAMBDA_DigiHSTruth     = 50202, ///< Second Moment in \f$\lambda\f$
+         DELTA_PHI_DigiHSTruth         = 50301,
+         DELTA_THETA_DigiHSTruth       = 50302,
+         DELTA_ALPHA_DigiHSTruth       = 50303,
+         CENTER_X_DigiHSTruth          = 50401, ///< Cluster Centroid (\f$x\f$)
+         CENTER_Y_DigiHSTruth          = 50402, ///< Cluster Centroid (\f$y\f$)
+         CENTER_Z_DigiHSTruth          = 50403, ///< Cluster Centroid (\f$z\f$)
+         CENTER_MAG_DigiHSTruth        = 50404,
+         CENTER_LAMBDA_DigiHSTruth     = 50501, ///< Shower depth at Cluster Centroid
+         LATERAL_DigiHSTruth           = 50601, ///< Normalized lateral moment
+         LONGITUDINAL_DigiHSTruth      = 50602, ///< Normalized longitudinal moment
+         ENG_FRAC_EM_DigiHSTruth       = 50701, ///< Energy fraction in EM calorimeters
+         ENG_FRAC_MAX_DigiHSTruth      = 50702, ///< Energy fraction of hottest cell
+         ENG_FRAC_CORE_DigiHSTruth     = 75003,
+         FIRST_ENG_DENS_DigiHSTruth    = 50804, ///< First Moment in E/V
+         SECOND_ENG_DENS_DigiHSTruth   = 50805, ///< Second Moment in E/V
+         ISOLATION_DigiHSTruth         = 50806,
+         ENG_BAD_CELLS_DigiHSTruth     = 50807,
+         N_BAD_CELLS_DigiHSTruth       = 50808, ///< number of bad cells
+         N_BAD_CELLS_CORR_DigiHSTruth  = 50809,
+         BAD_CELLS_CORR_E_DigiHSTruth  = 50813,
+         BADLARQ_FRAC_DigiHSTruth      = 50821,
+         ENG_POS_DigiHSTruth           = 50822, ///< Total positive Energy of this cluster
+         SIGNIFICANCE_DigiHSTruth      = 50823, ///< Cluster significance
+         CELL_SIGNIFICANCE_DigiHSTruth = 50824,
+         CELL_SIG_SAMPLING_DigiHSTruth = 50825,
+         AVG_LAR_Q_DigiHSTruth         = 50826,
+         AVG_TILE_Q_DigiHSTruth        = 50827,
+         ENG_BAD_HV_CELLS_DigiHSTruth  = 50828,
+         N_BAD_HV_CELLS_DigiHSTruth    = 50829, ///< number of cells with bad HV
+         EM_PROBABILITY_DigiHSTruth    = 50900, ///< Classification probability to be em-like
+         HAD_WEIGHT_DigiHSTruth        = 50901, ///< Hadronic weight (E_w/E_em)
+         OOC_WEIGHT_DigiHSTruth        = 50902, ///< Out-of-cluster weight (E_ooc/E_w)
+         DM_WEIGHT_DigiHSTruth         = 50903  ///< Dead-material weight (E_dm/E_ooc)
       };
 
      /// enum of possible signal states. 

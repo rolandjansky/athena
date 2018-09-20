@@ -361,13 +361,16 @@ namespace MuonGM {
       m_padDesign[il].deadS = 0.;	
 
       m_padDesign[il].nPadColumns = roParam.nPadPhi[il];
-      if (side == "A") m_padDesign[il].firstPhiPos = roParam.firstPadPhiDivision_A[il];
-      else if (side == "C") m_padDesign[il].firstPhiPos = roParam.firstPadPhiDivision_C[il];//PAD_COL_PHI0[2*sector+(m_ml-1)][stEta-1][il];
+      // The C side of the NSW is mirrored instead of rotated
+      // We should be using the same values for the pads for both A and C
+      // It is easier for us to simply read the same correct value once
+      // whereas changing the XML and the reading functions will make this incompatible with past versions
+      // Alexandre Laurier 12 Sept 2018
+      m_padDesign[il].firstPhiPos = roParam.firstPadPhiDivision_A[il];
 
       m_padDesign[il].inputPhiPitch = roParam.anglePadPhi;//stEta<2 ?  PAD_PHI_DIVISION/PAD_PHI_SUBDIVISION : PAD_PHI_DIVISION ;
 
-      if (side == "A")m_padDesign[il].PadPhiShift = roParam.PadPhiShift_A[il];
-      else if (side == "C")m_padDesign[il].PadPhiShift = roParam.PadPhiShift_C[il];
+      m_padDesign[il].PadPhiShift = roParam.PadPhiShift_A[il];
 
       m_padDesign[il].padEtaMin =  roParam.firstPadRow[il];//FIRST_PAD_ROW_DIVISION[2*sector+(m_ml-1)][stEta-1][il];
       m_padDesign[il].nPadH = roParam.nPadH[il];     

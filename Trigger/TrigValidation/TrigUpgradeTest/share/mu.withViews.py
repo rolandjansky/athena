@@ -89,7 +89,14 @@ if not 'doEFSA' in dir():
   doEFSA = True
 
 ### muon thresholds ###
-testChains = ["HLT_mu6", "HLT_2mu6"]
+CTPToChainMapping = {"HLT_mu6":       "L1_MU6",
+                    "HLT_2mu6":       "L1_2MU4" }
+
+# this is a temporary hack to include only new test chains
+testChains =[x for x, y in CTPToChainMapping.items()]
+topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+
+
 
 
 # ===============================================================================================

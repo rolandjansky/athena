@@ -44,7 +44,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   m_mergeSvc{"PileUpMergeSvc", name},
   m_rndmEngine{nullptr},
   m_thpcsi{nullptr},
-  m_chargedDiodes{nullptr},
   m_vetoThisBarcode{crazyParticleBarcode} {
     declareInterface<SCT_DigitizationTool>(this);
 
@@ -66,7 +65,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   }
 
 SCT_DigitizationTool::~SCT_DigitizationTool() {
-  delete m_chargedDiodes;
   delete m_thpcsi;
   for (SiHitCollection* hit: m_hitCollPtrs) {
     hit->Clear();
@@ -232,17 +230,17 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
   }
   ATH_MSG_VERBOSE("Begin digitizeAllHits");
   if (m_enableHits and (not getNextEvent().isFailure())) {
-    digitizeAllHits();
+    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi);
   } else {
     ATH_MSG_DEBUG("no hits found in event!");
   }
-  delete m_chargedDiodes;
-  m_chargedDiodes = nullptr;
   ATH_MSG_DEBUG("Digitized Elements with Hits");
 
   // loop over elements without hits
-  digitizeNonHits();
-  ATH_MSG_DEBUG("Digitized Elements without Hits");
+  if (not m_onlyHitElements) {
+    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements);
+    ATH_MSG_DEBUG("Digitized Elements without Hits");
+  }
 
   ATH_MSG_VERBOSE("Digitize success!");
   return StatusCode::SUCCESS;
@@ -266,7 +264,6 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
   m_processedElements.resize(m_detID->wafer_hash_max(), false);
 
   m_thpcsi = new TimedHitCollection<SiHit>();
-  m_chargedDiodes = new SiChargedDiodeCollection;
   m_HardScatterSplittingSkipper = false;
   return StatusCode::SUCCESS;
 }
@@ -279,12 +276,12 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
 
 
   if (m_enableHits) {
-    digitizeAllHits();
+    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi);
   }
-  delete m_chargedDiodes;
-  m_chargedDiodes = nullptr;
 
-  digitizeNonHits();
+  if (not m_onlyHitElements) {
+    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements);
+  }
 
   for (SiHitCollection* hit: m_hitCollPtrs) {
     hit->Clear();
@@ -296,7 +293,7 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
   return StatusCode::SUCCESS;
 }
 
-void SCT_DigitizationTool::digitizeAllHits() {
+void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi) const {
   /////////////////////////////////////////////////
   //
   // In order to process all element rather than just those with hits we
@@ -307,52 +304,47 @@ void SCT_DigitizationTool::digitizeAllHits() {
   ATH_MSG_DEBUG("Digitizing hits");
   int hitcount{0}; // First, elements with hits.
 
-  while (digitizeElement(m_chargedDiodes)) {
-    ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(m_chargedDiodes->identify()));
+  SiChargedDiodeCollection chargedDiodes;
+
+  while (digitizeElement(&chargedDiodes, thpcsi)) {
+    ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes.identify()));
 
     hitcount++;  // Hitcount will be a number in the hit collection minus
     // number of hits in missing mods
 
     ATH_MSG_DEBUG("in digitize elements with hits: ec - layer - eta - phi  "
-                  << m_detID->barrel_ec(m_chargedDiodes->identify()) << " - "
-                  << m_detID->layer_disk(m_chargedDiodes->identify()) << " - "
-                  << m_detID->eta_module(m_chargedDiodes->identify()) << " - "
-                  << m_detID->phi_module(m_chargedDiodes->identify()) << " - "
+                  << m_detID->barrel_ec(chargedDiodes.identify()) << " - "
+                  << m_detID->layer_disk(chargedDiodes.identify()) << " - "
+                  << m_detID->eta_module(chargedDiodes.identify()) << " - "
+                  << m_detID->phi_module(chargedDiodes.identify()) << " - "
                   << " processing hit number " << hitcount);
 
     // Have a flag to check if the module is present or not
     // Generally assume it is:
 
-    IdentifierHash idHash{m_chargedDiodes->identifyHash()};
+    IdentifierHash idHash{chargedDiodes.identifyHash()};
 
-    assert(idHash < m_processedElements.size());
-    m_processedElements[idHash] = true;
+    assert(idHash < processedElements->size());
+    (*processedElements)[idHash] = true;
 
     // create and store RDO and SDO
 
-    if (not m_chargedDiodes->empty()) {
-      StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
+    if (not chargedDiodes.empty()) {
+      StatusCode sc{createAndStoreRDO(&chargedDiodes, rdoContainer)};
       if (sc.isSuccess()) { // error msg is given inside
         // createAndStoreRDO()
-        addSDO(m_chargedDiodes);
+        addSDO(&chargedDiodes, simDataCollMap);
       }
     }
 
-    m_chargedDiodes->clear();
+    chargedDiodes.clear();
   }
   ATH_MSG_DEBUG("hits processed");
   return;
 }
 
 // digitize elements without hits
-void SCT_DigitizationTool::digitizeNonHits() {
-  if (m_onlyHitElements) {
-    return;
-  }
-
-  ATH_MSG_DEBUG("processing elements without hits");
-  m_chargedDiodes = new SiChargedDiodeCollection;
-
+void SCT_DigitizationTool::digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements) const {
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements{sctDetEle.retrieve()};
@@ -361,8 +353,11 @@ void SCT_DigitizationTool::digitizeNonHits() {
     return;
   }
 
-  for (unsigned int i{0}; i < m_processedElements.size(); i++) {
-    if (not m_processedElements[i]) {
+  ATH_MSG_DEBUG("processing elements without hits");
+  SiChargedDiodeCollection chargedDiodes;
+
+  for (unsigned int i{0}; i < processedElements->size(); i++) {
+    if (not (*processedElements)[i]) {
       IdentifierHash idHash{i};
       if (not idHash.is_valid()) {
         ATH_MSG_ERROR("SCT Detector element id hash is invalid = " << i);
@@ -374,34 +369,32 @@ void SCT_DigitizationTool::digitizeNonHits() {
                       << m_detID->layer_disk(element->identify()) << " - "
                       << m_detID->phi_module(element->identify()) << " - "
                       << m_detID->eta_module(element->identify()) << " - "
-                      << "size: " << m_processedElements.size());
+                      << "size: " << processedElements->size());
 
-        m_chargedDiodes->setDetectorElement(element);
+        chargedDiodes.setDetectorElement(element);
         ATH_MSG_DEBUG("calling applyProcessorTools() for NON hits");
-        applyProcessorTools(m_chargedDiodes);
+        applyProcessorTools(&chargedDiodes);
 
         // Create and store RDO and SDO
         // Don't create empty ones.
-        if (not m_chargedDiodes->empty()) {
-          StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
+        if (not chargedDiodes.empty()) {
+          StatusCode sc{createAndStoreRDO(&chargedDiodes, rdoContainer)};
           if (sc.isSuccess()) {// error msg is given inside
             // createAndStoreRDO()
-            addSDO(m_chargedDiodes);
+            addSDO(&chargedDiodes, simDataCollMap);
           }
         }
 
-        m_chargedDiodes->clear();
+        chargedDiodes.clear();
       }
     }
   }
 
-  delete m_chargedDiodes;
-  m_chargedDiodes = nullptr;
   return;
 }
 
-bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiodes) {
-  if (nullptr == m_thpcsi) {
+bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi) const {
+  if (nullptr == thpcsi) {
     ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
     return false;
@@ -410,9 +403,9 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
   // get the iterator pairs for this DetEl
 
   TimedHitCollection<SiHit>::const_iterator i, e;
-  if (m_thpcsi->nextDetectorElement(i, e) == false) { // no more hits
-    delete m_thpcsi;
-    m_thpcsi = nullptr;
+  if (thpcsi->nextDetectorElement(i, e) == false) { // no more hits
+    delete thpcsi;
+    thpcsi = nullptr;
     return false;
   }
 
@@ -470,7 +463,7 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
 // -----------------------------------------------------------------------------
 // Applies processors to the current detector element for the current element:
 // -----------------------------------------------------------------------------
-void SCT_DigitizationTool::applyProcessorTools(SiChargedDiodeCollection* chargedDiodes) {
+void SCT_DigitizationTool::applyProcessorTools(SiChargedDiodeCollection* chargedDiodes) const {
   ATH_MSG_DEBUG("applyProcessorTools()");
   int processorNumber{0};
 
@@ -569,7 +562,7 @@ private:
 // ----------------------------------------------------------------------//
 // createAndStoreRDO                                                     //
 // ----------------------------------------------------------------------//
-StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chDiodeCollection) {
+StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chDiodeCollection, SG::WriteHandle<SCT_RDO_Container>* rdoContainer) const {
 
   // Create the RDO collection
   SCT_RDO_Collection* RDOColl{createRDO(chDiodeCollection)};
@@ -579,7 +572,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chD
   int barrelec{m_detID->barrel_ec(id_coll)};
 
   if ((not m_barrelonly) or (std::abs(barrelec) <= 1)) {
-    if (m_rdoContainer->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
+    if ((*rdoContainer)->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
       ATH_MSG_FATAL("SCT RDO collection could not be added to container!");
       delete RDOColl;
       RDOColl = nullptr;
@@ -596,7 +589,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chD
 // ----------------------------------------------------------------------
 // createRDO
 // ----------------------------------------------------------------------
-SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* collection) {
+SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* collection) const {
 
   // create a new SCT RDO collection
   SCT_RDO_Collection* p_rdocoll{nullptr};
@@ -786,7 +779,7 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
 // -----------------------------------------------------------------------------------------------
 // Convert a SiTotalCharge to a InDetSimData, and store it.
 // -----------------------------------------------------------------------------------------------
-void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
+void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const {
   typedef SiTotalCharge::list_t list_t;
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be
@@ -856,7 +849,7 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
         id_readout = m_detID->strip_id(collection->identify(),row2D, strip2D);
       }
 
-      m_simDataCollMap->insert(std::make_pair(id_readout, InDetSimData(deposits, (*i_chargedDiode).second.flag())));
+      (*simDataCollMap)->insert(std::make_pair(id_readout, InDetSimData(deposits, (*i_chargedDiode).second.flag())));
     }
   }
 }

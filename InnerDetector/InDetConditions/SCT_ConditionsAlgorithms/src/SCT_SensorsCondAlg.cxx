@@ -4,9 +4,9 @@
 
 #include "SCT_SensorsCondAlg.h"
 
-#include <memory>
-
 #include "GaudiKernel/EventIDRange.h"
+
+#include <memory>
 
 SCT_SensorsCondAlg::SCT_SensorsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -27,8 +27,8 @@ StatusCode SCT_SensorsCondAlg::initialize()
   // Write Cond Handle
   ATH_CHECK( m_writeKey.initialize() );
   // Register write handle
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
 
@@ -43,7 +43,7 @@ StatusCode SCT_SensorsCondAlg::execute()
   SG::WriteCondHandle<SCT_SensorsCondData> writeHandle{m_writeKey};
 
   // Do we have a valid Write Cond Handle for current time?
-  if(writeHandle.isValid()) {
+  if (writeHandle.isValid()) {
 
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
@@ -54,7 +54,7 @@ StatusCode SCT_SensorsCondAlg::execute()
   // Read Cond Handle 
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
   const CondAttrListCollection* readCdo{*readHandle}; 
-  if(readCdo==nullptr) {
+  if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
@@ -62,7 +62,7 @@ StatusCode SCT_SensorsCondAlg::execute()
 
   // Define validity of the output cond obbject
   EventIDRange rangeW;
-  if(not readHandle.range(rangeW)) {
+  if (not readHandle.range(rangeW)) {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
@@ -74,7 +74,7 @@ StatusCode SCT_SensorsCondAlg::execute()
   CondAttrListCollection::const_iterator attrList{readCdo->begin()};
   CondAttrListCollection::const_iterator end{readCdo->end()};
   // CondAttrListCollection doesnt support C++11 type loops, no generic 'begin'
-  for(; attrList!=end; ++attrList) {
+  for (; attrList!=end; ++attrList) {
     CondAttrListCollection::ChanNum truncatedSerialNumber{attrList->first};
     SCT_SensorCondData data;
     bool isOK{false};
@@ -95,7 +95,7 @@ StatusCode SCT_SensorsCondAlg::execute()
   }
 
   // Record write conditions data object
-  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_SensorsCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");

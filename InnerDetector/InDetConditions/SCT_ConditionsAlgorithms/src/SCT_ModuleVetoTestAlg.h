@@ -13,15 +13,17 @@
 
 #ifndef SCT_ModuleVetoTestAlg_H
 #define SCT_ModuleVetoTestAlg_H 
-//STL
-#include <string>
-
-//Gaudi
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 
 //Athena
+#include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
+
+//STL
+#include <string>
 
 ///Example algorithm to show calling the SCT_ModuleVetoSvc to exclude bad components
 class SCT_ModuleVetoTestAlg : public AthAlgorithm {

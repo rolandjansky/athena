@@ -357,7 +357,7 @@ CondInputLoader::execute()
     }
    
     if (ccb->valid(now)) {
-      ATH_MSG_INFO( "  CondObj " << vhk.fullKey() << " is still valid at " << now_event );
+      ATH_MSG_DEBUG( "  CondObj " << vhk.fullKey() << " is still valid at " << now_event );
       continue;
     }
 

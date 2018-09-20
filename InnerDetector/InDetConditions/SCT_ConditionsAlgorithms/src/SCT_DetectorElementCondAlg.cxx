@@ -59,7 +59,7 @@ StatusCode SCT_DetectorElementCondAlg::execute()
 
   const InDetDD::SiDetectorElementCollection* oldColl{m_detManager->getDetectorElementCollection()};
   if (oldColl==nullptr) {
-    ATH_MSG_ERROR("Null pointer is returned by getDetectorElementCollection()");
+    ATH_MSG_FATAL("Null pointer is returned by getDetectorElementCollection()");
     return StatusCode::FAILURE;
   }
 
@@ -71,13 +71,13 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   SG::ReadCondHandle<GeoAlignmentStore> readHandle{m_readKey};
   const GeoAlignmentStore* readCdo{*readHandle};
   if (readCdo==nullptr) {
-    ATH_MSG_ERROR("Null pointer to the read conditions object of " << m_readKey.key());
+    ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKey.key());
     return StatusCode::FAILURE;
   }
 
   // Define validity of the output cond object and record it
   if (not readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
 
@@ -131,7 +131,7 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   // Record WriteCondHandle
   const std::size_t size{writeCdo->size()};
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record " << writeHandle.key() 
+    ATH_MSG_FATAL("Could not record " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
     return StatusCode::FAILURE;

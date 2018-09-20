@@ -76,7 +76,6 @@ atlas_add_test( photonMenu
                  PROPERTIES TIMEOUT 500
 		EXTRA_PATTERNS 	"-s TriggerSummaryStep.*HLT_.*|TrigSignatureMoniMT.*"
  		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu   )
-
 #		EXTRA_PATTERNS "TriggerSummary"
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
 atlas_add_test( egammaMenu

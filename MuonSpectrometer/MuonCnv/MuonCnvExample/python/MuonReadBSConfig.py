@@ -25,10 +25,9 @@ def MdtROD_Decoder(name="MdtROD_Decoder",**kwargs):
 
 
 def MdtRawDataProviderTool(name="MdtRawDataProviderTool",**kwargs):
-    ## TODO: set this value as default in C++
     kwargs.setdefault("Decoder", "MdtROD_Decoder")
     if DetFlags.overlay.MDT_on() and overlayFlags.isDataOverlay():
-      kwargs["RdoLocation"]=overlayFlags.dataStore()+"+MDTCSM"
+      kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
     return CfgMgr.Muon__MDT_RawDataProviderTool(name,**kwargs)
 
 
@@ -43,10 +42,9 @@ def RpcROD_Decoder(name="RpcROD_Decoder",**kwargs):
 
 
 def RpcRawDataProviderTool(name = "RpcRawDataProviderTool",**kwargs):
-    ## TODO: set this value as default in C++
     kwargs.setdefault("Decoder", "RpcROD_Decoder")
     if DetFlags.overlay.RPC_on() and overlayFlags.isDataOverlay():
-      kwargs["RdoLocation"]=overlayFlags.dataStore()+"+RPCPAD"
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
     return CfgMgr.Muon__RPC_RawDataProviderTool(name,**kwargs)
 
 
@@ -61,10 +59,9 @@ def TgcROD_Decoder(name = "TgcROD_Decoder",**kwargs):
 
 
 def TgcRawDataProviderTool(name = "TgcRawDataProviderTool",**kwargs):
-    ## TODO: set this value as default in C++
     kwargs.setdefault("Decoder", "TgcROD_Decoder")
     if DetFlags.overlay.TGC_on() and overlayFlags.isDataOverlay():
-      kwargs["RdoLocation"]=overlayFlags.dataStore()+"+TGCRDO"
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
     return CfgMgr.Muon__TGC_RawDataProviderTool(name,**kwargs)
 
 
@@ -78,13 +75,11 @@ def CscROD_Decoder(name = "CscROD_Decoder",**kwargs):
 
 
 def CscRawDataProviderTool(name = "CscRawDataProviderTool",**kwargs):
-    ## TODO: set this value as default in C++
     kwargs.setdefault("Decoder", "CscROD_Decoder")
     if DetFlags.overlay.CSC_on() and overlayFlags.isDataOverlay():
-      kwargs["RdoLocation"]=overlayFlags.dataStore()+"+CSCRDO"
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
     return CfgMgr.Muon__CSC_RawDataProviderTool(name,**kwargs)
     
-
 
 #
 # For backwards compat - TO BE REMOVED as soon as all clients get these tools via AthenaCommon.CfgGetter

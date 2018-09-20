@@ -68,6 +68,7 @@ endif()
 
 # Test(s) in the package:
 atlas_add_test( mem_test SCRIPT test/mem_test.py
+                PROPERTIES TIMEOUT 300
                 EXTRA_PATTERNS " GB$" )
 if( XAOD_STANDALONE )
 # Disable until we have reasonable input/to check 

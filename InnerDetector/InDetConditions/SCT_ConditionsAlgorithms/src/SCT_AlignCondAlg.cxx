@@ -4,10 +4,10 @@
 
 #include "SCT_AlignCondAlg.h"
 
-#include <memory>
-
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+
+#include <memory>
 
 SCT_AlignCondAlg::SCT_AlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -26,7 +26,7 @@ StatusCode SCT_AlignCondAlg::initialize()
   ATH_CHECK(m_condSvc.retrieve());
 
   // Read Handles
-  if (not m_useDynamicAlignFolders) { // Static
+  if (not m_useDynamicAlignFolders.value()) { // Static
     ATH_CHECK(m_readKeyStatic.initialize());
   } else { // Dynamic
     ATH_CHECK(m_readKeyDynamicL1.initialize());
@@ -70,7 +70,7 @@ StatusCode SCT_AlignCondAlg::execute()
   std::unique_ptr<GeoAlignmentStore> writeCdo{std::make_unique<GeoAlignmentStore>()};
   EventIDRange rangeW;
 
-  if (not m_useDynamicAlignFolders) { // Static
+  if (not m_useDynamicAlignFolders.value()) { // Static
     // ____________ Get Read Cond Object ____________
     SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic};
     const AlignableTransformContainer* readCdoStatic{*readHandleStatic};

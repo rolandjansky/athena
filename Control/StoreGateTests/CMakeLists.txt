@@ -50,5 +50,5 @@ atlas_add_test( SgProducerConsumer
 
 atlas_add_test( SgProducerConsumerDataPool
                 SCRIPT test/SgProducerConsumerDataPool.sh
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 EXTRA_PATTERNS "running|XMLCatalog" )

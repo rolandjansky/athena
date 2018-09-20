@@ -7,6 +7,7 @@
 #include "../CaloClusterCopier.h"
 #include "../CaloClusterBuilderSW.h"
 #include "../CaloClusterMomentsMaker.h"
+#include "../CaloClusterMomentsMaker_DigiHSTruth.h"
 #include "../CaloCell2ClusterMapper.h"
 #include "../CaloCellContainerMergerTool.h"
 #include "../CaloCellContainerCorrectorTool.h"
@@ -27,7 +28,7 @@
 #include "../CaloTowerxAODFromCells.h"
 #include "../CaloTowerxAODFromClusters.h"
 #include "../CaloClusterSnapshot.h"
-
+#include "../CaloBCIDAvgAlg.h"
 
 
 DECLARE_COMPONENT( CaloTowerMonitor )
@@ -52,6 +53,7 @@ DECLARE_COMPONENT( CaloTopoClusterSplitter )
 DECLARE_COMPONENT( CaloClusterCopier )
 DECLARE_COMPONENT( CaloClusterBuilderSW )
 DECLARE_COMPONENT( CaloClusterMomentsMaker )
+DECLARE_COMPONENT( CaloClusterMomentsMaker_DigiHSTruth )
 DECLARE_COMPONENT( CaloCellContainerMergerTool )
 DECLARE_COMPONENT( CaloCellContainerCorrectorTool )
 DECLARE_COMPONENT( CaloCellContainerCheckerTool )
@@ -63,3 +65,4 @@ DECLARE_COMPONENT( Blob2ToolConstants )
 DECLARE_COMPONENT( CaloCellFastCopyTool )
 DECLARE_COMPONENT( CaloClusterSnapshot )
 
+DECLARE_COMPONENT( CaloBCIDAvgAlg )
