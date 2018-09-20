@@ -2,16 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "vector_utils.h"
+#include "TrigT1NSWSimTools/vector_utils.h"
 
-#include "PadWithHits.h"
-
+#include "TrigT1NSWSimTools/PadWithHits.h"
 #include <sstream>
 #include <iterator>
 
-namespace nsw {
+namespace NSWL1 {
 
-std::string vec2str(const nsw::vsize_t &vec){
+std::string vec2str(const std::vector< size_t > &vec){
     std::ostringstream oss;
     oss<<"[";
     if(!vec.empty()) {
@@ -21,11 +20,12 @@ std::string vec2str(const nsw::vsize_t &vec){
     oss<<"]";
     return oss.str();
 }
-std::string vec2str(const nsw::vpads_t &vec){
+/*
+std::string vec2str(const std::vector<PadWithHits> &vec){
     std::ostringstream oss;
-    for(nsw::vpads_t::const_iterator it=vec.begin(); it!=vec.end(); ++it)
+    for(std::vector<PadWithHits>::const_iterator it=vec.begin(); it!=vec.end(); ++it)
         oss<<(*it)<<", ";
     return oss.str();
 }
-
+*/
 } // nsw

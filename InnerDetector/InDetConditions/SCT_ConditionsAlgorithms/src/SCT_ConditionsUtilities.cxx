@@ -11,12 +11,12 @@
 #include "SCT_ConditionsUtilities.h"
 #include <cstdlib>
 
-namespace SCT_ConditionsAlgorithms{
-  namespace CoveritySafe{
+namespace SCT_ConditionsAlgorithms {
+  namespace CoveritySafe {
     ///get an environment variable
-    std::string getenv(const std::string & variableName){
+    std::string getenv(const std::string& variableName) {
       std::string result;
-      const char * pChar=std::getenv(variableName.c_str());
+      const char* pChar{std::getenv(variableName.c_str())};
       if (pChar) result=pChar;
       return result;
     }

@@ -36,7 +36,10 @@ class TileFragHash  {
   void initialize(const TileHWID * tileHWID, TYPE type=Default ); 
 
   /**Convert ID to int */
-  int operator() (const ID& id) const ;
+  int operator() (const ID& id) const { return hash(id); }
+
+  /**Convert ID to int (same as the converter, but easier to call from python) */
+  int hash (const ID& id) const;
 
   /** reverse conversion */
   ID identifier(int i) const;   

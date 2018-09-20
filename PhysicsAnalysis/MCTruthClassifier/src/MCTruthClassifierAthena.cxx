@@ -299,8 +299,8 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
 
   if ( thePart == 0 ) return false ;
 
-  std::unique_ptr<Trk::CaloExtension> caloExtension ;
-  if( !m_caloExtensionTool->caloExtension(*thePart,caloExtension) || caloExtension->caloLayerIntersections().empty() ){
+  std::unique_ptr<Trk::CaloExtension> caloExtension =m_caloExtensionTool->caloExtension(*thePart);
+  if( !caloExtension|| caloExtension->caloLayerIntersections().empty() ){
     ATH_MSG_WARNING("extrapolation of Truth Particle with eta  " << thePart->eta() 
 		    <<" and Pt " << thePart->pt() << " to calo failed");
     return false;

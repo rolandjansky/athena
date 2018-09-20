@@ -30,6 +30,7 @@ atlas_depends_on_subdirs(
    Control/SGTools
    Control/StoreGate
    DetectorDescription/IdDictParser
+   LArCalorimeter/LArRawConditions
    GaudiKernel )
 
 # External dependencies:

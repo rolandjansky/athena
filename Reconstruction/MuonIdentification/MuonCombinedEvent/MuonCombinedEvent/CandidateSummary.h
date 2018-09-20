@@ -231,6 +231,7 @@ inline std::string hitTechnologyName(StauHitTechnology eTech)
     switch (eTech)
     {
         case RPC_STAU_HIT: return "RPC";
+        case RPCETA_STAU_HIT: return "RPCETA";
         case MDTT_STAU_HIT: return "MDTT";
         case CALO_STAU_HIT: return "CALO";
         case CSC_STAU_HIT: return "CSC";

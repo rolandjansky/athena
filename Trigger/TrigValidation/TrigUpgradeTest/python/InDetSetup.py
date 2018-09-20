@@ -58,8 +58,8 @@ def makeInDetAlgs():
     
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
-                                        TriggerMode = False,)# OutputLevel = INFO)
+    InDetSCTRodDecoder = SCT_RodDecoder(name          = "InDetSCTRodDecoder",)
+                                        # OutputLevel = INFO)
     ToolSvc += InDetSCTRodDecoder
     
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool

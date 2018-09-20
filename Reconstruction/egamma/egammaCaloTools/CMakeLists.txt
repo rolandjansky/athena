@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           Reconstruction/egamma/egammaInterfaces )
 
-
 # Component(s) in the package:
 atlas_add_component( egammaCaloTools
                      src/*.cxx

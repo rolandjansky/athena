@@ -8,6 +8,8 @@
 
 Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 --conditionsTag default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1 170 --digiSeedOffset2 170 --geometryVersion ATLAS-R2-2015-03-01-00 --DataRunNumber 222525 --outputRDOFile mc15_2015_ttbar.RDO.pool.root --preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.py,SimulationJobOptions/preInclude.IDOffDigitConfig.py' --postInclude 'Digitization/FixDataDependenciesForMT.py' --skipEvents 0  --maxEvents 20 --athenaopts '--threads 2'
 
+echo  "art-result: $? Digi_tf.py"
+
 ArtPackage=$1
 ArtJobName=$2
 

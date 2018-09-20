@@ -4238,6 +4238,61 @@ def dump_TileDigitsContainer (p, f):
     return
 
 
+def dump_TileRawChannel (data, f):
+    dump_TileRawData (data, f)
+    print >> f, [data.amplitude(i) for i in range(data.size())],
+    print >> f, [data.time(i) for i in range(data.sizeTime())],
+    print >> f, [data.quality(i) for i in range(data.sizeQuality())],
+    print >> f, data.pedestal(),
+    return
+
+
+
+def dump_TileRawDataCollection (data, f):
+    print >> f, '\n  ', data.identify(), \
+          data.getLvl1Id(), \
+          data.getLvl1Type(), \
+          data.getDetEvType(), \
+          data.getRODBCID(),
+    for x in data:
+        print >> f, '\n    ',
+        dump_TileRawChannel (x, f)
+    return
+          
+          
+def dump_TileRawChannelCollection (data, f):
+    print >> f, '\n  ', data.getFragGlobalCRC(), \
+          data.getFragDSPBCID(), \
+          data.getFragBCID(), \
+          data.getFragMemoryPar(), \
+          data.getFragSstrobe(), \
+          data.getFragDstrobe(), \
+          data.getFragHeaderBit(), \
+          data.getFragHeaderPar(), \
+          data.getFragSampleBit(), \
+          data.getFragSamplePar(), \
+          data.getFragFEChipMask(), \
+          data.getFragRODChipMask(),
+    dump_TileRawDataCollection (data, f)
+    return
+
+
+@nolist
+def dump_TileRawChannelContainer (data, f):
+    print >> f, data.get_unit(), data.get_type(), data.get_bsflags()
+    beg = data.begin()
+    end = data.end()
+    while beg != end:
+        coll = beg.cptr()
+        print >> f, 'Coll', beg.hashId().value(), coll.size(),
+        dump_TileRawChannelCollection (coll, f)
+        f.write ('\n')
+        beg.next()
+    f.write ('\n')
+  
+    return
+
+
 def dump_TileL2 (p, f):
     print >> f, p.identify(), p.phi(0), p.cosphi(), p.sinphi(),
     print >> f, [p.sumE(i) for i in range(p.NsumE())],
@@ -4813,6 +4868,7 @@ dumpspecs = [
     ['LArHitContainer',                      dump_LArHit],
     ['TileHitVector',                        dump_TileHit],
     ['AtlasHitsVector<TileHit>',             dump_TileHit],
+    ['TileRawChannelContainer',              dump_TileRawChannelContainer],
     ['SiHitCollection',                      dump_SiHit],
     ['AtlasHitsVector<SiHit>',               dump_SiHit],
     ['TRTUncompressedHitCollection',         dump_TRTUncompressedHit],

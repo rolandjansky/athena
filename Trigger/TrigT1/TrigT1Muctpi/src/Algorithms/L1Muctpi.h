@@ -63,11 +63,11 @@ namespace LVL1MUCTPI {
       virtual ~L1Muctpi();
 
       /// Regular Gaudi algorithm initialization function
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /// Regular Gaudi algorithm finalization function
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       /// Regular Gaudi algorithm execute function
-      virtual StatusCode execute();
+      virtual StatusCode execute() override;
       virtual void handle(const Incident&) override;
 
    private:

@@ -18,6 +18,10 @@ StatusCode TrigMuonEFMSonlyHypoTool::initialize(){
   if(m_acceptAll) {
     ATH_MSG_INFO("Accepting all the events with not cut!");
   } else {
+    if(m_ptBins.size()<=0){ 
+      ATH_MSG_ERROR("Trying to configure hypo with no pT bins. This is probably a configuration mistake.");
+      return StatusCode::FAILURE;
+    }
     m_bins.resize(m_ptBins.size());
     for(size_t j=0; j<m_ptBins.size(); j++){
       m_bins[j] = m_ptBins[j].size() - 1;
@@ -102,7 +106,7 @@ StatusCode TrigMuonEFMSonlyHypoTool::decide(std::vector<MuonEFInfo>& toolInput) 
     return inclusiveSelection(toolInput);
   }
   else{
-    if(numMuon ==1) ATH_MSG_DEBUG("Not applying selection "<<m_decisionId<< " because the number of muons is "<<numMuon);
+    if(numMuon <=1) ATH_MSG_DEBUG("Not applying selection "<<m_decisionId<< " because the number of muons is "<<numMuon);
     else{
       ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId);
       return multiplicitySelection(toolInput);

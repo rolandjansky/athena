@@ -18,6 +18,9 @@ if DetFlags.LAr_on():
         job += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
         from LArROD.LArDigits import DefaultLArDigitThinner
         LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
+        if digitizationFlags.doDigiTruth():
+          from LArROD.LArRawChannelGetter_DigiHSTruth import LArRawChannelGetter_DigiHSTruth
+          LArRawChannelGetter_DigiHSTruth()
 ##################################################################
 # TileCalorimeter
 ##################################################################

@@ -4,10 +4,10 @@
 
 #include "SCT_AlignCondAlg.h"
 
-#include <memory>
-
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+
+#include <memory>
 
 SCT_AlignCondAlg::SCT_AlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -26,7 +26,7 @@ StatusCode SCT_AlignCondAlg::initialize()
   ATH_CHECK(m_condSvc.retrieve());
 
   // Read Handles
-  if (not m_useDynamicAlignFolders) { // Static
+  if (not m_useDynamicAlignFolders.value()) { // Static
     ATH_CHECK(m_readKeyStatic.initialize());
   } else { // Dynamic
     ATH_CHECK(m_readKeyDynamicL1.initialize());
@@ -62,7 +62,7 @@ StatusCode SCT_AlignCondAlg::execute()
   // Get SiDetectorElements
   const InDetDD::SiDetectorElementCollection* oldColl{m_detManager->getDetectorElementCollection()};
   if (oldColl==nullptr) {
-    ATH_MSG_ERROR("Null pointer is returned by getDetectorElementCollection()");
+    ATH_MSG_FATAL("Null pointer is returned by getDetectorElementCollection()");
     return StatusCode::FAILURE;
   }
 
@@ -70,12 +70,12 @@ StatusCode SCT_AlignCondAlg::execute()
   std::unique_ptr<GeoAlignmentStore> writeCdo{std::make_unique<GeoAlignmentStore>()};
   EventIDRange rangeW;
 
-  if (not m_useDynamicAlignFolders) { // Static
+  if (not m_useDynamicAlignFolders.value()) { // Static
     // ____________ Get Read Cond Object ____________
     SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic};
     const AlignableTransformContainer* readCdoStatic{*readHandleStatic};
     if (readCdoStatic==nullptr) {
-      ATH_MSG_ERROR("Null pointer to the read conditions object of " << m_readKeyStatic.key());
+      ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKeyStatic.key());
       return StatusCode::FAILURE;
     }
     // ____________ Apply alignments to SCT GeoModel ____________
@@ -86,7 +86,7 @@ StatusCode SCT_AlignCondAlg::execute()
 
     // Define validity of the output cond object and record it
     if (not readHandleStatic.range(rangeW)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleStatic.key());
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleStatic.key());
       return StatusCode::FAILURE;
     }
   } else { // Dynamic
@@ -94,19 +94,19 @@ StatusCode SCT_AlignCondAlg::execute()
     SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1};
     const CondAttrListCollection* readCdoDynamicL1{*readHandleDynamicL1};
     if (readCdoDynamicL1==nullptr) {
-      ATH_MSG_ERROR("Null pointer to the read conditions object of " << m_readKeyDynamicL1.key());
+      ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKeyDynamicL1.key());
       return StatusCode::FAILURE;
     }
     SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL2{m_readKeyDynamicL2};
     const CondAttrListCollection* readCdoDynamicL2{*readHandleDynamicL2};
     if (readCdoDynamicL2==nullptr) {
-      ATH_MSG_ERROR("Null pointer to the read conditions object of " << readHandleDynamicL2.key());
+      ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleDynamicL2.key());
       return StatusCode::FAILURE;
     }
     SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicL3{m_readKeyDynamicL3};
     const AlignableTransformContainer* readCdoDynamicL3{*readHandleDynamicL3};
     if (readCdoDynamicL3==nullptr) {
-      ATH_MSG_ERROR("Null pointer to the read conditions object of " << readHandleDynamicL3.key());
+      ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleDynamicL3.key());
       return StatusCode::FAILURE;
     }
     // ____________ Apply alignments to SCT GeoModel ____________
@@ -124,17 +124,17 @@ StatusCode SCT_AlignCondAlg::execute()
     // Define validity of the output cond object and record it
     EventIDRange rangeWL1;
     if (not readHandleDynamicL1.range(rangeWL1)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleDynamicL1.key());
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleDynamicL1.key());
       return StatusCode::FAILURE;
     }
     EventIDRange rangeWL2;
     if (not readHandleDynamicL2.range(rangeWL2)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleDynamicL2.key());
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleDynamicL2.key());
       return StatusCode::FAILURE;
     }
     EventIDRange rangeWL3;
     if (not readHandleDynamicL3.range(rangeWL3)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleDynamicL3.key());
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleDynamicL3.key());
       return StatusCode::FAILURE;
     }
     rangeW = EventIDRange::intersect(rangeWL1, rangeWL2, rangeWL3);
@@ -147,7 +147,7 @@ StatusCode SCT_AlignCondAlg::execute()
   }
 
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record GeoAlignmentStore " << writeHandle.key() 
+    ATH_MSG_FATAL("Could not record GeoAlignmentStore " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
     return StatusCode::FAILURE;

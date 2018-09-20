@@ -15,12 +15,11 @@ Configurable.configurableRun3Behavior=1
 
 flags = ConfigFlags
 
-flags.set( "global.isMC", False )
-flags.set( "global.InputFiles",
-           ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] )
+flags.Input.isMC = False
+flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] 
 
-flags.set( "Trigger.LVL1ConfigFile", "LVL1config_Physics_pp_v7.xml" )
-flags.set( "Trigger.L1Decoder.forceEnableAllChains", True)
+flags.Trigger.LVL1ConfigFile = "LVL1config_Physics_pp_v7.xml" 
+flags.Trigger.L1Decoder.forceEnableAllChains = True
 
 
 flags.lock()

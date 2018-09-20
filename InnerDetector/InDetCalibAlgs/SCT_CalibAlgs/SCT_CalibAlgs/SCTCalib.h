@@ -28,10 +28,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"  //baseclass
 #include "AthenaKernel/IOVTime.h" //member
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
-
-// Include Event Info
-#include "EventInfo/EventID.h"
 
 // RAW data access
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
@@ -101,6 +99,7 @@ class SCTCalib : public AthAlgorithm {
         ITHistSvc *                                     m_thistSvc;
         const SCT_ID*                                   m_pSCTHelper;
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+        SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 
         ServiceHandle<SCTCalibWriteSvc>                 m_pCalibWriteSvc;
         ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};

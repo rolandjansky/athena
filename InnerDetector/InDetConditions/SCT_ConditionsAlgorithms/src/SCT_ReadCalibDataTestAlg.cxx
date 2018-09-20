@@ -23,7 +23,6 @@
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_sc{StatusCode::SUCCESS, true},
   m_id_sct{nullptr},
   m_moduleId{0},
   m_waferId{0},
@@ -50,38 +49,16 @@ StatusCode SCT_ReadCalibDataTestAlg::initialize()
   ATH_MSG_DEBUG("in initialize()");
   
   // Get SCT ID helper
-  m_sc = detStore()->retrieve(m_id_sct, "SCT_ID");
-  if (m_sc.isFailure()) {
-    ATH_MSG_FATAL("Failed to get SCT ID helper");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Found SCT detector manager");
-  }
+  ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
   
   // Process jobOption properties
-  m_sc = processProperties();
-  if (m_sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to process jobOpt properties");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Processed jobOpt properties");
-  }
+  ATH_CHECK(processProperties());
 
   // Get the SCT_ReadCaliDataTool
-  m_sc = m_ReadCalibDataTool.retrieve();
-  if (m_sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot locate CalibData service");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "CalibData Service located ");
-  }
+  ATH_CHECK(m_ReadCalibDataTool.retrieve());
 
   // Retrieve SCT Cabling service
-  m_sc = m_cabling.retrieve();
-  if (m_sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve SCT cabling service");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_cabling.retrieve());
 
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataTestAlg::initialize()

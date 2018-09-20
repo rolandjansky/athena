@@ -297,8 +297,8 @@ namespace Rec {
     }
 
     // get the extrapolation into the calo
-    std::unique_ptr<Trk::CaloExtension> caloExtension = nullptr;
-    if( !m_caloExtensionTool->caloExtension(particle,caloExtension) ) {
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(particle);
+    if( !caloExtension ) {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }

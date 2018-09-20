@@ -6,12 +6,11 @@
 #define GEOMODELUTILITIES_GEOALIGNMENTSTORE_H
 
 #include "GeoModelKernel/GeoVAlignmentStore.h"
+#include "GeoModelUtilities/TransformMap.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include <unordered_map>
 #include <stdexcept>
-#include <mutex>
 
 class GeoAlignmentStore final : public GeoVAlignmentStore
 {
@@ -30,11 +29,9 @@ class GeoAlignmentStore final : public GeoVAlignmentStore
 
 
  private:
-  std::unordered_map<const GeoAlignableTransform*, HepGeom::Transform3D> m_deltas;
-  std::unordered_map<const GeoVFullPhysVol*, HepGeom::Transform3D> m_absPositions;
-  std::unordered_map<const GeoVFullPhysVol*, HepGeom::Transform3D> m_defAbsPositions;
-
-  std::mutex m_mutex; // Protect insertions into position cache maps
+  TransformMap<GeoAlignableTransform,HepGeom::Transform3D> m_deltas;
+  TransformMap<GeoVFullPhysVol,HepGeom::Transform3D> m_absPositions;
+  TransformMap<GeoVFullPhysVol,HepGeom::Transform3D> m_defAbsPositions;
 };
 
 CLASS_DEF(GeoAlignmentStore, 135648236, 1)

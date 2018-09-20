@@ -15,6 +15,8 @@
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class SCT_ID;
 

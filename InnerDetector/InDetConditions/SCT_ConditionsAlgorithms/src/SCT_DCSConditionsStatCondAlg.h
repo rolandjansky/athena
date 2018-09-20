@@ -32,15 +32,15 @@ class SCT_DCSConditionsStatCondAlg : public AthAlgorithm
 
   ServiceHandle<ICondSvc> m_condSvc;
 
-  BooleanProperty m_readAllDBFolders;
-  BooleanProperty m_returnHVTemp;
+  BooleanProperty m_readAllDBFolders{this, "ReadAllDBFolders", true};
+  BooleanProperty m_returnHVTemp{this, "ReturnHVTemp", true};
   bool m_doState;
   std::string m_chanstatCut;
   float m_hvLowLimit;
   float m_hvUpLimit;
   bool m_useHV;
   float m_useHVLowLimit;
-  float  m_useHVUpLimit;
+  float m_useHVUpLimit;
   std::string m_useHVChanCut;
 };
 

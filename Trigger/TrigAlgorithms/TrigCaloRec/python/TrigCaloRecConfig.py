@@ -1253,7 +1253,7 @@ class TrigCaloCellMakerMT_eGamma (TrigCaloCellMakerMTBase):
 class TrigCaloCellMakerMT_jet (TrigCaloCellMakerFCalMTBase):
     __slots__ = []
     def __init__ (self, name='TrigCaloCellMakerMT_jet', eta_size=64, phi_size=64, doNoise=1, AbsE = False):
-        super(TrigCaloCellMaker_jet, self).__init__(name)
+        super(TrigCaloCellMakerMT_jet, self).__init__(name)
 
         self.eta_size = eta_size
         self.phi_size = phi_size
@@ -1291,14 +1291,14 @@ class TrigCaloCellMakerMT_jet (TrigCaloCellMakerFCalMTBase):
 class TrigCaloCellMakerMT_super (TrigCaloCellMakerMT_jet):
     __slots__ = []
     def __init__ (self, name='TrigCaloCellMakerMT_super', eta_size=64, phi_size=64, doNoise=1, AbsE = False):
-        super(TrigCaloCellMaker_super, self).__init__(name)
+        super(TrigCaloCellMakerMT_super, self).__init__(name)
         self.TrustRoiLimits = True
 
 
 class TrigCaloCellMakerMT_jet_super (TrigCaloCellMakerFCalMTBase):
     __slots__ = []
     def __init__ (self, name='TrigCaloCellMakerMT_jet_super', eta_size=64, phi_size=64, doNoise=1, AbsE = False):
-        super(TrigCaloCellMaker_jet_super, self).__init__(name)
+        super(TrigCaloCellMakerMT_jet_super, self).__init__(name)
 
         self.TrustRoiLimits = True
 
@@ -1362,7 +1362,7 @@ class TrigCaloCellMakerMT_jet_fullcalo (TrigFullCaloCellMakerMTFCalBase):
 
         if doPers:
            self.PersistencyPrescaleFactor=1
-           self.PersistencyKeyName="TrigCaloCellMaker_jet_fullcalo"
+           self.PersistencyKeyName="TrigCaloCellMakerMT_jet_fullcalo"
 
         #self.OutputLevel=INFO
 

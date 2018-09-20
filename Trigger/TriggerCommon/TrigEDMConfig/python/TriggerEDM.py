@@ -111,7 +111,7 @@ RemoveCaloVariables = ".-"+identifier.join(UnusedCaloVariables)
 
 UnusedMuonVariables = ["ET_Core","ET_EMCore","d0_staco","z0_staco","CT_ET_Core","ET_HECCore",
                         "ET_TileCore","CT_EL_Type","phi0_staco","theta_staco","isEndcapGoodLayers",
-                        "isSmallGoodSectors","qOverP_staco","segmentsOnTrack","qOverPErr_staco",
+                        "isSmallGoodSectors","qOverP_staco","qOverPErr_staco",
                         "nUnspoiledCscHits","innerClosePrecisionHits","outerClosePrecisionHits",
                         "FSR_CandidateEnergy","middleClosePrecisionHits","CT_ET_LRLikelihood",
                         "extendedClosePrecisionHits","numEnergyLossPerTrack","numberOfGoodPrecisionLayers",
