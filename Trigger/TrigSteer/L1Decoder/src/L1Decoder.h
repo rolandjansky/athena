@@ -72,6 +72,9 @@ private:
   Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
     "Enables start-of-event cost monitoring behavior."};
 
+  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
+    "Name of the chain which should enable HLT cost montoring."};
+
 };
 
 #endif

@@ -26,7 +26,7 @@ StatusCode TrigCostDataStore::insert(const EventContext& context, const std::str
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 StatusCode TrigCostDataStore::retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const {
-  // Use proxy from given context
+  // Use proxy from given context to get store
   const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>()->proxy();
   if (proxy == nullptr) return StatusCode::FAILURE;
   return retrieve(context, proxy->name(), caller, msg, result);
@@ -34,9 +34,9 @@ StatusCode TrigCostDataStore::retrieve(const EventContext& context, const std::s
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostDataStore::retrieve(const EventContext& context, const std::string& proxyName, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const {
-  // Bundle supplied proxy name & caller into an AlgorithmIdentifier rather than using proxy from context
-  const AlgorithmIdentifier ai(caller, proxyName);
+StatusCode TrigCostDataStore::retrieve(const EventContext& context, const std::string& storeName, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const {
+  // Bundle supplied store name & caller into an AlgorithmIdentifier rather than using store from context
+  const AlgorithmIdentifier ai(caller, storeName);
   return retrieve(context, ai, msg, result);
 }
 

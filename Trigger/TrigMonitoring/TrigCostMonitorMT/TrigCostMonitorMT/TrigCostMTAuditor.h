@@ -52,7 +52,7 @@ class TrigCostMTAuditor : virtual public Auditor, public AthMessaging {
   void before(StandardEventType evt, const std::string& caller) override;
 
   /**
-   * @brief Audit before an algorithm standard event type is called
+   * @brief Audit after an algorithm standard event type is called
    * @param[in] evt The event type. Only Execute is monitored
    * @param[in] caller The name of the calling algorithm
    */

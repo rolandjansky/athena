@@ -26,12 +26,12 @@ class TrigCostDataStore {
 
   /** 
    * @class AlgorithmIdentifier
-   * @brief Small structure to hold an algorithm's name and proxy, plus some details on its EventView.
+   * @brief Small structure to hold an algorithm's name and store, plus some details on its EventView.
    */
   struct AlgorithmIdentifier {
-    AlgorithmIdentifier(const std::string& caller, const std::string& proxyName, const bool isView = false) :
+    AlgorithmIdentifier(const std::string& caller, const std::string& storeName, const bool isView = false) :
       m_caller(caller), 
-      m_store(proxyName),
+      m_store(storeName),
       m_isView(isView),
       m_hash(std::hash<std::string>{}(m_caller + m_store))
       {}
@@ -101,15 +101,15 @@ class TrigCostDataStore {
   StatusCode retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const;
 
   /**
-   * @brief Retrieve a time stamp from the map given an algorithm name and proxy name. Note, this overrides the proxy in the context
+   * @brief Retrieve a time stamp from the map given an algorithm name and store name. Note, this overrides the store in the context
    * @param[in] context The event context of the algorithm
-   * @param[in] proxyName The name of the algorithm's proxy. Overrides what is in the supplied context
+   * @param[in] storeName The name of the algorithm's store. Overrides what is in the supplied context
    * @param[in] caller The name of the algorithm to retrieve
    * @param[in] msg Message service reference
    * @param[out] result Reference to TrigTimeStamp to return
    * @returns Success if the TrigTimeStamp was located, else Failure
    */
-  StatusCode retrieve(const EventContext& context, const std::string& proxyName, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const;
+  StatusCode retrieve(const EventContext& context, const std::string& storeName, const std::string& caller, MsgStream& msg, TrigTimeStamp& result) const;
 
   /**
    * @brief Retrieve a time stamp from the map given an AlgorithmIdentifier
