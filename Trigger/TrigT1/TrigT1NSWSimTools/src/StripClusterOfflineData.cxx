@@ -4,7 +4,7 @@
 
 
 //Local includes
-#include "StripClusterOfflineData.h"
+#include "TrigT1NSWSimTools/StripClusterOfflineData.h"
 
 #include <string>
 

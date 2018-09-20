@@ -82,6 +82,8 @@ else
             PP="$PP"'|NewEventCollection.root, recovered'
             # ignore new file catalog messages
             PP="$PP"'|registerPFN'
+            # EventSelector sourceID
+            PP="$PP"'|Disconnecting input sourceID'
 
             jobdiff=`basename ${joblog}`-todiff
             refdiff=`basename ${reflog}`-todiff

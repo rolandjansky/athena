@@ -7,8 +7,9 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 // local includes
-#include "StripSegmentTool.h"
-#include "StripOfflineData.h"
+#include "TrigT1NSWSimTools/StripSegmentTool.h"
+#include "TrigT1NSWSimTools/StripOfflineData.h"
+#include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"
@@ -36,9 +37,6 @@
 #include <map>
 #include <utility>
 #include <math.h>      
-
-using namespace std;
-
 
 namespace NSWL1 {
 
@@ -87,8 +85,8 @@ namespace NSWL1 {
           return sc;
         }
 
-        char ntuple_name[40];
-        memset(ntuple_name,'\0',40*sizeof(char));
+        char ntuple_name[40]={'\0'};
+        //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
 
         m_tree = 0;
@@ -151,78 +149,123 @@ namespace NSWL1 {
     }
 
   
-    StatusCode StripSegmentTool::find_segments(std::vector< StripClusterData * >& clusters){
+    StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
       
       
 
-      std::map<int, std::vector<StripClusterData*>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
+      std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
 
 
-      for( auto cl : clusters){
-	auto item =cluster_map.find(cl->bandId());
-	if (item != cluster_map.end()){
-	  item->second[cl->wedge()-1].push_back(cl);
+      for(  auto& cl : clusters){
+	    auto item =cluster_map.find(cl->bandId());
+	    if (item != cluster_map.end()){
+	      item->second[cl->wedge()-1].push_back(std::move(cl));
+	    }
+	    else{
+	      cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
+	    }
+      }
+      
+      for(const auto& band : cluster_map){
+	    int bandId=band.first;
+	    if ((band.second[0].size() == 0) || (band.second[1].size() == 0)) continue;
+  
+	    float glx1=0;
+	    float gly1=0;
+        float glx2=0;
+        float gly2=0;
+        float glx=0;
+        float gly=0;
+	    float phi=0;
+	    float eta=0;
+	    float charge1=0;
+        float charge2=0;
+
+	    //first measuement
+	    float r1=0;
+	    float z1=0;
+	    for( const auto& cl : band.second[0] ){
+	      r1+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
+	      z1+=cl->globZ()*cl->charge();
+	      glx1+=cl->globX()*cl->charge();
+	      gly1+=cl->globY()*cl->charge();
+	      charge1+=cl->charge();
+	    }
+
+	    //first measuement
+	    float r2=0;
+	    float z2=0;
+	    for( const auto& cl : band.second[1] ){
+	        r2+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
+	        z2+=cl->globZ()*cl->charge();
+	        glx2+=cl->globX()*cl->charge();
+	        gly2+=cl->globY()*cl->charge();
+            charge2+=cl->charge();
+	    }
+	    if(charge1!=0){
+	        r1=r1/charge1;
+	        z1=z1/charge1;
+	        glx1=glx1/charge1;
+	        gly1=gly1/charge1;
+	    }
+	    if(charge2!=0){
+	        r2=r2/charge2;
+	        z2=z2/charge2;
+	        glx2=glx2/charge2;
+	        gly2=gly2/charge2;
+	    }
+	    glx=(glx1+glx2)/2.;
+	    gly=(gly1+gly2)/2.;
+
+	    float slope=(r2-r1)/(z2-z1);
+	    float avg_r=(r1+r2)/2.;
+	    float avg_z=(z1+z2)/2.;
+	    float inf_slope=(avg_r/avg_z);
+	    //float dR=slope-inf_slope;
+	    float theta_inf=atan(inf_slope);
+	    float theta=atan(slope);
+	    float dtheta=(theta_inf-theta)*1000;//In Milliradian
+	    if(avg_z>0){
+	      eta=-log(tan(theta/2));
+	    }
+	    else if(avg_z<0){
+	      eta=log(tan(-theta/2));
+	   }
+	   else{
+	      ATH_MSG_ERROR("Segment Global Z at IP");
+       }
+	   if(glx>=0 && gly>=0){
+	     phi=atan(gly/glx);
+	   }
+	   else if(glx<0 && gly>0){
+	     phi=PI-atan(abs(gly/glx));
+	   }
+	   else if(glx<0 && gly<0){
+	      phi=-1*PI+atan(gly/glx);
+	   }
+	   else if(glx>0 && gly<0){
+	      phi=-atan(abs(gly/glx));
+	   }
+	   else{
+	  ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");
 	  }
-	else{
-	  cluster_map[cl->bandId()][cl->wedge()-1].push_back(cl);
-	}
 
-      }
-      
-      for(auto band : cluster_map){
-	int bandId=band.first;
-	if ((band.second[0].size() == 0) || (band.second[1].size() == 0)) continue;
+	 m_seg_wedge1_size->push_back(band.second[0].size());
+	 m_seg_wedge2_size->push_back(band.second[1].size());
 
-	//first measuement
-	float r1=0;
-	float z1=0;
-	for( auto cl : band.second[0] ){
-	  r1+=sqrt(pow(cl->globX(),2)+pow(cl->globY(),2));
-	  z1+=cl->globZ();
-	}
-
-	//first measuement
-	float r2=0;
-	float z2=0;
-	for( auto cl : band.second[1] ){
-	  r2+=sqrt(pow(cl->globX(),2)+pow(cl->globY(),2));
-	  z2+=cl->globZ();
-	}
-
-	r1=r1/band.second[0].size();
-	z1=z1/band.second[0].size();
-
-	r2=r2/band.second[1].size();
-	z2=z2/band.second[1].size();
-
-	float slope=(r2-r1)/(z2-z1);
-	float avg_r=(r1+r2)/2.;
-	float avg_z=(z1+z2)/2.;
-	float inf_slope=(avg_r/avg_z);
-	//float dR=slope-inf_slope;
-	float theta_inf=atan(inf_slope);
-	float theta=atan(slope);
-	float dtheta=(theta_inf-theta)*1000;//In Milliradian
-
-
-	ATH_MSG_INFO("r1 " << r1 <<" r2 " << r2 << " z1 " << z1 << " z2 " <<z2 << " bandId " << bandId << " slope " << slope <<" inf_slope " << inf_slope << " theta" << theta << " inf theta " << theta_inf );
-
-
-	m_seg_wedge1_size->push_back(band.second[0].size());
-	m_seg_wedge2_size->push_back(band.second[1].size());
-
-	m_seg_bandId->push_back(bandId);
-	m_seg_theta->push_back(theta);
-	m_seg_dtheta->push_back(dtheta);
-	m_seg_eta->push_back(-99);
-	m_seg_phi->push_back(-99);
-	m_seg_global_r->push_back(avg_r); 
-	m_seg_global_y->push_back(-999); 
-	m_seg_global_z->push_back(avg_z); 
-	m_seg_dir_r->push_back(slope); 
-	m_seg_dir_y->push_back(-99); 
-	m_seg_dir_z->push_back(-99); 
-      }
+	 m_seg_bandId->push_back(bandId);
+	 m_seg_theta->push_back(theta);
+	 m_seg_dtheta->push_back(dtheta);
+	 m_seg_eta->push_back(eta);
+	 m_seg_phi->push_back(phi);
+	 m_seg_global_r->push_back(avg_r); 
+     m_seg_global_x->push_back(glx);
+	 m_seg_global_y->push_back(gly); 
+	 m_seg_global_z->push_back(avg_z); 
+     m_seg_dir_r->push_back(slope); 
+	 m_seg_dir_y->push_back(-99); 
+	 m_seg_dir_z->push_back(-99); 
+     }
 
 
 
@@ -238,6 +281,7 @@ namespace NSWL1 {
       m_seg_eta = new std::vector< float >();   
       m_seg_phi = new std::vector< float >();
       m_seg_global_r = new std::vector< float >();
+      m_seg_global_x = new std::vector< float >();
       m_seg_global_y = new std::vector< float >();
       m_seg_global_z = new std::vector< float >();
       m_seg_dir_r = new std::vector< float >();
@@ -248,7 +292,7 @@ namespace NSWL1 {
       m_seg_wedge2_size = new std::vector< int >();
 
        if (m_tree) {
-	 std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+	     std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
          const char* n = ToolName.c_str();
          m_tree->Branch(TString::Format("%s_seg_theta",n).Data(),&m_seg_theta);
          m_tree->Branch(TString::Format("%s_seg_dtheta",n).Data(),&m_seg_dtheta);
@@ -257,6 +301,7 @@ namespace NSWL1 {
          m_tree->Branch(TString::Format("%s_seg_phi",n).Data(),&m_seg_phi);
 
          m_tree->Branch(TString::Format("%s_seg_global_r",n).Data(),&m_seg_global_r);
+         m_tree->Branch(TString::Format("%s_seg_global_x",n).Data(),&m_seg_global_x);
          m_tree->Branch(TString::Format("%s_seg_global_y",n).Data(),&m_seg_global_y);
          m_tree->Branch(TString::Format("%s_seg_global_z",n).Data(),&m_seg_global_z);
 
@@ -291,6 +336,7 @@ namespace NSWL1 {
       m_seg_eta->clear();   
       m_seg_phi->clear();
       m_seg_global_r->clear();
+      m_seg_global_x->clear();
       m_seg_global_y->clear();
       m_seg_global_z->clear();
       m_seg_dir_r->clear();

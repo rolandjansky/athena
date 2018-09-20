@@ -75,7 +75,6 @@ atlas_add_test( photonMenu
  		SCRIPT test/test_photon_menu.sh
                  PROPERTIES TIMEOUT 500
  		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu   )
-
 #		EXTRA_PATTERNS "TriggerSummary"
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
 atlas_add_test( egammaMenu

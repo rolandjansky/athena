@@ -5,10 +5,20 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
 ################################################################################
 # Standard BS algorithms
 ################################################################################
-
+addTool( "MuonCnvExample.MuonReadBSConfig.MdtROD_Decoder",         "MdtROD_Decoder" )
+addTool( "MuonCnvExample.MuonReadBSConfig.MdtRawDataProviderTool", "MdtRawDataProviderTool" )
 addAlgorithm( "Muon::MdtRawDataProvider",                          "MuonMdtRawDataProvider" )
+
+addTool( "MuonCnvExample.MuonReadBSConfig.RpcROD_Decoder",         "RpcROD_Decoder" )
+addTool( "MuonCnvExample.MuonReadBSConfig.RpcRawDataProviderTool", "RpcRawDataProviderTool" )
 addAlgorithm( "Muon::RpcRawDataProvider",                          "MuonRpcRawDataProvider" )
+
+addTool( "MuonCnvExample.MuonReadBSConfig.TgcROD_Decoder",         "TgcROD_Decoder" )
+addTool( "MuonCnvExample.MuonReadBSConfig.TgcRawDataProviderTool", "TgcRawDataProviderTool" )
 addAlgorithm("Muon::TgcRawDataProvider",                           "MuonTgcRawDataProvider" )
+
+addTool( "MuonCnvExample.MuonReadBSConfig.CscROD_Decoder",         "CscROD_Decoder" )
+addTool( "MuonCnvExample.MuonReadBSConfig.CscRawDataProviderTool", "CscRawDataProviderTool" )
 addAlgorithm("Muon::CscRawDataProvider",                           "MuonCscRawDataProvider" )
 
 

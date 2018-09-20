@@ -285,11 +285,11 @@ StatusCode MuGirlRecoTool::MuGirlReco(const InDetCandidateCollection& InDetSeeds
         /**
            get the extrapolation to the MS entry
         */
-        std::unique_ptr<Trk::CaloExtension> extension = nullptr;
 
-	if (m_caloExtensionTool.empty()) continue;
-	if (!m_caloExtensionTool->caloExtension(tp_id, extension)) continue;
-	if (!extension) continue; 
+	if (m_caloExtensionTool.empty()) {continue;}
+	
+  std::unique_ptr<Trk::CaloExtension> extension = m_caloExtensionTool->caloExtension(tp_id);
+	if (!extension) {continue;} 
 	if (!extension->muonEntryLayerIntersection() && extension->caloLayerIntersections().empty()) continue;
 	
 	ATH_MSG_DEBUG("Seen by calo");

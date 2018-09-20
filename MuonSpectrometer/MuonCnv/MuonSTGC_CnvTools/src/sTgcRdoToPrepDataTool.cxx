@@ -132,6 +132,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
   std::vector<sTgcPrepData> sTgcprds;
   std::vector<int> sTgcflag;
   std::vector<sTgcPrepData> sTgcWireprds;
+  std::vector<sTgcPrepData> sTgcPadprds;
   // convert the RDO collection to a PRD collection
   STGC_RawDataCollection::const_iterator it = rdoColl->begin();
   for ( ; it != rdoColl->end() ; ++it ) {
@@ -206,16 +207,19 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
     ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel << " type: " << channelType << " resolution " << resolution );
 
-    if(m_merge&&(channelType==1||channelType==2)) {
-// eta strips and wires
+    if(m_merge) {
+// eta strips 
       if(channelType==1) {
         sTgcflag.push_back(0);
         sTgcprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
-       } else { 
+      } else if (channelType==2) { 
+// wires
         sTgcWireprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
-       }
+      } else if (channelType==0) { 
+// pads 
+        sTgcPadprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
+      }
     } else {
-// Pads no merging
       prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
     } 
   } //end it = rdoColl
@@ -224,16 +228,24 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
 // merge the eta and phi prds that fire closeby strips
 
-    for (unsigned int j=0; j<2; ++j){
+    for (unsigned int j=0; j<3; ++j){
 // j == 0 loop over eta strips prds
 // j == 1 loop over phi wire prds 
+// j == 2 loop over pad prds 
+      int stripDifference = 2;
       if(j==1) {
         sTgcprds.insert(sTgcprds.end(), sTgcWireprds.begin(), sTgcWireprds.end());
         for (unsigned int i=0; i<sTgcWireprds.size(); ++i){
           sTgcflag.push_back(0);
-//          sTgcprds.push_back(sTgcWireprds[i]);
         }
-//      if(sTgcWireprds.size()>0) sTgcWireprds.clear();
+      }
+      if(j==2) {
+        sTgcprds.insert(sTgcprds.end(), sTgcPadprds.begin(), sTgcPadprds.end());
+        for (unsigned int i=0; i<sTgcPadprds.size(); ++i){
+          sTgcflag.push_back(0);
+        }
+// merge only same channel/strip numbers
+        stripDifference = 1;
       }
       for (unsigned int i=0; i<sTgcprds.size(); ++i){
          // skip the merged prds
@@ -255,7 +267,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            int channelTypeN = m_stgcIdHelper->channelType(id_prdN);
            if( gasGapN==gasGap && layerN==layer && channelType == channelTypeN) {
              ATH_MSG_VERBOSE(" next sTgcprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
-             if(abs(strip-stripN)<2) {
+             if(abs(strip-stripN)<stripDifference) {
                merge = true;
                jmerge = j;
                break;
@@ -330,7 +342,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
            covN->setIdentity();
            (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-           if(nmerge<=1) (*covN)(0,0) = covX;
+           if(nmerge<=1 || stripDifference==1) (*covN)(0,0) = covX;
            ATH_MSG_VERBOSE(" make merged prepData at strip " << m_stgcIdHelper->channel(sTgcprds[j].identify())  << " channelType " << channelType << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
  
            sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j].identify(), hash, sTgcprds[j].localPosition(), rdoList, covN, sTgcprds[j].detectorElement(), sTgcprds[j].getBcBitMap());
@@ -341,8 +353,9 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
        // clear vector and delete elements
        sTgcflag.clear();
        sTgcprds.clear();
-       sTgcWireprds.clear();
      } // loop over eta and Wire prds
+     sTgcWireprds.clear();
+     sTgcPadprds.clear();
   }
 
 

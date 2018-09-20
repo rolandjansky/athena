@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
-
+from AthenaCommon.Logging import logging
 class CfgFlag(object):
     __slots__ = ['_value','_setDef']
 
@@ -67,7 +67,10 @@ class FlagAddress(object):
 
 
 class AthConfigFlags(object):
+
     def __init__(self,inputflags=None):
+        self._msg = logging.getLogger('AthConfigFlags')
+        
         if inputflags:
             self._flagdict=inputflags
         else:
@@ -91,7 +94,8 @@ class AthConfigFlags(object):
         return name in self._flagdict
 
     def set(self,name,value):
-        # add obsoletness message here
+        import warnings
+        warnings.warn("The flags should be set with programatic syntax: flag."+name, stacklevel=2 )
         self._set(name,value)
 
     def _set(self,name,value):
@@ -108,9 +112,11 @@ class AthConfigFlags(object):
             raise KeyError(errString)
 
     def get(self,name):
-        # add obsoltness message here
+        import warnings
+        warnings.warn("The flags should be red with programatic syntax: flag."+name, stacklevel=2 )
         return self._get(name)
 
+    
     def _get(self,name):
         try:
             return self._flagdict[name].get(self)

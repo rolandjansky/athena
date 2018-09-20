@@ -46,7 +46,6 @@ public:
   virtual StatusCode execute() override final;
 
 private:
-
   /** @brief Refit of track */
   StatusCode refitTrack(const xAOD::TrackParticle* tmpTrkPart , 
                         TrackCollection* finalTracks, 

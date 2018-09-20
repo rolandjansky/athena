@@ -73,7 +73,6 @@ atlas_add_executable( ringsHist
 endif()
 
 atlas_install_python_modules( python/*.py )
-atlas_install_data( data/test )
 
 if( XAOD_STANDALONE )
 message( STATUS "Using tag ${RingerSelectorTools_version} for all written RingerSelectorTools data." )

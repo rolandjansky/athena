@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,14 +36,14 @@ class LumiBlockMuTool: public AthAlgTool, virtual public ILumiBlockMuTool {
   // ---------------- user interface -------------------
 
   // Return interactions per crossing (mu) averaged over all BCIDs in physics bunch group
-  float averageInteractionsPerCrossing();
+  virtual float averageInteractionsPerCrossing() const override;
 
   // Return interactions per crossing (mu) for this specific BCID
-  float actualInteractionsPerCrossing();
+  virtual float actualInteractionsPerCrossing() const override;
 
   // Functions
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
  private:
   ToolHandle<ILuminosityTool> m_lumiTool;

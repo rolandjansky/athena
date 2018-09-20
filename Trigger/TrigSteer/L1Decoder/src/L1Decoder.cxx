@@ -61,7 +61,7 @@ StatusCode L1Decoder::readConfiguration() {
 StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   {
     auto timeStampHandle = SG::makeHandle( m_startStampKey, ctx );
-    ATH_CHECK( timeStampHandle.record( std::move( std::make_unique<TrigTimeStamp>() ) ) );
+    ATH_CHECK( timeStampHandle.record( std::make_unique<TrigTimeStamp>() ) );
   }
   using namespace TrigCompositeUtils;
   const ROIB::RoIBResult* roib=0;
@@ -70,7 +70,7 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
     roib = roibH.cptr();
     ATH_MSG_DEBUG( "Obtained ROIB result" );
   }
-  // this should realy be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
+  // this should really be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
 

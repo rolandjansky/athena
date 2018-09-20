@@ -9,6 +9,7 @@ from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsToo
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
 
 class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
     __slots__ = []
@@ -30,8 +31,8 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
                                                                PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
-                                                               PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
-                                                               SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
+                                                               PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
+                                                               SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                                                                )
 
         ToolSvc += InDetL2TrigClusterMakerTool
@@ -67,7 +68,7 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
                                       LorentzAngleTool=sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
         ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool,
-                                                                LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
+                                                                LorentzAngleTool = TrigPixelLorentzAngleTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
                                                               FastSCT_RodDecoder = ToolSvc.FastSCT_RodDecoder
                                                               )

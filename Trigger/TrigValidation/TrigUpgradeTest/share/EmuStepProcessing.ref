@@ -1,9 +1,11 @@
-Tue Sep  4 12:38:07 CEST 2018
+Thu Sep 13 18:19:35 CEST 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [check_status_code/11ca04cd6ce] -- built on [2018-09-04T1033]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [minors/d948a8c772] -- built on [2018-09-13T1451]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
+Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libRIO, output: $ROOTDIR/lib/libRIO
+Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libCling, output: $ROOTDIR/lib/libCling
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
@@ -39,7 +41,7 @@ Py:MenuComponents   DEBUG ComboMaker ComboHypo_Step2_mu_em adding chain HLT_mu8_
 MenuChains.getConfFromChainName: Called chain HLT_mu8_e8 and hypoTool conf ['HLT_mu8', 'HLT_e8']
 enabled Combo chains:  ['MU6 : HLT_mu8_e8'] ['EM7 : HLT_mu8_e8']
 EnabledChainNamesToCTP:  ['0:HLT_mu20', '1:HLT_mu81step', '2:HLT_mu8', '3:HLT_e20', '4:HLT_e8', '5:HLT_mu8_e8']
-Py:ConfigurableDb    INFO Read module info for 5518 configurables from 9 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5519 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EMRoIsUnpackingTool enables chians:
 ['EM7 : HLT_e20', 'EM7 : HLT_e8', 'EM7 : HLT_mu8_e8']
@@ -428,6 +430,112 @@ Py:HLTCFConfig      DEBUG  *** Create CFSequence Step2_mu_em with FilterAlg Filt
 Py:HLTCFConfig      DEBUG Now Draw...
 Py:HLTCFConfig       INFO ************* End of step 2, Step2
 Py:HLTCFConfig      DEBUG finalDecisions: [['Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU'], ['Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU', 'combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM']]
+adding collector  0
+['Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU']
+/***** Private AlgTool DecisionCollectorTool/StepCollector0 ****************************************
+|-AuditFinalize     = False
+|-AuditInitialize   = False
+|-AuditReinitialize = False
+|-AuditRestart      = False
+|-AuditStart        = False
+|-AuditStop         = False
+|-AuditTools        = False
+|-Decisions         = ['Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU']  (default: [])
+|-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+|-EvtStore          = ServiceHandle('StoreGateSvc')
+|-ExtraInputs       = []  (default: [])
+|-ExtraOutputs      = []  (default: [])
+|-MonitorService    = 'MonitorSvc'
+|-OutputLevel       = 0
+\----- (End of Private AlgTool DecisionCollectorTool/StepCollector0) -------------------------------
+adding collector  1
+['Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU', 'combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM']
+/***** Private AlgTool DecisionCollectorTool/StepCollector1 ****************************************
+|-AuditFinalize     = False
+|-AuditInitialize   = False
+|-AuditReinitialize = False
+|-AuditRestart      = False
+|-AuditStart        = False
+|-AuditStop         = False
+|-AuditTools        = False
+|-Decisions         = ['Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU', 'combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM']
+|                   (default: [])
+|-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+|-EvtStore          = ServiceHandle('StoreGateSvc')
+|-ExtraInputs       = []  (default: [])
+|-ExtraOutputs      = []  (default: [])
+|-MonitorService    = 'MonitorSvc'
+|-OutputLevel       = 0
+\----- (End of Private AlgTool DecisionCollectorTool/StepCollector1) -------------------------------
+/***** Algorithm TrigSignatureMoniMT/TriggerMonitorFinal *******************************************
+|-AuditAlgorithms            = False
+|-AuditBeginRun              = False
+|-AuditEndRun                = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Cardinality                = 1
+|-ChainsList                 = ['HLT_mu20', 'HLT_mu81step', 'HLT_mu8', 'HLT_e20', 'HLT_e8', 'HLT_mu8_e8']
+|                            (default: [])
+|-CollectorTools             = PrivateToolHandleArray(['DecisionCollectorTool/StepCollector0','DecisionCollectorTool/StepCollector1'])
+|                            (default: '[]')
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-FinalDecisions             = ['Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU', 'combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM']
+|                            (default: [])
+|-HistParh                   = '/EXPERT/TrigSteer_HLT'
+|-IsIOBound                  = False
+|-L1Decisions                = 'HLTChainsResult'  (default: 'StoreGateSvc+HLTChainsResult')
+|-MonitorService             = 'MonitorSvc'
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 2  (default: 0)
+|-RegisterForContextService  = False
+|-THistSvc                   = ServiceHandle('THistSvc/THistSvc')
+|-Timeline                   = True
+|=/***** Private AlgTool DecisionCollectorTool/StepCollector0 ****************************************
+| |-AuditFinalize     = False
+| |-AuditInitialize   = False
+| |-AuditReinitialize = False
+| |-AuditRestart      = False
+| |-AuditStart        = False
+| |-AuditStop         = False
+| |-AuditTools        = False
+| |-Decisions         = ['Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU']  (default: [])
+| |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-EvtStore          = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs       = []  (default: [])
+| |-ExtraOutputs      = []  (default: [])
+| |-MonitorService    = 'MonitorSvc'
+| |-OutputLevel       = 0
+| \----- (End of Private AlgTool DecisionCollectorTool/StepCollector0) -------------------------------
+|=/***** Private AlgTool DecisionCollectorTool/StepCollector1 ****************************************
+| |-AuditFinalize     = False
+| |-AuditInitialize   = False
+| |-AuditReinitialize = False
+| |-AuditRestart      = False
+| |-AuditStart        = False
+| |-AuditStop         = False
+| |-AuditTools        = False
+| |-Decisions         = ['Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM', 'combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU', 'combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM']
+| |                   (default: [])
+| |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-EvtStore          = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs       = []  (default: [])
+| |-ExtraOutputs      = []  (default: [])
+| |-MonitorService    = 'MonitorSvc'
+| |-OutputLevel       = 0
+| \----- (End of Private AlgTool DecisionCollectorTool/StepCollector1) -------------------------------
+\----- (End of Algorithm TrigSignatureMoniMT/TriggerMonitorFinal) ----------------------------------
  +-- AthSequencer/AthMasterSeq
    +-- AthSequencer/AthFilterSeq
      +-- AthSequencer/AthBeginSeq
@@ -508,6 +616,8 @@ Py:HLTCFConfig      DEBUG finalDecisions: [['Step1MuHypo_from_FilterStep1_on_L1M
                    +-- HLTTest::TestHypoAlg/Step2ElHypo_Combo
                    +-- ComboHypo/ComboHypo_Step2_mu_em
              +-- TriggerSummaryAlg/TriggerSummaryStep2
+           +-- TriggerSummaryAlg/TriggerSummaryFinal
+           +-- TrigSignatureMoniMT/TriggerMonitorFinal
      +-- AthSequencer/AthEndSeq
    +-- AthSequencer/AthOutSeq
    +-- AthSequencer/AthRegSeq
@@ -518,14 +628,14 @@ MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on pc-tbed-pub-28.cern.ch on Tue Sep  4 12:38:26 2018
+                                          running on pc-tbed-pub-25.cern.ch on Thu Sep 13 18:19:44 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 3630 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 3632 CLIDRegistry entries for module ALL
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
@@ -583,6 +693,7 @@ L1Decoder                                         DEBUG Data Deps for L1Decoder
   + OUTPUT  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+L1EM' ) 
   + OUTPUT  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+L1MU' ) 
 ClassIDSvc                                         INFO  getRegistryEntries: read 58 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 5109 CLIDRegistry entries for module ALL
 FilterStep1_on_L1MU                               DEBUG Property update for OutputLevel : new value = 2
 FilterStep1_on_L1MU                                INFO Initializing FilterStep1_on_L1MU...
 FilterStep1_on_L1MU                               DEBUG Will consume implicit ReadDH:
@@ -1046,11 +1157,41 @@ TriggerSummaryStep2                               DEBUG Data Deps for TriggerSum
   + INPUT   ( 'TrigTimeStamp' , 'StoreGateSvc+L1DecoderStart' ) 
   + INPUT   ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChains' ) 
   + OUTPUT  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+MonitoringSummaryTriggerSummaryStep2' ) 
+TriggerSummaryFinal                               DEBUG Property update for OutputLevel : new value = 2
+TriggerSummaryFinal                               DEBUG Will consume implicit decisions:
+TriggerSummaryFinal                               DEBUG  Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                               DEBUG  Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                               DEBUG  Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                               DEBUG  Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                               DEBUG  Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                               DEBUG  combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU
+TriggerSummaryFinal                               DEBUG  combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
+TriggerSummaryFinal                               DEBUG input handles: 2
+TriggerSummaryFinal                               DEBUG output handles: 1
+TriggerSummaryFinal                               DEBUG Registering all Tools in ToolHandleArray OutputTools
+TriggerSummaryFinal                               DEBUG Data Deps for TriggerSummaryFinal
+  + INPUT   ( 'TrigTimeStamp' , 'StoreGateSvc+L1DecoderStart' ) 
+  + INPUT   ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChains' ) 
+  + OUTPUT  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+MonitoringSummaryTriggerSummaryFinal' ) 
+TriggerMonitorFinal                               DEBUG Property update for OutputLevel : new value = 2
+TriggerMonitorFinal.StepCollector0                DEBUG Property update for OutputLevel : new value = 2
+TriggerMonitorFinal.StepCollector1                DEBUG Property update for OutputLevel : new value = 2
+TriggerMonitorFinal                               DEBUG Histogram 7 x 5 bins
+THistSvc                                        WARNING no stream "EXPERT" associated with id: "/EXPERT/TrigSteer_HLT/SignatureAcceptance"
+TriggerMonitorFinal                               DEBUG Registerd under /EXPERT/TrigSteer_HLT/SignatureAcceptance
+TriggerMonitorFinal                               DEBUG input handles: 1
+TriggerMonitorFinal                               DEBUG output handles: 0
+TriggerMonitorFinal                               DEBUG Registering all Tools in ToolHandleArray CollectorTools
+TriggerMonitorFinal                               DEBUG Adding private ToolHandle tool TriggerMonitorFinal.StepCollector0 (DecisionCollectorTool) from ToolHandleArray CollectorTools
+TriggerMonitorFinal                               DEBUG Adding private ToolHandle tool TriggerMonitorFinal.StepCollector1 (DecisionCollectorTool) from ToolHandleArray CollectorTools
+TriggerMonitorFinal                               DEBUG Data Deps for TriggerMonitorFinal
+  + INPUT   ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChainsResult' ) 
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                              INFO Found 32 algorithms
+AvalancheSchedulerSvc                              INFO Found 34 algorithms
 AvalancheSchedulerSvc                              INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
    o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChains' )     required by Algorithm: 
+       * TriggerSummaryFinal
        * TriggerSummaryStep1
        * TriggerSummaryStep2
 PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
@@ -1144,6 +1285,8 @@ PrecedenceSvc                                      INFO
                       Step2ElHypo_Combo [Alg]  [n= 0]
                       ComboHypo_Step2_mu_em [Alg]  [n= 0]
                 TriggerSummaryStep2 [Alg]  [n= 0]
+              TriggerSummaryFinal [Alg]  [n= 0]
+              TriggerMonitorFinal [Alg]  [n= 1] [unclonable] 
           AthCondSeq [Seq]  [Concurrent]  [Prompt] 
         AthEndSeq [Seq]  [Sequential]  [Prompt] 
           EndIncFiringAlg [Alg]  [n= 1] [unclonable] 
@@ -1229,6 +1372,7 @@ PrecedenceSvc                                      INFO
         V
         o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChainsResult' ) 
         V
+        TriggerMonitorFinal
       ====================================
         L1Decoder
         V
@@ -1240,6 +1384,7 @@ PrecedenceSvc                                      INFO
         o  ( 'TrigTimeStamp' , 'StoreGateSvc+L1DecoderStart' ) 
         V
         TriggerSummaryStep2
+        TriggerSummaryFinal
         TriggerSummaryStep1
       ====================================
         Step1ElHypo
@@ -1350,6 +1495,11 @@ PrecedenceSvc                                      INFO
         V
         CaloClustering2
       ====================================
+        TriggerSummaryFinal
+        V
+        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+MonitoringSummaryTriggerSummaryFinal' ) 
+        V
+      ====================================
         Step2MuHypo
         V
         o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU' ) 
@@ -1405,6 +1555,7 @@ PrecedenceSvc                                      INFO
         o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChains' ) 
         V
         TriggerSummaryStep2
+        TriggerSummaryFinal
         TriggerSummaryStep1
       ====================================
         muMSRecAlg2
@@ -1596,7 +1747,7 @@ TriggerSummaryStep1                     0   0     DEBUG Found 0 Decisions for co
 TriggerSummaryStep1                     0   0     DEBUG Found 0 Decisions for combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
 TriggerSummaryStep1                     0   0     DEBUG In summary 1 chains passed:
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e20 ID#4230506138
-TriggerSummaryStep1                     0   0     DEBUG Time since the start of L1 decoding 9449 ms
+TriggerSummaryStep1                     0   0     DEBUG Time since the start of L1 decoding 11757 ms
 FilterStep2_on_Step2_mu                 0   0     DEBUG Executing FilterStep2_on_Step2_mu...
 FilterStep2_on_Step2_mu                 0   0     DEBUG No valid inputs found, filter failed. Return....
 FilterStep2_on_Step2_em                 0   0     DEBUG Executing FilterStep2_on_Step2_em...
@@ -1726,7 +1877,29 @@ TriggerSummaryStep2                     0   0     DEBUG Found 0 Decisions for co
 TriggerSummaryStep2                     0   0     DEBUG Found 0 Decisions for combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
 TriggerSummaryStep2                     0   0     DEBUG In summary 1 chains passed:
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e20 ID#4230506138
-TriggerSummaryStep2                     0   0     DEBUG Time since the start of L1 decoding 10932 ms
+TriggerSummaryStep2                     0   0     DEBUG Time since the start of L1 decoding 14215 ms
+TriggerSummaryFinal                     0   0     DEBUG Missing decisions for Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU which may be perfectly correct
+TriggerSummaryFinal                     0   0     DEBUG Missing decisions for Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU which may be perfectly correct
+TriggerSummaryFinal                     0   0     DEBUG Missing decisions for Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU which may be perfectly correct
+TriggerSummaryFinal                     0   0     DEBUG Found 2 Decisions for Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                     0   0     DEBUG Found 2 Decisions for Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                     0   0     DEBUG Found 0 Decisions for combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU
+TriggerSummaryFinal                     0   0     DEBUG Found 0 Decisions for combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
+TriggerSummaryFinal                     0   0     DEBUG In summary 1 chains passed:
+TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e20 ID#4230506138
+TriggerSummaryFinal                     0   0     DEBUG Time since the start of L1 decoding 14439 ms
+TriggerMonitorFinal                     0   0     DEBUG L1 0 N positive decisions 1
+TriggerMonitorFinal                     0   0     DEBUG L1 1 N positive decisions 1
+TriggerMonitorFinal                     0   0     DEBUG  Step 0 decisions 0
+TriggerMonitorFinal                     0   0     DEBUG  Step 1 decisions 1
+TriggerMonitorFinal                     0   0     DEBUG Final decision Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU absent, possibly early rejected
+TriggerMonitorFinal                     0   0     DEBUG Final decision Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU absent, possibly early rejected
+TriggerMonitorFinal                     0   0     DEBUG Final decision Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU absent, possibly early rejected
+TriggerMonitorFinal                     0   0     DEBUG Decision for 2 objects available in Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerMonitorFinal                     0   0     DEBUG Decision for 2 objects available in Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerMonitorFinal                     0   0     DEBUG Decision for 0 objects available in combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU
+TriggerMonitorFinal                     0   0     DEBUG Decision for 0 objects available in combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
+TriggerMonitorFinal                     0   0     DEBUG Event passsed, filling 5
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1, run #1 on slot 0,  1 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  start processing event #2, run #1 on slot 0,  1 events processed so far  <<<===
 SGInputLoader                           1   0   WARNING unable to find proxy for  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChains' ) 
@@ -2138,7 +2311,7 @@ TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_mu81step ID#270
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_mu8 ID#3370546555
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_mu8_e8 ID#3385806166
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e20 ID#4230506138
-TriggerSummaryStep1                     1   0     DEBUG Time since the start of L1 decoding 3672 ms
+TriggerSummaryStep1                     1   0     DEBUG Time since the start of L1 decoding 5497 ms
 FilterStep2_on_Step2_mu                 1   0     DEBUG Executing FilterStep2_on_Step2_mu...
 FilterStep2_on_Step2_mu                 1   0     DEBUG Running on 1 input keys
 FilterStep2_on_Step2_mu                 1   0     DEBUG Checking inputHandle Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU with 2 elements
@@ -2399,7 +2572,33 @@ TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e8 ID#190682560
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_mu8 ID#3370546555
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_mu8_e8 ID#3385806166
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e20 ID#4230506138
-TriggerSummaryStep2                     1   0     DEBUG Time since the start of L1 decoding 6687 ms
+TriggerSummaryStep2                     1   0     DEBUG Time since the start of L1 decoding 9520 ms
+TriggerSummaryFinal                     1   0     DEBUG Found 2 Decisions for Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                     1   0     DEBUG Found 1 Decisions for Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                     1   0     DEBUG Found 1 Decisions for Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                     1   0     DEBUG Found 2 Decisions for Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                     1   0     DEBUG Found 2 Decisions for Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                     1   0     DEBUG Found 1 Decisions for combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU
+TriggerSummaryFinal                     1   0     DEBUG Found 2 Decisions for combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
+TriggerSummaryFinal                     1   0     DEBUG In summary 5 chains passed:
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e8 ID#1906825600
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_mu81step ID#2702561248
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_mu8 ID#3370546555
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_mu8_e8 ID#3385806166
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e20 ID#4230506138
+TriggerSummaryFinal                     1   0     DEBUG Time since the start of L1 decoding 9690 ms
+TriggerMonitorFinal                     1   0     DEBUG L1 0 N positive decisions 5
+TriggerMonitorFinal                     1   0     DEBUG L1 1 N positive decisions 5
+TriggerMonitorFinal                     1   0     DEBUG  Step 0 decisions 2
+TriggerMonitorFinal                     1   0     DEBUG  Step 1 decisions 4
+TriggerMonitorFinal                     1   0     DEBUG Decision for 2 objects available in Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerMonitorFinal                     1   0     DEBUG Decision for 1 objects available in Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerMonitorFinal                     1   0     DEBUG Decision for 1 objects available in Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerMonitorFinal                     1   0     DEBUG Decision for 2 objects available in Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerMonitorFinal                     1   0     DEBUG Decision for 2 objects available in Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerMonitorFinal                     1   0     DEBUG Decision for 1 objects available in combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU
+TriggerMonitorFinal                     1   0     DEBUG Decision for 2 objects available in combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
+TriggerMonitorFinal                     1   0     DEBUG Event passsed, filling 5
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #2, run #1 on slot 0,  2 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  start processing event #3, run #1 on slot 0,  2 events processed so far  <<<===
 SGInputLoader                           2   0   WARNING unable to find proxy for  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChains' ) 
@@ -2590,7 +2789,7 @@ TriggerSummaryStep1                     2   0     DEBUG In summary 3 chains pass
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e8 ID#1906825600
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu81step ID#2702561248
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu8 ID#3370546555
-TriggerSummaryStep1                     2   0     DEBUG Time since the start of L1 decoding 2101 ms
+TriggerSummaryStep1                     2   0     DEBUG Time since the start of L1 decoding 2979 ms
 FilterStep2_on_Step2_mu                 2   0     DEBUG Executing FilterStep2_on_Step2_mu...
 FilterStep2_on_Step2_mu                 2   0     DEBUG Running on 1 input keys
 FilterStep2_on_Step2_mu                 2   0     DEBUG Checking inputHandle Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU with 1 elements
@@ -2739,9 +2938,35 @@ TriggerSummaryStep2                     2   0     DEBUG Found 0 Decisions for co
 TriggerSummaryStep2                     2   0     DEBUG In summary 2 chains passed:
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e8 ID#1906825600
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_mu8 ID#3370546555
-TriggerSummaryStep2                     2   0     DEBUG Time since the start of L1 decoding 4300 ms
+TriggerSummaryStep2                     2   0     DEBUG Time since the start of L1 decoding 5679 ms
+TriggerSummaryFinal                     2   0     DEBUG Found 1 Decisions for Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                     2   0     DEBUG Found 1 Decisions for Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                     2   0     DEBUG Found 1 Decisions for Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerSummaryFinal                     2   0     DEBUG Found 1 Decisions for Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                     2   0     DEBUG Found 1 Decisions for Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerSummaryFinal                     2   0     DEBUG Found 0 Decisions for combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU
+TriggerSummaryFinal                     2   0     DEBUG Found 0 Decisions for combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
+TriggerSummaryFinal                     2   0     DEBUG In summary 3 chains passed:
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e8 ID#1906825600
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_mu81step ID#2702561248
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_mu8 ID#3370546555
+TriggerSummaryFinal                     2   0     DEBUG Time since the start of L1 decoding 5903 ms
+TriggerMonitorFinal                     2   0     DEBUG L1 0 N positive decisions 5
+TriggerMonitorFinal                     2   0   WARNING HLT chain HLT_2mu8 ID#1307018918 not configured to be monitred
+TriggerMonitorFinal                     2   0     DEBUG L1 1 N positive decisions 5
+TriggerMonitorFinal                     2   0   WARNING HLT chain HLT_2mu8 ID#1307018918 not configured to be monitred
+TriggerMonitorFinal                     2   0     DEBUG  Step 0 decisions 2
+TriggerMonitorFinal                     2   0     DEBUG  Step 1 decisions 2
+TriggerMonitorFinal                     2   0     DEBUG Decision for 1 objects available in Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerMonitorFinal                     2   0     DEBUG Decision for 1 objects available in Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerMonitorFinal                     2   0     DEBUG Decision for 1 objects available in Step2MuHypo_from_FilterStep2_on_Step2_mu_from_Step1MuHypo_from_FilterStep1_on_L1MU_from_L1MU
+TriggerMonitorFinal                     2   0     DEBUG Decision for 1 objects available in Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerMonitorFinal                     2   0     DEBUG Decision for 1 objects available in Step2ElHypo_from_FilterStep2_on_Step2_em_from_Step1ElHypo_from_FilterStep1_on_L1EM_from_L1EM
+TriggerMonitorFinal                     2   0     DEBUG Decision for 0 objects available in combo_Step2MuHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1MuHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1MU
+TriggerMonitorFinal                     2   0     DEBUG Decision for 0 objects available in combo_Step2ElHypo_Combo_from_FilterStep2_on_Step2_mu_em_from_combo_Step1ElHypo_Combo_from_FilterStep1_on_L1MUL1EM_from_L1EM
+TriggerMonitorFinal                     2   0     DEBUG Event passsed, filling 5
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #3, run #1 on slot 0,  3 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.0337064
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.0426204
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...
@@ -2761,6 +2986,14 @@ CaloClustering2                                    INFO Finalizing CaloClusterin
 Step2ElHypo                                        INFO Finalizing Step2ElHypo...
 Step2MuHypo_Combo                                  INFO Finalizing Step2MuHypo_Combo...
 Step2ElHypo_Combo                                  INFO Finalizing Step2ElHypo_Combo...
+TriggerMonitorFinal                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
+TriggerMonitorFinal                               DEBUG All                           3         3         0         0         3         
+TriggerMonitorFinal                               DEBUG HLT_mu20                      1         1         0         0         0         
+TriggerMonitorFinal                               DEBUG HLT_mu81step                  2         2         2         0         2         
+TriggerMonitorFinal                               DEBUG HLT_mu8                       2         2         2         2         6         
+TriggerMonitorFinal                               DEBUG HLT_e20                       2         2         0         2         4         
+TriggerMonitorFinal                               DEBUG HLT_e8                        2         2         0         2         4         
+TriggerMonitorFinal                               DEBUG HLT_mu8_e8                    1         1         0         1         2         
 IncidentProcAlg2                                   INFO Finalize
 AvalancheSchedulerSvc                              INFO Joining Scheduler thread
 EventDataSvc                                       INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
@@ -2782,7 +3015,7 @@ Step1ElHypo.HLT_e20                                INFO Finalizing Step1ElHypo.H
 *****Chrono*****                                   INFO ****************************************************************************************************
 *****Chrono*****                                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                                   INFO ****************************************************************************************************
-ChronoStatSvc                                      INFO Time User   : Tot= 1.02  [s]                                             #=  1
+ChronoStatSvc                                      INFO Time User   : Tot= 1.16  [s]                                             #=  1
 *****Chrono*****                                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()                           INFO  Service finalized successfully 
 ApplicationMgr                                     INFO Application Manager Finalized successfully

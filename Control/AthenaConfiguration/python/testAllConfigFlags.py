@@ -5,8 +5,8 @@ acf.addFlag("flag2",2)
 acf.addFlag("flag3", lambda prev: prev.get("flag2")*2 )
 acf.addFlag("flag7", lambda prev: prev.get("flag1")+27)
 
-print acf.get("flag1")
-print acf.get("flag3")
+print acf.flag1
+print acf.flag3
 
 #acf.addFlag("flag4", lambda prev: prev.get("flag5")*2 )
 #acf.addFlag("flag5", lambda prev: prev.get("flag4")*2 )
@@ -25,7 +25,7 @@ print "Initial flag container"
 acf.dump()
 
 acfPrime=acf.clone()
-acfPrime.set("flag3",42)
+acfPrime.flag3 = 42
 
 print "Cloned flag container"
 acfPrime.dump()

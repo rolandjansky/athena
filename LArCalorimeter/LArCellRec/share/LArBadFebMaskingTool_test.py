@@ -8,10 +8,6 @@
 #
 
 
-import os
-os.environ['FRONTIER_SERVER'] = ''
-
-
 from AthenaCommon.DetFlags      import DetFlags
 DetFlags.detdescr.LAr_setOn()
 

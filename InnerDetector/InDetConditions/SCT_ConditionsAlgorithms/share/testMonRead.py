@@ -81,8 +81,6 @@ job+= SCT_MonitorConditionsTestAlg(SCT_MonitorConditionsTool=SCT_MonitorConditio
 
 SCT_MonitorTest=job.SCT_MonitorConditionsTestAlg
 SCT_MonitorTest.OutputLevel  = 2
-SCT_MonitorTest.RunNumber    = 310809
-SCT_MonitorTest.EventNumber  = 5
 
 #--------------------------------------------------------------
 # Load IOVDbSvc

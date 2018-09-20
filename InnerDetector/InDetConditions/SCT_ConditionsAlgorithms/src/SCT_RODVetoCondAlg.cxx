@@ -13,10 +13,10 @@
 
 #include "SCT_RODVetoCondAlg.h"
 
+#include "InDetIdentifier/SCT_ID.h"
+
 #include <algorithm>
 #include <ios>
-
-#include "InDetIdentifier/SCT_ID.h"
 
 SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator) :

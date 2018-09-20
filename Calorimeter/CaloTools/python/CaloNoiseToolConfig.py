@@ -8,14 +8,14 @@ def CaloNoiseToolCfg(configFlags):
     log = logging.getLogger(__name__)
     result=ComponentAccumulator()
 
-    isMC=configFlags.get("global.isMC")
-    fixedLumi=configFlags.get("Calo.Noise.fixedLumiForNoise")
-    useCaloLumi=configFlags.get("Calo.Noise.useCaloNoiseLumi")
+    isMC=configFlags.Input.isMC
+    fixedLumi=configFlags.Calo.Noise.fixedLumiForNoise
+    useCaloLumi=configFlags.Calo.Noise.useCaloNoiseLumi
     
     caloNoiseToolDB=CaloNoiseToolDB("CaloNoiseTool")
 
 
-    if configFlags.get("global.isOnline"):
+    if configFlags.Common.isOnline:
         #online mode:
         folder  = "/CALO/Noise/CellNoise"
         result.merge(addFolders(configFlags,inputFlags,folder,'CALO_ONL'))
@@ -50,9 +50,9 @@ def CaloNoiseToolCfg(configFlags):
                 caloNoiseToolDB.LumiFolderName = lumiFolder
                 caloNoiseToolDB.Luminosity=-1.
             else:
-                estimatedLumi=configFlags.get("global.estimatedLuminosity")
+                estimatedLumi=configFlags.Beam.estimatedLuminosity
                 caloNoiseToolDB.Luminosity=estimatedLumi/1e+33
-                log.info("  Luminosity (in 10**33) units used for pileup noise from global flags: %f", caloNoiseToolDB.Luminosity)
+                log.info("  Luminosity (in 10**33) units used for pileup noise from Beam flags: %f", caloNoiseToolDB.Luminosity)
 
 
         folders  = (("CALO_OFL","/CALO/Ofl/Noise/CellNoise"),
@@ -82,7 +82,7 @@ def CaloNoiseToolCfg(configFlags):
                  ("TILE_OFL","/TILE/OFL02/NOISE/CELL")
                  ]
         
-        if configFlags.get("IOVDb.DatabaseInstance")=="COMP200":
+        if configFlags.IOVDb.DatabaseInstance=="COMP200":
             folders.append(("CALO_OFL","/CALO/Ofl/Noise/CellNoise")),
         
         #Fixme: Add rescaling of noise based on HV! 

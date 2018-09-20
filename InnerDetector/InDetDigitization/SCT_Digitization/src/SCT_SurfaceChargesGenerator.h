@@ -85,27 +85,22 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
 
  private:
 
-  virtual void setComTime(float comTime)                                 {m_comTime = comTime;}
   virtual void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;}
-  virtual void setCosmicsRun(bool cosmicsRun)                            {m_cosmicsRun = cosmicsRun;}
-  virtual void setComTimeFlag(bool useComTime)                           {m_useComTime = useComTime;}
   virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine)       {m_rndmEngine = rndmEngine;}
-  virtual void setDetectorElement(const InDetDD::SiDetectorElement* ele) {m_element = ele; setVariables();}
 
   /** create a list of surface charges from a hit */
-  virtual void process(const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const;
-  virtual void processFromTool(const SiHit* phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId) const;
-  void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
-  float driftTime(float zhit) const;           //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
-  float diffusionSigma(float zhit) const;      //!< calculate diffusion sigma from a gaussian dist scattered charge
-  float surfaceDriftTime(float ysurf) const;   //!< Calculate of the surface drift time
-  float maxDriftTime() const;                  //!< max drift charge equivalent to the detector thickness
-  float maxDiffusionSigma() const;             //!< max sigma diffusion
+  float driftTime(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
+  float diffusionSigma(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate diffusion sigma from a gaussian dist scattered charge
+  float surfaceDriftTime(float ysurf) const; //!< Calculate of the surface drift time
+  float maxDriftTime(const InDetDD::SiDetectorElement* element) const; //!< max drift charge equivalent to the detector thickness
+  float maxDiffusionSigma(const InDetDD::SiDetectorElement* element) const; //!< max sigma diffusion
 
   // trap_pos and drift_time are updated based on spess.
-  bool chargeIsTrapped(double spess, double& trap_pos, double& drift_time) const;
+  bool chargeIsTrapped(double spess, const InDetDD::SiDetectorElement* element, double& trap_pos, double& drift_time) const;
 
   int m_numberOfCharges;           //!< number of charges
   float m_smallStepLength;         //!< max internal step along the larger G4 step
@@ -116,14 +111,11 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   float m_distInterStrip;         //!< Inter strip distance normalized to 1
   float m_distHalfInterStrip;     //!< Half way distance inter strip
 
-  char m_SurfaceDriftFlag;        //!< surface drift ON/OFF
+  bool m_SurfaceDriftFlag;        //!< surface drift ON/OFF
 
   float m_tfix;       //!< fixed time
   float m_tsubtract;  //!< subtract drift time from mid gap 
 
-  float  m_comTime;       //!< use cosmics time for timing
-  bool   m_useComTime;    //!< Flag to decide the use of cosmics time for timing
-  bool   m_cosmicsRun;    //!< Flag to set Cosmics Run
   bool   m_doDistortions; //!< Flag to set Distortions
   bool   m_useSiCondDB;   //!< Flag to change from using DB values to below ones, default True
   float  m_vdepl;         //!< depletion voltage, default 70V
@@ -157,8 +149,6 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   TProfile* m_h_mobility_trap;
   TH1F* m_h_trap_pos;
 
-  IdentifierHash m_hashId;
-
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
@@ -166,23 +156,10 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
-  const InDetDD::SiDetectorElement* m_element;
   CLHEP::HepRandomEngine*           m_rndmEngine;          //!< Random Engine
   std::string                       m_rndmEngineName;      //!< name of random engine, actual pointer in SiDigitization
 
   bool m_isOverlay; // flag for overlay
-
-  void setVariables();
-  const InDetDD::SCT_ModuleSideDesign* m_design;
-  float m_depletionVoltage;
-  float m_biasVoltage;
-  double m_holeDriftMobility;
-  double m_holeDiffusionConstant;
-  double m_electronHolePairsPerEnergy;
-  double m_thickness;
-  double m_center;
-  double m_tanLorentz;
-  bool m_isBarrel;
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H

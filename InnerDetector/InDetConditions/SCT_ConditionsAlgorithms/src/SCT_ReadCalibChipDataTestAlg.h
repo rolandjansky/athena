@@ -11,17 +11,15 @@
 #ifndef SCT_READ_CALIB_CHIP_DATA_TEST_ALG
 #define SCT_READ_CALIB_CHIP_DATA_TEST_ALG
 
-#include "GaudiKernel/ToolHandle.h"
-
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "Identifier/Identifier.h"
 #include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
-
-// Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
-// Event Info
 #include "xAODEventInfo/EventInfo.h"
+
+#include "GaudiKernel/ToolHandle.h"
 
 // Include STL stuff
 #include <string>
@@ -48,7 +46,6 @@ class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm
   StatusCode processProperties();             //!< Process jobOpt properties
   
   //----------Private Attributes----------//
-  StatusCode                          m_sc;            //!< To check return codes
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
   SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey;  //!< Current event
   Identifier                          m_moduleId;      //!< Module identifier

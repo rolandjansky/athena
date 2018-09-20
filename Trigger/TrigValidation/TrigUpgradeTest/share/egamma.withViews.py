@@ -4,7 +4,6 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doCaloSeededBrem = False
 
@@ -33,8 +32,18 @@ from InDetRecExample.InDetKeys import InDetKeys
 if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
-testChains = ["HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut", "HLT_2e3_etcut", "HLT_e3e5_etcut"]
+
+CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
+                    "HLT_e5_etcut":  "L1_EM3",
+                    "HLT_e7_etcut":  "L1_EM7",
+                    "HLT_2e3_etcut": "L1_2EM3",
+                    "HLT_e3e5_etcut":"L1_2EM3"}
+
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
+
+# this is a temporary hack to include only new test chains
+testChains =[x for x, y in CTPToChainMapping.items()]
+topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
 
  
 
@@ -209,7 +218,7 @@ summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTResultCreatorByteStream
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 egammaViewsMerger.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
@@ -228,9 +237,18 @@ egammaViewsMerger.TrigEMClusterContainer = [ clustersKey ]
 
 egammaViewsMerger.OutputLevel = VERBOSE
 
-svcMgr.StoreGateSvc.OutputLevel = VERBOSE
+svcMgr.StoreGateSvc.OutputLevel = INFO
 
-summary.OutputTools = [ egammaViewsMerger ]
+streamingTool = HLTResultCreatorByteStream(OutputLevel=VERBOSE)
+
+
+
+streamingTool.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
+                                         "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.",
+                                         "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+                                         "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
+
+summary.OutputTools = [ egammaViewsMerger, streamingTool ]
 
 
 summary.OutputLevel = DEBUG
@@ -246,7 +264,8 @@ from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionC
 mon = TrigSignatureMoniMT()
 mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
-mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+mon.ChainsList = list( set( topSequence.L1DecoderTest.ChainToCTPMapping.keys() ) )
+#mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
 mon.OutputLevel = DEBUG
 
 step1Collector = DecisionCollectorTool("Step1Collector")

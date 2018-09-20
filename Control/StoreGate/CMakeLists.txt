@@ -29,7 +29,7 @@ find_package( TBB )
 atlas_add_library( StoreGateLib src/*.cxx
    PUBLIC_HEADERS StoreGate
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${CORAL_LIBRARIES} AthAllocators AthenaKernel
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${CORAL_LIBRARIES} AthAllocators AthenaKernel AthContainers
    SGTools GaudiKernel PersistentDataModel
    PRIVATE_LINK_LIBRARIES CxxUtils TestTools )
 

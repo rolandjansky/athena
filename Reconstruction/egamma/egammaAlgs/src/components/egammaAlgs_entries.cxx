@@ -10,6 +10,7 @@
 #include "../electronSuperClusterBuilder.h"
 #include "../photonSuperClusterBuilder.h"
 #include "../egammaSelectedTrackCopy.h"
+#include "../EMGSFCaloExtensionBuilder.h"
 
 DECLARE_COMPONENT( egammaBuilder )
 DECLARE_COMPONENT( egammaRecBuilder )
@@ -23,3 +24,4 @@ DECLARE_COMPONENT( egammaTopoClusterCopier )
 DECLARE_COMPONENT( electronSuperClusterBuilder )
 DECLARE_COMPONENT( photonSuperClusterBuilder )
 DECLARE_COMPONENT( egammaSelectedTrackCopy )
+DECLARE_COMPONENT( EMGSFCaloExtensionBuilder )

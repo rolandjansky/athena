@@ -13,7 +13,8 @@
 
 GeometryDBSvc::GeometryDBSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_textParameters(0)
+  m_textParameters(0),
+  m_lastLookupResult(false)
 {
   declareProperty("TextFileName",m_textFileName, "Text file name for overriding database.");
   declareProperty("PrintParameters",m_printParameters = true, "Print parameters read in from text file.");
