@@ -160,6 +160,11 @@ replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
 
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=True)
+
+addCSSKSoftDropJets(jetm4Seq, "JETM4")
+
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
@@ -202,6 +207,19 @@ for truthc in [
     ]:
     JETM4SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
     JETM4SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
+
+JETM4SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,  
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+}
+JETM4SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
+if DerivationFrameworkIsMonteCarlo:
+  JETM4SlimmingHelper.AppendToDictionary = {
+    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+  }
+  JETM4SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
 # Trigger content
 JETM4SlimmingHelper.IncludeEGammaTriggerContent = True

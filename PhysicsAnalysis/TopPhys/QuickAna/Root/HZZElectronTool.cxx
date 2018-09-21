@@ -116,7 +116,36 @@ namespace ana
 
     cut_Pt.setPassedIf (electron.pt() > 7.e3);
 
-    cut_selectionTool.setPassedIf (m_selectionTool->accept(&electron));
+    if(m_selection == "VLooseLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHVeryLoose") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHVeryLoose")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "LooseLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHLoose") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHLoose")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "LooseAndBLayerLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHLooseBL") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHLooseBL")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "MediumLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHMedium") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHMedium")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "TightLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHTight") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHTight")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
 
     cut_OQ.setPassedIf( (bool) electron.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON) );
 

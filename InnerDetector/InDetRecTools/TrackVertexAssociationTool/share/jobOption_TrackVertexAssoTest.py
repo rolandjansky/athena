@@ -12,35 +12,21 @@ ServiceMgr.EventSelector.InputCollections = filelist
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-## declare tighttrackvertexassotool by do first PV dz recovery(match the association procedure of JVF and JVT, default would be for each PV).
-tighttrackvertexassotool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=3, doPV=True)
-
-loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool", dzSinTheta_cut=3, d0_cut=2)
-electrontrackvertexassotool=CfgMgr.CP__ElectronTrackVertexAssociationTool("ElectronTrackVertexAssociationTool")
-
-
-
-#tighttrackvertexassotool.OutputLevel=DEBUG
-
-ToolSvc += tighttrackvertexassotool
-ToolSvc += loosetrackvertexassotool
-ToolSvc += electrontrackvertexassotool
+# instantiate the tool
+tvatool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool",
+                                              WorkingPoint="Nominal")
+ToolSvc += tvatool
 
 testAlg=CfgMgr.TrackVertexAssoTestAlg(
         TrackContainer="InDetTrackParticles",
         VertexContainer="PrimaryVertices",
-        TightTrackVertexAssoTool=tighttrackvertexassotool,
-        LooseTrackVertexAssoTool=loosetrackvertexassotool,
-        ElectronTrackVertexAssoTool=electrontrackvertexassotool
+        TVATool=tvatool
         )
-
-#testAlg.OutputLevel=DEBUG
-
-
-#theApp.setOutputLevel(DEBUG)
 
 topSequence += testAlg
 
 theApp.EvtMax = 100
+#testAlg.OutputLevel=DEBUG
+#theApp.setOutputLevel(DEBUG)
 ServiceMgr.EventSelector.SkipEvents = 0
 ServiceMgr.MessageSvc.defaultLimit = 999

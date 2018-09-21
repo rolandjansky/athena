@@ -217,7 +217,7 @@ namespace Trk{
      m_CovVrtForConstraint.push_back(ZZ);
   }			  
 
-  void TrkVKalVrtFitter::setMassInputParticles( std::vector<double>& mass)
+  void TrkVKalVrtFitter::setMassInputParticles( const std::vector<double>& mass)
   { m_MassInputParticles.clear();
     for(int i=0; i<(int)mass.size(); i++) m_MassInputParticles.push_back(fabs(mass[i]));
   }

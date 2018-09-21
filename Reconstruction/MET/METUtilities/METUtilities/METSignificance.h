@@ -17,7 +17,6 @@
 #include <tuple>
 #include "TH2F.h"
 #include "TFile.h"
-//#include <TMatrixD.h>
 
 // FrameWork includes
 #include "AsgTools/AnaToolHandle.h"
@@ -33,7 +32,7 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 // Tool interfaces
-class IJERTool;
+class IJetCalibrationTool;
 namespace CP {
   class IMuonCalibrationAndSmearingTool;
   class IEgammaCalibrationAndSmearingTool;
@@ -107,7 +106,7 @@ namespace met {
     METSignificance();
 
     // tools
-    asg::AnaToolHandle<IJERTool> m_jerTool;
+    asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
@@ -115,7 +114,7 @@ namespace met {
     StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddPhoton  (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
-    void AddJet     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    StatusCode AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddTau     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddSoftTerm(const xAOD::MissingET* soft,  const TVector3 &met_vect, double (&particle_sum)[2][2]);
 
@@ -193,6 +192,8 @@ namespace met {
 
     std::string m_configPrefix;
     std::string m_configJetPhiResoFile;
+    std::string m_JetResoAux;
+    std::string m_JetCollection;
   };
 
 } //> end namespace met

@@ -57,7 +57,7 @@ namespace
 #else
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root";
+    "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root";
   const char *jesFile = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
   const char *jesFile_AFII = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config";
   const std::string uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config";
@@ -287,7 +287,9 @@ namespace ana
 
     // We only clean, by default, jets that might've passed our JVT selection.
     // This is too hard-coded, ugly.
-    bool is_clean = ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
+    bool is_clean = jet.isAvailable<char>("DFCommonJets_jetClean_LooseBad") ?
+                    static_cast<bool>(jet.auxdata<char>("DFCommonJets_jetClean_LooseBad")) :
+                    ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
                    m_cleaning_tool->keep(jet) );
     cut_cleaning_tool.setPassedIf ( is_clean );
 

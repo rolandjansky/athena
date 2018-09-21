@@ -11,7 +11,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "HepPDT/ParticleDataTable.hh"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include <vector>
@@ -66,7 +65,6 @@ namespace DerivationFramework {
         double m_vtx1Daug2MassHypo; // mass hypothesis of 2nd daughter from vertex 1
         double m_vtx1Daug3MassHypo; // mass hypothesis of 3rd daughter from vertex 1
 
-        const HepPDT::ParticleDataTable* m_particleDataTable;
         double m_mass_jpsi;
         int    m_Dx_pid;
         bool   m_constrDx;
@@ -87,7 +85,6 @@ namespace DerivationFramework {
         int         m_DoVertexType;
         size_t      m_PV_minNTracks;
 
-        double getParticleMass(int particlecode) const;
     };
 }
 

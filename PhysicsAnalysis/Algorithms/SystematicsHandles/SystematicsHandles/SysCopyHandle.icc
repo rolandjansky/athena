@@ -53,6 +53,22 @@ namespace CP
 
 
 
+  template<typename T> bool SysCopyHandle<T> ::
+  empty () const noexcept
+  {
+    return m_inputName.empty();
+  }
+
+
+
+  template<typename T> SysCopyHandle<T> ::
+  operator bool () const noexcept
+  {
+    return !m_inputName.empty();
+  }
+
+
+
   template<typename T> ::StatusCode SysCopyHandle<T> ::
   getCopy (T*& object, const CP::SystematicSet& sys) const
   {

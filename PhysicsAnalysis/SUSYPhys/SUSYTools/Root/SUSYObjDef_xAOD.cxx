@@ -21,13 +21,11 @@
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
@@ -130,6 +128,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_electronTriggerSFStringSingle(""),
     m_eleId(""),
     m_eleIdBaseline(""),
+    m_eleConfig(""),
+    m_eleConfigBaseline(""),
     m_eleIdExpert(false),
     m_muId(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
     m_muIdBaseline(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
@@ -148,6 +148,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagSystStrategy(""),
+    m_BtagWP_trkJet(""),
+    m_BtagTagger_trkJet(""),
+    m_BtagMinPt_trkJet(-99.),
     //configurable cuts here
     m_eleBaselinePt(-99.),
     m_eleBaselineEta(-99.),
@@ -192,6 +195,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetPt(-99.),
     m_jetEta(-99.),
     m_jetJvt(-99.),
+    m_trkJetPt(-99.),
+    m_trkJetEta(-99.),
     m_doFwdJVT(false),
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
@@ -222,6 +227,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orRemoveCaloMuons(true),
     m_orBtagWP(""),
     m_orInputLabel(""),
+    m_orBJetPtUpperThres(-999.),
+    m_orLinkOverlapObjects(false),
     m_orDoFatjets(false),
     m_EleFatJetDR(-999.),
     m_JetFatJetDR(-999.),
@@ -239,8 +246,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     // set toolhandles empty by default
     m_jetCalibTool(""),
     m_jetFatCalibTool(""),
-    m_jerTool(""),
-    m_jerSmearingTool(""),
     m_jetUncertaintiesTool(""),
     m_fatjetUncertaintiesTool(""),
     m_jetCleaningTool(""),
@@ -297,6 +302,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_btagEffTool(""),
     m_btagSelTool(""),
     m_btagSelTool_OR(""),
+    m_btagEffTool_trkJet(""),
+    m_btagSelTool_trkJet(""),
     //
     m_metMaker(""),
     m_metSystTool(""),
@@ -364,6 +371,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
   declareProperty( "ORInputLabel", m_orInputLabel);
+  declareProperty( "ORBJetPtUpperThres", m_orBJetPtUpperThres);
+  declareProperty( "ORLinkOverlapObjects", m_orLinkOverlapObjects);
 
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
@@ -408,6 +417,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
   declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
+  declareProperty( "BtagTaggerTrkJet", m_BtagTagger_trkJet);
+  declareProperty( "BtagWPTrkJet", m_BtagWP_trkJet);  //the one used in FillTrackJet() afterwards
 
   //ELECTRONS
   declareProperty( "EleBaselinePt", m_eleBaselinePt);
@@ -415,8 +426,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleBaselineEta", m_eleBaselineEta);
   declareProperty( "EleEta", m_eleEta);
   declareProperty( "EleBaselineId", m_eleIdBaseline);
+  declareProperty( "EleBaselineConfig", m_eleConfigBaseline);
   declareProperty( "EleBaselineCrackVeto", m_eleBaselineCrackVeto);
   declareProperty( "EleId", m_eleId);
+  declareProperty( "EleConfig", m_eleConfig);
   declareProperty( "EleIso", m_eleIso_WP);
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
   declareProperty( "EleCFT", m_eleChID_WP);
@@ -482,7 +495,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "mcCampaign",           m_mcCampaign );
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
-  declareProperty( "PRWActualMuFile",      m_prwActualMuFile );
+  declareProperty( "PRWActualMu2017File",  m_prwActualMu2017File );
+  declareProperty( "PRWActualMu2018File",  m_prwActualMu2018File );
   declareProperty( "PRWMuUncertainty",     m_muUncert);
   declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
   declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
@@ -501,8 +515,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //--- Tool pointers    /MT : we may want to improve the descriptions :)
   m_jetCalibTool.declarePropertyFor( this, "JetCalibTool", "The JetCalibTool" );
   m_jetFatCalibTool.declarePropertyFor( this, "FatJetCalibTool", "The JetCalibTool for large-R jets" );
-  m_jerTool.declarePropertyFor( this, "JERTool", "The JERTool" );
-  m_jerSmearingTool.declarePropertyFor( this, "JERSmearingTool", "The JERSmearingTool" );
   m_jetUncertaintiesTool.declarePropertyFor( this, "JetUncertaintiesTool", "The JetUncertaintiesTool" );
   m_fatjetUncertaintiesTool.declarePropertyFor( this, "FatJetUncertaintiesTool", "The JetUncertaintiesTool for large-R jets" );
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
@@ -556,6 +568,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_btagEffTool.declarePropertyFor( this, "BTaggingEfficiencyTool", "The BTaggingEfficiencyTool" );
   m_btagSelTool.declarePropertyFor( this, "BTaggingSelectionTool", "The main BTaggingSelectionTool" );
   m_btagSelTool_OR.declarePropertyFor( this, "BTaggingSelectionTool_OR", "The BTaggingSelectionTool used to select b-jets for overlap removal" );
+  m_btagEffTool_trkJet.declarePropertyFor( this, "BTaggingEfficiencyTool_trkJet", "The BTaggingEfficiencyTool for track jets" );
+  m_btagSelTool_trkJet.declarePropertyFor( this, "BTaggingSelectionTool_trkJet", "The main BTaggingSelectionTool for track jets" );
   //
   m_metMaker.declarePropertyFor( this, "METMaker", "The METMaker instance");
   m_metSystTool.declarePropertyFor( this, "METSystTool", "The METSystematicsTool");
@@ -762,6 +776,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
+      else if ( amiTag.find("r10724")!=string::npos ) mcCampaignMD = "mc16e";
       else {
 	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
 	return StatusCode::FAILURE;
@@ -777,7 +792,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
       ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
       dsid = evtInfo->mcChannelNumber();
 
-      if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d") { 
+      if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d" || m_mcCampaign == "mc16e") { 
         std::string NoMetadataButPropertyOK("");
         NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
         NoMetadataButPropertyOK += m_mcCampaign;
@@ -801,6 +816,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
       ATH_MSG_WARNING( "Now trying with one of the background forum merged mc16 prw input files (it won't however work for signal samples!)." );
       prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/");
       if ( mcCampaignMD == "mc16a" ) prwConfigFile += "merged_prw_mc16a_latest.root";
+      else if ( mcCampaignMD == "mc16c" ) prwConfigFile += "mc16c_defaults.NotRecommended.prw.root";
       // SOON TO BE // else if ( mcCampaignMD == "mc16c" ) prwConfigFile += '';
       // SOON TO BE // else if ( mcCampaignMD == "mc16d" ) prwConfigFile += '';
       TFile testF2(prwConfigFile.data(),"read");
@@ -812,8 +828,11 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
     m_prwConfFiles.clear();
     m_prwConfFiles.push_back( prwConfigFile );
     if ( mcCampaignMD == "mc16c" || mcCampaignMD == "mc16d") { 
-      m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMuFile) );
+      m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2017File) );
+    } else if (mcCampaignMD == "mc16e") {
+      m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2018File) );
     }
+    
     ATH_MSG_INFO( "autoconfigurePileupRWTool(): configuring PRW tool using " << prwConfigFile.data() );
   }
   // Return gracefully
@@ -1033,6 +1052,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleBaselinePt, "EleBaseline.Pt", rEnv, 10000.);
   configFromFile(m_eleBaselineEta, "EleBaseline.Eta", rEnv, 2.47);
   configFromFile(m_eleIdBaseline, "EleBaseline.Id", rEnv, "LooseAndBLayerLLH");
+  configFromFile(m_eleConfigBaseline, "EleBaseline.Config", rEnv, "None");
   configFromFile(m_eleBaselineCrackVeto, "EleBaseline.CrackVeto", rEnv, false);
   configFromFile(m_force_noElId, "Ele.ForceNoId", rEnv, false);
   //
@@ -1041,8 +1061,9 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
   configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "GradientLoose");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FixedCutHighPtCaloOnly");
-  configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); //Medium is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
+  configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
   configFromFile(m_eled0sig, "Ele.d0sig", rEnv, 5.);
   configFromFile(m_elez0, "Ele.z0", rEnv, 0.5);
   configFromFile(m_elebaselined0sig, "EleBaseline.d0sig", rEnv, -99.);
@@ -1050,16 +1071,16 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map2.txt"); 
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt"); 
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2015combination_diLep, "Trig.Dilep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10"); 
-  configFromFile(m_trig2016combination_diLep, "Trig.Dilep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || mu22_mu8noL1 || 2mu14"); 
-  configFromFile(m_trig2017combination_diLep, "Trig.Dilep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || mu22_mu8noL1 || 2mu14"); 
-  configFromFile(m_trig2015combination_multiLep, "Trig.Multi2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || 2e12_lhloose_mu10 || e12_lhloose_2mu10 || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10 || 3mu6"); 
-  configFromFile(m_trig2016combination_multiLep, "Trig.Multi2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
-  configFromFile(m_trig2017combination_multiLep, "Trig.Multi2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
+  configFromFile(m_trig2016combination_diLep, "Trig.Dilep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_L1EM22VHI_mu8noL1 || mu22_mu8noL1 || 2mu14"); 
+  configFromFile(m_trig2017combination_diLep, "Trig.Dilep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || mu22_mu8noL1 || 2mu14"); 
+  configFromFile(m_trig2015combination_multiLep, "Trig.Multi2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || e17_lhloose_2e9_lhloose || 2e12_lhloose_mu10 || e12_lhloose_2mu10 || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10 || 3mu6"); 
+  configFromFile(m_trig2016combination_multiLep, "Trig.Multi2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_L1EM22VHI_mu8noL1 || e17_lhloose_nod0_2e9_lhloose_nod0 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
+  configFromFile(m_trig2017combination_multiLep, "Trig.Multi2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
   //
   configFromFile(m_muBaselinePt, "MuonBaseline.Pt", rEnv, 10000.);
   configFromFile(m_muBaselineEta, "MuonBaseline.Eta", rEnv, 2.7);
@@ -1092,7 +1113,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_photonTriggerName, "Photon.TriggerName", rEnv, "HLT_g20_tight_icalovloose_L1EM15VHI"); // how is it changed across years?
   configFromFile(m_photonCrackVeto, "Photon.CrackVeto", rEnv, true);
   configFromFile(m_photonAllowLate, "Photon.AllowLate", rEnv, false);
-  configFromFile(m_photonEffMapFilePath, "Photon.EffMapFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt");
+  configFromFile(m_photonEffMapFilePath, "Photon.EffMapFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v2/map2.txt");
   //
   configFromFile(m_tauPrePtCut, "Tau.PrePtCut", rEnv, 0.);
   configFromFile(m_tauPt, "Tau.Pt", rEnv, 20000.);
@@ -1108,16 +1129,16 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
   configFromFile(m_JVT_WP, "Jet.JVT_WP", rEnv, "Medium");
-  configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Moriond2018/R4_StrongReduction_Scenario1.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR 
-  configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "CalibArea-03");
+  configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Summer2018/R4_StrongReduction_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
+  configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Moriond2018/R10_CombMass_medium.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
-  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config");
+  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config");
   configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config");
-  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config");
+  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config");
   configFromFile(m_jesConfigEMPFlowAFII, "Jet.JESConfigEMPFlowAFII", rEnv, "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config");
   configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config");
   configFromFile(m_jesConfigFat, "Jet.JESConfigFat", rEnv, "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config");
@@ -1128,9 +1149,13 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jesCalibSeqJMS, "Jet.CalibSeqJMS", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqFat, "Jet.CalibSeqFat", rEnv, "EtaJES_JMS");
   //
+  configFromFile(m_defaultTrackJets, "TrackJet.Coll", rEnv, "AntiKtVR30Rmax4Rmin02TrackJets");
+  configFromFile(m_trkJetPt, "TrackJet.Pt", rEnv, 20000.);
+  configFromFile(m_trkJetEta, "TrackJet.Eta", rEnv, 2.8);
+  //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
-  configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false);
+  configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false); // Tight and Tenacious MET WPs can be used with fJVT by default
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
   configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
@@ -1139,8 +1164,11 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
+  configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
+  configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
+  configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, 20e3);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
@@ -1166,6 +1194,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
+  configFromFile(m_orBJetPtUpperThres, "OR.BJetPtUpperThres", rEnv, -1.); // upper pt threshold of b-jet in OR in unit of MeV, -1 means no pt threshold
+  configFromFile(m_orLinkOverlapObjects, "OR.LinkOverlapObjects", rEnv, false); 
   //
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
@@ -1195,12 +1225,13 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
   configFromFile(m_trkJetsyst, "MET.DoTrkJetSyst", rEnv, false);
   configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/data17_13TeV/prerec_Jan16");
-  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Tight (default), Loose, etc
+  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Loose, Tight (default), Tighter, Tenacious
   configFromFile(m_softTermParam, "METSig.SoftTermParam", rEnv, met::Random);
   configFromFile(m_treatPUJets, "METSig.TreatPUJets", rEnv, true);
-  configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, true);
+  configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, false);
   //
-  configFromFile(m_prwActualMuFile, "PRW.ActualMuFile", rEnv, "GoodRunsLists/data17_13TeV/20180309/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
+  configFromFile(m_prwActualMu2017File, "PRW.ActualMu2017File", rEnv, "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
+  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-001.root");
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
@@ -1595,14 +1626,6 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured JVTEfficiency for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_jerSmearingTool.empty()) {
-    CP::SystematicCode ret = m_jerSmearingTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure JERSmearingTool for  systematic var. " << systConfig.name());
-    } else {
-      ATH_MSG_VERBOSE("Configured JERSmearing for systematic var. " << systConfig.name() );
-    }
-  }
   if (!m_muonCalibrationAndSmearingTool.empty()) {
     CP::SystematicCode ret =   m_muonCalibrationAndSmearingTool->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
@@ -1803,6 +1826,15 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
     //}
   }
+  if (!m_btagEffTool_trkJet.empty()) {
+    CP::SystematicCode ret = m_btagEffTool_trkJet->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure xAODBTaggingEfficiency (track jets) for systematic var. " << systConfig.name() );
+      return ret;
+    } else {
+      ATH_MSG_VERBOSE("Configured xAODBTaggingEfficiency (track jets) for systematic var. " << systConfig.name() );
+    }
+  }  
   if (!m_tauSmearingTool.empty()) {
     CP::SystematicCode ret = m_tauSmearingTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
@@ -1930,12 +1962,6 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   sysInfo.affectedWeights.clear();
   sysInfo.systset.insert(sys);
 
-  if (!m_jerSmearingTool.empty()) {
-    if ( m_jerSmearingTool->isAffectedBySystematic( sys ) ) {
-      sysInfo.affectsKinematics = true;
-      sysInfo.affectsType = SystObjType::Jet;
-    }
-  }
   if (!m_jetJvtEfficiencyTool.empty()) {
     if ( m_jetJvtEfficiencyTool->isAffectedBySystematic( sys ) ) {
       sysInfo.affectsWeights = true;
@@ -2113,7 +2139,13 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Jet::Btag);
     }
   }
-
+  if ( !m_btagEffTool_trkJet.empty() ) {
+    if ( m_btagEffTool_trkJet->isAffectedBySystematic(sys) ) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::BTag;
+      sysInfo.affectedWeights.insert(ST::Weights::Jet::Btag_Track);
+    }
+  }
   if (!m_tauSmearingTool.empty()) {
     if ( m_tauSmearingTool->isAffectedBySystematic(sys) ) {
       sysInfo.affectsKinematics = true;

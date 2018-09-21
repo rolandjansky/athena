@@ -337,9 +337,7 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSUSY.SUSY6ContentList import *
 SUSY6SlimmingHelper = SlimmingHelper("SUSY6SlimmingHelper")
 SUSY6SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
- "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
+ "AntiKt4EMPFlowJets",
  "PrimaryVertices",
  "MET_Reference_AntiKt4EMTopo",
  "MET_Reference_AntiKt4EMPFlow",

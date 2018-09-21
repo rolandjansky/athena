@@ -12,7 +12,7 @@
 
 namespace top {
 
-top::EventSelectorBase* TopEventReconstructionToolsLoader::initTool(const std::string& /*name*/, const std::string& line, TFile* /*outputFile*/,std::shared_ptr<top::TopConfig> config, EL::Worker* /*wk*/) {
+top::EventSelectorBase* TopEventReconstructionToolsLoader::initTool(const std::string& name, const std::string& line, TFile* /*outputFile*/,std::shared_ptr<top::TopConfig> config, EL::Worker* /*wk*/) {
     //get the first bit of the string and store it in toolname
     std::istringstream iss(line);
     std::string toolname;
@@ -28,7 +28,7 @@ top::EventSelectorBase* TopEventReconstructionToolsLoader::initTool(const std::s
 
     else if (toolname == "RECO::KLFITTERRUN") {
       loadLibraries("libKLFitter");
-      return new top::KLFitterRun(param,config);
+      return new top::KLFitterRun(name,param,config);
     }
     
     else if (toolname == "RECO::PSEUDOTOP"){

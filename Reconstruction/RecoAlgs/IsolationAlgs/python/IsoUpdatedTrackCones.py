@@ -15,7 +15,7 @@ def GetUpdatedIsoTrackCones(name=""):
   from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
   from AthenaCommon import CfgMgr
 
-  tighttrackvertexassotool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=3, doPV=True) 
+  tighttrackvertexassotool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool", WorkingPoint="Loose") 
   ToolSvc+=tighttrackvertexassotool 
 
   from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
@@ -78,10 +78,9 @@ def GetUpdatedIsoTrackCones(name=""):
     CustomConfigurationNamePh = customNamePh_pt1000,
     CustomConfigurationName   = "TightTTVA_pt1000",
     IsAODFix = False,
-    LeakageTool = None,
-    #PhotonCollectionContainerName = "",
-    OutputLevel            = 3)
+    LeakageTool = None)
   algs += [isoBuilderTight1000]
+
   isoBuilderTight500 = IsolationBuilder(
     name                   = "IsolationBuilderTight500"+name,
     CaloCellIsolationTool  = None,
@@ -95,10 +94,9 @@ def GetUpdatedIsoTrackCones(name=""):
     CustomConfigurationNamePh = customNamePh_pt500,
     CustomConfigurationName   = "TightTTVA_pt500",
     IsAODFix = False,
-    LeakageTool = None,
-    #PhotonCollectionContainerName = "",
-    OutputLevel            = 3)
+    LeakageTool = None)
   algs += [isoBuilderTight500]
+
   return algs
 
 def GetExtraIsoVariablesForDxAOD(name=""):

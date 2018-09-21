@@ -41,9 +41,6 @@ float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float et
   //Run2 settings
   if (m_layout == UpgradePerformanceFunctions::UpgradeLayout::run2) {
 
-    std::string calibFile = PathResolverFindCalibFile(m_flavourTaggingCalibrationFilename);
-    auto ff = std::unique_ptr<TFile> {TFile::Open(calibFile.c_str())};
-
     static TH2D* fEffs[16] = {0};   // {60,70,77,85} * {B,C,T,L}
 
     static std::vector<int> wpoints  = {60, 70, 77, 85};
@@ -65,6 +62,8 @@ float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float et
 
       //DUMMY FOR NOW
       // get MC efficiency from CDI files!
+      std::string calibFile = PathResolverFindCalibFile(m_flavourTaggingCalibrationFilename);
+      auto ff = std::unique_ptr<TFile> {TFile::Open(calibFile.c_str())};
 
       TString hfName = Form("MV2c10/AntiKt4EMTopoJets/FixedCutBEff_%d/%s/", operating_point, sflavour.c_str());
       //std::cout << "FTAG HISTO NAME: " << hfName << std::endl;

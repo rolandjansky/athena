@@ -76,6 +76,8 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ1Sequence,'TOPQ1')
 
+DerivationFrameworkTop.TOPQCommonJets.addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
+
 #Then apply jet calibration
 DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)
@@ -107,6 +109,9 @@ if DFisMC:
 
 DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
 
+# add for TOPQDERIV-62 (see enf of TOPQCommonJets.py)
+DerivationFrameworkTop.TOPQCommonJets.addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
+
 # Then apply thinning
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools)
 
@@ -122,6 +127,8 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ1Sequence, 'TOPQ1')
 TOPQ1Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 TOPQ1Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
 
+
+
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ1Sequence
 
@@ -130,3 +137,4 @@ DerivationFrameworkJob += TOPQ1Sequence
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ1', TOPQ1Stream)
+

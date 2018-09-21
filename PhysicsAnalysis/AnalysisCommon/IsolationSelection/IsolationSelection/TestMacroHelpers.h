@@ -22,7 +22,7 @@ namespace CP {
     std::string EraseWhiteSpaces(std::string str);
 
     class IsolationWP;
-
+    
     class IsoCorrectionTestHelper {
         public:
             IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WP);
@@ -34,7 +34,8 @@ namespace CP {
         private:
 
             template<typename T> bool AddBranch(const std::string &Name, T &Element);
-
+            
+            
             float Charge(const xAOD::IParticle* P) const;
             StatusCode FillIsolationBranches(const xAOD::IParticle* P ,  const IsoHelperPtr & Acc, std::vector<float> &Original, std::vector<float> &Corrected);
             
@@ -46,17 +47,21 @@ namespace CP {
             std::vector<float> m_e;
             std::vector<int> m_Q;
 
-            std::vector<float> m_orig_TrackIsol;
-            std::vector<float> m_corr_TrackIsol;
-
-            std::vector<float> m_orig_CaloIsol;
-            std::vector<float> m_corr_CaloIsol;
-
             std::vector<bool> m_orig_passIso;
             std::vector<bool> m_corr_passIso;
             
-            IsoHelperPtr m_TrackAcc;
-            IsoHelperPtr m_CaloAcc;
+            struct IsolationBranches {
+                std::vector<float> original_cones;
+                std::vector<float> corrected_cones;                
+                IsoHelperPtr Accessor;
+                IsolationBranches(IsoType T, const std::string& prefix):
+                        original_cones(),
+                        corrected_cones(),
+                        Accessor(){
+                    Accessor = std::make_unique<IsoVariableHelper>(T,prefix);
+                }
+            };
+            std::vector<IsolationBranches> m_iso_branches;
             
             SelectionAccessor m_acc_used_for_corr;
             SelectionAccessor m_acc_passDefault;

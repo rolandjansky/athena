@@ -3,6 +3,7 @@
 # Import(s):
 import ROOT
 import unittest
+import copy
 
 class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
     """Standalone Analysis Algorithm Configuration
@@ -53,7 +54,7 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         # Set the properties on the object:
         for key, value in kwargs.iteritems():
             self.setPropertyFromString( key, stringPropValue( value ) )
-            self._props[ key ] = value
+            self._props[ key ] = copy.deepcopy( value )
             pass
 
         pass
@@ -118,7 +119,7 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         # Set the property, and remember its value:
         super( AnaAlgorithmConfig,
                self ).setPropertyFromString( key, stringPropValue( value ) )
-        self._props[ key ] = value
+        self._props[ key ] = copy.deepcopy( value )
         pass
 
     def __eq__( self, other ):
@@ -160,15 +161,56 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         result = AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            if isinstance( value, str ):
+                printedValue = "'%s'" % value
+            else:
+                printedValue = value
+                pass
+            result += "|- %s: %s\n" % ( key, indentBy( printedValue, "| " ) )
             pass
         result += AnaAlgorithmConfig._printFooter( name )
         return result
 
-    def addPrivateTool (self, name, type) :
-        """create a private tool for the algorithm"""
-        self.createPrivateTool( name, type ).ignore ()
-        self._props[name] = PrivateToolConfig (self, name, type)
+    def addPrivateTool( self, name, type ):
+        """Create a private tool for the algorithm
+
+        This function is used in 'standalone' mode to declare a private tool
+        for the algorithm, or a private tool for an already declared private
+        tool.
+
+        Can be used like:
+          config.addPrivateTool( 'tool1', 'ToolType1' )
+          config.addPrivateTool( 'tool1.tool2', 'ToolType2' )
+
+        Keyword arguments:
+          name -- The full name of the private tool
+          type -- The C++ type of the private tool
+        """
+
+        # First off, tell the C++ code what to do.
+        self.createPrivateTool( name, type ).ignore()
+
+        # And now set up the Python object that will take care of setting
+        # properties on this tool.
+
+        # Tokenize the tool's name. In case it is a subtool of a tool, or
+        # something possibly even deeper.
+        toolNames = name.split( '.' )
+
+        # Look up the component that we need to set up the private tool on.
+        component = self
+        for tname in toolNames[ 0 : -1 ]:
+            component = getattr( component, tname )
+            pass
+
+        # Check that the component doesn't have such a (tool) property yet.
+        if hasattr( component, toolNames[ -1 ] ):
+            raise RuntimeError( "Tool with name '%s' already exists" % name )
+            pass
+
+        # Now set up a smart object as a property on that component.
+        component._props[ toolNames[ -1 ] ] = PrivateToolConfig( self, name,
+                                                                 type )
         pass
 
     @staticmethod
@@ -274,7 +316,7 @@ class PrivateToolConfig( object ):
         # Set the property, and remember its value:
         self._algorithm.setPropertyFromString( fullName,
                                                stringPropValue( value ) )
-        self._props[ key ] = value
+        self._props[ key ] = copy.deepcopy( value )
         pass
 
     def __str__( self ):
@@ -289,7 +331,12 @@ class PrivateToolConfig( object ):
         result += AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            if isinstance( value, str ):
+                printedValue = "'%s'" % value
+            else:
+                printedValue = value
+                pass
+            result += "|- %s: %s\n" % ( key, indentBy( printedValue, "| " ) )
             pass
         result += AnaAlgorithmConfig._printFooter( name )
         return result
@@ -372,5 +419,51 @@ class TestAlgProperties( unittest.TestCase ):
     def test_nonexistentprop( self ):
         with self.assertRaises( AttributeError ):
             value = self.config.Prop3
+            pass
+        pass
+
+## Test case for using private tools
+class TestAlgPrivateTool( unittest.TestCase ):
+
+    ## Set up the main algorithm object to test
+    def setUp( self ):
+        self.config = AnaAlgorithmConfig( "AlgType/AlgName" )
+        pass
+
+    ## Test setting up and using one private tool
+    def test_privatetool( self ):
+        self.config.addPrivateTool( "Tool1", "ToolType1" )
+        self.config.Tool1.Prop1 = "Value1"
+        self.config.Tool1.Prop2 = [ 1, 2, 3 ]
+        self.assertEqual( self.config.Tool1.Prop1, "Value1" )
+        self.assertEqual( self.config.Tool1.Prop2, [ 1, 2, 3 ] )
+        pass
+
+    ## Test setting up and using a private tool of a private tool
+    def test_privatetoolofprivatetool( self ):
+        self.config.addPrivateTool( "Tool1", "ToolType1" )
+        self.config.addPrivateTool( "Tool1.Tool2", "ToolType2" )
+        self.config.Tool1.Tool2.Prop3 = "Foo"
+        self.config.Tool1.Tool2.Prop4 = [ "Bar" ]
+        self.assertEqual( self.config.Tool1.Tool2.Prop3, "Foo" )
+        self.assertEqual( self.config.Tool1.Tool2.Prop4, [ "Bar" ] )
+        pass
+
+    ## Test that unset properties on the tools can't be used
+    def test_nonexistentprop( self ):
+        self.config.addPrivateTool( "Tool1", "ToolType1" )
+        with self.assertRaises( AttributeError ):
+            value = self.config.Tool1.BadProp
+            pass
+        self.config.addPrivateTool( "Tool1.Tool2", "ToolType2" )
+        with self.assertRaises( AttributeError ):
+            value = self.config.Tool1.Tool2.BadProp
+            pass
+        pass
+
+    ## Test that private tools can't be set up on not-yet-declared tools
+    def test_nonexistenttool( self ):
+        with self.assertRaises( AttributeError ):
+            self.config.addPrivateTool( "BadTool.Tool4", "BadToolType" )
             pass
         pass

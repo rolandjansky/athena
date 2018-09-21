@@ -9,7 +9,7 @@
 #define ASG_ANALYSIS_ALGORITHMS__OBJECT_CUT_FLOW_HIST_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <SelectionHelpers/SelectionHelpers.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODBase/IParticleContainer.h>
@@ -59,7 +59,7 @@ namespace CP
 
     /// the list of accessors and cut ignore list
   private:
-    std::vector<std::pair<std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> >,unsigned> > m_accessors;
+    std::vector<std::pair<std::unique_ptr<ISelectionAccessor>,unsigned> > m_accessors;
 
     /// \brief the total number of cuts configured (needed to
     /// configure histograms)

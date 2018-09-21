@@ -150,7 +150,7 @@ StatusCode UpgradePerformanceFunctions::initializePileupTemplates() {
 
   // mu 200
 
-  if ( !(m_layout == Step1p6) ) {
+  if ( !(m_layout == Step1p6 || m_layout == run2) ) {
 
 
     if (m_pueff == HS && fabs(m_fEff - 0.7) < 0.001 && fabs( m_avgMu - 200)  < 0.1) {

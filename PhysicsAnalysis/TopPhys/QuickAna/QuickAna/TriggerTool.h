@@ -152,7 +152,10 @@ namespace ana
     enum TrigYear {
       Only2015,
       Only2016,
-      Only2015_2016
+      Only2017,
+      Only2015_2016,
+      Only2016_2017,
+      Only2015_2016_2017
     };
 
   protected:
@@ -191,6 +194,7 @@ namespace ana
     // Muon trigger scale factors
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2015;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2016;
+    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2017;
     // Electron trigger scale factor
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_el_trig_sf;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_el_trig_eff;

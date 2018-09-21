@@ -2,6 +2,7 @@
 
   <!-- Tools in this package -->
   <class name="CP::MuonCalibrationAndSmearingTool" />
+  <class name="CP::MuonCalibrationPeriodTool" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

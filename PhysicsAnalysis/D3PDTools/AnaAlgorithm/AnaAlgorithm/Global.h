@@ -19,6 +19,7 @@ namespace EL
   class AnaAlgorithmConfig;
   class IFilterWorker;
   class IHistogramWorker;
+  class ITreeWorker;
 #endif
 }
 

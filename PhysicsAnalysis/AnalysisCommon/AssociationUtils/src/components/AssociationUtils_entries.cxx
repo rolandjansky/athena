@@ -16,8 +16,8 @@
 #include "AssociationUtils/TauAntiTauJetOverlapTool.h"
 
 #include "../OverlapRemovalTestAlg.h"
-#include "../OverlapRemovalGenUseAlg.h"
 #include "../ORToolBoxTestAlg.h"
+#include "AssociationUtils/OverlapRemovalGenUseAlg.h"
 
 DECLARE_TOOL_FACTORY( ORUtils::OverlapRemovalTool )
 DECLARE_TOOL_FACTORY( ORUtils::DeltaROverlapTool )

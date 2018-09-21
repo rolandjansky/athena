@@ -10,6 +10,7 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "GaudiKernel/IPartPropSvc.h"
+#include "EventKernel/PdtPdg.h"
 
 namespace DerivationFramework {
 

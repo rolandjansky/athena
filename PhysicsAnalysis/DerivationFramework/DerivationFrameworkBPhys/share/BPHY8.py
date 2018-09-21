@@ -73,11 +73,11 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 #====================================================================
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
-BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300432,300433,300434,300446,300447]
+BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300446,300447]
 BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300997,300999,300404,300405,300406,300437]
 BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300401,300438,300448,300449]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437]
-BPHY8cf.mcBhh             = [300431]
+BPHY8cf.mcBhh             = [300431,300432,300433,300434]
 BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
 
 #====================================================================
@@ -104,8 +104,10 @@ BPHY8cf.BlindingKey     = "0b04087bdac4564252fd778ac351"
 # 0 - simple vertex thinning using Thin_vtxTrk.
 # 1 - thinning subdecay vertex candidates using Thin_vtxTrk.
 # 2 - thinning subdecay vertex candidates using BmumuThinningTool.
+# 3 - thinning subdecay vertex candidates using BmumuThinningTool,
+#     but keeping all PVs and refittedPVs
 #
-BPHY8cf.thinLevel = 2
+BPHY8cf.thinLevel = 3
 #
 # Track particle collection
 BPHY8cf.TrkPartContName = "InDetTrackParticles"
@@ -1577,8 +1579,8 @@ if BPHY8cf.thinLevel > 1:
         ThinMuons                  = True,
         CloseTrackBranchPrefixes   = BPHY8cf.BranchPrefixes,
         CloseTrackBranchBaseName   = BPHY8_IsoTools["TrackVtxCt"].BranchBaseName,
-        ThinPVs                    = True,
-        ThinRefittedPVs            = True,
+        ThinPVs                    = (BPHY8cf.thinLevel == 2),
+        ThinRefittedPVs            = (BPHY8cf.thinLevel == 2),
         ThinTracks                 = True,
         KeepTracksForSelectedPVs   = False,
         OutputLevel                = INFO)

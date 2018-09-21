@@ -12,6 +12,7 @@
 #include "TopParticleLevel/ObjectSelectorBase.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -69,6 +70,7 @@ namespace top {
     // Flag denoting whether the loader tool is active. Will be set by the
     // constructor and remains unchanged afterwards.
     const bool m_active;
+    const bool m_dofakes;
 
     // muons
     std::unique_ptr<xAOD::TruthParticleContainer> m_muons;
@@ -76,13 +78,24 @@ namespace top {
     std::unique_ptr<xAOD::TruthParticleContainer> m_selectedMuons;
 
     // electrons
-    std::unique_ptr<xAOD::TruthParticleContainer> m_electrons;
-    std::unique_ptr<xAOD::ShallowAuxContainer> m_electronsShallowAux;
-    std::unique_ptr<xAOD::TruthParticleContainer> m_selectedElectrons;
+    //std::unique_ptr<xAOD::TruthParticleContainer> m_electrons;
+    //std::unique_ptr<xAOD::ShallowAuxContainer> m_electronsShallowAux;
+    std::shared_ptr<xAOD::TruthParticleContainer> m_selectedElectrons;
+    std::shared_ptr<xAOD::AuxContainerBase> m_auxElectronCont;
 
     // jets
     std::unique_ptr<xAOD::JetContainer> m_jets;
     std::unique_ptr<xAOD::JetAuxContainer> m_jetsAux;
+
+    // large R jets
+    std::unique_ptr<xAOD::JetContainer> m_fatjets;
+    std::unique_ptr<xAOD::JetAuxContainer> m_fatjetsAux;
+
+    // photons
+    //std::unique_ptr<xAOD::TruthParticleContainer> m_photons;
+    //std::unique_ptr<xAOD::ShallowAuxContainer> m_photonsShallowAux;
+    std::shared_ptr<xAOD::TruthParticleContainer> m_selectedPhotons;
+    std::shared_ptr<xAOD::TruthParticleAuxContainer> m_auxPhotonCont;
 
     // MET
     std::unique_ptr<xAOD::MissingETContainer> m_metCont;
@@ -93,6 +106,9 @@ namespace top {
 
     // Muon selector tool
     std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Muon;
+
+    // Photon selector tool
+    std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Photon;
 
   };//class UpgradeObjectLoader
 

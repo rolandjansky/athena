@@ -21,7 +21,11 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                               "AntiKt4EMTopoJets",
                                               "BTagging_AntiKt4EMTopo",
                                               "InDetTrackParticles",
-                                              "PrimaryVertices"]
+                                              "PrimaryVertices",
+                                              "AntiKt4EMPFlowJets",
+                                              "MET_Reference_AntiKt4EMPFlow",
+                                              "BTagging_AntiKt4EMPFlow"
+                                              ]
     
     # extra containers for some formats                                                  
     if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6']:
@@ -84,6 +88,12 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         "e."
         "rapidity."
         "bdtPi0Score"
+        ,
+        "TauChargedParticleFlowObjects."
+        "pt."
+        "eta."
+        "phi."
+        "m"
         ]
         
     # add tau-ID variables needed to rerun tau ID for HiggsCP analysis

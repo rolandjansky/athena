@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCaloEvent
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
+                          PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
                           Reconstruction/Jet/JetInterface
                           Reconstruction/Jet/BoostedJetTaggers
                           Reconstruction/Jet/JetCalibTools
@@ -33,7 +34,7 @@ atlas_add_library(   DerivationFrameworkFlavourTagLib
                      src/*.cxx
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
                      xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
-                     BoostedJetTaggersLib JetCalibToolsLib )
+                     BoostedJetTaggersLib JetCalibToolsLib FlavorTagDiscriminants )
 
 atlas_add_component( DerivationFrameworkFlavourTag
                      src/components/*.cxx

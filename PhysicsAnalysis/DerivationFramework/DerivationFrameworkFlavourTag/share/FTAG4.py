@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExKtCoM
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -36,11 +36,11 @@ FTAG4Seq = CfgMgr.AthSequencer("FTAG4Sequence")
 # offline lepton skimming : require at least one lepton
 # pt-thresholds were evaluated for lowest single lepton triggers with pt-thresholds of 26 GeV
 # 0 == Muons.muonType correspond to Combined muons. DFCommonGoodMuon cuts on type are quality dependent
-# we assume that mu-channel events will be requested to have combined muon offline. 
+# we assume that mu-channel events will be requested to have combined muon offline.
 # wo type cut, there is a relatively large (+~30%) leakage of mostly CaloTagged (muonType=3) muons
 offlineElec = "(Electrons.pt > 24*GeV) && (Electrons.Medium || Electrons.DFCommonElectronsLHMedium)"
 offlineMuon = "(Muons.pt > 24*GeV) && (Muons.DFCommonGoodMuon) && (0 == Muons.muonType)"
-offlineExpression = "( (count("+offlineElec+") >= 1) ||  (count("+offlineMuon+") >= 1) )" 
+offlineExpression = "( (count("+offlineElec+") >= 1) ||  (count("+offlineMuon+") >= 1) )"
 print 'FTAG4: offline skimming expression : \n', offlineExpression
 
 FTAG4StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FTAG4StringSkimmingTool",
@@ -51,10 +51,10 @@ print FTAG4StringSkimmingTool
 # triggers used for skimming:
 # single lepton triggers: we want to include lowest un-prescaled
 # we do not hard-code the exact triggers, as these vary with luminosity
-# we however assume that the lowest un-prescaled triggers will have 
+# we however assume that the lowest un-prescaled triggers will have
 # thresholds of 20 GeV <= pt < 1 TeV
 triggers_e = [ "HLT_e[2-9][0-9]_.*", # WARNING: for triggers with 10<=pt<20 GeV, change to HLT_e[1-0][0-9]_.* !
-               "HLT_e[1-9][0-9][0-9]_.*" ] 
+               "HLT_e[1-9][0-9][0-9]_.*" ]
 triggers_mu = [ "HLT_mu[2-9][0-9]_.*", # WARNING: for triggers with 10<=pt<20 GeV, change to HLT_mu[1-0][0-9]_.* !
                 "HLT_mu[1-9][0-9][0-9]_.*" ]
 triggersSkim = triggers_e + triggers_mu
@@ -76,11 +76,13 @@ if globalflags.DataSource()!='data':
     addHFAndDownstreamParticles()
 
 #====================================================================
-# Basic Jet Collections 
+# Basic Jet Collections
 #====================================================================
 
 OutputJets["FTAG4"] = ["AntiKt4EMTopoJets",
-                       "AntiKtVR30Rmax4Rmin02TrackJets"]
+                       "AntiKtVR30Rmax4Rmin02TrackJets",
+                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
+                       "AntiKt4EMPFlowJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -90,16 +92,20 @@ extendedFlag = 1 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
 replaceAODReducedJets(reducedJetList,FTAG4Seq,"FTAG4", extendedFlag)
 
 addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
+#
+# Adding ExCoM sub-jets for each trimmed large-R jet
+#
+ExCoMJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+ExCoMJetCollection__SubJet = addExKtCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__FatJet, 2, False, subjetAlgName="CoM")
+
+BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
 #===================================================================
 # Variable Radius (VR) Jets
 #===================================================================
 
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(FTAG4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
+addVRJets(FTAG4Seq)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -108,10 +114,10 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMPFlowJets', 'AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
 
 #====================================================================
-# Add sequence (with all kernels needed) to DerivationFrameworkJob 
+# Add sequence (with all kernels needed) to DerivationFrameworkJob
 #====================================================================
 
 DerivationFrameworkJob += FTAG4Seq
@@ -137,17 +143,25 @@ FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "MET_Reference_AntiKt4EMTopo"]
 
 FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2Track",
-                                    "BTagging_AntiKt2TrackJFVtx", 
+                                    "BTagging_AntiKt2TrackJFVtx",
+                                    "BTagging_AntiKt4EMPFlow",
+                                    "BTagging_AntiKt4EMPFlowJFVtx",
                                     "TruthVertices",
                                     "TruthEvents",
+                                    "TruthHFWithDecayParticles",
+                                    "TruthHFWithDecayVertices",
                                     "MET_Truth",
                                     "MET_TruthRegions",
                                     "TruthParticles",
@@ -162,13 +176,22 @@ FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "ExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MuonSpectrometerTrackParticles.vx.vy.vz",
+                                       "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
+                                       "AntiKt4EMPFlowJets.EMFrac.HECFrac.LArQuality.HECQuality.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.HadronConeExclTruthLabelID.GhostTrack",
+                                       "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",
+                                       "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG4SlimmingHelper.AppendToDictionary = {
+  "TruthHFWithDecayParticles"                  :   "xAOD::TruthParticleContainer",
+  "TruthHFWithDecayParticlesAux"               :   "xAOD::TruthParticleAuxContainer",
+  "TruthHFWithDecayVertices"                   :   "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux"                :   "xAOD::TruthVertexAuxContainer",
   "BTagging_AntiKt2Track"                      :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt2TrackAux"                   :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt2TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,
@@ -177,13 +200,24 @@ FTAG4SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2TrackSecVtxAux"             :   "xAOD::VertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
+  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
-
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 :   "xAOD::JetContainer"        ,
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
 }
 #----------------------------------------------------------------------
 addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
@@ -200,4 +234,3 @@ FTAG4ThinningHelper.TriggerChains = 'HLT_e[2-9][0-9]_.*|HLT_e[1-9][0-9][0-9]_.*|
 FTAG4ThinningHelper.AppendToStream( FTAG4Stream )
 
 FTAG4SlimmingHelper.AppendContentToStream(FTAG4Stream)
-

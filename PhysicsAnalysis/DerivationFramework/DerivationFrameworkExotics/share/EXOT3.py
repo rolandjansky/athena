@@ -11,6 +11,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import ElectronsCPDetailedContent
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -345,12 +346,21 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot3Seq,"EXOT3")
 addTCCTrimmedJets(exot3Seq,"EXOT3")
 
+#
+# Adding ExCoM sub-jets for each trimmed large-R jet
+#
+ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+#  doTrackJet = False
+ExCoMJetCollection__SubJet = addExKtCoM(exot3Seq, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=False, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev=0, subjetAlgName="CoM")
+
+
+BTaggingFlags.CalibrationChannelAliases += [
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+
+
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
-addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-          ghostArea = 0 , ptmin = 7000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+addVRJets(exot3Seq)
 # Create variable-R trackjets and dress AntiKt10TCC with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
 # addVRJetsTCC(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
@@ -366,6 +376,17 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
+
+#================================================================
+# Add Hbb tagger
+#================================================================
+
+addHbbTagger(exot3Seq, ToolSvc)
+addHbbTagger(
+    exot3Seq, ToolSvc,
+    nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
+    nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
@@ -389,6 +410,7 @@ EXOT3SlimmingHelper = SlimmingHelper("EXOT3SlimmingHelper")
 # /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
 EXOT3SlimmingHelper.SmartCollections = EXOT3SmartContent
 EXOT3SlimmingHelper.ExtraVariables = EXOT3ExtraVariables
+EXOT3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
 # Keep all variables for containers which we don't want to smart slim and were
 # not created in the derivation
@@ -410,10 +432,18 @@ EXOT3SlimmingHelper.AppendToDictionary = {
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
     "LCOriginTopoClusters"                      :   "xAOD::CaloClusterContainer",
     "LCOriginTopoClustersAux"                   :   "xAOD::ShallowAuxContainer" ,
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
+
+
 }
 
 # Add all variabless for VR track-jets
-EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
+EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets",
+                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"
+        ]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT3SlimmingHelper.ExtraVariables += [
@@ -422,7 +452,16 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
-    "LCOriginTopoClusters.calEta.calPhi"
+    "LCOriginTopoClusters.calEta.calPhi",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
+    "Muons.EnergyLoss.energyLossType",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.ExCoM2SubJets",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.DL1_pb.DL1_pu.DL1_pc.DL1mu_pb.DL1mu_pu.DL1mu_pc.DL1rnn_pb.DL1rnn_pu.DL1rnn_pc",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
 ]
 
 if globalflags.DataSource()=='geant4':

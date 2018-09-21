@@ -79,6 +79,10 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     }
     else {
       gROOT->cd();
+      // save pTmax of the relative and absolute in situ calibrations
+      m_relhistoPtMax = rel_histo->GetXaxis()->GetBinLowEdge(rel_histo->GetNbinsX()+1);
+      m_abshistoPtMax = abs_histo->GetBinLowEdge(abs_histo->GetNbinsX()+1);
+      // combine in situ calibrations
       m_insituCorr = combineCalibration(rel_histo,abs_histo);
       m_insituEtaMax = m_insituCorr->GetYaxis()->GetBinLowEdge(m_insituCorr->GetNbinsY()+1);
       m_insituPtMin = m_insituCorr->GetXaxis()->GetBinLowEdge(1);

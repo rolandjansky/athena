@@ -22,7 +22,7 @@ class IExecuteTool;
 
 namespace Trig{
 
-    class TrigBtagValidationTest : public AthAlgorithm { 
+  class TrigBtagValidationTest : public AthAlgorithm {
 
         public: 
             /// Constructor with parameters: 
@@ -43,6 +43,8 @@ namespace Trig{
 	    template<typename T> 
 	      bool getFromCombo(std::vector<const T*>&,const Trig::Combination&,std::string key="");
 
+	    StatusCode checkChainDefinitions() const;
+	    StatusCode performEmulation();
 
         private:
             ToolHandle<Trig::TrigDecisionTool> m_trigdec;
@@ -51,15 +53,20 @@ namespace Trig{
             std::vector<std::string>   m_triggerList;
 	    StoreGateSvc              *m_storeGate;
 
+	    bool m_performEmulation;
+	    bool m_errorAtMismatch;
 	    bool m_retrieveRetaggedJets;
+	    bool m_checkDefinitions;
 	    std::string m_chain;
 
 	    long int m_eventCount;
 	    long int m_min_eventCount;
 	    long int m_max_eventCount;
 
+	    int m_verbosity;
+
         private:
-	    std::vector< std::string > m_toBeEmulatedTriggers;
+	    std::vector< std::vector< std::string > > m_toBeEmulatedTriggers;
 
 	    enum { EMUL, TDT, mismatchesTOT , mismatchesTDT1EMUL0, mismatchesTDT0EMUL1 };
 	    std::map< std::string,std::tuple<long int,long int,long int,long int,long int> > m_counters;

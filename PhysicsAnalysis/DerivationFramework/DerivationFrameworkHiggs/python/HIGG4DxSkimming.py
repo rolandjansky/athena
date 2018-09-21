@@ -35,8 +35,8 @@ def setup(HIGG4DxName, ToolSvc):
     tauTracks123 = "(TauJets.nTracks == 1 || TauJets.nTracks == 2 || TauJets.nTracks == 3)"
 
     if HIGG4DxName == 'HIGG4D1':     
-        muonLead = "Muons.pt > 13.0*GeV && abs(Muons.eta) < 2.5 && " + muonQual
-        muonSubL = "Muons.pt > 9.0*GeV && abs(Muons.eta) < 2.5 && " + muonQual
+        muonLead = "Muons.pt > 13.0*GeV && abs(Muons.eta) < 2.7 && " + muonQual
+        muonSubL = "Muons.pt > 9.0*GeV && abs(Muons.eta) < 2.7 && " + muonQual
         electron = "Electrons.pt > 13.0*GeV && " + eleLoose
         count1 = "( count("+muonLead+") + count("+electron+") ) >=1"
         count2 = "( count("+muonSubL+") + count("+electron+") ) >=2"

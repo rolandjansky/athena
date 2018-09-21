@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <tuple>
+
+#include "TRandom3.h"
 
 namespace jet
 {
@@ -23,11 +26,11 @@ namespace jet
     class ConfigHelper;
     class GroupHelper;
     class ComponentHelper;
+    class ResolutionHelper;
 }
 
 class TFile;
 class TH2D;
-class TRandom3;
 
 namespace xAOD
 {
@@ -55,7 +58,6 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         // Control methods
         virtual void setRandomSeed(long long int seed) { m_userSeed = seed; }
-        virtual void setMassSmearPar(double massSmearPar) { m_massSmearPar = massSmearPar; }
 
         
         // Tool information retrieval methods
@@ -99,6 +101,8 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual bool        getComponentScalesC2Beta1(const size_t index)  const;
         virtual bool        getComponentScalesQw(const size_t index)       const;
         virtual bool        getComponentScalesMultiple(const size_t index) const;
+        virtual std::set<jet::CompScaleVar::TypeEnum> getComponentScaleVars(const size_t index) const;
+        virtual jet::JetTopology::TypeEnum            getComponentTopology( const size_t index) const;
         // Retrieve multi-component information
         virtual std::vector<std::string> getComponentCategories() const;
         virtual std::vector<size_t>      getComponentsInCategory(const std::string& category) const;
@@ -123,6 +127,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         virtual double getNormalizedCaloMassWeight(const xAOD::Jet& jet) const;
         virtual double getNormalizedTAMassWeight(  const xAOD::Jet& jet) const;
+
+        virtual double getNominalResolutionMC(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology = jet::JetTopology::UNKNOWN) const;
+        virtual double getNominalResolutionData(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology = jet::JetTopology::UNKNOWN) const;
 
         // Inherited methods from CP::IJetUncertaintiesTool to implement
         // Apply a systematic variation or get a new copy
@@ -210,8 +217,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
  
         // Smearing information
         long long int m_userSeed;
-        TRandom3* m_rand; // pointer so it can be changed in a const function (volatile wasn't working)
-        double m_massSmearPar;
+        mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
+        bool m_isData;
+        jet::ResolutionHelper* m_resHelper;
 
         // Default prefix for each component name
         const std::string m_namePrefix;
@@ -225,7 +233,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         jet::UncertaintyComponent* buildUncertaintyComponent(const jet::ComponentHelper& component) const;
         const xAOD::EventInfo* getDefaultEventInfo() const;
         StatusCode checkIndexInput(const size_t index) const;
-        float getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const;
+        double getSmearingFactor(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const double variation) const;
+        double getNominalResolution(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology, const bool readMC) const;
+        double readHistoFromParam(const xAOD::Jet& jet, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param, const jet::CompMassDef::TypeEnum massDef) const;
         double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
 
         // Helper methods for setting shifted moments

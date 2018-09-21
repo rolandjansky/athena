@@ -1,6 +1,6 @@
 // JetRec_entries.cxx
 
-#include "../JetAlgorithm.h"
+#include "JetRec/JetAlgorithm.h"
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
 #include "JetRec/JetDumper.h"

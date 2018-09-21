@@ -39,6 +39,76 @@ void UpgradePerformanceFunctionsxAOD::smearElectron(xAOD::TruthParticle& electro
 }
 
 /**
+ * Get smeared fake electron energy from the UpgradePerformanceFunctions and then
+ * return an electron from the truth jet.
+ */
+void UpgradePerformanceFunctionsxAOD::smearFakeElectron(xAOD::TruthParticle& electron, xAOD::Jet& jet) {
+  const double newE = getElectronFakeRescaledEnergy(jet.e(),jet.eta());
+  const double newE2 = newE*newE;
+  const double m2 = 0.511*0.511;
+  const double p2 = newE2 > m2 ? newE2 - m2 : 0.;
+  TLorentzVector newvec;
+  newvec.SetPtEtaPhiE( sqrt(p2) / cosh(jet.eta()), jet.eta(), jet.phi(), newE );
+  
+  // no p4 setter in truth particle, have to set one-by-one
+  electron.setPx( newvec.Px() );
+  electron.setPy( newvec.Py() );
+  electron.setPz( newvec.Pz() );
+  electron.setE( newvec.E() );
+  electron.setM( newvec.M() );
+
+}
+
+void UpgradePerformanceFunctionsxAOD::smearFakeElectron(xAOD::TruthParticle& electron, TLorentzVector& jet) {
+  const double newE = getElectronFakeRescaledEnergy(jet.E(),jet.Eta());
+  const double newE2 = newE*newE;
+  const double m2 = 0.511*0.511;
+  const double p2 = newE2 > m2 ? newE2 - m2 : 0.;
+  TLorentzVector newvec;
+  newvec.SetPtEtaPhiE( sqrt(p2) / cosh(jet.Eta()), jet.Eta(), jet.Phi(), newE );
+  
+  // no p4 setter in truth particle, have to set one-by-one
+  electron.setPx( newvec.Px() );
+  electron.setPy( newvec.Py() );
+  electron.setPz( newvec.Pz() );
+  electron.setE( newvec.E() );
+  electron.setM( newvec.M() );
+
+}
+
+/**
+ * Get smeared fake electron energy from the UpgradePerformanceFunctions and then
+ * return an electron from the truth jet.
+ */
+void UpgradePerformanceFunctionsxAOD::smearFakePhoton(xAOD::TruthParticle& photon, xAOD::Jet& jet) {
+  const double newET = getPhotonFakeRescaledET(jet.pt());
+  TLorentzVector newvec;
+  newvec.SetPtEtaPhiM( newET, jet.eta(), jet.phi(), 0 );
+  
+  // no p4 setter in truth particle, have to set one-by-one
+  photon.setPx( newvec.Px() );
+  photon.setPy( newvec.Py() );
+  photon.setPz( newvec.Pz() );
+  photon.setE( newvec.E() );
+  photon.setM( newvec.M() );
+
+}
+
+void UpgradePerformanceFunctionsxAOD::smearFakePhoton(xAOD::TruthParticle& photon, TLorentzVector& jet) {
+  const double newET = getPhotonFakeRescaledET(jet.Pt());
+  TLorentzVector newvec;
+  newvec.SetPtEtaPhiE( newET, jet.Eta(), jet.Phi(), 0 );
+  
+  // no p4 setter in truth particle, have to set one-by-one
+  photon.setPx( newvec.Px() );
+  photon.setPy( newvec.Py() );
+  photon.setPz( newvec.Pz() );
+  photon.setE( newvec.E() );
+  photon.setM( newvec.M() );
+
+}
+
+/**
  * Get smeared muon momentum from the UpgradePerformanceFunctions and then
  * modify the input muon accordingly. Note, the PdgId will be changed
  * if the muon smearing results in a charge flip (since the 
@@ -80,4 +150,45 @@ void UpgradePerformanceFunctionsxAOD::smearJet(xAOD::Jet& jet) {
   // jet 4 momentum stored as PtEtaPhiM (see xAODJet/JetTypes.h)
   xAOD::JetFourMom_t mom( smearedjetpt, jet.eta(), jet.phi(), newjet.M() );
   jet.setJetP4( mom );
+}
+/**
+ * Get smeared jet pT, mass from UpgradePerformanceFunctions and then modify the
+ * input jet accordingly. (only mass implemented so far)
+ */
+
+void UpgradePerformanceFunctionsxAOD::smearFatJet(xAOD::Jet& jet) {
+  // can only smear jets with 210 < pT < 3000 GeV (would be good not to hard code this....)
+  if(jet.pt() < 200.0*1000.0 or jet.pt() > 3000.0*1000.0) return;
+
+  UpgradePerformanceFunctions::FatJetType type;
+  if(jet.auxdata<int>("GhostTQuarksFinalCount") > 0) {
+    type = UpgradePerformanceFunctions::Top;
+  } else if(jet.auxdata<int>("GhostWBosonFinalCount") > 0 ||
+      jet.auxdata<int>("GhostZBosonFinalCount") > 0) {
+    type = UpgradePerformanceFunctions::WZ;
+  } else type = UpgradePerformanceFunctions::QCD;
+
+  const double smearedjetmass = this->getJetSmearedMass(jet.pt(), jet.m(), type);
+  // get new vector holding pT constant, smearing mass
+  // jet 4 momentum stored as PtEtaPhiM (see xAODJet/JetTypes.h)
+  xAOD::JetFourMom_t mom( jet.pt(), jet.eta(), jet.phi(), smearedjetmass );
+  jet.setJetP4( mom );
+}
+
+/**
+ * Get smeared photon energy from the UpgradePerformanceFunctions and then
+ * modify the input photon energy accordingly.
+ */
+void UpgradePerformanceFunctionsxAOD::smearPhoton(xAOD::TruthParticle& photon) {
+  const double smearedphotonE = getPhotonSmearedEnergy(photon.e(), photon.eta());
+  const double smearfr = smearedphotonE/photon.e();
+  TLorentzVector initvec(photon.px()*smearfr, photon.py()*smearfr, photon.pz()*smearfr, photon.e()*smearfr);
+  TLorentzVector newvec = getPhotonSmearedVector(&initvec);
+
+  // no p4 setter in truth particle, have to set one-by-one
+  photon.setPx( newvec.Px() );
+  photon.setPy( newvec.Py() );
+  photon.setPz( newvec.Pz() );
+  photon.setE( newvec.E() );
+  photon.setM( newvec.M() );
 }

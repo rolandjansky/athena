@@ -45,11 +45,17 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables = []
   # for jets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets
+  # for TOPQDERIV-62
+  if TOPQname == 'TOPQ1':
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
+  
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo
-  # trimmed jets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+  # trimmed jets
+  if TOPQname == 'TOPQ1':
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets
   # additional variables for electrons/photons objects
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ForwardElectrons
@@ -98,6 +104,8 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_Truth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets_Truth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth
+    if TOPQname == 'TOPQ1':
+      TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets_Truth
     
   # add these trigger variables to all MC and data (TOPQ4 only)
   if DFisMC or TOPQname == 'TOPQ4':
@@ -171,11 +179,13 @@ def setup(TOPQname, stream):
                 ["AntiKt4EMTopoJets", # smart list
                  "AntiKt4EMPFlowJets",
                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                 "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                  ],
                 ["AntiKt3PV0TrackJets",
                  "AntiKt4PV0TrackJets",
                  "AntiKt4LCTopoJets",
                  "AntiKt10LCTopoJets",
+                 "AntiKt10LCTopoCSSKJets",
                  "AntiKt10TruthWZJets",
                  ] # veto list
                 )

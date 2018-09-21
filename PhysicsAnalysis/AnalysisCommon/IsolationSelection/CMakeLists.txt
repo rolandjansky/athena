@@ -28,6 +28,7 @@ atlas_depends_on_subdirs(
   PhysicsAnalysis/AnalysisCommon/PATCore
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
   InnerDetector/InDetRecTools/InDetTrackSelectionTool
+  InnerDetector/InDetRecTools/TrackVertexAssociationTool
   PRIVATE
   Control/AthenaBaseComps
   Tools/PathResolver

@@ -29,5 +29,4 @@
    <gluon_vs_flavour value="lightC" />
    <!-- Save histograms as PS files -->
    <do_ps value="true" />
-<!-- the old DOLOOSE option has not been added since it "should" be replaced by the folder one. Remove this comment when the config has been ultimated -->
 </configuration>

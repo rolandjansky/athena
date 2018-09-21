@@ -24,6 +24,6 @@ EXOT9SmartCollections = [
 ]
 
 EXOT9Extravariables = [
-    "Muons.rpcHitTime.meanDeltaADCCountsMDT",
+    "Muons.rpcHitTime.meanDeltaADCCountsMDT.MeasEnergyLoss",
     "InDetTrackParticles.numberOfIBLOverflowsdEdx.TRTdEdxUsedHits.TRTdEdx.numberOfTRTHighThresholdHitsTotal.numberOfTRTXenonHits.numberOfUsedHitsdEdx.pixeldEdx"
 ]

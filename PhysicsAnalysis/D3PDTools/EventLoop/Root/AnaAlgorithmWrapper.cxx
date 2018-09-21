@@ -63,6 +63,7 @@ namespace EL
     RCU_READ_INVARIANT (this);
     ANA_CHECK (m_config.makeAlgorithm (m_algorithm));
     m_algorithm->setHistogramWorker (wk ());
+    m_algorithm->setTreeWorker (wk ());
     m_algorithm->setFilterWorker (wk ());
     m_algorithm->setWk (wk ());
     if (m_config.useXAODs())
@@ -76,7 +77,6 @@ namespace EL
   StatusCode AnaAlgorithmWrapper ::
   initialize ()
   {
-    ANA_CHECK_SET_TYPE (EL::StatusCode);
     RCU_READ_INVARIANT (this);
     return StatusCode::SUCCESS;
   }

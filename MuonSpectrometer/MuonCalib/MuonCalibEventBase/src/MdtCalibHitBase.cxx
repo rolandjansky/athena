@@ -5,7 +5,6 @@
 /***************************************************************************
  * Muon Calibration Input Event Data Model
  * -----------------------------------------
- * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Niels van Eldik, Zdenko van Kesteren 
  * Creation Date: 12 May 2004

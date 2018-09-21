@@ -141,14 +141,15 @@ std::unique_ptr< TriggerFeature > TriggerFeatureHtTop::uniqueClone() const { ret
 
 // ***
 
-TriggerFeatureInvm::TriggerFeatureInvm(MsgStream& msg,std::string triggerLevel,std::string name,float min_invm) 
+TriggerFeatureInvm::TriggerFeatureInvm(MsgStream& msg,std::string triggerLevel,std::string name,float min_invm,double minPtList) 
   : TriggerFeature(msg,TriggerFeature::SELECTION,name), 
     m_trigLevel(triggerLevel), 
     m_min_invm(min_invm),
     m_count_invm(0),
     m_cut_pt(0),
     m_cut_min_eta(0),
-    m_cut_max_eta(4.9) 
+    m_cut_max_eta(4.9),
+    m_minPtList(minPtList)
 { this->initLUTs(); }
 TriggerFeatureInvm::TriggerFeatureInvm(const TriggerFeatureInvm& other)
   : TriggerFeature(other),
@@ -158,6 +159,7 @@ TriggerFeatureInvm::TriggerFeatureInvm(const TriggerFeatureInvm& other)
     m_cut_pt(other.m_cut_pt),
     m_cut_min_eta(other.m_cut_min_eta),
     m_cut_max_eta(other.m_cut_max_eta),
+    m_minPtList(other.m_minPtList),
     m_jetCollection_HLT(other.m_jetCollection_HLT.begin(),other.m_jetCollection_HLT.end()),
     m_priorityQueue_20(other.m_priorityQueue_20.begin(),other.m_priorityQueue_20.end()),
     m_priorityQueue_30(other.m_priorityQueue_30.begin(),other.m_priorityQueue_30.end()) 
@@ -267,6 +269,7 @@ bool TriggerFeatureInvm::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
 }
 
 bool TriggerFeatureInvm::evaluateJet_HLT(const TrigBtagEmulationJet& jet) { 
+  if ( jet.pt() < m_minPtList ) return true;
   m_jetCollection_HLT.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
 
   m_count_invm = 0;
@@ -345,6 +348,37 @@ bool TriggerFeatureInvmCF::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
   return true;
 }
 
+// ***
+TriggerFeatureInvmNFF::TriggerFeatureInvmNFF(MsgStream& msg,std::string triggerLevel,std::string name, float min_invm)
+  : TriggerFeatureInvm(msg,triggerLevel,name,min_invm) {}
+TriggerFeatureInvmNFF::TriggerFeatureInvmNFF(const TriggerFeatureInvmNFF& other) : TriggerFeatureInvm(other) {}
+TriggerFeatureInvmNFF::~TriggerFeatureInvmNFF() {}
+
+bool TriggerFeatureInvmNFF::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
+  if ( jet.pt() > 20 )
+    m_priorityQueue_20.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
+  if ( jet.pt() > 30 )
+    m_priorityQueue_30.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
+
+  std::sort(m_priorityQueue_20.begin(),m_priorityQueue_20.end(),Trig::sortJetTupleByPt);
+  std::sort(m_priorityQueue_30.begin(),m_priorityQueue_30.end(),Trig::sortJetTupleByPt);
+
+  while ( m_priorityQueue_20.size() > 6)
+    m_priorityQueue_20.pop_back();
+  while ( m_priorityQueue_30.size() > 6)
+    m_priorityQueue_30.pop_back();
+
+  m_count_invm = 0;
+  for (unsigned int i=0; i<m_priorityQueue_20.size(); i++)
+    for (unsigned int j=0; j<m_priorityQueue_30.size(); j++) {
+      double mjj = calculateINVM( m_priorityQueue_20.at(i),m_priorityQueue_30.at(j) );
+      if ( fabs( std::get< JetElement::ETA >( m_priorityQueue_30.at(j) ) ) > 3.1 ) continue; 
+      m_count_invm = std::max( m_count_invm, sqrt(mjj) );
+    }
+  
+  return true;
+}
+
 //**********************************************************************
 
 void TriggerFeatureBtag::print() { ATH_MSG_INFO( "      BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight ); }
@@ -355,8 +389,13 @@ void TriggerFeatureHtTop::print() {
   if (this->m_topEt!=0) message += Form(" [top %d",this->m_topEt);
   ATH_MSG_INFO( message );
 }
-void TriggerFeatureInvm::print() { ATH_MSG_INFO( "      MJJ: " << this->m_count_invm << "/" << this->m_min_invm ); }
+void TriggerFeatureInvm::print() { 
+  std::string message = "";
+  if ( this->m_minPtList != 0 ) message += Form(" [pT > %.0f] ",m_minPtList );
+  ATH_MSG_INFO( "      MJJ" << message << ": " << this->m_count_invm << "/" << this->m_min_invm ); 
+}
 void TriggerFeatureInvmCF::print() { ATH_MSG_INFO( "      MJJ-CF: " << this->m_count_invm << "/" << this->m_min_invm ); }
+void TriggerFeatureInvmNFF::print() { ATH_MSG_INFO( "      MJJ-NFF: " << this->m_count_invm << "/" << this->m_min_invm ); }
 
 //**********************************************************************
 

@@ -350,17 +350,6 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "AntiKt4EMTopoJets.SumPtTrkPt1000.SumPtTrkPt500.NumTrkPt500.NumTrkPt1000",
   "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
   "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt",
-  "Electrons.Reta",
-  "Electrons.Rphi",
-  "Electrons.Rhad1",
-  "Electrons.Rhad",
-  "Electrons.weta1",
-  "Electrons.weta2",
-  "Electrons.Eratio",
-  "Electrons.f3",
-  "Electrons.deltaEta1",
-  "Electrons.deltaPhiRescaled2",
-  "Electrons.wtots1",
   "Electrons.NumOfChsPFOsInMaps",     "Electrons.SumOfChsPFOsInMap_Pt",    "Electrons.SumOfChsPFOsInMap_Eta",    "Electrons.SumOfChsPFOsInMap_Phi",    "Electrons.SumOfChsPFOsInMap_E",
   "Electrons.NumOfChsPFOsAllInEvent", "Electrons.SumChsPFOsAllInEvent_Pt", "Electrons.SumChsPFOsAllInEvent_Eta", "Electrons.SumChsPFOsAllInEvent_Phi", "Electrons.SumChsPFOsAllInEvent_E",
   "Electrons.NumOfChsPFOsInMaps_neutralPFOsOnly",     "Electrons.SumOfChsPFOsInMap_Pt_neutralPFOsOnly",    "Electrons.SumOfChsPFOsInMap_Eta_neutralPFOsOnly",    "Electrons.SumOfChsPFOsInMap_Phi_neutralPFOsOnly",    "Electrons.SumOfChsPFOsInMap_E_neutralPFOsOnly",
@@ -372,7 +361,9 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "Muons.NumOfChsPFOsInMaps_neutralPFOsOnly",     "Muons.SumOfChsPFOsInMap_Pt_neutralPFOsOnly",    "Muons.SumOfChsPFOsInMap_Eta_neutralPFOsOnly",    "Muons.SumOfChsPFOsInMap_Phi_neutralPFOsOnly",    "Muons.SumOfChsPFOsInMap_E_neutralPFOsOnly",
   "Muons.NumOfChsPFOsAllInEvent_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_Pt_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_Eta_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_Phi_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_E_neutralPFOsOnly",
   "Muons.NumOfChsPFOsInMaps_chargedPFOsOnly",     "Muons.SumOfChsPFOsInMap_Pt_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_Eta_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_Phi_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_E_chargedPFOsOnly",
-  "Muons.NumOfChsPFOsAllInEvent_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Pt_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Eta_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Phi_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_E_chargedPFOsOnly"
+  "Muons.NumOfChsPFOsAllInEvent_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Pt_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Eta_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Phi_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_E_chargedPFOsOnly",
+  "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE",
+  "Photons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE"
 ]
 
 

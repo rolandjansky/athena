@@ -10,7 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetInterface/IJetSelector.h>
-#include <SelectionHelpers/SelectionHelpers.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -54,7 +54,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_selectionDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> > m_selectionAccessor;
+    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
   };
 }
 

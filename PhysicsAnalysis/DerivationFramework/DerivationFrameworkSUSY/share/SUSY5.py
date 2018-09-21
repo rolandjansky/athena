@@ -171,11 +171,8 @@ trig_expression = '(' + ' || '.join(METorPhoton_triggers+Lepton_triggers) + ')'
 MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')' 
 
 if not DerivationFrameworkIsMonteCarlo:
-  Prestrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers + PrescaledHighPtTriggers) + ')' 
-  PresLowPttrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers) + ')' 
   JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-  JetEleLooseExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>10*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+'||'+'('+PresLowPttrig_expression +'&&'+ JetEleLooseExpression +'&&'+ objectSelectionSL+')'+')'
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+')'
 else :
   LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')' 
 
@@ -262,7 +259,7 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
 
 # add decoration
-SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY5 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 #====================================================================
@@ -306,7 +303,7 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 
 # Saves BDT and input variables for light lepton algorithms. 
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument. 
-SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 

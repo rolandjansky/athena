@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #!/usr/bin/env python
 import os
@@ -82,10 +82,10 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = ""):
 def GetPRWTool(
         # this default is for MC16a -> data2016
         PRWLumiCalcFiles = [
-                "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-010_data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.root",
-                "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-010_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root",
-                "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-010_data17_13TeV.periodAllYear_DetStatus-v97-pro21-13_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.root",
-
+#               "GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root", #data15
+#               "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",  #data16
+                "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root",      #data17
+#               "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root",     #data18
        	],
         PRWMCConfigFiles = [
             "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r9364_r9315_NTUP_PILEUP.root",

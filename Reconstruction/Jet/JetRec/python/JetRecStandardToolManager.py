@@ -241,6 +241,8 @@ groomed_modifiers = [
     jtm.ktdr,
     jtm.ktsplitter,
     jtm.encorr,
+    jtm.energycorrelatorgeneralized,
+    jtm.energycorrelatorgeneralizedratios,
     jtm.charge,
     jtm.angularity,
     jtm.comshapes,

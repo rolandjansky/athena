@@ -89,8 +89,8 @@ toBeEmulatedTriggers = [
 # ONLINE EMULATOR
 from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagEmulationTool
 emulator = Trig__TrigBtagEmulationTool()
-
 trackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+
 trackAssocTool.TrackContainerName = "TrigBtagEmulationTool_RetaggingTracks" # Necessary for new track associator in 21.2
 trackAssocTool.MuonContainerName  = "" # Necessary for new track associator in 21.2  
 

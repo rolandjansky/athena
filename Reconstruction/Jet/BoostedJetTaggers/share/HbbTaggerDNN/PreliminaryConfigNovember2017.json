@@ -4,6 +4,7 @@
     },
     "subjet": {
         "collection": "GhostVR30Rmax4Rmin02TrackJet",
+        "pt_threshold": 0.0,
         "node_names": ["subjet1", "subjet2", "subjet3", "subjet4"]
     },
     "types": {
@@ -21,5 +22,10 @@
                 "type": "float"
             }
         ]
+    },
+    "outputs": {
+        "decoration_map": {
+            "h_vs_qcd": "HbbScore"
+        }
     }
 }

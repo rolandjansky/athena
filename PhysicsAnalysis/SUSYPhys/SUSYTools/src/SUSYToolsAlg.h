@@ -10,7 +10,7 @@
 #define SUSYToolsAlg_H
 
 // Base class
-#include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
+#include "AnaAlgorithm/AnaAlgorithm.h"
 
 // Tool handles
 #include "AsgTools/AnaToolHandle.h"
@@ -30,7 +30,7 @@ namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
 }
 
-class SUSYToolsAlg : public AthAnalysisAlgorithm { 
+class SUSYToolsAlg : public EL::AnaAlgorithm {
 
   public: 
 
@@ -51,6 +51,9 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
     SUSYToolsAlg();
 
     int  m_dataSource;
+    bool m_usePRWAutoconfig;
+    std::vector<std::string> m_PRWConfigs;
+    std::vector<std::string> m_PRWLumiCalcFiles;
 
     bool m_doSyst;
     std::vector<ST::SystInfo> sysInfoList;
@@ -88,7 +91,5 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
 
     bool m_CheckTruthJets;
 }; 
-
-
 
 #endif

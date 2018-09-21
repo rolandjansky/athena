@@ -79,7 +79,9 @@ namespace Trig {
     StatusCode addEmulatedChain(const std::vector<std::string>&);
     std::vector<std::string> addEmulatedChain(const std::string);
     bool isPassed(const std::string&);
+
     const xAOD::JetContainer* retaggedJets(const std::string&) const;
+    std::vector< std::vector< std::string > >definition(const std::string&) const;
 
   private:
 
@@ -89,10 +91,14 @@ namespace Trig {
 
     StatusCode retrieve( std::unique_ptr< Trig::JetManager >&,bool );
 
+    template<typename T> 
+      StatusCode retrieveTool( T& );
+
     // *** Attributes ** //
   private:
-    enum TriggerMenu { YEAR_2015=0, YEAR_2016=1, YEAR_2017=2 };
+    enum TriggerMenu { YEAR_2015=0, YEAR_2016=1, YEAR_2017=2, YEAR_2018=3 };
     std::tuple< 
+      std::map< const std::string,const std::string >, 
       std::map< const std::string,const std::string >, 
       std::map< const std::string,const std::string >, 
       std::map< const std::string,const std::string > > m_triggerMenus;

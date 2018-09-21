@@ -88,7 +88,7 @@ const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWe
         continue;
       }
 
-      // decorate the track properties  
+      // decorate the track properties	
       dec_z0(*cpfo) = ptrk->z0();
       dec_d0(*cpfo) = ptrk->d0();
       dec_theta(*cpfo) = ptrk->theta();
@@ -108,14 +108,13 @@ const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWe
       int isInDenseEnvironment = false;
       float weight = 1.0;
       if(cpfo->attribute(xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment,isInDenseEnvironment)){
-        ATH_CHECK( m_weightPFOTool->fillWeight( *cpfo, weight ) );
+	ATH_CHECK( m_weightPFOTool->fillWeight( *cpfo, weight ) );
       }
-      
-      // decorate the computed variables  
+
+      // decorate the computed variables	
       dec_PVmatched(*cpfo) = matchedToPrimaryVertex;
       dec_corrP4_pt(*cpfo) = weight*cpfo->pt();
       dec_envWeight(*cpfo) = weight;
-      
     }
 
     return StatusCode::SUCCESS;

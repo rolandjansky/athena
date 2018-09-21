@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 __author__ = 'Ryan D. Reece  <ryan.reece@cern.ch>'
 __date__ = '2009-04-20'
-__copyright__ = 'Copyright 2010 Ryan D. Reece'
-__license__ = 'GPL <http://www.gnu.org/licenses/gpl.html>'
 __doc__ = """
 NAME
     print_hole_log.py - Creates a log file of TRT holes.
@@ -16,10 +14,6 @@ DESCRIPTION
 
 AUTHOR
     %(author)s
-
-COPYRIGHT
-    %(copyright)s
-    License: %(license)s
 
 %(date)s
 """ % {'author':__author__, 'date':__date__, 'copyright':__copyright__, 'license':__license__}

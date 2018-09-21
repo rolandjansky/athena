@@ -1,90 +1,129 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TrackParticleThinning.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+#ifndef DERIVATIONFRAMEWORKINDET_TRACKPARTICLETHINNING_H
+#define DERIVATIONFRAMEWORKINDET_TRACKPARTICLETHINNING_H
 
-#ifndef DERIVATIONFRAMEWORK_TRACKPARTICLETHINNING_H
-#define DERIVATIONFRAMEWORK_TRACKPARTICLETHINNING_H
-
+// System include(s):
 #include <string>
+#include <memory>
 #include <vector>
 
+// Framework include(s):
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+// DF include(s):
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "DerivationFrameworkInterfaces/ExpressionParserHelper.h"
 
-#include "xAODTracking/TrackParticleContainer.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-class IThinningSvc;
+// EDM include(s):
+#include "xAODTracking/TrackParticleContainerFwd.h"
 
 namespace DerivationFramework {
 
-  class TrackParticleThinning : public AthAlgTool, public IThinningTool {
-    public: 
-      TrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~TrackParticleThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+   /// Tool selecting track particles to keep
+   ///
+   /// This tool is used in derivation jobs to set up the thinning of a
+   /// track particle container.
+   ///
+   /// @author James Catmore (James.Catmore@cern.ch)
+   ///
+   class TrackParticleThinning : public AthAlgTool, public IThinningTool {
 
-    private:
-      //Main thinning service
-      ServiceHandle<IThinningSvc> m_thinningSvc;
+   public:
+      /// AlgTool constructor
+      TrackParticleThinning( const std::string& type, const std::string& name,
+                             const IInterface* parent );
 
-      //Expression for object thinning selection
-      std::string m_expression;
-      ExpressionParsing::ExpressionParser *m_parser;
-      std::string m_selectionString;
+      /// @name Function(s) implementing the @c IAlgTool interface
+      /// @{
 
-      //Counters and keys for xAOD::TrackParticle container
-      mutable unsigned int m_ntot, m_npass;
-      std::string m_inDetSGKey;
+      /// Function initialising the tool
+      StatusCode initialize() override;
+      /// Function finalising the tool
+      StatusCode finalize() override;
 
-      //Counters and keys for xAOD::TrackStateValidation and xAOD::TrackMeasurementValidation containers
-      mutable unsigned int m_ntot_pix_states, m_npass_pix_states;
-      std::string m_statesPixSGKey;
-      mutable unsigned int m_ntot_pix_measurements, m_npass_pix_measurements;
-      std::string m_measurementsPixSGKey;
-      mutable unsigned int m_ntot_sct_states, m_npass_sct_states;
-      std::string m_statesSctSGKey;
-      mutable unsigned int m_ntot_sct_measurements, m_npass_sct_measurements;
-      std::string m_measurementsSctSGKey;
-      mutable unsigned int m_ntot_trt_states, m_npass_trt_states;
-      std::string m_statesTrtSGKey;
-      mutable unsigned int m_ntot_trt_measurements, m_npass_trt_measurements;
-      std::string m_measurementsTrtSGKey;
+      /// @}
 
+      /// @name Function(s) implementing the
+      ///       @c DerivationFramework::IThinningTool interface
+      /// @{
 
-      //logic
-      bool m_and;
-      bool m_thinHitsOnTrack;
+      /// Function performing the configured thinning operation
+      StatusCode doThinning() const override;
 
-      //Track state types
-      // Subset of enum MeasurementType from Athena: Tracking/TrkEvent/TrkEventPrimitives/TrkEventPrimitives/TrackStateDefs.h
+      /// @}
+
+   private:
+      // Track state types
+      // Subset of enum MeasurementType from Athena:
+      // Tracking/TrkEvent/TrkEventPrimitives/TrkEventPrimitives/TrackStateDefs.h
       enum MeasurementType {
-	TrkState_unidentified = 0,
-	TrkState_Pixel      = 1,
-	TrkState_SCT        = 2,
-	TrkState_TRT        = 3,
-	TrkState_Pseudo     = 8,
-	TrkState_Vertex     = 9,
-	TrkState_SpacePoint = 11,
-	TrkState_NumberOfMeasurementTypes=16
+         TrkState_unidentified = 0,
+         TrkState_Pixel      = 1,
+         TrkState_SCT        = 2,
+         TrkState_TRT        = 3,
+         TrkState_Pseudo     = 8,
+         TrkState_Vertex     = 9,
+         TrkState_SpacePoint = 11,
+         TrkState_NumberOfMeasurementTypes=16
       };
 
-      /// Select TrackStateValidation and TrackMeasurementValidation objects that are used in the (thinned) track container
-      void selectTrackHits(const xAOD::TrackParticleContainer *inputTrackParticles, std::vector<bool>& inputMask,
-			   MeasurementType detTypeToSelect,
-			   std::vector<bool>& outputStatesMask, std::vector<bool>& outputMeasurementsMask) const;
+      /// Select @c TrackStateValidation and @c TrackMeasurementValidation
+      /// objects that are used in the (thinned) track container
+      StatusCode selectTrackHits( const xAOD::TrackParticleContainer* tpc,
+                                  const std::vector< bool >& inputMask,
+                                  MeasurementType detTypeToSelect,
+                                  std::vector< bool >& outputStatesMask,
+                                  std::vector< bool >& outputMeasurementsMask ) const;
 
-  }; 
-}
+      /// Main thinning service
+      ServiceHandle< IThinningSvc > m_thinningSvc;
 
-#endif // DERIVATIONFRAMEWORK_TRACKPARTICLETHINNING_H
+      /// The expression evaluation helper object
+      std::unique_ptr< ExpressionParserHelper > m_parser;
+      /// Selection string to use with the expression evaluation
+      std::string m_selectionString;
+
+      /// Counters and keys for @c xAOD::TrackParticle container
+      /// @{
+
+      mutable unsigned int m_ntot = 0, m_npass = 0;
+      std::string m_inDetSGKey = "InDetTrackParticles";
+
+      /// @}
+
+      /// @name Counters and keys for @c xAOD::TrackStateValidation and
+      ///       @c xAOD::TrackMeasurementValidation containers
+      /// @{
+
+      mutable unsigned int m_ntot_pix_states = 0, m_npass_pix_states = 0;
+      std::string m_statesPixSGKey = "PixelMSOSs";
+      mutable unsigned int m_ntot_pix_measurements = 0,
+                           m_npass_pix_measurements = 0;
+      std::string m_measurementsPixSGKey = "PixelClusters";
+      mutable unsigned int m_ntot_sct_states = 0, m_npass_sct_states = 0;
+      std::string m_statesSctSGKey = "SCT_MSOSs";
+      mutable unsigned int m_ntot_sct_measurements = 0,
+                           m_npass_sct_measurements = 0;
+      std::string m_measurementsSctSGKey = "SCT_Clusters";
+      mutable unsigned int m_ntot_trt_states = 0, m_npass_trt_states = 0;
+      std::string m_statesTrtSGKey = "TRT_MSOSs";
+      mutable unsigned int m_ntot_trt_measurements = 0,
+                           m_npass_trt_measurements = 0;
+      std::string m_measurementsTrtSGKey = "TRT_DriftCircles";
+
+      /// @}
+
+      /// logic
+      bool m_and = false;
+      bool m_thinHitsOnTrack = false;
+
+   }; // class TrackParticleThinning
+
+} // namespace DerivationFramework
+
+#endif // DERIVATIONFRAMEWORKINDET_TRACKPARTICLETHINNING_H

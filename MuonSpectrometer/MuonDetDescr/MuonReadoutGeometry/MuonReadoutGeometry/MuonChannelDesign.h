@@ -5,7 +5,6 @@
 /***************************************************************************
  properties of a plane based detector allowing for a stereo angle
  ----------------------------------------------------------------------
- Copyright (C) 2013 by ATLAS Collaboration, Sarka Todorova
 ***************************************************************************/
 
 #ifndef MUONTRACKINGGEOMETRY_MUONCHANNELDESIGN_H

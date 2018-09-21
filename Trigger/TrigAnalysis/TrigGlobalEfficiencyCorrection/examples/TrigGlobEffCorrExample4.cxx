@@ -60,8 +60,10 @@ int main(int argc, char* argv[])
 		"|| e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15";
 	triggerCombination["2016"] = "2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14  || mu22_mu8noL1 "
 		"|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium";
+	triggerCombination["2017"] = "2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14  || mu22_mu8noL1 "
+		"|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium";
 	std::map<std::string,std::string> legsPerKey;
-	auto cc = TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(triggerCombination, "2015_2016/rel20.7/Moriond_February2017_v3", legsPerKey);
+	auto cc = TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(triggerCombination, "2015_2017/rel21.2/Moriond_February2018_v2", legsPerKey);
 	if(cc == CP::CorrectionCode::Ok)
 	{
 		if(!quiet)
@@ -71,7 +73,7 @@ int main(int argc, char* argv[])
 			{
 				msg += "   - tool with key \"" + kv.first + "\" chosen for legs " + kv.second + '\n';
 			}
-			Info(APP_NAME, msg.c_str());
+			Info(APP_NAME, "%s", msg.c_str());
 		}
 	}
 	else
@@ -94,10 +96,10 @@ int main(int argc, char* argv[])
 		for(int j=0;j<2;++j) // one tool instance for efficiencies, another for scale factors
 		{
 			auto t = electronToolsFactory.emplace(electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(nTools++));
-			t->setProperty("MapFilePath", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/map1.txt").ignore();
+			t->setProperty("MapFilePath", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt").ignore();
 			t->setProperty("TriggerKey", (j? trigKey : "Eff_"+trigKey)).ignore();
 			t->setProperty("IdKey","Tight").ignore();
-			t->setProperty("IsoKey","Tight").ignore();
+			t->setProperty("IsoKey","FixedCutTightTrackOnly").ignore();
 			t->setProperty("CorrelationModel","TOTAL").ignore();
 			t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full).ignore();
 			t->setProperty("OutputLevel", MSG::ERROR).ignore();
@@ -116,9 +118,8 @@ int main(int argc, char* argv[])
 	
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "180312_TriggerUpdate").ignore();
+    muonTool.setProperty("CalibrationRelease", "180905_TriggerUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
-    // muonTool.setProperty("Isolation", "GradientLoose").ignore();
 	muonTool.setProperty("OutputLevel", MSG::ERROR).ignore();
     if(muonTool.initialize() != StatusCode::SUCCESS)
     {

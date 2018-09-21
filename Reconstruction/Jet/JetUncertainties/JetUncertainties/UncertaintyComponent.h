@@ -35,6 +35,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         virtual TString                getName()      const { return m_uncHistName;   }
         virtual TString                getValidName() const { return m_validHistName; }
         virtual CompScaleVar::TypeEnum getScaleVar()  const { return m_scaleVar;      }
+        virtual JetTopology::TypeEnum  getTopology()  const { return m_topology;      }
 
         // Helpers for special situations
         virtual bool   isAlwaysZero() const;
@@ -50,8 +51,9 @@ class UncertaintyComponent : public asg::AsgMessaging
         const TString m_uncHistName;
         const TString m_validHistName;
         const CompScaleVar::TypeEnum m_scaleVar;
+        const JetTopology::TypeEnum m_topology;
         const float m_energyScale;
-        const bool m_interpolate;
+        const Interpolate::TypeEnum m_interpolate;
         const int m_splitNumber;
         
         int m_numExpectedHist;

@@ -53,13 +53,10 @@ MUON5Seq = CfgMgr.AthSequencer("MUON5Sequence")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 
 # Replace missing collections
-replaceAODReducedJets(["AntiKt4PV0TrackJets", "AntiKt4TruthJets"], MUON5Seq, "MUON5")
-
-# Run b-tagging on AntiKt4PV0TrackJets
-btag_algs  = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn']
-btag_algs += ['JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP']
-
-ReTag(btag_algs, ['AntiKt4PV0TrackJets'], MUON5Seq)
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+if not hasattr(MUON5Seq,"Muons_decoratePromptLepton"):
+    JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUON5Seq,"MUON1")
+    MUON5Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 #======================================================================
 # AUGMENTATION TOOLS
@@ -268,6 +265,7 @@ MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extra
                                       "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m"]
+MUON5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 MUON5SlimmingHelper.AllVariables = ["egammaClusters", "CaloCalTopoClusters", "AntiKt4PV0TrackJets", "BTagging_AntiKt4Track", "InDetTrackParticles"]
 

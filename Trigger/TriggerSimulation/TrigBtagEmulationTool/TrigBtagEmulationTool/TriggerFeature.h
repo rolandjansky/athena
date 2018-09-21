@@ -180,7 +180,7 @@ namespace Trig {
   // *** INVM
   class TriggerFeatureInvm : public TriggerFeature {
   public:
-    TriggerFeatureInvm(MsgStream&,std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
+    TriggerFeatureInvm(MsgStream&,std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0,double minPtList = 0);
     TriggerFeatureInvm(const TriggerFeatureInvm&);
     virtual ~TriggerFeatureInvm();
 
@@ -214,6 +214,7 @@ namespace Trig {
     double m_cut_pt;
     double m_cut_min_eta;
     double m_cut_max_eta;
+    double m_minPtList;
 
   protected:
     std::vector< std::tuple<double,double,double> > m_jetCollection_HLT;
@@ -234,12 +235,25 @@ namespace Trig {
 
     virtual void print();
 
-  private:
+  protected:
     virtual bool evaluateJet_L1(const TrigBtagEmulationJet&);    
   };
 
   bool sortJetTupleByPt( const std::tuple<double,double,double>&,const std::tuple<double,double,double>& );
 
+  // *** INVM NFF
+  class TriggerFeatureInvmNFF : public TriggerFeatureInvm {
+  public:
+    TriggerFeatureInvmNFF(MsgStream&,std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
+    TriggerFeatureInvmNFF(const TriggerFeatureInvmNFF&);
+    ~TriggerFeatureInvmNFF();
+
+    virtual void print();
+
+  protected:
+    virtual bool evaluateJet_L1(const TrigBtagEmulationJet&);
+  };
+  
 } //namespace
 
 #endif

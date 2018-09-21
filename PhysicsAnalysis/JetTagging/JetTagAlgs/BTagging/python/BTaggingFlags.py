@@ -11,7 +11,8 @@ class _BTaggingFlags:
     ExpertTaggers = \
       StandardTaggers + \
       [ 'SV1Flip', 'JetFitterNNFlip', 'IP2DNeg', 'IP3DNeg',
-        'MV2c10Flip', 'MV2c100Flip', 'DL1Flip' ]
+        'MV2c10Flip', 'MV2c100Flip', 'DL1Flip', 'RNNIPFlip', 'RNNIPNeg',
+        'DL1rnnFlip', 'MV2c10rnnFlip']
       # do we have these already?
       # 'DL1muFlip', 'RNNIPFlip', 'DL1rnnFlip'
 
@@ -470,7 +471,8 @@ class _BTaggingFlags:
                               "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt3Track->AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt2Track->AntiKt2Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
+                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
+                              "AntiKt4HI->AntiKt4HI,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
 
       for attr in self._CalibrationSingleFolder:
         setattr(self, attr, True)

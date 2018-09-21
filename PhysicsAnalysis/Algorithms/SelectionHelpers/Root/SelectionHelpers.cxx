@@ -33,4 +33,8 @@ namespace CP
   {
     return ~SelectionType (accept.getCutResultInvertedBitSet().to_ulong());
   }
+
+
+
+  ANA_MSG_SOURCE (msgSelectionHelpers, "selectionHelpers")
 }

@@ -1,10 +1,12 @@
 // emacs: this is -*- C++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RPC_RegionSelectorTable.h        
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RPC_RegionSelectorTable.h, v0.0   Tue  4 Aug 2009 16:34:52 BST sutt $
 

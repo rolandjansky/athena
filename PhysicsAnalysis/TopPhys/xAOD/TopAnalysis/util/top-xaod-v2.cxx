@@ -512,9 +512,12 @@ std::shared_ptr<top::ObjectCollectionMaker> CreateObjectCollectionMaker(std::sha
 
 std::shared_ptr<top::TopObjectSelection> CreateTopObjectSelection(std::shared_ptr<top::TopConfig> topConfig){
 
-  // Setup object definitions
-  std::shared_ptr<top::TopObjectSelection> objectSelection(top::loadObjectSelection(topConfig));
-  objectSelection->print(std::cout);
+  // Setup object definitions - not needed by HLUpgrade code
+  std::shared_ptr<top::TopObjectSelection> objectSelection;
+  if(!topConfig->HLLHC()) {
+    objectSelection.reset(top::loadObjectSelection(topConfig));
+    objectSelection->print(std::cout);
+  }
   return objectSelection;
 }
 
@@ -564,6 +567,7 @@ std::shared_ptr<top::TopEventMaker> CreateTopEventMaker(std::shared_ptr<top::Top
   // make top::Event objects
   std::shared_ptr<top::TopEventMaker> topEventMaker( new top::TopEventMaker( "top::TopEventMaker" ) );
   top::check(topEventMaker->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopEventMaker");
+  top::check(topEventMaker->initialize(), "Failed to initialise top::TopEventMaker");
   // Debug messages?
   // topEventMaker.msg().setLevel(MSG::DEBUG);
   return topEventMaker;

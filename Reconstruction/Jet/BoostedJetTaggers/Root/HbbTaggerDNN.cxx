@@ -30,6 +30,8 @@
 namespace BoostedJetTaggers {
 // internal class to read a jet and build an std::map of intputs that
 // will be passed to lwtnn.
+  struct SubstructureAccessors;
+
   class HbbInputBuilder
   {
   public:
@@ -43,6 +45,7 @@ namespace BoostedJetTaggers {
     SG::AuxElement::ConstAccessor<JetLink> m_acc_parent;
     typedef std::vector<ElementLink<xAOD::IParticleContainer> > ParticleLinks;
     SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
+    double m_subjet_pt_threshold;
     std::string m_fat_jet_node_name;
     std::vector<std::string> m_subjet_node_names;
     typedef SG::AuxElement::ConstAccessor<float> FloatAcc;
@@ -54,7 +57,39 @@ namespace BoostedJetTaggers {
     std::vector<std::string> m_float_subjet_inputs;
     std::vector<std::string> m_int_subjet_inputs;
     std::map<std::string, double> m_dummy_values;
+
+    // grab substructure info
+    std::unique_ptr<SubstructureAccessors> m_ssa;
   };
+
+  // set of accessors for JSS input variables
+  struct SubstructureAccessors {
+    typedef SG::AuxElement AE;
+    SubstructureAccessors();
+    std::map<std::string, double> get_map(const xAOD::Jet&) const;
+  private:
+    float c2(const xAOD::Jet&) const;
+    float d2(const xAOD::Jet&) const;
+    float e3(const xAOD::Jet&) const;
+    float tau21(const xAOD::Jet&) const;
+    float tau32(const xAOD::Jet&) const;
+    float fw20(const xAOD::Jet&) const;
+
+    AE::ConstAccessor<float> ecf1;
+    AE::ConstAccessor<float> ecf2;
+    AE::ConstAccessor<float> ecf3;
+
+    AE::ConstAccessor<float> tau1wta;
+    AE::ConstAccessor<float> tau2wta;
+    AE::ConstAccessor<float> tau3wta;
+
+    AE::ConstAccessor<float> fw2;
+    AE::ConstAccessor<float> fw0;
+
+    // other accessors used by get_map
+    std::vector<std::pair<std::string, AE::ConstAccessor<float> > > m_acc;
+  };
+
 }
 
 namespace {
@@ -71,14 +106,14 @@ HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   m_lwnn(nullptr),
   m_input_builder(nullptr),
   m_tag_threshold(1000000000.),
-  m_output_value_name(""),
-  m_decoration_name(""),
-  m_decorator("")
+  m_output_value_names(),
+  m_decoration_names(),
+  m_decorators()
 {
   declareProperty( "neuralNetworkFile",   m_neuralNetworkFile);
   declareProperty( "configurationFile",   m_configurationFile);
   declareProperty( "tagThreshold", m_tag_threshold);
-  declareProperty( "decorationName", m_decoration_name);
+  declareProperty( "decorationNames", m_decoration_names);
 }
 
 HbbTaggerDNN::~HbbTaggerDNN() {}
@@ -92,17 +127,18 @@ StatusCode HbbTaggerDNN::initialize(){
 
   // read json file for DNN weights
   ATH_MSG_INFO("Using NN file: "+ m_neuralNetworkFile);
-  std::string configPath = PathResolverFindCalibFile(m_neuralNetworkFile);
-  ATH_MSG_INFO("NN file resolved to: " + configPath);
+  std::string nn_path = PathResolverFindCalibFile(m_neuralNetworkFile);
+  ATH_MSG_INFO("NN file resolved to: " + nn_path);
   lwt::GraphConfig config;
   try {
-    std::ifstream input_cfg( configPath );
+    std::ifstream input_cfg( nn_path );
     config = lwt::parse_json_graph(input_cfg);
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("NN file is garbage");
     return StatusCode::FAILURE;
   }
-  std::map<std::string, double> dummy_inputs;
+
+  // setup inputs
   ATH_MSG_DEBUG("Hbb inputs:");
   for (auto& input_node: config.inputs) {
     ATH_MSG_DEBUG(" input node: " << input_node.name);
@@ -110,21 +146,21 @@ StatusCode HbbTaggerDNN::initialize(){
       ATH_MSG_DEBUG("  " << input);
     }
   }
+  for (const auto& node: config.inputs) {
+    m_var_cleaners.emplace_back(
+      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
+  }
+
+  // setup outputs
   if (config.outputs.size() != 1) {
     ATH_MSG_ERROR("Graph needs one output node");
     return StatusCode::FAILURE;
   }
   auto output_node_name = config.outputs.begin()->first;
   auto out_names = config.outputs.at(output_node_name).labels;
-  if (out_names.size() != 1) {
-    ATH_MSG_ERROR("Graph needs one output value");
-    return StatusCode::FAILURE;
-  }
-  m_output_value_name = out_names.at(0);
-  for (const auto& node: config.inputs) {
-    m_var_cleaners.emplace_back(
-      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
-  }
+  m_output_value_names = out_names;
+
+  // build the network
   try {
     m_lwnn.reset(new lwt::LightweightGraph(config, output_node_name));
   } catch (lwt::NNConfigurationException& exc) {
@@ -133,21 +169,49 @@ StatusCode HbbTaggerDNN::initialize(){
   }
 
   // setup the input builder
-  ATH_MSG_INFO( "Using variable map: "<< m_configurationFile );
-  std::string var_map_file = PathResolverFindDataFile(m_configurationFile);
-  ATH_MSG_INFO( "Variable map resolved to: "<< var_map_file );
+  ATH_MSG_INFO( "Using config file: "<< m_configurationFile );
+  std::string config_file = PathResolverFindDataFile(m_configurationFile);
+  ATH_MSG_INFO( "Config file resolved to: "<< config_file );
   try {
-    m_input_builder.reset(new HbbInputBuilder(var_map_file, config));
+    m_input_builder.reset(new HbbInputBuilder(config_file, config));
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("Config file is garbage: " << err.what());
     return StatusCode::FAILURE;
   }
 
   // set up the output decorators
-  if (m_decoration_name.size() == 0) {
-    m_decoration_name = m_output_value_name;
+  //
+  // if there aren't any decorators given in the constructor we look
+  // in the config file
+  if (m_decoration_names.size() > 0) {
+    ATH_MSG_INFO("Output names set in tool setup");
+  } else {
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(config_file, pt);
+    if (pt.count("outputs") > 0) {
+      for (const auto& pair: pt.get_child("outputs.decoration_map") ) {
+        m_decoration_names[pair.first] = pair.second.data();
+      }
+      ATH_MSG_INFO("Output names read from config file");
+    } else {
+      ATH_MSG_INFO("Output names read from NN file ");
+    }
   }
-  m_decorator = SG::AuxElement::Decorator<float>(m_decoration_name);
+  // now build the decoration vectors
+  for (const std::string& name: out_names) {
+    std::string dec_name = name;
+    // if we've given custom decoration names, insist that this output
+    // has one
+    if (m_decoration_names.size() > 0) {
+      if (!m_decoration_names.count(name)) {
+        ATH_MSG_ERROR("NN output " + name + " has no decoration name");
+        return StatusCode::FAILURE;
+      }
+      dec_name = m_decoration_names.at(name);
+    }
+    ATH_MSG_DEBUG("Adding output " + dec_name);
+    m_decorators.emplace_back(SG::AuxElement::Decorator<float>(dec_name));
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -161,24 +225,25 @@ int HbbTaggerDNN::keep(const xAOD::Jet& jet) const {
 }
 
 
-double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
+std::map<std::string, double> HbbTaggerDNN::getScores(const xAOD::Jet& jet)
+  const {
 
   using namespace BoostedJetTaggers;
 
   // build the jet properties into a map
   HbbInputBuilder::VMap inputs = m_input_builder->get_map(jet);
-  // if we have any NaN or infinite values, replace them with defaults
 
-  if (msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG("Hbb inputs:");
+  if (msgLvl(MSG::VERBOSE)) {
+    ATH_MSG_VERBOSE("Hbb inputs:");
     for (auto& input_node: inputs) {
-      ATH_MSG_DEBUG(" input node: " << input_node.first);
+      ATH_MSG_VERBOSE(" input node: " << input_node.first);
       for (auto& input: input_node.second) {
-        ATH_MSG_DEBUG("  " << input.first << ": " << input.second);
+        ATH_MSG_VERBOSE("  " << input.first << ": " << input.second);
       }
     }
   }
 
+  // if we have any NaN or infinite values, replace them with defaults
   HbbInputBuilder::VMap cleaned;
   for (const auto& cleaner: m_var_cleaners) {
     cleaned.emplace(
@@ -186,12 +251,43 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
   }
 
   auto nn_output = m_lwnn->compute(cleaned);
-  ATH_MSG_DEBUG("Hbb score " << nn_output.at(m_output_value_name));
-  return nn_output.at(m_output_value_name);
+  return nn_output;
+}
+
+double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
+  if (m_output_value_names.size() > 1) {
+    throw std::logic_error(
+      "asked for a single tagger score from a multi-class tagger");
+  }
+  auto nn_output = getScores(jet);
+  ATH_MSG_VERBOSE("Hbb score " << nn_output.at(m_output_value_names.at(0)));
+  return nn_output.at(m_output_value_names.at(0));
 }
 
 void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
-  m_decorator(jet) = getScore(jet);
+  std::map<std::string, double> scores = getScores(jet);
+  size_t dec_num = 0;
+  for (const auto& dec: m_decorators) {
+    dec(jet) = scores.at(m_output_value_names.at(dec_num));
+    dec_num++;
+  }
+}
+void HbbTaggerDNN::decorateSecond(const xAOD::Jet& ref,
+                                  const xAOD::Jet& target) const {
+  std::map<std::string, double> scores = getScores(ref);
+  size_t dec_num = 0;
+  for (const auto& dec: m_decorators) {
+    dec(target) = scores.at(m_output_value_names.at(dec_num));
+    dec_num++;
+  }
+}
+
+std::set<std::string> HbbTaggerDNN::decorationNames() const {
+  std::set<std::string> out;
+  for (const auto& pair: m_decoration_names) {
+    out.insert(pair.second);
+  }
+  return out;
 }
 
 size_t HbbTaggerDNN::n_subjets(const xAOD::Jet& jet) const {
@@ -234,12 +330,16 @@ namespace BoostedJetTaggers {
     const std::string& input_file,
     const lwt::GraphConfig& network_config):
     m_acc_parent("Parent"),
-    m_acc_subjets("catKittyCat")
+    m_acc_subjets("catKittyCat"),
+    m_ssa(nullptr)
   {
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(input_file, pt);
+
     m_fat_jet_node_name = pt.get<std::string>("fatjet.node_name");
+
     auto sjets = pt.get<std::string>("subjet.collection");
+    m_subjet_pt_threshold = pt.get<double>("subjet.pt_threshold");
     m_acc_subjets = SG::AuxElement::ConstAccessor<ParticleLinks>(sjets);
 
     // build regexes to figure out variable types
@@ -259,14 +359,7 @@ namespace BoostedJetTaggers {
     std::set<std::string> int_subjet_inputs;
     for (const lwt::InputNodeConfig& node_config: network_config.inputs) {
       if (node_config.name == m_fat_jet_node_name) {
-        for (const lwt::Input input: node_config.variables) {
-          if (NON_STRING_ACCESSOR.count(input.name)) {
-            continue;
-            // todo: add substructure accessors
-          } else {
-            throw std::logic_error("don't know how to access " + input.name);
-          }
-        }
+        m_ssa.reset(new SubstructureAccessors);
       } else if (valid_subjet_nodes.count(node_config.name)) {
         for (const lwt::Input input: node_config.variables) {
           if (NON_STRING_ACCESSOR.count(input.name)) {
@@ -315,11 +408,7 @@ namespace BoostedJetTaggers {
     std::map<std::string, std::map<std::string, double> > inputs;
 
     // fat jet inputs
-    std::map<std::string, double> fat_inputs;
-    fat_inputs["pt"] = jet.pt();
-    fat_inputs["eta"] = jet.eta();
-    fat_inputs["mass"] = jet.m();
-    inputs[m_fat_jet_node_name] = fat_inputs;
+    if (m_ssa) inputs[m_fat_jet_node_name] = m_ssa->get_map(jet);
 
     // get subjets
     const xAOD::Jet* parent_jet = *m_acc_parent(jet);
@@ -339,7 +428,7 @@ namespace BoostedJetTaggers {
     for (size_t subjet_n = 0; subjet_n < n_subjets; subjet_n++) {
       bool have_jet = subjet_n < subjets.size();
       std::map<std::string, double> subjet_inputs;
-      if (have_jet) {
+      if (have_jet && subjets.at(subjet_n)->pt() > m_subjet_pt_threshold) {
         const xAOD::Jet* subjet = subjets.at(subjet_n);
         subjet_inputs["pt"] = subjet->pt();
         subjet_inputs["eta"] = subjet->eta();
@@ -366,6 +455,7 @@ namespace BoostedJetTaggers {
       }
       inputs[m_subjet_node_names.at(subjet_n)] = subjet_inputs;
     }
+
     return inputs;
   }
 
@@ -375,5 +465,77 @@ namespace BoostedJetTaggers {
     auto subjet_links = m_acc_subjets(*parent_jet);
     return subjet_links.size();
   }
+
+
+  // definitions for substructure accessors
+  SubstructureAccessors::SubstructureAccessors():
+    ecf1("ECF1"), ecf2("ECF2"), ecf3("ECF3"),
+    tau1wta("Tau1_wta"), tau2wta("Tau2_wta"), tau3wta("Tau3_wta"),
+    fw2("FoxWolfram2"), fw0("FoxWolfram0")
+  {
+    for (const std::string& name: {"Split12", "Split23",
+          "Qw", "PlanarFlow", "Angularity", "Aplanarity", "ZCut12", "KtDR"}) {
+      m_acc.emplace_back(std::make_pair(name, name));
+    }
+  }
+  std::map<std::string, double>
+  SubstructureAccessors::get_map(const xAOD::Jet& j) const {
+    std::map<std::string, double> map {
+      {"pt", j.pt()}, {"eta", j.eta()}, {"mass", j.m()},
+      {"C2", c2(j)},
+      {"D2", d2(j)},
+      {"e3", e3(j)},
+      {"Tau21_wta", tau21(j)},
+      {"Tau32_wta", tau32(j)},
+      {"FoxWolfram20", fw20(j)},
+    };
+    for (const auto& pair: m_acc) {
+      map[pair.first] = pair.second(j);
+    }
+    return map;
+  }
+
+  float SubstructureAccessors::c2(const xAOD::Jet& j) const {
+    // ECF functions return zero if there N < numConstituents,
+    // need this check to prevent div by zero
+    //
+    if (j.numConstituents() < 2) return NAN;
+    return ecf3(j) * ecf1(j) / pow(ecf2(j), 2.0);
+  }
+  float SubstructureAccessors::d2(const xAOD::Jet& j) const {
+    // See comment for C2
+    //
+    if (j.numConstituents() < 2) return NAN;
+    return ecf3(j) * pow(ecf1(j), 3.0) / pow(ecf2(j), 3.0);
+  }
+  float SubstructureAccessors::e3(const xAOD::Jet& j) const {
+    // ECF1 should always be nonzero
+    //
+    return ecf3(j)/pow(ecf1(j),3.0);
+  }
+  float SubstructureAccessors::tau21(const xAOD::Jet& j) const {
+    // Tau variables return zero when N < numConstituents. Here we
+    // should be safe since we should always have one constituent.
+    //
+    return tau2wta(j) / tau1wta(j);
+  }
+  float SubstructureAccessors::tau32(const xAOD::Jet& j) const {
+    // Tau variables return zero when N < numConstituents, need this
+    // check to prevent div by zero
+    //
+    if (j.numConstituents() < 2) return NAN;
+    return tau3wta(j) / tau2wta(j);
+  }
+  float SubstructureAccessors::fw20(const xAOD::Jet& j) const {
+    // Fox Wolfram variables aren't defined for numConstituents < 1,
+    // but we also have the problem of FW0 being zero if
+    // numConstituents is equal to 1, see here:
+    //
+    // https://gitlab.cern.ch/atlas/athena/blob/21.2/Reconstruction/Jet/JetSubStructureUtils/Root/FoxWolfram.cxx
+    //
+    if (j.numConstituents() < 2) return NAN;
+    return fw2(j) / fw0(j);
+  }
+
 
 }

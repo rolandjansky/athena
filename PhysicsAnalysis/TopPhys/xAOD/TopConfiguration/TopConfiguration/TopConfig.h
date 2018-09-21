@@ -107,6 +107,14 @@ class TopConfig final {
   inline bool isAFII() const {return m_isAFII;}
   inline void setIsAFII(const bool value) {if(!m_configFixed){m_isAFII = value;}}
 
+  // Generators name
+  inline std::string getGenerators() const {return m_generators;}
+  inline void setGenerators(const std::string value) {if(!m_configFixed){m_generators = value;}}
+
+  // AMITag
+  inline std::string getAMITag() const {return m_AMITag;}
+  inline void setAMITag(const std::string value) {if(!m_configFixed){m_AMITag = value;}}
+
   // Is this a Primary xAOD?
   inline bool isPrimaryxAOD() const {return m_isPrimaryxAOD;}
   inline void setIsPrimaryxAOD(const bool value) {if(!m_configFixed){m_isPrimaryxAOD = value;}}
@@ -267,6 +275,7 @@ class TopConfig final {
   inline bool KLFitterTopMassFixed() const {return m_KLFitterTopMassFixed;}
   inline bool KLFitterSaveAllPermutations() const {return m_KLFitterSaveAllPermutations;}
 
+  inline bool KLFitterFailOnLessThanXJets() const {return m_KLFitterFailOnLessThanXJets;}
   // PseudoTop
   inline bool doPseudoTop() const {return m_doPseudoTop;}
   inline void setPseudoTop(){if(!m_configFixed){m_doPseudoTop = true;}}
@@ -427,7 +436,9 @@ class TopConfig final {
   inline virtual void electronPtcut(const float pt)       {if(!m_configFixed){m_electronPtcut = pt;}}
   inline virtual void electronIsolation(const std::string& iso) {if(!m_configFixed){m_electronIsolation = iso;}}
   inline virtual void electronIsolationLoose(const std::string& iso) {if(!m_configFixed){m_electronIsolationLoose = iso;}}
-  inline virtual void electronIsoSFs(const bool b){if(!m_configFixed){m_electronIsoSFs = b;}}
+  void electronIsolationSF(std::string const & iso) {if(!m_configFixed){m_electronIsolationSF = iso;}}
+  void electronIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_electronIsolationSFLoose = iso;}}
+  inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
   inline virtual const std::string& electronID()     const {return m_electronID;   }
@@ -436,9 +447,12 @@ class TopConfig final {
   inline virtual float electronPtcut()       const {return m_electronPtcut;}
   inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
   inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
+  std::string const & electronIsolationSF() const {return m_electronIsolationSF;}
+  std::string const & electronIsolationSFLoose() const {return m_electronIsolationSFLoose;}
   inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
+  inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
 
   // Photon configuration
   inline virtual void photonPtcut(const float pt)             {if(!m_configFixed){m_photon_configuration.pt = pt;}}
@@ -456,6 +470,8 @@ class TopConfig final {
   inline virtual void muonQualityLoose(const std::string& quality)  {if(!m_configFixed){m_muonQualityLoose = quality;}}
   inline virtual void muonIsolation(const std::string& iso) {if(!m_configFixed){m_muonIsolation = iso;}}
   inline virtual void muonIsolationLoose(const std::string& iso) {if(!m_configFixed){m_muonIsolationLoose = iso;}}
+  void muonIsolationSF(std::string const & iso) {if(!m_configFixed){m_muonIsolationSF = iso;}}
+  void muonIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_muonIsolationSFLoose = iso;}}
 
   inline virtual float muonPtcut() const {return m_muonPtcut;}
   inline virtual float muonEtacut() const {return m_muonEtacut;}
@@ -463,6 +479,8 @@ class TopConfig final {
   inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
   inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
   inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
+  std::string const & muonIsolationSF() const {return m_muonIsolationSF;}
+  std::string const & muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
 
   // Jet configuration
   inline virtual void jetPtcut(const float pt)       {if(!m_configFixed){m_jetPtcut = pt;}}
@@ -494,12 +512,14 @@ class TopConfig final {
   inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
   inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
+  inline virtual bool  useRCJetAdditionalSubstructure() const {return m_useRCJetAdditionalSubstructure;}
  
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
   inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
+  inline virtual void useRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useRCJetAdditionalSubstructure = use;}}
   
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
@@ -507,6 +527,8 @@ class TopConfig final {
   inline virtual float VarRCJetMaxRadius() const {return m_VarRCJetMaxRadius;}
   inline virtual const std::string& VarRCJetRho() const {return m_VarRCJetRho;}
   inline virtual const std::string& VarRCJetMassScale() const {return m_VarRCJetMassScale;}
+  inline virtual bool  useVarRCJetSubstructure() const {return m_useVarRCJetSubstructure;}
+  inline virtual bool  useVarRCJetAdditionalSubstructure() const {return m_useVarRCJetAdditionalSubstructure;}
 
   inline virtual void VarRCJetPtcut(const float pt)      {if(!m_configFixed){m_VarRCJetPtcut = pt;}}
   inline virtual void VarRCJetEtacut(const float eta)    {if(!m_configFixed){m_VarRCJetEtacut = eta;}}
@@ -514,6 +536,8 @@ class TopConfig final {
   inline virtual void VarRCJetMaxRadius(const float radius) {if(!m_configFixed){m_VarRCJetMaxRadius = radius;}}
   inline virtual void VarRCJetRho(const std::string& rho) {if(!m_configFixed){m_VarRCJetRho = rho;}}
   inline virtual void VarRCJetMassScale(const std::string& mass_scale) {if(!m_configFixed){m_VarRCJetMassScale = mass_scale;}}
+  inline virtual void useVarRCJetSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetSubstructure = use;}}
+  inline virtual void useVarRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetAdditionalSubstructure = use;}}
 
   inline virtual void jetUncertainties_BunchSpacing( const std::string& s ){if(!m_configFixed){m_jetUncertainties_BunchSpacing = s;}}
   inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
@@ -578,10 +602,6 @@ class TopConfig final {
     if(!m_configFixed)
       m_tau_configuration_loose.fileName = s;
   }
-  // Applying new tau energy calibration
-  inline virtual void applyTauMVATES(bool apply) {
-    m_applyTauMVATES = apply;
-  }
 
   // Tau configuration getters
   inline virtual float tauPtcut() const {
@@ -613,7 +633,7 @@ class TopConfig final {
   }
   // Applying new tau energy calibration
   inline bool applyTauMVATES() {
-    return m_applyTauMVATES;
+    return true;
   }
 
   // photon getters
@@ -960,6 +980,8 @@ class TopConfig final {
 
   bool m_isMC;
   bool m_isAFII;
+  std::string m_generators;
+  std::string m_AMITag;
   bool m_isPrimaryxAOD;
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
@@ -1034,6 +1056,7 @@ class TopConfig final {
   std::string m_KLFitterLH;
   bool m_KLFitterTopMassFixed;
   bool m_KLFitterSaveAllPermutations;
+  bool m_KLFitterFailOnLessThanXJets;
 
   // PseudoTop
   bool m_doPseudoTop;
@@ -1083,12 +1106,15 @@ class TopConfig final {
   float m_electronPtcut;
   std::string m_electronIsolation;
   std::string m_electronIsolationLoose;
-  bool m_electronIsoSFs;
+  std::string m_electronIsolationSF;
+  std::string m_electronIsolationSFLoose;
+  bool const m_electronIsoSFs; // no longer supported, always true (use m_electronIsolationSF instead)
   int m_electron_d0SigCut;
   float m_electron_delta_z0;
 
   std::string m_electronIDDecoration;
   std::string m_electronIDLooseDecoration;
+  bool m_useElectronChargeIDSelection;
 
   // Muon configuration
   float m_muonPtcut; // muon object selection pT cut
@@ -1097,6 +1123,8 @@ class TopConfig final {
   std::string m_muonQualityLoose; // loose muon quality used in object selection
   std::string m_muonIsolation;
   std::string m_muonIsolationLoose;
+  std::string m_muonIsolationSF;
+  std::string m_muonIsolationSFLoose;
   int   m_muon_d0SigCut;
   float m_muon_delta_z0;
 
@@ -1133,6 +1161,7 @@ class TopConfig final {
   float m_RCJetTrimcut;
   float m_RCJetRadius;
   bool  m_useRCJetSubstructure;
+  bool  m_useRCJetAdditionalSubstructure;
   
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
@@ -1141,6 +1170,8 @@ class TopConfig final {
   float m_VarRCJetMaxRadius;
   std::string m_VarRCJetRho;
   std::string m_VarRCJetMassScale;
+  bool  m_useVarRCJetSubstructure;
+  bool  m_useVarRCJetAdditionalSubstructure;
 
   // these are needed for the top mass analysis, per default should be 1.0
   float m_JSF;
@@ -1162,9 +1193,6 @@ class TopConfig final {
     // pT cut on taus
     float pt = 20000;
   } m_tau_configuration, m_tau_configuration_loose;
-
-  // Applying new tau energy calibration
-  bool m_applyTauMVATES = false;
 
   // photon configuration
   struct {

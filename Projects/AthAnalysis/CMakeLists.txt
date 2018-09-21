@@ -54,9 +54,6 @@ endforeach()
 unset( _external )
 unset( _externals )
 
-# Disable the usage of the --no-undefined linker flag:
-atlas_disable_no_undefined()
-
 # Set up CTest:
 atlas_ctest_setup()
 

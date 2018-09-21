@@ -4,11 +4,10 @@
 
 //Load the reclustering tool for the collection of truth jets already selected.
 //Create the collection of reclustered jets and save them in the evtStore().
-//There is also the pass slection to apply the cut on eta and pt on the reclustered jets.
+//There is also the pass selection to apply the cut on eta and pt on the reclustered jets.
 
 #ifndef ParticleLevelRCJetObjectLoader_H_
 #define ParticleLevelRCJetObjectLoader_H_
-
 
 #include "TopParticleLevel/ObjectSelectorBase.h"
 #include "AsgTools/AsgTool.h"
@@ -33,6 +32,19 @@
 namespace top{
     class ParticleLevelEvent;
     class TopConfig;
+}
+
+namespace fastjet{
+  class JetDefinition;
+  namespace contrib{
+    class Nsubjettiness;
+    class EnergyCorrelator;
+  }
+}
+namespace JetSubStructureUtils{
+  class KtSplittingScale;
+  class Qw;
+  class EnergyCorrelatorGeneralized; 
 }
 
 
@@ -64,13 +76,24 @@ public:
      std::string rcjetContainerName(){return m_OutputJetContainer; };
     
 private:
+
+    std::string m_name;
     const std::shared_ptr<top::TopConfig> & m_config;
+
+    bool m_VarRCjets;
+    std::string m_VarRCjets_rho;
+    std::string m_VarRCjets_mass_scale;
 
     float m_ptcut;       // in GeV
     float m_etamax;
     float m_trim;
     float m_radius;
-    
+    float m_minradius;
+    float m_massscale;
+  
+    bool  m_useJSS;
+    bool  m_useAdditionalJSS;
+
     std::string m_treeName;
 
     std::string m_InJetContainerBase;
@@ -78,11 +101,40 @@ private:
     std::string m_InputJetContainer;
     std::string m_OutputJetContainer;
    
+
     
+
+    //Substructure tool definitions
+    std::shared_ptr<fastjet::JetDefinition> m_jet_def_rebuild; 	  
+    std::shared_ptr<fastjet::contrib::Nsubjettiness> m_nSub1_beta1;
+    std::shared_ptr<fastjet::contrib::Nsubjettiness> m_nSub2_beta1;
+    std::shared_ptr<fastjet::contrib::Nsubjettiness> m_nSub3_beta1;
+    std::shared_ptr<fastjet::contrib::EnergyCorrelator> m_ECF1;
+    std::shared_ptr<fastjet::contrib::EnergyCorrelator> m_ECF2;
+    std::shared_ptr<fastjet::contrib::EnergyCorrelator> m_ECF3;
+    std::shared_ptr<JetSubStructureUtils::KtSplittingScale> m_split12;
+    std::shared_ptr<JetSubStructureUtils::KtSplittingScale> m_split23;
+    std::shared_ptr<JetSubStructureUtils::Qw> m_qw;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF332;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF461;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF322;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF331;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF422;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF441;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF212;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF321;
+    std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF311;
+
+    std::map<std::string,float> mass_scales = {
+        {"m_t",172500.},
+        {"m_w",80385.},
+        {"m_z",91188.},
+        {"m_h",125090.}};
+
 
     //re-clustered jets
     //  -> need unordered map for systematics
-    JetReclusteringTool* m_jetReclusteringTool;
+    std::shared_ptr<JetReclusteringTool> m_jetReclusteringTool;
 };
 
 #endif

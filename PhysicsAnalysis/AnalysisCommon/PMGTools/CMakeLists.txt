@@ -6,24 +6,25 @@
 atlas_subdir( PMGTools )
 
 # Extra dependencies based on the build environment:
-set( extra_deps )
+set( extra_private_deps )
 # ... for AnalysisBase
 if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
+   set( extra_private_deps Control/xAODRootAccess )
 # ... for AthAnalysisBase/Athena
 else()
-   set( extra_deps Control/AthAnalysisBaseComps PhysicsAnalysis/POOLRootAccess
-      GaudiKernel )
+   set( extra_private_deps Control/AthAnalysisBaseComps PhysicsAnalysis/POOLRootAccess GaudiKernel Event/EventInfo)
 endif()
 
 # Extra libraries based on the build environment:
 set( xaod_access_lib )
+set( extra_private_libs )
 # ... for AnalysisBase
 if( XAOD_STANDALONE )
    set( xaod_access_lib xAODRootAccess )
 # ... for AthAnalysisBase (Athena calls this POOLRootAccess)
 elseif( XAOD_ANALYSIS AND NOT XAOD_STANDALONE )
    set( xaod_access_lib POOLRootAccessLib )
+   set( extra_private_libs EventInfo )
 endif()
 
 
@@ -31,16 +32,16 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTruth
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
    Event/FourMomUtils
+   Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
    Event/xAOD/xAODMetaData
    Tools/PathResolver
-   ${extra_deps} )
+   ${extra_private_deps} )
 
 # External(s) used by the package:
 find_package( ROOT COMPONENTS Core Hist RIO )
@@ -51,7 +52,7 @@ atlas_add_library( PMGToolsLib
    PUBLIC_HEADERS PMGTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODTruth
-   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver xAODEventInfo xAODJet xAODMetaData)
+   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PMGTools

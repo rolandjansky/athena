@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/InDetConversionFinderTools
                           Reconstruction/RecoTools/ITrackToVertex
                           PRIVATE
+                          Event/EventKernel
                           Event/xAOD/xAODTracking
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           Tracking/TrkExtrapolation/TrkExInterfaces

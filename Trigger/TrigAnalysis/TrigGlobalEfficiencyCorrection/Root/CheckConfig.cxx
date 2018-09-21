@@ -8,6 +8,9 @@
 #include "TrigGlobalEfficiencyCorrection/ImportData.h"
 #include "TrigGlobalEfficiencyCorrection/Calculator.h"
 #include <boost/container/flat_set.hpp>
+template<typename Key> using flat_set = boost::container::flat_set<Key>;
+
+#include <cctype>
 
 using CheckConfig = TrigGlobEffCorr::CheckConfig;
 using ImportData = TrigGlobEffCorr::ImportData;
@@ -49,7 +52,7 @@ bool CheckConfig::basicConfigChecks()
 		return false;
 	}
 	
-	/// All tools mentioned in 'ListOfLegsPerTool' must be in 'ElectronEfficiencyTools' or 'ElectronScaleFactorTools'
+	/// All tools mentioned in 'ListOfLegsPerTool' must be in 'ElectronEfficiencyTools' or 'ElectronScaleFactorTools' (or equivalent photon tools)
 	for(auto& kv : m_parent.m_legsPerTool)
 	{
 		auto& name = kv.first;
@@ -75,23 +78,28 @@ bool CheckConfig::basicConfigChecks()
 	}
 	if(!success) return false;
 	
-	/// All electron tools must be associated to trigger legs (except when there's only one tool)
-	if(m_parent.m_suppliedElectronEfficiencyTools.size() > 1)
+	/// All electron/photon tools must be associated to trigger legs (except when there's only one tool)
+	auto toolsHaveLegInfo = [this](auto& effTools, auto& sfTools, const char* type)
 	{
+		if(effTools.size() < 2) return true;
+		bool success = true;
 		for(int i=0;i<2;++i)
 		{
-			for(auto& tool : (i? m_parent.m_suppliedElectronEfficiencyTools : m_parent.m_suppliedElectronScaleFactorTools))
+			for(auto& tool : (i? effTools: sfTools))
 			{
 				const std::string& name = tool.name();
 				if(m_parent.m_legsPerTool.find(name) == m_parent.m_legsPerTool.end())
 				{
-					success = false;
-					ATH_MSG_ERROR("Electron tool " << name << " associated trigger legs are not indicated in 'ListOfLegsPerTool', "
+					ATH_MSG_ERROR(type << " tool " << name << " associated trigger legs are not indicated in 'ListOfLegsPerTool', "
 						"doing so is mandatory when several tools are used");
+					success = false;
 				}
 			}
 		}
-	}
+		return success;
+	};
+	success &= toolsHaveLegInfo(m_parent.m_suppliedElectronEfficiencyTools, m_parent.m_suppliedElectronScaleFactorTools, "Electron");
+	success &= toolsHaveLegInfo(m_parent.m_suppliedPhotonEfficiencyTools, m_parent.m_suppliedPhotonScaleFactorTools, "Photon");
 	if(!success) return false;
 	
 	/// 
@@ -110,20 +118,24 @@ bool CheckConfig::basicConfigChecks()
 		return true;
 	}
 	
-	/// All tools mentioned in 'ListOfTagsPerTool' must be in 'ElectronEfficiencyTools', 'ElectronScaleFactorTools' or 'MuonTools'
-	unsigned nElectronToolsWithTags = 0, nMuonToolsWithTags = 0;
+	/// All tools mentioned in 'ListOfTagsPerTool' must be known
+	unsigned nElectronToolsWithTags = 0, nMuonToolsWithTags = 0, nPhotonToolsWithTags = 0;
 	for(auto& kv : m_parent.m_tagsPerTool)
 	{
 		auto& name = kv.first;
-		if(findToolByName(m_parent.m_suppliedElectronEfficiencyTools,name)
-			|| findToolByName(m_parent.m_suppliedElectronScaleFactorTools,name)) ++nElectronToolsWithTags;
-		else if(findToolByName(m_parent.m_suppliedMuonTools,name)) ++nMuonToolsWithTags;
+		if(findToolByName(m_parent.m_suppliedElectronEfficiencyTools, name)
+			|| findToolByName(m_parent.m_suppliedElectronScaleFactorTools, name)) ++nElectronToolsWithTags;
+		else if(findToolByName(m_parent.m_suppliedMuonTools, name)) ++nMuonToolsWithTags;
+		else if(findToolByName(m_parent.m_suppliedPhotonEfficiencyTools, name)
+			|| findToolByName(m_parent.m_suppliedPhotonScaleFactorTools, name)) ++nPhotonToolsWithTags;
 		else
 		{
 			success = false;
 			std::string all_tools = "; the known tools are";
 			for(auto& tool : m_parent.m_suppliedElectronEfficiencyTools) all_tools += " " + tool.name();
 			for(auto& tool : m_parent.m_suppliedElectronScaleFactorTools) all_tools += " " + tool.name();
+			for(auto& tool : m_parent.m_suppliedPhotonEfficiencyTools) all_tools += " " + tool.name();
+			for(auto& tool : m_parent.m_suppliedPhotonScaleFactorTools) all_tools += " " + tool.name();
 			ATH_MSG_ERROR("Unknown tool " << name << " mentioned in property 'ListOfTagsPerTool'");
 		}
 	}
@@ -141,26 +153,32 @@ bool CheckConfig::basicConfigChecks()
 		success = false;
 	}
 	if(!success) return false;
+	/// Either all photon tools are associated to tags, either none
+	nSupplied = m_parent.m_suppliedPhotonEfficiencyTools.size() + m_parent.m_suppliedPhotonScaleFactorTools.size();
+	if(nPhotonToolsWithTags && (nPhotonToolsWithTags!=nSupplied))
+	{
+		ATH_MSG_ERROR("Not all photon tools have been associated with tags in the 'ListOfTagsPerTool' property");
+		success = false;
+	}
+	if(!success) return false;
 
 	/*
 	 *  More checks that are done in other places (or still need to be implemented!):
 	 *
 	 * - [advancedConfigChecks()] for each entry in ListOfLegsPerTag there must be a suitable tool for that tag and leg(s)
-	 * - [enumerateTools()] no two electron tools share the same {leg,tag} combination
+	 * - [enumerateTools()] no two electron/photon tools share the same {leg,tag} combination
 	 * - [enumerateTools()] no two muon tools share the same tag
-	 * - [matchingEfficiencyAndScaleFactorTools()] electron efficiency and scale factors have identical configurations: for each eff. tool leg/tag we must find a SF tool, and the other leg/tag pairs associated to those tools must be identical.
-	 * - [UNCHECKED] if tags are used with electron (resp. muon) tools, then all electron (muon) tools must have an entry in ListOfTagsPerTool. Done partially in this function, but the case where no tools are tagged (yet tags are used, according to ListOfLegsPerTag or LeptonTagDecorations) escapes detection. 
+	 * - [advancedConfigChecks()] electron efficiency and scale factors have identical configurations: for each eff. tool leg/tag we must find a SF tool, and the other leg/tag pairs associated to those tools must be identical.
+	 * - [UNCHECKED] if tags are used with electron (resp. muon, photon) tools, then all electron (muon, photon) tools must have an entry in ListOfTagsPerTool. Done partially in this function, but the case where no tools are tagged (yet tags are used, according to ListOfLegsPerTag or LeptonTagDecorations) escapes detection. 
 	 * - [loadTagsConfiguration()] each entry of ListOfLegsPerTag can be matched to a suitable tool
 	 * - [UNCHECKED] suffixed tag read from a lepton must correspond to a know tag
 	 * - [enumerateTools()] list of legs associated to each tool contains only known legs
 	 * - [UNCHECKED TrigGlobEffCorrImportData import* functions] various consistency checks of the configuration files
-	 * - [UNCHECKED] some unfinished functions in advancedConfigChecks
 	 * - [advancedConfigChecks()] user-specified periods are orthogonal
 	 * - [ImportData::parseTriggerString()] no duplicated triggers in the combination
-	 * - [UNCHECKED] for each configured electron tool there is at least one associated tag^leg pair in 'ListOfLegsPerTag' (unless no electron tags used)
+	 * - [UNCHECKED] for each configured electron/photon tool there is at least one associated tag^leg pair in 'ListOfLegsPerTag' (unless no electron/photon tags used)
 	 * - [UNCHECKED] for each configured muon tool there is at least one associated tag in 'MuonLegsPerTag' (unless empty)
-	 * - [UNCHECKED] electron tools can't be associated to photon legs
-	 * - [UNCHECKED] all checks also for photon tools
+	 * - [enumerateTools()] electron tools can't be associated to photon legs; and reciprocally
 	 */
 	
 	return success;
@@ -171,50 +189,40 @@ bool CheckConfig::advancedConfigChecks()
 	/// This method requires all (most) of TrigGlobalEfficiencyCorrectionTool internal variables to have been properly initialized already
 	/// -> to be called as the last step of TrigGlobalEfficiencyCorrectionTool::initialize()
 	bool success = true;
+
+	using ToolKey = TrigGlobalEfficiencyCorrectionTool::ToolKey;
 	
-	const auto& electronEffTools = m_parent.m_electronEffTools;
-	const auto& electronSfTools = m_parent.m_electronSfTools;
-	const auto& muonTools = m_parent.m_muonTools;
-	
-	/// Check that for each electron efficiency tool there is an associated scale factor tool
+	/// Check that for each electron/photon efficiency tool there is an associated scale factor tool
 	/// with the same associated legs and tags. And vice versa. 
-	bool mismatch = (electronEffTools.size() != electronSfTools.size());
-	if(!mismatch)
+	auto checkConsistency = [this](auto& effToolIndex, auto& sfToolIndex, const char* type)
 	{
-		for(auto& kv : electronSfTools)
+		bool mismatch = (effToolIndex.size() != sfToolIndex.size());
+		if(!mismatch)
 		{
-			auto itr = electronEffTools.find(kv.first);
-			if(itr != electronEffTools.end())
+			for(auto& kv : sfToolIndex)
 			{
-				void *ptr1 = kv.second, *ptr2 = itr->second;
-				flat_set<std::size_t> pairs1, pairs2;
-				for(auto& kv : electronSfTools)
+				auto itr = effToolIndex.find(kv.first);
+				if(itr != effToolIndex.end())
 				{
-					if(kv.second==ptr1) pairs1.insert(kv.first);
+					std::size_t index1 = kv.second, index2 = itr->second;
+					flat_set<ToolKey> pairs1, pairs2;
+					for(auto& kv : sfToolIndex) if(kv.second==index1) pairs1.insert(kv.first);
+					for(auto& kv : effToolIndex) if(kv.second==index2) pairs2.insert(kv.first);
+					if(pairs1 != pairs2) mismatch = true;
 				}
-				for(auto& kv : electronEffTools)
-				{
-					if(kv.second==ptr2) pairs2.insert(kv.first);
-				}
-				if(pairs1 != pairs2)
-				{
-					mismatch = true;
-					break;
-				}
-			}
-			else
-			{
-				mismatch = true;
-				break;
+				else mismatch = true;
 			}
 		}
-	}
-	if(mismatch)
-	{
-		ATH_MSG_ERROR("There must be a one-to-one correspondence between the electron efficiency and scale factor tools "
-			"(including their associated trigger legs and selection tags)");
-		return false;
-	}
+		if(mismatch)
+		{
+			ATH_MSG_ERROR("There must be a one-to-one correspondence between the " << type << " efficiency and scale factor tools "
+				"(including their associated trigger legs and selection tags)");
+			return false;
+		}
+		return true;
+	};
+	if(!checkConsistency(m_parent.m_electronEffToolIndex, m_parent.m_electronSfToolIndex, "electron")) return false;
+	if(!checkConsistency(m_parent.m_photonEffToolIndex, m_parent.m_photonSfToolIndex, "photon")) return false;
 	
 	/// A suitable CP tool must be available for each entry of 'ListOfLegsPerTag'
 	for(auto& kv : m_parent.m_legsPerTag)
@@ -225,7 +233,7 @@ bool CheckConfig::advancedConfigChecks()
 			auto type = ImportData::associatedLeptonFlavour(m_parent.m_dictionary[leg],success);
 			if(type == xAOD::Type::Electron)
 			{
-				if(electronEffTools.find(tag ^ leg) == electronEffTools.end())
+				if(m_parent.m_electronEffToolIndex.find(ToolKey(leg, tag)) == m_parent.m_electronEffToolIndex.end())
 				{
 					ATH_MSG_ERROR("No electron tool provided for the combination of trigger leg '" << m_parent.m_dictionary[leg]
 						<< "' and selection tag '" << kv.first << "' mentioned in the property 'ListOfLegsPerTag'");
@@ -234,9 +242,18 @@ bool CheckConfig::advancedConfigChecks()
 			}
 			else if(type == xAOD::Type::Muon)
 			{
-				if(muonTools.find(tag) == muonTools.end())
+				if(m_parent.m_muonToolIndex.find(ToolKey(0, tag)) == m_parent.m_muonToolIndex.end())
 				{
 					ATH_MSG_ERROR("No muon tool provided for the combination of trigger leg '" << m_parent.m_dictionary[leg]
+						<< "' and selection tag '" << kv.first << "' mentioned in the property 'ListOfLegsPerTag'");
+					success = false;
+				}
+			}
+			else if(type == xAOD::Type::Photon)
+			{
+				if(m_parent.m_photonEffToolIndex.find(ToolKey(leg, tag)) == m_parent.m_photonEffToolIndex.end())
+				{
+					ATH_MSG_ERROR("No photon tool provided for the combination of trigger leg '" << m_parent.m_dictionary[leg]
 						<< "' and selection tag '" << kv.first << "' mentioned in the property 'ListOfLegsPerTag'");
 					success = false;
 				}

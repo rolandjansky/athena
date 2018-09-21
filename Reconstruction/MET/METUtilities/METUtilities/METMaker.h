@@ -27,6 +27,10 @@
 // Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+// stand-alone messaging
+#include "AsgTools/MessageCheck.h"
+
+
 // Forward declaration
 
 namespace met {
@@ -165,6 +169,7 @@ namespace met {
     double m_customCenJetPtCut,m_customFwdJetPtCut;
     double m_customJvtCut,m_customJvtPtMax;
     double m_JetEtaMax;
+    double m_JetEtaForw;
 
     bool m_extraJetRejection;
     bool m_doPFlow;

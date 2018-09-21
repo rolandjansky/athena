@@ -146,13 +146,18 @@ FTAG3SlimmingHelper.AllVariables =  ["AntiKt4EMTopoJets",
                                      "BTagging_AntiKt10TruthWZ",
                                      "BTagging_AntiKt10TruthWZJFVtx",
                                      "TruthEvents",
+                                     "TruthVertices",
                                      "TruthParticles",
+                                     "TruthHFWithDecayParticles",
+                                     "TruthHFWithDecayVertices",
+                                     "TruthMuons",
+                                     "MuonTruthParticles",
                                      "MET_Truth",
                                      "MET_TruthRegions",
                                      "HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles",
                                      "HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles_FullScan",
                                      "HLT_xAOD__MuonContainer_MuonEFInfo"
-                                     ]
+                                      ]
 
 FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
@@ -161,6 +166,16 @@ FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtV
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG3SlimmingHelper.AppendToDictionary = {
+  "TruthHFWithDecayParticles"                  :   "xAOD::TruthParticleContainer",
+  "TruthHFWithDecayParticlesAux"               :   "xAOD::TruthParticleAuxContainer",
+  "TruthHFWithDecayVertices"                   :   "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux"                :   "xAOD::TruthVertexAuxContainer",
+  "TruthVertices"                              :   "xAOD::TruthVertexContainer",
+  "TruthVerticesAux"                           :   "xAOD::TruthVertexAuxContainer",
+  "TruthParticles"                             :   "xAOD::TruthParticleContainer",
+  "TruthParticlesAux"                          :   "xAOD::TruthParticleAuxContainer", 
+  "TruthMuons"                                 :   "xAOD::TruthParticleContainer",
+  "TruthMuonsAux"                              :   "xAOD::TruthParticleAuxContainer",
   "BTagging_AntiKt2Track"                      :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt2TrackAux"                   :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt2TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,

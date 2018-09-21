@@ -12,6 +12,7 @@
 
 // METUtilities includes
 #include "METUtilities/METMaker.h"
+#include "METUtilities/METHelpers.h"
 
 // MET EDM
 #include "xAODMissingET/MissingETContainer.h"
@@ -76,8 +77,6 @@ namespace met {
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
 
-  const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
-
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
@@ -113,6 +112,7 @@ namespace met {
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
     declareProperty("CustomJetJvtPtMax",  m_customJvtPtMax     = 60e3                );
     declareProperty("CustomJetEtaMax",    m_JetEtaMax          = 4.5                 );
+    declareProperty("CustomJetEtaForw",   m_JetEtaForw         = 2.4                 );
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
@@ -160,6 +160,7 @@ namespace met {
     if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tighter"){ m_CenJetPtCut = 20e3; m_FwdJetPtCut = 35e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "Tenacious")  { 
       m_CenJetPtCut  = 20e3; m_FwdJetPtCut = 35e3;
       m_JvtCutTight  = 0.91; m_JvtTightPtMax  = 40.0e3;
@@ -247,6 +248,7 @@ namespace met {
       ATH_MSG_WARNING("Invalid object type provided: " << metType);
       return StatusCode::FAILURE;
     }
+    ATH_MSG_VERBOSE("Executing rebuildMET with input type " << metType);
 
     MissingET* met = nullptr;
     if( fillMET(met,metCont, metKey , metSource) != StatusCode::SUCCESS) {
@@ -256,6 +258,7 @@ namespace met {
 
     // If muon eloss corrections are required, create a new term to hold these if it doesn't already exist
     if(metType==xAOD::Type::Muon && (m_muEloss || m_doSetMuonJetEMScale) && !(*metCont)["MuonEloss"]) {
+      ATH_MSG_VERBOSE("Creating Muon Eloss term");
       MissingET* met_muEloss = nullptr;
       if( fillMET(met_muEloss,metCont,"MuonEloss",
 		  MissingETBase::Source::Muon | MissingETBase::Source::Calo) != StatusCode::SUCCESS) {
@@ -645,7 +648,7 @@ namespace met {
       }
       if(assoc && !assoc->isMisc()) {
         ATH_MSG_VERBOSE( "Jet calib pt = " << jet->pt());
-        bool selected = (fabs(jet->eta())<2.4 && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=2.4 && jet->pt()>m_FwdJetPtCut );//jjj
+        bool selected = (fabs(jet->eta())<m_JetEtaForw && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=m_JetEtaForw && jet->pt()>m_FwdJetPtCut );//jjj
         bool JVT_reject(false);
 	bool isMuFSRJet(false);
 	
@@ -654,7 +657,7 @@ namespace met {
 
 	// Apply the JVT
         if(doJetJVT) {
-	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<2.4) {
+	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<m_JetEtaForw) {
 	    float jvt=-100.0;	
 	    bool gotJVT = jet->getAttribute<float>(m_jetJvtMomentName,jvt);
 	    if(gotJVT) {
@@ -1132,68 +1135,19 @@ namespace met {
     return rebuildMET(met,collection,map,MissingETBase::UsageHandler::PhysicsObject);
   }
 
-  // **** Sum up MET terms ****
-
   StatusCode METMaker::buildMETSum(const std::string& totalName,
 				   xAOD::MissingETContainer* metCont,
 				   MissingETBase::Types::bitmask_t softTermsSource)
   {
-    ATH_MSG_DEBUG("Build MET total: " << totalName);
-
-    MissingET* metFinal = nullptr;
-    if( fillMET(metFinal, metCont, totalName, MissingETBase::Source::total()) != StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("failed to fill MET term \"" << totalName << "\"");
-      return StatusCode::FAILURE;
-    }
-
-    for(const auto& met : *metCont) {
-      if(MissingETBase::Source::isTotalTerm(met->source())) continue;
-      if(met->source()==invisSource) continue;
-      if(softTermsSource && MissingETBase::Source::isSoftTerm(met->source())) {
-	if(!MissingETBase::Source::hasPattern(met->source(),softTermsSource)) continue;
-      }
-      // skip the duplicate terms
-      if( met->name().find("_Duplicate")!=std::string::npos){
-	continue;
-      }
-      ATH_MSG_VERBOSE("Add MET term " << met->name() );
-      *metFinal += *met;
-    }
-
-    ATH_MSG_DEBUG( "Rebuilt MET Final --"
-		   << " mpx: " << metFinal->mpx()
-		   << " mpy: " << metFinal->mpy()
-		   );
-
-    return StatusCode::SUCCESS;
+    return met::buildMETSum (totalName, metCont, softTermsSource);
   }
 
-  //this is used to not create a private store
-  //it puts the given new MET object into the container
+
   StatusCode METMaker::fillMET(xAOD::MissingET *& met,
 			       xAOD::MissingETContainer * metCont,
 			       const std::string& metKey,
 			       const MissingETBase::Types::bitmask_t metSource){
-    if(met != nullptr){
-      ATH_MSG_ERROR("You can't fill a filled MET value");
-      return StatusCode::FAILURE;
-    }
-    metCont->reserve(10);
-
-    // add the new container as a "duplicate". This should be for the soft term to make sure the jet term is reconstructed correctly
-    std::string duplicate = "";
-    if(metCont->find(metKey)!=metCont->end()){
-      ATH_MSG_VERBOSE("avoiding adding a duplicate term");
-      duplicate = "_Duplicate";
-    }
-
-    met = new xAOD::MissingET();
-    metCont->push_back(met);
-
-    met->setName  (metKey+duplicate);
-    met->setSource(metSource);
-
-    return StatusCode::SUCCESS;
+    return met::fillMET (met, metCont, metKey, metSource);
   }
 
   // Accept Track

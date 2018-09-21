@@ -110,7 +110,7 @@ class ArtBase(object):
     #
     # Default implementations
     #
-    def compare_ref(self, path, ref_path, entries=-1):
+    def compare_ref(self, path, ref_path, files, entries=-1, mode='detailed'):
         """TBD."""
         result = 0
 
@@ -120,7 +120,7 @@ class ArtBase(object):
             print err
         print out
 
-        (exit_code, out, err, command, start_time, end_time) = run_command(' '.join(("art-diff.py", "--diff-type=diff-root", "--entries=" + str(entries), path, ref_path)))
+        (exit_code, out, err, command, start_time, end_time) = run_command(' '.join(("art-diff.py", "--diff-type=diff-root", "--mode=" + mode, "--entries=" + str(entries), (' '.join(('--file=' + s for s in files))), path, ref_path)))
         if exit_code != 0:
             result |= exit_code
             print err
@@ -171,26 +171,30 @@ class ArtBase(object):
             files = os.listdir(directory)
             files.sort()
             for fname in files:
+
                 # is not a test ?
                 if not fnmatch.fnmatch(fname, 'test_*.sh') and not fnmatch.fnmatch(fname, 'test_*.py'):
                     continue
 
                 test_name = os.path.join(directory, fname)
 
-                # is not of correct type
+                has_art_input = ArtHeader(test_name).get(ArtHeader.ART_INPUT) is not None
+                has_art_athena_mt = ArtHeader(test_name).get(ArtHeader.ART_ATHENA_MT) > 0
+
+                # SKIP if is not of correct type
                 if job_type is not None and ArtHeader(test_name).get(ArtHeader.ART_TYPE) != job_type:
                     continue
 
-                # is not included in nightly_release, project, platform
+                # SKIP if is not included in nightly_release, project, platform
                 if nightly_release is not None and not self.is_included(test_name, nightly_release, project, platform):
                     continue
 
-                # batch and does specify art-input
-                if index_type == "batch" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is not None:
+                # SKIP if batch and does specify art-input or art-athena-mt
+                if index_type == "batch" and (has_art_input or has_art_athena_mt):
                     continue
 
-                # single and does not specify art-input
-                if index_type == "single" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is None:
+                # SKIP if single and does NOT specify art-input or art-athena-mt
+                if index_type == "single" and not (has_art_input or has_art_athena_mt):
                     continue
 
                 result.append(fname)
