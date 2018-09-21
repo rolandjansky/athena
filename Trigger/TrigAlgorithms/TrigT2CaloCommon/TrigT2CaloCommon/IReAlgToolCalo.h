@@ -7,17 +7,15 @@
  NAME:     IReAlgToolCalo.h
  PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloCommon
  
- AUTHOR:   M.P. Casado
+ AUTHOR:   D. Oliveira Damazio based on P. Casado work
  
  PURPOSE:  Serve as a basis for the TrigT2Calo Tools
 	   providing some commom framework basis, like
 	   data access via appropriated pointers and
 	   ByteStream converter objects. Also, time
 	   measurement items.
- KNOWTOINHERIT : TrigT2CaloEgamma/EgammaSamp2Fex,
-	   EgammaSamp1Fex, EgammaEmEnFex, EgammaHadEnFex
-	   TrigT2CaloTau/TauSamp2Fex,TauSamp1Fex,
-	   TauEmEnFex,TauHadEnFex
+ KNOWTOINHERIT : TrigT2CaloEgamma/EgammaReSamp2Fex,
+	   EgammaReSamp1Fex, EgammaReEmEnFex, EgammaReHadEnFex
  *******************************************************************/
 
 #ifndef TRIGT2CALOCOMMON_IREALGTOOLCALO_H 
@@ -114,16 +112,6 @@ class IReAlgToolCalo: public virtual IAlgTool,
     * @param[out] ptrigTauCluster : cluster to be filled with FEX results.
     * @param[in] eta/phi-min/max : limits of RoI.
     */
-    virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/,
-				   const IRoiDescriptor& /*roi*/,
-				   const CaloDetDescrElement*& /*caloDDE*/,
-                                   const EventContext* /*context*/ ) {return HLT::OK;} 
-
-    /// obsolete
-    virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/
-		,double /*etamin*/, double /*etamax*/, double /*phimin*/
-		,double /*phimax*/, double /*RoIeta*/, double /*RoIphi*/) 
-		{return HLT::OK;} 
     /** Expose error for a given IReAlgToolCalo */
     uint32_t report_error() const { return m_error; };
 

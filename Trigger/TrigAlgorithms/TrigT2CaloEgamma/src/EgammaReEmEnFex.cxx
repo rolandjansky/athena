@@ -125,7 +125,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
 	// This will internaly define normal, narrow and large clusters
-  if ( msgLvl(MSG::DEBUG) ) {
+  if ( msgLvl(MSG::ERROR) ) {
         if ( m_geometryTool->EtaPhiRange(0,0,energyEta, energyPhi))
           ATH_MSG_ERROR( "problems with EtaPhiRange" );
         PrintCluster(totalEnergy,0,0,CaloSampling::PreSamplerB
@@ -201,7 +201,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
         // This will internaly define normal, narrow and large clusters
-  if ( msgLvl(MSG::DEBUG) ) {
+  if ( msgLvl(MSG::ERROR) ) {
         if ( m_geometryTool->EtaPhiRange(0,3,energyEta, energyPhi))
           ATH_MSG_ERROR( "problems with EtaPhiRange" );
 

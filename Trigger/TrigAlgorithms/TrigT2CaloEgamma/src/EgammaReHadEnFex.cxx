@@ -21,19 +21,19 @@
 #include <math.h>
 
 inline double check_tilemin(const double x){
-const double dphi=0.09817477;
-const double oneoverdphi=1.0/0.09817477;
-if(x>=0)
+   const double dphi=0.09817477;
+   const double oneoverdphi=1.0/0.09817477;
+   if(x>=0)
         return (dphi*ceilf(x*oneoverdphi))+0.01;
-else
+   else
         return (-dphi*floorf(-x*oneoverdphi))+0.01;
 }
 inline double check_tilemax(const double x){
-const double dphi=0.09817477;
-const double oneoverdphi=1.0/0.09817477;
-if(x>=0)
+   const double dphi=0.09817477;
+   const double oneoverdphi=1.0/0.09817477;
+   if(x>=0)
         return (dphi*floorf(x*oneoverdphi))-0.01;
-else
+   else
         return (-dphi*ceilf(-x*oneoverdphi))-0.01;
 }
 
