@@ -74,5 +74,7 @@ private:
   unsigned int m_nInputMcEventColls;
   //** How many background events have been read so far for this signal event
   unsigned int m_nBkgEventsReadSoFar;
+  //** Depends on PileUpTimeEventIndex::PileUpType; provide one instance of this tool for each type
+  unsigned int m_pileUpType;
 };
 #endif //MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H

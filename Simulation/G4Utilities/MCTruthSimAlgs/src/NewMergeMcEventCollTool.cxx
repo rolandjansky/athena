@@ -21,13 +21,15 @@ NewMergeMcEventCollTool::NewMergeMcEventCollTool(const std::string& type,
   m_truthCollKey("TruthEvent"),
   m_newevent(true),
   m_nInputMcEventColls(0),
-  m_nBkgEventsReadSoFar(0)
+  m_nBkgEventsReadSoFar(0),
+  m_pileUpType(-1) // initialise to PileUpTimeEventIndex::PileUpType::Unknown
 {
   declareInterface<IPileUpTool>(this);
   declareProperty("TruthCollKey",   m_truthCollKey);
   declareProperty("PileUpMergeSvc", m_pMergeSvc);
   declareProperty("ExpectLowPtMinBiasBackgroundCollection", m_expectLowPtMinBiasBackgroundCollection);
   declareProperty("ExpectHighPtMinBiasBackgroundCollection", m_expectHighPtMinBiasBackgroundCollection);
+  declareProperty("PileUpType", m_pileUpType);
 }
 
 StatusCode NewMergeMcEventCollTool::initialize()
