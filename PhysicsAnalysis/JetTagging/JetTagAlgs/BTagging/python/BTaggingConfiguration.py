@@ -14,6 +14,7 @@ from RecExConfig.RecFlags import rec
 # Common tools:
 from BTagging.BTaggingConfiguration_CommonTools import *
 from BTagging.BTaggingConfiguration_InDetVKalVxInJetTool import *
+from BTagging.BTaggingConfiguration_InDetVKalVxTrigInJetTool import *
 from BTagging.BTaggingConfiguration_InDetVKalVxNegativeTagInJetTool import *
 from BTagging.BTaggingConfiguration_InDetVKalVxMultiVxInJetTool import *
 
@@ -27,6 +28,7 @@ from BTagging.BTaggingConfiguration_IP2DNegTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcTag import *
 from BTagging.BTaggingConfiguration_IP2DTag import *
+from BTagging.BTaggingConfiguration_IP2DTrigTag import *
 #from BTagging.BTaggingConfiguration_IP3DFlipTag import *
 from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DPosTag import *
@@ -35,6 +37,7 @@ from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcTag import *
 from BTagging.BTaggingConfiguration_IP3DTag import *
+from BTagging.BTaggingConfiguration_IP3DTrigTag import *
 from BTagging.BTaggingConfiguration_RNNIPTag import *
 
 # Jet fitter taggers
@@ -53,6 +56,7 @@ from BTagging.BTaggingConfiguration_RNNIPTag import *
 ##from BTagging.BTaggingConfiguration_NewJetFitterTag import *
 
 from BTagging.BTaggingConfiguration_NewJetFitterCollection import * #I collected all jetfitter functions currently needed for rel. 19 into here (Wouter)
+from BTagging.BTaggingConfiguration_NewJetFitterTrigCollection import * #I collected all jetfitter functions currently needed for rel. 19 into here (Wouter)
 from BTagging.BTaggingConfiguration_NewJetFitterIP3DNegCollection import *
 
 # Lepton taggers
@@ -67,6 +71,7 @@ from BTagging.BTaggingConfiguration_SoftMuonTag import *
 from BTagging.BTaggingConfiguration_SV0Tag import *
 from BTagging.BTaggingConfiguration_SV1FlipTag import *
 from BTagging.BTaggingConfiguration_SV1Tag import *
+from BTagging.BTaggingConfiguration_SV1TrigTag import *
 #from BTagging.BTaggingConfiguration_SV2FlipTag import *
 from BTagging.BTaggingConfiguration_SV2Tag import *
 
@@ -89,6 +94,7 @@ from BTagging.BTaggingConfiguration_MV1cFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c00Tag import *
 from BTagging.BTaggingConfiguration_MV2c00FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c10Tag import *
+from BTagging.BTaggingConfiguration_MV2c10TrigTag import *
 from BTagging.BTaggingConfiguration_MV2c10FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
@@ -109,6 +115,7 @@ from BTagging.BTaggingConfiguration_ExKtbbTag import *
 
 # MultivariateTagManager
 from BTagging.BTaggingConfiguration_MultivariateTagManager import *
+from BTagging.BTaggingConfiguration_MultivariateTrigTagManager import *
 from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
 
 # DL1 tagger
@@ -387,7 +394,7 @@ class Configuration:
               print str(tool)+': ',self._BTaggingConfig_InitializedTools[tool]
 
   def updateBTaggers(self, JetCollection):
-      """Updates the JetBTaggerTool for the selected JetCollection if they already exist. This is in order to keep
+      """Updates the JetBTaggerAlgs for the selected JetCollection if they already exist. This is in order to keep
       them up-to-date, as someone might set up a tool after these main tools already exist. And such a tool might require a new associator
       which we need to add to the main associator tool."""
       if JetCollection in self._BTaggingConfig_JetBTaggerAlgs:
@@ -409,10 +416,10 @@ class Configuration:
       return btagger[0]
 
   def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True):
-      """Convenience function which takes only a single jet collection and returns an instance instead
-      of a list; see setupJetBTaggerTools for more info. This function is mainly here for easy calling for BTagging from JetRec.
-
-      This function also strips any trailing 'Jets' in the JetCollection if StripJetsSuffix=True (which is the default)."""
+  #    """Convenience function which takes only a single jet collection and returns an instance instead
+  #    of a list; see setupJetBTaggerTools for more info. This function is mainly here for easy calling for BTagging from JetRec.
+  
+  #    This function also strips any trailing 'Jets' in the JetCollection if StripJetsSuffix=True (which is the default)."""
       if (JetCollection.lower()).endswith("jets"):
           if Verbose is None:
               if BTaggingFlags.OutputLevel < 3:
@@ -550,6 +557,7 @@ class Configuration:
       output: List of JetBTaggerTools (this includes those for which no tool was set up because it already existed)."""
       if len(SetupScheme) == 0:
         SetupScheme = BTaggingFlags.ConfigurationScheme
+
       from BTagging.BTaggingConfiguration_LoadTools import SetupJetCollection
       import sys
       if Verbose is None:
@@ -765,9 +773,14 @@ class Configuration:
              track:         The track association.
              jetcol:        The jet collection.
       output: The name of the tool."""
+
+      #GeneralToolSuffix() can not be used here because now tagger in Trig scheme are added with the full name tagger_Trig
+      GeneralToolSuffix = ''
+      if 'Trig' in self._name and 'Trig' not in tool:
+          GeneralToolSuffix = '_Trig';
       # Some tools only need exactly one in ToolSvc
       if getToolMetadata(tool, 'OneInTotal'):
-          return tool+self.GeneralToolSuffix()
+          return tool+GeneralToolSuffix
       # Some tools need one per track association
       if not getToolMetadata(tool, 'OnePerTrackAssociationAndJetCollection'):
           # Append track association if non-default
@@ -775,10 +788,10 @@ class Configuration:
           if not defaulttracks:
               defaulttracks = 'BTagTrackToJetAssociator'
           if track == defaulttracks:
-              return tool+self.GeneralToolSuffix()
-          return tool+'_'+track+self.GeneralToolSuffix()
+              return tool+GeneralToolSuffix
+          return tool+'_'+track+GeneralToolSuffix
       # All others require one per track and per jet collection
-      return jetcol+'_'+tool+'_'+track+self.GeneralToolSuffix()
+      return jetcol+'_'+tool+'_'+track+GeneralToolSuffix
 
   def checkPrerequisites(self, tool_type, TrackCollection="", JetCollection="", CheckOnlyInsideToolCollection=False):
       """Checks whether all prerequisites are met for the tool/tagger. It returns a list of
