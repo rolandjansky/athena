@@ -13,6 +13,7 @@
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/logic/tribool.hpp>
 
 #include "TopConfiguration/Tokenize.h"
 
@@ -169,6 +170,7 @@ namespace top{
     m_electronIsoSFs(true),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
+    m_useElectronChargeIDSelection(false),
 
     // Muon configuration
     m_muonPtcut(25000.),
@@ -213,8 +215,6 @@ namespace top{
     m_tauVetoLArCrack(false),
     m_tauPtcut(20000.),
     **/
-    // Applying new tau energy calibration
-    m_applyTauMVATES(false),
 
     // [[[-----------------------------------------------
     // Particle Level / Truth Configuration
@@ -666,8 +666,12 @@ namespace top{
     if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
       std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
+    this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
+    if( m_useElectronChargeIDSelection )throw std::runtime_error{"TopConfig: UseElectronChargeIDSelection True \n Electron Charge ID selection not available in this release."};
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
+
+    
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -714,7 +718,8 @@ namespace top{
     this->tauEleOLRLoose((settings->value("TauEleOLRLoose") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
-    this->applyTauMVATES((settings->value("ApplyTauMVATES") == "True"));
+    if (settings->value("ApplyTauMVATES") != "True")
+      throw std::runtime_error{"TopConfig: ApplyTauMVATES must be True"};
 
     // Jet configuration
     this->jetPtcut( std::stof(settings->value("JetPt")) );
@@ -749,6 +754,11 @@ namespace top{
       this->m_useRCJetSubstructure = true;
     else
       this->m_useRCJetSubstructure = false;
+      
+    if (settings->value("UseRCJetAdditionalSubstructure") == "True" || settings->value("UseRCJetAdditionalSubstructure") == "true")
+      this->m_useRCJetAdditionalSubstructure = true;
+    else
+      this->m_useRCJetAdditionalSubstructure = false;
    
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
@@ -762,6 +772,10 @@ namespace top{
       this->m_useVarRCJetSubstructure = true;
     else
       this->m_useVarRCJetSubstructure = false;
+    if (settings->value("UseVarRCJetAdditionalSubstructure") == "True" || settings->value("UseVarRCJetAdditionalSubstructure") == "true")
+      this->m_useVarRCJetAdditionalSubstructure = true;
+    else
+      this->m_useVarRCJetAdditionalSubstructure = false;
     
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));
@@ -2377,6 +2391,7 @@ namespace top{
     out->m_electronIDLoose = m_electronIDLoose;
     out->m_electronIsolation = m_electronIsolation;
     out->m_electronIsolationLoose = m_electronIsolationLoose;
+    out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
 
     out->m_muon_trigger_SF = m_muon_trigger_SF;
     out->m_muonQuality = m_muonQuality;
@@ -2506,6 +2521,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_electronIDLoose = settings->m_electronIDLoose;
     m_electronIsolation = settings->m_electronIsolation;
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
+    m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
 
     m_muon_trigger_SF = settings->m_muon_trigger_SF;
     m_muonQuality = settings->m_muonQuality;

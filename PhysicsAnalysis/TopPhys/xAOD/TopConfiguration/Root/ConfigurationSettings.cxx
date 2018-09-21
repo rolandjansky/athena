@@ -49,11 +49,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIDLoose", "Type of electron for background. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , FULL_ETACORRELATED_v1 , 1NP_v1 (default)","1NP_v1");
-    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FixedCutHighMuTight, FixedCutHighMuLoose, None","Gradient");
-    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FixedCutHighMuTight, FixedCutHighMuLoose, None","None");
+    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FCTight, FCLoose, None","Gradient");
+    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FCTight, FCLoose, None","None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
+    registerParameter("UseElectronChargeIDSelection", "True/False. Switch on/off electron charge ID selection (Default False).", "False");
 
     registerParameter("PhotonPt", "Photon pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("PhotonEta", "Absolute Photon eta cut for object selection. Default 2.5.", "2.5");
@@ -67,8 +68,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FixedCutHighMuTight, FixedCutHighMuLoose, PromptLepton, None","Gradient");
-    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FixedCutHighMuTight, FixedCutHighMuLoose, PromptLepton, None","None");
+    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","Gradient");
+    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
@@ -120,6 +121,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("RCJetTrim",   "Reclustered Jet trimming cut for object selection. Default 0.05.", "0.05");
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0",   "1.0");
     registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",   "False");
+    registerParameter("UseRCJetAdditionalSubstructure", "Calculate Additional Reclustered Jet Substructure Variables. Default False",   "False");
     
     registerParameter("UseRCJets",   "Use Reclustered Jets. Default False.", "False");
 
@@ -131,6 +133,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("VarRCJetMassScale", "Reclustered Jet (variable-R) list of mass scale values (m_w,m_z,m_h,m_t). By default use all.",   "m_w,m_z,m_h,m_t");
     registerParameter("UseVarRCJets",      "Use Reclustered Jets (Variable-R Jets). Default False.", "False");
     registerParameter("UseVarRCJetSubstructure", "Calculate Variable-R Reclustered Jet Substructure Variables. Default False",   "False");
+    registerParameter("UseVarRCJetAdditionalSubstructure", "Calculate Additional Variable-R Reclustered Jet Substructure Variables. Default False",   "False");
 
     registerParameter("TauPt",
 		      "Pt cut applied to both tight and loose taus (in MeV)."
@@ -173,8 +176,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 		      "config file rather than other options.",
 		      "Default");
     registerParameter("ApplyTauMVATES",
-                      "Apply new Tau energy calibration based on substructure information and regression, True or False (default).",
-                      "False");
+                      "Apply new Tau energy calibration based on substructure information and regression. Must be True. Deprecated.",
+                      "True");
     
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) " , "Nominal");
 

@@ -75,18 +75,13 @@ runTCCReconstruction(jetm13Seq,ToolSvc)
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
+OutputJets["JETM13"] = []
 reducedJetList = ["AntiKt4TruthJets","AntiKt10TruthJets",]
 replaceAODReducedJets(reducedJetList,jetm13Seq,"JETM13")
 
 jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKernel",
                                                           SkimmingTools = [],
                                                           ThinningTools = jetm13thin)
-
-#====================================================================
-# Special jets
-#====================================================================
-
-OutputJets["JETM13"] = []
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

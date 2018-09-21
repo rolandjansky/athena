@@ -19,9 +19,10 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
 
 # JetEtMiss
 from DerivationFrameworkJetEtMiss.JetCommon import (
-    OutputJets, addJetOutputs)
+    OutputJets, addJetOutputs, addSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-    addDefaultTrimmedJets, replaceAODReducedJets)
+    addDefaultTrimmedJets, replaceAODReducedJets, addConstModJets,
+    addCSSKSoftDropJets)
 from JetRec.JetRecStandard import jtm
 
 # tracking
@@ -158,6 +159,12 @@ addVRJets(FTAG5Seq, logger=ftag5_log, do_ghost=True)
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 #===================================================================
+# Add SoftDrop Jets
+#===================================================================
+
+addCSSKSoftDropJets(FTAG5Seq, "FTAG5")
+
+#===================================================================
 # ExKt subjets for each trimmed large-R jet
 #===================================================================
 ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
@@ -224,8 +231,10 @@ FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
 
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
-fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
-
+fatJetCollections = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+]
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
@@ -235,11 +244,12 @@ FTAG5SlimmingHelper.SmartCollections = [
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert", 
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub_expert",   
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub_expert",
-    fatJetCollection]
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub_expert"]
+FTAG5SlimmingHelper.SmartCollections += fatJetCollections
 
-jssVariables = ['.'.join([fatJetCollection] + JSSHighLevelVariables) ]
-FTAG5SlimmingHelper.ExtraVariables += jssVariables
+for fatJetCollection in fatJetCollections:
+    jssVariables = ['.'.join([fatJetCollection] + JSSHighLevelVariables) ]
+    FTAG5SlimmingHelper.ExtraVariables += jssVariables
 
 FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
@@ -276,9 +286,10 @@ ghost_particles = [
 ]
 ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
-FTAG5SlimmingHelper.ExtraVariables.append(
-    '.'.join(['AntiKt10LCTopoJets'] + ghost_counts + ghost_pts))
-
+ghost_subjets = ['GhostVR30Rmax4Rmin02TrackJetGhostTag']
+for jc in ['AntiKt10LCTopoJets', 'AntiKt10LCTopoCSSKJets']:
+    FTAG5SlimmingHelper.ExtraVariables.append(
+        '.'.join([jc] + ghost_counts + ghost_pts + ghost_subjets))
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False

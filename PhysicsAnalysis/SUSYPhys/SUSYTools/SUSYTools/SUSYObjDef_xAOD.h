@@ -533,6 +533,7 @@ namespace ST {
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
+    double m_BtagMinPt_trkJet;  
 
     //configurable cuts here
     double m_eleBaselinePt;

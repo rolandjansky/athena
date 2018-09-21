@@ -206,8 +206,8 @@ bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ImportData& data, ToolHa
 					continue;
 				}
 			}
-			else if(!std::is_same<CPTool,CP::IMuonTriggerScaleFactors>::value 
-				&& !std::is_same<CPTool,IAsgPhotonEfficiencyCorrectionTool>::value)
+			else if(std::is_same<CPTool,IAsgElectronEfficiencyCorrectionTool>::value 
+				|| std::is_same<CPTool,IAsgPhotonEfficiencyCorrectionTool>::value)
 			{
 				ATH_MSG_ERROR("Property 'ListOfLegsPerTool' empty for tool '" << name << "'");
 				success = false;
@@ -235,6 +235,16 @@ bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ImportData& data, ToolHa
 		for(auto& key : listOfLegs)
 		{
 			std::size_t leg = key.hash;
+			if(leg)
+			{
+				auto flavour = data.associatedLeptonFlavour(leg, success);
+				if(!(flavour==xAOD::Type::Electron && std::is_same<CPTool,IAsgElectronEfficiencyCorrectionTool>::value)
+					&& !(flavour==xAOD::Type::Photon && std::is_same<CPTool,IAsgPhotonEfficiencyCorrectionTool>::value))
+				{
+					ATH_MSG_ERROR("Unexpected association of trigger leg '" << m_dictionary[leg] << "' to tool '" << name << "'");
+					success = false;
+				}
+			}
 			for(std::size_t tag : tags)
 			{
 				if(!toolIndex.emplace(ToolKey(leg, tag, key.boundaries), index).second)
@@ -324,17 +334,14 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTriggerCombination(ImportData& data
 			success = false;
 			continue;
 		}
-		std::size_t uniqueElectronLeg = 0, uniquePhotonLeg = 0;
-		if(!m_calculator->addPeriod(data, boundaries, kv.second, m_numberOfToys, useDefaultElectronTools, uniqueElectronLeg, useDefaultPhotonTools, uniquePhotonLeg))
+		std::size_t uniqueElectronLeg = !useDefaultElectronTools, uniquePhotonLeg = !useDefaultPhotonTools;
+		if(!m_calculator->addPeriod(data, boundaries, kv.second, m_numberOfToys, uniqueElectronLeg, uniquePhotonLeg))
 		{
 			success = false;
 			continue;
 		}
-		else
-		{
-			if(uniqueElectronLeg) allUniqueElectronLegs.insert(uniqueElectronLeg);
-			if(uniquePhotonLeg) allUniquePhotonLegs.insert(uniquePhotonLeg);
-		}
+		if(uniqueElectronLeg && useDefaultElectronTools) allUniqueElectronLegs.insert(uniqueElectronLeg);
+		if(uniquePhotonLeg && useDefaultPhotonTools) allUniquePhotonLegs.insert(uniquePhotonLeg);
 	}
 	if(!success) return false;
 	
@@ -578,7 +585,7 @@ bool TrigGlobalEfficiencyCorrectionTool::getEgammaTriggerLegEfficiencies(const P
 {
 	/// Common implementation for electrons and photons
 	auto ptype = []() { return std::is_same<ParticleType, xAOD::Electron>::value? "electron" : std::is_same<ParticleType, xAOD::Photon>::value? "photon" : "<unknown type>"; };
-	auto pp = reinterpret_cast<const xAOD::IParticle*>(p);
+	auto pp = static_cast<const xAOD::IParticle*>(p);
 	ATH_MSG_DEBUG("Retrieving efficiencies for " << ptype() << ' ' << p << " (pt=" << pp->pt() << ", eta=" << pp->eta() 
 		<< ", tag='" << m_dictionary[tag] << "') for trigger leg " << m_dictionary[leg]);
 	auto itrSf = GetScaleFactorToolIndex(p).find(ToolKey(leg, tag, runNumber));
@@ -640,14 +647,23 @@ bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::M
 
 bool TrigGlobalEfficiencyCorrectionTool::retrieveRunNumber(unsigned& runNumber)
 {
+	runNumber = 0;
 	auto eventInfo = evtStore()->retrieve<const xAOD::EventInfo>("EventInfo");
-	if(!eventInfo || !m_runNumberDecorator.isAvailable(*eventInfo))
+	if(!eventInfo)
 	{
-		ATH_MSG_ERROR("Can't retrieve run number from evtStore()");
-		runNumber = 0;
+		ATH_MSG_ERROR("Can't retrieve 'EventInfo' from evtStore()");
 		return false;
 	}
-	runNumber = m_runNumberDecorator(*eventInfo);
+	if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION))
+	{
+		if(!m_runNumberDecorator.isAvailable(*eventInfo))
+		{
+			ATH_MSG_ERROR("Can't retrieve 'RandomRunNumber' from EventInfo");
+			return false;
+		}
+		runNumber = m_runNumberDecorator(*eventInfo);
+	}
+	else runNumber = eventInfo->runNumber();
 	return true;
 }
 
@@ -692,65 +708,10 @@ bool TrigGlobalEfficiencyCorrectionTool::updateLeptonList(LeptonList& leptons, c
 	return true;
 }
 
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyScaleFactor)
-{
-	unsigned runNumber;
-	if(!retrieveRunNumber(runNumber)) return CP::CorrectionCode::Error;
-	return getEfficiencyScaleFactor(runNumber, electrons, muons, efficiencyScaleFactor);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyScaleFactor)
-{
-	LeptonList leptons;
-	updateLeptonList(leptons, electrons);
-	updateLeptonList(leptons, muons);
-	return getEfficiencyScaleFactor(runNumber, leptons, efficiencyScaleFactor);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc)
-{
-	unsigned runNumber;
-	if(!retrieveRunNumber(runNumber)) return CP::CorrectionCode::Error;
-	return getEfficiency(runNumber, electrons, muons, efficiencyData, efficiencyMc);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc)
-{
-	LeptonList leptons;
-	updateLeptonList(leptons, electrons);
-	updateLeptonList(leptons, muons);
-	return getEfficiency(runNumber, leptons, efficiencyData, efficiencyMc);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(const std::vector<const xAOD::Photon*>& photons, double& efficiencyScaleFactor)
-{
-	unsigned runNumber;
-	if(!retrieveRunNumber(runNumber)) return CP::CorrectionCode::Error;
-	LeptonList leptons;
-	updateLeptonList(leptons, photons);
-	return getEfficiencyScaleFactor(runNumber, leptons, efficiencyScaleFactor);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(const std::vector<const xAOD::Photon*>& photons, double& efficiencyData, double& efficiencyMc)
-{
-	unsigned runNumber;
-	if(!retrieveRunNumber(runNumber)) return CP::CorrectionCode::Error;
-	LeptonList leptons;
-	updateLeptonList(leptons, photons);
-	return getEfficiency(runNumber, leptons, efficiencyData, efficiencyMc);
-}
-
 CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(const std::vector<const xAOD::IParticle*>& leptons, double& efficiencyScaleFactor)
 {
 	unsigned runNumber;
 	if(!retrieveRunNumber(runNumber)) return CP::CorrectionCode::Error;
-	return getEfficiencyScaleFactor(runNumber, leptons, efficiencyScaleFactor);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor)
-{
-	LeptonList leptons;
-	updateLeptonList(leptons, particles);
 	return getEfficiencyScaleFactor(runNumber, leptons, efficiencyScaleFactor);
 }
 
@@ -761,20 +722,13 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(const std::
 	return getEfficiency(runNumber, leptons, efficiencyData, efficiencyMc);
 }
 
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyData, double& efficiencyMc)
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor)
 {
-	LeptonList leptons;
-	updateLeptonList(leptons, particles);
-	return getEfficiency(runNumber, leptons, efficiencyData, efficiencyMc);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(unsigned runNumber, const LeptonList& leptons, double& efficiencyScaleFactor)
-{
-	m_cpCode = CP::CorrectionCode::Ok; // ignores silently previous state + clears "checked" flag
+	m_cpCode = CP::CorrectionCode::Ok; /// ignores silently previous state + clears "checked" flag
 	efficiencyScaleFactor = 1.;
 	
 	Efficiencies efficiencies;
-	auto cc = getEfficiency(runNumber, leptons, efficiencies.data(), efficiencies.mc());
+	auto cc = getEfficiency(runNumber, particles, efficiencies.data(), efficiencies.mc());
 	if(cc == CP::CorrectionCode::Ok)
 	{
 		if(efficiencies.data()>0. && efficiencies.mc()>0.)
@@ -793,13 +747,13 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(
 	return cc;
 }
 
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned runNumber, const LeptonList& leptons, double& efficiencyData, double& efficiencyMc)
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyData, double& efficiencyMc)
 {
-	m_cpCode = CP::CorrectionCode::Ok; // ignores silently previous state + clears "checked" flag
+	m_cpCode = CP::CorrectionCode::Ok; /// ignores silently previous state + clears "checked" flag
 	efficiencyData = 0.;
 	efficiencyMc = 0.;
 	
-	ATH_MSG_DEBUG("Computing global trigger efficiency for this event with  " << leptons.size() << " lepton(s) as input; run number = " << runNumber);
+	ATH_MSG_DEBUG("Computing global trigger efficiency for this event with  " << particles.size() << " lepton(s) as input; run number = " << runNumber);
 	
 	if(runNumber<266904 || runNumber>341649)
 	{
@@ -818,6 +772,9 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 		}
 	}
 	#endif
+	
+	LeptonList leptons;
+	updateLeptonList(leptons, particles);
 	
 	Efficiencies efficiencies;
 	if(m_calculator->compute(*this, leptons, runNumber, efficiencies))
@@ -841,29 +798,6 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 
 CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::IParticle*>& particles)
 {
-	LeptonList leptons;
-	updateLeptonList(leptons, particles);
-	return checkTriggerMatching(matched, leptons);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::Electron*>& electrons, 
-	const std::vector<const xAOD::Muon*>& muons)
-{
-	LeptonList leptons;
-	updateLeptonList(leptons, electrons);
-	updateLeptonList(leptons, muons);
-	return checkTriggerMatching(matched, leptons);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::Photon*>& photons)
-{
-	LeptonList leptons;
-	updateLeptonList(leptons, photons);
-	return checkTriggerMatching(matched, leptons);
-}
-
-CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const LeptonList& leptons)
-{
 	unsigned runNumber;
 	if(!retrieveRunNumber(runNumber))
 	{
@@ -875,10 +809,23 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool
 		ATH_MSG_ERROR("A valid IMatchingTool instance should be provided via the property 'TriggerMatchingTool'");
 		return CP::CorrectionCode::Error;
 	}
+	LeptonList leptons;
+	updateLeptonList(leptons, particles);
 	return m_calculator->checkTriggerMatching(*this, matched, leptons, runNumber)? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
 }
 
-bool TrigGlobalEfficiencyCorrectionTool::aboveThreshold(const Lepton& lepton,std::size_t leg) const
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getRelevantTriggers(std::vector<std::string>& triggers)
+{
+	unsigned runNumber;
+	if(!retrieveRunNumber(runNumber))
+	{
+		ATH_MSG_ERROR("Unable to retrieve run number, aborting getRelevantTriggers()");
+		return CP::CorrectionCode::Error;
+	}
+	return m_calculator->getRelevantTriggersForUser(*this, triggers, runNumber)? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
+}
+
+bool TrigGlobalEfficiencyCorrectionTool::aboveThreshold(const Lepton& lepton, std::size_t leg) const
 {
 	bool decision = (lepton.pt() >= m_thresholds.at(leg));
 	if(m_validLegTagPairs.size())
@@ -905,7 +852,7 @@ std::size_t TrigGlobalEfficiencyCorrectionTool::getCombinedHash(const flat_set<s
 
 std::size_t TrigGlobalEfficiencyCorrectionTool::getCombinedHash(std::size_t leg1, std::size_t leg2)
 {
-	return leg1 ^ leg2; // returns 0 if leg1 == leg2, which is the correct behaviour
+	return leg1 ^ leg2; /// returns 0 if leg1 == leg2, which is the correct behaviour
 }
 
 inline constexpr auto TrigGlobalEfficiencyCorrectionTool::forwardLegs(const flat_set<std::size_t>& legs) -> const flat_set<std::size_t>&
@@ -952,8 +899,8 @@ auto TrigGlobalEfficiencyCorrectionTool::rankTriggerLegs(float pt, const Contain
 	}
 	std::vector<uint8_t> counts(nLegs);
 	
-	// need not only to sort, but also to verify consistency for all pairs of legs (in case of configuration issue)
-	// for that, use a O(n^2) algorithm and count for each leg the number of legs tighter than itself
+	/// need not only to sort, but also to verify consistency for all pairs of legs (in case of configuration issue)
+	/// for that, use a O(n^2) algorithm and count for each leg the number of legs tighter than itself
 	auto legI = legs.begin();
 	for(unsigned i=0;i<nLegs;++i)
 	{

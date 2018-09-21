@@ -150,6 +150,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_BtagSystStrategy(""),
     m_BtagWP_trkJet(""),
     m_BtagTagger_trkJet(""),
+    m_BtagMinPt_trkJet(-99.),
     //configurable cuts here
     m_eleBaselinePt(-99.),
     m_eleBaselineEta(-99.),
@@ -194,6 +195,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetPt(-99.),
     m_jetEta(-99.),
     m_jetJvt(-99.),
+    m_trkJetPt(-99.),
+    m_trkJetEta(-99.),
     m_doFwdJVT(false),
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
@@ -1165,6 +1168,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
+  configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, 20e3);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
@@ -1224,7 +1228,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Loose, Tight (default), Tighter, Tenacious
   configFromFile(m_softTermParam, "METSig.SoftTermParam", rEnv, met::Random);
   configFromFile(m_treatPUJets, "METSig.TreatPUJets", rEnv, true);
-  configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, true);
+  configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, false);
   //
   configFromFile(m_prwActualMu2017File, "PRW.ActualMu2017File", rEnv, "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
   configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-001.root");

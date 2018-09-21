@@ -438,6 +438,7 @@ class TopConfig final {
   inline virtual void electronIsolationLoose(const std::string& iso) {if(!m_configFixed){m_electronIsolationLoose = iso;}}
   void electronIsolationSF(std::string const & iso) {if(!m_configFixed){m_electronIsolationSF = iso;}}
   void electronIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_electronIsolationSFLoose = iso;}}
+  inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
   inline virtual const std::string& electronID()     const {return m_electronID;   }
@@ -451,6 +452,7 @@ class TopConfig final {
   inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
+  inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
 
   // Photon configuration
   inline virtual void photonPtcut(const float pt)             {if(!m_configFixed){m_photon_configuration.pt = pt;}}
@@ -510,12 +512,14 @@ class TopConfig final {
   inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
   inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
+  inline virtual bool  useRCJetAdditionalSubstructure() const {return m_useRCJetAdditionalSubstructure;}
  
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
   inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
+  inline virtual void useRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useRCJetAdditionalSubstructure = use;}}
   
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
@@ -524,6 +528,7 @@ class TopConfig final {
   inline virtual const std::string& VarRCJetRho() const {return m_VarRCJetRho;}
   inline virtual const std::string& VarRCJetMassScale() const {return m_VarRCJetMassScale;}
   inline virtual bool  useVarRCJetSubstructure() const {return m_useVarRCJetSubstructure;}
+  inline virtual bool  useVarRCJetAdditionalSubstructure() const {return m_useVarRCJetAdditionalSubstructure;}
 
   inline virtual void VarRCJetPtcut(const float pt)      {if(!m_configFixed){m_VarRCJetPtcut = pt;}}
   inline virtual void VarRCJetEtacut(const float eta)    {if(!m_configFixed){m_VarRCJetEtacut = eta;}}
@@ -532,6 +537,7 @@ class TopConfig final {
   inline virtual void VarRCJetRho(const std::string& rho) {if(!m_configFixed){m_VarRCJetRho = rho;}}
   inline virtual void VarRCJetMassScale(const std::string& mass_scale) {if(!m_configFixed){m_VarRCJetMassScale = mass_scale;}}
   inline virtual void useVarRCJetSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetSubstructure = use;}}
+  inline virtual void useVarRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetAdditionalSubstructure = use;}}
 
   inline virtual void jetUncertainties_BunchSpacing( const std::string& s ){if(!m_configFixed){m_jetUncertainties_BunchSpacing = s;}}
   inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
@@ -596,10 +602,6 @@ class TopConfig final {
     if(!m_configFixed)
       m_tau_configuration_loose.fileName = s;
   }
-  // Applying new tau energy calibration
-  inline virtual void applyTauMVATES(bool apply) {
-    m_applyTauMVATES = apply;
-  }
 
   // Tau configuration getters
   inline virtual float tauPtcut() const {
@@ -631,7 +633,7 @@ class TopConfig final {
   }
   // Applying new tau energy calibration
   inline bool applyTauMVATES() {
-    return m_applyTauMVATES;
+    return true;
   }
 
   // photon getters
@@ -1112,6 +1114,7 @@ class TopConfig final {
 
   std::string m_electronIDDecoration;
   std::string m_electronIDLooseDecoration;
+  bool m_useElectronChargeIDSelection;
 
   // Muon configuration
   float m_muonPtcut; // muon object selection pT cut
@@ -1158,6 +1161,7 @@ class TopConfig final {
   float m_RCJetTrimcut;
   float m_RCJetRadius;
   bool  m_useRCJetSubstructure;
+  bool  m_useRCJetAdditionalSubstructure;
   
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
@@ -1167,6 +1171,7 @@ class TopConfig final {
   std::string m_VarRCJetRho;
   std::string m_VarRCJetMassScale;
   bool  m_useVarRCJetSubstructure;
+  bool  m_useVarRCJetAdditionalSubstructure;
 
   // these are needed for the top mass analysis, per default should be 1.0
   float m_JSF;
@@ -1188,9 +1193,6 @@ class TopConfig final {
     // pT cut on taus
     float pt = 20000;
   } m_tau_configuration, m_tau_configuration_loose;
-
-  // Applying new tau energy calibration
-  bool m_applyTauMVATES = false;
 
   // photon configuration
   struct {
