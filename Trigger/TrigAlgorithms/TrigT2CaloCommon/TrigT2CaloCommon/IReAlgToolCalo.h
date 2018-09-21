@@ -100,7 +100,7 @@ class IReAlgToolCalo: public virtual IAlgTool,
 			       const IRoiDescriptor& /*roi*/,
 			       const CaloDetDescrElement*& /*caloDDE*/,
                                const EventContext* /*context*/
-			        ) const {return StatusCode::SUCCESS;}
+			        ) const = 0;
 
     /// obsolete 
     virtual StatusCode execute(xAOD::TrigEMCluster& /*ptrigEMCluster*/
