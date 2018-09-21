@@ -250,7 +250,11 @@ class L2EFChain_met(L2EFChainDef):
             elif  self.chainPart['trigType'] == "te":
                 theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d'% threshold,ef_thr=threshold*GeV)
             else:               
-                theEFMETHypo = EFMetHypoXE('EFMetHypo_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
+                LArTag=''
+                if "LArH11off" in addInfo: LArTag += '_LArH11off'
+                if "LArH12off" in addInfo: LArTag += '_LArH12off'
+                if "METphi" in addInfo: LArTag += '_METphi'
+                theEFMETHypo = EFMetHypoXE('EFMetHypo'+LArTag+'_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
 
         else:
             log.warning("MET EF algorithm not recognised")
