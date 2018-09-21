@@ -56,15 +56,7 @@ namespace CP
     std::string m_primaryVertices {"PrimaryVertices"};
 
     /// \}
-    
 
-    /// \brief the smearing tool cast to an ISystematicsTool
-    ///
-    /// Normally selection tools don't have systematics, but I believe
-    /// I have seen one or two with systematics, so I added that
-    /// possibility in.
-  private:
-    ISystematicsTool *m_systematicsTool {nullptr};
 
     /// \brief the systematics list we run
   private:
