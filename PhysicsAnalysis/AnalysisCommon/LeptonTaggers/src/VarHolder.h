@@ -54,7 +54,11 @@ namespace Prompt
       MV2c10,
       MV2c10rnn,
       SV1,
-      JetF
+      JetF,
+      JetPt,
+      JetEta,
+      JetPhi,
+      JetM,
     };
 
     int RegisterAllVars();

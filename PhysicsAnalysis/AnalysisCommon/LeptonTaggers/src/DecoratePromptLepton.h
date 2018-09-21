@@ -131,6 +131,8 @@ namespace Prompt
 
     std::vector<std::string>              m_stringIntVars;
     std::vector<std::string>              m_stringFloatVars;
+    std::vector<std::string>              m_stringIntSpecVars;
+    std::vector<std::string>              m_stringFloatSpecVars;
 
     bool                                  m_printAuxVars;
     bool                                  m_printTime;
@@ -139,10 +141,15 @@ namespace Prompt
     const xAOD::ElectronContainer*        m_electrons;
     const xAOD::MuonContainer*            m_muons;
     const xAOD::TauJetContainer*          m_taus;
-
-    std::vector<Prompt::Def::Var>         m_intVars;
-    std::vector<Prompt::Def::Var>         m_floatVars;
-    std::vector<Prompt::Def::Var>         m_allVars;
+    
+    // List of BDT inputs taken from property
+    std::vector<Prompt::Def::Var>         m_intVars;   
+    std::vector<Prompt::Def::Var>         m_floatVars; 
+    std::vector<Prompt::Def::Var>         m_allVars;   
+    // List of spectator variables taken from property i.e. variables not used by BDT, but the decorations will be made for studies.
+    std::vector<Prompt::Def::Var>         m_intSpecVars;  
+    std::vector<Prompt::Def::Var>         m_floatSpecVars;
+    std::vector<Prompt::Def::Var>         m_allSpecVars;
 
     shortDecoratorMap                     m_shortMap;
     floatDecoratorMap                     m_floatMap;

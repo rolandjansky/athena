@@ -18,17 +18,17 @@ def ConfigureAntiKt4PV0TrackJets(privateSeq, name):
     replaceAODReducedJets(['AntiKt4PV0TrackJets'], privateSeq, name)
 
 #------------------------------------------------------------------------------
-def GetDecoratePromptLeptonAlgs(name=""):
+def GetDecoratePromptLeptonAlgs(name="", addSpectators=False):
 
     algs  = []
 
     if name == "" or name == "Electrons":
-        algs += [DecoratePromptLepton("PromptLeptonIso",  "Electrons", "AntiKt4PV0TrackJets")]
-        algs += [DecoratePromptLepton("PromptLeptonVeto", "Electrons", "AntiKt4PV0TrackJets")]
+        algs += [DecoratePromptLepton("PromptLeptonIso",  "Electrons", "AntiKt4PV0TrackJets",addSpectators)]
+        algs += [DecoratePromptLepton("PromptLeptonVeto", "Electrons", "AntiKt4PV0TrackJets",addSpectators)]
 
     if name == "" or name == "Muons":
-        algs += [DecoratePromptLepton("PromptLeptonIso",  "Muons", "AntiKt4PV0TrackJets")]
-        algs += [DecoratePromptLepton("PromptLeptonVeto", "Muons", "AntiKt4PV0TrackJets")]
+        algs += [DecoratePromptLepton("PromptLeptonIso",  "Muons", "AntiKt4PV0TrackJets",addSpectators)]
+        algs += [DecoratePromptLepton("PromptLeptonVeto", "Muons", "AntiKt4PV0TrackJets",addSpectators)]
 
     return algs
 
@@ -43,7 +43,7 @@ def GetDecoratePromptTauAlgs():
     return algs
 
 #------------------------------------------------------------------------------
-def GetExtraPromptVariablesForDxAOD(name=""):
+def GetExtraPromptVariablesForDxAOD(name="", addSpectators=False):
 
     prompt_lep_vars = []
 
@@ -53,6 +53,10 @@ def GetExtraPromptVariablesForDxAOD(name=""):
     prompt_vars += "PromptLeptonInput_LepJetPtFrac.PromptLeptonInput_DRlj."
     prompt_vars += "PromptLeptonInput_PtFrac.PromptLeptonInput_PtRel."
     prompt_vars += "PromptLeptonInput_DL1mu.PromptLeptonInput_rnnip."
+    prompt_vars += "PromptLeptonInput_TopoEtCone30Rel.PromptLeptonInput_PtVarCone30Rel."
+
+    if addSpectators :
+        prompt_vars += "PromptLeptonInput_JetPt.PromptLeptonInput_JetEta.PromptLeptonInput_JetPhi.PromptLeptonInput_JetM."
     
     if name == "" or name == "Electrons":
         prompt_lep_vars += ["Electrons.%s" %prompt_vars]
@@ -80,7 +84,7 @@ def GetExtraPromptTauVariablesForDxAOD():
     return prompt_lep_vars
 
 #------------------------------------------------------------------------------
-def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name):
+def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=False):
 
     # Check lepton container is correct
     if lepton_name == 'Electrons':
@@ -107,6 +111,11 @@ def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name):
 
     alg.StringIntVars   = getStringIntVars  (BDT_name)
     alg.StringFloatVars = getStringFloatVars(BDT_name)
+
+    if addSpectators :
+        alg.StringIntSpecVars   = getStringIntSpecVars  (BDT_name)
+        alg.StringFloatSpecVars = getStringFloatSpecVars(BDT_name)
+
 
     log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
 
@@ -212,6 +221,41 @@ def getStringFloatVars(BDT_name):
                        'ip3',
                        'LepJetPtFrac',
                        'DRlj']
+
+    else:
+        raise Exception('getStringFloatVars - unknown alg: "%s"' %BDT_name)
+   
+    return float_vars
+
+#------------------------------------------------------------------------------
+def getStringIntSpecVars(BDT_name):
+
+    int_vars = []
+   
+    return int_vars
+
+#------------------------------------------------------------------------------
+def getStringFloatSpecVars(BDT_name):
+
+    float_vars = []
+
+    if BDT_name == "PromptLeptonIso":
+        float_vars += ['JetPt',
+                       'JetEta',
+                       'JetPhi',
+                       'JetM']
+
+    elif BDT_name == "PromptLeptonVeto":
+        float_vars += ['JetPt',
+                       'JetEta',
+                       'JetPhi',
+                       'JetM']
+
+    elif BDT_name == "PromptTauIso":
+        float_vars += []
+
+    elif BDT_name == "PromptTauVeto":
+        float_vars += []
 
     else:
         raise Exception('getStringFloatVars - unknown alg: "%s"' %BDT_name)
