@@ -175,7 +175,14 @@ class L2EFChain_met(L2EFChainDef):
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
                 mucorr= '_wMu' if EFmuon else '' 
-                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                LArTag=''
+                if "LArH11off" in addInfo: LArTag += '_LArH11off'
+                if "LArH12off" in addInfo: LArTag += '_LArH12off'
+                if "METphi" in addInfo: LArTag += '_METphi'
+                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC'+LArTag+'_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+
+
+
 
             if EFrecoAlg=='pufittrack':
                 calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')

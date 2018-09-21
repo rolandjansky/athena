@@ -338,7 +338,7 @@ METChainParts = {
     'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit', 'pufittrack'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks','FTK'],
+    'addInfo'      : ['FStracks','FTK','LArH11offMETphi','LArH12offMETphi','LArH11offLArH12offMETphi'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {

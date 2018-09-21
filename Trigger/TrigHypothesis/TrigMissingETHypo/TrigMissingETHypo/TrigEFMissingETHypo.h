@@ -110,6 +110,10 @@ class TrigEFMissingETHypo : public HLT::HypoAlgo {
   bool m_doEMScaleTC;        //!< switch on/off the use of EM scale information (in topo. clusters)
   bool m_doOnlyCalcCentralMET; //!< calculate MET only with central contributions
 
+  bool m_doLArH11off; //! LAr H11 off or not 
+  bool m_doLArH12off; //! LAr H12 off or not
+  bool m_doMETphicut; //! switch on/off MET phi cut for LAr H11/H12
+
   bool m_monitorMeasuredEnergies;  // Heavy Ion Monitoring
   
   bool  m_doL1L2FEBTest;        // L1=L2 vs FEB MET test
