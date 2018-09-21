@@ -795,6 +795,10 @@ def setupMenu():
 # L1XE50
         ['xe110_pufit_xe60_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE50'] ]],
 
+        ['xe110_pufit_LArH11offMETphi_xe65_LArH11offMETphi_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit_LArH11offMETphi','x65_LArH11offMETphi_L1XE50'] ]],
+        ['xe110_pufit_LArH12offMETphi_xe65_LArH12offMETphi_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit_LArH12offMETphi','x65_LArH12offMETphi_L1XE50'] ]],
+        ['xe110_pufit_LArH11offLArH12offMETphi_xe65_LArH11offLArH12offMETphi_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit_LArH11offLArH12offMETphi','x65_LArH11offLArH12offMETphi_L1XE50'] ]],
+
 
 # L1XE55
         ['xe110_pufit_xe60_L1XE55', 'L1_XE55', ['L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE55'] ]],
