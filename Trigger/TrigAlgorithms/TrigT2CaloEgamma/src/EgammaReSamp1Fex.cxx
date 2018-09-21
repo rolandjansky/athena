@@ -53,6 +53,7 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
           cluster_in_barrel = caloDDE->is_lar_em_barrel();
 
         ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
+	ATH_CHECK( context != nullptr );
 
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->start();
@@ -62,11 +63,9 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 	LArTT_Selector<LArCellCont> sel;
 	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
-        if ( context ) {
-                m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
-                iBegin = sel.begin();
-                iEnd = sel.end();
-        } 
+        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+        iBegin = sel.begin();
+        iEnd = sel.end();
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->stop();
         // Algorithmic time

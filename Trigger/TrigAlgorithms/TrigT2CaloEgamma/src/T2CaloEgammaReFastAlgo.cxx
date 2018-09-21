@@ -48,7 +48,7 @@ T2CaloEgammaReFastAlgo::T2CaloEgammaReFastAlgo(const std::string & name, ISvcLoc
     declareProperty("StoreCells",m_storeCells,"store cells in container attached to RoI");
     declareProperty("RhoEta",m_rhoEta);
     declareProperty("ZEta",m_zEta);
-    declareProperty("IReAlgToolList", m_emAlgTools,"list of AlgToolCalo. These tools perform FEX.");
+    declareProperty("IReAlgToolList", m_emAlgTools,"list of ReAlgToolCalo. These tools perform FEX.");
     declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
     declareProperty("ClustersName", m_clusterContainerKey = std::string("CaloClusters"), "Calo cluster container");
 }

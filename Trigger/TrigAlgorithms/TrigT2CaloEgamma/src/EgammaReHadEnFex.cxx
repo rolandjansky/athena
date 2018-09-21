@@ -57,6 +57,7 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   if ( msg().level() <= MSG::DEBUG ) 
         msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endmsg;
 #endif
+  ATH_CHECK( context != nullptr );
 
   double deta = 0.;           // eta difference current cell - seed
   double dphi = 0.;           // phi difference current cell - seed
@@ -93,11 +94,9 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         LArTT_Selector<LArCellCont> sel;
 	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
-        if ( context ) {
-                m_dataSvc->loadCollections( *context, roi, TTHEC, sampling, sel );
-                iBegin = sel.begin();
-                iEnd = sel.end();
-        } 
+        m_dataSvc->loadCollections( *context, roi, TTHEC, sampling, sel );
+        iBegin = sel.begin();
+        iEnd = sel.end();
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
         // Algorithmic time

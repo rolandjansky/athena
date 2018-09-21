@@ -52,6 +52,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         // MsgStream log(msgSvc(), name());
         ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
+	ATH_CHECK( context != nullptr );
 
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->start();
@@ -61,11 +62,9 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         LArTT_Selector<LArCellCont> sel;
 	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
-        if ( context ) {
-                m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
-                iBegin = sel.begin();
-                iEnd = sel.end();
-        } 
+        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+        iBegin = sel.begin();
+        iEnd = sel.end();
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
         // Algorithmic time
@@ -100,6 +99,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
       dphi = fabs( phiCell - energyPhi );
 
       if ( dphi > M_PI ) dphi = 2.* M_PI - dphi;   // wrap 0 -> 6.28
+       // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
        bool condition37 = cluster_in_barrel && ( (deta <= 0.0375+0.0005) && (dphi <= 0.0875+0.0005) );
        bool condition55 = (!cluster_in_barrel) && ( (deta <= 0.0625+0.0005) && (dphi <= 0.0625+0.0005) );
 
@@ -141,11 +141,9 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         sampling = 3;
 
         LArTT_Selector<LArCellCont> sel3;
-        if ( context ) {
-                m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel3 );
-                iBegin = sel3.begin();
-                iEnd = sel3.end();
-        }
+        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel3 );
+        iBegin = sel3.begin();
+        iEnd = sel3.end();
 /*
         if ( m_saveCells ){
            m_data->storeCells(iBegin,iEnd,*m_CaloCellContPoint,m_cellkeepthr);
@@ -170,6 +168,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
       dphi = fabs( phiCell - energyPhi );
       if ( dphi > M_PI ) dphi = 2.* M_PI - dphi;   // wrap 0 -> 6.28
       
+       // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
        bool condition37 = cluster_in_barrel && ( (deta <= 0.0375+0.001) && (dphi <= 0.0875+0.001) );
        bool condition55 = (!cluster_in_barrel) && ( (deta <= 0.0625+0.001) && (dphi <= 0.0625+0.001) );
 

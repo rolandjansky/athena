@@ -56,6 +56,7 @@ class EgammaReSamp2Fex: public IReAlgToolCalo {
                 	*(new MsgStream(AlgTool::msgSvc(), name()))
 			<< MSG::FATAL 
 			<< "Could not init base class IReAlgTooCalo" << endmsg;
+			return StatusCode::FAILURE;
                 }
                 std::string basename(name().substr(25,5)+".");
 		//std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
