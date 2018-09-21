@@ -11,6 +11,6 @@ Generate_tf.py --ecmEnergy=13000 --runNumber=361000 --maxEvents=5 \
     --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID361xxx/MC15.361000.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ0.py \
     --outputEVNTFile=test_jets.EVNT.pool.root \
 
-rm -fr _joproxy15
-
 echo "art-result: $? generate"
+
+rm -fr _joproxy15
