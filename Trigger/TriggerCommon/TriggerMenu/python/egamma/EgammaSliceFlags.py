@@ -83,7 +83,7 @@ class ringerVersion (JobProperty):
     """ Version ringer tunes """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='RingerSelectorTools/TrigL2_20180903_v9/'
+    StoredValue='RingerSelectorTools/TrigL2_20180823_v9/'
 
 _flags.append(ringerVersion)
 
@@ -151,7 +151,7 @@ def run2ConfigAction(run2Flag):
         EgammaSliceFlags.doSuperClusters=False
     elif run2Flag=='2018':
         log.info('EgammaSliceFlags set for %s',run2Flag)
-        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20180125_v8/'
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20180823_v9/'
         EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20180312/'
         EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
         EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'                       # Hey! Here we need to use new calibration constants....
