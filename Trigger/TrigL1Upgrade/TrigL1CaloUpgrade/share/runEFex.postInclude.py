@@ -2,6 +2,15 @@
 
 if ( "StreamAOD" in dir() ) :
 
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
+  #theLArCondSvc=LArFlatConditionSvc(DoSuperCells=SuperCells,DoRegularCells=IsFlat)
+  theLArCondSvc=LArFlatConditionSvc(DoSuperCells=True,DoRegularCells=True)
+  svcMgr+=theLArCondSvc
+  svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
+
+  from CaloTools.CaloLumiBCIDSCToolDefault import CaloLumiBCIDSCToolDefault
+  ToolSvc+=CaloLumiBCIDSCToolDefault()
+
   from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SuperCellBCIDAlg
   from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloEFex
   from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloTauFex
