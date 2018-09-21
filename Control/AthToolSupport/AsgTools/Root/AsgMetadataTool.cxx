@@ -139,7 +139,6 @@ namespace asg {
       // Tell the user what's happening:
       ATH_MSG_VERBOSE( "Callback received with incident: " << inc.type() );
 
-      ATH_MSG_INFO("BLARG FUCK");
       // Call the appropriate member function:
       if( inc.type() == IncidentType::BeginInputFile ) {
          m_beginInputFileCalled = true;
