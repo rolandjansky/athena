@@ -34,7 +34,7 @@ DerivationFrameworkJob += SeqSUSY16
 
 # used both for thinning and for skimming
 muonsRequirements = '(Muons.pt > 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-electronsRequirements = '(Electrons.pt > 3*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
+electronsRequirements = '(Electrons.pt > 4.0*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 photonsRequirements = '(abs(Photons.eta)<2.6) && (Photons.pt > 20*GeV)'
 if not DerivationFrameworkIsMonteCarlo:
   muonsRequirements = '(Muons.pt > 3.0*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
