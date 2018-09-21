@@ -94,7 +94,7 @@ class MultiComponentStateAssembler : public AthAlgTool, virtual public IMultiCom
 
 inline bool Trk::MultiComponentStateAssembler::isStateValid ( Cache& cache) const
 {
-  return cache.multiComponentState->empty();
+  return !cache.multiComponentState->empty();
 }
 
 #endif
