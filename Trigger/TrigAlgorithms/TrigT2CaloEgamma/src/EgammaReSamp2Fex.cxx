@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
 // 
-// NAME:     EgammaSamp2Fex.cxx
+// NAME:     EgammaReSamp2Fex.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
 // 
 // AUTHOR:   M.P. Casado
@@ -18,13 +18,13 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaSamp2Fex.h"
+#include "TrigT2CaloEgamma/EgammaReSamp2Fex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
 #include "IRegionSelector/IRoiDescriptor.h"
 
-EgammaSamp2Fex::EgammaSamp2Fex(const std::string & type, const std::string & name, 
-                   const IInterface* parent): IAlgToolCalo(type, name, parent)
+EgammaReSamp2Fex::EgammaReSamp2Fex(const std::string & type, const std::string & name, 
+                   const IInterface* parent): IReAlgToolCalo(type, name, parent)
 		   {
 #ifndef NDEBUG
 	// Create Geometry object
@@ -36,12 +36,13 @@ EgammaSamp2Fex::EgammaSamp2Fex(const std::string & type, const std::string & nam
 	declareProperty("MaxDphiHotCell",m_maxHotCellDphi=1.0);
 }
 
-EgammaSamp2Fex::~EgammaSamp2Fex(){
+EgammaReSamp2Fex::~EgammaReSamp2Fex(){
 }
 
-StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
+StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi,
-				   const CaloDetDescrElement*& caloDDE) { 
+				   const CaloDetDescrElement*& caloDDE,
+                                   const EventContext* context ) const { 
   
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
@@ -50,33 +51,19 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         ATH_MSG_DEBUG( "in execute(TrigEMCluster&)" );
 
+	ATH_CHECK( context != nullptr );
+
 	// Time to access RegionSelector
 	if (!m_timersvc.empty()) m_timer[1]->start();      
 
 	// Region Selector, sampling 2
 	int sampling = 2;
 
-	// Get detector offline ID's for Collections
-	m_data->RegionSelector( sampling, roi );
-
-	// Finished to access RegionSelector
-	if (!m_timersvc.empty()) m_timer[1]->stop();      
-	// Time to access Collection (and ByteStreamCnv ROBs)
-	if (!m_timersvc.empty()) m_timer[2]->start();      
-
-	if ( m_data->LoadCollections(m_iBegin,m_iEnd).isFailure() ){
-		
-		if (!m_timersvc.empty()) m_timer[2]->stop();      
-		return StatusCode::SUCCESS;
-	}
-	if ( m_error ) {
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-        }
-	m_error|=m_data->report_error();
-	if ( m_saveCells && !m_error ){
-	   m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
-        }
+	LArTT_Selector<LArCellCont> sel;
+	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
+	m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+	iBegin = sel.begin();
+	iEnd = sel.end();
 	// Finished to access Collection
 	if (!m_timersvc.empty()) m_timer[2]->stop();      
 	// Algorithmic time
@@ -114,8 +101,8 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   const LArCell* larcell;
   const LArCell* seedCell = NULL;
   const LArCell* hotCell = NULL;
-  for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
-      larcell=(*m_it);
+  for(it = iBegin;it != iEnd; ++it) {
+      larcell=(*it);
       if (larcell->energy() > seedEnergy) { // Hottest cell seach
 	float deta=std::abs(etaL1-larcell->eta());
 	if ( deta < m_maxHotCellDeta ){ // Eta check is faster. Do it First
@@ -145,8 +132,8 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   }
 
     std::map<const LArCell*,float> windows;
-    for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
-      larcell=(*m_it);
+    for(it = iBegin;it != iEnd; ++it) {
+      larcell=(*it);
         float deta=std::abs(seedEta-larcell->eta());
         if ( deta < 0.025+0.002 ){ // Eta check is faster. Do it First
            float dphi=std::abs(seedPhi-larcell->phi());
@@ -160,9 +147,9 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         } // End of deta check
       ncells++;
   }
-  for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
+  for(it = iBegin;it != iEnd; ++it) {
 
-    const LArCell* larcell = (*m_it);
+    const LArCell* larcell = (*it);
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->et();
@@ -251,9 +238,9 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double totalEnergy = 0;
   CaloSampling::CaloSample samp;
 
-  for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
+  for(it = iBegin;it != iEnd; ++it) {
 
-    const LArCell* larcell = (*m_it);
+    const LArCell* larcell = (*it);
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -413,9 +400,9 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
     m_error|=0x40000000;
   }
 
-  for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
+  for(it = iBegin;it != iEnd; ++it) {
 
-    const LArCell* larcell = (*m_it);
+    const LArCell* larcell = (*it);
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();

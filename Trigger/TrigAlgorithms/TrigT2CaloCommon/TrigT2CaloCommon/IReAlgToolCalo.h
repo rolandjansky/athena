@@ -1,27 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
  
- NAME:     IAlgToolCalo.h
+ NAME:     IReAlgToolCalo.h
  PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloCommon
  
- AUTHOR:   M.P. Casado
+ AUTHOR:   D. Oliveira Damazio based on P. Casado work
  
  PURPOSE:  Serve as a basis for the TrigT2Calo Tools
 	   providing some commom framework basis, like
 	   data access via appropriated pointers and
 	   ByteStream converter objects. Also, time
 	   measurement items.
- KNOWTOINHERIT : TrigT2CaloEgamma/EgammaSamp2Fex,
-	   EgammaSamp1Fex, EgammaEmEnFex, EgammaHadEnFex
-	   TrigT2CaloTau/TauSamp2Fex,TauSamp1Fex,
-	   TauEmEnFex,TauHadEnFex
+ KNOWTOINHERIT : TrigT2CaloEgamma/EgammaReSamp2Fex,
+	   EgammaReSamp1Fex, EgammaReEmEnFex, EgammaReHadEnFex
  *******************************************************************/
 
-#ifndef TRIGT2CALOCOMMON_IALGTOOLCALO_H 
-#define TRIGT2CALOCOMMON_IALGTOOLCALO_H
+#ifndef TRIGT2CALOCOMMON_IREALGTOOLCALO_H 
+#define TRIGT2CALOCOMMON_IREALGTOOLCALO_H
 
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -55,33 +53,33 @@ class TrigTauCluster;
 class T2CaloConfig;
 class EventContext;
 
-static const InterfaceID IID_IAlgToolCalo("IAlgToolCalo",1,0);
+static const InterfaceID IID_IReAlgToolCalo("IReAlgToolCalo",1,0);
 
-static const CaloDetDescrElement* caloDDENull(nullptr);
+static const CaloDetDescrElement* caloReDDENull(nullptr);
 
 /** Base Class for Tools used for Egamma and Tau Feature
 	Extraction Algorithms */
-class IAlgToolCalo: public virtual IAlgTool, 
+class IReAlgToolCalo: public virtual IAlgTool, 
                        public AthAlgTool {
   public:
     /** Constructor */
-    IAlgToolCalo(const std::string & type, const std::string & name,
+    IReAlgToolCalo(const std::string & type, const std::string & name,
                  const IInterface* parent) : AthAlgTool(type,name,parent),
-		 m_timersvc("TrigTimerSvc","IAlgToolCalo"),
+		 m_timersvc("TrigTimerSvc","IReAlgToolCalo"),
 		 m_geometryTool("T2GeometryTool/T2GeometryTool", this ),
-		 m_data("TrigDataAccess/TrigDataAccess"),
-                 m_caloDDE(0), m_cellkeepthr(1e5) {
-	 declareInterface<IAlgToolCalo>(this);
+		 m_dataSvc("TrigCaloDataAccessSvc/TrigCaloDataAccessSvc",name),
+                 m_caloDDE(0), m_cellkeepthr(1e5), m_context(nullptr) {
+	 declareInterface<IReAlgToolCalo>(this);
          declareProperty("SaveCellsInContainer",m_saveCells=false,"Enables saving of the RoI Calorimeter Cells in StoreGate");
          declareProperty("TrigTimerSvc",m_timersvc,"Trigger Timer Service for benchmarking algorithms");
          declareProperty("T2GeometryTool",m_geometryTool,
 		"Tool to check that a cells are contained in a given cluster - for different cluster sizes");
-         declareProperty("trigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
+         declareProperty("trigDataAccessMT",m_dataSvc,"Data Access for LVL2 Calo Algorithms in MT");
          declareProperty("ThresholdKeepCells",m_cellkeepthr,"Threshold to keep cells into container");
-	 if ( caloDDENull != nullptr ) return;
+	 if ( caloReDDENull != nullptr ) return;
     }
     /** Destructor */
-    virtual ~IAlgToolCalo() { }
+    virtual ~IReAlgToolCalo() { }
     /** Interface ID for a virtual class */
     static const InterfaceID& interfaceID();
 
@@ -93,14 +91,16 @@ class IAlgToolCalo: public virtual IAlgTool,
     StatusCode finalize();
     /** @brief This is the execute method for Egamma Algorithms. These
     * interface must be common to allow all tools to be called
-    * within T2CaloEgamma::hltExecute as a vector of IAlgToolCalos. 
+    * within T2CaloEgamma::hltExecute as a vector of IReAlgToolCalos. 
     * @param[out] ptrigEMCluster : cluster to be filled with FEX results.
     * @param[in] eta/phi-min/max : limits of RoI.
     */
 
     virtual StatusCode execute(xAOD::TrigEMCluster& /*ptrigEMCluster*/,
 			       const IRoiDescriptor& /*roi*/,
-			       const CaloDetDescrElement*& /*caloDDE*/) {return StatusCode::SUCCESS;}
+			       const CaloDetDescrElement*& /*caloDDE*/,
+                               const EventContext* /*context*/
+			        ) const = 0;
 
     /// obsolete 
     virtual StatusCode execute(xAOD::TrigEMCluster& /*ptrigEMCluster*/
@@ -108,21 +108,11 @@ class IAlgToolCalo: public virtual IAlgTool,
 		, double /*phimax*/){return StatusCode::SUCCESS;}
     /** @brief This is the execute method for Tau Algorithms. These
     * interface must be common to allow all tools to be called
-    * within T2CaloTau::hltExecute as a vector of IAlgToolCalos. 
+    * within T2CaloTau::hltExecute as a vector of IReAlgToolCalos. 
     * @param[out] ptrigTauCluster : cluster to be filled with FEX results.
     * @param[in] eta/phi-min/max : limits of RoI.
     */
-    virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/,
-				   const IRoiDescriptor& /*roi*/,
-				   const CaloDetDescrElement*& /*caloDDE*/
-                                   ) {return HLT::OK;} 
-
-    /// obsolete
-    virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/
-		,double /*etamin*/, double /*etamax*/, double /*phimin*/
-		,double /*phimax*/, double /*RoIeta*/, double /*RoIphi*/) 
-		{return HLT::OK;} 
-    /** Expose error for a given IAlgToolCalo */
+    /** Expose error for a given IReAlgToolCalo */
     uint32_t report_error() const { return m_error; };
 
     /** enumerate tau-specific errors */
@@ -161,22 +151,17 @@ class IAlgToolCalo: public virtual IAlgTool,
          /** Store All Calorimeter Cells in RoI in an StoreGate Container. */
          void storeCells(void);
 
-	/** iterators to LArCells. To be used when online
-	LArCellCont (fast ByteStream Decoder) are to be used.
-	Used as input for TrigDataAccess::LoadCollections */
-	LArTT_Selector<LArCellCont>::const_iterator m_iBegin;
-	LArTT_Selector<LArCellCont>::const_iterator m_iEnd;
-	LArTT_Selector<LArCellCont>::const_iterator m_it;
 	/** iterators to TileCells. To be used when on/offline
 	TileCellCont/IDC (fast/slow ByteStream Decoder) are to be used.
-	Used as input for TrigDataAccess::LoadCollections */
+	Used as input for TrigDataAccess::LoadCollections 
 	TileCellCollection::const_iterator m_itBegin;
 	TileCellCollection::const_iterator m_itEnd;
 	TileCellCollection::const_iterator m_itt;
+	*/
 
 	/** DataHandle to TrigTimerSvc */
 	ServiceHandle<ITrigTimerSvc> m_timersvc;
-	/** Timing measure items in all IAlgToolCalos. 
+	/** Timing measure items in all IReAlgToolCalos. 
 	m_timer[0] is the complete exec timer. m_timer[1] is the
 	Region Selector timer, m_timer[2] is the LoadCollection
 	timer (Data Preparation), m_timer[3] is the real algorithmic
@@ -198,8 +183,8 @@ class IAlgToolCalo: public virtual IAlgTool,
 	for EmEn and three for HadEn - to be studied) */
 	ToolHandle<IT2GeometryTool> m_geometryTool;
 	/** Object  that provides data access in a Region of
-	Interest. See TrigDataAccess for more details. */
-	ToolHandle<ITrigDataAccess> m_data;
+	Interest. See TrigCaloDataAccessSvc for more details. */
+	ServiceHandle<ITrigCaloDataAccessSvc> m_dataSvc;
 	/** Calorimeter Id Manager for calorimeter part
 	determination (Barrel versus EndCap) */
 	const DataHandle<CaloIdManager>        m_larMgr;
@@ -211,18 +196,20 @@ class IAlgToolCalo: public virtual IAlgTool,
         // Objects that the Tools should not worry about
   protected:
 	bool m_lardecoded, m_tiledecoded;
-	/** error control */
-        uint32_t m_error;
+	/** error control (not really used for MT case) */
+        mutable uint32_t m_error;
         /** caloDDE (of the cluster 2nd layer hottest cell) */
         const CaloDetDescrElement* m_caloDDE;      
         /** Threshold to keep cells  in RoI */
 	float m_cellkeepthr;
+        /** Pointer of the context */
+        const EventContext* m_context;
   private:
 };
 
-inline const InterfaceID& IAlgToolCalo::interfaceID()
+inline const InterfaceID& IReAlgToolCalo::interfaceID()
 {
-        return IID_IAlgToolCalo;
+        return IID_IReAlgToolCalo;
 }
 
 #endif

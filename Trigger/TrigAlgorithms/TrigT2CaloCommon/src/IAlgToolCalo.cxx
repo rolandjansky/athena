@@ -37,7 +37,6 @@ StatusCode IAlgToolCalo::initialize()
 
         ATH_CHECK( detStore()->retrieve(m_larMgr) );
 	if ( !m_data.empty() ) ATH_CHECK( m_data.retrieve() );
-	if ( !m_dataSvc.empty() ) ATH_CHECK( m_dataSvc.retrieve() );
         ATH_CHECK( m_geometryTool.retrieve() );
 
         // Initialize timing service in order to perform some measures

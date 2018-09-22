@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
 // 
-// NAME:     EgammaHadEnFex.cxx
+// NAME:     EgammaReHadEnFex.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
 // 
 // AUTHOR:   M.P. Casado
@@ -16,38 +16,39 @@
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaHadEnFex.h"
+#include "TrigT2CaloEgamma/EgammaReHadEnFex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 #include <math.h>
 
 inline double check_tilemin(const double x){
-const double dphi=0.09817477;
-const double oneoverdphi=1.0/0.09817477;
-if(x>=0)
+   const double dphi=0.09817477;
+   const double oneoverdphi=1.0/0.09817477;
+   if(x>=0)
         return (dphi*ceilf(x*oneoverdphi))+0.01;
-else
+   else
         return (-dphi*floorf(-x*oneoverdphi))+0.01;
 }
 inline double check_tilemax(const double x){
-const double dphi=0.09817477;
-const double oneoverdphi=1.0/0.09817477;
-if(x>=0)
+   const double dphi=0.09817477;
+   const double oneoverdphi=1.0/0.09817477;
+   if(x>=0)
         return (dphi*floorf(x*oneoverdphi))-0.01;
-else
+   else
         return (-dphi*ceilf(-x*oneoverdphi))-0.01;
 }
 
-EgammaHadEnFex::EgammaHadEnFex(const std::string & type, const std::string & name, 
-                   const IInterface* parent): IAlgToolCalo(type, name, parent)
+EgammaReHadEnFex::EgammaReHadEnFex(const std::string & type, const std::string & name, 
+                   const IInterface* parent): IReAlgToolCalo(type, name, parent)
 		   {
 }
 
-EgammaHadEnFex::~EgammaHadEnFex(){
+EgammaReHadEnFex::~EgammaReHadEnFex(){
 }
 
-StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
+StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi,
-				   const CaloDetDescrElement*& /*caloDDE*/){
+				   const CaloDetDescrElement*& /*caloDDE*/,
+                                   const EventContext* context ) const { 
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
 	m_error=0x0;
@@ -56,6 +57,7 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   if ( msg().level() <= MSG::DEBUG ) 
         msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endmsg;
 #endif
+  ATH_CHECK( context != nullptr );
 
   double deta = 0.;           // eta difference current cell - seed
   double dphi = 0.;           // phi difference current cell - seed
@@ -90,39 +92,20 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->resume();
 
-        // Region Selector
-        // Get detector offline ID's for Collections
-	//        m_data->RegionSelector(sampling,etamin,etamax,phimin,phimax,TTHEC);
-        m_data->RegionSelector(sampling,roi,TTHEC);
-
-        if (!m_timersvc.empty()) m_timer[1]->pause();
-        // Time to access Collection (and ByteStreamCnv ROBs)
-        if (!m_timersvc.empty()) m_timer[2]->resume();
-
-	// For the first sample you will create the containers
-	// For the others no
-        if ( m_data->LoadCollections(m_iBegin,m_iEnd,sampling
-			,!sampling).isFailure() ){
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-	}
-        m_error|=m_data->report_error();
-        if ( m_error ) {
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-        }
-        if ( m_saveCells ){
-           m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
-        }
+        LArTT_Selector<LArCellCont> sel;
+	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
+        m_dataSvc->loadCollections( *context, roi, TTHEC, sampling, sel );
+        iBegin = sel.begin();
+        iEnd = sel.end();
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
         // Algorithmic time
         if (!m_timersvc.empty()) m_timer[3]->resume();
 	
-    for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
+    for(it = iBegin;it != iEnd; ++it) {
 
       ncells++;
-      const LArCell* larcell = (*m_it);
+      const LArCell* larcell = (*it);
       double etaCell = larcell->eta();
       double phiCell = larcell->phi();
       double energyCell = larcell->energy();
@@ -169,7 +152,9 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   // MS       phimin=check_tilemin(phimin);
   // MS       phimax=check_tilemax(phimax);
 	
+#ifdef DONTDO
   
+     if ( !context ) {
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->resume();
 
@@ -191,13 +176,12 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
                 return StatusCode::SUCCESS;
 	}
         m_error|=m_data->report_error();
+/*
         if ( m_error ) {
                 if (!m_timersvc.empty()) m_timer[2]->stop();
                 return StatusCode::SUCCESS;
         }
-	if ( m_saveCells ){
-           m_data->storeCells(m_itBegin,m_itEnd,*m_CaloCellContPoint,m_cellkeepthr);
-        }
+*/
 
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
@@ -229,10 +213,12 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
     }
 
    } // end of loop over cells 
+   } // end of if context
    // Algorithmic time
    if (!m_timersvc.empty()) m_timer[3]->pause();
    
   } // End of loop over TileCal drawers
+#endif // DONTDO for the moment
   rtrigEmCluster.setNCells(ncells+rtrigEmCluster.nCells() );
   if (!m_timersvc.empty())  m_timer[0]->propVal(rtrigEmCluster.nCells() );
 

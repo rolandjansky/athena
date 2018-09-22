@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
 // 
-// NAME:     EgammaEmEnFex.cxx
+// NAME:     EgammaReEmEnFex.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
 // 
 // AUTHOR:   M.P. Casado
@@ -15,13 +15,13 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaEmEnFex.h"
+#include "TrigT2CaloEgamma/EgammaReEmEnFex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 #include "TrigT2CaloEgamma/T2CalibrationEgamma.h"
 
 
-EgammaEmEnFex::EgammaEmEnFex(const std::string & type, const std::string & name, 
-                   const IInterface* parent): IAlgToolCalo(type, name, parent)
+EgammaReEmEnFex::EgammaReEmEnFex(const std::string & type, const std::string & name, 
+                   const IInterface* parent): IReAlgToolCalo(type, name, parent)
 		   {
   declareProperty( "QlCorrectionLimit",
 		    m_limit );
@@ -33,13 +33,14 @@ EgammaEmEnFex::EgammaEmEnFex(const std::string & type, const std::string & name,
 	m_calib = new T2CalibrationEgamma();
 }
 
-EgammaEmEnFex::~EgammaEmEnFex(){
+EgammaReEmEnFex::~EgammaReEmEnFex(){
 	delete m_calib;
 }
 
-StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
+StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				  const IRoiDescriptor& roi,
-				  const CaloDetDescrElement*& caloDDE) {
+				  const CaloDetDescrElement*& caloDDE,
+                                  const EventContext* context ) const{
  
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
@@ -51,6 +52,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         // MsgStream log(msgSvc(), name());
         ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
+	ATH_CHECK( context != nullptr );
 
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->start();
@@ -58,26 +60,11 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         // Region Selector, sampling 0
         int sampling = 0;
 
-        // Get detector offline ID's for Collections
-        m_data->RegionSelector(sampling, roi );
-
-        // Finished to access RegionSelector
-        if (!m_timersvc.empty()) m_timer[1]->pause(); 
-        // Time to access Collection (and ByteStreamCnv ROBs)
-        if (!m_timersvc.empty()) m_timer[2]->start();
-
-        if ( m_data->LoadCollections(m_iBegin,m_iEnd).isFailure() ){
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-	}
-        m_error|=m_data->report_error();
-        if ( m_error ) {
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-        }
-        if ( m_saveCells ){
-           m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
-        }
+        LArTT_Selector<LArCellCont> sel;
+	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
+        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+        iBegin = sel.begin();
+        iEnd = sel.end();
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
         // Algorithmic time
@@ -98,10 +85,10 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
   int ncells = 0;
   
-  for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {                                       // Should be revised for London scheme
+  for(it = iBegin;it != iEnd; ++it) {                                       // Should be revised for London scheme
     ncells++;
 
-    const LArCell* larcell = (*m_it);
+    const LArCell* larcell = (*it);
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -112,6 +99,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
       dphi = fabs( phiCell - energyPhi );
 
       if ( dphi > M_PI ) dphi = 2.* M_PI - dphi;   // wrap 0 -> 6.28
+       // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
        bool condition37 = cluster_in_barrel && ( (deta <= 0.0375+0.0005) && (dphi <= 0.0875+0.0005) );
        bool condition55 = (!cluster_in_barrel) && ( (deta <= 0.0625+0.0005) && (dphi <= 0.0625+0.0005) );
 
@@ -137,7 +125,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
 	// This will internaly define normal, narrow and large clusters
-  if ( msgLvl(MSG::DEBUG) ) {
+  if ( msgLvl(MSG::ERROR) ) {
         if ( m_geometryTool->EtaPhiRange(0,0,energyEta, energyPhi))
           ATH_MSG_ERROR( "problems with EtaPhiRange" );
         PrintCluster(totalEnergy,0,0,CaloSampling::PreSamplerB
@@ -152,38 +140,24 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         // Region Selector, sampling 3
         sampling = 3;
 
-        // Get detector offline ID's for Collections
-        m_data->RegionSelector( sampling, roi );
-
-        // Finished to access RegionSelector
-        if (!m_timersvc.empty()) m_timer[1]->stop();
-        // Time to access Collection (and ByteStreamCnv ROBs)
-        if (!m_timersvc.empty()) m_timer[2]->resume();
-
-	// One does not want to prepare the collection again
-	// That is why LoadCollections is called with false
-        if ( m_data->LoadCollections(m_iBegin,m_iEnd,sampling,false)
-			.isFailure() ){
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-	}
-        m_error|=m_data->report_error();
-        if ( m_error ) {
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-        }
+        LArTT_Selector<LArCellCont> sel3;
+        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel3 );
+        iBegin = sel3.begin();
+        iEnd = sel3.end();
+/*
         if ( m_saveCells ){
-           m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
+           m_data->storeCells(iBegin,iEnd,*m_CaloCellContPoint,m_cellkeepthr);
         }
+*/
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->stop();
         // Algorithmic time
         if (!m_timersvc.empty()) m_timer[3]->resume();
 
 
-  for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {                                       // Should be revised for London scheme
+  for(it = iBegin;it != iEnd; ++it) {                                       // Should be revised for London scheme
     ncells++;
-    const LArCell* larcell = (*m_it);
+    const LArCell* larcell = (*it);
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -194,6 +168,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
       dphi = fabs( phiCell - energyPhi );
       if ( dphi > M_PI ) dphi = 2.* M_PI - dphi;   // wrap 0 -> 6.28
       
+       // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
        bool condition37 = cluster_in_barrel && ( (deta <= 0.0375+0.001) && (dphi <= 0.0875+0.001) );
        bool condition55 = (!cluster_in_barrel) && ( (deta <= 0.0625+0.001) && (dphi <= 0.0625+0.001) );
 
@@ -225,7 +200,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
         // This will internaly define normal, narrow and large clusters
-  if ( msgLvl(MSG::DEBUG) ) {
+  if ( msgLvl(MSG::ERROR) ) {
         if ( m_geometryTool->EtaPhiRange(0,3,energyEta, energyPhi))
           ATH_MSG_ERROR( "problems with EtaPhiRange" );
 

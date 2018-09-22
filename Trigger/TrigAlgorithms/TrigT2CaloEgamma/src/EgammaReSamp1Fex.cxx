@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
 // 
-// NAME:     EgammaSamp1Fex.cxx
+// NAME:     EgammaReSamp1Fex.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
 // 
 // AUTHOR:   M.P. Casado
@@ -17,7 +17,7 @@
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaSamp1Fex.h"
+#include "TrigT2CaloEgamma/EgammaReSamp1Fex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
 #include "IRegionSelector/IRoiDescriptor.h"
@@ -25,8 +25,8 @@
 inline double proxim(double b,double a){ return b+2.*M_PI*round((a-b)*(1./(2.*M_PI))) ;}
 
 
-EgammaSamp1Fex::EgammaSamp1Fex(const std::string & type, const std::string & name, 
-                   const IInterface* parent): IAlgToolCalo(type, name, parent)
+EgammaReSamp1Fex::EgammaReSamp1Fex(const std::string & type, const std::string & name, 
+                   const IInterface* parent): IReAlgToolCalo(type, name, parent)
 		   {
 #ifndef NDEBUG
 	// Create Geometry object
@@ -35,12 +35,13 @@ EgammaSamp1Fex::EgammaSamp1Fex(const std::string & type, const std::string & nam
 #endif
 }
 
-EgammaSamp1Fex::~EgammaSamp1Fex(){
+EgammaReSamp1Fex::~EgammaReSamp1Fex(){
 }
 
-StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
+StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi,
-				   const CaloDetDescrElement*& caloDDE ) { 
+				   const CaloDetDescrElement*& caloDDE,
+                                   const EventContext* context ) const { 
   
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
@@ -52,6 +53,7 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
           cluster_in_barrel = caloDDE->is_lar_em_barrel();
 
         ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
+	ATH_CHECK( context != nullptr );
 
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->start();
@@ -59,26 +61,11 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         // Region Selector, sampling 1
 	int sampling = 1;
 
-        // Get detector offline ID's for Collections
-        m_data->RegionSelector(sampling, roi );
-
-        // Finished to access RegionSelector
-        if (!m_timersvc.empty()) m_timer[1]->stop();
-        // Time to access Collection (and ByteStreamCnv ROBs)
-        if (!m_timersvc.empty()) m_timer[2]->start();
-
-        if ( m_data->LoadCollections(m_iBegin,m_iEnd).isFailure() ){
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-	}
-	m_error|=m_data->report_error();
-        if ( m_error ) {
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-        }
-        if ( m_saveCells ){
-           m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
-        }
+	LArTT_Selector<LArCellCont> sel;
+	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
+        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+        iBegin = sel.begin();
+        iEnd = sel.end();
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->stop();
         // Algorithmic time
@@ -226,9 +213,9 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double dphi = 0.;           // phi difference current cell - seed
   int ncells = 0;
 
-  for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {                                       // Should be revised for London scheme
+  for(it = iBegin;it != iEnd; ++it) {                                       // Should be revised for London scheme
     ncells++;
-    const LArCell* larcell = (*m_it);
+    const LArCell* larcell = (*it);
     double etaCell = larcell->caloDDE()->eta_raw();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();

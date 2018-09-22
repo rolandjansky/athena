@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
  
- NAME:     EgammaSamp2Fex.h
+ NAME:     EgammaReSamp2Fex.h
  PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
  
  AUTHOR:   M.P. Casado
@@ -14,11 +14,11 @@
 	   a 3x7 and in a 7x7 cluster (rCore = 3x7/7x7).
  *******************************************************************/
 
-#ifndef TRIGT2CALOEGAMMA_CALOSAMP2FEXEGAMMA_H 
-#define TRIGT2CALOEGAMMA_CALOSAMP2FEXEGAMMA_H
+#ifndef TRIGT2CALOEGAMMA_CALOSAMP2FEXEGAMMARE_H 
+#define TRIGT2CALOEGAMMA_CALOSAMP2FEXEGAMMARE_H
 
 
-#include "TrigT2CaloCommon/IAlgToolCalo.h"
+#include "TrigT2CaloCommon/IReAlgToolCalo.h"
 #include "GaudiKernel/AlgTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
@@ -26,23 +26,24 @@
 class IRoiDesciptor;
 
 /** Feature extraction Tool for LVL2 Calo. Second EM Calorimeter sample. */
-class EgammaSamp2Fex: public IAlgToolCalo {
+class EgammaReSamp2Fex: public IReAlgToolCalo {
   public:
     // to avoid compiler warning about hidden virtuals
-    using IAlgToolCalo::execute;
+    using IReAlgToolCalo::execute;
   
     /** Constructor */
-    EgammaSamp2Fex(const std::string & type, const std::string & name, 
+    EgammaReSamp2Fex(const std::string & type, const std::string & name, 
                  const IInterface* parent);
     /** Destructor */
-    virtual ~EgammaSamp2Fex();
+    virtual ~EgammaReSamp2Fex();
     /** @brief execute feature extraction for the EM Calorimeter
     *	second layer 
     *   @param[out] rtrigEmCluster is the output cluster.
     *   @param[in] eta/phi-min/max = RoI definition.
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
-				const CaloDetDescrElement*& caloDDE = caloDDENull);
+				const CaloDetDescrElement*& caloDDE = caloReDDENull,
+                                const EventContext* context = nullptr ) const;
 
     /** Special initialize for Samp2 to include eta as a
 	trigger timer item monitored parameter. Important
@@ -51,10 +52,11 @@ class EgammaSamp2Fex: public IAlgToolCalo {
     */
     StatusCode initialize() {
 		// Very important to call base class initialize
-                if ( IAlgToolCalo::initialize().isFailure() ) {
+                if ( IReAlgToolCalo::initialize().isFailure() ) {
                 	*(new MsgStream(AlgTool::msgSvc(), name()))
 			<< MSG::FATAL 
-			<< "Could not init base class IAlgTooCalo" << endmsg;
+			<< "Could not init base class IReAlgTooCalo" << endmsg;
+			return StatusCode::FAILURE;
                 }
                 std::string basename(name().substr(25,5)+".");
 		//std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
@@ -73,7 +75,7 @@ class EgammaSamp2Fex: public IAlgToolCalo {
 
 };
 
-inline double EgammaSamp2Fex::etaSizeLArEMSamp2(double cellEta, int calo) const{
+inline double EgammaReSamp2Fex::etaSizeLArEMSamp2(double cellEta, int calo) const{
   double sizeEta;
   if( calo == Calorimeter::EMBAR ){
       if ( fabs(cellEta) < 1.4 ){
@@ -91,7 +93,7 @@ inline double EgammaSamp2Fex::etaSizeLArEMSamp2(double cellEta, int calo) const{
   return sizeEta;
 }
 
-inline double EgammaSamp2Fex::phiSizeLArEMSamp2(double cellEta, int calo) const{
+inline double EgammaReSamp2Fex::phiSizeLArEMSamp2(double cellEta, int calo) const{
   double sizePhi;
   if( calo == Calorimeter::EMBAR ){
     sizePhi = 0.025;
