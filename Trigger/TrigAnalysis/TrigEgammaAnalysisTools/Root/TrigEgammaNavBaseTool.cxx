@@ -178,6 +178,10 @@ bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std
         const Root::TAccept& accept=m_electronLHTool[2]->accept(eg);
         return static_cast<bool>(accept);
     }
+    else if (pidname == "LHMediumHI"){
+        const Root::TAccept& accept=m_electronLHTool[3]->accept(eg);
+        return static_cast<bool>(accept);
+    }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
 }
@@ -188,6 +192,10 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
   clearList(); //Clear Probe list before each execution -- not in derived class
   ATH_MSG_DEBUG("Apply navigation selection "); 
 
+  if (boost::contains(trigItem, "ion")){
+      ATH_MSG_DEBUG("Heavy ion chain being used.Usinh LHMediumHI tune for offline."); 
+      pidname="LHMediumHI";
+  }
 
   const std::string decor="is"+pidname;
   for(const auto& eg : *m_offElectrons ){
