@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
 
@@ -829,7 +829,6 @@ def defineMenu():
         ##     'L1_CALREQ0_P1', 'L1_CALREQ1_P1', 'L1_CALREQ2_P1',
 
         #ALFA
-#ALFA_B7R1L_OD        
         'L1_ALFA_ELAST1',
         'L1_ALFA_ELAST2',
         'L1_ALFA_ELAST11','L1_ALFA_ELAST12',
@@ -859,7 +858,7 @@ def defineMenu():
         'L1_ALFA_BGT_BGRP1',
         'L1_ALFA_BGT_BGRP4','L1_ALFA_BGT_BGRP10',
         'L1_ALFA_SHOWSYST5',
-#        'L1_ALFA_SYST9','L1_ALFA_SYST10','L1_ALFA_SYST11','L1_ALFA_SYST12',
+        'L1_ALFA_SYST9','L1_ALFA_SYST10','L1_ALFA_SYST11','L1_ALFA_SYST12',
         'L1_ALFA_SYST17','L1_ALFA_SYST18',
         'L1_ALFA_ANY',
         'L1_ALFA_ANY_EMPTY','L1_ALFA_B1_EMPTY','L1_ALFA_B2_EMPTY','L1_ALFA_ANY_FIRSTEMPTY','L1_ALFA_ANY_UNPAIRED_ISO','L1_ALFA_ANY_UNPAIRED_NONISO',
