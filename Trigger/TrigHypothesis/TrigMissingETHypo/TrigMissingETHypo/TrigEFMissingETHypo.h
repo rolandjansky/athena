@@ -62,6 +62,7 @@ class TrigEFMissingETHypo : public HLT::HypoAlgo {
      */
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool & pass);
 
+
  private:
 
   std::string  m_featureLabel; //!< label for the MET feature in the HLT Navigation
