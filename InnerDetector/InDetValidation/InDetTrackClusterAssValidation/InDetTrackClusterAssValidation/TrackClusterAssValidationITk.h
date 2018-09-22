@@ -3,8 +3,8 @@
 */
 
 
-#ifndef TrackClusterAssValidation_H
-#define TrackClusterAssValidation_H
+#ifndef TrackClusterAssValidationITk_H
+#define TrackClusterAssValidationITk_H
 
 #include <string>
 #include <map>
@@ -17,14 +17,15 @@
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "InDetTrackClusterAssValidation/TrackClusterAssValidationUtils.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
+
 
 namespace InDet {
 
   // Class-algorithm for track cluster association validation
   //
-  class TrackClusterAssValidation : public AthAlgorithm 
+  class TrackClusterAssValidationITk : public AthAlgorithm 
     {
     
       ///////////////////////////////////////////////////////////////////
@@ -37,8 +38,8 @@ namespace InDet {
       // Standard Algotithm methods
       ///////////////////////////////////////////////////////////////////
 
-      TrackClusterAssValidation(const std::string &name, ISvcLocator *pSvcLocator);
-      virtual ~TrackClusterAssValidation() {}
+      TrackClusterAssValidationITk(const std::string &name, ISvcLocator *pSvcLocator);
+      virtual ~TrackClusterAssValidationITk() {}
       StatusCode initialize();
       StatusCode execute();
       StatusCode finalize();
@@ -66,6 +67,12 @@ namespace InDet {
       int                                m_ncolection             ; 
       int                                m_nspacepoints           ;
       int                                m_nclusters              ;
+      int                                m_nevents                ;
+      int                                m_nclustersPTOT          ;
+      int                                m_nclustersSTOT          ;
+      int                                m_nspacepointsPTOT       ;
+      int                                m_nspacepointsSTOT       ;
+      int                                m_nspacepointsOTOT       ;
       int                                m_nclustersTRT           ;
       int                                m_nqtracks               ;
       int                                m_efficiency   [100][6]  ;
@@ -93,12 +100,10 @@ namespace InDet {
       int                                m_nclustersPosBS         ;
       int                                m_nclustersPosEP         ;
       int                                m_nclustersPosES         ;
-      int                                m_nclustersPosDBM;
       int                                m_nclustersNegBP         ;
       int                                m_nclustersNegBS         ;
       int                                m_nclustersNegEP         ;
       int                                m_nclustersNegES         ;
-      int                                m_nclustersNegDBM;
       unsigned int                       m_clcut                  ;
       unsigned int                       m_clcutTRT               ;
       unsigned int                       m_spcut                  ;
@@ -108,32 +113,43 @@ namespace InDet {
       double                             m_tcut                   ;
       double                             m_rmin                   ;
       double                             m_rmax                   ;
+
+      double                             m_rapTRAN                ;
+      double                             m_rapENDS                ;
+      double                             m_rapENDP                ;
+   
       std::vector<std::string>           m_tracklocation          ; 
-      std::string                        m_spacepointsSCTname     ;
-      std::string                        m_spacepointsPixelname   ;
-      std::string                        m_spacepointsOverlapname ; 
       std::string                        m_clustersSCTname        ;
       std::string                        m_clustersPixelname      ;
       std::string                        m_clustersTRTname        ;
       std::string                        m_truth_locationPixel    ;
       std::string                        m_truth_locationSCT      ;
       std::string                        m_truth_locationTRT      ;
-      const SpacePointContainer        * m_spacepointsSCT         ;
-      const SpacePointContainer        * m_spacepointsPixel       ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap     ;
+
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT    ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel  ;
+      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap;
+
       const SiClusterContainer         * m_pixcontainer           ;
       const SiClusterContainer         * m_sctcontainer           ;
       const TRT_DriftCircleContainer   * m_trtcontainer           ;
+
       const PRD_MultiTruthCollection   * m_truthPIX               ;
       const PRD_MultiTruthCollection   * m_truthSCT               ;
       const PRD_MultiTruthCollection   * m_truthTRT               ;
-      std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
-      std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
-      std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
+
+      std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterN    ;
+      std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterTRTN ;
+      std::multimap<const HepMC::GenParticle*,const Trk::SpacePoint*>  m_kinespacepointN ;
+
       std::list<Barcode>                         m_particles[100] ;
       std::list<int>                             m_difference[100];
       std::multimap<int,int>                     m_tracks[100]    ;
+      std::multimap<const HepMC::GenParticle*,int> m_tracksN[100] ;
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
+      
+      /** service to get cut values depending on different variable */
+      ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc;   
       
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -144,26 +160,29 @@ namespace InDet {
       void tracksComparison        ();
       void efficiencyReconstruction();
       bool noReconstructedParticles();
+      int  QualityTracksSelection  ();
 
-      int  QualityTracksSelection();
-      int kine(const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int);
-      int kine (const Trk::PrepRawData*,int*,int);	
-      int kine0(const Trk::PrepRawData*,int*,int);
-      
-      bool isTheSameDetElement(int,const Trk::PrepRawData*);
-      bool isTheSameDetElement(int,const Trk::SpacePoint* );
+      int kine (const Trk::PrepRawData*,const Trk::PrepRawData*,const HepMC::GenParticle**,int);
+      int kine (const Trk::PrepRawData*,const HepMC::GenParticle**,int);
+      int kine0(const Trk::PrepRawData*,const HepMC::GenParticle**,int);
+      bool isTheSameDetElement(const HepMC::GenParticle*,const Trk::PrepRawData*);
+      bool isTheSameDetElement(const HepMC::GenParticle*,const Trk::SpacePoint* );
 
       PRD_MultiTruthCollection::const_iterator findTruth
 	(const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&);
       
       int charge(std::pair<int,const Trk::PrepRawData*>,int&);
+      int charge(std::pair<int,const Trk::PrepRawData*>,int&, double&);
+
+      int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&);
+      int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&, double&);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;
 
     };
-  MsgStream&    operator << (MsgStream&   ,const TrackClusterAssValidation&);
-  std::ostream& operator << (std::ostream&,const TrackClusterAssValidation&); 
+  MsgStream&    operator << (MsgStream&   ,const TrackClusterAssValidationITk&);
+  std::ostream& operator << (std::ostream&,const TrackClusterAssValidationITk&); 
 
 }
-#endif // TrackClusterAssValidation_H
+#endif // TrackClusterAssValidationITk_H

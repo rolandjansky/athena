@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////
-//  Header file for class SiTrackMaker_xk
+//  Header file for class SiTrackMakerITk_xk
 /////////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
@@ -12,8 +12,8 @@
 // Version 1.0 22/03/2005 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SiTrackMaker_xk_H
-#define SiTrackMaker_xk_H
+#ifndef SiTrackMakerITk_xk_H
+#define SiTrackMakerITk_xk_H
 
 #include <list>
 #include <map>
@@ -27,23 +27,24 @@
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "HepMC/GenParticle.h"
 
 class MsgStream;
 
 namespace InDet{
 
   /**
-  @class SiTrackMaker_xk 
+  @class SiTrackMakerITk_xk 
   
-  InDet::SiTrackMaker_xk is algorithm which produce track-finding started
+  InDet::SiTrackMakerITk_xk is algorithm which produce track-finding started
   from 3 space points information
   in the road of InDetDD::SiDetectorElement* sorted in propagation order.
   @author Igor.Gavrilenko@cern.ch     
   */
 
-  class SiTrackMaker_xk : 
+  class SiTrackMakerITk_xk : 
     virtual public ISiTrackMaker, public AthAlgTool
     {
 
@@ -57,9 +58,9 @@ namespace InDet{
       // Standard tool methods
       ///////////////////////////////////////////////////////////////////
 
-      SiTrackMaker_xk
+      SiTrackMakerITk_xk
 	(const std::string&,const std::string&,const IInterface*);
-      virtual ~SiTrackMaker_xk();
+      virtual ~SiTrackMakerITk_xk();
       virtual StatusCode initialize();
       virtual StatusCode finalize  ();
 
@@ -87,9 +88,9 @@ namespace InDet{
 
     protected:
       
-      SiTrackMaker_xk() = delete;
-      SiTrackMaker_xk(const SiTrackMaker_xk&) =delete;
-      SiTrackMaker_xk &operator=(const SiTrackMaker_xk&) = delete;
+      SiTrackMakerITk_xk() = delete;
+      SiTrackMakerITk_xk(const SiTrackMakerITk_xk&) =delete;
+      SiTrackMakerITk_xk &operator=(const SiTrackMakerITk_xk&) = delete;
       
       ///////////////////////////////////////////////////////////////////
       // Protected Data
@@ -100,25 +101,43 @@ namespace InDet{
       ToolHandle<InDet::ISiDetElementsRoadMaker>     m_roadmaker   ;
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder;
       ToolHandle<InDet::ISeedToTrackConversionTool>  m_seedtrack   ;
-      IBeamCondSvc*                                  m_beam        ;
 
       int                            m_nprint        ;  // Kind output information
-      int                            m_inputseeds    ;  // Number input seeds
-      int                            m_goodseeds     ;  // Number good  seeds
-      int                            m_findtracks    ;  // Numbe found tracks
+      int                            m_inputseeds [5];  // Number input seeds
+      int                            m_ntrackpar  [5];  // Wrong track parameters
+      int                            m_goodseeds  [5];  // Number good  seeds
+      int                            m_findtracks [5];  // Number found tracks
+      int                            m_bremseeds  [5];  // Number brem  seeds
+      int                            m_findtracksb[5];  // Number found tracks with brem
+      int                            m_twoclusters[5];
+      int                            m_wrongroad  [5];
+      int                            m_wronginit  [5];
+      int                            m_notrack    [5];
+      int                            m_notnewtrack[5];
+      int                            m_bremattempt[5];
+      int                            m_multytracks[5];
+      mutable double                 m_desize     [5];
+
+      int                            m_truthseeds [5];
+      int                            m_inseeds [5][8];
+      int                            m_okseeds [5][8];
+      int                            m_trseeds [5][8];
+      int                            m_trseedsT   [5];
+      int                            m_truthseedsG[5];
+      int                            m_inseedsG[5][8];
+      int                            m_okseedsG[5][8];
+
       int                            m_seedsfilter   ;  // Level of seeds filer
       unsigned int                   m_wrongcluster  ;  // Max lentgh of thtrack
       std::string                    m_fieldmode     ;  // Mode of magnetic field
       std::string                    m_patternName   ;  // Name of the pattern recognition
-//      std::string         m_inputClusterContainerName;
-//      std::string      m_inputHadClusterContainerName;
+
       SG::ReadHandle<CaloClusterROI_Collection> m_caloCluster;
       SG::ReadHandle<CaloClusterROI_Collection> m_caloHad;
-      std::string                    m_beamconditions;
+
       Trk::TrackInfo                 m_trackinfo     ;
       bool                           m_pix           ;
       bool                           m_sct           ;
-      bool                           m_dbm           ;
       bool                           m_usePix        ; //flags to set whether to use pixel/sct cluster, irrespective of what is in event
       bool                           m_useSct        ;
       bool                           m_useassoTool   ; // Use prd-track association tool
@@ -129,9 +148,9 @@ namespace InDet{
       bool                           m_useCaloSeeds  ;
       bool                           m_useSSSfilter  ;
       bool                           m_useHClusSeed  ; // Hadronic Calorimeter Seeds 
-      bool                           m_sss           ; // True if SSS seed without filter 
-      bool                        m_seedsegmentsWrite; // Call seed to track conversion
+      bool                           m_seedsegmentsWrite; // Call seed to track conversion
       bool                           m_heavyion      ; // Is it heavy ion events
+      bool                           m_usetruth      ;
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators
       double                         m_xi2maxNoAdd   ; // max Xi2 for clusters
@@ -148,16 +167,16 @@ namespace InDet{
       InDet::TrackQualityCuts        m_trackquality  ;
       std::list<Trk::Track*>         m_tracks        ; // List found tracks
       std::multimap<const Trk::PrepRawData*,const Trk::Track*> m_clusterTrack;
-      std::list<double>              m_caloF         ;
-      std::list<double>              m_caloR         ;
-      std::list<double>              m_caloZ         ;
-      std::list<double>              m_hadF          ;
-      std::list<double>              m_hadR          ;
-      std::list<double>              m_hadZ          ;
+      std::vector<double>            m_caloFRZ       ;
       double m_phiWidth                              ;
       double m_etaWidth                              ;
       double m_p[9]                                  ;
-      double m_xybeam[2]                             ;
+
+      const PRD_MultiTruthCollection* m_truthPIX; 
+      const PRD_MultiTruthCollection* m_truthSCT; 
+
+      std::vector < double >         m_etabins       ;
+      std::vector < double >         m_ptbins        ;
       
 
       ///////////////////////////////////////////////////////////////////
@@ -166,8 +185,6 @@ namespace InDet{
 
  
       const Trk::TrackParameters* getAtaPlane
-	(bool,const std::list<const Trk::SpacePoint*>&);
-      const Trk::TrackParameters* getAtaPlaneDBM
 	(const std::list<const Trk::SpacePoint*>&);
 
       bool globalPositions(const Trk::SpacePoint*,const Trk::SpacePoint*,const Trk::SpacePoint*,
@@ -178,13 +195,18 @@ namespace InDet{
       void setTrackQualityCuts();
       void detectorElementsSelection(std::vector<const InDetDD::SiDetectorElement*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
-      bool isNewTrack(Trk::Track*);
+      int  kindSeed   (const std::list<const Trk::SpacePoint*>&);
       bool isCaloCompatible   ();
-      bool isHadCaloCompatible();
-      bool isDBMSeeds(const Trk::SpacePoint*);
       void clusterTrackMap(Trk::Track*);
       
+      double pTmin(double T);
+      
       void       magneticFieldInit();
+
+      int  rapidity(const std::list<const Trk::SpacePoint*>&);
+      bool purity  (const std::list<const Trk::SpacePoint*>&);
+      void truth   (const Trk::PrepRawData*,std::set<const HepMC::GenParticle*>&);
+ 
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
@@ -192,11 +214,26 @@ namespace InDet{
       
     };
 
-    MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
-    std::ostream& operator << (std::ostream&,const SiTrackMaker_xk&); 
+    MsgStream&    operator << (MsgStream&   ,const SiTrackMakerITk_xk&);
+    std::ostream& operator << (std::ostream&,const SiTrackMakerITk_xk&); 
 
+    ///////////////////////////////////////////////////////////////////
+    // min pT as function of fabs(dZ/dR) (T)
+    ///////////////////////////////////////////////////////////////////
+  
+    inline double SiTrackMakerITk_xk::pTmin(double T)
+    {
+      if (m_ptbins.size() == 0) return m_pTmin;
+      
+      double eta = fabs(-log(tan(0.5*T)));
+      for(int n = int(m_ptbins.size()-1); n>=0; --n) {
+        if(eta > m_etabins.at(n)) return m_ptbins.at(n);
+      }
+      
+      return m_pTmin;
+    }
     
 } // end of name space
 
-#endif // SiTrackMaker_xk_H
+#endif // SiTrackMakerITk_xk_H
 

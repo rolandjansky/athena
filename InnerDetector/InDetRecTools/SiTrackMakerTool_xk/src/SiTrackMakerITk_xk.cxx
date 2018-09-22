@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-//   Implementation file for class InDet::SiTrackMaker_xk
+//   Implementation file for class InDet::SiTrackMakerITk_xk
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -18,16 +18,19 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
+#include "SiTrackMakerTool_xk/SiTrackMakerITk_xk.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
-//#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::SiTrackMaker_xk::SiTrackMaker_xk
+InDet::SiTrackMakerITk_xk::SiTrackMakerITk_xk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                        ,
     m_fieldServiceHandle("AtlasFieldSvc",n), 
@@ -52,29 +55,26 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_useHClusSeed = false              ;
   m_useSSSfilter = true               ;
   m_heavyion     = false              ;
+  m_usetruth     = false              ;
   m_xi2max       = 15.                ;
   m_xi2maxNoAdd  = 35.                ;
-  m_xi2maxlink   = 200.               ;
+  m_xi2maxlink   = 50.                ;
   m_xi2multitracks = 3.               ;
   m_pTmin        = 500.               ;
   m_pTminBrem    = 1000.              ;
   m_pTminSSS     = 1000.              ;
-  m_distmax      = 5.                 ;
+  m_distmax      = 2.                 ;
   m_nholesmax    = 2                  ;
   m_dholesmax    = 2                  ;
   m_nclusmin     = 6                  ;
   m_nwclusmin    = 6                  ;              
   m_wrongcluster = 10                 ; 
-  m_inputseeds   = 0                  ;
-  m_goodseeds    = 0                  ;
-  m_findtracks   = 0                  ;
   m_seedsfilter  = 2                  ;
   m_phiWidth     = .3                 ;
   m_etaWidth     = .3                 ;
-  m_seedsegmentsWrite = false;
-//  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
-//  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
-  m_beamconditions               = "BeamCondSvc"            ;
+  m_seedsegmentsWrite = false         ;
+  m_fieldService = 0                  ;
+  m_nprint       = 0                  ;
 
   declareInterface<ISiTrackMaker>(this);
 
@@ -84,6 +84,8 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("Xi2max"                  ,m_xi2max      );
   declareProperty("Xi2maxNoAdd"             ,m_xi2maxNoAdd );
   declareProperty("Xi2maxlink"              ,m_xi2maxlink  );
+  declareProperty("etaBins"                 ,m_etabins     );
+  declareProperty("pTBins"                  ,m_ptbins      );
   declareProperty("pTmin"                   ,m_pTmin       );
   declareProperty("pTminBrem"               ,m_pTminBrem   );
   declareProperty("pTminSSS"                ,m_pTminSSS    );
@@ -112,13 +114,14 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("useSCT"                  , m_useSct);
   declareProperty("usePixel"                , m_usePix);
   declareProperty("SeedSegmentsWrite"       , m_seedsegmentsWrite);
+  declareProperty("UseTruth"                , m_usetruth);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Destructor  
 ///////////////////////////////////////////////////////////////////
 
-InDet::SiTrackMaker_xk::~SiTrackMaker_xk()
+InDet::SiTrackMakerITk_xk::~SiTrackMakerITk_xk()
 {
 }
 
@@ -126,16 +129,9 @@ InDet::SiTrackMaker_xk::~SiTrackMaker_xk()
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiTrackMaker_xk::initialize()
+StatusCode InDet::SiTrackMakerITk_xk::initialize()
 {
   StatusCode sc = AlgTool::initialize(); 
-
-  // Get beam geometry
-  //
-  m_beam = 0;
-  if(m_beamconditions!="") {
-    sc = service(m_beamconditions,m_beam);
-  }
 
   // Get magnetic field service
   //
@@ -217,7 +213,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   const DataHandle<CondAttrListCollection> currentHandle;
   if (m_fieldmode != "NoField" && detStore()->contains<CondAttrListCollection>(folder)) {
     
-    StatusCode  sc = detStore()->regFcn(&InDet::SiTrackMaker_xk::magneticFieldInit,this,currentHandle,folder);
+    StatusCode  sc = detStore()->regFcn(&InDet::SiTrackMakerITk_xk::magneticFieldInit,this,currentHandle,folder);
     
     if(sc==StatusCode::SUCCESS) {
       msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
@@ -232,24 +228,66 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   }
   
   if(m_pTmin < 20.) m_pTmin = 20.;
+  
+  if (m_etabins.size()>0) {
+    if (m_ptbins.size() > (m_etabins.size()-1)) {
+      ATH_MSG_ERROR( "No. of cut values bigger than eta bins");
+      return StatusCode::FAILURE;
+    }
+    
+    if (m_ptbins.size() < (m_etabins.size()-1)) {
+      ATH_MSG_DEBUG( "No. of cut values smaller than eta bins. Extending size..." );
+      m_ptbins.resize(m_etabins.size()-1, m_ptbins.back());
+    }
+    
+    for (auto& pt : m_ptbins) {
+      if (pt < 20.) pt = 20.;
+    }
+  }
    
-  return StatusCode::SUCCESS;
+  for (int i=0; i!=5; ++i) {
+    m_inputseeds [i] = 0;
+    m_ntrackpar  [i] = 0;
+    m_goodseeds  [i] = 0;
+    m_findtracks [i] = 0;
+    m_bremseeds  [i] = 0;
+    m_findtracksb[i] = 0;
+    m_twoclusters[i] = 0;
+    m_wrongroad  [i] = 0;
+    m_wronginit  [i] = 0;
+    m_notrack    [i] = 0;
+    m_notnewtrack[i] = 0;
+    m_bremattempt[i] = 0;
+    m_truthseeds [i] = 0;
+    m_truthseedsG[i] = 0;
+    m_trseedsT   [i] = 0;
+    m_multytracks[i] = 0;
+    m_desize     [i] = 0.;
+    for(int j=0; j!=8 ;++j) {m_inseeds[i][j]=0; m_okseeds[i][j]=0; m_inseedsG[i][j]=0; m_okseedsG[i][j]=0; m_trseeds[i][j]=0;}
+  }
+
+  m_caloFRZ.reserve(50*3);
+ 
+  m_nprint=0; msg(MSG::INFO)<<(*this)<<endreq;
+  return sc;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Finalize
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiTrackMaker_xk::finalize()
+StatusCode InDet::SiTrackMakerITk_xk::finalize()
 {
-   StatusCode sc = AlgTool::finalize(); return sc;
+   StatusCode sc = AlgTool::finalize(); 
+   m_nprint=1; msg(MSG::INFO)<<(*this)<<endreq;
+   return sc;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
+MsgStream&  InDet::SiTrackMakerITk_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
   if(m_nprint)  
@@ -261,7 +299,7 @@ MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiTrackMaker_xk::dumpconditions( MsgStream& out ) const
+MsgStream& InDet::SiTrackMakerITk_xk::dumpconditions( MsgStream& out ) const
 {
 
   int n      = 62-m_tracksfinder.type().size();
@@ -320,17 +358,260 @@ MsgStream& InDet::SiTrackMaker_xk::dumpconditions( MsgStream& out ) const
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiTrackMaker_xk::dumpevent( MsgStream& out ) const
+MsgStream& InDet::SiTrackMakerITk_xk::dumpevent( MsgStream& out ) const
 {
-  out<<"|---------------------------------------------------------------------|"
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|"
        <<std::endl;
-  out<<"| Number input seeds      | "<<std::setw(12)<<m_inputseeds
-     <<"                              |"<<std::endl;
-  out<<"| Number good  seeds      | "<<std::setw(12)<<m_goodseeds 
-     <<"                              |"<<std::endl;
-  out<<"| Number output tracks    | "<<std::setw(12)<<m_findtracks  
-     <<"                              |"<<std::endl;
-  out<<"|---------------------------------------------------------------------|"
+  out<<"| Kind of seed         |     PPP      |     PPS      |     PSS      |     SSS      |     ALL      |"
+       <<std::endl;
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+  out<<"| Input  seeds         | "
+     <<std::setw(12)<<m_inputseeds[0]<<" | "
+     <<std::setw(12)<<m_inputseeds[1]<<" | "
+     <<std::setw(12)<<m_inputseeds[2]<<" | "
+     <<std::setw(12)<<m_inputseeds[3]<<" | "
+     <<std::setw(12)<<(m_inputseeds[0]+m_inputseeds[1]+m_inputseeds[2]+m_inputseeds[3])
+     <<" |"<<std::endl;
+
+  out<<"| No track parameters  | "
+     <<std::setw(12)<<m_ntrackpar[0]<<" | " 
+     <<std::setw(12)<<m_ntrackpar[1]<<" | " 
+     <<std::setw(12)<<m_ntrackpar[2]<<" | " 
+     <<std::setw(12)<<m_ntrackpar[3]<<" | " 
+     <<std::setw(12)<<(m_ntrackpar[0]+m_ntrackpar[1]+ m_ntrackpar[2]+m_ntrackpar[3])
+     <<" |"<<std::endl;
+
+  out<<"| Used   seeds         | "
+     <<std::setw(12)<<m_goodseeds[0]<<" | " 
+     <<std::setw(12)<<m_goodseeds[1]<<" | " 
+     <<std::setw(12)<<m_goodseeds[2]<<" | " 
+     <<std::setw(12)<<m_goodseeds[3]<<" | " 
+     <<std::setw(12)<<(m_goodseeds[0]+m_goodseeds[1]+ m_goodseeds[2]+m_goodseeds[3])
+     <<" |"<<std::endl;
+
+  out<<"| Used   seeds  brem   | "
+     <<std::setw(12)<<m_bremseeds[0]<<" | " 
+     <<std::setw(12)<<m_bremseeds[1]<<" | " 
+     <<std::setw(12)<<m_bremseeds[2]<<" | " 
+     <<std::setw(12)<<m_bremseeds[3]<<" | " 
+     <<std::setw(12)<<(m_bremseeds[0]+m_bremseeds[1]+m_bremseeds[2]+m_bremseeds[3]) 
+     <<" |"<<std::endl;
+
+  double tdetsize = 0.;
+  int    goodseed = 0;
+  for(int i=0; i!=4; ++i) {
+    tdetsize+= m_desize[i];
+    goodseed+= m_goodseeds[i];
+    if(m_goodseeds[i] > 0) m_desize[i]/=double(m_goodseeds[i]);
+  }
+  if(goodseed > 0) tdetsize/=double(goodseed);
+
+  out<<"| Det elements in road | "
+     <<std::setw(12)<<std::setprecision(4)<<m_desize[0]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_desize[1]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_desize[2]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_desize[3]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<tdetsize 
+     <<" |"<<std::endl;
+
+
+  out<<"| Two clusters on DE   | "
+     <<std::setw(12)<<m_twoclusters[0]<<" | " 
+     <<std::setw(12)<<m_twoclusters[1]<<" | " 
+     <<std::setw(12)<<m_twoclusters[2]<<" | " 
+     <<std::setw(12)<<m_twoclusters[3]<<" | " 
+     <<std::setw(12)<<(m_twoclusters[0]+m_twoclusters[1]+m_twoclusters[2]+m_twoclusters[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Wrong DE road        | "
+     <<std::setw(12)<<m_wrongroad[0]<<" | " 
+     <<std::setw(12)<<m_wrongroad[1]<<" | " 
+     <<std::setw(12)<<m_wrongroad[2]<<" | " 
+     <<std::setw(12)<<m_wrongroad[3]<<" | " 
+     <<std::setw(12)<<(m_wrongroad[0]+m_wrongroad[1]+m_wrongroad[2]+m_wrongroad[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Wrong initialization | "
+     <<std::setw(12)<<m_wronginit[0]<<" | " 
+     <<std::setw(12)<<m_wronginit[1]<<" | " 
+     <<std::setw(12)<<m_wronginit[2]<<" | " 
+     <<std::setw(12)<<m_wronginit[3]<<" | " 
+     <<std::setw(12)<<(m_wronginit[0]+m_wronginit[1]+m_wronginit[2]+m_wronginit[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Can not find track   | "
+     <<std::setw(12)<<m_notrack[0]<<" | " 
+     <<std::setw(12)<<m_notrack[1]<<" | " 
+     <<std::setw(12)<<m_notrack[2]<<" | " 
+     <<std::setw(12)<<m_notrack[3]<<" | " 
+     <<std::setw(12)<<(m_notrack[0]+m_notrack[1]+m_notrack[2]+m_notrack[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| It is not new track  | "
+     <<std::setw(12)<<m_notnewtrack[0]<<" | " 
+     <<std::setw(12)<<m_notnewtrack[1]<<" | " 
+     <<std::setw(12)<<m_notnewtrack[2]<<" | " 
+     <<std::setw(12)<<m_notnewtrack[3]<<" | " 
+     <<std::setw(12)<<(m_notnewtrack[0]+m_notnewtrack[1]+m_notnewtrack[2]+m_notnewtrack[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Attempts brem model  | "
+     <<std::setw(12)<<m_bremattempt[0]<<" | " 
+     <<std::setw(12)<<m_bremattempt[1]<<" | " 
+     <<std::setw(12)<<m_bremattempt[2]<<" | " 
+     <<std::setw(12)<<m_bremattempt[3]<<" | " 
+     <<std::setw(12)<<(m_bremattempt[0]+m_bremattempt[1]+m_bremattempt[2]+m_bremattempt[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Output tracks        | "
+     <<std::setw(12)<<m_findtracks[0]<<" | "  
+     <<std::setw(12)<<m_findtracks[1]<<" | " 
+     <<std::setw(12)<<m_findtracks[2]<<" | "  
+     <<std::setw(12)<<m_findtracks[3]<<" | "  
+     <<std::setw(12)<<(m_findtracks[0]+m_findtracks[1]+m_findtracks[2]+m_findtracks[3])
+     <<" |"<<std::endl;
+
+  out<<"| Output extra tracks  | "
+     <<std::setw(12)<<m_multytracks[0]<<" | "  
+     <<std::setw(12)<<m_multytracks[1]<<" | " 
+     <<std::setw(12)<<m_multytracks[2]<<" | "  
+     <<std::setw(12)<<m_multytracks[3]<<" | "  
+     <<std::setw(12)<<(m_multytracks[0]+m_multytracks[1]+m_multytracks[2]+m_multytracks[3])
+     <<" |"<<std::endl;
+
+  out<<"| Output tracks brem   | "
+     <<std::setw(12)<<m_findtracksb[0]<<" | "  
+     <<std::setw(12)<<m_findtracksb[1]<<" | " 
+     <<std::setw(12)<<m_findtracksb[2]<<" | "  
+     <<std::setw(12)<<m_findtracksb[3]<<" | "  
+     <<std::setw(12)<<(m_findtracksb[0]+m_findtracksb[1]+m_findtracksb[2]+m_findtracksb[3])
+     <<" |"<<std::endl;
+
+  if(m_usetruth) {
+
+    out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+    out<<"| Input truth  seeds   | "
+       <<std::setw(12)<<m_truthseeds[0]<<" | "
+       <<std::setw(12)<<m_truthseeds[1]<<" | "
+       <<std::setw(12)<<m_truthseeds[2]<<" | "
+       <<std::setw(12)<<m_truthseeds[3]<<" | "
+       <<std::setw(12)<<(m_truthseeds[0]+m_truthseeds[1]+m_truthseeds[2]+m_truthseeds[3])
+       <<" | Number seeds |"<<std::endl;
+    out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+
+    for(int i=0; i!=8; ++i) {
+   
+      double pu[5]={0.,0.,0.,0.,0.};
+
+      if(m_inseeds[0][i]!=0) pu[0]=double(m_okseeds[0][i])/double(m_inseeds[0][i]); 
+      if(m_inseeds[1][i]!=0) pu[1]=double(m_okseeds[1][i])/double(m_inseeds[1][i]); 
+      if(m_inseeds[2][i]!=0) pu[2]=double(m_okseeds[2][i])/double(m_inseeds[2][i]); 
+      if(m_inseeds[3][i]!=0) pu[3]=double(m_okseeds[3][i])/double(m_inseeds[3][i]); 
+      int nt = m_inseeds[0][i]+m_inseeds[1][i]+m_inseeds[2][i]+m_inseeds[3][i];
+      if(nt!=0) pu[4] = double(m_okseeds[0][i]+m_okseeds[1][i]+m_okseeds[2][i]+m_okseeds[3][i])/double(nt);
+      
+      if(i==0) out<<"| Seeds purity 0.0-0.5 | ";
+      if(i==1) out<<"|              0.5-1.0 | ";
+      if(i==2) out<<"|              1.0-1.5 | ";
+      if(i==3) out<<"|              1.5-2.0 | ";
+      if(i==4) out<<"|              2.0-2.5 | ";
+      if(i==5) out<<"|              2.5-3.0 | ";
+      if(i==6) out<<"|              3.0-3.5 | ";
+      if(i==7) out<<"|              3.5-4.0 | ";
+      out<<std::setw(12)<<std::setprecision(4)<<pu[0]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[1]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[2]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[3]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[4]<<" | "
+	 <<std::setw(12)<<nt
+	 <<" |"<<std::endl;
+    }
+    out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+    out<<"| Used  truth  seeds   | "
+       <<std::setw(12)<<m_truthseedsG[0]<<" | "
+       <<std::setw(12)<<m_truthseedsG[1]<<" | "
+       <<std::setw(12)<<m_truthseedsG[2]<<" | "
+       <<std::setw(12)<<m_truthseedsG[3]<<" | "
+       <<std::setw(12)<<(m_truthseedsG[0]+m_truthseedsG[1]+m_truthseedsG[2]+m_truthseedsG[3])
+       <<" | Number seeds |"<<std::endl;
+    out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+
+    for(int i=0; i!=8; ++i) {
+   
+      double pu[5]={0.,0.,0.,0.,0.};
+
+      if(m_inseedsG[0][i]!=0) pu[0]=double(m_okseedsG[0][i])/double(m_inseedsG[0][i]); 
+      if(m_inseedsG[1][i]!=0) pu[1]=double(m_okseedsG[1][i])/double(m_inseedsG[1][i]); 
+      if(m_inseedsG[2][i]!=0) pu[2]=double(m_okseedsG[2][i])/double(m_inseedsG[2][i]); 
+      if(m_inseedsG[3][i]!=0) pu[3]=double(m_okseedsG[3][i])/double(m_inseedsG[3][i]); 
+      int nt = m_inseedsG[0][i]+m_inseedsG[1][i]+m_inseedsG[2][i]+m_inseedsG[3][i];
+      if(nt!=0) pu[4] = double(m_okseedsG[0][i]+m_okseedsG[1][i]+m_okseedsG[2][i]+m_okseedsG[3][i])/double(nt);
+
+      if(i==0) out<<"| Seeds purity 0.0-0.5 | ";
+      if(i==1) out<<"|              0.5-1.0 | ";
+      if(i==2) out<<"|              1.0-1.5 | ";
+      if(i==3) out<<"|              1.5-2.0 | ";
+      if(i==4) out<<"|              2.0-2.5 | ";
+      if(i==5) out<<"|              2.5-3.0 | ";
+      if(i==6) out<<"|              3.0-3.5 | ";
+      if(i==7) out<<"|              3.5-4.0 | ";
+      out<<std::setw(12)<<std::setprecision(4)<<pu[0]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[1]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[2]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[3]<<" | "  
+	 <<std::setw(12)<<std::setprecision(4)<<pu[4]<<" | "
+	 <<std::setw(12)<<nt
+	 <<" |"<<std::endl;
+    }
+  }
+
+
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+     <<std::endl;
+   out<<"| Seeds  with  track   | "
+     <<std::setw(12)<<m_trseedsT[0]<<" | "
+     <<std::setw(12)<<m_trseedsT[1]<<" | "
+     <<std::setw(12)<<m_trseedsT[2]<<" | "
+     <<std::setw(12)<<m_trseedsT[3]<<" | "
+     <<std::setw(12)<<(m_trseedsT[0]+m_trseedsT[1]+m_trseedsT[2]+m_trseedsT[3])
+     <<" | Number seeds |"<<std::endl;
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+     <<std::endl;
+
+  for(int i=0; i!=8; ++i) {
+   
+    double pu[5]={0.,0.,0.,0.,0.};
+
+    if(m_inseedsG[0][i]!=0) pu[0]=double(m_trseeds[0][i])/double(m_inseedsG[0][i]); 
+    if(m_inseedsG[1][i]!=0) pu[1]=double(m_trseeds[1][i])/double(m_inseedsG[1][i]); 
+    if(m_inseedsG[2][i]!=0) pu[2]=double(m_trseeds[2][i])/double(m_inseedsG[2][i]); 
+    if(m_inseedsG[3][i]!=0) pu[3]=double(m_trseeds[3][i])/double(m_inseedsG[3][i]); 
+    int nt = m_inseedsG[0][i]+m_inseedsG[1][i]+m_inseedsG[2][i]+m_inseedsG[3][i];
+
+    if(nt!=0) pu[4] = double(m_trseeds[0][i]+m_trseeds[1][i]+m_trseeds[2][i]+m_trseeds[3][i])/double(nt);
+
+    if(i==0) out<<"| Track/Used   0.0-0.5 | ";
+    if(i==1) out<<"|              0.5-1.0 | ";
+    if(i==2) out<<"|              1.0-1.5 | ";
+    if(i==3) out<<"|              1.5-2.0 | ";
+    if(i==4) out<<"|              2.0-2.5 | ";
+    if(i==5) out<<"|              2.5-3.0 | ";
+    if(i==6) out<<"|              3.0-3.5 | ";
+    if(i==7) out<<"|              3.5-4.0 | ";
+    out<<std::setw(12)<<std::setprecision(4)<<pu[0]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[1]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[2]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[3]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[4]<<" | "
+       <<std::setw(12)<<(m_trseeds[0][i]+m_trseeds[1][i]+m_trseeds[2][i]+m_trseeds[3][i])
+       <<" |"<<std::endl;
+  }
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
      <<std::endl;
   return out;
 }
@@ -339,7 +620,7 @@ MsgStream& InDet::SiTrackMaker_xk::dumpevent( MsgStream& out ) const
 // Dumps relevant information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& InDet::SiTrackMaker_xk::dump( std::ostream& out ) const
+std::ostream& InDet::SiTrackMakerITk_xk::dump( std::ostream& out ) const
 {
   return out;
 }
@@ -349,7 +630,7 @@ std::ostream& InDet::SiTrackMaker_xk::dump( std::ostream& out ) const
 ///////////////////////////////////////////////////////////////////
 
 MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::SiTrackMaker_xk& se)
+  (MsgStream& sl,const InDet::SiTrackMakerITk_xk& se)
 { 
   return se.dump(sl); 
 }
@@ -359,7 +640,7 @@ MsgStream& InDet::operator    <<
 ///////////////////////////////////////////////////////////////////
 
 std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::SiTrackMaker_xk& se)
+  (std::ostream& sl,const InDet::SiTrackMakerITk_xk& se)
 {
   return se.dump(sl); 
 }   
@@ -368,11 +649,8 @@ std::ostream& InDet::operator <<
 // Initiate track finding tool for new event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
+void InDet::SiTrackMakerITk_xk::newEvent(bool PIX,bool SCT)
 {
-  if(m_beam) {Amg::Vector3D cb = m_beam->beamPos(); m_xybeam[0] = cb[0]; m_xybeam[1] = cb[1];}
-  else       {                                      m_xybeam[0] =    0.; m_xybeam[1] =    0.;}
-  
   m_pix          = PIX && m_usePix;
   m_sct          = SCT && m_useSct;
   m_simpleTrack  = false;
@@ -385,55 +663,37 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 
   // Erase cluster to track association
   //
-  if(m_seedsfilter) m_clusterTrack.clear();
+  m_clusterTrack.clear();
 
-  // Erase statistic information
+  // Setup for truth infirmation
   //
-  m_inputseeds = 0;
-  m_goodseeds  = 0;
-  m_findtracks = 0;
+
+  if(m_usetruth) {
+    m_truthPIX = 0;
+    StatusCode  s = evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel");    
+    if (s.isFailure() || !m_truthPIX) m_usetruth = false;
+  }
+  if(m_usetruth) {
+    m_truthSCT = 0;
+    StatusCode  s = evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT");    
+    if (s.isFailure() || !m_truthSCT) m_usetruth = false;
+  }
 
   // Retrieve 
   //
   if(m_useBremModel && m_useCaloSeeds) {
 
-    m_caloF.clear();
-    m_caloR.clear();
-    m_caloZ.clear();
+    m_caloFRZ.clear();
 
-//    const CaloClusterROI_Collection* calo = 0;    
-//    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
- 
     if(m_caloCluster.isValid()) {
 
       CaloClusterROI_Collection::const_iterator c = m_caloCluster->begin(), ce = m_caloCluster->end();
 
       for(; c!=ce; ++c) {
-        m_caloF.push_back( (*c)->globalPosition().phi ());
-        m_caloR.push_back( (*c)->globalPosition().perp());
-	m_caloZ.push_back( (*c)->globalPosition().z   ());
-     }
-    }
-  }
-
-  if(!m_useSSSfilter && m_useHClusSeed) {
-
-    m_hadF.clear();
-    m_hadR.clear();
-    m_hadZ.clear();
-
-//    const CaloClusterROI_Collection* calo = 0;    
-//    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
-  
-    if(m_caloHad.isValid()) {
-
-      CaloClusterROI_Collection::const_iterator c = m_caloHad->begin(), ce = m_caloHad->end();
-
-      for(; c!=ce; ++c) {
-        m_hadF.push_back( (*c)->globalPosition().phi ());
-        m_hadR.push_back( (*c)->globalPosition().perp());
-	m_hadZ.push_back( (*c)->globalPosition().z   ());
-     }
+	    m_caloFRZ.push_back((*c)->globalPosition().phi ());
+    	m_caloFRZ.push_back((*c)->globalPosition().perp());
+	    m_caloFRZ.push_back((*c)->globalPosition().z   ());
+      }
     }
   }
   if(m_seedsegmentsWrite) m_seedtrack->newEvent(m_trackinfo,m_patternName);
@@ -443,7 +703,7 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 // Initiate track finding tool for new event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX,bool SCT)
+void InDet::SiTrackMakerITk_xk::newTrigEvent(bool PIX,bool SCT)
 {
   m_pix          = PIX && m_usePix;
   m_sct          = SCT && m_useSct;
@@ -457,20 +717,15 @@ void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX,bool SCT)
 
   // Erase cluster to track association
   //
-  if(m_seedsfilter) m_clusterTrack.clear(); 
+  m_clusterTrack.clear(); 
 
-  // Erase statistic information
-  //
-  m_inputseeds = 0;
-  m_goodseeds  = 0;
-  m_findtracks = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Finalize track finding tool for given event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::endEvent()
+void InDet::SiTrackMakerITk_xk::endEvent()
 {
 
   // End event for track finder tool
@@ -493,25 +748,25 @@ void InDet::SiTrackMaker_xk::endEvent()
 // Main method for track finding using space points
 ///////////////////////////////////////////////////////////////////
 
-const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
+const std::list<Trk::Track*>& InDet::SiTrackMakerITk_xk::getTracks
 (const std::list<const Trk::SpacePoint*>& Sp)
 {
-  ++m_inputseeds;
+  bool pu(false); if(m_usetruth) pu = purity(Sp);
+
+  int K = kindSeed(Sp);  ++m_inputseeds[K];
+  int r = rapidity(Sp);  ++m_inseeds[K][r]; if(pu) {++m_truthseeds[K]; ++m_okseeds[K][r];}
+
   m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
   
-  bool good;  m_sss = false; 
-  !m_seedsfilter ? good=true : good=newSeed(Sp);  
-
-  if(!good) return m_tracks;
-
-  m_dbm = isDBMSeeds(*Sp.begin());
-
+  
+  if(!newSeed(Sp)) return m_tracks;
+  
   // Get initial parameters estimation
   // 
-  const Trk::TrackParameters* Tp = getAtaPlane(m_sss && m_useHClusSeed,Sp);
-  if(!Tp) return m_tracks;
-  ++m_goodseeds;
+  const Trk::TrackParameters* Tp = getAtaPlane(Sp);
+
+  if(!Tp) {++m_ntrackpar[K]; return m_tracks;}
 
   // Get detector elements road
   //
@@ -519,43 +774,60 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   if(!m_cosmicTrack) m_roadmaker->detElementsRoad(*Tp,Trk::alongMomentum,   DE);
   else               m_roadmaker->detElementsRoad(*Tp,Trk::oppositeMomentum,DE);
 
-  if(!m_pix || !m_sct || m_dbm) detectorElementsSelection(DE);
+  if(!m_pix || !m_sct) detectorElementsSelection(DE);
 
   if( int(DE.size())  <   m_nclusmin) {delete Tp; return m_tracks;} 
 
+  m_desize[K]+=double(DE.size());
   std::list<Amg::Vector3D> Gp;
-  
-  // Find possible list of tracks using space points space points information
+
+  ++m_goodseeds[K];
+  ++m_inseedsG[K][r]; if(pu) {++m_truthseedsG[K]; ++m_okseedsG[K][r];}
+
+  // Find possible list of tracks using space points information
   //
   if     (!m_useBremModel      ) {
     m_tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,m_clusterTrack);
   }
   else if(!m_useCaloSeeds      ) {
+    ++m_bremseeds[K];
     m_tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,false);
-  }
+   }
   else if(  isCaloCompatible() ) {
+    ++m_bremseeds[K];
     m_tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,true);
-  }
+   }
   else                           {
     m_tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,m_clusterTrack);
   }
-  
-  if(m_seedsfilter) {
-
-    std::list<Trk::Track*>::iterator t = m_tracks.begin();
-    while(t!=m_tracks.end()) {
-
-      if(!isNewTrack((*t))) {delete (*t); m_tracks.erase(t++);}
-      else                  {clusterTrackMap((*t++));         }
-    }
-  }
-  m_findtracks+=m_tracks.size();
 
   // Call seed to track execution
   //
   if(m_seedsegmentsWrite) m_seedtrack->executeSiSPSeedSegments(Tp,m_tracks.size(),Sp);
-
   delete Tp;
+
+  int inf[6];  m_tracksfinder->statistic(inf);
+  if(inf[0]) ++m_twoclusters[K];
+  if(inf[1]) ++m_wrongroad  [K];
+  if(inf[2]) ++m_wronginit  [K];
+  if(inf[3]) ++m_notrack    [K];
+  if(inf[4]) ++m_notnewtrack[K];
+  if(inf[5]) ++m_bremattempt[K];
+  
+  if(m_tracks.empty()) return m_tracks;
+
+  std::list<Trk::Track*>::iterator t = m_tracks.begin();
+
+  for(; t!=m_tracks.end(); ++t) {
+    if((*t)->info().trackProperties(Trk::TrackInfo::BremFit)) ++m_findtracksb[K];
+    clusterTrackMap((*t));
+  }
+
+  ++m_trseedsT [K];
+  ++m_trseeds  [K][r];
+  m_findtracks [K]+= m_tracks.size()   ;
+  m_multytracks[K]+=(m_tracks.size()-1);
+  
   return m_tracks;
 }
 
@@ -563,14 +835,15 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 // Main method for track finding using space points
 ///////////////////////////////////////////////////////////////////
 
-const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
+const std::list<Trk::Track*>& InDet::SiTrackMakerITk_xk::getTracks
 (const Trk::TrackParameters& Tp,const std::list<Amg::Vector3D>& Gp)
 {
-  ++m_inputseeds;
+  int K = 4;
+  ++m_inputseeds[K];
   m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
 
-  ++m_goodseeds;
+  ++m_goodseeds[4];
 
   // Get detector elements road
   //
@@ -580,7 +853,8 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 
   if(!m_pix || !m_sct) detectorElementsSelection(DE);
 
-  if( int(DE.size())  <   m_nclusmin) return m_tracks; 
+  if( int(DE.size())  <   m_nclusmin) return m_tracks;
+  m_desize[4]+=double(DE.size());
 
   // Find possible list of tracks with trigger track parameters or global positions
   //
@@ -590,25 +864,37 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
     m_tracks = m_tracksfinder->getTracks        (Tp,Sp,Gp,DE,m_clusterTrack);
   }
   else if(!m_useCaloSeeds      ) {
+    ++m_bremseeds[4]; 
     m_tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,false);
   }
   else if(  isCaloCompatible() ) {
+    ++m_bremseeds[4]; 
     m_tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,true);
   }
   else                           {
     m_tracks = m_tracksfinder->getTracks        (Tp,Sp,Gp,DE,m_clusterTrack);
   }
+
+  int inf[6];  m_tracksfinder->statistic(inf);
+  if(inf[0]) ++m_twoclusters[K];
+  if(inf[1]) ++m_wrongroad  [K];
+  if(inf[2]) ++m_wronginit  [K];
+  if(inf[3]) ++m_notrack    [K];
+  if(inf[4]) ++m_notnewtrack[K];
+  if(inf[5]) ++m_bremattempt[K];
   
-  if(m_seedsfilter) {
+  if(m_tracks.empty()) return m_tracks;
 
-    std::list<Trk::Track*>::iterator t = m_tracks.begin();
-    while(t!=m_tracks.end()) {
+  std::list<Trk::Track*>::iterator t = m_tracks.begin();
 
-      if(!isNewTrack((*t))) {delete (*t); m_tracks.erase(t++);}
-      else                  {clusterTrackMap((*t++));         }
-    }
+  for(; t!=m_tracks.end(); ++t) {
+    if((*t)->info().trackProperties(Trk::TrackInfo::BremFit)) ++m_findtracksb[K];
+    clusterTrackMap((*t));
   }
-  m_findtracks+=m_tracks.size();
+
+  ++m_trseedsT [K];
+  m_findtracks [K]+= m_tracks.size()   ;
+  m_multytracks[K]+=(m_tracks.size()-1);
   return m_tracks;
 }
 
@@ -616,11 +902,9 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 // Space point seed parameters extimation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
-(bool sss,const std::list<const Trk::SpacePoint*>& SP)
+const Trk::TrackParameters* InDet::SiTrackMakerITk_xk::getAtaPlane
+(const std::list<const Trk::SpacePoint*>& SP)
 {
-  if(m_dbm) return getAtaPlaneDBM(SP);
-
   std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
   if(is==ise) return 0;
 
@@ -655,8 +939,8 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   double A  = v2/(u2-u1)                 ;
   double B  = 2.*(v2-A*u2)               ;
   double C  = B/sqrt(1.+A*A)             ;
-  double T  = z2*sqrt(r2)/(1.+.04*C*C*rn);
-  
+  double T; fabs(C) > 1.e-6 ?  T = (z2*C)/asin(C*sqrt(rn)) : T = z2/sqrt(rn);
+
   const Amg::Transform3D& Tp = pla->transform();
 
   double Ax[3] = {Tp(0,0),Tp(1,0),Tp(2,0)}; 
@@ -681,120 +965,46 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
       T    =  z2*sqrt(r2)  ;
       m_p[2] = atan2(y2,x2);
       m_p[3] = atan2(1.,T) ;
-      m_p[5] = 1./m_pTmin  ;
+      m_p[5] = .9/m_pTmin  ;
     }
   }
   else {
       T    = z2*sqrt(r2)   ;
       m_p[2] = atan2(y2,x2);
       m_p[3] = atan2(1.,T) ;
-      m_p[5] = 1./m_pTmin  ;
+      m_p[5] = .9/m_pTmin  ;
   }
-  
-  if(fabs(m_p[5])*m_pTmin > 1.1) return 0;
+
+  double pTm = pTmin(T) ;
+
+  if(fabs(m_p[5])*pTm > 1.) return 0; 
   m_p[4] = m_p[5]/sqrt(1.+T*T);
   m_p[6] = x0                              ;
   m_p[7] = y0                              ;
   m_p[8] = z0                              ;
   
   // protection against numerical accidents...
-  if (m_p[0]!=m_p[0] || m_p[1]!=m_p[1] || m_p[2]!=m_p[2] || m_p[3]!=m_p[3] || m_p[4]!=m_p[4]) {
-    ATH_MSG_WARNING("Seed parameters contain NaN elements - skipping this seed ");
-    return 0;
-  }
-
-  if(sss && !isHadCaloCompatible()) return 0;
-
-  return pla->createTrackParameters(m_p[0],m_p[1],m_p[2],m_p[3],m_p[4],0); 
-}
-
-///////////////////////////////////////////////////////////////////
-// Space point seed parameters extimation for DBM seed
-///////////////////////////////////////////////////////////////////
-
-const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
-(const std::list<const Trk::SpacePoint*>& SP)
-{
-  std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
-  if(is==ise) return 0;
-
-  const Trk::PrepRawData*       cl  = (*is)->clusterList().first;
-  if(!cl) return 0;
-  const Trk::PlaneSurface*      pla = 
-    static_cast<const Trk::PlaneSurface*>(&cl->detectorElement()->surface());
-  if(!pla) return 0;
-
-  is0 = is; if(++is==ise) return 0; 
-  is1 = is; if(++is==ise) return 0;
-  is2 = is ;
-  double p0[3],p1[3],p2[3]; 
-  if(!globalPositions((*is0),(*is1),(*is2),p0,p1,p2)) return 0;
-
-  double x0 = m_xybeam[0]-p0[0];
-  double y0 = m_xybeam[1]-p0[1];
-  double x2 = p2[0]      -p0[0];
-  double y2 = p2[1]      -p0[1];
-  double z2 = p2[2]      -p0[2];
-
-  double u1 = -1./sqrt(x0*x0+y0*y0);
-  double rn = x2*x2+y2*y2          ;
-  double r2 = 1./rn                ;
-  double a  =  x0*u1               ;
-  double b  =  y0*u1               ;
-  double u2 = (a*x2+b*y2)*r2       ;
-  double v2 = (a*y2-b*x2)*r2       ;
-  double A  = v2/(u2-u1)           ;
-  double B  = 2.*(v2-A*u2)         ;
-  double C  = B/sqrt(1.+A*A)       ;
-  double T  = z2*sqrt(r2)          ;
-  
-  const Amg::Transform3D& Tp = pla->transform();
-
-  double Ax[3] = {Tp(0,0),Tp(1,0),Tp(2,0)}; 
-  double Ay[3] = {Tp(0,1),Tp(1,1),Tp(2,1)}; 
-  double D [3] = {Tp(0,3),Tp(1,3),Tp(2,3)}; 
-  
-  double   d[3] = {p0[0]-D[0],p0[1]-D[1],p0[2]-D[2]};
-
-  m_p[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
-  m_p[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
-
-  if(m_fieldprop.magneticFieldMode() > 0) {
-
-    double H[3],gP[3] ={p0[0],p0[1],p0[2]}; m_fieldService->getFieldZR(gP,H);
-
-    if(fabs(H[2])>.0001) {
-      m_p[2] = atan2(b+a*A,a-b*A);
-      m_p[3] = atan2(1.,T)       ;  
-      m_p[5] = -C/(300.*H[2])    ;
+  //
+  if (m_p[0]!=m_p[0] || m_p[1]!=m_p[1] || m_p[2]!=m_p[2] || m_p[3]!=m_p[3] || m_p[4]!=m_p[4])
+    {
+      ATH_MSG_WARNING("Seed parameters contain NaN elements - skipping this seed ");
+      return 0; 
     }
-    else {
-      T    =  z2*sqrt(r2)  ;
-      m_p[2] = atan2(y2,x2);
-      m_p[3] = atan2(1.,T) ;
-      m_p[5] = 1./1000.    ;
-    }
-  }
-  else {
-      T    = z2*sqrt(r2)   ;
-      m_p[2] = atan2(y2,x2);
-      m_p[3] = atan2(1.,T) ;
-      m_p[5] = 1./1000     ;
-  }
 
-  if(fabs(m_p[5])*20. > 1.1) return 0;
-  m_p[4] = m_p[5]/sqrt(1.+T*T);
-  m_p[6] = p0[0]                           ;
-  m_p[7] = p0[1]                           ;
-  m_p[8] = p0[2]                           ;
-  return pla->createTrackParameters(m_p[0],m_p[1],m_p[2],m_p[3],m_p[4],0); 
+
+  const Trk::TrackParameters* T0 =  pla->createTrackParameters(m_p[0],m_p[1],m_p[2],m_p[3],m_p[4],0);
+
+  if(!T0) return T0;
+
+  if(m_tracksfinder->pTseed(*T0,SP) >= pTm) return T0;
+  delete T0; return 0;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Set track quality cuts
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiTrackMaker_xk::setTrackQualityCuts()
+void  InDet::SiTrackMakerITk_xk::setTrackQualityCuts()
 {
   // Integer cuts
   //
@@ -826,38 +1036,24 @@ void  InDet::SiTrackMaker_xk::setTrackQualityCuts()
 // Detector elements selection
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::detectorElementsSelection(std::vector<const InDetDD::SiDetectorElement*>& DE)
+void InDet::SiTrackMakerITk_xk::detectorElementsSelection(std::vector<const InDetDD::SiDetectorElement*>& DE)
 {
-  std::vector<const InDetDD::SiDetectorElement*>::iterator d = DE.begin();
-  if(!m_dbm) {
+  std::vector<const InDetDD::SiDetectorElement*>::iterator d = DE.begin(), de = DE.end(), d0;
+  for(d0=d; d!=de; ++d) {
+    if     ((*d)->isPixel()) {if(!m_pix) continue;}
+    else if(   !m_sct      ) continue;
 
-    while(d!=DE.end()) {
-
-      if     ((*d)->isPixel()) {if(!m_pix) {DE.erase(d++); continue;}}
-      else if(   !m_sct      ) {            DE.erase(d++); continue; }
-      ++d;
-    }
+    if(d!=d0) (*d0)=(*d);
+    ++d0;
   }
-  else      {
-    while(d!=DE.end()) {
-
-      if(!(*d)->isDBM() ) {
-
-	if((*d)->isSCT() || (*d)->isEndcap())       {DE.erase(d++); continue;}
-	const Amg::Transform3D& T  = (*d)->surface().transform();	
-	if(T(0,3)*T(0,3)+T(1,3)*T(1,3) > (43.*43) ) {DE.erase(d++); continue;}
-
-      }
-      ++d;
-    }
-  }
-} 
+  if(d0!=de) DE.erase(d0,de);
+}
 
 ///////////////////////////////////////////////////////////////////
 // Callback function - get the magnetic field /
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
+StatusCode InDet::SiTrackMakerITk_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
 {
   // Build MagneticFieldProperties 
   //
@@ -867,7 +1063,7 @@ StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS)
   return StatusCode::SUCCESS;
 }
 
-void InDet::SiTrackMaker_xk::magneticFieldInit() 
+void InDet::SiTrackMakerITk_xk::magneticFieldInit() 
 {
   Trk::MagneticFieldProperties* pMF = 0;
   if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
@@ -880,13 +1076,13 @@ void InDet::SiTrackMaker_xk::magneticFieldInit()
 // New clusters comparison with clusters associated with track
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp)
+bool InDet::SiTrackMakerITk_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp)
 {
   std::multiset<const Trk::Track*> trackseed;
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator pt,pte = m_clusterTrack.end();
   std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
 
-  int n = 0;
+  unsigned int n = 0;
   for(s = Sp.begin(); s!=se; ++s) {
 
     const Trk::PrepRawData* p = (*s)->clusterList().first; 
@@ -898,39 +1094,27 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
     for(pt = m_clusterTrack.find(p); pt!=pte; ++pt) {if((*pt).first!=p) break; trackseed.insert((*pt).second);} ++n;
 
   }
-  if(trackseed.empty()) return true;
+
+  if(trackseed.size() < n) return true;
 
   std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
 
-  const Trk::Track* tr  = (*t)                             ;
-  unsigned int      nsm = tr->measurementsOnTrack()->size();
-  unsigned int      nsm3= 0                                ;
-  int               nt  = 1                                ;
-  int               t3  = 0                                ;
+  const Trk::Track* tr  = (*t);
+  unsigned int      nt  =   1 ;
 
   for(++t; t!=te; ++t) {
 
-    if((*t) == tr) {++nt; continue;}
-    if (nt  == n ) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;} 
-    tr = (*t); nt = 1;
-    unsigned int ns = tr->measurementsOnTrack()->size(); if(ns > nsm) nsm = ns;
+    if((*t) != tr) {tr = (*t); nt = 1; continue;}
+    if(++nt == n) return false;
   }
-  if(nt == n) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;}
-
-  if(m_heavyion) {if(n==3 || t3 <=0) return true; return false;}
-
-  if( nsm3 > 13 || t3 > 2) return false;
-
-  if( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
-  if(t3 > 0) return false;
-  return true;
+  return nt!=n;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Clusters-track multimap production
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiTrackMaker_xk::clusterTrackMap(Trk::Track* Tr)
+void  InDet::SiTrackMakerITk_xk::clusterTrackMap(Trk::Track* Tr)
 {
   DataVector<const Trk::MeasurementBase>::const_iterator 
     m  = Tr->measurementsOnTrack()->begin(), 
@@ -943,53 +1127,10 @@ void  InDet::SiTrackMaker_xk::clusterTrackMap(Trk::Track* Tr)
 }
  
 ///////////////////////////////////////////////////////////////////
-// Test is it new track
-///////////////////////////////////////////////////////////////////
-
-bool InDet::SiTrackMaker_xk::isNewTrack(Trk::Track* Tr)
-{
-  const Trk::PrepRawData* prd   [100];
-  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
-    ti,t[100],te = m_clusterTrack.end();
-
-  int     n   = 0    ;
-
-  DataVector<const Trk::MeasurementBase>::const_iterator 
-    m  = Tr->measurementsOnTrack()->begin(), 
-    me = Tr->measurementsOnTrack()->end  ();
-
-  for(; m!=me; ++m) {
-  
-    const Trk::PrepRawData* pr = ((const Trk::RIO_OnTrack*)(*m))->prepRawData();
-    if(pr) {
-      prd[n] =pr;
-      t  [n] = m_clusterTrack.find(prd[n]); if(t[n]==te) return true; ++n;
-    }
-  }
-
-  if(!n) return true;
-  int nclt = n;
-  
-  for(int i=0; i!=n; ++i) {
-
-    int nclmax = 0;
-
-    for(ti=t[i]; ti!=te; ++ti) {
-
-      if( (*ti).first != prd[i] ) break;
-      int ncl = (*ti).second->measurementsOnTrack()->size();
-      if(ncl > nclmax) nclmax = ncl;
-    }   
-    if(nclt > nclmax) return true;
-  }
-  return false;
-}
-
-///////////////////////////////////////////////////////////////////
 // Calculation global position for space points
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::globalPositions
+bool InDet::SiTrackMakerITk_xk::globalPositions
 (const Trk::SpacePoint* s0,const Trk::SpacePoint* s1,const Trk::SpacePoint* s2,
  double* p0,double* p1,double* p2)
 {
@@ -1023,7 +1164,7 @@ bool InDet::SiTrackMaker_xk::globalPositions
 // Calculation global position for space points
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::globalPosition
+bool InDet::SiTrackMakerITk_xk::globalPosition
 (const Trk::SpacePoint* sp, double* dir,double* p)
 {
   const Trk::PrepRawData*  c0  = sp->clusterList().first;
@@ -1052,12 +1193,11 @@ bool InDet::SiTrackMaker_xk::globalPosition
   double v[3]  = {a0[1]*dir[2]-a0[2]*dir[1],a0[2]*dir[0]-a0[0]*dir[2],a0[0]*dir[1]-a0[1]*dir[0]};
 
   double du    = a0[0]*u[0]+a0[1]*u[1]+a0[2]*u[2];
-  double dv    = a1[0]*v[0]+a1[1]*v[1]+a1[2]*v[2];
 
-  if(du==0. || dv==0.) return false;
+  if(du==0.) return false;
 
   double s0 = (dr[0]*u[0]+dr[1]*u[1]+dr[2]*u[2])/du;
-  double s1 =-(dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/dv;
+  double s1 = (dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/du;
 
   if(s0 < -d0 || s0 > 1.+d0 ||  s1 < -d0 || s1 > 1.+d0) return false;
 
@@ -1072,84 +1212,38 @@ bool InDet::SiTrackMaker_xk::globalPosition
 // Test is it track with calo seed compatible
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::isCaloCompatible()
+bool InDet::SiTrackMakerITk_xk::isCaloCompatible()
 {
   const double pi = M_PI, pi2 = 2.*M_PI;
 
-  if(m_caloF.empty()) return false;   
-
-  std::list<double>::iterator f = m_caloF.begin(), fe = m_caloF.end();
-  std::list<double>::iterator r = m_caloR.begin();
-  std::list<double>::iterator z = m_caloZ.begin();
+  if(m_caloFRZ.empty()) return false;   
 
   double F = m_p[2]                           ;
   double E = -log(tan(.5*m_p[3]))             ;
   double R = sqrt(m_p[6]*m_p[6]+m_p[7]*m_p[7]);
   double Z = m_p[8]                           ;                           
-  
-  for(; f!=fe; ++f) {
-    double df = fabs(F-(*f));
+
+  int ae = int(m_caloFRZ.size());
+  for(int a = 0; a!=ae; a+=3) {
+
+    double df = fabs(F-m_caloFRZ[a]);
+
     if(df > pi        ) df = fabs(pi2-df);
-    if(df < m_phiWidth) {
-      
-      double dR = (*r)-R;
-      double dZ = (*z)-Z;
-      if(fabs(E-atanh(dZ/sqrt(dR*dR+dZ*dZ)) ) < m_etaWidth) return true;
-    }
-    ++r; ++z;
+    if(df > m_phiWidth) continue;
+ 
+    double dR = m_caloFRZ[a+1]-R;
+    double dZ = m_caloFRZ[a+2]-Z;
+
+    if(fabs(E-atanh(dZ/sqrt(dR*dR+dZ*dZ)) ) < m_etaWidth) return true;
   }
   return false;
-}
-
-///////////////////////////////////////////////////////////////////
-// Test track is compatible withi had calo seed
-///////////////////////////////////////////////////////////////////
-
-bool InDet::SiTrackMaker_xk::isHadCaloCompatible()
-{
-  const double pi = M_PI, pi2 = 2.*M_PI;
-
-  if(m_hadF.empty() || fabs(m_p[5])*m_pTminSSS > 1.) return false;   
-
-  std::list<double>::iterator f = m_hadF.begin(), fe = m_hadF.end();
-  std::list<double>::iterator r = m_hadR.begin();
-  std::list<double>::iterator z = m_hadZ.begin();
-
-  double F = m_p[2]                           ;
-  double E = -log(tan(.5*m_p[3]))             ;
-  double R = sqrt(m_p[6]*m_p[6]+m_p[7]*m_p[7]);
-  double Z = m_p[8]                           ;                           
-  
-  for(; f!=fe; ++f) {
-    double df = fabs(F-(*f));
-    if(df > pi        ) df = fabs(pi2-df);
-    if(df < m_phiWidth) {
-      
-      double dR = (*r)-R;
-      double dZ = (*z)-Z;
-      if(fabs(E-atanh(dZ/sqrt(dR*dR+dZ*dZ)) ) < m_etaWidth) return true;
-    }
-    ++r; ++z;
-  }
-  return false;
-}
-
-///////////////////////////////////////////////////////////////////
-// Test is it DBM seed
-///////////////////////////////////////////////////////////////////
-
-bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s)
-{
-  const InDetDD::SiDetectorElement* de= 
-    static_cast<const InDetDD::SiDetectorElement*>(s->clusterList().first->detectorElement());
-  return de && de->isDBM();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Calculation global direction for positions of space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::globalDirections
+void InDet::SiTrackMakerITk_xk::globalDirections
 (double* p0,double* p1,double* p2,double* d0,double* d1,double* d2)
 {
   double x01 = p1[0]-p0[0]      ;
@@ -1186,3 +1280,98 @@ void InDet::SiTrackMaker_xk::globalDirections
   d2[0] = Sa*C2-Sb*S2; d2[1]= Sa*S2+Sb*C2; d2[2]=Ce;  
 }
 
+///////////////////////////////////////////////////////////////////
+// Kind of seed calculation 0-PPP, 1-PPS, 2-PSS, 3-SSS another -1
+///////////////////////////////////////////////////////////////////
+
+int InDet::SiTrackMakerITk_xk::kindSeed(const std::list<const Trk::SpacePoint*>& Sp)
+{
+  if(Sp.size()!=3) return 4;
+  
+  std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+  
+  int n = 0;
+  for(; s!=se; ++s) {if((*s)->clusterList().second) ++n;}
+  return n;
+}
+
+///////////////////////////////////////////////////////////////////
+// Rapidity seed calculation
+///////////////////////////////////////////////////////////////////
+
+int InDet::SiTrackMakerITk_xk::rapidity(const std::list<const Trk::SpacePoint*>& Sp)
+{ 
+  if(Sp.size() < 2) return 0;
+
+  std::list<const Trk::SpacePoint*>::const_iterator s = Sp.begin();
+  
+  double x = (*s)->globalPosition().x(); 
+  double y = (*s)->globalPosition().y();
+  double z = (*s)->globalPosition().z();
+  ++s;
+  x = (*s)->globalPosition().x()-x; 
+  y = (*s)->globalPosition().y()-y;
+  z = (*s)->globalPosition().z()-z;
+  int n = int(2.*fabs(log(tan(.5*atan2(sqrt(x*x+y*y),z)))));
+  if(n > 7) n = 7;
+  return n;
+}
+
+///////////////////////////////////////////////////////////////////
+// Purite seed investigation
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrackMakerITk_xk::purity(const std::list<const Trk::SpacePoint*>& Sp)
+{
+  std::multiset<const HepMC::GenParticle*>         MST;
+  std::set     <const HepMC::GenParticle*>          ST; 
+  std::multiset<const HepMC::GenParticle*>::iterator m;
+  std::set     <const HepMC::GenParticle*>::iterator t;
+
+  std::list<const Trk::SpacePoint*>::const_iterator s = Sp.begin(), se = Sp.end();
+
+  int N = 0;
+  for(; s!=se; ++s) {
+
+    ++N; ST.clear();
+    truth((*s)->clusterList().first,ST); if(!ST.size()) return false;
+    for(t=ST.begin(); t!=ST.end(); ++t) MST.insert((*t));
+
+    if(!(*s)->clusterList().second) continue;
+    ++N; ST.clear();
+    truth((*s)->clusterList().second,ST); if(!ST.size()) return false;
+    for(t=ST.begin(); t!=ST.end(); ++t) MST.insert((*t));
+  }
+
+  int                       M  = 0;
+  const HepMC::GenParticle* MP = 0;
+  for(m = MST.begin(); m!=MST.end(); ++m) {
+    if((*m)!=MP) {M = 0; MP = (*m);}
+    if(++M == N) return true;
+  }
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////
+// Set truth particles of cluster
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiTrackMakerITk_xk::truth(const Trk::PrepRawData* d,std::set<const HepMC::GenParticle*>& S)
+{
+  
+  PRD_MultiTruthCollection::const_iterator mc,mce;
+
+  Identifier ID    = d->identify();
+
+  if     (dynamic_cast<const InDet::PixelCluster*>(d)) {mc=m_truthPIX->find(ID), mce=m_truthPIX->end();}
+  else if(dynamic_cast<const InDet::SCT_Cluster*> (d)) {mc=m_truthSCT->find(ID), mce=m_truthSCT->end();}
+  else return;
+
+  for(; mc!=mce; ++mc) {
+
+    if( (*mc).first != ID ) return;
+
+    int k = (*mc).second.barcode(); if(k<=0) continue;
+    const HepMC::GenParticle* pa = (*mc).second.cptr(); if(pa) S.insert(pa);
+  }
+}

@@ -9,35 +9,36 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetTrackClusterAssValidation/TrackClusterAssValidation.h"
+#include "InDetTrackClusterAssValidation/TrackClusterAssValidationITk.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::TrackClusterAssValidation::TrackClusterAssValidation
-(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)
+InDet::TrackClusterAssValidationITk::TrackClusterAssValidationITk
+(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
+  m_spacepointsSCT("SCT_SpacePoints"),
+  m_spacepointsPixel("PixelSpacePoints"),
+  m_spacepointsOverlap("OverlapSpacePoints"),
+  m_etaDependentCutsSvc("",name)
 {
 
-  // TrackClusterAssValidation steering parameters
+  // TrackClusterAssValidationITk steering parameters
   //
-  m_spacepointsSCTname     = "SCT_SpacePoints"                ;
-  m_spacepointsPixelname   = "PixelSpacePoints"               ;
-  m_spacepointsOverlapname = "OverlapSpacePoints"             ; 
   m_clustersPixelname      = "PixelClusters"                  ;
   m_clustersSCTname        = "SCT_Clusters"                   ;
   m_clustersTRTname        = "TRT_DriftCircles"               ;
   m_truth_locationPixel    = "PRD_MultiTruthPixel"            ;
   m_truth_locationSCT      = "PRD_MultiTruthSCT"              ;
   m_truth_locationTRT      = "PRD_MultiTruthTRT"              ;
-  m_spacepointsSCT         = 0                                ;
-  m_spacepointsPixel       = 0                                ;
-  m_spacepointsOverlap     = 0                                ;
   m_ptcut                  = 1000.                            ;
   m_ptcutmax               = 1.e20                            ;
   m_rapcut                 = 2.6                              ;
   m_rmin                   = 0.                               ;
   m_rmax                   = 30.                              ;
+  m_rapTRAN                = 1.                               ;
+  m_rapENDS                = 1.6                              ;
+  m_rapENDP                = 2.5                              ;
   m_clcut                  = 6                                ;
   m_clcutTRT               = 0                                ;
   m_spcut                  = 3                                ;
@@ -73,40 +74,44 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_truthTRT               = 0                                ;
   m_particleDataTable      = 0                                ; 
 
-  declareProperty("TracksLocation"            ,m_tracklocation         );
-  declareProperty("SpacePointsSCTName"        ,m_spacepointsSCTname    );
-  declareProperty("SpacePointsPixelName"      ,m_spacepointsPixelname  );
-  declareProperty("SpacePointsOverlapName"    ,m_spacepointsOverlapname);
-  declareProperty("PixelClustesContainer"     ,m_clustersPixelname     );
-  declareProperty("SCT_ClustesContainer"      ,m_clustersSCTname       );
-  declareProperty("TRT_ClustesContainer"      ,m_clustersTRTname       );
-  declareProperty("TruthLocationSCT"          ,m_truth_locationSCT     );
-  declareProperty("TruthLocationPixel"        ,m_truth_locationPixel   );
-  declareProperty("TruthLocationTRT"          ,m_truth_locationTRT     );
-  declareProperty("MomentumCut"               ,m_ptcut                 );
-  declareProperty("MomentumMaxCut"            ,m_ptcutmax              );
-  declareProperty("RapidityCut"               ,m_rapcut                );
-  declareProperty("RadiusMin"                 ,m_rmin                  );
-  declareProperty("RadiusMax"                 ,m_rmax                  );
-  declareProperty("MinNumberClusters"         ,m_clcut                 );
-  declareProperty("MinNumberClustersTRT"      ,m_clcutTRT              );
-  declareProperty("MinNumberSpacePoints"      ,m_spcut                 );
-  declareProperty("usePixel"                  ,m_usePIX                );
-  declareProperty("useSCT"                    ,m_useSCT                );
-  declareProperty("useTRT"                    ,m_useTRT                );
-  declareProperty("useOutliers"               ,m_useOutliers           );
-  declareProperty("pdgParticle"               ,m_pdg                   );
+  declareProperty("TracksLocation"        ,m_tracklocation         );
+  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );
+  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel      );
+  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap    );
+  declareProperty("PixelClustesContainer" ,m_clustersPixelname     );
+  declareProperty("SCT_ClustesContainer"  ,m_clustersSCTname       );
+  declareProperty("TRT_ClustesContainer"  ,m_clustersTRTname       );
+  declareProperty("TruthLocationSCT"      ,m_truth_locationSCT     );
+  declareProperty("TruthLocationPixel"    ,m_truth_locationPixel   );
+  declareProperty("TruthLocationTRT"      ,m_truth_locationTRT     );
+  declareProperty("MomentumCut"           ,m_ptcut                 );
+  declareProperty("MomentumMaxCut"        ,m_ptcutmax              );
+  declareProperty("RapidityCut"           ,m_rapcut                );
+  declareProperty("RadiusMin"             ,m_rmin                  );
+  declareProperty("RadiusMax"             ,m_rmax                  );
+  declareProperty("MinNumberClusters"     ,m_clcut                 );
+  declareProperty("MinNumberClustersTRT"  ,m_clcutTRT              );
+  declareProperty("MinNumberSpacePoints"  ,m_spcut                 );
+  declareProperty("usePixel"              ,m_usePIX                );
+  declareProperty("useSCT"                ,m_useSCT                );
+  declareProperty("useTRT"                ,m_useTRT                );
+  declareProperty("useOutliers"           ,m_useOutliers           );
+  declareProperty("pdgParticle"           ,m_pdg                   );
+  declareProperty("InDetEtaDependentCutsSvc"  ,m_etaDependentCutsSvc  );
 }
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TrackClusterAssValidation::initialize() 
+StatusCode InDet::TrackClusterAssValidationITk::initialize() 
 {
   
   StatusCode sc; 
   
+  if (not m_etaDependentCutsSvc.name().empty()) 
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+
   m_rapcut ? m_tcut = 1./tan(2.*atan(exp(-m_rapcut))) : m_tcut = 0.;
 
   // get the Particle Properties Service
@@ -136,6 +141,13 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 
   // Erase statistic information
   //
+  m_nevents          = 0               ;
+  m_nclustersPTOT    = 0               ;
+  m_nclustersSTOT    = 0               ;
+  m_nspacepointsPTOT = 0               ;
+  m_nspacepointsSTOT = 0               ;
+  m_nspacepointsOTOT = 0               ;
+
   m_pdg          = fabs(m_pdg)         ;
   m_events       = 0                   ;
   m_eventsPOS    = 0                   ;
@@ -171,12 +183,10 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   m_nclustersPosBS  = 0; // number barrel  SCT   clusters for positive particles
   m_nclustersPosEP  = 0; // number endcap pixels clusters for positive particles
   m_nclustersPosES  = 0; // number endcap  SCT   clusters for positive particles
-  m_nclustersPosDBM = 0;
   m_nclustersNegBP  = 0; // number barrel pixels clusters for negative particles
   m_nclustersNegBS  = 0; // number barrel  SCT   clusters for negative particles
   m_nclustersNegEP  = 0; // number endcap pixels clusters for negative particles
   m_nclustersNegES  = 0; // number endcap  SCT   clusters for negative particles
-  m_nclustersNegDBM = 0;
 
   for(int i=0; i!=50; ++i) {
     m_particleClusters      [i]    = 0;
@@ -201,11 +211,11 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TrackClusterAssValidation::execute() 
+StatusCode InDet::TrackClusterAssValidationITk::execute() 
 { 
 
-  if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;;
-
+  if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;
+  ++m_nevents;
   m_truthPIX  = 0;
   m_truthSCT  = 0;
   m_truthTRT  = 0;
@@ -234,16 +244,13 @@ StatusCode InDet::TrackClusterAssValidation::execute()
       return s;
     }
   }
-
   newClustersEvent                   ();
   newSpacePointsEvent                ();
   m_nqtracks = QualityTracksSelection();
   tracksComparison                   ();
   if(m_particles[0].size() > 0) {
-
     efficiencyReconstruction(); 
     if(m_outputlevel<=0) noReconstructedParticles();
-
   }
 
   if(m_outputlevel< 0) {
@@ -256,13 +263,13 @@ StatusCode InDet::TrackClusterAssValidation::execute()
 // Finalize
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TrackClusterAssValidation::finalize() {
+StatusCode InDet::TrackClusterAssValidationITk::finalize() {
 
   if(m_events<=0) return StatusCode::SUCCESS;
-    
+
   std::cout<<"|-----------------------------------------------------------------------------------|"
 	   <<std::endl;
-  std::cout<<"|        TrackClusterAssValidation statistic for charge truth particles with        |"
+  std::cout<<"|        TrackClusterAssValidationITk statistic for charge truth particles with        |"
 	   <<std::endl;
   std::cout<<"|                                                                                   |"
 	   <<std::endl;
@@ -303,9 +310,18 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   std::cout<<"|                    take into account outliers" 
 	   <<"      "<<YN
 	   <<"                            |"<<std::endl;
-
   std::cout<<"|                                                                                   |"
 	   <<std::endl;
+
+  std::cout<<"| Definition:   Barrel < " 
+	   <<std::setw(4)<<std::setprecision(2)<<m_rapTRAN<<" < Transit < "
+	   <<std::setw(4)<<std::setprecision(2)<<m_rapENDS<<" < Endcap < "
+	   <<std::setw(4)<<std::setprecision(2)<<m_rapENDP<<" < Forward < "
+	   <<std::setw(4)<<std::setprecision(2)<<m_rapcut 
+	   <<"     |"<<std::endl;
+  std::cout<<"|                                                                                   |"
+	   <<std::endl;
+
   if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;
 
   
@@ -321,20 +337,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     m_particleSpacePointsBTE[i][2]+=m_particleSpacePointsBTE[i+1][2];
     m_particleSpacePointsBTE[i][3]+=m_particleSpacePointsBTE[i+1][3];
   }
-
-  double pa   =  double(m_particleClusters[0]); if(pa < 1.) pa = 1.;
-  double pc2  = double(m_particleClusters   [ 2])        / pa;
-  double pc3  = double(m_particleClusters   [ 3])        / pa;
-  double pc4  = double(m_particleClusters   [ 4])        / pa;
-  double pc5  = double(m_particleClusters   [ 5])        / pa;
-  double pc6  = double(m_particleClusters   [ 6])        / pa;
-  double pc7  = double(m_particleClusters   [ 7])        / pa;
-  double pc8  = double(m_particleClusters   [ 8])        / pa;
-  double pc9  = double(m_particleClusters   [ 9])        / pa;
-  double pc10 = double(m_particleClusters   [10])        / pa;
-  double pc11 = double(m_particleClusters   [11])        / pa;
-
-  pa           = double(m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
+  double pa    = double(m_particleClustersBTE[ 0][0]); if(pa < 1.) pa = 1.;
   double pcB2  = double(m_particleClustersBTE[ 2][0])    / pa;
   double pcB3  = double(m_particleClustersBTE[ 3][0])    / pa;
   double pcB4  = double(m_particleClustersBTE[ 4][0])    / pa;
@@ -356,7 +359,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double pcT9  = double(m_particleClustersBTE[ 9][1])    / pa;
   double pcT10 = double(m_particleClustersBTE[10][1])    / pa;
   double pcT11 = double(m_particleClustersBTE[11][1])    / pa;
-  pa           = double(m_particleClustersBTE[0][2]); if(pa < 1.) pa = 1.;
+  pa           = double(m_particleClustersBTE[ 0][2]); if(pa < 1.) pa = 1.;
   double pcE2  = double(m_particleClustersBTE[ 2][2])    / pa;
   double pcE3  = double(m_particleClustersBTE[ 3][2])    / pa;
   double pcE4  = double(m_particleClustersBTE[ 4][2])    / pa;
@@ -367,8 +370,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double pcE9  = double(m_particleClustersBTE[ 9][2])    / pa;
   double pcE10 = double(m_particleClustersBTE[10][2])    / pa;
   double pcE11 = double(m_particleClustersBTE[11][2])    / pa;
-
-  pa           = double(m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
+  pa           = double(m_particleClustersBTE[ 0][3]); if(pa < 1.) pa = 1.;
   double pcD2  = double(m_particleClustersBTE[ 2][3])    / pa;
   double pcD3  = double(m_particleClustersBTE[ 3][3])    / pa;
   double pcD4  = double(m_particleClustersBTE[ 4][3])    / pa;
@@ -379,20 +381,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double pcD9  = double(m_particleClustersBTE[ 9][3])    / pa;
   double pcD10 = double(m_particleClustersBTE[10][3])    / pa;
   double pcD11 = double(m_particleClustersBTE[11][3])    / pa;
-
-
-  pa           = double(m_particleSpacePoints[0]); if(pa < 1.) pa = 1.;
-  double ps2   = double(m_particleSpacePoints[ 2])       / pa;
-  double ps3   = double(m_particleSpacePoints[ 3])       / pa;
-  double ps4   = double(m_particleSpacePoints[ 4])       / pa;
-  double ps5   = double(m_particleSpacePoints[ 5])       / pa;
-  double ps6   = double(m_particleSpacePoints[ 6])       / pa;
-  double ps7   = double(m_particleSpacePoints[ 7])       / pa;
-  double ps8   = double(m_particleSpacePoints[ 8])       / pa;
-  double ps9   = double(m_particleSpacePoints[ 9])       / pa;
-  double ps10  = double(m_particleSpacePoints[10])       / pa;
-  double ps11  = double(m_particleSpacePoints[11])       / pa;
-  pa           = double(m_particleSpacePointsBTE[0][0]); if(pa < 1.) pa = 1.;
+  pa           = double(m_particleSpacePointsBTE[ 0][0]); if(pa < 1.) pa = 1.;
   double psB2  = double(m_particleSpacePointsBTE[ 2][0]) / pa;
   double psB3  = double(m_particleSpacePointsBTE[ 3][0]) / pa;
   double psB4  = double(m_particleSpacePointsBTE[ 4][0]) / pa;
@@ -403,7 +392,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double psB9  = double(m_particleSpacePointsBTE[ 9][0]) / pa;
   double psB10 = double(m_particleSpacePointsBTE[10][0]) / pa;
   double psB11 = double(m_particleSpacePointsBTE[11][0]) / pa;
-  pa           = double(m_particleSpacePointsBTE[0][1]); if(pa < 1.) pa = 1.;
+  pa           = double(m_particleSpacePointsBTE[ 0][1]); if(pa < 1.) pa = 1.;
   double psT2  = double(m_particleSpacePointsBTE[ 2][1]) / pa;
   double psT3  = double(m_particleSpacePointsBTE[ 3][1]) / pa;
   double psT4  = double(m_particleSpacePointsBTE[ 4][1]) / pa;
@@ -414,7 +403,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double psT9  = double(m_particleSpacePointsBTE[ 9][1]) / pa;
   double psT10 = double(m_particleSpacePointsBTE[10][1]) / pa;
   double psT11 = double(m_particleSpacePointsBTE[11][1]) / pa;
-  pa           = double(m_particleSpacePointsBTE[0][2]); if(pa < 1.) pa = 1.; 
+  pa           = double(m_particleSpacePointsBTE[ 0][2]); if(pa < 1.) pa = 1.; 
   double psE2  = double(m_particleSpacePointsBTE[ 2][2]) / pa;
   double psE3  = double(m_particleSpacePointsBTE[ 3][2]) / pa;
   double psE4  = double(m_particleSpacePointsBTE[ 4][2]) / pa;
@@ -425,8 +414,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double psE9  = double(m_particleSpacePointsBTE[ 9][2]) / pa;
   double psE10 = double(m_particleSpacePointsBTE[10][2]) / pa;
   double psE11 = double(m_particleSpacePointsBTE[11][2]) / pa;
-
-  pa           = double(m_particleSpacePointsBTE[0][3]); if(pa < 1.) pa = 1.;
+  pa           = double(m_particleSpacePointsBTE[ 0][3]); if(pa < 1.) pa = 1.;
   double psD2  = double(m_particleSpacePointsBTE[ 2][3]) / pa;
   double psD3  = double(m_particleSpacePointsBTE[ 3][3]) / pa;
   double psD4  = double(m_particleSpacePointsBTE[ 4][3]) / pa;
@@ -438,21 +426,17 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double psD10 = double(m_particleSpacePointsBTE[10][3]) / pa;
   double psD11 = double(m_particleSpacePointsBTE[11][3]) / pa;
 
-
-  std::cout<<"|         Propability for such charge particles to have some number silicon                          |"
+  std::cout<<"|         Propability for such charge particles to have some number silicon         |"
+	   <<std::endl;  
+  std::cout<<"|                     clusters            |             space points                |"
 	   <<std::endl;
-  std::cout<<"|                     clusters                     |             space points                        |"
-	   <<std::endl;
-  std::cout<<"|           Total   Barrel  Transi  Endcap   DBM    |  Total   Barrel  Transi  Endcap   DBM          |"
+  std::cout<<"|         Barrel  Transit  Endcap Forward |   Barrel  Transit  Endcap Forward       |"
 	   <<std::endl;
   std::cout<<"|  >= 2  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc2
 	   <<std::setw(8)<<std::setprecision(5)<<pcB2
 	   <<std::setw(8)<<std::setprecision(5)<<pcT2
 	   <<std::setw(8)<<std::setprecision(5)<<pcE2
-	   <<std::setw(8)<<std::setprecision(5)<<pcD2<<"  |  "
-
-	   <<std::setw(8)<<std::setprecision(5)<<ps2
+	   <<std::setw(8)<<std::setprecision(5)<<pcD2<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB2
 	   <<std::setw(8)<<std::setprecision(5)<<psT2
 	   <<std::setw(8)<<std::setprecision(5)<<psE2
@@ -460,12 +444,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 3  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc3
 	   <<std::setw(8)<<std::setprecision(5)<<pcB3
 	   <<std::setw(8)<<std::setprecision(5)<<pcT3
 	   <<std::setw(8)<<std::setprecision(5)<<pcE3
-	   <<std::setw(8)<<std::setprecision(5)<<pcD3<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps3
+	   <<std::setw(8)<<std::setprecision(5)<<pcD3<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB3
 	   <<std::setw(8)<<std::setprecision(5)<<psT3
 	   <<std::setw(8)<<std::setprecision(5)<<psE3
@@ -473,12 +455,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 4  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc4
 	   <<std::setw(8)<<std::setprecision(5)<<pcB4
 	   <<std::setw(8)<<std::setprecision(5)<<pcT4
 	   <<std::setw(8)<<std::setprecision(5)<<pcE4
-	   <<std::setw(8)<<std::setprecision(5)<<pcD4<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps4
+	   <<std::setw(8)<<std::setprecision(5)<<pcD4<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB4
 	   <<std::setw(8)<<std::setprecision(5)<<psT4
 	   <<std::setw(8)<<std::setprecision(5)<<psE4
@@ -486,12 +466,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 5  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc5
 	   <<std::setw(8)<<std::setprecision(5)<<pcB5
 	   <<std::setw(8)<<std::setprecision(5)<<pcT5
 	   <<std::setw(8)<<std::setprecision(5)<<pcE5
-	   <<std::setw(8)<<std::setprecision(5)<<pcD5<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps5
+	   <<std::setw(8)<<std::setprecision(5)<<pcD5<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB5
 	   <<std::setw(8)<<std::setprecision(5)<<psT5
 	   <<std::setw(8)<<std::setprecision(5)<<psE5
@@ -499,12 +477,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 6  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc6
 	   <<std::setw(8)<<std::setprecision(5)<<pcB6
 	   <<std::setw(8)<<std::setprecision(5)<<pcT6
 	   <<std::setw(8)<<std::setprecision(5)<<pcE6
-	   <<std::setw(8)<<std::setprecision(5)<<pcD6<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps6
+	   <<std::setw(8)<<std::setprecision(5)<<pcD6<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB6
 	   <<std::setw(8)<<std::setprecision(5)<<psT6
 	   <<std::setw(8)<<std::setprecision(5)<<psE6
@@ -512,12 +488,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 7  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc7
 	   <<std::setw(8)<<std::setprecision(5)<<pcB7
 	   <<std::setw(8)<<std::setprecision(5)<<pcT7
 	   <<std::setw(8)<<std::setprecision(5)<<pcE7
-	   <<std::setw(8)<<std::setprecision(5)<<pcD7<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps7
+	   <<std::setw(8)<<std::setprecision(5)<<pcD7<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB7
 	   <<std::setw(8)<<std::setprecision(5)<<psT7
 	   <<std::setw(8)<<std::setprecision(5)<<psE7
@@ -525,12 +499,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 8  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc8
 	   <<std::setw(8)<<std::setprecision(5)<<pcB8
 	   <<std::setw(8)<<std::setprecision(5)<<pcT8
 	   <<std::setw(8)<<std::setprecision(5)<<pcE8
-	   <<std::setw(8)<<std::setprecision(5)<<pcD8<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps8
+	   <<std::setw(8)<<std::setprecision(5)<<pcD8<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB8
 	   <<std::setw(8)<<std::setprecision(5)<<psT8
 	   <<std::setw(8)<<std::setprecision(5)<<psE8
@@ -538,12 +510,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 9  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc9
 	   <<std::setw(8)<<std::setprecision(5)<<pcB9
 	   <<std::setw(8)<<std::setprecision(5)<<pcT9
 	   <<std::setw(8)<<std::setprecision(5)<<pcE9
-	   <<std::setw(8)<<std::setprecision(5)<<pcD9<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps9
+	   <<std::setw(8)<<std::setprecision(5)<<pcD9<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB9
 	   <<std::setw(8)<<std::setprecision(5)<<psT9
 	   <<std::setw(8)<<std::setprecision(5)<<psE9
@@ -551,12 +521,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >=10  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc10
 	   <<std::setw(8)<<std::setprecision(5)<<pcB10
 	   <<std::setw(8)<<std::setprecision(5)<<pcT10
 	   <<std::setw(8)<<std::setprecision(5)<<pcE10
-	   <<std::setw(8)<<std::setprecision(5)<<pcD10<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps10
+	   <<std::setw(8)<<std::setprecision(5)<<pcD10<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB10
 	   <<std::setw(8)<<std::setprecision(5)<<psT10
 	   <<std::setw(8)<<std::setprecision(5)<<psE10
@@ -564,12 +532,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >=11  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc11
 	   <<std::setw(8)<<std::setprecision(5)<<pcB11
 	   <<std::setw(8)<<std::setprecision(5)<<pcT11
 	   <<std::setw(8)<<std::setprecision(5)<<pcE11
-	   <<std::setw(8)<<std::setprecision(5)<<pcD11<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps11
+	   <<std::setw(8)<<std::setprecision(5)<<pcD11<<" |  "
 	   <<std::setw(8)<<std::setprecision(5)<<psB11
 	   <<std::setw(8)<<std::setprecision(5)<<psT11
 	   <<std::setw(8)<<std::setprecision(5)<<psE11
@@ -581,9 +547,17 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<std::endl;
   std::cout<<"|               Additional cuts for truth particles are                             |"
 	   <<std::endl;
-  std::cout<<"|                    number silicon clusters >=" 
+     
+  if (not m_etaDependentCutsSvc.name().empty()) {
+    std::cout<<"|                    number silicon clusters >=" 
+        << "eta dependent"
+        <<"                        |"<<std::endl;
+  } else {
+    std::cout<<"|                    number silicon clusters >=" 
         << std::setw(13)<<m_clcut
         <<"                        |"<<std::endl;
+  }
+
   std::cout<<"|                    number   trt   clusters >=" 
 	   <<std::setw(13)<<m_clcutTRT
 	   <<"                        |"<<std::endl;
@@ -612,7 +586,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<"             |"
  	   <<std::endl;
   pa  = double(m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
-  std::cout<<"|                                        For DBM        region "
+  std::cout<<"|                                        For forward    region "
            <<std::setw(8)<<std::setprecision(5)<<double(m_eventsBTE[3])/pa
            <<"             |"
            <<std::endl;
@@ -623,54 +597,71 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   pa            = double(m_nclustersNegBP); if(pa < 1.) pa = 1.;
   double ratio  = double(m_nclustersPosBP)/pa;
   double eratio = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio barrel pixels clusters for +/- particles ="
+  std::cout<<"|      Ratio barrel  pixels clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
+	   <<"         |"
 	   <<std::endl;
   pa            = double(m_nclustersNegEP); if(pa < 1.) pa = 1.;
   ratio         = double(m_nclustersPosEP)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio endcap pixels clusters for +/- particles ="
+  std::cout<<"|      Ratio endcap  pixels clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
+	   <<"         |"
 	   <<std::endl;
-  pa            = double(m_nclustersNegDBM); if(pa < 1.) pa = 1.;
-  ratio         = double(m_nclustersPosDBM)/pa;
-  eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio  DBM  pixels clusters for +/- particles = "
-           <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
-           <<std::setw(8)<<std::setprecision(5)<<eratio
-           <<"          |"
-           <<std::endl;
   pa            = double(m_nclustersNegBS); if(pa < 1.) pa = 1.;
   ratio         = double(m_nclustersPosBS)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio barrel   SCT  clusters for +/- particles ="
+  std::cout<<"|      Ratio barrel   SCT   clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
+	   <<"         |"
 	   <<std::endl;
   pa            = double(m_nclustersNegES); if(pa < 1.) pa = 1.;
   ratio         = double(m_nclustersPosES)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio endcap   SCT  clusters for +/- particles ="
+  std::cout<<"|      Ratio endcap   SCT   clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
+	   <<"         |"
 	   <<std::endl;
   pa            = double(m_eventsNEG);      if(pa < 1.) pa = 1.; 
   ratio         = double(m_eventsPOS)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Number truth particles and +/- ratio ="
+  std::cout<<"|      Number truth particles and +/- ratio = "
 	   <<std::setw(10)<<m_events
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
+	   <<"         |"
 	   <<std::endl;
   std::cout<<"|-----------------------------------------------------------------------------------|"
-	   <<std::endl
+	   <<std::endl;
+
+  double cPTOT = double(m_nclustersPTOT   )/double(m_nevents);
+  double cSTOT = double(m_nclustersSTOT   )/double(m_nevents);    
+  double sPTOT = double(m_nspacepointsPTOT)/double(m_nevents);
+  double sSTOT = double(m_nspacepointsSTOT)/double(m_nevents);
+  double sOTOT = double(m_nspacepointsOTOT)/double(m_nevents);
+  double nn = 0.;
+  std::cout<<"| Detector                            Pixel        SCT        SCT(ov)     Total     |"
+	   <<std::endl;
+
+  std::cout<<"| Number clusters     per event"
+	   <<std::setw(12)<<std::setprecision(2)<<cPTOT
+	   <<std::setw(12)<<std::setprecision(2)<<cSTOT
+	   <<std::setw(12)<<std::setprecision(2)<<nn
+	   <<std::setw(12)<<std::setprecision(2)<<(cPTOT+cSTOT)<<"     |"
+	   <<std::endl;
+  
+  std::cout<<"| Number space points per event"
+	   <<std::setw(12)<<std::setprecision(2)<<sPTOT
+	   <<std::setw(12)<<std::setprecision(2)<<sSTOT
+	   <<std::setw(12)<<std::setprecision(2)<<sOTOT
+	   <<std::setw(12)<<std::setprecision(2)<<sPTOT+sSTOT+sOTOT<<"     |" 
+	   <<std::endl; 
+  
+  std::cout<<"|-----------------------------------------------------------------------------------|"
 	   <<std::endl;
 
   std::vector<std::string>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
@@ -945,7 +936,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	     <<std::endl;
     std::cout<<"|-----------------------------------------------------------------------------------|"
              <<std::endl;
-    std::cout<<"| DBM region                                                                        |"
+    std::cout<<"| Forward  region                                                                   |"
              <<std::endl;
     std::cout<<"|   0 wrong clusters  "
              <<std::setw(9)<<std::setprecision(5)<<efD0[0]
@@ -1023,7 +1014,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	    <<"       |"
 	    <<std::endl;
    pa  = double(m_particleClustersBTE[0][3]);  if(pa < 1.) pa = 1.;
-   std::cout<<"|                             For DBM        region = "
+   std::cout<<"|                             For forward    region = "
             <<std::setw(9)<<std::setprecision(5)<<efrecD
             <<" ("
             <<std::setw(9)<<std::setprecision(5)<<efrecD*double(m_eventsBTE[3])/pa
@@ -1062,7 +1053,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     ratio  = double(m_ntracksPOSDBM[nc])/pa;
     eratio = sqrt(ratio*(1.+ratio)/pa);
 
-    std::cout<<"| DBM                  "
+    std::cout<<"| Forward              "
              <<std::setw(10)<<m_ntracksPOSDBM[nc]
              <<std::setw(11)<<m_ntracksNEGDBM[nc]
              <<std::setw(11)<<std::setprecision(5)<<ratio
@@ -1116,7 +1107,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 ///////////////////////////////////////////////////////////////////
 
 MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::TrackClusterAssValidation& se)
+  (MsgStream& sl,const InDet::TrackClusterAssValidationITk& se)
 { 
   return se.dump(sl);
 }
@@ -1126,7 +1117,7 @@ MsgStream& InDet::operator    <<
 ///////////////////////////////////////////////////////////////////
 
 std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::TrackClusterAssValidation& se)
+  (std::ostream& sl,const InDet::TrackClusterAssValidationITk& se)
 {
   return se.dump(sl);
 }   
@@ -1135,7 +1126,7 @@ std::ostream& InDet::operator <<
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TrackClusterAssValidation::dump( MsgStream& out ) const
+MsgStream& InDet::TrackClusterAssValidationITk::dump( MsgStream& out ) const
 {
   out<<std::endl;
   if(m_nprint)  return dumpevent(out); 
@@ -1146,7 +1137,7 @@ MsgStream& InDet::TrackClusterAssValidation::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out ) const
+MsgStream& InDet::TrackClusterAssValidationITk::dumptools( MsgStream& out ) const
 {
   std::vector<std::string>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
 
@@ -1161,11 +1152,11 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out ) const
     out<<"| Location of input tracks                        | "<<(*t)<<s1
        <<std::endl;
   }
-  n     = 65-m_spacepointsPixelname.size();
+  n     = 65-m_spacepointsPixel.name().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 65-m_spacepointsSCTname.size();
+  n     = 65-m_spacepointsSCT.name().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_spacepointsOverlapname.size();
+  n     = 65-m_spacepointsOverlap.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 65-m_clustersPixelname.size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
@@ -1180,11 +1171,11 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out ) const
   n     = 65-m_truth_locationTRT.size();
   std::string s10; for(int i=0; i<n; ++i) s10.append(" "); s10.append("|");
   
-  out<<"| Pixel    space points                           | "<<m_spacepointsPixelname  <<s2
+  out<<"| Pixel    space points                           | "<<m_spacepointsPixel.name()  <<s2
      <<std::endl;
-  out<<"| SCT      space points                           | "<<m_spacepointsSCTname    <<s3
+  out<<"| SCT      space points                           | "<<m_spacepointsSCT.name()    <<s3
      <<std::endl;
-  out<<"| Overlap  space points                           | "<<m_spacepointsOverlapname<<s4
+  out<<"| Overlap  space points                           | "<<m_spacepointsOverlap.name()<<s4
      <<std::endl;
   out<<"| Pixel    clusters                               | "<<m_clustersPixelname     <<s5
      <<std::endl;
@@ -1240,7 +1231,7 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out ) const
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out ) const
+MsgStream& InDet::TrackClusterAssValidationITk::dumpevent( MsgStream& out ) const
 {
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -1251,13 +1242,13 @@ MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out ) const
      <<std::setw(12)<<m_nclusters
      <<"                              |"<<std::endl;
   out<<"| Kine-Clusters    size   | "
-     <<std::setw(12)<<m_kinecluster.size()
+     <<std::setw(12)<<m_kineclusterN.size()
      <<"                              |"<<std::endl;
   out<<"| Kine-TRTClusters size   | "
-     <<std::setw(12)<<m_kineclusterTRT.size()
+     <<std::setw(12)<<m_kineclusterTRTN.size()
      <<"                              |"<<std::endl;
   out<<"| Kine-SpacePoints size   | "
-     <<std::setw(12)<<m_kinespacepoint.size()
+     <<std::setw(12)<<m_kinespacepointN.size()
      <<"                              |"<<std::endl;
   out<<"| Number good kine tracks | "
      <<std::setw(12)<<m_nqtracks
@@ -1271,7 +1262,7 @@ MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out ) const
 // Dumps relevant information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& InDet::TrackClusterAssValidation::dump( std::ostream& out ) const
+std::ostream& InDet::TrackClusterAssValidationITk::dump( std::ostream& out ) const
 {
   return out;
 }
@@ -1280,17 +1271,18 @@ std::ostream& InDet::TrackClusterAssValidation::dump( std::ostream& out ) const
 // New event for clusters information 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::newClustersEvent()
+void InDet::TrackClusterAssValidationITk::newClustersEvent()
 {
 
   m_nclusters    = 0;
   m_nclustersTRT = 0;
-  m_kinecluster   .erase(m_kinecluster   .begin(),m_kinecluster   .end());
-  m_kineclusterTRT.erase(m_kineclusterTRT.begin(),m_kineclusterTRT.end());
+  m_kineclusterN   .clear();
+  m_kineclusterTRTN.clear();
    
   // Get pixel clusters container
   // 
   StatusCode sc;
+ 
   m_pixcontainer = 0;
   if(m_usePIX) {
     sc = evtStore()->retrieve(m_pixcontainer,m_clustersPixelname);
@@ -1304,7 +1296,7 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
     sc            = evtStore()->retrieve(m_sctcontainer,m_clustersSCTname  );
     if (sc.isFailure()) msg(MSG::DEBUG)<<"SCT clusters container"<<endreq;
   } 
-
+ 
   // Get trt   cluster container
   //
   m_trtcontainer = 0;
@@ -1313,7 +1305,7 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
     if (sc.isFailure()) msg(MSG::DEBUG)<<"TRT drift circles container"<<endreq;
   }
 
-  int Kine[1000];
+  const HepMC::GenParticle* Kine[1000];
 
   // Loop through all pixel clusters
   //
@@ -1329,12 +1321,12 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
       
       for(; c!=ce; ++c) {
 
-	++m_nclusters;
+	++m_nclusters; ++m_nclustersPTOT;
 
-	int nk = kine((*c),Kine,999);
+	int nk = kine((*c),Kine,999); 
 	for(int i=0; i!=nk; ++i) {
 	  if(!isTheSameDetElement(Kine[i],(*c))) {
-	    m_kinecluster.insert(std::make_pair(Kine[i],(*c)));  
+	    m_kineclusterN.insert(std::make_pair(Kine[i],(*c)));  
 	  }
 	}
       }
@@ -1355,11 +1347,11 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
 
       for(; c!=ce; ++c) {
 
-	++m_nclusters;
+	++m_nclusters; ++m_nclustersSTOT;
 	
-	int nk = kine((*c),Kine,999);
+	int nk = kine((*c),Kine,999); 
 	for(int i=0; i!=nk; ++i) {
-	  if(!isTheSameDetElement(Kine[i],(*c))) m_kinecluster.insert(std::make_pair(Kine[i],(*c)));  
+	  if(!isTheSameDetElement(Kine[i],(*c))) m_kineclusterN.insert(std::make_pair(Kine[i],(*c)));  
 	}
       }
     }
@@ -1381,7 +1373,7 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
 
       ++m_nclustersTRT;
       int nk = kine((*c),Kine,999);
-      for(int i=0; i!=nk; ++i) m_kineclusterTRT.insert(std::make_pair(Kine[i],(*c)));  
+      for(int i=0; i!=nk; ++i) m_kineclusterTRTN.insert(std::make_pair(Kine[i],(*c)));  
     }
   }
 }
@@ -1390,193 +1382,172 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
 // New event for space points information 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::newSpacePointsEvent()
+void InDet::TrackClusterAssValidationITk::newSpacePointsEvent()
 {
 
   m_nspacepoints = 0;
-  m_kinespacepoint.erase(m_kinespacepoint.begin(),m_kinespacepoint.end());
+  m_kinespacepointN.clear();
 
-  int Kine[1000];
-
-  m_spacepointsPixel = 0;
-
+  const HepMC::GenParticle* Kine[1000];
+  
   if(m_usePIX) {
-    if (evtStore()->contains<SpacePointContainer>(m_spacepointsPixelname))
-    {
-      if (evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname).isFailure())
-        msg(MSG::DEBUG)<<"Pixels space points container"<<endreq;
 
-      if(m_spacepointsPixel) {
+    if(m_spacepointsPixel.isValid()) {
+
+      SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
+      SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
       
-        SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
-        SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
-      
-        for(; spc != spce; ++spc) {
+      for(; spc != spce; ++spc) {
+	
+	SpacePointCollection::const_iterator sp  = (*spc)->begin();
+	SpacePointCollection::const_iterator spe = (*spc)->end  ();
         
-          SpacePointCollection::const_iterator sp  = (*spc)->begin();
-          SpacePointCollection::const_iterator spe = (*spc)->end  ();
-        
-          for(; sp != spe; ++sp) {
-            
-            ++m_nspacepoints;
-            int nk = kine((*sp)->clusterList().first,Kine,999);
-            for(int i=0; i!=nk; ++i) {
-              
-              if(!isTheSameDetElement(Kine[i],(*sp))) {
-                m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
-              }
-            }
-          }
-        }
+	for(; sp != spe; ++sp) {
+	  
+	  ++m_nspacepoints; ++m_nspacepointsPTOT; 
+	  int nk = kine((*sp)->clusterList().first,Kine,999);
+	  for(int i=0; i!=nk; ++i) {
+	    
+	    if(!isTheSameDetElement(Kine[i],(*sp))) {
+	      m_kinespacepointN.insert(std::make_pair(Kine[i],(*sp)));
+	    }
+	  }
+	}
       }
     }
   }
+  
   // Get sct space points containers from store gate 
   //
-  m_spacepointsSCT = 0;
   if(m_useSCT) {
-    if (evtStore()->contains<SpacePointContainer>(m_spacepointsSCTname))
-    {
-      if (evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname).isFailure())
-          msg(MSG::DEBUG)<<"SCT space points container"<<endreq;
 
-      if(m_spacepointsSCT) {
+    if(m_spacepointsSCT.isValid()) {
         
-        SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-        SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
+      SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
         
-        for(; spc != spce; ++spc) {
+      for(; spc != spce; ++spc) {
           
-          SpacePointCollection::const_iterator sp  = (*spc)->begin();
-          SpacePointCollection::const_iterator spe = (*spc)->end  ();
+	SpacePointCollection::const_iterator sp  = (*spc)->begin();
+	SpacePointCollection::const_iterator spe = (*spc)->end  ();
           
-          for(; sp != spe; ++sp) {
+	for(; sp != spe; ++sp) {
             
-            
-            ++m_nspacepoints;
-            int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
-            for(int i=0; i!=nk; ++i) {
-              if(!isTheSameDetElement(Kine[i],(*sp))) {
-                m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
-              }
-            }
-          }
-        }
+	  ++m_nspacepoints; ++m_nspacepointsSTOT;
+	  int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
+	  for(int i=0; i!=nk; ++i) {
+	    if(!isTheSameDetElement(Kine[i],(*sp))) {
+	      m_kinespacepointN.insert(std::make_pair(Kine[i],(*sp)));
+	    }
+	  }
+	}
       }
     }
   }
   // Get sct overlap space points containers from store gate 
   //
-  m_spacepointsOverlap = 0;
   if(m_useSCT) {
-    if (evtStore()->contains<SpacePointContainer>(m_spacepointsOverlapname))
-    {
-      if (evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname).isFailure())
-        msg(MSG::DEBUG)<<"SCT overlap space points container"<<endreq;
+    if(m_spacepointsOverlap.isValid()) {
+        
+      SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
+      SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
 
-      if(m_spacepointsOverlap) {
-        
-        SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
-        SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
-        
-        for (; sp!=spe; ++sp) {
+      for (; sp!=spe; ++sp) {
           
-          ++m_nspacepoints;
-          int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
-          for(int i=0; i!=nk; ++i) {
-            if(!isTheSameDetElement(Kine[i],(*sp))) {
-              m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
-            }
-          }
+	++m_nspacepoints; ++m_nspacepointsOTOT;
+	int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
+	for(int i=0; i!=nk; ++i) {
+	  if(!isTheSameDetElement(Kine[i],(*sp))) {
+	    m_kinespacepointN.insert(std::make_pair(Kine[i],(*sp)));
+	  }
         }
       }
     }
   }
 }
+
 ///////////////////////////////////////////////////////////////////
 // Good kine tracks  selection
 ///////////////////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::QualityTracksSelection()
+int InDet::TrackClusterAssValidationITk::QualityTracksSelection()
 {
-  for(int nc = 0; nc!=m_ncolection; ++nc) {
-    m_particles[nc].erase(m_particles[nc].begin(),m_particles[nc].end());
-  }
+  for(int nc = 0; nc!=m_ncolection; ++nc) {m_particles[nc].clear();}
 
-  std::multimap<int,const Trk::PrepRawData*>::iterator c = m_kinecluster   .begin();
-  std::multimap<int,const Trk::PrepRawData*>::iterator u = m_kineclusterTRT.begin();
-  std::multimap<int,const Trk::SpacePoint*>::iterator  s = m_kinespacepoint.begin();
+  std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*>::iterator c = m_kineclusterN   .begin();
+  std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*>::iterator u = m_kineclusterTRTN.begin();
+  std::multimap<const HepMC::GenParticle*,const Trk::SpacePoint*>::iterator  s = m_kinespacepointN.begin();
 
-  if( c == m_kinecluster   .end()) {
-    m_kinecluster   .erase(m_kinecluster.begin(),m_kinecluster.end());
-    return 0;
-  }
-  if( s == m_kinespacepoint.end()) {
-    m_kinespacepoint.erase(m_kinespacepoint.begin(),m_kinespacepoint.end());
-    return 0;
-  }
+  if( c == m_kineclusterN   .end())                   return 0;
+  if( s == m_kinespacepointN.end())                   return 0;
+  if( m_clcutTRT > 0 && u == m_kineclusterTRTN.end()) return 0;
 
-  if( m_clcutTRT > 0 && u == m_kineclusterTRT.end()) {
-    m_kineclusterTRT.erase(m_kineclusterTRT.begin(),m_kineclusterTRT.end());
-    return 0;
-  }
+  std::list<const HepMC::GenParticle*> worskine;
 
-  std::list<int> worskine;
-
-  int          rp = 0;
-  int          t  = 0;
-  int          k0 = (*c).first;
-  int          q0 = k0*charge((*c),rp);
-  unsigned int nc = 1         ;
+  int          rp = 0 ;
+  double etaExact = 0.;
+  int          t  = 0 ;
+  const HepMC::GenParticle*  k0 = (*c).first;
+  unsigned int nc = 1 ;
+  int          q0 = charge((*c),rp);
      
-  for(++c; c!=m_kinecluster.end(); ++c) {
+  for(++c; c!=m_kineclusterN.end(); ++c) {
 
     if((*c).first==k0) {++nc; continue;}
-    q0 = charge((*c),rp)*k0;
+    q0 = charge((*c),rp, etaExact);
 
     nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];
     nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
 
   
-    int ns = m_kinespacepoint.count(k0);
+    int ns = m_kinespacepointN.count(k0);
     ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
     ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
 
-    if     (nc                        < m_clcut   ) worskine.push_back(k0);
-    else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
-    else if(m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
+     //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
+    int minclusters = m_clcut;
+    if (not m_etaDependentCutsSvc.name().empty())
+      minclusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(etaExact);
+
+    if     (nc                         < (unsigned int)minclusters   ) worskine.push_back(k0);
+    else if(m_kinespacepointN.count(k0)< m_spcut   ) worskine.push_back(k0);
+    else if(m_kineclusterTRTN.count(k0)< m_clcutTRT) worskine.push_back(k0);
     else {
-      InDet::Barcode BC(q0,rp); m_particles[0].push_back(BC); ++t;
-    }
+      InDet::Barcode BC(q0,rp,k0); m_particles[0].push_back(BC); ++t;
+     }
 
     k0 = (*c).first;
-    q0 =charge((*c),rp)*k0;
+    q0 = charge((*c),rp, etaExact);
     nc = 1         ;
   }
 
   nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];  
   nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
-  int ns = m_kinespacepoint.count(k0);
+  int ns = m_kinespacepointN.count(k0);
   ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
   ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
 
-  if     (nc                        < m_clcut   ) worskine.push_back(k0);
-  else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);  
-  else if(m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
+  //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
+  int minclusters = m_clcut;
+  if (not m_etaDependentCutsSvc.name().empty())
+    minclusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(etaExact);
+  
+  if     (nc                         < (unsigned int)minclusters   ) worskine.push_back(k0);
+  else if(m_kinespacepointN.count(k0)< m_spcut   ) worskine.push_back(k0);  
+  else if(m_kineclusterTRTN.count(k0)< m_clcutTRT) worskine.push_back(k0);
   else {
-    InDet::Barcode BC(q0,rp); m_particles[0].push_back(BC); ++t;
+    InDet::Barcode BC(q0,rp,k0); m_particles[0].push_back(BC); ++t;
   }
 
-
-  std::list<int>::iterator w=worskine.begin(), we=worskine.end();
+  std::list<const HepMC::GenParticle*>::iterator w=worskine.begin(), we=worskine.end();
 
   for(; w!=we; ++w) {
-    m_kinecluster   .erase((*w));
-    m_kineclusterTRT.erase((*w));
-    m_kinespacepoint.erase((*w));
+    m_kineclusterN   .erase((*w));
+    m_kineclusterTRTN.erase((*w));
+    m_kinespacepointN.erase((*w));
   }
 
-  for(c = m_kinecluster.begin(); c!= m_kinecluster.end(); ++c) {
+  for(c = m_kineclusterN.begin(); c!= m_kineclusterN.end(); ++c) {
     
     const Trk::PrepRawData* 
       d = (*c).second;
@@ -1585,20 +1556,16 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     int q  = charge(*c,rp); 
 
     if     (q<0) {
-      if (de->isDBM())
-	++m_nclustersNegDBM;
-      else if(de->isBarrel()) {
+
+      if(de->isBarrel()) {
 	de->isPixel() ? ++m_nclustersNegBP : ++m_nclustersNegBS; 
       }
       else                                     {
 	de->isPixel() ? ++m_nclustersNegEP : ++m_nclustersNegES; 
       }
-
     }
     else if(q>0) {
-      if (de->isDBM())
-	++m_nclustersPosDBM;
-      else if(de->isBarrel()) {
+      if(de->isBarrel()) {
 	de->isPixel() ? ++m_nclustersPosBP : ++m_nclustersPosBS; 
       }
       else                                     {
@@ -1607,7 +1574,6 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     }
   }
  
-
   std::list<InDet::Barcode>::iterator p = m_particles[0].begin(), pe =m_particles[0].end();
 
   for(; p!=pe; ++p) {
@@ -1620,7 +1586,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
 // Recontructed track comparison with kine information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::tracksComparison()
+void InDet::TrackClusterAssValidationITk::tracksComparison()
 {
   if(!m_nqtracks) return;
 
@@ -1630,7 +1596,7 @@ void InDet::TrackClusterAssValidation::tracksComparison()
   int nc = -1;
   for(; co!=coe; ++co) {
     if(++nc >= 100) return;
-    m_tracks[nc].erase(m_tracks[nc].begin(),m_tracks[nc].end());
+    m_tracksN[nc].clear();
 
     const TrackCollection*  inputTracks = 0;
     StatusCode sc	= evtStore()->retrieve(inputTracks, (*co));
@@ -1640,8 +1606,8 @@ void InDet::TrackClusterAssValidation::tracksComparison()
     //
     TrackCollection::const_iterator t,te = inputTracks->end();
 
-    int KINE[200],NKINE[200];
-  
+    const HepMC::GenParticle* KINE[200];
+    int NKINE[200];
     for (t=inputTracks->begin(); t!=te; ++t) {
 
       DataVector<const Trk::TrackStateOnSurface>::const_iterator 
@@ -1699,8 +1665,8 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 	if(!m_usePIX && dynamic_cast<const InDet::PixelCluster*>(si)) continue;
 	if(!m_useSCT && dynamic_cast<const InDet::SCT_Cluster*> (si)) continue;
 
-
-	int Kine[1000], nk=kine0(rd,Kine,999); ++NC; if(!nk) ++N0;
+        const HepMC::GenParticle* Kine[1000];
+	int nk=kine0(rd,Kine,999); ++NC; if(!nk) ++N0;
 
 	for(int k = 0; k!=nk; ++k) {
 	  
@@ -1715,7 +1681,7 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 	if(NKINE[n]==nkm) {
 	  int NQ = 1000*NKINE[n]+(NC-NKINE[n]);
 
-	  m_tracks[nc].insert(std::make_pair(KINE[n],NQ));
+	  m_tracksN[nc].insert(std::make_pair(KINE[n],NQ));
 	  if(qTf) {        
 	    if(NC-N0 > 2) {
 	      ++m_total[nc][NC]; if(NC-NKINE[n] > 2) {++m_fake[nc][NC];}
@@ -1732,22 +1698,21 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 // Particles and reconstructed tracks comparision
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::efficiencyReconstruction()
+void InDet::TrackClusterAssValidationITk::efficiencyReconstruction()
 {
   for(int nc = 0; nc!=m_ncolection; ++nc) {
 
-    m_difference[nc].erase(m_difference[nc].begin(),m_difference[nc].end());
+    m_difference[nc].clear();
     std::list<InDet::Barcode>::iterator p = m_particles[nc].begin(), pe =m_particles[nc].end();
     if(p==pe) return;
-    std::multimap<int,int>::iterator t, te = m_tracks[nc].end(); 
-    
+    std::multimap<const HepMC::GenParticle*,int>::iterator t, te = m_tracksN[nc].end();   
+
     while (p!=pe) {
-    
-      int k = (*p).barcode();
-      int n = m_kinecluster.count(k);
+      const HepMC::GenParticle* k = (*p).particle();
+      int n = m_kineclusterN.count(k);
       int m = 0;
       int w = 0;
-      t = m_tracks[nc].find(k);
+      t = m_tracksN[nc].find(k);
       for(; t!=te; ++t) {
 	if((*t).first!=k) break; 
 	int ts = (*t).second/1000;
@@ -1756,6 +1721,7 @@ void InDet::TrackClusterAssValidation::efficiencyReconstruction()
 	else if(ts==m && w > ws) {        w = ws;}
       }
       int d = n-m; if(d<0) d = 0; else if(d > 5) d=5; if(w>4) w = 4; 
+
       if(m) {
 	++m_efficiency [nc][d];
 	++m_efficiencyN[nc][d][w];
@@ -1779,11 +1745,13 @@ void InDet::TrackClusterAssValidation::efficiencyReconstruction()
 // Pointer to particle production for space point
 ///////////////////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::kine
-(const Trk::PrepRawData* d1,const Trk::PrepRawData* d2,int* Kine,int nmax)   
+int InDet::TrackClusterAssValidationITk::kine
+(const Trk::PrepRawData* d1,const Trk::PrepRawData* d2,const HepMC::GenParticle** Kine,int nmax)   
 {
   int nkine = 0;
-  int Kine1[1000],Kine2[1000];
+  const HepMC::GenParticle* Kine1[1000];
+  const HepMC::GenParticle* Kine2[1000];
+
   int n1 = kine(d1,Kine1,nmax); if(!n1) return nkine;
   int n2 = kine(d2,Kine2,nmax); if(!n2) return nkine;
 
@@ -1799,8 +1767,8 @@ int InDet::TrackClusterAssValidation::kine
 // Pointer to particle production for cluster
 ///////////////////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::kine
-(const Trk::PrepRawData* d,int* Kine,int nmax) 
+int InDet::TrackClusterAssValidationITk::kine
+(const Trk::PrepRawData* d,const HepMC::GenParticle** Kine,int nmax) 
 {
 
   PRD_MultiTruthCollection::const_iterator mce;
@@ -1843,7 +1811,7 @@ int InDet::TrackClusterAssValidation::kine
     double           r = sqrt(vx*vx+vy*vy);
     if( r < m_rmin || r > m_rmax) continue;
 
-    Kine[nkine] = k; if(++nkine >= nmax) break;
+    Kine[nkine] = pa; if(++nkine >= nmax) break;
   }
   return nkine;
 }
@@ -1852,8 +1820,8 @@ int InDet::TrackClusterAssValidation::kine
 // Pointer to particle production for cluster
 ///////////////////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::kine0
-(const Trk::PrepRawData* d,int* Kine,int nmax) 
+int InDet::TrackClusterAssValidationITk::kine0
+(const Trk::PrepRawData* d,const HepMC::GenParticle** Kine,int nmax) 
 {
 
   PRD_MultiTruthCollection::const_iterator mce;
@@ -1867,7 +1835,8 @@ int InDet::TrackClusterAssValidation::kine0
     if( (*mc).first != ID ) return nkine;
 
     int k = (*mc).second.barcode(); if(k<=0) continue;
-    Kine[nkine] = k; if(++nkine >= nmax) break;
+    const HepMC::GenParticle* pa = (*mc).second.cptr(); if(!pa) continue; 	
+    Kine[nkine] = pa; if(++nkine >= nmax) break;
   }
   return nkine;
 }
@@ -1876,11 +1845,11 @@ int InDet::TrackClusterAssValidation::kine0
 // Test detector element
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::TrackClusterAssValidation::isTheSameDetElement
-(int K,const Trk::PrepRawData* d) 
+bool InDet::TrackClusterAssValidationITk::isTheSameDetElement
+(const HepMC::GenParticle* K,const Trk::PrepRawData* d) 
 {
-  std::multimap<int,const Trk::PrepRawData*>::iterator k = m_kinecluster.find(K); 
-  for(; k!=m_kinecluster.end(); ++k) {
+  std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*>::iterator k = m_kineclusterN.find(K); 
+  for(; k!=m_kineclusterN.end(); ++k) {
 
     if((*k).first!= K) return false;
     if(d->detectorElement()==(*k).second->detectorElement()) return true;
@@ -1892,17 +1861,17 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
 // Test detector element
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::TrackClusterAssValidation::isTheSameDetElement
-(int K,const Trk::SpacePoint* sp) 
+bool InDet::TrackClusterAssValidationITk::isTheSameDetElement
+(const HepMC::GenParticle* K,const Trk::SpacePoint* sp) 
 {
   const Trk::PrepRawData*  p1 = sp->clusterList().first; 
   const Trk::PrepRawData*  p2 = sp->clusterList().second; 
 
-  std::multimap<int,const Trk::SpacePoint*>::iterator  k = m_kinespacepoint.find(K);
+  std::multimap<const HepMC::GenParticle*,const Trk::SpacePoint*>::iterator  k = m_kinespacepointN.find(K);
 
   if(!p2) {
     
-    for(; k!=m_kinespacepoint.end(); ++k) {
+    for(; k!=m_kinespacepointN.end(); ++k) {
       if((*k).first!= K) return false;
 
       const Trk::PrepRawData*  n1 = (*k).second->clusterList().first ; 
@@ -1915,7 +1884,7 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
     return false;
   }
 
-  for(; k!=m_kinespacepoint.end(); ++k) {
+  for(; k!=m_kinespacepointN.end(); ++k) {
     if((*k).first!= K) return false;
 
     const Trk::PrepRawData*  n1 = (*k).second->clusterList().first ; 
@@ -1934,7 +1903,7 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
 // Dump information about no recontructed particles
 //////////////recon/////////////////////////////////////////////////////
 
-bool InDet::TrackClusterAssValidation::noReconstructedParticles()
+bool InDet::TrackClusterAssValidationITk::noReconstructedParticles()
 {
 
   for(int nc=0; nc!=m_ncolection; ++nc) {
@@ -1944,7 +1913,7 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
 
     std::list<int>::iterator dif = m_difference[nc].begin();
 
-    std::multimap<int,const Trk::PrepRawData*>::iterator c,ce = m_kinecluster.end(); 
+    std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*>::iterator c,ce = m_kineclusterN.end(); 
 
     int n  = 69-m_tracklocation[nc].size();
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
@@ -1954,30 +1923,13 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
 	     <<std::endl;
 
     std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
-    std::cout<<"|    #   pdg     kine   Ncl Ntr Nsp Lose     pT(MeV)    rapidity    radius          z    |"<<std::endl;
+    std::cout<<"|    #   pdg   barcode  Ncl Ntr Nsp Lose     pT(MeV)    rapidity    radius          z    |"<<std::endl;
     std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
     n = 0;
     for(; p!=pe; ++p) {
       
-      int k = (*p).barcode();
-
-      c = m_kinecluster.find(k); if(c==ce) continue;
-      const Trk::PrepRawData* d = (*c).second;
-
-      PRD_MultiTruthCollection::const_iterator mce;
-      PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
-
-      Identifier ID    = d->identify();
-      bool Q = false;
-      for(; mc!=mce; ++mc) {
-	if((*mc).first != ID) break;
-	if((*mc).second.cptr()->barcode()==k) {Q=true; break;}
-      }
-
-      if(!Q) continue;
-
-      const HepMC::GenParticle* pa = (*mc).second.cptr(); 	
-
+      const HepMC::GenParticle* pa = (*p).particle();
+      
       double           px =  pa->momentum().px();
       double           py =  pa->momentum().py();
       double           pz =  pa->momentum().pz();
@@ -1993,9 +1945,9 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
 	     <<std::setw(4)<<n
 	       <<std::setw(6)<<pa->pdg_id() 
 	       <<std::setw(10)<<pa->barcode()
-	       <<std::setw(4)<<m_kinecluster   .count(k)
-	       <<std::setw(4)<<m_kineclusterTRT.count(k)
-	       <<std::setw(4)<<m_kinespacepoint.count(k)
+	       <<std::setw(4)<<m_kineclusterN   .count(pa)
+	       <<std::setw(4)<<m_kineclusterTRTN.count(pa)
+	       <<std::setw(4)<<m_kinespacepointN.count(pa)
 	       <<std::setw(4)<<(*dif)
 	       <<std::setw(12)<<std::setprecision(5)<<pt
 	       <<std::setw(12)<<std::setprecision(5)<<ra
@@ -2016,7 +1968,7 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
 //////////////recon/////////////////////////////////////////////////////
 
 PRD_MultiTruthCollection::const_iterator 
-InDet::TrackClusterAssValidation::findTruth 
+InDet::TrackClusterAssValidationITk::findTruth 
 (const Trk::PrepRawData* d,PRD_MultiTruthCollection::const_iterator& mce)
 {
   const InDet::SCT_Cluster    * si = dynamic_cast<const InDet::SCT_Cluster*>    (d);
@@ -2036,7 +1988,7 @@ InDet::TrackClusterAssValidation::findTruth
 // Cluster truth information
 //////////////recon/////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawData*> pa,int& rap)
+int InDet::TrackClusterAssValidationITk::charge(std::pair<int,const Trk::PrepRawData*> pa,int& rap)
 {
   int                     k = pa.first;
   const Trk::PrepRawData* d = pa.second;
@@ -2055,13 +2007,8 @@ int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawDat
       double pt = sqrt(px*px+py*py)   ;
       double t  = atan2(pt,pz)        ;
       double ra = fabs(log(tan(.5*t)));
-        
-      // DBM
-      if (ra > 3.0)
-	rap = 3;
-      else
-      // other regions
-	ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
+
+      ra > m_rapENDP ? rap = 3 : ra > m_rapENDS ? rap = 2 : ra > m_rapTRAN ? rap = 1 : rap = 0;
 
       int                         pdg = pat->pdg_id();  
       const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
@@ -2072,5 +2019,93 @@ int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawDat
       return 0;
     } 	
   }
+  return 0;
+}
+
+int InDet::TrackClusterAssValidationITk::charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*> pa,int& rap)
+{     
+  const HepMC::GenParticle*   pat  = pa.first;
+
+  rap       = 0;
+  double px =  pat->momentum().px();
+  double py =  pat->momentum().py();
+  double pz =  pat->momentum().pz();
+  double pt = sqrt(px*px+py*py)   ;
+  double t  = atan2(pt,pz)        ;
+  double ra = fabs(log(tan(.5*t)));
+
+  ra > m_rapENDP ? rap = 3 : ra > m_rapENDS ? rap = 2 : ra > m_rapTRAN ? rap = 1 : rap = 0;
+  
+  int                         pdg = pat->pdg_id();  
+  const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+  if(!pd) return 0;
+  double ch = pd->charge(); if(pdg < 0) ch = -ch;
+  if(ch >  .5) return  1;
+  if(ch < -.5) return -1;
+  return 0;
+}
+
+///////////////////////////////////////////////////////////////////
+// Cluster truth information
+//////////////recon/////////////////////////////////////////////////////
+
+int InDet::TrackClusterAssValidationITk::charge(std::pair<int,const Trk::PrepRawData*> pa,int& rap, double& etaExact)
+{
+  int                     k = pa.first;
+  const Trk::PrepRawData* d = pa.second;
+  PRD_MultiTruthCollection::const_iterator mce;
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+  
+  for(; mc!=mce; ++mc) {
+    if((*mc).second.cptr()->barcode()==k) {
+
+      const HepMC::GenParticle*   pat  = (*mc).second.cptr();
+      
+      rap       = 0;
+      double px =  pat->momentum().px();
+      double py =  pat->momentum().py();
+      double pz =  pat->momentum().pz();
+      double pt = sqrt(px*px+py*py)   ;
+      double t  = atan2(pt,pz)        ;
+      double ra = fabs(log(tan(.5*t)));
+
+      etaExact = ra;
+
+      ra > m_rapENDP ? rap = 3 : ra > m_rapENDS ? rap = 2 : ra > m_rapTRAN ? rap = 1 : rap = 0;
+
+      int                         pdg = pat->pdg_id();  
+      const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+      if(!pd) return 0;
+      double ch = pd->charge(); if(pdg < 0) ch = -ch;
+      if(ch >  .5) return  1;
+      if(ch < -.5) return -1;
+      return 0;
+    } 	
+  }
+  return 0;
+}
+
+int InDet::TrackClusterAssValidationITk::charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*> pa,int& rap, double& etaExact)
+{
+  const HepMC::GenParticle*   pat  = pa.first;
+      
+  rap       = 0;
+  double px =  pat->momentum().px();
+  double py =  pat->momentum().py();
+  double pz =  pat->momentum().pz();
+  double pt = sqrt(px*px+py*py)   ;
+  double t  = atan2(pt,pz)        ;
+  double ra = fabs(log(tan(.5*t)));
+  
+  etaExact = ra;
+
+  ra > m_rapENDP ? rap = 3 : ra > m_rapENDS ? rap = 2 : ra > m_rapTRAN ? rap = 1 : rap = 0;
+  
+  int                         pdg = pat->pdg_id();  
+  const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+  if(!pd) return 0;
+  double ch = pd->charge(); if(pdg < 0) ch = -ch;
+  if(ch >  .5) return  1;
+  if(ch < -.5) return -1;
   return 0;
 }

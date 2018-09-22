@@ -61,13 +61,18 @@ namespace InDet{
       void setParameters(); 
 
       bool initialize
-	(bool,bool,
-	 const InDet::SiClusterContainer*                    ,
+	(const InDet::SiClusterContainer*                    ,
 	 const InDet::SiClusterContainer*                    ,
 	 const Trk::TrackParameters                          &,
 	 std::vector<const InDet::SiCluster*>                  &,
 	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
 	 bool                                                &);
+ 
+      double pTseed
+	(const Trk::TrackParameters                          &,
+	 std::vector<const InDet::SiCluster*>                &,
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&);
+
 
       bool trackParametersToClusters
 	(const InDet::SiClusterContainer*                        ,

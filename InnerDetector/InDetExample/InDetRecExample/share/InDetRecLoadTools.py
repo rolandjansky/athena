@@ -1150,7 +1150,7 @@ if InDetFlags.doPattern():
                                                                  SCTManagerLocation    = InDetKeys.SCT_Manager(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                  SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
-
+    
     if InDetFlags.doDBM():
         InDetSiComTrackFinderDBM = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderDBM',
                                                                         PropagatorTool        = InDetPatternPropagator,
@@ -1190,6 +1190,9 @@ if InDetFlags.doPattern():
       InDetSiComTrackFinder.SctSummarySvc = InDetSCT_ConditionsSummarySvc
     else:
       InDetSiComTrackFinder.SctSummarySvc = None
+      
+    if InDetFlags.doSLHC():
+      InDetSiComTrackFinder.ITkGeometry = True
 
     ToolSvc += InDetSiComTrackFinder
     if (InDetFlags.doPrintConfigurables()):

@@ -29,7 +29,7 @@ namespace InDet{
       
     public:
       
-      SiDetElementBoundaryLink_xk(const InDetDD::SiDetectorElement*&);
+      SiDetElementBoundaryLink_xk(const InDetDD::SiDetectorElement*&, bool isITk = false);
       SiDetElementBoundaryLink_xk(const SiDetElementBoundaryLink_xk&);
       ~SiDetElementBoundaryLink_xk();
       SiDetElementBoundaryLink_xk& operator  = (const SiDetElementBoundaryLink_xk&);
@@ -48,7 +48,11 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       const InDetDD::SiDetectorElement*   m_detelement ;
+      bool                                m_ITkGeometry;
       double                              m_bound[4][3];
+      double                              m_bound00[4] ;
+      double                              m_bound01[4] ;
+      double                              m_bound11[4] ;
       double                              m_dR         ;
 
       ///////////////////////////////////////////////////////////////////
@@ -64,8 +68,14 @@ namespace InDet{
   inline SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk(const SiDetElementBoundaryLink_xk& L)
     {
       m_detelement =  L.m_detelement;
+      m_ITkGeometry = L.m_ITkGeometry;
       for(int i=0; i!=4; ++i) {
-	for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+
+	    m_bound00[i] = L.m_bound00[i];
+	    m_bound01[i] = L.m_bound01[i];
+	    m_bound11[i] = L.m_bound11[i];
+
+	    for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
       }
       m_dR = L.m_dR;
     }
@@ -74,13 +84,19 @@ namespace InDet{
     (const SiDetElementBoundaryLink_xk& L) 
     {
       if(&L!=this) {
-	m_detelement =  L.m_detelement;
-	for(int i=0; i!=4; ++i) {
-	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
-	}
-	m_dR = L.m_dR;
+	    m_detelement =  L.m_detelement;
+        m_ITkGeometry = L.m_ITkGeometry;
+	    for(int i=0; i!=4; ++i) {
+
+	      m_bound00[i] = L.m_bound00[i];
+	      m_bound01[i] = L.m_bound01[i];
+	      m_bound11[i] = L.m_bound11[i];
+
+	      for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+	    }
+	    m_dR = L.m_dR;
       }
-      return(*this);
+    return(*this);
     }
 
   inline SiDetElementBoundaryLink_xk::~SiDetElementBoundaryLink_xk() {}

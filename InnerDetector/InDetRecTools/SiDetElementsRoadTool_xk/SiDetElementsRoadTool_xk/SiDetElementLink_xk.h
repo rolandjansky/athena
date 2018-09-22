@@ -29,7 +29,7 @@ namespace InDet{
     public:
       
       SiDetElementLink_xk();
-      SiDetElementLink_xk(InDetDD::SiDetectorElement*&,const double*);
+      SiDetElementLink_xk(InDetDD::SiDetectorElement*&,const double*,bool isITk = false);
       SiDetElementLink_xk(const SiDetElementLink_xk&);
       ~SiDetElementLink_xk();
       SiDetElementLink_xk& operator  = (const SiDetElementLink_xk&);
@@ -38,10 +38,13 @@ namespace InDet{
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      void set (const double*);
+      void set (const double*, bool isITk = false);
       const InDetDD::SiDetectorElement* detElement() const {return m_detelement;}
       float phi () const {return m_phi;}
+      float z   () const {return m_z  ;}
+      float dz  () const {return m_dz ;}
       void intersect(const float*,const float*,float*) const;
+      bool intersectITk(const float*,const float*,float&) const;
       const float&  way () const {return m_way;}
       const bool&   used() const {return m_used;}
       void clearUsed();  
@@ -55,8 +58,9 @@ namespace InDet{
 
       const InDetDD::SiDetectorElement*   m_detelement ;
       float                               m_phi        ;
-      float                               m_geo     [6];
-      float                               m_center  [2];
+      float                               m_z          ;
+      float                               m_dz         ;
+      float                               m_geo    [10];
       float                               m_bound[4][3];
       float                               m_way        ;
       bool                                m_used       ;
@@ -91,9 +95,10 @@ namespace InDet{
 
 	m_detelement =  L.m_detelement;
 	m_phi        =  L.m_phi       ;
-	for(int i=0; i!=6; ++i)  m_geo   [i] = L.m_geo   [i];
-	for(int i=0; i!=2; ++i)  m_center[i] = L.m_center[i];
-	for(int i=0; i!=4; ++i) {
+	m_z          =  L.m_z         ;
+	m_dz         =  L.m_dz        ;
+	for(int i=0; i!=10; ++i)  m_geo   [i] = L.m_geo   [i];
+	for(int i=0; i!= 4; ++i) {
 	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
 	}
 	m_way        = L.m_way ;
@@ -113,9 +118,9 @@ namespace InDet{
     }
 
   inline InDet::SiDetElementLink_xk::SiDetElementLink_xk
-    (InDetDD::SiDetectorElement*& el,const double* P)
+    (InDetDD::SiDetectorElement*& el,const double* P, bool isITk)
     {
-      m_detelement = el; set(P); m_used = false; m_way = 0.;
+      m_detelement = el; set(P, isITk); m_used = false; m_way = 0.;
     } 
 
   inline SiDetElementLink_xk::~SiDetElementLink_xk() {}

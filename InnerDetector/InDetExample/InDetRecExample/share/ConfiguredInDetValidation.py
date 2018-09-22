@@ -97,20 +97,23 @@ class  ConfiguredInDetValidation:
     # --- load cluster validation alg
     #
     if doClusVal:
-      from InDetTrackClusterAssValidation.InDetTrackClusterAssValidationConf import InDet__TrackClusterAssValidation
-      InDetTrackClusterAssValidation = InDet__TrackClusterAssValidation(name                   = "InDetTrackClusterAssValidation"+nameExt,
-                                                                        TracksLocation         = TrackCollectionKeys             ,
-                                                                        SpacePointsPixelName   = InDetKeys.PixelSpacePoints()    ,
-                                                                        SpacePointsSCTName     = InDetKeys.SCT_SpacePoints()     ,
-                                                                        SpacePointsOverlapName = InDetKeys.OverlapSpacePoints()  ,
-                                                                        RapidityCut            = NewTrackingCuts.maxEta()        ,
-                                                                        RadiusMin              = rmin                            ,
-                                                                        RadiusMax              = rmax                            ,
-                                                                        MinNumberClustersTRT   = 0                               ,
-                                                                        MinNumberSpacePoints   = 3                               ,
-                                                                        usePixel               = DetFlags.haveRIO.pixel_on()     ,
-                                                                        useSCT                 = DetFlags.haveRIO.SCT_on()       ,
-                                                                        useTRT                 = DetFlags.haveRIO.TRT_on()       )
+      if InDetFlags.useEtaDependentCuts() and NewTrackingCuts.mode() == "SLHC":
+        from InDetTrackClusterAssValidation.InDetTrackClusterAssValidationConf import InDet__TrackClusterAssValidationITk as TrackClusterAssVal
+      else :
+        from InDetTrackClusterAssValidation.InDetTrackClusterAssValidationConf import InDet__TrackClusterAssValidation as TrackClusterAssVal
+      InDetTrackClusterAssValidation = TrackClusterAssVal(name                   = "InDetTrackClusterAssValidation"+nameExt,
+                                                          TracksLocation         = TrackCollectionKeys             ,
+                                                          SpacePointsPixelName   = InDetKeys.PixelSpacePoints()    ,
+                                                          SpacePointsSCTName     = InDetKeys.SCT_SpacePoints()     ,
+                                                          SpacePointsOverlapName = InDetKeys.OverlapSpacePoints()  ,
+                                                          RapidityCut            = NewTrackingCuts.maxEta()        ,
+                                                          RadiusMin              = rmin                            ,
+                                                          RadiusMax              = rmax                            ,
+                                                          MinNumberClustersTRT   = 0                               ,
+                                                          MinNumberSpacePoints   = 3                               ,
+                                                          usePixel               = DetFlags.haveRIO.pixel_on()     ,
+                                                          useSCT                 = DetFlags.haveRIO.SCT_on()       ,
+                                                          useTRT                 = DetFlags.haveRIO.TRT_on()       )
       
       if InDetFlags.useEtaDependentCuts() and NewTrackingCuts.mode() == "SLHC":
         InDetTrackClusterAssValidation.MomentumCut               = 2. * NewTrackingCuts.minPT()[0]

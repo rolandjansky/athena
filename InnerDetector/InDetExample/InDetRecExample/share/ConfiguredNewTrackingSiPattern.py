@@ -167,6 +167,10 @@ class  ConfiguredNewTrackingSiPattern:
                                                                         SCTManagerLocation = InDetKeys.SCT_Manager(),         
                                                                         RoadWidth          = NewTrackingCuts.RoadWidth())
          #InDetSiDetElementsRoadMaker.OutputLevel = VERBOSE
+         
+         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
+            InDetSiDetElementsRoadMaker.ITkGeometry = True 
+         
          ToolSvc += InDetSiDetElementsRoadMaker
          if (InDetFlags.doPrintConfigurables()):
             print      InDetSiDetElementsRoadMaker
@@ -176,7 +180,11 @@ class  ConfiguredNewTrackingSiPattern:
          #
 
          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "DBM"
-         from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
+         
+         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
+           from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMakerITk_xk as SiTrackMaker
+         else:
+           from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
          InDetSiTrackMaker = SiTrackMaker(name                      = 'InDetSiTrackMaker'+NewTrackingCuts.extension(),
                                           useSCT                    = NewTrackingCuts.useSCT(),
                                           usePixel                  = NewTrackingCuts.usePixel(),
@@ -206,23 +214,20 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiTrackMaker.etaWidth                  = NewTrackingCuts.etaWidthBrem()
             InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()
          else:
-           InDetSiTrackMaker.etaBins                   = NewTrackingCuts.etaBins()
-           InDetSiTrackMaker.pTBins                    = NewTrackingCuts.minPT()
-           InDetSiTrackMaker.nClustersMin              = min(NewTrackingCuts.minClusters())
-           InDetSiTrackMaker.pTmin                     = NewTrackingCuts.minPT()[0]
-           InDetSiTrackMaker.pTminBrem                 = NewTrackingCuts.minPTBrem()[0]
-           InDetSiTrackMaker.Xi2max                    = NewTrackingCuts.Xi2max()[0]
-           InDetSiTrackMaker.Xi2maxNoAdd               = NewTrackingCuts.Xi2maxNoAdd()[0]
-           InDetSiTrackMaker.Xi2maxMultiTracks         = NewTrackingCuts.Xi2max()[0]
-           InDetSiTrackMaker.nHolesMax                 = NewTrackingCuts.nHolesMax()[0]
-           InDetSiTrackMaker.nHolesGapMax              = NewTrackingCuts.nHolesGapMax()[0]
-           InDetSiTrackMaker.phiWidth                  = NewTrackingCuts.phiWidthBrem()[0]
-           InDetSiTrackMaker.etaWidth                  = NewTrackingCuts.etaWidthBrem()[0]
-           InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()[0]
+            InDetSiTrackMaker.etaBins                   = NewTrackingCuts.etaBins()
+            InDetSiTrackMaker.pTBins                    = NewTrackingCuts.minPT()
+            InDetSiTrackMaker.nClustersMin              = min(NewTrackingCuts.minClusters())
+            InDetSiTrackMaker.pTmin                     = NewTrackingCuts.minPT()[0]
+            InDetSiTrackMaker.pTminBrem                 = NewTrackingCuts.minPTBrem()[0]
+            InDetSiTrackMaker.Xi2max                    = NewTrackingCuts.Xi2max()[0]
+            InDetSiTrackMaker.Xi2maxNoAdd               = NewTrackingCuts.Xi2maxNoAdd()[0]
+            InDetSiTrackMaker.Xi2maxMultiTracks         = NewTrackingCuts.Xi2max()[0]
+            InDetSiTrackMaker.nHolesMax                 = NewTrackingCuts.nHolesMax()[0]
+            InDetSiTrackMaker.nHolesGapMax              = NewTrackingCuts.nHolesGapMax()[0]
+            InDetSiTrackMaker.phiWidth                  = NewTrackingCuts.phiWidthBrem()[0]
+            InDetSiTrackMaker.etaWidth                  = NewTrackingCuts.etaWidthBrem()[0]
+            InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()[0]
          
-         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
-            InDetSiTrackMaker.ITKGeometry = True
-
          if NewTrackingCuts.mode() == "DBM":
             InDetSiTrackMaker.MagneticFieldMode = "NoField"
             InDetSiTrackMaker.useBremModel = False
