@@ -136,6 +136,15 @@ class EFMetHypoXE (EFMissingETHypoBase):
         self.SumETCut = 100000000*GeV
         self.forceAccept=False
         self.onlineMonitoring(False)
+        self.doLArH11off=False
+        self.doLArH12off=False
+        self.doMETphicut=False
+        if 'LArH11off' in name:
+            self.doLArH11off = True
+        if 'LArH12off' in name:
+            self.doLArH12off = True
+        if 'METphi' in name:
+            self.doMETphicut = True
         if 'wMu' in name:
             self.doMuonCorrection = True
         if 'Mon' in name:
@@ -314,6 +323,15 @@ class EFMetHypoTCPUCXE (EFMissingETHypoBase):
         self.forceAccept=False
         self.onlineMonitoring(False)
         self.doEMScaleTC=True
+        self.doLArH11off=False
+        self.doLArH12off=False
+        self.doMETphicut=False
+        if 'LArH11off' in name:
+            self.doLArH11off = True
+        if 'LArH12off' in name:
+            self.doLArH12off = True
+        if 'METphi' in name:
+            self.doMETphicut = True
         if 'tchad' in name:
             self.doEMScaleTC = False
         if 'tclcw' in name:
