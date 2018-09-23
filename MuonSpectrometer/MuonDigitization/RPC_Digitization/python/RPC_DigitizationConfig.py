@@ -48,7 +48,7 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     kwargs.setdefault("PanelId_OFF_fromlist"           ,False )  
     kwargs.setdefault("PanelId_OK_fromlist"            ,False ) 
     kwargs.setdefault("IgnoreRunDependentConfig"       ,False ) 
-    if 'MC16Merge' in jobproperties.Digitization.experimentalDigi():
+    if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)

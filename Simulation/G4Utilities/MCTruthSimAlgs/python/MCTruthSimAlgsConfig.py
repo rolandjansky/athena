@@ -11,7 +11,7 @@ def genericMergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
         if not digitizationFlags.doXingByXingPileUp(): # Algorithm approach
             kwargs.setdefault("PileUpMergeSvc", "PileUpMergeSvc")
         return CfgMgr.SimpleMergeMcEventCollTool(name, **kwargs)
-    elif 'MC16Merge' in digitizationFlags.experimentalDigi():
+    elif 'NewMerge' in digitizationFlags.experimentalDigi():
         if not digitizationFlags.doXingByXingPileUp(): # Algorithm approach
             kwargs.setdefault("PileUpMergeSvc", "PileUpMergeSvc")
         if digitizationFlags.doLowPtMinBias:
@@ -42,7 +42,7 @@ def MergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -30000)
         kwargs.setdefault("LastXing",   30000)
-    keys =['SimpleMerge', 'MC16Merge']
+    keys =['SimpleMerge', 'NewMerge']
     if set(keys).isdisjoint(set(digitizationFlags.experimentalDigi())):
         kwargs.setdefault("DoSlimming", False)
         kwargs.setdefault("OnlySaveSignalTruth", False)
@@ -52,7 +52,7 @@ def SignalOnlyMcEventCollTool(name="SignalOnlyMcEventCollTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", 0)
         kwargs.setdefault("LastXing",  0)
-    keys =['SimpleMerge', 'MC16Merge']
+    keys =['SimpleMerge', 'NewMerge']
     if set(keys).isdisjoint(set(digitizationFlags.experimentalDigi())):
         kwargs.setdefault("OnlySaveSignalTruth", True)
     return genericMergeMcEventCollTool(name, **kwargs)
@@ -61,7 +61,7 @@ def InTimeOnlyMcEventCollTool(name="InTimeOnlyMcEventCollTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", 0)
         kwargs.setdefault("LastXing",  0)
-    keys =['SimpleMerge', 'MC16Merge']
+    keys =['SimpleMerge', 'NewMerge']
     if set(keys).isdisjoint(set(digitizationFlags.experimentalDigi())):
         kwargs.setdefault("DoSlimming", False)
         kwargs.setdefault("OnlySaveSignalTruth", False)

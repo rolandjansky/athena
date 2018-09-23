@@ -27,7 +27,7 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     if jobproperties.Digitization.PileUpPremixing():
         kwargs.setdefault("IncludePileUpTruth", False)
 
-    if 'MC16Merge' in jobproperties.Digitization.experimentalDigi():
+    if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
