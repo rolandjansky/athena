@@ -18,7 +18,10 @@ namespace CP {
             return StatusCode::SUCCESS;
         }
         m_activeTool = getTool();
-        if (m_activeTool == nullptr) return StatusCode::FAILURE;
+        if (m_activeTool == nullptr) {
+            ATH_MSG_FATAL("No tool could be assigned at the beginning of the event");
+            return StatusCode::FAILURE;
+        }
         return StatusCode::SUCCESS;
     }
    unsigned int MuonCalibrationPeriodTool::getPeriod() const {
