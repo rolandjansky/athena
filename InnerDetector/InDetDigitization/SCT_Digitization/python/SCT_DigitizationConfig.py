@@ -98,7 +98,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("isOverlay", globalflags.isOverlay())
 
     from Digitization.DigitizationFlags import digitizationFlags
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)

@@ -30,7 +30,7 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", "MM_SDO")
-    if 'MC16Merge' in jobproperties.Digitization.experimentalDigi():
+    if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)

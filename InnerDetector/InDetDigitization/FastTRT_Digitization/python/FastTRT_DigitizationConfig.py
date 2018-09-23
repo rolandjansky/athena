@@ -47,7 +47,7 @@ def BasicTRTFastDigitizationTool(name, **kwargs):
         digitizationFlags.rndmSeedList.addSeed(streamName, 45123, 94345 )
 
     #If needed we'll adjust the output McEventCollections (for pileup mainly) names
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
