@@ -173,7 +173,6 @@ class L2EFChain_met(L2EFChainDef):
 
                 doLArH11off=False
                 doLArH12off=False
-                doMETphi=False
                 LArTag=''
                 if "LArH11off" in addInfo: 
                     doLArH11off = True
@@ -182,7 +181,6 @@ class L2EFChain_met(L2EFChainDef):
                     doLArH12off = True
                     LArTag += '_LArH12off'
                 if "METphi" in addInfo: 
-                    doMETphi = True
                     LArTag += '_METphi'
 
                 jpt_thr = '-1'
