@@ -66,7 +66,7 @@ int main( int argc, char* argv[] ) {
    // The application's name:
    const char* APP_NAME = argv[ 0 ];
 
-   MSG::Level mylevel=MSG::DEBUG;
+   MSG::Level mylevel=MSG::INFO;
    dummymsg.msg().setLevel(mylevel);
    dummymsg.msg().setName(APP_NAME);
    // Check if we received a file name:
@@ -120,10 +120,9 @@ int main( int argc, char* argv[] ) {
 
    if (isElectron) {
    //tight ECIDS
-   std::unique_ptr<AsgElectronChargeIDSelectorTool> m_electronECIDS = CxxUtils::make_unique<AsgElectronChargeIDSelectorTool> ("tightECIDS");
-   std::string trainingfile    = std::string(std::getenv("ROOTCOREBIN")) + "/data/ElectronPhotonSelectorTools/ECIDS_20161125for2017Moriond.root";
+   std::unique_ptr<AsgElectronChargeIDSelectorTool> m_electronECIDS = CxxUtils::make_unique<AsgElectronChargeIDSelectorTool> ("looseECIDS");
+   std::string trainingfile    = "ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root";
    CHECK(m_electronECIDS->setProperty("TrainingFile", trainingfile));
-   CHECK(m_electronECIDS->setProperty("CutOnBDT", 0));
    m_electronECIDS->msg().setLevel(mylevel);
    CHECK(m_electronECIDS->initialize());
    
@@ -149,6 +148,7 @@ int main( int argc, char* argv[] ) {
        MSG_INFO("---------------------------");
        MSG_INFO("Electron: " << counter);
        MSG_INFO("Electron LH Tight accept result: " <<m_TightLH->accept(el));
+       if (!m_TightLH->accept(el)) continue;
        //       MSG_INFO("Electron stored LH Tight: "  << el->passSelection("LHTight") );
        MSG_INFO("Electron Cut ECIDS accept result: " <<m_electronECIDS->accept(el));
        MSG_INFO("Electron stored Tight: "  << el->passSelection("Tight") );
