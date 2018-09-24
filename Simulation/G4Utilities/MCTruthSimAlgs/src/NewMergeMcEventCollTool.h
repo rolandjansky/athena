@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MCTRUTHSIMALGS_MC16MERGEMCEVENTCOLLTOOL_H
-#define MCTRUTHSIMALGS_MC16MERGEMCEVENTCOLLTOOL_H
+#ifndef MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
+#define MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
 
@@ -75,4 +75,4 @@ private:
   //** How many background events have been read so far for this signal event
   unsigned int m_nBkgEventsReadSoFar;
 };
-#endif //MCTRUTHSIMALGS_MC16MERGEMCEVENTCOLLTOOL_H
+#endif //MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H

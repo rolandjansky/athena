@@ -71,7 +71,7 @@ def BasicTRTDigitizationTool(name, **kwargs):
         kwargs.setdefault("FirstXing", TRT_FirstXing())
         kwargs.setdefault("LastXing",  TRT_LastXing())
 
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)

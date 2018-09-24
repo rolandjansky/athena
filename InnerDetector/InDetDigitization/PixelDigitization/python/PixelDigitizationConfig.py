@@ -46,7 +46,7 @@ def SurfaceChargesTool(name="SurfaceChargesTool", **kwargs):
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -72,7 +72,7 @@ def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
     # kwargs.setdefault("doHITPlots", True)
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -85,7 +85,7 @@ def PixelECBichselChargeTool(name="PixelECBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -99,7 +99,7 @@ def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
     kwargs.setdefault("doDeltaRay", False)            # needs validation
     kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -113,7 +113,7 @@ def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
     kwargs.setdefault("doDeltaRay", False)            # needs validation
     kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -126,7 +126,7 @@ def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
 def PixelBarrelChargeTool(name="PixelBarrelChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -135,7 +135,7 @@ def PixelBarrelChargeTool(name="PixelBarrelChargeTool", **kwargs):
 def PixelECChargeTool(name="PixelECChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -144,7 +144,7 @@ def PixelECChargeTool(name="PixelECChargeTool", **kwargs):
 def IblPlanarChargeTool(name="IblPlanarChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -153,7 +153,7 @@ def IblPlanarChargeTool(name="IblPlanarChargeTool", **kwargs):
 def Ibl3DChargeTool(name="Ibl3DChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
          kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
