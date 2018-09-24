@@ -1251,6 +1251,10 @@ def setupMenu():
         ['xe110_pufit_xe70_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['Primary:20000','RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x70_L1XE50'] ]],
         ['xe110_pufit_xe75_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['Primary:20000','RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x75_L1XE50'] ]],
 
+    ## ATR-18759
+        ['xe110_pufit_LArH11offMETphi_xe65_LArH11offMETphi_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit_LArH11offMETphi','x65_LArH11offMETphi_L1XE50'] ]],
+        ['xe110_pufit_LArH12offMETphi_xe65_LArH12offMETphi_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit_LArH12offMETphi','x65_LArH12offMETphi_L1XE50'] ]],
+        ['xe110_pufit_LArH11offLArH12offMETphi_xe65_LArH11offLArH12offMETphi_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit_LArH11offLArH12offMETphi','x65_LArH11offLArH12offMETphi_L1XE50'] ]],
     ## mht+cell ####
        # cell 70
         ['xe110_mht_xe70_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_mht','xe70_L1XE50'] ]],
