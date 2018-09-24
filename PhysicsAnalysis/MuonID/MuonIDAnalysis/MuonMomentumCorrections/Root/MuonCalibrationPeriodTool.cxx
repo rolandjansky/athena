@@ -13,15 +13,6 @@ namespace CP {
         bool isData = !m_evInfo->eventType(xAOD::EventInfo::IS_SIMULATION);        
         // reset the active tool
         m_activeTool = nullptr;
-        if (m_useRndRun && !isData) {
-            ATH_MSG_DEBUG("Random run number is used on MC. Skip the assignment");
-            return StatusCode::SUCCESS;
-        }
-        m_activeTool = getTool();
-        if (m_activeTool == nullptr) {
-            ATH_MSG_FATAL("No tool could be assigned at the beginning of the event");
-            return StatusCode::FAILURE;
-        }
         return StatusCode::SUCCESS;
     }
    unsigned int MuonCalibrationPeriodTool::getPeriod() const {
@@ -72,10 +63,10 @@ namespace CP {
    const CP::IMuonCalibrationAndSmearingTool* MuonCalibrationPeriodTool::getTool() const {
         if (m_activeTool != nullptr) return m_activeTool;
         unsigned int period = getPeriod();
-        if (period ==  1516) return m_calibTool_1516.get();
-        else if (period ==  17) return m_calibTool_17.get();
-        else if (period ==  18) return m_calibTool_18.get();
-        return nullptr;
+        if (period ==  1516) m_activeTool = m_calibTool_1516.get();
+        else if (period ==  17) m_activeTool = m_calibTool_17.get();
+        else if (period ==  18) m_activeTool = m_calibTool_18.get();
+        return m_activeTool;
     }
  
 

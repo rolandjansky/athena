@@ -67,7 +67,7 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_18;
         
         
-        const CP::IMuonCalibrationAndSmearingTool* m_activeTool;
+        mutable const CP::IMuonCalibrationAndSmearingTool* m_activeTool;
         const xAOD::EventInfo* m_evInfo;
         
         // Sagitta and calibration releases which are parsed to
