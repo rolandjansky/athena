@@ -770,7 +770,7 @@ def setupMenu():
         ["noalg_l1topo_L1JPSI-1M5-EM12",                 "L1_JPSI-1M5-EM12",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         #ATR-18734 VBF inclusive
         ["noalg_l1topo_L1MJJ-500-NFF",                  "L1_MJJ-500-NFF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1      ],
-        ["noalg_l1topo_L1MJJ-700",                  "L1_MJJ-500-NFF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1      ],
+        ["noalg_l1topo_L1MJJ-700",                  "L1_MJJ-700",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1      ],
         #ATR-18734 VBF H->bb + photon
         #['noalg_l1topo_L1EM18VHI_MJJ-300',   'L1_EM18VHI_MJJ-300',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         ['noalg_l1topo_L1EM18VH_MJJ-300',   'L1_EM18VH_MJJ-300',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
