@@ -239,14 +239,9 @@ muonsRequirements = '(Muons.pt > 2.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFC
 electronsRequirements = '(Electrons.pt > 3*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 leptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 1)'
 stdTrackRequirements = ' ( InDetTrackParticles.pt >= 1*GeV ) && ( ( InDetTrackParticles.ptcone20 / InDetTrackParticles.pt ) < 0.2 )'
-#stdTrackRequirements = ' ( InDetTrackParticles.pt >= 1*GeV )'
-#stdTrackRequirements = ' ( InDetTrackParticles.pt >= 1*GeV ) && ( ( InDetTrackParticles.ptvarcone20 / InDetTrackParticles.pt ) < 0.01 )'
 pixTrackRequirements = ' ( InDetPixelPrdAssociationTrackParticles.pt >= 1*GeV ) && ( ( InDetPixelPrdAssociationTrackParticles.ptcone20 / InDetPixelPrdAssociationTrackParticles.pt ) < 0.2 ) '
-#pixTrackRequirements = ' ( InDetPixelPrdAssociationTrackParticles.pt >= 1*GeV ) '
-#pixTrackRequirements = ' ( InDetPixelPrdAssociationTrackParticles.pt >= 1*GeV ) && ( ( InDetPixelPrdAssociationTrackParticles.ptvarcone20 / InDetPixelPrdAssociationTrackParticles.pt ) < 0.01 ) '
 trackExpression='( count('+stdTrackRequirements+') + count('+pixTrackRequirements+')>= 2 )'
 expression='('+leptonSelection+' && '+trackExpression+')'
-#expression='('+trackExpression+')'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 
 SUSY19LeptonSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY19LeptonSkimmingTool",
