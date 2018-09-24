@@ -108,7 +108,7 @@ void IReAlgToolCalo::PrintCluster(const double ARG(energyFromAlg),
                                 const int ARG(nCaloType),
                                 const int ARG(nCaloSamp),
                                 CaloSampling::CaloSample ARG(SAMP1), 
-                                CaloSampling::CaloSample ARG(SAMP2) )
+                                CaloSampling::CaloSample ARG(SAMP2) ) const
 #undef ARG
 {
 #ifdef EXTRADEBUG
