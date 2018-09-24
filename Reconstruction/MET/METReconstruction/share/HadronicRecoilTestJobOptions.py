@@ -165,8 +165,7 @@ from METUtilities.METMakerConfig import getMETMakerAlg
 
 #makerAlgEM = getMETMakerAlg("NewAntiKt4EMTopo",jetColl="AntiKt4EMTopoJets") # original
 # ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel=VERBOSE
-#ToolSvc.METMaker_NewAntiKt4EMTopo.DoRemoveElecTrks=False # artur commented
-#filterseq += makerAlgEM  # artur commented
+
 
 makerAlgPF = getMETMakerAlg("NewAntiKt4EMPFlow",jetColl="AntiKt4EMPFlowJets",setJetMinWPtToInf=False)
 #ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
@@ -180,8 +179,8 @@ makerAlgPF_HR = getMETMakerAlg("NewAntiKt4EMPFlowHR",jetColl="AntiKt4EMPFlowJets
 filterseq += makerAlgPF_HR
 
 
-print "!!!!!!!!topSequence: ", topSequence
-print "!!!!!!!!filterseq: ", filterseq
+#print "topSequence: ", topSequence
+#print "filterseq: ", filterseq
 
 
 write_xAOD = True

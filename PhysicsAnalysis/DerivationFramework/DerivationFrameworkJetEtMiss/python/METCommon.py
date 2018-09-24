@@ -18,8 +18,8 @@ METLists = {}
 #          'Reference_AntiKt4EMPFlow', 'Reference_AntiKt4EMTopo', 'Reference_AntiKt4LCTopo',]
 xaodlist = ['Calo', 'EMTopo', 'EMTopoRegions', 'LocHadTopo', 'LocHadTopoRegions',
         'Track', 'Truth', 'TruthRegions']
-xaodmaps = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow', 'myAntiKt4EMPFlow', 'NewAntiKt4EMPFlowHR']
-maplist = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow',  'myAntiKt4EMPFlow', 'NewAntiKt4EMPFlowHR']
+xaodmaps = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow']
+maplist = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow']
 truthmaplist = ['Truth_AntiKt4LCTopo','Truth_AntiKt4EMTopo','Truth_AntiKt4EMPFlow']
 METLists['Diagnostic'] = ['Calo','EMTopo','EMTopoRegions','LocHadTopo','LocHadTopoRegions','TruthRegions']
 METLists['Assocs'] = [m for m in maplist]
@@ -170,6 +170,55 @@ def scheduleMETCustomTrkSel(trkseltool,
 
     maplist.append(cfg.suffix)
     METLists.setdefault(outputlist,[]).append(cfg.suffix)
+
+
+# ********  Methods for HR construction (W precision measurements approach), STDM derivations ********
+# Add association map for HR calculation
+def addMETAssocMap(sequence=DerivationFrameworkJob, 
+                jettype='PFlowJet',
+                assocname='AntiKt4EMPFlow',
+                jetcoll='AntiKt4EMPFlowJets',
+                doPflow=True,
+                dorecoil=False,
+                algname='METAssociation'):
+
+    from METReconstruction.METRecoFlags import metFlags
+    from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
+    from METReconstruction.METAssocConfig import getMETAssocAlg
+
+    associators = [AssocConfig(jettype),
+                   AssocConfig('Muon'),
+                   AssocConfig('Ele'),
+                   AssocConfig('Gamma'),
+                   AssocConfig('Tau'),
+                   AssocConfig('Soft')]
+
+    cfg = METAssocConfig(assocname,
+                        associators,
+                        doPFlow=doPflow,
+                        doRecoil=dorecoil
+                        )
+
+    metFlags.METAssocConfigs()[cfg.suffix] = cfg
+    metFlags.METAssocOutputList().append(cfg.suffix)
+
+
+    metAlg = getMETAssocAlg(algname)
+    sequence += metAlg
+
+# Make MET for HR calculation
+def MakeMET(sequence=DerivationFrameworkJob, 
+            assocname='AntiKt4EMPFlow',
+            jetcoll='AntiKt4EMPFlowJets',
+            setjetminptToinf=False):
+
+    from METUtilities.METMakerConfig import getMETMakerAlg
+
+    makerAlg = getMETMakerAlg(assocname,jetColl=jetcoll,setJetMinWPtToInf=setjetminptToinf)
+    sequence += makerAlg
+
+
+
 
 # def overwriteMETPFlowWithFix(sequence):
 
