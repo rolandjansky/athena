@@ -18,14 +18,11 @@
 #include "xAODMuon/MuonContainer.h"
 
 //Interface Headers
-#include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "TrkTrack/TrackCollection.h"
 
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
 #include "StoreGate/StoreGateSvc.h"
-
-
 
 
 //==================================================================================
@@ -42,38 +39,28 @@ IDPerfMuonRefitter::IDPerfMuonRefitter(const std::string& name,
   m_container(PerfMonServices::MUON_COLLECTION)
 {
   // Properties that are set from the python scripts.
-
-
   declareProperty("OutputTracksName", m_outputTracksName = "IDMuonTracks");
-
   declareProperty("ReFitterTool1",    m_TrackRefitter1, "ToolHandle for track fitter implementation");
   declareProperty("ReFitterTool2",    m_TrackRefitter2, "ToolHandle for track fitter implementation");
 
 }
 
 
-
 IDPerfMuonRefitter::~IDPerfMuonRefitter()
 {}
 
 
-
 StatusCode IDPerfMuonRefitter::initialize()
 {
-
-
   // Setup the services
   ISvcLocator* pxServiceLocator = serviceLocator();
-
-  if ( pxServiceLocator != NULL ) {
+  if ( pxServiceLocator ) {
     StatusCode xSC = PerfMonServices::InitialiseServices( pxServiceLocator );
     if ( !xSC.isSuccess() )
     {
       ATH_MSG_FATAL("Problem Initializing PerfMonServices");
     }
   }
-
-
   // Retrieve fitter
   if (m_TrackRefitter1.retrieve().isFailure()) {
     ATH_MSG_FATAL("Unable to retrieve " << m_TrackRefitter1 );
@@ -81,7 +68,6 @@ StatusCode IDPerfMuonRefitter::initialize()
   } else {
     ATH_MSG_INFO("Retrieved tool" << m_TrackRefitter1 );
   }
-
   // Retrieve the second fitter
   if (m_TrackRefitter2.retrieve().isFailure()) {
     ATH_MSG_FATAL("Unable to retrieve " << m_TrackRefitter2 );
@@ -89,9 +75,6 @@ StatusCode IDPerfMuonRefitter::initialize()
   } else {
     ATH_MSG_INFO("Retrieved tool" << m_TrackRefitter2 );
   }
-
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -100,49 +83,29 @@ StatusCode IDPerfMuonRefitter::initialize()
 
 StatusCode IDPerfMuonRefitter::execute()
 {
-
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
   if (!pxMuonContainer){
     ATH_MSG_FATAL("Unable to retrieve the muon collection"  );
     return StatusCode::FAILURE;
   }
-
-
   TrackCollection* muonTrks  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit1  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit2  = new TrackCollection(SG::OWN_ELEMENTS);
-
-
-
-  xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
-  for ( ; xMuonItr != pxMuonContainer->end(); xMuonItr++ )
-	{
-	  const xAOD::Muon* muon = *xMuonItr;
-
+  for (const auto & muon : *pxMuonContainer){
     if (!muon) {
       ATH_MSG_WARNING("CB Muons missing!");
       continue;
     }
 	  ++m_N_Muons;
-
-
-
-    //const std::string region = m_xZmm.getRegion();
     const xAOD::TrackParticle* idTP =   muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-
     if (!idTP) {
        ATH_MSG_DEBUG("ID TrackParticles missing!  Skipping Muon");
        continue;
     }
-
-
-    Trk::Track* defaultMuonTrk = 0;
-    Trk::Track* refit1MuonTrk = 0;
-    Trk::Track* refit2MuonTrk = 0;
-
-    const xAOD::Electron* eg = 0;
-
-
+    Trk::Track* defaultMuonTrk{};
+    Trk::Track* refit1MuonTrk{};
+    Trk::Track* refit2MuonTrk{};
+    const xAOD::Electron* eg{};
     StatusCode fitStatus;
     //save default and refit track parameters
     if( idTP->track() ) {
@@ -171,38 +134,27 @@ StatusCode IDPerfMuonRefitter::execute()
         ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Muon");
         continue;
       }
-
     }
-
-
-
   }// End loop over muons
-
-
-
   //Store information into storegate
   StatusCode sc = evtStore()->record(muonTrks, m_outputTracksName, false);
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed storing " << m_outputTracksName << endmsg;
+    ATH_MSG_WARNING( "Failed storing " << m_outputTracksName);
+  } else{
+    ATH_MSG_DEBUG( "Stored "<< muonTrks->size() << " " << m_outputTracksName <<" into StoreGate" );
   }
-  else{
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stored "<< muonTrks->size() << " " << m_outputTracksName <<" into StoreGate" << endmsg;
-  }
-
   sc = evtStore()->record(muonTrksRefit1, m_outputTracksName + "Refit1", false);
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed storing " << m_outputTracksName + "Refit1" << endmsg;
+    ATH_MSG_WARNING( "Failed storing " << m_outputTracksName + "Refit1" );
   } else {
-		if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stored "<< muonTrksRefit1->size() << " " << m_outputTracksName  + "Refit1" <<" into StoreGate" << endmsg;
+		ATH_MSG_DEBUG( "Stored "<< muonTrksRefit1->size() << " " << m_outputTracksName  + "Refit1" <<" into StoreGate");
 	}
-
   sc = evtStore()->record(muonTrksRefit2, m_outputTracksName + "Refit2", false);
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed storing " << m_outputTracksName +"Refit2" << endmsg;
+    ATH_MSG_WARNING( "Failed storing " << m_outputTracksName +"Refit2" );
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stored "<< muonTrksRefit2->size() << " " << m_outputTracksName + "Refit2" <<" into StoreGate" << endmsg;
+    ATH_MSG_DEBUG( "Stored "<< muonTrksRefit2->size() << " " << m_outputTracksName + "Refit2" <<" into StoreGate" );
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -217,8 +169,5 @@ StatusCode IDPerfMuonRefitter::finalize()
   ATH_MSG_INFO(m_N_MuonRefitFailures << "\t\t Muons refit failures" );
   ATH_MSG_INFO("***************************************************");
   ATH_MSG_INFO("***************************************************");
-
-
-
   return StatusCode::SUCCESS;
 }
