@@ -14,3 +14,5 @@ namespace xAOD
   /*! @brief Version control by type defintion */
   typedef MissingETAssociationHelper_v1 MissingETAssociationHelper;
 }
+
+#endif

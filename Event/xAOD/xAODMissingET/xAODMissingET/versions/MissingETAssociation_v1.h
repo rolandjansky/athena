@@ -14,6 +14,7 @@
 
 #include "xAODMissingET/versions/MissingETCompositionBase.h"
 #include "xAODMissingET/versions/MissingET_v1.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include <vector>
 #include <set>

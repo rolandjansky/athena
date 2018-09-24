@@ -9,11 +9,11 @@
 
 #include "AthContainers/DataVector.h"
 
+#include "xAODMissingET/MissingETAssociation.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 
 #include <string>
 #include <vector>
-#include <unordered_map>
 
 #include <iostream>
 
@@ -38,15 +38,13 @@ namespace xAOD
 
     void setObjSelectionFlag(const MissingETAssociation* assoc, size_t objIdx, bool status); /*!< @brief Flag object as selected for MET calculation */
     void setObjSelectionFlag(const MissingETAssociation* assoc, const IParticle* pPart, bool status);  /*!< @brief Flag object as selected for MET calculation */
-    void resetObjSelectionFlags(); /*!< @brief Reset flags */
 
-    inline void xAOD::MissingETAssociationHelper_v1::resetObjSelectionFlags() { m_useObjectFlags.clear(); }
-
+    inline void resetObjSelectionFlags() { m_useObjectFlags.clear(); }
 		inline const MissingETAssociationMap* map() { return m_map; }
 
   private:
 
-	  const MissingETAssociationMap* m_map;
+    const MissingETAssociationMap* m_map;
 
     std::vector<MissingETBase::Types::bitmask_t> m_useObjectFlags;  /*< @brief Cache overlap removal decisions */
 

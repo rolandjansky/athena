@@ -13,6 +13,7 @@
 #include "xAODMissingET/MissingETComponentMap.h"
 #include "xAODMissingET/MissingETAssociation.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 #include "xAODJet/Jet.h"
 
 namespace xAOD 
