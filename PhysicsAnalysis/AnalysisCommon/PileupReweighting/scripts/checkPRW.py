@@ -16,6 +16,7 @@ def main():
     
     parser = argparse.ArgumentParser(description=__doc__,formatter_class=RawTextHelpFormatter)
     parser.add_argument('--outPRWFile',action="store",help="OPTIONAL Name of the output prw file containing valid configs",required=False)
+    parser.add_argument('--outputSuspect',action="store_true",help="allow for suspect channels to be included in the output prw file",default=False)
     parser.add_argument('--inDsTxt',action="store",help="text file containing datasets to make PRW for (one per line)",required=True)
     parser.add_argument('prwFiles',nargs="+",help="PRW Config files to scan")
     
@@ -96,7 +97,8 @@ def main():
         out.RemoveChannel(int(dsid))
       elif total>nevents:
         print "channel %s is suspect! (config files have additional %d events)" % (dsid,total-nevents)
-        out.RemoveChannel(int(dsid))
+        if not args.outputSuspect:
+          out.RemoveChannel(int(dsid))
       
       
     
