@@ -25,10 +25,13 @@
 #include "xAODEgamma/Egamma.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
 #include "xAODCore/ShallowCopy.h"
+#include "AsgTools/AnaToolHandle.h"
+
 
 //Asg includes
 #include "AsgTools/AsgMessaging.h"
 #include "PATInterfaces/SystematicsUtil.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include <ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h>
 #include "Messaging.h"
@@ -46,7 +49,6 @@ int main( int argc, char* argv[] ) {
     }
 
     double SF_chargeID=0;
-    //   double SF_chargeMisID=0;
     int SF_nevents=0;
 
     double n_chargeID=0;
@@ -95,11 +97,10 @@ int main( int argc, char* argv[] ) {
     CHECK( myEgCorrections.setProperty("UseRandomRunNumber",false) );
     myEgCorrections.initialize();
 
-    AsgElectronLikelihoodTool * m_LHToolTight = new AsgElectronLikelihoodTool("m_LHToolTight");
-    CHECK (m_LHToolTight->setProperty("primaryVertexContainer","PrimaryVertices") );
-    m_LHToolTight->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf").ignore();
-    m_LHToolTight->initialize();
-
+    asg::AnaToolHandle<IAsgElectronLikelihoodTool> electronMediumLHSelector ("AsgElectronLikelihoodTool/electronMediumLHSelector");
+    CHECK(electronMediumLHSelector.setProperty("WorkingPoint", "MediumLHElectron"));
+    CHECK(electronMediumLHSelector.setProperty("OutputLevel", mylevel));
+    CHECK(electronMediumLHSelector.initialize());
 
     // Get a list of systematics
     CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
@@ -108,7 +109,7 @@ int main( int argc, char* argv[] ) {
     std::cout << "=="<<std::endl;
 
     // Loop over the events:
-    entries = 600;
+    entries = 1000;
 
     Long64_t entry = 0;
     for( ; entry < entries; ++entry ) {
@@ -145,23 +146,17 @@ int main( int argc, char* argv[] ) {
         xAOD::ElectronContainer::iterator el_it      = elsCorr->begin();
         xAOD::ElectronContainer::iterator el_it_last      = elsCorr->end();
 
-        //double SF_chargeID=0;
-        //double SF_chargeMisID=0;
-        //       int SF_nevents=0;
-
         unsigned int i = 0;
         double SF = 0;
         for (; el_it != el_it_last; ++el_it, ++i) {
 
             xAOD::Electron* el = *el_it;
-            if (el->pt() < 25000) continue;//skip electrons outside of recommendations
+            if (el->pt() < 20000) continue;//skip electrons outside of recommendations
 
-            bool LHacc = m_LHToolTight->accept(el);
+            bool LHacc = electronMediumLHSelector->accept(el);
             std::cout << "acc:  "<< LHacc << std::endl;
-            if(!m_LHToolTight->accept(el)) continue; 
-            if (fabs(el->caloCluster()->etaBE(2)) > 2.4) continue;//skip electrons outside of recommendations
-            //      if(!m_LHToolTight->accept(el)) continue;
-
+            if(!electronMediumLHSelector->accept(el)) continue; 
+            if (fabs(el->caloCluster()->etaBE(2)) > 2.5) continue;//skip electrons outside of recommendations
             SF_nevents++;
 
             // std::cout << "Electron " << i << std::endl;
@@ -175,19 +170,16 @@ int main( int argc, char* argv[] ) {
                 return EXIT_FAILURE;
             }
 
+            Info( APP_NAME, "===>>> SF %f ",SF);
+
             if(myEgCorrections.applyEfficiencyScaleFactor(*el) != CP::CorrectionCode::Ok){
                 Error( APP_NAME, "Problem in applyEfficiencyScaleFactor");
                 return EXIT_FAILURE;
             }
 
-            //      Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
-            //           SF, el->auxdata< float >("SF"));
-
             SF_chargeID=SF_chargeID+SF;
 
-
-
-            for(const auto& sys : recSysts){  //recSysts){
+            for(const auto& sys : recSysts){
                 double systematic = 0;
 
                 // Configure the tool for this systematic
@@ -196,10 +188,10 @@ int main( int argc, char* argv[] ) {
                 if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) == CP::CorrectionCode::Ok){
                     std::cout <<  (sys).name() <<"  sys names    " << (myEgCorrections.affectingSystematics().name()) << std::endl;    
                     Info( APP_NAME,  "%f Result %f Systematic value %f ", SF,systematic,systematic-SF );
-                    //                     unc.push_back(systematic);
-                    //
                 }
             }
+
+            CHECK( myEgCorrections.applySystematicVariation(CP::SystematicSet()) );
 
             int truthcharge = (-1)*el->auxdata<int>("firstEgMotherPdgId");
             if (el->auxdata<int>("truthType")) { std::cout << el->charge() << "  " << el->auxdata<int>("firstEgMotherPdgId") << std::endl; }
@@ -210,7 +202,6 @@ int main( int argc, char* argv[] ) {
             else n_chargeID++;
             }
 
-            // }
 
     }
     Info( APP_NAME, "===>>>  done processing event #%lld ",entry);
