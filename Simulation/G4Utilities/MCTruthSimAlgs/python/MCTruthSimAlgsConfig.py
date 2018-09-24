@@ -18,6 +18,8 @@ def genericMergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
             kwargs.setdefault("ExpectLowPtMinBiasBackgroundCollection", True)
         if digitizationFlags.doHighPtMinBias:
             kwargs.setdefault("ExpectHighPtMinBiasBackgroundCollection", True)
+        # Default `PileUpType` to "Unknown"
+        kwargs.setdefault("PileUpType", -1)
         return CfgMgr.NewMergeMcEventCollTool(name, **kwargs)
     else:
         kwargs.setdefault("LowTimeToKeep", -50.5)
