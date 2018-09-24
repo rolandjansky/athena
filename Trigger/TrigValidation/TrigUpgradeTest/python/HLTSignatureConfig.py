@@ -3,7 +3,7 @@ from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
 from AthenaCommon.Constants import VERBOSE,DEBUG
-
+from TrigUpgradeTest.HLTSignatureHypoTools import *
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
 def InputMakerAlg(name):
@@ -49,8 +49,11 @@ muHypo.Input = muAlg.Output
 
 mustep1_sequence = seqAND("muSeqStep1", [muIM, muAlg])
 
+
+
+    
 def muStep1Sequence():
-    return MenuSequence(Sequence=mustep1_sequence, Maker=muIM, Hypo=muHypo,HypoToolClassName="MuTestHypoTool")
+    return MenuSequence(Sequence=mustep1_sequence, Maker=muIM, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
 
 # mu step2
 muIM2= InputMakerAlg(name="Step2MuInputMaker")
@@ -66,7 +69,7 @@ muHypo2.Input = muAlg2.Output
 mustep2_sequence = seqAND("muSeqStep2", [muIM2, muAlg2])
 
 def muStep2Sequence():
-    return MenuSequence( Sequence=mustep2_sequence, Maker=muIM2, Hypo=muHypo2, HypoToolClassName="MuTest2HypoTool")
+    return MenuSequence( Sequence=mustep2_sequence, Maker=muIM2, Hypo=muHypo2, HypoToolGen=MuTest2HypoTool)
 
 
 
@@ -98,7 +101,7 @@ elstep1_sequence = seqAND("elSeqStep1", [elIM, elAlg])
 
 
 def elStep1Sequence():
-    return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=elHypo, HypoToolClassName="ElTestHypoTool")
+    return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=elHypo, HypoToolGen=ElTestHypoTool)
 
 #step2
 elIM2= InputMakerAlg(name="Step2ElInputMaker")
@@ -114,5 +117,5 @@ elHypo2.Input = elAlg2.Output
 elstep2_sequence = seqAND("elSeqStep2", [elIM2, elAlg2])
 
 def elStep2Sequence():
-    return MenuSequence( Maker=elIM2, Sequence=elstep2_sequence, Hypo=elHypo2, HypoToolClassName="ElTestHypoTool")
+    return MenuSequence( Maker=elIM2, Sequence=elstep2_sequence, Hypo=elHypo2, HypoToolGen=ElTestHypoTool)
 
