@@ -5,17 +5,13 @@
 #ifndef TILECONDITIONS_TILECONDTOOLPULSESHAPE_H
 #define TILECONDITIONS_TILECONDTOOLPULSESHAPE_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileConditions/TileCalibData.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-// Tile includes
-#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/ITileCondProxy.h"
 
 #include <vector>
 
@@ -26,18 +22,18 @@ class TileCondToolPulseShape: public AthAlgTool {
     TileCondToolPulseShape(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TileCondToolPulseShape();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     bool getPulseShapeYDY(unsigned int drawerIdx, unsigned int channel, unsigned int adc
                          , float time, float &y, float &dy) const;
 
   private:
 
-    StatusCode recache( IOVSVC_CALLBACK_ARGS);
+    //=== TileCalibData
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibPulseShapeKey{this,
+        "TilePulseShape", "TilePulseShape", "Input Tile pulse shape"};
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryPulseShape;
 };
 
 #endif

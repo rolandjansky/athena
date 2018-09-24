@@ -1,7 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TileConditions/TileInfoLoader.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCondIdTransforms.h"
 #include "TileConditions/TileBadChanTool.h"
+#include "TileConditions/TileBadChanLegacyTool.h"
 #include "TileConditions/TileCondToolOfc.h"
 #include "TileConditions/TileCondToolOfcCool.h"
 #include "TileConditions/TileCellNoiseTool.h"
@@ -19,13 +24,18 @@
 #include "TileConditions/TileCondToolAutoCr.h"
 #include "TileConditions/TileCondToolTMDB.h"
 #include "TileConditions/TileCondToolDspThreshold.h"
-
+#include "../TileDCSTool.h"
+#include "../TileCalibCondAlg.h"
+#include "../TileBadChannelsCondAlg.h"
+#include "../TileEMScaleCondAlg.h"
+#include "../TileDCSCondAlg.h"
 
 DECLARE_COMPONENT( TileInfoLoader )
 DECLARE_COMPONENT( TileCablingSvc )
 DECLARE_COMPONENT( TileDCSSvc )
 DECLARE_COMPONENT( TileCondIdTransforms )
 DECLARE_COMPONENT( TileBadChanTool )
+DECLARE_COMPONENT( TileBadChanLegacyTool )
 DECLARE_COMPONENT( TileCondToolOfc )
 DECLARE_COMPONENT( TileCondToolOfcCool )
 DECLARE_COMPONENT( TileCellNoiseTool )
@@ -45,4 +55,9 @@ DECLARE_COMPONENT( TileCondProxyCoolBch )
 DECLARE_COMPONENT( TileCondProxyCoolOfc )
 DECLARE_COMPONENT( TileCondProxyFileFlt )
 DECLARE_COMPONENT( TileCondProxyFileBch )
-
+DECLARE_COMPONENT( TileCalibFltCondAlg )
+DECLARE_COMPONENT( TileCalibOfcCondAlg )
+DECLARE_COMPONENT( TileBadChannelsCondAlg )
+DECLARE_COMPONENT( TileEMScaleCondAlg )
+DECLARE_COMPONENT( TileDCSCondAlg )
+DECLARE_COMPONENT( TileDCSTool )
