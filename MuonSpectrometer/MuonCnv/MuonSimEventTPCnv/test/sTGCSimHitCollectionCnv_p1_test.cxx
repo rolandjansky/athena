@@ -27,7 +27,6 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1.isValid() == p2.isValid() );
   assert ( p1.barcode() == p2.barcode() );
   assert ( p1.eventIndex() == p2.eventIndex() );
-  assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
   assert ( p1 == p2 );
 }
@@ -78,16 +77,16 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   assert(dummyHMPL.cptr()==particle);
   // Create DVL info outside of leak check.
   sTGCSimHitCollection dum ("coll");
+  Athena_test::Leakcheck check;
 
   sTGCSimHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
     trans1.Emplace (123, 10.5, 
                     Amg::Vector3D (12.5, 13.5, 14.5),
                     pGenParticle->pdg_id(),
                     Amg::Vector3D (26.5, 27.5, 28.5),
-                    29.5, trkLink
+                    29.5, pGenParticle->barcode()
                     );
   }
 

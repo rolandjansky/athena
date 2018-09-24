@@ -11,8 +11,16 @@
 #include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p1.h"
 #include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p2.h"
 
+/**
+ ** The _p2 converter was added to support HepMcParticleLink_p2 in 21.3.
+ ** As of 2018-09-24, HepMcParticleLink_p2 is not fully supported in master.
+ ** Therefore, the default is set to _p2, while the _p2 is provided
+ ** in case of it is needed in the future.
+ ** -chav.chhiv.Chau@cern.ch
+ **/
+
 // the latest persistent representation type of DataCollection:
-typedef  Muon::sTGCSimHitCollection_p2  sTGCSimHitCollection_PERS;
+typedef  Muon::sTGCSimHitCollection_p1  sTGCSimHitCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<sTGCSimHitCollection, sTGCSimHitCollection_PERS >  sTGCSimHitCollectionCnvBase;
 
 /**

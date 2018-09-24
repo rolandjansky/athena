@@ -643,7 +643,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
           ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
           
-          sTGCSimHit* wireHit = new sTGCSimHit(idHit, (hit.globalTime() + eventTime), G_HITONSURFACE_WIRE, hit.particleEncoding(), hit.globalDirection(), hit.depositEnergy() , trklink );
+          sTGCSimHit* wireHit = new sTGCSimHit(idHit, (hit.globalTime() + eventTime), G_HITONSURFACE_WIRE, hit.particleEncoding(), hit.globalDirection(), hit.depositEnergy() , hit.trackNumber() );
           SimHits[wireHit] = eventId;  //Associate the sub event the hit came from
           ATH_MSG_VERBOSE("Put hit number " << nhits << " into the map with eventID " << eventId );
 	  } // end of while(i != e)
