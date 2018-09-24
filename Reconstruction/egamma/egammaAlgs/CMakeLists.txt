@@ -26,8 +26,8 @@ atlas_depends_on_subdirs( PRIVATE
                           PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
                           Reconstruction/egamma/egammaInterfaces
                           Reconstruction/egamma/egammaRecEvent
-                          Reconstruction/egamma/egammaInDetUtils
                           Reconstruction/egamma/egammaMVACalib
+                          Reconstruction/egamma/egammaUtils
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
 			  Reconstruction/RecoTools/RecoToolInterfaces
                           Tracking/TrkEvent/TrkTrack

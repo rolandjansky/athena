@@ -42,7 +42,8 @@ SCT_ReadoutData::SCT_ReadoutData(IMessageSvc* msgSvc):
   m_chipInReadout{},
   m_type{SCT_Parameters::BARREL},
   m_chipsOnLink0{},
-  m_chipsOnLink1{}
+  m_chipsOnLink1{},
+  m_msg{nullptr}
 {
   if (msgSvc) m_msg = new Athena::MsgStreamMember{msgSvc, "SCT_ReadoutData"};
 }

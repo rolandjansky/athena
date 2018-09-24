@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( AthAsgExUnittestLib
                    MyPackage/*.h src/*.cxx
                    Root/*.cxx
-                   PUBLIC_HEADERS AthAsgExUnittestLib
+                   PUBLIC_HEADERS AthAsgExUnittest
                    LINK_LIBRARIES GaudiKernel AsgTools AthAnalysisBaseCompsLib )
 atlas_add_component( AthAsgExUnittest
                      src/components/*.cxx

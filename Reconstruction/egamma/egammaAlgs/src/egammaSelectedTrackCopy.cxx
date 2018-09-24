@@ -30,6 +30,7 @@ UPDATE : 25/06/2018
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <stdexcept>
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, 
                                                  ISvcLocator* pSvcLocator):
@@ -47,6 +48,12 @@ StatusCode egammaSelectedTrackCopy::initialize() {
   if(m_extrapolationTool.retrieve().isFailure()){
     ATH_MSG_ERROR("initialize: Cannot retrieve extrapolationTool " << m_extrapolationTool);
     return StatusCode::FAILURE;
+  }
+
+  if (!m_egammaCheckEnergyDepositTool.empty()) {
+    ATH_CHECK( m_egammaCheckEnergyDepositTool.retrieve() );
+  } else {
+    m_egammaCheckEnergyDepositTool.disable();
   }
 
   return StatusCode::SUCCESS;
@@ -117,6 +124,13 @@ StatusCode egammaSelectedTrackCopy::execute()
       ++allSiTracks;
     }
     for(const xAOD::CaloCluster* cluster : *clusterTES ){
+
+      // check that cluster passes basic selection
+      if (!passSelection(cluster)) {
+	ATH_MSG_DEBUG("Cluster did not pass selection");
+	continue;
+      }
+
       /*
          check if it the track is selected due to this cluster.
          If not continue to next cluster
@@ -280,3 +294,38 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
   return false;
 }
+
+bool egammaSelectedTrackCopy::passSelection(const xAOD::CaloCluster *clus) const
+{
+  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
+
+  double emFrac(0.);
+  if (acc.isAvailable(*clus)) {
+    emFrac = acc(*clus);
+  } else if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
+    throw std::runtime_error("No EM fraction momement stored");    
+  }
+  if ( emFrac< m_ClusterEMFCut ){
+    ATH_MSG_DEBUG("Cluster failed EM Fraction cuT");
+    return false;
+  }
+
+  if ( clus->et()*emFrac< m_ClusterEMEtCut ){
+    ATH_MSG_DEBUG("Cluster failed EM Energy cut");
+    return false;
+  }
+
+  
+  double lateral(0.);
+  if (!clus->retrieveMoment(xAOD::CaloCluster::LATERAL, lateral)){
+    throw std::runtime_error("No LATERAL momement stored, normalized");
+  }
+  
+  if ( lateral >  m_ClusterLateralCut ){
+    ATH_MSG_DEBUG("Cluster failed LATERAL cut");
+    return false;
+  }
+
+  return true;
+}
+

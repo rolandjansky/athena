@@ -31,7 +31,9 @@ namespace met {
   ////////////////
   METMuonAssociator::METMuonAssociator(const std::string& name) : 
     AsgTool(name),
-    METAssociator(name)
+    METAssociator(name),
+    m_muContKey("")
+
   {
     declareProperty("DoClusterMatch", m_doMuonClusterMatch=true);
   }
@@ -47,6 +49,9 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_CHECK( m_muContKey.assign(m_input_data_key));
+    ATH_CHECK( m_muContKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -72,13 +77,14 @@ namespace met {
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
-    const MuonContainer* muonCont(0);
-    if( evtStore()->retrieve(muonCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::MuonContainer> muonCont(m_muContKey);
+    if (!muonCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input muon container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved muon collection");
-    if (fillAssocMap(metMap,muonCont).isFailure()) {
+    if (fillAssocMap(metMap,muonCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with muon container " << m_input_data_key);
       return StatusCode::FAILURE;
     }

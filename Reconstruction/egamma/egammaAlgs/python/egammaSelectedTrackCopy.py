@@ -10,11 +10,12 @@ from egammaRec import egammaKeys
 from InDetRecExample.InDetKeys import InDetKeys
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
+from egammaTools.egammaToolsFactories import egammaCheckEnergyDepositTool
 
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
                                       name = 'egammaSelectedTrackCopy' ,
                                       ExtrapolationTool = EMExtrapolationTools,
-                                      ClusterContainerName="LArClusterEM",
+                                      ClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
                                       TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
 				      minNoSiHits=4,
 				      broadDeltaEta=0.1,   # this is multiplied by 2 for the Candidate Match , so +- 0.2 in eta
@@ -24,5 +25,9 @@ egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
 				      narrowDeltaPhi=0.05,   
 				      narrowDeltaPhiBrem=0.20, #Dominated by the needs of assymetric conversions
 				      narrowDeltaPhiRescale=0.05,  
-				      narrowDeltaPhiRescaleBrem=0.1
+				      narrowDeltaPhiRescaleBrem=0.1,
+                                      egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
+                                      ClusterLateralCut=1.0,
+                                      ClusterEMFCut=0.0,
+                                      ClusterEMEtCut=1500
 				      )

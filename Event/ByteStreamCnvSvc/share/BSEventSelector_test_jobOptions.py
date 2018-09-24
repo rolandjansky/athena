@@ -13,7 +13,7 @@ svcMgr.EventSelector.Input = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-ar
 #svcMgr.ByteStreamInputSvc.ValidateEvent = False
 
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 3 
+theApp.EvtMax = 2 
 
 from AthenaCommon.AlgSequence import AthSequencer
 topSequence = AthSequencer("AthAlgSeq")

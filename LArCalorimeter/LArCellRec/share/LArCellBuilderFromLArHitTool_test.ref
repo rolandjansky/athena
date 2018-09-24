@@ -1,14 +1,14 @@
-Thu Sep 20 14:16:54 CEST 2018
+Mon Sep 24 14:02:52 CEST 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [warn_lar/54f37908f2] -- built on [2018-09-20T1210]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [warn_lar/b25d642ac3] -- built on [2018-09-24T1201]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "LArCellRec/LArCellBuilderFromLArHitTool_test.py"
 [?1034hSetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfigurableDb    INFO Read module info for 5514 configurables from 8 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5493 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
@@ -39,7 +39,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on pc-tbed-pub-27.cern.ch on Thu Sep 20 14:17:16 2018
+                                          running on pc-tbed-pub-32.cern.ch on Mon Sep 24 14:03:12 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -56,8 +56,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host pc-tbed-pub-27.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host pc-tbed-pub-32.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -197,11 +197,11 @@ EndcapDMConstru...   INFO Start building EC electronics geometry
   multi-layered version of absorbers activated, mlabs == 1
 ================================================
 EndcapDMConstru...   INFO Start building EC electronics geometry
-GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 22964Kb 	 Time = 0.67S
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 22964Kb 	 Time = 0.5S
 ClassIDSvc           INFO  getRegistryEntries: read 213 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 6709 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 6725 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 670 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
@@ -272,15 +272,15 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in th
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal2DNeighbors-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsNext-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsPrev-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
 CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileNeighbour_reduced.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileNeighbour_reduced.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDes...   INFO in createObj: creating a CaloDescrManager object in the detector store
 CaloIDHelper_ID...   INFO in createObj: creating a CaloDM_ID helper object in the detector store
@@ -299,20 +299,20 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper ob
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
 CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-19T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileSuperCellNeighbour.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-23T2057/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileSuperCellNeighbour.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDes...   INFO  Finished 
 CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
 DetectorStore     WARNING retrieve(default): No valid proxy for default object 
  of type TileDetDescrManager(CLID 2941)
 CaloMgrDetDescrCnvWARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
- <ROOT.CaloDetDescrManager object at 0x23920680>
-ClassIDSvc           INFO  getRegistryEntries: read 3963 CLIDRegistry entries for module ALL
+ <ROOT.CaloDetDescrManager object at 0x1eb5dea0>
+ClassIDSvc           INFO  getRegistryEntries: read 4043 CLIDRegistry entries for module ALL
 ToolSvc.tool1em      INFO  No threshold on hit energy 
 ToolSvc.tool1em      INFO THRESHOLD CHOICE : No Threshold !
 ToolSvc.CaloNoi...   INFO CaloNoiseTool called ToolSvc.CaloNoiseToolDefault initialize() begin
@@ -320,7 +320,7 @@ LArOnlineIDDetD...   INFO in createObj: creating a LArOnlineID helper object in 
 LArOnlineID          INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 ClassIDSvc           INFO  getRegistryEntries: read 2154 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCablingService[0x2a222800]+7fa5bd79e650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCablingService[0x25668800]+7fddfecfa650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/OnOffIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/CalibIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/FebRodMap
@@ -330,7 +330,7 @@ ToolSvc.LArADC2...   INFO Registered callback for key: LArDAC2uA
 ToolSvc.LArADC2...   INFO Registered callback for key: LAruA2MeV
 ToolSvc.LArADC2...   INFO Registered callback for key: LArMphysOverMcal
 ToolSvc.LArADC2...   INFO Registered callback for key: LArHVScaleCorr
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArMCSymTool[0x2a221e00]+189 bound to /LAR/Identifier/FebRodMap
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArMCSymTool[0x25667e00]+189 bound to /LAR/Identifier/CalibIdMap
 ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
 ToolSvc.LArAuto...   INFO Registered callback for key: LArShape
 ToolSvc.LArAuto...   INFO Registered callback for key: LArAutoCorr
@@ -338,19 +338,19 @@ ToolSvc.LArOFCT...   INFO Registered callback for key: LArShape
 ToolSvc.LArOFCT...   INFO Registered callback for key: LArNoise
 ToolSvc.LArOFCT...   INFO Registered callback for LArOFCTool/LArAutoCorrTotalTool
 ToolSvc.CaloNoi...   INFO Will cache electronic noise
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x2a769f18]+191 bound to LArNoiseMC[LArNoise]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x25a07f18]+191 bound to LArNoiseMC[LArNoise]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArNoise
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x2a769f18]+191 bound to LArAutoCorrMC[LArAutoCorr]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x25a07f18]+191 bound to LArAutoCorrMC[LArAutoCorr]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArAutoCorr
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x2a769f18]+191 bound to LArShape32MC[LArShape]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x25a07f18]+191 bound to LArShape32MC[LArShape]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArShape
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x2a769f18]+191 bound to LArfSamplMC[LArfSampl]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x25a07f18]+191 bound to LArfSamplMC[LArfSampl]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArfSampl
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x2a769f18]+191 bound to LArMinBiasMC[LArMinBias]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x25a07f18]+191 bound to LArMinBiasMC[LArMinBias]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArMinBias
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x2a769f18]+191 bound to LArMphysOverMcal
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x25a07f18]+191 bound to LArMphysOverMcal
 ToolSvc.CaloNoi...   INFO Registered callbacks for LArADC2MeVTool -> CaloNoiseTool
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x2a769f18]+191 bound to LArNoise
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x25a07f18]+191 bound to LArNoise
 ToolSvc.CaloNoi...   INFO Registered callbacks for LArOFCTool -> CaloNoiseTool
 ToolSvc.CaloNoi...   INFO CaloNoiseTool initialize() end
 ToolSvc.tool1em      INFO  no noise selected 
@@ -375,9 +375,6 @@ ToolSvc.tool2fcal    INFO  no noise selected
 ToolSvc.tool3em      INFO  No threshold on hit energy 
 ToolSvc.tool3em      INFO THRESHOLD CHOICE : No Threshold !
 ToolSvc.tool3em      INFO  Noise selected (1 0)
-AtRndmGenSvc         INFO Initializing AtRndmGenSvc - package version RngComps-00-00-00
- INITIALISING RANDOM NUMBER STREAMS. 
-AtRndmGenSvc         INFO will be reseeded for every event
 ClassIDSvc           INFO  getRegistryEntries: read 268 CLIDRegistry entries for module ALL
 ToolSvc.tool3hec     INFO  No threshold on hit energy 
 ToolSvc.tool3hec     INFO THRESHOLD CHOICE : No Threshold !
@@ -610,114 +607,38 @@ xAODMaker::Even...WARNING xAOD::EventInfo with key "EventInfo" is already in Sto
 ClassIDSvc           INFO  getRegistryEntries: read 2261 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
 /cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
+/cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] EACFEBD4-9BD2-E211-848A-02163E006B20
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 180A4AF2-F47E-DB11-9E8F-000E0C4DEA2D
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/BadChannels/MissingFEBs' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArAutoCorrMC' , 'ConditionStore+LArAutoCorr' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasAverageMC' , 'ConditionStore+LArMinBiasAverage' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasMC' , 'ConditionStore+LArMinBias' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArNoiseMC' , 'ConditionStore+LArNoise' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArPedestalMC' , 'ConditionStore+LArPedestal' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArRampMC' , 'ConditionStore+LArRamp' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArShape32MC' , 'ConditionStore+LArShape' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArfSamplMC' , 'ConditionStore+LArfSampl' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' )  is still valid at [1,2,t:4294967295,l:2,b:4294967295]
+LArCalibLineMap...WARNING Found valid write handle
 ClassIDSvc           INFO  getRegistryEntries: read 690 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 2 events processed so far  <<<===
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/BadChannels/MissingFEBs' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArAutoCorrMC' , 'ConditionStore+LArAutoCorr' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasAverageMC' , 'ConditionStore+LArMinBiasAverage' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasMC' , 'ConditionStore+LArMinBias' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArNoiseMC' , 'ConditionStore+LArNoise' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArPedestalMC' , 'ConditionStore+LArPedestal' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArRampMC' , 'ConditionStore+LArRamp' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArShape32MC' , 'ConditionStore+LArShape' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArfSamplMC' , 'ConditionStore+LArfSampl' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' )  is still valid at [1,3,t:4294967295,l:3,b:4294967295]
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3em, Seed1 =  871957575, Seed2 = 1941611386
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3fcal, Seed1 =  1039951719, Seed2 = 1349891211
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3hec, Seed1 =  627311549, Seed2 = 472566319
+LArCalibLineMap...WARNING Found valid write handle
+AthRNGSvc            INFO Creating engine ToolSvc.tool3em/ToolSvc.tool3em
+AthRNGSvc            INFO Creating engine ToolSvc.tool3hec/ToolSvc.tool3hec
+AthRNGSvc            INFO Creating engine ToolSvc.tool3fcal/ToolSvc.tool3fcal
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 3 events processed so far  <<<===
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/BadChannels/MissingFEBs' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArAutoCorrMC' , 'ConditionStore+LArAutoCorr' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasAverageMC' , 'ConditionStore+LArMinBiasAverage' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasMC' , 'ConditionStore+LArMinBias' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArNoiseMC' , 'ConditionStore+LArNoise' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArPedestalMC' , 'ConditionStore+LArPedestal' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArRampMC' , 'ConditionStore+LArRamp' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArShape32MC' , 'ConditionStore+LArShape' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArfSamplMC' , 'ConditionStore+LArfSampl' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' )  is still valid at [1,4,t:4294967295,l:4,b:4294967295]
+LArCalibLineMap...WARNING Found valid write handle
 ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 ToolSvc.tool4em   WARNING  windows not reimplemented yet
 ToolSvc.tool4hec  WARNING  windows not reimplemented yet
 ToolSvc.tool4fcal WARNING  windows not reimplemented yet
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3em, Seed1 =  816824393, Seed2 = 1152411412
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3fcal, Seed1 =  1031946339, Seed2 = 791083656
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3hec, Seed1 =  517234067, Seed2 = 668203729
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 4 events processed so far  <<<===
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/BadChannels/MissingFEBs' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArAutoCorrMC' , 'ConditionStore+LArAutoCorr' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasAverageMC' , 'ConditionStore+LArMinBiasAverage' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMinBiasMC' , 'ConditionStore+LArMinBias' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArNoiseMC' , 'ConditionStore+LArNoise' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArPedestalMC' , 'ConditionStore+LArPedestal' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArRampMC' , 'ConditionStore+LArRamp' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArShape32MC' , 'ConditionStore+LArShape' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LArfSamplMC' , 'ConditionStore+LArfSampl' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
-CondInputLoader      INFO   CondObj  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' )  is still valid at [1,5,t:4294967295,l:5,b:4294967295]
+LArCalibLineMap...WARNING Found valid write handle
+AthRNGSvc            INFO Creating engine ToolSvc.tool5em/ToolSvc.tool5em
 ToolSvc.tool5em   WARNING  windows not reimplemented yet
+AthRNGSvc            INFO Creating engine ToolSvc.tool5hec/ToolSvc.tool5hec
 ToolSvc.tool5hec  WARNING  windows not reimplemented yet
+AthRNGSvc            INFO Creating engine ToolSvc.tool5fcal/ToolSvc.tool5fcal
 ToolSvc.tool5fcal WARNING  windows not reimplemented yet
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3em, Seed1 =  1340142741, Seed2 = 1416978076
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3fcal, Seed1 =  1751137712, Seed2 = 914837991
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool3hec, Seed1 =  1846905953, Seed2 = 861268491
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool5em, Seed1 =  1400257506, Seed2 = 441023122
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool5fcal, Seed1 =  1155227556, Seed2 = 1661577989
-AtRndmGenSvc         INFO  Stream =  ToolSvc.tool5hec, Seed1 =  449972764, Seed2 = 2120794177
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 5 events processed so far  <<<===
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 445FAD9A-5DB3-E14A-81DB-BA6244602734
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
@@ -725,51 +646,56 @@ Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D27D07D
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 445FAD9A-5DB3-E14A-81DB-BA6244602734
+/cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 testalg1             INFO Finalizing testalg1...
 IncidentProcAlg2     INFO Finalize
-AtRndmGenSvc         INFO  FINALISING 
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv    INFO in finalize
-IOVDbSvc             INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.68 ))s
-IOVDbSvc             INFO Folder /LAR/BadChannels/BadChannels (AttrListColl) db-read 1/1 objs/chan/bytes 0/8/0 ((     0.59 ))s
-IOVDbSvc             INFO Folder /LAR/BadChannels/MissingFEBs (AttrList) db-read 1/1 objs/chan/bytes 1/1/16 ((     0.50 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/1520148 ((     0.25 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/6100 ((     0.01 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/780292 ((     0.03 ))s
+IOVDbSvc             INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.16 ))s
+IOVDbSvc             INFO Folder /LAR/BadChannels/BadChannels (AttrListColl) db-read 1/1 objs/chan/bytes 0/8/0 ((     0.03 ))s
+IOVDbSvc             INFO Folder /LAR/BadChannels/MissingFEBs (AttrList) db-read 1/1 objs/chan/bytes 1/1/16 ((     0.02 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/1520148 ((     0.09 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/6100 ((     0.30 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/780292 ((     0.35 ))s
 IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/AutoCorr (PoolColl) db-read 1/2 objs/chan/bytes 3/3/486 ((     0.03 ))s
-IOVDbSvc             INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.02 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/AutoCorr (PoolColl) db-read 1/2 objs/chan/bytes 3/3/486 ((     0.04 ))s
+IOVDbSvc             INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.03 ))s
 IOVDbSvc             INFO Folder /LAR/ElecCalibMC/DAC2uA (PoolColl) db-read 1/2 objs/chan/bytes 1/1/170 ((     0.03 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolColl) db-read 1/2 objs/chan/bytes 12/12/1980 ((     0.03 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBias (PoolColl) db-read 1/2 objs/chan/bytes 1/1/174 ((     0.03 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBiasAverage (PoolColl) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.03 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolColl) db-read 1/2 objs/chan/bytes 12/12/1980 ((     0.04 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBias (PoolColl) db-read 1/2 objs/chan/bytes 1/1/174 ((     0.04 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBiasAverage (PoolColl) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.04 ))s
 IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MphysOverMcal (PoolColl) db-read 1/2 objs/chan/bytes 3/3/516 ((     0.03 ))s
 IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Noise (PoolColl) db-read 1/2 objs/chan/bytes 3/3/516 ((     0.03 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Pedestal (PoolRef) db-read 1/1 objs/chan/bytes 1/1/167 ((     0.02 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Ramp (PoolColl) db-read 1/2 objs/chan/bytes 3/3/489 ((     0.05 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Shape (PoolColl) db-read 1/2 objs/chan/bytes 3/3/477 ((     0.03 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.16 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Pedestal (PoolRef) db-read 1/1 objs/chan/bytes 1/1/167 ((     0.03 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Ramp (PoolColl) db-read 1/2 objs/chan/bytes 3/3/489 ((     0.03 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Shape (PoolColl) db-read 1/2 objs/chan/bytes 3/3/477 ((     0.04 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.04 ))s
 IOVDbSvc          WARNING Folder /LAR/Identifier/LArTTCellMapAtlas is requested but no data retrieved
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/fSampl (PoolColl) db-read 1/2 objs/chan/bytes 1/1/194 ((     0.03 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/fSampl (PoolColl) db-read 1/2 objs/chan/bytes 1/1/194 ((     0.04 ))s
 IOVDbSvc             INFO Folder /LAR/ElecCalibMC/uA2MeV (PoolColl) db-read 1/2 objs/chan/bytes 1/1/165 ((     0.03 ))s
-IOVDbSvc             INFO Total payload read from COOL: 2312609 bytes in ((      2.60 ))s
+IOVDbSvc             INFO Total payload read from COOL: 2312609 bytes in ((      1.44 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 20 ReadTime: ((     2.60 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 20 ReadTime: ((     1.44 ))s
 IOVDbSvc             INFO Connection COOLOFL_CALO/OFLP200 : nConnect: 1 nFolders: 3 ReadTime: ((     0.00 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=  470 [ms] Ave/Min/Max= 7.23(+- 40.2)/    0/  320 [ms] #= 65
-cObj_ALL             INFO Time User   : Tot= 0.76  [s] Ave/Min/Max=0.0262(+-0.0754)/    0/ 0.36  [s] #= 29
-ChronoStatSvc        INFO Time User   : Tot= 46.7  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=  490 [ms] Ave/Min/Max= 7.54(+- 39.2)/    0/  310 [ms] #= 65
+cObj_ALL             INFO Time User   : Tot= 0.68  [s] Ave/Min/Max=0.0234(+-0.067)/    0/ 0.34  [s] #= 29
+ChronoStatSvc        INFO Time User   : Tot= 38.2  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

@@ -152,27 +152,28 @@ namespace met {
     // Either Cells or Clusters
     if(m_calo_useCells) {
       // Retrieve the cell container
-      const CaloCellContainer* caloCellCont = 0;
+      SG::ReadHandle<CaloCellContainer> caloCellCont(m_input_data_key);
+
       #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
       #else
-      sc = evtStore()->retrieve(caloCellCont, m_input_data_key);
-      if( sc.isFailure() ) {
+      if (!caloCellCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input cell cluster container");
-        return StatusCode::SUCCESS;
+          return StatusCode::SUCCESS;
+
       }
       #endif
       // Fill MET
-      sc = fillCellMet(metCont,caloCellCont);
+      sc = fillCellMet(metCont,caloCellCont.cptr());
     } else {
       // Retrieve the calo container
-      const CaloClusterContainer*   caloClusCont = 0;
-      sc = evtStore()->retrieve(caloClusCont, m_input_data_key);
-      if( sc.isFailure() ) {
+      SG::ReadHandle<CaloClusterContainer> caloClusCont(m_input_data_key);
+      if (!caloClusCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
-        return StatusCode::SUCCESS;
+          return StatusCode::SUCCESS;
+
       }
       // Fill MET
-      sc=fillClusterMet(metCont,caloClusCont);
+      sc=fillClusterMet(metCont,caloClusCont.cptr());
     } // end if use clusters if/else
 
     // Debug information

@@ -243,7 +243,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
     //   if ((*it)->execute(*ptrigEmCluster,etamin,etamax,phimin,phimax).isFailure() ) {
-    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, nullptr ).isFailure() ) {
+    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE ).isFailure() ) {
       ATH_MSG_WARNING( "T2Calo AlgToolEgamma returned Failure"  );
       //      return HLT::TOOL_FAILURE;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);

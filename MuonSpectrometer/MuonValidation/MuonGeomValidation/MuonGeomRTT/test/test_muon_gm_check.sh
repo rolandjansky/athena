@@ -10,6 +10,9 @@
 #
 # art-output: *.txt
 
+# Create empty PoolFileCatalog
+art.py createpoolfile
+
 set -x
 
 echo $AtlasVersion
@@ -20,6 +23,7 @@ elif [ ${AtlasVersion:0:4} == "21.3" ]; then
 else
     DetDesVer='"ATLAS-R2-2015-03-04-00"'
 fi
+
 
 athena.py -c 'DetDescrVersion = '$DetDesVer MuonGeoModelTest/MuonGeoModelCheck_jobOption.py
 
