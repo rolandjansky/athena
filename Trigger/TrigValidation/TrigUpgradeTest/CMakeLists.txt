@@ -145,4 +145,5 @@ atlas_add_test( l1sim
 		)
 
 atlas_install_joboptions( share/*.py )
+atlas_install_data( share/*.ref )
 atlas_install_python_modules( python/*.py )
