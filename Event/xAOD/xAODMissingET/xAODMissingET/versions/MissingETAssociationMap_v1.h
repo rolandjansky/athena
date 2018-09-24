@@ -145,25 +145,6 @@ namespace xAOD
     const IParticleContainer* getOverlapRemovedSignals(const IParticleContainer* signals,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster) const;
     /*!@}*/
 
-    /* override base DataVector methods that can remove elements
-     * in order to invalidate the cache
-     */
-    void resize(size_type sz);
-    void pop_back();
-    void clear();
-    void sort();
-    template <class COMPARE> void sort(COMPARE comp);
-    void clear (SG::OwnershipPolicy ownPolicy);
-    void clear (SG::OwnershipPolicy ownPolicy,SG::IndexTrackingPolicy trackIndices);
-    iterator erase(iterator position);
-    iterator erase(iterator first, iterator last);
-
-    /*! @name Reset mutable map flags */
-    /*!@{*/
-    void resetObjSelectionFlags() const;
-    /*@}*/
-    void resetAssocCache();
-
   protected:
 
     void f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map);
@@ -186,19 +167,10 @@ namespace xAOD
      *  @param[in] pJet pointer to non-modifiable Jet object to be found in the association map.  
      */
     const_iterator f_findConst(const Jet* pJet) const;
-    void f_setConstCache(const_iterator fCont) const;
-
     iterator f_find(const Jet* pJet);
-    void f_setCache(iterator fCont);
-
-    void resetCache() const;
+    /*!@}*/
 
   private:
-
-    mutable const Jet* m_lastRefJet;
-    mutable size_t m_lastContribIndex;
-    mutable ElementLink<IParticleContainer> m_lastConstLink;
-    mutable size_t m_miscAssocIndex;
 
     static size_t m_jetConstLinkReserve;
 
@@ -208,5 +180,4 @@ namespace xAOD
 #include "xAODCore/BaseInfo.h"
 SG_BASE(xAOD::MissingETAssociationMap_v1, DataVector<xAOD::MissingETAssociation_v1>);
 
-#include "xAODMissingET/versions/MissingETAssociationMap_v1.icc"
 #endif
