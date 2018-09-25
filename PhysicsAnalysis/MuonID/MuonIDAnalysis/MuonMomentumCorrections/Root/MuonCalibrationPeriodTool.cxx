@@ -30,8 +30,7 @@ namespace CP {
         if (!isData && m_useRndRun){
              if (acc_rnd.isAvailable(*m_evInfo)) run = acc_rnd(*m_evInfo);
              else {
-                 ATH_MSG_FATAL("No random runnumber could be found allthough the tool is configured to assign the years based on random run number.");
-                 return -1;
+                 ATH_MSG_WARNING("No random runnumber could be found allthough the tool is configured to assign the years based on it. Please make sure to apply the prwTool before-hand or consider to set the property 'useRandomRunNumber' to false.");
              }
         }
         // Check the Monte carlo
@@ -71,8 +70,6 @@ namespace CP {
         else if (period ==  18) m_activeTool = m_calibTool_18.get();
         return m_activeTool;
     }
- 
-
     StatusCode MuonCalibrationPeriodTool::initialize() {
         if(m_MCperiods1516.empty()) {
             ATH_MSG_FATAL("No period numbers have been provided for mc16a");
@@ -139,7 +136,7 @@ namespace CP {
         m_MCperiods1516(),
         m_MCperiods17(),
         m_MCperiods18(),
-        m_useRndRun(false) {
+        m_useRndRun(true) {
 
         m_calibTool_1516.declarePropertyFor(this, "CalibrationTool1516", "Parse the configured instance of the calibration tool for 15&16 data or mc16a");
         m_calibTool_17.declarePropertyFor(this, "CalibrationTool17", "Parse the configured instance of the calibration tool for 17 data or mc16d");
