@@ -43,17 +43,14 @@ PURPOSE:  b-tagging based on soft muon identification
 #include "JetTagTools/NewLikelihoodTool.h"
 #include "JetTagTools/HistoHelperRoot.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "JetTagCalibration/CalibrationBroker.h"
 
 #include "xAODMuon/MuonContainer.h"
 
 #include "AthenaKernel/Units.h"
-#include "TMVA/Reader.h"
-#include "TMVA/MethodBDT.h"
 
-#include "TList.h"
-#include "TString.h"
+#include "TObjArray.h"
 #include "TObjString.h"
+#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>
@@ -68,7 +65,6 @@ namespace Analysis
 
   SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
-      m_calibrationTool("Analysis::CalibrationBroker"),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_muonSelectorTool("JVC_MuonSelectorTool"),
       m_likelihoodTool("Analysis::NewLikelihoodTool"),
@@ -77,8 +73,6 @@ namespace Analysis
   {
     declareInterface<ITagTool>(this);
     /** ANDREA **/
-    // access to XML configuration files for TMVA from COOL:
-    declareProperty("calibrationTool", m_calibrationTool);
     // which calibration folder to use
     declareProperty("taggerNameBase", m_taggerNameBase = "SMT");
     declareProperty("taggerName", m_taggerName = "SMT");
@@ -169,20 +163,10 @@ namespace Analysis
     m_disableAlgo=false;
     m_treeName = "BDT";
     m_varStrName = "variables";
-    // prepare calibration tool:
-    StatusCode scc = m_calibrationTool.retrieve();
-    if ( scc.isFailure() ) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_calibrationTool);
-      return scc;
-    } else {
-      ATH_MSG_INFO("#BTAG# Retrieved tool " << m_calibrationTool);
-    }
-    ATH_MSG_DEBUG("#BTAG# Folder I look into: "<< m_taggerNameBase+"Calib/"+m_treeName);
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_treeName);
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_varStrName);
-    m_tmvaReaders.clear();
-    m_tmvaMethod.clear();
+    
+    // prepare readKey for calibration data:
+    ATH_CHECK(m_readKey.initialize());
+    
     m_egammaBDTs.clear();
     /** ANDREA **/
 
@@ -315,7 +299,7 @@ namespace Analysis
     /** ANDREA **/
     /*
      * #index for this function
-     * #1: Preparation of MVA instance using tmva/MVAUtils BDT
+     * #1: Preparation of MVA instance using MVAUtils BDT
      * #2: set input variables from MultivariateTagManager inputs map
      * #3: Calculation of MVA output variable(s)
      * #4: Fill MVA output variable(s) into xAOD
@@ -329,45 +313,19 @@ namespace Analysis
       }
     }
 
-    // #1: Preparation of MVA instance using tmva/egammaBDT
+    // #1: Preparation of MVA instance using egammaBDT
     ATH_MSG_DEBUG("#BTAG# Jet author for SoftMuon: " << author );
 
-    /* check if calibration has to be updated: */
-    std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
+    MVAUtils::BDT *bdt=nullptr; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
 
-    bool calibHasChanged = calib.second;
+    //Retrieval of Calibration Condition Data objects
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
-    TMVA::Reader* tmvaReader=0;     std::map<std::string, TMVA::Reader*>::iterator pos;
-    MVAUtils::BDT *bdt=0; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
-
-    /*KM: Retrieval of objects from the calibration file and store it back in the calibration broker temporarily*/
-    if(calibHasChanged) {
-      ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
-      if(!calib.first) {
-	ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for"<< m_taggerNameBase<<" "<<author);
-	m_disableAlgo=true;
-	return StatusCode::SUCCESS;
-      }
-      else {
-	const TString rootClassName=calib.first->ClassName();
-	if (rootClassName!="TDirectoryFile") {
-	  ATH_MSG_WARNING("#BTAG# Unsupported ROOT class type: "<<rootClassName<<" is retrieved. Disabling algorithm..");
-	  m_disableAlgo=true;
-	  return StatusCode::SUCCESS;
-	}
-      }
-    } 
-
-    m_calibrationTool->updateHistogramStatus(m_taggerNameBase, author, m_taggerNameBase+"Calib", false);
-    std::vector<std::string> inputVars; inputVars.clear();
-
-    std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
-    std::pair<TObject*, bool> calibVariables=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
-    TTree *tree = (TTree*) calibTree.first;
-    TObjArray* toa= (TObjArray*) calibVariables.first;
+    TObjArray* toa=readCdo->retrieveTObject<TObjArray>("SoftMu",author, m_taggerNameBase+"Calib/"+m_varStrName);
+    TTree *tree = readCdo->retrieveTObject<TTree>("SoftMu",author, m_taggerNameBase+"Calib/"+m_treeName);
     std::string commaSepVars="";
     if (toa) {
-      TObjString *tos= 0;
+      TObjString *tos= nullptr;
       if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
       commaSepVars=tos->GetString().Data();
     } else {
@@ -375,7 +333,9 @@ namespace Analysis
       m_disableAlgo=true;
       return StatusCode::SUCCESS;
     }
+
     //prepare inputVars
+    std::vector<std::string> inputVars; inputVars.clear();
     while (commaSepVars.find(",")!=std::string::npos) {
       inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
       commaSepVars.erase(0,commaSepVars.find(",")+1);
@@ -385,64 +345,42 @@ namespace Analysis
     ATH_MSG_DEBUG("#BTAG# tree name= "<< tree->GetName() <<" inputVars.size()= "<< inputVars.size());// <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
     for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
 
-    ATH_MSG_DEBUG("#BTAG# m_taggerNameBase= "<< m_taggerNameBase );
-
-    m_calibrationTool->storeCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib", inputVars, "", tree);
-
-
-    /*KM: Get back the calib objects from calibration broker*/
-    std::string alias = m_calibrationTool->channelAlias(author);
-    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, author, m_taggerNameBase+"Calib") ) {
-      std::vector<float*>  inputPointers; inputPointers.clear();
-      unsigned nConfgVar=0; bool badVariableFound=false;
-
-      CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib");
-      std::vector<std::string> inputVars = calib.inputVars;
-      std::string str = calib.str;
-      TTree* tree = (TTree*) calib.obj;
-      ATH_MSG_DEBUG("#BTAG# str= "<< str <<" m_treeName= "<< m_treeName );
-
-      if ( (str!="" and tree==0) && (str=="" and tree!=0) ) {
-	ATH_MSG_WARNING("#BTAG# Unrecognized SMT configuration disabling the algorithm..." );
-	m_disableAlgo=true;
-	return StatusCode::SUCCESS;
-      }
-
-      ATH_MSG_INFO("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
+    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
   
-      if (tree) {
-	ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
-	bdt = new MVAUtils:: BDT(tree);
-      }
-      else {
-	ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
-	m_disableAlgo=true;
-	delete bdt;
-	return StatusCode::SUCCESS;
-      }
+    if (tree) {
+      ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
+      bdt = new MVAUtils:: BDT(tree);
+    }
+    else {
+      ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
+      m_disableAlgo=true;
+      delete bdt;
+      return StatusCode::SUCCESS;
+    }
 
-      SetVariableRefs(inputVars,nConfgVar,badVariableFound,inputPointers);
-      ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
+    std::string alias = readCdo->getChannelAlias(author);
+    std::vector<float*>  inputPointers; inputPointers.clear();
+    unsigned nConfgVar=0; bool badVariableFound=false;
+
+    SetVariableRefs(inputVars,nConfgVar,badVariableFound,inputPointers);
+    ATH_MSG_DEBUG("#BTAG# nConfgVar"<<nConfgVar
 		    <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
-      if ( inputVars.size()!=nConfgVar or badVariableFound ) {
-	ATH_MSG_WARNING("#BTAG# Number of expected variables for SoftMu: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
-	m_disableAlgo=true;
-	delete bdt;
-	return StatusCode::SUCCESS;
-      }
- 
-      bdt->SetPointers(inputPointers);
-
-      it_egammaBDT = m_egammaBDTs.find(alias);
-      if(it_egammaBDT!=m_egammaBDTs.end()) {
-	delete it_egammaBDT->second;
-	m_egammaBDTs.erase(it_egammaBDT);
-      }
-      m_egammaBDTs.insert( std::make_pair( alias, bdt ) );  
-      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,author, m_taggerNameBase+"Calib", false);
- 
+    if ( inputVars.size()!=nConfgVar or badVariableFound ) {
+      ATH_MSG_WARNING("#BTAG# Number of expected variables for SoftMu: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
+      m_disableAlgo=true;
+      delete bdt;
+      return StatusCode::SUCCESS;
     }
+ 
+    bdt->SetPointers(inputPointers);
+
+    it_egammaBDT = m_egammaBDTs.find(alias);
+    if(it_egammaBDT!=m_egammaBDTs.end()) {
+      delete it_egammaBDT->second;
+      m_egammaBDTs.erase(it_egammaBDT);
+    }
+    m_egammaBDTs.insert( std::make_pair( alias, bdt ) );  
 
     // Reference only: Fill control histograms and get jet label
     std::string pref = "";
@@ -464,8 +402,6 @@ namespace Analysis
       ///return StatusCode::SUCCESS; /// need to go untill the end to decorate
     }
 
-
-  
     /// variables used to decorate the Btagging object
     float jet_mu_dRmin_pt=0;
     float jet_mu_dRmin_dR=10;

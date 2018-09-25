@@ -20,7 +20,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "xAODTracking/TrackParticle.h"
 
-#include "JetTagCalibration/CalibrationBroker.h"
 #include "JetTagTools/DL1Tag.h"
 #include "JetTagTools/LightweightNeuralNetwork.h"
 #include "JetTagTools/parse_json.h"
@@ -57,8 +56,6 @@ namespace Analysis {
   DL1Tag::DL1Tag(const std::string& name, const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
     m_calibrationDirectory("DL1"),
-    m_calibrationSubDirectory("AntiKt4TopoEM"),
-    m_calibrationTool("BTagCalibrationBroker"),
     m_n_compute_errors(0),
     m_runModus("analysis")
   {
@@ -67,8 +64,6 @@ namespace Analysis {
 
     // access to JSON NN configuration file from COOL:
     declareProperty("calibration_directory", m_calibrationDirectory);
-    declareProperty("calibration_subdirectory", m_calibrationSubDirectory);
-    declareProperty("calibrationTool", m_calibrationTool);
     declareProperty("forceDL1CalibrationAlias", m_forceDL1CalibrationAlias = true);
     declareProperty("DL1CalibAlias", m_DL1CalibAlias = "AntiKt4TopoEM");
     declareProperty("xAODBaseName", m_xAODBaseName);
@@ -86,39 +81,19 @@ namespace Analysis {
   }
 
   StatusCode DL1Tag::initialize() {
-    // prepare calibraiton tool
-    StatusCode sc = m_calibrationTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "#BTAG# Failed to retrieve tool " << m_calibrationTool );
-      return sc;
-    }
-    else {
-      ATH_MSG_INFO( "#BTAG# Retrieved: " << m_calibrationTool );
-    }
+    // prepare readKey for calibration data:
+    ATH_CHECK(m_readKey.initialize());
 
     // Read in the configuration of the neural net for DL1:
     if (m_LocalNNConfigFile.size() != 0) { // retrieve map of NN config and default values from local JSON file
       std::ifstream nn_config_ifstream(m_LocalNNConfigFile);
       build_nn("local", nn_config_ifstream);
     }
-    else { // load the configuration from the COOL db:
-      load_calibration_file();
+    else { // done in condition algorithm
     }
 
     ATH_MSG_INFO(" Initialization of DL1Tag successful" );
     return StatusCode::SUCCESS;
-  }
-
-
-  void DL1Tag::load_calibration_file() {
-    std::string file_name = "/net_configuration"; // directory of NN calibration (starting from specific jet collection directory) in COOL db
-    m_calibrationTool->registerHistogram(m_calibrationDirectory, file_name);  //register the calibration file for later access
-
-    ATH_MSG_DEBUG(" #BTAG# Registered NN histograms with directory: " <<
-		  m_calibrationDirectory << " and subdirectory " <<
-		  m_calibrationSubDirectory);
-
-    m_calibrationTool->printStatus();
   }
 
 
@@ -144,12 +119,11 @@ namespace Analysis {
 
 
   void DL1Tag::cache_calibration(const std::string& jetauthor) {
-    bool update = m_calibrationTool->retrieveHistogram(m_calibrationDirectory, jetauthor, "net_configuration").second;
-
+    
     // check if this network is alread cached, so do nothing
-    if ( (!update) && (m_NeuralNetworks.count(jetauthor) == 1) ) {
-      return;
-    }
+    //if (m_NeuralNetworks.count(jetauthor) == 1)  {
+    //  return;
+    //}
     // get the NN configuration
     std::string calib = get_calib_string(jetauthor);
     ATH_MSG_DEBUG("Reading NN for " + jetauthor + ": "
@@ -161,19 +135,14 @@ namespace Analysis {
   }
 
   std::string DL1Tag::get_calib_string(std::string jetauthor) {
-    std::string file_name = "/net_configuration";
-    std::pair<TObject*, bool> stringpair = m_calibrationTool->retrieveTObject<TObject>(m_calibrationDirectory, jetauthor, file_name);
-    if (stringpair.second == true) {
-      m_calibrationTool->updateHistogramStatus(m_calibrationDirectory, jetauthor, "net_configuration",false);
-    }
-    TObjString* cal_string = dynamic_cast<TObjString*>(stringpair.first);
+    std::string file_name = "net_configuration";
+
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey); 
+    TObjString * cal_string = readCdo->retrieveTObject<TObjString>(m_calibrationDirectory, jetauthor, file_name);
 
     if (cal_string == 0){  //catch if no string was found
       std::string fuller_name = m_calibrationDirectory + "/" +
 	jetauthor + "/net_configuration";
-      if (stringpair.first) {
-	fuller_name.append(" [but an object was found]");
-      }
       throw std::logic_error("Cannot retrieve string: " + fuller_name);
     }
     std::string calibration(cal_string->GetString().Data());

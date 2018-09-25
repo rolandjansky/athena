@@ -6,26 +6,12 @@
 # now, this file was created to contain them all.
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaJetFitterExtrapolator = {'OneInTotal'     : True,
-                             'ToolCollection' : 'JetFitterCollection' }
 
-def toolJetFitterExtrapolator(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a JetFitterExtrapolator tool and returns it.
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    return AtlasExtrapolator(**options)
-
-#--------------------------------------------------------------------------
-
-metaInDetImprovedJetFitterTrackSelectorTool = { 'DependsOn'      : ['JetFitterExtrapolator',],
+metaInDetImprovedJetFitterTrackSelectorTool_Trig = { 'DependsOn'      : ['JetFitterExtrapolator',],
                                                 'PassByPointer'  : {'Extrapolator' : 'JetFitterExtrapolator'},
-                                                'ToolCollection' : 'JetFitterCollection' }
+                                                'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolInDetImprovedJetFitterTrackSelectorTool(name, useBTagFlagsDefaults = True, **options):
+def toolInDetImprovedJetFitterTrackSelectorTool_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a InDetImprovedJetFitterTrackSelectorTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -76,11 +62,11 @@ def toolInDetImprovedJetFitterTrackSelectorTool(name, useBTagFlagsDefaults = Tru
 
 #--------------------------------------------------------------------------
 
-metaJetFitterFullLinearizedTrackFactory = {'DependsOn'     : ['JetFitterExtrapolator',],
+metaJetFitterFullLinearizedTrackFactory_Trig = {'DependsOn'     : ['JetFitterExtrapolator',],
                                            'PassByPointer' : {'Extrapolator' : 'JetFitterExtrapolator' },
-                                           'ToolCollection': 'JetFitterCollection' }
+                                           'ToolCollection': 'JetFitterCollection_Trig' }
 
-def toolJetFitterFullLinearizedTrackFactory(name, useBTagFlagsDefaults = True, **options):
+def toolJetFitterFullLinearizedTrackFactory_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterFullLinearizedTrackFactory tool and returns it.
 
     input:             name: The name of the tool (should be unique).
@@ -95,9 +81,9 @@ def toolJetFitterFullLinearizedTrackFactory(name, useBTagFlagsDefaults = True, *
 
 #--------------------------------------------------------------------------
 
-metaJetFitterMode3dTo1dFinder = { 'ToolCollection' : 'JetFitterCollection' }
+metaJetFitterMode3dTo1dFinder_Trig = { 'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolJetFitterMode3dTo1dFinder(name, useBTagFlagsDefaults = True, **options):
+def toolJetFitterMode3dTo1dFinder_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterMode3dTo1dFinder tool and returns it.
 
     input:             name: The name of the tool (should be unique).
@@ -112,9 +98,9 @@ def toolJetFitterMode3dTo1dFinder(name, useBTagFlagsDefaults = True, **options):
 
 #--------------------------------------------------------------------------
 
-metaJetFitterSequentialVertexSmoother = { 'ToolCollection' : 'JetFitterCollection' }
+metaJetFitterSequentialVertexSmoother_Trig = { 'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolJetFitterSequentialVertexSmoother(name, useBTagFlagsDefaults = True, **options):
+def toolJetFitterSequentialVertexSmoother_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterSequentialVertexSmoother tool and returns it.
 
     input:             name: The name of the tool (should be unique).
@@ -129,11 +115,11 @@ def toolJetFitterSequentialVertexSmoother(name, useBTagFlagsDefaults = True, **o
 
 #--------------------------------------------------------------------------
 
-metaVxInternalEdmFactory = {'DependsOn'     : ['JetFitterFullLinearizedTrackFactory',],
-                            'PassByPointer' : {'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory' },
-                            'ToolCollection': 'JetFitterCollection' }
+metaVxInternalEdmFactory_Trig = {'DependsOn'     : ['JetFitterFullLinearizedTrackFactory_Trig',],
+                            'PassByPointer' : {'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory_Trig' },
+                            'ToolCollection': 'JetFitterCollection_Trig' }
 
-def toolVxInternalEdmFactory(name, useBTagFlagsDefaults = True, **options):
+def toolVxInternalEdmFactory_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a VxInternalEdmFactory tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -154,14 +140,14 @@ def toolVxInternalEdmFactory(name, useBTagFlagsDefaults = True, **options):
 
 #--------------------------------------------------------------------------
 
-metaJetFitterSequentialVertexFitter = { 'DependsOn'      : ['JetFitterSequentialVertexSmoother',
-                                                            'JetFitterFullLinearizedTrackFactory'] ,
+metaJetFitterSequentialVertexFitter_Trig = { 'DependsOn'      : ['JetFitterSequentialVertexSmoother_Trig',
+                                                            'JetFitterFullLinearizedTrackFactory_Trig'] ,
                                         'PassByPointer'  : {'VertexSmoother'         : 'JetFitterSequentialVertexSmoother',
-                                                            'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory'},
+                                                            'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory_Trig'},
 
-                                        'ToolCollection' : 'JetFitterCollection' }
+                                        'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolJetFitterSequentialVertexFitter(name, useBTagFlagsDefaults = True, **options):
+def toolJetFitterSequentialVertexFitter_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterSequentialVertexFitter tool and returns it.
 
     input:             name: The name of the tool (should be unique).
@@ -176,11 +162,11 @@ def toolJetFitterSequentialVertexFitter(name, useBTagFlagsDefaults = True, **opt
 
 #--------------------------------------------------------------------------
 
-metaImprovedJetFitterInitializationHelper = { 'DependsOn'      : ['JetFitterFullLinearizedTrackFactory',],
-                                              'PassByPointer'  : {'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory' },
-                                              'ToolCollection' : 'JetFitterCollection' }
+metaImprovedJetFitterInitializationHelper_Trig = { 'DependsOn'      : ['JetFitterFullLinearizedTrackFactory_Trig',],
+                                              'PassByPointer'  : {'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory_Trig' },
+                                              'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolImprovedJetFitterInitializationHelper(name, useBTagFlagsDefaults = True, **options):
+def toolImprovedJetFitterInitializationHelper_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterInitializationHelper tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -201,9 +187,9 @@ def toolImprovedJetFitterInitializationHelper(name, useBTagFlagsDefaults = True,
 
 #--------------------------------------------------------------------------
 
-metaTrkDistanceFinderNeutralNeutral = { 'ToolCollection' : 'JetFitterCollection' }
+metaTrkDistanceFinderNeutralNeutral_Trig = { 'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolTrkDistanceFinderNeutralNeutral(name, useBTagFlagsDefaults = True, **options):
+def toolTrkDistanceFinderNeutralNeutral_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a TrkDistanceFinderNeutralNeutral tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -224,9 +210,9 @@ def toolTrkDistanceFinderNeutralNeutral(name, useBTagFlagsDefaults = True, **opt
 
 #--------------------------------------------------------------------------
 
-metaTrkDistanceFinderNeutralCharged = { 'ToolCollection' : 'JetFitterCollection' }
+metaTrkDistanceFinderNeutralCharged_Trig = { 'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolTrkDistanceFinderNeutralCharged(name, useBTagFlagsDefaults = True, **options):
+def toolTrkDistanceFinderNeutralCharged_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a TrkDistanceFinderNeutralCharged tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -247,15 +233,15 @@ def toolTrkDistanceFinderNeutralCharged(name, useBTagFlagsDefaults = True, **opt
 
 #--------------------------------------------------------------------------
 
-metaImprovedJetFitterRoutines = { 'DependsOn'      : ['ImprovedJetFitterInitializationHelper',
-                                                      'TrkDistanceFinderNeutralNeutral',
-                                                      'TrkDistanceFinderNeutralCharged'],
-                                  'PassByPointer'  : {'JetFitterInitializationHelper'         : 'ImprovedJetFitterInitializationHelper',
-                                                      'JetFitterMinimumDistanceFinderNeutral' : 'TrkDistanceFinderNeutralNeutral',
-                                                      'JetFitterMinimumDistanceFinder'        : 'TrkDistanceFinderNeutralCharged' },
-                                  'ToolCollection' : 'JetFitterCollection' }
+metaImprovedJetFitterRoutines_Trig = { 'DependsOn'      : ['ImprovedJetFitterInitializationHelper_Trig',
+                                                      'TrkDistanceFinderNeutralNeutral_Trig',
+                                                      'TrkDistanceFinderNeutralCharged_Trig'],
+                                  'PassByPointer'  : {'JetFitterInitializationHelper'         : 'ImprovedJetFitterInitializationHelper_Trig',
+                                                      'JetFitterMinimumDistanceFinderNeutral' : 'TrkDistanceFinderNeutralNeutral_Trig',
+                                                      'JetFitterMinimumDistanceFinder'        : 'TrkDistanceFinderNeutralCharged_Trig' },
+                                  'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolImprovedJetFitterRoutines(name, useBTagFlagsDefaults = True, **options):
+def toolImprovedJetFitterRoutines_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterRoutines tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -282,13 +268,13 @@ def toolImprovedJetFitterRoutines(name, useBTagFlagsDefaults = True, **options):
 
 #--------------------------------------------------------------------------
 
-metaInDetJetFitterUtils = { 'DependsOn'      : ['JetFitterFullLinearizedTrackFactory',
+metaInDetJetFitterUtils_Trig = { 'DependsOn'      : ['JetFitterFullLinearizedTrackFactory_Trig',
                                                 'JetFitterExtrapolator'],
-                            'PassByPointer'  : {'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory',
+                            'PassByPointer'  : {'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory_Trig',
                                                'Extrapolator'           : 'JetFitterExtrapolator' },
-                            'ToolCollection' : 'JetFitterCollection' }
+                            'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolInDetJetFitterUtils(name, useBTagFlagsDefaults = True, **options):
+def toolInDetJetFitterUtils_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a InDetJetFitterUtils tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -309,34 +295,34 @@ def toolInDetJetFitterUtils(name, useBTagFlagsDefaults = True, **options):
 
 #--------------------------------------------------------------------------
 
-metaNewJetFitterVxFinder = { 'IsAVertexFinder' : True,
+metaNewJetFitterVxFinder_Trig = { 'IsAVertexFinder' : True,
                              'VertexFinderxAODBaseName' : 'JetFitter',
-                             'VertexFinderPassByPointer': {'JetFitterVariableFactory' : 'JetFitterVariablesFactory' },
+                             'VertexFinderPassByPointer': {'JetFitterVariableFactory' : 'JetFitterVariablesFactory_Trig' },
                              'DependsOn'       : ['BTagTrackToVertexTool',
-                                                  'InDetJetFitterUtils',
-                                                  'ImprovedJetFitterRoutines',
-                                                  'TrkDistanceFinderNeutralCharged',
-                                                  'TrkDistanceFinderNeutralNeutral',
-                                                  'ImprovedJetFitterInitializationHelper',
-                                                  'JetFitterSequentialVertexFitter',
-                                                  'JetFitterSequentialVertexSmoother',
-                                                  'JetFitterMode3dTo1dFinder',
-                                                  'InDetImprovedJetFitterTrackSelectorTool',
+                                                  'InDetJetFitterUtils_Trig',
+                                                  'ImprovedJetFitterRoutines_Trig',
+                                                  'TrkDistanceFinderNeutralCharged_Trig',
+                                                  'TrkDistanceFinderNeutralNeutral_Trig',
+                                                  'ImprovedJetFitterInitializationHelper_Trig',
+                                                  'JetFitterSequentialVertexFitter_Trig',
+                                                  'JetFitterSequentialVertexSmoother_Trig',
+                                                  'JetFitterMode3dTo1dFinder_Trig',
+                                                  'InDetImprovedJetFitterTrackSelectorTool_Trig',
                                                   'JetFitterExtrapolator',
-                                                  'JetFitterFullLinearizedTrackFactory',
-                                                  'JetFitterVariablesFactory',
-                                                  'VxInternalEdmFactory'],
-                             'PassByPointer'    : { 'Mode3dFinder'                  : 'JetFitterMode3dTo1dFinder',
-                                                    'JetFitterInitializationHelper' : 'ImprovedJetFitterInitializationHelper',
-                                                    'TrackSelector'                 : 'InDetImprovedJetFitterTrackSelectorTool',
-                                                    'InDetJetFitterUtils'           : 'InDetJetFitterUtils',
+                                                  'JetFitterFullLinearizedTrackFactory_Trig',
+                                                  'JetFitterVariablesFactory_Trig',
+                                                  'VxInternalEdmFactory_Trig'],
+                             'PassByPointer'    : { 'Mode3dFinder'                  : 'JetFitterMode3dTo1dFinder_Trig',
+                                                    'JetFitterInitializationHelper' : 'ImprovedJetFitterInitializationHelper_Trig',
+                                                    'TrackSelector'                 : 'InDetImprovedJetFitterTrackSelectorTool_Trig',
+                                                    'InDetJetFitterUtils'           : 'InDetJetFitterUtils_Trig',
                                                     'Extrapolator'                  : 'JetFitterExtrapolator',
-                                                    'SequentialVertexFitter'        : 'JetFitterSequentialVertexFitter',
-                                                    'JetFitterRoutines'             : 'ImprovedJetFitterRoutines',
-                                                    'VertexEdmFactory'              : 'VxInternalEdmFactory' },
-                             'ToolCollection'   : 'JetFitterCollection' }
+                                                    'SequentialVertexFitter'        : 'JetFitterSequentialVertexFitter_Trig',
+                                                    'JetFitterRoutines'             : 'ImprovedJetFitterRoutines_Trig',
+                                                    'VertexEdmFactory'              : 'VxInternalEdmFactory_Trig' },
+                             'ToolCollection'   : 'JetFitterCollection_Trig' }
 
-def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
+def toolNewJetFitterVxFinder_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a NewJetFitterVxFinder tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -369,11 +355,11 @@ def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
 
 #--------------------------------------------------------------------------
 
-metaJetFitterVariablesFactory = { #'PassByName'     : {'JetFitterInstance' : 'JetFitterTag',
+metaJetFitterVariablesFactory_Trig = { #'PassByName'     : {'JetFitterInstance' : 'JetFitterTag',
                                   #                    'secVxFinderName'   : 'JetFitterVxFinder' },
-                                  'ToolCollection' : 'JetFitterCollection' }
+                                  'ToolCollection' : 'JetFitterCollection_Trig' }
 
-def toolJetFitterVariablesFactory(name, useBTagFlagsDefaults = True, **options):
+def toolJetFitterVariablesFactory_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a NewJetFitterVariablesFactory tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -396,58 +382,12 @@ def toolJetFitterVariablesFactory(name, useBTagFlagsDefaults = True, **options):
     from JetTagTools.JetTagToolsConf import Analysis__JetFitterVariablesFactory
     return Analysis__JetFitterVariablesFactory(**options)
 
-#--------------------------------------------------------------------------
-
-metaJetFitterNtupleWriterNN = { 'ToolCollection' : 'JetFitterCollection' }
-
-def toolJetFitterNtupleWriterNN(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a JetFitterNtupleWriterNN tool and returns it.
-
-    The following options have BTaggingFlags defaults:
-
-    OutputLevel                         default: BTaggingFlags.OutputLevel
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel }
-        for option in defaults:
-            options.setdefault(option, defaults[option])
-    options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__JetFitterNtupleWriter
-    return Analysis__JetFitterNtupleWriter(**options)
-
 #-------------------------------------------------------------------------
 
-metaNeuralNetworkToHistoToolNN = { 'ToolCollection' : 'JetFitterCollection' }
-
-def toolNeuralNetworkToHistoToolNN(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a NeuralNetworkToHistoToolNN tool and returns it.
-
-    The following options have BTaggingFlags defaults:
-
-    OutputLevel                         default: BTaggingFlags.OutputLevel
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel }
-        for option in defaults:
-            options.setdefault(option, defaults[option])
-    options['name'] = name
-    from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
-    return Trk__NeuralNetworkToHistoTool(**options)
-
-#-------------------------------------------------------------------------
-
-metaJetFitterNNTool = { 'CalibrationTaggers' : ['JetFitter',],
+metaJetFitterNNTool_Trig = { 'CalibrationTaggers' : ['JetFitter',],
                         'DependsOn'          : ['NeuralNetworkToHistoToolNN'],
                         'PassByPointer'      : {'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolNN'},
-                        'ToolCollection'     : 'JetFitterCollection' }
+                        'ToolCollection'     : 'JetFitterCollection_Trig' }
 
 def _slim_jf_options(options):
     new_opts = {}
@@ -459,7 +399,7 @@ def _slim_jf_options(options):
         new_opts[optname] = options[optname]
     return new_opts
 
-def toolJetFitterNNTool(name, useBTagFlagsDefaults = True, **options):
+def toolJetFitterNNTool_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterNNTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -492,7 +432,7 @@ def toolJetFitterNNTool(name, useBTagFlagsDefaults = True, **options):
 
 #-------------------------------------------------------------------------
 
-metaJetFitterTagNN = { 'IsATagger'         : True,
+metaJetFitterTagNN_Trig = { 'IsATagger'         : True,
                        'xAODBaseName'      : 'JetFitter',
                        'DependsOn'         : ['AtlasExtrapolator',
                                               'BTagTrackToVertexTool',
@@ -503,9 +443,9 @@ metaJetFitterTagNN = { 'IsATagger'         : True,
                        'PassByPointer'     : { 'jetfitterClassifier'       : 'JetFitterNNTool',
                                                'jetfitterNtupleWriter'     : 'JetFitterNtupleWriterNN' },
                        'JetCollectionList' : 'jetCollectionList',
-                       'ToolCollection'    : 'JetFitterCollection' }
+                       'ToolCollection'    : 'JetFitterCollection_Trig' }
 
-def toolJetFitterTagNN(name, useBTagFlagsDefaults = True, **options):
+def toolJetFitterTagNN_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterTagNN tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -536,135 +476,3 @@ def toolJetFitterTagNN(name, useBTagFlagsDefaults = True, **options):
     return Analysis__JetFitterTag(**options)
 
 #-------------------------------------------------------------------------
-
-metaJetFitterNtupleWriterCOMBNN = { 'ToolCollection' : 'JetFitterCollection' }
-
-def toolJetFitterNtupleWriterCOMBNN(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a JetFitterNtupleWriterCOMBNN tool and returns it.
-
-    The following options have BTaggingFlags defaults:
-
-    OutputLevel                         default: BTaggingFlags.OutputLevel
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel }
-        for option in defaults:
-            options.setdefault(option, defaults[option])
-    options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__JetFitterNtupleWriter
-    return Analysis__JetFitterNtupleWriter(**options)
-
-#-------------------------------------------------------------------------
-
-metaNeuralNetworkToHistoToolCOMBNN = { 'ToolCollection' : 'JetFitterCollection' }
-
-def toolNeuralNetworkToHistoToolCOMBNN(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a NeuralNetworkToHistoToolCOMBNN tool and returns it.
-
-    The following options have BTaggingFlags defaults:
-
-    OutputLevel                         default: BTaggingFlags.OutputLevel
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel }
-        for option in defaults:
-            options.setdefault(option, defaults[option])
-    options['name'] = name
-    from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
-    return Trk__NeuralNetworkToHistoTool(**options)
-
-#-----------------------------------------------------------------------------
-
-metaJetFitterCOMBNNTool = { 'CalibrationTaggers' : ['JetFitter',],
-                            'DependsOn'          : ['NeuralNetworkToHistoToolCOMBNN'],
-                            'PassByPointer'      : {'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolCOMBNN'},
-                            'ToolCollection'     : 'JetFitterCollection' }
-
-def toolJetFitterCOMBNNTool(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a JetFitterCOMBNNTool tool and returns it.
-
-    The following options have BTaggingFlags defaults:
-
-    OutputLevel                         default: BTaggingFlags.OutputLevel
-    CalibrationDirectory                default: "JetFitter"
-    CalibrationSubDirectory             default: "NeuralNetwork"
-    useCombinedIPNN                     default: True
-    usePtCorrectedMass                  default: True
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
-                     'CalibrationDirectory'             : 'JetFitter',
-                     'CalibrationSubDirectory'          : 'NeuralNetwork',
-                     'useCombinedIPNN'                  : True,
-                     'usePtCorrectedMass'               : True }
-        for option in defaults:
-            options.setdefault(option, defaults[option])
-    options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__JetFitterNNTool
-    from JetTagTools.JetTagToolsConf import Analysis__JetFitterInputWriter
-    if BTaggingFlags.RunJetFitterNNTool:
-        return Analysis__JetFitterNNTool(**options)
-    else:
-        return Analysis__JetFitterInputWriter(**_slim_jf_options(options))
-
-
-#-----------------------------------------------------------------------------
-
-metaJetFitterTagCOMBNN = { 'IsATagger'         : True,
-                           'xAODBaseName'      : 'JetFitterCombNN',
-                           'DependsOn'         : ['AtlasExtrapolator',
-                                                  'BTagTrackToVertexTool',
-                                                  'JetFitterTagNN',
-                                                  'IP3DTag',
-                                                  'InDetVKalVxInJetTool',
-                                                  'BTagFullLinearizedTrackFactory',
-                                                  'BTagTrackToVertexIPEstimator',
-                                                  'JetFitterCOMBNNTool',
-                                                  'NeuralNetworkToHistoToolCOMBNN',
-                                                  'JetFitterNtupleWriterCOMBNN'],
-                           'PassByPointer'     : { 'jetfitterClassifier'       : 'JetFitterCOMBNNTool',
-                                                   'jetfitterNtupleWriter'     : 'JetFitterNtupleWriterCOMBNN'},
-                           'JetCollectionList' : 'jetCollectionList',
-                           'ToolCollection'    : 'JetFitterCollection' }
-
-def toolJetFitterTagCOMBNN(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a JetFitterTagCOMBNN tool and returns it.
-
-    The following options have BTaggingFlags defaults:
-
-    OutputLevel                         default: BTaggingFlags.OutputLevel
-    Runmodus                            default: BTaggingFlags.Runmodus
-    jetCollectionList                   default: BTaggingFlags.Jets
-    SecVxFinderName                     default: "JetFitter"
-    useForcedCalibration                default: False
-    ipinfoTaggerName                    default: "IP3D"
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
-                     'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'jetCollectionList'                : BTaggingFlags.Jets,
-                     'SecVxFinderName'                  : 'JetFitter',
-                     'useForcedCalibration'             : False,
-                     'ipinfoTaggerName'                 : 'IP3D',
-                     }
-        for option in defaults:
-            options.setdefault(option, defaults[option])
-    options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__JetFitterTag
-    return Analysis__JetFitterTag(**options)

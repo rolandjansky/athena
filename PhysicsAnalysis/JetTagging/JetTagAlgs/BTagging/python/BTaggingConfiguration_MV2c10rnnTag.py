@@ -7,11 +7,9 @@ from BTagging.BTaggingFlags import BTaggingFlags
 metaMV2c10rnnTag = { 'IsATagger'          : False,#True,
                   'xAODBaseName'       : 'MV2c10rnn',
                   'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagCalibrationBrokerTool',
                                           'SoftMuonTag',
                                           'BTagTrackToVertexTool'],
                   'CalibrationTaggers' : ['MV2c10rnn',],
-                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : 'MV2c10rnnTag'}
 
 def toolMV2c10rnnTag(name, useBTagFlagsDefaults = True, **options):

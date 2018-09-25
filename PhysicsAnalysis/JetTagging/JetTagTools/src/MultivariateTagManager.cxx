@@ -17,8 +17,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "JetTagCalibration/CalibrationBroker.h"
-
 #include "JetTagTools/JetTagUtils.h"
 #include "JetTagTools/MultivariateTagManager.h"
 #include "JetTagTools/BTagVariables.h"
