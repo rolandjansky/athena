@@ -33,20 +33,20 @@ from G4AtlasApps.SimFlags import simFlags
 
 #Tasks we want switched ON (write RDOPool) - want this for all detectors that we want ON: 
 #DetFlags.writeRDOPool.all_setOn()
-        
 
 #### this flag turns all the detectors ON that we want for simulation.
 try:
     from ISF_Config import FlagSetters
     FlagSetters.configureFlagsBase()
-## Check for any simulator-specific configuration
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ## Check for any simulator-specific configuration
     configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
     if configureFlags is not None:
         configureFlags()
     possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
     for subdet in possibleSubDetectors:
-        simattr = "simulate."+subdet+"_on"
-        simcheck = getattr(DetFlags, simattr, None)
+        simattr = subdet+"_on"
+        simcheck = getattr(DetFlags.simulate, simattr, None)
         if simcheck is not None and simcheck():
             attrname = subdet+"_setOn"
             checkfn = getattr(DetFlags, attrname, None)
