@@ -168,14 +168,6 @@ GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtra
 ToolSvc += GsfExtrapolator
 
 
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__BremFind
-BremFind = Trk__BremFind(name = 'BremFind',
-                         UseCalibration = True,
-                         ValidationMode = True )
-                         
-
-ToolSvc += BremFind
-
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
 GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitter',
                                           ToolForExtrapolation    = GsfExtrapolator,
@@ -186,8 +178,6 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                           RefitOnMeasurementBase  = True,
                                           DoHitSorting            = True,
                                           ValidationMode          = False,
-                                          BremFind                = BremFind,
-                                          runBremFinder           = False,
                                           OutputLevel = 3)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
