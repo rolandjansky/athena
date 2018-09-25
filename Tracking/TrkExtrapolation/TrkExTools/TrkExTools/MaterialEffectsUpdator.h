@@ -209,25 +209,20 @@ class MaterialEffectsUpdator : public AthAlgTool,
      * the same behaviour as boost::thread_specific_ptr<T>
      */
 
-    Cache* getTLSCache() const{ 
+    Cache& getTLSCache() const{ 
 
-      typedef std::vector<std::unique_ptr<Cache>> TLSCollection;
+      typedef std::vector<Cache> TLSCollection;
       /* Initialize a unique ptr to default constructed TLSCollection*/
       thread_local std::unique_ptr<TLSCollection> s_cacheStore= std::make_unique<TLSCollection>();        
       
-      /*This should never happen*/
-      if(s_cacheStore.get()==nullptr){
-        return nullptr;
-      }
-      /* Get the actual cache*/
-      size_t index= m_uniqueID-1;
+      /* Resize the vector, to the requested number of Caches
+       * Default constructs elements
+       */
       if (m_uniqueID>s_cacheStore->size()) {
         s_cacheStore->resize(m_uniqueID);
-      }
-      if (s_cacheStore->operator[](index).get()==nullptr) {
-        s_cacheStore->operator[](index)= std::make_unique<Cache>();
-      }
-      return s_cacheStore->operator[](index).get(); 
+      } 
+      size_t index= m_uniqueID-1;
+      return s_cacheStore->operator[](index); 
     }
 
   public:
@@ -240,7 +235,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                             ParticleHypothesis particle=pion,
                                             MaterialUpdateMode matupmode=addNoise) const override{
 
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
     }
@@ -249,7 +244,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            const MaterialEffectsOnTrack& meff,
                                            Trk::ParticleHypothesis particle=pion,
                                            MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,meff,particle,matupmode);
       return outparam;
     }
@@ -259,7 +254,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                 PropDirection dir=alongMomentum,
                                                 ParticleHypothesis particle=pion,
                                                 MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = preUpdateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
     }
@@ -269,7 +264,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                 PropDirection dir=alongMomentum,
                                                 ParticleHypothesis particle=pion,
                                                 MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = postUpdateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
     }
@@ -280,20 +275,19 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            PropDirection dir=alongMomentum,
                                            ParticleHypothesis particle=pion,
                                            MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,mprop,pathcorrection,dir,particle,matupmode);
       return outparam;
     }
 
     virtual void validationAction() const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       validationActionImpl(cache);
-
       return;
     }
 
     virtual void modelAction(const TrackParameters* parm = 0) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       modelActionImpl(cache,parm);  
       return;
     }
