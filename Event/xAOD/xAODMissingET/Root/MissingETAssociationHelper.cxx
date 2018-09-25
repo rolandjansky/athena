@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "xAODMissingET/versions/MissingETAssociationHelper_v1.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODJet/JetAttributes.h"
@@ -19,18 +19,18 @@ using namespace xAOD;
 // Constructors and destructor //
 /////////////////////////////////
 
-MissingETAssociationHelper_v1::MissingETAssociationHelper_v1()
+MissingETAssociationHelper::MissingETAssociationHelper()
   : m_map(0)
 {  }
 
-MissingETAssociationHelper_v1::MissingETAssociationHelper_v1(const MissingETAssociationMap* map)
+MissingETAssociationHelper::MissingETAssociationHelper(const MissingETAssociationMap_v1* map)
   : m_map(map)
 {  }
 
-MissingETAssociationHelper_v1::~MissingETAssociationHelper_v1()
+MissingETAssociationHelper::~MissingETAssociationHelper()
 {  }
 
-void MissingETAssociationHelper_v1::setObjSelectionFlag(const MissingETAssociation* assoc, size_t objIdx, bool status)
+void MissingETAssociationHelper::setObjSelectionFlag(const MissingETAssociation_v1* assoc, size_t objIdx, bool status)
 {
   if(!assoc) throw std::runtime_error("MissingETAssociationHelper::setObjSelectionFlag received a null pointer");
   size_t index = assoc->index();
@@ -39,27 +39,27 @@ void MissingETAssociationHelper_v1::setObjSelectionFlag(const MissingETAssociati
   else m_useObjectFlags.at(index) &= ~(1<<objIdx);
 }
 
-void MissingETAssociationHelper_v1::setObjSelectionFlag(const MissingETAssociation* assoc, const IParticle* pPart, bool status)
+void MissingETAssociationHelper::setObjSelectionFlag(const MissingETAssociation_v1* assoc, const IParticle* pPart, bool status)
 {
   if(!assoc) throw std::runtime_error("MissingETAssociationHelper::setObjSelectionFlag received a null pointer");
-  this->setObjSelectionFlag(assoc->findIndex(pPart),status);
+  this->setObjSelectionFlag(assoc,assoc->findIndex(pPart),status);
 }
 
-bool MissingETAssociationHelper_v1::objSelected(const MissingETAssociation* assoc, size_t objIdx) const
+bool MissingETAssociationHelper::objSelected(const MissingETAssociation_v1* assoc, size_t objIdx) const
 {
   if(!assoc) throw std::runtime_error("MissingETAssociationHelper::objSelected received a null pointer");
   return bool(m_useObjectFlags.at(assoc->index()) & (1<<objIdx));
 }
 
-bool MissingETAssociationHelper_v1::objSelected(const MissingETAssociation* assoc, const IParticle* pPart) const
+bool MissingETAssociationHelper::objSelected(const MissingETAssociation_v1* assoc, const IParticle* pPart) const
 {
   if(!assoc) throw std::runtime_error("MissingETAssociationHelper::objSelected received a null pointer");
   return this->objSelected(assoc, assoc->findIndex(pPart));
 }
 
-MissingETBase::Types::bitmask_t MissingETAssociationHelper_v1::getObjSelectionFlag(const MissingETAssociation* assoc) const
+MissingETBase::Types::bitmask_t MissingETAssociationHelper::getObjSelectionFlags(const MissingETAssociation_v1* assoc) const
 {
-  if(!assoc) throw std::runtime_error("MissingETAssociationHelper::getObjSelectionFlag received a null pointer");
+  if(!assoc) throw std::runtime_error("MissingETAssociationHelper::getObjSelectionFlags received a null pointer");
   return m_useObjectFlags.at(assoc->index());
 }
 

@@ -21,6 +21,10 @@
 namespace xAOD
 {
 
+  // Forward declarations
+	class MissingETAssociation_v1;
+	class MissingETAssociationHelper;
+
   class MissingETAssociationMap_v1 : public DataVector<MissingETAssociation_v1>
   {
   public:
@@ -142,7 +146,7 @@ namespace xAOD
      *  @param[in]  Non-modifiable IParticleContainer holding the constituents to be tested
      *  @param[in]  MissingETBase::UsageHandler::Policy stating which types of constituents to check
      */
-    const IParticleContainer* getOverlapRemovedSignals(const IParticleContainer* signals,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster) const;
+    const IParticleContainer* getOverlapRemovedSignals(const MissingETAssociationHelper* helper,const IParticleContainer* signals,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster) const;
     /*!@}*/
 
   protected:

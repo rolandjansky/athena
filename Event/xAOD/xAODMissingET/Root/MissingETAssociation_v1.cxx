@@ -738,7 +738,7 @@ namespace xAOD {
     if(!helper) throw std::runtime_error("MissingETAssociation::overlapCalVec received a null pointer");
     constvec_t calvec;
     for (size_t iKey = 0; iKey < this->sizeCal(); iKey++) {
-      bool selector = (helper->useObjectFlags(this) & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
+      bool selector = (helper->getObjSelectionFlags(this) & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) calvec+=this->calVec(iKey);
     }
     return calvec;
@@ -749,7 +749,7 @@ namespace xAOD {
     if(!helper) throw std::runtime_error("MissingETAssociation::overlapTrkVec received a null pointer");
     constvec_t trkvec;
     for (size_t iKey = 0; iKey < this->sizeTrk(); iKey++) {
-      bool selector = (helper->useObjectFlags(this) & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
+      bool selector = (helper->getObjSelectionFlags(this) & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) trkvec+=ConstVec(this->trkpx()[iKey],this->trkpy()[iKey],this->trkpz()[iKey],this->trke()[iKey],this->trksumpt()[iKey]);
     }
     return trkvec;

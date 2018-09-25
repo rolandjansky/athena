@@ -21,6 +21,9 @@
 
 namespace xAOD
 {
+  // Forward declaration
+  class MissingETAssociationHelper;
+
   /*!  @brief MET association descriptor contains object links and corresponding parameters */ 
   class MissingETAssociation_v1 : public SG::AuxElement
   {

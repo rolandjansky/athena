@@ -316,7 +316,7 @@ namespace met {
 	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
 	    for (size_t indi = 0; indi < ind.size(); indi++) if (allObjects[ind[indi]]) {
 		if (allObjects[ind[indi]]->type()==xAOD::Type::Electron
-		    && assocs[i]->objSelected(helper, ind[indi])) {
+		    && helper->objSelected(assocs[i], ind[indi])) {
 		  selected = false;
 		  break;
 		}
@@ -602,7 +602,7 @@ namespace met {
         ATH_MSG_DEBUG("Jet " << jet->index() << " is " << ( caloverlap ? "" : "non-") << "overlapping");
 	if(caloverlap) {
 	  for(const auto& object : assoc->objects()) {
-	    if(assoc->objSelected(helper, object)) {
+	    if(helper->objSelected(assoc, object)) {
 	      ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
 			   << " with pt " << object->pt() << ", phi " << object->phi() );
 	    }
@@ -673,7 +673,7 @@ namespace met {
 	    const xAOD::Electron* el_test(static_cast<const xAOD::Electron*>(obj));
 	    ATH_MSG_VERBOSE("Electron " << el_test->index() << " found in jet " << jet->index());
 	    if(acc_originalObject.isAvailable(*el_test)) el_test = static_cast<const xAOD::Electron*>(*acc_originalObject(*el_test));
-	    if(assoc->objSelected(helper,el_test)){
+	    if(helper->objSelected(assoc,el_test)){
 	      if(el_test->pt()>90.0e3) { // only worry about high-pt electrons?
 		electrons_in_jet.push_back(el_test);
 		ATH_MSG_VERBOSE("High-pt electron is selected by MET.");

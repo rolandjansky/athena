@@ -69,7 +69,7 @@ namespace met {
     //
     StatusCode rebuildMET(xAOD::MissingET* met,
                           const xAOD::IParticleContainer* collection,
-                          xAOD::MissingETAssociationMap* helper,
+                          xAOD::MissingETAssociationHelper* helper,
                           MissingETBase::UsageHandler::Policy objScale);
     //
     StatusCode rebuildMET(xAOD::MissingET* met,

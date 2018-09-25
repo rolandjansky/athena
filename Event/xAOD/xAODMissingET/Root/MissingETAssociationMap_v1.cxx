@@ -253,7 +253,7 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
   return uniques->asDataVector();
 }
 
-const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSignals(MissingETAssociationHelper* helper, const xAOD::IParticleContainer* signals,MissingETBase::UsageHandler::Policy p) const
+const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSignals(const MissingETAssociationHelper* helper,const xAOD::IParticleContainer* signals,MissingETBase::UsageHandler::Policy p) const
 {
   MissingETBase::Types::const_signal_vector_t* uniques = new MissingETBase::Types::const_signal_vector_t(SG::VIEW_ELEMENTS);
   for(const auto& sig : *signals) {

@@ -378,7 +378,7 @@ namespace xAOD {
   }
 
 
-  bool MissingETComposition::selectIfNoOverlaps(const MissingETAssociationHelper* helper,const IParticle* obj,MissingETBase::UsageHandler::Policy p) {
+  bool MissingETComposition::selectIfNoOverlaps(MissingETAssociationHelper* helper,const IParticle* obj,MissingETBase::UsageHandler::Policy p) {
     if(!helper) throw std::runtime_error("MissingETComposition::objSelected received a null pointer");
     std::vector<const MissingETAssociation*> assocs = getAssociations(helper->map(),obj);
     bool overlaps(false);
