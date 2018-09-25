@@ -340,6 +340,7 @@ namespace InDet{
       Vrt2TrackNumber = (double) ListSecondTracks.size()/2.;
       std::vector<const xAOD::TrackParticle*> saveSecondTracks(ListSecondTracks);
       RemoveDoubleEntries(ListSecondTracks);
+      AnalysisUtils::Sort::pT (&ListSecondTracks);
       for(auto iv0 : TrkFromV0){ auto itf=std::find(SelectedTracks.begin(),SelectedTracks.end(),iv0);
                                  if(itf!=SelectedTracks.end())  SelectedTracks.erase(itf);}
 //---
