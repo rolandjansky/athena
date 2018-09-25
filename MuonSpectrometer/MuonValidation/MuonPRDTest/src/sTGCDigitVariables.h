@@ -56,24 +56,16 @@ class sTGCDigitVariables : public ValAlgVariables
     m_NSWsTGC_dig_globalPosX(0),
     m_NSWsTGC_dig_globalPosY(0),
     m_NSWsTGC_dig_globalPosZ(0),
-
-    m_NSWsTGC_dig_truth_barcode(0),
-    m_NSWsTGC_dig_truth_localPosX(0),
-    m_NSWsTGC_dig_truth_localPosY(0),
-    m_NSWsTGC_dig_truth_globalPosX(0),
-    m_NSWsTGC_dig_truth_globalPosY(0),
-    m_NSWsTGC_dig_truth_globalPosZ(0),
-    m_NSWsTGC_dig_truth_XZ_angle(0)
+    m_NSWsTGC_dig_PadglobalCornerPosX(0),
+    m_NSWsTGC_dig_PadglobalCornerPosY(0),
+    m_NSWsTGC_dig_PadglobalCornerPosZ(0)
   {
     setHelper(idhelper);
   }
 
   ~sTGCDigitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete sTGCDigitVariables.");
-      std::terminate();
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -89,7 +81,7 @@ class sTGCDigitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const sTgcIdHelper* m_sTgcIdHelper;
@@ -132,14 +124,9 @@ class sTGCDigitVariables : public ValAlgVariables
   std::vector< double > *m_NSWsTGC_dig_globalPosX;
   std::vector< double > *m_NSWsTGC_dig_globalPosY;
   std::vector< double > *m_NSWsTGC_dig_globalPosZ;
-
-  std::vector< int    > *m_NSWsTGC_dig_truth_barcode;
-  std::vector< double > *m_NSWsTGC_dig_truth_localPosX;
-  std::vector< double > *m_NSWsTGC_dig_truth_localPosY;
-  std::vector< double > *m_NSWsTGC_dig_truth_globalPosX;
-  std::vector< double > *m_NSWsTGC_dig_truth_globalPosY;
-  std::vector< double > *m_NSWsTGC_dig_truth_globalPosZ;
-  std::vector< float  > *m_NSWsTGC_dig_truth_XZ_angle;
+  std::vector< double > *m_NSWsTGC_dig_PadglobalCornerPosX;
+  std::vector< double > *m_NSWsTGC_dig_PadglobalCornerPosY;
+  std::vector< double > *m_NSWsTGC_dig_PadglobalCornerPosZ;
 
 
 };
