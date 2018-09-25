@@ -64,7 +64,7 @@ void compare (const sTGCSimHitCollection& p1,
 
 //** The test is empty because sTGCSimHitCollectionCnv_p2
 //** is not supported yet
-void testit (const sTGCSimHitCollection& trans1)
+void testit (const sTGCSimHitCollection& /*trans1*/)
 {
   MsgStream log (0, "test");
 //  sTGCSimHitCollectionCnv_p2 cnv;

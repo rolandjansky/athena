@@ -113,9 +113,9 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 
   int sTgcId = m_muonHelper->BuildsTgcHitId(subType, iPhi, iRing, mLayer,nLayer, iSide);
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode(); // Added for GenericMuonSimHIT
+  //int barcode = trHelp.GetBarcode(); // Added for GenericMuonSimHIT
 
-  m_GenericMuonHitCollection->Emplace(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
+  m_GenericMuonHitCollection->Emplace(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,trHelp.GetParticleLink());
   m_sTGCSimHitCollection->Emplace(sTgcId,globalTime,position,pdgCode,direction,depositEnergy,trHelp.GetParticleLink());
 
   return true;

@@ -16,9 +16,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 
-//** This function is not supported in master because HepMcParticleLinkCnv_p2::persToTrans(..) 
+//** This function is not supported in master because HepMcParticleLinkCnv_p2::transToPers(..) 
 //** is not supported either.
-void sTGCSimHitCollectionCnv_p2::transToPers(const sTGCSimHitCollection* , Muon::sTGCSimHitCollection_p2* , MsgStream /* &log */)
+void sTGCSimHitCollectionCnv_p2::transToPers(const sTGCSimHitCollection* , Muon::sTGCSimHitCollection_p2* , MsgStream &/*log*/ )
 {
   throw std::runtime_error("sTGCSimHitCollectionCnv_p2::transToPers is not supported in this release!");
 }
