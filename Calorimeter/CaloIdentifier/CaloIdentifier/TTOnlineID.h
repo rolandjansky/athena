@@ -5,7 +5,7 @@
 #ifndef CALOIDENTIFIER_TTONLINEID_H
 #define CALOIDENTIFIER_TTONLINEID_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/HWIdentifier.h"
