@@ -95,7 +95,7 @@ _add_test( AthenaPoolExample_Read
 # Read all output including scoped BackNavigation
 _add_test( AthenaPoolExample_ReadBN
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBNJobOptions.py"
-   EXTRA_PATTERNS "BYTES_READ|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO"
+   EXTRA_PATTERNS "BYTES_READ|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found Address:"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
 # Read all output w/o BackNavigation
 _add_test( AthenaPoolExample_ReadNoBN
