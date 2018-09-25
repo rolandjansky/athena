@@ -27,29 +27,33 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Incident.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimData/InDetSimData.h"
 #include "HepMC/GenParticle.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
-#include "TRandom.h"
+#include "CLHEP/Random/RandFlat.h"
+
 
 namespace InDet {
 
   TruthClusterizationFactory::TruthClusterizationFactory(const std::string& name,
-                                                   const std::string& n, const IInterface* p):
-          AthAlgTool(name, n,p),
-          m_incidentSvc("IncidentSvc", n),
-          m_simDataCollectionName("PixelSDO_Map"),
-          m_simDataCollection(0)
+							 const std::string& n, const IInterface* p):
+    AthAlgTool(name, n,p),
+    m_incidentSvc("IncidentSvc", n),
+    m_simDataCollectionName("PixelSDO_Map"),
+    m_rndmSvc("AtDSFMTGenSvc",name),
+    m_rndmEngineName("TruthClustering")
   {
     // further properties
-
-    declareProperty("IncidentService"      , m_incidentSvc );
-
+    declareProperty("IncidentService", m_incidentSvc );
+    declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TruthClusterizationFactory");
+    declareProperty("RndmEngine",m_rndmEngineName,"Random generator engine used to emualate pixel NN");
+    declareProperty("InputSDOMap",  m_simDataCollectionName, "sim data collection name");
+    
     declareInterface<TruthClusterizationFactory>(this);
   } 
+
   
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,21 +74,42 @@ namespace InDet {
 
     m_incidentSvc->addListener( this, "BeginEvent");
 
-    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
-    return StatusCode::SUCCESS;
+ // random svc
+	CHECK(m_rndmSvc.retrieve());
+ 	
+	// get the random stream
+	ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
+	m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+	if (!m_rndmEngine) {
+	  ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+	  return StatusCode::FAILURE;
+	}
+	else {
+	  ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
+	}
+	
+	ATH_CHECK( m_simDataCollectionName.initialize() );
+	
+	
+	msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+	return StatusCode::SUCCESS;
   }
   
   void TruthClusterizationFactory::handle(const Incident& inc) 
   { 
    if ( inc.type() == IncidentType::BeginEvent ){
     // record the SDO collection
-
-    if (evtStore()->retrieve(m_simDataCollection,m_simDataCollectionName).isFailure()){
-        ATH_MSG_WARNING("Could not retrieve the  InDetSimDataCollection with name "   << m_simDataCollectionName);
-        m_simDataCollection = 0;
-    } else {
-        ATH_MSG_VERBOSE("Successfully retrieved the InDetSimDataCollection with name " << m_simDataCollectionName);
-    }
+     
+     SG::ReadHandle<InDetSimDataCollection> pixSdoColl(m_simDataCollectionName);
+     
+     if (!pixSdoColl.isValid()){
+       ATH_MSG_WARNING("Could not retrieve the  InDetSimDataCollection with name "   << m_simDataCollectionName.key());
+       m_simDataCollection = 0;
+     } else {
+       ATH_MSG_VERBOSE("Successfully retrieved the InDetSimDataCollection with name " << m_simDataCollectionName.key());
+       m_simDataCollection = &(*pixSdoColl);  
+     }
+     
    }  
   }
 
@@ -142,7 +167,6 @@ namespace InDet {
     ATH_MSG_VERBOSE("n Part Contributing: " << nPartContributing);
     //Set random seed for smearing NN efficiency
 
-    gRandom->SetSeed(0);
     ATH_MSG_VERBOSE("Smearing TruthClusterizationFactory probability output for TIDE studies");
     //If only 1 truth particles found
 
@@ -156,7 +180,7 @@ namespace InDet {
     else if (nPartContributing==2) {
         //90% chance NN returns high probability of there being 2 particles
 
-        if (gRandom->Uniform(0,1) < 0.9) probabilities[1] = 1.0;
+       if (CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1 ) < 0.9) probabilities[1] = 1.0;
         //Other 10% NN returns high probability of there being 1 particle
 
         else probabilities[0] = 1.0;
@@ -166,7 +190,7 @@ namespace InDet {
     else if (nPartContributing>2) {
         //90% chance NN returns high probability of there being >2 particles
 
-        if (gRandom->Uniform(0,1) < 0.9) probabilities[2] = 1.0;
+        if (CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1 ) < 0.9) probabilities[2] = 1.0;
         //Other 10% NN returns high probability of there being 1 particle
 
         else probabilities[0] = 1.0;
