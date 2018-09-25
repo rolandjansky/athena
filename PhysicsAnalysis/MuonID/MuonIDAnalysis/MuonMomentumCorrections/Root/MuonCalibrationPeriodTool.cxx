@@ -29,7 +29,10 @@ namespace CP {
         // retrieve the random run number
         if (!isData && m_useRndRun){
              if (acc_rnd.isAvailable(*m_evInfo)) run = acc_rnd(*m_evInfo);
-             else ATH_MSG_WARNING("No random runnumber could be found allthough the tool is configured to assign the years based on random run number. User MC periods themselves.");
+             else {
+                 ATH_MSG_FATAL("No random runnumber could be found allthough the tool is configured to assign the years based on random run number.");
+                 return -1;
+             }
         }
         // Check the Monte carlo
         if (!isData &&  (!m_useRndRun || !acc_rnd.isAvailable(*m_evInfo)) ){
