@@ -48,7 +48,7 @@ StatusCode Trk::PosteriorWeightsCalculator::finalize()
 }
 
 const Trk::MultiComponentState*
-Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedState, const MeasurementBase& measurement ) const{
+Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedState, const MeasurementBase& measurement ){
   
   if (msgLvl(MSG::VERBOSE)) msg() << "Calculating Posterior Weights" << endmsg;
   
