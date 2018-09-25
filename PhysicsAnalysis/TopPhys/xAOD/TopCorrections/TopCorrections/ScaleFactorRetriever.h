@@ -108,6 +108,8 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   // Obtain trigger SF via global tool
   float globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
 
+  // Obtain the trigger SF via approximate formula
+  float oldTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
 
   // Obtain the electron SF
   float electronSF(const top::Event& event,
@@ -290,6 +292,7 @@ class ScaleFactorRetriever final : public asg::AsgTool{
 
   // Configuration
   std::shared_ptr<top::TopConfig> m_config;
+  bool m_preferGlobalTriggerSF;
 };
 }  // namespace top
 
