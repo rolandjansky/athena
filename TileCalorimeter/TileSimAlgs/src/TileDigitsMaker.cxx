@@ -511,8 +511,13 @@ StatusCode TileDigitsMaker::execute() {
     } else {
       ATH_MSG_DEBUG( "TileRawChannelContainer for DQ check retrieved");
     }
-    TimedRawChanContList::iterator iTzeroRawChanCont(rawchanContList.begin());
-    const TileRawChannelContainer * rndm_rawchan_container = (iTzeroRawChanCont->second);
+
+    const TileRawChannelContainer* rndm_rawchan_container(nullptr);
+    if (!rawchanContList.empty()) {
+      TimedRawChanContList::iterator iTzeroRawChanCont(rawchanContList.begin());
+      rndm_rawchan_container = iTzeroRawChanCont->second;
+    }
+
     ATH_MSG_DEBUG( "setContainer method being called in TileDigitsMaker");
     m_beamInfo->setContainers(rndm_digit_container, rndm_rawchan_container);
     ATH_MSG_DEBUG( "Containers successfully set in TileBeamInfoProvider");
