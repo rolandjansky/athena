@@ -38,6 +38,8 @@ StatusCode NewMergeMcEventCollTool::initialize()
     {
       ATH_CHECK(m_pMergeSvc.retrieve());
     }
+
+  ATH_CHECK( m_wrhMcEventCollection.initialize() );
   return StatusCode::SUCCESS;
 }
 

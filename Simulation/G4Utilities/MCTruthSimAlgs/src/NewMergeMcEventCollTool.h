@@ -76,5 +76,7 @@ private:
   unsigned int m_nBkgEventsReadSoFar;
   //** Depends on PileUpTimeEventIndex::PileUpType; provide one instance of this tool for each type
   unsigned int m_pileUpType;
+  //** Writing to StoreGate safely in MT
+  SG::WriteHandleKey<McEventCollection> m_wrhMcEventCollection;
 };
 #endif //MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
