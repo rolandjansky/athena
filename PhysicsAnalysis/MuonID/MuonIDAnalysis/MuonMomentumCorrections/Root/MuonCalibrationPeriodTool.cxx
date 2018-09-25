@@ -10,7 +10,6 @@ namespace CP {
     
     StatusCode MuonCalibrationPeriodTool::beginEvent() {
         ATH_CHECK(evtStore()->retrieve(m_evInfo, "EventInfo"));
-        bool isData = !m_evInfo->eventType(xAOD::EventInfo::IS_SIMULATION);        
         // reset the active tool
         m_activeTool = nullptr;
         return StatusCode::SUCCESS;
