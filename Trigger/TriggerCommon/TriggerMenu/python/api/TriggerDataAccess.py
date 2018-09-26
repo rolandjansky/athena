@@ -208,6 +208,7 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
             continue
         if run in LBexceptions.exceptions:
             if any([lbstart>=exc_start and lbstart<=exc_end for exc_start, exc_end in LBexceptions.exceptions[run]]): continue
+            if any([lbend>=exc_start and lbend<=exc_end for exc_start, exc_end in LBexceptions.exceptions[run]]): continue
 
         #print "Accepted:",(lboverlap, lbstart, lbend, grlblocks)
         lbCount += lboverlap
@@ -222,6 +223,9 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
                 if tmpl1ps < 1: tmpl1ps = 1e99
                 l1ps = min(l1ps, tmpl1ps)
             
+            #if hltps*l1ps!=1 and chainsHLT[hltid][0]=="HLT_mu60_0eta105_msonly": #muon primary since 2015 as standard candle to find problematic LBs
+            #    print "WARNING: Prescaled HLT_mu60_0eta105_msonly",l1ps,hltps,lbstart, lbend, grlblocks
+
             if hltps*l1ps < 1e99: efflb = lboverlap/(hltps*l1ps)
             else:                 efflb = 0
             if not chainsHLT[hltid][0] in hltMap: hltMap[chainsHLT[hltid][0]] = [l1seeds, 0, hltrerun>0]
