@@ -95,11 +95,14 @@ def defineMenu():
         
         # 8 x XE
         #'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
-        'XE30', 'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70',
+        #'XE30', 'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
         
         #'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24', 'XE80.0ETA24',
-        'XE30.0ETA24', 'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24',
-
+        #'XE30.0ETA24', 'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24',
+        
+        'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50',
+        'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300',
+        
         # 8 x XS
         'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
 
@@ -113,8 +116,8 @@ def defineMenu():
         #'RXE35', 'RXE40', 'RXE45', 'RXE50', 'RXE55', 'RXE60', 'RXE70', 'RXE80', # FTHR
 
         # 8 x restricted eta range in |eta|<4.9
-        'TE600.0ETA49', 'TE1500.0ETA49', 'TE3000.0ETA49', 'TE3500.0ETA49',
-        'TE5000.0ETA49', 'TE6500.0ETA49', 'TE8000.0ETA49', 'TE9000.0ETA49',    
+        'TE3.0ETA49','TE7.0ETA49','TE600.0ETA49', 'TE1500.0ETA49',
+        'TE3000.0ETA49', 'TE3500.0ETA49', 'TE6500.0ETA49', 'TE8000.0ETA49',
         
         #------------------------       
         # SLOT 9 / CON 0 (MUCTPi)
@@ -508,10 +511,10 @@ def defineMenu():
                        'L1_TE1500.0ETA49',
                        'L1_TE3000.0ETA49',
                        'L1_TE3500.0ETA49',
-                       'L1_TE5000.0ETA49',
+                       'L1_TE3.0ETA49',
                        'L1_TE6500.0ETA49',
                        'L1_TE8000.0ETA49',
-                       'L1_TE9000.0ETA49',
+                       'L1_TE7.0ETA49',
 		       'L1_TE50_VTE600.0ETA49',
 		       'L1_TE50_VTE600.0ETA49_PEB',
 		       # restricted TE for overlay
@@ -519,10 +522,10 @@ def defineMenu():
                        'L1_TE1500.0ETA49_OVERLAY',
                        'L1_TE3000.0ETA49_OVERLAY',
                        'L1_TE3500.0ETA49_OVERLAY',
-                       'L1_TE5000.0ETA49_OVERLAY',
+                       #'L1_TE5000.0ETA49_OVERLAY',
                        'L1_TE6500.0ETA49_OVERLAY',
                        'L1_TE8000.0ETA49_OVERLAY',
-                       'L1_TE9000.0ETA49_OVERLAY',
+                       #'L1_TE9000.0ETA49_OVERLAY',
                        #Min Bias
                        'L1_ZDC',
                        'L1_ZDC_A',
@@ -558,6 +561,17 @@ def defineMenu():
 		       'L1_VZDC_A_C_TE5_VTE200',
 	           'L1_VZDC_A_C_TE20_VTE200',
 	           'L1_VZDC_AORC_TE5_VTE200',
+	           
+	           'L1_MBTS_1_ZDC_A_VZDC_C_VTE200',
+	           'L1_MBTS_1_ZDC_C_VZDC_A_VTE200',
+	           'L1_TE4_ZDC_A_VZDC_C_VTE200',
+	           'L1_TE4_ZDC_C_VZDC_A_VTE200',
+	           'L1_TE3.0ETA49_ZDC_A_VZDC_C_VTE200',
+	           'L1_TE3.0ETA49_ZDC_C_VZDC_A_VTE200',
+	           'L1_TE5_ZDC_A_VZDC_C_VTE200',
+	           'L1_TE5_ZDC_C_VZDC_A_VTE200',
+	           'L1_TE7.0ETA49_ZDC_A_VZDC_C_VTE200',
+	           'L1_TE7.0ETA49_ZDC_C_VZDC_A_VTE200',
 		       #coincidence
 		       'L1_ZDC_A_C_VTE200',
 	               'L1_ZDC_A_C_TE5_VTE200',
@@ -735,13 +749,16 @@ def defineMenu():
                        'L1_J100_FIRSTEMPTY',
                        'L1_J30.31ETA49',
                        'L1_J30.31ETA49_EMPTY',
-                       'L1_J40_XE50',
+                       'L1_J40_XE60',
                        'L1_J75.31ETA49',
                        'L1_J75_XE40',
                        'L1_RD0_ABORTGAPNOTCALIB',
                        'L1_TGC_BURST',
                        'L1_XE35',
                        'L1_XE50',
+                       'L1_XE60',
+                       'L1_XE70',
+                       'L1_XE80',
                        #TOPO
                        'L1_LAR-EM',
                        'L1_LAR-J',
@@ -1053,7 +1070,7 @@ def defineMenu():
         'L1_J12_FIRSTEMPTY': 310,
         'L1_J30.31ETA49': 311,
         'L1_J30.31ETA49_EMPTY': 312,   
-        'L1_J40_XE50': 313,
+        'L1_J40_XE60': 313,
         'L1_J75.31ETA49': 314,
         'L1_J75_XE40': 315,
         'L1_RD0_ABORTGAPNOTCALIB': 316,
@@ -1067,6 +1084,10 @@ def defineMenu():
         'L1_EM15HI_2TAU12IM_XE35': 324, 
         'L1_EM15HI_TAU40_2TAU15': 325,
         
+        'L1_XE60': 357,
+        'L1_XE70': 358,
+        'L1_XE80': 359,
+        
 	# restricted TE
         'L1_TE600.0ETA49_PEB': 306,
         'L1_TE600.0ETA49': 326,
@@ -1076,7 +1097,7 @@ def defineMenu():
         'L1_TE4500.0ETA49': 330,
         'L1_TE6500.0ETA49': 331,
         'L1_TE8000.0ETA49': 332,
-        'L1_TE9000.0ETA49': 333,
+        'L1_TE3.0ETA49': 333,
 
 	#'L1_J5': 334,
 	'L1_TE5_VTE200': 335,
@@ -1096,7 +1117,7 @@ def defineMenu():
         'L1_TE4500.0ETA49_OVERLAY': 340,
         'L1_TE6500.0ETA4_OVERLAY9': 341,
         'L1_TE8000.0ETA49_OVERLAY': 342,
-        'L1_TE9000.0ETA49_OVERLAY': 343,
+        'L1_TE7.0ETA49': 343,
 
 	'L1_EM8':      344,
 	'L1_2EM7':      345,
@@ -1107,7 +1128,18 @@ def defineMenu():
     'L1_2TAU2_VTE100' : 353,
     'L1_2TAU3_VTE100' : 354,
     'L1_2TAU2_VTE200' : 355,
-    'L1_2TAU3_VTE200' : 356,    
+    'L1_2TAU3_VTE200' : 356,
+    
+    'L1_MBTS_1_ZDC_A_VZDC_C_VTE200' : 470,
+	'L1_MBTS_1_ZDC_C_VZDC_A_VTE200' : 471,
+	'L1_TE4_ZDC_A_VZDC_C_VTE200' : 472,
+	'L1_TE4_ZDC_C_VZDC_A_VTE200' : 473,
+	'L1_TE3.0ETA49_ZDC_A_VZDC_C_VTE200' : 474,
+	'L1_TE3.0ETA49_ZDC_C_VZDC_A_VTE200' : 475,
+	'L1_TE5_ZDC_A_VZDC_C_VTE200' : 476,
+	'L1_TE5_ZDC_C_VZDC_A_VTE200' : 477,
+	'L1_TE7.0ETA49_ZDC_A_VZDC_C_VTE200' : 478,
+	'L1_TE7.0ETA49_ZDC_C_VZDC_A_VTE200' : 479,
 	
     'L1_VZDC_A_C_VTE50' : 480,
     'L1_ZDC_XOR_TE20_VTE200' : 481,
@@ -1127,6 +1159,9 @@ def defineMenu():
 	'L1_VZDC_A_C_TE20_VTE200' : 497,
 	'L1_VZDC_AORC_TE5_VTE200' : 498,
 	'L1_ZDC_XOR_VTE50' : 499,
+	
+	
+	
 	}
 
     Lvl1Flags.prescales = {}
