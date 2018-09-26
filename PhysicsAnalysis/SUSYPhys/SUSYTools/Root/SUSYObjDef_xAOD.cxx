@@ -130,6 +130,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleIdBaseline(""),
     m_eleConfig(""),
     m_eleConfigBaseline(""),
+    m_eleBaselineIso_WP(""),
     m_eleIdExpert(false),
     m_muId(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
     m_muIdBaseline(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
@@ -142,8 +143,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleIsoHighPt_WP(""),
     m_eleChID_WP(""),
     m_runECIS(false),
+    m_photonBaselineIso_WP(""),
     m_photonIso_WP(""),
     m_photonTriggerName(""),
+    m_muBaselineIso_WP(""),
     m_muIso_WP(""),
     m_BtagWP(""),
     m_BtagTagger(""),
@@ -326,6 +329,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_isoCorrTool(""),
     m_isoTool(""),
+    m_isoBaselineTool(""),
     m_isoHighPtTool(""),
     //
     m_prwTool(""),
@@ -583,6 +587,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_isoCorrTool.declarePropertyFor( this, "IsolationCorrectionTool", "The IsolationCorrectionTool" );
   m_isoTool.declarePropertyFor( this, "IsolationSelectionTool", "The IsolationSelectionTool");
+  m_isoBaselineTool.declarePropertyFor( this, "IsolationSelectionTool_Baseline", "The IsolationSelectionTool for baseline objects");
   m_isoHighPtTool.declarePropertyFor( this, "IsolationSelectionTool_HighPt", "The IsolationSelectionTool for High Pt");
   m_isoCloseByTool.declarePropertyFor( this, "IsolationCloseByCorrectionTool", "The IsolationCloseByCorrectionTool");
   //
@@ -1052,6 +1057,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleBaselinePt, "EleBaseline.Pt", rEnv, 10000.);
   configFromFile(m_eleBaselineEta, "EleBaseline.Eta", rEnv, 2.47);
   configFromFile(m_eleIdBaseline, "EleBaseline.Id", rEnv, "LooseAndBLayerLLH");
+  configFromFile(m_eleBaselineIso_WP, "EleBaseline.Iso", rEnv, "None");
   configFromFile(m_eleConfigBaseline, "EleBaseline.Config", rEnv, "None");
   configFromFile(m_eleBaselineCrackVeto, "EleBaseline.CrackVeto", rEnv, false);
   configFromFile(m_force_noElId, "Ele.ForceNoId", rEnv, false);
@@ -1085,6 +1091,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muBaselinePt, "MuonBaseline.Pt", rEnv, 10000.);
   configFromFile(m_muBaselineEta, "MuonBaseline.Eta", rEnv, 2.7);
   configFromFile(m_force_noMuId, "Muon.ForceNoId", rEnv, false);
+  configFromFile(m_muBaselineIso_WP, "MuonBaseline.Iso", rEnv, "None");
   configFromFile(m_doTTVAsf, "Muon.TTVASF", rEnv, true);
   //
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
@@ -1105,6 +1112,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_photonBaselineEta, "PhotonBaseline.Eta", rEnv, 2.37);
   configFromFile(m_photonIdBaseline, "PhotonBaseline.Id", rEnv, "Tight");
   configFromFile(m_photonBaselineCrackVeto, "PhotonBaseline.CrackVeto", rEnv, true);
+  configFromFile(m_photonBaselineIso_WP, "PhotonBaseline.Iso", rEnv, "None");
   //
   configFromFile(m_photonPt, "Photon.Pt", rEnv, 130000.);
   configFromFile(m_photonEta, "Photon.Eta", rEnv, 2.37);
@@ -2443,6 +2451,33 @@ int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
   else if (theRunNumber<350000) return 2017;
   return 2018;
 }
+
+bool SUSYObjDef_xAOD::eleIsoSFExist(std::string eleWP){
+
+  std::vector<std::string> knownIso = {"FixedCutHighMuLoose", "FixedCutHighMuTight",
+				       "FixedCutHighMuTrackOnly","FixedCutHighPtCaloOnly",
+				       "FixedCutLoose","FixedCutPflowLoose",
+				       "FixedCutPflowTight","FixedCutTight",
+				       "FixedCutTightTrackOnly","Gradient",
+				       "GradientLoose","Loose","LooseTrackOnly","FixedCutTrackCone40"};
+
+  return (std::find(knownIso.begin(), knownIso.end(), eleWP) != knownIso.end());
+
+}
+
+bool SUSYObjDef_xAOD::muIsoSFExist(std::string muWP){
+
+  std::vector<std::string> knownIso = {"FixedCutHighMuLoose", "FixedCutHighMuTight",
+				       "FixedCutHighMuTrackOnly","FixedCutHighPtTrackOnly",
+				       "FixedCutLoose","FixedCutPflowLoose",
+				       "FixedCutPflowTight","FixedCutTight",
+				       "FixedCutTightTrackOnly","Gradient",
+				       "GradientLoose","Loose","LooseTrackOnly"};
+
+  return (std::find(knownIso.begin(), knownIso.end(), muWP) != knownIso.end());
+
+}
+
 
 SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
 
