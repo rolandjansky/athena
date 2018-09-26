@@ -29,11 +29,11 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 
 # menu components   
-from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
-from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
 
 ### CF construction ###
-from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
 
 
@@ -44,7 +44,7 @@ if  TriggerFlags.doMuon==True:
     # menu
     ##########################################
 
-    from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
     from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muonEFSAStep, muIsoStep, doL2SA, doL2CB, doEFSA, doL2ISO
 
     MenuChains  = []
@@ -137,5 +137,5 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     ##### Make all HLT #######
-    from TrigUpgradeTest.HLTCFConfig import makeHLTTree
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
     makeHLTTree(MenuChains)

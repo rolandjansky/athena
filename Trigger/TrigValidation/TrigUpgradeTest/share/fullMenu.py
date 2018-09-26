@@ -15,7 +15,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
 
-from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 EnabledElChains = []
 EnabledMuChains = []
@@ -115,7 +115,7 @@ topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
 ##########################################
 
 ##### Make all HLT #######
-from TrigUpgradeTest.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 makeHLTTree(testChains)
 
 
