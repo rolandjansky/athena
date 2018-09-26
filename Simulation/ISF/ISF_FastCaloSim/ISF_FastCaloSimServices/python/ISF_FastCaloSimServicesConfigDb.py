@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF_FastCaloSimServices
@@ -20,6 +20,11 @@ addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloNoiseTool",            
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getAddNoiseCellBuilderTool",         "ISF_AddNoiseCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloCellContainerFinalizerTool",  "ISF_CaloCellContainerFinalizerTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastHitConvertTool",              "ISF_FastHitConvertTool")
+
+addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastCaloTool",                    "ISF_FastCaloTool")
+addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastCaloPileupTool",              "ISF_FastCaloPileupTool")
+addTool("ISF_FastCaloSimServices.AdditionalConfig.getLegacyAFIIFastCaloTool",          "ISF_LegacyAFIIFastCaloTool")
+
 addAlgorithm("ISF_FastCaloSimServices.AdditionalConfig.getFastHitConvAlg",             "ISF_FastHitConvAlg")
 
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNativeFastCaloSimSvc",                       "ISF_NativeFastCaloSimSvc")
@@ -27,7 +32,6 @@ addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSim
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimPileupSvc",                       "ISF_FastCaloSimPileupSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimPileupOTSvc",                     "ISF_FastCaloSimPileupOTSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgFastCaloSimSvc",               "ISF_FastHitConvFastCaloSimSvc")
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcBase",                         "ISF_FastCaloSimSvcBase")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyAFIIFastCaloSimSvc",                   "ISF_LegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSvc",     "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcV2",                           "ISF_FastCaloSimSvcV2")
