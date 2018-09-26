@@ -87,7 +87,7 @@ function( atlas_run_lowestunprescaled )
    # executed after the previous code. So by this time the files should be
    # in place, if they could be produced.
    install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled/
-      DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/TriggerMenu
+      DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/TriggerMenu/api
       USE_SOURCE_PERMISSIONS
       FILES_MATCHING PATTERN "list*.py" )
 
