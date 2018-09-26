@@ -193,8 +193,7 @@ deco_prefix = ''  #'SUSY19_'
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TrackParametersKVU
 SUSY19KVU = DerivationFramework__TrackParametersKVU(name = "SUSY19KVU",
                                                              TrackParticleContainerName = "InDetPixelPrdAssociationTrackParticles",
-                                                             VertexContainerName = "PrimaryVertices", 
-                                                             KVUSGEntryName = "DFCommonInDetTrackKVU" )
+                                                             VertexContainerName = "PrimaryVertices" )
 
 
 
