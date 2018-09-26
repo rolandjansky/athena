@@ -6,6 +6,10 @@
 #include "TMVA/MethodBase.h"
 #include "TMVA/Reader.h"
 #include "PathResolver/PathResolver.h"
+#include "TLorentzVector.h"
+#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
+#include  "Particle/TrackParticle.h"
 //
 //-------------------------------------------------
 namespace InDet {

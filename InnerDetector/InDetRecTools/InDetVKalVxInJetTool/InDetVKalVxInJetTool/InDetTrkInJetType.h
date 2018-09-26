@@ -23,12 +23,18 @@
 #include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TLorentzVector.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include  "Particle/TrackParticle.h"
+#include "TrkVertexFitterInterfaces/IVertexFitter.h"
 //
 
+class TLorentzVector;
+namespace Rec{
+  class TrackParticle;
+}
+
+namespace Trk{
+  class TrkVKalVrtFitter;
+}
 namespace TMVA { class Reader; }
 
 namespace InDet {
