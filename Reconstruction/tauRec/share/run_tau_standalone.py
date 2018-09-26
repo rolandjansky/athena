@@ -1,96 +1,157 @@
-# minimal set of job options to run tau reco on an ESD file
-# uses main TauRecRunner script
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+# job options to run tau reco on an ESD file  
+ 
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
-#from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-# Check for unmet data dependencies
+import MagFieldServices.SetupField
+ 
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetGeo = 'atlas'
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.detdescr.all_setOff()
+DetFlags.detdescr.Calo_setOn()
+DetFlags.detdescr.Muon_setOn()
+DetFlags.detdescr.ID_setOn()
+if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
 
-#svcMgr += ForwardSchedulerSvc()
-#svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-
+#---------------------------------------------------------------------------------#
 # MT-specific code
 # Get number of processes and threads
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 nProc = jp.ConcurrencyFlags.NumProcs()
 
-theApp.EvtMax = 10
-
 if nThreads >=1 :
-   # Support for the MT-MP hybrid mode
-   if (nProc > 0) :
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.OutputLevel( INFO )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+    
+    # Support for the MT-MP hybrid mode
+    if (nProc > 0) :
+        
+        from AthenaCommon.Logging import log as msg
+        if (theApp.EvtMax == -1) : 
+            msg.fatal('EvtMax must be >0 for hybrid configuration')
+            sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
 
-      from AthenaCommon.Logging import log as msg
-      if (theApp.EvtMax == -1) :
-         msg.fatal('EvtMax must be >0 for hybrid configuration')
-         sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
+            if ( theApp.EvtMax % nProc != 0 ) :
+                msg.warning('EvtMax[%s] is not divisible by nProcs[%s]: MP Workers will not process all requested events',theApp.EvtMax,nProc)
 
-         if ( theApp.EvtMax % nProc != 0 ) :
-            msg.warning('EvtMax[%s] is not divisible by nProcs[%s]: MP Workers will not process all requested events',theApp.EvtMax,nProc)
+            chunkSize = int (theApp.EvtMax / nProc)
 
-         chunkSize = int (theApp.EvtMax / nProc)
+            from AthenaMP.AthenaMPFlags import jobproperties as jps 
+            jps.AthenaMPFlags.ChunkSize= chunkSize
+         
+            msg.info('AthenaMP workers will process %s events each',chunkSize)
+ 
+    ## force loading of data. make sure this alg is at the front of the
+    ## AlgSequence
+    #
+    from SGComps.SGCompsConf import SGInputLoader
+    topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
+ 
+# MT-specific code
+#---------------------------------------------------------------------------------#
 
-         from AthenaMP.AthenaMPFlags import jobproperties as jps
-         jps.AthenaMPFlags.ChunkSize= chunkSize
+theApp.EvtMax = 5
 
-         msg.info('AthenaMP workers will process %s events each',chunkSize)
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence+=xAODMaker__EventInfoCnvAlg()
 
-# Set input files
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["/afs/cern.ch/work/a/adbailey/public/ESD/mc16_13TeV.301046.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYtautau_1000M1250.recon.ESD.e3649_s3170_r9466/ESD.11318157._000005.pool.root.1"]
+#---------------------------------------------------------------------------------#
+# NEW Conditions access infrastructure
+#
+from IOVSvc.IOVSvcConf import CondInputLoader
+topSequence += CondInputLoader( "CondInputLoader", OutputLevel=DEBUG,  )
 
-# and add to svcMgr
-import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
+import StoreGate.StoreGateConf as StoreGateConf
+svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
-### This can go into config file  ###
+from IOVSvc.IOVSvcConf import CondSvc
+svcMgr += CondSvc()
+# NEW Conditions access infrastructure
+#---------------------------------------------------------------------------------#
 
-# Magnetic Field
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetGeo = 'atlas'
-from AthenaCommon.DetFlags import DetFlags
-DetFlags.detdescr.Calo_setOn()
-DetFlags.detdescr.ID_setOn()
-if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
-include('RecExCond/AllDet_detDescr.py')
-#Magnetic field is now setup
+# Make sure PerfMon is off
+include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 
-# Detector Description
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetGeo = 'atlas'
-from AthenaCommon.DetFlags import DetFlags
-DetFlags.detdescr.all_setOff()
-DetFlags.detdescr.Muon_setOn()
-if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
-include('RecExCond/AllDet_detDescr.py')
+# Input file
+dataFile="/afs/cern.ch/work/a/adbailey/public/ESD/mc16_13TeV.301046.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYtautau_1000M1250.recon.ESD.e3649_s3170_r9466/ESD.11318157._000005.pool.root.1"
 
-from AtlasGeoModel import SetGeometryVersion
-from AtlasGeoModel import GeoModelInit
+from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+athenaCommonFlags.FilesInput=[dataFile,dataFile]
 
-# RecEx config
+# AutoConfiguration
 from RecExConfig.RecFlags import rec
 rec.AutoConfiguration = ['everything']
 import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
-from AthenaCommon.BeamFlags import jobproperties
-from AthenaCommon.GlobalFlags import globalflags
-import AthenaCommon.SystemOfUnits as Units
-from tauRec.tauRecFlags import jobproperties as taujp
+from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
+from RecExConfig.InputFilePeeker import inputFileSummary
+objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
 
-rec.doEgamma.set_Value_and_Lock(False)
-rec.doMuon.set_Value_and_Lock(False)
+# Detector Description
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
 
-# CaloRec config
+from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
+from TileGeoModel.TileGeoModelConf import TileDetectorTool
+
+ServiceMgr.GeoModelSvc.DetectorTools += [ LArDetectorToolNV(ApplyAlignments = True, GeometryConfig = "RECO"),
+                                          TileDetectorTool(GeometryConfig = "RECO")
+                                          ]
+
+from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
+
+# This is not working?
+include( "TileConditions/TileConditions_jobOptions.py" )
+include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")
+include( "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py")
+
+include( "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py" )
+include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
+from LArConditionsCommon import LArAlignable
+ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
+# Detector Description
+#---------------------------------------------------------------------------------#
+
+import AthenaPoolCnvSvc.ReadAthenaPool  #Maybe better to break up to get rid of MetaData stuff
+
+svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
+ 
+from GaudiAlg.GaudiAlgConf import EventCounter
+topSequence+=EventCounter(Frequency=2)
+ 
+from LArROD.LArRODFlags import larRODFlags
+larRODFlags.readDigits=False
+
 from CaloRec.CaloRecFlags import jobproperties
-jobproperties.CaloRecFlags.Enabled.set_Value_and_Lock(False)
-jobproperties.CaloRecFlags.doCaloCluster.set_Value_and_Lock(False)
-jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(False)
+jobproperties.CaloRecFlags.clusterCellGetterName = 'CaloRec.CaloCellGetter.CaloCellGetter'
 
-### End into config file  ###
+from CaloRec.CaloCellFlags import jobproperties
+jobproperties.CaloCellFlags.doLArDeadOTXCorr=False
+
+# Not working with this included?
+# include( "CaloRec/CaloTopoCluster_jobOptions.py" )
+
+import AthenaPoolCnvSvc.WriteAthenaPool
+logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
+from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+
+StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
+print StreamESD.ItemList
+
+# tau stuff
+
+from tauRec.tauRecFlags import jobproperties as taujp
 
 # use Tau Jet Vertex Association Tool
 # each Tau candidate gets its own primary vertex
@@ -112,11 +173,15 @@ if _doPi0Clus:
 from tauRec.TauRecRunner import TauRecRunner
 TauRecRunner(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
 
-# minimal set of job options to run tau reco on an ESD file
-# uses main TauRecRunner script
+#  set algCardinality = 1 to disable cloning for all Algs
+algCardinality = nThreads
 
-#from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-# Check for unmet data dependencies
+if (algCardinality > 1):   
+    for alg in topSequence:      
+       name = alg.name()
+       if name in ["CaloCellMaker","StreamESD"] :
+           # suppress INFO message about Alg unclonability
+           alg.Cardinality = 1
+       else:
+           alg.Cardinality = algCardinality
 
-#svcMgr += ForwardSchedulerSvc()
-#svcMgr.ForwardSchedulerSvc.CheckDependencies = True
