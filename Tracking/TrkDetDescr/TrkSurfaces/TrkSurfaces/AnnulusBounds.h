@@ -41,6 +41,8 @@ namespace Trk {
 
   class AnnulusBounds : public SurfaceBounds {
 
+    friend AnnulusBoundsPC;
+
     public:
       /** @enum BoundValues - for readability */
       enum BoundValues {
