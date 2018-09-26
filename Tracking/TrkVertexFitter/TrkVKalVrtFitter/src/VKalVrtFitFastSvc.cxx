@@ -34,7 +34,8 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
@@ -98,7 +99,8 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
@@ -162,7 +164,8 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
@@ -226,7 +229,8 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //

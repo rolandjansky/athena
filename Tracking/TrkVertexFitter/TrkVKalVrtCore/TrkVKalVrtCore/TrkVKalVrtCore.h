@@ -19,6 +19,8 @@ namespace Trk {
 //  otherwise default internal fixed_field/simple_propagator are used. 
 //--------------------------------------------------------------------
 
+   class CascadeEvent;
+
    class VKalVrtControlBase
    {
      public:
@@ -64,6 +66,9 @@ namespace Trk {
        ForCFT m_forcft;
        double m_vrtMassTot;
        double m_vrtMassError;
+
+       CascadeEvent * m_cascadeEvent=nullptr;       
+
   };
 
 } // end of namespace bracket

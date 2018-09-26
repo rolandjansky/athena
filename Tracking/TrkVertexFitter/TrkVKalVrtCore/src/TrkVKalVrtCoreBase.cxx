@@ -30,14 +30,16 @@ namespace Trk {
     m_fullCovariance=0;
     m_vrtMassTot=-1.;
     m_vrtMassError=-1.;
+    m_cascadeEvent=nullptr;
   }
   VKalVrtControl::VKalVrtControl(const VKalVrtControl & src) : VKalVrtControlBase(src) { 
     m_fullCovariance=0; 
     m_forcft=src.m_forcft;
     m_vrtMassTot=src.m_vrtMassTot;
     m_vrtMassError=src.m_vrtMassError;
+    m_cascadeEvent=src.m_cascadeEvent;
   }
-  VKalVrtControl::~VKalVrtControl()  { if(m_fullCovariance) delete[] m_fullCovariance; }
+  VKalVrtControl::~VKalVrtControl()  { if(m_fullCovariance) delete[] m_fullCovariance;}
 
 
   VKTrack::VKTrack(long int iniId, double Perigee[], double Covariance[], VKVertex * vk, double m):
@@ -138,8 +140,7 @@ namespace Trk {
   useApriorVertex(src.useApriorVertex),   //for a priory vertex position knowledge usage
   passNearVertex(src.passNearVertex),     // needed for "passing near vertex" constraint
   passWithTrkCov(src.passWithTrkCov),     //  Vertex, CovVertex, Charge and derivatives 
-  FVC(src.FVC),
-  m_fitterControl(new VKalVrtControl(*src.m_fitterControl))
+  FVC(src.FVC)
   {
     for( int i=0; i<6; i++) {
       fitVcov[i]    =src.fitVcov[i];  // range[0:5]
@@ -164,7 +165,8 @@ namespace Trk {
     //----- Creation of track copies
     TrackList.clear();
     for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
-  }
+    m_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*src.m_fitterControl));
+   }
 
   VKVertex& VKVertex::operator= (const VKVertex & src)        //Assignment operator
   {

@@ -43,7 +43,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
 //
 //------  extract information about selected tracks
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 
     int ntrk=0;
     StatusCode sc=CvtTrkTrack(InpTrk,ntrk);
@@ -67,7 +68,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2 ) 
 {
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -167,7 +169,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2 ) 
 {
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -202,7 +205,8 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2 ) 
 {
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //

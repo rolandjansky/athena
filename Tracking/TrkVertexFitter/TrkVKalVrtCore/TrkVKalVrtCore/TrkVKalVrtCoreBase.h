@@ -18,17 +18,19 @@ namespace Trk {
    class VKConstraintBase;
    class VKVertex;
 
-   struct CascadeEvent 
+   class CascadeEvent 
    {
-     int cascadeNV;
-     int nearPrmVertex;
-     double *fullCovMatrix;
-     double SCALE;
-     double accuracyConstraint;
-     std::vector< VKVertex *> cascadeVertexList; 
-     std::vector<int> matrixPnt;
-     CascadeEvent(){cascadeNV = 0; nearPrmVertex=0; fullCovMatrix=0; SCALE=1.; accuracyConstraint=1.e-4;};
-    ~CascadeEvent(){if(fullCovMatrix)delete[] fullCovMatrix;};
+     public:
+       int m_cascadeNV;
+       int m_nearPrmVertex;
+       double m_SCALE;
+       double m_accuracyConstraint;
+       double *m_fullCovMatrix;
+       std::vector< VKVertex *> m_cascadeVertexList; 
+       std::vector<int> m_matrixPnt;
+       CascadeEvent():m_cascadeNV(0), m_nearPrmVertex(0), m_SCALE(1.), m_accuracyConstraint(1.e-4),
+                      m_fullCovMatrix(0), m_cascadeVertexList(0), m_matrixPnt(0) {};
+      ~CascadeEvent(){if(m_fullCovMatrix)delete[] m_fullCovMatrix;};
    };
 
    class TWRK       // collection of temporary arrays for 
