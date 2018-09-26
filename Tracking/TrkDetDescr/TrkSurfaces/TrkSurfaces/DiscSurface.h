@@ -27,6 +27,8 @@ namespace Trk {
 
   class DiscBounds;
   class DiscTrapezoidalBounds;
+  class AnnulusBounds;
+  class AnnulusBoundsPC;
   class TrkDetElementBase;  
   class LocalParameters;
   
@@ -63,6 +65,17 @@ namespace Trk {
       /**Constructor for Discs from HepGeom::Transform3D and DiscTrapezoidalBounds 
 	 - ownership of bounds is passed */
       DiscSurface(Amg::Transform3D* htrans, DiscTrapezoidalBounds* dtbounds);
+      
+      /**Constructor for Discs from HepGeom::Transform3D and AnnulusBoundsPC 
+	 - ownership of bounds is passed */
+      DiscSurface(Amg::Transform3D* htrans, AnnulusBoundsPC* annpcbounds);
+      
+      /**
+       * Constructor for Discs from HepGeom::Transform3D and AnnulusBounds.
+       * will produce AnnulusBoundsPC as bounds. 
+	     * - ownership of bounds is passed 
+       */
+      DiscSurface(Amg::Transform3D* htrans, AnnulusBounds* annbounds);
 
       /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
        - bounds is not set */

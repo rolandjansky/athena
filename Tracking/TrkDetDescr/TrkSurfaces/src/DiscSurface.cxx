@@ -11,6 +11,8 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/DiscTrapezoidalBounds.h"
 #include "TrkEventPrimitives/LocalParameters.h"
+#include "TrkSurfaces/AnnulusBoundsPC.h"
+#include "TrkSurfaces/AnnulusBounds.h"
 
 
 //Gaudi
@@ -78,6 +80,36 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscTrapezoidalBoun
   m_bounds(dbounds),
   m_referencePoint(0)
 {}
+
+Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::AnnulusBoundsPC* annpcbounds)
+  : Trk::Surface(htrans),
+  m_bounds(annpcbounds),
+  m_referencePoint(0)
+{}
+
+Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::AnnulusBounds* annbounds)
+  : Trk::Surface(htrans),
+  m_referencePoint(0)
+{
+  // build AnnulusBoundsPC from XY AnnulusBounds
+  std::pair<AnnulusBoundsPC, double> res = AnnulusBoundsPC::fromCartesian(*annbounds);
+  AnnulusBoundsPC* annpcbounds = res.first.clone();
+  double phiShift = res.second;
+  m_bounds = annpcbounds; // this casts to SurfaceBounds
+  // annbounds is now only owned by this scope, delete now, since we won't need
+  // it anymore, and contract is we own it
+  delete annbounds;
+
+  // construct shifted transform
+  // we get the necessary rotation from ::fromCartesian(), and we need to make
+  // the local coordinate system to be rotated correctly here
+  Amg::Vector2D origin2D = annpcbounds->moduleOrigin();
+  Amg::Translation3D transl(Amg::Vector3D(origin2D.x(), origin2D.y(), 0));
+  Amg::Rotation3D rot(Amg::AngleAxis3D(-phiShift, Amg::Vector3D::UnitZ()));
+  Amg::Transform3D originTrf = transl * rot;
+
+  *m_transform = (*m_transform) * originTrf.inverse();
+}
 
 // construct a disc from a transform, bounds is not set.
 Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans) :
