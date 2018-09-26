@@ -54,10 +54,6 @@ StatusCode DerivationFramework::TrackParametersKVU::initialize()
     return StatusCode::FAILURE;
   }
   
-  if (m_sgKey1 == "") {
-    ATH_MSG_ERROR("No Store Gate Keys for the TrackParametersKVU tool!");
-    return StatusCode::FAILURE;
-  }
   
   CHECK(m_vertexTrackUpdator.retrieve());
 
