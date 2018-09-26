@@ -185,7 +185,6 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                           MakePerigee             = True,
                                           RefitOnMeasurementBase  = True,
                                           DoHitSorting            = True,
-                                          ValidationMode          = False,
                                           BremFind                = BremFind,
                                           runBremFinder           = False,
                                           OutputLevel = 3)
