@@ -54,7 +54,6 @@
 
 // Needed for the pixel clusters
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 //
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -365,6 +364,11 @@ StatusCode ThinContainers::initialize()
       ATH_CHECK( detStore()->retrieve( m_trtID, "TRT_ID" ) );
     }
 
+  // Read Cond Handle Key
+  if ( m_thinSCTClusters )
+    {
+      ATH_CHECK(m_SCTDetEleCollKey.initialize());
+    }
 
   // Initialize the counters to zero
   m_nEventsProcessed = 0;

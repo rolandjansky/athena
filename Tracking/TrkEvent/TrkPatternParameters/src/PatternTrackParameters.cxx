@@ -36,7 +36,7 @@ const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert
       c[10],c[11],c[12],c[13],c[14];
   }
   const double* p = &m_parameters[0];
-  return m_surface->createTrackParameters(p[0],p[1],p[2],p[3],p[4],e);
+  return m_surface ? (m_surface->createTrackParameters(p[0],p[1],p[2],p[3],p[4],e)): nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////

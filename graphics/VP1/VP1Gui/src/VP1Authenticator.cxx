@@ -3,6 +3,7 @@
 */
 
 #include "VP1Gui/VP1Authenticator.h"
+
 #include "VP1Base/VP1QtUtils.h"
 
 #include <QNetworkAccessManager>

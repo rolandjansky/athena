@@ -44,11 +44,6 @@ public:
   MuonClusterIsolation(const std::string& name, ISvcLocator* svc);
   ~MuonClusterIsolation();
 
-  /** hltBeginRun() */
-  HLT::ErrorCode hltBeginRun();
-  /** hltEndRun() */
-  HLT::ErrorCode hltEndRun();
-
   /** hltInitialize() */
   HLT::ErrorCode hltInitialize();
   /** hltFinalize() */

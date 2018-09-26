@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <numeric>
@@ -233,15 +233,8 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
 }
 
 // --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 
-HLT::ErrorCode MuFastSteering::hltBeginRun() {
-  ATH_MSG_DEBUG("hltBeginRun");
-  return HLT::OK;
-}
-
-HLT::ErrorCode MuFastSteering::hltEndRun() {
-  ATH_MSG_DEBUG("hltEndRun");
+HLT::ErrorCode MuFastSteering::hltStop() {
    // close the calibration stream 
    if (m_doCalStream) { 
      if ( !m_calDataScouting ) {
@@ -281,15 +274,18 @@ StatusCode MuFastSteering::execute()
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() start");
 
+  auto ctx = getContext();
+  ATH_MSG_DEBUG("Get event context << " << ctx );
+
   // retrieve with ReadHandle
-  auto roiCollectionHandle = SG::makeHandle( m_roiCollectionKey );
+  auto roiCollectionHandle = SG::makeHandle( m_roiCollectionKey, ctx );
   const TrigRoiDescriptorCollection *roiCollection = roiCollectionHandle.cptr();
   if (!roiCollectionHandle.isValid()){
     ATH_MSG_ERROR("ReadHandle for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key() << " isn't Valid");
     return StatusCode::FAILURE;
   } 
 
-  auto recRoiCollectionHandle = SG::makeHandle( m_recRoiCollectionKey );
+  auto recRoiCollectionHandle = SG::makeHandle( m_recRoiCollectionKey, ctx );
   const DataVector<LVL1::RecMuonRoI> *recRoiCollection = recRoiCollectionHandle.cptr();
   if (!recRoiCollectionHandle.isValid()){
     ATH_MSG_ERROR("ReadHandle for DataVector<LVL1::RecMuonRoI> key:" << m_recRoiCollectionKey.key() << " isn't Valid");
@@ -323,21 +319,22 @@ StatusCode MuFastSteering::execute()
   ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " DONE");
 
   // record data objects with WriteHandle
-  SG::WriteHandle<xAOD::L2StandAloneMuonContainer> muFastContainer (m_muFastContainerKey);
+  auto muFastContainer = SG::makeHandle(m_muFastContainerKey, ctx);
   ATH_CHECK(muFastContainer.record(std::make_unique<xAOD::L2StandAloneMuonContainer>(), std::make_unique<xAOD::L2StandAloneMuonAuxContainer>()));
 
-  SG::WriteHandle<xAOD::TrigCompositeContainer> muCompositeContainer (m_muCompositeContainerKey);
+  auto muCompositeContainer = SG::makeHandle(m_muCompositeContainerKey, ctx);
   ATH_CHECK(muCompositeContainer.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()));
 
-  SG::WriteHandle<TrigRoiDescriptorCollection> muIdContainer (m_muIdContainerKey);
+  auto muIdContainer = SG::makeHandle(m_muIdContainerKey, ctx);
   ATH_CHECK(muIdContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
 
-  SG::WriteHandle<TrigRoiDescriptorCollection> muMsContainer(m_muMsContainerKey);
+  auto muMsContainer = SG::makeHandle(m_muMsContainerKey, ctx);
   ATH_CHECK(muMsContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
 
   // to StatusCode findMuonSignature()
   ATH_CHECK(findMuonSignature(*internalRoI, *recRoIVector, 
 			      *muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer));	  
+
 
   // DEBUG TEST: Recorded data objects
   ATH_MSG_DEBUG("Recorded data objects"); 

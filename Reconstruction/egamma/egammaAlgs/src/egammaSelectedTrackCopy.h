@@ -24,6 +24,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
+#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
+
 #include <atomic>
 
 class CaloCluster;
@@ -39,17 +41,35 @@ public:
   virtual StatusCode execute() override final;
 
 private:
+
+  /** @brief whether cluster passes selection */
+  bool passSelection(const xAOD::CaloCluster *clus) const;
+
   /** @brief broad track selection */
   bool Select(const xAOD::CaloCluster* cluster,
-              bool trkTRT,
-              const xAOD::TrackParticle* track) const;
+              const xAOD::TrackParticle* track,
+              IEMExtrapolationTools::Cache& cache,
+              bool trkTRT) const;
+ 
   /** @brief Tool for extrapolation */
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
     "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};
 
   /** @brief Names of input output collections */
   SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey {this,
-    "ClusterContainerName", "LArClusterEM", "Input calo cluster for seeding"};
+    "ClusterContainerName", "egammaTopoCluster", "Input calo cluster for seeding"};
+
+  /** @brief cluster pT requirements */
+  Gaudi::Property<float> m_ClusterEMEtCut {this,
+      "ClusterEMEtCut", 1.5*CLHEP::GeV,
+      "The minimum EM Et required of SEED clusters"};
+
+  Gaudi::Property<double>  m_ClusterEMFCut {this,
+      "ClusterEMFCut", 0.0, "Cut on cluster EM fraction"};
+
+  Gaudi::Property<double>  m_ClusterLateralCut {this,
+      "ClusterLateralCut", 1.0,
+      "Cut on cluster LATERAL, i.e., the second transverse moment normalized"};
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackParticleContainerName", "InDetTrackParticles", 
@@ -86,6 +106,11 @@ private:
 
   Gaudi::Property<double> m_narrowRescaleBrem {this, "narrowDeltaPhiRescaleBrem", 0.1,
     "Value of the narrow cut for delta phi Rescale Brem"};
+
+  // tools used by passSelection (if not empty)
+  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this, 
+      "egammaCheckEnergyDepositTool", "",
+      "Optional tool that performs basic checks of viability of cluster"};
 
   /* counters. For now use mutable atomic
    * the methods will increment a local variable

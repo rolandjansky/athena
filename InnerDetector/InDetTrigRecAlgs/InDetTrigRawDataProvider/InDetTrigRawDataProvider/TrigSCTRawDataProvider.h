@@ -18,15 +18,18 @@
 // Base class
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
+
+#include "SCT_Cabling/ISCT_CablingTool.h"
 
 //typedef
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 #include <string>
 
@@ -35,7 +38,6 @@ class TrigRoiDescriptor;
 class SCT_ID;
 class IRegSelSvc;
 class IROBDataProviderSvc;
-class ISCT_CablingSvc;
 class MsgStream;
 class IRoiDescriptor;
 class ISCTRawDataProviderTool;
@@ -71,7 +73,7 @@ namespace InDet {
     ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
     ServiceHandle<StoreGateSvc>         m_storeGate;
     ServiceHandle<StoreGateSvc>         m_detStore; 
-    ServiceHandle<ISCT_CablingSvc>      m_cablingSvc;
+    ToolHandle<ISCT_CablingTool>        m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
     const SCT_ID*                       m_id; 
     //! the RDO container
     SCT_RDO_Container*                  m_container;

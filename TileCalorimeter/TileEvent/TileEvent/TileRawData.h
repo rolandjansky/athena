@@ -36,11 +36,14 @@ public:
 
     /* Constructor: */
     TileRawData(){}
-    TileRawData(const Identifier& id);
+
+  // nb. Overload for HWIdentifier should come before that for Identifier;
+    // otherwise, pyroot gets overload resolution wrong.
     TileRawData(const HWIdentifier& HWid)
       : m_adc_hwid (HWid)
     {
     }
+    TileRawData(const Identifier& id);
 
     /* Destructor */
     virtual ~TileRawData() {}

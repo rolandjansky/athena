@@ -461,7 +461,7 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
     DataHeader* Dh = new DataHeader();
     
    // Declare header primary
-    Dh->setStatus(DataHeader::Primary);
+    Dh->setStatus(DataHeader::Input);
 
     // Now add ref to EventInfo objects
     IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");

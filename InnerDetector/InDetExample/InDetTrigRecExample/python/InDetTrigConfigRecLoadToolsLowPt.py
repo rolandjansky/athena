@@ -63,7 +63,23 @@ InDetTrigSiDetElementsRoadMakerLowPt = \
                                      RoadWidth    = EFIDTrackingCutsLowPt.RoadWidth()
                                      )
 ToolSvc += InDetTrigSiDetElementsRoadMakerLowPt
-
+# Condition algorithm for InDet__SiDetElementsRoadMaker_xk
+if DetFlags.haveRIO.SCT_on():
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
+    from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
+    # Copied from InDetAlignFolders.py
+    useDynamicAlignFolders = False
+    try:
+      from InDetRecExample.InDetJobProperties import InDetFlags
+      from IOVDbSvc.CondDB import conddb
+      if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
+        useDynamicAlignFolders = True
+    except ImportError:
+      pass
+    condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
+                                                  UseDynamicAlignFolders = useDynamicAlignFolders)
 
 # Local combinatorial track finding using space point seed and detector element road
 #
@@ -85,6 +101,13 @@ InDetTrigSiComTrackFinderLowPt = \
                                          SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                          )															
 ToolSvc += InDetTrigSiComTrackFinderLowPt
+if DetFlags.haveRIO.SCT_on():
+  # Condition algorithm for SiCombinatorialTrackFinder_xk
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+    condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
 from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings

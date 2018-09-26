@@ -80,10 +80,8 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltFinalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltBeginRun()
+HLT::ErrorCode TrigMuonEFCombinerDiMuonMassPtImpactsHypo::hltStart()
 {
-  msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
-
   msg() << MSG::INFO << "AcceptAll : " << m_acceptAll << endmsg;
   msg() << MSG::INFO << "mass threshold low(GeV)    : " << m_massThresLow << endmsg;
   msg() << MSG::INFO << "mass threshold high(GeV)   : " << m_massThresHigh << endmsg;

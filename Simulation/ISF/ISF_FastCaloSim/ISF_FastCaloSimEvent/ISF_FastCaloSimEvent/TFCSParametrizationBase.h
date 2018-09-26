@@ -73,6 +73,15 @@ Several basic types of parametrization exists:
 - a special case of TFCSLateralShapeParametrization is TFCSLateralShapeParametrizationHitBase for hit level shape simulation through the simulate_hit method. Hit level simulation is controlled through the special chain TFCSLateralShapeParametrizationHitChain.
 */
 
+///Return codes for the simulate function
+enum FCSReturnCode {
+  FCSFatal = 0,
+  FCSSuccess = 1,
+  FCSRetry = 2
+};
+
+#define FCS_RETRY_COUNT 3
+
 class TFCSParametrizationBase:public TNamed {
 public:
   TFCSParametrizationBase(const char* name=nullptr, const char* title=nullptr);
@@ -122,7 +131,7 @@ public:
   virtual TFCSParametrizationBase* operator[](unsigned int /*ind*/) {return nullptr;};
 
   ///Method in all derived classes to do some simulation
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
   ///Print object information. 
   void Print(Option_t *option = "") const;

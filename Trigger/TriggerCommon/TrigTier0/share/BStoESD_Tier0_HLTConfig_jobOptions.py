@@ -95,11 +95,8 @@ if rec.doTrigger():
         from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToAOD
         a2 = RoIBResultToAOD("RoIBResultToAOD")
         a2.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        a2.L1JetTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        a2.L1EmTauTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        #L1JetTools exists after we've created RoIBResultToAOD
-        ToolSvc.L1JetTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        ToolSvc.L1EmTauTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+        a2.L1JEMJetTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+        a2.L1CPMTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
         a4 = LVL1__TriggerTowerMaker("TriggerTowerMaker")

@@ -3,9 +3,8 @@
 */
 
 #include "SCT_GeoModel/SCT_DetectorTool.h"
+
 #include "SCT_GeoModel/SCT_DetectorFactory.h" 
-#include "SCT_GeoModel/SCT_DetectorFactoryCosmic.h" 
-#include "SCT_GeoModel/SCT_GeometryManager.h" 
 #include "SCT_GeoModel/SCT_DataBase.h" 
 #include "SCT_GeoModel/SCT_MaterialManager.h" 
 #include "SCT_GeoModel/SCT_Options.h" 
@@ -16,18 +15,17 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
-using InDetDD::SCT_DetectorManager; 
-using InDetDD::SiDetectorManager; 
+using InDetDD::SCT_DetectorManager;
+using InDetDD::SiDetectorManager;
 
 //
 // Constructor
@@ -36,26 +34,16 @@ SCT_DetectorTool::SCT_DetectorTool(const std::string& type,
                                    const std::string& name, 
                                    const IInterface* parent)
   : GeoModelTool(type, name, parent),
-    m_detectorName{"SCT"},
-    m_initialLayout{false},
-    m_alignable{true},
-    m_cosmic{false},
-    m_manager{nullptr},
-    m_geoDbTagSvc{"GeoDbTagSvc", name},
-    m_rdbAccessSvc{"RDBAccessSvc", name},
-    m_geometryDBSvc{"InDetGeometryDBSvc", name}
+  m_cosmic{false},
+  m_manager{nullptr},
+  m_geoDbTagSvc{"GeoDbTagSvc", name},
+  m_rdbAccessSvc{"RDBAccessSvc", name},
+  m_geometryDBSvc{"InDetGeometryDBSvc", name}
 {
   // Get parameter values from jobOptions file
-  declareProperty("DetectorName", m_detectorName);
-  declareProperty("InitialLayout", m_initialLayout);
-  declareProperty("Alignable", m_alignable);
+  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
-  declareProperty("Run1Folder", m_run1Folder="/Indet/Align");
-  declareProperty("Run2L1Folder", m_run2L1Folder="/Indet/AlignL1/ID");
-  declareProperty("Run2L2Folder", m_run2L2Folder="/Indet/AlignL2/SCT");
-  declareProperty("Run2L3Folder", m_run2L3Folder="/Indet/AlignL3");
 }
 
 //
@@ -93,7 +81,7 @@ SCT_DetectorTool::create()
   // Check if version is empty. If so, then the SCT cannot be built. This may or may not be intentional. We
   // just issue an INFO message. 
   if (sctVersionTag.empty()) {
-    ATH_MSG_INFO("No SCT Version. SCT will not be built.");     
+    ATH_MSG_INFO("No SCT Version. SCT will not be built.");
   } else {
     std::string versionName;
     if (versionKey.custom()) {
@@ -104,32 +92,32 @@ SCT_DetectorTool::create()
 
       IRDBRecordset_ptr switchSet{m_rdbAccessSvc->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node())};
       const IRDBRecord* switches{(*switchSet)[0]};
-      m_detectorName = switches->getString("DETECTORNAME");
+      m_detectorName.setValue(switches->getString("DETECTORNAME"));
 
       m_cosmic = false;
       if (not switches->isFieldNull("COSMICLAYOUT")) {
         m_cosmic = switches->getInt("COSMICLAYOUT");
       }
       if (not switches->isFieldNull("VERSIONNAME")) {
-        versionName = switches->getString("VERSIONNAME"); 
+        versionName = switches->getString("VERSIONNAME");
       } 
     }
 
     if (versionName.empty()) {
       if (m_cosmic) {
-        versionName = "SR1"; 
+        versionName = "SR1";
       }
     }
 
     ATH_MSG_DEBUG("Creating the SCT");
     ATH_MSG_DEBUG("SCT Geometry Options: ");
-    ATH_MSG_DEBUG(" InitialLayout:         " << (m_initialLayout ? "true" : "false"));
-    ATH_MSG_DEBUG(" Alignable:             " << (m_alignable ? "true" : "false"));
+    ATH_MSG_DEBUG(" Alignable:             " << (m_alignable.value() ? "true" : "false"));
     ATH_MSG_DEBUG(" CosmicLayout:          " << (m_cosmic ? "true" : "false"));
     ATH_MSG_DEBUG(" VersionName:           " << versionName);
 
     SCT_Options options;
-    options.setAlignable(m_alignable);
+    options.setAlignable(m_alignable.value());
+    options.setDynamicAlignFolders(m_useDynamicAlignFolders.value());
     m_manager = nullptr;
 
     // 
@@ -161,7 +149,7 @@ SCT_DetectorTool::create()
     m_manager = theSCT.getDetectorManager();
     
     if (m_manager==nullptr) {
-      ATH_MSG_ERROR("SCT_DetectorManager not created");
+      ATH_MSG_FATAL("SCT_DetectorManager not created");
       return StatusCode::FAILURE;
     }
       
@@ -170,7 +158,6 @@ SCT_DetectorTool::create()
     //   m_detector = theSCT.getDetectorManager();
       
     ATH_MSG_DEBUG("Registering SCT_DetectorManager. ");
-      
     ATH_CHECK(detStore()->record(m_manager, m_manager->getName()));
     theExpt->addManager(m_manager);
     
@@ -189,7 +176,7 @@ SCT_DetectorTool::create()
 StatusCode 
 SCT_DetectorTool::clear()
 {
-  SG::DataProxy* proxy{detStore()->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName())};
+  SG::DataProxy* proxy{detStore()->proxy(ClassID_traits<SCT_DetectorManager>::ID(), m_manager->getName())};
   if (proxy) {
     proxy->reset();
     m_manager = nullptr;
@@ -200,43 +187,52 @@ SCT_DetectorTool::clear()
 StatusCode 
 SCT_DetectorTool::registerCallback()
 {
-  StatusCode sc{StatusCode::FAILURE};
-  if (m_alignable) {
-    if (detStore()->contains<CondAttrListCollection>(m_run2L1Folder)) {
-      ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L1Folder);
-      const DataHandle<CondAttrListCollection> calc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L1Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L1Folder);
-    }
+  StatusCode sc{StatusCode::FAILURE, true};
+  if (m_alignable.value()) {
+    if (m_useDynamicAlignFolders.value()) {
 
-    if (detStore()->contains<CondAttrListCollection>(m_run2L2Folder)) {
-      ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L2Folder);
-      const DataHandle<CondAttrListCollection> calc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L2Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L2Folder);
-    }
+      if (detStore()->contains<CondAttrListCollection>(m_run2L1Folder.value())) {
+        ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L1Folder.value());
+        const DataHandle<CondAttrListCollection> calc;
+        ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L1Folder.value()));
+        sc = StatusCode::SUCCESS;
+      } else {
+        ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L1Folder.value());
+        return StatusCode::FAILURE;
+      }
 
-    if (detStore()->contains<AlignableTransformContainer>(m_run2L3Folder)) {
-      ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run2L3Folder);
-      const DataHandle<AlignableTransformContainer> atc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run2L3Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder " << m_run2L3Folder);
-    }
+      if (detStore()->contains<CondAttrListCollection>(m_run2L2Folder.value())) {
+        ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L2Folder.value());
+        const DataHandle<CondAttrListCollection> calc;
+        ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L2Folder.value()));
+        sc = StatusCode::SUCCESS;
+      } else {
+        ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L2Folder.value());
+        return StatusCode::FAILURE;
+      }
 
-    if (detStore()->contains<AlignableTransformContainer>(m_run1Folder)) {
-      ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run1Folder);
-      const DataHandle<AlignableTransformContainer> atc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run1Folder));
-      sc = StatusCode::SUCCESS;
+      if (detStore()->contains<AlignableTransformContainer>(m_run2L3Folder.value())) {
+        ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run2L3Folder.value());
+        const DataHandle<AlignableTransformContainer> atc;
+        ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), atc, m_run2L3Folder.value()));
+        sc = StatusCode::SUCCESS;
+      } else {
+        ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder " << m_run2L3Folder.value());
+        return StatusCode::FAILURE;
+      }
+      
     } else {
-      ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder "
-                      << m_run1Folder << ", Alignment disabled (only if no Run2 scheme is loaded)!");
+
+      if (detStore()->contains<AlignableTransformContainer>(m_run1Folder.value())) {
+        ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run1Folder.value());
+        const DataHandle<AlignableTransformContainer> atc;
+        ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), atc, m_run1Folder.value()));
+        sc = StatusCode::SUCCESS;
+      } else {
+        ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder "
+                        << m_run1Folder.value() << ", Alignment disabled (only if no Run2 scheme is loaded)!");
+        return StatusCode::FAILURE;
+      }
     }
 
   } else {
@@ -252,11 +248,11 @@ StatusCode
 SCT_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys))
 {
   if (m_manager==nullptr) { 
-    ATH_MSG_WARNING("Manager does not exist");
+    ATH_MSG_FATAL("Manager does not exist");
     return StatusCode::FAILURE;
   }    
-  if (m_alignable) {     
-    return m_manager->align(I,keys);
+  if (m_alignable.value()) {
+    return m_manager->align(I, keys);
   } else {
     ATH_MSG_DEBUG("Alignment disabled. No alignments applied");
     return StatusCode::SUCCESS;

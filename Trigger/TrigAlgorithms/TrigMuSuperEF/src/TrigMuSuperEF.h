@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Wrapper algorithm to make a smart "OR" of TrigMuonEF and TrigMuGirl
@@ -30,6 +30,7 @@
 #include "Particle/TrackParticleContainer.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 
 #include "InternalCache.h"
 
@@ -183,6 +184,9 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   const IRoiDescriptor* m_roi; // to cache actually used RoI
   TrigRoiDescriptor* m_Roi_StillToBeAttached;
   TrigTimer* m_totalTime;
+
+  //Maps to muon tags
+  std::vector<MuonCombined::InDetCandidateToTagMap*> m_tagMaps;
 
   // Output xAOD muons
   xAOD::MuonContainer* m_muonContainer;

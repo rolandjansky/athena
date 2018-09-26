@@ -20,8 +20,9 @@ public:
 
   virtual ~IegammaMVACalibTool() override {};
 
-  virtual float getEnergy(const xAOD::Egamma* eg,
-			  const xAOD::CaloCluster* clus) const = 0;
+  ///Return MVA energy for the given cluster, an eg object is optional
+  virtual float getEnergy(const xAOD::CaloCluster& clus,
+                         const xAOD::Egamma* eg) const = 0;
 
 }; 
 

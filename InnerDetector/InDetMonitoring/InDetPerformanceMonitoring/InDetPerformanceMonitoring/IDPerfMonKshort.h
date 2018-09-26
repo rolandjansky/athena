@@ -9,7 +9,6 @@
 // IDPerfMonKshort.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling
 // **********************************************************************
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 
@@ -87,13 +86,13 @@ protected:
 	const static Int_t m_nBinsPt = 46 ;
 	const static Int_t m_nFittedBinsRadius = 7 ;
 	const static Int_t m_nBinsRadius = 70 ;
-	TH1F* m_massVPtBinHistos[m_nBinsPt];
-	TH1F* m_massVEtaBinHistos[10];
-	TH1F* m_massVPhiBinHistos[10];
-	TH1F* m_massVCurvatureDiffBinHistos[6];
-	TH1F* m_massVRadiusBinHistos[m_nBinsRadius];
-	TH1F* m_massVPtBinFittedHistos[m_nFittedBinsPt];
-	TH1F* m_massVRadiusBinFittedHistos[m_nFittedBinsRadius];
+	TH1F* m_massVPtBinHistos[m_nBinsPt]={0};
+	TH1F* m_massVEtaBinHistos[10]={0};
+	TH1F* m_massVPhiBinHistos[10]={0};
+	TH1F* m_massVCurvatureDiffBinHistos[6]={0};
+	TH1F* m_massVRadiusBinHistos[m_nBinsRadius]={0};
+	TH1F* m_massVPtBinFittedHistos[m_nFittedBinsPt]={0};
+	TH1F* m_massVRadiusBinFittedHistos[m_nFittedBinsRadius]={0};
 
 	TH1F* m_Nevents{};
 

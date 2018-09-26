@@ -31,7 +31,7 @@ Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
     const std::string& n,
     const IInterface*  p) :
     AthAlgTool(t, n, p),
-    m_decoder("Muon__RpcROD_Decoder"),
+    m_decoder("Muon::RpcROD_Decoder/RpcROD_Decoder", this),
     m_AllowCreation(false),
     m_robDataProvider ("ROBDataProviderSvc",n)
 {
@@ -252,7 +252,7 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     if (padHandle.isPresent())
       return StatusCode::SUCCESS;
     auto pad = std::make_unique<RpcPadContainer> (padMaxIndex);
-
+ 
     SG::WriteHandle<RpcSectorLogicContainer>    logicHandle(m_sec);
     auto logic = std::make_unique<RpcSectorLogicContainer>();
     

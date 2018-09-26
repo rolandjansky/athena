@@ -28,6 +28,7 @@ PURPOSE:
 #include "LArCabling/LArCablingService.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using xAOD::EventInfo;
 
@@ -39,7 +40,7 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class(type, name, parent),
    m_badChannelTool(""),
    m_cablingService("LArCablingService"),
    m_maskParity(true),m_maskSampleHeader(true),m_maskEVTID(true),m_maskScacStatus(true),
@@ -53,8 +54,6 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
    m_evt(0),
    m_mask(0)
 { 
-  declareInterface<ICaloCellMakerTool>(this); 
-
   declareProperty("badChannelTool",m_badChannelTool);
   declareProperty("maskParity",m_maskParity);
   declareProperty("maskSampleHeader",m_maskSampleHeader);
@@ -71,6 +70,7 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
   declareProperty("maskBadGain",m_maskBadGain);
   declareProperty("minFebInError",m_minFebsInError); // Minimum number of FEBs in error to trigger EventInfo::LArError (1 by default/bulk, 4 in online/express).
   declareProperty("larFebErrorSummaryKey",m_larFebErrorSummaryKey);
+  declareProperty("eventInfoKey", m_eventInfoKey = "EventInfo");
 }
 
 
@@ -103,6 +103,7 @@ StatusCode LArBadFebMaskingTool::initialize()
 
   // initialize read handle key
   ATH_CHECK(m_larFebErrorSummaryKey.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   const  CaloIdManager* caloIdMgr = 0;
   ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
@@ -134,13 +135,14 @@ StatusCode LArBadFebMaskingTool::finalize()
 
 StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   m_evt++;
 
 
   ATH_MSG_DEBUG (" in  LArBadFebMaskingTool::process ");
   //const LArFebErrorSummary* larFebErrorSummary;
   //StatusCode sc = evtStore()->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
-  SG::ReadHandle<LArFebErrorSummary>larFebErrorSummary(m_larFebErrorSummaryKey);
+  SG::ReadHandle<LArFebErrorSummary>larFebErrorSummary(m_larFebErrorSummaryKey, ctx);
   if (!larFebErrorSummary.isValid()) {
     ATH_MSG_WARNING (" cannot retrieve Feb error summary.  Skip  LArBadFebMaskingTool::process ");
     return StatusCode::SUCCESS;
@@ -152,15 +154,7 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
   ATH_MSG_DEBUG (" Number of Febs " << febMap.size());
 
   // retrieve EventInfo
-  const EventInfo* eventInfo_c=0;
-  StatusCode sc = evtStore()->retrieve(eventInfo_c);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING (" cannot retrieve EventInfo, will not set LAr bit information ");
-  }
-  EventInfo* eventInfo=0;
-  if (eventInfo_c) {
-    eventInfo = const_cast<EventInfo*>(eventInfo_c);
-  }
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
   
   bool flagBadEvent = false;   // flag bad event = Feb error not known in database
   int nbOfFebsInError = 0;
@@ -238,12 +232,12 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 
   if (nbOfFebsInError >= m_minFebsInError) flagBadEvent=true;
 
-  if (eventInfo && flagBadEvent) {
+  if (flagBadEvent) {
     ATH_MSG_DEBUG (" set error bit for LAr for this event ");
-    if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Error)) {
+    if (!eventInfo->updateErrorState(EventInfo::LAr,EventInfo::Error)) {
       ATH_MSG_WARNING (" cannot set error state for LAr ");
     }
-    if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)) {
+    if (!eventInfo->updateEventFlagBit(EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)) {
       ATH_MSG_WARNING (" cannot set event bit info for LAr ");
     }
   }

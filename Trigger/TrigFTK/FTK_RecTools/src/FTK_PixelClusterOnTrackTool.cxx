@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "FTK_RecTools/FTK_PixelClusterOnTrackTool.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
@@ -212,6 +211,7 @@ FTK_PixelClusterOnTrackTool::initialize() {
 #include "IBL_calibration.h"
   ///  
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
    
   return sc;
 }
@@ -376,7 +376,7 @@ FTK_PixelClusterOnTrackTool::correctDefault
     double boweta = atan2(trketacomp, trknormcomp);
     float etatrack = trackPar.eta();
 
-    float tanl = element->getTanLorentzAnglePhi();
+    float tanl = m_lorentzAngleTool->getTanLorentzAngle(iH);
     int readoutside = element->design().readoutSide();
 
     // map the angles of inward-going tracks onto [-PI/2, PI/2]
@@ -415,7 +415,7 @@ FTK_PixelClusterOnTrackTool::correctDefault
     const int col = m_pixelid->eta_index(rId);
 
     InDetDD::SiLocalPosition centroid = pix->localPosition();
-    double shift = element->getLorentzCorrection();
+    double shift = m_lorentzAngleTool->getLorentzShift(iH);
     int nrows = pix->width().colRow()[Trk::locX];
     int ncol = pix->width().colRow()[Trk::locX];
     double ang = 999.;

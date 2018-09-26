@@ -102,12 +102,12 @@ const TAccept& AthTileTripReader::accept(const INavigable4Momentum* part){
 				tileFlags);
 }
 
-const TResult& AthTileTripReader::calculate(const INavigable4Momentum* part){
+float AthTileTripReader::calculate(const INavigable4Momentum* part){
     const EventInfo* evt=0;
     StatusCode sc=evtStore()->retrieve(evt,"ByteStreamEventInfo");
     if(sc.isFailure()){
         ATH_MSG_ERROR ( "ERROR! Could not retrieve event info from store gate!");
-        return m_resultDummy;
+        return 0;
     }
     
     int tileFlags=evt->eventFlags(EventInfo::Tile);
@@ -126,7 +126,7 @@ bool AthTileTripReader::checkEvent(){
     StatusCode sc=evtStore()->retrieve(evt,"ByteStreamEventInfo");
     if(sc.isFailure()){
         ATH_MSG_ERROR ( "ERROR! Could not retrieve event info from store gate!");
-        return m_resultDummy;
+        return false;
     }
 
     return m_tripReader->checkEvent(evt->runNumber(),

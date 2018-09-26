@@ -8,11 +8,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
 
 
-#workaround to prevent online trigger folders to be enabled
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
-
-
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doCaloSeededBrem = False
 InDetFlags.InDet25nsec = True 
@@ -30,29 +25,24 @@ include("InDetRecExample/InDetRecConditionsAccess.py")
 from InDetRecExample.InDetKeys import InDetKeys
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence
+from TrigUpgradeTest.MenuComponents import MenuSequence
 
 # ===============================================================================================
 #      L2 Calo
 # ===============================================================================================
 
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+theFastCaloAlgo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo" )
 theFastCaloAlgo.OutputLevel=VERBOSE
 theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
  
-from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
-trigL2CaloRingerFexMT = init_ringer()
-trigL2CaloRingerFexMT.OutputLevel = DEBUG    
-trigL2CaloRingerFexMT.ClustersKey = theFastCaloAlgo.ClustersName
-
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
+fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo])
 
 
 
@@ -75,17 +65,15 @@ theFastCaloHypo.OutputLevel = DEBUG
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 
-fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
+fastCaloAthSequence =  seqAND("fastCaloAthSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
-fastCalo_HLTSequence = HLTRecoSequence("fastCalo_HLTSequence",
-                                         Sequence=fastCaloSequence,
-                                         Maker=fastCaloViewsMaker,                                         
-                                         Seed="L1EM")
+from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
 
-fastCaloSequence = MenuSequence("egammaCaloStep",
-                                    recoSeqList=[fastCalo_HLTSequence],
-                                    Hypo=theFastCaloHypo,
-                                    HypoToolClassName="TrigL2CaloHypoToolConf")
+def fastCaloSequence():
+    return  MenuSequence( Sequence    = fastCaloAthSequence,
+                          Maker       = fastCaloViewsMaker,
+                          Hypo        = theFastCaloHypo,
+                          HypoToolGen = TrigL2CaloHypoToolFromName )
 
 #########################################
 # second step:  tracking.....
@@ -152,16 +140,13 @@ theElectronHypo.OutputLevel = VERBOSE
 # this needs to be added:
 #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.Output )    
 
-electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
+electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
 
-electron_HLTSequence = HLTRecoSequence("electron_HLTSequence",
-                                       Maker=l2ElectronViewsMaker,                                        
-                                       Sequence=electronSequence,
-                                       Seed="L1EM")
+from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
 
-
-electronSequence = MenuSequence("electronStep",
-                                    recoSeqList=[electron_HLTSequence],
-                                    Hypo=theElectronHypo,
-                                    HypoToolClassName="TrigL2ElectronHypoToolConf")
+def electronSequence():
+    return  MenuSequence( Maker       = l2ElectronViewsMaker,                                        
+                          Sequence    = electronAthSequence,
+                          Hypo        = theElectronHypo,
+                          HypoToolGen = TrigL2ElectronHypoToolFromName )
 

@@ -7,22 +7,18 @@
 
 // Tile includes
 #include "TileConditions/ITileCondToolTMDB.h"
-#include "TileConditions/ITileCondProxy.h"
+#include "TileConditions/TileCalibData.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-
-class TileCalibDrawerFlt;
+#include "StoreGate/ReadCondHandleKey.h"
 
 class TileCondToolTMDB: public AthAlgTool, virtual public ITileCondToolTMDB {
 
   public:
 
     static const InterfaceID& interfaceID() {
-      static const InterfaceID IID_TileCondToolTMDB("TileCondToolTMDB", 1, 0);    
+      static const InterfaceID IID_TileCondToolTMDB("TileCondToolTMDB", 1, 0);
       return IID_TileCondToolTMDB;
     };
 
@@ -37,17 +33,25 @@ class TileCondToolTMDB: public AthAlgTool, virtual public ITileCondToolTMDB {
 
     virtual void getCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, float& a, float& b) const override;
     virtual unsigned int getWeights(unsigned int drawerIdx, TMDB::CHANNEL channel, TMDB::Weights& weights) const override;
-    
+
     virtual float channelCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, const std::vector<float>& samples) const override;
     virtual float channelCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, float amplitude) const override;
 
   private:
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryThreshold;
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryDelay;
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryTMF;
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryCalib;
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibThresholdKey{this,
+        "TileTMDBThreshold", "TileTMDBThreshold", "Input Tile TMDB threshold calibration constants"};
+
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibDelayKey{this,
+        "TileTMDBDelay", "TileTMDBDelay", "Input Tile TMDB delay calibration constants"};
+
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibTmfKey{this,
+        "TileTMDBTMF", "TileTMDBTMF", "Input Tile TMDB TMF calibration constants"};
+
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibDataKey{this,
+        "TileTMDBCalib", "TileTMDBCalib", "Input Tile TMDB calibration constants"};
+
+
 
 };
 

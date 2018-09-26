@@ -13,9 +13,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
-#include "TMath.h"
 #include "TLorentzVector.h"
-
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -25,15 +23,11 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
-
 
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
@@ -41,12 +35,8 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-
-
-
 #include "egammaEvent/egammaParamDefs.h"
 #include "egammaEvent/egammaPIDdefsObs.h"
-
 
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
@@ -54,6 +44,19 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "InDetPerformanceMonitoring/IDPerfMonZee.h"
 #include <stdexcept>
+
+namespace{
+template <class T>
+  T *
+  getCollectionWithCheck(const ServiceHandle<StoreGateSvc> & evtStore,const std::string &contName){
+    T * container{};
+    if (evtStore->contains<T>(contName)){
+      //retrieve
+      if(evtStore->retrieve(container,contName).isFailure()) return nullptr;
+    }
+    return container;
+  }
+}
 
 // *********************************************************************
 // Public Methods
@@ -91,14 +94,10 @@ IDPerfMonZee::~IDPerfMonZee() { }
 
 StatusCode IDPerfMonZee::initialize()
 {
-
    m_histosBooked = 0;
-
-  if (m_tracksName.empty() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " no track collection given" << endmsg;
-
+  if (m_tracksName.empty()) ATH_MSG_WARNING( " no track collection given" );
   StatusCode sc = ManagedMonitorToolBase::initialize();
-  if (sc.isFailure() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not initialize ManagedMonitorToolBase" << endmsg;
-
+  if (sc.isFailure()) ATH_MSG_WARNING( "Could not initialize ManagedMonitorToolBase" );
   //---Electron Likelihood tool---
   m_doIDCuts = true;
   ATH_MSG_INFO("IDPerfMonWenu::Initialize() -- Setting up electron LH tool.");
@@ -108,7 +107,7 @@ StatusCode IDPerfMonZee::initialize()
 
   //Set up electron LH level
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150712/";
-  if(m_electronIDLevel == ""){
+  if(m_electronIDLevel.empty()){
     ATH_MSG_WARNING("electronIDLevel is set to empty!  No electron ID cuts will be applied.");
     m_doIDCuts = false;
   }
@@ -120,8 +119,7 @@ StatusCode IDPerfMonZee::initialize()
     else{
       std::string configFile = confDir+"ElectronLikelihood"+m_electronIDLevel+"OfflineConfig2015.conf";
       ATH_MSG_INFO("Likelihood configuration file: " << configFile);
-      if((m_LHTool2015->setProperty("ConfigFile",configFile)).isFailure())
-	ATH_MSG_WARNING("Failure loading ConfigFile in electron likelihood tool.");
+      if((m_LHTool2015->setProperty("ConfigFile",configFile)).isFailure()) ATH_MSG_WARNING("Failure loading ConfigFile in electron likelihood tool.");
     }
   }
   StatusCode lh = m_LHTool2015->initialize();
@@ -129,27 +127,12 @@ StatusCode IDPerfMonZee::initialize()
     ATH_MSG_WARNING("Electron likelihood tool initialize() failed!  Turning off electron LH cuts!");
     m_doIDCuts = false;
   }
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode IDPerfMonZee::bookHistograms()
 {
   MonGroup al_Zee_mon ( this, "IDPerfMon/Zee/" + m_triggerChainName, run);
-
-  //if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-  //  // book histograms that are only made in the online environment...
-  //}
-
-  //if ( AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
-  //  // book histograms that are only relevant for cosmics data...
-  //}
-
-
-  //if ( newLowStatFlag() || newLumiBlockFlag() ) {
-  //}
-
-
   if( newRunFlag() ) {
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -157,10 +140,8 @@ StatusCode IDPerfMonZee::bookHistograms()
     // ***********************
     // Book event histograms
     // ***********************
-
     m_Nevents = new TH1F("Nevents", "Number of events processed", 1, -.5, 0.5);
     RegisterHisto(al_Zee_mon,m_Nevents);
-
     m_Check = new TH1F("Check","", 4, 0,4);
     RegisterHisto(al_Zee_mon,m_Check);
     m_Zee_invmass = new TH1F("Zee_invmass","Invariant mass of the two leading em clusters", 90, 0.,180.);
@@ -173,7 +154,6 @@ StatusCode IDPerfMonZee::bookHistograms()
     RegisterHisto(al_Zee_mon,m_Zee_trk_invmass_scaled);
     m_Zee_trk_invmass_sel = new TH1F("Zee_trk_invmass_sel","Invariant mass of the two tracks after Zee selection", 90, 0.,180.);
     RegisterHisto(al_Zee_mon,m_Zee_trk_invmass_sel);
-
     m_Zee_Eopasym_perevent = new TH1F("Zee_Eopasym_perevent", "E/p difference (pos-neg)/(pos+neg) per Z event for Zee EM-clusters", 60, -1.5, 1.5);
     RegisterHisto(al_Zee_mon,m_Zee_Eopasym_perevent);
     m_Zee_Eopasym_perevent_central = new TH1F("Zee_Eopasym_perevent_central", "E/p difference (pos-neg)/(pos+neg) per Z event for Zee EM-clusters with E/p between 0.7 and 1.3", 60, -1.5, 1.5);
@@ -252,40 +232,27 @@ StatusCode IDPerfMonZee::bookHistograms()
     for (int region=0; region!=Nregions; ++region) {
       std::string title;
       std::string name;
-
       name = "Zee_Eop_" + m_region_strings[region];
       title = "E/p for Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop.push_back(new TH1F(name.c_str(),title.c_str(), 60, 0., 10.));
-      /**Original code: what was intended?
-      if (region==incl) RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
-      else RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
-      **/
       RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
       name = "Zee_Eopdiff_" + m_region_strings[region];
       title = "E/p difference (pos-neg) for Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eopdiff.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
-      /**Original code: what was intended?
-      if (region==incl) RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
-      else RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
-      **/
       RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
       name = "Zee_Eop_plus_" + m_region_strings[region];
       title = "E/p for pos. charged Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop_plus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       RegisterHisto(al_Zee_mon,m_Zee_Eop_plus[region],true);
-
       name = "Zee_Eop_minus_" + m_region_strings[region];
       title = "E/p for neg. charged Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop_minus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       RegisterHisto(al_Zee_mon,m_Zee_Eop_minus[region],true);
-
       if (region != incl) continue;
-
       m_Zee_eta.push_back(new TH1F("Zee_eta","Eta of Zee EM-clusters", 15, -3., 3.));
       RegisterHisto(al_Zee_mon,m_Zee_eta[region]);
       m_Zee_phi.push_back(new TH1F("Zee_phi","Phi of Zee EM-clusters", 15, -3.15, 3.15));
       RegisterHisto(al_Zee_mon,m_Zee_phi[region]);
-
       m_Zee_deta.push_back(new TH1F("Zee_deta","deltaEta(EM-cluster,track) in Zee events", 50, -0.5, 0.5));
       RegisterHisto(al_Zee_mon,m_Zee_deta[region]);
       m_Zee_deta_vs_eta.push_back(new TProfile("Zee_deta_vs_eta","deltaEta(EM-cluster,track) vs. eta in Zee events", 15, -3., 3.));
@@ -420,28 +387,22 @@ StatusCode IDPerfMonZee::bookHistograms()
 }
 
 void IDPerfMonZee::RegisterHisto(MonGroup& mon, TH1* histo, bool doSumw2) {
-
   if (doSumw2) histo->Sumw2();
-  StatusCode sc = mon.regHist(histo);
-  if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1 Histogram:" << endmsg;
+  if (mon.regHist(histo).isFailure() ) {
+    ATH_MSG_DEBUG( "Cannot book TH1 Histogram:" );
   }
 }
 
 void IDPerfMonZee::RegisterHisto(MonGroup& mon, TProfile* histo) {
-
-  StatusCode sc = mon.regHist(histo);
-  if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TProfile Histogram:" << endmsg;
+  if (mon.regHist(histo).isFailure() ) {
+    ATH_MSG_DEBUG( "Cannot book TProfile Histogram:" );
   }
 }
 
 void IDPerfMonZee::RegisterHisto(MonGroup& mon, TH2* histo, bool doSumw2) {
-
   if (doSumw2) histo->Sumw2();
-  StatusCode sc = mon.regHist(histo);
-  if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2 Histogram:" << endmsg;
+  if (mon.regHist(histo).isFailure() ) {
+    ATH_MSG_DEBUG( "Cannot book TH2 Histogram:" );
   }
 }
 
@@ -449,99 +410,61 @@ StatusCode IDPerfMonZee::fillHistograms()
 {
   ATH_MSG_VERBOSE("In fillHistograms()");
   int nevents = (int) m_Nevents->GetEntries();
-
+  const bool firstEvent{nevents == 1};
   // get electron container from storegate
-  const xAOD::ElectronContainer* electrons = 0;
-  if (!evtStore()->contains<xAOD::ElectronContainer>(m_electronsName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_electronsName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_electronsName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-  else {
-    StatusCode sc = evtStore()->retrieve(electrons,m_electronsName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
+  auto formErrorMessage = [] (const std::string & contName)->std::string {
+    return std::string(std::string("No Collection with name ") + contName + std::string(" found in StoreGate"));
+  };
+  // get electron container from storegate
+  const xAOD::ElectronContainer* electrons = getCollectionWithCheck<xAOD::ElectronContainer>(evtStore(), m_electronsName);
+  if (not electrons){
+    const std::string & errMsg=formErrorMessage(m_electronsName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
   ATH_MSG_VERBOSE("This event contains " << electrons->size() << " electrons.");
 
   // get photon container from storegate
-  const xAOD::PhotonContainer* photons = 0;
-  if (!evtStore()->contains<xAOD::PhotonContainer>(m_photonsName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_photonsName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_photonsName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
+  const xAOD::PhotonContainer* photons = getCollectionWithCheck<xAOD::PhotonContainer>(evtStore(),m_photonsName);
+  if (not photons){
+    const std::string & errMsg =  formErrorMessage(m_photonsName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
-  else {
-    StatusCode sc = evtStore()->retrieve(photons,m_photonsName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
-  }
-  //ATH_MSG_DEBUG("This event contains " << photons->size() << " photons.");
 
   // get emcluster container from storegate
-  const xAOD::CaloClusterContainer* emclusters = 0;
-  if (!evtStore()->contains<xAOD::CaloClusterContainer>(m_emclustersName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-  else {
-    StatusCode sc = evtStore()->retrieve(emclusters,m_emclustersName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
+  const xAOD::CaloClusterContainer* emclusters = getCollectionWithCheck<xAOD::CaloClusterContainer>(evtStore(),m_emclustersName);
+  if (not emclusters){
+    const std::string & errMsg =  formErrorMessage(m_emclustersName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
 
   // get track container from storegate
-  const xAOD::TrackParticleContainer* tracks = 0;
-  if (!evtStore()->contains<xAOD::TrackParticleContainer>(m_tracksName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_tracksName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_tracksName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-  else {
-    StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
-    if (sc.isFailure()) {
-      if(nevents == 1) msg(MSG::WARNING) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
+  const xAOD::TrackParticleContainer* tracks = getCollectionWithCheck<xAOD::TrackParticleContainer>(evtStore(),m_tracksName);
+  if (not tracks){
+    const std::string & errMsg =  formErrorMessage(m_tracksName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
 
-  //  // get met container from storegate
-  if (msgLvl(MSG::DEBUG)) {
-     const xAOD::MissingETContainer* final_met = 0;
-     if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
-       if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_metName << " found in StoreGate" << endmsg;
-       else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_metName << " found in StoreGate" << endmsg;
-       return StatusCode::SUCCESS;
-     }
-     else {
-       StatusCode sc = evtStore()->retrieve(final_met,m_metName);
-       if (sc.isFailure()) {
-         if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endmsg;
-         else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endmsg;
-         return StatusCode::SUCCESS;
-       }
-     }
-     // ******************
-     // Get the missing ET
-     // ******************
-     const xAOD::MissingET *met;
-     met = (*final_met)[m_metRefFinalName];
-     if (met) {
-         msg(MSG::DEBUG) << "MET = " << met->met() << endmsg;   
-     }
+  // get met container from storegate
+  const xAOD::MissingETContainer* final_met = getCollectionWithCheck<xAOD::MissingETContainer>(evtStore(),m_metName);
+  if (not final_met){
+    const std::string & errMsg =  formErrorMessage(m_metName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
-
+   const xAOD::MissingET *met{};
+   met = (*final_met)[m_metRefFinalName];
+   if (met) {
+     ATH_MSG_DEBUG( "MET = " << met->met() );   
+   }
   m_Nevents->Fill(0.);
 
   // *******************
@@ -551,10 +474,10 @@ StatusCode IDPerfMonZee::fillHistograms()
   const xAOD::CaloCluster* LeadingEMcluster = getLeadingEMcluster(photons, electrons);
   const xAOD::CaloCluster* SecondLeadingEMcluster = getLeadingEMcluster(photons, electrons, LeadingEMcluster);
   
-  if((LeadingEMcluster != 0) && (SecondLeadingEMcluster != 0))
+  if((LeadingEMcluster) and (SecondLeadingEMcluster))
     ATH_MSG_DEBUG("Event has a leading and second leading EM cluster!");
 
-  if (LeadingEMcluster != 0 && SecondLeadingEMcluster != 0) {
+  if (LeadingEMcluster and SecondLeadingEMcluster) {
     int leading_eta_region = etaRegion(LeadingEMcluster->etaBE(2));
     int second_leading_eta_region = etaRegion(SecondLeadingEMcluster->etaBE(2));
     double leading_dPhi = electronTrackMatchEta(tracks,LeadingEMcluster);
@@ -564,63 +487,54 @@ StatusCode IDPerfMonZee::fillHistograms()
     const xAOD::TrackParticle* track_leading_emcluster = electronTrackMatch(tracks,LeadingEMcluster);
     const xAOD::TrackParticle* track_second_leading_emcluster = electronTrackMatch(tracks,SecondLeadingEMcluster);
 
-    if( (track_leading_emcluster != 0) && (track_second_leading_emcluster != 0) )
-      ATH_MSG_DEBUG("Event has a tracks matched to both clusters!");
-
+    if( track_leading_emcluster and track_second_leading_emcluster) ATH_MSG_DEBUG("Event has a tracks matched to both clusters!");
+    //
     // *********************
     // Fill event histograms
     // *********************
-
     // get cluster, track invariant masses and fill pre-selection histograms
     double cluster_invmass = InvMass(LeadingEMcluster,SecondLeadingEMcluster);
-     ATH_MSG_DEBUG("Cluster invariant mass: " << cluster_invmass);
+    ATH_MSG_DEBUG("Cluster invariant mass: " << cluster_invmass);
     if (cluster_invmass > 0.) m_Zee_invmass->Fill(cluster_invmass);
     double track_invmass = 0.;
-    if (track_leading_emcluster != 0 && track_second_leading_emcluster != 0) {
+    if (track_leading_emcluster  and track_second_leading_emcluster) {
       track_invmass = InvMass(track_leading_emcluster,track_second_leading_emcluster);
       ATH_MSG_DEBUG("Track invariant mass: " << track_invmass);
       if (track_invmass > 0.) m_Zee_trk_invmass->Fill(track_invmass);
     }
-
     // does the event pass the Zee selection?
     int selected = isZee(LeadingEMcluster,SecondLeadingEMcluster,tracks);
     ATH_MSG_DEBUG("Event passed " << 3-selected << "/3 Zee cuts");
 
     // fill histograms only with selected events
     if(selected == 0){
-    //if ( selected <= 1 ) {
       ATH_MSG_DEBUG("Event passed selection -- filling histograms");
       if (cluster_invmass > 0.) m_Zee_invmass_sel->Fill(cluster_invmass);
       if (track_invmass > 0.) m_Zee_trk_invmass_sel->Fill(track_invmass);
-      //} // selected <= 1 loop used to end here
-
       // fill e/p histos from SELECTED Zee events
-      if (track_leading_emcluster != 0 && track_second_leading_emcluster !=0) {
-	double eoverp_pos = -99.;
-	double eoverp_neg = -99.;
-	double track_leading_emcluster_p = track_leading_emcluster->pt()*cosh(track_leading_emcluster->eta());
-	double track_second_leading_emcluster_p = track_second_leading_emcluster->pt()*cosh(track_second_leading_emcluster->eta());
+      if (track_leading_emcluster && track_second_leading_emcluster) {
+        double eoverp_pos = -99.;
+        double eoverp_neg = -99.;
+        double track_leading_emcluster_p = track_leading_emcluster->pt()*cosh(track_leading_emcluster->eta());
+        double track_second_leading_emcluster_p = track_second_leading_emcluster->pt()*std::cosh(track_second_leading_emcluster->eta());
 
-	if (track_leading_emcluster->charge() == 1. && track_second_leading_emcluster->charge() == -1.) {
-	  eoverp_pos = LeadingEMcluster->e()/track_leading_emcluster_p;
-	  eoverp_neg = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
-	}
-	else if (track_leading_emcluster->charge() == -1. && track_second_leading_emcluster->charge() == 1.) {
-	  eoverp_neg = LeadingEMcluster->e()/track_leading_emcluster_p;
-	  eoverp_pos = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
-	}
-
-	double eoverpasym = -99.;
-	if (eoverp_pos+eoverp_neg != 0.) {
-	  eoverpasym =  (eoverp_pos-eoverp_neg) / (eoverp_pos+eoverp_neg);
-	  m_Zee_Eopasym_perevent->Fill(eoverpasym);
-	  if ( (eoverp_pos > m_eoverp_tight_min) && (eoverp_pos < m_eoverp_tight_max) && (eoverp_neg > m_eoverp_tight_min) && (eoverp_neg < m_eoverp_tight_max) ) {
-	    m_Zee_Eopasym_perevent_central->Fill(eoverpasym);
-	  }
-	}
+        if (track_leading_emcluster->charge() == 1. && track_second_leading_emcluster->charge() == -1.) {
+          eoverp_pos = LeadingEMcluster->e()/track_leading_emcluster_p;
+          eoverp_neg = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
+        } else if (track_leading_emcluster->charge() == -1. && track_second_leading_emcluster->charge() == 1.) {
+          eoverp_neg = LeadingEMcluster->e()/track_leading_emcluster_p;
+          eoverp_pos = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
+        }
+        double eoverpasym = -99.;
+        if (eoverp_pos+eoverp_neg != 0.) {
+          eoverpasym =  (eoverp_pos-eoverp_neg) / (eoverp_pos+eoverp_neg);
+          m_Zee_Eopasym_perevent->Fill(eoverpasym);
+          if ( (eoverp_pos > m_eoverp_tight_min) && (eoverp_pos < m_eoverp_tight_max) && (eoverp_neg > m_eoverp_tight_min) && (eoverp_neg < m_eoverp_tight_max) ) {
+            m_Zee_Eopasym_perevent_central->Fill(eoverpasym);
+          }
+        }
       }
     }
-
     // ***********************
     // Fill cluster histograms
     // ***********************
@@ -637,38 +551,17 @@ StatusCode IDPerfMonZee::fillHistograms()
       FillHistosPerCluster(SecondLeadingEMcluster, track_second_leading_emcluster, incl, second_leading_dEta, second_leading_dPhi);
     }
   }
-
   return StatusCode::SUCCESS;
 }
 
 void IDPerfMonZee::makeEffHisto(TH1F* h_num, TH1F* h_denom, TH1F* h_eff) {
   h_eff->Divide(h_num,h_denom,1.,1.,"B");
-  //   int Nbins;
-  //   Nbins = h_num->GetNbinsX();
-  //   for (int bin=0; bin!=Nbins; ++bin) {
-  //     int Npass = int(h_num->GetBinContent(bin+1));
-  //     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
-  //     double x = h_denom->GetBinCenter(bin+1);
-  //     for (int pass=0; pass!=Npass; ++pass) {
-  //       h_eff->Fill(x,1.);
-  //     }
-  //     for (int fail=0; fail!=Nfail; ++fail) {
-  //       h_eff->Fill(x,0.);
-  //     }
-  //   }
 }
 
 StatusCode IDPerfMonZee::procHistograms()
 {
-
-  //if( endOfLowStatFlag() || endOfLumiBlockFlag() ) {
-  //
-  //}
-
   if( endOfRunFlag() ) {
-
     // PostProcess Zee histograms
-
     for (int region=0; region!=1; ++region) {
       makeEffHisto(m_Zee_trackmatched_eta[region],m_Zee_eta[region],m_Zee_trackmatch_eff_vs_eta[region]);
       makeEffHisto(m_Zee_trackmatched_phi[region],m_Zee_phi[region],m_Zee_trackmatch_eff_vs_phi[region]);
@@ -676,7 +569,6 @@ StatusCode IDPerfMonZee::procHistograms()
       makeEffHisto(m_Zee_trackmatched_Eopmatched_phi[region],m_Zee_trackmatched_phi[region],m_Zee_Eopmatch_eff_vs_phi[region]);
       makeEffHisto(m_Zee_trackmatched_tightEopmatched_eta[region],m_Zee_trackmatched_eta[region],m_Zee_tightEopmatch_eff_vs_eta[region]);
       makeEffHisto(m_Zee_trackmatched_tightEopmatched_phi[region],m_Zee_trackmatched_phi[region],m_Zee_tightEopmatch_eff_vs_phi[region]);
-
       // these were commented out
       m_Zee_Eopdiff[region]->Add(m_Zee_Eop_plus[region],m_Zee_Eop_minus[region],1.,-1);
       m_Zee_Eopdiff_vs_p[region]->Add(m_Zee_meanEop_vs_p_plus[region],m_Zee_meanEop_vs_p_minus[region],1.,-1);
@@ -696,17 +588,11 @@ StatusCode IDPerfMonZee::procHistograms()
 
 
 const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::CaloClusterContainer* clusters, const xAOD::CaloCluster* omitCluster) const {
-  // iterators over the emcluster container
-  xAOD::CaloClusterContainer::const_iterator Itr = clusters->begin();
-  xAOD::CaloClusterContainer::const_iterator ItrEnd = clusters->end();
-
-  const xAOD::CaloCluster* leading_emcluster = 0;
-
+  const xAOD::CaloCluster* leading_emcluster{};
   float max_pt = 0.;
-  for (; Itr != ItrEnd; ++Itr) {
-    const xAOD::CaloCluster* cl = (*Itr);
+  for (const auto &cl: *clusters) {
     if (cl == omitCluster) continue;
-    double deltaR = sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
+    double deltaR = std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
     if (cl->pt() > max_pt) {
@@ -715,22 +601,14 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::CaloClust
     }
   }
   return leading_emcluster;
-
 }
 
 const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonContainer* /*photons*/, const xAOD::ElectronContainer* electrons, const xAOD::CaloCluster* omitCluster) const {
-
-  // iterators over the electron container
-  xAOD::ElectronContainer::const_iterator electronItr = electrons->begin();
-  xAOD::ElectronContainer::const_iterator electronItrEnd = electrons->end();
-
-  const xAOD::CaloCluster* leading_emcluster = 0;
+  const xAOD::CaloCluster* leading_emcluster{};
   bool LHSel;
   float max_pt = 0.;
-
-  for (; electronItr != electronItrEnd; ++electronItr) {
+  for (const auto & em: *electrons) {
     ATH_MSG_DEBUG("Checking likelihood");
-    const xAOD::Electron* em = (*electronItr);
     // check ID
     if(m_doIDCuts){
       LHSel = false;
@@ -738,10 +616,9 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
       if(!LHSel) continue;
       ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
     }
-
     const xAOD::CaloCluster* cl = em->caloCluster();
     if (cl == omitCluster) continue;
-    double deltaR = !omitCluster ? 1.0 : sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
+    double deltaR = !omitCluster ? 1.0 : std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
     if (cl->pt()/Gaudi::Units::GeV < 20.) continue;
     if (cl->pt() > max_pt) {
@@ -749,92 +626,58 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
       max_pt = cl->pt();
     }
   }
-
   ATH_MSG_DEBUG("leading_emcluster: " << leading_emcluster); 
-
   return leading_emcluster;
-
 }
 
 
 const xAOD::TrackParticle* IDPerfMonZee::electronTrackMatch(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta, double dPhi) const {
-
- // iterators over the track container
-  xAOD::TrackParticleContainer::const_iterator Itr = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator ItrEnd = tracks->end();
-
-  const xAOD::TrackParticle* matched_track = 0;
+  const xAOD::TrackParticle* matched_track{};
   double min_dR = 1.0e+20;
-
-  for (; Itr!=ItrEnd; ++Itr) {
-    const xAOD::TrackParticle* track = (*Itr);
+  for (const auto & track: *tracks){
     double deta = cluster->etaBE(2)-track->eta();
     double dphi = cluster->phi()-track->phi();
-    double dr = TMath::Sqrt(deta*deta + dphi*dphi);
-    if (dr < min_dR && TMath::Abs(deta) < dEta && TMath::Abs(dphi) < dPhi) {
+    double dr = std::sqrt(deta*deta + dphi*dphi);
+    if (dr < min_dR && std::fabs(deta) < dEta && std::fabs(dphi) < dPhi) {
       min_dR = dr;
       matched_track = track;
     }
   }
-
   return matched_track;
-
 }
 
 double IDPerfMonZee::electronTrackMatchEta(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta) const {
-
- // iterators over the track container
-  xAOD::TrackParticleContainer::const_iterator Itr = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator ItrEnd = tracks->end();
-
-  const xAOD::TrackParticle* matched_track = 0;
+  const xAOD::TrackParticle* matched_track{};
   double min_dEta = 1.0e+20;
-
-  for (; Itr!=ItrEnd; ++Itr) {
-    const xAOD::TrackParticle* track = (*Itr);
-    double deta = TMath::Abs(cluster->etaBE(2)-track->eta());
+  for (const auto & track : *tracks){
+    double deta = std::fabs(cluster->etaBE(2)-track->eta());
     if (deta < min_dEta && deta < dEta) {
       min_dEta = deta;
       matched_track = track;
     }
   }
-
   double dPhi = 1.0e+20;
   if (matched_track != 0) dPhi = signedDeltaPhi(cluster->phi(),matched_track->phi());
-
   return dPhi;
-
 }
 
 double IDPerfMonZee::electronTrackMatchPhi(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dPhi) const {
-
- // iterators over the track container
-  xAOD::TrackParticleContainer::const_iterator Itr = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator ItrEnd = tracks->end();
-
-  const xAOD::TrackParticle* matched_track = 0;
+  const xAOD::TrackParticle* matched_track{};
   double min_dPhi = 1.0e+20;
-
-  for (; Itr!=ItrEnd; ++Itr) {
-    const xAOD::TrackParticle* track = (*Itr);
-    double dphi = TMath::Abs(signedDeltaPhi(cluster->phi(),track->phi()));
+  for (const auto track : *tracks){
+    double dphi = std::fabs(signedDeltaPhi(cluster->phi(),track->phi()));
     if (dphi < min_dPhi && dphi < dPhi) {
       min_dPhi = dphi;
       matched_track = track;
     }
   }
-
   double dEta = 1.0e+20;
-  if (matched_track != 0) dEta = cluster->etaBE(2)-matched_track->eta();
-
+  if (matched_track ) dEta = cluster->etaBE(2)-matched_track->eta();
   return dEta;
-
 }
 
 double IDPerfMonZee::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloCluster* EM2) const {
-
   if (EM1 == 0 || EM2 == 0) return -99.;
-
   double invmass = 0.;
   if (EM1->pt() != 0 && EM2->pt() != 0.) {
     TLorentzVector particle1;
@@ -843,16 +686,11 @@ double IDPerfMonZee::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloClust
     particle2.SetPtEtaPhiE(EM2->pt()/Gaudi::Units::GeV,EM2->eta(),EM2->phi(),EM2->e()/Gaudi::Units::GeV);
     invmass = (particle1+particle2).Mag();
   }
-
    return invmass;
-
 }
 
 double IDPerfMonZee::InvMass(const xAOD::TrackParticle* trk1, const xAOD::TrackParticle* trk2) const {
-
   if (trk1 == 0 || trk2 == 0) return -99.;
-
-
   double invmass = 0.;
   if (trk1->pt() != 0 && trk2->pt() != 0.) {
     TLorentzVector particle1;
@@ -861,39 +699,28 @@ double IDPerfMonZee::InvMass(const xAOD::TrackParticle* trk1, const xAOD::TrackP
     particle2.SetPtEtaPhiE(trk2->pt()/Gaudi::Units::GeV,trk2->eta(),trk2->phi(),trk2->e()/Gaudi::Units::GeV);
     invmass = (particle1+particle2).Mag();
   }
-
   return invmass;
-
 }
 
 double IDPerfMonZee::TransMass(const xAOD::CaloCluster* EM, const xAOD::MissingET* met) const {
-
   if (EM == 0 || met == 0) return -99.;
-
   double transmass = 0.;
   float dphi = signedDeltaPhi(EM->phi(),met->phi());
-  transmass = TMath::Sqrt(2.*EM->et()*met->met()*(1.-TMath::Cos(dphi)));
-
+  transmass = std::sqrt(2.*EM->et()*met->met()*(1.-std::cos(dphi)));
   return transmass;
-
 }
 
 double IDPerfMonZee::deltaR(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track) const {
   double dr =-999.;
   if (cluster == 0 || track == 0) return dr;
-
   double deta = cluster->etaBE(2)-track->eta();
   double dphi = cluster->phi()-track->phi();
-  dr = TMath::Sqrt(deta*deta + dphi*dphi);
-
+  dr = std::sqrt(deta*deta + dphi*dphi);
   return dr;
-
 }
 
 int IDPerfMonZee::isZee(const xAOD::CaloCluster* em1, const xAOD::CaloCluster* em2, const xAOD::TrackParticleContainer* tracks) const {
-
   int selected = 3;
-  
   //are the two electrons oppositely charged?
   const xAOD::TrackParticle* track_leading_emcluster = electronTrackMatch(tracks,em1);
   const xAOD::TrackParticle* track_second_leading_emcluster = electronTrackMatch(tracks,em2);
@@ -903,16 +730,12 @@ int IDPerfMonZee::isZee(const xAOD::CaloCluster* em1, const xAOD::CaloCluster* e
   }
   else if(track_leading_emcluster->charge() != track_second_leading_emcluster->charge())
     --selected;
-
   double invmass = InvMass(em1,em2); // given in GeV
   if (em1->pt()/Gaudi::Units::GeV > 20. &&
       em2->pt()/Gaudi::Units::GeV > 20.) --selected;
-
   if (invmass > 70. &&
       invmass < 110.) --selected;
-
   return selected;
-
 }
 
 double IDPerfMonZee::signedDeltaPhi(double phi1, double phi2) const {
@@ -927,19 +750,15 @@ double IDPerfMonZee::signedDeltaPhi(double phi1, double phi2) const {
 }
 
 int IDPerfMonZee::etaRegion(double eta) {
-
   int region = -99;
-
-  if (TMath::Abs(eta) <= 1.) region = barrel;
+  if (std::fabs(eta) <= 1.) region = barrel;
   else if (eta > 1.) region = eca; // eca
   else if (eta < -1.) region = ecc; // ecc
-
   return region;
 
 }
 
 void IDPerfMonZee::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track, int region, float dEta, float dPhi) {
-
   if (cluster == 0) return;
   if (region<0){
     throw(std::out_of_range("Region index has negative value in IDPerfMonZee::FillHistosPerCluster"));
@@ -951,47 +770,41 @@ void IDPerfMonZee::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const 
     // match in eta and phi separately and make dEta and dPhi plots
     if (dEta < 1.0e+20) {
       m_Zee_deta[region]->Fill(dEta);
-      if (TMath::Abs(dEta) < 0.05) { // calculate mean only for those in matching window
-	m_Zee_deta_vs_eta[region]->Fill(cluster->etaBE(2),dEta);
-	m_Zee_deta_vs_phi[region]->Fill(cluster->phi(),dEta);
-	m_Zee_deta_vs_eta_2d[region]->Fill(cluster->etaBE(2),dEta);
-	m_Zee_deta_vs_phi_2d[region]->Fill(cluster->phi(),dEta);
-	m_Zee_absdeta_vs_eta[region]->Fill(cluster->etaBE(2),TMath::Abs(dEta));
-	m_Zee_absdeta_vs_phi[region]->Fill(cluster->phi(),TMath::Abs(dEta));
+      if (std::fabs(dEta) < 0.05) { // calculate mean only for those in matching window
+        m_Zee_deta_vs_eta[region]->Fill(cluster->etaBE(2),dEta);
+        m_Zee_deta_vs_phi[region]->Fill(cluster->phi(),dEta);
+        m_Zee_deta_vs_eta_2d[region]->Fill(cluster->etaBE(2),dEta);
+        m_Zee_deta_vs_phi_2d[region]->Fill(cluster->phi(),dEta);
+        m_Zee_absdeta_vs_eta[region]->Fill(cluster->etaBE(2),std::fabs(dEta));
+        m_Zee_absdeta_vs_phi[region]->Fill(cluster->phi(),std::fabs(dEta));
       }
     }
     if (dPhi < 1.0e+20) {
       m_Zee_dphi[region]->Fill(dPhi);
-      if (TMath::Abs(dPhi) < 0.1) { // calculate mean only for those in matching window
-	m_Zee_dphi_vs_eta[region]->Fill(cluster->etaBE(2),dPhi);
-	m_Zee_dphi_vs_phi[region]->Fill(cluster->phi(),dPhi);
-	m_Zee_dphi_vs_eta_2d[region]->Fill(cluster->etaBE(2),dPhi);
-	m_Zee_dphi_vs_phi_2d[region]->Fill(cluster->phi(),dPhi);
-	m_Zee_absdphi_vs_eta[region]->Fill(cluster->etaBE(2),TMath::Abs(dPhi));
-	m_Zee_absdphi_vs_phi[region]->Fill(cluster->phi(),TMath::Abs(dPhi));
+      if (std::fabs(dPhi) < 0.1) { // calculate mean only for those in matching window
+        m_Zee_dphi_vs_eta[region]->Fill(cluster->etaBE(2),dPhi);
+        m_Zee_dphi_vs_phi[region]->Fill(cluster->phi(),dPhi);
+        m_Zee_dphi_vs_eta_2d[region]->Fill(cluster->etaBE(2),dPhi);
+        m_Zee_dphi_vs_phi_2d[region]->Fill(cluster->phi(),dPhi);
+        m_Zee_absdphi_vs_eta[region]->Fill(cluster->etaBE(2),std::fabs(dPhi));
+        m_Zee_absdphi_vs_phi[region]->Fill(cluster->phi(),std::fabs(dPhi));
       }
     }
 
   } // end inclusive only
-
-  if (track == 0) return;
+  if (not track) return;
   // TRACK-MATCHED
-
   float eoverp = 0.;
-  float track_p = track->pt()*cosh(track->eta());
+  float track_p = track->pt()*std::cosh(track->eta());
   if (track_p != 0.) eoverp = cluster->e()/track_p;
-
   m_Zee_Eop[region]->Fill(eoverp);
-
   if (track->charge() == 1.) {
     m_Zee_Eop_plus[region]->Fill(eoverp);
   }
   else if (track->charge() == -1.) {
     m_Zee_Eop_minus[region]->Fill(eoverp);
   }
-
   if (region == incl) { // inclusive only
-
     m_Zee_trackmatched_eta[region]->Fill(cluster->etaBE(2));
     m_Zee_trackmatched_phi[region]->Fill(cluster->phi());
     if (eoverp > m_eoverp_tight_min && eoverp < m_eoverp_tight_max) {
@@ -1005,20 +818,19 @@ void IDPerfMonZee::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const 
     }
     if (track->charge() == 1.) {
       if (eoverp > m_eoverp_tight_min && eoverp < m_eoverp_tight_max) {
-	m_Zee_meanEop_vs_p_plus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
-	m_Zee_meanEop_vs_invp_plus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
-	m_Zee_meanEop_vs_E_plus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
-	m_Zee_meanEop_vs_phi_plus[region]->Fill(track->phi(),eoverp);
-	m_Zee_meanEop_vs_eta_plus[region]->Fill(track->eta(),eoverp);
+        m_Zee_meanEop_vs_p_plus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
+        m_Zee_meanEop_vs_invp_plus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
+        m_Zee_meanEop_vs_E_plus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
+        m_Zee_meanEop_vs_phi_plus[region]->Fill(track->phi(),eoverp);
+        m_Zee_meanEop_vs_eta_plus[region]->Fill(track->eta(),eoverp);
       }
-    }
-    else if (track->charge() == -1.) {
+    }else if (track->charge() == -1.) {
       if (eoverp > m_eoverp_tight_min && eoverp < m_eoverp_tight_max) {
-	m_Zee_meanEop_vs_p_minus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
-	m_Zee_meanEop_vs_invp_minus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
-	m_Zee_meanEop_vs_E_minus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
-	m_Zee_meanEop_vs_phi_minus[region]->Fill(track->phi(),eoverp);
-	m_Zee_meanEop_vs_eta_minus[region]->Fill(track->eta(),eoverp);
+        m_Zee_meanEop_vs_p_minus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
+        m_Zee_meanEop_vs_invp_minus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
+        m_Zee_meanEop_vs_E_minus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
+        m_Zee_meanEop_vs_phi_minus[region]->Fill(track->phi(),eoverp);
+        m_Zee_meanEop_vs_eta_minus[region]->Fill(track->eta(),eoverp);
       }
     }
     if (eoverp < m_eoverp_standard_max && eoverp > m_eoverp_standard_min) {
@@ -1041,7 +853,6 @@ void IDPerfMonZee::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const 
     }
     if (eoverp > 0.5 && eoverp < 2.5) m_Zee_Eop_05_25[region]->Fill(0.5);
     if (eoverp > 1.5 && eoverp < 2.5) m_Zee_Eop_15_25[region]->Fill(0.5);
-
   } // end inclusive only
 
 }

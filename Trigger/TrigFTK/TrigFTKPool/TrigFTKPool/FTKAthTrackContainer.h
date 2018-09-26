@@ -5,7 +5,7 @@
 #ifndef FTKATHTRACKCONTAINER_H
 #define FTKATHTRACKCONTAINER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigFTKPool/FTKAthTrack.h"
 
 class FTKAthTrackContainer : public DataVector<FTKAthTrack> {
@@ -15,7 +15,7 @@ public :
   virtual ~FTKAthTrackContainer() {};
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FTKAthTrackContainer,67458,1)
 
 #endif // FTKATHTRACKCONTAINER_H

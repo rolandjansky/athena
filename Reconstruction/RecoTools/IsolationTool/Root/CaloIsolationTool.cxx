@@ -521,8 +521,8 @@ namespace xAOD {
 #ifndef XAOD_ANALYSIS
     /// try the extention in athena if it's not obtained from muon yet.
     ATH_MSG_DEBUG("Geting calo extension caloExtension tool.");
-    const Trk::CaloExtension* caloExtension = 0;
-    if(!m_caloExtTool->caloExtension(*tp,caloExtension,m_useCaloExtensionCaching)){
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*tp);
+    if(!caloExtension){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return false;
     };
@@ -1360,12 +1360,8 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     ATH_MSG_DEBUG("Decoded correction types: " << correctionTypes.size());
 
     // decorate the particle
-    SG::AuxElement::Decorator< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
-
-    if( bitsetAcc )
-      (*bitsetAcc)(tp) = corrections.calobitset.to_ulong();
-    else
-      ATH_MSG_WARNING("Cannot find bitset accessor for flavour " << toCString(Iso::isolationFlavour(cones[0])));
+    const SG::AuxElement::Decorator< uint32_t > bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
+    bitsetAcc(tp) = corrections.calobitset.to_ulong();
     
     // Fill all computed corrections
     // core correction type (e.g. coreMuon, core57cells)
@@ -1374,13 +1370,9 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       // core energy and area
       for (auto par : coretype.second) {
 	if (par.first == Iso::coreArea) continue; // do not store area, as they are constant ! (pi R**2 or 5*0.025 * 7*pi/128)
-	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype, par.first );
-	if (isoCorAcc) { 
-	  ATH_MSG_DEBUG("Storing core correction " << Iso::toCString(ctype) << " var " << Iso::toCString(par.first) << " = " << par.second);
-	  (*isoCorAcc)(tp) = par.second;
-	} else {
-	  ATH_MSG_WARNING("Accessor not found for core correction " << Iso::toCString(ctype) << ", var " << Iso::toCString(par.first));
-	}
+	const SG::AuxElement::Decorator< float > isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype, par.first ); 
+    ATH_MSG_DEBUG("Storing core correction " << Iso::toCString(ctype) << " var " << Iso::toCString(par.first) << " = " << par.second);
+    isoCorAcc(tp) = par.second;
       }
     }
     // noncore correction type (e.g. pileup)
@@ -1393,12 +1385,8 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 	continue;
       }
       for (unsigned int i = 0; i < corrvec.size();i++) {
-	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator(cones[i],ctype);
-	if (isoCorAcc) {
-	  ATH_MSG_DEBUG("Storing non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]) << " = " << corrvec[i]);
-	  (*isoCorAcc)(tp) = corrvec[i];
-	} else
-	  ATH_MSG_WARNING("Accessor not found for non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]));
+	SG::AuxElement::Decorator< float > isoCorAcc = getIsolationCorrectionDecorator(cones[i],ctype);
+	  isoCorAcc(tp) = corrvec[i];
       }
     }
 
@@ -1408,7 +1396,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       for( unsigned int i=0;i<cones.size();++i ){
 	
 	Iso::IsolationType type = cones[i];
-        SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
+        const SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
         if ( isoTypeAcc ) {
 	  ATH_MSG_DEBUG("Filling " << Iso::toCString(type) << " = " << result.etcones[i]);
           (*isoTypeAcc)(tp) = result.etcones[i];

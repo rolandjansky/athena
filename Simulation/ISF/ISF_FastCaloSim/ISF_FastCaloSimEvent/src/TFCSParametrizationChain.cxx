@@ -125,11 +125,15 @@ bool TFCSParametrizationChain::is_match_calosample(int calosample) const
   return true;
 }
 
-void TFCSParametrizationChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSParametrizationChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   for(auto param: m_chain) {
-    param->simulate(simulstate,truth,extrapol);
+    if (simulate_and_retry(param, simulstate, truth, extrapol) != FCSSuccess) {
+      return FCSFatal;
+    }
   }
+
+  return FCSSuccess;
 }
 
 void TFCSParametrizationChain::Print(Option_t *option) const

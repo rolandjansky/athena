@@ -32,21 +32,15 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
 
-#include "InDetIdentifier/PixelID.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/TRT_ID.h"
-#include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 class AtlasDetectorID;
 class StoreGateSvc;
@@ -54,12 +48,11 @@ class ITruthParameters;
 class TruthSelector;
 class PixelID;
 class SCT_ID;
-class TRT_ID;
 class IBeamCondSvc;
 class EventID;
 
 namespace InDetDD {
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }
 namespace HepPDT {
   class ParticleDataTable;
@@ -81,8 +74,7 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   StoreGateSvc*  m_detStore;
   StoreGateSvc*  m_evtStore;
      
-  const  InDetDD::SiDetectorManager*     m_PIX_mgr;
-  const  InDetDD::SiDetectorManager*     m_SCT_mgr;
+  const  InDetDD::PixelDetectorManager*     m_PIX_mgr;
   
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;
@@ -90,6 +82,8 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   ToolHandle<IInDetConditionsTool>        m_pixelCondSummaryTool; // tool to retrieve pixel conditions db 
   ToolHandle<IInDetConditionsTool>        m_sctCondSummaryTool{this, "SctSummaryTool",
       "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;

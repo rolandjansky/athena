@@ -1,75 +1,76 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
-/***************************************************************************
-ParticleCaloExtensionTool.h  -  Description
--------------------
-begin   : Summer 2014
-authors : Niels van Eldik (CERN PH-ATC)
-***************************************************************************/
+/*
+ * ParticleCaloExtensionTool.h  - implements the IParticleCaloExtenions Interface
+ * begin : Summer 2014
+ * updated : 2018 for AthenaMT
+ * authors : Niels van Eldik (CERN PH-ATC),Christos Anastopoulos
+ */
+
 #ifndef TRKPARTICLECREATOR_PARTICLECALOEXTENSIONTOOL_H
 #define TRKPARTICLECREATOR_PARTICLECALOEXTENSIONTOOL_H
-
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-#define private public
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "xAODTracking/TrackParticle.h"
-#define public private
 #include "TrkEventPrimitives/ParticleHypothesis.h" 
 #include "xAODTracking/NeutralParticle.h"
 #include "xAODTruth/TruthParticle.h"
 
 class AtlasDetectorID;
 
-
 namespace Trk {
-  
-  class IExtrapolator;
-  class CaloExtension;
 
-  class ParticleCaloExtensionTool : virtual public IParticleCaloExtensionTool, public AthAlgTool {
-  public:
-    
-    ParticleCaloExtensionTool(const std::string&,const std::string&,const IInterface*);
+class IExtrapolator;
 
-    virtual ~ParticleCaloExtensionTool();
+class ParticleCaloExtensionTool : virtual public IParticleCaloExtensionTool, public AthAlgTool {
+public:
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+  ParticleCaloExtensionTool(const std::string&,const std::string&,const IInterface*);
 
-    /** Method to dress a IParticle with the calo layers crossed by its track
-        @param IParticle     reference to the particle
-        @param extension     reference to a pointer to a CaloExtesion, will be updated if call is successfull
-                             NEVER delete the pointer, you will cause a crash! 
-        @param useCaching    configure whether the tool caches the result on the track particle
-                             The default behavior is 'true' to ensure optimal performance
-        @return true if the call was successful
-    */
-    bool caloExtension( const xAOD::IParticle& particle, const Trk::CaloExtension*& extension, bool useCaching = true  ) const final;
-    Trk::CaloExtension* caloExtension( const TrackParameters& startPars, PropDirection propDir, ParticleHypothesis particleType ) const;
-  private:
-    
-    const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle& particle ) const;
+  virtual ~ParticleCaloExtensionTool();
 
-    Trk::CaloExtension* caloExtension( const xAOD::TruthParticle& particle ) const;
-    Trk::CaloExtension* caloExtension( const xAOD::NeutralParticle& particle ) const;
-    Trk::CaloExtension* caloExtension( const xAOD::TrackParticle& particle ) const;
-    
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
 
+  /* 
+   * Implement the IParticleCaloExtension methods
+   */
+  virtual std::unique_ptr<Trk::CaloExtension> caloExtension(const xAOD::IParticle& particle) const override final;
+
+  virtual const Trk::CaloExtension*  caloExtension( const xAOD::IParticle& particle, 
+                                                    IParticleCaloExtensionTool::Cache& cache ) const override final;
+
+  virtual  const Trk::CaloExtension* caloExtension( const xAOD::IParticle& particle,
+                                                    const CaloExtensionCollection& cache ) const override final;
+
+  virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
+                                               const std::vector<bool>& mask,
+                                               CaloExtensionCollection& caloextensions) const override final;
+
+  virtual std::unique_ptr<Trk::CaloExtension> caloExtension( const TrackParameters& startPars, 
+                                                             PropDirection propDir, 
+                                                             ParticleHypothesis particleType ) const  override final;
 
 
-    const AtlasDetectorID*       m_detID;
-    ToolHandle< IExtrapolator >  m_extrapolator;
-    ParticleHypothesis      m_particleType;
-    std::string             m_particleTypeName;
-    std::string             m_containerName;
-    bool                    m_startFromPerigee;
-  };
+private:
+
+  const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle& particle ) const;
+  std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TruthParticle& particle ) const;
+  std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::NeutralParticle& particle ) const;
+  std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TrackParticle& particle ) const;
+
+  PublicToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
+  Gaudi::Property<std::string>  m_particleTypeName{this,"ParticleType","muon","The particle type : muon, pion, nonInteracting"};
+  Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "Start from Perigee"};
+
+  const AtlasDetectorID* m_detID;
+  ParticleHypothesis  m_particleType ;
+};
 }
 
 #endif

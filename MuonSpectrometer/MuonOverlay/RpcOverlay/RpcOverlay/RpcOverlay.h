@@ -17,44 +17,34 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "MuonOverlayBase/IDC_MultiHitOverlayBase.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 class RpcIdHelper;
-// class IMuonDigitizationTool;
 
 class RpcOverlay : public IDC_MultiHitOverlayBase  {
 public:
-  
+
   RpcOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
-  /** Framework implemenrtation for the event loop */  
+  /** Framework implemenrtation for the event loop */
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
 
 private:
   // ----------------------------------------------------------------
-  
-  ServiceHandle<StoreGateSvc> m_storeGateTemp;
-  ServiceHandle<StoreGateSvc> m_storeGateTempBkg;
+
   // jO controllable properties.
   // "Main" containers are read, have data from "overlay" containers added,
   // and written out with the original SG keys.
-  std::string m_mainInputRPC_Name;
-  std::string m_overlayInputRPC_Name;
-  std::string m_sdo;
+  SG::ReadHandleKey<RpcDigitContainer> m_mainInputDigitKey{this,"MainInputDigitKey","OriginalEvent_SG+RPC_DIGITS","ReadHandleKey for Main Input RpcDigitContainer"};
+  SG::ReadHandleKey<RpcDigitContainer> m_overlayInputDigitKey{this,"OverlayInputDigitKey","BkgEvent_0_SG+RPC_DIGITS","ReadHandleKey for Overlay Input RpcDigitContainer"};
+  SG::WriteHandleKey<RpcDigitContainer> m_outputDigitKey{this,"OutputDigitKey","StoreGateSvc+RPC_DIGITS","WriteHandleKey for Output RpcDigitContainer"};
+  std::string m_sdo{"RPC_SDO"};
 
-  const RpcIdHelper   * m_rpcHelper;
-  bool m_copySDO;
-
-  ToolHandle<IMuonDigitizationTool> m_digTool;
-  ToolHandle<IMuonDigitizationTool> m_rdoTool;
+  const RpcIdHelper   * m_rpcHelper{nullptr};
+  bool m_copySDO{true};
 
 };
 

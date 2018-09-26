@@ -18,22 +18,44 @@ CaloHelpersTest::CaloHelpersTest()
   m_parser = std::make_unique<IdDictParser>();
   m_parser->register_external_entity("LArCalorimeter", "IdDictLArCalorimeter.xml");
   IdDictMgr& idd = m_parser->parse("IdDictParser/ATLAS_IDS.xml");
+  m_em_idHelper.set_quiet (true);
   m_em_idHelper.set_do_neighbours(false);
-  m_em_idHelper.initialize_from_dictionary(idd);
-  m_hec_idHelper.initialize_from_dictionary(idd);
+  if (m_em_idHelper.initialize_from_dictionary(idd) != 0) {
+    std::abort();
+  }
+
+  m_hec_idHelper.set_quiet (true);
+  if (m_hec_idHelper.initialize_from_dictionary(idd) != 0) {
+    std::abort();
+  }
+
+  m_fcal_idHelper.set_quiet (true);
   m_fcal_idHelper.set_do_neighbours(false);
-  m_fcal_idHelper.initialize_from_dictionary(idd);
+  if (m_fcal_idHelper.initialize_from_dictionary(idd) != 0) {
+    std::abort();
+  }
+
+  m_minifcal_idHelper.set_quiet (true);
   m_minifcal_idHelper.set_do_neighbours(false);
-  m_minifcal_idHelper.initialize_from_dictionary(idd);
+  if (m_minifcal_idHelper.initialize_from_dictionary(idd) != 0) {
+    std::abort();
+  }
+
+  m_tile_idHelper.set_quiet (true);
   m_tile_idHelper.set_do_neighbours(false);
-  m_tile_idHelper.initialize_from_dictionary(idd);
+  if (m_tile_idHelper.initialize_from_dictionary(idd) != 0) {
+    std::abort();
+  }
 
   m_calo_idHelper = std::make_unique<CaloCell_ID> (&m_em_idHelper,
                                                    &m_hec_idHelper,
                                                    &m_fcal_idHelper,
                                                    &m_minifcal_idHelper,
                                                    &m_tile_idHelper);
-  m_calo_idHelper->initialize_from_dictionary(idd);
+  m_calo_idHelper->set_quiet (true);
+  if (m_calo_idHelper->initialize_from_dictionary(idd) != 0) {
+    std::abort();
+  }
 }
 
 

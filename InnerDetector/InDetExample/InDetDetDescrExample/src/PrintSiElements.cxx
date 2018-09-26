@@ -5,12 +5,12 @@
 #include "InDetDetDescrExample/PrintSiElements.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
@@ -64,18 +64,33 @@ StatusCode PrintSiElements::initialize(){
   m_fileout << "# Pixel tag: " << geoModel->pixelVersionOverride() << std::endl;
   m_fileout << "# SCT   tag: " << geoModel->SCT_VersionOverride() << std::endl;
   m_fileout << "# TRT   tag: " << geoModel->TRT_VersionOverride() << std::endl;
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode 
 PrintSiElements::printElements(const std::string & managerName){
-  const InDetDD::SiDetectorManager * manager;
-  ATH_CHECK(detStore()->retrieve(manager,managerName));
+  const InDetDD::SiDetectorElementCollection * elements = nullptr;
+  if (managerName=="Pixel") {
+    const InDetDD::PixelDetectorManager * manager;
+    ATH_CHECK(detStore()->retrieve(manager,managerName));
+    elements = manager->getDetectorElementCollection();
+  } else if (managerName=="SCT") {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+    elements = *sctDetEleHandle;
+    if (not sctDetEleHandle.isValid() or elements==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
+  }
+  if (elements==nullptr) {
+    ATH_MSG_FATAL("SiDetectorElementCollection elements is nullptr");
+    return StatusCode::FAILURE;
+  }
 
-  InDetDD::SiDetectorElementCollection::const_iterator iter;  
-  for (iter = manager->getDetectorElementBegin(); iter != manager->getDetectorElementEnd(); ++iter){
-    const InDetDD::SiDetectorElement * element = *iter; 
+  for (const InDetDD::SiDetectorElement * element: *elements) {
     if (element) {
       Identifier id = element->identify();
       int det = 0;

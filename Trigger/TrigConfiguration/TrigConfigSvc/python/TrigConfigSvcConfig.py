@@ -417,7 +417,7 @@ def TrigConfigSvcCfg( flags ):
     from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
 
     l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
-    l1XMLFile = findFileInXMLPATH(flags.get("Trigger.inputLVL1ConfigFile"))
+    l1XMLFile = findFileInXMLPATH(flags.get("Trigger.LVL1ConfigFile"))
     log.debug( "LVL1ConfigSvc input file:"+l1XMLFile  )
 
     l1ConfigSvc.XMLMenuFile = l1XMLFile

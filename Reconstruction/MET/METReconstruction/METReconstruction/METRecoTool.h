@@ -23,6 +23,8 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/DataHandle.h"
+
 
 // METRecoInterface includes
 #include "METRecoInterface/IMETRecoTool.h"
@@ -96,8 +98,8 @@ namespace met{
     // Data members
     bool m_doMetSum;
     bool m_warnOfDupes;
-    std::string m_contname;
-    std::string m_mapname;
+    SG::WriteHandleKey<xAOD::MissingETContainer> m_contname;
+    SG::WriteHandleKey<xAOD::MissingETComponentMap> m_mapname;
     std::string m_metfinalname;
     ToolHandleArray<IMETToolBase> m_metbuilders;
     ToolHandleArray<IMETToolBase> m_metrefiners;

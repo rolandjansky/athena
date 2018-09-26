@@ -29,7 +29,7 @@
 #include "EnergyDepositionTool.h"
 
 namespace InDetDD{
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }
 
 namespace RadDam{
@@ -49,7 +49,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:
-    void addSDO(SiChargedDiodeCollection *collection);
+    void addSDO(SiChargedDiodeCollection &collection);
 
   private:
 
@@ -85,7 +85,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     ServiceHandle <PileUpMergeSvc> m_mergeSvc;
 
     CLHEP::HepRandomEngine *m_rndmEngine;
-    const InDetDD::SiDetectorManager *m_detManager;
+    const InDetDD::PixelDetectorManager *m_detManager;
 
     std::string   m_inputObjectName;
     bool          m_createNoiseSDO;

@@ -11,6 +11,8 @@
 #include "xAODEventInfo/EventInfo.h"
 #include <sys/time.h>
 
+//#define DONTDO
+
 CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type, 
 				  const std::string& name, 
 				  const IInterface* parent) :
@@ -419,10 +421,11 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
   } // end of the check bcid boundary
 
 #ifdef DONTDO // some debug code, please, ignore
-  std::cout << "corrections for BCID : " << bcid << std::endl;
-  for(int index1=0 ; index1<total; index1++) {
+  std::cout << "BCIDTool: corrections for BCID : " << bcid << std::endl;
+  for(unsigned index1=0 ; index1<total; index1++) {
 	if ( fabsf(1e9*(m_eshift_sym[index1]) ) > 0.001 ){
-	std::cout << "cell [" << index1 <<"] = " <<(double)(m_eshift_sym[index1]) 
+	  unsigned id32= m_hwid_sym[index1].get_identifier32().get_compact();
+	std::cout << "Tool BCID " << bcid << " ,cell [" << id32 <<"] = " <<(double)(m_eshift_sym[index1]) 
 	<< std::endl;
 	}
   }

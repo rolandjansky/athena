@@ -17,6 +17,11 @@
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 
+#include "xAODTruth/TruthEventContainer.h"
+
+//Includes for DataHandles
+#include "StoreGate/DataHandle.h"
+
 namespace met{
   class METTruthAssociator final
     : public METAssociator
@@ -86,13 +91,21 @@ namespace met{
 
     private:
 
-    std::string m_recoJetKey;
-    std::string m_recoElKey;
-    std::string m_recoMuKey;
-    std::string m_recoGamKey;
-    std::string m_recoTauKey;
-    std::string m_truthEventKey;
- 
+    std::string m_recoJet;
+    std::string m_recoEl;
+    std::string m_recoMu;
+    std::string m_recoGam;
+    std::string m_recoTau;
+
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_recoElKey;
+    SG::ReadHandleKey<xAOD::PhotonContainer>        m_recoGamKey;
+    SG::ReadHandleKey<xAOD::TauJetContainer>        m_recoTauKey;
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_recoMuKey;
+    SG::ReadHandleKey<xAOD::JetContainer>           m_recoJetKey;
+
+    std::string m_truthEvent;
+    SG::ReadHandleKey<xAOD::TruthEventContainer>           m_truthEventKey;
+
     /// Default constructor: 
     METTruthAssociator();
 

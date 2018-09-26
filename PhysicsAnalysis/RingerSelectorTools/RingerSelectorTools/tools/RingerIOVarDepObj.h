@@ -143,7 +143,11 @@
   public:                                                                      \
     typedef base base_t;                                                       \
                                                                                \
-    using base::procType;                                                      \
+    template <typename T = const char*>                                        \
+    static T procType()                                                        \
+    {                                                                          \
+      return base::template procType<T>();                                     \
+    }                                                                          \
                                                                                \
     virtual const char* name() const                                           \
       ATH_RINGER_OVERRIDE ATH_RINGER_FINAL                                     \
@@ -205,7 +209,7 @@ class RingerIOVarDepObj : virtual public VariableDependency
 
     // Make sure we initialize the variable dependency
     RingerIOVarDepObj():VariableDependency(){;}
-    
+
     /**
      * Retrieve name for this RingerIOVarDepObj
      **/

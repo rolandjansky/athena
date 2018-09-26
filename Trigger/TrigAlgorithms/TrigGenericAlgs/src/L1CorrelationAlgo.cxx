@@ -344,8 +344,6 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& /*fake_see
 #endif
 
 
-  std::vector<uint32_t>::reverse_iterator tbp_it;
-
   // this is the l1a accept position
   uint32_t l1a = CTPfragment::lvl1AcceptBunch(rbf);
 

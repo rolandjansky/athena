@@ -16,26 +16,23 @@
 //Athena includes
 #include "Identifier/Identifier.h"
 
-SCT_MajorityConditionsTestAlg::SCT_MajorityConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator )
+SCT_MajorityConditionsTestAlg::SCT_MajorityConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
+  AthAlgorithm(name, pSvcLocator)
 {
 }
 
 //Initialize
-StatusCode SCT_MajorityConditionsTestAlg::initialize(){
+StatusCode SCT_MajorityConditionsTestAlg::initialize() {
   ATH_MSG_INFO("Calling initialize");
-  
-  // Retrieve link masking service
-  if (m_majorityTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the link masking service");
-    return StatusCode::FAILURE;
-  }
 
+  // Retrieve link masking service
+  ATH_CHECK(m_majorityTool.retrieve());
+ 
   return StatusCode::SUCCESS;
 }
 
 //Execute
-StatusCode SCT_MajorityConditionsTestAlg::execute(){
+StatusCode SCT_MajorityConditionsTestAlg::execute() {
   ATH_MSG_INFO("Calling execute");
 
   ATH_MSG_INFO("Detector is " << (m_majorityTool->isGood()   ? "GOOD" : "BAD"));
@@ -48,7 +45,7 @@ StatusCode SCT_MajorityConditionsTestAlg::execute(){
 
 
 //Finalize
-StatusCode SCT_MajorityConditionsTestAlg::finalize(){
+StatusCode SCT_MajorityConditionsTestAlg::finalize() {
   ATH_MSG_INFO("Calling finalize");
   return StatusCode::SUCCESS;
 }

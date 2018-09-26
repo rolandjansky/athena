@@ -31,6 +31,9 @@ class LArADC2MeV {
     return m_adc2MeV[gain][h];
   }
 
+  const std::vector<float>& ADC2MEV(const IdentifierHash& hid, int gain) const {
+    return m_adc2MeV[gain][hid];
+  }
 
   const std::vector<float>& ADC2MEV(const Identifier& offid, int gain) const {
     const HWIdentifier hwid=m_cabling->createSignalChannelID(offid);

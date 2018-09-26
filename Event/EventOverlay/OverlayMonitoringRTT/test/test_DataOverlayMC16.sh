@@ -27,7 +27,8 @@ OverlayChain_tf.py \
 --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
 --postInclude 'sim:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
---ignorePatterns "L1TopoMenuLoader.+ERROR."
+--ignorePatterns "L1TopoMenuLoader.+ERROR." \
+--imf False
 echo "art-result: $? dataoverlay"
 
 Reco_tf.py \
@@ -36,9 +37,10 @@ Reco_tf.py \
 --outputAODFile testRTT.AOD.pool.root \
 --preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' \
 --postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' \
---preExec 'from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase");rec.doTrigger=False;' \
+--preExec 'from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase");rec.doTrigger=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArThinnedDigits.set_Value_and_Lock(False)' \
 --ignorePatterns "L1TopoMenuLoader.+ERROR." \
---postExec 'r2e:from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool;LArCellBuilderFromLArRawChannelTool.RawChannelsName="LArRawChannels_FromDigits"'
+--postExec 'r2e:from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool;LArCellBuilderFromLArRawChannelTool.RawChannelsName="LArRawChannels_FromDigits"' \
+--imf False
 echo "art-result: $? reco"
 
 ArtPackage=$1

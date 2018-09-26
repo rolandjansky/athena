@@ -10,7 +10,7 @@
 
 
 #include "CLHEP/Vector/LorentzVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class CombinedMuonFeature;
 

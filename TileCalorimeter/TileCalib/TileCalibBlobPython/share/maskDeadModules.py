@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # File:    maskDeadModules.py
 # Purpose: Mask a dead module over a range.  A new IOV gets created in the process.

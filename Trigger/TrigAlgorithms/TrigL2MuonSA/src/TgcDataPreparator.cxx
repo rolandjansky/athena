@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/TgcDataPreparator.h"
@@ -44,14 +44,12 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ), 
    m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
-   m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool"),
    m_regionSelector( "RegSelSvc", name ), 
    m_robDataProvider( "ROBDataProviderSvc", name ),
    m_options(), m_recMuonRoIUtils()
 {
    declareInterface<TrigL2MuonSA::TgcDataPreparator>(this);
    declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
-   declareProperty("TGC_RawDataProvider", m_tgcRawDataProvider);
 }
 
 
@@ -78,9 +76,6 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    }
 
    ATH_CHECK( m_storeGateSvc.retrieve() );
-
-   ATH_CHECK( m_tgcRawDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved tool " << m_tgcRawDataProvider);
 
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );

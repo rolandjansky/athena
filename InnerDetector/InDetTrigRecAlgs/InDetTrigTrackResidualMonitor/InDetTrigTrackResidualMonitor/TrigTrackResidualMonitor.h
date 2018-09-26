@@ -35,10 +35,6 @@ class SvcLocator;
 class StoreGateSvc;
 class SCT_NeighboursTable;
 
-namespace InDetDD{
-  class PixelDetectorManager;
-}
-
 class IInDetAlignHitQualSelTool; 
 
 namespace Trk {
@@ -71,11 +67,9 @@ namespace InDet
   public:
     TrigTrackResidualMonitor(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~TrigTrackResidualMonitor();
-    HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();
-    HLT::ErrorCode hltEndRun();
     
     
   private:
@@ -109,8 +103,6 @@ namespace InDet
     ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator;
     
     
-    const InDetDD::PixelDetectorManager   *m_Pixel_Manager{};
-
 
 
     ///// Biased Residuals and Pulls

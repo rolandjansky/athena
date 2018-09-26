@@ -3,8 +3,8 @@
 */
 
 /** @file TestDCSConditions.h  Header file for TestDCSConditions class.
-* @author Andree Robichaud-Veronneau, based on code from Shaun Roe
-*/
+ * @author Andree Robichaud-Veronneau, based on code from Shaun Roe
+ */
 
 // Multiple inclusion protection
 #ifndef SCT_TestDCSConditions_H
@@ -12,28 +12,29 @@
 
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "Identifier/Identifier.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
+
+// Include Gaudi stuff
+#include "GaudiKernel/ToolHandle.h"
 
 // Include STL stuff
 #include <string>
 
-  /** This class acts as a test/sample client the DCSConditions class. 
-  */
-  class SCT_DCSConditionsTestAlg : public AthAlgorithm {
-public:
-    // Structors
-    SCT_DCSConditionsTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
-    virtual ~SCT_DCSConditionsTestAlg() = default;
+/** This class acts as a test/sample client the DCSConditions class. 
+ */
+class SCT_DCSConditionsTestAlg : public AthAlgorithm {
+ public:
+  // Structors
+  SCT_DCSConditionsTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
+  virtual ~SCT_DCSConditionsTestAlg() = default;
     
-    // Standard Gaudi functions
-    StatusCode initialize() override; //!< Gaudi initialiser
-    StatusCode execute() override;    //!< Gaudi executer
-    StatusCode finalize() override;   //!< Gaudi finaliser
+  // Standard Gaudi functions
+  StatusCode initialize() override; //!< Gaudi initialiser
+  StatusCode execute() override;    //!< Gaudi executer
+  StatusCode finalize() override;   //!< Gaudi finaliser
     
-private:
-    ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
-   };
+ private:
+  ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
+};
 
 #endif // SCT_TestDCSConditions_H

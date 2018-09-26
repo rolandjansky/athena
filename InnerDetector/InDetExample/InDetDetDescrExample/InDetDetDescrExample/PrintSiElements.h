@@ -6,10 +6,13 @@
 #define InDetDetDescrExample_PrintSiElements_h
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-//#include "CLHEP/Geometry/Transform3D.h"
+
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <fstream>
 
@@ -38,6 +41,7 @@ private:
   bool m_fullRotationMatrix;
   std::string m_outputFileName;
   ServiceHandle<IGeoModelSvc> m_geoModelSvc;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 };
 
 #endif // InDetDetDescrExample_PrintSiElements_h

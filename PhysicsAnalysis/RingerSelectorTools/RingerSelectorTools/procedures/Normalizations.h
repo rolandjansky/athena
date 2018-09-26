@@ -29,39 +29,39 @@
 #include "RingerSelectorTools/tools/cxx/final.h"
 #include "RingerSelectorTools/tools/cxx/override.h"
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer
 {
 
-/** 
-* @brief Namespace dedicated for Ringer pre-processing utilities 
+/**
+* @brief Namespace dedicated for Ringer pre-processing utilities
 **/
 namespace PreProcessing
 {
 
-/** 
- * @brief Namespace dedicated for Ringer normalization utilities 
+/**
+ * @brief Namespace dedicated for Ringer normalization utilities
  **/
 namespace Norm {
 
 /// Normalization base classes:
 /// @{
 class Norm1 : virtual public IPreProcessor,
-              public RedirectMsgStream 
+              public RedirectMsgStream
 {
 
   RINGER_IO_VARDEP_BASE_NOMEMBER( Norm1 )
-
-  private:
-    Norm1(Norm1&&);
 
   public:
     Norm1(){;}
 
     virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
       ATH_RINGER_OVERRIDE;
+
+  private:
+    Norm1(Norm1&&);
 
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(Norm1,1)
@@ -70,19 +70,19 @@ class Norm1 : virtual public IPreProcessor,
 RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( Norm1 )
 
 class Norm2 : public virtual IPreProcessor,
-              public RedirectMsgStream 
+              public RedirectMsgStream
 {
 
   RINGER_IO_VARDEP_BASE_NOMEMBER( Norm2 )
-
-  private:
-    Norm2(Norm2&&);
 
   public:
     Norm2(){;}
 
     virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
       ATH_RINGER_OVERRIDE;
+
+  private:
+    Norm2(Norm2&&);
 
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(Norm2,0)
@@ -91,19 +91,19 @@ class Norm2 : public virtual IPreProcessor,
 RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( Norm2 )
 
 class Sqrt : public virtual IPreProcessor,
-             public RedirectMsgStream 
+             public RedirectMsgStream
 {
 
   RINGER_IO_VARDEP_BASE_NOMEMBER( Sqrt )
-
-  private:
-    Sqrt(Sqrt&&);
 
   public:
     Sqrt(){};
 
     virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
       ATH_RINGER_OVERRIDE;
+
+  private:
+    Sqrt(Sqrt&&);
 
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(Sqrt,0)
@@ -112,19 +112,14 @@ class Sqrt : public virtual IPreProcessor,
 RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( Sqrt )
 
 class ConstantValue : public virtual IPreProcessor,
-                      public RedirectMsgStream 
+                      public RedirectMsgStream
 {
 
   RINGER_IO_VARDEP_BASE( ConstantValue )
 
-  private:
-    ConstantValue(ConstantValue&&);
-    /// Inverse value of the constant value normalization
-    float m_constantInv; 
-
   public:
 
-    ConstantValue() 
+    ConstantValue()
       : m_constantInv(1){;}
     ConstantValue(
         const float constantValue)
@@ -139,6 +134,11 @@ class ConstantValue : public virtual IPreProcessor,
     virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
       ATH_RINGER_OVERRIDE;
 
+  private:
+    ConstantValue(ConstantValue&&);
+    /// Inverse value of the constant value normalization
+    float m_constantInv;
+
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(ConstantValue,0)
 };
@@ -146,16 +146,9 @@ class ConstantValue : public virtual IPreProcessor,
 RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( ConstantValue )
 
 class Sequential : public virtual IPreProcessor,
-                   public RedirectMsgStream 
+                   public RedirectMsgStream
 {
   RINGER_IO_VARDEP_BASE( Sequential )
-
-  private:
-    Sequential(Sequential&&);
-    /// @brief The stop energy threshold for increasing noise
-    float m_stopEnergy;
-    /// @brief The energy threshold for choosing 
-    float m_energyThres;
 
   public:
 
@@ -172,6 +165,13 @@ class Sequential : public virtual IPreProcessor,
     virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
       ATH_RINGER_OVERRIDE;
 
+  private:
+    Sequential(Sequential&&);
+    /// @brief The stop energy threshold for increasing noise
+    float m_stopEnergy;
+    /// @brief The energy threshold for choosing
+    float m_energyThres;
+
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(Sequential,0)
 };
@@ -183,14 +183,6 @@ class Spherization : public virtual IPreProcessor,
 {
   RINGER_IO_VARDEP_BASE( Spherization )
 
-  private:
-    Spherization(Spherization&&);
-    /// @brief The training sample data mean
-    std::vector<float> m_deslocation;
-    /// @brief The inverse of the training sample data standard deviation
-    std::vector<float> m_normInv;
-    /// Input dimension (transient variable)
-    size_t m_dim;
   public:
 
     Spherization()
@@ -203,6 +195,15 @@ class Spherization : public virtual IPreProcessor,
     virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
       ATH_RINGER_OVERRIDE;
 
+  private:
+    Spherization(Spherization&&);
+    /// @brief The training sample data mean
+    std::vector<float> m_deslocation;
+    /// @brief The inverse of the training sample data standard deviation
+    std::vector<float> m_normInv;
+    /// Input dimension (transient variable)
+    size_t m_dim;
+
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(Spherization,0)
 };
@@ -214,6 +215,17 @@ class MinMax : public virtual IPreProcessor,
 {
   RINGER_IO_VARDEP_BASE( MinMax )
 
+  public:
+    MinMax()
+      : m_dim(0){;}
+
+    MinMax(
+        const std::vector<float> min,
+        const std::vector<float> max);
+
+    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
+      ATH_RINGER_OVERRIDE;
+
   private:
     MinMax(MinMax&&);
     /// @brief The training sample data min
@@ -222,23 +234,82 @@ class MinMax : public virtual IPreProcessor,
     std::vector<float> m_normInv;
     /// Input dimension (transient variable)
     size_t m_dim;
-  public:
-    MinMax()
-      : m_dim(0){;}
-
-    MinMax(
-        const std::vector<float> min,
-        const std::vector<float> max);
-  public:
-
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
 
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(MinMax,0)
 };
-
 RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( MinMax )
+
+/**
+ * Special case for the extra patterns normalization
+ **/
+class ExtraPatternsNorm : public virtual IPreProcessor,
+                          public RedirectMsgStream,
+                          public RingerIOVarDepObj < ExtraPatternsNorm >
+{
+
+  RINGER_IO_VARDEP_BASE( ExtraPatternsNorm )
+
+  public:
+
+    ExtraPatternsNorm( const float etMin = 0., const float etMax = 1.
+                     , const float etaMin = 0., const float etaMax = 1.
+                     , const float pileupEstimationMax = 1. ):
+                     m_etMin{etMin}, m_etMax{etMax},
+                     m_etaMin{etaMin}, m_etaMax{etaMax},
+                     m_pileupEstimationMax{pileupEstimationMax}
+                     {;}
+
+    /**
+     * Set eta normalization params
+     **/
+    ExtraPatternsNorm& setEtNormParams( float min, float max ) { m_etMin = min; m_etMax = max; return *this; }
+
+    /**
+     * Set eta normalization params
+     **/
+    ExtraPatternsNorm& setEtaNormParams( float min, float max ) { m_etaMin = min; m_etaMax = max; return *this; }
+
+    /**
+     * Set eta normalization params
+     **/
+    ExtraPatternsNorm& setPileupEstimationParams( float max ) { m_pileupEstimationMax = max; return *this; }
+
+    /**
+     * Retrieve normalized eta
+     **/
+    float normEta(float eta) const;
+
+    /**
+     * Retrieve normalized et
+     **/
+    float normEt(float et) const;
+
+    /**
+     * Retrieve normalized pile-up estimation
+     **/
+    float normPileupEstimation(float pileupEstimation) const;
+
+
+  private:
+    /// Min and Max et normalization factors
+    float m_etMin, m_etMax;
+    /// Min and Max eta normalization factors
+    float m_etaMin, m_etaMax;
+    /// Min and Max eta normalization factors
+    float m_pileupEstimationMax;
+
+    /**
+     * This normalization does not applies to the input space, but rather to
+     * special components of the input space
+     **/
+    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
+      ATH_RINGER_OVERRIDE;
+    /** Define it as a Root TObjebt, disable I/O */
+    //ClassDef(ExtraDescriptionPatterns,0)
+};
+RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( ExtraPatternsNorm )
+
 /// @}
 
 /// @ Usable normalizations:
@@ -249,7 +320,7 @@ RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( MinMax )
 class Norm1VarDep : virtual public IPreProcessorVarDep,
                     public RingerIOVarDepObj < Norm1VarDep >,
                     public Norm1
-{ 
+{
   RINGER_IO_VARDEP_OBJ(Norm1VarDep, Norm1)
 
   public:
@@ -345,7 +416,7 @@ class MevToGevVarDep: virtual public IPreProcessorVarDep,
 /**
  * @brief Use sequential normalization.
  *
- * For more information check: 
+ * For more information check:
  *
  * https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigHypothesis/TrigMultiVarHypo/trunk/TrigMultiVarHypo/TrigRingerNeuralFex.h#L140
  **/
@@ -412,6 +483,17 @@ class MinMaxVarDep : virtual public IPreProcessorVarDep,
 
     /** Define it as a Root TObjebt, set version 1 */
     //ClassDef(MinMaxVarDep,1)
+};
+
+/**
+ * @brief Normalize data to be bounded within [-1,1] range.
+ **/
+class ExtraPatternsNormVarDep : virtual public IPreProcessorVarDep,
+                                public RingerIOVarDepObj < ExtraPatternsNormVarDep >,
+                                public ExtraPatternsNorm
+{
+  RINGER_IO_VARDEP_OBJ(ExtraPatternsNormVarDep, ExtraPatternsNorm)
+
 };
 /// @}
 

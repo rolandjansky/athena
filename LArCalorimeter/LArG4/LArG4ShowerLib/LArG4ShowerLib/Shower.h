@@ -14,7 +14,7 @@
 // local includes
 // #include "LArG4Code/EnergySpot.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "LArG4ShowerLib/ShowerEnergySpot.h"
 
 // Namespace for the ShowerLib related classes

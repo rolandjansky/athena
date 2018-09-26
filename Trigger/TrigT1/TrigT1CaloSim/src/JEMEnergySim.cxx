@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // /***************************************************************************
 //                           JEMEnergySim.cxx  -  description
 //                              -------------------
 //     begin                : Monday 12 May 2014
-//     copyright            : (C) 2014 by Alan Watson
 //     email                : Alan.Watson@CERN.CH
 //  ***************************************************************************/
 //
@@ -63,28 +65,6 @@ StatusCode JEMEnergySim::initialize()
 {
   ATH_CHECK( m_EtTool.retrieve() );
   return StatusCode::SUCCESS ;
-}
-
-
-//-------------------------------------------------
-// Optional debug of menu at start of run
-//-------------------------------------------------
-
-StatusCode JEMEnergySim::beginRun()
-{
-
-  return StatusCode::SUCCESS ;
-}
-
-
-//---------------------------------
-// finalise()
-//---------------------------------
-
-StatusCode JEMEnergySim::finalize()
-{
-   ATH_MSG_INFO("Finalizing" );
-   return StatusCode::SUCCESS ;
 }
 
 

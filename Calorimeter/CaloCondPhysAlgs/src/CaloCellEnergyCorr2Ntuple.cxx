@@ -92,7 +92,7 @@ StatusCode CaloCellEnergyCorr2Ntuple::stop()
   ATH_MSG_INFO ( "  Run Number, lumiblock " << m_runNumber << " " << m_lumiBlock );
 
   const coral::Blob& blob=(*m_AttrListColl)["CaloCondBlob16M"].data<coral::Blob>();
-  const CaloCondBlobFlt* flt= CaloCondBlobFlt::getInstance(blob);
+  std::unique_ptr<const CaloCondBlobFlt> flt (CaloCondBlobFlt::getInstance(blob));
 
   int nobj=flt->getNObjs();
   int nchan=flt->getNChans();
@@ -136,8 +136,6 @@ StatusCode CaloCellEnergyCorr2Ntuple::stop()
        m_tree->Fill();
 
   }        // loop over cells
-
-  delete flt;
 
   return StatusCode::SUCCESS;
  }

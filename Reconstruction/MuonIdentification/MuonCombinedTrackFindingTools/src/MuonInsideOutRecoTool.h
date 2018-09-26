@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONINSIDEOUTRECOTOOL_H
@@ -56,12 +56,12 @@ namespace MuonCombined {
     static const InterfaceID& interfaceID() { return IID_MuonInsideOutRecoTool; }
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate with PRDs for segment-finding */   
-    virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-				 const Muon::RpcPrepDataContainer* rpdPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-				 const Muon::MMPrepDataContainer* mmPRDs) override;
+    virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
+				 const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpdPRDs, 
+				 const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs) override;
 
     /**IMuonCombinedInDetExtensionTool interface: deprecated*/
-    virtual void extend(const InDetCandidateCollection& inDetCandidates) override;
+    virtual void extend(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap) override;
 
     /** find the best candidate for a given set of segments */
     std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> > 
@@ -69,13 +69,13 @@ namespace MuonCombined {
 
   private:
     /** handle a single candidate */
-    void handleCandidate( const InDetCandidate& inDetCandidate, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-			  const Muon::RpcPrepDataContainer* rpdPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-			  const Muon::MMPrepDataContainer* mmPRDs );
+    void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, 
+			  const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpdPRDs, 
+			  const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs );
 
     /** add muon candidate to indet candidate */
-    void addTag( const InDetCandidate& indetCandidate, const Muon::MuonCandidate& candidate, 
-                 std::unique_ptr<const Trk::Track>& selectedTrack ) const;
+    void addTag( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, 
+		 const Muon::MuonCandidate& candidate, std::unique_ptr<const Trk::Track>& selectedTrack ) const;
 
     /** access data in layer */
     bool getLayerData( int sector, Muon::MuonStationIndex::DetectorRegionIndex regionIndex, Muon::MuonStationIndex::LayerIndex layerIndex, 

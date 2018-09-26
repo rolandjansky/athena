@@ -31,7 +31,6 @@ PFRecoverSplitShowersTool::PFRecoverSplitShowersTool(const std::string& type,con
   m_rCell(0.75),
   m_windowRms(0.032),
   m_binnedParameters(std::make_unique<eflowEEtaBinnedParameters>()),
-  m_integrator(std::make_unique<eflowLayerIntegrator>(m_windowRms, 1.0e-3, 3.0)),
   m_nTrackClusterMatches(0)
 {
   eflowRingSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
@@ -55,6 +54,12 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
     ATH_MSG_WARNING("Could not execute eflowCellEOverPTool");
     return StatusCode::SUCCESS;
   }
+
+  const double gaussianRadius = 0.032;
+  const double gaussianRadiusError = 1.0e-3;
+  const double maximumRadiusSigma = 3.0;
+  
+  m_integrator = std::make_unique<eflowLayerIntegrator>(gaussianRadius, gaussianRadiusError, maximumRadiusSigma, m_isHLLHC);
 
   return StatusCode::SUCCESS;
 }

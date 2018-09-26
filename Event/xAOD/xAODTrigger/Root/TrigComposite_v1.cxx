@@ -17,6 +17,7 @@
 namespace xAOD {
 
   const std::string TrigComposite_v1::s_collectionSuffix = "__COLL";
+  bool TrigComposite_v1::s_throwOnCopyError = false; 
 
   TrigComposite_v1::TrigComposite_v1() {
   }
@@ -216,6 +217,105 @@ namespace xAOD {
       value = acc( *this );
       return true;
    }
+
+   //
+   /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   //               Implementation for the link copy functions
+   //
+
+  void TrigComposite_v1::copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName) {
+    this->linkColNamesNC().push_back( newName );
+    this->linkColKeysNC().push_back(    other.linkColKeys().at(    index ) );
+    this->linkColIndicesNC().push_back( other.linkColIndices().at( index ) );
+    this->linkColClidsNC().push_back(   other.linkColClids().at(   index ) );
+  }
+
+  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
+    if (newName == "") {
+      newName = name;
+    }
+    if (newName == "self") {
+      if (s_throwOnCopyError) throw std::runtime_error("Cannot copy the 'self' link in a logical way.");
+      return false;
+    }
+    bool didCopy = false;
+    // Check for the existence of single link
+    std::vector<std::string>::const_iterator locationIt;
+    locationIt = std::find(other.linkColNames().begin(), other.linkColNames().end(), name);
+    if (locationIt != other.linkColNames().end()) {
+      size_t index = std::distance(other.linkColNames().begin(), locationIt);
+      if (this->hasObjectLink(newName)) {
+        if (s_throwOnCopyError) throw std::runtime_error("Already have link with name " + newName);
+      } else {
+        copyLinkInternal(other, index, newName);
+        didCopy = true;
+      }
+    }
+    if (!didCopy && s_throwOnCopyError) throw std::runtime_error("Could not find link with name " + name);
+    return didCopy;
+  }
+
+  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
+    return copyLinkFrom(*other, name, newName);
+  }
+
+  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
+    bool didCopy = false;
+    // Check for the existence of a collection.
+    if (newName == "") {
+      newName = name;
+    }
+    const std::string mangledName = name + s_collectionSuffix;
+    const std::string mangledNewName = newName + s_collectionSuffix;
+    if (other.hasObjectLink(mangledName)) {
+      if (this->hasObjectLink(mangledNewName)) {
+        if (s_throwOnCopyError) throw std::runtime_error("Already have link collection with name " + newName);
+      } else {
+        // Copy all links in the collection. Just iterating through the source vector
+        for (size_t index = 0; index < other.linkColNames().size(); ++index) {
+          if (other.linkColNames().at(index) == mangledName) {
+            copyLinkInternal(other, index, mangledNewName);
+          }
+        }
+        didCopy = true;
+      }
+    }
+    if (!didCopy && s_throwOnCopyError) throw std::runtime_error("Could not find link with name " + name);
+    return didCopy;
+  }
+    
+  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
+    return copyLinkCollectionFrom(*other, name, newName);
+  }
+
+  bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1& other) {
+    bool didCopy = false;
+    for (const std::string& name : other.linkColNames()) {
+      // Cannot copy any 'self' links as *this does not know its own location in its parent container
+      if (name == "self") continue;
+      // Check we don't have one (or more) entries with this raw name (raw = might be mangled).
+      if (this->hasObjectLink(name)) continue;
+      // Check if the link is for a single object or collection of objects by looking for the mangled suffix
+      const bool isCollection = (name.size() > s_collectionSuffix.size() && 
+                                 std::equal(s_collectionSuffix.rbegin(), s_collectionSuffix.rend(), name.rbegin()));
+      if (isCollection) {
+        // The copyLinkCollectionFrom call needs the un-mangled name as it is a public fn. It will re-mangle.
+        const std::string unmangledName = name.substr(0, name.size() - s_collectionSuffix.size());
+        copyLinkCollectionFrom(other, unmangledName);
+      } else { // !isCollection
+        copyLinkFrom(other, name);
+      }
+      didCopy = true;
+    }
+    return didCopy;
+  }
+
+  bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1* other) {
+    return copyAllLinksFrom(*other);
+  }
 
    //
    /////////////////////////////////////////////////////////////////////////////

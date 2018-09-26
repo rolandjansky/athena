@@ -13,7 +13,6 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h" 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "PixelGeoModel/PixelGeoModelAthenaComps.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -42,13 +41,13 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
     m_detectorName("PixelDetector"),
     m_IBLParameterSvc("IBLParameterSvc",name),
     m_buildDBM(0),
+    m_useDynamicAlignFolders(false),
     m_bcmTool(""),
     m_blmTool(""),
     m_serviceBuilderTool(""),
     m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
-    m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
     m_manager(0),
     m_athenaComps(0)
 {
@@ -65,8 +64,8 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
   declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-  declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
   declareProperty("OverrideVersionName", m_overrideVersionName);
+  declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
 }
 /**
  ** Destructor
@@ -210,6 +209,7 @@ StatusCode PixelDetectorTool::create()
     if (versionName == "SLHC") switches.setSLHC();
     if (versionName == "IBL") switches.setIBL();
     switches.setDBM(m_buildDBM); //DBM flag
+    switches.setDynamicAlignFolders(m_useDynamicAlignFolders);
 
     //JBdV
     switches.setServicesOnLadder(m_servicesOnLadder);
@@ -234,16 +234,8 @@ StatusCode PixelDetectorTool::create()
     m_athenaComps->setDetStore(detStore().operator->());
     m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     m_athenaComps->setIdHelper(idHelper);
-
-    //
-    // LorentzAngleService
-    //
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lorentz angle service passed to InDetReadoutGeometry with name: " 
-					   << m_lorentzAngleSvc.name() << endmsg;
-     
 
     // BCM Tool.
     if (!m_bcmTool.empty()) {
@@ -356,23 +348,6 @@ StatusCode PixelDetectorTool::create()
       msg(MSG::ERROR) << "Could not make link between PixelDetectorManager and SiDetectorManager" << endmsg;
       return( StatusCode::FAILURE );
     }
-
-   
-    //
-    // LorentzAngleService
-    // We retrieve it to make sure it is initialized during geometry initialization.
-    //
-    if (!m_lorentzAngleSvc.empty()) {
-      sc = m_lorentzAngleSvc.retrieve();
-      if (!sc.isFailure()) {
-	msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
-      } else {
-	msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
-      }
-    } else {
-      msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
-    }
-   
   } 
 
   return result;
@@ -395,7 +370,7 @@ PixelDetectorTool::registerCallback()
   StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
 
-    {  
+    if (m_useDynamicAlignFolders) {  
       std::string folderName = "/Indet/AlignL1/ID";
       if (detStore()->contains<CondAttrListCollection>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
@@ -447,7 +422,7 @@ PixelDetectorTool::registerCallback()
     }
 
     
-    {
+    else {
       std::string folderName = "/Indet/Align";
       if (detStore()->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;

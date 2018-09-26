@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINED_SORTINDETCANDIDATES
@@ -17,19 +17,16 @@ namespace MuonCombined {
 
   class SortInDetCandidates {
   public:
-    bool operator()( const InDetCandidate* c1, const InDetCandidate* c2 ) const {
-      return this->operator()(*c1,*c2);
-    }
-    bool operator()( const InDetCandidate& c1, const InDetCandidate& c2 ) const {
+    bool operator()( std::pair<const InDetCandidate*,std::vector<const TagBase*> > c1, std::pair<const InDetCandidate*,std::vector<const TagBase*> > c2 ) const {
       
-      if( c1.combinedDataTags().empty() ){
-        if( c2.combinedDataTags().empty() ) return false;      
+      if( c1.second.empty() ){
+        if( c2.second.empty() ) return false;      
         return true;
       }
-      if( c2.combinedDataTags().empty() ) return false;
+      if( c2.second.empty() ) return false;
      
-      const TagBase& t1 = *c1.combinedDataTags().front();
-      const TagBase& t2 = *c2.combinedDataTags().front();
+      const TagBase& t1 = *c1.second.front();
+      const TagBase& t2 = *c2.second.front();
       // compare based on author/type
       bool s1 = t1 < t2;
       bool s2 = t2 < t1;

@@ -27,7 +27,7 @@ StatusCode LArBadFebCondAlg::initialize() {
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
-  ATH_CHECK( m_BCInputKey.initialize() );
+  if(!m_BCInputKey.key().empty()) ATH_CHECK( m_BCInputKey.initialize() );
   ATH_CHECK( m_BCOutputKey.initialize() );
 
   // Register write handle
@@ -48,57 +48,65 @@ StatusCode LArBadFebCondAlg::execute() {
     return StatusCode::SUCCESS;
   }  
 
-  SG::ReadCondHandle<AthenaAttributeList> readHandle{m_BCInputKey};
-  const AthenaAttributeList* attrList{*readHandle};
-
-  if (attrList==nullptr) {
-    msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_BCInputKey.key() << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   std::unique_ptr<LArBadFebCont> badFebCont(new LArBadFebCont());
-  
-  const coral::Blob& blob = (*attrList)["Blob"].data<coral::Blob>();
-  unsigned int chanSize = (*attrList)["ChannelSize"].data<unsigned int>();
-  unsigned int stateSize = (*attrList)["StatusWordSize"].data<unsigned int>();
-  unsigned int endian = (*attrList)["Endianness"].data<unsigned int>();
-  unsigned int version = (*attrList)["Version"].data<unsigned int>();
-    
-  std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = 
-    LArBadChanBlobUtils::decodeBlob<LArBadFeb>( &blob, chanSize, stateSize, endian,
-						version, msg());
-   
-  for (auto& idBC : bcVec) {
-    badFebCont->add(idBC.first,idBC.second);
-  }
-     
-   
-  if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
-     
-     const LArOnlineID* onlineID;
-     ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));	       
-     LArBadChannelDecoder decoder(&(*onlineID), msg());
-     std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = decoder.readFebASCII(m_inputFileName);
-     for (auto& idBC : bcVec) {
-       badFebCont->add(idBC.first,idBC.second);
-     }
-   } //end if have ASCII filename
-
-
-
-   size_t nChanBeforeMege=badFebCont->size();
-   badFebCont->sort(); //Sorts vector of bad febs and merges duplicate entries
-   
-   ATH_MSG_INFO("Read a total of " << badFebCont->size() << " problematic febs from database");
-   if (nChanBeforeMege!=badFebCont->size()) {
-     ATH_MSG_INFO("Merged " << nChanBeforeMege-badFebCont->size() << " duplicate entries");
-   }
-
-  // Define validity of the output cond object and record it
   EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
+
+  if(!m_BCInputKey.key().empty()) {
+
+    SG::ReadCondHandle<AthenaAttributeList> readHandle{m_BCInputKey};
+    const AthenaAttributeList* attrList{*readHandle};
+
+    if (attrList==nullptr) {
+      msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_BCInputKey.key() << endmsg;
+      return StatusCode::FAILURE;
+    }
+ 
+    
+    const coral::Blob& blob = (*attrList)["Blob"].data<coral::Blob>();
+    unsigned int chanSize = (*attrList)["ChannelSize"].data<unsigned int>();
+    unsigned int stateSize = (*attrList)["StatusWordSize"].data<unsigned int>();
+    unsigned int endian = (*attrList)["Endianness"].data<unsigned int>();
+    unsigned int version = (*attrList)["Version"].data<unsigned int>();
+      
+    std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = 
+      LArBadChanBlobUtils::decodeBlob<LArBadFeb>( &blob, chanSize, stateSize, endian,
+          					version, msg());
+     
+    for (auto& idBC : bcVec) {
+      badFebCont->add(idBC.first,idBC.second);
+    }
+       
+     
+    if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
+       
+       const LArOnlineID* onlineID;
+       ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));	       
+       LArBadChannelDecoder decoder(&(*onlineID), msg());
+       std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = decoder.readFebASCII(m_inputFileName);
+       for (auto& idBC : bcVec) {
+         badFebCont->add(idBC.first,idBC.second);
+       }
+     } //end if have ASCII filename
+ 
+ 
+ 
+     size_t nChanBeforeMege=badFebCont->size();
+     badFebCont->sort(); //Sorts vector of bad febs and merges duplicate entries
+     
+     ATH_MSG_INFO("Read a total of " << badFebCont->size() << " problematic febs from database");
+     if (nChanBeforeMege!=badFebCont->size()) {
+       ATH_MSG_INFO("Merged " << nChanBeforeMege-badFebCont->size() << " duplicate entries");
+     }
+ 
+    // Define validity of the output cond object and record it
+    if(!readHandle.range(rangeW)) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    }
+  } else {
+
+    rangeW=EventIDRange( EventIDBase(0,0), EventIDBase(std::numeric_limits<unsigned int>::max()-1,0)); 
+
   }
 
   if(writeHandle.record(rangeW,badFebCont.release()).isFailure()) {

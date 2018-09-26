@@ -23,17 +23,12 @@
 namespace TrigCompositeUtils {
 
   // alias types, for readability and to simplify future evolution
-  typedef xAOD::TrigComposite Decision;
-  typedef xAOD::TrigCompositeContainer DecisionContainer;
-  typedef xAOD::TrigCompositeAuxContainer DecisionAuxContainer;
-
   typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;
   /**
    * @brief creates and right away stores the DecisionContainer under the key
    **/
   DecisionWriteHandle createAndStore(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx);
 
-  
   /**
    * @brief helper method to that created the Decision objects, places it in the container and returns
    * This is to make this:
@@ -41,13 +36,11 @@ namespace TrigCompositeUtils {
    * instead of:
    * auto d = new Decision; 
    * output->push_back(d);    
-   **/
-  
+   * a version with the name assigns the name to the TC object
+   **/  
   Decision* newDecisionIn (DecisionContainer* dc);
+  Decision* newDecisionIn (DecisionContainer* dc, const std::string& name);
 
-  // aliases for the decision IDs, in fact this are just ints
-  typedef unsigned int DecisionID;
-  typedef std::set<DecisionID> DecisionIDContainer;
 
   /**
    * @brief Appends the decision (given as ID) to the decision object
@@ -68,7 +61,7 @@ namespace TrigCompositeUtils {
   const std::vector<int>& decisionIDs( const Decision* d ); 
   std::vector<int>& decisionIDs( Decision* d );
 
-
+  
   /**
    * @brief return true if thre is no positive decision stored
    **/
@@ -176,6 +169,13 @@ namespace TrigCompositeUtils {
       return LinkInfo<T>(); // invalid link
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
   }
+
+  /**
+   * Prints the TC including the linked seeds
+   * @warnign expensive call
+   **/  
+  std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
+
 }
 
 

@@ -67,7 +67,7 @@ public:
   unsigned int getNExtrapolatedTracks() {return m_nextrapolatedTracks;}
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FTKTrackFitterStats,764785,3)
 
 #endif // FTKTRACKFITTERSTATS_H

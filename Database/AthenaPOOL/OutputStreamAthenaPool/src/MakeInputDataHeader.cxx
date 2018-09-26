@@ -10,15 +10,13 @@
 
 #include "MakeInputDataHeader.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
 #include "PersistentDataModel/DataHeader.h"
 
 //___________________________________________________________________________
 MakeInputDataHeader::MakeInputDataHeader(const std::string& name, ISvcLocator* pSvcLocator) 
-	: ::AthAlgorithm(name, pSvcLocator), p_SGevent("StoreGateSvc", name) {
-   // Declare the properties
-   declareProperty("StreamName", m_streamName);
-   declareProperty("KeepCurrentInput", m_keepInput = false);
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
+{
 }
 //___________________________________________________________________________
 MakeInputDataHeader::~MakeInputDataHeader() {
@@ -26,42 +24,24 @@ MakeInputDataHeader::~MakeInputDataHeader() {
 //___________________________________________________________________________
 StatusCode MakeInputDataHeader::initialize() {
    ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   // Locate the StoreGateSvc
-   if (!p_SGevent.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Could not find StoreGateSvc");
-      return(StatusCode::FAILURE);
-   }
    // Print out the stream name
-   ATH_MSG_INFO("Name of Stream to be made Input: " << m_streamName.value());
+    ATH_MSG_INFO("Name of Stream to be made Input: " << m_streamName.key());
+
+   m_aliasName = m_streamName.key() + "_Input";
+
+   ATH_CHECK( m_streamName.initialize() );
+   ATH_CHECK( m_aliasName.initialize() );
    return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________
-StatusCode MakeInputDataHeader::execute() {
-   const DataHandle<DataHeader> dh, dhEnd;
-   if (!m_keepInput.value()) {
-      if (!p_SGevent->retrieve(dh, dhEnd).isSuccess()) {
-         ATH_MSG_FATAL("Could not find any DataHeader");
-         return(StatusCode::FAILURE);
-      }
-      for ( ; dh != dhEnd; dh++) {
-         if (p_SGevent->transientContains<DataHeader>(dh.key()) && dh->checkStatus(DataHeader::Primary)) {
-            dh->setStatus(DataHeader::Input);
-         }
-      }
-   }
-   if (!p_SGevent->retrieve(dh, m_streamName.value()).isSuccess()) {
-      ATH_MSG_FATAL("Could not find DataHeader: " << m_streamName.value());
-      return(StatusCode::FAILURE);
-   }
-   dh->setStatus(DataHeader::Primary);
-   return(StatusCode::SUCCESS);
+StatusCode MakeInputDataHeader::execute_r (const EventContext& ctx) const
+{
+  SG::ReadHandle<DataHeader> dh (m_streamName, ctx);
+  ATH_CHECK( dh.alias (m_aliasName) );
+  return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________
 StatusCode MakeInputDataHeader::finalize() {
    ATH_MSG_DEBUG("in finalize()");
-   // Release the StoreGateSvc
-   if (!p_SGevent.release().isSuccess()) {
-      ATH_MSG_WARNING("Could not release StoreGateSvc");
-   }
    return(StatusCode::SUCCESS);
 }

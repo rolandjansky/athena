@@ -35,13 +35,13 @@ class T2VertexBeamSpotOnlineMonitoring(TrigGenericMonitoringToolConfig):
             #---------------------------------------
 
             # Number of tracks per event
-            # Total number of bins: 600
+            # Total number of bins: 400
             self.Histograms += [ defineHistogram('TotalTracks', type='TH1F',
                                                  title="TotalTracks; N tracks per event; Number of events",
-                                                 xbins=300, xmin=0.0, xmax=600.0) ]
+                                                 xbins=200, xmin=0.0, xmax=1000.0) ]
             self.Histograms += [ defineHistogram('TotalTracksPass', type='TH1F',
                                                  title="TotalTracksPass;  N accepted tracks per event; Number of events",
-                                                 xbins=300, xmin=0.0, xmax=500.0) ]
+                                                 xbins=200, xmin=0.0, xmax=1000.0) ]
 
             # Track Z position
             # Total number of Bins: 200
@@ -70,6 +70,16 @@ class T2VertexBeamSpotOnlineMonitoring(TrigGenericMonitoringToolConfig):
             self.Histograms += [ defineHistogram('VertexNTrksPass, VertexZerrPass',type='TProfile',
                                                  title="Acc. Vertex Zerr vs NTrks; Vertex N trks; Vertex Zerr [mm]",
                                                  xbins=100, xmin=0.0, xmax=100.0) ]
+
+
+            # X(Y) vs Xerr(Yerr) for Bayesian Inference method
+            self.Histograms += [ defineHistogram('VertexXZoomPass, VertexXerrPass',type='TH2F',
+                                                 title="Vertex Xerr vs X-X_{nominal}; Vertex X-X_{nominal} [mm]; Vertex Xerr [mm]",
+                                                 xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100, opt='kLBN') ]
+            self.Histograms += [ defineHistogram('VertexYZoomPass, VertexYerrPass',type='TH2F',
+                                                 title="Vertex Yerr vs Y-Y_{nominal}; Vertex Y-Y_{nominal} [mm]; Vertex Yerr [mm]",
+                                                 xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100, opt='kLBN') ]
+
 
             # Pull in X, Y, Z vs. Ntrk in split vertices: Monitors quality of tracking information
             # Total number of bins: 30,000
@@ -130,7 +140,7 @@ class T2VertexBeamSpotOnlineMonitoring(TrigGenericMonitoringToolConfig):
             # Total number of bins: 25
             self.Histograms += [ defineHistogram('NvtxPass', type='TH1F',
                                                  title="NvtxPass; N accepted vertices per event; Number of events",
-                                                 xbins=25, xmin=0.0, xmax=25.0, opt='kLBN') ]
+                                                 xbins=30, xmin=0.0, xmax=30.0, opt='kLBN') ]
 
             # Number of tracks per vertex
             # Total number of bins: 100
@@ -281,7 +291,7 @@ class T2VertexBeamSpotOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
             self.Histograms += [ defineHistogram('NClusters', type='TH1F',
                                                  title="NClusters; Number of clusters per event; Number of events",
-                                                 xbins=25, xmin=0.0, xmax=25.0) ]
+                                                 xbins=30, xmin=0.0, xmax=30.0) ]
             self.Histograms += [ defineHistogram('ClusterNTracks', type='TH1F',
                                                  title="ClusterNTracks; Number tracks per cluster; Number of events",
                                                  xbins=100, xmin=0.0, xmax=100.0) ]
@@ -497,6 +507,14 @@ class T2VertexBeamSpotValidationMonitoring( TrigGenericMonitoringToolConfig ):
         self.Histograms += [ defineHistogram('VertexZ, VertexYerr',type='TH2F',
                                              title="Vertex Yerr vs Z; Vertex Z [mm]; Vertex Yerr [mm]",
                                              xbins=500, xmin=-250.0, xmax=250.0, ybins=100, ymin=0.0, ymax=1.0) ]
+
+        # X(Y) vs Xerr(Yerr) for Bayesian Inference method
+        self.Histograms += [ defineHistogram('VertexXZoomPass, VertexXerrPass',type='TH2F',
+                                             title="Vertex Xerr vs X-X_{nominal}; Vertex X-X_{nominal} [mm]; Vertex Xerr [mm]",
+                                             xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100) ]
+        self.Histograms += [ defineHistogram('VertexYZoomPass, VertexYerrPass',type='TH2F',
+                                             title="Vertex Yerr vs Y-Y_{nominal}; Vertex Y-Y_{nominal} [mm]; Vertex Yerr [mm]",
+                                             xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100) ]
 
         self.Histograms += [ defineHistogram('VertexNTrks, VertexXerr',type='TH2F',
                                              title="Vertex Xerr vs NTrks; Vertex N trks; Vertex Xerr [mm]",

@@ -144,7 +144,7 @@ public:
      int m_TableVersion;
      int m_firstcode[CTABLE_FC_LENGTH];
      int m_lengths_integral[CTABLE_FC_LENGTH];    // ..[i] = Sum(numl[0,i-1])
-     unsigned int *m_syms;              // Array of symbols (straw data words)
+     std::unique_ptr<unsigned int[]> m_syms;              // Array of symbols (straw data words)
      int m_Nsymbols;
    } t_CompressTable;
 

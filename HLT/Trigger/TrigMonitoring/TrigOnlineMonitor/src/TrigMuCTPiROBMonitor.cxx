@@ -499,10 +499,7 @@ StatusCode TrigMuCTPiROBMonitor::finalize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode TrigMuCTPiROBMonitor::beginRun() {
-
-  // Get a message stream instance
-  ATH_MSG_DEBUG( "beginRun()" );
+StatusCode TrigMuCTPiROBMonitor::start() {
 
   // Define histograms only when checks are requested
   if ((not m_doROBChecksum.value()) && (not m_doROBStatus.value())) return StatusCode::SUCCESS;

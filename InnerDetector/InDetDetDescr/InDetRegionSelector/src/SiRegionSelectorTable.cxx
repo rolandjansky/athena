@@ -4,8 +4,6 @@
   
 #include "InDetRegionSelector/SiRegionSelectorTable.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
@@ -13,14 +11,15 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 
+#include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
+#include "RegSelLUT/RegSelModule.h" 
+#include "RegSelLUT/RegSelSiLUT.h" 
+
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <iostream>
 #include <fstream>
 #include <fstream>
-
-#include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
-
-#include "RegSelLUT/RegSelModule.h" 
-#include "RegSelLUT/RegSelSiLUT.h" 
 
 using namespace InDetDD;
 using namespace std;
@@ -41,7 +40,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
      m_printTable(false),
      m_noDBM(true),
      m_pixIdMapping("PixelCablingSvc", name),
-     m_sctCablingSvc("SCT_CablingSvc",name)
+     m_sctCablingToolCB("SCT_CablingToolCB")
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
@@ -127,8 +126,8 @@ SiRegionSelectorTable::createTable()
       return StatusCode::FAILURE;
     }
   } else { // SCT
-    if (m_sctCablingSvc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT cabling service." << endmsg;
+    if (m_sctCablingToolCB.retrieve().isFailure()) {
+      msg(MSG::ERROR) << "Can't get the SCT_CablingToolCB." << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -188,7 +187,7 @@ SiRegionSelectorTable::createTable()
 	if ( sctId!=0 ) {      
 	  barrelEC  = sctId->barrel_ec(element->identify());
 	  layerDisk = sctId->layer_disk(element->identify());
-	  robId=m_sctCablingSvc->getRobIdFromOfflineId(element->identify());       
+	  robId=m_sctCablingToolCB->getRobIdFromOfflineId(element->identify());
 	}
 	else { 
 	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endmsg;

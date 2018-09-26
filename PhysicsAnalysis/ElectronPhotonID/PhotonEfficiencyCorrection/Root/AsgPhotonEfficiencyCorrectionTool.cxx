@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,7 +20,6 @@
 #include <limits.h>
 
 // Include the return object
-#include "PATCore/TResult.h"
 #include "PATCore/PATCoreEnums.h"
 
 // xAOD includes
@@ -29,10 +28,8 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "PathResolver/PathResolver.h"
 
-
 // ROOT includes
 #include "TSystem.h"
-
 #define MAXETA 2.47
 #define MIN_ET 10000.0
 #define MIN_ET_OF_SF 10000.0
@@ -41,6 +38,8 @@
 #define MAX_ET_OF_SF 1499999.99
 #define MAX_ET_Iso_SF 999999.99
 #define MAX_ET_Trig_SF 99999.99
+
+typedef Root::TPhotonEfficiencyCorrectionTool::Result Result;
 
 
 // =============================================================================
@@ -175,8 +174,6 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
       return StatusCode::FAILURE;
     }
   
-  // Copy the now filled TResult to the dummy
-  m_resultDummy = m_rootTool_con->getTResult();  // do only for converted photons instance
 
   // Add the recommended systematics to the registry
   if ( registerSystematics() != CP::SystematicCode::Ok) {
@@ -205,19 +202,20 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::finalize()
 // =============================================================================
 // The main accept method: the actual cuts are applied here 
 // =============================================================================
-const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::Egamma* egam ) const
+const Result AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::Egamma* egam ) const
 {
+  Result result;
   if ( !egam )
     {
       ATH_MSG_ERROR ( "Did NOT get a valid egamma pointer!" );
-      return m_resultDummy;
+      return result;
     }
   
    // Get the run number
   const xAOD::EventInfo* eventInfo = evtStore()->retrieve< const xAOD::EventInfo> ("EventInfo");
   if(!eventInfo){
     ATH_MSG_ERROR ( "Could not retrieve EventInfo object!" );
-    return m_resultDummy;
+    return result;
   }
 
   //Retrieve the proper random Run Number
@@ -226,7 +224,7 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
     static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber");
         if (!randomrunnumber.isAvailable(*eventInfo)) {
           ATH_MSG_WARNING("Pileup tool not run before using PhotonEfficiencyTool! SFs do not reflect PU distribution in data");
-          return m_resultDummy;
+          return result;
         }
         runnumber = randomrunnumber(*(eventInfo));
   }
@@ -240,7 +238,7 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
   const xAOD::CaloCluster* cluster  = egam->caloCluster(); 
   if (!cluster){
         ATH_MSG_ERROR("ERROR no cluster associated to the Photon \n"); 
-        return m_resultDummy;
+        return result;
     }
   double eta2   = fabsf(cluster->etaBE(2));
   double et = egam->pt();
@@ -248,19 +246,19 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
   // Check if photon in the range to get the SF
   if(eta2>MAXETA) {
         ATH_MSG_WARNING( "No correction factor provided for eta "<<cluster->etaBE(2)<<" Returning SF = 1 + / - 1");
-        return m_resultDummy;
+        return result;
   }
   if(et<MIN_ET_OF_SF && m_sysSubstring=="ID_") {
         ATH_MSG_WARNING( "No ID scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-        return m_resultDummy;
+        return result;
   }
   if(et<MIN_ET_Iso_SF && m_sysSubstring=="ISO_") {
         ATH_MSG_WARNING( "No isolation scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-        return m_resultDummy;
+        return result;
   }
   if(et<MIN_ET_Trig_SF && m_sysSubstring=="TRIGGER_") {
         ATH_MSG_WARNING( "No trigger scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-        return m_resultDummy;
+        return result;
   }
   if(et>MAX_ET_OF_SF && m_sysSubstring=="ID_") {
         ATH_MSG_WARNING( "No scale factor provided for et "<<et/1e3<<"GeV Returning SF for "<<MAX_ET_OF_SF/1e3<<"GeV");
@@ -290,7 +288,7 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
   
 }
 
-const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::IParticle *part ) const
+const Result AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::IParticle *part ) const
 {
   const xAOD::Egamma* egam = dynamic_cast<const xAOD::Egamma*>(part);
   if ( egam ){
@@ -298,7 +296,8 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::I
     } 
   else{
       ATH_MSG_ERROR ( " Could not cast to const egamma pointer!" );
-      return m_resultDummy;
+      Result dummy;
+      return dummy;
     }
 }
 
@@ -319,15 +318,14 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(c
   }
   
   if(m_appliedSystematics==nullptr){
-    efficiencyScaleFactor=calculate(&inputObject).getScaleFactor();
+    efficiencyScaleFactor=calculate(&inputObject).scaleFactor;
     return  CP::CorrectionCode::Ok;
   }
   
   //Get the result + the uncertainty
   float sigma(0);
   sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
-  efficiencyScaleFactor=calculate(&inputObject).getScaleFactor()+sigma*calculate(&inputObject).getTotalUncertainty();
-  
+  efficiencyScaleFactor=calculate(&inputObject).scaleFactor+sigma*calculate(&inputObject).totalUncertainty;
   return  CP::CorrectionCode::Ok;
 }
 
@@ -339,7 +337,7 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactorEr
 	return CP::CorrectionCode::OutOfValidityRange;
   }
   
-  efficiencyScaleFactorError=calculate(&inputObject).getTotalUncertainty();
+  efficiencyScaleFactorError=calculate(&inputObject).totalUncertainty;
   return  CP::CorrectionCode::Ok;
 }
 
@@ -354,11 +352,11 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::applyEfficiencyScaleFactor
   }
   
   float eff;
-  if(m_appliedSystematics==nullptr) eff  = calculate(&inputObject).getScaleFactor();
+  if(m_appliedSystematics==nullptr) eff  = calculate(&inputObject).scaleFactor;
   else{ // if SF is up or down varies by sigma
     float sigma(0);
 	sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
-	eff=calculate(&inputObject).getScaleFactor()+sigma*calculate(&inputObject).getTotalUncertainty();
+	eff=calculate(&inputObject).scaleFactor+sigma*calculate(&inputObject).totalUncertainty;
   }
   // decorate photon
   ATH_MSG_INFO("decorate object");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
@@ -41,6 +41,11 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
   m_rpcPatFinder("TrigL2MuonSA::RpcPatFinder")
 {
    declareInterface<TrigL2MuonSA::MuFastDataPreparator>(this);
+   declareProperty("RPCRecRoiSvc",      m_recRPCRoiSvc,      "Reconstruction of RPC RoI");
+   declareProperty("RPCDataPreparator", m_rpcDataPreparator );
+   declareProperty("TGCDataPreparator", m_tgcDataPreparator );
+   declareProperty("MDTDataPreparator", m_mdtDataPreparator );
+   declareProperty("CSCDataPreparator", m_cscDataPreparator );
 }
 
 // --------------------------------------------------------------------------------

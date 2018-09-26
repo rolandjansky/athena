@@ -58,8 +58,8 @@ def makeInDetAlgs():
     
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
-                                        TriggerMode = False,)# OutputLevel = INFO)
+    InDetSCTRodDecoder = SCT_RodDecoder(name          = "InDetSCTRodDecoder",)
+                                        # OutputLevel = INFO)
     ToolSvc += InDetSCTRodDecoder
     
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
@@ -119,19 +119,16 @@ def makeInDetAlgs():
     viewAlgs.append(InDetTRTRawDataProvider)
   
 
-  # SCTLorentzAngleTool for ClusterMakerTool
-  if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-      from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-      sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
-  
   #Pixel clusterisation
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
   
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
-      PixelCalibSvc        = None,
-      PixelOfflineCalibSvc = None,
-      UsePixelCalibCondDB  = False,
-                                                  SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
+                                                  PixelCalibSvc        = None,
+                                                  PixelOfflineCalibSvc = None,
+                                                  UsePixelCalibCondDB  = False,
+                                                  SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
+                                                  PixelLorentzAngleTool = TrigPixelLorentzAngleTool)
   
   ToolSvc += InDetClusterMakerTool
   
@@ -164,24 +161,24 @@ def makeInDetAlgs():
 
   viewAlgs.append(InDetPixelClusterization)
 
-  from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
-  sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
-  sct_FlaggedConditionToolSetup.setup()
-  InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
+  # TODO - it should work in principle but generates run time errors for the moment 
+  # from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
+  # sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
+  # sct_FlaggedConditionToolSetup.setup()
+  # InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
   
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetup.setToolName("InDetSCT_ConditionsSummaryTool")
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool")
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   condTools = []
   for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
     condTool = condToolHandle.typeAndName
+    print condTool
     if condTool not in condTools:
-      if condTool != InDetSCT_FlaggedConditionTool.getFullName():
+      if condTool != "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool":
         condTools.append(condTool)
-  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
@@ -201,7 +198,6 @@ def makeInDetAlgs():
   InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                      DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -235,8 +231,17 @@ def makeInDetAlgs():
                                                                     #OutputLevel=INFO)
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
-  
-  
+
+  # Condition algorithm for SiTrackerSpacePointFinder
+  if InDetSiTrackerSpacePointFinder.ProcessSCTs:
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+      # Setup alignment folders and conditions algorithms
+      from InDetCondFolders import InDetAlignFolders
+      from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
+
   from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 

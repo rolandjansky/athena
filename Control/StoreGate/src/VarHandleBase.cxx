@@ -159,6 +159,31 @@ namespace SG {
 
 
   /**
+   * @brief Constructor from a DataProxy.
+   * @param proxy The proxy to which to bind.
+   * @param mode Mode of this handle (read/write/update).
+   *
+   * This handle will be bound to the given proxy.
+   */
+  VarHandleBase::VarHandleBase (SG::DataProxy* proxy,
+                                Gaudi::DataHandle::Mode mode)
+    : IResetable(),
+      m_ptr (nullptr),
+      m_proxy (nullptr),
+      m_store (proxy->store()),
+      m_storeWasSet (true),
+      m_ownedKey (std::make_unique<VarHandleKey> (proxy->clID(),
+                                                  proxy->name(),
+                                                  mode,
+                                                  m_store ? m_store->name() : "")),
+      m_key (m_ownedKey.get())
+  {
+    m_ownedKey->setOwningHandle (this);
+    setProxy (proxy);
+  }
+
+
+  /**
    * @brief Copy constructor.
    */
   VarHandleBase::VarHandleBase( const VarHandleBase& rhs ) :

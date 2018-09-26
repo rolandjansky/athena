@@ -7,14 +7,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
 
 class SCT_LinkMaskingCondAlg : public AthAlgorithm 
 {  

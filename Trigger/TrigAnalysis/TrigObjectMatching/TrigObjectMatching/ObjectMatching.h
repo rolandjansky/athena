@@ -7,7 +7,7 @@
 
 #include "TrigObjectMatching/DistanceFunctor.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CxxUtils/fpcompare.h"
 
 #include <vector>

@@ -6,17 +6,18 @@
 
 // Athena includes
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // Constructor
 SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::string &type, const std::string &name, const IInterface *parent) :
   base_class(type, name, parent),
   m_mutex{},
   m_cache{},
+  m_cacheElements{},
   m_condData{},
+  m_detectorElements{},
   m_pHelper{nullptr},
-  m_pManager{nullptr},
   m_checkStripsInsideModules{true}
 { 
   declareProperty("checkStripsInsideModule", m_checkStripsInsideModules);
@@ -26,11 +27,11 @@ SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::stri
 StatusCode SCT_ConfigurationConditionsTool::initialize() {
   ATH_MSG_INFO("Initializing configuration");
 
-  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
   // Read Cond Handle Key
   ATH_CHECK(m_condKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -79,7 +80,7 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetC
 
 // Is a wafer with this IdentifierHash good?
 bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId) const {
-  Identifier elementId{m_pHelper->wafer_id(hashId)};
+  const Identifier elementId{m_pHelper->wafer_id(hashId)};
   return isGood(elementId);
 }
 
@@ -145,7 +146,7 @@ bool SCT_ConfigurationConditionsTool::isWaferInBadModule(const Identifier& wafer
     return true;
   }
 
-  Identifier moduleId{m_pHelper->module_id(waferId)};
+  const Identifier moduleId{m_pHelper->module_id(waferId)};
   return condData->isBadModuleId(moduleId);
 }
 
@@ -158,7 +159,7 @@ int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId) const {
 
   // Check for swapped readout direction
   const IdentifierHash waferHash{m_pHelper->wafer_hash(m_pHelper->wafer_id(stripId))};
-  const InDetDD::SiDetectorElement* pElement{m_pManager->getDetectorElement(waferHash)};
+  const InDetDD::SiDetectorElement* pElement{getDetectorElement(waferHash)};
   if (pElement==nullptr) {
     ATH_MSG_FATAL("Element pointer is NULL in 'badStrips' method");
     return invalidChipNumber;
@@ -194,18 +195,16 @@ void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId,  std
     if (condData->isBadModuleId(moduleId)) return;
   }
 
-  std::set<Identifier>::const_iterator chanItr{condData->getBadStripIds()->begin()};
-  std::set<Identifier>::const_iterator chanEnd{condData->getBadStripIds()->end()};
-  for (; chanItr != chanEnd; ++chanItr) {
+  for (const Identifier& badStripId: *(condData->getBadStripIds())) {
     if (ignoreBadChips) {
       // Ignore strips in bad chips
-      int chip{getChip(*chanItr)};
+      const int chip{getChip(badStripId)};
       if (chip!=invalidChipNumber) {
         unsigned int chipStatusWord{condData->getBadChips(moduleId)};
         if ((chipStatusWord & (1 << chip)) != 0) continue;
       }   
     }
-    if (m_pHelper->module_id(m_pHelper->wafer_id((*chanItr))) == moduleId) strips.insert(*chanItr);
+    if (m_pHelper->module_id(m_pHelper->wafer_id(badStripId)) == moduleId) strips.insert(badStripId);
   }
 }
        
@@ -269,23 +268,21 @@ SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, bool ig
     std::copy(condData->getBadStripIds()->begin(), condData->getBadStripIds()->end(), std::inserter(strips,strips.begin()));
     return;
   }
-  std::set<Identifier>::const_iterator chanItr{condData->getBadStripIds()->begin()};
-  std::set<Identifier>::const_iterator chanEnd{condData->getBadStripIds()->end()};
-  for (; chanItr != chanEnd; ++chanItr) {
-    Identifier moduleId{m_pHelper->module_id(m_pHelper->wafer_id(*chanItr))};
+  for (const Identifier& badStripId: *(condData->getBadStripIds())) {
+    const Identifier moduleId{m_pHelper->module_id(m_pHelper->wafer_id(badStripId))};
     // Ignore strips in bad modules
     if (ignoreBadModules) {
       if (condData->isBadModuleId(moduleId)) continue;
     }
     // Ignore strips in bad chips
     if (ignoreBadChips) {
-      int chip{getChip(*chanItr)};
-      if (chip !=invalidChipNumber) {
+      const int chip{getChip(badStripId)};
+      if (chip!=invalidChipNumber) {
         unsigned int chipStatusWord{condData->getBadChips(moduleId)};
         if ((chipStatusWord & (1 << chip)) != 0) continue;
       }
     }
-    strips.insert(*chanItr);
+    strips.insert(badStripId);
   }
 }
 
@@ -307,4 +304,25 @@ SCT_ConfigurationConditionsTool::getCondData(const EventContext& ctx) const {
     m_cache[slot] = evt;
   }
   return m_condData.get();
+}
+
+const InDetDD::SiDetectorElement* SCT_ConfigurationConditionsTool::getDetectorElement(const IdentifierHash& waferHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheElements.size()) {
+    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_detectorElements.set(*condData);
+    m_cacheElements[slot] = evt;
+  }
+  return m_detectorElements->getDetectorElement(waferHash);
 }

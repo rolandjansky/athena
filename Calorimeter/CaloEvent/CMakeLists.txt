@@ -30,6 +30,7 @@ atlas_depends_on_subdirs(
    Control/SGTools
    Control/StoreGate
    DetectorDescription/IdDictParser
+   LArCalorimeter/LArRawConditions
    GaudiKernel )
 
 # External dependencies:
@@ -99,5 +100,10 @@ atlas_add_test( CaloSamplingData_test
 
 atlas_add_test( CaloTowerSeg_test
    SOURCES test/CaloTowerSeg_test.cxx
+   LINK_LIBRARIES CaloEvent
+   EXTRA_PATTERNS "${_patterns}" )
+
+atlas_add_test( CaloTester_test
+   SOURCES test/CaloTester_test.cxx
    LINK_LIBRARIES CaloEvent
    EXTRA_PATTERNS "${_patterns}" )

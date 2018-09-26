@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiClusterOnTrackTool/PixelClusterOnTrackTool.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
@@ -199,6 +198,7 @@ InDet::PixelClusterOnTrackTool::initialize() {
 #include "IBL_calibration.h"
   ///  
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
    
   return StatusCode::SUCCESS;
 }
@@ -375,7 +375,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
     double boweta = std::atan2(trketacomp, trknormcomp);
     float etatrack = trackPar.eta();
 
-    float tanl = element->getTanLorentzAnglePhi();
+    float tanl = m_lorentzAngleTool->getTanLorentzAngle(iH);
     int readoutside = element->design().readoutSide();
 
     // map the angles of inward-going tracks onto [-PI/2, PI/2]
@@ -435,7 +435,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
       design->positionFromColumnRow(colmax, rowmax);
 
     InDetDD::SiLocalPosition centroid = 0.25 * (pos1 + pos2 + pos3 + pos4);
-    double shift = element->getLorentzCorrection();
+    double shift = m_lorentzAngleTool->getLorentzShift(iH);
     int nrows = rowmax - rowmin + 1;
     int ncol = colmax - colmin + 1;
     double ang = 999.;

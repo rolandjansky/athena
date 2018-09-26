@@ -20,8 +20,8 @@ namespace InDet
    public:
       SiWidth_p1() {}
 
-      float 	x;
-      float 	y;
+      float 	x{};
+      float 	y{};
       // Trk::LocalPosition_p1 *
       TPObjRef	m_phirzWidth;
     };

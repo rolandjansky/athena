@@ -37,8 +37,7 @@ public:
 
     /// take two roi descriptors into the shower
     HLT::ErrorCode execute(TrigTauCluster &rtrigTauCluster, const IRoiDescriptor& roi,
-				const CaloDetDescrElement*& /*caloDDE*/,
-                                const EventContext* /*context*/ );
+				const CaloDetDescrElement*& /*caloDDE*/);
 
     //    HLT::ErrorCode execute(TrigTauCluster &rtrigTauCluster, double phiWidth, 
     //                           double etaWidth, double phiWidthEM,

@@ -1,0 +1,9 @@
+ApplicationMgr.ExtSvc = { "StoreGateSvc/StoreGateSvc",
+                          "StoreGateSvc/DetectorStore" };
+
+ToolSvc.testtool1.CaloClustersName = "Clusts1";
+ToolSvc.testtool2.CaloClusterNames = { "Clusts1", "Clusts2" };
+ToolSvc.testtool3.CaloClusterNames = { "Clusts1", "Clusts2" };
+ToolSvc.testtool3.AddSamplingCells = true;
+ToolSvc.testtool3.SamplingCellsName = { "HEC0", "HEC1", "EMB3" };
+

@@ -64,7 +64,7 @@ namespace Athena_test {
       return std::stoi( prop );
     }
 
-    Algorithm* myAlg;
+    Algorithm* myAlg = nullptr;
 
   };
   

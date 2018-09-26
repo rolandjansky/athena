@@ -25,7 +25,7 @@ class TestDigitizationMC16a(unittest.TestCase):
             '--numberOfLowPtMinBias', '44.3839246425',
             '--outputRDOFile', 'mc16a_ttbar.RDO.pool.root',
             '--digiSteeringConf', 'StandardSignalOnlyTruth',
-            '--postExec', 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]', 'ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1',
+            '--postExec', 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]', 'condSeq.LArAutoCorrTotalCondAlg.deltaBunch=1',
             '--postInclude', 'default:PyJobTransforms/UseFrontier.py',
             '--pileupFinalBunch', '6',
             '--preExec', 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)',
@@ -152,7 +152,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___PileUpToolsAlg_is_second_in_AthAlgSeq(self):
-        expected_AlgSequence = ['TimingAlg/DigiTimerBegin', 'PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg', 'LArRawChannelBuilder/LArRawChannelBuilder', 'LArDigitThinner/LArDigitThinner', 'TileDigitsMaker/TileDigitsMaker', 'TileRawChannelMaker/TileRChMaker', 'TileRawChannelToL2/TileRawChannelToL2', 'CscDigitToCscRDO/CscDigitToCscRDO', 'MdtDigitToMdtRDO/MdtDigitToMdtRDO', 'RpcDigitToRpcRDO/RpcDigitToRpcRDO', 'TgcDigitToTgcRDO/TgcDigitToTgcRDO', 'LArTTL1Maker/LArTTL1Maker', 'TileHitToTTL1/TileHitToTTL1', 'TilePulseForTileMuonReceiver/TilePulseForTileMuonReceiver', 'TileMuonReceiverDecision/TileMuonReceiverDecision', 'AthenaOutputStream/StreamRDO']
+        expected_AlgSequence = ['TimingAlg/DigiTimerBegin', 'PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg', 'LArRawChannelBuilderAlg/LArRawChannelBuilder', 'LArDigitThinner/LArDigitThinner', 'TileDigitsMaker/TileDigitsMaker', 'TileRawChannelMaker/TileRChMaker', 'TileRawChannelToL2/TileRawChannelToL2', 'CscDigitToCscRDO/CscDigitToCscRDO', 'MdtDigitToMdtRDO/MdtDigitToMdtRDO', 'RpcDigitToRpcRDO/RpcDigitToRpcRDO', 'TgcDigitToTgcRDO/TgcDigitToTgcRDO', 'LArTTL1Maker/LArTTL1Maker', 'TileHitToTTL1/TileHitToTTL1', 'TilePulseForTileMuonReceiver/TilePulseForTileMuonReceiver', 'TileMuonReceiverDecision/TileMuonReceiverDecision', 'AthenaOutputStream/StreamRDO']
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
@@ -247,7 +247,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___SCT_DigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.SCT_DigitizationTool'
-        expected_property_list = ['BarrelOnly', 'DetStore', 'EnableHits', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEnd', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'RndmSvc', 'SurfaceChargesGenerator']
+        expected_property_list = ['BarrelOnly', 'DetStore', 'EnableHits', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEnd', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'RandomDisabledCellGenerator', 'RndmSvc', 'SurfaceChargesGenerator']
         expected_nonstring_properties = {'LastXing': '25', 'FirstXing': '-50'}
         expected_string_properties = {'InputObjectName': 'SCT_Hits', 'OutputObjectName': 'SCT_RDOs', 'OutputSDOName': 'SCT_SDO_Map'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -271,7 +271,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'ToolSvc.LArPileUpTool'
-        expected_property_list = ['ADC2MeVTool', 'AutoCorrNoiseTool', 'BadChannelTool', 'DetStore', 'DigitContainer', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
+        expected_property_list = ['AutoCorrNoiseTool', 'DetStore', 'DigitContainer', 'DoDigiTruthReconstruction', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
         expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4', 'EmBarrelHitContainerName': '["LArHitEMB"]', 'EmEndCapHitContainerName': '["LArHitEMEC"]', 'ForWardHitContainerName': '["LArHitFCAL"]', 'HecHitContainerName': '["LArHitHEC"]'}
         expected_string_properties = {'DigitContainer': 'LArDigitContainer_MC'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -283,7 +283,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TileHitVecToCntTool_properties(self):
         tested_configurable_name = 'ToolSvc.TileHitVecToCntTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'RndmSvc', 'TileHitContainer', 'TileHitVectors', 'TileInfoName', 'TriggerTimeTool']
+        expected_property_list = ['DetStore', 'DoHSTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'RndmSvc', 'TileHitContainer', 'TileHitContainer_DigiHSTruth', 'TileHitVectors', 'TileInfoName', 'TriggerTimeTool']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-200', 'TileHitVectors': '["TileHitVec", "MBTSHits"]'}
         expected_string_properties = {'TileHitContainer': 'TileHitCnt'}
         self._detailed_ConfigurablePropertiesCheck(

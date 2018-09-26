@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
@@ -63,10 +63,8 @@ class MuFastSteering : public HLT::FexAlgo,
   MuFastSteering(const std::string& name, ISvcLocator* svc);
   ~MuFastSteering();
   
-  /** hltBeginRun() */
-  HLT::ErrorCode hltBeginRun();
-  /** hltEndRun() */
-  HLT::ErrorCode hltEndRun();
+  /** hltStop() */
+  HLT::ErrorCode hltStop();
   
   /** hltInitialize() */
   HLT::ErrorCode hltInitialize();

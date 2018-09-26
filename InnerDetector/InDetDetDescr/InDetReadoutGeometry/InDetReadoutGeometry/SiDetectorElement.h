@@ -416,30 +416,6 @@ namespace InDetDD {
     
       ///////////////////////////////////////////////////////////////////
       //
-      /// @name Lorentz Correction
-      //
-      ///////////////////////////////////////////////////////////////////
-      //@{
-    
-      /// tan(Lorentz angle). Component in phi direction (hit frame)
-      double getTanLorentzAnglePhi() const; 
-    
-      /// Same as getTanLorentzAnglePhi()
-      double getTanLorentzAngle() const; 
-    
-      /// tan(Lorentz angle). Component in eta direction (hit frame)
-      double getTanLorentzAngleEta() const; 
-    
-      /// Lorentz shift in distPhi (reconstruction local frame)
-      double getLorentzCorrection() const; 
-    
-      /// Correct a local position (reconstruction frame) for the Lorentz angle:
-      /// Users generally shouldn't need to call this as localPositionOfCell() returns the Lorentz corrected position.
-      Amg::Vector2D correctLocalPosition(const Amg::Vector2D &position) const;
-      //@}
-    
-      ///////////////////////////////////////////////////////////////////
-      //
       /// @name Readout cell id
       /// Cell id's are the strip number in SCT and phi_index,eta_index in the pixel
       /// as defined in the offline identifier. Their direction runs in the distPhi, distEta
@@ -467,12 +443,6 @@ namespace InDetDD {
       Identifier identifierOfPosition(const Amg::Vector2D &localPos) const;
       /// As in previous method but returns SiCellId 
       SiCellId cellIdOfPosition(const Amg::Vector2D &localPos) const;
-    
-    
-      /// Returns position (center) of cell. These are corrected for the Lorentz shift
-      Amg::Vector2D localPositionOfCell(const SiCellId & cellId) const;
-      /// As above
-      Amg::Vector2D localPositionOfCell(const Identifier & id) const;
     
       /// Returns position (center) of cell. These are the raw positions *NOT* corrected for the Lorentz shift
       Amg::Vector2D rawLocalPositionOfCell(const SiCellId & cellId) const;
@@ -522,14 +492,8 @@ namespace InDetDD {
       /// Invalidate general cache
       void invalidate() const; 
     
-      /// invalidate conditions cache
-      void invalidateConditions() const; 
-    
       /// Recalculate all cached values. 
       void updateCache() const; 
-    
-      /// Recalculate subset of cached values.
-      void updateConditionsCache() const; 
     
       /// Update all caches including surfaces.
       void updateAllCaches() const;
@@ -795,18 +759,11 @@ namespace InDetDD {
     inline void SiDetectorElement::invalidate() const
     {
       m_cacheValid = false;
-      // Conditions cache invalidation is done by SiLorentzAngleSvc.
-    }
-    
-    inline void SiDetectorElement::invalidateConditions() const
-    {
-      m_conditionsCacheValid = false;
     }
     
     inline void SiDetectorElement::updateAllCaches() const
     {
       if (!m_cacheValid) updateCache();
-      if (!m_conditionsCacheValid) updateConditionsCache();
       if (!m_surface) surface();
     }
     
@@ -944,6 +901,7 @@ namespace InDetDD {
     
     inline bool SiDetectorElement::swapPhiReadoutDirection() const
     {
+      if (m_firstTime) updateCache(); // In order to set m_phiDirection
       // equivalent to (m_design->swapHitPhiReadoutDirection() xor !m_phiDirection)
       return ((!m_design->swapHitPhiReadoutDirection() && !m_phiDirection)
     	  || (m_design->swapHitPhiReadoutDirection() && m_phiDirection));
@@ -951,36 +909,12 @@ namespace InDetDD {
     
     inline bool SiDetectorElement::swapEtaReadoutDirection() const
     {
+      if (m_firstTime) updateCache(); // In order to set m_etaDirection
       // equivalent to (m_design->swapHitEtaReadoutDirection() xor !m_etaDirection)
       return ((!m_design->swapHitEtaReadoutDirection() && !m_etaDirection)
     	  || (m_design->swapHitEtaReadoutDirection() && m_etaDirection));
     }
     
-    inline double SiDetectorElement::getTanLorentzAnglePhi() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_tanLorentzAnglePhi;
-    }
-    
-    // Same as getTanLorentzAnglePhi()
-    inline double SiDetectorElement::getTanLorentzAngle() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_tanLorentzAnglePhi;
-    }
-    
-    inline double SiDetectorElement::getTanLorentzAngleEta() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_tanLorentzAngleEta;
-    }
-    
-    inline double SiDetectorElement::getLorentzCorrection() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_lorentzCorrection;
-    }
-
 } // namespace InDetDD
 
 #endif // INDETREADOUTGEOMETRY_SIDETECTORELEMENT_H

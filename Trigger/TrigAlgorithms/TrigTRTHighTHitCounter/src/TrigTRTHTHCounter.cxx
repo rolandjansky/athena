@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTRTHTHCounter.h"
@@ -108,24 +108,17 @@ HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
   } else
     ATH_MSG_INFO ( "Retrieved service " << m_trtHelper);
 
-  ATH_MSG_INFO ( " TrigTRTHTHCounter initialized successfully");
-
-  return HLT::OK;  
-}
-
-//---------------------------------------------------------------------------------------------------------------------------------------------
-HLT::ErrorCode TrigTRTHTHCounter::hltBeginRun() {
-  ATH_MSG_DEBUG ( "beginning run in this " << name());
-
-  ATH_MSG_INFO ( "Pixel_TrgClusterization::hltBeginRun() ");
   if (!m_doFullScan){
     ATH_MSG_INFO ( "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth);
   } else {
     ATH_MSG_INFO ( "FullScan mode");
   }
 
+  ATH_MSG_INFO ( " TrigTRTHTHCounter initialized successfully");
+
   return HLT::OK;
 }
+
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,

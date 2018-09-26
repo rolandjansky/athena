@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MDTDATAPREPARATOR_H
@@ -162,6 +162,8 @@ namespace TrigL2MuonSA {
 	this, "MDTCSMContainer", "MDTCSM", "Name of the MDTRDO to read in"};
     SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepContainerKey{
 	this, "MDTPrepDataContainer","MDT_DriftCircles", "Name of the MDTContainer to read in"};
+
+    Gaudi::Property<bool> m_decodeBS { this, "DecodeBS", true, "Flag to decide whether ot not to run BS->RDO decoding" };
 
     bool m_use_mdtcsm;
     bool m_use_RoIBasedDataAccess;

@@ -1,5 +1,6 @@
 /* -*- C++ -*- */
 
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -16,17 +17,7 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-// Gaudi
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/AlgTool.h"
-
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEventInfo/EventAuxInfo.h"
-
-#include "boost/shared_ptr.hpp"
-#include <string>
 
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/SiHit.h"
@@ -35,19 +26,30 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
 #include "InDetPrepRawData/SiClusterContainer.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 #include "TrkEventTPCnv/TrkEventPrimitives/HepSymMatrix_p1.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+
+// Gaudi
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/AlgTool.h"
+
+#include "boost/shared_ptr.hpp"
 
 #include <vector>
 #include <list>
 #include <utility> /* pair */
 #include <map>
+#include <string>
 
 //FIXME - not used anywhere?
 // #ifndef MAXSTEPS
@@ -65,11 +67,6 @@ class SCT_ID;
 
 class SiChargedDiodeCollection;
 class StoreGateService;
-
-namespace InDetDD
-{
-  class SCT_DetectorManager;
-}
 
 namespace InDet {
   class ClusterMakerTool;
@@ -113,17 +110,15 @@ public:
 private:
 
   StatusCode digitize();
-  //  void addSDO(const DiodeCollectionPtr& collection);
   StatusCode createOutputContainers();
   bool NeighbouringClusters(const std::vector<Identifier>& potentialClusterRDOList,  const InDet::SCT_Cluster *existingCluster) const;
+  void Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::vector<std::pair<unsigned int, int> > m_seen;
   std::list<SiHitCollection*> m_siHitCollList;
 
   const SCT_ID* m_sct_ID;                              //!< Handle to the ID helper
-  const InDetDD::SCT_DetectorManager* m_manager;
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;            //!< PileUp Merge service
   int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
   bool                      m_HardScatterSplittingSkipper;
@@ -135,7 +130,8 @@ private:
   TimedHitCollection<SiHit>* m_thpcsi;
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not
   IntegerProperty  m_vetoThisBarcode;
 
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
@@ -143,6 +139,7 @@ private:
 
   SG::WriteHandle<InDet::SCT_ClusterContainer>  m_sctClusterContainer; //!< the SCT_ClusterContainer
   SG::WriteHandle<PRD_MultiTruthCollection>     m_sctPrdTruth;         //!< the PRD truth map for SCT measurements
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   double m_sctSmearPathLength;       //!< the 2. model parameter: smear the path
   bool m_sctSmearLandau;           //!< if true : landau else: gauss
@@ -152,6 +149,11 @@ private:
   int m_sctErrorStrategy;         //!< error strategy for the  ClusterMaker
   bool m_sctRotateEC;
 
+  bool m_mergeCluster; //!< enable the merging of neighbour SCT clusters >
+  double m_DiffusionShiftX_barrel;
+  double m_DiffusionShiftY_barrel;
+  double m_DiffusionShiftX_endcap;
+  double m_DiffusionShiftY_endcap;
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
 
   Amg::Vector3D stepToStripBorder(const InDetDD::SiDetectorElement& sidetel,

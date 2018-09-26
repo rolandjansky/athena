@@ -6,8 +6,9 @@
 #define SCT_GEOMODEL_SCT_DETECTORTOOL_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "SCT_GeoModel/SCT_GeoModelAthenaComps.h" 
+
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
 
@@ -38,9 +39,9 @@ public:
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;
 
 private:
-  std::string m_detectorName;
-  bool m_initialLayout;
-  bool m_alignable;
+  StringProperty m_detectorName{this, "DetectorName", "SCT"};
+  BooleanProperty m_alignable{this, "Alignable", true};
+  BooleanProperty m_useDynamicAlignFolders{this, "useDynamicAlignFolders", false};
   bool m_cosmic;
   
   const InDetDD::SCT_DetectorManager* m_manager;
@@ -51,10 +52,10 @@ private:
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
 
-  std::string m_run1Folder;
-  std::string m_run2L1Folder;
-  std::string m_run2L2Folder;
-  std::string m_run2L3Folder;
+  StringProperty m_run1Folder{this, "Run1Folder", "/Indet/Align"};
+  StringProperty m_run2L1Folder{this, "Run2L1Folder", "/Indet/AlignL1/ID"};
+  StringProperty m_run2L2Folder{this, "Run2L2Folder", "/Indet/AlignL2/SCT"};
+  StringProperty m_run2L3Folder{this, "Run2L3Folder", "/Indet/AlignL3"};
 };
 
 #endif // SCT_GEOMODEL_SCT_DETECTORTOOL_H

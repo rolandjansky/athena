@@ -2,23 +2,30 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////////////////////////////////////////////////
+// SCTRawDataProviderTool.cxx
+//   Implementation file for class SCTRawDataProviderTool
+///////////////////////////////////////////////////////////////////
+
 #include "SCTRawDataProviderTool.h"
 #include "StoreGate/ReadHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-/// -------------------------------------------------------
-/// contructor
+// -------------------------------------------------------
+// Constructor
 
 SCTRawDataProviderTool::SCTRawDataProviderTool
 (const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_robIdSet()
+  m_robIdSet{},
+  m_decodeErrCount{0},
+  m_mutex{}
 {
 }
 
-/// -------------------------------------------------------
-/// initialize
+// -------------------------------------------------------
+// Initialize
 
 StatusCode SCTRawDataProviderTool::initialize()
 {
@@ -33,48 +40,49 @@ StatusCode SCTRawDataProviderTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-/// -------------------------------------------------------
-/// convert method
-
-void SCTRawDataProviderTool::beginNewEvent() {
-   /** reset list of known robIds */
-   m_robIdSet.clear(); 
-}
+// -------------------------------------------------------
+// Convert method
 
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs,
                                            ISCT_RDO_Container& rdoIdc,
                                            InDetBSErrContainer* errs,
-                                           SCT_ByteStreamFractionContainer* bsFracCont)
+                                           SCT_ByteStreamFractionContainer* bsFracCont) const
 {
-  if(vecRobs.empty()) return StatusCode::SUCCESS;
+  if (vecRobs.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
-  static int decodeErrCount{0};
-
-  /**  are we working on a new event ? */
-  std::vector<const ROBFragment*>::const_iterator rob_it{vecRobs.begin()};
   
   StatusCode sc{StatusCode::SUCCESS};
 
-  /** loop over the ROB fragments */
+  // loop over the ROB fragments
 
-  for(; rob_it!=vecRobs.end(); ++rob_it) {
-    /** get the ID of this ROB/ROD */
-    uint32_t robid{(*rob_it)->rod_source_id()};
-    /** check if this ROBFragment was already decoded (EF case in ROIs) */
-    if (!m_robIdSet.insert(robid).second) {
+  for (const ROBFragment* rob_it : vecRobs) {
+    // get the ID of this ROB/ROD
+    uint32_t robid{(rob_it)->rod_source_id()};
+    // check if this ROBFragment was already decoded (EF case in ROIs)
+    if (m_robIdSet.count(robid)) {
       ATH_MSG_DEBUG(" ROB Fragment with ID  "
                     << std::hex<<robid << std::dec
-                    << " already decoded, skip"); 
-    } else {
-      sc = m_decoder->fillCollection(**rob_it, rdoIdc, errs, bsFracCont);
-      if (sc==StatusCode::FAILURE) {
-        if (decodeErrCount < 100) {
-          ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
-          decodeErrCount++;
-        } else if (100 == decodeErrCount) {
-          ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.  ");
-          decodeErrCount++;
+                    << " already decoded, skip");
+      continue;
+    }
+
+    // Insert the new ROBID to the set.
+    m_mutex.lock();
+    m_robIdSet.insert(robid);
+    m_mutex.unlock();
+
+    sc = m_decoder->fillCollection(*rob_it, rdoIdc, errs, bsFracCont);
+    if (sc==StatusCode::FAILURE) {
+      if (m_decodeErrCount <= 100) {
+        if (100 == m_decodeErrCount) {
+          ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.");
         }
+        else {
+          ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
+        }
+        m_mutex.lock();
+        m_decodeErrCount++;
+        m_mutex.unlock();
       }
     }
   }
@@ -85,4 +93,14 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   }
 
   return sc;
+}
+
+// -------------------------------------------------------
+// beginNewEvent method
+
+void SCTRawDataProviderTool::beginNewEvent() const {
+  // reset list of known robIds
+  m_mutex.lock();
+  m_robIdSet.clear();
+  m_mutex.unlock();
 }

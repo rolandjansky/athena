@@ -40,8 +40,9 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-Trk::MagneticFieldProperties Trk::Navigator::s_zeroMagneticField(Trk::NoField);
-
+namespace{
+const Trk::MagneticFieldProperties s_zeroMagneticField(Trk::NoField);
+}
 // constructor
 Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
@@ -63,16 +64,16 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_boundaryHitY{},
   m_boundaryHitR{},
   m_boundaryHitZ{},
-  m_forwardCalls(0),
-  m_forwardFirstBoundSwitch(0),
-  m_forwardSecondBoundSwitch(0),
-  m_forwardThirdBoundSwitch(0),
-  m_backwardCalls(0),
-  m_backwardFirstBoundSwitch(0),
-  m_backwardSecondBoundSwitch(0),
-  m_backwardThirdBoundSwitch(0),
-  m_outsideVolumeCase(0),
-  m_sucessfulBackPropagation(0),
+  m_forwardCalls{0},
+  m_forwardFirstBoundSwitch{0},
+  m_forwardSecondBoundSwitch{0},
+  m_forwardThirdBoundSwitch{0},
+  m_backwardCalls{0},
+  m_backwardFirstBoundSwitch{0},
+  m_backwardSecondBoundSwitch{0},
+  m_backwardThirdBoundSwitch{0},
+  m_outsideVolumeCase{0},
+  m_sucessfulBackPropagation{0},
   m_fastField(false) {
   declareInterface<INavigator>(this);
   // steering of algorithms
@@ -112,7 +113,7 @@ Trk::Navigator::initialize() {
   }
 
   // the validation setup ----------------------------------------------------------------------------------
-  if (m_validationMode) {
+  if (m_validationMode) { 
     // create the new Tree
     m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
 
@@ -196,7 +197,7 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   }
 
   // debug version
-  ATH_MSG_VERBOSE("  [N] Starting parameters are :" << parms);
+  ATH_MSG_VERBOSE("g  [N] Starting parameters are :" << parms);
 
   // loop over the the boundary surfaces according to the accessor type
   for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
@@ -226,13 +227,15 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
       // ----------------- output to screen if outputLevel() says so --------
 
       // ----------------- record if in validation mode ----------------------
-      if (m_validationMode && m_boundariesCounter < TRKEXTOOLS_MAXNAVSTEPS) {
-        const Amg::Vector3D &posOnBoundary = trackPar->position();
-        m_boundaryHitX[m_boundariesCounter] = posOnBoundary.x();
-        m_boundaryHitY[m_boundariesCounter] = posOnBoundary.y();
-        m_boundaryHitR[m_boundariesCounter] = posOnBoundary.perp();
-        m_boundaryHitZ[m_boundariesCounter] = posOnBoundary.z();
-        m_boundariesCounter++;
+      if (m_validationMode) {
+        if(m_boundariesCounter < TRKEXTOOLS_MAXNAVSTEPS) {
+          const Amg::Vector3D &posOnBoundary = trackPar->position();
+          m_boundaryHitX[m_boundariesCounter] = posOnBoundary.x();
+          m_boundaryHitY[m_boundariesCounter] = posOnBoundary.y();
+          m_boundaryHitR[m_boundariesCounter] = posOnBoundary.perp();
+          m_boundaryHitZ[m_boundariesCounter] = posOnBoundary.z();
+          m_boundariesCounter++;
+        }
       } // ------------------------------------------------------------------
 
       delete trackPar;
@@ -293,6 +296,15 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
   // loop over boundary surfaces
   int tryBoundary = 0;
+
+  /* local counted to increment in the loop*/ 
+  int forwardFirstBoundSwitch{0};
+  int forwardSecondBoundSwitch{0};
+  int forwardThirdBoundSwitch{0};
+  int backwardFirstBoundSwitch{0};
+  int backwardSecondBoundSwitch{0};
+  int backwardThirdBoundSwitch{0};
+
   for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
     ++tryBoundary;
     // get the boundary surface associated to the surfaceAccessor
@@ -344,13 +356,15 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
 
       // ----------------- record if in validation mode ----------------------
-      if (m_validationMode && m_boundariesCounter < TRKEXTOOLS_MAXNAVSTEPS) {
-        const Amg::Vector3D &posOnBoundary = trackPar->position();
-        m_boundaryHitX[m_boundariesCounter] = posOnBoundary.x();
-        m_boundaryHitY[m_boundariesCounter] = posOnBoundary.y();
-        m_boundaryHitR[m_boundariesCounter] = posOnBoundary.perp();
-        m_boundaryHitZ[m_boundariesCounter] = posOnBoundary.z();
-        m_boundariesCounter++;
+      if (m_validationMode)  {
+        if(m_boundariesCounter < TRKEXTOOLS_MAXNAVSTEPS){
+          const Amg::Vector3D &posOnBoundary = trackPar->position();
+          m_boundaryHitX[m_boundariesCounter] = posOnBoundary.x();
+          m_boundaryHitY[m_boundariesCounter] = posOnBoundary.y();
+          m_boundaryHitR[m_boundariesCounter] = posOnBoundary.perp();
+          m_boundaryHitZ[m_boundariesCounter] = posOnBoundary.z();
+          m_boundariesCounter++;
+        }
       } // ------------------------------------------------------------------
 
       return Trk::NavigationCell(nextVolume, trackPar, Trk::BoundarySurfaceFace(surfAcc.accessor()));
@@ -358,24 +372,31 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
     // ---------------------------------------------------
     if (!first && searchDir == Trk::alongMomentum) {
-      ++m_forwardFirstBoundSwitch;
+      ++forwardFirstBoundSwitch;
       first = true;
     }else if (!second && searchDir == Trk::alongMomentum) {
-      ++m_forwardSecondBoundSwitch;
+      ++forwardSecondBoundSwitch;
       second = true;
     }else if (searchDir == Trk::alongMomentum) {
-      ++m_forwardThirdBoundSwitch;
+      ++forwardThirdBoundSwitch;
     }else if (!first && searchDir == Trk::oppositeMomentum) {
-      ++m_backwardFirstBoundSwitch;
+      ++backwardFirstBoundSwitch;
       first = true;
     }else if (!second && searchDir == Trk::oppositeMomentum) {
-      ++m_backwardSecondBoundSwitch;
+      ++backwardSecondBoundSwitch;
       second = true;
     }else if (searchDir == Trk::oppositeMomentum) {
-      ++m_backwardThirdBoundSwitch;
+      ++backwardThirdBoundSwitch;
     }
     // ---------------------------------------------------
   }
+  /* update the object level atomic ones*/
+  m_forwardFirstBoundSwitch+=forwardFirstBoundSwitch;
+  m_forwardSecondBoundSwitch+=forwardSecondBoundSwitch;
+  m_forwardThirdBoundSwitch+=forwardThirdBoundSwitch;
+  m_backwardFirstBoundSwitch+=backwardFirstBoundSwitch;
+  m_backwardSecondBoundSwitch+=backwardSecondBoundSwitch;
+  m_backwardThirdBoundSwitch+=backwardThirdBoundSwitch;
 
   // return what you have : no idea
   return Trk::NavigationCell(0, 0);
@@ -653,10 +674,12 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
 void
 Trk::Navigator::validationAction() const {
   // first record the values
-  if (m_validationTree) {
-    m_boundaries = long(m_boundariesCounter);
-    m_validationTree->Fill();
-    // then reset
+  if(m_validationMode){
+    if (m_validationTree) {
+      m_boundaries = long(m_boundariesCounter);
+      m_validationTree->Fill();
+      // then reset
+    }
     m_boundariesCounter = 0;
   }
 }

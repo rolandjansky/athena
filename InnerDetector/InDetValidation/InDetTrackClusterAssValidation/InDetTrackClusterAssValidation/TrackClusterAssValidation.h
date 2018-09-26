@@ -9,13 +9,15 @@
 
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "TrkSpacePoint/SpacePointContainer.h"
-#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <string>
 #include <map>
 
@@ -244,6 +246,8 @@ namespace InDet {
       SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationPixel;
       SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationSCT;
       SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationTRT;
+      // For P->T converter of SCT_Clusters
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
       struct EventData_t {
       public:

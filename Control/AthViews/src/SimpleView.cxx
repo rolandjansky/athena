@@ -169,17 +169,6 @@ SG::DataProxy * SimpleView::recordObject( SG::DataObjectSharedPtr<DataObject> ob
 }
 
 /**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode SimpleView::updatedObject( CLID id, const std::string& key )
-{
-	const std::string viewKey = m_name + "_" + key;
-	return m_store->updatedObject( id, viewKey );
-}
-
-/**
  * @brief Tell the store that a handle has been bound to a proxy.
  * @param handle The handle that was bound.
  * The default implementation does nothing.
@@ -241,4 +230,24 @@ void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, 
 {
 	const std::string viewKey = m_name + "_" + str;
 	m_store->registerKey( key, viewKey, clid );
+}
+
+
+std::string SimpleView::dump( const std::string& delim ) const {
+  std::string ret = "in view: "+name() + delim +" [ ";
+  for ( const SG::DataProxy* dp: proxies() ) {
+    if ( dp->name().find( name() ) == 0 ) 
+      ret += dp->name() + delim;
+  }
+  ret += " ] ";
+  for ( auto p : m_parents ) {
+    const SimpleView * parent = dynamic_cast<const SimpleView*>( p );
+    if ( parent ) {
+      ret += delim;
+      ret += parent->dump( delim );
+    } else {
+      ret += delim + "main store";
+    }
+  }
+  return ret;
 }

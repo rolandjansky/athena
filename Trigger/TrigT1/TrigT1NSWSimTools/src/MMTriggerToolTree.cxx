@@ -10,7 +10,7 @@
 
 
 // local includes
-#include "MMTriggerTool.h"
+#include "TrigT1NSWSimTools/MMTriggerTool.h"
 
 // local includes
 #include "TTree.h"

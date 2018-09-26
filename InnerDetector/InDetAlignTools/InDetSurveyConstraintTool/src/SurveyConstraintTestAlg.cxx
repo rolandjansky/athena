@@ -6,10 +6,8 @@
 #include "InDetSurveyConstraintTool/ISurveyConstraint.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
-
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "GaudiKernel/IHistogramSvc.h" 
@@ -28,7 +26,6 @@ AthAlgorithm(name, pSvcLocator),
   m_toolsvc{},            //!< Pointer to tool service
   m_SurvConstr{},
   m_pixelManager{},
-  m_SCT_Manager{},
   m_pixid{},
   m_sctid{},
   m_h_PixEC_Align_Disk{},
@@ -61,10 +58,6 @@ StatusCode SurveyConstraintTestAlg::initialize(){
   ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
   
   
-  // get SCTManager
-  ATH_CHECK(detStore()->retrieve(m_SCT_Manager, "SCT"));
- 
-
   // get ID helpers from detector store (relying on GeoModel to put them)
   ATH_CHECK(detStore()->retrieve(m_pixid));
   ATH_CHECK(detStore()->retrieve(m_sctid));
@@ -230,8 +223,9 @@ ATH_MSG_INFO( "execute()" );
  }
 
  // SCT EC
- for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
-   const Identifier SCT_ModuleID = (*iter)->identify(); 
+ 
+ for (SCT_ID::const_id_iterator wafer_it=m_sctid->wafer_begin(); wafer_it!=m_sctid->wafer_end(); ++wafer_it) {
+   const Identifier SCT_ModuleID = *wafer_it; 
    if(std::abs(m_sctid->barrel_ec(SCT_ModuleID)) == 2){
      m_SurvConstr -> computeConstraint(SCT_ModuleID,
              dparams,        
@@ -251,8 +245,8 @@ ATH_MSG_INFO( "execute()" );
 
 
  // SCT B
- for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
-   const Identifier SCT_ModuleID = (*iter)->identify(); 
+ for (SCT_ID::const_id_iterator wafer_it=m_sctid->wafer_begin(); wafer_it!=m_sctid->wafer_end(); ++wafer_it) {
+   const Identifier SCT_ModuleID = *wafer_it;
    if(m_sctid->barrel_ec(SCT_ModuleID) == 0){
      m_SurvConstr -> computeConstraint(SCT_ModuleID,
              dparams,        

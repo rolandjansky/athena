@@ -12,12 +12,9 @@
 
 #include <vector>
 
-#include "GaudiKernel/StatusCode.h"
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-//typdefs, cannot be fwd declared
+//typedefs, cannot be fwd declared
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Photon.h"
@@ -191,7 +188,7 @@ public:
   std::string m_electronIDLevel;
   bool m_doIDCuts{};
   //Likelihood tool:
-  AsgElectronLikelihoodTool* m_LHTool2015; //!
+  AsgElectronLikelihoodTool* m_LHTool2015{}; //!
 };
 
 #endif

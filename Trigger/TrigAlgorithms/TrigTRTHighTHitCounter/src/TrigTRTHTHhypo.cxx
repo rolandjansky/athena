@@ -32,12 +32,6 @@ HLT::ErrorCode TrigTRTHTHhypo::hltInitialize() {
   return HLT::OK;
 }
 
-//-----------------------------------------------------------------------------
-HLT::ErrorCode TrigTRTHTHhypo::hltBeginRun() {
-  ATH_MSG_DEBUG ( "hltBeginRun of " << name());
-
-  return HLT::OK;
-}
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTRTHTHhypo::hltExecute(const HLT::TriggerElement* outputTE, 

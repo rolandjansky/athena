@@ -15,7 +15,7 @@
 #include "../SCT_MajorityConditionsTestAlg.h"
 #include "../SCT_ModuleVetoCondAlg.h"
 #include "../SCT_ModuleVetoTestAlg.h"
-#include "../SCT_MonitorConditionsCondAlg.h"
+#include "../SCT_MonitorCondAlg.h"
 #include "../SCT_MonitorConditionsTestAlg.h"
 #include "../SCT_ReadCalibChipDataTestAlg.h"
 #include "../SCT_ReadCalibChipGainCondAlg.h"
@@ -51,7 +51,7 @@ DECLARE_COMPONENT( SCT_MajorityCondAlg )
 DECLARE_COMPONENT( SCT_MajorityConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ModuleVetoCondAlg )
 DECLARE_COMPONENT( SCT_ModuleVetoTestAlg )
-DECLARE_COMPONENT( SCT_MonitorConditionsCondAlg )
+DECLARE_COMPONENT( SCT_MonitorCondAlg )
 DECLARE_COMPONENT( SCT_MonitorConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipGainCondAlg )

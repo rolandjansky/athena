@@ -9,6 +9,7 @@ Authors: Teng Jian Khoo <teng.jian.khoo@cern.ch>
 These selections are available as a courtesy for users to easily validate they are correctly using the METMaker code.
 These are the cuts used in the METRebuilder, so you can easily compare and make sure you are doing the same thing with the METMaker
 These selections are NOT optimized, especially the muon term, and as such should be optimized within physics groups
+SW note no changes required for MT mode
 */
 #include "METUtilities/CutsMETMaker.h"
 

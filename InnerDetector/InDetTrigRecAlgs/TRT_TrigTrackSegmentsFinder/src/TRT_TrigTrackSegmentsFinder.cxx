@@ -50,16 +50,6 @@ InDet::TRT_TrigTrackSegmentsFinder::TRT_TrigTrackSegmentsFinder
   m_timerMainLoop = m_timerSegMaker = 0;
 }
 
-//----------------------------------
-//          beginRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltBeginRun() {
-
-  msg() << MSG::INFO << "TRT_TrigTrackSegmentsFinder::beginRun()" << endmsg;
-
-  return HLT::OK;
-}
-//----------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
@@ -207,16 +197,6 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltFinalize() {
   return HLT::OK;
 }
 
-//----------------------------------
-//          endRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltEndRun() {
-  
-  msg() << MSG::INFO << "TRT_TrigTrackSegmentsFinder::endRun()" << endmsg;
-  
-  return HLT::OK;
-}
-  
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator MsgStream
 ///////////////////////////////////////////////////////////////////

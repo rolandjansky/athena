@@ -39,9 +39,13 @@ namespace met {
 
   StatusCode METAssocTestAlg::execute()
   {
-    const MissingETAssociationMap* map(NULL);
-    ATH_MSG_DEBUG( "Running METAssocTestAlg on " << "map " << m_mapname << "." );
-    ATH_CHECK( evtStore()->retrieve(map,  m_mapname) );
+
+
+    SG::ReadHandle<MissingETAssociationMap> map(m_mapname);
+    if (!map.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve met association map");
+      return StatusCode::FAILURE;
+    } 
 
     for(const auto& assoc : *map) {
       if(assoc->isMisc()) { // misc association gets special treatment

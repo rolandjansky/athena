@@ -31,11 +31,17 @@
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/AreaDefinition.hh"
 #include "fastjet/Selector.hh"
-#include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "JetInterface/IPseudoJetGetter.h"
+#include "AsgTools/ToolHandle.h"
+#include "JetRec/PseudoJetContainer.h"
 #include "EventShapeInterface/IEventShapeTool.h"
 #include "xAODEventShape/EventShape.h"
+
+// Temporarily included until trigger jet-finding properly moves to DH
+// Unfortunately, depending on the trigger PJG interface introduces
+// a circular dependency, so we have to depend on the basic class and
+// rely on the member & property names to discourage use of other PJGs
+#include "JetInterface/IPseudoJetGetter.h"
 
 class EventDensityTool :
   public asg::AsgTool,  
@@ -56,21 +62,22 @@ public:
   /// Action.
   StatusCode fillEventShape() const;
   StatusCode fillEventShape(xAOD::EventShape* es) const;
-  StatusCode fillEventShape(xAOD::EventShape* es, const xAOD::IParticleContainer* input) const;
    
 protected:
   
   StatusCode fillEventShape(xAOD::EventShape *es , const PseudoJetVector& input  ) const ;
   
 private: 
+  // Temporarily included until trigger jet-finding properly moves to DH
+  ToolHandle<IPseudoJetGetter> m_trigPJGet{""};
+
   // DataHandles
-  SG::ReadHandleKey<xAOD::EventShape>       m_outconIn;
-  SG::WriteHandleKey<xAOD::EventShape>      m_outcon;
+  SG::ReadHandleKey<PseudoJetContainer> m_inPJKey{this, "InputContainer", "", "ReadHandleKey for input PseudoJetVector"};
+  SG::WriteHandleKey<xAOD::EventShape> m_outEDKey{this, "OutputContainer", "GenericEventDensity", "WriteHandleKey for output EventDensity"};
 
   // Properties
   std::string m_jetalg;                     // JetAlg
   float m_jetrad;                           // JetRadius
-  ToolHandle<IPseudoJetGetter> m_pjgetter;  // JetInput
   float m_rapmin;                           // RapidityMax
   float m_rapmax;                           // RapidityMax
   std::string m_areadef;                    // AreaDefinition
@@ -81,11 +88,6 @@ private:
   fastjet::AreaDefinition m_fjareadef;
   fastjet::Selector m_fjselector;
   bool m_useAreaFourMom;
-
-  // For now we use decorators, and test before to overwrite.
-  SG::AuxElement::Accessor< float > m_rhoDec; 
-  SG::AuxElement::Accessor< float > m_sigmaDec;
-  SG::AuxElement::Accessor< float > m_areaDec;
 
 }; 
 

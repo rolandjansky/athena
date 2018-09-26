@@ -31,7 +31,7 @@ StatusCode ReadCond::execute() {
    ATH_MSG_DEBUG("in execute()");
 
    if (detStore()->contains<ExampleHitContainer>("PedestalWriteData")) {
-      const DataHandle<ExampleHitContainer> ep;
+      const ExampleHitContainer* ep = nullptr;
       if (detStore()->retrieve(ep, "PedestalWriteData").isFailure()) {
          ATH_MSG_ERROR("Could not find DataObject: PedestalWriteData");
          return StatusCode::FAILURE;
@@ -41,7 +41,7 @@ StatusCode ReadCond::execute() {
       }
    }
    if (detStore()->contains<ExampleHitContainer>("PedestalAppendData")) {
-      const DataHandle<ExampleHitContainer> ep;
+      const ExampleHitContainer* ep = nullptr;
       if (detStore()->retrieve(ep, "PedestalAppendData").isFailure()) {
          ATH_MSG_ERROR("Could not find DataObject: PedestalAppendData");
          return StatusCode::FAILURE;

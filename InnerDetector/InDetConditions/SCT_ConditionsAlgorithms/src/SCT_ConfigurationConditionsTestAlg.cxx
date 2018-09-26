@@ -25,15 +25,9 @@ SCT_ConfigurationConditionsTestAlg::SCT_ConfigurationConditionsTestAlg(const std
 StatusCode SCT_ConfigurationConditionsTestAlg::initialize(){  
   ATH_MSG_INFO("in initialize()");
  
-  if (m_configConditions.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve SCT_ConfigurationConditions service");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_configConditions.retrieve());
 
-  if (detStore()->retrieve(m_sctId,"SCT_ID").isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve SCT_ID");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
 
   return StatusCode::SUCCESS;
 } 

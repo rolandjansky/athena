@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGlobalErrorMonTool_H
@@ -12,18 +12,21 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
 namespace InDetDD
 {
     class PixelDetectorManager;
-    class SCT_DetectorManager;
 }
 
 class PixelID;
+class SCT_ID;
 class TH2F;
 
 class InDetGlobalErrorMonTool : public ManagedMonitorToolBase {
@@ -56,13 +59,15 @@ private:
     
     const PixelID * m_pixID;
     const InDetDD::PixelDetectorManager * m_pixManager;
-    const InDetDD::SCT_DetectorManager  * m_sctManager;
+    const SCT_ID * m_sctID;
     
-    ServiceHandle<IInDetConditionsSvc> m_pixCond;
+    ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
     ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
         "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
     ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
     ServiceHandle<IPixelByteStreamErrorsSvc> m_ErrorSvc;
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     geoContainer_t m_errorGeoPixel;
     geoContainer_t m_disabledGeoPixel;

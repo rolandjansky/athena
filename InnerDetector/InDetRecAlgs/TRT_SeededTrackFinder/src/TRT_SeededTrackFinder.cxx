@@ -34,6 +34,7 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_nprint(0),
+    m_ntracks(0),
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_trtExtension("InDet::TRT_TrackExtensionTool_xk"),

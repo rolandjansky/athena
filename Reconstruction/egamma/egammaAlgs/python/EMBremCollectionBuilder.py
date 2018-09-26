@@ -58,6 +58,30 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                  useSCT        = DetFlags.haveRIO.SCT_on(),
                                                                  CountDeadModulesAfterLastHit = True)
 
+        if DetFlags.haveRIO.pixel_on():
+            if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
+                from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+                pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+                pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data'))
+                pixelConditionsSummaryToolSetup.setUseBS((globalflags.DataSource=='data'))
+                pixelConditionsSummaryToolSetup.setup()
+
+            InDetPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
+
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+            if athenaCommonFlags.isOnline() :
+                InDetPixelConditionsSummaryTool.UseSpecialPixelMap = False
+            else:
+                InDetPixelConditionsSummaryTool.UseSpecialPixelMap = True
+
+            if InDetFlags.usePixelDCS():
+                InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+                InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
+
+            GSFBuildHoleSearchTool.PixelSummaryTool = InDetPixelConditionsSummaryTool
+        else:
+            GSFBuildHoleSearchTool.PixelSummaryTool = None
+ 
         if (DetFlags.haveRIO.SCT_on()):
             from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
             sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
@@ -72,12 +96,11 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         #  Load BLayer tool
         #
         GSFBuildTestBLayerTool = None
-        if DetFlags.haveRIO.pixel_on() :
+        if DetFlags.haveRIO.pixel_on():
             from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
-            from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-            ToolSvc += PixelConditionsSummaryTool()            
+
             GSFBuildTestBLayerTool = InDet__InDetTestBLayerTool(name            = "GSFBuildTestBLayerTool",
-                                                                PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
+                                                                PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                                 Extrapolator    = GSFBuildInDetExtrapolator)
             ToolSvc += GSFBuildTestBLayerTool
         #

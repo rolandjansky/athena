@@ -65,6 +65,7 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_lutCreatorToolTRT  ("TRT_RegionSelectorTable/TRT_RegionSelectorTable"),
     m_lutCreatorToolLAR  ("LArRegionSelectorTable"),
     m_lutCreatorToolTile ("TileRegionSelectorTable"),
+    m_SCTCablingToolCB("SCT_CablingToolCB"),
     m_geoModelSvc("GeoModelSvc",name),
     m_DeltaZ(168),
     m_initRPC(true),
@@ -172,6 +173,9 @@ StatusCode RegSelSvc::initialize() {
 
   if ( m_initOnlyID.value() ) { 
     if ( !m_initSCT.value() )   sctflag   = "disabled"; 
+    else ATH_CHECK(m_SCTCablingToolCB.retrieve()); // SCT_CablingToolCB has to be retrieved now.
+    // Otherwise, SCT_RegionSelectorTable cannot use ready SCT_CablingToolCB.
+
     if ( !m_initPixel.value() ) pixelflag = "disabled"; 
     if ( !m_initTRT.value() )   trtflag   = "disabled"; 
   }

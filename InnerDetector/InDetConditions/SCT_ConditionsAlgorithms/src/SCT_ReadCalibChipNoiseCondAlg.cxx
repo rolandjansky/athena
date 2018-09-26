@@ -37,7 +37,7 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::initialize() {
   ATH_CHECK(m_readKey.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }

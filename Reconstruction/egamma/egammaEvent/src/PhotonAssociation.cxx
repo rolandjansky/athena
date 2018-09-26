@@ -10,7 +10,7 @@ namespace Analysis
   PhotonAssociation::PhotonAssociation()
   {  } 
   
-  PhotonAssociation::PhotonAssociation(NameType& name)
+  PhotonAssociation::PhotonAssociation(const NameType& name)
   {
     this->setName(name);
   }  
@@ -54,8 +54,8 @@ namespace Analysis
   }
   
   void  PhotonAssociation::set_photon(const PhotonContainer* theContainer,
-					  index_type& theIndex,
-					  double weight)
+                                      const index_type& theIndex,
+                                      double weight)
   {
     double newWeight = weight;
     // photon already in collection
@@ -80,7 +80,7 @@ namespace Analysis
   }
   
   double PhotonAssociation::getPhotonWeight(const PhotonContainer* theContainer,
-						index_type& theIndex) const
+                                            const index_type& theIndex) const
   {
     // from Navigable
     return (this->contains(theContainer,theIndex))

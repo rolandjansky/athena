@@ -41,6 +41,13 @@ class IEFlowCellEOverPTool : public AthAlgTool {
   virtual StatusCode execute(eflowEEtaBinnedParameters *binnedParameters) = 0 ;
   virtual StatusCode finalize() {return StatusCode::SUCCESS;};
 
+protected:
+  enum E_BINS        { ENERGY_BIN_START = 0, E001bin = ENERGY_BIN_START, E003point5bin = 1, E010bin = 2, E020bin = 3, E032point5bin = 4, E040bin = 5, ENERGY_BIN_END = 6 };
+    
+  enum ETA_BINS      { ETA_BIN_START = 0, eta050bin = ETA_BIN_START, eta100bin = 1, eta150bin = 2, eta250bin = 3, eta350bin = 4, eta450bin = 5, ETA_BIN_END = 6};
+
+  enum SHAPE_PARAMS  { SHAPE_START = 0, NORM1 = SHAPE_START, WIDTH1 = 1, NORM2 = 2, WIDTH2 = 3, SHAPE_END = 4 };
+
 };
 
 inline const InterfaceID& IEFlowCellEOverPTool::interfaceID()

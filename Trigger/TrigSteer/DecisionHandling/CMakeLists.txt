@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Control/AthContainers
 			  Control/AthLinks 
                           PRIVATE
-                          #Control/AthViews
+                          Control/AthViews
                          # Control/StoreGate
                           Control/AthenaBaseComps
                          # Control/CxxUtils
@@ -23,8 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
 			  Control/StoreGate
 			  Trigger/TrigSteer/TrigOutputHandling
 			  Trigger/TrigEvent/TrigSteeringEvent
-			  )
-
+			  Trigger/TrigTools/TrigTimeAlgs )
+			  
 find_package( ROOT )
 find_package( Boost )
 
@@ -32,7 +32,7 @@ atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES xAODTrigger GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent)
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent TrigTimeAlgsLib )
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling

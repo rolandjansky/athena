@@ -9,14 +9,14 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "InDetReadoutGeometry/SiCellId.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-//#include "CLHEP/Geometry/Transform3D.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 
 class Identifier;
-//class HepGeom::Transform3D;
 
 namespace InDetDD{
   class SiDetectorManager;
@@ -33,7 +33,7 @@ public:
   StatusCode finalize();
 
 private:
-  void printAlignmentShifts();
+  void printAlignmentShifts(const bool accessDuringInitialization);
   bool testIdentity(const Amg::Transform3D & transform, double errRot=0, double errTrans=0);
   void extractAlphaBetaGamma(const Amg::Transform3D & trans, double& alpha, double& beta, double &gamma) const; 
   const InDetDD::SiDetectorManager * m_manager;
@@ -41,6 +41,7 @@ private:
   bool m_longPrintOut;
   double m_errRot;
   double m_errTrans;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey{this, "DetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection"};
 };
 
 #endif // InDetDetDescrExample_TestSiAlignment_h

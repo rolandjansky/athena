@@ -42,24 +42,16 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaMonitoring/MonitoredScope.h"
+
 class ISvcLocator;
 
 muIso::muIso(const std::string & name, ISvcLocator* pSvcLocator):
-   HLT::FexAlgo(name, pSvcLocator)
+   HLT::FexAlgo(name, pSvcLocator),
+   //m_pStoreGate("StoreGateSvc", name),
+   m_pTimerService("TrigTimerSvc", name)
 {
-
-   // ID trk xAOD collection to use
-   declareProperty("IDalgo", m_ID_algo_to_use = "InDetTrigTrackingxAODCnv_Muon_FTF");
-
-   declareProperty("RID",                    m_RID = 0.4);
-   //ID tracks quality parameters
-   declareProperty("MinPtTRK",          m_PtMinTrk = 1.0);
-   declareProperty("MaxAbsEtaTRK",     m_EtaMaxTrk = 2.5);
-   declareProperty("MaxDzetaIDMuon",     m_DzetaMax = 15.0);
-
-   // Isolation cuts used for monitoring
-   declareProperty("MonitoringGlobalIsoCut_ID",  m_GlobIsoCut_ID  = 0.2);
-
    //Monitored quantities
    declareMonitoredVariable("ErrorFlagMI",        m_ErrorFlagMI);
    declareMonitoredVariable("PtFL",               m_ptFL);
@@ -70,7 +62,6 @@ muIso::muIso(const std::string & name, ISvcLocator* pSvcLocator):
    declareMonitoredVariable("NTRK"              , m_NTRK);
    declareMonitoredVariable("IDiso"             , m_IDiso);
    declareMonitoredVariable("IsIsolated"        , m_isIsolated);
-
 }
 
 
@@ -81,16 +72,45 @@ muIso::~muIso()
 HLT::ErrorCode muIso::hltInitialize()
 {
 
-  ATH_MSG_DEBUG( "on initialize()"  );
+   ATH_MSG_DEBUG( "on initialize()"  );
 
-  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION  );
+   ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION  );
 
+   //if ( m_pStoreGate.retrieve().isFailure() ) {
+   //   ATH_MSG_ERROR("Cannot retrieve service StoreGateSvc");
+   //   return HLT::BAD_JOB_SETUP; 
+   //}
    m_pStoreGate = store();
+
    // Timer Service
-   m_pTimerService = 0;
+   if ( m_pTimerService.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Unable to locate TrigTimer Service"); 
+   }
+
+   // Initilizing DataHandleKeys
+   if ( m_muonCBKey.initialize().isFailure() ) {
+      ATH_MSG_ERROR( "ReadHandleKey for xAOD::L2CombinedMuonContainer key:" << m_muonCBKey.key() << "initialize Filure!");
+      return HLT::BAD_JOB_SETUP;
+   }
+
+   if ( m_idTrackParticlesKey.initialize().isFailure() ) {
+      ATH_MSG_ERROR( "ReadHandleKey for xAOD::TrackParticleContainer key:" << m_idTrackParticlesKey.key() << "initialize Filure!");
+      return HLT::BAD_JOB_SETUP;
+   }
+
+   if ( m_muonISCollKey.initialize().isFailure() ) {
+      ATH_MSG_ERROR( "ReadHandleKey for xAOD::L2IsoMuonContainer key:" << m_muonISCollKey.key() << "initialize Filure!");
+      return HLT::BAD_JOB_SETUP;
+   }
+
+   if ( not m_monTool.name().empty() ) {
+      if ( !m_monTool.retrieve() ) {
+         ATH_MSG_ERROR("Cannot retrieve MonitoredTool");
+         return HLT::BAD_JOB_SETUP;
+      }
+   }
 
    ATH_MSG_DEBUG( "Initialization completed successfully" );
-
    return HLT::OK;
 }
 
@@ -102,14 +122,44 @@ HLT::ErrorCode muIso::hltFinalize()
    return HLT::OK;
 }
 
-HLT::ErrorCode muIso::hltBeginRun()
+//-----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+
+StatusCode muIso::execute() 
 {
 
-   ATH_MSG_INFO( "At BeginRun of " << name() << " - package version "
-                 << PACKAGE_VERSION  );
+   ATH_MSG_DEBUG( "StatusCode muIso::execute() start");
 
-   return HLT::OK;
+   auto ctx = getContext();
+
+   // create output data and record it with WriteHandle
+   auto muon_cont = SG::makeHandle( m_muonISCollKey, ctx );
+   ATH_CHECK( muon_cont.record( std::make_unique<xAOD::L2IsoMuonContainer>(),
+                                std::make_unique<xAOD::L2IsoMuonAuxContainer>()));
+
+   // retrieve with ReadHandle
+   auto muonCBHandle = SG::makeHandle( m_muonCBKey, ctx );
+   if( !muonCBHandle.isValid() ) {
+      ATH_MSG_ERROR( "ReadHandleKey for xAOD::L2CombinedMuonContainer key:" << m_muonCBKey.key() << "isn't Valid");
+      return StatusCode::FAILURE;
+   }
+
+   auto idTrackParticlesHandle = SG::makeHandle( m_idTrackParticlesKey, ctx );
+   if( !idTrackParticlesHandle.isValid() ) {
+      ATH_MSG_ERROR( "ReadHandleKey for xAOD::TrackParticleContainer key:" << m_idTrackParticlesKey.key() << "isn't Valid");
+      return StatusCode::FAILURE;
+   }
+
+   // Check input data
+   ATH_CHECK( findIsolation( *muonCBHandle, *idTrackParticlesHandle, *muon_cont) ); 
+
+   ATH_MSG_DEBUG( "REGTEST: Recorded events sizes = " << muon_cont->size() );
+
+   return StatusCode::SUCCESS;
 }
+
+//-----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 
 HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE)
 {
@@ -321,6 +371,197 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    muonISColl->push_back(muonIS);
    return muIsoSeed(outputTE, muonISColl);
 }
+
+
+//-----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+
+StatusCode muIso::findIsolation( const xAOD::L2CombinedMuonContainer& muonColl, 
+                                 const xAOD::TrackParticleContainer& idTrackParticles,
+                                 xAOD::L2IsoMuonContainer& muonISColl ) 
+{
+   using namespace Monitored;
+   // Initalize Monitored variables
+   auto errorFlagMI = MonitoredScalar::declare("ErrorFlagMI", 0);
+   auto sumpt       = MonitoredScalar::declare("Sumpt", -9999);
+   auto muPt        = MonitoredScalar::declare("TEMuPt", -9999);
+   auto muEta       = MonitoredScalar::declare("TEMuEta", -9999);
+   auto muPhi       = MonitoredScalar::declare("TEMuPhi", -9999);
+   auto nTrk        = MonitoredScalar::declare("NTRK", -9999);
+   auto ptFL        = MonitoredScalar::declare("PtFL", -9999);
+   auto idIso       = MonitoredScalar::declare("IDiso", -9999);
+   auto isIsolated  = MonitoredScalar::declare("IsIsolated", -9999);
+
+   auto monitorIt   = MonitoredScope::declare( m_monTool, errorFlagMI, sumpt, 
+                                               muPt, muEta, muPhi, nTrk, ptFL,
+                                               idIso, isIsolated);
+
+   // Create xAOD::L2IsoMuon to store output container "muonISColl"
+   xAOD::L2IsoMuon* muonIS = new xAOD::L2IsoMuon();
+   muonISColl.push_back(muonIS);
+   muonIS->setPt(0.0);
+
+   // Retrieve store
+   m_pStoreGate = store();
+
+   const xAOD::EventInfo* pEvent;
+   StatusCode sc = m_pStoreGate->retrieve(pEvent);
+   if (sc.isFailure()) {
+      m_ErrorFlagMI = 1;
+      ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );
+      return StatusCode::FAILURE;
+   }
+
+   auto current_run_id = pEvent->runNumber();
+   auto current_event_id = pEvent->eventNumber();
+   auto current_bcg_id = pEvent->bcid();
+
+   ATH_MSG_DEBUG( " ---> Run Number       : " << current_run_id  );
+   ATH_MSG_DEBUG( " ---> Event Number     : " << std::hex << current_event_id << std::dec  );
+   ATH_MSG_DEBUG( " ---> Bunch Crossing ID: " << std::hex << current_bcg_id << std::dec  );
+
+   ATH_MSG_DEBUG( "Configured to fex ID:   "  );
+   ATH_MSG_DEBUG( "R ID:                   " << m_RID            );
+   ATH_MSG_DEBUG( "PtMin ID:               " << m_PtMinTrk       );
+   ATH_MSG_DEBUG( "AbsEtaMax ID:           " << m_EtaMaxTrk      );
+   ATH_MSG_DEBUG( "AbsDeltaZeta Max ID:    " << m_DzetaMax       );
+
+   // Start Trigger Element Processing
+   ATH_MSG_DEBUG( "REGTEST: Input L2CombinedMuon size = " << muonColl.size() );
+   if ( muonColl.empty() ) {
+      ATH_MSG_ERROR( "Input L2CombinedMuon is empty!" );
+      return StatusCode::FAILURE;
+   }
+
+   xAOD::L2CombinedMuonContainer::const_iterator muonCB;
+   muonCB = muonColl.begin();
+
+   if ( (*muonCB)->pt() == 0. ) {
+      errorFlagMI = 1;
+      ATH_MSG_DEBUG( " L2CombinedMuon pt = 0 --> stop processing RoI"  );
+      muonIS->setErrorFlag( errorFlagMI );
+      return StatusCode::SUCCESS;
+   }
+
+   double pt       = (*muonCB)->pt();
+   double eta      = (*muonCB)->eta();
+   double phi      = (*muonCB)->phi();
+   double zeta     = (*muonCB)->idTrack()->z0();
+
+   muonIS->setPt( pt );
+   muonIS->setEta( eta );
+   muonIS->setPhi( phi );
+   muonIS->setCharge( (*muonCB)->charge() );
+   muonIS->setSumEt01( 0.0 );
+   muonIS->setSumEt02( 0.0 );
+   muonIS->setSumEt03( 0.0 );
+   muonIS->setSumEt04( 0.0 );
+
+   ATH_MSG_DEBUG( "Input L2CombinedMuon pt (GeV) = " << pt
+                  << " / eta = "                    << eta
+                  << " / phi = "                    << phi
+                  << " / z = "                      << zeta );
+
+   if ( idTrackParticles.size() < 1 ) {
+      errorFlagMI = 2;
+      ATH_MSG_DEBUG( " xAOD::TrackParticleContainer has 0 tracks --> no match" );
+      muonIS->setErrorFlag( errorFlagMI );
+      muonIS->setSumPt01( 0.0 );
+      muonIS->setSumPt02( 0.0 );
+      muonIS->setSumPt03( 0.0 );
+      muonIS->setSumPt04( 0.0 );
+      return StatusCode::SUCCESS;
+   }
+
+   ATH_MSG_DEBUG( " Got xAOD::TrackParticleContainer with size: " << idTrackParticles.size()  );
+
+   //ID based isolation
+   float  sumpt01 = 0.0;
+   float  sumpt02 = 0.0;
+   float  sumpt03 = 0.0;
+   float  sumpt04 = 0.0;
+   int    ntrk    = 0;
+
+
+   xAOD::TrackParticleContainer::const_iterator trkit;
+   for ( trkit = idTrackParticles.begin(); trkit != idTrackParticles.end(); ++trkit) {
+
+      //Select tracks
+      double phi_id   = (*trkit)->phi();
+      double eta_id   = (*trkit)->eta();
+      double q_id     = ((*trkit)->qOverP() > 0 ? 1.0 : -1.0);
+      double pt_id    = (*trkit)->pt() * q_id;
+      double z_id     = (*trkit)->z0();
+
+      ATH_MSG_DEBUG( "Found track: "
+                     << "  with pt (GeV) = " << pt_id / CLHEP::GeV
+                     << ", eta =" << eta_id
+                     << ", phi =" << phi_id );
+
+      if ((fabs(pt_id) / CLHEP::GeV) < m_PtMinTrk)       continue;
+      if (fabs(eta_id)               > m_EtaMaxTrk)      continue;
+
+      double dzeta    = z_id - zeta;
+      if (fabs(dzeta) > m_DzetaMax)       continue;
+
+      ATH_MSG_DEBUG( "Track selected "  );
+
+      ATH_MSG_DEBUG( "Found track: "
+                     << m_ID_algo_to_use
+                     << "  with pt = " << pt_id
+                     << ", eta = " << eta_id
+                     << ", phi = " << phi_id
+                     << ", Zid = " << z_id
+                     << ", DZeta = " << dzeta );
+
+      //see if is in cone
+      double deta = fabs(eta_id - eta);
+      double dphi = fabs(phi_id - phi);
+      if (dphi > M_PI) dphi = 2.* M_PI - dphi;
+
+      double DR = sqrt(deta * deta + dphi * dphi);
+      if (DR <= m_RID) {
+         ntrk++;
+         if (DR <= 0.1) sumpt01 += fabs(pt_id);
+         if (DR <= 0.2) sumpt02 += fabs(pt_id);
+         if (DR <= 0.3) sumpt03 += fabs(pt_id);
+         if (DR <= 0.4) sumpt04 += fabs(pt_id);
+      }
+   }
+
+
+   sumpt01 -= (*muonCB)->idTrack()->pt();
+   sumpt02 -= (*muonCB)->idTrack()->pt();
+   sumpt03 -= (*muonCB)->idTrack()->pt();
+   sumpt04 -= (*muonCB)->idTrack()->pt();
+
+   ATH_MSG_DEBUG( " REGTEST ID ALGO: ntrk / pt / sumpt02 / iso"
+                  << " / " << ntrk
+                  << " / " << pt
+                  << " / " << sumpt02
+                  << " / " << sumpt02 / pt );
+
+   // updated monitored variables
+   nTrk     = ntrk;
+   sumpt    = sumpt02 / CLHEP::GeV; //in GeV
+   idIso    = sumpt02 / pt;
+   errorFlagMI = 0;
+   muPt        = pt;
+   muEta       = eta;
+   muPhi       = phi;
+   if (idIso > m_GlobIsoCut_ID) isIsolated = 0.0;
+   if (isIsolated == 1) ptFL = -999999.;
+
+
+   // Fill feature
+   muonIS->setSumPt01(sumpt01);
+   muonIS->setSumPt02(sumpt01);
+   muonIS->setSumPt03(sumpt01);
+   muonIS->setSumPt04(sumpt01);
+
+   return StatusCode::SUCCESS;
+}
+
 
 
 HLT::ErrorCode muIso::muIsoSeed(HLT::TriggerElement* outputTE, xAOD::L2IsoMuonContainer* muon_cont)
