@@ -95,14 +95,14 @@ class TriggerPeriodData:
         'G4':(354396,354396,11098),
         'G5':(354476,354494,8.73 ),
 
-        'H':(354826,355224,43.4 ),
         'I':(355261,355273,17318),
         'J':(355331,355468,18781),
-        #'K':(355529,355650,19341), still open
+        'K':(355529,356259,19958),
+        'L':(357050,359171,19935),
     }
     
     grlbase = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
-    y2018grlpath = grlbase+"data18_13TeV/20180702/data18_13TeV.periodAllYear_DetStatus-v100-pro22-02_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
+    y2018grlpath = grlbase+"data18_13TeV/20180906/data18_13TeV.periodAllYear_DetStatus-v102-pro22-03_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
     y2017grlpath = grlbase+"data17_13TeV/20180619/data17_13TeV.periodAllYear_DetStatus-v99-pro22-01_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
     y2016grlpath = grlbase+"data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
     y2015grlpath = grlbase+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
@@ -197,13 +197,13 @@ class TriggerPeriodData:
                 ranges.append( self.periodMap2018['G1'] )
                 ranges.append( self.periodMap2018['G2'] )
                 ranges.append( self.periodMap2018['G3'] )
-                ranges.append( self.periodMap2018['H'] )
                 ranges.append( self.periodMap2018['I'] )
             if period & TriggerPeriod.y2018lowmu       :
                 ranges.append( self.periodMap2018['G4'] )
                 ranges.append( self.periodMap2018['J'] )
-            #if period & TriggerPeriod.y2018periodK    :
-            #    ranges.append( self.periodMap2018['K'] )
+            if period & TriggerPeriod.y2018periodKL   :
+                ranges.append( self.periodMap2018['K'] )
+                ranges.append( self.periodMap2018['L'] )
             for run in self.grl.keys()[:]:
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 

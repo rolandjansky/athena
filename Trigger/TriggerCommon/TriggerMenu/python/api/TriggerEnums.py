@@ -53,7 +53,7 @@ class TriggerPeriod(IntEnum):
     y2018periodBE     = 1 << 14
     y2018periodFI     = 1 << 15
     y2018lowmu        = 1 << 16
-    #y2018periodK      = 1 << 17
+    y2018periodKL     = 1 << 17
 
     runNumber         = 1 << 18 #Can't get higher than this, enters the run number domain
     future1p8e34      = 1 << 19 
@@ -62,7 +62,7 @@ class TriggerPeriod(IntEnum):
     y2017periodB      = y2017periodB1   | y2017periodB2B4 | y2017periodB5B7 | y2017periodB8
     y2017periodD      = y2017periodD1D5 | y2017periodD6
     y2017periodAll    = y2017periodB    | y2017periodC    | y2017periodD    | y2017periodEF | y2017periodGHIK #low-mu period is not considered 
-    y2018             = y2018periodBE   | y2018periodFI   #low-mu period is not considered 
+    y2018             = y2018periodBE   | y2018periodFI   | y2018periodKL  #low-mu period is not considered 
     y2017             = y2017periodAll
     y2016             = y2016periodA    | y2016periodBD3  | y2016periodD4plus
     future            = future1p8e34    | future2e34
@@ -91,8 +91,9 @@ class LBexceptions:
        301932: [(233, 234)], #Accidentaly moved to MuScan prescales
        302831: [(4  , 10 )], #toroid off keys 
        336506: [(212, 260)], #Regular muscan but the defect is not in sync with the switch of keys
-       352448: [(104, 104)], #First LB of emittance scan
        341294: [(137, 156)], #Standby keys
+       355650: [(117, 117)], #Last LB of emittance scan
+       357283: [(117, 117)], #Last LB of emittance scan
        }
 
 class TriggerRenaming:
