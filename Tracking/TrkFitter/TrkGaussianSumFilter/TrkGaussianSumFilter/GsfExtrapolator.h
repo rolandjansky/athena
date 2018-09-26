@@ -160,6 +160,24 @@ private:
     }
   };
 
+  /** These are the methods that do the actual heavy lifting when extrapolating with a cache */
+  const MultiComponentState* extrapolateImpl (Cache& cache, 
+                                                     const IPropagator&,
+                                                     const MultiComponentState&,
+                                                     const Surface&,
+                                                     PropDirection direction = anyDirection,
+                                                     BoundaryCheck boundaryCheck = true,
+                                                     ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
+  const MultiComponentState* extrapolateImpl ( Cache& cache,
+                                               const MultiComponentState&,
+                                               const Surface&,
+                                               PropDirection direction = anyDirection,
+                                               BoundaryCheck boundaryCheck = true,
+                                               ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
+
+
   /** Two primary private extrapolation methods 
     - extrapolateToVolumeBoundary - extrapolates to the exit of the destination tracking volume
     - Exit layer surface will be hit in this method.

@@ -149,36 +149,36 @@ StatusCode Trk::GsfExtrapolator::finalize()
 }
 
 /*
- * Extrapolation methods without configured propagator
+ * This is the actual (non-direct) extrapolation method
+ * The other one will end up calling this one passing the internal cache
  */
-const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IPropagator& propagator,
-                                                                   const Trk::MultiComponentState& multiComponentState,
-                                                                   const Trk::Surface& surface,
-                                                                   Trk::PropDirection direction,
-                                                                   Trk::BoundaryCheck boundaryCheck,
-                                                                   Trk::ParticleHypothesis particleHypothesis ) const
+const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateImpl(Cache& cache, 
+                                                                      const Trk::IPropagator& propagator,
+                                                                      const Trk::MultiComponentState& multiComponentState,
+                                                                      const Trk::Surface& surface,
+                                                                      Trk::PropDirection direction,
+                                                                      Trk::BoundaryCheck boundaryCheck,
+                                                                      Trk::ParticleHypothesis particleHypothesis ) const
 {
   auto buff_extrapolateCalls=m_extrapolateCalls.buffer();
   ATH_MSG_VERBOSE( "GSF extrapolate() in non-configured mode: " << multiComponentState.size() );
 
   // If the extrapolation is to be without material effects simply revert to the extrapolateDirectly method
-  if ( particleHypothesis == Trk::nonInteracting )
+  if ( particleHypothesis == Trk::nonInteracting ){
     return extrapolateDirectly( propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis );
-
+  }
   // Surface based material effects (assumes all material is on active sensor elements)
-  if ( m_surfaceBasedMaterialEffects )
+  if ( m_surfaceBasedMaterialEffects ){
     return extrapolateSurfaceBasedMaterialEffects( propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis );
-
+  }
   // statistics
   ++buff_extrapolateCalls;
-
 
   const Trk::Layer*           associatedLayer     = 0;
   const Trk::TrackingVolume*  startVolume         = 0;
   const Trk::TrackingVolume*  destinationVolume   = 0;
   const Trk::TrackParameters* referenceParameters = 0;
 
-  Cache cache{};
   initialiseNavigation( cache,
                         propagator, 
                         multiComponentState, 
@@ -453,6 +453,74 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
   return destinationState;
 }
 
+/* 
+ * When the propagator is configured
+ * We can go through this overload
+  */
+const Trk::MultiComponentState* 
+Trk::GsfExtrapolator::extrapolateImpl(Cache& cache, 
+                                       const Trk::MultiComponentState& multiComponentState,
+                                       const Trk::Surface& surface,
+                                       Trk::PropDirection direction,
+                                       Trk::BoundaryCheck boundaryCheck,
+                                       Trk::ParticleHypothesis particleHypothesis ) const
+{
+
+  ATH_MSG_VERBOSE( "GSF extrapolate() in configured mode" );
+
+  if ( multiComponentState.empty() ){
+    ATH_MSG_DEBUG( "MultiComponentState is empty... returning 0" );
+    return 0;
+  }
+
+  if (m_propagatorConfigurationLevel < 10){
+
+    // Set the propagator to that one corresponding to the configuration level
+    const Trk::IPropagator* currentPropagator = &(*m_propagators[m_propagatorConfigurationLevel]); 
+    return extrapolateImpl( cache, 
+                            *currentPropagator,
+                            multiComponentState,
+                            surface,
+                            direction,
+                            boundaryCheck,
+                            particleHypothesis );
+  }
+  ATH_MSG_ERROR( "No default propagator is selected in 'extrapolate'. Check job options!" );
+  return 0;
+}
+
+/************************************************************/
+/*
+ * Done with the internal actual implementation methods here
+ * Implement the public ones
+ */
+/************************************************************/
+
+/*
+ * Extrapolation methods without configured propagator
+ */
+const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate(const Trk::IPropagator& propagator,
+                                                                  const Trk::MultiComponentState& multiComponentState,
+                                                                  const Trk::Surface& surface,
+                                                                  Trk::PropDirection direction,
+                                                                  Trk::BoundaryCheck boundaryCheck,
+                                                                  Trk::ParticleHypothesis particleHypothesis ) const
+{
+  Cache cache{};
+  return extrapolateImpl(cache, 
+                  propagator,
+                  multiComponentState,
+                  surface,
+                  direction,
+                  boundaryCheck,
+                  particleHypothesis );
+
+}
+
+/* 
+ * Direct method 
+ * does not uses a cache
+ */
 const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateDirectly( const Trk::IPropagator& propagator,
                                                                            const Trk::MultiComponentState& multiComponentState,
                                                                            const Trk::Surface& surface,
@@ -483,10 +551,10 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateDirectly( const
     return 0;
   }
   return returnState;
-
 }
+
 /*
- * Configured AlgTool methods
+ * Methods that can use a configured propagator
  */
 const Trk::MultiComponentState* 
 Trk::GsfExtrapolator::extrapolate( const Trk::MultiComponentState& multiComponentState,
@@ -494,33 +562,19 @@ Trk::GsfExtrapolator::extrapolate( const Trk::MultiComponentState& multiComponen
                                    Trk::PropDirection direction,
                                    Trk::BoundaryCheck boundaryCheck,
                                    Trk::ParticleHypothesis particleHypothesis ) const
-{
-
-  ATH_MSG_VERBOSE( "GSF extrapolate() in configured mode" );
-
-  if ( multiComponentState.empty() ){
-    ATH_MSG_DEBUG( "MultiComponentState is empty... returning 0" );
-    return 0;
-  }
-
-  if (m_propagatorConfigurationLevel < 10){
-
-    // Set the propagator to that one corresponding to the configuration level
-    const Trk::IPropagator* currentPropagator = &(*m_propagators[m_propagatorConfigurationLevel]);
-
-    const Trk::MultiComponentState* extrapolatedState = this->extrapolate( *currentPropagator,
-                                                                           multiComponentState,
-                                                                           surface,
-                                                                           direction,
-                                                                           boundaryCheck,
-                                                                           particleHypothesis );
-    return extrapolatedState;
-  }
-  ATH_MSG_ERROR( "No default propagator is selected in 'extrapolate'. Check job options!" );
-  return 0;
-
+{ 
+  Cache  cache{};
+  return extrapolateImpl( cache, 
+                          multiComponentState,
+                          surface,
+                          direction,
+                          boundaryCheck,
+                          particleHypothesis );
 }
 
+/* 
+ * Direct method does not uses a cache
+ */
 const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateDirectly( const Trk::MultiComponentState& multiComponentState,
                                                                            const Trk::Surface& surface,
                                                                            Trk::PropDirection direction,
@@ -544,17 +598,60 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateDirectly( const
                                       boundaryCheck,
                                       particleHypothesis );
   }
-
   ATH_MSG_ERROR( "No default propagator is selected in 'extrapolateDirectly'. Check job options!" );
   return 0;
-
 }
 
+/*
+ * Extrapolate M
+ */
+
+const std::vector<const Trk::TrackStateOnSurface*>* Trk::GsfExtrapolator::extrapolateM( const Trk::MultiComponentState& mcsparameters,
+                                                                                        const Surface& sf,
+                                                                                        PropDirection dir,
+                                                                                        BoundaryCheck bcheck,
+                                                                                        ParticleHypothesis particle) const
+{
+  ATH_MSG_DEBUG( "C extrapolateM()" );
+  // create a new vector for the material to be collected  
+
+  /* =============================================
+     Look for current volume
+     ============================================= */
+
+  Cache cache{};
+  // collect the material
+  const MultiComponentState* parameterAtDestination = extrapolateImpl(cache,mcsparameters,sf,dir,bcheck,particle);
+  // there are no parameters 
+  if (!parameterAtDestination ){
+    ATH_MSG_VERBOSE( "  [!] Destination surface for extrapolateM has not been hit (required through configuration). Return 0" );
+    // loop over and clean up 	
+    for (const Trk::TrackStateOnSurface *ptr : *cache.m_matstates) { delete ptr; }	
+    emptyGarbageBins(cache);
+    return 0;
+  }
+  else {
+    ATH_MSG_VERBOSE( "  [+] Adding the destination surface to the TSOS vector in extrapolateM() " );
+    cache.m_matstates->push_back(new TrackStateOnSurface(0,parameterAtDestination->begin()->first->clone(),0,0));
+    delete parameterAtDestination;
+  }
+  // assign the temporary states
+  std::vector<const Trk::TrackStateOnSurface*> *tmpMatStates = cache.m_matstates.release();
+  emptyGarbageBins(cache);
+  // return the material states
+  return tmpMatStates;  
+} 
+
+/************************************************************/
+/*
+ * Now the implementation of all the internal methods
+ * that perform actual calculations
+ */
+/************************************************************/
 
 /*   
  *   Extrapolate to Volume Boundary!
  */
-
 void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( Cache& cache,
                                                          const Trk::IPropagator& propagator,
                                                          const Trk::MultiComponentState& multiComponentState,
@@ -1554,51 +1651,6 @@ void Trk::GsfExtrapolator::printState( const std::string& description, const Trk
                  << ", " << trackParameters.parameters()[Trk::theta] << ", "  << trackParameters.parameters()[Trk::qOverP] << ")" );
   return;
 }
-
-/* =========================================================================================================================================
-   =========================================================================================================================================
-
-   Extrapolate M
-
-   =========================================================================================================================================
-   ========================================================================================================================================= */
-
-const std::vector<const Trk::TrackStateOnSurface*>* Trk::GsfExtrapolator::extrapolateM( const Trk::MultiComponentState& mcsparameters,
-                                                                                        const Surface& sf,
-                                                                                        PropDirection dir,
-                                                                                        BoundaryCheck bcheck,
-                                                                                        ParticleHypothesis particle) const
-{
-  ATH_MSG_DEBUG( "C extrapolateM()" );
-  // create a new vector for the material to be collected  
-
-  /* =============================================
-     Look for current volume
-     ============================================= */
-
-  Cache cache{};
-  // collect the material
-  const MultiComponentState* parameterAtDestination = extrapolate(mcsparameters,sf,dir,bcheck,particle);
-  // there are no parameters 
-  if (!parameterAtDestination ){
-    ATH_MSG_VERBOSE( "  [!] Destination surface for extrapolateM has not been hit (required through configuration). Return 0" );
-    // loop over and clean up 	
-    for (const Trk::TrackStateOnSurface *ptr : *cache.m_matstates) { delete ptr; }	
-    emptyGarbageBins(cache);
-    return 0;
-  }
-  else {
-    ATH_MSG_VERBOSE( "  [+] Adding the destination surface to the TSOS vector in extrapolateM() " );
-    cache.m_matstates->push_back(new TrackStateOnSurface(0,parameterAtDestination->begin()->first->clone(),0,0));
-    delete parameterAtDestination;
-  }
-  // assign the temporary states
-  std::vector<const Trk::TrackStateOnSurface*> *tmpMatStates = cache.m_matstates.release();
-  emptyGarbageBins(cache);
-  // return the material states
-  return tmpMatStates;  
-} 
-
 
 /*
  * addMaterialtoVector
