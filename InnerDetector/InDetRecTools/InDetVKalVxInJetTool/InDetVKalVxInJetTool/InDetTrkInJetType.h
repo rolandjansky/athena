@@ -86,23 +86,23 @@ namespace InDet {
     float m_Z0_limUpp;
     std::string m_calibFileName;
     ToolHandle < Trk::IVertexFitter >  m_fitterSvc;
-    Trk::TrkVKalVrtFitter*   m_fitSvc;
+    Trk::TrkVKalVrtFitter*   m_fitSvc{};
 
-    int m_initialised;
+    int m_initialised{};
 
-    float m_prbS;
-    float m_Sig3D;
-    float m_prbP;
-    float m_d0;
-    float m_vChi2;
-    float m_pTvsJet;
-    float m_prodTJ;
-    float m_SigZ;
-    float m_SigR;
-    float m_ptjet;
-    float m_etajet;
-    float   m_ibl;
-    float   m_bl;
+    float m_prbS{};
+    float m_Sig3D{};
+    float m_prbP{};
+    float m_d0{};
+    float m_vChi2{};
+    float m_pTvsJet{};
+    float m_prodTJ{};
+    float m_SigZ{};
+    float m_SigR{};
+    float m_ptjet{};
+    float m_etajet{};
+    float   m_ibl{};
+    float   m_bl{};
  };
 
 
