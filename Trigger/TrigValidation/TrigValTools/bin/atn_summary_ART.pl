@@ -448,7 +448,7 @@ function showBuildFailures(failures,link) {
 <th title=\"exit code of Athena\">Athena exit</th> 
 <th title=\"presence of any error messages in log\">Error Msgs</th> 
 <th title=\"number of warning messages in log\">Warn Msgs</th> 
-<th>Reg. tests</th> 
+<th>Reg. tests (incl. WARNING)</th> 
 <th title=\"expert histogram exact comparison to ref\">Root comp</th> 
 <th title=\"L2 + EF chain and trigger element counts within tolerance w.r.t. ref\"> Chain, TE cnts </th> 
 <th title=\"athena wall time in secs\">Time (s)</th> 
