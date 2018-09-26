@@ -9,6 +9,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "VxVertex/ExtendedVxCandidate.h"
 #include "TrkVKalVrtCore/TrkVKalUtils.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 //-------------------------------------------------
 // Other stuff
 #include<iostream>
@@ -18,19 +19,19 @@ namespace Trk {
                    std::vector< std::vector<int> > vertexDefinition,
                    std::vector< std::vector<int> > cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4);
-    extern int processCascade();
-    extern int processCascade( double *);
-    extern int processCascade( double *, double *);
-    extern int processCascadePV( double *, double *);
-    extern void cleanCascade();
-    extern void getFittedCascade( std::vector< Vect3DF > &, 
+    extern int processCascade(CascadeEvent &);
+    extern int processCascade(CascadeEvent &, double *);
+    extern int processCascade(CascadeEvent &, double *, double *);
+    extern int processCascadePV(CascadeEvent &, double *, double *);
+    extern void getFittedCascade( CascadeEvent &,
+                                  std::vector< Vect3DF > &, 
 		                  std::vector<std::vector<double> >& ,
                                   std::vector< std::vector< VectMOM> > & ,
 		                  std::vector< std::vector<double> > & ,
 		                  std::vector<double> & ,
 		                  std::vector<double> & );
-    extern int setCascadeMassConstraint(long int IV, double Mass);
-    extern int setCascadeMassConstraint(long int IV, std::vector<int> &, std::vector<int> &, double Mass);
+    extern int setCascadeMassConstraint(CascadeEvent &, long int IV, double Mass);
+    extern int setCascadeMassConstraint(CascadeEvent &, long int IV, std::vector<int> &, std::vector<int> &, double Mass);
 
 
 
@@ -77,12 +78,16 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
 {
     VertexID new_vID=10000;
 
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+//    if(!m_isFieldInitialized)setInitializedField();    //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
     m_cascadeSize=1;
     int NTRK = list.size();
     m_partMassForCascade.clear();
     m_partListForCascade.clear();
     m_partMassCnstForCascade.clear();
+//----
+    if(m_vkalFitControl->m_cascadeEvent)delete m_vkalFitControl->m_cascadeEvent;
+    m_vkalFitControl->m_cascadeEvent=new CascadeEvent();
 //----
     m_vertexDefinition.clear();   // track indices for vertex; It's filled in makeSimpleCascade
     m_cascadeDefinition.clear();  // cascade structure; It's filled in makeSimpleCascade
@@ -302,7 +307,7 @@ void TrkVKalVrtFitter::printSimpleCascade(std::vector< std::vector<int> > & vrtD
 
 
 inline int SymIndex(int it, int i, int j) {  return (3*it+3+i)*(3*it+3+i+1)/2 + (3*it+3+j);}
-
+#define CLEANCASCADE()  if(m_vkalFitControl->m_cascadeEvent)delete m_vkalFitControl->m_cascadeEvent; m_vkalFitControl->m_cascadeEvent=nullptr
 
 VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDecayAtPV )
 {
@@ -313,8 +318,6 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     std::vector< std::vector<double> >   fittedCovariance;
     std::vector<double>  fitFullCovariance;
     std::vector<double>  particleChi2;
-//
-    if(!m_isFieldInitialized)setInitializedField();    //to allow callback for init
 //
     int ntrk=0;
     StatusCode sc; sc.setChecked();
@@ -329,7 +332,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 	    baseInpTrk.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(indexFMP)));
           }else{
             if(msgLvl(MSG::INFO))msg()<< "No FirstMeasuredPoint on track in CascadeFitter. Stop fit"<<'\n';
-            return 0;
+            { CLEANCASCADE();  return 0; }
           }	      
        }
        sc=CvtTrackParameters(baseInpTrk,ntrk);
@@ -337,7 +340,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     }else{
        sc=CvtTrackParticle(m_partListForCascade,ntrk);
     }
-    if(sc.isFailure())return 0;
+    if(sc.isFailure()){ CLEANCASCADE(); return 0; }
 
     VKalVrtConfigureFitterCore(ntrk);
 
@@ -348,7 +351,8 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     int IERR = makeCascade(*m_vkalFitControl, ntrk, m_ich, partMass, &m_apar[0][0], &m_awgt[0][0],
                             m_vertexDefinition,
                             m_cascadeDefinition,
-			    m_cascadeCnstPrecision);  delete[] partMass; if(IERR){ cleanCascade(); return 0;}
+			    m_cascadeCnstPrecision);  delete[] partMass; if(IERR){ CLEANCASCADE(); return 0;}
+    CascadeEvent & refCascadeEvent=*(m_vkalFitControl->m_cascadeEvent);
 //
 // Then set vertex mass constraints
 //
@@ -361,9 +365,10 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
                       tmpInd.push_back( getSimpleVIndex(m_partMassCnstForCascade[ic].pseudoInVrt[il]) );
       IERR = findPositions(             tmpInd,                      m_cascadeDefinition[index], indexV);  if(IERR)break;
     //IERR = findPositions(m_partMassCnstForCascade[ic].pseudoInVrt, m_cascadeDefinition[index], indexV);  if(IERR)break; //VK 31.10.2011 ERROR!!!
-      IERR = setCascadeMassConstraint(index, indexT, indexV, m_partMassCnstForCascade[ic].Mass);           if(IERR)break;
+      IERR = setCascadeMassConstraint(refCascadeEvent,index, indexT, indexV, m_partMassCnstForCascade[ic].Mass);
+      if(IERR)break;
     }
-    if(IERR){ cleanCascade(); return 0;}
+    if(IERR){ CLEANCASCADE(); return 0;}
     if(msgLvl(MSG::DEBUG)){
        msg(MSG::DEBUG)<<"Standard cascade fit" << endmsg;
        printSimpleCascade(m_vertexDefinition,m_cascadeDefinition);
@@ -381,16 +386,16 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
          double covari[6] = {primVrtRec->covariancePosition()(0,0),primVrtRec->covariancePosition()(0,1),
                              primVrtRec->covariancePosition()(1,1),primVrtRec->covariancePosition()(0,2),
                              primVrtRec->covariancePosition()(1,2),primVrtRec->covariancePosition()(2,2)};
-	 if(FirstDecayAtPV) { IERR = processCascadePV(vertex,covari);}
-         else               { IERR = processCascade(vertex,covari);}
+	 if(FirstDecayAtPV) { IERR = processCascadePV(refCascadeEvent,vertex,covari);}
+         else               { IERR = processCascade(refCascadeEvent,vertex,covari);}
        }else{
-         IERR = processCascade(vertex);
+         IERR = processCascade(refCascadeEvent,vertex);
        }
     }else{
-        IERR = processCascade();
+        IERR = processCascade(refCascadeEvent);
     }
-    if(IERR){ cleanCascade(); return 0;}
-    getFittedCascade( cVertices, covVertices, fittedParticles, fittedCovariance, particleChi2, fitFullCovariance );
+    if(IERR){ CLEANCASCADE(); return 0;}
+    getFittedCascade(refCascadeEvent, cVertices, covVertices, fittedParticles, fittedCovariance, particleChi2, fitFullCovariance );
 
 //    for(int iv=0; iv<(int)cVertices.size(); iv++){       std::cout<<"iv="<<iv<<" masses=";
 //       for(int it=0; it<(int)fittedParticles[iv].size(); it++){
@@ -438,12 +443,13 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
           printSimpleCascade(new_vertexDefinition,new_cascadeDefinition);
        }
 //-----------------------------------------------------------------------------------------
-       cleanCascade();
+       if(m_vkalFitControl->m_cascadeEvent)delete m_vkalFitControl->m_cascadeEvent;
+       m_vkalFitControl->m_cascadeEvent=new CascadeEvent();
        partMass=new double[ntrk];
        for(int i=0; i<ntrk; i++) partMass[i]  = m_partMassForCascade[i];
        int IERR = makeCascade(*m_vkalFitControl, ntrk, m_ich, partMass, &m_apar[0][0], &m_awgt[0][0],
                                new_vertexDefinition,
-                               new_cascadeDefinition);        delete[] partMass;  if(IERR){ cleanCascade(); return 0;}
+                               new_cascadeDefinition);        delete[] partMass;  if(IERR){ CLEANCASCADE(); return 0;}
 //------Set up mass constraints
        int icp;
        for(ic=0; ic<(int)m_partMassCnstForCascade.size(); ic++){
@@ -466,10 +472,10 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
          }   if(IERR)break;
          //std::cout<<"trk2="; for(int I=0; I<(int)indexT.size(); I++)std::cout<<indexT[I]; std::cout<<'\n';
          //std::cout<<"pse="; for(int I=0; I<(int)indexV.size(); I++)std::cout<<indexV[I]; std::cout<<'\n';
-         IERR = setCascadeMassConstraint(index , indexT, indexV, m_partMassCnstForCascade[ic].Mass); if(IERR)break;
+         IERR = setCascadeMassConstraint(*(m_vkalFitControl->m_cascadeEvent), index , indexT, indexV, m_partMassCnstForCascade[ic].Mass); if(IERR)break;
        }
        msg(MSG::DEBUG)<<"Setting compressed mass constraints ierr="<<IERR<<endmsg;
-       if(IERR){ cleanCascade(); return 0;}
+       if(IERR){ CLEANCASCADE(); return 0;}
 //
 //--------------------------- Refit
 //
@@ -480,14 +486,14 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
             double covari[6] = {primVrtRec->covariancePosition()(0,0),primVrtRec->covariancePosition()(0,1),
                                 primVrtRec->covariancePosition()(1,1),primVrtRec->covariancePosition()(0,2),
                                 primVrtRec->covariancePosition()(1,2),primVrtRec->covariancePosition()(2,2)};
-            IERR = processCascade(vertex,covari);
+            IERR = processCascade(*(m_vkalFitControl->m_cascadeEvent),vertex,covari);
           }else{
-            IERR = processCascade(vertex);
+            IERR = processCascade(*(m_vkalFitControl->m_cascadeEvent),vertex);
           }
        }else{
-          IERR = processCascade();
+          IERR = processCascade(*(m_vkalFitControl->m_cascadeEvent));
        }
-       if(IERR){ cleanCascade(); return 0;}
+       if(IERR){ CLEANCASCADE(); return 0;}
        NDOFsqueezed=getCascadeNDoF()+3-2;   // Remove vertex (+3 ndf) and this vertex pointing (-2 ndf)
 //
 //-------------------- Get information according to old cascade structure
@@ -497,7 +503,8 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        std::vector< std::vector< VectMOM> > t_fittedParticles;
        std::vector< std::vector<double> >   t_fittedCovariance;
        std::vector<double>   t_fitFullCovariance;
-       getFittedCascade( t_cVertices, t_covVertices, t_fittedParticles, t_fittedCovariance, particleChi2, t_fitFullCovariance);
+       getFittedCascade(*(m_vkalFitControl->m_cascadeEvent), t_cVertices, t_covVertices, t_fittedParticles, 
+                         t_fittedCovariance, particleChi2, t_fitFullCovariance);
        cVertices.clear(); covVertices.clear();
 //
 //------------------------- Real tracks
@@ -784,11 +791,12 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //    VxCascadeInfo * recCascade= new VxCascadeInfo(vxVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
     VxCascadeInfo * recCascade= new VxCascadeInfo(xaodVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
     recCascade->setFullCascadeCovariance(FULL);
+    CLEANCASCADE();
     return recCascade;
 }
 
- 
- 
+#undef CLEANCASCADE
+
  
 StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
                                  const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,

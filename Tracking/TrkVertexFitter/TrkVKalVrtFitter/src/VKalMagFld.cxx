@@ -82,13 +82,13 @@ namespace Trk{
   void TrkVKalVrtFitter::setAthenaField(MagField::IMagFieldSvc * pnt)
   {
      m_fitField->setAtlasField(pnt);
-     m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
+     //m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
   }
 
 
   void TrkVKalVrtFitter::setAthenaField(const double  Field)
   {
      m_fitField->setAtlasField( Field );
-     m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
+     //m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
   }
 }

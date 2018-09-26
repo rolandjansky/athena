@@ -27,7 +27,9 @@
 //#include  "VxVertex/ExtendedVxCandidate.h"
 #include  "MagFieldInterfaces/IMagFieldSvc.h"
 //
-
+#include <thread>
+#include <mutex>
+//
 class IChronoStatSvc;
 class IMagFieldAthenaSvc;
 
@@ -274,7 +276,7 @@ namespace Trk{
       SimpleProperty<bool>   m_makeExtendedVertex;
 
       bool m_isAtlasField;
-      bool m_isFieldInitialized;
+      std::once_flag m_isFieldInitialized;
 
       bool m_useAprioriVertex ;
       bool m_useThetaCnst;

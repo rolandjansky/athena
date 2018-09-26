@@ -38,7 +38,8 @@ namespace Trk{
     Impact.clear(); ImpactError.clear(); 
 //
 
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -92,7 +93,8 @@ namespace Trk{
     Impact.clear(); ImpactError.clear();
 //
 
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -143,7 +145,8 @@ namespace Trk{
 //
 
 
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //

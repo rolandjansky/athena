@@ -132,7 +132,7 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_InDetExtrapolator = 0;   //Direct pointer to Athena propagator
 
     m_isAtlasField       = false;   // To allow callback and then field first call only at execute stage
-    m_isFieldInitialized = false;   //
+    //m_isFieldInitialized = false;   //
 }
 
 
@@ -165,7 +165,7 @@ void TrkVKalVrtFitter::setInitializedField() {
       setAthenaField(mtmp);
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is initialized and used" << endmsg;  
   }
-  m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
+  //m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
   return;
 }
 
