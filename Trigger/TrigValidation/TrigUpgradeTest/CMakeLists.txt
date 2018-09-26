@@ -129,13 +129,13 @@ atlas_add_test( EmuStepProcessing
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_step_processing
 )
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
-atlas_add_test( NewJO
-		SCRIPT test/test_newJO.sh
-		EXTRA_PATTERNS "-s .*ERROR.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*DEBUG.*"
-                PROPERTIES TIMEOUT 500
-		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
-		)
+# file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
+# atlas_add_test( NewJO
+# 		SCRIPT test/test_newJO.sh
+# 		EXTRA_PATTERNS "-s .*ERROR.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*DEBUG.*"
+#                 PROPERTIES TIMEOUT 500
+# 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
+# 		)
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )
 atlas_add_test( l1sim
