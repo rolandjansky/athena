@@ -382,5 +382,105 @@ namespace xAOD{
     this->auxdecor< int >( "MC_Z_IsOnShell" ) = -1;
   }
 
+  //Initialize variables for ttbargamma events
+  void PartonHistory::IniVarTtGamma(){
+	
+   //ttbar variables  
+   this->auxdecor< float >( "MC_ttbar_beforeFSR_m" ) = -1;
+   this->auxdecor< float >( "MC_ttbar_beforeFSR_pt") = -1; 
+   this->auxdecor< float >( "MC_ttbar_beforeFSR_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_ttbar_beforeFSR_phi" ) = -10 ; 
+
+   this->auxdecor< float >( "MC_ttbar_afterFSR_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_ttbar_afterFSR_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_ttbar_afterFSR_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_ttbar_afterFSR_phi" ) = -10 ; 
+
+   //t variables  
+   this->auxdecor< float >( "MC_t_beforeFSR_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_t_beforeFSR_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_t_beforeFSR_eta" ) = -10 ;
+   this->auxdecor< float >( "MC_t_beforeFSR_phi" ) = -10 ; 
+   
+   this->auxdecor< float >( "MC_t_afterFSR_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_t_afterFSR_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_t_afterFSR_eta" ) = -10 ;
+   this->auxdecor< float >( "MC_t_afterFSR_phi" ) = -10 ;  
+   
+   //tbar variables  
+   this->auxdecor< float >( "MC_tbar_beforeFSR_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_tbar_beforeFSR_pt" ) = -1 ;
+   this->auxdecor< float >( "MC_tbar_beforeFSR_eta" ) = -10 ;
+   this->auxdecor< float >( "MC_tbar_beforeFSR_phi" ) = -10 ; 
+
+   this->auxdecor< float >( "MC_tbar_afterFSR_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_tbar_afterFSR_pt" ) = -1 ;
+   this->auxdecor< float >( "MC_tbar_afterFSR_eta" ) = -10 ;
+   this->auxdecor< float >( "MC_tbar_afterFSR_phi" ) = -10 ;  
+   
+   //W variables
+   this->auxdecor< float >( "MC_W_from_t_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_W_from_t_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_W_from_t_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_W_from_t_phi" ) = -10 ; 
+
+   this->auxdecor< float >( "MC_W_from_tbar_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_W_from_tbar_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_W_from_tbar_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_W_from_tbar_phi" ) = -10 ; 
+
+   //b variables
+   this->auxdecor< float >( "MC_b_from_t_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_b_from_t_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_b_from_t_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_b_from_t_phi" ) = -10 ; 
+
+   this->auxdecor< float >( "MC_b_from_tbar_m" ) = -1 ;
+   this->auxdecor< float >( "MC_b_from_tbar_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_b_from_tbar_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_b_from_tbar_phi" ) = -10 ; 
+
+   //Wdecay1 variables
+   this->auxdecor< float >( "MC_Wdecay1_from_t_m" ) = -1 ;
+   this->auxdecor< float >( "MC_Wdecay1_from_t_pt" ) = -1 ;
+   this->auxdecor< float >( "MC_Wdecay1_from_t_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_Wdecay1_from_t_phi" ) = -10 ; 
+   this->auxdecor< int >( "MC_Wdecay1_from_t_pdgId") = 0 ; 
+
+   this->auxdecor< float >( "MC_Wdecay1_from_tbar_m" ) = -1 ;
+   this->auxdecor< float >( "MC_Wdecay1_from_tbar_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_Wdecay1_from_tbar_eta" ) = -10 ;
+   this->auxdecor< float >( "MC_Wdecay1_from_tbar_phi" ) = -10 ;
+   this->auxdecor< int >( "MC_Wdecay1_from_tbar_pdgId" ) = 0 ; 
+
+   //Wdecay2 variables
+   this->auxdecor< float >( "MC_Wdecay2_from_t_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_Wdecay2_from_t_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_Wdecay2_from_t_eta" ) = -10 ; 
+   this->auxdecor< float >( "MC_Wdecay2_from_t_phi" ) = -10 ; 
+   this->auxdecor< int >( "MC_Wdecay2_from_t_pdgId" ) = 0 ; 
+
+   this->auxdecor< float >( "MC_Wdecay2_from_tbar_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_Wdecay2_from_tbar_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_Wdecay2_from_tbar_eta" ) = -10 ;
+   this->auxdecor< float >( "MC_Wdecay2_from_tbar_phi" ) = -10 ; 
+   this->auxdecor< int >( "MC_Wdecay2_from_tbar_pdgId" ) = 0 ;
+
+   //photon variables
+   this->auxdecor< float >( "MC_ph_m" ) = -1 ;
+   this->auxdecor< float >( "MC_ph_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_ph_eta" ) = -10 ;
+   this->auxdecor< float >( "MC_ph_phi" ) = -10 ; 
+
+   this->auxdecor< int >( "MC_branchtype_t" ) = -1;
+   this->auxdecor< int >( "MC_branchtype_tbar" ) = -1;
+   this->auxdecor< int >( "MC_initial_parton" ) = -1;
+   this->auxdecor< int >( "MC_ph_from_t_tbar" ) = -1;
+   this->auxdecor< int >( "MC_Event_Category" ) = -1;
+
+  }
+
+
+
 }
 ADD_NS_DV_PROXY( xAOD , PartonHistoryContainer );
