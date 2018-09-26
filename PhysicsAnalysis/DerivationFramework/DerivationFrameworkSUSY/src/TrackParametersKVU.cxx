@@ -28,8 +28,7 @@ DerivationFramework::TrackParametersKVU::TrackParametersKVU( const std::string& 
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory/FullLinearizedTrackFactory"),
   m_IPEstimator("Trk::TrackToVertexIPEstimator"),
-  m_sgName(""),
-  m_sgKey1("")
+  m_sgName("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("TrackParticleContainerName", m_collTrackName);
@@ -38,7 +37,6 @@ DerivationFramework::TrackParametersKVU::TrackParametersKVU( const std::string& 
     declareProperty("TrackExtrapolator", m_extrapolator);
     declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
     declareProperty("DecorationPrefix", m_sgName);
-    declareProperty("KVUSGEntryName", m_sgKey1); 
   }
  
 // Destructor
@@ -51,11 +49,6 @@ StatusCode DerivationFramework::TrackParametersKVU::initialize()
 
   if (m_collTrackName == "" || m_collVertexName == "") {
     ATH_MSG_ERROR("No selection variables for the TrackParametersKVU tool!");
-    return StatusCode::FAILURE;
-  }
-  
-  if (m_sgKey1 == "") {
-    ATH_MSG_ERROR("No Store Gate Keys for the TrackParametersKVU tool!");
     return StatusCode::FAILURE;
   }
   

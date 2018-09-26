@@ -140,30 +140,21 @@ deco_prefix = ''  #'SUSY6_'
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TrackParametersKVU
 SUSY6DFCommonKVU = DerivationFramework__TrackParametersKVU(name = "SUSY6DFCommonKVU",
                                                              TrackParticleContainerName = "InDetPixelPrdAssociationTrackParticles",
-                                                             VertexContainerName = "PrimaryVertices", 
-                                                             KVUSGEntryName = "DFCommonInDetTrackKVU" )
-
-
+                                                             VertexContainerName = "PrimaryVertices")
 
 ToolSvc += SUSY6DFCommonKVU
 DecorationTools.append(SUSY6DFCommonKVU)
 
 SUSY6DFThreeKVU = DerivationFramework__TrackParametersKVU(name = "SUSY6DFThreeKVU",
                                                           TrackParticleContainerName = "InDetPixelThreeLayerTrackParticles",
-                                                          VertexContainerName = "PrimaryVertices", 
-                                                          KVUSGEntryName = "DFThreeInDetTrackKVU" )
-
-
+                                                          VertexContainerName = "PrimaryVertices")
 
 ToolSvc += SUSY6DFThreeKVU
 DecorationTools.append(SUSY6DFThreeKVU)
 
 SUSY6DFFourKVU = DerivationFramework__TrackParametersKVU(name = "SUSY6DFFourKVU",
                                                          TrackParticleContainerName = "InDetPixelFourLayerTrackParticles",
-                                                         VertexContainerName = "PrimaryVertices", 
-                                                         KVUSGEntryName = "DFFourInDetTrackKVU" )
-
-
+                                                         VertexContainerName = "PrimaryVertices")
 
 ToolSvc += SUSY6DFFourKVU
 DecorationTools.append(SUSY6DFFourKVU)
