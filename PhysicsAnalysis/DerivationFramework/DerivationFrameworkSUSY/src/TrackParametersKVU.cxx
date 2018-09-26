@@ -82,9 +82,16 @@ StatusCode DerivationFramework::TrackParametersKVU::addBranches() const
     return StatusCode::SUCCESS;
   }
 
-
   //-- for each track, update track params with vtx considered as extra measurement (choose the closest vtx)
   if(tracks->size() !=0) { 
+    SG::AuxElement::Decorator< float > decoratorKVUphi(m_sgName+"KVUphi");
+    SG::AuxElement::Decorator< float > decoratorKVUtheta(m_sgName+"KVUtheta");
+    SG::AuxElement::Decorator< float > decoratorKVUd0(m_sgName+"KVUd0");
+    SG::AuxElement::Decorator< float > decoratorKVUz0(m_sgName+"KVUz0");
+    SG::AuxElement::Decorator< float > decoratorKVUqOverP(m_sgName+"KVUqOverP");
+    SG::AuxElement::Decorator< float > decoratorKVUChi2(m_sgName+"KVUChi2");
+    SG::AuxElement::Decorator< std::vector<float> > decoratorKVUCovMat(m_sgName+"KVUCovMat");
+
     for (const auto& track : *tracks) {
       if(track){
 	// --- list of new variables that will decorate the track
@@ -96,14 +103,6 @@ StatusCode DerivationFramework::TrackParametersKVU::addBranches() const
 	float updateqOverP = -999;
 	float updateChi2 = -999; 
 	std::vector<float> vec;
-
-	SG::AuxElement::Decorator< float > decoratorKVUphi(m_sgName+"KVUphi");
-	SG::AuxElement::Decorator< float > decoratorKVUtheta(m_sgName+"KVUtheta");
-	SG::AuxElement::Decorator< float > decoratorKVUd0(m_sgName+"KVUd0");
-	SG::AuxElement::Decorator< float > decoratorKVUz0(m_sgName+"KVUz0");
-	SG::AuxElement::Decorator< float > decoratorKVUqOverP(m_sgName+"KVUqOverP");
-	SG::AuxElement::Decorator< float > decoratorKVUChi2(m_sgName+"KVUChi2");
-	SG::AuxElement::Decorator< std::vector<float> > decoratorKVUCovMat(m_sgName+"KVUCovMat");
 
 	const Trk::TrackParameters* trackParams = 0;
 	float minIP = 1000.;
