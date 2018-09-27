@@ -13,7 +13,6 @@ StatusCode PFAlgorithm::initialize(){
   ATH_CHECK( m_IPFBaseTools.retrieve());
   
   ATH_CHECK(m_eflowRecTracksReadHandleKey.initialize());
-  ATH_CHECK(m_eflowRecClustersReadHandleKey.initialize());
 
   ATH_CHECK(m_eflowCaloObjectsWriteHandleKey.initialize());
   ATH_CHECK(m_caloClustersWriteHandleKey.initialize());
@@ -38,22 +37,21 @@ StatusCode PFAlgorithm::execute(){
   SG::ReadHandle<eflowRecTrackContainer> eflowRecTracksReadHandle(m_eflowRecTracksReadHandleKey);
   eflowRecTrackContainer localEFlowRecTrackContainer(*eflowRecTracksReadHandle.ptr());
 
-  xAOD::CaloClusterContainer& theCaloClusterContainerReference = *(caloClustersWriteHandle.ptr());
-  ATH_CHECK(m_IPFClusterSelectorTool->execute(theCaloClusterContainerReference));
+  eflowRecClusterContainer theEFlowRecClusterContainer;
   
-  SG::ReadHandle<eflowRecClusterContainer> eflowRecClustersReadHandle(m_eflowRecClustersReadHandleKey);
-  eflowRecClusterContainer localEFlowRecClusterContainer(*eflowRecClustersReadHandle.ptr());
+  xAOD::CaloClusterContainer& theCaloClusterContainerReference = *(caloClustersWriteHandle.ptr());
+  ATH_CHECK(m_IPFClusterSelectorTool->execute(theEFlowRecClusterContainer,theCaloClusterContainerReference));
   
   /* Run the SubtractionTools */
   for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
-    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&localEFlowRecClusterContainer,theCaloClusterContainerReference);
+    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&theEFlowRecClusterContainer,theCaloClusterContainerReference);
   }
 
   for (auto thisEFTrack : localEFlowRecTrackContainer){
     ATH_MSG_DEBUG("This efRecTrack has E,pt,eta and phi of " << thisEFTrack->getTrack()->e() << ", " << thisEFTrack->getTrack()->pt() << ", " << thisEFTrack->getTrack()->eta() << " and " << thisEFTrack->getTrack()->phi());
   }
 
-  for (auto thisEFCluster : localEFlowRecClusterContainer){
+  for (auto thisEFCluster : theEFlowRecClusterContainer){
     ATH_MSG_DEBUG("This efRecCluster has E,pt,eta and phi of " << thisEFCluster->getCluster()->e() << "," << thisEFCluster->getCluster()->pt() << ", " << thisEFCluster->getCluster()->eta() << " and " << thisEFCluster->getCluster()->phi());
   }
 

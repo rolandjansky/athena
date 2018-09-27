@@ -14,12 +14,10 @@ StatusCode PFClusterSelectorTool::initialize(){
   ATH_CHECK(m_caloClustersReadHandleKey.initialize());
   ATH_CHECK(m_caloCalClustersReadHandleKey.initialize());
 
-  ATH_CHECK(m_eflowRecClustersWriteHandleKey.initialize());
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode PFClusterSelectorTool::execute(xAOD::CaloClusterContainer&){
+StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer){
 
   SG::ReadHandle<xAOD::CaloClusterContainer> caloClustersReadHandle(m_caloClustersReadHandleKey);
   
@@ -28,9 +26,6 @@ StatusCode PFClusterSelectorTool::execute(xAOD::CaloClusterContainer&){
     ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::CaloCluster with key: " <<  caloClustersReadHandle.key());
     return StatusCode::SUCCESS;
   }
-  /* Record the eflowRecCluster output container */
-  SG::WriteHandle<eflowRecClusterContainer> eflowRecClustersWriteHandle(m_eflowRecClustersWriteHandleKey);
-  ATH_CHECK(eflowRecClustersWriteHandle.record(std::make_unique<eflowRecClusterContainer>()));
 
   SG::ReadHandle<xAOD::CaloClusterContainer> caloCalClustersReadHandle(m_caloCalClustersReadHandleKey);
   
@@ -58,7 +53,7 @@ StatusCode PFClusterSelectorTool::execute(xAOD::CaloClusterContainer&){
     }
 
     thisEFRecCluster->setClusterId(iCluster);
-    eflowRecClustersWriteHandle->push_back(std::move(thisEFRecCluster));
+    theEFlowRecClusterContainer.push_back(std::move(thisEFRecCluster));
 
     if (msgLvl(MSG::DEBUG)) {
       const xAOD::CaloCluster* thisCluster = caloClustersReadHandle->at(iCluster);

@@ -7,13 +7,14 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "eflowRec/eflowRecCluster.h"
 
 class IPFClusterSelectorTool : virtual public IAlgTool {
 
  public:
 
   /** Execute method to modify xAOD::CaloClusterContainer */
-  virtual StatusCode execute(xAOD::CaloClusterContainer&) = 0;
+  virtual StatusCode execute(eflowRecClusterContainer&,xAOD::CaloClusterContainer&) = 0;
 
   DeclareInterfaceID(IPFClusterSelectorTool,1,0);
 

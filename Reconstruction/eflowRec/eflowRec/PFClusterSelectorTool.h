@@ -3,12 +3,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "eflowRec/IPFClusterSelectorTool.h"
+#include "eflowRec/eflowRecCluster.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include <map>
-
-class eflowRecClusterContainer;
 
 class PFClusterSelectorTool : public extends<AthAlgTool, IPFClusterSelectorTool> {
 
@@ -20,7 +19,7 @@ public:
 
   /** Gaudi AthAlgorithm hooks */
   StatusCode initialize();
-  StatusCode execute(xAOD::CaloClusterContainer&);
+  StatusCode execute(eflowRecClusterContainer& theEFlowRecClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
   StatusCode finalize();
 
 private:
@@ -31,12 +30,7 @@ private:
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClustersReadHandleKey{this,"clustersName","CaloTopoCluster","ReadHandleKey for the CaloClusterContainer to be used as input"};
 
   /** ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoClusters","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};
-
-  /** WriteHandleKey for the eflowRecClusterContainer to write out */
-  SG::WriteHandleKey<eflowRecClusterContainer> m_eflowRecClustersWriteHandleKey{this,"eflowRecClustersOutputName","eflowRecClusters","WriteHandleKey for the eflowRecClusterContainer to write out"};
-  
-
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoClusters","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};  
   
 };
 #endif

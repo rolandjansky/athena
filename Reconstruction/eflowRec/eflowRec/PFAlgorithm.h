@@ -6,7 +6,6 @@
 #include "StoreGate/DataHandle.h"
 
 #include "eflowRec/eflowCaloObject.h"
-#include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowRecTrack.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -37,9 +36,6 @@ private:
   
   /** ReadHandleKey for the eflowRecTrackContainer to be read in */
   SG::ReadHandleKey<eflowRecTrackContainer> m_eflowRecTracksReadHandleKey{this,"eflowRecTracksInputName","eflowRecTracks","ReadHandleKey for the eflowRecTrackContainer to be read in"};
-
-  /** ReadHandleKey for the eflowRecClusterContainer to be read in */
-  SG::ReadHandleKey<eflowRecClusterContainer> m_eflowRecClustersReadHandleKey{this,"eflowRecClustersInputName","eflowRecClusters","ReadHandleKey for the eflowRecClusterContainer to be read in"};
 
   /** WriteHandleKey for CaloClusterContainer to be written out */
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_caloClustersWriteHandleKey{this,"PFCaloClustersOutputName","PFCaloCluster","WriteHandleKey for CaloClusterContainer to be written out"};
