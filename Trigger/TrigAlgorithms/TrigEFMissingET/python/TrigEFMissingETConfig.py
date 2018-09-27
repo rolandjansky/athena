@@ -1375,7 +1375,7 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         super(EFMissingET_Fex_topoClustersPUC, self).__init__(name)
 
         # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_topocl_PUC"
+        self.MissingETOutputKey = "TrigEFMissingET_topocl_PUC" if 'LAr' not in name else "TrigEFMissingET_"+name
         self.doTopoClusters = True
         self.doPUC = True
         self.doJetVeto = True

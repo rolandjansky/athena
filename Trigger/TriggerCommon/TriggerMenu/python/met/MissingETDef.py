@@ -186,13 +186,16 @@ class L2EFChain_met(L2EFChainDef):
                 jpt_thr = '-1'
                 if len(addInfo.split('Jpt'))==2: jpt_thr = addInfo.split('Jpt')[1] 
 
+                if "Jpt" in addInfo:
+                    LArTag += '_Jpt'+jpt_thr
+
                 #MET fex
                 theEFMETFex = EFMissingET_Fex_topoClustersPUC("EFMissingET_Fex_topoClustersPUC%s"%(addInfo),doLArH11off,doLArH12off,float(jpt_thr)) 
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
                 mucorr= '_wMu' if EFmuon else '' 
 
-                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC'+LArTag+'_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC'+LArTag+'_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV,labelMET=addInfo)
 
 
             if EFrecoAlg=='pufittrack':
