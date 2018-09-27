@@ -17,9 +17,9 @@
 #define CALOIDENTIFIER_LARHEC_SUPERCELL_ID_H
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloIdentifier/LArHEC_Base_ID.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 /**  
