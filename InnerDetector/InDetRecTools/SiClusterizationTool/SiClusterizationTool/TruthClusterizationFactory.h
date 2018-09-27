@@ -26,8 +26,14 @@
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "InDetSimData/InDetSimDataCollection.h"
 
-class InDetSimDataCollection;
+namespace CLHEP{
+  class HepRandomEngine;
+}
 
 namespace InDet {
 
@@ -36,7 +42,7 @@ namespace InDet {
  static const InterfaceID IID_TruthClusterizationFactory("InDet::NnClusterizationFactory", 1, 0);
  
  class TruthClusterizationFactory :    virtual public IIncidentListener,
-                                   public AthAlgTool  {
+   public AthAlgTool  {
     
   public:
     
@@ -59,12 +65,15 @@ namespace InDet {
                                                      
   private:
    /** IncidentSvc to catch begining of event and end of event */   
-   ServiceHandle<IIncidentSvc>           m_incidentSvc;   
-   
-   std::string                             m_simDataCollectionName;    //!< sim data collection name
+   ServiceHandle<IIncidentSvc>           m_incidentSvc;   	
+   SG::ReadHandleKey<InDetSimDataCollection> m_simDataCollectionName; 
    mutable const InDetSimDataCollection*   m_simDataCollection;        //!< sim data collection - refreshed at BeginEvent incident
-  };
-  
+   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
+   std::string m_rndmEngineName;
+   CLHEP::HepRandomEngine* m_rndmEngine;
+   
+   };
+ 
 }//end InDet namespace
 
 #endif
