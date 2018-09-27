@@ -135,6 +135,10 @@ public:
 
   ///Print object information. 
   void Print(Option_t *option = "") const;
+  
+  ///Deletes all objects from the s_cleanup_list. 
+  ///This list can get filled during streaming operations, where an immediate delete is not possible
+  static void DoCleanup();
 
 protected:
   const double init_Ekin_nominal=0;
@@ -143,6 +147,8 @@ protected:
   const double init_eta_nominal=0;
   const double init_eta_min=-100;
   const double init_eta_max=100;
+
+  static std::vector< TFCSParametrizationBase* > s_cleanup_list;
 
 #if defined(__FastCaloSimStandAlone__)
 public:
