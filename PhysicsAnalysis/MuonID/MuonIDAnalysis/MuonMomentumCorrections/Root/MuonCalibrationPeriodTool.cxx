@@ -183,6 +183,7 @@ namespace CP {
         const CP::IMuonCalibrationAndSmearingTool* tool = getTool();
         if (tool == nullptr){
             ATH_MSG_FATAL("No valid tool has been found to predict the resolution of muon with pt: "<<mu.pt()/1.e3<<"  eta: "<<mu.eta()<<" phi: "<<mu.phi());
+            throw std::runtime_error(Form("No valid tool has been found to predict the resolution of muon with pt: %.3f eta: %.2f phi: %.2f",mu.pt()/1.e3,mu.eta(), mu.phi()));
             return std::nan("float");
         }
         return tool->expectedResolution(DetType,mu,mc);
@@ -191,6 +192,7 @@ namespace CP {
         const CP::IMuonCalibrationAndSmearingTool* tool = getTool();
         if (tool == nullptr){
             ATH_MSG_FATAL("No valid tool has been found to predict the resolution of muon with pt: "<<mu.pt()/1.e3<<"  eta: "<<mu.eta()<<" phi: "<<mu.phi());
+            throw std::runtime_error(Form("No valid tool has been found to predict the resolution of muon with pt: %.3f eta: %.2f phi: %.2f",mu.pt()/1.e3,mu.eta(), mu.phi()));
             return std::nan("float");
         }
         return tool->expectedResolution(DetType,mu,mc);
