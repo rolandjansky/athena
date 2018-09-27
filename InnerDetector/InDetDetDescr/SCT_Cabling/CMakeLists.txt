@@ -39,4 +39,5 @@ atlas_add_component( SCT_Cabling
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )
+atlas_install_scripts( share/*.sh )
 atlas_install_python_modules( python/*.py )
