@@ -92,8 +92,12 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
             loadFolders.append((className, _extractFolder(fs)));
         result.getCondAlgo("CondInputLoader").Load+=loadFolders
         #result.addCondAlgo(CondInputLoader(Load=loadFolders))
- 
 
+        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+        apcs=AthenaPoolCnvSvc()
+        result.addService(apcs)
+        from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+        result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
 
     
     if detDb is not None:
