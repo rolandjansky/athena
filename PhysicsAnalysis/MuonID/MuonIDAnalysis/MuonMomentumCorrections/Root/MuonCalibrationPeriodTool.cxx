@@ -29,7 +29,8 @@ namespace CP {
         if (!isData && m_useRndRun){
              if (acc_rnd.isAvailable(*m_evInfo)) run = acc_rnd(*m_evInfo);
              else {
-                 ATH_MSG_WARNING("No random runnumber could be found allthough the tool is configured to assign the years based on it. Please make sure to apply the prwTool before-hand or consider to set the property 'useRandomRunNumber' to false.");
+                 ATH_MSG_ERROR("No random runnumber could be found allthough the tool is configured to assign the years based on it. Please make sure to apply the prwTool before-hand or consider to set the property 'useRandomRunNumber' to false.");
+                 return -1;
              }
         }
         // Check the Monte carlo
