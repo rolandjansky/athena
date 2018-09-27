@@ -9,9 +9,8 @@ atlas_subdir( AthenaPoolExampleData )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthLinks
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/Navigation
-                          Control/SGTools
                           GaudiKernel )
 
 # External dependencies:
@@ -25,13 +24,13 @@ atlas_add_library( AthenaPoolExampleData
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation SGTools GaudiKernel
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( AthenaPoolExampleDataDict
                       AthenaPoolExampleData/AthenaPoolExampleDataDict.h
                       AthenaPoolExampleData/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation SGTools GaudiKernel AthenaPoolExampleData
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation GaudiKernel AthenaPoolExampleData
                       NAVIGABLES ExampleHitContainer )
 
