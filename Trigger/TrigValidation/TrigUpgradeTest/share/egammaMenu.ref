@@ -98,9 +98,6 @@ TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e5_etcut ID#607
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     18  0     DEBUG  +++ HLT_e5_etcut ID#607406625
-TriggerSummaryStep2                     18  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
-TriggerSummaryStep2                     18  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
@@ -108,6 +105,6 @@ TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut ID#607
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerMonitorFinal                               DEBUG HLT_e3_etcut1step             20        20        18        0         18        
-TriggerMonitorFinal                               DEBUG HLT_e3_etcut                  20        9         8         17        59        
-TriggerMonitorFinal                               DEBUG HLT_e5_etcut                  20        20        17        17        68        
-TriggerMonitorFinal                               DEBUG HLT_e7_etcut                  20        20        15        17        66        
+TriggerMonitorFinal                               DEBUG HLT_e3_etcut                  20        9         8         16        56        
+TriggerMonitorFinal                               DEBUG HLT_e5_etcut                  20        20        17        16        65        
+TriggerMonitorFinal                               DEBUG HLT_e7_etcut                  20        20        15        16        63        
