@@ -33,7 +33,7 @@ StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecC
   unsigned int nClusters = caloClustersReadHandle->size();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
     /* Create the eflowRecCluster and put it in the container */
-    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = std::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*caloClustersReadHandle, iCluster));
+    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = std::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*caloClustersReadHandle, iCluster), theCaloClusterContainer);
     
     if (caloCalClustersReadHandle.isValid()){
       std::map<IdentifierHash,double> cellsWeightMap;

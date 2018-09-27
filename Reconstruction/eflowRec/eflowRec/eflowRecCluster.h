@@ -32,12 +32,12 @@ This class extends the information about a xAOD::CaloCluster. It includes an ele
 */
 class eflowRecCluster {
 public:
-  eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink);
+  eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink, xAOD::CaloClusterContainer& newClusContainer);
   eflowRecCluster(const eflowRecCluster& originalEflowRecCluster);
   eflowRecCluster&  operator=(const eflowRecCluster& originalEflowRecCluster);
   virtual ~eflowRecCluster();
 
-  const xAOD::CaloCluster* getCluster() const { return m_cluster; }
+  xAOD::CaloCluster* getCluster() const { return m_cluster; }
   xAOD::CaloCluster* getClusterForModification(xAOD::CaloClusterContainer* container);
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
@@ -66,7 +66,7 @@ private:
   enum CalorimeterType { CALORIMETER_START = 0, UNASSIGNED = CALORIMETER_START, ECAL = 1, HCAL = 2, FCAL = 3, UNKNOWN = 4, CALORIMETER_END = 5};
   
   int m_clusterId;
-  const xAOD::CaloCluster* m_cluster;
+  xAOD::CaloCluster* m_cluster;
   ElementLink<xAOD::CaloClusterContainer> m_originalClusElementLink;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
