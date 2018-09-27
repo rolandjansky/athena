@@ -31,7 +31,7 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
 ##########################################
 # menu
 ##########################################
-from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 from TrigUpgradeTest.photonMenuDefs import fastCaloSequence, photonSequence
 
 calostep=fastCaloSequence()
@@ -54,7 +54,7 @@ topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
 ##########################################
 
 ##### Make all HLT #######
-from TrigUpgradeTest.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 makeHLTTree(testChains)
 
 

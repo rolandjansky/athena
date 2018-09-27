@@ -8,7 +8,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 ##########################################
 # menu
 ##########################################
-from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
 
 fastCaloStep= fastCaloSequence()
@@ -70,7 +70,7 @@ topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcu
 ##########################################
 
 ##### Make all HLT #######
-from TrigUpgradeTest.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 makeHLTTree(testChains)
 
 
