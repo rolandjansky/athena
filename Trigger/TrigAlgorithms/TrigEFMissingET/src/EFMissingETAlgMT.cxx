@@ -5,7 +5,7 @@
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 #include "TrigEFMissingET/EFMissingETHelper.h"
 #include "AthenaMonitoring/MonitoredScope.h"
-#include "EFMissingETAlgMT.h"
+#include "TrigEFMissingET/EFMissingETAlgMT.h"
 
 
 
@@ -61,7 +61,6 @@ StatusCode EFMissingETAlgMT::execute_r( const EventContext& context ) const {
     t->update( met, &metHelper );
   }
   loopTimer.stop();
-
   
   auto EF_MEx_log = MonitoredScalar::declare( "EF_MEx_log", toLogGeV( met->ex() ) );
   auto EF_MEy_log = MonitoredScalar::declare( "EF_MEy_log", toLogGeV( met->ey() ) );
@@ -81,6 +80,8 @@ StatusCode EFMissingETAlgMT::execute_r( const EventContext& context ) const {
   auto EF_XS        = MonitoredScalar::declare( "EF_XS", toLinGeV( std::hypot( met->ex(), met->ey() ) ) / toLinGeV( met->sumEt() ) );
   auto EF_MET_phi   = MonitoredScalar::declare( "EF_MET_phi",   std::atan2( met->ey(), met->ex() ) );
  
+  ATH_MSG_INFO("Event MET: "  << std::hypot( met->ex(), met->ey() ) << " MeV");
+
   auto monitorIt = MonitoredScope::declare( m_monTool, 
 					    totalTimer, loopTimer,
 					    EF_MEx_log, EF_MEy_log, EF_MEz_log, EF_MET_log, EF_ME_log, EF_ME_log, EF_SumE_log,

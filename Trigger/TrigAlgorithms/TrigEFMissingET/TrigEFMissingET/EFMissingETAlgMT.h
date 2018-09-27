@@ -10,7 +10,7 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
-#include "./IMissingETTool.h"
+#include "TrigEFMissingET/IMissingETTool.h"
 
 
 /**
