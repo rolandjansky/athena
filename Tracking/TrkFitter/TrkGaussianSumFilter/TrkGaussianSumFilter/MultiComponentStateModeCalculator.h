@@ -45,7 +45,7 @@ class MultiComponentStateModeCalculator : public AthAlgTool, virtual public IMul
 
  private:
 
-  //!< Private mixtureArray structure
+  //!< Private Mixture structure
   struct Mixture{
 
     // Default constructor
