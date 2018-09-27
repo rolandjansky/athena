@@ -54,7 +54,7 @@ StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecC
 
     thisEFRecCluster->setClusterId(iCluster);
     theEFlowRecClusterContainer.push_back(std::move(thisEFRecCluster));
-
+    
     if (msgLvl(MSG::DEBUG)) {
       const xAOD::CaloCluster* thisCluster = caloClustersReadHandle->at(iCluster);
       ATH_MSG_DEBUG("eflowPreparation clus = " << thisCluster->eta() << " " << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()));

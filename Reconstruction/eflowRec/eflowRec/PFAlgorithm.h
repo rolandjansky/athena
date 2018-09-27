@@ -13,6 +13,8 @@
 #include "eflowRec/IPFBaseTool.h"
 #include "eflowRec/IPFSubtractionTool.h"
 
+class eflowRecClusterContainer;
+
 class PFAlgorithm : public AthAlgorithm {
 
 public:
@@ -37,6 +39,9 @@ private:
   /** ReadHandleKey for the eflowRecTrackContainer to be read in */
   SG::ReadHandleKey<eflowRecTrackContainer> m_eflowRecTracksReadHandleKey{this,"eflowRecTracksInputName","eflowRecTracks","ReadHandleKey for the eflowRecTrackContainer to be read in"};
 
+  /** WriteHandleKey for the eflowRecClusterContainer to write out */
+  SG::WriteHandleKey<eflowRecClusterContainer> m_eflowRecClustersWriteHandleKey{this,"eflowRecClustersOutputName","eflowRecClusters","WriteHandleKey for the eflowRecClusterContainer to write out"};
+  
   /** WriteHandleKey for CaloClusterContainer to be written out */
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_caloClustersWriteHandleKey{this,"PFCaloClustersOutputName","PFCaloCluster","WriteHandleKey for CaloClusterContainer to be written out"};
 
