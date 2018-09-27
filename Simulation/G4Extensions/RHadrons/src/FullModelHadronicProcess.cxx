@@ -216,7 +216,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
           outgoingCloud=tempCust->GetCloud();
           if(outgoingCloud == 0)
             {
-              std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!!" << std::endl;
+              std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud for " << tempDef->GetParticleName() << " not available!!" << std::endl;
             }
         }
 
