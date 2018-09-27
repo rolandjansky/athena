@@ -84,7 +84,6 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("CoolUpdateTool",           m_coolHelper);
   declareProperty("ResultBuilder",            m_hltResultBuilder);
   declareProperty("EventInfoCnvTool",         m_eventInfoCnvTool);
-  declareProperty("HltResultName",            m_HltResultName="HLTResult");
   declareProperty("SchedulerSvc",             m_schedulerName="AvalancheSchedulerSvc",
                   "Name of the scheduler to be used");
   declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
@@ -1286,7 +1285,7 @@ int HltEventLoopMgr::drainScheduler()
     IOpaqueAddress* addr = nullptr;
     // is this the best way? also maybe should be retrieved in initialize and stored?
     auto hltResultCLID = ClassID_traits<HLT::HLTResultMT>::ID();
-    DataObject* hltResultDO = m_evtStore->accessData(hltResultCLID,m_HltResultName);
+    DataObject* hltResultDO = m_evtStore->accessData(hltResultCLID,m_hltResultBuilder->resultName());
     if (!hltResultDO) {
       ATH_MSG_ERROR("Failed to retrieve the HLTResult DataObject");
       // what now?

@@ -27,6 +27,8 @@ namespace HLT {
     // ------------------------- Specific methods of this tool -----------------
     /// Builds the HLTResultMT and records it in the event store
     StatusCode buildResult(const EventContext& eventContext) const;
+    /// Return name of the HLTResultMT
+    const std::string& resultName() const {return m_hltResultWHKey.key();}
 
   private:
     /// StoreGate key for the HLTResultMT

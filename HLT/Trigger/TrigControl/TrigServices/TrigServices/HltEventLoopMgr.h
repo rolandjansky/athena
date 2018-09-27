@@ -205,8 +205,6 @@ private:
   StringProperty m_schedulerName;
   /// Name of the Whiteboard to be used
   StringProperty m_whiteboardName;
-  /// StoreGate key for HLT::HLTResult
-  StringProperty m_HltResultName;
   /// Vector of top level algorithm names
   Gaudi::Property<std::vector<std::string> > m_topAlgNames;
 
