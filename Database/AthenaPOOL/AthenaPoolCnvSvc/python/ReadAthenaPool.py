@@ -61,6 +61,11 @@ def _configureReadAthenaPool():
     _n = svcMgr.EventSelector.getFullJobOptName()
     theApp.EvtSel = _n
     del _n
+    
+    #default InputCollections to FilesInput value of AthenaCommonFlags
+    from AthenaCommon.JobProperties import jobproperties as jps
+    svcMgr.EventSelector.InputCollections = jps.AthenaCommonFlags.FilesInput()
+
 
     # For Analysis release use DataHeader satellite and lower heartbeat
     import os 
