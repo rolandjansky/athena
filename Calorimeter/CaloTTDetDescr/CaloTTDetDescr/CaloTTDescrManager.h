@@ -14,7 +14,7 @@
 #define CALODETDESCR_CALOTTDESCRMANAGER_H
 
 #include "Identifier/Identifier.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <map>
 
