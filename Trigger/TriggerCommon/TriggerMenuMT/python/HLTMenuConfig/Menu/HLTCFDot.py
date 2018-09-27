@@ -3,7 +3,7 @@
  
 from ViewAlgsTest.connectAlgorithmsIO import connectAlgorithmsIO, graph_generator
 from AthenaCommon.AlgSequence import AthSequencer
-from TrigUpgradeTest.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
 import itertools
 
 def algColor(alg):

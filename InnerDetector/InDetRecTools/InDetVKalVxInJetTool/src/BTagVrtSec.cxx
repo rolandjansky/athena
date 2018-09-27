@@ -38,8 +38,8 @@ namespace InDet{
     if(N==1) return Vec[0];
     if(N>1){
       std::vector<float> tmp(Vec);
-      std::sort(tmp.begin(),tmp.end());
-      return (tmp[(N-1)/2]+tmp[N/2])/2.;
+      std::sort(tmp.begin(),tmp.end());  //can use nth_element instead of completely sorting, it's quicker
+      return (tmp[(N-1)/2]+tmp[N/2])/2.; //only true if the number of elements is even?
     }
     return 0.;
   }
@@ -340,6 +340,7 @@ namespace InDet{
       Vrt2TrackNumber = (double) ListSecondTracks.size()/2.;
       std::vector<const xAOD::TrackParticle*> saveSecondTracks(ListSecondTracks);
       RemoveDoubleEntries(ListSecondTracks);
+      AnalysisUtils::Sort::pT (&ListSecondTracks);
       for(auto iv0 : TrkFromV0){ auto itf=std::find(SelectedTracks.begin(),SelectedTracks.end(),iv0);
                                  if(itf!=SelectedTracks.end())  SelectedTracks.erase(itf);}
 //---
@@ -758,6 +759,7 @@ namespace InDet{
             }
 	 }
       }
+      if (not m_curTup) return; //something very wrong
       if(m_fillHist){  m_curTup->ptjet=JetDir.Perp();  m_curTup->etajet=fabs(JetDir.Eta()); m_curTup->phijet=JetDir.Phi();
                        m_curTup->nTrkInJet=std::min(NTracks,DevTuple::maxNTrk); };
       if(nTrkHF==0) return; //======  No at all good HF tracks 

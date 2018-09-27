@@ -35,7 +35,10 @@
 class egammaTruthAssociationAlg : public AthAlgorithm {
 
 public:
-  
+
+  typedef  std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>> Cache;
+
+
   /** @brief constructor */
   egammaTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
   
@@ -55,6 +58,7 @@ private:
     MCTruthPartClassifier::ParticleType first;
     MCTruthPartClassifier::ParticleOrigin second;
     const xAOD::TruthParticle* genPart;
+    Cache *extrapolationCache;
   };
   
   /** @brief helper class to contain write docoration handle keys */
@@ -87,7 +91,7 @@ private:
 
   /** @brief return the result of MCTruthClassifier::particleTruthClassifier
     * or do a second pass for electrons based on the cluster to find true photons **/
-  template<class T> MCTruthInfo_t particleTruthClassifier(const T*) ;
+  template<class T> MCTruthInfo_t particleTruthClassifier(const T*, Cache *) ;
      
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/

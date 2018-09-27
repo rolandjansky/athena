@@ -41,7 +41,7 @@ MODIFIED: David Rousseau: heavy modification to allow storing all
 ********************************************************************/
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloEvent/CaloCell.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***********************************************************************************
@@ -52,12 +52,6 @@ StatusCode Trk::GsfMaterialEffectsUpdator::initialize ()
     msg(MSG::FATAL)
 	  << "Could not retrieve Material Effects AlgTool: " << m_materialEffects.typeAndName()
 	  << "... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  // Retrieve an instance of the multi-component state assembler service
-  if ( m_stateAssembler.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve multi-component state assembler tool... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -397,16 +391,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
   // msg(MSG::VERBOSE) << "Computing updated parameters, covariances and weights" << endmsg;
 
   Trk::MultiComponentState* computedState = new Trk::MultiComponentState();
-
-  // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
-
-  if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
-    return 0;
-  }
-
-   /* Get values for:
+    /* Get values for:
      - Change in momentum
      - Change in covariance of momentum
      - Weights of new states

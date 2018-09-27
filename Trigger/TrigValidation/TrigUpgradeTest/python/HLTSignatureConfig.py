@@ -15,7 +15,7 @@ def InputMakerAlg(name):
 # - declare all the RecoAlg and the HypoAlg -> create the Sequence
 # - creates the InputMaker, without the inputs
 
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
 
