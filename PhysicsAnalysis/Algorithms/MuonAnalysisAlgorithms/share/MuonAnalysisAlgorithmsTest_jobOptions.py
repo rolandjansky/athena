@@ -23,6 +23,16 @@ sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
 algSeq += sysLoader
 
+# Include, and then set up the pileup analysis sequence:
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+    makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+print( pileupSequence ) # For debugging
+
+# Add the pileup sequence to the job:
+algSeq += pileupSequence
+
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 muonSequence = makeMuonAnalysisSequence( dataType, deepCopyOutput = True )
