@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
    Event/EventKernel
    Event/FourMom
    Event/NavFourMom
+   LArCalorimeter/LArRawConditions #not ideal .. LAr should depend on Calo. 
    PRIVATE
    AtlasTest/TestTools
    Control/AthenaKernel
