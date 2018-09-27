@@ -49,7 +49,7 @@ StatusCode PFAlgorithm::execute(){
   
   /* Run the SubtractionTools */
   for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
-    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&theEFlowRecClusterContainerReference,theCaloClusterContainerReference);
+    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&theEFlowRecClusterContainerReference);
   }
 
   for (auto thisEFTrack : localEFlowRecTrackContainer){

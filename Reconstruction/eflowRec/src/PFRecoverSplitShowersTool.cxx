@@ -64,7 +64,7 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*,xAOD::CaloClusterContainer& theCaloClusterContainer){
+void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*){
 
   ATH_MSG_DEBUG("Executing");
 
@@ -76,7 +76,7 @@ void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloOb
   int const nOriginalObj = matchAndCreateEflowCaloObj();
 
   /* Extrapolate tracks, match clusters, do shower simulation, run cell subtraction */
-  performRecovery(nOriginalObj,theCaloClusterContainer);
+  performRecovery(nOriginalObj);
 
 }
 
@@ -212,7 +212,7 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   return nCaloObj;
 }
 
-void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCaloObject,xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCaloObject) {
   for (unsigned iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
     eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrack);
     /* Get matched cluster via Links */
@@ -244,11 +244,11 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
   }
 }
 
-void PFRecoverSplitShowersTool::performRecovery(int const nOriginalObj,xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFRecoverSplitShowersTool::performRecovery(int const nOriginalObj) {
   unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
   for (unsigned int iCalo = nOriginalObj; iCalo < nEFCaloObs; ++iCalo) {
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iCalo);
-    performSubtraction(thisEflowCaloObject,theCaloClusterContainer);
+    performSubtraction(thisEflowCaloObject);
   }
 
 }

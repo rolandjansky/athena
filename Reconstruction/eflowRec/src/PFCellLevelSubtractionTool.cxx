@@ -83,7 +83,7 @@ StatusCode PFCellLevelSubtractionTool::initialize(){
 
 }
 
-void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer, xAOD::CaloClusterContainer& theCaloClusterContainer){
+void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer){
 
   ATH_MSG_VERBOSE("Executing PFCellLevelSubtractionTool");
 
@@ -97,12 +97,12 @@ void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloO
   if (msgLvl(MSG::DEBUG)) printAllClusters(*recClusterContainer);
   
   /* Check e/p mode - only perform subtraction if not in this mode */
-  if (!m_calcEOverP) {performSubtraction(theCaloClusterContainer);}
+  if (!m_calcEOverP) {performSubtraction();}
 
   ATH_MSG_DEBUG("Have executed performSubtraction");
   
   /* Check e/p mode - only perform radial profiles calculations if in this mode */
-  if (m_calcEOverP) {calculateRadialEnergyProfiles(theCaloClusterContainer);}
+  if (m_calcEOverP) {calculateRadialEnergyProfiles();}
 
   ATH_MSG_DEBUG("Have executed calculateRadialEnergyProfiles");
   
@@ -159,7 +159,7 @@ int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   return nMatches;
 }
 
-void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloClusterContainer& theCaloClusterContainer){
+void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
   ATH_MSG_DEBUG("Accessed radial energy profile function");
 
@@ -307,7 +307,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
   }//loop on eflowCaloObjects
 }
 
-void PFCellLevelSubtractionTool::performSubtraction(xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFCellLevelSubtractionTool::performSubtraction() {
 
   ATH_MSG_DEBUG("In performSubtraction");
   
