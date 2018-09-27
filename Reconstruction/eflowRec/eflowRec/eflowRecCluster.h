@@ -80,8 +80,6 @@ private:
   std::unique_ptr<eflowMatchCluster> m_matchCluster;
   std::vector<eflowTrackClusterLink*> m_trackMatches;
 
-  void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);
-
 public:
   class SortDescendingPt {
   public:
