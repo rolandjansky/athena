@@ -1,4 +1,5 @@
 #include "eflowRec/PFAlgorithm.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_IPFSubtractionTools(this), m_IPFBaseTools(this)  
 {

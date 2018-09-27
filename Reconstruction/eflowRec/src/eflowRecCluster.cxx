@@ -61,10 +61,6 @@ eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflow
 
 eflowRecCluster::~eflowRecCluster() { }
 
-xAOD::CaloCluster* eflowRecCluster::getClusterForModification(xAOD::CaloClusterContainer* container) {
-  return getCluster();
-}
-
 bool eflowRecCluster::isEOverPFail(bool consistencySigmaCut, bool useGoldenMode) {
 
   double expectedEnergy = getSumExpectedEnergy();

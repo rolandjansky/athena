@@ -38,7 +38,6 @@ public:
   virtual ~eflowRecCluster();
 
   xAOD::CaloCluster* getCluster() const { return m_cluster; }
-  xAOD::CaloCluster* getClusterForModification(xAOD::CaloClusterContainer* container);
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
   ElementLink<xAOD::CaloClusterContainer> getOriginalClusElementLink() const { return m_originalClusElementLink; }
