@@ -18,7 +18,6 @@ decription           : Implementation code for Gaussian Sum Fitter class
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
-#include "TrkGaussianSumFilter/IBremsstrahlungFinder.h"
 
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
@@ -61,13 +60,10 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   m_reintegrateOutliers(false),
   m_makePerigee(true),
   m_directionToPerigee(Trk::oppositeMomentum),
-  m_runBremFinder(false),
   m_refitOnMeasurementBase(true),
   m_doHitSorting(true),
   m_trkParametersComparisonFunction(0),
   m_stateCombiner("Trk::MultiComponentStateCombiner"),
-  m_BremFind("Trk::BremFind"),
-  m_BremFind2("Trk::BremFind"),
   m_chronoSvc("ChronoStatSvc", name),
   m_inputPreparator(0),
   m_FitPRD(0),
@@ -130,9 +126,6 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   declareProperty("SortingReferencePoint",    m_sortingReferencePoint     );
   declareProperty("StateCombiner",            m_stateCombiner             );
   declareProperty("ValidationMode",           m_validationMode            );
-  declareProperty("BremFind",                 m_BremFind                  );
-  declareProperty("BremFind2",                m_BremFind2                 );
-  declareProperty("runBremFinder",            m_runBremFinder             );
   declareProperty("GsfSmoother",m_gsfSmoother);  
   declareProperty("ForwardGsfFitter",m_forwardGsfFitter);
   declareProperty("EventInfoKey", m_readKey="EventInfo");
@@ -169,17 +162,6 @@ StatusCode Trk::GaussianSumFitter::initialize()
  
   // Request the state combiner
   ATH_CHECK ( m_stateCombiner.retrieve() );
-   //Request the brem finder
-  if (m_runBremFinder){
-    if ( m_BremFind.retrieve().isFailure() || m_BremFind2.retrieve().isFailure() ) {
-      msg(MSG::WARNING) << "Request is to retrieve the bremsstrahlung finder failed... turning off brem finding!" << endmsg;
-      m_runBremFinder = false; 
-    }
-  }
-  else {
-    m_BremFind.disable();
-    m_BremFind2.disable();
-  }
   
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used in fit
@@ -573,16 +555,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
     }
   }
  
-  //Find bremsstrahlung points and save them
-  if (m_runBremFinder) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Entering the BremFind tool" << endmsg;
-    
-    //The z mode must be ahead of the r mode to make sure the right TSOS is being pushed into the smoothedTrajectory
-    m_BremFind2->BremFinder(*forwardTrajectory, *smoothedTrajectory,true);
-    m_BremFind->BremFinder(*forwardTrajectory, *smoothedTrajectory,false);
-    
-  }
-   
+  
   // Delete forward trajectory. New memory was assigned in ForwardGsfFitter.
   delete forwardTrajectory;
   
@@ -594,15 +567,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
   //Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
  
-  //Add brem information to Track
-  if (m_runBremFinder) {
-    //Filling in the brem information in the smoothedTrajectory
-    for (int brem_counter(0); brem_counter < m_BremFind->GetNBrems(); brem_counter++) {
-      smoothedTrajectory->push_back(m_BremFind->GetEstimatedBremOnTrack(brem_counter));
-    } 
-  }
-
-  
+   
   // Create new track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis); 
   info.setTrackProperties(TrackInfo::BremFit); 
@@ -753,15 +718,6 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
     }
   }
 
-  //Find bremsstrahlung points and save them
-  if (m_runBremFinder) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Entering the BremFind tool" << endmsg;
-
-    //The z mode must be ahead of the r mode to make sure the right TSOS is being pushed into the smoothedTrajectory
-    m_BremFind2->BremFinder(*forwardTrajectory, *smoothedTrajectory,true);
-    m_BremFind->BremFinder(*forwardTrajectory, *smoothedTrajectory,false);   
-  }
-
   //Delete forward trajectory. New memory was assigned in ForwardGsfFitter.
   delete forwardTrajectory;
   
@@ -774,14 +730,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   //Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
 
-  //Add brem information to the track
-  if (m_runBremFinder) {
-    //Filling in the brem information in the smoothedTrajectory
-    for (int brem_counter(0); brem_counter < m_BremFind->GetNBrems(); brem_counter++) {
-      smoothedTrajectory->push_back(m_BremFind->GetEstimatedBremOnTrack(brem_counter));
-    }
-  }
-  
+ 
   // Create new track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis); 
   info.setTrackProperties(TrackInfo::BremFit); 
