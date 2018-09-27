@@ -31,7 +31,7 @@ class CaloBCIDAverage {
 };
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(CaloBCIDAverage, 141052237, 1)
 
 

@@ -7,7 +7,7 @@
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 #include <cmath>
 
 CaloCell::~CaloCell()
