@@ -189,7 +189,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
       for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
       
       std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getClusterForModification(&theCaloClusterContainer));
+      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
 
       eflowCellList calorimeterCellList;
       Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
@@ -374,7 +374,7 @@ void PFCellLevelSubtractionTool::performSubtraction(xAOD::CaloClusterContainer& 
       ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
       
       std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getClusterForModification(&theCaloClusterContainer));
+      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
 
       ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
       
@@ -396,7 +396,7 @@ void PFCellLevelSubtractionTool::performSubtraction(xAOD::CaloClusterContainer& 
       std::vector<xAOD::CaloCluster*> clusterList;
       unsigned nCluster = thisEflowCaloObject->nClusters();
       for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
-        clusterList.push_back(thisEflowCaloObject->efRecCluster(iCluster)->getClusterForModification(&theCaloClusterContainer));
+        clusterList.push_back(thisEflowCaloObject->efRecCluster(iCluster)->getCluster());
       }
       Subtractor::annihilateClusters(clusterList);
     } 

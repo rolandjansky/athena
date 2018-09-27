@@ -81,8 +81,7 @@ void PFLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTool,
 }
 
 void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {
-  xAOD::CaloCluster* theCluster = theEFRecClusters->getClusterForModification(
-      eflowCaloObject::getClusterContainerPtr());
+  xAOD::CaloCluster* theCluster = theEFRecClusters->getCluster();
 
   /* Iterate over cells of old cluster and replicate them with energy weighted by -1 if negative and add it to the new cluster */
   const std::map<IdentifierHash, double> weightMap = theEFRecClusters->getCellsWeight();
