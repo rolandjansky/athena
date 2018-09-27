@@ -61,7 +61,7 @@ namespace Trk {
      
       
       /**Copy constructor*/
-      AnnulusBounds(const AnnulusBounds& annbo);
+      AnnulusBounds(const AnnulusBounds& annbo) = default;
       
       /**Destructor*/
       virtual ~AnnulusBounds();
