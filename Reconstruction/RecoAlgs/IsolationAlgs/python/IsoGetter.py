@@ -51,7 +51,8 @@ if recAlgs.doEFlow() :
   # PseudoJetGetters are now run in their own dedicated algs
   from JetRec.JetRecConf import PseudoJetAlgorithm
   # EMTopo (non-origin corrected) clusters
-  topSequence += PseudoJetAlgorithm("pjalg_"+jtm.emget.Label,PJGetter=jtm.emget)
+  if not hasattr(topSequence, "pjalg_"+jtm.emget.Label):
+    topSequence += PseudoJetAlgorithm("pjalg_"+jtm.emget.Label,PJGetter=jtm.emget)
   # EM Neutral PFOs
   topSequence += PseudoJetAlgorithm("pjalg_"+emnpflowget.Label,PJGetter=emnpflowget)
 
