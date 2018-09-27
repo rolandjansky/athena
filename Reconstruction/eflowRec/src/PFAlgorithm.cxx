@@ -8,6 +8,7 @@ PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : A
 
 StatusCode PFAlgorithm::initialize(){
 
+  ATH_CHECK(m_IPFClusterSelectorTool);
   ATH_CHECK(m_IPFSubtractionTools.retrieve());
   ATH_CHECK( m_IPFBaseTools.retrieve());
   
@@ -36,12 +37,16 @@ StatusCode PFAlgorithm::execute(){
 
   SG::ReadHandle<eflowRecTrackContainer> eflowRecTracksReadHandle(m_eflowRecTracksReadHandleKey);
   eflowRecTrackContainer localEFlowRecTrackContainer(*eflowRecTracksReadHandle.ptr());
+
+  xAOD::CaloClusterContainer& theCaloClusterContainerReference = *(caloClustersWriteHandle.ptr());
+  ATH_CHECK(m_IPFClusterSelectorTool->execute(theCaloClusterContainerReference));
+  
   SG::ReadHandle<eflowRecClusterContainer> eflowRecClustersReadHandle(m_eflowRecClustersReadHandleKey);
   eflowRecClusterContainer localEFlowRecClusterContainer(*eflowRecClustersReadHandle.ptr());
   
   /* Run the SubtractionTools */
   for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
-    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&localEFlowRecClusterContainer,*(caloClustersWriteHandle.ptr()));
+    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&localEFlowRecClusterContainer,theCaloClusterContainerReference);
   }
 
   for (auto thisEFTrack : localEFlowRecTrackContainer){
@@ -52,10 +57,9 @@ StatusCode PFAlgorithm::execute(){
     ATH_MSG_DEBUG("This efRecCluster has E,pt,eta and phi of " << thisEFCluster->getCluster()->e() << "," << thisEFCluster->getCluster()->pt() << ", " << thisEFCluster->getCluster()->eta() << " and " << thisEFCluster->getCluster()->phi());
   }
 
-
   /* Run the other AglTools */
   for (auto thisIPFBaseTool :  m_IPFBaseTools){
-    thisIPFBaseTool->execute(*theElowCaloObjectContainer,*(caloClustersWriteHandle.ptr()));
+    thisIPFBaseTool->execute(*theElowCaloObjectContainer,theCaloClusterContainerReference);
   }
     
   return StatusCode::SUCCESS;

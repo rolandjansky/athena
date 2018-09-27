@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IPFCLUSTERSELECTIONTOOL_H
+#ifndef IPFCLUSTERSELECTORTOOL_H
 #define IPFCLUSTERSELECTORTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"

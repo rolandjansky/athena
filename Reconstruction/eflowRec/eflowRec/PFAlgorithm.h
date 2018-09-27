@@ -10,6 +10,7 @@
 #include "eflowRec/eflowRecTrack.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "eflowRec/IPFClusterSelectorTool.h"
 #include "eflowRec/IPFBaseTool.h"
 #include "eflowRec/IPFSubtractionTool.h"
 
@@ -24,6 +25,10 @@ public:
   StatusCode finalize();
 
 private:
+
+  /** ToolHandle for the PFClusterSelectorTool which creates the set of eflowRecCluster to be used */
+  ToolHandle<IPFClusterSelectorTool> m_IPFClusterSelectorTool{this,"PFClusterSelectorTool","PFClusterSelectorTool","ToolHandle for the PFClusterSelectorTool which creates the set of eflowRecCluster to be used"};
+  
   /** List of IPFSubtractionTool, which will be executed by this algorithm */
   ToolHandleArray<IPFSubtractionTool> m_IPFSubtractionTools;
 
