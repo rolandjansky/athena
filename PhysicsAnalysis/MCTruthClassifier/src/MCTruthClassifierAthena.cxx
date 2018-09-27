@@ -152,7 +152,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
 
     double dR(-999.);
     bool isNCone=false;
-    bool isExt = genPartToCalo(clus, thePart,isFwrdEle, dR, isNCone);
+    bool isExt = genPartToCalo(clus, thePart,isFwrdEle, dR, isNCone, info->extrapolationCache);
     if (!isExt) continue;
 
     theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),thePart->barcode()%m_barcodeShift);
@@ -237,7 +237,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     
     double dR(-999.);
     bool isNCone=false;
-    bool isExt = genPartToCalo(clus, thePart, false , dR, isNCone);
+    bool isExt = genPartToCalo(clus, thePart, false , dR, isNCone, info->extrapolationCache);
     if(!isExt) continue;
     
     theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),thePart->barcode()%m_barcodeShift);
@@ -293,14 +293,15 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
 				      const xAOD::TruthParticle* thePart,
 				      bool isFwrdEle, 
 				      double& dRmatch,
-				      bool  & isNarrowCone) const {
+				      bool  & isNarrowCone,
+                                      Cache  *cache) const {
   dRmatch      = -999.;
   isNarrowCone = false;
 
   if ( thePart == 0 ) return false ;
 
-  std::unique_ptr<Trk::CaloExtension> caloExtension =m_caloExtensionTool->caloExtension(*thePart);
-  if( !caloExtension|| caloExtension->caloLayerIntersections().empty() ){
+  const Trk::CaloExtension* caloExtension =m_caloExtensionTool->caloExtension(*thePart, *cache );
+  if( caloExtension == nullptr || caloExtension->caloLayerIntersections().empty() ){
     ATH_MSG_WARNING("extrapolation of Truth Particle with eta  " << thePart->eta() 
 		    <<" and Pt " << thePart->pt() << " to calo failed");
     return false;
