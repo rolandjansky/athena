@@ -457,6 +457,15 @@ class AnaAlgSequence( AlgSequence ):
         if not stageName in self.allowedStageNames() :
             raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
 
+        # safety check that we actually know the stages of all
+        # algorithms
+        if stageName != "undefined" :
+            for name in self._stageNames :
+                if name == "undefined" :
+                    raise ValueError ("can not remove stages from an algorithm sequence if some algorithms belong to an undefined stage")
+                pass
+            pass
+
         iter = 0
         while iter < len( self ):
             if self._stageNames[iter] == stageName :
