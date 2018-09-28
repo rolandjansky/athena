@@ -620,6 +620,7 @@ const std::vector<const Trk::TrackStateOnSurface*>* Trk::GsfExtrapolator::extrap
      ============================================= */
 
   Cache cache{};
+  cache.m_matstates.reset(new std::vector<const Trk::TrackStateOnSurface*>);
   // collect the material
   const MultiComponentState* parameterAtDestination = extrapolateImpl(cache,mcsparameters,sf,dir,bcheck,particle);
   // there are no parameters 
@@ -1338,7 +1339,6 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateToDestinationLa
      Material effects
      ---------------------------------------- */
 
-  //std::cout << "CALLING PREUPDATE      " <<std::endl;
 
   const Trk::MultiComponentState* updatedState = ( startLayer != &layer ) ? m_materialUpdator->preUpdate( *destinationState, 
                                                                                                           layer, 

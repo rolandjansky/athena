@@ -154,7 +154,7 @@ private:
     m_recallLayer(nullptr),
     m_recallTrackingVolume(nullptr),
     m_stateAtBoundarySurface(),
-    m_matstates(std::make_unique< std::vector<const Trk::TrackStateOnSurface*> >()),
+    m_matstates(nullptr),
     m_mcsGarbageBin(),
     m_tpGarbageBin(){
     }
@@ -381,6 +381,7 @@ inline void Trk::GsfExtrapolator::emptyGarbageBins(Cache& cache) const
   cache.m_stateAtBoundarySurface=freshState;
   cache.m_mcsGarbageBin.clear();
   cache.m_tpGarbageBin.clear();
+  cache.m_matstates.reset(nullptr);
 }
 
 
