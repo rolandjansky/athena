@@ -22,7 +22,7 @@ struct TestClass {
 CLASS_DEF( TestClass , 16530831 , 1 )
 using namespace SG;
 void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
-  auto parentView = new View( "ParentView" );
+  auto parentView = new View( "ParentView", -1 );
 
   auto t1 = std::make_unique<TestClass>();
   t1->value = 1;
@@ -32,12 +32,11 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
     SG::WriteHandle<TestClass> wh( "test1" );
     wh.setProxyDict( parentView );
     auto status = wh.record( std::move( t1 ) );
-    VALUE( status.isSuccess() ) EXPECTED( true ); 
+    VALUE( status.isSuccess() ) EXPECTED( true );
   }
 
-  auto childView = new View( "ChildView" );  
+  auto childView = new View( "ChildView", -1 );
 
-    
   auto t2 = std::make_unique<TestClass>();
   t2->value = 2;
   {
@@ -51,7 +50,7 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
   {
     // rtivial test, we ask for a wrong object
     SG::ReadHandle<TestClass> rh( "test" );
-    rh.setProxyDict( childView );    
+    rh.setProxyDict( childView );
     VALUE( rh.isValid() ) EXPECTED( false );
   }
 
@@ -87,7 +86,7 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
   }
   log << MSG::INFO << "Views that are linked behave correctly " << endmsg;
 
-  // hide object from parent by adding one in the Child 
+  // hide object from parent by adding one in the Child
   auto t3 = std::make_unique<TestClass>();
   t3->value = 3;
 
@@ -95,13 +94,13 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
     SG::WriteHandle<TestClass> wh( "test1" );
     wh.setProxyDict( childView );
     auto status = wh.record( std::move( t3 ) );
-    VALUE( status.isSuccess() ) EXPECTED( true ); 
+    VALUE( status.isSuccess() ) EXPECTED( true );
   }
 
   {
     SG::ReadHandle<TestClass> rh( "test1" );
     rh.setProxyDict( childView );
-    EXPECT_EXCEPTION( std::runtime_error,  rh.isValid() );  
+    EXPECT_EXCEPTION( std::runtime_error,  rh.isValid() );
   }
 
   log << MSG::INFO << "Hiding works as expected " << endmsg;
@@ -116,17 +115,17 @@ void testFallThrough( StoreGateSvc* sg , MsgStream& log) {
   auto status = wh.record( std::move( t ) );
   VALUE( status.isSuccess() ) EXPECTED( true ); 
     
-  // the whole trick is that the read handle is pointed to the view, 
+  // the whole trick is that the read handle is pointed to the view,
   // but should read from the main store if the fall though
   // is enabled
   {
-    auto opaqueView = new View( "OpaqueView", false );
+    auto opaqueView = new View( "OpaqueView", -1, false );
     SG::ReadHandle<TestClass> rh( "inStore" );
     rh.setProxyDict( opaqueView ); 
     VALUE( rh.isValid() ) EXPECTED( false );
   }
   {
-    auto transparentView = new View( "TransparentView" ); 
+    auto transparentView = new View( "TransparentView", -1 );
     SG::ReadHandle<TestClass> rh( "inStore" );
     rh.setProxyDict( transparentView ); 
     VALUE( rh.isValid() ) EXPECTED( true );
@@ -161,7 +160,7 @@ int main() {
     return -1;
   }
 
-  testDataInView( pStore, log );        
+  testDataInView( pStore, log );
   testFallThrough( pStore, log );
   
   return 0;
