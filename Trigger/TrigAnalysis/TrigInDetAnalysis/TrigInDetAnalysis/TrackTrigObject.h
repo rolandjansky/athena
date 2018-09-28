@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrackTrigObject.h        
 //
 //                   
 //  
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrackTrigObject.h, v0.0   Mon  5 Nov 2012 00:07:15 GMT sutt $
 

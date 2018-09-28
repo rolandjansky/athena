@@ -1816,8 +1816,7 @@ class bsMergeExecutor(scriptExecutor):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), 
                                                                 'Exception raised when renaming {0} to {1}: {2}'.format(self._outputFilename, self.conf.dataDictionary[self._outputBS].value[0], e))
         super(bsMergeExecutor, self).postExecute()
-        
-                
+
 
 class tagMergeExecutor(scriptExecutor):
     
@@ -1875,7 +1874,6 @@ class archiveExecutor(scriptExecutor):
 
         if self._exe == 'tar':
             self._cmd = [self._exe, '-c', '-v',]
-            self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
             if 'compressionType' in self.conf.argdict:
                 if self.conf.argdict['compressionType'] == 'gzip':
                     self._cmd.append('-z')
@@ -1883,6 +1881,8 @@ class archiveExecutor(scriptExecutor):
                     self._cmd.append('-j')
                 elif self.conf.argdict['compressionType'] == 'none':
                     pass
+            self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
+            self._cmd.extend(self.conf.argdict['inputDataFile'].value)
         elif self._exe == 'zip':
             self._cmd = ['python']
             try:
@@ -1902,5 +1902,5 @@ class archiveExecutor(scriptExecutor):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
                     errMsg
                 )
-        self._cmd.append('zip_wrapper.py')
+            self._cmd.append('zip_wrapper.py')
         super(archiveExecutor, self).preExecute(input=input, output=output)

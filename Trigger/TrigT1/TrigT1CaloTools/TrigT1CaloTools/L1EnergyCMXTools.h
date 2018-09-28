@@ -114,7 +114,7 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
     /** Convert maps from internal SystemEnergy objects to CMXEtSums objects */
     void etMapsToEtSums(const MultiSliceSystemEnergy &systemVec,
                         xAOD::CMXEtSumsContainer *cmxEtSumsVec, int peak) const;
-    void findRestrictedEta(float &etaTruncXE, float &etaTruncTE) const;
+    void findRestrictedEta(uint32_t &maskXE, uint32_t &maskTE) const;
 
     void dumpCrateEnergies(const std::string& msg, const MultiSliceCrateEnergy& crates) const;
     /** trigger configuration service */
@@ -126,10 +126,10 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
     /** Debug flag */
     bool m_debug;
     /** Find restructed eta range.
-     *  This will use the min/max values for any threshold in the range 9-16 to define the ranges
+     *  This will use the min/max values for the first valid threshold in the range 9-16 to define the ranges
      */
-    float m_etaTruncXE;
-    float m_etaTruncTE;
+    uint32_t m_maskXE;
+    uint32_t m_maskTE;
 };
 
 } // end of namespace

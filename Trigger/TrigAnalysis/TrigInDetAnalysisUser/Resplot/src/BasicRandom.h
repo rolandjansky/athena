@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    BasicRandom.h        
 //            a Randomnumber generator with a data member TRandom3
@@ -15,7 +18,6 @@
 //            This wrapper is to avoid global variables cluttering 
 //            up the place - root is bad enough as it is.
 //
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: BasicRandom.h, v0.0   Fri 27 Jan 2012 11:39:47 GMT sutt $
 

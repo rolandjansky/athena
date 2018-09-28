@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    globals.h        
 //                    
 //
 //   $Id: globals.h, v0.0   Sun 12 Mar 2017 15:21:08 CET sutt $
 //
-//   Copyright (C) 2017 M Sutton (sutt@cern.ch)    
 
 #ifndef  GLOBALS_H
 #define  GLOBALS_H

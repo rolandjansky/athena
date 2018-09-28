@@ -16,7 +16,7 @@ using namespace std;
 //=============================================
 
 
-double TFCS1DFunctionRegression::regression_value(double uniform)
+double TFCS1DFunctionRegression::regression_value(double uniform) const
 {
  
  double myresult=-1;
@@ -79,7 +79,7 @@ double TFCS1DFunctionRegression::regression_value(double uniform)
 }
 
 
-double TFCS1DFunctionRegression::rnd_to_fct(double rnd)
+double TFCS1DFunctionRegression::rnd_to_fct(double rnd) const
 {
   
   double value=regression_value(rnd); 
@@ -109,7 +109,7 @@ void TFCS1DFunctionRegression::set_weights(vector<vector<double> > fWeightMatrix
 ///
 /// From the mlpfit package (J.Schwindling   20-Jul-1999)
 
-double TFCS1DFunctionRegression::sigmoid(double x)
+double TFCS1DFunctionRegression::sigmoid(double x) const
 {
    static Double_t sigval[7000] = {
    -3.500000e+01, 6.30511676014698530e-16, 6.30511676014698130e-16, 3.15255838007348670e-16, 1.05085279335782620e-16, 2.62713198339455210e-17, 5.25426396678905190e-18, 8.75710661131491060e-19, 1.25101523018779380e-19, 1.56376903773461590e-20,

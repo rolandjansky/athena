@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDARoiDescriptor.h        
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TIDARoiDescriptor.h, v0.0   Tue 10 Nov 2009 10:05:35 GMT sutt $
 

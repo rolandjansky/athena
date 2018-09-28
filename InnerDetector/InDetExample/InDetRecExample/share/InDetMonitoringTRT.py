@@ -19,7 +19,7 @@ if jobproperties.Beam.beamType() == "collisions":
   minTrkPtCut = 2.0 * Units.GeV
   ### at least one silicon detector must be on to require silicon hits
   if DetFlags.pixel_on() or DetFlags.SCT_on():
-    minSiHitCut = 1
+    minSiHitCut = 3
   else: # both silicon detectors are off, we cannot require hits
     minSiHitCut = 0
 else: # no track quality cuts for cosmics or single beams
@@ -76,8 +76,8 @@ InDetTRT_Monitoring_Tool = TRT_Monitoring_Tool (name                         = "
                                                 max_abs_eta                  = 2.5,
                                                 MinTrackP                    = 0.0 * Units.GeV,
                                                 min_pT                       = minTrkPtCut, # default = 0.5 GeV
-                                                min_si_hits                  = minSiHitCut, # default = 1
-                                                min_pixel_hits               = 0,
+                                                min_si_hits                  = minSiHitCut, # default = 3
+                                                min_pixel_hits               = 1,
                                                 min_sct_hits                 = 0,
                                                 min_trt_hits                 = 10
                                                 )

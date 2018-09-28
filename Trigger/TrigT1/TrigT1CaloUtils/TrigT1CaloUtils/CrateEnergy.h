@@ -29,8 +29,8 @@ System CMM logic is done in EnergyTrigger*/
 class CrateEnergy {
 
 public:
-  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false);
-  CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* modules, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false);
+  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false);
+  CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* modules, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false);
   CrateEnergy(unsigned int crate, unsigned int et, unsigned int exTC,
               unsigned int eyTC, unsigned int overflowT, unsigned int overflowX,
 	      unsigned int overflowY, bool restricted = false);

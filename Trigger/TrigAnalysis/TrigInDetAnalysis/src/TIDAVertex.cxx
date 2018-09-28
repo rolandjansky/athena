@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDA::Vertex.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TIDA::Vertex.cxx, v0.0   Thu 22 Apr 2010 17:12:40 BST sutt $
 

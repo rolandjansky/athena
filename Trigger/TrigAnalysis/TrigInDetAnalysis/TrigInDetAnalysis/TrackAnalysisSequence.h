@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrackAnalysisSequence.h        
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrackAnalysisSequence.h, v0.0   Tue  3 Nov 2009 17:01:50 GMT sutt $
 
