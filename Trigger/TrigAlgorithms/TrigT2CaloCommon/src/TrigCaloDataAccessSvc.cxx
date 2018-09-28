@@ -123,6 +123,8 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   return sc;
 }
 
+
+/*
 StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
                                                         ConstDataVector<CaloCellContainer>& cont ) {
 
@@ -136,6 +138,40 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
       
   return sc;
+}
+*/
+
+
+StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
+                                                        CaloCellContainer* cont ) {
+
+  StatusCode sc = prepareLArFullCollections( context );
+  if ( sc.isFailure() ) return StatusCode::FAILURE;
+
+  std::lock_guard<std::mutex> getCollClock{ m_getCollMutex };   
+  *cont = *(m_larcell.get(context)->fullcont);
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
+                                                        ConstDataVector<CaloCellContainer>& cont ) {
+  std::cout << "loadFullcollctions sent 0\n";
+  CaloCellContainer* cont_to_copy = new CaloCellContainer();
+  std::cout << "loadFullcollctions sent 10\n";
+
+  ATH_CHECK(loadFullCollections(context, cont_to_copy));
+  std::cout << "loadFullcollctions sent 20\n";
+  cont.clear();
+  std::cout << "loadFullcollctions sent 30\n";
+  cont.reserve( cont_to_copy->size() );
+  std::cout << "loadFullcollctions sent 40\n";
+  for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
+  std::cout << "loadFullcollctions sent 50\n";
+  delete cont_to_copy;
+  std::cout << "loadFullcollctions sent 60\n";
+  return StatusCode::SUCCESS;
 }
 
 
