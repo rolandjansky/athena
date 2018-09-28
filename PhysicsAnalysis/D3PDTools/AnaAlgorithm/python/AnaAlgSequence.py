@@ -466,10 +466,15 @@ class AnaAlgSequence( AlgSequence ):
                 pass
             pass
 
+        names = []
+        for alg in self:
+            names.append (alg.name())
+            pass
         iter = 0
         while iter < len( self ):
             if self._stageNames[iter] == stageName :
-                super( AnaAlgSequence, self ).__delattr__( self[iter].name() )
+                super( AnaAlgSequence, self ).__delattr__( names[iter] )
+                del names[iter]
                 del self._inputPropNames[ iter ]
                 del self._outputPropNames[ iter ]
                 del self._affectingSystematics[ iter ]
