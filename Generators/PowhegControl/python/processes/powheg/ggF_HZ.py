@@ -142,22 +142,3 @@ class ggF_HZ(PowhegV2):
         __decay_mode_lookup = {"j j": 0, "e+ e-": 1, "mu+ mu-": 2, "tau+ tau-": 3, "ve ve~": 4, "vm vm~": 5,
                                "vt vt~": 6, "all": 10, "l+ l-": 11, "v v~": 12}
         self.parameters_by_keyword("vdecaymode")[0].value = __decay_mode_lookup[self.decay_mode_Z.split("z > ")[1].strip()]
-
-#  self.add_keyword("itmx1", 1)
-#  self.add_keyword("itmx2", 5)
-#  self.add_keyword("ncall1", 25000)
-#  self.add_keyword("ncall2", 60000)
-#  Cross-section test : 0.12% PASSED
-#  Neg. weight test   : 0.00% PASSED
-#  Upper bound test   : 0.73% PASSED
-#    > cross-section  : 0.73%
-#    > radiation      : 0.00%
-#  Output EVNT files  : 0     FAILED
-#  Single-core generation of 550 events took 5.11 hours [0.030Hz]
-#  ... time taken for integration:   5.08 hours
-#  ... est. generation of 5k events: 0.27 hours
-
-#  self.add_keyword("itmx1", 1)
-#  self.add_keyword("itmx2", 4)
-#  self.add_keyword("ncall1", 15000)
-#  self.add_keyword("ncall2", 60000)

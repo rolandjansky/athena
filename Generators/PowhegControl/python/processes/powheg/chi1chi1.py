@@ -168,20 +168,3 @@ class chi1chi1(PowhegV2):
             weakinos.append(self.allowed_weakinos[weakino_name])
         self.parameters_by_name("chargino_A")[0].value = max(weakinos)
         self.parameters_by_name("chargino_B")[0].value = min(weakinos)
-
-#        self.add_keyword("foldcsi", 2)
-#        self.add_keyword("foldphi", 2)
-#        self.add_keyword("foldy", 2)
-#  Cross-section test : 0.05% PASSED
-#  Neg. weight test   : 12.16% FAILED
-#  Upper bound test   : 0.74% PASSED
-#    > cross-section  : 0.74%
-#    > radiation      : 0.00%
-#  Output EVNT files  : 0     FAILED
-#  Single-core generation of 550 events took 2.86 hours [0.053Hz]
-#  ... time taken for integration:   2.86 hours
-#  ... est. generation of 5k events: 0.04 hours
-
-#        self.add_keyword("foldcsi", 5)
-#        self.add_keyword("foldphi", 2)
-#        self.add_keyword("foldy", 2)

@@ -49,7 +49,6 @@ class ExternalVBFNLO(ExternalBase):
         # Convert allowed decay mode into PROC_ID/DECAYMODE
         __vector_boson_type = self.decay_mode.split(">")[0].strip()
         __vector_boson_decay = self.decay_mode.split(" ")[2].replace("+", "").replace("-", "")
-        print self.decay_mode, "->", __vector_boson_type, __vector_boson_decay
         # Add runcard entries
         VBF_runcard_entries = [("PROC_ID", {"z": 120, "w+": 130, "w-": 140}[__vector_boson_type], "{} boson".format(__vector_boson_type)),
                                ("DECAYMODE", {"e": 11, "mu": 13}[__vector_boson_decay], self.decay_mode),
