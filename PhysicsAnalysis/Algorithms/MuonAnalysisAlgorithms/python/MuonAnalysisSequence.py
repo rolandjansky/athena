@@ -58,7 +58,8 @@ def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::MuonCalibrationPeriodTool' )
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
-                affectingSystematics = '(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)' )
+                affectingSystematics = '(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)',
+                stageName = 'calibration' )
 
     # Set up the muon selection algorithm(s):
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
@@ -68,7 +69,8 @@ def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
     alg.selectionTool.maxEta = 2.4
     alg.selectionDecoration = 'kin_select' + postfix
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut' )
+                outputPropName = 'particlesOut',
+                stageName = 'selection' )
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
@@ -76,7 +78,8 @@ def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
     alg.selectionDecoration = "trackSelection" + postfix
     alg.maxD0Significance = 3
     alg.maxDeltaZ0SinTheta = 0.5
-    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut' )
+    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut',
+                stageName = 'selection' )
 
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonSelectionAlg' + postfix )
@@ -84,14 +87,16 @@ def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
     alg.selectionTool.MuQuality = quality
     alg.selectionDecoration = 'good_muon' + postfix
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut' )
+                outputPropName = 'particlesOut',
+                stageName = 'selection' )
 
     # Set up the isolation calculation algorithm:
     alg = createAlgorithm( 'CP::MuonIsolationAlg',
                            'MuonIsolationAlg' + postfix )
     addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
     alg.isolationDecoration = 'isolated_muon' + postfix
-    seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut' )
+    seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
+                stageName = 'selection' )
 
     # Set up an algorithm used for debugging the muon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
@@ -99,14 +104,16 @@ def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
     alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
     alg.selection = [ 'kin_select' + postfix, 'trackSelection' + postfix, 'good_muon' + postfix, 'isolated_muon' + postfix ]
     alg.selectionNCuts = [ 2, 2, 4, 1 ]
-    seq.append( alg, inputPropName = 'input' )
+    seq.append( alg, inputPropName = 'input',
+                stageName = 'selection' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'MuonViewFromSelectionAlg' + postfix )
     alg.selection = [ 'kin_select' + postfix, 'trackSelection' + postfix, 'good_muon' + postfix, 'isolated_muon' + postfix ]
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+    seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                stageName = 'selection' )
 
     # Set up the efficiency scale factor calculation algorithm:
     alg = createAlgorithm( 'CP::MuonEfficiencyScaleFactorAlg',
@@ -124,20 +131,23 @@ def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
     alg.outOfValidityDeco = 'bad_eff' + postfix
     alg.efficiencyScaleFactorTool.WorkingPoint = workingPoint
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
-                affectingSystematics = '(^MUON_EFF_.*)' )
+                affectingSystematics = '(^MUON_EFF_.*)',
+                stageName = 'efficiency' )
 
     # Set up an algorithm dumping the properties of the muons, for debugging:
     alg = createAlgorithm( 'CP::KinematicHistAlg',
                            'MuonKinematicDumperAlg' + postfix )
     alg.histPattern = 'muon' + postfix + '_%VAR%_%SYS%'
-    seq.append( alg, inputPropName = 'input' )
+    seq.append( alg, inputPropName = 'input',
+                stageName = 'selection' )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'MuonDeepCopyMaker' + postfix )
         alg.deepCopy = True
-        seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                    stageName = 'selection' )
         pass
 
     # Return the sequence:
