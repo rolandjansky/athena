@@ -5,6 +5,11 @@
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include <iostream>
 
+Muon::STGC_RawDataContainer::STGC_RawDataContainer()
+  : IdentifiableContainer<STGC_RawDataCollection>(0) 
+{
+}
+
 Muon::STGC_RawDataContainer::STGC_RawDataContainer(unsigned int hashmax)
 : IdentifiableContainer<STGC_RawDataCollection>(hashmax) 
 {
