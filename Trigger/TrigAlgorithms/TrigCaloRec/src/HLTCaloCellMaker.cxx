@@ -61,10 +61,8 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
         ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *cdv ));
-        std::cout << "HLTCaloCellMaker 0  full scan size " << cdv->size() << '\n'; 
         auto ss = cellContainer.record( std::move(cdv) );
         ATH_CHECK( ss );
-        std::cout << "HLTCaloCellMaker:after move cll cont " << '\n';
       } else {
         LArTT_Selector<LArCellCont> sel;
         ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
@@ -72,7 +70,6 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
       }
       auto ss = cellContainer.record( std::move(cdv));
       ATH_CHECK( ss );
-      std::cout << "HLTCellMaker 0: wrote Cells to " << cellContainer.key() << '\n';
       return StatusCode::SUCCESS;
     }
     
@@ -81,13 +78,11 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > cellContainerV( m_cellContainerVKey, context );
     auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainerVector> >();
     ATH_CHECK( cellContainerV.record( std::move(cdv) ) );
-    std::cout << "HLTCaloCellMaker 1: wrote Cells to " << cellContainerV.key() << '\n';
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
         auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
         ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
         cellContainerV->push_back( c.release()->asDataVector() );
-        std::cout << "HLTCaloCellMaker 1  full scan size " << (*cellContainerV)[0]->size() << '\n'; 
 		
       } else {
         LArTT_Selector<LArCellCont> sel;
@@ -104,7 +99,6 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > cellContainerV( m_cellContainerVKey, context );
     auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainerVector> >();
     ATH_CHECK( cellContainerV.record( std::move(cdv) ) );
-    std::cout << "HLTCaloCellMaker 1: wrote Cells to " << cellContainerV.key() << '\n';
 
     bool fullScanSeen{false};
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
@@ -131,26 +125,7 @@ StatusCode HLTCaloCellMaker::writeFullScan(const EventContext& context) const {
   
   ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, cellContainer));
   cellContainer->updateCaloIterators();
-  std::cout << "HLTCaloCellMaker 1.0  full scan size "
-            << cellContainer->size() << '\n';
   
-  // CaloCellContainer* ccc = new CaloCellContainer(c->begin(), c->end());
-  // CaloCellContainer* ccc = new CaloCellContainer();
-  // for(auto c : (*c)){(*ccc).push_back(c)};
-  
-  // cant move ccc: because is const?
-  // const CaloCellContainer* ccc = c->asDataVector();
-  
-  // CaloCellContainer* ccc = new CaloCellContainer();
-  // for(auto c : (*c)){(*ccc).push_back(c)};
-
-
-
-  std::cout << "HLTCaloCellMaker 1.1  full scan size "
-            << cellContainer->size() << '\n'; 
-
-  // std::cout << "HLTCaloCellMaker 1.1  full scan size " << (*c)[0]->size() << '\n'; 
-
   SG::WriteHandle<CaloCellContainer> w_handle =
     SG::WriteHandle<CaloCellContainer>(m_fullScanCellsKey, context);
   ATH_CHECK(w_handle.record(std::move(std::unique_ptr<CaloCellContainer>(cellContainer))));
