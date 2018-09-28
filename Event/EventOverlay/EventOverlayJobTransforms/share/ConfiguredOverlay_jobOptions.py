@@ -5,13 +5,13 @@ include.block ( "EventOverlayJobTransforms/ConfiguredOverlay_jobOptions.py" )
 # (modified by Piyali.Banerjee to include skip  events)
 #--------------------------------------------------------------
 
+from AthenaCommon import CfgGetter
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 topSequence = job
 
-if not isRealData:
-    from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyTimings
-    job += CopyTimings()
+if not overlayFlags.isDataOverlay():
+    job += CfgGetter.getAlgorithm("CopyTimings")
 
 #=======================================================================
 from AthenaCommon.AppMgr import ServiceMgr
