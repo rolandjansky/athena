@@ -28,6 +28,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         postfix = '_' + postfix
         pass
 
+    sfWorkingPoint = workingPoint
     if workingPoint == 'Tight' :
         quality = ROOT.xAOD.Muon.Tight
         pass
@@ -131,7 +132,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg.efficiencyDecoration = 'muon_eff' + postfix
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix
-    alg.efficiencyScaleFactorTool.WorkingPoint = workingPoint
+    alg.efficiencyScaleFactorTool.WorkingPoint = sfWorkingPoint
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 affectingSystematics = '(^MUON_EFF_.*)',
                 stageName = 'efficiency' )
