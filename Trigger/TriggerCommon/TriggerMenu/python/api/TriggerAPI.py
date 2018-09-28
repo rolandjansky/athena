@@ -17,6 +17,7 @@ class TriggerAPI:
     dbQueries = {}
     privatedbQueries = {}
     customGRL = None
+    release   = None
     log = logging.getLogger( 'TriggerMenu.api.TriggerAPI.py' )
 
     @classmethod
@@ -40,6 +41,14 @@ class TriggerAPI:
             cls.log.error("Error unpickling the private file")
         except IOError:
             pass
+
+    @classmethod
+    def setRelease(cls, release):
+        import re
+        if release and re.match('21\.1(\.[0-9]+)+$',release):
+            cls.release = release
+        else:
+            cls.log.warning("Release doesn't seem to be a well-formed 21.1 release, ignoring: "+release)
 
     @classmethod
     def setCustomGRL(cls, grl):
@@ -145,7 +154,7 @@ class TriggerAPI:
         if not period & TriggerPeriod.future: cls.init()
         if (period,cls.customGRL) not in cls.dbQueries:
             if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()):
-                cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL)
+                cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL,cls.release)
                 cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
                 if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
                     #Don't pickle TM information since it can change, very cheap to retrieve anyway
