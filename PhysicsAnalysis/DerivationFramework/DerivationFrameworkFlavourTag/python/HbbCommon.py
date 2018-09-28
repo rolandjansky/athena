@@ -613,6 +613,17 @@ def addHbbTagger(
         logger.info('{} already scheduled for {}'.format(
             tagger_alg_name, jet_collection))
 
+def addRecommendedXbbTaggers(sequence, ToolSvc, logger=None):
+    addHbbTagger(sequence, ToolSvc, logger)
+    addHbbTagger(
+        sequence, ToolSvc,
+        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
+        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
+
+xbbTaggerExtraVariables = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD"]
+
 #====================================================================
 # Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================

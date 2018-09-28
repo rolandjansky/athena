@@ -10,6 +10,9 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import (
+  addRecommendedXbbTaggers, xbbTaggerExtraVariables
+)
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
@@ -260,7 +263,8 @@ if not "EXOT26Jets" in OutputJets:
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(exot26Seq)
 # Also add Hbb Tagger
-addHbbTagger(exot26Seq, ToolSvc)
+addRecommendedXbbTaggers(exot26Seq, ToolSvc)
+
 
 #===================================================================
 # Run b-tagging
@@ -319,8 +323,7 @@ EXOT26SlimmingHelper.SmartCollections = ["Electrons",
                                           "PrimaryVertices"]
 
 EXOT26SlimmingHelper.ExtraVariables = ExtraContent
-EXOT26SlimmingHelper.ExtraVariables.append(
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore")
+EXOT26SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 EXOT26SlimmingHelper.AllVariables = ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
     EXOT26SlimmingHelper.ExtraVariables += ExtraContentTruth
