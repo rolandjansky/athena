@@ -224,6 +224,7 @@ def writeTFileOpen():
 # art-description: DirectIOART TFile::Open
 # art-type: grid
 # art-include master/Athena
+# art-include master/AthSimulation
 # art-include 21.0/Athena
 # art-include 21.0/AthSimulation
 # art-include 21.2/AthAnalysis
