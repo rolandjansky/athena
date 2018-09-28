@@ -36,6 +36,7 @@ class AnaAlgSequence( AlgSequence ):
         # Set up the sequence's member variables:
         self._inputPropNames = []
         self._outputPropNames = []
+        self._stageNames = []
         self._affectingSystematics = []
         self._outputAffectingSystematics = None
 
@@ -97,7 +98,8 @@ class AnaAlgSequence( AlgSequence ):
         nAlgs = len( self )
         if len( self._inputPropNames ) != nAlgs or \
                 len( self._outputPropNames ) != nAlgs or \
-                len( self._affectingSystematics ) != nAlgs:
+                len( self._affectingSystematics ) != nAlgs or \
+                len( self._stageNames ) != nAlgs:
             raise RuntimeError( 'Analysis algorithm sequence is in an ' \
                                 'inconsistent state' )
 
@@ -271,7 +273,7 @@ class AnaAlgSequence( AlgSequence ):
         return
 
     def append( self, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None ):
+                affectingSystematics = None, stageName = 'undefined' ):
         """Add one analysis algorithm to the sequence
 
         This function is specifically meant for adding one of the centrally
@@ -287,7 +289,11 @@ class AnaAlgSequence( AlgSequence ):
           affectingSystematics -- Regular expression describing which systematic
                                   variations would affect this algorithm's
                                   behaviour [optional]
+          stageName -- name of the current processing stage [optional]
         """
+
+        if not stageName in self.allowedStageNames() :
+            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
 
         self += alg
         if isinstance( inputPropName, dict ):
@@ -318,11 +324,11 @@ class AnaAlgSequence( AlgSequence ):
                 self._affectingSystematics.append( None )
                 pass
             pass
-
+        self._stageNames.append( stageName )
         return self
 
     def insert( self, index, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None ):
+                affectingSystematics = None, stageName = 'undefined' ):
         """Insert one analysis algorithm into the sequence
 
         This function is specifically meant for adding one of the centrally
@@ -340,7 +346,11 @@ class AnaAlgSequence( AlgSequence ):
           affectingSystematics -- Regular expression describing which systematic
                                   variations would affect this algorithm's
                                   behaviour [optional]
+          stageName -- name of the current processing stage [optional]
         """
+
+        if not stageName in self.allowedStageNames() :
+            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
 
         super( AnaAlgSequence, self ).insert( index, alg )
         if isinstance( inputPropName, dict ):
@@ -374,6 +384,7 @@ class AnaAlgSequence( AlgSequence ):
                 self._affectingSystematics.insert( index, None )
                 pass
             pass
+        self._stageNames.insert( index, stageName )
 
         return self
 
@@ -433,7 +444,37 @@ class AnaAlgSequence( AlgSequence ):
         del self._inputPropNames[ algIndex ]
         del self._outputPropNames[ algIndex ]
         del self._affectingSystematics[ algIndex ]
+        del self._stageNames[ algIndex ]
         pass
+
+    def removeStage( self, stageName ):
+        """Remove all algorithms for the given stage
+
+        Keyword arguments:
+          stageName -- name of the processing stage to remove
+        """
+
+        if not stageName in self.allowedStageNames() :
+            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
+
+        iter = 0
+        while iter < len( self ):
+            if self._stageNames[iter] == stageName :
+                super( AnaAlgSequence, self ).__delattr__( self[iter].name() )
+                del self._inputPropNames[ iter ]
+                del self._outputPropNames[ iter ]
+                del self._affectingSystematics[ iter ]
+                del self._stageNames[ iter ]
+                pass
+            else :
+                iter = iter + 1
+                pass
+            pass
+        pass
+
+    @staticmethod
+    def allowedStageNames():
+        return ["calibration", "selection", "efficiency", "undefined"]
 
     pass
 
@@ -450,14 +491,17 @@ class TestAnaAlgSeqSingleContainer( unittest.TestCase ):
         alg = createAlgorithm( 'CalibrationAlg', 'Calibration' )
         self.seq.append( alg, inputPropName = 'electrons',
                          outputPropName = 'electronsOut',
-                         affectingSystematics = '(^EL_.*)' )
+                         affectingSystematics = '(^EL_.*)',
+                         stageName = 'calibration' )
         alg = createAlgorithm( 'EfficiencyAlg', 'Efficiency' )
         self.seq.append( alg, inputPropName = 'egammas',
                          outputPropName = 'egammasOut',
-                         affectingSystematics = '(^EG_.*)' )
+                         affectingSystematics = '(^EG_.*)',
+                         stageName = 'efficiency' )
         alg = createAlgorithm( 'SelectionAlg', 'Selection' )
         self.seq.insert( 1, alg, inputPropName = 'particles',
-                         outputPropName = 'particlesOut' )
+                         outputPropName = 'particlesOut',
+                         stageName = 'selection' )
         alg = createAlgorithm( 'DummyAlgorithm', 'Dummy' )
         self.seq.append( alg, inputPropName = None )
         del self.seq.Dummy
