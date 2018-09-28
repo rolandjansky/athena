@@ -19,7 +19,7 @@
 #include "HitManagement/AthenaHitsVector.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class CaloCalibrationHitContainer:public AthenaHitsVector<CaloCalibrationHit>
 {

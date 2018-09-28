@@ -14,22 +14,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "JetTagTools/IMultivariateJetTagger.h"
-//#include "GaudiKernel/ToolHandle.h"
-//#include "JetTagTools/ITagTool.h"
 #include <string>
 #include <map>
 #include <list>
-#include "egammaMVACalib/egammaMVACalib.h"
 #include "MVAUtils/BDT.h"
-
-#include "TMVA/MethodBase.h"
-#include "TMVA/IMethod.h"
-
-namespace TMVA { class Reader; }
-
-namespace Analysis {
-    class CalibrationBroker;
-}
+#include "JetTagCalibration/JetTagCalibCondData.h"
 
 namespace Analysis {
 
@@ -48,7 +37,6 @@ namespace Analysis {
     StatusCode finalize();
     void finalizeHistos() {};
 
-    //StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);
     void assignProbability(xAOD::BTagging* BTag, const std::map<std::string,double>& inputs, const std::string& jetauthor);
 
   private:
@@ -58,11 +46,9 @@ namespace Analysis {
     std::string m_treeName;
     std::string m_varStrName;
 
-    /** pointer to calibration in COOL: */
-    ToolHandle<CalibrationBroker> m_calibrationTool;
+    /** Key of calibration data: */
+    SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
     bool m_forceMV2CalibrationAlias;
-    bool m_useEgammaMethodMV2;
-    //bool m_decorateBTaggingObj;
     std::string m_decTagName;
     std::string m_MV2CalibAlias;
     std::string m_MV2cXX;
@@ -88,10 +74,7 @@ namespace Analysis {
     // points to something in storegate)
     //const xAOD::Vertex* m_priVtx;
 
-    /** reader to define the TMVA algorithms */
-
-    std::map<std::string, TMVA::Reader*> m_tmvaReaders;
-    std::map<std::string, TMVA::MethodBase*> m_tmvaMethod;
+    /** reader to define the MVA algorithms */
     std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
@@ -112,7 +95,7 @@ namespace Analysis {
     //void PrintInputs();
     void CreateLocalVariables(std::map<std::string, double> var_map);
     void ReplaceNaN_andAssign(std::map<std::string, double> var_map);
-    void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader,
+    void SetVariableRefs(const std::vector<std::string> inputVars,
 			  unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
 
     std::vector<float> GetMulticlassResponse(MVAUtils::BDT* bdt) const {

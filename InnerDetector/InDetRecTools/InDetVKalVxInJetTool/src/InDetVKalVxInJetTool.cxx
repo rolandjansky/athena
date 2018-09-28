@@ -25,6 +25,9 @@
 //}
 
 namespace InDet {
+
+const int InDetVKalVxInJetTool::DevTuple::maxNTrk;
+
 //
 //Constructor-------------------------------------------------------------- 
 InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,

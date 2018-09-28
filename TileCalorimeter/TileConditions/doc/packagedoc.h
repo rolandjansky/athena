@@ -18,7 +18,8 @@ Calibration constants and cabling description for the TileCalorimeter.
 This package consists of a set of tools which provide TileCal
 conditions data to clients running in the Athena framework. In
 addition to AlgTools also two Services are provided: TileCablingSvc
-(see also \ref TileCablingSvcSection below) and TileInfoLoader.
+(see also \ref TileConditions_TileCablingSvcSection below)
+and TileInfoLoader.
 
 @section TileConditions_TileCondTools TileCondTools
 
@@ -26,13 +27,13 @@ In the following list the currently available TileCondTools are
 listed, describing briefly their purpose. For more details see the
 individual descriptions within each tool.
 
-- TileBadChanTool: Status information for each TileCal channel and ADC. 
+- TileBadChanTool: Status information for each TileCal channel and ADC.
 - TileCondToolEmscale: Application of CIS, Laser and Cesium calibration constants, calibration to the EM scale.
 - TileCondToolTiming: Signal phase for each TileCal ADC.
 - TileCondToolNoiseSample: High and low frequency noise and pedestal level for each ADC.
 - TileCondToolNoiseRawChn: Response of reco method (OF, Fit, ...) to pedestal like events.
 - TileCellNoiseTool: Access to noise level expected in each TileCal cell (uses TileCondToolNoise tools internally).
-- TileCondToolOfc: calculates Optimal Filter Coefficients (OFCs) for each ADC on the fly 
+- TileCondToolOfc: calculates Optimal Filter Coefficients (OFCs) for each ADC on the fly
 - TileCondToolOfcCool: extracts Optimal Filter Coefficients (OFCs) for each ADC
 from COOL database.
 - TileCondToolPulseShape: Expected pulse shapes in each ADC.
@@ -67,11 +68,11 @@ encoding of data into the BLOBs (see TileCalibBlobObjs package).
 For MC production, default conditions data values are read from text
 files (share/TileDefault.*), which can also be used for testing
 purposes in reconstruction jobs. In order to decouple the \ref
-TileCondTools code from the source of conditions data (COOL DB or text
-file), the \ref TileCondTools access conditions data BLOBs through
-TileCondProxies: Either a TileCondProxyCool or a
+TileConditions_TileCondTools code from the source of conditions data
+(COOL DB or text file), the \ref TileConditions_TileCondTools access
+conditions data BLOBs through TileCondProxies: Either a TileCondProxyCool or a
 TileCondProxyFile. The TileCondProxies are themselves AlgTools and are
-set as Properties to the different \ref TileCondTools. A Python
+set as Properties to the different \ref TileConditions_TileCondTools. A Python
 function (see \ref TileCondProxyConf) is usually used to instantiate
 TileCondProxies, specifying the technology to be used ("FILE" or
 "COOL"), the type of the TileCalibDrawer object (see
@@ -89,13 +90,13 @@ files. See the example configuration shown in the \ref
 TileCondToolConf section.
 
 
-@subsection text_file_format Text File Format 
+@subsection text_file_format Text File Format
 
 The format of the text file (usually containing default conditions
 data used for simulation) follows two rules:
 
-- All lines not starting with either "0x" or "OBJVERSION" are ignored.  
-- At least one line specifying the OBJVERSION of the BLOB has to be present.  
+- All lines not starting with either "0x" or "OBJVERSION" are ignored.
+- At least one line specifying the OBJVERSION of the BLOB has to be present.
 
 Individual ADCs are addressed by specifying 3 numbers: fragId, channel
 and gain. All following numbers are interpreted as conditions data. In
@@ -123,8 +124,8 @@ OBJVERSION 1
 An Athena Algorithm called TileInfoDump is provided to print TileCal
 conditions data as it is seen by the Athena framework for a given run
 number. Example job options exist in share/TileInfoDump_jobOptions.py,
-giving also hints about how to configure \ref TileCondTools and the
-access to the COOL database.
+giving also hints about how to configure \ref TileConditions_TileCondTools
+and the access to the COOL database.
 
 
 @section TileConditions_TileInfo TileInfo, TileInfoLoader, etc...
@@ -138,10 +139,10 @@ conditions data volume, the TileInfo object (and its TileInfoLoader)
 should be phased out. However, TileInfo is used in various places
 throughout the TileCal code and a clean break transition was not
 possible. Therefore, TileInfo is kept alive and provides wrapper
-functions around the individual \ref TileCondTools. The usage of
-TileInfo is strongly discouraged for new code developments and old
-code should be migrated to use the \ref TileCondTools directly were
-possible.
+functions around the individual \ref TileConditions_TileCondTools.
+The usage of TileInfo is strongly discouraged for new code developments
+and old code should be migrated to use the \ref TileConditions_TileCondTools
+directly were possible.
 
 
 
@@ -149,10 +150,10 @@ possible.
 @section TileConditions_Package_Configuration Package Configuration
 
 Python helper classes and functions exist in the python subdirectory,
-helping with the configuration of the \ref TileCondTools and
+helping with the configuration of the \ref TileConditions_TileCondTools and
 Services. Their usage is illustrated in TileInfoDump_jobOptions.
 
-@subsection TileCoolMgr TileCoolMgr.py 
+@subsection TileCoolMgr TileCoolMgr.py
 
 This Python module is a mini-database, keeping track of TileCal
 conditions data sources. It assigns a logical name to the data source
@@ -179,16 +180,16 @@ defConnStr = conddb.dblist['TILE']
 #=== fill with default folders:
 tileCoolMgr = TileCoolMgr()
 #--- energy calibration
-tileCoolMgr.addSource('oflCisFitLin', '/TILE/OFL01/CALIB/CIS/FIT/LIN', defConnStr, "")           
-tileCoolMgr.addSource('oflCisFitNln', '/TILE/OFL01/CALIB/CIS/FIT/NLN', defConnStr, "")           
-tileCoolMgr.addSource('oflLasLin'   , '/TILE/OFL01/CALIB/LAS/LIN'    , defConnStr, "")           
-tileCoolMgr.addSource('oflLasNln'   , '/TILE/OFL01/CALIB/LAS/NLN'    , defConnStr, "")           
-tileCoolMgr.addSource('oflCes'      , '/TILE/OFL01/CALIB/CES'        , defConnStr, "")           
-tileCoolMgr.addSource('oflEms'      , '/TILE/OFL01/CALIB/EMS'        , defConnStr, "")           
+tileCoolMgr.addSource('oflCisFitLin', '/TILE/OFL01/CALIB/CIS/FIT/LIN', defConnStr, "")
+tileCoolMgr.addSource('oflCisFitNln', '/TILE/OFL01/CALIB/CIS/FIT/NLN', defConnStr, "")
+tileCoolMgr.addSource('oflLasLin'   , '/TILE/OFL01/CALIB/LAS/LIN'    , defConnStr, "")
+tileCoolMgr.addSource('oflLasNln'   , '/TILE/OFL01/CALIB/LAS/NLN'    , defConnStr, "")
+tileCoolMgr.addSource('oflCes'      , '/TILE/OFL01/CALIB/CES'        , defConnStr, "")
+tileCoolMgr.addSource('oflEms'      , '/TILE/OFL01/CALIB/EMS'        , defConnStr, "")
 tileCoolMgr.addSource('onlCisLin'   , '/TILE/ONL01/CALIB/CIS/LIN'    , defConnStr, "")
-tileCoolMgr.addSource('onlLasLin'   , '/TILE/ONL01/CALIB/LAS/LIN'    , defConnStr, "")           
-tileCoolMgr.addSource('onlCes'      , '/TILE/ONL01/CALIB/CES'        , defConnStr, "")           
-tileCoolMgr.addSource('onlEms'      , '/TILE/ONL01/CALIB/EMS'        , defConnStr, "")           
+tileCoolMgr.addSource('onlLasLin'   , '/TILE/ONL01/CALIB/LAS/LIN'    , defConnStr, "")
+tileCoolMgr.addSource('onlCes'      , '/TILE/ONL01/CALIB/CES'        , defConnStr, "")
+tileCoolMgr.addSource('onlEms'      , '/TILE/ONL01/CALIB/EMS'        , defConnStr, "")
 #--- noise
 tileCoolMgr.addSource('oflNoiseAdc', '/TILE/OFL01/NOISE/SAMPLE', defConnStr, "")
 tileCoolMgr.addSource('oflNoiseAcr', '/TILE/OFL01/NOISE/AUTOCR', defConnStr, "")
@@ -206,7 +207,7 @@ tileCoolMgr.addSource('onlStatAdc', '/TILE/ONL01/STATUS/ADC', defConnStr, "")
 @subsection TileCondToolConf TileCondToolConf.py
 
 This Python module provides "getter" functions to obtain fully
-configured \ref TileCondTools, specifying either "COOL" or "FILE" as
+configured \ref TileConditions_TileCondTools, specifying either "COOL" or "FILE" as
 technology. The following section of TileInfoDump_jobOptions.py
 illustrates the use of these functions:
 
@@ -214,7 +215,7 @@ illustrates the use of these functions:
 #========================================================
 #=== configure TileCondTools
 #===
-#=== The lines below show how to configure individual 
+#=== The lines below show how to configure individual
 #=== tools directly, without the use of TileInfoConfigurator
 #===
 #========================================================
@@ -222,7 +223,7 @@ from TileConditions.TileCondToolConf import *
 ToolSvc += getTileCondToolEmscale()
 #--- to switch off the usage of online cache, do
 #    ToolSvc.TileCondToolEmscale.OnlCacheUnit="Invalid"
-#--- a single proxy can be exchanged, for example like this... 
+#--- a single proxy can be exchanged, for example like this...
 #    from TileConditions.TileCondProxyConf import getTileCondProxy
 #    ToolSvc.TileCondToolEmscale.ProxyOflEms = getTileCondProxy('FILE','Flt','TileDefault.ems','TileCondProxyFile_OflEms')
 #--- ... or directly in the creation of the Tool like this:
@@ -235,7 +236,7 @@ ToolSvc += getTileCondToolNoiseSample()
 ToolSvc += getTileCondToolTiming()
 @endverbatim
 
-@subsection TileCondProxyConf TileCondProxyConf.py 
+@subsection TileCondProxyConf TileCondProxyConf.py
 
 This Python module provides a "getter" function for TileCondProxies. A
 TileCondProxyFile is returned if "FILE" is passed in the technology
@@ -266,6 +267,6 @@ svcMgr += CfgMgr.TileCablingSvc()
 
 
 
- 
+
 
 */

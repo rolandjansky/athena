@@ -7,8 +7,7 @@ atlas_subdir( CaloSimEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/Identifier
                           Simulation/HitManagement
                           PRIVATE
@@ -22,12 +21,12 @@ atlas_add_library( CaloSimEvent
                    src/*.cxx
                    PUBLIC_HEADERS CaloSimEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES SGTools Identifier HitManagement
+                   LINK_LIBRARIES Identifier HitManagement
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( CaloSimEventDict
                       CaloSimEvent/CaloSimEventDict.h
                       CaloSimEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools Identifier HitManagement GaudiKernel CaloSimEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} Identifier HitManagement GaudiKernel CaloSimEvent )
 

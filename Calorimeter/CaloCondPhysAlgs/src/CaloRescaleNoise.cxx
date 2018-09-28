@@ -84,10 +84,10 @@ StatusCode CaloRescaleNoise::execute()
 //__________________________________________________________________________
 StatusCode CaloRescaleNoise::stop()
 {
-  FILE* fp = fopen("calonoise.txt","w");
-
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
+  FILE* fp = fopen("calonoise.txt","w");
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );

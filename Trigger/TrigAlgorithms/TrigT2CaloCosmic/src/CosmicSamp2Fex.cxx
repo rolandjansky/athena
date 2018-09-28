@@ -38,8 +38,7 @@ CosmicSamp2Fex::~CosmicSamp2Fex(){
 
 StatusCode CosmicSamp2Fex::execute(TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi,
-				   const CaloDetDescrElement*& /*caloDDE*/,
-                                   const EventContext* /*context*/ ) { 
+				   const CaloDetDescrElement*& /*caloDDE*/) { 
   
         m_lardecoded=false;
 	m_tiledecoded=false;

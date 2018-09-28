@@ -16,9 +16,9 @@
 #ifndef CALOIDENTIFIER_LAREM_SUPERCELL_ID_H
 #define CALOIDENTIFIER_LAREM_SUPERCELL_ID_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloIdentifier/LArEM_Base_ID.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 /**

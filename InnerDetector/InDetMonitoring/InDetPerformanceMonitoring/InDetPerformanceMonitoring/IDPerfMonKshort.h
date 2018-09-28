@@ -9,7 +9,6 @@
 // IDPerfMonKshort.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling
 // **********************************************************************
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 

@@ -3,16 +3,16 @@
 */
 
 #include "TileConditions/TileCondToolNoiseRawChn.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileCalibBlobObjs/Exception.h"
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
-#include "TileConditions/TileCondToolEmscale.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //
 //____________________________________________________________________
 static const InterfaceID IID_TileCondToolNoiseRawChn("TileCondToolNoiseRawChn", 1, 0);
-const InterfaceID&
-TileCondToolNoiseRawChn::interfaceID() {
+const InterfaceID& TileCondToolNoiseRawChn::interfaceID() {
   return IID_TileCondToolNoiseRawChn;
 }
 
@@ -20,12 +20,9 @@ TileCondToolNoiseRawChn::interfaceID() {
 //____________________________________________________________________
 TileCondToolNoiseRawChn::TileCondToolNoiseRawChn(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-  , m_tileToolEms("TileCondToolEmscale")
-  , m_pryNoiseRawChn( "TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_NoiseRawChn", this)
 {
   declareInterface<ITileCondToolNoise>(this);
   declareInterface<TileCondToolNoiseRawChn>(this);
-  declareProperty("ProxyNoiseRawChn", m_pryNoiseRawChn);
 }
 
 //
@@ -39,11 +36,8 @@ StatusCode TileCondToolNoiseRawChn::initialize() {
 
   ATH_MSG_DEBUG( "In initialize()" );
 
-  //=== TileCondToolEmscale
-  CHECK( m_tileToolEms.retrieve() );
-
-  //=== retrieve proxy
-  CHECK( m_pryNoiseRawChn.retrieve() );
+  ATH_CHECK( m_calibRawChannelNoiseKey.initialize() );
+  ATH_CHECK( m_emScaleKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -51,6 +45,7 @@ StatusCode TileCondToolNoiseRawChn::initialize() {
 //
 //____________________________________________________________________
 StatusCode TileCondToolNoiseRawChn::finalize() {
+
   ATH_MSG_DEBUG( "finalize called" );
 
   return StatusCode::SUCCESS;
@@ -58,19 +53,26 @@ StatusCode TileCondToolNoiseRawChn::finalize() {
 
 //
 //____________________________________________________________________
-float TileCondToolNoiseRawChn::getElectronicNoise(unsigned int drawerIdx, unsigned int channel,
-    unsigned int adc, TileRawChannelUnit::UNIT unit) const {
-  float val = m_pryNoiseRawChn->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
+float TileCondToolNoiseRawChn::getElectronicNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                                                  TileRawChannelUnit::UNIT unit) const {
+
+  SG::ReadCondHandle<TileCalibDataFlt> calibRawChannelNoise(m_calibRawChannelNoiseKey);
+  float val = calibRawChannelNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
+
   if (unit > TileRawChannelUnit::ADCcounts) {
-    val = m_tileToolEms->channelCalib(drawerIdx, channel, adc, val, TileRawChannelUnit::ADCcounts,
-        unit);
+    SG::ReadCondHandle<TileEMScale> emScale (m_emScaleKey);
+    val = emScale->calibrateChannel(drawerIdx, channel, adc, val, TileRawChannelUnit::ADCcounts, unit);
   }
+
   return val;
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolNoiseRawChn::getPileUpNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
-  return m_pryNoiseRawChn->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
-}
 
+  SG::ReadCondHandle<TileCalibDataFlt> calibRawChannelNoise(m_calibRawChannelNoiseKey);
+  return calibRawChannelNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
+
+}

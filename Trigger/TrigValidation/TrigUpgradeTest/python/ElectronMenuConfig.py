@@ -262,8 +262,8 @@ def l2ElectronCaloStepCfg( flags, chains ):
 
     # setup algorithms
     #acc.addSequence( seqAND('L2CaloEgamma'), parentName=parentSeq )
-    from TrigUpgradeTest.MenuComponents import FilterHypoSequence
-    fhSeq = FilterHypoSequence( 'ElectronFastCalo' )
+    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    fhSeq = NJMenuSequence( 'ElectronFastCalo' )
     fhSeq.addFilter( chains, inKey = 'EMRoIDecisions' ) # out key named after sequence
 
     from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
@@ -284,7 +284,6 @@ def l2ElectronCaloStepCfg( flags, chains ):
     fhSeq.addHypo( hypo )
     
     return fhSeq
-
 
 
 def generateElectronsCfg( flags ):

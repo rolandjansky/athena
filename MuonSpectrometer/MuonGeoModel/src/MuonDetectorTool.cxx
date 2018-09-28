@@ -22,7 +22,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include <fstream>
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 using namespace MuonGM;
 

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaForwardBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "StoreGate/StoreGateSvc.h"
-
+#include "GaudiKernel/ServiceHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -29,7 +29,7 @@
     
 egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_timingProfile(0)
+  m_timingProfile("ChronoStatSvc", name)
 { 
 } 
 
@@ -60,17 +60,11 @@ StatusCode egammaForwardBuilder::initialize()
 
   // retrieve object quality tool 
   RetrieveObjectQualityTool();
-
-  m_timingProfile = 0;
-  StatusCode sc = service("ChronoStatSvc",m_timingProfile);
-  if(sc.isFailure() || m_timingProfile == 0) {
-    ATH_MSG_ERROR("Cannot find the ChronoStatSvc " << m_timingProfile);
-  }
+ 
+  if (m_doChrono) ATH_CHECK( m_timingProfile.retrieve() ); 
 
   // retrieve 4-mom builder:
-  if ((sc = RetrieveEMFourMomBuilder()).isFailure()) {
-    return sc;
-  }
+  CHECK(RetrieveEMFourMomBuilder());
 
 
   for (const auto& selector : m_forwardelectronIsEMselectors) {
@@ -252,7 +246,7 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
 
   // setup chrono for this tool
   std::string chronoName=this->name()+"_"+m_objectqualityTool->name() ;
-  if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+  if (m_doChrono) m_timingProfile->chronoStart(chronoName);
 
   // execute the tool
   StatusCode sc = m_objectqualityTool->execute(eg);
@@ -260,7 +254,7 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
     ATH_MSG_DEBUG("failure returned by object quality tool"); 
   }
 
-  if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+  if (m_doChrono) m_timingProfile->chronoStop(chronoName);
 
   return sc;
 }

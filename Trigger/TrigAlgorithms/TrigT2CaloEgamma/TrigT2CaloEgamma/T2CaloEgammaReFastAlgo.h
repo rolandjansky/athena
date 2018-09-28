@@ -29,13 +29,13 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
-class IAlgToolCalo;
+class IReAlgToolCalo;
 class IEgammaCalibration;
 //class ITrigDataAccess;
 class MsgStream;
 
 /** Main LVL2 Algorithm. Processes LVL1 information, call FEX
-    IAlgToolCalos and produces the TrigEMCluster output. */
+    IReAlgToolCalos and produces the TrigEMCluster output. */
 class T2CaloEgammaReFastAlgo: public AthReentrantAlgorithm {
 
 
@@ -102,7 +102,7 @@ class T2CaloEgammaReFastAlgo: public AthReentrantAlgorithm {
     double            m_etaWidth;
     /** Phi width of Region of Interest. Should be 0.2 for EGamma. */
     double            m_phiWidth;
-    ToolHandleArray<IAlgToolCalo>   m_emAlgTools;
+    ToolHandleArray<IReAlgToolCalo>   m_emAlgTools;
     //ToolHandle<ITrigDataAccess>     m_data;
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
     SG::WriteHandleKey<xAOD::TrigEMClusterContainer> m_clusterContainerKey;

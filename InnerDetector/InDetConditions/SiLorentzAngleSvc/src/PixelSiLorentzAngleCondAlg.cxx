@@ -55,7 +55,8 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelSiLorentzAngleCondAlg::execute() {
+StatusCode 
+PixelSiLorentzAngleCondAlg::execute() {
   ATH_MSG_DEBUG("PixelSiLorentzAngleCondAlg::execute()");
 
   SG::WriteCondHandle<SiLorentzAngleCondData> writeHandle{m_writeKey};
@@ -159,11 +160,15 @@ StatusCode PixelSiLorentzAngleCondAlg::execute() {
 
     const InDetDD::SiDetectorElement* element = m_detManager->getDetectorElement(elementHash);
     double depletionDepth = element->thickness();
-    if (std::abs(biasVoltage) < std::abs(deplVoltage)) {
-      depletionDepth *= sqrt(std::abs(biasVoltage/deplVoltage));
+    if (std::fabs(biasVoltage) < std::fabs(deplVoltage)) {
+      depletionDepth *= std::sqrt(std::fabs(biasVoltage/deplVoltage));
     }
 
     const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    if (not p_design){
+      ATH_MSG_FATAL("Dynamic cast to PixelModuleDesign* failed in PixelSiLorentzAngleCondAlg::execute");
+      return StatusCode::FAILURE;
+    }
     double forceLorentzToZero = 1.0;
     if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4 && p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
       forceLorentzToZero = 0.0;

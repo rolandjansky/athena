@@ -17,6 +17,9 @@
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 
+#include "egammaInterfaces/IEMExtrapolationTools.h"
+
+
 typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
 typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;  
 typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t;  
@@ -218,8 +221,13 @@ StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& 
 
   writeDecorHandles<T> decoHandles(hkeys);
 
+  //Extrapolation Cache
+  Cache extrapolationCache{};
+
   for (auto particle : *decoHandles.readHandle()){
-    MCTruthInfo_t info = particleTruthClassifier(particle);
+
+    MCTruthInfo_t info = particleTruthClassifier(particle, &extrapolationCache);
+
     const xAOD::TruthParticle* truthParticle = info.genPart;
     if (truthParticle) {
       ElementLink<xAOD::TruthParticleContainer> link(truthParticle, truthParticles);
@@ -292,16 +300,12 @@ egammaTruthAssociationAlg::writeDecorHandles<T>::writeDecorHandles(const egammaT
 
 // ==========================================================================   
 template<class T> egammaTruthAssociationAlg::MCTruthInfo_t 
-egammaTruthAssociationAlg::particleTruthClassifier(const T* particle) {
+egammaTruthAssociationAlg::particleTruthClassifier(const T* particle, Cache *extrapolationCache) {
   MCTruthInfo_t info;
-#ifdef MCTRUTHCLASSIFIER_CONST
   IMCTruthClassifier::Info mcinfo;
+  mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
   info.genPart = mcinfo.genPart;
-#else
-  auto ret = m_mcTruthClassifier->particleTruthClassifier(particle);
-  info.genPart = m_mcTruthClassifier->getGenPart();
-#endif
   info.first = ret.first;
   info.second = ret.second;
   return info;
@@ -309,28 +313,17 @@ egammaTruthAssociationAlg::particleTruthClassifier(const T* particle) {
 /** Template specialisation for electrons: 
  * second pass based on the cluster to find true photons **/
 template<> egammaTruthAssociationAlg::MCTruthInfo_t 
-egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(const xAOD::Electron* electron) {
+egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(const xAOD::Electron* electron, Cache *extrapolationCache) {
   MCTruthInfo_t info;
-#ifdef MCTRUTHCLASSIFIER_CONST
   IMCTruthClassifier::Info mcinfo;
+  mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);
-#else
-  auto ret = m_mcTruthClassifier->particleTruthClassifier(electron);
-#endif
   if (ret.first == MCTruthPartClassifier::Unknown &&
       !xAOD::EgammaHelpers::isFwdElectron(electron) && electron->caloCluster()){
     ATH_MSG_DEBUG("Trying cluster-based truth classification for electron");
-#ifdef MCTRUTHCLASSIFIER_CONST
     ret = m_mcTruthClassifier->particleTruthClassifier( electron->caloCluster(), &mcinfo);
-#else
-    ret = m_mcTruthClassifier->particleTruthClassifier( electron->caloCluster() );
-#endif
   }
-#ifdef MCTRUTHCLASSIFIER_CONST
   info.genPart = mcinfo.genPart;
-#else
-  info.genPart = m_mcTruthClassifier->getGenPart();
-#endif
   info.first = ret.first;
   info.second = ret.second;
   return info;

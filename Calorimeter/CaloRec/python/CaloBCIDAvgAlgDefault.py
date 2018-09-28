@@ -24,10 +24,14 @@ def CaloBCIDAvgAlgDefault():
                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>",className="LArShape32MC")
                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/LArPileupAverage",className="LArMinBiasAverageMC")
 
-            #condSequence+=LArCondAlgShapeFlat(ReadKey=
-
             topSequence+=CaloBCIDAvgAlg(isMC=False,LumiTool=theLumiTool,ShapeKey="LArShape32")
         else: #MC case
+            from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
+            from LArRecUtils.LArAutoCorrTotalCondAlgDefault import  LArAutoCorrTotalCondAlgDefault
+            from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+            LArADC2MeVCondAlgDefault()
+            LArAutoCorrTotalCondAlgDefault()
+            LArOFCCondAlgDefault()
             from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
             theBunchCrossingTool = BunchCrossingTool()
             conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/Shape",className="LArShape32MC")

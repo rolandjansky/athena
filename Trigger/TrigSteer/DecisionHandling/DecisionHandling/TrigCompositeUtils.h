@@ -61,7 +61,7 @@ namespace TrigCompositeUtils {
   const std::vector<int>& decisionIDs( const Decision* d ); 
   std::vector<int>& decisionIDs( Decision* d );
 
-
+  
   /**
    * @brief return true if thre is no positive decision stored
    **/

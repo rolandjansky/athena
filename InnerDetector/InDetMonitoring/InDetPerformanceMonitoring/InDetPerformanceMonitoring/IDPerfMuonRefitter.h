@@ -8,16 +8,12 @@
 //==============================================================================
 // Include files...
 //==============================================================================
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
-
-
-class IegammaTrkRefitterTool;
-
+#include "egammaInterfaces/IegammaTrkRefitterTool.h"
 
 class IDPerfMuonRefitter : public AthAlgorithm
 {
