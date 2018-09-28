@@ -5,7 +5,7 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 import ROOT
 
-def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
+def makeMuonAnalysisSequence( dataType, workingPoint,
                               deepCopyOutput = False, postfix = '' ):
     """Create a muon analysis algorithm sequence
 
