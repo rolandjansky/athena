@@ -19,9 +19,6 @@
 // Other stuff
 #include<iostream>
 
-namespace Trk {
-    extern vkalMagFld      myMagFld;
-}
 namespace Trk{
 
 //
@@ -117,7 +114,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
 /*--------------------------------------------------------------------------*/
 /*  New magnetic field object is created. It's provided to VKalVrtCore.     */
 /*  VKalVrtFitter must set up Core BEFORE any call required propagation!!!  */  
-/*           myMagFld is a static oblect in VKalVrtCore                     */ 
 
     m_fitField = new VKalAtlasMagFld();
     m_fitField->setAtlasField(m_BMAG);
