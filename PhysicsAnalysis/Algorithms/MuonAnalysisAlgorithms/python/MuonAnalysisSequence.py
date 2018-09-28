@@ -24,7 +24,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
-    postfix = '_' + postfix
+    if postfix != '' :
+        postfix = '_' + postfix
+        pass
 
     if workingPoint == 'Tight' :
         quality = ROOT.xAOD.Muon.Tight
