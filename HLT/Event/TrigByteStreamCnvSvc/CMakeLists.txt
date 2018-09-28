@@ -34,8 +34,8 @@ atlas_add_library(
     ${TDAQ-COMMON_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES
     ${TDAQ-COMMON_LIBRARIES}
-    ByteStreamCnvSvcBase
-    ByteStreamCnvSvc
+    ByteStreamCnvSvcBaseLib
+    ByteStreamCnvSvcLib
     EventInfo
     TrigKernel
 )
