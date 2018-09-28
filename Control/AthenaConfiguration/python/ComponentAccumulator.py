@@ -7,6 +7,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
+from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle
 import ast
 import collections
 
@@ -221,7 +222,7 @@ class ComponentAccumulator(object):
 
 
     def _deduplicateComponent(self,newComp,comp):
-        #print "Checking ", comp.getType(), comp.getJobOptName()
+        #print "Checking ", comp, comp.getType(), comp.getJobOptName()
         allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
         for prop in allProps:
             if not prop.startswith('_'):
@@ -237,7 +238,17 @@ class ComponentAccumulator(object):
                 #Note that getattr for a list property works, even if it's not in ValuedProperties
                 if (oldprop!=newprop):
                     #found property mismatch
-                    if isinstance(oldprop,GaudiHandles.GaudiHandle):
+                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle): #For public tools we check only their full name
+                        if oldprop.getFullName()==newprop.getFullName():
+                            continue
+                        else:
+                            raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
+                                                              (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
+                    elif isinstance(oldprop,PublicToolHandleArray):
+                            for newtool in newprop:
+                                if newtool not in oldprop: oldprop+=[newtool,]
+                            continue
+                    elif isinstance(oldprop,GaudiHandles.GaudiHandle):
                         self._deduplicateComponent(oldprop,newprop)
                         pass
                     elif isinstance(oldprop,GaudiHandles.GaudiHandleArray):
