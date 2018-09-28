@@ -76,7 +76,7 @@ void HLT::HLTResultMT::setSerialisedData(const std::unordered_map<uint16_t, std:
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::addSerialisedData(const uint16_t& moduleId, std::vector<uint32_t>& data) {
+void HLT::HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>& data) {
   if (m_data.find(moduleId)!=m_data.cend()) {
     // implement error printout and handling here !!! use either std::cerr or ATH_MSG_ERR
   }

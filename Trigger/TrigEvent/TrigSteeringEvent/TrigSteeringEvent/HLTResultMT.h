@@ -48,7 +48,7 @@ namespace HLT {
     /// Serialised data setter
     void setSerialisedData(const std::unordered_map<uint16_t, std::vector<uint32_t> >& data);
     /// Append serialised data for a given module ID
-    void addSerialisedData(const uint16_t& moduleId, std::vector<uint32_t>& data);
+    void addSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>& data);
 
   private:
     /// Stream tags of the event
