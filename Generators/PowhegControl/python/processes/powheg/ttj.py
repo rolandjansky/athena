@@ -83,9 +83,9 @@ class ttj(PowhegV1):
         self.add_keyword("manyseeds")
         self.add_keyword("masswindow_high")
         self.add_keyword("masswindow_low")
-        self.add_keyword("ncall1", 50000)
-        self.add_keyword("ncall2", 100000)
-        self.add_keyword("nubound", 10000)
+        self.add_keyword("ncall1", 51000)
+        self.add_keyword("ncall2", 91000)
+        self.add_keyword("nubound", 11000)
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
         self.add_keyword("par_dijexp")
@@ -188,4 +188,53 @@ class ttj(PowhegV1):
 #        self.add_keyword("ncall1", 50000)
 #        self.add_keyword("ncall2", 100000)
 #        self.add_keyword("nubound", 10000)
+#  Cross-section test : 0.93% PASSED
+#  Neg. weight test   : 35.88% FAILED
+#  Upper bound test   : nan% FAILED
+#    > cross-section  : nan%
+#    > radiation      : nan%
+#  Output EVNT files  : 0     FAILED
+#  Single-core generation of 5500 events took 24.28 hours [0.063Hz]
+#  ... time taken for integration:   19.82 hours
+#  ... est. generation of 5k events: 4.06 hours
 
+#        self.add_keyword("ncall1", 50000)
+#        self.add_keyword("ncall2", 100000)
+#        self.add_keyword("nubound", 15000)
+#  Cross-section test : 0.93% PASSED
+#  Neg. weight test   : 35.88% FAILED
+#  Upper bound test   : nan% FAILED
+#    > cross-section  : nan%
+#    > radiation      : nan%
+#  Output EVNT files  : 0     FAILED
+#  Single-core generation of 5500 events took 24.14 hours [0.063Hz]
+#  ... time taken for integration:   19.96 hours
+#  ... est. generation of 5k events: 3.80 hours
+
+#        self.add_keyword("ncall1", 52000)
+#        self.add_keyword("ncall2", 92000)
+#        self.add_keyword("nubound", 11000)
+# failed
+
+#        self.add_keyword("ncall1", 50000)
+#        self.add_keyword("ncall2", 90000)
+#        self.add_keyword("nubound", 11000)
+# failed
+
+#        self.add_keyword("ncall1", 49000)
+#        self.add_keyword("ncall2", 90000)
+#        self.add_keyword("nubound", 10000)
+# failed
+
+#        self.add_keyword("ncall1", 51000)
+#        self.add_keyword("ncall2", 91000)
+#        self.add_keyword("nubound", 11000)
+#  Cross-section test : 0.67% PASSED
+#  Neg. weight test   : 36.02% FAILED
+#  Upper bound test   : 1.69% FAILED
+#    > cross-section  : 1.69%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Single-core generation of 5500 events took 25.06 hours [0.061Hz]
+#  ... time taken for integration:   20.07 hours
+#  ... est. generation of 5k events: 4.54 hours

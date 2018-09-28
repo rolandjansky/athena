@@ -64,11 +64,11 @@ class Wbbj(PowhegV2):
         self.add_keyword("flg_debug")
         self.add_keyword("foldcsi", 2)
         self.add_keyword("foldphi", 2)
-        self.add_keyword("foldy")
+        self.add_keyword("foldy", 2)
         self.add_keyword("fullrwgt")
         self.add_keyword("hdamp", 175)
         self.add_keyword("hfact")
-        self.add_keyword("icsimax", 3)
+        self.add_keyword("icsimax")
         self.add_keyword("idvecbos", hidden=True)
         self.add_keyword("ih1")
         self.add_keyword("ih2")
@@ -78,7 +78,7 @@ class Wbbj(PowhegV2):
         self.add_keyword("itmx2rm")
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
-        self.add_keyword("iymax", 3)
+        self.add_keyword("iymax")
         self.add_keyword("lhans1", self.default_PDFs)
         self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhapdf6maxsets")
@@ -98,9 +98,9 @@ class Wbbj(PowhegV2):
         self.add_keyword("mintupbratlim")
         self.add_keyword("mintupbxless")
         self.add_keyword("MSbarscheme")
-        self.add_keyword("ncall1", 150000)
+        self.add_keyword("ncall1", 300000)
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 650000)
+        self.add_keyword("ncall2", 750000)
         self.add_keyword("ncall2rm")
         self.add_keyword("noevents")
         self.add_keyword("novirtual")
@@ -272,3 +272,76 @@ class Wbbj(PowhegV2):
 #        self.add_keyword("ncall1", 150000)
 #        self.add_keyword("ncall2", 650000)
 #        self.add_keyword("nubound", 450000)
+#  Cross-section test : 0.32% PASSED
+#  Neg. weight test   : 9.71% FAILED
+#  Upper bound test   : 1.04% FAILED
+#    > cross-section  : 1.04%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 13.29 hours [0.115Hz]
+#  ... time taken for integration:   12.89 hours
+#  ... est. generation of 5k events: 0.36 hours
+
+#        self.add_keyword("foldcsi", 2)
+#        self.add_keyword("foldphi", 2)
+#        self.add_keyword("foldy", 2)
+#        self.add_keyword("icimax", 3)
+#        self.add_keyword("iymax", 3)
+#        self.add_keyword("ncall1", 150000)
+#        self.add_keyword("ncall2", 700000)
+#        self.add_keyword("nubound", 450000)
+#  Cross-section test : 0.34% PASSED
+#  Neg. weight test   : 4.29% FAILED
+#  Upper bound test   : 0.85% PASSED
+#    > cross-section  : 0.85%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 22.90 hours [0.067Hz]
+#  ... time taken for integration:   22.42 hours
+#  ... est. generation of 5k events: 0.43 hours
+
+#        self.add_keyword("foldcsi", 2)
+#        self.add_keyword("foldphi", 2)
+#        self.add_keyword("foldy", 2)
+#        self.add_keyword("icimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 150000)
+#        self.add_keyword("ncall2", 800000)
+#        self.add_keyword("nubound", 450000)
+#  Cross-section test : 0.31% PASSED
+#  Neg. weight test   : 4.29% FAILED
+#  Upper bound test   : 0.71% PASSED
+#    > cross-section  : 0.71%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 25.10 hours [0.061Hz]
+#  ... time taken for integration:   24.52 hours
+#  ... est. generation of 5k events: 0.52 hours
+
+#        self.add_keyword("foldcsi", 2)
+#        self.add_keyword("foldphi", 2)
+#        self.add_keyword("foldy", 2)
+#        self.add_keyword("icimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 300000)
+#        self.add_keyword("ncall2", 700000)
+#        self.add_keyword("nubound", 450000)
+#  Cross-section test : 0.48% PASSED
+#  Neg. weight test   : 18.46% FAILED
+#  Upper bound test   : 1.11% FAILED
+#    > cross-section  : 1.11%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 4.68 hours [0.326Hz]
+#  ... time taken for integration:   4.38 hours
+#  ... est. generation of 5k events: 0.28 hours
+
+#        self.add_keyword("foldcsi", 2)
+#        self.add_keyword("foldphi", 2)
+#        self.add_keyword("foldy", 2)
+#        self.add_keyword("icimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 300000)
+#        self.add_keyword("ncall2", 700000)
+#        self.add_keyword("nubound", 450000)
+

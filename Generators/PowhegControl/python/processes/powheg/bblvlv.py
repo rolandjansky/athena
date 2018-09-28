@@ -52,7 +52,7 @@ class bblvlv(PowhegRES):
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedscale")
         self.add_keyword("flg_debug")
-        self.add_keyword("foldcsi", 5)
+        self.add_keyword("foldcsi", 2)
         self.add_keyword("foldphi", 5)
         self.add_keyword("foldy", 5)
         self.add_keyword("for_reweighting", 1)
@@ -404,7 +404,7 @@ class bblvlv(PowhegRES):
 #  ... time taken for integration:   13.89 hours
 #  ... est. generation of 5k events: 1.53 hours
 
-#   self.add_keyword("foldcsi", 5)
+#   self.add_keyword("foldcsi", 2)
 #   self.add_keyword("foldphi", 5)
 #   self.add_keyword("foldy", 5)
 #   self.add_keyword("itmx1", 1)
