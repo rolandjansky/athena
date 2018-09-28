@@ -10,14 +10,14 @@ class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
         Stores a list of TriggerChain objects and the functions to skim them
     '''
-    def __init__(self,period=0, customGRL=None):
+    def __init__(self,period=0, customGRL=None, release=None):
         self.triggerChains = []
         self.period = period
         self.totalLB = 0
 
         if not period: return
         from TriggerDataAccess import getHLTlist
-        HLTlist, totalLB = getHLTlist(period, customGRL)
+        HLTlist, totalLB = getHLTlist(period, customGRL, release)
         self.totalLB = totalLB
         for hlt, l1, livefraction, activeLB, hasRerun in HLTlist:
             self.triggerChains.append( TriggerChain(hlt, l1, livefraction, activeLB, hasRerun))
