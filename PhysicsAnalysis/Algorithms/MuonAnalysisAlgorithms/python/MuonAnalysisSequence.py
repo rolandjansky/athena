@@ -3,12 +3,15 @@
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+import ROOT
 
-def makeMuonAnalysisSequence( dataType, deepCopyOutput = False ):
+def makeMuonAnalysisSequence( dataType, workingPoint = 'Medium',
+                              deepCopyOutput = False ):
     """Create a muon analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
+      workingPoint -- The working point to use
       deepCopyOutput -- If set to 'True', the output containers will be
                         standalone, deep copies (slower, but needed for xAOD
                         output writing)
@@ -16,6 +19,29 @@ def makeMuonAnalysisSequence( dataType, deepCopyOutput = False ):
 
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
+
+    if workingPoint == 'Tight' :
+        quality = ROOT.xAOD.Muon.Tight
+        pass
+    elif workingPoint == 'Medium' :
+        quality = ROOT.xAOD.Muon.Medium        
+        pass
+    elif workingPoint == 'Loose' :
+        quality = ROOT.xAOD.Muon.Loose        
+        pass
+    elif workingPoint == 'VeryLoose' :
+        quality = ROOT.xAOD.Muon.VeryLoose        
+        pass
+    elif workingPoint == 'HighPt' :
+        quality = 4
+        pass
+    elif workingPoint == 'LowPtEfficiency' :
+        quality = 5
+        pass
+    else :
+        raise ValueError ("invalid working point: \"" + workingPoint +
+                          "\", allowed values are Tight, Medium, Loose, " +
+                          "VeryLoose, HighPt, LowPtEfficiency")
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "MuonAnalysisSequence" )
@@ -47,6 +73,7 @@ def makeMuonAnalysisSequence( dataType, deepCopyOutput = False ):
 
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonSelectionAlg' )
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
+    alg.selectionTool.MuQuality = quality
     alg.selectionDecoration = 'good_muon'
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
@@ -85,6 +112,7 @@ def makeMuonAnalysisSequence( dataType, deepCopyOutput = False ):
     alg.efficiencyDecoration = 'muon_eff'
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff'
+    alg.efficiencyScaleFactorTool.WorkingPoint = workingPoint
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 affectingSystematics = '(^MUON_EFF_.*)' )
 
