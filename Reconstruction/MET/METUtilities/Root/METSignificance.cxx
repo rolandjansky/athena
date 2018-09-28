@@ -650,18 +650,18 @@ namespace met {
 				    float avgmu) {
 
     double unc=0.0;
-    if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0){
-      unc=0.95;
-    }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
-      unc=0.4;
-    }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
-      unc=0.4;
-    }else if(jet_pt<30.0 && fabs(jet_eta)>2.7){
-      unc=0.2;
-    }else if(jet_pt<40.0 && fabs(jet_eta)>2.7){
-      unc=0.07;
-    }
-    return unc;
+    //if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0){
+    //  unc=0.95;
+    //}else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
+    //  unc=0.4;
+    //}else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
+    //  unc=0.4;
+    //}else if(jet_pt<30.0 && fabs(jet_eta)>2.7){
+    //  unc=0.2;
+    //}else if(jet_pt<40.0 && fabs(jet_eta)>2.7){
+    //  unc=0.07;
+    //}
+    //return unc;
 
 
     if(m_jetcoll == "AntiKt4EMTopoJets"){
