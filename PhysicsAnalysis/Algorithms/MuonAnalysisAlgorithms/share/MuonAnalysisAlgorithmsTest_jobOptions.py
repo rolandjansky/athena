@@ -25,13 +25,25 @@ algSeq += sysLoader
 
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-muonSequence = makeMuonAnalysisSequence( dataType, deepCopyOutput = True )
-muonSequence.configure( inputName = 'Muons',
-                        outputName = 'AnalysisMuons_%SYS%' )
-print( muonSequence ) # For debugging
+muonSequenceMedium = makeMuonAnalysisSequence( dataType, deepCopyOutput = True,
+                                               workingPoint = 'Medium', postfix = 'medium' )
+muonSequenceMedium.configure( inputName = 'Muons',
+                              outputName = 'AnalysisMuonsMedium_%SYS%' )
+print( muonSequenceMedium ) # For debugging
 
 # Add the sequence to the job:
-algSeq += muonSequence
+algSeq += muonSequenceMedium
+
+muonSequenceTight = makeMuonAnalysisSequence( dataType, deepCopyOutput = True,
+                                               workingPoint = 'Tight', postfix = 'tight' )
+muonSequenceTight.removeStage ("calibration")
+muonSequenceTight.configure( inputName = 'AnalysisMuonsMedium_%SYS%',
+                             outputName = 'AnalysisMuons_%SYS%',
+                             affectingSystematics = muonSequenceMedium.affectingSystematics())
+print( muonSequenceTight ) # For debugging
+
+# Add the sequence to the job:
+algSeq += muonSequenceTight
 
 # Add an ntuple dumper algorithm:
 ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
