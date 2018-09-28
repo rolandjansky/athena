@@ -1291,6 +1291,30 @@ if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on():
 
 # ------------------------------------------------------------
 #
+# ----------- Loading of tools for Displaced Soft Pion tracking
+#
+# ------------------------------------------------------------
+
+if InDetFlags.doPattern() and InDetFlags.doDisplacedSoftPion():
+    
+    # ROI Tool needed for InDet__SiSpacePointsSeedMaker_TrkSeeded tool
+    from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__RoISeedTool
+    RoISeedTool = InDet__RoISeedTool (name                    = 'InDetRoISeedTool_DSP',
+                                      RoISeedTrackContainer   = "ResolvedPixelThreeLayerTracks",
+                                      TracksForIsolation      = "ResolvedTracks",
+                                      RoISeedRTrackD0         = 10.0,
+                                      RoISeedTrackPt          = 20000.0,
+                                      RoISeedTrackSCTHits     = 0,
+                                      RoISeedTrackPixHits     = 3,
+                                      RoISeedTrackIso         = 0.1,
+                                      IsoTrackPtThr           = 1000.0,
+                                      IsoTrackConeSize        = 0.4,
+                                      DoRoITrackD0Sort        = True )
+    ToolSvc += RoISeedTool
+
+
+# ------------------------------------------------------------
+#
 # ----------- Loading of tools for Cosmics
 #
 # ------------------------------------------------------------

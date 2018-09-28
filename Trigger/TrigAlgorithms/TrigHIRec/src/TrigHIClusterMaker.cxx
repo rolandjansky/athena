@@ -345,7 +345,7 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
 
 
   // Build the "uses" relation for the outputTE to the cell container
-  std::string aliasKey = "HIClusters";
+  std::string aliasKey = "HLTHIClusters";
   status = reAttachFeature(outputTE, cl_container, aliasKey, m_output_key );
 
   if (status != (bool)HLT::OK) {
@@ -358,7 +358,7 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
 
 
   // get a pointer to caloclusterLink
-  aliasKey = "HIClustersLinks";
+  aliasKey = "HLTHIClustersLinks";
   const CaloClusterCellLinkContainer* pCaloCellLinkContainer = 0;
   if (store()->retrieve( pCaloCellLinkContainer, m_output_key+"_links").isFailure()) {
     msg() << MSG::WARNING << "cannot get CaloClusterCellLinkContainer (not return FAILURE) " << endreq;

@@ -468,7 +468,12 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   // Append application ID with level string
   //
   appName = "APP_"+hltLevel+":"+appName;
-  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracted App Name: " << appName << endmsg;
+  size_t locationOfRack = appName.find("rack-");
+  std::string category = "APP_ID";
+  if (locationOfRack != std::string::npos) {
+    category = appName.substr(locationOfRack, 7); // Select e.g. "rack-10"
+  }
+  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracted App Name: " << appName << " category(rack):" << category << endmsg;
 
   //
   // Save a map between application name and application id (hashed name) in global config
@@ -481,7 +486,9 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   //
   // Get hash id for HLT result
   //
-  appId = TrigConf::HLTUtils::string2hash(appName, "APP_ID");
+  appId = TrigConf::HLTUtils::string2hash(appName, category);
+  // Giving a different category per rack helps spread out the hashes over more categories which reduced the
+  // probability of a hash collision terminating the job (the collision still occurs, however).
   
   return true;
 }

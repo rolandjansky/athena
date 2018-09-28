@@ -1,5 +1,14 @@
 #!/usr/bin/env pyroot.py 
 
+#----------------------------------------------
+#
+# PLEASE DO NOT UPDATE bs-streamerinfos.root YOURSELF!!!!
+# Contact the person mentioned on: 
+#    https://twiki.cern.ch/twiki/bin/view/Atlas/TrigSerializeResult
+# and/or the Trigger EDM Coordinator 
+#
+#----------------------------------------------
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------

@@ -4,20 +4,17 @@
 
 #ifndef ADDNOISE_CELLBUILDERTOOL_H
 #define ADDNOISE_CELLBUILDERTOOL_H
-// 
+//
 // CellBuilderTool.cxx
 //     Building Cells objects from Atlfast
 //
 // Michael Duehrssen
 
 #include "FastCaloSim/BasicCellBuilderTool.h"
-//#include "CaloUtils/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include <string>
-
-class TRandom;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -25,35 +22,25 @@ namespace CLHEP {
 
 class AddNoiseCellBuilderTool: public BasicCellBuilderTool
 {
-public:    
+public:
   AddNoiseCellBuilderTool(
-			     const std::string& type, 
-			     const std::string& name, 
-			     const IInterface* parent);
+                          const std::string& type,
+                          const std::string& name,
+                          const IInterface* parent);
   ~AddNoiseCellBuilderTool();
 
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
 private:
-  std::string m_noiseToolName; 
-  //NoiseTool
-  ICaloNoiseTool* m_noiseTool;
-  
-  //TRandom* m_rand;
 
+  ToolHandle<ICaloNoiseTool> m_noiseTool;   //NoiseTool - public
   ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
-  CLHEP::HepRandomEngine*        m_randomEngine;
-  std::string                    m_randomEngineName;         //!< Name of the random number stream
-  
-  bool m_donoise;
+  CLHEP::HepRandomEngine*        m_randomEngine{};
+  std::string                    m_randomEngineName{"FastCaloSimNoiseRnd"};         //!< Name of the random number stream
+  bool m_donoise{true};
 };
 
 #endif
-
-
-
-
-

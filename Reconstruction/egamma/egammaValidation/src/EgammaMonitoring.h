@@ -46,8 +46,8 @@ class EgammaMonitoring : public AthAlgorithm
  public:
 
   /// Tools and services ///
-  ITHistSvc*    rootHistSvc;
-
+  ITHistSvc*    rootHistSvc = nullptr;
+ 
   egammaMonitoring::EffIDPlots  Eff_ID  ;
   egammaMonitoring::EffRecPlots Eff_Reco;
   

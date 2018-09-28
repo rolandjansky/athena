@@ -53,6 +53,7 @@
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
 #include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
 #include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
@@ -111,6 +112,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_RawVertexFinderTool("FTK_VertexFinderTool"),
   m_ROTcreator("Trk::IRIO_OnTrackCreator/FTK_ROTcreatorTool"),
   m_DuplicateTrackRemovalTool("FTK_DuplicateTrackRemovalTool"),
+  m_hashIDTool("FTK_HashIDTool"),
   m_trainingBeamspotX(0.),
   m_trainingBeamspotY(0.),
   m_trainingBeamspotZ(0.),
@@ -161,7 +163,10 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_nErrors(0),
   m_reverseIBLlocx(false),
   m_doVertexing(true),
-  m_doVertexSorting(true)
+  m_doVertexSorting(true),
+  m_processAuxTracks(false), 
+  m_getHashIDfromConstants(false)
+
 {
 
   declareProperty("TrackCollectionName",m_trackCacheName);
@@ -171,6 +176,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("UncertaintyTool",m_uncertaintyTool);
   declareProperty("TrackSummaryTool", m_trackSumTool);
   declareProperty("DuplicateTrackRemovalTool",m_DuplicateTrackRemovalTool);
+  declareProperty("HashIDTool",m_hashIDTool);
   declareProperty("TrackParticleCreatorTool", m_particleCreatorTool);
   declareProperty("VertexFinderTool",m_VertexFinderTool);
   declareProperty("ROTcreatorTool",m_ROTcreator);
@@ -203,6 +209,9 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("RemoveDuplicates",m_remove_duplicates);
   declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
   declareProperty("DoVertexing",m_doVertexing, "Enable Vertexing methods");
+  declareProperty("ProcessAuxTracks",m_processAuxTracks, "process Aux Tracks ");
+  declareProperty("HashIDfromConstants",m_getHashIDfromConstants, "Get HashID from Constants");
+  //  declareProperty("GetModuleIDfromConstants",m_getModuleIDfromConstants, "Get Modue ID from Constants ");
 
 
 }
@@ -245,6 +254,10 @@ std::string FTK_DataProviderSvc::getFastVertexCacheName(const bool withRefit) {
 StatusCode FTK_DataProviderSvc::initialize() {
 
   /// Setup StoreGateSvc ///
+  if (m_remove_duplicates && m_processAuxTracks) {
+    ATH_MSG_WARNING(" Both RemoveDuplicates and ProcessAuxTracks requested, but can't do Duplicate Track Removal when processing Aux tracks - returning StatusCode::FAILURE");
+    return StatusCode::FAILURE;
+  }
 
   ATH_CHECK(service( "StoreGateSvc", m_storeGate ));
   StoreGateSvc* detStore;
@@ -275,11 +288,18 @@ StatusCode FTK_DataProviderSvc::initialize() {
   } else {
     ATH_MSG_INFO( " Vertex Finding is Disabled");
   }
-  ATH_MSG_INFO( " getting DuplicateTrackRemovalTool tool with name " << m_DuplicateTrackRemovalTool.name());
-  ATH_CHECK(m_DuplicateTrackRemovalTool.retrieve());
-  ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
-  ATH_CHECK(m_ROTcreator.retrieve());
-
+  if (m_remove_duplicates) {
+    ATH_MSG_INFO( " getting DuplicateTrackRemovalTool tool with name " << m_DuplicateTrackRemovalTool.name());
+    ATH_CHECK(m_DuplicateTrackRemovalTool.retrieve());
+  }
+  if (m_processAuxTracks or m_getHashIDfromConstants) {
+    ATH_MSG_INFO( " getting HashIDTool tool with name " << m_hashIDTool.name());
+    ATH_CHECK(m_hashIDTool.retrieve());
+  }
+  if (m_correctPixelClusters|| m_correctSCTClusters) {
+    ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
+    ATH_CHECK(m_ROTcreator.retrieve());
+  }
   // Register incident handler
   ServiceHandle<IIncidentSvc> iincSvc( "IncidentSvc", name());
   ATH_CHECK(iincSvc.retrieve());
@@ -292,7 +312,12 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_MSG_INFO( "SCT_ClusterContainer name : " << m_SCT_ClusterContainerName);
   ATH_MSG_INFO( "PRD Truth SCT name: " << m_ftkSctTruthName);
   ATH_MSG_INFO( "PRD Truth Pixel name : " << m_ftkPixelTruthName);
-
+  if (m_processAuxTracks) {
+    ATH_MSG_INFO( "Processing AUX format tracks ");
+  }
+  if (m_getHashIDfromConstants) {
+    ATH_MSG_INFO( "getting HashId from Constants ");
+  }
   ATH_MSG_INFO( "Correcting for FTK training beamspot at x " <<  m_trainingBeamspotX <<" y " << 	m_trainingBeamspotY
       << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY );
   ATH_MSG_INFO( " Pixel Barrel Phi Offsets (pixels): " << m_pixelBarrelPhiOffsets);
@@ -334,6 +359,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
 StatusCode FTK_DataProviderSvc::finalize() {
   return StatusCode::SUCCESS;
 }
+
 
 
 unsigned int FTK_DataProviderSvc::nTrackParticleErrors(const bool withRefit) {
@@ -1011,6 +1037,13 @@ TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit, unsigned i
   return tracks;
 }
 
+const FTK_RawTrackContainer* FTK_DataProviderSvc::getRawTracks() {
+  getFTK_RawTracksFromSG();
+  ATH_MSG_DEBUG("FTK_DataProviderSvc::getRawTracks: m_ftk_tracks " << std::hex << m_ftk_tracks << std::dec);
+
+  return (m_gotRawTracks?  m_ftk_tracks : nullptr);
+}
+
 TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit){
 
 #ifdef  FTK_useViewVector
@@ -1186,11 +1219,11 @@ Trk::Track* FTK_DataProviderSvc::getCachedTrack(const unsigned int ftk_track_ind
 
 void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
   /// get the FTK Track pointers from StoreGate ///
-
+  
   if (!m_newEvent) return;
   m_newEvent=false;
-
-
+  
+  
   if(m_doTruth) {//get MC-truth collections
     m_collectionsReady=true;
     StatusCode sc = getTruthCollections();
@@ -1199,28 +1232,34 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
       m_collectionsReady=false;
     }
   }
-
+  
   // new event - get the tracks from StoreGate
   if (!m_storeGate->contains<FTK_RawTrackContainer>(m_RDO_key)) {
     ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
   } else {    
-
+    
     StatusCode sc = StatusCode::SUCCESS;
-    if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
-      const FTK_RawTrackContainer* temporaryTracks=nullptr;
-      sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
-      if (!sc.isFailure()) {
-	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate before removeDuplicates");
-	m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
-      }
-    }
-    else{//the original way
-      sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
-    }
-
+    
+    const FTK_RawTrackContainer* temporaryTracks=nullptr;
+    sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
     } else {
+      if (m_processAuxTracks){//get all tracks, and then call hashIDTool to create new collection with track parameters & module ids set
+	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate, now processing Aux Tracks");
+	
+	const FTK_RawTrackContainer* processed_tracks = m_hashIDTool->processTracks(*temporaryTracks,m_reverseIBLlocx);
+	
+	temporaryTracks = processed_tracks;
+	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  After Aux Track processing " << temporaryTracks->size() << " Tracks");
+      } else if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
+	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate before removeDuplicates");
+	const FTK_RawTrackContainer* new_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
+	temporaryTracks = new_tracks;
+      }
+      
+      m_ftk_tracks = temporaryTracks;
+      
       ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
       if (m_ftk_tracks->size()==0){
 	ATH_MSG_VERBOSE( "no FTK Tracks in the event");
@@ -1229,7 +1268,7 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
       }
     }      
   }
-
+  
   // Creating collection for pixel clusters
   m_PixelClusterContainer = new InDet::PixelClusterContainer(m_pixelId->wafer_hash_max());
   m_PixelClusterContainer->addRef();
@@ -1413,7 +1452,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   // Find if the track includes IBL - needed for the error calculaton 
   for( unsigned int cluster_number = 0; cluster_number < track.getPixelClusters().size(); ++cluster_number){
     if ( !track.isMissingPixelLayer(cluster_number)) {
-      Identifier wafer_id = m_pixelId->wafer_id(Identifier(track.getPixelClusters()[cluster_number].getModuleID()));
+      Identifier wafer_id = m_pixelId->wafer_id(Identifier(this->getPixelHashID(track,cluster_number)));
       if (m_pixelId->barrel_ec(wafer_id)==0 && m_pixelId->layer_disk(wafer_id)==0) {
 	hasIBL=true;
 	break;
@@ -1488,11 +1527,11 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       m_nMissingPixelClusters[cluster_number]++;
       continue;
     }
-    if (raw_pixel_cluster.getModuleID()>=m_pixelId->wafer_hash_max()){
-      ATH_MSG_DEBUG( "hashId is " << raw_pixel_cluster.getModuleID() << " MaxHash is " << m_pixelId->wafer_hash_max() << " Layer " << cluster_number);
+    if (this->getPixelHashID(track,cluster_number)>=m_pixelId->wafer_hash_max()){
+      ATH_MSG_DEBUG( "hashId is 0x" << std::hex<<this->getPixelHashID(track,cluster_number) << " MaxHash is 0x" << m_pixelId->wafer_hash_max() << std::dec << " Layer " << cluster_number);
       m_nFailedPixelClusters[cluster_number]++;
     } else {
-      const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(raw_pixel_cluster,*trkPerigee);
+      const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(this->getPixelHashID(track,cluster_number),raw_pixel_cluster,*trkPerigee);
       if (pixel_cluster_on_track==nullptr){
 	ATH_MSG_WARNING(" PixelClusterOnTrack failed to create cluster " << cluster_number);
 	m_nFailedPixelClusters[cluster_number]++;
@@ -1527,12 +1566,12 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       continue;
     }
 
-    if (raw_cluster.getModuleID()>=m_sctId->wafer_hash_max()){
-      ATH_MSG_DEBUG( "hashId is " << raw_cluster.getModuleID() << " MaxHash is " << m_sctId->wafer_hash_max() << " Layer " << cluster_number);
+    if (this->getSCTHashID(track,cluster_number)>=m_sctId->wafer_hash_max()){
+      ATH_MSG_DEBUG( "hashId is " << this->getSCTHashID(track,cluster_number) << " MaxHash is " << m_sctId->wafer_hash_max() << " Layer " << cluster_number);
       m_nFailedSCTClusters[cluster_number]++;
     } else {
 
-      const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee);
+      const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(this->getSCTHashID(track,cluster_number), raw_cluster, *trkPerigee);
       if (sct_cluster_on_track==nullptr){
 	ATH_MSG_WARNING(" SCT_ClusterOnTrack failed to create cluster " <<  cluster_number);
 	m_nFailedSCTClusters[cluster_number]++;
@@ -1645,10 +1684,9 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 }
 
 
-const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_Cluster& raw_cluster, const Trk::TrackParameters& trkPerigee) {
+const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash hash, const FTK_RawSCT_Cluster& raw_cluster, const Trk::TrackParameters& trkPerigee) {
 
 
-  const IdentifierHash hash=raw_cluster.getModuleID();
   const int rawStripCoord= raw_cluster.getHitCoord();
   int clusterWidth=raw_cluster.getHitWidth();
 
@@ -1813,8 +1851,8 @@ float FTK_DataProviderSvc::dphi(const float p1, const float p2) const {
 
 
 
-const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee) {
-  IdentifierHash hash = raw_pixel_cluster.getModuleID();
+const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const IdentifierHash hash, const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee) {
+
   Identifier wafer_id = m_pixelId->wafer_id(hash); // Need to set up this tool
   const InDetDD::SiDetectorElement* pDE = m_pixelManager->getDetectorElement(hash);
 
@@ -2193,3 +2231,32 @@ void FTK_DataProviderSvc::handle(const Incident& incident) {
 
   }
 }
+
+unsigned int FTK_DataProviderSvc::getPixelHashID(const FTK_RawTrack& track, unsigned int iclus){
+  unsigned int id=0;
+  if (m_getHashIDfromConstants) {
+    id = m_hashIDTool->getHash(track.getTower(), track.getSectorID(), iclus);
+    if (id != track.getPixelCluster(iclus).getModuleID()) {
+      ATH_MSG_WARNING("Pixel ModuleID mismatch: ID from track 0x" << std::hex << track.getPixelCluster(iclus).getModuleID() 
+		      << " id from constants 0x" << id << " using id from constants");
+    }
+  } else {
+    id = track.getPixelCluster(iclus).getModuleID();
+  }
+  return id;
+}
+
+unsigned int FTK_DataProviderSvc::getSCTHashID(const FTK_RawTrack& track, unsigned int iclus){
+  unsigned int id=0;
+  if (m_getHashIDfromConstants) {
+    id = m_hashIDTool->getHash(track.getTower(), track.getSectorID(), iclus+4);
+    if (id != track.getPixelCluster(iclus).getModuleID()) {
+      ATH_MSG_WARNING("SCT ModuleID mismatch: ID from track 0x" << std::hex << track.getPixelCluster(iclus).getModuleID() 
+		      << " id from constants 0x" << id << " using id from constants");
+    }
+  } else {
+    id = track.getSCTCluster(iclus).getModuleID();
+  }
+  return id;
+}
+

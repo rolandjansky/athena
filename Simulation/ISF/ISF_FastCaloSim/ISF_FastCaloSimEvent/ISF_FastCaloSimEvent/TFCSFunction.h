@@ -7,7 +7,7 @@
 
 #include "TObject.h"
 
-class TFCSFunction
+class TFCSFunction: public TObject 
 {
   public:
     TFCSFunction() {};
