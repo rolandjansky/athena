@@ -2,7 +2,8 @@
 
 #!/usr/bin/env python
 import sys
-include("MuonEfficiencyCorrections/CommonToolSetup.py")
+from MuonEfficiencyCorrections.CommonToolSetup import *
+
 
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #

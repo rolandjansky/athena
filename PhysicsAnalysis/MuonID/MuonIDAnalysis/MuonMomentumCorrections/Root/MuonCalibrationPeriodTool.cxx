@@ -46,8 +46,8 @@ namespace CP {
                 return 18;
             }
         } 
-        // Check data itself
-        else if (isData) {
+        // Check data itself or the random run number is used
+        else if (isData || m_useRndRun) {
             if (run < last_run_16) {
                 ATH_MSG_DEBUG("The current run "<<run<<" is taken in data 15-16");
                 return 1516;
