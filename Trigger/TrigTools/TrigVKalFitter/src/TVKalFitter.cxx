@@ -412,8 +412,8 @@ StatusCode TrigVKalFitter::VKalGetTrkCov(const long int iTrk,const long int NTrk
    double ErrMtx[ (3*NTRMAXTRIG+3)*(3*NTRMAXTRIG+4)/2 ];
    double CovMtxOld[6][6];
    double CovMtx   [6][6];
-   long int vkNTrk = NTrk;
 
+   //long int vkNTrk = NTrk;
    //int IERR = Trk::fiterm(vkNTrk,ErrMtx); //Real error matrix after fit
    //if(IERR)       return StatusCode::FAILURE;
 
