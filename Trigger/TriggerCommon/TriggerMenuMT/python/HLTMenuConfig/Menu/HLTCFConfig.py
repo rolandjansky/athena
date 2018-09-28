@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.Logging import logging

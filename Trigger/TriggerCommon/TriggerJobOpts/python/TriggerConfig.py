@@ -63,7 +63,7 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
         mon.CollectorTools += [ dcTool ]
         __log.info( "The step monitoring decisions in " + dcTool.name() + str( dcTool.Decisions ) )
     
-
+    mon.FinalChainStep = allChains
     mon.FinalDecisions = list( set( allChains.values() ) )
     __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )
 

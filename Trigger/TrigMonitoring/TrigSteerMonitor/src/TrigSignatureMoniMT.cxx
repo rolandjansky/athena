@@ -49,6 +49,10 @@ StatusCode TrigSignatureMoniMT::initialize() {
   }
   CHECK( initHist() );
   
+  for ( auto chainAndKey: m_finalChainStep ) {
+    m_lastStepsMap[ chainAndKey.second ].insert( HLT::Identifier( chainAndKey.first ).numeric() );
+  } 
+
 
   return StatusCode::SUCCESS;
 }
@@ -129,7 +133,12 @@ StatusCode TrigSignatureMoniMT::execute()  {
 	TrigCompositeUtils::decisionIDs( decisionObj, ids );	  
 	sum.insert( ids.begin(), ids.end() ); // merge with so far passing chains
       }
-      ATH_CHECK( fillChains( sum, row ) );
+      TrigCompositeUtils::DecisionIDContainer final;
+      std::set_intersection( sum.begin(), sum.end(),
+			     m_lastStepsMap[decisions.key()].begin(), m_lastStepsMap[decisions.key()].end(),
+			     std::inserter( final, final.begin() ) );
+
+      ATH_CHECK( fillChains( final, row ) );
       anyPassed = anyPassed or ( not sum.empty() );
     } else {
       ATH_MSG_DEBUG( "Final decision " << d.key() << " absent, possibly early rejected" );
