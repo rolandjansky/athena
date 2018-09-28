@@ -95,8 +95,8 @@ class TriggerInfo:
 class TriggerLeg:
     types          = ('e','j','mu','tau','xe','g','ht')
     legpattern     = re.compile('([0-9]*)(%s)([0-9]+)' % '|'.join(types))
-    detailpattern  = re.compile('(?:-?\d+)|(?:[^0-9|-]+)')
-    bjetpattern    = re.compile('bmv|btight|bmedium|bloose')
+    detailpattern  = re.compile('(?:-?\d+)|(?:[^0-9 -]+)') #split into text-only vs number-only
+    bjetpattern    = re.compile('bmv|bhmv|btight|bmedium|bloose')
     bphyspattern   = re.compile('b[A-Z]')
     exoticspattern = re.compile('llp|LLP|muvtx|hiptrt|LATE|NOMATCH')
     afppattern     = re.compile('afp|AFP')
@@ -224,7 +224,7 @@ class TriggerLeg:
                     return 1
             return -9
         compl1seed  = self.compareTags(self.l1seed, other.l1seed, stringSubset=True, debug=debug)
-        compdetails = self.compareTags("".join(self.details), "".join(other.details), debug=debug )
+        compdetails = self.compareTags(" ".join(self.details), " ".join(other.details), debug=debug )
         if self.l1seed == other.l1seed:
             if self.details == other.details: return -1
             if debug: print "compareTags 1:",compdetails
