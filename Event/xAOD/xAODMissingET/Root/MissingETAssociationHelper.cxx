@@ -48,7 +48,9 @@ void MissingETAssociationHelper::setObjSelectionFlag(const MissingETAssociation_
 bool MissingETAssociationHelper::objSelected(const MissingETAssociation_v1* assoc, size_t objIdx) const
 {
   if(!assoc) throw std::runtime_error("MissingETAssociationHelper::objSelected received a null pointer");
-  return bool(m_useObjectFlags.at(assoc->index()) & (1<<objIdx));
+  size_t index = assoc->index();
+  if(index >= m_useObjectFlags.size()) return false; // No flag for this association has been set to 1 yet
+  return bool(m_useObjectFlags.at(index) & (1<<objIdx));
 }
 
 bool MissingETAssociationHelper::objSelected(const MissingETAssociation_v1* assoc, const IParticle* pPart) const
@@ -60,6 +62,7 @@ bool MissingETAssociationHelper::objSelected(const MissingETAssociation_v1* asso
 MissingETBase::Types::bitmask_t MissingETAssociationHelper::getObjSelectionFlags(const MissingETAssociation_v1* assoc) const
 {
   if(!assoc) throw std::runtime_error("MissingETAssociationHelper::getObjSelectionFlags received a null pointer");
+  if(assoc->index() >= m_useObjectFlags.size()) return 0; // No flag for this association has been set to 1 yet
   return m_useObjectFlags.at(assoc->index());
 }
 
