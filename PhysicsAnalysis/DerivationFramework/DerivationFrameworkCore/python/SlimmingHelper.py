@@ -352,9 +352,6 @@ class SlimmingHelper:
                 elif collectionName=="MET_Reference_AntiKt4EMPFlow":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMPFlowCPContent import MET_Reference_AntiKt4EMPFlowCPContent
                         items.extend(MET_Reference_AntiKt4EMPFlowCPContent)
-                elif collectionName=="MET_Reference_NewAntiKt4EMPFlowHR":
-                        from DerivationFrameworkJetEtMiss.MET_Reference_NewAntiKt4EMPFlowHRCPContent import MET_Reference_NewAntiKt4EMPFlowHRCPContent
-                        items.extend(MET_Reference_NewAntiKt4EMPFlowHRCPContent)
                 elif collectionName=="AntiKt4TruthJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4TruthJetsCPContent import AntiKt4TruthJetsCPContent
                         items.extend(AntiKt4TruthJetsCPContent)
