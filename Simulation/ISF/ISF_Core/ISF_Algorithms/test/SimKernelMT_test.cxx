@@ -38,7 +38,7 @@ namespace ISFTesting {
 
 // Globally used services and tools
 //
-const std::string particleKillerSimulationSvcName = "ISF::ParticleKillerSimSvc/ParticleKillerSimSvc";
+const std::string particleKillerSimulationSvcName = "ISF::ParticleKillerSimSvc/ISF_ParticleKillerSvc";
 const std::string fullInputConverter = "ISF::InputConverter/InputConverter";
 
 // Athena Service to mock an InputConverter
