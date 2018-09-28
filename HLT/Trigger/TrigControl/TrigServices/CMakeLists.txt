@@ -44,7 +44,7 @@ atlas_add_library( TrigServicesLib
                    PUBLIC_HEADERS TrigServices
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvc ByteStreamData EventInfo xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvcLib ByteStreamData EventInfo xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} SGTools AthenaPoolUtilities TrigSteering )
 
 atlas_add_component( TrigServices
