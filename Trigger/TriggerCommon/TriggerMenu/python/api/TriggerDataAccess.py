@@ -295,9 +295,9 @@ def getHLTmap_fromTM(period, release):
         The format is the same as for TriggerDBAccess for compatibility but rerun is always false
     '''
 
-    from os import environ
-    asetupversion = environ.get('AtlasVersion')
-    forceRel21 = not (asetupversion.startswith("21.1") or asetupversion.startswith("master"))
+    from os import getenv
+    asetupversion = getenv('AtlasVersion','')
+    forceRel21 = not (asetupversion.startswith("21.1") or asetupversion.startswith("22."))
     if forceRel21 or release:
         sys.path.insert(0, getMenuPathFromRelease(release))
         import Physics_pp_v7
@@ -331,7 +331,6 @@ def getHLTmap_fromTM(period, release):
     return hltMap, dummyfutureLBs
 
 def getMenuPathFromRelease(release):
-    import re
     if release: #already format-proofed in TriggerAPI
         return "/cvmfs/atlas.cern.ch/repo/sw/software/21.1/AthenaP1/%s/InstallArea/x86_64-slc6-gcc62-opt/python/TriggerMenu/menu"%release
     #21.1.43 contains the final menu, no need to find the last release
