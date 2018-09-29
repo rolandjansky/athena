@@ -11,7 +11,7 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TrigFTK_RawData/FTK_RawTrack.h"
+#include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -41,6 +41,8 @@ public:
 
   /// Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_IFTK_DataProviderSvc; }
+
+  virtual const FTK_RawTrackContainer* getRawTracks() = 0;
   
   virtual TrackCollection* getTracks(const bool withRefit) = 0;
   virtual TrackCollection* getTracks(const bool withRefit, unsigned int& nErrors) = 0;

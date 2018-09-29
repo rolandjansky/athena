@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# art-description: Heavy ion MC v3 tight TriggerTest on MC
-# art-type: grid
+# art-description: Heavy ion physics v5 TriggerTest on MC
+# art-type: build
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
@@ -22,10 +22,11 @@
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
 
-export NAME="mc_hi_v3_tight_grid"
-export MENU="MC_HI_v3_tight_mc_prescale"
-export EVENTS="500"
+export NAME="physics_hi_v5_build"
+export MENU="Physics_HI_v5"
+export EVENTS="5"
 export INPUT="pbpb"
+export COST_MONITORING="False"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh

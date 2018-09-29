@@ -33,6 +33,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
+#include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
 
 /// Forward Declarations ///
 class AtlasDetectorID;
@@ -84,6 +85,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
  virtual StatusCode initialize();
  virtual StatusCode finalize();
+
+ virtual const FTK_RawTrackContainer* getRawTracks();
+
  virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit);
  virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors);
 
@@ -138,8 +142,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  bool fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer*);
 
  
- const Trk::RIO_OnTrack* createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
- const Trk::RIO_OnTrack* createSCT_Cluster( const FTK_RawSCT_Cluster& raw_sct_cluster, const Trk::TrackParameters& trkPerigee);
+ const Trk::RIO_OnTrack* createPixelCluster(const IdentifierHash hash, const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
+ const Trk::RIO_OnTrack* createSCT_Cluster(const IdentifierHash hash, const FTK_RawSCT_Cluster& raw_sct_cluster, const Trk::TrackParameters& trkPerigee);
  
  StatusCode getTruthCollections();
  void createSCT_Truth(Identifier id, int barCode);
@@ -148,6 +152,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  InDet::SCT_ClusterCollection*  getSCT_ClusterCollection(IdentifierHash hashId);
  InDet::PixelClusterCollection* getPixelClusterCollection(IdentifierHash hashId);
 
+ unsigned int getPixelHashID(const FTK_RawTrack& track, unsigned int iclus);
+ unsigned int getSCTHashID(const FTK_RawTrack& track, unsigned int iclus);
+   
 
 
  private:
@@ -175,6 +182,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle< IFTK_VertexFinderTool > m_RawVertexFinderTool;
   ToolHandle< Trk::IRIO_OnTrackCreator >      m_ROTcreator;
   ToolHandle< IFTK_DuplicateTrackRemovalTool > m_DuplicateTrackRemovalTool;
+  ToolHandle<IFTK_HashIDTool> m_hashIDTool;
 
   double m_trainingBeamspotX;
   double m_trainingBeamspotY;
@@ -263,6 +271,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_reverseIBLlocx;
   bool m_doVertexing;
   bool m_doVertexSorting;
+  bool m_processAuxTracks;
+  bool m_getHashIDfromConstants;
 
 };
 

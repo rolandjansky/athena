@@ -94,7 +94,7 @@ ZdcRecChannelTool::~ZdcRecChannelTool()
 //==================================================================================================
 StatusCode ZdcRecChannelTool::initialize()
 {
-	msg(MSG::INFO) << "Initializing " << name() << endreq;
+	msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
 	//Get the pedestal information for the channels.
 	//For now, this is a file; later on it will be moved to a database
@@ -115,7 +115,7 @@ StatusCode ZdcRecChannelTool::initialize()
 				   << "ps for the Bandwidth Limited Sin(x)/x Interpolation: "
 				   << " Vector Size = "
 				   << s
-				   << endreq;
+				   << endmsg;
 
 
 
@@ -127,21 +127,21 @@ StatusCode ZdcRecChannelTool::initialize()
 	m_spline = gsl_spline_alloc (m_interp_type, 14); //FIXME: TWICE THE SAMPLES
 
         //Load Mapping
-	msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION 0" << endreq ;
+	msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION 0" << endmsg ;
 
 	const ZdcID* zdcId = 0;
 	if (detStore()->retrieve( zdcId ).isFailure() ) {
-	    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endreq;
+	    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
 	    return StatusCode::FAILURE;
 	}
 	else {
-	    msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endreq;
+	    msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endmsg;
 	}
 	m_zdcId = zdcId;
 
 	ZdcCablingService::getInstance()->setZdcID(m_zdcId);
 
-	msg(MSG::DEBUG) << "--> ZDC : END OF MODIFICATION 0" << endreq ;
+	msg(MSG::DEBUG) << "--> ZDC : END OF MODIFICATION 0" << endmsg ;
 	return StatusCode::SUCCESS;
 }
 //==================================================================================================
@@ -149,7 +149,7 @@ StatusCode ZdcRecChannelTool::initialize()
 //==================================================================================================
 StatusCode ZdcRecChannelTool::finalize()
 {
-	msg(MSG::INFO) << "Finalizing " << name() << endreq;
+	msg(MSG::INFO) << "Finalizing " << name() << endmsg;
 
 	gsl_spline_free (m_spline);
 	gsl_interp_accel_free (m_interp_acc);
@@ -162,12 +162,10 @@ StatusCode ZdcRecChannelTool::finalize()
 //==================================================================================================
 int  ZdcRecChannelTool::makeRawFromDigits(
 										   const ZdcDigitsCollection& mydata,
-										   ZdcRawChannelCollection *&  m_ChannelCollection)
+										   ZdcRawChannelCollection *&  ChannelCollection)
 
 {
-	ZdcDigitsCollection::const_iterator m_iter;
 	//ZdcRawChannel *z;
-	ZdcDigits* digits_p;
 	Identifier id;
 	float soma = 0.;
 	float pico = 0.;
@@ -231,10 +229,9 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 	//vi.resize(2*nsamples);
 	vi.resize(14);
 
-	for (m_iter = mydata.begin(); m_iter != mydata.end(); m_iter++) {
-		digits_p = *m_iter;
+	for (const ZdcDigits* digits_p : mydata) {
 
-            msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION " << endreq ;
+            msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION " << endmsg ;
 	    id = digits_p->identify();
 	    mSide    = m_zdcId->side(id);
 	    mModule  = m_zdcId->module(id);
@@ -247,7 +244,7 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 	                        << mSide    << ";"
 	                        << mModule  << ";"
 	                        << mType    << ";"
-	                        << mChannel << endreq;
+	                        << mChannel << endmsg;
 
 
 	    //1) Check the high gain. If it has saturation (max = FADC_SATURATION)
@@ -263,18 +260,18 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 
 	    wfm[0] = digits_p->get_digits_gain0_delay0();
 	    if (wfm[0].size() == 0) {
-	    	msg(MSG::DEBUG) << "ZERO SIZE g0d0 at ID  " << id.getString() << endreq;
+	    	msg(MSG::DEBUG) << "ZERO SIZE g0d0 at ID  " << id.getString() << endmsg;
 	    	wfm[0].resize(7);
 	    }
 
 	    wfm[1] = digits_p->get_digits_gain1_delay0();
 	    if (wfm[1].size() == 0) {
-	    	msg(MSG::DEBUG) << "ZERO SIZE g1d0 at ID  " << id.getString() << endreq;
+	    	msg(MSG::DEBUG) << "ZERO SIZE g1d0 at ID  " << id.getString() << endmsg;
 	    	wfm[1].resize(7);
 	    }
 
 
-	    msg(MSG::DEBUG) << " ------- 1 " << endreq;
+	    msg(MSG::DEBUG) << " ------- 1 " << endmsg;
 
 	    //2) Check to see if there are delayed information
 	    //        module type 0 -> (full Energy) delayed info
@@ -300,7 +297,7 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 
 
 
-		msg(MSG::DEBUG) << " ------- 2 " << endreq;
+		msg(MSG::DEBUG) << " ------- 2 " << endmsg;
 		//3) Subtratct baseline pedestal
 		//We need to be carefull. Sometimes the vector size here is zero (PPM flaw) and
 		//the code crashs if we do not treat this.
@@ -321,11 +318,11 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 			     ( *(std::max_element(wfm[2].begin(),wfm[2].end()) ) > 300 ) ||
 			     ( *(std::max_element(wfm[3].begin(),wfm[3].end()) ) > 300 ) ) {
 		    	//std::cout << "&&&&& OVFLW &&&&&" << std::endl;
-		    	msg(MSG::DEBUG) << "%%%%%%%% ID "   << id.getString() << endreq;
-		    	msg(MSG::DEBUG) << "%%%%%%%% g0d0 " << wfm[0] << endreq;
-		    	msg(MSG::DEBUG) << "%%%%%%%% g1d0 " << wfm[1] << endreq;
-		    	msg(MSG::DEBUG) << "%%%%%%%% g0d1 " << wfm[2] << endreq;
-		    	msg(MSG::DEBUG) << "%%%%%%%% g1d1 " << wfm[3] << endreq;
+		    	msg(MSG::DEBUG) << "%%%%%%%% ID "   << id.getString() << endmsg;
+		    	msg(MSG::DEBUG) << "%%%%%%%% g0d0 " << wfm[0] << endmsg;
+		    	msg(MSG::DEBUG) << "%%%%%%%% g1d0 " << wfm[1] << endmsg;
+		    	msg(MSG::DEBUG) << "%%%%%%%% g0d1 " << wfm[2] << endmsg;
+		    	msg(MSG::DEBUG) << "%%%%%%%% g1d1 " << wfm[3] << endmsg;
 
 		    }
 	    }
@@ -333,14 +330,14 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 			if ( ( *(std::max_element(wfm[0].begin(),wfm[0].end()) ) > 20 )  ||
 				 (*(std::max_element(wfm[1].begin(),wfm[1].end()) ) > 20 ) )	{
 				//std::cout << "**** g1d0 OVFLW ****" << std::endl;
-				msg(MSG::DEBUG) << "******** ID "   << id.getString() << endreq;
-				msg(MSG::DEBUG) << "******** g0d0 " << wfm[0] << endreq;
-				msg(MSG::DEBUG) << "******** g1d0 " << wfm[1] << endreq;
+				msg(MSG::DEBUG) << "******** ID "   << id.getString() << endmsg;
+				msg(MSG::DEBUG) << "******** g0d0 " << wfm[0] << endmsg;
+				msg(MSG::DEBUG) << "******** g1d0 " << wfm[1] << endmsg;
 
 			}
 		}
 	    */
-	    msg(MSG::DEBUG) << " ------- 3 " << endreq;
+	    msg(MSG::DEBUG) << " ------- 3 " << endmsg;
 	    //4) Calculate the quantities of interest. For now it will be Energy (by SUM and Peak)
 	    //   and timing (using undelayed, delayed and combined)
 	    //   Include a quality factor chi which will follow design definitions for
@@ -418,15 +415,15 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 					       "  Peak at imax = " << imax <<
 					       "  v[imax-1] = " << v[imax-1] <<
 					       "  V[imax] = " << v[imax] <<
-			               "  Sample Ratio A1/A2=" << tsr << endreq;
+			               "  Sample Ratio A1/A2=" << tsr << endmsg;
 			k++;
 	    }
 
-	    msg(MSG::DEBUG) << " ------- 5 " << endreq;
+	    msg(MSG::DEBUG) << " ------- 5 " << endmsg;
 	    ZdcRawChannel *z = new ZdcRawChannel(id);
 
-	    msg(MSG::DEBUG) << "CFD EXACT***** ID "<< id.getString() << m_cfd_result << endreq;
-	    msg(MSG::DEBUG) << "CFD APPRO***** ID "<< id.getString() << m_bwl_tpeak << endreq;
+	    msg(MSG::DEBUG) << "CFD EXACT***** ID "<< id.getString() << m_cfd_result << endmsg;
+	    msg(MSG::DEBUG) << "CFD APPRO***** ID "<< id.getString() << m_bwl_tpeak << endmsg;
 
 	    z->setSize(3*k); //FIXME very important, but not smart move ...
 	    /*
@@ -463,10 +460,10 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 
 	    }
 	    ncha++;
-	    m_ChannelCollection->push_back(z);
-	    msg(MSG::DEBUG) << " ------- 6 " << endreq;
+	    ChannelCollection->push_back(z);
+	    msg(MSG::DEBUG) << " ------- 6 " << endmsg;
 	}
-	msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelTool m_ChannelCollection size " << m_ChannelCollection->size() << endreq ;
+	msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelTool ChannelCollection size " << ChannelCollection->size() << endmsg ;
 	return ncha;
 }
 
@@ -477,21 +474,15 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 //==================================================================================================
 int ZdcRecChannelTool::getCalibration(
 													const ZdcDigitsCollection& mydata,
-													ZdcRawChannelCollection *&  m_ChannelCollection)
+													ZdcRawChannelCollection *&  ChannelCollection)
 {
-	ZdcDigitsCollection::const_iterator m_iter;
-	ZdcDigits* digits_p;
-
 	int ncha = 0;
-	int ncal = 0;
-
-	for (m_iter = mydata.begin(); m_iter != mydata.end(); m_iter++) {
-		digits_p = *m_iter;
+	for (const ZdcDigits* digits_p : mydata) {
 		digits_p->identify();
 		ncha++;
 	}
-	ncal = m_ChannelCollection->size();
-	msg(MSG::DEBUG) << " Zdc ---> Calibration for " << ncal << " channels " << endreq;
+	int ncal = ChannelCollection->size();
+	msg(MSG::DEBUG) << " Zdc ---> Calibration for " << ncal << " channels " << endmsg;
 	return  ncha;
 }
 //==================================================================================================
@@ -645,14 +636,9 @@ int ZdcRecChannelTool::getTimingCFD(const Identifier& id,  const std::vector<std
 //==================================================================================================
 double ZdcRecChannelTool::fx(double x0, void *params)
 	{
-		double y0=0;
-
 		ZdcRecChannelTool* p = static_cast<ZdcRecChannelTool*>(params);
-		gsl_spline *m_spline = p->m_spline;
-		gsl_interp_accel *m_interp_acc = p->m_interp_acc;
 		//std::cout << " MMMMMMMMMMMMAAAAAAAAA " << p->m_cfd_delay << std::endl;
-		y0 = gsl_spline_eval (m_spline, x0, m_interp_acc);
-		return y0;
+		return gsl_spline_eval (p->m_spline, x0, p->m_interp_acc);
 	}
 //==================================================================================================
 
@@ -693,7 +679,7 @@ int ZdcRecChannelTool::getTimingSinc(const Identifier& id,  const std::vector<st
 	m_bwl_tpeak.resize(4,0);
 
 	//zId = id.get_identifier32().get_compact();
-	msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION 2 " << endreq ;
+	msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION 2 " << endmsg ;
         mSide    = m_zdcId->side(id);
         mModule  = m_zdcId->module(id);
         mType    = m_zdcId->type(id);
@@ -704,7 +690,7 @@ int ZdcRecChannelTool::getTimingSinc(const Identifier& id,  const std::vector<st
                         << mSide    << ";"
                         << mModule  << ";"
                         << mType    << ";"
-                        << mChannel << endreq;
+                        << mChannel << endmsg;
 
 	for (vvi_it = wfm.begin(); vvi_it<wfm.end(); vvi_it++) {
 		//FIXME: Change to the method of ID identification
@@ -812,8 +798,6 @@ int ZdcRecChannelTool::getTimingSinc2(const Identifier& id, const std::vector<st
 	  double CFD_frac = 1.0;
 	  bool corr=0;
 
-	  ZdcSignalSinc * m_ZdcSignalSinc;
-
 	  std::vector<std::vector<int> >::const_iterator vit;
 	  std::vector<int>::const_iterator it;
 	  std::vector<int>  y;
@@ -855,21 +839,19 @@ int ZdcRecChannelTool::getTimingSinc2(const Identifier& id, const std::vector<st
 	          // This is for the sinx/x interpolation
 
 	          for(int I=0;I<NSlice;I++)  {Slices[I]=y[I];}
-	          m_ZdcSignalSinc = new ZdcSignalSinc(NSlice);
+	          ZdcSignalSinc zdcSignalSinc(NSlice);
 
-	          m_ZdcSignalSinc->process(Slices,gain,pedestal,CFD_frac,corr);
+	          zdcSignalSinc.process(Slices,gain,pedestal,CFD_frac,corr);
 
 
-	          m_bwl_vpeak2[i] = m_ZdcSignalSinc->getAmp() ;
-	          m_bwl_tpeak2[i] = m_ZdcSignalSinc->getTime() ;
+	          m_bwl_vpeak2[i] = zdcSignalSinc.getAmp() ;
+	          m_bwl_tpeak2[i] = zdcSignalSinc.getTime() ;
 
-	          error   = m_ZdcSignalSinc->getError();
-	          warning = m_ZdcSignalSinc->getWarning();
+	          error   = zdcSignalSinc.getError();
+	          warning = zdcSignalSinc.getWarning();
 
 	          msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelTool::getTimingSinc2: "
-	        		  << error << ";" << warning << endreq;
-	          delete m_ZdcSignalSinc;
-	          m_ZdcSignalSinc = 0;
+	        		  << error << ";" << warning << endmsg;
 
 	        }
 	      else {

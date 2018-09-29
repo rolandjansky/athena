@@ -46,6 +46,8 @@ namespace FTK {
   FTKByteStreamDecoderEncoderTool::~FTKByteStreamDecoderEncoderTool(){;}
 
   StatusCode   FTKByteStreamDecoderEncoderTool::initialize(){
+    if (m_doHeader) ATH_MSG_INFO("Unpacking Header of size " << FTKByteStreamDecoderEncoder::headerSize);
+    if (m_doTrailer) ATH_MSG_INFO("Unpacking Trailer ");
     return StatusCode::SUCCESS;
   }
 
@@ -121,6 +123,8 @@ namespace FTK {
     FTK_RawTrack* track = new FTK_RawTrack(data[0], data[1], data2, data[3], data[4], data[5]); // first six words are track params
     ATH_MSG_DEBUG("[Track: " << track->getInvPt() << " " << track->getPhi() << " " 
 		  << track->getCotTh() << " " << track->getD0() << "]");
+    track->setIsAuxFormat(false);
+
     data += TrackParamsBlobSize;
   
     // get pixel hits  
@@ -164,10 +168,10 @@ namespace FTK {
     if (marker!=FTKByteStreamDecoderEncoder::headerMarker){
       ATH_MSG_DEBUG("Not dealing with an FTK fragment " << std::hex << marker << " vs the marker " << FTKByteStreamDecoderEncoder::headerMarker << std::dec );
       //rodData += FTKByteStreamDecoderEncoder::headerSize -1;
-      return;
+      //return;
     }
     //skip to the end
-    rodData += 9;
+    rodData += FTKByteStreamDecoderEncoder::headerSize;
   }
 
   void FTKByteStreamDecoderEncoderTool::packTrailer(std::vector<uint32_t> &payload){
@@ -258,9 +262,25 @@ namespace FTK {
 
   StatusCode FTKByteStreamDecoderEncoderTool::decode(const uint32_t nDataWords, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
     
-    ATH_MSG_DEBUG("rodData: " << rodData);
-
-    uint32_t nTracks = nDataWords / TrackBlobSize;
+    uint32_t tracktotalsize=nDataWords;
+    if (m_doHeader){
+      if (tracktotalsize > FTKByteStreamDecoderEncoder::headerSize) {
+	tracktotalsize -= FTKByteStreamDecoderEncoder::headerSize;
+      } else {
+	ATH_MSG_VERBOSE("FTKByteStreamDecoderEncoderAuxTool::decode for nDataWords= "  << nDataWords << " Ntracks= 0");
+	return StatusCode::SUCCESS;
+      }
+    }
+    if (m_doTrailer){
+      if (tracktotalsize >FTKByteStreamDecoderEncoder:: trailerSize) {
+	tracktotalsize -= FTKByteStreamDecoderEncoder::trailerSize;
+      } else {
+	ATH_MSG_VERBOSE("FTKByteStreamDecoderEncoderAuxTool::decode for nDataWords= "  << nDataWords << " Ntracks= 0");
+	return StatusCode::SUCCESS;
+      }
+    }
+    uint32_t nTracks = tracktotalsize / TrackBlobSize;
+    ATH_MSG_VERBOSE("FTKByteStreamDecoderEncoderAuxTool::decode for nDataWords= " << nDataWords<< " Ntracks= " << nTracks);
     
     if (m_doHeader){
       unpackHeader(rodData);

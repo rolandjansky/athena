@@ -23,15 +23,16 @@ void ZDC_SimStripHit_CollectionCnv_p1::transToPers(const ZDC_SimStripHit_Collect
 
 void ZDC_SimStripHit_CollectionCnv_p1::persToTrans(const ZDC_SimStripHit_Collection_p1* persObj, ZDC_SimStripHit_Collection* transObj, MsgStream& log) {
 
-  //log << MSG::INFO << " size = " << persObj->size() << endreq;
+  //log << MSG::INFO << " size = " << persObj->size() << endmsg;
 
   transObj->reserve(persObj->size());
   
   for (unsigned int i=0; i<persObj->size(); ++i) {
     
-    //log << MSG::INFO << " i = " << i << endreq;
+    //log << MSG::INFO << " i = " << i << endmsg;
     const ZDC_SimStripHit_p1* striphit = &((*persObj)[i]);
-    
-    transObj->push_back(*ZdcStripHitConv.createTransient(striphit, log));
+
+    std::unique_ptr<ZDC_SimStripHit> ptr (ZdcStripHitConv.createTransient(striphit, log));
+    transObj->push_back(*ptr);
   }    
 }

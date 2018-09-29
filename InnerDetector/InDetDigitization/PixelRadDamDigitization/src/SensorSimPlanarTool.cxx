@@ -155,11 +155,11 @@ StatusCode SensorSimPlanarTool::initialize() {
 
   }else if(m_fluence==6){
 
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_400V_fl8_7e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_400V_fl4_6e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_400V_fl8_7e14.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_400V_fl4_6e14.root") );
     
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_250V_fl2_1e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_150V_fl1_3e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl2_1e14.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1_3e14.root") );
 
     fluence_layers.push_back(8.7e14);
     fluence_layers.push_back(4.6e14);
@@ -168,11 +168,11 @@ StatusCode SensorSimPlanarTool::initialize() {
 
   }else if(m_fluence==7){
 
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_endLHC.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_blayer_endLHC.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_endLHC.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_blayer_endLHC.root") );
 
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L1_endLHC.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L2_endLHC.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L1_endLHC.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L2_endLHC.root") );
 
     fluence_layers.push_back(2*8.7e14);
     fluence_layers.push_back(2*4.6e14);
