@@ -176,6 +176,9 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::LAR_FCAL_C_SIDE);
         m_sourceid.push_back(eformat::LAR_HAD_ENDCAP_A_SIDE);
         m_sourceid.push_back(eformat::LAR_HAD_ENDCAP_C_SIDE);
+     } else if (*detit=="FCal") {
+        m_sourceid.push_back(eformat::LAR_FCAL_A_SIDE);
+        m_sourceid.push_back(eformat::LAR_FCAL_C_SIDE);     
      } else if (*detit=="FORWARD_BCM") {     
          m_sourceid.push_back(eformat::FORWARD_BCM);
      } else if (*detit=="FORWARD_LUCID") {     

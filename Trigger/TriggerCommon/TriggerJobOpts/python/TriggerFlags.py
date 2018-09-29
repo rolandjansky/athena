@@ -1041,7 +1041,7 @@ class triggerMenuSetup(JobProperty):
         'MC_HI_v3', 'MC_HI_v3_tight_mc_prescale',
         'Physics_HI_v4', 'Physics_HI_v4_no_prescale', # for 2016 proton-lead menu 
         'MC_HI_v4', 'MC_HI_v4_tight_mc_prescale',
-        'Physics_HI_v5', 'Physics_HI_v5_no_prescale', # for 2015 lead-lead menu 
+        'Physics_HI_v5', 'Physics_HI_v5_tight_physics_prescale', 'Physics_HI_v5_no_prescale', # for 2015 lead-lead menu 
         'MC_HI_v5', 'MC_HI_v5_tight_mc_prescale',
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',

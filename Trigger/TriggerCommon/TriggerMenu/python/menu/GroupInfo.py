@@ -31,6 +31,10 @@ AllowedGroup_HI = ['UltraCentral',
                    'MinBiasOverlay',
                    'SingleMuon',
                    'SingleElectron',
+                   'PC',
+                   'PCpeb',
+                   'CC',
+                   'CCpeb',
                    ]
 
 def getAllAllowedGroups(menu):    
