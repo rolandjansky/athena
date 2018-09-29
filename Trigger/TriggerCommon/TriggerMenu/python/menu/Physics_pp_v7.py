@@ -3050,7 +3050,7 @@ def setupMenu():
         ['e25_mergedtight_g35_medium_icalovloose_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
         ['e25_mergedtight_g35_medium_icalotight_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
         ['e25_mergedtight_ivarloose_g35_medium_icalovloose_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['Primary:20000','RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
-        ['e25_mergedtight_ivarloose_g35_medium_icalotight_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
+        ['e25_mergedtight_ivarloose_g35_medium_icalotight_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['Primary:20000','RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
  
         ['e30_mergedtight_g35_medium_icalovloose_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
         ['e30_mergedtight_g35_medium_icalotight_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
