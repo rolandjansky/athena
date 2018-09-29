@@ -52,6 +52,7 @@ namespace Muon
 		  const std::vector<Identifier>& rdoList,
 		  const Amg::MatrixX* locErrMat,
 		  const MuonGM::sTgcReadoutElement* detEl,
+		  const int charge = 0,
 		  const uint16_t bcBitMap=0);
 
 
@@ -81,6 +82,7 @@ namespace Muon
 
     /** Cached pointer to the detector element - should never be zero.*/
     const MuonGM::sTgcReadoutElement* m_detEl;
+    int m_charge;
     uint16_t m_bcBitMap;
 
   };
