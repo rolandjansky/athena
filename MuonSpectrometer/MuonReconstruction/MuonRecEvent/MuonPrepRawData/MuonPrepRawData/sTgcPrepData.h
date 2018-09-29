@@ -75,6 +75,7 @@ namespace Muon
 
     /** @brief Returns the bcBitMap of this PRD
 	bit2 for Previous BC, bit1 for Current BC, bit0 for Next BC */
+    int charge() const;
     uint16_t getBcBitMap() const;
     enum {BCBIT_UNDEFINED=0, BCBIT_NEXT=1, BCBIT_CURRENT=2, BCBIT_PREVIOUS=4};
 
@@ -98,6 +99,11 @@ namespace Muon
 
     if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
     return *m_globalPosition;
+  }
+
+  inline int sTgcPrepData::charge() const
+  {
+    return m_charge;
   }
 
   inline uint16_t sTgcPrepData::getBcBitMap() const
