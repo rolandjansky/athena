@@ -164,8 +164,12 @@ if verbose:
 #=== Remove problems with mgr.delAdcProblem(ros, drawer, channel, adc, problem)
 
 if run<0:
-    run=TileCalibTools.getLastRunNumber()
-    log.warning( "Run number is not specified, using current run number %d" %run )
+    if "UPD4" in folderTag:
+        run=TileCalibTools.getPromptCalibRunNumber()
+        log.warning( "Run number is not specified, using minimal run number in calibration loop %d" %run )
+    else:
+        run=TileCalibTools.getLastRunNumber()
+        log.warning( "Run number is not specified, using current run number %d" %run )
     if run<0:
         log.error( "Bad run number" )
         sys.exit(2)
@@ -282,7 +286,25 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
             for chn in xrange(0, 48):
                 statlo = mgr.getAdcStatus(ros, mod, chn, 0)
                 stathi = mgr.getAdcStatus(ros, mod, chn, 1)
-        
+
+                # remove all trigger problems first
+                for prb in [TileBchPrbs.TrigGeneralMask,
+                            TileBchPrbs.TrigNoGain,
+                            TileBchPrbs.TrigHalfGain,
+                            TileBchPrbs.TrigNoisy]:
+                    mgrOnl.delAdcProblem(ros, mod, chn, 0, prb)
+                    mgrOnl.delAdcProblem(ros, mod, chn, 1, prb)
+                # and now set new trigger problems (if any)
+                if not statlo.isGood():
+                    prbs = statlo.getPrbs()
+                    for prb in prbs:
+                        if prb in [TileBchPrbs.TrigGeneralMask,
+                                   TileBchPrbs.TrigNoGain,
+                                   TileBchPrbs.TrigHalfGain,
+                                   TileBchPrbs.TrigNoisy]:
+                            mgrOnl.addAdcProblem(ros, mod, chn, 0, prb)
+                            mgrOnl.addAdcProblem(ros, mod, chn, 1, prb)
+
                 #--- add IgnoreInHlt if either of the ADCs has isBad
                 #--- add OnlineGeneralMaskAdc if the ADCs has isBad            
                 if statlo.isBad() and stathi.isBad():

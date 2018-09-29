@@ -166,17 +166,6 @@ log = getLogger("WriteCalibToCool")
 import logging
 log.setLevel(logging.DEBUG)
 
-if run==0: begin=(0,0)
-if run<=0:
-    run=TileCalibTools.getLastRunNumber()
-    log.warning( "Run number is not specified, using current run number %d" %run )
-    if run<0:
-        log.error( "Bad run number" )
-        sys.exit(2)
-since = (run, lumi)
-if not "begin" in dir(): begin=since
-until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
-
 #=== set database
 dbr = TileCalibTools.openDbConn(inSchema,'READONLY')
 dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if update else 'RECREATE'))
@@ -195,6 +184,22 @@ else:
     else:
         outfolderTag = TileCalibTools.getFolderTag(dbr, outfolderPath, outtag )
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
+
+# set run number
+if run==0: begin=(0,0)
+if run<=0:
+    if "UPD4" in outtag:
+        run=TileCalibTools.getPromptCalibRunNumber()
+        log.warning( "Run number is not specified, using minimal run number in calibration loop %d" %run )
+    else:
+        run=TileCalibTools.getLastRunNumber()
+        log.warning( "Run number is not specified, using current run number %d" %run )
+    if run<0:
+        log.error( "Bad run number" )
+        sys.exit(2)
+since = (run, lumi)
+if not "begin" in dir(): begin=since
+until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
 
 #=== initialize blob reader to read previous comments
 blobReader = TileCalibTools.TileBlobReader(dbr,folderPath, folderTag)
