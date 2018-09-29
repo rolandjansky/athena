@@ -322,9 +322,9 @@ int main( int argc, char* argv[] ) {
 	}
 
 	//Print table of selection results for this muon
-	Info( APP_NAME, namesString.c_str() );
-	Info( APP_NAME, selectionResults.c_str() );
-	Info( APP_NAME, badMuonResults.c_str() );
+	Info( APP_NAME, "%s", namesString.c_str() );
+	Info( APP_NAME, "%s", selectionResults.c_str() );
+	Info( APP_NAME, "%s", badMuonResults.c_str() );
 
       } //done loop over muons
 
@@ -338,9 +338,9 @@ int main( int argc, char* argv[] ) {
       }
 
       Info( APP_NAME, "===== Event summary:");
-      Info( APP_NAME, namesString.c_str() );
-      Info( APP_NAME, NselectedString.c_str() );
-      Info( APP_NAME, NselectedStringNotBad.c_str() );
+      Info( APP_NAME, "%s", namesString.c_str() );
+      Info( APP_NAME, "%s", NselectedString.c_str() );
+      Info( APP_NAME, "%s", NselectedStringNotBad.c_str() );
 
       // Close with a message:
       Info( APP_NAME,
