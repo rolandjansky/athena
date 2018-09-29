@@ -181,13 +181,6 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
 
 }
 
-// copy constructor
-Trk::AnnulusBounds::AnnulusBounds(const AnnulusBounds& annbo) :
-    Trk::SurfaceBounds(),
-    m_boundValues(annbo.m_boundValues)
-{}
-
-
 // destructor
 Trk::AnnulusBounds::~AnnulusBounds()
 {}
