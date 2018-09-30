@@ -10,4 +10,4 @@ triggerRegEx = [
 triggerRegEx += SingleLepton_2015 + SingleLepton_2016 + SingleLepton_2017 + SingleLepton_2018
 
 # add some more trigger navigation for efficiency measurements
-triggerRegExThinning = triggerRegEx + ['HLT_tau[0-9][0-9].*perf.*']
+triggerRegExThinning = triggerRegEx + ['HLT_tau[0-9][0-9].*perf.*'] + [ 'L1_TAU.*' ]
