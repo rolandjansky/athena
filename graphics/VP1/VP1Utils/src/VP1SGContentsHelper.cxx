@@ -56,7 +56,7 @@ bool VP1SGContentsHelper::contains( const CLID& id, const QString& key ) const
   try {
     contains = m_sg->contains(id,key.toStdString());
     exception = false;
-  } catch (std::runtime_error e) {
+  } catch (const std::runtime_error& e) {
     exception = true;
   }
   if (exception) {
@@ -84,7 +84,7 @@ QStringList VP1SGContentsHelper::getKeys(const CLID& id) const
   try {
     keys = m_sg->keys(id);
     exception = false;
-  } catch (std::runtime_error e) {
+  } catch (const std::runtime_error& e) {
     exception = true;
   }
   if (exception) {
