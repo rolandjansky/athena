@@ -27,10 +27,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
-#include "EventKernel/IParticle.h"
-#include "CaloEvent/CaloCluster.h"
 #include "EventPrimitives/EventPrimitives.h"
-
 #include "egammaRecEvent/egammaRec.h"
 
 class eg_resolution;
