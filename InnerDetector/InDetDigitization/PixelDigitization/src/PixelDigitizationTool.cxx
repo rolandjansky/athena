@@ -666,7 +666,7 @@ StatusCode PixelDigitizationTool::initServices() {
   }
 
   // get SpecialPixelMapSvc
-  if (!m_pixelConditionsSvc.empty()) {
+  if (!m_pixelConditionsSvc.empty() and m_doSpecialPixels) {
     CHECK(m_specialPixelMapSvc.retrieve());
     ATH_MSG_DEBUG("Retrieved SpecialPixelMapSvc");
 

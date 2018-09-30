@@ -140,6 +140,7 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         print 'SCT_Digitization:::: Turned off Noise in SCT_FrontEnd'
         kwargs.setdefault("NoiseOn", False)
         kwargs.setdefault("AnalogueNoiseOn", False)
+        kwargs.setdefault("AddNoiseDiodes", False)
     else:
         kwargs.setdefault("NoiseOn", True)
         kwargs.setdefault("AnalogueNoiseOn", True)
@@ -195,7 +196,8 @@ def getPileupSCT_FrontEnd(name="PileupSCT_FrontEnd", **kwargs):
     kwargs.setdefault("NOShortMiddles", 0.0)
     kwargs.setdefault("NOOuters", 0.0)
     kwargs.setdefault("NoiseOn", False)
-
+    kwargs.setdefault("AddNoiseDiodes", False)
+    
     return getSCT_FrontEnd(name, **kwargs)
 
 ######################################################################################

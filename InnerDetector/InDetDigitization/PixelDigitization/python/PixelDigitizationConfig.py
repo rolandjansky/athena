@@ -225,6 +225,8 @@ def TimeSvc(name="TimeSvc", **kwargs):
 def PixelCellDiscriminator(name="PixelCellDiscriminator", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
+    if InDetGeometryFlags.isSLHC():
+      kwargs.setdefault("TimingTune", 0)
     return CfgMgr.PixelCellDiscriminator(name, **kwargs)
 
 def PixelRandomDisabledCellGenerator(name="PixelRandomDisabledCellGenerator", **kwargs):

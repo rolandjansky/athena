@@ -58,6 +58,7 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
     declareProperty("NOOuters", m_NOOuters = 3.5e-5, "NoiseOccupancyOuters");
     declareProperty("NoiseOn", m_NoiseOn = true,
                     "To know if noise is on or off when using calibration data");
+    declareProperty("AddNoiseDiodes", m_addNoiseDiode=true, "To switch off the creation of noise diodes");
     declareProperty("AnalogueNoiseOn", m_analogueNoiseOn = true,
                     "To know if analogue noise is on or off");
     declareProperty("GainRMS", m_GainRMS = 0.031,
@@ -891,7 +892,7 @@ void SCT_FrontEnd::process(SiChargedDiodeCollection &collection) const {
             ATH_MSG_ERROR("\tCan't doThresholdCheckForRealHits");
         }
 
-        if (StatusCode::SUCCESS != doThresholdCheckForCrosstalkHits(
+        if (m_addNoiseDiode and StatusCode::SUCCESS != doThresholdCheckForCrosstalkHits(
                 collection)) {
             ATH_MSG_ERROR("\tCan't doThresholdCheckForCrosstalkHits");
         }
