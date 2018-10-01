@@ -47,7 +47,7 @@ namespace CLHEP
 
    @warning although the output is not digitized, LArTTL1Maker is part of the digitization simulation.
 
-   @author F. Ledroit (LPSC-Grenoble)
+   @author F. Ledroit (LPSC-Grenoble), Updated September 2018 to allow pulse shapes to be python configurable by Ben Carlson & Kuan-Yu Lin 
  */
 
 class LArTTL1Maker : public AthAlgorithm,
@@ -111,6 +111,11 @@ class LArTTL1Maker : public AthAlgorithm,
   ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc;
   std::string                  m_rndmEngineName;
   CLHEP::HepRandomEngine*      m_rndmEngine;
+
+  std::string m_LArEmPulse;
+  std::string m_LArHecPulse;
+  std::string m_LArFcalPulse; 
+  std::string m_FcalPtWeights; 
 
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;
