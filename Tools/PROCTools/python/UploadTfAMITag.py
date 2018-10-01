@@ -83,6 +83,8 @@ OutputsVsStreams = {
 #                                 'HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
     'outputDESDM_ALLCELLSFile': {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(?!.*DRAW_TAUMUH.*)(.*DRAW.*)', 
                                  'HumanOutputs': 'produced when reconstructing all DRAW formats'},
+    'outputDESDM_EOVERPFile'  : {'dstype': 'DESDM_EOVERP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_MinBias\..*)',
+                                 'HumanOutputs': 'produced when reconstructing RAW from MinBias'},
 
 #    'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_MCP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*CosmicMuons.*)',
 #                                 'HumanOutputs': 'produced when reconstructing RAW'},
