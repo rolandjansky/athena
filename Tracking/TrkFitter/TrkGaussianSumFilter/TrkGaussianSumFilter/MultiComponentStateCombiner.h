@@ -29,7 +29,7 @@ namespace Trk {
 class MultiComponentStateCombiner : public AthAlgTool, virtual public IMultiComponentStateCombiner {
 
   public:
-  
+
   /** Constructor with AlgTool parameters */
   MultiComponentStateCombiner (const std::string&, const std::string&, const IInterface*);
 
@@ -47,26 +47,20 @@ class MultiComponentStateCombiner : public AthAlgTool, virtual public IMultiComp
 
   /** Calculate combined state and weight of many components */
   virtual const ComponentParameters* combineWithWeight( const MultiComponentState&, bool useModeTemp = false ) const;
-  
-  /** */
-  virtual void useMode( bool );
-  
 
  private:
 
   const ComponentParameters* compute( const MultiComponentState*, bool useModeTemp = false ) const;
-  
+
   ToolHandle<IMultiComponentStateModeCalculator> m_modeCalculator;
-  
-  mutable bool  m_useMode;
-  mutable bool  m_useModeD0;
-  mutable bool  m_useModeZ0;
-  mutable bool  m_useModePhi;
-  mutable bool  m_useModeTheta;
-  mutable bool  m_useModeqOverP;
-  
-  mutable int   m_NumberOfCalls;
-  mutable float m_fractionPDFused;
+
+  bool  m_useMode;
+  bool  m_useModeD0;
+  bool  m_useModeZ0;
+  bool  m_useModePhi;
+  bool  m_useModeTheta;
+  bool  m_useModeqOverP;
+  float m_fractionPDFused;
 };
 
 } // end Trk namespace
