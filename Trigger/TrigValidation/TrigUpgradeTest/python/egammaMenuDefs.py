@@ -25,7 +25,7 @@ include("InDetRecExample/InDetRecConditionsAccess.py")
 from InDetRecExample.InDetKeys import InDetKeys
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 # ===============================================================================================
 #      L2 Calo
