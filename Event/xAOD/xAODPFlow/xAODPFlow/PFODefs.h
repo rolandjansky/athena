@@ -25,7 +25,7 @@ namespace PFODetails
     // You can add, but changing the order may lead to disaster!
     //-------------------------------------------------------------------------
 
-  enum PFOAttributes {
+   enum PFOAttributes : unsigned int {
     nPi0 = 0,
     //If a downstream algorithms overrides nPi0, nPi0Proto is used to store the original value
     nPi0Proto,  
@@ -138,7 +138,7 @@ namespace PFODetails
 
   /** This enum is used to label the associated particles to the PFO object */
 
-  enum PFOParticleType{
+  enum PFOParticleType : unsigned int {
     CaloCluster = 0,
     Track,
     TauShot,
@@ -149,7 +149,7 @@ namespace PFODetails
   };
 
   /** This enum is used to label the lepton type of the neutral PFO */
-  enum PFOLeptonType{
+  enum PFOLeptonType : unsigned int {
     PFO_electron = 0,
     PFO_muon,
     PFO_tau,
