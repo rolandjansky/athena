@@ -187,7 +187,6 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
     kwargs.setdefault("ParticleBroker", "ISF_ParticleBrokerSvc")
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
-    kwargs.setdefault("SimHitService", "ISF_SimHitService")
     kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
     kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())
     kwargs.setdefault("DoMemoryMonitoring", ISF_Flags.DoMemoryMonitoring())
@@ -203,7 +202,6 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
 
 ############## Simulator: GenericSimulatorNoG4 ###############
 def getKernel_GenericSimulatorNoG4(name="ISF_Kernel_GenericSimulatorNoG4", **kwargs):
-    kwargs.setdefault("SimHitService"               , "ISF_NoG4SimHitService"                       )
     return getKernel_GenericSimulator(name, **kwargs)
 
 ############## Simulator: MultiSimTest ###############
@@ -370,7 +368,6 @@ def getKernel_Fatras_newExtrapolation_IDOnly(name="ISF_Kernel_Fatras_newExtrapol
 def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
     kwargs.setdefault("InputPileupCollection", "GEN_EVENT_PU")
     kwargs.setdefault("OutputPileupTruthCollection", "TruthEvent_PU")
-    kwargs.setdefault("SimHitService"              , "ISF_PileupSimHitService"                  )
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultParticleKillerSelector' ]    )
     kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasPileupSelector_noHits',
                                                        'ISF_FatrasPileupSelector',
@@ -392,7 +389,6 @@ def getKernel_ATLFASTII_PileUp(name="ISF_Kernel_ATLFASTII_PileUp", **kwargs):
     kwargs.setdefault("ParticleBroker"             , 'ISF_AFIIParticleBrokerSvc'                    )
     kwargs.setdefault("InputPileupCollection", "GEN_EVENT_PU")
     kwargs.setdefault("OutputPileupTruthCollection", "TruthEvent_PU")
-    kwargs.setdefault("SimHitService"              , "ISF_PileupSimHitService"                  )
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultAFIIGeant4Selector' ]    )
     kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasRandomSelector',
                                                        #'ISF_FatrasPileupSelector_noHits',
@@ -410,7 +406,6 @@ def getKernel_ATLFASTII_PileUp(name="ISF_Kernel_ATLFASTII_PileUp", **kwargs):
   
 ############## Simulator: G4HS_FastPileup ###############
 def getKernel_G4HS_FastPileup(name="ISF_Kernel_G4HS_FastPileup", **kwargs):
-    kwargs.setdefault("SimHitService"              , "ISF_PileupSimHitService"                  )
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_PileupParticleKillerSelector',
 						       'ISF_FullGeant4Selector' ]        ) 
     kwargs.setdefault("IDSimulationSelectors"      , [ 'ISF_FatrasPileupSelector',
