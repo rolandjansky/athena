@@ -36,10 +36,20 @@ namespace InDet{
   float median(std::vector<float> &Vec){
     int N=Vec.size();
     if(N==1) return Vec[0];
-    if(N>1){
+    if(N==2) return (Vec[0]+Vec[1])/2.;
+    if(N==3) return Vec[1];
+    if(N>3){
       std::vector<float> tmp(Vec);
-      std::sort(tmp.begin(),tmp.end());  //can use nth_element instead of completely sorting, it's quicker
-      return (tmp[(N-1)/2]+tmp[N/2])/2.; //only true if the number of elements is even?
+      int N05m=(N-1)/2, N05p=N/2;
+      //std::sort(tmp.begin(),tmp.end());  //can use nth_element instead of completely sorting, it's quicker
+      if(N05m==N05p){ 
+         std::nth_element(tmp.begin(),tmp.begin()+N05m,tmp.end());
+         return tmp[N05m];
+      } else { 
+         std::nth_element(tmp.begin(),tmp.begin()+N05m,tmp.end());
+         std::nth_element(tmp.begin(),tmp.begin()+N05p,tmp.end());
+         return (tmp[N05m]+tmp[N05p])/2.;
+      }
     }
     return 0.;
   }
