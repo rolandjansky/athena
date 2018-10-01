@@ -52,16 +52,16 @@ namespace Muon
   MMPrepData::MMPrepData(const MMPrepData& RIO):
     MuonCluster(RIO),
     m_detEl( RIO.m_detEl ),
-    m_time(0),
-    m_charge(0)
+    m_time(RIO.m_time),
+    m_charge(RIO.m_charge)
   { }
 
   //move constructor:
   MMPrepData::MMPrepData(MMPrepData&& RIO):
     MuonCluster(std::move(RIO)),
     m_detEl( RIO.m_detEl ),
-    m_time(0),
-    m_charge(0)
+    m_time(RIO.m_time),
+    m_charge(RIO.m_charge)
   { }
 
   //assignment operator
@@ -72,6 +72,8 @@ namespace Muon
       {
 	MuonCluster::operator=(RIO);
 	m_detEl =  RIO.m_detEl ;
+	m_time = RIO.m_time;
+	m_charge = RIO.m_charge;
       }
     return *this;
 
@@ -84,6 +86,8 @@ namespace Muon
       {
 	MuonCluster::operator=(std::move(RIO));
 	m_detEl =  RIO.m_detEl ;
+	m_time =  RIO.m_time ;
+	m_charge =  RIO.m_charge ;
       }
     return *this;
 

@@ -22,10 +22,10 @@ namespace Muon{
 
       virtual void	persToTrans(const Muon::MM_RawDataContainer_p1* persCont,
           Muon::MM_RawDataContainer* transCont,
-          MsgStream &log) override;
+          MsgStream &log) ;
       virtual void	transToPers(const Muon::MM_RawDataContainer* transCont,
           Muon::MM_RawDataContainer_p1* persCont,
-          MsgStream &log) override;
+          MsgStream &log) ;
 
       virtual Muon::MM_RawDataContainer* createTransient(const Muon::MM_RawDataContainer_p1* persObj, MsgStream& log) override final;    
     
