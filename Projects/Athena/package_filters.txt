@@ -13,6 +13,7 @@
 #+ HLT/Trigger/TrigTransforms/TrigTransform
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
+- HLT/HLTTestApps
 - HLT/HLToks
 - Trigger/ALP
 - Event/DFStreamEventSelector
