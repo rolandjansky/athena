@@ -1006,12 +1006,6 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 template<class ITERATOR, class COLLECTION>
 void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
 
-  // disable checks for TileID and remember previous state
-  bool do_checks = m_tileID->do_checks();
-  m_tileID->set_do_checks(false);
-  bool do_checks_tb = m_tileID->do_checks();
-  m_tileTBID->set_do_checks(false);
-
   // Now retrieve the TileDQStatus
   if(m_notUpgradeCabling) m_DQstatus = m_beamInfo->getDQstatus();
 
@@ -1425,9 +1419,4 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     msg(MSG::DEBUG) << endmsg;
   }
-
-  m_tileID->set_do_checks(do_checks);
-  // set back this flag to TileID
-  m_tileTBID->set_do_checks(do_checks_tb);
-
 }
