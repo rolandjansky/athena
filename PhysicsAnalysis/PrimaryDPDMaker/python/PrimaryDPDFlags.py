@@ -150,8 +150,21 @@ class WriteAllcellsStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteAllcellsStream)
 listESDtoDPD.append(WriteAllcellsStream.StreamName)
 
+class WriteEOverPStream(JobProperty):
+    """ Produce the primary DPD EOverP DPD."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDESDM_EOVERP"
+    FileName     = ""
+    isVirtual    = False
+    DPDMakerScript = "PrimaryDPDMaker/PerfDESDM_EOverP.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteEOverPStream)
+listESDtoDPD.append(WriteEOverPStream.StreamName)
+
 class WriteIDALIGNStream(JobProperty):
-    """ Produce the primary DPD AllCells DPD."""
+    """ Produce the primary DPD ID alignment DPD."""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
