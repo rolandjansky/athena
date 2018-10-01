@@ -54,11 +54,6 @@ function( atlas_run_lowestunprescaled )
       ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled
       COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
       ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateUnprescaledLists.py ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled
-      COMMAND ${CMAKE_COMMAND} -E make_directory
-      ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/TriggerMenu
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled/
-      ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/TriggerMenu/api/
       COMMAND ${CMAKE_COMMAND} -E touch
       ${CMAKE_CURRENT_BINARY_DIR}/unprescaled.stamp
       DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
