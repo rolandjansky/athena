@@ -10,7 +10,8 @@ from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180725.pickle")
+    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180925.pickle")
+    if not centralPickleFile: centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180904.pickle")
     if centralPickleFile: centralPickleFile = os.path.realpath(centralPickleFile)
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = {}

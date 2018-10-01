@@ -17,6 +17,13 @@
 
 class egamma;
 
+#include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "TrkTrack/TrackCollection.h"
+
+
 static const InterfaceID IID_IEMBremCollectionBuilder("IEMBremCollectionBuilder",1,0);
 
 class IEMBremCollectionBuilder : virtual public IAlgTool
@@ -32,6 +39,8 @@ class IEMBremCollectionBuilder : virtual public IAlgTool
   virtual StatusCode initialize() = 0;
   virtual StatusCode finalize() = 0;
   virtual StatusCode contExecute() = 0;
+  virtual StatusCode hltExecute(const xAOD::CaloClusterContainer *clusters, const xAOD::TrackParticleContainer *inputTracks,
+				TrackCollection *refitTracks, xAOD::TrackParticleContainer *refitTrackParticles) = 0;
 
 };
 

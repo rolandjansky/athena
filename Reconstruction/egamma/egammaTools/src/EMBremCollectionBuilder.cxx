@@ -10,7 +10,7 @@ AUTHORS:  Anastopoulos
 CREATED:  
 
 PURPOSE:  Performs Brem refit of all tracks 
-UPDATE :
+UPDATE :  Jan 2018 - execute method for the HLT - Jiri.Masik@manchester.ac.uk
 **********************************************************************/
 #include "EMBremCollectionBuilder.h"
 //
@@ -235,21 +235,46 @@ StatusCode EMBremCollectionBuilder::contExecute()
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("TrackParticle container successfully retrieved");
+
+  sc = hltExecute( clusterTES, trackTES, m_finalTracks, m_finalTrkPartContainer);
+  if (sc.isFailure()){
+    ATH_MSG_WARNING("BrembuilderTool did not succeed");
+  }
+  
+  // Make readable from INav4mom
+  const INavigable4MomentumCollection* theNav4s(0);
+  sc = evtStore()->symLink(m_finalTrkPartContainer,theNav4s);
+  if (sc.isFailure()){
+    ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
+  }  
+  //======================================================================================================
+  return StatusCode::SUCCESS;
+}
+
+StatusCode EMBremCollectionBuilder::hltExecute(const xAOD::CaloClusterContainer *clusters,
+					       const xAOD::TrackParticleContainer *inputTracks,
+					       TrackCollection *refitTracks,
+					       xAOD::TrackParticleContainer *refitTrackParticles)
+{
+  //======================================================================================================
+  
+  // Record the final Track Particle container in StoreGate
+  //
   //
   //======================================================================================================
   //Here is the new Logic
   //Loop over tracks and clusters 
-  m_AllClusters+=clusterTES->size();
+  m_AllClusters+=clusters->size();
   //
   xAOD::TrackParticleContainer::const_iterator track_iter;
   xAOD::CaloClusterContainer::const_iterator clus_iter;  
-  xAOD::TrackParticleContainer::const_iterator track_iter_end=trackTES->end();
-  xAOD::CaloClusterContainer::const_iterator clus_iter_end=clusterTES->end();
+  xAOD::TrackParticleContainer::const_iterator track_iter_end=inputTracks->end();
+  xAOD::CaloClusterContainer::const_iterator clus_iter_end=clusters->end();
 
-  ATH_MSG_DEBUG ("Cluster container size: "  << clusterTES->size() );
-  ATH_MSG_DEBUG ("Track   container  size: "  <<trackTES->size() );
+  ATH_MSG_DEBUG ("Cluster container size: "  << clusters->size() );
+  ATH_MSG_DEBUG ("Track   container  size: "  <<inputTracks->size() );
 
-  track_iter = trackTES->begin();
+  track_iter = inputTracks->begin();
   for(unsigned int trackNumber = 0; track_iter !=  track_iter_end; ++track_iter,++trackNumber){
     ATH_MSG_DEBUG ("Check Track with Eta "<< (*track_iter)->eta()<< " Phi " << (*track_iter)->phi()<<" Pt " <<(*track_iter)->pt());
 
@@ -273,21 +298,21 @@ StatusCode EMBremCollectionBuilder::contExecute()
     }
 
     //inner loop on clusters
-    clus_iter = clusterTES->begin();
+    clus_iter = clusters->begin();
     for( ;clus_iter !=clus_iter_end;  ++clus_iter){
       
       if(Select((*clus_iter), isTRT, (*track_iter))){
         
 	ATH_MSG_DEBUG ("Track Matched");
-        sc = refitTrack(*track_iter);	    
+          StatusCode sc = refitTrack(*track_iter, refitTracks, refitTrackParticles);	    
 	if(sc.isFailure()) {
           ATH_MSG_WARNING("Problem in EMBreCollection Builder Refit");
         }	
 	else { 	
 	  // Add Auxiliary decorations to the GSF Track Particle
 	  // Set Element link to original Track Particle	  
-          ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*trackTES,trackNumber);
-	  xAOD::TrackParticle* gsfTrack = m_finalTrkPartContainer->back();	  
+          ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*inputTracks,trackNumber);
+	  xAOD::TrackParticle* gsfTrack = refitTrackParticles->back();	  
 	  static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> >  tP ("originalTrackParticle");
 	  tP(*gsfTrack)= linkToOriginal;
 		  
@@ -332,19 +357,15 @@ StatusCode EMBremCollectionBuilder::contExecute()
     }//Loop on clusters
   }//Loop on tracks
   
-  ATH_MSG_DEBUG ("Final Track container size: "  << m_finalTrkPartContainer->size() );
-  // Make readable from INav4mom
-  const INavigable4MomentumCollection* theNav4s(0);
-  sc = evtStore()->symLink(m_finalTrkPartContainer,theNav4s);
-  if (sc.isFailure()){
-    ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
-  }  
+  ATH_MSG_DEBUG ("Final Track container size: "  << refitTrackParticles->size() );
+
   //======================================================================================================
   return StatusCode::SUCCESS;
 }
 
 // ====================================================================
-StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrkPart){
+StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrkPart,
+					       TrackCollection *refitTracks, xAOD::TrackParticleContainer *refitTrackParticles){
 
   int nSiliconHits_trk =0; 
   uint8_t dummy(0); 
@@ -403,7 +424,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   }
   //
   // Use the the refitted track and the original vertex to construct a new track particle
-  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
+  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, refitTrackParticles, trkVtx, xAOD::electron );
   //
   //finalize things
   if(aParticle!=0) { //store in container
@@ -458,9 +479,10 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
       ATH_MSG_ERROR ("TrackSlimming failed, this should never happen !");
       return StatusCode::FAILURE;
     }
-    m_finalTracks->push_back(slimmed);
+    
+    refitTracks->push_back(slimmed);
     //
-    ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
+    ElementLink<TrackCollection> trackLink( slimmed, *refitTracks);
     aParticle->setTrackLink( trackLink );     
     aParticle->setVertexLink(tmpTrkPart->vertexLink());         
     return StatusCode::SUCCESS;
