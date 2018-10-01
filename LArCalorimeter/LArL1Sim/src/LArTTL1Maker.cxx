@@ -148,6 +148,11 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("EmTTL1ContainerName",m_EmTTL1ContainerName);
   declareProperty("HadTTL1ContainerName",m_HadTTL1ContainerName);
 
+  declareProperty("LArEmPulse",m_LArEmPulse="LArEmLvl1.data"); 
+  declareProperty("LArHecPulse",m_LArHecPulse="LArHecLvl1.data");
+  declareProperty("LArFcalPulse",m_LArFcalPulse="LArFcalLvl1.data");
+  declareProperty("FcalPtWeights",m_FcalPtWeights="Fcal_ptweights_table7.data"); 
+
   declareProperty("NoiseOnOff",m_NoiseOnOff);
 
   declareProperty("PileUp",m_PileUp);
@@ -1512,9 +1517,9 @@ StatusCode LArTTL1Maker::readAuxiliary()
   std::vector<float> autoCorr(s_NBSAMPLES) ;
 
 
-  std::string pulsedataname=PathResolver::find_file ("LArEmLvl1.data", "DATAPATH");
+  std::string pulsedataname=PathResolver::find_file (m_LArEmPulse, "DATAPATH");
   if (pulsedataname == "") {
-    ATH_MSG_ERROR ( "Could not locate LArEmLvl1.data file" );
+    ATH_MSG_ERROR ( "Could not locate " << m_LArEmPulse );
     return StatusCode::FAILURE;
   }
   const char * pulsedatafile= pulsedataname.c_str() ;
@@ -1692,9 +1697,9 @@ StatusCode LArTTL1Maker::readAuxiliary()
   // ...... Read auxiliary data file for HEC
   //
 
-  pulsedataname=PathResolver::find_file ("LArHecLvl1.data", "DATAPATH");
+  pulsedataname=PathResolver::find_file (m_LArHecPulse, "DATAPATH");
   if (pulsedataname == "") {
-    ATH_MSG_ERROR ( "Could not locate LArHecLvl1.data file" );
+    ATH_MSG_ERROR ( "Could not locate " << m_LArHecPulse ); 
     return StatusCode::FAILURE;
   }
   pulsedatafile= pulsedataname.c_str() ;
@@ -1845,9 +1850,9 @@ StatusCode LArTTL1Maker::readAuxiliary()
   // ...... Read auxiliary data files for FCAL
   //
 
-  pulsedataname=PathResolver::find_file ("LArFcalLvl1.data", "DATAPATH");
+  pulsedataname=PathResolver::find_file (m_LArFcalPulse, "DATAPATH");
   if (pulsedataname == "") {
-    ATH_MSG_ERROR ( "Could not locate LArFcalLvl1.data file" );
+    ATH_MSG_ERROR ( "Could not locate " << m_LArFcalPulse ); 
     return StatusCode::FAILURE;
   }
   pulsedatafile= pulsedataname.c_str() ;
@@ -2007,9 +2012,9 @@ StatusCode LArTTL1Maker::readAuxiliary()
       );
 
   // now the relative gains
-  pulsedataname=PathResolver::find_file ("Fcal_ptweights_table7.data", "DATAPATH");
+  pulsedataname=PathResolver::find_file (m_FcalPtWeights, "DATAPATH");
   if (pulsedataname == "") {
-    ATH_MSG_ERROR ( "Could not locate Fcal_ptweights_table7.data file" );
+    ATH_MSG_ERROR ( "Could not locate " << m_FcalPtWeights ); 
     return StatusCode::FAILURE;
   }
   pulsedatafile= pulsedataname.c_str() ;
