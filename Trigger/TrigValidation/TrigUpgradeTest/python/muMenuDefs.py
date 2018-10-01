@@ -39,7 +39,7 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
