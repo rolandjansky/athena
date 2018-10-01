@@ -954,8 +954,7 @@ else:
                                                         ExtrapolationTool   = InDetExtrapolator,
                                                         RotCreatorTool      = InDetRotCreator,
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
-                                                        MinDegreesOfFreedom = 1,
-                                                        MinSiHits           =  InDetNewTrackingCuts.minClusters() )
+                                                        MinDegreesOfFreedom = 1)
         
         if InDetFlags.useEtaDependentCuts() and InDetFlags.doSLHC():
           InDetTruthTrackBuilder.InDetEtaDependentCutsSvc   = InDetEtaDependentCutsSvc
@@ -993,7 +992,7 @@ else:
         InDetPRD_TruthTrajectoryBuilder=Trk__PRD_TruthTrajectoryBuilder(name = 'InDetPRD_TruthTrajectoryBuilder',
                                          PRD_MultiTruthCollections       = [ PixelClusterTruth,SCT_ClusterTruth,TRT_DriftCircleTruth],
                                          InDetPRD_Provider               = InDetPRD_Provider,
-                                         MinimumPt                       =  InDetNewTrackingCuts.minPT(),
+                                         MinimumPt                       =  InDetNewTrackingCuts.minPT()[0],
                                          PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter ])
         if not InDetFlags.doSLHC():
             InDetPRD_TruthTrajectoryBuilder.PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator ]
