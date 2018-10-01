@@ -60,3 +60,19 @@ def TrigMuonEFMSonlyHypoToolConf(name, conf):
     hypotool= TrigMuonEFMSonlyHypoToolFromName(name, conf)
     hypotool.OutputLevel = DEBUG
     return hypotool   
+
+
+def TrigJetHypoToolConf(name):
+    from AthenaCommon.Constants import DEBUG
+    from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromName
+    try:
+        hypotool= trigJetHypoToolFromName(name)
+    except Exception, e:
+        print e
+        raise e
+    #hypotool= TrigMufastHypoConfig.TrigMufastHypoToolFromName(name)
+    hypotool.OutputLevel = DEBUG
+    return hypotool
+
+if __name__ == '__main__':
+    print TrigJetHypoToolConf('HLT_j85')

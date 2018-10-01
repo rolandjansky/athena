@@ -4,14 +4,13 @@
 
 // ********************************************************************
 //
-// NAME:     TrigHLTJet_EtaEtTool.cxx
+// NAME:     TrigJetHypoToolMT_EtaEt.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
-// AUTHOR: P Sherwood
 //
 // ********************************************************************
 
-#include "TrigHLTJetHypo_EtaEtTool.h"
+#include "TrigJetHypoToolConfig_EtaEt.h"
 
 #include "GaudiKernel/StatusCode.h"
 
@@ -19,25 +18,37 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsSorter.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 
+#include "DecisionHandling/TrigCompositeUtils.h"
 
-TrigHLTJetHypo_EtaEtTool::TrigHLTJetHypo_EtaEtTool(const std::string& type,
-                                                   const std::string& name,
-                                                   const IInterface* parent):
-  TrigHLTJetHypoTool(type, name, parent) {
+using TrigCompositeUtils::DecisionID;
+using TrigCompositeUtils::Decision;
+using TrigCompositeUtils::DecisionContainer;
 
-  declareProperty("EtThresholds",   m_EtThresholds ); // Default: 40 GeV
-  declareProperty("eta_mins",   m_etaMins);
-  declareProperty("eta_maxs",   m_etaMaxs);
-  declareProperty("asymmetricEtas",   m_asymmetricEtas);
+TrigJetHypoToolConfig_EtaEt::TrigJetHypoToolConfig_EtaEt(const std::string& type,
+                                                 const std::string& name,
+                                                 const IInterface* parent) :
+  base_class(type, name, parent){
+
 }
 
 
-TrigHLTJetHypo_EtaEtTool::~TrigHLTJetHypo_EtaEtTool(){
+TrigJetHypoToolConfig_EtaEt::~TrigJetHypoToolConfig_EtaEt(){
+}
+
+StatusCode TrigJetHypoToolConfig_EtaEt::initialize() {
+  CHECK(checkVals());
+  return StatusCode::SUCCESS;
 }
 
 
-Conditions TrigHLTJetHypo_EtaEtTool::getConditions() const {
+
+
+Conditions TrigJetHypoToolConfig_EtaEt::getConditions() const {
   auto conditions = conditionsFactoryEtaEt(m_etaMins,
                                            m_etaMaxs,
                                            m_EtThresholds,
@@ -45,14 +56,14 @@ Conditions TrigHLTJetHypo_EtaEtTool::getConditions() const {
   std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
   
   return conditions;
- }
+}
 
  
-std::unique_ptr<IJetGrouper> TrigHLTJetHypo_EtaEtTool::getJetGrouper() const {
+std::unique_ptr<IJetGrouper> TrigJetHypoToolConfig_EtaEt::getJetGrouper() const {
   return std::make_unique<SingleJetGrouper>();
 }
 
-StatusCode TrigHLTJetHypo_EtaEtTool::checkVals() const {
+StatusCode TrigJetHypoToolConfig_EtaEt::checkVals() const {
   if (m_EtThresholds.size() != m_etaMins.size() or
       m_EtThresholds.size() != m_etaMaxs.size() or
       m_asymmetricEtas.size() != m_etaMaxs.size()){
@@ -72,7 +83,9 @@ StatusCode TrigHLTJetHypo_EtaEtTool::checkVals() const {
 }
 
 std::vector<std::shared_ptr<ICleaner>> 
-TrigHLTJetHypo_EtaEtTool::getCleaners() const {
+TrigJetHypoToolConfig_EtaEt::getCleaners() const {
   std::vector<std::shared_ptr<ICleaner>> v;
   return v;
-} 
+}
+
+
