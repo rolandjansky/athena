@@ -143,6 +143,9 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
             written = False
             for o in needed_options:
                 if o+' =' in l.split('#')[0]:
+                    if not o in option_paths:
+                        mglog.warning('Option '+str(o)+' not found in config file')
+                        continue
                     modified.write( o +' = '+option_paths[o]+'\n' )
                     written = True
                     break
@@ -691,44 +694,59 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             return 1
         else:
             mglog.info('Found '+gridpack_dir+' bin/run.sh, starting generation.')
-        # add reweighting to run.sh
-        if reweight_card:
+        need_to_add_rwgt=reweight_card!=None
+        run_card_dict=getDictFromCard(gridpack_dir+'/Cards/run_card.dat')
+        need_to_add_syst='use_syst' in run_card_dict and settingIsTrue(run_card_dict['use_syst']) and (not 'systematics_program' in run_card_dict or not run_card_dict['systematics_program']=='syscalc')
+
+        if need_to_add_rwgt or need_to_add_syst:
+            # add systematics calculation and reweighting to run.sh
             runscript=gridpack_dir+'/bin/run.sh'
             oldscript = open(runscript,'r')
             newscript = open(runscript+'.tmp','w')
-            added_rwgt=False
             # in older MG versions the gridpack is run with the command below
             gridrun_line_old='./bin/gridrun $num_events $seed'
+            syst_line_old='./bin/madevent systematics GridRun_${seed} -f\n'
             reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
             # in new versions it is run like this
             gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
+            syst_line_new='$DIR/bin/madevent systematics GridRun_${seed} -f\n'
             reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
 
             for line in oldscript:
-                if not added_rwgt and gridrun_line_old in line:
+                if (need_to_add_rwgt or need_to_add_syst) and gridrun_line_old in line:
                     if madspin_card:
-                        # renaming madspin card deactivates madspin -- madspin should be run after reweighting
+                        # renaming madspin card deactivates madspin -- madspin should be run after reweighting and systematics
                         newscript.write('mv Cards/madspin_card.dat Cards/madspin_card_backup.dat\n')
                     newscript.write(line)
+                    # run systematics
+                    if need_to_add_syst:
+                        newscript.write(syst_line_old)
+                        need_to_add_syst=False
                     # reweight
-                    newscript.write(reweight_line_old)
+                    if need_to_add_rwgt:
+                        newscript.write(reweight_line_old)
+                        need_to_add_rwgt=False
                     if madspin_card:
                         # move madspin card back in place and run madspin
                         newscript.write('mv Cards/madspin_card_backup.dat Cards/madspin_card.dat\n')
                         newscript.write('./bin/madevent decay_events GridRun_${seed} -f\n')
-                    added_rwgt=True
-                elif not added_rwgt and gridrun_line_new in line:
+                elif (need_to_add_rwgt or need_to_add_syst) and gridrun_line_new in line:
                     if madspin_card:
                         # renaming madspin card deactivates madspin -- madspin should be run after reweighting
                         newscript.write('mv $DIR/Cards/madspin_card.dat $DIR/Cards/madspin_card_backup.dat\n')
                     newscript.write(line)
+                    # run systematics
+                    if need_to_add_syst:
+                        newscript.write(syst_line_new)
+                        need_to_add_syst=False
                     # reweight
-                    newscript.write(reweight_line_new)
+                    if need_to_add_rwgt:
+                        newscript.write(reweight_line_new)
+                        need_to_add_rwgt=False
                     if madspin_card:
                         # move madspin card back in place and run madspin
                         newscript.write('mv $DIR/Cards/madspin_card_backup.dat $DIR/Cards/madspin_card.dat\n')
                         newscript.write('$DIR/bin/madevent decay_events GridRun_${seed} -f\n')
-                    added_rwgt=True
 
                 else:
                     newscript.write(line)
@@ -736,8 +754,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             newscript.close()
             mglog.info('created '+runscript+'.tmp')
 
-            if not added_rwgt:
-                raise RuntimeError('Could not add reweighting to gridpack script: '+runscript+' maybe line to generate events changed, was "'+gridrun_line+'"')
+            if reweight_card and need_to_add_rwgt:
+                raise RuntimeError('Could not add reweighting to gridpack script: '+runscript+' maybe line to generate events changed')
             shutil.move(runscript+'.tmp',runscript)
             st = os.stat(runscript)
             os.chmod(runscript, st.st_mode | stat.S_IEXEC)
@@ -2523,3 +2541,26 @@ def SUSY_model():
     mglog.warning('No idea what to do - models not found!')
     return 'import model mssm\n'
 
+
+def getDictFromCard(card_loc,lowercase=True):
+    card=open(card_loc)
+    mydict={}
+    for line in iter(card):
+        if not line.strip().startswith('#'): # line commented out
+            command = line.split('!', 1)[0]
+            comment = line.split('!', 1)[1] if '!' in line else ''
+            if '=' in command:
+                setting = command.split('=')[-1].strip()
+                value = command.split('=')[0].strip()
+                if lowercase:
+                    value=value.lower()
+                    setting=setting.lower()
+                mydict[setting]=value
+    card.close()
+    return mydict
+
+
+def settingIsTrue(setting):
+    if setting.replace('.','').lower() in ['t','true']:
+        return True
+    return False
