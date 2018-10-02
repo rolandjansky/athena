@@ -16,7 +16,6 @@
 #include "TrkGaussianSumFilter/GsfEnergyLossUpdator.h"
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
 #include "TrkGaussianSumFilter/ForwardGsfFitter.h"
-#include "TrkGaussianSumFilter/GsfOutlierLogic.h"
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
 #include "TrkGaussianSumFilter/GsfSmoother.h"
 
@@ -38,6 +37,5 @@ DECLARE_COMPONENT( Trk::GsfMeasurementUpdator )
 DECLARE_COMPONENT( Trk::GsfEnergyLossUpdator )
 DECLARE_COMPONENT( Trk::GaussianSumFitter )
 DECLARE_COMPONENT( Trk::ForwardGsfFitter )
-DECLARE_COMPONENT( Trk::GsfOutlierLogic )
 DECLARE_COMPONENT( Trk::GsfExtrapolator )
 DECLARE_COMPONENT( Trk::GsfSmoother )
