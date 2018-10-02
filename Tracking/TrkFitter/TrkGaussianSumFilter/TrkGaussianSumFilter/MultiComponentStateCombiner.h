@@ -19,7 +19,6 @@ description          : This class takes a multi-component state and collapses
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateModeCalculator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -51,8 +50,6 @@ class MultiComponentStateCombiner : public AthAlgTool, virtual public IMultiComp
  private:
 
   const ComponentParameters* compute( const MultiComponentState*, bool useModeTemp = false ) const;
-
-  ToolHandle<IMultiComponentStateModeCalculator> m_modeCalculator;
 
   bool  m_useMode;
   bool  m_useModeD0;

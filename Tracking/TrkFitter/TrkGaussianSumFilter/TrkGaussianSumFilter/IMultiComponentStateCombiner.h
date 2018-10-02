@@ -15,8 +15,6 @@ decription           : Abstract interface for the Multi Component State Combiner
 #define IMultiComponentStateCombiner_H
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateModeCalculator.h"
-
 #include "GaudiKernel/IAlgTool.h"
 
 namespace Trk {
@@ -38,7 +36,7 @@ class IMultiComponentStateCombiner : virtual public IAlgTool {
 
   /** Calculate combined state and weight of many components */
   virtual const ComponentParameters* combineWithWeight( const MultiComponentState&, bool useModeTemp = false ) const = 0;
-  
+
 };
 
 } // end Trk namespace

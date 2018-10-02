@@ -14,12 +14,13 @@ description          : Implementation code for MultiComponentStateCombiner class
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
+#include "MultiComponentStateModeCalculator.h"
+
 
 
 Trk::MultiComponentStateCombiner::MultiComponentStateCombiner (const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
-  m_modeCalculator("Trk::MultiComponentStateModeCalculator/MultiComponentStateModeCalculator"),
   m_useMode(false),
   m_useModeD0(true),
   m_useModeZ0(true),
@@ -31,7 +32,6 @@ Trk::MultiComponentStateCombiner::MultiComponentStateCombiner (const std::string
 
   declareInterface<IMultiComponentStateCombiner>(this);
   declareProperty("UseMode",            m_useMode, "Calculate mode for all mergers  (not recommended)");
-  declareProperty("ModeCalculator",     m_modeCalculator);
   declareProperty("UseModeqOverP",      m_useModeqOverP );
   declareProperty("UseModeD0",          m_useModeD0 );
   declareProperty("UseModeZ0",          m_useModeZ0 );
@@ -43,12 +43,6 @@ Trk::MultiComponentStateCombiner::MultiComponentStateCombiner (const std::string
 
 StatusCode Trk::MultiComponentStateCombiner::initialize()
 {
-
-   // Request the mode calculator
-  if ( m_modeCalculator.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Unable to retrieve the mode calculator... Exiting!" );
-    return StatusCode::FAILURE;
-  }
 
   if (m_fractionPDFused < 0.1 ){
     ATH_MSG_INFO("Fraction of PDF is set too low begin reset to 1");
@@ -219,7 +213,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
 
       // Calculate the mode of the q/p distribution
       Amg::VectorX modes(10); modes.setZero();
-      modes = m_modeCalculator->calculateMode( *uncombinedState );
+      modes = Trk::MultiComponentStateModeCalculator::calculateMode( *uncombinedState, msgStream() );
 
       if (  msgLvl(MSG::VERBOSE) && modes[4] )
         ATH_MSG_VERBOSE( "Calculated mode q/p is: " << modes[4] );
