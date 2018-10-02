@@ -36,7 +36,7 @@ def  trigJetHypoToolFromName(chain):
     for k, v in scenario_dict.items():
         match = k.match(chain)       
         if match:
-            hypo_tool = TrigJetHypoToolMT()
+            hypo_tool = TrigJetHypoToolMT(name=chain)
             hypo_tool.HypoConfigurer = v(match, chain)
             return hypo_tool
 

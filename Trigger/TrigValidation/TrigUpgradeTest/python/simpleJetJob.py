@@ -19,12 +19,15 @@ from AthenaCommon.AlgSequence import AthSequencer
 if TriggerFlags.doCalo:
 
   if ( True ) :
-      
+
+     topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
+     topSequence.L1DecoderTest.roiUnpackers[3].OutputLevel=DEBUG
+
+
 
     # menu items
-     #testChains = ["HLT_j85"]
-     CTPToChainMapping = {"HLT_j85":       "L1_J20",
-                            }
+
+     CTPToChainMapping = {"HLT_j85":       "L1_J20"   }
  
     # this is a temporary hack to include only new test chains
      testChains =[x for x, y in CTPToChainMapping.items()]
@@ -33,8 +36,9 @@ if TriggerFlags.doCalo:
      print testChains
      from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
      filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-     filterL1RoIsAlg.Input = ["JRoIDecisions"]
-     filterL1RoIsAlg.Output = ["FilteredJRoIDecisions"]
+     filterL1RoIsAlg.Input = ["FSJetDecisions"];
+     #["JRoIDecisions"]
+     filterL1RoIsAlg.Output = ["FilteredFSJRoIDecisions"]
      filterL1RoIsAlg.Chains = testChains
      filterL1RoIsAlg.OutputLevel = DEBUG
      #topSequence += filterL1RoIsAlg
@@ -168,10 +172,9 @@ if TriggerFlags.doCalo:
      jetRecoSequence += algo4
      
 
-     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT, TrigJetHypoToolMT
+     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
      from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromName
   
-     #TrigJetHypoToolMT
      hypo = TrigJetHypoAlgMT("jethypo")
      hypo.OutputLevel = DEBUG
      hypo.Jets = jetRecTool.OutputContainer
@@ -179,6 +182,7 @@ if TriggerFlags.doCalo:
      hypo.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions[0]
      hypo.HypoTools = [ trigJetHypoToolFromName( c ) for c in testChains ] 
 
+     print hypo
      #topSequence += hypo
 
 
