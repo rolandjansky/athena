@@ -26,7 +26,7 @@ def RPCCablingConfig(flags):
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
     rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
     rpcCablingSvc.RPCTriggerRoadsfromCool = True
-    #rpcCablingSvc.CosmicConfiguration     = True  # was set like this in egamma test, looks incorrect ???
+    rpcCablingSvc.CosmicConfiguration     = True  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge(addFolders(flags, 
