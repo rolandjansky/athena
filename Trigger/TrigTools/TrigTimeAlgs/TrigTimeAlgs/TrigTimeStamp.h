@@ -37,7 +37,7 @@ public:
   /**
    * Automatic copy constructor
    **/
-  TrigTimeStamp(const TrigTimeStamp&) = default;  
+  TrigTimeStamp(const TrigTimeStamp&) = default;
 
   /**
    * @return The time duration between now and when the time stamp was created
@@ -49,6 +49,12 @@ public:
    * @param[in] other Time stamp to compare this one to
    **/
   double millisecondsDifference(const TrigTimeStamp& other) const; 
+
+  /**
+   * @return The time duration between when the time stamp was created and the epoch
+   * @return A pair of unsigned integer types. The first is the number of seconds since the epoch and the second is the number of ms since the last second
+   **/
+  std::pair<uint32_t,uint32_t> secondsAndMilisecondsSinceEpoch() const;
 
   /**
    * Obtain the stamp value.

@@ -5,7 +5,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrigCostMonitorMT/TrigCostMTAuditor.h"
-#include "TrigCostMonitorMT/TrigCostMTSvc.h"
+#include "TrigCostMTSvc.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

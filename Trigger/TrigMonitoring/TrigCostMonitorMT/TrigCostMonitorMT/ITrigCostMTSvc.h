@@ -5,7 +5,7 @@
 #ifndef TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H
 #define TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H 1
 
-#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/IService.h"
 #include "GaudiKernel/EventContext.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -13,17 +13,18 @@
 
 #include <string>
 
-/// Declaration of the interface ID ( interface id, major version, minor version)
-static const InterfaceID IID_ITrigCostMTSvc("ITrigCostMTSvc", 1 , 0);
 
 /**
  * @class ITrigCostMTSvc
  * @brief Pure virtual interface to be implimented by Trig Cost MT service(s)
  */
-class ITrigCostMTSvc :  public virtual IInterface {
+class ITrigCostMTSvc :  public virtual IService {
 public:
-  /// Retrieve interface ID
-  static const InterfaceID& interfaceID() { return(IID_ITrigCostMTSvc); }
+  /**
+   * @brief Retrieve interface ID
+   */
+  DeclareInterfaceID( ITrigCostMTSvc, 1, 0);
+
   virtual ~ITrigCostMTSvc() {}
 
   /**

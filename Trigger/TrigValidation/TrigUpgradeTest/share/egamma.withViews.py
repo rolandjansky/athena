@@ -319,12 +319,15 @@ topSequence += hltTop
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import AuditorSvc
 from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
+from AthenaCommon.ConcurrencyFlags import jobproperties as jps
 
 # This collects and summarises all cost data from all threads
 trigCostService = TrigCostMTSvc()
 trigCostService.MonitorAll = True # During testing only
 trigCostService.PrintTimes = True # During testing only
+trigCostService.EventSlots = jps.ConcurrencyFlags.NumConcurrentEvents()
 ServiceMgr += trigCostService
+print("NumConcurrentEvents = " + str(jps.ConcurrencyFlags.NumConcurrentEvents()))
 
 # This causes Gaudi to ping the trigCostService before & after all algorithms  
 trigCostAuditor = TrigCostMTAuditor()
@@ -343,8 +346,11 @@ addTC("TrigCostContainer")
 
 ###### End Cost Monitoring block
 
+print("Dump of topSequence")
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
+print("Dump of serviceMgr")
+dumpSequence(ServiceMgr)
 
 #print theElectronFex
 #print ViewVerify

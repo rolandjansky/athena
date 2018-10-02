@@ -22,6 +22,8 @@
 class TrigCostMTAuditor : virtual public Auditor, public AthMessaging {
 
   using AthMessaging::msg;
+  using Auditor::after; //!< Inherit CustomEventType as a noop
+  using Auditor::before;  //!< Inherit CustomEventType as a noop
 
   public:
 
@@ -36,57 +38,38 @@ class TrigCostMTAuditor : virtual public Auditor, public AthMessaging {
    * @brief Initialise auditor. Return handle to Trigger Cost Service
    * @return Success if service handle obtained
    */
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   /**
    * @brief Does nothing
    * @return Success
    */
-  StatusCode finalize() override;
+  virtual StatusCode finalize() override;
+
 
   /**
    * @brief Audit before an algorithm standard event type is called
    * @param[in] evt The event type. Only Execute is monitored
    * @param[in] caller The name of the calling algorithm
    */
-  void before(StandardEventType evt, const std::string& caller) override;
+  virtual void before(StandardEventType evt, const std::string& caller) override;
 
   /**
    * @brief Audit after an algorithm standard event type is called
    * @param[in] evt The event type. Only Execute is monitored
    * @param[in] caller The name of the calling algorithm
    */
-  void after(StandardEventType evt, const std::string&, const StatusCode& sc) override;
+  virtual void after(StandardEventType evt, const std::string&, const StatusCode& sc) override;
 
   /**
    * @brief Redirects to the const std::string& interface
    */
-  void before(StandardEventType evt, INamedInterface* caller) override;
+  virtual void before(StandardEventType evt, INamedInterface* caller) override;
 
   /**
    * @brief Redirects to the const std::string& interface
    */
-  void after(StandardEventType evt, INamedInterface* caller, const StatusCode& sc) override;
-
-  /**
-   * @brief Not used
-   */
-  void before(CustomEventTypeRef, const std::string&) override {}
-
-  /**
-   * @brief Not used
-   */
-  void after(CustomEventTypeRef, const std::string&, const StatusCode&) override {}
-
-  /**
-   * @brief Not used
-   */
-  void before(CustomEventTypeRef, INamedInterface*) override {}
-
-  /**
-   * @brief Not used
-   */
-  void after(CustomEventTypeRef, INamedInterface*, const StatusCode&) override {}
+  virtual void after(StandardEventType evt, INamedInterface* caller, const StatusCode& sc) override;
 
 private:
 
