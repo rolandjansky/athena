@@ -133,7 +133,7 @@ exot9Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT9Kernel", Thinning
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT9"] = []
 reducedJetList = [
-  "AntiKt4TruthWZJets"]
+  "AntiKt4TruthWZJets" , "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,exot9Seq,"EXOT9")
 
 #====================================================================
