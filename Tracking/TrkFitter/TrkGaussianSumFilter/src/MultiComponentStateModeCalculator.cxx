@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /****************************************************************************************
@@ -33,7 +33,7 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
     return modes;
   }
 
-  std::vector< Mixture >   mixture[5];
+  std::array<std::vector< Mixture >,5>   mixture;
 
   fillMixture( multiComponentState, mixture );
 
@@ -49,7 +49,6 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
     double para_start = para_startMap.begin()->second;
 
     modes[i] =  findMode( para_start, i, mixture, log ) ;
-
     // Calculate the FWHM and return this back so that it can be used to correct the covariance matrix
     if( para_start != modes[i] ){
       // mode calculation was successful now calulate FWHM
@@ -63,7 +62,7 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
       double upperbound =modes[i] + 1.5 * currentWidth;
       while(true){
         if( pdf( upperbound, i, mixture ) > pdfVal*0.5 ){
-          upperbound += currentWidth;
+         upperbound += currentWidth;
         } else {
           break;
         }
@@ -77,7 +76,7 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
       double lowerbound =modes[i] - 1.5 * currentWidth;
       while(true){
         if( pdf( lowerbound, i, mixture ) > pdfVal*0.5 ){
-          lowerbound -= currentWidth;
+         lowerbound -= currentWidth;
         } else {
           break;
         }
@@ -92,7 +91,6 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
         double FWHM = highX - lowX;
         if( ATH_UNLIKELY( log.level() <= MSG::DEBUG  ) )
           log << "PDFval, high val, low val [ " << pdfVal << ", " << pdf( highX, i, mixture ) << ", " << pdf( lowX, i, mixture) << "]" << endmsg;
-
         if( FWHM <= 0 ) {
           if( ATH_UNLIKELY( log.level() <= MSG::DEBUG  ) )
             log << i << " Width is neagtive? " << highX << " " << lowX << " " <<  modes[i] << endmsg;
@@ -117,15 +115,13 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
         }
       }
     }
-
-
     para_startMap.clear();
   }
   return modes;
 
 }
 
-void Trk::MultiComponentStateModeCalculator::fillMixture( const Trk::MultiComponentState& multiComponentState, std::vector< Mixture >* mixture )
+void Trk::MultiComponentStateModeCalculator::fillMixture( const Trk::MultiComponentState& multiComponentState, std::array<std::vector< Mixture >,5>& mixture )
 {
 
   for (int i=0; i<5; i++){
@@ -160,16 +156,14 @@ void Trk::MultiComponentStateModeCalculator::fillMixture( const Trk::MultiCompon
           mean -= 2 * M_PI;
         }
       }
-
       Mixture mix(weight, mean, sigma );
-
       mixture[i].push_back( mix );
     }
   }
   return;
 }
 
-double Trk::MultiComponentStateModeCalculator::findMode( double xStart, int i, std::vector< Mixture >* mixture, MsgStream &log )
+double Trk::MultiComponentStateModeCalculator::findMode( double xStart, int i, std::array<std::vector< Mixture >,5>& mixture, MsgStream &log )
 {
 
   int iteration(0);
@@ -181,7 +175,6 @@ double Trk::MultiComponentStateModeCalculator::findMode( double xStart, int i, s
   while( iteration < 20 && tolerance > 1.e-8 ){
 
     double previousMode(mode);
-
     double d2pdfVal = d2pdf( previousMode, i, mixture);
 
     if (d2pdfVal != 0.0) {
@@ -218,7 +211,7 @@ double Trk::MultiComponentStateModeCalculator::findMode( double xStart, int i, s
 
 }
 
-double Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,int i, std::vector< Mixture >* mixture)
+double Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,int i, std::array<std::vector< Mixture >,5>& mixture)
 {
 
   double start(-1);
@@ -246,7 +239,7 @@ double Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,int i,
   return mode;
 }
 
-double Trk::MultiComponentStateModeCalculator::pdf( double x, int i, std::vector< Mixture >* mixture )
+double Trk::MultiComponentStateModeCalculator::pdf( double x, int i, std::array<std::vector< Mixture >,5>& mixture )
 {
 
   double pdf(0.);
@@ -260,7 +253,7 @@ double Trk::MultiComponentStateModeCalculator::pdf( double x, int i, std::vector
 
 }
 
-double Trk::MultiComponentStateModeCalculator::d1pdf( double x, int i,std::vector< Mixture >* mixture )
+double Trk::MultiComponentStateModeCalculator::d1pdf( double x, int i,std::array<std::vector< Mixture >,5>& mixture )
 {
 
   double result(0.);
@@ -279,7 +272,7 @@ double Trk::MultiComponentStateModeCalculator::d1pdf( double x, int i,std::vecto
 
 }
 
-double Trk::MultiComponentStateModeCalculator::d2pdf( double x, int i, std::vector< Mixture >* mixture )
+double Trk::MultiComponentStateModeCalculator::d2pdf( double x, int i, std::array<std::vector< Mixture >,5>& mixture )
 {
 
   double result(0.);
@@ -313,7 +306,7 @@ double Trk::MultiComponentStateModeCalculator::gaus( double x, double mean, doub
 }
 
 
-double Trk::MultiComponentStateModeCalculator::width( int i, std::vector< Mixture >* mixture  )
+double Trk::MultiComponentStateModeCalculator::width( int i, std::array<std::vector< Mixture >,5>& mixture  )
 {
 
   double pdf(0.);
@@ -329,7 +322,7 @@ double Trk::MultiComponentStateModeCalculator::width( int i, std::vector< Mixtur
 
 
 
-double Trk::MultiComponentStateModeCalculator::findRoot(double &result, double xlo, double xhi, double value, double i, std::vector< Mixture >* mixture, MsgStream &log)
+double Trk::MultiComponentStateModeCalculator::findRoot(double &result, double xlo, double xhi, double value, double i, std::array<std::vector< Mixture >,5>& mixture, MsgStream &log)
 {
  // Do the root finding using the Brent-Decker method. Returns a boolean status and
  // loads 'result' with our best guess at the root if true.
@@ -338,8 +331,8 @@ double Trk::MultiComponentStateModeCalculator::findRoot(double &result, double x
 
 
   double a(xlo),b(xhi);
-  double fa= pdf(a, i, mixture) - value;
-  double fb= pdf(b, i, mixture) - value;
+  double fa= pdf(a,i,mixture) - value;
+  double fb= pdf(b,i,mixture) - value;
 
   if(fb*fa > 0) {
 
