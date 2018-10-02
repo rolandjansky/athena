@@ -39,7 +39,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMakerMT_tau
 cellMaker = TrigCaloCellMakerMT_tau("CaloCellMakerTau")
-
+cellMaker.OutputLevel=DEBUG
  
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
@@ -73,13 +73,18 @@ theFastCaloHypo.OutputLevel = DEBUG
 
 fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
-from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+
+
+def genCaloHypoToolTau( name, conf ):
+    return HLTTest__TestHypoTool("name")
 
 def tauCaloSequence():
     return  MenuSequence( Sequence    = fastCaloAthSequence,
                           Maker       = fastCaloViewsMaker,
-                          Hypo        = theFastCaloHypo,
-                          HypoToolGen = TrigL2CaloHypoToolFromName )
+                          Hypo        = HLTTest__TestHypoAlg("DummyTauCaloHypo", Input=""),
+                          HypoToolGen = genCaloHypoToolTau )
 
 # #########################################
 # # second step:  tracking.....

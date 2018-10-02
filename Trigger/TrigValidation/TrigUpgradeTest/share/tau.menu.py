@@ -28,6 +28,8 @@ step1=ChainStep("Step1_tau", [tauCaloSequence()])
 # step2=ChainStep("Step2_etcut", [electronStep])
 
 
+
+
 testChains  = [
     Chain(name='HLT_tau8_loose',  Seed="L1_TAU8",  ChainSteps=[step1] ),
     Chain(name='HLT_tau10_loose', Seed="L1_TAU8",  ChainSteps=[step1] ),
@@ -54,11 +56,7 @@ for unpack in topSequence.L1DecoderTest.roiUnpackers:
         unpack.Decisions="L1MU"
     if unpack.name() is "TAURoIsUnpackingTool":
         unpack.Decisions="L1TAU"
-        
-# for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
-#     if unpack.name() is "EMRerunRoIsUnpackingTool":
-#         unpack.Decisions="RerunL1EM"
-#         unpack.SourceDecisions="L1EM"
+topSequence.L1DecoderTest.rerunRoiUnpackers = []
 
         
 # this is a temporary hack to include new test chains
