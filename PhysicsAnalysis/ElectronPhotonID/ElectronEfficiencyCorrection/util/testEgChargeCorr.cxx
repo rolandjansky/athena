@@ -24,6 +24,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Egamma.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/ElectronEfficiencyHelpers.h"
 #include "xAODCore/ShallowCopy.h"
 #include "AsgTools/AnaToolHandle.h"
 
@@ -145,8 +146,6 @@ int main( int argc, char* argv[] ) {
 
       xAOD::Electron* el = *el_it;
       if (el->pt() < 20000) continue;//skip electrons outside of recommendations
-      int ttruthcharge = (-1)*el->auxdata<int>("firstEgMotherPdgId");
-      // if ( el->charge() * ttruthcharge > 0   )  continue;
 
       bool LHacc = electronMediumLHSelector->accept(el);
       std::cout << "acc:  "<< LHacc << std::endl;
@@ -185,7 +184,7 @@ int main( int argc, char* argv[] ) {
 	    
       CHECK( myEgCorrections.applySystematicVariation(CP::SystematicSet()) );
       int truthcharge = false;
-      ElectronEfficiencyHelpers::getEleTruthCharge(el,truthcharge);
+      ElectronEfficiencyHelpers::getEleTruthCharge(*el,truthcharge);
 
       if ( el->charge() * truthcharge < 0   )  {
 	Info( APP_NAME, "===>>> MISID %f ",SF);
