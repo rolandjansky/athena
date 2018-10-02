@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***********************************************************************************
@@ -8,7 +8,7 @@
 begin                : Thursday 6th July 2006
 author               : atkinson
 email                : Tom.Atkinson@cern.ch
-description          : Class to calculate the mode (q/p) of a gaussian mixture
+description          : Class to calculate the mode (q/p) of a gaussian mixtureArray
 ***********************************************************************************/
 
 #ifndef Trk_MultiComponentStateModeCalculator_H
@@ -16,6 +16,9 @@ description          : Class to calculate the mode (q/p) of a gaussian mixture
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateModeCalculator.h"
+#include <atomic>
+#include <array>
+#include <vector>
 
 namespace Trk{
 
@@ -38,72 +41,75 @@ class MultiComponentStateModeCalculator : public AthAlgTool, virtual public IMul
   StatusCode finalize();
 
   //!< IMultiComponentStateModeCalculator interface method to calculate mode
-  Amg::VectorX calculateMode( const MultiComponentState& ) const;
-
- private:
-  
-  //!< Private method to extract the weight, mean and sigma values from the multi-component state
-  void fillMixture( const MultiComponentState& ) const;
-
-  //!< Private method to find the mode using the Newton-Raphson method based on a starting guess
-  double findMode( double, int ) const;
-
-  //!< Private method to determine the pdf of the cashed mixture at a given value
-  double pdf( double, int ) const;
-
-  //!< Private method to determine the first order derivative of the pdf at a given value
-  double d1pdf( double, int ) const;
-
-  //!< Private method to determine the second order derivative of the pdf at a given value
-  double d2pdf( double, int) const;
-
-  //!< Private method to determine the value of the a gaussian distribution at a given value
-  double gaus( double x, double mean, double sigma ) const;
-
-  double findModeGlobal(double, int) const;
-  
-  double width( int i)  const;
-  
-  double findRoot(double &result, double xlo, double xhi, double value, double i) const;
-
+  virtual Amg::VectorX calculateMode( const MultiComponentState& ) const override;
 
  private:
 
-  //!< Private mixture structure
+  //!< Private Mixture structure
   struct Mixture{
 
     // Default constructor
-    Mixture()
-      :
+    Mixture():
       weight(0.),
       mean(0.),
       sigma(0.)
     {}
 
     // Constructor with arguments
-    Mixture( double aWeight, double aMean, double aSigma )
-      :
+    Mixture( double aWeight, double aMean, double aSigma ):
       weight( aWeight ),
       mean( aMean ),
       sigma( aSigma )
     {}
-
     double weight;
     double mean;
     double sigma;
   };
 
+ 
+  //!< Private method to extract the weight, mean and sigma values from the multi-component state
+  void fillMixture( std::array<std::vector< Mixture >,5>& mixtureArray, 
+                    const MultiComponentState& ) const;
+
+  //!< Private method to find the mode using the Newton-Raphson method based on a starting guess
+  double findMode( const std::array<std::vector< Mixture >,5>& mixtureArray,
+                   double, int ) const;
+
+  //!< Private method to determine the pdf of the cashed mixtureArray at a given value
+  double pdf( const std::array<std::vector< Mixture >,5>& mixtureArray,
+              double, int ) const;
+
+  //!< Private method to determine the first order derivative of the pdf at a given value
+  double d1pdf( const std::array<std::vector< Mixture >,5>& mixtureArray,
+                double, int ) const;
+
+  //!< Private method to determine the second order derivative of the pdf at a given value
+  double d2pdf( const std::array<std::vector< Mixture >,5>& mixtureArray,
+                double, int) const;
+
+  //!< Private method to determine the value of the a gaussian distribution at a given value
+  double gaus( double x, double mean, double sigma ) const;
+
+  double findModeGlobal(const std::array<std::vector< Mixture >,5>& mixtureArray,
+                        double, int) const;
+  
+  double width( const std::array<std::vector< Mixture >,5>& mixtureArray,
+                int i)  const;
+  
+  double findRoot(const std::array<std::vector< Mixture >,5>& mixtureArray,
+                  double &result, double xlo, double xhi, double value, double i) const;
+
+
  private:
 
   int                              m_outputlevel;                      //!< to cache current output level
   
-  mutable std::vector< Mixture >   m_mixture[5];    //!< Mixture
   
   //ModeCalualtor Stats
-  mutable int                      m_NumberOfCalls;
-  mutable int                      m_ConverganceFilures;
-  mutable int                      m_NoErrorMatrix;
-  mutable int                      m_MixtureSizeZero;
+  mutable std::atomic<int>                      m_NumberOfCalls;
+  mutable std::atomic<int>                      m_ConverganceFilures;
+  mutable std::atomic<int>                      m_NoErrorMatrix;
+  mutable std::atomic<int>                      m_MixtureSizeZero;
   
   
 };
