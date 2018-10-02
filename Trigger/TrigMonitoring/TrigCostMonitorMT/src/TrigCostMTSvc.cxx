@@ -101,12 +101,12 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     
     result &= tc->setDetail("store", ai.m_store);
     result &= tc->setDetail("view", ai.m_viewID);
-    std::pair<uint32_t,uint32_t> startTimePair = startTime.secondsAndMilisecondsSinceEpoch();
-    std::pair<uint32_t,uint32_t> stopTimePair = stopTime.secondsAndMilisecondsSinceEpoch();
+    std::pair<uint32_t,uint32_t> startTimePair = startTime.secondsAndMillisecondsSinceEpoch();
+    std::pair<uint32_t,uint32_t> stopTimePair = stopTime.secondsAndMillisecondsSinceEpoch();
     result &= tc->setDetail("startTimeSeconds", startTimePair.first);
-    result &= tc->setDetail("startTimeMiliseconds", startTimePair.second);
+    result &= tc->setDetail("startTimeMilliseconds", startTimePair.second);
     result &= tc->setDetail("stopTimeSeconds", stopTimePair.first);
-    result &= tc->setDetail("stopTimeMiliseconds", stopTimePair.second);
+    result &= tc->setDetail("stopTimeMilliseconds", stopTimePair.second);
     if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost TC");
   }
 
@@ -117,9 +117,9 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       ATH_MSG_INFO("  Store:'" << tc->getDetail<std::string>("store") << "'");
       ATH_MSG_INFO("  View ID:" << tc->getDetail<int>("view"));
       ATH_MSG_INFO("  Start Time Seconds:" << tc->getDetail<uint32_t>("startTimeSeconds") << " s");
-      ATH_MSG_INFO("  Start Time Miliseconds:" << tc->getDetail<uint32_t>("startTimeMiliseconds") << " ms");
+      ATH_MSG_INFO("  Start Time Milliseconds:" << tc->getDetail<uint32_t>("startTimeMilliseconds") << " ms");
       ATH_MSG_INFO("  Stop Time Seconds:" << tc->getDetail<uint32_t>("stopTimeSeconds") << " s");
-      ATH_MSG_INFO("  Stop Time Miliseconds:" << tc->getDetail<uint32_t>("stopTimeMiliseconds") << " ms");
+      ATH_MSG_INFO("  Stop Time Milliseconds:" << tc->getDetail<uint32_t>("stopTimeMilliseconds") << " ms");
     }
   }
   
