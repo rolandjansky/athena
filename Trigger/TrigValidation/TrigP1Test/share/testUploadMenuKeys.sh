@@ -100,16 +100,16 @@ fi
 get_files -xmls HLTconfig_"${stump}"_tight_"${menu_type}"_prescale_"${AthenaP1_VERSION}".xml
 hltmenu1_tight=`find . -name HLTconfig_\*_tight_\*.xml`
 
-get_files -xmls HLTconfig_"${stump}"_tightperf_"${menu_type}"_prescale_"${AthenaP1_VERSION}".xml
-hltmenu1_tightperf=`find . -name HLTconfig_\*_tightperf_\*.xml`
+get_files -xmls HLTconfig_"${stump}"_TriggerValidation_"${menu_type}"_prescale_"${AthenaP1_VERSION}".xml
+hltmenu1_TriggerValidation=`find . -name HLTconfig_\*_TriggerValidation_\*.xml`
 
 mkdir PS_tight
 cp $l1menu PS_tight/.
 cp $hltmenu1_tight PS_tight/.
 
-mkdir PS_tightperf
-cp $l1menu PS_tightperf/.
-cp $hltmenu1_tightperf PS_tightperf/.
+mkdir PS_TriggerValidation
+cp $l1menu PS_TriggerValidation/.
+cp $hltmenu1_TriggerValidation PS_TriggerValidation/.
 
 
 # copy the setup files to the local directory to have tests independent of each other
@@ -131,7 +131,7 @@ hlt__setup1=ef_Default_setup.xml
 get_files -xmls LVL1config.dtd
 l1_schema=`find . -name LVL1config.dtd`
 cp $l1_schema PS_tight/.
-cp $l1_schema PS_tightperf/.
+cp $l1_schema PS_TriggerValidation/.
 
 p1_rel="AthenaP1"
 if [ $NICOS_ATLAS_RELEASE ]
@@ -176,8 +176,8 @@ echo "# creating SMK" >> uploadSMK_"$stump"_tight.sh
 echo "if [ -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_tight.sh
 echo "   rm MenusKeys.txt" >> uploadSMK_"$stump"_tight.sh
 echo "fi" >> uploadSMK_"$stump"_tight.sh
-echo "Uploading SMK. It may take a while..." >> uploadSMK_"$stump"_tight.sh
-echo "$cmd &> SMK_upload.log" >> uploadSMK_"$stump"_tight.sh
+echo "echo 'Uploading SMK. It may take a while...'" >> uploadSMK_"$stump"_tight.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release "$p1_rel" --l1_menu "$l1menu" --topo_menu "$l1topo" -hlt "$hltmenu1" --hlt_setup "$hlt__setup1" --name '"$stump"_tight,AthenaP1Test' -l INFO --SMcomment '"${rundate}${nightly}_${rel}"' --dbConn TRIGGERDBREPR -w_n 50 -w_t 60 &> SMK_upload.log" >> uploadSMK_"$stump"_tight.sh
 echo "if grep --quiet SEVERE SMK_upload.log; then" >> uploadSMK_"$stump"_tight.sh
 echo "  echo 'SEVERE error occured, maybe existing write lock. Please check SMK_upload.log' " >> uploadSMK_"$stump"_tight.sh
 echo "  return " >> uploadSMK_"$stump"_tight.sh
@@ -188,8 +188,8 @@ echo "fi" >> uploadSMK_"$stump"_tight.sh
 echo "smk=\`grep SM MenusKeys.txt | awk '{print \$3}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tight.sh
 echo "echo 'Created SMK ' \$smk" >> uploadSMK_"$stump"_tight.sh
 echo "# upload prescaled" >> uploadSMK_"$stump"_tight.sh
-echo "Uploading prescale keys. It may take another while..." >> uploadSMK_"$stump"_tight.sh
-echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tight -smk \${smk} -w_n 50 -w_t 60 &> PS_upload.log" >> uploadSMK_"$stump"_tight.sh
+echo "echo 'Uploading prescale keys. It may take another while...'" >> uploadSMK_"$stump"_tight.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn TRIGGERDBREPR -psup PS_tight -smk \${smk} -w_n 50 -w_t 60 &> PS_upload.log" >> uploadSMK_"$stump"_tight.sh
 echo "if grep -v 'LVL1config.dtd' PS_upload.log | grep --quiet SEVERE ; then" >> uploadSMK_"$stump"_tight.sh
 echo "  echo 'SEVERE error occured, maybe existing write lock. Please check PS_upload.log' " >> uploadSMK_"$stump"_tight.sh
 echo "  return " >> uploadSMK_"$stump"_tight.sh
@@ -198,33 +198,33 @@ echo "l1psk=\`grep  'INFO: Prescale set saved with id' PS_upload.log | awk '{pri
 echo "hltpsk=\`grep 'INFO: HLT Prescale set saved with id' PS_upload.log | awk '{print \$8}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_tight.sh
 echo "echo 'L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk" >> uploadSMK_"$stump"_tight.sh
 
-echo "# setup release" >> uploadSMK_"$stump"_tightperf.sh
-echo "asetup AthenaP1,21.1,r${rel}" >> uploadSMK_"$stump"_tightperf.sh
-echo "# creating SMK" >> uploadSMK_"$stump"_tightperf.sh
-echo "if [ -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_tightperf.sh
-echo "   rm MenusKeys.txt" >> uploadSMK_"$stump"_tightperf.sh
-echo "fi" >> uploadSMK_"$stump"_tightperf.sh
-echo "Uploading SMK. It may take a while..." >> uploadSMK_"$stump"_tightperf.sh
-echo "$cmd &> SMK_upload.log" >> uploadSMK_"$stump"_tightperf.sh
-echo "if grep --quiet SEVERE SMK_upload.log; then" >> uploadSMK_"$stump"_tightperf.sh
-echo "  echo 'SEVERE error occured, maybe existing write lock. Please check SMK_upload.log' " >> uploadSMK_"$stump"_tightperf.sh
-echo "  return " >> uploadSMK_"$stump"_tightperf.sh
-echo "elif [ ! -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_tightperf.sh
-echo "  echo 'MenusKeys.txt does not exist. Something went wrong. Please check SMK_upload.log' " >> uploadSMK_"$stump"_tightperf.sh
-echo "  return " >> uploadSMK_"$stump"_tightperf.sh
-echo "fi" >> uploadSMK_"$stump"_tightperf.sh
-echo "smk=\`grep SM MenusKeys.txt | awk '{print \$3}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tightperf.sh
-echo "echo 'Created SMK ' \$smk" >> uploadSMK_"$stump"_tightperf.sh
-echo "# upload prescaled" >> uploadSMK_"$stump"_tightperf.sh
-echo "Uploading prescale keys. It may take another while..." >> uploadSMK_"$stump"_tightperf.sh
-echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tightperf -smk \${smk} -w_n 50 -w_t 60 &> PS_upload.log" >> uploadSMK_"$stump"_tightperf.sh
-echo "if grep -v 'LVL1config.dtd' PS_upload.log | grep --quiet SEVERE ; then" >> uploadSMK_"$stump"_tightperf.sh
-echo "  echo 'SEVERE error occured, maybe existing write lock. Please check PS_upload.log' " >> uploadSMK_"$stump"_tightperf.sh
-echo "  return " >> uploadSMK_"$stump"_tightperf.sh
-echo "fi" >> uploadSMK_"$stump"_tightperf.sh
-echo "l1psk=\`grep  'INFO: Prescale set saved with id' PS_upload.log | awk '{print \$7}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_tightperf.sh
-echo "hltpsk=\`grep 'INFO: HLT Prescale set saved with id' PS_upload.log | awk '{print \$8}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_tightperf.sh
-echo "echo 'L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk" >> uploadSMK_"$stump"_tightperf.sh
+echo "# setup release" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "asetup AthenaP1,21.1,r${rel}" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "# creating SMK" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "if [ -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "   rm MenusKeys.txt" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "fi" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "echo 'Uploading SMK. It may take a while...'" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release "$p1_rel" --l1_menu "$l1menu" --topo_menu "$l1topo" -hlt "$hltmenu1" --hlt_setup "$hlt__setup1" --name '"$stump"_TriggerValidation,AthenaP1Test' -l INFO --SMcomment '"${rundate}${nightly}_${rel}"' --dbConn TRIGGERDBREPR -w_n 50 -w_t 60 &> SMK_upload.log" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "if grep --quiet SEVERE SMK_upload.log; then" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "  echo 'SEVERE error occured, maybe existing write lock. Please check SMK_upload.log' " >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "  return " >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "elif [ ! -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "  echo 'MenusKeys.txt does not exist. Something went wrong. Please check SMK_upload.log' " >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "  return " >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "fi" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "smk=\`grep SM MenusKeys.txt | awk '{print \$3}' | sed 's#:##'\`" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "echo 'Created SMK ' \$smk" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "# upload prescaled" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "echo 'Uploading prescale keys. It may take another while...'" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn TRIGGERDBREPR -psup PS_TriggerValidation -smk \${smk} -w_n 50 -w_t 60 &> PS_upload.log" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "if grep -v 'LVL1config.dtd' PS_upload.log | grep --quiet SEVERE ; then" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "  echo 'SEVERE error occured, maybe existing write lock. Please check PS_upload.log' " >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "  return " >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "fi" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "l1psk=\`grep  'INFO: Prescale set saved with id' PS_upload.log | awk '{print \$7}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "hltpsk=\`grep 'INFO: HLT Prescale set saved with id' PS_upload.log | awk '{print \$8}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_TriggerValidation.sh
+echo "echo 'L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk" >> uploadSMK_"$stump"_TriggerValidation.sh
 
 if [ $noUpload -eq 1 ]; then
   exit 0
@@ -296,8 +296,8 @@ rm $PSdir/*Standby*
 ls $PSdir
 
 # upload PS keys
-#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
-/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
 hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
@@ -328,8 +328,8 @@ rm $PSdir/*Standby*
 ls $PSdir
 
 # upload PS keys
-#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
-/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
 hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then

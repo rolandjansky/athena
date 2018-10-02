@@ -52,6 +52,12 @@ TrigEFMissingETHypo::TrigEFMissingETHypo(const std::string& name, ISvcLocator* p
   declareProperty("doL1L2FEBTest", m_doL1L2FEBTest = false, "Use L2=L1 values to Trigger FEB if MET values disagree by more than L1L2FEBTolerance GeV (for FEB only!)" );
   declareProperty("L1L2FEBTolerance", m_L1L2FEBTolerance = 100*CLHEP::GeV, "L2=L1 vs FEB tolerance in GeV" );
 
+  declareProperty("doLArH11off", m_doLArH11off = false, "LAr H11 crate is off" );
+  declareProperty("doLArH12off", m_doLArH12off = false, "LAr H12 crate is off" );
+  declareProperty("doMETphicut", m_doMETphicut = false, "remove event when MET phi in the region of LAr H11 or/both H12");
+
+
+
 
   // xs = MET/[a sqrt(SumET) - b] 
 
@@ -205,6 +211,9 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   std::vector<const xAOD::TrigMissingET*> vectorMissingET;
 
   HLT::ErrorCode stat = getFeatures(outputTE, vectorMissingET, m_featureLabel);
+
+
+
 
   if(stat != HLT::OK) {
     msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
@@ -632,6 +641,13 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   */
   else if(!accepted){
     msg() << MSG::WARNING << " WRONG Cut Type.  Event will Fail MET Cut " << endmsg;
+  }
+
+  
+  if(m_doMETphicut){
+	m_phi = atan2f(Ey, Ex); 
+	if(m_doLArH12off && m_phi > -2.5 && m_phi < -2.0 ) accepted = false;
+	if(m_doLArH11off && m_phi > -2.0 && m_phi < -1.5 ) accepted = false;
   }
 
   if(accepted) {

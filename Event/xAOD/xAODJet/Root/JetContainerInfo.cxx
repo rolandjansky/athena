@@ -87,6 +87,7 @@ namespace xAOD {
       nameToTypemap["LCPFlow"] =       LCPFlow;             
       nameToTypemap["EMPFlow"] =       EMPFlow;             
       nameToTypemap["EMCPFlow"] =      EMCPFlow;             
+      nameToTypemap["HI"] =            HI;
       nameToTypemap[c_unCategorized] = Uncategorized;
 
 
