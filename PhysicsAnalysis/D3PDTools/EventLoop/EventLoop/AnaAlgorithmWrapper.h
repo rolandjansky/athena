@@ -70,6 +70,12 @@ namespace EL
     virtual StatusCode initialize ();
 
   private:
+    virtual StatusCode fileExecute ();
+
+  private:
+    virtual StatusCode changeInput (bool firstFile);
+
+  private:
     virtual StatusCode execute ();
 
   private:
