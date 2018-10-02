@@ -100,13 +100,6 @@ acc.getService("EventPersistencySvc").CnvServices += [ tagInfoMgr.getName() ]
 acc.getService("ProxyProviderSvc").ProviderNames  += [ tagInfoMgr.getName() ]
 acc.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
 
-# we need to setup it because of conditions data
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-athenaPoolSvcSvc = AthenaPoolCnvSvc()
-athenaPoolSvcSvc.PoolAttributes = ["DEFAULT_SPLITLEVEL ='0'", "STREAM_MEMBER_WISE = '1'", "DEFAULT_BUFFERSIZE = '32000'", "ContainerName = 'POOLContainer(DataHeader)'; BRANCH_BASKET_SIZE = '256000'", "ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'", "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'"]
-acc.addService( athenaPoolSvcSvc )
-acc.getService( "EventPersistencySvc" ).CnvServices += [ athenaPoolSvcSvc.getName() ]
-
 
 # setup algorithm sequences here, need few additional components
 from TrigUpgradeTest.RegSelConfig import RegSelConfig

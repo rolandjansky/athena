@@ -8,7 +8,6 @@ metaSoftMuonTag = { 'IsATagger'            : True,
                     'NeedsMuonAssociator'  : True,
                     'DependsOn'            : ['AtlasExtrapolator',
                                               'BTagTrackToVertexTool',
-					      'BTagCalibrationBrokerTool',
                                               'BTagFullLinearizedTrackFactory',
                                               'BTagTrackToVertexIPEstimator',
                                               'SoftMuonTagNewLikelihoodTool',
@@ -16,7 +15,6 @@ metaSoftMuonTag = { 'IsATagger'            : True,
                     'PassByPointer'        : {'LikelihoodTool'    : 'SoftMuonTagNewLikelihoodTool',
                                               'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
                                               'muonSelectorTool': 'MuonSelectorTool',
-					      'calibrationTool' : 'BTagCalibrationBrokerTool'
 										   },
 #                                              'TrackToVertexTool' : 'BTagTrackToVertexTool'},
                     'JetCollectionList'    : 'jetCollectionList',
@@ -55,8 +53,6 @@ def toolSoftMuonTag(name, useBTagFlagsDefaults = True, **options):
 #----------------------------------------------------------------------
 
 metaSoftMuonTagNewLikelihoodTool = { 'CalibrationTaggers' : ['SMT',],
-                                     'DependsOn'          : ['BTagCalibrationBrokerTool',],
-                                     'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                      'ToolCollection'     : 'SoftMuonTag' }
 
 def toolSoftMuonTagNewLikelihoodTool(name, useBTagFlagsDefaults = True, **options):

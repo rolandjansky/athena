@@ -29,11 +29,11 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 
 # menu components   
-from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
-from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
 
 ### CF construction ###
-from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
 
 
@@ -44,7 +44,7 @@ if  TriggerFlags.doMuon==True:
     # menu
     ##########################################
 
-    from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
     from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muonEFSAStep, muIsoStep, doL2SA, doL2CB, doEFSA, doL2ISO
 
     MenuChains  = []
@@ -60,6 +60,7 @@ if  TriggerFlags.doMuon==True:
     # add one chain wihtout tracking
     MenuChains += [Chain(name='HLT_mu6fast', Seed="L1_MU6",  ChainSteps=[step1mufast])]
 
+    
     
     if TriggerFlags.doID==False:
         if doL2SA==True  and doL2CB==False and doEFSA==False and doL2ISO==False:           
@@ -77,13 +78,10 @@ if  TriggerFlags.doMuon==True:
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]           
         if doL2SA==True  and doL2CB==True  and doEFSA==False and doL2ISO==True:
-            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
-            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muIso ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muIso ])]
+            
         if doL2SA==True  and doL2CB==True  and doEFSA==True and doL2ISO==True:
-            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]
-            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]           
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muIso ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muIso ])]
 
@@ -139,5 +137,5 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     ##### Make all HLT #######
-    from TrigUpgradeTest.HLTCFConfig import makeHLTTree
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
     makeHLTTree(MenuChains)

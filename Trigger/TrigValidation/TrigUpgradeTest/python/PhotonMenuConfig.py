@@ -7,8 +7,8 @@ from AthenaCommon.Constants import DEBUG,VERBOSE
 
 def l2PhotonCaloStepCfg( flags, chains ):
 
-    from TrigUpgradeTest.MenuComponents import FilterHypoSequence
-    fhSeq = FilterHypoSequence( 'PhotonFastCalo' )
+    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    fhSeq = NJMenuSequence( 'PhotonFastCalo' )
     fhSeq.addFilter( chains, inKey = 'EMRoIDecisions' )
 
     from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering
@@ -64,8 +64,8 @@ def l2PhotonRecoCfg( flags ):
     return reco
 
 def l2PhotonRecoStepCfg( flags, chains, inputSequence ):
-    from TrigUpgradeTest.MenuComponents import FilterHypoSequence
-    fhSeq = FilterHypoSequence( 'PhotonFastReco' )
+    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    fhSeq = NJMenuSequence( 'PhotonFastReco' )
     fhSeq.addFilter( chains, inKey=inputSequence.hypoDecisions() )
 
     from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering

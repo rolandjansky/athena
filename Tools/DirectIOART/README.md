@@ -11,6 +11,7 @@ Detailed lists of the tests that are performed within the particular software re
 ##### Tests:
 * **TFile::Open** (using an AOD input file)
   * master/Athena
+  * master/AthSimulation
   * 21.0/Athena
   * 21.0/AthSimulation
   * 21.2/AthAnalysis

@@ -9,8 +9,8 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
+#include "PixelConditionsTools/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
 #include "PixelConditionsTools/IPixelTDAQSvc.h"
 

@@ -19,7 +19,3 @@ noMuon = True
 noID = True
 
 include ('AthenaPoolUtilities/TPCnvTest.py')
-
-from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-tileInfoConfigurator = TileInfoConfigurator()
-

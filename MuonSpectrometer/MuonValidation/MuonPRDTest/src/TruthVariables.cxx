@@ -142,7 +142,7 @@ StatusCode TruthVariables::initializeVariables()
 
 /** ---------- freeing resources and resetting pointers */
 /** ---------- to be called in the destructor */
-StatusCode TruthVariables::deleteVariables()
+void TruthVariables::deleteVariables()
 {
   m_Truth_nVertices = 0;
 
@@ -182,5 +182,5 @@ StatusCode TruthVariables::deleteVariables()
   m_Truth_particleProduction_vertex_id = nullptr;
   m_Truth_particleEnd_vertex_id = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }

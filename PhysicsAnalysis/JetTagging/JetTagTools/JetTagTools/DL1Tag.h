@@ -17,6 +17,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "JetTagTools/NNLayerConfig.h"
 #include "JetTagTools/IMultivariateJetTagger.h"
+#include "JetTagCalibration/JetTagCalibCondData.h"
 
 #include <vector>
 #include <istream>
@@ -24,10 +25,6 @@
 namespace xAOD {
   class Vertex_v1;
   typedef Vertex_v1 Vertex;
-}
-
-namespace Analysis {
-    class CalibrationBroker;
 }
 
 namespace lwt {
@@ -57,8 +54,8 @@ namespace Analysis {
     typedef std::map<std::string, std::vector<lwt::Input> > map_var;
     typedef std::map<std::string, lwt::LightweightNeuralNetwork*> nn_map;
 
-    // load the calibration file from the COOL db
-    void load_calibration_file();
+    /** Key of calibration data: */
+    SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
     void cache_calibration(const std::string& jetauthor);
     std::string get_calib_string(std::string jetauthor);
 
@@ -67,7 +64,6 @@ namespace Analysis {
 
     std::string m_calibrationDirectory;
     std::string m_calibrationSubDirectory;
-    ToolHandle<CalibrationBroker> m_calibrationTool; // pointer to calibration in COOL
     std::string m_xAODBaseName;
     bool m_forceDL1CalibrationAlias;
     std::string m_DL1CalibAlias;

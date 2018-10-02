@@ -60,7 +60,7 @@ ToyDetectorTool::create()
       //
       GeoPhysVol *world=&*theExpt->getPhysVol();
       theToyFactory.create(world);
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
       log << MSG::FATAL << "Could not create new ToyDetectorNode!" << endmsg;
       return StatusCode::FAILURE; 
     }

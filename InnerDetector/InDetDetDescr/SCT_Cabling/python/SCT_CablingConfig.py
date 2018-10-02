@@ -71,3 +71,30 @@ def getSCT_FillCablingFromCoraCool(name="SCT_FillCablingFromCoraCool", **kwargs)
     from SCT_Cabling.SCT_CablingConf import SCT_FillCablingFromCoraCool
     return CfgMgr.SCT_FillCablingFromCoraCool(name, **kwargs)
 
+
+# https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+def SCT_CablingFoldersCfg(configFlags):
+    cfg=ComponentAccumulator()
+    path="/SCT/DAQ/Config/"
+    if configFlags.IOVDb.DatabaseInstance == "COMP200":
+        path="/SCT/DAQ/Configuration/"
+    instance="SCT"
+    if configFlags.Input.isMC:
+        instance="SCT_OFL"
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
+    cfg.merge(addFolders(configFlags, [path+"ROD", path+"RODMUR", path+"MUR", path+"Geog"], instance, className="CondAttrListVec")[0])
+    return cfg, path
+
+def SCT_CablingCondAlgCfg(configFlags):
+    cfg=ComponentAccumulator()
+    foldersCfg,path=SCT_CablingFoldersCfg(configFlags)
+    cfg.merge(foldersCfg)
+    from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
+    cfg.addCondAlgo(SCT_CablingCondAlgFromCoraCool(ReadKeyRod=path+"ROD",
+                                                   ReadKeyRodMur=path+"RODMUR",
+                                                   ReadKeyMur=path+"MUR",
+                                                   ReadKeyGeo=path+"Geog"))
+    return cfg

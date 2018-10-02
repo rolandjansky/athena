@@ -28,7 +28,7 @@
 #include "Identifier/Range.h"
 #include "IdDict/IdDictFieldImplementation.h"
 #include "AtlasDetTechnology.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 #include <vector>
 

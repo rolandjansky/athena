@@ -12,12 +12,9 @@
 
 #include <vector>
 
-#include "GaudiKernel/StatusCode.h"
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-//typdefs, cannot be fwd declared
+//typedefs, cannot be fwd declared
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Photon.h"

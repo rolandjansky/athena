@@ -14,12 +14,6 @@
 
 class sTgcIdHelper;
 
-namespace TPCnv {
-  template<> class CreateTransient< Muon::STGC_RawDataContainer > {
-    public: static std::unique_ptr< Muon::STGC_RawDataContainer > create() { return nullptr;}
-  };
-}
-
 namespace Muon{
   class STGC_RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<Muon::STGC_RawDataContainer, Muon::STGC_RawDataContainer_p1>
   {
@@ -28,10 +22,10 @@ namespace Muon{
 
       virtual void	persToTrans(const Muon::STGC_RawDataContainer_p1* persCont,
           Muon::STGC_RawDataContainer* transCont,
-          MsgStream &log) override;
+          MsgStream &log) ;
       virtual void	transToPers(const Muon::STGC_RawDataContainer* transCont,
           Muon::STGC_RawDataContainer_p1* persCont,
-          MsgStream &log) override;
+          MsgStream &log) ;
 
       virtual Muon::STGC_RawDataContainer* createTransient(const Muon::STGC_RawDataContainer_p1* persObj, MsgStream& log) override final;    
     

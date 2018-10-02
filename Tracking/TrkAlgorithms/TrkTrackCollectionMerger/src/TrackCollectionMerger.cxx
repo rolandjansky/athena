@@ -21,7 +21,7 @@
 
 Trk::TrackCollectionMerger::TrackCollectionMerger
 (const std::string& name, ISvcLocator* pSvcLocator  ) :
-  AthReentrantAlgorithm(name, pSvcLocator ),
+  AthAlgorithm(name, pSvcLocator ),
   m_createViewCollection(true),
   m_updateSharedHitsOnly(true),
   m_updateAdditionalInfo(false)
@@ -73,7 +73,7 @@ StatusCode Trk::TrackCollectionMerger::initialize()
 ///////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
-StatusCode Trk::TrackCollectionMerger::execute_r(const EventContext& ctx) const
+StatusCode Trk::TrackCollectionMerger::execute()
 {
   // clean up association tool
   m_assoTool->reset();
@@ -88,7 +88,7 @@ StatusCode Trk::TrackCollectionMerger::execute_r(const EventContext& ctx) const
   size_t ttNumber = 0;
   for (auto& tcname : m_tracklocation){
     ///Retrieve forward tracks from StoreGate
-    SG::ReadHandle<TrackCollection> trackCol (tcname,ctx);
+    SG::ReadHandle<TrackCollection> trackCol (tcname);
     trackCollections.push_back(trackCol.cptr());
     ttNumber += trackCol->size();
   }
@@ -113,7 +113,7 @@ StatusCode Trk::TrackCollectionMerger::execute_r(const EventContext& ctx) const
     else  m_trkSummaryTool->updateTrack(*trk);
   }
 
-  SG::WriteHandle<TrackCollection> h_write(m_outtracklocation,ctx);
+  SG::WriteHandle<TrackCollection> h_write(m_outtracklocation);
   ATH_CHECK(h_write.record(std::move(outputCol)));	     
 
 
