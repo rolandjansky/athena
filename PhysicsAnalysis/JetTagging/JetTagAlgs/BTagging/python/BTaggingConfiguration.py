@@ -1022,7 +1022,13 @@ class Configuration:
               tool = self.getTool(tool_type, TrackCollection = track, JetCollection = jetcol)
               if tool is None:
                   # setup the tool
-                  tool = self.setupDefaultTool(tool_type, ToolSvc, Verbose=Verbose, track=track,
+                  if getToolMetadata(tool_type, 'IsATagger') or 'DL1' in tool_type or 'MV2' in tool_type or getToolMetadata(tool_type, 'IsAVertexFinder'):
+                      tool = self.setupDefaultTool(tool_type, None, Verbose=Verbose, track=track,
+                                               jetcol=jetcol, name=name, options=options,
+                                               MuonCollection=MuonCollection,
+                                               ElectronCollection=ElectronCollection,PhotonCollection=PhotonCollection)
+                  else:
+                      tool = self.setupDefaultTool(tool_type, ToolSvc, Verbose=Verbose, track=track,
                                                jetcol=jetcol, name=name, options=options,
                                                MuonCollection=MuonCollection,
                                                ElectronCollection=ElectronCollection,PhotonCollection=PhotonCollection)
@@ -1280,7 +1286,8 @@ class Configuration:
       if (tool_type, jetcol, track) in self._BTaggingConfig_SetUpCombinations:
           print self.BTagTag()+' - WARNING - A tool of type "'+tool_type+'" was already set up for the combination '+str((track, jetcol))+' ignoring duplicate...'
           return
-      if getToolMetadata(tool_type, 'IsATagger'):
+      #HACK DL1
+      if getToolMetadata(tool_type, 'IsATagger') and not 'DL1' in tool_type and not 'MV2' in tool_type:
           btagger = self.getJetCollectionTool(jetcol)
           btagger.TagToolList += [tool,]
       if getToolMetadata(tool_type, 'IsAVertexFinder'):
@@ -1509,7 +1516,6 @@ class Configuration:
       options['name'] = name
       from BTagging.BTaggingConf import Analysis__BTagSecVertexing
       tool = Analysis__BTagSecVertexing(**options)
-      ToolSvc += tool
       return tool
 
   def setupBTagTool(self, jetcol, ToolSvc, Verbose = False, options={}):
@@ -1530,20 +1536,22 @@ class Configuration:
       options = dict(options)
       # Setup a removal tool for it
       options.setdefault('storeSecondaryVerticesInJet', BTaggingFlags.writeSecondaryVertices)
-      thisSecVtxTool = self.setupSecVtxTool('thisBTagSecVertexing_'+jetcol+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
+      #thisSecVtxTool = self.setupSecVtxTool('thisBTagSecVertexing_'+jetcol+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
+      thisSecVtxTool = self.setupSecVtxTool('btagSV'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
       self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
       #options['BTagSecVertexingTool'] = thisSecVtxTool # MOVED TO JETBTAGGERTOOL
       del options['storeSecondaryVerticesInJet'] # we don't want it passed to the main b-tag tool
-      options['name'] = 'myBTagTool_'+jetcol+self.GeneralToolSuffix()
+      #options['name'] = 'myBTagTool_'+jetcol+self.GeneralToolSuffix()
+      options['name'] = 'btagtool'+self.GeneralToolSuffix()
       options.setdefault('BTagLabelingTool', None)
       options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
+      options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
       btagtool = toolMainBTaggingTool(**options)
       if BTaggingFlags.OutputLevel < 3:
           print self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol
       if self._BTaggingConfig_JetCollections.get(jetcol, None) is None:
           # Store this one to the jet collections
           self._BTaggingConfig_JetCollections[jetcol] = btagtool
-          ToolSvc += btagtool
       else:
           print self.BTagTag()+' - ERROR - Setting up BTagTool for a jet collection which was already set up previously!'
           raise ValueError

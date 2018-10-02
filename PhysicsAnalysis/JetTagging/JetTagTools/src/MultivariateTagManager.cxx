@@ -43,7 +43,7 @@ namespace {
 namespace Analysis {
   MultivariateTagManager::MultivariateTagManager(const std::string& name, const std::string& n, const IInterface* p)
     : AthAlgTool(name, n, p),
-      m_MultivariateTaggerHandleArray()
+      m_MultivariateTaggerHandleArray(this)
   {
     declareInterface<ITagTool>(this);
 
@@ -62,6 +62,12 @@ namespace Analysis {
 
   StatusCode MultivariateTagManager::initialize()
   {
+
+    if (m_MultivariateTaggerHandleArray.empty()) {
+         ATH_MSG_ERROR("MVTagToolList is empty");
+         return StatusCode::FAILURE;
+    }
+
     if ( m_MultivariateTaggerHandleArray.retrieve().isFailure() ) {
       ATH_MSG_ERROR("#BTAG# Failed to retreive " << m_MultivariateTaggerHandleArray);
       return StatusCode::FAILURE;
@@ -74,7 +80,8 @@ namespace Analysis {
     for (auto& itr : m_MultivariateTaggerHandleArray) {
       sc = itr.retrieve(); //initialize the tagger from the array
       if(sc.isFailure()){
-  ATH_MSG_WARNING("Retrieving in the initialization of MultivariateTagManager failed.");
+        ATH_MSG_WARNING("Retrieving in the initialization of MultivariateTagManager failed.");
+        return StatusCode::FAILURE;
       }
     }
 

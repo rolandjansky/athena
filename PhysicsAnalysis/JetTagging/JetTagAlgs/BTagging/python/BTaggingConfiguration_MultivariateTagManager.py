@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for MultivariateTagManager
 # Author: Marie Lanfermann (October 2015)
@@ -35,9 +35,12 @@ def toolMultivariateTagManager(name, useBTagFlagsDefaults = True, **options):
                      'inputIP2DSourceName'              : 'IP2D',
                      'inputIP3DSourceName'              : 'IP3D',
                      'inputJFSourceName'                : 'JetFitter',
+                     'MVTagToolList'                    : BTaggingFlags.MVTagToolList,
+                     'arbitraryAuxData'                 : BTaggingFlags.MultivariateTagManagerAuxBranches,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
-    options['name'] = name
+    #options['name'] = name
+    options['name'] = 'mvtm'
     from JetTagTools.JetTagToolsConf import Analysis__MultivariateTagManager
     return Analysis__MultivariateTagManager(**options)

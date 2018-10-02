@@ -52,9 +52,9 @@ namespace Analysis {
 
   BTagSecVertexing::BTagSecVertexing(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_secVertexFinderToolsHandleArray(),
-    m_JFvarFactory("Analysis::JetFitterVariablesFactory"),
-    m_MSVvarFactory("Analysis::MSVVariablesFactory"),
+    m_secVertexFinderToolsHandleArray(this),
+    m_JFvarFactory("Analysis::JetFitterVariablesFactory",this),
+    m_MSVvarFactory("Analysis::MSVVariablesFactory",this),
     m_vxPrimaryName("PrimaryVertices")
   {
     declareInterface<IBTagSecVertexing>(this);

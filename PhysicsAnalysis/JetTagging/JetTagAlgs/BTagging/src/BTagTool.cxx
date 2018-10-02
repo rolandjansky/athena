@@ -15,9 +15,6 @@
 
 #include "BTagging/BTagTool.h"
 
-//#include "VxVertex/VxContainer.h"
-//#include "VxVertex/RecVertex.h"
-
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
@@ -29,7 +26,7 @@ namespace Analysis {
 
   BTagTool::BTagTool(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_bTagToolHandleArray(),
+    m_bTagToolHandleArray(this),
     m_bTagTool(std::map<std::string, ITagTool*>()),
     m_BaselineTagger("IP3D+SV1"),
     m_vxPrimaryName("PrimaryVertices"),
