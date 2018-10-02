@@ -12,6 +12,7 @@
 
 // Include this class's header
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/ElectronEfficiencyHelpers.h"
 // xAOD includes
 #include "PathResolver/PathResolver.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -333,7 +334,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
 
   // checking on the truth electron: up to now if this is not a good ele it's returning
   bool goodEle = false;
-  CP::CorrectionCode goodEle_result = this->isGoodEle( ele, goodEle); 
+  CP::CorrectionCode goodEle_result = ElectronEfficiencyHelpers::isGoodEle( ele, goodEle); 
   if ( goodEle_result != CP::CorrectionCode::Ok ) {
     sf = -999.0;
     ATH_MSG_DEBUG("Check if we have a good electron failed. Setting scale factor to -999");
@@ -353,7 +354,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
 
   // getting the truth charge
   int truth_ele_charge = 9999;
-  CP::CorrectionCode charge_result = this->getEleTruthCharge( ele, truth_ele_charge);
+  CP::CorrectionCode charge_result = ElectronEfficiencyHelpers::getEleTruthCharge( ele, truth_ele_charge);
   if ( charge_result != CP::CorrectionCode::Ok ) {
     sf = -999.0;
     ATH_MSG_VERBOSE("Check of truth electron charge failed. Setting scale factor to -999");
@@ -538,70 +539,6 @@ CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAO
 int CP::ElectronChargeEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::Electron&) const {
   ATH_MSG_WARNING("systUncorrVariationIndex is not implemented in ElectronChargeEfficiencyCorrectionTool");
   return 0;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Get type and charge of the truth electron
-// made them static so they can be used by analyses to do truth matches
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-CP::CorrectionCode CP::ElectronChargeEfficiencyCorrectionTool::getEleTruthCharge( const xAOD::Electron& ele,  int& truthcharge )
-{
-
-  // Define an AsgMessaging instance
-  static const asg::AsgMessaging msg("CP::ElectronChargeEfficiencyCorrectionTool");
-
-  if ( !(ele.isAvailable<int>("firstEgMotherPdgId")) ) {
-    msg.msg(MSG::ERROR) << "Link not available for firstEgMotherPdgId...BAD!!!" << endmsg;
-    msg.msg(MSG::ERROR) << "Need to have present: ( !(ele.isAvailable<int>('firstEgMotherPdgId')) )" << endmsg;
-    return CP::CorrectionCode::OutOfValidityRange;
-  }
-
-  truthcharge = (-1)*ele.auxdata<int>("firstEgMotherPdgId");
-  // Make truthcharge -1, 0, +1
-  truthcharge = (0 < truthcharge) - (truthcharge < 0);
-
-  return CP::CorrectionCode::Ok;
-
-}
-
-
-CP::CorrectionCode CP::ElectronChargeEfficiencyCorrectionTool::isGoodEle( const xAOD::Electron& ele, bool& goodele)
-{
-
-  // good ele => (firstEgMotherPdgId) == 11 
-  // this is the case for type 2,3 and 4 electrons, so is not a real truth match!!!
-  // but we believe that it doesn't hurt to apply scale factors for all these cases
-  goodele = false;
-  int firstEgPdgId = -9999;
-
-  // Define an AsgMessaging instance
-  static const asg::AsgMessaging msg("CP::ElectronChargeEfficiencyCorrectionTool");
-
-  if ( !(ele.isAvailable<int>("firstEgMotherPdgId")) ) {
-    msg.msg(MSG::ERROR) << "firstEgMotherPdgId IS NOT AVAILABLE!!" << endmsg;
-    return CP::CorrectionCode::OutOfValidityRange;
-  }
-  else {
-
-    firstEgPdgId = ele.auxdata<int>("firstEgMotherPdgId");
-
-    if ( std::abs(firstEgPdgId) != 11) {
-
-      goodele = false;
-      return CP::CorrectionCode::Ok;
-
-    }
-    else {
-
-      goodele = true;
-      return CP::CorrectionCode::Ok;
-
-    }
-  }
-
-  return CP::CorrectionCode::OutOfValidityRange;
 }
 
 

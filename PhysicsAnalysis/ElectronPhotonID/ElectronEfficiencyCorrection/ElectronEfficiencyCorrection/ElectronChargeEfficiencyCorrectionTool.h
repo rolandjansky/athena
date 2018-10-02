@@ -95,12 +95,6 @@ namespace CP {
 	/// Get the charge flip rate rate given pt, eta, histogram
 	float getChargeFlipRate( double eta, double pt, TH2D *hrates, double& flipRate) const;
 
-	/// Get the charge of the original electron
-	static CP::CorrectionCode getEleTruthCharge( const xAOD::Electron& ele, int& truthcharge);
-
-	/// Return true if it's prompt ele
-	static CP::CorrectionCode isGoodEle( const xAOD::Electron& ele, bool& goodele);
-
 	/// Force the data type to a given value
 	int m_dataTypeOverwrite;
 	//

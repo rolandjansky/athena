@@ -184,11 +184,9 @@ int main( int argc, char* argv[] ) {
       }
 	    
       CHECK( myEgCorrections.applySystematicVariation(CP::SystematicSet()) );
+      int truthcharge = false;
+      ElectronEfficiencyHelpers::getEleTruthCharge(el,truthcharge);
 
-      int truthcharge = (-1)*el->auxdata<int>("firstEgMotherPdgId");
-      if (el->auxdata<int>("truthType")) { 
-	std::cout << el->charge() << "  " << el->auxdata<int>("firstEgMotherPdgId") << std::endl; 
-      }
       if ( el->charge() * truthcharge < 0   )  {
 	Info( APP_NAME, "===>>> MISID %f ",SF);
 	n_chargeMisID++;
