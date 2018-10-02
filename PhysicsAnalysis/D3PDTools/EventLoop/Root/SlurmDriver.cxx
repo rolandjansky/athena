@@ -46,8 +46,6 @@ namespace EL
     m_b_account = false;
     m_b_partition = false;
     m_b_run_time = false;
-    m_b_memory = false;
-    m_b_constraint = false;
 
     RCU_NEW_INVARIANT (this);
   }
@@ -63,15 +61,13 @@ namespace EL
                const std::vector<std::size_t>& jobIndices, bool resubmit)
     const
   {
-    auto all_set = m_b_job_name && m_b_account && m_b_partition && m_b_run_time && m_b_memory && m_b_constraint;
+    auto all_set = m_b_job_name && m_b_account && m_b_partition && m_b_run_time;
     if (!all_set)
     {
       std::cout << "Job Name" << m_job_name << std::endl;
       std::cout << "Account " << m_account << std::endl;
       std::cout << "Partition " << m_partition << std::endl;
       std::cout << "Run Time " << m_run_time << std::endl;
-      std::cout << "Memory " << m_memory << std::endl;
-      std::cout << "Constraint " << m_constraint << std::endl;
 
       RCU_THROW_MSG("All parameters need to be set before job can be submitted");
       return;
@@ -104,8 +100,8 @@ namespace EL
       file << "#SBATCH --account=" << m_account << "\n";
       file << "#SBATCH --partition=" << m_partition << "\n";
       file << "#SBATCH --time=" << m_run_time << "\n";
-      file << "#SBATCH --mem=" << m_memory << "\n";
-      file << "#SBATCH --constraint=" << m_constraint << "\n";
+      if(!m_memory.empty())     file << "#SBATCH --mem=" << m_memory << "\n";
+      if(!m_constraint.empty()) file << "#SBATCH --constraint=" << m_constraint << "\n";
       file << "\n";
       file << options.castString(Job::optBatchSlurmExtraConfigLines) << "\n";
       file << "\n";
@@ -144,12 +140,10 @@ namespace EL
   }
   void SlurmDriver :: SetMemory(std::string memory)
   {
-    m_b_memory = true;
     m_memory = memory;
   }
   void SlurmDriver :: SetConstrain(std::string constraint)
   {
-    m_b_constraint = true;
     m_constraint = constraint;
   }
   //****************************************************

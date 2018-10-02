@@ -4,10 +4,11 @@
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 ### not working in current release -- update later ##
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-#  addStandardTruthContents()
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 ### ---------------------------------------------- ##
 from DerivationFrameworkInDet.InDetCommon import *
 
@@ -68,22 +69,53 @@ if DerivationFrameworkIsMonteCarlo:
     TrkParam4Truth = TrkParam4TruthPart( name = "TrkParam4Truth",
                                          OnlyDressPrimaryTracks = False )
 
-    
-    ToolSvc += TrkParam4Truth
-    AugmentationTools.append( TrkParam4Truth )
+    # WARNING !!! this crashes on R21: ERROR SG::ExcStoreLocked: Attempted to modify auxiliary data in a locked store: `::d0'
+    # --> commented out until problem is fixed...
+    #ToolSvc += TrkParam4Truth
+    #AugmentationTools.append( TrkParam4Truth )
 
 
 #====================================================================
 # SKIMMING TOOLS
 #====================================================================
 # trigger skimming
-triggers = ["HLT_4j90",
-            "HLT_4j100",
-            "HLT_4j110",
-            "HLT_4j120",
-            "HLT_4j130",
-            "HLT_4j140",
-            "HLT_4j150"]
+triggers = [
+    # single jet triggers for di-jet backgrounds
+    "HLT_j15",  # 2015 support (support triggers are prescaled)
+    "HLT_j25",  # 2016 support; 2017 support
+    "HLT_j35",  # 2015 support; 2016 support; 2017 support
+    "HLT_j45",  # 2015 support; 2016 support; 2017 support
+    "HLT_j55",  # 2015 support; 2016 support; 
+    "HLT_j60",  # 2015 support; 2016 support; 2017 support
+    "HLT_j85",  # 2015 support; 2016 support; 2017 support
+    "HLT_j100", # 2015 support
+    "HLT_j110", # 2015 support; 2016 support; 2017 support
+    "HLT_j150", # 2015 support
+    "HLT_j175", # 2015 support; 2016 support; 2017 support
+    "HLT_j200", # 2015 support
+    "HLT_j260", # 2015 support; 2016 support; 2017 support
+    "HLT_j300", # 2015 support
+    "HLT_j320", # 2015 support; 2016 primary
+    "HLT_j340", # 2016 primary; 2017 primary
+    "HLT_j360", # 2015 primary; 2016 primary; 2017 support
+    "HLT_j380", # 2015 primary; 2016 primary; 2017 primary
+    "HLT_j400", # 2016 primary; 2017 primary
+    "HLT_j420", # 2015 primary; 2016 primary; 2017 primary
+    "HLT_j440", # 2015 primary; 2017 primary
+    "HLT_j450", # 2017 primary
+    "HLT_j460", # 2015 primary; 2016 primary; 2017 primary
+    "HLT_j480", # 2017 primary
+    "HLT_j500", # 2017 primary
+    "HLT_j520", # 2017 primary
+    # four-jet triggers for EJs signal
+    "HLT_4j90",
+    "HLT_4j100",
+    "HLT_4j110",
+    "HLT_4j120",
+    "HLT_4j130",
+    "HLT_4j140",
+    "HLT_4j150"
+    ]
 expression = "(" + " || ".join(triggers) + ")"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -100,7 +132,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 
 SeqEXOT23 += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT23KernelSkim",
                                                           SkimmingTools = [EXOT23SkimmingTool])
-SeqEXOT23 += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT5KernelAug",
+SeqEXOT23 += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT23KernelAug",
                                                           AugmentationTools = AugmentationTools,
                                                           ThinningTools = thinningTools)
 
@@ -180,6 +212,14 @@ if jetFlags.useTruth:
     addTruthDarkJets("AntiKt", 0.4, SeqEXOT23, "EXOT23")
     addTruthDarkJets("AntiKt", 1.0, SeqEXOT23, "EXOT23")
 
+
+#====================================================================
+# RESTORE AOD-REDUCED TRUTH JETS
+#====================================================================
+#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = [ "AntiKt4TruthJets" ]
+replaceAODReducedJets( reducedJetList, SeqEXOT23, "EXOT23" )
+
     
 #====================================================================
 # CONTENT LIST
@@ -200,8 +240,9 @@ EXOT23SlimmingHelper.AllVariables = [ "AntiKt4EMTopoJets",
                                       "InDetTrackParticles",
                                       "PrimaryVertices",
                                       "VrtSecInclusive_SecondaryVertices",
-                                      "VrtSecInclusive_SelectedTrackParticles",
-                                      "VrtSecInclusive_All2TrksVertices",
+                                      "VrtSecInclusive_SecondaryVertices_Leptons",
+                                      "VrtSecInclusive_All2TrksVertices", # only filled for debug; off by default
+                                      "VrtSecInclusive_SelectedTrackParticles", # no longer exists in R21
                                       "TruthParticles",
                                       "TruthEvents",
                                       "TruthVertices",
@@ -218,6 +259,9 @@ EXOT23SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
 
 # Trigger content
 EXOT23SlimmingHelper.IncludeJetTriggerContent = True
+
+# Add origin corrected clusters -- for accessing jet constituents
+addOriginCorrectedClusters(EXOT23SlimmingHelper, writeLC=True, writeEM=True)
 
 # Add the jet containers to the stream
 addJetOutputs(EXOT23SlimmingHelper, ["EXOT23"])

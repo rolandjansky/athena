@@ -60,6 +60,18 @@ sysLoader = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
 job.algsAdd( sysLoader )
 
+# Include, and then set up the pileup analysis sequence:
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+    makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+print( pileupSequence ) # For debugging
+
+# Add the pileup algorithm(s) to the job:
+for alg in pileupSequence:
+    job.algsAdd( alg )
+    pass
+
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 muonSequence = makeMuonAnalysisSequence( dataType, deepCopyOutput = True )
@@ -88,8 +100,8 @@ xaodWriter = AnaAlgorithmConfig( 'CP::xAODWriterAlg/xAODWriter' )
 xaodWriter.ItemList = \
    [ 'xAOD::EventInfo#EventInfo',
      'xAOD::EventAuxInfo#EventInfoAux.-',
-     'xAOD::MuonContainer#AnalysisMuons_%SYS%',
-     'xAOD::AuxContainerBase#AnalysisMuons_%SYS%Aux.eta.phi.pt' ]
+     'xAOD::MuonContainer#AnalysisMuons_NOSYS',
+     'xAOD::AuxContainerBase#AnalysisMuons_NOSYSAux.eta.phi.pt' ]
 xaodWriter.systematicsRegex = '.*'
 job.algsAdd( xaodWriter )
 

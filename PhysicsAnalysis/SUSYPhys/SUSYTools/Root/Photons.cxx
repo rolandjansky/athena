@@ -157,6 +157,9 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
   }
   if (!passBaseID) return StatusCode::SUCCESS;
 
+  //--- Do baseline isolation check
+  if ( !( m_photonBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
+
   dec_baseline(input) = true;
   dec_selected(input) = 2;
   dec_isol(input) = m_isoTool->accept(input);

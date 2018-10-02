@@ -22,8 +22,6 @@
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetSelector.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "JetSelectorTools/IEventCleaningTool.h"
 
@@ -88,8 +86,6 @@ class JetMETCPTools final : public asg::AsgTool {
   ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolLooseBad;
   ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolTightBad;
 
-  ToolHandle<IJERTool> m_jetJERTool;
-  ToolHandle<IJERSmearingTool> m_jetJERSmearingTool;
   ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
   ToolHandle<IJetModifier> m_fjvtTool;
 
@@ -109,6 +105,7 @@ class JetMETCPTools final : public asg::AsgTool {
     setupJetUncertaintiesTool(const std::string& name,
                               const std::string& jet_def,
                               const std::string& mc_type,
+			      bool  isMC,
                               const std::string& config_file,
                               std::vector<std::string>* variables,
                               const std::string& analysis_file = "",

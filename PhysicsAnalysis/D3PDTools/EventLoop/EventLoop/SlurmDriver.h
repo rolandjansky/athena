@@ -88,8 +88,6 @@ namespace EL
     bool m_b_account;
     bool m_b_partition;
     bool m_b_run_time;
-    bool m_b_memory;
-    bool m_b_constraint;
 
     //
     // private interface

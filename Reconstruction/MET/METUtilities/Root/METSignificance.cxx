@@ -32,8 +32,9 @@
 #include "xAODMuon/MuonContainer.h"
 
 // Tools
-#include "JetResolution/JERTool.h"
-#include "JetResolution/IJERTool.h"
+//#include "JetUncertainties/UncertaintyEnum.h"
+#include "JetCalibTools/JetCalibrationTool.h"
+#include "JetCalibTools/IJetCalibrationTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
@@ -84,7 +85,7 @@ namespace met {
     ////////////////
     METSignificance::METSignificance(const std::string& name) :
       AsgTool(name),
-      m_jerTool(""),
+      m_jetCalibTool(""),
       m_muonCalibrationAndSmearingTool(""),
       m_egammaCalibTool(""),
       m_tCombinedP4FromRecoTaus(""),
@@ -118,9 +119,11 @@ namespace met {
       declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
+      declareProperty("JetResoAux",           m_JetResoAux            = "" ); // relative pT resolution in addition to normal JES
+      declareProperty("JetCollection",        m_JetCollection         = "AntiKt4EMTopo" );
 
       // properties to delete eventually
-      declareProperty("IsDataJet",   m_isDataJet     = false   );
+      declareProperty("IsDataJet",   m_isDataJet     = true    );
       declareProperty("IsDataMuon",  m_isDataMuon    = false   );
       declareProperty("IsAFII",      m_isAFII        = false   );
 
@@ -152,15 +155,29 @@ namespace met {
         ATH_MSG_INFO ("Initializing " << name() << "...");
 
 
-	ATH_MSG_INFO("Set up JER tools");
+	ATH_MSG_INFO("Set up jet resolution tool");
 	std::string toolName;
-	std::string jetcoll = "AntiKt4EMTopoJets";
-	toolName = "JERTool_" + jetcoll;
+	m_jetCalibTool.setTypeAndName("JetCalibrationTool/jetCalibTool_"+m_JetCollection);
+	
+	if( !m_jetCalibTool.isUserConfigured() ){
 
-	m_jerTool.setTypeAndName("JERTool/STAutoConf_"+toolName);
-	ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
-	ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
-	ATH_CHECK(m_jerTool.retrieve());
+	  std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
+	  std::string calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
+	  std::string calibArea = "00-04-81";
+	  if(m_JetCollection=="AntiKt4EMPFlow"){
+	    config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
+	    calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
+	    calibArea = "00-04-81";	    
+	  }
+
+	  ANA_CHECK( ASG_MAKE_ANA_TOOL(m_jetCalibTool, JetCalibrationTool) );
+	  ANA_CHECK( m_jetCalibTool.setProperty("JetCollection",m_JetCollection) );
+	  ANA_CHECK( m_jetCalibTool.setProperty("ConfigFile",config) );
+	  ANA_CHECK( m_jetCalibTool.setProperty("CalibSequence",calibSeq) );
+	  ANA_CHECK( m_jetCalibTool.setProperty("CalibArea",calibArea) );
+	  ANA_CHECK( m_jetCalibTool.setProperty("IsData",false) ); // configure for MC due to technical reasons. Both data and MC smearing are available with this setting.
+	  ANA_CHECK( m_jetCalibTool.retrieve() );
+	}
 
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
 	toolName = "MuonCalibrationAndSmearingTool";
@@ -284,7 +301,7 @@ namespace met {
 	    // make sure the container name matches
 	    if(met->name()!=jetTermName) continue;
 
-	    AddJet(obj, pt_reso, phi_reso);
+	    ATH_CHECK(AddJet(obj, pt_reso, phi_reso));
 	    metTerm=1;
 	  }else if(obj->type()==xAOD::Type::Electron){
 	    AddElectron(obj, pt_reso, phi_reso);
@@ -503,13 +520,18 @@ namespace met {
   }
 
   //
-  // Jet propagation of resolution
+  // Jet propagation of resolution. returns the relative pT and phi resolution.
   //
-  void METSignificance::AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
+  StatusCode METSignificance::AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     const xAOD::Jet* jet(static_cast<const xAOD::Jet*>(obj));
-    if(m_isDataJet) pt_reso = m_jerTool->getRelResolutionData(jet);
-    else            pt_reso = m_jerTool->getRelResolutionMC(jet);
+    double pt_reso_dbl_data=0.0, pt_reso_dbl_mc=0.0, pt_reso_dbl_max=0.0;
+
+    ATH_CHECK(m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data));
+    ATH_CHECK(m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc));
+    pt_reso_dbl_max = std::max(pt_reso_dbl_data,pt_reso_dbl_mc);
+    pt_reso = pt_reso_dbl_max; 
+
     ATH_MSG_VERBOSE("jet: " << pt_reso  << " jetpT: " << jet->pt() << " " << jet->p4().Eta() << " " << jet->p4().Phi());
     //
     // Add extra uncertainty for PU jets based on JVT
@@ -527,6 +549,19 @@ namespace met {
       double jet_phi_unc = fabs(GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV));
       phi_reso = jet->pt()*jet_phi_unc;
     }
+    
+    //
+    // Add user defined additional resolutions. For example, b-tagged jets
+    //
+    if(m_JetResoAux!=""){
+      static SG::AuxElement::Accessor<float> acc_extra(m_JetResoAux);
+      if(acc_extra.isAvailable(*jet)){
+	float extra_relative_pt_reso = acc_extra(*jet);
+	pt_reso = sqrt(pt_reso*pt_reso + extra_relative_pt_reso*extra_relative_pt_reso);
+      }
+    }
+
+    return StatusCode::SUCCESS;
   }
 
   //

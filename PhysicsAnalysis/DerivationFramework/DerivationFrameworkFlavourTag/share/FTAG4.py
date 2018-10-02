@@ -81,7 +81,8 @@ if globalflags.DataSource()!='data':
 
 OutputJets["FTAG4"] = ["AntiKt4EMTopoJets",
                        "AntiKtVR30Rmax4Rmin02TrackJets",
-                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
+                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
+                       "AntiKt4EMPFlowJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -113,7 +114,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMPFlowJets', 'AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
 
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob
@@ -142,6 +143,8 @@ FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "MET_Reference_AntiKt4EMTopo"]
 
 FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
@@ -153,8 +156,12 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2Track",
                                     "BTagging_AntiKt2TrackJFVtx",
+                                    "BTagging_AntiKt4EMPFlow",
+                                    "BTagging_AntiKt4EMPFlowJFVtx",
                                     "TruthVertices",
                                     "TruthEvents",
+                                    "TruthHFWithDecayParticles",
+                                    "TruthHFWithDecayVertices",
                                     "MET_Truth",
                                     "MET_TruthRegions",
                                     "TruthParticles",
@@ -169,6 +176,10 @@ FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "ExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MuonSpectrometerTrackParticles.vx.vy.vz",
+                                       "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
+                                       "AntiKt4EMPFlowJets.EMFrac.HECFrac.LArQuality.HECQuality.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.HadronConeExclTruthLabelID.GhostTrack",
+                                       "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",
+                                       "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
@@ -177,6 +188,10 @@ FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG4SlimmingHelper.AppendToDictionary = {
+  "TruthHFWithDecayParticles"                  :   "xAOD::TruthParticleContainer",
+  "TruthHFWithDecayParticlesAux"               :   "xAOD::TruthParticleAuxContainer",
+  "TruthHFWithDecayVertices"                   :   "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux"                :   "xAOD::TruthVertexAuxContainer",
   "BTagging_AntiKt2Track"                      :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt2TrackAux"                   :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt2TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,
@@ -185,6 +200,10 @@ FTAG4SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2TrackSecVtxAux"             :   "xAOD::VertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
+  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,

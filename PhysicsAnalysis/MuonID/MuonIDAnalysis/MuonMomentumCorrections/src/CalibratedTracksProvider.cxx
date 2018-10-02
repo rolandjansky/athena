@@ -8,25 +8,32 @@
 #include "CalibratedTracksProvider.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace CP {
 
-static const SG::AuxElement::Accessor<ElementLink<xAOD::IParticleContainer> > origLinkAcc("originalObjectLink");
-
-CalibratedTracksProvider::CalibratedTracksProvider( const std::string& name, ISvcLocator* svcLoc )
-      : AthAlgorithm( name, svcLoc ),
-         m_tool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool"),
-         m_detType(2) // MS = 1, ID = 2
-{
+static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
+CalibratedTracksProvider::CalibratedTracksProvider( const std::string& name, ISvcLocator* svcLoc ): 
+         AthAlgorithm( name, svcLoc ),
+         m_tool( "CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool"),
+         m_prwTool(""),         
+         m_detType(2), // MS = 1, ID = 2
+         m_useRndNumber(false) {
       declareProperty( "Input", m_inputKey = "InDetTrackParticles" ); // or ExtrapolatedMuonTrackParticles
       declareProperty( "Output", m_outputKey = "CalibratedInDetTrackParticles");
       declareProperty( "Tool", m_tool );
+      declareProperty( "prwTool", m_prwTool );      
       declareProperty( "DetType", m_detType );
 
 }
 
 StatusCode CalibratedTracksProvider::initialize() {
-      ATH_CHECK( m_tool.retrieve() );
+      ATH_CHECK( m_tool.retrieve());
+       if (!m_prwTool.empty()){
+         m_useRndNumber = true;
+         ATH_MSG_DEBUG("prwTool is given assume that the selection of the periods is based on the random run number");
+         ATH_CHECK(m_prwTool.retrieve());
+      }
       return StatusCode::SUCCESS;
 }
 
@@ -43,23 +50,31 @@ StatusCode CalibratedTracksProvider::execute() {
       } else {
          CHECK( evtStore()->retrieve( tracks, m_inputKey ) );
          out = xAOD::shallowCopyContainer( *tracks );
+         //record to storegate 
+         CHECK( evtStore()->record( out.first, m_outputKey ) );
+         CHECK( evtStore()->record( out.second, m_outputKey+"Aux.") );
          //add original object link to met recalculations work
          if(!setOriginalObjectLink( *tracks, *out.first )) { 
             ATH_MSG_ERROR("Failed to add original object links to shallow copy of " << m_inputKey);
             return StatusCode::FAILURE;
          }  
       }
-      
+      if (m_useRndNumber) {
+            const xAOD::EventInfo* evInfo = nullptr;
+            ATH_CHECK(evtStore()->retrieve(evInfo, "EventInfo"));
+            if (!evInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+                m_useRndNumber = false;
+                ATH_MSG_DEBUG("On data no random run number is needed.");
+            } else if (!acc_rnd.isAvailable(*evInfo)){
+                 ATH_MSG_DEBUG("Apply the prw tool");
+                 ATH_CHECK(m_prwTool->apply(*evInfo));
+            }
+      }
       for(auto iParticle : *(out.first)) {
         ATH_MSG_VERBOSE("Old pt=" << iParticle->pt());
         if(m_tool->applyCorrectionTrkOnly(*iParticle, m_detType).code()==CorrectionCode::Error) return StatusCode::FAILURE;
         ATH_MSG_VERBOSE("New pt=" << iParticle->pt());
       }
-
-      //record to storegate 
-      CHECK( evtStore()->record( out.first, m_outputKey ) );
-      CHECK( evtStore()->record( out.second, m_outputKey+"Aux.") );
-
 
       // Return gracefully:
       return StatusCode::SUCCESS;

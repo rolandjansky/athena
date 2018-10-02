@@ -295,7 +295,7 @@ std::vector<TString> GetJetDesc(const TString& jetAlgoIn)
     }
     else if (jetAlgo.Contains("EMPFlow"))
     {
-        calib = "EMPFlow";
+        calib = "PFlow+JES";
         jetAlgo.ReplaceAll("EMPFlow","");
     }
     if (calib == "")
@@ -454,7 +454,8 @@ void DrawJetLabel(const JetUncertaintiesTool* provider, const double yPos)
     }
     else
         //DrawText(GetJetDesc(provider->getJetDef().c_str())+" + #it{in situ} correction",kBlack,yPos);
-        DrawText(GetJetDesc(provider->getJetDef().c_str()).at(0)+" "+GetJetDesc(provider->getJetDef().c_str()).at(1)+", "+GetJetDesc(provider->getJetDef().c_str()).at(2)+" + #it{in situ} correction",kBlack,yPos);
+        //DrawText(GetJetDesc(provider->getJetDef().c_str()).at(0)+" "+GetJetDesc(provider->getJetDef().c_str()).at(1)+", "+GetJetDesc(provider->getJetDef().c_str()).at(2)+" + #it{in situ}",kBlack,yPos);
+        DrawText(GetJetDesc(provider->getJetDef().c_str()).at(0)+" "+GetJetDesc(provider->getJetDef().c_str()).at(1)+", "+GetJetDesc(provider->getJetDef().c_str()).at(2),kBlack,yPos);
 }
 
 TString getTagType(const JetUncertaintiesTool* provider)
@@ -508,6 +509,11 @@ void DrawYearLabel(const JetUncertaintiesTool* provider, const double yPos)
     else if (release.BeginsWith("2016_Moriond") || release.BeginsWith("rel21_Moriond2018"))
     {
         type = "Data 2016";
+        sqrtS = "13 TeV";
+    }
+    else if (release.BeginsWith("rel21_Summer2018"))
+    {
+        type = "Data 2017";
         sqrtS = "13 TeV";
     }
     if (type == "" || sqrtS == "")
@@ -648,7 +654,7 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
         sigmaMu = 1.9;
         sigmaNPV = 2.9;
     }
-    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018"))
+    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018") || release.BeginsWith("rel21_Summer2018"))
     {
         // Kate, Nov 2016 
         // via Eric Corrigan's pileup studies
@@ -1237,8 +1243,8 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         DrawJetLabel(providers.at(0),0.855);//0.905);
         if (providers.size() == 1 || (providers.size()==2 && doComparison) || sign)
             DrawYearLabel(providers.at(0),0.910);//0.860);
-        DrawText(fixedIsEta?Form("#eta = %.1f",fixedValue):Form("#it{p}_{T}^{jet} = %.0f GeV",fixedValue),kBlack,0.81);
-        DrawScenarioLabel(providers.at(0),0.77); // 0.77
+        DrawText(fixedIsEta?Form("#eta = %.1f",fixedValue):Form("#it{p}_{T}^{jet} = %.0f GeV",fixedValue),kBlack,0.805);
+        DrawScenarioLabel(providers.at(0),0.76); // 0.77
 
     }
 
@@ -1340,25 +1346,73 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     // Create the frames
     TH1D* frameEtaScan = new TH1D("frameEtaScan","",etaScanValues.size()-1,&etaScanValues[0]);
     TH1D* framePtScan  = new TH1D("framePtScan","",ptScanValues.size()-1,&ptScanValues[0]);
-    const TString yAxisLabel = optHelper.IsJER()?"Uncertainty on #sigma(#it{p}_{T})/#it{p}_{T}"
-                                : Form("Fractional J%sS uncertainty",
-                                      optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::FourVec  ? "E"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Pt       ? "Pt"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Mass     ? Form("M_{%s}",optHelper.getMassType().Data())
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D12      ? "D_{12}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D23      ? "D_{23}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau21WTA ? "#tau_{21}^{wta}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau32WTA ? "#tau_{32}^{wta}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D2Beta1  ? "D_{2}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Qw       ? "Qw"
-                                    : "?"
-                                );
+
+    TString yAxisVar = "";
+    if (optHelper.GetScaleVars().size() == 1)
+    {
+        switch (optHelper.GetScaleVars().at(0))
+        {
+            case jet::CompScaleVar::FourVec:
+                yAxisVar = "E";
+                break;
+            case jet::CompScaleVar::FourVecRes:
+            case jet::CompScaleVar::FourVecResAbs:
+                yAxisVar = "#it{p}_{T}"; // JER is evaluated on pT
+                break;
+            case jet::CompScaleVar::Pt:
+            case jet::CompScaleVar::PtRes:
+            case jet::CompScaleVar::PtResAbs:
+                yAxisVar = "#it{p}_{T}";
+                break;
+            case jet::CompScaleVar::Mass:
+            case jet::CompScaleVar::MassRes:
+            case jet::CompScaleVar::MassResAbs:
+                yAxisVar = "M";
+                break;
+            case jet::CompScaleVar::D12:
+                yAxisVar = "D_{12}";
+                break;
+            case jet::CompScaleVar::D23:
+                yAxisVar = "D_{23}";
+                break;
+            case jet::CompScaleVar::Tau21:
+                yAxisVar = "#tau_{21}";
+                break;
+            case jet::CompScaleVar::Tau21WTA:
+                yAxisVar = "#tau_{21}^{wta}";
+                break;
+            case jet::CompScaleVar::Tau32:
+                yAxisVar = "#tau_{32}";
+                break;
+            case jet::CompScaleVar::Tau32WTA:
+                yAxisVar = "#tau_{32}^{wta}";
+                break;
+            case jet::CompScaleVar::D2Beta1:
+                yAxisVar = "D_{2}";
+                break;
+            case jet::CompScaleVar::C2Beta1:
+                yAxisVar = "C_{2}";
+                break;
+            case jet::CompScaleVar::Qw:
+                yAxisVar = "Qw";
+                break;
+            default:
+                yAxisVar = "?";
+        }
+    }
+
+    const TString yAxisLabel =  optHelper.GetScaleVars().size() != 1 ? "Unknown" :
+                                    jet::CompScaleVar::isScaleType(optHelper.GetScaleVars().at(0)) ?
+                                        Form("Fractional J%sS uncertainty",yAxisVar.Data())
+                                  : jet::CompScaleVar::isResolutionType(optHelper.GetScaleVars().at(0)) ?
+                                        Form("Uncertainty on #sigma(%s)/%s",yAxisVar.Data(),yAxisVar.Data())
+                                  : "Unknown scale type";
     frameEtaScan->GetXaxis()->SetTitleOffset(1.4);
-    frameEtaScan->GetYaxis()->SetTitleOffset(!optHelper.IsJER()?1.25:1.1);
+    frameEtaScan->GetYaxis()->SetTitleOffset(optHelper.GetScaleVars().size() == 1 && jet::CompScaleVar::isScaleType(optHelper.GetScaleVars().at(0))?1.25:1.125);
     frameEtaScan->GetXaxis()->SetTitle("#eta");
     frameEtaScan->GetYaxis()->SetTitle(yAxisLabel.Data());
     framePtScan->GetXaxis()->SetTitleOffset(1.4);
-    framePtScan->GetYaxis()->SetTitleOffset(!optHelper.IsJER()?1.25:1.1);
+    framePtScan->GetYaxis()->SetTitleOffset(optHelper.GetScaleVars().size() == 1 && jet::CompScaleVar::isScaleType(optHelper.GetScaleVars().at(0))?1.25:1.125);
     framePtScan->GetXaxis()->SetTitle("#it{p}_{T}^{jet} [GeV]");
     framePtScan->GetYaxis()->SetTitle(yAxisLabel.Data());
     framePtScan->GetXaxis()->SetMoreLogLabels();
@@ -1430,6 +1484,7 @@ int main (int argc, char* argv[])
     StatusCode::enableFailure();
   
     bool doComparison = false;
+    bool compareJetDefs = false;
     TString compareMCType = "";
     TString totalLabel = "";
     TString otherJetDef = "";
@@ -1449,7 +1504,11 @@ int main (int argc, char* argv[])
       mcTypes.push_back(compareMCType);
       compSets.push_back("");
       labelSets.push_back(totalLabel);
-      if (comparisons.size()>3) jetDefs.push_back(comparisons.at(3));
+      if (comparisons.size()>3)
+      {
+        compareJetDefs = true;
+        jetDefs.push_back(comparisons.at(3));
+      }
     }
 
     bool doCompareOnly = optHelper.CompareOnly();
@@ -1544,7 +1603,7 @@ int main (int argc, char* argv[])
     }
 
     // Run once per jet type
-    if (!(jetDefs.size() == configs.size() && jetDefs.size() != 1) || (doComparison && jetDefs.size() != 1))
+    if (!(jetDefs.size() == configs.size() && jetDefs.size() != 1) || (doComparison && jetDefs.size() != 1 && !compareJetDefs))
     {
         std::cout << "Going to process for multiple jet types!" << std::endl;
     
@@ -1575,6 +1634,11 @@ int main (int argc, char* argv[])
                 {
                     printf("Failed to set ConfigFile to %s\n",configs.at(iConfig).Data());
                     exit(6);
+                }
+                if (providers.back()->setProperty("IsData",optHelper.GetIsData()).isFailure())
+                {
+                    printf("Failed to set IsData to %s\n",optHelper.GetIsData() ? "true" : "false");
+                    exit(7);
                 }
 
                 // Check if we want to change topology from unknown to dijet
@@ -1666,6 +1730,11 @@ int main (int argc, char* argv[])
             {
                 printf("Failed to set ConfigFile to %s\n",configs.at(iJetDef).Data());
                 exit(6);
+            }
+            if (providers.back()->setProperty("IsData",optHelper.GetIsData()).isFailure())
+            {
+                printf("Failed to set IsData to %s\n",optHelper.GetIsData() ? "true" : "false");
+                exit(7);
             }
 
             // Check if we want to change topology from unknown to dijet

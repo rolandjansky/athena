@@ -86,9 +86,6 @@ AsgElectronEfficiencyCorrectionTool::~AsgElectronEfficiencyCorrectionTool() {
     if (m_UncorrRegions) {
         delete m_UncorrRegions;
     }
-    if (finalize().isFailure()) {
-        ATH_MSG_ERROR("Failure in AsgElectronEfficiencyCorrectionTool finalize()");
-    }
     delete m_rootTool;
 }
 
@@ -243,15 +240,6 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     // Configure for nominal systematics
     if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
         ATH_MSG_ERROR("Could not configure for nominal settings");
-        return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
-}
-
-StatusCode
-AsgElectronEfficiencyCorrectionTool::finalize() {
-    if (!(m_rootTool->finalize())) {
-        ATH_MSG_ERROR("Something went wrong at finalize!");
         return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

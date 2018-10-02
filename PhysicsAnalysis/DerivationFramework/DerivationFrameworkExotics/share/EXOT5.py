@@ -331,6 +331,8 @@ triggers = [
     'HLT_xe120_pufit_L1XE70',
     'HLT_xe120_pufit_wEFMu_L1XE55',
     'HLT_xe120_pufit_wEFMu_L1XE60',
+    'HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF',
+    'HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF'
     ]
 lepton_triggers = [
    # el - y2015

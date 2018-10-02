@@ -20,8 +20,6 @@ using namespace ST;
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
@@ -156,7 +154,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   // pick the right config file for the JES tool : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
   std::string jetname("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
   std::string jetcoll(jetname + "Jets");
-  std::string calibArea("00-04-81");
 
   if (!m_jetCalibTool.isUserConfigured()) {
     toolName = "JetCalibTool_" + jetname;
@@ -204,17 +201,19 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
     }
 
-    // remove Insitu if it's in the string and not running on data
+    // remove Insitu if it's in the string if not data, and add _Smear if not AFII
     if (!isData()) {
       std::string insitu("_Insitu");
       auto found = calibseq.find(insitu);
-      if(found != std::string::npos) calibseq.erase(found, insitu.length());
+      if(found != std::string::npos){
+	calibseq.erase(found, insitu.length());
+	if ( ! isAtlfast() ) calibseq.append("_Smear");
+      }
     }
     // now instantiate the tool
     ATH_CHECK( m_jetCalibTool.setProperty("JetCollection", jetname) );
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
-    ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetCalibTool.retrieve() );
   }
@@ -230,7 +229,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFatCalibTool.setProperty("JetCollection", fatjetcoll) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", m_jesConfigFat) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", m_jesCalibSeqFat) );
-    ATH_CHECK( m_jetFatCalibTool.setProperty("CalibArea", calibArea) );
     // always set to false : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
     ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", false) );
     ATH_CHECK( m_jetFatCalibTool.retrieve() );
@@ -245,35 +243,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   m_ZTaggerTool.setTypeAndName("SmoothedWZTagger/ZTagger");
   ATH_CHECK( m_ZTaggerTool.setProperty("ConfigFile",m_ZtagConfig) );
   ATH_CHECK( m_ZTaggerTool.retrieve() );
-
-  ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise jet resolution tools
-
-  if ( !m_jerTool.isUserConfigured() ) {
-    ATH_MSG_INFO("Set up JER tool...");
-
-    toolName = "JERTool_" + jetcoll;
-    m_jerTool.setTypeAndName("JERTool/"+toolName);
-
-    ATH_CHECK( m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root") );
-    //ATH_CHECK( asg::setProperty(m_jerTool, "CollectionName", jetcoll) ); //AntiKt4EMTopoJets (the default) is the only collection supported at the moment! //MT
-    ATH_CHECK( m_jerTool.retrieve() );
-  }
-
-  if ( !m_jerSmearingTool.isUserConfigured() ) {
-    ATH_MSG_INFO("Set up JERSmearing tool...");
-
-    toolName = "JERSmearingTool_" + jetcoll;
-    m_jerSmearingTool.setTypeAndName("JERSmearingTool/"+toolName);
-
-    ATH_CHECK( m_jerSmearingTool.setProperty("ApplyNominalSmearing", false) );
-    ATH_CHECK( m_jerSmearingTool.setProperty("JERTool", m_jerTool.getHandle() ) );
-    ATH_CHECK( m_jerSmearingTool.setProperty("isMC", !isData()) );
-    ATH_CHECK( m_jerSmearingTool.setProperty("SystematicMode", "Simple") );
-    ATH_CHECK( m_jerSmearingTool.retrieve() );
-
-  }
-
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet uncertainty tool
@@ -303,7 +272,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR
+    //  https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) ); 
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
@@ -412,8 +381,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   // Initialise muon calibration tool
 
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
-    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool");
-    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb", false) );
+    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool");
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
 
@@ -516,8 +484,17 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   // Initialise muon isolation tool
   if (!m_muonIsolationSFTool.isUserConfigured()) { // so far only one supported WP
     toolName = "MuonIsolationScaleFactors_" + m_muIso_WP;
+
+    std::string tmp_muIso_WP = m_muIso_WP;
+    if ( ! muIsoSFExist(tmp_muIso_WP) ){
+      tmp_muIso_WP = "GradientLoose";
+      ATH_MSG_WARNING("Your selected muon Iso WP ("
+		      << m_muIso_WP
+		      << ") does not have SFs defined. Falling back to Gradient loose for SF calculations");
+    }
+
     m_muonIsolationSFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
-    ATH_CHECK( m_muonIsolationSFTool.setProperty("WorkingPoint", m_muIso_WP + "Iso") );
+    ATH_CHECK( m_muonIsolationSFTool.setProperty("WorkingPoint", tmp_muIso_WP + "Iso") );
     ATH_CHECK( m_muonIsolationSFTool.retrieve() );
   }
 
@@ -546,7 +523,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "EleSelLikelihood_" + m_eleId;
     m_elecSelLikelihood.setTypeAndName("AsgElectronLikelihoodTool/"+toolName);
 
-    if ( !check_isOption(m_eleId, el_id_support) ) { //check if supported
+    if (! m_eleConfig.empty() ){
+      ATH_MSG_INFO("Overriding specified Ele.Id working point in favour of configuration file");
+      ATH_CHECK( m_elecSelLikelihood.setProperty("ConfigFile", m_eleConfig ));
+    } else if ( !check_isOption(m_eleId, el_id_support) ) { //check if supported
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleId);
       return StatusCode::FAILURE;
     }
@@ -555,8 +535,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as signal electron ID");
       ATH_MSG_WARNING(" These may be used for loose electron CRs but no scale factors are provided.");
       ATH_MSG_WARNING(" ****************************************************************************");
+      ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
+    } else {
+      ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
     }
-    ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
+
     ATH_CHECK( m_elecSelLikelihood.retrieve() );
   }
 
@@ -565,11 +548,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "EleSelLikelihoodBaseline_" + m_eleIdBaseline;
     m_elecSelLikelihoodBaseline.setTypeAndName("AsgElectronLikelihoodTool/"+toolName);
 
-    if ( !check_isOption(m_eleIdBaseline, el_id_support) ) { //check if supported
+    if (! m_eleConfigBaseline.empty() ){
+      ATH_MSG_INFO("Overriding specified EleBaseline.Id working point in favour of configuration file");
+      ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("ConfigFile", m_eleConfigBaseline ));
+    } else if ( !check_isOption(m_eleIdBaseline, el_id_support) ) { //check if supported
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleIdBaseline);
       return StatusCode::FAILURE;
+    } else {
+      ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("WorkingPoint", EG_WP(m_eleIdBaseline)) );
     }
-    ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("WorkingPoint", EG_WP(m_eleIdBaseline)) );
+
     ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
   }
 
@@ -632,11 +620,19 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_iso_" + m_eleId + m_eleIso_WP;
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_iso.isUserConfigured() ) {
+
+      std::string tmp_eleIso_WP = m_eleIso_WP;
+      if ( ! eleIsoSFExist(tmp_eleIso_WP) ){
+	  tmp_eleIso_WP = "GradientLoose";
+	  ATH_MSG_WARNING("Your selected electron Iso WP ("
+			  << m_eleIso_WP
+			  << ") does not have SFs defined. Falling back to Gradient loose for SF calculations");
+      }
       m_elecEfficiencySFTool_iso.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
 
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", tmp_eleIso_WP) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_iso.setProperty("ForceDataType", (int) data_type) );
       }
@@ -648,11 +644,20 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_isoHigPt_" + m_eleId + m_eleIsoHighPt_WP;
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
+
+      std::string tmp_eleIsoHighPt_WP = m_eleIsoHighPt_WP;
+      if ( ! eleIsoSFExist(tmp_eleIsoHighPt_WP) ){
+	tmp_eleIsoHighPt_WP = "GradientLoose";
+	ATH_MSG_WARNING("Your selected electron HighPt Iso WP ("
+			<< m_eleIsoHighPt_WP
+			<< ") does not have SFs defined. Falling back to Gradient loose for SF calculations");
+      }
+
       m_elecEfficiencySFTool_isoHighPt.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
 
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_eleIsoHighPt_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", tmp_eleIsoHighPt_WP) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_isoHighPt.setProperty("ForceDataType", (int) data_type) );
       }
@@ -682,6 +687,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     std::string triggerEleIso("");
     if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
       triggerEleIso   = m_eleIso_WP;
+    } else if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_GradientLoose") != eSF_keys.end()){
+      //--- Check to see if the only issue is an unknown isolation working point
+      triggerEleIso = "GradientLoose";
+      ATH_MSG_WARNING("Your selected electron Iso WP ("
+		      << m_eleIso_WP
+		      << ") does not have trigger SFs defined. Falling back to Gradient loose for SF calculations");
     }
     else{
       ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringSingle << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << ") ***");
@@ -750,6 +761,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
         triggerMixedEleIso = m_eleIso_WP;
+      } else if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_GradientLoose") != eSF_keys.end()){
+	//--- Check to see if the only issue is an unknown isolation working point
+	triggerMixedEleIso = "GradientLoose";
+	ATH_MSG_WARNING("Your selected electron Iso WP ("
+			<< m_eleIso_WP
+			<< ") does not have trigger SFs defined. Falling back to Gradient loose for SF calculations");
       }
       else{
         ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << item.second << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
@@ -1089,6 +1106,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_btagSelTool_trkJet.setTypeAndName("BTaggingSelectionTool/"+toolName);
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("TaggerName",     m_BtagTagger_trkJet ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("OperatingPoint", m_BtagWP_trkJet  ) );
+    ATH_CHECK( m_btagSelTool_trkJet.setProperty("MinPt",          m_BtagMinPt_trkJet  ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("JetAuthor",      trkjetcoll   ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool_trkJet.retrieve() );
@@ -1292,6 +1310,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoTool.setProperty("MuonWP",     m_muIso_WP ) );
     ATH_CHECK( m_isoTool.setProperty("PhotonWP",   m_photonIso_WP ) );
     ATH_CHECK( m_isoTool.retrieve() );
+  }
+
+  if (!m_isoBaselineTool.isUserConfigured()) {
+    m_isoBaselineTool.setTypeAndName("CP::IsolationSelectionTool/IsoBaselineTool");
+    ATH_CHECK( m_isoBaselineTool.setProperty("ElectronWP", m_eleBaselineIso_WP.empty()    ? "GradientLoose" : m_eleBaselineIso_WP    ) );
+    ATH_CHECK( m_isoBaselineTool.setProperty("MuonWP",     m_muBaselineIso_WP.empty()     ? "GradientLoose" : m_muBaselineIso_WP     ) );
+    ATH_CHECK( m_isoBaselineTool.setProperty("PhotonWP",   m_photonBaselineIso_WP.empty() ? "FixedCutTight" : m_photonBaselineIso_WP ) );
+    ATH_CHECK( m_isoBaselineTool.retrieve() );
   }
 
   if (!m_isoHighPtTool.isUserConfigured()) {

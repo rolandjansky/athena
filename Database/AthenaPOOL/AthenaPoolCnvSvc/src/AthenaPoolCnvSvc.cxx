@@ -715,11 +715,13 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       buffer = nullptr;
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Could not share object for: " << placementStr);
+         m_outputStreamingTool[streamClient]->putObject(nullptr, 0).ignore();
          return(nullptr);
       }
       AuxDiscoverySvc auxDiscover;
       if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[streamClient].get()), obj, pool::DbReflex::guid(classDesc), placement->containerName()).isSuccess()) {
          ATH_MSG_ERROR("Could not share dynamic aux store for: " << placementStr);
+         m_outputStreamingTool[streamClient]->putObject(nullptr, 0).ignore();
          return(nullptr);
       }
       if (!m_outputStreamingTool[streamClient]->putObject(nullptr, 0).isSuccess()) {

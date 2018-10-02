@@ -54,7 +54,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
 
   const static SG::AuxElement::ConstAccessor<float> acc_topoetcone20("topoetcone20");
-  const static SG::AuxElement::ConstAccessor<float> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
+  const static SG::AuxElement::ConstAccessor<char> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
 
 StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& elekey, const xAOD::ElectronContainer* containerToBeCopied)
 {
@@ -216,6 +216,9 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   if (m_elebaselinez0>0. && fabs(acc_z0sinTheta(input))>m_elebaselinez0) return StatusCode::SUCCESS;
   if (m_elebaselined0sig>0. && fabs(acc_d0sig(input))>m_elebaselined0sig) return StatusCode::SUCCESS;
+
+  //--- Do baseline isolation check
+  if ( !( m_eleBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;

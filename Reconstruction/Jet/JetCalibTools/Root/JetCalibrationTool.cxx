@@ -21,7 +21,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
     m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
-    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
+    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL)
 { 
 
   declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
@@ -48,6 +48,7 @@ JetCalibrationTool::~JetCalibrationTool() {
   if (m_globalSequentialCorr) delete m_globalSequentialCorr;
   if (m_insituDataCorr) delete m_insituDataCorr;
   if (m_jetMassCorr) delete m_jetMassCorr;
+  if (m_jetSmearCorr) delete m_jetSmearCorr;
 
 }
 
@@ -558,3 +559,25 @@ StatusCode JetCalibrationTool::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEv
   }
   return StatusCode::SUCCESS; 
 }
+
+
+StatusCode JetCalibrationTool::getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const
+{
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal data resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionData(jet,resolution);
+}
+
+StatusCode JetCalibrationTool::getNominalResolutionMC(const xAOD::Jet& jet, double& resolution) const
+{
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal MC resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionMC(jet,resolution);
+}
+

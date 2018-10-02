@@ -130,6 +130,9 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
+    bool eleIsoSFExist(std::string eleWP);
+    bool muIsoSFExist(std::string muWP);
+
     bool isData() const override final {return m_dataSource == Data;}
     bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
@@ -511,6 +514,9 @@ namespace ST {
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
+    std::string m_eleConfig;
+    std::string m_eleConfigBaseline;
+    std::string m_eleBaselineIso_WP;
     bool        m_eleIdExpert;
     int         m_muId;
     int         m_muIdBaseline;
@@ -523,14 +529,17 @@ namespace ST {
     std::string m_eleIsoHighPt_WP;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
+    std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
     std::string m_photonTriggerName;
+    std::string m_muBaselineIso_WP;
     std::string m_muIso_WP;
     std::string m_BtagWP;
     std::string m_BtagTagger;
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
+    double m_BtagMinPt_trkJet;  
 
     //configurable cuts here
     double m_eleBaselinePt;
@@ -648,8 +657,6 @@ namespace ST {
 
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
-    asg::AnaToolHandle<IJERTool> m_jerTool;
-    asg::AnaToolHandle<IJERSmearingTool> m_jerSmearingTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;
@@ -754,6 +761,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
     //

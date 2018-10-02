@@ -41,9 +41,12 @@ namespace DerivationFramework{
           || m_DSID == 410245 //aMC@NLO+H++ , ttbb
           || (m_DSID>=410557 && m_DSID<=410559) // new Powheg+H7, mc16
           || (m_DSID>=411082 && m_DSID<=411090) //Powheg+H7 HF-filtered
+          || (m_DSID>=411178 && m_DSID<=411180) //Powheg+H7 ttbb
           ){
       m_GenUsed=HerwigPP;
-      if (m_DSID==410245){
+      if (m_DSID==410245
+          || (m_DSID>=411178 && m_DSID<=411180) //Powheg+H7 ttbb
+      ){
         m_ttbb=true;
       }
     }
@@ -56,17 +59,19 @@ namespace DerivationFramework{
           || m_DSID==410159 || m_DSID==410160 //aMC@NLO+P8, old settings
           || (m_DSID>=410225 && m_DSID<=410227) || m_DSID==410274 || m_DSID==410275 //aMC@NLO+P8, new settings
           || m_DSID==410568 || m_DSID==410569 // nonallhad boosted c-filtered
-          || m_DSID==410244 //aMC@NLO+P8, ttbb
+          || m_DSID==410244 //aMC@NLO+P8, ttbb (old)
           || m_DSID==410441 || m_DSID==410442 //new aMC@NLO+P8 mc16, new shower starting scale
           || (m_DSID>=410464 && m_DSID<=410466) //new aMC@NLO+P8 mc16, new shower starting scale, no shower weights
           || (m_DSID>=410470 && m_DSID<=410472) || (m_DSID>=410480 && m_DSID<=410482) //new Powheg+P8 mc16
           || m_DSID==410452 //new aMC@NLO+P8 FxFx mc16
           || (m_DSID>=411073 && m_DSID<=411081) //Powheg+P8 HF-filtered
-          || m_DSID==411068 || m_DSID==411069 //Powheg+P8 ttbb
+          || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
+          || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
            ){
       m_GenUsed=Pythia8;
-      if ( m_DSID==410244
-          || m_DSID==411068 || m_DSID==411069
+      if ( m_DSID==410244 //aMC@NLO+P8, ttbb (old)
+          || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
+          || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
       ){
         m_ttbb=true;
       }

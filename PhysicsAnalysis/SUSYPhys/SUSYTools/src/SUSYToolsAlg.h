@@ -51,6 +51,7 @@ class SUSYToolsAlg : public EL::AnaAlgorithm {
     SUSYToolsAlg();
 
     int  m_dataSource;
+    bool m_usePRWAutoconfig;
     std::vector<std::string> m_PRWConfigs;
     std::vector<std::string> m_PRWLumiCalcFiles;
 
@@ -90,7 +91,5 @@ class SUSYToolsAlg : public EL::AnaAlgorithm {
 
     bool m_CheckTruthJets;
 }; 
-
-
 
 #endif

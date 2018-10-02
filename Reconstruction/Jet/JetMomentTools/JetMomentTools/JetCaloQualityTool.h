@@ -4,11 +4,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/**  
+/**
      @class JetCaloQualityTool
-     Calculates calorimeter based variables for jet quality 
+     Calculates calorimeter based variables for jet quality
      @author Nikola Makovec
-     @author P-A Delsart 
+     @author P-A Delsart
      @date (first implementation) October , 2009
      @date (run 2 implementation) February , 2014
 
@@ -18,9 +18,9 @@
 
      List of known calculations (see also the implementation of initialize()) :
          LArQuality, Timing, NegativeE, Centroid, N90Constituents, BchCorrCell, FracSamplingMax
-     
+
      This class performs cluster-based calculation. For similar cell-based calculation, see JetCaloCellQualityUtils.h
-     
+
 */
 #ifndef JETREC_JETCALOQUALITYTOOL_H
 #define JETREC_JETCALOQUALITYTOOL_H
@@ -34,30 +34,29 @@
 
 
 class JetCaloQualityTool: public JetModifierBase {
-  ASG_TOOL_CLASS0(JetCaloQualityTool)
-  
+  ASG_TOOL_CLASS(JetCaloQualityTool,IJetModifier)
+
 public:
   JetCaloQualityTool(const std::string & name);
 
   virtual int modifyJet(xAOD::Jet& ) const ;
-  
+
   virtual StatusCode initialize();
 
  protected:
   /// Names of calo quantities to compute and to add as attributes
-  std::vector<std::string> m_calculationNames;  
+  std::vector<std::string> m_calculationNames;
 
   /// Time cuts for Out-of-time calo quantities.
   std::vector <double> m_timingTimeCuts;
 
-  /// This objects holds a list of cluster-based calculators  
+  /// This objects holds a list of cluster-based calculators
   jet::JetCaloCalculations m_jetCalculations;
 
   // internal pointer to m_jetCalculations (this pointer is also used in the cell-based derived tool)
   jet::JetCaloCalculations * m_calcProcessor;
 
-  
-  bool m_doFracSamplingMax; // internal			     
-};
-#endif 
 
+  bool m_doFracSamplingMax; // internal
+};
+#endif

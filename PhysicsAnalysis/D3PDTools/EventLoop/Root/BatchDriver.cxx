@@ -575,6 +575,7 @@ namespace EL
         else           file << batchJobId() << "\n";
 
         file << "function abortJob {\n";
+        file << "  echo \"abort EL_JOBID=${EL_JOBID}\"\n";
         file << "  touch \"" << writeLocation << "/status/fail-$EL_JOBID\"\n";
         file << "  touch \"" << writeLocation << "/status/done-$EL_JOBID\"\n";
         file << "  exit 1\n";

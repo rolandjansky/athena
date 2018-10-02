@@ -7,6 +7,8 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.PFlowCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+    addCSSKSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -167,12 +169,10 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
 addDefaultTrimmedJets(jetm3Seq,"JETM3")
+addCSSKSoftDropJets(jetm3Seq, "JETM3")
 
 if DerivationFrameworkIsMonteCarlo:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=True)
-
-addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm3Seq, "JETM3", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
@@ -203,6 +203,12 @@ if DerivationFrameworkIsMonteCarlo:
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlgLowPt")
     addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlgLowPt")
+
+#====================================================================
+# ADD PFLOW AUG INFORMATION 
+#====================================================================
+from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
+applyPFOAugmentation(DerivationFrameworkJob)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

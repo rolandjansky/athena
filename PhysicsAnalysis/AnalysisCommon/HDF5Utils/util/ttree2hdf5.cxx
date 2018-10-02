@@ -14,7 +14,18 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <iostream>
 #include <memory>
 
+int run(int argc, char* argv[]);
+
 int main(int argc, char* argv[]) {
+  try {
+    return run(argc, argv);
+  } catch (std::logic_error& e) {
+    std::cerr << "ERROR: " << e.what() << ", quitting." << std::endl;
+    return 1;
+  }
+}
+
+int run(int argc, char* argv[]) {
   using namespace H5Utils;
   AppOpts opts = getTreeCopyOpts(argc, argv);
 

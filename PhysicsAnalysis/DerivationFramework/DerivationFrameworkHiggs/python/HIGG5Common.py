@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # commont content for Hbb DAODs
@@ -11,29 +12,133 @@ def getHIGG5Common() :
         ("AntiKt4EMTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt"
            ".JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta"
            ".DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m"),
-        ("AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
-            ".-constituentLinks.-constituentWeight.-ConstituentScale"),
-        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
-        ("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.constituentLinks.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
-            ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent.PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"),
-        "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant",
+        # ("AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
+        #    ".-constituentLinks.-constituentWeight.-ConstituentScale"),
+        ("AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet"
+            ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"),
+        ("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+            ".PlanarFlow.Angularity.Aplanarity.FoxWolfram0.FoxWolfram2.KtDR.ZCut12"
+            ".GhostTrack.GhostTrackCount.GhostVR30Rmax4Rmin02TrackJet"
+            ".Width"),
+        ("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.constituentLinks"
+            ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
+            ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
+            ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
+            ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
+            ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
+            ".Width"),
+        ("AntiKt10TrackCaloClusterJets"
+         ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
+        # "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2cl100_discriminant",
+        # "BTagging_AntiKtVR30Rmax4Rmin02Track.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
         "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
+        "BTagging_AntiKt4EMPFlow.MV2cl100_discriminant",
+        "BTagging_AntiKt4PV0Track.MV2cl100_discriminant",
         "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
-        "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity"
+        "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity",
+        "TrackCaloClustersCombinedAndNeutral.pt.eta.phi.m.taste.trackParticleLink.caloClusterLinks"
+        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.ExCoM2SubJets",
+        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.pt.eta.phi.m",
+        ("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.btaggingLink.m_persKey.m_persIndex.Parent"
+             ".GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt"
+             ".GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt"),
+        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
         ]
+
+def getHIGG5CommonTruthContainers() :
+    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonWithDecayParticles","TruthBosonWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
 
 def getHIGG5CommonTruth() :
     return [
         "AntiKt4EMTopoJets.ConeTruthLabelID",
+        "AntiKt4EMPFlowJets.ConeTruthLabelID",
         "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection.crossSectionError.truthParticleLinks",
-        "TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
-         # "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
-        ("TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag"
-            ".classifierParticleOrigin.classifierParticleType.classifierParticleOutCome"
-            ".dressedPhoton.polarizationPhi.polarizationTheta"
-            ".truthOrigin.truthParticleLink.truthType"),
-        "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType"
-        ]
+        #"TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
+        "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
+        "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType",
+        'AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
+        'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
+        'AntiKt10LCTopoJetsJets.PartonTruthLabelID',
+        'AntiKt10TrackCaloClusterJets.PartonTruthLabelID'
+    ]
+
+def getHIGG5CommonTruthDictionExtionson() :
+    return {
+        "TruthBoson"                         : "xAOD::TruthParticleContainer" ,
+        "TruthBosonAux"                      : "xAOD::TruthParticleAuxContainer" ,
+        "TruthTop"                           : "xAOD::TruthParticleContainer" ,
+        "TruthTopAux"                        : "xAOD::TruthParticleAuxContainer" ,
+        "TruthBSM"                           : "xAOD::TruthParticleContainer" ,
+        "TruthBSMAux"                        : "xAOD::TruthParticleAuxContainer" ,
+        "HardScatterParticles"               : "xAOD::TruthParticleContainer" ,
+        "HardScatterParticlesAux"            : "xAOD::TruthParticleAuxContainer" ,
+        "TruthBosonWithDecayParticles"       : "xAOD::TruthParticleContainer" ,
+        "TruthBosonWithDecayParticlesAux"    : "xAOD::TruthParticleAuxContainer" ,
+        "TruthTopQuarkWithDecayParticles"    : "xAOD::TruthParticleContainer" ,
+        "TruthTopQuarkWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
+        "TruthTausWithDecayParticles"        : "xAOD::TruthParticleContainer" ,
+        "TruthTausWithDecayParticlesAux"     : "xAOD::TruthParticleAuxContainer" ,
+        "TruthHFWithDecayParticles"          : "xAOD::TruthParticleContainer" ,
+        "TruthHFWithDecayParticlesAux"       : "xAOD::TruthParticleAuxContainer" ,
+        "HardScatterVertices"                : "xAOD::TruthVertexContainer" ,
+        "HardScatterVerticesAux"             : "xAOD::TruthVertexAuxContainer" ,
+        "TruthBosonWithDecayVertices"        : "xAOD::TruthVertexContainer" ,
+        "TruthBosonWithDecayVerticesAux"     : "xAOD::TruthVertexAuxContainer" ,
+        "TruthTopQuarkWithDecayVertices"     : "xAOD::TruthVertexContainer" ,
+        "TruthTopQuarkWithDecayVerticesAux"  : "xAOD::TruthVertexAuxContainer" ,
+        "TruthTausWithDecayVertices"         : "xAOD::TruthVertexContainer" ,
+        "TruthTausWithDecayVerticesAux"      : "xAOD::TruthVertexAuxContainer" ,
+        "TruthPrimaryVertices"               : "xAOD::TruthVertexContainer",
+        "TruthPrimaryVerticesAux"            : "xAOD::TruthVertexAuxContainer",
+        "TruthHFWithDecayVertices"           : "xAOD::TruthVertexContainer",
+        "TruthHFWithDecayVerticesAux"        : "xAOD::TruthVertexAuxContainer"
+        }
+
+def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
+  common_dict = {
+      "AntiKtVR30Rmax4Rmin02TrackJets"                                    : "xAOD::JetContainer"        ,
+      "AntiKtVR30Rmax4Rmin02TrackJetsAux"                                 : "xAOD::JetAuxContainer"     ,
+      "BTagging_AntiKtVR30Rmax4Rmin02Track"                               : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"                            : "xAOD::BTaggingAuxContainer",
+      "BTagging_AntiKt4EMPFlow"                                           : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKt4EMPFlowAux"                                        : "xAOD::BTaggingAuxContainer",
+      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 : "xAOD::JetContainer"        ,
+      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              : "xAOD::JetAuxContainer"     ,
+      "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         : "xAOD::BTaggingAuxContainer"
+      }
+  from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+  if add_truth_if_mc and DerivationFrameworkIsMonteCarlo:
+      common_dict.update( getHIGG5CommonTruthDictionExtionson() )
+  return common_dict
+
+def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
+    common_smart_collections= ["Electrons",
+                               "Photons",
+                               "Muons",
+                               "TauJets",
+                               "MET_Reference_AntiKt4EMTopo",
+                               "MET_Reference_AntiKt4EMPFlow",
+                               "AntiKt4EMTopoJets",
+                               "AntiKt4EMPFlowJets",
+                               "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                               # "AntiKtVR30Rmax4Rmin02Track",
+                               "BTagging_AntiKt4EMTopo",
+                               "BTagging_AntiKt4EMPFlow",
+                               "BTagging_AntiKt2Track",
+                               #  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                               "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                               "InDetTrackParticles",
+                               "PrimaryVertices"]
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+    if add_truth_if_mc and DerivationFrameworkIsMonteCarlo :
+        common_smart_collections += [
+            "AntiKt4TruthJets",
+            "AntiKt4TruthWZJets"
+            #          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
+            ]
+    return common_smart_collections
+
 
 def filterContentList(pattern, content_list) :
     result=[]
@@ -45,6 +150,63 @@ def filterContentList(pattern, content_list) :
             result.append(elm)
     return result
 
+def getTruth3Collections(kernel) :
+
+    #STEP 1do the prejet augmentations by hand 
+    decorationDressing='dressedPhoton'
+    import DerivationFrameworkMCTruth.TruthDerivationTools
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc.DFCommonTruthElectronDressingTool.decorationName = decorationDressing
+    ToolSvc.DFCommonTruthMuonDressingTool.decorationName = decorationDressing
+
+    if not hasattr(kernel,'MCTruthCommonPreJetKernel'):
+        augmentationToolsList = [ ToolSvc.DFCommonTruthClassificationTool,
+                                  ToolSvc.DFCommonTruthMuonTool,ToolSvc.DFCommonTruthElectronTool,
+                                  ToolSvc.DFCommonTruthPhotonToolSim,
+                                  ToolSvc.DFCommonTruthNeutrinoTool,
+                                  ToolSvc.DFCommonTruthTopTool,
+                                  ToolSvc.DFCommonTruthBosonTool,
+                                  ToolSvc.DFCommonTruthBSMTool,
+                                  ToolSvc.DFCommonTruthElectronDressingTool, ToolSvc.DFCommonTruthMuonDressingTool,
+                                  ToolSvc.DFCommonTruthElectronIsolationTool1, ToolSvc.DFCommonTruthElectronIsolationTool2,
+                                  ToolSvc.DFCommonTruthMuonIsolationTool1, ToolSvc.DFCommonTruthMuonIsolationTool2,
+                                  ToolSvc.DFCommonTruthPhotonIsolationTool1, ToolSvc.DFCommonTruthPhotonIsolationTool2]
+        from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+        from AthenaCommon import CfgMgr
+        kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
+                                                                 AugmentationTools = augmentationToolsList
+                                                                 )
+    #STEP2 rest of addStandardTruth
+    from DerivationFrameworkMCTruth.MCTruthCommon import addTruthJets,addTruthMET
+    from DerivationFrameworkMCTruth.MCTruthCommon import schedulePostJetMCTruthAugmentations
+    from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles,addBosonsAndDownstreamParticles,addTopQuarkAndDownstreamParticles
+    from DerivationFrameworkMCTruth.MCTruthCommon import addHardScatterCollection,addPVCollection,addTruthCollectionNavigationDecorations,addParentAndDownstreamParticles
+    # Jets and MET
+    addTruthJets(kernel, decorationDressing)
+    addTruthMET(kernel)
+    # Tools that must come after jets
+    schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
+    #STEP3 SPECIAL add B and C hadrons (keep all generations below)
+    addHFAndDownstreamParticles(kernel,True,True,-1)
+    #STEP4 SPECIAL W/Z/H boson collection with children (this should then also include W decay products of top)
+    addBosonsAndDownstreamParticles(kernel,1)
+    #STEP5 INCLUDE special top collection with 1 generation below (custom)
+    addTopQuarkAndDownstreamParticles(kernel,1)
+     #STEP6 hard scatter information (only one generation, so really ME...)
+    addHardScatterCollection(kernel)
+     #STEP7 add PV information (up to ~60 vertices per event)
+    addPVCollection(kernel)
+     #STEP8 add custom tau collection with 1 generation below (custom)
+    addParentAndDownstreamParticles(kernel,
+                                    generations=1,
+                                    parents=[15],
+                                    prefix='Taus')
+     #STEP9
+     # Add back the navigation contect for the collections we want
+    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthTausWithDecayParticles","TruthNeutrinos","TruthBSM"])
+
+
+
 # --- common thinning tools
 def getTruthThinningTool(tool_prefix, thinning_helper) :
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
@@ -52,18 +214,20 @@ def getTruthThinningTool(tool_prefix, thinning_helper) :
         return None
     # MC truth thinning (not for data)
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-    truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  6) || (abs(TruthParticles.pdgId) ==  5))" # Top quark and Bottom quark
-    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
+    # truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
+    truth_cond_Top_Quark  = "((abs(TruthParticles.pdgId) == 6))"
+    # truth_cond_BC_Quark  = "((abs(TruthParticles.pdgId) ==  5))||((abs(TruthParticles.pdgId) ==  4))" # C quark and Bottom quark
+    # truth_cond_Hadrons = "((abs(TruthParticles.pdgId) >=  400)&&(abs(TruthParticles.pdgId)<600))||((abs(TruthParticles.pdgId) >=  4000)&&(abs(TruthParticles.pdgId)<6000))||((abs(TruthParticles.pdgId) >=  10400)&&(abs(TruthParticles.pdgId)<10600))||((abs(TruthParticles.pdgId) >=  20400)&&(abs(TruthParticles.pdgId)<20600))"
+    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Top_Quark+')'
+
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     MCThinningTool = DerivationFramework__GenericTruthThinning(
         name                         = tool_prefix + "MCThinningTool",
         ThinningService              = thinning_helper.ThinningSvc(),
         ParticleSelectionString      = truth_expression,
         PreserveDescendants          = False,
-        PreserveGeneratorDescendants = True,
-        PreserveAncestors            = True)
+        PreserveGeneratorDescendants = False,
+        PreserveAncestors            = False)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += MCThinningTool
     return MCThinningTool
@@ -132,12 +296,19 @@ def getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
 def getAntiKt4EMTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault( 'name',tool_prefix + 'AntiKt4EMTopoJetTPThinningTool')
     kwargs.setdefault( 'JetKey','AntiKt4EMTopoJets')
+    kwargs.setdefault( 'SelectionString','(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV)')
+    return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
+
+def getAntiKt4EMPFlowTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
+    kwargs.setdefault( 'name',tool_prefix + 'AntiKt4EMPFlowJetTPThinningTool')
+    kwargs.setdefault( 'JetKey','AntiKt4EMPFlowJets')
+    kwargs.setdefault( 'SelectionString','(AntiKt4EMPFlowJets.pt > 15*GeV)')
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
 def getAntiKt10LCTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault( 'name', tool_prefix + 'AntiKt10LCTopoJetTPThinningTool')
     kwargs.setdefault( 'JetKey',         'AntiKt10LCTopoJets')
-    kwargs.setdefault( 'SelectionString','(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
+    kwargs.setdefault( 'SelectionString','(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
     kwargs.setdefault( 'ApplyAnd',       False)
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
@@ -151,7 +322,7 @@ def getTCCTrackParticleThinning(tool_prefix, thinning_helper) :
                                                                   InDetTrackParticlesKey       = "InDetTrackParticles",
                                                                   CaloCalTopoClustersKey       = "CaloCalTopoClusters",
                                                                   ThinOriginCorrectedClusters  = True,
-                                                                  SelectionString              = "AntiKt10TrackCaloClusterJets.pt>100*GeV && abs(AntiKt10TrackCaloClusterJets.eta)<2.6",
+                                                                  SelectionString              = "AntiKt10TrackCaloClusterJets.pt>150*GeV && abs(AntiKt10TrackCaloClusterJets.eta)<2.6",
                                                                   OriginCaloCalTopoClustersKey = "LCOriginTopoClusters")
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
@@ -163,6 +334,7 @@ def getTauTrackParticleThinning(tool_prefix, thinning_helper) :
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
     thinning_tool = DerivationFramework__TauTrackParticleThinning(name                   = tool_prefix + "TauTPThinningTool",
                                                                   ThinningService        = thinning_helper.ThinningSvc(),
+                                                                  SelectionString        = "TauJets.pt > 18*GeV",
                                                                   TauKey                 = "TauJets",
                                                                   ConeSize               = 0.6,
                                                                   InDetTrackParticlesKey = "InDetTrackParticles")
@@ -203,19 +375,17 @@ def getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs) :
 def getAntiKt10LCTopoCaloClusterThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault('name',                 tool_prefix + 'AntiKt10LCTopoCaloClusterThinningTool')
     kwargs.setdefault('SGKey',                'AntiKt10LCTopoJets')
-    kwargs.setdefault('SelectionString',      '(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
+    kwargs.setdefault('SelectionString',      '(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
     kwargs.setdefault('AdditionalClustersKey', ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
-    return getJetCaloClusterThinning(tool_prefix,
-                                     thinning_helper,
-                                     AdditionalClustersKey = kwargs.pop('AdditionalClustersKey'),
-                                     **kwargs)
+    return getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
+
 
 def getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
     thinning_tool = DerivationFramework__GenericObjectThinning( name             = tool_prefix + "LargeRJetThinningTool",
                                                                 ThinningService  = thinning_helper.ThinningSvc(),
                                                                 ContainerName    = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                SelectionString  = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                                SelectionString  = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
                                                                 ApplyAnd         = False)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
@@ -226,11 +396,34 @@ def getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinn
     thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "TCCJetThinningTool",
                                                                ThinningService  = thinning_helper.ThinningSvc(),
                                                                ContainerName    = "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-                                                               SelectionString  = "(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100*GeV && abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                               SelectionString  = "(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
                                                                ApplyAnd         = False)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
     return thinning_tool
+
+def getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+    thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "AntiKt10TruthTrimmedPtFrac5SmallR20JetThinningTool",
+                                                               ThinningService  = thinning_helper.ThinningSvc(),
+                                                               ContainerName    = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+                                                               SelectionString  = "(AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10TruthTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                               ApplyAnd         = False)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc+= thinning_tool
+    return thinning_tool
+
+def getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+    thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "AntiKt10TruthWZTrimmedPtFrac5SmallR20JetThinningTool",
+                                                               ThinningService  = thinning_helper.ThinningSvc(),
+                                                               ContainerName    = "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets",
+                                                               SelectionString  = "(AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                               ApplyAnd         = False)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc+= thinning_tool
+    return thinning_tool
+
 
 def addTrimmedTruthWZJets(sequence, output_group) :
     from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
@@ -274,3 +467,22 @@ def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):
             if add_item :
                 dfjetlog.info( "Add full jet collection "+item )
                 slimhelper.AllVariables.append(item)
+
+def addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(sequence) :
+    ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+    #  doTrackJet = False
+    from AthenaCommon.AppMgr import ToolSvc
+    from DerivationFrameworkFlavourTag.HbbCommon import addExKtCoM
+    ExCoMJetCollection__SubJet = addExKtCoM(sequence,
+                                            ToolSvc,
+                                            ExKtJetCollection__FatJet,
+                                            2,
+                                            doTrackSubJet=False,
+                                            doGhostAssoc=False,
+                                            ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"],
+                                            min_subjet_pt_mev=0,
+                                            subjetAlgName="CoM")
+
+    from BTagging.BTaggingFlags import BTaggingFlags
+    BTaggingFlags.CalibrationChannelAliases += [
+                   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]

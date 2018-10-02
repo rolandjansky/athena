@@ -56,6 +56,8 @@ namespace DerivationFramework {
       int         m_DoVertexType;
       size_t      m_PV_minNTracks;
       bool        m_do3d;
+      bool        m_checkCollections;
+      std::vector<std::string> m_CollectionsToCheck;
   }; 
 }
 

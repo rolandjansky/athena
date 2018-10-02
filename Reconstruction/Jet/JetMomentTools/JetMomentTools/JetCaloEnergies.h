@@ -11,9 +11,9 @@
 #include <vector>
 
 class JetCaloEnergies : public JetModifierBase {
-  ASG_TOOL_CLASS0(JetCaloEnergies)
+  ASG_TOOL_CLASS(JetCaloEnergies,IJetModifier)
 public:
-  
+
   JetCaloEnergies(const std::string & t);
 
 
@@ -23,10 +23,9 @@ protected:
   void fillEperSamplingCluster(xAOD::Jet &jet, std::vector<float> & ePerSampling ) const ;
   void fillEperSamplingPFO(xAOD::Jet &jet, std::vector<float> & ePerSampling ) const ;
 
-      
+
 };
 
 
 #undef ASG_DERIVED_TOOL_CLASS
 #endif
-

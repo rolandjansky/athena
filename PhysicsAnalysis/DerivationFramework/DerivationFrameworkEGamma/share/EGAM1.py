@@ -505,6 +505,7 @@ EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
 # Add detailed shower shape variables (not needed for electrons because we save everything but it doesn't hurt..)
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 EGAM1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+EGAM1SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM1SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
