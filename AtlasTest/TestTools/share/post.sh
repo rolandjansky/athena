@@ -208,6 +208,9 @@ PP="$PP"'|no interpreter information for class TSelectorCint'
 #  Warning in <TInterpreter::ReadRootmapFile>: enum  xAOD::Type::ObjectType found in libxAODBaseDict.so  libEventKernelDict.so  libxAODBaseDict.so  libEventKernelDict.so  is already in libxAODBaseDict.so  libEventKernelDict.so 
 PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
 
+# Ignore sourceID message from EventSelector.
+PP="$PP"'|Disconnecting input sourceID'
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
@@ -225,6 +228,9 @@ else
          echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
        fi
        reflog=../share/${test}.ref
+       if [ "$reflog_location" != "" ]; then
+         reflog=$reflog_location/${test}.ref
+       fi
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back

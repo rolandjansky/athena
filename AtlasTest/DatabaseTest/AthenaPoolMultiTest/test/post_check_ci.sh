@@ -88,7 +88,9 @@ else
 		# ignore root collect key 
 		egrep -a -v 'NewEventCollection.root, recovered' |\
                 # ignore new file catalog messages
-                egrep -a -v 'registerPFN'
+                egrep -a -v 'registerPFN' |\
+                # EventSelector sourceID
+                egrep -a -v 'Disconnecting input sourceID'
 
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 

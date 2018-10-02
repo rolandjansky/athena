@@ -8,27 +8,15 @@
 //==============================================================================
 // Include files...
 //==============================================================================
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetPerformanceMonitoring/ZmumuEvent.h"
-
-#include "xAODTruth/TruthVertex.h"
 #include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "ITrackToVertex/ITrackToVertex.h"
-
-
-#include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODEgamma/Electron.h"
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"
-
 #include "AthenaBaseComps/AthAlgorithm.h"
-
 #include "GaudiKernel/ToolHandle.h"
 
 class TTree; 
 class IegammaTrkRefitterTool;
-
 
 class IDPerfMonZmumu : public AthAlgorithm
 {
@@ -50,7 +38,6 @@ class IDPerfMonZmumu : public AthAlgorithm
   // Private class member functions.
   void RegisterHistograms();
   void FillRecParameters(const Trk::Track* track, double charge);
-    //void FillRecParameters(const xAOD::TrackParticle* trackparticle, double charge);
   StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   const xAOD::TruthParticle* getTruthParticle( const xAOD::IParticle& p );
 

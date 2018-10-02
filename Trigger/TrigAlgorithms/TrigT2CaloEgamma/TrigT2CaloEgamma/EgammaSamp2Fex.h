@@ -42,8 +42,7 @@ class EgammaSamp2Fex: public IAlgToolCalo {
     *   @param[in] eta/phi-min/max = RoI definition.
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
-				const CaloDetDescrElement*& caloDDE = caloDDENull,
-                                const EventContext* context = nullptr );
+				const CaloDetDescrElement*& caloDDE = caloDDENull);
 
     /** Special initialize for Samp2 to include eta as a
 	trigger timer item monitored parameter. Important

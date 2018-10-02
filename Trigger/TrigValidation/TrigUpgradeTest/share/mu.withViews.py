@@ -89,7 +89,14 @@ if not 'doEFSA' in dir():
   doEFSA = True
 
 ### muon thresholds ###
-testChains = ["HLT_mu6", "HLT_2mu6"]
+CTPToChainMapping = {"HLT_mu6":       "L1_MU6",
+                    "HLT_2mu6":       "L1_2MU4" }
+
+# this is a temporary hack to include only new test chains
+testChains =[x for x, y in CTPToChainMapping.items()]
+topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+
+
 
 
 # ===============================================================================================
@@ -223,8 +230,7 @@ if TriggerFlags.doMuon:
     if muonRecFlags.doTGCs():
       from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
       L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(OutputLevel         = DEBUG,
-                                                            TgcPrepDataProvider = viewAlgs_MuL2SA[5],
-                                                            TGC_RawDataProvider = viewAlgs_MuL2SA[6])
+                                                            TgcPrepDataProvider = viewAlgs_MuL2SA[5])
       ToolSvc += L2TgcDataPreparator
        
       muFastAlg.DataPreparator.TGCDataPreparator = L2TgcDataPreparator
@@ -433,6 +439,7 @@ if TriggerFlags.doMuon:
     themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
+    themuoncreatoralg.MuonContainerLocation="Muons"
     themuoncreatoralg.MakeClusters=False
     themuoncreatoralg.MuonContainerLocation = "Muons"
 
@@ -455,8 +462,8 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
     muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
-
-    muonEFSAStep = seqAND("muonEFSAStep", [filterEFSAAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
+    muEFSASequence = seqAND("muEFSASequence", [efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo])
+    muonEFSAStep = stepSeq("muonEFSAStep", filterEFSAAlg, [muEFSASequence, muonEFSADecisionsDumper])
 
 
   if doL2CB and doL2ISO:

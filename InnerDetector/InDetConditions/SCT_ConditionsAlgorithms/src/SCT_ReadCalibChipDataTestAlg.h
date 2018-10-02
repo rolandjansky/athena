@@ -11,17 +11,15 @@
 #ifndef SCT_READ_CALIB_CHIP_DATA_TEST_ALG
 #define SCT_READ_CALIB_CHIP_DATA_TEST_ALG
 
-#include "GaudiKernel/ToolHandle.h"
-
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "Identifier/Identifier.h"
 #include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
-
-// Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
-// Event Info
 #include "xAODEventInfo/EventInfo.h"
+
+#include "GaudiKernel/ToolHandle.h"
 
 // Include STL stuff
 #include <string>

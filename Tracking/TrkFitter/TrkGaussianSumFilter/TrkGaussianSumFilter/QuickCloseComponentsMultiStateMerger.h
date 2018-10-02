@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -84,8 +84,10 @@ namespace Trk{
           std::vector<const ComponentParameters*>&,
           int& minIndex) const;
 
-    const MultiComponentState* mergeFullDistVector(const MultiComponentState&) const;
-    const MultiComponentState* mergeFullDistArray(const MultiComponentState&) const;
+    const MultiComponentState* mergeFullDistVector(IMultiComponentStateAssembler::Cache& cache, 
+                                                   const MultiComponentState&) const;
+    const MultiComponentState* mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
+                                                  const MultiComponentState&) const;
 
     void deleteStateComponents(int ind1, int ind2, std::vector<const ComponentParameters*>&) const;
 

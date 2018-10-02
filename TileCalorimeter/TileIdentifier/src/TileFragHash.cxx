@@ -71,7 +71,7 @@ TileFragHash::ID TileFragHash::identifier(int index) const
   return m_int2id[index];
 }
 
-int TileFragHash::operator() (const ID& id) const
+int TileFragHash::hash (const ID& id) const
 {
   assert(id>=0 && id < m_table_size);
 

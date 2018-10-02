@@ -20,7 +20,7 @@ def remember(name, instance):
 
 
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
-from TrigUpgradeTest.HLTCFConfig import *
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import *
 
 def seqFilter(name, Inputs=[], Outputs=[], Chains=[]):
     from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions

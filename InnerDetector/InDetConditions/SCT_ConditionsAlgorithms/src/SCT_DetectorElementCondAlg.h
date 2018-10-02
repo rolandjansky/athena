@@ -6,13 +6,13 @@
 #define SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
-
-#include "GeoModelUtilities/GeoAlignmentStore.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 namespace InDetDD {
   class SCT_DetectorManager;

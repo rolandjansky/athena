@@ -220,6 +220,62 @@ StatusCode PixelMainMon::bookClustersMon(void) {
 
   if (m_doOnTrack) {
     sc = clusterExpert.regHist(m_clustersOnOffTrack_per_lumi = TProfile_LW::create("ClustersOnOffTrack_per_lumi", ("Fraction pixel clusters on track per event per LB" + m_histTitleExt + ";lumi block; fraction clusters/event").c_str(), 2500, -0.5, 2499.5));
+
+    hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_lumi_IBL", false);
+    htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha, IBL", ";lumi block;ToT [BC]", false);
+    sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lumi_IBL = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 20, -0.5, 19.5));
+    if (m_doOnline) {
+      hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_last100lb_IBL", false);
+      htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha last 100 LB, IBL", ";last 100 lumi blocks;ToT [BC]", false);
+      sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lastXlb_IBL = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 20, -0.5, 19.5));
+      if (m_zoomed_clusterToTcosA_lastXlb_IBL) m_zoomed_clusterToTcosA_lastXlb_IBL->SetOption("colz");
+    }
+    hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_lumi_B0", false);
+    htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha, B0", ";lumi block;ToT [BC]", false);
+    sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lumi_B0 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 20, 7.5, 27.5));
+    if (m_doOnline) {
+      hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_last100lb_B0", false);
+      htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha last 100 LB, B0", ";last 100 lumi blocks;ToT [BC]", false);
+      sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lastXlb_B0 = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 20, 7.5, 27.5));
+      if (m_zoomed_clusterToTcosA_lastXlb_B0) m_zoomed_clusterToTcosA_lastXlb_B0->SetOption("colz");
+    }
+    hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_lumi_B1", false);
+    htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha, B1", ";lumi block;ToT [BC]", false);
+    sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lumi_B1 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 20, 19.5, 39.5));
+    if (m_doOnline) {
+      hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_last100lb_B1", false);
+      htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha last 100 LB, B1", ";last 100 lumi blocks;ToT [BC]", false);
+      sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lastXlb_B1 = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 20, 19.5, 39.5));
+      if (m_zoomed_clusterToTcosA_lastXlb_B1) m_zoomed_clusterToTcosA_lastXlb_B1->SetOption("colz");
+    }
+    hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_lumi_B2", false);
+    htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha, B2", ";lumi block;ToT [BC]", false);
+    sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lumi_B2 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 20, 19.5, 39.5));
+    if (m_doOnline) {
+      hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_last100lb_B2", false);
+      htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha last 100 LB, B2", ";last 100 lumi blocks;ToT [BC]", false);
+      sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lastXlb_B2 = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 20, 19.5, 39.5));
+      if (m_zoomed_clusterToTcosA_lastXlb_B2) m_zoomed_clusterToTcosA_lastXlb_B2->SetOption("colz");
+    }
+    hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_lumi_ECA", false);
+    htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha, ECA", ";lumi block;ToT [BC]", false);
+    sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lumi_ECA = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 20, 19.5, 39.5));
+    if (m_doOnline) {
+      hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_last100lb_ECA", false);
+      htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha last 100 LB, ECA", ";last 100 lumi blocks;ToT [BC]", false);
+      sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lastXlb_ECA = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 20, 19.5, 39.5));
+      if (m_zoomed_clusterToTcosA_lastXlb_ECA) m_zoomed_clusterToTcosA_lastXlb_ECA->SetOption("colz");
+    }
+    hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_lumi_ECC", false);
+    htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha, ECC", ";lumi block;ToT [BC]", false);
+    sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lumi_ECC = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 20, 19.5, 39.5));
+    if (m_doOnline) {
+      hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_last100lb_ECC", false);
+      htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha last 100 LB, ECC", ";last 100 lumi blocks;ToT [BC]", false);
+      sc = clusterExpert.regHist(m_zoomed_clusterToTcosA_lastXlb_ECC = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 20, 19.5, 39.5));
+      if (m_zoomed_clusterToTcosA_lastXlb_ECC) m_zoomed_clusterToTcosA_lastXlb_ECC->SetOption("colz");
+    }
+
   }
 
   if (m_do2DMaps) {
@@ -524,6 +580,12 @@ StatusCode PixelMainMon::fillClustersMon(void) {
         if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_ToT1d_corr[PixLayerIBL2D3DDBM::kIBL]) m_cluster_ToT1d_corr[PixLayerIBL2D3DDBM::kIBL]->Fill(cluster.totalToT() * cosalpha);
         if (pixlayeribl2d3ddbm != 99 && m_cluster_Q_corr[pixlayeribl2d3ddbm]) m_cluster_Q_corr[pixlayeribl2d3ddbm]->Fill(cluster.totalCharge() * cosalpha);
         if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_Q_corr[PixLayerIBL2D3DDBM::kIBL]) m_cluster_Q_corr[PixLayerIBL2D3DDBM::kIBL]->Fill(cluster.totalCharge() * cosalpha);
+	if (pixlayer == PixLayer::kIBL && m_zoomed_clusterToTcosA_lumi_IBL) m_zoomed_clusterToTcosA_lumi_IBL->Fill(m_manager->lumiBlockNumber(), cluster.totalToT() * cosalpha);
+	if (pixlayer == PixLayer::kB0 && m_zoomed_clusterToTcosA_lumi_B0) m_zoomed_clusterToTcosA_lumi_B0->Fill(m_manager->lumiBlockNumber(), cluster.totalToT() * cosalpha);
+	if (pixlayer == PixLayer::kB1 && m_zoomed_clusterToTcosA_lumi_B1) m_zoomed_clusterToTcosA_lumi_B1->Fill(m_manager->lumiBlockNumber(), cluster.totalToT() * cosalpha);
+	if (pixlayer == PixLayer::kB2 && m_zoomed_clusterToTcosA_lumi_B2) m_zoomed_clusterToTcosA_lumi_B2->Fill(m_manager->lumiBlockNumber(), cluster.totalToT() * cosalpha);
+	if (pixlayer == PixLayer::kECA && m_zoomed_clusterToTcosA_lumi_ECA) m_zoomed_clusterToTcosA_lumi_ECA->Fill(m_manager->lumiBlockNumber(), cluster.totalToT() * cosalpha);
+	if (pixlayer == PixLayer::kECC && m_zoomed_clusterToTcosA_lumi_ECC) m_zoomed_clusterToTcosA_lumi_ECC->Fill(m_manager->lumiBlockNumber(), cluster.totalToT() * cosalpha);
       }
       if (pixlayeribl2d3ddbm != 99 && m_cluster_groupsize_mod[pixlayeribl2d3ddbm]) m_cluster_groupsize_mod[pixlayeribl2d3ddbm]->Fill(npixHitsInCluster);
       if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_groupsize_mod[PixLayerIBL2D3DDBM::kIBL]) m_cluster_groupsize_mod[PixLayerIBL2D3DDBM::kIBL]->Fill(npixHitsInCluster);
@@ -687,6 +749,56 @@ StatusCode PixelMainMon::fillClustersMon(void) {
 }
 
 StatusCode PixelMainMon::procClustersMon(void) {
+  if (m_doOnline && m_doOnTrack) {
+    int lastlb = m_manager->lumiBlockNumber()-1; //remove -1 for testing
+    float cont(0.0);
+    if (m_zoomed_clusterToTcosA_lumi_IBL && m_zoomed_clusterToTcosA_lastXlb_IBL
+	&& m_zoomed_clusterToTcosA_lumi_B0 && m_zoomed_clusterToTcosA_lastXlb_B0
+	&& m_zoomed_clusterToTcosA_lumi_B1 && m_zoomed_clusterToTcosA_lastXlb_B1
+	&& m_zoomed_clusterToTcosA_lumi_B2 && m_zoomed_clusterToTcosA_lastXlb_B2
+	&& m_zoomed_clusterToTcosA_lumi_ECA && m_zoomed_clusterToTcosA_lastXlb_ECA
+	&& m_zoomed_clusterToTcosA_lumi_ECC && m_zoomed_clusterToTcosA_lastXlb_ECC) {
+
+      int bingx  = m_zoomed_clusterToTcosA_lumi_B2->GetXaxis()->FindBin(lastlb);
+      int nbingy = m_zoomed_clusterToTcosA_lumi_B2->GetNbinsY();
+      int nXbins = m_zoomed_clusterToTcosA_lastXlb_B2->GetNbinsX();
+
+      m_zoomed_clusterToTcosA_lastXlb_IBL->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+      m_zoomed_clusterToTcosA_lastXlb_IBL->Reset();
+      m_zoomed_clusterToTcosA_lastXlb_B0->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+      m_zoomed_clusterToTcosA_lastXlb_B0->Reset();
+      m_zoomed_clusterToTcosA_lastXlb_B1->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+      m_zoomed_clusterToTcosA_lastXlb_B1->Reset();
+      m_zoomed_clusterToTcosA_lastXlb_B2->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+      m_zoomed_clusterToTcosA_lastXlb_B2->Reset();
+      m_zoomed_clusterToTcosA_lastXlb_ECA->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+      m_zoomed_clusterToTcosA_lastXlb_ECA->Reset();
+      m_zoomed_clusterToTcosA_lastXlb_ECC->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+      m_zoomed_clusterToTcosA_lastXlb_ECC->Reset();
+
+      for (int binfx=nXbins; binfx>0; binfx--) {
+	if (bingx>0) {
+	  for (int bingy = 1; bingy <= nbingy; bingy++) {
+	    cont = m_zoomed_clusterToTcosA_lumi_IBL->GetBinContent(bingx, bingy);
+	    if (cont!=0) m_zoomed_clusterToTcosA_lastXlb_IBL->SetBinContent(binfx, bingy, cont);
+	    cont = m_zoomed_clusterToTcosA_lumi_B0->GetBinContent(bingx, bingy);
+	    if (cont!=0) m_zoomed_clusterToTcosA_lastXlb_B0->SetBinContent(binfx, bingy, cont);
+	    cont = m_zoomed_clusterToTcosA_lumi_B1->GetBinContent(bingx, bingy);
+	    if (cont!=0) m_zoomed_clusterToTcosA_lastXlb_B1->SetBinContent(binfx, bingy, cont);
+	    cont = m_zoomed_clusterToTcosA_lumi_B2->GetBinContent(bingx, bingy);
+	    if (cont!=0) m_zoomed_clusterToTcosA_lastXlb_B2->SetBinContent(binfx, bingy, cont);
+	    cont = m_zoomed_clusterToTcosA_lumi_ECA->GetBinContent(bingx, bingy);
+	    if (cont!=0) m_zoomed_clusterToTcosA_lastXlb_ECA->SetBinContent(binfx, bingy, cont);
+	    cont = m_zoomed_clusterToTcosA_lumi_ECC->GetBinContent(bingx, bingy);
+	    if (cont!=0) m_zoomed_clusterToTcosA_lastXlb_ECC->SetBinContent(binfx, bingy, cont);
+	  }
+	  bingx--;
+	} 
+      }
+      //m_zoomed_clusterToTcosA_lastXlb_B2->SetEntries(lastlb);      // for testing 
+    }
+
+  }
   if (m_doOffline) {
     fillSummaryHistos(m_cluster_occupancy.get(),
                       m_cluster_occupancy_summary_mod[PixLayer::kECA],

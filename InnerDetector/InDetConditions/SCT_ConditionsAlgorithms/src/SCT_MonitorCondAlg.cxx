@@ -4,9 +4,9 @@
 
 #include "SCT_MonitorCondAlg.h"
 
-#include <memory>
-
 #include "GaudiKernel/EventIDRange.h"
+
+#include <memory>
 
 SCT_MonitorCondAlg::SCT_MonitorCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -27,8 +27,8 @@ StatusCode SCT_MonitorCondAlg::initialize()
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
   // Register write handle
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
 
@@ -43,7 +43,7 @@ StatusCode SCT_MonitorCondAlg::execute()
   SG::WriteCondHandle<SCT_MonitorCondData> writeHandle{m_writeKey};
 
   // Do we have a valid Write Cond Handle for current time?
-  if(writeHandle.isValid()) {
+  if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order.");
@@ -53,16 +53,16 @@ StatusCode SCT_MonitorCondAlg::execute()
   // Read Cond Handle
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
   const CondAttrListCollection* readCdo{*readHandle};
-  if(readCdo==nullptr) {
-    ATH_MSG_ERROR("Null pointer to the read conditions object");
+  if (readCdo==nullptr) {
+    ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Size of CondAttrListCollection readCdo->size()= " << readCdo->size());
 
   // Define validity of the output cond obbject
   EventIDRange rangeW;
-  if(not readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+  if (not readHandle.range(rangeW)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
 
@@ -73,16 +73,16 @@ StatusCode SCT_MonitorCondAlg::execute()
   static const unsigned int defectListIndex{7};
   CondAttrListCollection::const_iterator iter{readCdo->begin()};
   CondAttrListCollection::const_iterator last{readCdo->end()};
-  for(; iter!=last; ++iter) {
+  for (; iter!=last; ++iter) {
     const AthenaAttributeList& list{iter->second};
-    if(list.size()>defectListIndex) {
+    if (list.size()>defectListIndex) {
       writeCdo->insert(iter->first, list[defectListIndex].data<std::string>());
     }
   }
 
   // Record validity of the output cond obbject
-  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record SCT_MonitorCondData " << writeHandle.key()
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record SCT_MonitorCondData " << writeHandle.key()
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
     return StatusCode::FAILURE;

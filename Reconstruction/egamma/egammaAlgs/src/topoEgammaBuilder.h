@@ -18,6 +18,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -130,7 +132,8 @@ private:
     // Other properties.
     //
     // others:
-    IChronoStatSvc* m_timingProfile;
+    ServiceHandle<IChronoStatSvc> m_timingProfile;
+    Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"};
 };
 
 #endif

@@ -9,11 +9,13 @@
 - Projects/.*
 
 # Remove most HLT packages
-# We currently build the HLT as part of Athena. Uncomment the following three lines to revert:
-#+ HLT/Trigger/TrigTransforms/TrigTransform
-#- HLT/.*
-#- Trigger/TrigValidation/TrigP1Test
++ HLT/Trigger/TrigTransforms/TrigTransform
++ HLT/Event/ByteStreamEmonSvc
+- HLT/.*
+- Trigger/TrigValidation/TrigP1Test
 - HLT/HLToks
+- Trigger/ALP
+- Event/DFStreamEventSelector
 
 # Offload service has build problems
 - Offloading/.*
@@ -26,7 +28,10 @@
 - graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
-+ graphics/VP1/.*
+- graphics/VP1/.*
+
+# Suspend building of Qat
+- graphics/Qat/.*
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA

@@ -29,19 +29,19 @@ class SCT_ID;
 /**
  * SCT_TestCablingAlg exercises the routines of the SCT cabling service
  **/
-class SCT_TestCablingAlg:public AthAlgorithm{
+class SCT_TestCablingAlg:public AthAlgorithm {
   public:
-    SCT_TestCablingAlg( const std::string & name, ISvcLocator * pSvcLocator);
+    SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator);
     ~SCT_TestCablingAlg();
     // Standard Gaudi functions
     StatusCode initialize(); //!< Gaudi initialiser
     StatusCode execute();    //!< Gaudi executer
     StatusCode finalize();   //!< Gaudi finaliser
-    
+
   private:
     ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-    const SCT_ID *  m_idHelper; //!< helper for offlineId/hash conversions
-    std::string coordString(const Identifier & offlineId);
-    
+    const SCT_ID* m_idHelper; //!< helper for offlineId/hash conversions
+    std::string coordString(const Identifier& offlineId);
+
 };
 #endif

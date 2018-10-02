@@ -26,7 +26,6 @@
 #include "xAODMuon/MuonContainer.h"
 
 #include "JetTagTools/JetTagUtils.h"
-#include "JetTagCalibration/CalibrationBroker.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "TMVA/Reader.h"
@@ -47,7 +46,6 @@ namespace Analysis {
 
   JetVertexCharge::JetVertexCharge(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
-    m_calibrationTool("BTagCalibrationBroker"),
     m_muonSelectorTool("JVC_MuonSelectorTool"),
     m_muonCorrectionTool( "JVC_MuonCorrectionTool" ),
     m_runModus("analysis")
@@ -56,7 +54,6 @@ namespace Analysis {
     declareProperty("SecVxFinderName",		m_secVxFinderName);
     declareProperty("Runmodus",                 m_runModus);
 
-    declareProperty("calibrationTool", 		m_calibrationTool);
     declareProperty("muonSelectorTool", 	m_muonSelectorTool);
     declareProperty("muonCorrectionTool", 	m_muonCorrectionTool);
     declareProperty("taggerNameBase",		m_taggerNameBase = "JetVertexCharge");
@@ -98,17 +95,8 @@ namespace Analysis {
 //Initialize method
   StatusCode JetVertexCharge::initialize() {
 
-    StatusCode sc = m_calibrationTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_calibrationTool);
-      return sc;
-    } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_calibrationTool);
-    }
-
-
     //Retrieve the Muon Selectot tool
-    sc = m_muonSelectorTool.retrieve();
+    StatusCode sc = m_muonSelectorTool.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_muonSelectorTool);
       return sc;
@@ -127,34 +115,8 @@ namespace Analysis {
 
     ATH_CHECK( m_muonCorrectionTool->initialize() );
 
-
-   //MVA xml files
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib_cat_JC_SVC_noMu");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib_cat_JC_SVC_incMu");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib_cat_JC_SVC_TVC_noMu");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib_cat_JC_SVC_TVC_incMu");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib_cat_JC_incMu");
-
-    //reference histos
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_noMu_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_noMu_bbar");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_incMu_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_incMu_bbar");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_TVC_noMu_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_TVC_noMu_bbar");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_TVC_incMu_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_SVC_TVC_incMu_bbar");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_incMu_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_incMu_bbar");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_noMu_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_noMu_bbar");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_SVC_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_SVC_bbar");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_all_b");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, "jvc_JC_all_bbar");
-
-
-    // m_alreadySetup = false;
+    // prepare readKey for calibration data:
+    ATH_CHECK(m_readKey.initialize());
 
     m_catNames[JC_SVC_noMu] = "JC_SVC_noMu";
     m_catNames[JC_SVC_incMu] = "JC_SVC_incMu";
@@ -196,64 +158,29 @@ namespace Analysis {
 StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
 
+    //Retrieval of Calibration Condition Data objects
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
 
-   /** author to know which jet algorithm: */ 
-   std::string author = JetTagUtils::getJetAuthor(jetToTag);
-   if (m_doForcedCalib) author = m_ForcedCalibName;
-   std::string alias = m_calibrationTool->channelAlias(author);
-
-
-   ClearVars();
-
-   m_jet_uPt = jetToTag.pt();
+    /** author to know which jet algorithm: */ 
+    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    if (m_doForcedCalib) author = m_ForcedCalibName;
+    std::string alias = readCdo->getChannelAlias(author);
 
 
 
-   // if(m_runModus=="analysis" && !m_alreadySetup ) {
-   //   StatusCode sc = SetupReaders(author, alias, JC_SVC_noMu );
-   //    if( sc.isFailure() ) {
-   // 	ATH_MSG_WARNING("#BTAG# Could not setup the reader for the JC_SVC_noMu category, author = " << author);
-   // 	return StatusCode::SUCCESS;
-   //    } else ATH_MSG_INFO("#BTAG# Reader correctly setup for the JC_SVC_noMu category, author = " << author); 
+    ClearVars();
 
-   //    sc = SetupReaders(author, alias, JC_SVC_incMu );
-   //    if( sc.isFailure() ) {
-   // 	ATH_MSG_WARNING("#BTAG# Could not setup the reader for the JC_SVC_incMu category, author = " << author);
-   // 	return StatusCode::SUCCESS;
-   //    } else ATH_MSG_INFO("#BTAG# Reader correctly setup for the JC_SVC_incMu category, author = " << author); 
+    m_jet_uPt = jetToTag.pt();
 
-   //    sc = SetupReaders(author, alias, JC_SVC_TVC_noMu );
-   //    if( sc.isFailure() ) {
-   // 	ATH_MSG_WARNING("#BTAG# Could not setup the reader for the JC_SVC_TVC_noMu category, author = " << author);
-   // 	return StatusCode::SUCCESS;
-   //    } else ATH_MSG_INFO("#BTAG# Reader correctly setup for the JC_SVC_TVC_noMu category, author = " << author); 
+    //          computing the JetCharge (JC) 
+    //==============================================================
 
-   //    sc = SetupReaders(author, alias, JC_SVC_TVC_incMu );
-   //    if( sc.isFailure() ) {
-   // 	ATH_MSG_WARNING("#BTAG# Could not setup the reader for the JC_SVC_TVC_incMu category, author = " << author);
-   // 	return StatusCode::SUCCESS;
-   //    } else ATH_MSG_INFO("#BTAG# Reader correctly setup for the JC_SVC_TVC_incMu category, author = " << author); 
-
-   //    sc = SetupReaders(author, alias, JC_incMu );
-   //    if( sc.isFailure() ) {
-   // 	ATH_MSG_WARNING("#BTAG# Could not setup the reader for the JC_incMu category, author = " << author);
-   // 	return StatusCode::SUCCESS;
-   //    } else ATH_MSG_INFO("#BTAG# Reader correctly setup for the JC_incMu category, author = " << author); 
-
-   //    m_alreadySetup =  true;
-   // }
-
-
-   //==============================================================
-   //          computing the JetCharge (JC) 
-   //==============================================================
-
-   std::vector<ElementLink< xAOD::TrackParticleContainer > > tracksInJet;        
-   tracksInJet = BTag->auxdata< std::vector<ElementLink< xAOD::TrackParticleContainer > > >(m_trackAssociationName);
-   if( tracksInJet.size() == 0 ) {
+    std::vector<ElementLink< xAOD::TrackParticleContainer > > tracksInJet;        
+    tracksInJet = BTag->auxdata< std::vector<ElementLink< xAOD::TrackParticleContainer > > >(m_trackAssociationName);
+    if( tracksInJet.size() == 0 ) {
       ATH_MSG_DEBUG("#BTAG#  Could not find tracks associated with name " << m_trackAssociationName);
-   } else {
+    } else {
 
       ATH_MSG_DEBUG("#BTAG# There are "<<tracksInJet.size()<<" tracks associated to the jet.");  
 
@@ -283,7 +210,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
       m_jc_all_jetPt = charge_all/jetToTag.pt();
 
 
-   }
+    }
 
 
    //==============================================================
@@ -457,7 +384,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      for( const auto& muLink : muonsInJet) {
          const xAOD::Muon* mu = *muLink;
 
-         xAOD::Muon* corrMuHelper = 0;
+         xAOD::Muon* corrMuHelper = nullptr;
          if( m_muonCorrectionTool->correctedCopy( *mu, corrMuHelper) != CP::CorrectionCode::Ok ) {
             ATH_MSG_WARNING("Cannot apply calibration nor smearing for muons." ); 
             continue;
@@ -468,9 +395,6 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
    
          // Make all the muon quality cuts...
          xAOD::Muon::Quality quality = m_muonSelectorTool->getQuality(*p_corrMu);
-         //if( quality == xAOD::Muon::Tight ) ATH_MSG_INFO("Muon quality is 'Tight'");
-         //else if( quality == xAOD::Muon::Medium  ) ATH_MSG_INFO("Muon quality is 'Medium'");
-         //else ATH_MSG_INFO("Muon quality is "<<quality);
 
          //just added this cut         
          if( quality > m_muonQualityCut ) continue; 
@@ -634,63 +558,60 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
       BTag->setVariable<int>(m_taggerNameBase, "category", mvaCat );
       BTag->setVariable<double>(m_taggerNameBase, "discriminant", -7. ); 
 
-   } 
-   else if( m_runModus == "analysis") {   
+    } 
+    else if( m_runModus == "analysis") {   
 
-     double llr;
-     if(mvaCat == JC_noMu ) { 
-       llr = logLikelihoodRatio( JC_noMu, m_jc , author, alias);  
-       BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
-       return StatusCode::SUCCESS;
-     } 
-     else if(mvaCat == JC_all ) { 
-       llr = logLikelihoodRatio( JC_all, m_jc_all , author, alias); 
-       BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
-       return StatusCode::SUCCESS;
-     } 
-     else if(mvaCat == SVC ) { 
-       llr = logLikelihoodRatio( SVC, m_svc , author, alias); 
-       BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
-       return StatusCode::SUCCESS;
-     } 
-     else if(mvaCat < 0 ) {   //NULL cat
-       BTag->setVariable<double>(m_taggerNameBase, "discriminant", -7. );
-       return StatusCode::SUCCESS;
-     } 
+      double llr;
+      if(mvaCat == JC_noMu ) { 
+        llr = logLikelihoodRatio( JC_noMu, m_jc , author);  
+        BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        return StatusCode::SUCCESS;
+      } 
+      else if(mvaCat == JC_all ) { 
+        llr = logLikelihoodRatio( JC_all, m_jc_all , author); 
+        BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        return StatusCode::SUCCESS;
+      }  
+      else if(mvaCat == SVC ) { 
+        llr = logLikelihoodRatio( SVC, m_svc , author); 
+        BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        return StatusCode::SUCCESS;
+      } 
+      else if(mvaCat < 0 ) {   //NULL cat
+        BTag->setVariable<double>(m_taggerNameBase, "discriminant", -7. );
+        return StatusCode::SUCCESS;
+      } 
 
-     std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase + "Calib_cat_" + m_catNames[mvaCat]);
-     // the bool indicates whether a calibration has "changed". This is the case in particular when retrieving it for the first time.
-     if (calib.second) {
-       StatusCode sc = SetupReaders(author, alias, mvaCat, calib.first );
-       if( sc.isFailure() ) {
-	 ATH_MSG_DEBUG("#BTAG# Could not setup the reader for the " << m_catNames[mvaCat] << " category and author " << author);
-	 return StatusCode::SUCCESS;
-       } else ATH_MSG_DEBUG("#BTAG# Reader correctly setup for the " << m_catNames[mvaCat] << " category and author " << author); 
-     }
+      TList* calib = readCdo->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase + "Calib_cat_" + m_catNames[mvaCat]);
+      StatusCode sc = SetupReaders(author, alias, mvaCat, calib );
+      if( sc.isFailure() ) {
+        ATH_MSG_DEBUG("#BTAG# Could not setup the reader for the " << m_catNames[mvaCat] << " category and author " << author);
+        return StatusCode::SUCCESS;
+      } else ATH_MSG_DEBUG("#BTAG# Reader correctly setup for the " << m_catNames[mvaCat] << " category and author " << author); 
 
 
-     //Finally compute the weight 
-     float mvaWeight = -9.;
-     std::string reader_name = alias+m_catNames[mvaCat];
-     std::map<std::string, TMVA::Reader*>::iterator pos2 = m_tmvaReaders.find(reader_name);
-     if(pos2==m_tmvaReaders.end()) {
-       int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),reader_name);
-       if(0==alreadyWarned) {
-         ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection " << reader_name);
-         m_undefinedReaders.push_back(reader_name);
-       }
-     }
-     else {
-       std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(reader_name);
-       if((itmap2->second)!=0){
-         mvaWeight = pos2->second->EvaluateMVA( itmap2->second ); 
-       } else ATH_MSG_WARNING("#BTAG#  kl==0"); 
-     }
+      //Finally compute the weight 
+      float mvaWeight = -9.;
+      std::string reader_name = alias+m_catNames[mvaCat];
+      std::map<std::string, TMVA::Reader*>::iterator pos2 = m_tmvaReaders.find(reader_name);
+      if(pos2==m_tmvaReaders.end()) {
+        int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),reader_name);
+        if(0==alreadyWarned) {
+          ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection " << reader_name);
+          m_undefinedReaders.push_back(reader_name);
+        }
+      }
+      else {
+        std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(reader_name);
+        if((itmap2->second)!=0){
+          mvaWeight = pos2->second->EvaluateMVA( itmap2->second ); 
+        } else ATH_MSG_WARNING("#BTAG#  kl==0"); 
+      }
 
 
-    //Now I compute the log-likelihood ratio
-    llr = logLikelihoodRatio( mvaCat, mvaWeight , author, alias); 
-    BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+      //Now I compute the log-likelihood ratio
+      llr = logLikelihoodRatio( mvaCat, mvaWeight , author); 
+      BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
 
 
     }  //if runmodus Analysis
@@ -766,113 +687,78 @@ int JetVertexCharge::category() {
 }
 
 //////////////////////////////////////////////////////
-float  JetVertexCharge::logLikelihoodRatio( int mvaCat, float mvaWeight, std::string author, std::string alias)  {
+float  JetVertexCharge::logLikelihoodRatio( int mvaCat, float mvaWeight, std::string author)  {
 
 
-  std::pair<TH1*,bool> histo_pos;
-  std::pair<TH1*,bool> histo_neg;
+  TH1* histo_pos = nullptr;
+  TH1* histo_neg = nullptr;
+
+  //Retrieval of Calibration Condition Data objects
+  SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
   
   if( mvaCat == JC_noMu) {
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_noMu_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_noMu_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_noMu_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_noMu_b"); 
   }
   else if( mvaCat == JC_SVC_noMu) { 
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_noMu_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_noMu_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_noMu_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_noMu_b"); 
   }
   else if( mvaCat == JC_SVC_incMu) {
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_incMu_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_incMu_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_incMu_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_incMu_b"); 
   }
   else if( mvaCat == JC_SVC_TVC_noMu) {
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_noMu_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_noMu_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_noMu_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_noMu_b"); 
   }
   else if( mvaCat == JC_incMu) {
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_incMu_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_incMu_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_incMu_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_incMu_b"); 
   }
   else if( mvaCat == JC_SVC_TVC_incMu) {
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_incMu_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_incMu_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_incMu_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_SVC_TVC_incMu_b"); 
   }
   else if( mvaCat == SVC) {
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_SVC_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_SVC_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_SVC_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_SVC_b"); 
   }
   else if( mvaCat == JC_all) {
-    histo_pos = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_all_bbar"); 
-    histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_all_b"); 
+    histo_pos = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_all_bbar"); 
+    histo_neg = readCdo->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_all_b"); 
   }
   else if(mvaCat == -1) {
     return -7; 
   }
 
-  bool histosHaveChanged = (histo_pos.second || histo_neg.second); 
-  if(histosHaveChanged) {
 
-    if( histo_pos.first ==NULL ) {
-      ATH_MSG_WARNING("#BTAG# BBAR HISTO can't be retrieved -> no calibration for "<< m_taggerNameBase );
-      return -3.; 
-    }
-    if(  histo_neg.first==NULL) {
-      ATH_MSG_WARNING("#BTAG# B HISTO can't be retrieved -> no calibration for "<< m_taggerNameBase );
-      return -3;
-    }
+  if( histo_pos == nullptr ) {
+    ATH_MSG_WARNING("#BTAG# BBAR HISTO can't be retrieved -> no calibration for "<< m_taggerNameBase );
+    return -3.; 
+  }
+  if( histo_neg== nullptr) {
+    ATH_MSG_WARNING("#BTAG# B HISTO can't be retrieved -> no calibration for "<< m_taggerNameBase );
+    return -3;
+  }
 
-    if( mvaCat == JC_noMu) {
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_noMu_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_noMu_b", false);
-    }
-    else if( mvaCat == JC_SVC_noMu) {
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_noMu_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_noMu_b", false);
-    }
-    else if( mvaCat == JC_SVC_incMu) {
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_incMu_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_incMu_b", false);
-    }
-    else if( mvaCat == JC_SVC_TVC_noMu) {	
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_TVC_noMu_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_TVC_noMu_b", false);
-    }
-    else if( mvaCat == JC_SVC_TVC_incMu) {
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_TVC_incMu_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_SVC_TVC_incMu_b", false);
-    }
-    else if( mvaCat == SVC) {	
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_SVC_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_SVC_b", false);
-    }
-    else if( mvaCat == JC_all) {
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_all_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_all_b", false);
-    }
-    else if( mvaCat == JC_incMu) {
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_incMu_bbar", false);
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, "jvc_JC_incMu_b", false);
-    }
+  TH1F* hp = (TH1F*) histo_pos; 
+  TH1F* hn = (TH1F*) histo_neg; 
 
+  std::map<int, TH1F*>::iterator pos;
+  std::map<int, TH1F*>::iterator neg;
 
-    TH1F* hp = (TH1F*) histo_pos.first; 
-    TH1F* hn = (TH1F*) histo_neg.first; 
+  pos = m_histoList_pos.find(mvaCat); 
+  if(pos!=m_histoList_pos.end()) {
+    m_histoList_pos.erase(pos);
+  }
+  neg = m_histoList_neg.find(mvaCat); 
+  if(neg!=m_histoList_neg.end()) {
+    m_histoList_neg.erase(neg);
+  }
 
-    std::map<int, TH1F*>::iterator pos;
-    std::map<int, TH1F*>::iterator neg;
-
-    pos = m_histoList_pos.find(mvaCat); 
-    if(pos!=m_histoList_pos.end()) {
-      m_histoList_pos.erase(pos);
-    }
-    neg = m_histoList_neg.find(mvaCat); 
-    if(neg!=m_histoList_neg.end()) {
-      m_histoList_neg.erase(neg);
-    }
-
-    m_histoList_pos.insert( std::make_pair( mvaCat, hp ) ); 
-    m_histoList_neg.insert( std::make_pair( mvaCat, hn ) );
-
-  }  //if something changed
+  m_histoList_pos.insert( std::make_pair( mvaCat, hp ) ); 
+  m_histoList_neg.insert( std::make_pair( mvaCat, hn ) );
 
 
   float histo_bbar = minProb, histo_b = minProb;
@@ -905,42 +791,12 @@ StatusCode JetVertexCharge::SetupReaders( std::string /*author*/, std::string al
 
    ATH_MSG_DEBUG("#BTAG# setting up reader for category "<<mvaCat);
 
-
-   // std::pair<TList*, bool> calib;
-
-   // if( mvaCat == JC_SVC_noMu ) calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib_cat_JC_SVC_noMu");
-   // else if(mvaCat == JC_SVC_incMu ) calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib_cat_JC_SVC_incMu");
-   // else if(mvaCat == JC_SVC_TVC_noMu ) calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib_cat_JC_SVC_TVC_noMu");
-   // else if(mvaCat == JC_SVC_TVC_incMu ) calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib_cat_JC_SVC_TVC_incMu");
-   // else if(mvaCat == JC_incMu ) calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib_cat_JC_incMu");
-
-
-   // bool calibHasChanged = calib.second;
-   // if(calibHasChanged) { 
-
-   ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
-   // if(!calib.first) {
    if (! list) {
      ATH_MSG_WARNING("#BTAG# Tlist can't be retrieved -> no calibration for "<< m_taggerNameBase );
      return StatusCode::FAILURE;
    }
 
 
-   m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib_cat_" + m_catNames[mvaCat], false);
-      // if( mvaCat == JC_SVC_noMu) m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib_cat_JC_SVC_noMu", false);
-      // else if( mvaCat == JC_SVC_incMu) m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib_cat_JC_SVC_incMu", false);
-      // else if( mvaCat == JC_SVC_TVC_noMu) m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib_cat_JC_SVC_TVC_noMu", false);
-      // else if( mvaCat == JC_SVC_TVC_incMu) m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib_cat_JC_SVC_TVC_incMu", false);
-      // else if( mvaCat == JC_incMu) m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib_cat_JC_incMu", false);
-
-      // //now the new part istringstream
-      // TList* list = calib.first; 
-
-   // Note: the variables and their ranges (to be used in TMVA::Reader::AddVariable() calls) are extracted from the XML object itself.
-   // This is somewhat fragile, as it assumes that the expressions used are either simple variable names or expressions implementing a minimum or maximum bound, like
-   //         "(distSV&gt;105.)?105.:distSV"
-   // where it is assumed that the actual variable name follows the ":", and the "&gt;" is an XML representation of ">" (and hence needs to be replaced with the latter)
-   
    std::vector<std::string> inputVars;
    std::ostringstream iss;
    for(int i=0; i<list->GetSize(); ++i) {
@@ -994,69 +850,6 @@ StatusCode JetVertexCharge::SetupReaders( std::string /*author*/, std::string al
      tmvaReader->AddVariable(expression.c_str(), m_variablePtr[var]);
    }
 
-   // if( mvaCat == JC_SVC_noMu ) { 
-   //   tmvaReader->AddVariable( "JC",		&m_jc );
-   //   tmvaReader->AddVariable( "SVC", 	&m_svc );
-   //   tmvaReader->AddVariable( "(track_good_pt>90000.)?90000.:track_good_pt", 	&m_jc_track_pt );
-   //   tmvaReader->AddVariable( "(ntrk0>14.)?14.:ntrk0",	&m_sv_ntrk );
-   //   tmvaReader->AddVariable( "(distSV>105.)?105.:distSV",  	&m_sv_dist );
-   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", 	&m_sv_err );
-   //   tmvaReader->AddVariable( "(track_sv_pt>200000.)?200000.:track_sv_pt", 	&m_sv_track_pt );
-   // }
-   // else if( mvaCat == JC_SVC_incMu ) {
-   //   tmvaReader->AddVariable( "JC",	&m_jc );
-   //   tmvaReader->AddVariable( "SVC", 	&m_svc );
-   //   tmvaReader->AddVariable( "mu_charge",  	&m_mu_charge );
-   //   tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt", 	&m_jc_track_pt );
-   //   tmvaReader->AddVariable( "(ntrk0>13.)?13.:ntrk0", 	&m_sv_ntrk );
-   //   tmvaReader->AddVariable( "(distSV>120.)?120.:distSV", 	&m_sv_dist );
-   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV",  	&m_sv_err );
-   //   tmvaReader->AddVariable( "(mu_ptRel>20.)?20.:mu_ptRel",	&m_mu_ptRel );
-   //   tmvaReader->AddVariable( "(mu_ptLong>500.)?500.:mu_ptLong", 	&m_mu_ptlong );
-   // }
-   // else if( mvaCat == JC_SVC_TVC_noMu ) {
-   //   tmvaReader->AddVariable( "JC",	&m_jc );
-   //   tmvaReader->AddVariable( "SVC",	&m_svc );
-   //   tmvaReader->AddVariable( "TVC",	&m_tvc ); 
-   //   tmvaReader->AddVariable( "(track_good_pt>100000.)?100000.:track_good_pt", &m_jc_track_pt );
-   //   tmvaReader->AddVariable( "(ntrk0>10.)?10.:ntrk0", &m_sv_ntrk );
-   //   tmvaReader->AddVariable( "(distSV>90.)?90.:distSV", &m_sv_dist );
-   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", &m_sv_err );
-   //   tmvaReader->AddVariable( "(track_sv_pt>250000.)?250000.:track_sv_pt", &m_sv_track_pt );
-   //   tmvaReader->AddVariable( "(massSV_pions>6000.)?6000.:massSV_pions", &m_sv_mass_pions );
-   //   tmvaReader->AddVariable( "(ntrk1_used>10.)?10.:ntrk1_used", &m_tv_ntrk ); 
-   //   tmvaReader->AddVariable( "(distTV>200.)?200.:distTV", &m_tv_dist );
-   //   tmvaReader->AddVariable( "(errTV>5.)?5.:errTV", &m_tv_err );
-   //   tmvaReader->AddVariable( "(massTV_kaons>6000.)?6000.:massTV_kaons", &m_tv_mass_kaons );
-   // }
-   // else if(mvaCat == JC_SVC_TVC_incMu) {	
-   //   tmvaReader->AddVariable( "JC",	&m_jc );
-   //   tmvaReader->AddVariable( "SVC",	&m_svc );
-   //   tmvaReader->AddVariable( "TVC",	&m_tvc );  
-   //   tmvaReader->AddVariable( "mu_charge",  	&m_mu_charge );
-   //   tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt", &m_jc_track_pt );
-   //   tmvaReader->AddVariable( "(ntrk0>10.)?10.:ntrk0", &m_sv_ntrk );
-   //   tmvaReader->AddVariable( "(distSV>90.)?90.:distSV", &m_sv_dist );
-   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", &m_sv_err ); 
-   //   tmvaReader->AddVariable( "(ntrk1_used>10.)?10.:ntrk1_used", &m_tv_ntrk ); 
-   //   tmvaReader->AddVariable( "(distTV>200.)?200.:distTV", &m_tv_dist );
-   //   tmvaReader->AddVariable( "(errTV>5.)?5.:errTV", &m_tv_err );
-   //   tmvaReader->AddVariable( "(massTV_kaons>6000.)?6000.:massTV_kaons", &m_tv_mass_kaons );
-   //   tmvaReader->AddVariable( "(mu_ptRel>12.)?12.:mu_ptRel",	&m_mu_ptRel );
-   //   tmvaReader->AddVariable( "(mu_ptLong>400.)?400.:mu_ptLong",	&m_mu_ptLong );
-   // }
-   // else if(mvaCat == JC_incMu) {	
-   //   tmvaReader->AddVariable( "JC",	&m_jc );
-   //   tmvaReader->AddVariable( "mu_charge",	&m_mu_charge );
-   //   tmvaReader->AddVariable( "(ngoodtrk>28.)?28.:ngoodtrk",	&m_ngoodtrk );
-   //   tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt",	&m_jc_track_pt );
-   //   tmvaReader->AddVariable( "(mu_ptRel>20.)?20.:mu_ptRel",	&m_mu_ptRel );
-   //   tmvaReader->AddVariable( "(mu_ptLong>400.)?400.:mu_ptLong",	&m_mu_ptLong );
-   //   tmvaReader->AddVariable( "(mu_iso_ptvar40>700000.)?700000.:mu_iso_ptvar40",	&m_mu_iso );
-   //   tmvaReader->AddVariable( "mu_jet_dR",	&m_mu_jet_dR );
-   // }              
-
- 
    TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kMLP, iss.str().data());  
    auto kl = dynamic_cast<TMVA::MethodBase*>(method);
 

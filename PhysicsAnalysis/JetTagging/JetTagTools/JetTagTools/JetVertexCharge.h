@@ -21,6 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "JetTagTools/ITagTool.h"
+#include "JetTagCalibration/JetTagCalibCondData.h"
 
 #include "xAODTracking/TrackParticle.h"
 
@@ -66,7 +67,8 @@ namespace Analysis {
 //      data members
 //------------------------------------------------------------------------            
 
-   ToolHandle<CalibrationBroker> m_calibrationTool;
+   /** Key of calibration data: */
+   SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
    ToolHandle<CP::IMuonSelectionTool> m_muonSelectorTool;
    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCorrectionTool;
    const xAOD::Vertex *m_primVtx = 0; 
@@ -165,7 +167,7 @@ namespace Analysis {
    bool passTrackCuts( const xAOD::TrackParticle &track ) const; 
 
    int category(); 
-   float logLikelihoodRatio( int cat , float w, std::string author, std::string alias);
+   float logLikelihoodRatio( int cat , float w, std::string author);
 
    StatusCode  SetupReaders( std::string author, std::string alias , int mvaCat, TList* list);
    void PrintVariables();  

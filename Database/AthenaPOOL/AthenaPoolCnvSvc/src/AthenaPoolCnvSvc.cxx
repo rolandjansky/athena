@@ -705,11 +705,13 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       buffer = nullptr;
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Could not share object for: " << placementStr);
+         m_outputStreamingTool[streamClient]->putObject(nullptr, 0).ignore();
          return(nullptr);
       }
       AuxDiscoverySvc auxDiscover;
       if (!auxDiscover.sendStore(m_serializeSvc.get(), m_outputStreamingTool[streamClient].get(), obj, pool::DbReflex::guid(classDesc), placement->containerName()).isSuccess()) {
          ATH_MSG_ERROR("Could not share dynamic aux store for: " << placementStr);
+         m_outputStreamingTool[streamClient]->putObject(nullptr, 0).ignore();
          return(nullptr);
       }
       if (!m_outputStreamingTool[streamClient]->putObject(nullptr, 0).isSuccess()) {
@@ -903,11 +905,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (token == nullptr) {
       return(StatusCode::RECOVERABLE);
    }
-   unsigned long ip0 = ip[0];
-   if (par[1].substr(0, 12) == "MetaDataHdr(") {
-     ip0 = 0;
-   }
-   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], ip0, token);
+   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], IPoolSvc::kInputStream, token);
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________

@@ -41,15 +41,12 @@ cat releaseFromSMK.log  | tee ${JOB_LOG}
 eval "$( grep 'export release=' releaseFromSMK.log)" 
 if [ -z ${release} ]; then
    echo "Release not found" | tee ${JOB_LOG} 
-else
-   asetup AthenaP1,21.1,${release} | tee ${JOB_LOG} 
 fi
 
-#athenaHLT.py -M -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_eb_zmm_egz.merged.RAW.selected._0001.data -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBATN" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" -c 'rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True'
-
-athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" | tee ${JOB_LOG} 
-
-Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root | tee ${JOB_LOG} 
+l1psk="'lvl1key': ${l1psk}"
+subshellcmd='source $AtlasSetup/scripts/asetup.sh AthenaP1,21.1,'${release}'; athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey '${smk}' --db-hltpskey '${hltpsk}' --db-extra "{'${l1psk}'}"; Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root; RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode 2>&1 | tee ${JOB_LOG}'
+echo "running in subshell: $subshellcmd"
+(eval $subshellcmd)
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"

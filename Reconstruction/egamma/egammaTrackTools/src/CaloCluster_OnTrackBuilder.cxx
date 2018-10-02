@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCluster_OnTrackBuilder.h"
-
 #include "xAODEgamma/Egamma.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -24,12 +23,8 @@ CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p )
 : AthAlgTool(t,n,p),
-  m_deta(0),
-  m_dphi(0),
   m_calo_dd(0),
-  m_emid(0),
-  m_sam(CaloSampling::EMB2),
-  m_subcalo(CaloCell_ID::LAREM)
+  m_emid(0)
 {
   declareInterface<ICaloCluster_OnTrackBuilder>(this);
 }
@@ -70,7 +65,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::Egamma* eg, int charge )
+  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::Egamma* eg, int charge ) const
 //--------------------------------------------------------------------------------------------
 {
   return buildClusterOnTrack( eg->caloCluster(), charge );
@@ -79,7 +74,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::CaloCluster* cluster, int charge ) 
+  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::CaloCluster* cluster, int charge ) const
 //--------------------------------------------------------------------------------------------
 {
 
@@ -124,7 +119,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::CaloCluster* cluster ) 
+const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::CaloCluster* cluster ) const
 //--------------------------------------------------------------------------------------------
 {
  
@@ -387,62 +382,43 @@ double CaloCluster_OnTrackBuilder::electronPhiResoB(double eta) const
   
 }
 
-
-// =====================================================================
-bool CaloCluster_OnTrackBuilder::FindPosition(const xAOD::CaloCluster* cluster) const
-{
-  //
-  // From the original (eta,phi) position, find the location
-  // (sampling, barrel/end-cap, granularity)
-  // For this we use the tool egammaEnergyAllSamples
-  // which uses the CaloCluster method inBarrel() and inEndcap()
-  // but also, in case close to the crack region where both 
-  // boolean can be true, the energy reconstructed in the sampling
-  //
-
-  // eta max and averaged eta 
-  
-  /** @brief (eta,phi) around which estimate the shower shapes */
-  const double eta = cluster->etaSample(m_sam);
-  const double phi = cluster->phiSample(m_sam);
-  if ((eta==0. && phi==0.) || fabs(eta)>100) return false;
-
-  int sampling_or_module;
-  bool barrel;
-
-  // granularity in (eta,phi) in the pre sampler
-  // CaloCellList needs both enums: subCalo and CaloSample
-  m_calo_dd->decode_sample(m_subcalo, barrel, sampling_or_module, 
-         (CaloCell_ID::CaloSample) m_sam);
-
-  // Get the corresponding grannularities : needs to know where you are
-  //                  the easiest is to look for the CaloDetDescrElement
-  const CaloDetDescrElement* dde;
-  dde = m_calo_dd->get_element(m_subcalo,sampling_or_module,barrel,eta,phi);
-  // if object does not exist then return
-  if (!dde) return false;
-
-  // local granularity
-  m_deta = dde->deta();
-  m_dphi = dde->dphi();
-
-
-
-  return true;
-}
-
-
-
 // =====================================================================
 double  CaloCluster_OnTrackBuilder::CalculatePhis(const xAOD::CaloCluster* cluster) const
 // =====================================================================
 {
-  if (!cluster) return 9999.;
-  m_sam = xAOD::EgammaHelpers::isBarrel(cluster) ? CaloSampling::EMB2 : CaloSampling::EME2;
+  if (!cluster) {return -999.;}
+  CaloSampling::CaloSample sam = 
+    xAOD::EgammaHelpers::isBarrel(cluster) ? CaloSampling::EMB2 : CaloSampling::EME2;
   
-  // From the original (eta,phi) position, find the location
-  // (sampling, barrel/end-cap, granularity)
-  if (!FindPosition(cluster)) return 0.;
+  /* 
+   * From the original (eta,phi) position, find the location
+   * (sampling, barrel/end-cap, granularity)
+   * For this we use the tool egammaEnergyAllSamples
+   * which uses the CaloCluster method inBarrel() and inEndcap()
+   * but also, in case close to the crack region where both 
+   * boolean can be true, the energy reconstructed in the sampling
+   */
+  const double eta = cluster->etaSample(sam);
+  const double phi = cluster->phiSample(sam);
+  if ((eta==0. && phi==0.) || fabs(eta)>100) {return -999.;}
+  int sampling_or_module;
+  bool barrel;
+  CaloCell_ID::SUBCALO subcalo;
+  /* granularity in (eta,phi) in the pre sampler
+   CaloCellList needs both enums: subCalo and CaloSample*/
+  m_calo_dd->decode_sample(subcalo, barrel, sampling_or_module, 
+         (CaloCell_ID::CaloSample) sam);
+
+  /*
+   * Get the corresponding grannularities : needs to know where you are
+                   the easiest is to look for the CaloDetDescrElement*/
+  const CaloDetDescrElement* dde;
+  dde = m_calo_dd->get_element(subcalo,sampling_or_module,barrel,eta,phi);
+  // if object does not exist then return
+  if (!dde) {return -999.;}
+  // local granularity
+  double deta = dde->deta();
+  double dphi = dde->dphi();
 
   SG::ReadHandle<CaloCellContainer> cellContainer(m_caloCellContainerKey);
   // check is only used for serial running; remove when MT scheduler used
@@ -452,15 +428,16 @@ double  CaloCluster_OnTrackBuilder::CalculatePhis(const xAOD::CaloCluster* clust
   }
 
   CaloLayerCalculator calc;
-  if (calc.fill(cellContainer.cptr(),cluster->etaSample(m_sam),cluster->phiSample(m_sam),
-                7*m_deta,7*m_dphi,m_sam).isFailure() )
+  if (calc.fill(cellContainer.cptr(),cluster->etaSample(sam),cluster->phiSample(sam),
+                7*deta,7*dphi,sam).isFailure() ){
      ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
-  
+  }
   double etamax = calc.etarmax();
   double phimax = calc.phirmax();
 
-  if (calc.fill(cellContainer.cptr(),etamax,phimax,3.*m_deta,7.*m_dphi,m_sam).isFailure())
+  if (calc.fill(cellContainer.cptr(),etamax,phimax,3.*deta,7.*dphi,sam).isFailure()){
     ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
-   
+  }
+  
   return calc.phis(); 
 }

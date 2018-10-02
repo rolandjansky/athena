@@ -23,6 +23,8 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/DataHandle.h"
+
 
 // METRecoInterface includes
 #include "METRecoInterface/IMETRecoTool.h"
@@ -99,6 +101,9 @@ namespace met{
     std::string m_metsuffix;
     std::string m_mapname;
     std::string m_corename;
+    SG::WriteHandleKey<xAOD::MissingETContainer> m_corenameKey;
+    SG::WriteHandleKey<xAOD::MissingETAssociationMap> m_mapnameKey;
+
 
     int m_signalstate;
     bool m_overwrite;

@@ -387,8 +387,11 @@ namespace MuonCombined {
 	if( i_extrapolations == 1 ) direction = Trk::oppositeMomentum;
         
         // in case of along momentum extrapolation, use pre-existing extrapolation if available 
-         std::unique_ptr<Trk::CaloExtension> extension = nullptr;
-        if( !m_caloExtensionTool.empty() )  m_caloExtensionTool->caloExtension( idTP->indetTrackParticle(), extension );
+        std::unique_ptr<Trk::CaloExtension> extension = nullptr;
+        if( !m_caloExtensionTool.empty() ) {
+          extension=m_caloExtensionTool->caloExtension( idTP->indetTrackParticle() );
+        }
+       
         if( direction == Trk::alongMomentum ){
           if( extension && extension->muonEntryLayerIntersection() ){
             const Trk::TrackParameters& pars = *extension->muonEntryLayerIntersection();

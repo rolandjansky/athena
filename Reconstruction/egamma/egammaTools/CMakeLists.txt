@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PRIVATE
 	Calorimeter/CaloUtils
 	Control/AthenaBaseComps
 	Control/AthenaKernel
-	Control/SGTools
 	Control/StoreGate
 	Control/AthContainers
 	DetectorDescription/Identifier
@@ -47,7 +46,7 @@ atlas_add_component( egammaTools
 	src/components/*.cxx
 	INCLUDE_DIRS
 	LINK_LIBRARIES CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel 
-	AthContainers SGTools StoreGateLib  Identifier EventKernel EventPrimitives FourMom FourMomUtils  xAODCaloEvent  
+	AthContainers StoreGateLib  Identifier EventKernel EventPrimitives FourMom FourMomUtils  xAODCaloEvent  
 	xAODEgamma xAODTracking xAODTruth GaudiKernel LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib 
 	ElectronPhotonFourMomentumCorrectionLib egammaRecEvent egammaUtils TrkEventPrimitives )
 

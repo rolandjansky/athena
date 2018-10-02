@@ -59,7 +59,7 @@ def CaloTopoClusterCfg(configFlags):
     TopoMaker.SeedCutsInAbsE                 = True
     TopoMaker.ClusterEtorAbsEtCut            = 0.0*MeV
     # use 2-gaussian or single gaussian noise for TileCal
-    TopoMaker.TwoGaussianNoise = configFlags.get("Calo.TopoCluster.doTwoGaussianNoise")
+    TopoMaker.TwoGaussianNoise = configFlags.Calo.TopoCluster.doTwoGaussianNoise
         
     TopoSplitter = CaloTopoClusterSplitter("TopoSplitter")
     # cells from the following samplings will be able to form local
@@ -81,7 +81,7 @@ def CaloTopoClusterCfg(configFlags):
                                            "FCAL1","FCAL2"]
     TopoSplitter.ShareBorderCells = True
     TopoSplitter.RestrictHECIWandFCalNeighbors  = False
-    TopoSplitter.WeightingOfNegClusters = configFlags.get("Calo.TopoCluster.doTreatEnergyCutAsAbsolute")
+    TopoSplitter.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     #
     # the following options are not set, since these are the default
     # values
@@ -110,8 +110,8 @@ if __name__=="__main__":
 
     log.setLevel(DEBUG)
 
-    ConfigFlags.set("global.isMC",False)
-    ConfigFlags.set("global.InputFiles",["myESD.pool.root"])
+    ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.Files = ["myESD.pool.root"]
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()

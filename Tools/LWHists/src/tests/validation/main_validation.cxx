@@ -30,6 +30,9 @@
 #include "TProfile2D.h"
 #include "LWHists/TProfile2D_LW.h"
 
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
+
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -998,6 +1001,9 @@ void usage(char**argv,int exitcode) {
   exit(exitcode);
 }
 int main (int argc, char** argv) {
+
+  // Suppress ubsan warnings from cling.
+  CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
   bool cfg_rootbackend(false);
   bool cfg_triggerrootconversion(false);

@@ -13,10 +13,8 @@
  *
  * There are 3 different usage patterns.
  *
- * 1. No-cachhing
- * The following method 
- * bool caloExtension( const xAOD::IParticle& particle, 
- * std::unique_ptr<Trk::CaloExtension>& extension ) const
+ * 1. No-caching
+ * std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::IParticle& particle) const
  * will provide back a Trk:: CaloExtention wrapped in a unique_ptr.
  * The memory lifetime is determined by the unique_ptr
  *
@@ -25,15 +23,14 @@
  * In this case it can employ a cache of type
  * std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>
  * The method 
- * bool caloExtension( const xAOD::IParticle& particle,
- * const Trk::CaloExtension* extension,
- * IParticleCaloExtensionTool::Cache& cache ) const
- * fills in the cache. 
+ * const Trk::CaloExtension* caloExtension( const xAOD::IParticle& particle,
+ *                                          IParticleCaloExtensionTool::Cache& cache ) const
+ * fills in the cache with the relevant extension 
  * The extension that is provided as a ptr to a const CaloExtension
  * is just the last element added to that cache.
  * The cache owns the elements.
  *
- * 3. Among algorithms/domain caching.
+ * 3. Inter-algorithm caching.
  * In this case an central algorithm A 
  * creates a CaloExtensionCollection in SG
  * via the proper WriteHandle mechanism.
@@ -44,9 +41,8 @@
  *                          const std::vector<bool>& mask,
  *                          CaloExtensionCollection& caloextensions) const
  * and
- * bool caloExtension( const xAOD::IParticle& particle,
- *                       const Trk::CaloExtension* extension,
- *                       const CaloExtensionCollection& cache ) const
+ * const Trk::CaloExtension* caloExtension( const xAOD::IParticle& particle,
+ *                                          const CaloExtensionCollection& cache ) const
  */
 
 
@@ -77,13 +73,9 @@ public:
    * if it is  neutral/TruthParticle
    * The memory ownership is handled by the unique_ptr 
    * @param particle    reference to the Particle
-   * @param extension   unique_ptr ref to a CaloExtension 
-   * @return true if the call was successful
-   * Note the choice of in/out unique_ptr is mainly due
-   * to compatibility with the old interface/existing clients
+   * @return unique_ptr  to a CaloExtension 
    */
-  virtual bool caloExtension( const xAOD::IParticle& particle, 
-                              std::unique_ptr<Trk::CaloExtension>& extension ) const = 0;
+  virtual std::unique_ptr<Trk::CaloExtension> caloExtension(const xAOD::IParticle& particle) const = 0;
   
   /** Method to return the calo layers crossed  (CaloExtension)
    * by the IParticle track or the IParticle itself 
@@ -91,8 +83,8 @@ public:
    * An alg using the same IParticle multiple times can use a local  cache of
    * the form std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>, 
    * where the key is the  value of IParticle::index().
-   * This method adds the relevant element to the cache look-up table 
-   * which retains ownership of them. 
+   * This method adds the relevant extension to the cache look-up table 
+   * that retains their ownership. 
    *
    * @param particle      reference to the Particle
    * @param cache         the look-up table cache 
@@ -105,11 +97,10 @@ public:
    /** Method to return the calo layers crossed  (CaloExtension)
    * by the IParticle track or the IParticle itself 
    * if it is  neutral/TruthParticle
-   * It just returns the result stored in the CaloExtensionCollection
-   * created by (or in a similar way as ) the caloExtensionCollection
-   * method below.
+   * It returns the result stored in the CaloExtensionCollection
+   * created by the caloExtensionCollection method below.
    * In this case, the CaloExtensionCollection (DataVector<CaloExtension>)
-   * owns its element.
+   * owns the caloExtension.
    *
    * @param particle     reference to the Particle
    * @param cache        The CaloExtensionCollections   
@@ -128,7 +119,7 @@ public:
    *
    * @param particles The input collection
    * @param mask      contains true for the elements for which to permorm an extension, false otherwise          
-   * @* @param caloextension Output to be filled,
+   * @return caloextension Output to be filled,
    * will contain unfilled CaloExtension where the mask was false, otherwise it contains the relevant
    * result. 
    */  

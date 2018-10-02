@@ -115,7 +115,7 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
     if (saturated) prov|=0x0400;
 
     if (std::fabs(E)>m_eCutFortQ) {
-      ATH_MSG_VERBOSE("Channel " << m_onlineId->channel_name(id) << " gain " << gain << " above theshold for tQ computation");
+      ATH_MSG_VERBOSE("Channel " << m_onlineId->channel_name(id) << " gain " << gain << " above threshold for tQ computation");
       prov|=0x2000;
 
       //Get time by applying OFC-b coefficients:
@@ -141,6 +141,7 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
 	if (!connected) continue; //No conditions for disconnected channel, who cares?
 	ATH_MSG_ERROR("No valid shape for channel " <<  m_onlineId->channel_name(id) 
 		      << " gain " << gain);
+	ATH_MSG_ERROR("Got size " << fullShape.size() << ", expected at least " << nSamples+firstSample);
 	return StatusCode::FAILURE;
       }
 
@@ -152,6 +153,7 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
 	if (ATH_UNLIKELY(fullshapeDer.size()<nSamples+firstSample)) {
 	  ATH_MSG_ERROR("No valid shape derivative for channel " <<  m_onlineId->channel_name(id) 
 			<< " gain " << gain);
+	  ATH_MSG_ERROR("Got size " << fullshapeDer.size() << ", expected at least " << nSamples+firstSample);
 	  return StatusCode::FAILURE;
 	}
 

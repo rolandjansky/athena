@@ -7,8 +7,8 @@ from AthenaCommon.Constants import DEBUG,VERBOSE
 
 def l2PhotonCaloStepCfg( flags, chains ):
 
-    from TrigUpgradeTest.MenuComponents import FilterHypoSequence
-    fhSeq = FilterHypoSequence( 'PhotonFastCalo' )
+    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    fhSeq = NJMenuSequence( 'PhotonFastCalo' )
     fhSeq.addFilter( chains, inKey = 'EMRoIDecisions' )
 
     from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering
@@ -64,8 +64,8 @@ def l2PhotonRecoCfg( flags ):
     return reco
 
 def l2PhotonRecoStepCfg( flags, chains, inputSequence ):
-    from TrigUpgradeTest.MenuComponents import FilterHypoSequence
-    fhSeq = FilterHypoSequence( 'PhotonFastReco' )
+    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    fhSeq = NJMenuSequence( 'PhotonFastReco' )
     fhSeq.addFilter( chains, inKey=inputSequence.hypoDecisions() )
 
     from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering
@@ -94,7 +94,7 @@ def l2PhotonRecoStepCfg( flags, chains, inputSequence ):
 def generatePhotonsCfg( flags ):
 
     acc = ComponentAccumulator()
-    photonChains = [ f.split()[0] for f in flags.get("Trigger.menu.photons") ]
+    photonChains = [ f.split()[0] for f in flags.Trigger.menu.photons ]
     if not photonChains:
         return None,None
 
@@ -112,9 +112,8 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.set( "global.InputFiles",
-                     ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] )
-    ConfigFlags.set( "Trigger.menu.photons", ["HLT_g5_etcut L1_EM3", "HLT_g10_etcut L1_EM3"] )
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    ConfigFlags.Trigger.menu.photons = ["HLT_g5_etcut L1_EM3", "HLT_g10_etcut L1_EM3"]
     ConfigFlags.lock()
 
     acc, sequences = generatePhotonsCfg( ConfigFlags )

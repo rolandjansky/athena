@@ -155,7 +155,6 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_threeMatchedEProb(0),
   m_fourMatchedEProb(0),
   m_truthCounter(0),
-  m_truthCutCounters{},
   m_fillTIDEPlots(false),
   m_fillExtraTIDEPlots(false) {
   declareProperty("useTrackSelection", m_useTrackSelection);
@@ -184,7 +183,7 @@ InDetPhysValMonitoringTool::initialize() {
   ATH_CHECK(m_trackSelectionTool.retrieve(EnableTool {m_useTrackSelection} ));
   ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
   if (m_truthSelectionTool.get() ) {
-    m_truthCutCounters = m_truthSelectionTool->counters();
+    m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
   m_monPlots = std::move(std::unique_ptr<InDetRttPlots> (new InDetRttPlots(0, m_dirName + m_folder)));
   m_monPlots->SetFillExtraTIDEPlots(m_fillExtraTIDEPlots);
@@ -306,7 +305,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   std::vector<int> incTrkNum = {
     0, 0, 0
   };
-  if (m_truthSelectionTool.get()) { m_truthSelectionTool->clearCounters(); }
+  CutFlow tmp_truth_cutflow( m_truthSelectionTool.get() ?  m_truthSelectionTool->nCuts() : 0 );
 
   // dummy variables
   int base(0), hasTruth(0), hashighprob(0), passtruthsel(0);
@@ -378,10 +377,12 @@ InDetPhysValMonitoringTool::fillHistograms() {
         hashighprob += 1;
       }
       // if there is associated truth also a truth selection tool was retrieved.
-      if (m_truthSelectionTool->accept(associatedTruth)) {
-        passtruthsel += 1;
+      IAthSelectionTool::CutResult passed( m_truthSelectionTool ?  m_truthSelectionTool->accept(associatedTruth) : IAthSelectionTool::CutResult(0) );
+      if (m_truthSelectionTool) {
+        tmp_truth_cutflow.update( passed.missingCuts() );
+        passtruthsel += (bool) passed;
       }
-      if ((prob > minProbEffLow) and m_truthSelectionTool->accept(associatedTruth)) {
+      if ((prob > minProbEffLow) and passed) {
         m_monPlots->fill(*thisTrack, *associatedTruth); // Make all plots requiring both truth & track (meas, res, &
                                                         // pull)
       }
@@ -390,13 +391,9 @@ InDetPhysValMonitoringTool::fillHistograms() {
     m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w);
   }
   if (m_truthSelectionTool.get()) {
-     ATH_MSG_DEBUG(m_truthSelectionTool->str());
-     const auto& tmp = m_truthSelectionTool->counters(); // get array of counters for the cuts
-
-     unsigned idx(0);
-     for (auto& i:m_truthCutCounters) {
-        i += tmp[idx++]; // i=sum of all the individual counters on each cut.
-     }
+    ATH_MSG_DEBUG( CutFlow(tmp_truth_cutflow).report(m_truthSelectionTool->names()) );
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_truthCutFlow.merge(std::move(tmp_truth_cutflow));
   }
   int nTruths(0), nInsideOut(0), nOutsideIn(0);
   std::vector<int> incTrkDenom = {
@@ -443,7 +440,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     }
 
     // if the vector of truth particles is not empty also a truthSelectionTool was retrieved
-    const bool accept = m_truthSelectionTool->accept(thisTruth);
+    const IAthSelectionTool::CutResult accept = m_truthSelectionTool->accept(thisTruth);
     if (accept) {
       ++m_truthCounter;     // total number of truth tracks which pass cuts
       ++num_truth_selected; // total number of truth which pass cuts per event
@@ -699,11 +696,8 @@ InDetPhysValMonitoringTool::procHistograms() {
 
   ATH_MSG_INFO("");
   ATH_MSG_INFO("Cutflow for truth tracks:");
-  unsigned int idx(0);
   if (m_truthSelectionTool.get()) {
-     for (const auto& cutName:m_truthSelectionTool->names()) {
-        ATH_MSG_INFO("number after " << cutName << ": " << m_truthCutCounters[idx++]);
-     }
+    ATH_MSG_INFO("Truth selection report: " << m_truthCutFlow.report( m_truthSelectionTool->names()) );
   }
   if (endOfRunFlag()) {
     m_monPlots->finalize();
