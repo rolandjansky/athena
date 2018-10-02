@@ -1,64 +1,14 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
+# https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
-
-def McEventSelectorCfg(configFlags):
-    cfg=ComponentAccumulator()
-
-    from AthenaCommon import AtlasUnixStandardJob
-
-    from McEventSelector.McEventSelectorConf import McCnvSvc
-    mcCnvSvc = McCnvSvc()
-    cfg.addService(mcCnvSvc)
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
-    cfg.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[mcCnvSvc.getFullJobOptName(),]))
-
-    from McEventSelector.McEventSelectorConf import McEventSelector
-    evSel=McEventSelector("EventSelector")
-    evSel.RunNumber = configFlags.Input.RunNumber
-    evSel.InitialTimeStamp = configFlags.Input.InitialTimeStamp
-    cfg.addService(evSel)
-    cfg.setAppProperty("EvtSel",evSel.getFullJobOptName())
-
-    return cfg
-
-
-def SCT_CablingFoldersCfg(configFlags):
-    cfg=ComponentAccumulator()
-
-    path="/SCT/DAQ/Config/"
-    if configFlags.IOVDb.DatabaseInstance == "COMP200":
-        path="/SCT/DAQ/Configuration/"
-
-    instance="SCT"
-    if ConfigFlags.Input.isMC:
-        instance="SCT_OFL"
-
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-    cfg.merge(addFolders(configFlags, [path+"ROD", path+"RODMUR", path+"MUR", path+"Geog"], instance, className="CondAttrListVec")[0])
-
-    return cfg, path
-
-
-def SCT_CablingCondAlgCfg(configFlags):
-    cfg=ComponentAccumulator()
-
-    foldersCfg,path=SCT_CablingFoldersCfg(configFlags)
-    cfg.merge(foldersCfg)
-
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
-    cfg.addCondAlgo(SCT_CablingCondAlgFromCoraCool(ReadKeyRod=path+"ROD",
-                                                   ReadKeyRodMur=path+"RODMUR",
-                                                   ReadKeyMur=path+"MUR",
-                                                   ReadKeyGeo=path+"Geog"))
-
-    return cfg
 
 
 def SCT_TestCablingAlgCfg(configFlags):
     cfg=ComponentAccumulator()
 
+    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
     cfg.merge(SCT_CablingCondAlgCfg(configFlags))
 
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
@@ -97,7 +47,10 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()
+
+    from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
     cfg.merge(McEventSelectorCfg(ConfigFlags))
+
     cfg.merge(SCT_TestCablingAlgCfg(ConfigFlags))
 
     f=open("TestSCT_CablingCfg.pkl","w")
