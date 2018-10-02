@@ -27,13 +27,20 @@ def getStandardTruthPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     PileUpToolsList = []
     if DetFlags.pileup.Truth_on():
-        PileUpToolsList += [ "MergeMcEventCollTool" ]
+        from Digitization.DigitizationFlags import digitizationFlags
+        if 'NewMerge' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
+            if digitizationFlags.doLowPtMinBias.get_Value():
+                PileUpToolsList += [ "NewMergeMcEventCollTool_MinBias" ]
+            if digitizationFlags.doHighPtMinBias.get_Value():
+                PileUpToolsList += [ "NewMergeMcEventCollTool_HighPtMinBias" ]
+            if digitizationFlags.doCavern.get_Value():
+                PileUpToolsList += [ "NewMergeMcEventCollTool_Cavern" ]
+            if digitizationFlags.doBeamGas.get_Value() or digitizationFlags.doBeamHalo.get_Value():
+                PileUpToolsList += [ "NewMergeMcEventCollTool_HaloGas" ]
+        else:
+            PileUpToolsList += [ "MergeMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_Signal" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_MinBias" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_Cavern" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_HaloGas" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_HighPtMinBias" ]
         if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeTrackRecordCollTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
@@ -44,13 +51,12 @@ def getStandardSignalOnlyTruthPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     PileUpToolsList = []
     if DetFlags.pileup.Truth_on():
-        PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
+        from Digitization.DigitizationFlags import digitizationFlags
+        if 'NewMerge' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
+        else:
+            PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_Signal" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_MinBias" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_Cavern" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_HaloGas" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_HighPtMinBias" ]
         if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeTrackRecordCollTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
@@ -61,13 +67,20 @@ def getStandardInTimeOnlyTruthPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     PileUpToolsList = []
     if DetFlags.pileup.Truth_on():
-        PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
+        from Digitization.DigitizationFlags import digitizationFlags
+        if 'NewMerge' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
+            if digitizationFlags.doLowPtMinBias.get_Value():
+                PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_MinBias" ]
+            if digitizationFlags.doHighPtMinBias.get_Value():
+                PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_HighPtMinBias" ]
+            if digitizationFlags.doCavern.get_Value():
+                PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_Cavern" ]
+            if digitizationFlags.doBeamGas.get_Value() or digitizationFlags.doBeamHalo.get_Value():
+                PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_HaloGas" ]
+        else:
+            PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_Signal" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_MinBias" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_Cavern" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_HaloGas" ]
-        PileUpToolsList += [ "NewMergeMcEventCollCool_HighPtMinBias" ]
         if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeTrackRecordCollTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
