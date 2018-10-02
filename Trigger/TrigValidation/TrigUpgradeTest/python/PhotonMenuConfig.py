@@ -7,12 +7,12 @@ from AthenaCommon.Constants import DEBUG,VERBOSE
 
 def l2PhotonCaloStepCfg( flags, chains ):
 
-    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NJMenuSequence
     fhSeq = NJMenuSequence( 'PhotonFastCalo' )
     fhSeq.addFilter( chains, inKey = 'EMRoIDecisions' )
 
     from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering
-    from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
     # obtain the reconstruction CF fragment    
     fhSeq.addReco( RecoFragmentsPool.retrieve( l2CaloRecoCfg, flags ) )
@@ -46,7 +46,7 @@ def l2PhotonAlgCfg( flags ):
     return acc, photonFex
 
 def l2PhotonRecoCfg( flags ):
-    from TrigUpgradeTest.MenuComponents import InViewReco
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
 
     reco = InViewReco("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
@@ -64,12 +64,12 @@ def l2PhotonRecoCfg( flags ):
     return reco
 
 def l2PhotonRecoStepCfg( flags, chains, inputSequence ):
-    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NJMenuSequence
     fhSeq = NJMenuSequence( 'PhotonFastReco' )
     fhSeq.addFilter( chains, inKey=inputSequence.hypoDecisions() )
 
     from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering
-    from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
     # obtain the reconstruction CF fragment
     fhSeq.addReco( RecoFragmentsPool.retrieve( l2PhotonRecoCfg, flags ) )
