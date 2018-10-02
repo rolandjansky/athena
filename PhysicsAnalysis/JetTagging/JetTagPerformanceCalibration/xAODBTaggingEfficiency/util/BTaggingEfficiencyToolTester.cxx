@@ -30,7 +30,7 @@ int main() {
   code = tool->setProperty("JetAuthor",           "AntiKt4EMTopoJets");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool JetAuthor property" << std::endl;
   // name of the CDI file
-  code = tool->setProperty("ScaleFactorFileName", "13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
+  code = tool->setProperty("ScaleFactorFileName", "13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool ScaleFactorFileName property" << std::endl;
   // calibration specification (there should always be a "default" available so this doesn't need to be set
   // tool->setProperty("ScaleFactorBCalibration", "ttbar_PDF_7b_SF");
@@ -149,7 +149,9 @@ int main() {
   // systematics interface
   jet->setAttribute("ConeTruthLabelID", 5);
   jet->setAttribute("HadronConeExclTruthLabelID", 5);
-  std::cout << "\nTesting application of systematics to b jets..." << std::endl;
+
+  int ID; jet->getAttribute("HadronConeExclTruthLabelID", ID);
+  std::cout << "\nTesting application of systematics to jets with labelID " << ID << "..." << std::endl;
   CP::SystematicSet systs = tool->affectingSystematics();
   for( CP::SystematicSet::const_iterator iter = systs.begin();
        iter!=systs.end(); ++iter) {
