@@ -32,8 +32,9 @@ def  trigJetHypoToolFromName(chain):
 
     
     scenario_dict = {re_EtEta0: decodeEtEta}
+
     for k, v in scenario_dict.items():
-        match = k.match(chain)
+        match = k.match(chain)       
         if match:
             hypo_tool = TrigJetHypoToolMT()
             hypo_tool.HypoConfigurer = v(match, chain)

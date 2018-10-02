@@ -22,7 +22,14 @@ if TriggerFlags.doCalo:
       
 
     # menu items
-     testChains = ["HLT_jet60"]
+     #testChains = ["HLT_j85"]
+     CTPToChainMapping = {"HLT_j85":       "L1_J20",
+                            }
+ 
+    # this is a temporary hack to include only new test chains
+     testChains =[x for x, y in CTPToChainMapping.items()]
+     topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+ 
      print testChains
      from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
      filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
@@ -30,17 +37,19 @@ if TriggerFlags.doCalo:
      filterL1RoIsAlg.Output = ["FilteredJRoIDecisions"]
      filterL1RoIsAlg.Chains = testChains
      filterL1RoIsAlg.OutputLevel = DEBUG
-     topSequence += filterL1RoIsAlg
+     #topSequence += filterL1RoIsAlg
     
      from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
      InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
      InputMakerAlg.Output='FSJETRoIs'
      InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
      InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
-     topSequence += InputMakerAlg
+     #topSequence += InputMakerAlg
 
-      
-      # jets
+     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+     jetRecoSequence = parOR("jetRecoSequence")
+     
+      # jets reco
      from AthenaMonitoring.GenericMonitoringTool import (GenericMonitoringTool,
                                                          defineHistogram)
      
@@ -75,14 +84,14 @@ if TriggerFlags.doCalo:
      algo1.roiMode=False
      # algo1.roiMode=True
      algo1.OutputLevel=DEBUG
-     topSequence += algo1
+     jetRecoSequence += algo1
 
      from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
 
      algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
      algo2.Cells = "StoreGateSvc+FullScanCells"
      algo2.OutputLevel = INFO
-     topSequence += algo2
+     jetRecoSequence += algo2
 
 
      # PseudoJetAlgorithm uses a tool to convert IParticles (eg CaloClusters)
@@ -106,7 +115,7 @@ if TriggerFlags.doCalo:
      algo3.OutputLevel = VERBOSE
      algo3.PJGetter = pseudoJetGetter
      
-     topSequence += algo3
+     jetRecoSequence += algo3
 
 
 
@@ -156,9 +165,54 @@ if TriggerFlags.doCalo:
      algo4 = JetAlgorithm()
      algo4.Tools = [jetRecTool]
     
-     topSequence += algo4
+     jetRecoSequence += algo4
      
 
+     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT, TrigJetHypoToolMT
+     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromName
+  
+     #TrigJetHypoToolMT
+     hypo = TrigJetHypoAlgMT("jethypo")
+     hypo.OutputLevel = DEBUG
+     hypo.Jets = jetRecTool.OutputContainer
+     hypo.HypoOutputDecisions = "jetDecisions"
+     hypo.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions[0]
+     hypo.HypoTools = [ trigJetHypoToolFromName( c ) for c in testChains ] 
+
+     #topSequence += hypo
 
 
 
+
+     jetSequence = seqAND("jetSequence", [ InputMakerAlg, jetRecoSequence, hypo ])
+
+     jetStep = stepSeq("jetStep", filterL1RoIsAlg, [ jetSequence ] )
+
+
+     ### CF construction ###
+     def summarySteps ( name, decisions ):
+        from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+        summarySteps = TriggerSummaryAlg( "TriggerSummary"+name )
+        summarySteps.InputDecision = "HLTChains"
+        summarySteps.HLTSummary = "MonitoringSummary"+name
+        summarySteps.OutputLevel = DEBUG
+        summarySteps.FinalDecisions = decisions
+        return summarySteps
+
+     summary0 = summarySteps("Step1", [hypo.HypoOutputDecisions] )
+     step0 = parOR("step0", [ jetStep, summary0 ] )
+     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+     HLTsteps = seqAND("HLTsteps", [ step0filter, step0 ]  )
+
+  
+     ### final monitor algorithm
+     from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+     mon = TrigSignatureMoniMT()
+     mon.FinalDecisions = [ hypo.HypoOutputDecisions ]
+     from TrigUpgradeTest.TestUtils import MenuTest
+     mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+     mon.OutputLevel = DEBUG
+
+    
+     hltTop = seqOR( "hltTop", [ HLTsteps, mon ] )
+     topSequence += hltTop   
