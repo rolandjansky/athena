@@ -183,6 +183,8 @@ if TriggerFlags.doCalo:
      hypo.HypoTools = [ trigJetHypoToolFromName( c ) for c in testChains ] 
 
      print hypo
+     for tool in hypo.HypoTools:
+         print tool
      #topSequence += hypo
 
 

@@ -1,5 +1,4 @@
-from TrigHLTJetHypo.TrigHLTJetHypoConf import (TrigJetHypoToolMT,
-                                               TrigJetHypoToolConfig_EtaEt)
+from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT, TrigJetHypoToolConfig_EtaEt
 import re
 
 re_EtEta0 = re.compile(
@@ -16,7 +15,7 @@ def decodeEtEta(match, chain):
         if k not in conf_dict: conf_dict[k] = v
         if conf_dict[k] is None: conf_dict[k] = v
 
-    conf_tool = TrigJetHypoToolConfig_EtaEt(name=chain)
+    conf_tool = TrigJetHypoToolConfig_EtaEt(name=chain+"config")
     conf_tool.EtThresholds = [float(conf_dict['thresh'])]
     conf_tool.eta_mins = [float(conf_dict['etalo'])]
     conf_tool.eta_maxs = [float(conf_dict['etahi'])]
@@ -36,7 +35,7 @@ def  trigJetHypoToolFromName(chain):
     for k, v in scenario_dict.items():
         match = k.match(chain)       
         if match:
-            hypo_tool = TrigJetHypoToolMT(name=chain)
+            hypo_tool = TrigJetHypoToolMT(chain)
             hypo_tool.HypoConfigurer = v(match, chain)
             return hypo_tool
 
