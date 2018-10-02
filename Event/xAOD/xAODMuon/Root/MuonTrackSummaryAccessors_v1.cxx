@@ -147,7 +147,6 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
 
         DEFINE_ACCESSOR( uint8_t, cscEtaHits );
-    
         DEFINE_ACCESSOR( uint8_t, cscUnspoiledEtaHits );
 
       default:                  
