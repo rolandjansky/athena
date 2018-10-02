@@ -78,6 +78,12 @@ MultiBJet_2018 = [
     'HLT_3j35_bmv2c1070_split_j35_L14J15.0ETA25',
     'HLT_4j35_bmv2c1077_split_L14J15.0ETA25',
     'HLT_2j35_bmv2c1070_split_2j35_bmv2c1085_split_L14J15.0ETA25',
+    'HLT_j175_gsc225_bmv2c1040_split',
+    'HLT_j225_gsc275_bmv2c1060_split',
+    'HLT_j225_gsc300_bmv2c1070_split',
+    'HLT_j225_gsc360_bmv2c1077_split',
+    'HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split',
+    'HLT_j60_gsc85_bmv2c1050_split_3j60_gsc85_boffperf_split',
 ]
 
 
