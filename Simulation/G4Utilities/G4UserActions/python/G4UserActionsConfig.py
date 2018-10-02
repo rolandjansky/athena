@@ -125,3 +125,11 @@ def getStoppedParticleActionTool(name="G4UA::StoppedParticleActionTool", **kwarg
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__StoppedParticleActionTool(name, **kwargs)
+
+def getRadLengthActionTool(name="G4UA::RadLengthActionTool", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__RadLengthActionTool(name, **kwargs)
