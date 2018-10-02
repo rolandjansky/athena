@@ -19,6 +19,28 @@ from AthenaCommon.AlgSequence import AthSequencer
 if TriggerFlags.doCalo:
 
   if ( True ) :
+      
+
+    # menu items
+     testChains = ["HLT_jet60"]
+     print testChains
+     from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+     filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+     filterL1RoIsAlg.Input = ["JRoIDecisions"]
+     filterL1RoIsAlg.Output = ["FilteredJRoIDecisions"]
+     filterL1RoIsAlg.Chains = testChains
+     filterL1RoIsAlg.OutputLevel = DEBUG
+     topSequence += filterL1RoIsAlg
+    
+     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+     InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+     InputMakerAlg.Output='FSJETRoIs'
+     InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
+     InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
+     topSequence += InputMakerAlg
+
+      
+      # jets
      from AthenaMonitoring.GenericMonitoringTool import (GenericMonitoringTool,
                                                          defineHistogram)
      
@@ -47,7 +69,8 @@ if TriggerFlags.doCalo:
     
      from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
      algo1=HLTCaloCellMaker("testFastAlgo1")
-     algo1.RoIs="StoreGateSvc+FSJETRoIs"
+     algo1.RoIs=InputMakerAlg.Output
+#     algo1.RoIs="StoreGateSvc+FSJETRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
      algo1.roiMode=False
      # algo1.roiMode=True
