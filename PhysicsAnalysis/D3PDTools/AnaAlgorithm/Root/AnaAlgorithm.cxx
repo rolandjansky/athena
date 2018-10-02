@@ -24,6 +24,11 @@
 #include <AnaAlgorithm/ITreeWorker.h>
 #endif
 
+#ifndef ROOTCORE
+#include <GaudiKernel/IIncidentSvc.h>
+#include <GaudiKernel/ServiceHandle.h>
+#endif
+
 //
 // method implementations
 //
@@ -166,6 +171,40 @@ namespace EL
 
 
 
+  StatusCode AnaAlgorithm ::
+  requestFileExecute ()
+  {
+#ifdef ROOTCORE
+    m_hasFileExecute = true;
+    return StatusCode::SUCCESS;
+#else
+    ANA_MSG_ERROR ("fileExecute not supported in Athena");
+    return StatusCode::FAILURE;
+#endif
+  }
+
+
+
+  StatusCode AnaAlgorithm ::
+  requestBeginInputFile ()
+  {
+#ifdef ROOTCORE
+    m_hasBeginInputFile = true;
+#else
+    // Connect to the IncidentSvc:
+    ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+    ATH_CHECK( incSvc.retrieve() );
+
+    // Set up the right callback, but ensure we don't double-register
+    // if we are called twice
+    incSvc->removeListener( this, IncidentType::BeginInputFile );
+    incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+#endif
+    return StatusCode::SUCCESS;
+  }
+
+
+
   ::StatusCode AnaAlgorithm ::
   initialize ()
   {
@@ -193,6 +232,22 @@ namespace EL
   void AnaAlgorithm ::
   print () const
   {}
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  fileExecute ()
+  {
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  beginInputFile ()
+  {
+    return StatusCode::SUCCESS;
+  }
 
 
 
@@ -225,6 +280,32 @@ namespace EL
   sysPrint ()
   {
     print ();
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  sysFileExecute ()
+  {
+    if (m_hasFileExecute == false)
+    {
+      ANA_MSG_FATAL ("called fileExecute(), though it was not registered");
+      return StatusCode::FAILURE;
+    }
+    return fileExecute ();
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  sysBeginInputFile ()
+  {
+    if (m_hasBeginInputFile == false)
+    {
+      ANA_MSG_FATAL ("called beginInputFile(), though it was not registered");
+      return StatusCode::FAILURE;
+    }
+    return beginInputFile ();
   }
 
 
@@ -289,10 +370,42 @@ namespace EL
 
 
 
+  bool AnaAlgorithm ::
+  hasFileExecute () const noexcept
+  {
+    return m_hasFileExecute;
+  }
+
+
+
+  bool AnaAlgorithm ::
+  hasBeginInputFile () const noexcept
+  {
+    return m_hasBeginInputFile;
+  }
+
+
+
   const std::string& AnaAlgorithm ::
   name () const
   {
     return m_name;
+  }
+#endif
+
+
+
+#ifndef ROOTCORE
+  void AnaAlgorithm ::
+  handle (const Incident& inc)
+  {
+    if (inc.type() == IncidentType::BeginInputFile)
+    {
+      ANA_CHECK_THROW (beginInputFile ());
+    } else
+    {
+      ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
+    }
   }
 #endif
 }
