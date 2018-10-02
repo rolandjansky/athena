@@ -120,12 +120,6 @@ namespace NSWL1 {
     std::vector<int> *m_cl_layer;
     std::vector<int> *m_cl_bandId;
 
-    //Cache that holds which strips to read based on bandid
-    // 2d-vector for eta/phi station coordinates
-    // map from BandID to a set of strips
-    
-    std::vector< std::vector < std::map<uint16_t, std::set<int> > > > *bandID_cache ;
-    //std::vector< std::vector<std::unique_ptr<StripData> >* > m_clusters;
     std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > m_clusters;
   };  // end of StripClusterTool class
 

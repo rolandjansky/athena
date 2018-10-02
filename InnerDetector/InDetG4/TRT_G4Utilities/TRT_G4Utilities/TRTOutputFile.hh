@@ -32,7 +32,7 @@ public:
 private:
   TRTOutputFile();
   
-  int ReadParameter(std::string);
+  
   
   std::ofstream m_output;
   

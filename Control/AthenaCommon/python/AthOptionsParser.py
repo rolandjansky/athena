@@ -29,7 +29,7 @@ _userlongopts = [
     "enable-ers-hdlr=",
     "keep-configuration","drop-configuration", "drop-and-reload", "config-only=",
     "dump-configuration=",
-    "tcmalloc", "stdcmalloc", "preloadlib=",
+    "tcmalloc", "stdcmalloc", "stdcmath", "imf", "preloadlib=",
     "nprocs=",
     "debugWorker",
     "pycintex_minvmem=", "cppyy_minvmem",
@@ -93,6 +93,8 @@ Accepted command line options:
      --dump-configuration=<file>      ...  dump an ASCII version of the post-setup() configuration to <file>
      --tcmalloc                       ...  use tcmalloc.so for memory allocation [DEFAULT]. This disables leak-check
      --stdcmalloc                     ...  use libc malloc for memory allocation
+     --stdcmath                       ...  use glibc math functions [DEFAULT]
+     --imf                            ...  use Intel Math Function library: faster, but may give different numerical results from --stdcmath
      --preloadlib=<lib>               ...  localized preload of library <lib>
      --nprocs=n                       ...  enable AthenaMP if n>=1 or n==-1
      --threads=n                      ...  number of threads for AthenaMT

@@ -12,6 +12,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "JetTagTools/ITagTool.h"
+#include "JetTagCalibration/JetTagCalibCondData.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -19,17 +20,7 @@
 #include <vector>
 #include <map>
 #include <list>
-#include "egammaMVACalib/egammaMVACalib.h"
 #include "MVAUtils/BDT.h"
-#include "TMVA/IMethod.h"
-#include "TMVA/MethodBase.h"
-namespace TMVA { class Reader; }
-namespace Analysis { class CalibrationBroker; }
-
-//namespace xAOD { class TrackParticle; class TrackParticleContainer; }
-//namespace Trk { class VxCandidate; class RecVertex;}
-//class Jet;
-//class StoreGateSvc;
 
 namespace Analysis
 {  
@@ -53,7 +44,8 @@ namespace Analysis
       std::string m_treeName;
       std::string m_varStrName;
 
-      ToolHandle<CalibrationBroker> m_calibrationTool;
+      /** Key of calibration data: */
+      SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
       std::string m_MultiSV;
       //
       std::string m_runModus; 
@@ -62,7 +54,6 @@ namespace Analysis
    
       bool m_disableAlgo;
       int  m_warnCounter;
-      bool m_useEgammaMethodMultiSV;
     
       std::vector<std::string> m_jetCollectionList;
       std::vector<std::string> m_hypotheses;
@@ -97,14 +88,12 @@ namespace Analysis
       float m_mx12_DR   ;
       float m_mx12_Angle;
       //...
-      std::map<std::string, TMVA::Reader*> m_tmvaReaders;
-      std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
       std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
       std::list<std::string> m_undefinedReaders;
       std::string m_sv0_infosource;
       std::string m_sv1_infosource;
 
-      void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, 
+      void SetVariableRefs(const std::vector<std::string> inputVars, 
 			   unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
       double GetClassResponse (MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
     }; // End class

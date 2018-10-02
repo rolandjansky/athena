@@ -340,24 +340,19 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     ///////////////////////////////////////
     
     while((seed = m_seedsmaker->next())) {
-
       if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
-	ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
-	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
+	      ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
+	      delete foundTracks;
+	      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
       }
-      
-      if(doTiming()) 
-	m_timerSeedProcessing->start();
-      
+      if(doTiming()) m_timerSeedProcessing->start();
       ++m_nseeds;
-      
-      const std::list<Trk::Track*>& T = 
-	m_trackmaker->getTracks(seed->spacePoints());
+      const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints());
       
       if (m_fastTracking){
-	for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
-	  if((*t)) qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
-	}
+	      for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
+	        if((*t)) qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
+	      }
       }
       
       if (msgLvl() <= MSG::VERBOSE) {

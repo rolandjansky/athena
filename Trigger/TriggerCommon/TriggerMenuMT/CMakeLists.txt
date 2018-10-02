@@ -87,7 +87,7 @@ function( atlas_build_lvl1_trigger_menu menu )
    if( NOT TARGET TriggerMenuMTMain )
       add_custom_target( TriggerMenuMTMain ALL
          COMMAND ${CMAKE_COMMAND} -E echo
-         "TriggerMenuMT: LVL1 menu generation build succeeded" )
+         "TriggerMenuMT: Package build succeeded" )
    endif()
    add_dependencies( TriggerMenuMTMain build_menu_${menu} )
 

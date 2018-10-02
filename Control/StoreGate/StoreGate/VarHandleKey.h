@@ -65,7 +65,7 @@ public:
    * @param isCond True if this is a CondHandleKey.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a "+":  "MyStore:Obj".  If no "+" is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store named by @c storeName is used.  However, if the key name
    * starts with a slash, it is interpreted as a hierarchical key name,
    * not an empty store name.

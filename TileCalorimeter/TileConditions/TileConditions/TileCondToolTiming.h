@@ -5,17 +5,13 @@
 #ifndef TILECONDITIONS_TILECONDTOOLTIMING_H
 #define TILECONDITIONS_TILECONDTOOLTIMING_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileConditions/TileCalibData.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-// Tile includes
-#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/ITileCondProxy.h"
 
 #include <vector>
 
@@ -25,25 +21,26 @@ class TileCondToolTiming : public AthAlgTool {
     static const InterfaceID& interfaceID();
     TileCondToolTiming(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TileCondToolTiming();
-  
-    StatusCode initialize();
-    StatusCode finalize();
+
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
 
     float getSignalPhase(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
     float getChannelOffset(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
-  
+
   private:
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryAdcOffset;
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibTimingKey{this,
+        "TileTiming", "TileTiming", "Input Tile timing calibration constants"};
+
 };
 
 
 //
 //____________________________________________________________________
-inline float TileCondToolTiming::getSignalPhase(unsigned int drawerIdx, 
-                                                unsigned int channel, 
+inline float TileCondToolTiming::getSignalPhase(unsigned int drawerIdx,
+                                                unsigned int channel,
                                                 unsigned int adc) const {
   return getChannelOffset(drawerIdx, channel, adc);
 }

@@ -104,7 +104,7 @@ class L1TdrStgcTriggerLogic {
         MsgStream& msgStream(){return m_msg;}
         
     private:
-        TRandom rand;
+        TRandom m_rand;
         std::vector< SectorTriggerCandidate > m_secTrigCand;        
         bool m_writePickle; /// after computing the triggers, write the canditates to 'pickle' files (for event display)
         std::string m_picklePrefix; /// path where the pickle files will be written

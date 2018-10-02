@@ -8,12 +8,11 @@
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileIdentifier/TileTTL1Hash.h"
 #include "TileEvent/TileTrigger.h"
-#include "TileConditions/TileDCSSvc.h"
 #include "TileConditions/TileBadChanTool.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Calo include
-#include "CaloIdentifier/CaloLVL1_ID.h" 
+#include "CaloIdentifier/CaloLVL1_ID.h"
 
 // Atlas includes
 #include "StoreGate/ReadHandle.h"
@@ -49,7 +48,6 @@ TileBeamInfoProvider::interfaceID() {
 TileBeamInfoProvider::TileBeamInfoProvider(const std::string& type,
     const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_tileDCSSvc("TileDCSSvc", name)
     , m_rndmSvc ("AtRndmGenSvc", name)
     , m_tileBadChanTool("TileBadChanTool")
     , m_tileHWID(0)
@@ -95,8 +93,11 @@ StatusCode TileBeamInfoProvider::initialize() {
   CHECK(detStore()->retrieve(m_tileHWID, "TileHWID"));
 
   //=== TileDCSSvc
-  if (m_checkDCS)
-    CHECK(m_tileDCSSvc.retrieve());
+  if (m_checkDCS) {
+    ATH_CHECK(m_tileDCS.retrieve());
+  } else {
+    m_tileDCS.disable();
+  }
 
   m_evt = 0;
   m_trigType = 0;
@@ -116,7 +117,7 @@ StatusCode TileBeamInfoProvider::initialize() {
     m_tileBadChanTool.disable();
   }
 
-  if (!(m_beamElemContainerKey.key().empty() 
+  if (!(m_beamElemContainerKey.key().empty()
         && m_digitsContainerKey.key().empty()
         && m_rawChannelContainerKey.key().empty())
       || m_simulateTrips) {
@@ -142,23 +143,23 @@ StatusCode TileBeamInfoProvider::initialize() {
   ATH_CHECK( m_eventInfoKey.initialize() );
 
   if (!m_beamElemContainerKey.key().empty()) {
-    ATH_CHECK( m_beamElemContainerKey.initialize() ); 
+    ATH_CHECK( m_beamElemContainerKey.initialize() );
   }
 
   if (!m_digitsContainerKey.key().empty()) {
-    ATH_CHECK( m_digitsContainerKey.initialize() ); 
+    ATH_CHECK( m_digitsContainerKey.initialize() );
   }
 
   if (!m_rawChannelContainerKey.key().empty()) {
-    ATH_CHECK( m_rawChannelContainerKey.initialize() ); 
+    ATH_CHECK( m_rawChannelContainerKey.initialize() );
   }
 
   if (!m_triggerContainerKey.key().empty()) {
-    ATH_CHECK( m_triggerContainerKey.initialize() ); 
+    ATH_CHECK( m_triggerContainerKey.initialize() );
   }
 
   if (!m_laserObjectKey.key().empty()) {
-    ATH_CHECK( m_laserObjectKey.initialize() ); 
+    ATH_CHECK( m_laserObjectKey.initialize() );
   }
 
 
@@ -463,9 +464,9 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
         std::vector<double> boardtsum(maxboard);
         std::vector < Identifier > backtid(maxboard);
         std::vector<double> backtsum(maxboard);
-        
+
         // FIXME:: convert coincTrig to TileTrigger
-        
+
         TileTrigger* tileTrigger = new TileTrigger(mtid, mtsum, boardtid,
                                                    boardtsum, backtid, backtsum);
         triggerContainer->push_back(tileTrigger);
@@ -475,7 +476,7 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
                     << m_triggerContainerKey.key() << " in StoreGate");
 
     }
-    
+
   }
 
   // we are going to put TileLaserObject to StoreGate
@@ -485,7 +486,7 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
     if(laserObject.record( std::make_unique<TileLaserObject>() ).isSuccess()) {
       laserObject->setBCID(m_BCID);
 
-      // FIXME: a lot of set methods here 
+      // FIXME: a lot of set methods here
       // to copy m_laspar to TileLaserObject
 
     } else {
@@ -582,12 +583,12 @@ uint32_t TileBeamInfoProvider::checkCalibMode(void) {
 bool TileBeamInfoProvider::isChanDCSgood(int partition, int drawer,
     int channel) const {
   if (m_checkDCS) {
-    TileDCSSvc::TileDCSStatus Status = m_tileDCSSvc->getDCSSTATUS(partition,
-        drawer, channel);
-    if (Status > TileDCSSvc::WARNING) {
-      ATH_MSG_DEBUG("Module=" << m_tileDCSSvc->partitionName(partition) << std::setw(2) << std::setfill('0') << drawer + 1
+    TileDCSState::TileDCSStatus status = m_tileDCS->getDCSStatus(partition, drawer, channel);
+
+    if (status > TileDCSState::WARNING) {
+      ATH_MSG_DEBUG("Module=" << TileCalibUtils::getDrawerString(partition, drawer)
                     << " channel=" << channel
-                    << " masking becasue of bad DCS status=" << Status);
+                    << " masking becasue of bad DCS status=" << status);
       return false;
     } else {
       return true;
@@ -640,7 +641,7 @@ const TileDQstatus * TileBeamInfoProvider::getDQstatus() {
     TileFragHash::TYPE RChType = m_rcCnt->get_type();
     if (RChType != TileFragHash::OptFilterDsp
         && RChType != TileFragHash::OptFilterDspCompressed) {
-      ATH_MSG_INFO("RawChannelContaier didn't come from BS - don't check DQ flags");
+      ATH_MSG_INFO("RawChannelContainer didn't come from BS - don't check DQ flags");
       ATH_MSG_INFO("RChType = " << RChType);
       m_DQstatus.setAllGood();
       m_checkDQ = false;
@@ -680,4 +681,3 @@ const TileDQstatus * TileBeamInfoProvider::getDQstatus() {
   m_DQstatus.setFilled(true);
   return &m_DQstatus;
 }
-

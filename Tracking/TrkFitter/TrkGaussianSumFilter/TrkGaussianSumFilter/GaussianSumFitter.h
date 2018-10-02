@@ -40,7 +40,6 @@ class TrackFitInputPreparator;
 class IForwardGsfFitter;
 class IGsfSmoother;
 class Track;
-class IBremsstrahlungFinder;
 
 #define TRKFGSF_VALSURFACES 100
 #define TRKGSF_VALSTATES 24
@@ -139,19 +138,12 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
 
   bool                                      m_makePerigee;
   PropDirection                             m_directionToPerigee;
-
-  bool                                      m_runBremFinder;
-
   bool                                      m_refitOnMeasurementBase;
-
   bool                                      m_doHitSorting;
   TrkParametersComparisonFunction*          m_trkParametersComparisonFunction;
   std::vector<double>                       m_sortingReferencePoint;
 
   ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner;
-  ToolHandle<IBremsstrahlungFinder>         m_BremFind;
-  ToolHandle<IBremsstrahlungFinder>         m_BremFind2;
-
   ServiceHandle<IChronoStatSvc>             m_chronoSvc;
   
   TrackFitInputPreparator*                  m_inputPreparator;

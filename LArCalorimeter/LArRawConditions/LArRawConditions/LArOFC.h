@@ -63,7 +63,6 @@ class LArOFC : public ILArOFC {
 
         const LArOnlineID_Base* m_onlineID;
         const LArOnOffIdMapping* m_cabling;
-        const size_t m_nGains;
 
 };
 

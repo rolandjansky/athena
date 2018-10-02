@@ -433,8 +433,6 @@ namespace InDet
         if (right_seed.size() > 1 && left_seed.size() > 1) {
           seedsVector.push_back(right_seed);
           seedsVector.push_back(left_seed);
-
-          // std::cout<<"Seed vectors of sizes created: "<<right_seed.size()<<" and "<<left_seed.size()<<std::endl;
         }//otherwise making the vector empty and thus no seeds produced at all
       } else seedsVector.push_back(origParameters); // if not creating split vertices
     } else { // if not enabling multiple vertices
@@ -450,7 +448,6 @@ namespace InDet
     //---- validate the element links ---------------//
     for (xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin(); vxContItr != returnContainers.first->end(); vxContItr++) {
       std::vector<Trk::VxTrackAtVertex>* tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
-
       //assigning the input tracks to the fitted vertices through VxTrackAtVertices
       for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
         const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
@@ -462,7 +459,6 @@ namespace InDet
             continue;
           }
         }
-
         // validate the track link
         if (correspondingTrack != 0) {
           Trk::LinkToXAODTrackParticle* link = new Trk::LinkToXAODTrackParticle;
@@ -500,32 +496,20 @@ namespace InDet
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetPriVxFinderTool::findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& zTrackColl) {
-    //   std::cout<<"Starting the main part of the finding "<<std::endl;
-
     //---- Constraint vertex section: if enabled in jobOptions a constraint is assigned --//
     Amg::Vector3D vertex = Amg::Vector3D(0., 0., 0.); //for fit() we need Amg::Vector3D or Trk::RecVertex
     std::vector<Trk::VxTrackAtVertex>* trkAtVtx = nullptr;
-
     // Finding hot spots of z0's in case of pile up.
     std::vector<const Trk::TrackParameters*> zTracks;
-    //typedef std::vector<const Trk::TrackParameters*>::const_iterator zTrkIter;
     zTracks.clear();
-
-    //typedef std::vector<std::vector<const Trk::TrackParameters* > >::iterator zTrkCollIter;
-
     // VertexContainer which takes xAOD::Vertex and is stored in StoreGate
     xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
     xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
     theVertexContainer->setStore(theVertexAuxContainer);
-
     std::map<double, xAOD::Vertex*> vertexMap;
     std::vector<xAOD::Vertex*> splitVtxVector;
-
     double vertexPt;
-
     xAOD::Vertex* myxAODVertex = 0;
-    // std::cout<<"Getting to the loop;  size is: "<< zTrackColl.size()<<std::endl;
-
     for (unsigned int i = 0; i < zTrackColl.size(); i++) {
       // std::cout<<"Inside the loop"<<std::endl;
       if (msgLvl(MSG::DEBUG)) msg() << "Fitting vertex of Z-Cluster " << i << " with " << zTrackColl[i].size() << " Tracks" << endmsg;
@@ -533,7 +517,6 @@ namespace InDet
       std::vector<const Trk::TrackParameters*> origParameters;
       origParameters.clear();
       origParameters = zTrackColl[i];
-
       //---- Start of fitting section ------------------------------------------------------//
       if (origParameters.size() == 1 && m_useBeamConstraint) {
         xAOD::Vertex theconstraint;
@@ -545,19 +528,13 @@ namespace InDet
       } else if (origParameters.size() < 2 && m_createSplitVertices) {
         // in the case this is a split vertex and it has only one track
         // we make a dummy vertex and push it back to the container
-
         myxAODVertex = new xAOD::Vertex;
         myxAODVertex->makePrivateStore();
         myxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
         myxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
         myxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
         myxAODVertex->setVertexType(xAOD::VxType::NoVtx);
-
-        // std::cout<<"this is a case when the split seeds are too small, dummy returned"<<std::endl;
       } else if (origParameters.size() > 1) {
-        // std::cout<<"choosing 2nd option"<<std::endl;
-
-        // if(msgLvl(MSG::VERBOSE)) msg() << "First call of fitting tool!" << endmsg;
         if (m_useBeamConstraint) {
           xAOD::Vertex theconstraint;
           theconstraint.makePrivateStore();
@@ -568,27 +545,13 @@ namespace InDet
         } else {
           myxAODVertex = m_iVertexFitter->fit(origParameters, vertex);
         }
-
-        if (myxAODVertex != 0) {
-          // std::cout<< "non-zero xAOD::Vertex!"<<std::endl;
-
+        if (myxAODVertex) {
           /* Get the vertex position */
-          // std::cout<< "position: "<< myxAODVertex->position() <<std::endl;
-
           Amg::Vector3D vertex(myxAODVertex->position());
           trkAtVtx = &(myxAODVertex->vxTrackAtVertex());
-          // std::cout<< "number of fitted tracks"<< trkAtVtx->size()<< std::endl;
-
           /* The fit tool does not return tracks chi2 ordered anymore We have to do it */
           std::vector<int> indexOfSortedChi2;
-          // std::cout<< "Calling the sort " <<std::endl;
-
           sortTracksInChi2(indexOfSortedChi2, myxAODVertex);
-
-          // std::cout<< "Sort done " <<std::endl;
-
-
-
           /*
              If more than 2 tracks were used,
              do a chi2 selection of tracks used in the fit:
@@ -604,24 +567,19 @@ namespace InDet
             // first track
             Trk::VxTrackAtVertex* tmpVTAV = &(*trkAtVtx) [indexOfSortedChi2[0]];
             origParameters.push_back(tmpVTAV->initialPerigee());
-
             // second track
             tmpVTAV = &(*trkAtVtx) [indexOfSortedChi2[1]];
             origParameters.push_back(tmpVTAV->initialPerigee());
-
             for (unsigned int i = 2; i < trkAtVtx->size(); ++i) {
               if ((*trkAtVtx) [indexOfSortedChi2[i]].trackQuality().chiSquared() > m_maxChi2PerTrack) continue;
               tmpVTAV = &(*trkAtVtx) [indexOfSortedChi2[i]];
               origParameters.push_back(tmpVTAV->initialPerigee());
             }
-
-
             // delete old xAOD::Vertex first
-            if (myxAODVertex != 0) {
+            if (myxAODVertex) {
               delete myxAODVertex;
               myxAODVertex = 0;
             }
-
             if (msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endmsg;
             if (m_useBeamConstraint) {
               xAOD::Vertex theconstraint;
@@ -633,10 +591,11 @@ namespace InDet
             } else {
               myxAODVertex = m_iVertexFitter->fit(origParameters, vertex);
             }
-
+            /** This value is never used before it gets overwritten (coverity 111631)
             if (myxAODVertex) {
               trkAtVtx = &(myxAODVertex->vxTrackAtVertex());
             }
+            **/
           }//end of chi2 cut method 1
            /*
               Version 2:
@@ -684,28 +643,22 @@ namespace InDet
       } // end if "more than one track after m_preSelect(...)"
       else if (msgLvl(MSG::DEBUG)) msg() << "Less than two tracks or fitting without constraint - drop candidate vertex." << endmsg;
       // end if preselection for first iteration
-
       if ((origParameters.size() > 1 || (m_useBeamConstraint && origParameters.size() == 1)) && myxAODVertex && !m_createSplitVertices) {
         if (msgLvl(MSG::VERBOSE)) msg() << "Storing the fitted vertex." << endmsg;
-
         /* Store the primary vertex */
         trkAtVtx = &(myxAODVertex->vxTrackAtVertex());
-
         vertexPt = 0.;
         for (unsigned int i = 0; i < trkAtVtx->size(); ++i) {
           const Trk::TrackParameters* tmpTP = dynamic_cast<const Trk::TrackParameters*> ((*(trkAtVtx)) [i].initialPerigee());
           if (tmpTP) vertexPt += tmpTP->pT();
         }
-
         vertexMap[vertexPt] = myxAODVertex;
       } else if (m_createSplitVertices) {
         //storing a split vertex, if did not work - storing a dummy
         if (myxAODVertex) {
-          // std::cout<<"Normal xAOD::Vertex found in the split mode "<<std::endl;
           myxAODVertex->setVertexType(xAOD::VxType::PriVtx);
           splitVtxVector.push_back(myxAODVertex);
         } else {
-          // std::cout<<"No candidate reconstructed, storing the dummy "<<std::endl;
           xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
           dummyxAODVertex->makePrivateStore();
           dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
@@ -719,11 +672,7 @@ namespace InDet
         myxAODVertex = 0;
       }
     }//end of loop over the pre-defined seeds
-
     //no sorting for the split vertices  -otherwise, why splitting at all?
-    // std::cout<<"Past loop over the clusters "<<std::endl;
-
-
     if (!m_createSplitVertices) {
       for (std::map<double, xAOD::Vertex*>::reverse_iterator i = vertexMap.rbegin(); i != vertexMap.rend(); i++) {
         if (msgLvl(MSG::VERBOSE)) msg() << "Sorting the fitted vertices. " << vertexMap.size() << " have been found." << endmsg;
@@ -742,8 +691,6 @@ namespace InDet
       }//end of sorting loop
     } else for (std::vector<xAOD::Vertex*>::iterator l_vt = splitVtxVector.begin(); l_vt != splitVtxVector.end(); ++l_vt)
         theVertexContainer->push_back(*l_vt);
-
-    //     std::cout<<"Past the second loop "<<std::endl;
     //---- add dummy vertex at the end ------------------------------------------------------//
     //---- if one or more vertices are already there: let dummy have same position as primary vertex
     if (theVertexContainer->size() >= 1 && !m_createSplitVertices) {
@@ -787,15 +734,12 @@ namespace InDet
         new_dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
       }
     }
-
     // loop over the pile up to set it as pile up (EXCLUDE first and last vertex: loop from 1 to size-1)
     if (!m_createSplitVertices) {
       for (unsigned int i = 1; i < theVertexContainer->size() - 1; i++) {
         (*theVertexContainer)[i]->setVertexType(xAOD::VxType::PileUp);
       }
     }
-
-    // std::cout<<"returning the container "<<std::endl;
     return std::make_pair(theVertexContainer, theVertexAuxContainer);
   }//end m_find vertex ethod
 

@@ -94,6 +94,7 @@ namespace Muon
 
     std::string m_outputCollectionLocation;            
     bool m_merge; 
+
   }; 
 } // end of namespace
 

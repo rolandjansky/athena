@@ -25,7 +25,7 @@ include("InDetRecExample/InDetRecConditionsAccess.py")
 from InDetRecExample.InDetKeys import InDetKeys
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 # ===============================================================================================
 #      L2 Calo
@@ -67,11 +67,13 @@ theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 fastCaloAthSequence =  seqAND("fastCaloAthSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
+from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+
 def fastCaloSequence():
-    return  MenuSequence(    Sequence=fastCaloAthSequence,
-                             Maker=fastCaloViewsMaker,
-                             Hypo=theFastCaloHypo,
-                             HypoToolClassName="TrigL2CaloHypoToolConf")
+    return  MenuSequence( Sequence    = fastCaloAthSequence,
+                          Maker       = fastCaloViewsMaker,
+                          Hypo        = theFastCaloHypo,
+                          HypoToolGen = TrigL2CaloHypoToolFromName )
 
 #########################################
 # second step:  tracking.....
@@ -140,10 +142,11 @@ theElectronHypo.OutputLevel = VERBOSE
 
 electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
 
+from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
 
 def electronSequence():
-    return  MenuSequence(    Maker=l2ElectronViewsMaker,                                        
-                             Sequence=electronAthSequence,
-                             Hypo=theElectronHypo,
-                             HypoToolClassName="TrigL2ElectronHypoToolConf")
+    return  MenuSequence( Maker       = l2ElectronViewsMaker,                                        
+                          Sequence    = electronAthSequence,
+                          Hypo        = theElectronHypo,
+                          HypoToolGen = TrigL2ElectronHypoToolFromName )
 

@@ -142,7 +142,9 @@ def makeMuonPrepDataAlgs( doL2SA, doEFSA ):
 
   from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
   RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
-                                                ProviderTool = MuonRpcRawDataProviderTool )
+                                                ProviderTool = MuonRpcRawDataProviderTool,
+                                                DoSeededDecoding = True,
+                                                RoIs = "MURoIs")
                                                 #OutputLevel  = INFO)
   if doEFSA == True:
     viewAlgs_MuEFSA.append( RpcRawDataProvider )

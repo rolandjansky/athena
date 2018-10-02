@@ -6,6 +6,11 @@
 #include <iostream>
 #include "EventContainers/SelectAllObject.h"
 
+Muon::MM_RawDataContainer::MM_RawDataContainer()
+: IdentifiableContainer<MM_RawDataCollection>(0) 
+{
+}
+
 Muon::MM_RawDataContainer::MM_RawDataContainer(unsigned int hashmax)
 : IdentifiableContainer<MM_RawDataCollection>(hashmax) 
 {

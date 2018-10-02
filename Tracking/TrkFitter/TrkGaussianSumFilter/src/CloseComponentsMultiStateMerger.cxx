@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -122,8 +122,10 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   unsigned int numberOfComponents = unmergedState.size();
 
+  //Assembler Cache
+  IMultiComponentStateAssembler::Cache cache;
   // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
@@ -248,7 +250,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   for ( ; mapComponent != unmergedComponentsMap.end(); ++mapComponent){
 
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(mapComponent->second);
+    bool componentAdded = m_stateAssembler->addComponent(cache,mapComponent->second);
 
     if ( !componentAdded )
       msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
@@ -263,7 +265,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   for ( ; mapComponent != mergedComponentsMap.end(); ++mapComponent){
 
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(mapComponent->second);
+    bool componentAdded = m_stateAssembler->addComponent(cache,mapComponent->second);
 
     if ( !componentAdded )
       msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
@@ -273,7 +275,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   }
 
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
 
   if (msgLvl(MSG::VERBOSE)) msg() << "Number of components in merged state: " << mergedState->size() << endmsg;
 

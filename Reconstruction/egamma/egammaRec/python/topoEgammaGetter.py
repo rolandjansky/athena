@@ -45,16 +45,16 @@ class topoEgammaGetter ( Configured ) :
         mlog = logging.getLogger ('topoEgammaGetter.py::configure:')
         mlog.info('entering')
 
-        # the egammaTopoClusterCopier
-        from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
-        try:
-            self._egammaTopoClusterCopierHandle = egammaTopoClusterCopier()
-        except Exception:
-            mlog.error("could not get handle to egammaTopoClusterCopier")
-            import traceback
-            print traceback.format_exc()
-            return False
-        print self._egammaTopoClusterCopierHandle
+        # # the egammaTopoClusterCopier
+        # from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
+        # try:
+        #     self._egammaTopoClusterCopierHandle = egammaTopoClusterCopier()
+        # except Exception:
+        #     mlog.error("could not get handle to egammaTopoClusterCopier")
+        #     import traceback
+        #     print traceback.format_exc()
+        #     return False
+        # print self._egammaTopoClusterCopierHandle
 
 
         # the egammaRecBuilder

@@ -21,7 +21,7 @@
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 
 #include "TrigT2CaloEgamma/T2CaloEgammaReFastAlgo.h"
-#include "TrigT2CaloCommon/IAlgToolCalo.h"
+#include "TrigT2CaloCommon/IReAlgToolCalo.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 
@@ -48,7 +48,7 @@ T2CaloEgammaReFastAlgo::T2CaloEgammaReFastAlgo(const std::string & name, ISvcLoc
     declareProperty("StoreCells",m_storeCells,"store cells in container attached to RoI");
     declareProperty("RhoEta",m_rhoEta);
     declareProperty("ZEta",m_zEta);
-    declareProperty("IAlgToolList", m_emAlgTools,"list of AlgToolCalo. These tools perform FEX.");
+    declareProperty("IReAlgToolList", m_emAlgTools,"list of ReAlgToolCalo. These tools perform FEX.");
     declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
     declareProperty("ClustersName", m_clusterContainerKey = std::string("CaloClusters"), "Calo cluster container");
 }
@@ -197,7 +197,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute_r(const EventContext& context) const
   (*m_log) << MSG::INFO  << " m_emAlgTools.begin():  "<< endmsg;
 
   
-  ToolHandleArray<IAlgToolCalo>::const_iterator it = m_emAlgTools.begin();
+  ToolHandleArray<IReAlgToolCalo>::const_iterator it = m_emAlgTools.begin();
 ////  if ( m_timersvc ) m_timer[1]->start();
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
@@ -239,6 +239,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute_r(const EventContext& context) const
     ptrigEmCluster->setEt(0.0);
   }
   (*m_log) << MSG::INFO  << " ptrigEmCluster->setxxx : DONE  "<< endmsg;
+/*
   if ( caloDDE != 0 ){
     if ( caloDDE->is_lar_em_barrel() ){
       for( ToolHandleArray<IEgammaCalibration>::const_iterator
@@ -252,6 +253,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute_r(const EventContext& context) const
   	(*ical)->makeCorrection(ptrigEmCluster,caloDDE);
     }
   }
+*/
   (*m_log) << MSG::INFO  << " IEgammaCalibration : DONE  "<< endmsg;
   float calZ0 = 0;
 

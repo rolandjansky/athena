@@ -69,8 +69,8 @@ from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
 
 # signatures
-from TrigUpgradeTest.HLTCFConfig import makeHLTTree
-from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
 
 
 doMuon=True

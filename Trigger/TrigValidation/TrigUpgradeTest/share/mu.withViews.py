@@ -439,6 +439,7 @@ if TriggerFlags.doMuon:
     themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
+    themuoncreatoralg.MuonContainerLocation="Muons"
     themuoncreatoralg.MakeClusters=False
     themuoncreatoralg.MuonContainerLocation = "Muons"
 
@@ -461,8 +462,8 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
     muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
-
-    muonEFSAStep = seqAND("muonEFSAStep", [filterEFSAAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
+    muEFSASequence = seqAND("muEFSASequence", [efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo])
+    muonEFSAStep = stepSeq("muonEFSAStep", filterEFSAAlg, [muEFSASequence, muonEFSADecisionsDumper])
 
 
   if doL2CB and doL2ISO:

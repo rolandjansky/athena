@@ -18,7 +18,7 @@
 #include "Navigation/NavigableTerminalNode.h"
 #include "DataModelAthenaPool/NavigableVectorCnv_p1.h"
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <cassert>
 #include <iostream>

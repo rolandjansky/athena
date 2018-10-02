@@ -177,6 +177,9 @@ void writeBits(std::ostream& s, const std::vector< uint32_t >& input) {
    s << std::endl;
 }
 
+
+namespace xAOD {
+
 std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
    s << "xAODTrigDecision Object: SMK=" << td.smk() << " BGCode=" << (size_t)td.bgCode() << std::endl;
    s << " L1 Before Prescale: ";
@@ -223,3 +226,7 @@ std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
    }
    return s;
 }
+
+
+} // namespace xAOD
+

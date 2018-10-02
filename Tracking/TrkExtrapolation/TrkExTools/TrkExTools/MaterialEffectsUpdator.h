@@ -184,52 +184,6 @@ class MaterialEffectsUpdator : public AthAlgTool,
       return;
     }
 
-  private:
-    /*
-     * Each instance (out of N) needs a have cache in order to accumulate calculation 
-     * between calls to its methods. In a Multi Thread environment we will 
-     * have pontially M threads running. So we need MxN cache instance.
-     *
-     * The solution adopted here is an effort to implement 
-     * "Schmidt, Douglas & Pryce, Nat & H. Harrison, Timothy. (1998). 
-     * Thread-Specific Storage for C/C++ - An Object
-     * Behavioral Pattern for Accessing per-Thread State Efficiently."
-     * Published in "More C++ Gems (SIGS Reference Library)".
-     * The solution in Figure 5 is adopted here. One could also adopt Figure 4 as 
-     * an alternative
-     *
-     * We have  M thread_local ptr to vectors. So one vector for each thread.  
-     * For the lookup each object needs a uniqueID. This is created in the initialize 
-     * by hashing the unique's instance full name. 
-     *
-     * Following https://google.github.io/styleguide/cppguide.html#thread_local
-     * the thread local is only exposed from inside a function. 
-     *
-     * Using thread_local unique_ptr<T>  achieves 
-     * the same behaviour as boost::thread_specific_ptr<T>
-     */
-
-    Cache* getTLSCache() const{ 
-
-      typedef std::vector<std::unique_ptr<Cache>> TLSCollection;
-      /* Initialize a unique ptr to default constructed TLSCollection*/
-      thread_local std::unique_ptr<TLSCollection> s_cacheStore= std::make_unique<TLSCollection>();        
-      
-      /*This should never happen*/
-      if(s_cacheStore.get()==nullptr){
-        return nullptr;
-      }
-      /* Get the actual cache*/
-      size_t index= m_uniqueID-1;
-      if (m_uniqueID>s_cacheStore->size()) {
-        s_cacheStore->resize(m_uniqueID);
-      }
-      if (s_cacheStore->operator[](index).get()==nullptr) {
-        s_cacheStore->operator[](index)= std::make_unique<Cache>();
-      }
-      return s_cacheStore->operator[](index).get(); 
-    }
-
   public:
     /* 
      * Public methods using the TLS cache.
@@ -240,7 +194,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                             ParticleHypothesis particle=pion,
                                             MaterialUpdateMode matupmode=addNoise) const override{
 
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
     }
@@ -249,7 +203,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            const MaterialEffectsOnTrack& meff,
                                            Trk::ParticleHypothesis particle=pion,
                                            MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,meff,particle,matupmode);
       return outparam;
     }
@@ -259,7 +213,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                 PropDirection dir=alongMomentum,
                                                 ParticleHypothesis particle=pion,
                                                 MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = preUpdateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
     }
@@ -269,7 +223,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                 PropDirection dir=alongMomentum,
                                                 ParticleHypothesis particle=pion,
                                                 MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = postUpdateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
     }
@@ -280,20 +234,19 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            PropDirection dir=alongMomentum,
                                            ParticleHypothesis particle=pion,
                                            MaterialUpdateMode matupmode=addNoise) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,mprop,pathcorrection,dir,particle,matupmode);
       return outparam;
     }
 
     virtual void validationAction() const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       validationActionImpl(cache);
-
       return;
     }
 
     virtual void modelAction(const TrackParameters* parm = 0) const override{
-      Cache& cache = (*getTLSCache());
+      Cache& cache = getTLSCache();
       modelActionImpl(cache,parm);  
       return;
     }
@@ -365,7 +318,6 @@ class MaterialEffectsUpdator : public AthAlgTool,
     bool                         m_landauMode;                         //!< If in Landau mode, error propagation is done as for landaus 
     int                          m_validationDirection;                //!< validation direction
     //  ------------------------------
-    std::size_t                  m_uniqueID;              //!< UniqueID Hash based on the unique instance name
     double                       m_momentumCut;           //!< Minimal momentum cut for update
     double                       m_momentumMax;           //!< Maximal momentum cut for update
     double                       m_forcedMomentum;        //!< Forced momentum value
@@ -374,6 +326,27 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ToolHandle< IMultipleScatteringUpdator > m_msUpdator; //!< AlgoTool for MultipleScatterin effects
     // the material mapper for the validation process
     ToolHandle< IMaterialMapper > m_materialMapper;            //!< the material mapper for recording the layer material 
+    
+    /*
+     *  TLS part
+     *  The solution adopted here is an effort to implement 
+     * "Schmidt, Douglas & Pryce, Nat & H. Harrison, Timothy. (1998). 
+     * Thread-Specific Storage for C/C++ - An Object
+     * Behavioral Pattern for Accessing per-Thread State Efficiently."
+     * Published in "More C++ Gems (SIGS Reference Library)".
+     * Adopted here via boost::thread_specific_ptr
+     */
+
+    mutable boost::thread_specific_ptr<Cache> m_cache_tls;
+    Cache& getTLSCache() const{ 
+      Cache* cache = m_cache_tls.get();
+      if (!cache) {
+        cache = new Cache();
+        m_cache_tls.reset( cache );
+      }
+      return *cache; 
+    }
+
 
   };
 } // end of namespace

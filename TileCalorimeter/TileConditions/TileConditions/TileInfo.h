@@ -4,19 +4,19 @@
 
 #ifndef TILECONDITIONS_TILEINFO_H
 #define TILECONDITIONS_TILEINFO_H
-//**************************************************************************** 
-// Filename : TileInfo.h 
+//****************************************************************************
+// Filename : TileInfo.h
 // Author   : F. Merritt, Z. Wu
 // Date     : May, 2002
-// 
+//
 // :DESCRIPTION:
 //     This is the first step toward creating an interface to Tile Conditions
 // Database. TileInfo should be used to return any detector-dependent
 // constants or information regarding the Tile Calorimeter.
 //
-// HISTORY:  
+// HISTORY:
 // Jul 2007: Major clearup and reorganization, including COOL DB access (NGO)
-// 10th Oct 06: add comments on Covariance matrix addition ( F Spano')  
+// 10th Oct 06: add comments on Covariance matrix addition ( F Spano')
 // 08May02: Add NchannelsPerCell to return # channels belonging to each cell.
 //***************************************************************************
 
@@ -53,7 +53,7 @@ static const CLID CLID_TileInfo = 2910;
 
 class TileInfo : public DataObject {
   friend class TileInfoLoader;
-  
+
  public:
 
   typedef std::vector<const TileCalibDrawerFlt*> DrawerVecFlt;
@@ -69,9 +69,9 @@ class TileInfo : public DataObject {
   //== Accessor methods for simple constants
   //==
   //==================================================================
-  
+
   /** Returns the number of readout channels connected to a given cell */
-  int NchannelsPerCell(const Identifier& cell_id) const 
+  int NchannelsPerCell(const Identifier& cell_id) const
     { return m_tileID->is_tile_gapscin(cell_id) ? 1:2; }
 
   /** Returns the maximum ADC output (10 bits --> 1023) */
@@ -93,7 +93,7 @@ class TileInfo : public DataObject {
   //==================================================================
 
   /** Returns the calibration for a given ADC and amplitude.
-      This function should be called by most users. It returns the complete calibration 
+      This function should be called by most users. It returns the complete calibration
       from rawDataUnitIn to rawDataUnitOut for a given reconstruction method specified in filterType.
       @param adc_id The adc of interest
       @param amplitude The "amplitude" in untis of rawDataUnitIn
@@ -101,14 +101,14 @@ class TileInfo : public DataObject {
       @param rawDataUnitOut One of TileRawData::[ ADCcounts | PicoCoulombs | CesiumPicoCoulombs | MegaElectronVolts ]
       @param filterType The reco-method applied, specified by TileFragHash::[ Digitizer | FlatFilter | OptFilter | FitFilter | ManyAmps ]
   */
-  double ChannelCalib(const HWIdentifier& adc_id, 
+  double ChannelCalib(const HWIdentifier& adc_id,
                       double amplitude,
                       const TileRawChannelUnit::UNIT rawDataUnitIn  = TileRawChannelUnit::ADCcounts,
                       const TileRawChannelUnit::UNIT rawDataUnitOut = TileRawChannelUnit::MegaElectronVolts,
                       const TileFragHash::TYPE filterType = TileFragHash::Digitizer) const;
 
   /** Returns the calibration factor for a given ADC.
-      This function should be called by most users. It returns the complete calibration 
+      This function should be called by most users. It returns the complete calibration
       from rawDataUnitIn to rawDataUnitOut for a given reconstruction method specified in filterType.
       @param adc_id The adc of interest
       @param rawDataUnitIn One of TileRawData::[ ADCcounts | PicoCoulombs | CesiumPicoCoulombs | MegaElectronVolts ]
@@ -120,24 +120,25 @@ class TileInfo : public DataObject {
                       const TileRawChannelUnit::UNIT rawDataUnitOut = TileRawChannelUnit::MegaElectronVolts,
                       const TileFragHash::TYPE filterType = TileFragHash::Digitizer) const
     { return ChannelCalib(adc_id, 1.0, rawDataUnitIn, rawDataUnitOut, filterType); }
-  
+
   /** Returns the input amplitude corrected with the EM scale calibration. */
   double EmsCalib(const HWIdentifier& channel_id, double amplitude=1.0) const;
 
   /** Returns the input amplitude corrected with the cesium calibration.
-      Note: The constant for D-layer cells will be around 1.2 
-      @param invert If set to true, the input energy is un-corrected for the calibration
+      Note: The constant for D-layer cells will be around 1.2
+      @param channel_id Channel hardware (online) identifier
+      @param amplitude Input amplitude
       @param applyLasCorr If set to true, a laser stability correction is applied (not implemented yet)
   */
-  double CesiumCalib(const HWIdentifier& channel_id, double amplitude=1.0, bool applyLasCorr=true) const; 
+  double CesiumCalib(const HWIdentifier& channel_id, double amplitude=1.0, bool applyLasCorr=true) const;
 
   /** Returns the input amplitude corrected with the laser calibration. */
   double LaserCalib(const HWIdentifier& channel_id, double amplitude=1.0) const;
 
-  /** Retruns the input amplitude corrected with the CIS calibration. 
+  /** Retruns the input amplitude corrected with the CIS calibration.
       @param adc_id The adc of interest
+      @param amplitude Amplitude of pulse in units of ADC counts
       @param filterType The reco-method applied, specified by TileFragHash::[ Digitizer | FlatFilter | OptFilter | FitFilter | ManyAmps ]
-      @param adcAmplitude Amplitude of pulse in units of ADC counts
    */
   double CisCalib(const HWIdentifier& adc_id, double amplitude=1.0,
                   const TileFragHash::TYPE filterType = TileFragHash::Digitizer) const;
@@ -169,7 +170,7 @@ class TileInfo : public DataObject {
 
   /** Returns the pedestal for a given ADC in units of ADC counts.
       For the simulation, slightly different levels depending on channel/gain
-      are returned. 
+      are returned.
   */
   double DigitsPedLevel(const HWIdentifier& adc_id) const;
   double DigitsPedLevel(int gain, int channel, int drawerHash) const
@@ -185,7 +186,7 @@ class TileInfo : public DataObject {
     { return DigitsPedSigma(gain,channel,drawerHash)*m_noiseScaleFactor[m_noiseScaleIndex]; }
 
   /** Should in the future return the expected noise sigma for a given cell and reco-method.
-      As a first approach, now we use the noise sigma of an individual digit, convert it to MeV 
+      As a first approach, now we use the noise sigma of an individual digit, convert it to MeV
       and multiply it by a special factor which depends on reco-method
   */
   double CellNoiseSigma(const Identifier& cell_id, CaloGain::CaloGain gain,
@@ -194,11 +195,11 @@ class TileInfo : public DataObject {
   /** Returns the decomposed covariance matrix*/
   const TMatrixD * DecoCovariance(int ros, int drawer, int hilo) const;
 
-  /** Return the threshold value for good (filtered) TileRawChannels 
+  /** Return the threshold value for good (filtered) TileRawChannels
       @param gain is ignored for now */
   double ThresholdRawChannel(int /* gain */) const {return m_thresholdRawChannel;}
 
-  /** Return the threshold value for good TileDigits (cut applied to in-time digit only) 
+  /** Return the threshold value for good TileDigits (cut applied to in-time digit only)
       @param gain is ignored for now */
   double ThresholdDigits(int /* gain */) const {return m_thresholdDigits;}
 
@@ -270,26 +271,26 @@ class TileInfo : public DataObject {
   //== Accessor methods for shaping functions and paramters
   //==
   //==================================================================
-	
+
   /** Return high gain shape vector to multiply the amplitude of a TileHit to produce TileDigit */
-  const std::vector<double>& digitsShapeHi() const {return m_digitsShapeHi;} 
+  const std::vector<double>& digitsShapeHi() const {return m_digitsShapeHi;}
   /** Return low gain shape vector to multiply the amplitude of a TileHit to produce TileDigit */
   const std::vector<double>& digitsShapeLo() const {return m_digitsShapeLo;}
 
   /** Return derivative of bins in high gain DigitShape */
   const std::vector<double>& digitsDerivativeHi() const {return m_digitsDerivativeHi;}
   /** Return derivative of bins in log gain DigitShape */
-  const std::vector<double>& digitsDerivativeLo() const {return m_digitsDerivativeLo;}  
+  const std::vector<double>& digitsDerivativeLo() const {return m_digitsDerivativeLo;}
 
   /** Return shape vector with full binning to produce the TileDigits from sub-hits */
   const std::vector<double>& digitsFullShapeHi() const {return m_digitsFullShapeHi;}
   /** Return shape vector with full binning to produce the TileDigits from sub-hits */
   const std::vector<double>& digitsFullShapeLo() const {return m_digitsFullShapeLo;}
 
-  /** Return number of bins in high gain DigitShape */ 
-  int digitsNBinsHi() const {return m_digitsNBinsHi;} 
-  /** Return number of bins in low gain DigitShape */ 
-  int digitsNBinsLo() const {return m_digitsNBinsLo;} 
+  /** Return number of bins in high gain DigitShape */
+  int digitsNBinsHi() const {return m_digitsNBinsHi;}
+  /** Return number of bins in low gain DigitShape */
+  int digitsNBinsLo() const {return m_digitsNBinsLo;}
 
   /** Return index of in-time bin in high gain DigitShape */
   int digitsTime0BinHi() const {return m_digitsTime0BinHi;}
@@ -309,9 +310,9 @@ class TileInfo : public DataObject {
   const std::vector<double>& MuL1Shape() const {return m_MuL1Shape;}
 
   /** Return full TTL1 shape vector */
-  const std::vector<double>& ttl1FullShape() const {return m_TTL1FullShape;} 
+  const std::vector<double>& ttl1FullShape() const {return m_TTL1FullShape;}
   /** Return full Muon Receiver shape vector */
-  const std::vector<double>& MuRcvFullShape() const {return m_MuRcvFullShape;} 
+  const std::vector<double>& MuRcvFullShape() const {return m_MuRcvFullShape;}
   /** Return full TTL1 shape vector for MBTS */
   const std::vector<double>& MuL1FullShape() const {return m_MuL1FullShape;}
 
@@ -321,18 +322,18 @@ class TileInfo : public DataObject {
   int MuRcvNBins() const {return m_MuRcvNBins;}
   /** Return number of bins in TTL1Shape for MBTS */
   int MuL1NBins() const {return m_MuL1NBins;}
-    
+
   /** Return index of in-time bin in TTL1Shape */
-  int ttl1Time0Bin() const {return m_TTL1Time0Bin;} 
+  int ttl1Time0Bin() const {return m_TTL1Time0Bin;}
   /** Return index of in-time bin in Muon Receiver shape*/
-  int MuRcvTime0Bin() const {return m_MuRcvTime0Bin;} 
+  int MuRcvTime0Bin() const {return m_MuRcvTime0Bin;}
   /** Return index of in-time bin in TTL1Shape for MBTS */
   int MuL1Time0Bin() const {return m_MuL1Time0Bin;}
 
   /** Return number of TTL1 bins per bunch-crossing */
-  int ttl1BinsPerX() const {return m_TTL1BinsPerX;}  
+  int ttl1BinsPerX() const {return m_TTL1BinsPerX;}
   /** Return number of Muon Receiver bins per bunch-crossing */
-  int MuRcvBinsPerX() const {return m_MuRcvBinsPerX;}  
+  int MuRcvBinsPerX() const {return m_MuRcvBinsPerX;}
   /** Return number of TTL1 bins per bunch-crossing for MBTS */
   int MuL1BinsPerX() const {return m_MuL1BinsPerX;}
 
@@ -341,7 +342,7 @@ class TileInfo : public DataObject {
 		 std::vector<double> &ttl1shape) const;
 
   void muRcvShape(const int nsamp, const int itrig, const double phase,
-                 std::vector<double> &murcvshape) const;	
+                 std::vector<double> &murcvshape) const;
 
   //==================================================================
   //==
@@ -366,10 +367,10 @@ class TileInfo : public DataObject {
   //== Accessor methods for external structures
   //==
   //==================================================================
-  
+
   /** Return pointer to TilePulseShapes*/
   TilePulseShapesStruct * getPulseShapes() const {return m_pulseShapes->TilePSstruct();}
-    
+
   /** Return pointer to TileOptFilterWeight */
   TileOptFilterWeightsStruct * getOptFilterWeights() const {return m_OptFilterWeights->TileOFWstruct();}
 
@@ -385,15 +386,15 @@ class TileInfo : public DataObject {
 
   /** TileHit to TileCell energy conversion for ancillary testbeam detectors.
       Return the factor for converting TileHit amplitude to
-      TileCell energy in the simulation for ancillary detectors at the testbeam 
+      TileCell energy in the simulation for ancillary detectors at the testbeam
       This method always returned 1. in the past, keep it for compatibility for now. */
   double BeamElemHitCalib(const Identifier& /* pmt_id */) const {return 1.;}
-  
-  /** Method returns and returned  always 1. 
+
+  /** Method returns and returned  always 1.
       Kept for compatibility for now. */
   double BeamElemChannelCalib(const HWIdentifier& /* channel_id */) const {return 1.;}
 
-  /** NGO Need description. Do we need this function? */ 
+  /** NGO Need description. Do we need this function? */
   double ttl1Phase(const int /* posneg */, const int /* ieta */, const int /* iphi */) const {return 0.;}
 
 
@@ -402,7 +403,7 @@ class TileInfo : public DataObject {
 
   /** Initialization of the TileInfo object. */
   StatusCode initialize();
-  
+
   /** Pointer to ServiceLocator */
   ISvcLocator *m_svcLocator;
 
@@ -418,7 +419,7 @@ class TileInfo : public DataObject {
 
 
   double m_emscaleA;     //!< 1/sampling fraction for all normal cells
-  double m_emscaleC[64]; //!< 1/sampling fraction for all C10 cells 
+  double m_emscaleC[64]; //!< 1/sampling fraction for all C10 cells
   double m_emscaleE[16]; //!< 1/sampling fraction for special C10 and E1-E4 cells [9]=C10, [10]=E1, [11]=E2, [13]=E3, [15]=E4
   double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
 
@@ -427,10 +428,10 @@ class TileInfo : public DataObject {
   int    m_iTrigSample;
 
   /** scale factor from digital noise to Opt Filter noise
-      for various opt filter algoritms 
-      0 - reserved 
-      1 - opt filter without iterations, 
-      2 - opt filter with iterations 
+      for various opt filter algoritms
+      0 - reserved
+      1 - opt filter without iterations,
+      2 - opt filter with iterations
       3 - fit method */
 
   double m_noiseScaleFactor[4];
@@ -507,7 +508,7 @@ class TileInfo : public DataObject {
 
   double m_emscaleTB[32];
   double m_mev2adcTB[32];
-  
+
   ServiceHandle<TileCablingSvc>       m_tileCablingSvc;
   ToolHandle<TileCondIdTransforms>    m_tileIdTrans;
   ToolHandle<TileCondToolEmscale>     m_tileToolEmscale;
@@ -521,7 +522,7 @@ class TileInfo : public DataObject {
   // decomposed covariance matrices (partition x module x gain)
   //
   std::vector <std::vector <std::vector <TMatrixD *> > > m_decoCovaria;
-  
+
 };
 
 #endif  //TILECONDITIONS_TILEINFO_H

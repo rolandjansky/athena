@@ -164,9 +164,9 @@ namespace NSWL1{
             patternEta.push_back(sl3.at(0));
             patternEta.push_back(sl4.at(0));
 
-            int    multipletid ;
-            int    moduleid ;
-            int    sectortype ;
+            int    multipletid = 0;
+            int    moduleid = 0;
+            int    sectortype = 0;
 
 //Please mind the indentation
             if (sl1 == "11") {
@@ -305,7 +305,7 @@ namespace NSWL1{
         std::vector< size_t > out;
         out.reserve(padIndices.size());
         for (size_t i = 0; i < padIndices.size(); ++i) {
-            if (rand.Uniform(1) < padTimingEfficiency)
+            if (m_rand.Uniform(1) < padTimingEfficiency)
             out.push_back(padIndices.at(i));
         }
         return out;

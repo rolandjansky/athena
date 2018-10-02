@@ -19,7 +19,7 @@
  *  Output: contents of cispar fragment, header, status and trigType
  *  Parameters:
  *    TileBeamElemContainer - Name of input container
- *   
+ *
  ********************************************************************/
 
 // Tile includes
@@ -28,6 +28,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileTriggerContainer.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileConditions/ITileDCSTool.h"
 #include "TileEvent/TileDQstatus.h"
 
 // Atlas includes
@@ -50,7 +51,6 @@ class TileHWID;
 class TileRawChannelCollection;
 class StoreGateSvc;
 class TileBeamInfoProvider;
-class TileDCSSvc;
 class ITileBadChanTool;
 class IAtRndmGenSvc;
 namespace CLHEP {
@@ -61,7 +61,7 @@ namespace CLHEP {
 
 /**
 @class coincBoard
-@brief Small class holding the information for a cosmic trigger coincidence board 
+@brief Small class holding the information for a cosmic trigger coincidence board
 */
 class coincBoard {
 public:
@@ -83,16 +83,16 @@ class TileBeamInfoProvider: public AthAlgTool
 
   virtual StatusCode initialize();  //!< intialize method
   virtual StatusCode finalize();    //!< finalize method
-  
-  virtual void handle(const Incident&) ;   //!< Callback for Incident service 
+
+  virtual void handle(const Incident&) ;   //!< Callback for Incident service
 
   static const InterfaceID& interfaceID( ) ; //!< AlgTool InterfaceID
-  
+
   const TileDQstatus* getDQstatus(); //<! Creates TileDQstatus object and fills arrays from DQ fragment
 
-  bool          isChanDCSgood   (int partition, int drawer, int channel) const; 
+  bool          isChanDCSgood   (int partition, int drawer, int channel) const;
 
-  inline uint32_t   eventCounter(void)  const { return m_evt; }  
+  inline uint32_t   eventCounter(void)  const { return m_evt; }
   inline uint32_t      calibMode(void)  const { return m_calibMode; }
   inline int            trigType(void)  const { return m_trigType; }
   inline uint32_t      laserFlag(void)  const { return m_laserFlag; }
@@ -117,29 +117,29 @@ class TileBeamInfoProvider: public AthAlgTool
   bool m_checkDQ;   //!< if false, skip DQ checks (set to false if container is not found in first event)
   bool m_checkDigi; //!< if false, skip reading of TileDigitsContainer ( /-/-/-/ )
   bool m_checkBeam; //!< if false, skip reading of TileBeamContainer   ( /-/-/-/ )
-  bool m_checkDCS;  //!< if false, do not use TileDCSSvc at all
+  bool m_checkDCS;  //!< if false, do not use Tile DCS at all
   bool m_simulateTrips;  //! if true simulate drawer trips
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo",
                                                     "EventInfo", "Input Event info key"};
 
-  SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey{this, "TileBeamElemContainer", 
+  SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey{this, "TileBeamElemContainer",
                                                                   "", "Input Tile beam elements container key"};
 
-  SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this, "TileDigitsContainer", 
+  SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this, "TileDigitsContainer",
                                                               "", "Input Tile digits container key"};
 
-  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this, "TileRawChannelContainer", 
+  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this, "TileRawChannelContainer",
                                                                       "", "Input Tile raw channel container key"};
 
-  SG::WriteHandleKey<TileTriggerContainer> m_triggerContainerKey{this, "TileTriggerContainer", 
+  SG::WriteHandleKey<TileTriggerContainer> m_triggerContainerKey{this, "TileTriggerContainer",
                                                                  "", "Output Tile trigger container key"};
 
-  SG::WriteHandleKey<TileLaserObject> m_laserObjectKey{this, "TileLaserObject", 
+  SG::WriteHandleKey<TileLaserObject> m_laserObjectKey{this, "TileLaserObject",
                                                        "", "Output Tile laser object key"};
-  
 
-  ServiceHandle<TileDCSSvc>   m_tileDCSSvc; //!< Pointer to TileDCSSvc
+
+  ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
   ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tool which provides trips probabilities also
 
@@ -165,7 +165,7 @@ class TileBeamInfoProvider: public AthAlgTool
   const TileDigitsContainer *     m_digitsCnt;
   const TileRawChannelContainer * m_rcCnt;
   const TileBeamElemContainer *   m_beamElemCnt;
-  
+
   CLHEP::HepRandomEngine* m_pHRengine;    //!< Random number generator engine to use
   double* m_rndmVec;
 

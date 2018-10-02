@@ -44,7 +44,7 @@ class ValAlgVariables
 
   virtual void setHelper(const MuonIdHelper* ) = 0;
 
-  virtual StatusCode deleteVariables() = 0;
+  virtual void deleteVariables() = 0;
   virtual StatusCode clearVariables()  = 0;
 
   StoreGateSvc*                      m_evtStore;

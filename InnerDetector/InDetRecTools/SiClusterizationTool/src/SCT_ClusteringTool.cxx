@@ -109,7 +109,7 @@ namespace InDet {
     // N.B bitset has opposite order to the bit pattern we define
 
     bool pass(true);
-    const std::bitset<3> timePattern(static_cast<const unsigned long>(timeBin));
+    const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
     if (m_timeBinBits[0] != -1 and timePattern.test(2) != static_cast<bool>(m_timeBinBits[0])) pass=false;
     if (m_timeBinBits[1] != -1 and timePattern.test(1) != static_cast<bool>(m_timeBinBits[1])) pass=false;
     if (m_timeBinBits[2] != -1 and timePattern.test(0) != static_cast<bool>(m_timeBinBits[2])) pass=false;
@@ -122,7 +122,7 @@ namespace InDet {
     // N.B bitset has opposite order to the bit pattern we define
 
     bool pass(true);
-    const std::bitset<3> timePattern(static_cast<const unsigned long>(timeBin));
+    const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
     if (timePattern.test(2) != false) pass=false;
     if (timePattern.test(1) != true) pass=false;
     return pass;
@@ -134,7 +134,7 @@ namespace InDet {
     // N.B bitset has opposite order to the bit pattern we define
     
     bool pass(true);
-    const std::bitset<3> timePattern(static_cast<const unsigned long>(timeBin));
+    const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
     if (timePattern.test(1) != true) pass=false;
     return pass;
   }  

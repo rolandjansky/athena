@@ -6,7 +6,7 @@
 #define GeoBorderSurfaceContainer_h 1
 
 #include "GeoModelUtilities/GeoBorderSurface.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 
 typedef std::vector< GeoBorderSurface > GeoBorderSurfaceContainer;

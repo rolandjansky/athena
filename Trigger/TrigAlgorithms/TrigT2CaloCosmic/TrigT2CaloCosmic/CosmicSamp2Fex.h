@@ -40,8 +40,7 @@ class CosmicSamp2Fex: public IAlgToolCalo {
     //	  		     double etamax, double phimin, double phimax);
     StatusCode execute(TrigEMCluster &rtrigEmCluster,
 		       const IRoiDescriptor& roi,
-		       const CaloDetDescrElement*& /*caloDDE*/,
-                       const EventContext* /*context*/ );
+		       const CaloDetDescrElement*& /*caloDDE*/);
 
     /** Special initialize for Samp2 to include eta as a
 	trigger timer item monitored parameter. Important

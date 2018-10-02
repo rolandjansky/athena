@@ -3,6 +3,7 @@
 # art-description: DirectIOART TFile::Open
 # art-type: grid
 # art-include master/Athena
+# art-include master/AthSimulation
 # art-include 21.0/Athena
 # art-include 21.0/AthSimulation
 # art-include 21.2/AthAnalysis
@@ -38,3 +39,4 @@ outstr = """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 </POOLFILECATALOG>"""
 with open("PoolFileCatalog.xml", "w") as outfile:
   outfile.write(outstr)
+

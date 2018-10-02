@@ -221,7 +221,7 @@ StatusCode LArOFCCondAlg::execute() {
         return StatusCode::FAILURE;
     }
 
-    ATH_MSG_INFO("IOV found from intersection for AutoCorrTotal object: "
+    ATH_MSG_INFO("IOV found from intersection for LArOFCCondObj object: "
             << rangeIntersection);
 
     // make output object
@@ -346,6 +346,10 @@ StatusCode LArOFCCondAlg::execute() {
                     //return (m_OFCtmp);
                     //returns an empty vector
                 }
+		if (Shape.size()!=ShapeDer.size()) {
+		  ATH_MSG_ERROR("Got invalid shape object: Size=" << Shape.size() << ", DerSize=" << ShapeDer.size());
+		  return StatusCode::SUCCESS;
+		}
                 //:::::::::::::::::::::::::::::::
                 unsigned int l,c,i; 
                 //:::::::::::::::::::::::::::::::

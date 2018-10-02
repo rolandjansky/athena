@@ -73,9 +73,12 @@ namespace met{
     METSoftAssociator();
 
     bool m_decorateSoftTermConst;
-    std::string m_lcmodclus_key;
-    std::string m_emmodclus_key;
+    std::string m_lcmodclus;
+    std::string m_emmodclus;
     bool m_weight_soft_pfo;
+
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_lcmodclus_key;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_emmodclus_key;
 
   }; 
 
