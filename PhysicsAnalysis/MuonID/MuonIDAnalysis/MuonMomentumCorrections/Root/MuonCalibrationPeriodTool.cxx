@@ -41,7 +41,7 @@ namespace CP {
             } else if (std::find(m_MCperiods17.begin(), m_MCperiods17.end(),run) != m_MCperiods17.end()) {
                 ATH_MSG_DEBUG("The current run "<<run<<" corresponds to data mc16d / data17");                
                 return 17;
-            } else if (std::find(m_MCperiods18.begin(), m_MCperiods17.end(),run) != m_MCperiods18.end()){ 
+            } else if (std::find(m_MCperiods18.begin(), m_MCperiods18.end(),run) != m_MCperiods18.end()){ 
                 ATH_MSG_DEBUG("The current run "<<run<<" corresponds to data mc16e / data18");                
                 return 18;
             }
@@ -140,7 +140,7 @@ namespace CP {
 
         m_calibTool_1516.declarePropertyFor(this, "CalibrationTool1516", "Parse the configured instance of the calibration tool for 15&16 data or mc16a");
         m_calibTool_17.declarePropertyFor(this, "CalibrationTool17", "Parse the configured instance of the calibration tool for 17 data or mc16d");
-        m_calibTool_17.declarePropertyFor(this, "CalibrationTool18", "Parse the configured instance of the calibration tool for 18 data or mc16e");
+        m_calibTool_18.declarePropertyFor(this, "CalibrationTool18", "Parse the configured instance of the calibration tool for 18 data or mc16e");
         declareProperty("SagittaRelease1516", m_sagittaRelease1516);
         declareProperty("SagittaRelease17", m_sagittaRelease17);
         declareProperty("SagittaRelease18", m_sagittaRelease18);
