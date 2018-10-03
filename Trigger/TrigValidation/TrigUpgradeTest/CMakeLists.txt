@@ -12,8 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          Trigger/TrigSteer/DecisionHandling
                           Trigger/TrigEvent/TrigSteeringEvent
-			  Control/AthViews
+                          Control/AthViews
                           )
 
 find_package( Boost COMPONENTS filesystem thread system )

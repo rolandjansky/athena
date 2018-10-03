@@ -3,6 +3,7 @@
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "AthenaKernel/CloneService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/StoreID.h"
@@ -67,6 +68,7 @@ StatusCode HiveMgrSvc::setNumberOfStores(size_t slots) {
     m_slots.resize(slots);
     m_nSlots = slots;
     m_freeSlots.store(slots);
+    Gaudi::Concurrency::ConcurrencyFlags::setNumConcEvents( slots );
     return StatusCode::SUCCESS;
   }
 }
@@ -212,6 +214,8 @@ StatusCode HiveMgrSvc::initialize() {
   }
   
   m_freeSlots.store( m_nSlots );
+  Gaudi::Concurrency::ConcurrencyFlags::setNumConcEvents( m_nSlots );
+
   return selectStore(0);
 }
 
