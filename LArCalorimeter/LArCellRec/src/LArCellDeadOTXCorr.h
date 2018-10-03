@@ -88,6 +88,7 @@ class LArCellDeadOTXCorr
 
 		virtual StatusCode initialize() override;
 		virtual StatusCode process( CaloCellContainer * CellCont) override;
+		virtual StatusCode process( CaloCellContainer * CellCont, const EventContext& ctx ) const;
 		virtual StatusCode finalize() override;
 
 		using AthAlgTool::setProperty;
