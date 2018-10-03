@@ -54,7 +54,6 @@ if TriggerFlags.doID==True:
 
 
 # jet chains
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 from TrigUpgradeTest.jetMenuDefs import jetSequence
 
 jetSeq1 = jetSequence()
@@ -73,8 +72,7 @@ comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps
 
 
 # sum all
-testChains = egammaChains + MuonChains + jetChains + comboChains
-
+testChains = egammaChains + MuonChains  + comboChains + jetChains
 
 #################################
 # Configure L1Decoder
@@ -97,7 +95,6 @@ for unpack in topSequence.L1DecoderTest.roiUnpackers:
         unpack.Decisions="L1MU"
  
     if unpack.name() is "JRoIsUnpackingTool":
-#        unpack.Decisions="L1J"
         unpack.FSDecisions="L1J"
  
  
