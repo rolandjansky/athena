@@ -253,7 +253,8 @@ class ComponentAccumulator(object):
                                                               (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
                     elif isinstance(oldprop,PublicToolHandleArray):
                             for newtool in newprop:
-                                if newtool not in oldprop: oldprop+=[newtool,]
+                                if newtool not in oldprop: 
+                                    oldprop+=[newtool,]
                             continue
                     elif isinstance(oldprop,ConfigurableAlgTool):
                         self._deduplicateComponent(oldprop,newprop)
