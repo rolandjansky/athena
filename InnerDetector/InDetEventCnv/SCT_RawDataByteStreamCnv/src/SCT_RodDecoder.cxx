@@ -961,7 +961,7 @@ SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashId, unsigned in
 
   int type{0};
   // Check if Rx redundancy is used or not in this module
-  const std::pair<bool, bool> badLinks{m_configTool->badLinks(moduleId)};
+  const std::pair<bool, bool> badLinks{m_configTool->badLinks(hashId)};
   if (badLinks.first xor badLinks.second) {
     // Rx redundancy is used in this module.
     if (badLinks.first and not badLinks.second) {

@@ -28,7 +28,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 // Calo helpers
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
+#include "xAODCaloEvent/CaloVertexedClusterBase.h"
+
 
 // PFlow EDM and helpers
 #include "xAODPFlow/PFOContainer.h"
@@ -253,15 +254,14 @@ namespace met {
     // First retrieve the necessary container
     // Currently rely on only one: either CaloClusterContainer or TrackParticleContainer
     const PFOContainer* pfoCont = 0;
-    vector<const IParticle*> signalList;
-    CaloClusterChangeSignalStateList stateHelperList;
-
+     vector<const IParticle*> signalList;
     if( m_st_objtype == 0 ) {
       // Retrieve the calo container
       SG::ReadHandle<xAOD::CaloClusterContainer> caloClusCont(m_caloClusterKey);
       if (!caloClusCont.isValid()) {
-	  ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
+        ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
       }
+
       signalList.reserve(caloClusCont->size());
       //stateHelperList.reserve(caloClusCont->size());
 
@@ -270,24 +270,19 @@ namespace met {
 
       MissingETComponentMap::iterator iter = MissingETComposition::find(metMap,metTerm);
       if(iter==metMap->end()) {
-	ATH_MSG_WARNING("Could not find current METComponent in MET Map!");
-	return StatusCode::SUCCESS;
+        ATH_MSG_WARNING("Could not find current METComponent in MET Map!");
+        return StatusCode::SUCCESS;
       }
       MissingETComponent* newComp = *iter;
       newComp->setStatusWord(MissingETBase::Status::contributedSoftTerm());
 
       // Loop over all clusters
       for( CaloClusterContainer::const_iterator iClus=caloClusCont->begin(); iClus!=caloClusCont->end(); ++iClus ) {
-	// create a helper to change the signal state and retain it until the end of the execute
-	// signal state will be reset when it goes out of scope
-	//CaloClusterChangeSignalState stateHelper(*iClus, CaloCluster::State(m_signalstate));
-	stateHelperList.add(*iClus, CaloCluster::State(m_signalstate));
-	
         // Check if cluster satisfies the requirements
-        if( this->accept(*iClus) ) {
-	  // Add the selected clusters to the list
-	  signalList.push_back(*iClus);
-	}
+        if( this->accept(*iClus)) {
+          // Add the selected clusters to the list
+          signalList.push_back(*iClus);
+        }
       } // end loop over clusters
 
       ATH_MSG_DEBUG("Selected " << signalList.size() << " topoclusters for soft MET");
@@ -404,8 +399,8 @@ namespace met {
       }
     } else {
       for( vector<const IParticle*>::const_iterator iPart=signalList.begin();
-	   iPart!=signalList.end(); ++iPart) {
-	this->addToMET(*iPart,dummyList,metTerm,metMap,unitWeight);
+           iPart!=signalList.end(); ++iPart) {
+        this->addToMET(*iPart,dummyList,metTerm,metMap,unitWeight);
       }
     }
 

@@ -20,8 +20,18 @@
 
 #include <ctime>
 
+// Suppress a gcc8 warning from boost.
+// (Binaries apparently include boost with -I rather than -isystem.)
+// Fixed in boost 1.68 (see https://github.com/boostorg/mpl/issues/31)
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wparentheses"
+#endif
 #include "boost/program_options.hpp"
 namespace po = boost::program_options;
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 #include "CoralDB/CoralDB.h"
 #include "CoralDB/Connection.h"

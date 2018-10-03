@@ -2405,7 +2405,7 @@ SCTErrMonTool::fillConfigurationDetails() {
     msg(MSG::DEBUG) << "Inside fillConfigurationDetails()" << endmsg;
   }
   unsigned int nBadMods = m_ConfigurationTool->badModules()->size(); // bad modules
-  const std::map<Identifier, std::pair<bool, bool> > *badLinks = m_ConfigurationTool->badLinks(); // bad links
+  const std::map<IdentifierHash, std::pair<bool, bool> > *badLinks = m_ConfigurationTool->badLinks(); // bad links
   unsigned int nBadLink0(0), nBadLink1(0), nBadLinkBoth(0);
   for (auto link: *badLinks) {
     std::pair<bool, bool> status = link.second;

@@ -13,7 +13,7 @@ whether the cluster local calibration should be set to "EM" */
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 using InputContainer = xAOD::CaloClusterContainer;
-using ValueType = InputContainer::const_value_type;
+using ValueType = InputContainer::value_type;
 using ClusterToPseudoJet = AnyToPseudoJet<InputContainer::const_value_type>;
 
 class ClusterToPseudoJetConverter {
