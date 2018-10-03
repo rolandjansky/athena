@@ -813,6 +813,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
+  const static SG::AuxElement::ConstAccessor<float> acc_DetEta("DetectorEta");
 
 
 } // namespace ST
