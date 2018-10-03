@@ -141,10 +141,10 @@ def getDecorateVeto(lepton_name, track_jet_name):
 algSeq = CfgMgr.AthSequencer('AthAlgSeq')
 
 if 'TestPythonConfig' in dir():
-    from JetTagNonPromptLepton import JetTagNonPromptLeptonConfig
+    from LeptonTaggers import LeptonTaggersConfig
 
-    algSeq += JetTagNonPromptLeptonConfig.GetDecoratePromptLeptonAlgs()
-    algSeq += JetTagNonPromptLeptonConfig.GetDecoratePromptTauAlgs()
+    algSeq += LeptonTaggersConfig.GetDecoratePromptLeptonAlgs()
+    algSeq += LeptonTaggersConfig.GetDecoratePromptTauAlgs()
 
 else:
     algSeq += getDecorateVeto('Electrons', 'AntiKt4PV0TrackJets')

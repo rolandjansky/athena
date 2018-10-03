@@ -6,7 +6,7 @@
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( Prompt, DecoratePromptLepton )
 
-DECLARE_FACTORY_ENTRIES( JetTagNonPromptLepton )
+DECLARE_FACTORY_ENTRIES( LeptonTaggers )
 {
   DECLARE_NAMESPACE_ALGORITHM( Prompt, DecoratePromptLepton )
 }
