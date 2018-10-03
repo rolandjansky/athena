@@ -46,11 +46,13 @@ def setupMenu():
 	['mu10_idperf',         'L1_MU6', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 
 	#RoI muons
+	['mu3',                 'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu4',                 'L1_MU4', [], [HardProbesStream,  'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu6',                 'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu8',                 'L1_MU6', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu10',                'L1_MU6', [], [HardProbesStream,  'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu14',                'L1_MU11', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu20',                'L1_MU15', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 
 	#msonly
 	['mu15_msonly',            'L1_MU11',           [], [HardProbesStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -229,18 +231,18 @@ def setupMenu():
     ['g18_etcut',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     
 	#heavy ion instances	
-	['e13_etcut_ion',       'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e13_etcut_ion',       'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e15_etcut_ion',       'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e18_etcut_ion',              'L1_EM14', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1], 
     ['e20_etcut_ion',              'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-    ['e30_etcut_ion',              'L1_EM22', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1], 
-	['e50_etcut_ion',              'L1_EM22', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+    ['e30_etcut_ion',              'L1_EM22', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1], 
+	['e50_etcut_ion',              'L1_EM22', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	
 	#['g12_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     ['g13_etcut_ion',              'L1_EM10', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 	['g18_etcut_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 
-    ['e15_loose_ion',       'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+    ['e15_loose_ion',       'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e15_medium_ion',      'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e15_lhloose_ion_L1EM12',     'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e15_lhmedium_ion_L1EM12',    'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -272,7 +274,8 @@ def setupMenu():
     ['g20_loose',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     ['g20_loose_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     #['g20_medium_ion',             'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
-
+    ['g50_loose_ion',              'L1_EM22', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+    
 	#di-photon triggers
 	['2g15_loose',                  'L1_2EM10', [], [HardProbesStream], ['RATE:MultiPhoton', 'BW:Egamma'], -1],
 	['2g15_loose_ion',              'L1_2EM10', [], [HardProbesStream], ['RATE:MultiPhoton', 'BW:Egamma'], -1],
@@ -329,6 +332,8 @@ def setupMenu():
     ['mu6_j30_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
             
      #UPC:Supporting
+    ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L12TAU1_VTE50',        'L1_2TAU1_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
+    ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L12TAU2_VTE200',        'L1_2TAU2_VTE200',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose1_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose1'],False]],
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose1_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose1'],False]],
@@ -432,6 +437,11 @@ def setupMenu():
  	    ['hi_gg_upc_FgapAC_L12TAU3_VTE100',        'L1_2TAU3_VTE100',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_FgapAC_L12TAU2_VTE50',        'L1_2TAU2_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_FgapAC_L12TAU3_VTE50',        'L1_2TAU3_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+ 	    ['hi_gg_upc_FgapAC_L12TAU1_VTE50',        'L1_2TAU1_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+ 	    
+ 	    
+ 	    ['hi_gg_upc_FgapAC_L1TAU1_TE4_VTE200',        'L1_TAU1_TE4_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+ 	    ['hi_gg_upc_FgapAC_L1TAU1_TE5_VTE200',        'L1_TAU1_TE5_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    
  	    ['hi_gg_upc_L1TE5_VTE200',        'L1_TE5_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_L1TE4_VTE200',        'L1_TE4_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
@@ -476,11 +486,14 @@ def setupMenu():
 	
 	#MB UPC:
 	['mb_sptrk_L1ZDC_XOR_VTE200',  'L1_ZDC_XOR_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_L1ZDC_XOR_TE4_VTE200',  'L1_ZDC_XOR_TE4_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_L1ZDC_XOR_TE3.0ETA49_VTE200',  'L1_ZDC_XOR_TE3.0ETA49_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE50',  'L1_2TAU2_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE100',  'L1_2TAU2_VTE100', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE200',  'L1_2TAU2_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_vetombts2in_exclusiveloose2_L12TAU1_VTE50',  'L1_2TAU1_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE50',  'L1_2TAU2_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE100',  'L1_2TAU2_VTE100', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE200',  'L1_2TAU2_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
@@ -634,9 +647,9 @@ def setupMenu():
 	#['noalg_mb_L1TE9000.0ETA49',      'L1_TE9000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
     
     #PC
- 	['noalg_pc_L1TE50_VTE600',      'L1_TE50_VTE600.0ETA49', [], [PCStream], ["BW:PC", "RATE:PC"], 1],
+ 	['noalg_pc_L1TE50_VTE600.0ETA49',      'L1_TE50_VTE600.0ETA49', [], [PCStream], ["BW:PC", "RATE:PC"], 1],
 	#CC
-	['noalg_cc_L1TE600',      'L1_TE600.0ETA49', [], [CCStream], ["BW:CC", "RATE:CC"], 1],
+	['noalg_cc_L1TE600.0ETA49',      'L1_TE600.0ETA49', [], [CCStream], ["BW:CC", "RATE:CC"], 1],
     
 	#min bias
         ['noalg_mb_L1MBTS_2',    'L1_MBTS_2', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],

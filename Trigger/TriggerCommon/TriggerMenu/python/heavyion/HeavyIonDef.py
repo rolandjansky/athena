@@ -446,7 +446,7 @@ class L2EFChain_HI(L2EFChainDef):
     def setup_hi_PEB(self):
         from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
         HISubDetListWriter = TrigSubDetListWriter("HISubDetListWriter")
-        HISubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FCal','FORWARD_ZDC'] 
+        HISubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FCal','FORWARD_ZDC','Muons'] 
         HISubDetListWriter.MaxRoIsPerEvent=1
  
         self.robWriter = [HISubDetListWriter]            
