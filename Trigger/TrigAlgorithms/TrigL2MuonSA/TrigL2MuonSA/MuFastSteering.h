@@ -84,7 +84,8 @@ class MuFastSteering : public HLT::FexAlgo,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
 			       TrigRoiDescriptorCollection&	 		outputMS,
-			       DataVector<xAOD::TrigComposite>&			outputComposite);
+			       DataVector<xAOD::TrigComposite>&			outputComposite,
+                               Monitored::MonitoredTimer::MonitoredTimer&       prepTimer );
 
   int L2MuonAlgoMap(const std::string& name);
   
@@ -147,8 +148,7 @@ class MuFastSteering : public HLT::FexAlgo,
   */
   StatusCode updateMonitor(const LVL1::RecMuonRoI*                  roi,
 			   const TrigL2MuonSA::MdtHits&             mdtHits,
-                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns);
-  
+                           std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns );
  protected:
   
   // Services
