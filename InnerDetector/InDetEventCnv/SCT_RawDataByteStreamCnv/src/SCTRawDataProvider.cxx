@@ -36,11 +36,13 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK(m_robDataProvider.retrieve());
   /** Get the SCT ID helper **/
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
-  if (m_roiSeeded.value()) {//Don't need SCT cabling if running in RoI-seeded mode
+  if (m_roiSeeded.value()) {
+    //Don't need SCT cabling if running in RoI-seeded mode
     ATH_CHECK(m_roiCollectionKey.initialize());
     ATH_CHECK(m_regionSelector.retrieve());
     m_cabling.disable();
-  } else {
+  } 
+  else {
     /** Retrieve Cabling service */ 
     ATH_CHECK(m_cabling.retrieve());
   }
@@ -71,7 +73,8 @@ StatusCode SCTRawDataProvider::execute()
   if(!externalCacheRDO){
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctId->wafer_hash_max())));
     ATH_MSG_DEBUG("Created container for " << m_sctId->wafer_hash_max());
-  }else{
+  }
+  else{
     SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey);
     ATH_CHECK(update.isValid());
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(update.ptr())));
@@ -93,7 +96,9 @@ StatusCode SCTRawDataProvider::execute()
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList);
     m_robDataProvider->getROBData(rodList , listOfROBFrags);
-  } else {//Only load ROBs from RoI
+  } 
+  else {
+    //Only load ROBs from RoI
     std::vector<uint32_t> listOfROBs;
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
     ATH_CHECK(roiCollection.isValid());
