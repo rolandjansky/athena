@@ -21,7 +21,7 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},
-  m_sct_id{nullptr},
+  m_sctId{nullptr},
   m_rdoContainerCacheKey{""}
 {
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
@@ -34,7 +34,7 @@ StatusCode SCTRawDataProvider::initialize() {
   /** Get ROBDataProviderSvc */
   ATH_CHECK(m_robDataProvider.retrieve());
   /** Get the SCT ID helper **/
-  ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   if (m_roiSeeded.value()) {//Don't need SCT cabling if running in RoI-seeded mode
     ATH_CHECK(m_roiCollectionKey.initialize());
     ATH_CHECK(m_regionSelector.retrieve());
@@ -46,7 +46,7 @@ StatusCode SCTRawDataProvider::initialize() {
   //Initialize 
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_lvl1CollectionKey.initialize());
-  ATH_CHECK(m_bcidCollectionKey.initialize());
+  ATH_CHECK(m_bcIdCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
   ATH_CHECK(m_bsFracContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
@@ -66,10 +66,10 @@ StatusCode SCTRawDataProvider::execute()
   m_rawDataTool->beginNewEvent();
 
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
-  bool externalcacheRDO = !m_rdoContainerCacheKey.key().empty();
-  if(!externalcacheRDO){
-    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max())));
-    ATH_MSG_DEBUG("Created container for " << m_sct_id->wafer_hash_max());
+  bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalCacheRDO){
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctId->wafer_hash_max())));
+    ATH_MSG_DEBUG("Created container for " << m_sctId->wafer_hash_max());
   }else{
     SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey);
     ATH_CHECK(update.isValid());
@@ -113,34 +113,34 @@ StatusCode SCTRawDataProvider::execute()
   lvl1Collection = std::make_unique<InDetTimeCollection>(listOfRobFrags.size()); 
   ATH_CHECK(lvl1Collection.isValid());
 
-  SG::WriteHandle<InDetTimeCollection> bcidCollection{m_bcidCollectionKey};
-  bcidCollection = std::make_unique<InDetTimeCollection>(listOfRobFrags.size()); 
-  ATH_CHECK(bcidCollection.isValid());
+  SG::WriteHandle<InDetTimeCollection> bcIdCollection{m_bcIdCollectionKey};
+  bcIdCollection = std::make_unique<InDetTimeCollection>(listOfRobFrags.size()); 
+  ATH_CHECK(bcIdCollection.isValid());
 
   std::vector<const ROBFragment*>::const_iterator rob_it{listOfRobFrags.begin()};
   for (; rob_it!=listOfRobFrags.end(); ++rob_it) {
     
-    uint32_t robid{(*rob_it)->rod_source_id()};
+    uint32_t robId{(*rob_it)->rod_source_id()};
     /**
      * Store LVL1ID and BCID information in InDetTimeCollection 
      * to be stored in StoreGate at the end of the loop.
      * We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
      **/
     
-    unsigned int lvl1id{(*rob_it)->rod_lvl1_id()};
-    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robid, lvl1id)};
+    unsigned int lvl1Id{(*rob_it)->rod_lvl1_id()};
+    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robId, lvl1Id)};
     lvl1Collection->push_back(std::move(lvl1Pair));
     
-    unsigned int bcid{(*rob_it)->rod_bc_id()};
-    auto bcidPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robid, bcid)};
-    bcidCollection->push_back(std::move(bcidPair));
+    unsigned int bcId{(*rob_it)->rod_bc_id()};
+    auto bcIdPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robId, bcId)};
+    bcIdCollection->push_back(std::move(bcIdPair));
     
-    ATH_MSG_DEBUG("Stored LVL1ID " << lvl1id << " and BCID " << bcid << " in InDetTimeCollections");
+    ATH_MSG_DEBUG("Stored LVL1ID " << lvl1Id << " and BCID " << bcId << " in InDetTimeCollections");
     
   }
   std::unique_ptr<dummySCTRDO_t> dummyrdo;
-  if (externalcacheRDO) dummyrdo = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
-  ISCT_RDO_Container *rdoInterface = externalcacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
+  if (externalCacheRDO) dummyrdo = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
+  ISCT_RDO_Container *rdoInterface = externalCacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
   if (m_rawDataTool->convert(listOfRobFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
