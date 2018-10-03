@@ -10,6 +10,16 @@
 #----------------------------------------------
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+#----------------------------------------------
+#
+# PLEASE DO NOT UPDATE bs-streamerinfos.root YOURSELF!!!!
+# Contact the person mentioned on: 
+#    https://twiki.cern.ch/twiki/bin/view/Atlas/TrigSerializeResult
+# and/or the Trigger EDM Coordinator 
+#
+#----------------------------------------------
+
 import sys
 
 doEDM=False
