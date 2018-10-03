@@ -283,7 +283,7 @@ def l2CaloAlgCfg( flags, roisKey="EMCaloRoIs" ):
     return acc, fastCalo
 
 def l2CaloRecoCfg( flags ):
-    from TrigUpgradeTest.MenuComponents import InViewReco
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
 
     reco = InViewReco("FastCaloEMReco")
     algAcc, alg = l2CaloAlgCfg( flags, roisKey = reco.name+'RoIs' )
@@ -299,11 +299,11 @@ def l2ElectronCaloStepCfg( flags, chains ):
 
     # setup algorithms
     #acc.addSequence( seqAND('L2CaloEgamma'), parentName=parentSeq )
-    from TrigUpgradeTest.MenuComponents import NJMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NJMenuSequence
     fhSeq = NJMenuSequence( 'ElectronFastCalo' )
     fhSeq.addFilter( chains, inKey = 'EMRoIDecisions' ) # out key named after sequence
 
-    from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
     # obtain the reconstruction CF fragment
     fhSeq.addReco( RecoFragmentsPool.retrieve( l2CaloRecoCfg, flags ) )

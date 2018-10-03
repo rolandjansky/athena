@@ -59,7 +59,7 @@ from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
 def menu( mf ):
-    from TrigUpgradeTest.MenuComponents import HLTMenuAccumulator
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import HLTMenuAccumulator
     menuAcc = HLTMenuAccumulator()
 
     # here menu generation starts
