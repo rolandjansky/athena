@@ -11,7 +11,8 @@ def jetRecoSequence(inputMakerOut):
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
     jetRecoSequence = parOR("jetRecoSequence")
 
- 
+
+
   # jets reco
     from AthenaMonitoring.GenericMonitoringTool import (GenericMonitoringTool,
                                                         defineHistogram)
@@ -39,6 +40,7 @@ def jetRecoSequence(inputMakerOut):
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=INFO
     svcMgr.TrigCaloDataAccessSvc.MonTool = mon
 
+
     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
     algo1=HLTCaloCellMaker("testFastAlgo1")
     algo1.RoIs=inputMakerOut
@@ -49,7 +51,9 @@ def jetRecoSequence(inputMakerOut):
     algo1.OutputLevel=DEBUG
     jetRecoSequence += algo1
 
+
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
+
 
     algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
     algo2.Cells = "StoreGateSvc+FullScanCells"

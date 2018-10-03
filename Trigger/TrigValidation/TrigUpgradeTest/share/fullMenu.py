@@ -24,12 +24,16 @@ EnabledElComboChains = []
 
 
 # egamma chains
+
+from AthenaCommon.GlobalFlags import globalflags
+
 from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
 fastCaloStep=fastCaloSequence()
 electronStep=electronSequence()
 
 step1=ChainStep("Step1_etcut", [fastCaloStep])
 step2=ChainStep("Step2_etcut", [electronStep])
+
 egammaChains  = [
     Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
     Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
@@ -40,9 +44,11 @@ egammaChains  = [
 
 
 # muon chains
+
 from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, doL2SA, doL2CB, doEFSA
 MuonChains  = []
 step1mufast=ChainStep("Step1_mufast", [muFastStep])
+
 
 MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
 MuonChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
@@ -50,6 +56,7 @@ if TriggerFlags.doID==True:
     step2muComb=ChainStep("Step2_muComb", [muCombStep])
     MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
     MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
+
 
 
 
