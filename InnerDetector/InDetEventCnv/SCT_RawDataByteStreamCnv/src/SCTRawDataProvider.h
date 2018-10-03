@@ -17,24 +17,20 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
 
-/** Base class */
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-/** other */
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-/** Gaudi */
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-/** forward declarations */
 class ISCTRawDataProviderTool;
 class ISCT_CablingTool;
 class SCT_ID;
