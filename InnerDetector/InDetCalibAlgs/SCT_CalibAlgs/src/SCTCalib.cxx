@@ -780,9 +780,9 @@ StatusCode SCTCalib::getDeadStrip() {
     std::set<Identifier>::const_iterator ModItr(badMods->begin());
     std::set<Identifier>::const_iterator ModEnd(badMods->end());
     // Bad links
-    const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsTool->badLinks();
-    std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
-    std::map<Identifier, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
+    const std::map<IdentifierHash, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsTool->badLinks();
+    std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
+    std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
     // Bad chips
     const std::map<Identifier, unsigned int>* badChips = m_ConfigurationConditionsTool->badChips();
     std::map<Identifier, unsigned int>::const_iterator chipItr(badChips->begin());
@@ -928,7 +928,7 @@ StatusCode SCTCalib::getDeadStrip() {
         //check if module/link is disabled or not
         bool disabled=false;
         if(badMods->find(moduleId)!=badMods->end()) disabled=true;
-        linkItr=badLinks->find(moduleId);
+        linkItr=badLinks->find(waferHash);
         if(linkItr!=linkEnd) {
             std::pair<bool, bool> status = (*linkItr).second;
             if((side==0 && status.first==true) || (side==1 && status.second==true)) disabled=true;

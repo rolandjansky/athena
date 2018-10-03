@@ -55,11 +55,13 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 
   // loop over the ROB fragments
 
+  std::set<uint32_t> tmpRobIdSet;
+
   for (const ROBFragment* rob_it : vecRobs) {
     // get the ID of this ROB/ROD
     uint32_t robid{(rob_it)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
-    if (m_robIdSet.count(robid)) {
+    if (m_robIdSet.count(robid) or tmpRobIdSet.count(robid)) {
       ATH_MSG_DEBUG(" ROB Fragment with ID  "
                     << std::hex<<robid << std::dec
                     << " already decoded, skip");
@@ -67,9 +69,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     }
 
     // Insert the new ROBID to the set.
-    m_mutex.lock();
-    m_robIdSet.insert(robid);
-    m_mutex.unlock();
+    tmpRobIdSet.insert(robid);
 
     sc = m_decoder->fillCollection(*rob_it, rdoIdc, errs, bsFracCont);
     if (sc==StatusCode::FAILURE) {
@@ -80,12 +80,14 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
         else {
           ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
         }
-        m_mutex.lock();
         m_decodeErrCount++;
-        m_mutex.unlock();
       }
     }
   }
+
+  m_mutex.lock();
+  m_robIdSet.insert(tmpRobIdSet.begin(), tmpRobIdSet.end());
+  m_mutex.unlock();
 
   if (sc==StatusCode::FAILURE) {
     ATH_MSG_ERROR("There was a problem with SCT ByteStream conversion");
@@ -100,7 +102,6 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 
 void SCTRawDataProviderTool::beginNewEvent() const {
   // reset list of known robIds
-  m_mutex.lock();
+  std::lock_guard<std::mutex> lock(m_mutex);
   m_robIdSet.clear();
-  m_mutex.unlock();
 }
