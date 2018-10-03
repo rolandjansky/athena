@@ -593,9 +593,6 @@ double IDPerfMonWenu::electronTrackMatchEta(const xAOD::TrackParticleContainer* 
 }
 
 double IDPerfMonWenu::electronTrackMatchPhi(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dPhi) const {
- // iterators over the track container
-  xAOD::TrackParticleContainer::const_iterator Itr = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator ItrEnd = tracks->end();
   const xAOD::TrackParticle* matched_track = 0;
   double min_dPhi = 1.0e+20;
   for (const auto & track : *tracks) {
