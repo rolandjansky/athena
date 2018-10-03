@@ -118,21 +118,21 @@ StatusCode SCTRawDataProvider::execute()
   bcIdCollection = std::make_unique<InDetTimeCollection>(listOfROBFrags.size()); 
   ATH_CHECK(bcIdCollection.isValid());
 
-  std::vector<const ROBFragment*>::const_iterator rob_it{listOfROBFrags.begin()};
-  for (; rob_it!=listOfROBFrags.end(); ++rob_it) {
+  //std::vector<const ROBFragment*>::const_iterator rob_it{listOfROBFrags.begin()};
+  for (const ROBFragment* robFrag : listOfROBFrags) {
     
-    uint32_t robId{(*rob_it)->rod_source_id()};
+    uint32_t robId{(robFrag)->rod_source_id()};
     /**
      * Store LVL1ID and BCID information in InDetTimeCollection 
      * to be stored in StoreGate at the end of the loop.
      * We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
      **/
     
-    unsigned int lvl1Id{(*rob_it)->rod_lvl1_id()};
+    unsigned int lvl1Id{(robFrag)->rod_lvl1_id()};
     auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robId, lvl1Id)};
     lvl1Collection->push_back(std::move(lvl1Pair));
     
-    unsigned int bcId{(*rob_it)->rod_bc_id()};
+    unsigned int bcId{(robFrag)->rod_bc_id()};
     auto bcIdPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robId, bcId)};
     bcIdCollection->push_back(std::move(bcIdPair));
     
