@@ -87,13 +87,13 @@ StatusCode SCTRawDataProvider::execute()
   //// do we need this??  rdoIdc->cleanup();
 
   /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
-  std::vector<const ROBFragment*> listOfRobFrags;
+  std::vector<const ROBFragment*> listOfROBFrags;
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList);
-    m_robDataProvider->getROBData(rodList , listOfRobFrags);
+    m_robDataProvider->getROBData(rodList , listOfROBFrags);
   } else {//Only load ROBs from RoI
-    std::vector<uint32_t> listOfRobs;
+    std::vector<uint32_t> listOfROBs;
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
     ATH_CHECK(roiCollection.isValid());
     TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
@@ -102,23 +102,23 @@ StatusCode SCTRawDataProvider::execute()
     for (const TrigRoiDescriptor* roi: *roiCollection) {
       superRoI.push_back(roi);
     }
-    m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfRobs);
-    m_robDataProvider->getROBData(listOfRobs, listOfRobFrags);
+    m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
+    m_robDataProvider->getROBData(listOfROBs, listOfROBFrags);
   }
 
 
-  ATH_MSG_DEBUG("Number of ROB fragments " << listOfRobFrags.size());
+  ATH_MSG_DEBUG("Number of ROB fragments " << listOfROBFrags.size());
 
   SG::WriteHandle<InDetTimeCollection> lvl1Collection{m_lvl1CollectionKey};
-  lvl1Collection = std::make_unique<InDetTimeCollection>(listOfRobFrags.size()); 
+  lvl1Collection = std::make_unique<InDetTimeCollection>(listOfROBFrags.size()); 
   ATH_CHECK(lvl1Collection.isValid());
 
   SG::WriteHandle<InDetTimeCollection> bcIdCollection{m_bcIdCollectionKey};
-  bcIdCollection = std::make_unique<InDetTimeCollection>(listOfRobFrags.size()); 
+  bcIdCollection = std::make_unique<InDetTimeCollection>(listOfROBFrags.size()); 
   ATH_CHECK(bcIdCollection.isValid());
 
-  std::vector<const ROBFragment*>::const_iterator rob_it{listOfRobFrags.begin()};
-  for (; rob_it!=listOfRobFrags.end(); ++rob_it) {
+  std::vector<const ROBFragment*>::const_iterator rob_it{listOfROBFrags.begin()};
+  for (; rob_it!=listOfROBFrags.end(); ++rob_it) {
     
     uint32_t robId{(*rob_it)->rod_source_id()};
     /**
@@ -138,15 +138,15 @@ StatusCode SCTRawDataProvider::execute()
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1Id << " and BCID " << bcId << " in InDetTimeCollections");
     
   }
-  std::unique_ptr<dummySCTRDO_t> dummyrdo;
-  if (externalCacheRDO) dummyrdo = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
-  ISCT_RDO_Container *rdoInterface = externalCacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
+  std::unique_ptr<dummySCTRDO_t> dummyRDO;
+  if (externalCacheRDO) dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
+  ISCT_RDO_Container *rdoInterface = externalCacheRDO ? static_cast< ISCT_RDO_Container*> (dummyRDO.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfRobFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
+  if (m_rawDataTool->convert(listOfROBFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
-  if (dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());
+  if (dummyRDO) dummyRDO->MergeToRealContainer(rdoContainer.ptr());
   
   return StatusCode::SUCCESS;
 }
