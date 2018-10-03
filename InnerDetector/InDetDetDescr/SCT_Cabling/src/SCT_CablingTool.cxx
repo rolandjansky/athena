@@ -189,11 +189,12 @@ SCT_CablingTool::getData() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const EventContext::ContextID_t slot{ctx.slot()};
   const EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cache.size()) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cache[slot]!=evt) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     SG::ReadCondHandle<SCT_CablingData> condData{m_data};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_data.key());

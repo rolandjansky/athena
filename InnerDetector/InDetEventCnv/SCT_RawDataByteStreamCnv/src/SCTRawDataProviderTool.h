@@ -19,6 +19,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <atomic>
 #include <mutex>
 #include <set>
 
@@ -74,7 +75,7 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
 
   /** Number of decode errors encountered in decoding. 
    * Turning off error message after 100 errors are counted */
-  mutable int m_decodeErrCount;
+  mutable std::atomic_int m_decodeErrCount;
 
   mutable std::mutex m_mutex;
 };

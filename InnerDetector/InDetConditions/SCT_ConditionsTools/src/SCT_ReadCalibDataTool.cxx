@@ -355,11 +355,12 @@ SCT_ReadCalibDataTool::getCondDataGain(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheGain.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheGain.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheGain[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_CalibDefectData> condData{m_condKeyGain};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyGain.key());
@@ -377,11 +378,12 @@ SCT_ReadCalibDataTool::getCondDataNoise(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheNoise.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheNoise.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheNoise[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_CalibDefectData> condData{m_condKeyNoise};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyNoise.key());
@@ -399,11 +401,12 @@ SCT_ReadCalibDataTool::getCondDataInfo(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheInfo.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheInfo.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheInfo[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_AllGoodStripInfo> condData{m_condKeyInfo};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyInfo.key());
@@ -421,11 +424,12 @@ SCT_ReadCalibDataTool::getDetectorElement(const IdentifierHash& waferHash, const
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheElements.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheElements[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
