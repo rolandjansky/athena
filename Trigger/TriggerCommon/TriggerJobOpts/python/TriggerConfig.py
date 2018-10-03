@@ -75,7 +75,7 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     
     mon.FinalChainStep = allChains
     mon.FinalDecisions = list( set( allChains.values() ) )
-    mon.L1Decisions  = l1Decoder.Chains
+    mon.L1Decisions  = l1Decoder.getProperties()['Chains'] if l1Decoder.getProperties()['Chains'] != '<no value>' else l1Decoder.getDefaultProperty('Chains')
     __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )    
     mon.ChainsList = list( set( allChains.keys() + l1Decoder.ChainToCTPMapping.keys()) )
 
