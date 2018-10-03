@@ -19,6 +19,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
+#include <stdexcept>
 
 #ifdef ROOTCORE
 #include <AnaAlgorithm/IFilterWorker.h>
