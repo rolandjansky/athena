@@ -120,15 +120,15 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHoles );
 
         // MM
-        DEFINE_ACCESSOR( uint8_t, MMHits );
-        DEFINE_ACCESSOR( uint8_t, MMHoles );
+        DEFINE_ACCESSOR( uint8_t, mmHits );
+        DEFINE_ACCESSOR( uint8_t, mmHoles );
         // Note: there is currently no MuonStationIndex for the two MM layers
         // In the future it might be needed to add them in order to have 
         // separate counters as follows
-        // DEFINE_ACCESSOR( uint8_t, Layer1MMHits );
-        // DEFINE_ACCESSOR( uint8_t, Layer2MMHits );
-        // DEFINE_ACCESSOR( uint8_t, Layer1MMHoles );
-        // DEFINE_ACCESSOR( uint8_t, Layer2MMHoles );
+        // DEFINE_ACCESSOR( uint8_t, Layer1mmHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer2mmHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer1mmHoles );
+        // DEFINE_ACCESSOR( uint8_t, Layer2mmHoles );
 
 
 	DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );

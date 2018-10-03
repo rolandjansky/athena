@@ -144,15 +144,15 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
   uint8_t etaLayer2STGCHoles = 0;
 
   // MM
-  uint8_t MMHits = 0;
-  uint8_t MMHoles = 0;
+  uint8_t mmHits = 0;
+  uint8_t mmHoles = 0;
   // Note: there is currently no MuonStationIndex for the two MM layers
   // In the future it might be needed to add them in order to have 
   // separate counters as follows
-  // uint8_t Layer1MMHits = 0;
-  // uint8_t Layer2MMHits = 0;
-  // uint8_t Layer1MMHoles = 0;
-  // uint8_t Layer2MMHoles = 0;
+  // uint8_t Layer1mmHits = 0;
+  // uint8_t Layer2mmHits = 0;
+  // uint8_t Layer1mmHoles = 0;
+  // uint8_t Layer2mmHoles = 0;
 
 
   uint8_t innerCloseHits = 0;
@@ -332,8 +332,8 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
         }
         // Fill MM hits and holes
         if (isMM) {
-          MMHits += chit->nhits();
-          MMHoles += chit->nholes();
+          mmHits += chit->nhits();
+          mmHoles += chit->nholes();
         }
         if (isCsc) {
           cscEtaHits += chit->etaProjection().nhits;
@@ -560,8 +560,8 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
   muon.setSummaryValue(etaLayer2STGCHoles, xAOD::etaLayer2STGCHoles);
   
   // MM
-  muon.setSummaryValue(MMHits,  xAOD::MMHits);
-  muon.setSummaryValue(MMHoles,  xAOD::MMHoles);
+  muon.setSummaryValue(mmHits,  xAOD::mmHits);
+  muon.setSummaryValue(mmHoles,  xAOD::mmHoles);
   
 
   muon.setSummaryValue(innerCloseHits, xAOD::innerClosePrecisionHits);
