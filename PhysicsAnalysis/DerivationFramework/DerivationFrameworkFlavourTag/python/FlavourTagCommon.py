@@ -266,7 +266,8 @@ def applyBTagging(jetalg,algname,sequence):
                 btagtool.OperatingPoint = btagWP
                 btagtool.JetAuthor = jetalg+"Jets"
                 btagtool.ErrorOnTagWeightFailure = False #avoid an error when the jets tagweight cannot be retrived, and only print a warning
-                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"
+                btagtool.FlvTagCutDefinitionsFileName = "/afs/cern.ch/work/f/fdibello/DERITION_REL21_git/run/2017-21-13TeV-MC16-CDI.root"
+#                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"
             btagKey = btagWP+'_'+btagAlg
             btagtooldict[btagKey] = btagtool
 

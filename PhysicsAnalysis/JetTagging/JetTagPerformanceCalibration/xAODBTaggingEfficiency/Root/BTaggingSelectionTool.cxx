@@ -408,7 +408,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     ATH_MSG_VERBOSE( "MV2c100 " <<  weight_mv2c100 );
     return accept(pT, eta, weight_mv2cl100, weight_mv2c100 );
 
-  }else if(m_taggerName.find("DL1") != string::npos || m_taggerName.find("MV2c10") != string::npos){
+  }else if(m_taggerName.find("DL1") != string::npos || m_taggerName.find("MV2") != string::npos){
 
 
     //for all other taggers, use the same method

@@ -85,9 +85,9 @@ from BTagging.BTaggingConfiguration_MV1FlipTag import *
 from BTagging.BTaggingConfiguration_MV1Tag import *
 #from BTagging.BTaggingConfiguration_MV2FlipTag import *
 #from BTagging.BTaggingConfiguration_MV2Tag import *
-from BTagging.BTaggingConfiguration_MV2c10muTag import *
+from BTagging.BTaggingConfiguration_MV2rTag import *
 from BTagging.BTaggingConfiguration_MV2c10muFlipTag import *
-from BTagging.BTaggingConfiguration_MV2c10rnnTag import *
+from BTagging.BTaggingConfiguration_MV2rmuTag import *
 from BTagging.BTaggingConfiguration_MV2c10rnnFlipTag import *
 from BTagging.BTaggingConfiguration_MV1cTag import *
 from BTagging.BTaggingConfiguration_MV1cFlipTag import *
