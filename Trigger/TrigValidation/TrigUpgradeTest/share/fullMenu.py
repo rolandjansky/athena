@@ -52,6 +52,20 @@ if TriggerFlags.doID==True:
     MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
 
 
+
+# jet chains
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
+from TrigUpgradeTest.jetMenuDefs import jetSequence
+
+jetSeq1 = jetSequence()
+jetstep1=ChainStep("Step1_jet", [jetSeq1])
+
+jetChains  = [
+    Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
+    Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[jetstep1]  )
+    ]
+  
+    
 # combo chains
 comboChains= []
 comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
@@ -59,7 +73,7 @@ comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps
 
 
 # sum all
-testChains = egammaChains + MuonChains+ comboChains
+testChains = egammaChains + MuonChains + jetChains + comboChains
 
 
 #################################
@@ -78,11 +92,15 @@ if globalflags.InputFormat.is_bytestream():
 for unpack in topSequence.L1DecoderTest.roiUnpackers:
     if unpack.name() is "EMRoIsUnpackingTool":
         unpack.Decisions="L1EM"
-        emUnpacker=unpack
+ 
     if unpack.name() is "MURoIsUnpackingTool":
         unpack.Decisions="L1MU"
-        muUnpacker=unpack
-
+ 
+    if unpack.name() is "JRoIsUnpackingTool":
+#        unpack.Decisions="L1J"
+        unpack.FSDecisions="L1J"
+ 
+ 
 for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
     if unpack.name() is "EMRerunRoIsUnpackingTool":
         unpack.Decisions="RerunL1EM"
@@ -96,18 +114,6 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
 topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
 
-# EnabledElChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in egammaChains]
-# EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MuonChains]
-# for c in comboChains:
-#         seeds=c.seed.split("_")
-#         seeds.pop(0) #remove first L1 string
-#         for s in seeds:
-#             if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
-#             if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name)
-
-# muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
-# emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
-#topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
 
 ##########################################

@@ -24,7 +24,7 @@ def decodeEtEta(match, chain):
     return conf_tool
 
 
-def  trigJetHypoToolFromName(name, thresholdHLT):
+def  trigJetHypoToolFromName(name, jetconfig):
     """Configure a jet hypo tool from chain name.
 
     Delegate to functions according to the hypo scenartio."""
@@ -32,7 +32,7 @@ def  trigJetHypoToolFromName(name, thresholdHLT):
     
     scenario_dict = {re_EtEta0: decodeEtEta}
 
-    chain = thresholdHLT
+    chain = jetconfig
     for k, v in scenario_dict.items():
         match = k.match(chain)       
         if match:

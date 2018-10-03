@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 
 # import flags
@@ -12,10 +12,11 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 from TrigUpgradeTest.jetMenuDefs import jetSequence
 
 jetSeq1 = jetSequence()
-
 step1=ChainStep("Step1_jet", [jetSeq1])
+
 testChains  = [
-    Chain(name='HLT_j85', Seed="L1_J20",  ChainSteps=[step1]  )
+    Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step1]  ),
+    Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[step1]  )
     ]
     
 
