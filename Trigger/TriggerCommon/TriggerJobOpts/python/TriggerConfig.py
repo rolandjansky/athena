@@ -54,19 +54,29 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     allChains = {} # collects the last decision obj for each chain
 
     for stepName, stepHypos in sorted( hypos.items() ):
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName )
+        decisions = []
         for hypo in stepHypos:
-            dcTool.Decisions += [ hypo.HypoOutputDecisions ]
-            for t in hypo.HypoTools:
-                allChains[t.name()] = hypo.HypoOutputDecisions
 
+
+            if hypo.getType() == 'ComboHypo':
+                decisions.append( hypo.HypoOutputDecisions[0] )
+                for chain, m in hypo.MultiplicitiesMap.iteritems():
+                    allChains[chain] = hypo.HypoOutputDecisions[0]
+            
+            else: # regular hypos
+                decisions.append( hypo.HypoOutputDecisions )
+                for t in hypo.HypoTools:
+                    allChains[t.name()] = hypo.HypoOutputDecisions
+
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=decisions )
+        __log.info( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
-        __log.info( "The step monitoring decisions in " + dcTool.name() + str( dcTool.Decisions ) )
+
     
     mon.FinalChainStep = allChains
     mon.FinalDecisions = list( set( allChains.values() ) )
-    __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )
-
+    mon.L1Decisions  = l1Decoder.Chains
+    __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )    
     mon.ChainsList = list( set( allChains.keys() + l1Decoder.ChainToCTPMapping.keys()) )
 
     

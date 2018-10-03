@@ -104,7 +104,7 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut ID#243
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerMonitorFinal                               DEBUG HLT_e3_etcut1step             20        20        18        0         18        
-TriggerMonitorFinal                               DEBUG HLT_e3_etcut                  20        9         8         16        56        
-TriggerMonitorFinal                               DEBUG HLT_e5_etcut                  20        20        17        16        65        
-TriggerMonitorFinal                               DEBUG HLT_e7_etcut                  20        20        15        16        63        
+TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        16        16        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step             20        20        18        0         18        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        9         8         16        16        

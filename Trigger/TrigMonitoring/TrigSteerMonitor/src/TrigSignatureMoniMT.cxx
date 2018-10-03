@@ -72,7 +72,7 @@ StatusCode TrigSignatureMoniMT::finalize() {
   ATH_MSG_INFO("Chain name                   L1,      AfterPS, [... steps ...], Output"  );
   for ( int bin = 1; bin <= m_outputHistogram->GetXaxis()->GetNbins(); ++bin ) {
     const std::string chainName = m_outputHistogram->GetXaxis()->GetBinLabel(bin);
-    ATH_MSG_DEBUG( chainName << std::string( 30 - chainName.size(), ' ' ) << collToString( bin ) );
+    ATH_MSG_INFO( chainName << std::string( 30 - chainName.size(), ' ' ) << collToString( bin ) );
   }
 
   return StatusCode::SUCCESS;
@@ -82,7 +82,7 @@ StatusCode TrigSignatureMoniMT::fillChains(const TrigCompositeUtils::DecisionIDC
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() ) {
-      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitred" );
+      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitored" );
     } else {
       m_outputHistogram->Fill( id2bin->second, double(row) );
     }
