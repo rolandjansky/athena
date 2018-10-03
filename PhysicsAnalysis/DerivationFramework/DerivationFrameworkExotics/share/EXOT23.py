@@ -5,11 +5,9 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-### not working in current release -- update later ##
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
-### ---------------------------------------------- ##
 from DerivationFrameworkInDet.InDetCommon import *
 
 
@@ -57,7 +55,6 @@ thinningTools.append(EXOT23TPThinningTool)
 ##====================================================================
 AugmentationTools = []
 
-# based on SUSY15 truth augs
 if DerivationFrameworkIsMonteCarlo:
     # -- decorate truth particles with track parameters -- #
     # decorator tool
@@ -146,7 +143,6 @@ from JetRec.JetRecConf import JetAlgorithm
 OutputJets["EXOT23"] = []
 
 if jetFlags.useTruth:
-    # "truthpartcopydark" ADDED TO rtools IN JetRec/JetAlgorithm.py ##
     # select truth dark hadrons for jet clustering
     from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
     from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
@@ -216,9 +212,15 @@ if jetFlags.useTruth:
 #====================================================================
 # RESTORE AOD-REDUCED TRUTH JETS
 #====================================================================
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = [ "AntiKt4TruthJets" ]
 replaceAODReducedJets( reducedJetList, SeqEXOT23, "EXOT23" )
+
+
+#====================================================================
+# RE-TAG PFLOW JETS FOR B-TAGGING INFO
+#====================================================================
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit( JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqEXOT23 )
 
     
 #====================================================================
@@ -229,39 +231,36 @@ EXOT23SlimmingHelper = SlimmingHelper("EXOT23SlimmingHelper")
 
 EXOT23SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                          "AntiKt4LCTopoJets",
+                                         "AntiKt4EMPFlowJets",
                                          "BTagging_AntiKt4EMTopo",
-                                         "BTagging_AntiKt4LCTopo",
+                                         "BTagging_AntiKt4EMPFlow",
                                          "InDetTrackParticles",
                                          "PrimaryVertices"]
 EXOT23SlimmingHelper.AllVariables = [ "AntiKt4EMTopoJets",
                                       "AntiKt4LCTopoJets",
+                                      "AntiKt4EMPFlowJets",
                                       "BTagging_AntiKt4EMTopo",
-                                      "BTagging_AntiKt4LCTopo",
+                                      "BTagging_AntiKt4EMPFlow",
                                       "InDetTrackParticles",
                                       "PrimaryVertices",
                                       "VrtSecInclusive_SecondaryVertices",
                                       "VrtSecInclusive_SecondaryVertices_Leptons",
                                       "VrtSecInclusive_All2TrksVertices", # only filled for debug; off by default
-                                      "VrtSecInclusive_SelectedTrackParticles", # no longer exists in R21
                                       "TruthParticles",
                                       "TruthEvents",
                                       "TruthVertices",
                                       "AntiKt4TruthJets" ]
-# based on SUSY15 extra variables
-EXOT23SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-                                        "BTagging_AntiKt4LCTopo.MV1_discriminant.MV1c_discriminant",
-                                        "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing",
-                                        "AntiKt4LCTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing",
-                                        "InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY",
-                                        "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType" ]
-
+                                        
 
 # Trigger content
 EXOT23SlimmingHelper.IncludeJetTriggerContent = True
 
 # Add origin corrected clusters -- for accessing jet constituents
 addOriginCorrectedClusters(EXOT23SlimmingHelper, writeLC=True, writeEM=True)
+
+# Add B-tagging collections to dictionary
+EXOT23SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
+                                           'BTagging_AntiKt4EMPFlowAux':'xAOD:BTaggingAuxContainer'}
 
 # Add the jet containers to the stream
 addJetOutputs(EXOT23SlimmingHelper, ["EXOT23"])
