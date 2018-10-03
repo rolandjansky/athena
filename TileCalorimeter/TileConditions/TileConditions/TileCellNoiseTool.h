@@ -33,7 +33,7 @@ class TileCellNoiseTool: public AthAlgTool
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    float getCellNoise(const Identifier& cell_id, CaloGain::CaloGain caloGain) const;
+    virtual float getCellNoise(const Identifier& cell_id, CaloGain::CaloGain caloGain) const override;
 
   private:
 

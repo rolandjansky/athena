@@ -49,7 +49,6 @@ static const std::string TILE_TEST_DCS("TileTestDCS");
 static const std::string TILE_TEST_TOOL_DCS("TileTestToolDCS");
 
 static const unsigned int ROS(2);
-static const unsigned int DRAWER(3);
 static const unsigned int MAX_CHANNEL(48);
 static const unsigned int DEF_DRAWER_IDX(0);
 

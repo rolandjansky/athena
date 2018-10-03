@@ -45,3 +45,8 @@ void TileCalibData<T>::setCalibDrawer(unsigned int drawerIdx, const T* calibDraw
 
   m_calibDrawers[drawerIdx] = calibDrawer;
 }
+
+
+template class TileCalibData<TileCalibDrawerFlt>;
+template class TileCalibData<TileCalibDrawerOfc>;
+template class TileCalibData<TileCalibDrawerBch>;
