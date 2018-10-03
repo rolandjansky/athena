@@ -24,8 +24,6 @@
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -38,7 +36,9 @@
 
 /** forward declarations */
 class ISCTRawDataProviderTool;
+class ISCT_CablingTool;
 class SCT_ID;
+class SCT_ByteStreamFractionContainer;
 
 class SCTRawDataProvider : public AthAlgorithm
 {

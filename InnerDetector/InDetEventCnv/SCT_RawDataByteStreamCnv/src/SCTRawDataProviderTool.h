@@ -13,7 +13,6 @@
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "ByteStreamData/RawEvent.h"
 
@@ -21,6 +20,8 @@
 
 #include <mutex>
 #include <set>
+
+class ISCT_RodDecoder;
 
 /** @class SCTRawDataProviderTool
  *

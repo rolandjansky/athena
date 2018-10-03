@@ -5,8 +5,9 @@
 #include "SCTRawDataProvider.h"
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 #include "EventContainers/IdentifiableContTemp.h"
 
 #include <memory>

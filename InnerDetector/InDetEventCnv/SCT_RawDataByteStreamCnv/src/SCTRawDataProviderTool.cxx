@@ -7,6 +7,7 @@
 //   Implementation file for class SCTRawDataProviderTool
 ///////////////////////////////////////////////////////////////////
 
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "SCTRawDataProviderTool.h"
 #include "StoreGate/ReadHandle.h"
 
