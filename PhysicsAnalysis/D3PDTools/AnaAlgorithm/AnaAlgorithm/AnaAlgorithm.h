@@ -25,6 +25,8 @@
 #endif
 
 class TH1;
+class TH2;
+class TH3;
 class TTree;
 class ISvcLocator;
 #ifdef ROOTCORE
@@ -134,6 +136,24 @@ namespace EL
     ///   histogram not found
   public:
     TH1 *hist (const std::string& name) const;
+
+
+    /// \brief get the 2-d histogram with the given name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   histogram not found
+  public:
+    TH2 *hist2d (const std::string& name) const;
+
+
+    /// \brief get the 3-d histogram with the given name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   histogram not found
+  public:
+    TH3 *hist3d (const std::string& name) const;
 
 
     /// \brief the histogram worker interface

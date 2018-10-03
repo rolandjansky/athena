@@ -17,6 +17,8 @@
 #include <AsgTools/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <TH1.h>
+#include <TH2.h>
+#include <TH3.h>
 
 #ifdef ROOTCORE
 #include <AnaAlgorithm/IFilterWorker.h>
@@ -91,6 +93,28 @@ namespace EL
   hist (const std::string& name) const
   {
     return histogramWorker()->getOutputHist (name);
+  }
+
+
+
+  TH2 *AnaAlgorithm ::
+  hist2d (const std::string& name) const
+  {
+    TH2 *hist = dynamic_cast<TH2*>(histogramWorker()->getOutputHist (name));
+    if (hist == nullptr)
+      throw std::runtime_error ("histogram not a 2d-histogram: " + name);
+    return hist;
+  }
+
+
+
+  TH3 *AnaAlgorithm ::
+  hist3d (const std::string& name) const
+  {
+    TH3 *hist = dynamic_cast<TH3*>(histogramWorker()->getOutputHist (name));
+    if (hist == nullptr)
+      throw std::runtime_error ("histogram not a 3d-histogram: " + name);
+    return hist;
   }
 
 
