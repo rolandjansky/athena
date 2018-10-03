@@ -56,7 +56,7 @@ StatusCode SCTRawDataProvider::initialize() {
   return StatusCode::SUCCESS;
 }
 
-typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> DummySCTRDO;
+typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> dummySCTRDO_t;
 
 /// --------------------------------------------------------------------
 /// Execute
@@ -138,8 +138,8 @@ StatusCode SCTRawDataProvider::execute()
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1id << " and BCID " << bcid << " in InDetTimeCollections");
     
   }
-  std::unique_ptr<DummySCTRDO> dummyrdo;
-  if (externalcacheRDO) dummyrdo = std::make_unique<DummySCTRDO>(rdoContainer.ptr());
+  std::unique_ptr<dummySCTRDO_t> dummyrdo;
+  if (externalcacheRDO) dummyrdo = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
   ISCT_RDO_Container *rdoInterface = externalcacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
