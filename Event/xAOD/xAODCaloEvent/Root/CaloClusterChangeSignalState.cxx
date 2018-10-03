@@ -5,7 +5,7 @@
 
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
-CaloClusterChangeSignalState::CaloClusterChangeSignalState (const xAOD::CaloCluster* pClus, xAOD::CaloCluster::State s): 
+CaloClusterChangeSignalState::CaloClusterChangeSignalState (xAOD::CaloCluster* pClus, xAOD::CaloCluster::State s): 
   m_clus (pClus),
   m_oldstate (pClus->signalState())
 {
@@ -14,7 +14,7 @@ CaloClusterChangeSignalState::CaloClusterChangeSignalState (const xAOD::CaloClus
 }
 
 #if __cplusplus < 201100
-void CaloClusterChangeSignalState::init (const xAOD::CaloCluster* pClus, xAOD::CaloCluster::State s) {
+void CaloClusterChangeSignalState::init (xAOD::CaloCluster* pClus, xAOD::CaloCluster::State s) {
   m_clus=pClus;
   m_oldstate=pClus->signalState();
   pClus->setSignalState(s);
