@@ -21,6 +21,7 @@
 #else
 #include <AthenaBaseComps/AthHistogramAlgorithm.h>
 #include <AsgTools/MessageCheck.h>
+#include <GaudiKernel/IIncidentListener.h>
 #endif
 
 class TH1;
@@ -72,7 +73,7 @@ namespace EL
 #ifdef ROOTCORE
     : public asg::AsgMessaging, public INamedInterface
 #else
-    : public AthHistogramAlgorithm
+    : public AthHistogramAlgorithm, virtual public IIncidentListener
 #endif
   {
     //
