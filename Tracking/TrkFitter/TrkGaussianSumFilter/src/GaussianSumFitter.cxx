@@ -12,7 +12,6 @@ decription           : Implementation code for Gaussian Sum Fitter class
 ********************************************************************************** */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
-
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
@@ -39,15 +38,9 @@ decription           : Implementation code for Gaussian Sum Fitter class
 #include "GaudiKernel/Chrono.h"
 
 #include <vector>
-
-// Validation mode - TTree includes
-#include "GaudiKernel/ITHistSvc.h"
-
 #include <algorithm>
 
 
-int Trk::GaussianSumFitter::s_Gsf_ValSurface = 100;
-int Trk::GaussianSumFitter::s_Gsf_ValStates = 24;
 
 Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::string& name, const IInterface* parent)
   :
@@ -65,53 +58,13 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   m_trkParametersComparisonFunction(0),
   m_stateCombiner("Trk::MultiComponentStateCombiner"),
   m_chronoSvc("ChronoStatSvc", name),
-  m_inputPreparator(0),
-  m_FitPRD(0),
-  m_FitMeasuremnetBase(0),
-  m_FowardFailure(0),
-  m_SmootherFailure(0),
-  m_PerigeeFailure(0),
-  m_fitQualityFailure(0),
-  m_validationMode(false),
-  m_validationTreeName("GSFValidation"),
-  m_validationTreeDescription("Surface MCSOS"),
-  m_validationTreeFolder("/valGSF/GSFValidation"),
-  m_validationTree(0),
-  m_surfaceCounterF(0),
-  m_surfacesF(0),
-  m_surfaceXF{},
-  m_surfaceYF{},
-  m_surfaceRF{},
-  m_surfaceZF{},
-  m_surfaceTypeF{},
-  m_surfaceNstatesF{},
-
-  m_surfaceThetaF{},
-  m_surfacePhiF{},
-  m_surfaceQoverPF{},
-  m_surfaceWeightF{},
-  m_surfaceErrThetaF{},
-  m_surfaceErrPhiF{},
-  m_surfaceErrQoverPF{},
-  m_surfaceCounterS(0),
-  m_surfacesS(0),
-  m_surfaceXS{},
-  m_surfaceYS{},
-  m_surfaceRS{},
-  m_surfaceZS{},
-  m_surfaceTypeS{},
-  m_surfaceNstatesS{},
-
-  m_surfaceThetaS{},
-  m_surfacePhiS{},
-  m_surfaceQoverPS{},
-  m_surfaceWeightS{},
-  m_surfaceErrThetaS{},
-  m_surfaceErrPhiS{},
-  m_surfaceErrQoverPS{},
-
-  m_event_ID(0)
-
+  m_inputPreparator(nullptr),
+  m_FitPRD{0},
+  m_FitMeasuremnetBase{0},
+  m_FowardFailure{0},
+  m_SmootherFailure{0},
+  m_PerigeeFailure{0},
+  m_fitQualityFailure{0}
 {
 
   declareInterface<ITrackFitter>(this);
@@ -125,16 +78,13 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   declareProperty("DoHitSorting",             m_doHitSorting              );
   declareProperty("SortingReferencePoint",    m_sortingReferencePoint     );
   declareProperty("StateCombiner",            m_stateCombiner             );
-  declareProperty("ValidationMode",           m_validationMode            );
-  declareProperty("GsfSmoother",m_gsfSmoother);
+  declareProperty("GsfSmoother",m_gsfSmoother);  
   declareProperty("ForwardGsfFitter",m_forwardGsfFitter);
-  declareProperty("EventInfoKey", m_readKey="EventInfo");
 
   // Estrablish reference point as origin
   m_sortingReferencePoint.push_back(0.);
   m_sortingReferencePoint.push_back(0.);
   m_sortingReferencePoint.push_back(0.);
-
 }
 
 StatusCode Trk::GaussianSumFitter::initialize()
@@ -205,69 +155,12 @@ StatusCode Trk::GaussianSumFitter::initialize()
   //GSF Statistics Setup;
   m_FitPRD              = 0;      // Number of Fit PrepRawData Calls
   m_FitMeasuremnetBase  = 0;      // Number of Fit MeasurementBase Calls
-  m_FowardFailure       = 0;      // Number of Foward Fit Failures:
-  m_SmootherFailure     = 0;      // Number of Smoother Failures:
-  m_PerigeeFailure      = 0;      // Number of MakePerigee Failures:
-  m_fitQualityFailure   = 0;
-
-
-  // the validation setup ----------------------------------------------------------------------------------
-  if (m_validationMode){
-
-    if (m_validationTree ==0){
-      // create the new Tree
-      m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
-
-      // counter for boundary surfaces
-      m_validationTree->Branch("nSurfacesF"     ,  &m_surfacesF,  "surfacef/I");
-      m_validationTree->Branch("SurfaceXF"      ,  m_surfaceXF, "surfacexf[surfacef]/F");
-      m_validationTree->Branch("SurfaceYF"      ,  m_surfaceYF, "surfaceyf[surfacef]/F");
-      m_validationTree->Branch("SurfaceRF"      ,  m_surfaceRF, "surfacerf[surfacef]/F");
-      m_validationTree->Branch("SurfaceZF"      ,  m_surfaceZF, "surfacezf[surfacef]/F");
-      m_validationTree->Branch("SurfaceTypeF"   ,  m_surfaceTypeF, "surfacetypef[surfacef]/I");
-
-      m_validationTree->Branch("NSONSF"             ,  m_surfaceNstatesF, "surfaceNstatesf[surfacef]/I");
-      m_validationTree->Branch("SurfaceThetaF"      ,  m_surfaceThetaF , "surfaceThetaf[surfacef][24]/F");
-      m_validationTree->Branch("SurfacePhiF"        ,  m_surfacePhiF , "surfacePhif[surfacef][24]/F");
-      m_validationTree->Branch("SurfaceQoverPF"     ,  m_surfaceQoverPF , "surfaceQoverPf[surfacef][24]/F");
-      m_validationTree->Branch("SurfaceWeightF"     ,  m_surfaceWeightF , "surfaceWeightf[surfacef][24]/F");
-      m_validationTree->Branch("SurfaceThetaErrF"   ,  m_surfaceErrThetaF , "surfaceErrorThetaf[surfacef][24]/F");
-      m_validationTree->Branch("SurfacePhiErrF"     ,  m_surfaceErrPhiF , "surfaceErrorPhif[surfacef][24]/F");
-      m_validationTree->Branch("SurfaceQoverPErrF"  ,  m_surfaceErrQoverPF , "surfaceErrorQoverPf[surfacef][24]/F");
-
-      m_validationTree->Branch("nSurfacesS"     ,  &m_surfacesS,  "surfaces/I");
-      m_validationTree->Branch("SurfaceXS"      ,  m_surfaceXS, "surfacexs[surfaces]/F");
-      m_validationTree->Branch("SurfaceYS"      ,  m_surfaceYS, "surfaceys[surfaces]/F");
-      m_validationTree->Branch("SurfaceRS"      ,  m_surfaceRS, "surfacers[surfaces]/F");
-      m_validationTree->Branch("SurfaceZS"      ,  m_surfaceZS, "surfacezs[surfaces]/F");
-      m_validationTree->Branch("SurfaceTypeS"   ,  m_surfaceTypeS, "surfacetypes[surfaces]/I");
-
-      m_validationTree->Branch("NSONSS"             ,  m_surfaceNstatesS, "surfaceNstatess[surfaces]/I");
-      m_validationTree->Branch("SurfaceThetaS"      ,  m_surfaceThetaS , "surfaceThetas[surfaces][24]/F");
-      m_validationTree->Branch("SurfacePhiS"        ,  m_surfacePhiS , "surfacePhis[surfaces][24]/F");
-      m_validationTree->Branch("SurfaceQoverPS"     ,  m_surfaceQoverPS , "surfaceQoverPs[surfaces][24]/F");
-      m_validationTree->Branch("SurfaceWeightS"     ,  m_surfaceWeightS , "surfaceWeights[surfaces][24]/F");
-      m_validationTree->Branch("SurfaceThetaErrS"   ,  m_surfaceErrThetaS , "surfaceErrorThetas[surfaces][24]/F");
-      m_validationTree->Branch("SurfacePhiErrS"     ,  m_surfaceErrPhiS , "surfaceErrorPhis[surfaces][24]/F");
-      m_validationTree->Branch("SurfaceQoverPErrS"  ,  m_surfaceErrQoverPS , "surfaceErrorQoverPs[surfaces][24]/F");
-      m_validationTree->Branch("EventID"   ,  &m_event_ID,   "EventID/I");
-    }
-
-    // now register the Tree
-    ITHistSvc* tHistSvc = nullptr;
-    if (service("THistSvc",tHistSvc).isFailure()){
-      msg(MSG::ERROR)<<"initialize() Could not find Hist Service -> Switching ValidationMode Off !" << endmsg;
-      delete m_validationTree; m_validationTree = 0;
-    }
-    if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
-      msg(MSG::ERROR)<<"initialize() Could not register the validation Tree -> Switching ValidationMode Off !" << endmsg;
-      delete m_validationTree; m_validationTree = 0;
-    }
-  } // ------------- end of validation mode -----------------------------------------------------------------
-
+  m_FowardFailure       = 0;      // Number of Foward Fit Failures:       
+  m_SmootherFailure     = 0;      // Number of Smoother Failures:         
+  m_PerigeeFailure      = 0;      // Number of MakePerigee Failures:  
+  m_fitQualityFailure   = 0;      
+ 
   m_inputPreparator = new TrackFitInputPreparator();
-
-  ATH_CHECK( m_readKey.initialize() );
 
   msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
 
@@ -461,7 +354,6 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
     msg() << "Material effects switch: " << particleHypothesis << endmsg;
     msg() << "Outlier removal switch:  " << outlierRemoval << endmsg;
   }
-
   ++m_FitPRD;
 
   // Start the timer
@@ -508,10 +400,6 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
   // Perform GSF smoother operation
   SmoothedTrajectory* smoothedTrajectory = m_gsfSmoother->fit( *forwardTrajectory, particleHypothesis );
 
-
-  if(m_validationMode) SaveMCSOSF( *forwardTrajectory );
-
-
   // Protect against failed smoother fit
   if ( !smoothedTrajectory ) {
     if (msgLvl(MSG::DEBUG)) msg() << "Smoother GSF fit failed... Exiting!" << endmsg;
@@ -555,11 +443,6 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
 
   // Delete forward trajectory. New memory was assigned in ForwardGsfFitter.
   delete forwardTrajectory;
-
-  if (m_validationMode) {
-    SaveMCSOSS( *smoothedTrajectory );
-    validationAction();
-  }
 
   //Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
@@ -683,7 +566,6 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   if (msgLvl(MSG::VERBOSE))
     msg() << "*** GSF smoother fit passed! ***" << endmsg;
 
-  if(m_validationMode) SaveMCSOSF( *forwardTrajectory );
 
   // Outlier m_logic and track finalisation
   const FitQuality* fitQuality = buildFitQuality( *smoothedTrajectory );
@@ -717,13 +599,8 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
 
   //Delete forward trajectory. New memory was assigned in ForwardGsfFitter.
   delete forwardTrajectory;
-
-  if(m_validationMode) {
-    SaveMCSOSS( *smoothedTrajectory );
-    validationAction();
-  }
-
-
+  
+ 
   //Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
 
@@ -966,248 +843,9 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
 }
 
 
-void Trk::GaussianSumFitter::SaveMCSOSF(const Trk::ForwardTrajectory& forwardTrajectory) const
-{
-
-  if (!m_validationMode) return;
-  m_surfaceCounterF = 0;
-
-  //* Retrieve the event info for later syncrinization
-  SG::ReadHandle<xAOD::EventInfo>  eventInfo (m_readKey);
-  if (!eventInfo.isValid()) {
-    msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
-  }
-
-  m_event_ID            =  eventInfo->eventNumber();
-
-  for (int i=0; i< 100; i++){
-    m_surfaceXF[i] = 0;
-    m_surfaceYF[i] = 0;
-    m_surfaceRF[i] = 0;
-    m_surfaceZF[i] = 0;
-    m_surfaceTypeF[i] = -999;
-
-    for (int j=0; j< 24; j++){
-      m_surfaceThetaF[i][j]=0;
-      m_surfacePhiF[i][j]=0;
-      m_surfaceQoverPF[i][j]=0;
-      m_surfaceWeightF[i][j]=0;
-      m_surfaceErrThetaF[i][j]=0;
-      m_surfaceErrPhiF[i][j]=0;
-      m_surfaceErrQoverPF[i][j]=0;
-    }
-  }
-
-  Trk::ForwardTrajectory::const_iterator trackStateOnSurface = forwardTrajectory.begin();
-
-  for ( ; trackStateOnSurface != forwardTrajectory.end(); ++trackStateOnSurface ) {
-
-    const Trk::MultiComponentState* forwardsMultiState = 0;
-    const Trk::MultiComponentStateOnSurface* forwardsMultiStateOnSurface = dynamic_cast<const Trk::MultiComponentStateOnSurface*>(*trackStateOnSurface);
-
-    if (m_surfaceCounterF < s_Gsf_ValSurface){
-
-      if (!forwardsMultiStateOnSurface) {
-        // Create new multiComponentState from single state
-        Trk::ComponentParameters componentParameters( (*trackStateOnSurface)->trackParameters(), 1. );
-        forwardsMultiState = new Trk::MultiComponentState( componentParameters );
-      }
-      else
-        forwardsMultiState = forwardsMultiStateOnSurface->components();
-
-
-      if (forwardsMultiStateOnSurface) {
-	const Amg::Vector3D& posOnSurf = forwardsMultiStateOnSurface->trackParameters()->position();
-
-	m_surfaceXF[m_surfaceCounterF]    = posOnSurf.x();
-	m_surfaceYF[m_surfaceCounterF]    = posOnSurf.y();
-	m_surfaceRF[m_surfaceCounterF]    = posOnSurf.perp();
-	m_surfaceZF[m_surfaceCounterF]    = posOnSurf.z();
-	m_surfaceTypeF[m_surfaceCounterF] = (int) (*trackStateOnSurface)->type(TrackStateOnSurface::Measurement);
-      } else {
-	msg(MSG::WARNING) << "forwardsMultiStateOnSurface is null! Setting surface position values to -999 ..." << endmsg;
-	m_surfaceXF[m_surfaceCounterF]    = -999.;
-	m_surfaceYF[m_surfaceCounterF]    = -999.;
-	m_surfaceRF[m_surfaceCounterF]    = -999.;
-	m_surfaceZF[m_surfaceCounterF]    = -999.;
-	m_surfaceTypeF[m_surfaceCounterF] = -999;
-      }
-
-      // Clean up  stored items  for surface
-      for (int wiper=0; wiper < s_Gsf_ValStates; wiper++){
-        m_surfaceThetaF[m_surfaceCounterF][wiper]=0;
-        m_surfacePhiF[m_surfaceCounterF][wiper]=0;
-        m_surfaceQoverPF[m_surfaceCounterF][wiper]=0;
-        m_surfaceWeightF[m_surfaceCounterF][wiper]=0;
-        m_surfaceErrThetaF[m_surfaceCounterF][wiper]=0;
-        m_surfaceErrPhiF[m_surfaceCounterF][wiper]=0;
-        m_surfaceErrQoverPF[m_surfaceCounterF][wiper]=0;
-      }
-
-      int FMCSOSsize=0;
-
-      m_surfaceNstatesF[m_surfaceCounterF]=forwardsMultiState->size();
-
-      Trk::MultiComponentState::const_iterator forwardsComponent = forwardsMultiState->begin();
-      for ( ; forwardsComponent != forwardsMultiState->end(); ++forwardsComponent ) {
-
-        // Need to check that all components have associated weight matricies
-        const AmgSymMatrix(5)* forwardsMeasuredCov = forwardsComponent->first->covariance();
-
-        if ( !forwardsMeasuredCov ){
-
-          m_surfaceThetaF[m_surfaceCounterF][FMCSOSsize]    = forwardsComponent->first->parameters()[Trk::theta];
-          m_surfacePhiF[m_surfaceCounterF][FMCSOSsize]      = forwardsComponent->first->parameters()[Trk::phi];
-          m_surfaceQoverPF[m_surfaceCounterF][FMCSOSsize]   = forwardsComponent->first->parameters()[Trk::qOverP];
-          m_surfaceWeightF[m_surfaceCounterF][FMCSOSsize]   = forwardsComponent->second;
-          m_surfaceErrThetaF[m_surfaceCounterF][FMCSOSsize] = forwardsComponent->first->parameters()[Trk::theta];
-          m_surfaceErrPhiF[m_surfaceCounterF][FMCSOSsize]   = forwardsComponent->first->parameters()[Trk::phi];
-          m_surfaceErrQoverPF[m_surfaceCounterF][FMCSOSsize]= forwardsComponent->first->parameters()[Trk::qOverP];
-
-          FMCSOSsize++;
-          continue;
-        }
-
-        m_surfaceThetaF[m_surfaceCounterF][FMCSOSsize]    = forwardsComponent->first->parameters()[Trk::theta];
-        m_surfacePhiF[m_surfaceCounterF][FMCSOSsize]      = forwardsComponent->first->parameters()[Trk::phi];
-        m_surfaceQoverPF[m_surfaceCounterF][FMCSOSsize]   = forwardsComponent->first->parameters()[Trk::qOverP];
-        m_surfaceWeightF[m_surfaceCounterF][FMCSOSsize]   = forwardsComponent->second;
-        m_surfaceErrThetaF[m_surfaceCounterF][FMCSOSsize] = sqrt((*forwardsMeasuredCov)(Trk::theta,Trk::theta));
-        m_surfaceErrPhiF[m_surfaceCounterF][FMCSOSsize]   = sqrt((*forwardsMeasuredCov)(Trk::phi,Trk::phi));
-        m_surfaceErrQoverPF[m_surfaceCounterF][FMCSOSsize]= sqrt((*forwardsMeasuredCov)(Trk::qOverP,Trk::qOverP));
-
-        FMCSOSsize++;
-      }
-    }
-    m_surfaceCounterF++;
-  }
-}
-
-void Trk::GaussianSumFitter::SaveMCSOSS( const Trk::SmoothedTrajectory& smoothedTrajectory) const
-{
-
-  if (!m_validationMode) return;
-  m_surfaceCounterS = 0;
-
-  for (int i=0; i< 100; i++){
-    m_surfaceXS[i] = 0;
-    m_surfaceYS[i] = 0;
-    m_surfaceRS[i] = 0;
-    m_surfaceZS[i] = 0;
-    m_surfaceTypeS[i] = -999;
-
-    for (int j=0; j< 24; j++){
-      m_surfaceThetaS[i][j]=0;
-      m_surfacePhiS[i][j]=0;
-      m_surfaceQoverPS[i][j]=0;
-      m_surfaceWeightS[i][j]=0;
-      m_surfaceErrThetaS[i][j]=0;
-      m_surfaceErrPhiS[i][j]=0;
-      m_surfaceErrQoverPS[i][j]=0;
-    }
-  }
-
-  Trk::SmoothedTrajectory::const_reverse_iterator trackStateOnSurfaceS = smoothedTrajectory.rbegin();
-  for ( ; trackStateOnSurfaceS != smoothedTrajectory.rend(); ++trackStateOnSurfaceS ) {
-
-    //Check if it is a brempoint, if it is, skip the trackstateonsurface
-    if ((*trackStateOnSurfaceS)->type(TrackStateOnSurface::BremPoint))
-      continue;
-
-    const Trk::MultiComponentState* smoothedMultiState = 0;
-    const Trk::MultiComponentStateOnSurface* smoothedMultiStateOnSurface = dynamic_cast<const Trk::MultiComponentStateOnSurface*>(*trackStateOnSurfaceS);
-
-    if (m_surfaceCounterS < s_Gsf_ValSurface){
-
-      if (!smoothedMultiStateOnSurface) {
-        // Create new multiComponentState from single state
-        Trk::ComponentParameters componentParameters( (*trackStateOnSurfaceS)->trackParameters(), 1. );
-        smoothedMultiState = new Trk::MultiComponentState( componentParameters );
-      }
-      else
-        smoothedMultiState = smoothedMultiStateOnSurface->components();
-
-      if (smoothedMultiStateOnSurface) {
-	const Amg::Vector3D& posOnSurf = smoothedMultiStateOnSurface->trackParameters()->position();
-
-	m_surfaceXS[m_surfaceCounterS]    = posOnSurf.x();
-	m_surfaceYS[m_surfaceCounterS]    = posOnSurf.y();
-	m_surfaceRS[m_surfaceCounterS]    = posOnSurf.perp();
-	m_surfaceZS[m_surfaceCounterS]    = posOnSurf.z();
-	m_surfaceTypeS[m_surfaceCounterS] = (int) (*trackStateOnSurfaceS)->type(TrackStateOnSurface::Measurement);
-      } else {
-	msg(MSG::WARNING) << "smoothedMultiStateOnSurface is null! Setting surface position values to -999 ..." << endmsg;
-	m_surfaceXS[m_surfaceCounterS]    = -999.;
-	m_surfaceYS[m_surfaceCounterS]    = -999.;
-	m_surfaceRS[m_surfaceCounterS]    = -999.;
-	m_surfaceZS[m_surfaceCounterS]    = -999.;
-	m_surfaceTypeS[m_surfaceCounterS] = -999;
-      }
-
-      // Clean up  stored items  for surface
-      for (int wiper=0; wiper < s_Gsf_ValStates; wiper++){
-        m_surfaceThetaS[m_surfaceCounterS][wiper]=0;
-        m_surfacePhiS[m_surfaceCounterS][wiper]=0;
-        m_surfaceQoverPS[m_surfaceCounterS][wiper]=0;
-        m_surfaceWeightS[m_surfaceCounterS][wiper]=0;
-        m_surfaceErrThetaS[m_surfaceCounterS][wiper]=0;
-        m_surfaceErrPhiS[m_surfaceCounterS][wiper]=0;
-        m_surfaceErrQoverPS[m_surfaceCounterS][wiper]=0;
-      }
-
-      int SMCSOSsize=0;
-
-      m_surfaceNstatesS[m_surfaceCounterS]=smoothedMultiState->size();
-
-      Trk::MultiComponentState::const_iterator smoothedComponent = smoothedMultiState->begin();
-      for ( ; smoothedComponent != smoothedMultiState->end(); ++smoothedComponent ) {
-
-        // Need to check that all components have associated weight matricies
-        const AmgSymMatrix(5)* smoothedMeasuredCov = smoothedComponent->first->covariance();
-
-        if ( !smoothedMeasuredCov ){
-
-          m_surfaceThetaS[m_surfaceCounterS][SMCSOSsize]    = smoothedComponent->first->parameters()[Trk::theta];
-          m_surfacePhiS[m_surfaceCounterS][SMCSOSsize]      = smoothedComponent->first->parameters()[Trk::phi];
-          m_surfaceQoverPS[m_surfaceCounterS][SMCSOSsize]   = smoothedComponent->first->parameters()[Trk::qOverP];
-          m_surfaceWeightS[m_surfaceCounterS][SMCSOSsize]   = smoothedComponent->second;
-          m_surfaceErrThetaS[m_surfaceCounterS][SMCSOSsize] = smoothedComponent->first->parameters()[Trk::theta];
-          m_surfaceErrPhiS[m_surfaceCounterS][SMCSOSsize]   = smoothedComponent->first->parameters()[Trk::phi];
-          m_surfaceErrQoverPS[m_surfaceCounterS][SMCSOSsize]= smoothedComponent->first->parameters()[Trk::qOverP];
-
-          SMCSOSsize++;
-
-          continue;
-        }
-
-        m_surfaceThetaS[m_surfaceCounterS][SMCSOSsize]    = smoothedComponent->first->parameters()[Trk::theta];
-        m_surfacePhiS[m_surfaceCounterS][SMCSOSsize]      = smoothedComponent->first->parameters()[Trk::phi];
-        m_surfaceQoverPS[m_surfaceCounterS][SMCSOSsize]   = smoothedComponent->first->parameters()[Trk::qOverP];
-        m_surfaceWeightS[m_surfaceCounterS][SMCSOSsize]   = smoothedComponent->second;
-        m_surfaceErrThetaS[m_surfaceCounterS][SMCSOSsize] = sqrt((*smoothedMeasuredCov)(Trk::theta,Trk::theta));
-        m_surfaceErrPhiS[m_surfaceCounterS][SMCSOSsize]   = sqrt((*smoothedMeasuredCov)(Trk::phi,Trk::phi));
-        m_surfaceErrQoverPS[m_surfaceCounterS][SMCSOSsize]= sqrt((*smoothedMeasuredCov)(Trk::qOverP,Trk::qOverP));
-
-
-        SMCSOSsize++;
-      }
-    }
-    m_surfaceCounterS++;
-  }
-}
-
 void Trk::GaussianSumFitter::validationAction() const
 {
-
-  // first record the values
-  if (m_validationTree){
-    m_surfacesF = long(m_surfaceCounterF);
-    m_surfacesS = long(m_surfaceCounterS);
-    m_validationTree->Fill();
-    // then reset
-    m_surfaceCounterF = 0;
-    m_surfaceCounterS = 0;
-   }
+   
 }
 
 const Trk::FitQuality* Trk::GaussianSumFitter::buildFitQuality(const Trk::SmoothedTrajectory& smoothedTrajectory) const
