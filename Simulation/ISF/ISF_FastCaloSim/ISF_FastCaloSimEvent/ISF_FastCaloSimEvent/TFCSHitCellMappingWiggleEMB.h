@@ -21,7 +21,7 @@ private:
   double m_wiggleLayer2[50];
   double m_wiggleLayer3[50];
 
-  double doWiggle();
+  double doWiggle(double searchRand);
 
   ClassDefOverride(TFCSHitCellMappingWiggleEMB,1)  //TFCSHitCellMappingWiggleEMB
 };
