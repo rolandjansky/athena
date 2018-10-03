@@ -104,7 +104,7 @@ StatusCode TileRawChannelNoiseFilter::process (
 
   // Now retrieve the TileDQStatus
   // FIXME: const violation
-  const TileDQstatus* DQstatus = m_beamInfo.unConst()->getDQstatus();
+  const TileDQstatus* DQstatus = m_beamInfo->getDQstatus();
 
   TileRawChannelContainer::const_iterator collItr = rchCont->begin();
   TileRawChannelContainer::const_iterator lastColl = rchCont->end();

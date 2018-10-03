@@ -145,7 +145,7 @@ StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChann
           float onlinePedestalDifference = m_tileToolNoiseSample->getOnlinePedestalDifference(drawerIdx, channel, gain, rawChannelUnit);
           float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
           // FIXME: const violation
-          const TileOfcWeightsStruct* weights = m_tileCondToolOfc.unConst()->getOfcWeights(drawerIdx, channel, gain, phase, false);
+          const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false);
           float weightsSum(0.0);
           for (int i = 0; i < weights->n_samples; ++i) weightsSum += weights->w_a[i];
           float energyCorrection = onlinePedestalDifference * weightsSum;
