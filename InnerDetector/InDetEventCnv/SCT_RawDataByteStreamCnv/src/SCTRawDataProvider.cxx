@@ -87,11 +87,11 @@ StatusCode SCTRawDataProvider::execute()
   //// do we need this??  rdoIdc->cleanup();
 
   /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
-  std::vector<const ROBFragment*> listOfRobf;
+  std::vector<const ROBFragment*> listOfRobFrags;
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList);
-    m_robDataProvider->getROBData(rodList , listOfRobf);
+    m_robDataProvider->getROBData(rodList , listOfRobFrags);
   } else {//Only load ROBs from RoI
     std::vector<uint32_t> listOfRobs;
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
@@ -103,22 +103,22 @@ StatusCode SCTRawDataProvider::execute()
       superRoI.push_back(roi);
     }
     m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfRobs);
-    m_robDataProvider->getROBData(listOfRobs, listOfRobf);
+    m_robDataProvider->getROBData(listOfRobs, listOfRobFrags);
   }
 
 
-  ATH_MSG_DEBUG("Number of ROB fragments " << listOfRobf.size());
+  ATH_MSG_DEBUG("Number of ROB fragments " << listOfRobFrags.size());
 
   SG::WriteHandle<InDetTimeCollection> lvl1Collection{m_lvl1CollectionKey};
-  lvl1Collection = std::make_unique<InDetTimeCollection>(listOfRobf.size()); 
+  lvl1Collection = std::make_unique<InDetTimeCollection>(listOfRobFrags.size()); 
   ATH_CHECK(lvl1Collection.isValid());
 
   SG::WriteHandle<InDetTimeCollection> bcidCollection{m_bcidCollectionKey};
-  bcidCollection = std::make_unique<InDetTimeCollection>(listOfRobf.size()); 
+  bcidCollection = std::make_unique<InDetTimeCollection>(listOfRobFrags.size()); 
   ATH_CHECK(bcidCollection.isValid());
 
-  std::vector<const ROBFragment*>::const_iterator rob_it{listOfRobf.begin()};
-  for (; rob_it!=listOfRobf.end(); ++rob_it) {
+  std::vector<const ROBFragment*>::const_iterator rob_it{listOfRobFrags.begin()};
+  for (; rob_it!=listOfRobFrags.end(); ++rob_it) {
     
     uint32_t robid{(*rob_it)->rod_source_id()};
     /**
@@ -143,7 +143,7 @@ StatusCode SCTRawDataProvider::execute()
   ISCT_RDO_Container *rdoInterface = externalcacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfRobf, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
+  if (m_rawDataTool->convert(listOfRobFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
   if (dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());

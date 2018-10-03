@@ -52,12 +52,12 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
    * Loops over ROB fragments, get ROB/ROD ID, then decode if not allready decoded.
    *
    * @param vecRobs Vector containing ROB framgents.
-   * @param rdoIdc RDO ID Container to be filled.
+   * @param rdoIdCont RDO ID Container to be filled.
    * @param errs Byte stream error container.
    * @param bsFracCont Byte stream fraction container.
    *  */
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-                             ISCT_RDO_Container& rdoIdc,
+                             ISCT_RDO_Container& rdoIdCont,
                              InDetBSErrContainer* errs,
                              SCT_ByteStreamFractionContainer* bsFracCont) const override;
 

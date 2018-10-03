@@ -44,7 +44,7 @@ StatusCode SCTRawDataProviderTool::initialize()
 // Convert method
 
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs,
-                                           ISCT_RDO_Container& rdoIdc,
+                                           ISCT_RDO_Container& rdoIdCont,
                                            InDetBSErrContainer* errs,
                                            SCT_ByteStreamFractionContainer* bsFracCont) const
 {
@@ -71,7 +71,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     m_robIdSet.insert(robid);
     m_mutex.unlock();
 
-    sc = m_decoder->fillCollection(*rob_it, rdoIdc, errs, bsFracCont);
+    sc = m_decoder->fillCollection(*rob_it, rdoIdCont, errs, bsFracCont);
     if (sc==StatusCode::FAILURE) {
       if (m_decodeErrCount <= 100) {
         if (100 == m_decodeErrCount) {
