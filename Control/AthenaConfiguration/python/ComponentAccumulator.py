@@ -1,4 +1,4 @@
-w# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
@@ -199,8 +199,10 @@ class ComponentAccumulator(object):
     def _deduplicate(self,newComp,compList):
         #Check for duplicates:
         for comp in compList:
-            if comp.getType()==newComp.getType() and comp.getJobOptName()==newComp.getJobOptName():
+            if comp.getType()==newComp.getType() and comp.getFullName()==newComp.getFullName():
                 #Found component of the same type and name
+                if isinstance(comp,PublicToolHandle) or isinstance(comp,ServiceHandle):
+                    continue # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
                 self._deduplicateComponent(newComp,comp)
                 #We found a service of the same type and name and could reconcile the two instances
                 self._msg.debug("Reconciled configuration of component %s", comp.getJobOptName())
@@ -242,8 +244,9 @@ class ComponentAccumulator(object):
                 #Note that getattr for a list property works, even if it's not in ValuedProperties
                 if (oldprop!=newprop):
                     #found property mismatch
-                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle): #For public tools we check only their full name
+                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle): 
                         if oldprop.getFullName()==newprop.getFullName():
+                            # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
                             continue
                         else:
                             raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
