@@ -283,4 +283,9 @@ SinglePhoton_2015 = [
 
 MultiBJet_2015 = [
     'HLT_2j35_btight_2j35_L13J25.0ETA23',
+    'HLT_2j45_bmedium_2j45_L13J25.0ETA23',
+    'HLT_j100_2j55_bmedium',
+    'HLT_j150_bmedium_j50_bmedium',
+    'HLT_2j65_btight_j65',
+    'HLT_2j70_bmedium_j70',
 ]
