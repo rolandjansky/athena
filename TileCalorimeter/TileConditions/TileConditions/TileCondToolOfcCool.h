@@ -54,8 +54,6 @@ class TileCondToolOfcCool: public AthAlgTool, public ITileCondToolOfc {
 
     int m_NPhases;
     int m_NFields;
-    int m_Phamin;
-    int m_Phamax;
     int m_NSamples;
     bool m_first = true;
 };

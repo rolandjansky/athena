@@ -43,7 +43,6 @@
 static const std::string TILE_JO_NAME("jobOptions_TileCalibEmsTest.py");
 static const std::string TILE_TEST_EMS("TileEMS_Test");
 static const std::string TILE_TEST_ALG_EMS("TileEMS_AlgTest");
-static const unsigned int OBJ_VERSION(1);
 static const unsigned int DEF_DRAWER_IDX(0);
 static const unsigned int MAX_CHANNEL(1);
 
@@ -204,15 +203,17 @@ class TileCondProxyMock: public AthAlgTool, virtual public ITileCondProxy<T> {
       return StatusCode::SUCCESS;
     };
 
-    StatusCode initialize() {
+    virtual StatusCode initialize() override {
       return StatusCode::SUCCESS;
     };
 
-    StatusCode finalize() {
+    virtual StatusCode finalize() override {
       return StatusCode::SUCCESS;
     };
 
-  const T* getCalibDrawer(unsigned int /*drawerIdx*/ ) const { return nullptr;};
+    virtual const T* getCalibDrawer(unsigned int /*drawerIdx*/ ) const override {
+      return nullptr;
+    };
 
 };
 
