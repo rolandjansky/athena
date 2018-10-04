@@ -1,5 +1,4 @@
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
 #include "TrkGaussianSumFilter/KullbackLeiblerComponentDistance.h"
 #include "TrkGaussianSumFilter/CloseComponentsMultiStateMerger.h"
@@ -17,12 +16,10 @@
 #include "TrkGaussianSumFilter/GsfEnergyLossUpdator.h"
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
 #include "TrkGaussianSumFilter/ForwardGsfFitter.h"
-#include "TrkGaussianSumFilter/GsfOutlierLogic.h"
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
 #include "TrkGaussianSumFilter/GsfSmoother.h"
 
 DECLARE_COMPONENT( Trk::QuickCloseComponentsMultiStateMerger )
-DECLARE_COMPONENT( Trk::MultiComponentStateModeCalculator )
 DECLARE_COMPONENT( Trk::MultiStateMaterialEffectsAdapter )
 DECLARE_COMPONENT( Trk::KullbackLeiblerComponentDistance )
 DECLARE_COMPONENT( Trk::CloseComponentsMultiStateMerger )
@@ -40,7 +37,5 @@ DECLARE_COMPONENT( Trk::GsfMeasurementUpdator )
 DECLARE_COMPONENT( Trk::GsfEnergyLossUpdator )
 DECLARE_COMPONENT( Trk::GaussianSumFitter )
 DECLARE_COMPONENT( Trk::ForwardGsfFitter )
-DECLARE_COMPONENT( Trk::GsfOutlierLogic )
 DECLARE_COMPONENT( Trk::GsfExtrapolator )
 DECLARE_COMPONENT( Trk::GsfSmoother )
-
