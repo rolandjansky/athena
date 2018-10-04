@@ -129,7 +129,7 @@ public: // Constructor and Destructor
    virtual StatusCode io_finalize() override;
 
    /// Incident service handle listening for BeginProcessing and EndProcessing
-   void handle(const Incident& incident);
+   virtual void handle(const Incident& incident) override;
 
 private: // internal member functions
    /// Return pointer to active event SG
