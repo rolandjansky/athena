@@ -10,10 +10,7 @@
 
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeoModelKernel/GeoTransform.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#ifndef __CINT__
-	#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "ALFA_Geometry/ALFA_ConfigParams.h"
 
