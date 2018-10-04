@@ -104,7 +104,7 @@ namespace xAOD {
    //
    // Initialise the static data:
    //
-   const ::Int_t TEvent::CACHE_SIZE = 30000000;
+   const ::Int_t TEvent::CACHE_SIZE = -1;
    const char* TEvent::EVENT_TREE_NAME    = "CollectionTree";
    const char* TEvent::METADATA_TREE_NAME = "MetaData";
 
