@@ -138,7 +138,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_photonIdBaseline(""),
     m_tauId(""),
     m_tauIdBaseline(""),
-    m_tauIDrecalc(false),
     m_eleIso_WP(""),
     m_eleIsoHighPt_WP(""),
     m_eleChID_WP(""),
@@ -193,7 +192,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauConfigPath(""),
     m_tauConfigPathBaseline(""),
     m_tauDoTTM(false),
-    m_tauRecalcOLR(false),
     //
     m_jetPt(-99.),
     m_jetEta(-99.),
@@ -483,8 +481,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauIdConfigPathBaseline", m_tauConfigPathBaseline);
   declareProperty( "TauIdConfigPath", m_tauConfigPath);
   declareProperty( "TauDoTruthMatching", m_tauDoTTM);
-  declareProperty( "TauRecalcElOLR", m_tauRecalcOLR);
-  declareProperty( "TauIDRedecorate", m_tauIDrecalc);
 
   //Leptons
   declareProperty( "SigLepRequireIso", m_doIsoSignal ); //leave here for back-compatibility
@@ -1051,8 +1047,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["MET.DoCaloSyst"] = "METDoCaloSyst";
 
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
-  m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
-  m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";
   //
 
   //
@@ -1133,8 +1127,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauIdBaseline, "TauBaseline.Id", rEnv, "Medium");
   configFromFile(m_tauConfigPathBaseline, "TauBaseline.ConfigPath", rEnv, "default");
   configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
-  configFromFile(m_tauRecalcOLR, "Tau.RecalcElOLR", rEnv, false);
-  configFromFile(m_tauIDrecalc, "Tau.IDRedecorate", rEnv, false);
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);

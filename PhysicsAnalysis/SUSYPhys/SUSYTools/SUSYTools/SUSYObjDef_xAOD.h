@@ -524,7 +524,6 @@ namespace ST {
     std::string m_photonIdBaseline;
     std::string m_tauId;
     std::string m_tauIdBaseline;
-    bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix)
     std::string m_eleIso_WP;
     std::string m_eleIsoHighPt_WP;
     std::string m_eleChID_WP;
@@ -582,7 +581,6 @@ namespace ST {
     std::string m_tauConfigPath;
     std::string m_tauConfigPathBaseline;
     bool   m_tauDoTTM;
-    bool   m_tauRecalcOLR;
 
     double m_jetPt;
     double m_jetEta;
