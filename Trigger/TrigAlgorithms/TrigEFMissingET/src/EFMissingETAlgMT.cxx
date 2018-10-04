@@ -63,7 +63,6 @@ StatusCode EFMissingETAlgMT::execute_r( const EventContext& context ) const {
   }
   loopTimer.stop();
 
-  //  m_helperTool->execute(met, &metHelper, nullptr, nullptr, nullptr, nullptr);  
   m_helperTool->execute(met, &metHelper, nullptr, nullptr, nullptr, nullptr);  
 
   auto EF_MEx_log = MonitoredScalar::declare( "EF_MEx_log", toLogGeV( met->ex() ) );
