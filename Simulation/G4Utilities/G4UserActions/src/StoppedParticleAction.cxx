@@ -75,6 +75,9 @@ namespace G4UA
       bool stop = aStep->GetPostStepPoint()->GetVelocity()<0.15*std::pow(minA,-2./3.)*CLHEP::c_light;
       // Condition 2: Stop only negatively charged particles
       if (stop && abs(m_stoppingCondition)==2) stop = stop && aStep->GetTrack()->GetDynamicParticle()->GetCharge()<-0.1;
+      // Condition 3: Don't allow things to stop in the ID
+      if (stop && aStep->GetPostStepPoint()->GetPosition().rho()<1150. && std::fabs(aStep->GetPostStepPoint()->GetPosition().z())<3490.) stop=false;
+
       // Negative condition: Ignore gas
       // Can't be true if stop is false
       if (stop && m_stoppingCondition<0){
