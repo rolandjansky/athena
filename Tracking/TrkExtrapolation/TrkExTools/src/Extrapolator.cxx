@@ -50,15 +50,10 @@
 #include "TrkSurfaces/PlaneSurface.h"
 
 #include <memory>
+namespace{
+constexpr double s_distIncreaseTolerance = 100. * Gaudi::Units::millimeter;
+}
 
-// screen output measures
-// "[+] Text describing layer      - with " << layerRZoutput()
-// "[+] Text describing position   -   at " << positionOutput()
-// "[+] Text describing single parameter  - par = "
-
-// reference surface for Blind extrapolation
-// Trk::PlaneSurface Trk::Extrapolator::m_referenceSurface(new Amg::Transform3D(Trk::s_idTransform), 0.,0.);
-double Trk::Extrapolator::s_distIncreaseTolerance = 100. * Gaudi::Units::millimeter;
 // constructor
 Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
@@ -113,30 +108,30 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   m_maxMethodSequence(2000),
   m_printHelpOutputAtInitialize(false),
   m_printRzOutput(true),
-  m_extrapolateCalls(0),
-  m_extrapolateBlindlyCalls(0),
-  m_extrapolateDirectlyCalls(0),
-  m_extrapolateStepwiseCalls(0),
-  m_startThroughAssociation(0),
-  m_startThroughRecall(0),
-  m_startThroughGlobalSearch(0),
-  m_destinationThroughAssociation(0),
-  m_destinationThroughRecall(0),
-  m_destinationThroughGlobalSearch(0),
-  m_layerSwitched(0),
   m_navigationStatistics(false),
   m_navigationBreakDetails(false),
-  m_navigationBreakLoop(0),
-  m_navigationBreakOscillation(0),
-  m_navigationBreakNoVolume(0),
-  m_navigationBreakDistIncrease(0),
-  m_navigationBreakVolumeSignature(0),
-  m_overlapSurfaceHit(0),
   m_materialEffectsOnTrackValidation(false),
-  m_meotSearchCallsFw(0),
-  m_meotSearchCallsBw(0),
-  m_meotSearchSuccessfulFw(0),
-  m_meotSearchSuccessfulBw(0),
+  m_extrapolateCalls{},
+  m_extrapolateBlindlyCalls{},
+  m_extrapolateDirectlyCalls{},
+  m_extrapolateStepwiseCalls{},
+  m_startThroughAssociation{},
+  m_startThroughRecall{},
+  m_startThroughGlobalSearch{},
+  m_destinationThroughAssociation{},
+  m_destinationThroughRecall{},
+  m_destinationThroughGlobalSearch{},
+  m_layerSwitched{},
+  m_navigationBreakLoop{},
+  m_navigationBreakOscillation{},
+  m_navigationBreakNoVolume{},
+  m_navigationBreakDistIncrease{},
+  m_navigationBreakVolumeSignature{},
+  m_overlapSurfaceHit{},
+  m_meotSearchCallsFw{},
+  m_meotSearchCallsBw{},
+  m_meotSearchSuccessfulFw{},
+  m_meotSearchSuccessfulBw{},
   m_lastMaterialLayer(0),
   m_cacheLastMatLayer(false),
   m_matstates(nullptr),
@@ -390,10 +385,10 @@ Trk::Extrapolator::finalize() {
       ATH_MSG_INFO("[P] MaterialEffectsOnTrack collection ----------------------------------------------------");
       ATH_MSG_INFO("     -> Forward successful/calls (ratio)           : " << m_meotSearchSuccessfulFw << "/"
                                                                            << m_meotSearchCallsFw << " (" <<
-        double(m_meotSearchSuccessfulFw) / m_meotSearchCallsFw << ")");
+        double(m_meotSearchSuccessfulFw.value()) / m_meotSearchCallsFw.value() << ")");
       ATH_MSG_INFO("     -> Backward successful/calls (ratio)          : " << m_meotSearchSuccessfulBw << "/"
                                                                            << m_meotSearchCallsBw << " (" <<
-        double(m_meotSearchSuccessfulBw) / m_meotSearchCallsBw << ")");
+        double(m_meotSearchSuccessfulBw.value()) / m_meotSearchCallsBw.value() << ")");
       ATH_MSG_INFO(" -----------------------------------------------------------------------------------------");
     }
   }
@@ -598,6 +593,11 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
   // one-time-punch-through allows for volume2 - volume1 - volume2 (cosmics)
   bool punchThroughDone = false;
 
+  auto navigationBreakOscillation=m_navigationBreakOscillation.buffer();
+  auto navigationBreakNoVolume= m_navigationBreakNoVolume.buffer();
+  auto navigationBreakDistIncrease=m_navigationBreakDistIncrease.buffer();
+  auto navigationBreakVolumeSignature=m_navigationBreakVolumeSignature.buffer();
+
   while (nextVolume &&
          nextVolume != destVolume &&
          nextVolume != lastVolume &&
@@ -769,7 +769,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
         ATH_MSG_DEBUG(
           "          - Reason      : Oscillation detected in TrackingVolume '" << nextVolume->volumeName() << "'");
         // statistics
-        ++m_navigationBreakOscillation;
+        ++navigationBreakOscillation;
         // record the oscillation volume -- increase the counter for the volume
         if (m_navigationBreakDetails) {
           ++m_oscillationVolumes[nextVolume];
@@ -792,7 +792,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
       ATH_MSG_VERBOSE(
         "          - Reason      : No next volume found of TrackingVolume '" << lastVolume->volumeName() << "'");
       // statistics
-      ++m_navigationBreakNoVolume;
+      ++navigationBreakNoVolume;
       // record the "no next" volume -- increase the counter for the (last) volume
       if (m_navigationBreakDetails) {
         ++m_noNextVolumes[lastVolume];
@@ -816,7 +816,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
                                                                      << "] in TrackingVolume '" << nextVolume->volumeName() <<
         "'");
       // statistics
-      ++m_navigationBreakDistIncrease;
+      ++navigationBreakDistIncrease;
       // record the "dist increase" volume -- increase the counter for the volume
       if (m_navigationBreakDetails) {
         ++m_distIncreaseVolumes[nextVolume];
@@ -3991,6 +3991,8 @@ Trk::Extrapolator::overlapSearch(const IPropagator &prop,
       ATH_MSG_VERBOSE("found " << ncSurfaces << " candidate sensitive surfaces to test.");
       // now loop over the surfaces:
       // the surfaces will be sorted @TODO integrate pathLength propagation into this
+   
+      auto overlapSurfaceHit=m_overlapSurfaceHit.buffer();
       for (auto &csf : cSurfaces) {
         // propagate to the compatible surface, return types are (pathLimit failure is excluded by Trk::anyDirection for
         // the moment):
@@ -4014,7 +4016,7 @@ Trk::Extrapolator::overlapSearch(const IPropagator &prop,
           if (surfaceHit) {
             ATH_MSG_VERBOSE("  [H] Hit with detector surface recorded !");
             // count the overlap Surfaces hit
-            ++m_overlapSurfaceHit;
+            ++overlapSurfaceHit;
             // distinguish whether sorting is needed or not
             reorderDetParametersOnLayer = true;
             // push back into the temporary vector
