@@ -74,13 +74,13 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu )
 atlas_add_test( photonMenu
  		SCRIPT test/test_photon_menu.sh
                  PROPERTIES TIMEOUT 500
-		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*"
+		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
  		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu   )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
 atlas_add_test( egammaMenu
 		SCRIPT test/test_egamma_menu.sh
-		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*"
+		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu
               )
@@ -95,7 +95,7 @@ atlas_add_test( muRunData
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu )
 atlas_add_test( muMenu
 		SCRIPT test/test_mu_menu.sh
-		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*"	
+		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"	
 		PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
               )
@@ -103,7 +103,7 @@ atlas_add_test( muMenu
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu )
 atlas_add_test( fullMenu
 		SCRIPT test/test_full_menu.sh
-		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*"
+		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu
               )
@@ -125,14 +125,14 @@ atlas_add_test( EmuL1Decoding
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_step_processing )
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
-		EXTRA_PATTERNS "-s TriggerMonitorFinal"
+		EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*"
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_step_processing
 )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO
 		SCRIPT test/test_newJO.sh
-		EXTRA_PATTERNS "-s .*ERROR.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*DEBUG.*"
+		EXTRA_PATTERNS "-s .*ERROR.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
 		)
