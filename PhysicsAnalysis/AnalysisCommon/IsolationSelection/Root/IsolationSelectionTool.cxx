@@ -151,8 +151,8 @@ namespace CP {
         return StatusCode::SUCCESS;
     }
 
-    void IsolationSelectionTool::addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression) {
-        std::string varname(xAOD::Iso::toString(t));
+    void IsolationSelectionTool::addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression, const xAOD::Iso::IsolationType isoCutRemap) {
+        std::string varname(xAOD::Iso::toString(isoCutRemap));
         key += varname;
 
         // Stupid ROOT, this is silly, why do I need to do this????? why????
@@ -164,6 +164,11 @@ namespace CP {
         IsolationConditionHist *ich = new IsolationConditionHist(varname, t, expression, histogram);
         if ((m_doInterpM && key.find("Muon") != std::string::npos) || (m_doInterpE && key.find("Electron") != std::string::npos)) ich->setInterp(m_Interp);
         wp->addCut(ich);
+
+   }
+
+    void IsolationSelectionTool::addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression) {
+        addCutToWP(wp,key,t,expression,t);
     }
 
     StatusCode IsolationSelectionTool::addMuonWP(std::string muWPname) {
@@ -318,7 +323,7 @@ namespace CP {
             addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "0.1143*x+92.14");
             addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "0.1143*x+92.14");
         } else if (elWPname == "Gradient_exp") {
-            addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20_TightTTVA_pt1000, "0.1143*x+92.14");
+            addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20_TightTTVA_pt1000, "0.1143*x+92.14", xAOD::Iso::ptvarcone20);
             addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "0.1143*x+92.14");
         } else if (elWPname == "GradientLoose") {
             addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20, "0.057*x+95.57");
