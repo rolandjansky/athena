@@ -558,7 +558,7 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusiveloose1', 'exclusiveloose2', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
+    'extra'          : ['noisesup', 'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusiveloose1', 'exclusiveloose2', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
@@ -574,6 +574,7 @@ MinBiasChainParts = {
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : ['peb','hipeb'],
+    'veto'           : ['vetombts2in', 'vetombts1side2in',  'vetospmbts2in', 'vetosp'],
     }
 # ---- MinBiasDictinary of default Values ----
 MinBiasChainParts_Default = {
@@ -593,6 +594,7 @@ MinBiasChainParts_Default = {
     'hypoEFsumEtInfo': '',    
     'recoAlg'        : [],
     'addInfo'        : [],
+    'veto'           : '',
     }
 
 #==========================================================
