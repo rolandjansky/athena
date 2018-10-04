@@ -101,7 +101,7 @@ atlas_add_test( muMenu
               )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jet )
-atlas_add_test( simpleJetJob
+atlas_add_test( jetRunData
 		SCRIPT test/test_jet.sh
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jet

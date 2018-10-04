@@ -53,8 +53,6 @@ def jetRecoSequence(inputMakerOut):
 
 
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-
-
     algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
     algo2.Cells = "StoreGateSvc+FullScanCells"
     algo2.OutputLevel = INFO

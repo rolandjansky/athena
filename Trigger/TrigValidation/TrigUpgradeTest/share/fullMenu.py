@@ -15,6 +15,11 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
 
+doEgamma = True
+doMuon   = True
+doJet    = False
+doCombo  = True
+
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 EnabledElChains = []
@@ -22,65 +27,64 @@ EnabledMuChains = []
 EnabledMuComboChains = []
 EnabledElComboChains = []
 
+testChains = []
 
 # egamma chains
+if (doEgamma):
+    from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
+    fastCaloStep=fastCaloSequence()
+    electronStep=electronSequence()
 
-from AthenaCommon.GlobalFlags import globalflags
+    step1=ChainStep("Step1_etcut", [fastCaloStep])
+    step2=ChainStep("Step2_etcut", [electronStep])
 
-from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
-fastCaloStep=fastCaloSequence()
-electronStep=electronSequence()
-
-step1=ChainStep("Step1_etcut", [fastCaloStep])
-step2=ChainStep("Step2_etcut", [electronStep])
-
-egammaChains  = [
-    Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
-    Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-    Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-    Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  )
-    ]
-
+    egammaChains  = [
+        Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
+        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
+        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
+        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+        ]
+    testChains += egammaChains
 
 
 # muon chains
+if (doMuon):
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, doL2SA, doL2CB, doEFSA
+    MuonChains  = []
+    step1mufast=ChainStep("Step1_mufast", [muFastStep])
 
-from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, doL2SA, doL2CB, doEFSA
-MuonChains  = []
-step1mufast=ChainStep("Step1_mufast", [muFastStep])
+    
+    MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
+    MuonChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
+    if TriggerFlags.doID==True:
+        step2muComb=ChainStep("Step2_muComb", [muCombStep])
+        MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
+        MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
 
-
-MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
-MuonChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
-if TriggerFlags.doID==True:
-    step2muComb=ChainStep("Step2_muComb", [muCombStep])
-    MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
-    MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
-
-
+    testChains += MuonChains
 
 
 # jet chains
-## from TrigUpgradeTest.jetMenuDefs import jetSequence
+if (doJet):
+    from TrigUpgradeTest.jetMenuDefs import jetSequence
 
-## jetSeq1 = jetSequence()
-## jetstep1=ChainStep("Step1_jet", [jetSeq1])
-
-## jetChains  = [
-##     Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
-##     Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[jetstep1]  )
-##     ]
-  
+    jetSeq1 = jetSequence()
+    jetstep1=ChainStep("Step1_jet", [jetSeq1])
     
-# combo chains
-comboChains= []
-comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
-comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
+    jetChains  = [
+        Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
+        Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[jetstep1]  )
+        ]
+    testChains += jetChains
 
 
-# sum all
-testChains = egammaChains + MuonChains  + comboChains
-#+ jetChains
+if (doCombo):
+    # combo chains
+    comboChains= []
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
+    comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
+    testChains += comboChains
+
 
 #################################
 # Configure L1Decoder
