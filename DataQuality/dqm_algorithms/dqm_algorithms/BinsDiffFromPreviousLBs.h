@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/*! \file BinsDiffFromPreviousLBs.h file declares the dqm_algorithms::BinContentComp  class.
- * \author Haleh Hadavand
+/*! \file BinsDiffFromPreviousLBs.cxx evaluates the number of consecutive bins with bin value different from set threshold. Also usable for
+ single bins.                                                                                                                             
+ * \author Giulia Ucchielli                                                                                                              
 */
 
 #ifndef DQM_ALGORITHMS_BINS_DIFF_FROMPREVLBS_H
