@@ -18,6 +18,11 @@ TrigJetHypoAlgMT::TrigJetHypoAlgMT( const std::string& name,
 
 TrigJetHypoAlgMT::~TrigJetHypoAlgMT() {}
 
+StatusCode TrigJetHypoAlgMT::finalize() {   
+  return StatusCode::SUCCESS;
+}
+
+
 StatusCode TrigJetHypoAlgMT::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
@@ -28,9 +33,6 @@ StatusCode TrigJetHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigJetHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
@@ -58,7 +60,8 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
   newDecisions->setStore(aux.get());
 
   // read in a jets collection, and obtain a bare pointer to it
-  SG::ReadHandle<JetContainer> h_jets(m_jetsKey);
+  auto h_jets = SG::makeHandle(m_jetsKey, context );
+  //  SG::ReadHandle<JetContainer> h_jets(m_jetsKey);
   ATH_MSG_DEBUG("Retrieving jets from: " << h_jets.key());
   ATH_CHECK(h_jets.isValid());
 
@@ -66,9 +69,12 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
 
   // Test whether the  hypo tools pass the event, and update the decision
   // containers accordingly.
-  for (const auto& tool: m_hypoTools) {
-    CHECK(decide(jets, newDecisions, prevDecisions, tool));
-  }
+  // for (const auto& tool: m_hypoTools) {
+  //   CHECK(decide(jets, newDecisions, prevDecisions, tool));
+  // }
+
+  CHECK(decide(jets, newDecisions, prevDecisions));
+ 
  
   // output the decisions for all chains for this event.
   auto outputHandle = SG::makeHandle(decisionOutput(), context);
@@ -77,52 +83,79 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
 
 
   // debug....
-  TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-  for ( auto decisionObject: *outputHandle )  {
-    TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
+  if ( msgLvl(MSG::DEBUG)) {
+    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
+    for ( auto decisionObject: *outputHandle )  {
+      TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
+    }
+    
+    for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
+      ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
+    }
   }
-
-  for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-    ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-  }
-
 
   return StatusCode::SUCCESS;
 }
 
 
-
 StatusCode
 TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
                          std::unique_ptr<DecisionContainer>& nDecisions,
-                         const DecisionContainer* oDecisions,
-                         const ToolHandle<ITrigJetHypoToolMT>& tool) const{
+                         const DecisionContainer* oDecisions) const{
 
-  if(oDecisions->size() != 1) {
-    ATH_MSG_ERROR ("expected 1 previous decision, found "<< oDecisions->size());
-    return StatusCode::FAILURE;
-  }
-  
+ 
   auto previousDecision = (*oDecisions)[0];
+  auto newdecision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
+
   
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
     TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
       TrigCompositeUtils::decisionIDs( previousDecision ).end()
       };
 
-  auto decisionId = tool->getId();
-  if (TrigCompositeUtils::passed(decisionId.numeric(),
-                                 previousDecisionIDs)){
-    bool pass;
-    CHECK(tool->decide(jets, pass));
-    if (pass) {
-      // create a new Decision object. This object has been placed in the
-      // nDecisions container.
-      auto decision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
-      TrigCompositeUtils::addDecisionID(decisionId, decision);
+  for (const auto& tool: m_hypoTools) {
+    auto decisionId = tool->getId();
+    if (TrigCompositeUtils::passed(decisionId.numeric(),
+				   previousDecisionIDs)){
+      
+      bool pass;
+      CHECK(tool->decide(jets, pass));
+      if (pass) {
+	TrigCompositeUtils::addDecisionID(decisionId, newdecision);
+      }
     }
-    // what if does not pass?
   }
   
   return StatusCode::SUCCESS;
 }
+
+// StatusCode
+// TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
+//                          std::unique_ptr<DecisionContainer>& nDecisions,
+//                          const DecisionContainer* oDecisions,
+//                          const ToolHandle<ITrigJetHypoToolMT>& tool) const{
+
+ 
+//   auto previousDecision = (*oDecisions)[0];
+  
+//   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
+//     TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
+//       TrigCompositeUtils::decisionIDs( previousDecision ).end()
+//       };
+
+//   auto decisionId = tool->getId();
+//   if (TrigCompositeUtils::passed(decisionId.numeric(),
+//                                  previousDecisionIDs)){
+//     bool pass;
+//     CHECK(tool->decide(jets, pass));
+//     if (pass) {
+//       // create a new Decision object. This object has been placed in the
+//       // nDecisions container.
+//       auto decision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
+//       TrigCompositeUtils::addDecisionID(decisionId, decision);
+//     }
+//     // what if does not pass?
+//   }
+  
+//   return StatusCode::SUCCESS;
+// }

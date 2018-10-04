@@ -61,15 +61,15 @@ if TriggerFlags.doID==True:
 
 
 # jet chains
-from TrigUpgradeTest.jetMenuDefs import jetSequence
+## from TrigUpgradeTest.jetMenuDefs import jetSequence
 
-jetSeq1 = jetSequence()
-jetstep1=ChainStep("Step1_jet", [jetSeq1])
+## jetSeq1 = jetSequence()
+## jetstep1=ChainStep("Step1_jet", [jetSeq1])
 
-jetChains  = [
-    Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
-    Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[jetstep1]  )
-    ]
+## jetChains  = [
+##     Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
+##     Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[jetstep1]  )
+##     ]
   
     
 # combo chains
@@ -79,7 +79,8 @@ comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps
 
 
 # sum all
-testChains = egammaChains + MuonChains  + comboChains + jetChains
+testChains = egammaChains + MuonChains  + comboChains
+#+ jetChains
 
 #################################
 # Configure L1Decoder

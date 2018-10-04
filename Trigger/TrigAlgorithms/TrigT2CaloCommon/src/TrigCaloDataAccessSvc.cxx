@@ -157,20 +157,20 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
 
 StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
                                                         ConstDataVector<CaloCellContainer>& cont ) {
-  std::cout << "loadFullcollctions sent 0\n";
+  ATH_MSG_DEBUG("loadFullcollctions sent 0");
   CaloCellContainer* cont_to_copy = new CaloCellContainer();
-  std::cout << "loadFullcollctions sent 10\n";
+  ATH_MSG_DEBUG("loadFullcollctions sent 10");
 
   ATH_CHECK(loadFullCollections(context, cont_to_copy));
-  std::cout << "loadFullcollctions sent 20\n";
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 20");
   cont.clear();
-  std::cout << "loadFullcollctions sent 30\n";
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 30");
   cont.reserve( cont_to_copy->size() );
-  std::cout << "loadFullcollctions sent 40\n";
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 40");
   for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
-  std::cout << "loadFullcollctions sent 50\n";
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 50");
   delete cont_to_copy;
-  std::cout << "loadFullcollctions sent 60\n";
+  ATH_MSG_DEBUG( "loadFullcollctions sent 60");
   return StatusCode::SUCCESS;
 }
 

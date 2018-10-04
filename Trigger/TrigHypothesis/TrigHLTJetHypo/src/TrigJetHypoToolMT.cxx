@@ -147,43 +147,43 @@ void TrigJetHypoToolMT::writeDebug(bool pass,
   ATH_MSG_INFO("Writing debug start" << m_chainName << "...");
   
   if(pass){
-    std::cout<<m_chainName<< " event passed \n";
+    ATH_MSG_DEBUG(m_chainName<< " event passed");
   } else {
-    std::cout<<m_chainName<< " event failed \n";
+    ATH_MSG_DEBUG(m_chainName<< " event failed");
   }
 
   for (auto j :  passedJets) {
     auto p4 = j->p4();
-    std::cout<<"\nHYPODUMP passed TrigJetHypoToolImp Et: " 
-             << p4.Et() 
-             << " eta " 
-             << j->eta() 
-             << " px "
-             << p4.Px()
-             << " py "
-             << p4.Py()
-             << " pz "
-             << p4.Pz()
-             << " E "
-             << p4.E()
-             << '\n';
+    ATH_MSG_DEBUG("\nHYPODUMP passed TrigJetHypoToolImp Et: " 
+		 << p4.Et() 
+		 << " eta " 
+		 << j->eta() 
+		 << " px "
+		 << p4.Px()
+		 << " py "
+		 << p4.Py()
+		 << " pz "
+		 << p4.Pz()
+		 << " E "
+		 << p4.E()
+		 << '\n');
   }
   
   for (auto j :  failedJets) {
     auto p4 = j->p4();
-    std::cout<<"\nHYPODUMP failed TrigJetHypoToolImp Et: " 
-             << p4.Et() 
-             << " eta " 
-             << j->eta() 
-             << " px "
-             << p4.Px()
-             << " py "
-             << p4.Py()
-             << " pz "
-             << p4.Pz()
-             << " E "
-             << p4.E()
-               << '\n';
+    ATH_MSG_DEBUG("\nHYPODUMP failed TrigJetHypoToolImp Et: " 
+		  << p4.Et() 
+		  << " eta " 
+		  << j->eta() 
+		  << " px "
+		  << p4.Px()
+		  << " py "
+		  << p4.Py()
+		  << " pz "
+		  << p4.Pz()
+		  << " E "
+		  << p4.E()
+		  << '\n');
   }
   
 }
