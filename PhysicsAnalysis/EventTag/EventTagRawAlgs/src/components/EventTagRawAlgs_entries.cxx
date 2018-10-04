@@ -1,4 +1,4 @@
-#include "EventTagRawAlgs/RawInfoSummaryForTagWriter.h"
+#include "../RawInfoSummaryForTagWriter.h"
 
 DECLARE_COMPONENT( RawInfoSummaryForTagWriter )
 
