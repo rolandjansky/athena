@@ -21,7 +21,6 @@ namespace{
 Trk::ParticleMasses  s_particleMasses{};
 // statics doubles
 constexpr double s_ka_BetheBloch = 30.7075 * Gaudi::Units::MeV;
-constexpr double s_eulerConstant = 0.577215665; // as given by google.com ;-)
 
 // from full with at half maximum to sigma for a gaussian
 constexpr double s_fwhmToSigma = 0.424;  //   1./(2.*sqrt(2.*log(2.)));
