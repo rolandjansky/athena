@@ -1841,7 +1841,7 @@ namespace top {
                 if( elPtr->isAvailable<float>("delta_z0_sintheta") )
                     m_el_delta_z0_sintheta[i] = elPtr->auxdataConst<float>("delta_z0_sintheta");
 
-		m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : -999.;
+		m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
 		m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
 
                 //retrieve the truth-matching variables from MCTruthClassifier
