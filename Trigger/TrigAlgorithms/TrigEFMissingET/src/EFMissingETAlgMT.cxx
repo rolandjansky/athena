@@ -19,6 +19,7 @@ StatusCode EFMissingETAlgMT::initialize() {
   CHECK( m_metTools.retrieve() );
   CHECK( m_metContainerKey.initialize() );
   CHECK( m_monTool.retrieve() );
+  CHECK( m_helperTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -61,7 +62,10 @@ StatusCode EFMissingETAlgMT::execute_r( const EventContext& context ) const {
     t->update( met, &metHelper );
   }
   loopTimer.stop();
-  
+
+  //  m_helperTool->execute(met, &metHelper, nullptr, nullptr, nullptr, nullptr);  
+  m_helperTool->execute(met, &metHelper, nullptr, nullptr, nullptr, nullptr);  
+
   auto EF_MEx_log = MonitoredScalar::declare( "EF_MEx_log", toLogGeV( met->ex() ) );
   auto EF_MEy_log = MonitoredScalar::declare( "EF_MEy_log", toLogGeV( met->ey() ) );
   auto EF_MEz_log = MonitoredScalar::declare( "EF_MEz_log", toLogGeV( met->ez() ) );
