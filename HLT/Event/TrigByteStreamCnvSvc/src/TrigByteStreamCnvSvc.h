@@ -23,6 +23,7 @@ public:
 
   // ------------------------- IConversionSvc methods --------------------------
   /// In the case of online BS data, this method creates the output FullEventFragment and fills its header
+  using ByteStreamCnvSvcBase::connectOutput;
   virtual StatusCode connectOutput(const std::string& outputFile) override;
   /// In the case of online BS data, this method binds and sends out the output FullEventFragment
   virtual StatusCode commitOutput(const std::string& outputFile, bool do_commit) override;
