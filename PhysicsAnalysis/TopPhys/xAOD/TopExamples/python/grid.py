@@ -470,6 +470,21 @@ def checkForShowerAlgorithm(Samples, cutfile):
             print ds
         raise RuntimeError("Datasets without shower.")
 
+def isAF2(dataset):
+    tags = dataset.split('.')[-1]
+    tagList = tags.split('_')
+    for tag in tagList:
+        if tag.find('a')>-1:
+            return True
+    return False
+
+def isData(dataset):
+    scope = dataset.split('.')[0]
+    if scope.find('data')>-1:
+        return True
+    else:
+        return False
+
 def checkPRWFile(Samples, cutfile):
     # Some imports
     import subprocess, shlex
@@ -480,34 +495,82 @@ def checkPRWFile(Samples, cutfile):
     print logger.OKBLUE + " - Processing checks for PRWConfig" + logger.ENDC
     tmp = open(cutfile, "r")
     PRWConfig = None
+    PRWConfig_FS = None
+    PRWConfig_AF = None
     for line in tmp.readlines():
-        if "PRWConfigFiles" not in line:
-            continue
-        else:
+        if "PRWConfigFiles_AF" in line:
+            PRWConfig_AF = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        elif "PRWConfigFiles_FS" in line:
+            PRWConfig_FS = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        elif "PRWConfigFiles" in line:
             PRWConfig = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
             PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
             PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        else:
+            continue
 
-    if not PRWConfig:
+    if PRWConfig and PRWConfig_AF:
+        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_AF" + logger.ENDC
+        return
+    elif PRWConfig and PRWConfig_FS:
+        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_FS" + logger.ENDC
+        return
+    elif PRWConfig and not PRWConfig_FS and not PRWConfig_AF:
+        PRWConfig_FS = PRWConfig
+        PRWConfig_AF = PRWConfig
+    elif not PRWConfig and not PRWConfig_FS and not PRWConfig_AF:
         print logger.FAIL + " - Error reading PRWConfigFiles from cutfile" + logger.ENDC
-        return 
+        return
+    # else: we assume that PRWConfigFiles_FS and PRWConfigFiles_AF are set
+
     # Print the PRW files
-    print logger.OKGREEN + "\n".join(PRWConfig) + logger.ENDC
+    print logger.OKGREEN + "PRW files used for FS:" + logger.ENDC
+    print logger.OKGREEN + "\n".join(PRWConfig_FS) + logger.ENDC
+    print logger.OKGREEN + "PRW files used for AF2:" + logger.ENDC
+    print logger.OKGREEN + "\n".join(PRWConfig_AF) + logger.ENDC
+
     # Create a temporary sample list
-    tmpFileName = "samplesforprwcheck.txt"
-    tmpOut = open(tmpFileName,"w")
+    tmpFileNameFS = "samplesforprwcheck_FS.txt"
+    tmpOutFS = open(tmpFileNameFS,"w")
+    tmpFileNameAF = "samplesforprwcheck_AF.txt"
+    tmpOutAF = open(tmpFileNameAF,"w")
     for List in Samples:
         SublistSamples = List.datasets
         for sample_concatenated in SublistSamples: # the listed samples may be comma-separated list of samples
             for sample in sample_concatenated.split(','): # we need to check all of them, not just the first one
-                tmpOut.write(sample+"\n")
-    tmpOut.close()
-    # Make a command
-    cmd = "checkPRW.py --inDsTxt %s %s"%(tmpFileName, " ".join(PRWConfig))
-    print logger.OKBLUE + " - Running command : " + cmd + logger.ENDC
-    # Run
-    proc = subprocess.Popen(shlex.split(cmd))
-    proc.wait()
+                if (isData(sample)):
+                    continue
+                else:
+                    if not isAF2(sample):
+                        tmpOutFS.write(sample+"\n")
+                    else:
+                        tmpOutAF.write(sample+"\n")
+    tmpOutFS.close()
+    tmpOutAF.close()
+
+    # then do the check
+    if (os.path.getsize(tmpFileNameFS)): # what follows only makes sense if the file isn't empty
+        # Make the FS command
+        cmdFS = "checkPRW.py --inDsTxt %s %s"%(tmpFileNameFS, " ".join(PRWConfig_FS))
+        print logger.OKBLUE + " - Running command : " + cmdFS + logger.ENDC
+        # Run
+        procFS = subprocess.Popen(shlex.split(cmdFS))
+        procFS.wait()
+    else:
+        print logger.OKBLUE + " - No PRWConfig check is needed for FS." + logger.ENDC
+    if (os.path.getsize(tmpFileNameAF)): # what follows only makes sense if the file isn't empty
+        # Make the AF command
+        cmdAF = "checkPRW.py --inDsTxt %s %s"%(tmpFileNameAF, " ".join(PRWConfig_AF))
+        print logger.OKBLUE + " - Running command : " + cmdAF + logger.ENDC
+        # Run
+        procAF = subprocess.Popen(shlex.split(cmdAF))
+        procAF.wait()
+    else:
+        print logger.OKBLUE + " - No PRWConfig check is needed for AF2." + logger.ENDC
     # At the moment, just print the output, but we need to learn what to catch also
 
 ## gets the first AMI tag of a kind
