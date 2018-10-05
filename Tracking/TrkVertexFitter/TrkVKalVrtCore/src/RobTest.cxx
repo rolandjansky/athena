@@ -36,8 +36,8 @@ void robtest(VKVertex * vk, long int ifl)
 
     int NTRK = vk->TrackList.size();
 
-    long int irob = vk->m_fitterControl->m_forcft.irob;
-    double    Scl = vk->m_fitterControl->m_forcft.RobustScale;  //Tuning constant
+    long int irob = vk->vk_fitterControl->vk_forcft.irob;
+    double    Scl = vk->vk_fitterControl->vk_forcft.RobustScale;  //Tuning constant
     double    C;                          // Breakdown constant
 
     if ( ifl == 0) {                               /* FILLING OF EIGENVALUES AND VECTORS */
@@ -115,8 +115,8 @@ void robtest(VKVertex * vk, long int ifl)
 		kk++;
 	    }
 	}
-	vk->m_fitterControl->m_forcft.robres[it] = roba[0] * roba[1] * roba[2] * roba[3] * roba[4];
-	if(vk->m_fitterControl->m_forcft.robres[it]>1.)vk->m_fitterControl->m_forcft.robres[it]=1.;
+	vk->vk_fitterControl->vk_forcft.robres[it] = roba[0] * roba[1] * roba[2] * roba[3] * roba[4];
+	if(vk->vk_fitterControl->vk_forcft.robres[it]>1.)vk->vk_fitterControl->vk_forcft.robres[it]=1.;
     }
 //std::cout<<" Fin="<<vk->TrackList[0]->WgtM[0]<<", "<<vk->TrackList[0]->WgtM[1]<<", "<<vk->TrackList[0]->WgtM[2]
 //            <<", "<<vk->TrackList[0]->WgtM[3]<<", "<<vk->TrackList[0]->WgtM[4]<<", "<<vk->TrackList[0]->WgtM[5]

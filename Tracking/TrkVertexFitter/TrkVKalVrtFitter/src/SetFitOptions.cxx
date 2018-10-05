@@ -18,23 +18,23 @@ namespace Trk{
   {
     m_FitStatus = 0;     // Drop all previous fit results
     ForCFT newforcft;    //Create fresh ForCFT
-    std::swap(m_vkalFitControl->m_forcft,newforcft);
+    std::swap(m_vkalFitControl->vk_forcft,newforcft);
   
     //Set input particle masses
     for(int it=0; it<NTRK; it++){
-      if( it<(int)m_MassInputParticles.size() ) { m_vkalFitControl->m_forcft.wm[it]  = (double)(m_MassInputParticles[it]); }
-      else { m_vkalFitControl->m_forcft.wm[it]=(double)(139.5702); }
+      if( it<(int)m_MassInputParticles.size() ) { m_vkalFitControl->vk_forcft.wm[it]  = (double)(m_MassInputParticles[it]); }
+      else { m_vkalFitControl->vk_forcft.wm[it]=(double)(139.5702); }
     }
     // Set reference vertex for different pointing constraints
     if(m_VertexForConstraint.size() >= 3){
-      m_vkalFitControl->m_forcft.vrt[0]    =m_VertexForConstraint[0] - m_refFrameX;
-      m_vkalFitControl->m_forcft.vrt[1]    =m_VertexForConstraint[1] - m_refFrameY;
-      m_vkalFitControl->m_forcft.vrt[2]    =m_VertexForConstraint[2] - m_refFrameZ;
-    }else {for( int i=0; i<3; i++)  m_vkalFitControl->m_forcft.vrt[i] = 0.; }
+      m_vkalFitControl->vk_forcft.vrt[0]    =m_VertexForConstraint[0] - m_refFrameX;
+      m_vkalFitControl->vk_forcft.vrt[1]    =m_VertexForConstraint[1] - m_refFrameY;
+      m_vkalFitControl->vk_forcft.vrt[2]    =m_VertexForConstraint[2] - m_refFrameZ;
+    }else {for( int i=0; i<3; i++)  m_vkalFitControl->vk_forcft.vrt[i] = 0.; }
     // Set covariance matrix for reference vertex
     if(m_CovVrtForConstraint.size() >= 6){
-           for( int i=0; i<6; i++) { m_vkalFitControl->m_forcft.covvrt[i] = (double)(m_CovVrtForConstraint[i]); }
-    }else{ for( int i=0; i<6; i++) { m_vkalFitControl->m_forcft.covvrt[i] = 0.; } }
+           for( int i=0; i<6; i++) { m_vkalFitControl->vk_forcft.covvrt[i] = (double)(m_CovVrtForConstraint[i]); }
+    }else{ for( int i=0; i<6; i++) { m_vkalFitControl->vk_forcft.covvrt[i] = 0.; } }
 
     // Configure neutral particles if required
     if(m_TrackCharge.size() > 0){

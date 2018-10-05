@@ -83,7 +83,7 @@ int FullMCNSTfill(VKVertex * vk, double * ader, double * LSide)
     int i,j,k,l,ii,ic,it,jt;
 
     int totNC=0;  //total number of constraints
-    for(i=0; i<(int)vk->ConstraintList.size();i++)totNC += vk->ConstraintList[i]->m_NCDim;
+    for(i=0; i<(int)vk->ConstraintList.size();i++)totNC += vk->ConstraintList[i]->NCDim;
  
     int NTRK = vk->TrackList.size();
     int NPar = 3*NTRK+3+totNC;
@@ -95,7 +95,7 @@ int FullMCNSTfill(VKVertex * vk, double * ader, double * LSide)
     std::vector< double >               taa;   // derivative collectors
     std::vector< Vect3DF > tmpVec;
     for(ii=0; ii<(int)vk->ConstraintList.size();ii++){
-       for(ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
+       for(ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
          taa.push_back(  vk->ConstraintList[ii]->aa[ic] );
          th0t.push_back( vk->ConstraintList[ii]->h0t[ic] );
          tmpVec.clear();

@@ -79,7 +79,7 @@ void applyConstraints(VKVertex * vk)
 // Effect of symmetrization
 //
     for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
-       for(int ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
+       for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
          vk->ConstraintList[ii]->h0t[ic].X /= 2. ;
          vk->ConstraintList[ii]->h0t[ic].Y /= 2. ;
          vk->ConstraintList[ii]->h0t[ic].Z /= 2. ;
@@ -96,15 +96,15 @@ void applyConstraints(VKVertex * vk)
 
 
 
-  VKConstraintBase::VKConstraintBase(const int NC,int NTRK): m_NCDim(NC), m_NTrk(NTRK), aa(NC), f0t(NTRK), h0t(NC)
+  VKConstraintBase::VKConstraintBase(const int NC,int NTRK): NCDim(NC), NTrk(NTRK), aa(NC), f0t(NTRK), h0t(NC)
   {    
     std::vector< Vect3DF > tmp(NC);
-    for(int i=0; i<m_NCDim; i++){
+    for(int i=0; i<NCDim; i++){
         aa[i]=0.; 
 	h0t[i].X=0; h0t[i].Y=0; h0t[i].Z=0;
 	tmp[i].X=0; tmp[i].Y=0; tmp[i].Z=0;
     }
-    for(int i=0; i<m_NTrk; i++) f0t[i]=tmp;
+    for(int i=0; i<NTrk; i++) f0t[i]=tmp;
   }
   VKConstraintBase::~VKConstraintBase(){}
   std::ostream &  operator << ( std::ostream& out, const VKConstraintBase & cnst  )
@@ -112,9 +112,9 @@ void applyConstraints(VKVertex * vk)
         int NTRK=cnst.f0t.size();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
 	out.precision(7); out << std::defaultfloat;
-        out << " Base constraint derivatives for NTRK="<<NTRK<<" CNST dim="<<cnst.m_NCDim<<std::endl;
+        out << " Base constraint derivatives for NTRK="<<NTRK<<" CNST dim="<<cnst.NCDim<<std::endl;
         out << " Momentum derivatives "<< std::endl;
-        for(int ic=0; ic<cnst.m_NCDim; ic++){
+        for(int ic=0; ic<cnst.NCDim; ic++){
           out << "   d(...)/dTheta  d(...)/dPhi   d(...)/dInvR   NC="<<ic<<std::endl;
           for(int i=0; i<NTRK; i++){
 	    out <<cnst.f0t[i][ic].X<<", "<<cnst.f0t[i][ic].Y<<", "<<cnst.f0t[i][ic].Z<<std::endl;
@@ -131,14 +131,14 @@ void applyConstraints(VKVertex * vk)
 //
   VKMassConstraint::VKMassConstraint(int NTRK, double mass, VKVertex *vk) :
     VKConstraintBase(1,NTRK),
-    m_targetMass(mass), m_usedParticles(NTRK,0)
+    m_usedParticles(NTRK,0), m_targetMass(mass)
   {
-    for(int i=0; i<m_NTrk; i++) m_usedParticles[i]=i;
+    for(int i=0; i<NTrk; i++) m_usedParticles[i]=i;
     m_originVertex = vk;
   }
   VKMassConstraint::VKMassConstraint(int NTRK, double mass, std::vector<int> &listTrk, VKVertex *vk) :
     VKConstraintBase(1,NTRK),
-    m_targetMass(mass), m_usedParticles(0)
+    m_usedParticles(0), m_targetMass(mass)
   {
     for(int i=0; i<(int)listTrk.size(); i++) m_usedParticles.push_back(listTrk[i]);
     m_originVertex = vk;
@@ -151,7 +151,7 @@ void applyConstraints(VKVertex * vk)
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
 	out.precision(7); out << std::defaultfloat;
         out << " Mass constraint  (total NTRK="<<vk->TrackList.size()<<")"<< std::endl;
-	out << " * target mass: "<< cnst.m_targetMass                    << std::endl;
+	out << " * target mass: "<< cnst.getTargetMass()                  << std::endl;
 	out << " * particle indexes: ";
         for(int i=0; i<NP; i++){out <<cnst.m_usedParticles[i]<<", ";}
 	out << std::endl;
@@ -195,24 +195,24 @@ void applyConstraints(VKVertex * vk)
 //
 //                   Pointing constraint
 //
-  VKPointConstraint::VKPointConstraint(int NTRK, double vrt[3], VKVertex *vk):
+  VKPointConstraint::VKPointConstraint(int NTRK, double vrt[3], VKVertex *vk, bool onlyZ=false):
     VKConstraintBase(2,NTRK)
   { m_originVertex = vk;m_targetVertex[0]=vrt[0]; m_targetVertex[1]=vrt[1]; m_targetVertex[2]=vrt[2];
-    m_onlyZ=false;  // For Z only constraint
+    m_onlyZ=onlyZ;  // For Z only constraint
   }
   VKPointConstraint::~VKPointConstraint(){}
   std::ostream &  operator << ( std::ostream& out, const VKPointConstraint & cnst  )
   {     VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
 	out.precision(7); out << std::defaultfloat;
-        if(!cnst.m_onlyZ){
+        if(!cnst.onlyZ()){
           out << " Point constraint  (total NTRK="<<vk->TrackList.size()<<")"<< std::endl;
         }else{
           out << " Z point constraint  (total NTRK="<<vk->TrackList.size()<<")"<< std::endl;
         }
-        out << " target vertex="<<cnst.m_targetVertex[0]<<", "
-                                <<cnst.m_targetVertex[1]<<", "
-                                <<cnst.m_targetVertex[2]<<std::endl;
+        out << " target vertex="<<cnst.getTargetVertex()[0]<<", "
+                                <<cnst.getTargetVertex()[1]<<", "
+                                <<cnst.getTargetVertex()[2]<<std::endl;
         out<< (VKConstraintBase)cnst <<'\n';
 	out.precision(6); //restore default
 	return out;                                 

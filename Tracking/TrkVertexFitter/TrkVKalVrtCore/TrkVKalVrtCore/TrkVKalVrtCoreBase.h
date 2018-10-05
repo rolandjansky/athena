@@ -21,16 +21,24 @@ namespace Trk {
    class CascadeEvent 
    {
      public:
-       int m_cascadeNV;
-       int m_nearPrmVertex;
+       int cascadeNV;
+       int nearPrmVertex;
+       double getSCALE() const {return m_SCALE;};
+       void   setSCALE(double S) {m_SCALE=S;};
+       double getAccuracyConstraint() const { return m_accuracyConstraint; };
+       void   setAccuracyConstraint(double C) { m_accuracyConstraint=C; };
+       double *fullCovMatrix;
+       std::vector< VKVertex *> cascadeVertexList; 
+       std::vector<int> matrixPnt;
+       CascadeEvent():cascadeNV(0), nearPrmVertex(0), fullCovMatrix(0), cascadeVertexList(0), 
+                      matrixPnt(0), m_SCALE(1.), m_accuracyConstraint(1.e-4) {};
+      ~CascadeEvent(){if(fullCovMatrix)delete[] fullCovMatrix;};
+
+     private:
        double m_SCALE;
        double m_accuracyConstraint;
-       double *m_fullCovMatrix;
-       std::vector< VKVertex *> m_cascadeVertexList; 
-       std::vector<int> m_matrixPnt;
-       CascadeEvent():m_cascadeNV(0), m_nearPrmVertex(0), m_SCALE(1.), m_accuracyConstraint(1.e-4),
-                      m_fullCovMatrix(0), m_cascadeVertexList(0), m_matrixPnt(0) {};
-      ~CascadeEvent(){if(m_fullCovMatrix)delete[] m_fullCovMatrix;};
+
+
    };
 
    class TWRK       // collection of temporary arrays for 
@@ -173,15 +181,15 @@ namespace Trk {
 				  // for correct cascade error definition 
      public: 
 
-       bool m_truncatedStep;
-       int m_existFullCov;
+       bool truncatedStep;
+       int  existFullCov;
        double ader[(3*vkalNTrkM+3)*(3*vkalNTrkM+3)];  // was [903][903]
 
      public:        // Object with defining information for VKalVrtCore library.
                     // Each vertex has a copy of VKalVrtControl object what allows
                     // to fit it independently with individual set of constraints.
                     // See Cascade code. 
-       std::unique_ptr<VKalVrtControl>  m_fitterControl;
+       std::unique_ptr<VKalVrtControl>  vk_fitterControl;
    };
 
 

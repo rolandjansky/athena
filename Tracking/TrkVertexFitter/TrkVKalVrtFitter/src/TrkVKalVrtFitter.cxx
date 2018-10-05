@@ -233,11 +233,11 @@ StatusCode TrkVKalVrtFitter::initialize()
 //
     m_vkalFitControl = new VKalVrtControl(VKalVrtControlBase(m_fitField,0,m_fitPropagator,0));  // Create main control object for TrkVKalVrtCore
 
-    for(int it=0; it<(int)m_MassInputParticles.size(); it++) m_vkalFitControl->m_forcft.wm[it]=m_MassInputParticles[it]; //jobO track masses
+    for(int it=0; it<(int)m_MassInputParticles.size(); it++) m_vkalFitControl->vk_forcft.wm[it]=m_MassInputParticles[it]; //jobO track masses
     m_vkalFitControl->setRobustness(m_Robustness);
     m_vkalFitControl->setRobustScale(m_RobustScale);
-    for(int it=0; it<(int)m_VertexForConstraint.size(); it++) m_vkalFitControl->m_forcft.vrt[it]=m_VertexForConstraint[it]; //jobO vertex for cnst
-    for(int it=0; it<(int)m_CovVrtForConstraint.size(); it++) m_vkalFitControl->m_forcft.covvrt[it]=m_CovVrtForConstraint[it]; //jobO vertex covariance
+    for(int it=0; it<(int)m_VertexForConstraint.size(); it++) m_vkalFitControl->vk_forcft.vrt[it]=m_VertexForConstraint[it]; //jobO vertex for cnst
+    for(int it=0; it<(int)m_CovVrtForConstraint.size(); it++) m_vkalFitControl->vk_forcft.covvrt[it]=m_CovVrtForConstraint[it]; //jobO vertex covariance
     if(m_massForConstraint>0.) m_vkalFitControl->setMassCnstData(m_MassInputParticles.size(),m_massForConstraint); // configure general mass constraint
     if(m_IterationPrecision>0.)m_vkalFitControl->setIterationPrec(m_IterationPrecision);
     if(m_IterationNumber)  m_vkalFitControl->setIterationNum(m_IterationNumber);

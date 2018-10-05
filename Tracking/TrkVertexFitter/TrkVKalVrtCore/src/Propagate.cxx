@@ -139,7 +139,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 
    bool vkalPropagator::checkTarget(double *) const 
    {
-      //if ( m_typePropagator == 3 ) return m_objectProp->checkTarget(RefNew);
+      //if ( m_typePropagator == 3 ) return vk_objectProp->checkTarget(RefNew);
       return  true;
    }
  
@@ -155,19 +155,19 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //
 //-- Propagation itself
 //
-     if( FitControl==0 || (FitControl->m_objProp==0 && FitControl->m_funcProp==0) ){   // No external propagators, use internal ones
+     if( FitControl==0 || (FitControl->vk_objProp==0 && FitControl->vk_funcProp==0) ){   // No external propagators, use internal ones
 //std::cout<<" Core: use INTERNAL propagator. Charge="<<Charge<<'\n';
        if(vkalUseRKMPropagator){ Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl); }
        else                    { Trk::PropagateSTD( TrkID,Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl); }
        return;
      }
 
-     if (FitControl->m_objProp){
+     if (FitControl->vk_objProp){
 //std::cout<<" Core: use EXTERNAL propagator. Charge="<<Charge<<'\n';
 	if( Charge == 0 ) {
 	  Trk::PropagateSTD( TrkID,Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl);
 	}else{
-          FitControl->m_objProp->Propagate( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
+          FitControl->vk_objProp->Propagate( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
 	  if( ParNew[0]==0. && ParNew[1]==0. && ParNew[2]==0. && ParNew[3]==0. && ParNew[4]==0.){
             Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl);
 	  }
@@ -175,8 +175,8 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
        return;
      }
      //-------------------
-     if (FitControl->m_funcProp){
-       FitControl->m_funcProp( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
+     if (FitControl->vk_funcProp){
+       FitControl->vk_funcProp( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
        return;
      }
      //-------------------
@@ -197,17 +197,17 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //
 //-- Propagation itself
 //
-     if( FitControl==0 || (FitControl->m_objProp==0 && FitControl->m_funcProp==0) ){   // No external propagators, use internal ones
+     if( FitControl==0 || (FitControl->vk_objProp==0 && FitControl->vk_funcProp==0) ){   // No external propagators, use internal ones
        if(vkalUseRKMPropagator){ Trk::PropagateRKM(       Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl); }
        else                    { Trk::PropagateSTD( TrkID,Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl); }
        return;
      }
 
-     if (FitControl->m_objProp){
+     if (FitControl->vk_objProp){
 	if( Charge == 0 ) {
 	  Trk::PropagateSTD( TrkID,Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl);
 	}else{
-          FitControl->m_objProp->Propagate( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
+          FitControl->vk_objProp->Propagate( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
 	  if( ParNew[0]==0. && ParNew[1]==0. && ParNew[2]==0. && ParNew[3]==0. && ParNew[4]==0.){
             Trk::PropagateRKM( Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl);
 	  }
@@ -219,8 +219,8 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
        return;
      }
      //-------------------
-     if (FitControl->m_funcProp){
-       FitControl->m_funcProp( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
+     if (FitControl->vk_funcProp){
+       FitControl->vk_funcProp( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
        return;
      }
      return;

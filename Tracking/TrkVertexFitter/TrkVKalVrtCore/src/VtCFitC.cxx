@@ -41,8 +41,8 @@ int vtcfitc( VKVertex * vk )
     std::vector< double >               taa;   // derivative collectors
     std::vector< Vect3DF > tmpVec;
     for(ii=0; ii<(int)vk->ConstraintList.size();ii++){
-       totNC += vk->ConstraintList[ii]->m_NCDim;
-       for(ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
+       totNC += vk->ConstraintList[ii]->NCDim;
+       for(ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
          taa.push_back(  vk->ConstraintList[ii]->aa[ic] );
          th0t.push_back( vk->ConstraintList[ii]->h0t[ic] );
          tmpVec.clear();
@@ -256,7 +256,7 @@ double getCnstValues2( VKVertex * vk )
     if (vk->ConstraintList.size()==0) return 0.;
     double sumSQ=0.;
     for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
-       for(int ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
+       for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
          sumSQ +=  (vk->ConstraintList[ii]->aa[ic])*(vk->ConstraintList[ii]->aa[ic]);
        }
     }

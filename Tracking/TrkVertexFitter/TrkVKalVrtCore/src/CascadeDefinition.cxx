@@ -23,29 +23,29 @@ int initCascadeEngine(CascadeEvent &);
  
 void startCascade( VKVertex * vk)
 {  
-   vk->m_fitterControl->m_cascadeEvent->m_cascadeNV=1;
-   vk->m_fitterControl->m_cascadeEvent->m_nearPrmVertex=0;
-   vk->m_fitterControl->m_cascadeEvent->m_cascadeVertexList.clear();
-   vk->m_fitterControl->m_cascadeEvent->m_cascadeVertexList.push_back(vk);
+   vk->vk_fitterControl->getCascadeEvent()->cascadeNV=1;
+   vk->vk_fitterControl->getCascadeEvent()->nearPrmVertex=0;
+   vk->vk_fitterControl->getCascadeEvent()->cascadeVertexList.clear();
+   vk->vk_fitterControl->getCascadeEvent()->cascadeVertexList.push_back(vk);
 }
 
 void addCascadeEntry( VKVertex * vk)
 {
-   vk->m_fitterControl->m_cascadeEvent->m_cascadeNV++;
-   vk->m_fitterControl->m_cascadeEvent->m_cascadeVertexList.push_back(vk);
+   vk->vk_fitterControl->getCascadeEvent()->cascadeNV++;
+   vk->vk_fitterControl->getCascadeEvent()->cascadeVertexList.push_back(vk);
 }
 
 void addCascadeEntry( VKVertex * vk, std::vector<int> index)
 { 
    for(int i=0; i<(int)index.size(); i++){
-     VKVertex * predecessor =  vk->m_fitterControl->m_cascadeEvent->m_cascadeVertexList.at(index[i]);
+     VKVertex * predecessor =  vk->vk_fitterControl->getCascadeEvent()->cascadeVertexList.at(index[i]);
      if(predecessor->nextCascadeVrt) std::cout <<"VKalVrtCore: ERROR 1 in CASCADE creation !!!"<<'\n';
      predecessor->nextCascadeVrt = vk;
      vk->includedVrt.push_back(predecessor);
    }
 //
-   vk->m_fitterControl->m_cascadeEvent->m_cascadeNV++;
-   vk->m_fitterControl->m_cascadeEvent->m_cascadeVertexList.push_back(vk);
+   vk->vk_fitterControl->getCascadeEvent()->cascadeNV++;
+   vk->vk_fitterControl->getCascadeEvent()->cascadeVertexList.push_back(vk);
 }
 
 
@@ -114,7 +114,7 @@ int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich,
       }
       if(NTv>1){   //First estimation of vertex position if vertex has more than 2 tracks
         vEstimDone=1;
-        myMagFld.getMagFld(VRT->refIterV[0],VRT->refIterV[1],VRT->refIterV[2],vBx,vBy,vBz,(VRT->m_fitterControl).get());
+        myMagFld.getMagFld(VRT->refIterV[0],VRT->refIterV[1],VRT->refIterV[2],vBx,vBy,vBz,(VRT->vk_fitterControl).get());
         double aVrt[3]={0.,0.,0.};
         for(int i=0; i<NTv-1;i++) for(int j=i+1; j<NTv; j++){
            vkvFastV(&arr[i*5],&arr[j*5],xyz,vBz,out);
@@ -142,9 +142,9 @@ int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich,
 //
 // ----------------  If some vertex positions are different from (0,0,0) - move tracks there
     if(vEstimDone){ 
-      IERR = translateToFittedPos(*(FitCONTROL.m_cascadeEvent),1.); if(IERR)return IERR;
-      for( iv=0; iv<FitCONTROL.m_cascadeEvent->m_cascadeNV; iv++){
-        VRT=FitCONTROL.m_cascadeEvent->m_cascadeVertexList[iv];
+      IERR = translateToFittedPos(*(FitCONTROL.getCascadeEvent()),1.); if(IERR)return IERR;
+      for( iv=0; iv<FitCONTROL.getCascadeEvent()->cascadeNV; iv++){
+        VRT=FitCONTROL.getCascadeEvent()->cascadeVertexList[iv];
         int NTv = VRT->TrackList.size();            // Number of tracks at vertex
         for(it=0; it<NTv; it++){
           trk=VRT->TrackList[it];
@@ -157,8 +157,8 @@ int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich,
     }
 // ----------------  Init engine
 
-    IERR=initCascadeEngine(*FitCONTROL.m_cascadeEvent);
-    FitCONTROL.m_cascadeEvent->m_accuracyConstraint=definedCnstAccuracy;
+    IERR=initCascadeEngine(*FitCONTROL.getCascadeEvent());
+    FitCONTROL.getCascadeEvent()->setAccuracyConstraint(definedCnstAccuracy);
 
     return IERR;
 }
@@ -175,28 +175,28 @@ int initCascadeEngine(CascadeEvent & cascadeEvent_)
   VKVertex * VRT;
   long int IERR=0, iv, i;
   int countTrk=0;  // Number of tracks in cascade
-  for( iv=0; iv<cascadeEvent_.m_cascadeNV; iv++){
-     countTrk += cascadeEvent_.m_cascadeVertexList[iv]->TrackList.size();
+  for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
+     countTrk += cascadeEvent_.cascadeVertexList[iv]->TrackList.size();
   }
 //---------------------Some check-----------
 //  VKMassConstraint * tmpc0=0; VKMassConstraint * tmpc1=0;
-//  if(cascadeEvent_.m_cascadeVertexList[0]->ConstraintList.size()>0){
-//     tmpc0=dynamic_cast< VKMassConstraint*>(cascadeEvent_.m_cascadeVertexList[0]->ConstraintList[0]);
+//  if(cascadeEvent_.cascadeVertexList[0]->ConstraintList.size()>0){
+//     tmpc0=dynamic_cast< VKMassConstraint*>(cascadeEvent_.cascadeVertexList[0]->ConstraintList[0]);
 //     //std::cout<<(*tmpc0)<<" init status"<<'\n';
-//     if(cascadeEvent_.m_cascadeVertexList[0]->ConstraintList.size()>1){
-//       tmpc1=dynamic_cast< VKMassConstraint*>(cascadeEvent_.m_cascadeVertexList[0]->ConstraintList[1]);
+//     if(cascadeEvent_.cascadeVertexList[0]->ConstraintList.size()>1){
+//       tmpc1=dynamic_cast< VKMassConstraint*>(cascadeEvent_.cascadeVertexList[0]->ConstraintList[1]);
 //       //std::cout<<(*tmpc1)<<" init status"<<'\n';
 //  }}
-//  if( cascadeEvent_.m_cascadeVertexList.size()>1){
-//    if( cascadeEvent_.m_cascadeVertexList[1]->ConstraintList.size()>0){
-//      tmpc1=dynamic_cast< VKMassConstraint*>(cascadeEvent_.m_cascadeVertexList[1]->ConstraintList[0]);
+//  if( cascadeEvent_.cascadeVertexList.size()>1){
+//    if( cascadeEvent_.cascadeVertexList[1]->ConstraintList.size()>0){
+//      tmpc1=dynamic_cast< VKMassConstraint*>(cascadeEvent_.cascadeVertexList[1]->ConstraintList[0]);
 //      //std::cout<<(*tmpc1)<<" init status"<<'\n';
 //  }}
 //
 // ----------------  Fisrt fit without any constraints at all, just vertices
   for( i=0; i<4; i++){
-    for(iv=0; iv<cascadeEvent_.m_cascadeNV; iv++){
-       VRT = cascadeEvent_.m_cascadeVertexList[iv];
+    for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
+       VRT = cascadeEvent_.cascadeVertexList[iv];
        IERR = fitVertexCascade( VRT, 0);     if(IERR)return IERR;   //fit 
        IERR = setVTrackMass(VRT);            if(IERR)return IERR;   //mass of combined particle
        if(VRT->includedVrt.size()){  // Save fitted vertex as target for "pass near" constraint in previous vertex
@@ -219,9 +219,9 @@ int initCascadeEngine(CascadeEvent & cascadeEvent_)
 //          For complete vertex
 int setCascadeMassConstraint(CascadeEvent & cascadeEvent_, long int IV, double Mass)
 {
-    if(IV>cascadeEvent_.m_cascadeNV-1) return -1;  //error in format
+    if(IV>cascadeEvent_.cascadeNV-1) return -1;  //error in format
     if(IV<0)                         return -1;
-    VKVertex * vk =  cascadeEvent_.m_cascadeVertexList[IV];  //target vertex
+    VKVertex * vk =  cascadeEvent_.cascadeVertexList[IV];  //target vertex
     int NTRK = vk->TrackList.size();
     vk->ConstraintList.push_back(new VKMassConstraint( NTRK, Mass, vk));
     return 0;
@@ -235,9 +235,9 @@ int setCascadeMassConstraint(CascadeEvent & cascadeEvent_, long int IV, std::vec
 {
     std::vector<int> tmpIndex;
     int it;
-    if(IV>cascadeEvent_.m_cascadeNV-1) return -1;  //error in format
+    if(IV>cascadeEvent_.cascadeNV-1) return -1;  //error in format
     if(IV<0)                         return -1;
-    VKVertex * vk =  cascadeEvent_.m_cascadeVertexList[IV];  //target vertex
+    VKVertex * vk =  cascadeEvent_.cascadeVertexList[IV];  //target vertex
     int NTRK = vk->TrackList.size();             //tracks+pseudotracks
     int nRealTrk=0;                              //number of real tracks
     for(it=0; it<(int)trkInVrt.size(); it++) if(vk->TrackList[it]->Id >= 0) nRealTrk++;

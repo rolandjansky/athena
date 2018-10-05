@@ -31,7 +31,7 @@ std::vector<double> getFitParticleMom( VKTrack * trk, VKVertex *vk)
     fieldPos[0]=vk->refIterV[0]+vk->fitV[0];
     fieldPos[1]=vk->refIterV[1]+vk->fitV[1];
     fieldPos[2]=vk->refIterV[2]+vk->fitV[2];
-    double magConst =myMagFld.getMagFld(fieldPos,(vk->m_fitterControl).get())  * myMagFld.getCnvCst();
+    double magConst =myMagFld.getMagFld(fieldPos,(vk->vk_fitterControl).get())  * myMagFld.getCnvCst();
 
     double cth = 1. / tan( trk->fitP[0]);
     double phi      = trk->fitP[1];
@@ -62,7 +62,7 @@ std::vector<double> getFitParticleMom( VKTrack * trk, double BMAG)
 std::vector<double> getIniParticleMom( VKTrack * trk, VKVertex *vk)
 {
     std::vector<double> p(4);
-    double magConst = myMagFld.getMagFld(vk->refIterV,(vk->m_fitterControl).get())  * myMagFld.getCnvCst();
+    double magConst = myMagFld.getMagFld(vk->refIterV,(vk->vk_fitterControl).get())  * myMagFld.getCnvCst();
 
     double cth = 1. / tan( trk->iniP[0]);
     double phi      =      trk->iniP[1];
@@ -98,7 +98,7 @@ std::vector<double> getCnstParticleMom( VKTrack * trk, VKVertex *vk )
     cnstPos[0]=vk->refIterV[0]+vk->cnstV[0];
     cnstPos[1]=vk->refIterV[1]+vk->cnstV[1];
     cnstPos[2]=vk->refIterV[2]+vk->cnstV[2];
-    double magConst = myMagFld.getMagFld(cnstPos,(vk->m_fitterControl).get())  * myMagFld.getCnvCst();
+    double magConst = myMagFld.getMagFld(cnstPos,(vk->vk_fitterControl).get())  * myMagFld.getCnvCst();
 
     double cth = 1. / tan( trk->cnstP[0]);
     double phi      =      trk->cnstP[1];

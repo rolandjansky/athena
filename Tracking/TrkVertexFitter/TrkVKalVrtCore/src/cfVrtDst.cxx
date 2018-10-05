@@ -53,7 +53,7 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
 			 vk->refIterV[2] + vk->cnstV[2]};
     long int Charge = 0; for ( it=0; it<NTRK; it++) Charge += vk->TrackList[it]->Charge; 
 //std::cout<<" cfVrtDst ntrk="<<NTRK<<" chg="<<Charge<<'\n';
-    double localField=myMagFld.getMagFld(fittedVrt,(vk->m_fitterControl).get());
+    double localField=myMagFld.getMagFld(fittedVrt,(vk->vk_fitterControl).get());
     if ( UseTrkErr){
       combinedTrack( Charge, ptot, vk->fitCovXYZMom, localField, parV0, covParV0);
     }else{
@@ -70,7 +70,7 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
 //
     double nPar[5],nCov[15];
     long int TrkID = -999;   // Abstract track propagation
-    myPropagator.Propagate( TrkID, Charge, parV0, covParV0, fittedVrt, vk->FVC.vrt, nPar, nCov, (vk->m_fitterControl).get());
+    myPropagator.Propagate( TrkID, Charge, parV0, covParV0, fittedVrt, vk->FVC.vrt, nPar, nCov, (vk->vk_fitterControl).get());
 //
 //
     double cnv[2][3];

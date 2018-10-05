@@ -28,10 +28,10 @@ namespace Trk {
        VKalVrtControlBase(const VKalVrtControlBase & src);              //copy
       ~VKalVrtControlBase();
 
-       const baseMagFld*      m_objMagFld;
-       const addrMagHandler   m_funcMagFld;
-       const basePropagator*  m_objProp;
-       const addrPropagator   m_funcProp; 
+       const baseMagFld*      vk_objMagFld;
+       const addrMagHandler   vk_funcMagFld;
+       const basePropagator*  vk_objProp;
+       const addrPropagator   vk_funcProp;
    };
 
    class VKalVrtControl : public VKalVrtControlBase
@@ -58,15 +58,25 @@ namespace Trk {
        void setUsePointingCnst(int );
        void setUsePassNear(int);
 
-     public:
+       void renewCascadeEvent(CascadeEvent *);
+       CascadeEvent * getCascadeEvent() const;
+       void renewFullCovariance(double *);
+       double * getFullCovariance() const;
+
+       void setVertexMass(double mass) { m_vrtMassTot=mass;}
+       void setVrtMassError(double error) { m_vrtMassError=error;}
+       double getVertexMass() { return m_vrtMassTot;}
+       double getVrtMassError() {return m_vrtMassError;}
+
+       ForCFT vk_forcft;
+
+     private:
 
        double * m_fullCovariance;   // On vertex fit exit contains full covariance matrix 
                                     // (x,y,z,px_0,py_0,pz_0,....,px_n,py_n,pz_n)
                                     // in symmetric form
-       ForCFT m_forcft;
        double m_vrtMassTot;
        double m_vrtMassError;
-
        CascadeEvent * m_cascadeEvent=nullptr;       
 
   };

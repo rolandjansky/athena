@@ -68,7 +68,7 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
     /* Function Body */
 /* --------------------- */
     jerr = 0;
-    double constB =FitCONTROL->m_forcft.localbmag * vkalMagCnvCst ;
+    double constB =FitCONTROL->vk_forcft.localbmag * vkalMagCnvCst ;
     
     for (ip = 0; ip <= 4*6; ++ip) {    // Number of points * Number of parameters
 /* --  Input parameters */

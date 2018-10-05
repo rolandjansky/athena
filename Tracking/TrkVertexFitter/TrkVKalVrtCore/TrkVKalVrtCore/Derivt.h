@@ -26,8 +26,8 @@ namespace Trk {
       VKConstraintBase(const int, int);
       virtual ~VKConstraintBase();
     public:
-      int m_NCDim;                                // constraint dimension
-      int m_NTrk;                                 // number of tracks
+      int NCDim;                                // constraint dimension
+      int NTrk;                                 // number of tracks
       std::vector<double> aa;                     // Constraint values
       std::vector< std::vector< Vect3DF > > f0t;  // Constraint momentum derivatives 
       std::vector< Vect3DF > h0t;	          // Constraint space derivatives
@@ -44,12 +44,15 @@ namespace Trk {
         friend std::ostream& operator<<( std::ostream& out, const VKMassConstraint& );
    
       public:
-        double m_targetMass;
-	std::vector<int> m_usedParticles;
         VKVertex * getOriginVertex() const { return m_originVertex;}
+        void setTargetMass(double M) { m_targetMass=M; };
+        double getTargetMass() const { return m_targetMass; };
+        std::vector<int> getUsedParticles() const { return m_usedParticles; };
 
       private:
+	std::vector<int> m_usedParticles;
         VKVertex * m_originVertex;
+        double m_targetMass;
  
    };
 //
@@ -84,16 +87,17 @@ namespace Trk {
    class VKPointConstraint : public VKConstraintBase
    {
       public:
-        VKPointConstraint(int,double [], VKVertex*); 
+        VKPointConstraint(int,double[3], VKVertex*, bool ); 
         ~VKPointConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKPointConstraint& );
-        VKVertex * getOriginVertex() const { return m_originVertex;}
-
-      public:
-         double m_targetVertex[3];   //Target vertex is in global reference system
-         bool m_onlyZ; 
+        VKVertex * getOriginVertex() const { return m_originVertex; };
+        bool onlyZ() const {return m_onlyZ; };
+        void setTargetVertex(double VRT[3]){ m_targetVertex[0]=VRT[0]; m_targetVertex[1]=VRT[1]; m_targetVertex[2]=VRT[2]; };
+        const double * getTargetVertex() const { return m_targetVertex;};
 
       private:
+        bool m_onlyZ; 
+        double m_targetVertex[3];   //Target vertex is in global reference system
         VKVertex * m_originVertex;
    };
 //

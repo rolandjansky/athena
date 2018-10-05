@@ -514,8 +514,8 @@ StatusCode TrigVKalFitter::VKalGetMassError( std::vector<int> ListOfTracks , dou
    if(!m_FitStatus) return StatusCode::FAILURE;
    if((int) ListOfTracks.size() != m_FitStatus) return StatusCode::FAILURE;
 
-   dM        = m_vkalFitControl->m_vrtMassTot;
-   MassError = m_vkalFitControl->m_vrtMassError;
+   dM        = m_vkalFitControl->getVertexMass();
+   MassError = m_vkalFitControl->getVrtMassError();
 
    return StatusCode::SUCCESS;
 }

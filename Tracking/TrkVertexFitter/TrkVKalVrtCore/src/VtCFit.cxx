@@ -126,7 +126,7 @@ namespace Trk {
     double twbci[9];
     double xyzf[3];
 
-    vk->m_truncatedStep=false;
+    vk->truncatedStep=false;
     if ( NTRK > vkalNTrkM ) return 1;
 
     std::unique_ptr<double[]> dphi   = std::unique_ptr<double[]>(new double[NTRK]);
@@ -653,7 +653,7 @@ namespace Trk {
     //--Additional iterations along shift direction
     bool improved=makePostFit( vk , wgtvrtd, dCoefNorm);
     if(!improved)improved=makePostFit( vk , wgtvrtd, dCoefNorm); //Step truncation doesn't help. Make second pass
-    if(!improved)vk->m_truncatedStep=true;
+    if(!improved)vk->truncatedStep=true;
 
     //-- If no additional iterations (for tests)
     //makeNoPostFit( vk , wgtvrtd, dCoefNorm);

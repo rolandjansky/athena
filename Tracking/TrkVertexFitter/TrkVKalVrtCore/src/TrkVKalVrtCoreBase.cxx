@@ -13,28 +13,28 @@ namespace Trk {
 
   VKalVrtControlBase::VKalVrtControlBase(const baseMagFld* baseFld,   const addrMagHandler addrFld, 
                                      const basePropagator* baseP, const addrPropagator addrP): 
-       m_objMagFld(baseFld),
-       m_funcMagFld(addrFld),
-       m_objProp(baseP), 
-       m_funcProp(addrP){}
+       vk_objMagFld(baseFld),
+       vk_funcMagFld(addrFld),
+       vk_objProp(baseP), 
+       vk_funcProp(addrP){}
 
   VKalVrtControlBase::~VKalVrtControlBase(){}
 
   VKalVrtControlBase::VKalVrtControlBase(const VKalVrtControlBase & src ): 
-       m_objMagFld(src.m_objMagFld),
-       m_funcMagFld(src.m_funcMagFld),
-       m_objProp(src.m_objProp), 
-       m_funcProp(src.m_funcProp){}
+       vk_objMagFld(src.vk_objMagFld),
+       vk_funcMagFld(src.vk_funcMagFld),
+       vk_objProp(src.vk_objProp), 
+       vk_funcProp(src.vk_funcProp){}
 
   VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base): VKalVrtControlBase(base) { 
-    m_fullCovariance=0;
+    m_fullCovariance=nullptr;
     m_vrtMassTot=-1.;
     m_vrtMassError=-1.;
     m_cascadeEvent=nullptr;
   }
   VKalVrtControl::VKalVrtControl(const VKalVrtControl & src) : VKalVrtControlBase(src) { 
-    m_fullCovariance=0; 
-    m_forcft=src.m_forcft;
+    m_fullCovariance=nullptr; 
+    vk_forcft=src.vk_forcft;
     m_vrtMassTot=src.m_vrtMassTot;
     m_vrtMassError=src.m_vrtMassError;
     m_cascadeEvent=src.m_cascadeEvent;
@@ -104,7 +104,7 @@ namespace Trk {
 
 
   VKVertex::VKVertex(const VKalVrtControl & FitControl): VKVertex() 
-  {    m_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(FitControl));  }
+  {    vk_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(FitControl));  }
 
   VKVertex::VKVertex(): 
      useApriorVertex(0), passNearVertex(false), passWithTrkCov(false), 
@@ -116,8 +116,8 @@ namespace Trk {
      fitCovXYZMom[0]=savedVrtMomCov[0]=100.; fitCovXYZMom[2] =savedVrtMomCov[2] =100.; fitCovXYZMom[5] =savedVrtMomCov[5] =100.;
      fitCovXYZMom[9]=savedVrtMomCov[9]=100.; fitCovXYZMom[14]=savedVrtMomCov[14]=100.; fitCovXYZMom[20]=savedVrtMomCov[20]=100.;
      Chi2=0.;
-     m_truncatedStep=false;
-     m_existFullCov=0;
+     truncatedStep=false;
+     existFullCov=0;
      std::fill_n(ader,(3*vkalNTrkM+3)*(3*vkalNTrkM+3),0);
   }
 
@@ -128,11 +128,11 @@ namespace Trk {
        for( int i=0; i<(int)ConstraintList.size(); i++) delete ConstraintList[i];
        for( int i=0; i<(int)includedVrt.size(); i++) includedVrt[i]=0;  // these vertice are not owned, then must not be deleted.
   }
-  void VKVertex::setRefV(double v[]){ refV[0]=v[0]; refV[1]=v[1]; refV[2]=v[2];}
+  void VKVertex::setRefV(double v[3]){ refV[0]=v[0]; refV[1]=v[1]; refV[2]=v[2];}
   void VKVertex::setRefIterV(double v[]){ refIterV[0]=v[0]; refIterV[1]=v[1]; refIterV[2]=v[2];}
-  void VKVertex::setIniV(double v[]){ iniV[0]=v[0]; iniV[1]=v[1]; iniV[2]=v[2];}
-  void VKVertex::setFitV(double v[]){ fitV[0]=v[0]; fitV[1]=v[1]; fitV[2]=v[2];}
-  void VKVertex::setCnstV(double v[]){ cnstV[0]=v[0]; cnstV[1]=v[1]; cnstV[2]=v[2];}
+  void VKVertex::setIniV(double v[3]){ iniV[0]=v[0]; iniV[1]=v[1]; iniV[2]=v[2];}
+  void VKVertex::setFitV(double v[3]){ fitV[0]=v[0]; fitV[1]=v[1]; fitV[2]=v[2];}
+  void VKVertex::setCnstV(double v[3]){ cnstV[0]=v[0]; cnstV[1]=v[1]; cnstV[2]=v[2];}
 
 
   VKVertex::VKVertex(const VKVertex & src):        //copy constructor
@@ -159,20 +159,20 @@ namespace Trk {
        fitCovXYZMom[i]=src.fitCovXYZMom[i];
     }
     nextCascadeVrt = 0;
-    m_truncatedStep = src.m_truncatedStep;
-    m_existFullCov = src.m_existFullCov;
+    truncatedStep = src.truncatedStep;
+    existFullCov = src.existFullCov;
     std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
     //----- Creation of track copies
     TrackList.clear();
     for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
-    m_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*src.m_fitterControl));
+    vk_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*src.vk_fitterControl));
    }
 
   VKVertex& VKVertex::operator= (const VKVertex & src)        //Assignment operator
   {
     if (this!=&src){
-      m_fitterControl.reset();
-      m_fitterControl=std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*(src.m_fitterControl)));
+      vk_fitterControl.reset();
+      vk_fitterControl=std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*(src.vk_fitterControl)));
       Chi2=src.Chi2;                         // vertex Chi2
       useApriorVertex=src.useApriorVertex;    //for a priory vertex position knowledge usage
       passNearVertex=src.passNearVertex;      // needed for "passing near vertex" constraint
@@ -195,8 +195,8 @@ namespace Trk {
         fitCovXYZMom[i]=src.fitCovXYZMom[i];
       }
       nextCascadeVrt = 0;
-      m_truncatedStep = src.m_truncatedStep;
-      m_existFullCov = src.m_existFullCov;
+      truncatedStep = src.truncatedStep;
+      existFullCov = src.existFullCov;
       std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
     //----- Creation of track copies
       TrackList.clear();
@@ -215,59 +215,69 @@ namespace Trk {
   {
     if (Iter<3)   Iter=3;
     if (Iter>100) Iter=100;
-    m_forcft.IterationNumber    = Iter;
+    vk_forcft.IterationNumber    = Iter;
   }
 
   void VKalVrtControl::setIterationPrec(double Prec)
   {
     if (Prec<1.e-5)   Prec=1.e-5;
     if (Prec>1.e-1)   Prec=1.e-1;
-    m_forcft.IterationPrecision = Prec;
+    vk_forcft.IterationPrecision = Prec;
   }
 
   void VKalVrtControl::setRobustScale(double Scale)
   {
     if (Scale<0.01)   Scale=0.01;
     if (Scale>100.)   Scale=100.;
-    m_forcft.RobustScale = Scale;
+    vk_forcft.RobustScale = Scale;
   }
 
   void VKalVrtControl::setRobustness(int Rob)
   {
     if (Rob<0)   Rob=0;
     if (Rob>7)   Rob=7;
-    m_forcft.irob = Rob;
+    vk_forcft.irob = Rob;
   }
   void VKalVrtControl::setMassCnstData(int Ntrk, double Mass){     // Define global mass constraint. It must be first
     double sumM(0.);
-    for(int it=0; it<Ntrk; it++) sumM +=   m_forcft.wm[it];                        //sum of particle masses
+    for(int it=0; it<Ntrk; it++) sumM +=   vk_forcft.wm[it];                        //sum of particle masses
     if(sumM<Mass) {
-      m_forcft.wmfit[0]=Mass;
-      for(int it=0; it<Ntrk; it++) m_forcft.indtrkmc[0][it]=1;                     //Set participating particles
-      m_forcft.nmcnst=1;
+      vk_forcft.wmfit[0]=Mass;
+      for(int it=0; it<Ntrk; it++) vk_forcft.indtrkmc[0][it]=1;                     //Set participating particles
+      vk_forcft.nmcnst=1;
     }
-    m_forcft.useMassCnst = 1;
+    vk_forcft.useMassCnst = 1;
   }
   void VKalVrtControl::setMassCnstData(int Ntrk, std::vector<int> & Index, double Mass){
     double sumM(0.);
-    for(int it=0; it<Ntrk; it++) sumM +=   m_forcft.wm[Index[it]];                 //sum of particle masses
+    for(int it=0; it<Ntrk; it++) sumM +=   vk_forcft.wm[Index[it]];                 //sum of particle masses
     if(sumM<Mass) {
-      m_forcft.wmfit[0]=Mass;
-      for(int it=0; it<Ntrk; it++) m_forcft.indtrkmc[m_forcft.nmcnst][Index[it]]=1;  //Set participating particles
-      m_forcft.nmcnst++;
+      vk_forcft.wmfit[0]=Mass;
+      for(int it=0; it<Ntrk; it++) vk_forcft.indtrkmc[vk_forcft.nmcnst][Index[it]]=1;  //Set participating particles
+      vk_forcft.nmcnst++;
     }
-    m_forcft.useMassCnst = 1;
+    vk_forcft.useMassCnst = 1;
   }
 
-  void VKalVrtControl::setUsePhiCnst()   { m_forcft.usePhiCnst = 1;}
+  void VKalVrtControl::setUsePhiCnst()   { vk_forcft.usePhiCnst = 1;}
   void VKalVrtControl::setUsePlaneCnst(double a, double b, double c, double d)   { 
-    if(a+b+c+d == 0.){  m_forcft.usePlaneCnst = 0;
-    }else{              m_forcft.usePlaneCnst = 1; }
-    m_forcft.Ap = a; m_forcft.Bp = b; m_forcft.Cp = c; m_forcft.Dp = d;
+    if(a+b+c+d == 0.){  vk_forcft.usePlaneCnst = 0;
+    }else{              vk_forcft.usePlaneCnst = 1; }
+    vk_forcft.Ap = a; vk_forcft.Bp = b; vk_forcft.Cp = c; vk_forcft.Dp = d;
   }
-  void VKalVrtControl::setUseThetaCnst() { m_forcft.useThetaCnst = 1;}
-  void VKalVrtControl::setUseAprioriVrt(){ m_forcft.useAprioriVrt = 1;}
-  void VKalVrtControl::setUsePointingCnst(int iType = 1 ) { m_forcft.usePointingCnst = iType<2 ? 1 : 2 ;}
-  void VKalVrtControl::setUsePassNear(int iType = 1 ) { m_forcft.usePassNear = iType<2 ? 1 : 2 ;}
+  void VKalVrtControl::setUseThetaCnst() { vk_forcft.useThetaCnst = 1;}
+  void VKalVrtControl::setUseAprioriVrt(){ vk_forcft.useAprioriVrt = 1;}
+  void VKalVrtControl::setUsePointingCnst(int iType = 1 ) { vk_forcft.usePointingCnst = iType<2 ? 1 : 2 ;}
+  void VKalVrtControl::setUsePassNear(int iType = 1 ) { vk_forcft.usePassNear = iType<2 ? 1 : 2 ;}
+  CascadeEvent * VKalVrtControl::getCascadeEvent() const { return m_cascadeEvent;}
+  void VKalVrtControl::renewCascadeEvent(CascadeEvent * newevt) { 
+     if(m_cascadeEvent)delete m_cascadeEvent;
+     m_cascadeEvent=newevt;
+  }
+  double * VKalVrtControl::getFullCovariance() const { return m_fullCovariance; }
+  void VKalVrtControl::renewFullCovariance(double * newarray) { 
+     if(m_fullCovariance) delete[] m_fullCovariance;
+     m_fullCovariance=newarray;
+  }
 
 } /* End of namespace */

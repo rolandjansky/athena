@@ -48,7 +48,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
         FullMTXfill( vk, ader);
         Vect3DF th0t,tf0t;
         for(ic1=0; ic1<(int)vk->ConstraintList.size();ic1++){
-          for(ic2=0; ic2<vk->ConstraintList[ic1]->m_NCDim; ic2++){
+          for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){
             th0t = vk->ConstraintList[ic1]->h0t[ic2];
             ader_ref(1, 1) += cnt * th0t.X * th0t.X;
             ader_ref(2, 1) += cnt * th0t.Y * th0t.X;
@@ -76,7 +76,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 
 
         for(ic1=0; ic1<(int)vk->ConstraintList.size();ic1++){
-          for(ic2=0; ic2<vk->ConstraintList[ic1]->m_NCDim; ic2++){
+          for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){
 	    for (it = 1; it <= NTRK; ++it) {
 	      for (jt = it; jt <= NTRK; ++jt) {
                 Vect3DF tf0ti = vk->ConstraintList[ic1]->f0t[it-1][ic2];
@@ -242,8 +242,8 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
           std::vector< double >               taa;   // derivative collectors
           std::vector< Vect3DF > tmpVec;
           for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
-             totNC += vk->ConstraintList[ii]->m_NCDim;
-             for(ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
+             totNC += vk->ConstraintList[ii]->NCDim;
+             for(ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
                taa.push_back(  vk->ConstraintList[ii]->aa[ic] );
                th0t.push_back( vk->ConstraintList[ii]->h0t[ic] );
                tmpVec.clear();
@@ -324,7 +324,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 	}
     }
 //for(int ii=1; ii<=6; ii++)std::cout<<verr[ii-1][ii-1]<<", "; std::cout<<" final m NEW"<<'\n';        
-    vk->m_existFullCov = 1;
+    vk->existFullCov = 1;
     return 0;
 } 
 #undef dcv_ref

@@ -301,10 +301,9 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
     m_FitStatus=0;
     if(m_ErrMtx)delete[] m_ErrMtx; //delete previous array is exist
     m_ErrMtx=0;                    //
-    if(m_vkalFitControl->m_fullCovariance)delete[] m_vkalFitControl->m_fullCovariance;  //delete previous array is exist
-    m_vkalFitControl->m_fullCovariance=0;                                               //
-    m_vkalFitControl->m_vrtMassTot=-1.;
-    m_vkalFitControl->m_vrtMassError=-1.;
+    m_vkalFitControl->renewFullCovariance(nullptr);                                               //
+    m_vkalFitControl->setVertexMass(-1.);
+    m_vkalFitControl->setVrtMassError(-1.);
     if(m_ApproximateVertex.size()==3 && fabs(m_ApproximateVertex[2])<m_IDsizeZ &&
          sqrt(m_ApproximateVertex[0]*m_ApproximateVertex[0]+m_ApproximateVertex[1]*m_ApproximateVertex[1])<m_IDsizeR)
     {
@@ -330,11 +329,11 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 //  Postfit operation. Creation of array for different error calculations and full error matrix copy
 //
     m_FitStatus=ntrk;
-    if(m_ifcovv0 && m_vkalFitControl->m_fullCovariance){   //If full fit error matrix is returned by VKalVrtCORE 
+    if(m_ifcovv0 && m_vkalFitControl->getFullCovariance()){   //If full fit error matrix is returned by VKalVrtCORE 
        int SymCovMtxSize=(3*ntrk+3)*(3*ntrk+4)/2;
        m_ErrMtx = new double[ SymCovMtxSize  ];    //create new array for errors
-       std::copy(m_vkalFitControl->m_fullCovariance,m_vkalFitControl->m_fullCovariance+SymCovMtxSize,m_ErrMtx);
-       delete[] m_vkalFitControl->m_fullCovariance; m_vkalFitControl->m_fullCovariance=0;
+       std::copy(m_vkalFitControl->getFullCovariance(),m_vkalFitControl->getFullCovariance()+SymCovMtxSize,m_ErrMtx);
+       m_vkalFitControl->renewFullCovariance(nullptr);
        ErrorMatrix.clear(); ErrorMatrix.reserve(21); ErrorMatrix.assign(covf,covf+21);
     } else {
        ErrorMatrix.clear(); ErrorMatrix.reserve(6);  ErrorMatrix.assign(covf,covf+6);
@@ -364,7 +363,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
     //  double Px = Pt*cos(m_parfs[i][1]);
     //  double Py = Pt*sin(m_parfs[i][1]);
     //  double Pz = Pt/tan(m_parfs[i][0]);
-    //  double Ee = sqrt(Px*Px+Py*Py+Pz*Pz+m_vkalFitControl->m_forcft.wm[i]*m_vkalFitControl->m_forcft.wm[i]);
+    //  double Ee = sqrt(Px*Px+Py*Py+Pz*Pz+m_vkalFitControl->vk_forcft.wm[i]*m_vkalFitControl->vk_forcft.wm[i]);
     //  pmom[0] += Px; pmom[1] += Py; pmom[2] += Pz; pmom[3] += Ee;
     //}
     //Momentum.SetPxPyPzE( pmom[0], pmom[1], pmom[2], pmom[3] );
@@ -721,8 +720,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   StatusCode TrkVKalVrtFitter::VKalGetMassError( double& dM, double& MassError)
   {    
     if(!m_FitStatus) return StatusCode::FAILURE;
-    dM        = m_vkalFitControl->m_vrtMassTot;
-    MassError = m_vkalFitControl->m_vrtMassError;
+    dM        = m_vkalFitControl->getVertexMass();
+    MassError = m_vkalFitControl->getVrtMassError();
     return StatusCode::SUCCESS;
   }
   
@@ -734,7 +733,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 
     int NTRK=m_FitStatus;
 
-    for (int i=0; i<NTRK; i++) trkWeights.push_back(m_vkalFitControl->m_forcft.robres[i]);
+    for (int i=0; i<NTRK; i++) trkWeights.push_back(m_vkalFitControl->vk_forcft.robres[i]);
 
     return StatusCode::SUCCESS;
   }

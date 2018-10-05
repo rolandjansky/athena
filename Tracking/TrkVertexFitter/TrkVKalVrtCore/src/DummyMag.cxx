@@ -43,32 +43,32 @@ void vkalMagFld::getMagFld(const double X,const double Y,const double Z,
 {
      bx=by=0.;
      //std::cout<<"In coreMag.field0 Control="<<FitControl<<'\n';
-     //std::cout<<"In coreMag.field0 obj="<<FitControl->m_objMagFld<<" func="<<FitControl->m_funcMagFld<<'\n';
-     if ( FitControl==0  || (FitControl->m_funcMagFld == 0 && FitControl->m_objMagFld==0) ){
+     //std::cout<<"In coreMag.field0 obj="<<FitControl->vk_objMagFld<<" func="<<FitControl->vk_funcMagFld<<'\n';
+     if ( FitControl==0  || (FitControl->vk_funcMagFld == 0 && FitControl->vk_objMagFld==0) ){
         bz=m_cnstBMAG;
         return;
      }
-     if ( FitControl->m_funcMagFld ){
-        FitControl->m_funcMagFld(X,Y,Z,bx,by,bz);
-     }else if ( FitControl->m_objMagFld ) {
-        FitControl->m_objMagFld->getMagFld(X,Y,Z,bx,by,bz);
+     if ( FitControl->vk_funcMagFld ){
+        FitControl->vk_funcMagFld(X,Y,Z,bx,by,bz);
+     }else if ( FitControl->vk_objMagFld ) {
+        FitControl->vk_objMagFld->getMagFld(X,Y,Z,bx,by,bz);
      }
-     //std::cout<<" coreMag.field="<<bx<<", "<<by<<", "<<bz<<" obj="<<FitControl->m_objMagFld<<" func="<<FitControl->m_funcMagFld<<'\n';
+     //std::cout<<" coreMag.field="<<bx<<", "<<by<<", "<<bz<<" obj="<<FitControl->vk_objMagFld<<" func="<<FitControl->vk_funcMagFld<<'\n';
 }
 
 double vkalMagFld::getMagFld(const double xyz[3], const VKalVrtControlBase* FitControl=0 ) const
 {
      //std::cout<<"In coreMag.field1 Control="<<FitControl<<'\n';
-     //std::cout<<"In coreMag.field1 obj="<<FitControl->m_objMagFld<<" func="<<FitControl->m_funcMagFld<<'\n';
+     //std::cout<<"In coreMag.field1 obj="<<FitControl->vk_objMagFld<<" func="<<FitControl->vk_funcMagFld<<'\n';
      double bx=0., by=0., bz=0.;
-     if (  FitControl==0  || (FitControl->m_funcMagFld == 0 && FitControl->m_objMagFld==0) ){
+     if (  FitControl==0  || (FitControl->vk_funcMagFld == 0 && FitControl->vk_objMagFld==0) ){
        bz=m_cnstBMAG;
        return bz;
      }
-     if ( FitControl->m_funcMagFld ){
-        FitControl->m_funcMagFld(xyz[0],xyz[1],xyz[2],bx,by,bz);
-     }else if ( FitControl->m_objMagFld ) {
-        FitControl->m_objMagFld->getMagFld(xyz[0],xyz[1],xyz[2],bx,by,bz);
+     if ( FitControl->vk_funcMagFld ){
+        FitControl->vk_funcMagFld(xyz[0],xyz[1],xyz[2],bx,by,bz);
+     }else if ( FitControl->vk_objMagFld ) {
+        FitControl->vk_objMagFld->getMagFld(xyz[0],xyz[1],xyz[2],bx,by,bz);
      }
      return bz;
 }
