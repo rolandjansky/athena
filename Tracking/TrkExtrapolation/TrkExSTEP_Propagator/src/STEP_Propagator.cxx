@@ -1629,7 +1629,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           if (binIDMat!=nextMat) {               // change of material triggers update of the cache 
             binIDMat = nextMat;
             if (binIDMat) {
-              assert( m_material);
+              assert( cache.m_material);
               updateMaterialEffects(cache,mom, sin(direction.theta()), sumPath+path);
               cache.m_material = binIDMat->first;            
             }
