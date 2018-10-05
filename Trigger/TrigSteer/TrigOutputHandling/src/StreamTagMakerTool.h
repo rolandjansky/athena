@@ -8,15 +8,15 @@
 #include <string>
 #include <map>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigOutputHandling/HLResultMTMakerTool.h"
+#include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "eformat/StreamTag.h"
 
 /**
- * @class StreamTagMakerTool makes stream tags out of chain decisions
- * @brief
+ * @class StreamTagMakerTool 
+ * @brief makes stream tags out of chain decisions
  **/
-class StreamTagMakerTool : public extends<AthAlgTool, HLResultMTMakerTool> {
+class StreamTagMakerTool : public extends<AthAlgTool, HLTResultMTMakerTool> {
 public:
   StreamTagMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~StreamTagMakerTool() override;
@@ -33,7 +33,6 @@ private:
 
   typedef std::map< TrigCompositeUtils::DecisionID, eformat::helper::StreamTag> ChainToStreamMap;
   ChainToStreamMap m_mapping;
-
 };
 
 #endif // TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H

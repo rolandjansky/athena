@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODTrigMuon
 			  Event/xAOD/xAODMuon
 			  Trigger/TrigSteer/DecisionHandling
+			  Control/AthenaMonitoring
 			  )
 find_package( tdaq-common )
 
@@ -31,7 +32,7 @@ atlas_add_library( TrigOutputHandlingLib
                    PUBLIC_HEADERS TrigOutputHandling
 		   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib
-                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon DecisionHandlingLib )                 
+                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon DecisionHandlingLib AthenaMonitoringLib )                 
 
 atlas_add_component( TrigOutputHandling
                      src/components/*.cxx                      
