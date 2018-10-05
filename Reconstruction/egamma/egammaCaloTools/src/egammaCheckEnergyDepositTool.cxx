@@ -53,23 +53,8 @@ StatusCode egammaCheckEnergyDepositTool::finalize()
 }
 
 // =========================================================================
-bool egammaCheckEnergyDepositTool::checkFractioninSampling(const xAOD::Egamma* eg) const 
-{
-
-  // protection against bad pointers
-  if (eg==0) return false;
-
-  // retrieve associated cluster
-  const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
-
-  return checkFractioninSamplingCluster(cluster);
-}
-
 bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::CaloCluster*   cluster) const  
 {
-
-  // return true if no check to be done
-  if(!m_useThrFmax) return (true);
 
   // retrieve associated cluster
   if (cluster==0) return false;

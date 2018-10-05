@@ -5,6 +5,16 @@
 # ------------------------------------------------------------
 
 #
+# --- load the tool to check the energy deposits and select clusters
+#
+from egammaRec.Factories import ToolFactory
+from egammaCaloTools import egammaCaloToolsConf
+egammaCaloClusterHadROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
+                                               name = 'caloClusterHadROISelector',
+                                               ClusterEtCut = 25000
+                                             ) 
+
+#
 # --- get the builder tool
 #
 from InDetCaloClusterROIBuilder.InDetCaloClusterROIBuilderConf import InDet__CaloClusterROI_Builder
@@ -20,8 +30,9 @@ from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__C
 InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector (name                         = "InDetHadCaloClusterROISelector",
                                                               InputClusterContainerName    = InDetKeys.HadCaloClusterContainer(),    # "LArClusterEM"
                                                               OutputClusterContainerName   = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs"
-                                                              ClusterEtCut                 = 25000,
-                                                              CaloClusterROIBuilder        = InDetCaloClusterROIBuilder)
+                                                              CaloClusterROIBuilder        = InDetCaloClusterROIBuilder
+                                                              egammaCaloClusterSelector    = egammaCaloClusterHadROISelector()
+                                                             )
 
 topSequence += InDetHadCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
