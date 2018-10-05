@@ -2,9 +2,9 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelRingSLHC.h"
-#include "PixelGeoModel/GeoPixelModule.h"
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
+#include "GeoPixelRingSLHC.h"
+#include "GeoPixelModule.h"
+#include "GeoPixelSiCrystal.h"
 
 // #include "InDetGeoModelUtils/ExtraMaterial.h"
 
@@ -42,8 +42,8 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
   //(sar) Original block was in c'tor...
   // Dimensions from class methods
   //
-  double rmin = m_gmt_mgr->PixelRingRMin(); // Default is 0.01 CLHEP::mm safety added
-  double rmax = m_gmt_mgr->PixelRingRMax(); // Default is 0.01 CLHEP::mm safety added
+  double rmin = m_gmt_mgr->PixelRingRMin(); // Default is 0.01 GeoModelKernelUnits::mm safety added
+  double rmax = m_gmt_mgr->PixelRingRMax(); // Default is 0.01 GeoModelKernelUnits::mm safety added
   double halflength = m_gmt_mgr->PixelRingThickness()/2.;
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* ringTube = new GeoTube(rmin,rmax,halflength);
@@ -60,7 +60,7 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
   if(nmodules==0) return ringPhys;
 
   // deltaPhi is angle between two adjacent modules regardless of side of the disk
-  double deltaPhi = 360.*CLHEP::deg / (double)nmodules;
+  double deltaPhi = 360.*GeoModelKernelUnits::deg / (double)nmodules;
 
   // This is the start angle of the even modules
   // Start angle could eventually come from the database...
@@ -99,15 +99,13 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
 
     double angle = imod*deltaPhi+startAngle;
 
+    GeoTrf::Transform3D rm = GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+    if( m_gmt_mgr->isDiskBack() ) rm = rm * GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+    rm = rm * GeoTrf::RotateZ3D(angle);
 
-    CLHEP::HepRotation rm;
-    rm.rotateY(90*CLHEP::deg);
-    if( m_gmt_mgr->isDiskBack() ) rm.rotateX(180.*CLHEP::deg); // depth axis points towards disk.
-
-    rm.rotateZ(angle);
-    CLHEP::Hep3Vector pos(moduleRadius,0,zpos);
-    pos.rotateZ(angle);
-    GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::Vector3D pos(moduleRadius,0,zpos);
+    pos = GeoTrf::RotateZ3D(angle)*pos;
+    GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::Translate3D(pos.x(),pos.y(),pos.z())*rm);
     GeoVPhysVol * modulePhys = gpmod.Build();
     std::ostringstream ostr; 
     ostr << "Disk" << idisk << "_Sector" << iring;

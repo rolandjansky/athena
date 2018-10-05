@@ -12,6 +12,7 @@
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoModelKernel/Units.h"
 
 #include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
@@ -55,20 +56,20 @@ EMECDetectorManager::EMECDetectorManager()
   if (emecSamplingSep->size()==0)   throw std::runtime_error("Error getting EmecSamplingSep table");
 
   const IRDBRecord *ess = (*emecSamplingSep)[0];
-  for (int j=0;j<7;j++)  m_ziw.push_back(ess->getDouble("ZIW",j)*CLHEP::cm);
-  for (int j=0;j<44;j++) m_zsep12.push_back(ess->getDouble("ZSEP12",j)*CLHEP::cm);
-  for (int j=0;j<22;j++) m_zsep23.push_back(ess->getDouble("ZSEP23",j)*CLHEP::cm);
+  for (int j=0;j<7;j++)  m_ziw.push_back(ess->getDouble("ZIW",j)*GeoModelKernelUnits::cm);
+  for (int j=0;j<44;j++) m_zsep12.push_back(ess->getDouble("ZSEP12",j)*GeoModelKernelUnits::cm);
+  for (int j=0;j<22;j++) m_zsep23.push_back(ess->getDouble("ZSEP23",j)*GeoModelKernelUnits::cm);
 
   IRDBRecordset_ptr emecMagicNumbers       = rdbAccess->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(),larVersionKey.node());
   if (emecMagicNumbers->size()==0) {
     emecMagicNumbers       = rdbAccess->getRecordsetPtr("EmecMagicNumbers", "EmecMagicNumbers-00");
     if (emecMagicNumbers->size()==0) throw std::runtime_error("Error getting EmecMagicNumbers table");
   }
-  m_MagicNumbers->focalToRef        =(*emecMagicNumbers)[0]->getDouble("FOCALTOREF")*CLHEP::mm;
-  m_MagicNumbers->refToActive       =(*emecMagicNumbers)[0]->getDouble("REFTOACTIVE")*CLHEP::mm;
-  m_MagicNumbers->activeLength      =(*emecMagicNumbers)[0]->getDouble("ACTIVELENGTH")*CLHEP::mm;
-  m_MagicNumbers->refToPresampler   =(*emecMagicNumbers)[0]->getDouble("REFTOPRESAMPLER")*CLHEP::mm;
-  m_MagicNumbers->presamplerLength  =(*emecMagicNumbers)[0]->getDouble("PRESAMPLERLENGTH")*CLHEP::mm;
+  m_MagicNumbers->focalToRef        =(*emecMagicNumbers)[0]->getDouble("FOCALTOREF")*GeoModelKernelUnits::mm;
+  m_MagicNumbers->refToActive       =(*emecMagicNumbers)[0]->getDouble("REFTOACTIVE")*GeoModelKernelUnits::mm;
+  m_MagicNumbers->activeLength      =(*emecMagicNumbers)[0]->getDouble("ACTIVELENGTH")*GeoModelKernelUnits::mm;
+  m_MagicNumbers->refToPresampler   =(*emecMagicNumbers)[0]->getDouble("REFTOPRESAMPLER")*GeoModelKernelUnits::mm;
+  m_MagicNumbers->presamplerLength  =(*emecMagicNumbers)[0]->getDouble("PRESAMPLERLENGTH")*GeoModelKernelUnits::mm;
   
 }
 

@@ -22,10 +22,9 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoXF.h"
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/Vector/Rotation.h" 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -42,12 +41,12 @@
 #include <iostream>
 
 
-using CLHEP::cm;
-using CLHEP::mm;
-using CLHEP::deg;
-using HepGeom::Translate3D;
-using HepGeom::TranslateY3D;
-using HepGeom::TranslateZ3D;
+using GeoModelKernelUnits::cm;
+using GeoModelKernelUnits::mm;
+using GeoModelKernelUnits::deg;
+using GeoTrf::Translate3D;
+using GeoTrf::TranslateY3D;
+using GeoTrf::TranslateZ3D;
 
 
 //Constructor
@@ -599,7 +598,7 @@ GeoFullPhysVol* LArGeo::HECModuleConstruction::GetEnvelope()
 	}
 
       // Serially install all slices and _regular_ absorbers into the depths       
-      Genfun::Variable Index;
+      GeoGenfun::Variable Index;
       GeoXF::TRANSFUNCTION TS = 
 	TranslateY3D(-larShift)*GeoXF::Pow(TranslateZ3D(1.0),slicePositionZ + (absThickness+gapSize)*Index);
       GeoXF::TRANSFUNCTION TA = 

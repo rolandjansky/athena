@@ -24,6 +24,8 @@
 #include "TrkCaloExtension/CaloExtensionHelpers.h" 
 #include "TrigEgammaHypo/TrigL2ElectronFex.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 class ISvcLocator;
 
 template <class SRC>

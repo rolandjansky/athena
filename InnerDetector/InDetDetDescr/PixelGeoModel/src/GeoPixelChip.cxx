@@ -11,7 +11,7 @@
 //
 // Contains: nothing
 //
-#include "PixelGeoModel/GeoPixelChip.h"
+#include "GeoPixelChip.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"

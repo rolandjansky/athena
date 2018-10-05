@@ -215,7 +215,7 @@ void MuonStation::setDeltaAmdbLRS(HepGeom::Transform3D xf)
   }
   
 
-  m_transform->setDelta( m_native_to_amdbl->inverse() * (*m_delta_amdb_frame) * (*m_native_to_amdbl) );
+  m_transform->setDelta(Amg::CLHEPTransformToEigen( m_native_to_amdbl->inverse() * (*m_delta_amdb_frame) * (*m_native_to_amdbl) ));
 }
 
 void 
@@ -319,7 +319,7 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
 
   //////////////////// this is what happens for a full station :    m_transform->setDelta( m_native_to_amdbl->inverse() * (*m_delta_amdb_frame) * (*m_native_to_amdbl) );
 
-  HepGeom::Transform3D parentToChildT = parentToChild->getTransform();
+  HepGeom::Transform3D parentToChildT = Amg::EigenTransformToCLHEP(parentToChild->getTransform());
   HepGeom::Transform3D delta_amdb     = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*HepGeom::TranslateZ3D(trat)*
                                   HepGeom::RotateX3D(rots)*HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
   //The station to component transform is static and must be computed in terms of "nominal geometry parameters"; fixing here bug 87693 - SS 9/11/2011
@@ -331,7 +331,7 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
   double  DZcomp = fabs(thisREnominalCenter.z())-fabs(((*m_amdbl_to_global)*HepGeom::Point3D<double>(0.,0.,0)).z())-fabs((getMuonReadoutElement(jobindex)->getZsize())/2.);
 
   HepGeom::Transform3D  childToLocAmdbComponent;
-  HepGeom::Transform3D  childToLocAmdbStation = HepGeom::Transform3D(*m_native_to_amdbl)*HepGeom::Transform3D(parentToChildT);
+  HepGeom::Transform3D  childToLocAmdbStation = HepGeom::Transform3D(*m_native_to_amdbl)*parentToChildT;
   HepGeom::Transform3D  locAmdbStatToLocAmdbComp = HepGeom::Transform3D::Identity;
   // the following line is needed to go for scenario B in last slide of http://www.fisica.unisalento.it/~spagnolo/allow_listing/TGC_Alines/TGC-ALines_2011_03_01.pdf
   // COMMENT next line            to go for scenario A in last slide of http://www.fisica.unisalento.it/~spagnolo/allow_listing/TGC_Alines/TGC-ALines_2011_03_01.pdf
@@ -342,7 +342,7 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
 					      <<"setDelta_fromAline_forComp: stationName/Jff/Jzz "<<getStationType()<<" "<<getPhiIndex()<<" "<<getEtaIndex()<<" Job "<<jobindex
 					      <<" Origin of component/station AmdbLocalFrame= "<<(*m_amdbl_to_global)*locAmdbStatToLocAmdbComp.inverse()*HepGeom::Point3D<double>(0.,0.,0.)
 					      <<" / "<<(*m_amdbl_to_global)*HepGeom::Point3D<double>(0.,0.,0.)<<endmsg;
-  parentToChild->setDelta(childToLocAmdbComponent.inverse() * delta_amdb * childToLocAmdbComponent);
+  parentToChild->setDelta(Amg::CLHEPTransformToEigen(childToLocAmdbComponent.inverse() * delta_amdb * childToLocAmdbComponent));
   if ( reLog().level() <= MSG::DEBUG ) reLog()<<MSG::DEBUG
 					      <<"setDelta_fromAline_forComp2:stationName/Jff/Jzz "<<getStationType()<<" "<<getPhiIndex()<<" "<<getEtaIndex()<<" Job "<<jobindex
 					      <<" Origin of component/station AmdbLocalFrame= "<<(*m_amdbl_to_global)*locAmdbStatToLocAmdbComp.inverse()*HepGeom::Point3D<double>(0.,0.,0.)

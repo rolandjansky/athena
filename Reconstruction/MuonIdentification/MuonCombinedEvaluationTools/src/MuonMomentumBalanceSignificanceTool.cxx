@@ -17,10 +17,11 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "GaudiKernel/SystemOfUnits.h"
 //#include "TrkGeometry/TrackingVolume.h"
 //#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 
-using CLHEP::GeV;
+using Gaudi::Units::GeV;
 
 namespace Rec
 {

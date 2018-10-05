@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/TRT_ServMatFactory.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -77,11 +79,11 @@ void TRT_ServMatFactory::create(GeoPhysVol *mother)
   m_materialManager->addScalingTable(scalingTable);
 
   //VK  10/09/2005 Construct a gap for rails
-  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;
-  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*CLHEP::cm;
+  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
+  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
 
 //VK 26.03.2007  Construct a gap for SquirrelCage ribbon
-  double  rminInt    = (*cage)[0]->getDouble("RINGRMIN")*CLHEP::mm;
+  double  rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
 
 //created by Adam Agocs 
   IRDBRecordset_ptr commonParameters = rdbAccessSvc()->getRecordsetPtr("IDDetRailCommon",indetVersionKey.tag(), indetVersionKey.node());
@@ -118,7 +120,7 @@ void TRT_ServMatFactory::create(GeoPhysVol *mother)
 
     const GeoShape* serviceTube = serviceTubeTmp;
     
-    if( tubeHelper.volData().maxRadius() > rminInt && tubeHelper.volData().phiDelta() > 359.9*CLHEP::degree)  
+    if( tubeHelper.volData().maxRadius() > rminInt && tubeHelper.volData().phiDelta() > 359.9*GeoModelKernelUnits::degree)  
     {
       // Subtract RailGap out of services
       serviceTube  = (GeoShape*) & (*serviceTubeTmp).subtract(*railGap2).subtract(*railGap1);
@@ -133,12 +135,13 @@ void TRT_ServMatFactory::create(GeoPhysVol *mother)
     
     if (tubeHelper.name() == "FwdServ")
     {
-     GeoTransform *xform1  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(), CLHEP::Hep3Vector(0, 0, tubeHelper.volData().zMid() ) ));
-     GeoTransform *xform2  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(), - CLHEP::Hep3Vector(0, 0, tubeHelper.volData().zMid() ) ));
-     mother->add(xform1);   mother->add(servPhys);   mother->add(xform2);   mother->add(servPhys);
+      GeoTransform *xform1  = new GeoTransform(GeoTrf::Translate3D(0, 0, tubeHelper.volData().zMid() ));
+      GeoTransform *xform2  = new GeoTransform(GeoTrf::Translate3D(0, 0, -tubeHelper.volData().zMid() ));
+      mother->add(xform1);   mother->add(servPhys);   mother->add(xform2);   mother->add(servPhys);
     }
-    else
-    tubeHelper.placeVolume(mother, servPhys);
+    else {
+      tubeHelper.placeVolume(mother, servPhys);
+    }
   }
   railGap1->unref(); 
   railGap2->unref(); 
@@ -162,8 +165,8 @@ void TRT_ServMatFactory::create(GeoPhysVol *mother)
   m_materialManager->addScalingTable(scalingTable);
 
   //VK  10/09/2005 Construct a gap for rails
-  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;
-  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*CLHEP::cm;
+  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
+  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
   double minRofGap  =       1050.0;
   double phiWid=70./outROfIDet;    double safetyGap=1.;
   const GeoShape* railGap1=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap , 
@@ -176,10 +179,10 @@ void TRT_ServMatFactory::create(GeoPhysVol *mother)
 
 
 //VK 26.03.2007  Construct a gap for SquirrelCage ribbon
-  double  rminInt    = (*cage)[0]->getDouble("RINGRMIN")*CLHEP::mm;
-  double  ringThick  = (*cage)[0]->getDouble("RINGTHICK")*CLHEP::mm;
-  double  ringGap    = (*cage)[0]->getDouble("RINGGAP")*CLHEP::mm;
-  double  ribWid = (*cage)[0]->getDouble("RIBWIDTH")*CLHEP::mm;
+  double  rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
+  double  ringThick  = (*cage)[0]->getDouble("RINGTHICK")*GeoModelKernelUnits::mm;
+  double  ringGap    = (*cage)[0]->getDouble("RINGGAP")*GeoModelKernelUnits::mm;
+  double  ribWid = (*cage)[0]->getDouble("RIBWIDTH")*GeoModelKernelUnits::mm;
   double phiWidSQ=ribWid/(rminInt+ringThick+ringGap/2.);
 
 
@@ -211,7 +214,7 @@ void TRT_ServMatFactory::create(GeoPhysVol *mother)
       const GeoShape*  ribSup2  = new GeoTubs( tubeHelper.volData().rmin(), tubeHelper.volData().rmax(), 0.5*tubeHelper.volData().length(), 
 					       -phiWidSQ/2.+M_PI, phiWidSQ);
       serviceTube  = (GeoShape*) & (*serviceTubeTmp).subtract(*ribSup1).subtract(*ribSup2);
-    } else if( tubeHelper.volData().maxRadius() > minRofGap && tubeHelper.volData().phiDelta() > 359.9*CLHEP::degree)  {
+    } else if( tubeHelper.volData().maxRadius() > minRofGap && tubeHelper.volData().phiDelta() > 359.9*GeoModelKernelUnits::degree)  {
       // Subtract RailGap out of services
       serviceTube  = (GeoShape*) & (*serviceTubeTmp).subtract(*railGap2).subtract(*railGap1);
     }    

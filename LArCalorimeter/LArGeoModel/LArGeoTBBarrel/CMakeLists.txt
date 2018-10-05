@@ -6,9 +6,7 @@
 atlas_subdir( LArGeoTBBarrel )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoModel/GeoModelKernel
-                          PRIVATE
+atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
@@ -16,14 +14,14 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArGeoModel/LArGeoBarrel )
 
 # External dependencies:
-find_package( CLHEP )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( LArGeoTBBarrel
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoTBBarrel
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES GeoModelKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities GaudiKernel LArGeoBarrel )
+                   PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
+                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoModelUtilities GaudiKernel LArGeoBarrel )
 

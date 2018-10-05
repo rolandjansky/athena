@@ -6,6 +6,8 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h" 
+#include "GeoModelKernel/GeoVolumeCursor.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelSvc.h"
 #include "RDBMaterialManager.h"
@@ -313,7 +315,7 @@ StatusCode GeoModelSvc::geoInit()
 
   // Build the world node from which everything else will be suspended
   const GeoMaterial* air = theMaterialManager->getMaterial("std::Air");  
-  const GeoBox* worldBox = new GeoBox(1000*CLHEP::cm,1000*CLHEP::cm, 1000*CLHEP::cm); 
+  const GeoBox* worldBox = new GeoBox(1000*GeoModelKernelUnits::cm,1000*GeoModelKernelUnits::cm, 1000*GeoModelKernelUnits::cm); 
   const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, air);
   GeoPhysVol *worldPhys=new GeoPhysVol(worldLog);
   

@@ -10,6 +10,7 @@
  * Created in February 2013.
  * Updated in November 2014
  */
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrackTools.h"
 
 //=============================================

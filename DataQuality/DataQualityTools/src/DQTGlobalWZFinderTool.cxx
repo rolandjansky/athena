@@ -493,7 +493,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      xAOD::MuonContainer::const_iterator muonItr;
      for (muonItr=muons->begin(); muonItr != muons->end(); ++muonItr) {
-         Float_t minptCutJPsi(1.0*CLHEP::GeV);
+         Float_t minptCutJPsi(1.0*GeV);
 	 auto muTrk = (*muonItr)->primaryTrackParticle();
 	 float d0sig;
 	 if (!muTrk) {

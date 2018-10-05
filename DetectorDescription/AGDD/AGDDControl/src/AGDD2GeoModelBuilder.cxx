@@ -60,6 +60,8 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"
 
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -234,8 +236,8 @@ void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v)
 	CLHEP::HepRotation h;
 	HepGeom::Transform3D ttt1(h,v1);
 	HepGeom::Transform3D ttt2(h,v2);
-	static GeoShape *s1=new GeoShapeShift(box1,ttt1);
-	static GeoShape *s2=new GeoShapeShift(box1,ttt2);
+	static GeoShape *s1=new GeoShapeShift(box1,Amg::CLHEPTransformToEigen(ttt1));
+	static GeoShape *s2=new GeoShapeShift(box1,Amg::CLHEPTransformToEigen(ttt2));
 	
 //	std::cout<<" Snake "<<v->GetName()<<" nr. of Points "<<v->NrOfPoints()<<std::endl;
 	double radius=v->Radius();
@@ -257,7 +259,7 @@ void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v)
 	rrr.rotateZ(axis2.phi());
 	rrr.rotateY(angle2);
 	HepGeom::Transform3D ttt(rrr,vt);
-	GeoShape *ssnew=new GeoShapeShift(s1,ttt);
+	GeoShape *ssnew=new GeoShapeShift(s1,Amg::CLHEPTransformToEigen(ttt));
 	
 	solid = new GeoShapeSubtraction(solid,ssnew);
 //	std::cout<<" angles theta, phi "<<axis2.theta()<<" "<<axis2.phi()<<std::endl;
@@ -265,13 +267,13 @@ void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v)
 	CLHEP::Hep3Vector vref(0.,0.,-lengthnew/2.);
 	CLHEP::HepRotation r;
 	HepGeom::Transform3D tref(r,vref);
-	solid=new GeoShapeShift(solid,tref);
+	solid=new GeoShapeShift(solid,Amg::CLHEPTransformToEigen(tref));
 	CLHEP::HepRotation r1;
 	r1.rotateY(axis0.theta());
 	r1.rotateZ(axis0.phi());
 	CLHEP::Hep3Vector vtt(v->GetPoint(0).x(),v->GetPoint(0).y(),v->GetPoint(0).z());
 	HepGeom::Transform3D t(r1,vtt);
-	solid=new GeoShapeShift(solid,t);
+	solid=new GeoShapeShift(solid,Amg::CLHEPTransformToEigen(t));
 	
  	for (int i=1;i<v->NrOfPoints()-1;i++)
 	{
@@ -298,25 +300,25 @@ void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v)
 		
 		GeoShape* ss=new GeoTubs(0.,radius,lengthnew/2.,0.,4*asin(1.));
 
-	    const CLHEP::Hep3Vector vt1(0.,0.,+lengthnew/2.-delta_l1-2.);
+		const CLHEP::Hep3Vector vt1(0.,0.,+lengthnew/2.-delta_l1-2.);
 		const CLHEP::Hep3Vector vt2(0.,0.,-lengthnew/2.+delta_l2+2.);
-	    CLHEP::HepRotation rrr1,rrr2;
+		CLHEP::HepRotation rrr1,rrr2;
 		
-	    rrr1.rotateY(angle1);
+		rrr1.rotateY(angle1);
 		rrr1.rotateZ(-axis1.phi());
 		rrr2.rotateY(-angle2);
 		rrr2.rotateZ(axis2.phi());
-	    HepGeom::Transform3D ttt1(rrr1,vt1);
+		HepGeom::Transform3D ttt1(rrr1,vt1);
 		HepGeom::Transform3D ttt2(rrr2,vt2);
-	    GeoShape *ssnew1=new GeoShapeShift(s2,ttt1);
+		GeoShape *ssnew1=new GeoShapeShift(s2,Amg::CLHEPTransformToEigen(ttt1));
 		ss = new GeoShapeSubtraction(ss,ssnew1);
 		if (i<(v->NrOfPoints()-2)) 
 		{
-			GeoShape *ssnew2=new GeoShapeShift(s1,ttt2);
-	    	ss = new GeoShapeSubtraction(ss,ssnew2);
+		  GeoShape *ssnew2=new GeoShapeShift(s1,Amg::CLHEPTransformToEigen(ttt2));
+		  ss = new GeoShapeSubtraction(ss,ssnew2);
 		}
 
-		ss=new GeoShapeShift(ss,ttref);
+		ss=new GeoShapeShift(ss,Amg::CLHEPTransformToEigen(ttref));
 		
 	//	std::cout<<" angles: theta "<<axis.theta()<<" phi "<<axis.phi()<<std::endl;
 		CLHEP::HepRotation rr1;
@@ -327,7 +329,7 @@ void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v)
 		const CLHEP::Hep3Vector vv(v->GetPoint(i).x(),v->GetPoint(i).y(),v->GetPoint(i).z());
 		HepGeom::Transform3D tt(rr1,vv);
 
-		ss=new GeoShapeShift(ss,tt);
+		ss=new GeoShapeShift(ss,Amg::CLHEPTransformToEigen(tt));
 		solid=new GeoShapeUnion(solid,ss);
 	}
 	v->SetSolid(solid);
@@ -408,7 +410,7 @@ void AGDD2GeoModelBuilder::CreateUnion(AGDDUnion* v)
 //	std::cout<<" volume name "<<vol->GetName()<<std::endl;
 	vol->CreateSolid();
 	GeoShape *sV=(GeoShape*)(vol->GetSolid());
-	sV=new GeoShapeShift(sV,pos->Transform());
+	sV=new GeoShapeShift(sV,Amg::CLHEPTransformToEigen(pos->Transform()));
  	for (int i=1;i<nPos;i++)
  	{
  		AGDDPositioner* pp=v->GetDaughter(i);
@@ -416,7 +418,7 @@ void AGDD2GeoModelBuilder::CreateUnion(AGDDUnion* v)
 //		std::cout<<" \t secondary volume name "<<vv->GetName()<<std::endl;
  		vv->CreateSolid();
  		GeoShape *nsV=(GeoShape*)(vv->GetSolid());
-		nsV=new GeoShapeShift(nsV,pp->Transform());
+		nsV=new GeoShapeShift(nsV,Amg::CLHEPTransformToEigen(pp->Transform()));
  		sV=new GeoShapeUnion(sV,nsV);
  	}
 	v->SetMaterial(vol->GetMaterial());
@@ -430,14 +432,14 @@ void AGDD2GeoModelBuilder::CreateIntersection(AGDDIntersection* v)
 	AGDDVolume *vol=pos->GetVolume();
 	vol->CreateSolid();
 	GeoShape *sV=(GeoShape*)(vol->GetSolid());
-	sV=new GeoShapeShift(sV,pos->Transform());
+	sV=new GeoShapeShift(sV,Amg::CLHEPTransformToEigen(pos->Transform()));
  	for (int i=1;i<nPos;i++)
  	{
  		AGDDPositioner* pp=v->GetDaughter(i);
  		AGDDVolume *vv=pp->GetVolume();
  		vv->CreateSolid();
  		GeoShape *nsV=(GeoShape*)(vv->GetSolid());
-		nsV=new GeoShapeShift(nsV,pp->Transform());
+		nsV=new GeoShapeShift(nsV,Amg::CLHEPTransformToEigen(pp->Transform()));
  		sV=new GeoShapeIntersection(sV,nsV);
  	}
 	v->SetMaterial(vol->GetMaterial());
@@ -450,14 +452,14 @@ void AGDD2GeoModelBuilder::CreateSubtraction(AGDDSubtraction* v)
 	AGDDVolume *vol=pos->GetVolume();
 	vol->CreateSolid();
 	GeoShape *sV=(GeoShape*)(vol->GetSolid());
-	sV=new GeoShapeShift(sV,pos->Transform());
+	sV=new GeoShapeShift(sV,Amg::CLHEPTransformToEigen(pos->Transform()));
  	for (int i=1;i<nPos;i++)
  	{
  		AGDDPositioner* pp=v->GetDaughter(i);
  		AGDDVolume *vv=pp->GetVolume();
  		vv->CreateSolid();
  		GeoShape *nsV=(GeoShape*)(vv->GetSolid());
-		nsV=new GeoShapeShift(nsV,pp->Transform());
+		nsV=new GeoShapeShift(nsV,Amg::CLHEPTransformToEigen(pp->Transform()));
  		sV=new GeoShapeSubtraction(sV,nsV);
  	}
 	v->SetMaterial(vol->GetMaterial());
@@ -542,7 +544,7 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
 				// if (isDetElement) std::cout<<"\t\t Detector: "<<volName<<" "<<detFullTag<<std::endl;
 			}
 			HepGeom::Transform3D trf=pos->Transform();
-			GeoTransform *geotrf=new GeoTransform(trf);
+			GeoTransform *geotrf=new GeoTransform(Amg::CLHEPTransformToEigen(trf));
 			void *temp=vol->GetVolume();
 			
 			// GeoFullPhysVol are needed for detectors (corresponding to ReadoutElements)
@@ -627,7 +629,7 @@ void AGDD2GeoModelBuilder::BuildAllVolumes()
 					std::cout<<"AGDDController: mother not set!!"<<std::endl;
 					return;
 				}
-                                GeoTransform *gtrf=new GeoTransform(trf);
+                                GeoTransform *gtrf=new GeoTransform(Amg::CLHEPTransformToEigen(trf));
 				m_mother->add(gtrf);
 				m_mother->add(vvv);
 			}
@@ -672,7 +674,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(std::string s)
 		 	std::cout<<"AGDDController: mother not set!!"<<std::endl;
 			return;
 		   }
-		   GeoTransform *gtrf=new GeoTransform(trf);
+		   GeoTransform *gtrf=new GeoTransform(Amg::CLHEPTransformToEigen(trf));
                    m_mother->add(gtrf);
                    m_mother->add(vvv);
                 }
@@ -701,7 +703,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(std::string s)
 					std::cout<<"AGDDController: mother not set!!"<<std::endl;
 					return;
 				}
-				GeoTransform *gtrf=new GeoTransform(trf);
+				GeoTransform *gtrf=new GeoTransform(Amg::CLHEPTransformToEigen(trf));
 				m_mother->add(gtrf);
 				m_mother->add(vvv);
 			}
@@ -736,7 +738,7 @@ void AGDD2GeoModelBuilder::BuildFromVolume(std::string s)
 				std::cout<<"AGDDController: mother not set!!"<<std::endl;
 				return;
 			}
-			GeoTransform *gtrf=new GeoTransform(trf);
+			GeoTransform *gtrf=new GeoTransform(Amg::CLHEPTransformToEigen(trf));
 			m_mother->add(gtrf);
 			m_mother->add(vvv);
 		}

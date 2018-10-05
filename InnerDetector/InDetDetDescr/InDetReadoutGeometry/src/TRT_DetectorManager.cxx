@@ -532,13 +532,13 @@ namespace InDetDD {
             if (!child) {
                 msg(MSG::ERROR) << "global frame specified, but child == 0" << endmsg;
             } else {
-                const HepGeom::Transform3D & childXF = child->getDefAbsoluteTransform();
-                extXF->alignableTransform()->setDelta(childXF.inverse() * Amg::EigenTransformToCLHEP(delta) * childXF);
+                const GeoTrf::Transform3D & childXF = child->getDefAbsoluteTransform();
+                extXF->alignableTransform()->setDelta(childXF.inverse() * delta * childXF);
             }
 
         } else if (frame == InDetDD::local) { // Local
             // if its a local frame then no transform necessary. We set it directly.
-            extXF->alignableTransform()->setDelta(Amg::EigenTransformToCLHEP(delta));
+            extXF->alignableTransform()->setDelta(delta);
 
         } else { // Other frame
             // if child or frame is zero it will have been set to local or global above
@@ -547,9 +547,9 @@ namespace InDetDD {
               ATH_MSG_ERROR("Child can't be null if frame is 'other'");
               return false;
             } else {
-	            const HepGeom::Transform3D & xfChild = child->getDefAbsoluteTransform();
-	            const HepGeom::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
-	            extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * Amg::EigenTransformToCLHEP(delta) * xfFrame.inverse() * xfChild);
+	            const GeoTrf::Transform3D & xfChild = child->getDefAbsoluteTransform();
+	            const GeoTrf::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
+	            extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * delta * xfFrame.inverse() * xfChild);
             }
         }
 

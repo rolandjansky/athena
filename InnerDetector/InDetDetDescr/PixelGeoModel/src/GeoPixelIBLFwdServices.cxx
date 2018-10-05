@@ -6,10 +6,10 @@
 // Build IBL fwd services (wavy shape)
 // This is built one time per layer. 
 
-#include "PixelGeoModel/GeoPixelIBLFwdServices.h"
+#include "GeoPixelIBLFwdServices.h"
 
-#include "PixelGeoModel/GeoPixelIBLFwdSvcCADModel.h"
-#include "PixelGeoModel/GeoPixelIBLFwdSvcModel1.h"
+#include "GeoPixelIBLFwdSvcCADModel.h"
+#include "GeoPixelIBLFwdSvcModel1.h"
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"

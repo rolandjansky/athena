@@ -11,6 +11,7 @@
 #ifndef INDETREADOUTGEOMETRY_EXTENDEDALIGNABLETRANSFORM_H
 #define INDETREADOUTGEOMETRY_EXTENDEDALIGNABLETRANSFORM_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 

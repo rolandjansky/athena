@@ -17,10 +17,13 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
-#include <iomanip>
-#include <cassert>
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+
+#include <iomanip>
+#include <cassert>
 
 #define skip_rpc false
 
@@ -75,12 +78,12 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
    if (cutoutson && vcutdef.size() > 0) {
      Cutout* cut = 0;
      GeoShape* cutoutShape = 0;
-     HepGeom::Transform3D cutTrans;
+     GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
      for (unsigned i = 0; i < vcutdef.size(); i++) {
        cut = vcutdef[i];
        cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                 cut->widthXs/2., cut->widthXl/2., cut->lengthY/2.);
-       cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+       cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
        srpc = &(srpc->subtract( (*cutoutShape) << cutTrans) ); 
      }
 //     std::cout << " Cutouts for Rpc " << std::endl;
@@ -132,12 +135,12 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
        GeoPhysVol* tempPhys = 0;
        Cutout* cut = 0;
        GeoShape* cutoutShape = 0;
-       HepGeom::Transform3D cutTrans;
+       GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
        for (unsigned i = 0; i < vcutdef.size(); i++) {
          cut = vcutdef[i];
          cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                   cut->widthXs/2., cut->widthXl/2., cut->lengthY/2.);
-         cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+         cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
 
          GeoCutVolAction cutAction(*cutoutShape, cutTrans);
          pallpan->apply(&cutAction);
@@ -148,7 +151,7 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
      }
 
      newpos += r->externalSupPanelThickness/2.;
-     GeoTransform* tlpan = new GeoTransform(HepGeom::TranslateX3D( newpos ));
+     GeoTransform* tlpan = new GeoTransform(GeoTrf::TranslateX3D( newpos ));
      if (RPCprint) std::cout << " Rpc:: put ext.sup panel at " << newpos
                              << " from centre" << std::endl;
      if (!skip_rpc) {
@@ -167,7 +170,7 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
      }
 
      newpos += r->rpcLayerThickness/2.;
-     GeoTransform* tlgg = new GeoTransform(HepGeom::TranslateX3D( newpos ));
+     GeoTransform* tlgg = new GeoTransform(GeoTrf::TranslateX3D( newpos ));
      if (RPCprint) std::cout << " Rpc:: put lower RPC layer at " << newpos
                              << " from centre " << std::endl;
      if (!skip_rpc) {
@@ -202,12 +205,12 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
        GeoPhysVol* tempPhys = 0;
        Cutout* cut = 0;
        GeoShape* cutoutShape = 0;
-       HepGeom::Transform3D cutTrans;
+       GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
        for (unsigned i = 0; i < vcutdef.size(); i++) {
          cut = vcutdef[i];
          cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                   cut->widthXs/2., cut->widthXl/2., cut->lengthY/2.);
-         cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+         cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
 
          GeoCutVolAction cutAction(*cutoutShape, cutTrans);
          palcpan->apply(&cutAction);
@@ -218,7 +221,7 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
      }
 
      newpos += r->centralSupPanelThickness/2.;
-     GeoTransform* tcpan = new GeoTransform(HepGeom::TranslateX3D( newpos ));
+     GeoTransform* tcpan = new GeoTransform(GeoTrf::TranslateX3D( newpos ));
      if (RPCprint) std::cout << " Rpc:: put central sup panel at " << newpos 
                              << " from centre" << std::endl;
      if (!skip_rpc) {
@@ -275,10 +278,10 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
      }
 
      newpos += r->rpcLayerThickness/2.;
-     GeoTransform* tugg = new GeoTransform(HepGeom::TranslateX3D(newpos) );
+     GeoTransform* tugg = new GeoTransform(GeoTrf::TranslateX3D(newpos) );
      if (RPCprint) std::cout<< " Rpc:: put upper RPC layer at " << newpos
                             << " from centre " << std::endl;
-     GeoTransform* rugg = new GeoTransform(HepGeom::RotateY3D(180*CLHEP::deg) );
+     GeoTransform* rugg = new GeoTransform(GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) );
      if (!skip_rpc) {
        prpc->add(new GeoIdentifierTag(2));
        prpc->add(tugg);

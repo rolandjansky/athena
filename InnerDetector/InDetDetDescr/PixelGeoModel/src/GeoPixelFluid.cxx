@@ -6,7 +6,7 @@
 // This class builds one trapezoid
 //
 //
-#include "PixelGeoModel/GeoPixelFluid.h"
+#include "GeoPixelFluid.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"

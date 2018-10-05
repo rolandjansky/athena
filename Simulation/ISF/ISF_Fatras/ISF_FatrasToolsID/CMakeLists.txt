@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/IdDictDetDescr
                           DetectorDescription/Identifier
+			  DetectorDescription/GeoPrimitives
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier

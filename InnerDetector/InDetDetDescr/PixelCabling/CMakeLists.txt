@@ -16,8 +16,8 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolUtilities
    DetectorDescription/Identifier
+   InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/InDetIdentifier
-   InnerDetector/InDetDetDescr/PixelGeoModel
    Tools/PathResolver )
 
 # External dependencies:
@@ -38,8 +38,7 @@ atlas_add_component( PixelCabling
    ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES}
    ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
-   AthenaPoolUtilities Identifier InDetIdentifier PathResolver PixelGeoModelLib
-   PixelCablingLib )
+   AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PathResolver PixelCablingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

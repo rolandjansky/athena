@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 
 SCT_FwdDiscPowerTape::SCT_FwdDiscPowerTape(const std::string & name, int iRing)

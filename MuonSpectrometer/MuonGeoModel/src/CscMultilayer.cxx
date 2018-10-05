@@ -11,6 +11,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "MuonGeoModel/MYSQL.h"
 #include "MuonGeoModel/Csc.h"
 #include "MuonGeoModel/CSC_Technology.h"
@@ -79,8 +80,8 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
   if (excent != length) {
     const GeoShape* smlt = new GeoTrd(thickness/2., thickness/2., longWidth/2.,
                                       upWidth/2., (physicalLength-maxwLength)/2.);
-    sml = & ( (sml->add( (*smlt) << HepGeom::TranslateZ3D(physicalLength/2.) ) )
-              << HepGeom::TranslateZ3D((maxwLength - physicalLength)/2.) );
+    sml = & ( (sml->add( (*smlt) << GeoTrf::TranslateZ3D(physicalLength/2.) ) )
+              << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
   }
 //  const GeoMaterial* mair = matManager->getMaterial("std::Air");
   const GeoMaterial* mhon = matManager->getMaterial("muo::Honeycomb");
@@ -95,12 +96,12 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
   if (excent != length) {
     const GeoShape* shont = new GeoTrd(hon_thick/2., hon_thick/2., longWidth/2., 
                                        upWidth/2., (physicalLength-maxwLength)/2.);
-    shon = &( (shon->add( (*shont) << HepGeom::TranslateZ3D(physicalLength/2.) ) )
-             << HepGeom::TranslateZ3D((maxwLength - physicalLength)/2.) );
+    shon = &( (shon->add( (*shont) << GeoTrf::TranslateZ3D(physicalLength/2.) ) )
+             << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
     const GeoShape* sg10hont = new GeoTrd(g10thi/2., g10thi/2., longWidth/2., 
                                           upWidth/2., (physicalLength-maxwLength)/2.);
-    sg10hon = &( (sg10hon->add( (*sg10hont) << HepGeom::TranslateZ3D(physicalLength/2.) ) )
-             << HepGeom::TranslateZ3D((maxwLength - physicalLength)/2.) );
+    sg10hon = &( (sg10hon->add( (*sg10hont) << GeoTrf::TranslateZ3D(physicalLength/2.) ) )
+             << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
   }
 //  const GeoMaterial* mhon = matManager->getMaterial("muo::Honeycomb");
   const GeoLogVol* lhon = new GeoLogVol("Honeycomb",shon,mhon);
@@ -134,8 +135,8 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
                       gShortWidth/2., gLongWidth/2., gmaxwLength/2.);
     const GeoShape* sgast = new GeoTrd(gasThickness/2.,gasThickness/2., gLongWidth/2.,
                                        gupWidth/2., (gLength-gmaxwLength)/2.);
-    sgas = &( (sgas->add( (*sgast) << HepGeom::TranslateZ3D(gLength/2.) ) )
-               << HepGeom::TranslateZ3D((gmaxwLength - gLength)/2.) );
+    sgas = &( (sgas->add( (*sgast) << GeoTrf::TranslateZ3D(gLength/2.) ) )
+               << GeoTrf::TranslateZ3D((gmaxwLength - gLength)/2.) );
   }
   const GeoMaterial* mgas = matManager->getMaterial("muo::CscArCO2");
   const GeoLogVol* lgas = NULL;
@@ -145,7 +146,7 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
   for (int i = 0; i < nrOfLayers+1; i++) {
 
     GeoNameTag* np = new GeoNameTag("panel");
-    GeoTransform* xp = new GeoTransform(HepGeom::TranslateX3D(newpos-g10thi/2.));
+    GeoTransform* xp = new GeoTransform(GeoTrf::TranslateX3D(newpos-g10thi/2.));
     pml->add(new GeoIdentifierTag(i));
     pml->add(np);
     pml->add(xp);
@@ -158,7 +159,7 @@ CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout*> /*vcutdef*/)
       // the gas Gap 
       // correct the position within the chamber
       GeoNameTag* ng = new GeoNameTag("CscArCO2");
-      GeoTransform* xg = new GeoTransform(HepGeom::TranslateX3D(newpos-gasThickness/2.));
+      GeoTransform* xg = new GeoTransform(GeoTrf::TranslateX3D(newpos-gasThickness/2.));
       pml->add(new GeoIdentifierTag(i));
       pml->add(ng);
       pml->add(xg);

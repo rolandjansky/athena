@@ -16,6 +16,7 @@
 #include "ISF_Event/ParticleUserInformation.h"
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 //
 // ROOT includes
 #include "TTree.h"

@@ -4,7 +4,7 @@
 
 #include "Geo2G4STParameterisation.h"
 #include "G4VPhysicalVolume.hh"
-
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "CLHEP/Geometry/Transform3D.h"
 
 Geo2G4STParameterisation::Geo2G4STParameterisation(const GeoXF::Function* func,
@@ -23,7 +23,7 @@ Geo2G4STParameterisation::~Geo2G4STParameterisation()
 void Geo2G4STParameterisation::ComputeTransformation(const G4int copyNo,
                                                      G4VPhysicalVolume* physVol) const
 {
-  HepGeom::Transform3D transform = (*m_function)(copyNo);
+  HepGeom::Transform3D transform = Amg::EigenTransformToCLHEP((*m_function)(copyNo));
   G4ThreeVector translation = transform.getTranslation();
   *m_rotation = transform.getRotation().inverse();
 

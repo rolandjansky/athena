@@ -6,7 +6,7 @@
 // Build IBL fwd services (wavy shape)
 // This is built one time per layer. 
 
-#include "PixelGeoModel/GeoPixelIBLFwdSvcModel1.h"
+#include "GeoPixelIBLFwdSvcModel1.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
@@ -39,7 +39,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services"<<endmsg;
 
-  //  double safety = 0.01*CLHEP::mm;
+  //  double safety = 0.01*GeoModelKernelUnits::mm;
 
   // IBL layer shift ( 2mm shift issue )
   double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
@@ -49,7 +49,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 
   // check if sectors are properly defined
   if(nSectors==0) return 0;
-  double angle=360./(double)nSectors*CLHEP::deg;
+  double angle=360./(double)nSectors*GeoModelKernelUnits::deg;
   
   // Defines the IBL_Fwd02 section in the IBL services area
   double innerRadius = 33.;
@@ -98,15 +98,15 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   //  double zposRing = 0.;
   double totalLength=0.;
   //  double hermJunction = .4;
-  double breakAngle = 11.*CLHEP::deg;
+  double breakAngle = 11.*GeoModelKernelUnits::deg;
 
   double cooling_radius = 35.1;
-  double cooling_angle = -2.154*CLHEP::deg;
+  double cooling_angle = -2.154*GeoModelKernelUnits::deg;
 
   if(m_gmt_mgr->PixelStaveAxe()==1)   
     {
       cooling_radius = 34.7 + layerRadius-33.25;
-      cooling_angle = -.1*CLHEP::deg;
+      cooling_angle = -.1*GeoModelKernelUnits::deg;
     }
 
   double cable_radius = 36.501;
@@ -189,10 +189,10 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 
 	// Cable
 	const GeoTube* cableShape = new GeoTube(rminCable, rmaxCable, zHalfLength);	
-	double angle = 0.; //11.*CLHEP::deg;
-	HepGeom::Transform3D trfA1 = HepGeom::RotateZ3D(angle)*HepGeom::TranslateZ3D(zpos-zMiddle);
+	double angle = 0.; //11.*GeoModelKernelUnits::deg;
+	GeoTrf::Transform3D trfA1 = GeoTrf::RotateZ3D(angle)*GeoTrf::TranslateZ3D(zpos-zMiddle);
 	gblShapeCableA = addShape(gblShapeCableA, cableShape, trfA1 );
-	HepGeom::Transform3D trfC1 = HepGeom::RotateZ3D(angle)*HepGeom::TranslateZ3D(zMax-(zpos-zMin)-zMiddle);
+	GeoTrf::Transform3D trfC1 = GeoTrf::RotateZ3D(angle)*GeoTrf::TranslateZ3D(zMax-(zpos-zMin)-zMiddle);
 	gblShapeCableC = addShape(gblShapeCableC, cableShape, trfC1 );
 
 	// Cooling
@@ -211,9 +211,9 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 	// Cable
 	const GeoTube* cableShape = new GeoTube(rminCable, rmaxCable, cableHalfLength);
 	double angle= 0.; 
-	HepGeom::Transform3D trfA1 = HepGeom::RotateZ3D(angle)*HepGeom::TranslateY3D(deltaMiddleLoc)* HepGeom::TranslateZ3D(zpos-zMiddle)*HepGeom::RotateX3D(-angleSign*deltaPhiLoc);
+	GeoTrf::Transform3D trfA1 = GeoTrf::RotateZ3D(angle)*GeoTrf::TranslateY3D(deltaMiddleLoc)* GeoTrf::TranslateZ3D(zpos-zMiddle)*GeoTrf::RotateX3D(-angleSign*deltaPhiLoc);
 	gblShapeCableA = addShape(gblShapeCableA, cableShape, trfA1 );
-	HepGeom::Transform3D trfC1 = HepGeom::RotateZ3D(angle)*HepGeom::TranslateY3D(deltaMiddleLoc)* HepGeom::TranslateZ3D(zMax-(zpos-zMin)-zMiddle)*HepGeom::RotateX3D(angleSign*deltaPhiLoc);
+	GeoTrf::Transform3D trfC1 = GeoTrf::RotateZ3D(angle)*GeoTrf::TranslateY3D(deltaMiddleLoc)* GeoTrf::TranslateZ3D(zMax-(zpos-zMin)-zMiddle)*GeoTrf::RotateX3D(angleSign*deltaPhiLoc);
 	gblShapeCableC = addShape(gblShapeCableC, cableShape, trfC1 );
 	
 	// Cooling
@@ -269,12 +269,12 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
       std::ostringstream tmp1; 
       tmp1 << "IBL_Fwd02_Cooling_AC" << ii;
       GeoNameTag * tag1 = new GeoNameTag(tmp1.str());
-      GeoTransform* xformA1 = new GeoTransform(HepGeom::RotateZ3D(phiOfCooling)*HepGeom::TranslateX3D(cooling_radius));
+      GeoTransform* xformA1 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCooling)*GeoTrf::TranslateX3D(cooling_radius));
       m_supportPhysA->add(tag1);
       m_supportPhysA->add(xformA1);
       m_supportPhysA->add(coolingPhysVolA);
       
-      GeoTransform* xformC1 = new GeoTransform(HepGeom::RotateZ3D(phiOfCooling)*HepGeom::TranslateX3D(cooling_radius));
+      GeoTransform* xformC1 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCooling)*GeoTrf::TranslateX3D(cooling_radius));
       m_supportPhysC->add(tag1);
       m_supportPhysC->add(xformC1);
       m_supportPhysC->add(coolingPhysVolC);
@@ -284,12 +284,12 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
       std::ostringstream tmp2; 
       tmp2 << "IBL_Fwd02_Cable_AC" << ii;
       GeoNameTag * tag2 = new GeoNameTag(tmp2.str());
-      GeoTransform* xformA2 = new GeoTransform(HepGeom::RotateZ3D(phiOfCable)*HepGeom::TranslateX3D(cable_radius)*HepGeom::RotateZ3D(breakAngle));
+      GeoTransform* xformA2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCable)*GeoTrf::TranslateX3D(cable_radius)*GeoTrf::RotateZ3D(breakAngle));
       m_supportPhysA->add(tag2);
       m_supportPhysA->add(xformA2);
       m_supportPhysA->add(cablePhysVolA);
       
-      GeoTransform* xformC2 = new GeoTransform(HepGeom::RotateZ3D(phiOfCable)*HepGeom::TranslateX3D(cable_radius)*HepGeom::RotateZ3D(breakAngle));
+      GeoTransform* xformC2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCable)*GeoTrf::TranslateX3D(cable_radius)*GeoTrf::RotateZ3D(breakAngle));
       m_supportPhysC->add(tag2);
       m_supportPhysC->add(xformC2);
       m_supportPhysC->add(cablePhysVolC);
@@ -299,17 +299,17 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   double middleA = zMiddle+layerZshift;
   double middleC = -zMiddle+layerZshift;
 
-  HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(middleA);
+  GeoTrf::Transform3D supportTrfA = GeoTrf::TranslateZ3D(middleA);
   m_xformSupportA = new GeoTransform(supportTrfA);
   
-  HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(middleC);
+  GeoTrf::Transform3D supportTrfC = GeoTrf::TranslateZ3D(middleC);
   m_xformSupportC = new GeoTransform(supportTrfC);
 
   return 0;
 }
 
 
-const GeoShape * GeoPixelIBLFwdSvcModel1::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans)
+const GeoShape * GeoPixelIBLFwdSvcModel1::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const GeoTrf::Transform3D & trans)
 {
   const GeoShape * shiftedShape = &(*nextShape << trans);
   if (lastShape) {

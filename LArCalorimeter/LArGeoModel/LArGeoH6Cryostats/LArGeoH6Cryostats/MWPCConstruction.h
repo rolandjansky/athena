@@ -11,6 +11,7 @@
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/Units.h"
 #include <memory>
 
 class IRDBAccessSvc;
@@ -23,7 +24,7 @@ namespace LArGeo {
     {
     public:
     
-    MWPCConstruction(double Step = 1.*CLHEP::mm);
+    MWPCConstruction(double Step = 1.*GeoModelKernelUnits::mm);
 
     virtual ~MWPCConstruction();
     

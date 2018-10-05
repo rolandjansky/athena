@@ -19,9 +19,11 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
 
@@ -54,7 +56,7 @@ void TileGeoCutBuilder::MakeCut(GeoPhysVol*&   mother,
   const GeoMaterial* matIron = theMaterialManager->getMaterial("std::Iron");
   */
 
-  GeoTransform* tfTmp = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+  GeoTransform* tfTmp = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
   mother->add(tfTmp);
 
   (*m_log) << MSG::INFO <<"  MakeCut : number= "<<number<<endmsg;

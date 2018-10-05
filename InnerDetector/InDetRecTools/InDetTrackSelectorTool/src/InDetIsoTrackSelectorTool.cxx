@@ -9,6 +9,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkSurfaces/StraightLineSurface.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 using CLHEP::mm;
 

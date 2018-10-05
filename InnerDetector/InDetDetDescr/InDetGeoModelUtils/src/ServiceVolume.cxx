@@ -52,31 +52,31 @@
 //   Ignored: ROUT, RIN2, ROUT2
 //   RIN: Radial position of center of tube
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm): diameter
+//   WIDTH (mm): diameter
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // ROD2  (hollow tube not centered around Z axis)
 //   Ignored: ROUT, ROUT2
 //   RIN: Radial position of center of tube
 //   RIN2: inner radius
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm): diameter
+//   WIDTH (mm): diameter
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // BOX
 //   Ignored: RIN2, ROUT2
 //   ROUT-RIN = thickness of box (radially)
 //   (RIN+ROUT)/2 = radial poistion of center of box
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm) = width of box
+//   WIDTH (mm) = width of box
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // TRAP
 //   Ignored: RIN2, ROUT2
 //   ROUT-RIN = thickness of trapezoid (radially)
 //   (RIN+ROUT)/2 = radial poistion of center of trapzoid
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm) = width of trapezoid at center
+//   WIDTH (mm) = width of trapezoid at center
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 //
-//   **IMPORTANT NOTE** WIDTH can be in degrees or CLHEP::mm. See OraclePixGeoManager
+//   **IMPORTANT NOTE** WIDTH can be in degrees or mm. See OraclePixGeoManager
 
 #include "InDetGeoModelUtils/ServiceVolume.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -86,6 +86,7 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrap.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/Units.h"
 
 #include <string>
 #include <iostream>
@@ -238,10 +239,10 @@ namespace InDetDD {
       // Inner edge
       GeoShape* shapeTmp2 = 0;
       if (m_rmin == m_rmin2) {
-        shapeTmp2 = new GeoTube(0, m_rmin, halflength + 0.1 * CLHEP::mm);
+        shapeTmp2 = new GeoTube(0, m_rmin, halflength + 0.1 * GeoModelKernelUnits::mm);
         volume -= 2 * M_PI * m_rmin * m_rmin * halflength;
       } else {
-        shapeTmp2 = new GeoCons(0, 0, m_rmin, m_rmin2, halflength + 0.1 * CLHEP::mm, 0, 2 * M_PI);
+        shapeTmp2 = new GeoCons(0, 0, m_rmin, m_rmin2, halflength + 0.1 * GeoModelKernelUnits::mm, 0, 2 * M_PI);
         volume -= 2 * M_PI * pow(0.5 * (m_rmin + m_rmin2), 2) * halflength;
       }
       serviceShape = &(shapeTmp1->subtract(*shapeTmp2));

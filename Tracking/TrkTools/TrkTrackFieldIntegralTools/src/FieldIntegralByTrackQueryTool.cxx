@@ -16,7 +16,7 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkGeometry/TrackingVolume.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 // ================ Constructor =================================================
 
 Trk::FieldIntegralByTrackQueryTool::FieldIntegralByTrackQueryTool(const std::string& t,
@@ -159,7 +159,7 @@ double Trk::FieldIntegralByTrackQueryTool::fieldIntegral(const Trk::Track& track
 						     cosTheta);
             }
         }
-      Amg::Vector3D momentumKick        =  startMomentum.cross(endDirection)/(0.3*CLHEP::GeV);     
+      Amg::Vector3D momentumKick        =  startMomentum.cross(endDirection)/(0.3*Gaudi::Units::GeV);     
       integratedMomentumKick                  += momentumKick;
 
       // accumulate abs(Bdl) between measurements

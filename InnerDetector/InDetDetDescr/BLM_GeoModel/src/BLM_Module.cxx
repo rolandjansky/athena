@@ -47,7 +47,7 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   {     
   	if(msg)
   		(*msg) << "BLM _ PEEK _ MISSING." << endmsg;
-	GeoMaterial* peektmp = new GeoMaterial("PEEK", 1.3*CLHEP::gram/CLHEP::cm3);
+	GeoMaterial* peektmp = new GeoMaterial("PEEK", 1.3*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
 	GeoElement* hydrogen = new GeoElement("Hydrogen", "H", 1.0, 1.010);
 	GeoElement* oxygen = new GeoElement("Oxygen", "O", 8.0, 16.000);
 	GeoElement* carbon = new GeoElement("Carbon", "C", 6.0, 12.010);
@@ -63,7 +63,7 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   //PEEK
 
  /* //STAINLESS STEEL
-  GeoMaterial* stainless_steel = new GeoMaterial("S_steel", 7.8*CLHEP::gram/CLHEP::cm3);
+  GeoMaterial* stainless_steel = new GeoMaterial("S_steel", 7.8*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
   GeoElement* iron = new GeoElement("Iron", "Fe", 26.0, 55.845);
   GeoElement* chromium = new GeoElement("Chromium", "Cr", 24.0, 51.996);
   stainless_steel->add(iron, 0.89);
@@ -79,9 +79,8 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
 
   //holder
   GeoPhysVol* holder = wall.BuildHolder(peek);
-  CLHEP::Hep3Vector holderPos(0, BLM_Wall::s_holder_height-ModHeight/2-BLM_Wall::s_holder_thickness/2, 0);
-  CLHEP::HepRotation holderRot;
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(holderRot, holderPos));
+  GeoTrf::Translate3D holderPos(0, BLM_Wall::s_holder_height-ModHeight/2-BLM_Wall::s_holder_thickness/2, 0);
+  GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(holderPos));
   GeoNameTag* tag = new GeoNameTag("Holder");
   blmModPhys->add(tag);
   blmModPhys->add(xform);
@@ -91,12 +90,12 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   GeoPhysVol* layer1a = wall.BuildLayerI(CuThick, copper, false);
   GeoPhysVol* layer1b = wall.BuildLayerI(LamelThick15, g10, false);
   GeoPhysVol* layer1c = wall.BuildLayerI(CuThick, copper, true);
-  CLHEP::Hep3Vector layer1Posa(0, BLM_Wall::s_holder_height-ModHeight/2+CuThick/2, ModLength/2-BLM_Wall::s_extended_length/2);
-  CLHEP::Hep3Vector layer1Posb(0, BLM_Wall::s_holder_height-ModHeight/2+CuThick+LamelThick15/2, ModLength/2-BLM_Wall::s_extended_length/2);
-  CLHEP::Hep3Vector layer1Posc(0, BLM_Wall::s_holder_height-ModHeight/2+3*CuThick/2+LamelThick15, ModLength/2-BLM_Wall::s_extended_length/2);
-  GeoTransform* yforma = new GeoTransform(HepGeom::Transform3D(holderRot, layer1Posa));
-  GeoTransform* yformb = new GeoTransform(HepGeom::Transform3D(holderRot, layer1Posb));
-  GeoTransform* yformc = new GeoTransform(HepGeom::Transform3D(holderRot, layer1Posc));
+  GeoTrf::Translate3D layer1Posa(0, BLM_Wall::s_holder_height-ModHeight/2+CuThick/2, ModLength/2-BLM_Wall::s_extended_length/2);
+  GeoTrf::Translate3D layer1Posb(0, BLM_Wall::s_holder_height-ModHeight/2+CuThick+LamelThick15/2, ModLength/2-BLM_Wall::s_extended_length/2);
+  GeoTrf::Translate3D layer1Posc(0, BLM_Wall::s_holder_height-ModHeight/2+3*CuThick/2+LamelThick15, ModLength/2-BLM_Wall::s_extended_length/2);
+  GeoTransform* yforma = new GeoTransform(GeoTrf::Transform3D(layer1Posa));
+  GeoTransform* yformb = new GeoTransform(GeoTrf::Transform3D(layer1Posb));
+  GeoTransform* yformc = new GeoTransform(GeoTrf::Transform3D(layer1Posc));
   tag = new GeoNameTag("Layer1");
   blmModPhys->add(tag);
   blmModPhys->add(yforma);
@@ -112,12 +111,12 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   GeoPhysVol* layer2a = wall.BuildLayerII(CuThick, copper);
   GeoPhysVol* layer2b = wall.BuildLayerII(LamelThick234, g10);
   GeoPhysVol* layer2c = wall.BuildLayerII(CuThick, copper);
-  CLHEP::Hep3Vector layer2Posa(0, BLM_Wall::s_holder_height-ModHeight/2+5*CuThick/2+LamelThick15, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer2Posb(0, BLM_Wall::s_holder_height-ModHeight/2+3*CuThick+LamelThick15+LamelThick234/2, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer2Posc(0, BLM_Wall::s_holder_height-ModHeight/2+7*CuThick/2+LamelThick15+LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  yforma = new GeoTransform(HepGeom::Transform3D(holderRot, layer2Posa));
-  yformb = new GeoTransform(HepGeom::Transform3D(holderRot, layer2Posb));
-  yformc = new GeoTransform(HepGeom::Transform3D(holderRot, layer2Posc));
+  GeoTrf::Translate3D layer2Posa(0, BLM_Wall::s_holder_height-ModHeight/2+5*CuThick/2+LamelThick15, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer2Posb(0, BLM_Wall::s_holder_height-ModHeight/2+3*CuThick+LamelThick15+LamelThick234/2, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer2Posc(0, BLM_Wall::s_holder_height-ModHeight/2+7*CuThick/2+LamelThick15+LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  yforma = new GeoTransform(GeoTrf::Transform3D(layer2Posa));
+  yformb = new GeoTransform(GeoTrf::Transform3D(layer2Posb));
+  yformc = new GeoTransform(GeoTrf::Transform3D(layer2Posc));
   tag = new GeoNameTag("Layer2");
   blmModPhys->add(tag);
   blmModPhys->add(yforma);
@@ -133,12 +132,12 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   GeoPhysVol* layer3a = wall.BuildLayerIII(CuThick, copper);
   GeoPhysVol* layer3b = wall.BuildLayerIII(LamelThick234, g10);
   GeoPhysVol* layer3c = wall.BuildLayerIII(CuThick, copper);
-  CLHEP::Hep3Vector layer3Posa(0, BLM_Wall::s_holder_height-ModHeight/2+9*CuThick/2+LamelThick15+LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer3Posb(0, BLM_Wall::s_holder_height-ModHeight/2+5*CuThick+LamelThick15+3*LamelThick234/2, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer3Posc(0, BLM_Wall::s_holder_height-ModHeight/2+11*CuThick/2+LamelThick15+2*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  yforma = new GeoTransform(HepGeom::Transform3D(holderRot, layer3Posa));
-  yformb = new GeoTransform(HepGeom::Transform3D(holderRot, layer3Posb));
-  yformc = new GeoTransform(HepGeom::Transform3D(holderRot, layer3Posc));
+  GeoTrf::Translate3D layer3Posa(0, BLM_Wall::s_holder_height-ModHeight/2+9*CuThick/2+LamelThick15+LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer3Posb(0, BLM_Wall::s_holder_height-ModHeight/2+5*CuThick+LamelThick15+3*LamelThick234/2, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer3Posc(0, BLM_Wall::s_holder_height-ModHeight/2+11*CuThick/2+LamelThick15+2*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  yforma = new GeoTransform(GeoTrf::Transform3D(layer3Posa));
+  yformb = new GeoTransform(GeoTrf::Transform3D(layer3Posb));
+  yformc = new GeoTransform(GeoTrf::Transform3D(layer3Posc));
   tag = new GeoNameTag("Layer3");
   blmModPhys->add(tag);
   blmModPhys->add(yforma);
@@ -154,12 +153,12 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   GeoPhysVol* layer4a = wall.BuildLayerIV(CuThick, copper);
   GeoPhysVol* layer4b = wall.BuildLayerIV(LamelThick234, g10);
   GeoPhysVol* layer4c = wall.BuildLayerIV(CuThick, copper);
-  CLHEP::Hep3Vector layer4Posa(0, BLM_Wall::s_holder_height-ModHeight/2+13*CuThick/2+LamelThick15+2*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer4Posb(0, BLM_Wall::s_holder_height-ModHeight/2+7*CuThick+LamelThick15+5*LamelThick234/2, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer4Posc(0, BLM_Wall::s_holder_height-ModHeight/2+15*CuThick/2+LamelThick15+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  yforma = new GeoTransform(HepGeom::Transform3D(holderRot, layer4Posa));
-  yformb = new GeoTransform(HepGeom::Transform3D(holderRot, layer4Posb));
-  yformc = new GeoTransform(HepGeom::Transform3D(holderRot, layer4Posc));
+  GeoTrf::Translate3D layer4Posa(0, BLM_Wall::s_holder_height-ModHeight/2+13*CuThick/2+LamelThick15+2*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer4Posb(0, BLM_Wall::s_holder_height-ModHeight/2+7*CuThick+LamelThick15+5*LamelThick234/2, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer4Posc(0, BLM_Wall::s_holder_height-ModHeight/2+15*CuThick/2+LamelThick15+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  yforma = new GeoTransform(GeoTrf::Transform3D(layer4Posa));
+  yformb = new GeoTransform(GeoTrf::Transform3D(layer4Posb));
+  yformc = new GeoTransform(GeoTrf::Transform3D(layer4Posc));
   tag = new GeoNameTag("Layer4");
   blmModPhys->add(tag);
   blmModPhys->add(yforma);
@@ -175,12 +174,12 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   GeoPhysVol* layer5a = wall.BuildLayerV(CuThick, copper);
   GeoPhysVol* layer5b = wall.BuildLayerV(LamelThick15, g10);
   GeoPhysVol* layer5c = wall.BuildLayerV(CuThick, copper);
-  CLHEP::Hep3Vector layer5Posa(0, BLM_Wall::s_holder_height-ModHeight/2+17*CuThick/2+LamelThick15+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer5Posb(0, BLM_Wall::s_holder_height-ModHeight/2+9*CuThick+3*LamelThick15/2+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  CLHEP::Hep3Vector layer5Posc(0, BLM_Wall::s_holder_height-ModHeight/2+19*CuThick/2+2*LamelThick15+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
-  yforma = new GeoTransform(HepGeom::Transform3D(holderRot, layer5Posa));
-  yformb = new GeoTransform(HepGeom::Transform3D(holderRot, layer5Posb));
-  yformc = new GeoTransform(HepGeom::Transform3D(holderRot, layer5Posc));
+  GeoTrf::Translate3D layer5Posa(0, BLM_Wall::s_holder_height-ModHeight/2+17*CuThick/2+LamelThick15+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer5Posb(0, BLM_Wall::s_holder_height-ModHeight/2+9*CuThick+3*LamelThick15/2+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  GeoTrf::Translate3D layer5Posc(0, BLM_Wall::s_holder_height-ModHeight/2+19*CuThick/2+2*LamelThick15+3*LamelThick234, ModLength/2-BLM_Wall::s_length/2);
+  yforma = new GeoTransform(GeoTrf::Transform3D(layer5Posa));
+  yformb = new GeoTransform(GeoTrf::Transform3D(layer5Posb));
+  yformc = new GeoTransform(GeoTrf::Transform3D(layer5Posc));
   tag = new GeoNameTag("Layer5");
   blmModPhys->add(tag);
   blmModPhys->add(yforma);
@@ -201,26 +200,24 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   GeoPhysVol* screw6 = wall.BuildScrew(10, stainless_steel);
   GeoPhysVol* screw7 = wall.BuildScrew(BLM_Wall::s_holder_thickness, stainless_steel);
   GeoPhysVol* screw8 = wall.BuildScrew(BLM_Wall::s_holder_thickness, stainless_steel);
-  CLHEP::HepRotation screwRot;
-  screwRot.rotateX(90.*CLHEP::deg);
-  CLHEP::HepRotation screwRot1;
-  screwRot1.rotateX(180.*CLHEP::deg);
-  CLHEP::Hep3Vector screwPos1(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_hole_position);
-  CLHEP::Hep3Vector screwPos2(BLM_Wall::s_hole_position-ModWidth/2, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_hole_position);
-  CLHEP::Hep3Vector screwPos3(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_length+BLM_Wall::s_hole_position);
-  CLHEP::Hep3Vector screwPos4(BLM_Wall::s_hole_position-ModWidth/2, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_length+BLM_Wall::s_hole_position);
-  CLHEP::Hep3Vector screwPos5(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_extended_length+2.1);
-  CLHEP::Hep3Vector screwPos6(BLM_Wall::s_hole_position-ModWidth/2, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_extended_length+2.1);
-  CLHEP::Hep3Vector screwPos7(ModWidth/2-BLM_Wall::s_hole_position, 3.5-ModHeight/2, BLM_Wall::s_holder_thickness-ModLength/2+1);
-  CLHEP::Hep3Vector screwPos8(BLM_Wall::s_hole_position-ModWidth/2, 3.5-ModHeight/2, BLM_Wall::s_holder_thickness-ModLength/2+1);
-  GeoTransform* xform1 = new GeoTransform(HepGeom::Transform3D(screwRot, screwPos1));
-  GeoTransform* xform2 = new GeoTransform(HepGeom::Transform3D(screwRot, screwPos2));
-  GeoTransform* xform3 = new GeoTransform(HepGeom::Transform3D(screwRot, screwPos3));
-  GeoTransform* xform4 = new GeoTransform(HepGeom::Transform3D(screwRot, screwPos4));
-  GeoTransform* xform5 = new GeoTransform(HepGeom::Transform3D(screwRot, screwPos5));
-  GeoTransform* xform6 = new GeoTransform(HepGeom::Transform3D(screwRot, screwPos6));
-  GeoTransform* xform7 = new GeoTransform(HepGeom::Transform3D(screwRot1, screwPos7));
-  GeoTransform* xform8 = new GeoTransform(HepGeom::Transform3D(screwRot1, screwPos8));
+  GeoTrf::RotateX3D screwRot(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D screwRot1(180.*GeoModelKernelUnits::deg);  
+  GeoTrf::Translation3D screwPos1(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_hole_position);
+  GeoTrf::Translation3D screwPos2(BLM_Wall::s_hole_position-ModWidth/2, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_hole_position);
+  GeoTrf::Translation3D screwPos3(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_length+BLM_Wall::s_hole_position);
+  GeoTrf::Translation3D screwPos4(BLM_Wall::s_hole_position-ModWidth/2, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_length+BLM_Wall::s_hole_position);
+  GeoTrf::Translation3D screwPos5(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_extended_length+2.1);
+  GeoTrf::Translation3D screwPos6(BLM_Wall::s_hole_position-ModWidth/2, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_extended_length+2.1);
+  GeoTrf::Translation3D screwPos7(ModWidth/2-BLM_Wall::s_hole_position, 3.5-ModHeight/2, BLM_Wall::s_holder_thickness-ModLength/2+1);
+  GeoTrf::Translation3D screwPos8(BLM_Wall::s_hole_position-ModWidth/2, 3.5-ModHeight/2, BLM_Wall::s_holder_thickness-ModLength/2+1);
+  GeoTransform* xform1 = new GeoTransform(GeoTrf::Transform3D(screwPos1*screwRot));
+  GeoTransform* xform2 = new GeoTransform(GeoTrf::Transform3D(screwPos2*screwRot));
+  GeoTransform* xform3 = new GeoTransform(GeoTrf::Transform3D(screwPos3*screwRot));
+  GeoTransform* xform4 = new GeoTransform(GeoTrf::Transform3D(screwPos4*screwRot));
+  GeoTransform* xform5 = new GeoTransform(GeoTrf::Transform3D(screwPos5*screwRot));
+  GeoTransform* xform6 = new GeoTransform(GeoTrf::Transform3D(screwPos6*screwRot));
+  GeoTransform* xform7 = new GeoTransform(GeoTrf::Transform3D(screwPos7*screwRot1));
+  GeoTransform* xform8 = new GeoTransform(GeoTrf::Transform3D(screwPos8*screwRot1));
   tag = new GeoNameTag("Screw");
   blmModPhys->add(tag);
   blmModPhys->add(xform1);
@@ -249,8 +246,8 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
 
   //clamp
   GeoPhysVol* clamp = wall.BuildClamp(g10);
-  CLHEP::Hep3Vector clampPos(0, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234-BLM_Wall::s_clamp_thickness/2, ModLength/2-BLM_Wall::s_extended_length+2.1+2.5-BLM_Wall::s_clamp_length/2);
-  yforma = new GeoTransform(HepGeom::Transform3D(holderRot, clampPos));
+  GeoTrf::Translate3D clampPos(0, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234-BLM_Wall::s_clamp_thickness/2, ModLength/2-BLM_Wall::s_extended_length+2.1+2.5-BLM_Wall::s_clamp_length/2);
+  yforma = new GeoTransform(GeoTrf::Transform3D(clampPos));
   tag = new GeoNameTag("Clamp");
   blmModPhys->add(tag);
   blmModPhys->add(yforma);
@@ -258,8 +255,8 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
 
   //diamond//blmDiamondLog
   GeoPhysVol* DiamondVol = wall.BuildBlock(8, diamondThick, diamondSize, "blmDiamondLog", diamond);
-  CLHEP::Hep3Vector DiamondPos(parameters->DiamondPosition_X(), BLM_Wall::s_holder_height-ModHeight/2+CuThick+LamelThick15+diamondThick/2, ModLength/2-diamondSize/2-5+parameters->DiamondPosition_Z());
-  xform = new GeoTransform(HepGeom::Transform3D(holderRot,DiamondPos));
+  GeoTrf::Translate3D DiamondPos(parameters->DiamondPosition_X(), BLM_Wall::s_holder_height-ModHeight/2+CuThick+LamelThick15+diamondThick/2, ModLength/2-diamondSize/2-5+parameters->DiamondPosition_Z());
+  xform = new GeoTransform(GeoTrf::Transform3D(DiamondPos));
   tag = new GeoNameTag("Diamond");
   blmModPhys->add(tag);
   blmModPhys->add(new GeoIdentifierTag(2009));

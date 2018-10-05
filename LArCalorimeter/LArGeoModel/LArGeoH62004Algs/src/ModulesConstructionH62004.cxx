@@ -36,10 +36,12 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-#include "CLHEP/GenericFunctions/Sin.hh"
-#include "CLHEP/GenericFunctions/Cos.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
+#include "GeoGenericFunctions/Sin.h"
+#include "GeoGenericFunctions/Cos.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -70,7 +72,7 @@ LArGeo::ModulesConstructionH62004::ModulesConstructionH62004():m_ModulesPhys(0),
 {
 // fill the static arrays, if called first time
 //
-  //const double thick = 1.*CLHEP::cm;
+  //const double thick = 1.*GeoModelKernelUnits::cm;
   static bool first = true;
   if(first){
     first = false;
@@ -80,65 +82,65 @@ LArGeo::ModulesConstructionH62004::ModulesConstructionH62004():m_ModulesPhys(0),
        s_angleX[i] = s_angleY[i] = s_angleZ[i] = 0.;
     }
 
-    s_dX[0] = s_dX[1] = 1.*CLHEP::cm; s_dY[0]= s_dY[1] = 31.6*CLHEP::cm; s_dZ[0] = s_dZ[1] = 50.*CLHEP::cm; 
-    s_shiftX[0] = -26.*CLHEP::cm; s_shiftX[1] = -s_shiftX[0];
-    s_shiftY[0] = s_shiftY[1] = 85.1*CLHEP::cm; s_shiftZ[0] = s_shiftZ[1] = -3.*CLHEP::cm;
-    s_angleX[0] = s_angleX[1] = 4.668*CLHEP::deg; s_angleZ[0] = s_angleZ[1] = 0.*CLHEP::deg;
-    s_angleY[0] = -30.*CLHEP::deg; s_angleY[1] = -s_angleY[0]; 
-    s_dX[2] = 98.1*CLHEP::cm; s_dY[2] = 98.2*CLHEP::cm; s_dZ[2] = 30.6*CLHEP::cm;
-    s_shiftX[2] = 0.*CLHEP::cm; s_shiftY[2] = 89.7*CLHEP::cm; s_shiftZ[2] = -42.*CLHEP::cm;
-    s_angleX[2] = 94.668*CLHEP::deg; s_angleY[2] = 0.; s_angleZ[2] = 90.*CLHEP::degree;
+    s_dX[0] = s_dX[1] = 1.*GeoModelKernelUnits::cm; s_dY[0]= s_dY[1] = 31.6*GeoModelKernelUnits::cm; s_dZ[0] = s_dZ[1] = 50.*GeoModelKernelUnits::cm; 
+    s_shiftX[0] = -26.*GeoModelKernelUnits::cm; s_shiftX[1] = -s_shiftX[0];
+    s_shiftY[0] = s_shiftY[1] = 85.1*GeoModelKernelUnits::cm; s_shiftZ[0] = s_shiftZ[1] = -3.*GeoModelKernelUnits::cm;
+    s_angleX[0] = s_angleX[1] = 4.668*GeoModelKernelUnits::deg; s_angleZ[0] = s_angleZ[1] = 0.*GeoModelKernelUnits::deg;
+    s_angleY[0] = -30.*GeoModelKernelUnits::deg; s_angleY[1] = -s_angleY[0]; 
+    s_dX[2] = 98.1*GeoModelKernelUnits::cm; s_dY[2] = 98.2*GeoModelKernelUnits::cm; s_dZ[2] = 30.6*GeoModelKernelUnits::cm;
+    s_shiftX[2] = 0.*GeoModelKernelUnits::cm; s_shiftY[2] = 89.7*GeoModelKernelUnits::cm; s_shiftZ[2] = -42.*GeoModelKernelUnits::cm;
+    s_angleX[2] = 94.668*GeoModelKernelUnits::deg; s_angleY[2] = 0.; s_angleZ[2] = 90.*GeoModelKernelUnits::degree;
     
     
-    s_dX[3] = 1.*CLHEP::cm; s_dY[3] = 43.*CLHEP::cm; s_dZ[3] = 40.*CLHEP::cm;
+    s_dX[3] = 1.*GeoModelKernelUnits::cm; s_dY[3] = 43.*GeoModelKernelUnits::cm; s_dZ[3] = 40.*GeoModelKernelUnits::cm;
     s_dX[4] = s_dX[3]; s_dY[4] = s_dY[3]; s_dZ[4] = s_dZ[3];
-    s_shiftX[3] = -58.5*CLHEP::cm; s_shiftY[3] = 12.2*CLHEP::cm; s_shiftZ[3] = 5.*CLHEP::cm;
+    s_shiftX[3] = -58.5*GeoModelKernelUnits::cm; s_shiftY[3] = 12.2*GeoModelKernelUnits::cm; s_shiftZ[3] = 5.*GeoModelKernelUnits::cm;
     s_shiftX[4] = -s_shiftX[3]; s_shiftY[4] = s_shiftY[3]; s_shiftZ[4] = s_shiftZ[3];
-    s_angleX[3] = s_angleX[4] = 4.668*CLHEP::deg; s_angleY[3] = -45.*CLHEP::deg; 
+    s_angleX[3] = s_angleX[4] = 4.668*GeoModelKernelUnits::deg; s_angleY[3] = -45.*GeoModelKernelUnits::deg; 
     s_angleY[4] = -s_angleY[3]; 
-    s_angleZ[3] = 0.*CLHEP::deg; 
+    s_angleZ[3] = 0.*GeoModelKernelUnits::deg; 
     s_angleZ[4] = -s_angleZ[3];
-    s_dX[5] = 130.*CLHEP::cm; s_dY[5] = 131.*CLHEP::cm; s_dZ[5] = 43.*CLHEP::cm; 
-    s_shiftX[5] = 0.*CLHEP::cm; s_shiftY[5] = 18.1*CLHEP::cm; s_shiftZ[5] = -62.*CLHEP::cm;
-    s_angleX[5] = 94.668*CLHEP::deg; s_angleY[5] = 0.*CLHEP::deg;
-    s_angleZ[5] = 90.*CLHEP::deg;
+    s_dX[5] = 130.*GeoModelKernelUnits::cm; s_dY[5] = 131.*GeoModelKernelUnits::cm; s_dZ[5] = 43.*GeoModelKernelUnits::cm; 
+    s_shiftX[5] = 0.*GeoModelKernelUnits::cm; s_shiftY[5] = 18.1*GeoModelKernelUnits::cm; s_shiftZ[5] = -62.*GeoModelKernelUnits::cm;
+    s_angleX[5] = 94.668*GeoModelKernelUnits::deg; s_angleY[5] = 0.*GeoModelKernelUnits::deg;
+    s_angleZ[5] = 90.*GeoModelKernelUnits::deg;
 
-    s_dX[6] = s_dX[7] = 1.*CLHEP::cm; s_dY[6] = s_dY[7] = 27.*CLHEP::cm; s_dZ[6] = s_dZ[7] = 40.*CLHEP::cm; 
-    s_shiftX[6] = -58.*CLHEP::cm; s_shiftY[6] = s_shiftY[7] = -57.85*CLHEP::cm; s_shiftZ[6] = s_shiftZ[7] = -1.*CLHEP::cm;
+    s_dX[6] = s_dX[7] = 1.*GeoModelKernelUnits::cm; s_dY[6] = s_dY[7] = 27.*GeoModelKernelUnits::cm; s_dZ[6] = s_dZ[7] = 40.*GeoModelKernelUnits::cm; 
+    s_shiftX[6] = -58.*GeoModelKernelUnits::cm; s_shiftY[6] = s_shiftY[7] = -57.85*GeoModelKernelUnits::cm; s_shiftZ[6] = s_shiftZ[7] = -1.*GeoModelKernelUnits::cm;
     s_shiftX[7] = - s_shiftX[6]; 
-    s_angleX[6] = s_angleX[7] = 4.668*CLHEP::deg; s_angleY[6] = -45.*CLHEP::deg; s_angleZ[6] = s_angleZ[7] = 0.*CLHEP::deg;
+    s_angleX[6] = s_angleX[7] = 4.668*GeoModelKernelUnits::deg; s_angleY[6] = -45.*GeoModelKernelUnits::deg; s_angleZ[6] = s_angleZ[7] = 0.*GeoModelKernelUnits::deg;
     s_angleY[7] = -s_angleY[6];
-    s_dX[8] = 130.*CLHEP::cm; s_dY[8] = 131.*CLHEP::cm; s_dZ[8] = 27.*CLHEP::cm;
-    s_shiftX[8] = 0.*CLHEP::cm; s_shiftY[8] = -51.9*CLHEP::cm; s_shiftZ[8] = -67.*CLHEP::cm;
-    s_angleX[8] = 94.668*CLHEP::degree; s_angleY[8] = 0.*CLHEP::degree; s_angleZ[8] = 90.*CLHEP::degree;
-    s_dX[9] = 1.*CLHEP::cm; s_dY[9] = 82.*CLHEP::cm; s_dZ[9] = 44.5*CLHEP::cm;
-    s_shiftX[9] = 0.*CLHEP::cm; s_shiftY[9] = -89.0*CLHEP::cm; s_shiftZ[9] = 32.5*CLHEP::cm;
-    s_angleX[9] = 4.668*CLHEP::degree; s_angleY[9] = 0.*CLHEP::degree; s_angleZ[9] = 90.*CLHEP::degree;    
+    s_dX[8] = 130.*GeoModelKernelUnits::cm; s_dY[8] = 131.*GeoModelKernelUnits::cm; s_dZ[8] = 27.*GeoModelKernelUnits::cm;
+    s_shiftX[8] = 0.*GeoModelKernelUnits::cm; s_shiftY[8] = -51.9*GeoModelKernelUnits::cm; s_shiftZ[8] = -67.*GeoModelKernelUnits::cm;
+    s_angleX[8] = 94.668*GeoModelKernelUnits::degree; s_angleY[8] = 0.*GeoModelKernelUnits::degree; s_angleZ[8] = 90.*GeoModelKernelUnits::degree;
+    s_dX[9] = 1.*GeoModelKernelUnits::cm; s_dY[9] = 82.*GeoModelKernelUnits::cm; s_dZ[9] = 44.5*GeoModelKernelUnits::cm;
+    s_shiftX[9] = 0.*GeoModelKernelUnits::cm; s_shiftY[9] = -89.0*GeoModelKernelUnits::cm; s_shiftZ[9] = 32.5*GeoModelKernelUnits::cm;
+    s_angleX[9] = 4.668*GeoModelKernelUnits::degree; s_angleY[9] = 0.*GeoModelKernelUnits::degree; s_angleZ[9] = 90.*GeoModelKernelUnits::degree;    
     
-    s_dX[10] = s_dX[11] =  1.*CLHEP::cm; s_dY[10] = s_dY[11] = 41.5*CLHEP::cm; s_dZ[10] = s_dZ[11] = 20.3*CLHEP::cm;
-    s_shiftX[10] = -15.4*CLHEP::cm; s_shiftY[10] = s_shiftY[11] = 14.50*CLHEP::cm; s_shiftZ[10] = s_shiftZ[11] = -39.*CLHEP::cm;
+    s_dX[10] = s_dX[11] =  1.*GeoModelKernelUnits::cm; s_dY[10] = s_dY[11] = 41.5*GeoModelKernelUnits::cm; s_dZ[10] = s_dZ[11] = 20.3*GeoModelKernelUnits::cm;
+    s_shiftX[10] = -15.4*GeoModelKernelUnits::cm; s_shiftY[10] = s_shiftY[11] = 14.50*GeoModelKernelUnits::cm; s_shiftZ[10] = s_shiftZ[11] = -39.*GeoModelKernelUnits::cm;
     s_shiftX[11] = - s_shiftX[10];
-    s_angleX[10] = s_angleX[11] = 4.668*CLHEP::degree; s_angleY[10] = -45.*CLHEP::degree; s_angleZ[10] = 0.*CLHEP::degree;    
+    s_angleX[10] = s_angleX[11] = 4.668*GeoModelKernelUnits::degree; s_angleY[10] = -45.*GeoModelKernelUnits::degree; s_angleZ[10] = 0.*GeoModelKernelUnits::degree;    
     s_angleY[11] = -s_angleY[10]; s_angleZ[11] = -s_angleZ[10];    
   
-    s_dX[12] = s_dX[13] = 1.*CLHEP::cm; s_dY[12] = s_dY[13] = 27.*CLHEP::cm; s_dZ[12] = s_dZ[13] = 20.3*CLHEP::cm;
-    s_shiftX[12] = -15.4*CLHEP::cm; s_shiftY[12] = s_shiftY[13] = -54.4*CLHEP::cm; s_shiftZ[12] = s_shiftZ[13] = -43.8*CLHEP::cm;
+    s_dX[12] = s_dX[13] = 1.*GeoModelKernelUnits::cm; s_dY[12] = s_dY[13] = 27.*GeoModelKernelUnits::cm; s_dZ[12] = s_dZ[13] = 20.3*GeoModelKernelUnits::cm;
+    s_shiftX[12] = -15.4*GeoModelKernelUnits::cm; s_shiftY[12] = s_shiftY[13] = -54.4*GeoModelKernelUnits::cm; s_shiftZ[12] = s_shiftZ[13] = -43.8*GeoModelKernelUnits::cm;
     s_shiftX[13] = -s_shiftX[12];
-    s_angleX[12]  = s_angleX[13] = 4.668*CLHEP::degree; s_angleY[12] = -45.*CLHEP::degree; s_angleZ[12] = 0.*CLHEP::degree;
+    s_angleX[12]  = s_angleX[13] = 4.668*GeoModelKernelUnits::degree; s_angleY[12] = -45.*GeoModelKernelUnits::degree; s_angleZ[12] = 0.*GeoModelKernelUnits::degree;
     s_angleY[13] = -s_angleY[12]; s_angleZ[13] = -s_angleZ[12];
       
-    s_dX[14] = s_dX[15] = 1.*CLHEP::cm; s_dY[14] = s_dY[15] = 12.*CLHEP::cm; s_dZ[14] = s_dZ[15] = 25.3*CLHEP::cm;
-    s_shiftX[14] = -19.5*CLHEP::cm; s_shiftY[14] = s_shiftY[15] = -93.5*CLHEP::cm; s_shiftZ[14] = s_shiftZ[15] = -46.5*CLHEP::cm;
+    s_dX[14] = s_dX[15] = 1.*GeoModelKernelUnits::cm; s_dY[14] = s_dY[15] = 12.*GeoModelKernelUnits::cm; s_dZ[14] = s_dZ[15] = 25.3*GeoModelKernelUnits::cm;
+    s_shiftX[14] = -19.5*GeoModelKernelUnits::cm; s_shiftY[14] = s_shiftY[15] = -93.5*GeoModelKernelUnits::cm; s_shiftZ[14] = s_shiftZ[15] = -46.5*GeoModelKernelUnits::cm;
     s_shiftX[15] = -s_shiftX[14];
-    s_angleX[14] = s_angleX[15] = 4.668*CLHEP::degree; s_angleY[14] = -45.*CLHEP::degree; s_angleZ[14] = s_angleZ[15] = 0.*CLHEP::degree;
+    s_angleX[14] = s_angleX[15] = 4.668*GeoModelKernelUnits::degree; s_angleY[14] = -45.*GeoModelKernelUnits::degree; s_angleZ[14] = s_angleZ[15] = 0.*GeoModelKernelUnits::degree;
     s_angleY[15] = -s_angleY[14]; 
     
-    s_dX[16] = 59.5*CLHEP::cm; s_dY[16] = 60.0*CLHEP::cm; s_dZ[16] = 12.0*CLHEP::cm;
-    s_shiftX[16] = 0.*CLHEP::cm; s_shiftY[16] = -91.5*CLHEP::cm; s_shiftZ[16] = -73.5*CLHEP::cm;
-    s_angleX[16] = 94.668*CLHEP::degree; s_angleY[16] = 0.*CLHEP::degree; s_angleZ[16] = 90.*CLHEP::degree;
-    s_dX[17] = 0.3*CLHEP::cm; s_dY[17] = 35.*CLHEP::cm; s_dZ[17] = 25.*CLHEP::cm;
-    s_shiftX[17] = 0.*CLHEP::cm; s_shiftY[17] = -107.0*CLHEP::cm; s_shiftZ[17] = -40.*CLHEP::cm;
-    s_angleX[17] = 4.668*CLHEP::degree; s_angleY[17] = 0.*CLHEP::degree; s_angleZ[17] = 90.*CLHEP::degree;
+    s_dX[16] = 59.5*GeoModelKernelUnits::cm; s_dY[16] = 60.0*GeoModelKernelUnits::cm; s_dZ[16] = 12.0*GeoModelKernelUnits::cm;
+    s_shiftX[16] = 0.*GeoModelKernelUnits::cm; s_shiftY[16] = -91.5*GeoModelKernelUnits::cm; s_shiftZ[16] = -73.5*GeoModelKernelUnits::cm;
+    s_angleX[16] = 94.668*GeoModelKernelUnits::degree; s_angleY[16] = 0.*GeoModelKernelUnits::degree; s_angleZ[16] = 90.*GeoModelKernelUnits::degree;
+    s_dX[17] = 0.3*GeoModelKernelUnits::cm; s_dY[17] = 35.*GeoModelKernelUnits::cm; s_dZ[17] = 25.*GeoModelKernelUnits::cm;
+    s_shiftX[17] = 0.*GeoModelKernelUnits::cm; s_shiftY[17] = -107.0*GeoModelKernelUnits::cm; s_shiftZ[17] = -40.*GeoModelKernelUnits::cm;
+    s_angleX[17] = 4.668*GeoModelKernelUnits::degree; s_angleY[17] = 0.*GeoModelKernelUnits::degree; s_angleZ[17] = 90.*GeoModelKernelUnits::degree;
      
   }
   //StoreGateSvc* detStore;
@@ -188,11 +190,12 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   // Rohacell foam has density: 0.11g/cm3
   std::string name;
   double density;
+
   const GeoElement*  C=materialManager->getElement("Carbon");
   const GeoElement*  H=materialManager->getElement("Hydrogen");
   const GeoElement*  O=materialManager->getElement("Oxygen");
   const GeoElement*  N=materialManager->getElement("Nitrogen");
-  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.112*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.112*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);
   Rohacell->add(O,0.19137);
@@ -200,7 +203,7 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   Rohacell->lock();
 
   /*
-  a = 12.957*CLHEP::g/CLHEP::mole;                                                       
+  a = 12.957*GeoModelKernelUnits::g/GeoModelKernelUnits::mole;                                                       
   density = 0.112*g/cm3;                                              
   z = 6.18;
   G4Material* Rohacell = new G4Material(name="Rohacell",z, a, density);
@@ -210,35 +213,35 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   if (!Alu) throw std::runtime_error("Error in ModulesConstruction, std::Aluminium is not found.");
 
   // DB numbers:
-  double bryr_y = 200.0*CLHEP::cm;
-  double bcry_rlar = 125.5*CLHEP::cm;
-  double bcry_phistart = 0.*CLHEP::degree;
-  double bcry_phiend = 360.*CLHEP::degree;
-  //double EMECdzende         =  63.2*CLHEP::cm;   // Can not get from parameters
+  double bryr_y = 200.0*GeoModelKernelUnits::cm;
+  double bcry_rlar = 125.5*GeoModelKernelUnits::cm;
+  double bcry_phistart = 0.*GeoModelKernelUnits::degree;
+  double bcry_phiend = 360.*GeoModelKernelUnits::degree;
+  //double EMECdzende         =  63.2*GeoModelKernelUnits::cm;   // Can not get from parameters
   //double Zall = 62.6*cm; // Excluder dimension
 
-  double   bepo_tx = 180.0*CLHEP::degree;
-  double   bepo_tz = 90.0*CLHEP::degree;
-  double   bepo_tz_e = ( M_PI / 4 )*CLHEP::rad;
-  double   bepo_ty = 90.0*CLHEP::degree;
-  double   bepo_Beta = 4.668*CLHEP::degree;
-  double   bepo_z_e = -42.86*CLHEP::cm; // 43 CLHEP::cm * cos(4.668)
-  double   bepo_emec_shift = 2.5*CLHEP::cm;
-  double   bepo_excluder_shift = 34.4*CLHEP::cm;
-  //double   bepo_hec_shift = 63.6*CLHEP::cm; // relative position of HEC versus EMEC
+  double   bepo_tx = 180.0*GeoModelKernelUnits::degree;
+  double   bepo_tz = 90.0*GeoModelKernelUnits::degree;
+  double   bepo_tz_e = ( M_PI / 4 )*GeoModelKernelUnits::rad;
+  double   bepo_ty = 90.0*GeoModelKernelUnits::degree;
+  double   bepo_Beta = 4.668*GeoModelKernelUnits::degree;
+  double   bepo_z_e = -42.86*GeoModelKernelUnits::cm; // 43 GeoModelKernelUnits::cm * cos(4.668)
+  double   bepo_emec_shift = 2.5*GeoModelKernelUnits::cm;
+  double   bepo_excluder_shift = 34.4*GeoModelKernelUnits::cm;
+  //double   bepo_hec_shift = 63.6*GeoModelKernelUnits::cm; // relative position of HEC versus EMEC
   //double   bepo_y_a = bcry_rlar-bepo_emec_shift-bepo_hec_shift;
   double   bepo_y_ex = bcry_rlar-bepo_excluder_shift;
-  double   bepo_y_hecshift = 6.*CLHEP::mm;
-  double   bepo_y_emecshift = 11.*CLHEP::mm;
-  double   bepo_x = -2.75*CLHEP::mm;
-  double   bepo_x_e = -17.*CLHEP::mm;
-//  double   bepo_x = 13.25*CLHEP::mm;
-//  double   bepo_x_e = -3.*CLHEP::mm;
-//  double   bepo_x = 17.25*CLHEP::mm;
-//  double   bepo_x_e = -3.*CLHEP::mm;
-  //double   bepo_z = -48.24*CLHEP::cm; // 48.4 CLHEP::cm * cos(4.668)
+  double   bepo_y_hecshift = 6.*GeoModelKernelUnits::mm;
+  double   bepo_y_emecshift = 11.*GeoModelKernelUnits::mm;
+  double   bepo_x = -2.75*GeoModelKernelUnits::mm;
+  double   bepo_x_e = -17.*GeoModelKernelUnits::mm;
+//  double   bepo_x = 13.25*GeoModelKernelUnits::mm;
+//  double   bepo_x_e = -3.*GeoModelKernelUnits::mm;
+//  double   bepo_x = 17.25*GeoModelKernelUnits::mm;
+//  double   bepo_x_e = -3.*GeoModelKernelUnits::mm;
+  //double   bepo_z = -48.24*GeoModelKernelUnits::cm; // 48.4 GeoModelKernelUnits::cm * cos(4.668)
   double   bepo_y_e = bcry_rlar-bepo_emec_shift;
-  double   bepo_pz = 45.0*CLHEP::degree;
+  double   bepo_pz = 45.0*GeoModelKernelUnits::degree;
 
   std::string baseName = "LArGeoTB::LeakageDet::";
 
@@ -246,9 +249,9 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   if(m_Options && m_Options->isRun1()) {
      ylen = bryr_y;
   } else {
-     ylen = bryr_y - 200.*CLHEP::mm;
+     ylen = bryr_y - 200.*GeoModelKernelUnits::mm;
   }
-  GeoTubs *shapeMother = new GeoTubs( 0.0*CLHEP::cm, bcry_rlar, ylen, bcry_phistart,bcry_phiend);
+  GeoTubs *shapeMother = new GeoTubs( 0.0*GeoModelKernelUnits::cm, bcry_rlar, ylen, bcry_phistart,bcry_phiend);
   GeoLogVol *logMother = new GeoLogVol(baseName + "LAr", shapeMother, LAr);
 
   m_ModulesPhys = new GeoFullPhysVol(logMother);
@@ -269,7 +272,7 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
         leak_log->SetSensitiveDetector(LeakSDdetector);
 	leak_log->SetVisAttributes(G4VisAttributes::Invisible);
 //	leak_log->SetVisAttributes(new G4VisAttributes(G4Color(0.7,0.1,0.7)));
-        HepGeom::Transform3D leak_pos = position(sid, dir, cal);
+        GeoTrf::Transform3D leak_pos = position(sid, dir, cal);
         G4VPhysicalVolume *leak_phys =
         new G4PVPlacement(leak_pos,
                           leak_log,
@@ -289,13 +292,9 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
 //     std::cout<<"ModulesConstructionH62004::GetEnvelope positioning Excluder"<<std::endl;
     GeoVFullPhysVol* excluderEnvelope = excluder.GetEnvelope();
     /*if(excluderEnvelope != 0)*/{
-      CLHEP::HepRotation rot2; 
-//      rot2.rotateZ(bepo_tz+bepo_tz_e);
-      rot2.rotateZ(bepo_tz);
-      rot2.rotateX(bepo_ty);
-      rot2.rotateX(bepo_Beta);
+      GeoTrf::Transform3D rot2 = GeoTrf::RotateX3D(bepo_Beta) * GeoTrf::RotateX3D(bepo_ty) * GeoTrf::RotateZ3D(bepo_tz);
       m_ModulesPhys->add(new GeoSerialIdentifier(0));
-      m_ModulesPhys->add(new GeoTransform(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,bepo_y_ex,bepo_z_e+42.*CLHEP::mm))));
+      m_ModulesPhys->add(new GeoTransform(GeoTrf::Translation3D(0.,bepo_y_ex,bepo_z_e+42.*GeoModelKernelUnits::mm) * rot2));
       m_ModulesPhys->add(excluderEnvelope);
     }
   }
@@ -309,13 +308,10 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
 //     std::cout<<"ModulesConstructionH62004::GetEnvelope positioning Excluder"<<std::endl;
     GeoVFullPhysVol* fcexcluderEnvelope = fcexcluder.GetEnvelope();
     if(fcexcluderEnvelope != 0){
-      CLHEP::HepRotation rot2; 
-      rot2.rotateZ(bepo_tx);
-      rot2.rotateX(-bepo_ty);
-      rot2.rotateX(0.8*bepo_Beta);
+      GeoTrf::Transform3D rot2 = GeoTrf::RotateX3D(0.8*bepo_Beta) * GeoTrf::RotateX3D(-bepo_ty) * GeoTrf::RotateZ3D(bepo_tx);
       m_ModulesPhys->add(new GeoSerialIdentifier(0));
-//      m_ModulesPhys->add(new GeoTransform(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,bepo_y_ex-138.*CLHEP::mm,-477.3*CLHEP::mm))));
-      m_ModulesPhys->add(new GeoTransform(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,bepo_y_ex-146.*CLHEP::mm,-412.0*CLHEP::mm))));
+//      m_ModulesPhys->add(new GeoTransform(GeoTrf::Transform3D(rot2,GeoTrf::Vector3D(0.,bepo_y_ex-138.*GeoModelKernelUnits::mm,-477.3*GeoModelKernelUnits::mm))));
+      m_ModulesPhys->add(new GeoTransform(GeoTrf::Translation3D(0.,bepo_y_ex-146.*GeoModelKernelUnits::mm,-412.0*GeoModelKernelUnits::mm) * rot2));
       m_ModulesPhys->add(fcexcluderEnvelope);
     }
   }
@@ -328,16 +324,14 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   /*if(frontexcluder != 0)*/{
     GeoVFullPhysVol* frontexcluderEnvelope = frontexcluder.GetEnvelope();
     if(frontexcluderEnvelope != 0){
-      CLHEP::HepRotation rot2; 
-//      rot2.rotateZ((90.-18.)*CLHEP::degree);
-      rot2.rotateZ((90.)*CLHEP::degree);
+      GeoTrf::RotateZ3D rot2((90.)*GeoModelKernelUnits::degree);
       m_ModulesPhys->add(new GeoSerialIdentifier(0));
-      m_ModulesPhys->add(new GeoTransform(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,0.,20.*CLHEP::mm))));
+      m_ModulesPhys->add(new GeoTransform(GeoTrf::Translation3D(0.,0.,20.*GeoModelKernelUnits::mm) * rot2));
       m_ModulesPhys->add(frontexcluderEnvelope);
       /*
       G4VPhysicalVolume* frontexcluderPhysical =
-//	    new G4PVPlacement(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,0.,220.*CLHEP::mm)), // Translation 
-	    new G4PVPlacement(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,0.,20.*CLHEP::mm)), // Translation 
+//	    new G4PVPlacement(GeoTrf::Transform3D(rot2,GeoTrf::Vector3D(0.,0.,220.*GeoModelKernelUnits::mm)), // Translation 
+	    new G4PVPlacement(GeoTrf::Transform3D(rot2,GeoTrf::Vector3D(0.,0.,20.*GeoModelKernelUnits::mm)), // Translation 
 			      frontexcluderEnvelope,                     // Logical volume
 			      frontexcluderEnvelope->GetName(),          // Name 
 			      logMother,                        // Mother volume 
@@ -355,14 +349,13 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   /*if(backexcluder != 0)*/{
     GeoVFullPhysVol* backexcluderEnvelope = backexcluder.GetEnvelope();
     if(backexcluderEnvelope != 0){
-      CLHEP::HepRotation rot2; 
-      rot2.rotateZ((-90.-29.)*CLHEP::degree);
+      GeoTrf::RotateZ3D rot2((-90.-29.)*GeoModelKernelUnits::degree);
       m_ModulesPhys->add(new GeoSerialIdentifier(0));
-      m_ModulesPhys->add(new GeoTransform(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,0.,0.*CLHEP::mm))));
+      m_ModulesPhys->add(new GeoTransform(GeoTrf::Translation3D(0.,0.,0.*GeoModelKernelUnits::mm) * rot2));
       m_ModulesPhys->add(backexcluderEnvelope);
       /*
       G4VPhysicalVolume* backexcluderPhysical =
-	    new G4PVPlacement(HepGeom::Transform3D(rot2,CLHEP::Hep3Vector(0.,0.,0.*CLHEP::mm)), // Translation 
+	    new G4PVPlacement(GeoTrf::Transform3D(rot2,GeoTrf::Vector3D(0.,0.,0.*GeoModelKernelUnits::mm)), // Translation 
 			      backexcluderEnvelope,                     // Logical volume
 			      backexcluderEnvelope->GetName(),          // Name 
 			      logMother,                        // Mother volume 
@@ -379,32 +372,28 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
  // G4AssemblyVolume* assemblyMother = new G4AssemblyVolume();
 
   // Transformation for assembly - should be putted to each piece now.
-  CLHEP::HepRotation rota;
-  rota.rotateZ(-bepo_pz);
-  rota.rotateX(bepo_ty);
-  rota.rotateX(bepo_Beta);
-  
-//  HepGeom::Transform3D trans(rota, CLHEP::Hep3Vector(0.,bepo_y_e,bepo_z_e));
-  HepGeom::Transform3D trans(rota, CLHEP::Hep3Vector(0.,bepo_y_e,bepo_z_e+65.*CLHEP::mm));
+  GeoTrf::Transform3D rota = GeoTrf::RotateX3D(bepo_Beta) * GeoTrf::RotateX3D(bepo_ty) * GeoTrf::RotateZ3D(-bepo_pz);
+  GeoTrf::Transform3D trans = GeoTrf::Translation3D(0.,bepo_y_e,bepo_z_e+65.*GeoModelKernelUnits::mm) * rota;
   
 //positions emec
 
   // Z-positions DB values !!!!
 
-  double HECzStart         =  427.7*CLHEP::cm;
-  double EMECzStart         = 364.1*CLHEP::cm;
-  double FCALzStart         =  466.85*CLHEP::cm;
-  double FCALzEnd           =  588.28*CLHEP::cm;
+  double HECzStart         =  427.7*GeoModelKernelUnits::cm;
+  double EMECzStart         = 364.1*GeoModelKernelUnits::cm;
+  double FCALzStart         =  466.85*GeoModelKernelUnits::cm;
+  double FCALzEnd           =  588.28*GeoModelKernelUnits::cm;
 
   if((!m_Options) || m_Options->isEmec()){
-     CLHEP::HepRotation MrotEmec ;
-     MrotEmec.rotateZ(bepo_tz_e); 
+    GeoTrf::RotateZ3D MrotEmec(bepo_tz_e);
      // original value:
-//     CLHEP::Hep3Vector pos3Emec(    0*CLHEP::mm,   9.0*CLHEP::mm ,   55.9*CLHEP::mm);
-//     CLHEP::Hep3Vector pos3Emec(    3.636*CLHEP::mm,   9.0*CLHEP::mm ,   55.9*CLHEP::mm);
-//     CLHEP::Hep3Vector pos3Emec(    bepo_x_e,   9.*CLHEP::mm ,   61.*CLHEP::mm);
-       CLHEP::Hep3Vector pos3Emec( (bepo_x_e - bepo_y_emecshift )/2./sin(bepo_tz_e), (bepo_x_e + bepo_y_emecshift )/2./sin(bepo_tz_e), 61.*CLHEP::mm);
-//     CLHEP::Hep3Vector pos3Emec(    0.*CLHEP::mm, bepo_x_e,   61.*CLHEP::mm);
+//     GeoTrf::Vector3D pos3Emec(    0*GeoModelKernelUnits::mm,   9.0*GeoModelKernelUnits::mm ,   55.9*GeoModelKernelUnits::mm);
+//     GeoTrf::Vector3D pos3Emec(    3.636*GeoModelKernelUnits::mm,   9.0*GeoModelKernelUnits::mm ,   55.9*GeoModelKernelUnits::mm);
+//     GeoTrf::Vector3D pos3Emec(    bepo_x_e,   9.*GeoModelKernelUnits::mm ,   61.*GeoModelKernelUnits::mm);
+    GeoTrf::Translation3D pos3Emec((bepo_x_e - bepo_y_emecshift )/2./sin(bepo_tz_e)
+				   , (bepo_x_e + bepo_y_emecshift )/2./sin(bepo_tz_e)
+				   , 61.*GeoModelKernelUnits::mm);
+//     GeoTrf::Vector3D pos3Emec(    0.*GeoModelKernelUnits::mm, bepo_x_e,   61.*GeoModelKernelUnits::mm);
 
 //     std::cout<<"ModulesConstructionH62004 calling EMECModuleConstruction....."<<std::endl;
   //use this line for physical construction of the EMEC inner wheel only:
@@ -414,7 +403,7 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
      GeoVFullPhysVol* emecEnvelope = emecConstruction.GetEnvelope();
      m_ModulesPhys->add(new GeoNameTag("LAr"));
      m_ModulesPhys->add( new GeoTransform(trans) );
-     m_ModulesPhys->add( new GeoTransform( HepGeom::Transform3D(MrotEmec, pos3Emec) ) );
+     m_ModulesPhys->add( new GeoTransform( pos3Emec * MrotEmec ));
      m_ModulesPhys->add(emecEnvelope);
 //     std::cout<<"ModulesConstructionH62004  EMECModuleConstruction done...."<<std::endl;
   }
@@ -427,21 +416,21 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
     /*if(hec != 0)*/{
       GeoVPhysVol* hecEnvelope = hec.GetEnvelope();
       if(hecEnvelope != 0){
-        CLHEP::HepRotation rot;
 //        rot.rotateZ(-bepo_pz);
 //        rot.rotateX(bepo_ty);
 //        rot.rotateX(bepo_Beta);
   
-//        HepGeom::Transform3D hpos = HepGeom::Transform3D(rot,CLHEP::Hep3Vector(bepo_x,bepo_y_a,bepo_z));
-//        CLHEP::Hep3Vector hecshift(0.,6.*CLHEP::mm,HECzStart-EMECzStart);
-          CLHEP::Hep3Vector hecshift((bepo_x - bepo_y_hecshift)/2./sin(bepo_tz_e), (bepo_x + bepo_y_hecshift)/2./sin(bepo_tz_e), HECzStart-EMECzStart);
-//        CLHEP::Hep3Vector hecshift(-21.*CLHEP::mm, bepo_x, HECzStart-EMECzStart);
-//        CLHEP::Hep3Vector hecshift(-5.*CLHEP::mm, bepo_x, HECzStart-EMECzStart);
-//        CLHEP::Hep3Vector hecshift(0.*CLHEP::mm, bepo_x, HECzStart-EMECzStart);
-//       CLHEP::HepRotation norot;
-        HepGeom::Transform3D hectrans(rot,hecshift);
-        m_ModulesPhys->add( new GeoTransform(trans) );
-        m_ModulesPhys->add(new GeoTransform(hectrans));
+//        GeoTrf::Transform3D hpos = GeoTrf::Transform3D(rot,GeoTrf::Vector3D(bepo_x,bepo_y_a,bepo_z));
+//        GeoTrf::Vector3D hecshift(0.,6.*GeoModelKernelUnits::mm,HECzStart-EMECzStart);
+//          GeoTrf::Vector3D hecshift((bepo_x - bepo_y_hecshift)/2./sin(bepo_tz_e), (bepo_x + bepo_y_hecshift)/2./sin(bepo_tz_e), HECzStart-EMECzStart);
+//        GeoTrf::Vector3D hecshift(-21.*GeoModelKernelUnits::mm, bepo_x, HECzStart-EMECzStart);
+//        GeoTrf::Vector3D hecshift(-5.*GeoModelKernelUnits::mm, bepo_x, HECzStart-EMECzStart);
+//        GeoTrf::Vector3D hecshift(0.*GeoModelKernelUnits::mm, bepo_x, HECzStart-EMECzStart);
+//       GeoModelKernelUnits::HepRotation norot;
+        m_ModulesPhys->add(new GeoTransform(trans));
+        m_ModulesPhys->add( new GeoTransform(GeoTrf::Translate3D((bepo_x - bepo_y_hecshift)/2./sin(bepo_tz_e)
+								 , (bepo_x + bepo_y_hecshift)/2./sin(bepo_tz_e)
+								 , HECzStart-EMECzStart)) );
         m_ModulesPhys->add(hecEnvelope);
 
 //       assemblyMother->AddPlacedVolume( hecEnvelope, hectrans );
@@ -455,16 +444,16 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
       fcal.setFCALVisLimit(m_fcalVisLimit); 
       GeoVPhysVol* fcalEnvelope = fcal.GetEnvelope();
       if(fcalEnvelope != 0){
-        CLHEP::HepRotation rotFCal;
-       // rotFCal.rotateY(0.*CLHEP::deg);
+//        GeoModelKernelUnits::HepRotation rotFCal;
+       // rotFCal.rotateY(0.*GeoModelKernelUnits::deg);
        //  rotFCal.rotateZ(-bepo_pz);
        //  rotFCal.rotateX(bepo_ty);
        //  rotFCal.rotateX(bepo_Beta);
-//        CLHEP::Hep3Vector fcalshift(0.,-7.*CLHEP::mm,FCALzStart-EMECzStart+(FCALzEnd-FCALzStart)/2.);
-        CLHEP::Hep3Vector fcalshift(9.*CLHEP::mm,0.*CLHEP::mm,FCALzStart-EMECzStart+(FCALzEnd-FCALzStart)/2.);
-        HepGeom::Transform3D fcaltrans(rotFCal,fcalshift);
-        m_ModulesPhys->add( new GeoTransform(trans) );
-        m_ModulesPhys->add(new GeoTransform(fcaltrans));
+//        GeoTrf::Vector3D fcalshift(0.,-7.*GeoModelKernelUnits::mm,FCALzStart-EMECzStart+(FCALzEnd-FCALzStart)/2.);
+        m_ModulesPhys->add(new GeoTransform(trans));
+        m_ModulesPhys->add( new GeoTransform(GeoTrf::Translate3D(9.*GeoModelKernelUnits::mm
+								 ,0.*GeoModelKernelUnits::mm
+								 ,FCALzStart-EMECzStart+(FCALzEnd-FCALzStart)/2.)) );
         m_ModulesPhys->add(fcalEnvelope);
       }
     }
@@ -474,89 +463,78 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   // Position a cold nose
   //
   
-  double box_x = (650./2.)*CLHEP::mm;
-  double box_y = (356./2.)*CLHEP::mm;
-  double box_z = (50.8/2.)*CLHEP::mm;
-  double btot = 494.*CLHEP::mm;
-  double tub_r = 452.*CLHEP::mm;
-  double tub1_dr = 8.*CLHEP::mm;
-  double tub1_z = (1320./2.)*CLHEP::mm;
-  double cyl_dr = 10.*CLHEP::mm;
-  double cyl_r1 = 262.*CLHEP::mm;
-  double cyl_r2 = 336.5*CLHEP::mm;
-  double cyl_z = (912./2.)*CLHEP::mm;
-  double cyl_shift = (10. + 25.)*CLHEP::mm; 
-//  double NoseZshift = -360.*CLHEP::mm;
-  double NoseZshift = -63.1*CLHEP::mm;
-//  double NoseYshift = 94.4*CLHEP::mm;
-//  double NoseYshift = 96.4*CLHEP::mm;
-  double NoseYshift = 98.4*CLHEP::mm;
-//  double NoseXshift = -195.*CLHEP::mm;
-  double NoseXshift = -94.4*CLHEP::mm;
+  double box_x = (650./2.)*GeoModelKernelUnits::mm;
+  double box_y = (356./2.)*GeoModelKernelUnits::mm;
+  double box_z = (50.8/2.)*GeoModelKernelUnits::mm;
+  double btot = 494.*GeoModelKernelUnits::mm;
+  double tub_r = 452.*GeoModelKernelUnits::mm;
+  double tub1_dr = 8.*GeoModelKernelUnits::mm;
+  double tub1_z = (1320./2.)*GeoModelKernelUnits::mm;
+  double cyl_dr = 10.*GeoModelKernelUnits::mm;
+  double cyl_r1 = 262.*GeoModelKernelUnits::mm;
+  double cyl_r2 = 336.5*GeoModelKernelUnits::mm;
+  double cyl_z = (912./2.)*GeoModelKernelUnits::mm;
+  double cyl_shift = (10. + 25.)*GeoModelKernelUnits::mm; 
+//  double NoseZshift = -360.*GeoModelKernelUnits::mm;
+  double NoseZshift = -63.1*GeoModelKernelUnits::mm;
+//  double NoseYshift = 94.4*GeoModelKernelUnits::mm;
+//  double NoseYshift = 96.4*GeoModelKernelUnits::mm;
+  double NoseYshift = 98.4*GeoModelKernelUnits::mm;
+//  double NoseXshift = -195.*GeoModelKernelUnits::mm;
+  double NoseXshift = -94.4*GeoModelKernelUnits::mm;
 
   GeoBox* Box1 = new GeoBox(box_x, box_y, box_z);
   double alpha = acos(box_x/tub_r);
   double ax = M_PI - 2*alpha;
   GeoTubs* Tub= new GeoTubs(0., tub_r, box_z, alpha, ax);
 
-  CLHEP::HepRotation tRot;
-//  tRot.rotateX(90*CLHEP::degree);
-  CLHEP::Hep3Vector TubShift(0.,btot-box_y-tub_r,0.);
-  HepGeom::Transform3D TubTrans(tRot,TubShift);
+//  tRot.rotateX(90*GeoModelKernelUnits::degree);
+  GeoTrf::Translate3D TubTrans(0.,btot-box_y-tub_r,0.);
   const GeoShapeUnion &uSolid = (*Box1).add((*Tub)<<TubTrans);
 
   GeoTubs* Tub1 = new GeoTubs(tub_r, tub_r+tub1_dr, tub1_z, alpha, ax);  
-//  CLHEP::Hep3Vector TubShift2(0.,btot-box_y-tub_r,-tub1_z+box_z);
-  CLHEP::Hep3Vector TubShift2(0.,-135.5*CLHEP::mm,-tub1_z+box_z);
-//  CLHEP::Hep3Vector TubShift2(0.,0.,0.);
-//  tRot.rotateX(90*CLHEP::degree);
-  HepGeom::Transform3D UnTrans(tRot,TubShift2);
+//  GeoTrf::Vector3D TubShift2(0.,btot-box_y-tub_r,-tub1_z+box_z);
+//  GeoTrf::Vector3D TubShift2(0.,0.,0.);
+//  tRot.rotateX(90*GeoModelKernelUnits::degree);
+  GeoTrf::Translate3D UnTrans(0.,-135.5*GeoModelKernelUnits::mm,-tub1_z+box_z);
   const GeoShapeUnion &uSolid2 = uSolid.add((*Tub1)<<UnTrans);
 
   GeoCons* Cone = new GeoCons(cyl_r2, cyl_r1, cyl_r2+cyl_dr, cyl_r1+cyl_dr, cyl_z, M_PI/4.,M_PI/2.);
-//  CLHEP::Hep3Vector CylShift(0.,-box_y+cyl_shift,cyl_z+box_z-3.*CLHEP::mm);
-  CLHEP::Hep3Vector CylShift(0.,-box_y+cyl_shift,cyl_z+box_z-5.*CLHEP::mm);
-//  CLHEP::Hep3Vector CylShift(0.,0.,cyl_z+box_z);
-  tRot.rotateX(1.*CLHEP::degree);
-//  tRot.rotateZ(-90*CLHEP::degree);
-  HepGeom::Transform3D CylTrans(tRot,CylShift);
+//  GeoTrf::Vector3D CylShift(0.,-box_y+cyl_shift,cyl_z+box_z-3.*GeoModelKernelUnits::mm);
+  GeoTrf::Translation3D CylShift(0.,-box_y+cyl_shift,cyl_z+box_z-5.*GeoModelKernelUnits::mm);
+//  GeoTrf::Vector3D CylShift(0.,0.,cyl_z+box_z);
+  GeoTrf::RotateX3D tRot(1.*GeoModelKernelUnits::degree);
+//  tRot.rotateZ(-90*GeoModelKernelUnits::degree);
+  GeoTrf::Transform3D CylTrans = CylShift * tRot;
   const GeoShapeUnion &uSolid3 =  uSolid2.add((*Cone)<<CylTrans);
 
   GeoLogVol* Cnose = new GeoLogVol("LArGeoTB::LeakageDet::ColdNose", &uSolid3 , Alu);
   GeoPhysVol *PhysCnose = new GeoPhysVol(Cnose);
 //  cnose->SetVisAttributes(G4VisAttributes::Invisible);
-  CLHEP::HepRotation CRotation;
-//  CRotation.rotateZ(-bepo_pz);
-  /*
-  CRotation.rotateX(bepo_ty);
-  CRotation.rotateZ(bepo_tx);
-  CRotation.rotateX(bepo_Beta);
-  */
-  CRotation.rotateX(M_PI);
-  CRotation.rotateZ(-3*M_PI/4.);
-//  CLHEP::Hep3Vector tShift(NoseXshift,0.,FCALzStart-EMECzStart+NoseZshift);
-  CLHEP::Hep3Vector tShift(NoseXshift,NoseYshift,FCALzStart-EMECzStart+NoseZshift);
-//  CLHEP::Hep3Vector tShift(0.,NoseYshift,NoseZshift);
-  HepGeom::Transform3D CTrans(CRotation,tShift);
+  GeoTrf::Transform3D CRotation = GeoTrf::RotateZ3D(-3*M_PI/4.) * GeoTrf::RotateX3D(M_PI);
+//  GeoTrf::Vector3D tShift(NoseXshift,0.,FCALzStart-EMECzStart+NoseZshift);
+  GeoTrf::Translation3D tShift(NoseXshift,NoseYshift,FCALzStart-EMECzStart+NoseZshift);
+//  GeoTrf::Vector3D tShift(0.,NoseYshift,NoseZshift);
+  GeoTrf::Transform3D CTrans = tShift * CRotation;
   m_ModulesPhys->add( new GeoTransform(trans) ) ;
   m_ModulesPhys->add(new GeoTransform(CTrans));
   m_ModulesPhys->add(PhysCnose);
 //  assemblyMother->AddPlacedVolume( cnose, CTrans );
   /*
   G4VPhysicalVolume* nosePhysical = new
-        G4PVPlacement(HepGeom::Transform3D(CRotation,tShift),
+        G4PVPlacement(GeoTrf::Transform3D(CRotation,tShift),
                       cnose, cnose->GetName(),logMother, false, 0);                
   */ 
 
   // Do an imprint of assembly:
   
   /*
-  CLHEP::HepRotation rota;
+  GeoModelKernelUnits::HepRotation rota;
   rota.rotateZ(-bepo_pz);
   rota.rotateX(bepo_ty);
   rota.rotateX(bepo_Beta);
   
-  HepGeom::Transform3D trans(rota, CLHEP::Hep3Vector(0.,bepo_y_e,bepo_z_e));
+  GeoTrf::Transform3D trans(rota, GeoTrf::Vector3D(0.,bepo_y_e,bepo_z_e));
   
   assemblyMother->MakeImprint( logMother, trans );  
   */
@@ -604,7 +582,7 @@ LArGeo::ModulesConstructionH62004::construct(const StoredMaterialManager* materi
   
   //density     = universe_mean_density;    //from PhysicalConstants.h
   //pressure    = 3.e-18*pascal;
-  //temperature = 2.73*CLHEP::kelvin;
+  //temperature = 2.73*kelvin;
   const GeoMaterial* Vacuum = materialManager->getMaterial("std::Vacuum");
   if (!Vacuum) throw std::runtime_error("Error in ModulesConstruction, std::Vacuum is not found.");
 
@@ -669,14 +647,14 @@ LArGeo::ModulesConstructionH62004::construct(const StoredMaterialManager* materi
 //------------------ now construct shape and logical volume ---------------
   GeoLogVol *volume_log;
   if(myID == 6 || myID == 9 || myID == 17) {
-     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-43.*CLHEP::degree,86.*CLHEP::degree);
+     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-43.*GeoModelKernelUnits::degree,86.*GeoModelKernelUnits::degree);
      volume_log = new GeoLogVol(name,tub,Vacuum); 
   } else if(myID == 3) {
-     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-32.*CLHEP::degree,64.*CLHEP::degree);
+     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-32.*GeoModelKernelUnits::degree,64.*GeoModelKernelUnits::degree);
      volume_log = new GeoLogVol(name,tub,Vacuum); 
 #if 0 // impossible case...
   } else if(myID == 19) {
-    GeoTrd *trd = new GeoTrd(s_dX[myID-1]-16.*CLHEP::cm,s_dX[myID-1],s_dY[myID-1],s_dY[myID-1],s_dZ[myID-1]);
+    GeoTrd *trd = new GeoTrd(s_dX[myID-1]-16.*GeoModelKernelUnits::cm,s_dX[myID-1],s_dY[myID-1],s_dY[myID-1],s_dZ[myID-1]);
     volume_log = new GeoLogVol(name,trd,Vacuum); 
 #endif
   } else {
@@ -686,9 +664,9 @@ LArGeo::ModulesConstructionH62004::construct(const StoredMaterialManager* materi
   return volume_log;
 }
 
-HepGeom::Transform3D LArGeo::ModulesConstructionH62004::position(int side, int dir, int calo)
+GeoTrf::Transform3D LArGeo::ModulesConstructionH62004::position(int side, int dir, int calo)
 {
-  HepGeom::Transform3D leak_position;
+  GeoTrf::Transform3D leak_position(GeoTrf::Transform3D::Identity());
 
   int myID = GetID(side,dir,calo);
   if(myID == 0) {
@@ -697,12 +675,9 @@ HepGeom::Transform3D LArGeo::ModulesConstructionH62004::position(int side, int d
   assert(myID>0 && myID <= NUM_LEAK);
   if(myID > NUM_LEAK) return leak_position;
 
-  CLHEP::HepRotation rotM;
-  rotM.rotateZ(s_angleZ[myID-1]);
-  rotM.rotateY(s_angleY[myID-1]);
-  rotM.rotateX(s_angleX[myID-1]);
+  GeoTrf::Transform3D rotM = GeoTrf::RotateX3D(s_angleX[myID-1]) * GeoTrf::RotateY3D(s_angleY[myID-1]) * GeoTrf::RotateZ3D(s_angleZ[myID-1]);
 
-  leak_position = HepGeom::Transform3D(rotM,CLHEP::Hep3Vector(s_shiftX[myID-1],s_shiftY[myID-1],s_shiftZ[myID-1]));
+  leak_position = GeoTrf::Transform3D(GeoTrf::Translation3D(s_shiftX[myID-1],s_shiftY[myID-1],s_shiftZ[myID-1]) * rotM);
 
   return leak_position;
 }

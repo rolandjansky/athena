@@ -31,6 +31,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
 
+#include "CLHEP/Geometry/Transform3D.h"
 using HepGeom::Transform3D;
 
 namespace InDet {

@@ -33,7 +33,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <iostream>
 
@@ -59,7 +59,7 @@ SCT_Barrel::getParameters()
   m_thermalShieldEndWallThickness = parameters->thermalShieldEndCapThickness();
 
   // Clearannce in z between layer and interlink.
-  m_zClearance = 1*CLHEP::mm;
+  m_zClearance = 1*GeoModelKernelUnits::mm;
 
   // Layer internal structure and services depend on geometry version
   m_isOldGeometry = parameters->isOldGeometry();
@@ -117,7 +117,7 @@ SCT_Barrel::build(SCT_Identifier id) const
     barrel->add(new GeoNameTag("Layer#"+intToString(iLayer)));
     barrel->add(new GeoIdentifierTag(iLayer)); // Identifier layer= iLayer
     id.setLayerDisk(iLayer); 
-    GeoAlignableTransform * transform = new GeoAlignableTransform(HepGeom::Transform3D());
+    GeoAlignableTransform * transform = new GeoAlignableTransform(GeoTrf::Transform3D::Identity());
     barrel->add(transform);
     GeoVPhysVol * layerPV = layer.build(id);
     barrel->add(layerPV);
@@ -129,18 +129,18 @@ SCT_Barrel::build(SCT_Identifier id) const
   // Build and place the interlinks
   double interLinkZPos = 0.;
   interLinkZPos = 0.5 * layerLength + m_zClearance + 0.5 * interLink.length();
-  barrel->add(new GeoTransform(HepGeom::TranslateZ3D(+interLinkZPos)));
+  barrel->add(new GeoTransform(GeoTrf::TranslateZ3D(+interLinkZPos)));
   barrel->add(interLink.getVolume());
-  barrel->add(new GeoTransform(HepGeom::TranslateZ3D(-interLinkZPos)));
+  barrel->add(new GeoTransform(GeoTrf::TranslateZ3D(-interLinkZPos)));
   barrel->add(interLink.getVolume());
 
   // Build and place the cooling spiders
   double spiderZPos = 0.;
   SCT_Spider spider("Spider");
   spiderZPos =  interLinkZPos + 0.5*interLink.length() + 0.5*spider.length();
-  barrel->add(new GeoTransform(HepGeom::TranslateZ3D(+spiderZPos)));
+  barrel->add(new GeoTransform(GeoTrf::TranslateZ3D(+spiderZPos)));
   barrel->add(spider.getVolume());
-  barrel->add(new GeoTransform(HepGeom::TranslateZ3D(-spiderZPos)));
+  barrel->add(new GeoTransform(GeoTrf::TranslateZ3D(-spiderZPos)));
   barrel->add(spider.getVolume());
 
   // Build and place the thermal shield.
@@ -151,9 +151,9 @@ SCT_Barrel::build(SCT_Identifier id) const
 
   // Build and place SCT to Pixel attachment
   SCT_PixelAttachment pixelAttachment("AttachmentPixelToSCT");
-  barrel->add(new GeoTransform(HepGeom::TranslateZ3D(+pixelAttachment.zPosition()))); // +ve z
+  barrel->add(new GeoTransform(GeoTrf::TranslateZ3D(+pixelAttachment.zPosition()))); // +ve z
   barrel->add(pixelAttachment.getVolume());
-  barrel->add(new GeoTransform(HepGeom::TranslateZ3D(-pixelAttachment.zPosition()))); // -ve z
+  barrel->add(new GeoTransform(GeoTrf::TranslateZ3D(-pixelAttachment.zPosition()))); // -ve z
   barrel->add(pixelAttachment.getVolume());
 
   // Extra Material
@@ -204,8 +204,8 @@ void SCT_Barrel::buildThermalShield(GeoFullPhysVol * parent) const
   const GeoMaterial* bulkheadMaterial = materials.getMaterialForVolume(bulkheadMaterialName,bulkheadShape->volume());
   const GeoLogVol  * bulkheadLog = new GeoLogVol("ThShieldBulkhead", bulkheadShape, bulkheadMaterial);
   GeoPhysVol * bulkhead = new GeoPhysVol(bulkheadLog);
-  GeoTransform * bulkheadPosPlus  =  new GeoTransform(HepGeom::TranslateZ3D(+(endPanelZMax-endPanelThickness-0.5*bulkheadThickness)));
-  GeoTransform * bulkheadPosMinus =  new GeoTransform(HepGeom::TranslateZ3D(-(endPanelZMax-endPanelThickness-0.5*bulkheadThickness)));
+  GeoTransform * bulkheadPosPlus  =  new GeoTransform(GeoTrf::TranslateZ3D(+(endPanelZMax-endPanelThickness-0.5*bulkheadThickness)));
+  GeoTransform * bulkheadPosMinus =  new GeoTransform(GeoTrf::TranslateZ3D(-(endPanelZMax-endPanelThickness-0.5*bulkheadThickness)));
   parent->add(bulkheadPosPlus);
   parent->add(bulkhead);
   parent->add(bulkheadPosMinus);
@@ -216,8 +216,8 @@ void SCT_Barrel::buildThermalShield(GeoFullPhysVol * parent) const
   const GeoMaterial* endPanelMaterial = materials.getMaterialForVolume(endPanelMaterialName,endPanelShape->volume());
   const GeoLogVol  * endPanelLog = new GeoLogVol("ThShieldEndPanel", endPanelShape, endPanelMaterial);
   GeoPhysVol * endPanel = new GeoPhysVol(endPanelLog);
-  GeoTransform * endPanelPosPlus  =  new GeoTransform(HepGeom::TranslateZ3D(+(endPanelZMax-0.5*endPanelThickness)));
-  GeoTransform * endPanelPosMinus =  new GeoTransform(HepGeom::TranslateZ3D(-(endPanelZMax-0.5*endPanelThickness)));
+  GeoTransform * endPanelPosPlus  =  new GeoTransform(GeoTrf::TranslateZ3D(+(endPanelZMax-0.5*endPanelThickness)));
+  GeoTransform * endPanelPosMinus =  new GeoTransform(GeoTrf::TranslateZ3D(-(endPanelZMax-0.5*endPanelThickness)));
   parent->add(endPanelPosPlus);
   parent->add(endPanel);
   parent->add(endPanelPosMinus);
@@ -263,8 +263,8 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
   } else {
     const GeoTube* cutOut = new GeoTube(innerRadius, outerRadius, 0.5*pixelAttachmentLength);
     //    std::cout << "Cut-out volume = " << cutOut->volume() << std::endl; 
-    const GeoShape* emiTemp = (GeoShape*)&(emiShieldTube->subtract(*cutOut << HepGeom::TranslateZ3D(pixelAttachmentZpos)));
-    emiShieldShape = (GeoShape*)&emiTemp->subtract(*cutOut << HepGeom::TranslateZ3D(-pixelAttachmentZpos));
+    const GeoShape* emiTemp = (GeoShape*)&(emiShieldTube->subtract(*cutOut << GeoTrf::TranslateZ3D(pixelAttachmentZpos)));
+    emiShieldShape = (GeoShape*)&emiTemp->subtract(*cutOut << GeoTrf::TranslateZ3D(-pixelAttachmentZpos));
     double emiVolume = emiShieldTube->volume() - 2. * cutOut->volume();
     //    std::cout << "EMI final volume = " << emiVolume << std::endl; 
     material = materials.getMaterialForVolume(materialName, emiVolume);
@@ -277,13 +277,13 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
   if (!m_isOldGeometry) {
     double dphi = jointRPhi / outerRadius;
     const GeoTubs* emiJointTubs = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*length,
-                                              -0.5 * dphi * CLHEP::radian, dphi * CLHEP::radian);
+                                              -0.5 * dphi * GeoModelKernelUnits::radian, dphi * GeoModelKernelUnits::radian);
     //    std::cout << "EMIJoint tubs volume = " << emiJointTubs->volume() << std::endl; 
     const GeoTubs* jointCutOut = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*pixelAttachmentLength,
-                                             -0.5 * dphi * CLHEP::radian, dphi * CLHEP::radian);
+                                             -0.5 * dphi * GeoModelKernelUnits::radian, dphi * GeoModelKernelUnits::radian);
     //    std::cout << "Cut-out volume = " << jointCutOut->volume() << std::endl; 
-    const GeoShape* jointTemp = (GeoShape*)&(emiJointTubs->subtract(*jointCutOut << HepGeom::TranslateZ3D(pixelAttachmentZpos)));
-    const GeoShape* emiJointShape = (GeoShape*)&jointTemp->subtract(*jointCutOut << HepGeom::TranslateZ3D(-pixelAttachmentZpos));
+    const GeoShape* jointTemp = (GeoShape*)&(emiJointTubs->subtract(*jointCutOut << GeoTrf::TranslateZ3D(pixelAttachmentZpos)));
+    const GeoShape* emiJointShape = (GeoShape*)&jointTemp->subtract(*jointCutOut << GeoTrf::TranslateZ3D(-pixelAttachmentZpos));
     double jointVolume = emiJointTubs->volume() - 2. * jointCutOut->volume();
     //    std::cout << "EMIJoint final volume = " << jointVolume << std::endl; 
     const GeoMaterial * jointMaterial = materials.getMaterialForVolume(jointMaterialName, jointVolume);
@@ -291,8 +291,8 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
     GeoPhysVol * emiJoint = new GeoPhysVol(emiJointLog);
     // Place 3 copies
     for (int i=0; i<3; i++) {
-      double angle = (90. + i * 120.) * CLHEP::degree;
-      parent->add(new GeoTransform(HepGeom::RotateZ3D(angle)));
+      double angle = (90. + i * 120.) * GeoModelKernelUnits::degree;
+      parent->add(new GeoTransform(GeoTrf::RotateZ3D(angle)));
       parent->add(emiJoint);
     }
   }

@@ -32,7 +32,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <sstream>
 #include <cmath>
@@ -140,7 +140,7 @@ SCT_Forward::build(SCT_Identifier id) const
     //          << " at " << zpos << ", thickness = " << wheel->thickness() << std::endl;
     forward->add(new GeoNameTag(wheelName.str()));
     forward->add(new GeoIdentifierTag(iWheel));
-    GeoAlignableTransform * transform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zpos));
+    GeoAlignableTransform * transform = new GeoAlignableTransform(GeoTrf::TranslateZ3D(zpos));
     forward->add(transform);
     id.setLayerDisk(iWheel);
     GeoVPhysVol * wheelPV = wheel->build(id);
@@ -155,7 +155,7 @@ SCT_Forward::build(SCT_Identifier id) const
   //
   SCT_FwdSupportFrame supportFrame("SupportFrame");
   double supportFrameZPos = supportFrame.zPosition() - zCenter();
-  forward->add(new GeoTransform(HepGeom::TranslateZ3D(supportFrameZPos)));
+  forward->add(new GeoTransform(GeoTrf::TranslateZ3D(supportFrameZPos)));
   forward->add(supportFrame.getVolume());
 
   // Make and Place Cylinder Services
@@ -167,7 +167,7 @@ SCT_Forward::build(SCT_Identifier id) const
                                              supportFrame.outerRadius(),
                                              m_outerRadiusCylinderServices,
                                              supportFrame.length());
-    forward->add(new GeoTransform(HepGeom::TranslateZ3D(supportFrameZPos)));
+    forward->add(new GeoTransform(GeoTrf::TranslateZ3D(supportFrameZPos)));
     forward->add(cylinderServices.getVolume());
 
   } else {
@@ -204,7 +204,7 @@ SCT_Forward::build(SCT_Identifier id) const
       
         // Place the cooling pipes
         double coolingPipeZPos = coolingPipe.zPosition() - zCenter();
-        forward->add(new GeoTransform(HepGeom::TranslateZ3D(coolingPipeZPos)));
+        forward->add(new GeoTransform(GeoTrf::TranslateZ3D(coolingPipeZPos)));
         forward->add(coolingPipe.getVolume());
 
         // Set rStart for next cooling pipe equal to outer radius of this cooling pipe.
@@ -224,7 +224,7 @@ SCT_Forward::build(SCT_Identifier id) const
       // Calculate radius to start placing power tapes. This is half way bewteen outer radius
       // of support fram and outer radius of forward envelope.
       // The -1 mm is to avoid a clash with the thermal shield.
-      double innerRadiusPowerTapes = 0.5*(supportFrame.outerRadius() + m_outerRadius) - 1*CLHEP::mm;
+      double innerRadiusPowerTapes = 0.5*(supportFrame.outerRadius() + m_outerRadius) - 1*GeoModelKernelUnits::mm;
 
       // Inner radius of cylinder representing power tapes. Gets incremented for each wheel.
       double rStart = innerRadiusPowerTapes;
@@ -247,7 +247,7 @@ SCT_Forward::build(SCT_Identifier id) const
 
         // Place Power Tapes
         double powerTapeZPos = powerTape.zPosition() - zCenter();
-        forward->add(new GeoTransform(HepGeom::TranslateZ3D(powerTapeZPos)));
+        forward->add(new GeoTransform(GeoTrf::TranslateZ3D(powerTapeZPos)));
         forward->add(powerTape.getVolume());
             
         // Set rStart for next power tape equal to outer radius of this power tape.
@@ -263,7 +263,7 @@ SCT_Forward::build(SCT_Identifier id) const
     SCT_FwdThermalShieldElement thermalShieldElement("FwdThermalShieldElement"+intToString(iElement),
                                                      iElement);
     double elementZPos = thermalShieldElement.zPosition() - zCenter();
-    forward->add(new GeoTransform(HepGeom::TranslateZ3D(elementZPos)));
+    forward->add(new GeoTransform(GeoTrf::TranslateZ3D(elementZPos)));
     forward->add(thermalShieldElement.getVolume());
   }
 

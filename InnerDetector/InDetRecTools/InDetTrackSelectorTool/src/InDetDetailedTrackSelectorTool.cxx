@@ -23,6 +23,7 @@
 
 // normal includes
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"

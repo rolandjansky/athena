@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMBDetDescr_h
-#define EMBDetDescr_h 1
+#ifndef LARREADOUTGEOMETRY_EMBDETDESCR_H
+#define LARREADOUTGEOMETRY_EMBDETDESCR_H
 #include <vector>
 #include "GeoModelKernel/CellBinning.h"
 #include "GeoModelKernel/RCBase.h"

@@ -12,6 +12,8 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 //#include "TrigCaloEvent/TrigT2JetContainer.h"
 //#include "JetEvent/JetCollection.h"
 
@@ -1437,7 +1439,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
     xAOD::JetRoIContainer::const_iterator it_e_L1 = m_L1JetRoIC->end();
     for ( ; it_L1 != it_e_L1; it_L1++) {
       L1Roi_num++;
-      double et = ( (*it_L1)->et4x4())/CLHEP::GeV;
+      double et = ( (*it_L1)->et4x4())/Gaudi::Units::GeV;
       if(et < 1.e-3) et = 0.;
       double eta = (*it_L1)->eta();
       double ene = et * cosh(eta);
@@ -1531,9 +1533,9 @@ StatusCode HLTJetMonTool::fillBasicHists() {
         // for basic hists, don't cut eta/pt
         //come back to this - LS//if(m_doselOFBasicHists) if(!selectJet(jet)) continue;
 	
-        double e = (thisjet->e())/CLHEP::GeV;
+        double e = (thisjet->e())/Gaudi::Units::GeV;
         double et = 0., epsilon = 1.e-3;
-        if(thisjet->pt() > epsilon) et = (thisjet->pt())/CLHEP::GeV;
+        if(thisjet->pt() > epsilon) et = (thisjet->pt())/Gaudi::Units::GeV;
         if(et < epsilon) et = 0;
         double eta = thisjet->eta();
         double phi = thisjet->phi();
@@ -1622,9 +1624,9 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             // for basic hists, don't cut eta/pt
             //come back to this - LS//if(m_doselOFBasicHists) if(!selectJet(jet)) continue;
 
-            double e = (thisjet->e())/CLHEP::GeV;
+            double e = (thisjet->e())/Gaudi::Units::GeV;
             double et = 0., epsilon = 1.e-3;
-            if(thisjet->pt() > epsilon) et = (thisjet->pt())/CLHEP::GeV;
+            if(thisjet->pt() > epsilon) et = (thisjet->pt())/Gaudi::Units::GeV;
             if(et < epsilon) et = 0;
             ATH_MSG_DEBUG( lvl << " thisjet->pt() =  " << et );
             double  eta     = thisjet->eta();
@@ -1639,7 +1641,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
 
 
-	    v_thisjet.SetPtEtaPhiE(thisjet->pt()/CLHEP::GeV,eta,phi,e);
+	    v_thisjet.SetPtEtaPhiE(thisjet->pt()/Gaudi::Units::GeV,eta,phi,e);
 	    m_v_OFjet.push_back(v_thisjet);
 	    m_n_index++;
 
@@ -1721,10 +1723,10 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 
        for (auto j : *jcont.cptr()) {
 
-	 double e = (j->e())/CLHEP::GeV;
+	 double e = (j->e())/Gaudi::Units::GeV;
 	 double et = 0., epsilon = 1.e-3;
 
-	 if(j->pt() > epsilon) et = (j->pt())/CLHEP::GeV;
+	 if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
 
 	 ATH_MSG_DEBUG("jet et = "<<et);
 
@@ -1741,7 +1743,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
-	   v_thisjet.SetPtEtaPhiE(j->pt()/CLHEP::GeV,j->eta(), j->phi(),j->e()/CLHEP::GeV);
+	   v_thisjet.SetPtEtaPhiE(j->pt()/Gaudi::Units::GeV,j->eta(), j->phi(),j->e()/Gaudi::Units::GeV);
 	   m_v_HLTjet.push_back(v_thisjet);
            m_n_index++;
 		   
@@ -1824,7 +1826,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
 	
         for (; it_L1 != it_e_L1; ++it_L1) {
 
-          double et = ((*it_L1)->et4x4())/CLHEP::GeV;
+          double et = ((*it_L1)->et4x4())/Gaudi::Units::GeV;
 	  if(et < 1.e-3) et = 0;
           double eta = (*it_L1)->eta();
           double phi = (*it_L1)->phi();
@@ -1834,8 +1836,8 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
           if(msgLvl(MSG::DEBUG)) {
             const Jet_ROI::thresholds_type thrVec = (*it_L1)->thrNames();
             const Jet_ROI::thr_value_type thrVal = (*it_L1)->thrValues();
-            double et6 = ((*it_L1)->et6x6())/CLHEP::GeV;
-            double et8 = ((*it_L1)->et8x8())/CLHEP::GeV;
+            double et6 = ((*it_L1)->et6x6())/Gaudi::Units::GeV;
+            double et8 = ((*it_L1)->et8x8())/Gaudi::Units::GeV;
             std::ostringstream thrv; 
             unsigned int kk = 0;
             for(Jet_ROI::thresholds_type::const_iterator l1i = thrVec.begin(); l1i != thrVec.end(); ++l1i,kk++ ) {
@@ -2300,7 +2302,7 @@ bool HLTJetMonTool::selectJet(const Jet *jet) {
   // pt / eta
   // don't cut on eta here since we have FJ signatures to contend with:
   // if(m_reqEtaCut)       if (fabs(jet->eta()) >= m_EtaCut )              return false;
-  if(m_reqMinPtCut)     if (jet->pt()/CLHEP::GeV <= m_MinPtCut )               return false;
+  if(m_reqMinPtCut)     if (jet->pt()/Gaudi::Units::GeV <= m_MinPtCut )               return false;
 
 
   /* jet quality
@@ -2456,7 +2458,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
 	  //passL1thr = (jet->pt()/CLHEP::GeV > thrGeVItem);
 	  
-	  ATH_MSG_DEBUG(" L1 Chain= "<<itemName<<" OF Jet pt= "<<jet->pt()/CLHEP::GeV<<" OF Jet eta= "<<jet->eta()<<" Threshold= "<<thrGeVItem<<" TDT= "<<getTDT()->isPassed(itemName)<<" Eta Low "<<EtaLowThres<<" Eta High "<<EtaHighThres);
+	  ATH_MSG_DEBUG(" L1 Chain= "<<itemName<<" OF Jet pt= "<<jet->pt()/Gaudi::Units::GeV<<" OF Jet eta= "<<jet->eta()<<" Threshold= "<<thrGeVItem<<" TDT= "<<getTDT()->isPassed(itemName)<<" Eta Low "<<EtaLowThres<<" Eta High "<<EtaHighThres);
 	  
 	  // if L1 eff required
 	  if(m_doL1TrigEff) {
@@ -2464,11 +2466,11 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	      
 	      ATH_MSG_DEBUG(" OF Jet passed requirements->Filling the denominator");
 	      
-	      if((h = hist(Form("%s_Eff_vs_pt_den",itemName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
+	      if((h = hist(Form("%s_Eff_vs_pt_den",itemName.c_str()))))          h->Fill(jet->pt()/Gaudi::Units::GeV);
 	      if((h = hist(Form("%s_Eff_vs_eta_den",itemName.c_str()))))         h->Fill(jet->eta());
 	      if((h = hist(Form("%s_Eff_vs_phi_den",itemName.c_str()))))         h->Fill(jet->phi());
-	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_den",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
-	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_den",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
+	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_den",itemName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->eta());
+	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_den",itemName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->phi());
 	      
 	    }  
 	  } //if trigeff
@@ -2496,14 +2498,14 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 		  
 		  ATH_MSG_DEBUG(" OF Jet passed requirements->Filling the numerator");	 	
 		  
-		  if((h = hist(Form("%s_Eff_vs_pt_num",itemName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV); //fill numerator histogram		 
+		  if((h = hist(Form("%s_Eff_vs_pt_num",itemName.c_str()))))          h->Fill(jet->pt()/Gaudi::Units::GeV); //fill numerator histogram		 
 		  if((h = hist(Form("%s_Eff_vs_eta_num",itemName.c_str()))))         h->Fill(jet->eta());
 		  if((h = hist(Form("%s_Eff_vs_phi_num",itemName.c_str()))))         h->Fill(jet->phi());
-		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_num",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
-		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_num",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
-		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",itemName.c_str()))))          h2->Fill(jet->pt()/CLHEP::GeV,v_trigjet_tmp.Pt()/CLHEP::GeV);
+		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_num",itemName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->eta());
+		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_num",itemName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->phi());
+		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",itemName.c_str()))))          h2->Fill(jet->pt()/Gaudi::Units::GeV,v_trigjet_tmp.Pt()/Gaudi::Units::GeV);
 
-		  if((p = profile(Form("%s_EffPt",itemName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,1.0,1.0); //fill profile with 1
+		  if((p = profile(Form("%s_EffPt",itemName.c_str()))))  p->Fill(jet->pt()/Gaudi::Units::GeV,1.0,1.0); //fill profile with 1
 		  if((p = profile(Form("%s_EffEta",itemName.c_str())))) p->Fill(jet->eta(),1.0,1.0);
 		  if((p = profile(Form("%s_EffPhi",itemName.c_str())))) p->Fill(jet->phi(),1.0,1.0);
 		  
@@ -2512,7 +2514,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 		  
 		} if (!getTDT()->isPassed(itemName)){
 		  
-		  if((p = profile(Form("%s_EffPt",itemName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,0.0,1.0); //fill profile with 0
+		  if((p = profile(Form("%s_EffPt",itemName.c_str()))))  p->Fill(jet->pt()/Gaudi::Units::GeV,0.0,1.0); //fill profile with 0
 		  if((p = profile(Form("%s_EffEta",itemName.c_str())))) p->Fill(jet->eta(),0.0,1.0);
 		  if((p = profile(Form("%s_EffPhi",itemName.c_str())))) p->Fill(jet->phi(),0.0,1.0);
 
@@ -2538,7 +2540,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	  if(m_doL1TrigEff) {
 	    if(getTDT()->isPassed(itemName) /*&& passHLTthr*/) {
 	      
-	      if((h = hist(Form("%s_unmatched_pt",itemName.c_str())))) h->Fill(v_trigjet_tmp.Pt()/CLHEP::GeV);   
+	      if((h = hist(Form("%s_unmatched_pt",itemName.c_str())))) h->Fill(v_trigjet_tmp.Pt()/Gaudi::Units::GeV);   
 	          
 	    }//TDT
 	  } // doTrigEff
@@ -2566,11 +2568,11 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
           if(m_doHLTTrigEff) {
 	    if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,NJet)){ //OF nth leading jet in the same eta region of HLTJet	    
 	    
-	      if((h = hist(Form("%s_Eff_vs_pt_den",chainName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
+	      if((h = hist(Form("%s_Eff_vs_pt_den",chainName.c_str()))))          h->Fill(jet->pt()/Gaudi::Units::GeV);
 	      if((h = hist(Form("%s_Eff_vs_eta_den",chainName.c_str()))))         h->Fill(jet->eta());
 	      if((h = hist(Form("%s_Eff_vs_phi_den",chainName.c_str()))))         h->Fill(jet->phi());
-	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_den",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
-	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_den",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
+	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_den",chainName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->eta());
+	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_den",chainName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->phi());
 	    
 	    } //isLeading
           }//doTrigEff
@@ -2595,14 +2597,14 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	      if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,NJet)){ //OF leading jet in the same eta region of HLTJet	  
 		if(getTDT()->isPassed(Form("HLT_%s",chainName.c_str()))) {
 		  
-		  if((h = hist(Form("%s_Eff_vs_pt_num",chainName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
+		  if((h = hist(Form("%s_Eff_vs_pt_num",chainName.c_str()))))          h->Fill(jet->pt()/Gaudi::Units::GeV);
 		  if((h = hist(Form("%s_Eff_vs_eta_num",chainName.c_str()))))         h->Fill(jet->eta());
 		  if((h = hist(Form("%s_Eff_vs_phi_num",chainName.c_str()))))         h->Fill(jet->phi());
-		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_num",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
-		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_num",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
-		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",chainName.c_str()))))          h2->Fill(jet->pt()/CLHEP::GeV,v_trigjet_tmp.Pt()/CLHEP::GeV);
+		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_num",chainName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->eta());
+		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_num",chainName.c_str())))) h2->Fill(jet->pt()/Gaudi::Units::GeV,jet->phi());
+		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",chainName.c_str()))))          h2->Fill(jet->pt()/Gaudi::Units::GeV,v_trigjet_tmp.Pt()/Gaudi::Units::GeV);
 
-		  if((p = profile(Form("%s_EffPt",chainName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,1.0,1.0); //fill profile with 1
+		  if((p = profile(Form("%s_EffPt",chainName.c_str()))))  p->Fill(jet->pt()/Gaudi::Units::GeV,1.0,1.0); //fill profile with 1
 		  if((p = profile(Form("%s_EffEta",chainName.c_str())))) p->Fill(jet->eta(),1.0,1.0);
 		  if((p = profile(Form("%s_EffPhi",chainName.c_str())))) p->Fill(jet->phi(),1.0,1.0);
 		  
@@ -2610,7 +2612,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 		  if((h = hist(Form("%s_Resolution_pt",chainName.c_str())))) h->Fill(res);
 		  
 		} if (! getTDT()->isPassed(Form("HLT_%s",chainName.c_str()))){
-		  if((p = profile(Form("%s_EffPt",chainName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,0.0,1.0); //fill profile with 0
+		  if((p = profile(Form("%s_EffPt",chainName.c_str()))))  p->Fill(jet->pt()/Gaudi::Units::GeV,0.0,1.0); //fill profile with 0
 		  if((p = profile(Form("%s_EffEta",chainName.c_str())))) p->Fill(jet->eta(),0.0,1.0);
 		  if((p = profile(Form("%s_EffPhi",chainName.c_str())))) p->Fill(jet->phi(),0.0,1.0);
 		}	 
@@ -2635,7 +2637,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	  if(m_doHLTTrigEff) {
 	    if(getTDT()->isPassed(Form("HLT_%s",chainName.c_str())) /*&& passHLTthr*/) {
 	      	      
-	      if((h = hist(Form("%s_unmatched_pt",chainName.c_str())))) h->Fill(v_trigjet_tmp.Pt()/CLHEP::GeV);  
+	      if((h = hist(Form("%s_unmatched_pt",chainName.c_str())))) h->Fill(v_trigjet_tmp.Pt()/Gaudi::Units::GeV);  
 	      
 	    }//TDT
 	  } // doTrigEff
@@ -2837,7 +2839,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
       for (auto j : *jcont.cptr()) {
 		
 	double et = 0., epsilon = 1.e-3;
-	if(j->pt() > epsilon) et = (j->pt())/CLHEP::GeV;
+	if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
 	if(et < epsilon) et = 0;
 
 	TLorentzVector v_HLT;

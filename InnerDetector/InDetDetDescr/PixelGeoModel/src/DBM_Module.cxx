@@ -3,7 +3,7 @@
 */
 
 
-#include "PixelGeoModel/DBM_Module.h"
+#include "DBM_Module.h"
 
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
@@ -64,7 +64,7 @@ GeoVPhysVol* DBM_Module::Build()
   GeoIdentifierTag* diamondTag = new GeoIdentifierTag(400);
 
 
-    double safety = 0.003*CLHEP::mm;
+    double safety = 0.003*GeoModelKernelUnits::mm;
 
     //diamond dimension
     double diamond_X = m_gmt_mgr->DBMDiamondX();
@@ -84,8 +84,8 @@ GeoVPhysVol* DBM_Module::Build()
     
     //distances from bottom of the ceramic
     //Hardcoded!
-    double bot2Chip = 0.0*CLHEP::mm;
-    double bot2Diamond = 1.685*CLHEP::mm;
+    double bot2Chip = 0.0*GeoModelKernelUnits::mm;
+    double bot2Diamond = 1.685*GeoModelKernelUnits::mm;
 
 
     //---------------------------------------------
@@ -93,8 +93,8 @@ GeoVPhysVol* DBM_Module::Build()
   
     // Position of the corner closest to IP and beamline
     // Hardcoded, so if change then change in GeoPixelEnvelope and DBM_Det too
-    double ZToIP = 887.002*CLHEP::mm;
-    double RToBeam = 46.678*CLHEP::mm;
+    double ZToIP = 887.002*GeoModelKernelUnits::mm;
+    double RToBeam = 46.678*GeoModelKernelUnits::mm;
 
     // layer spacing
     double Zspacing = m_gmt_mgr->DBMSpacingZ();
@@ -146,10 +146,7 @@ GeoVPhysVol* DBM_Module::Build()
     const GeoLogVol* dbmModuleLog = new GeoLogVol("dbmModuleLog", dbmModuleBox, air);
     GeoPhysVol* dbmModulePhys = new GeoPhysVol(dbmModuleLog);
     
-    CLHEP::HepRotation rm;
-    rm.rotateY(270.*CLHEP::deg);
-    rm.rotateZ(90.*CLHEP::deg);
-
+    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(270.*GeoModelKernelUnits::deg);
 
     //diamond
     const GeoBox* dbmDiamondBox = new GeoBox(diamond_Z/2.0, diamond_X/2.0, diamond_Y/2.0 );
@@ -181,8 +178,8 @@ GeoVPhysVol* DBM_Module::Build()
     // add the element to the manager
     m_DDmgr->addDetectorElement(element);
 
-    CLHEP::Hep3Vector dbmDiamondPos(0, bot2Diamond+diamond_Y/2.0-substrate_Y/2.0, diamond_Z/2.0-max_thick/2.0);
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,dbmDiamondPos));
+    GeoTrf::Translation3D dbmDiamondPos(0, bot2Diamond+diamond_Y/2.0-substrate_Y/2.0, diamond_Z/2.0-max_thick/2.0);
+    GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(dbmDiamondPos*rm));
     //tag = new GeoNameTag("dbmDiamond");
     //dbmModulePhys->add(tag);
     dbmModulePhys->add(diamondTag);
@@ -194,8 +191,8 @@ GeoVPhysVol* DBM_Module::Build()
     const GeoLogVol* dbmFEI4Log = new GeoLogVol("dbmWallLogF4", dbmFEI4Box, chip_mat); //should this be "dbmdiamondLog"?
     GeoPhysVol* dbmFEI4Phys = new GeoPhysVol(dbmFEI4Log);
     
-    CLHEP::Hep3Vector dbmFEI4Pos(0, bot2Chip+chip_Y/2.0-substrate_Y/2.0, max_thick/2.0-substrate_Z-chip_thick/2.0);
-    xform = new GeoTransform(HepGeom::Transform3D(rm,dbmFEI4Pos));
+    GeoTrf::Translation3D dbmFEI4Pos(0, bot2Chip+chip_Y/2.0-substrate_Y/2.0, max_thick/2.0-substrate_Z-chip_thick/2.0);
+    xform = new GeoTransform(GeoTrf::Transform3D(dbmFEI4Pos*rm));
     //tag = new GeoNameTag("dbmFEI4");
     //dbmModulePhys->add(tag);
     dbmModulePhys->add(xform);
@@ -207,9 +204,8 @@ GeoVPhysVol* DBM_Module::Build()
     const GeoLogVol* dbmSubstLog = new GeoLogVol("dbmWallLogCe", dbmSubstBox, aluminiumNitride);
     GeoPhysVol* dbmSubstPhys = new GeoPhysVol(dbmSubstLog);
 
-    CLHEP::HepRotation rmA;
-    CLHEP::Hep3Vector dbmSubstPos(0, 0, max_thick/2.0-substrate_Z/2.0);
-    xform = new GeoTransform(HepGeom::Transform3D(rmA,dbmSubstPos));
+    GeoTrf::Translate3D dbmSubstPos(0, 0, max_thick/2.0-substrate_Z/2.0);
+    xform = new GeoTransform(dbmSubstPos);
     //tag = new GeoNameTag("dbmSubstrate");
     //dbmModulePhys->add(tag);
     dbmModulePhys->add(xform);
@@ -228,10 +224,9 @@ GeoVPhysVol* DBM_Module::Build()
     double globPosZ = ZToIP + layerUnitPos_Z + (sensorPosInModuleCage_Z * cos(angle) - sensorPosInModuleCage_Y * sin(angle));
     double globPosY = RToBeam + layerUnitPos_Y + (sensorPosInModuleCage_Z * sin(angle) + sensorPosInModuleCage_Y * cos(angle));
 
-    CLHEP::HepRotation rmX10;
-    rmX10.rotateX(-10.*CLHEP::deg);
-    CLHEP::Hep3Vector alignTransformPos(0, globPosY, globPosZ);
-    GeoAlignableTransform *xformAlign = new GeoAlignableTransform(HepGeom::Transform3D(rmX10, alignTransformPos));
+    GeoTrf::RotateX3D rmX10(-10.*GeoModelKernelUnits::deg);
+    GeoTrf::Translation3D alignTransformPos(0, globPosY, globPosZ);
+    GeoAlignableTransform *xformAlign = new GeoAlignableTransform(GeoTrf::Transform3D(alignTransformPos*rmX10));
     m_DDmgr->addAlignableTransform(0, idwafer, xformAlign, dbmDiamondPhys);
     //-----------------------------------------------------
 

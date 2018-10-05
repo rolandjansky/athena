@@ -1090,7 +1090,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
       } else {
         const Trk::Surface* hitSurface = &hitPlanarDetElement->surface();
         const Amg::Transform3D& sTransform = hitSurface->transform().inverse();
-        const Amg::Transform3D& hitTransform = Amg::CLHEPTransformToEigen(hitPlanarDetElement->transformHit());
+        const Amg::Transform3D& hitTransform = hitPlanarDetElement->transformHit();
         Amg::Vector3D localStartPosition(pix_localStartPosition.x(), pix_localStartPosition.y(), pix_localStartPosition.z());
         Amg::Vector3D localEndPosition(pix_localEndPosition.x(), pix_localEndPosition.y(), pix_localEndPosition.z());
         Amg::Vector3D localEntry(sTransform*(hitTransform*localStartPosition));
@@ -1124,7 +1124,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
         } else {
           const Trk::Surface* hitSurface = &hitPlanarDetElement->surface();
           const Amg::Transform3D& sTransform = hitSurface->transform().inverse();
-          const Amg::Transform3D& hitTransform = Amg::CLHEPTransformToEigen( hitPlanarDetElement->transformHit());
+          const Amg::Transform3D& hitTransform = hitPlanarDetElement->transformHit();
           Amg::Vector3D localStartPosition(sct_localStartPosition.x(), sct_localStartPosition.y(), sct_localStartPosition.z());
           ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: SCT local start position --- " << localStartPosition.x() << ",  " << localStartPosition.y() << ",  " << localStartPosition.z());
           Amg::Vector3D localEndPosition(sct_localEndPosition.x(), sct_localEndPosition.y(), sct_localEndPosition.z());

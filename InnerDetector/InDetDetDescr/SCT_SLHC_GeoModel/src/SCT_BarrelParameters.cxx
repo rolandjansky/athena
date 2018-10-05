@@ -6,7 +6,7 @@
 #include "SCT_SLHC_GeoModel/SCT_DataBase.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 #include <iostream>
 #include <cmath>
 
@@ -56,7 +56,7 @@ SCT_BarrelParameters::SCT_BarrelParameters(const SCT_DataBase * sctdb, const SCT
 	  moduleIdVec = new  std::vector<int>;
 	  m_moduleIdMap[type] = moduleIdVec;
 	}
-	zposVec->push_back(db()->getDouble(m_SctBrlSkiZ,"ZPOSITION",i)*CLHEP::mm);
+	zposVec->push_back(db()->getDouble(m_SctBrlSkiZ,"ZPOSITION",i)*GeoModelKernelUnits::mm);
 	moduleIdVec->push_back(db()->getInt(m_SctBrlSkiZ,"MODULEID",i));
       }
     }
@@ -100,9 +100,9 @@ SCT_BarrelParameters::skiFirstStagger() const{
 
 double 
 SCT_BarrelParameters::skiRadialSep(int ilayer) const{
-  // return 2.8*CLHEP::mm;//CLHEP::mm
+  // return 2.8*GeoModelKernelUnits::mm;//GeoModelKernelUnits::mm
   int ladType = ladderType(ilayer);
-  return db()->getDouble(m_SctBrlLadder,"MODULESRADIALSEP",ladType) * CLHEP::mm;
+  return db()->getDouble(m_SctBrlLadder,"MODULESRADIALSEP",ladType) * GeoModelKernelUnits::mm;
 }
 
 
@@ -145,17 +145,17 @@ SCT_BarrelParameters::skiZPosition(int ilayer, int module) const{
       int break_mod = modulesPerSki(ilayer) / 2;
       double zsep = db()->getDouble(m_SctBrlLadder,"ZSEP",ladType);
       //CALCULATE NEGATIVE END POSITION FIRST, TO KEEP MODULE ORDERING THE SAME
-      double first_pos = (-cylInnerZMin(ilayer) - (break_mod - 0.5)*zsep) * CLHEP::mm;
+      double first_pos = (-cylInnerZMin(ilayer) - (break_mod - 0.5)*zsep) * GeoModelKernelUnits::mm;
       //PSOTION OF FIRST MODULE AFTER THE BREAK
-      double break_pos = cylInnerZMin(ilayer) * CLHEP::mm ;
+      double break_pos = cylInnerZMin(ilayer) * GeoModelKernelUnits::mm ;
       
-      if(module < break_mod ) zpos = first_pos + (zsep * module) * CLHEP::mm;
-      else zpos = (break_pos + (zsep * (module - break_mod + 0.5))) * CLHEP::mm;
+      if(module < break_mod ) zpos = first_pos + (zsep * module) * GeoModelKernelUnits::mm;
+      else zpos = (break_pos + (zsep * (module - break_mod + 0.5))) * GeoModelKernelUnits::mm;
     }
 
     else{
       int ladType = ladderType(ilayer);
-      zpos = db()->getDouble(m_SctBrlLadder,"ZSEP",ladType) * (module - 0.5*(modulesPerSki(ilayer) - 1)) * CLHEP::mm;
+      zpos = db()->getDouble(m_SctBrlLadder,"ZSEP",ladType) * (module - 0.5*(modulesPerSki(ilayer) - 1)) * GeoModelKernelUnits::mm;
     }
     } else {
     std::map<int, std::vector<double> *>::const_iterator iter = m_zpositionMap.find(zpostype);
@@ -208,25 +208,25 @@ SCT_BarrelParameters::skiModuleIdentifier(int ilayer, int module) const{
 //
 double 
 SCT_BarrelParameters::tilt(int ilayer) const{
-  double tilt = db()->getDouble(m_SctBrlLayer,"TILT",ilayer) * CLHEP::degree;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 tilt layer TILT("<<ilayer<<") = "<< tilt/CLHEP::degree << endmsg;
+  double tilt = db()->getDouble(m_SctBrlLayer,"TILT",ilayer) * GeoModelKernelUnits::degree;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 tilt layer TILT("<<ilayer<<") = "<< tilt/GeoModelKernelUnits::degree << endmsg;
   return tilt;
 }
 
 double SCT_BarrelParameters::radius(int ilayer) const{
-  double rlay = db()->getDouble(m_SctBrlLayer,"RADIUS",ilayer) * CLHEP::mm;
+  double rlay = db()->getDouble(m_SctBrlLayer,"RADIUS",ilayer) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 radius layer RLAY("<<ilayer<<") = "<<rlay<<endmsg;
   return rlay;
 }
 
 double 
 SCT_BarrelParameters::cylLength(int ilayer) const{
-  return db()->getDouble(m_SctBrlLayer,"CYLLENGTH",ilayer) * CLHEP::mm;
+  return db()->getDouble(m_SctBrlLayer,"CYLLENGTH",ilayer) * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_BarrelParameters::cylInnerZMin(int ilayer) const{
-  return db()->getDouble(m_SctBrlLayer,"CYLINNERZMIN",ilayer) * CLHEP::mm;
+  return db()->getDouble(m_SctBrlLayer,"CYLINNERZMIN",ilayer) * GeoModelKernelUnits::mm;
 }
 
 bool SCT_BarrelParameters::doubleSided(int ilayer) const{
@@ -257,7 +257,7 @@ SCT_BarrelParameters::staveLayout(int ilayer) const {
 double 
 SCT_BarrelParameters::stereoOuter(int ilayer) const {
   if (m_SctBrlLayer) {
-    return db()->getDouble(m_SctBrlLayer,"STEREOOUTER",ilayer) * CLHEP::mrad;
+    return db()->getDouble(m_SctBrlLayer,"STEREOOUTER",ilayer) * GeoModelKernelUnits::mrad;
   } else {
     return 0;
   }
@@ -266,7 +266,7 @@ SCT_BarrelParameters::stereoOuter(int ilayer) const {
 double 
 SCT_BarrelParameters::stereoInner(int ilayer) const{
   if (m_SctBrlLayer) {
-    return db()->getDouble(m_SctBrlLayer,"STEREOINNER",ilayer) * CLHEP::mrad;
+    return db()->getDouble(m_SctBrlLayer,"STEREOINNER",ilayer) * GeoModelKernelUnits::mrad;
   } else {
     return 0;
   }
@@ -277,7 +277,7 @@ SCT_BarrelParameters::staveSupportWidth(int ilayer) const{
   if (m_SctBrlLayer) {
     int ladType = ladderType(ilayer);
     if (db()->testField(m_SctBrlLadder,"SUPPORTWIDTH",ladType)) {
-      return db()->getDouble(m_SctBrlLadder,"SUPPORTWIDTH",ladType) * CLHEP::mm;
+      return db()->getDouble(m_SctBrlLadder,"SUPPORTWIDTH",ladType) * GeoModelKernelUnits::mm;
     } 
   }
   return 0;
@@ -289,7 +289,7 @@ SCT_BarrelParameters::staveSupportThickness(int ilayer) const{
   if (m_SctBrlLayer) {
     int ladType = ladderType(ilayer);
     if (db()->testField(m_SctBrlLadder,"SUPPORTTHICK",ladType)) {
-      return db()->getDouble(m_SctBrlLadder,"SUPPORTTHICK",ladType) * CLHEP::mm;
+      return db()->getDouble(m_SctBrlLadder,"SUPPORTTHICK",ladType) * GeoModelKernelUnits::mm;
     }
   }
   return 0;
@@ -308,14 +308,14 @@ SCT_BarrelParameters::staveSupportMaterial(int ilayer) const{
 
 double 
 SCT_BarrelParameters::supportCylInnerRadius(int ilayer) const{
-  double risup = db()->getDouble(m_SctBrlServPerLayer,"SUPPORTCYLINNERRAD",ilayer) * CLHEP::mm;
+  double risup = db()->getDouble(m_SctBrlServPerLayer,"SUPPORTCYLINNERRAD",ilayer) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 supportCylInnerRadius RISUP("<<ilayer<<") = "<< risup <<endmsg;
   return risup;
 }
 
 double 
 SCT_BarrelParameters::supportCylOuterRadius(int ilayer) const{
-  double rosup = db()->getDouble(m_SctBrlServPerLayer,"SUPPORTCYLOUTERRAD",ilayer) * CLHEP::mm;
+  double rosup = db()->getDouble(m_SctBrlServPerLayer,"SUPPORTCYLOUTERRAD",ilayer) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 supportCylOuterRadius ROSUP("<<ilayer<<") = "<<rosup<<endmsg;
   return rosup;
 }
@@ -337,35 +337,35 @@ SCT_BarrelParameters::numLayers() const{
 
 double 
 SCT_BarrelParameters::barrelInnerRadius() const{
-  double rmin = db()->getDouble(m_SctBrlGeneral,"INNERRADIUS") * CLHEP::mm;
+  double rmin = db()->getDouble(m_SctBrlGeneral,"INNERRADIUS") * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelInnerRadius RMIN = "<<rmin<<endmsg;
   return rmin;
 }
 
 double 
 SCT_BarrelParameters::barrelIntermediateRadius() const{
-  double rinter = db()->getDouble(m_SctBrlGeneral,"RINTERMEDIATE") * CLHEP::mm;
+  double rinter = db()->getDouble(m_SctBrlGeneral,"RINTERMEDIATE") * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelIntermediateRadius RINTERMEDIATE = "<<rinter<<endmsg;
   return  rinter;
 }
 
 double 
 SCT_BarrelParameters::barrelOuterRadius() const{
-  double rmax = db()->getDouble(m_SctBrlGeneral,"OUTERRADIUS") * CLHEP::mm;
+  double rmax = db()->getDouble(m_SctBrlGeneral,"OUTERRADIUS") * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelOuterRadius RMAX = "<<rmax<<endmsg;
   return rmax;
 }
 
 double 
 SCT_BarrelParameters::barrelLength() const{
-  double length =  db()->getDouble(m_SctBrlGeneral,"LENGTH") * CLHEP::mm;
+  double length =  db()->getDouble(m_SctBrlGeneral,"LENGTH") * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelLength B_LEN = "<<length<<endmsg;
   return length;
 }
 
 double 
 SCT_BarrelParameters::barrelIntermediateLength() const{
-  double interlen =  db()->getDouble(m_SctBrlGeneral,"INTERMEDIATELEN") * CLHEP::mm;
+  double interlen =  db()->getDouble(m_SctBrlGeneral,"INTERMEDIATELEN") * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelIntermediateLength B_IntermediateLEN = "
 	   <<interlen<<endmsg;
   return interlen;
@@ -373,7 +373,7 @@ SCT_BarrelParameters::barrelIntermediateLength() const{
 
 double 
 SCT_BarrelParameters::barrelServicesMaterialCylinderLength() const {
-  return db()->getDouble(m_SctBrlGeneral,"BRLSERVMATTHICK") * CLHEP::mm;
+  return db()->getDouble(m_SctBrlGeneral,"BRLSERVMATTHICK") * GeoModelKernelUnits::mm;
 }
 
 double 

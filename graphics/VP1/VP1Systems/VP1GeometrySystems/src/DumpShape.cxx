@@ -4,6 +4,7 @@
 
 #include "VP1GeometrySystems/DumpShape.h"
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTubs.h"
@@ -21,6 +22,7 @@
 #include "GeoModelKernel/GeoGenericTrap.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Vector/TwoVector.h"
 
 #include "VP1Utils/VP1LinAlgUtils.h"
 #include "Inventor/SbMatrix.h"
@@ -149,7 +151,7 @@ QStringList DumpShape::shapeToStringList(const GeoShape* shape)
     if (theShift){
       out << " =========> GeoShapeShift:";
       SbMatrix t;
-      VP1LinAlgUtils::transformToMatrix(theShift->getX(), t);
+      VP1LinAlgUtils::transformToMatrix(Amg::EigenTransformToCLHEP(theShift->getX()), t);
       float translation_x, translation_y, translation_z, rotaxis_x, rotaxis_y, rotaxis_z, rotangle_radians;
       VP1LinAlgUtils::decodeTransformation( t,
               translation_x, translation_y, translation_z,
@@ -212,7 +214,11 @@ QStringList DumpShape::shapeToStringList(const GeoShape* shape)
     if (theGenericTrap){
       out << " =========> GenericTrap:";
       out << " halfZlength = "+QString::number(theGenericTrap->getZHalfLength()/CLHEP::mm)+" mm";
-      std::vector<CLHEP::Hep2Vector> vertices = theGenericTrap->getVertices();
+      std::vector<CLHEP::Hep2Vector> vertices;
+      vertices.reserve(theGenericTrap->getVertices().size());
+      for(const auto& geoVertex : theGenericTrap->getVertices()) {
+	vertices.push_back(CLHEP::Hep2Vector(geoVertex.x(),geoVertex.y()));
+      }
       //in total 8 vertices by definition!
       out << "==> First 4 vertices at - hz/2";
       out << "(Ax,Ay) = ( "+QString::number(vertices[0].x()/CLHEP::mm)+" , "+QString::number(vertices[0].y()/CLHEP::mm)+" ) mm";

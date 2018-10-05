@@ -12,7 +12,8 @@
 #include "MuonGeoModel/Cutout.h"
 #include "MuonGeoModel/Position.h"
 #include "MuonGeoModel/AlignPos.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 /*
    This class holds an std::map of Position, AlignPos and an std::vector of 
@@ -67,14 +68,14 @@ public:
     // apit = station->FindAlignPos(zi,fi);
     // Delta = station->getDeltaTransform( ap, (*pit).second );
     // xf->setDelta( Delta );
-        HepGeom::Transform3D native_to_tsz_frame( const Position & p ) const;
-        HepGeom::Transform3D tsz_to_native_frame( const Position & p ) const;
-        HepGeom::Transform3D tsz_to_global_frame( const Position & p ) const;
-        HepGeom::Transform3D global_to_tsz_frame( const Position & p ) const;
-        HepGeom::Transform3D getNominalTransform( const Position & p ) const;
-        HepGeom::Transform3D getDeltaTransform_tszFrame( const AlignPos & ap ) const;
-        HepGeom::Transform3D getDeltaTransform( const AlignPos & ap, const Position & p ) const;
-        HepGeom::Transform3D getAlignedTransform( const AlignPos & ap, const Position & p ) const;
+        GeoTrf::Transform3D native_to_tsz_frame( const Position & p ) const;
+        GeoTrf::Transform3D tsz_to_native_frame( const Position & p ) const;
+        GeoTrf::Transform3D tsz_to_global_frame( const Position & p ) const;
+        GeoTrf::Transform3D global_to_tsz_frame( const Position & p ) const;
+        GeoTrf::Transform3D getNominalTransform( const Position & p ) const;
+        GeoTrf::Transform3D getDeltaTransform_tszFrame( const AlignPos & ap ) const;
+        GeoTrf::Transform3D getDeltaTransform( const AlignPos & ap, const Position & p ) const;
+        GeoTrf::Transform3D getAlignedTransform( const AlignPos & ap, const Position & p ) const;
     //HepGeom::Transform3D getAmdbOrgTrans(const Position & p) const;
     //}
 

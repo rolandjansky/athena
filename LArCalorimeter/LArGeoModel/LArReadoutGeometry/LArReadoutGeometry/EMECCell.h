@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMECCell_h
-#define EMECCell_h 1
+#ifndef LARREADOUTGEOMETRY_EMECCELL_H
+#define LARREADOUTGEOMETRY_EMECCELL_H
 #include <iostream>
 #include "LArReadoutGeometry/EMECDetDescr.h"
 #include "LArReadoutGeometry/EMECDetectorManager.h"

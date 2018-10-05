@@ -25,11 +25,11 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <cmath>
 
@@ -70,7 +70,7 @@ SCT_FwdSpine::getParameters()
     - parameters->fwdHybridMountPointToInnerEdge()
     - parameters->fwdModuleHybridEdgeToSpine(m_ringType);
    
-  // (zssp[m_ringType].spndox + zsmi[m_ringType].mountd - zhyb->hybysh - zhyb->hybgap0) * CLHEP::cm;
+  // (zssp[m_ringType].spndox + zsmi[m_ringType].mountd - zhyb->hybysh - zhyb->hybgap0) * GeoModelKernelUnits::cm;
 
 }
 
@@ -98,7 +98,7 @@ SCT_FwdSpine::build()
   
   SCT_MaterialManager materials;
 
-  const GeoShape & spinePosMain = (*spineShapeMain << HepGeom::TranslateZ3D(position) );
+  const GeoShape & spinePosMain = (*spineShapeMain << GeoTrf::TranslateZ3D(position) );
   m_material = materials.getMaterialForVolume(m_materialName, spineShapeMain->volume());  
   GeoLogVol * spineLog = new GeoLogVol(getName(), &spinePosMain, m_material);
   GeoPhysVol * spine = new GeoPhysVol(spineLog);

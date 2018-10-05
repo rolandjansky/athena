@@ -4,7 +4,8 @@
 
 #include "LUCID_RDBAaccess.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+//#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -72,34 +73,34 @@ void LUCID_RDBAccess::SetParameters() {
   
   for(AccessSvc_iter = m_lucidParams->begin(); AccessSvc_iter != m_lucidParams->end(); AccessSvc_iter++) {
     
-    distanceToIP                  = (*AccessSvc_iter)->getDouble("DISTANCETOIP")*CLHEP::mm;
-    VJdistanceToIP                = (*AccessSvc_iter)->getDouble("VJDISTANCETOIP")*CLHEP::mm;
-    VJconelength                  = (*AccessSvc_iter)->getDouble("VJCONELENGTH")*CLHEP::mm;
-    VJconeRadiusFront             = (*AccessSvc_iter)->getDouble("VJCONERADIUSFRONT")*CLHEP::mm;
-    VJconeRadiusBack              = (*AccessSvc_iter)->getDouble("VJCONERADIUSBACK")*CLHEP::mm;
-    VJconeThickness               = (*AccessSvc_iter)->getDouble("VJCONETHICKNESS")*CLHEP::mm;
-    VJconeFrontRingThickness      = (*AccessSvc_iter)->getDouble("VJCONEFRONTRINGTHICKNESS")*CLHEP::mm;
-    VJconeFrontRingLength         = (*AccessSvc_iter)->getDouble("VJCONEFRONTRINGLENGTH")*CLHEP::mm;
-    VJconeFrontRingOverlap        = (*AccessSvc_iter)->getDouble("VJCONEFRONTRINGOVERLAP")*CLHEP::mm;
-    vesselInnerRadius             = (*AccessSvc_iter)->getDouble("VESSELINNERRADIUS")*CLHEP::mm;
-    vesselInnerThickness          = (*AccessSvc_iter)->getDouble("VESSELINNERTHICKNESS")*CLHEP::mm;
-    vesselOuterRadMin             = (*AccessSvc_iter)->getDouble("VESSELOUTERRADMIN")*CLHEP::mm + 3*CLHEP::mm;
-    vesselOuterRadMax             = (*AccessSvc_iter)->getDouble("VESSELOUTERRADMAX")*CLHEP::mm + 3*CLHEP::mm;
-    vesselOuterThickness          = (*AccessSvc_iter)->getDouble("VESSELOUTERTHICKNESS")*CLHEP::mm;
-    vesselLength                  = (*AccessSvc_iter)->getDouble("VESSELLENGTH")*CLHEP::mm;
-    bulkheadThickness             = (*AccessSvc_iter)->getDouble("BULKHEADTHICKNESS")*CLHEP::mm;
-    coolingRadius                 = (*AccessSvc_iter)->getDouble("COOLINGRADIUS")*CLHEP::mm;
-    coolingThickness              = (*AccessSvc_iter)->getDouble("COOLINGTHICKNESS")*CLHEP::mm;
-    layerRadius1                  = (*AccessSvc_iter)->getDouble("LAYERRADIUS1")*CLHEP::mm;
-    layerRadius2                  = (*AccessSvc_iter)->getDouble("LAYERRADIUS2")*CLHEP::mm;
-    tubeRadius                    = (*AccessSvc_iter)->getDouble("TUBERADIUS")*CLHEP::mm;
-    tubeThickness                 = (*AccessSvc_iter)->getDouble("TUBETHICKNESS")*CLHEP::mm;
-    tubeLength                    = (*AccessSvc_iter)->getDouble("TUBELENGTH")*CLHEP::mm;
-    pmtThickness                  = (*AccessSvc_iter)->getDouble("PMTTHICKNESS")*CLHEP::mm;
-    gasPressure                   = (*AccessSvc_iter)->getDouble("GASPRESSURE")*CLHEP::bar;
-    gasDensity                    = (*AccessSvc_iter)->getDouble("GASDENSITY")*CLHEP::gram/CLHEP::cm3;
-    gasTemperature                = (*AccessSvc_iter)->getDouble("GASTEMPERATURE")*CLHEP::kelvin;
-    quartzDensity                 = (*AccessSvc_iter)->getDouble("QUARTZDENSITY")*CLHEP::gram/CLHEP::cm3;
+    distanceToIP                  = (*AccessSvc_iter)->getDouble("DISTANCETOIP")*GeoModelKernelUnits::mm;
+    VJdistanceToIP                = (*AccessSvc_iter)->getDouble("VJDISTANCETOIP")*GeoModelKernelUnits::mm;
+    VJconelength                  = (*AccessSvc_iter)->getDouble("VJCONELENGTH")*GeoModelKernelUnits::mm;
+    VJconeRadiusFront             = (*AccessSvc_iter)->getDouble("VJCONERADIUSFRONT")*GeoModelKernelUnits::mm;
+    VJconeRadiusBack              = (*AccessSvc_iter)->getDouble("VJCONERADIUSBACK")*GeoModelKernelUnits::mm;
+    VJconeThickness               = (*AccessSvc_iter)->getDouble("VJCONETHICKNESS")*GeoModelKernelUnits::mm;
+    VJconeFrontRingThickness      = (*AccessSvc_iter)->getDouble("VJCONEFRONTRINGTHICKNESS")*GeoModelKernelUnits::mm;
+    VJconeFrontRingLength         = (*AccessSvc_iter)->getDouble("VJCONEFRONTRINGLENGTH")*GeoModelKernelUnits::mm;
+    VJconeFrontRingOverlap        = (*AccessSvc_iter)->getDouble("VJCONEFRONTRINGOVERLAP")*GeoModelKernelUnits::mm;
+    vesselInnerRadius             = (*AccessSvc_iter)->getDouble("VESSELINNERRADIUS")*GeoModelKernelUnits::mm;
+    vesselInnerThickness          = (*AccessSvc_iter)->getDouble("VESSELINNERTHICKNESS")*GeoModelKernelUnits::mm;
+    vesselOuterRadMin             = (*AccessSvc_iter)->getDouble("VESSELOUTERRADMIN")*GeoModelKernelUnits::mm + 3*GeoModelKernelUnits::mm;
+    vesselOuterRadMax             = (*AccessSvc_iter)->getDouble("VESSELOUTERRADMAX")*GeoModelKernelUnits::mm + 3*GeoModelKernelUnits::mm;
+    vesselOuterThickness          = (*AccessSvc_iter)->getDouble("VESSELOUTERTHICKNESS")*GeoModelKernelUnits::mm;
+    vesselLength                  = (*AccessSvc_iter)->getDouble("VESSELLENGTH")*GeoModelKernelUnits::mm;
+    bulkheadThickness             = (*AccessSvc_iter)->getDouble("BULKHEADTHICKNESS")*GeoModelKernelUnits::mm;
+    coolingRadius                 = (*AccessSvc_iter)->getDouble("COOLINGRADIUS")*GeoModelKernelUnits::mm;
+    coolingThickness              = (*AccessSvc_iter)->getDouble("COOLINGTHICKNESS")*GeoModelKernelUnits::mm;
+    layerRadius1                  = (*AccessSvc_iter)->getDouble("LAYERRADIUS1")*GeoModelKernelUnits::mm;
+    layerRadius2                  = (*AccessSvc_iter)->getDouble("LAYERRADIUS2")*GeoModelKernelUnits::mm;
+    tubeRadius                    = (*AccessSvc_iter)->getDouble("TUBERADIUS")*GeoModelKernelUnits::mm;
+    tubeThickness                 = (*AccessSvc_iter)->getDouble("TUBETHICKNESS")*GeoModelKernelUnits::mm;
+    tubeLength                    = (*AccessSvc_iter)->getDouble("TUBELENGTH")*GeoModelKernelUnits::mm;
+    pmtThickness                  = (*AccessSvc_iter)->getDouble("PMTTHICKNESS")*GeoModelKernelUnits::mm;
+    gasPressure                   = (*AccessSvc_iter)->getDouble("GASPRESSURE")*GeoModelKernelUnits::bar;
+    gasDensity                    = (*AccessSvc_iter)->getDouble("GASDENSITY")*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3;
+    gasTemperature                = (*AccessSvc_iter)->getDouble("GASTEMPERATURE")*GeoModelKernelUnits::kelvin;
+    quartzDensity                 = (*AccessSvc_iter)->getDouble("QUARTZDENSITY")*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3;
     tubePolish                    = (*AccessSvc_iter)->getDouble("TUBEPOLISH");
     waveLengthStep                = (*AccessSvc_iter)->getDouble("WAVELENGTHSTEP");
     waveLengthMin                 = (*AccessSvc_iter)->getDouble("WAVELENGTHMIN");
@@ -111,26 +112,26 @@ void LUCID_RDBAccess::Print() {
   
   MsgStream log(Athena::getMessageSvc(), "LUCID_GeoModel::LUCID_RDBAaccess");
 
-  log << MSG::DEBUG << " distanceToIP         [mm]: " << distanceToIP/CLHEP::mm           << endmsg;
-  log << MSG::DEBUG << " vesselInnerRadius    [mm]: " << vesselInnerRadius/CLHEP::mm      << endmsg;
-  log << MSG::DEBUG << " vesselInnerThickness [mm]: " << vesselInnerThickness/CLHEP::mm   << endmsg;
-  log << MSG::DEBUG << " vesselOuterRadMin    [mm]: " << vesselOuterRadMin /CLHEP::mm     << endmsg;
-  log << MSG::DEBUG << " vesselOuterRadMax    [mm]: " << vesselOuterRadMax/CLHEP::mm      << endmsg;
-  log << MSG::DEBUG << " vesselOuterThickness [mm]: " << vesselOuterThickness/CLHEP::mm   << endmsg;
-  log << MSG::DEBUG << " vesselLength         [mm]: " << vesselLength /CLHEP::mm          << endmsg;
-  log << MSG::DEBUG << " bulkheadThickness    [mm]: " << bulkheadThickness/CLHEP::mm      << endmsg;
-  log << MSG::DEBUG << " coolingRadius        [mm]: " << coolingRadius/CLHEP::mm          << endmsg;
-  log << MSG::DEBUG << " coolingThickness     [mm]: " << coolingThickness/CLHEP::mm       << endmsg;
-  log << MSG::DEBUG << " layerRadius1         [mm]: " << layerRadius1/CLHEP::mm           << endmsg;
-  log << MSG::DEBUG << " layerRadius2         [mm]: " << layerRadius2/CLHEP::mm           << endmsg;
-  log << MSG::DEBUG << " tubeRadius           [mm]: " << tubeRadius/CLHEP::mm             << endmsg;
-  log << MSG::DEBUG << " tubeThickness        [mm]: " << tubeThickness/CLHEP::mm          << endmsg;
-  log << MSG::DEBUG << " tubeLength           [mm]: " << tubeLength/CLHEP::mm             << endmsg;
-  log << MSG::DEBUG << " pmtThickness         [mm]: " << pmtThickness/CLHEP::mm           << endmsg;
-  log << MSG::DEBUG << " gasPressure         [bar]: " << gasPressure/CLHEP::bar           << endmsg;
-  log << MSG::DEBUG << " gasDensity        [g/cm3]: " << gasDensity/(CLHEP::gram/CLHEP::cm3)     << endmsg;
-  log << MSG::DEBUG << " gasTempearture   [kelvin]: " << gasTemperature/CLHEP::kelvin     << endmsg;
-  log << MSG::DEBUG << " quartzDensity     [g/cm3]: " << quartzDensity/(CLHEP::gram/CLHEP::cm3)  << endmsg;  
+  log << MSG::DEBUG << " distanceToIP         [mm]: " << distanceToIP/GeoModelKernelUnits::mm           << endmsg;
+  log << MSG::DEBUG << " vesselInnerRadius    [mm]: " << vesselInnerRadius/GeoModelKernelUnits::mm      << endmsg;
+  log << MSG::DEBUG << " vesselInnerThickness [mm]: " << vesselInnerThickness/GeoModelKernelUnits::mm   << endmsg;
+  log << MSG::DEBUG << " vesselOuterRadMin    [mm]: " << vesselOuterRadMin /GeoModelKernelUnits::mm     << endmsg;
+  log << MSG::DEBUG << " vesselOuterRadMax    [mm]: " << vesselOuterRadMax/GeoModelKernelUnits::mm      << endmsg;
+  log << MSG::DEBUG << " vesselOuterThickness [mm]: " << vesselOuterThickness/GeoModelKernelUnits::mm   << endmsg;
+  log << MSG::DEBUG << " vesselLength         [mm]: " << vesselLength /GeoModelKernelUnits::mm          << endmsg;
+  log << MSG::DEBUG << " bulkheadThickness    [mm]: " << bulkheadThickness/GeoModelKernelUnits::mm      << endmsg;
+  log << MSG::DEBUG << " coolingRadius        [mm]: " << coolingRadius/GeoModelKernelUnits::mm          << endmsg;
+  log << MSG::DEBUG << " coolingThickness     [mm]: " << coolingThickness/GeoModelKernelUnits::mm       << endmsg;
+  log << MSG::DEBUG << " layerRadius1         [mm]: " << layerRadius1/GeoModelKernelUnits::mm           << endmsg;
+  log << MSG::DEBUG << " layerRadius2         [mm]: " << layerRadius2/GeoModelKernelUnits::mm           << endmsg;
+  log << MSG::DEBUG << " tubeRadius           [mm]: " << tubeRadius/GeoModelKernelUnits::mm             << endmsg;
+  log << MSG::DEBUG << " tubeThickness        [mm]: " << tubeThickness/GeoModelKernelUnits::mm          << endmsg;
+  log << MSG::DEBUG << " tubeLength           [mm]: " << tubeLength/GeoModelKernelUnits::mm             << endmsg;
+  log << MSG::DEBUG << " pmtThickness         [mm]: " << pmtThickness/GeoModelKernelUnits::mm           << endmsg;
+  log << MSG::DEBUG << " gasPressure         [bar]: " << gasPressure/GeoModelKernelUnits::bar           << endmsg;
+  log << MSG::DEBUG << " gasDensity        [g/cm3]: " << gasDensity/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)     << endmsg;
+  log << MSG::DEBUG << " gasTempearture   [kelvin]: " << gasTemperature/GeoModelKernelUnits::kelvin     << endmsg;
+  log << MSG::DEBUG << " quartzDensity     [g/cm3]: " << quartzDensity/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)  << endmsg;  
   log << MSG::DEBUG << " tubePolish               : " << tubePolish                << endmsg;
   log << MSG::DEBUG << " waveLengthStep           : " << waveLengthStep            << endmsg;
   log << MSG::DEBUG << " waveLengthMin            : " << waveLengthMin             << endmsg;

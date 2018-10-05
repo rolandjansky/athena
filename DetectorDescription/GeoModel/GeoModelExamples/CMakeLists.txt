@@ -8,7 +8,6 @@ atlas_subdir( GeoModelExamples )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           PRIVATE
                           Control/StoreGate
@@ -17,19 +16,19 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
 # External dependencies:
-find_package( CLHEP )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( GeoModelExamplesLib
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelExamples
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES GeoModelKernel GeoModelUtilities StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier GaudiKernel )
+                   PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES GeoModelUtilities StoreGateLib
+                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} Identifier GaudiKernel )
 
 atlas_add_component( GeoModelExamples
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelKernel GeoModelUtilities StoreGateLib SGtests Identifier GaudiKernel GeoModelExamplesLib )
+                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities StoreGateLib Identifier GaudiKernel GeoModelExamplesLib )
 

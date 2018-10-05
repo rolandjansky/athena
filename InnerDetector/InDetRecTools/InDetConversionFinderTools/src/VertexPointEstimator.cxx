@@ -11,6 +11,7 @@
 		changes : M.ELSING
 ***************************************************************************/ 
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "TMath.h"
 
 //Do we need to replace this?

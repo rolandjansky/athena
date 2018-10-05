@@ -2,12 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelBarrel.h"
-#include "PixelGeoModel/GeoPixelLayer.h"
-#include "PixelGeoModel/GeoPixelServices.h"
-#include "PixelGeoModel/GeoPixelOldFrame.h"
-#include "PixelGeoModel/GeoPixelStaveRing.h"
-#include "PixelGeoModel/GeoPixelIFlexServices.h"
+#include "GeoPixelBarrel.h"
+#include "GeoPixelLayer.h"
+#include "GeoPixelServices.h"
+#include "GeoPixelOldFrame.h"
+#include "GeoPixelStaveRing.h"
+#include "GeoPixelIFlexServices.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -67,11 +67,11 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     if(m_gmt_mgr->isLDPresent()){
       std::ostringstream lname;
       lname << "Layer" << ii;
-      //      GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
+      //      GeoAlignableTransform * xform = new GeoAlignableTransform(GeoTrf::Transform3D()); 
 
       // IBL layer shift ( 2mm shift issue )
       double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
-      GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(CLHEP::HepRotation(),CLHEP::Hep3Vector(0.,0.,layerZshift)));
+      GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::Translate3D(0.,0.,layerZshift));
 
       GeoVPhysVol* layerphys = layer.Build();
       GeoNameTag *tag = new GeoNameTag(lname.str());         

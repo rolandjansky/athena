@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _FCALTube_h_
-#define _FCALTube_h_
+#ifndef LARREADOUTGEOMETRY_FCALTUBE_H
+#define LARREADOUTGEOMETRY_FCALTUBE_H
 
 #include "GeoModelKernel/RCBase.h"
 //

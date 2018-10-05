@@ -16,7 +16,7 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 SCT_Bracket::SCT_Bracket(const std::string & name)
   : SCT_SharedComponentFactory(name)

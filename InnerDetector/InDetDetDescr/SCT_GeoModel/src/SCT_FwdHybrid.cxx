@@ -28,11 +28,11 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <cmath>
 
@@ -54,9 +54,9 @@ SCT_FwdHybrid::getParameters()
 
   m_materialName  = parameters->fwdHybridMaterial();
 
-  //double CLHEP::radlength;
-  //CLHEP::radlength = 18.8 * CLHEP::cm;
-  // [CLHEP::cm] for carbon (Partickle Physics Booklet)
+  //double GeoModelKernelUnits::radlength;
+  //GeoModelKernelUnits::radlength = 18.8 * GeoModelKernelUnits::cm;
+  // [GeoModelKernelUnits::cm] for carbon (Partickle Physics Booklet)
 
   m_thickness  = parameters->fwdHybridThickness();
   m_thickness2 = m_thickness;
@@ -96,7 +96,7 @@ GeoVPhysVol * SCT_FwdHybrid::build()
   //  double position = zsmi[m_ringType].mountd - zhyb->hybysh + (zhyb->hyby - zhyb->hybycor) / 2.;
   if (m_ringType == 0) { position = -1 * position;  };  // outer module, hybrid in inner side
  
-  const GeoShape & hybridPos1 = (*hybridShape2 << HepGeom::TranslateZ3D(position));
+  const GeoShape & hybridPos1 = (*hybridShape2 << GeoTrf::TranslateZ3D(position));
   
   position = parameters->fwdModuleMountPoint(m_ringType) - (m_mountPointToInnerEdge) 
     + m_length - 0.5 * parameters->fwdHybridLengthToCorner();
@@ -105,10 +105,10 @@ GeoVPhysVol * SCT_FwdHybrid::build()
     position = -1 * position;  };
   
   double rotation = 0.;
-  if (m_ringType == 0)  rotation = 180. * CLHEP::deg;  
+  if (m_ringType == 0)  rotation = 180. * GeoModelKernelUnits::deg;  
   
-  const GeoShape & hybridPos2 = (*hybridShape1 << HepGeom::RotateX3D(rotation)
-                      << HepGeom::TranslateZ3D(position) );
+  const GeoShape & hybridPos2 = (*hybridShape1 << GeoTrf::RotateX3D(rotation)
+                      << GeoTrf::TranslateZ3D(position) );
   
 
   SCT_MaterialManager materials;

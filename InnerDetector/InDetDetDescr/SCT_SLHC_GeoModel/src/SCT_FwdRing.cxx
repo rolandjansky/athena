@@ -20,10 +20,10 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <sstream>
 #include <cmath>
@@ -68,11 +68,11 @@ const GeoLogVol* SCT_FwdRing::preBuild(){
   m_module = new SCT_FwdModule("FwdModule"+intToString(m_iRing), 
 			       m_iRing, m_doubleSided); 
 
-  //m_innerRadius = m_innerRadius - 0.51*CLHEP::cm;//0.01mm safety necessary
-  //m_outerRadius = m_outerRadius + 0.51*CLHEP::cm;//0.01mm safety necessary
-  m_innerRadius = m_innerRadius - 5*CLHEP::mm;//0.01mm safety necessary
-  m_outerRadius = m_outerRadius + 7*CLHEP::mm;//0.01mm safety necessary
-  m_thickness   = m_module->thickness() + m_moduleStagger + 0.01*CLHEP::mm;//safety necessary
+  //m_innerRadius = m_innerRadius - 0.51*GeoModelKernelUnits::cm;//0.01mm safety necessary
+  //m_outerRadius = m_outerRadius + 0.51*GeoModelKernelUnits::cm;//0.01mm safety necessary
+  m_innerRadius = m_innerRadius - 5*GeoModelKernelUnits::mm;//0.01mm safety necessary
+  m_outerRadius = m_outerRadius + 7*GeoModelKernelUnits::mm;//0.01mm safety necessary
+  m_thickness   = m_module->thickness() + m_moduleStagger + 0.01*GeoModelKernelUnits::mm;//safety necessary
   m_length = m_outerRadius - m_innerRadius;
   //protection along R!
   if(m_length<m_module->length()){
@@ -101,7 +101,7 @@ GeoVPhysVol* SCT_FwdRing::build(SCT_Identifier id) const{
 
   // Physical volume for the half ring
   GeoPhysVol* ring = new GeoPhysVol(m_logVolume);
-  double divisionAngle     = 360*CLHEP::degree/m_numModules;
+  double divisionAngle     = 360*GeoModelKernelUnits::degree/m_numModules;
   bool   negativeEndCap    = (id.getBarrelEC() < 0);
   int    staggerUpperLower = m_firstStagger;
   for(int imod=0; imod<m_numModules; imod++){
@@ -120,25 +120,18 @@ GeoVPhysVol* SCT_FwdRing::build(SCT_Identifier id) const{
 
     double phi =  m_refStartAngle + imod*divisionAngle;
     //std::cerr<<"endcap "<<id.getBarrelEC()<<", ring "<<m_iRing<<", startAngle"<<m_refStartAngle<<", phi "<<phi<<std::endl;
-    CLHEP::HepRotation rot;
     //put the module along the radius of the ring, along X for example (remeber, it is along Z)
-    rot.rotateY(90*CLHEP::degree);    
+    GeoTrf::Transform3D rot = GeoTrf::RotateY3D(90*GeoModelKernelUnits::degree);
     if (negativeEndCap) {
       //rotate the module so that to keep the local frame orientation as in the positive end
-      //rot.rotateZ(180*CLHEP::degree);    
+      //rot.rotateZ(180*GeoModelKernelUnits::degree);    
       //start in the oppsite phi and turn in the oppsite direction
-      if(phi < CLHEP::pi)
-	phi = CLHEP::pi - phi;
+      if(phi < GeoModelKernelUnits::pi)
+	phi = GeoModelKernelUnits::pi - phi;
       else
-	phi = 3*CLHEP::pi - phi;
+	phi = 3*GeoModelKernelUnits::pi - phi;
     }
-    if(m_doubleSided){
-      //rot.rotateZ(phi + 0.5*m_stereoSign*m_module->stereoAngle());
-      // do not stereo angle since the wheel type is not given, may be need to change later(today: 05/09/08)
-      rot.rotateZ(phi);
-    }else{
-      rot.rotateZ(phi);
-    }
+    rot = GeoTrf::RotateZ3D(phi) * rot;
     //std::cerr<<"endcap "<<id.getBarrelEC()<<", wheel "<<m_iWheel<<", ring "<<m_iRing<<", mod "<<imod<<", phi "<<phi<<", startAng "<<m_refStartAngle<<std::endl;
     //the module stagger is opposite for oposite rings?! 
     double Zpos = staggerUpperLower*m_ringSide*0.5*m_moduleStagger;
@@ -150,11 +143,11 @@ GeoVPhysVol* SCT_FwdRing::build(SCT_Identifier id) const{
 	       <<". exit athena!"<<std::endl;
       exit(1);
     }
-    CLHEP::Hep3Vector xyz(m_middleRadius, 0, Zpos);
-    xyz.rotateZ(phi);
-    HepGeom::Transform3D modulePos(rot,xyz);
+    GeoTrf::Vector3D xyz(m_middleRadius, 0, Zpos);
+    xyz = GeoTrf::RotateZ3D(phi)*xyz;
+    GeoTrf::Transform3D modulePos = GeoTrf::Translate3D(xyz.x(),xyz.y(),xyz.z())*rot;
     //protection along R!
-    const double epsilon = 0.0001*CLHEP::mm; //beyound meansurment precision?!
+    const double epsilon = 0.0001*GeoModelKernelUnits::mm; //beyound meansurment precision?!
     if(m_innerRadius-epsilon>m_module->innerRadius() || 
        m_outerRadius+epsilon<m_module->outerRadius()){
       std::cout<<"SCT_FwdRing.cxx: problem with module position along R: "

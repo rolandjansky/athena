@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/PixelMaterialMap.h"
+#include "PixelMaterialMap.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 

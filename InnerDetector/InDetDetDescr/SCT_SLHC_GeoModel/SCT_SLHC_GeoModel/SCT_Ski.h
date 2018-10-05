@@ -7,8 +7,8 @@
 
 #include "SCT_SLHC_GeoModel/SCT_ComponentFactory.h"
 #include "SCT_SLHC_GeoModel/SCT_Identifier.h"
-
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include <string>
 #include <vector>
@@ -19,7 +19,7 @@ class GeoPhysVol;
 class GeoLogVol;
 class GeoNameTag;
 class GeoTransform;
-#include "CLHEP/Vector/ThreeVector.h"
+
 
 namespace InDetDDSLHC {
 

@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/SquirrelCageFactory.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -68,37 +70,37 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //     Squirrel cage rings
 //  Default (initial) ring parameters
 //
-//     double rminInt    = 1074.0*CLHEP::mm;
-//     double ringThick  = 4.0*CLHEP::mm;
-//     double ringGap    = 20.*CLHEP::mm;
-//     double ringWid    = 40.*CLHEP::mm;
+//     double rminInt    = 1074.0*GeoModelKernelUnits::mm;
+//     double ringThick  = 4.0*GeoModelKernelUnits::mm;
+//     double ringGap    = 20.*GeoModelKernelUnits::mm;
+//     double ringWid    = 40.*GeoModelKernelUnits::mm;
 //
-    double rminInt    = (*cage)[0]->getDouble("RINGRMIN")*CLHEP::mm;
-    double ringThick  = (*cage)[0]->getDouble("RINGTHICK")*CLHEP::mm;
-    double ringGap    = (*cage)[0]->getDouble("RINGGAP")*CLHEP::mm;
-    double ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*CLHEP::mm;
+    double rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
+    double ringThick  = (*cage)[0]->getDouble("RINGTHICK")*GeoModelKernelUnits::mm;
+    double ringGap    = (*cage)[0]->getDouble("RINGGAP")*GeoModelKernelUnits::mm;
+    double ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*GeoModelKernelUnits::mm;
 //
 //--- Default (initial) z positions
-//     double zposFirstRing  = 805.0*CLHEP::mm+161.0*CLHEP::mm;
-//     double zposGap1  = 390.*CLHEP::mm;
-//     double zposGap2  = 402.*CLHEP::mm;
-//     double zposGap3  = 446.*CLHEP::mm;
-//     double zposGap4  = 331.*CLHEP::mm;
+//     double zposFirstRing  = 805.0*GeoModelKernelUnits::mm+161.0*GeoModelKernelUnits::mm;
+//     double zposGap1  = 390.*GeoModelKernelUnits::mm;
+//     double zposGap2  = 402.*GeoModelKernelUnits::mm;
+//     double zposGap3  = 446.*GeoModelKernelUnits::mm;
+//     double zposGap4  = 331.*GeoModelKernelUnits::mm;
 //
-    double zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*CLHEP::mm;
-    double zposGap1  = (*cage)[0]->getDouble("ZGAP1")*CLHEP::mm;
-    double zposGap2  = (*cage)[0]->getDouble("ZGAP2")*CLHEP::mm;
-    double zposGap3  = (*cage)[0]->getDouble("ZGAP3")*CLHEP::mm;
-    double zposGap4  = (*cage)[0]->getDouble("ZGAP4")*CLHEP::mm;
+    double zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*GeoModelKernelUnits::mm;
+    double zposGap1  = (*cage)[0]->getDouble("ZGAP1")*GeoModelKernelUnits::mm;
+    double zposGap2  = (*cage)[0]->getDouble("ZGAP2")*GeoModelKernelUnits::mm;
+    double zposGap3  = (*cage)[0]->getDouble("ZGAP3")*GeoModelKernelUnits::mm;
+    double zposGap4  = (*cage)[0]->getDouble("ZGAP4")*GeoModelKernelUnits::mm;
 //
 // Now support ring
-//     double rminSup    = 830.0*CLHEP::mm;
-//     double supThick   = 90.0*CLHEP::mm;
-//     double supWid     = 12.0*CLHEP::mm;
+//     double rminSup    = 830.0*GeoModelKernelUnits::mm;
+//     double supThick   = 90.0*GeoModelKernelUnits::mm;
+//     double supWid     = 12.0*GeoModelKernelUnits::mm;
 //
-    double rminSup    = (*cage)[0]->getDouble("SUPRMIN")*CLHEP::mm;
-    double supThick   = (*cage)[0]->getDouble("SUPTHICK")*CLHEP::mm;
-    double supWid     = (*cage)[0]->getDouble("SUPWIDTH")*CLHEP::mm;
+    double rminSup    = (*cage)[0]->getDouble("SUPRMIN")*GeoModelKernelUnits::mm;
+    double supThick   = (*cage)[0]->getDouble("SUPTHICK")*GeoModelKernelUnits::mm;
+    double supWid     = (*cage)[0]->getDouble("SUPWIDTH")*GeoModelKernelUnits::mm;
 //
     double zposSupRing  = zposFirstRing+ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
 
@@ -170,11 +172,11 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     GeoBox* UShapePart2 = new GeoBox(xDepthUSP2/2., yWidthUSP2/2., zLengthUS/2.);
     GeoBox* UShapePart3 = new GeoBox(xDepthUSP3/2., yWidthUSP3/2., zLengthUS/2.);
 
-    CLHEP::Hep3Vector trans1UShapeP2(xDepthUSP2/2. - xDepthUSP1/2., yWidthUSP1/2. + yWidthUSP2/2., 0.);
-    CLHEP::Hep3Vector trans2UShapeP2(- xDepthUSP2/2. + xDepthUSP1/2., yWidthUSP1/2. + yWidthUSP2/2., 0.);
+    GeoTrf::Vector3D trans1UShapeP2(xDepthUSP2/2. - xDepthUSP1/2., yWidthUSP1/2. + yWidthUSP2/2., 0.);
+    GeoTrf::Vector3D trans2UShapeP2(- xDepthUSP2/2. + xDepthUSP1/2., yWidthUSP1/2. + yWidthUSP2/2., 0.);
 
-    CLHEP::Hep3Vector trans1UShapeP3(xDepthUSP3/2. - xDepthUSP1/2., - yWidthUSP1/2. - yWidthUSP3/2., 0.);
-    CLHEP::Hep3Vector trans2UShapeP3(- xDepthUSP3/2. + xDepthUSP1/2., - yWidthUSP1/2. - yWidthUSP3/2., 0.);
+    GeoTrf::Vector3D trans1UShapeP3(xDepthUSP3/2. - xDepthUSP1/2., - yWidthUSP1/2. - yWidthUSP3/2., 0.);
+    GeoTrf::Vector3D trans2UShapeP3(- xDepthUSP3/2. + xDepthUSP1/2., - yWidthUSP1/2. - yWidthUSP3/2., 0.);
 
 //Determining the exact place of "U" Shape support
 
@@ -194,14 +196,14 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //Inner 
    
     double phiICRT = asin((yWidthUSP1/2. + yWidthUSP2 + coordY) / rminInt);
-    double DphiICRT = CLHEP::pi - 2*phiICRT;
+    double DphiICRT = GeoModelKernelUnits::pi - 2*phiICRT;
  
     double phiICRB = asin((yWidthUSP1/2. + yWidthUSP2 - coordY) / rminInt);
-    double DphiICRB = CLHEP::pi - 2*phiICRB;
+    double DphiICRB = GeoModelKernelUnits::pi - 2*phiICRB;
 
     GeoTubs* ICRT = new GeoTubs(rminInt, rminInt + ringThick, ringWid/2., phiICRT, DphiICRT);
   
-    GeoTubs* ICRB = new GeoTubs(rminInt, rminInt + ringThick, ringWid/2., CLHEP::pi + phiICRB, DphiICRB);
+    GeoTubs* ICRB = new GeoTubs(rminInt, rminInt + ringThick, ringWid/2., GeoModelKernelUnits::pi + phiICRB, DphiICRB);
 
 
     const GeoLogVol* ICRTLog = new GeoLogVol("SQringIntTop", ICRT, ringMat);
@@ -213,10 +215,10 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //Outer
   
     double phiECRT = asin((yWidthUSP1/2. + yWidthUSP2 + coordY) / (rminInt+ringGap+ringThick));
-    double DphiECRT = CLHEP::pi - 2*phiECRT;
+    double DphiECRT = GeoModelKernelUnits::pi - 2*phiECRT;
 
     double phiECRB = asin((yWidthUSP1/2. + yWidthUSP2 - coordY) / (rminInt+ringGap+ringThick));
-    double DphiECRB = CLHEP::pi - 2*phiECRB;
+    double DphiECRB = GeoModelKernelUnits::pi - 2*phiECRB;
 
 //     std::cerr << "phiET: " << phiECRT << ", DphiET: " << DphiECRT << std::endl;
 //     std::cerr << "phiIT: " << phiICRT << ", DphiIT: " << DphiICRT << std::endl;
@@ -224,7 +226,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //     std::cerr << "phiIB: " << phiICRB << ", DphiIB: " << DphiICRB << std::endl;
 
     GeoTubs* ECRT = new GeoTubs(rminInt+ringGap+ringThick, rminInt+2.*ringThick+ringGap, ringWid/2., phiECRT, DphiECRT);
-    GeoTubs* ECRB = new GeoTubs(rminInt+ringGap+ringThick, rminInt+2.*ringThick+ringGap, ringWid/2., CLHEP::pi + phiECRB, DphiECRB);
+    GeoTubs* ECRB = new GeoTubs(rminInt+ringGap+ringThick, rminInt+2.*ringThick+ringGap, ringWid/2., GeoModelKernelUnits::pi + phiECRB, DphiECRB);
 
     const GeoLogVol* ECRTLog = new GeoLogVol("SQringExtTop", ECRT, ringMat);
     GeoVPhysVol* ECRTPhys = new GeoPhysVol(ECRTLog);
@@ -241,26 +243,26 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //Positioning and adding to geometry
 //Rings
         
-    CLHEP::Hep3Vector  servpos1(0.,0., zposFirstRing+ringWid/2.);
-    CLHEP::Hep3Vector  servpos2(0.,0.,-zposFirstRing-ringWid/2.);
-    CLHEP::Hep3Vector  servpos3(0.,0., zposFirstRing+ringWid*3./2. + zposGap1);
-    CLHEP::Hep3Vector  servpos4(0.,0.,-zposFirstRing-ringWid*3./2. - zposGap1);
-    CLHEP::Hep3Vector  servpos5(0.,0., zposFirstRing+ringWid*5./2. + zposGap1 + zposGap2);
-    CLHEP::Hep3Vector  servpos6(0.,0.,-zposFirstRing-ringWid*5./2. - zposGap1 - zposGap2);
-    CLHEP::Hep3Vector  servpos7(0.,0., zposFirstRing+ringWid*7./2. + zposGap1 + zposGap2 + zposGap3);
-    CLHEP::Hep3Vector  servpos8(0.,0.,-zposFirstRing-ringWid*7./2. - zposGap1 - zposGap2 - zposGap3);
-    CLHEP::Hep3Vector  servpos9(0.,0., zposFirstRing+ringWid*9./2. + zposGap1 + zposGap2 + zposGap3 + zposGap4);
-    CLHEP::Hep3Vector servpos10(0.,0.,-zposFirstRing-ringWid*9./2. - zposGap1 - zposGap2 - zposGap3 - zposGap4);
-    GeoTransform *xform1  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos1));
-    GeoTransform *xform2  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,0.),servpos2));
-    GeoTransform *xform3  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos3));
-    GeoTransform *xform4  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,0.),servpos4));
-    GeoTransform *xform5  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos5));
-    GeoTransform *xform6  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,0.),servpos6));
-    GeoTransform *xform7  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos7));
-    GeoTransform *xform8  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,0.),servpos8));
-    GeoTransform *xform9  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos9));
-    GeoTransform *xform10 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,0.),servpos10));
+    GeoTrf::Translate3D  servpos1(0.,0., zposFirstRing+ringWid/2.);
+    GeoTrf::Translate3D  servpos2(0.,0.,-zposFirstRing-ringWid/2.);
+    GeoTrf::Translate3D  servpos3(0.,0., zposFirstRing+ringWid*3./2. + zposGap1);
+    GeoTrf::Translate3D  servpos4(0.,0.,-zposFirstRing-ringWid*3./2. - zposGap1);
+    GeoTrf::Translate3D  servpos5(0.,0., zposFirstRing+ringWid*5./2. + zposGap1 + zposGap2);
+    GeoTrf::Translate3D  servpos6(0.,0.,-zposFirstRing-ringWid*5./2. - zposGap1 - zposGap2);
+    GeoTrf::Translate3D  servpos7(0.,0., zposFirstRing+ringWid*7./2. + zposGap1 + zposGap2 + zposGap3);
+    GeoTrf::Translate3D  servpos8(0.,0.,-zposFirstRing-ringWid*7./2. - zposGap1 - zposGap2 - zposGap3);
+    GeoTrf::Translate3D  servpos9(0.,0., zposFirstRing+ringWid*9./2. + zposGap1 + zposGap2 + zposGap3 + zposGap4);
+    GeoTrf::Translate3D  servpos10(0.,0.,-zposFirstRing-ringWid*9./2. - zposGap1 - zposGap2 - zposGap3 - zposGap4);
+    GeoTransform *xform1  = new GeoTransform(servpos1);
+    GeoTransform *xform2  = new GeoTransform(servpos2);
+    GeoTransform *xform3  = new GeoTransform(servpos3);
+    GeoTransform *xform4  = new GeoTransform(servpos4);
+    GeoTransform *xform5  = new GeoTransform(servpos5);
+    GeoTransform *xform6  = new GeoTransform(servpos6);
+    GeoTransform *xform7  = new GeoTransform(servpos7);
+    GeoTransform *xform8  = new GeoTransform(servpos8);
+    GeoTransform *xform9  = new GeoTransform(servpos9);
+    GeoTransform *xform10 = new GeoTransform(servpos10);
     
     mother->add(xform1);   mother->add(ICRTPhys);   mother->add(xform1);   mother->add(ECRTPhys);
     mother->add(xform2);   mother->add(ICRTPhys);   mother->add(xform2);   mother->add(ECRTPhys);
@@ -286,45 +288,58 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 
 // "U Shape" support
 
-    CLHEP::Hep3Vector USSupCoordX(rminInt + xDepthUSP1/2., 0, 0);
+    GeoTrf::Vector3D USSupCoordX(rminInt + xDepthUSP1/2., 0, 0);
    
-    GeoTransform* transUSS;
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), USSupCoordX + CLHEP::Hep3Vector(0, coordY, bUSS + zLengthUS/2.)));
+    GeoTransform* transUSS{nullptr};
+    GeoTrf::Vector3D tmpVec(0,0,0);
+    tmpVec = USSupCoordX + GeoTrf::Vector3D(0, coordY, bUSS + zLengthUS/2.);
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP1);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), USSupCoordX + CLHEP::Hep3Vector(0, coordY, bUSS + zLengthUS/2.) + trans1UShapeP2 ));
+    tmpVec = USSupCoordX + GeoTrf::Vector3D(0, coordY, bUSS + zLengthUS/2.) + trans1UShapeP2;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP2);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), USSupCoordX + CLHEP::Hep3Vector(0, coordY, bUSS + zLengthUS/2.) + trans1UShapeP3 ));
+    tmpVec = USSupCoordX + GeoTrf::Vector3D(0, coordY, bUSS + zLengthUS/2.) + trans1UShapeP3 ;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP3);
 
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), -USSupCoordX + CLHEP::Hep3Vector(0, coordY, bUSS + zLengthUS/2.)));
+    tmpVec = -USSupCoordX + GeoTrf::Vector3D(0, coordY, bUSS + zLengthUS/2.);
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP1);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), -USSupCoordX + CLHEP::Hep3Vector(0, coordY, bUSS + zLengthUS/2.) + trans2UShapeP2 ));
+    tmpVec =  -USSupCoordX + GeoTrf::Vector3D(0, coordY, bUSS + zLengthUS/2.) + trans2UShapeP2;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP2);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), -USSupCoordX + CLHEP::Hep3Vector(0, coordY, bUSS + zLengthUS/2.) + trans2UShapeP3 ));
+    tmpVec = -USSupCoordX + GeoTrf::Vector3D(0, coordY, bUSS + zLengthUS/2.) + trans2UShapeP3;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP3);
 
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), USSupCoordX - CLHEP::Hep3Vector(0, - coordY, bUSS + zLengthUS/2.)));
+    tmpVec = USSupCoordX - GeoTrf::Vector3D(0, - coordY, bUSS + zLengthUS/2.);
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP1);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), USSupCoordX - CLHEP::Hep3Vector(0, - coordY, bUSS + zLengthUS/2.) + trans1UShapeP2 ));
+    tmpVec = USSupCoordX - GeoTrf::Vector3D(0, - coordY, bUSS + zLengthUS/2.) + trans1UShapeP2;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP2);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), USSupCoordX - CLHEP::Hep3Vector(0, - coordY, bUSS + zLengthUS/2.) + trans1UShapeP3 ));
+    tmpVec = USSupCoordX - GeoTrf::Vector3D(0, - coordY, bUSS + zLengthUS/2.) + trans1UShapeP3;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP3);
 
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - USSupCoordX - CLHEP::Hep3Vector(0, - coordY, bUSS + zLengthUS/2.)));
+    tmpVec = - USSupCoordX - GeoTrf::Vector3D(0, - coordY, bUSS + zLengthUS/2.);
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP1);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - USSupCoordX - CLHEP::Hep3Vector(0, - coordY, bUSS + zLengthUS/2.) + trans2UShapeP2 ));
+    tmpVec = - USSupCoordX - GeoTrf::Vector3D(0, - coordY, bUSS + zLengthUS/2.) + trans2UShapeP2;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP2);
-    transUSS = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - USSupCoordX - CLHEP::Hep3Vector(0, - coordY, bUSS + zLengthUS/2.) + trans2UShapeP3 ));
+    tmpVec = - USSupCoordX - GeoTrf::Vector3D(0, - coordY, bUSS + zLengthUS/2.) + trans2UShapeP3;
+    transUSS = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(transUSS);   mother->add(UShapePP3);
 
 
 
 //Support ring positioning
 
-    CLHEP::Hep3Vector  suppos1(0.,0., zposSupRing+supWid/2.);
-    CLHEP::Hep3Vector  suppos2(0.,0.,-zposSupRing-supWid/2.);
-    GeoTransform *sform1  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          suppos1));
-    GeoTransform *sform2  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),suppos2));
+    GeoTrf::Translate3D  suppos1(0.,0., zposSupRing+supWid/2.);
+    GeoTrf::Vector3D  suppos2(0.,0.,-zposSupRing-supWid/2.);
+    GeoTransform *sform1  = new GeoTransform(suppos1);
+    GeoTransform *sform2  = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0,M_PI,0),suppos2));
     mother->add(sform1);
     mother->add(ringPhysSup);
     mother->add(sform2);
@@ -351,46 +366,46 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //     Squirrel cage rings
 //  Default (initial) ring parameters
 //
-    double rminInt    = 1074.0*CLHEP::mm;
-    double ringThick  = 4.0*CLHEP::mm;
-    double ringGap    = 20.*CLHEP::mm;
-    double ringWid    = 40.*CLHEP::mm;
+    double rminInt    = 1074.0*GeoModelKernelUnits::mm;
+    double ringThick  = 4.0*GeoModelKernelUnits::mm;
+    double ringGap    = 20.*GeoModelKernelUnits::mm;
+    double ringWid    = 40.*GeoModelKernelUnits::mm;
 //
-    rminInt    = (*cage)[0]->getDouble("RINGRMIN")*CLHEP::mm;
-    ringThick  = (*cage)[0]->getDouble("RINGTHICK")*CLHEP::mm;
-    ringGap    = (*cage)[0]->getDouble("RINGGAP")*CLHEP::mm;
-    ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*CLHEP::mm;
+    rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
+    ringThick  = (*cage)[0]->getDouble("RINGTHICK")*GeoModelKernelUnits::mm;
+    ringGap    = (*cage)[0]->getDouble("RINGGAP")*GeoModelKernelUnits::mm;
+    ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*GeoModelKernelUnits::mm;
 //
 //--- Default (initial) z positions
-    double zposFirstRing  = 805.0*CLHEP::mm+161.0*CLHEP::mm;
-    double zposGap1  = 390.*CLHEP::mm;
-    double zposGap2  = 402.*CLHEP::mm;
-    double zposGap3  = 446.*CLHEP::mm;
-    double zposGap4  = 331.*CLHEP::mm;
+    double zposFirstRing  = 805.0*GeoModelKernelUnits::mm+161.0*GeoModelKernelUnits::mm;
+    double zposGap1  = 390.*GeoModelKernelUnits::mm;
+    double zposGap2  = 402.*GeoModelKernelUnits::mm;
+    double zposGap3  = 446.*GeoModelKernelUnits::mm;
+    double zposGap4  = 331.*GeoModelKernelUnits::mm;
 //
-    zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*CLHEP::mm;
-    zposGap1  = (*cage)[0]->getDouble("ZGAP1")*CLHEP::mm;
-    zposGap2  = (*cage)[0]->getDouble("ZGAP2")*CLHEP::mm;
-    zposGap3  = (*cage)[0]->getDouble("ZGAP3")*CLHEP::mm;
-    zposGap4  = (*cage)[0]->getDouble("ZGAP4")*CLHEP::mm;
+    zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*GeoModelKernelUnits::mm;
+    zposGap1  = (*cage)[0]->getDouble("ZGAP1")*GeoModelKernelUnits::mm;
+    zposGap2  = (*cage)[0]->getDouble("ZGAP2")*GeoModelKernelUnits::mm;
+    zposGap3  = (*cage)[0]->getDouble("ZGAP3")*GeoModelKernelUnits::mm;
+    zposGap4  = (*cage)[0]->getDouble("ZGAP4")*GeoModelKernelUnits::mm;
 //
 // Now support ring
-    double rminSup    = 830.0*CLHEP::mm;
-    double supThick   = 90.0*CLHEP::mm;
-    double supWid     = 12.0*CLHEP::mm;
+    double rminSup    = 830.0*GeoModelKernelUnits::mm;
+    double supThick   = 90.0*GeoModelKernelUnits::mm;
+    double supWid     = 12.0*GeoModelKernelUnits::mm;
 //
-    rminSup    = (*cage)[0]->getDouble("SUPRMIN")*CLHEP::mm;
-    supThick   = (*cage)[0]->getDouble("SUPTHICK")*CLHEP::mm;
-    supWid     = (*cage)[0]->getDouble("SUPWIDTH")*CLHEP::mm;
+    rminSup    = (*cage)[0]->getDouble("SUPRMIN")*GeoModelKernelUnits::mm;
+    supThick   = (*cage)[0]->getDouble("SUPTHICK")*GeoModelKernelUnits::mm;
+    supWid     = (*cage)[0]->getDouble("SUPWIDTH")*GeoModelKernelUnits::mm;
 //
     double zposSupRing  = zposFirstRing+ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
 //
 // Now support ribbon
-    double ribWid     = 68.0*CLHEP::mm ;
-    ribWid = (*cage)[0]->getDouble("RIBWIDTH")*CLHEP::mm;
+    double ribWid     = 68.0*GeoModelKernelUnits::mm ;
+    ribWid = (*cage)[0]->getDouble("RIBWIDTH")*GeoModelKernelUnits::mm;
     double ribLeng    = ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
     double ribThick = 0; 
-    if (sqversion >= 3) ribThick = (*cage)[0]->getDouble("RIBTHICK")*CLHEP::mm;
+    if (sqversion >= 3) ribThick = (*cage)[0]->getDouble("RIBTHICK")*GeoModelKernelUnits::mm;
     double safety =0.01;
     double ribThickMax = ringGap - 2*safety;
     if (ribThick == 0 || ribThick > ribThickMax) {
@@ -425,26 +440,26 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     GeoVPhysVol* ringPhysSup = new GeoPhysVol(ringLogSup);
     GeoVPhysVol*  ribPhysSup = new GeoPhysVol(ribLogSup);
     
-    CLHEP::Hep3Vector  servpos1(0.,0., zposFirstRing+ringWid/2.);
-    CLHEP::Hep3Vector  servpos2(0.,0.,-zposFirstRing-ringWid/2.);
-    CLHEP::Hep3Vector  servpos3(0.,0., zposFirstRing+ringWid*3./2. + zposGap1);
-    CLHEP::Hep3Vector  servpos4(0.,0.,-zposFirstRing-ringWid*3./2. - zposGap1);
-    CLHEP::Hep3Vector  servpos5(0.,0., zposFirstRing+ringWid*5./2. + zposGap1 + zposGap2);
-    CLHEP::Hep3Vector  servpos6(0.,0.,-zposFirstRing-ringWid*5./2. - zposGap1 - zposGap2);
-    CLHEP::Hep3Vector  servpos7(0.,0., zposFirstRing+ringWid*7./2. + zposGap1 + zposGap2 + zposGap3);
-    CLHEP::Hep3Vector  servpos8(0.,0.,-zposFirstRing-ringWid*7./2. - zposGap1 - zposGap2 - zposGap3);
-    CLHEP::Hep3Vector  servpos9(0.,0., zposFirstRing+ringWid*9./2. + zposGap1 + zposGap2 + zposGap3 + zposGap4);
-    CLHEP::Hep3Vector servpos10(0.,0.,-zposFirstRing-ringWid*9./2. - zposGap1 - zposGap2 - zposGap3 - zposGap4);
-    GeoTransform *xform1  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos1));
-    GeoTransform *xform2  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),servpos2));
-    GeoTransform *xform3  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos3));
-    GeoTransform *xform4  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),servpos4));
-    GeoTransform *xform5  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos5));
-    GeoTransform *xform6  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),servpos6));
-    GeoTransform *xform7  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos7));
-    GeoTransform *xform8  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),servpos8));
-    GeoTransform *xform9  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos9));
-    GeoTransform *xform10 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),servpos10));
+    GeoTrf::Translate3D  servpos1(0.,0., zposFirstRing+ringWid/2.);
+    GeoTrf::Translation3D  servpos2(0.,0.,-zposFirstRing-ringWid/2.);
+    GeoTrf::Translate3D  servpos3(0.,0., zposFirstRing+ringWid*3./2. + zposGap1);
+    GeoTrf::Translation3D  servpos4(0.,0.,-zposFirstRing-ringWid*3./2. - zposGap1);
+    GeoTrf::Translate3D  servpos5(0.,0., zposFirstRing+ringWid*5./2. + zposGap1 + zposGap2);
+    GeoTrf::Translation3D  servpos6(0.,0.,-zposFirstRing-ringWid*5./2. - zposGap1 - zposGap2);
+    GeoTrf::Translate3D  servpos7(0.,0., zposFirstRing+ringWid*7./2. + zposGap1 + zposGap2 + zposGap3);
+    GeoTrf::Translation3D  servpos8(0.,0.,-zposFirstRing-ringWid*7./2. - zposGap1 - zposGap2 - zposGap3);
+    GeoTrf::Translate3D  servpos9(0.,0., zposFirstRing+ringWid*9./2. + zposGap1 + zposGap2 + zposGap3 + zposGap4);
+    GeoTrf::Translation3D servpos10(0.,0.,-zposFirstRing-ringWid*9./2. - zposGap1 - zposGap2 - zposGap3 - zposGap4);
+    GeoTransform *xform1  = new GeoTransform(servpos1);
+    GeoTransform *xform2  = new GeoTransform(GeoTrf::Transform3D(servpos2*GeoTrf::RotateY3D(M_PI)));
+    GeoTransform *xform3  = new GeoTransform(servpos3);
+    GeoTransform *xform4  = new GeoTransform(GeoTrf::Transform3D(servpos4*GeoTrf::RotateY3D(M_PI)));
+    GeoTransform *xform5  = new GeoTransform(servpos5);
+    GeoTransform *xform6  = new GeoTransform(GeoTrf::Transform3D(servpos6*GeoTrf::RotateY3D(M_PI)));
+    GeoTransform *xform7  = new GeoTransform(servpos7);
+    GeoTransform *xform8  = new GeoTransform(GeoTrf::Transform3D(servpos8*GeoTrf::RotateY3D(M_PI)));
+    GeoTransform *xform9  = new GeoTransform(servpos9);
+    GeoTransform *xform10 = new GeoTransform(GeoTrf::Transform3D(servpos10*GeoTrf::RotateY3D(M_PI)));
     mother->add(xform1);
     mother->add(ringPhysInt);
     mother->add(xform1);
@@ -488,10 +503,10 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 
 //Support ring positioning
 
-    CLHEP::Hep3Vector  suppos1(0.,0., zposSupRing+supWid/2.);
-    CLHEP::Hep3Vector  suppos2(0.,0.,-zposSupRing-supWid/2.);
-    GeoTransform *sform1  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          suppos1));
-    GeoTransform *sform2  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),suppos2));
+    GeoTrf::Translate3D  suppos1(0.,0., zposSupRing+supWid/2.);
+    GeoTrf::Translation3D  suppos2(0.,0.,-zposSupRing-supWid/2.);
+    GeoTransform *sform1  = new GeoTransform(suppos1);
+    GeoTransform *sform2  = new GeoTransform(GeoTrf::Transform3D(suppos2*GeoTrf::RotateY3D(M_PI)));
     mother->add(sform1);
     mother->add(ringPhysSup);
     mother->add(sform2);
@@ -500,12 +515,12 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //Support ribbon positioning
 
 
-    CLHEP::Hep3Vector  ribpos1( 0., 0., zposFirstRing+ribLeng/2.);
-    CLHEP::Hep3Vector  ribpos2( 0., 0.,-zposFirstRing-ribLeng/2.);
-    GeoTransform *rform1  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          ribpos1));
-    GeoTransform *rform2  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,M_PI),ribpos1));
-    GeoTransform *rform3  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          ribpos2));
-    GeoTransform *rform4  = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,M_PI),ribpos2));
+    GeoTrf::Translate3D  ribpos1( 0., 0., zposFirstRing+ribLeng/2.);
+    GeoTrf::Translate3D  ribpos2( 0., 0.,-zposFirstRing-ribLeng/2.);
+    GeoTransform *rform1  = new GeoTransform(ribpos1);
+    GeoTransform *rform2  = new GeoTransform(ribpos1*GeoTrf::RotateZ3D(M_PI));
+    GeoTransform *rform3  = new GeoTransform(ribpos2);
+    GeoTransform *rform4  = new GeoTransform(ribpos2*GeoTrf::RotateZ3D(M_PI));
 
 
     mother->add(rform1);

@@ -5,7 +5,7 @@
 #ifndef SCT_GeoModel_SCT_GeneralParameters_H
 #define SCT_GeoModel_SCT_GeneralParameters_H
 
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include <map>
 #include <string>
@@ -31,7 +31,7 @@ public:
   double biasVoltage() const;
   double depletionVoltage() const;
 
-  const HepGeom::Transform3D & partTransform(const std::string & partName) const; 
+  const GeoTrf::Transform3D & partTransform(const std::string & partName) const; 
   bool partPresent(const std::string & partName) const;
   
 private:

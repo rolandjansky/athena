@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoVPixelFactory.h"
+#include "GeoVPixelFactory.h"
 
 using InDetDD::PixelDetectorManager;
 

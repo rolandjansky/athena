@@ -10,6 +10,7 @@
  */
 
 // INCLUDE HEADER FILE
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileClusterFillerTool.h"
 
 using namespace D3PD;

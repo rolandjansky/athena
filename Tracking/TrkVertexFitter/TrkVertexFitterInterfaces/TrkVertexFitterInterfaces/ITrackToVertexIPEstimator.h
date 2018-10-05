@@ -9,6 +9,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
+#include "CLHEP/Vector/ThreeVector.h"
 
 /**
  * An abstract base class  for algorithms estimating the transverse impact parameter d0 and

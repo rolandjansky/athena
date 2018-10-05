@@ -10,6 +10,7 @@
 // GeoVPhysVol
 #include "VolumeBuilder.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "G4LogicalVolume.hh"
 //#include "Geo2G4/GenericVolumeBuilder.h"
 
@@ -17,6 +18,8 @@
 #include "GeoModelUtilities/GeoBorderSurfaceContainer.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
+
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // STL includes
 #include <string>
@@ -43,7 +46,7 @@ public:
   // Access volume builder:
   VolumeBuilder*        GetVolumeBuilder(std::string);
 
-  HepGeom::Transform3D& GetDetectorTransform() {return m_motherTransform;}
+  HepGeom::Transform3D GetDetectorTransform() {return Amg::EigenTransformToCLHEP(m_motherTransform);}
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
@@ -53,7 +56,7 @@ private:
 
   // GeoVDetectorManager* theDetectorElement;
   std::string m_detectorName;
-  HepGeom::Transform3D m_motherTransform;
+  GeoTrf::Transform3D m_motherTransform;
   std::vector<PVConstLink> m_treeTops;
   VolumeBuilder *m_theBuilder;
 

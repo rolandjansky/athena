@@ -23,8 +23,6 @@
 
 #include <vector>
 
-using CLHEP::GeV;
-
 namespace {
   /**
    * Duplicate code 

@@ -19,6 +19,8 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoPerfUtils.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 // volumes used:  Pcon, Tubs, Cons, Box, Trap 
 #include "GeoModelKernel/GeoPcon.h"
@@ -34,27 +36,23 @@
 #include "GeoModelUtilities/StoredAlignX.h"
 #include "GeoModelUtilities/GeoDBUtils.h"
 
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/Rotation.h"
 // For functions:
-#include "CLHEP/GenericFunctions/Abs.hh"
-#include "CLHEP/GenericFunctions/Sin.hh"
-#include "CLHEP/GenericFunctions/Cos.hh"
-#include "CLHEP/GenericFunctions/Sqrt.hh"
-#include "CLHEP/GenericFunctions/ATan.hh"
-#include "CLHEP/GenericFunctions/Rectangular.hh"
-#include "CLHEP/GenericFunctions/Mod.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-#include "CLHEP/GenericFunctions/FixedConstant.hh"
-#include "CLHEP/GenericFunctions/ArrayFunction.hh"
+#include "GeoGenericFunctions/Abs.h"
+#include "GeoGenericFunctions/Sin.h"
+#include "GeoGenericFunctions/Cos.h"
+#include "GeoGenericFunctions/Sqrt.h"
+#include "GeoGenericFunctions/ATan.h"
+#include "GeoGenericFunctions/Rectangular.h"
+#include "GeoGenericFunctions/Mod.h"
+#include "GeoGenericFunctions/Variable.h"
+#include "GeoGenericFunctions/FixedConstant.h"
+#include "GeoGenericFunctions/ArrayFunction.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 // For units:
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include <string>
@@ -216,13 +214,13 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
   std::string baseName = "LAr::FCAL::";
 
   double fcalHalfDepth=0;
-  double startZFCal1 = (*m_fcalMod)[0]->getDouble("STARTPOSITION"); //466.85 * CLHEP::cm;
-  double startZFCal2 = (*m_fcalMod)[1]->getDouble("STARTPOSITION"); //512.83 * CLHEP::cm;
-  double startZFCal3 = (*m_fcalMod)[2]->getDouble("STARTPOSITION"); //560.28 * CLHEP::cm;
+  double startZFCal1 = (*m_fcalMod)[0]->getDouble("STARTPOSITION"); //466.85 * GeoModelKernelUnits::cm;
+  double startZFCal2 = (*m_fcalMod)[1]->getDouble("STARTPOSITION"); //512.83 * GeoModelKernelUnits::cm;
+  double startZFCal3 = (*m_fcalMod)[2]->getDouble("STARTPOSITION"); //560.28 * GeoModelKernelUnits::cm;
 
   // Should go to Db (change FCalNominals ????)
-  double fcalstartPhi = 90.*CLHEP::deg;
-  double fcaldeltaPhi = 90.*CLHEP::deg;
+  double fcalstartPhi = 90.*GeoModelKernelUnits::deg;
+  double fcaldeltaPhi = 90.*GeoModelKernelUnits::deg;
   // FCAL VOLUME.  IT DOES NOT INCLUDE THE COPPER PLUG, ONLY THE LAR AND MODS 1-3
   {
 
@@ -243,8 +241,6 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
   }
 
  
-  CLHEP::HepRotation NoRot;
-
   if (F1) 
     {
       // Module 1
@@ -264,7 +260,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	  physVol     = new GeoFullPhysVol(logVol);
 	}
 
-	fcalPhysical->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(0.,0.,-(fcalHalfDepth-halfDepth)))));
+	fcalPhysical->add(new GeoTransform(GeoTrf::Translate3D(0.,0.,-(fcalHalfDepth-halfDepth))));
 	fcalPhysical->add(physVol);
 	modPhysical = physVol;
 	
@@ -279,18 +275,18 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
       // 16 Troughs representing  Cable Harnesses:
       if(m_absPhysical1==0)
 	{
-	  double troughDepth       = 0.9999 * CLHEP::cm;
+	  double troughDepth       = 0.9999 * GeoModelKernelUnits::cm;
 	  double outerRadius       = fcalData[0].outerModuleRadius;
 	  double innerRadius       = outerRadius - troughDepth;
 	  double halfLength        = fcalData[0].fullModuleDepth/ 2.0;
-	  double deltaPhi          = 5.625 * CLHEP::deg;
-	  double startPhi          = 11.25 * CLHEP::deg - deltaPhi/2.0;
+	  double deltaPhi          = 5.625 * GeoModelKernelUnits::deg;
+	  double startPhi          = 11.25 * GeoModelKernelUnits::deg - deltaPhi/2.0;
 	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
 	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module1::CableTrough",tubs,FCalCableHarness);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
-	  Genfun::Variable i;
-	  Genfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*CLHEP::deg*i;
-	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(HepGeom::RotateZ3D(1.0),rotationAngle);
+	  GeoGenfun::Variable i;
+	  GeoGenfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*GeoModelKernelUnits::deg*i;
+	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,4);
 	  modPhysical->add(st);
 	}
@@ -300,7 +296,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	  double halfDepth    = fcalData[0].fullGapDepth/2.0;
 	  double innerRadius  = fcalData[0].innerGapRadius;
 	  double outerRadius  = fcalData[0].outerGapRadius;
-	  GeoTubs *tubs       = new GeoTubs(innerRadius,outerRadius,halfDepth, 0.*CLHEP::deg, 360.*CLHEP::deg);
+	  GeoTubs *tubs       = new GeoTubs(innerRadius,outerRadius,halfDepth, 0.*GeoModelKernelUnits::deg, 360.*GeoModelKernelUnits::deg);
 	  GeoLogVol *logVol   = new GeoLogVol(baseName + "Module1::Gap",tubs, LAr);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
 	  
@@ -331,7 +327,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	      if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	      //std::cout<<thisTileStr<<" "<<thisTubeX<<" "<<thisTubeY<<std::endl;
 	      
-	      GeoTransform *xf = new GeoTransform(HepGeom::Translate3D(thisTubeX*CLHEP::cm, thisTubeY*CLHEP::cm,0));
+	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*GeoModelKernelUnits::cm, thisTubeY*GeoModelKernelUnits::cm,0));
 	      modPhysical->add(xf);
 	      modPhysical->add(physVol);
 	    }
@@ -360,7 +356,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	  physVol     = new GeoFullPhysVol(logVol);
 	}
 
-	fcalPhysical->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(0.,0.,-(fcalHalfDepth-(startZFCal2-startZFCal1)-halfDepth)))));
+	fcalPhysical->add(new GeoTransform(GeoTrf::Translate3D(0.,0.,-(fcalHalfDepth-(startZFCal2-startZFCal1)-halfDepth))));
 	fcalPhysical->add(physVol);
 	modPhysical = physVol;
 	
@@ -375,18 +371,18 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
       // 16 Troughs representing  Cable Harnesses:
       if(m_absPhysical2==0)
 	{
-	  double troughDepth       = 1.0 * CLHEP::cm;
+	  double troughDepth       = 1.0 * GeoModelKernelUnits::cm;
 	  double outerRadius       = fcalData[1].outerModuleRadius;
 	  double innerRadius       = outerRadius - troughDepth;
 	  double halfLength        = fcalData[1].fullModuleDepth/ 2.0;
-	  double deltaPhi          = 5.625 * CLHEP::deg;
-	  double startPhi          = 11.25 * CLHEP::deg - deltaPhi/2.0;
+	  double deltaPhi          = 5.625 * GeoModelKernelUnits::deg;
+	  double startPhi          = 11.25 * GeoModelKernelUnits::deg - deltaPhi/2.0;
 	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
 	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module2::CableTrough",tubs,FCalCableHarness);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
-	  Genfun::Variable i;
-	  Genfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*CLHEP::deg*i;
-	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(HepGeom::RotateZ3D(1.0),rotationAngle);
+	  GeoGenfun::Variable i;
+	  GeoGenfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*GeoModelKernelUnits::deg*i;
+	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,4);
 	  modPhysical->add(st);
 	}
@@ -435,7 +431,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	    
 	    if (m_VisLimit!=-1 && (counter++ > m_VisLimit)) continue;
 	    
-	    GeoTransform *xf = new GeoTransform(HepGeom::Translate3D(thisTubeX*CLHEP::cm, thisTubeY*CLHEP::cm,0));
+	    GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*GeoModelKernelUnits::cm, thisTubeY*GeoModelKernelUnits::cm,0));
 	    modPhysical->add(xf);
 	    modPhysical->add(gapPhys);
 	  }
@@ -456,7 +452,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 
 	// We need few more materials
 	// ColdTC effective absorber: Cu with a little bit of inactive argon
-	GeoMaterial *thisAbsorber = new GeoMaterial("ColdTCAbsorber",8.701*CLHEP::g/CLHEP::cm3);
+	GeoMaterial *thisAbsorber = new GeoMaterial("ColdTCAbsorber",8.701*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
 	thisAbsorber->add(Copper,0.994);
 	thisAbsorber->add(LAr,0.006);
 	thisAbsorber->lock();
@@ -472,7 +468,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	}
 
 	
-	fcalPhysical->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(0.,0.,fcalHalfDepth-halfDepth))));
+	fcalPhysical->add(new GeoTransform(GeoTrf::Translate3D(0.,0.,fcalHalfDepth-halfDepth)));
 	fcalPhysical->add(physVol);
 	modPhysical = physVol;
 
@@ -491,8 +487,8 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	double outerRadius     = fcalData[2].outerGapRadius;
 
 	// Where in DB should go this ?
-	double ElectrodeDepth = 0.85*CLHEP::cm;
-        double ActiveDepth = 0.2*CLHEP::cm;
+	double ElectrodeDepth = 0.85*GeoModelKernelUnits::cm;
+        double ActiveDepth = 0.2*GeoModelKernelUnits::cm;
 
 	// big argon gap solid
 	GeoTubs *gapSolid = new GeoTubs(innerRadius,outerRadius,halfDepth, fcalstartPhi, fcaldeltaPhi);
@@ -510,29 +506,29 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 
 	// active gaps in electrode
 	int iCopy = 1;
-	double zPos = -ElectrodeDepth/2. + 1.5 * CLHEP::mm + ActiveDepth/2.;
-	GeoTransform *t1 = new GeoTransform(HepGeom::Translate3D(0.,0.,zPos));
+	double zPos = -ElectrodeDepth/2. + 1.5 * GeoModelKernelUnits::mm + ActiveDepth/2.;
+	GeoTransform *t1 = new GeoTransform(GeoTrf::Translate3D(0.,0.,zPos));
 	electrodePhys->add(new GeoSerialIdentifier(iCopy));
 	electrodePhys->add(t1);
 	electrodePhys->add(activePhys);
 	++iCopy;
-	zPos += 3.5 * CLHEP::mm;
+	zPos += 3.5 * GeoModelKernelUnits::mm;
 	electrodePhys->add(new GeoSerialIdentifier(iCopy));
 	electrodePhys->add(t1);
 	electrodePhys->add(activePhys);
 	// electrode in inactive argon
         zPos = -halfDepth + ElectrodeDepth/2.;
-	GeoTransform *t2 = new GeoTransform(HepGeom::Translate3D(0.,0.,zPos));
+	GeoTransform *t2 = new GeoTransform(GeoTrf::Translate3D(0.,0.,zPos));
 	gapPhys->add(new GeoSerialIdentifier(1));
 	gapPhys->add(t2);
 	gapPhys->add(electrodePhys);
 	// big gaps in copper block
-        zPos = -fcalData[2].fullModuleDepth/2. + 2.2 * CLHEP::cm + halfDepth; 
+        zPos = -fcalData[2].fullModuleDepth/2. + 2.2 * GeoModelKernelUnits::cm + halfDepth; 
         for ( iCopy = 1; iCopy < 9; ++iCopy ){
 	  modPhysical->add(new GeoSerialIdentifier(iCopy)); 
-	  modPhysical->add(new GeoTransform(HepGeom::Translate3D(0.,0.,zPos)));
+	  modPhysical->add(new GeoTransform(GeoTrf::Translate3D(0.,0.,zPos)));
 	  modPhysical->add(gapPhys);
-	  zPos += 3.5*CLHEP::cm;
+	  zPos += 3.5*GeoModelKernelUnits::cm;
 	}
 	m_absPhysical3 = modPhysical;
      }

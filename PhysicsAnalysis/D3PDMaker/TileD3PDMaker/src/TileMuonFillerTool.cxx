@@ -12,6 +12,7 @@
  */
 
 // INCLUDE HEADER FILE
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileMuonFillerTool.h"
 
 // CALORIMETER INCLUDES

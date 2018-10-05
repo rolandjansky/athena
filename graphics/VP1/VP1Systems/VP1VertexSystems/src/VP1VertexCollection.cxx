@@ -42,6 +42,7 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkTrackLink/ITrackLink.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 
@@ -511,8 +512,8 @@ QStringList VP1VertexCollection::infoOnClicked(SoPath* pickedPath)
 
     //Make output:
     l <<"Reconstructed vertex from collection "+text()+":" ;
-    l << "--Position [CLHEP::mm]: ("+str(vtx->recVertex().position().x()/CLHEP::mm)+", "+
-      str(vtx->recVertex().position().y()/CLHEP::mm)+", "+str(vtx->recVertex().position().z()/CLHEP::mm)+")";
+    l << "--Position [CLHEP::mm]: ("+str(vtx->recVertex().position().x()/Gaudi::Units::mm)+", "+
+      str(vtx->recVertex().position().y()/Gaudi::Units::mm)+", "+str(vtx->recVertex().position().z()/Gaudi::Units::mm)+")";
 
     //Track associations. (in the future we will use them to tell the
     //track system to e.g. colour tracks by vertex - for now just print the number of those):

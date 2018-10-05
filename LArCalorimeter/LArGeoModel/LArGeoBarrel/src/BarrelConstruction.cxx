@@ -45,15 +45,15 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/Rotation.h"
 // For functions:
-#include "CLHEP/GenericFunctions/Abs.hh"
-#include "CLHEP/GenericFunctions/Sin.hh"
-#include "CLHEP/GenericFunctions/Cos.hh"
-#include "CLHEP/GenericFunctions/Sqrt.hh"
-#include "CLHEP/GenericFunctions/ATan.hh"
-#include "CLHEP/GenericFunctions/Rectangular.hh"
-#include "CLHEP/GenericFunctions/Mod.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-#include "CLHEP/GenericFunctions/FixedConstant.hh"
+#include "GeoGenericFunctions/Abs.h"
+#include "GeoGenericFunctions/Sin.h"
+#include "GeoGenericFunctions/Cos.h"
+#include "GeoGenericFunctions/Sqrt.h"
+#include "GeoGenericFunctions/ATan.h"
+#include "GeoGenericFunctions/Rectangular.h"
+#include "GeoGenericFunctions/Mod.h"
+#include "GeoGenericFunctions/Variable.h"
+#include "GeoGenericFunctions/FixedConstant.h"
 // For units:
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GaudiKernel/MsgStream.h"
@@ -196,12 +196,12 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   log << MSG::INFO << "  Use sagging in geometry  ? " << m_A_SAGGING << endmsg;
 
 
-  Genfun::Cos  Cos;
-  Genfun::Sin  Sin;
-  Genfun::Sqrt Sqrt;
-  Genfun::ATan ATan;
+  GeoGenfun::Cos  Cos;
+  GeoGenfun::Sin  Sin;
+  GeoGenfun::Sqrt Sqrt;
+  GeoGenfun::ATan ATan;
 
-  double twopi64 = CLHEP::pi/32.;
+  double twopi64 = GeoModelKernelUnits::pi/32.;
   double twopi32 = 2.*twopi64;  
 
 
@@ -316,13 +316,13 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   double Moth_outer_radius = m_parameters->GetValue("LArEMBMotherRmax");
 
   double Moth_Phi_Min = 0.;
-  double Moth_Phi_Max = m_parameters->GetValue("LArEMBphiMaxBarrel")*CLHEP::deg;
+  double Moth_Phi_Max = m_parameters->GetValue("LArEMBphiMaxBarrel")*GeoModelKernelUnits::deg;
 
 #ifdef DEBUGGEO
   std::cout << " *** Mother volume (Ecam) parameters " << std::endl;
   std::cout << "  Rmin/Rmax " << Moth_inner_radius << " " << Moth_outer_radius << std::endl;
   std::cout << "  Zmin/Zmax " << Moth_Z_min << " " << Moth_Z_max << std::endl;
-  std::cout << "  phi1,Dphi (CLHEP::deg)" << Moth_Phi_Min/CLHEP::deg << " " << Moth_Phi_Max/CLHEP::deg << std::endl;
+  std::cout << "  phi1,Dphi (GeoModelKernelUnits::deg)" << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
 #endif
 
   // number of zigs for accordion
@@ -371,9 +371,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	(double) (m_parameters->GetValue("LArEMBPhiAtCurvature",idat));
       Delta[idat]  =
 	(double) (m_parameters->GetValue("LArEMBDeltaZigAngle",idat));
-      if(idat == 14) Delta[idat]  = (90.0) * CLHEP::deg; 
+      if(idat == 14) Delta[idat]  = (90.0) * GeoModelKernelUnits::deg; 
 
-  // Maximum SAGGING displacement for each of the fifteen folds in CLHEP::mm
+  // Maximum SAGGING displacement for each of the fifteen folds in GeoModelKernelUnits::mm
   // (should be 0.0, 0.17, 0.30, 0.63, 0.78, 1.06, 1.09, 1.21, 1.07, 1.03, 0.74, 0.61, 0.27, 0.20, 0.0)
 //GUtmp sagging amplied by 10
       if (m_A_SAGGING)  {
@@ -393,8 +393,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
 // #ifdef DEBUGGEO
        log << MSG::DEBUG << "idat " << idat << " Rhocen/Phice/Delta/deltay/deltax/etatrans "
-	   << Rhocen[idat] << " " << Phicen[idat]*(1./CLHEP::deg) << " "
-	   << Delta[idat]*(1./CLHEP::deg) << " " << deltay[idat] << " " << deltax[idat]
+	   << Rhocen[idat] << " " << Phicen[idat]*(1./GeoModelKernelUnits::deg) << " "
+	   << Delta[idat]*(1./GeoModelKernelUnits::deg) << " " << deltay[idat] << " " << deltax[idat]
 	   << " " << etaTrans << endmsg;
 // #endif
 
@@ -452,10 +452,10 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   //  very confused at the common surface between ECAM and STAC)
   //-----------------ECAM---------------------------------------------------------//
   {                                                                               //
-    double Moth_Phi_Min2 = (Ncell == 64) ? -1.555*CLHEP::deg : 0.;                       //
-    double Moth_Phi_Max2 = (Ncell == 64) ? 25.61*CLHEP::deg  : 2*M_PI;                   //
+    double Moth_Phi_Min2 = (Ncell == 64) ? -1.555*GeoModelKernelUnits::deg : 0.;                       //
+    double Moth_Phi_Max2 = (Ncell == 64) ? 25.61*GeoModelKernelUnits::deg  : 2*M_PI;                   //
                                                                                   //
-    double safety_rhocen1 = 0.040*CLHEP::mm;                                             //
+    double safety_rhocen1 = 0.040*GeoModelKernelUnits::mm;                                             //
     double Zplan[] = {Bar_Z_min-Zp0,Bar_Z_cut-Zp0,Bar_Z_max-Zp0};                 //
     double Riacc[] = {Moth_inner_radius,Moth_inner_radius, Rhocen1-safety_rhocen1};  //
     double Roacc[] = {Moth_outer_radius,Moth_outer_radius,Moth_outer_radius};     //
@@ -465,7 +465,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
      std::cout << "  Zplan " << Zplan[0] << " " << Zplan[1] << " " << Zplan[2] << std::endl;
      std::cout << "  Rin   " << Riacc[0] << " " << Riacc[1] << " " << Riacc[2] << std::endl;
      std::cout << "  Rout  " << Roacc[0] << " " << Roacc[1] << " " << Roacc[2] << std::endl;
-     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/CLHEP::deg << " " << Moth_Phi_Max2/CLHEP::deg << std::endl;
+     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/GeoModelKernelUnits::deg << " " << Moth_Phi_Max2/GeoModelKernelUnits::deg << std::endl;
 #endif
     int ecamArraySize = sizeof(Zplan) / sizeof(double);                           //
     std::string name = baseName + "ECAM";                                         //
@@ -510,19 +510,19 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   GeoPhysVol *Elnicsf_phys=NULL;
   double Xel1f;
   {
-    // WARNING : this "hard_coded" 0.010*CLHEP::mm is a "security" to avoid
+    // WARNING : this "hard_coded" 0.010*GeoModelKernelUnits::mm is a "security" to avoid
     //           fake "overlapping" diagnostics with "DAVID"
-    Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");       // 23.*CLHEP::mm
+    Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");       // 23.*GeoModelKernelUnits::mm
     double DeltaZ = Zhalfc;
     double Zpos = Zhalfc+Bar_Z_min; 
-    double Rmini =  Moth_inner_radius + 0.010*CLHEP::mm;
-    double Rmaxi = Rmini+Xel1f - 0.010*CLHEP::mm;
+    double Rmini =  Moth_inner_radius + 0.010*GeoModelKernelUnits::mm;
+    double Rmaxi = Rmini+Xel1f - 0.010*GeoModelKernelUnits::mm;
     std::string name = baseName + "TELF";
 #ifdef DEBUGGEO
     std::cout << " *** parameters for TELF tubs " << std::endl;
     std::cout << " DeltaZ      " << DeltaZ << std::endl;
     std::cout << " Rmin/Rmax   " << Rmini << " " << Rmaxi << std::endl,
-    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/CLHEP::deg << " " << Moth_Phi_Max/CLHEP::deg << std::endl;
+    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
     std::cout << " Zpos in ECAM " << Zpos << std::endl;
 #endif
     GeoTubs* tubs = new GeoTubs(Rmini,          // rmin
@@ -532,9 +532,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 				Moth_Phi_Max);  //  deltaphi
     const GeoLogVol* logVol  = new GeoLogVol(name,tubs,LAr);
     Elnicsf_phys = new GeoPhysVol(logVol);
-    m_ecamPhysicalPos->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));
+    m_ecamPhysicalPos->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));
     m_ecamPhysicalPos->add(Elnicsf_phys);
-    m_ecamPhysicalNeg->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));
+    m_ecamPhysicalNeg->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));
     m_ecamPhysicalNeg->add(Elnicsf_phys);
   }
   //------------------------------------------------------------------------------//
@@ -545,9 +545,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   //  (follow mixture described in Pascal Perrodo note
   GeoPhysVol *Sumb_phys=NULL;
   {
-    double ThickSum = 10.*CLHEP::mm;    // FIXME should be in geometry database
+    double ThickSum = 10.*GeoModelKernelUnits::mm;    // FIXME should be in geometry database
     double Rmini = Moth_inner_radius+Xel1f-ThickSum;
-    double Rmaxi = Moth_inner_radius+Xel1f -0.020*CLHEP::mm;    // safety margin
+    double Rmaxi = Moth_inner_radius+Xel1f -0.020*GeoModelKernelUnits::mm;    // safety margin
     double DeltaZ = Zhalfc;
     double Zpos=0.;
     std::string name = baseName + "SUMB";
@@ -555,14 +555,14 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     std::cout << " *** parameters for SUMB tubs " << std::endl;
     std::cout << " DeltaZ      " << DeltaZ << std::endl;
     std::cout << " Rmin/Rmax   " << Rmini << " " << Rmaxi << std::endl,
-    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/CLHEP::deg << " " << Moth_Phi_Max/CLHEP::deg << std::endl;
+    std::cout << " PhiMin,Dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
     std::cout << " Zpos in TELF " << Zpos << std::endl;
 #endif
 
     GeoTubs * tubs = new GeoTubs(Rmini,Rmaxi,DeltaZ,Moth_Phi_Min,Moth_Phi_Max);
     const GeoLogVol* logVol = new GeoLogVol(name,tubs,Sumb);
     Sumb_phys = new GeoPhysVol(logVol);
-    Elnicsf_phys->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));
+    Elnicsf_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));
     Elnicsf_phys->add(Sumb_phys);
   }
 
@@ -571,9 +571,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   {
     double ClearancePS = m_parameters->GetValue("LArEMBMoBoclearfrPS");
     double RhoPosB = Moth_inner_radius + ClearancePS;
-    double bdx = .5*(m_parameters->GetValue("LArEMBMoBoTchickness")); // 4.3/2.*CLHEP::mm
-    double bdy = .5*(m_parameters->GetValue("LArEMBMoBoHeight"));     // 72.3/2.*CLHEP::mm;
-    double bdz = Zhalfc - 0.007*CLHEP::mm;
+    double bdx = .5*(m_parameters->GetValue("LArEMBMoBoTchickness")); // 4.3/2.*GeoModelKernelUnits::mm
+    double bdy = .5*(m_parameters->GetValue("LArEMBMoBoHeight"));     // 72.3/2.*GeoModelKernelUnits::mm;
+    double bdz = Zhalfc - 0.007*GeoModelKernelUnits::mm;
     
     //------------------------MOTHERBOARDS--------------------------------------------//
     // JFB Make & Place the motherboards inside overall tube                          //
@@ -587,18 +587,18 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
       std::cout << " *** parameters for MotherBoard (box)" << std::endl;
       std::cout << "  dx,dy,dz  " << bdx << " " << bdy << " " << bdz << std::endl;
       std::cout << " Radius pos " << RhoPosB << std::endl;
-      std::cout << " Phi0,Dphi  " << PhiPos0/CLHEP::deg << " " << twopi32/CLHEP::deg << std::endl;
+      std::cout << " Phi0,Dphi  " << PhiPos0/GeoModelKernelUnits::deg << " " << twopi32/GeoModelKernelUnits::deg << std::endl;
 #endif
       GeoBox               * box    = new GeoBox(bdx,bdy,bdz);                        //
       const GeoLogVol      * logVol = new GeoLogVol(name,box,Moth_elect);             //
       GeoPhysVol           * pV     = new GeoPhysVol(logVol);                         //
       GeoSerialIdentifier  * iD     = new GeoSerialIdentifier(0);                     //
-      Genfun::Variable     c;                                                         //
-      Genfun::GENFUNCTION  PhiPos = PhiPos0 + twopi32*c;                              //
+      GeoGenfun::Variable     c;                                                         //
+      GeoGenfun::GENFUNCTION  PhiPos = PhiPos0 + twopi32*c;                              //
       GeoXF::TRANSFUNCTION TX =                                                       //
-	GeoXF::Pow(HepGeom::TranslateX3D(1.0),RhoPosB*Cos(PhiPos))*                         //
-	GeoXF::Pow(HepGeom::TranslateY3D(1.0),RhoPosB*Sin(PhiPos))*                         //
-	GeoXF::Pow(HepGeom::RotateZ3D(1.0),PhiPos);                                         //
+	GeoXF::Pow(GeoTrf::TranslateX3D(1.0),RhoPosB*Cos(PhiPos))*                         //
+	GeoXF::Pow(GeoTrf::TranslateY3D(1.0),RhoPosB*Sin(PhiPos))*                         //
+	GeoXF::Pow(GeoTrf::RotateZ3D(1.0),PhiPos);                                         //
       GeoSerialTransformer *st = new GeoSerialTransformer(pV, &TX, NoOFboard);        //
       Elnicsf_phys->add(iD);                                                          //
       Elnicsf_phys->add(st);                                                          //
@@ -616,11 +616,11 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     // JFB Place the cables                                                           //
     {                                                                                 //
       //                                                                              //
-      double Dzc = Zhalfc - 0.007*CLHEP::mm;                                                 //
-      double Dx1 = .5*(m_parameters->GetValue("LArEMBCablethickat0"));                // 1./2.*CLHEP::mm
+      double Dzc = Zhalfc - 0.007*GeoModelKernelUnits::mm;                                                 //
+      double Dx1 = .5*(m_parameters->GetValue("LArEMBCablethickat0"));                // 1./2.*GeoModelKernelUnits::mm
       double Dx2 = .5*Bar_Eta_cut*(m_parameters->GetValue("LArEMBthickincrfac"));     //
-      // Dx2 should be  5.17/2.*Bar_Eta_cut*CLHEP::mm Trapezoid's side linear with Eta       //
-      double Dy1 = .5*(m_parameters->GetValue("LArEMBCableEtaheight"));               // 70./2.*CLHEP::mm
+      // Dx2 should be  5.17/2.*Bar_Eta_cut*GeoModelKernelUnits::mm Trapezoid's side linear with Eta       //
+      double Dy1 = .5*(m_parameters->GetValue("LArEMBCableEtaheight"));               // 70./2.*GeoModelKernelUnits::mm
       double Dy2 = Dy1;                                                               //
       //                                                                              //
       int NoOFcable = (int) m_parameters->GetValue("LArEMBnoOFcableBundle");          // 64
@@ -645,34 +645,34 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 #ifdef DEBUGGEO
       std::cout << " PhiPos0 " << PhiPos0 << std::endl;
 #endif
-      Genfun::Variable I;                                                             //
+      GeoGenfun::Variable I;                                                             //
       //                                                                              //
       // -------------Make a Kronecker Delta Here--------//                           //
-      Genfun::Rectangular KDelta;                        //                           //
+      GeoGenfun::Rectangular KDelta;                        //                           //
       KDelta.baseline().setValue(0.0);                   //                           //
       KDelta.height().setValue(1.0);                     //                           //
       KDelta.x0().setValue(-0.5);                        //                           //
       KDelta.x1().setValue(0.5);                         //                           //
       //-------------------------------------------------//                           //
       //                                                                              //
-      Genfun::Mod Mod1(1.0),Mod2(2.0),Mod4(4.0);                                      //
-      Genfun::GENFUNCTION Int = I - Mod1;                                             //
-      Genfun::GENFUNCTION Ccopy    = Int(I + 0.5);                                    //
-      Genfun::GENFUNCTION PhiOrig  = 22.5*CLHEP::deg*Int(Ccopy/4);                           //
-      Genfun::GENFUNCTION PhiPos1  = PhiPos0 + PhiOrig;                               //
-      Genfun::GENFUNCTION PhiPos2  = twopi32 - PhiPos0 + PhiOrig;                     //
-      Genfun::GENFUNCTION PhiPos00 =                                                  //
+      GeoGenfun::Mod Mod1(1.0),Mod2(2.0),Mod4(4.0);                                      //
+      GeoGenfun::GENFUNCTION Int = I - Mod1;                                             //
+      GeoGenfun::GENFUNCTION Ccopy    = Int(I + 0.5);                                    //
+      GeoGenfun::GENFUNCTION PhiOrig  = 22.5*GeoModelKernelUnits::deg*Int(Ccopy/4);                           //
+      GeoGenfun::GENFUNCTION PhiPos1  = PhiPos0 + PhiOrig;                               //
+      GeoGenfun::GENFUNCTION PhiPos2  = twopi32 - PhiPos0 + PhiOrig;                     //
+      GeoGenfun::GENFUNCTION PhiPos00 =                                                  //
 	(KDelta(Mod4(Ccopy)-2) + KDelta(Mod4(Ccopy)-3))*PhiPos2 +                     //
 	(1.0-KDelta(Mod4(Ccopy)-2)-KDelta(Mod4(Ccopy)-3))*PhiPos1;                    //
-      Genfun::GENFUNCTION PhiPos   = PhiPos00 + Mod2(Ccopy)*twopi32;                  //
+      GeoGenfun::GENFUNCTION PhiPos   = PhiPos00 + Mod2(Ccopy)*twopi32;                  //
       GeoXF::TRANSFUNCTION TX =                                                       //
-	GeoXF::Pow(HepGeom::TranslateX3D(1.0),RhoPosC*Cos(PhiPos))*                         //
-	GeoXF::Pow(HepGeom::TranslateY3D(1.0),RhoPosC*Sin(PhiPos))*                         //
-	GeoXF::Pow(HepGeom::RotateZ3D(1.0),PhiPos);                                         //
+	GeoXF::Pow(GeoTrf::TranslateX3D(1.0),RhoPosC*Cos(PhiPos))*                         //
+	GeoXF::Pow(GeoTrf::TranslateY3D(1.0),RhoPosC*Sin(PhiPos))*                         //
+	GeoXF::Pow(GeoTrf::RotateZ3D(1.0),PhiPos);                                         //
       GeoSerialTransformer *st = new GeoSerialTransformer(pV, &TX, NoOFcable);        //
 #ifdef DEBUGGEO
       for (int ii=0;ii<NoOFcable;ii++) {
-       std::cout << "copy, phi " << ii << " " << PhiPos(ii)/CLHEP::deg << std::endl;
+       std::cout << "copy, phi " << ii << " " << PhiPos(ii)/GeoModelKernelUnits::deg << std::endl;
       }
 #endif
       Elnicsf_phys->add(iD);                                                          //
@@ -683,10 +683,10 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   }
 #endif // BUILD_FRONT_ELECTRONICS
 
-    // add 1.3 CLHEP::mm in z to allow cleareance for absorber with non                    //
+    // add 1.3 GeoModelKernelUnits::mm in z to allow cleareance for absorber with non                    //
     // 0 thickness, at eta=1.475, low r part of the barrel                          //
     // this affects STAC and TELB volumes                                           //
-    double clearance = 1.3*CLHEP::mm;     
+    double clearance = 1.3*GeoModelKernelUnits::mm;     
 
 #ifdef BUILD_HIGHETA_ELECTRONICS
 
@@ -702,29 +702,29 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     // GU fix of TELB                                                               //
     double ze1=  zmax1_Stac+clearance;                                              //
     double ze2 = Bar_Z_max;                                                         //
-    double safety = 0.05*CLHEP::mm;
+    double safety = 0.05*GeoModelKernelUnits::mm;
     double DeltaZ = 0.5*(ze2-ze1)-safety;                           // 50 micron for safety.
     double Zpos = ze1+DeltaZ+0.5*safety;                                            // 
-    double Rmini1 = Rhocen[0] - .030*CLHEP::mm;                                            //
-    double Rmaxi1 = Rhocen[0] - .020*CLHEP::mm;                                            //
-    double Rmini2 = Rhocen[0] - .030*CLHEP::mm;                                            //
-    double Rmaxi2 = Bar_Rcmx - clearance - .070*CLHEP::mm;                                 //
+    double Rmini1 = Rhocen[0] - .030*GeoModelKernelUnits::mm;                                            //
+    double Rmaxi1 = Rhocen[0] - .020*GeoModelKernelUnits::mm;                                            //
+    double Rmini2 = Rhocen[0] - .030*GeoModelKernelUnits::mm;                                            //
+    double Rmaxi2 = Bar_Rcmx - clearance - .070*GeoModelKernelUnits::mm;                                 //
     std::string name = baseName + "TELB";                                           //
 #ifdef DEBUGGEO
     std::cout << " *** Parameters for high eta electronics (Cons) " <<std::endl;
     std::cout << " Rmini1,Rmini2,Rmaxi1,Rmaxi2 " << Rmini1 << " " << Rmini2 << " "
        << Rmaxi1 << " " << Rmaxi2 << std::endl,
     std::cout << " DeltaZ " << DeltaZ << std::endl;
-    std::cout << " Phi_Min,Dphi " << Moth_Phi_Min/CLHEP::deg << " " << Moth_Phi_Max/CLHEP::deg << std::endl;
+    std::cout << " Phi_Min,Dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
     std::cout << " Zpos " << Zpos << std::endl;
 #endif
     GeoCons* cons = new GeoCons(Rmini1,Rmini2,Rmaxi1,Rmaxi2,                        //
 				DeltaZ,Moth_Phi_Min,Moth_Phi_Max);                  //
     const GeoLogVol* logVol = new GeoLogVol(name,cons,Cable_elect);                 //
     GeoPhysVol* physVol = new GeoPhysVol(logVol);                                   //
-    m_ecamPhysicalPos->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));                //
+    m_ecamPhysicalPos->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));                //
     m_ecamPhysicalPos->add(physVol);                                                //
-    m_ecamPhysicalNeg->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));                //
+    m_ecamPhysicalNeg->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));                //
     m_ecamPhysicalNeg->add(physVol);                                                //
     //                                                                              //
   }                                                                                 //
@@ -742,8 +742,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   
   //---------------------------------FRONT G10-------------------------------------//
   {                                                                                //
-    double Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");               // 23.*CLHEP::mm
-    double Xg10f = m_parameters->GetValue("LArEMBG10SupportBarsIn");               // 20.*CLHEP::mm
+    double Xel1f = m_parameters->GetValue("LArEMBInnerElectronics");               // 23.*GeoModelKernelUnits::mm
+    double Xg10f = m_parameters->GetValue("LArEMBG10SupportBarsIn");               // 20.*GeoModelKernelUnits::mm
     double DeltaZ = 0.5* m_parameters->GetValue("LArEMBG10FrontDeltaZ");           //
     double Zpos = DeltaZ+Bar_Z_min;                                                //
     double Rmini = Moth_inner_radius + Xel1f;                                      //
@@ -753,15 +753,15 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     std::cout << " *** parameters for front G10 ring (tubs) " << std::endl;
     std::cout << " Rmini,Rmaxi " << Rmini << " " << Rmaxi << std::endl;
     std::cout << " DeltaZ " << DeltaZ << std::endl;
-    std::cout << " phimin,dphi " << Moth_Phi_Min/CLHEP::deg << " " << Moth_Phi_Max/CLHEP::deg << std::endl;
+    std::cout << " phimin,dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
     std::cout << " Zpos " << Zpos << std::endl;
 #endif
     GeoTubs* tubs = new GeoTubs(Rmini,Rmaxi,DeltaZ,Moth_Phi_Min,Moth_Phi_Max);     //
     const GeoLogVol* logVol = new GeoLogVol(name,tubs,G10_bar);                    //
     GeoPhysVol* physVol = new GeoPhysVol(logVol);                                  //
-    m_ecamPhysicalPos->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));               //
+    m_ecamPhysicalPos->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));               //
     m_ecamPhysicalPos->add(physVol);                                               //
-    m_ecamPhysicalNeg->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));               //
+    m_ecamPhysicalNeg->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));               //
     m_ecamPhysicalNeg->add(physVol);                                               //
 
     IRDBRecordset_ptr extraCones = rdbAccess->getRecordsetPtr("LArCones",          
@@ -789,7 +789,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                                extra_dz,extra_phi0,extra_dphi);                     
          const GeoLogVol* logVol = new GeoLogVol(name,cons,Lead);                         
          GeoPhysVol* physVol2 = new GeoPhysVol(logVol);                                   
-         physVol->add(new GeoTransform(HepGeom::TranslateZ3D(extra_zpos)));                    
+         physVol->add(new GeoTransform(GeoTrf::TranslateZ3D(extra_zpos)));                    
          physVol->add(physVol2);                                                           
 
         }
@@ -806,27 +806,27 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   {                                                                               //
     double DeltaZ = Zhalf;                                                        //
     double Zpos = Zhalf+Bar_Z_min;                                                //
-    double Xtal  = m_parameters->GetValue("LArEMBLArGapTail")+ 0.1*CLHEP::mm;            // 13.*CLHEP::mm
+    double Xtal  = m_parameters->GetValue("LArEMBLArGapTail")+ 0.1*GeoModelKernelUnits::mm;            // 13.*GeoModelKernelUnits::mm
     double Rmini = Rhocen[Nbrt]+Xtal; //                                          //
     // GU to be sure that GTENB does not go outside mother ECAM volume            //
     //  Rmaxi = Rmini+Xg10b;                                                      //
-    double   Rmaxi = Moth_outer_radius-0.01*CLHEP::mm;   // 10 microns for more safety.. //
+    double   Rmaxi = Moth_outer_radius-0.01*GeoModelKernelUnits::mm;   // 10 microns for more safety.. //
     //                                                                            //
     std::string name = baseName +"GTENB";                                         //
 #ifdef DEBUGGEO 
     std::cout << " *** parameters for back G10 ring (tubs) " << std::endl;
     std::cout << " Rmini,Rmaxi " << Rmini << " " << Rmaxi << std::endl;
     std::cout << " DeltaZ  " << DeltaZ << std::endl;
-    std::cout << " phimin,dphi " << Moth_Phi_Min/CLHEP::deg << " " << Moth_Phi_Max/CLHEP::deg << std::endl;
+    std::cout << " phimin,dphi " << Moth_Phi_Min/GeoModelKernelUnits::deg << " " << Moth_Phi_Max/GeoModelKernelUnits::deg << std::endl;
     std::cout << " Zpos " << Zpos << std::endl;
 #endif
 
     GeoTubs* tubs = new GeoTubs(Rmini,Rmaxi,DeltaZ,Moth_Phi_Min,Moth_Phi_Max);    //
     const GeoLogVol* logVol = new GeoLogVol(name,tubs,G10_bar);                       //
     GeoPhysVol* physVol = new GeoPhysVol(logVol);                                 //
-    m_ecamPhysicalPos->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));              //
+    m_ecamPhysicalPos->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));              //
     m_ecamPhysicalPos->add(physVol);                                              //
-    m_ecamPhysicalNeg->add(new GeoTransform(HepGeom::TranslateZ3D(Zpos)));              //
+    m_ecamPhysicalNeg->add(new GeoTransform(GeoTrf::TranslateZ3D(Zpos)));              //
     m_ecamPhysicalNeg->add(physVol);                                              //
   }                                                                               //
   //------------------------------------------------------------------------------//
@@ -841,8 +841,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   //  (i.e. a little bit wider than one calorimeter module)
   {                                                                             //
 
-    double Moth_Phi_Min2 = (Ncell == 64) ? -1.055*CLHEP::deg : 0.;                     //
-    double Moth_Phi_Max2 = (Ncell == 64) ? 24.61*CLHEP::deg  : 2*M_PI;                 //
+    double Moth_Phi_Min2 = (Ncell == 64) ? -1.055*GeoModelKernelUnits::deg : 0.;                     //
+    double Moth_Phi_Max2 = (Ncell == 64) ? 24.61*GeoModelKernelUnits::deg  : 2*M_PI;                 //
 
     double Zplan1[] = {Bar_Z_min,zmax1_Stac+clearance,Bar_Z_max};                //
     double Riacc1[] = {Rhocen[0],Rhocen[0], Bar_Rcmx-clearance};                //
@@ -854,16 +854,16 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
      std::cout << "  Zplan " << Zplan1[0] << " " << Zplan1[1] << " " << Zplan1[2] << std::endl;
      std::cout << "  Rin   " << Riacc1[0] << " " << Riacc1[1] << " " << Riacc1[2] << std::endl;
      std::cout << "  Rout  " << Roacc1[0] << " " << Roacc1[1] << " " << Roacc1[2] << std::endl;
-     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/CLHEP::deg << " " << Moth_Phi_Max2/CLHEP::deg << std::endl;
+     std::cout << " PhiMin,Dphi " << Moth_Phi_Min2/GeoModelKernelUnits::deg << " " << Moth_Phi_Max2/GeoModelKernelUnits::deg << std::endl;
      std::cout << " Zpos " << -Zp0 << std::endl;
 #endif
     GeoPcon* pCone = new GeoPcon(Moth_Phi_Min2,Moth_Phi_Max2);                  //
     for (int i=0; i<3; i++) pCone->addPlane(Zplan1[i],Riacc1[i],Roacc1[i]);     //
     const GeoLogVol* logVol = new GeoLogVol(name,pCone,LAr);                    //
     stacPhysical = new GeoPhysVol(logVol);                                      //
-    m_ecamPhysicalPos->add(new GeoTransform(HepGeom::TranslateZ3D(-Zp0)));            //
+    m_ecamPhysicalPos->add(new GeoTransform(GeoTrf::TranslateZ3D(-Zp0)));            //
     m_ecamPhysicalPos->add(stacPhysical);                                       //
-    m_ecamPhysicalNeg->add(new GeoTransform(HepGeom::TranslateZ3D(-Zp0)));            //
+    m_ecamPhysicalNeg->add(new GeoTransform(GeoTrf::TranslateZ3D(-Zp0)));            //
     m_ecamPhysicalNeg->add(stacPhysical);                                       //
   }                                                                             //
   //----------------------------------------------------------------------------//
@@ -882,7 +882,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     double Thpb_thin  = m_parameters->GetValue("LArEMBThinAbsLead");
     double Thcu       = m_parameters->GetValue("LArEMBThickElecCopper");
     double Thfg       = m_parameters->GetValue("LArEMBThickElecKapton");
-    double Psi        = m_parameters->GetValue("LArEMBPhiGapAperture");   // 360.*CLHEP::deg/1024
+    double Psi        = m_parameters->GetValue("LArEMBPhiGapAperture");   // 360.*GeoModelKernelUnits::deg/1024
     double Contract   = m_parameters->GetValue("LArEMBAbsorberContraction");
 
     double Thce = (Thpb+Thgl+Thfe)*Contract;
@@ -906,7 +906,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     double Zcp1l[14],Zcp1h[14],Zcp2l[14],Zcp2h[14];
     double Rhol[14],Rhoh[14];
 
-    double safety_along = 0.007*CLHEP::mm;
+    double safety_along = 0.007*GeoModelKernelUnits::mm;
  
    
     // Compute centers of curvature coordinates in a local frame.
@@ -979,9 +979,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
     double Gama0      = m_parameters->GetValue("LArEMBAbsPhiFirst");
    
-    Genfun::Variable icopy;
-    Genfun::GENFUNCTION Game = Gama0 + Psi/2 + Alfa*icopy;
-    Genfun::GENFUNCTION Gama = Gama0 + Alfa*icopy;
+    GeoGenfun::Variable icopy;
+    GeoGenfun::GENFUNCTION Game = Gama0 + Psi/2 + Alfa*icopy;
+    GeoGenfun::GENFUNCTION Gama = Gama0 + Alfa*icopy;
    
     // Creation of the straight absorber parts. Front (TIPB) & Back (TIPC)
     // Creation of the straight electrode parts. Front (TIPK) & Back (TIPL)
@@ -999,7 +999,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	// Absorber (thick, thin)
 	{
 	  double radius =  fb==FRONT ? Cenx[0] - Xtip_pb/2    : Cenx[Nbrt] + Xtipt/2;
-	  double Xhalfb  = fb==FRONT ? Xtip_pb/2 -0.002*CLHEP::mm    : Xtipt/2 - .004*CLHEP::mm;
+	  double Xhalfb  = fb==FRONT ? Xtip_pb/2 -0.002*GeoModelKernelUnits::mm    : Xtipt/2 - .004*GeoModelKernelUnits::mm;
 	  double Zhalfb  = fb==FRONT ? (Bar_Z_cut-Zmin)/2. : (Zmax-Zmin)/2.;
 	  double dz01 = (std::min(Zcp1[irl],Zmax)-Zmin)/2.;  // half lenght for thick lead
 
@@ -1010,18 +1010,18 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	  const GeoLogVol *logVol2 = new GeoLogVol(name,box2,Thick_abs);
 	  GeoPhysVol* physVol      = new GeoPhysVol(logVol);
 	  GeoPhysVol* physVol2     = new GeoPhysVol(logVol2);
-	  physVol->add(new GeoTransform(HepGeom::Translate3D(0.,0.,dz01-Zhalfb)));
+	  physVol->add(new GeoTransform(GeoTrf::Translate3D(0.,0.,dz01-Zhalfb)));
 	  physVol->add(physVol2);
-	  Genfun::GENFUNCTION Xcd = radius*Cos(Gama);
-	  Genfun::GENFUNCTION Ycd = radius*Sin(Gama);
-	  Genfun::GENFUNCTION Zcd = Genfun::FixedConstant(Zmin+Zhalfb);
+	  GeoGenfun::GENFUNCTION Xcd = radius*Cos(Gama);
+	  GeoGenfun::GENFUNCTION Ycd = radius*Sin(Gama);
+	  GeoGenfun::GENFUNCTION Zcd = GeoGenfun::FixedConstant(Zmin+Zhalfb);
 	 
 	 
 	  GeoXF::TRANSFUNCTION TX = 
-	    GeoXF::Pow(HepGeom::TranslateX3D(1.0),Xcd) *
-	    GeoXF::Pow(HepGeom::TranslateY3D(1.0),Ycd) *
-	    GeoXF::Pow(HepGeom::TranslateZ3D(1.0),Zcd) * 
-	    GeoXF::Pow(HepGeom::RotateZ3D(1.0),Gama);
+	    GeoXF::Pow(GeoTrf::TranslateX3D(1.0),Xcd) *
+	    GeoXF::Pow(GeoTrf::TranslateY3D(1.0),Ycd) *
+	    GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),Zcd) * 
+	    GeoXF::Pow(GeoTrf::RotateZ3D(1.0),Gama);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol, &TX, Nabsorber);     
 	  m_ecamPhysicalPos->add(st);
 	  m_ecamPhysicalNeg->add(st);
@@ -1032,14 +1032,14 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
           std::cout << " Thick Abs Box " << Xhalfb << " " << Thce/2. << " " << dz01 << std::endl;
           std::cout << " Z position thick in thin " << dz01-Zhalfb << std::endl;
           std::cout << " Radial position " << radius << std::endl;
-          std::cout << " Phi0 (CLHEP::deg) " << Gama(0)/CLHEP::deg << std::endl;
+          std::cout << " Phi0 (GeoModelKernelUnits::deg) " << Gama(0)/GeoModelKernelUnits::deg << std::endl;
           std::cout << " Z position in ECAM " << Zmin+Zhalfb << std::endl;
 #endif
 	}
 	// G10 (only for front part)
 	if (fb==FRONT)
 	{
-	  double Xhalfbg = Xtip_gt/2-0.002*CLHEP::mm;
+	  double Xhalfbg = Xtip_gt/2-0.002*GeoModelKernelUnits::mm;
 	  double radiusg = Cenx[0]-Xtip_pb/2. - Xtips/2   ;   
 	  double Zhalfbg = (Bar_Z_cut-Zmin)/2.    ;
 	  std::string name        = baseName + "FrontBack::G10";
@@ -1066,49 +1066,49 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 #ifdef DEBUGGEO
           std::cout << "  Position Iron in G10 at y = +- " << 0.5*(+Thce-Tgfe/2.) << std::endl;
 #endif
-          physVol->add(new GeoTransform(HepGeom::Translate3D(0.,0.5*(-Thce+Tgfe/2.),0.))); 
+          physVol->add(new GeoTransform(GeoTrf::Translate3D(0.,0.5*(-Thce+Tgfe/2.),0.))); 
           physVol->add(physVol2);
-          physVol->add(new GeoTransform(HepGeom::Translate3D(0.,0.5*(+Thce-Tgfe/2.),0.)));
+          physVol->add(new GeoTransform(GeoTrf::Translate3D(0.,0.5*(+Thce-Tgfe/2.),0.)));
           physVol->add(physVol2);
 #endif   // build_front_steel
 
 // position of G10+Steel inside LAr bath
-	  Genfun::GENFUNCTION Xcd = radiusg*Cos(Gama);
-	  Genfun::GENFUNCTION Ycd = radiusg*Sin(Gama);
-	  Genfun::GENFUNCTION Zcd = Genfun::FixedConstant(Zhalfbg+Zmin);
+	  GeoGenfun::GENFUNCTION Xcd = radiusg*Cos(Gama);
+	  GeoGenfun::GENFUNCTION Ycd = radiusg*Sin(Gama);
+	  GeoGenfun::GENFUNCTION Zcd = GeoGenfun::FixedConstant(Zhalfbg+Zmin);
 	  GeoXF::TRANSFUNCTION TX = 
-	    GeoXF::Pow(HepGeom::TranslateX3D(1.0),Xcd) *
-	    GeoXF::Pow(HepGeom::TranslateY3D(1.0),Ycd) *
-	    GeoXF::Pow(HepGeom::TranslateZ3D(1.0),Zcd) * 
-	    GeoXF::Pow(HepGeom::RotateZ3D(1.0),Gama);
+	    GeoXF::Pow(GeoTrf::TranslateX3D(1.0),Xcd) *
+	    GeoXF::Pow(GeoTrf::TranslateY3D(1.0),Ycd) *
+	    GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),Zcd) * 
+	    GeoXF::Pow(GeoTrf::RotateZ3D(1.0),Gama);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol, &TX, Nabsorber);     
 	  m_ecamPhysicalPos->add(st);
 	  m_ecamPhysicalNeg->add(st);
 #ifdef DEBUGGEO
           std::cout << "  Radial position G10 tip " << radiusg << std::endl;
-          std::cout << "  Phi0 (CLHEP::deg)" << Gama(0)/CLHEP::deg << std::endl;
+          std::cout << "  Phi0 (GeoModelKernelUnits::deg)" << Gama(0)/GeoModelKernelUnits::deg << std::endl;
           std::cout << "  Zposition in ECAM " << Zmin+Zhalfbg << std::endl;
 #endif
 
 	}
 	// Electrode
 	{
-	  double Xhalfbe = fb==FRONT ? Xtips/2 -0.002*CLHEP::mm      : Xtipt/2 - .004*CLHEP::mm;
+	  double Xhalfbe = fb==FRONT ? Xtips/2 -0.002*GeoModelKernelUnits::mm      : Xtipt/2 - .004*GeoModelKernelUnits::mm;
 	  double Zhalfbe = fb==FRONT ? (Bar_Z_cut-Zmin)/2.    : (Zmax - Zmin)/2;
 	  double radiuse = fb==FRONT ? Cenx[0] - Xtips/2   : Cenx[Nbrt] + Xtipt/2;
 	  std::string name        = baseName + "FrontBack::Electrode";
 	  GeoBox *box             = new GeoBox(Xhalfbe,Thel/2,Zhalfbe);
 	  const GeoLogVol *logVol = new GeoLogVol(name,box,Kapton_Cu);
 	  GeoPhysVol* physVol     = new GeoPhysVol(logVol);
-	  Genfun::GENFUNCTION Xcd  = radiuse*Cos(Game);
-	  Genfun::GENFUNCTION Ycd  = radiuse*Sin(Game);
-	  Genfun::GENFUNCTION Zcd  = Genfun::FixedConstant(Zmin+Zhalfbe);
+	  GeoGenfun::GENFUNCTION Xcd  = radiuse*Cos(Game);
+	  GeoGenfun::GENFUNCTION Ycd  = radiuse*Sin(Game);
+	  GeoGenfun::GENFUNCTION Zcd  = GeoGenfun::FixedConstant(Zmin+Zhalfbe);
 	 
 	  GeoXF::TRANSFUNCTION TX = 
-	    GeoXF::Pow(HepGeom::TranslateX3D(1.0),Xcd) *
-	    GeoXF::Pow(HepGeom::TranslateY3D(1.0),Ycd) *
-	    GeoXF::Pow(HepGeom::TranslateZ3D(1.0),Zcd) * 
-	    GeoXF::Pow(HepGeom::RotateZ3D(1.0),Game);
+	    GeoXF::Pow(GeoTrf::TranslateX3D(1.0),Xcd) *
+	    GeoXF::Pow(GeoTrf::TranslateY3D(1.0),Ycd) *
+	    GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),Zcd) * 
+	    GeoXF::Pow(GeoTrf::RotateZ3D(1.0),Game);
 	 
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol, &TX, Nelectrode);     
 	  m_ecamPhysicalPos->add(st);
@@ -1119,7 +1119,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
           else           std::cout << " *** Back  tip electrode " << std::endl;
           std::cout << " Box " << Xhalfbe << " " << Thel/2. << " " << Zhalfbe << std::endl;
           std::cout << " Radial position " << radiuse << std::endl;
-          std::cout << " Phi0 (CLHEP::deg)" << Game(0)/CLHEP::deg << std::endl;
+          std::cout << " Phi0 (GeoModelKernelUnits::deg)" << Game(0)/GeoModelKernelUnits::deg << std::endl;
           std::cout << " Z position in ECAM " << Zmin+Zhalfbe << std::endl;
 #endif
 
@@ -1136,7 +1136,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
     //
 
 // GU 09/06/2004 add some safety in z size
-    double safety_zlen=0.050*CLHEP::mm;
+    double safety_zlen=0.050*GeoModelKernelUnits::mm;
    
     for(int irl=0; irl<Nbrt; irl++)   // loop over zig-zag in radius
       {
@@ -1212,32 +1212,32 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	      double Dz = Thce/2.;
 	   
 	      // For absorbers
-	      Genfun::GENFUNCTION x1a = Fx(irl+0., Gama, Cenx, Ceny)
+	      GeoGenfun::GENFUNCTION x1a = Fx(irl+0., Gama, Cenx, Ceny)
                                            +deltay[irl]*Del1(Gama)
                                            +deltax[irl]*Del2(Gama);
-	      Genfun::GENFUNCTION x2a = Fx(irl+1., Gama, Cenx, Ceny)
+	      GeoGenfun::GENFUNCTION x2a = Fx(irl+1., Gama, Cenx, Ceny)
                                            +deltay[irl+1]*Del1(Gama)
                                            +deltax[irl+1]*Del2(Gama);
-	      Genfun::GENFUNCTION y1a = Fy(irl+0., Gama, Cenx, Ceny)
+	      GeoGenfun::GENFUNCTION y1a = Fy(irl+0., Gama, Cenx, Ceny)
                                            -deltay[irl]*Del2(Gama)
                                            +deltax[irl]*Del1(Gama);
-	      Genfun::GENFUNCTION y2a = Fy(irl+1., Gama, Cenx, Ceny)
+	      GeoGenfun::GENFUNCTION y2a = Fy(irl+1., Gama, Cenx, Ceny)
                                            -deltay[irl+1]*Del2(Gama)
                                            +deltax[irl+1]*Del1(Gama);
-	      Genfun::GENFUNCTION dx = x2a - x1a;
-	      Genfun::GENFUNCTION dy = y2a - y1a;
+	      GeoGenfun::GENFUNCTION dx = x2a - x1a;
+	      GeoGenfun::GENFUNCTION dy = y2a - y1a;
 	   
 	      // Da the two fold centers distance, da straight part length
 	   
-	      Genfun::GENFUNCTION Da = Sqrt ( dx*dx + dy*dy );
-	      Genfun::GENFUNCTION da = Sqrt ( (Da - 2.*Rint)*(Da + 2.*Rint) );
+	      GeoGenfun::GENFUNCTION Da = Sqrt ( dx*dx + dy*dy );
+	      GeoGenfun::GENFUNCTION da = Sqrt ( (Da - 2.*Rint)*(Da + 2.*Rint) );
 	   
 	      // newalpha (slant angle) value of the rotation angle around Z_axis
-	      Genfun::GENFUNCTION cosalfa = (da*dx -iparit*2.*Rint*dy)/Da/Da;
-	      Genfun::GENFUNCTION sinalfa = (da*dy +iparit*2.*Rint*dx)/Da/Da;
-	      Genfun::GENFUNCTION newalpha = ATan2(sinalfa,cosalfa);       
+	      GeoGenfun::GENFUNCTION cosalfa = (da*dx -iparit*2.*Rint*dy)/Da/Da;
+	      GeoGenfun::GENFUNCTION sinalfa = (da*dy +iparit*2.*Rint*dx)/Da/Da;
+	      GeoGenfun::GENFUNCTION newalpha = ATan2(sinalfa,cosalfa);       
 	   
-	      Genfun::GENFUNCTION h1 = da/2. * frac  - .007*CLHEP::mm;
+	      GeoGenfun::GENFUNCTION h1 = da/2. * frac  - .007*GeoModelKernelUnits::mm;
 	   
 	      double Zx0 = (tl1+bl1)/2.;
 // thick absorber pieces
@@ -1259,7 +1259,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                 } 
               }
 	    // translation in x to include thick absorber into thin absorber
-	      double Xtrans = (Xb1+Xt1)/2.-Zx0 + .007*CLHEP::mm;    
+	      double Xtrans = (Xb1+Xt1)/2.-Zx0 + .007*GeoModelKernelUnits::mm;    
 
             // lengths that remain to be covered with the thin absorber
               double Xt2 = tl1-Xt1;
@@ -1267,12 +1267,12 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
              // trabslation that would be needed to include think absorber only into overall thin+thick volume
               double Xtrans2 =  Zx0 - (Xb2+Xt2)/2.;
-              Xt2 = Xt2 -0.007*CLHEP::mm;
-              Xb2 = Xb2 -0.007*CLHEP::mm;
+              Xt2 = Xt2 -0.007*GeoModelKernelUnits::mm;
+              Xb2 = Xb2 -0.007*GeoModelKernelUnits::mm;
            
 	   
-	      Genfun::GENFUNCTION alpha = ATan(0.5*(bl1-tl1)/h1);
-	      Genfun::GENFUNCTION alpha_t = ATan(0.5*(Xb1-Xt1)/h1);     
+	      GeoGenfun::GENFUNCTION alpha = ATan(0.5*(bl1-tl1)/h1);
+	      GeoGenfun::GENFUNCTION alpha_t = ATan(0.5*(Xb1-Xt1)/h1);     
 
             // angle that would be needed for trap do describe only thin absorber
             //     ------------------|---------X---------|
@@ -1284,24 +1284,24 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
             //     ---------------|--------X---------|
             // alpha = (-) angle between X's
             //   tan(alpha) = delta X size / width,   deltaX size = 2*tl1-Xt2-(2*bl1-Xb2),  width = 2.*h1  
-	      Genfun::GENFUNCTION alpha_2 = ATan((2.*bl1-Xb2-(2.*tl1-Xt2))/(2.*h1));      
+	      GeoGenfun::GENFUNCTION alpha_2 = ATan((2.*bl1-Xb2-(2.*tl1-Xt2))/(2.*h1));      
 	   
 	   
 	    // .newalpha is already computed angle wrt z axis
 	    // P/2 rotation is to get absorber aligned along local x axis
 	    // instead of y, then rotate with angle newalpha
-	      Genfun::GENFUNCTION alfrot =  -M_PI/2. - newalpha;
+	      GeoGenfun::GENFUNCTION alfrot =  -M_PI/2. - newalpha;
 
-	      Genfun::GENFUNCTION Xcd    = (x1a + x2a)/2. + (2.*idivi-1.)*(1.-frac)*da/2.*cosalfa;
-	      Genfun::GENFUNCTION Ycd    = (y1a + y2a)/2. + (2.*idivi-1.)*(1.-frac)*da/2.*sinalfa;
-	      Genfun::GENFUNCTION Zcd    = Genfun::FixedConstant(Zmin+(tl1+bl1)/2.+safety_zlen);
+	      GeoGenfun::GENFUNCTION Xcd    = (x1a + x2a)/2. + (2.*idivi-1.)*(1.-frac)*da/2.*cosalfa;
+	      GeoGenfun::GENFUNCTION Ycd    = (y1a + y2a)/2. + (2.*idivi-1.)*(1.-frac)*da/2.*sinalfa;
+	      GeoGenfun::GENFUNCTION Zcd    = GeoGenfun::FixedConstant(Zmin+(tl1+bl1)/2.+safety_zlen);
 	   
 	      GeoXF::TRANSFUNCTION TX = 
-	        GeoXF::Pow(HepGeom::TranslateX3D(1.0),Xcd) *
-	        GeoXF::Pow(HepGeom::TranslateY3D(1.0),Ycd) *
-	        GeoXF::Pow(HepGeom::TranslateZ3D(1.0),Zcd) * 
-	        GeoXF::Pow(HepGeom::RotateZ3D(1.0),-alfrot)*
-	        HepGeom::RotateY3D(-90*CLHEP::deg);                    
+	        GeoXF::Pow(GeoTrf::TranslateX3D(1.0),Xcd) *
+	        GeoXF::Pow(GeoTrf::TranslateY3D(1.0),Ycd) *
+	        GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),Zcd) * 
+	        GeoXF::Pow(GeoTrf::RotateZ3D(1.0),-alfrot)*
+	        GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);                    
 
 	    // 
 
@@ -1345,7 +1345,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 		  const GeoLogVol* thickLog =  new GeoLogVol(thickName,thickTrap,Thick_abs);
                   GeoPhysVol* thickPhys = new GeoPhysVol(thickLog);
 		  // put thick absorber in straight_phys
-		  thinPhys->add(new GeoTransform(HepGeom::TranslateX3D(Xtrans)));
+		  thinPhys->add(new GeoTransform(GeoTrf::TranslateX3D(Xtrans)));
 		  thinPhys->add(thickPhys);
 
 #ifdef DEBUGGEO
@@ -1374,7 +1374,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                    std::string thickGlueName = baseName + "ThickAbsGlue::Straight";
                    const GeoLogVol* thickTrapGlueLog = new GeoLogVol(thickGlueName,thickTrapGlue, Glue);
                    GeoPhysVol * thickTrapGluePhys = new GeoPhysVol(thickTrapGlueLog);
-                   thinPhys->add(new GeoTransform(HepGeom::Translate3D(0.,0.,0.)));
+                   thinPhys->add(new GeoTransform(GeoTrf::Translate3D(0.,0.,0.)));
                    thinPhys->add(thickTrapGluePhys);
 
                    // inside glue put lead, Dz size = 0.5*Thpb*Contract, 2 separate volumes for eta<0.8 and eta>0.8
@@ -1388,7 +1388,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                    std::string thickLeadName= baseName+"ThickAbsLead::Straight";
                    const GeoLogVol* thickTrapLeadLog = new GeoLogVol(thickLeadName,thickTrapLead, myLead);
                    GeoPhysVol * thickTrapLeadPhys = new GeoPhysVol(thickTrapLeadLog);
-                   thickTrapGluePhys->add(new GeoTransform(HepGeom::TranslateX3D(Xtrans)));
+                   thickTrapGluePhys->add(new GeoTransform(GeoTrf::TranslateX3D(Xtrans)));
                    thickTrapGluePhys->add(thickTrapLeadPhys);
 
                    double dz_lead_thin = 0.5*Thpb_thin*Contract;
@@ -1401,7 +1401,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                    std::string thinLeadName = baseName+"ThinAbsLead::Straight";
                    const GeoLogVol* thinTrapLeadLog = new GeoLogVol(thinLeadName,thinTrapLead, myLead);
                    GeoPhysVol * thinTrapLeadPhys = new GeoPhysVol(thinTrapLeadLog);
-                   thickTrapGluePhys->add(new GeoTransform(HepGeom::TranslateX3D(Xtrans2)));
+                   thickTrapGluePhys->add(new GeoTransform(GeoTrf::TranslateX3D(Xtrans2)));
                    thickTrapGluePhys->add(thinTrapLeadPhys);
 
                     
@@ -1414,10 +1414,10 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 		//------------------------------------------------------------------------
 		if (m_A_SAGGING) {
 		  if (!gStraightAbsorbers) gStraightAbsorbers = new GeoStraightAccSection();
-		  gStraightAbsorbers->XCent(instance,irl)=TX(instance).dx();
-		  gStraightAbsorbers->YCent(instance,irl)=TX(instance).dy();
-		  gStraightAbsorbers->Cosu(instance,irl)    =-(TX(instance).xy());
-		  gStraightAbsorbers->Sinu(instance,irl)    = (TX(instance).xz());
+		  gStraightAbsorbers->XCent(instance,irl)=TX(instance)(0,3); //dx
+		  gStraightAbsorbers->YCent(instance,irl)=TX(instance)(1,3); //dy
+		  gStraightAbsorbers->Cosu(instance,irl)    =-(TX(instance)(0,1)); //xy
+		  gStraightAbsorbers->Sinu(instance,irl)    = (TX(instance)(0,2)); //xz
 		  gStraightAbsorbers->HalfLength(instance,irl) = thinTrap->getDydzn();
 
 		  stacPhysical->add(new GeoTransform(TX(instance)));
@@ -1453,21 +1453,21 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 // get slant angle for the previous zig-zag
                  int iirl=jrl-1;
                  if (iirl<0) iirl=1;
-                 Genfun::GENFUNCTION x0a = Fx(iirl, Gama, Cenx, Ceny)
+                 GeoGenfun::GENFUNCTION x0a = Fx(iirl, Gama, Cenx, Ceny)
                                            +deltay[iirl]*Del1(Gama)
                                            +deltax[iirl]*Del2(Gama);
-                 Genfun::GENFUNCTION y0a = Fy(iirl, Gama, Cenx, Ceny)
+                 GeoGenfun::GENFUNCTION y0a = Fy(iirl, Gama, Cenx, Ceny)
                                            -deltay[iirl]*Del2(Gama)
                                            +deltax[iirl]*Del1(Gama);
-                 Genfun::GENFUNCTION dx0 = x1a - x0a;
-                 Genfun::GENFUNCTION dy0 = y1a - y0a;
+                 GeoGenfun::GENFUNCTION dx0 = x1a - x0a;
+                 GeoGenfun::GENFUNCTION dy0 = y1a - y0a;
               // Da the two fold centers distance, da straight part length
-                 Genfun::GENFUNCTION Da0 = Sqrt ( dx0*dx0 + dy0*dy0 );
-                 Genfun::GENFUNCTION da0 = Sqrt ( (Da0 - 2.*Rint)*(Da0 + 2.*Rint) );
+                 GeoGenfun::GENFUNCTION Da0 = Sqrt ( dx0*dx0 + dy0*dy0 );
+                 GeoGenfun::GENFUNCTION da0 = Sqrt ( (Da0 - 2.*Rint)*(Da0 + 2.*Rint) );
               // newalpha (slant angle) value of the rotation angle around Z_axis
-                 Genfun::GENFUNCTION cosalfa0 = (da0*dx0 +iparit*2.*Rint*dy0)/Da0/Da0;
-                 Genfun::GENFUNCTION sinalfa0 = (da0*dy0 -iparit*2.*Rint*dx0)/Da0/Da0;
-                 Genfun::GENFUNCTION alpha_prev = ATan2(sinalfa0,cosalfa0);
+                 GeoGenfun::GENFUNCTION cosalfa0 = (da0*dx0 +iparit*2.*Rint*dy0)/Da0/Da0;
+                 GeoGenfun::GENFUNCTION sinalfa0 = (da0*dy0 -iparit*2.*Rint*dx0)/Da0/Da0;
+                 GeoGenfun::GENFUNCTION alpha_prev = ATan2(sinalfa0,cosalfa0);
 
 #ifdef DEBUGGEO
                 if (jrl>0 && jrl<Nbrt) {
@@ -1477,26 +1477,26 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                            << alpha_prev(0) << std::endl;
                 }
 #endif
-                Genfun::Mod Mod2Pi(2*M_PI);
+                GeoGenfun::Mod Mod2Pi(2*M_PI);
 // down folds  (add +M_PI and then rotate by -M_PI to follow same logic as old code)
-                 Genfun::GENFUNCTION phi0_dfold_0 = 
-                  Genfun::FixedConstant(M_PI/2.+phi0_safety);
-                 Genfun::GENFUNCTION dphi_dfold_0 = Mod2Pi(newalpha-phi0_safety - Gama);
-                 Genfun::GENFUNCTION phi0_dfold_1 = Mod2Pi(M_PI/2.+ alpha_prev - Gama);
-                 Genfun::GENFUNCTION dphi_dfold_1  = Mod2Pi(newalpha-alpha_prev);
-                 Genfun::GENFUNCTION phi0_dfold_2 =  Mod2Pi(M_PI/2.+ newalpha - Gama);
-                 Genfun::GENFUNCTION dphi_dfold_2 = Mod2Pi(- newalpha + Gama);
+                 GeoGenfun::GENFUNCTION phi0_dfold_0 = 
+                  GeoGenfun::FixedConstant(M_PI/2.+phi0_safety);
+                 GeoGenfun::GENFUNCTION dphi_dfold_0 = Mod2Pi(newalpha-phi0_safety - Gama);
+                 GeoGenfun::GENFUNCTION phi0_dfold_1 = Mod2Pi(M_PI/2.+ alpha_prev - Gama);
+                 GeoGenfun::GENFUNCTION dphi_dfold_1  = Mod2Pi(newalpha-alpha_prev);
+                 GeoGenfun::GENFUNCTION phi0_dfold_2 =  Mod2Pi(M_PI/2.+ newalpha - Gama);
+                 GeoGenfun::GENFUNCTION dphi_dfold_2 = Mod2Pi(- newalpha + Gama);
 // up folds
-                 Genfun::GENFUNCTION phi0_ufold_0 =
+                 GeoGenfun::GENFUNCTION phi0_ufold_0 =
                   Mod2Pi(M_PI/2.+newalpha-Gama);
-                 Genfun::GENFUNCTION dphi_ufold_0 = Mod2Pi(-newalpha+Gama-phi0_safety);
-                 Genfun::GENFUNCTION phi0_ufold_1 = Mod2Pi(M_PI/2. + newalpha - Gama);
-                 Genfun::GENFUNCTION dphi_ufold_1 =  Mod2Pi(alpha_prev - newalpha);
-                 Genfun::GENFUNCTION phi0_ufold_2 = Genfun::FixedConstant(M_PI/2.);
-                 Genfun::GENFUNCTION dphi_ufold_2 = Mod2Pi(newalpha-Gama);
+                 GeoGenfun::GENFUNCTION dphi_ufold_0 = Mod2Pi(-newalpha+Gama-phi0_safety);
+                 GeoGenfun::GENFUNCTION phi0_ufold_1 = Mod2Pi(M_PI/2. + newalpha - Gama);
+                 GeoGenfun::GENFUNCTION dphi_ufold_1 =  Mod2Pi(alpha_prev - newalpha);
+                 GeoGenfun::GENFUNCTION phi0_ufold_2 = GeoGenfun::FixedConstant(M_PI/2.);
+                 GeoGenfun::GENFUNCTION dphi_ufold_2 = Mod2Pi(newalpha-Gama);
 
-                 const Genfun::AbsFunction* phi0_fold=0;
-                 const Genfun::AbsFunction* dphi_fold=0;
+                 const GeoGenfun::AbsFunction* phi0_fold=0;
+                 const GeoGenfun::AbsFunction* dphi_fold=0;
                  const GeoXF::Function* TXfold=0;
 
                  std::string thinName;
@@ -1522,19 +1522,19 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                  } 
 
 
-                 Genfun::GENFUNCTION zpos     = Genfun::FixedConstant(Zmin+dz0);
+                 GeoGenfun::GENFUNCTION zpos     = GeoGenfun::FixedConstant(Zmin+dz0);
                  double phirot=0;
                  if (jrl%2==checkParity) phirot = -M_PI;
                  GeoXF::TRANSFUNCTION TXfold1=
-                   GeoXF::Pow(HepGeom::TranslateX3D(1.0),x1a) *
-                   GeoXF::Pow(HepGeom::TranslateY3D(1.0),y1a) *
-                   GeoXF::Pow(HepGeom::TranslateZ3D(1.0),zpos) *
-                   GeoXF::Pow(HepGeom::RotateZ3D(1.0),Gama+phirot);
+                   GeoXF::Pow(GeoTrf::TranslateX3D(1.0),x1a) *
+                   GeoXF::Pow(GeoTrf::TranslateY3D(1.0),y1a) *
+                   GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),zpos) *
+                   GeoXF::Pow(GeoTrf::RotateZ3D(1.0),Gama+phirot);
                  GeoXF::TRANSFUNCTION TXfold2 =
-                   GeoXF::Pow(HepGeom::TranslateX3D(1.0),x2a) *
-                   GeoXF::Pow(HepGeom::TranslateY3D(1.0),y2a) *
-                   GeoXF::Pow(HepGeom::TranslateZ3D(1.0),zpos) *
-                   GeoXF::Pow(HepGeom::RotateZ3D(1.0),Gama+phirot);
+                   GeoXF::Pow(GeoTrf::TranslateX3D(1.0),x2a) *
+                   GeoXF::Pow(GeoTrf::TranslateY3D(1.0),y2a) *
+                   GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),zpos) *
+                   GeoXF::Pow(GeoTrf::RotateZ3D(1.0),Gama+phirot);
 
 // first fown fold
                  if (jrl==0 && checkParity==0) {
@@ -1603,7 +1603,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                      thinPhys   = new GeoPhysVol(thinLog);
                      GeoPhysVol* thickPhys  = new GeoPhysVol(thickLog);
 
-                     thinPhys->add(new GeoTransform(HepGeom::TranslateZ3D(ddz01-ddz0)));
+                     thinPhys->add(new GeoTransform(GeoTrf::TranslateZ3D(ddz01-ddz0)));
                      thinPhys->add(thickPhys);
 #ifdef DEBUGGEO
                   std::cout << "  Position Thick fold in Thin  Z = " << ddz01-ddz0 << std::endl;
@@ -1629,7 +1629,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                      std::string foldGlueName = baseName+"Glue::Fold";
                      const GeoLogVol* glueTubsLog = new GeoLogVol(foldGlueName,glueTubs,Glue);
                      GeoPhysVol* glueTubsPhys = new GeoPhysVol(glueTubsLog);
-                     thinPhys->add(new GeoTransform(HepGeom::TranslateZ3D(0.)));
+                     thinPhys->add(new GeoTransform(GeoTrf::TranslateZ3D(0.)));
                      thinPhys->add(glueTubsPhys); 
 #ifdef DEBUGGEO
                      std::cout << "  glue fold volume " << Rcmin+0.5*Thfe*Contract << " " << Rcmax-0.5*Thfe*Contract << " " << ddz0 << std::endl;
@@ -1643,7 +1643,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                      std::string foldThickLeadName = baseName+"ThickLead::Fold";
                      const GeoLogVol* thickLeadLog = new GeoLogVol(foldThickLeadName,thickLeadTubs,myLead);
                      GeoPhysVol* thickLeadPhys = new GeoPhysVol(thickLeadLog);
-                     glueTubsPhys->add(new GeoTransform(HepGeom::TranslateZ3D(ddz01-ddz0)));
+                     glueTubsPhys->add(new GeoTransform(GeoTrf::TranslateZ3D(ddz01-ddz0)));
                      glueTubsPhys->add(thickLeadPhys);
 #ifdef DEBUGGEO
                      std::cout << " thick lead volume " << Rint-Thpb*Contract << " " << Rint+Thpb*Contract << " " << ddz01 << std::endl;
@@ -1656,7 +1656,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                      std::string foldThinLeadName = baseName+"ThinLead::Fold";
                      const GeoLogVol* thinLeadLog = new GeoLogVol(foldThinLeadName,thinLeadTubs,myLead);
                      GeoPhysVol* thinLeadPhys = new GeoPhysVol(thinLeadLog);
-                     glueTubsPhys->add(new GeoTransform(HepGeom::TranslateZ3D(ddz01))); 
+                     glueTubsPhys->add(new GeoTransform(GeoTrf::TranslateZ3D(ddz01))); 
                      glueTubsPhys->add(thinLeadPhys);
 
 #ifdef DEBUGGEO
@@ -1705,50 +1705,50 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	      double Dze = Thel/2.;
 	   
 	      // For electrodes
-	      Genfun::GENFUNCTION x1e = Fx(irl+0., Game, Cenx, Ceny)
+	      GeoGenfun::GENFUNCTION x1e = Fx(irl+0., Game, Cenx, Ceny)
                                            +deltay[irl]*Del1(Game)
                                            +deltax[irl]*Del2(Game);
-	      Genfun::GENFUNCTION x2e = Fx(irl+1., Game, Cenx, Ceny)
+	      GeoGenfun::GENFUNCTION x2e = Fx(irl+1., Game, Cenx, Ceny)
                                            +deltay[irl+1]*Del1(Game)
                                            +deltax[irl+1]*Del2(Game);
-	      Genfun::GENFUNCTION y1e = Fy(irl+0., Game, Cenx, Ceny) 
+	      GeoGenfun::GENFUNCTION y1e = Fy(irl+0., Game, Cenx, Ceny) 
                                            -deltay[irl]*Del2(Game)
                                            +deltax[irl]*Del1(Game);
-	      Genfun::GENFUNCTION y2e = Fy(irl+1., Game, Cenx, Ceny)
+	      GeoGenfun::GENFUNCTION y2e = Fy(irl+1., Game, Cenx, Ceny)
                                            -deltay[irl+1]*Del2(Game)
                                            +deltax[irl+1]*Del1(Game);
-	      Genfun::GENFUNCTION dxe = x2e - x1e;
-	      Genfun::GENFUNCTION dye = y2e - y1e;
+	      GeoGenfun::GENFUNCTION dxe = x2e - x1e;
+	      GeoGenfun::GENFUNCTION dye = y2e - y1e;
 	    // De the two fold centers distance, de straight part length
-	      Genfun::GENFUNCTION De = Sqrt ( dxe*dxe + dye*dye );
-	      Genfun::GENFUNCTION de = Sqrt ( (De - 2.*Rint)*(De + 2.*Rint) );
+	      GeoGenfun::GENFUNCTION De = Sqrt ( dxe*dxe + dye*dye );
+	      GeoGenfun::GENFUNCTION de = Sqrt ( (De - 2.*Rint)*(De + 2.*Rint) );
 	   
 	    //newalphe (slant angle) value of the rotation angle around Z_axis
-	      Genfun::GENFUNCTION cosalfae = (de*dxe -iparit*2.*Rint*dye)/De/De;
-	      Genfun::GENFUNCTION sinalfae = (de*dye +iparit*2.*Rint*dxe)/De/De;
-	      Genfun::GENFUNCTION newalphe = ATan2(sinalfae,cosalfae);
+	      GeoGenfun::GENFUNCTION cosalfae = (de*dxe -iparit*2.*Rint*dye)/De/De;
+	      GeoGenfun::GENFUNCTION sinalfae = (de*dye +iparit*2.*Rint*dxe)/De/De;
+	      GeoGenfun::GENFUNCTION newalphe = ATan2(sinalfae,cosalfae);
 	   
 	   
 	    // newalphae is already computed angle wrt z axis
 	    // P/2 rotation is to get absorber aligned along local x axis
 	    // instead of y, then rotate with angle newalpha
-	      Genfun::GENFUNCTION alfrote = -M_PI/2. - newalphe;
+	      GeoGenfun::GENFUNCTION alfrote = -M_PI/2. - newalphe;
 	   
-	      Genfun::GENFUNCTION Xcde    = (x1e + x2e)/2.+ (2.*idivi-1.)*(1.-frac)*de/2.*cosalfae;
-	      Genfun::GENFUNCTION Ycde    = (y1e + y2e)/2.+ (2.*idivi-1.)*(1.-frac)*de/2.*sinalfae;
-	      Genfun::GENFUNCTION Zcde       = Genfun::FixedConstant(Zmin+(tl1+bl1)/2.+safety_zlen);
+	      GeoGenfun::GENFUNCTION Xcde    = (x1e + x2e)/2.+ (2.*idivi-1.)*(1.-frac)*de/2.*cosalfae;
+	      GeoGenfun::GENFUNCTION Ycde    = (y1e + y2e)/2.+ (2.*idivi-1.)*(1.-frac)*de/2.*sinalfae;
+	      GeoGenfun::GENFUNCTION Zcde       = GeoGenfun::FixedConstant(Zmin+(tl1+bl1)/2.+safety_zlen);
 	   
 	   
-	      Genfun::GENFUNCTION h1e      = de/2.*frac - .007*CLHEP::mm;
-	      Genfun::GENFUNCTION alpha_e  = ATan(0.5*(bl1-tl1)/h1e); 
+	      GeoGenfun::GENFUNCTION h1e      = de/2.*frac - .007*GeoModelKernelUnits::mm;
+	      GeoGenfun::GENFUNCTION alpha_e  = ATan(0.5*(bl1-tl1)/h1e); 
 	   
 	   
 	      GeoXF::TRANSFUNCTION TXE = 
-	        GeoXF::Pow(HepGeom::TranslateX3D(1.0),Xcde) *
-	        GeoXF::Pow(HepGeom::TranslateY3D(1.0),Ycde) *
-	        GeoXF::Pow(HepGeom::TranslateZ3D(1.0),Zcde) * 
-	        GeoXF::Pow(HepGeom::RotateZ3D(1.0),-alfrote)*
-	        HepGeom::RotateY3D(-90*CLHEP::deg);                    
+	        GeoXF::Pow(GeoTrf::TranslateX3D(1.0),Xcde) *
+	        GeoXF::Pow(GeoTrf::TranslateY3D(1.0),Ycde) *
+	        GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),Zcde) * 
+	        GeoXF::Pow(GeoTrf::RotateZ3D(1.0),-alfrote)*
+	        GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);                    
 	   
 	   
 	      for (int instance = 0; instance < Nelectrode; instance++) 
@@ -1778,10 +1778,10 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 		//------------------------------------------------------------------------
 		if (m_A_SAGGING) {
 		  if (!gStraightElectrodes) gStraightElectrodes = new GeoStraightAccSection();
-		  gStraightElectrodes->XCent(instance,irl)=TXE(instance).dx();
-		  gStraightElectrodes->YCent(instance,irl)=TXE(instance).dy();
-		  gStraightElectrodes->Cosu(instance,irl)    =-(TXE(instance).xy());
-		  gStraightElectrodes->Sinu(instance,irl)    = (TXE(instance).xz());
+		  gStraightElectrodes->XCent(instance,irl)=TXE(instance)(0,3); //dx
+		  gStraightElectrodes->YCent(instance,irl)=TXE(instance)(1,3); //dy
+		  gStraightElectrodes->Cosu(instance,irl)    =-(TXE(instance)(0,1)); //xy
+		  gStraightElectrodes->Sinu(instance,irl)    = (TXE(instance)(0,2)); //xz
 		  gStraightElectrodes->HalfLength(instance,irl) = trap->getDydzn();
 
 		  stacPhysical->add(new GeoTransform(TXE(instance)));
@@ -1818,21 +1818,21 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 // get slant angle for the previous zig-zag
                  int iirl=jrl-1;
                  if (iirl<0) iirl=1;
-                 Genfun::GENFUNCTION x0e = Fx(iirl, Game, Cenx, Ceny)
+                 GeoGenfun::GENFUNCTION x0e = Fx(iirl, Game, Cenx, Ceny)
                                            +deltay[iirl]*Del1(Game)
                                            +deltax[iirl]*Del2(Game);
-                 Genfun::GENFUNCTION y0e = Fy(iirl, Game, Cenx, Ceny)
+                 GeoGenfun::GENFUNCTION y0e = Fy(iirl, Game, Cenx, Ceny)
                                            -deltay[iirl]*Del2(Game)
                                            +deltax[iirl]*Del1(Game);
-                 Genfun::GENFUNCTION dx0 = x1e - x0e;
-                 Genfun::GENFUNCTION dy0 = y1e - y0e;
+                 GeoGenfun::GENFUNCTION dx0 = x1e - x0e;
+                 GeoGenfun::GENFUNCTION dy0 = y1e - y0e;
               // Da the two fold centers distance, da straight part length
-                 Genfun::GENFUNCTION Da0 = Sqrt ( dx0*dx0 + dy0*dy0 );
-                 Genfun::GENFUNCTION da0 = Sqrt ( (Da0 - 2.*Rint)*(Da0 + 2.*Rint) );
+                 GeoGenfun::GENFUNCTION Da0 = Sqrt ( dx0*dx0 + dy0*dy0 );
+                 GeoGenfun::GENFUNCTION da0 = Sqrt ( (Da0 - 2.*Rint)*(Da0 + 2.*Rint) );
               // newalpha (slant angle) value of the rotation angle around Z_axis
-                 Genfun::GENFUNCTION cosalfa0 = (da0*dx0 +iparit*2.*Rint*dy0)/Da0/Da0;
-                 Genfun::GENFUNCTION sinalfa0 = (da0*dy0 -iparit*2.*Rint*dx0)/Da0/Da0;
-                 Genfun::GENFUNCTION alphe_prev = ATan2(sinalfa0,cosalfa0);
+                 GeoGenfun::GENFUNCTION cosalfa0 = (da0*dx0 +iparit*2.*Rint*dy0)/Da0/Da0;
+                 GeoGenfun::GENFUNCTION sinalfa0 = (da0*dy0 -iparit*2.*Rint*dx0)/Da0/Da0;
+                 GeoGenfun::GENFUNCTION alphe_prev = ATan2(sinalfa0,cosalfa0);
 
 #ifdef DEBUGGEO
                 if (jrl>0 && jrl<Nbrt) {
@@ -1842,25 +1842,25 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 #endif
 
 // down folds (add +M_PI and then rotate by -M_PI to follow same logic as old code)
-                 Genfun::Mod Mod2Pi(2*M_PI);
-                 Genfun::GENFUNCTION phi0_dfold_0 = 
-                                       Genfun::FixedConstant(M_PI/2.+phi0_safety);
-                 Genfun::GENFUNCTION dphi_dfold_0 = Mod2Pi(newalphe-phi0_safety-Game);
-                 Genfun::GENFUNCTION phi0_dfold_1 = Mod2Pi(M_PI/2.+ alphe_prev - Game);
-                 Genfun::GENFUNCTION dphi_dfold_1  = Mod2Pi(newalphe-alphe_prev);
-                 Genfun::GENFUNCTION phi0_dfold_2 =  Mod2Pi(M_PI/2.+ newalphe - Game);
-                 Genfun::GENFUNCTION dphi_dfold_2 = Mod2Pi(- newalphe + Game);  
+                 GeoGenfun::Mod Mod2Pi(2*M_PI);
+                 GeoGenfun::GENFUNCTION phi0_dfold_0 = 
+                                       GeoGenfun::FixedConstant(M_PI/2.+phi0_safety);
+                 GeoGenfun::GENFUNCTION dphi_dfold_0 = Mod2Pi(newalphe-phi0_safety-Game);
+                 GeoGenfun::GENFUNCTION phi0_dfold_1 = Mod2Pi(M_PI/2.+ alphe_prev - Game);
+                 GeoGenfun::GENFUNCTION dphi_dfold_1  = Mod2Pi(newalphe-alphe_prev);
+                 GeoGenfun::GENFUNCTION phi0_dfold_2 =  Mod2Pi(M_PI/2.+ newalphe - Game);
+                 GeoGenfun::GENFUNCTION dphi_dfold_2 = Mod2Pi(- newalphe + Game);  
 // up folds
-                 Genfun::GENFUNCTION phi0_ufold_0 =
+                 GeoGenfun::GENFUNCTION phi0_ufold_0 =
                   Mod2Pi(M_PI/2.+newalphe-Game);
-                 Genfun::GENFUNCTION dphi_ufold_0 = Mod2Pi(-newalphe+Game-phi0_safety);
-                 Genfun::GENFUNCTION phi0_ufold_1 = Mod2Pi(M_PI/2. + newalphe - Game);
-                 Genfun::GENFUNCTION dphi_ufold_1 =  Mod2Pi(alphe_prev - newalphe);
-                 Genfun::GENFUNCTION phi0_ufold_2 = Genfun::FixedConstant(M_PI/2.);
-                 Genfun::GENFUNCTION dphi_ufold_2 = Mod2Pi(newalphe - Game);
+                 GeoGenfun::GENFUNCTION dphi_ufold_0 = Mod2Pi(-newalphe+Game-phi0_safety);
+                 GeoGenfun::GENFUNCTION phi0_ufold_1 = Mod2Pi(M_PI/2. + newalphe - Game);
+                 GeoGenfun::GENFUNCTION dphi_ufold_1 =  Mod2Pi(alphe_prev - newalphe);
+                 GeoGenfun::GENFUNCTION phi0_ufold_2 = GeoGenfun::FixedConstant(M_PI/2.);
+                 GeoGenfun::GENFUNCTION dphi_ufold_2 = Mod2Pi(newalphe - Game);
 
-                 const Genfun::AbsFunction* phi0_fold=0;
-                 const Genfun::AbsFunction* dphi_fold=0;
+                 const GeoGenfun::AbsFunction* phi0_fold=0;
+                 const GeoGenfun::AbsFunction* dphi_fold=0;
                  const GeoXF::Function* TXfold=0;
 
                  std::string eName;
@@ -1880,19 +1880,19 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                    ddz0 = dza - safety_zlen;
                  }
 
-                 Genfun::GENFUNCTION zpos     = Genfun::FixedConstant(Zmin+dz0);
+                 GeoGenfun::GENFUNCTION zpos     = GeoGenfun::FixedConstant(Zmin+dz0);
                  double phirot = 0;
                  if (jrl%2==checkParity)  phirot = -M_PI;
                  GeoXF::TRANSFUNCTION TXfold1=
-                   GeoXF::Pow(HepGeom::TranslateX3D(1.0),x1e) *
-                   GeoXF::Pow(HepGeom::TranslateY3D(1.0),y1e) *
-                   GeoXF::Pow(HepGeom::TranslateZ3D(1.0),zpos) *
-                   GeoXF::Pow(HepGeom::RotateZ3D(1.0),Game+phirot);
+                   GeoXF::Pow(GeoTrf::TranslateX3D(1.0),x1e) *
+                   GeoXF::Pow(GeoTrf::TranslateY3D(1.0),y1e) *
+                   GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),zpos) *
+                   GeoXF::Pow(GeoTrf::RotateZ3D(1.0),Game+phirot);
                  GeoXF::TRANSFUNCTION TXfold2 =
-                   GeoXF::Pow(HepGeom::TranslateX3D(1.0),x2e) *
-                   GeoXF::Pow(HepGeom::TranslateY3D(1.0),y2e) *
-                   GeoXF::Pow(HepGeom::TranslateZ3D(1.0),zpos) *
-                   GeoXF::Pow(HepGeom::RotateZ3D(1.0),Game+phirot);
+                   GeoXF::Pow(GeoTrf::TranslateX3D(1.0),x2e) *
+                   GeoXF::Pow(GeoTrf::TranslateY3D(1.0),y2e) *
+                   GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),zpos) *
+                   GeoXF::Pow(GeoTrf::RotateZ3D(1.0),Game+phirot);
 
 // first fown fold
                  if (jrl==0 && checkParity==0) {
@@ -2005,60 +2005,60 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
 // Generic Function Versions
 
-Genfun::FunctionNoop LArGeo::BarrelConstruction::Fx(double r, Genfun::GENFUNCTION G, const double Cenx[], const double Ceny[] ) const
+GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Fx(double r, GeoGenfun::GENFUNCTION G, const double Cenx[], const double Ceny[] ) const
 {
-  Genfun::Cos Cos;
-  Genfun::Sin Sin;
+  GeoGenfun::Cos Cos;
+  GeoGenfun::Sin Sin;
   int i = (int)rint(r-.1), j = (int)rint(r+.1) ;
-  Genfun::GENFUNCTION result =  (Cos(G)*(Cenx[i]+Cenx[j])/2-Sin(G)*(Ceny[i]+Ceny[j])/2) ;
-  return Genfun::FunctionNoop(&result);
+  GeoGenfun::GENFUNCTION result =  (Cos(G)*(Cenx[i]+Cenx[j])/2-Sin(G)*(Ceny[i]+Ceny[j])/2) ;
+  return GeoGenfun::FunctionNoop(&result);
 }
 
-Genfun::FunctionNoop LArGeo::BarrelConstruction::Fy(double r, Genfun::GENFUNCTION G, const double Cenx[], const double Ceny[] ) const
+GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Fy(double r, GeoGenfun::GENFUNCTION G, const double Cenx[], const double Ceny[] ) const
 {
-  Genfun::Cos Cos;
-  Genfun::Sin Sin;
+  GeoGenfun::Cos Cos;
+  GeoGenfun::Sin Sin;
   int i = (int)rint(r-.1), j = (int)rint(r+.1) ;
-  Genfun::GENFUNCTION result = (Sin(G)*(Cenx[i]+Cenx[j])/2+Cos(G)*(Ceny[i]+Ceny[j])/2) ;
-  return Genfun::FunctionNoop(&result);
+  GeoGenfun::GENFUNCTION result = (Sin(G)*(Cenx[i]+Cenx[j])/2+Cos(G)*(Ceny[i]+Ceny[j])/2) ;
+  return GeoGenfun::FunctionNoop(&result);
 }
 
-Genfun::FunctionNoop LArGeo::BarrelConstruction::Del1(Genfun::GENFUNCTION G) const
+GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Del1(GeoGenfun::GENFUNCTION G) const
 {
-  Genfun::Cos Cos;
-  Genfun::Sin Sin;
-  Genfun::GENFUNCTION result = (Cos(  G ) * Sin( G ) );
-  return Genfun::FunctionNoop(&result);
+  GeoGenfun::Cos Cos;
+  GeoGenfun::Sin Sin;
+  GeoGenfun::GENFUNCTION result = (Cos(  G ) * Sin( G ) );
+  return GeoGenfun::FunctionNoop(&result);
 }
 
-Genfun::FunctionNoop LArGeo::BarrelConstruction::Del2(Genfun::GENFUNCTION G) const
+GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::Del2(GeoGenfun::GENFUNCTION G) const
 {
-  Genfun::Cos Cos;
-  Genfun::GENFUNCTION result = (Cos(  G ) * Cos( G ) );
-  return Genfun::FunctionNoop(&result);
+  GeoGenfun::Cos Cos;
+  GeoGenfun::GENFUNCTION result = (Cos(  G ) * Cos( G ) );
+  return GeoGenfun::FunctionNoop(&result);
 }
 
 
-Genfun::FunctionNoop LArGeo::BarrelConstruction::ATan2(Genfun::GENFUNCTION y, Genfun::GENFUNCTION x) const {
+GeoGenfun::FunctionNoop LArGeo::BarrelConstruction::ATan2(GeoGenfun::GENFUNCTION y, GeoGenfun::GENFUNCTION x) const {
 
   // Manufacture a Theta Function:
-  Genfun::Rectangular Theta;
+  GeoGenfun::Rectangular Theta;
   Theta.x0().setValue(0.0);
   Theta.x1().setValue(DBL_MAX);
   Theta.baseline().setValue(0.0);
   Theta.height().setValue(1.0);
 
   // Manufacture an ATan function:
-  Genfun::ATan ATan;
+  GeoGenfun::ATan ATan;
   
 
   // Manufacture a Mod function, putting this on the range (0-2PI)
-  Genfun::Mod Mod2Pi(2*M_PI);
+  GeoGenfun::Mod Mod2Pi(2*M_PI);
 
   // Now take ATan if x is positive 
   
-  Genfun::GENFUNCTION result = Theta(x)*ATan(y/x) + Theta(-x)*(Mod2Pi(ATan(y/x)+M_PI)); 
-  return Genfun::FunctionNoop(&result);
+  GeoGenfun::GENFUNCTION result = Theta(x)*ATan(y/x) + Theta(-x)*(Mod2Pi(ATan(y/x)+M_PI)); 
+  return GeoGenfun::FunctionNoop(&result);
 
 }
 
@@ -2111,7 +2111,7 @@ void LArGeo::BarrelConstruction::printParams()
        m_parameters->GetValue("LArEMBphiMaxBarrel") << std::endl;
   std::cout << "Number of zigs          " <<  
      m_parameters->GetValue("LArEMBnoOFAccZigs") << std::endl;
-  std::cout << "Fold CLHEP::rad of curvature   " << 
+  std::cout << "Fold GeoModelKernelUnits::rad of curvature   " << 
      m_parameters->GetValue("LArEMBNeutFiberRadius") << std::endl;
   for (int i=0;i<15;i++) {
     std::cout << "Fold " << i << " radius " <<  

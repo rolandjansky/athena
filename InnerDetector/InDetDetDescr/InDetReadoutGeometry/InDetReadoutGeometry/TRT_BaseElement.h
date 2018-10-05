@@ -70,8 +70,8 @@ namespace InDetDD {
 
     // --- GeoModel transformation forwards ----------------------------------------------------- //
 
-    /** Get Default Transform (of module in barrel, layer in endcap) from GeoModel before alignment corrections: CLHEP */
-    const HepGeom::Transform3D& defTransform() const;
+    /** Get Default Transform (of module in barrel, layer in endcap) from GeoModel before alignment corrections */
+    inline const GeoTrf::Transform3D& defTransform() const { return getMaterialGeom()->getDefAbsoluteTransform(); }
     
     /** Default Local -> global transform of the straw (ie before alignment corrections) : CLHEP */
     virtual HepGeom::Transform3D defStrawTransform(int straw) const = 0;
@@ -235,7 +235,6 @@ namespace InDetDD {
     
 }
 
-#include "TRT_BaseElement.icc"
 #endif
 
 

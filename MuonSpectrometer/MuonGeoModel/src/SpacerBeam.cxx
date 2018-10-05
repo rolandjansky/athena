@@ -14,10 +14,9 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "MuonGeoModel/CHV_Technology.h"
 #include "MuonGeoModel/CRO_Technology.h"
 #include "MuonGeoModel/CMI_Technology.h"
@@ -110,15 +109,15 @@ SpacerBeam::build(int /*cutoutson*/, bool is_barrel)
       const GeoShape* IBeamShape = new GeoBox(height/2, volumelargeness/2, length/2);
       GeoBox* sideBox = new GeoBox(height/2. - thickness, volumelargeness/4., length/2 + 1.);
       double yshift = volumelargeness/4. + thickness/2.;
-      IBeamShape = &(IBeamShape->subtract( (*sideBox) << HepGeom::TranslateY3D(yshift) ) );
-      IBeamShape = &(IBeamShape->subtract( (*sideBox) << HepGeom::TranslateY3D(-yshift) ) );
+      IBeamShape = &(IBeamShape->subtract( (*sideBox) << GeoTrf::TranslateY3D(yshift) ) );
+      IBeamShape = &(IBeamShape->subtract( (*sideBox) << GeoTrf::TranslateY3D(-yshift) ) );
 
       // Cut holes for LB
       GeoBox* holeBox = new GeoBox(m_lb_height/2.+1., 
                                    thickness/2.+1., 
                                    m_lb_width/cosexc/2.+thickness*sinexc/cosexc+6.);
-      IBeamShape = &(IBeamShape->subtract( (*holeBox) << HepGeom::TranslateZ3D(m_hole_pos1/cosexc) ) );
-      IBeamShape = &(IBeamShape->subtract( (*holeBox) << HepGeom::TranslateZ3D(m_hole_pos2/cosexc) ) );
+      IBeamShape = &(IBeamShape->subtract( (*holeBox) << GeoTrf::TranslateZ3D(m_hole_pos1/cosexc) ) );
+      IBeamShape = &(IBeamShape->subtract( (*holeBox) << GeoTrf::TranslateZ3D(m_hole_pos2/cosexc) ) );
       lvol = new GeoLogVol(name, IBeamShape, mat);
       pvol = new GeoPhysVol(lvol);
 

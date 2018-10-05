@@ -5,6 +5,13 @@
 
 #include "egammaMVACalib/egammaMVAFunctions.h"
 
+#ifndef XAOD_ANALYSIS
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
+#else
+#define GeV 1000
+#endif
+
 /**
  * These functions are for building the maps of functions
  **/
@@ -73,7 +80,7 @@ namespace egammaMVAFunctions
     funcLibrary["convR"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)->float
       { 
 	auto ph = static_cast<const xAOD::Photon*>(eg);
-	if (compute_ptconv(ph) > 3*CLHEP::GeV) {
+	if (compute_ptconv(ph) > 3*GeV) { 
 	  return xAOD::EgammaHelpers::conversionRadius(ph);
 	} else {
 	  return 799.0;

@@ -51,13 +51,13 @@
 // For units:
 #include "CLHEP/Units/PhysicalConstants.h"
 // For Transformation Fields:
-#include "CLHEP/GenericFunctions/Abs.hh" 
-#include "CLHEP/GenericFunctions/Mod.hh"
-#include "CLHEP/GenericFunctions/Rectangular.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-#include "CLHEP/GenericFunctions/FixedConstant.hh"
-#include "CLHEP/GenericFunctions/Sin.hh"
-#include "CLHEP/GenericFunctions/Cos.hh"
+#include "GeoGenericFunctions/Abs.h" 
+#include "GeoGenericFunctions/Mod.h"
+#include "GeoGenericFunctions/Rectangular.h"
+#include "GeoGenericFunctions/Variable.h"
+#include "GeoGenericFunctions/FixedConstant.h"
+#include "GeoGenericFunctions/Sin.h"
+#include "GeoGenericFunctions/Cos.h"
 
 #include <string>
 #include <cmath>
@@ -65,7 +65,7 @@
 #include <climits>
 #include <stdexcept>
 using namespace GeoXF;
-using namespace Genfun;
+using namespace GeoGenfun;
 
 // The objects for mapping plane indexes in Pcon to the record index
 // in RDBRecordset
@@ -169,7 +169,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 
     const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, names[n]);
     if (!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
-    HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
+    GeoTrf::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
     xf[n] = new GeoAlignableTransform(xfPos);
 
     StoredAlignX *sAlignX = new StoredAlignX(xf[n]);
@@ -243,9 +243,9 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
   // (LArVDetectorParameters) and adjust the volume geometry
   // accordingly.
 
-  //  double cryoMotherRin[]   = {1149.8*CLHEP::mm, 1149.8*CLHEP::mm,1149.8*CLHEP::mm,1149.8*CLHEP::mm,1149.8*CLHEP::mm,1149.8*CLHEP::mm};
-  //  double cryoMotherRout[]  = {2890. *CLHEP::mm, 2890. *CLHEP::mm,2250. *CLHEP::mm,2250. *CLHEP::mm,2890. *CLHEP::mm,2890. *CLHEP::mm};  
-  //  double cryoMotherZplan[] = {-3490.*CLHEP::mm,-2850.*CLHEP::mm,-2849.*CLHEP::mm, 2849.*CLHEP::mm, 2850.*CLHEP::mm, 3490.*CLHEP::mm};
+  //  double cryoMotherRin[]   = {1149.8*GeoModelKernelUnits::mm, 1149.8*GeoModelKernelUnits::mm,1149.8*GeoModelKernelUnits::mm,1149.8*GeoModelKernelUnits::mm,1149.8*GeoModelKernelUnits::mm,1149.8*GeoModelKernelUnits::mm};
+  //  double cryoMotherRout[]  = {2890. *GeoModelKernelUnits::mm, 2890. *GeoModelKernelUnits::mm,2250. *GeoModelKernelUnits::mm,2250. *GeoModelKernelUnits::mm,2890. *GeoModelKernelUnits::mm,2890. *GeoModelKernelUnits::mm};  
+  //  double cryoMotherZplan[] = {-3490.*GeoModelKernelUnits::mm,-2850.*GeoModelKernelUnits::mm,-2849.*GeoModelKernelUnits::mm, 2849.*GeoModelKernelUnits::mm, 2850.*GeoModelKernelUnits::mm, 3490.*GeoModelKernelUnits::mm};
 
   // Access source of detector parameters.
   //  VDetectorParameters* parameters = VDetectorParameters::GetInstance();
@@ -322,8 +322,8 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
       std::string cylName= cylStream.str();
 
       int cylNumber = currentRecord->getInt("CYL_NUMBER");
-      double zMin = currentRecord->getDouble("ZMIN")*CLHEP::cm;
-      double dZ   = currentRecord->getDouble("DZ")*CLHEP::cm;
+      double zMin = currentRecord->getDouble("ZMIN")*GeoModelKernelUnits::cm;
+      double dZ   = currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm;
       double zInCryostat = zMin + dZ / 2.;
       
       if(m_fullGeo){
@@ -347,12 +347,12 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 
 	  m_cryoMotherPhysical->add(new GeoNameTag(std::string("CryostatEarForward")));
 	  m_cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat)));
 	  m_cryoMotherPhysical->add(earPhysVol);
 
 	  m_cryoMotherPhysical->add(new GeoNameTag(cylName+std::string("CryostatEarBackward")));
 	  m_cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(-zInCryostat)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(-zInCryostat)));
 	  m_cryoMotherPhysical->add(earPhysVol);                
 	}
       
@@ -370,7 +370,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 				       -angle*(M_PI/180.0),
 				       M_PI  + 2*angle*(M_PI/180));
 
-	  HepGeom::TranslateY3D  offset(rmax-yvert);
+	  GeoTrf::TranslateY3D  offset(rmax-yvert);
 	  GeoBox * box =  new GeoBox(rmax,rmax, rmax);
 	  const GeoShape & shape = tubs->subtract((*box)<<offset);
 	  
@@ -379,12 +379,12 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	
 	  m_cryoMotherPhysical->add(new GeoNameTag(std::string("CryostatLegForward")));
 	  m_cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat+zthick)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat+zthick)));
 	  m_cryoMotherPhysical->add(legPhysVol);
 	  
 	  m_cryoMotherPhysical->add(new GeoNameTag(cylName+std::string("CryostatLegBackward")));
 	  m_cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(-zInCryostat-zthick)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(-zInCryostat-zthick)));
 	  m_cryoMotherPhysical->add(legPhysVol);                
 	}
       }
@@ -395,9 +395,9 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
       // For Reco Geometry construct only solenoid cylinders
       if(m_fullGeo || (10<=cylID && cylID<=14)) {
 	solidBarrelCylinder
-	  = new GeoTubs(currentRecord->getDouble("RMIN")*CLHEP::cm,
-			currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm,
-			currentRecord->getDouble("DZ")*CLHEP::cm / 2.,
+	  = new GeoTubs(currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm,
+			currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DR")*GeoModelKernelUnits::cm,
+			currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.,
 			(double) 0.,
 			dphi_all);
 
@@ -418,7 +418,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	  if(10<=cylID && cylID<=14)
 	    m_cryoMotherPhysical->add(xfSolenoid);
 
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat)));
 	  m_cryoMotherPhysical->add(physBarrelCylinder);
 
 	  
@@ -436,12 +436,12 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	  
 	  m_cryoMotherPhysical->add(new GeoNameTag(cylName+std::string("PhysForward")));
 	  m_cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat)));
 	  m_cryoMotherPhysical->add(physBarrelCylinder);
 	  
 	  m_cryoMotherPhysical->add(new GeoNameTag(cylName+std::string("PhysBackward")));
 	  m_cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(-zInCryostat)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(-zInCryostat)));
 	  m_cryoMotherPhysical->add(physBarrelCylinder);                
 	}           
       }                           
@@ -532,17 +532,17 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
           double xxVis=((double)(Nvis));
           double ZposB=0.5*(z1+z2);
           double twopi128 = 2.*M_PI/xxVis;
-          Genfun::Variable      i;                                                        
-          Genfun::Mod Mod1(1.0),Mod128(xxVis),Mod2(2.0);                                  
-          Genfun::GENFUNCTION  PhiPos = PhiPos0 + twopi128*Mod128(i);                
-          Genfun::GENFUNCTION Int = i - Mod1;
-          Genfun::Cos  Cos;
-          Genfun::Sin  Sin;
+          GeoGenfun::Variable      i;                                                        
+          GeoGenfun::Mod Mod1(1.0),Mod128(xxVis),Mod2(2.0);                                  
+          GeoGenfun::GENFUNCTION  PhiPos = PhiPos0 + twopi128*Mod128(i);                
+          GeoGenfun::GENFUNCTION Int = i - Mod1;
+          GeoGenfun::Cos  Cos;
+          GeoGenfun::Sin  Sin;
           GeoXF::TRANSFUNCTION TX =                                                       
-            GeoXF::Pow(HepGeom::TranslateX3D(1.0),RhoPosB*Cos(PhiPos))*                         
-            GeoXF::Pow(HepGeom::TranslateY3D(1.0),RhoPosB*Sin(PhiPos))*                         
-            GeoXF::Pow(HepGeom::TranslateZ3D(2*ZposB),Int(i/128))*
-            HepGeom::TranslateZ3D(-ZposB);                                         
+            GeoXF::Pow(GeoTrf::TranslateX3D(1.0),RhoPosB*Cos(PhiPos))*                         
+            GeoXF::Pow(GeoTrf::TranslateY3D(1.0),RhoPosB*Sin(PhiPos))*                         
+            GeoXF::Pow(GeoTrf::TranslateZ3D(2*ZposB),Int(i/128))*
+            GeoTrf::TranslateZ3D(-ZposB);                                         
           GeoSerialTransformer *st = new GeoSerialTransformer(phys_vis, &TX, 2*Nvis);
           innerWallPhys->add(st);
         }
@@ -588,7 +588,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	  
 	  GeoLogVol* extraLog = new GeoLogVol(extraName,extraCons,Aluminium);
 	  GeoPhysVol* extraPhys = new GeoPhysVol(extraLog);
-	  m_cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(extra_zpos)));
+	  m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(extra_zpos)));
 	  m_cryoMotherPhysical->add(extraPhys); 
 	}
       }
@@ -649,31 +649,31 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
         double pos  = -z+width/2 + distFromRidge;
 // position of bumpers in new description
         if  (newBlocks->size() >0) {
-          Genfun::Variable      i;                                                        //
-          Genfun::Mod Mod1(1.0),Mod2(2.0);                                                //
-          Genfun::GENFUNCTION Truncate = i - Mod1(i);                                     //
-          Genfun::GENFUNCTION AngleZ = -angle/2.+angle*Truncate(Mod2(i/2))+ 2.*M_PI/(1.0*nPairTot)*Truncate(i/4) + 2*M_PI/(2.*nPairTot);
-          Genfun::GENFUNCTION TransZ = -pos + 2.*pos*Mod2(i);
+          GeoGenfun::Variable      i;                                                        //
+          GeoGenfun::Mod Mod1(1.0),Mod2(2.0);                                                //
+          GeoGenfun::GENFUNCTION Truncate = i - Mod1(i);                                     //
+          GeoGenfun::GENFUNCTION AngleZ = -angle/2.+angle*Truncate(Mod2(i/2))+ 2.*M_PI/(1.0*nPairTot)*Truncate(i/4) + 2*M_PI/(2.*nPairTot);
+          GeoGenfun::GENFUNCTION TransZ = -pos + 2.*pos*Mod2(i);
       
           TRANSFUNCTION tx = 
-            GeoXF::Pow(HepGeom::TranslateZ3D(1.0),TransZ)*
-            GeoXF::Pow(HepGeom::RotateZ3D(1.0),AngleZ)*
-            HepGeom::Translate3D(0.,r+height/2,0.);
+            GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),TransZ)*
+            GeoXF::Pow(GeoTrf::RotateZ3D(1.0),AngleZ)*
+            GeoTrf::Translate3D(0.,r+height/2,0.);
           GeoSerialTransformer *t  = new GeoSerialTransformer(physVol, &tx, nPairTot*4);
           m_cryoMotherPhysical->add(t);
         }
 // position of bumper in old description
         else {
-          Genfun::Variable      i;                                                        //
-          Genfun::Mod Mod1(1.0),Mod2(2.0);                                                //
-          Genfun::GENFUNCTION Truncate = i - Mod1(i);                                     //
+          GeoGenfun::Variable      i;                                                        //
+          GeoGenfun::Mod Mod1(1.0),Mod2(2.0);                                                //
+          GeoGenfun::GENFUNCTION Truncate = i - Mod1(i);                                     //
       
           TRANSFUNCTION tx = 
-           Pow(HepGeom::RotateZ3D(2*M_PI/nPairTot),Truncate(i/4))*
-           Pow(HepGeom::RotateZ3D(angle),Mod2(i/2))*
-           HepGeom::RotateZ3D(-angle/2)*
-           Pow(HepGeom::TranslateZ3D(2*pos),Mod2(i))*
-           HepGeom::Translate3D(0,r+height/2, -pos);
+           Pow(GeoTrf::RotateZ3D(2*M_PI/nPairTot),Truncate(i/4))*
+           Pow(GeoTrf::RotateZ3D(angle),Mod2(i/2))*
+           GeoTrf::RotateZ3D(-angle/2)*
+           Pow(GeoTrf::TranslateZ3D(2*pos),Mod2(i))*
+           GeoTrf::Translate3D(0,r+height/2, -pos);
           GeoSerialTransformer *t  = new GeoSerialTransformer(physVol, &tx, nPairTot*4);
           m_cryoMotherPhysical->add(t);
         }
@@ -707,7 +707,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
       m_cryoMotherPhysical->add(new GeoNameTag(std::string("Barrel Cryo InnerEndWall Phys")));
       GeoPhysVol *innerEndWallPhys = new GeoPhysVol(innerEndWallLog);
       m_cryoMotherPhysical->add(innerEndWallPhys);
-      m_cryoMotherPhysical->add(new GeoTransform(HepGeom::RotateY3D(M_PI)));
+      m_cryoMotherPhysical->add(new GeoTransform(GeoTrf::RotateY3D(M_PI)));
       m_cryoMotherPhysical->add(innerEndWallPhys);
     }
 
@@ -722,9 +722,9 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
   // sub-divided into sensitive-detector regions in the detector
   // routine.
 
-  //  double totalLArRin[]   = { 1565.5*CLHEP::mm, 1385.*CLHEP::mm, 1385.*CLHEP::mm, 1565.5*CLHEP::mm };
-  //  double totalLArRout[]  = { 2140. *CLHEP::mm, 2140.*CLHEP::mm, 2140.*CLHEP::mm, 2140. *CLHEP::mm };  
-  //  double totalLArZplan[] = {-3267. *CLHEP::mm,-3101.*CLHEP::mm, 3101.*CLHEP::mm, 3267. *CLHEP::mm };
+  //  double totalLArRin[]   = { 1565.5*GeoModelKernelUnits::mm, 1385.*GeoModelKernelUnits::mm, 1385.*GeoModelKernelUnits::mm, 1565.5*GeoModelKernelUnits::mm };
+  //  double totalLArRout[]  = { 2140. *GeoModelKernelUnits::mm, 2140.*GeoModelKernelUnits::mm, 2140.*GeoModelKernelUnits::mm, 2140. *GeoModelKernelUnits::mm };  
+  //  double totalLArZplan[] = {-3267. *GeoModelKernelUnits::mm,-3101.*GeoModelKernelUnits::mm, 3101.*GeoModelKernelUnits::mm, 3267. *GeoModelKernelUnits::mm };
     
   GeoPcon* totalLArShape =
     new GeoPcon(0.,                     // starting phi
@@ -763,11 +763,11 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
   // to this shape to allow for mis-alignments in other dimensions.)
 
   // increase internal radius to allow misalignments
-  // -----------------------------------------------  double rInShift = 0.*CLHEP::mm;
+  // -----------------------------------------------  double rInShift = 0.*GeoModelKernelUnits::mm;
 
-  //  double halfLArZplan[] = { 3.0 *CLHEP::mm, 3101.*CLHEP::mm, 3267. *CLHEP::mm };
-  //  double halfLArRin[]   = {1385.*CLHEP::mm + rInShift, 1385.*CLHEP::mm + rInShift, 1565.5*CLHEP::mm  + rInShift};
-  //  double halfLArRout[]  = {2140.*CLHEP::mm, 2140.*CLHEP::mm, 2140. *CLHEP::mm };  
+  //  double halfLArZplan[] = { 3.0 *GeoModelKernelUnits::mm, 3101.*GeoModelKernelUnits::mm, 3267. *GeoModelKernelUnits::mm };
+  //  double halfLArRin[]   = {1385.*GeoModelKernelUnits::mm + rInShift, 1385.*GeoModelKernelUnits::mm + rInShift, 1565.5*GeoModelKernelUnits::mm  + rInShift};
+  //  double halfLArRout[]  = {2140.*GeoModelKernelUnits::mm, 2140.*GeoModelKernelUnits::mm, 2140. *GeoModelKernelUnits::mm };  
     
   std::string halfLArName = "LAr::Barrel::Cryostat::HalfLAr";
   GeoPcon* halfLArShape =
@@ -810,7 +810,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 
   // add alignable transform
   totalLArPhysical->add(xfHalfLArNeg);
-  totalLArPhysical->add( new GeoTransform(HepGeom::RotateY3D(180.*CLHEP::deg)) );
+  totalLArPhysical->add( new GeoTransform(GeoTrf::RotateY3D(180.*GeoModelKernelUnits::deg)) );
   totalLArPhysical->add(halfLArPhysicalNeg);
   
   {
@@ -865,9 +865,9 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	  std::string cylName= cylStream.str(); 
 
 	  GeoTubs* solidBarrelCylinder 
-	  = new GeoTubs(currentRecord->getDouble("RMIN")*CLHEP::cm,
-			currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm,
-			currentRecord->getDouble("DZ")*CLHEP::cm / 2.,
+	  = new GeoTubs(currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm,
+			currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DR")*GeoModelKernelUnits::cm,
+			currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.,
 			(double) 0.,
 			dphi_all);
     
@@ -876,7 +876,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	  
 	  GeoPhysVol* physBarrelCylinder = new GeoPhysVol(logicBarrelCylinder);
 	  
-	  double zInCryostat = currentRecord->getDouble("ZMIN")*CLHEP::cm + currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
+	  double zInCryostat = currentRecord->getDouble("ZMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.;
 	  
 	  int cylNumber = currentRecord->getInt("CYL_NUMBER");
 	  
@@ -886,23 +886,23 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	    halfLArPhysicalPos->add(new GeoNameTag(cylName+std::string("PhysForward")));
 	    halfLArPhysicalPos->add(new GeoIdentifierTag(cylNumber));
 	    //	  halfLArPhysicalPos->add(xfPos);
-	    halfLArPhysicalPos->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
+	    halfLArPhysicalPos->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat)));
 	    halfLArPhysicalPos->add(physBarrelCylinder);
 	    
 	    halfLArPhysicalNeg->add(new GeoNameTag(cylName+std::string("PhysBackward")));
 	    halfLArPhysicalNeg->add(new GeoIdentifierTag(cylNumber));
 	    //	  halfLArPhysicalNeg->add(xfNeg);
-	    halfLArPhysicalNeg->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
+	    halfLArPhysicalNeg->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat)));
 	    halfLArPhysicalNeg->add(physBarrelCylinder);
 	  } else {
 	    totalLArPhysical->add(new GeoNameTag(cylName+std::string("PhysForward")));
 	    totalLArPhysical->add(new GeoIdentifierTag(cylNumber));
-	    totalLArPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
+	    totalLArPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat)));
 	    totalLArPhysical->add(physBarrelCylinder);
 
 	    totalLArPhysical->add(new GeoNameTag(cylName+std::string("PhysBackward")));
 	    totalLArPhysical->add(new GeoIdentifierTag(cylNumber));
-	    totalLArPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(-zInCryostat)));
+	    totalLArPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(-zInCryostat)));
 	    totalLArPhysical->add(physBarrelCylinder);
 	  }
 	}
@@ -913,13 +913,13 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
   }
   {
     // ----- Presampler ------    
-    double PresamplerMother_length = 1549.0*CLHEP::mm;  // Copied from PresParameterDef.icc
-    double presamplerShift = 3.*CLHEP::mm;
+    double PresamplerMother_length = 1549.0*GeoModelKernelUnits::mm;  // Copied from PresParameterDef.icc
+    double presamplerShift = 3.*GeoModelKernelUnits::mm;
     BarrelPresamplerConstruction barrelPSConstruction(m_fullGeo);
     
     // The "envelope" determined by the EMB should be a GeoFullPhysVol.
     GeoFullPhysVol* barrelPSPosEnvelope = barrelPSConstruction.GetPositiveEnvelope();
-    GeoTransform *xfPos = new GeoTransform(HepGeom::Transform3D(HepGeom::TranslateZ3D(PresamplerMother_length+presamplerShift)));
+    GeoTransform *xfPos = new GeoTransform(GeoTrf::Transform3D(GeoTrf::TranslateZ3D(PresamplerMother_length+presamplerShift)));
     {
       halfLArPhysicalPos->add(xfPos);
       //halfLArPhysicalPos->add(new GeoNameTag("PositivePSBarrel"));
@@ -931,7 +931,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
     }
     // The "envelope" determined by the EMB should be a GeoFullPhysVol.
     GeoFullPhysVol* barrelPSNegEnvelope = barrelPSConstruction.GetNegativeEnvelope();
-    GeoTransform *xfNeg = new GeoTransform(HepGeom::Transform3D(HepGeom::TranslateZ3D(PresamplerMother_length+presamplerShift)));
+    GeoTransform *xfNeg = new GeoTransform(GeoTrf::Transform3D(GeoTrf::TranslateZ3D(PresamplerMother_length+presamplerShift)));
     {
       halfLArPhysicalNeg->add(xfNeg);
       //halfLArPhysicalPos->add(new GeoNameTag("NegativePSBarrel"));
@@ -957,7 +957,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
       throw std::runtime_error(message.c_str());
     }
 
-    GeoPcon* pcon = new GeoPcon(startPhi*CLHEP::deg,dPhi*CLHEP::deg);
+    GeoPcon* pcon = new GeoPcon(startPhi*GeoModelKernelUnits::deg,dPhi*GeoModelKernelUnits::deg);
 
     for(unsigned int ii=0; ii<sctEcCoolingPlanes.size(); ii++) {
       iter = sctEcCoolingPlanes.find(ii);
@@ -978,10 +978,10 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
     const GeoLogVol* sctCiCoolingLog = new GeoLogVol("LAr::Barrel::Cryostat::SctCiCooling",pcon,material);
     GeoPhysVol* sctCiCoolingPhys = new GeoPhysVol(sctCiCoolingLog);
 
-    GeoTransform* xfPos1 = new GeoTransform(HepGeom::Transform3D());
-    GeoTransform* xfPos2 = new GeoTransform(HepGeom::RotateZ3D(180*CLHEP::deg));
-    GeoTransform* xfNeg1 = new GeoTransform(HepGeom::RotateZ3D((180+2*centerPhi)*CLHEP::deg)*HepGeom::RotateY3D(180*CLHEP::deg));
-    GeoTransform* xfNeg2 = new GeoTransform(HepGeom::RotateZ3D(2*centerPhi*CLHEP::deg)*HepGeom::RotateY3D(180*CLHEP::deg));
+    GeoTransform* xfPos1 = new GeoTransform(GeoTrf::Transform3D::Identity());
+    GeoTransform* xfPos2 = new GeoTransform(GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
+    GeoTransform* xfNeg1 = new GeoTransform(GeoTrf::RotateZ3D((180+2*centerPhi)*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
+    GeoTransform* xfNeg2 = new GeoTransform(GeoTrf::RotateZ3D(2*centerPhi*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
     
     m_cryoMotherPhysical->add(xfPos1);
     m_cryoMotherPhysical->add(sctCiCoolingPhys);

@@ -9,7 +9,6 @@ from AthenaCommon.DetFlags      import DetFlags
 if ( DetFlags.detdescr.LAr_on() ):
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
     GeoModelSvc = GeoModelSvc()
-
     from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
     GeoModelSvc.DetectorTools += [ LArDetectorToolNV() ]
 

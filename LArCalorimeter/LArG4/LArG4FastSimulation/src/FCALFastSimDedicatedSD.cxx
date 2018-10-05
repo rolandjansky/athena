@@ -11,6 +11,9 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CLHEP/Geometry/Transform3D.h"
+#include "CLHEP/Geometry/Point3D.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 using HepGeom::Transform3D;
 using HepGeom::Point3D;
@@ -31,14 +34,14 @@ void FCALFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
   // Fill the identifier.
 
   static Transform3D xfNeg[3] = {
-    m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(0))->getAbsoluteTransform().inverse(),
-    m_fcalManager->getFCAL(FCALModule::Module(2),FCALModule::Endcap(0))->getAbsoluteTransform().inverse(),
-    m_fcalManager->getFCAL(FCALModule::Module(3),FCALModule::Endcap(0))->getAbsoluteTransform().inverse()};
+    Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(0))->getAbsoluteTransform().inverse()),
+    Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(2),FCALModule::Endcap(0))->getAbsoluteTransform().inverse()),
+    Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(3),FCALModule::Endcap(0))->getAbsoluteTransform().inverse())};
 
   static Transform3D xfPos[3] = {
-    m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(1))->getAbsoluteTransform().inverse(),
-    m_fcalManager->getFCAL(FCALModule::Module(2),FCALModule::Endcap(1))->getAbsoluteTransform().inverse(),
-    m_fcalManager->getFCAL(FCALModule::Module(3),FCALModule::Endcap(1))->getAbsoluteTransform().inverse()};
+    Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(1))->getAbsoluteTransform().inverse()),
+    Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(2),FCALModule::Endcap(1))->getAbsoluteTransform().inverse()),
+    Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(3),FCALModule::Endcap(1))->getAbsoluteTransform().inverse())};
 
   static const GeoTubs * fcalTubs[3] = {
     (const GeoTubs *) m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(0))->getMaterialGeom()->getLogVol()->getShape(),

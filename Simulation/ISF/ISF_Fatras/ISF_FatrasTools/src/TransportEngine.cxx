@@ -32,6 +32,7 @@
 
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Random/RandFlat.h"
 
 // AtlasDetDescr

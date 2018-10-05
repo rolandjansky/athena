@@ -28,6 +28,7 @@
 // INCLUDE HEADER FILES: 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
@@ -88,27 +89,27 @@ private:
 
   /** @brief minimum pT for single-track conversion vertices */
   Gaudi::Property<float> m_minPt_singleTrack {this, 
-      "minPt_singleTrack", 0*CLHEP::GeV,
+      "minPt_singleTrack", 0*Gaudi::Units::GeV,
       "minimum pT for single-track conversion vertices"};
 
   /** @brief minimum pT for TRT-only single-track conversion vertices */
   Gaudi::Property<float> m_minPt_singleTRT {this,
-      "minPt_singleTRT", 2*CLHEP::GeV,
+      "minPt_singleTRT", 2*Gaudi::Units::GeV,
       "minimum pT for TRT-only single-track conversion vertices"};
 
   /** @brief minimum pT for each track in TRT-only double-track conversion vertices */  
   Gaudi::Property<float> m_minTRTonlyTrackPt {this,
-      "minTRTonlyTrackPt", 0*CLHEP::GeV,
+      "minTRTonlyTrackPt", 0*Gaudi::Units::GeV,
       "minimum pT for each track in TRT-only double-track conversion vertices"};
 
   /** @brief minimum sum pT for double track conversion vertices */
   Gaudi::Property<float> m_minSumPt_double {this,
-      "minSumPt_double", 0*CLHEP::GeV,
+      "minSumPt_double", 0*Gaudi::Units::GeV,
       "minimum sum pT for double track conversion vertices"};
 
   /** @brief minimum sum pT for double TRT track conversion vertices */
   Gaudi::Property<float> m_minSumPt_doubleTRT {this,
-      "minSumPt_doubleTRT", 2*CLHEP::GeV,
+      "minSumPt_doubleTRT", 2*Gaudi::Units::GeV,
       "minimum sum pT for double TRT track conversion vertices"}; 
 
   /** @brief maximum E/p for single track conversion vertices (E is not calibrated) */

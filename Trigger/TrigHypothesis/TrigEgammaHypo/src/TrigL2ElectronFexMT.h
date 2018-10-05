@@ -46,6 +46,8 @@
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h" 
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 //namespace Trk
 //{ class IParticleCaloExtensionTool; } 
 

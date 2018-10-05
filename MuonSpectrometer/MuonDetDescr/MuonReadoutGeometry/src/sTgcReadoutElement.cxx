@@ -99,7 +99,7 @@ namespace MuonGM {
 	      reLog() << MSG::WARNING << "number of sTGC layers > 4: increase transform array size"<< endmsg;
               continue;
 	    }
-	    m_Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
+	    m_Xlg[llay-1] = pvc->getXToChildVol(ich);
 	    /*if (llay==1 || abs(zi)<3 ) {
 	      if (pc->getLogVol()->getShape()->type()=="Shift") {
 		const GeoShapeShift* myshift = dynamic_cast<const GeoShapeShift*> (pc->getLogVol()->getShape());

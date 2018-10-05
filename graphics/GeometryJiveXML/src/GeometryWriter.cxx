@@ -16,9 +16,9 @@
 #include "TileDetDescr/TileDetDescrManager.h"
 
 #include "LArReadoutGeometry/LArDetectorManager.h"
-#include "GeoModelKernel/GeoPVConstLink.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoTrd.h"
+// #include "GeoModelKernel/GeoPVConstLink.h"
+// #include "GeoModelKernel/GeoTube.h"
+// #include "GeoModelKernel/GeoTrd.h"
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"

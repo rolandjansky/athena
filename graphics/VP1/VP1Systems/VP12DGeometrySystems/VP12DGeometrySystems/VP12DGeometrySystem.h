@@ -33,7 +33,7 @@ public:
   VP12DGeometrySystem & operator= ( const VP12DGeometrySystem & );
 
   class Imp;
-  Imp *d;
+  Imp *m_d;
 
 };
 

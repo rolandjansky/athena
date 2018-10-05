@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PRIVATE
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
                           DetectorDescription/Identifier
+			  DetectorDescription/GeoPrimitives
                           Event/EventInfo
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEventInfo

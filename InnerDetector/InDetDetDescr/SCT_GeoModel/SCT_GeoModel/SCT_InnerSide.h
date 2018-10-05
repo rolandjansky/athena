@@ -10,8 +10,9 @@
 #ifndef SCT_GEOMODEL_SCT_INNERSIDE_H
 #define SCT_GEOMODEL_SCT_INNERSIDE_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include <string>
 
@@ -42,8 +43,8 @@ public:
   double width()     const {return m_width;}
   double length()    const {return m_length;}
 
-  CLHEP::Hep3Vector * env1RefPointVector() const {return m_env1RefPointVector;}
-  CLHEP::Hep3Vector * env2RefPointVector() const {return m_env2RefPointVector;}
+  GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
+  GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
   // *** End of modified lines. ------------------ (00)*********************************
 
 
@@ -76,8 +77,8 @@ private:
 
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (02)*********************************
   // *** -->>                                      (02)*********************************
-  CLHEP::Hep3Vector * m_env1RefPointVector;
-  CLHEP::Hep3Vector * m_env2RefPointVector;
+  GeoTrf::Vector3D * m_env1RefPointVector;
+  GeoTrf::Vector3D * m_env2RefPointVector;
   // *** End of modified lines. ------------------ (02)*********************************
 
 };

@@ -17,10 +17,6 @@
 #include <vector>
 #include <cmath>
 
-
-using HepGeom::Point3D;
-
-
 namespace D3PD {
 
 

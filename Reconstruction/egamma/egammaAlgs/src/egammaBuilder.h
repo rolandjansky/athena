@@ -48,6 +48,8 @@
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 class egammaRec;
 
 class egammaBuilder : public AthAlgorithm
@@ -179,7 +181,7 @@ class egammaBuilder : public AthAlgorithm
   //
   /** @brief Discard clusters with energy less than this after corrections. */
   Gaudi::Property<float> m_clusterEnergyCut {this, 
-      "clusterEnergyCut", 10 * CLHEP::MeV,
+      "clusterEnergyCut", 10 * Gaudi::Units::MeV,
       "Discard clusters with energies below this after corrections"};
   
   // @brief Minimum deltaEta to check if clusters overlap
@@ -191,11 +193,11 @@ class egammaBuilder : public AthAlgorithm
       "Minimum deltaPhi to check if clusters overlap"};
   
   // @brief Minimum transverse energy to accept topo-seeded clusters
-  Gaudi::Property<float> m_minEtTopo {this, "minEtTopo", 1.5 * CLHEP::GeV,
+  Gaudi::Property<float> m_minEtTopo {this, "minEtTopo", 1.5 * Gaudi::Units::GeV,
       "Minimum transverse energy to accept topo-seeded clusters"};
 
   // @brief Maximum transverse energy to accept topo-seeded clusters
-  Gaudi::Property<float> m_maxEtTopo {this, "maxEtTopo", 8 * CLHEP::GeV,
+  Gaudi::Property<float> m_maxEtTopo {this, "maxEtTopo", 8 * Gaudi::Units::GeV,
       "Maximum transverse energy to accept topo-seeded clusters"};
   
   // others:

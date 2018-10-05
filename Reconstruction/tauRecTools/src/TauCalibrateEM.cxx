@@ -15,7 +15,8 @@
 #include "tauRecTools/ITauToolBase.h"
 #include "TauCalibrateEM.h"
 
-using CLHEP::GeV;
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
 
 //-------------------------------------------------------------------------
 // Constructor

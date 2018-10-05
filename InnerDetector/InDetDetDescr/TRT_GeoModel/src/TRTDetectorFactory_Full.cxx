@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TRTDetectorFactory_Full.h"
 #include "TRT_DetDescrDB_ParameterInterface.h"
 
@@ -39,13 +40,13 @@
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-#include "CLHEP/GenericFunctions/Sin.hh"
-#include "CLHEP/GenericFunctions/Cos.hh"
-#include "CLHEP/Vector/TwoVector.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
+#include "GeoGenericFunctions/Sin.h"
+#include "GeoGenericFunctions/Cos.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
@@ -53,13 +54,33 @@
 
 #include <vector>
 #include <sstream>
+#include <cmath>
 
-//TK: get rid of these and use Genfun:: and GeoXF:: instead
-using namespace Genfun;
+//TK: get rid of these and use GeoGenfun:: and GeoXF:: instead
+using namespace GeoGenfun;
 using namespace GeoXF;
 
+// Helper functions. Temporarily here (hopefully)
+void rotate(double angler, GeoTrf::Vector2D& vector)
+{
+  double s1 = std::sin(angler);
+  double c = std::cos(angler);
+  double xx = vector.x();
+  double yy = vector.y();
+  vector.x() = c*xx - s1*yy;
+  vector.y() = s1*xx + c*yy;
+}
 
+double angle(const GeoTrf::Vector2D& a, const GeoTrf::Vector2D& b)
+{
+  double ptot2 = a.mag2()*b.mag2();
+  return ptot2 <= 0.0 ? 0.0 : std::acos(a.dot(b)/std::sqrt(ptot2));
+}
 
+double magn(GeoTrf::Vector2D& vector)
+{
+  return std::sqrt(vector.x()*vector.x() + vector.y()*vector.y());
+}
 /////////////////////////////////// Constructor //////////////////////////////////
 //
 TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,
@@ -252,7 +273,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   bool endcapCPlusPresent    = m_data->partPresent(endcapA_WheelC_Label);
   bool endcapCMinusPresent   = m_data->partPresent(endcapC_WheelC_Label);
   // Overall transform (probably will always be identifty - but just in case)
-  HepGeom::Transform3D trtTransform =  m_data->partTransform("TRT");
+  GeoTrf::Transform3D trtTransform =  m_data->partTransform("TRT");
 
   // For old configurations we need to set which parts are  present.
   //
@@ -379,7 +400,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   //---------------------- Top level volumes ------------------------//
 
-  // This is used by HepVis.
   GeoNameTag * topLevelNameTag = new GeoNameTag("TRT");
   topLevelNameTag->ref(); //(sar) Set this up for deletion if it never gets added
   // The top level volumes
@@ -432,7 +452,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 						       m_data->outerRadiusOfEndCapVolumeAB,
 						       m_data->lengthOfEndCapVolumeAB/2.);
     const GeoShape & sEndCapVolumeAB
-      = ( *sEndCapVolumeAB_unshifted << HepGeom::TranslateZ3D(m_data->positionOfEndCapVolumeAB));
+      = ( *sEndCapVolumeAB_unshifted << GeoTrf::TranslateZ3D(m_data->positionOfEndCapVolumeAB));
 
     lEndCapVolumeAB = new GeoLogVol("TRTEndcapWheelAB", &sEndCapVolumeAB, m_materialManager->getMaterial("trt::CO2"));
   }
@@ -456,7 +476,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     pEndCapABMinus = new GeoFullPhysVol(lEndCapVolumeAB);
 
     GeoAlignableTransform * transform =
-      new GeoAlignableTransform(trtTransform * m_data->partTransform(endcapC_WheelAB_Label) * HepGeom::RotateY3D(180*CLHEP::deg));
+      new GeoAlignableTransform(trtTransform * m_data->partTransform(endcapC_WheelAB_Label) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
 
     world->add(topLevelNameTag);
     world->add(transform);
@@ -476,7 +496,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 						      m_data->outerRadiusOfEndCapVolumeC,
 						      m_data->lengthOfEndCapVolumeC/2.);
     const GeoShape & sEndCapVolumeC
-      = ( *sEndCapVolumeC_unshifted << HepGeom::TranslateZ3D(m_data->positionOfEndCapVolumeC));
+      = ( *sEndCapVolumeC_unshifted << GeoTrf::TranslateZ3D(m_data->positionOfEndCapVolumeC));
 
     lEndCapVolumeC = new GeoLogVol("TRTEndcapWheelC", &sEndCapVolumeC, m_materialManager->getMaterial("trt::CO2"));
   }
@@ -498,7 +518,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     pEndCapCMinus = new GeoFullPhysVol(lEndCapVolumeC);
 
     GeoAlignableTransform * transform =
-      new GeoAlignableTransform(trtTransform * m_data->partTransform(endcapC_WheelC_Label) * HepGeom::RotateY3D(180*CLHEP::deg));
+      new GeoAlignableTransform(trtTransform * m_data->partTransform(endcapC_WheelC_Label) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
 
     world->add(topLevelNameTag);
     world->add(transform);
@@ -611,8 +631,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       GeoPhysVol *pEndFlangeRegion = new GeoPhysVol(lEndFlangeRegion);
 
       double zPosEndFlange = (m_data->barFlangeZMin+m_data->barFlangeZMax)/2;
-      GeoTransform *xfEndFlangeRegionPlus  = new GeoTransform(HepGeom::TranslateZ3D(zPosEndFlange));
-      GeoTransform *xfEndFlangeRegionMinus = new GeoTransform(HepGeom::TranslateZ3D(-zPosEndFlange));
+      GeoTransform *xfEndFlangeRegionPlus  = new GeoTransform(GeoTrf::TranslateZ3D(zPosEndFlange));
+      GeoTransform *xfEndFlangeRegionMinus = new GeoTransform(GeoTrf::TranslateZ3D(-zPosEndFlange));
 
       pBarrelVol->add(xfEndFlangeRegionPlus);
       pBarrelVol->add(pEndFlangeRegion);
@@ -634,8 +654,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       GeoPhysVol *pServices = new GeoPhysVol(lServices);
 
       double zPosServices = (m_data->barServicesZMin+m_data->barServicesZMax)/2;
-      GeoTransform *xfServicesPlus = new GeoTransform(HepGeom::TranslateZ3D(zPosServices));
-      GeoTransform *xfServicesMinus = new GeoTransform(HepGeom::TranslateZ3D(-zPosServices));
+      GeoTransform *xfServicesPlus = new GeoTransform(GeoTrf::TranslateZ3D(zPosServices));
+      GeoTransform *xfServicesMinus = new GeoTransform(GeoTrf::TranslateZ3D(-zPosServices));
 
       pBarrelVol->add(xfServicesPlus);
       pBarrelVol->add(pServices);
@@ -701,15 +721,15 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       // The shell volume:
       std::ostringstream shellstream;
       shellstream << "Shell" << iABC;
-      CLHEP::Hep2Vector shellCorner1(m_data->shellCornerXPosition[iABC][0],m_data->shellCornerYPosition[iABC][0]);
-      CLHEP::Hep2Vector shellCorner2(m_data->shellCornerXPosition[iABC][1],m_data->shellCornerYPosition[iABC][1]);
-      CLHEP::Hep2Vector shellCorner3(m_data->shellCornerXPosition[iABC][2],m_data->shellCornerYPosition[iABC][2]);
-      CLHEP::Hep2Vector shellCorner4(m_data->shellCornerXPosition[iABC][3],m_data->shellCornerYPosition[iABC][3]);
-      HepGeom::Transform3D shellPosition;
-      if ( shellCorner1 <= 0 ) { msg(MSG::DEBUG) << "shellCorner1 is <= 0 (" << shellCorner1 << ")" << endmsg; }
-      if ( shellCorner2 <= 0 ) { msg(MSG::DEBUG) << "shellCorner2 is <= 0 (" << shellCorner2 << ")" << endmsg; }
-      if ( shellCorner3 <= 0 ) { msg(MSG::DEBUG) << "shellCorner3 is <= 0 (" << shellCorner3 << ")" << endmsg; }
-      if ( shellCorner4 <= 0 ) { msg(MSG::DEBUG) << "shellCorner4 is <= 0 (" << shellCorner4 << ")" << endmsg; }
+      GeoTrf::Vector2D shellCorner1(m_data->shellCornerXPosition[iABC][0],m_data->shellCornerYPosition[iABC][0]);
+      GeoTrf::Vector2D shellCorner2(m_data->shellCornerXPosition[iABC][1],m_data->shellCornerYPosition[iABC][1]);
+      GeoTrf::Vector2D shellCorner3(m_data->shellCornerXPosition[iABC][2],m_data->shellCornerYPosition[iABC][2]);
+      GeoTrf::Vector2D shellCorner4(m_data->shellCornerXPosition[iABC][3],m_data->shellCornerYPosition[iABC][3]);
+      GeoTrf::Transform3D shellPosition(GeoTrf::Transform3D::Identity());
+      if ( shellCorner1.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner1 is <= 0 (" << shellCorner1 << ")" << endmsg; }
+      if ( shellCorner2.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner2 is <= 0 (" << shellCorner2 << ")" << endmsg; }
+      if ( shellCorner3.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner3 is <= 0 (" << shellCorner3 << ")" << endmsg; }
+      if ( shellCorner4.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner4 is <= 0 (" << shellCorner4 << ")" << endmsg; }
       const GeoShape * sShell = makeModule(m_data->lengthOfBarrelVolume,
 					   shellCorner1,shellCorner2,shellCorner3,shellCorner4,shellPosition);
 
@@ -728,7 +748,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       // Some shared stuff for all of the modules within a layer:
 
       // Make a Radiator
-      HepGeom::Transform3D radAbsolutePosition;
+      GeoTrf::Transform3D radAbsolutePosition(GeoTrf::Transform3D::Identity());
       const GeoShape * sRad = makeModule(m_data->lengthOfBarrelVolume,
 					 shellCorner1,shellCorner2,shellCorner3,shellCorner4,
 					 radAbsolutePosition,m_data->barrelThicknessOfModuleWalls);
@@ -752,9 +772,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       // Place the cooling tubes in the Radiator
 
       GeoTransform  *xCool1 = new GeoTransform(shellPosition.inverse()
-					       *HepGeom::Translate3D(m_data->barrelXOfCoolingTube[iABC][0],m_data->barrelYOfCoolingTube[iABC][0],0));
+					       *GeoTrf::Translate3D(m_data->barrelXOfCoolingTube[iABC][0],m_data->barrelYOfCoolingTube[iABC][0],0));
       GeoTransform  *xCool2 = new GeoTransform(shellPosition.inverse()
-					       *HepGeom::Translate3D(m_data->barrelXOfCoolingTube[iABC][1],m_data->barrelYOfCoolingTube[iABC][1],0));
+					       *GeoTrf::Translate3D(m_data->barrelXOfCoolingTube[iABC][1],m_data->barrelYOfCoolingTube[iABC][1],0));
 
       pRad->add(xCool1);
       pRad->add(pCoolingTube);
@@ -787,8 +807,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       }
     
       // Generators:
-      HepGeom::TranslateX3D Xx(1.0);
-      HepGeom::TranslateY3D Xy(1.0);
+      GeoTrf::TranslateX3D Xx(1.0);
+      GeoTrf::TranslateY3D Xy(1.0);
 
       GENFUNCTION  fx = ArrayFunction(&m_data->strawXPosition[iABC][0+nStrawsWithLargeDeadRegion],
 				      &m_data->strawXPosition[iABC][0]+m_data->barrelNumberOfStrawsInModule[iABC]);
@@ -814,24 +834,26 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       //First get the global and local positions of the two alignment straws:
       //USE HEP2VECTORS!!!
 
-      CLHEP::Hep3Vector Align1Global(m_data->barrelXOfFirstGlobalAlignmentStraw[iABC],  m_data->barrelYOfFirstGlobalAlignmentStraw[iABC], 0);
-      CLHEP::Hep3Vector Align2Global(m_data->barrelXOfSecondGlobalAlignmentStraw[iABC], m_data->barrelYOfSecondGlobalAlignmentStraw[iABC],0);
-      CLHEP::Hep3Vector Align1Local(m_data->strawXPosition[iABC][0],m_data->strawYPosition[iABC][0],0);
-      CLHEP::Hep3Vector Align2Local(m_data->strawXPosition[iABC][m_data->barrelIndexOfSecondGlobalAlignmentStraw[iABC]],
-			     m_data->strawYPosition[iABC][m_data->barrelIndexOfSecondGlobalAlignmentStraw[iABC]],0);
+      GeoTrf::Vector3D Align1Global(m_data->barrelXOfFirstGlobalAlignmentStraw[iABC],  m_data->barrelYOfFirstGlobalAlignmentStraw[iABC], 0);
+      GeoTrf::Vector3D Align2Global(m_data->barrelXOfSecondGlobalAlignmentStraw[iABC], m_data->barrelYOfSecondGlobalAlignmentStraw[iABC],0);
+      GeoTrf::Vector3D Align1Local(m_data->strawXPosition[iABC][0],m_data->strawYPosition[iABC][0],0);
+      GeoTrf::Vector3D Align2Local(m_data->strawXPosition[iABC][m_data->barrelIndexOfSecondGlobalAlignmentStraw[iABC]],
+				   m_data->strawYPosition[iABC][m_data->barrelIndexOfSecondGlobalAlignmentStraw[iABC]],0);
 
       //We need to make first a translation which puts the first alignment straw into place:
 
       //And we need to make a rotation which puts the second one on its position:
 
-      CLHEP::Hep2Vector local12     = CLHEP::Hep2Vector( Align2Local  - Align1Local  );
-      CLHEP::Hep2Vector global12    = CLHEP::Hep2Vector( Align2Global - Align1Global );
+      GeoTrf::Vector2D local12((Align2Local - Align1Local).x(),(Align2Local  - Align1Local).y());
+      GeoTrf::Vector2D global12((Align2Global - Align1Global).x(),(Align2Global - Align1Global).y());
       double zrotang = global12.phi()-local12.phi();
 
-      //Here we combine these two into a HepGeom::Transform3D:
+      //Here we combine these two into a GeoTrf::Transform3D:
 
-      HepGeom::Transform3D absStrawXForm = HepGeom::Translate3D(Align1Global)*HepGeom::RotateZ3D( zrotang )*HepGeom::Translate3D((-Align1Local));
-    
+      GeoTrf::Transform3D absStrawXForm = GeoTrf::Translate3D(Align1Global.x(),Align1Global.y(),Align1Global.z())
+	*GeoTrf::RotateZ3D( zrotang )
+	*GeoTrf::Translate3D(-Align1Local.x(),-Align1Local.y(),-Align1Local.z());
+
       //
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -884,22 +906,22 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       if (m_doKrypton) pRadKR->add(serialTransformerKR);
 
       // Adds one straw from each layer (reformulate..) (should be done via m_data from database)
-      double oldx=-999*CLHEP::cm, oldz=-999*CLHEP::cm;
+      double oldx=-999*GeoModelKernelUnits::cm, oldz=-999*GeoModelKernelUnits::cm;
       unsigned int c=0;
       size_t iLayer=0;
       while (c< m_data->barrelNumberOfStrawsInModule[iABC] ) {
 
-	HepGeom::Point3D<double> p;
+	GeoTrf::Vector3D p(0,0,0);
 	if (iABC==0)
-	  p = tx2All(c)*HepGeom::Point3D<double>(0,0,0);
+	  p = tx2All(c)*p;
 	else
-	  p = tx2(c)*HepGeom::Point3D<double>(0,0,0);
+	  p = tx2(c)*p;
 
 	double x = p.x();
 	double z = p.z();
 
 	//TK: use arrays!! update this...
-	if (sqrt((x-oldx)*(x-oldx)+ (z-oldz)*(z-oldz))> 5*CLHEP::cm) {
+	if (sqrt((x-oldx)*(x-oldx)+ (z-oldz)*(z-oldz))> 5*GeoModelKernelUnits::cm) {
 	  iLayer++;
 	  bDescriptor.push_back(new InDetDD::TRT_BarrelDescriptor());
 	  bDescriptor.back()->setStrawTransformField(m_detectorManager->barrelTransformField(iABC),c);
@@ -937,7 +959,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       // Now create m_data->nBarrelModulesUsed unique modules within each layer.
       pBarrelVol->add(new GeoSerialIdentifier(0));
       for (size_t iMod = 0; iMod<m_data->nBarrelModulesUsed;iMod++) {
-	double delta = iMod*360*CLHEP::deg/m_data->nBarrelModules;
+	double delta = iMod*360*GeoModelKernelUnits::deg/m_data->nBarrelModules;
 
          
 
@@ -945,8 +967,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	GeoFullPhysVol * pShell = new GeoFullPhysVol(lShell);
 
 	// This is where the shell is pushed out to its place
-	//GeoTransform * xfx1 = new GeoTransform(HepGeom::RotateZ3D(delta)*shellPosition);
-	GeoAlignableTransform * xfx1 = new GeoAlignableTransform(HepGeom::RotateZ3D(delta)*shellPosition);
+	//GeoTransform * xfx1 = new GeoTransform(GeoTrf::RotateZ3D(delta)*shellPosition);
+	GeoAlignableTransform * xfx1 = new GeoAlignableTransform(GeoTrf::RotateZ3D(delta)*shellPosition);
 	pBarrelVol->add(xfx1);
 	pBarrelVol->add(pShell);
 
@@ -1194,7 +1216,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoLogVol* lWheelA  = new GeoLogVol("WheelA", sWheelA,  m_materialManager->getMaterial("trt::CO2"));
 
     // This is the straw pitch.
-    double deltaPhiForStrawsA = 360.*CLHEP::deg/m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
+    double deltaPhiForStrawsA = 360.*GeoModelKernelUnits::deg/m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
 
 
     // In reality the positive and negative endcaps are built identical, both in 
@@ -1257,7 +1279,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		if (iiPlane % 4 == 0) {
 		  // Register alignable node
 		  int barrel_ec = (iiSide) ? -2 : +2;
-		  xfAlignableModule = new GeoAlignableTransform(HepGeom::Transform3D());
+		  xfAlignableModule = new GeoAlignableTransform(GeoTrf::Transform3D::Identity());
 		  Identifier idSubModule = idHelper->layer_id(barrel_ec, 0, iiWheel, iiPlane); 
 		  // We pass the parent volume as the local delta for this correction is the same as a local delta
 		  // on the transformation of the wheel.
@@ -1305,7 +1327,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       }
 
 
-		xfPlane = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionA[iiPlane] - m_data->endCapLengthOfWheelsA/2)*HepGeom::RotateZ3D(phiPlane));
+		xfPlane = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionA[iiPlane] - m_data->endCapLengthOfWheelsA/2)*GeoTrf::RotateZ3D(phiPlane));
 
 		if (xfAlignableModule) pWheelA->add(xfAlignableModule);
 		pWheelA->add(xfPlane);
@@ -1330,12 +1352,12 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		      // it then gets rotated 180 around y axis 
 		      //   phi -> pi - phi
 		      if (iiSide) {
-			startPhi = CLHEP::pi - (startPhi + pDescriptor->strawPitch() * (pDescriptor->nStraws() - 1));
+			startPhi = GeoModelKernelUnits::pi - (startPhi + pDescriptor->strawPitch() * (pDescriptor->nStraws() - 1));
 		      }
 		      
 		      // Make sure its between -pi and pi.
-		      if (startPhi <= -CLHEP::pi) startPhi += 2*CLHEP::pi;
-		      if (startPhi > CLHEP::pi) startPhi -= 2*CLHEP::pi;
+		      if (startPhi <= -GeoModelKernelUnits::pi) startPhi += 2*GeoModelKernelUnits::pi;
+		      if (startPhi > GeoModelKernelUnits::pi) startPhi -= 2*GeoModelKernelUnits::pi;
 		      
 		      pDescriptor->startPhi() = startPhi;
 		      
@@ -1371,7 +1393,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	      {
 		if (counter % 4 == 1)
 		  {
-		    xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionA[counter-1] - m_data->endCapLengthOfWheelsA/2
+		    xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionA[counter-1] - m_data->endCapLengthOfWheelsA/2
 								  - m_data->outerRadiusOfStraw - m_data->endCapThinRadiatorThicknessA/2));
 		    pWheelA->add(xfRadiator);
 		    pWheelA->add(pThinRadiatorA);
@@ -1379,14 +1401,14 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 		if (counter % 4 == 0)
 		  {
-		    xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionA[counter-1] - m_data->endCapLengthOfWheelsA/2
+		    xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionA[counter-1] - m_data->endCapLengthOfWheelsA/2
 								  + m_data->outerRadiusOfStraw  + m_data->endCapThinRadiatorThicknessA/2));
 		    pWheelA->add(xfRadiator);
 		    pWheelA->add(pThinRadiatorA);
 		    continue;
 		  }
 
-		xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionA[counter-1] - m_data->endCapLengthOfWheelsA/2
+		xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionA[counter-1] - m_data->endCapLengthOfWheelsA/2
 							      + m_data->outerRadiusOfStraw  + m_data->endCapMainRadiatorThicknessA/2));
 		pWheelA->add(xfRadiator);
 		pWheelA->add(pMainRadiatorA);
@@ -1396,7 +1418,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	    pWheelA->add(pOuterSupportA);
 	  
 	    // Place wheel in the Endcap Volume
-	    GeoAlignableTransform * xfWheel = new GeoAlignableTransform( HepGeom::TranslateZ3D(WheelPlacerA) );
+	    GeoAlignableTransform * xfWheel = new GeoAlignableTransform( GeoTrf::TranslateZ3D(WheelPlacerA) );
 
 	    pCommonEndcapAB[iiSide]->add(xfWheel);
 	    pCommonEndcapAB[iiSide]->add(new GeoIdentifierTag(iiWheel));
@@ -1441,10 +1463,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 	      if(iiWheel<=firstIndexOfB-1) 
 		{ 
-		  xfFaradayFoilFront = new GeoTransform(HepGeom::TranslateZ3D(WheelPlacerA 
+		  xfFaradayFoilFront = new GeoTransform(GeoTrf::TranslateZ3D(WheelPlacerA 
 									- m_data->endCapLengthOfWheelsA/2
 									- m_data->endCapFaradayFoilThickness/2.0));
-		  xfFaradayFoilBack = new GeoTransform(HepGeom::TranslateZ3D(WheelPlacerA 
+		  xfFaradayFoilBack = new GeoTransform(GeoTrf::TranslateZ3D(WheelPlacerA 
 								       + m_data->endCapLengthOfWheelsA/2
 								       + m_data->endCapFaradayFoilThickness/2.0));
 		  pCommonEndcapAB[iiSide]->add(xfFaradayFoilFront);
@@ -1457,18 +1479,18 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
               // Ditto for Inner/OuterSupportGapper 
 	      if(iiWheel<firstIndexOfB-1) 
 		{
-		  xfHeatExchanger = new GeoTransform(HepGeom::TranslateZ3D( WheelPlacerA
+		  xfHeatExchanger = new GeoTransform(GeoTrf::TranslateZ3D( WheelPlacerA
 								      + m_data->endCapLengthOfWheelsA/2
 								      + m_data->endCapFaradayFoilThickness
 								      + m_data->endCapHeatExchangerThicknessA/2));
 		  pCommonEndcapAB[iiSide]->add(xfHeatExchanger);
 		  pCommonEndcapAB[iiSide]->add(pHeatExchangerA);
 
-		  xfInnerSupportGapperA = new GeoTransform(HepGeom::TranslateZ3D( WheelPlacerA
+		  xfInnerSupportGapperA = new GeoTransform(GeoTrf::TranslateZ3D( WheelPlacerA
 								      + m_data->endCapLengthOfWheelsA/2
 								      + m_data->endCapFaradayFoilThickness
 								      + m_data->endCapHeatExchangerThicknessA/2));
-		  xfOuterSupportGapperA = new GeoTransform(HepGeom::TranslateZ3D( WheelPlacerA
+		  xfOuterSupportGapperA = new GeoTransform(GeoTrf::TranslateZ3D( WheelPlacerA
 								      + m_data->endCapLengthOfWheelsA/2
 								      + m_data->endCapFaradayFoilThickness
 								      + m_data->endCapHeatExchangerThicknessA/2));
@@ -1545,7 +1567,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoLogVol* lWheelB  = new GeoLogVol("WheelB", sWheelB,  m_materialManager->getMaterial("trt::CO2"));
 
     // This is the straw pitch.
-    double deltaPhiForStrawsB = 360.*CLHEP::deg/m_data->endcapNumberOfStrawsInStrawLayer_BWheels;
+    double deltaPhiForStrawsB = 360.*GeoModelKernelUnits::deg/m_data->endcapNumberOfStrawsInStrawLayer_BWheels;
 
     for(iiSide=0; iiSide<nSides; iiSide++) {
 
@@ -1573,7 +1595,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		if (iiPlane % 4 == 0) {
 		  // Register alignable node
 		  int barrel_ec = (iiSide) ? -2 : +2;
-		  xfAlignableModule = new GeoAlignableTransform(HepGeom::Transform3D());
+		  xfAlignableModule = new GeoAlignableTransform(GeoTrf::Transform3D::Identity());
 		  Identifier idSubModule = idHelper->layer_id(barrel_ec, 0, iiWheel, iiPlane); 
 		  // We pass the parent volume as the local delta for this correction is the same as a local delta
 		  // on the transformation of the wheel.
@@ -1622,8 +1644,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		  phiPlane +=  deltaPhiForStrawsB;
 		}
 
-		xfPlane = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionB[iiPlane]
-							   - m_data->endCapLengthOfWheelsB/2)*HepGeom::RotateZ3D(phiPlane));
+		xfPlane = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionB[iiPlane]
+							   - m_data->endCapLengthOfWheelsB/2)*GeoTrf::RotateZ3D(phiPlane));
 
 		if (xfAlignableModule) pWheelB->add(xfAlignableModule);
 		pWheelB->add(xfPlane);
@@ -1656,7 +1678,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		// Main radiators
 		if (counter % 4 != 0)
 		  {
-		    xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionB[counter-1] - m_data->endCapLengthOfWheelsB/2
+		    xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionB[counter-1] - m_data->endCapLengthOfWheelsB/2
 								  + m_data->outerRadiusOfStraw  + m_data->endCapMainRadiatorThicknessB/2));
 		    pWheelB->add(xfRadiator);
 		    pWheelB->add(pMainRadiatorB);
@@ -1666,7 +1688,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		if (counter == 1 || counter == 8)
 		  {
 		    sign = counter == 1? -1 : 1;
-		    xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionB[counter-1] - m_data->endCapLengthOfWheelsB/2 + sign*(m_data->outerRadiusOfStraw  + m_data->endCapThinRadiatorThicknessB/2)));
+		    xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionB[counter-1] - m_data->endCapLengthOfWheelsB/2 + sign*(m_data->outerRadiusOfStraw  + m_data->endCapThinRadiatorThicknessB/2)));
 		    pWheelB->add(xfRadiator);
 		    pWheelB->add(pThinRadiatorB);
 		  }
@@ -1675,7 +1697,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		if (counter == 4 || counter == 5)
 		  {
 		    sign = counter == 4 ? 1 : -1;
-		    xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionB[counter-1] - m_data->endCapLengthOfWheelsB/2 + sign*(m_data->outerRadiusOfStraw  + m_data->endCapMiddleRadiatorThicknessB/2)));
+		    xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionB[counter-1] - m_data->endCapLengthOfWheelsB/2 + sign*(m_data->outerRadiusOfStraw  + m_data->endCapMiddleRadiatorThicknessB/2)));
 		    pWheelB->add(xfRadiator);
 		    pWheelB->add(pMiddleRadiatorB);
 		  }
@@ -1686,7 +1708,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	    pWheelB->add(pOuterSupportB);
 
 	    // Place wheel in the Endcap Volume
-	    GeoAlignableTransform * xfWheel = new GeoAlignableTransform(HepGeom::TranslateZ3D( WheelPlacerB ));
+	    GeoAlignableTransform * xfWheel = new GeoAlignableTransform(GeoTrf::TranslateZ3D( WheelPlacerB ));
 
 
 	    pCommonEndcapAB[iiSide]->add(xfWheel);
@@ -1736,10 +1758,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	      // Place kapton foils on a wheel just like a sandwitch 
 	      if(iiWheel-firstIndexOfB<firstIndexOfC-firstIndexOfB)
 		    { 
-		  xfFaradayFoilFront = new GeoTransform(HepGeom::TranslateZ3D(WheelPlacerB 
+		  xfFaradayFoilFront = new GeoTransform(GeoTrf::TranslateZ3D(WheelPlacerB 
 									- m_data->endCapLengthOfWheelsB/2
 									- m_data->endCapFaradayFoilThickness/2.0));
-		  xfFaradayFoilBack = new GeoTransform(HepGeom::TranslateZ3D(WheelPlacerB 
+		  xfFaradayFoilBack = new GeoTransform(GeoTrf::TranslateZ3D(WheelPlacerB 
 								       + m_data->endCapLengthOfWheelsB/2
 								       + m_data->endCapFaradayFoilThickness/2.0));
 		  
@@ -1753,19 +1775,19 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
               // Ditto for Inner/OuterSupportGapper 
 	      if(iiWheel-firstIndexOfB<firstIndexOfC-firstIndexOfB-1) 
 	      {
-		xfHeatExchanger = new GeoTransform(HepGeom::TranslateZ3D( WheelPlacerB
+		xfHeatExchanger = new GeoTransform(GeoTrf::TranslateZ3D( WheelPlacerB
 								    + m_data->endCapLengthOfWheelsB/2
 								    + m_data->endCapFaradayFoilThickness
 								    + m_data->endCapHeatExchangerThicknessB/2));
 		pCommonEndcapAB[iiSide]->add(xfHeatExchanger);
 		pCommonEndcapAB[iiSide]->add(pHeatExchangerB);
 
-		xfInnerSupportGapperB = new GeoTransform(HepGeom::TranslateZ3D(WheelPlacerB
+		xfInnerSupportGapperB = new GeoTransform(GeoTrf::TranslateZ3D(WheelPlacerB
 								    + m_data->endCapLengthOfWheelsB/2
 								    + m_data->endCapFaradayFoilThickness
 								    + m_data->endCapHeatExchangerThicknessB/2)); 
 
-		xfOuterSupportGapperB = new GeoTransform(HepGeom::TranslateZ3D(WheelPlacerB
+		xfOuterSupportGapperB = new GeoTransform(GeoTrf::TranslateZ3D(WheelPlacerB
 								    + m_data->endCapLengthOfWheelsB/2
 								    + m_data->endCapFaradayFoilThickness
 								    + m_data->endCapHeatExchangerThicknessB/2));
@@ -1801,10 +1823,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoLogVol* lMbrane = new GeoLogVol("Membrane", sMbrane, m_materialManager->getMaterial("trt::EndCapMbrane"));
     GeoPhysVol* pMbrane = new GeoPhysVol(lMbrane);
     
-    GeoTransform *xfMbraneWheelA1 = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapZMinOfMbraneWheelA1 + m_data->endCapThicknessOfMbrane/2.0));
-    GeoTransform *xfMbraneWheelA2 = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapZMinOfMbraneWheelA2 + m_data->endCapThicknessOfMbrane/2.0));
-    GeoTransform *xfMbraneWheelB1 = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapZMinOfMbraneWheelB1 + m_data->endCapThicknessOfMbrane/2.0));
-    GeoTransform *xfMbraneWheelB2 = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapZMinOfMbraneWheelB2 + m_data->endCapThicknessOfMbrane/2.0));
+    GeoTransform *xfMbraneWheelA1 = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapZMinOfMbraneWheelA1 + m_data->endCapThicknessOfMbrane/2.0));
+    GeoTransform *xfMbraneWheelA2 = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapZMinOfMbraneWheelA2 + m_data->endCapThicknessOfMbrane/2.0));
+    GeoTransform *xfMbraneWheelB1 = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapZMinOfMbraneWheelB1 + m_data->endCapThicknessOfMbrane/2.0));
+    GeoTransform *xfMbraneWheelB2 = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapZMinOfMbraneWheelB2 + m_data->endCapThicknessOfMbrane/2.0));
     
     for(iiSide=0; iiSide<nSides; iiSide++) {   
       pCommonEndcapAB[iiSide]->add(xfMbraneWheelA1);     
@@ -1856,7 +1878,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoLogVol* lWheelC  = new GeoLogVol("WheelC", sWheelC,  m_materialManager->getMaterial("trt::CO2"));
 
     // This is the straw pitch.
-    double deltaPhiForStrawsC = 360.*CLHEP::deg/m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
+    double deltaPhiForStrawsC = 360.*GeoModelKernelUnits::deg/m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
   
     for(iiSide=0; iiSide<nSides; iiSide++) {
       // Wheel C
@@ -1879,8 +1901,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 		childPlane = pStrawPlaneC->clone();
 
-		xfPlane = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionC[iiPlane]
-							   - m_data->endCapLengthOfWheelsC/2)*HepGeom::RotateZ3D(phiPlane));
+		xfPlane = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionC[iiPlane]
+							   - m_data->endCapLengthOfWheelsC/2)*GeoTrf::RotateZ3D(phiPlane));
 		pWheelC->add(xfPlane);
 		pWheelC->add(new GeoIdentifierTag(iiPlane));
 		pWheelC->add(childPlane);
@@ -1901,12 +1923,12 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		      // For negative endcap the startPhi is the last straw in the physical sector, it then gets
 		      // rotated 180 around y axis (phi -> pi - phi)
 		      if (iiSide) {
-			startPhi = CLHEP::pi - (startPhi + pDescriptor->strawPitch() * (pDescriptor->nStraws() - 1));
+			startPhi = GeoModelKernelUnits::pi - (startPhi + pDescriptor->strawPitch() * (pDescriptor->nStraws() - 1));
 		      }
 		      
 		      // Make sure its between -pi and pi.
-		      if (startPhi <= -CLHEP::pi) startPhi += 2*CLHEP::pi;
-		      if (startPhi > CLHEP::pi) startPhi -= 2*CLHEP::pi;
+		      if (startPhi <= -GeoModelKernelUnits::pi) startPhi += 2*GeoModelKernelUnits::pi;
+		      if (startPhi > GeoModelKernelUnits::pi) startPhi -= 2*GeoModelKernelUnits::pi;
 		      
 		 		      
 		      pDescriptor->startPhi() = startPhi;
@@ -1945,7 +1967,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	      {
 		if (counter % 4 == 1)
 		  {
-		    xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionC[counter-1] - m_data->endCapLengthOfWheelsC/2
+		    xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionC[counter-1] - m_data->endCapLengthOfWheelsC/2
 								  - m_data->lengthOfDeadRegion  - m_data->endCapThinRadiatorThicknessC/2));
 		    pWheelC->add(xfRadiator);
 		    pWheelC->add(pThinRadiatorC);
@@ -1953,14 +1975,14 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 		if (counter % 4 == 0)
 		  {
-		    xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionC[counter-1] - m_data->endCapLengthOfWheelsC/2
+		    xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionC[counter-1] - m_data->endCapLengthOfWheelsC/2
 								  + m_data->outerRadiusOfStraw  + m_data->endCapThinRadiatorThicknessC/2));
 		    pWheelC->add(xfRadiator);
 		    pWheelC->add(pThinRadiatorC);
 		    continue;
 		  }
 
-		xfRadiator = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionC[counter-1] - m_data->endCapLengthOfWheelsC/2
+		xfRadiator = new GeoTransform(GeoTrf::TranslateZ3D(m_data->endCapLayerZPositionC[counter-1] - m_data->endCapLengthOfWheelsC/2
 							      + m_data->outerRadiusOfStraw  + m_data->endCapMainRadiatorThicknessC/2));
 		pWheelC->add(xfRadiator);
 		pWheelC->add(pMainRadiatorC);
@@ -1972,7 +1994,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 	    // Place wheel in the Endcap Volume
 	    GeoAlignableTransform * xfWheel 
-	      = new GeoAlignableTransform(HepGeom::TranslateZ3D(m_data->endCapPositionOfFirstWheelC
+	      = new GeoAlignableTransform(GeoTrf::TranslateZ3D(m_data->endCapPositionOfFirstWheelC
 							  + (iiWheel - firstIndexOfC)*m_data->endCapDistanceBetweenWheelCentersC));
 
 	    pCommonEndcapC[iiSide]->add(xfWheel);
@@ -2028,8 +2050,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 /////////////////////////////////// makeModule ///////////////////////////////////
 //
-const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep2Vector corner1, CLHEP::Hep2Vector corner2,
-						       CLHEP::Hep2Vector corner3, CLHEP::Hep2Vector corner4, HepGeom::Transform3D & modulePosition, double shrinkDist/*=0*/) const {
+const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, GeoTrf::Vector2D corner1, GeoTrf::Vector2D corner2,
+						       GeoTrf::Vector2D corner3, GeoTrf::Vector2D corner4, GeoTrf::Transform3D & modulePosition, double shrinkDist/*=0*/) const {
 
 
   // This method takes the absolute coordinates of the four corners,
@@ -2046,25 +2068,25 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep
 
   // First we calculate the relative vectors of the edges:
 
-  CLHEP::Hep2Vector delta12 = corner1 - corner2;   CLHEP::Hep2Vector delta23 = corner2 - corner3;
-  CLHEP::Hep2Vector delta34 = corner3 - corner4;   CLHEP::Hep2Vector delta14 = corner1 - corner4;
+  GeoTrf::Vector2D delta12 = corner1 - corner2;   GeoTrf::Vector2D delta23 = corner2 - corner3;
+  GeoTrf::Vector2D delta34 = corner3 - corner4;   GeoTrf::Vector2D delta14 = corner1 - corner4;
 
   // We also need the diagonals.
-  CLHEP::Hep2Vector delta24 = corner2 - corner4;
-  CLHEP::Hep2Vector delta13 = corner1 - corner3;
+  GeoTrf::Vector2D delta24 = corner2 - corner4;
+  GeoTrf::Vector2D delta13 = corner1 - corner3;
 
   // Then we find out which way the module bends (NB: .angle returns the UNSIGNED angle!).
-  double openingAngleOfFirstCorner= delta12.angle(delta14);
-  int sign = ( openingAngleOfFirstCorner < 90*CLHEP::deg ? 1 : -1);
+  double openingAngleOfFirstCorner= angle(delta12,delta14);
+  int sign = ( openingAngleOfFirstCorner < 90*GeoModelKernelUnits::deg ? 1 : -1);
 
   // If our approximation with triangles were correct, three of the
   // lengths (of edges and diagonals) would be equal. We force this
   // instead.
   //
   // (Whether the involved diagonal is 2-4 or 1-3 depends on the sign).
-  double commonSide = (delta14.mag() + delta23.mag() + (sign==1?delta24.mag():delta13.mag()) ) / 3.;
-  double base1 = delta12.mag(); // Inner base
-  double base2 = delta34.mag(); // Outer base
+  double commonSide = (magn(delta14) + magn(delta23) + (sign==1?magn(delta24):magn(delta13)) ) / 3.;
+  double base1 = magn(delta12); // Inner base
+  double base2 = magn(delta34); // Outer base
 
   if (shrinkDist!=0) {
     // Since the moving corners bit above doesnt work, we do this instead:
@@ -2077,13 +2099,13 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep
   double height1 = sqrt (commonSide*commonSide-0.25*base1*base1);
   double height2 = sqrt (commonSide*commonSide-0.25*base2*base2);
   double rot     = atan(base2/height2/2)-atan(base1/height1/2);
-  double epsilon = 1*CLHEP::micrometer; // needed to ensure perfect overlaps.
+  double epsilon = 1*GeoModelKernelUnits::micrometer; // needed to ensure perfect overlaps.
   GeoTrd *trd1 = new GeoTrd(base1/2+epsilon, epsilon, length/2, length/2, height1/2);
   GeoTrd *trd2 = new GeoTrd(epsilon, base2/2+epsilon, length/2, length/2, height2/2);
 
   double gamma = atan((base2/2+epsilon)*2/height2);
   double r = sqrt((base2/2+epsilon)*(base2/2+epsilon) + height2*height2/4);
-  HepGeom::Transform3D xForm=HepGeom::Translate3D(r*sin(sign*(gamma-rot)),0,height1/2-r*cos(gamma-rot))*HepGeom::RotateY3D(sign*rot);
+  GeoTrf::Transform3D xForm=GeoTrf::Translate3D(r*sin(sign*(gamma-rot)),0,height1/2-r*cos(gamma-rot))*GeoTrf::RotateY3D(sign*rot);
   const GeoShape & sShell = (*trd1).add((*trd2)<<xForm);
 
   //  We now have the shape we want. We only have left to transform
@@ -2091,52 +2113,52 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep
   //
   //  First, the actual positions of the four corners of
   //  the constructed shape.
-  CLHEP::Hep2Vector actualCorner1, actualCorner2, actualCorner3, actualCorner4;
+  GeoTrf::Vector2D actualCorner1, actualCorner2, actualCorner3, actualCorner4;
   actualCorner1 = corner1;
-  actualCorner2 = corner1 + CLHEP::Hep2Vector(0,base1);
+  actualCorner2 = corner1 + GeoTrf::Vector2D(0,base1);
   if (sign==1) {
-    actualCorner4 = corner1 + CLHEP::Hep2Vector(height1,base1/2);
-    actualCorner3 = actualCorner4 + CLHEP::Hep2Vector(-base2*sin(rot),base2*cos(rot));
+    actualCorner4 = corner1 + GeoTrf::Vector2D(height1,base1/2);
+    actualCorner3 = actualCorner4 + GeoTrf::Vector2D(-base2*sin(rot),base2*cos(rot));
   } else {
-    actualCorner3 = corner1 + CLHEP::Hep2Vector(height1,base1/2);
-    actualCorner4 = actualCorner3 + CLHEP::Hep2Vector(-base2*sin(rot),-base2*cos(rot));
+    actualCorner3 = corner1 + GeoTrf::Vector2D(height1,base1/2);
+    actualCorner4 = actualCorner3 + GeoTrf::Vector2D(-base2*sin(rot),-base2*cos(rot));
   }
   // The center of our shape is at
-  CLHEP::Hep2Vector center= corner1 + CLHEP::Hep2Vector(height1/2,base1/2);
+  GeoTrf::Vector2D center= corner1 + GeoTrf::Vector2D(height1/2,base1/2);
 
   //  Let us turn the whole module
-  double modRot = (-delta12).phi()-CLHEP::Hep2Vector(0,1).phi();
+  double modRot = (-delta12).phi()-GeoTrf::Vector2D(0,1).phi();
 
-  //  std::cout << "TK: modRot : "<< modRot/CLHEP::degree<<" degrees"<<std::endl;
-  actualCorner1.rotate(modRot);
-  actualCorner2.rotate(modRot);
-  actualCorner3.rotate(modRot);
-  actualCorner4.rotate(modRot);
-  center.rotate(modRot);
+  //  std::cout << "TK: modRot : "<< modRot/GeoModelKernelUnits::degree<<" degrees"<<std::endl;
+  rotate(modRot,actualCorner1);
+  rotate(modRot,actualCorner2);
+  rotate(modRot,actualCorner3);
+  rotate(modRot,actualCorner4);
+  rotate(modRot,center);
 
   // Finally, the shape is moved where it fits best with the original corner coordinates.
 
-  CLHEP::Hep2Vector displacement =  0.25*( (corner1+corner2+corner3+corner4) - (actualCorner1+actualCorner2+actualCorner3+actualCorner4) );
-  //  .. << ::DEBUG << std::cout << "TK: makeModule : moving a total of (micrometer) " << displacement.mag()/CLHEP::micrometer<< std::endl;
-  //  std::cout << "TK: makeModule : moving due to 1 (micrometer) " << 0.25*(corner1-actualCorner1).mag()/CLHEP::micrometer<< std::endl;
-  //  std::cout << "TK: makeModule : moving due to 2 (micrometer) " << 0.25*(corner2-actualCorner2).mag()/CLHEP::micrometer<< std::endl;
-  //  std::cout << "TK: makeModule : moving due to 3 (micrometer) " << 0.25*(corner3-actualCorner3).mag()/CLHEP::micrometer<< std::endl;
-  //  std::cout << "TK: makeModule : moving due to 4 (micrometer) " << 0.25*(corner4-actualCorner4).mag()/CLHEP::micrometer<< std::endl;
+  GeoTrf::Vector2D displacement =  0.25*( (corner1+corner2+corner3+corner4) - (actualCorner1+actualCorner2+actualCorner3+actualCorner4) );
+  //  .. << ::DEBUG << std::cout << "TK: makeModule : moving a total of (micrometer) " << displacement.mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //  std::cout << "TK: makeModule : moving due to 1 (micrometer) " << 0.25*(corner1-actualCorner1).mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //  std::cout << "TK: makeModule : moving due to 2 (micrometer) " << 0.25*(corner2-actualCorner2).mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //  std::cout << "TK: makeModule : moving due to 3 (micrometer) " << 0.25*(corner3-actualCorner3).mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //  std::cout << "TK: makeModule : moving due to 4 (micrometer) " << 0.25*(corner4-actualCorner4).mag()/GeoModelKernelUnits::micrometer<< std::endl;
   center += displacement;
   actualCorner1 += displacement;
   actualCorner2 += displacement;
   actualCorner3 += displacement;
   actualCorner4 += displacement;
 
-  CLHEP::Hep2Vector remainingOffset =  -0.25*( (corner1+corner2+corner3+corner4) - (actualCorner1+actualCorner2+actualCorner3+actualCorner4) );
-  //   std::cout << "TK: makeModule : remaining total offset (should be zero) (micrometer) " << remainingOffset.mag()/CLHEP::micrometer<< std::endl;
-  //   std::cout << "TK: makeModule : 1 remaining offset (micrometer) " << (corner1-actualCorner1).mag()/CLHEP::micrometer<< std::endl;
-  //   std::cout << "TK: makeModule : 2 remaining offset (micrometer) " << (corner2-actualCorner2).mag()/CLHEP::micrometer<< std::endl;
-  //   std::cout << "TK: makeModule : 3 remaining offset (micrometer) " << (corner3-actualCorner3).mag()/CLHEP::micrometer<< std::endl;
-  //   std::cout << "TK: makeModule : 4 remaining offset (micrometer) " << (corner4-actualCorner4).mag()/CLHEP::micrometer<< std::endl;
+  //  GeoTrf::Vector2D remainingOffset =  -0.25*( (corner1+corner2+corner3+corner4) - (actualCorner1+actualCorner2+actualCorner3+actualCorner4) );
+  //   std::cout << "TK: makeModule : remaining total offset (should be zero) (micrometer) " << remainingOffset.mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //   std::cout << "TK: makeModule : 1 remaining offset (micrometer) " << (corner1-actualCorner1).mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //   std::cout << "TK: makeModule : 2 remaining offset (micrometer) " << (corner2-actualCorner2).mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //   std::cout << "TK: makeModule : 3 remaining offset (micrometer) " << (corner3-actualCorner3).mag()/GeoModelKernelUnits::micrometer<< std::endl;
+  //   std::cout << "TK: makeModule : 4 remaining offset (micrometer) " << (corner4-actualCorner4).mag()/GeoModelKernelUnits::micrometer<< std::endl;
 
   //  The final positioning includes a few 90deg rotations because the axis's in the GeoTrd's are different from the actual axis's.
-  modulePosition = HepGeom::TranslateY3D(center.y())*HepGeom::TranslateX3D(center.x())*HepGeom::RotateZ3D(90.0*CLHEP::deg)*HepGeom::RotateX3D(90.0*CLHEP::deg)*HepGeom::RotateY3D(modRot);
+  modulePosition = GeoTrf::TranslateY3D(center.y())*GeoTrf::TranslateX3D(center.x())*GeoTrf::RotateZ3D(90.0*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90.0*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(modRot);
 
   return &sShell;
 }
@@ -2212,9 +2234,9 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
   else
     lGasMA = new GeoLogVol("GasMA", sGasMA, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt:XeCO2CF4" : "trt::XeCO2O2")));
   GeoNameTag   *nGasMAPos = new GeoNameTag("GasMAPos");
-  GeoTransform *xGasMAPos = new GeoTransform(HepGeom::RotateY3D(M_PI)*HepGeom::TranslateZ3D(-posA));//the rotation of pi is to... digitization (TK)
+  GeoTransform *xGasMAPos = new GeoTransform(GeoTrf::RotateY3D(M_PI)*GeoTrf::TranslateZ3D(-posA));//the rotation of pi is to... digitization (TK)
   GeoNameTag   *nGasMANeg = new GeoNameTag("GasMANeg");
-  GeoTransform *xGasMANeg = new GeoTransform(HepGeom::TranslateZ3D(-posA));
+  GeoTransform *xGasMANeg = new GeoTransform(GeoTrf::TranslateZ3D(-posA));
   GeoPhysVol   *pGasMA    = new GeoPhysVol(lGasMA);
 
   // Assemble gas within straws
@@ -2229,8 +2251,8 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
 
   // Outer Dead region for mixed straws, part II:
   GeoSerialDenominator   *nDeadMA    = new GeoSerialDenominator("DeadRegionL");
-  GeoTransform           *xDeadPosMA = new GeoTransform(HepGeom::TranslateZ3D(+(m_data->barrelLengthOfStraw-m_data->lengthOfDeadRegion)/2.0));
-  GeoTransform           *xDeadNegMA = new GeoTransform(HepGeom::TranslateZ3D(-(m_data->barrelLengthOfStraw-m_data->lengthOfDeadRegion)/2.0));
+  GeoTransform           *xDeadPosMA = new GeoTransform(GeoTrf::TranslateZ3D(+(m_data->barrelLengthOfStraw-m_data->lengthOfDeadRegion)/2.0));
+  GeoTransform           *xDeadNegMA = new GeoTransform(GeoTrf::TranslateZ3D(-(m_data->barrelLengthOfStraw-m_data->lengthOfDeadRegion)/2.0));
 
   // Assemble dead regions within straws:
   pStrawMixed->add(nDeadMA);
@@ -2241,8 +2263,8 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
 
   // InnerDeadRegions, part III:
   GeoSerialDenominator   *nInnerDeadMA    = new GeoSerialDenominator("InnerDeadRegionL");
-  GeoTransform           *xInnerDeadPosMA = new GeoTransform(HepGeom::TranslateZ3D(+posInnerDeadRegion));
-  GeoTransform           *xInnerDeadNegMA = new GeoTransform(HepGeom::TranslateZ3D(-posInnerDeadRegion));
+  GeoTransform           *xInnerDeadPosMA = new GeoTransform(GeoTrf::TranslateZ3D(+posInnerDeadRegion));
+  GeoTransform           *xInnerDeadNegMA = new GeoTransform(GeoTrf::TranslateZ3D(-posInnerDeadRegion));
   // add to mixedStraw:
   pStrawMixed->add(nInnerDeadMA);
   pStrawMixed->add(xInnerDeadPosMA);
@@ -2341,13 +2363,13 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
 
   // Positioning of straws :
   double dphi = 2*M_PI/ nstraws;
-  HepGeom::RotateZ3D    Rz(1.0);// Radians!
-  HepGeom::TranslateX3D Tx(1.0);// MM! TK: actually this doesnt need to be interpreted as mm? Just as a dimensionless 1. (i guess)
-  HepGeom::TranslateY3D Ty(1.0);// MM!
+  GeoTrf::RotateZ3D    Rz(1.0);// Radians!
+  GeoTrf::TranslateX3D Tx(1.0);// MM! TK: actually this doesnt need to be interpreted as mm? Just as a dimensionless 1. (i guess)
+  GeoTrf::TranslateY3D Ty(1.0);// MM!
   Variable    i;
   Sin sin;
   Cos cos;
-  TRANSFUNCTION tx =  Pow(Tx,pos*cos(dphi*i))*Pow(Ty,pos*sin(dphi*i))*Pow(Rz,dphi*i)*HepGeom::RotateY3D(-90*CLHEP::deg);
+  TRANSFUNCTION tx =  Pow(Tx,pos*cos(dphi*i))*Pow(Ty,pos*sin(dphi*i))*Pow(Rz,dphi*i)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
   GeoSerialTransformer *serialTransformer=new GeoSerialTransformer(pStraw, &tx, nstraws);
   pStrawPlane->add(new GeoSerialIdentifier(0));
   pStrawPlane->add(serialTransformer);
@@ -2385,8 +2407,8 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
     lDeadRegion = new GeoLogVol("DeadRegion",sDeadRegion,m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
   GeoPhysVol *pDeadRegion = new GeoPhysVol(lDeadRegion);
 
-  GeoTransform *xDeadPos = new GeoTransform(HepGeom::TranslateZ3D(+(Length/2-ldead/2)));
-  GeoTransform *xDeadNeg = new GeoTransform(HepGeom::TranslateZ3D(-(Length/2-ldead/2)));
+  GeoTransform *xDeadPos = new GeoTransform(GeoTrf::TranslateZ3D(+(Length/2-ldead/2)));
+  GeoTransform *xDeadNeg = new GeoTransform(GeoTrf::TranslateZ3D(-(Length/2-ldead/2)));
   pStraw->add(xDeadPos);
   pStraw->add(pDeadRegion);
   pStraw->add(xDeadNeg);

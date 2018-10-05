@@ -2,20 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECDetectorRegion_h
-#define HECDetectorRegion_h 1
+#ifndef LARREADOUTGEOMETRY_HECDETECTORREGION_H
+#define LARREADOUTGEOMETRY_HECDETECTORREGION_H
 #include "LArReadoutGeometry/HECDetDescr.h"
 #include "LArReadoutGeometry/HECCellConstLink.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
-
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-/** 
- *      @brief Description of a region of homogenous granularity in the 
- *      hadronic endcap calorimeter
- */
+#include "CLHEP/Geometry/Point3D.h"
 
 /**
+ * @class HECDetectorRegion
+ *
+ * @brief Description of a region of homogenous granularity in the
+ *        hadronic endcap calorimeter
+ *
  *	This class combines a description of the cell
  *	granularity with a physical volume to create a
  *	description of a HEC region positioned within ATLAS.  It
@@ -37,7 +39,10 @@ class HECDetectorRegion : public GeoVDetectorElement
   /**
    * @brief Constructor.
    */
-  HECDetectorRegion (const GeoVFullPhysVol *physVol, const HECDetDescr *hecDescriptor, DetectorSide endcap, double projectivityDisplacement = 4*CLHEP::cm);
+  HECDetectorRegion (const GeoVFullPhysVol *physVol
+		     , const HECDetDescr *hecDescriptor
+		     , DetectorSide endcap
+		     , double projectivityDisplacement = 4*GeoModelKernelUnits::cm);
 
   /**
    * @brief Destructor
@@ -87,12 +92,12 @@ class HECDetectorRegion : public GeoVDetectorElement
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getAbsoluteTransform () const;
       
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getDefAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getDefAbsoluteTransform () const;
 
   /**
    * @brief Returns the absolute transform of this element.

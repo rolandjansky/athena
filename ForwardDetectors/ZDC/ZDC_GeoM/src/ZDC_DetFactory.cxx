@@ -18,6 +18,8 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoSerialTransformer.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -34,7 +36,7 @@
 //I have assumed that the cavity is 1016mm (4*4=16mm larger than the one in the above webpage)
 //Ionization chamber material is air currently
 
-using namespace Genfun;
+using namespace GeoGenfun;
 using namespace GeoXF;
 
 ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore) : m_detectorManager(NULL) , m_detectorStore(detStore) {}
@@ -53,27 +55,27 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   const GeoMaterial* air = materialManager->getMaterial("std::Air");
 
-  GeoElement*  Oxygen   = new GeoElement ("Oxygen"  ,"O"  ,  8.0 ,  16.0*CLHEP::g/CLHEP::mole);
-  GeoElement*  Sillicon = new GeoElement ("Sillicon","Si" , 14.0 ,  28.085*CLHEP::g/CLHEP::mole);
-  GeoElement*  Tung     = new GeoElement ("Tungsten","W"  , 74.0 , 183.84*CLHEP::g/CLHEP::mole);
-  GeoElement*  Iron     = new GeoElement ("Iron"    ,"Fe" , 26.0 ,  55.845 *CLHEP::g/CLHEP::mole);
-  GeoElement*  Carbon   = new GeoElement ("Carbon"  ,"C"  ,  6.0 ,  12.0107*CLHEP::g/CLHEP::mole);
-  GeoElement*  Nickel   = new GeoElement ("Nickel"  ,"Ni" , 28.0 ,  58.6934*CLHEP::g/CLHEP::mole);
+  GeoElement*  Oxygen   = new GeoElement ("Oxygen"  ,"O"  ,  8.0 ,  16.0*GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
+  GeoElement*  Sillicon = new GeoElement ("Sillicon","Si" , 14.0 ,  28.085*GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
+  GeoElement*  Tung     = new GeoElement ("Tungsten","W"  , 74.0 , 183.84*GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
+  GeoElement*  Iron     = new GeoElement ("Iron"    ,"Fe" , 26.0 ,  55.845 *GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
+  GeoElement*  Carbon   = new GeoElement ("Carbon"  ,"C"  ,  6.0 ,  12.0107*GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
+  GeoElement*  Nickel   = new GeoElement ("Nickel"  ,"Ni" , 28.0 ,  58.6934*GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
 
 
-  GeoMaterial* Quartz   = new GeoMaterial("Quartz",2.20*CLHEP::gram/CLHEP::cm3);
+  GeoMaterial* Quartz   = new GeoMaterial("Quartz",2.20*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
   Quartz->add(Sillicon,0.467);
   Quartz->add(Oxygen,0.533);
   Quartz->lock();
   
   // Absorber composition:  savannah.cern.ch/task/download.php?file_id=22925
-  GeoMaterial* Tungsten = new GeoMaterial("Tungsten",18.155*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Tungsten = new GeoMaterial("Tungsten",18.155*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Tungsten->add(Tung,   0.948);
   Tungsten->add(Nickel, 0.037);
   Tungsten->add(Iron,   0.015);
   Tungsten->lock();
 
-  GeoMaterial* Steel  = new GeoMaterial("Steel", 7.9*CLHEP::gram/CLHEP::cm3);
+  GeoMaterial* Steel  = new GeoMaterial("Steel", 7.9*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
   Steel->add(Iron  , 0.98);
   Steel->add(Carbon, 0.02);
   Steel->lock();
@@ -82,11 +84,11 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
   //List of shapes and logical volumes
   //https://atlasop.cern.ch/atlas-point1/twiki/pub/Main/ZDCOperationManualShifter/zdc_layout.png
 
-  GeoBox*  Envelope_Box    = new GeoBox (10.0*CLHEP::cm/2.0 ,20.0*CLHEP::cm/2.0  ,100.0*CLHEP::cm/2.0);
-  GeoBox*  Module_Box      = new GeoBox ( 9.0*CLHEP::cm/2.0 ,18.0*CLHEP::cm/2.0  , 13.4*CLHEP::cm/2.0);
-  GeoBox*  Steel_Plate_Box = new GeoBox ( 9.0*CLHEP::cm/2.0 ,18.0*CLHEP::cm/2.0  ,  1.0*CLHEP::cm/2.0); 
-  GeoTube* Pixel_Tube      = new GeoTube( 0.0*CLHEP::mm     , 1.0*CLHEP::mm/2.0  , 13.4*CLHEP::cm/2.0);
-  GeoTube* Strip_Tube      = new GeoTube( 0.0*CLHEP::mm     , 1.5*CLHEP::mm/2.0  , 18.0*CLHEP::cm/2.0);
+  GeoBox*  Envelope_Box    = new GeoBox (10.0*GeoModelKernelUnits::cm/2.0 ,20.0*GeoModelKernelUnits::cm/2.0  ,100.0*GeoModelKernelUnits::cm/2.0);
+  GeoBox*  Module_Box      = new GeoBox ( 9.0*GeoModelKernelUnits::cm/2.0 ,18.0*GeoModelKernelUnits::cm/2.0  , 13.4*GeoModelKernelUnits::cm/2.0);
+  GeoBox*  Steel_Plate_Box = new GeoBox ( 9.0*GeoModelKernelUnits::cm/2.0 ,18.0*GeoModelKernelUnits::cm/2.0  ,  1.0*GeoModelKernelUnits::cm/2.0); 
+  GeoTube* Pixel_Tube      = new GeoTube( 0.0*GeoModelKernelUnits::mm     , 1.0*GeoModelKernelUnits::mm/2.0  , 13.4*GeoModelKernelUnits::cm/2.0);
+  GeoTube* Strip_Tube      = new GeoTube( 0.0*GeoModelKernelUnits::mm     , 1.5*GeoModelKernelUnits::mm/2.0  , 18.0*GeoModelKernelUnits::cm/2.0);
 
   GeoLogVol* Envelope_Logical    = new GeoLogVol("Envelope_Logical"   ,Envelope_Box    ,air);
   GeoLogVol* Steel_Plate_Logical = new GeoLogVol("Steel_Plate_Logical",Steel_Plate_Box ,Steel);
@@ -122,8 +124,8 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
     GeoIdentifierTag* Pixel_ID       = new GeoIdentifierTag( 11000+L1*8+K1);  
     GeoFullPhysVol*   Pixel_Physical = new GeoFullPhysVol(Pixel_Logical);
 
-    ShiftX = new GeoAlignableTransform(HepGeom::TranslateX3D((4.5-K)*CLHEP::cm));
-    ShiftY = new GeoAlignableTransform(HepGeom::TranslateY3D((4.5-L)*CLHEP::cm));
+    ShiftX = new GeoAlignableTransform(GeoTrf::TranslateX3D((4.5-K)*GeoModelKernelUnits::cm));
+    ShiftY = new GeoAlignableTransform(GeoTrf::TranslateY3D((4.5-L)*GeoModelKernelUnits::cm));
 	
     Module_Physical[0][0]->add(Pixel_ID);
     Module_Physical[0][0]->add(ShiftX);
@@ -149,8 +151,8 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 	GeoIdentifierTag* Pixel_ID       = new GeoIdentifierTag( I*10000+2000+ Pix_id);
 	GeoFullPhysVol*   Pixel_Physical = new GeoFullPhysVol(Pixel_Logical);
 
-	ShiftX = new GeoAlignableTransform(HepGeom::TranslateX3D( (4.5-K)*CLHEP::cm ));
-	ShiftY = new GeoAlignableTransform(HepGeom::TranslateY3D( (5.5-L)*CLHEP::cm ));
+	ShiftX = new GeoAlignableTransform(GeoTrf::TranslateX3D( (4.5-K)*GeoModelKernelUnits::cm ));
+	ShiftY = new GeoAlignableTransform(GeoTrf::TranslateY3D( (5.5-L)*GeoModelKernelUnits::cm ));
 	
 	Module_Physical[I-1][1]->add(Pixel_ID);
 	Module_Physical[I-1][1]->add(ShiftX);
@@ -169,9 +171,9 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 	    GeoFullPhysVol*   Strip_Physical = new GeoFullPhysVol  (Strip_Logical);
 	    GeoIdentifierTag* Strip_ID       = new GeoIdentifierTag(I*10000+J*1000+K*12+L*10+M);
 	    
-	    RotateX = new GeoAlignableTransform(HepGeom::RotateX3D   (90*CLHEP::deg));
-	    ShiftX  = new GeoAlignableTransform(HepGeom::TranslateX3D((L-5.5)*CLHEP::cm + (M-0.75)*1.5*CLHEP::mm +0.75*CLHEP::mm));
-	    ShiftZ  = new GeoAlignableTransform(HepGeom::TranslateZ3D((K*1.2 - 7.8)*CLHEP::cm));
+	    RotateX = new GeoAlignableTransform(GeoTrf::RotateX3D   (90*GeoModelKernelUnits::deg));
+	    ShiftX  = new GeoAlignableTransform(GeoTrf::TranslateX3D((L-5.5)*GeoModelKernelUnits::cm + (M-0.75)*1.5*GeoModelKernelUnits::mm +0.75*GeoModelKernelUnits::mm));
+	    ShiftZ  = new GeoAlignableTransform(GeoTrf::TranslateZ3D((K*1.2 - 7.8)*GeoModelKernelUnits::cm));
 	
 	    Module_Physical[I-1][J-1]->add(Strip_ID);
 	    Module_Physical[I-1][J-1]->add(ShiftZ);
@@ -194,9 +196,9 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 	    GeoFullPhysVol*   Strip_Physical = new GeoFullPhysVol(Strip_Logical);
 	    GeoIdentifierTag* Strip_ID       = new GeoIdentifierTag(I*10000 + J*1000 + K*12 + L*10 + M);
 
-	    RotateX = new GeoAlignableTransform(HepGeom::RotateX3D   (90*CLHEP::deg));
-	    ShiftX  = new GeoAlignableTransform(HepGeom::TranslateX3D((L-5.5)*CLHEP::cm + (M-0.75)*1.5*CLHEP::mm + 0.75*CLHEP::mm));
-	    ShiftZ  = new GeoAlignableTransform(HepGeom::TranslateZ3D((K*1.2-7.8)*CLHEP::cm ));
+	    RotateX = new GeoAlignableTransform(GeoTrf::RotateX3D   (90*GeoModelKernelUnits::deg));
+	    ShiftX  = new GeoAlignableTransform(GeoTrf::TranslateX3D((L-5.5)*GeoModelKernelUnits::cm + (M-0.75)*1.5*GeoModelKernelUnits::mm + 0.75*GeoModelKernelUnits::mm));
+	    ShiftZ  = new GeoAlignableTransform(GeoTrf::TranslateZ3D((K*1.2-7.8)*GeoModelKernelUnits::cm ));
 	
 	    Module_Physical[I-1][J-1]->add(Strip_ID);
 	    Module_Physical[I-1][J-1]->add(ShiftZ);
@@ -226,13 +228,13 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
     Envelope_Physical[I] = new GeoFullPhysVol(Envelope_Logical);
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
 
-    ShiftZ  = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 0.5)*CLHEP::cm*sgn));
+    ShiftZ  = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 0.5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
 
     Vol_Name = "EM_XY"; Vol_Name = Vol_Name + Vol_Name_append;
 
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D ((-47.2 + 1 + 6.7)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D ((-47.2 + 1 + 6.7)*GeoModelKernelUnits::cm*sgn));
 
     tag = new GeoNameTag(Vol_Name.c_str());
     Envelope_Physical[I]->add(tag);
@@ -240,58 +242,58 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
     Envelope_Physical[I]->add(Module_Physical[I][0]);
 
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 +.5)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 +.5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
   
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + .5)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + .5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
 
     Vol_Name = "HM_XY"; Vol_Name = Vol_Name + Vol_Name_append;
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 6.7)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 6.7)*GeoModelKernelUnits::cm*sgn));
     tag = new GeoNameTag(Vol_Name.c_str());
     Envelope_Physical[I]->add(tag);
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Module_Physical[I][1]);
   
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + .5)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + .5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
  
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 +.5)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 +.5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
 
     Vol_Name = "HM_01"; Vol_Name = Vol_Name + Vol_Name_append;
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 6.7)*CLHEP::cm*sgn ));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 6.7)*GeoModelKernelUnits::cm*sgn ));
     tag = new GeoNameTag(Vol_Name.c_str());
     Envelope_Physical[I]->add(tag);
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Module_Physical[I][2]);
   
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + .5)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + .5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
 
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + 1 + .5)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + 1 + .5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
 
     Vol_Name = "HM_02"; Vol_Name = Vol_Name + Vol_Name_append;
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + 1 + 1 + 6.7)*CLHEP::cm*sgn ));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + 1 + 1 + 6.7)*GeoModelKernelUnits::cm*sgn ));
     tag = new GeoNameTag(Vol_Name.c_str());
     Envelope_Physical[I]->add(tag);
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Module_Physical[I][3]);
   
     Steel_Plate_Physical = new GeoFullPhysVol(Steel_Plate_Logical);
-    ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + 1 + 1 + 13.4 + .5)*CLHEP::cm*sgn));
+    ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D((-47.2 + 1 + 13.4 + 1 + 6 + 10 + 1 + 13.4 + 1 + 3 + 1 + 13.4 + 1 + 1 + 13.4 + .5)*GeoModelKernelUnits::cm*sgn));
     Envelope_Physical[I]->add(ShiftZ);
     Envelope_Physical[I]->add(Steel_Plate_Physical);
   }
@@ -303,7 +305,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   world->add(tag);
 
-  ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D(-141.580*CLHEP::m));
+  ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D(-141.580*GeoModelKernelUnits::m));
 
   world->add(ShiftZ);
   world->add(Envelope_Physical[0]);
@@ -318,7 +320,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
   
   world->add(tag);
   
-  ShiftZ = new GeoAlignableTransform(HepGeom::TranslateZ3D(141.580 *CLHEP::m));
+  ShiftZ = new GeoAlignableTransform(GeoTrf::TranslateZ3D(141.580 *GeoModelKernelUnits::m));
 
   world->add(ShiftZ);
   world->add(Envelope_Physical[1]);

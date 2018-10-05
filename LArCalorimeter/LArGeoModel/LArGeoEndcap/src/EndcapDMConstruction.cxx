@@ -22,6 +22,8 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -30,10 +32,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoGenericFunctions/Variable.h"
 
 // ***********************************************************************
 //
@@ -108,8 +107,8 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
   unsigned int recordIndex;
 
   // Get materials
-  const GeoMaterial *alu               = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
-  const GeoMaterial* matBoardsEnvelope = materialManager->getMaterial("LAr::BoardsEnvelope");// 0.932*CLHEP::gram/CLHEP::cm3);
+  const GeoMaterial *alu               = materialManager->getMaterial("std::Aluminium"); //2.7 GeoModelKernelUnits::g/GeoModelKernelUnits::cm3
+  const GeoMaterial* matBoardsEnvelope = materialManager->getMaterial("LAr::BoardsEnvelope");// 0.932*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
 
   ////----------- Building Front-end crates --------------------
   recordIndex = tubeMap["Ped2"];
@@ -186,9 +185,9 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
   GeoTube    *Ped2     = new GeoTube(ped2minr, ped2maxr, ped2zhlen);
   GeoTube    *Ped3     = new GeoTube(ped3minr,ped3maxr , ped3zhlen);
   const GeoShape & CratePed=((*Pedestal).subtract(*Ped1).
-			     subtract((*Ped2)  <<HepGeom::TranslateY3D(-ped2ytr)*HepGeom::RotateY3D(90*CLHEP::deg)).
-			     subtract((*Ped3)  <<HepGeom::TranslateX3D(-ped3xtr)).
-			     subtract((*Ped2)  <<HepGeom::TranslateY3D(ped2ytr)*HepGeom::RotateY3D(90*CLHEP::deg)));
+			     subtract((*Ped2)  <<GeoTrf::TranslateY3D(-ped2ytr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)).
+			     subtract((*Ped3)  <<GeoTrf::TranslateX3D(-ped3xtr)).
+			     subtract((*Ped2)  <<GeoTrf::TranslateY3D(ped2ytr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)));
 
   GeoLogVol  *lvped   = new GeoLogVol("LAr::DM::Ped",&CratePed,alu);
   GeoPhysVol *pedestal   = new GeoPhysVol(lvped);
@@ -197,7 +196,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
   GeoBox     *Crate1   = new GeoBox(crate1hlen, crate1hwdt, crate1hhgt-epsilon);
   GeoBox     *Crate2   = new GeoBox(crate2hlen, crate2hwdt, crate2hhgt-epsilon);
   GeoBox     *Crate3   = new GeoBox(crate3hlen, crate3hwdt, crate3hhgt-epsilon);
-  const GeoShape & FEBCrate=(*Crate1).subtract(*Crate2).add((*Crate3)  <<HepGeom::TranslateX3D(-crate3xtr));
+  const GeoShape & FEBCrate=(*Crate1).subtract(*Crate2).add((*Crate3)  <<GeoTrf::TranslateX3D(-crate3xtr));
 
   GeoLogVol  *lvcrate = new GeoLogVol("LAr::DM::Crate",&FEBCrate,alu);
   GeoPhysVol *crate   = new GeoPhysVol(lvcrate);
@@ -208,14 +207,14 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
   GeoPhysVol *boardenvelope   = new GeoPhysVol(lvbenv);
 
   //-------------- Place volumes in envelope ----------------------------
-  GeoTransform* xfCrateBase(new GeoTransform(HepGeom::TranslateX3D(crate1xtr)*HepGeom::TranslateZ3D(crate1ztr)));
-  GeoTransform* xfPedestBase(new GeoTransform(HepGeom::TranslateX3D(pedestxtr)*HepGeom::TranslateZ3D(pedestztr)));
-  GeoTransform* xfBoardEBase1(new GeoTransform(HepGeom::TranslateY3D(BoardEytr)*HepGeom::TranslateX3D(BoardExtr)*HepGeom::TranslateZ3D(BoardEztr)));
-  GeoTransform* xfBoardEBase2(new GeoTransform(HepGeom::TranslateY3D(-BoardEytr)*HepGeom::TranslateX3D(BoardExtr)*HepGeom::TranslateZ3D(BoardEztr)));
+  GeoTransform* xfCrateBase(new GeoTransform(GeoTrf::TranslateX3D(crate1xtr)*GeoTrf::TranslateZ3D(crate1ztr)));
+  GeoTransform* xfPedestBase(new GeoTransform(GeoTrf::TranslateX3D(pedestxtr)*GeoTrf::TranslateZ3D(pedestztr)));
+  GeoTransform* xfBoardEBase1(new GeoTransform(GeoTrf::TranslateY3D(BoardEytr)*GeoTrf::TranslateX3D(BoardExtr)*GeoTrf::TranslateZ3D(BoardEztr)));
+  GeoTransform* xfBoardEBase2(new GeoTransform(GeoTrf::TranslateY3D(-BoardEytr)*GeoTrf::TranslateX3D(BoardExtr)*GeoTrf::TranslateZ3D(BoardEztr)));
 
   for(unsigned i(0); i<LArEndcapCratePhiPos->size(); ++i) {
-    double phiPos = (*LArEndcapCratePhiPos)[i]->getDouble("PHIPOS")*CLHEP::deg;
-    GeoTransform* xfPhiPos(new GeoTransform(HepGeom::RotateZ3D(phiPos)));
+    double phiPos = (*LArEndcapCratePhiPos)[i]->getDouble("PHIPOS")*GeoModelKernelUnits::deg;
+    GeoTransform* xfPhiPos(new GeoTransform(GeoTrf::RotateZ3D(phiPos)));
 
     envelope->add(xfPhiPos);
     envelope->add(xfCrateBase);
@@ -242,7 +241,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
       GeoTube* endcapTube = new GeoTube((*EndcapDMTubes)[i]->getDouble("RMIN"),(*EndcapDMTubes)[i]->getDouble("RMAX"),(*EndcapDMTubes)[i]->getDouble("DZ"));
       GeoLogVol* endcapTubeLv = new GeoLogVol((*EndcapDMTubes)[i]->getString("TUBENAME"),endcapTube,matECServices);
       GeoPhysVol* endcapTubePv = new GeoPhysVol(endcapTubeLv);
-      envelope->add(new GeoTransform(HepGeom::TranslateZ3D((*EndcapDMTubes)[i]->getDouble("ZPOS"))));
+      envelope->add(new GeoTransform(GeoTrf::TranslateZ3D((*EndcapDMTubes)[i]->getDouble("ZPOS"))));
       envelope->add(endcapTubePv);
     }
   }

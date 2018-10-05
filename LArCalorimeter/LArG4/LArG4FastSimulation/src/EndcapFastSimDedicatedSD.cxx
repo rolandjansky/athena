@@ -11,6 +11,9 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 using HepGeom::Point3D;
 using HepGeom::Transform3D;
@@ -40,8 +43,8 @@ void EndcapFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
   // Fill the identifier.
   Point3D<double> globalPosition=spot.GetPosition();
 
-  static Transform3D xfPos = m_emecManager->getDetectorRegion(1,1,0,0)->getAbsoluteTransform().inverse();
-  static Transform3D xfNeg = m_emecManager->getDetectorRegion(0,1,0,0)->getAbsoluteTransform().inverse();
+  static Transform3D xfPos = Amg::EigenTransformToCLHEP(m_emecManager->getDetectorRegion(1,1,0,0)->getAbsoluteTransform().inverse());
+  static Transform3D xfNeg = Amg::EigenTransformToCLHEP(m_emecManager->getDetectorRegion(0,1,0,0)->getAbsoluteTransform().inverse());
 
 
   Point3D<double> localPosition        = globalPosition.z()<0 ? xfNeg*globalPosition : xfPos*globalPosition;

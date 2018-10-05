@@ -11,7 +11,7 @@
 
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "CLHEP/GenericFunctions/FunctionNoop.hh"
+#include "GeoGenericFunctions/FunctionNoop.h"
 
 
 namespace LArGeo {
@@ -48,25 +48,25 @@ namespace LArGeo {
 
     // Three auxiliary functions:------------------------------------//
     //                                                               //
-    Genfun::FunctionNoop Fx( double r,                               //
-			       Genfun::GENFUNCTION G,                //
+    GeoGenfun::FunctionNoop Fx( double r,                               //
+			       GeoGenfun::GENFUNCTION G,                //
 			       const double Cenx[],                  //
 			       const double Ceny[] ) const;          //
       //                                                             //
-      Genfun::FunctionNoop Fy( double r,                             //
-			       Genfun::GENFUNCTION G,                //
+      GeoGenfun::FunctionNoop Fy( double r,                             //
+			       GeoGenfun::GENFUNCTION G,                //
 			       const double Cenx[],                  //
 			       const double Ceny[] ) const;          //
       //                                                             //
-      Genfun::FunctionNoop Dely(Genfun::GENFUNCTION G ) const;       //
-      Genfun::FunctionNoop Del1(Genfun::GENFUNCTION G ) const;       //
-      Genfun::FunctionNoop Del2(Genfun::GENFUNCTION G ) const;       //
+      GeoGenfun::FunctionNoop Dely(GeoGenfun::GENFUNCTION G ) const;       //
+      GeoGenfun::FunctionNoop Del1(GeoGenfun::GENFUNCTION G ) const;       //
+      GeoGenfun::FunctionNoop Del2(GeoGenfun::GENFUNCTION G ) const;       //
 
       //-------------------------------------------------------------//
 
       // Atan2 for Generic Functions..:------------------------------//
-      Genfun::FunctionNoop ATan2(Genfun::GENFUNCTION y,              //
-				 Genfun::GENFUNCTION x) const;       //
+      GeoGenfun::FunctionNoop ATan2(GeoGenfun::GENFUNCTION y,              //
+				 GeoGenfun::GENFUNCTION x) const;       //
       //-------------------------------------------------------------//
 
       // Detector parameters ACCG, ACCA, ACMB, ACCO

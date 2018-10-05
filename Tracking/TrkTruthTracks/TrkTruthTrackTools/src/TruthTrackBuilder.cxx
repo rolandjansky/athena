@@ -23,14 +23,13 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 // Gaudi
 #include "GaudiKernel/IPartPropSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 // HepMC
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
-
-using namespace CLHEP;
 
 /** Constructor **/
 Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
@@ -209,7 +208,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
         
         const Trk::TrackParameters *thispar = m_extrapolator->extrapolate(*prevpar,surf,Trk::alongMomentum,false,Trk::nonInteracting);
         if (!thispar) break;
-        if (!surf.insideBounds(thispar->localPosition(),20*mm,50*mm)) {
+        if (!surf.insideBounds(thispar->localPosition(),20*Gaudi::Units::mm,50*Gaudi::Units::mm)) {
           delete thispar;
           continue;
         }

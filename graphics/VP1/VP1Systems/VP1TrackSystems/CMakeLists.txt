@@ -9,7 +9,6 @@ atlas_subdir( VP1TrackSystems )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   DetectorDescription/GeoModel/GeoModelKernel
    DetectorDescription/GeoPrimitives
    DetectorDescription/Identifier
    Event/xAOD/xAODTracking
@@ -65,6 +64,7 @@ find_package( CLHEP )
 find_package( Coin3D )
 find_package( HepMC )
 find_package( Qt5 COMPONENTS Core Gui Widgets  )
+find_package( GeoModel )
 
 # Generate UI files automatically:
 # Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run
@@ -77,7 +77,7 @@ atlas_add_library( VP1TrackSystems VP1TrackSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1TrackSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${HEPMC_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES GeoModelKernel GeoPrimitives Identifier xAODTracking
+   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoPrimitives Identifier xAODTracking
    GaudiKernel GeneratorObjects TrkDetDescrInterfaces TrkSurfaces
    TrkEventPrimitives TrkParameters VP1Base VP1Utils StoreGateLib SGtests
    MuonIdHelpersLib MuonRecHelperToolsLib Qt5::Core Qt5::Gui

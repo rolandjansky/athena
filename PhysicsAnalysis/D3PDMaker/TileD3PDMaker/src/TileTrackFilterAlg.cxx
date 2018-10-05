@@ -10,6 +10,7 @@
  */
 
 // INCLUDE HEADER
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileTrackFilterAlg.h"
 
 //===============================================================================================

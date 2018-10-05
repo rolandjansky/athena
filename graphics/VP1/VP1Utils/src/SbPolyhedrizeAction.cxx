@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -19,6 +20,7 @@
 #include "GeoModelKernel/GeoTessellatedSolid.h"
 #include "GeoModelKernel/GeoFacet.h"
 #include "GeoModelKernel/GeoGenericTrap.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "VP1Utils/SbPolyhedrizeAction.h"
 
 #include "VP1HEPVis/SbPolyhedron.h"
@@ -40,8 +42,8 @@ SbPolyhedrizeAction::~SbPolyhedrizeAction()
 void SbPolyhedrizeAction::handleShift(const GeoShapeShift *shift)
 {
   shift->getOp()->exec(this);
-  CLHEP::HepRotation rotation=shift->getX().getRotation();
-  CLHEP::Hep3Vector  translation = shift->getX().getTranslation();
+  GeoTrf::RotationMatrix3D rotation=shift->getX().rotation();
+  GeoTrf::Vector3D  translation = shift->getX().translation();
 
   // rbianchi - 14.12.2012
 //  SbVec3f    trx(translation.x(),translation.y(),translation.z());
@@ -51,9 +53,9 @@ void SbPolyhedrizeAction::handleShift(const GeoShapeShift *shift)
 //			  0,0,0,1));
   SbVec3d    trx(translation.x(),translation.y(),translation.z());
   #include <VP1HEPVis/SbRotation.h> //using doubles instead of floats.
-  HEPVis::SbRotation rot(rotation.xx(),rotation.yx(),rotation.zx(),0,
-			  rotation.xy(),rotation.yy(),rotation.zy(),0,
-			  rotation.xz(),rotation.yz(),rotation.zz(),0,
+  HEPVis::SbRotation rot(rotation(0,0),rotation(1,0),rotation(2,0),0,
+			 rotation(0,1),rotation(1,1),rotation(2,1),0,
+			 rotation(0,2),rotation(1,2),rotation(2.2),0,
 			  0,0,0,1);
   //---
 

@@ -10,7 +10,7 @@
 
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 namespace InDetDD {
   ServiceVolumeSchema::ServiceVolumeSchema() {
@@ -97,56 +97,56 @@ namespace InDetDD {
 
   double
   ServiceVolumeMakerMgr::rmin(int index) const {
-    return db()->getDouble(m_table, m_schema.rmin(), index) * CLHEP::mm;
+    return db()->getDouble(m_table, m_schema.rmin(), index) * GeoModelKernelUnits::mm;
   }
 
   double
   ServiceVolumeMakerMgr::rmax(int index) const {
-    return db()->getDouble(m_table, m_schema.rmax(), index) * CLHEP::mm;
+    return db()->getDouble(m_table, m_schema.rmax(), index) * GeoModelKernelUnits::mm;
   }
 
   double
   ServiceVolumeMakerMgr::rmin2(int index) const {
-    return db()->getDouble(m_table, m_schema.rmin2(), index) * CLHEP::mm;
+    return db()->getDouble(m_table, m_schema.rmin2(), index) * GeoModelKernelUnits::mm;
   }
 
   double
   ServiceVolumeMakerMgr::rmax2(int index) const {
-    return db()->getDouble(m_table, m_schema.rmax2(), index) * CLHEP::mm;
+    return db()->getDouble(m_table, m_schema.rmax2(), index) * GeoModelKernelUnits::mm;
   }
 
   double
   ServiceVolumeMakerMgr::zmin(int index) const {
-    return db()->getDouble(m_table, m_schema.zmin(), index) * CLHEP::mm;
+    return db()->getDouble(m_table, m_schema.zmin(), index) * GeoModelKernelUnits::mm;
   }
 
   double
   ServiceVolumeMakerMgr::zmax(int index) const {
-    return db()->getDouble(m_table, m_schema.zmax(), index) * CLHEP::mm;
+    return db()->getDouble(m_table, m_schema.zmax(), index) * GeoModelKernelUnits::mm;
   }
 
   double
   ServiceVolumeMakerMgr::phiDelta(int index) const {
-    return db()->getDouble(m_table, m_schema.phiDelta(), index) * CLHEP::deg;
+    return db()->getDouble(m_table, m_schema.phiDelta(), index) * GeoModelKernelUnits::deg;
   }
 
   double
   ServiceVolumeMakerMgr::width(int index) const {
     if (m_schema.has_width()) {
-      return db()->getDouble(m_table, m_schema.width(), index) * CLHEP::mm;
+      return db()->getDouble(m_table, m_schema.width(), index) * GeoModelKernelUnits::mm;
     }
     return 0;
   }
 
   double
   ServiceVolumeMakerMgr::phiStart(int index) const {
-    return db()->getDouble(m_table, m_schema.phiStart(), index) * CLHEP::deg;
+    return db()->getDouble(m_table, m_schema.phiStart(), index) * GeoModelKernelUnits::deg;
   }
 
   double
   ServiceVolumeMakerMgr::phiStep(int index) const {
     if (m_schema.has_phiStep()) {
-      return db()->getDouble(m_table, m_schema.phiStep(), index) * CLHEP::deg;
+      return db()->getDouble(m_table, m_schema.phiStep(), index) * GeoModelKernelUnits::deg;
     }
     return 0;
   }
@@ -309,8 +309,8 @@ namespace InDetDD {
       double phiDelta = m_mgr->phiDelta(ii);
 
       bool fullPhiSector = false;
-      if (phiDelta == 0 || phiDelta >= 359.9 * CLHEP::degree) {
-        phiDelta = 360 * CLHEP::degree;
+      if (phiDelta == 0 || phiDelta >= 359.9 * GeoModelKernelUnits::degree) {
+        phiDelta = 360 * GeoModelKernelUnits::degree;
         fullPhiSector = true;
       }
       //else {
@@ -340,12 +340,12 @@ namespace InDetDD {
       double phiWidth = phiDelta;
 
       if (shapeType == "CONS" || shapeType == "TUBS") {
-        const double phiepsilon = 0.001 * CLHEP::degree;
+        const double phiepsilon = 0.001 * GeoModelKernelUnits::degree;
         phiWidth -= 2 * phiepsilon;
         phiStart += phiepsilon;
       }
 
-      // Can be in degree or CLHEP::mm. Usually it is CLHEP::deg expect for BOX, TRAP and ROD shape
+      // Can be in degree or mm. Usually it is deg expect for BOX, TRAP and ROD shape
       // Geometry manager makes no assumptions about units. So we must interpret here.
       if (shapeType == "BOX" || shapeType == "ROD" || shapeType == "ROD2" || shapeType == "TRAP") {
         phiWidth = m_mgr->width(ii); // in mm

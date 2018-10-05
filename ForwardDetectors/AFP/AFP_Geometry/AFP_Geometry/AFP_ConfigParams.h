@@ -10,8 +10,8 @@
 #include <vector>
 #include <string>
 
+#include "CLHEP/Geometry/Transform3D.h"
 #include "AFP_Geometry/AFP_constants.h"
-#include "GeoModelKernel/GeoTransform.h"
 
 enum eLQBarType { ELBT_UNDEFINED=0, ELBT_REGULAR=1, ELBT_METALELBOW=2, ELBT_AIRGUIDE=3, ELBT_HYBRID=4, ELBT_HYBRIDMETALELBOW=5, ELBT_ONEARM=6, ELBT_ONEARMAIRGUIDE=7, ELBT_MIKELBAR=8 };
 enum eSkinReflectivityMode { ESRM_SINGLE=1, ESRM_SPECTRAL1=2 };

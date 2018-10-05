@@ -16,6 +16,8 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include "CLHEP/Geometry/Transform3D.h" 
 
@@ -181,7 +183,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    // --- Barrel
 	    const IRDBRecord *barrelRec = GeoDBUtils::getTransformRecord(larPosition,"LARCRYO_B"); 
 	    if(!barrelRec) throw std::runtime_error("Error, no lar position record in the database");
-	    HepGeom::Transform3D xfBarrel = GeoDBUtils::getTransform(barrelRec);
+	    GeoTrf::Transform3D xfBarrel = GeoDBUtils::getTransform(barrelRec);
 	    GeoAlignableTransform* barrelAlXf = new GeoAlignableTransform(xfBarrel);
 
 	    {
@@ -201,7 +203,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    // --- Endcap Pos
 	    const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_POS");
 	    if (!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
-	    HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
+	    GeoTrf::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
 	    GeoAlignableTransform *xfEndcapPos = new GeoAlignableTransform(xfPos);
 
 	    {
@@ -217,7 +219,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    // --- Endcap Neg
 	    const IRDBRecord *negRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_NEG");
 	    if (!negRec) throw std::runtime_error("Error, no lar position record in the database") ;
-	    HepGeom::Transform3D xfNeg = GeoDBUtils::getTransform(negRec);
+	    GeoTrf::Transform3D xfNeg = GeoDBUtils::getTransform(negRec);
 	    GeoAlignableTransform *xfEndcapNeg = new GeoAlignableTransform(xfNeg);
 
 	    {
@@ -235,7 +237,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    a_container->add(endcapEnvelopePos);
 	    a_container->add( new GeoNameTag("LArEndcapNeg"));
 	    a_container->add(xfEndcapNeg);
-	    a_container->add( new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
+	    a_container->add( new GeoTransform(GeoTrf::RotateY3D(180.0*GeoModelKernelUnits::deg)));
 	    a_container->add(endcapEnvelopeNeg);
 	  }
 	else if(!m_buildEndcap)
@@ -243,7 +245,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    // -- Build the Barrel only
 	    const IRDBRecord *barrelRec = GeoDBUtils::getTransformRecord(larPosition,"LARCRYO_B"); 
 	    if(!barrelRec) throw std::runtime_error("Error, no lar position record in the database");
-	    HepGeom::Transform3D xfBarrel = GeoDBUtils::getTransform(barrelRec);
+	    GeoTrf::Transform3D xfBarrel = GeoDBUtils::getTransform(barrelRec);
 	    GeoAlignableTransform* barrelAlXf = new GeoAlignableTransform(xfBarrel);
 
 	    {
@@ -266,7 +268,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    // --- Endcap Pos
 	    const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_POS");
 	    if (!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
-	    HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
+	    GeoTrf::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
 	    GeoAlignableTransform *xfEndcapPos = new GeoAlignableTransform(xfPos);
 
 	    {
@@ -282,7 +284,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    // --- Endcap Neg
 	    const IRDBRecord *negRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_NEG");
 	    if (!negRec) throw std::runtime_error("Error, no lar position record in the database") ;
-	    HepGeom::Transform3D xfNeg = GeoDBUtils::getTransform(negRec);
+	    GeoTrf::Transform3D xfNeg = GeoDBUtils::getTransform(negRec);
 	    GeoAlignableTransform *xfEndcapNeg = new GeoAlignableTransform(xfNeg);
 
 	    {
@@ -300,7 +302,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    a_container->add(endcapEnvelopePos);
 	    a_container->add( new GeoNameTag("LArEndcapNeg"));
 	    a_container->add(xfEndcapNeg);
-	    a_container->add( new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
+	    a_container->add( new GeoTransform(GeoTrf::RotateY3D(180.0*GeoModelKernelUnits::deg)));
 	    a_container->add(endcapEnvelopeNeg);
       
 	  }

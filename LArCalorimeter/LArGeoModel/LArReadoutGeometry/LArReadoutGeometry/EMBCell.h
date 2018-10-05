@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMBCell_h
-#define EMBCell_h 1
+#ifndef LARREADOUTGEOMETRY_EMBCELL_H
+#define LARREADOUTGEOMETRY_EMBCELL_H
 
 #include "LArReadoutGeometry/EMBDetDescr.h"
 #include "LArReadoutGeometry/EMBHVPathologies.h"

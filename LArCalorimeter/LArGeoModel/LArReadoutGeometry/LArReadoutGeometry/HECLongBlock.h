@@ -2,16 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECLongBlock_h
-#define HECLongBlock_h 1
+#ifndef LARREADOUTGEOMETRY_HECLONGBLOCK_H
+#define LARREADOUTGEOMETRY_HECLONGBLOCK_H
 #include <vector>
 #include "LArReadoutGeometry/HECRadialSegment.h"
 
 /**
+ * @class HECLongBlock
+ *
  *      @brief Description of HEC Longitudinal Block.
- */
-
-/**
+ *
  *	The HEC has longitudinal segments known as blocks.  Each
  *	block is sliced radially.  For a good picture of this,
  *	go here:
@@ -43,7 +43,14 @@ class HECLongBlock
   /**
    * @brief Constructor.
    */
-  HECLongBlock (unsigned int blockNum, double innerRad, double outerRad, double totalDepth, unsigned int nLarGaps, double frontPlateThick, double backPlateThick, const double etaRange[15]);
+  HECLongBlock (unsigned int blockNum
+		, double innerRad
+		, double outerRad
+		, double totalDepth
+		, unsigned int nLarGaps
+		, double frontPlateThick
+		, double backPlateThick
+		, const double etaRange[15]);
 
   /**
    * @brief Destructor

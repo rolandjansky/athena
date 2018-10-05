@@ -22,18 +22,15 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CxxUtils/make_unique.h"
-
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/GenericFunctions/Variable.hh"
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CxxUtils/make_unique.h" 
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -120,7 +117,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   // Is this ok for the Scintillator?
   // I don't really know for sure what kind of a scintillator we have.
-  // Lots of Scintillators are PMMA (Plexiglas), which has a composition of C5 H8 O2 and density 1.18 CLHEP::g/CLHEP::cm3
+  // Lots of Scintillators are PMMA (Plexiglas), which has a composition of C5 H8 O2 and density 1.18 GeoModelKernelUnits::g/GeoModelKernelUnits::cm3
   // The Tile uses a composition of C H (density 1.032)    
   // The old Walls testbeam code uses a composition of C9 H10 (density 1.032)
   // ... because it's easiest at the moment and not all that different from the fractional
@@ -160,9 +157,9 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   std::string baseName = "LAr::TBH6";
   std::string WallsName = baseName + "::Walls";
 
-  const double WallsX   = 1500.*CLHEP::mm;
-  const double WallsY   = 2000.*CLHEP::mm;
-  const double WallsZ   = 560.5*CLHEP::mm;
+  const double WallsX   = 1500.*GeoModelKernelUnits::mm;
+  const double WallsY   = 2000.*GeoModelKernelUnits::mm;
+  const double WallsZ   = 560.5*GeoModelKernelUnits::mm;
 
 
   GeoBox* WallsShape = new GeoBox( WallsX, WallsY, WallsZ );   
@@ -179,13 +176,13 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   (*m_msg) << "Create Iron Wall " << endmsg;
   
-  const double IronX =  1499.*CLHEP::mm;
-  const double IronY =  1999.*CLHEP::mm;
-  const double IronZ =  200.0*CLHEP::mm;
-  const double IronHoleX =   51.5*CLHEP::mm;
-  const double IronHoleY =  1999.*CLHEP::mm;
-  const double IronHoleZ =   200.*CLHEP::mm;
-  const double IronPosZ  =   270.*CLHEP::mm;
+  const double IronX =  1499.*GeoModelKernelUnits::mm;
+  const double IronY =  1999.*GeoModelKernelUnits::mm;
+  const double IronZ =  200.0*GeoModelKernelUnits::mm;
+  const double IronHoleX =   51.5*GeoModelKernelUnits::mm;
+  const double IronHoleY =  1999.*GeoModelKernelUnits::mm;
+  const double IronHoleZ =   200.*GeoModelKernelUnits::mm;
+  const double IronPosZ  =   270.*GeoModelKernelUnits::mm;
 
   // The wall itself:
   GeoBox* IronWallShape = new GeoBox(IronX, IronY, IronZ);  
@@ -201,7 +198,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   IronWallPhysical->add(IronHolePhysical);
 
   // Add the iron wall to the Wall mother:
-  m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-IronPosZ) ) ) ) ; 
+  m_WallsPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::mm, 0.*GeoModelKernelUnits::mm, (WallsZ-IronPosZ) ) ) ) ; 
   m_WallsPhysical->add( new GeoNameTag(IronWallName) );
   m_WallsPhysical->add( IronWallPhysical );
   
@@ -213,13 +210,13 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   (*m_msg) << "Create Lead Wall " << endmsg;
   
-  const double LeadX =  1499.*CLHEP::mm;
-  const double LeadY =  1999.*CLHEP::mm;
-  const double LeadZ =     6.*CLHEP::mm;
-  const double LeadHoleX =  23.5*CLHEP::mm;
-  const double LeadHoleY = 1999.*CLHEP::mm; 
-  const double LeadHoleZ =    6.*CLHEP::mm;
-  const double LeadPosZ  = 1045.*CLHEP::mm;
+  const double LeadX =  1499.*GeoModelKernelUnits::mm;
+  const double LeadY =  1999.*GeoModelKernelUnits::mm;
+  const double LeadZ =     6.*GeoModelKernelUnits::mm;
+  const double LeadHoleX =  23.5*GeoModelKernelUnits::mm;
+  const double LeadHoleY = 1999.*GeoModelKernelUnits::mm; 
+  const double LeadHoleZ =    6.*GeoModelKernelUnits::mm;
+  const double LeadPosZ  = 1045.*GeoModelKernelUnits::mm;
 
   // The wall itself:
   GeoBox* LeadWallShape = new GeoBox(LeadX, LeadY, LeadZ);  
@@ -235,7 +232,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   LeadWallPhysical->add(LeadHolePhysical);
 
   // Add the lead wall to the Wall mother:
-  m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-LeadPosZ) ) ) ) ; 
+  m_WallsPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::mm, 0.*GeoModelKernelUnits::mm, (WallsZ-LeadPosZ) ) ) ) ; 
   m_WallsPhysical->add( new GeoNameTag(LeadWallName) );
   m_WallsPhysical->add( LeadWallPhysical );
   
@@ -246,13 +243,13 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   (*m_msg) << "Create Scint Wall " << endmsg;
   
-  const double ScintX =  1499.*CLHEP::mm;
-  const double ScintY =  1999.*CLHEP::mm;
-  const double ScintZ =    6.5*CLHEP::mm;
-  const double ScintHoleX =  92.5*CLHEP::mm;
-  const double ScintHoleY = 1999.*CLHEP::mm; 
-  const double ScintHoleZ =   6.5*CLHEP::mm;
-  const double ScintPosZ  =  625.*CLHEP::mm;
+  const double ScintX =  1499.*GeoModelKernelUnits::mm;
+  const double ScintY =  1999.*GeoModelKernelUnits::mm;
+  const double ScintZ =    6.5*GeoModelKernelUnits::mm;
+  const double ScintHoleX =  92.5*GeoModelKernelUnits::mm;
+  const double ScintHoleY = 1999.*GeoModelKernelUnits::mm; 
+  const double ScintHoleZ =   6.5*GeoModelKernelUnits::mm;
+  const double ScintPosZ  =  625.*GeoModelKernelUnits::mm;
 
   // The wall itself:
   GeoBox* ScintWallShape = new GeoBox(ScintX, ScintY, ScintZ);  
@@ -268,7 +265,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   ScintWallPhysical->add(ScintHolePhysical);
 
   // Add the scintillator wall to the Wall mother:
-  m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-ScintPosZ) ) ) ) ; 
+  m_WallsPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::mm, 0.*GeoModelKernelUnits::mm, (WallsZ-ScintPosZ) ) ) ) ; 
   m_WallsPhysical->add( new GeoNameTag(ScintWallName) );
   m_WallsPhysical->add( ScintWallPhysical );
   
@@ -280,10 +277,10 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //(*m_msg) << "Create Iron Plate " << endmsg;
   
-  const double IronPlateX =   50.*CLHEP::mm;
-  const double IronPlateY =  150.*CLHEP::mm;
-  const double IronPlateZ =    4.*CLHEP::mm;
-  const double IronPlatePosZ  =  493.*CLHEP::mm;
+  const double IronPlateX =   50.*GeoModelKernelUnits::mm;
+  const double IronPlateY =  150.*GeoModelKernelUnits::mm;
+  const double IronPlateZ =    4.*GeoModelKernelUnits::mm;
+  const double IronPlatePosZ  =  493.*GeoModelKernelUnits::mm;
   const int nPlate = 0 ;
   const int PlatePlace = 1 ; // There were two locations used for these plates - unclear which one when and exactly 
                              //            where they were....! For the moment, sort of copy the standalone code
@@ -312,7 +309,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
     // Add the iron plate to the Plate mother:
     for (int iz=0; iz<(nPlate); iz++) {
       m_WallsPhysical->add( new GeoIdentifierTag(iz) );
-      m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, double(PlatePlace)*(v_PlateZ[iz]) ) ) ) ; 
+      m_WallsPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::mm, 0.*GeoModelKernelUnits::mm, double(PlatePlace)*(v_PlateZ[iz]) ) ) ) ; 
       m_WallsPhysical->add( new GeoNameTag(IronPlateName) );
       m_WallsPhysical->add( IronPlatePhysical );
     }

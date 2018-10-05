@@ -2,14 +2,14 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/PixelDetectorFactorySR1.h"
+#include "PixelDetectorFactorySR1.h"
 
-#include "PixelGeoModel/PixelSwitches.h" 
+#include "PixelSwitches.h" 
 
 // Envelope, as a starting point of the geometry
-#include "PixelGeoModel/GeoPixelBarrel.h"
-#include "PixelGeoModel/GeoPixelEndCap.h"
-#include "PixelGeoModel/GeoPixelServices.h"
+#include "GeoPixelBarrel.h"
+#include "GeoPixelEndCap.h"
+#include "GeoPixelServices.h"
 
 // GeoModel includes
 #include "GeoModelKernel/GeoNameTag.h"  
@@ -22,8 +22,8 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 
-#include "PixelGeoModel/PixelGeoModelAthenaComps.h"
-#include "PixelGeoModel/OraclePixGeoManager.h"
+#include "PixelGeoModelAthenaComps.h"
+#include "OraclePixGeoManager.h"
 
 #include "InDetIdentifier/PixelID.h"
 
@@ -110,8 +110,8 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
     msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     // Printout the parameters that are different in DC1 and DC2.
-    msg(MSG::INFO) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/CLHEP::micrometer << "um" << endmsg;
-    msg(MSG::INFO) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endmsg;   
+    msg(MSG::INFO) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/GeoModelKernelUnits::micrometer << "um" << endmsg;
+    msg(MSG::INFO) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/GeoModelKernelUnits::micrometer << "um" << endmsg;   
   }  
 
   bool barrelPresent   = m_geometryManager->partPresent("Barrel");
@@ -141,7 +141,7 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
   } 
   
   // Top level transform
-  HepGeom::Transform3D topTransform = m_geometryManager->partTransform("Pixel");
+  GeoTrf::Transform3D topTransform = m_geometryManager->partTransform("Pixel");
 
   if (barrelPresent) {
     //
@@ -151,7 +151,7 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
     GeoPixelBarrel brl(pixServices);
     physVol = brl.Build();   
 
-    HepGeom::Transform3D barrelTransform = m_geometryManager->partTransform("Barrel");
+    GeoTrf::Transform3D barrelTransform = m_geometryManager->partTransform("Barrel");
     transform = new GeoAlignableTransform(topTransform*barrelTransform);
 
     // Add this to the world
@@ -178,8 +178,8 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
       m_geometryManager->SetPos();
       physVol = pec.Build();
       
-      HepGeom::Transform3D endcapATransform = m_geometryManager->partTransform("EndcapA");
-      transform = new GeoAlignableTransform(topTransform * endcapATransform * HepGeom::TranslateZ3D(zpos));
+      GeoTrf::Transform3D endcapATransform = m_geometryManager->partTransform("EndcapA");
+      transform = new GeoAlignableTransform(topTransform * endcapATransform * GeoTrf::TranslateZ3D(zpos));
       
       GeoNameTag* tag  = new GeoNameTag("Pixel");
       world->add(tag);
@@ -194,8 +194,8 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
       m_geometryManager->SetNeg();
       physVol = pec.Build();
       
-      HepGeom::Transform3D endcapCTransform = m_geometryManager->partTransform("EndcapC");
-      transform = new GeoAlignableTransform(topTransform * endcapCTransform * HepGeom::TranslateZ3D(-zpos) * HepGeom::RotateY3D(180*CLHEP::deg));
+      GeoTrf::Transform3D endcapCTransform = m_geometryManager->partTransform("EndcapC");
+      transform = new GeoAlignableTransform(topTransform * endcapCTransform * GeoTrf::TranslateZ3D(-zpos) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
       
       GeoNameTag* tag  = new GeoNameTag("Pixel");
       world->add(tag);

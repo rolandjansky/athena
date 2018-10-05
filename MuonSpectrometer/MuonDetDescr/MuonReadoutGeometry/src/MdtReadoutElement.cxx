@@ -21,8 +21,8 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-
 
 #include "MuonAlignmentData/BLinePar.h"
 
@@ -585,18 +585,18 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
              }
           }
         }
-        HepGeom::Transform3D tubeTrans = cv->getXToChildVol(ii);
+        GeoTrf::Transform3D tubeTrans = cv->getXToChildVol(ii);
         PVConstLink tv = cv->getChildVol(ii);
         double maxtol = 0.0000001;
 
-        if (std::abs(xtube - tubeTrans[0][3]) > maxtol ||
+        if (std::abs(xtube - tubeTrans(0,3)) > maxtol ||
             //std::abs(ytube - tubeTrans[1][3]) > maxtol && std::abs(tubeTrans[1][3]) > maxtol ||
-            std::abs(ztube - tubeTrans[2][3]) > maxtol) {
+            std::abs(ztube - tubeTrans(2,3)) > maxtol) {
           reLog()<<MSG::ERROR << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for a MDT with cutouts "
                  << endmsg << ": from tube-id and pitch, tube pos = " << xtube
                  << ", " << ytube << ", " << ztube
-                 << " but geoModel gives " << tubeTrans[0][3]
-                 << ", " << tubeTrans[1][3] << ", " << tubeTrans[2][3]
+                 << " but geoModel gives " << tubeTrans(0,3)
+                 << ", " << tubeTrans(1,3) << ", " << tubeTrans(2,3)
                  << endmsg
                  << " for tube " << tube << " tube layer " << tubelayer
                  << " multilayer " << multilayer << endmsg
@@ -606,18 +606,18 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
                  << m_ntubesperlayer << " tubes per layer."
                  <<endmsg;
         }
-        if (tubeTrans[1][3]> maxtol)
+        if (tubeTrans(1,3)> maxtol)
         {
             if ( reLog().level() <= MSG::DEBUG ) 
 	      reLog()<<MSG::DEBUG << "This a tube with cutout stName/Eta/Phi/ml/tl/t = "<<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"
 		     <<getMultilayer()<<"/"<<tubelayer<<"/"<<tube<<endmsg;
-            if (std::abs(m_cutoutShift - tubeTrans[1][3]) > maxtol) // check only for tubes actually shifted 
+            if (std::abs(m_cutoutShift - tubeTrans(1,3)) > maxtol) // check only for tubes actually shifted 
             {
                 reLog()<<MSG::ERROR << "taking localTubepos from RAW geoModel!!! MISMATCH IN local X (amdb) for a MDT with cutouts "
                        << endmsg << ": from tube-id/pitch/cutout  tube pos = " << xtube
                        << ", " << m_cutoutShift  << ", " << ztube
-                       << " but geoModel gives " << tubeTrans[0][3]
-                       << ", " << tubeTrans[1][3] << ", " << tubeTrans[2][3]
+                       << " but geoModel gives " << tubeTrans(0,3)
+                       << ", " << tubeTrans(1,3) << ", " << tubeTrans(2,3)
                        << endmsg
                        << " for tube " << tube << " tube layer " << tubelayer
                        << " multilayer " << multilayer << endmsg
@@ -629,7 +629,7 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
             }
         }
         
-        Amg::Vector3D x(tubeTrans[0][3],tubeTrans[1][3],tubeTrans[2][3]);
+        Amg::Vector3D x=tubeTrans.translation();
         if (tube > m_ntubesperlayer || tubelayer > m_nlayers) {
           x = Amg::Vector3D(xtube,ytube,ztube);
         }

@@ -172,10 +172,10 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
     {
-      HepGeom::Transform3D g2l 
+      Amg::Transform3D g2l 
         = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
 
-      return Amg::CLHEPTransformToEigen(g2l * detElem->recoToHitTransform());
+      return g2l * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
     }
     
     Transform3D operator()(const InDetDD::TRT_BaseElement*) const
@@ -206,10 +206,10 @@ ActsDetectorElement::getDefaultTransformMutexed() const
 
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
     {
-      HepGeom::Transform3D g2l 
+      Amg::Transform3D g2l 
         = detElem->getMaterialGeom()->getDefAbsoluteTransform();
 
-      return Amg::CLHEPTransformToEigen(g2l * detElem->recoToHitTransform());
+      return g2l * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
     }
     
     Transform3D operator()(const InDetDD::TRT_BaseElement*) const

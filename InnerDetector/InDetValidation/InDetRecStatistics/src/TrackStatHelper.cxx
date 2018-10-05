@@ -33,6 +33,7 @@
 #include <map>
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "CLHEP/Geometry/Point3D.h"
 
 namespace Trk {
 

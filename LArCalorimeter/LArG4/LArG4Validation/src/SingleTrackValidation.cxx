@@ -23,7 +23,7 @@
 
 // To extrapolate:
 #include "AtlasBComponent.h"
-#include "GeoModelKernel/GeoXPEngine.h"
+#include "GeoXPEngine.h"
 
 // To interpret LAr Geometry information:
 #include "CaloDetDescr/CaloDetDescrManager.h"

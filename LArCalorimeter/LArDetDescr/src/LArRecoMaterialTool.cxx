@@ -19,6 +19,7 @@
 
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/Units.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -342,7 +343,7 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass/CLHEP::gram;
+    mass =  childMass/GeoModelKernelUnits::gram;
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -501,7 +502,7 @@ LArRecoMaterialTool::ScanPS(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass*(1./CLHEP::gram);
+    mass =  childMass*(1./GeoModelKernelUnits::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -656,7 +657,7 @@ LArRecoMaterialTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass*(1./CLHEP::gram);
+    mass =  childMass*(1./GeoModelKernelUnits::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -852,7 +853,7 @@ LArRecoMaterialTool::ScanHEC(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass*(1./CLHEP::gram);
+    mass =  childMass*(1./GeoModelKernelUnits::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -1030,7 +1031,7 @@ LArRecoMaterialTool::ScanFCAL(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass*(1./CLHEP::gram);
+    mass =  childMass*(1./GeoModelKernelUnits::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -1096,13 +1097,13 @@ LArRecoMaterialTool::addMaterialFraction(const GeoLogVol& geoVol,
      double fraction = childMaterial->getFraction(iEl);
 
      ATH_MSG_DEBUG ("         direct child : " << geoEl->getName() << " fraction = " << fraction 
-                    << " A= " << geoEl->getA()*(1./CLHEP::gram) << " Z= " << geoEl->getZ());
+                    << " A= " << geoEl->getA()*(1./GeoModelKernelUnits::gram) << " Z= " << geoEl->getZ());
 
      volume.push_back(fraction*childVolume);
      mass.push_back(fraction*childVolume*childRho);
      x0.push_back(fraction*childX0);
      dEdX.push_back(fraction*childDeDx);
-     aveA.push_back(fraction*(geoEl->getA()*(1./CLHEP::gram)));
+     aveA.push_back(fraction*(geoEl->getA()*(1./GeoModelKernelUnits::gram)));
      aveZ.push_back(fraction*(geoEl->getZ()));             
    }
    
@@ -1145,12 +1146,12 @@ LArRecoMaterialTool::averageFraction (std::vector<double>& volumeFractions,
     childAverageZ  += massfrac * averageZFractions[ivolfrac];
   }  
     
-  childRho = childMass/(CLHEP::gram*childVolume);
+  childRho = childMass/(GeoModelKernelUnits::gram*childVolume);
   
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("  + averaged over " << parsedVolumes << " volumes ");
   ATH_MSG_DEBUG ("    - volume   [mm^3]        : " << childVolume);
-  ATH_MSG_DEBUG ("    - mass     [gram]        : " << childMass*(1./CLHEP::gram));
+  ATH_MSG_DEBUG ("    - mass     [gram]        : " << childMass*(1./GeoModelKernelUnits::gram));
   ATH_MSG_DEBUG ("    - rho      [gram/mm^3]   : " << childRho);
   ATH_MSG_DEBUG ("    - X0                     : " << childX0);
   ATH_MSG_DEBUG ("    - DeDx                   : " << childDeDx);

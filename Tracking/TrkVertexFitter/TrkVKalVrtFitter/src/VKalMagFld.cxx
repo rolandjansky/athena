@@ -28,6 +28,7 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 //-------------------------------------------------
 #include<iostream>
 

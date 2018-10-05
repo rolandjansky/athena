@@ -9,7 +9,6 @@ atlas_subdir( VP1PRDSystems )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   DetectorDescription/GeoModel/GeoModelKernel
    DetectorDescription/GeoPrimitives
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -38,6 +37,7 @@ atlas_depends_on_subdirs(
 find_package( CLHEP )
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets)
+find_package( GeoModel )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -49,7 +49,7 @@ atlas_add_library( VP1PRDSystems VP1PRDSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1PRDSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES GeoModelKernel GeoPrimitives InDetReadoutGeometry
+   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoPrimitives InDetReadoutGeometry
    InDetPrepRawData MuonPrepRawData TrkPrepRawData TrkSpacePoint VP1Base
    VP1Utils MuonIdHelpersLib Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers

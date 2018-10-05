@@ -11,6 +11,7 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "xAODMuon/MuonContainer.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 class StoreGateSvc;
 class TriggerElement;
 class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {

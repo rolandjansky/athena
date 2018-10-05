@@ -25,6 +25,8 @@
 #include "GeoModelUtilities/GeoBorderSurfaceContainer.h"
 #include "AFP_Geometry/AFP_Geometry.h"
 
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -245,7 +247,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     const GeoLogVol* pLogLongEnv = new GeoLogVol("AFP00_LogLongHamburgPipeEnv", pBoxLongEnv, m_MapMaterials[std::string("OpticalVacuum")]);
     GeoOpticalPhysVol* pPhysLongEnv   = new GeoOpticalPhysVol(pLogLongEnv);
     sprintf(szLabel,"AFP00_LongHamburgPipeEnv");
-    world->add(new GeoTransform(TransEnvInWorld));
+    world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv);
     m_detectorManager->addTreeTop(pPhysLongEnv);
@@ -270,7 +272,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     const GeoLogVol* pLogShortEnv = new GeoLogVol("AFP01_LogShortHamburgPipeEnv", pBoxShortEnv, m_MapMaterials[std::string("std::Vacuum")]);
     GeoPhysVol* pPhysShortEnv   = new GeoPhysVol(pLogShortEnv);
     sprintf(szLabel,"AFP01_ShortHamburgPipeEnv");
-    world->add(new GeoTransform(TransEnvInWorld));
+    world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysShortEnv);
     m_detectorManager->addTreeTop(pPhysShortEnv);
@@ -290,7 +292,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     const GeoLogVol* pLogShortEnv1 = new GeoLogVol("AFP02_LogShortHamburgPipeEnv", pBoxShortEnv1, m_MapMaterials[std::string("std::Vacuum")]);
     GeoPhysVol* pPhysShortEnv1   = new GeoPhysVol(pLogShortEnv1);
     sprintf(szLabel,"AFP02_ShortHamburgPipeEnv");
-    world->add(new GeoTransform(TransEnvInWorld));
+    world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysShortEnv1);
     m_detectorManager->addTreeTop(pPhysShortEnv1);
@@ -310,7 +312,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     const GeoLogVol* pLogLongEnv1 = new GeoLogVol("AFP03_LogLongHamburgPipeEnv", pBoxLongEnv1, m_MapMaterials[std::string("OpticalVacuum")]);
     GeoOpticalPhysVol* pPhysLongEnv1   = new GeoOpticalPhysVol(pLogLongEnv1);
     sprintf(szLabel,"AFP03_LongHamburgPipeEnv");
-    world->add(new GeoTransform(TransEnvInWorld));
+    world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv1);
     m_detectorManager->addTreeTop(pPhysLongEnv1);

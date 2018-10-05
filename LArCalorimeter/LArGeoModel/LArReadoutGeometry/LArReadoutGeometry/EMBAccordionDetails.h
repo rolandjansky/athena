@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMBAccordionDetails_h
-#define EMBAccordionDetails_h
+#ifndef LARREADOUTGEOMETRY_EMBACCORDIONDETAILS_H
+#define LARREADOUTGEOMETRY_EMBACCORDIONDETAILS_H
+
 class GeoStraightAccSection;
 class EMBAccordionDetails {
   

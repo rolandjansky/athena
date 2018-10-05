@@ -6,8 +6,8 @@
 // New description of the pixel support frame (M.Zdrazil + AR) 
 // The box part (of barrel)
 //
-#include "PixelGeoModel/GeoPixelOldFrame.h"
-#include "PixelGeoModel/PixelLegacyManager.h"
+#include "GeoPixelOldFrame.h"
+#include "PixelLegacyManager.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrap.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -113,16 +113,16 @@ void GeoPixelOldFrame::BuildInBarrel(GeoFullPhysVol * parent) {
   
   // First part
   m_legacyManager->setBarrelInSFrame();
-  double alpha = 45.*CLHEP::deg;
+  double alpha = 45.*GeoModelKernelUnits::deg;
   double w1    = m_legacyManager->PixelBarrelBFrameWidth();
   double w2    = m_legacyManager->PixelBarrelTFrameWidth();
   double off   = m_legacyManager->PixelBarrelFrameOffset();
   for (int ii = 0; ii < m_legacyManager->PixelBarrelNBFrame(); ii++) {
     GeoNameTag* tag = new GeoNameTag("Inside Box Frame");
     double thet = ((float)ii+0.5)*alpha;
-    CLHEP::Hep3Vector pos(w1*cos(thet),w1*sin(thet),off);
-    CLHEP::HepRotation rm; rm.rotateZ(((float)ii+2.5)*alpha);
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::Translation3D pos(w1*cos(thet),w1*sin(thet),off);
+    GeoTrf::RotateZ3D rm(((float)ii+2.5)*alpha);
+    GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
     parent->add(tag);
     parent->add(xform);
     parent->add(BuildBox());
@@ -131,9 +131,9 @@ void GeoPixelOldFrame::BuildInBarrel(GeoFullPhysVol * parent) {
   for (int ii = 0; ii < m_legacyManager->PixelBarrelNTFrame(); ii++) {
     GeoNameTag* tag = new GeoNameTag("Inside Trap Frame");
     double thet = ((float)ii+1.)*alpha;
-    CLHEP::Hep3Vector pos(w2*cos(thet),w2*sin(thet),off);
-    CLHEP::HepRotation rm; rm.rotateZ(((float)ii+3.0)*alpha);
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::Translation3D pos(w2*cos(thet),w2*sin(thet),off);
+    GeoTrf::RotateZ3D rm(((float)ii+3.0)*alpha);
+    GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
     parent->add(tag);
     parent->add(xform);
     parent->add(BuildTrap());
@@ -150,14 +150,14 @@ void GeoPixelOldFrame::BuildInBarrel(GeoFullPhysVol * parent) {
   for (int ii = 0; ii < m_legacyManager->PixelBarrelNBFrame(); ii++) {
     GeoNameTag* tag = new GeoNameTag("Outside Box Frame");
     double thet = ((float)ii+0.5)*alpha;
-    CLHEP::Hep3Vector pos(w1*cos(thet),w1*sin(thet),off);
-    CLHEP::HepRotation rm; rm.rotateZ(((float)ii+2.5)*alpha);
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::Translation3D pos(w1*cos(thet),w1*sin(thet),off);
+    GeoTrf::RotateZ3D rm(((float)ii+2.5)*alpha);
+    GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
     parent->add(tag);
     parent->add(xform);
     parent->add(BuildBox());
-    pos.setZ(-off);
-    GeoTransform* xform2 = new GeoTransform(HepGeom::Transform3D(rm,pos));
+    pos.z()= -off;
+    GeoTransform* xform2 = new GeoTransform(GeoTrf::Transform3D(pos*rm));
     parent->add(tag);
     parent->add(xform2);
     parent->add(BuildBox());
@@ -166,14 +166,14 @@ void GeoPixelOldFrame::BuildInBarrel(GeoFullPhysVol * parent) {
     m_legacyManager->setBarrelOutSFrame(); 
     GeoNameTag* tag = new GeoNameTag("Outside Trap Frame");
     double thet = ((float)ii+1.)*alpha;
-    CLHEP::Hep3Vector pos(w2*cos(thet),w2*sin(thet),off);
-    CLHEP::HepRotation rm; rm.rotateZ(((float)ii+3.0)*alpha);
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::Translation3D pos(w2*cos(thet),w2*sin(thet),off);
+    GeoTrf::RotateZ3D rm(((float)ii+3.0)*alpha);
+    GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
     parent->add(tag);
     parent->add(xform);
     parent->add(BuildTrap());
-    pos.setZ(-off);
-    GeoTransform* xform2 = new GeoTransform(HepGeom::Transform3D(rm,pos));
+    pos.z() = -off;
+    GeoTransform* xform2 = new GeoTransform(GeoTrf::Transform3D(pos*rm));
     parent->add(tag);
     parent->add(xform2);
     parent->add(BuildTrap());
@@ -181,19 +181,15 @@ void GeoPixelOldFrame::BuildInBarrel(GeoFullPhysVol * parent) {
     m_legacyManager->setEndConeSFrame();
     GeoNameTag* tag2 = new GeoNameTag("Outside End Cone Trap Frame");
     thet = ((float)ii+0.5)*alpha;
-    CLHEP::Hep3Vector posec(radi*cos(thet),radi*sin(thet),zpec);
-    CLHEP::HepRotation rm2;
-    rm2.rotateX(alxec);
-    rm2.rotateZ(((float)ii+2.5)*alpha);
-    GeoTransform* xform3 = new GeoTransform(HepGeom::Transform3D(rm2,posec));
+    GeoTrf::Translation3D posec(radi*cos(thet),radi*sin(thet),zpec);
+    GeoTrf::Transform3D rm2 = GeoTrf::RotateZ3D(((float)ii+2.5)*alpha)*GeoTrf::RotateX3D(alxec);
+    GeoTransform* xform3 = new GeoTransform(GeoTrf::Transform3D(posec*rm2));
     parent->add(tag2);
     parent->add(xform3);
     parent->add(BuildTrap());
-    posec.setZ(-zpec);
-    CLHEP::HepRotation rm3;
-    rm3.rotateX(-alxec);
-    rm3.rotateZ(((float)ii+2.5)*alpha);
-    GeoTransform* xform4 = new GeoTransform(HepGeom::Transform3D(rm3,posec));
+    posec.z() = -zpec;
+    GeoTrf::Transform3D rm3 = GeoTrf::RotateZ3D(((float)ii+2.5)*alpha)*GeoTrf::RotateX3D(-alxec);
+    GeoTransform* xform4 = new GeoTransform(GeoTrf::Transform3D(posec*rm3));
     parent->add(tag2);
     parent->add(xform4);
     parent->add(BuildTrap());
@@ -210,7 +206,7 @@ void GeoPixelOldFrame::BuildOutBarrel(GeoFullPhysVol * parent) {
   // Add the pixel frame inside the endcap volume
   //
   m_legacyManager->setEndcapInSFrame();
-  double alpha = 45.*CLHEP::deg;
+  double alpha = 45.*GeoModelKernelUnits::deg;
   double w1    = m_legacyManager->PixelEndcapBFrameWidth();
   double w2    = m_legacyManager->PixelEndcapTFrameWidth();
   double off   = m_legacyManager->PixelEndcapFrameOffset()+m_legacyManager->PixelEndcapFrameLength();
@@ -218,18 +214,18 @@ void GeoPixelOldFrame::BuildOutBarrel(GeoFullPhysVol * parent) {
   for (int ii = 0; ii < m_legacyManager->PixelEndcapNBFrame(); ii++) {
     GeoNameTag* tag = new GeoNameTag("Outside Outer Endcap Box Frame");
     double thet = ((float)ii+0.5)*alpha;
-    CLHEP::Hep3Vector pos(w1*cos(thet),w1*sin(thet),off);
-    CLHEP::HepRotation rm; rm.rotateZ(((float)ii+2.5)*alpha);
-    
+    GeoTrf::Translation3D pos(w1*cos(thet),w1*sin(thet),off);
+    GeoTrf::RotateZ3D rm(((float)ii+2.5)*alpha);
+
     if (endcapAPresent) {
-      GeoTransform* xform1 = new GeoTransform(HepGeom::Transform3D(rm,pos));
+      GeoTransform* xform1 = new GeoTransform(GeoTrf::Transform3D(pos*rm));
       parent->add(tag);
       parent->add(xform1);
       parent->add(BuildBox());
     } 
     if (endcapCPresent) {
-      pos.setZ(-off);
-      GeoTransform* xform2 = new GeoTransform(HepGeom::Transform3D(rm,pos));
+      pos.z() = -off;
+      GeoTransform* xform2 = new GeoTransform(GeoTrf::Transform3D(pos*rm));
       parent->add(tag);
       parent->add(xform2);
       parent->add(BuildBox());
@@ -239,17 +235,17 @@ void GeoPixelOldFrame::BuildOutBarrel(GeoFullPhysVol * parent) {
   for (int ii = 0; ii < m_legacyManager->PixelEndcapNTFrame(); ii++) {
     GeoNameTag* tag = new GeoNameTag("Outside Outer Endcap Trap Frame");
     double thet = ((float)ii+1.)*alpha;
-    CLHEP::Hep3Vector pos(w2*cos(thet),w2*sin(thet),off);
-    CLHEP::HepRotation rm; rm.rotateZ(((float)ii+3.0)*alpha);
+    GeoTrf::Translation3D pos(w2*cos(thet),w2*sin(thet),off);
+    GeoTrf::RotateZ3D rm(((float)ii+3.0)*alpha);
     if (endcapAPresent) {
-      GeoTransform* xform1 = new GeoTransform(HepGeom::Transform3D(rm,pos));
+      GeoTransform* xform1 = new GeoTransform(GeoTrf::Transform3D(pos*rm));
       parent->add(tag);
       parent->add(xform1);
       parent->add(BuildTrap());
     } 
     if (endcapCPresent) {
-      pos.setZ(-off);
-      GeoTransform* xform2 = new GeoTransform(HepGeom::Transform3D(rm,pos));
+      pos.z() = -off;
+      GeoTransform* xform2 = new GeoTransform(GeoTrf::Transform3D(pos*rm));
       parent->add(tag);
       parent->add(xform2);
       parent->add(BuildTrap());

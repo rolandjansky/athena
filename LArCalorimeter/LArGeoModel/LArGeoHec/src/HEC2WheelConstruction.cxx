@@ -43,10 +43,9 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoXF.h"
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/Vector/Rotation.h" 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -67,11 +66,11 @@
 #include <iostream>
 
 
-using CLHEP::cm;
-using CLHEP::mm;
-using CLHEP::deg;
-using HepGeom::Transform3D;
-using HepGeom::Translate3D;
+using GeoModelKernelUnits::cm;
+using GeoModelKernelUnits::mm;
+using GeoModelKernelUnits::deg;
+using GeoTrf::Transform3D;
+using GeoTrf::Translate3D;
 
 
 //Constructor

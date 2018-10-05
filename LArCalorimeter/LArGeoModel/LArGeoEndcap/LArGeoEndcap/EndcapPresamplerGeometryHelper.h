@@ -9,8 +9,8 @@
 // It provides any separate calculations or constants for the endcap
 // presampler geometry.
 
-#ifndef __EndcapPresamplerGeometryHelper_H__
-#define __EndcapPresamplerGeometryHelper_H__
+#ifndef LARGEOENDCAP_ENDCAPPRESAMPLERGEOMETRYHELPER_H
+#define LARGEOENDCAP_ENDCAPPRESAMPLERGEOMETRYHELPER_H
 
 namespace LArGeo {
 
@@ -24,7 +24,7 @@ namespace LArGeo {
     // Accessor for pointer to the singleton.
     static EndcapPresamplerGeometryHelper* GetInstance();
 
-    // "zShift" is the z-distance (CLHEP::cm) that the EM endcap is shifted
+    // "zShift" is the z-distance (GeoModelKernelUnits::cm) that the EM endcap is shifted
     // (due to cabling, etc.)
     float zShift() const { return m_zShift; }
 

@@ -5,8 +5,9 @@
 #ifndef INDETGEOMODELUTILS_TOPLEVELPLACEMENTS_H
 #define INDETGEOMODELUTILS_TOPLEVELPLACEMENTS_H
 
-#include "CLHEP/Geometry/Transform3D.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include <map>
 #include <string>
@@ -22,7 +23,7 @@ public:
   ~TopLevelPlacements();
 
   bool  present(const std::string & partName) const;
-  const HepGeom::Transform3D & transform(const std::string & partName) const;
+  const GeoTrf::Transform3D & transform(const std::string & partName) const;
   
 
 private:
@@ -30,18 +31,17 @@ private:
   class Part {
   public:
     std::string label;
-    HepGeom::Transform3D transform;
+    GeoTrf::Transform3D transform;
   };
 
   void fillPlacements(IRDBRecordset_ptr topLevelTable);
-  HepGeom::Transform3D partTransform(const IRDBRecord* record) const;
+  GeoTrf::Transform3D partTransform(const IRDBRecord* record) const;
   Part * getPart(const std::string & partName) const;
 
   std::map<std::string, Part *> m_parts;
   bool m_noTopLevelTable;
 
-  static HepGeom::Transform3D s_identityTransform;
-
+  static GeoTrf::Transform3D s_identityTransform;
 };
 
 #endif // INDETGEOMODELUTILS_TOPLEVELPLACEMENTS_H

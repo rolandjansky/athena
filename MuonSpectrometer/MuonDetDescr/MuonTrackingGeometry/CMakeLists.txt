@@ -9,7 +9,6 @@ atlas_subdir( MuonTrackingGeometry )
 atlas_depends_on_subdirs( PUBLIC
                           AtlasGeometryCommon/SubDetectorEnvelopes
                           Control/AthenaBaseComps
-                          DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
                           Tracking/TrkDetDescr/TrkDetDescrGeoModelCnv
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
@@ -26,13 +25,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_component( MuonTrackingGeometry
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoModelKernel GaudiKernel TrkDetDescrGeoModelCnv TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes StoreGateLib SGtests GeoPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkGeometrySurfaces TrkSurfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrGeoModelCnv TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes StoreGateLib SGtests GeoPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkGeometrySurfaces TrkSurfaces )
 
 # Install files from the package:
 atlas_install_headers( MuonTrackingGeometry )

@@ -25,9 +25,6 @@
 #include <algorithm> 
 #include <cmath>
 
-using CLHEP::MeV;
-using CLHEP::GeV;
-
 egammaRecBuilder::egammaRecBuilder(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),

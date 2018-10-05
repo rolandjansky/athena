@@ -49,9 +49,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+#include "GeoModelKernel/Units.h"
 
 
 #include <iostream> 
@@ -153,7 +153,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
 
   const SCT_GeneralParameters * sctGeneral = m_geometryManager->generalParameters();
 
-  HepGeom::Transform3D sctTransform = sctGeneral->partTransform("SCT");
+  GeoTrf::Transform3D sctTransform = sctGeneral->partTransform("SCT");
 
   std::string barrelLabel = "Barrel";
   std::string forwardPlusLabel = "EndcapA";
@@ -211,9 +211,9 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     SCT_Identifier idFwdPlus;
     idFwdPlus.setBarrelEC(2);
     GeoVPhysVol * forwardPlusPV = sctForwardPlus.build(idFwdPlus);
-    HepGeom::Transform3D fwdTransformPlus(sctTransform 
+    GeoTrf::Transform3D fwdTransformPlus(sctTransform 
                                           * sctGeneral->partTransform(forwardPlusLabel) 
-                                          * HepGeom::TranslateZ3D(sctForwardPlus.zCenter()));
+                                          * GeoTrf::TranslateZ3D(sctForwardPlus.zCenter()));
     GeoAlignableTransform * fwdGeoTransformPlus = new GeoAlignableTransform(fwdTransformPlus);
     
     //indet->add(new GeoNameTag("SCT_ForwardPlus"));
@@ -245,13 +245,13 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     idFwdMinus.setBarrelEC(-2);
     GeoVPhysVol * forwardMinusPV = sctForwardMinus.build(idFwdMinus);
 
-    HepGeom::Transform3D rot;
-    rot = HepGeom::RotateY3D(180 * CLHEP::degree);
+    GeoTrf::Transform3D rot;
+    rot = GeoTrf::RotateY3D(180 * GeoModelKernelUnits::degree);
   
-    HepGeom::Transform3D fwdTransformMinus(sctTransform  
+    GeoTrf::Transform3D fwdTransformMinus(sctTransform  
                                            * sctGeneral->partTransform(forwardMinusLabel)  
                                            * rot  
-                                           * HepGeom::TranslateZ3D(sctForwardMinus.zCenter()));
+                                           * GeoTrf::TranslateZ3D(sctForwardMinus.zCenter()));
     GeoAlignableTransform * fwdGeoTransformMinus = new GeoAlignableTransform(fwdTransformMinus);
 
     //indet->add(new GeoNameTag("SCT_ForwardMinus"));

@@ -18,27 +18,21 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeometryDBSvc
+			  DetectorDescription/GeoPrimitives
                           InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetDetDescr/InDetIdentifier )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
-atlas_add_library( SCT_SLHC_GeoModelLib
-                   src/*.cxx
-                   PUBLIC_HEADERS SCT_SLHC_GeoModel
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils InDetReadoutGeometry StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES SGTools GeoModelKernel InDetCondServices InDetIdentifier )
-
 atlas_add_component( SCT_SLHC_GeoModel
+                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SGTools StoreGateLib SGtests GeoModelKernel InDetCondServices InDetIdentifier SCT_SLHC_GeoModelLib )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SGTools StoreGateLib SGtests InDetCondServices InDetIdentifier )
 

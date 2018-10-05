@@ -24,10 +24,10 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <cmath>
 #include <sstream>
@@ -71,23 +71,23 @@ const GeoLogVol * SCT_FwdModule::preBuild(){
   m_sensor = new SCT_FwdSensor("ECSensor0", m_ring);
 
   //prepare the module envelope volume
-  m_length       = std::max(m_sensor->length(), m_spine->length()) + 0.50*CLHEP::cm;//0.01mm safety necessary (for stereo angle)
+  m_length       = std::max(m_sensor->length(), m_spine->length()) + 0.50*GeoModelKernelUnits::cm;//0.01mm safety necessary (for stereo angle)
   m_middleRadius = m_sensor->middleRadius();
   m_innerRadius  = m_middleRadius - 0.5*m_length;
   m_outerRadius  = m_middleRadius + 0.5*m_length;
   m_deltaPhi    = std::max(m_sensor->deltaPhi(), m_spine->deltaPhi());
   if(m_doubleSided){
     double interSidesGap = std::max(m_spine->thickness(), m_interSidesGap);
-    m_thickness = 2*m_sensor->thickness() + interSidesGap + 0.01*CLHEP::mm;//0.01mm safety necessary
-    //the term 10*CLHEP::degree*3.14/180, is to accommodate the stereo rotation
-    m_deltaPhi    = m_deltaPhi + 10*CLHEP::degree*3.14/180.;
+    m_thickness = 2*m_sensor->thickness() + interSidesGap + 0.01*GeoModelKernelUnits::mm;//0.01mm safety necessary
+    //the term 10*GeoModelKernelUnits::degree*3.14/180, is to accommodate the stereo rotation
+    m_deltaPhi    = m_deltaPhi + 10*GeoModelKernelUnits::degree*3.14/180.;
     //add 1cm, to accomodate for stereo rotation (to be dealt correctly with later)
-    //m_innerRadius = m_innerRadius - 0.5*CLHEP::cm;
-    //m_outerRadius = m_outerRadius + 0.5*CLHEP::cm;
-    m_innerWidth = std::max(m_sensor->innerWidth(), m_spine->innerWidth()) + 2*CLHEP::cm; 
-    m_outerWidth = std::max(m_sensor->outerWidth(), m_spine->outerWidth()) + 2*CLHEP::cm; 
+    //m_innerRadius = m_innerRadius - 0.5*GeoModelKernelUnits::cm;
+    //m_outerRadius = m_outerRadius + 0.5*GeoModelKernelUnits::cm;
+    m_innerWidth = std::max(m_sensor->innerWidth(), m_spine->innerWidth()) + 2*GeoModelKernelUnits::cm; 
+    m_outerWidth = std::max(m_sensor->outerWidth(), m_spine->outerWidth()) + 2*GeoModelKernelUnits::cm; 
   }else{
-    m_thickness   = m_sensor->thickness() + m_spine->thickness() + 0.01*CLHEP::mm;//0.01mm safety necessary
+    m_thickness   = m_sensor->thickness() + m_spine->thickness() + 0.01*GeoModelKernelUnits::mm;//0.01mm safety necessary
     m_innerWidth = std::max(m_sensor->innerWidth(), m_spine->innerWidth()); 
     m_outerWidth = std::max(m_sensor->outerWidth(), m_spine->outerWidth());
   }
@@ -105,13 +105,13 @@ GeoVPhysVol* SCT_FwdModule::build(SCT_Identifier id) const{
   GeoFullPhysVol* module = new GeoFullPhysVol(m_logVolume);
 
   //first, calculate the module components positions
-  HepGeom::Transform3D innerSidePos, spinePos, outerSidePos;
+  GeoTrf::Transform3D innerSidePos(GeoTrf::Transform3D::Identity());
+  GeoTrf::Transform3D spinePos(GeoTrf::Transform3D::Identity());
+  GeoTrf::Transform3D outerSidePos(GeoTrf::Transform3D::Identity());
   if(m_doubleSided){
     //inner side position (shift this side towards the intreaction point, ie Z negative)
     //this is the thickness direction
-    CLHEP::HepRotation inner_Rot;
-    //inner_Rot.rotateZ(180*CLHEP::deg);
-    inner_Rot.rotateX(0.5*m_stereoAngle);
+    GeoTrf::RotateX3D inner_Rot(0.5*m_stereoAngle);
     double interSidesGap = std::max(m_spine->thickness(), m_interSidesGap);
     double Xpos = 0.5*( interSidesGap + m_sensor->thickness());
     //protection
@@ -122,14 +122,10 @@ GeoVPhysVol* SCT_FwdModule::build(SCT_Identifier id) const{
 	       <<". exit athena!"<<std::endl;
       exit(1);
     }
-    CLHEP::Hep3Vector  inner_Xpos = CLHEP::Hep3Vector(Xpos, 0.0, 0.0);
-    innerSidePos = HepGeom::Transform3D(inner_Rot, inner_Xpos);
-    //spine position (no shift)
-    spinePos = HepGeom::Translate3D(CLHEP::Hep3Vector( 0.0, 0.0, 0.0));
+    GeoTrf::Translation3D  inner_Xpos(Xpos, 0.0, 0.0);
+    innerSidePos = GeoTrf::Transform3D(inner_Xpos*inner_Rot);
     //outer side (shift towards X positive)
-    CLHEP::HepRotation outer_Rot;
-    outer_Rot.rotateZ(180*CLHEP::deg);
-    outer_Rot.rotateX(-0.5*m_stereoAngle);
+    GeoTrf::Transform3D outer_Rot = GeoTrf::RotateX3D(-0.5*m_stereoAngle)*GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
     Xpos = -0.5*(interSidesGap + m_sensor->thickness());
     //protection
     if(fabs(Xpos)+0.5*m_sensor->thickness() > 0.5*m_thickness){
@@ -139,12 +135,10 @@ GeoVPhysVol* SCT_FwdModule::build(SCT_Identifier id) const{
 	       <<". exit athena!"<<std::endl;
       exit(1);
     }
-    CLHEP::Hep3Vector outer_Xpos = CLHEP::Hep3Vector(Xpos, 0.0, 0.0);
-    outerSidePos = HepGeom::Transform3D(outer_Rot, outer_Xpos);
+    GeoTrf::Translation3D outer_Xpos(Xpos, 0.0, 0.0);
+    outerSidePos = GeoTrf::Transform3D(outer_Xpos*outer_Rot);
   }else{
     //inner side position (shift this side towards the intreaction point, ie X negative)
-    CLHEP::HepRotation inner_Rot;
-    inner_Rot.rotateX(0);//don't rotate (only one side)
     double Xpos = 0.5*m_spine->thickness();
     //protection
     if(fabs(Xpos)+0.5*m_sensor->thickness() > 0.5*m_thickness){
@@ -154,8 +148,7 @@ GeoVPhysVol* SCT_FwdModule::build(SCT_Identifier id) const{
 	       <<". exit athena!"<<std::endl;
       exit(1);
     }
-    CLHEP::Hep3Vector  inner_Xpos = CLHEP::Hep3Vector(Xpos, 0.0, 0.0);
-    innerSidePos = HepGeom::Transform3D(inner_Rot, inner_Xpos);
+    innerSidePos = GeoTrf::Translate3D(Xpos, 0.0, 0.0);
     //spine position (shift towards Z positive)
     Xpos = -0.5*m_sensor->thickness();
     //protection!
@@ -166,7 +159,7 @@ GeoVPhysVol* SCT_FwdModule::build(SCT_Identifier id) const{
 	       <<". exit athena!"<<std::endl;
       exit(1);
     }
-    spinePos = HepGeom::Translate3D(CLHEP::Hep3Vector( Xpos, 0.0, 0.0));
+    spinePos = GeoTrf::Translate3D(Xpos, 0.0, 0.0);
   }
 
   //add the physical inner side to the mdoule

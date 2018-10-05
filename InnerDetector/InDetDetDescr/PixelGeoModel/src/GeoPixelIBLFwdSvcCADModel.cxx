@@ -6,7 +6,7 @@
 // Build IBL fwd services (wavy shape)
 // This is built one time per layer. 
 
-#include "PixelGeoModel/GeoPixelIBLFwdSvcCADModel.h"
+#include "GeoPixelIBLFwdSvcCADModel.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
@@ -53,7 +53,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is defined"<<endmsg;
 
-  //  double safety = 0.01*CLHEP::mm;
+  //  double safety = 0.01*GeoModelKernelUnits::mm;
 
   // IBL layer shift ( 2mm shift issue )
   double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
@@ -63,7 +63,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 
   // check if sectors are properly defined
   if(nSectors==0) return 0;
-  double angle=360./(double)nSectors*CLHEP::deg;
+  double angle=360./(double)nSectors*GeoModelKernelUnits::deg;
   
   // Defines the IBL_Fwd02 section in the IBL services area
   double innerRadius = 33.;
@@ -94,7 +94,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   double lgFwdSvc[4]={511., 561., 560., 706. };
   double devLgFwdSvc[4]={512., 562., 562., 707. };
   double devTotalLength = 2460.188;
-  double pi = CLHEP::pi;
+  double pi = GeoModelKernelUnits::pi;
 
   // Cable bundle sizes
   double rminCable = 0.;
@@ -112,7 +112,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   double zposRing = 0.;
   double totalLength=0.;
   double hermJunction = .4;
-  double breakAngle = 11.*CLHEP::deg;
+  double breakAngle = 11.*GeoModelKernelUnits::deg;
 
   //  Loop over the wavy shape sections to build a cable and a cooling pipe
   const GeoShape * gblShapeCableA = 0;
@@ -133,9 +133,9 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
         double tubeLength=deltaJunction+zpos0-zMin+hermJunction;
         double zposTrans=zMin+tubeLength*.5-zpos0;
 	const GeoTube* tubeShape = new GeoTube(0., rmaxCable, tubeLength*.5);
-	HepGeom::Transform3D trfA =  HepGeom::TranslateZ3D(zpos0+zposTrans-zMiddle);
+	GeoTrf::Transform3D trfA =  GeoTrf::TranslateZ3D(zpos0+zposTrans-zMiddle);
 	gblShapeCableA = addShape(gblShapeCableA, tubeShape, trfA );
-	HepGeom::Transform3D trfC =  HepGeom::RotateY3D(pi)*HepGeom::TranslateZ3D(zpos0+zposTrans-zMiddle);
+	GeoTrf::Transform3D trfC =  GeoTrf::RotateY3D(pi)*GeoTrf::TranslateZ3D(zpos0+zposTrans-zMiddle);
 	gblShapeCableC = addShape(gblShapeCableC, tubeShape, trfC );
 	
 	//	std::cout<<"IBL_fwd : junction "<<std::setprecision(15)<<i<<" : "<<zpos0+zposTrans-tubeLength*.5<<" "<<zpos0+zposTrans+tubeLength*.5<<" // "<<zMin<<std::endl;
@@ -151,9 +151,9 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
       double rtor = radius;
       const GeoTorus* torusShape = new GeoTorus(rminCable,rmaxCable,rtor,pi*.5-theta,2.*theta);
       double angle=(i%2==0)?breakAngle:pi-breakAngle;
-      HepGeom::Transform3D trfA = HepGeom::RotateZ3D(angle)*HepGeom::RotateY3D(-pi*.5)*HepGeom::TranslateY3D(-radius+delta)* HepGeom::TranslateX3D(zpos0+zpos-zMiddle);
+      GeoTrf::Transform3D trfA = GeoTrf::RotateZ3D(angle)*GeoTrf::RotateY3D(-pi*.5)*GeoTrf::TranslateY3D(-radius+delta)* GeoTrf::TranslateX3D(zpos0+zpos-zMiddle);
       gblShapeCableA = addShape(gblShapeCableA, torusShape, trfA );
-      HepGeom::Transform3D trfC = HepGeom::RotateZ3D(angle)*HepGeom::RotateY3D(pi*.5)*HepGeom::TranslateY3D(-radius+delta)* HepGeom::TranslateX3D(zpos0+zpos-zMiddle);
+      GeoTrf::Transform3D trfC = GeoTrf::RotateZ3D(angle)*GeoTrf::RotateY3D(pi*.5)*GeoTrf::TranslateY3D(-radius+delta)* GeoTrf::TranslateX3D(zpos0+zpos-zMiddle);
       gblShapeCableC = addShape(gblShapeCableC, torusShape, trfC );
 
       const GeoTorus* torusShape_cooling = new GeoTorus(rminCooling,rmaxCooling,rtor,pi*.5-theta,2.*theta);
@@ -167,9 +167,9 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 	double tubeLength=zMax-zpos+hermJunction;
 	double zposTrans=zMax-tubeLength*.5;
 	const GeoTube* tubeShape = new GeoTube(0., rmaxCable, tubeLength*.5);
-	HepGeom::Transform3D trfA =  HepGeom::TranslateZ3D(zposTrans-zMiddle);
+	GeoTrf::Transform3D trfA =  GeoTrf::TranslateZ3D(zposTrans-zMiddle);
  	gblShapeCableA = addShape(gblShapeCableA, tubeShape, trfA );
-	HepGeom::Transform3D trfC =  HepGeom::RotateY3D(pi)*HepGeom::TranslateZ3D(zposTrans-zMiddle);
+	GeoTrf::Transform3D trfC =  GeoTrf::RotateY3D(pi)*GeoTrf::TranslateZ3D(zposTrans-zMiddle);
  	gblShapeCableC = addShape(gblShapeCableC, tubeShape, trfC );
 
  	const GeoTube* tubeShape_cooling = new GeoTube(0., rmaxCooling, tubeLength*.5);
@@ -195,12 +195,12 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 
   // -------------- Alignement of the services with the previous services (Fwd01 area)
   double cooling_radius = 35.1;
-  double cooling_angle = -2.154*CLHEP::deg;
+  double cooling_angle = -2.154*GeoModelKernelUnits::deg;
 
   if(m_gmt_mgr->PixelStaveAxe()==1)   
     {
       cooling_radius = 34.7 + layerRadius-33.25;
-      cooling_angle = -.1*CLHEP::deg;
+      cooling_angle = -.1*GeoModelKernelUnits::deg;
     }
 
   double cable_radius = 36.501;
@@ -222,7 +222,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
       std::ostringstream tmp1; 
       tmp1 << "IBL_Fwd02_Cooling_A" << ii;
       GeoNameTag * tag1 = new GeoNameTag(tmp1.str());
-      GeoTransform* xformA1 = new GeoTransform(HepGeom::RotateZ3D(phiOfCooling)*HepGeom::TranslateX3D(cooling_radius));
+      GeoTransform* xformA1 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCooling)*GeoTrf::TranslateX3D(cooling_radius));
       m_supportPhysA->add(tag1);
       m_supportPhysA->add(xformA1);
       m_supportPhysA->add(coolingPhysVolA);
@@ -230,7 +230,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
       std::ostringstream tmp1C; 
       tmp1C << "IBL_Fwd02_Cooling_C" << ii;
       GeoNameTag * tag1C = new GeoNameTag(tmp1C.str());
-      GeoTransform* xformC1 = new GeoTransform(HepGeom::RotateZ3D(phiOfCooling)*HepGeom::TranslateX3D(cooling_radius));
+      GeoTransform* xformC1 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCooling)*GeoTrf::TranslateX3D(cooling_radius));
       m_supportPhysC->add(tag1C);
       m_supportPhysC->add(xformC1);
       m_supportPhysC->add(coolingPhysVolC);
@@ -240,7 +240,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
       std::ostringstream tmp2; 
       tmp2 << "IBL_Fwd02_Cable_A" << ii;
       GeoNameTag * tag2 = new GeoNameTag(tmp2.str());
-      GeoTransform* xformA2 = new GeoTransform(HepGeom::RotateZ3D(phiOfCable)*HepGeom::TranslateX3D(cable_radius));
+      GeoTransform* xformA2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCable)*GeoTrf::TranslateX3D(cable_radius));
       m_supportPhysA->add(tag2);
       m_supportPhysA->add(xformA2);
       m_supportPhysA->add(cablePhysVolA);
@@ -248,7 +248,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
       std::ostringstream tmp2C; 
       tmp2C << "IBL_Fwd02_Cable_C" << ii;
       GeoNameTag * tag2C = new GeoNameTag(tmp2C.str());
-      GeoTransform* xformC2 = new GeoTransform(HepGeom::RotateZ3D(phiOfCable)*HepGeom::TranslateX3D(cable_radius));
+      GeoTransform* xformC2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCable)*GeoTrf::TranslateX3D(cable_radius));
       m_supportPhysC->add(tag2C);
       m_supportPhysC->add(xformC2);
       m_supportPhysC->add(cablePhysVolC);
@@ -259,10 +259,10 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   double middleA = zMiddle+layerZshift;
   double middleC = -zMiddle+layerZshift;
 
-  HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(middleA);
+  GeoTrf::Transform3D supportTrfA = GeoTrf::TranslateZ3D(middleA);
   m_xformSupportA = new GeoTransform(supportTrfA);
   
-  HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(middleC);
+  GeoTrf::Transform3D supportTrfC = GeoTrf::TranslateZ3D(middleC);
   m_xformSupportC = new GeoTransform(supportTrfC);
 
   return 0;
@@ -272,7 +272,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 }
 
 
-const GeoShape * GeoPixelIBLFwdSvcCADModel::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans)
+const GeoShape * GeoPixelIBLFwdSvcCADModel::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const GeoTrf::Transform3D & trans)
 {
   const GeoShape * shiftedShape = &(*nextShape << trans);
   if (lastShape) {

@@ -4,7 +4,8 @@
 
 // Build the global support frame
 
-#include "PixelGeoModel/GeoPixelFrame.h"
+#include "GeoPixelFrame.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoTrap.h"
@@ -14,8 +15,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 #include <algorithm>
 
 GeoPixelFrame::GeoPixelFrame()
@@ -47,18 +47,18 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   ////////////////////////
   
   // Make envelope to hold the frame
-  //double safety = 0.001 * CLHEP::mm;
-  double epsilon = 0.00001 * CLHEP::mm;
+  //double safety = 0.001 * GeoModelKernelUnits::mm;
+  double epsilon = 0.00001 * GeoModelKernelUnits::mm;
   double halflength = 0.5*std::abs(zmax - zmin); 
 
-  double alpha = CLHEP::pi/numSides;
+  double alpha = GeoModelKernelUnits::pi/numSides;
   double cosalpha = cos(alpha);
   double sinalpha = sin(alpha);
   
   /*
   double rminEnv = (rminSide-safety)/cosalpha;
   double rmaxEnv = (rmaxSide+safety)/cosalpha;
-  GeoPgon * frameEnvShape = new GeoPgon(phiLoc-alpha,2*CLHEP::pi,numSides);
+  GeoPgon * frameEnvShape = new GeoPgon(phiLoc-alpha,2*GeoModelKernelUnits::pi,numSides);
   frameEnvShape->addPlane(zCenter-halflength-0.5*epsilon,rminEnv,rmaxEnv);
   frameEnvShape->addPlane(zCenter+halflength+0.5*epsilon,rminEnv,rmaxEnv);
 
@@ -134,7 +134,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   if (numElements) {
     double sideThick = rmaxSide - rminSide;
 
-    std::vector<HepGeom::Transform3D> sideTransVec;
+    std::vector<GeoTrf::Transform3D> sideTransVec;
     std::vector<GeoShape *> sideElementShapeVec;
     sideTransVec.reserve(numElements);
     sideElementShapeVec.reserve(numElements);
@@ -160,7 +160,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 	zSideMax = std::max(zSideMax, zmaxInput);
       }      
       GeoShape * sideElementShape = 0;
-      HepGeom::Transform3D rotateShape;
+      GeoTrf::Transform3D rotateShape(GeoTrf::Transform3D::Identity());
       double shapeVolume = 0;
       if (same(zMin1,zMin2) && same(zMax1,zMax2)) { 
 	// Use a box
@@ -172,13 +172,13 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 	double thetaPara = 0; 
 	double phiPara = 0;
 	sideElementShape = new GeoPara(0.5*std::abs(zMax1-zMin1),  0.5*sideWidth-epsilon, 0.5*sideThick, alphaPara, thetaPara, phiPara);
-	rotateShape = HepGeom::RotateY3D(-90*CLHEP::deg);
+	rotateShape = GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
 	shapeVolume =  std::abs(zMax1-zMin1) * (sideWidth-2*epsilon) * sideThick;
       } else {// 
 	      // other cases not implemented. Should not occur for the frame.
 	      std::cout << "GeoPixelFrame: This case is not handled for building the frame" << std::endl;
       }
-      sideTransVec.push_back(HepGeom::TranslateZ3D(0.25*(zMin1+zMin2+zMax1+zMax2))*rotateShape);
+      sideTransVec.push_back(GeoTrf::TranslateZ3D(0.25*(zMin1+zMin2+zMax1+zMax2))*rotateShape);
       sideElementShapeVec.push_back(sideElementShape);
       //totSideVolume += sideElementShape->volume();
       totSideVolume += shapeVolume;
@@ -194,7 +194,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
     std::string sideMatName = m_gmt_mgr->PixelFrameSideMaterial(section);
     const GeoMaterial* sideMat = m_mat_mgr->getMaterialForVolume(sideMatName,numSides*totSideVolume);  
     for (int iElement = 0; iElement < numElements; iElement++) {
-      GeoTransform * transSideElement = new GeoTransform(HepGeom::TranslateZ3D(-zSideCenter)*sideTransVec[iElement]);
+      GeoTransform * transSideElement = new GeoTransform(GeoTrf::TranslateZ3D(-zSideCenter)*sideTransVec[iElement]);
       std::ostringstream frameSideName;
       frameSideName << "FrameSide" << iElement;
       GeoLogVol  * sideElementLV = new GeoLogVol(frameSideName.str(), sideElementShapeVec[iElement], sideMat);
@@ -212,18 +212,18 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   // place the corners and sides.
   for (int iSide = 0; iSide<numSides; iSide++) {
     double angleCorner = phiLoc + alpha * (2*iSide - 1);
-    GeoTransform * cornerTrans = new GeoTransform(HepGeom::TranslateZ3D(zCenter)*HepGeom::RotateZ3D(angleCorner));
+    GeoTransform * cornerTrans = new GeoTransform(GeoTrf::TranslateZ3D(zCenter)*GeoTrf::RotateZ3D(angleCorner));
     // Place the corners
     parent->add(cornerTrans);
     parent->add(cornerPV);
     if (sideEnvelopePV) {
       double angleSide   = phiLoc + alpha * (2*iSide);
-      HepGeom::Transform3D oddEvenRotate;
+      GeoTrf::Transform3D oddEvenRotate(GeoTrf::Transform3D::Identity());
       if (iSide%2 && mirrorSides) {
-	      oddEvenRotate = HepGeom::RotateZ3D(CLHEP::pi); // Every 2nd side we mirror the side. 
+	      oddEvenRotate = GeoTrf::RotateZ3D(GeoModelKernelUnits::pi); // Every 2nd side we mirror the side. 
       }
-      GeoTransform * sideTrans = new GeoTransform(HepGeom::TranslateZ3D(zSideCenter)*HepGeom::RotateZ3D(angleSide)
-						  *HepGeom::TranslateX3D(midRadius)*oddEvenRotate);
+      GeoTransform * sideTrans = new GeoTransform(GeoTrf::TranslateZ3D(zSideCenter)*GeoTrf::RotateZ3D(angleSide)
+						  *GeoTrf::TranslateX3D(midRadius)*oddEvenRotate);
 
       // Place the sides
       parent->add(sideTrans);

@@ -40,6 +40,8 @@
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
+#include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "InDetAlignGenTools/InDetAlignFillTrack.h"
 #include "HepPDT/ParticleDataTable.hh"

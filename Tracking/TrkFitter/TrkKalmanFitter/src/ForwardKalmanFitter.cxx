@@ -42,6 +42,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <ext/algorithm>
 
 ////////////////////////////////////////////////////////////////////////////////

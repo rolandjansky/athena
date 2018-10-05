@@ -8,8 +8,8 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "GaudiKernel/MsgStream.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"

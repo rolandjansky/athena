@@ -64,6 +64,10 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
+#include "CLHEP/Matrix/Matrix.h"
+#include "CLHEP/Matrix/SymMatrix.h"
+#include "CLHEP/Matrix/Vector.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"

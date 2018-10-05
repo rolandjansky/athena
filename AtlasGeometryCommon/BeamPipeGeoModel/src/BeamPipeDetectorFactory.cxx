@@ -15,6 +15,8 @@
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoFullPhysVol.h"  
 #include "GeoModelKernel/GeoTransform.h"  
+#include "GeoModelKernel/GeoDefinitions.h"  
+#include "GeoModelKernel/Units.h"  
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -38,7 +40,7 @@ BeamPipeDetectorFactory::BeamPipeDetectorFactory(StoreGateSvc *detStore,
    m_materialManager(0),
    m_detectorStore(detStore),
    m_access(pAccess),
-   m_centralRegionZMax(1500*CLHEP::mm)
+   m_centralRegionZMax(1500*GeoModelKernelUnits::mm)
 {}
 
 BeamPipeDetectorFactory::~BeamPipeDetectorFactory()
@@ -67,8 +69,8 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
   // It is split into 3 sections. 
   // left, right and central. This is to allow different truth scoring in the different regions.
   
-  m_centralRegionZMax = 1500 * CLHEP::mm; // For backward compatibility in DB.
-  if (bpipeGeneral->size() != 0) m_centralRegionZMax = (*bpipeGeneral)[0]->getDouble("CENTRALZMAX") * CLHEP::mm;
+  m_centralRegionZMax = 1500 * GeoModelKernelUnits::mm; // For backward compatibility in DB.
+  if (bpipeGeneral->size() != 0) m_centralRegionZMax = (*bpipeGeneral)[0]->getDouble("CENTRALZMAX") * GeoModelKernelUnits::mm;
 
   EnvelopeShapes envelopes;
 
@@ -102,16 +104,16 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
   double beamy = 0.0;
   double beamz = 0.0;
   if (bpipePosition->size() != 0) {
-    beamx = (*bpipePosition)[0]->getDouble("POSX") * CLHEP::mm;
-    beamy = (*bpipePosition)[0]->getDouble("POSY") * CLHEP::mm;
-    beamz = (*bpipePosition)[0]->getDouble("POSZ") * CLHEP::mm;
+    beamx = (*bpipePosition)[0]->getDouble("POSX") * GeoModelKernelUnits::mm;
+    beamy = (*bpipePosition)[0]->getDouble("POSY") * GeoModelKernelUnits::mm;
+    beamz = (*bpipePosition)[0]->getDouble("POSZ") * GeoModelKernelUnits::mm;
   }
 
   // Only shift the central section
 
   // Central
   world->add(tag);
-  world->add(new GeoTransform(HepGeom::Translate3D(beamx,beamy,beamz)));
+  world->add(new GeoTransform(GeoTrf::Translate3D(beamx,beamy,beamz)));
   world->add(pvMotherCentral);
   m_detectorManager->addTreeTop(pvMotherCentral);                                                                  //
 
@@ -122,7 +124,7 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
 
   // FwdMinus
   world->add(tag);
-  world->add(new GeoTransform(HepGeom::RotateY3D(180*CLHEP::degree)));
+  world->add(new GeoTransform(GeoTrf::RotateY3D(180*GeoModelKernelUnits::degree)));
   world->add(pvMotherFwdMinus);
   m_detectorManager->addTreeTop(pvMotherFwdMinus);
 
@@ -148,12 +150,12 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
   for (unsigned int itemp=0; itemp<bpipeSections->size(); itemp++)
   {
     std::string material = (*bpipeSections)[itemp]->getString("MATERIAL");
-    double rMin1 = (*bpipeSections)[itemp]->getDouble("RMIN1") * CLHEP::mm;
-    double rMax1 = (*bpipeSections)[itemp]->getDouble("RMAX1") * CLHEP::mm;
-    double rMin2 = (*bpipeSections)[itemp]->getDouble("RMIN2") * CLHEP::mm;
-    double rMax2 = (*bpipeSections)[itemp]->getDouble("RMAX2") * CLHEP::mm;
-    double z = (*bpipeSections)[itemp]->getDouble("Z") * CLHEP::mm;
-    double dZ = (*bpipeSections)[itemp]->getDouble("DZ") * CLHEP::mm;
+    double rMin1 = (*bpipeSections)[itemp]->getDouble("RMIN1") * GeoModelKernelUnits::mm;
+    double rMax1 = (*bpipeSections)[itemp]->getDouble("RMAX1") * GeoModelKernelUnits::mm;
+    double rMin2 = (*bpipeSections)[itemp]->getDouble("RMIN2") * GeoModelKernelUnits::mm;
+    double rMax2 = (*bpipeSections)[itemp]->getDouble("RMAX2") * GeoModelKernelUnits::mm;
+    double z = (*bpipeSections)[itemp]->getDouble("Z") * GeoModelKernelUnits::mm;
+    double dZ = (*bpipeSections)[itemp]->getDouble("DZ") * GeoModelKernelUnits::mm;
     int secNum = (*bpipeSections)[itemp]->getInt("SECNUM");
       
     double zmin = z - dZ;
@@ -204,7 +206,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
       shape = new GeoCons(rMin1,rMin2,
 			  rMax1,rMax2,
 			  dZnew,
-			  0*CLHEP::deg,360*CLHEP::deg);
+			  0*GeoModelKernelUnits::deg,360*GeoModelKernelUnits::deg);
       isTube = false;
     }
 
@@ -221,7 +223,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
     pvSection->ref();
     
     // Determine if this is a geometry where the first section can act as the mother of the following
-    // sections. The following sections are only added to this if their ave CLHEP::radius is within the CLHEP::radial
+    // sections. The following sections are only added to this if their ave GeoModelKernelUnits::radius is within the GeoModelKernelUnits::radial
     // extent and their ave z is within the z extent. 
     // As soon as one section fails to meet this the latter sections are not considered.
     if(secNum==1) {
@@ -240,7 +242,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
 	     
 
     GeoTransform* tfSection = 0;
-    if (znew != 0 && (secNum==1 || !addToFirstSection)) tfSection = new GeoTransform(HepGeom::TranslateZ3D(znew));
+    if (znew != 0 && (secNum==1 || !addToFirstSection)) tfSection = new GeoTransform(GeoTrf::TranslateZ3D(znew));
     GeoNameTag* ntSection = new GeoNameTag(name);
     ntSection->ref();
 
@@ -267,10 +269,10 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
       GeoTransform* tfSectionRot = 0;
       if (isTube) { 
 	// No need for rotation.
-	tfSectionRot = new GeoTransform(HepGeom::TranslateZ3D(-znew));
+	tfSectionRot = new GeoTransform(GeoTrf::TranslateZ3D(-znew));
       } else {
 	// For cone we need to rotate around Y axis.
-	tfSectionRot = new GeoTransform(HepGeom::TranslateZ3D(-znew)*HepGeom::RotateY3D(180*CLHEP::deg));
+	tfSectionRot = new GeoTransform(GeoTrf::TranslateZ3D(-znew)*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
       }
       parent->add(ntSection);
       parent->add(tfSectionRot);
@@ -303,8 +305,8 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
   std::vector<EnvelopeEntry> fwdEntry;
 
   for (unsigned int i=0; i<bpipeEnvelope->size(); i++) {
-    double z = (*bpipeEnvelope)[i]->getDouble("Z") * CLHEP::mm;
-    double r = (*bpipeEnvelope)[i]->getDouble("R") * CLHEP::mm;
+    double z = (*bpipeEnvelope)[i]->getDouble("Z") * GeoModelKernelUnits::mm;
+    double r = (*bpipeEnvelope)[i]->getDouble("R") * GeoModelKernelUnits::mm;
     EnvelopeEntry entry(z,r);
     if (z < m_centralRegionZMax) {
       centralEntry.push_back(entry);
@@ -327,7 +329,7 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
     envelopes.centralShape  = new GeoTube(0, rFwd, m_centralRegionZMax);
   } else {
     // This case probably will never get used and is untested.
-    GeoPcon* pcone = new GeoPcon(0, 360*CLHEP::deg);
+    GeoPcon* pcone = new GeoPcon(0, 360*GeoModelKernelUnits::deg);
 
     pcone->addPlane(-m_centralRegionZMax,0,rFwd);
     for (int i=centralEntry.size()-1; i>=0; i--) {  
@@ -347,12 +349,12 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
   
   // forward
   {
-    GeoPcon* pcone = new GeoPcon(0, 360*CLHEP::deg);
+    GeoPcon* pcone = new GeoPcon(0, 360*GeoModelKernelUnits::deg);
     pcone->addPlane(m_centralRegionZMax,0,rFwd);
     if (fwdEntry.size() == 0) { 
       // Unlikely case but for completeness
       // we make small fwd region if everything is in central region.
-      pcone->addPlane(m_centralRegionZMax+0.1*CLHEP::mm,0,rFwd);
+      pcone->addPlane(m_centralRegionZMax+0.1*GeoModelKernelUnits::mm,0,rFwd);
     }
     for (unsigned int i=0; i<fwdEntry.size(); i++) {  
       double z = fwdEntry[i].z();
@@ -371,12 +373,12 @@ BeamPipeDetectorFactory::EnvelopeShapes
 BeamPipeDetectorFactory::makeEnvelopeOld(IRDBRecordset_ptr atlasMother)
 {
 
-  double iir = (*atlasMother)[0]->getDouble("IDETIR")*CLHEP::cm;
-  double cir = (*atlasMother)[0]->getDouble("CALOIR")*CLHEP::cm;
-  double mir = (*atlasMother)[0]->getDouble("MUONIR")*CLHEP::cm;
-  double totlen = (*atlasMother)[0]->getDouble("ZMAX")*CLHEP::cm;
-  double ilen = (*atlasMother)[0]->getDouble("IDETZMX")*CLHEP::cm;
-  double clen = (*atlasMother)[0]->getDouble("CALOZMX")*CLHEP::cm;
+  double iir = (*atlasMother)[0]->getDouble("IDETIR")*GeoModelKernelUnits::cm;
+  double cir = (*atlasMother)[0]->getDouble("CALOIR")*GeoModelKernelUnits::cm;
+  double mir = (*atlasMother)[0]->getDouble("MUONIR")*GeoModelKernelUnits::cm;
+  double totlen = (*atlasMother)[0]->getDouble("ZMAX")*GeoModelKernelUnits::cm;
+  double ilen = (*atlasMother)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
+  double clen = (*atlasMother)[0]->getDouble("CALOZMX")*GeoModelKernelUnits::cm;
 
   // Central Section.
   GeoTube * bpipeCentralShape = new GeoTube(0, iir, m_centralRegionZMax);
@@ -386,7 +388,7 @@ BeamPipeDetectorFactory::makeEnvelopeOld(IRDBRecordset_ptr atlasMother)
 
   // Right section (+ve z)
 
-  GeoPcon* bpipeEnvPcone = new GeoPcon(0, 360*CLHEP::deg);
+  GeoPcon* bpipeEnvPcone = new GeoPcon(0, 360*GeoModelKernelUnits::deg);
   bpipeEnvPcone->addPlane(m_centralRegionZMax,0,iir);
   bpipeEnvPcone->addPlane(ilen,0,iir);
   bpipeEnvPcone->addPlane(ilen,0,cir); 

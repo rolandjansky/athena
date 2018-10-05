@@ -38,6 +38,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Vector/LorentzVector.h"
 // Validation mode - TTree includes
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 

@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"

@@ -9,18 +9,19 @@ atlas_subdir( InDetGeoModelUtils )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
+			  DetectorDescription/GeoPrimitives
                           DetectorDescription/GeometryDBSvc )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( InDetGeoModelUtils
@@ -28,6 +29,6 @@ atlas_add_library( InDetGeoModelUtils
                    PUBLIC_HEADERS InDetGeoModelUtils
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelKernel GaudiKernel StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel GaudiKernel StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES GeoModelUtilities )
 

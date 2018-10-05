@@ -19,9 +19,11 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
@@ -36,7 +38,7 @@
 #include <iostream>
 #include <algorithm>
 
-using namespace Genfun;
+using namespace GeoGenfun;
 using namespace GeoXF;
 
  
@@ -179,11 +181,11 @@ void TileTBFactory::create(GeoPhysVol *world)
   //int EnvNumLayer = 64;
   //dbManager->SetCurrentSection(TileDddbManager::TILE_BARREL);
   //double deltaPhi = 360./dbManager->TILEnmodul();
-  GeoTubs* tileTBEnv = new GeoTubs(RInMin * CLHEP::cm,
-				   ROutMax * CLHEP::cm,
-				   tileTBEnvThickness/2.0 * CLHEP::cm,
-				   PhiMin*CLHEP::deg,
-				   (PhiMax - PhiMin)*CLHEP::deg);
+  GeoTubs* tileTBEnv = new GeoTubs(RInMin * GeoModelKernelUnits::cm,
+				   ROutMax * GeoModelKernelUnits::cm,
+				   tileTBEnvThickness/2.0 * GeoModelKernelUnits::cm,
+				   PhiMin*GeoModelKernelUnits::deg,
+				   (PhiMax - PhiMin)*GeoModelKernelUnits::deg);
   
   (*m_log) << MSG::DEBUG << "TileTB envelope parameters: " 
       << " length=" << tileTBEnvThickness << " cm"
@@ -211,19 +213,19 @@ void TileTBFactory::create(GeoPhysVol *world)
     //----------------------- BUILDING ENVELOPES------------------------
     
     // It may be usful on the way of universalization
-    //    GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * CLHEP::cm,
-    //					 (dbManager->GetEnvRout()) * CLHEP::cm,
-    //				 (dbManager->GetEnvZLength())/2.0 * CLHEP::cm,
-    //				 0.0 * deltaPhi * CLHEP::deg,
-    //				 (NumberOfMod)*deltaPhi*CLHEP::deg);
+    //    GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * GeoModelKernelUnits::cm,
+    //					 (dbManager->GetEnvRout()) * GeoModelKernelUnits::cm,
+    //				 (dbManager->GetEnvZLength())/2.0 * GeoModelKernelUnits::cm,
+    //				 0.0 * deltaPhi * GeoModelKernelUnits::deg,
+    //				 (NumberOfMod)*deltaPhi*GeoModelKernelUnits::deg);
   
     if(EnvType == 1) {
 
-      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * CLHEP::cm,
-					   (dbManager->GetEnvRout()) * CLHEP::cm,
-					   (dbManager->GetEnvZLength() - 2 * BFingerLength)/2.0 * CLHEP::cm,
-					   0.0 * CLHEP::deg,
-					   NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvRout()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvZLength() - 2 * BFingerLength)/2.0 * GeoModelKernelUnits::cm,
+					   0.0 * GeoModelKernelUnits::deg,
+					   NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
 
       GeoTubs* barrelMother = GeneralMother;      
       GeoLogVol* lvBarrelMother = new GeoLogVol("Barrel",barrelMother,matAir);
@@ -239,11 +241,11 @@ void TileTBFactory::create(GeoPhysVol *world)
       //Envelopes for two barrel fingers
       dbManager->SetCurrentTifg(2);  //use small size for barrel finger !
 
-      GeoTubs* fingerMother = new GeoTubs(FingerRmin*CLHEP::cm,
-      					  dbManager->GetEnvRout()*CLHEP::cm,
-      					  BFingerLength/2.*CLHEP::cm,
-      					  0.0 * CLHEP::deg,
-      					  NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* fingerMother = new GeoTubs(FingerRmin*GeoModelKernelUnits::cm,
+      					  dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
+      					  BFingerLength/2.*GeoModelKernelUnits::cm,
+      					  0.0 * GeoModelKernelUnits::deg,
+      					  NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
 
       GeoLogVol* lvFingerMother = new GeoLogVol("Finger",fingerMother,matAir);
       pvFingerMotherPos = new GeoFullPhysVol(lvFingerMother);
@@ -258,11 +260,11 @@ void TileTBFactory::create(GeoPhysVol *world)
     }
     
     if(EnvType == 3) {   
-      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * CLHEP::cm,
-					   (dbManager->GetEnvRout()) * CLHEP::cm,
-					   (dbManager->GetEnvZLength() - EBFingerLength)/2.0 * CLHEP::cm,
-					   0.0 * CLHEP::deg,
-					   NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvRout()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvZLength() - EBFingerLength)/2.0 * GeoModelKernelUnits::cm,
+					   0.0 * GeoModelKernelUnits::deg,
+					   NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
 
       GeoTubs* ebarrelMotherPos = GeneralMother;
       GeoLogVol* lvEBarrelMotherPos = new GeoLogVol("EBarrel",ebarrelMotherPos,matAir);
@@ -276,11 +278,11 @@ void TileTBFactory::create(GeoPhysVol *world)
           << endmsg;
 
       //Envelope for finger separately
-      GeoTubs* fingerMother = new GeoTubs(FingerRmin*CLHEP::cm,
-					  dbManager->GetEnvRout()*CLHEP::cm,
-					  EBFingerLength/2.*CLHEP::cm,
-					  0.0 * CLHEP::deg,
-					  NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* fingerMother = new GeoTubs(FingerRmin*GeoModelKernelUnits::cm,
+					  dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
+					  EBFingerLength/2.*GeoModelKernelUnits::cm,
+					  0.0 * GeoModelKernelUnits::deg,
+					  NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
 
       GeoLogVol* lvEFingerMother = new GeoLogVol("EFinger",fingerMother,matAir);
       pvEFingerMotherPos = new GeoFullPhysVol(lvEFingerMother);
@@ -294,11 +296,11 @@ void TileTBFactory::create(GeoPhysVol *world)
     }
     
     if(EnvType == 2) {    
-      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * CLHEP::cm,
-					   (dbManager->GetEnvRout()) * CLHEP::cm,
-					   (dbManager->GetEnvZLength() - EBFingerLength)/2.0 * CLHEP::cm,
-					   0.0 * CLHEP::deg,
-					   NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvRout()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvZLength() - EBFingerLength)/2.0 * GeoModelKernelUnits::cm,
+					   0.0 * GeoModelKernelUnits::deg,
+					   NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
       GeoTubs* ebarrelMotherNeg = GeneralMother;
       GeoLogVol* lvEBarrelMotherNeg = new GeoLogVol("EBarrel",ebarrelMotherNeg,matAir);  
       pvEBarrelMotherNeg = new GeoFullPhysVol(lvEBarrelMotherNeg);
@@ -311,11 +313,11 @@ void TileTBFactory::create(GeoPhysVol *world)
           << endmsg;
 
       //Envelope for finger separately
-      GeoTubs* fingerMother = new GeoTubs(FingerRmin*CLHEP::cm,
-					  dbManager->GetEnvRout()*CLHEP::cm,
-					  EBFingerLength/2.*CLHEP::cm,
-					  0.0 * CLHEP::deg,
-					  NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* fingerMother = new GeoTubs(FingerRmin*GeoModelKernelUnits::cm,
+					  dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
+					  EBFingerLength/2.*GeoModelKernelUnits::cm,
+					  0.0 * GeoModelKernelUnits::deg,
+					  NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
       
       GeoLogVol* lvEFingerMother = new GeoLogVol("EFinger",fingerMother,matAir);
       pvEFingerMotherNeg = new GeoFullPhysVol(lvEFingerMother);
@@ -329,11 +331,11 @@ void TileTBFactory::create(GeoPhysVol *world)
     }
     
     if(EnvType == 5) {
-      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * CLHEP::cm,
-					   (dbManager->GetEnvRout()) * CLHEP::cm,
-					   (dbManager->GetEnvZLength())/2.0 * CLHEP::cm,
-					   0.0 * CLHEP::deg,
-					   NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvRout()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvZLength())/2.0 * GeoModelKernelUnits::cm,
+					   0.0 * GeoModelKernelUnits::deg,
+					   NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
       
       GeoTubs* itcMother = GeneralMother;
       GeoLogVol* lvITCMother = new GeoLogVol("ITC",itcMother,matAir);
@@ -348,11 +350,11 @@ void TileTBFactory::create(GeoPhysVol *world)
     }
     
     if(EnvType == 4) {
-      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * CLHEP::cm,
-					   (dbManager->GetEnvRout()) * CLHEP::cm,
-					   (dbManager->GetEnvZLength())/2.0 * CLHEP::cm,
-					   0.0 * CLHEP::deg,
-					   NumberOfMod*deltaPhi*CLHEP::deg);
+      GeoTubs* GeneralMother = new GeoTubs((dbManager->GetEnvRin()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvRout()) * GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvZLength())/2.0 * GeoModelKernelUnits::cm,
+					   0.0 * GeoModelKernelUnits::deg,
+					   NumberOfMod*deltaPhi*GeoModelKernelUnits::deg);
 
       GeoTubs* itcMotherNeg = GeneralMother;
       GeoLogVol* lvITCMotherNeg = new GeoLogVol("ITC",itcMotherNeg,matAir);
@@ -384,17 +386,17 @@ void TileTBFactory::create(GeoPhysVol *world)
           << endmsg;
           
       Variable varInd;
-      GENFUNCTION phiInd = deltaPhi*(varInd + ModCounter + 0.5) * CLHEP::deg; 
+      GENFUNCTION phiInd = deltaPhi*(varInd + ModCounter + 0.5) * GeoModelKernelUnits::deg; 
 
 
       //------------------- BARREL BLOCKS -------------------------------------
      
       if( EnvType == 1 || EnvType == 0 ) { // normal barrel module or module zero
         dbManager->SetCurrentSectionByNumber(ModType);	  
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
        
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() - (dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()) - dbManager->TILBdzmast()))/(2.*(2.*dbManager->TILBnperiod() - 1));
        
@@ -415,7 +417,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                     dzGlue,
                                     deltaPhi); 
        
-        TRANSFUNCTION xfBarrelModuleMother = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILBrmaximal()+dbManager->TILBrminimal())/2.*CLHEP::cm)*HepGeom::RotateX3D(180*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfBarrelModuleMother = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILBrmaximal()+dbManager->TILBrminimal())/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 
         GeoSerialTransformer* stBarrelModuleMother = new GeoSerialTransformer(pvBarrelModuleMother,
                                                                               &xfBarrelModuleMother,
@@ -431,10 +433,10 @@ void TileTBFactory::create(GeoPhysVol *world)
 
         // Trd - one finger mother
 
-        thicknessWedgeMother = dbManager->TIFGdz() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TIFGdz() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
        
         GeoTrd* fingerModuleMother = new GeoTrd(thicknessWedgeMother/2.,
                                                 thicknessWedgeMother/2.,
@@ -452,10 +454,10 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    deltaPhi,
                                    m_testbeamGeometry,
                                    ModuleNcp,
-                                   thicknessWedgeMother*(1./CLHEP::cm));
+                                   thicknessWedgeMother*(1./GeoModelKernelUnits::cm));
        
         // --- Position N modules inside mother (positive/negative) -----
-        TRANSFUNCTION xfFingerModuleMotherPos = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*CLHEP::cm)*HepGeom::RotateX3D(180*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfFingerModuleMotherPos = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
         
         GeoSerialTransformer* stFingerModuleMotherPos = new GeoSerialTransformer(pvFingerModuleMother,
                                                                                  &xfFingerModuleMotherPos,
@@ -463,7 +465,7 @@ void TileTBFactory::create(GeoPhysVol *world)
         pvFingerMotherPos->add(new GeoSerialIdentifier(ModPositionNumber));
         pvFingerMotherPos->add(stFingerModuleMotherPos);
        
-        TRANSFUNCTION xfFingerModuleMotherNeg = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*CLHEP::cm)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfFingerModuleMotherNeg = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 
         GeoSerialTransformer* stFingerModuleMotherNeg = new GeoSerialTransformer(pvFingerModuleMother,
                                                                                  &xfFingerModuleMotherNeg,
@@ -478,10 +480,10 @@ void TileTBFactory::create(GeoPhysVol *world)
       if((ModType == 2)&&(EnvType == 3)){
         dbManager->SetCurrentSectionByNumber(ModType);
         // Trd - module mother 
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()))/(4.*dbManager->TILBnperiod());
         
@@ -502,7 +504,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                     dzGlue,
                                     deltaPhi);
              
-        TRANSFUNCTION xfEBarrelModuleMotherPos = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILBrmaximal()+dbManager->TILBrminimal())/2.*CLHEP::cm)*HepGeom::RotateX3D(180*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfEBarrelModuleMotherPos = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILBrmaximal()+dbManager->TILBrminimal())/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
         
         GeoSerialTransformer* stEBarrelModuleMotherPos = new GeoSerialTransformer(pvEBarrelModuleMotherPos,
                                                                                   &xfEBarrelModuleMotherPos,
@@ -516,10 +518,10 @@ void TileTBFactory::create(GeoPhysVol *world)
         dbManager->SetCurrentTifg(2);  //barrel efinger (small)
         
         // Trd - one finger mother
-        thicknessWedgeMother = dbManager->TIFGdz() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TIFGdz() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         GeoTrd* efingerModuleMother = new GeoTrd(thicknessWedgeMother/2.,
                                                  thicknessWedgeMother/2.,
@@ -540,7 +542,7 @@ void TileTBFactory::create(GeoPhysVol *world)
         
         // --- Position N modules inside mother (positive/negative) -----
   
-        TRANSFUNCTION xfEFingerModuleMotherPos = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*CLHEP::cm)*HepGeom::RotateX3D(180*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfEFingerModuleMotherPos = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
         
         GeoSerialTransformer* stEFingerModuleMotherPos = new GeoSerialTransformer(pvEFingerModuleMother,
                                                                                   &xfEFingerModuleMotherPos,
@@ -555,10 +557,10 @@ void TileTBFactory::create(GeoPhysVol *world)
       if((ModType == 2)&&(EnvType == 2)){
         dbManager->SetCurrentSectionByNumber(ModType);
         // Trd - module mother 
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()))/(4.*dbManager->TILBnperiod());
   
@@ -579,7 +581,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                     dzGlue,
                                     deltaPhi);
       
-        TRANSFUNCTION xfEBarrelModuleMotherNeg = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILBrmaximal()+dbManager->TILBrminimal())/2.*CLHEP::cm)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfEBarrelModuleMotherNeg = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILBrmaximal()+dbManager->TILBrminimal())/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 
         GeoSerialTransformer* stEBarrelModuleMotherNeg = new GeoSerialTransformer(pvEBarrelModuleMotherNeg,
                                                                                   &xfEBarrelModuleMotherNeg,
@@ -594,10 +596,10 @@ void TileTBFactory::create(GeoPhysVol *world)
         
         //zEndSection = extOffset + dbManager->TILBdzmodul()/2. + dbManager->TILEzshift();
         // Trd - one finger mother
-        thicknessWedgeMother = dbManager->TIFGdz() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TIFGdz() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         GeoTrd* efingerModuleMother = new GeoTrd(thicknessWedgeMother/2.,
                                                  thicknessWedgeMother/2.,
@@ -616,7 +618,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    deltaPhi,
                                    m_testbeamGeometry);
           
-        TRANSFUNCTION xfEFingerModuleMotherNeg = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*CLHEP::cm)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfEFingerModuleMotherNeg = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 
         GeoSerialTransformer* stEFingerModuleMotherNeg = new GeoSerialTransformer(pvEFingerModuleMother,
                                                                                   &xfEFingerModuleMotherNeg,
@@ -636,10 +638,10 @@ void TileTBFactory::create(GeoPhysVol *world)
         dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
         
         // Common mother for ITC1/2 modules
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - rMinITC) * CLHEP::cm;
-        dy1WedgeMother = rMinITC * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - rMinITC) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = rMinITC * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         GeoTrd* itcModuleMotherPos = new GeoTrd(thicknessWedgeMother/2.,
                                                 thicknessWedgeMother/2.,
@@ -656,10 +658,10 @@ void TileTBFactory::create(GeoPhysVol *world)
         // 2. Mother for frontplate (since it's short)
         
         //First submother
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrmin()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrmin()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()))/(4.*dbManager->TILBnperiod());
         
@@ -670,19 +672,19 @@ void TileTBFactory::create(GeoPhysVol *world)
                                             heightWedgeMother/2.);
         
         //Second submother
-        thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2) * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2) * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         GeoTrd* plug2SubMother = new GeoTrd(thicknessWedgeMother/2.,
                                             thicknessWedgeMother/2.,
                                             dy1WedgeMother,
                                             dy2WedgeMother,
                                             heightWedgeMother/2.);
         
-        HepGeom::Translate3D plug1SubOffset(-dzITC2*CLHEP::cm/2.,
+        GeoTrf::Translate3D plug1SubOffset(-dzITC2*GeoModelKernelUnits::cm/2.,
                                       0.,
-                                      (dbManager->TILBrminimal()-dbManager->TILBrmaximal())*CLHEP::cm/2.);
+                                      (dbManager->TILBrminimal()-dbManager->TILBrmaximal())*GeoModelKernelUnits::cm/2.);
         
         const GeoShapeUnion& plug1ModuleMother = plug1SubMother->add(*plug2SubMother<<plug1SubOffset);
         GeoLogVol* lvPlug1ModuleMother = new GeoLogVol("Plug1Module",&plug1ModuleMother,matAir);
@@ -697,9 +699,9 @@ void TileTBFactory::create(GeoPhysVol *world)
                                     ModuleNcp,
                                     dzITC2);
         
-        GeoTransform* tfPlug1ModuleMother = new GeoTransform(HepGeom::Translate3D(0.,
+        GeoTransform* tfPlug1ModuleMother = new GeoTransform(GeoTrf::Translate3D(0.,
                                                                             0.,
-                                                                            (dbManager->TILBrmin()-rMinITC)*CLHEP::cm/2.));
+                                                                            (dbManager->TILBrmin()-rMinITC)*GeoModelKernelUnits::cm/2.));
         
         
         pvITCModuleMotherPos->add(tfPlug1ModuleMother);
@@ -707,10 +709,10 @@ void TileTBFactory::create(GeoPhysVol *world)
         	 
         //Mother volume for ITC2
         dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() - ((dbManager->TILBnperiod()-1)*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()) + dbManager->TILBdzspac()))/(4.*(dbManager->TILBnperiod() - 1));
         
         GeoTrd* plug2ModuleMother = new GeoTrd(thicknessWedgeMother/2.,
@@ -732,13 +734,13 @@ void TileTBFactory::create(GeoPhysVol *world)
         
         
         dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-        GeoTransform* tfPlug2ModuleMother = new GeoTransform(HepGeom::Translate3D((dbManager->TILBdzmodul() - dzITC2)*CLHEP::cm/2.,
+        GeoTransform* tfPlug2ModuleMother = new GeoTransform(GeoTrf::Translate3D((dbManager->TILBdzmodul() - dzITC2)*GeoModelKernelUnits::cm/2.,
                                                                             0.,
-                                                                            (dbManager->TILBrmin() - dbManager->TILBrmaximal())*CLHEP::cm/2.));
+                                                                            (dbManager->TILBrmin() - dbManager->TILBrmaximal())*GeoModelKernelUnits::cm/2.));
         pvITCModuleMotherPos->add(tfPlug2ModuleMother);
         pvITCModuleMotherPos->add(pvPlug2ModuleMother);
         
-        TRANSFUNCTION xfITCModuleMotherPos = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILBrmaximal()+rMinITC)/2.*CLHEP::cm)*HepGeom::RotateX3D(180*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfITCModuleMotherPos = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILBrmaximal()+rMinITC)/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
         
         GeoSerialTransformer* stITCModuleMotherPos = new GeoSerialTransformer(pvITCModuleMotherPos,
                                                                               &xfITCModuleMotherPos,
@@ -758,10 +760,10 @@ void TileTBFactory::create(GeoPhysVol *world)
         dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
           
         // Common mother for ITC1/2 modules
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - rMinITC) * CLHEP::cm;
-        dy1WedgeMother = rMinITC * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - rMinITC) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = rMinITC * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
           
         GeoTrd* itcModuleMotherNeg = new GeoTrd(thicknessWedgeMother/2.,
                                                 thicknessWedgeMother/2.,
@@ -778,10 +780,10 @@ void TileTBFactory::create(GeoPhysVol *world)
         // 2. Mother for frontplate (since it's short)
           
         //First submother
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrmin()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrmin()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
           
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()))/(4.*dbManager->TILBnperiod());
           
@@ -792,19 +794,19 @@ void TileTBFactory::create(GeoPhysVol *world)
                                             heightWedgeMother/2.);
           
         //Second submother
-        thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2) * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2) * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         GeoTrd* plug2SubMother = new GeoTrd(thicknessWedgeMother/2.,
                                             thicknessWedgeMother/2.,
                                             dy1WedgeMother,
                                             dy2WedgeMother,
                                             heightWedgeMother/2.);
           
-        HepGeom::Translate3D plug1SubOffset(-dzITC2*CLHEP::cm/2.,
+        GeoTrf::Translate3D plug1SubOffset(-dzITC2*GeoModelKernelUnits::cm/2.,
                                       0.,
-                                      (dbManager->TILBrminimal()-dbManager->TILBrmaximal())*CLHEP::cm/2.);
+                                      (dbManager->TILBrminimal()-dbManager->TILBrmaximal())*GeoModelKernelUnits::cm/2.);
           
         const GeoShapeUnion& plug1ModuleMother = plug1SubMother->add(*plug2SubMother<<plug1SubOffset);
         GeoLogVol* lvPlug1ModuleMother = new GeoLogVol("Plug1Module",&plug1ModuleMother,matAir);
@@ -820,9 +822,9 @@ void TileTBFactory::create(GeoPhysVol *world)
                                     ModuleNcp,
                                     dzITC2);
         
-        GeoTransform* tfPlug1ModuleMother = new GeoTransform(HepGeom::Translate3D(0.,
+        GeoTransform* tfPlug1ModuleMother = new GeoTransform(GeoTrf::Translate3D(0.,
                                                                             0.,
-                                                                            (dbManager->TILBrmin()-rMinITC)*CLHEP::cm/2.));
+                                                                            (dbManager->TILBrmin()-rMinITC)*GeoModelKernelUnits::cm/2.));
           
           
         pvITCModuleMotherNeg->add(tfPlug1ModuleMother);
@@ -830,10 +832,10 @@ void TileTBFactory::create(GeoPhysVol *world)
           	 
         //Mother volume for ITC2
         dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2.*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() - ((dbManager->TILBnperiod()-1)*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()) + dbManager->TILBdzspac()))/(4.*(dbManager->TILBnperiod() - 1));
           
         GeoTrd* plug2ModuleMother = new GeoTrd(thicknessWedgeMother/2.,
@@ -855,13 +857,13 @@ void TileTBFactory::create(GeoPhysVol *world)
         
           
         dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-        GeoTransform* tfPlug2ModuleMother = new GeoTransform(HepGeom::Translate3D((dbManager->TILBdzmodul() - dzITC2)*CLHEP::cm/2.,
+        GeoTransform* tfPlug2ModuleMother = new GeoTransform(GeoTrf::Translate3D((dbManager->TILBdzmodul() - dzITC2)*GeoModelKernelUnits::cm/2.,
                                                                             0.,
-                                                                            (dbManager->TILBrmin() - dbManager->TILBrmaximal())*CLHEP::cm/2.));
+                                                                            (dbManager->TILBrmin() - dbManager->TILBrmaximal())*GeoModelKernelUnits::cm/2.));
         pvITCModuleMotherNeg->add(tfPlug2ModuleMother);
         pvITCModuleMotherNeg->add(pvPlug2ModuleMother);
           
-        TRANSFUNCTION xfITCModuleMotherNeg = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILBrmaximal()+rMinITC)/2.*CLHEP::cm)*HepGeom::RotateY3D(90*CLHEP::deg);
+        TRANSFUNCTION xfITCModuleMotherNeg = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILBrmaximal()+rMinITC)/2.*GeoModelKernelUnits::cm)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
           
         GeoSerialTransformer* stITCModuleMotherNeg = new GeoSerialTransformer(pvITCModuleMotherNeg,
                                                                               &xfITCModuleMotherNeg,
@@ -888,7 +890,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       else {
         ztrans = 0;
       }
-      tfBarrelMother = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+      tfBarrelMother = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning barrel with translation " << ztrans << " cm" << endmsg;
       GeoNameTag* ntBarrelModuleMother = new GeoNameTag("Barrel"); 
 
@@ -910,7 +912,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       else {
         ztrans = 0;
       }
-      tfFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+      tfFingerMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive barrel finger with translation " << ztrans
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       GeoNameTag* ntFingerMotherPos = new GeoNameTag("TileFingerPos");
@@ -932,7 +934,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       else {
         ztrans = 0;
       }
-      tfFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+      tfFingerMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative barrel finger with translation " << ztrans 
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       GeoNameTag* ntFingerMotherNeg = new GeoNameTag("TileFingerNeg");
@@ -945,7 +947,7 @@ void TileTBFactory::create(GeoPhysVol *world)
 
     if(EnvType == 3) { // positive ext.barrel is always at positive boundary, after finger
       ztrans = (tileTBEnvThickness/2. - dbManager->GetEnvZLength()/2. - EBFingerLength/2.);
-      GeoTransform* tfEBarrelMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfEBarrelMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive ext.barrel with translation " << ztrans
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       
@@ -955,7 +957,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       pvTileTBEnv->add(pvEBarrelMotherPos);
       
       ztrans = (tileTBEnvThickness/2. - EBFingerLength/2.);
-      GeoTransform* tfEFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfEFingerMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive ext.barrel finger with translation " << ztrans
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
@@ -968,7 +970,7 @@ void TileTBFactory::create(GeoPhysVol *world)
    
     if(EnvType == 2) { // negative ext.barrel is always at negative boundary, after finger
       ztrans = (-tileTBEnvThickness/2. + dbManager->GetEnvZLength()/2. + EBFingerLength/2.);
-      GeoTransform* tfEBarrelMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfEBarrelMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative ext.barrel with translation " << ztrans
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       
@@ -978,7 +980,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       pvTileTBEnv->add(pvEBarrelMotherNeg);
       
       ztrans = (-tileTBEnvThickness/2. + EBFingerLength/2.);
-      GeoTransform* tfEFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfEFingerMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative ext.barrel finger with translation " << ztrans
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
@@ -991,7 +993,7 @@ void TileTBFactory::create(GeoPhysVol *world)
 
     if(EnvType == 5) { // positive ITC attached to positive ext.barrel
       ztrans = (tileTBEnvThickness/2. - ZLengthEBarrelPos - dbManager->GetEnvZLength()/2.);
-      GeoTransform* tfITCMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfITCMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive ITC with translation " << ztrans
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
@@ -1003,7 +1005,7 @@ void TileTBFactory::create(GeoPhysVol *world)
 
     if(EnvType == 4) { // negative ITC attached to negative ext.barrel
       ztrans = (-tileTBEnvThickness/2. + ZLengthEBarrelNeg + dbManager->GetEnvZLength()/2.);
-      GeoTransform* tfITCMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfITCMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative ITC with translation " << ztrans
           << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
@@ -1024,12 +1026,12 @@ void TileTBFactory::create(GeoPhysVol *world)
     dbManager->SetCurrentEnvByIndex(EnvCounter);
     int EnvType = dbManager->GetEnvType();
     int NumberOfMod = dbManager->GetEnvNModules();
-    float Zshift = dbManager->GetEnvZShift() * CLHEP::cm;
+    float Zshift = dbManager->GetEnvZShift() * GeoModelKernelUnits::cm;
     (*m_log) << MSG::DEBUG 
         << "EnvCounter is " << EnvCounter
         << " EnvType is " << EnvType
         << " Nmodules is " << NumberOfMod
-        << " Zshift is " << Zshift*(1./CLHEP::cm) << " cm"
+        << " Zshift is " << Zshift*(1./GeoModelKernelUnits::cm) << " cm"
         << endmsg;
 
     if(EnvType == 1 || EnvType == 0) { // central barrel

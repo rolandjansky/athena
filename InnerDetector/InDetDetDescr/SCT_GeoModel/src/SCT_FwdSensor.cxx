@@ -31,11 +31,11 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
@@ -157,10 +157,10 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
     // define the sensor as a boolean volume of the two wafers.
     // relative position of near sensor 
     double positionNearZ = m_radiusN - m_sensorRadius;
-    const GeoShape & sensorPosN = (*sensorShapeN<< HepGeom::TranslateZ3D(positionNearZ)) ;
+    const GeoShape & sensorPosN = (*sensorShapeN<< GeoTrf::TranslateZ3D(positionNearZ)) ;
     // relative position of near sensor 
     double positionFarZ = m_radiusF - m_sensorRadius; 
-    const GeoShape & sensorPosF = (*sensorShapeF<< HepGeom::TranslateZ3D(positionFarZ) );
+    const GeoShape & sensorPosF = (*sensorShapeF<< GeoTrf::TranslateZ3D(positionFarZ) );
     sensorShape = &(sensorPosF.add(sensorPosN));
   }
 
@@ -172,7 +172,7 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
   if (m_ringType == 2) {
     // Make inactive glass sensor. 
     double positionZ = m_radiusN - m_sensorRadius;
-    const GeoShape & sensorPosN = (*sensorShapeN<< HepGeom::TranslateZ3D(positionZ) );
+    const GeoShape & sensorPosN = (*sensorShapeN<< GeoTrf::TranslateZ3D(positionZ) );
     GeoLogVol * inactiveLog = new GeoLogVol(getName()+"Glass", &sensorPosN, m_materialGlass);
     m_inactive = new GeoPhysVol(inactiveLog);
     m_inactive->ref();
@@ -316,10 +316,10 @@ void SCT_FwdSensor::makeDesign()
   // This is the default and no action is required. 
   // Can force axes not to be swapped by setting to false.
   // 
-  // bool phiSyCLHEP::mmetric = true;
-  // bool etaSyCLHEP::mmetric = false; 
-  // bool depthSyCLHEP::mmetric = true;
-  // m_design->setSyCLHEP::mmetry(phiSyCLHEP::mmetric, etaSyCLHEP::mmetric, depthSyCLHEP::mmetric,
+  // bool phiSyGeoModelKernelUnits::mmetric = true;
+  // bool etaSyGeoModelKernelUnits::mmetric = false; 
+  // bool depthSyGeoModelKernelUnits::mmetric = true;
+  // m_design->setSyGeoModelKernelUnits::mmetry(phiSyGeoModelKernelUnits::mmetric, etaSyGeoModelKernelUnits::mmetric, depthSyGeoModelKernelUnits::mmetric,
   //
 
 }

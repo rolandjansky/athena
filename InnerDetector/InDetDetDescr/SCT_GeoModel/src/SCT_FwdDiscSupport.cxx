@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 SCT_FwdDiscSupport::SCT_FwdDiscSupport(const std::string & name, int iWheel)
   : SCT_SharedComponentFactory(name), m_iWheel(iWheel)

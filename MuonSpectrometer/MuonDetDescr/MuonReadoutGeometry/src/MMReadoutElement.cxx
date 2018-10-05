@@ -80,7 +80,7 @@ namespace MuonGM {
 	    //std::cerr<<" navigating MM named "
 	    //       <<childname<<" child "
 	    //       <<ich<<" is a layer with tag "<<llay<<std::endl;
-	    m_Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
+	    m_Xlg[llay-1] = pvc->getXToChildVol(ich);
             // save layer dimensions
             if (llay==1) {
               if (pc->getLogVol()->getShape()->type()=="Trd") {

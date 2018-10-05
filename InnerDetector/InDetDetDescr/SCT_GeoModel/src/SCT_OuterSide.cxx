@@ -28,9 +28,9 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
 
 #include <cmath>
 
@@ -131,13 +131,13 @@ SCT_OuterSide::preBuild()
 
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (02)*********************************
   // *** -->>                                      (02)*********************************
-  m_env1RefPointVector = new CLHEP::Hep3Vector(0.0, 0.0, 0.0);
-  m_env2RefPointVector = new CLHEP::Hep3Vector(-ose2PosX, -ose2PosY, -ose2PosZ);
+  m_env1RefPointVector = new GeoTrf::Vector3D(0.0, 0.0, 0.0);
+  m_env2RefPointVector = new GeoTrf::Vector3D(-ose2PosX, -ose2PosY, -ose2PosZ);
   // *** End of modified lines. ------------------ (02)*********************************
 
-  m_hybridPos             = new GeoTransform(HepGeom::Translate3D(hybridPosX, hybridPosY, hybridPosZ));
+  m_hybridPos             = new GeoTransform(GeoTrf::Translate3D(hybridPosX, hybridPosY, hybridPosZ));
   m_hybridPos->ref();
-  m_pigtailPos            = new GeoTransform(HepGeom::Translate3D(pigtailPosX, pigtailPosY, pigtailPosZ));
+  m_pigtailPos            = new GeoTransform(GeoTrf::Translate3D(pigtailPosX, pigtailPosY, pigtailPosZ));
   m_pigtailPos->ref();
 
   // The depth axis goes from the backside to the implant side 
@@ -148,13 +148,13 @@ SCT_OuterSide::preBuild()
   //        ---   hybrid  | 
   //      ------- sensor  | x-axis
   //
-  // Shown is the outer side. The inner side is the same but with a rotation of 180 CLHEP::deg around the z-axis.       
+  // Shown is the outer side. The inner side is the same but with a rotation of 180 GeoModelKernelUnits::deg around the z-axis.       
   // 
-  //CLHEP::HepRotation rotSensor;
-  //rotSensor.rotateZ(180*CLHEP::deg);
-  //m_outerSidePos = new HepGeom::Transform3D(rotOuter, CLHEP::Hep3Vector(0.5 * (m_sensorGap + sectThickness), 0., 0.));
-  //m_sensorPos = new GeoTransform(HepGeom::Transform3D(rotSensor, CLHEP::Hep3Vector(sensorPosX, sensorPosY, sensorPosZ)));
-  m_sensorPos             = new GeoTransform(HepGeom::Translate3D(sensorPosX, sensorPosY, sensorPosZ));
+  //GeoModelKernelUnits::HepRotation rotSensor;
+  //rotSensor.rotateZ(180*GeoModelKernelUnits::deg);
+  //m_outerSidePos = new GeoTrf::Transform3D(rotOuter, GeoTrf::Vector3D(0.5 * (m_sensorGap + sectThickness), 0., 0.));
+  //m_sensorPos = new GeoTransform(GeoTrf::Transform3D(rotSensor, GeoTrf::Vector3D(sensorPosX, sensorPosY, sensorPosZ)));
+  m_sensorPos             = new GeoTransform(GeoTrf::Translate3D(sensorPosX, sensorPosY, sensorPosZ));
   m_sensorPos->ref();
 
   //
@@ -168,7 +168,7 @@ SCT_OuterSide::preBuild()
                                         0.5 * l_ose2);
 
   const GeoShape & OuterSideEnvelopeShape = (*ose1Shape).
-    add(*ose2Shape << HepGeom::Translate3D(ose2PosX, ose2PosY, ose2PosZ));
+    add(*ose2Shape << GeoTrf::Translate3D(ose2PosX, ose2PosY, ose2PosZ));
 
   const GeoLogVol * OuterSideEnvelopeLog = new GeoLogVol("OuterSideEnvelope",
                                                          &OuterSideEnvelopeShape,

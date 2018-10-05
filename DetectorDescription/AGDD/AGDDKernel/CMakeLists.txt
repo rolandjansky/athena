@@ -5,18 +5,19 @@
 # Declare the package name:
 atlas_subdir( AGDDKernel )
 
-# Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoModel/GeoModelKernel )
+                          DetectorDescription/GeoPrimitives )
 
 # External dependencies:
 find_package( CLHEP )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( AGDDKernel
                    src/*.cxx
                    PUBLIC_HEADERS AGDDKernel
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelKernel )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} )
 

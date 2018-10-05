@@ -32,13 +32,10 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 // 8th Aug 2005 S.Mima modified.
 #include "GeoModelKernel/GeoShapeSubtraction.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
 
 #include <cmath>
 
@@ -132,80 +129,80 @@ SCT_Module::preBuild()
 
   // Define constants for convenience.
   // for corner of outer side sensor.
-  CLHEP::Hep3Vector a(0.0, 0.5 * sensorWidth, 0.5 * sensorLength);
-  CLHEP::Hep3Vector b(0.0, -0.5 * sensorWidth, a.z());
-  CLHEP::Hep3Vector c(0.0, b.y(),-0.5 * sensorLength);
-  CLHEP::Hep3Vector d(0.0, a.y(), c.z());
+  GeoTrf::Vector3D a(0.0, 0.5 * sensorWidth, 0.5 * sensorLength);
+  GeoTrf::Vector3D b(0.0, -0.5 * sensorWidth, a.z());
+  GeoTrf::Vector3D c(0.0, b.y(),-0.5 * sensorLength);
+  GeoTrf::Vector3D d(0.0, a.y(), c.z());
 
   // for corner of inner side sensor.
-  CLHEP::Hep3Vector e(0.0, a.y(), a.z());
-  CLHEP::Hep3Vector f(0.0, b.y(), b.z());
-  CLHEP::Hep3Vector g(0.0, c.y(), c.z());
-  CLHEP::Hep3Vector h(0.0, d.y(), d.z());
+  GeoTrf::Vector3D e(0.0, a.y(), a.z());
+  GeoTrf::Vector3D f(0.0, b.y(), b.z());
+  GeoTrf::Vector3D g(0.0, c.y(), c.z());
+  GeoTrf::Vector3D h(0.0, d.y(), d.z());
 
   // for corner of base board.
-  CLHEP::Hep3Vector u(0.0,
+  GeoTrf::Vector3D u(0.0,
                       m_baseBoardOffsetY + 0.5*baseBoardWidth,
                       m_baseBoardOffsetZ + 0.5*baseBoardLength);
-  CLHEP::Hep3Vector v(0.0, m_baseBoardOffsetY - 0.5*baseBoardWidth, u.z());
-  CLHEP::Hep3Vector w(0.0, v.y(), m_baseBoardOffsetZ - 0.5*baseBoardLength);
-  CLHEP::Hep3Vector x(0.0, u.y(),w.z());
+  GeoTrf::Vector3D v(0.0, m_baseBoardOffsetY - 0.5*baseBoardWidth, u.z());
+  GeoTrf::Vector3D w(0.0, v.y(), m_baseBoardOffsetZ - 0.5*baseBoardLength);
+  GeoTrf::Vector3D x(0.0, u.y(),w.z());
   
   // for corner of hybrid, connectorouter and pigtail of outer side.
-  //CLHEP::Hep3Vector i(0.0, 
+  //GeoTrf::Vector3D i(0.0, 
   //        0.5*outerSideHybridWidth,
   //        m_outerSide->hybridOffsetZ() + 0.5*outerSideHybridLength);
-  //  CLHEP::Hep3Vector k(0.0,
+  //  GeoTrf::Vector3D k(0.0,
   //        -0.5*outerSideHybridWidth,
   //        m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
-  //CLHEP::Hep3Vector l(0.0,
+  //GeoTrf::Vector3D l(0.0,
   //        -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), k.z());
-  //CLHEP::Hep3Vector m(0.0, l.y(),
+  //GeoTrf::Vector3D m(0.0, l.y(),
   //        m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
-  //CLHEP::Hep3Vector n(0.0, k.y(),m.z());
-  //CLHEP::Hep3Vector p(0.0, i.y(),
+  //GeoTrf::Vector3D n(0.0, k.y(),m.z());
+  //GeoTrf::Vector3D p(0.0, i.y(),
   //        m_outerSide->hybridOffsetZ() - 0.5*outerSideHybridLength);
 
-  CLHEP::Hep3Vector i(0.0, 
+  GeoTrf::Vector3D i(0.0, 
                       0.5*outerSideHybridWidth,
                       m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
-  CLHEP::Hep3Vector l(0.0,
+  GeoTrf::Vector3D l(0.0,
                       -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), i.z());
-  CLHEP::Hep3Vector m(0.0, l.y(),
+  GeoTrf::Vector3D m(0.0, l.y(),
                       m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
-  CLHEP::Hep3Vector p(0.0, i.y(),
+  GeoTrf::Vector3D p(0.0, i.y(),
                       m.z());
 
 
 
   // for corner of hybrid and interConnect of inner side.
-  CLHEP::Hep3Vector q(0.0, 0.5*outerSideHybridWidth, m_outerSide->hybridOffsetZ() + 0.5*outerSideHybridLength );
-  CLHEP::Hep3Vector r(0.0, -0.5*innerSideHybridWidth, q.z());
-  CLHEP::Hep3Vector s(0.0, r.y(), m_innerSide->hybridOffsetZ() - 0.5*innerSideHybridLength);
-  CLHEP::Hep3Vector t(0.0, q.y(), s.z());
+  GeoTrf::Vector3D q(0.0, 0.5*outerSideHybridWidth, m_outerSide->hybridOffsetZ() + 0.5*outerSideHybridLength );
+  GeoTrf::Vector3D r(0.0, -0.5*innerSideHybridWidth, q.z());
+  GeoTrf::Vector3D s(0.0, r.y(), m_innerSide->hybridOffsetZ() - 0.5*innerSideHybridLength);
+  GeoTrf::Vector3D t(0.0, q.y(), s.z());
 
-  // All points turn +-20 mCLHEP::rad around physical center of module.
-  a.rotateX(m_stereoOuter/CLHEP::radian);
-  b.rotateX(m_stereoOuter/CLHEP::radian);
-  c.rotateX(m_stereoOuter/CLHEP::radian);
-  d.rotateX(m_stereoOuter/CLHEP::radian);
+  // All points turn +-20 mGeoModelKernelUnits::rad around physical center of module.
+  a = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*a;
+  b = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*b;
+  c = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*c;
+  d = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*d;
 
-  e.rotateX(m_stereoInner/CLHEP::radian);
-  f.rotateX(m_stereoInner/CLHEP::radian);
-  g.rotateX(m_stereoInner/CLHEP::radian);
-  h.rotateX(m_stereoInner/CLHEP::radian);
+  e = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*e;
+  f = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*f;
+  g = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*g;
+  h = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*h;
 
-  i.rotateX(m_stereoOuter/CLHEP::radian);
-  //k.rotateX(m_stereoOuter/CLHEP::radian);
-  l.rotateX(m_stereoOuter/CLHEP::radian);
-  m.rotateX(m_stereoOuter/CLHEP::radian);
-  //n.rotateX(m_stereoOuter/CLHEP::radian);
-  p.rotateX(m_stereoOuter/CLHEP::radian);
+  i = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*i;
+  //k.rotateX(m_stereoOuter/GeoModelKernelUnits::radian);
+  l = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*l;
+  m = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*m;
+  //n.rotateX(m_stereoOuter/GeoModelKernelUnits::radian);
+  p = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*p;
 
-  q.rotateX(m_stereoInner/CLHEP::radian);
-  r.rotateX(m_stereoInner/CLHEP::radian);
-  s.rotateX(m_stereoInner/CLHEP::radian);
-  t.rotateX(m_stereoInner/CLHEP::radian);
+  q = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*q;
+  r = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*r;
+  s = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*s;
+  t = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*t;
 
   // Calculate demension of envelope1.
   const double z_ab = std::max(a.z(), b.z());
@@ -240,7 +237,7 @@ SCT_Module::preBuild()
   const double yCenterEnv1 = yminEnv1 + 0.5*widthEnv1;
   const double zCenterEnv1 = zmaxEnv1 - 0.5*lengthEnv1;
 
-  m_env1RefPointVector = new CLHEP::Hep3Vector(-xCenterEnv1, -yCenterEnv1, -zCenterEnv1);
+  m_env1RefPointVector = new GeoTrf::Vector3D(-xCenterEnv1, -yCenterEnv1, -zCenterEnv1);
 
   // Calculate demension of envelope2.
   const double z_ikl = std::max(i.z(), l.z());
@@ -271,7 +268,7 @@ SCT_Module::preBuild()
   const double yCenterEnv2 = ymaxEnv2 - 0.5*widthEnv2;
   const double zCenterEnv2 = zmaxEnv2 - 0.5*lengthEnv2;
 
-  m_env2RefPointVector = new CLHEP::Hep3Vector(-xCenterEnv2, -yCenterEnv2, -zCenterEnv2);
+  m_env2RefPointVector = new GeoTrf::Vector3D(-xCenterEnv2, -yCenterEnv2, -zCenterEnv2);
 
   // 8th Aug 2005 S.Mima modified.
   // Calculate dimension of subbox 
@@ -324,28 +321,23 @@ SCT_Module::preBuild()
   const GeoBox * subBox = new GeoBox(0.5*thicknessSubBox, 0.5*widthSubBox, 0.6*lengthSubBox);
 
   // In the following, envelope1 and envelope2 are added and SUBBOX is pulled. 
-  const GeoShape & moduleEnvelope = (*envelope1 << HepGeom::Translate3D(xCenterEnv1, yCenterEnv1, zCenterEnv1)).
-    add(*envelope2 << HepGeom::Translate3D(xCenterEnv2, yCenterEnv2, zCenterEnv2)).
-    subtract(*subBox << HepGeom::Translate3D(xCenterSubBox, yCenterSubBox, zCenterSubBox));
+  const GeoShape & moduleEnvelope = (*envelope1 << GeoTrf::Translate3D(xCenterEnv1, yCenterEnv1, zCenterEnv1)).
+    add(*envelope2 << GeoTrf::Translate3D(xCenterEnv2, yCenterEnv2, zCenterEnv2)).
+    subtract(*subBox << GeoTrf::Translate3D(xCenterSubBox, yCenterSubBox, zCenterSubBox));
 
   const GeoLogVol * moduleLog           = new GeoLogVol(getName(), &moduleEnvelope, materials.gasMaterial());
   
   //
   // inner side
   //
-  CLHEP::HepRotation rotInner;
-  rotInner.rotateZ(180*CLHEP::deg);
-  rotInner.rotateX(m_stereoInner);
-  m_innerSidePos = new HepGeom::Transform3D(rotInner,
-                                            CLHEP::Hep3Vector(ISPosX, 0.0, 0.0));
+  GeoTrf::Transform3D rotInner = GeoTrf::RotateX3D(m_stereoInner) * GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
+  m_innerSidePos = new GeoTrf::Transform3D(GeoTrf::Transform3D(GeoTrf::Translation3D(ISPosX, 0.0, 0.0)*rotInner));
 
   //
   // outer side
   //
-  CLHEP::HepRotation rotOuter;
-  rotOuter.rotateX(m_stereoOuter);
-  m_outerSidePos = new HepGeom::Transform3D(rotOuter,
-                                            CLHEP::Hep3Vector(OSPosX, 0.0, 0.0));
+  GeoTrf::RotateX3D rotOuter(m_stereoOuter);
+  m_outerSidePos = new GeoTrf::Transform3D(GeoTrf::Transform3D(GeoTrf::Translation3D(OSPosX, 0.0, 0.0)*rotOuter));
 
   //
   // base board
@@ -353,7 +345,7 @@ SCT_Module::preBuild()
   //
   const double baseBoardPosY = m_baseBoardOffsetY;
   const double baseBoardPosZ = m_baseBoardOffsetZ;
-  m_baseBoardPos = new HepGeom::Translate3D(CLHEP::Hep3Vector( 0.0, baseBoardPosY, baseBoardPosZ));
+  m_baseBoardPos = new GeoTrf::Translate3D(0.0, baseBoardPosY, baseBoardPosZ);
 
 
   return moduleLog;

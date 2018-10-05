@@ -27,17 +27,13 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/GenericFunctions/Variable.hh"
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -110,7 +106,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   std::string name;
   double density;
   const GeoElement* W=materialManager->getElement("Wolfram");
-  GeoMaterial* Tungsten = new GeoMaterial(name="Tungsten", density=19.3*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Tungsten = new GeoMaterial(name="Tungsten", density=19.3*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Tungsten->add(W,1.);
   Tungsten->lock();
   
@@ -118,11 +114,11 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   const GeoElement* Ar=materialManager->getElement("Argon");
   const GeoElement*  C=materialManager->getElement("Carbon");
   const GeoElement*  H=materialManager->getElement("Hydrogen");
-  GeoMaterial* Isobutane = new GeoMaterial(name="Isobutane", density=2.67*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Isobutane = new GeoMaterial(name="Isobutane", density=2.67*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Isobutane->add(C,0.8266);
   Isobutane->add(H,0.1734);
   Isobutane->lock();
-  GeoMaterial* ArIso = new GeoMaterial(name="ArIso", density=0.0025*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* ArIso = new GeoMaterial(name="ArIso", density=0.0025*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   ArIso->add(Ar,0.61);
   ArIso->add(Isobutane,0.39);
   ArIso->lock();
@@ -173,8 +169,8 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   std::string MWPCName = baseName + "::MWPC";
   
   // This creates a square wire-chamber: 
-  const double MWPCDxy = 64.0*CLHEP::mm;
-  const double MWPCDz = 16.586*CLHEP::mm;  
+  const double MWPCDxy = 64.0*GeoModelKernelUnits::mm;
+  const double MWPCDz = 16.586*GeoModelKernelUnits::mm;  
 
 
   GeoBox* MWPCShape = new GeoBox(MWPCDxy, MWPCDxy, MWPCDz);  // A generic WWPC
@@ -184,7 +180,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   
 
   //..... Add Mylar to MWPC:
-  const double MylarDz = 0.015*CLHEP::mm; 
+  const double MylarDz = 0.015*GeoModelKernelUnits::mm; 
 
   GeoBox* MylarShape = new GeoBox(MWPCDxy, MWPCDxy, MylarDz);  // Mylar fits across the MWPC in x,y
 
@@ -197,7 +193,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
       GeoLogVol* MylarLogical = new GeoLogVol( MylarName, MylarShape, Mylar );   
       GeoPhysVol* MylarPhysical = new GeoPhysVol( MylarLogical );
       m_MWPCPhysical->add( new GeoIdentifierTag( side ) );
-      m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (MylarPos) ) ) );
+      m_MWPCPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (MylarPos) ) ) );
       m_MWPCPhysical->add( MylarPhysical );
     }
   // Done with the Mylar Foils 
@@ -205,10 +201,10 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
 
 
   //..... Add Al walls to MWPC5:
-  const double Aluz = 0.014*CLHEP::mm; 
+  const double Aluz = 0.014*GeoModelKernelUnits::mm; 
   const double AluDz = Aluz;
-  const double Alu_f = 7.*CLHEP::mm;   
-  const double Alu_s = 15.*CLHEP::mm;
+  const double Alu_f = 7.*GeoModelKernelUnits::mm;   
+  const double Alu_s = 15.*GeoModelKernelUnits::mm;
 
   GeoBox* AluShape = new GeoBox(MWPCDxy, MWPCDxy, AluDz);  // Al foil fits across the MWPC in x,y
   for ( int pos = 0; pos<4 ; pos++)
@@ -226,17 +222,17 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
       GeoLogVol* AluLogical = new GeoLogVol( AluName, AluShape, Aluminium );  
       GeoPhysVol* AluPhysical = new GeoPhysVol( AluLogical );
       m_MWPCPhysical->add( new GeoIdentifierTag( pos ) );
-      m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (AluPos) ) ) );
+      m_MWPCPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (AluPos) ) ) );
       m_MWPCPhysical->add( AluPhysical );
     }
   
 
 
   //..... Add a sensitive X and Y plane to MWPC5:
-  const double Senz = 4.0*CLHEP::mm; 
+  const double Senz = 4.0*GeoModelKernelUnits::mm; 
   const double SenDz = Senz;  // z-Thickness of sensitive volume
-  const double SenPos = 11.*CLHEP::mm;  // z-Position of sensitive volume  
-  //const double Step = 2.*CLHEP::mm;  // wire-step size for MWPC5
+  const double SenPos = 11.*GeoModelKernelUnits::mm;  // z-Position of sensitive volume  
+  //const double Step = 2.*GeoModelKernelUnits::mm;  // wire-step size for MWPC5
 
   GeoBox* SenPlaneShape = new GeoBox(MWPCDxy, MWPCDxy, SenDz);  // Sensitive Volume fits across the MWPC in x,y
 
@@ -247,20 +243,20 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   GeoPhysVol* XPlanePhysical = new GeoPhysVol( XPlaneLogical );
   GeoPhysVol* YPlanePhysical = new GeoPhysVol( YPlaneLogical );
   m_MWPCPhysical->add( new GeoIdentifierTag( 0 ) );
-  m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (-SenPos) ) ) );
+  m_MWPCPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (-SenPos) ) ) );
   m_MWPCPhysical->add( XPlanePhysical );  
   m_MWPCPhysical->add( new GeoIdentifierTag( 0 ) );
-  m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (SenPos) ) ) );
+  m_MWPCPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (SenPos) ) ) );
   m_MWPCPhysical->add( YPlanePhysical );
   
  
 //.... The X and Y planes have "divisions"
 //     These divisions will eventually be the sensitive volumes
 
-  Genfun::Variable Index;
+  GeoGenfun::Variable Index;
   int NDiv= int ( 2*MWPCDxy / m_wireStep ) ;
-  GeoXF::TRANSFUNCTION TX = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -MWPCDxy + m_wireStep/2.  + m_wireStep*Index);
-  GeoXF::TRANSFUNCTION TY = GeoXF::Pow(HepGeom::TranslateY3D(1.0), -MWPCDxy + m_wireStep/2. + m_wireStep*Index);
+  GeoXF::TRANSFUNCTION TX = GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -MWPCDxy + m_wireStep/2.  + m_wireStep*Index);
+  GeoXF::TRANSFUNCTION TY = GeoXF::Pow(GeoTrf::TranslateY3D(1.0), -MWPCDxy + m_wireStep/2. + m_wireStep*Index);
   GeoBox* XPlaneDiv = new GeoBox(m_wireStep/2., MWPCDxy , SenDz); 
   GeoBox* YPlaneDiv = new GeoBox(MWPCDxy , m_wireStep/2., SenDz);   
   std::string XDivName = MWPCName + "::XDiv";
@@ -280,15 +276,15 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   YPlanePhysical->add(sTSY);
 
 //.... Put wires into the X/Y "divisions"
-  const double WireDiam = 0.006*CLHEP::mm;
+  const double WireDiam = 0.006*GeoModelKernelUnits::mm;
   const double WireLen = MWPCDxy;
-  GeoTubs* WireShape = new GeoTubs(0.*CLHEP::cm, WireDiam/2., WireLen , 0.*CLHEP::deg,360.*CLHEP::deg); 
+  GeoTubs* WireShape = new GeoTubs(0.*GeoModelKernelUnits::cm, WireDiam/2., WireLen , 0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg); 
   std::string WireName = MWPCName + "::Wire";
   GeoLogVol* WireLogical = new GeoLogVol(WireName, WireShape, Tungsten);  
   GeoPhysVol* WirePhysical = new GeoPhysVol( WireLogical );
-  XDivPhysical->add(new GeoTransform(HepGeom::RotateX3D( 90.*CLHEP::deg )));
+  XDivPhysical->add(new GeoTransform(GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg )));
   XDivPhysical->add(WirePhysical);
-  YDivPhysical->add(new GeoTransform(HepGeom::RotateY3D( 90.*CLHEP::deg )));
+  YDivPhysical->add(new GeoTransform(GeoTrf::RotateY3D( 90.*GeoModelKernelUnits::deg )));
   YDivPhysical->add(WirePhysical);
 
 

@@ -29,7 +29,8 @@
 //#include "CaloEvent/CaloVertexedCluster.h"
 
 #ifndef XAOD_ANALYSIS
-using CLHEP::GeV;
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
 #else
 #define GeV 1000
 #endif

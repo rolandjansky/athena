@@ -169,8 +169,6 @@ class StoreGateGeometryReader
   bool readMuonGeometry();
 
  private:
-  Detector *newDetector;
-
   /** Pixel detector manager. */
   const InDetDD::SiDetectorManager* m_pixel_manager;
 

@@ -8,11 +8,11 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
+#include "GeoModelKernel/Units.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <iostream>
 #include <iomanip>
@@ -142,8 +142,8 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string& newMatNam
   baseMaterials.reserve(2);
   fracWeight.reserve(2);
 
-  msg(MSG::DEBUG) << "Composite material : " << volumeTot / CLHEP::cm3 << " = " << volume1 / CLHEP::cm3 << " + " <<
-    volume2 / CLHEP::cm3 << endmsg;
+  msg(MSG::DEBUG) << "Composite material : " << volumeTot / GeoModelKernelUnits::cm3 << " = " << volume1 / GeoModelKernelUnits::cm3 << " + " <<
+    volume2 / GeoModelKernelUnits::cm3 << endmsg;
   msg(MSG::DEBUG) << "Composite material : " << matName1 << " " << matName2 << endmsg;
 
   double density1, density2;
@@ -152,21 +152,21 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string& newMatNam
   if ((iter = m_weightMap.find(matName1)) != m_weightMap.end()) {
     const GeoMaterial* mat1 = getMaterialForVolume(matName1, volume1);
     density1 = mat1->getDensity();
-    msg(MSG::DEBUG) << "Composite material 1 - weight : " << density1 / (CLHEP::gram / CLHEP::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 1 - weight : " << density1 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
   } else {
     const GeoMaterial* mat1 = getMaterial(matName1);
     density1 = mat1->getDensity();
-    msg(MSG::DEBUG) << "Composite material 1 - standard : " << density1 / (CLHEP::gram / CLHEP::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 1 - standard : " << density1 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
   }
 
   if ((iter = m_weightMap.find(matName2)) != m_weightMap.end()) {
     const GeoMaterial* mat2 = getMaterialForVolume(matName2, volume2);
     density2 = mat2->getDensity();
-    msg(MSG::DEBUG) << "Composite material 2 - weight : " << density2 / (CLHEP::gram / CLHEP::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 2 - weight : " << density2 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
   } else {
     const GeoMaterial* mat2 = getMaterial(matName2);
     density2 = mat2->getDensity();
-    msg(MSG::DEBUG) << "Composite material 2 - standard : " << density2 / (CLHEP::gram / CLHEP::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 2 - standard : " << density2 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
   }
 
   double weight1 = density1 * volume1;
@@ -179,9 +179,9 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string& newMatNam
   double frac2 = weight2 / (weight1 + weight2);
   double density_2 = 1.0 / (frac1 / density1 + frac2 / density2);
   double density_3 = (weight1 + weight2) / (volume1 + volume2);
-  msg(MSG::DEBUG) << "-> weights : " << weight1 / (CLHEP::gram) << " " << weight2 / (CLHEP::gram) << endmsg;
-  msg(MSG::DEBUG) << "-> density : " << density / (CLHEP::gram / CLHEP::cm3) << "  " << density_2 /
-  (CLHEP::gram / CLHEP::cm3) << " " << density_3 / (CLHEP::gram / CLHEP::cm3) << endmsg;
+  msg(MSG::DEBUG) << "-> weights : " << weight1 / (GeoModelKernelUnits::gram) << " " << weight2 / (GeoModelKernelUnits::gram) << endmsg;
+  msg(MSG::DEBUG) << "-> density : " << density / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << "  " << density_2 /
+  (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << " " << density_3 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
 
 
   baseMaterials.push_back(matName1);
@@ -228,8 +228,8 @@ InDetMaterialManager::getMaterialInternal(const std::string& origMaterialName,
   if (material) {
     if (!compareDensity(material->getDensity(), density)) {
       msg(MSG::WARNING) << "Density is not consistent for material " << newName2
-                        << "  " << material->getDensity() / (CLHEP::gram / CLHEP::cm3)
-                        << " / " << density / (CLHEP::gram / CLHEP::cm3) << endmsg;
+                        << "  " << material->getDensity() / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3)
+                        << " / " << density / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
     }
     newMaterial = material;
   } else {
@@ -311,7 +311,7 @@ InDetMaterialManager::addMaterial(GeoMaterial* material) {
     m_store[name] = material;
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Created new material: " << name << ", " << material->getDensity() /
-      (CLHEP::g / CLHEP::cm3) << " CLHEP::g/CLHEP::cm3" << endmsg;
+      (GeoModelKernelUnits::g / GeoModelKernelUnits::cm3) << " g/cm3" << endmsg;
   }
 }
 
@@ -338,7 +338,7 @@ InDetMaterialManager::addWeightTable(IRDBRecordset_ptr weightTable, const std::s
     if (db()->testField(weightTable, "BASEMATERIAL", i)) {
       materialBase = db()->getString(weightTable, "BASEMATERIAL", i);
     }
-    double weight = db()->getDouble(weightTable, "WEIGHT", i) * CLHEP::gram;
+    double weight = db()->getDouble(weightTable, "WEIGHT", i) * GeoModelKernelUnits::gram;
     //std::cout << materialName << " " << materialBase << " " << weight/CLHEP::g <<  std::endl;
 
     bool linearWeightFlag = false;
@@ -364,7 +364,7 @@ void
 InDetMaterialManager::addWeightMaterial(std::string materialName, std::string materialBase, double weight,
                                         int linearWeightFlag) {
   // Weight in gr
-  weight = weight * CLHEP::gram;
+  weight = weight * GeoModelKernelUnits::gram;
 
   if (m_weightMap.find(materialName) != m_weightMap.end()) {
     msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endmsg;
@@ -389,7 +389,7 @@ InDetMaterialManager::addWeightTableOld(IRDBRecordset_ptr weightTable, const std
     if (!record->isFieldNull("BASEMATERIAL")) {
       materialBase = record->getString("BASEMATERIAL");
     }
-    double weight = record->getDouble("WEIGHT") * CLHEP::gram;
+    double weight = record->getDouble("WEIGHT") * GeoModelKernelUnits::gram;
     //std::cout << materialName << " " << materialBase << " " << weight/CLHEP::g <<  std::endl;
 
     bool linearWeightFlag = false;
@@ -492,12 +492,12 @@ InDetMaterialManager::getMaterialForVolume(const std::string& materialName, doub
     if (msgLvl(MSG::VERBOSE)) {
       msg(MSG::VERBOSE)
         <<
-      "Found material in weight table - name, base, weight(CLHEP::g), volume(CLHEP::cm3), density(CLHEP::g/CLHEP::cm3): "
+      "Found material in weight table - name, base, weight(g), volume(cm3), density(g/cm3): "
         << materialName << ", "
         << materialBase << ", "
-        << weight / CLHEP::gram << ", "
-        << volume / CLHEP::cm3 << ", "
-        << density / (CLHEP::g / CLHEP::cm3) << endmsg;
+        << weight / GeoModelKernelUnits::gram << ", "
+        << volume / GeoModelKernelUnits::cm3 << ", "
+        << density / (GeoModelKernelUnits::g / GeoModelKernelUnits::cm3) << endmsg;
     }
 
     if (materialBase.empty()) {
@@ -516,7 +516,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string& materialName, doub
       msg(MSG::VERBOSE)
         << "Material not in weight table, using standard material: "
         << materialName
-        << ", volume(CLHEP::cm3) = " << volume / CLHEP::cm3
+        << ", volume(cm3) = " << volume / GeoModelKernelUnits::cm3
         << endmsg;
     return getMaterial(materialName);
   }
@@ -586,7 +586,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& materialName
       msg(MSG::VERBOSE)
         << "Material not in weight table, using standard material: "
         << materialName
-        << ", volume(CLHEP::cm3) = " << volume / CLHEP::cm3
+        << ", volume(cm3) = " << volume / GeoModelKernelUnits::cm3
         << endmsg;
     return getMaterial(materialName);
   }
@@ -639,9 +639,9 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& name,
         weight *= factors[iComp];
       }
       msg(MSG::DEBUG) << "Material " << materialName
-                      << " found in weight table, weight " << iter->second.weight / CLHEP::gram
+                      << " found in weight table, weight " << iter->second.weight / GeoModelKernelUnits::gram
                       << " factor " << factors[iComp]
-                      << " w*fac*len " << weight * length / CLHEP::gram
+                      << " w*fac*len " << weight * length / GeoModelKernelUnits::gram
                       << " basMat " << materialBase
                       << " linear? " << iter->second.linearWeightFlag << endmsg;
 
@@ -668,7 +668,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& name,
        */
 
       // In this case the factor should correspond to the linear weight
-      double weight = factors.at(iComp) * length * CLHEP::gram;
+      double weight = factors.at(iComp) * length * GeoModelKernelUnits::gram;
 
       // If material not found, will get error message when attempting to make the material. So carry on here.
       baseMaterials.push_back(materialName);
@@ -681,7 +681,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& name,
     msg(MSG::VERBOSE) << "Creating material from multiple components: " << name << endmsg;
     for (unsigned int i = 0; i < materialComponents.size(); ++i) {
       msg(MSG::VERBOSE) << " Component " << i << ": Name = " << baseMaterials[i]
-                        << " Weight(CLHEP::g) = " << fracWeight[i] / CLHEP::g << endmsg;
+                        << " Weight(g) = " << fracWeight[i] / GeoModelKernelUnits::g << endmsg;
     }
   }
 
@@ -799,7 +799,7 @@ InDetMaterialManager::addTextFileMaterials() {
   // read in material table
   for (unsigned int iMat = 0; iMat < db()->getTableSize(materialTable); iMat++) {
     std::string materialName = db()->getString(materialTable, "NAME", iMat);
-    double density = db()->getDouble(materialTable, "DENSITY", iMat) * CLHEP::g / CLHEP::cm3;
+    double density = db()->getDouble(materialTable, "DENSITY", iMat) * GeoModelKernelUnits::g / GeoModelKernelUnits::cm3;
     materials[materialName] = MaterialDef(materialName, density);
   }
 
@@ -899,7 +899,7 @@ InDetMaterialManager::createMaterial(const MaterialDef& material) {
   // Now build the material
   GeoMaterial* newMaterial = new GeoMaterial(material.name(), material.density());
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Creating material: " << material.name()
-                                          << " with density: " << material.density() / (CLHEP::g / CLHEP::cm3) <<
+                                          << " with density: " << material.density() / (GeoModelKernelUnits::g / GeoModelKernelUnits::cm3) <<
     endmsg;
   for (unsigned int i = 0; i < material.numComponents(); i++) {
     double fracWeight = material.fraction(i) / totWeight;

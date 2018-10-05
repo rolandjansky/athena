@@ -21,14 +21,16 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoCutVolAction.h"
 
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
 
@@ -43,7 +45,7 @@
 
 #include <assert.h>
 
-using namespace Genfun;
+using namespace GeoGenfun;
 using namespace GeoXF;
   
 TileGeoSectionBuilder::TileGeoSectionBuilder(const StoredMaterialManager* matManager,
@@ -84,7 +86,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 {
   (*m_log) << MSG::VERBOSE <<" TileGeoSectionBuilder::fillSection ModuleNcp= "<<ModuleNcp<< endmsg;
 
-  double tan_delta_phi_2 = tan(delta_phi/2*CLHEP::deg);
+  double tan_delta_phi_2 = tan(delta_phi/2*GeoModelKernelUnits::deg);
   
   // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   // Obtain required materials - Air and Iron
@@ -110,10 +112,12 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   int SideFl = 1;
   if (ModuleNcp>=35 && ModuleNcp<=37) SideFl = -1;
 
-  HepGeom::Transform3D  TransCut2, TransCutL, TransCutR;
+  GeoTrf::Transform3D TransCut2(GeoTrf::Transform3D::Identity()); 
+  GeoTrf::Transform3D TransCutL(GeoTrf::Transform3D::Identity());
+  GeoTrf::Transform3D TransCutR(GeoTrf::Transform3D::Identity());
 
-  const GeoShapeUnion *CutA= NULL;
-  GeoShape *CutB= NULL;
+  const GeoShapeUnion *CutA{nullptr};
+  GeoShape *CutB{nullptr};
 
   // ext. barrel Cuts description
   if (sec_number==2 && m_dbManager->BoolCuts() && ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62)))
@@ -121,7 +125,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       volname = "CutB"; m_dbManager->SetCurrentCuts(volname); 
       PosXcut = m_dbManager->CutsXpos(); 
       PosYcut = m_dbManager->CutsYpos();
-      Rmore   = 0.8*CLHEP::cm;
+      Rmore   = 0.8*GeoModelKernelUnits::cm;
 
       // Inert materials, CutB1
       dX1 = m_dbManager->CutsDX1()+Rmore; 
@@ -158,47 +162,47 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       checking("Cut2down", false, 1, dX1,dX2,dY1,dY2,dZ2);
       GeoTrd* Cut1down = new GeoTrd(dX1,dX2,dY1,dY2,dZ2);
  
-      HepGeom::Translate3D yPosA(0.,0.,-dZ1-dZ2);
+      GeoTrf::Translate3D yPosA(0.,0.,-dZ1-dZ2);
 
       const GeoShapeUnion& CutA1 = Cut1up->add(*Cut1down<<yPosA);
       CutA = &CutA1;
       
-      Radius = (m_dbManager->TILBrmaximal() + m_dbManager->TILBrminimal())/2 * CLHEP::cm; 
+      Radius = (m_dbManager->TILBrmaximal() + m_dbManager->TILBrminimal())/2 * GeoModelKernelUnits::cm; 
 
-      if (ModuleNcp==35||ModuleNcp==62) { YcorA = 5*CLHEP::cm;   YcorB = 5*CLHEP::cm; lenPla =0.8*CLHEP::cm, Blia = 17.4*CLHEP::cm;}  
-      if (ModuleNcp==36||ModuleNcp==61) { YcorA = 6.5*CLHEP::cm; YcorB = 6*CLHEP::cm; lenPla =1.7*CLHEP::cm; Blia = 16.9*CLHEP::cm;} 
-      if (ModuleNcp==37||ModuleNcp==60) { YcorA = 8*CLHEP::cm;   YcorB = 9*CLHEP::cm; lenPla =2.8*CLHEP::cm; Blia = 16.4*CLHEP::cm;} 
+      if (ModuleNcp==35||ModuleNcp==62) { YcorA = 5*GeoModelKernelUnits::cm;   YcorB = 5*GeoModelKernelUnits::cm; lenPla =0.8*GeoModelKernelUnits::cm, Blia = 17.4*GeoModelKernelUnits::cm;}  
+      if (ModuleNcp==36||ModuleNcp==61) { YcorA = 6.5*GeoModelKernelUnits::cm; YcorB = 6*GeoModelKernelUnits::cm; lenPla =1.7*GeoModelKernelUnits::cm; Blia = 16.9*GeoModelKernelUnits::cm;} 
+      if (ModuleNcp==37||ModuleNcp==60) { YcorA = 8*GeoModelKernelUnits::cm;   YcorB = 9*GeoModelKernelUnits::cm; lenPla =2.8*GeoModelKernelUnits::cm; Blia = 16.4*GeoModelKernelUnits::cm;} 
 
-      TransCut2 = HepGeom::TranslateZ3D(-Radius) 
-	* HepGeom::RotateX3D((90-phi)*CLHEP::deg) * HepGeom::RotateY3D(180*CLHEP::deg) 
-	* HepGeom::Translate3D(0.1*CLHEP::cm,SideFl*17.5*CLHEP::cm,-PosY+YcorA); 
+      TransCut2 = GeoTrf::TranslateZ3D(-Radius) 
+	* GeoTrf::RotateX3D((90-phi)*GeoModelKernelUnits::deg) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) 
+	* GeoTrf::Translate3D(0.1*GeoModelKernelUnits::cm,SideFl*17.5*GeoModelKernelUnits::cm,-PosY+YcorA); 
 
       // For modules on the side C apply extra transformation
       // which implements ReflectZ(0)
       if(neg) {
-	HepGeom::Point3D<double> ptTmp = TransCut2*HepGeom::Point3D<double>(0.,0.,0.);
-	TransCut2 = HepGeom::TranslateX3D(2*ptTmp.x())*HepGeom::RotateZ3D(180*CLHEP::deg)*TransCut2;
+	GeoTrf::Vector3D ptTmp = TransCut2*GeoTrf::Vector3D(0.,0.,0.);
+	TransCut2 = GeoTrf::TranslateX3D(2*ptTmp.x())*GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg)*TransCut2;
       }
 
       if (ModuleNcp>=60 && ModuleNcp<=62) {   
-	TransCutL = HepGeom::TranslateZ3D(-Radius) 
-	  * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(phi*CLHEP::deg) 
-	  * HepGeom::Translate3D(-1.4*CLHEP::cm,PosYcut+YcorB,-PosXcut-Blia); 
+	TransCutL = GeoTrf::TranslateZ3D(-Radius) 
+	  * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(phi*GeoModelKernelUnits::deg) 
+	  * GeoTrf::Translate3D(-1.4*GeoModelKernelUnits::cm,PosYcut+YcorB,-PosXcut-Blia); 
 
 	// ReflectZ for C side
 	if(neg) {
-	  HepGeom::Point3D<double> ptTmp = TransCutL*HepGeom::Point3D<double>(0.,0.,0.);
-	  TransCutL = HepGeom::TranslateX3D(2*ptTmp.x())*HepGeom::RotateZ3D(180*CLHEP::deg)*TransCutL;
+	  GeoTrf::Vector3D ptTmp = TransCutL*GeoTrf::Vector3D(0.,0.,0.);
+	  TransCutL = GeoTrf::TranslateX3D(2*ptTmp.x())*GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg)*TransCutL;
 	}
       } else if (ModuleNcp>=35 && ModuleNcp<=37)  { 
-	TransCutR = HepGeom::TranslateZ3D(-Radius) 
-	  * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(phi*CLHEP::deg) 
-	  * HepGeom::Translate3D(-1.4*CLHEP::cm,PosYcut+YcorB,PosXcut+Blia)  
-	  * HepGeom::RotateY3D(180*CLHEP::deg); 
+	TransCutR = GeoTrf::TranslateZ3D(-Radius) 
+	  * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(phi*GeoModelKernelUnits::deg) 
+	  * GeoTrf::Translate3D(-1.4*GeoModelKernelUnits::cm,PosYcut+YcorB,PosXcut+Blia)  
+	  * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg); 
 	// ReflectZ for C side
 	if(neg) {
-	  HepGeom::Point3D<double> ptTmp = TransCutR*HepGeom::Point3D<double>(0.,0.,0.);
-	  TransCutR = HepGeom::TranslateX3D(2*ptTmp.x())*HepGeom::RotateZ3D(180*CLHEP::deg)*TransCutR;
+	  GeoTrf::Vector3D ptTmp = TransCutR*GeoTrf::Vector3D(0.,0.,0.);
+	  TransCutR = GeoTrf::TranslateX3D(2*ptTmp.x())*GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg)*TransCutR;
 	}
       }
       
@@ -215,21 +219,21 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   if (m_dbManager->TILBngirder() > 0)
   {
     // Mother volume for girder
-    thicknessGirderMother = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend() - m_dbManager->TILBdzend2())*CLHEP::cm;
+    thicknessGirderMother = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend() - m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm;
     // special module with special girder
     if ((Id4 == 7) && (sec_number == 3))
-      thicknessGirderMother = (m_dbManager->TILBdzgir() - m_dbManager->TILBdzend() - m_dbManager->TILBdzend2())*CLHEP::cm;
+      thicknessGirderMother = (m_dbManager->TILBdzgir() - m_dbManager->TILBdzend() - m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm;
 
-    double heightGirderMother = (tile_rmax - m_dbManager->TILBrmax())*CLHEP::cm;
-    double dy1GirderMother = m_dbManager->TILBrmax() * tan_delta_phi_2 * CLHEP::cm;
-    double dy2GirderMother = tile_rmax * tan_delta_phi_2 * CLHEP::cm;
+    double heightGirderMother = (tile_rmax - m_dbManager->TILBrmax())*GeoModelKernelUnits::cm;
+    double dy1GirderMother = m_dbManager->TILBrmax() * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+    double dy2GirderMother = tile_rmax * tan_delta_phi_2 * GeoModelKernelUnits::cm;
     // ps test the TILB DZGIR
     //     std::cout <<"\t\t PS Girder Module = "<<ModuleNcp<< std::endl;
     //     std::cout <<"\t\t PS thicknessGirderMother = "<<thicknessGirderMother<< std::endl;
     //ps account for special ITC modules 14,15,18,19
     if  ((Id4 == 7) && (sec_number == 3))
       {
-	specialModuleZShift = 0.5*CLHEP::cm*(m_dbManager->TILBdzgir() - m_dbManager->TILBdzmodul());
+	specialModuleZShift = 0.5*GeoModelKernelUnits::cm*(m_dbManager->TILBdzgir() - m_dbManager->TILBdzmodul());
       }
     //
     checking("GirderMother", false, 3, 
@@ -248,16 +252,16 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
                tile_rmax,
                m_dbManager->TILBrmax(),
                tan_delta_phi_2,
-               thicknessGirderMother*(1./CLHEP::cm));
+               thicknessGirderMother*(1./GeoModelKernelUnits::cm));
 
     GeoTransform* tfGirderMother = 0;
 
     if(sec_number==3)
-      tfGirderMother = new GeoTransform(HepGeom::Translate3D((m_dbManager->TILBdzend()-m_dbManager->TILBdzend2())*CLHEP::cm/2, 0.,
-						       (m_dbManager->TILBrmax()-m_dbManager->TILBrmin())*CLHEP::cm/2));
+      tfGirderMother = new GeoTransform(GeoTrf::Translate3D((m_dbManager->TILBdzend()-m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm/2, 0.,
+						       (m_dbManager->TILBrmax()-m_dbManager->TILBrmin())*GeoModelKernelUnits::cm/2));
     else
-      tfGirderMother = new GeoTransform(HepGeom::Translate3D((m_dbManager->TILBdzend()-m_dbManager->TILBdzend2())*CLHEP::cm/2, 0.,
-						       (m_dbManager->TILBrmax()-rminb)*CLHEP::cm/2));
+      tfGirderMother = new GeoTransform(GeoTrf::Translate3D((m_dbManager->TILBdzend()-m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm/2, 0.,
+						       (m_dbManager->TILBrmax()-rminb)*GeoModelKernelUnits::cm/2));
 
     mother->add(tfGirderMother);
     mother->add(pvGirderMother); 
@@ -277,13 +281,13 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
     if(sec_number==3)
     {
       //ITC coverplate
-      thicknessFrontPlate = (m_dbManager->TILBdzmodul() - zlen_itc2)*CLHEP::cm;
+      thicknessFrontPlate = (m_dbManager->TILBdzmodul() - zlen_itc2)*GeoModelKernelUnits::cm;
 
       if (thicknessFrontPlate > rless)
        {
-         heightFrontPlate = m_dbManager->TILBdrfront()*CLHEP::cm;
-         dy1FrontPlate = (rminb*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
-         dy2FrontPlate = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+         heightFrontPlate = m_dbManager->TILBdrfront()*GeoModelKernelUnits::cm;
+         dy1FrontPlate = (rminb*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
+         dy2FrontPlate = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 
 	 if(m_log->level()<=MSG::DEBUG)
 	   (*m_log) << MSG::DEBUG <<"   FrontPlateSh dX1,dX2= "<<thicknessFrontPlate/2<<", "<<thicknessFrontPlate/2
@@ -298,9 +302,9 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
          GeoLogVol* lvFrontPlateSh = new GeoLogVol("FrontPlateSh",frontPlateSh,matIron);
          GeoPhysVol* pvFrontPlateSh = new GeoPhysVol(lvFrontPlateSh);
-         GeoTransform* tfFrontPlateSh = new GeoTransform(HepGeom::Translate3D(
-                    -m_dbManager->TILBdzmodul()/2*CLHEP::cm+thicknessFrontPlate/2, 0., 
-                    (rminb - tile_rmax)/2*CLHEP::cm)); 
+         GeoTransform* tfFrontPlateSh = new GeoTransform(GeoTrf::Translate3D(
+                    -m_dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm+thicknessFrontPlate/2, 0., 
+                    (rminb - tile_rmax)/2*GeoModelKernelUnits::cm)); 
 
          mother->add(tfFrontPlateSh);
          mother->add(pvFrontPlateSh);
@@ -323,10 +327,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       volname = "CutB"; m_dbManager->SetCurrentCuts(volname); 
       dXCutB = m_dbManager->CutsDX1(); 
       
-      thicknessFrontPlate = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())*CLHEP::cm;
-      heightFrontPlate = m_dbManager->TILBdrfront()*CLHEP::cm;
-      dy1FrontPlate = (rminb*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
-      dy2FrontPlate = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+      thicknessFrontPlate = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm;
+      heightFrontPlate = m_dbManager->TILBdrfront()*GeoModelKernelUnits::cm;
+      dy1FrontPlate = (rminb*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
+      dy2FrontPlate = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 
       GeoTrd* frontPlate = new GeoTrd(thicknessFrontPlate/2 -(dXCutA+dXCutB),
 				      thicknessFrontPlate/2 -(dXCutA+dXCutB),
@@ -336,8 +340,8 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       // Cuting of Plate
       /*
-      HepGeom::Transform3D  TCu2 = HepGeom::RotateX3D((90-phi)*CLHEP::deg) * HepGeom::RotateY3D(180*CLHEP::deg)
-                           * HepGeom::Translate3D(thicknessFrontPlate/2-dXCutA,0,0); 
+      GeoTrf::Transform3D  TCu2 = GeoTrf::RotateX3D((90-phi)*GeoModelKernelUnits::deg) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)
+                           * GeoTrf::Translate3D(thicknessFrontPlate/2-dXCutA,0,0); 
       GeoTransform* TCu = new GeoTransform(TCu2);
 
       const GeoShape &tmp_frontPlate = frontPlate->subtract((*CutA)<<TCu2);
@@ -346,9 +350,9 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       GeoLogVol* lvFrontPlate = new GeoLogVol("FrontPlate",frontPlate,matIron); 
       GeoPhysVol* pvFrontPlate = new GeoPhysVol(lvFrontPlate); 
-      GeoTransform* tfFrontPlate = new GeoTransform(HepGeom::Translate3D(
-		    (m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())/2*CLHEP::cm+ dXCutB, 0.,
-                    (m_dbManager->TILBrmin()-m_dbManager->TILBdrfront()/2-(tile_rmax + rminb)/2)*CLHEP::cm));
+      GeoTransform* tfFrontPlate = new GeoTransform(GeoTrf::Translate3D(
+		    (m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())/2*GeoModelKernelUnits::cm+ dXCutB, 0.,
+                    (m_dbManager->TILBrmin()-m_dbManager->TILBdrfront()/2-(tile_rmax + rminb)/2)*GeoModelKernelUnits::cm));
 
       mother->add(tfFrontPlate);
       mother->add(pvFrontPlate);
@@ -360,10 +364,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
     else
     {
       //Ordinary frontplate
-      thicknessFrontPlate = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())*CLHEP::cm;
-      heightFrontPlate = m_dbManager->TILBdrfront()*CLHEP::cm;
-      dy1FrontPlate = (rminb*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
-      dy2FrontPlate = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+      thicknessFrontPlate = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm;
+      heightFrontPlate = m_dbManager->TILBdrfront()*GeoModelKernelUnits::cm;
+      dy1FrontPlate = (rminb*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
+      dy2FrontPlate = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 
       GeoTrd* frontPlate = new GeoTrd(thicknessFrontPlate/2,
 				      thicknessFrontPlate/2,
@@ -373,9 +377,9 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       GeoLogVol* lvFrontPlate = new GeoLogVol("FrontPlate",frontPlate,matIron); 
       GeoPhysVol* pvFrontPlate = new GeoPhysVol(lvFrontPlate);
-      GeoTransform* tfFrontPlate = new GeoTransform(HepGeom::Translate3D(
-                    (m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())/2*CLHEP::cm, 0.,
-                    (m_dbManager->TILBrmin()-m_dbManager->TILBdrfront()/2-(tile_rmax + rminb)/2)*CLHEP::cm));
+      GeoTransform* tfFrontPlate = new GeoTransform(GeoTrf::Translate3D(
+                    (m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())/2*GeoModelKernelUnits::cm, 0.,
+                    (m_dbManager->TILBrmin()-m_dbManager->TILBdrfront()/2-(tile_rmax + rminb)/2)*GeoModelKernelUnits::cm));
 
       mother->add(tfFrontPlate);
       mother->add(pvFrontPlate);
@@ -386,13 +390,13 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   double dy1EndPlate, dy2EndPlate, thicknessEndPlate, heightEndPlate;
 
   //VARIABLES FOR END PLATE HOLE  
-  double heightEPHole = m_dbManager->TILBflangex()*CLHEP::cm;
-  double dyEPHole = m_dbManager->TILBflangex()*CLHEP::cm/2;
+  double heightEPHole = m_dbManager->TILBflangex()*GeoModelKernelUnits::cm;
+  double dyEPHole = m_dbManager->TILBflangex()*GeoModelKernelUnits::cm/2;
 
   // ps . shifts for end plates in cutout regions 
-  HepGeom::Transform3D cutOutTransformation ; 
+  GeoTrf::Transform3D cutOutTransformation(GeoTrf::Transform3D::Identity()); 
   //first endplate
-  GeoTransform* tfEndPlateSh =NULL;
+  GeoTransform* tfEndPlateSh{nullptr};
 
   if (m_dbManager->TILBdzend1() > 0)
   {
@@ -400,10 +404,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
     {
  
       //Short endplate
-      dy1EndPlate = rminb * tan_delta_phi_2 * CLHEP::cm;
-      dy2EndPlate = m_dbManager->TILBrmax() * tan_delta_phi_2 * CLHEP::cm;
-      thicknessEndPlate = m_dbManager->TILBdzend1() * CLHEP::cm;
-      heightEndPlate = (m_dbManager->TILBrmax() - rminb) * CLHEP::cm;
+      dy1EndPlate = rminb * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+      dy2EndPlate = m_dbManager->TILBrmax() * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+      thicknessEndPlate = m_dbManager->TILBdzend1() * GeoModelKernelUnits::cm;
+      heightEndPlate = (m_dbManager->TILBrmax() - rminb) * GeoModelKernelUnits::cm;
       //
       // creating standart endplate. It is the same for 
       // both standard mosules and modules with cuts
@@ -438,40 +442,40 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
 	if ( ( ModuleNcp == 37 ) || ( ModuleNcp == 60 ) )
 	  {
-	    rotationAngle = (180.0 - 25.3125 )* CLHEP::deg ;  // ATLLEMS_0003 0004
-	    shiftCutPlate =  38.7 * CLHEP::mm;
+	    rotationAngle = (180.0 - 25.3125 )* GeoModelKernelUnits::deg ;  // ATLLEMS_0003 0004
+	    shiftCutPlate =  38.7 * GeoModelKernelUnits::mm;
 
 	    cutOutTransformation = 
-	      HepGeom::Translate3D(0,0, -heightEndPlate/2.) *  
-	      HepGeom::RotateX3D(  90 * CLHEP::deg ) *
-	      HepGeom::Translate3D(0.,0., -rotationSign * (dy2EndPlate + shiftCutPlate ) ) *
-	      HepGeom::RotateX3D( rotationSign * rotationAngle ) ;
+	      GeoTrf::Translate3D(0,0, -heightEndPlate/2.) *  
+	      GeoTrf::RotateX3D(  90 * GeoModelKernelUnits::deg ) *
+	      GeoTrf::Translate3D(0.,0., -rotationSign * (dy2EndPlate + shiftCutPlate ) ) *
+	      GeoTrf::RotateX3D( rotationSign * rotationAngle ) ;
 	    
 	    const GeoShape & endPlateShCutted3760 = (endPlateSh->subtract( (*endPlateShCut)<< cutOutTransformation ) ) ;	    
 	    lvEndPlateSh = new GeoLogVol("EndPlateSh", &(endPlateShCutted3760) , matIron);
 	  }
 	else if ( ( ModuleNcp == 36 ) || ( ModuleNcp == 61 ) )
 	  {
-	    rotationAngle = - ( 116.4832 - 90. )* CLHEP::deg ;  // ATLLEMS_0005 0006
-	    shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*CLHEP::cm - 1448.4 * CLHEP::mm);
+	    rotationAngle = - ( 116.4832 - 90. )* GeoModelKernelUnits::deg ;  // ATLLEMS_0005 0006
+	    shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*GeoModelKernelUnits::cm - 1448.4 * GeoModelKernelUnits::mm);
 
 	    cutOutTransformation = 
-	      HepGeom::Translate3D( 0, 0, -heightEndPlate/2. ) *  
-	      HepGeom::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate + 0.5*dy2EndPlate*(1.- std::cos(rotationAngle*CLHEP::rad)))  ) *  
-	      HepGeom::RotateX3D( rotationSign * rotationAngle ) ;
+	      GeoTrf::Translate3D( 0, 0, -heightEndPlate/2. ) *  
+	      GeoTrf::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate + 0.5*dy2EndPlate*(1.- std::cos(rotationAngle*GeoModelKernelUnits::rad)))  ) *  
+	      GeoTrf::RotateX3D( rotationSign * rotationAngle ) ;
 
 	    const GeoShape & endPlateShCutted3661 = (endPlateSh->subtract( (*endPlateShCut)<< cutOutTransformation ) ) ;	    
 	    lvEndPlateSh = new GeoLogVol("EndPlateSh", &(endPlateShCutted3661) , matIron);
 	  }
 	else if ( ( ModuleNcp == 35 ) || ( ModuleNcp == 62 ) )
 	  {
-	    rotationAngle = - ( 104.0625 - 90.0 )* CLHEP::deg ;  // ATLLEMS_0007 0008
-	    shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*CLHEP::cm - 1534.6 * CLHEP::mm);
+	    rotationAngle = - ( 104.0625 - 90.0 )* GeoModelKernelUnits::deg ;  // ATLLEMS_0007 0008
+	    shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*GeoModelKernelUnits::cm - 1534.6 * GeoModelKernelUnits::mm);
 	    
 	    cutOutTransformation = 
-	      HepGeom::Translate3D( 0, 0, -heightEndPlate/2. ) *  
-	      HepGeom::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
-	      HepGeom::RotateX3D( rotationSign * rotationAngle ) ;
+	      GeoTrf::Translate3D( 0, 0, -heightEndPlate/2. ) *  
+	      GeoTrf::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
+	      GeoTrf::RotateX3D( rotationSign * rotationAngle ) ;
 	    
 	    const GeoShape & endPlateShCutted3562 = (endPlateSh->subtract( (*endPlateShCut)<< cutOutTransformation ) ) ;	    
 	    lvEndPlateSh = new GeoLogVol("EndPlateSh", &(endPlateShCutted3562) , matIron);
@@ -497,10 +501,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       GeoPhysVol* pvEndPlateSh = new GeoPhysVol(lvEndPlateSh);
 
-      tfEndPlateSh = new GeoTransform(HepGeom::Translate3D(
+      tfEndPlateSh = new GeoTransform(GeoTrf::Translate3D(
 						     specialModuleZShift + 
-						     (m_dbManager->TILBdzend1() - m_dbManager->TILBdzmodul())*CLHEP::cm/2, 0.,
-						     (m_dbManager->TILBrmax() - tile_rmax)*CLHEP::cm/2));
+						     (m_dbManager->TILBdzend1() - m_dbManager->TILBdzmodul())*GeoModelKernelUnits::cm/2, 0.,
+						     (m_dbManager->TILBrmax() - tile_rmax)*GeoModelKernelUnits::cm/2));
       tfEndPlateSh->ref();
       
       mother->add(tfEndPlateSh);
@@ -513,10 +517,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
     else
     {
       //Ordinary endplate
-      dy1EndPlate = rminb * tan_delta_phi_2 * CLHEP::cm;
-      dy2EndPlate = tile_rmax * tan_delta_phi_2 * CLHEP::cm;
-      thicknessEndPlate = m_dbManager->TILBdzend1() * CLHEP::cm;
-      heightEndPlate = (tile_rmax-rminb)*CLHEP::cm; 
+      dy1EndPlate = rminb * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+      dy2EndPlate = tile_rmax * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+      thicknessEndPlate = m_dbManager->TILBdzend1() * GeoModelKernelUnits::cm;
+      heightEndPlate = (tile_rmax-rminb)*GeoModelKernelUnits::cm; 
 
       GeoTrd* endPlate1 = new GeoTrd(thicknessEndPlate/2,
 				     thicknessEndPlate/2,
@@ -538,14 +542,14 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
 	GeoLogVol* lvEPHole1 = new GeoLogVol("EPHole1",epHole1,matAir);
 	GeoPhysVol* pvEPHole1 = new GeoPhysVol(lvEPHole1);
-	GeoTransform* tfEPHole1 = new GeoTransform(HepGeom::Translate3D(0.,0.,
-                                      (m_dbManager->TILBflangey()-(tile_rmax + rminb)/2)*CLHEP::cm));
+	GeoTransform* tfEPHole1 = new GeoTransform(GeoTrf::Translate3D(0.,0.,
+                                      (m_dbManager->TILBflangey()-(tile_rmax + rminb)/2)*GeoModelKernelUnits::cm));
 	pvEndPlate1->add(tfEPHole1);
 	pvEndPlate1->add(pvEPHole1);
       }
 
-      GeoTransform* tfEndPlate1 = new GeoTransform(HepGeom::Translate3D(
-                                      (m_dbManager->TILBdzend1() - m_dbManager->TILBdzmodul())*CLHEP::cm/2, 0., 0.));
+      GeoTransform* tfEndPlate1 = new GeoTransform(GeoTrf::Translate3D(
+                                      (m_dbManager->TILBdzend1() - m_dbManager->TILBdzmodul())*GeoModelKernelUnits::cm/2, 0., 0.));
       mother->add(tfEndPlate1);
       mother->add(pvEndPlate1);  
 
@@ -555,7 +559,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   }
 
   //second endplate
-  GeoTransform* tfEndPlate2 =NULL;
+  GeoTransform* tfEndPlate2{nullptr};
 
   if (m_dbManager->TILBdzend2() > 0)
   {
@@ -563,10 +567,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       double radShift =lenPla;
       double rminbT=rminb + radShift;
 
-      dy1EndPlate = rminb * tan_delta_phi_2 * CLHEP::cm;
-      dy2EndPlate = tile_rmax * tan_delta_phi_2 * CLHEP::cm;
-      thicknessEndPlate = m_dbManager->TILBdzend2() * CLHEP::cm;
-      heightEndPlate = (tile_rmax-rminb) * CLHEP::cm;
+      dy1EndPlate = rminb * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+      dy2EndPlate = tile_rmax * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+      thicknessEndPlate = m_dbManager->TILBdzend2() * GeoModelKernelUnits::cm;
+      heightEndPlate = (tile_rmax-rminb) * GeoModelKernelUnits::cm;
 
 
       GeoLogVol* lvEndPlate2 = 0;
@@ -576,8 +580,8 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 				     dy2EndPlate,
 				     heightEndPlate/2);  
       
-      tfEndPlate2 = new GeoTransform(HepGeom::Translate3D(
-						    (-m_dbManager->TILBdzend2() + m_dbManager->TILBdzmodul())*CLHEP::cm/2, 0., 0.));
+      tfEndPlate2 = new GeoTransform(GeoTrf::Translate3D(
+						    (-m_dbManager->TILBdzend2() + m_dbManager->TILBdzmodul())*GeoModelKernelUnits::cm/2, 0., 0.));
       tfEndPlate2->ref();
       
       if (sec_number==2 && ((ModuleNcp>=35 && ModuleNcp<=37)||(ModuleNcp>=60 && ModuleNcp<=62)) ) 
@@ -596,51 +600,51 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  
 	  if ( ( ModuleNcp == 37 ) || ( ModuleNcp == 60 ) )
 	    {
-	      rotationAngle = - ( 115.3125 - 90.0 )* CLHEP::deg ;  // ATLLEMS_0011 0012
-	      shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*CLHEP::cm - 1364.0 * CLHEP::mm);
+	      rotationAngle = - ( 115.3125 - 90.0 )* GeoModelKernelUnits::deg ;  // ATLLEMS_0011 0012
+	      shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*GeoModelKernelUnits::cm - 1364.0 * GeoModelKernelUnits::mm);
 	      
 	      cutOutTransformation = 
-		HepGeom::Translate3D( 0, 0, -heightEndPlate/2. ) *  
-		HepGeom::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
-		HepGeom::RotateX3D( rotationSign * rotationAngle ) ;
+		GeoTrf::Translate3D( 0, 0, -heightEndPlate/2. ) *  
+		GeoTrf::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
+		GeoTrf::RotateX3D( rotationSign * rotationAngle ) ;
 	      
 	      const GeoShape & endPlate2Cutted3760 = (endPlate2->subtract( (*endPlate2Cut)<< cutOutTransformation ) ) ;	    
 	      lvEndPlate2 = new GeoLogVol("EndPlate2", &(endPlate2Cutted3760) , matIron);
 	    }
 	  else if ( ( ModuleNcp == 36 ) || ( ModuleNcp == 61 ) )
 	    {
-	      rotationAngle = - ( 109.6875 - 90.0 )* CLHEP::deg ;  // ATLLEMS_0009 0010
-	      shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*CLHEP::cm - 1464.0 * CLHEP::mm);
+	      rotationAngle = - ( 109.6875 - 90.0 )* GeoModelKernelUnits::deg ;  // ATLLEMS_0009 0010
+	      shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*GeoModelKernelUnits::cm - 1464.0 * GeoModelKernelUnits::mm);
 	      
 	      cutOutTransformation = 
-		HepGeom::Translate3D( 0, 0, -heightEndPlate/2. ) *  
-		HepGeom::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
-		HepGeom::RotateX3D( rotationSign * rotationAngle ) ;
+		GeoTrf::Translate3D( 0, 0, -heightEndPlate/2. ) *  
+		GeoTrf::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
+		GeoTrf::RotateX3D( rotationSign * rotationAngle ) ;
 	      
 	      const GeoShape & endPlate2Cutted3661 = (endPlate2->subtract( (*endPlate2Cut)<< cutOutTransformation ) ) ;	    
 	      lvEndPlate2 = new GeoLogVol("EndPlate2", &(endPlate2Cutted3661) , matIron);
 	    }
 	  else if ( ( ModuleNcp == 35 ) || ( ModuleNcp == 62 ) )
 	    {
-	      rotationAngle = - ( 104.0625 - 90.0 )* CLHEP::deg ;  // ATLLEMS_0009 0010
-	      shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*CLHEP::cm - ( 1915.0 -385.0 )* CLHEP::mm); // girder is subtracted (no drawing)
+	      rotationAngle = - ( 104.0625 - 90.0 )* GeoModelKernelUnits::deg ;  // ATLLEMS_0009 0010
+	      shiftCutPlate =  ( ( m_dbManager->TILBrmax() - rminb )*GeoModelKernelUnits::cm - ( 1915.0 -385.0 )* GeoModelKernelUnits::mm); // girder is subtracted (no drawing)
 	      
 	      cutOutTransformation = 
-		HepGeom::Translate3D( 0, 0, -heightEndPlate/2. ) *  
-		HepGeom::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
-		HepGeom::RotateX3D( rotationSign * rotationAngle ) ;
+		GeoTrf::Translate3D( 0, 0, -heightEndPlate/2. ) *  
+		GeoTrf::Translate3D( 0, 0,  - (dy2EndPlate  - shiftCutPlate) ) *  
+		GeoTrf::RotateX3D( rotationSign * rotationAngle ) ;
 	      
 	      const GeoShape & endPlate2Cutted3562 = (endPlate2->subtract( (*endPlate2Cut)<< cutOutTransformation ) ) ;	    
 	      lvEndPlate2 = new GeoLogVol("EndPlate2", &(endPlate2Cutted3562) , matIron);
 	    }
 	  
-	  //         dy1EndPlate = rminbT * tan_delta_phi_2 * CLHEP::cm;
-	  //         dy2EndPlate = tile_rmax * tan_delta_phi_2 * CLHEP::cm;
-	  //         thicknessEndPlate = m_dbManager->TILBdzend2() * CLHEP::cm;
-	  //         heightEndPlate = (tile_rmax - rminbT) * CLHEP::cm;
+	  //         dy1EndPlate = rminbT * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+	  //         dy2EndPlate = tile_rmax * tan_delta_phi_2 * GeoModelKernelUnits::cm;
+	  //         thicknessEndPlate = m_dbManager->TILBdzend2() * GeoModelKernelUnits::cm;
+	  //         heightEndPlate = (tile_rmax - rminbT) * GeoModelKernelUnits::cm;
 	  
-	  //         tfEndPlate2 = new GeoTransform(HepGeom::Translate3D(
-	  //                                       (-m_dbManager->TILBdzend2() + m_dbManager->TILBdzmodul())*CLHEP::cm/2, 0, radShift/2*CLHEP::cm));
+	  //         tfEndPlate2 = new GeoTransform(GeoTrf::Translate3D(
+	  //                                       (-m_dbManager->TILBdzend2() + m_dbManager->TILBdzmodul())*GeoModelKernelUnits::cm/2, 0, radShift/2*GeoModelKernelUnits::cm));
 	  
 	}
       else
@@ -653,7 +657,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       //Position air hole
       if (m_dbManager->TILBflangex() > 0)
       {
-        dyEPHole = m_dbManager->TILBflangex()*CLHEP::cm/2;
+        dyEPHole = m_dbManager->TILBflangex()*GeoModelKernelUnits::cm/2;
 
 	GeoTrd* epHole2 = new GeoTrd (thicknessEndPlate/2,
 				      thicknessEndPlate/2,
@@ -663,8 +667,8 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
 	GeoLogVol* lvEPHole2 = new GeoLogVol("EPHole2",epHole2,matAir);
 	GeoPhysVol* pvEPHole2 = new GeoPhysVol(lvEPHole2);
-	GeoTransform* tfEPHole2 = new GeoTransform(HepGeom::Translate3D(0.,0.,
-                                      (m_dbManager->TILBflangey()-(tile_rmax + rminbT)/2)*CLHEP::cm));
+	GeoTransform* tfEPHole2 = new GeoTransform(GeoTrf::Translate3D(0.,0.,
+                                      (m_dbManager->TILBflangey()-(tile_rmax + rminbT)/2)*GeoModelKernelUnits::cm));
 	pvEndPlate2->add(tfEPHole2);
 	pvEndPlate2->add(pvEPHole2);
       }
@@ -679,10 +683,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   } // End Plates
 
   //---------------------------------------------------Absorber--------------------------------------------------------
-  double heightAbsorber = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*CLHEP::cm;
-  double thicknessAbsorber = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())*CLHEP::cm;
-  double dy1Absorber = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
-  double dy2Absorber = (m_dbManager->TILBrmax()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+  double heightAbsorber = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*GeoModelKernelUnits::cm;
+  double thicknessAbsorber = (m_dbManager->TILBdzmodul() - m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm;
+  double dy1Absorber = (m_dbManager->TILBrmin()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
+  double dy2Absorber = (m_dbManager->TILBrmax()*tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 
   checking("Absorber", true, 3, 
       thicknessAbsorber/2,thicknessAbsorber/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -692,10 +696,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   double PosAbsor1 =0, PosAbsor2 =0, PosAbsor3 =0; 
   int nA1 =32, nA2 = 0, nA3 =16;
 
-  GeoTrd *absorber =NULL, *absorber1 =NULL, *absorber3 =NULL;
-  GeoLogVol *lvAbsorber =NULL, *lvAbsorber1 =NULL, *lvAbsorber3 =NULL;
-  GeoPhysVol *pvAbsorber =NULL, *pvAbsorber1 =NULL, *pvAbsorber3 =NULL;
-  GeoPhysVol *pvTmp_Absorber1 =NULL, *pvTmp_Absorber3 =NULL;
+  GeoTrd *absorber{nullptr}, *absorber1{nullptr}, *absorber3{nullptr};
+  GeoLogVol *lvAbsorber{nullptr}, *lvAbsorber1{nullptr}, *lvAbsorber3{nullptr};
+  GeoPhysVol *pvAbsorber{nullptr}, *pvAbsorber1{nullptr}, *pvAbsorber3{nullptr};
+  GeoPhysVol *pvTmp_Absorber1{nullptr}, *pvTmp_Absorber3{nullptr};
   
   // Perform different actions depending on sections
   switch (sec_number)
@@ -703,7 +707,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   case 2:
     {
       //Extended barrel - consists of ordinary periods of type 1 only
-      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*CLHEP::cm;
+      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*GeoModelKernelUnits::cm;
 
       // The period number for middle absorber
       nA2 = m_dbManager->TILBnperiod() - (nA1+nA3);
@@ -803,10 +807,10 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       //nrOfPeriods-1 ordinary period and second with one special period of type 2
 
       //First division
-      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*CLHEP::cm;
+      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*GeoModelKernelUnits::cm;
 
       m_barrelPeriodThickness = thicknessPeriod;
-      m_barrelGlue = dzglue*CLHEP::cm;
+      m_barrelGlue = dzglue*GeoModelKernelUnits::cm;
 
       checking("Period 0", false, 4, 
 	       thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -821,7 +825,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvPeriod = new GeoPhysVol(lvPeriod);
 
       fillPeriod(pvPeriod,
-                 thicknessPeriod*(1./CLHEP::cm),
+                 thicknessPeriod*(1./GeoModelKernelUnits::cm),
                  dzglue,
                  tan_delta_phi_2,
                  1); // 1-period type
@@ -838,7 +842,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       // Place periods into Absorber Child like G4 replica
       GENFUNCTION periodPos1 = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorberChild)/2;
-      TRANSFUNCTION xfReplica1 = Pow(HepGeom::TranslateX3D(1.),periodPos1);
+      TRANSFUNCTION xfReplica1 = Pow(GeoTrf::TranslateX3D(1.),periodPos1);
       if (m_verbose) checktransfunc(thicknessAbsorberChild,thicknessPeriod,m_dbManager->TILBnperiod()-1,
                                     (thicknessAbsorberChild - thicknessAbsorber)/2);
 
@@ -850,12 +854,12 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvAbsorberChild->add(stPeriod);
 
       // Place absorber child
-      tfAbsorberChild = new GeoTransform(HepGeom::Translate3D((thicknessAbsorberChild - thicknessAbsorber)/2,0.,0.));
+      tfAbsorberChild = new GeoTransform(GeoTrf::Translate3D((thicknessAbsorberChild - thicknessAbsorber)/2,0.,0.));
       pvAbsorber->add(tfAbsorberChild);
       pvAbsorber->add(pvAbsorberChild);
 
       //Second division
-      thicknessPeriod = (m_dbManager->TILBdzmast() + 2.*m_dbManager->TILBdzspac() + 2.*dzglue)*CLHEP::cm;
+      thicknessPeriod = (m_dbManager->TILBdzmast() + 2.*m_dbManager->TILBdzspac() + 2.*dzglue)*GeoModelKernelUnits::cm;
 
       checking("Period 1", false, 4, 
 	       thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -869,7 +873,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvPeriod = new GeoPhysVol(lvPeriod);
 
       fillPeriod(pvPeriod,
-                 thicknessPeriod*(1./CLHEP::cm),
+                 thicknessPeriod*(1./GeoModelKernelUnits::cm),
                  dzglue,
                  tan_delta_phi_2,
                  2); // 2-period type
@@ -888,14 +892,14 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
                                     (-thicknessAbsorberChild + thicknessAbsorber)/2);
 
       // Place period in the absorber child
-      tfPeriod = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+      tfPeriod = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
 
       pvAbsorberChild->add(new GeoIdentifierTag(m_dbManager->TILBnperiod()-1));
       pvAbsorberChild->add(tfPeriod);
       pvAbsorberChild->add(pvPeriod);
 
       // Place absorber child
-      tfAbsorberChild = new GeoTransform(HepGeom::Translate3D((-thicknessAbsorberChild + thicknessAbsorber)/2,0.,0.));
+      tfAbsorberChild = new GeoTransform(GeoTrf::Translate3D((-thicknessAbsorberChild + thicknessAbsorber)/2,0.,0.));
       pvAbsorber->add(tfAbsorberChild);
       pvAbsorber->add(pvAbsorberChild);
 
@@ -904,7 +908,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   case 2:
     {
       //Extended barrel - consists of ordinary periods of type 1 only
-      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*CLHEP::cm;
+      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*GeoModelKernelUnits::cm;
 
       checking("Period 2", false, 4, 
 	       thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -920,7 +924,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       m_extendedPeriodThickness = thicknessPeriod;
 
       fillPeriod(pvPeriod,
-                 thicknessPeriod*(1./CLHEP::cm),
+                 thicknessPeriod*(1./GeoModelKernelUnits::cm),
                  dzglue,
                  tan_delta_phi_2,
                  1); // 1-period type
@@ -929,7 +933,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       //  - first partr of absorber
       //
       GENFUNCTION periodPos1 = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorber1)/2;
-      TRANSFUNCTION xfReplica1 = Pow(HepGeom::TranslateX3D(1.),periodPos1);
+      TRANSFUNCTION xfReplica1 = Pow(GeoTrf::TranslateX3D(1.),periodPos1);
       if (m_verbose) checktransfunc(thicknessAbsorber1,thicknessPeriod,nA1,
                                     (-thicknessAbsorber+thicknessAbsorber1)/2.);
 
@@ -957,7 +961,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       // middle partr of absorber
       GENFUNCTION periodPos2 = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorber2)/2;
-      TRANSFUNCTION xfReplica2 = Pow(HepGeom::TranslateX3D(1.),periodPos2);
+      TRANSFUNCTION xfReplica2 = Pow(GeoTrf::TranslateX3D(1.),periodPos2);
       if (m_verbose) checktransfunc(thicknessAbsorber2,thicknessPeriod,nA2,
                                     (-thicknessAbsorber+thicknessAbsorber2)/2.+thicknessAbsorber1);
 
@@ -972,7 +976,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       // second partr of absorber
       //
       GENFUNCTION periodPos3 = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorber3)/2;
-      TRANSFUNCTION xfReplica3 = Pow(HepGeom::TranslateX3D(1.),periodPos3);
+      TRANSFUNCTION xfReplica3 = Pow(GeoTrf::TranslateX3D(1.),periodPos3);
       if (m_verbose) checktransfunc(thicknessAbsorber3,thicknessPeriod,nA3,
                                     (-thicknessAbsorber+thicknessAbsorber3)/2.+thicknessAbsorber2+thicknessAbsorber1);
 
@@ -1016,7 +1020,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  //nrOfPeriods-1 ordinary period of type 1 and second with one special period of type 4
 	  
 	  //First division
-	  thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*CLHEP::cm;
+	  thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*GeoModelKernelUnits::cm;
 	  
 	  checking("Period 3 (ITC1 special)", true, 4, 
 		   thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -1030,7 +1034,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  pvPeriod = new GeoPhysVol(lvPeriod);
 	  
  	  fillPeriod(pvPeriod,
- 		     thicknessPeriod*(1./CLHEP::cm),
+ 		     thicknessPeriod*(1./GeoModelKernelUnits::cm),
  		     dzglue,
  		     tan_delta_phi_2,
  		     1); // 1-period type
@@ -1047,7 +1051,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  
 	  // Place periods into Absorber Child like G4 replica
 	  GENFUNCTION periodPosITC1sp = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorberChild)/2;
-	  TRANSFUNCTION xfReplicaITC1sp = Pow(HepGeom::TranslateX3D(1.),periodPosITC1sp);
+	  TRANSFUNCTION xfReplicaITC1sp = Pow(GeoTrf::TranslateX3D(1.),periodPosITC1sp);
           if (m_verbose) checktransfunc(thicknessAbsorberChild,thicknessPeriod,m_dbManager->TILBnperiod()-1,
                                         (thicknessAbsorberChild - thicknessAbsorber)/2);
 	  
@@ -1059,13 +1063,13 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  pvAbsorberChild->add(stPeriod);
 	  
 	  // Place absorber child
-	  tfAbsorberChild = new GeoTransform(HepGeom::Translate3D((thicknessAbsorberChild - thicknessAbsorber)/2,0.,0.));
+	  tfAbsorberChild = new GeoTransform(GeoTrf::Translate3D((thicknessAbsorberChild - thicknessAbsorber)/2,0.,0.));
 	  pvAbsorber->add(tfAbsorberChild);
 	  pvAbsorber->add(pvAbsorberChild);
 	  //
 	  //Second division
 	  //
-	  thicknessPeriod = m_dbManager->TILBdzspac()*CLHEP::cm;
+	  thicknessPeriod = m_dbManager->TILBdzspac()*GeoModelKernelUnits::cm;
 	  
 	  checking("Period 5 (ITC1 special)", true, 4, 
 		   thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -1079,7 +1083,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  pvPeriod = new GeoPhysVol(lvPeriod);
 	  
 	  fillPeriod(pvPeriod,
-		     thicknessPeriod*(1./CLHEP::cm),
+		     thicknessPeriod*(1./GeoModelKernelUnits::cm),
 		     dzglue,
 		     tan_delta_phi_2,
 		     4); // 4-period type
@@ -1097,13 +1101,13 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
                                         (-thicknessAbsorberChild + thicknessAbsorber)/2);
 
 	  // Place period in the absorber child
-	  tfPeriod = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+	  tfPeriod = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
 	  pvAbsorberChild->add(new GeoIdentifierTag(m_dbManager->TILBnperiod()-1));
 	  pvAbsorberChild->add(tfPeriod);
 	  pvAbsorberChild->add(pvPeriod);
 	  
 	  // Place absorber child
-	  tfAbsorberChild = new GeoTransform(HepGeom::Translate3D((-thicknessAbsorberChild + thicknessAbsorber)/2,0.,0.));
+	  tfAbsorberChild = new GeoTransform(GeoTrf::Translate3D((-thicknessAbsorberChild + thicknessAbsorber)/2,0.,0.));
 	  pvAbsorber->add(tfAbsorberChild);
 	  pvAbsorber->add(pvAbsorberChild);
 	  
@@ -1112,7 +1116,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	}
       else
 	{
-	  thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*CLHEP::cm;
+	  thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*GeoModelKernelUnits::cm;
 	  
 	  checking("Period 3", true, 4, 
 		   thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -1126,14 +1130,14 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  pvPeriod = new GeoPhysVol(lvPeriod);
 	  
 	  fillPeriod(pvPeriod,
-		     thicknessPeriod*(1./CLHEP::cm),
+		     thicknessPeriod*(1./GeoModelKernelUnits::cm),
 		     dzglue,
 		     tan_delta_phi_2,
 		     3); // 3-period type
 	  
 	  // Place periods into Absorber like G4 replica
 	  GENFUNCTION periodPos3 = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorber)/2;
-	  TRANSFUNCTION xfReplica3 = Pow(HepGeom::TranslateX3D(1.),periodPos3);
+	  TRANSFUNCTION xfReplica3 = Pow(GeoTrf::TranslateX3D(1.),periodPos3);
           if (m_verbose) checktransfunc(thicknessAbsorber,thicknessPeriod,m_dbManager->TILBnperiod(),0.0);
 	  
 	  //ps      if( (m_dbManager->TILBsection()==7 || m_dbManager->TILBsection()==8) && m_dbManager->SCNTitem()==302) 
@@ -1162,7 +1166,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       //nrOfPeriods-1 ordinary period of type 1 and second with one special period of type 4
 
       //First division
-      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*CLHEP::cm;
+      thicknessPeriod = 2.*(m_dbManager->TILBdzmast() + m_dbManager->TILBdzspac() + 2.*dzglue)*GeoModelKernelUnits::cm;
 
       checking("Period 4", true, 4, 
 	       thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -1176,7 +1180,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvPeriod = new GeoPhysVol(lvPeriod);
 
       fillPeriod(pvPeriod,
-                 thicknessPeriod*(1./CLHEP::cm),
+                 thicknessPeriod*(1./GeoModelKernelUnits::cm),
                  dzglue,
                  tan_delta_phi_2,
                  1); // 1-period type
@@ -1193,7 +1197,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       // Place periods into Absorber Child like G4 replica
       GENFUNCTION periodPos1 = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorberChild)/2;
-      TRANSFUNCTION xfReplica1 = Pow(HepGeom::TranslateX3D(1.),periodPos1);
+      TRANSFUNCTION xfReplica1 = Pow(GeoTrf::TranslateX3D(1.),periodPos1);
       if (m_verbose) checktransfunc(thicknessAbsorberChild,thicknessPeriod,m_dbManager->TILBnperiod()-1,
                                     (thicknessAbsorberChild - thicknessAbsorber)/2);
 
@@ -1205,12 +1209,12 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvAbsorberChild->add(stPeriod);
 
       // Place absorber child
-      tfAbsorberChild = new GeoTransform(HepGeom::Translate3D((thicknessAbsorberChild - thicknessAbsorber)/2,0.,0.));
+      tfAbsorberChild = new GeoTransform(GeoTrf::Translate3D((thicknessAbsorberChild - thicknessAbsorber)/2,0.,0.));
       pvAbsorber->add(tfAbsorberChild);
       pvAbsorber->add(pvAbsorberChild);
 
       //Second division
-      thicknessPeriod = m_dbManager->TILBdzspac()*CLHEP::cm;
+      thicknessPeriod = m_dbManager->TILBdzspac()*GeoModelKernelUnits::cm;
 
       checking("Period 5", true, 4, 
 	       thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
@@ -1224,7 +1228,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvPeriod = new GeoPhysVol(lvPeriod);
 
       fillPeriod(pvPeriod,
-                 thicknessPeriod*(1./CLHEP::cm),
+                 thicknessPeriod*(1./GeoModelKernelUnits::cm),
                  dzglue,
                  tan_delta_phi_2,
                  4); // 4-period type
@@ -1242,13 +1246,13 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
                                     (-thicknessAbsorberChild + thicknessAbsorber)/2);
 
       // Place period in the absorber child
-      tfPeriod = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+      tfPeriod = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
       pvAbsorberChild->add(new GeoIdentifierTag(m_dbManager->TILBnperiod()-1));
       pvAbsorberChild->add(tfPeriod);
       pvAbsorberChild->add(pvPeriod);
 
       // Place absorber child
-      tfAbsorberChild = new GeoTransform(HepGeom::Translate3D((-thicknessAbsorberChild + thicknessAbsorber)/2,0.,0.));
+      tfAbsorberChild = new GeoTransform(GeoTrf::Translate3D((-thicknessAbsorberChild + thicknessAbsorber)/2,0.,0.));
       pvAbsorber->add(tfAbsorberChild);
       pvAbsorber->add(pvAbsorberChild);
 
@@ -1276,8 +1280,8 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       checking("Period 6", true, 4, 
 	       thicknessPeriod/2,thicknessPeriod/2,dy1Absorber,dy2Absorber,heightAbsorber/2);
 
-      double dy1Period = m_dbManager->TILBflangex()/2.*CLHEP::cm; // correct size from the drawings
-      double dy2Period = m_dbManager->TILBflangey()/2.*CLHEP::cm; // correct size from the drawings
+      double dy1Period = m_dbManager->TILBflangex()/2.*GeoModelKernelUnits::cm; // correct size from the drawings
+      double dy2Period = m_dbManager->TILBflangey()/2.*GeoModelKernelUnits::cm; // correct size from the drawings
       if (dy1Period <= 0.0 || dy2Period <= 0.0 || dy1Period > dy1Absorber || dy2Period > dy2Absorber || dy1Period >= dy2Period ) {
           dy1Period = dy1Absorber;
           dy2Period = dy2Absorber;
@@ -1293,7 +1297,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvPeriod = new GeoPhysVol(lvPeriod);
 
       fillPeriod(pvPeriod,
-                 thicknessPeriod*(1./CLHEP::cm),
+                 thicknessPeriod*(1./GeoModelKernelUnits::cm),
                  dzglue,
                  tan_delta_phi_2,
                  5, period);
@@ -1301,7 +1305,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       if (m_verbose) checktransfunc(thicknessAbsorber,thicknessPeriod,1,0.0);
 
       // Place period in the absorber
-      tfPeriod = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+      tfPeriod = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
       pvAbsorber->add(new GeoIdentifierTag(0));
       pvAbsorber->add(tfPeriod);
       pvAbsorber->add(pvPeriod);
@@ -1313,7 +1317,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   }
 
   // Place absorber in the module mother
-  GeoTransform *tfAbsorber = NULL, *tfAbsorber1 =NULL, *tfAbsorber3 =NULL;
+  GeoTransform *tfAbsorber{nullptr}, *tfAbsorber1{nullptr}, *tfAbsorber3{nullptr};
 
   double dXAbsorber = (m_dbManager->TILBdzend1() - m_dbManager->TILBdzend2());
   double dZAbsorber = (m_dbManager->TILBrmax() - tile_rmax);
@@ -1321,7 +1325,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   if (sec_number==3)
     { 
       // ps specialModuleZShift
-      tfAbsorber = new GeoTransform(HepGeom::Translate3D( specialModuleZShift + dXAbsorber*CLHEP::cm/2, 0., dZAbsorber*CLHEP::cm/2));
+      tfAbsorber = new GeoTransform(GeoTrf::Translate3D( specialModuleZShift + dXAbsorber*GeoModelKernelUnits::cm/2, 0., dZAbsorber*GeoModelKernelUnits::cm/2));
       mother->add(tfAbsorber);
       mother->add(pvAbsorber);
     }
@@ -1330,8 +1334,8 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       if(m_log->level()<=MSG::DEBUG)
 	(*m_log) << MSG::DEBUG << " _fillsection  Ex.barrel in "<< endmsg;
  
-     tfAbsorber1 = new GeoTransform(HepGeom::Translate3D(dXAbsorber*CLHEP::cm/2 - PosAbsor1, 0.,
-                                   (dZAbsorber + m_dbManager->TILBrmin() - rminb)*CLHEP::cm/2)); 
+     tfAbsorber1 = new GeoTransform(GeoTrf::Translate3D(dXAbsorber*GeoModelKernelUnits::cm/2 - PosAbsor1, 0.,
+                                   (dZAbsorber + m_dbManager->TILBrmin() - rminb)*GeoModelKernelUnits::cm/2)); 
      mother->add(tfAbsorber1);
      if (m_dbManager->BoolCuts() && ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62)) ) { 
        mother->add(pvTmp_Absorber1);
@@ -1343,16 +1347,16 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
      if(m_log->level()<=MSG::DEBUG)
        (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber1 Ok"<< endmsg;
 
-     tfAbsorber  = new GeoTransform(HepGeom::Translate3D(dXAbsorber*CLHEP::cm/2 - PosAbsor2, 0.,
-                                    (dZAbsorber + m_dbManager->TILBrmin() - rminb)*CLHEP::cm/2));  
+     tfAbsorber  = new GeoTransform(GeoTrf::Translate3D(dXAbsorber*GeoModelKernelUnits::cm/2 - PosAbsor2, 0.,
+                                    (dZAbsorber + m_dbManager->TILBrmin() - rminb)*GeoModelKernelUnits::cm/2));  
      mother->add(tfAbsorber);
      mother->add(pvAbsorber);
 
      if(m_log->level()<=MSG::DEBUG)
        (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber Ok"<< endmsg;
 
-     tfAbsorber3 = new GeoTransform(HepGeom::Translate3D(dXAbsorber*CLHEP::cm/2 - PosAbsor3, 0.,  
-                                    (dZAbsorber + m_dbManager->TILBrmin() - rminb)*CLHEP::cm/2));                
+     tfAbsorber3 = new GeoTransform(GeoTrf::Translate3D(dXAbsorber*GeoModelKernelUnits::cm/2 - PosAbsor3, 0.,  
+                                    (dZAbsorber + m_dbManager->TILBrmin() - rminb)*GeoModelKernelUnits::cm/2));                
      mother->add(tfAbsorber3);
      if (m_dbManager->BoolCuts() && ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62)) ) {
        mother->add(pvTmp_Absorber3);
@@ -1366,8 +1370,8 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
    }
   else                                           
    { 
-     tfAbsorber = new GeoTransform(HepGeom::Translate3D(dXAbsorber*CLHEP::cm/2, 0.,
-                                   (dZAbsorber + m_dbManager->TILBrmin() - rminb)*CLHEP::cm/2));
+     tfAbsorber = new GeoTransform(GeoTrf::Translate3D(dXAbsorber*GeoModelKernelUnits::cm/2, 0.,
+                                   (dZAbsorber + m_dbManager->TILBrmin() - rminb)*GeoModelKernelUnits::cm/2));
      mother->add(tfAbsorber);
      mother->add(pvAbsorber);
      if(m_log->level()<=MSG::DEBUG)
@@ -1433,11 +1437,11 @@ void TileGeoSectionBuilder::fillGirder(GeoPhysVol*&             mother,
       dy2GirderElement = (elementRC + elementSizeInR/2) * tan_delta_phi_2;
     }
 
-    girderElement = new GeoTrd(thickness/2*CLHEP::cm,
-			       thickness/2*CLHEP::cm,
-			       dy1GirderElement*CLHEP::cm,
-			       dy2GirderElement*CLHEP::cm,
-			       elementSizeInR/2*CLHEP::cm);
+    girderElement = new GeoTrd(thickness/2*GeoModelKernelUnits::cm,
+			       thickness/2*GeoModelKernelUnits::cm,
+			       dy1GirderElement*GeoModelKernelUnits::cm,
+			       dy2GirderElement*GeoModelKernelUnits::cm,
+			       elementSizeInR/2*GeoModelKernelUnits::cm);
 
     switch(m_dbManager->TIGRmaterial())
     {
@@ -1465,9 +1469,9 @@ void TileGeoSectionBuilder::fillGirder(GeoPhysVol*&             mother,
     }
 
     pvGirderElement = new GeoPhysVol(lvGirderElement);
-    tfGirderElement = new GeoTransform(HepGeom::Translate3D(0.,
-						      elementOffsetInY*CLHEP::cm,
-						      (elementRC-(tilb_rmax + tile_rmax)/2)*CLHEP::cm));
+    tfGirderElement = new GeoTransform(GeoTrf::Translate3D(0.,
+						      elementOffsetInY*GeoModelKernelUnits::cm,
+						      (elementRC-(tilb_rmax + tile_rmax)/2)*GeoModelKernelUnits::cm));
     mother->add(tfGirderElement);
     mother->add(pvGirderElement);
   }
@@ -1509,7 +1513,7 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 
   // InDetServices
   if (m_matLArServices == 0)
-   { m_matLArServices = new GeoMaterial("LArServices", 2.5*CLHEP::gram/CLHEP::cm3);
+   { m_matLArServices = new GeoMaterial("LArServices", 2.5*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
      m_matLArServices->add(shieldSteel, 0.20);
      m_matLArServices->add(copper, 0.60);
      m_matLArServices->add(matRubber, 0.10);
@@ -1519,7 +1523,7 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 
   // m_matIronHalfDens
   if (m_matIronHalfDens == 0)
-   { m_matIronHalfDens = new GeoMaterial("LArIronBox", 4.5*CLHEP::gram/CLHEP::cm3);
+   { m_matIronHalfDens = new GeoMaterial("LArIronBox", 4.5*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
      m_matIronHalfDens->add(shieldSteel, 0.80);
      m_matIronHalfDens->add(matRubber, 0.10);
      m_matIronHalfDens->add(copper, 0.10);
@@ -1531,16 +1535,16 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   GeoTrd* fingerElementTrd = 0;
   GeoTrap* fingerElementTrap = 0;
 
-  GeoBox *fingerCablesL = NULL, *fingerCablesR = NULL;
-  GeoPhysVol *pvFingerElement = 0, *pvFingerCablesL = NULL, *pvFingerCablesR = NULL;
-  GeoLogVol *lvFingerElement = 0, *lvFingerCablesL = NULL, *lvFingerCablesR = NULL; 
-  GeoTransform* tfFingerElement = 0, *tfFingerCables = NULL;
+  GeoBox *fingerCablesL{nullptr}, *fingerCablesR{nullptr};
+  GeoPhysVol *pvFingerElement = 0, *pvFingerCablesL{nullptr}, *pvFingerCablesR{nullptr};
+  GeoLogVol *lvFingerElement = 0, *lvFingerCablesL{nullptr}, *lvFingerCablesR{nullptr}; 
+  GeoTransform* tfFingerElement = 0, *tfFingerCables{nullptr};
 
   GeoTransform* ZrotateMod = 0;
   GeoTransform* yrotateMod = 0;
   GeoTransform* zrotateMod = 0;
 
-  const GeoMaterial *currentMaterial = NULL, *leftMaterial = NULL, *rightMaterial = NULL;
+  const GeoMaterial *currentMaterial{nullptr}, *leftMaterial{nullptr}, *rightMaterial{nullptr};
   std::string currentName, leftName, rightName;
 
   int CurrentTicg = 100*sec_number + 1;
@@ -1570,7 +1574,7 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 	  (*m_log) << MSG::DEBUG << "TileFinger: AirVolumeSize ="<< AirVolumeSize << endmsg;
 	}
       }
-      if (elementZPozition*2-AirVolumeSize<-0.01) { // compare with zero with 0.1 CLHEP::mm precision
+      if (elementZPozition*2-AirVolumeSize<-0.01) { // compare with zero with 0.1 GeoModelKernelUnits::mm precision
         elementZPozition += AirVolumeShift; // shift all volumes keeping size
       } else { // resize finger cover with shims attached to it
 	if(m_log->level()<=MSG::DEBUG)
@@ -1616,26 +1620,26 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 
     if(m_dbManager->TICGshape()==1)
     {
-      fingerElementTrd = new GeoTrd(elementDz/2*CLHEP::cm,
-				    elementDz/2*CLHEP::cm,
-				    elementDy1/2*CLHEP::cm,
-				    elementDy2/2*CLHEP::cm,
-				    elementHeight/2*CLHEP::cm);
+      fingerElementTrd = new GeoTrd(elementDz/2*GeoModelKernelUnits::cm,
+				    elementDz/2*GeoModelKernelUnits::cm,
+				    elementDy1/2*GeoModelKernelUnits::cm,
+				    elementDy2/2*GeoModelKernelUnits::cm,
+				    elementHeight/2*GeoModelKernelUnits::cm);
       lvFingerElement = new GeoLogVol(currentName,fingerElementTrd,currentMaterial);
     }
     else if(m_dbManager->TICGshape()==2)
     {
  
-      fingerElementTrap = new GeoTrap(elementDz/2*CLHEP::cm,
+      fingerElementTrap = new GeoTrap(elementDz/2*GeoModelKernelUnits::cm,
 				      0.,
 				      0.,
-				      elementHeight/2*CLHEP::cm,
-				      elementDy2/2*CLHEP::cm,
-				      elementDy1/2*CLHEP::cm,
+				      elementHeight/2*GeoModelKernelUnits::cm,
+				      elementDy2/2*GeoModelKernelUnits::cm,
+				      elementDy1/2*GeoModelKernelUnits::cm,
 				      atan((elementDy1-elementDy2)/(2.*elementHeight)),
-				      elementHeight/2*CLHEP::cm,
-				      elementDy2/2*CLHEP::cm,
-				      elementDy1/2*CLHEP::cm,
+				      elementHeight/2*GeoModelKernelUnits::cm,
+				      elementDy2/2*GeoModelKernelUnits::cm,
+				      elementDy1/2*GeoModelKernelUnits::cm,
 				      atan((elementDy1-elementDy2)/(2.*elementHeight)));
  
       lvFingerElement = new GeoLogVol(currentName,fingerElementTrap,currentMaterial);
@@ -1649,21 +1653,21 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 
 
     pvFingerElement = new GeoPhysVol(lvFingerElement);
-    tfFingerElement = new GeoTransform(HepGeom::Translate3D(elementZPozition*CLHEP::cm,
-						      elementOffset*CLHEP::cm,
-						      (elementRC-(tilb_rmax + tile_rmax)/2)*CLHEP::cm));
+    tfFingerElement = new GeoTransform(GeoTrf::Translate3D(elementZPozition*GeoModelKernelUnits::cm,
+						      elementOffset*GeoModelKernelUnits::cm,
+						      (elementRC-(tilb_rmax + tile_rmax)/2)*GeoModelKernelUnits::cm));
 
     mother->add(tfFingerElement);
     if (m_dbManager->TICGshape()==2)
     {
       if(elementOffset<0)
       {
-	ZrotateMod = new GeoTransform(HepGeom::RotateZ3D(180*CLHEP::deg));
+	ZrotateMod = new GeoTransform(GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
 	mother->add(ZrotateMod); 
       }
 
-      zrotateMod = new GeoTransform(HepGeom::RotateZ3D(90*CLHEP::deg));
-      yrotateMod = new GeoTransform(HepGeom::RotateY3D(-90*CLHEP::deg));
+      zrotateMod = new GeoTransform(GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg));
+      yrotateMod = new GeoTransform(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg));
       mother->add(yrotateMod);
       mother->add(zrotateMod);
     }
@@ -1733,17 +1737,17 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 	     << " LRflag= " << LRflag <<" Neg "<< boolNeg 
 	     << endmsg;
 
-  GeoTransform *rotateY = new GeoTransform(HepGeom::RotateY3D(90*CLHEP::deg));
-  GeoTransform *rotateZ = new GeoTransform(HepGeom::RotateZ3D(3*CLHEP::deg));
-  GeoTransform *rotateZm = new GeoTransform(HepGeom::RotateZ3D(-3*CLHEP::deg));
+  GeoTransform *rotateY = new GeoTransform(GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg));
+  GeoTransform *rotateZ = new GeoTransform(GeoTrf::RotateZ3D(3*GeoModelKernelUnits::deg));
+  GeoTransform *rotateZm = new GeoTransform(GeoTrf::RotateZ3D(-3*GeoModelKernelUnits::deg));
 
   // Left (+phi)
-  fingerCablesL = new GeoBox(dXleft/2*CLHEP::cm, dY/2*CLHEP::cm, dZleft/2*CLHEP::cm);
+  fingerCablesL = new GeoBox(dXleft/2*GeoModelKernelUnits::cm, dY/2*GeoModelKernelUnits::cm, dZleft/2*GeoModelKernelUnits::cm);
   lvFingerCablesL = new GeoLogVol(leftName,fingerCablesL,leftMaterial);
   pvFingerCablesL = new GeoPhysVol(lvFingerCablesL);
 
   // Right (-phi)
-  fingerCablesR = new GeoBox(dXright/2*CLHEP::cm, dY/2*CLHEP::cm, dZright/2*CLHEP::cm);
+  fingerCablesR = new GeoBox(dXright/2*GeoModelKernelUnits::cm, dY/2*GeoModelKernelUnits::cm, dZright/2*GeoModelKernelUnits::cm);
   lvFingerCablesR = new GeoLogVol(rightName,fingerCablesR,rightMaterial);
   pvFingerCablesR = new GeoPhysVol(lvFingerCablesR);
 
@@ -1755,9 +1759,9 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
     { YpoFinger = elementOffset-5.4;  
     }
 
-  tfFingerCables = new GeoTransform(HepGeom::Translate3D(elementZPozition*CLHEP::cm +0.5*CLHEP::cm -dZsaddleL*CLHEP::cm,
-	                                           YpoFinger*CLHEP::cm,
-				                   (elementRC-(tilb_rmax + tile_rmax)/2)*CLHEP::cm));
+  tfFingerCables = new GeoTransform(GeoTrf::Translate3D(elementZPozition*GeoModelKernelUnits::cm +0.5*GeoModelKernelUnits::cm -dZsaddleL*GeoModelKernelUnits::cm,
+	                                           YpoFinger*GeoModelKernelUnits::cm,
+				                   (elementRC-(tilb_rmax + tile_rmax)/2)*GeoModelKernelUnits::cm));
   mother->add(tfFingerCables);
 
   // inversion for negativ fingers, Left
@@ -1778,9 +1782,9 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
     { YpoFinger = -elementOffset+5.4;
     }
 
-  tfFingerCables = new GeoTransform(HepGeom::Translate3D(elementZPozition*CLHEP::cm +0.5*CLHEP::cm -dZsaddleR*CLHEP::cm,
-	                                           YpoFinger*CLHEP::cm,
-	                                           (elementRC-(tilb_rmax + tile_rmax)/2)*CLHEP::cm));
+  tfFingerCables = new GeoTransform(GeoTrf::Translate3D(elementZPozition*GeoModelKernelUnits::cm +0.5*GeoModelKernelUnits::cm -dZsaddleR*GeoModelKernelUnits::cm,
+	                                           YpoFinger*GeoModelKernelUnits::cm,
+	                                           (elementRC-(tilb_rmax + tile_rmax)/2)*GeoModelKernelUnits::cm));
   mother->add(tfFingerCables);
 
   // inversion for negativ fingers, Right
@@ -1873,13 +1877,13 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
   const GeoMaterial* matScin = m_theMaterialManager->getMaterial("tile::Scintillator");
 
   //Cs hole parameters
-  double csHoleR       = 0.45 * CLHEP::cm;
-  double csTubeOuterR  = 0.4  * CLHEP::cm;
-  double csTubeInnerR  = 0.3  * CLHEP::cm;
-  double csTubeOffCorr = 1.35 * CLHEP::cm;
+  double csHoleR       = 0.45 * GeoModelKernelUnits::cm;
+  double csTubeOuterR  = 0.4  * GeoModelKernelUnits::cm;
+  double csTubeInnerR  = 0.3  * GeoModelKernelUnits::cm;
+  double csTubeOffCorr = 1.35 * GeoModelKernelUnits::cm;
 
-  double thicknessMother2 = thickness/2.*CLHEP::cm;
-  double heightMother2    = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*CLHEP::cm/2.;
+  double thicknessMother2 = thickness/2.*GeoModelKernelUnits::cm;
+  double heightMother2    = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*GeoModelKernelUnits::cm/2.;
 
   const bool removeGlue = (m_glue == 0 || m_glue == 2);
 
@@ -1887,18 +1891,18 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
   if (dzglue>0.0 && period_type<4 && !removeGlue) {
     const GeoMaterial* matGlue = m_theMaterialManager->getMaterial("tile::Glue");
 
-    double dzglue2 = dzglue/2*CLHEP::cm;
+    double dzglue2 = dzglue/2*GeoModelKernelUnits::cm;
     dzglue2 = floor(dzglue2*1.0e+10)*1.0e-10;
 
     if (m_verbose) {
-      printdouble(" period thickness/2 = ",thickness/2*CLHEP::cm);
-      printdouble("   glue thickness/2 = ",dzglue/2*CLHEP::cm);
+      printdouble(" period thickness/2 = ",thickness/2*GeoModelKernelUnits::cm);
+      printdouble("   glue thickness/2 = ",dzglue/2*GeoModelKernelUnits::cm);
       printdouble("rounded thickness/2 = ",dzglue2);
     }
 
-    double dy1Glue = (m_dbManager->TILBrmin() * tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
-    double dy2Glue = (m_dbManager->TILBrmax() * tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
-    double heightGlue2 = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*CLHEP::cm/2.;
+    double dy1Glue = (m_dbManager->TILBrmin() * tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
+    double dy2Glue = (m_dbManager->TILBrmax() * tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
+    double heightGlue2 = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*GeoModelKernelUnits::cm/2.;
 
     checking("Glue 0", false, 4, 
              dzglue2,dzglue2,dy1Glue,dy2Glue,heightGlue2);
@@ -1912,16 +1916,16 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
       idTag = new GeoIdentifierTag(j-CurrentScin);
       m_dbManager->SetCurrentScin(j);
 
-      double off0 = m_dbManager->SCNTrc()*CLHEP::cm - heightMother2;
-      double off  = m_dbManager->SCNTdr()/2.*CLHEP::cm - csTubeOffCorr;
+      double off0 = m_dbManager->SCNTrc()*GeoModelKernelUnits::cm - heightMother2;
+      double off  = m_dbManager->SCNTdr()/2.*GeoModelKernelUnits::cm - csTubeOffCorr;
 
-      HepGeom::Transform3D tfHole1 = HepGeom::Translate3D(0.,0.,(off0-off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
-      HepGeom::Transform3D tfHole2 = HepGeom::Translate3D(0.,0.,(off0+off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
+      GeoTrf::Transform3D tfHole1 = GeoTrf::Translate3D(0.,0.,(off0-off)) * GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
+      GeoTrf::Transform3D tfHole2 = GeoTrf::Translate3D(0.,0.,(off0+off)) * GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
 
       // air around iron rod, around Cs tube and inside Cs tube
-      GeoShape *air1 = new GeoTubs(csTubeOuterR, csHoleR, thicknessMother2, 0.,360.0 * CLHEP::deg);
-      GeoShape *air2 = new GeoTubs(csTubeOuterR, csHoleR, thicknessMother2, 0.,360.0 * CLHEP::deg);
-      GeoShape *air3 = new GeoTubs(0.,      csTubeInnerR, thicknessMother2, 0.,360.0 * CLHEP::deg);
+      GeoShape *air1 = new GeoTubs(csTubeOuterR, csHoleR, thicknessMother2, 0.,360.0 * GeoModelKernelUnits::deg);
+      GeoShape *air2 = new GeoTubs(csTubeOuterR, csHoleR, thicknessMother2, 0.,360.0 * GeoModelKernelUnits::deg);
+      GeoShape *air3 = new GeoTubs(0.,      csTubeInnerR, thicknessMother2, 0.,360.0 * GeoModelKernelUnits::deg);
 
       GeoLogVol * lvAir1 = new GeoLogVol("CsTubeAir1",air1,matAir);
       GeoLogVol * lvAir2 = new GeoLogVol("CsTubeAir2",air2,matAir);
@@ -1961,26 +1965,26 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
       if (glue)
       {
         if (m_verbose)
-            printdouble("      glue position = ",(-3.*dzglue/2-m_dbManager->TILBdzmast())*CLHEP::cm);
-	tfGlue = new GeoTransform(HepGeom::Translate3D((-3.*dzglue/2-m_dbManager->TILBdzmast())*CLHEP::cm,0.,0.));
+            printdouble("      glue position = ",(-3.*dzglue/2-m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D((-3.*dzglue/2-m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
 
         if (m_verbose)
-            printdouble("      glue position = ",-dzglue/2*CLHEP::cm);
-	tfGlue = new GeoTransform(HepGeom::Translate3D(-dzglue/2*CLHEP::cm,0.,0.));
+            printdouble("      glue position = ",-dzglue/2*GeoModelKernelUnits::cm);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D(-dzglue/2*GeoModelKernelUnits::cm,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
 
         if (m_verbose)
-            printdouble("      glue position = ",(dzglue/2+m_dbManager->TILBdzspac())*CLHEP::cm);
-	tfGlue = new GeoTransform(HepGeom::Translate3D((dzglue/2+m_dbManager->TILBdzspac())*CLHEP::cm,0.,0.));
+            printdouble("      glue position = ",(dzglue/2+m_dbManager->TILBdzspac())*GeoModelKernelUnits::cm);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D((dzglue/2+m_dbManager->TILBdzspac())*GeoModelKernelUnits::cm,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
 
         if (m_verbose)
-            printdouble("      glue position = ",(thickness-dzglue)/2*CLHEP::cm);
-	tfGlue = new GeoTransform(HepGeom::Translate3D((thickness-dzglue)/2*CLHEP::cm,0.,0.));
+            printdouble("      glue position = ",(thickness-dzglue)/2*GeoModelKernelUnits::cm);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D((thickness-dzglue)/2*GeoModelKernelUnits::cm,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
       }
@@ -1999,15 +2003,15 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
-                           (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+                           (scintiThickness + 2*scintiWrapInZ)*GeoModelKernelUnits::cm: m_dbManager->TILBdzspac()*GeoModelKernelUnits::cm;
         if (m_glue == 2) thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
-        heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
+        heightWrapper = (scintiHeight + 2*scintiWrapInR)*GeoModelKernelUnits::cm;
         dy1Wrapper = ((scintiRC - scintiHeight/2 - scintiWrapInR + m_dbManager->TILBrmin()) *
-                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
         dy2Wrapper = ((scintiRC + scintiHeight/2 + scintiWrapInR + m_dbManager->TILBrmin()) *
-                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 
         checking("Wrapper 0", true, 5, 
             thicknessWrapper/2,thicknessWrapper/2,dy1Wrapper,dy2Wrapper,heightWrapper/2);
@@ -2019,34 +2023,34 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     heightWrapper/2);
 
 	if (m_csTube) {
-          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
         }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	pvWrapper = new GeoPhysVol(lvWrapper);
 
         // create scintillator
         dy1Scintillator = ((scintiRC - scintiHeight/2 + m_dbManager->TILBrmin()) *
-                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
         dy2Scintillator = ((scintiRC + scintiHeight/2 + m_dbManager->TILBrmin()) *
-                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
 
         checking("Scintillator 0", true, 6, 
-                 scintiThickness/2*CLHEP::cm,scintiThickness/2*CLHEP::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*CLHEP::cm);
+                 scintiThickness/2*GeoModelKernelUnits::cm,scintiThickness/2*GeoModelKernelUnits::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*GeoModelKernelUnits::cm);
 
-	scintillator = new GeoTrd(scintiThickness/2*CLHEP::cm,
-				  scintiThickness/2*CLHEP::cm,
+	scintillator = new GeoTrd(scintiThickness/2*GeoModelKernelUnits::cm,
+				  scintiThickness/2*GeoModelKernelUnits::cm,
 				  dy1Scintillator,
 				  dy2Scintillator,
-				  scintiHeight/2*CLHEP::cm);
+				  scintiHeight/2*GeoModelKernelUnits::cm);
 
 	if (m_csTube) {
-          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * GeoModelKernelUnits::cm, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
 	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	pvScintillator = new GeoPhysVol(lvScintillator);
 
         // place scintillator in wrapper
-	tfScintillator = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+	tfScintillator = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
 	pvWrapper->add(idTag);
 	pvWrapper->add(tfScintillator);
 	pvWrapper->add(pvScintillator);
@@ -2054,13 +2058,13 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         //place wrapper in period
         if (m_verbose) {
           (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<scintiZPos;
-          printdouble("  ==>  ",(scintiZPos*thickness+m_dbManager->TILBdzspac()/2)*CLHEP::cm);
+          printdouble("  ==>  ",(scintiZPos*thickness+m_dbManager->TILBdzspac()/2)*GeoModelKernelUnits::cm);
           (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
         
-	tfWrapper = new GeoTransform(HepGeom::Translate3D((scintiZPos*thickness+m_dbManager->TILBdzspac()/2)*CLHEP::cm,
+	tfWrapper = new GeoTransform(GeoTrf::Translate3D((scintiZPos*thickness+m_dbManager->TILBdzspac()/2)*GeoModelKernelUnits::cm,
 						    0.,
-						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*CLHEP::cm));
+						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*GeoModelKernelUnits::cm));
 	mother->add(idTag);
 	mother->add(tfWrapper);
 	mother->add(pvWrapper);
@@ -2075,14 +2079,14 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
       if (glue)
       {
         if (m_verbose)
-            printdouble("      glue position = ",(dzglue + m_dbManager->TILBdzmast())*CLHEP::cm/2);
-	tfGlue = new GeoTransform(HepGeom::Translate3D((dzglue + m_dbManager->TILBdzmast())*CLHEP::cm/2,0.,0.));
+            printdouble("      glue position = ",(dzglue + m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm/2);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D((dzglue + m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm/2,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
 
         if (m_verbose)
-            printdouble("      glue position = ",-(dzglue + m_dbManager->TILBdzmast())*CLHEP::cm/2);
-	tfGlue = new GeoTransform(HepGeom::Translate3D(-(dzglue + m_dbManager->TILBdzmast())*CLHEP::cm/2,0.,0.));
+            printdouble("      glue position = ",-(dzglue + m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm/2);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D(-(dzglue + m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm/2,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
       }
@@ -2101,15 +2105,15 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
-                           (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+                           (scintiThickness + 2*scintiWrapInZ)*GeoModelKernelUnits::cm: m_dbManager->TILBdzspac()*GeoModelKernelUnits::cm;
         if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
-        heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
+        heightWrapper = (scintiHeight + 2*scintiWrapInR)*GeoModelKernelUnits::cm;
         dy1Wrapper = ((scintiRC - scintiHeight/2 - scintiWrapInR + m_dbManager->TILBrmin()) *
-                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
         dy2Wrapper = ((scintiRC + scintiHeight/2 + scintiWrapInR + m_dbManager->TILBrmin()) *
-                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 
         checking("Wrapper 1", true, 5, 
             thicknessWrapper/2,thicknessWrapper/2,dy1Wrapper,dy2Wrapper,heightWrapper/2);
@@ -2121,34 +2125,34 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     heightWrapper/2);
 
 	if (m_csTube) {
-          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
         }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	pvWrapper = new GeoPhysVol(lvWrapper);
 
         // create scintillator
         dy1Scintillator = ((scintiRC - scintiHeight/2 + m_dbManager->TILBrmin()) *
-                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
         dy2Scintillator = ((scintiRC + scintiHeight/2 + m_dbManager->TILBrmin()) *
-                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
 
         checking("Scintillator 1", true, 6, 
-                 scintiThickness/2*CLHEP::cm,scintiThickness/2*CLHEP::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*CLHEP::cm);
+                 scintiThickness/2*GeoModelKernelUnits::cm,scintiThickness/2*GeoModelKernelUnits::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*GeoModelKernelUnits::cm);
 
-	scintillator = new GeoTrd(scintiThickness/2*CLHEP::cm,
-				  scintiThickness/2*CLHEP::cm,
+	scintillator = new GeoTrd(scintiThickness/2*GeoModelKernelUnits::cm,
+				  scintiThickness/2*GeoModelKernelUnits::cm,
 				  dy1Scintillator,
 				  dy2Scintillator,
-				  scintiHeight/2*CLHEP::cm);
+				  scintiHeight/2*GeoModelKernelUnits::cm);
 
 	if (m_csTube) {
-          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * GeoModelKernelUnits::cm, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
 	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	pvScintillator = new GeoPhysVol(lvScintillator);
 
         // place scintillator in wrapper
-	tfScintillator = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+	tfScintillator = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
 	pvWrapper->add(idTag);
 	pvWrapper->add(tfScintillator);
 	pvWrapper->add(pvScintillator);
@@ -2156,13 +2160,13 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         //place wrapper in period
         if (m_verbose) {
           (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<scintiZPos; 
-          printdouble("  ==>  ",(2*scintiZPos+0.5)*(thickness-m_dbManager->TILBdzspac())*CLHEP::cm);
+          printdouble("  ==>  ",(2*scintiZPos+0.5)*(thickness-m_dbManager->TILBdzspac())*GeoModelKernelUnits::cm);
           (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
         
-	tfWrapper = new GeoTransform(HepGeom::Translate3D((2*scintiZPos+0.5)*(thickness-m_dbManager->TILBdzspac())*CLHEP::cm,
+	tfWrapper = new GeoTransform(GeoTrf::Translate3D((2*scintiZPos+0.5)*(thickness-m_dbManager->TILBdzspac())*GeoModelKernelUnits::cm,
 						    0.,
-						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*CLHEP::cm));
+						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*GeoModelKernelUnits::cm));
 	mother->add(idTag);
 	mother->add(tfWrapper);
 	mother->add(pvWrapper);
@@ -2177,26 +2181,26 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
       if (glue)
       {
         if (m_verbose)
-            printdouble("      glue position = ",(-thickness + dzglue)*CLHEP::cm/2);
-	tfGlue = new GeoTransform(HepGeom::Translate3D((-thickness + dzglue)*CLHEP::cm/2,0.,0.));
+            printdouble("      glue position = ",(-thickness + dzglue)*GeoModelKernelUnits::cm/2);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D((-thickness + dzglue)*GeoModelKernelUnits::cm/2,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
 
         if (m_verbose)
-            printdouble("      glue position = ",((-thickness + 3*dzglue)+m_dbManager->TILBdzmast())/2*CLHEP::cm);
-	tfGlue = new GeoTransform(HepGeom::Translate3D(((-thickness + 3*dzglue)+m_dbManager->TILBdzmast())/2*CLHEP::cm,0.,0.));
+            printdouble("      glue position = ",((-thickness + 3*dzglue)+m_dbManager->TILBdzmast())/2*GeoModelKernelUnits::cm);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D(((-thickness + 3*dzglue)+m_dbManager->TILBdzmast())/2*GeoModelKernelUnits::cm,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
 
         if (m_verbose)
-            printdouble("      glue position = ",dzglue/2*CLHEP::cm);
-	tfGlue = new GeoTransform(HepGeom::Translate3D(dzglue/2*CLHEP::cm,0.,0.));
+            printdouble("      glue position = ",dzglue/2*GeoModelKernelUnits::cm);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D(dzglue/2*GeoModelKernelUnits::cm,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
 
         if (m_verbose)
-            printdouble("      glue position = ",(3.*dzglue/2 + m_dbManager->TILBdzmast())*CLHEP::cm);
-	tfGlue = new GeoTransform(HepGeom::Translate3D((3.*dzglue/2 + m_dbManager->TILBdzmast())*CLHEP::cm,0.,0.));
+            printdouble("      glue position = ",(3.*dzglue/2 + m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm);
+	tfGlue = new GeoTransform(GeoTrf::Translate3D((3.*dzglue/2 + m_dbManager->TILBdzmast())*GeoModelKernelUnits::cm,0.,0.));
 	mother->add(tfGlue);
 	mother->add(pvGlue);
       }
@@ -2215,16 +2219,16 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiDeltaInPhi = (m_uShape > 0) ? 0. : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
-                           (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+                           (scintiThickness + 2*scintiWrapInZ)*GeoModelKernelUnits::cm: m_dbManager->TILBdzspac()*GeoModelKernelUnits::cm;
         if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
-        heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
+        heightWrapper = (scintiHeight + 2*scintiWrapInR)*GeoModelKernelUnits::cm;
 
         dy1Wrapper = ((scintiRC - scintiHeight/2 - scintiWrapInR + m_dbManager->TILBrmin()) *
-                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
         dy2Wrapper = ((scintiRC + scintiHeight/2 + scintiWrapInR + m_dbManager->TILBrmin()) *
-                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                     tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 
         checking("Wrapper 2", true, 5, 
             thicknessWrapper/2,thicknessWrapper/2,dy1Wrapper,dy2Wrapper,heightWrapper/2);
@@ -2236,34 +2240,34 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     heightWrapper/2);
 
 	if (m_csTube) {
-          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
         }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	pvWrapper = new GeoPhysVol(lvWrapper);
 
         // create scintillator
         dy1Scintillator = ((scintiRC - scintiHeight/2 + m_dbManager->TILBrmin()) *
-                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
         dy2Scintillator = ((scintiRC + scintiHeight/2 + m_dbManager->TILBrmin()) *
-                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                          tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
 
         checking("Scintillator 2", true, 6, 
-                 scintiThickness/2*CLHEP::cm,scintiThickness/2*CLHEP::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*CLHEP::cm);
+                 scintiThickness/2*GeoModelKernelUnits::cm,scintiThickness/2*GeoModelKernelUnits::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*GeoModelKernelUnits::cm);
 
-	scintillator = new GeoTrd(scintiThickness/2*CLHEP::cm,
-				  scintiThickness/2*CLHEP::cm,
+	scintillator = new GeoTrd(scintiThickness/2*GeoModelKernelUnits::cm,
+				  scintiThickness/2*GeoModelKernelUnits::cm,
 				  dy1Scintillator,
 				  dy2Scintillator,
-				  scintiHeight/2*CLHEP::cm);
+				  scintiHeight/2*GeoModelKernelUnits::cm);
 
 	if (m_csTube) {
-          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * GeoModelKernelUnits::cm, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
 	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	pvScintillator = new GeoPhysVol(lvScintillator);
 
         // place scintillator in wrapper
-	tfScintillator = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+	tfScintillator = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
 	pvWrapper->add(idTag);
 	pvWrapper->add(tfScintillator);
 	pvWrapper->add(pvScintillator);
@@ -2271,13 +2275,13 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         //place wrapper in period
         if (m_verbose) {
           (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<scintiZPos; 
-          printdouble("  ==>  ",(scintiZPos*thickness-m_dbManager->TILBdzspac()/2)*CLHEP::cm);
+          printdouble("  ==>  ",(scintiZPos*thickness-m_dbManager->TILBdzspac()/2)*GeoModelKernelUnits::cm);
           (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
       
-	tfWrapper = new GeoTransform(HepGeom::Translate3D((scintiZPos*thickness-m_dbManager->TILBdzspac()/2)*CLHEP::cm,
+	tfWrapper = new GeoTransform(GeoTrf::Translate3D((scintiZPos*thickness-m_dbManager->TILBdzspac()/2)*GeoModelKernelUnits::cm,
 						    0.,
-						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*CLHEP::cm));
+						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*GeoModelKernelUnits::cm));
 	mother->add(idTag);
 	mother->add(tfWrapper);
 	mother->add(pvWrapper);
@@ -2301,18 +2305,18 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
-                           (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+                           (scintiThickness + 2*scintiWrapInZ)*GeoModelKernelUnits::cm: m_dbManager->TILBdzspac()*GeoModelKernelUnits::cm;
         if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
 	if(scintiZPos<0)
 	{
 	  idTag = new GeoIdentifierTag(j-CurrentScin);
 	  // create wrapper
-	  heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
+	  heightWrapper = (scintiHeight + 2*scintiWrapInR)*GeoModelKernelUnits::cm;
 	  dy1Wrapper = ((scintiRC - scintiHeight/2 - scintiWrapInR + m_dbManager->TILBrmin()) *
-                       tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                       tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 	  dy2Wrapper = ((scintiRC + scintiHeight/2 + scintiWrapInR + m_dbManager->TILBrmin()) *
-                       tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*CLHEP::cm;
+                       tan_delta_phi_2 - m_dbManager->TILBphigap()/2)*GeoModelKernelUnits::cm;
 	  
           checking("Wrapper 3", true, 5, 
               thicknessWrapper/2,thicknessWrapper/2,dy1Wrapper,dy2Wrapper,heightWrapper/2);
@@ -2324,34 +2328,34 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			       heightWrapper/2);
 
           if (m_csTube) {
-            wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+            wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
           }
 	  lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	  pvWrapper = new GeoPhysVol(lvWrapper);
 
 	  // create scintillator
 	  dy1Scintillator = ((scintiRC - scintiHeight/2 + m_dbManager->TILBrmin()) *
-                            tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                            tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
 	  dy2Scintillator = ((scintiRC + scintiHeight/2 + m_dbManager->TILBrmin()) *
-                            tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*CLHEP::cm;
+                            tan_delta_phi_2 -  m_dbManager->TILBphigap()/2 - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
 	  
           checking("Scintillator 3", true, 6, 
-                   scintiThickness/2*CLHEP::cm,scintiThickness/2*CLHEP::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*CLHEP::cm);
+                   scintiThickness/2*GeoModelKernelUnits::cm,scintiThickness/2*GeoModelKernelUnits::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*GeoModelKernelUnits::cm);
 
-	  scintillator = new GeoTrd(scintiThickness/2*CLHEP::cm,
-				    scintiThickness/2*CLHEP::cm,
+	  scintillator = new GeoTrd(scintiThickness/2*GeoModelKernelUnits::cm,
+				    scintiThickness/2*GeoModelKernelUnits::cm,
 				    dy1Scintillator,
 				    dy2Scintillator,
-				    scintiHeight/2*CLHEP::cm);
+				    scintiHeight/2*GeoModelKernelUnits::cm);
 
           if (m_csTube) {
-            scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+            scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * GeoModelKernelUnits::cm, scintiHeight/2.*GeoModelKernelUnits::cm - csTubeOffCorr);
           }
 	  lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	  pvScintillator = new GeoPhysVol(lvScintillator);
 	  
 	  // place scintillator in wrapper
-	  tfScintillator = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+	  tfScintillator = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
 	  pvWrapper->add(idTag);
 	  pvWrapper->add(tfScintillator);
 	  pvWrapper->add(pvScintillator);
@@ -2362,9 +2366,9 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
             (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
           }
           
-	  tfWrapper = new GeoTransform(HepGeom::Translate3D(0.,
+	  tfWrapper = new GeoTransform(GeoTrf::Translate3D(0.,
 						      0.,
-						      (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*CLHEP::cm));
+						      (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*GeoModelKernelUnits::cm));
 	  mother->add(idTag);
 	  mother->add(tfWrapper);
 	  mother->add(pvWrapper);
@@ -2397,13 +2401,13 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiDeltaInPhi = m_dbManager->SCNTdphi(); // don't need to check m_uShape for single scintillator
 
         // create wrapper
-        heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
-        thicknessWrapper = (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm;
+        heightWrapper = (scintiHeight + 2*scintiWrapInR)*GeoModelKernelUnits::cm;
+        thicknessWrapper = (scintiThickness + 2*scintiWrapInZ)*GeoModelKernelUnits::cm;
         if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
-        double thicknessEnvelope = (m_dbManager->TILBdzmodul()*CLHEP::cm - thicknessWrapper); // along phi thickness is twice bigger than along Z 
-        dy1Wrapper = dy1Period - thicknessEnvelope + ((scintiRC - scintiHeight/2. - scintiWrapInR)*tanphi)*CLHEP::cm;
-        dy2Wrapper = dy1Period - thicknessEnvelope + ((scintiRC + scintiHeight/2. + scintiWrapInR)*tanphi)*CLHEP::cm;
+        double thicknessEnvelope = (m_dbManager->TILBdzmodul()*GeoModelKernelUnits::cm - thicknessWrapper); // along phi thickness is twice bigger than along Z 
+        dy1Wrapper = dy1Period - thicknessEnvelope + ((scintiRC - scintiHeight/2. - scintiWrapInR)*tanphi)*GeoModelKernelUnits::cm;
+        dy2Wrapper = dy1Period - thicknessEnvelope + ((scintiRC + scintiHeight/2. + scintiWrapInR)*tanphi)*GeoModelKernelUnits::cm;
 
         if(m_log->level()<=MSG::DEBUG)
             (*m_log) << MSG::DEBUG <<"Envelope thickness is " << thicknessEnvelope <<endmsg;
@@ -2419,22 +2423,22 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 	pvWrapper = new GeoPhysVol(lvWrapper);
 
         // create scintillator
-        dy1Scintillator = dy1Period - thicknessEnvelope + ((scintiRC - scintiHeight/2.)*tanphi - scintiDeltaInPhi)*CLHEP::cm;
-        dy2Scintillator = dy1Period - thicknessEnvelope + ((scintiRC + scintiHeight/2.)*tanphi - scintiDeltaInPhi)*CLHEP::cm;
+        dy1Scintillator = dy1Period - thicknessEnvelope + ((scintiRC - scintiHeight/2.)*tanphi - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
+        dy2Scintillator = dy1Period - thicknessEnvelope + ((scintiRC + scintiHeight/2.)*tanphi - scintiDeltaInPhi)*GeoModelKernelUnits::cm;
 
         checking("Scintillator 4", true, 6, 
-            scintiThickness/2*CLHEP::cm,scintiThickness/2*CLHEP::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*CLHEP::cm);
+            scintiThickness/2*GeoModelKernelUnits::cm,scintiThickness/2*GeoModelKernelUnits::cm,dy1Scintillator,dy2Scintillator,scintiHeight/2*GeoModelKernelUnits::cm);
 
-	scintillator = new GeoTrd(scintiThickness/2*CLHEP::cm,
-				  scintiThickness/2*CLHEP::cm,
+	scintillator = new GeoTrd(scintiThickness/2*GeoModelKernelUnits::cm,
+				  scintiThickness/2*GeoModelKernelUnits::cm,
 				  dy1Scintillator,
 				  dy2Scintillator,
-				  scintiHeight/2*CLHEP::cm);
+				  scintiHeight/2*GeoModelKernelUnits::cm);
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	pvScintillator = new GeoPhysVol(lvScintillator);
 
         // place scintillator in wrapper
-	tfScintillator = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
+	tfScintillator = new GeoTransform(GeoTrf::Translate3D(0.,0.,0.));
 	pvWrapper->add(idTag);
 	pvWrapper->add(tfScintillator);
 	pvWrapper->add(pvScintillator);
@@ -2445,9 +2449,9 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
           (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
         
-	tfWrapper = new GeoTransform(HepGeom::Translate3D(0.,
+	tfWrapper = new GeoTransform(GeoTrf::Translate3D(0.,
 						    0.,
-						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*CLHEP::cm));
+						    (scintiRC-(m_dbManager->TILBrmax()-m_dbManager->TILBrmin())/2)*GeoModelKernelUnits::cm));
 	mother->add(idTag);
 	mother->add(tfWrapper);
 	mother->add(pvWrapper);
@@ -2534,16 +2538,16 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
   float drGap[] = {450., 380., 313., 341., 478., 362.};
 
   if (addPlates) {
-    rBarrel[0] -= 10*CLHEP::mm/2;
-    rBarrel[2] += 40*CLHEP::mm/2;
-    drBarrel[0] += 10*CLHEP::mm;
-    drBarrel[2] += 40*CLHEP::mm;
-    rExtended[0] -= 10*CLHEP::mm/2;
-    rExtended[2] += 40*CLHEP::mm/2;
-    drExtended[0] += 10*CLHEP::mm;
-    drExtended[2] += 40*CLHEP::mm;
-    rGap[1] += 40*CLHEP::mm/2;
-    drGap[1] += 40*CLHEP::mm;
+    rBarrel[0] -= 10*GeoModelKernelUnits::mm/2;
+    rBarrel[2] += 40*GeoModelKernelUnits::mm/2;
+    drBarrel[0] += 10*GeoModelKernelUnits::mm;
+    drBarrel[2] += 40*GeoModelKernelUnits::mm;
+    rExtended[0] -= 10*GeoModelKernelUnits::mm/2;
+    rExtended[2] += 40*GeoModelKernelUnits::mm/2;
+    drExtended[0] += 10*GeoModelKernelUnits::mm;
+    drExtended[2] += 40*GeoModelKernelUnits::mm;
+    rGap[1] += 40*GeoModelKernelUnits::mm/2;
+    drGap[1] += 40*GeoModelKernelUnits::mm;
   }
     
   int indHardcoded = 0;
@@ -2796,10 +2800,10 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
       dzPeriod = m_extendedPeriodThickness;
     }
 
-    rMin = m_dbManager->TILBrmin() *CLHEP::cm;
-    if (addPlates) rMin -= m_dbManager->TILBdrfront() *CLHEP::cm;
+    rMin = m_dbManager->TILBrmin() *GeoModelKernelUnits::cm;
+    if (addPlates) rMin -= m_dbManager->TILBdrfront() *GeoModelKernelUnits::cm;
     CurrentScin = 100*m_dbManager->TILBsection() + 1;
-    //dzMaster = m_dbManager->TILBdzmast()*CLHEP::cm;
+    //dzMaster = m_dbManager->TILBdzmast()*GeoModelKernelUnits::cm;
 
     /** Initialize rMin, rMax vectors  - once per region
         Initial values for zMin - leftmost edge
@@ -2811,13 +2815,13 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 
       if ( (j == CurrentScin + m_dbManager->TILBnscin() - 1) && addPlates ) {
         // use end of the master as end of last cell 
-        rMax = m_dbManager->TILBrmax()*CLHEP::cm; 
+        rMax = m_dbManager->TILBrmax()*GeoModelKernelUnits::cm; 
       } else {
         double tileSize=m_dbManager->SCNTdr();
         if (m_dbManager->SCNTdrw() > 0)
           // round to integer for all tiles except gap scin 
           tileSize=round(tileSize); 
-        rMax = (m_dbManager->TILBrmin() + m_dbManager->SCNTrc() + tileSize/2)*CLHEP::cm;
+        rMax = (m_dbManager->TILBrmin() + m_dbManager->SCNTrc() + tileSize/2)*GeoModelKernelUnits::cm;
       }
 
       rmins.push_back(rMin);
@@ -2825,19 +2829,19 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
       rMin = rMax;
 
       if(detector == TILE_REGION_CENTRAL) {
-	zmins.push_back((-m_dbManager->TILBdzmast()/2 - m_barrelGlue*(1./CLHEP::cm) 
-                         -(m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend1()))*CLHEP::cm);
-        zEnd1Lim = (-m_dbManager->TILBdzmodul()/2+m_dbManager->TILBdzend1())*CLHEP::cm;
-        zEnd2Lim = ( m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend2())*CLHEP::cm;
-        zEnd1 = (-m_dbManager->TILBdzmodul()/2)*CLHEP::cm;
-        zEnd2 = ( m_dbManager->TILBdzmodul()/2)*CLHEP::cm;
+	zmins.push_back((-m_dbManager->TILBdzmast()/2 - m_barrelGlue*(1./GeoModelKernelUnits::cm) 
+                         -(m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend1()))*GeoModelKernelUnits::cm);
+        zEnd1Lim = (-m_dbManager->TILBdzmodul()/2+m_dbManager->TILBdzend1())*GeoModelKernelUnits::cm;
+        zEnd2Lim = ( m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm;
+        zEnd1 = (-m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
+        zEnd2 = ( m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
       }
       else {
-	zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2 + m_dbManager->TILBdzend1())*CLHEP::cm);
-        zEnd1Lim = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2+m_dbManager->TILBdzend1()+0.001)*CLHEP::cm;
-        zEnd2Lim = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend2()-0.001)*CLHEP::cm;
-        zEnd1 = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*CLHEP::cm;
-        zEnd2 = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*CLHEP::cm;
+	zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2 + m_dbManager->TILBdzend1())*GeoModelKernelUnits::cm);
+        zEnd1Lim = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2+m_dbManager->TILBdzend1()+0.001)*GeoModelKernelUnits::cm;
+        zEnd2Lim = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend2()-0.001)*GeoModelKernelUnits::cm;
+        zEnd1 = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
+        zEnd2 = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
       }
       
       zmaxs.push_back(0.);
@@ -3002,7 +3006,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                         << cellDim->getRMax(jj) << " "
                         << cellDim->getZMin(jj) << " "
                         << cellDim->getZMax(jj) << "\n";
-            std::cout << " >> Cell Volume is " << cellDim->getVolume()*(1./CLHEP::cm3) << " cm^3\n";
+            std::cout << " >> Cell Volume is " << cellDim->getVolume()*(1./GeoModelKernelUnits::cm3) << " cm^3\n";
 
             if(detector != TILE_REGION_CENTRAL)
             {
@@ -3012,7 +3016,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                           << cellDimNeg->getRMax(jj) << " "
                           << cellDimNeg->getZMin(jj) << " "
                           << cellDimNeg->getZMax(jj) << "\n";
-              std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./CLHEP::cm3) << " cm^3\n";
+              std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./GeoModelKernelUnits::cm3) << " cm^3\n";
             }
           }
 	  /* ------------------------------------------------------------------------------------------------ */	  
@@ -3048,8 +3052,8 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
         m_dbManager->SetNextTiclInDet();
       }
 
-      rMin = m_dbManager->TILBrmin()*CLHEP::cm;
-      if (addPlates) rMin -= m_dbManager->TILBdrfront() *CLHEP::cm;
+      rMin = m_dbManager->TILBrmin()*GeoModelKernelUnits::cm;
+      if (addPlates) rMin -= m_dbManager->TILBdrfront() *GeoModelKernelUnits::cm;
       CurrentScin = 100*m_dbManager->TILBsection() + 1;
 
       for (unsigned int j = CurrentScin; j < (CurrentScin + m_dbManager->TILBnscin()); j++)
@@ -3058,33 +3062,33 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 
         if ( (j == CurrentScin + m_dbManager->TILBnscin() - 1)  && addPlates ) {
           /** use end of the master as end of last cell */
-          rMax = m_dbManager->TILBrmax()*CLHEP::cm; 
+          rMax = m_dbManager->TILBrmax()*GeoModelKernelUnits::cm; 
           /** subtract from C10 thickness of D4 front plate  */
           if (addPlates && sec)
-            rMax -= m_dbManager->TILBdrfront()*CLHEP::cm;
+            rMax -= m_dbManager->TILBdrfront()*GeoModelKernelUnits::cm;
         } else {
           double tileSize=m_dbManager->SCNTdr();
           if (m_dbManager->SCNTdrw() > 0)
             /** round to integer for all tiles except gap scin */
             tileSize=round(tileSize); 
-          rMax = (m_dbManager->TILBrmin() + m_dbManager->SCNTrc() + tileSize/2)*CLHEP::cm;
+          rMax = (m_dbManager->TILBrmin() + m_dbManager->SCNTrc() + tileSize/2)*GeoModelKernelUnits::cm;
         }
 
         rmins.push_back(rMin);
         rmaxs.push_back(rMax);
         rMin = rMax;
         
-        zEnd1Lim = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2+m_dbManager->TILBdzend1()+0.001)*CLHEP::cm;
-        zEnd2Lim = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend2()-0.001)*CLHEP::cm;
-        zEnd1 = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*CLHEP::cm;
-        zEnd2 = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*CLHEP::cm;
+        zEnd1Lim = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2+m_dbManager->TILBdzend1()+0.001)*GeoModelKernelUnits::cm;
+        zEnd2Lim = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2-m_dbManager->TILBdzend2()-0.001)*GeoModelKernelUnits::cm;
+        zEnd1 = (m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
+        zEnd2 = (m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
 
         if ( addPlates ) {
-          zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*CLHEP::cm);
-          zmaxs.push_back((m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*CLHEP::cm);
+          zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm);
+          zmaxs.push_back((m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm);
         } else {
-          zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2 + m_dbManager->TILBdzend1())*CLHEP::cm);
-          zmaxs.push_back((m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2 - m_dbManager->TILBdzend2())*CLHEP::cm);
+          zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2 + m_dbManager->TILBdzend1())*GeoModelKernelUnits::cm);
+          zmaxs.push_back((m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2 - m_dbManager->TILBdzend2())*GeoModelKernelUnits::cm);
         }
       }
 
@@ -3134,7 +3138,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                     << cellDim->getRMax(jj) << " "
                     << cellDim->getZMin(jj) << " "
                     << cellDim->getZMax(jj) << "\n";
-        std::cout<< " >> Cell Volume is " << cellDim->getVolume()*(1./CLHEP::cm3) << " cm^3\n";
+        std::cout<< " >> Cell Volume is " << cellDim->getVolume()*(1./GeoModelKernelUnits::cm3) << " cm^3\n";
     
         std::cout << " >> CellDimNeg contains " << cellDimNeg->getNRows() << " rows\n";
         for(unsigned int jj=0; jj<cellDimNeg->getNRows(); jj++)
@@ -3142,7 +3146,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                     << cellDimNeg->getRMax(jj) << " "
                     << cellDimNeg->getZMin(jj) << " "
                     << cellDimNeg->getZMax(jj) << "\n";
-        std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./CLHEP::cm3) << " cm^3\n";
+        std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./GeoModelKernelUnits::cm3) << " cm^3\n";
       }
 /* -------------------------------------------- */
     }
@@ -3165,20 +3169,20 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 	CurrentScin = 100*m_dbManager->TILBsection()+1;
       }
 
-      rMin = m_dbManager->TILBrmin()*CLHEP::cm;
+      rMin = m_dbManager->TILBrmin()*GeoModelKernelUnits::cm;
 
       // Initialize rMin, rMax, zMin, zMax vectors
       for (unsigned int j = CurrentScin; j < (CurrentScin + m_dbManager->TILBnscin()); j++)
       {
 	m_dbManager->SetCurrentScin(j);
-	rMax = rMin + m_dbManager->SCNTdr()*CLHEP::cm;
+	rMax = rMin + m_dbManager->SCNTdr()*GeoModelKernelUnits::cm;
 	
 	rmins.push_back(rMin);
 	rmaxs.push_back(rMax);
 	rMin = rMax;
 	
-	zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*CLHEP::cm);
-	zmaxs.push_back((m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*CLHEP::cm);
+	zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm);
+	zmaxs.push_back((m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm);
       }
 
       // Iterate through scintillators and create corresponding TileCellDim objects (+/-)
@@ -3226,7 +3230,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                       << cellDim->getRMax(jj) << " "
                       << cellDim->getZMin(jj) << " "
                       << cellDim->getZMax(jj) << "\n";
-          std::cout << " >> Cell Volume is " << cellDim->getVolume()*(1./CLHEP::cm3) << " cm^3\n";
+          std::cout << " >> Cell Volume is " << cellDim->getVolume()*(1./GeoModelKernelUnits::cm3) << " cm^3\n";
     
           std::cout << " >> CellDimNeg contains " << cellDimNeg->getNRows() << " rows\n";
           for(unsigned int jj=0; jj<cellDimNeg->getNRows(); jj++)
@@ -3234,7 +3238,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
                       << cellDimNeg->getRMax(jj) << " "
                       << cellDimNeg->getZMin(jj) << " "
                       << cellDimNeg->getZMax(jj) << "\n";
-          std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./CLHEP::cm3) << " cm^3\n";
+          std::cout << " >> CellNeg Volume is " << cellDimNeg->getVolume()*(1./GeoModelKernelUnits::cm3) << " cm^3\n";
         }
 /* -------------------------------------------- */
       }
@@ -3276,10 +3280,10 @@ void TileGeoSectionBuilder::calculateZ(int detector,
   // first - find position in ideal world before Z-shift and misalignment
   if (detector == TILE_REGION_CENTRAL) {
     // need to split one cylinder in pos/neg halves
-    float zmin=m_dbManager->TILBzoffset()/2 * CLHEP::cm ;
-    float zmax=zmin+m_dbManager->TILBdzmodul()/2 * CLHEP::cm ;
+    float zmin=m_dbManager->TILBzoffset()/2 * GeoModelKernelUnits::cm ;
+    float zmax=zmin+m_dbManager->TILBdzmodul()/2 * GeoModelKernelUnits::cm ;
     if (sample==3) { // fix for D0 cell 
-      float D0size = 560.58/307*40 * CLHEP::cm; // size of D0 along Z in CLHEP::cm
+      float D0size = 560.58/307*40 * GeoModelKernelUnits::cm; // size of D0 along Z in GeoModelKernelUnits::cm
                                   // FIXME:: should be taken from DB
       if (side>0) // positive
         zmin = - D0size/2;
@@ -3289,13 +3293,13 @@ void TileGeoSectionBuilder::calculateZ(int detector,
     zcenter = (zmin+zmax)/2;
     dz = (zmax-zmin);
   } else if (detector == TILE_REGION_GAP && (sample > 9) ){
-    zcenter=m_dbManager->TILBzoffset() * CLHEP::cm ;
+    zcenter=m_dbManager->TILBzoffset() * GeoModelKernelUnits::cm ;
     m_dbManager->SetCurrentScin(100*m_dbManager->TILBsection() + 1 );
-    dz =  m_dbManager->SCNTdt()*CLHEP::cm;
+    dz =  m_dbManager->SCNTdt()*GeoModelKernelUnits::cm;
   }
   else {
-    zcenter=m_dbManager->TILBzoffset() * CLHEP::cm ;
-    dz=m_dbManager->TILBdzmodul() * CLHEP::cm ;
+    zcenter=m_dbManager->TILBzoffset() * GeoModelKernelUnits::cm ;
+    dz=m_dbManager->TILBdzmodul() * GeoModelKernelUnits::cm ;
   }
 
   // apply zshift from ideal pseudo-projective eta (which includes alignment also!)
@@ -3421,18 +3425,18 @@ void TileGeoSectionBuilder::printdouble(const char * name, double val)
 }
 
 const GeoShape * TileGeoSectionBuilder::makeHolesScint(const GeoShape * mother, double R, double H2, double off, double off0) {
-    GeoShape *hole = new GeoTubs(0., R, H2, 0., 360.0 * CLHEP::deg);
-    const  GeoShapeUnion& scintUnion = hole->add( *hole << HepGeom::Translate3D((off0-off*2.0),0.,0.));
-    HepGeom::Transform3D tfHole = HepGeom::Translate3D(0.,0.,(off0-off)) * HepGeom::RotateY3D(90*CLHEP::deg);
+    GeoShape *hole = new GeoTubs(0., R, H2, 0., 360.0 * GeoModelKernelUnits::deg);
+    const  GeoShapeUnion& scintUnion = hole->add( *hole << GeoTrf::Translate3D((off0-off*2.0),0.,0.));
+    GeoTrf::Transform3D tfHole = GeoTrf::Translate3D(0.,0.,(off0-off)) * GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
     const GeoShape & motherWithHoles = (mother->subtract(scintUnion<<tfHole));
     return &motherWithHoles;
 }
 
 const GeoShape * TileGeoSectionBuilder::makeHoles(const GeoShape * mother, double R, double H2, double off, double off0) {
-  GeoShape *hole1 = new GeoTubs(0., R, H2, 0., 360.0 * CLHEP::deg);
-  GeoShape *hole2 = new GeoTubs(0., R, H2, 0., 360.0 * CLHEP::deg);
-  HepGeom::Transform3D tfHole1 = HepGeom::Translate3D(0.,0.,(off0-off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
-  HepGeom::Transform3D tfHole2 = HepGeom::Translate3D(0.,0.,(off0+off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
+  GeoShape *hole1 = new GeoTubs(0., R, H2, 0., 360.0 * GeoModelKernelUnits::deg);
+  GeoShape *hole2 = new GeoTubs(0., R, H2, 0., 360.0 * GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D tfHole1 = GeoTrf::Translate3D(0.,0.,(off0-off)) * GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D tfHole2 = GeoTrf::Translate3D(0.,0.,(off0+off)) * GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
   const GeoShape & motherWithHoles = (mother->subtract((*hole1)<<tfHole1).subtract((*hole2)<<tfHole2));
   return &motherWithHoles;
 }

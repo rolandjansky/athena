@@ -10,6 +10,7 @@
  */
 
 // INCLUDE HEADER FILE
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileTrackFillerTool.h"
 
 //xAOD tools

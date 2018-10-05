@@ -15,6 +15,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #define skip_ded false
 
@@ -77,12 +78,12 @@ GeoVPhysVol* Ded::build(int cutoutson,
      GeoPhysVol* tempPhys = 0;
      Cutout* cut = 0;
      GeoShape* cutoutShape = 0;
-     HepGeom::Transform3D cutTrans;
+     GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
      for (unsigned i = 0; i < vcutdef.size(); i++) {
        cut = vcutdef[i];
        cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                 cut->widthXs/2., cut->widthXl/2., cut->lengthY/2.);
-       cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+       cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
 
        GeoCutVolAction cutAction(*cutoutShape, cutTrans);
        pded->apply(&cutAction);

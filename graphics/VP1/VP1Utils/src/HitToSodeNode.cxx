@@ -100,7 +100,7 @@ double HitToSoNode::getTGCAngle(Identifier id) const {
     } 
     Amg::Vector3D lpos_shift(lposTGC.x(),locy_shift,z_shift);
 
-    const Amg::Transform3D tgcTrans = Amg::CLHEPTransformToEigen(detEl->getMaterialGeom()->getAbsoluteTransform());
+    const Amg::Transform3D tgcTrans = detEl->getMaterialGeom()->getAbsoluteTransform();
     Amg::Vector3D gpos = tgcTrans * lposTGC;
     Amg::Vector3D gpos_shift = tgcTrans*lpos_shift;
 

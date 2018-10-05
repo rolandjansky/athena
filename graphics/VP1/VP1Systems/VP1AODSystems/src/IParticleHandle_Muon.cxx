@@ -30,6 +30,7 @@
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoRotationXYZ.h>
 
+#include "GaudiKernel/SystemOfUnits.h"
 //AOD
 
 //____________________________________________________________________
@@ -425,7 +426,7 @@ QString IParticleHandle_Muon::qualityString() const{
 
 QString IParticleHandle_Muon::shortInfo() const
 {
-  QString l("|P|="+VP1Msg::str(momentum().mag()/CLHEP::GeV)+" [GeV], " +muonTypeString() + ", "+qualityString()  );
+  QString l("|P|="+VP1Msg::str(momentum().mag()/Gaudi::Units::GeV)+" [GeV], " +muonTypeString() + ", "+qualityString()  );
   
   return l;
 }

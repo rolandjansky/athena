@@ -132,12 +132,12 @@ void VP1RawDataHandle_BCM_RDO::Imp::ensureInitModuleInfo()
     GeoVolumeCursor av(*world);
     while (!av.atEnd()) {
       if (av.getName()=="Pixel") {
-	Amg::Transform3D tr_pix = Amg::CLHEPTransformToEigen( av.getTransform() );
+	Amg::Transform3D tr_pix = av.getTransform();
 	GeoVolumeCursor pv(av.getVolume());
 	while (!pv.atEnd()) {
 	  int bcmModLogCopyNumber(-1);
 	  if (pv.getVolume()->getLogVol()->getName()=="bcmModLog") {
-	    Amg::Transform3D tr_bcmmod = Amg::CLHEPTransformToEigen( pv.getTransform() );
+	    Amg::Transform3D tr_bcmmod = pv.getTransform();
 	    Query<int> Qint = pv.getId();
 	    if (Qint.isValid()) {
 	      bcmModLogCopyNumber = int(Qint);
@@ -145,7 +145,7 @@ void VP1RawDataHandle_BCM_RDO::Imp::ensureInitModuleInfo()
 	      GeoVolumeCursor bv(pv.getVolume());
 	      while (!bv.atEnd()) {
 		if (bv.getVolume()->getLogVol()->getName()=="bcmDiamondLog") {
-		  Amg::Transform3D tr_diamond( Amg::CLHEPTransformToEigen( bv.getTransform() ) );
+		  Amg::Transform3D tr_diamond(bv.getTransform());
 		  const GeoBox * box = bv.getVolume()->getLogVol()->getShape()->typeID()==GeoBox::getClassTypeID() ?
 		    static_cast<const GeoBox*>(bv.getVolume()->getLogVol()->getShape()) : 0;
 		  modInfo->addBox(tr_pix*tr_bcmmod*tr_diamond,box);

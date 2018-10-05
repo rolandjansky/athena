@@ -5,10 +5,10 @@
 // Build detailed stave support : face plate + carbon foam + cable flex + cooling pipe + end blocks
 // This is built one time per layer. 
 
-#include "PixelGeoModel/GeoPixelStaveRing.h"
+#include "GeoPixelStaveRing.h"
 
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "PixelGeoModel/GeoPixelModule.h"
+#include "GeoPixelSiCrystal.h"
+#include "GeoPixelModule.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -48,7 +48,7 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support : "<<m_ringName<<"  "<<m_ringPosition<<endmsg;
 
-  double safety = 0.001*CLHEP::mm; 
+  double safety = 0.001*GeoModelKernelUnits::mm; 
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(isBLayer);

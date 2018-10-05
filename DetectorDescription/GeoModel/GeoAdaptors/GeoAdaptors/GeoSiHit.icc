@@ -10,7 +10,7 @@
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 inline void GeoSiHit::init() {
 
@@ -56,7 +56,7 @@ inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
   
   if (geoelement) {
 
-    const HepGeom::Point3D<double> globalStartPos = geoelement->transformHit() * HepGeom::Point3D<double>(m_hit->localStartPosition());
+    const HepGeom::Point3D<double> globalStartPos = Amg::EigenTransformToCLHEP(geoelement->transformHit()) * HepGeom::Point3D<double>(m_hit->localStartPosition());
     
     double x=globalStartPos.x();
     double y=globalStartPos.y();

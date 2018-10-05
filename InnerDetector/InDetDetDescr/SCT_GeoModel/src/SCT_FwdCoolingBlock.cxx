@@ -13,7 +13,9 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
+
+#include <iostream>
 
 SCT_FwdCoolingBlock::SCT_FwdCoolingBlock(const std::string & name, int hiLo, int mainOrSecondary)
   : SCT_SharedComponentFactory(name), m_hiLo(hiLo), m_mainSec(mainOrSecondary)

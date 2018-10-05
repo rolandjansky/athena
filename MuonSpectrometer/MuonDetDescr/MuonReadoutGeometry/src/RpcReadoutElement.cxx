@@ -75,8 +75,8 @@ namespace MuonGM {
 		//       <<tname<<" child "
 		//       <<ngv<<" is a gas volume  with tag "<<lgg<<std::endl;
 		PVConstLink pcgg = pcgv->getChildVol(0);
-		HepGeom::Transform3D trans = pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)*pcgv->getXToChildVol(0);
-		m_Xlg[llay-1][lgg-1] = Amg::CLHEPTransformToEigen(trans);
+		GeoTrf::Transform3D trans = pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)*pcgv->getXToChildVol(0);
+		m_Xlg[llay-1][lgg-1] = trans;
 	      }
 	    }
 	  }

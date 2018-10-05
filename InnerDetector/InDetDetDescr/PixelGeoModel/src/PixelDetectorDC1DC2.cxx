@@ -6,7 +6,7 @@
 // This allows one to keep a stable copy of the DC2 version and
 // allow development of future versions.
 
-#include "PixelGeoModel/PixelDetectorDC1DC2.h"
+#include "PixelDetectorDC1DC2.h"
 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -79,7 +79,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     //cout << "Layer" << ii << endl;
     m_gmt_mgr->SetCurrentLD(ii);
     if(m_gmt_mgr->isLDPresent()) {
-      GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
+      GeoAlignableTransform * xform = new GeoAlignableTransform(GeoTrf::Transform3D::Identity());
       GeoVPhysVol* layerphys = layer.Build();
       GeoNameTag *tag = new GeoNameTag(lname[ii]);         
       barrelPhys->add(tag);
@@ -102,8 +102,8 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     for(int ii =0; ii< brlsvc.NCylinders(); ii++) {
       brlsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Barrel Service");
-      CLHEP::Hep3Vector pos(0.,0.,brlsvc.ZPos() );
-      GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
+      GeoTrf::Translate3D pos(0.,0.,brlsvc.ZPos() );
+      GeoTransform* xform = new GeoTransform(pos);
       barrelPhys->add(tag);
       barrelPhys->add(xform);
       barrelPhys->add(brlsvc.Build() );
@@ -152,19 +152,19 @@ double GeoPixelCable::Length() {
 
 double GeoPixelCable::Thickness() {
   //
-  // This is calculated from the CLHEP::rad length of the cables and their mass
+  // This is calculated from the GeoModelKernelUnits::rad length of the cables and their mass
   // I have to go back on this later when I'll have defined a material
   // manager, for the time being I get the thickness by atlsim, using dtree
   // anf hardwire the numbers in the code...
   // I have to come back on the thickness using the cables recipes
   //
-  if(m_moduleNumber == 0) return 2.*0.0028412*CLHEP::cm;
-  if(m_moduleNumber == 1) return 2.*0.0056795*CLHEP::cm;
-  if(m_moduleNumber == 2) return 2.*0.0056830*CLHEP::cm;
-  if(m_moduleNumber == 3) return 2.*0.0056763*CLHEP::cm;
-  if(m_moduleNumber == 4) return 2.*0.0056752*CLHEP::cm;
-  if(m_moduleNumber == 5) return 2.*0.0057058*CLHEP::cm;
-  if(m_moduleNumber == 6) return 2.*0.0056818*CLHEP::cm;
+  if(m_moduleNumber == 0) return 2.*0.0028412*GeoModelKernelUnits::cm;
+  if(m_moduleNumber == 1) return 2.*0.0056795*GeoModelKernelUnits::cm;
+  if(m_moduleNumber == 2) return 2.*0.0056830*GeoModelKernelUnits::cm;
+  if(m_moduleNumber == 3) return 2.*0.0056763*GeoModelKernelUnits::cm;
+  if(m_moduleNumber == 4) return 2.*0.0056752*GeoModelKernelUnits::cm;
+  if(m_moduleNumber == 5) return 2.*0.0057058*GeoModelKernelUnits::cm;
+  if(m_moduleNumber == 6) return 2.*0.0056818*GeoModelKernelUnits::cm;
 
   return 0.;
 
@@ -249,8 +249,8 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
   GeoPixelSubDisk psd(theSensor);
   double zpos = -m_gmt_mgr->PixelECSiDz1()/2.;
-  double angle = 360.*CLHEP::deg/ (float) m_gmt_mgr->PixelECNSectors1();
-  CLHEP::Hep3Vector pos(0.,0.,zpos);
+  double angle = 360.*GeoModelKernelUnits::deg/ (float) m_gmt_mgr->PixelECNSectors1();
+  GeoTrf::Translation3D pos(0.,0.,zpos);
 
   // Set numerology
   m_gmt_mgr->SetEta(0);
@@ -261,10 +261,8 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   m_gmt_mgr->SetEta(0);
   for (int ii = 0; ii <  m_gmt_mgr->PixelECNSectors1(); ii++) {
     m_gmt_mgr->SetPhi(ii);
-    CLHEP::HepRotation rm;
-    rm.rotateX(180.*CLHEP::deg );
-    rm.rotateZ(ii*angle+angle/2.);
-    GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(ii*angle+angle/2.)*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+    GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::Transform3D(pos*rm));
     GeoVPhysVol * modulePhys = psd.Build();
     GeoNameTag* tag = new GeoNameTag("DiskSector");
     diskPhys->add(tag);
@@ -280,12 +278,11 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   // Odd modules
   m_gmt_mgr->SetEta(1);
   zpos = m_gmt_mgr->PixelECSiDz2()/2.;
-  pos = CLHEP::Hep3Vector(0.,0.,zpos);
+  pos = GeoTrf::Translation3D(0.,0.,zpos);
   for (int ii = 0; ii <  m_gmt_mgr->PixelECNSectors1(); ii++) {
     m_gmt_mgr->SetPhi(ii);
-    CLHEP::HepRotation rm;
-    rm.rotateZ((ii+1)*angle);
-    GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::RotateZ3D rm((ii+1)*angle);
+    GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::Transform3D(pos*rm));
     GeoVPhysVol * modulePhys = psd.Build();
     GeoNameTag* tag = new GeoNameTag("DiskSector");
     diskPhys->add(tag);
@@ -303,9 +300,9 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   GeoPixelDiskSupports pds;
   for(int ii =0; ii< pds.NCylinders(); ii++) {
     pds.SetCylinder(ii);
-    CLHEP::Hep3Vector pos(0.,0.,pds.ZPos() );
+    GeoTrf::Translate3D pos(0.,0.,pds.ZPos() );
     GeoNameTag* tag = new GeoNameTag("DiskSupport");
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
+    GeoTransform* xform = new GeoTransform(pos);
     diskPhys->add(tag);
     diskPhys->add(xform);
     diskPhys->add(pds.Build() );
@@ -331,7 +328,7 @@ double GeoPixelDisk::Thickness() {
   // 7-1 I switch to the minimum thickness possible as the cables are right
   // outside this volume.
   //
-  //  return 10*CLHEP::mm;
+  //  return 10*GeoModelKernelUnits::mm;
   double tck = 2*(m_gmt_mgr->PixelBoardThickness()
                   +std::max(m_gmt_mgr->PixelHybridThickness(),m_gmt_mgr->PixelChipThickness()));
   tck += std::max(m_gmt_mgr->PixelECSiDz1(),m_gmt_mgr->PixelECSiDz2());
@@ -480,9 +477,9 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       //position of the disk
       double zdisk = m_gmt_mgr->PixelDiskPosition()-ecz;
       // place the disk
-      CLHEP::Hep3Vector pos(0.,0.,zdisk);
+      GeoTrf::Translate3D pos(0.,0.,zdisk);
       GeoNameTag* tag = new GeoNameTag("Disk");
-      GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(CLHEP::HepRotation(), pos));
+      GeoAlignableTransform* xform = new GeoAlignableTransform(pos);
       GeoVPhysVol * diskPhys = pd.Build();
       ecPhys->add(tag);
       ecPhys->add(new GeoIdentifierTag(ii));
@@ -498,15 +495,15 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       // place the cables twice for the two active parts
       //
       double dz = pd.Thickness()/2. + m_gmt_mgr->PixelECCablesDistance() ;
-      pos = CLHEP::Hep3Vector(0.,0.,zdisk+dz);
+      pos = GeoTrf::Translate3D(0.,0.,zdisk+dz);
       tag = new GeoNameTag("ECCables");
-      GeoTransform * xformCablesPlus = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), pos));
+      GeoTransform * xformCablesPlus = new GeoTransform(pos);
       ecPhys->add(tag);
       ecPhys->add(xformCablesPlus);
       ecPhys->add(pecc.Build() );
-      pos = CLHEP::Hep3Vector(0.,0.,zdisk-dz);
+      pos = GeoTrf::Translate3D(0.,0.,zdisk-dz);
       tag = new GeoNameTag("ECCables");
-      GeoTransform * xformCablesMinus = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), pos));
+      GeoTransform * xformCablesMinus = new GeoTransform(pos);
       ecPhys->add(tag);
       ecPhys->add(xformCablesMinus);
       ecPhys->add(pecc.Build() );
@@ -523,8 +520,8 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
     for(int ii =0; ii< ecsvc.NCylinders(); ii++) {
       ecsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Endcap Service");
-      CLHEP::Hep3Vector pos(0.,0.,ecsvc.ZPos() );
-      GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
+      GeoTrf::Translate3D pos(0.,0.,ecsvc.ZPos() );
+      GeoTransform* xform = new GeoTransform(pos);
       ecPhys->add(tag);
       ecPhys->add(xform);
       ecPhys->add(ecsvc.Build() );
@@ -571,8 +568,8 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     for(int ii =0; ii< brlsvc.NCylinders(); ii++) {
       brlsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Barrel Service");
-      CLHEP::Hep3Vector pos(0.,0.,brlsvc.ZPos() );
-      GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
+      GeoTrf::Translate3D pos(0.,0.,brlsvc.ZPos() );
+      GeoTransform* xform = new GeoTransform(pos);
       envelopePhys->add(tag);
       envelopePhys->add(new GeoIdentifierTag(ii) );
       envelopePhys->add(xform);
@@ -588,18 +585,16 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   m_gmt_mgr->SetPos();
   GeoPixelEndCap pec;
   double zpos = (m_gmt_mgr->PixelEndcapZMax()+m_gmt_mgr->PixelEndcapZMin())/2.;
-  CLHEP::Hep3Vector pos(0.,0.,zpos);
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
+  GeoTrf::Translate3D pos(0.,0.,zpos);
+  GeoTransform* xform = new GeoTransform(pos);
   tag  = new GeoNameTag("EndCap 1");
   envelopePhys->add(tag);
   envelopePhys->add(new GeoIdentifierTag(2));
   envelopePhys->add(xform);
   envelopePhys->add(pec.Build() );
   m_gmt_mgr->SetNeg();
-  pos = CLHEP::Hep3Vector(0.,0.,-zpos);
-  CLHEP::HepRotation rm;
-  rm.rotateX(180.*CLHEP::deg);
-  xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+  GeoTrf::RotateX3D rm(180.*GeoModelKernelUnits::deg);
+  xform = new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translation3D(0.,0.,-zpos)*rm));
   tag  = new GeoNameTag("EndCap 2");
   envelopePhys->add(tag);
   envelopePhys->add(new GeoIdentifierTag(-2));
@@ -613,8 +608,8 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     for(int ii =0; ii< ecsvc.NCylinders(); ii++) {
       ecsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Endcap Service");
-      CLHEP::Hep3Vector pos(0.,0.,ecsvc.ZPos() );
-      GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
+      GeoTrf::Translate3D pos(0.,0.,ecsvc.ZPos() );
+      GeoTransform* xform = new GeoTransform(pos);
       envelopePhys->add(tag);
       envelopePhys->add(xform);
       envelopePhys->add(new GeoIdentifierTag(ii) );
@@ -733,15 +728,14 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 // Get the z position from the db
 //
     float zpos = m_gmt_mgr->PixelModulePosition(jj)*side;
-    CLHEP::Hep3Vector modulepos(xpos,0.,zpos);
+    GeoTrf::Translation3D modulepos(xpos,0.,zpos);
 //
 //
 //
-    CLHEP::HepRotation rm;
     //
     // again change sign w.r.t. g4
     //
-    rm.rotateY(m_gmt_mgr->PixelModuleAngle()*m_gmt_mgr->PixelModuleAngleSign(ii) );
+    GeoTrf::RotateY3D rm(m_gmt_mgr->PixelModuleAngle()*m_gmt_mgr->PixelModuleAngleSign(ii) );
 //
 // Place the Module
 //
@@ -750,11 +744,11 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     GeoAlignableTransform* xform;
     // OLD EXAMPLE FOR ALIGNEMENT!!
     //    if(m_gmt_mgr->IsAlign() ) {
-    //      xform = new GeoSiAlTransform(HepGeom::Transform3D(rm,modulepos), pm.getID() );
+    //      xform = new GeoSiAlTransform(GeoTrf::Transform3D(rm,modulepos), pm.getID() );
     //    } else {
-    //      xform = new GeoTransform(HepGeom::Transform3D(rm,modulepos));
+    //      xform = new GeoTransform(GeoTrf::Transform3D(rm,modulepos));
     //    }
-    xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,modulepos));
+    xform = new GeoAlignableTransform(GeoTrf::Transform3D(modulepos*rm));
     ladderPhys->add(tag);
     ladderPhys->add(new GeoIdentifierTag(m_gmt_mgr->Eta() ) );
     ladderPhys->add(xform);
@@ -834,7 +828,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // This is the maximum possible w/o going out of the mother volume!
   //
-  double LayerThickness = 8.499*CLHEP::mm;
+  double LayerThickness = 8.499*GeoModelKernelUnits::mm;
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   //
   // Layer dimensions from the geometry manager
@@ -855,14 +849,14 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   GeoPixelLadder pl(theSensor);
   GeoPixelTubeCables ptc;
   int nsectors = m_gmt_mgr->NPixelSectors();
-  double angle=360./nsectors*CLHEP::deg;
+  double angle=360./nsectors*GeoModelKernelUnits::deg;
   double layerradius = m_gmt_mgr->PixelLayerRadius();
   double xcblpos =  layerradius + (pl.Thickness()/2.+ptc.Thickness()/2)/cos(m_gmt_mgr->PixelLadderTilt());
-  CLHEP::Hep3Vector posladder(layerradius, 0.,0.);
-  CLHEP::Hep3Vector postubecables(xcblpos, 0.,0.);
-  posladder.rotateZ(angle/2.);
-  postubecables.rotateZ(angle/2.);
-  
+  GeoTrf::Vector3D posladder(layerradius, 0.,0.);
+  posladder = GeoTrf::RotateZ3D(angle/2.)*posladder;
+  GeoTrf::Vector3D postubecables(xcblpos, 0.,0.);
+  postubecables = GeoTrf::RotateZ3D(angle/2.)*postubecables;
+
   // Set numerology
   m_DDmgr->numerology().setNumPhiModulesForLayer(m_gmt_mgr->GetLD(),nsectors);
   m_DDmgr->numerology().setNumEtaModulesForLayer(m_gmt_mgr->GetLD(),m_gmt_mgr->PixelNModule());
@@ -872,33 +866,32 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   for(int ii = 0; ii < nsectors; ii++) {
     m_gmt_mgr->SetPhi(ii);
-    CLHEP::HepRotation rm;
     //
     // change the sign w.r.t G4 (same sign as G3)
     //
-    rm.rotateZ(( +(float) ii+0.5)*angle+m_gmt_mgr->PixelLadderTilt() );
+    GeoTrf::RotateZ3D rm(( +(float) ii+0.5)*angle+m_gmt_mgr->PixelLadderTilt() );
     //
     // Place the ladders
     //
     GeoNameTag *tag = new GeoNameTag("Ladder");         
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,posladder));
+    GeoTransform* xform = new GeoTransform(GeoTrf::Translate3D(posladder.x(),posladder.y(),posladder.z())*rm);
     layerPhys->add(tag);
     layerPhys->add(new GeoIdentifierTag(ii) );
     layerPhys->add(xform);
     GeoVPhysVol* ladderphys = pl.Build() ;
     layerPhys->add(ladderphys );
-    posladder.rotateZ(angle);     
+    posladder = GeoTrf::RotateZ3D(angle)*posladder;     
     if(m_gmt_mgr->DoServices() ) {
       //
       // Place the box w/ the tubes and cables for the layer
       //
       tag = new GeoNameTag("TubesAndCables");         
-      xform = new GeoTransform(HepGeom::Transform3D(rm,postubecables));
+      xform = new GeoTransform(GeoTrf::Translate3D(postubecables.x(),postubecables.y(),postubecables.z())*rm);
       layerPhys->add(tag);
       layerPhys->add(xform);
       GeoVPhysVol* TCphys = ptc.Build() ;
       layerPhys->add(TCphys );
-      postubecables.rotateZ(angle);
+      postubecables = GeoTrf::RotateZ3D(angle)*postubecables;
     }
   }
   return layerPhys;
@@ -941,7 +934,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   GeoVPhysVol *theSi = m_theSensor.Build();
   m_id = m_theSensor.getID();
   GeoNameTag *tag = new GeoNameTag("Si Crystal");         
-  GeoTransform *xformsi = new GeoTransform(HepGeom::Transform3D());
+  GeoTransform *xformsi = new GeoTransform(GeoTrf::Transform3D::Identity());
   modulePhys->add(tag);
   modulePhys->add(new GeoIdentifierTag(100) );
   modulePhys->add(xformsi);
@@ -951,8 +944,8 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   GeoPixelHybrid ph;
   double xpos = -0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelHybridThickness());
-  CLHEP::Hep3Vector hybpos(xpos,0.,0.);
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),hybpos) );
+  GeoTrf::Translate3D hybpos(xpos,0.,0.);
+  GeoTransform* xform = new GeoTransform(hybpos);
   tag = new GeoNameTag("Hybrid");
   modulePhys->add(tag);
   modulePhys->add(xform);
@@ -962,8 +955,8 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   GeoPixelChip pc;
   xpos = 0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelChipThickness())+m_gmt_mgr->PixelChipGap();
-  CLHEP::Hep3Vector chippos(xpos,0.,0.);
-  xform = new GeoTransform(HepGeom::Transform3D (CLHEP::HepRotation(),chippos) );
+  GeoTrf::Translate3D chippos(xpos,0.,0.);
+  xform = new GeoTransform(chippos);
   tag = new GeoNameTag("Chip");
   modulePhys->add(tag);
   modulePhys->add(xform);
@@ -1350,7 +1343,7 @@ m_theSensor(theSensor)
   double rmax = RMax();
   double halflength = Thickness()/2.;
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
-  const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()+0.000005,360.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()-0.00001);
+  const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*GeoModelKernelUnits::deg/m_gmt_mgr->PixelECNSectors1()+0.000005,360.*GeoModelKernelUnits::deg/m_gmt_mgr->PixelECNSectors1()-0.00001);
   m_theSubDisk = new GeoLogVol("SubDiskLog",SDTubs,air);
   m_theSubDisk->ref();
 }
@@ -1366,11 +1359,9 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
   //
   double xpos = RMin()+m_gmt_mgr->PixelBoardLength()/2.;
   GeoNameTag* tag = new GeoNameTag("SiCrystal");
-  CLHEP::HepRotation rm;
-  rm.rotateY(90.*CLHEP::deg);
-  rm.rotateX(180.*CLHEP::deg);
-  CLHEP::Hep3Vector pos(xpos,0.,0.);
-  GeoAlignableTransform* xformsi = new GeoAlignableTransform(HepGeom::Transform3D(rm,pos) );
+  GeoTrf::Transform3D rm = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg);
+  GeoTrf::Translation3D pos(xpos,0.,0.);
+  GeoAlignableTransform* xformsi = new GeoAlignableTransform(GeoTrf::Transform3D(pos*rm));
   SDPhys->add(tag);
   SDPhys->add(new GeoIdentifierTag(200) );
   SDPhys->add(xformsi);
@@ -1381,8 +1372,8 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
   GeoPixelHybrid ph;
   tag = new GeoNameTag("Hybrid");
   double zpos = 0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelHybridThickness())+m_epsilon/2.;
-  pos = CLHEP::Hep3Vector(xpos,0.,zpos);
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos) );
+  pos = GeoTrf::Translation3D(xpos,0.,zpos);
+  GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm) );
   SDPhys->add(tag);
   SDPhys->add(xform);
   SDPhys->add(ph.Build() );
@@ -1392,8 +1383,8 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
   GeoPixelChip pc;
   tag = new GeoNameTag("Chip");
   zpos = -0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelChipThickness())-m_gmt_mgr->PixelChipGap();
-  pos = CLHEP::Hep3Vector(xpos,0.,zpos);
-  xform = new GeoTransform(HepGeom::Transform3D(rm,pos) );
+  pos = GeoTrf::Translation3D(xpos,0.,zpos);
+  xform = new GeoTransform(GeoTrf::Transform3D(pos*rm) );
   SDPhys->add(tag);
   SDPhys->add(xform);
   SDPhys->add(pc.Build() );
@@ -1464,8 +1455,8 @@ GeoVPhysVol* GeoPixelTubeCables::Build( ) {
   GeoNameTag* tag = new GeoNameTag("LadderStructure");
   GeoVPhysVol* ladderstructPhys =  pls.Build() ;
   double xpos = 0.5*(-this->Thickness()+m_gmt_mgr->PixelLadderThickness());
-  CLHEP::Hep3Vector pos(xpos,0.,0.);
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
+  GeoTrf::Translate3D pos(xpos,0.,0.);
+  GeoTransform* xform = new GeoTransform(pos);
   TCPhys->add(tag);
   TCPhys->add(xform);
   TCPhys->add(ladderstructPhys);
@@ -1492,8 +1483,8 @@ GeoVPhysVol* GeoPixelTubeCables::Build( ) {
     // in the same way.
     //
     xcabshift += pc.Thickness()/2.;
-    CLHEP::Hep3Vector cablepos(xcabpos,0.,zcabpos);
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cablepos));
+    GeoTrf::Translate3D cablepos(xcabpos,0.,zcabpos);
+    GeoTransform* xform = new GeoTransform(cablepos);
     GeoNameTag *tag = new GeoNameTag("Cable");         
     //
     // Left side
@@ -1507,8 +1498,8 @@ GeoVPhysVol* GeoPixelTubeCables::Build( ) {
     // Right side
     //
     GeoVPhysVol *cablePhys2 =  pc.Build();
-    cablepos = CLHEP::Hep3Vector(xcabpos,0.,-zcabpos);
-    xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cablepos));
+    cablepos = GeoTrf::Translate3D(xcabpos,0.,-zcabpos);
+    xform = new GeoTransform(cablepos);
     TCPhys->add(tag);
     TCPhys->add(xform);
     //    TCPhys->add(new GeoIdentifierTag(ii+100) );
@@ -1772,29 +1763,29 @@ double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelBoardWidth() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDWIDTH")*CLHEP::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDWIDTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDWIDTH")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDWIDTH")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelBoardLength() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDLENGTH")*CLHEP::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDLENGTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDLENGTH")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDLENGTH")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelBoardThickness() 
 {
   if (m_dc1Geometry && isBarrel() && (m_currentLD == 0)) {
-    return 200*CLHEP::micrometer;
+    return 200*GeoModelKernelUnits::micrometer;
   }
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDTHICK")*CLHEP::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDTHICK")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDTHICK")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDTHICK")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double  OraclePixGeoManager::PixelBoardActiveLen() 
 {
-  if(isEndcap()) return (*m_pxei)[m_currentLD]->getDouble("DRACTIVE")*CLHEP::cm;
-  if(isBarrel()) return (*m_pxbi)[m_currentLD]->getDouble("DZELEB")*CLHEP::cm;
+  if(isEndcap()) return (*m_pxei)[m_currentLD]->getDouble("DRACTIVE")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_pxbi)[m_currentLD]->getDouble("DZELEB")*GeoModelKernelUnits::cm;
   return 0.;
 }
 /////////////////////////////////////////////////////////
@@ -1804,14 +1795,14 @@ double  OraclePixGeoManager::PixelBoardActiveLen()
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelHybridWidth() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDWIDTH")*CLHEP::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDWIDTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDWIDTH")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDWIDTH")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelHybridLength() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDLENGTH")*CLHEP::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDLENGTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDLENGTH")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDLENGTH")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelHybridThickness() 
@@ -1829,7 +1820,7 @@ double OraclePixGeoManager::PixelHybridThickness()
   }
   // if it is negative is given in % of r.l.
   if(thick > 0.) { 
-    return thick*CLHEP::cm;
+    return thick*GeoModelKernelUnits::cm;
   }
   return CalculateThickness(thick,mat);
 
@@ -1842,20 +1833,20 @@ double OraclePixGeoManager::PixelHybridThickness()
 
 double OraclePixGeoManager::PixelChipWidth()
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPWIDTH")*CLHEP::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPWIDTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPWIDTH")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPWIDTH")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipLength()
 {
-  if(isBarrel())return (*m_PixelModule)[m_currentLD]->getDouble("CHIPLENGTH")*CLHEP::cm;
-  if(isEndcap())return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPLENGTH")*CLHEP::cm;
+  if(isBarrel())return (*m_PixelModule)[m_currentLD]->getDouble("CHIPLENGTH")*GeoModelKernelUnits::cm;
+  if(isEndcap())return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPLENGTH")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipGap()
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPGAP")*CLHEP::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPGAP")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPGAP")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPGAP")*GeoModelKernelUnits::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipThickness() {
@@ -1871,7 +1862,7 @@ double OraclePixGeoManager::PixelChipThickness() {
   } 
   // if it is negative is given in % of r.l.
   if(thick > 0.) { 
-    return thick*CLHEP::cm;
+    return thick*GeoModelKernelUnits::cm;
   } 
   return CalculateThickness(thick,mat);
 
@@ -1884,20 +1875,20 @@ double OraclePixGeoManager::PixelChipThickness() {
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelECCarbonRMin(string a) {
   if(a == "Inner") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMIN")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMIN")*GeoModelKernelUnits::cm;
   } else if (a == "Central") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMIN")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMIN")*GeoModelKernelUnits::cm;
   }
-  return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMIN")*CLHEP::cm;
+  return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMIN")*GeoModelKernelUnits::cm;
 }
 
 double OraclePixGeoManager::PixelECCarbonRMax(string a) {
   if(a == "Inner") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMAX")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMAX")*GeoModelKernelUnits::cm;
   } else if (a == "Central") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMAX")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMAX")*GeoModelKernelUnits::cm;
   } else {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMAX")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMAX")*GeoModelKernelUnits::cm;
   }
 }
 
@@ -1916,7 +1907,7 @@ double OraclePixGeoManager::PixelECCarbonThickness(string a) {
     imat =(*m_PixelDisk)[m_currentLD]->getInt("SUP3MAT")-1;
   }
   if(tck>0.) {
-    return tck*CLHEP::cm;
+    return tck*GeoModelKernelUnits::cm;
   } 
   return CalculateThickness(tck,mat[imat]);
 }
@@ -1988,12 +1979,12 @@ double*  OraclePixGeoManager::PixelServiceR(string a, int n) {
     }
   }
   // If this is negative this is the thickness of the cyl in % of r.l.
-  r[0] = rmin*CLHEP::cm;
+  r[0] = rmin*GeoModelKernelUnits::cm;
   if(rmax > 0) {
-    r[1] = rmax*CLHEP::cm;
+    r[1] = rmax*GeoModelKernelUnits::cm;
   } else {
     string material = PixelServiceMaterial(a,n);
-    r[1] = fabs(rmin*CLHEP::cm)+CalculateThickness(rmax,material);
+    r[1] = fabs(rmin*GeoModelKernelUnits::cm)+CalculateThickness(rmax,material);
   }
   return r;
 }
@@ -2021,15 +2012,15 @@ double* OraclePixGeoManager::PixelServiceZ(string a,int n) {
       z[1] = (*m_PixelEndcapService)[n+m_endcapInFrames]->getDouble("ZOUT");
     }
   }
-  z[0] = z[0] *CLHEP::cm;
+  z[0] = z[0] *GeoModelKernelUnits::cm;
   if(z[0]*(z[1]) > -0.000000001) { // same sign and z[0] > 0.
-    z[1] = z[1] *CLHEP::cm;
+    z[1] = z[1] *GeoModelKernelUnits::cm;
   } else {
     string material = PixelServiceMaterial(a,n);
     z[1] = z[0] * (1 + CalculateThickness(z[1],material)/fabs(z[0]));
   }
   if(isEndcap() && a == "Inside" ) { // Translate to the ecnter of EndCap
-    double center = ((*m_PixelEndcapGeneral)[0]->getDouble("ZMAX")+(*m_PixelEndcapGeneral)[0]->getDouble("ZMIN"))/2.*CLHEP::cm;
+    double center = ((*m_PixelEndcapGeneral)[0]->getDouble("ZMAX")+(*m_PixelEndcapGeneral)[0]->getDouble("ZMIN"))/2.*GeoModelKernelUnits::cm;
     z[0] = z[0]-center;
     z[1] = z[1]-center;
   }
@@ -2157,7 +2148,7 @@ double OraclePixGeoManager::PixelLadderThickness()
 {
   double tck = (*m_PixelStave)[0]->getDouble("SUPPORTTHICK");
   if( tck > 0.) {
-    return tck*CLHEP::cm;
+    return tck*GeoModelKernelUnits::cm;
   } else {
     return CalculateThickness(tck,"pix::Ladder");
   }
@@ -2167,7 +2158,7 @@ double OraclePixGeoManager::PixelECCablesThickness()
 {
   double tck =  (*m_PixelDisk)[m_currentLD]->getDouble("CABLETHICK");
   if( tck > 0.) {
-    return tck*CLHEP::cm;
+    return tck*GeoModelKernelUnits::cm;
   } else {
     return CalculateThickness(tck,"pix::ECCables");
   }
@@ -2228,31 +2219,31 @@ double OraclePixGeoManager::Voltage(bool isBLayer){
   // override B-layer voltage for DC1 geometry by 
   // value in old DB (approx ratio of thicknesses (200/250 = 0.8)
   // 97.1*0.8 = 77.68. In Nova its 77.7.
-  if (isBLayer && m_dc1Geometry) return 77.7*CLHEP::volt; 
-  if(isBLayer) { return (*m_plor)[0]->getDouble("VOLTAGE")*CLHEP::volt;}
-  return (*m_plor)[1]->getDouble("VOLTAGE")*CLHEP::volt;
+  if (isBLayer && m_dc1Geometry) return 77.7*GeoModelKernelUnits::volt; 
+  if(isBLayer) { return (*m_plor)[0]->getDouble("VOLTAGE")*GeoModelKernelUnits::volt;}
+  return (*m_plor)[1]->getDouble("VOLTAGE")*GeoModelKernelUnits::volt;
 }
 
 double OraclePixGeoManager::Temperature(bool isBLayer){
-  if(isBLayer) { return (*m_plor)[0]->getDouble("TEMPC")*CLHEP::kelvin+CLHEP::STP_Temperature;}
-  return (*m_plor)[1]->getDouble("TEMPC")*CLHEP::kelvin+CLHEP::STP_Temperature;
+  if(isBLayer) { return (*m_plor)[0]->getDouble("TEMPC")*GeoModelKernelUnits::kelvin+GeoModelKernelUnits::STP_Temperature;}
+  return (*m_plor)[1]->getDouble("TEMPC")*GeoModelKernelUnits::kelvin+GeoModelKernelUnits::STP_Temperature;
 }
 
-const HepGeom::Vector3D<double> & 
+const GeoTrf::Vector3D & 
 OraclePixGeoManager::magneticField(bool isBLayer) const
 {
   if (m_magFieldFromNova) {
     if(isBLayer) { 
-      m_magField = HepGeom::Vector3D<double>(0, 0, (*m_plrn)[0]->getDouble("BFIELD") * CLHEP::tesla);
+      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[0]->getDouble("BFIELD") * GeoModelKernelUnits::tesla);
     } else {
-      m_magField = HepGeom::Vector3D<double>(0, 0, (*m_plrn)[1]->getDouble("BFIELD") * CLHEP::tesla);
+      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[1]->getDouble("BFIELD") * GeoModelKernelUnits::tesla);
     }
   }
   return m_magField;
 }
 
 void 
-OraclePixGeoManager::setMagneticField(const HepGeom::Vector3D<double> & field)
+OraclePixGeoManager::setMagneticField(const GeoTrf::Vector3D & field)
 {
   m_magField = field;
   m_magFieldFromNova = false;

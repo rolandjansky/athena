@@ -17,6 +17,8 @@
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODTrigger/TrigPassBits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 using namespace std;
 
 struct DescendingEt:std::binary_function<const xAOD::Electron*,

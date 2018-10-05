@@ -231,14 +231,13 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
       BCM_ModuleParameters* parameters = manager->Module(i);
       
       //setting transformation
-      CLHEP::Hep3Vector pos(parameters->Position_X(), parameters->Position_Y(), parameters->Position_Z());
-      CLHEP::HepRotation rm;
-      rm.rotateY(-90.*CLHEP::deg);
-      rm.rotateZ(-90.*CLHEP::deg);
-      rm.rotateX(parameters->Rotation_X()*CLHEP::deg);
-      rm.rotateY(parameters->Rotation_Y()*CLHEP::deg);
-      rm.rotateZ(parameters->Rotation_Z()*CLHEP::deg);
-      GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+      GeoTrf::Translation3D pos(parameters->Position_X(), parameters->Position_Y(), parameters->Position_Z());
+      GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(parameters->Rotation_Z()*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateY3D(parameters->Rotation_Y()*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateX3D(parameters->Rotation_X()*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateZ3D(-90.*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateY3D(-90.*GeoModelKernelUnits::deg);
+      GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
       xform->ref();
       ATH_MSG_DEBUG(" --> Module " << i << " build!");
 

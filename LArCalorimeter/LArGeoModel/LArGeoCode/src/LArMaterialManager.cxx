@@ -5,9 +5,9 @@
 #include "LArGeoCode/LArMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -49,7 +49,7 @@ void LArMaterialManager::buildMaterials()
   if (!Copper) throw std::runtime_error("Error in LArMaterialManager, std::Copper is not found.");
 #ifdef DEBUGGEO
   msg << "Copper radiation length " << Copper->getRadLength() << " "
-            << Copper->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+            << Copper->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
 #endif
 
 
@@ -60,7 +60,7 @@ void LArMaterialManager::buildMaterials()
   if (!Lead) throw std::runtime_error("Error in LArMaterialManager, std::Lead is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Lead radiation length " << Lead->getRadLength() << " "
-             << Lead->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+             << Lead->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
 #endif
 
 
@@ -69,7 +69,7 @@ void LArMaterialManager::buildMaterials()
 
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "LAr radiation length " << LAr->getRadLength() << " "
-            << LAr->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+            << LAr->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
 #endif
 
   const GeoMaterial *Air  = m_storedManager->getMaterial("std::Air");
@@ -79,7 +79,7 @@ void LArMaterialManager::buildMaterials()
   if (!Kapton) throw std::runtime_error("Error in LArMaterialManager, std::Kapton is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Kapton radiation length " << Kapton->getRadLength() <<  " "
-            << Kapton->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+            << Kapton->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
   for (size_t i = 0; i< Kapton->getNumElements();i++) {
     msg << MSG::INFO << int (Kapton->getFraction(i)*100) << "% \t"  << Kapton->getElement(i)->getName() << endmsg;
     }
@@ -91,7 +91,7 @@ void LArMaterialManager::buildMaterials()
   if (!Glue) throw std::runtime_error("Error in LArMaterialManager, LAr::Glue is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Glue   radiation length " << Glue->getRadLength() << " "
-            << Glue->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+            << Glue->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
   for (size_t i = 0; i< Glue->getNumElements();i++) {
     msg << MSG::INFO << int (Glue->getFraction(i)*100) << "% \t"  << Glue->getElement(i)->getName() << endmsg;
     }
@@ -102,7 +102,7 @@ void LArMaterialManager::buildMaterials()
   if (!G10) throw std::runtime_error("Error in LArMaterialManager, LAr::G10 is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "G10    radiation length " << G10->getRadLength() << " "
-            << G10->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+            << G10->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
   for (size_t i = 0; i< G10->getNumElements();i++) {
     msg << MSG::INFO << int (G10->getFraction(i)*100) << "% \t"  << G10->getElement(i)->getName() << endmsg;
     }
@@ -128,9 +128,9 @@ void LArMaterialManager::buildMaterials()
     double contract=dB.getDouble("ColdContraction","ColdContraction-00", "ABSORBERCONTRACTION"); // LArEMBAbsorberContraction
 
     // first thin absorbers
-    Tggl=dB.getDouble("BarrelGeometry","BarrelGeometry-00","TGGL")*CLHEP::cm*contract; // LArEMBThinAbsGlue
-    Tgfe=dB.getDouble("BarrelGeometry","BarrelGeometry-00","TGFE")*CLHEP::cm*contract; // LArEMBThinAbsIron
-    Tgpb=dB.getDouble("BarrelGeometry","BarrelGeometry-00","TGPB")*CLHEP::cm*contract; // LArEMBThinAbsLead
+    Tggl=dB.getDouble("BarrelGeometry","BarrelGeometry-00","TGGL")*GeoModelKernelUnits::cm*contract; // LArEMBThinAbsGlue
+    Tgfe=dB.getDouble("BarrelGeometry","BarrelGeometry-00","TGFE")*GeoModelKernelUnits::cm*contract; // LArEMBThinAbsIron
+    Tgpb=dB.getDouble("BarrelGeometry","BarrelGeometry-00","TGPB")*GeoModelKernelUnits::cm*contract; // LArEMBThinAbsLead
     Totalthick = Tggl+Tgfe+Tgpb;
     Totalmass = (Tgpb*Lead->getDensity()+Tgfe*Iron->getDensity()+Tggl*Glue->getDensity());
     //***GU below are the fraction per mass
@@ -143,7 +143,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<"," <<Fracgl<< endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ," <<Totalthick<< endmsg;
     msg << MSG::DEBUG<<" Contraction " << contract << endmsg;
-    msg << MSG::DEBUG <<"  Thinabs Density =  "<< density*(CLHEP::cm3/CLHEP::g) << endmsg;
+    msg << MSG::DEBUG <<"  Thinabs Density =  "<< density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g) << endmsg;
 
     GeoMaterial* Thin_abs = new GeoMaterial("Thinabs",density);
     Thin_abs->add(Lead,Fracpb);
@@ -156,9 +156,9 @@ void LArMaterialManager::buildMaterials()
 #endif
 
     // then thick absorbers
-    Thgl=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THGL")*CLHEP::cm*contract; // LArEMBThickAbsGlue
-    Thfe=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THFE")*CLHEP::cm*contract; // LArEMBThickAbsIron
-    Thpb=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THPB")*CLHEP::cm*contract; // LArEMBThickAbsLead
+    Thgl=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THGL")*GeoModelKernelUnits::cm*contract; // LArEMBThickAbsGlue
+    Thfe=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THFE")*GeoModelKernelUnits::cm*contract; // LArEMBThickAbsIron
+    Thpb=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THPB")*GeoModelKernelUnits::cm*contract; // LArEMBThickAbsLead
 
     Totalthick = Thgl+Thfe+Thpb;
     Totalmass = (Thpb*Lead->getDensity()+Thfe*Iron->getDensity()+Thgl*Glue->getDensity());
@@ -171,7 +171,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"---- THICK absorber characteristics: ----" << endmsg;
     msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<","<<Fracgl << endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick << endmsg;
-    msg << MSG::DEBUG <<"  Thickabs Density =  " << density*(CLHEP::cm3/CLHEP::g) << endmsg;
+    msg << MSG::DEBUG <<"  Thickabs Density =  " << density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g) << endmsg;
 
     GeoMaterial* Thick_abs = new GeoMaterial("Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
@@ -183,8 +183,8 @@ void LArMaterialManager::buildMaterials()
 #endif
 
     // electrode =mixture Kapton+Cu
-    Thcu=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THCU")*CLHEP::cm; // LArEMBThickElecCopper
-    Thfg=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THFG")*CLHEP::cm; // LArEMBThickElecKapton
+    Thcu=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THCU")*GeoModelKernelUnits::cm; // LArEMBThickElecCopper
+    Thfg=dB.getDouble("BarrelGeometry","BarrelGeometry-00","THFG")*GeoModelKernelUnits::cm; // LArEMBThickElecKapton
     Totalthicke = Thcu+Thfg;
     Totalmasse = (Thcu*Copper->getDensity()+Thfg*Kapton->getDensity());
     //**GU below are the fractions per mass
@@ -198,7 +198,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"---- Electrode characteristics: ----" << endmsg;
     msg << MSG::DEBUG <<"  Fraction Cu, Kapton: " << FracCu << ","<< FracKap << endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness:"<<Totalmasse<<" ,"<<Totalthicke<< endmsg;
-    msg << MSG::DEBUG <<"  Electrode Density =  " << density*(CLHEP::cm3/CLHEP::g) << endmsg;
+    msg << MSG::DEBUG <<"  Electrode Density =  " << density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g) << endmsg;
 
     GeoMaterial* Kapton_Cu = new GeoMaterial("KaptonC",density);
     Kapton_Cu->add(Copper,FracCu);
@@ -209,7 +209,7 @@ void LArMaterialManager::buildMaterials()
 #endif
 
     //  material for Cables/electronics (mixture of Kapton and copper)
-    //  density = 2.440*CLHEP::g/CLHEP::cm3;
+    //  density = 2.440*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;
     //**GU get fractions per mass
     double frmassCu = dB.getDouble("BarrelAccordionCables","BarrelAccordionCables-00","PERCU");  // LArEMBmasspercentCu
     double frmassKap= dB.getDouble("BarrelAccordionCables","BarrelAccordionCables-00","PERKAP"); // LArEMBmasspercentKap
@@ -219,8 +219,8 @@ void LArMaterialManager::buildMaterials()
              /(1.+frmassKapOverCu*Copper->getDensity()/Kapton->getDensity());
     GeoMaterial* Cable_elect = new GeoMaterial("Cables",density);
     double fractionmass;
-    Cable_elect->add(Copper, fractionmass=frmassCu*CLHEP::perCent);
-    Cable_elect->add(Kapton, fractionmass=frmassKap*CLHEP::perCent);
+    Cable_elect->add(Copper, fractionmass=frmassCu*GeoModelKernelUnits::perCent);
+    Cable_elect->add(Kapton, fractionmass=frmassKap*GeoModelKernelUnits::perCent);
     m_storedManager->addMaterial("LAr", Cable_elect);
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Cable radiation length " << Cable_elect->getRadLength() << endmsg;
@@ -228,8 +228,8 @@ void LArMaterialManager::buildMaterials()
 
     // material for motherboard
     // Mother_board is defined as a mixture of epox_G10 (C8 H14 O4) and Copper
-    ThMBcu  = dB.getDouble("BarrelMotherboards","BarrelMotherboards-00","THICU")*CLHEP::cm;  // LArEMBCuThickness
-    ThMBG10 = dB.getDouble("BarrelMotherboards","BarrelMotherboards-00","THIG10")*CLHEP::cm; // LArEMBG10Thickness
+    ThMBcu  = dB.getDouble("BarrelMotherboards","BarrelMotherboards-00","THICU")*GeoModelKernelUnits::cm;  // LArEMBCuThickness
+    ThMBG10 = dB.getDouble("BarrelMotherboards","BarrelMotherboards-00","THIG10")*GeoModelKernelUnits::cm; // LArEMBG10Thickness
     double TotalthickMBe = ThMBcu+ThMBG10;
     double TotalmassMBe = (ThMBcu*Copper->getDensity()+ThMBG10*G10->getDensity());
     double FracMBCu = (ThMBcu*Copper->getDensity())/TotalmassMBe;
@@ -240,7 +240,7 @@ void LArMaterialManager::buildMaterials()
 	             << FracMBG10 << endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness:"
 	             << TotalmassMBe <<" ," <<TotalthickMBe<< endmsg;
-    msg << MSG::DEBUG <<"  M_board Density =  "<<density*(CLHEP::cm3/CLHEP::g) << endmsg;
+    msg << MSG::DEBUG <<"  M_board Density =  "<<density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g) << endmsg;
     GeoMaterial*  Moth_elect = new GeoMaterial("MBoards",density);
     // ****GU:   use fraction per masses of G10 and Cu
     Moth_elect->add(G10,FracMBG10);
@@ -255,7 +255,7 @@ void LArMaterialManager::buildMaterials()
     const GeoElement* Si = m_storedManager->getElement("Silicon");
     const GeoElement *O = m_storedManager->getElement("Oxygen");
 
-    density = dB.getDouble("BarrelMotherboards", "BarrelMotherboards-00", "DG10")*(CLHEP::g/CLHEP::cm3);   //LArEMBEpoxyVolumicMass
+    density = dB.getDouble("BarrelMotherboards", "BarrelMotherboards-00", "DG10")*(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);   //LArEMBEpoxyVolumicMass
     GeoMaterial* SiO2 = new GeoMaterial("SiO2",density);
     double fractionSi=28.09/(28.09+2*16.0);
     SiO2->add(Si,fractionSi);
@@ -263,21 +263,21 @@ void LArMaterialManager::buildMaterials()
     SiO2->add(O,fractionO);
     SiO2->lock();
 // Gten for the bars of the calorimeter= mixture of regular G10 and SiO2
-    density=1.72*CLHEP::g/CLHEP::cm3;    // should be replaced by number from database
+    density=1.72*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;    // should be replaced by number from database
     GeoMaterial* Gten_bar = new GeoMaterial("G10_bar",density);
     Gten_bar->add(G10,0.38);    // should be replaced by number from database
     Gten_bar->add(SiO2,0.62);   // should be replaced by number from database
     m_storedManager->addMaterial("LAr",Gten_bar);
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "fracionSi,fracionO2 " << fractionSi << " " << fractionO << endmsg;
-  msg << MSG::INFO<< "SiO2 density " << SiO2->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+  msg << MSG::INFO<< "SiO2 density " << SiO2->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
   msg << MSG::INFO<< "SiO2   radiation length " << SiO2->getRadLength() << endmsg;
   msg << MSG::INFO<< "G10bar radiation length " << Gten_bar->getRadLength() << endmsg;
 #endif
 
 // material for the effective M_PIn+summing board effect
-    double ThSBCu = 0.28*CLHEP::mm;      // should be replaced by number from database
-    double ThSBAr = 9.72*CLHEP::mm;      // should be replaced by number from database
+    double ThSBCu = 0.28*GeoModelKernelUnits::mm;      // should be replaced by number from database
+    double ThSBAr = 9.72*GeoModelKernelUnits::mm;      // should be replaced by number from database
     double TotalThickSB = ThSBCu+ThSBAr;
     double dcu = Copper->getDensity();
     double dar = LAr->getDensity();
@@ -312,12 +312,12 @@ void LArMaterialManager::buildMaterials()
 
     const GeoElement *H = m_storedManager->getElement( "Hydrogen" );
 
-    GeoMaterial *Vacuum = new GeoMaterial( "Vacuum", CLHEP::universe_mean_density );
+    GeoMaterial *Vacuum = new GeoMaterial( "Vacuum", GeoModelKernelUnits::universe_mean_density );
     Vacuum->add( H, 1. );
     m_storedManager->addMaterial("LAr", Vacuum );
 #ifdef DEBUGGEO
     msg << MSG::INFO<< "Vacuum radiation length " << Vacuum->getRadLength() << " "
-                    << Vacuum->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+                    << Vacuum->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
 #endif
 
 
@@ -335,13 +335,13 @@ void LArMaterialManager::buildMaterials()
     // EMEC thin absorbers
     //
 
-/*  Tggl = 0.30 * CLHEP::mm;
-    Tgfe = 0.40 * CLHEP::mm;
-    Tgpb = 1.70 * CLHEP::mm; */
+/*  Tggl = 0.30 * GeoModelKernelUnits::mm;
+    Tgfe = 0.40 * GeoModelKernelUnits::mm;
+    Tgpb = 1.70 * GeoModelKernelUnits::mm; */
 
-    Tggl = 0.20 * CLHEP::mm;
-    Tgfe = 0.40 * CLHEP::mm;
-    Tgpb = 1.69 * CLHEP::mm;
+    Tggl = 0.20 * GeoModelKernelUnits::mm;
+    Tgfe = 0.40 * GeoModelKernelUnits::mm;
+    Tgpb = 1.69 * GeoModelKernelUnits::mm;
 
     Totalthick = Tggl+Tgfe+Tgpb;
     Totalmass = (Tgpb*Lead->getDensity()+Tgfe*Iron->getDensity()+Tggl*Glue->getDensity());
@@ -354,13 +354,13 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl << endmsg;
     msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl << endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick << endmsg;
-    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g) << endmsg;
+    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g) << endmsg;
 
     msg << MSG::DEBUG << "---- EMEC THIN absorber characteristics: ----" << endmsg;
     msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl  << endmsg;
     msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl  << endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick  << endmsg;
-    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g)  << endmsg;
+    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g)  << endmsg;
 
 
     GeoMaterial* Thin_abs = new GeoMaterial("EMEC_Thinabs",density);
@@ -377,13 +377,13 @@ void LArMaterialManager::buildMaterials()
     // EMEC thick absorbers
     //
 
-/*    Thgl = 0.30 * CLHEP::mm;
-    Thfe = 0.40 * CLHEP::mm;
-    Thpb = 2.20 * CLHEP::mm; */
+/*    Thgl = 0.30 * GeoModelKernelUnits::mm;
+    Thfe = 0.40 * GeoModelKernelUnits::mm;
+    Thpb = 2.20 * GeoModelKernelUnits::mm; */
 
-    Thgl = 0.20 * CLHEP::mm;
-    Thfe = 0.40 * CLHEP::mm;
-    Thpb = 2.20 * CLHEP::mm;
+    Thgl = 0.20 * GeoModelKernelUnits::mm;
+    Thfe = 0.40 * GeoModelKernelUnits::mm;
+    Thpb = 2.20 * GeoModelKernelUnits::mm;
 
     Totalthick = Thgl+Thfe+Thpb;
     Totalmass = (Thpb*Lead->getDensity()+Thfe*Iron->getDensity()+Thgl*Glue->getDensity());
@@ -397,7 +397,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Thickness pb,fe,gl[mm]="<<Thpb<<" "<<Thfe<<" "<<Thgl<<endmsg;
     msg << MSG::DEBUG <<"  Fraction  pb,fe,gl:    "<<Fracpb<<","<<Fracfe<<","<<Fracgl<<endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endmsg;
-    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endmsg;
+    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g) <<endmsg;
 
     GeoMaterial* Thick_abs = new GeoMaterial("EMEC_Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
@@ -411,8 +411,8 @@ void LArMaterialManager::buildMaterials()
 	//
 	// EMEC shell = iron + glue, identical for inner and outer absorbers
 	//
-    Thgl = 0.20 * CLHEP::mm;
-    Thfe = 0.40 * CLHEP::mm;
+    Thgl = 0.20 * GeoModelKernelUnits::mm;
+    Thfe = 0.40 * GeoModelKernelUnits::mm;
 
     Totalthick = Thgl+Thfe;
     Totalmass = (Thfe*Iron->getDensity()+Thgl*Glue->getDensity());
@@ -425,7 +425,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Thickness fe,gl[mm]="<<Thfe<<" "<<Thgl<<endmsg;
     msg << MSG::DEBUG <<"  Fraction  fe,gl:    "<<Fracfe<<","<<Fracgl<<endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endmsg;
-    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endmsg;
+    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(GeoModelKernelUnits::cm3/GeoModelKernelUnits::g) <<endmsg;
 
     GeoMaterial* EMEC_shell = new GeoMaterial("EMEC_shell",density);
     EMEC_shell->add(Iron,Fracfe);
@@ -446,13 +446,13 @@ void LArMaterialManager::buildMaterials()
 
     //!! Check whether G10 or G10_bar is to be used!!!!
 
-/*    Tggl = 0.30 * CLHEP::mm;
-    Tgfe = 0.40 * CLHEP::mm;
-    TgG10 =1.70 * CLHEP::mm;*/
+/*    Tggl = 0.30 * GeoModelKernelUnits::mm;
+    Tgfe = 0.40 * GeoModelKernelUnits::mm;
+    TgG10 =1.70 * GeoModelKernelUnits::mm;*/
 
-    Tggl = 0.20 * CLHEP::mm;
-    Tgfe = 0.40 * CLHEP::mm;
-    TgG10 =1.69 * CLHEP::mm;
+    Tggl = 0.20 * GeoModelKernelUnits::mm;
+    Tgfe = 0.40 * GeoModelKernelUnits::mm;
+    TgG10 =1.69 * GeoModelKernelUnits::mm;
 
     Totalthick = Tggl+Tgfe+TgG10;
     Totalmass = (TgG10*G10->getDensity()+Tgfe*Iron->getDensity()+Tggl*Glue->getDensity());
@@ -477,13 +477,13 @@ void LArMaterialManager::buildMaterials()
     // EMEC Inner Wheel barrette
     //
 
-/*    Thgl = 0.30 * CLHEP::mm;
-    Thfe = 0.40 * CLHEP::mm;
-    ThG10 =2.20 * CLHEP::mm;*/
+/*    Thgl = 0.30 * GeoModelKernelUnits::mm;
+    Thfe = 0.40 * GeoModelKernelUnits::mm;
+    ThG10 =2.20 * GeoModelKernelUnits::mm;*/
 
-    Thgl = 0.20 * CLHEP::mm;
-    Thfe = 0.40 * CLHEP::mm;
-    ThG10 =2.20 * CLHEP::mm;
+    Thgl = 0.20 * GeoModelKernelUnits::mm;
+    Thfe = 0.40 * GeoModelKernelUnits::mm;
+    ThG10 =2.20 * GeoModelKernelUnits::mm;
 
     Totalthick = Thgl+Thfe+ThG10;
     Totalmass = (ThG10*G10->getDensity()+Thfe*Iron->getDensity()+Thgl*Glue->getDensity());

@@ -95,42 +95,42 @@ void InDetServMatFactoryDC2::create(GeoPhysVol *world)
 
 //  double epsilon = 0.001;
 
-  double endZOfBTRT =                (*trtb)[0]->getDouble("ZLEN")*CLHEP::cm;
-  double endZOfBSCT =                (*sctg)[0]->getDouble("HLEN")*CLHEP::cm;
-  double begZOfFSCT =                (*zscg)[0]->getDouble("ZLOEND")*CLHEP::cm;
-  double endZOfFSCT =                (*zscg)[0]->getDouble("ZHIEND")*CLHEP::cm;
+  double endZOfBTRT =                (*trtb)[0]->getDouble("ZLEN")*GeoModelKernelUnits::cm;
+  double endZOfBSCT =                (*sctg)[0]->getDouble("HLEN")*GeoModelKernelUnits::cm;
+  double begZOfFSCT =                (*zscg)[0]->getDouble("ZLOEND")*GeoModelKernelUnits::cm;
+  double endZOfFSCT =                (*zscg)[0]->getDouble("ZHIEND")*GeoModelKernelUnits::cm;
   double endZOfFTRT =                ((*trtb)[15]->getDouble("ZPOSA") +
 				      ((*trtb)[15]->getDouble("ZLEN")+(*trtb)[15]->getDouble("ZGAP"))/2.
 				      + ((*trtb)[2]->getDouble("ZPOSA")-(*trtb)[1]->getDouble("ZPOSA"))*3 
-				      + (*trtb)[1]->getDouble("ZLEN")/2.)*CLHEP::cm;
+				      + (*trtb)[1]->getDouble("ZLEN")/2.)*GeoModelKernelUnits::cm;
  
-  double endZOfIDet =                (*atls)[0]->getDouble("IDETZMX")*CLHEP::cm;
+  double endZOfIDet =                (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
 
   // This is endOfEndCapVolumeAB 
   //double begZOfSCTServInTRT = ((trtb[7].zposa + (trtb[7].zlen + trtb[7].zgap)/2.) +
-  //			       (trtb[8].zposa - trtb[7].zposa)*7 + trtb[7].zlen/2.)*CLHEP::cm;
+  //			       (trtb[8].zposa - trtb[7].zposa)*7 + trtb[7].zlen/2.)*GeoModelKernelUnits::cm;
 
   // This is beginningOfEndCapVolumeC 
   //  double endZOfSCTServInTRT = (trtb[15].zposa + (trtb[15].zlen + trtb[15].zgap)/2. - 
-  //			       trtb[1].zlen/2.)*CLHEP::cm;
+  //			       trtb[1].zlen/2.)*GeoModelKernelUnits::cm;
 
-  // The SCT services go from 2755.306 to 2775.306 CLHEP::mm 
+  // The SCT services go from 2755.306 to 2775.306 GeoModelKernelUnits::mm 
   // The TRT has a gap from 2712.25 to 2829.75 mm
   // We hard wire an envelope for these services instead.
-  double begZOfSCTServInTRT = 2755. * CLHEP::mm;
-  double endZOfSCTServInTRT = 2776. * CLHEP::mm;
+  double begZOfSCTServInTRT = 2755. * GeoModelKernelUnits::mm;
+  double endZOfSCTServInTRT = 2776. * GeoModelKernelUnits::mm;
 
   //std::cout << "Begin SCT services " << begZOfSCTServInTRT << std::endl;
   //std::cout << "End SCT services " << endZOfSCTServInTRT << std::endl;
 
 
-  double outROfPixel =               (*zscg)[0]->getDouble("RINEND")*CLHEP::cm;
-  double inROfFTRT  =                (*trtb)[15]->getDouble("RI")*CLHEP::cm;
-  double outROfFSCT =                (*zscg)[0]->getDouble("ROUEND")*CLHEP::cm;
-  double outROfBSCT =                (*sctg)[0]->getDouble("RMAX")*CLHEP::cm;
-  double outROfPixelCables =         (*pbfi)[0]->getFloat("ROUT")*CLHEP::cm;
-  double outROfIDet =                (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;
-  double outROfTRT =                 (*trtg)[0]->getDouble("RMAX")*CLHEP::cm;
+  double outROfPixel =               (*zscg)[0]->getDouble("RINEND")*GeoModelKernelUnits::cm;
+  double inROfFTRT  =                (*trtb)[15]->getDouble("RI")*GeoModelKernelUnits::cm;
+  double outROfFSCT =                (*zscg)[0]->getDouble("ROUEND")*GeoModelKernelUnits::cm;
+  double outROfBSCT =                (*sctg)[0]->getDouble("RMAX")*GeoModelKernelUnits::cm;
+  double outROfPixelCables =         (*pbfi)[0]->getFloat("ROUT")*GeoModelKernelUnits::cm;
+  double outROfIDet =                (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
+  double outROfTRT =                 (*trtg)[0]->getDouble("RMAX")*GeoModelKernelUnits::cm;
 
   //
   // Create the envelope for the Pixel Services:

@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelDisk.h"
-#include "PixelGeoModel/GeoPixelModule.h"
-#include "PixelGeoModel/GeoPixelDiskSupports.h"
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
+#include "GeoPixelDisk.h"
+#include "GeoPixelModule.h"
+#include "GeoPixelDiskSupports.h"
+#include "GeoPixelSiCrystal.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 
@@ -55,7 +55,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   // Need to specify some eta. Assume all module the same
   GeoPixelModule psd(theSensor);
   double zpos = m_gmt_mgr->PixelECSiDz1()*0.5;
-  double deltaPhi = 360.*CLHEP::deg/ (float) nbECSector;
+  double deltaPhi = 360.*GeoModelKernelUnits::deg/ (float) nbECSector;
   // This is the start angle of the even modules (3.75 deg):
   double startAngle = deltaPhi*0.25;
   // Start angle could eventually come from the database...
@@ -133,19 +133,20 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
     m_gmt_mgr->SetPhi(phiId);
 
     double angle = ii*0.5*deltaPhi+startAngle;
-    //if ( m_gmt_mgr->GetSide()<0 ) angle = 360*CLHEP::deg-(ii*deltaPhi+startAngle);
+    //if ( m_gmt_mgr->GetSide()<0 ) angle = 360*GeoModelKernelUnits::deg-(ii*deltaPhi+startAngle);
     int diskSide = (ii%2) ? +1 : -1; // even: -1, odd +1
-    CLHEP::HepRotation rm;
-    rm.rotateY(90*CLHEP::deg);
+
+
+    GeoTrf::Transform3D rmX(GeoTrf::Transform3D::Identity());
     if (oldGeometry && m_gmt_mgr->GetSide()<0) {
-      if (diskSide > 0) rm.rotateX(180.*CLHEP::deg); // This is for compatibilty with older geomtries.
+      if (diskSide > 0) rmX = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg); // This is for compatibilty with older geomtries.
     } else {
-      if (diskSide < 0) rm.rotateX(180.*CLHEP::deg); // depth axis points towards disk.
+      if (diskSide < 0) rmX = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg); // depth axis points towards disk.
     } 
-    rm.rotateZ(angle);
-    CLHEP::Hep3Vector pos(moduleRadius,0.,diskSide*zpos);
-    pos.rotateZ(angle);
-    GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,pos));
+    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(angle) * rmX * GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+    GeoTrf::Vector3D pos(moduleRadius,0.,diskSide*zpos);
+    pos = GeoTrf::RotateZ3D(angle)*pos;
+    GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::Translate3D(pos.x(),pos.y(),pos.z())*rm);
     GeoVPhysVol * modulePhys = psd.Build();
     std::ostringstream nameTag; 
     nameTag << "ModuleEC" << phiId;
@@ -166,7 +167,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   GeoPixelDiskSupports pds;
   for(int ii =0; ii< pds.NCylinders(); ii++) {
     pds.SetCylinder(ii);
-    GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0, 0, pds.ZPos()) );
+    GeoTransform* xform = new GeoTransform( GeoTrf::Translate3D(0, 0, pds.ZPos()) );
     diskPhys->add(xform);
     diskPhys->add(pds.Build() );
   }
@@ -207,11 +208,11 @@ double GeoPixelDisk::Thickness() {
   // 7-1 I switch to the minimum thickness possible as the cables are right
   // outside this volume.
   //
-  //  return 10*CLHEP::mm;
+  //  return 10*GeoModelKernelUnits::mm;
   // GWG. It would be nice to get these numbers from the module itself to
   // ensure consistency.
-  double safety = 0.01* CLHEP::mm; // This is the safety added to the module.
-  double zClearance = 0.5 * CLHEP::mm; // Clearance for misalignments
+  double safety = 0.01* GeoModelKernelUnits::mm; // This is the safety added to the module.
+  double zClearance = 0.5 * GeoModelKernelUnits::mm; // Clearance for misalignments
   double tck = 2*(safety + 0.5*m_gmt_mgr->PixelBoardThickness()
                   + std::max(m_gmt_mgr->PixelHybridThickness(),
 			     m_gmt_mgr->PixelChipThickness()+m_gmt_mgr->PixelChipGap())

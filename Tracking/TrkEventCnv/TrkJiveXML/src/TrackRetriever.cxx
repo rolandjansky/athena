@@ -35,6 +35,8 @@
 // for detector id
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 namespace JiveXML {
   ///Namespace for all helper functions
   namespace TrackRetrieverHelpers {
@@ -61,10 +63,10 @@ namespace JiveXML {
 
 			//write out p_T
 			if ((perigee->parameters())[Trk::qOverP]==0) pt.push_back(DataType(9999.));
-			else pt.push_back( (perigee->charge() > 0) ? DataType(perigee->pT()/CLHEP::GeV) : DataType((-perigee->pT())/CLHEP::GeV));
+			else pt.push_back( (perigee->charge() > 0) ? DataType(perigee->pT()/Gaudi::Units::GeV) : DataType((-perigee->pT())/Gaudi::Units::GeV));
 
-			d0.push_back(DataType((perigee->parameters())[Trk::d0]/CLHEP::cm));
-			z0.push_back(DataType(perigee->parameters()[Trk::z0]/CLHEP::cm));
+			d0.push_back(DataType((perigee->parameters())[Trk::d0]/Gaudi::Units::cm));
+			z0.push_back(DataType(perigee->parameters()[Trk::z0]/Gaudi::Units::cm));
 			phi0.push_back(DataType(perigee->parameters()[Trk::phi0]));
 
 			if (perigee->parameters()[Trk::theta] == 0.) cotTheta.push_back(DataType(9999.));

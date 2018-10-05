@@ -31,6 +31,7 @@
 // CLHEP
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 //Gaudi
 #include "GaudiKernel/PhysicalConstants.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"

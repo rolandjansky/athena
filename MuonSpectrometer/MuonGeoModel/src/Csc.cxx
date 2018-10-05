@@ -93,8 +93,8 @@ Csc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
     GeoTrd* upTrd = new GeoTrd(thickness/2., thickness/2., longWidth/2., 
                                  upWidth/2., (physicalLength-maxwLength)/2.);
     const GeoShape* sCSL =
-      & ( (downTrd->add( (*upTrd) << HepGeom::TranslateZ3D(physicalLength/2.) ) ) 
-      << HepGeom::TranslateZ3D((maxwLength - physicalLength)/2.) );
+      & ( (downTrd->add( (*upTrd) << GeoTrf::TranslateZ3D(physicalLength/2.) ) ) 
+      << GeoTrf::TranslateZ3D((maxwLength - physicalLength)/2.) );
     lcsc = new GeoLogVol(logVolName, sCSL, mcsc);
   }
 

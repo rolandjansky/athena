@@ -12,8 +12,8 @@
 //    Feb-2002 R.Sobie    Use same FCAL geometry files as simulation 
 // ***************************************************************************
 
-#ifndef LARDETDESCR_FCAL_CHANNELMAP_H
-#define LARDETDESCR_FCAL_CHANNELMAP_H
+#ifndef LARREADOUTGEOMETRY_FCAL_CHANNELMAP_H
+#define LARREADOUTGEOMETRY_FCAL_CHANNELMAP_H
 
 
 //<<<<<< INCLUDES                                                       >>>>>>

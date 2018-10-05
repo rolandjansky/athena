@@ -14,6 +14,7 @@
 #include "GeoModelKernel/GeoTessellatedSolid.h"
 #include "GeoModelKernel/GeoFacet.h"
 #include "GeoModelKernel/GeoGenericTrap.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoSpecialShapes/LArCustomShape.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "VP1HEPVis/nodes/SoTubs.h"
@@ -154,11 +155,11 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
   static const double eta_low = 1.375;
 
 
-  //  static const double zWheelRefPoint       = 3689.5*CLHEP::mm;  //=endg_z0
-  static const double dMechFocaltoWRP      = 3691. *CLHEP::mm;  //=endg_z1
-  //  static const double dElecFocaltoWRP      = 3689. *CLHEP::mm;  //=endg_dcf
-  static const double dWRPtoFrontFace      =   11. *CLHEP::mm;
-  static const double rOuterCutoff         = 2034. *CLHEP::mm;  //=endg_rlimit
+  //  static const double zWheelRefPoint       = 3689.5*GeoModelKernelUnits::mm;  //=endg_z0
+  static const double dMechFocaltoWRP      = 3691. *GeoModelKernelUnits::mm;  //=endg_z1
+  //  static const double dElecFocaltoWRP      = 3689. *GeoModelKernelUnits::mm;  //=endg_dcf
+  static const double dWRPtoFrontFace      =   11. *GeoModelKernelUnits::mm;
+  static const double rOuterCutoff         = 2034. *GeoModelKernelUnits::mm;  //=endg_rlimit
 
 
   SoLAr::initClass();
@@ -181,7 +182,7 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
     rInner[1] = zWheelBackFace  * tanThetaInner;
     // Note that there is a 3mm gap between the outer surface of the
     // inner wheel and the inner surface of the outer wheel.
-    double HalfGapBetweenWheels = 0.15*CLHEP::cm;  // In DB EMECGEOMETRY.DCRACK
+    double HalfGapBetweenWheels = 0.15*GeoModelKernelUnits::cm;  // In DB EMECGEOMETRY.DCRACK
     rOuter[0] = zWheelFrontFace * tanThetaMid - HalfGapBetweenWheels;
     rOuter[1] = zWheelBackFace  * tanThetaMid - HalfGapBetweenWheels;
     solar->fRmin.setValues(0,2,rInner);
@@ -201,7 +202,7 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
     double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
     // Note that there is a 3mm gap between the outer surface of the
     // inner wheel and the inner surface of the outer wheel.
-    double HalfGapBetweenWheels = 0.15*CLHEP::cm;  // In DB! (EMECGEOMETRY.DCRACK);
+    double HalfGapBetweenWheels = 0.15*GeoModelKernelUnits::cm;  // In DB! (EMECGEOMETRY.DCRACK);
     rInner[0] = zWheelFrontFace * tanThetaMid + HalfGapBetweenWheels;
     rInner[2] = zWheelBackFace  * tanThetaMid + HalfGapBetweenWheels;
     rOuter[0] = zWheelFrontFace * tanThetaOuter;

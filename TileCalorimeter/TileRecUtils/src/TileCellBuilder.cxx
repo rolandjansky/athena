@@ -31,6 +31,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
 using CLHEP::MeV;
  
 // uncomment line below for debug output

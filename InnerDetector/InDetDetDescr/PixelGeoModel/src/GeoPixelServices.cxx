@@ -34,7 +34,7 @@
 // TUBS
 //   Ignored: RIN2,ROUT2
 //   PHI: phi start location of tube sector
-//   WIDTH (CLHEP::deg): phi width of sector  
+//   WIDTH (GeoModelKernelUnits::deg): phi width of sector  
 //   REPEAT: Repeat the tube sector this many times in phi with equal distance between them.
 // CONS, CONE
 //   WIDTH,REPEAT ignored if CONE
@@ -72,33 +72,33 @@
 //   Ignored: ROUT, RIN2, ROUT2
 //   RIN: Radial position of center of tube
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm): diameter 
+//   WIDTH (GeoModelKernelUnits::mm): diameter 
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // ROD2
 //   Ignored: ROUT, RIN2, ROUT2
 //   RIN: Radial position of center of tube
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm): diameter 
+//   WIDTH (GeoModelKernelUnits::mm): diameter 
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // BOX
 //   Ignored: RIN2, ROUT2
 //   ROUT-RIN = thickness of box (radially)
 //   (RIN+ROUT)/2 = radial poistion of center of box
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm) = width of box
+//   WIDTH (GeoModelKernelUnits::mm) = width of box
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // TRAP
 //   Ignored: RIN2, ROUT2
 //   ROUT-RIN = thickness of trapezoid (radially)
 //   (RIN+ROUT)/2 = radial poistion of center of trapzoid
 //   PHI: phi position of center
-//   WIDTH (CLHEP::mm) = width of trapezoid at center
+//   WIDTH (GeoModelKernelUnits::mm) = width of trapezoid at center
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 //
-//   **IMPORTANT NOTE** WIDTH can be in degrees or CLHEP::mm. See OraclePixGeoManager
+//   **IMPORTANT NOTE** WIDTH can be in degrees or GeoModelKernelUnits::mm. See OraclePixGeoManager
 
 
-#include "PixelGeoModel/GeoPixelServices.h"
+#include "GeoPixelServices.h"
 #include "InDetGeoModelUtils/VolumeSplitterUtils.h"
 #include "InDetGeoModelUtils/VolumeBuilder.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
@@ -206,7 +206,7 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
     std::vector<const InDetDD::ServiceVolume *> servicesOutPix;
     double svc3_rMin = 99999., svc3_rMax = 0.;
     std::vector<const InDetDD::ServiceVolume *> servicesOther;
-    double safety=0.001*CLHEP::mm;
+    double safety=0.001*GeoModelKernelUnits::mm;
 
     for(std::vector<const InDetDD::ServiceVolume *>::const_iterator it=services.begin(); it!=services.end(); it++)
       {
@@ -403,15 +403,15 @@ void GeoPixelServices::initializeOld(const std::string & a)
       double phiLoc =  m_gmt_mgr->PixelServicePhiLoc(a, ii);
       double phiWidth =  m_gmt_mgr->PixelServiceWidth(a, ii);
       
-      // Can be in degree or CLHEP::mm. Usually it is CLHEP::deg expect for BOX, TRAP and ROD shape
+      // Can be in degree or GeoModelKernelUnits::mm. Usually it is GeoModelKernelUnits::deg expect for BOX, TRAP and ROD shape
       // Geometry manager makes no assumptions about units. So we must interpret here.
       if (shapeType == "BOX" || shapeType == "ROD" || shapeType == "ROD2" || shapeType == "TRAP") {
-	phiWidth *= CLHEP::mm;
+	phiWidth *= GeoModelKernelUnits::mm;
       } else {
-	phiWidth *= CLHEP::degree;
+	phiWidth *= GeoModelKernelUnits::degree;
       }
       
-      if (phiWidth == 0) phiWidth = 2*CLHEP::pi;
+      if (phiWidth == 0) phiWidth = 2*GeoModelKernelUnits::pi;
       if (rmin2 <= 0) rmin2 = param.rmin(); 
       if (rmax2 <= 0) rmax2 = param.rmax(); 
       if (repeat == 0) repeat = 1;

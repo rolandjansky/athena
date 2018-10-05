@@ -14,12 +14,15 @@
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoLogVol.h"  
 #include "GeoModelKernel/GeoNameTag.h"  
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include "GeoModelKernel/GeoPhysVol.h" 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
+
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -392,15 +395,15 @@ void ALFA_DetectorFactory::CreateAxes(GeoPhysVol* pMotherVolume)
 	GeoFullPhysVol* pPhysBoxZ=new GeoFullPhysVol(pLogBoxZ);
 	
 	pMotherVolume->add(new GeoNameTag("BoxX"));
-	pMotherVolume->add(new GeoTransform(HepGeom::Translate3D(0, 0, 0)));
+	pMotherVolume->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
 	pMotherVolume->add(pPhysBoxX);
 	
 	pMotherVolume->add(new GeoNameTag("BoxY"));
-	pMotherVolume->add(new GeoTransform(HepGeom::Translate3D(0, 0, 0)));
+	pMotherVolume->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
 	pMotherVolume->add(pPhysBoxY);
 	
 	pMotherVolume->add(new GeoNameTag("BoxZ"));
-	pMotherVolume->add(new GeoTransform(HepGeom::Translate3D(0, 0, 0)));
+	pMotherVolume->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
 	pMotherVolume->add(pPhysBoxZ);
 	
 	//helper box
@@ -416,7 +419,6 @@ void ALFA_DetectorFactory::CreateAxes(GeoPhysVol* pMotherVolume)
 void ALFA_DetectorFactory::AddBeamPipeInStation(GeoFullPhysVol* pPhysStation, const char* pszStationLabel)
 {
 	char szLabel[32];
-	HepGeom::Transform3D TransTube;
 
 	double fzs=2*ALFASTATIONHSIZEZ;
 	double fzd=INNERDETZSPACE;
@@ -429,15 +431,13 @@ void ALFA_DetectorFactory::AddBeamPipeInStation(GeoFullPhysVol* pPhysStation, co
 	GeoFullPhysVol* pPhysTube=new GeoFullPhysVol(pLogTube);
 
 	sprintf(szLabel,"%s_IBP01",pszStationLabel);
-	TransTube=HepGeom::TranslateZ3D(fZPos);
 	pPhysStation->add(new GeoNameTag(szLabel));
-	pPhysStation->add(new GeoTransform(TransTube));
+	pPhysStation->add(new GeoTransform(GeoTrf::TranslateZ3D(fZPos)));
 	pPhysStation->add(pPhysTube);
 
 	sprintf(szLabel,"%s_IBP02",pszStationLabel);
-	TransTube=HepGeom::TranslateZ3D(-fZPos);
 	pPhysStation->add(new GeoNameTag(szLabel));
-	pPhysStation->add(new GeoTransform(TransTube));
+	pPhysStation->add(new GeoTransform(GeoTrf::TranslateZ3D(-fZPos)));
 	pPhysStation->add(pPhysTube);
 }
 
@@ -455,7 +455,7 @@ void ALFA_DetectorFactory::AddGlobalVacuumSensorInStation(GeoFullPhysVol *pPhysS
 	GeoLogVol* pLogGVS=new GeoLogVol(szLabel,pSolGVS,m_MapMaterials[string("std::Vacuum")]);
 	GeoFullPhysVol* pPhysGVS=new GeoFullPhysVol(pLogGVS);
 
-	HepGeom::Transform3D TransGVS=HepGeom::TranslateZ3D(fZOffset);
+	GeoTrf::TranslateZ3D TransGVS(fZOffset);
 	pPhysStation->add(new GeoNameTag(szLabel));
 	pPhysStation->add(new GeoTransform(TransGVS));
 	pPhysStation->add(pPhysGVS);
@@ -483,7 +483,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(AStationParams.ASTransformInATLAS));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(AStationParams.ASTransformInATLAS)));
 	pWorld->add(pPhysAlfaBox);
 	m_pDetectorManager->addTreeTop(pPhysAlfaBox);
 	if(m_Config.bAddIBP) AddBeamPipeInStation(pPhysAlfaBox,AStationParams.szLabel);
@@ -501,7 +501,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(AStationParams.ASTransformInATLAS));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(AStationParams.ASTransformInATLAS)));
 	pWorld->add(pPhysAlfaBox);
 	m_pDetectorManager->addTreeTop(pPhysAlfaBox);
 	if(m_Config.bAddIBP) AddBeamPipeInStation(pPhysAlfaBox,AStationParams.szLabel);
@@ -519,7 +519,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(AStationParams.ASTransformInATLAS));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(AStationParams.ASTransformInATLAS)));
 	pWorld->add(pPhysAlfaBox);
 	m_pDetectorManager->addTreeTop(pPhysAlfaBox);
 	if(m_Config.bAddIBP) AddBeamPipeInStation(pPhysAlfaBox,AStationParams.szLabel);
@@ -537,7 +537,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(AStationParams.ASTransformInATLAS));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(AStationParams.ASTransformInATLAS)));
 	pWorld->add(pPhysAlfaBox);
 	m_pDetectorManager->addTreeTop(pPhysAlfaBox);
 	if(m_Config.bAddIBP) AddBeamPipeInStation(pPhysAlfaBox,AStationParams.szLabel);
@@ -572,11 +572,11 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	//TransTube=HepGeom::Translate3D(0.0*CLHEP::mm, 0.0*CLHEP::mm, AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH);
 	TransTube=HepGeom::TranslateZ3D(ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH)*AStationParams01.ASTransformInATLAS;
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube);
 	m_pDetectorManager->addTreeTop(pPhysTube);
 	pWorld->add(new GeoNameTag(szLabel2));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
 	LogStream<<MSG::INFO<<"ALFA_Beampipe01: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
@@ -595,11 +595,11 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	//TransTube=HepGeom::Translate3D(0.0*CLHEP::mm, 0.0*CLHEP::mm, AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength);
 	TransTube=HepGeom::TranslateZ3D(-ALFASTATIONHSIZEZ-fInnerTubeHLength)*AStationParams01.ASTransformInATLAS;
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube);
 	m_pDetectorManager->addTreeTop(pPhysTube);
 	pWorld->add(new GeoNameTag(szLabel2));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
 	LogStream<<MSG::INFO<<"ALFA_Beampipe02: hlength="<<fInnerTubeHLength<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength<<endmsg;
@@ -616,11 +616,11 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	//TransTube=HepGeom::Translate3D(0.0*CLHEP::mm, 0.0*CLHEP::mm, AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH);
 	TransTube=HepGeom::TranslateZ3D(-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH)*AStationParams01.ASTransformInATLAS;
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube);
 	m_pDetectorManager->addTreeTop(pPhysTube);
 	pWorld->add(new GeoNameTag(szLabel2));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
 	LogStream<<MSG::INFO<<"ALFA_Beampipe03: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
@@ -637,11 +637,11 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	//TransTube=HepGeom::Translate3D(0.0*CLHEP::mm, 0.0*CLHEP::mm, AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH);
 	TransTube=HepGeom::TranslateZ3D(+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH)*AStationParams01.ASTransformInATLAS;
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube);
 	m_pDetectorManager->addTreeTop(pPhysTube);
 	pWorld->add(new GeoNameTag(szLabel2));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
 	LogStream<<MSG::INFO<<"ALFA_Beampipe04: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
@@ -660,11 +660,11 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	//TransTube=HepGeom::Translate3D(0.0*CLHEP::mm, 0.0*CLHEP::mm, AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength);
 	TransTube=HepGeom::TranslateZ3D(-ALFASTATIONHSIZEZ-fInnerTubeHLength)*AStationParams01.ASTransformInATLAS;
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube);
 	m_pDetectorManager->addTreeTop(pPhysTube);
 	pWorld->add(new GeoNameTag(szLabel2));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
 	LogStream<<MSG::INFO<<"ALFA_Beampipe02: hlength="<<fInnerTubeHLength<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength<<endmsg;
@@ -681,11 +681,11 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	//TransTube=HepGeom::Translate3D(0.0*CLHEP::mm, 0.0*CLHEP::mm, AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH);
 	TransTube=HepGeom::TranslateZ3D(-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH)*AStationParams01.ASTransformInATLAS;
 	pWorld->add(new GeoNameTag(szLabel));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube);
 	m_pDetectorManager->addTreeTop(pPhysTube);
 	pWorld->add(new GeoNameTag(szLabel2));
-	pWorld->add(new GeoTransform(TransTube));
+	pWorld->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransTube)));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
 	LogStream<<MSG::INFO<<"ALFA_Beampipe06: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
@@ -775,8 +775,8 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		pPhysAlfaBox=mapActiveStations[RPosParams.eASName].pPhysVolume;
 		TransAlfaBox=mapActiveStations[RPosParams.eASName].Transform;
 
-		pAlTransRPBox=new GeoAlignableTransform(RPosParams.RPTransformInStation);
-		pAlTransDetInRPMainPoint=new GeoAlignableTransform(RPosParams.DetTransformInMainPoint);
+		pAlTransRPBox=new GeoAlignableTransform(Amg::CLHEPTransformToEigen(RPosParams.RPTransformInStation));
+		pAlTransDetInRPMainPoint=new GeoAlignableTransform(Amg::CLHEPTransformToEigen(RPosParams.DetTransformInMainPoint));
 
 		//create Roman pot ----------------------------------------------------------------------------
 		sprintf(szLabel,"LogRPBox[%02d]",eRPName);
@@ -797,7 +797,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		sprintf(szLabel,"RPAir[%02d]",eRPName);
 		TransRPAir=HepGeom::Translate3D(0.0,0.0,0.0);
 		pPhysRPBox->add(new GeoNameTag(szLabel));
-		pPhysRPBox->add(new GeoTransform(TransRPAir));
+		pPhysRPBox->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransRPAir)));
 		pPhysRPBox->add(pPhysRPAir);
 		//LogStream<<MSG::INFO<<"MARK4"<<endmsg;
 
@@ -808,7 +808,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		sprintf(szLabel,"Trigger[%02d]",eRPName);
 		pPhysRPAir->add(new GeoNameTag(szLabel));
 		pPhysRPAir->add(pAlTransDetInRPMainPoint);
-		pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(-22.0*CLHEP::mm,-31.325*CLHEP::mm,11.3*CLHEP::mm)));
+		pPhysRPAir->add(new GeoTransform(GeoTrf::Translate3D(-22.0*CLHEP::mm,-31.325*CLHEP::mm,11.3*CLHEP::mm)));
 		pPhysRPAir->add(pPhysObj);
 		//LogStream<<MSG::INFO<<"MARK5"<<endmsg;
 
@@ -819,7 +819,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		sprintf(szLabel,"RPSupport[%02d]",eRPName);
 		pPhysRPAir->add(new GeoNameTag(szLabel));
 		pPhysRPAir->add(pAlTransDetInRPMainPoint);
-		pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(0.0*CLHEP::mm,85.475*CLHEP::mm,-28.5*CLHEP::mm)));
+		pPhysRPAir->add(new GeoTransform(GeoTrf::Translate3D(0.0*CLHEP::mm,85.475*CLHEP::mm,-28.5*CLHEP::mm)));
 		pPhysRPAir->add(pPhysObj);
 		//LogStream<<MSG::INFO<<"MARK6"<<endmsg;
 
@@ -831,7 +831,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 			sprintf(szLabel,"G10Substrate[%02d][%d]",eRPName,i);
 			pPhysRPAir->add(new GeoNameTag(szLabel));
 			pPhysRPAir->add(pAlTransDetInRPMainPoint);
-			pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(ALFA_stagger[i]*CLHEP::mm,-27.525*CLHEP::mm,(-17.5+i*2)*CLHEP::mm)*HepGeom::RotateX3D(-90.0*CLHEP::deg)));
+			pPhysRPAir->add(new GeoTransform(GeoTrf::Translate3D(ALFA_stagger[i]*CLHEP::mm,-27.525*CLHEP::mm,(-17.5+i*2)*CLHEP::mm)*GeoTrf::RotateX3D(-90.0*CLHEP::deg)));
 			pPhysRPAir->add(pPhysObj);
 		}
 
@@ -843,7 +843,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 			sprintf(szLabel,"RPSupport[%02d][%d]",eRPName,i);
 			pPhysRPAir->add(new GeoNameTag(szLabel));
 			pPhysRPAir->add(pAlTransDetInRPMainPoint);
-			pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(0.0*CLHEP::mm,5.975*CLHEP::mm,(-17.5+i*2)*CLHEP::mm)));
+			pPhysRPAir->add(new GeoTransform(GeoTrf::Translate3D(0.0*CLHEP::mm,5.975*CLHEP::mm,(-17.5+i*2)*CLHEP::mm)));
 			pPhysRPAir->add(pPhysObj);
 		}
 		//LogStream<<MSG::INFO<<"MARK7"<<endmsg;
@@ -863,7 +863,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 			sprintf(szLabel,"ODPlate[%02d][%d]",eRPName,i);
 			pPhysRPAir->add(new GeoNameTag(szLabel));
 			pPhysRPAir->add(pAlTransDetInRPMainPoint);
-			pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(0.0*CLHEP::mm,-0.175*CLHEP::mm,(15+i*2)*CLHEP::mm)));
+			pPhysRPAir->add(new GeoTransform(GeoTrf::Translate3D(0.0*CLHEP::mm,-0.175*CLHEP::mm,(15+i*2)*CLHEP::mm)));
 			pPhysRPAir->add(pPhysObj);
 		}
 		//LogStream<<MSG::INFO<<"MARK9"<<endmsg;
@@ -909,47 +909,47 @@ GeoShape* ALFA_DetectorFactory::CreateSolidRP()
 	GeoBox* RPbox2 = new GeoBox(21*CLHEP::mm,5.425*CLHEP::mm,7.5*CLHEP::mm);
 	GeoBox* RPbox3 = new GeoBox(22*CLHEP::mm,1*CLHEP::mm,8.5*CLHEP::mm);
 
-	HepGeom::Transform3D RP_Move1= HepGeom::Translate3D(0, 4.425*CLHEP::mm, 0);
+	GeoTrf::Transform3D RP_Move1= GeoTrf::Translate3D(0, 4.425*CLHEP::mm, 0);
 	GeoShapeShift * mowe1 = new GeoShapeShift(RPbox3,RP_Move1);
 	GeoShapeUnion * RPsemi1 = new GeoShapeUnion(RPbox2, mowe1);
 
-	HepGeom::Transform3D RP_Move2= HepGeom::Translate3D( 38.5*CLHEP::mm, -35.25*CLHEP::mm, 14.5*CLHEP::mm);
+	GeoTrf::Transform3D RP_Move2= GeoTrf::Translate3D( 38.5*CLHEP::mm, -35.25*CLHEP::mm, 14.5*CLHEP::mm);
 	GeoShapeShift * mowe2 = new GeoShapeShift(RPsemi1,RP_Move2);
 	GeoShapeUnion * RPsemi2 = new GeoShapeUnion(RPbox1, mowe2);
 
-	HepGeom::Transform3D RP_Move3= HepGeom::Translate3D(-38.5*CLHEP::mm, -35.25*CLHEP::mm, 14.5*CLHEP::mm);
+	GeoTrf::Transform3D RP_Move3= GeoTrf::Translate3D(-38.5*CLHEP::mm, -35.25*CLHEP::mm, 14.5*CLHEP::mm);
 	GeoShapeShift * mowe3 = new GeoShapeShift(RPsemi1,RP_Move3);
 	GeoShapeUnion * RPsemi3 = new GeoShapeUnion(RPsemi2, mowe3);
 
 	GeoTube* RPtube1 = new GeoTube(0*CLHEP::mm,74*CLHEP::mm,26.675*CLHEP::mm);
 	GeoTube* RPtube2 = new GeoTube(0*CLHEP::mm,126.5*CLHEP::mm,9.875*CLHEP::mm);
 
-	HepGeom::Transform3D RP_Move4= HepGeom::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, -36.55*CLHEP::mm);
+	GeoTrf::Transform3D RP_Move4= GeoTrf::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, -36.55*CLHEP::mm);
 	GeoShapeShift * mowe4 = new GeoShapeShift(RPtube2,RP_Move4);
 	GeoShapeUnion * RPsemi4 = new GeoShapeUnion(RPtube1, mowe4);
 
 	GeoBox* RPbox4 = new GeoBox(104*CLHEP::mm,104*CLHEP::mm,9.875*CLHEP::mm);
 	GeoBox* RPbox5 = new GeoBox(131.75*CLHEP::mm,131.75*CLHEP::mm,22.5*CLHEP::mm);
 
-	HepGeom::Transform3D RP_Move5= HepGeom::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, -56.3*CLHEP::mm);
+	GeoTrf::Transform3D RP_Move5= GeoTrf::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, -56.3*CLHEP::mm);
 	GeoShapeShift * mowe5 = new GeoShapeShift(RPbox4,RP_Move5);
 	GeoShapeUnion * RPsemi5 = new GeoShapeUnion(RPsemi4, mowe5);
 
-	HepGeom::Transform3D RP_Move6= HepGeom::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, -88.675*CLHEP::mm);
+	GeoTrf::Transform3D RP_Move6= GeoTrf::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, -88.675*CLHEP::mm);
 	GeoShapeShift * mowe6 = new GeoShapeShift(RPbox5,RP_Move6);
 	GeoShapeUnion * RPsemi6 = new GeoShapeUnion(RPsemi5, mowe6);
 
-	HepGeom::Transform3D RP_MoveRot7= HepGeom::Translate3D(0*CLHEP::mm, 56.5*CLHEP::mm, -8.5*CLHEP::mm)*HepGeom::RotateX3D(90*CLHEP::deg);
+	GeoTrf::Transform3D RP_MoveRot7= GeoTrf::Translate3D(0*CLHEP::mm, 56.5*CLHEP::mm, -8.5*CLHEP::mm)*GeoTrf::RotateX3D(90*CLHEP::deg);
 	GeoShapeShift * mowe7 = new GeoShapeShift(RPsemi6,RP_MoveRot7);
 	GeoShapeUnion * RPsemi7 = new GeoShapeUnion(RPsemi3, mowe7);
 
 	GeoBox* RPbox6 = new GeoBox(16.97*CLHEP::mm,16.97*CLHEP::mm,0.75*CLHEP::mm);
 
-	HepGeom::Transform3D RP_MoveRot8= HepGeom::Translate3D(0*CLHEP::mm, -21.525*CLHEP::mm, 22.25*CLHEP::mm)*HepGeom::RotateZ3D(45*CLHEP::deg);
+	GeoTrf::Transform3D RP_MoveRot8= GeoTrf::Translate3D(0*CLHEP::mm, -21.525*CLHEP::mm, 22.25*CLHEP::mm)*GeoTrf::RotateZ3D(45*CLHEP::deg);
 	GeoShapeShift * mowe8 = new GeoShapeShift(RPbox6,RP_MoveRot8);
 	GeoShapeSubtraction * RPsemi8 = new GeoShapeSubtraction(RPsemi7, mowe8);
 
-	HepGeom::Transform3D RP_MoveRot9= HepGeom::Translate3D(0*CLHEP::mm, -21.525*CLHEP::mm, -22.25*CLHEP::mm)*HepGeom::RotateZ3D(45*CLHEP::deg);
+	GeoTrf::Transform3D RP_MoveRot9= GeoTrf::Translate3D(0*CLHEP::mm, -21.525*CLHEP::mm, -22.25*CLHEP::mm)*GeoTrf::RotateZ3D(45*CLHEP::deg);
 	GeoShapeShift * mowe9 = new GeoShapeShift(RPbox6,RP_MoveRot9);
 	GeoShapeSubtraction * shapeRP = new GeoShapeSubtraction(RPsemi8, mowe9);
 		
@@ -964,23 +964,23 @@ GeoShape* ALFA_DetectorFactory::CreateSolidAir()
 	GeoBox* RP_Airbox4 = new GeoBox(20*CLHEP::mm,5.675*CLHEP::mm,6.5*CLHEP::mm);
 	GeoTube* RP_Airtube1 = new GeoTube(0*CLHEP::mm,69*CLHEP::mm,65.425*CLHEP::mm);
 
-	HepGeom::Transform3D RP_Air_Move1= HepGeom::Translate3D(0,31.325*CLHEP::mm, 0);
+	GeoTrf::Transform3D RP_Air_Move1= GeoTrf::Translate3D(0,31.325*CLHEP::mm, 0);
 	GeoShapeShift * mowe1 = new GeoShapeShift(RP_Airbox2,RP_Air_Move1);
 	GeoShapeUnion * RP_Airsemi1 = new GeoShapeUnion(RP_Airbox1, mowe1);
 
-	HepGeom::Transform3D RP_Air_Move2= HepGeom::Translate3D(0,-28.75*CLHEP::mm, 0);
+	GeoTrf::Transform3D RP_Air_Move2= GeoTrf::Translate3D(0,-28.75*CLHEP::mm, 0);
 	GeoShapeShift * mowe2 = new GeoShapeShift(RP_Airbox3,RP_Air_Move2);
 	GeoShapeUnion * RP_Airsemi2 = new GeoShapeUnion(RP_Airsemi1, mowe2);
 
-	HepGeom::Transform3D RP_Air_Move3= HepGeom::Translate3D( 38.5*CLHEP::mm,-33.5*CLHEP::mm,14.5*CLHEP::mm);
+	GeoTrf::Transform3D RP_Air_Move3= GeoTrf::Translate3D( 38.5*CLHEP::mm,-33.5*CLHEP::mm,14.5*CLHEP::mm);
 	GeoShapeShift * mowe3 = new GeoShapeShift(RP_Airbox4,RP_Air_Move3);
 	GeoShapeUnion * RP_Airsemi3 = new GeoShapeUnion(RP_Airsemi2, mowe3);
 
-	HepGeom::Transform3D RP_Air_Move4= HepGeom::Translate3D(-38.5*CLHEP::mm,-33.5*CLHEP::mm,14.5*CLHEP::mm);
+	GeoTrf::Transform3D RP_Air_Move4= GeoTrf::Translate3D(-38.5*CLHEP::mm,-33.5*CLHEP::mm,14.5*CLHEP::mm);
 	GeoShapeShift * mowe4 = new GeoShapeShift(RP_Airbox4,RP_Air_Move4);
 	GeoShapeUnion * RP_Airsemi4 = new GeoShapeUnion(RP_Airsemi3, mowe4);
 
-	HepGeom::Transform3D RP_Air_MoveRot5= HepGeom::Translate3D(0*CLHEP::mm,100.25*CLHEP::mm, -8.5*CLHEP::mm)*HepGeom::RotateX3D(90*CLHEP::deg);
+	GeoTrf::Transform3D RP_Air_MoveRot5= GeoTrf::Translate3D(0*CLHEP::mm,100.25*CLHEP::mm, -8.5*CLHEP::mm)*GeoTrf::RotateX3D(90*CLHEP::deg);
 	GeoShapeShift * mowe5 = new GeoShapeShift(RP_Airtube1,RP_Air_MoveRot5);
 	GeoShapeUnion * shapeRP_Air = new GeoShapeUnion(RP_Airsemi4, mowe5);
 		
@@ -993,19 +993,19 @@ GeoShape* ALFA_DetectorFactory::CreateSolidTrigger()
 	GeoBox* ALFA_Trigbox2 = new GeoBox(15.75*CLHEP::mm,15.75*CLHEP::mm,3*CLHEP::mm);
 	GeoBox* ALFA_Trigbox3 = new GeoBox(3*CLHEP::mm,7.5*CLHEP::mm,1.5*CLHEP::mm);
 
-	HepGeom::Transform3D ALFA_Trig_MoveRot1= HepGeom::Translate3D(17.235*CLHEP::mm, -17.235*CLHEP::mm, 0*CLHEP::mm)*HepGeom::RotateZ3D(45*CLHEP::deg);
+	GeoTrf::Transform3D ALFA_Trig_MoveRot1= GeoTrf::Translate3D(17.235*CLHEP::mm, -17.235*CLHEP::mm, 0*CLHEP::mm)*GeoTrf::RotateZ3D(45*CLHEP::deg);
 	GeoShapeShift * mowe1 = new GeoShapeShift(ALFA_Trigbox2, ALFA_Trig_MoveRot1);
 	GeoShapeSubtraction * ALFA_Trigsemi1 = new GeoShapeSubtraction(ALFA_Trigbox1, mowe1);
 
-	HepGeom::Transform3D ALFA_Trig_Move2= HepGeom::Translate3D(0*CLHEP::mm,0*CLHEP::mm, 3.5*CLHEP::mm);
+	GeoTrf::Transform3D ALFA_Trig_Move2= GeoTrf::Translate3D(0*CLHEP::mm,0*CLHEP::mm, 3.5*CLHEP::mm);
 	GeoShapeShift * mowe2 = new GeoShapeShift(ALFA_Trigsemi1,ALFA_Trig_Move2);
 	GeoShapeUnion * ALFA_Trigsemi2 = new GeoShapeUnion(ALFA_Trigsemi1, mowe2);
 
-	HepGeom::Transform3D ALFA_Trig_Move3= HepGeom::Translate3D(44*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
+	GeoTrf::Transform3D ALFA_Trig_Move3= GeoTrf::Translate3D(44*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
 	GeoShapeShift * mowe3 = new GeoShapeShift(ALFA_Trigbox3,ALFA_Trig_Move3);
 	GeoShapeUnion * ALFA_Trigsemi3 = new GeoShapeUnion(ALFA_Trigbox3, mowe3);
 
-	HepGeom::Transform3D ALFA_Trig_MoveRot4= HepGeom::Translate3D(22*CLHEP::mm, 10.424*CLHEP::mm, -7.6*CLHEP::mm)*HepGeom::RotateZ3D(-45*CLHEP::deg);
+	GeoTrf::Transform3D ALFA_Trig_MoveRot4= GeoTrf::Translate3D(22*CLHEP::mm, 10.424*CLHEP::mm, -7.6*CLHEP::mm)*GeoTrf::RotateZ3D(-45*CLHEP::deg);
 	GeoShapeShift * mowe4 = new GeoShapeShift(ALFA_Trigsemi2,ALFA_Trig_MoveRot4);
 	GeoShapeUnion * shapeALFA_Trigger = new GeoShapeUnion(ALFA_Trigsemi3, mowe4);
 	
@@ -1019,15 +1019,15 @@ GeoShape* ALFA_DetectorFactory::CreateSolidRPSupport()
 	GeoBox* RP_Supbox3 = new GeoBox(18*CLHEP::mm, 5*CLHEP::mm,18*CLHEP::mm);
 	GeoBox* RP_Supbox4 = new GeoBox(18*CLHEP::mm,3.5*CLHEP::mm,18*CLHEP::mm);
 
-	HepGeom::Transform3D RP_Sup_Move1= HepGeom::Translate3D(0, 42*CLHEP::mm, 8*CLHEP::mm);
+	GeoTrf::Transform3D RP_Sup_Move1= GeoTrf::Translate3D(0, 42*CLHEP::mm, 8*CLHEP::mm);
 	GeoShapeShift * mowe1 = new GeoShapeShift(RP_Supbox2, RP_Sup_Move1);
 	GeoShapeUnion * RP_Supsemi1 = new GeoShapeUnion(RP_Supbox1, mowe1);
 
-	HepGeom::Transform3D RP_Sup_Move2= HepGeom::Translate3D(0, 56*CLHEP::mm, 20*CLHEP::mm);
+	GeoTrf::Transform3D RP_Sup_Move2= GeoTrf::Translate3D(0, 56*CLHEP::mm, 20*CLHEP::mm);
 	GeoShapeShift * mowe2 = new GeoShapeShift(RP_Supbox3, RP_Sup_Move2);
 	GeoShapeUnion * RP_Supsemi2 = new GeoShapeUnion(RP_Supsemi1, mowe2);
 
-	HepGeom::Transform3D RP_Sup_Move3= HepGeom::Translate3D(0, 64.5*CLHEP::mm, 20*CLHEP::mm);
+	GeoTrf::Transform3D RP_Sup_Move3= GeoTrf::Translate3D(0, 64.5*CLHEP::mm, 20*CLHEP::mm);
 	GeoShapeShift * mowe3 = new GeoShapeShift(RP_Supbox4, RP_Sup_Move3);
 	GeoShapeUnion * shapeRP_Support = new GeoShapeUnion(RP_Supsemi2, mowe3);
 	
@@ -1040,11 +1040,11 @@ GeoShape* ALFA_DetectorFactory::CreateSolidG10Shapes()
 	GeoTrd* G10trd2 = new GeoTrd( 30*CLHEP::mm, 9.5*CLHEP::mm, 0.15*CLHEP::mm, 0.15*CLHEP::mm, 10.25*CLHEP::mm);
 	GeoBox* G10box1 = new GeoBox( 30*CLHEP::mm, 0.15*CLHEP::mm, 3.75*CLHEP::mm);
 
-	HepGeom::Transform3D G10_Move1= HepGeom::Translate3D(0, 0, 4.75*CLHEP::mm);
+	GeoTrf::Transform3D G10_Move1= GeoTrf::Translate3D(0, 0, 4.75*CLHEP::mm);
 	GeoShapeShift* mowe1 = new GeoShapeShift(G10box1, G10_Move1);
 	GeoShapeUnion* G10_Subsemi1 = new GeoShapeUnion(G10trd1, mowe1);
 
-	HepGeom::Transform3D G10_Move2= HepGeom::Translate3D(0, 0, 18.75*CLHEP::mm);
+	GeoTrf::Transform3D G10_Move2= GeoTrf::Translate3D(0, 0, 18.75*CLHEP::mm);
 	GeoShapeShift* mowe2 = new GeoShapeShift(G10trd2, G10_Move2);
 	GeoShapeUnion* shapeG10_Substrate = new GeoShapeUnion(G10_Subsemi1, mowe2);
 	
@@ -1061,20 +1061,20 @@ map<int,GeoShape*>* ALFA_DetectorFactory::CreateSolidTiPlates()
 	GeoBox* TiPlate_box1 = new GeoBox(16*CLHEP::mm,120*CLHEP::mm,0.75*CLHEP::mm);
 	GeoBox* TiPlate_box2 = new GeoBox(19.9793*CLHEP::mm,19.9793*CLHEP::mm,2*CLHEP::mm);
 
-	HepGeom::Transform3D TiPlate_Move1= HepGeom::Translate3D(0, 69*CLHEP::mm, 0);
+	GeoTrf::Transform3D TiPlate_Move1= GeoTrf::Translate3D(0, 69*CLHEP::mm, 0);
 	GeoShapeShift * mowe1 = new GeoShapeShift(TiPlate_Holder,TiPlate_Move1);
 	GeoShapeUnion * TiPlatesemi1 = new GeoShapeUnion(TiPlate_Substr, mowe1);
 
 	for(i=0; i<ALFA_Nb_Plates; i++){
-		HepGeom::Transform3D TiPlate_MoveRot2 = HepGeom::Translate3D(ALFA_stagger[i]*CLHEP::mm, -26.872*CLHEP::mm, 1*CLHEP::mm)*HepGeom::RotateZ3D( 45*CLHEP::deg);
-		HepGeom::Transform3D TiPlate_MoveRot3 = HepGeom::Translate3D(ALFA_stagger[i]*CLHEP::mm, -26.872*CLHEP::mm,-1*CLHEP::mm)*HepGeom::RotateZ3D(-45*CLHEP::deg);
+		GeoTrf::Transform3D TiPlate_MoveRot2 = GeoTrf::Translate3D(ALFA_stagger[i]*CLHEP::mm, -26.872*CLHEP::mm, 1*CLHEP::mm)*GeoTrf::RotateZ3D( 45*CLHEP::deg);
+		GeoTrf::Transform3D TiPlate_MoveRot3 = GeoTrf::Translate3D(ALFA_stagger[i]*CLHEP::mm, -26.872*CLHEP::mm,-1*CLHEP::mm)*GeoTrf::RotateZ3D(-45*CLHEP::deg);
 
 		GeoShapeShift * mowe2 = new GeoShapeShift(TiPlate_box1, TiPlate_MoveRot2);
 		GeoShapeShift * mowe3 = new GeoShapeShift(TiPlate_box1, TiPlate_MoveRot3);
 		GeoShapeSubtraction * TiPlatesemi2 = new GeoShapeSubtraction(TiPlatesemi1,mowe2);
 		GeoShapeSubtraction * TiPlatesemi3 = new GeoShapeSubtraction(TiPlatesemi2,mowe3);
 
-		HepGeom::Transform3D TiPlate_MoveRot4 = HepGeom::Translate3D(ALFA_stagger[i]*CLHEP::mm, -32.5*CLHEP::mm,0*CLHEP::mm)*HepGeom::RotateZ3D(-45*CLHEP::deg);
+		GeoTrf::Transform3D TiPlate_MoveRot4 = GeoTrf::Translate3D(ALFA_stagger[i]*CLHEP::mm, -32.5*CLHEP::mm,0*CLHEP::mm)*GeoTrf::RotateZ3D(-45*CLHEP::deg);
 		GeoShapeShift * mowe4 = new GeoShapeShift(TiPlate_box2, TiPlate_MoveRot4);
 		GeoShapeSubtraction* shapeTi_Plate = new GeoShapeSubtraction(TiPlatesemi3, mowe4);
 
@@ -1093,11 +1093,11 @@ map<int,GeoShape*>* ALFA_DetectorFactory::CreateSolidODPlates()
 	GeoBox* OD_Tibox2 = new GeoBox(10*CLHEP::mm,36.5*CLHEP::mm,1*CLHEP::mm);
 	GeoBox* OD_Tibox3 = new GeoBox(19*CLHEP::mm,21.5*CLHEP::mm,2*CLHEP::mm);
 
-	HepGeom::Transform3D OD_Move01= HepGeom::Translate3D(0, 75.15*CLHEP::mm, 0);
+	GeoTrf::Transform3D OD_Move01= GeoTrf::Translate3D(0, 75.15*CLHEP::mm, 0);
 	GeoShapeShift * mowe01 = new GeoShapeShift(OD_Tibox2,OD_Move01);
 	GeoShapeUnion * OD_Tisemi01 = new GeoShapeUnion(OD_Tibox1, mowe01);
 
-	HepGeom::Transform3D OD_Move02= HepGeom::Translate3D(0, -19.15*CLHEP::mm, 0);//(0, -29.383*CLHEP::mm, 0);
+	GeoTrf::Transform3D OD_Move02= GeoTrf::Translate3D(0, -19.15*CLHEP::mm, 0);//(0, -29.383*CLHEP::mm, 0);
 	GeoShapeShift * mowe02 = new GeoShapeShift(OD_Tibox3, OD_Move02);
 	GeoShapeSubtraction * OD_Tisemi02 = new GeoShapeSubtraction(OD_Tisemi01, mowe02);
 
@@ -1107,52 +1107,52 @@ map<int,GeoShape*>* ALFA_DetectorFactory::CreateSolidODPlates()
 	GeoBox* OD_Tibox6 = new GeoBox(72.5*CLHEP::mm,150*CLHEP::mm,1*CLHEP::mm);
 	GeoBox* OD_Tibox7 = new GeoBox(150*CLHEP::mm,72.5*CLHEP::mm,1*CLHEP::mm);
 
-	HepGeom::Transform3D OD_Move04 = HepGeom::Translate3D(72.5*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
+	GeoTrf::Transform3D OD_Move04 = GeoTrf::Translate3D(72.5*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
 	GeoShapeShift * mowe04 = new GeoShapeShift(OD_Tibox6,OD_Move04);
 	GeoShapeSubtraction * OD_Tisemi04 = new GeoShapeSubtraction(OD_Titube1, mowe04);
 
-	HepGeom::Transform3D OD_Move05 = HepGeom::Translate3D(0*CLHEP::mm, 72.5*CLHEP::mm, 0*CLHEP::mm);
+	GeoTrf::Transform3D OD_Move05 = GeoTrf::Translate3D(0*CLHEP::mm, 72.5*CLHEP::mm, 0*CLHEP::mm);
 	GeoShapeShift * mowe05 = new GeoShapeShift(OD_Tibox7,OD_Move05);
 	GeoShapeSubtraction * OD_Tisemi05 = new GeoShapeSubtraction(OD_Tisemi04, mowe05);
 
 	GeoBox* OD_Tibox8 = new GeoBox(8.*CLHEP::mm,20.*CLHEP::mm,0.6*CLHEP::mm);
 	GeoBox* OD_Tibox9 = new GeoBox(20.*CLHEP::mm,60.*CLHEP::mm,0.6*CLHEP::mm);
 
-	HepGeom::Transform3D OD_Move06= HepGeom::Translate3D(4*CLHEP::mm, -42.5*CLHEP::mm, 0.*CLHEP::mm);
+	GeoTrf::Transform3D OD_Move06= GeoTrf::Translate3D(4*CLHEP::mm, -42.5*CLHEP::mm, 0.*CLHEP::mm);
 	GeoShapeShift * mowe06 = new GeoShapeShift(OD_Tibox8,OD_Move06);
 	GeoShapeUnion * OD_Tisemi06 = new GeoShapeUnion(OD_Tisemi05, mowe06);
 
-	HepGeom::Transform3D OD_Move07= HepGeom::Translate3D(-42.5*CLHEP::mm, 60*CLHEP::mm, 0.*CLHEP::mm);
+	GeoTrf::Transform3D OD_Move07= GeoTrf::Translate3D(-42.5*CLHEP::mm, 60*CLHEP::mm, 0.*CLHEP::mm);
 	GeoShapeShift * mowe07 = new GeoShapeShift(OD_Tibox9,OD_Move07);
 	GeoShapeUnion * OD_Tisemi07 = new GeoShapeUnion(OD_Tisemi06, mowe07);
 
 	for(i=0;i<OD_Nb_Plates;i++)
 	{
-		HepGeom::Transform3D OD_Move08= HepGeom::Translate3D(-27*CLHEP::mm, (-8.183+OD_stagger[i])*CLHEP::mm, 0);//(0, -29.383*CLHEP::mm, 0);
+		GeoTrf::Transform3D OD_Move08= GeoTrf::Translate3D(-27*CLHEP::mm, (-8.183+OD_stagger[i])*CLHEP::mm, 0);//(0, -29.383*CLHEP::mm, 0);
 		GeoShapeShift * mowe08 = new GeoShapeShift(OD_Tisemi07, OD_Move08);
 		GeoShapeSubtraction * OD_Tisemi08 = new GeoShapeSubtraction(OD_Tibox5, mowe08);
 
-		HepGeom::Transform3D OD_Move09= HepGeom::Translate3D(27*CLHEP::mm, (-8.183+OD_stagger[i])*CLHEP::mm, 0)*HepGeom::RotateY3D(180*CLHEP::deg);
+		GeoTrf::Transform3D OD_Move09= GeoTrf::Translate3D(27*CLHEP::mm, (-8.183+OD_stagger[i])*CLHEP::mm, 0)*GeoTrf::RotateY3D(180*CLHEP::deg);
 		GeoShapeShift * mowe09 = new GeoShapeShift(OD_Tisemi07, OD_Move09);
 		GeoShapeSubtraction * OD_Tisemi09 = new GeoShapeSubtraction(OD_Tisemi08, mowe09);
 
-		HepGeom::Transform3D OD_Move11= HepGeom::Translate3D(-27*CLHEP::mm, (-0.383+OD_stagger[i])*CLHEP::mm, 0);//(0, -29.383*CLHEP::mm, 0);
+		GeoTrf::Transform3D OD_Move11= GeoTrf::Translate3D(-27*CLHEP::mm, (-0.383+OD_stagger[i])*CLHEP::mm, 0);//(0, -29.383*CLHEP::mm, 0);
 		GeoShapeShift * mowe11 = new GeoShapeShift(OD_Tisemi07, OD_Move11);
 		GeoShapeSubtraction * OD_Tisemi11 = new GeoShapeSubtraction(OD_Tibox5, mowe11);
 
-		HepGeom::Transform3D OD_Move12= HepGeom::Translate3D(27*CLHEP::mm, (-0.383+OD_stagger[i])*CLHEP::mm, 0)*HepGeom::RotateY3D(180*CLHEP::deg);
+		GeoTrf::Transform3D OD_Move12= GeoTrf::Translate3D(27*CLHEP::mm, (-0.383+OD_stagger[i])*CLHEP::mm, 0)*GeoTrf::RotateY3D(180*CLHEP::deg);
 		GeoShapeShift * mowe12 = new GeoShapeShift(OD_Tisemi07, OD_Move12);
 		GeoShapeSubtraction * OD_Tisemi12 = new GeoShapeSubtraction(OD_Tisemi11, mowe12);
 
-		HepGeom::Transform3D OD_Move14= HepGeom::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, 0.7*CLHEP::mm);
+		GeoTrf::Transform3D OD_Move14= GeoTrf::Translate3D(0*CLHEP::mm, 0*CLHEP::mm, 0.7*CLHEP::mm);
 		GeoShapeShift * mowe14 = new GeoShapeShift(OD_Tisemi09,OD_Move14);
 		GeoShapeUnion * OD_Tisemi14 = new GeoShapeUnion(OD_Tisemi02, mowe14);
 
-		HepGeom::Transform3D OD_Move15= HepGeom::Translate3D(0*CLHEP::mm, 0*CLHEP::mm,-0.7*CLHEP::mm);
+		GeoTrf::Transform3D OD_Move15= GeoTrf::Translate3D(0*CLHEP::mm, 0*CLHEP::mm,-0.7*CLHEP::mm);
 		GeoShapeShift * mowe15 = new GeoShapeShift(OD_Tisemi12,OD_Move15);
 		GeoShapeUnion * OD_Tisemi15 = new GeoShapeUnion(OD_Tisemi14, mowe15);
 
-		HepGeom::Transform3D OD_Move16 = HepGeom::Translate3D(0, -19.15*CLHEP::mm, 0);
+		GeoTrf::Transform3D OD_Move16 = GeoTrf::Translate3D(0, -19.15*CLHEP::mm, 0);
 		GeoShapeShift * mowe16 = new GeoShapeShift(OD_Tibox3, OD_Move16);
 		GeoShapeSubtraction * shapeOD_TiPlate = new GeoShapeSubtraction(OD_Tisemi15, mowe16);
 
@@ -1178,19 +1178,19 @@ void ALFA_DetectorFactory::ConstructODFiberCladdings(const eRPotName eRPName, Ge
 	GeoBox* OD_Cladbox3 = new GeoBox(30*CLHEP::mm,50*CLHEP::mm,1*CLHEP::mm);
 	GeoBox* OD_Cladbox4 = new GeoBox(50*CLHEP::mm,30*CLHEP::mm,1*CLHEP::mm);
 
-	HepGeom::Transform3D OD_CladMove1 = HepGeom::Translate3D(30*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
+	GeoTrf::Transform3D OD_CladMove1 = GeoTrf::Translate3D(30*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
 	GeoShapeShift * mowe1 = new GeoShapeShift(OD_Cladbox3, OD_CladMove1);
 	GeoShapeSubtraction * OD_Cladsemi1 = new GeoShapeSubtraction(OD_Cladtube1, mowe1);
 
-	HepGeom::Transform3D OD_CladMove2 = HepGeom::Translate3D(0*CLHEP::mm, 30*CLHEP::mm, 0*CLHEP::mm);
+	GeoTrf::Transform3D OD_CladMove2 = GeoTrf::Translate3D(0*CLHEP::mm, 30*CLHEP::mm, 0*CLHEP::mm);
 	GeoShapeShift * mowe2 = new GeoShapeShift(OD_Cladbox4, OD_CladMove2);
 	GeoShapeSubtraction * OD_Cladsemi2 = new GeoShapeSubtraction(OD_Cladsemi1, mowe2);
 
-	HepGeom::Transform3D OD_CladMov3= HepGeom::Translate3D(4*CLHEP::mm, -26.25*CLHEP::mm, 0);
+	GeoTrf::Transform3D OD_CladMov3= GeoTrf::Translate3D(4*CLHEP::mm, -26.25*CLHEP::mm, 0);
 	GeoShapeShift * mowe3 = new GeoShapeShift(OD_Cladbox1, OD_CladMov3);
 	GeoShapeUnion * OD_Cladsemi3 = new GeoShapeUnion(OD_Cladsemi2, mowe3);
 
-	HepGeom::Transform3D OD_CladMov4= HepGeom::Translate3D(-26.25*CLHEP::mm, 15*CLHEP::mm, 0);
+	GeoTrf::Transform3D OD_CladMov4= GeoTrf::Translate3D(-26.25*CLHEP::mm, 15*CLHEP::mm, 0);
 	GeoShapeShift * mowe4 = new GeoShapeShift(OD_Cladbox2, OD_CladMov4);
 	GeoShapeUnion * shapeOD_Cladding = new GeoShapeUnion(OD_Cladsemi3, mowe4);
 
@@ -1213,7 +1213,7 @@ void ALFA_DetectorFactory::ConstructODFiberCladdings(const eRPotName eRPName, Ge
 		ConstructODFibers00(eRPName, i, EFT_ODFIBERU0, physOD_CladdingU_0, MotherTransform, TransODCladdingU0);
 
 		pPhysMotherVolume->add(pDetTransform);
-		pPhysMotherVolume->add(new GeoTransform(TransODCladdingU0));
+		pPhysMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransODCladdingU0)));
 		sprintf(szLabel,"physODclad[%d][0][%d]",eRPName,i);
 		pPhysMotherVolume->add(new GeoNameTag(szLabel));
 		pPhysMotherVolume->add(physOD_CladdingU_0);
@@ -1224,7 +1224,7 @@ void ALFA_DetectorFactory::ConstructODFiberCladdings(const eRPotName eRPName, Ge
 		ConstructODFibers01(eRPName, i, EFT_ODFIBERU1, physOD_CladdingU_1, MotherTransform, TransODCladdingU1);
 
 		pPhysMotherVolume->add(pDetTransform);
-		pPhysMotherVolume->add(new GeoTransform(TransODCladdingU1));
+		pPhysMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransODCladdingU1)));
 		sprintf(szLabel,"physODclad[%d][1][%d]",eRPName,i);
 		pPhysMotherVolume->add(new GeoNameTag(szLabel));
 		pPhysMotherVolume->add(physOD_CladdingU_1);
@@ -1235,7 +1235,7 @@ void ALFA_DetectorFactory::ConstructODFiberCladdings(const eRPotName eRPName, Ge
 		ConstructODFibers00(eRPName, i, EFT_ODFIBERV0, physOD_CladdingV_0, MotherTransform, TransODCladdingV0);
 
 		pPhysMotherVolume->add(pDetTransform);
-		pPhysMotherVolume->add(new GeoTransform(TransODCladdingV0));
+		pPhysMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransODCladdingV0)));
 		sprintf(szLabel,"physODclad[%d][2][%d]",eRPName,i);
 		pPhysMotherVolume->add(new GeoNameTag(szLabel));
 		pPhysMotherVolume->add(physOD_CladdingV_0);
@@ -1246,7 +1246,7 @@ void ALFA_DetectorFactory::ConstructODFiberCladdings(const eRPotName eRPName, Ge
 		ConstructODFibers01(eRPName, i, EFT_ODFIBERV1, physOD_CladdingV_1, MotherTransform, TransODCladdingV1);
 
 		pPhysMotherVolume->add(pDetTransform);
-		pPhysMotherVolume->add(new GeoTransform(TransODCladdingV1));
+		pPhysMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransODCladdingV1)));
 		sprintf(szLabel,"physODclad[%d][3][%d]",eRPName,i);
 		pPhysMotherVolume->add(new GeoNameTag(szLabel));
 		pPhysMotherVolume->add(physOD_CladdingV_1);
@@ -1269,15 +1269,15 @@ void ALFA_DetectorFactory::ConstructODFibers00(const eRPotName eRPName, const in
 	for(i=0; i<OD_Nb_Fibers; i++){
 		GeoTube* OD_Fibertube1 = new GeoTube((29.51-0.5*i)*CLHEP::mm,(29.99-0.5*i)*CLHEP::mm,0.24*CLHEP::mm);
 
-		HepGeom::Transform3D OD_FiberMove1 = HepGeom::Translate3D(30*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
+		GeoTrf::Transform3D OD_FiberMove1 = GeoTrf::Translate3D(30*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
 		GeoShapeShift * mowe1 = new GeoShapeShift(OD_Fiberbox3, OD_FiberMove1);
 		GeoShapeSubtraction * OD_Fibersemi1 = new GeoShapeSubtraction(OD_Fibertube1, mowe1);
 
-		HepGeom::Transform3D OD_FiberMove2 = HepGeom::Translate3D(0*CLHEP::mm, 30*CLHEP::mm, 0*CLHEP::mm);
+		GeoTrf::Transform3D OD_FiberMove2 = GeoTrf::Translate3D(0*CLHEP::mm, 30*CLHEP::mm, 0*CLHEP::mm);
 		GeoShapeShift * mowe2 = new GeoShapeShift(OD_Fiberbox4, OD_FiberMove2);
 		GeoShapeSubtraction * OD_Fibersemi2 = new GeoShapeSubtraction(OD_Fibersemi1, mowe2);
 
-		HepGeom::Transform3D OD_FiberMov4= HepGeom::Translate3D((-29.75+0.5*i)*CLHEP::mm, 15*CLHEP::mm, 0);
+		GeoTrf::Transform3D OD_FiberMov4= GeoTrf::Translate3D((-29.75+0.5*i)*CLHEP::mm, 15*CLHEP::mm, 0);
 		GeoShapeShift * mowe4 = new GeoShapeShift(OD_Fiberbox2, OD_FiberMov4);
 		GeoShapeUnion * shapeOD_Fiber = new GeoShapeUnion(OD_Fibersemi2, mowe4);
 
@@ -1304,7 +1304,7 @@ void ALFA_DetectorFactory::ConstructODFibers00(const eRPotName eRPName, const in
 		
 		//ODFiber00Active - physical volumes
 		GeoPhysVol* physOD_FiberActive = new GeoPhysVol(logOD_FiberActive);
-		pMotherVolume->add(new GeoTransform(TransODFiber));
+		pMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransODFiber)));
 		pMotherVolume->add(new GeoNameTag(szLabel));
 		pMotherVolume->add(physOD_FiberActive);
 		
@@ -1355,7 +1355,7 @@ void ALFA_DetectorFactory::ConstructODFibers00(const eRPotName eRPName, const in
 		if (eFType==EFT_ODFIBERU0) sprintf(szLabel,"ODFiberU0[%d][%d][%d]",eRPName,iODPlate+1,i+1);
 		else if (eFType==EFT_ODFIBERV0) sprintf(szLabel,"ODFiberV0[%d][%d][%d]",eRPName,iODPlate+1,i+1);
 		GeoPhysVol* physOD_Fiber = new GeoPhysVol(logOD_Fiber);
-		pMotherVolume->add(new GeoTransform(HepGeom::Translate3D(0*CLHEP::mm,0*CLHEP::mm,0*CLHEP::mm)));
+		pMotherVolume->add(new GeoTransform(GeoTrf::Translate3D(0*CLHEP::mm,0*CLHEP::mm,0*CLHEP::mm)));
 		pMotherVolume->add(new GeoNameTag(szLabel));
 		pMotherVolume->add(physOD_Fiber);
 	}
@@ -1375,15 +1375,15 @@ void ALFA_DetectorFactory::ConstructODFibers01(const eRPotName eRPName, const in
 	for(i=0; i<OD_Nb_Fibers; i++){
 		GeoTube* OD_Fibertube1 = new GeoTube((22.51+0.5*i)*CLHEP::mm,(22.99+0.5*i)*CLHEP::mm,0.24*CLHEP::mm);
 
-		HepGeom::Transform3D OD_FiberMove1 = HepGeom::Translate3D(30*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
+		GeoTrf::Transform3D OD_FiberMove1 = GeoTrf::Translate3D(30*CLHEP::mm, 0*CLHEP::mm, 0*CLHEP::mm);
 		GeoShapeShift * mowe1 = new GeoShapeShift(OD_Fiberbox3, OD_FiberMove1);
 		GeoShapeSubtraction * OD_Fibersemi1 = new GeoShapeSubtraction(OD_Fibertube1, mowe1);
 
-		HepGeom::Transform3D OD_FiberMove2 = HepGeom::Translate3D(0*CLHEP::mm, 30*CLHEP::mm, 0*CLHEP::mm);
+		GeoTrf::Transform3D OD_FiberMove2 = GeoTrf::Translate3D(0*CLHEP::mm, 30*CLHEP::mm, 0*CLHEP::mm);
 		GeoShapeShift * mowe2 = new GeoShapeShift(OD_Fiberbox4, OD_FiberMove2);
 		GeoShapeSubtraction * OD_Fibersemi2 = new GeoShapeSubtraction(OD_Fibersemi1, mowe2);
 
-		HepGeom::Transform3D OD_FiberMov4= HepGeom::Translate3D((-22.75-0.5*i)*CLHEP::mm, 15*CLHEP::mm, 0);
+		GeoTrf::Transform3D OD_FiberMov4= GeoTrf::Translate3D((-22.75-0.5*i)*CLHEP::mm, 15*CLHEP::mm, 0);
 		GeoShapeShift * mowe4 = new GeoShapeShift(OD_Fiberbox2, OD_FiberMov4);
 		GeoShapeUnion * shapeOD_Fiber = new GeoShapeUnion(OD_Fibersemi2, mowe4);
 
@@ -1418,7 +1418,7 @@ void ALFA_DetectorFactory::ConstructODFibers01(const eRPotName eRPName, const in
 		
 		//ODFiber01Active - physical volumes
 		GeoPhysVol* physOD_FiberActive = new GeoPhysVol(logOD_FiberActive);
-		pMotherVolume->add(new GeoTransform(TransODFiber));
+		pMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransODFiber)));
 		pMotherVolume->add(new GeoNameTag(szLabel));
 		pMotherVolume->add(physOD_FiberActive);
 		
@@ -1445,7 +1445,7 @@ void ALFA_DetectorFactory::ConstructODFibers01(const eRPotName eRPName, const in
 		if (eFType==EFT_ODFIBERU1) sprintf(szLabel,"ODFiberU1[%d][%d][%d]",eRPName,iODPlate+1,i+1);
 		else if (eFType==EFT_ODFIBERV1) sprintf(szLabel,"ODFiberV1[%d][%d][%d]",eRPName,iODPlate+1,i+1);
 		GeoPhysVol* physOD_Fiber = new GeoPhysVol(logOD_Fiber);
-		pMotherVolume->add(new GeoTransform(HepGeom::Translate3D(0*CLHEP::mm,0*CLHEP::mm,0*CLHEP::mm)));
+		pMotherVolume->add(new GeoTransform(GeoTrf::Translate3D(0*CLHEP::mm,0*CLHEP::mm,0*CLHEP::mm)));
 		pMotherVolume->add(new GeoNameTag(szLabel));
 		pMotherVolume->add(physOD_Fiber);
 	}
@@ -1493,7 +1493,7 @@ void ALFA_DetectorFactory::ConstructUFiberCladdings(const eRPotName eRPName, Geo
 		//G4RotationMatrix* Clad_Rot1 = new G4RotationMatrix; 
 		//Clad_Rot1 -> rotateZ(-45*CLHEP::deg);
 		//G4ThreeVector  Clad_Move1(-17.415*CLHEP::mm, -17.415*CLHEP::mm, 0*CLHEP::mm);
-		HepGeom::Transform3D Clad_Move1=HepGeom::Translate3D(-17.415*CLHEP::mm, -17.415*CLHEP::mm, 0*CLHEP::mm)*HepGeom::RotateZ3D(-45*CLHEP::deg);
+		GeoTrf::Transform3D Clad_Move1=GeoTrf::Translate3D(-17.415*CLHEP::mm, -17.415*CLHEP::mm, 0*CLHEP::mm)*GeoTrf::RotateZ3D(-45*CLHEP::deg);
 	
 		mowe1=new GeoShapeShift(ALFA_Cladbox2,Clad_Move1);
 		shapeALFA_Clad = new GeoShapeSubtraction(ALFA_Cladbox1,mowe1);
@@ -1505,7 +1505,7 @@ void ALFA_DetectorFactory::ConstructUFiberCladdings(const eRPotName eRPName, Geo
 		physALFA_CladdingU[i] = new GeoFullPhysVol(pLogCladdingU);
 		pMotherVolume->add(new GeoNameTag(strLabel));
 		pMotherVolume->add(pDetTransform);
-		pMotherVolume->add(new GeoTransform(TransCladdingU[i]));
+		pMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransCladdingU[i])));
 		pMotherVolume->add(physALFA_CladdingU[i]);
 
 		/*
@@ -1545,7 +1545,7 @@ void ALFA_DetectorFactory::ConstructUFiberCladdings(const eRPotName eRPName, Geo
 			double fAngle=m_pGeoReader->GetUFiberAngle(eRPName, i+1, j+1);
 			double fDx=fXPos-(+15.75-0.5*(j))*CLHEP::mm;
 
-			HepGeom::Transform3D TrimMove=HepGeom::Translate3D((-33.165+0.5*j)*CLHEP::mm-fDx, -17.415*CLHEP::mm, 0*CLHEP::mm)*HepGeom::RotateZ3D(+45.0*CLHEP::deg); //bug fix 23.2.2010
+			GeoTrf::Transform3D TrimMove=GeoTrf::Translate3D((-33.165+0.5*j)*CLHEP::mm-fDx, -17.415*CLHEP::mm, 0*CLHEP::mm)*GeoTrf::RotateZ3D(+45.0*CLHEP::deg); //bug fix 23.2.2010
 			const GeoShapeShift* Sh6=new GeoShapeShift(CladTrim,TrimMove);
 			const GeoShapeSubtraction* solFibU=new GeoShapeSubtraction(Fib1,Sh6);
 			sprintf(strLabel,"logALFA_FiberU[%d]",j+1);
@@ -1555,7 +1555,7 @@ void ALFA_DetectorFactory::ConstructUFiberCladdings(const eRPotName eRPName, Geo
 			TransFiber=HepGeom::Translate3D(fXPos, 0*CLHEP::mm, 0*CLHEP::mm)*HepGeom::RotateZ3D(-fAngle);
 			physiFibU=new GeoFullPhysVol(logALFA_FiberU);
 			physALFA_CladdingU[i]->add(new GeoNameTag(strLabel));
-			physALFA_CladdingU[i]->add(new GeoTransform(TransFiber));
+			physALFA_CladdingU[i]->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransFiber)));
 			physALFA_CladdingU[i]->add(physiFibU);
 			
 			//set translation vector of the fiber with respect to the main reference point
@@ -1604,7 +1604,7 @@ void ALFA_DetectorFactory::ConstructVFiberCladdings(const eRPotName eRPName, Geo
 		//G4RotationMatrix* Clad_Rot1 = new G4RotationMatrix; 
 		//Clad_Rot1 -> rotateZ(-45*CLHEP::deg);
 		//G4ThreeVector  Clad_Move1(-17.415*CLHEP::mm, -17.415*CLHEP::mm, 0*CLHEP::mm);
-		HepGeom::Transform3D Clad_Move1=HepGeom::Translate3D(+17.415*CLHEP::mm, -17.415*CLHEP::mm, 0*CLHEP::mm)*HepGeom::RotateZ3D(-45*CLHEP::deg);
+		GeoTrf::Transform3D Clad_Move1=GeoTrf::Translate3D(+17.415*CLHEP::mm, -17.415*CLHEP::mm, 0*CLHEP::mm)*GeoTrf::RotateZ3D(-45*CLHEP::deg);
 	
 		mowe1=new GeoShapeShift(ALFA_Cladbox2,Clad_Move1);
 		shapeALFA_Clad = new GeoShapeSubtraction(ALFA_Cladbox1,mowe1);
@@ -1616,7 +1616,7 @@ void ALFA_DetectorFactory::ConstructVFiberCladdings(const eRPotName eRPName, Geo
 		physALFA_CladdingV[i] = new GeoFullPhysVol(pLogCladdingV);
 		pMotherVolume->add(new GeoNameTag(strLabel));
 		pMotherVolume->add(pDetTransform);
-		pMotherVolume->add(new GeoTransform(TransCladdingV[i]));
+		pMotherVolume->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransCladdingV[i])));
 		pMotherVolume->add(physALFA_CladdingV[i]);
 	}
 	
@@ -1647,7 +1647,7 @@ void ALFA_DetectorFactory::ConstructVFiberCladdings(const eRPotName eRPName, Geo
 			double fAngle=m_pGeoReader->GetVFiberAngle(eRPName, i+1, j+1);
 			double fDx=fXPos-(+15.75-0.5*(j))*CLHEP::mm;
 
-			HepGeom::Transform3D TrimMove=HepGeom::Translate3D((1.665+0.5*j)*CLHEP::mm-fDx, -17.415*CLHEP::mm, 0*CLHEP::mm)*HepGeom::RotateZ3D(+45.0*CLHEP::deg);
+			GeoTrf::Transform3D TrimMove=GeoTrf::Translate3D((1.665+0.5*j)*CLHEP::mm-fDx, -17.415*CLHEP::mm, 0*CLHEP::mm)*GeoTrf::RotateZ3D(+45.0*CLHEP::deg);
 			const GeoShapeShift* Sh6=new GeoShapeShift(CladTrim,TrimMove);
 			const GeoShapeSubtraction* solFibV=new GeoShapeSubtraction(Fib1,Sh6);
 			sprintf(strLabel,"logALFA_FiberV[%d]",j+1);
@@ -1658,7 +1658,7 @@ void ALFA_DetectorFactory::ConstructVFiberCladdings(const eRPotName eRPName, Geo
 			
 			physiFibV=new GeoFullPhysVol(logALFA_FiberV);
 			physALFA_CladdingV[i]->add(new GeoNameTag(strLabel));
-			physALFA_CladdingV[i]->add(new GeoTransform(TransFiber));
+			physALFA_CladdingV[i]->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransFiber)));
 			physALFA_CladdingV[i]->add(physiFibV);
 			
 			//set translation vector of the fiber with respect to the main reference point
@@ -1947,7 +1947,7 @@ void ALFA_DetectorFactory::UpdateTransforms(PALIGNPARAMETERS pAlignParams)
 				if(sc==StatusCode::SUCCESS){
 					pAlTrans=pAlignX->getAlignX();
 					//pAlTrans->setDelta(RPosParams.RPSWTransformInStation);
-					pAlTrans->setDelta(RPosParams.RPTransformInStation);
+					pAlTrans->setDelta(Amg::CLHEPTransformToEigen(RPosParams.RPTransformInStation));
 				}
 
 				sprintf(szLabel,"AlTransDetInRPMainPoint[%02d]",eRPName);
@@ -1955,7 +1955,7 @@ void ALFA_DetectorFactory::UpdateTransforms(PALIGNPARAMETERS pAlignParams)
 				if(sc==StatusCode::SUCCESS){
 					pAlTrans=pAlignX->getAlignX();
 					//pAlTrans->setDelta(RPosParams.DetSWTransformInMainPoint);
-					pAlTrans->setDelta(RPosParams.DetTransformInMainPoint);
+					pAlTrans->setDelta(Amg::CLHEPTransformToEigen(RPosParams.DetTransformInMainPoint));
 				}
 
 			}

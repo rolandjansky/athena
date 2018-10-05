@@ -24,6 +24,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODBase/IParticle.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
@@ -45,8 +47,8 @@ TrigT2HistoPrmVtx::TrigT2HistoPrmVtx(const std::string& name, ISvcLocator* pSvcL
   declareProperty ("EFTrkSel_BLayer",    m_c->m_efTrkSelBLayer     = 1);
   declareProperty ("EFTrkSel_PixHits",   m_c->m_efTrkSelPixHits    = 2);
   declareProperty ("EFTrkSel_SiHits",    m_c->m_efTrkSelSiHits     = 7);
-  declareProperty ("EFTrkSel_D0",        m_c->m_efTrkSelD0         = 1*CLHEP::mm);
-  declareProperty ("EFTrkSel_Pt",        m_c->m_efTrkSelPt         = 1*CLHEP::GeV);
+  declareProperty ("EFTrkSel_D0",        m_c->m_efTrkSelD0         = 1*Gaudi::Units::mm);
+  declareProperty ("EFTrkSel_Pt",        m_c->m_efTrkSelPt         = 1*Gaudi::Units::GeV);
 
   declareMonitoredVariable("PrmVtx",          m_c->m_zPrmVtx[0]          = -1);
   declareMonitoredVariable("PrmVtxSigmaAll",  m_c->m_zPrmVtxSigmaAll[0]  = -1);

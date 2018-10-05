@@ -13,7 +13,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBQuery.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 
 #include "MuonGeoModel/TGC_Technology.h"
@@ -421,7 +421,7 @@ void RDBReaderAtlas::ProcessTGCreadout () {
 
     
         int version = (int) (*ggsd)[0]->getDouble("VERS");
-        float wirespacing = (*ggsd)[0]->getDouble("WIRESP")*CLHEP::cm;
+        float wirespacing = (*ggsd)[0]->getDouble("WIRESP")*GeoModelKernelUnits::cm;
         log<<MSG::INFO
            <<" ProcessTGCreadout - version "<<version<<" wirespacing "<<wirespacing<<endmsg;
     
@@ -519,7 +519,7 @@ void RDBReaderAtlas::ProcessTGCreadout () {
         IRDBRecordset_ptr ggln = m_pRDBAccess->getRecordsetPtr("GGLN",m_geoTag,m_geoNode);
 
         int version = (int) (*ggln)[0]->getInt("VERS");
-        float wirespacing = (*ggln)[0]->getFloat("WIRESP")*CLHEP::mm;
+        float wirespacing = (*ggln)[0]->getFloat("WIRESP")*GeoModelKernelUnits::mm;
         log<<MSG::INFO
            <<" ProcessTGCreadout - version "<<version<<" wirespacing "<<wirespacing<<endmsg;
 
@@ -618,11 +618,11 @@ void RDBReaderAtlas::ProcessTGCreadout () {
 	    tgc->offsetWireSupport[0] = (*ggln)[ich]->getFloat("SP1WI");
 	    tgc->offsetWireSupport[1] = (*ggln)[ich]->getFloat("SP2WI");
 	    tgc->offsetWireSupport[2] = (*ggln)[ich]->getFloat("SP3WI");
-	    tgc->angleTilt            = (*ggln)[ich]->getFloat("TILT")*CLHEP::deg;
+	    tgc->angleTilt            = (*ggln)[ich]->getFloat("TILT")*GeoModelKernelUnits::deg;
 	    tgc->radiusButton         = (*ggln)[ich]->getFloat("SP1BU");
 	    tgc->pitchButton[0]       = (*ggln)[ich]->getFloat("SP2BU");
 	    tgc->pitchButton[1]       = (*ggln)[ich]->getFloat("SP3BU");
-	    tgc->angleButton          = (*ggln)[ich]->getFloat("SP4BU")*CLHEP::deg;
+	    tgc->angleButton          = (*ggln)[ich]->getFloat("SP4BU")*GeoModelKernelUnits::deg;
 
         }
     }

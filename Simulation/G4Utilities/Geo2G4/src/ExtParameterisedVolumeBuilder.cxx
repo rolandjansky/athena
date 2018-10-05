@@ -28,6 +28,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include <iostream>
 
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
 ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(std::string n):
   VolumeBuilder(n),
   m_getMatEther(true),
@@ -123,7 +125,7 @@ G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPh
           // Get child phys volume
           theGeoPhysChild = av.getVolume();
           // Get its transform
-          G4Transform3D theG4Position(av.getTransform());
+          G4Transform3D theG4Position(Amg::EigenTransformToCLHEP(av.getTransform()));
 
           Query<int> Qint =  av.getId();
           if(Qint.isValid()) id = Qint;
@@ -212,7 +214,7 @@ Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink p
           if(!(theG4AssemblyChild = BuildAssembly(theGeoPhysChild))) return 0;
 
           // Get its transform
-          G4Transform3D theG4Position(av.getTransform());
+          G4Transform3D theG4Position(Amg::EigenTransformToCLHEP(av.getTransform()));
 
           assemblyVolume->AddPlacedAssembly(theG4AssemblyChild,theG4Position);
         }
@@ -224,7 +226,7 @@ Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink p
           if(!(theG4LogChild = Build(theGeoPhysChild))) return 0;
 
           // Get its transform
-          G4Transform3D theG4Position(av.getTransform());
+          G4Transform3D theG4Position(Amg::EigenTransformToCLHEP(av.getTransform()));
 
           int placedID = 0;
           if(Qint.isValid()) placedID = Qint;

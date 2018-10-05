@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/PixelServMatFactoryDC2.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -74,8 +76,8 @@ void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
     std::string matName =  mat[(int) (*pbfi)[ii]->getFloat("MAT")];
 
     const GeoMaterial* cylMat = materialManager->getMaterial(matName);
-    double rmin = (*pbfi)[ii]->getFloat("RIN")*CLHEP::cm;
-    double rmax = (*pbfi)[ii]->getFloat("ROUT")*CLHEP::cm;
+    double rmin = (*pbfi)[ii]->getFloat("RIN")*GeoModelKernelUnits::cm;
+    double rmax = (*pbfi)[ii]->getFloat("ROUT")*GeoModelKernelUnits::cm;
     double zmin = (*pbfi)[ii]->getFloat("ZIN");
     double zmax = (*pbfi)[ii]->getFloat("ZOUT");
     // elaborate it 'a la G3...
@@ -84,9 +86,9 @@ void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
       double rl = cylMat->getRadLength();
       halflength = fabs(zmax) * rl /200. ;
     } else {
-      halflength = fabs(zmax-zmin)*CLHEP::cm;
+      halflength = fabs(zmax-zmin)*GeoModelKernelUnits::cm;
     }
-    double zpos = fabs(zmin*CLHEP::cm)+halflength+epsilon;
+    double zpos = fabs(zmin*GeoModelKernelUnits::cm)+halflength+epsilon;
     // Build the Phys Vol
     std::ostringstream o;
     o << ii;
@@ -97,18 +99,18 @@ void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
     
     if(rmin > 0.)  // place two
       {
-	CLHEP::Hep3Vector servpos1(0.,0.,zpos);
-	CLHEP::Hep3Vector servpos2(0.,0.,-zpos);
-	GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos1));
-	GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos2));
+	GeoTrf::Translate3D servpos1(0.,0.,zpos);
+	GeoTrf::Translate3D servpos2(0.,0.,-zpos);
+	GeoTransform *xform1 = new GeoTransform(servpos1);
+	GeoTransform *xform2 = new GeoTransform(servpos2);
 	mother->add(xform1);
 	mother->add(ServPhys);
 	mother->add(xform2);
 	mother->add(ServPhys);
       } else { // only one on the right side
 	if(zmin < 0) zpos = -zpos; 
-	CLHEP::Hep3Vector servpos1(0.,0.,zpos);
-	GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos1));
+	GeoTrf::Translate3D servpos1(0.,0.,zpos);
+	GeoTransform *xform1 = new GeoTransform(servpos1);
 	mother->add(xform1);
 	mother->add(ServPhys);
       }

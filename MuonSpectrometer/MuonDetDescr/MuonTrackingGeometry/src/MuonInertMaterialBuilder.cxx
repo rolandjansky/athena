@@ -277,7 +277,7 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
           bool simpleTree = false;
           if ( !cv->getNChildVols() ) {
 	    std::vector<Amg::Transform3D > volTr;
-	    volTr.push_back(Amg::CLHEPTransformToEigen(vol.getTransform())); 
+	    volTr.push_back(vol.getTransform()); 
 	    vols.push_back(std::pair<const GeoLogVol*,std::vector<Amg::Transform3D> > (clv,volTr) );
             simpleTree = true;
           } else {
@@ -299,7 +299,7 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 	    for (unsigned int ip=0; ip<objs.size();ip++) {
 	      if (protoName==objs[ip].first->name()) {
 		found = true;
-                if (simpleTree) objs[ip].second.push_back(Amg::CLHEPTransformToEigen(vol.getTransform()));
+                if (simpleTree) objs[ip].second.push_back(vol.getTransform());
                 //else objs[ip].second.insert(objs[ip].second.end(),vols[ish].second.begin(),vols[ish].second.end());
 	      } 
 	    }  
@@ -402,7 +402,7 @@ void Muon::MuonInertMaterialBuilder::printChildren(const GeoVPhysVol* pv) const
   // subcomponents
   unsigned int nc = pv->getNChildVols();
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
+    Amg::Transform3D transf = pv->getXToChildVol(ic);
  
     //
     //std::cout << " dumping transform to subcomponent" << std::endl;
@@ -580,7 +580,7 @@ void Muon::MuonInertMaterialBuilder::getObjsForTranslation(const GeoVPhysVol* pv
   unsigned int nc = pv->getNChildVols();
   ATH_MSG_VERBOSE( " INERT getObjsForTranslation from:"<< pv->getLogVol()->getName()<<","<<pv->getLogVol()->getMaterial()->getName()<<", looping over "<< nc << " children" );
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
+    Amg::Transform3D transf = pv->getXToChildVol(ic);
     const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
     const GeoLogVol* clv = cv->getLogVol();
     if (!cv->getNChildVols()) {

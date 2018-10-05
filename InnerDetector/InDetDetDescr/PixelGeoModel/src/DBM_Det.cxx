@@ -2,9 +2,9 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/DBM_Det.h"
-#include "PixelGeoModel/DBM_Telescope.h"
-#include "PixelGeoModel/DBM_Services.h"
+#include "DBM_Det.h"
+#include "DBM_Telescope.h"
+#include "DBM_Services.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
@@ -21,7 +21,7 @@ DBM_Det::DBM_Det() {
   
   // Radius to beamline
   // Hardcoded, so if change then change in DBM_module too
-  double trans_rad = 46.678*CLHEP::mm + (m_gmt_mgr->DBMTelescopeY()) / 2.; // 10-CLHEP::degree version
+  double trans_rad = 46.678*GeoModelKernelUnits::mm + (m_gmt_mgr->DBMTelescopeY()) / 2.; // 10-GeoModelKernelUnits::degree version
 
   //                 TRANS_X                        TRANS_Y                        TRANS_Z                          ROT_X                       ROT_Y                      ROT_Z        
   m_module[0].push_back(trans_rad);   m_module[0].push_back(0);         m_module[0].push_back(Trans_Y);    m_module[0].push_back(0);     m_module[0].push_back(0);    m_module[0].push_back(270);  
@@ -36,21 +36,19 @@ GeoVPhysVol* DBM_Det::Build()
   double safety = 0.001;
 
   //create a cylinder 8mm smaller than the BPSS outer radius to place the 4 DBM telescopes
-  double rmin = 45.*CLHEP::mm;//41.0*CLHEP::mm;
-  double rmax = 150.*CLHEP::mm; //244.*CLHEP::mm;
-  double halflength = m_gmt_mgr->DBMTelescopeZ()/2.;//200.*CLHEP::mm
+  double rmin = 45.*GeoModelKernelUnits::mm;//41.0*GeoModelKernelUnits::mm;
+  double rmax = 150.*GeoModelKernelUnits::mm; //244.*GeoModelKernelUnits::mm;
+  double halflength = m_gmt_mgr->DBMTelescopeZ()/2.;//200.*GeoModelKernelUnits::mm
   GeoTube * Shape = new GeoTube(rmin,rmax,halflength);
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoLogVol* Log = new GeoLogVol("OutsideDBM",Shape,air);
   GeoFullPhysVol* Phys = new GeoFullPhysVol(Log);
 
-  CLHEP::HepRotation pp0rm;
-
   // add PP0 board
   DBM_PP0 pp0Board;
   GeoVPhysVol* pp0BoardPhys = pp0Board.Build();
-  CLHEP::Hep3Vector pp0Pos(0., 0., -halflength + m_gmt_mgr->DBMPP0Thick()/2. + safety);
-  GeoTransform* pp0xform = new GeoTransform(HepGeom::Transform3D(pp0rm,pp0Pos));
+  GeoTrf::Translate3D pp0Pos(0., 0., -halflength + m_gmt_mgr->DBMPP0Thick()/2. + safety);
+  GeoTransform* pp0xform = new GeoTransform(pp0Pos);
   GeoNameTag* pp0tag = new GeoNameTag("DBM_PP0"); 
   Phys->add(pp0tag);
   Phys->add(pp0xform);
@@ -68,12 +66,11 @@ GeoVPhysVol* DBM_Det::Build()
       else if ((m_gmt_mgr->GetSide() < 0) && (i == 2)) m_gmt_mgr->SetPhi(0);
 
       //setting transformation
-      CLHEP::HepRotation rm;
-      CLHEP::Hep3Vector pos(m_module[i].at(0), m_module[i].at(1), m_module[i].at(2));
-      rm.rotateX(m_module[i].at(3)*CLHEP::deg);
-      rm.rotateY(m_module[i].at(4)*CLHEP::deg);
-      rm.rotateZ(m_module[i].at(5)*CLHEP::deg);
-      GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+      GeoTrf::Transform3D rm  = GeoTrf::RotateZ3D(m_module[i].at(5)*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateY3D(m_module[i].at(4)*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateX3D(m_module[i].at(3)*GeoModelKernelUnits::deg);
+      GeoTrf::Translation3D pos(m_module[i].at(0), m_module[i].at(1), m_module[i].at(2));
+      GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
 
       GeoNameTag* tag = new GeoNameTag("DBM Module"); 
       GeoVPhysVol* dbmModPhys = dbm.Build();

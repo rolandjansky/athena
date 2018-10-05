@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelDiskSLHC.h"
-#include "PixelGeoModel/GeoPixelDiskSupports.h"
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "PixelGeoModel/GeoPixelRingSLHC.h"
+#include "GeoPixelDiskSLHC.h"
+#include "GeoPixelDiskSupports.h"
+#include "GeoPixelSiCrystal.h"
+#include "GeoPixelRingSLHC.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 
@@ -77,7 +77,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
       // front rings first (away from IP)
       m_gmt_mgr->setDiskFront();
       GeoPixelRingSLHC gpRingF(theSensor);
-      GeoTransform* xfront = new GeoTransform( HepGeom::Translate3D(0, 0, zpos) );
+      GeoTransform* xfront = new GeoTransform( GeoTrf::Translate3D(0, 0, zpos) );
       diskPhys->add( new GeoNameTag("PixelECRing") );
       diskPhys->add( new GeoIdentifierTag(2*iring) );
       diskPhys->add( xfront );
@@ -89,7 +89,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
       // then back rings (near IP)
       m_gmt_mgr->setDiskBack();
       GeoPixelRingSLHC gpRingB(theSensor);
-      GeoTransform* xback = new GeoTransform( HepGeom::Translate3D(0, 0, -zpos) );
+      GeoTransform* xback = new GeoTransform( GeoTrf::Translate3D(0, 0, -zpos) );
       diskPhys->add( new GeoNameTag("PixelECRing") );
       diskPhys->add( new GeoIdentifierTag(2*iring+1) ); // unique
       diskPhys->add( xback );
@@ -103,7 +103,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
   for(int ii =0; ii< pds.NCylinders(); ii++) {
     pds.SetCylinder(ii);
     GeoNameTag* tag = new GeoNameTag("DiskSupport");
-    GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0, 0, pds.ZPos()) );
+    GeoTransform* xform = new GeoTransform( GeoTrf::Translate3D(0, 0, pds.ZPos()) );
     diskPhys->add(tag);
     diskPhys->add(xform);
     diskPhys->add(pds.Build() );

@@ -20,6 +20,8 @@
 #include "GeoModelKernel/GeoPcon.h"  
 #include "GeoModelKernel/GeoTubs.h"  
 #include "GeoModelKernel/GeoTransform.h"  
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -28,10 +30,6 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <string>
 #include <cmath>
@@ -126,14 +124,14 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     throw std::runtime_error("Error in TBBarrelCryostatConstruction, oxygen not found.");
   }
 
-  GeoMaterial *Vacuum = new GeoMaterial("Vacuum",CLHEP::universe_mean_density );
+  GeoMaterial *Vacuum = new GeoMaterial("Vacuum",GeoModelKernelUnits::universe_mean_density );
   Vacuum->add(Hydrogen,1.);
   Vacuum->lock();
 
 // define material for FOAM (C5H8O2)
 // latest density value from P.Puzo (october 2003)
 //
-  double density = 0.058*CLHEP::g/CLHEP::cm3;
+  double density = 0.058*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;
     GeoMaterial* Foam = new GeoMaterial("Foam", density);
     double fraction=8*1.01/(5*12.01+8*1.01+2.*16.0);
     Foam->add(Hydrogen,fraction);
@@ -166,7 +164,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
      std::cout << " Plane zp/ri/ro " << zp[i] << " " << ri[i] << " " << ro[i] << std::endl;
     }
 #endif
-    GeoPcon* Em_pcone = new GeoPcon(-25.*CLHEP::deg,50.*CLHEP::deg);
+    GeoPcon* Em_pcone = new GeoPcon(-25.*GeoModelKernelUnits::deg,50.*GeoModelKernelUnits::deg);
     for (int i=0; i < 3; i++) Em_pcone->addPlane(zp[i],ri[i],ro[i]);
 
     const GeoLogVol* cryoMotherLogical = 
@@ -177,20 +175,20 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 
 // Cryostat geometry
 
-    double  Cryo_Distz = 483.5*CLHEP::cm;   // total size in z
-    double  Cryo_z0 = 103.0*CLHEP::cm;       // eta=0 position wrt cryosta edge at z<0
+    double  Cryo_Distz = 483.5*GeoModelKernelUnits::cm;   // total size in z
+    double  Cryo_z0 = 103.0*GeoModelKernelUnits::cm;       // eta=0 position wrt cryosta edge at z<0
 
-    double  DeltaR_cold = 4.1*CLHEP::cm;    // thickness cold vessel before calo
-    double  DeltaRout_cold = 5.0*CLHEP::cm;    // thickness cold vessel after calo
+    double  DeltaR_cold = 4.1*GeoModelKernelUnits::cm;    // thickness cold vessel before calo
+    double  DeltaRout_cold = 5.0*GeoModelKernelUnits::cm;    // thickness cold vessel after calo
 
-    double  DeltaR_warm= 3.86*CLHEP::cm;    // thickness warm vessel before calo
-    double  DeltaRout_warm = 4.0*CLHEP::cm;    // thickness warm vessel after calo
+    double  DeltaR_warm= 3.86*GeoModelKernelUnits::cm;    // thickness warm vessel before calo
+    double  DeltaRout_warm = 4.0*GeoModelKernelUnits::cm;    // thickness warm vessel after calo
 
-    double  DeltaRout_vac = 3.0*CLHEP::cm;  // vacuum space cryo after calo
+    double  DeltaRout_vac = 3.0*GeoModelKernelUnits::cm;  // vacuum space cryo after calo
 
-    double Dz_end_warm = 7.0*CLHEP::cm;   // thickness of end plate at high z
-    double Dz_end_vac  = 8.0*CLHEP::cm;   
-    double Dz_end_cold = 7.0*CLHEP::cm;
+    double Dz_end_warm = 7.0*GeoModelKernelUnits::cm;   // thickness of end plate at high z
+    double Dz_end_vac  = 8.0*GeoModelKernelUnits::cm;   
+    double Dz_end_cold = 7.0*GeoModelKernelUnits::cm;
 
     double Dz_end_tot = Dz_end_warm + Dz_end_vac + Dz_end_cold;
 
@@ -209,13 +207,13 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     double  Rmin_mother = Cryo_Xcent-Cryo_Rmax_W;
     double  Rmax_mother = 2270.;
 
-    double Phi_Min = -5.0 * CLHEP::deg;
-    double Phi_Span = 32.5 * CLHEP::deg;
+    double Phi_Min = -5.0 * GeoModelKernelUnits::deg;
+    double Phi_Span = 32.5 * GeoModelKernelUnits::deg;
 // GU 10/09/2004
 // For cryostat mother volume, sligthly larger phi range
 //  to avoid clash with front cryostat
-    double Phi_Min_Moth=-9.0*CLHEP::deg;
-    double Phi_Span_Moth=38.5*CLHEP::deg;
+    double Phi_Min_Moth=-9.0*GeoModelKernelUnits::deg;
+    double Phi_Span_Moth=38.5*GeoModelKernelUnits::deg;
 
 // -----------------------------------------------------------------
 // Mother volume for Cryostat, filled with foam
@@ -227,8 +225,8 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     std::cout << "   (matter = foam) " << std::endl;
     std::cout << " Rmin/Rmax " << Rmin_mother << " " << Rmax_mother << std::endl;
     std::cout << " Dz/2 " << Cryo_Distz/2. << std::endl;
-    std::cout << " PhiMin, Span " << Phi_Min_Moth*(1./CLHEP::deg) << " "
-              << Phi_Span_Moth*(1./CLHEP::deg) << std::endl;
+    std::cout << " PhiMin, Span " << Phi_Min_Moth*(1./GeoModelKernelUnits::deg) << " "
+              << Phi_Span_Moth*(1./GeoModelKernelUnits::deg) << std::endl;
 #endif
 
     GeoTubs* Cent_tube = new GeoTubs(Rmin_mother,
@@ -239,11 +237,11 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     GeoLogVol* Cent_log = new GeoLogVol(baseName+"Mother",Cent_tube,Foam);
 //  position in Pcon mother envelope (which has Atlas reference frame)
      double zpos = Cryo_Distz/2.-Cryo_z0;
-     double phi  = -1.*360.*CLHEP::deg/16/2.;   // to have x axis in middle of volume
+     double phi  = -1.*360.*GeoModelKernelUnits::deg/16/2.;   // to have x axis in middle of volume
 
     GeoPhysVol* Cent_phys  = new GeoPhysVol(Cent_log);
-    cryoMotherPhysical->add(new GeoTransform(HepGeom::RotateZ3D(phi)));
-    cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zpos)));
+    cryoMotherPhysical->add(new GeoTransform(GeoTrf::RotateZ3D(phi)));
+    cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zpos)));
     cryoMotherPhysical->add(Cent_phys);
 
 // ----------------------------------------------------------------------
@@ -257,7 +255,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     std::cout << " " << std::endl;
     std::cout << " ** Cryostat before LAr (shape=Tubs)" << std::endl;
     std::cout << " center in x = " << Cryo_Xcent  << std::endl;
-    std::cout << " angle 180-11 CLHEP::deg, span = 14 CLHEP::deg" << std::endl;
+    std::cout << " angle 180-11 GeoModelKernelUnits::deg, span = 14 GeoModelKernelUnits::deg" << std::endl;
     std::cout << " R warm vessel " << Cryo_Rmin_W << " "
                                    << Cryo_Rmax_W << std::endl;
     std::cout << " R vacuum      " << Cryo_Rmax_C << " "
@@ -272,15 +270,15 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
                                     Cryo_Rmin_W,
                                     Cryo_Rmax_W,
                                     (Cryo_Distz-Dz_end_tot)/2.,
-                                    (180.-11.)*CLHEP::deg,
-                                    14.*CLHEP::deg);
+                                    (180.-11.)*GeoModelKernelUnits::deg,
+                                    14.*GeoModelKernelUnits::deg);
 
     GeoLogVol* CryoW_log = new GeoLogVol(baseName+"WarmTube",
                                                      CryoW_tube,
                                                      Aluminium);
 
     GeoPhysVol* CryoW_phys = new GeoPhysVol(CryoW_log);
-    Cent_phys->add(new GeoTransform(HepGeom::Translate3D(Cryo_Xcent, 0., -Dz_end_tot/2.)));
+    Cent_phys->add(new GeoTransform(GeoTrf::Translate3D(Cryo_Xcent, 0., -Dz_end_tot/2.)));
     Cent_phys->add(CryoW_phys);
 
 // Waccum between warm and cold vessels
@@ -289,15 +287,15 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
                                     Cryo_Rmax_C,
                                     Cryo_Rmin_W,
                                     (Cryo_Distz-Dz_end_tot)/2.,
-                                    (180.-11.)*CLHEP::deg,
-                                    14.*CLHEP::deg);
+                                    (180.-11.)*GeoModelKernelUnits::deg,
+                                    14.*GeoModelKernelUnits::deg);
 
     GeoLogVol *CryoV_log = new GeoLogVol(baseName+"VacTube",
                                                CryoV_tube,
                                                Vacuum);
 
     GeoPhysVol* CryoV_phys = new GeoPhysVol(CryoV_log);
-    Cent_phys->add(new GeoTransform(HepGeom::Translate3D(Cryo_Xcent, 0., -Dz_end_tot/2.)));
+    Cent_phys->add(new GeoTransform(GeoTrf::Translate3D(Cryo_Xcent, 0., -Dz_end_tot/2.)));
     Cent_phys->add(CryoV_phys);
 
 // Cold vessel
@@ -306,15 +304,15 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
                                     Cryo_Rmin_C,
                                     Cryo_Rmax_C,
                                     (Cryo_Distz-Dz_end_tot)/2.,
-                                    (180.-11.)*CLHEP::deg,
-                                    14.*CLHEP::deg);
+                                    (180.-11.)*GeoModelKernelUnits::deg,
+                                    14.*GeoModelKernelUnits::deg);
 
     GeoLogVol *CryoC_log = new GeoLogVol(baseName+"ColdTube",
                                                CryoC_tube,
                                                Aluminium);
 
     GeoPhysVol* CryoC_phys = new GeoPhysVol(CryoC_log);
-    Cent_phys->add(new GeoTransform(HepGeom::Translate3D(Cryo_Xcent, 0., -Dz_end_tot/2.)));
+    Cent_phys->add(new GeoTransform(GeoTrf::Translate3D(Cryo_Xcent, 0., -Dz_end_tot/2.)));
     Cent_phys->add(CryoC_phys);
 
 #endif
@@ -326,7 +324,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 // cold vessel of the cryostat after calo
 //-----------------------------------------------------------------------
 
-    double LAr_inner_radius=141.00*CLHEP::cm;   // min radius of PS
+    double LAr_inner_radius=141.00*GeoModelKernelUnits::cm;   // min radius of PS
     double LAr_outer_radius=Rmax_mother-DeltaRout_warm-DeltaRout_cold
                                          -DeltaRout_vac;
 
@@ -337,8 +335,8 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     std::cout << " *** LAr volume (tubs put in foam)" << std::endl;
     std::cout << "Rmin/Rmax " << LAr_inner_radius << " "
                               << LAr_outer_radius << std::endl;
-    std::cout << "PhiMin,Span " << Phi_Min*(1./CLHEP::deg) << " "
-                                << Phi_Span*(1./CLHEP::deg) << std::endl;
+    std::cout << "PhiMin,Span " << Phi_Min*(1./GeoModelKernelUnits::deg) << " "
+                                << Phi_Span*(1./GeoModelKernelUnits::deg) << std::endl;
     std::cout << "DeltaZ/2 " << LAr_z_max/2. << std::endl;
     std::cout << "Position in z in mother " << (LAr_z_max-Cryo_Distz)/2. << std::endl;
 #endif
@@ -355,7 +353,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 
      GeoPhysVol* moth_phys = new GeoPhysVol(moth_log);
 
-     Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D((LAr_z_max-Cryo_Distz)/2.)));
+     Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D((LAr_z_max-Cryo_Distz)/2.)));
      Cent_phys->add(moth_phys);
 
 // Adjust LAR volumes at the end of foam, such as to have 
@@ -371,27 +369,27 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 //    5.5mm at mid bottom and 0.5 mm at bottom
 
 // modified 17-Aug-05
-// the measured thickness are at 0, 22.5/4, 22.5/2, 3*22.5/4 and 22.5 CLHEP::deg
+// the measured thickness are at 0, 22.5/4, 22.5/2, 3*22.5/4 and 22.5 GeoModelKernelUnits::deg
 // so define the regions in phi to be better centered on the measurements
 // and to cover:
 //   -  0 to 22.5/8 deg  = bottom thickness => need 9.5 - 9mm = 0.5mm Ar
 //   - 22.5/8 to 3*22.5/8 deg = mid bottom => need 7.5-2mm    = 5.5mm Ar
-//   - 3*22.5/8 to 5*22.5/8 CLHEP::deg = mid => need 14.5-9 = 5.5 CLHEP::mm Ar
+//   - 3*22.5/8 to 5*22.5/8 GeoModelKernelUnits::deg = mid => need 14.5-9 = 5.5 GeoModelKernelUnits::mm Ar
 //   - 5*22.5/8 to 7*22.5/8 deg = mid top => need 12.5-2mm = 10.5mm Ar
-//   - 7*22.5/8 to 22.5/8 CLHEP::deg   = top     => need 18.5-9 = 9.5 CLHEP::mm Ar
+//   - 7*22.5/8 to 22.5/8 GeoModelKernelUnits::deg   = top     => need 18.5-9 = 9.5 GeoModelKernelUnits::mm Ar
 
 #ifdef BUILD_LARFOAM
 
-    double delta_LAr[5]={0.5*CLHEP::mm,5.5*CLHEP::mm,5.5*CLHEP::mm,10.5*CLHEP::mm,9.5*CLHEP::mm};
-    double Phi1[5]={0.*CLHEP::deg,22.5/8.*CLHEP::deg,3.*22.5/8*CLHEP::deg,5.*22.5/8*CLHEP::deg,7.*22.5/8*CLHEP::deg};
-    double Delta_phi[5]={22.5/8*CLHEP::deg, 2.*22.5/8.*CLHEP::deg,2.*22.5/8.*CLHEP::deg,2.*22.5/8.*CLHEP::deg,22.5/8.*CLHEP::deg};
+    double delta_LAr[5]={0.5*GeoModelKernelUnits::mm,5.5*GeoModelKernelUnits::mm,5.5*GeoModelKernelUnits::mm,10.5*GeoModelKernelUnits::mm,9.5*GeoModelKernelUnits::mm};
+    double Phi1[5]={0.*GeoModelKernelUnits::deg,22.5/8.*GeoModelKernelUnits::deg,3.*22.5/8*GeoModelKernelUnits::deg,5.*22.5/8*GeoModelKernelUnits::deg,7.*22.5/8*GeoModelKernelUnits::deg};
+    double Delta_phi[5]={22.5/8*GeoModelKernelUnits::deg, 2.*22.5/8.*GeoModelKernelUnits::deg,2.*22.5/8.*GeoModelKernelUnits::deg,2.*22.5/8.*GeoModelKernelUnits::deg,22.5/8.*GeoModelKernelUnits::deg};
 
 // GU 08-dec-2005
 // additionnal LAr fudged before presampler to get better agreement
 //  waiting for Rhoacell measurement to know if this is reasonnable or not
 //  this should be now considered as a systematics
 //  25mm LAr ~ 0.18 X0
-//    double fudge_lar_gap = 25.*CLHEP::mm;
+//    double fudge_lar_gap = 25.*GeoModelKernelUnits::mm;
 // GU 28--feb-2006   removed this fudge 25mm, not supported by measurements of Rohacell
 
     for (int ilar=0;ilar<5;ilar++) {
@@ -400,7 +398,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 
 #ifdef DEBUG_GEO
       std::cout << " Ar additionnal volume before PS " << r1 << " "
-                << r2 << " " << Phi1[ilar]*(1./CLHEP::deg) << " " << Delta_phi[ilar]*(1./CLHEP::deg) << std::endl;
+                << r2 << " " << Phi1[ilar]*(1./GeoModelKernelUnits::deg) << " " << Delta_phi[ilar]*(1./GeoModelKernelUnits::deg) << std::endl;
 #endif
 
       GeoTubs* lar_tube = new GeoTubs(r1,
@@ -412,7 +410,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
       GeoLogVol* lar_log = new GeoLogVol(baseName+"LAr2",lar_tube,LAr);
 
       GeoPhysVol* lar_phys = new GeoPhysVol(lar_log);
-      Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D((LAr_z_max-Cryo_Distz)/2.)));
+      Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D((LAr_z_max-Cryo_Distz)/2.)));
       Cent_phys->add(lar_phys);
 
     }
@@ -421,7 +419,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 // Outer support rings: 6 steel rings, starting just
 //   after Barrel volume (G10 bars) (r=2003.6)
 //   DZ=80mm for DR=12mm, then DZ=10mm for DR=757mm then DZ=80mm for DR=12mm
-//   at locations z=397,805,1255,1750,2316,2868 CLHEP::mm
+//   at locations z=397,805,1255,1750,2316,2868 GeoModelKernelUnits::mm
 #ifdef BUILD_SUPPORTRING
 
      double R_ring = 2003.6; 
@@ -478,11 +476,11 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
        std::cout << " Position ring in LAr mother volume at z = "
                  << Zcd << " (z atlas= " << zring[iring] << std::endl;
 #endif
-       moth_phys->add(new GeoTransform(HepGeom::TranslateZ3D(Zcd)));
+       moth_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(Zcd)));
        moth_phys->add(ring1_phys);
-       moth_phys->add(new GeoTransform(HepGeom::TranslateZ3D(Zcd)));
+       moth_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(Zcd)));
        moth_phys->add(ring2_phys);
-       moth_phys->add(new GeoTransform(HepGeom::TranslateZ3D(Zcd)));
+       moth_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(Zcd)));
        moth_phys->add(ring3_phys);
      }
 #endif
@@ -510,7 +508,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
                                      Phi_Span);
      GeoLogVol* CryoC2_log = new GeoLogVol(baseName+"ColdTube2",CryoC2_tube,Aluminium);
      GeoPhysVol* CryoC2_phys = new GeoPhysVol(CryoC2_log);
-     Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D(-Dz_end_tot/2.)));
+     Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(-Dz_end_tot/2.)));
      Cent_phys->add(CryoC2_phys);
 
 // vacuum between warn and cold vessel
@@ -527,7 +525,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
                                      Phi_Span);
      GeoLogVol* CryoV2_log = new GeoLogVol(baseName+"VacTube2",CryoV2_tube,Vacuum);
      GeoPhysVol* CryoV2_phys = new GeoPhysVol(CryoV2_log);
-     Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D(-Dz_end_tot/2.)));
+     Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(-Dz_end_tot/2.)));
      Cent_phys->add(CryoV2_phys);
 
 // warm vessel
@@ -544,7 +542,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
                                      Phi_Span);
       GeoLogVol* CryoW2_log = new GeoLogVol(baseName+"WarmTube2",CryoW2_tube,Aluminium);
       GeoPhysVol* CryoW2_phys = new GeoPhysVol(CryoW2_log);
-      Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D(-Dz_end_tot/2.)));
+      Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(-Dz_end_tot/2.)));
       Cent_phys->add(CryoW2_phys);
 #endif
 
@@ -570,7 +568,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 #ifdef DEBUG_GEO
        std::cout << " position in mother at z " << zwarm << std::endl;
 #endif
-       Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D(zwarm)));
+       Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(zwarm)));
        Cent_phys->add(CryoEndW_phys);
    
 // vaccum part
@@ -591,7 +589,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 #ifdef DEBUG_GEO
        std::cout << " position in mother at z " << zvac << std::endl;
 #endif
-       Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D(zvac)));
+       Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(zvac)));
        Cent_phys->add(CryoEndV_phys);
 
 // cold vessel
@@ -612,7 +610,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 #ifdef DEBUG_GEO
        std::cout << " position in mother at z " << zcold << std::endl;
 #endif
-       Cent_phys->add(new GeoTransform(HepGeom::TranslateZ3D(zcold)));
+       Cent_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(zcold)));
        Cent_phys->add(CryoEndC_phys);
 
 #endif
@@ -638,7 +636,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 #endif
 
      if (barrelEnvelope !=0) { 
-          moth_phys->add(new GeoTransform(HepGeom::TranslateZ3D(Zcd)));
+          moth_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(Zcd)));
           moth_phys->add(barrelEnvelope);
      }
 #endif
@@ -655,10 +653,10 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 
 //   Zcd = 1582.5-LAr_z_max/2.+Cryo_z0;
 // new value of PS mother lenght
-//       Zcd = 1550.0*CLHEP::mm-LAr_z_max/2.+Cryo_z0;
+//       Zcd = 1550.0*GeoModelKernelUnits::mm-LAr_z_max/2.+Cryo_z0;
 // also the PS is shifted by 3mm to start at z=3mm in Atlas equivalent frame
-       double PresamplerMother_length=1549.*CLHEP::mm;
-       double presamplerShift = 3.*CLHEP::mm;
+       double PresamplerMother_length=1549.*GeoModelKernelUnits::mm;
+       double presamplerShift = 3.*GeoModelKernelUnits::mm;
        Zcd = presamplerShift+PresamplerMother_length-LAr_z_max/2.+Cryo_z0;
 
 #ifdef DEBUG_GEO
@@ -667,7 +665,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 #endif
 
      if (barrelPSEnvelope !=0) {
-       moth_phys->add(new GeoTransform(HepGeom::TranslateZ3D(Zcd)));
+       moth_phys->add(new GeoTransform(GeoTrf::TranslateZ3D(Zcd)));
        moth_phys->add(barrelPSEnvelope);
        StoredPhysVol *sPhysVol = new StoredPhysVol(barrelPSEnvelope);
        StatusCode status=detStore->record(sPhysVol,"PRESAMPLER_B_POS");

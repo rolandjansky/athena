@@ -9,16 +9,14 @@
 //#include "InDetGeoModelUtils/InDetMaterialManager.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoCons.h"
-#include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Geometry/Transform3D.h"
-
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 

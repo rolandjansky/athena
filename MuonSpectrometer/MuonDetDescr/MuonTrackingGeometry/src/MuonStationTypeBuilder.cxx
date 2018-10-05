@@ -152,7 +152,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
       {
         const GeoVPhysVol* cv = &(*(mv->getChildVol(ich))); 
         const GeoLogVol* clv = cv->getLogVol();
-        Amg::Transform3D transf = Amg::CLHEPTransformToEigen(mv->getXToChildVol(ich));        
+        Amg::Transform3D transf = mv->getXToChildVol(ich);        
         // TEMPORARY CORRECTION 
         //if ( (mv->getLogVol()->getName()).substr(0,3)=="BMF" && (clv->getName()).substr(0,2)=="LB" ) {
         //	  ATH_MSG_DEBUG( "TEMPORARY MANUAL CORRECTION OF BMF SPACER LONG BEAM POSITION");
@@ -448,7 +448,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
         //std::cout << "next component:"<< ich << std::endl;
         const GeoVPhysVol* cv = &(*(mv->getChildVol(ich))); 
         const GeoLogVol* clv = cv->getLogVol();
-        Amg::Transform3D transf = Amg::CLHEPTransformToEigen(mv->getXToChildVol(ich));        
+        Amg::Transform3D transf = mv->getXToChildVol(ich);        
         //std::cout << "component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","  <<transf.getTranslation()<<std::endl;
         // retrieve volumes for components
 	Trk::VolumeBounds* volBounds=0; 
@@ -721,7 +721,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
   for (unsigned int ich =0; ich< gv->getNChildVols(); ++ich) {
     const GeoVPhysVol* cv = &(*(gv->getChildVol(ich))); 
     const GeoLogVol* clv = cv->getLogVol();
-    Amg::Transform3D transfc = Amg::CLHEPTransformToEigen(gv->getXToChildVol(ich));        
+    Amg::Transform3D transfc = gv->getXToChildVol(ich);        
     //std::cout << "MDT component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","<<transfc.getTranslation()<<std::endl;
     // printChildren(cv);
     Trk::MaterialProperties* mdtMat=0;
@@ -887,7 +887,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
   for (unsigned int ich =0; ich< gv->getNChildVols(); ++ich) {
     const GeoVPhysVol* cv = &(*(gv->getChildVol(ich))); 
     const GeoLogVol* clv = cv->getLogVol();
-    Amg::Transform3D transfc = Amg::CLHEPTransformToEigen(gv->getXToChildVol(ich));        
+    Amg::Transform3D transfc = gv->getXToChildVol(ich);        
     //std::cout << "MDT component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","<<transfc.translation()<<std::endl;
     double xv = 0.;
     int active = 0;
@@ -1152,8 +1152,8 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
           unsigned int ngc = gv[ic]->getNChildVols();
           for (unsigned int igc=0; igc<ngc; igc++) {
 	    Amg::Transform3D trgc(Trk::s_idTransform);             
-            if (transfc[ic].rotation().isIdentity()) trgc = Amg::CLHEPTransformToEigen(gv[ic]->getXToChildVol(igc));
-            else trgc = Amg::AngleAxis3D(M_PI,Amg::Vector3D(0.,0.,1.))*Amg::CLHEPTransformToEigen(gv[ic]->getXToChildVol(igc)); 
+            if (transfc[ic].rotation().isIdentity()) trgc = gv[ic]->getXToChildVol(igc);
+            else trgc = Amg::AngleAxis3D(M_PI,Amg::Vector3D(0.,0.,1.))*gv[ic]->getXToChildVol(igc); 
 	    
 	    const GeoVPhysVol* gcv = &(*(gv[ic]->getChildVol(igc)));
 	    const GeoLogVol* gclv = gcv->getLogVol();
@@ -1241,7 +1241,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
     if ((*vIter)->getNChildVols()) {
       for (unsigned int ich=0; ich<(*vIter)->getNChildVols();++ich) {
 	gv.push_back(&(*((*vIter)->getChildVol(ich))));
-        transf.push_back(Amg::Transform3D( (*tIter)*Amg::CLHEPTransformToEigen((*vIter)->getXToChildVol(ich))));  
+        transf.push_back(Amg::Transform3D( (*tIter)*(*vIter)->getXToChildVol(ich)));  
       }
       vIter=gv.erase(vIter); tIter=transf.erase(tIter);
     } else { vIter++; tIter++; }
@@ -1358,12 +1358,12 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
       } else if (sub) {
 	std::vector<std::pair<const GeoShape*,Amg::Transform3D> > subVs;
 	const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (sub->getOpB());
-	if (shift) subVs.push_back(std::pair<const GeoShape*,Amg::Transform3D>(shift->getOp(),Amg::CLHEPTransformToEigen(shift->getX())));
+	if (shift) subVs.push_back(std::pair<const GeoShape*,Amg::Transform3D>(shift->getOp(),shift->getX()));
         const GeoShape* shape = sub->getOpA();
         while (shape->type()=="Subtraction") {
           const GeoShapeSubtraction* subtr = dynamic_cast<const GeoShapeSubtraction*> (shape);
           const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (subtr->getOpB());
-          if (shift) subVs.push_back(std::pair<const GeoShape*,Amg::Transform3D>(shift->getOp(),Amg::CLHEPTransformToEigen(shift->getX())));
+          if (shift) subVs.push_back(std::pair<const GeoShape*,Amg::Transform3D>(shift->getOp(),shift->getX()));
           shape = subtr->getOpA();  
 	}
         const GeoBox* box = dynamic_cast<const GeoBox*> (shape);
@@ -1621,7 +1621,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const
   for (unsigned int ich =0; ich< mv->getNChildVols(); ++ich) {
     const GeoVPhysVol* cv = &(*(mv->getChildVol(ich))); 
     const GeoLogVol* clv = cv->getLogVol();
-    Amg::Transform3D transform = Amg::CLHEPTransformToEigen(mv->getXToChildVol(ich));        
+    Amg::Transform3D transform = mv->getXToChildVol(ich);        
     compTransf.push_back(transform);
     compName.push_back(clv->getName());
     compGeoVol.push_back(cv);
@@ -1637,7 +1637,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const
 	  if (xSizes.size()>0) xSizes.push_back((fabs(transform.translation()[0]-compTransf[ich-1].translation()[0])
 						 -xSizes.back()));
 	  else xSizes.push_back(xSize);
-	  double xpos = (transform*Amg::CLHEPTransformToEigen(shift->getX())).translation()[0];
+	  double xpos = (transform*shift->getX()).translation()[0];
 	  if ( xpos-xSize < xmn ) xmn = xpos-xSizes.back();
 	  if ( xpos+xSize > xmx ) xmx = xpos+xSizes.back();
 	}
@@ -1781,7 +1781,7 @@ std::vector<const Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgc
      const GeoLogVol* clv = cv->getLogVol();
      std::string tgc_name = clv->getName();
      //std::cout << "tgc name:" << tgc_name << std::endl; 
-     Amg::Transform3D transform = Amg::CLHEPTransformToEigen(mv->getXToChildVol(ich));        
+     Amg::Transform3D transform = mv->getXToChildVol(ich);        
      //std::cout << "TGC component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","<<transform.translation()<<std::endl;
      const GeoShape* baseShape = clv->getShape();
      if (baseShape->type()=="Subtraction") {
@@ -1825,7 +1825,7 @@ void Muon::MuonStationTypeBuilder::printChildren(const GeoVPhysVol* pv) const
   // subcomponents
   unsigned int nc = pv->getNChildVols();
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
+    Amg::Transform3D transf = pv->getXToChildVol(ic);
  
     //
     /*
@@ -1896,7 +1896,7 @@ double Muon::MuonStationTypeBuilder::get_x_size(const GeoVPhysVol* pv) const
   }
 
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
+    Amg::Transform3D transf = pv->getXToChildVol(ic);
     const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
     const GeoLogVol* clv = cv->getLogVol();
     double xh=0;
@@ -2056,7 +2056,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
     // step 1 level below
     const GeoVPhysVol* cv1 = &(*(pv->getChildVol(0)));
     for (unsigned int ic=0; ic < cv1->getNChildVols(); ic++) {
-      Amg::Transform3D transfc = Amg::CLHEPTransformToEigen(cv1->getXToChildVol(ic));
+      Amg::Transform3D transfc = cv1->getXToChildVol(ic);
       const GeoVPhysVol* cv = &(*(cv1->getChildVol(ic)));
       const GeoLogVol* clv = cv->getLogVol();
       if ( clv->getName() == "CscArCO2" ) {
@@ -2188,7 +2188,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
     // step 1 level below
     const GeoVPhysVol* cv1 = &(*(pv->getChildVol(0)));
     for (unsigned int ic=0; ic < cv1->getNChildVols(); ic++) {
-      Amg::Transform3D transfc = Amg::CLHEPTransformToEigen(cv1->getXToChildVol(ic));
+      Amg::Transform3D transfc = cv1->getXToChildVol(ic);
       const GeoVPhysVol* cv = &(*(cv1->getChildVol(ic)));
       const GeoLogVol* clv = cv->getLogVol();
       if ( clv->getName() == "CscArCO2" ) {
@@ -2322,7 +2322,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const G
   }
 
   for (unsigned int ic=0; ic < pv->getNChildVols(); ic++) {
-    Amg::Transform3D transfc = Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
+    Amg::Transform3D transfc = pv->getXToChildVol(ic);
     const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
     const GeoLogVol* clv = cv->getLogVol();
     if ( clv->getName() == "muo::TGCGas" ) {
@@ -2459,7 +2459,7 @@ double Muon::MuonStationTypeBuilder::decodeX(const GeoShape* sh) const
   if (shift) {
     // std::cout << " decoding shift:" << shift->getOp()->type() <<"," << shift->getX().translation() << std::endl;
     double xA = decodeX( shift->getOp() );
-    double xB = shift->getX().getTranslation()[0]; 
+    double xB = shift->getX().translation()[0]; 
     xHalf = xA + fabs(xB);
   }
 

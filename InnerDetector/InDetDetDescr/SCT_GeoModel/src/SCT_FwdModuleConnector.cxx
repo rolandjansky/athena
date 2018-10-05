@@ -14,8 +14,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h" // For pi
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 #include <iostream>
@@ -49,13 +48,13 @@ SCT_FwdModuleConnector::build()
   const GeoBox * moduleConnShape = new GeoBox(0.5 * m_thickness, 0.5 * m_rphi, 0.5 * m_deltaR);
   m_material = materials.getMaterialForVolume(m_materialName, moduleConnShape->volume());
   //  std::cout << "Material = " << m_material->getName() << std::endl;
-  //  std::cout << "Density = " << m_material->getDensity()/(gram/CLHEP::cm3) << std::endl;
+  //  std::cout << "Density = " << m_material->getDensity()/(gram/GeoModelKernelUnits::cm3) << std::endl;
 
   // Shift to correct position within module
   double xposition = 0.5 * (parameters->fwdHybridThickness() + m_thickness);
   double zposition = parameters->fwdModuleMountPoint(m_ringType) - parameters->fwdHybridMountPointToInnerEdge() + parameters->fwdHybridLength() - 0.5*(m_deltaR);
   if (m_ringType == 0) { zposition = -1 * zposition;  };  // outer module, hybrid in inner side
-  const GeoShape & connectorPos = (*moduleConnShape << HepGeom::Translate3D(xposition,0.,zposition));
+  const GeoShape & connectorPos = (*moduleConnShape << GeoTrf::Translate3D(xposition,0.,zposition));
 
 
   const GeoLogVol * moduleConnLog = new GeoLogVol(getName(), &connectorPos, m_material);

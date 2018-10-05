@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMBDetectorManager_h
-#define EMBDetectorManager_h 1
+#ifndef LARREADOUTGEOMETRY_EMBDETECTORMANAGER_H
+#define LARREADOUTGEOMETRY_EMBDETECTORMANAGER_H
 #include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include "GeoModelKernel/GeoVDetectorManager.h"

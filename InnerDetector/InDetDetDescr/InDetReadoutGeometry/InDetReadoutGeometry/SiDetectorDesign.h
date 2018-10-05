@@ -17,6 +17,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
 #include "InDetDD_Defs.h"
 

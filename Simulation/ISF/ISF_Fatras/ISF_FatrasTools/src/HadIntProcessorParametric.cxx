@@ -26,6 +26,7 @@
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Geometry/Transform3D.h"
 // Validation mode - TTree includes
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 

@@ -87,24 +87,24 @@ void InDetServMatFactoryDC3::create(GeoPhysVol *world )
   InDetMaterialManager * materialManager = new InDetMaterialManager("InDetServMatMaterialManager", getAthenaComps());
 
 
-  double ZMaxBrlTRT =        envelopes->getDouble("ZMAXBRLTRT") * CLHEP::mm;
-  double ZMaxBrlSCT =        envelopes->getDouble("ZMAXBRLSCT") * CLHEP::mm;
-  double ZMinFwdSCTandTRT =  envelopes->getDouble("ZMINFWDSCTANDTRT") * CLHEP::mm;
-  double ZMinSCTServInTRT =  envelopes->getDouble("ZMINSCTSERVINTRT") * CLHEP::mm;
-  double ZMaxSCTServInTRT =  envelopes->getDouble("ZMAXSCTSERVINTRT") * CLHEP::mm;
-  double ZMinPixServ    =    envelopes->getDouble("ZMINPIXSERV") * CLHEP::mm;
-  double ZMaxFwdTRTC =       envelopes->getDouble("ZMAXFWDTRTC") * CLHEP::mm;
-  double ZMaxIDet =          (*atls)[0]->getDouble("IDETZMX") * CLHEP::cm;  // 3490 mm
+  double ZMaxBrlTRT =        envelopes->getDouble("ZMAXBRLTRT") * GeoModelKernelUnits::mm;
+  double ZMaxBrlSCT =        envelopes->getDouble("ZMAXBRLSCT") * GeoModelKernelUnits::mm;
+  double ZMinFwdSCTandTRT =  envelopes->getDouble("ZMINFWDSCTANDTRT") * GeoModelKernelUnits::mm;
+  double ZMinSCTServInTRT =  envelopes->getDouble("ZMINSCTSERVINTRT") * GeoModelKernelUnits::mm;
+  double ZMaxSCTServInTRT =  envelopes->getDouble("ZMAXSCTSERVINTRT") * GeoModelKernelUnits::mm;
+  double ZMinPixServ    =    envelopes->getDouble("ZMINPIXSERV") * GeoModelKernelUnits::mm;
+  double ZMaxFwdTRTC =       envelopes->getDouble("ZMAXFWDTRTC") * GeoModelKernelUnits::mm;
+  double ZMaxIDet =          (*atls)[0]->getDouble("IDETZMX") * GeoModelKernelUnits::cm;  // 3490 mm
 
-  double RMinBrlSCT =        envelopes->getDouble("RMINBRLSCT") * CLHEP::mm;
-  double RMaxBrlTRT =        envelopes->getDouble("RMAXBRLTRT") * CLHEP::mm;
-  double RMinBrlTRT =        envelopes->getDouble("RMINBRLTRT") * CLHEP::mm;
-  double RMaxFwdTRT =        envelopes->getDouble("RMAXFWDTRT") * CLHEP::mm;
-  double RMaxFwdSCT =        envelopes->getDouble("RMAXFWDSCT") * CLHEP::mm;
-  double RMaxFwdTRTC =       envelopes->getDouble("RMAXFWDTRTC") * CLHEP::mm;
-  double RMinPixServ =       envelopes->getDouble("RMINPIXSERV") * CLHEP::mm;
-  double RMaxPixServ =       envelopes->getDouble("RMAXPIXSERV") * CLHEP::mm;
-  double RMaxIDet =          (*atls)[0]->getDouble("IDETOR") * CLHEP::cm; // 1147 mm
+  double RMinBrlSCT =        envelopes->getDouble("RMINBRLSCT") * GeoModelKernelUnits::mm;
+  double RMaxBrlTRT =        envelopes->getDouble("RMAXBRLTRT") * GeoModelKernelUnits::mm;
+  double RMinBrlTRT =        envelopes->getDouble("RMINBRLTRT") * GeoModelKernelUnits::mm;
+  double RMaxFwdTRT =        envelopes->getDouble("RMAXFWDTRT") * GeoModelKernelUnits::mm;
+  double RMaxFwdSCT =        envelopes->getDouble("RMAXFWDSCT") * GeoModelKernelUnits::mm;
+  double RMaxFwdTRTC =       envelopes->getDouble("RMAXFWDTRTC") * GeoModelKernelUnits::mm;
+  double RMinPixServ =       envelopes->getDouble("RMINPIXSERV") * GeoModelKernelUnits::mm;
+  double RMaxPixServ =       envelopes->getDouble("RMAXPIXSERV") * GeoModelKernelUnits::mm;
+  double RMaxIDet =          (*atls)[0]->getDouble("IDETOR") * GeoModelKernelUnits::cm; // 1147 mm
 
 
 
@@ -112,8 +112,8 @@ void InDetServMatFactoryDC3::create(GeoPhysVol *world )
   // Create the envelope for the Pixel Services:
   //
   const GeoMaterial* air = materialManager->getMaterial("std::Air");
-  GeoPcon* pixServP = new GeoPcon(0.,2*CLHEP::pi);
-  GeoPcon* pixServM = new GeoPcon(0.,2*CLHEP::pi);
+  GeoPcon* pixServP = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+  GeoPcon* pixServM = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
 
   // Plane 1: Start at the end of the SCT endcap
   pixServP->addPlane(ZMinPixServ,  RMinPixServ, RMaxPixServ);
@@ -132,7 +132,7 @@ void InDetServMatFactoryDC3::create(GeoPhysVol *world )
   const GeoShapeUnion *ServVolAux = new GeoShapeUnion(pixServP, pixServM);
 
   // This is the volume for the TRT/SCT services
-  GeoPcon *sctTrtServ = new GeoPcon(0.,2*CLHEP::pi);
+  GeoPcon *sctTrtServ = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
   
   // THE BEGINNING
   sctTrtServ->addPlane(-ZMaxIDet, RMaxFwdTRTC, RMaxIDet);

@@ -8,6 +8,7 @@
  * Author: Archil.Durglishvili@cern.ch
  */
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileMuonFilterAlg.h"
 #include "CaloGeoHelpers/CaloSampling.h" 
 #include "AthContainers/ConstDataVector.h"

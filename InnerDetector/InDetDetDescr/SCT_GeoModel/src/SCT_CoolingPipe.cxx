@@ -13,7 +13,7 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 SCT_CoolingPipe::SCT_CoolingPipe(const std::string & name, double length)
   : SCT_SharedComponentFactory(name), m_length(length)

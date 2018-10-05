@@ -38,7 +38,6 @@ atlas_depends_on_subdirs(
    Database/TPTools
    DetectorDescription/AGDD/AGDDKernel
    DetectorDescription/AtlasDetDescr
-   DetectorDescription/GeoModel/GeoModelKernel
    DetectorDescription/GeoPrimitives
    DetectorDescription/IdDict
    DetectorDescription/IdDictDetDescr
@@ -52,6 +51,8 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkEventPrimitives
    Tracking/TrkEvent/TrkMeasurementBase
    Tracking/TrkEvent/TrkPseudoMeasurementOnTrack )
+
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( MuonEventTPCnv
@@ -122,8 +123,8 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
-      CxxUtils StoreGateLib TPTools AGDDKernel AtlasDetDescr GeoModelKernel
+      LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
+      CxxUtils StoreGateLib TPTools AGDDKernel AtlasDetDescr 
       IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
       TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv

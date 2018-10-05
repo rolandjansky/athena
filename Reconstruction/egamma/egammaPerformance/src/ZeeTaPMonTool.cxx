@@ -25,7 +25,8 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "TH1F.h"
 
-using CLHEP::GeV;
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
 
 ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   :  egammaMonToolBase(type,name,parent),

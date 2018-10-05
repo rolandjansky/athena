@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/DetDescrCond/DetDescrConditions
 			  DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelKernel
+			  DetectorDescription/GeoPrimitives
                           DetectorDescription/GeometryDBSvc
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetConditions/TRT_ConditionsData
@@ -28,13 +28,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_component( TRT_GeoModel
 		     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel TRT_ConditionsServicesLib InDetGeoModelUtils InDetReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions GeoModelKernel IdDictDetDescr TRT_ConditionsData InDetIdentifier )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel TRT_ConditionsServicesLib InDetGeoModelUtils InDetReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions IdDictDetDescr TRT_ConditionsData InDetIdentifier )
 

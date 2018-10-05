@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           LArCalorimeter/LArGeoModel/LArHV
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
+			  DetectorDescription/GeoPrimitives
                           graphics/VP1/VP1Utils )
 
 # External dependencies:

@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/OraclePixGeoManager.h"
-#include "PixelGeoModel/PixelLegacyManager.h"
-#include "PixelGeoModel/PixelMaterialMap.h"
-#include "PixelGeoModel/PixelStaveTypes.h"
+#include "OraclePixGeoManager.h"
+#include "PixelLegacyManager.h"
+#include "PixelMaterialMap.h"
+#include "PixelStaveTypes.h"
 #include "InDetGeoModelUtils/PairIndexMap.h"
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -30,9 +30,7 @@
 // Distorted material manager
 //
 #include "InDetGeoModelUtils/DistortedMaterialManager.h"
-
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 using InDetDD::PixelDetectorManager; 
 
@@ -66,7 +64,7 @@ OraclePixGeoManager::OraclePixGeoManager(const PixelGeoModelAthenaComps * athena
     m_diskRingIndexMap(0),
     m_zPositionMap(0),
     m_dbVersion(0),
-    m_defaultLengthUnit(CLHEP::mm)
+    m_defaultLengthUnit(GeoModelKernelUnits::mm)
 {
   m_commonItems = 0;
   m_pDDmgr = 0;
@@ -173,8 +171,8 @@ OraclePixGeoManager::init()
 
   m_distortedMatManager = new InDetDD::DistortedMaterialManager;
  
-  // Set default lenth unit to CLHEP::mm for newer version and CLHEP::cm for older versions
-  m_defaultLengthUnit =  (dbVersion() < 3) ? CLHEP::cm : CLHEP::mm;
+  // Set default lenth unit to GeoModelKernelUnits::mm for newer version and GeoModelKernelUnits::cm for older versions
+  m_defaultLengthUnit =  (dbVersion() < 3) ? GeoModelKernelUnits::cm : GeoModelKernelUnits::mm;
 
   // Get the top level placements
   m_placements = new TopLevelPlacements(m_PixelTopLevel);
@@ -265,7 +263,7 @@ OraclePixGeoManager::getIdHelper()
 }
 
 
-const HepGeom::Transform3D & 
+const GeoTrf::Transform3D & 
 OraclePixGeoManager::partTransform(const std::string & partName) const 
 {
   return m_placements->transform(partName);
@@ -517,7 +515,7 @@ double OraclePixGeoManager::PixelBoardLength(bool isModule3D)
 double OraclePixGeoManager::PixelBoardThickness(bool isModule3D) 
 {
   if (m_dc1Geometry && isBarrel() && (m_currentLD == 0)) {
-    return 200*CLHEP::micrometer;
+    return 200*GeoModelKernelUnits::micrometer;
   }
 
   if(ibl()&&isModule3D)
@@ -827,7 +825,7 @@ double OraclePixGeoManager::PixelServiceRMin2(const std::string & type, int inde
   if (!getPixelServiceRecordTestField("RIN2",type,index)) {
     return 0;
   } else {
-    return getPixelServiceRecordDouble("RIN2",type,index) * CLHEP::mm;
+    return getPixelServiceRecordDouble("RIN2",type,index) * GeoModelKernelUnits::mm;
   }
 }
 
@@ -835,7 +833,7 @@ double OraclePixGeoManager::PixelServiceRMax2(const std::string & type, int inde
   if (!getPixelServiceRecordTestField("ROUT2",type,index)) {
     return 0;
   } else {
-    return getPixelServiceRecordDouble("ROUT2",type,index) * CLHEP::mm;
+    return getPixelServiceRecordDouble("ROUT2",type,index) * GeoModelKernelUnits::mm;
   }
 }
 
@@ -862,7 +860,7 @@ double OraclePixGeoManager::PixelServicePhiLoc(const std::string & type, int ind
   if (!getPixelServiceRecordTestField("PHI",type,index)) {
     return 0;
   } else {
-    return getPixelServiceRecordDouble("PHI",type,index) * CLHEP::degree; 
+    return getPixelServiceRecordDouble("PHI",type,index) * GeoModelKernelUnits::degree; 
   }
 }
 
@@ -870,7 +868,7 @@ double OraclePixGeoManager::PixelServiceWidth(const std::string & type, int inde
   if (!getPixelServiceRecordTestField("WIDTH",type,index)) {
     return 0;
   } else {
-    // Can be in degree or CLHEP::mm. Leave it to GeoPixelServices to interpret.    
+    // Can be in degree or GeoModelKernelUnits::mm. Leave it to GeoPixelServices to interpret.    
     return getPixelServiceRecordDouble("WIDTH",type,index); 
   }
 }
@@ -1097,42 +1095,42 @@ double
 OraclePixGeoManager::PixelCableZStart(int index)
 {
   if (dbVersion() < 3) return m_legacyManager->PixelCableZStart(index);
-  return db()->getDouble(m_PixelBarrelCable,"ZSTART",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelBarrelCable,"ZSTART",index) * GeoModelKernelUnits::mm;
 }
 
 double 
 OraclePixGeoManager::PixelCableZEnd(int index)
 {
   if (dbVersion() < 3) return m_legacyManager->PixelCableZEnd(index);
-  return db()->getDouble(m_PixelBarrelCable,"ZEND",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelBarrelCable,"ZEND",index) * GeoModelKernelUnits::mm;
 }
 
 double 
 OraclePixGeoManager::PixelCableWidth(int index)
 {
   if (dbVersion() < 3) return m_legacyManager->PixelCableWidth(index);
-  return db()->getDouble(m_PixelBarrelCable,"WIDTH",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelBarrelCable,"WIDTH",index) * GeoModelKernelUnits::mm;
 }
 
 double 
 OraclePixGeoManager::PixelCableThickness(int index)
 {
   if (dbVersion() < 3) return m_legacyManager->PixelCableThickness(index);
-  return db()->getDouble(m_PixelBarrelCable,"THICK",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelBarrelCable,"THICK",index) * GeoModelKernelUnits::mm;
 }
 
 double 
 OraclePixGeoManager::PixelCableStackOffset(int index)
 {
   if (dbVersion() < 3) return m_legacyManager->PixelCableStackOffset(index);
-  return db()->getDouble(m_PixelBarrelCable,"STACKPOS",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelBarrelCable,"STACKPOS",index) * GeoModelKernelUnits::mm;
 }
 
 double 
 OraclePixGeoManager::PixelCableWeight(int index)
 {
   if (dbVersion() < 3) return 0;
-  return db()->getDouble(m_PixelBarrelCable,"WEIGHT",index) * CLHEP::g;
+  return db()->getDouble(m_PixelBarrelCable,"WEIGHT",index) * GeoModelKernelUnits::g;
 }
 
 std::string
@@ -1312,19 +1310,19 @@ unsigned int OraclePixGeoManager::PixelEnvelopeNumPlanes()
 
 double OraclePixGeoManager::PixelEnvelopeZ(int i) 
 {
-  double zmin =  db()->getDouble(m_PixelEnvelope,"Z",i) * CLHEP::mm;
+  double zmin =  db()->getDouble(m_PixelEnvelope,"Z",i) * GeoModelKernelUnits::mm;
   if (zmin < 0) msg(MSG::ERROR) << "PixelEnvelope table should only contain +ve z values" << endmsg;
   return std::abs(zmin);
 }
 
 double OraclePixGeoManager::PixelEnvelopeRMin(int i) 
 {
-  return db()->getDouble(m_PixelEnvelope,"RMIN",i) * CLHEP::mm;
+  return db()->getDouble(m_PixelEnvelope,"RMIN",i) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelEnvelopeRMax(int i) 
 {
-  return db()->getDouble(m_PixelEnvelope,"RMAX",i) * CLHEP::mm;
+  return db()->getDouble(m_PixelEnvelope,"RMAX",i) * GeoModelKernelUnits::mm;
 }
 
 
@@ -1369,32 +1367,32 @@ int OraclePixGeoManager::PixelFrameSections()
 
 double OraclePixGeoManager::PixelFrameRMinSide(int sectionIndex)
 {
-  return db()->getDouble(m_PixelFrame, "RMINSIDE", sectionIndex) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrame, "RMINSIDE", sectionIndex) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFrameRMaxSide(int sectionIndex)
 {
-  return db()->getDouble(m_PixelFrame, "RMAXSIDE", sectionIndex) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrame, "RMAXSIDE", sectionIndex) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFrameSideWidth(int sectionIndex)
 {
-  return db()->getDouble(m_PixelFrame, "SIDEWIDTH", sectionIndex) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrame, "SIDEWIDTH", sectionIndex) * GeoModelKernelUnits::mm;
 } 
  
 double OraclePixGeoManager::PixelFrameZMin(int sectionIndex)
 { 
-  return db()->getDouble(m_PixelFrame, "ZMIN", sectionIndex) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrame, "ZMIN", sectionIndex) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFrameZMax(int sectionIndex)
 { 
-  return db()->getDouble(m_PixelFrame, "ZMAX", sectionIndex) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrame, "ZMAX", sectionIndex) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFramePhiStart(int sectionIndex)
 {
-  return db()->getDouble(m_PixelFrame, "PHISTART", sectionIndex) * CLHEP::deg;
+  return db()->getDouble(m_PixelFrame, "PHISTART", sectionIndex) * GeoModelKernelUnits::deg;
 }
  
 int OraclePixGeoManager::PixelFrameNumSides(int sectionIndex)
@@ -1479,28 +1477,28 @@ double OraclePixGeoManager::PixelFrameElementZMin1(int sectionIndex, int element
 {
   int index = getFrameElementIndex(sectionIndex, element);
   if (index < 0) return 0; // Error message already printed in getFrameElementIndex.
-  return db()->getDouble(m_PixelFrameSect, "ZMIN1", index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrameSect, "ZMIN1", index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFrameElementZMin2(int sectionIndex, int element)
 {
   int index = getFrameElementIndex(sectionIndex, element);
   if (index < 0) return 0; // Error message already printed in getFrameElementIndex.
-  return db()->getDouble(m_PixelFrameSect, "ZMIN2", index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrameSect, "ZMIN2", index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFrameElementZMax1(int sectionIndex, int element)
 {
   int index = getFrameElementIndex(sectionIndex, element);
   if (index < 0) return 0; // Error message already printed in getFrameElementIndex.
-  return db()->getDouble(m_PixelFrameSect, "ZMAX1", index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrameSect, "ZMAX1", index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFrameElementZMax2(int sectionIndex, int element)
 {
   int index = getFrameElementIndex(sectionIndex, element);
   if (index < 0) return 0; // Error message already printed in getFrameElementIndex.
-  return db()->getDouble(m_PixelFrameSect, "ZMAX2", index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFrameSect, "ZMAX2", index) * GeoModelKernelUnits::mm;
 }
 
 int OraclePixGeoManager::PixelStaveIndex(int layer)
@@ -1584,14 +1582,14 @@ double OraclePixGeoManager::PixelLadderLength()
 {
   if (useLegacy()) return m_legacyManager->PixelLadderLength(); 
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"ENVLENGTH",index)*CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"ENVLENGTH",index)*GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelLadderWidthClearance() 
 {
-  if (useLegacy()) return 0.9*CLHEP::mm; 
+  if (useLegacy()) return 0.9*GeoModelKernelUnits::mm; 
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"CLEARANCEY",index)*CLHEP::mm;  
+  return db()->getDouble(m_PixelStave,"CLEARANCEY",index)*GeoModelKernelUnits::mm;  
 }
 
 // Only used if ladder thickness is automatically calculated it, ie ENVTHICK = 0
@@ -1600,63 +1598,63 @@ double OraclePixGeoManager::PixelLadderThicknessClearance()
 {
   int index = PixelStaveIndex(m_currentLD);
   if (db()->testField(m_PixelStave,"CLEARANCEX",index)) {
-    return db()->getDouble(m_PixelStave,"CLEARANCEX",index)*CLHEP::mm;  
+    return db()->getDouble(m_PixelStave,"CLEARANCEX",index)*GeoModelKernelUnits::mm;  
   }
-  return 0.1*CLHEP::mm;
+  return 0.1*GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelLadderThickness() 
 {
   if (useLegacy()) return m_legacyManager->PixelLadderThickness();  // 2*1.48972 mm
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"ENVTHICK",index)*CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"ENVTHICK",index)*GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelLadderTilt() 
 {
-  return db()->getDouble(m_PixelLayer,"STAVETILT",m_currentLD)*CLHEP::deg;
+  return db()->getDouble(m_PixelLayer,"STAVETILT",m_currentLD)*GeoModelKernelUnits::deg;
 }
 
 double OraclePixGeoManager::PixelLadderServicesX() 
 {
   if (useLegacy()) return m_legacyManager->PixelLadderServicesX(); // 1.48972 mm
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"SERVICEOFFSETX",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"SERVICEOFFSETX",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelLadderServicesY() 
 {
   if (useLegacy()) return m_legacyManager->PixelLadderServicesY();  // 3mm
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"SERVICEOFFSETY",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"SERVICEOFFSETY",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelLadderCableOffsetX() 
 {
   if (useLegacy()) return m_legacyManager->PixelLadderCableOffsetX(); // 0
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"CABLEOFFSETX",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"CABLEOFFSETX",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelLadderCableOffsetY() 
 {
   if (useLegacy()) return m_legacyManager->PixelLadderCableOffsetY();  // 4mm
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"CABLEOFFSETY",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"CABLEOFFSETY",index) * GeoModelKernelUnits::mm;
 }
 
 // SLHC/IBL only
 double OraclePixGeoManager::PixelLadderSupportThickness() 
 {
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"SUPPORTTHICK",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"SUPPORTTHICK",index) * GeoModelKernelUnits::mm;
 }
 
 // SLHC/IBL only
 double OraclePixGeoManager::PixelLadderSupportWidth() 
 {
   int index = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"SUPPORTWIDTH",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"SUPPORTWIDTH",index) * GeoModelKernelUnits::mm;
 }
 
 
@@ -1690,16 +1688,16 @@ double OraclePixGeoManager::PixelLadderSupportLength()
 {
   int index = PixelStaveIndex(m_currentLD);
   if (db()->testField(m_PixelStave,"SUPPORTHLENGTH",index)) {
-    double halflength = db()->getDouble(m_PixelStave,"SUPPORTHLENGTH",index) * CLHEP::mm;
+    double halflength = db()->getDouble(m_PixelStave,"SUPPORTHLENGTH",index) * GeoModelKernelUnits::mm;
     if (halflength > 0)  return 2 * halflength;
   } 
-  double safety = 0.01*CLHEP::mm;
+  double safety = 0.01*GeoModelKernelUnits::mm;
   return PixelLadderLength() - safety;
 }
 
 // IBL detailed stave support only
 
-HepGeom::Point3D<double> OraclePixGeoManager::IBLStaveRotationAxis() 
+GeoTrf::Vector3D OraclePixGeoManager::IBLStaveRotationAxis() 
 {
   // set layer to 0  (in order to read read IBL data)
   int currentLD_tmp = m_currentLD;
@@ -1713,7 +1711,7 @@ HepGeom::Point3D<double> OraclePixGeoManager::IBLStaveRotationAxis()
     IBLStaveFacePlateThickness() + IBLStaveFacePlateGreaseThickness() +       // plate thickness (grease + plate)
     IBLStaveTubeMiddlePos();                                                  // from plate to colling pipe center
   double yCenterCoolingPipe = IBLStaveMechanicalStaveOffset();
-  HepGeom::Point3D<double> centerCoolingPipe(xCenterCoolingPipe, yCenterCoolingPipe, 0.);
+  GeoTrf::Vector3D centerCoolingPipe(xCenterCoolingPipe, yCenterCoolingPipe, 0.);
 
   m_currentLD = currentLD_tmp;  
   return centerCoolingPipe;
@@ -1727,17 +1725,17 @@ double OraclePixGeoManager::IBLStaveRadius()
   m_currentLD = 0;
 
   //  Point that defines the center of the cooling pipe
-  HepGeom::Point3D<double> centerCoolingPipe_inv = -IBLStaveRotationAxis();
-  HepGeom::Point3D<double> origin(0.,0.,0.);
+  GeoTrf::Vector3D centerCoolingPipe_inv = -IBLStaveRotationAxis();
+  GeoTrf::Vector3D origin(0.,0.,0.);
   double layerRadius = PixelLayerRadius();
   double ladderTilt  = PixelLadderTilt();
   
   // Transforms
-  HepGeom::Transform3D staveTrf = HepGeom::RotateZ3D(ladderTilt)*HepGeom::Translate3D(centerCoolingPipe_inv);
-  HepGeom::Point3D<double> sensorPos = staveTrf*origin;
+  GeoTrf::Transform3D staveTrf = GeoTrf::RotateZ3D(ladderTilt)*GeoTrf::Translate3D(centerCoolingPipe_inv.x(),centerCoolingPipe_inv.y(),centerCoolingPipe_inv.z());
+  GeoTrf::Vector3D sensorPos = staveTrf*origin;
   
   double yPos = sensorPos.y();
-  HepGeom::Point3D<double> sensorPos_layer(sqrt(layerRadius*layerRadius-yPos*yPos),yPos,0.);
+  GeoTrf::Vector3D sensorPos_layer(sqrt(layerRadius*layerRadius-yPos*yPos),yPos,0.);
   
   double staveRadius = sensorPos_layer.x()-sensorPos.x();
 
@@ -1751,7 +1749,7 @@ double OraclePixGeoManager::IBLStaveFacePlateThickness()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"FACEPLATETHICK",index)) {
-    double thickness = db()->getDouble(m_PixelIBLStave,"FACEPLATETHICK",index) * CLHEP::mm;
+    double thickness = db()->getDouble(m_PixelIBLStave,"FACEPLATETHICK",index) * GeoModelKernelUnits::mm;
     if (thickness > 0)  return thickness ;
   } 
   return 0.0;
@@ -1762,7 +1760,7 @@ double OraclePixGeoManager:: IBLStaveMechanicalStaveWidth()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"STAVEWIDTH",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"STAVEWIDTH",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"STAVEWIDTH",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -1773,7 +1771,7 @@ double OraclePixGeoManager:: IBLStaveMechanicalStaveEndBlockLength()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"ENDBLOCKLENGTH",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"ENDBLOCKLENGTH",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"ENDBLOCKLENGTH",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -1784,7 +1782,7 @@ double OraclePixGeoManager:: IBLStaveMechanicalStaveEndBlockFixPoint()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"ENDBLOCKFIXINGPOS",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"ENDBLOCKFIXINGPOS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"ENDBLOCKFIXINGPOS",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1796,7 +1794,7 @@ double OraclePixGeoManager:: IBLStaveMechanicalStaveEndBlockOmegaOverlap()
   try{
     int index=0;
     if (db()->testField(m_PixelIBLStave,"ENDBLOCKOMEGAOVERLAP",index)) {
-      double value = db()->getDouble(m_PixelIBLStave,"ENDBLOCKOMEGAOVERLAP",index) * CLHEP::mm;
+      double value = db()->getDouble(m_PixelIBLStave,"ENDBLOCKOMEGAOVERLAP",index) * GeoModelKernelUnits::mm;
       return value ;
     } 
     return 0.0;
@@ -1812,7 +1810,7 @@ double OraclePixGeoManager::IBLStaveLength()
     {
       int index=0;
       if (db()->testField(m_PixelIBLStave,"STAVELENGTH",index)) {
-	double value = db()->getDouble(m_PixelIBLStave,"STAVELENGTH",index) * CLHEP::mm;
+	double value = db()->getDouble(m_PixelIBLStave,"STAVELENGTH",index) * GeoModelKernelUnits::mm;
 	return value ;
       } 
     }
@@ -1822,7 +1820,7 @@ double OraclePixGeoManager::IBLStaveLength()
       //           IBL stave length not eqal to other stave length 
     }  
   
-  return 748.0 * CLHEP::mm;  
+  return 748.0 * GeoModelKernelUnits::mm;  
 }
 
 double OraclePixGeoManager:: IBLStaveMechanicalStaveOffset(bool isModule3D)
@@ -1830,11 +1828,11 @@ double OraclePixGeoManager:: IBLStaveMechanicalStaveOffset(bool isModule3D)
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (!isModule3D&&db()->testField(m_PixelIBLStave,"MODULELATERALOFFSET",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"MODULELATERALOFFSET",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"MODULELATERALOFFSET",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   if (isModule3D&&db()->testField(m_PixelIBLStave,"MODULELATERALOFFSET3D",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"MODULELATERALOFFSET3D",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"MODULELATERALOFFSET3D",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1845,7 +1843,7 @@ double OraclePixGeoManager:: IBLStaveMechanicalStaveModuleOffset()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"STAVETOMODULEGAP",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"STAVETOMODULEGAP",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"STAVETOMODULEGAP",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1856,7 +1854,7 @@ double OraclePixGeoManager:: IBLStaveTubeOuterDiameter()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"TUBEOUTERDIAM",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"TUBEOUTERDIAM",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"TUBEOUTERDIAM",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -1867,7 +1865,7 @@ double OraclePixGeoManager:: IBLStaveTubeInnerDiameter()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"TUBEINNERDIAM",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"TUBEINNERDIAM",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"TUBEINNERDIAM",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -1878,7 +1876,7 @@ double OraclePixGeoManager:: IBLStaveTubeMiddlePos()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"TUBEMIDDLEPOS",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"TUBEMIDDLEPOS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"TUBEMIDDLEPOS",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1889,7 +1887,7 @@ double OraclePixGeoManager:: IBLStaveFlexLayerThickness()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"FLEXLAYERTHICK",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"FLEXLAYERTHICK",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"FLEXLAYERTHICK",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -1900,7 +1898,7 @@ double OraclePixGeoManager:: IBLStaveFlexBaseThickness()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"FLEXBASETHICK",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"FLEXBASETHICK",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"FLEXBASETHICK",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -1911,7 +1909,7 @@ double OraclePixGeoManager:: IBLStaveFlexWidth()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"FLEXWIDTH",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"FLEXWIDTH",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"FLEXWIDTH",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -1922,7 +1920,7 @@ double OraclePixGeoManager:: IBLStaveFlexOffset()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"FLEXOFFSET",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"FLEXOFFSET",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"FLEXOFFSET",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1934,7 +1932,7 @@ double OraclePixGeoManager::IBLStaveOmegaThickness()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGATHICK",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGATHICK",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGATHICK",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1945,7 +1943,7 @@ double OraclePixGeoManager::IBLStaveOmegaEndCenterX()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGAENDCENTERX",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDCENTERX",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDCENTERX",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1955,7 +1953,7 @@ double OraclePixGeoManager::IBLStaveOmegaEndCenterY()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGAENDCENTERY",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDCENTERY",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDCENTERY",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1965,7 +1963,7 @@ double OraclePixGeoManager::IBLStaveOmegaEndRadius()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGAENDRADIUS",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDRADIUS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDRADIUS",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1975,7 +1973,7 @@ double OraclePixGeoManager::IBLStaveOmegaEndAngle()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGAENDANGLE",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDANGLE",index) * CLHEP::deg;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGAENDANGLE",index) * GeoModelKernelUnits::deg;
     return value ;
   } 
   return 0.0;
@@ -1986,7 +1984,7 @@ double OraclePixGeoManager::IBLStaveOmegaMidCenterX()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGAMIDCENTERX",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGAMIDCENTERX",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGAMIDCENTERX",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -1997,7 +1995,7 @@ double OraclePixGeoManager::IBLStaveOmegaMidRadius()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGAMIDRADIUS",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGAMIDRADIUS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGAMIDRADIUS",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2007,7 +2005,7 @@ double OraclePixGeoManager::IBLStaveOmegaMidAngle()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"OMEGAOPENINGANGLE",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"OMEGAOPENINGANGLE",index) * CLHEP::deg;
+    double value = db()->getDouble(m_PixelIBLStave,"OMEGAOPENINGANGLE",index) * GeoModelKernelUnits::deg;
     return value ;
   } 
   return 0.0;
@@ -2035,7 +2033,7 @@ double OraclePixGeoManager::IBLStaveModuleGap()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"MODULEGAP",index)) {
-    double value = db()->getDouble(m_PixelIBLStave,"MODULEGAP",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLStave,"MODULEGAP",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -2046,7 +2044,7 @@ int OraclePixGeoManager::IBLStaveModuleType()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLStave,"MODULETYPE",index)) {
-    int value = db()->getInt(m_PixelIBLStave,"MODULETYPE",index) * CLHEP::mm;
+    int value = db()->getInt(m_PixelIBLStave,"MODULETYPE",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0;
@@ -2058,7 +2056,7 @@ double OraclePixGeoManager::IBLStaveFacePlateGreaseThickness()
   try{
     int index=0;
     if (db()->testField(m_PixelIBLGlueGrease,"FACEPLATEGREASETHICK",index)) {
-      double value = db()->getDouble(m_PixelIBLGlueGrease,"FACEPLATEGREASETHICK",index) * CLHEP::mm;
+      double value = db()->getDouble(m_PixelIBLGlueGrease,"FACEPLATEGREASETHICK",index) * GeoModelKernelUnits::mm;
       return value ;
     }
     return 0.;
@@ -2073,7 +2071,7 @@ double OraclePixGeoManager::IBLStaveFacePlateGlueThickness()
   try{
     int index=0;
     if (db()->testField(m_PixelIBLGlueGrease,"FACEPLATEGLUETHICK",index)) {
-      double value = db()->getDouble(m_PixelIBLGlueGrease,"FACEPLATEGLUETHICK",index) * CLHEP::mm;
+      double value = db()->getDouble(m_PixelIBLGlueGrease,"FACEPLATEGLUETHICK",index) * GeoModelKernelUnits::mm;
       return value ;
     }
     return 0.;
@@ -2088,7 +2086,7 @@ double OraclePixGeoManager::IBLStaveTubeGlueThickness()
   try{
     int index=0;
     if (db()->testField(m_PixelIBLGlueGrease,"TUBEGLUETHICK",index)) {
-      double value = db()->getDouble(m_PixelIBLGlueGrease,"TUBEGLUETHICK",index) * CLHEP::mm;
+      double value = db()->getDouble(m_PixelIBLGlueGrease,"TUBEGLUETHICK",index) * GeoModelKernelUnits::mm;
       return value ;
     }
     return 0.;
@@ -2103,7 +2101,7 @@ double OraclePixGeoManager::IBLStaveOmegaGlueThickness()
   try{
     int index=0;
     if (db()->testField(m_PixelIBLGlueGrease,"OMEGAGLUETHICK",index)) {
-      double value = db()->getDouble(m_PixelIBLGlueGrease,"OMEGAGLUETHICK",index) * CLHEP::mm;
+      double value = db()->getDouble(m_PixelIBLGlueGrease,"OMEGAGLUETHICK",index) * GeoModelKernelUnits::mm;
       return value ;
     }
     return 0.;
@@ -2118,7 +2116,7 @@ double OraclePixGeoManager:: IBLSupportRingWidth()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLSupport,"STAVERINGWIDTH",index)) {
-    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGWIDTH",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGWIDTH",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -2129,7 +2127,7 @@ double OraclePixGeoManager:: IBLSupportRingInnerRadius()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLSupport,"STAVERINGINNERRADIUS",index)) {
-    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGINNERRADIUS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGINNERRADIUS",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -2140,7 +2138,7 @@ double OraclePixGeoManager:: IBLSupportRingOuterRadius()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLSupport,"STAVERINGOUTERRADIUS",index)) {
-    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGOUTERRADIUS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGOUTERRADIUS",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -2152,7 +2150,7 @@ double OraclePixGeoManager:: IBLSupportMechanicalStaveRingFixPoint()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLSupport,"STAVERINGFIXINGPOS",index)) {
-    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGFIXINGPOS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLSupport,"STAVERINGFIXINGPOS",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -2163,7 +2161,7 @@ double OraclePixGeoManager:: IBLSupportMidRingWidth()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLSupport,"STAVEMIDRINGWIDTH",index)) {
-    double value = db()->getDouble(m_PixelIBLSupport,"STAVEMIDRINGWIDTH",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLSupport,"STAVEMIDRINGWIDTH",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -2174,7 +2172,7 @@ double OraclePixGeoManager:: IBLSupportMidRingInnerRadius()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLSupport,"STAVEMIDRINGINNERRADIUS",index)) {
-    double value = db()->getDouble(m_PixelIBLSupport,"STAVEMIDRINGINNERRADIUS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLSupport,"STAVEMIDRINGINNERRADIUS",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value;
   } 
   return 0.0;
@@ -2185,7 +2183,7 @@ double OraclePixGeoManager:: IBLSupportMidRingOuterRadius()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLSupport,"STAVEMIDRINGOUTERRADIUS",index)) {
-    double value = db()->getDouble(m_PixelIBLSupport,"STAVEMIDRINGOUTERRADIUS",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLSupport,"STAVEMIDRINGOUTERRADIUS",index) * GeoModelKernelUnits::mm;
     if (value > 0)  return value ;
   } 
   return 0.0;
@@ -2196,7 +2194,7 @@ double OraclePixGeoManager::IBLFlexMiddleGap()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,"FLEXMIDGAP",index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,"FLEXMIDGAP",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,"FLEXMIDGAP",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2216,7 +2214,7 @@ double OraclePixGeoManager::IBLFlexDoglegLength()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,"FLEXDOGLEGLENGTH",index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,"FLEXDOGLEGLENGTH",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,"FLEXDOGLEGLENGTH",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2228,7 +2226,7 @@ double OraclePixGeoManager::IBLStaveFlexWingWidth()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,"FLEXWINGWIDTH",index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,"FLEXWINGWIDTH",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,"FLEXWINGWIDTH",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2239,7 +2237,7 @@ double OraclePixGeoManager::IBLStaveFlexWingThick()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,"FLEXWINGTHICK",index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,"FLEXWINGTHICK",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,"FLEXWINGTHICK",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2250,7 +2248,7 @@ double OraclePixGeoManager::IBLFlexDoglegRatio()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,"FLEXDOGLEGRATIO",index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,"FLEXDOGLEGRATIO",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,"FLEXDOGLEGRATIO",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2264,7 +2262,7 @@ double OraclePixGeoManager::IBLFlexDoglegHeight(int iHeight)
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,lname.str(),index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2275,7 +2273,7 @@ double OraclePixGeoManager::IBLFlexDoglegDY()
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,"FLEXDOGLEGDY",index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,"FLEXDOGLEGDY",index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,"FLEXDOGLEGDY",index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2289,7 +2287,7 @@ double OraclePixGeoManager::IBLFlexPP0Z(int iPos)
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,lname.str(),index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2304,7 +2302,7 @@ double OraclePixGeoManager::IBLFlexPP0Rmin(int iPos)
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,lname.str(),index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2318,7 +2316,7 @@ double OraclePixGeoManager::IBLFlexPP0Rmax(int iPos)
   //  int index = PixelStaveIndex(m_currentLD);
   int index=0;
   if (db()->testField(m_PixelIBLFlex,lname.str(),index)) {
-    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * CLHEP::mm;
+    double value = db()->getDouble(m_PixelIBLFlex,lname.str(),index) * GeoModelKernelUnits::mm;
     return value ;
   } 
   return 0.0;
@@ -2369,10 +2367,10 @@ double OraclePixGeoManager:: IBLServiceGetMinRadialPosition(const std::string& s
       double zmin, zmax, r;
       int symm;
       if(srvType=="simple"){
-	zmin=db()->getDouble(m_PixelSimpleService,"ZMIN",ii)*CLHEP::mm;
-	zmax=db()->getDouble(m_PixelSimpleService,"ZMAX",ii)*CLHEP::mm;
+	zmin=db()->getDouble(m_PixelSimpleService,"ZMIN",ii)*GeoModelKernelUnits::mm;
+	zmax=db()->getDouble(m_PixelSimpleService,"ZMAX",ii)*GeoModelKernelUnits::mm;
 	symm=db()->getInt(m_PixelSimpleService,"ZSYMM",ii);
-	r=db()->getDouble(m_PixelSimpleService,"RMAX",ii)*CLHEP::mm;
+	r=db()->getDouble(m_PixelSimpleService,"RMAX",ii)*GeoModelKernelUnits::mm;
       }
       else {
 	zmin=PixelServiceZMin(srvType, ii);
@@ -2419,10 +2417,10 @@ double OraclePixGeoManager:: IBLServiceGetMaxRadialPosition(const std::string& s
       double zmin, zmax, r;
       int symm;
       if(srvType=="simple"){
-	zmin=db()->getDouble(m_PixelSimpleService,"ZMIN",ii)*CLHEP::mm;
-	zmax=db()->getDouble(m_PixelSimpleService,"ZMAX",ii)*CLHEP::mm;
+	zmin=db()->getDouble(m_PixelSimpleService,"ZMIN",ii)*GeoModelKernelUnits::mm;
+	zmax=db()->getDouble(m_PixelSimpleService,"ZMAX",ii)*GeoModelKernelUnits::mm;
 	symm=db()->getInt(m_PixelSimpleService,"ZSYMM",ii);
-	r=db()->getDouble(m_PixelSimpleService,"RMAX",ii)*CLHEP::mm;
+	r=db()->getDouble(m_PixelSimpleService,"RMAX",ii)*GeoModelKernelUnits::mm;
       }
       else {
 	zmin=PixelServiceZMin(srvType, ii);
@@ -2462,10 +2460,10 @@ double OraclePixGeoManager::PhiOfModuleZero()
 {
   // For backward compatibilty first module is at 1/2 a module division
   if (!db()->testField(m_PixelLayer,"PHIOFMODULEZERO",m_currentLD)){
-    if(NPixelSectors()>0) return 180.0*CLHEP::degree/NPixelSectors();
+    if(NPixelSectors()>0) return 180.0*GeoModelKernelUnits::degree/NPixelSectors();
     return 0.;
   } else { 
-    return db()->getDouble(m_PixelLayer,"PHIOFMODULEZERO",m_currentLD) * CLHEP::degree;
+    return db()->getDouble(m_PixelLayer,"PHIOFMODULEZERO",m_currentLD) * GeoModelKernelUnits::degree;
   }
 }
 
@@ -2483,7 +2481,7 @@ int OraclePixGeoManager::PixelNModule()
 double OraclePixGeoManager::PixelModuleAngle() 
 {
   int staveIndex = PixelStaveIndex(m_currentLD);
-  return db()->getDouble(m_PixelStave,"MODULETILT",staveIndex)*CLHEP::deg;
+  return db()->getDouble(m_PixelStave,"MODULETILT",staveIndex)*GeoModelKernelUnits::deg;
 }
 
 double OraclePixGeoManager::PixelModuleDrDistance() 
@@ -2526,7 +2524,7 @@ double OraclePixGeoManager::PixelModuleZPositionTabulated(int etaModule, int typ
     msg(MSG::ERROR) << "Z position not found for etaModule,type =  " << etaModule << ", " << type << endmsg;
     return 0;
   }
-  return db()->getDouble(m_PixelStaveZ,"ZPOS",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelStaveZ,"ZPOS",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelModuleShiftFlag(int etaModule) 
@@ -2539,7 +2537,7 @@ double OraclePixGeoManager::PixelModuleStaggerDistance()
 {
   int staveIndex = PixelStaveIndex(m_currentLD);
   if (!(slhc() || ibl()) || !db()->testField(m_PixelStave,"STAGGERDIST",staveIndex)) return 0; 
-  return db()->getDouble(m_PixelStave,"STAGGERDIST",staveIndex) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"STAGGERDIST",staveIndex) * GeoModelKernelUnits::mm;
 }
 
 int OraclePixGeoManager::PixelModuleStaggerSign(int etaModule)
@@ -2692,49 +2690,49 @@ int OraclePixGeoManager::PixelTMTNumParts()
 double OraclePixGeoManager::PixelTMTWidthX1(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTWidthX1(iPart);
-  return db()->getDouble(m_PixelTMT,"WIDTHX1",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"WIDTHX1",iPart) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelTMTWidthX2(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTWidthX2(iPart);
-  return db()->getDouble(m_PixelTMT,"WIDTHX2",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"WIDTHX2",iPart) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelTMTWidthY(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTWidthY(iPart);
-  return db()->getDouble(m_PixelTMT,"WIDTHY",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"WIDTHY",iPart) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelTMTBaseX1(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTBaseX1(iPart);
-  return db()->getDouble(m_PixelTMT,"BASEX1",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"BASEX1",iPart) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelTMTBaseX2(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTBaseX2(iPart);
-  return db()->getDouble(m_PixelTMT,"BASEX2",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"BASEX2",iPart) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelTMTPosY(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTPosY(iPart);
-  return db()->getDouble(m_PixelTMT,"Y",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"Y",iPart) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelTMTPosZ1(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTPosZ1(iPart);
-  return db()->getDouble(m_PixelTMT,"Z1",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"Z1",iPart) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelTMTPosZ2(int iPart)
 {
   if (useLegacy()) return m_legacyManager->PixelTMTPosZ2(iPart);
-  return db()->getDouble(m_PixelTMT,"Z2",iPart) * CLHEP::mm;
+  return db()->getDouble(m_PixelTMT,"Z2",iPart) * GeoModelKernelUnits::mm;
 }
 
 bool OraclePixGeoManager::PixelTMTPerModule(int iPart)
@@ -2749,61 +2747,61 @@ bool OraclePixGeoManager::PixelTMTPerModule(int iPart)
 double OraclePixGeoManager::PixelOmegaUpperBendX()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaUpperBendX();
-  return db()->getDouble(m_PixelOmega,"UPPERBENDX") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"UPPERBENDX") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaUpperBendY()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaUpperBendY();
-  return db()->getDouble(m_PixelOmega,"UPPERBENDY") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"UPPERBENDY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaUpperBendRadius()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaUpperBendRadius();
-  return db()->getDouble(m_PixelOmega,"UPPERBENDR") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"UPPERBENDR") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaLowerBendX()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaLowerBendX();
-  return db()->getDouble(m_PixelOmega,"LOWERBENDX") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"LOWERBENDX") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaLowerBendY()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaLowerBendY();
-  return db()->getDouble(m_PixelOmega,"LOWERBENDY") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"LOWERBENDY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaLowerBendRadius()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaLowerBendRadius();
-  return db()->getDouble(m_PixelOmega,"LOWERBENDR") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"LOWERBENDR") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaWallThickness()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaWallThickness();
-  return db()->getDouble(m_PixelOmega,"THICK") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"THICK") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaLength()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaLength();
-  return db()->getDouble(m_PixelOmega,"LENGTH") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"LENGTH") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaStartY()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaStartY();
-  return db()->getDouble(m_PixelOmega,"STARTY") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"STARTY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaEndY()
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaEndY();
-  return db()->getDouble(m_PixelOmega,"ENDY") * CLHEP::mm;
+  return db()->getDouble(m_PixelOmega,"ENDY") * GeoModelKernelUnits::mm;
 }
 
 //
@@ -2813,49 +2811,49 @@ double OraclePixGeoManager::PixelOmegaEndY()
 double OraclePixGeoManager::PixelAlTubeUpperBendX()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeUpperBendX();
-  return db()->getDouble(m_PixelAlTube,"UPPERBENDX") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"UPPERBENDX") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelAlTubeUpperBendY()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeUpperBendY();
-  return db()->getDouble(m_PixelAlTube,"UPPERBENDY") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"UPPERBENDY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelAlTubeUpperBendRadius()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeUpperBendRadius();
-  return db()->getDouble(m_PixelAlTube,"UPPERBENDR") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"UPPERBENDR") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelAlTubeLowerBendX()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeLowerBendX();
-  return db()->getDouble(m_PixelAlTube,"LOWERBENDX") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"LOWERBENDX") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelAlTubeLowerBendY()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeLowerBendY();
-  return db()->getDouble(m_PixelAlTube,"LOWERBENDY") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"LOWERBENDY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelAlTubeLowerBendRadius()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeLowerBendRadius();
-  return db()->getDouble(m_PixelAlTube,"LOWERBENDR") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"LOWERBENDR") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelAlTubeWallThickness()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeWallThickness();
-  return db()->getDouble(m_PixelAlTube,"THICK") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"THICK") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelAlTubeLength()
 {
   if (useLegacy()) return m_legacyManager->PixelAlTubeLength();
-  return db()->getDouble(m_PixelAlTube,"LENGTH") * CLHEP::mm;
+  return db()->getDouble(m_PixelAlTube,"LENGTH") * GeoModelKernelUnits::mm;
 }
 
 //
@@ -2871,37 +2869,37 @@ int OraclePixGeoManager::PixelNumOmegaGlueElements()
 double OraclePixGeoManager::PixelOmegaGlueStartX(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaGlueStartX(index);
-  return db()->getDouble(m_PixelOmegaGlue,"STARTX",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelOmegaGlue,"STARTX",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaGlueThickness(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaGlueThickness(index);
-  return db()->getDouble(m_PixelOmegaGlue,"THICK",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelOmegaGlue,"THICK",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaGlueStartY(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaGlueStartY(index);
-  return db()->getDouble(m_PixelOmegaGlue,"STARTY",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelOmegaGlue,"STARTY",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaGlueEndY(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaGlueEndY(index);
-  return db()->getDouble(m_PixelOmegaGlue,"ENDY",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelOmegaGlue,"ENDY",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaGlueLength(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaGlueLength(index);
-  return db()->getDouble(m_PixelOmegaGlue,"LENGTH",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelOmegaGlue,"LENGTH",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelOmegaGluePosZ(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelOmegaGluePosZ(index);
-  return db()->getDouble(m_PixelOmegaGlue,"Z",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelOmegaGlue,"Z",index) * GeoModelKernelUnits::mm;
 }
 
 int OraclePixGeoManager::PixelOmegaGlueTypeNum(int index)
@@ -2917,45 +2915,45 @@ int OraclePixGeoManager::PixelOmegaGlueTypeNum(int index)
 double OraclePixGeoManager::PixelFluidZ1(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelFluidZ1(index);
-  return db()->getDouble(m_PixelFluid,"Z1",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFluid,"Z1",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFluidZ2(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelFluidZ2(index);
-  return db()->getDouble(m_PixelFluid,"Z2",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFluid,"Z2",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFluidThick1(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelFluidThick1(index);
-  return db()->getDouble(m_PixelFluid,"THICK1",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFluid,"THICK1",index) * GeoModelKernelUnits::mm;
 }
 
 
 double OraclePixGeoManager::PixelFluidThick2(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelFluidThick2(index);
-  return db()->getDouble(m_PixelFluid,"THICK2",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFluid,"THICK2",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFluidWidth(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelFluidWidth(index);
-  return db()->getDouble(m_PixelFluid,"WIDTH",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFluid,"WIDTH",index) * GeoModelKernelUnits::mm;
 }
 
 
 double OraclePixGeoManager::PixelFluidX(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelFluidX(index);
-  return db()->getDouble(m_PixelFluid,"X",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFluid,"X",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelFluidY(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelFluidY(index);
-  return db()->getDouble(m_PixelFluid,"Y",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelFluid,"Y",index) * GeoModelKernelUnits::mm;
 }
 
 int OraclePixGeoManager::PixelFluidType(int index)
@@ -3001,25 +2999,25 @@ int OraclePixGeoManager::PixelFluidOrient(int layer, int phi)
 double OraclePixGeoManager::PixelPigtailThickness()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailThickness();
-  return db()->getDouble(m_PixelPigtail,"THICK") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"THICK") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailStartY()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailStartY();
-  return db()->getDouble(m_PixelPigtail,"STARTY") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"STARTY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailEndY()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailEndY();
-  return db()->getDouble(m_PixelPigtail,"ENDY") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"ENDY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailWidthZ()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailWidthZ();
-  return db()->getDouble(m_PixelPigtail,"WIDTHZ") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"WIDTHZ") * GeoModelKernelUnits::mm;
 }
 
 // Different width from the curved section in old geometry
@@ -3032,31 +3030,31 @@ double OraclePixGeoManager::PixelPigtailFlatWidthZ()
 double OraclePixGeoManager::PixelPigtailPosX()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailPosX();
-  return db()->getDouble(m_PixelPigtail,"X") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"X") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailPosZ()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailPosZ();
-  return db()->getDouble(m_PixelPigtail,"Z") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"Z") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailBendX()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailBendX();
-  return db()->getDouble(m_PixelPigtail,"BENDX") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"BENDX") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailBendY()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailBendY();
-  return db()->getDouble(m_PixelPigtail,"BENDY") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"BENDY") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailBendRMin()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailBendRMin();
-  return db()->getDouble(m_PixelPigtail,"BENDRMIN") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"BENDRMIN") * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelPigtailBendRMax()
@@ -3068,19 +3066,19 @@ double OraclePixGeoManager::PixelPigtailBendRMax()
 double OraclePixGeoManager::PixelPigtailBendPhiMin()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailBendPhiMin();
-  return db()->getDouble(m_PixelPigtail,"BENDPHIMIN") * CLHEP::deg;
+  return db()->getDouble(m_PixelPigtail,"BENDPHIMIN") * GeoModelKernelUnits::deg;
 }
 
 double OraclePixGeoManager::PixelPigtailBendPhiMax()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailBendPhiMax();
-  return db()->getDouble(m_PixelPigtail,"BENDPHIMAX") * CLHEP::deg;
+  return db()->getDouble(m_PixelPigtail,"BENDPHIMAX") * GeoModelKernelUnits::deg;
 }
 
 double OraclePixGeoManager::PixelPigtailEnvelopeLength()
 {
   if (useLegacy()) return m_legacyManager->PixelPigtailEnvelopeLength();
-  return db()->getDouble(m_PixelPigtail,"ENVLENGTH") * CLHEP::mm;
+  return db()->getDouble(m_PixelPigtail,"ENVLENGTH") * GeoModelKernelUnits::mm;
 }
 
 //
@@ -3095,37 +3093,37 @@ int OraclePixGeoManager::PixelNumConnectorElements()
 double OraclePixGeoManager::PixelConnectorWidthX(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelConnectorWidthX(index);
-  return db()->getDouble(m_PixelConnector,"WIDTHX",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelConnector,"WIDTHX",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelConnectorWidthY(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelConnectorWidthY(index);
-  return db()->getDouble(m_PixelConnector,"WIDTHY",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelConnector,"WIDTHY",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelConnectorWidthZ(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelConnectorWidthZ(index);
-  return db()->getDouble(m_PixelConnector,"WIDTHZ",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelConnector,"WIDTHZ",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelConnectorPosX(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelConnectorPosX(index);
-  return db()->getDouble(m_PixelConnector,"X",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelConnector,"X",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelConnectorPosY(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelConnectorPosY(index);
-  return db()->getDouble(m_PixelConnector,"Y",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelConnector,"Y",index) * GeoModelKernelUnits::mm;
 }
 
 double OraclePixGeoManager::PixelConnectorPosZ(int index)
 {
   if (useLegacy()) return m_legacyManager->PixelConnectorPosZ(index);
-  return db()->getDouble(m_PixelConnector,"Z",index) * CLHEP::mm;
+  return db()->getDouble(m_PixelConnector,"Z",index) * GeoModelKernelUnits::mm;
 }
 
 //
@@ -3389,7 +3387,7 @@ double OraclePixGeoManager::DesignPitchRP(bool isModule3D)
     return m_legacyManager->DesignPitchRP(isInnermostPixelLayer());
   } else {
     int type = designType((ibl()&&isModule3D));
-    return db()->getDouble(m_PixelReadout,"PITCHPHI",type) * CLHEP::mm;
+    return db()->getDouble(m_PixelReadout,"PITCHPHI",type) * GeoModelKernelUnits::mm;
  } 
 }
 
@@ -3399,7 +3397,7 @@ double OraclePixGeoManager::DesignPitchZ(bool isModule3D)
     return m_legacyManager->DesignPitchZ(isInnermostPixelLayer());
   } else {
     int type = designType((ibl()&&isModule3D));
-    return db()->getDouble(m_PixelReadout,"PITCHETA",type) * CLHEP::mm;
+    return db()->getDouble(m_PixelReadout,"PITCHETA",type) * GeoModelKernelUnits::mm;
   }
 }
 
@@ -3410,7 +3408,7 @@ double OraclePixGeoManager::DesignPitchZLong(bool isModule3D)
     return m_legacyManager->DesignPitchZLong(isInnermostPixelLayer());
   } else {
     int type = designType((ibl()&&isModule3D));
-    double pitch = db()->getDouble(m_PixelReadout,"PITCHETALONG",type) * CLHEP::mm;
+    double pitch = db()->getDouble(m_PixelReadout,"PITCHETALONG",type) * GeoModelKernelUnits::mm;
     if (pitch == 0) pitch = DesignPitchZ(isModule3D);
     return pitch;
   }
@@ -3425,7 +3423,7 @@ double OraclePixGeoManager::DesignPitchZLongEnd(bool isModule3D)
     int type = designType((ibl()&&isModule3D));
     double pitch = 0;
     if (db()->testField(m_PixelReadout,"PITCHETAEND",type)) {
-      pitch = db()->getDouble(m_PixelReadout,"PITCHETAEND",type) * CLHEP::mm;
+      pitch = db()->getDouble(m_PixelReadout,"PITCHETAEND",type) * GeoModelKernelUnits::mm;
     }
     if (pitch == 0) pitch = DesignPitchZLong(isModule3D);
     return pitch;
@@ -3520,18 +3518,18 @@ double  OraclePixGeoManager::PixelDiskRMin(bool includeSupports)
   if (!slhc()) {
     return db()->getDouble(m_PixelDisk,"RIDISK",m_currentLD)*mmcm();
   } else {
-    double result = db()->getDouble(m_PixelDisk,"RMIN",m_currentLD) * CLHEP::mm;
+    double result = db()->getDouble(m_PixelDisk,"RMIN",m_currentLD) * GeoModelKernelUnits::mm;
     if(includeSupports) {
       result = std::min( result, PixelDiskSupportRMin(0) );
     }
     int etaInner = 0; // Inner ring
     int ringType = getDiskRingType(m_currentLD,etaInner); 
     if (ringType >= 0 && db()->testField(m_PixelRing,"RMIN",ringType) && db()->getDouble(m_PixelRing,"RMIN",ringType)) {
-      double ringRmin = db()->getDouble(m_PixelRing,"RMIN",ringType) * CLHEP::mm - 0.01*CLHEP::mm;  // ring envelope has a 0.01mm safety
+      double ringRmin = db()->getDouble(m_PixelRing,"RMIN",ringType) * GeoModelKernelUnits::mm - 0.01*GeoModelKernelUnits::mm;  // ring envelope has a 0.01mm safety
       if (ringRmin < result) {
 	msg(MSG::WARNING) << "Ring rmin is less than disk rmin for disk : " << m_currentLD 
 			  << ". Ring rmin: " << ringRmin << ", Disk rmin: " << result <<endmsg;
-	result = ringRmin - 0.1*CLHEP::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
+	result = ringRmin - 0.1*GeoModelKernelUnits::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
       }
     }
     return result;
@@ -3541,7 +3539,7 @@ double  OraclePixGeoManager::PixelDiskRMin(bool includeSupports)
 // SLHC only
 double OraclePixGeoManager::PixelDiskRMax(bool includeSupports)
 {
-  double result = db()->getDouble(m_PixelDisk,"RMAX",m_currentLD) * CLHEP::mm;
+  double result = db()->getDouble(m_PixelDisk,"RMAX",m_currentLD) * GeoModelKernelUnits::mm;
   if(includeSupports) {
     result = std::max( result, PixelDiskSupportRMax(2) );
   }
@@ -3553,11 +3551,11 @@ double OraclePixGeoManager::PixelDiskRMax(bool includeSupports)
     // This is not so nice as PixelRingRMax can potentially call PixelDiskRMax, however it
     // only calls PixelDiskRMax if the above condition is not satisified. So hopefully OK.
     // TODO: Code could do with some improvement to make it less fragile.
-    double ringRmax  = PixelRingRMax(0.01*CLHEP::mm); // ring envelope has a 0.01mm safety
+    double ringRmax  = PixelRingRMax(0.01*GeoModelKernelUnits::mm); // ring envelope has a 0.01mm safety
     if (ringRmax > result) {
       msg(MSG::WARNING) << "Ring rmax is greater than disk rmax for disk : " << m_currentLD 
 			<< ". Ring rmax: " << ringRmax << ", Disk rmax: " << result <<endmsg;
-      result = ringRmax + 0.1*CLHEP::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
+      result = ringRmax + 0.1*GeoModelKernelUnits::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
     }
   }
   // restore state
@@ -3593,7 +3591,7 @@ double OraclePixGeoManager::PixelRingRcenter() {
   // If ring rmin is present and non-zero use that.
   int ringType = getDiskRingType(m_currentLD,m_eta); 
   if (ringType >=0 && db()->testField(m_PixelRing,"RMIN",ringType) && db()->getDouble(m_PixelRing,"RMIN",ringType)) {
-    return db()->getDouble(m_PixelRing,"RMIN",ringType)  * CLHEP::mm + PixelModuleLength()/2;
+    return db()->getDouble(m_PixelRing,"RMIN",ringType)  * GeoModelKernelUnits::mm + PixelModuleLength()/2;
   } else { 
     // Otherwise calculate from disk rmin/rmax
     int nrings = PixelDiskNRings();
@@ -3616,7 +3614,7 @@ double OraclePixGeoManager::PixelRingRMin(double safety) {
   // If ring rmin is present and non-zero use that.
   int ringType = getDiskRingType(m_currentLD,m_eta); 
   if (ringType >= 0 && db()->testField(m_PixelRing,"RMIN",ringType) && db()->getDouble(m_PixelRing,"RMIN",ringType)) {
-    return db()->getDouble(m_PixelRing,"RMIN",ringType)  * CLHEP::mm - std::abs(safety); 
+    return db()->getDouble(m_PixelRing,"RMIN",ringType)  * GeoModelKernelUnits::mm - std::abs(safety); 
   } else {
     // Otherwise calculated it from disk rmin
     if(m_eta==0) return PixelDiskRMin() - std::abs(safety);
@@ -3662,7 +3660,7 @@ double OraclePixGeoManager::PixelRingZpos() {
 double OraclePixGeoManager::PixelRingZoffset() 
 {
   int index = getDiskRingIndex(m_currentLD,m_eta);
-  return std::abs(db()->getDouble(m_PixelDiskRing,"ZOFFSET",index))*CLHEP::mm;
+  return std::abs(db()->getDouble(m_PixelDiskRing,"ZOFFSET",index))*GeoModelKernelUnits::mm;
 }
 
 // SLHC only
@@ -3676,13 +3674,13 @@ int OraclePixGeoManager::PixelRingSide()
 double OraclePixGeoManager::PixelRingStagger() 
 {
   int ringType = getDiskRingType(m_currentLD,m_eta);
-  return db()->getDouble(m_PixelRing,"STAGGER",ringType)*CLHEP::mm;
+  return db()->getDouble(m_PixelRing,"STAGGER",ringType)*GeoModelKernelUnits::mm;
 }
 
 
 // SLHC only
 //int OraclePixGeoManager::PixelRingNmodules() {
-//  return db()->getInt("PixelRing","NMODULES",ringIndex)*CLHEP::mm();
+//  return db()->getInt("PixelRing","NMODULES",ringIndex)*GeoModelKernelUnits::mm();
 //}
 
 
@@ -3772,7 +3770,7 @@ double OraclePixGeoManager::PixelModuleThicknessN() {
   // is the max of ThicknessP and thickness from the module center to
   // the outer surface of the hybrid plus some safety.
   //
-  double safety = 0.01*CLHEP::mm;
+  double safety = 0.01*GeoModelKernelUnits::mm;
   double thickn = 0.5 * PixelBoardThickness()
     + PixelHybridThickness() + safety;
   double thick = std::max(thickn, PixelModuleThicknessP());
@@ -3787,7 +3785,7 @@ double OraclePixGeoManager::PixelModuleThicknessP() {
   // is thickness from the module center to the outer surface of the
   // chips plus some safety.
 
-  double safety = 0.01*CLHEP::mm;
+  double safety = 0.01*GeoModelKernelUnits::mm;
   double thick = 0.5 * PixelBoardThickness() +
     PixelChipThickness() + PixelChipGap() + safety;
 
@@ -3831,39 +3829,39 @@ double OraclePixGeoManager::PixelModuleLength() {
 
 // return angle of the telescope
 double OraclePixGeoManager::DBMAngle() {
-  return db()->getDouble(m_DBMTelescope,"ANGLE")*CLHEP::deg;
+  return db()->getDouble(m_DBMTelescope,"ANGLE")*GeoModelKernelUnits::deg;
 }
 
 // return dimension of the DBM telescope
 double OraclePixGeoManager::DBMTelescopeX() {
-   return db()->getDouble(m_DBMTelescope,"WIDTH")*CLHEP::mm;
+   return db()->getDouble(m_DBMTelescope,"WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMTelescopeY() {
-   return db()->getDouble(m_DBMTelescope,"HEIGHT")*CLHEP::mm;
+   return db()->getDouble(m_DBMTelescope,"HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMTelescopeZ() {
-   return db()->getDouble(m_DBMTelescope,"LENGTH")*CLHEP::mm;
+   return db()->getDouble(m_DBMTelescope,"LENGTH")*GeoModelKernelUnits::mm;
 }
 
 // return height and length of the module cage having a 3-layers structure
 double OraclePixGeoManager::DBMModuleCageY() {
-  return db()->getDouble(m_DBMTelescope,"CAGE_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMTelescope,"CAGE_HEIGHT")*GeoModelKernelUnits::mm;
 } 
 double OraclePixGeoManager::DBMModuleCageZ() {
-  return db()->getDouble(m_DBMTelescope,"CAGE_LENGTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMTelescope,"CAGE_LENGTH")*GeoModelKernelUnits::mm;
 } 
 
 // return layer spacing
 double OraclePixGeoManager::DBMSpacingZ() {
-  return db()->getDouble(m_DBMCage,"ZSPACING")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"ZSPACING")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMSpacingRadial() {
   if (m_currentLD == 0)
-    return db()->getDouble(m_DBMCage,"RADIAL_SPACE_0")*CLHEP::mm;
+    return db()->getDouble(m_DBMCage,"RADIAL_SPACE_0")*GeoModelKernelUnits::mm;
   else if (m_currentLD == 1)
-    return db()->getDouble(m_DBMCage,"RADIAL_SPACE_1")*CLHEP::mm;
+    return db()->getDouble(m_DBMCage,"RADIAL_SPACE_1")*GeoModelKernelUnits::mm;
   else if (m_currentLD == 2)
-    return db()->getDouble(m_DBMCage,"RADIAL_SPACE_2")*CLHEP::mm;
+    return db()->getDouble(m_DBMCage,"RADIAL_SPACE_2")*GeoModelKernelUnits::mm;
   else {
      msg(MSG::WARNING) << "DBMSpacingRadial() is not found" << endmsg;
      return 0.;
@@ -3871,174 +3869,174 @@ double OraclePixGeoManager::DBMSpacingRadial() {
 }
 // return dimension of bracket unit
 double OraclePixGeoManager::DBMBracketX() {
-  return db()->getDouble(m_DBMBracket,"WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBracketY() {
-  return db()->getDouble(m_DBMBracket,"HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBracketZ() {
-  return db()->getDouble(m_DBMBracket,"THICKNESS")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"THICKNESS")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMTrapezBackTheta() {
-  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_THETA")*CLHEP::deg;
+  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_THETA")*GeoModelKernelUnits::deg;
 }
 double OraclePixGeoManager::DBMTrapezBackX() {
-  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMTrapezBackY() {
-  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMTrapezBackShortZ() {
-  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_ZSHORT")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"TRAPEZBACK_ZSHORT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktWindowX() {
-  return db()->getDouble(m_DBMBracket,"WINDOW_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"WINDOW_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktWindowY() {
-  return db()->getDouble(m_DBMBracket,"WINDOW_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"WINDOW_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktWindowOffset() {
-  return db()->getDouble(m_DBMBracket,"WINDOW_OFFSET")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"WINDOW_OFFSET")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktWindowCenterZ() {
-  return db()->getDouble(m_DBMBracket,"WINDOW_CENTERZ")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"WINDOW_CENTERZ")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktTopBlockZ() {
-  return db()->getDouble(m_DBMBracket,"TOPBLOCK_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"TOPBLOCK_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktSideBlockX() {
-  return db()->getDouble(m_DBMBracket,"SIDEBLOCK_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"SIDEBLOCK_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktSideBlockY() {
-  return db()->getDouble(m_DBMBracket,"SIDEBLOCK_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"SIDEBLOCK_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktLockZ() {
-  return db()->getDouble(m_DBMBracket,"LOCK_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"LOCK_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktLockY() {
-  return db()->getDouble(m_DBMBracket,"LOCK_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"LOCK_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktFinLongZ() {
-  return db()->getDouble(m_DBMBracket,"COOLINGFIN_ZLONG")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"COOLINGFIN_ZLONG")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktFinHeight() {
-  return db()->getDouble(m_DBMBracket,"COOLINGFIN_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"COOLINGFIN_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktFinThick() {
-  return db()->getDouble(m_DBMBracket,"COOLINGFIN_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"COOLINGFIN_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMBrcktFinPos() {
-  return db()->getDouble(m_DBMBracket,"COOLINGFIN_POS")*CLHEP::mm;
+  return db()->getDouble(m_DBMBracket,"COOLINGFIN_POS")*GeoModelKernelUnits::mm;
 }
 
 // return spacing between V-slide and first layer
 double OraclePixGeoManager::DBMSpace() {
-  return db()->getDouble(m_DBMCage,"SPACING1")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"SPACING1")*GeoModelKernelUnits::mm;
 }
 
 // return dimensions of the main plate
 double OraclePixGeoManager::DBMMainPlateX() {
-  return db()->getDouble(m_DBMCage,"MAINPLATE_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"MAINPLATE_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMMainPlateY() {
-  return db()->getDouble(m_DBMCage,"MAINPLATE_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"MAINPLATE_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMMainPlateZ() {
-  return db()->getDouble(m_DBMCage,"MAINPLATE_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"MAINPLATE_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMMPlateWindowWidth() {
-  return db()->getDouble(m_DBMCage,"MPWINDOW_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"MPWINDOW_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMMPlateWindowHeight() {
-  return db()->getDouble(m_DBMCage,"MPWINDOW_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"MPWINDOW_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMMPlateWindowPos() {
-  return db()->getDouble(m_DBMCage,"MPWINDOW_POS")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"MPWINDOW_POS")*GeoModelKernelUnits::mm;
 }
 // return dimensions of aluminium side plates
 double OraclePixGeoManager::DBMCoolingSidePlateX() {
-  return db()->getDouble(m_DBMCage,"SIDEPLATE_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"SIDEPLATE_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMCoolingSidePlateY() {
-  return db()->getDouble(m_DBMCage,"SIDEPLATE_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"SIDEPLATE_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMCoolingSidePlateZ() {
-  return db()->getDouble(m_DBMCage,"SIDEPLATE_LENGTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"SIDEPLATE_LENGTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMCoolingSidePlatePos() {
-  return db()->getDouble(m_DBMCage,"SIDEPLATE_POS")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"SIDEPLATE_POS")*GeoModelKernelUnits::mm;
 }
 
 // return dimension of sensor, chip and ceramic
 double OraclePixGeoManager::DBMDiamondX() {
-  return db()->getDouble(m_DBMModule,"DIAMOND_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"DIAMOND_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMDiamondY() {
-  return db()->getDouble(m_DBMModule,"DIAMOND_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"DIAMOND_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMDiamondZ() {
-  return db()->getDouble(m_DBMModule,"DIAMOND_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"DIAMOND_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMFEI4X() {
-  return db()->getDouble(m_DBMModule,"FEI4_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"FEI4_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMFEI4Y() {
-  return db()->getDouble(m_DBMModule,"FEI4_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"FEI4_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMFEI4Z() {
-  return db()->getDouble(m_DBMModule,"FEI4_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"FEI4_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMCeramicX() {
-  return db()->getDouble(m_DBMModule,"CERAMIC_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"CERAMIC_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMCeramicY() {
-  return db()->getDouble(m_DBMModule,"CERAMIC_HEIGHT")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"CERAMIC_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMCeramicZ() {
-  return db()->getDouble(m_DBMModule,"CERAMIC_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"CERAMIC_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMAirGap() {
-  return db()->getDouble(m_DBMModule,"AIR_GAP")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"AIR_GAP")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMKaptonZ() {
-  return db()->getDouble(m_DBMModule,"KAPTONZ")*CLHEP::mm;
+  return db()->getDouble(m_DBMModule,"KAPTONZ")*GeoModelKernelUnits::mm;
 }
 
 // flex support
 double OraclePixGeoManager::DBMFlexSupportX() {
-  return db()->getDouble(m_DBMCage,"FLEXSUPP_WIDTH")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"FLEXSUPP_WIDTH")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMFlexSupportY() {
-    return db()->getDouble(m_DBMCage,"FLEXSUPP_HEIGHT")*CLHEP::mm;
+    return db()->getDouble(m_DBMCage,"FLEXSUPP_HEIGHT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMFlexSupportZ() {
-  return db()->getDouble(m_DBMCage,"FLEXSUPP_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"FLEXSUPP_THICK")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMFlexSupportOffset() {
-    return db()->getDouble(m_DBMCage, "FLEXSUPP_OFFSET")*CLHEP::mm;
+    return db()->getDouble(m_DBMCage, "FLEXSUPP_OFFSET")*GeoModelKernelUnits::mm;
 }
 
 // return radius of supporting rod
 double OraclePixGeoManager::DBMRodRadius() {
-  return db()->getDouble(m_DBMCage,"ROD_RADIUS")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"ROD_RADIUS")*GeoModelKernelUnits::mm;
 }
 // return distance between center of rods
 double OraclePixGeoManager::DBMMPlateRod2RodY() {
-  return db()->getDouble(m_DBMCage,"ROD2ROD_VERT")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"ROD2ROD_VERT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMMPlateRod2RodX() {
-  return db()->getDouble(m_DBMCage,"ROD2ROD_HOR")*CLHEP::mm;
+  return db()->getDouble(m_DBMCage,"ROD2ROD_HOR")*GeoModelKernelUnits::mm;
 }
 
 // radius and thickness of PP0 board
 double OraclePixGeoManager::DBMPP0RIn() {
-  return db()->getDouble(m_DBMTelescope,"PP0_RIN")*CLHEP::mm;
+  return db()->getDouble(m_DBMTelescope,"PP0_RIN")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMPP0ROut() {
-  return db()->getDouble(m_DBMTelescope,"PP0_ROUT")*CLHEP::mm;
+  return db()->getDouble(m_DBMTelescope,"PP0_ROUT")*GeoModelKernelUnits::mm;
 }
 double OraclePixGeoManager::DBMPP0Thick() {
-  return db()->getDouble(m_DBMTelescope,"PP0_THICK")*CLHEP::mm;
+  return db()->getDouble(m_DBMTelescope,"PP0_THICK")*GeoModelKernelUnits::mm;
 }
 
 

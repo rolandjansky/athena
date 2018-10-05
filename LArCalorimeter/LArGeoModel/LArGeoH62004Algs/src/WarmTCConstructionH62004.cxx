@@ -28,10 +28,12 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-#include "CLHEP/GenericFunctions/Sin.hh"
-#include "CLHEP/GenericFunctions/Cos.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
+#include "GeoGenericFunctions/Sin.h"
+#include "GeoGenericFunctions/Cos.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -78,30 +80,30 @@ GeoVFullPhysVol* LArGeo::WarmTCConstructionH62004::GetEnvelope()
 // SHOULD GO INTO DB !!!!
 
 // Muon scintilators are the first one:
-double Muon_x = 20.0*CLHEP::cm;
-double Muon_y = 120.0*CLHEP::cm;
-double Muon_z = 1.0*CLHEP::cm;
+double Muon_x = 20.0*GeoModelKernelUnits::cm;
+double Muon_y = 120.0*GeoModelKernelUnits::cm;
+double Muon_z = 1.0*GeoModelKernelUnits::cm;
 // The extra space to accumulate muon sci. into mother:
-double Muon_dist = 120.0*CLHEP::mm;
+double Muon_dist = 120.0*GeoModelKernelUnits::mm;
 //
 // WTC dimensions
-double WTC_len = 591.5*CLHEP::mm;
-double WTC_high = 1250.0*CLHEP::mm;
-double WTC_sci_z = 12.7*CLHEP::mm;
-double WTC_sci_x = 190.0*CLHEP::mm;
-double WTC_sci_y = 1160.0*CLHEP::mm;
+double WTC_len = 591.5*GeoModelKernelUnits::mm;
+double WTC_high = 1250.0*GeoModelKernelUnits::mm;
+double WTC_sci_z = 12.7*GeoModelKernelUnits::mm;
+double WTC_sci_x = 190.0*GeoModelKernelUnits::mm;
+double WTC_sci_y = 1160.0*GeoModelKernelUnits::mm;
 
 //  Define dimension WTC mother
 //
 double x_m = WTC_high / 2;
 double y_m = WTC_high / 2;
-double z_m = (86.0*CLHEP::mm + WTC_len + WTC_sci_z + Muon_dist + Muon_z) / 2;
+double z_m = (86.0*GeoModelKernelUnits::mm + WTC_len + WTC_sci_z + Muon_dist + Muon_z) / 2;
 //
 // Define dimension of Fe absorber
 //
 double Fe_x = WTC_high / 2;
 double Fe_y = WTC_high / 2;
-double Fe_z = (99.0 / 2)*CLHEP::mm;
+double Fe_z = (99.0 / 2)*GeoModelKernelUnits::mm;
 //
 // Define dimension of X scintilator
 //
@@ -122,24 +124,24 @@ double z_s = WTC_sci_z / 2;
 //
 double z_x[3], z_y[3], z_Fe[4];
  z_x[0]  = -z_m + Muon_dist + Muon_z + z_s;                   // X scin. Layer 1
- z_y[0]  = z_x[0] + 54*CLHEP::mm;               // Y scin. Layer 2
- z_Fe[0] = z_x[0] + 86.0*CLHEP::mm + Fe_z;      // 1st Fe abs.
- z_y[1]  = z_Fe[0] + 125.5*CLHEP::mm - Fe_z;    // Y scin. Layer 3
- z_Fe[1] = z_Fe[0] + 2 * Fe_z + 53.0*CLHEP::mm; // 2nd Fe abs.
- z_x[1]  = z_Fe[0] - Fe_z + 278.5*CLHEP::mm;    // X scin. Layer 4
- z_Fe[2] = z_Fe[1] + 2 *Fe_z + 52.5*CLHEP::mm;  // 3rd Fe abs.
- z_y[2]  = z_Fe[0] - Fe_z + 433.0*CLHEP::mm;    // Y scin. Layer 5
- z_Fe[3] = z_Fe[2] + 2 *Fe_z + 61.5*CLHEP::mm;  // 4rd Fe abs.
+ z_y[0]  = z_x[0] + 54*GeoModelKernelUnits::mm;               // Y scin. Layer 2
+ z_Fe[0] = z_x[0] + 86.0*GeoModelKernelUnits::mm + Fe_z;      // 1st Fe abs.
+ z_y[1]  = z_Fe[0] + 125.5*GeoModelKernelUnits::mm - Fe_z;    // Y scin. Layer 3
+ z_Fe[1] = z_Fe[0] + 2 * Fe_z + 53.0*GeoModelKernelUnits::mm; // 2nd Fe abs.
+ z_x[1]  = z_Fe[0] - Fe_z + 278.5*GeoModelKernelUnits::mm;    // X scin. Layer 4
+ z_Fe[2] = z_Fe[1] + 2 *Fe_z + 52.5*GeoModelKernelUnits::mm;  // 3rd Fe abs.
+ z_y[2]  = z_Fe[0] - Fe_z + 433.0*GeoModelKernelUnits::mm;    // Y scin. Layer 5
+ z_Fe[3] = z_Fe[2] + 2 *Fe_z + 61.5*GeoModelKernelUnits::mm;  // 4rd Fe abs.
  z_x[2]  = z_Fe[0] - Fe_z + WTC_len;     // X scin. Layer 6
 //
 // Tilding of the TC
-//double WTC_tild = -1.1*CLHEP::deg;   // 24 CLHEP::mm tild on 1250 CLHEP::mm length
-//double WTC_tild = 0.*CLHEP::deg;   // 24 CLHEP::mm tild on 1250 CLHEP::mm length
+//double WTC_tild = -1.1*GeoModelKernelUnits::deg;   // 24 GeoModelKernelUnits::mm tild on 1250 GeoModelKernelUnits::mm length
+//double WTC_tild = 0.*GeoModelKernelUnits::deg;   // 24 GeoModelKernelUnits::mm tild on 1250 GeoModelKernelUnits::mm length
 // Define position in test beam line....
 //
-//double WTC_x = 0.0*CLHEP::mm;
-//double WTC_y = 0.0*CLHEP::mm;
-//double WTC_z = 460.0*CLHEP::mm - 120.*CLHEP::mm - 10.*CLHEP::mm;
+//double WTC_x = 0.0*GeoModelKernelUnits::mm;
+//double WTC_y = 0.0*GeoModelKernelUnits::mm;
+//double WTC_z = 460.0*GeoModelKernelUnits::mm - 120.*GeoModelKernelUnits::mm - 10.*GeoModelKernelUnits::mm;
 
 // Some elements
  
@@ -150,7 +152,7 @@ double z_x[3], z_y[3], z_Fe[4];
     const GeoMaterial* Iron = materialManager->getMaterial("std::Iron");    
     const GeoMaterial *Air = materialManager->getMaterial("std::Air");
  // Scintillator
-    double density = 1.032*CLHEP::g/CLHEP::cm3;
+    double density = 1.032*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;
     GeoMaterial* Scintillator=new GeoMaterial("Scintillator",density);
     Scintillator->add(elC,0.9147);
     Scintillator->add(elH,0.0853);
@@ -171,8 +173,6 @@ double z_x[3], z_y[3], z_Fe[4];
  status=m_detectorStore->record(sPhysVol,tag);
  if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store ")+tag).c_str());
 
- CLHEP::HepRotation NoRot;
-
 //
 // Create the muon scintilator and position
  double a,n;
@@ -181,16 +181,16 @@ double z_x[3], z_y[3], z_Fe[4];
  GeoLogVol *mu_log = new GeoLogVol(muname, mu_box, Scintillator);
  GeoPhysVol *mu_phys = new GeoPhysVol(mu_log);
  for(int i=1; i<=3; ++i) {
-    a = -5.*i*CLHEP::mm + (2*i-1)*Muon_x/2;
+    a = -5.*i*GeoModelKernelUnits::mm + (2*i-1)*Muon_x/2;
     n = pow(-1,i) * Muon_z/2 - z_m + Muon_z;
-    CLHEP::Hep3Vector posShift(a,0.0*CLHEP::mm,n);
+    GeoTrf::Vector3D posShift(a,0.0*GeoModelKernelUnits::mm,n);
     m_WarmTCPhys->add(new GeoSerialIdentifier(6-i));
-    m_WarmTCPhys->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(a,0.0*CLHEP::mm,n))));
+    m_WarmTCPhys->add(new GeoTransform(GeoTrf::Translate3D(a,0.0*GeoModelKernelUnits::mm,n)));
     m_WarmTCPhys->add(mu_phys); 
     
     n = pow(-1,i+1) * Muon_z/2 - z_m + Muon_z;
     m_WarmTCPhys->add(new GeoSerialIdentifier(5+i));
-    m_WarmTCPhys->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(-a,0.0*CLHEP::mm,n))));
+    m_WarmTCPhys->add(new GeoTransform(GeoTrf::Translate3D(-a,0.0*GeoModelKernelUnits::mm,n)));
     m_WarmTCPhys->add(mu_phys); 
     
  }
@@ -205,7 +205,7 @@ double z_x[3], z_y[3], z_Fe[4];
  
  for(int i=0; i<4; i++) {
    m_WarmTCPhys->add(new GeoSerialIdentifier(i+1)); 
-   m_WarmTCPhys->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(0.0*CLHEP::mm,0.0*CLHEP::mm,z_Fe[i]))));
+   m_WarmTCPhys->add(new GeoTransform(GeoTrf::Translate3D(0.0*GeoModelKernelUnits::mm,0.0*GeoModelKernelUnits::mm,z_Fe[i])));
    m_WarmTCPhys->add(Fe_phys);
  }
  
@@ -219,7 +219,7 @@ double z_x[3], z_y[3], z_Fe[4];
  
  for(int i=0; i<3; i++) {
     m_WarmTCPhys->add(new GeoSerialIdentifier(i+1));
-    m_WarmTCPhys->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(0.0*CLHEP::mm,0.0*CLHEP::mm,z_x[i]))));
+    m_WarmTCPhys->add(new GeoTransform(GeoTrf::Translate3D(0.0*GeoModelKernelUnits::mm,0.0*GeoModelKernelUnits::mm,z_x[i])));
     m_WarmTCPhys->add(X_phys);
  }
  
@@ -233,7 +233,7 @@ double z_x[3], z_y[3], z_Fe[4];
  
  for(int i=0; i<3; i++) {
     m_WarmTCPhys->add(new GeoSerialIdentifier(i+1));
-    m_WarmTCPhys->add(new GeoTransform(HepGeom::Transform3D(NoRot,CLHEP::Hep3Vector(0.0*CLHEP::mm,0.0*CLHEP::mm,z_y[i]))));
+    m_WarmTCPhys->add(new GeoTransform(GeoTrf::Translate3D(0.0*GeoModelKernelUnits::mm,0.0*GeoModelKernelUnits::mm,z_y[i])));
     m_WarmTCPhys->add(Y_phys);
   }
 

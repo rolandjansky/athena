@@ -63,12 +63,12 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
   if (cutoutson && vcutdef.size() > 0) {
     Cutout* cut = 0;
     GeoShape* cutoutShape = 0;
-    HepGeom::Transform3D cutTrans;
+    GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
     for (unsigned i = 0; i < vcutdef.size(); i++) {
       cut = vcutdef[i];
       cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                cut->widthXs/2., cut->widthXl/2., cut->lengthY/2.);
-      cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+      cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
       strd = &(strd->subtract( (*cutoutShape) << cutTrans) );
     }
 //    std::cout << " Tgc cutouts" << std::endl;
@@ -119,12 +119,11 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 
 	// wire supports
 	GeoTrd* strdsup = new GeoTrd(t->tck[i]/2, t->tck[i]/2, t->widthWireSupport/2,
-                                     t->widthWireSupport/2, lengthActive/2-0.1*CLHEP::mm);
+                                     t->widthWireSupport/2, lengthActive/2-0.1*GeoModelKernelUnits::mm);
 	// button supports
 	GeoTube* stubesup = new GeoTube(0., t->radiusButton,
-					    t->tck[i]/2.+0.005*CLHEP::mm);
-	CLHEP::HepRotation rotY;
-	rotY.set(CLHEP::HepRotationY(3.14159264/2.*CLHEP::rad));
+					    t->tck[i]/2.+0.005*GeoModelKernelUnits::mm);
+	GeoTrf::RotateY3D rotY(3.14159264/2.*GeoModelKernelUnits::rad);
 	  
 	int iymin = int( -(widthActive/2. + lengthActive*tan(t->angleTilt) - t->widthWireSupport/2.
 			  + t->offsetWireSupport[iSenLyr])/t->distanceWireSupport );
@@ -139,15 +138,12 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 	  } else if (t->offsetWireSupport[iSenLyr]+t->distanceWireSupport*isup == 0.){
             sign = 0;
 	  }
-	  CLHEP::HepRotation rotX;
-	  rotX.set(CLHEP::HepRotationX(sign*t->angleTilt));
-	  CLHEP::Hep3Vector vtransWS;
-	  vtransWS.set(0.,
-                       t->offsetWireSupport[iSenLyr] + t->distanceWireSupport*isup
-                       + lengthActive/2.*tan(sign*t->angleTilt),
-                       0.);
+	  GeoTrf::RotateX3D rotX(sign*t->angleTilt);
+	  GeoTrf::Translate3D vtransWS(0.,
+				       t->offsetWireSupport[iSenLyr] + t->distanceWireSupport*isup + lengthActive/2.*tan(sign*t->angleTilt),
+				       0.);
 
-          sGasVolume = &(sGasVolume->subtract((*strdsup) << HepGeom::Transform3D(rotX,vtransWS)));
+          sGasVolume = &(sGasVolume->subtract((*strdsup) << GeoTrf::Transform3D(vtransWS*rotX)));
 
 	  // place button supports
           int izmin, izmax;
@@ -192,14 +188,12 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
                 GeoTrd* strdsupex = new GeoTrd(t->tck[i]/2, t->tck[i]/2,
                                                t->widthWireSupport/2,
                                                t->widthWireSupport/2,
-                                               lengthWireSupportEx/2-0.1*CLHEP::mm);
-                CLHEP::Hep3Vector vtrans;
-                vtrans.set(0.,
-			       t->offsetWireSupport[iSenLyr]+t->distanceWireSupport*isupy
-			       + lengthActive/2.*tan(sign*t->angleTilt),
-			       (lengthActive-lengthWireSupportEx)/2.);
+                                               lengthWireSupportEx/2-0.1*GeoModelKernelUnits::mm);
+                GeoTrf::Translate3D vtrans(0.,
+					   t->offsetWireSupport[iSenLyr]+t->distanceWireSupport*isupy + lengthActive/2.*tan(sign*t->angleTilt),
+					   (lengthActive-lengthWireSupportEx)/2.);
 
-                sGasVolume = &(sGasVolume->subtract((*strdsupex) << HepGeom::Transform3D(rotX,vtrans)));
+                sGasVolume = &(sGasVolume->subtract((*strdsupex) << GeoTrf::Transform3D(vtrans * rotX)));
               }
             } // End special case for TGC01, 06, 12
 
@@ -208,7 +202,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 	  			 + t->offsetWireSupport[iSenLyr]
 				       +lengthActive*tan( t->angleTilt))
 		                      -(-widthActive/2.);
-            if (widthLeftTrd > 8.*CLHEP::cm) {
+            if (widthLeftTrd > 8.*GeoModelKernelUnits::cm) {
               double yLongBase;
               if ((name == "TGC01" || name == "TGC06" || name == "TGC12") &&
 	   	      t->distanceWireSupport*(iymin-1)+t->offsetWireSupport[iSenLyr]
@@ -236,7 +230,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 					+t->offsetWireSupport[iSenLyr]
 					+lengthActive*tan(-t->angleTilt));
 	      
-            if (widthRightTrd > 8.*CLHEP::cm) {
+            if (widthRightTrd > 8.*GeoModelKernelUnits::cm) {
               double yLongBase;
               if ((name == "TGC01" || name == "TGC06" || name == "TGC12") &&
 		      t->distanceWireSupport*(iymax+1)+t->offsetWireSupport[iSenLyr]
@@ -269,10 +263,9 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
               totNBS += nBS;
               double yposleft = yposCentre[iBS] - t->pitchButton[0]/2.
                      + (lengthActive/2.-t->pitchButton[1]/2.*isupz)*tan(angleTiltButton[iBS]);
-              CLHEP::Hep3Vector vtransBS;
-              vtransBS.set(0., yposleft + t->pitchButton[0]*std::abs(isupz%2),
-                           t->pitchButton[1]/2.*isupz);
-              sGasVolume = &(sGasVolume->subtract( (*stubesup) << HepGeom::Transform3D(rotY,vtransBS)));
+              GeoTrf::Translate3D vtransBS(0., yposleft + t->pitchButton[0]*std::abs(isupz%2),
+					   t->pitchButton[1]/2.*isupz);
+              sGasVolume = &(sGasVolume->subtract( (*stubesup) << GeoTrf::Transform3D(vtransBS*rotY)));
             }
           }
         } // loop over wire supports
@@ -283,14 +276,14 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
         // makes a gas boundary
         Cutout* cut = 0;
         GeoShape* cutoutShape = 0;
-        HepGeom::Transform3D cutTrans;
+        GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
         for (unsigned i = 0; i < vcutdef.size(); i++) {
           cut = vcutdef[i];
           cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                    cut->widthXs/2. + t->frame_ab/2., 
                                    cut->widthXl/2. + t->frame_ab/2., 
                                    cut->lengthY/2. + t->frame_h/2.);
-          cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+          cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
           sGasVolume = &(sGasVolume->subtract( (*cutoutShape) << cutTrans) );
         }
       }
@@ -299,7 +292,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
                                          matManager->getMaterial(t->materials[i]));
       GeoPhysVol* ptrdtmp = new GeoPhysVol(ltrdtmp);
       GeoNameTag* ntrdtmp = new GeoNameTag(name+t->materials[i]);
-      GeoTransform* ttrdtmp = new GeoTransform(HepGeom::TranslateX3D(newpos + (t->tck[i]/2)));
+      GeoTransform* ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newpos + (t->tck[i]/2)));
 
       // Place gas volume inside G10 mother volume so that
       // subtractions from gas volume now become G10
@@ -319,12 +312,12 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
       if (cutoutson && vcutdef.size() > 0) {
         Cutout* cut = 0;
         GeoShape* cutoutShape = 0;
-        HepGeom::Transform3D cutTrans;
+        GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
         for (unsigned i = 0; i < vcutdef.size(); i++) {
           cut = vcutdef[i];
           cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                    cut->widthXs/2., cut->widthXl/2., cut->lengthY/2.);
-          cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+          cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
           strdtmp = &(strdtmp->subtract( (*cutoutShape) << cutTrans) );
         }
       }
@@ -332,7 +325,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
                                          matManager->getMaterial(t->materials[i]));
       GeoPhysVol* ptrdtmp = new GeoPhysVol(ltrdtmp);
       GeoNameTag* ntrdtmp = new GeoNameTag(name+t->materials[i]);
-      GeoTransform* ttrdtmp = new GeoTransform(HepGeom::TranslateX3D(newpos+ (t->tck[i]/2)));
+      GeoTransform* ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newpos+ (t->tck[i]/2)));
 
       if (!skip_tgc) { 
         ptrd->add(ntrdtmp);

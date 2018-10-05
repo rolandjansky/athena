@@ -43,6 +43,8 @@
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include <string>
 
 class egammaForwardBuilder : public AthReentrantAlgorithm
@@ -95,7 +97,7 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
   SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outClusterContainerCellLinkKey;
 
   /** @brief  ET cut */
-  Gaudi::Property<double> m_ETcut {this, "EtCut", 5.*CLHEP::GeV, "ET cut"};
+  Gaudi::Property<double> m_ETcut {this, "EtCut", 5.*Gaudi::Units::GeV, "ET cut"};
 
   /** @brief eta cut */
   Gaudi::Property<double> m_etacut {this, "EtaCut", 2.5, "eta cut"};

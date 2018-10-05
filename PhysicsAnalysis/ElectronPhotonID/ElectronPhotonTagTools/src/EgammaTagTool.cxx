@@ -13,6 +13,7 @@ Purpose : create a collection of EgammaTag
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "ElectronPhotonTagTools/EgammaTagTool.h"
 #include "TagEvent/EgammaAttributeNames.h"
 #include "xAODEgamma/EgammaContainer.h"
@@ -31,15 +32,15 @@ EgammaTagTool::EgammaTagTool (const std::string& type, const std::string& name,
   declareProperty("ElectronContainer", m_electronContainer = "ElectronCollection");
   declareProperty("PhotonContainer",   m_photonContainer   = "PhotonCollection");
   /** selection cut of Pt */
-  declareProperty("ElectronPtCut",     m_electronPtCut = 20.0*CLHEP::GeV);
-  declareProperty("PhotonPtCut",       m_photonPtCut   = 10.0*CLHEP::GeV);
+  declareProperty("ElectronPtCut",     m_electronPtCut = 20.0*Gaudi::Units::GeV);
+  declareProperty("PhotonPtCut",       m_photonPtCut   = 10.0*Gaudi::Units::GeV);
   /** mass cut for Z */
-  declareProperty("MassZLow",          m_massZLow   = 45.*CLHEP::GeV );
-  declareProperty("MassZHigh",         m_massZHigh  = 180.*CLHEP::GeV);
+  declareProperty("MassZLow",          m_massZLow   = 45.*Gaudi::Units::GeV );
+  declareProperty("MassZHigh",         m_massZHigh  = 180.*Gaudi::Units::GeV);
   /** missing Et cut */
   declareProperty("MissingEtObject",   m_missingEtObject = "MET_RefFinal");
-  declareProperty("MissingEtCut",      m_missingEtCut    = 25.*CLHEP::GeV );
-  declareProperty("WElectronPtCut",    m_welectronPtCut  = 15.*CLHEP::GeV );
+  declareProperty("MissingEtCut",      m_missingEtCut    = 25.*Gaudi::Units::GeV );
+  declareProperty("WElectronPtCut",    m_welectronPtCut  = 15.*Gaudi::Units::GeV );
   declareProperty("MissingEtTerm",     m_missingEtTerm   = "Final");
 
   declareInterface<EgammaTagTool>( this );

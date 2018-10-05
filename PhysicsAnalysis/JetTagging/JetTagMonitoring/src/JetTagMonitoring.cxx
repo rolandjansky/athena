@@ -30,6 +30,8 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TMath.h"
@@ -781,13 +783,13 @@ bool JetTagMonitoring::passKinematicCuts(const xAOD::Jet *jet) {
   //* get jet basic kinematics *//
   m_jet_eta->Fill(jet->eta());
   m_jet_phi->Fill(jet->phi());
-  m_jet_et->Fill(jet->pt() / CLHEP::GeV);
+  m_jet_et->Fill(jet->pt() / Gaudi::Units::GeV);
 
-  ATH_MSG_DEBUG("Jet kinematics: eta = " << jet->eta() << ", phi= " << jet->phi() << ", pT= " << jet->pt() / CLHEP::GeV);
+  ATH_MSG_DEBUG("Jet kinematics: eta = " << jet->eta() << ", phi= " << jet->phi() << ", pT= " << jet->pt() / Gaudi::Units::GeV);
 
 
   // kinematic cuts defined as properties
-  if ( jet->pt()  / CLHEP::GeV < m_jet_pt_cut || fabs(jet->eta()) > m_jet_eta_cut )
+  if ( jet->pt()  / Gaudi::Units::GeV < m_jet_pt_cut || fabs(jet->eta()) > m_jet_eta_cut )
     return false;
 
   return true;
@@ -905,7 +907,7 @@ bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
   for ( ; electronItr != electronEnd; electronItr++) {
     //select electrons which passed author and pT cut
     if (!(*electronItr)->author(xAOD::EgammaParameters::AuthorElectron)) continue; 
-    if ((*electronItr) -> pt() / CLHEP::GeV < m_ElectronPtCut) continue;
+    if ((*electronItr) -> pt() / Gaudi::Units::GeV < m_ElectronPtCut) continue;
     bool inAcceptance = (TMath::Abs((*electronItr) -> eta()) > m_ElectronEtaCrackHighCut || TMath::Abs((*electronItr) -> eta()) < m_ElectronEtaCrackLowCut) 
       && TMath::Abs((*electronItr) -> eta()) < m_ElectronEtaCut;
     if (!inAcceptance) continue;
@@ -931,7 +933,7 @@ bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
   int n_isoMuons = 0;
   for ( ; muonItr != muonEnd; muonItr++) {
     //select muons which passed pT cut
-    if ((*muonItr) -> pt() / CLHEP::GeV < m_MuonPtCut) continue;
+    if ((*muonItr) -> pt() / Gaudi::Units::GeV < m_MuonPtCut) continue;
     bool inAcceptance = TMath::Abs((*muonItr) -> eta()) < m_MuonEtaCut;
     if (!inAcceptance) continue;
     // medium muons
@@ -1110,10 +1112,10 @@ void JetTagMonitoring::fillJetHistograms() {
 
     if (is_top_event && n_jets_kinematic >= 2) { // added by SARA - I have at least 2 kinematic jets, so want to fill top histograms
       m_jet_top->Fill(0., 1.); // added by SARA
-      m_jet_pt_top->Fill((*jetItr)->pt() / CLHEP::GeV, 1.); // added by SARA
+      m_jet_pt_top->Fill((*jetItr)->pt() / Gaudi::Units::GeV, 1.); // added by SARA
       if (n_jets_kinematic == 2) { // added by SARA - now I know I have (at least) two kinematic jets, so I want to fill also for 1st kinematic jet
 	m_jet_top->Fill(0., 1.); // added by SARA
-	m_jet_pt_top->Fill((*firstKinematicjetItr)->pt() / CLHEP::GeV, 1.); // added by SARA
+	m_jet_pt_top->Fill((*firstKinematicjetItr)->pt() / Gaudi::Units::GeV, 1.); // added by SARA
       }
     }
 
@@ -1178,7 +1180,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
     uint8_t nPixHits    = 0;
     uint8_t nSCTHits    = 0;
 
-    m_jet_tracks_pt->Fill(trackPart->pt() / CLHEP::GeV);
+    m_jet_tracks_pt->Fill(trackPart->pt() / Gaudi::Units::GeV);
     m_jet_tracks_eta->Fill(trackPart->eta());
     m_jet_tracks_phi->Fill(trackPart->phi());
     m_jet_tracks_d0->Fill(trackPart->d0());
@@ -1214,7 +1216,7 @@ void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_hi
     m_jet_mv_w_top->Fill(mv); // added by SARA
     if (mv > m_mv_70_weight_cut) {
       m_jet_top_tagged->Fill(0., 1.); // added by SARA
-      m_jet_pt_top_tagged->Fill(jet->pt() / CLHEP::GeV, 1.); // added by SARA
+      m_jet_pt_top_tagged->Fill(jet->pt() / Gaudi::Units::GeV, 1.); // added by SARA
     }
   }
   else { // added by SARA - fill non-top histograms
@@ -1400,17 +1402,17 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
   m_tag_mv_w->Fill(mv);   
   m_tag_mv_w_LS->Fill(mv);   
 
-  if      ( jet->pt() / CLHEP::GeV > 200. ) m_tag_mv_w_pT200->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV > 100. ) m_tag_mv_w_pT100_200->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  50. ) m_tag_mv_w_pT50_100->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  20. ) m_tag_mv_w_pT20_50->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  10. ) m_tag_mv_w_pT10_20->Fill(mv);   
+  if      ( jet->pt() / Gaudi::Units::GeV > 200. ) m_tag_mv_w_pT200->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV > 100. ) m_tag_mv_w_pT100_200->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  50. ) m_tag_mv_w_pT50_100->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  20. ) m_tag_mv_w_pT20_50->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  10. ) m_tag_mv_w_pT10_20->Fill(mv);   
 
-  if      ( jet->pt() / CLHEP::GeV > 200. ) m_tag_mv_w_pT200_LS->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV > 100. ) m_tag_mv_w_pT100_200_LS->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  50. ) m_tag_mv_w_pT50_100_LS->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  20. ) m_tag_mv_w_pT20_50_LS->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  10. ) m_tag_mv_w_pT10_20_LS->Fill(mv);   
+  if      ( jet->pt() / Gaudi::Units::GeV > 200. ) m_tag_mv_w_pT200_LS->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV > 100. ) m_tag_mv_w_pT100_200_LS->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  50. ) m_tag_mv_w_pT50_100_LS->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  20. ) m_tag_mv_w_pT20_50_LS->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  10. ) m_tag_mv_w_pT10_20_LS->Fill(mv);   
 
 
   if      ( fabs(jet->eta()) > 2.0 ) m_tag_mv_w_eta20_25->Fill(mv);   
@@ -1475,7 +1477,7 @@ bool JetTagMonitoring::passJetQualityCuts(const xAOD::Jet *jet){
  	
   if ( 
       !(
-	(hecf>0.5 && fabs(hecq)>0.5) || (fabs(negE) > 60*CLHEP::GeV) ||
+	(hecf>0.5 && fabs(hecq)>0.5) || (fabs(negE) > 60*Gaudi::Units::GeV) ||
 	(emf>0.95 && fabs(jetQuality)>0.8 && fabs(jet->eta()) < 2.8) || 
 	//(n90<=5 && hecf>0.8) || (hecf>0.5 && fabs(jetQuality)>0.5) || (emf<0.05) ||
 	(fabs(jetTime)>25) ||
@@ -1508,11 +1510,11 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   m_tag_sv1ip3d_w_sj->Fill(sv1ip3d);
   m_tag_mv_w_sj->Fill(mv);   
 
-  if      ( jet->pt() / CLHEP::GeV > 200. ) m_tag_mv_w_sj_pT200->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV > 100. ) m_tag_mv_w_sj_pT100_200->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  50. ) m_tag_mv_w_sj_pT50_100->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  20. ) m_tag_mv_w_sj_pT20_50->Fill(mv);   
-  else if ( jet->pt() / CLHEP::GeV >  10. ) m_tag_mv_w_sj_pT10_20->Fill(mv);     
+  if      ( jet->pt() / Gaudi::Units::GeV > 200. ) m_tag_mv_w_sj_pT200->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV > 100. ) m_tag_mv_w_sj_pT100_200->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  50. ) m_tag_mv_w_sj_pT50_100->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  20. ) m_tag_mv_w_sj_pT20_50->Fill(mv);   
+  else if ( jet->pt() / Gaudi::Units::GeV >  10. ) m_tag_mv_w_sj_pT10_20->Fill(mv);     
 
   if      ( fabs(jet->eta()) > 2.0 ) m_tag_mv_w_sj_eta20_25->Fill(mv);   
   else if ( fabs(jet->eta()) > 1.5 ) m_tag_mv_w_sj_eta15_20->Fill(mv);   

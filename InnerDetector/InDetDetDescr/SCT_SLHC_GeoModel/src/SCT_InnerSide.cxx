@@ -22,9 +22,9 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h" 
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+ 
 
 #include <cmath>
 
@@ -82,7 +82,7 @@ const GeoLogVol* SCT_InnerSide::preBuild(){
   //positions with respect to the center of the inner side box
   double innerSensorXPos = 0;
   //Position sensor
-  m_sensorPos = new GeoTransform(HepGeom::TranslateX3D(innerSensorXPos));
+  m_sensorPos = new GeoTransform(GeoTrf::TranslateX3D(innerSensorXPos));
   m_sensorPos->ref();
   return InnerSideLogV;
 }

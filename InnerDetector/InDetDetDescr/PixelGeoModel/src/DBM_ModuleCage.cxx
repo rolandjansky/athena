@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/DBM_ModuleCage.h"
-#include "PixelGeoModel/DBM_Module.h"
+#include "DBM_ModuleCage.h"
+#include "DBM_Module.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTransform.h"
@@ -20,7 +20,7 @@
 GeoVPhysVol* DBM_ModuleCage::Build() {
 
   // safety, to make sure volumes don't overlap
-  double safety = 0.005*CLHEP::mm;
+  double safety = 0.005*GeoModelKernelUnits::mm;
 
   // Telescope dimension
   double layerUnitY = m_gmt_mgr->DBMModuleCageY();
@@ -113,8 +113,6 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
   // Y coordinate
   double mainPlatePosY = -layerUnitY/2. + mainPlateY/2.;
 
-  CLHEP::HepRotation rm;
- 
   // store initial value Eta value 
   int tempLD = m_gmt_mgr->GetLD();
 
@@ -137,8 +135,8 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
     GeoVPhysVol* modulePhys = module.Build();
 
     Rspacing = m_gmt_mgr->DBMSpacingRadial();
-    CLHEP::Hep3Vector modulePos(0, -layerUnitY/2. + Rspacing + ceramicY/2., mainPlatePosZ[i]-mainPlateZ/2.-(ceramicZ+FEI4Z+moduleAirGap+diamondZ + kaptonZ)/2.-2*safety);
-    GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,modulePos));
+    GeoTrf::Translate3D modulePos(0, -layerUnitY/2. + Rspacing + ceramicY/2., mainPlatePosZ[i]-mainPlateZ/2.-(ceramicZ+FEI4Z+moduleAirGap+diamondZ + kaptonZ)/2.-2*safety);
+    GeoTransform* xform = new GeoTransform(modulePos);
     GeoNameTag* tag = new GeoNameTag(tag_module[i].c_str());
     containerPhys->add(tag);
     containerPhys->add(new GeoIdentifierTag(i));
@@ -147,27 +145,27 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
 
     // add main plate
 
-    CLHEP::Hep3Vector mPSideAPos((mainPlateX+mPlateWindowX)/4.+safety/2., mainPlatePosY, mainPlatePosZ[i]);
-    xform = new GeoTransform(HepGeom::Transform3D(rm,mPSideAPos));
+    GeoTrf::Translate3D mPSideAPos((mainPlateX+mPlateWindowX)/4.+safety/2., mainPlatePosY, mainPlatePosZ[i]);
+    xform = new GeoTransform(mPSideAPos);
     tag = new GeoNameTag(tag_mainPlate[i].c_str());
     containerPhys->add(tag);
     containerPhys->add(xform);
     containerPhys->add(mPSidePhys);
 
-    CLHEP::Hep3Vector mPSideBPos(-(mainPlateX+mPlateWindowX)/4.-safety/2., mainPlatePosY, mainPlatePosZ[i]);
-    xform = new GeoTransform(HepGeom::Transform3D(rm,mPSideBPos));
+    GeoTrf::Translate3D mPSideBPos(-(mainPlateX+mPlateWindowX)/4.-safety/2., mainPlatePosY, mainPlatePosZ[i]);
+    xform = new GeoTransform(mPSideBPos);
     containerPhys->add(tag);
     containerPhys->add(xform);
     containerPhys->add(mPSidePhys);
 
-    CLHEP::Hep3Vector mPBotPos(0.0, (-layerUnitY + mPlateWindowPos)/2.-safety/2., mainPlatePosZ[i]);
-    xform = new GeoTransform(HepGeom::Transform3D(rm,mPBotPos));
+    GeoTrf::Translate3D mPBotPos(0.0, (-layerUnitY + mPlateWindowPos)/2.-safety/2., mainPlatePosZ[i]);
+    xform = new GeoTransform(mPBotPos);
     containerPhys->add(tag);
     containerPhys->add(xform);
     containerPhys->add(mPCenterBotPhys);
 
-    CLHEP::Hep3Vector mPTopPos(0.0, (-layerUnitY + mainPlateY + mPlateWindowY + mPlateWindowPos)/2.+safety/2., mainPlatePosZ[i]);
-    xform = new GeoTransform(HepGeom::Transform3D(rm,mPTopPos));
+    GeoTrf::Translate3D mPTopPos(0.0, (-layerUnitY + mainPlateY + mPlateWindowY + mPlateWindowPos)/2.+safety/2., mainPlatePosZ[i]);
+    xform = new GeoTransform(mPTopPos);
     containerPhys->add(tag);
     containerPhys->add(xform);
     containerPhys->add(mPCenterTopPhys);
@@ -198,8 +196,8 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
         
     //**** add flex support
 
-    CLHEP::Hep3Vector flexSuppPos(0.0, flexSuppPosY, flexSuppPosZ);
-    xform = new GeoTransform(HepGeom::Transform3D(rm,flexSuppPos));
+    GeoTrf::Translate3D flexSuppPos(0.0, flexSuppPosY, flexSuppPosZ);
+    xform = new GeoTransform(flexSuppPos);
     tag = new GeoNameTag(tag_flex[i].c_str());
     containerPhys->add(tag);
     containerPhys->add(xform);
@@ -215,27 +213,27 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
 
       double rodPosZ = mainPlatePosZ[i] - mainPlateZ/2.0 - layer1Space/2.; // Z position of rod
 
-      CLHEP::Hep3Vector rodAPos(mPlateRod2RodX/2., topRodPosY, rodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodAPos));
+      GeoTrf::Translate3D rodAPos(mPlateRod2RodX/2., topRodPosY, rodPosZ);
+      xform = new GeoTransform(rodAPos);
       tag = new GeoNameTag(tag_rod[i].c_str());
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(rodAPhys);
 
-      CLHEP::Hep3Vector rodBPos(-mPlateRod2RodX/2., topRodPosY, rodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodBPos));
+      GeoTrf::Translate3D rodBPos(-mPlateRod2RodX/2., topRodPosY, rodPosZ);
+      xform = new GeoTransform(rodBPos);
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(rodAPhys);
 
-      CLHEP::Hep3Vector rodCPos(mPlateRod2RodX/2., botRodPosY, rodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodCPos));
+      GeoTrf::Translate3D rodCPos(mPlateRod2RodX/2., botRodPosY, rodPosZ);
+      xform = new GeoTransform(rodCPos);
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(rodAPhys);
 
-      CLHEP::Hep3Vector rodDPos(-mPlateRod2RodX/2., botRodPosY, rodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodDPos));
+      GeoTrf::Translate3D rodDPos(-mPlateRod2RodX/2., botRodPosY, rodPosZ);
+      xform = new GeoTransform(rodDPos);
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(rodAPhys);
@@ -246,27 +244,27 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
       double topRodPosZ = mainPlatePosZ[i] - mainPlateZ/2. - (Zspacing - mainPlateZ - flexSupportZ)/2.;
       double botRodPosZ = mainPlatePosZ[i] - mainPlateZ/2. - (Zspacing - mainPlateZ)/2.;
 
-      CLHEP::Hep3Vector rodAPos(mPlateRod2RodX/2., topRodPosY, topRodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodAPos));
+      GeoTrf::Translate3D rodAPos(mPlateRod2RodX/2., topRodPosY, topRodPosZ);
+      xform = new GeoTransform(rodAPos);
       tag = new GeoNameTag(tag_rod[i].c_str());
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(topRodPhys);
 
-      CLHEP::Hep3Vector rodBPos(-mPlateRod2RodX/2., topRodPosY, topRodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodBPos));
+      GeoTrf::Translate3D rodBPos(-mPlateRod2RodX/2., topRodPosY, topRodPosZ);
+      xform = new GeoTransform(rodBPos);
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(topRodPhys);
 
-      CLHEP::Hep3Vector rodCPos(mPlateRod2RodX/2., botRodPosY, botRodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodCPos));
+      GeoTrf::Translate3D rodCPos(mPlateRod2RodX/2., botRodPosY, botRodPosZ);
+      xform = new GeoTransform(rodCPos);
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(botRodPhys);
 
-      CLHEP::Hep3Vector rodDPos(-mPlateRod2RodX/2., botRodPosY, botRodPosZ);
-      xform = new GeoTransform(HepGeom::Transform3D(rm,rodDPos));
+      GeoTrf::Translate3D rodDPos(-mPlateRod2RodX/2., botRodPosY, botRodPosZ);
+      xform = new GeoTransform(rodDPos);
       containerPhys->add(tag);
       containerPhys->add(xform);
       containerPhys->add(botRodPhys);

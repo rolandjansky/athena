@@ -35,8 +35,8 @@
 #include "GeoModelKernel/GeoPgon.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
-
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 // #define DEBUG
 #ifdef DEBUG
@@ -50,7 +50,7 @@ namespace {
 	//commonly used axes
 	const Amg::Vector3D gXAxis(1.0, 0.0, 0.0), gYAxis(0.0, 1.0, 0.0), gZAxis(0.0, 0.0, 1.0);
 	//commonly used angles, ±90°, 180°
-	const double p90deg(90.0 * CLHEP::deg), m90deg(-90.0 * CLHEP::deg), p180deg(180.0 * CLHEP::deg);
+	const double p90deg(90.0 * GeoModelKernelUnits::deg), m90deg(-90.0 * GeoModelKernelUnits::deg), p180deg(180.0 * GeoModelKernelUnits::deg);
 }
 
 
@@ -522,7 +522,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     if (!shift) return 0;
     const GeoShape* shA = shift->getOp();
     //check this!
-    const Amg::Transform3D tr = Amg::CLHEPTransformToEigen(shift->getX());
+    const Amg::Transform3D tr = shift->getX();
     Amg::Transform3D newtransf = *transf * tr;
     Trk::Volume* vol = translateGeoShape(shA, &newtransf);
     return vol;
@@ -602,9 +602,9 @@ void Trk::GeoShapeConverter::decodeShape(const GeoShape* sh) const
   if ( sh->type()=="Shift") {
     const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (sh);
     const GeoShape* shA = shift->getOp();
-    const HepGeom::Transform3D transf = shift->getX();
-    std::cout << "shifted by:transl:" <<transf.getTranslation() <<", rot:"
-              << transf[0][0]<<"," << transf[1][1] <<"," << transf[2][2] << std::endl;
+    const GeoTrf::Transform3D transf = shift->getX();
+    std::cout << "shifted by:transl:" <<transf.translation() <<", rot:"
+              << transf(0,0)<<"," << transf(1,1) <<"," << transf(2,2) << std::endl;
     decodeShape(shA);
   }
 }
