@@ -241,32 +241,6 @@ class doHighPtMinBias(JobProperty):
         jobproperties.Digitization.HighPtMinBiasInputCols.set_Off()
 
 #
-class doLowPtMinBias(JobProperty):
-    """ Superimpose mixed low pt minimum bias events (pile-up) on signal events?
-         --> will activate the default LowPtMinBiasInputCols as well
-    """
-    statusOn=False
-    allowedTypes=['bool']
-    StoredValue=False
-    def _do_action(self):
-        jobproperties.Digitization.LowPtMinBiasInputCols.set_On()
-    def _undo_action(self):
-        jobproperties.Digitization.LowPtMinBiasInputCols.set_Off()
-
-#
-class doHighPtMinBias(JobProperty):
-    """ Superimpose mixed high pt minimum bias events (pile-up) on signal events?
-         --> will activate the default HighPtMinBiasInputCols as well
-    """
-    statusOn=False
-    allowedTypes=['bool']
-    StoredValue=False
-    def _do_action(self):
-        jobproperties.Digitization.HighPtMinBiasInputCols.set_On()
-    def _undo_action(self):
-        jobproperties.Digitization.HighPtMinBiasInputCols.set_Off()
-
-#
 class doCavern(JobProperty):
     """ Superimpose cavern events on signal events?
          --> will activate cavernInputCols as well
