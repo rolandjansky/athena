@@ -704,38 +704,24 @@ def getFatrasSimEngine(name="ISF_FatrasSimEngine", **kwargs):
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__TransportEngine
     return iFatras__TransportEngine(name, **kwargs )
 
+
+def getFatrasPileupSimTool(name="ISF_FatrasPileupSimTool", **kwargs):
+    kwargs.setdefault("SimHitCreatorID" , getPublicTool('ISF_FatrasPileupSimHitCreatorID'))
+    return getFatrasSimTool(name, **kwargs)
+
+
+## FatrasSimulationSvc Configurations
 def getFatrasSimServiceID(name="ISF_FatrasSimSvc", **kwargs):
     kwargs.setdefault("Identifier"      , "Fatras")
-    kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
-    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
-
-    # set the output level
-    kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
-
-    # register Fatras random number stream if not already registered
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasRnd" ):
-      simFlags.RandomSeedList.addSeed( "FatrasRnd", 81234740, 23474923 )
-
+    kwargs.setdefault("SimulatorTool"  , "ISF_FatrasSimulatorToolST")
     from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
     return iFatras__FatrasSimSvc(name, **kwargs )
+
 
 def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc", **kwargs):
-    kwargs.setdefault("Identifier"        , "Fatras")
-    kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimEngine'))
-    kwargs.setdefault("SimulationTool"    , getPublicTool('ISF_FatrasSimTool'))
-    kwargs.setdefault("UseSimulationTool" , True)
+    kwargs.setdefault("SimulatorTool"  , "ISF_FatrasNewExtrapolationSimulatorToolST")
+    return getFatrasSimServiceID(name, **kwargs )
 
-    # set the output level
-    kwargs.setdefault("OutputLevel"       , ISF_FatrasFlags.OutputLevelGeneral())
-        
-    # register Fatras random number stream if not already registered
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasRnd" ):
-      simFlags.RandomSeedList.addSeed( "FatrasRnd", 81234740, 23474923 )
-
-    from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
-    return iFatras__FatrasSimSvc(name, **kwargs )
 
 def getFatrasGeoIDFixSimServiceID(name="ISF_FatrasGeoIDFixSimSvc", **kwargs):
     kwargs.setdefault("EnableGeoIDOverride"      , True  )
@@ -743,11 +729,59 @@ def getFatrasGeoIDFixSimServiceID(name="ISF_FatrasGeoIDFixSimSvc", **kwargs):
     kwargs.setdefault("GeoIDOverride"            , 3     ) # ISF::fAtlasCalo
     return getFatrasSimServiceID(name, **kwargs )
 
-def getFatrasPileupSimTool(name="ISF_FatrasPileupSimTool", **kwargs):
-    kwargs.setdefault("SimHitCreatorID" , getPublicTool('ISF_FatrasPileupSimHitCreatorID'))
-    return getFatrasSimTool(name, **kwargs)
 
 def getFatrasPileupSimServiceID(name="ISF_FatrasPileupSimSvc", **kwargs):
+    kwargs.setdefault("SimulatorTool"  , "ISF_FatrasPileupSimulatorToolST")
+    return getFatrasSimServiceID(name, **kwargs)
+
+
+## FatrasSimulatorTool Configurations
+def getFatrasSimulatorToolST(name="ISF_FatrasSimulatorToolST", **kwargs):
+    kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
+    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
+    # set the output level
+    kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
+    # register Fatras random number stream if not already registered
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasRnd" ):
+      simFlags.RandomSeedList.addSeed( "FatrasRnd", 81234740, 23474923 )
+    return CfgMgr.ISF__FatrasSimTool(name, **kwargs)
+
+
+def getFatrasSimulatorTool(name="ISF_FatrasSimulatorTool", **kwargs):
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonFatrasSelector' ]    )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
+    return getFatrasSimulatorToolST(name, **kwargs)
+
+
+def getFatrasNewExtrapolationSimulatorToolST(name="ISF_FatrasNewExtrapolationSimulatorToolST", **kwargs):
+    kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimEngine'))
+    kwargs.setdefault("UseSimulationTool" , True)
+    return getFatrasSimulatorToolST(name, **kwargs)
+
+
+def getFatrasNewExtrapolationSimulatorTool(name="ISF_FatrasSNewExtrapolationimulatorTool", **kwargs):
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonFatrasSelector' ]    )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
+    return getFatrasNewExtrapolationSimulatorToolST(name, **kwargs)
+
+
+def getFatrasPileupSimulatorToolST(name="ISF_FatrasPileupSimulatorToolST", **kwargs):
     kwargs.setdefault("IDSimulationTool", getPublicTool('ISF_FatrasPileupSimTool'))
     kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
-    return getFatrasSimServiceID(name, **kwargs)
+    return getFatrasSimulatorToolST(name, **kwargs)
+
+
+def getFatrasPileupSimulatorTool(name="ISF_FatrasPileupSimulatorTool", **kwargs):
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonFatrasSelector' ]    )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
+    return getFatrasPileupSimulatorToolST(name, **kwargs)
+
+
+#def getFatrasPileupSimulatorTool_noHits(name="ISF_FatrasPileupTool_noHits", **kwargs):
+#    kwargs.setdefault("SimService", "ISF_FatrasPileupSimSvc_noHits" )
+#    return CfgMgr.ISF__FatrasSimTool(name, **kwargs)
+
