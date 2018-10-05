@@ -9,6 +9,7 @@
 # * Then checks if a correction algorithm was already added to the sequence
 #   based on the algorithm name (only)
 
+from JetRec.JetRecConf import JetToolRunner
 from RecExConfig.AutoConfiguration import IsInInputFile
 containerexists = IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects")
 
@@ -25,4 +26,4 @@ if not (containerexists or algexists):
 
     from JetRec.JetRecConf import JetAlgorithm
     job += JetAlgorithm("jetalgCHSPFlow",
-                        Tools=jtm.jetconstitCHSPFlow)
+                        Tools=[jtm.jetconstitCHSPFlow])
