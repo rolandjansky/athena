@@ -231,11 +231,8 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
     Trk::FitQualityOnSurface* fitQuality = 0;
 
-    // Track update alternates between update and getUnbiasedTrackParams
-    Trk::IUpdator* updatorPointer = &(*m_updator);
-    updatedTrackParameters = (updatorPointer->*updator) ( *(*component).first, measurement.localParameters(), measurement.localCovariance(), fitQuality );
-
-    //updatedTrackParameters = m_updator->addToState( *(*component).first, measurement.localParameters(), measurement.localCovariance(), fitQuality );
+    // Track updates using a pointer to the member function
+    updatedTrackParameters = ((&(*m_updator))->*updator)( *(*component).first, measurement.localParameters(), measurement.localCovariance(), fitQuality );
 
     if ( !updatedTrackParameters ) {
       ATH_MSG_DEBUG( "Update of state with Measurement has failed 1... Exiting!");
