@@ -44,7 +44,7 @@ class SCTRawDataProvider : public AthAlgorithm
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
 
   //! Destructur
-  ~SCTRawDataProvider() = default;
+  virtual ~SCTRawDataProvider() = default;
 
   //! Initialize
   virtual StatusCode initialize() override;
