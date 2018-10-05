@@ -91,11 +91,11 @@ StatusCode SCTRawDataProvider::execute()
   //// do we need this??  rdoIdc->cleanup();
 
   /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
-  std::vector<const ROBFragment*> listOfROBFrags;
+  std::vector<const ROBFragment*> vecROBFrags;
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList);
-    m_robDataProvider->getROBData(rodList , listOfROBFrags);
+    m_robDataProvider->getROBData(rodList , vecROBFrags);
   } 
   else {
     //Only load ROBs from RoI
@@ -109,22 +109,22 @@ StatusCode SCTRawDataProvider::execute()
       superRoI.push_back(roi);
     }
     m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
-    m_robDataProvider->getROBData(listOfROBs, listOfROBFrags);
+    m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
   }
 
 
-  ATH_MSG_DEBUG("Number of ROB fragments " << listOfROBFrags.size());
+  ATH_MSG_DEBUG("Number of ROB fragments " << vecROBFrags.size());
 
   SG::WriteHandle<InDetTimeCollection> lvl1Collection{m_lvl1CollectionKey};
-  lvl1Collection = std::make_unique<InDetTimeCollection>(listOfROBFrags.size()); 
+  lvl1Collection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
   ATH_CHECK(lvl1Collection.isValid());
 
   SG::WriteHandle<InDetTimeCollection> bcIdCollection{m_bcIdCollectionKey};
-  bcIdCollection = std::make_unique<InDetTimeCollection>(listOfROBFrags.size()); 
+  bcIdCollection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
   ATH_CHECK(bcIdCollection.isValid());
 
-  //std::vector<const ROBFragment*>::const_iterator rob_it{listOfROBFrags.begin()};
-  for (const ROBFragment* robFrag : listOfROBFrags) {
+  //std::vector<const ROBFragment*>::const_iterator rob_it{vecROBFrags.begin()};
+  for (const ROBFragment* robFrag : vecROBFrags) {
     
     uint32_t robId{(robFrag)->rod_source_id()};
     /**
@@ -149,7 +149,7 @@ StatusCode SCTRawDataProvider::execute()
   ISCT_RDO_Container *rdoInterface = externalCacheRDO ? static_cast< ISCT_RDO_Container*> (dummyRDO.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfROBFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
+  if (m_rawDataTool->convert(vecROBFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
   if (dummyRDO) dummyRDO->MergeToRealContainer(rdoContainer.ptr());

@@ -44,19 +44,19 @@ StatusCode SCTRawDataProviderTool::initialize()
 // -------------------------------------------------------
 // Convert method
 
-StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBs,
+StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
                                            ISCT_RDO_Container& rdoIdCont,
                                            InDetBSErrContainer* errs,
                                            SCT_ByteStreamFractionContainer* bsFracCont) const
 {
-  if (vecROBs.empty()) return StatusCode::SUCCESS;
+  if (vecROBFrags.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
   StatusCode sc{StatusCode::SUCCESS};
 
   // loop over the ROB fragments
 
-  for (const ROBFragment* robFrag : vecROBs) {
+  for (const ROBFragment* robFrag : vecROBFrags) {
     // get the ID of this ROB/ROD
     uint32_t robid{(robFrag)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
