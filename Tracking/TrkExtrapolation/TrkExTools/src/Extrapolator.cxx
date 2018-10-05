@@ -48,10 +48,27 @@
 
 // Trk
 #include "TrkSurfaces/PlaneSurface.h"
-
 #include <memory>
+
 namespace{
 constexpr double s_distIncreaseTolerance = 100. * Gaudi::Units::millimeter;
+
+/*
+ * Helper method for the very detailed validation counters
+ */
+typedef  tbb::concurrent_unordered_map<const Trk::TrackingVolume*,std::atomic<int>> mapOfCounters_t;
+void counterMapHelper(mapOfCounters_t& counterMap, const Trk::TrackingVolume* volume){
+  //first see if the element is there
+  auto search=counterMap.find(volume);
+  if(search!=counterMap.end()){
+    //atomic increment
+    search->second.fetch_add(1);
+  }
+  else{
+    //new atomic element
+    counterMap.emplace(volume,1);
+  }
+}
 }
 
 // constructor
@@ -341,8 +358,8 @@ Trk::Extrapolator::finalize() {
     if (m_navigationBreakDetails && msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG("   Detailed output for Navigation breaks             : ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakLoop << " loops occured in the following volumes:    ");
-      std::map<const Trk::TrackingVolume *, int>::iterator volIter = m_loopVolumes.begin();
-      std::map<const Trk::TrackingVolume *, int>::iterator volIterEnd = m_loopVolumes.end();
+      auto volIter = m_loopVolumes.begin();
+      auto volIterEnd = m_loopVolumes.end();
       for (; volIter != volIterEnd; ++volIter) {
         ATH_MSG_DEBUG(
           "          - " << volIter->second << '\t' << " times in '" << (volIter->first)->volumeName() << "'");
@@ -613,7 +630,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
       // debug statistics
       ++m_navigationBreakVolumeSignature;
       if (m_navigationBreakDetails) {
-        ++m_volSignatureVolumes[nextVolume];
+        counterMapHelper(m_volSignatureVolumes,nextVolume);  
       }
       // trigger the fallback solution
       fallback = true;
@@ -753,7 +770,9 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
 	// statistics
 	++m_navigationBreakLoop;
 	// record the oscillation volume -- increase the counter for the volume
-	if (m_navigationBreakDetails) ++m_loopVolumes[nextVolume];
+	if (m_navigationBreakDetails) {
+   counterMapHelper(m_loopVolumes,nextVolume);
+  }
 	// fallback flag
 	fallback = true;
 	// break it
@@ -772,7 +791,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
         ++navigationBreakOscillation;
         // record the oscillation volume -- increase the counter for the volume
         if (m_navigationBreakDetails) {
-          ++m_oscillationVolumes[nextVolume];
+          counterMapHelper(m_oscillationVolumes,nextVolume);  
         }
         // fallback flag
         fallback = true;
@@ -795,7 +814,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
       ++navigationBreakNoVolume;
       // record the "no next" volume -- increase the counter for the (last) volume
       if (m_navigationBreakDetails) {
-        ++m_noNextVolumes[lastVolume];
+      counterMapHelper(m_noNextVolumes,lastVolume);
       }
       // fallback flag
       fallback = true;
@@ -818,8 +837,8 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
       // statistics
       ++navigationBreakDistIncrease;
       // record the "dist increase" volume -- increase the counter for the volume
-      if (m_navigationBreakDetails) {
-        ++m_distIncreaseVolumes[nextVolume];
+      if (m_navigationBreakDetails) { 
+        counterMapHelper(m_distIncreaseVolumes,nextVolume);  
       }
       // fallback flag
       fallback = true;

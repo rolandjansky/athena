@@ -40,10 +40,10 @@
 #include "xAODTracking/NeutralParticle.h"
 
 #include "GaudiKernel/Counters.h"
+#include "tbb/concurrent_unordered_map.h"
 
 class MsgStream;
 namespace Trk {
-
   class Track;
   class Surface;
   class Layer;
@@ -61,7 +61,6 @@ namespace Trk {
   class ExtrapolationCache;
  
   typedef std::vector<const Trk::TrackParameters*> TrackParametersVector;
-
   typedef std::pair< const Surface*, BoundaryCheck > DestSurf;
 
   /** @struct ParametersAtBoundarySurface
@@ -800,11 +799,12 @@ namespace Trk {
     mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchSuccessfulFw;           //!< how often the meot search was successful: forward
     mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchSuccessfulBw;           //!< how often the meot search was successful: backward
 
-    mutable std::map<const Trk::TrackingVolume*,int> m_loopVolumes;   //!< record name of the volumes where oscillation happened
-    mutable std::map<const Trk::TrackingVolume*,int> m_oscillationVolumes;    //!< record name of the volumes where oscillation happened
-    mutable std::map<const Trk::TrackingVolume*,int> m_distIncreaseVolumes;   //!< record name of  the voluems where the distance increases
-    mutable std::map<const Trk::TrackingVolume*,int> m_noNextVolumes;         //!< record names of the volumes where no next one is found
-    mutable std::map<const Trk::TrackingVolume*,int> m_volSignatureVolumes;   //!< record name of  the voluems where the distance increases
+    typedef  tbb::concurrent_unordered_map<const Trk::TrackingVolume*,std::atomic<int>> mapOfCounters_t;  
+    mutable mapOfCounters_t m_loopVolumes;   //!< record name of the volumes where oscillation happened
+    mutable mapOfCounters_t m_oscillationVolumes;    //!< record name of the volumes where oscillation happened
+    mutable mapOfCounters_t m_distIncreaseVolumes;   //!< record name of  the voluems where the distance increases
+    mutable mapOfCounters_t m_noNextVolumes;         //!< record names of the volumes where no next one is found
+    mutable mapOfCounters_t m_volSignatureVolumes;   //!< record name of  the volumes where the distance increases
     // ------------------------------- cache --------------------------------------------------------------------
 
     mutable const Layer*                                       m_lastMaterialLayer; //!< cache layer with last material update
@@ -889,17 +889,6 @@ inline const Trk::TrackParameters* Extrapolator::returnResult(const Trk::TrackPa
     // return the result
     return result;
 }
-
-/*
-inline unsigned int Extrapolator::geoIDToDetOrder(Trk::GeometrySignature geoid) const
-{
-  if ( geoid == Trk::ID ) return 0;
-  else if ( geoid == Trk::Calo ) return 1;
-  else if ( geoid == Trk::MS ) return 2;
-  
-  return 0; 
-}
-*/
 
 } // end of namespace
 
