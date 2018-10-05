@@ -35,11 +35,11 @@ constexpr double s_mpv_p2 = -4.85133e-01;
 // constructor
 Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
+  m_stragglingErrorScale(1.),
+  m_mpvScale(0.98),
   m_useTrkUtils(true),
   m_gaussianVavilovTheory(false),
   m_useBetheBlochForElectrons(true),
-  m_stragglingErrorScale(1.),
-  m_mpvScale(0.98),
   m_mpvSigmaParametric(false),
   m_detailedEloss(true),
   m_optimalRadiation(true) {

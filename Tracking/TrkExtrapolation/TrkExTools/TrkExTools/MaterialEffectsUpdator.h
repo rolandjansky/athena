@@ -18,10 +18,13 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
+
 #include <vector>
 #include <string>
-#define TRKEXTOOLS_MAXUPDATES 100
 
+#include <boost/thread/tss.hpp>
+
+#define TRKEXTOOLS_MAXUPDATES 100
 #ifndef COVARIANCEUPDATEWITHCHECK
 #define COVARIANCEUPDATEWITHCHECK(cov, sign, value) cov += ( sign > 0 ? value : ( value > cov ? 0 : sign*value ) )
 #endif
@@ -65,9 +68,9 @@ class MaterialEffectsUpdator : public AthAlgTool,
     virtual ~MaterialEffectsUpdator();
 
     /** AlgTool initailize method.*/
-    StatusCode initialize() override;
+    virtual StatusCode initialize() override ;
     /** AlgTool finalize method */
-    StatusCode finalize()  override;
+    StatusCode finalize()  override ;
 
     /*
      * The concrete cache class for this specialization of the IMaterialEffectsUpdator
@@ -90,7 +93,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
 
     virtual std::unique_ptr<ICache> getCache() const override {
       return std::make_unique<Cache>();
-    }
+  }
 
     /** Updator interface (full update for a layer)
       ---> ALWAYS the same pointer is returned
@@ -101,7 +104,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            const Layer& sf,
                                            PropDirection dir=alongMomentum,
                                            ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
@@ -116,7 +119,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
                                            const MaterialEffectsOnTrack& meff,
                                            Trk::ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = updateImpl(cache,parm,meff,particle,matupmode);
@@ -132,7 +135,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                const Layer& sf,
                                                PropDirection dir=alongMomentum,
                                                ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const override{
+                                               MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = preUpdateImpl(cache,parm,sf,dir,particle,matupmode);
@@ -159,7 +162,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                double pathcorrection,
                                                PropDirection dir=alongMomentum,
                                                ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const override{
+                                               MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = updateImpl(cache,parm,mprop,pathcorrection,dir,particle,matupmode);
@@ -167,7 +170,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     }
 
     /** Validation Action - calls the writing and resetting of the TTree variables */
-    virtual void validationAction(ICache& icache) const override{
+    virtual void validationAction(ICache& icache) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       validationActionImpl(cache);
@@ -177,7 +180,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     /** Only has an effect if m_landauMode == true.
       Resets mutable variables used for non-local calculation of energy loss if
       parm == 0. Otherwise, modifies parm with the final update of the covariance matrix*/
-    virtual void modelAction(ICache& icache, const TrackParameters* parm = 0) const override{
+    virtual void modelAction(ICache& icache, const TrackParameters* parm = 0) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       modelActionImpl(cache,parm);
@@ -192,7 +195,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                             const Layer& sf,
                                             PropDirection dir=alongMomentum,
                                             ParticleHypothesis particle=pion,
-                                            MaterialUpdateMode matupmode=addNoise) const override{
+                                            MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
@@ -202,7 +205,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     virtual const TrackParameters*  update(const TrackParameters* parm,
                                            const MaterialEffectsOnTrack& meff,
                                            Trk::ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,meff,particle,matupmode);
       return outparam;
@@ -212,7 +215,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                 const Layer& sf,
                                                 PropDirection dir=alongMomentum,
                                                 ParticleHypothesis particle=pion,
-                                                MaterialUpdateMode matupmode=addNoise) const override{
+                                                MaterialUpdateMode matupmode=addNoise) const override {
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = preUpdateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
@@ -233,7 +236,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            double pathcorrection,
                                            PropDirection dir=alongMomentum,
                                            ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,mprop,pathcorrection,dir,particle,matupmode);
       return outparam;
@@ -245,7 +248,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       return;
     }
 
-    virtual void modelAction(const TrackParameters* parm = 0) const override{
+    virtual void modelAction(const TrackParameters* parm = 0) const override {
       Cache& cache = getTLSCache();
       modelActionImpl(cache,parm);  
       return;
@@ -328,13 +331,13 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ToolHandle< IMaterialMapper > m_materialMapper;            //!< the material mapper for recording the layer material 
     
     /*
-     *  TLS part
-     *  The solution adopted here is an effort to implement 
+     * TLS part
+     * The solution adopted here is an effort to implement 
      * "Schmidt, Douglas & Pryce, Nat & H. Harrison, Timothy. (1998). 
      * Thread-Specific Storage for C/C++ - An Object
      * Behavioral Pattern for Accessing per-Thread State Efficiently."
      * Published in "More C++ Gems (SIGS Reference Library)".
-     * Adopted here via boost::thread_specific_ptr
+     * Done here via boost::thread_specific_ptr
      */
 
     mutable boost::thread_specific_ptr<Cache> m_cache_tls;
@@ -346,8 +349,6 @@ class MaterialEffectsUpdator : public AthAlgTool,
       }
       return *cache; 
     }
-
-
   };
 } // end of namespace
 
