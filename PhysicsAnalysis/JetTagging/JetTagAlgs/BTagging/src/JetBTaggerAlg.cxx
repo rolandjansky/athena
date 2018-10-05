@@ -25,7 +25,7 @@ namespace Analysis {
   JetBTaggerAlg::JetBTaggerAlg(const std::string& n, ISvcLocator *p) : 
     AthAlgorithm(n,p),
     m_bTagTool("Analysis::BTagTool",this),
-    m_BTagTrackAssocTool("Analysis::BTagTrackAssociation"),
+    m_BTagTrackAssocTool("Analysis::BTagTrackAssociation",this),
     m_bTagSecVtxTool("Analysis::BTagSecVertexing",this),
     m_magFieldSvc("AtlasFieldSvc",n)
   {

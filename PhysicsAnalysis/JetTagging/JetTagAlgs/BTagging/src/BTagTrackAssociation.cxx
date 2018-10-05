@@ -13,14 +13,8 @@
 #include "xAODJet/Jet.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
-// #include "Particle/TrackParticle.h" 
-//#include "Particle/TrackParticleContainer.h"
 
 #include "ParticleJetTools/ParticleToJetAssociator.h"
-
-// // // For Soft Lepton Tag
-// #include "egammaEvent/ElectronAssociation.h"
-// #include "egammaEvent/PhotonAssociation.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
@@ -30,23 +24,20 @@ namespace Analysis {
 
   BTagTrackAssociation::BTagTrackAssociation(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_BTagAssociation(true)
+    m_BTagAssociation(true),
+    m_TrackToJetAssociatorList(this),
+    m_MuonToJetAssociatorList(this)
   {
       declareInterface<IBTagTrackAssociation>(this);
       declareProperty( "BTagAssociation",                     m_BTagAssociation);
 
       declareProperty( "TrackToJetAssociatorList",            m_TrackToJetAssociatorList);
-      declareProperty( "ElectronToJetAssociatorList",         m_ElectronToJetAssociatorList );
       declareProperty( "MuonToJetAssociatorList",             m_MuonToJetAssociatorList );
 
       declareProperty( "TrackToJetAssocNameList",             m_TrackToJetAssocNameList);
-      declareProperty( "ElectronToJetAssocNameList",          m_ElectronToJetAssocNameList);
-      declareProperty( "PhotonToJetAssocNameList",            m_PhotonToJetAssocNameList);
       declareProperty( "MuonToJetAssocNameList",              m_MuonToJetAssocNameList);
 
       declareProperty( "TrackContainerNameList",              m_TrackContainerNameList);
-      declareProperty( "ElectronContainerNameList",           m_ElectronContainerNameList ); //for SoftEl
-      declareProperty( "PhotonContainerNameList",             m_PhotonContainerNameList);   //for SoftEl
       declareProperty( "MuonContainerNameList",               m_MuonContainerNameList );     //for SoftMu
 
 
@@ -83,21 +74,6 @@ namespace Analysis {
         ATH_MSG_INFO("Retrieved tools " << m_TrackToJetAssociatorList);
       }
     }
-
-    // It isn't obvious that we will need the electron association in the future; so comment it out
-    // if(2*m_ElectronToJetAssociatorList.size() != m_ElectronContainerNameList.size() + m_PhotonContainerNameList.size()){ // because use the same tool for electrons and photons
-    //   msg( MSG::FATAL ) << "Size mismatch between electron/photon assoc tools("
-    // 			<<m_ElectronToJetAssociatorList.size()<<") and names( "
-    // 			<<m_ElectronContainerNameList.size()<< "+" << m_PhotonContainerNameList.size()<<  ")"  << endmsg;
-    //   return StatusCode::FAILURE;
-    // }
-    // if(m_ElectronToJetAssociatorList.retrieve().isFailure() ) {
-    //   msg( MSG::FATAL ) << "Failed to retrieve tools " << m_ElectronToJetAssociatorList << endmsg;
-    //   return StatusCode::FAILURE;
-    // } else {
-    //   msg( MSG::INFO ) << "Retrieved tools " << m_ElectronToJetAssociatorList << endmsg;
-    // }
-
 
      if(m_MuonToJetAssociatorList.size() != m_MuonContainerNameList.size()){
        ATH_MSG_FATAL("Size mismatch between muon assoc tools("
