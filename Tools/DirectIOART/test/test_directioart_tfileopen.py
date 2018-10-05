@@ -39,3 +39,4 @@ outstr = """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 </POOLFILECATALOG>"""
 with open("PoolFileCatalog.xml", "w") as outfile:
   outfile.write(outstr)
+
