@@ -15,6 +15,11 @@ StreamTagMakerTool::~StreamTagMakerTool() {
 
 StatusCode StreamTagMakerTool::initialize() {  
   // decode mapping
+  for ( auto& chainAndStream: m_chainToStreamProperty ) {
+    struct { std::string chain, stream; } conf { chainAndStream.first, chainAndStream.second };    
+    m_mapping[ HLT::Identifier( conf.chain ) ] = eformat::helper::StreamTag( conf.stream, "physics", true );
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -41,11 +46,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   }
 
   // push back ST vector to HLTResultMT
-
-
-
-
-  // make sure thy are unique
+  // make sure ST vector contains only unique content
   std::sort( streams.begin(), streams.end() );
   streams.erase( std::unique( streams.begin(), streams.end() ),  streams.end() );
   
