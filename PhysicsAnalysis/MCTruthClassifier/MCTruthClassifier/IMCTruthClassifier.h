@@ -51,7 +51,7 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMCTruthClassifier)
     public:
 #ifndef XAOD_ANALYSIS
-    typedef  std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>> Cache;
+    typedef  Trk::IParticleCaloExtensionTool::Cache Cache;
 #endif
   // Additional information that can be returned by the classifier.
   // Originally, these were all held in member variables in the classifier,
