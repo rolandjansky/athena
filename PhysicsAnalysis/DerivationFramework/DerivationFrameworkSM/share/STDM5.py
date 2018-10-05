@@ -261,6 +261,7 @@ STDM5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxA
 
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 STDM5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+STDM5SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *

@@ -622,6 +622,8 @@ namespace top {
                 systematicTree->makeOutputVariable(m_el_CF, "el_CF");
                 systematicTree->makeOutputVariable(m_el_d0sig, "el_d0sig");
                 systematicTree->makeOutputVariable(m_el_delta_z0_sintheta, "el_delta_z0_sintheta");
+		systematicTree->makeOutputVariable(m_el_ECIDS,"m_el_ECIDS");
+		systematicTree->makeOutputVariable(m_el_ECIDSResult,"m_el_ECIDSResult");
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_el_true_type,      "el_true_type");
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
@@ -1798,6 +1800,8 @@ namespace top {
                 m_el_trigMatched[trigger.first].resize(n_electrons);
             m_el_d0sig.resize(n_electrons);
             m_el_delta_z0_sintheta.resize(n_electrons);
+	    m_el_ECIDS.resize(n_electrons);
+	    m_el_ECIDSResult.resize(n_electrons);
             if (m_config->isMC()) {
               m_el_true_type.resize(n_electrons);
               m_el_true_origin.resize(n_electrons);
@@ -1807,6 +1811,10 @@ namespace top {
 	      m_el_true_isPrompt.resize(n_electrons);
 	      m_el_true_isChargeFl.resize(n_electrons);
             }
+
+	    static SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
+	    static SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
+
 
             for (const auto* const elPtr : event.m_electrons) {
                 m_el_pt[i] = elPtr->pt();
@@ -1833,6 +1841,9 @@ namespace top {
                 if( elPtr->isAvailable<float>("delta_z0_sintheta") )
                     m_el_delta_z0_sintheta[i] = elPtr->auxdataConst<float>("delta_z0_sintheta");
 
+		m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
+		m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
+
                 //retrieve the truth-matching variables from MCTruthClassifier
                 if (m_config->isMC()) {
                   m_el_true_type[i] = 0;
@@ -1845,7 +1856,7 @@ namespace top {
 		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
                   static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
                   static SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
-
+		  
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
 		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);

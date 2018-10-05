@@ -411,6 +411,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoPhiReso",  m_doPhiReso);
 
   //JETS
+  declareProperty( "JetInputType",  m_jetInputType );
+
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
   declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
 
@@ -982,9 +984,9 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
     m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
-    // Remove the item from the table
-    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Jet.InputType") );
   }
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Jet.InputType") );
 
   if (m_muId == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("Muon.Id", 1);

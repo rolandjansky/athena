@@ -78,6 +78,12 @@ MultiBJet_2018 = [
     'HLT_3j35_bmv2c1070_split_j35_L14J15.0ETA25',
     'HLT_4j35_bmv2c1077_split_L14J15.0ETA25',
     'HLT_2j35_bmv2c1070_split_2j35_bmv2c1085_split_L14J15.0ETA25',
+    'HLT_j175_gsc225_bmv2c1040_split',
+    'HLT_j225_gsc275_bmv2c1060_split',
+    'HLT_j225_gsc300_bmv2c1070_split',
+    'HLT_j225_gsc360_bmv2c1077_split',
+    'HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split',
+    'HLT_j60_gsc85_bmv2c1050_split_3j60_gsc85_boffperf_split',
 ]
 
 
@@ -178,6 +184,14 @@ MultiBJet_2017 = [
     'HLT_2j25_gsc45_bmv2c1050_split_2j25_gsc45_boffperf_split_L14J15.0ETA25',
     'HLT_2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25',
     'HLT_2j35_gsc55_bmv2c1060_split_2j35_gsc55_boffperf_split_L14J15.0ETA25',
+    'HLT_j150_gsc175_bmv2c1070_split_j45_gsc60_bmv2c1070_split ',
+    'HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1077_split_L1J85_3J30',
+    'HLT_2j15_gsc35_bmv2c1060_split_3j15_gsc35_boffperf_split',
+    'HLT_2j25_gsc45_bmv2c1070_split_3j25_gsc45_boffperf_split',
+    'HLT_3j15_gsc35_bmv2c1070_split_j15_gsc35_boffperf_split_L14J15.0ETA25',
+    'HLT_4j15_gsc35_bmv2c1077_split_L14J15.0ETA25',
+    'HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25',
+    'HLT_3j50_gsc65_bmv2c1077_split_L13J35.0ETA23',
 ]
 
 
@@ -245,6 +259,13 @@ JetTrigger_2016 = [
 MultiBJet_2016 = [
     'HLT_2j35_bmv2c2050_split_2j35_L14J15.0ETA25',
     'HLT_2j35_bmv2c2060_split_2j35_L14J15.0ETA25',
+    'HLT_2j45_bmv2c2077_split_3j45_L14J15.0ETA25',
+    'HLT_2j55_bmv2c2060_split_ht300_L14J15',
+    'HLT_2j70_bmv2c2060_split_j70',
+    'HLT_2j75_bmv2c2070_split_j75',
+    'HLT_j100_2j55_bmv2c2060_split',
+    'HLT_j150_bmv2c2060_split_j50_bmv2c2060_split',
+    'HLT_j175_bmv2c2060_split_j50_bmv2c2050_split',
 ]
 
 # 2015 menu
@@ -277,4 +298,9 @@ SinglePhoton_2015 = [
 
 MultiBJet_2015 = [
     'HLT_2j35_btight_2j35_L13J25.0ETA23',
+    'HLT_2j45_bmedium_2j45_L13J25.0ETA23',
+    'HLT_j100_2j55_bmedium',
+    'HLT_j150_bmedium_j50_bmedium',
+    'HLT_2j65_btight_j65',
+    'HLT_2j70_bmedium_j70',
 ]

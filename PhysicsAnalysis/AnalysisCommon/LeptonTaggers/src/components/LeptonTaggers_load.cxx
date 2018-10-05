@@ -1,4 +1,4 @@
 
 #include "GaudiKernel/LoadFactoryEntries.h"
 
-LOAD_FACTORY_ENTRIES(JetTagNonPromptLepton)
+LOAD_FACTORY_ENTRIES(LeptonTaggers)

@@ -475,6 +475,8 @@ private:
     std::vector<int>   m_el_true_firstEgMotherPdgId;
     std::vector<char>  m_el_true_isPrompt;
     std::vector<char>  m_el_true_isChargeFl;
+    std::vector<char>  m_el_ECIDS;
+    std::vector<double>  m_el_ECIDSResult;
 
     //muons
     std::vector<float> m_mu_pt;
