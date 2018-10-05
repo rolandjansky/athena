@@ -216,23 +216,17 @@ namespace InDet{
 
     MsgStream&    operator << (MsgStream&   ,const SiTrackMakerITk_xk&);
     std::ostream& operator << (std::ostream&,const SiTrackMakerITk_xk&); 
-
-    ///////////////////////////////////////////////////////////////////
-    // min pT as function of fabs(dZ/dR) (T)
-    ///////////////////////////////////////////////////////////////////
-  
-    inline double SiTrackMakerITk_xk::pTmin(double T)
+    
+    inline double SiTrackMakerITk_xk::pTmin(double eta)
     {
       if (m_ptbins.size() == 0) return m_pTmin;
-      
-      double eta = fabs(-log(tan(0.5*T)));
+      double aeta = fabs(eta);
       for(int n = int(m_ptbins.size()-1); n>=0; --n) {
-        if(eta > m_etabins.at(n)) return m_ptbins.at(n);
+        if(aeta > m_etabins.at(n)) return m_ptbins.at(n);
       }
       
       return m_pTmin;
     }
-    
 } // end of name space
 
 #endif // SiTrackMakerITk_xk_H

@@ -301,7 +301,6 @@ MsgStream&  InDet::SiTrackMakerITk_xk::dump( MsgStream& out ) const
 
 MsgStream& InDet::SiTrackMakerITk_xk::dumpconditions( MsgStream& out ) const
 {
-
   int n      = 62-m_tracksfinder.type().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
@@ -975,8 +974,8 @@ const Trk::TrackParameters* InDet::SiTrackMakerITk_xk::getAtaPlane
       m_p[5] = .9/m_pTmin  ;
   }
 
-  double pTm = pTmin(T) ;
-
+  double pTm = pTmin((*is)->eta());    // all spacepoints should have approx. same eta
+  
   if(fabs(m_p[5])*pTm > 1.) return 0; 
   m_p[4] = m_p[5]/sqrt(1.+T*T);
   m_p[6] = x0                              ;

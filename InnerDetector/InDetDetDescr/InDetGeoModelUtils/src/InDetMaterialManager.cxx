@@ -251,7 +251,7 @@ InDetMaterialManager::getMaterialInternal(const std::string & origMaterialName,
   // First see if we already have the modified material
   const GeoMaterial* material = getAdditionalMaterial(newName2);
   if (material) {
-    if( abs(material->getDensity()-density) >0.001*density){
+    if( abs(material->getDensity()/(CLHEP::gram/CLHEP::cm3)-density/(CLHEP::gram/CLHEP::cm3)) >0.001*density/(CLHEP::gram/CLHEP::cm3)){
       msg(MSG::WARNING) << "Density is not consistent for material " << newName2
 			<< "  "<<material->getDensity()/(CLHEP::gram/CLHEP::cm3)
 			<<" / "<<density/(CLHEP::gram/CLHEP::cm3)
@@ -259,7 +259,7 @@ InDetMaterialManager::getMaterialInternal(const std::string & origMaterialName,
     }
     newMaterial = material;
   } else {
-    const GeoMaterial * origMaterial = getMaterialInternal(origMaterialName);    
+    const GeoMaterial * origMaterial = getMaterialInternal(origMaterialName); 
     newMaterial = origMaterial;
     if (origMaterial) {
       // If no new name was provided we check if the density is compatible
