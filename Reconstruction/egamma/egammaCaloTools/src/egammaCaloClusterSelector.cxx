@@ -143,12 +143,11 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
 // return the bin number given the EM Et.
 int egammaCaloClusterSelector::findETBin(double EMEt) const
 {
-  int numBins = m_EMEtRanges.size();
-  int bin = -1;
-  int newBin = bin+1;
+  const int numBins = m_EMEtRanges.size();
+  int newBin = 0;
   while (newBin < numBins && EMEt > m_EMEtRanges[newBin]) {
-    bin = newBin;
+    newBin++;
   }
-  return bin;
+  return newBin - 1;
 }
      
