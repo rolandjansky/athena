@@ -39,8 +39,9 @@
 #include "xAODTracking/TrackParticle.h" 
 #include "xAODTracking/NeutralParticle.h"
 
-class MsgStream;
+#include "GaudiKernel/Counters.h"
 
+class MsgStream;
 namespace Trk {
 
   class Track;
@@ -709,9 +710,7 @@ namespace Trk {
     bool                            m_extendedLayerSearch;           //!< extended layer search
     unsigned int                    m_initialLayerAttempts;          //!< allowed layer intersection attempts at the start of a volume
     unsigned int                    m_successiveLayerAttempts;       //!< layer intersection attemps after one layer has been hit sucessfully
-
     double                          m_tolerance;                    //!< surfacen & volume tolerance
-    
     // ------------------------------------------------------- //      
    
     bool                            m_activeOverlap;                 //!<  consider overlaps between active muon volumes  
@@ -769,44 +768,43 @@ namespace Trk {
     bool                            m_printHelpOutputAtInitialize;
     bool                            m_printRzOutput;
 
-    //------------------------- VALIDATION MODE SECTION ------------------------------------------//
-
-    mutable int                     m_extrapolateCalls;              //!< number of calls: extrapolate() method
-    mutable int                     m_extrapolateBlindlyCalls;       //!< number of calls: extrapolateBlindly() method 
-    mutable int                     m_extrapolateDirectlyCalls;      //!< number of calls: extrapolateDirectly() method
-    mutable int                     m_extrapolateStepwiseCalls;      //!< number of calls: extrapolateStepwise() method
-
-    mutable int                     m_startThroughAssociation;        //!< navigation intialization
-    mutable int                     m_startThroughRecall;             //!< navigation intialization
-    mutable int                     m_startThroughGlobalSearch;       //!< navigation intialization
-    mutable int                     m_destinationThroughAssociation;  //!< navigation intialization
-    mutable int                     m_destinationThroughRecall;       //!< navigation intialization
-    mutable int                     m_destinationThroughGlobalSearch; //!< navigation intialization
-    
-    mutable int                     m_layerSwitched;                 //!< number of layers that have been switched 
-
-    // ----------------------------- navigation validation section -----------------------------------------------------------
-
+    //------------------------- VALIDATION  SECTION ------------------------------------------//
+    //flags
     bool                            m_navigationStatistics;           //!< steer the output for the navigaiton statistics
     bool                            m_navigationBreakDetails;         //!< steer the output for the navigation break details
-    mutable int                     m_navigationBreakLoop;            //!< number of navigation breaks due to loop
-    mutable std::map<const Trk::TrackingVolume*,int> m_loopVolumes;   //!< record name of the volumes where oscillation happened
-    mutable int                     m_navigationBreakOscillation;     //!< number of navigation breaks due to oscillation
-    mutable std::map<const Trk::TrackingVolume*,int> m_oscillationVolumes;    //!< record name of the volumes where oscillation happened
-    mutable int                     m_navigationBreakNoVolume;       //!< number of navigation breaks due no Volume found
-    mutable std::map<const Trk::TrackingVolume*,int> m_noNextVolumes;         //!< record names of the volumes where no next one is found
-    mutable int                     m_navigationBreakDistIncrease;   //!< number of navigation breaks due to distance increase
-    mutable std::map<const Trk::TrackingVolume*,int> m_distIncreaseVolumes;   //!< record name of  the voluems where the distance increases
-    mutable int                     m_navigationBreakVolumeSignature;   //!< number of navigation breaks due to distance increase
-    mutable std::map<const Trk::TrackingVolume*,int> m_volSignatureVolumes;   //!< record name of  the voluems where the distance increases
-    mutable int                     m_overlapSurfaceHit;             //!< number of OverlapSurfaces found
-
     bool                            m_materialEffectsOnTrackValidation; //!< mat effects on track validation
-    mutable int                     m_meotSearchCallsFw;                //!< how often the meot search is called: forward
-    mutable int                     m_meotSearchCallsBw;                //!< how often the meot search is called: backward
-    mutable int                     m_meotSearchSuccessfulFw;           //!< how often the meot search was successful: forward
-    mutable int                     m_meotSearchSuccessfulBw;           //!< how often the meot search was successful: backward
+    //extrapolation counters
+    mutable Gaudi::Accumulators::Counter<int>                     m_extrapolateCalls;              //!< number of calls: extrapolate() method
+    mutable Gaudi::Accumulators::Counter<int>                     m_extrapolateBlindlyCalls;       //!< number of calls: extrapolateBlindly() method 
+    mutable Gaudi::Accumulators::Counter<int>                     m_extrapolateDirectlyCalls;      //!< number of calls: extrapolateDirectly() method
+    mutable Gaudi::Accumulators::Counter<int>                     m_extrapolateStepwiseCalls;      //!< number of calls: extrapolateStepwise() method
 
+    mutable Gaudi::Accumulators::Counter<int>                     m_startThroughAssociation;        //!< navigation intialization
+    mutable Gaudi::Accumulators::Counter<int>                     m_startThroughRecall;             //!< navigation intialization
+    mutable Gaudi::Accumulators::Counter<int>                     m_startThroughGlobalSearch;       //!< navigation intialization
+    mutable Gaudi::Accumulators::Counter<int>                     m_destinationThroughAssociation;  //!< navigation intialization
+    mutable Gaudi::Accumulators::Counter<int>                     m_destinationThroughRecall;       //!< navigation intialization
+    mutable Gaudi::Accumulators::Counter<int>                     m_destinationThroughGlobalSearch; //!< navigation intialization 
+    mutable Gaudi::Accumulators::Counter<int>                     m_layerSwitched;                 //!< number of layers that have been switched 
+
+    //navigation counters
+    mutable Gaudi::Accumulators::Counter<int>                     m_navigationBreakLoop;            //!< number of navigation breaks due to loop
+    mutable Gaudi::Accumulators::Counter<int>                     m_navigationBreakOscillation;     //!< number of navigation breaks due to oscillation
+    mutable Gaudi::Accumulators::Counter<int>                     m_navigationBreakNoVolume;       //!< number of navigation breaks due no Volume found
+    mutable Gaudi::Accumulators::Counter<int>                     m_navigationBreakDistIncrease;   //!< number of navigation breaks due to distance increase
+    mutable Gaudi::Accumulators::Counter<int>                     m_navigationBreakVolumeSignature;   //!< number of navigation breaks due to distance increase
+    mutable Gaudi::Accumulators::Counter<int>                     m_overlapSurfaceHit;             //!< number of OverlapSurfaces found
+
+    mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchCallsFw;                //!< how often the meot search is called: forward
+    mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchCallsBw;                //!< how often the meot search is called: backward
+    mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchSuccessfulFw;           //!< how often the meot search was successful: forward
+    mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchSuccessfulBw;           //!< how often the meot search was successful: backward
+
+    mutable std::map<const Trk::TrackingVolume*,int> m_loopVolumes;   //!< record name of the volumes where oscillation happened
+    mutable std::map<const Trk::TrackingVolume*,int> m_oscillationVolumes;    //!< record name of the volumes where oscillation happened
+    mutable std::map<const Trk::TrackingVolume*,int> m_distIncreaseVolumes;   //!< record name of  the voluems where the distance increases
+    mutable std::map<const Trk::TrackingVolume*,int> m_noNextVolumes;         //!< record names of the volumes where no next one is found
+    mutable std::map<const Trk::TrackingVolume*,int> m_volSignatureVolumes;   //!< record name of  the voluems where the distance increases
     // ------------------------------- cache --------------------------------------------------------------------
 
     mutable const Layer*                                       m_lastMaterialLayer; //!< cache layer with last material update
@@ -818,7 +816,6 @@ namespace Trk {
 
 
     // ------------------------------- static members --------------------------------------------------------------------
-    static double                   s_distIncreaseTolerance;         //!< distance increatse tolerance to account for straight line approx.
 
     unsigned int m_maxNavigSurf;
     unsigned int m_maxNavigVol;
