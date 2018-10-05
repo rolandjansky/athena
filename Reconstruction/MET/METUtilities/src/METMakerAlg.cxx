@@ -140,7 +140,7 @@ namespace met {
     ATH_CHECK( m_metMap.isValid() );
 
     MissingETAssociationMap* metMap = new MissingETAssociationMap((*m_metMap));
-    MissingETAssociationHelper* metHelper = new MissingETAssociationHelper(metMap);
+    MissingETAssociationHelper metHelper(metMap);
     // Retrieve containers ***********************************************
 
     /// MET
@@ -201,7 +201,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
     				 metElectrons.asDataVector(),
-    				 metHelper, objScale).isFailure() ) {
+    				 &metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
       ATH_MSG_DEBUG("Selected " << metElectrons.size() << " MET electrons. "
@@ -218,7 +218,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
     				 metPhotons.asDataVector(),
-    				 metHelper, objScale).isFailure() ) {
+    				 &metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
       ATH_MSG_DEBUG("Selected " << metPhotons.size() << " MET photons. "
@@ -235,7 +235,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
     				 metTaus.asDataVector(),
-    				 metHelper, objScale).isFailure() ){
+    				 &metHelper, objScale).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
       ATH_MSG_DEBUG("Selected " << metTaus.size() << " MET taus. "
@@ -254,7 +254,7 @@ namespace met {
       if(m_doTruthLep) objScale = MissingETBase::UsageHandler::OnlyTrack;
       if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
     				 metMuons.asDataVector(),
-    				 metHelper, objScale).isFailure() ) {
+    				 &metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build muon term.");
       }
       ATH_MSG_DEBUG("Selected " << metMuons.size() << " MET muons. "
@@ -262,7 +262,7 @@ namespace met {
     }
 
     if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
-				  Jets.cptr(), coreMet.cptr(), metHelper, false ).isFailure() ) {
+				  Jets.cptr(), coreMet.cptr(), &metHelper, false ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
     ATH_MSG_DEBUG("Of " << Jets.cptr()->size()  << " jets, "
@@ -280,7 +280,6 @@ namespace met {
       ATH_MSG_WARNING("Building MET FinalClus sum failed.");
     }
 
-    delete metHelper;
     return StatusCode::SUCCESS;
   }
 

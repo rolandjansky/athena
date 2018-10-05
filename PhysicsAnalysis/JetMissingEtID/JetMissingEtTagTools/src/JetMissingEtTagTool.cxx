@@ -574,7 +574,7 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
     ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_METMapName);
     return StatusCode::SUCCESS;
   }
-  xAOD::MissingETAssociationHelper* metHelper = new xAOD::MissingETAssociationHelper(metMap);
+  xAOD::MissingETAssociationHelper metHelper(metMap);
 
   /// MET core
   const xAOD::MissingETContainer* coreMet(0);
@@ -596,7 +596,7 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
     //    uniques.clear();
     if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
 			       elCont,
-			       metHelper).isFailure() ) {
+			       &metHelper).isFailure() ) {
       ATH_MSG_WARNING("Failed to build electron term.");
     }
     //ATH_MSG_DEBUG("Selected " << elCont->size() << " MET electrons. "
@@ -616,7 +616,7 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
     //uniques.clear();
     if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
 			       phCont,
-			       metHelper).isFailure() ) {
+			       &metHelper).isFailure() ) {
       ATH_MSG_WARNING("Failed to build photon term.");
     }
     //ATH_MSG_DEBUG("Selected " << phCont->size() << " MET photons. "
@@ -636,7 +636,7 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
     //uniques.clear();
     if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
 			       tauCont,
-			       metHelper).isFailure() ){
+			       &metHelper).isFailure() ){
       ATH_MSG_WARNING("Failed to build tau term.");
     }
     //ATH_MSG_DEBUG("Selected " << tauCont->size() << " MET taus. "
@@ -656,7 +656,7 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
     //uniques.clear();
     if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
 			       muonCont,
-			       metHelper).isFailure() ) {
+			       &metHelper).isFailure() ) {
       ATH_MSG_WARNING("Failed to build muon term.");
     }
     //ATH_MSG_DEBUG("Selected " << muonCont->size() << " MET muons. "
@@ -674,7 +674,7 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
   // compute MET term
   //uniques.clear();
   if( m_metmaker->rebuildJetMET("RefJet", m_metSoftClusName, m_metPVSoftTrkName, newMet,
-				jetCont, coreMet, metHelper, true ).isFailure() ) {
+				jetCont, coreMet, &metHelper, true ).isFailure() ) {
     ATH_MSG_WARNING("Failed to build jet and soft terms.");
   }
   //ATH_MSG_DEBUG("Of " << jetCont->size() << " jets, "
@@ -693,7 +693,6 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
   if( m_metmaker->buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
     ATH_MSG_WARNING("Building MET FinalClus sum failed.");
   }
-  delete metHelper;
   return StatusCode::SUCCESS;
 }
 

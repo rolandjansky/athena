@@ -42,7 +42,7 @@ namespace xAOD
     void setObjSelectionFlag(const MissingETAssociation_v1* assoc, const IParticle* pPart, bool status);  /*!< @brief Flag object as selected for MET calculation */
 
     inline void resetObjSelectionFlags() { m_useObjectFlags.clear(); }
-		inline const MissingETAssociationMap_v1* map() const { return m_map; }
+    inline const MissingETAssociationMap_v1* map() const { return m_map; }
 
   private:
 
