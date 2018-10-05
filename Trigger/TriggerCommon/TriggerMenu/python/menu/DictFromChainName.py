@@ -182,7 +182,7 @@ class DictFromChainName(object):
             AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
 
         logDict.debug("cparts: %s", cparts)
-        for cpart in cparts:
+        for cpartindex, cpart in enumerate(cparts):
 
             logDict.debug("Looping over cpart: %s", cpart)
             m = pattern.match(cpart)
@@ -251,9 +251,9 @@ class DictFromChainName(object):
 
             elif cpart=='hi':
                 logDict.debug('Doing HI')
-                multichainindex.append(chainName.index(cpart))
+                multichainindex.append(chainName.index(cpart+'_'+cparts[cpartindex+1]))
                 m_groupdict = {'signature': 'HeavyIon', 'threshold': '', 'multiplicity': '',
-                               'trigType': 'mb', 'extra': ''}
+                               'trigType': 'hi', 'extra': ''}
                 if 'HeavyIon' not in signatureNames:  signatureNames.append('HeavyIon')
                 mdicts.append(m_groupdict)
 
@@ -301,7 +301,6 @@ class DictFromChainName(object):
                 if 'EnhancedBias' not in signatureNames:  signatureNames.append('EnhancedBias')
                 mdicts.append(m_groupdict)
 
-           
         # ---- If multiple parts exist, split the string and analyse each  ----
         # ---- part depending on the signature it belongs to ----
         # ----  ----

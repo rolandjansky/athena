@@ -33,7 +33,7 @@ atLeastOneTrack = HIEFTrackHypo_AtLeastOneTrack(name='HIEFTrackHypo_AtLeastOneTr
 ###########################################################################
 class L2EFChain_HI(L2EFChainDef):
     
-    def __init__(self, chainDict):
+    def __init__(self, chainDict, doggFgap = False):
 
         self.L2sequenceList   = []
         self.EFsequenceList   = []
@@ -53,6 +53,7 @@ class L2EFChain_HI(L2EFChainDef):
         self.chainName = chainDict['chainName']
         self.chainPartName = self.chainPart['chainPartName']
         #self.chainPartNameNoMult = self.chainPartName[1:] if self.mult > 1 else self.chainPartName
+        self.doggFgap = doggFgap
         
         self.L2InputTE = self.chainPartL1Item or self.chainL1Item
         # cut of L1_, _EMPTY,..., & multiplicity
@@ -68,7 +69,10 @@ class L2EFChain_HI(L2EFChainDef):
         elif "ucc" in self.chainPart['recoAlg']:
             self.setup_hi_ultracentral()
         elif "upc" in self.chainPart['recoAlg']:
-            self.setup_hi_ultraperipheral()
+            if '' == self.chainPart['gap'] or 'gg' in self.chainPart['hypoL2Info']:
+                self.setup_hi_ultraperipheral()
+            else:
+                self.setup_hi_ultraperipheral_gap()
         elif "hipeb" in self.chainPart['addInfo']:
             self.setup_hi_PEB()    
         
@@ -261,171 +265,185 @@ class L2EFChain_HI(L2EFChainDef):
 
 ###########################
     def setup_hi_ultraperipheral(self):
-        gapthX=""
-        if "gap" in self.chainPart['gap']:    
-            from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerMaker
-            from TrigCaloRec.TrigCaloRecConf import TrigL1FCALTTSumFex
-            theL1BS = TrigL1BSTowerMaker()
-            theL1BSFex = TrigL1FCALTTSumFex('TrigL1FCALTTSumFex')
-
-            from TrigHIHypo.UE import theUEMaker, theFSCellMaker
-            from TrigHIHypo.GapHypos import ttFgapA, ttFgapC, cellFgapA, cellFgapC, ttFgapA5, ttFgapC5, cellFgapA5, cellFgapC5, ttFgapA10, ttFgapC10, cellFgapA10, cellFgapC10, cellFgapAPerf, cellFgapCPerf
             
-            # L2 sel (TT) is used when The chain is sither L2Fgap* or Fgap*, and not used when EFGap, similarily for EF (cells) part
-            gap  = self.chainPart['gap']
-            gapthX = gap[len(gap.rstrip('0123456789')):]
-            
-            #        theSptrkMaker = 
-            #        theSptrkHypo = 
-            self.L2sequenceList += [["",
-                                     [dummyRoI],
-                                     'L2_upc_step1']] 
-            #self.L2signatureList += [ [['L2_upc_step1']] ]
+        theL2MbtsFex=L2MbMbtsFex
+        theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
+        theL2PixelFex  = L2MbSpFex
 
-            self.L2sequenceList += [["L2_upc_step1",
-                                     [theL1BS, theL1BSFex],
-                                     'L2_upc_step2']] 
-            #self.L2signatureList += [ [['L2_upc_step2']] ]
+        if 'loose' in self.chainPart['hypoL2Info']:
+            minPixel=6
+            maxPixel=40
+            chainSuffix = 'loose_upc'
+        if 'medium' in self.chainPart['hypoL2Info']:
+            minPixel=6
+            maxPixel=30
+            chainSuffix = 'medium_upc'
+        if 'tight' in self.chainPart['hypoL2Info']:
+            minPixel=6
+            maxPixel=25
+            chainSuffix = 'tight_upc'
+        if 'gg' in self.chainPart['hypoL2Info']:
+            minPixel=0
+            maxPixel=10
+            chainSuffix = 'gg_upc'
 
-            if not gapthX:     
-                self.L2sequenceList += [["L2_upc_step2",
-                                         [ttFgapA],
-                                         'L2_upc_step3_A']] 
-                self.L2sequenceList += [["L2_upc_step2",
-                                         [ttFgapC],
-                                         'L2_upc_step3_C']] 
-            elif int(gapthX)==5:                
-                print 'Adding ttFgapA5'
-                self.L2sequenceList += [["L2_upc_step2",
-                                         [ttFgapA5],
-                                         'L2_upc_step3_A']] 
-                self.L2sequenceList += [["L2_upc_step2",
-                                         [ttFgapC5],
-                                         'L2_upc_step3_C']]
-            elif int(gapthX)==10:                
-                self.L2sequenceList += [["L2_upc_step2",
-                                         [ttFgapA10],
-                                         'L2_upc_step3_A']] 
-                self.L2sequenceList += [["L2_upc_step2",
-                                         [ttFgapC10],
-                                         'L2_upc_step3_C']]
-            
-            if gap in [ 'FgapA', 'FgapA5', 'FgapA10', 'L2FgapA']:
-                self.L2signatureList += [ [['L2_upc_step3_A']] ]
-            if gap in [ 'FgapC', 'FgapC5', 'FgapC10', 'L2FgapC']:
-                self.L2signatureList += [ [['L2_upc_step3_C']] ]
-            if gap in [ 'FgapAC', 'L2FgapAC']:
-                self.L2signatureList += [ [['L2_upc_step3_A']] ]
-                self.L2signatureList += [ [['L2_upc_step3_C']] ]
-
-
-            # sequence starts back from RoI    
-            self.EFsequenceList += [[['L2_upc_step1'], 
-                                     [theFSCellMaker], 
-                                     'EF_upc_step1']]
-            #self.EFsignatureList += [ [['EF_upc_step1']] ]
-
-            self.EFsequenceList += [["EF_upc_step1",
-                                     [theUEMaker],
-                                     'EF_upc_step2']] 
-            #self.EFsignatureList += [ [['EF_upc_step2']] ]
-
-            if 'EF' in gap: # this are perfromance triggers
-                self.EFsequenceList += [["EF_upc_step2",
-                                         [cellFgapCPerf ],
-                                         'EF_upc_step3_CPerf']] 
-                
-                self.EFsequenceList += [["EF_upc_step2",
-                                         [cellFgapAPerf ],
-                                         'EF_upc_step3_APerf']] 
-            else:
-                if not gapthX:
-                    self.EFsequenceList += [["EF_upc_step2",
-                                             [cellFgapC ],
-                                             'EF_upc_step3_C']] 
-                    
-                    self.EFsequenceList += [["EF_upc_step2",
-                                             [cellFgapA ],
-                                             'EF_upc_step3_A']] 
-                elif int(gapthX)==5:
-                    self.EFsequenceList += [["EF_upc_step2",
-                                             [cellFgapC5 ],
-                                             'EF_upc_step3_C']] 
-                    
-                    self.EFsequenceList += [["EF_upc_step2",
-                                             [cellFgapA5 ],
-                                             'EF_upc_step3_A']]
-                elif int(gapthX)==10:
-                    self.EFsequenceList += [["EF_upc_step2",
-                                             [cellFgapC10 ],
-                                             'EF_upc_step3_C']] 
-                    
-                    self.EFsequenceList += [["EF_upc_step2",
-                                             [cellFgapA10 ],
-                                             'EF_upc_step3_A']]
-                    
-                
-            if gap in [ 'FgapA', 'FgapA5', 'FgapA10']:
-                self.EFsignatureList += [ [['EF_upc_step3_A']] ]
-            if gap == 'EFFgapA':
-                self.EFsignatureList += [ [['EF_upc_step3_APerf']] ]
-
-            if  gap in [ 'FgapC', 'FgapC5', 'FgapC10']:
-                self.EFsignatureList += [ [['EF_upc_step3_C']] ]
-            if gap =='EFFgapC':
-                self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
-            if  gap ==  'FgapAC':
-                self.EFsignatureList += [ [['EF_upc_step3_A']] ]
-                self.EFsignatureList += [ [['EF_upc_step3_C']] ]
-            if  gap ==  'EFFgapAC':
-                self.EFsignatureList += [ [['EF_upc_step3_APerf']] ]
-                self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
+        theL2PixelHypo  = L2MbSpUPC("MbPixelSpUPC_min"+str(minPixel)+'_max'+str(maxPixel), minPixel, maxPixel)
         
-        chainSuffix=""
-        if "gg" in self.chainPart['hypoL2Info'] or "loose" in self.chainPart['hypoL2Info'] or "medium" in self.chainPart['hypoL2Info'] or "tight" in self.chainPart['hypoL2Info']:
-        
-            theL2MbtsFex=L2MbMbtsFex
-            theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
-            theL2PixelFex  = L2MbSpFex
-
-            if 'loose' in self.chainPart['hypoL2Info']:
-                minPixel=6
-                maxPixel=40
-                chainSuffix = 'loose_upc'
-            if 'medium' in self.chainPart['hypoL2Info']:
-                minPixel=6
-                maxPixel=30
-                chainSuffix = 'medium_upc'
-            if 'tight' in self.chainPart['hypoL2Info']:
-                minPixel=6
-                maxPixel=25
-                chainSuffix = 'tight_upc'
-            if 'gg' in self.chainPart['hypoL2Info']:
-                minPixel=0
-                maxPixel=10
-                chainSuffix = 'gg_upc'
-
-            theL2PixelHypo  = L2MbSpUPC("MbPixelSpUPC_min"+str(minPixel)+'_max'+str(maxPixel), minPixel, maxPixel)
+        if self.doggFgap:
+             chainSuffix = chainSuffix + '_' + self.chainPart['gap']
             
-            ########### Sequence List ##############
-            self.L2sequenceList += [["",
-                                     [dummyRoI],
-                                     'L2_hi_step1']] 
+        ########### Sequence List ##############
+        self.L2sequenceList += [["",
+                                 [dummyRoI],
+                                 'L2_hi_step1']] 
+        if not self.doggFgap:    
             self.L2sequenceList += [[['L2_hi_step1'], 
                                          [theL2MbtsFex, theL2MbtsHypo], 'L2_hi_mbtsveto']]
             self.L2sequenceList += [['L2_hi_mbtsveto',
                                          efiddataprep,
                                      'L2_hi_iddataprep']]
-            self.L2sequenceList += [[['L2_hi_iddataprep'],
-                                     [theL2PixelFex, theL2PixelHypo],
-                                     'L2_hi_pixel']]
+        else:
+             self.L2sequenceList += [['L2_hi_step1',
+                                         efiddataprep,
+                                     'L2_hi_iddataprep']]
+        self.L2sequenceList += [[['L2_hi_iddataprep'],
+                                 [theL2PixelFex, theL2PixelHypo],
+                                 'L2_hi_pixel']]
 
-            ########### Signatures ###########
-            self.L2signatureList += [ [['L2_hi_step1']] ]
-            self.L2signatureList += [ [['L2_hi_mbtsveto']] ]
-            self.L2signatureList += [ [['L2_hi_iddataprep']] ]
-            self.L2signatureList += [ [['L2_hi_pixel']] ]
+        ########### Signatures ###########
+        self.L2signatureList += [ [['L2_hi_step1']] ]
+        if not self.doggFgap: self.L2signatureList += [ [['L2_hi_mbtsveto']] ]
+        self.L2signatureList += [ [['L2_hi_iddataprep']] ]
+        self.L2signatureList += [ [['L2_hi_pixel']] ]
     
+        self.TErenamingDict = {
+            'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
+            'L2_hi_iddataprep': mergeRemovingOverlap('EF_hi_iddataprep_', chainSuffix),
+            'L2_hi_pixel': mergeRemovingOverlap('EF_hi_pixel_', chainSuffix),
+            }
+        if not self.doggFgap:
+            self.TErenamingDict ['L2_hi_mbtsveto'] = mergeRemovingOverlap('EF_hi_mbtsveto_', chainSuffix)
+                
+    def setup_hi_ultraperipheral_gap(self):
+        gapthX=""    
+        from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerMaker
+        from TrigCaloRec.TrigCaloRecConf import TrigL1FCALTTSumFex
+        theL1BS = TrigL1BSTowerMaker()
+        theL1BSFex = TrigL1FCALTTSumFex('TrigL1FCALTTSumFex')
+
+        from TrigHIHypo.UE import theUEMaker, theFSCellMaker
+        from TrigHIHypo.GapHypos import ttFgapA, ttFgapC, cellFgapA, cellFgapC, ttFgapA5, ttFgapC5, cellFgapA5, cellFgapC5, ttFgapA10, ttFgapC10, cellFgapA10, cellFgapC10, cellFgapAPerf, cellFgapCPerf
+            
+        # L2 sel (TT) is used when The chain is sither L2Fgap* or Fgap*, and not used when EFGap, similarily for EF (cells) part
+        gap  = self.chainPart['gap']
+        gapthX = gap[len(gap.rstrip('0123456789')):]
+            
+        #        theSptrkMaker = 
+        #        theSptrkHypo = 
+        self.L2sequenceList += [["",
+                                 [dummyRoI],
+                                 'L2_upc_step1']] 
+        #self.L2signatureList += [ [['L2_upc_step1']] ]
+
+        self.L2sequenceList += [["L2_upc_step1",
+                                     [theL1BS, theL1BSFex],
+                                     'L2_upc_step2']] 
+        #self.L2signatureList += [ [['L2_upc_step2']] ]
+
+        if not gapthX:     
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapA],
+                                     'L2_upc_step3_A']] 
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapC],
+                                     'L2_upc_step3_C']] 
+        elif int(gapthX)==5:                
+            print 'Adding ttFgapA5'
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapA5],
+                                     'L2_upc_step3_A']] 
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapC5],
+                                     'L2_upc_step3_C']]
+        elif int(gapthX)==10:                
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapA10],
+                                     'L2_upc_step3_A']] 
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapC10],
+                                     'L2_upc_step3_C']]
+         
+        if gap in [ 'FgapA', 'FgapA5', 'FgapA10', 'L2FgapA']:
+            self.L2signatureList += [ [['L2_upc_step3_A']] ]
+        if gap in [ 'FgapC', 'FgapC5', 'FgapC10', 'L2FgapC']:
+            self.L2signatureList += [ [['L2_upc_step3_C']] ]
+        if gap in [ 'FgapAC', 'L2FgapAC']:
+            self.L2signatureList += [ [['L2_upc_step3_A']] ]
+            self.L2signatureList += [ [['L2_upc_step3_C']] ]
+
+
+        # sequence starts back from RoI    
+        self.EFsequenceList += [[['L2_upc_step1'], 
+                                 [theFSCellMaker], 
+                                 'EF_upc_step1']]
+        #self.EFsignatureList += [ [['EF_upc_step1']] ]
+
+        self.EFsequenceList += [["EF_upc_step1",
+                                 [theUEMaker],
+                                 'EF_upc_step2']] 
+        #self.EFsignatureList += [ [['EF_upc_step2']] ]
+
+        if 'EF' in gap: # this are perfromance triggers
+            self.EFsequenceList += [["EF_upc_step2",
+                                     [cellFgapCPerf ],
+                                     'EF_upc_step3_CPerf']] 
+              
+            self.EFsequenceList += [["EF_upc_step2",
+                                     [cellFgapAPerf ],
+                                     'EF_upc_step3_APerf']] 
+        else:
+            if not gapthX:
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapC ],
+                                         'EF_upc_step3_C']] 
+                
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapA ],
+                                         'EF_upc_step3_A']] 
+            elif int(gapthX)==5:
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapC5 ],
+                                         'EF_upc_step3_C']] 
+                    
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapA5 ],
+                                         'EF_upc_step3_A']]
+            elif int(gapthX)==10:
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapC10 ],
+                                         'EF_upc_step3_C']] 
+                   
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapA10 ],
+                                         'EF_upc_step3_A']]
+                    
+                
+        if gap in [ 'FgapA', 'FgapA5', 'FgapA10']:
+            self.EFsignatureList += [ [['EF_upc_step3_A']] ]
+        if gap == 'EFFgapA':
+            self.EFsignatureList += [ [['EF_upc_step3_APerf']] ]
+
+        if  gap in [ 'FgapC', 'FgapC5', 'FgapC10']:
+            self.EFsignatureList += [ [['EF_upc_step3_C']] ]
+        if gap =='EFFgapC':
+            self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
+        if  gap ==  'FgapAC':
+            self.EFsignatureList += [ [['EF_upc_step3_A']] ]
+            self.EFsignatureList += [ [['EF_upc_step3_C']] ]
+        if  gap ==  'EFFgapAC':
+            self.EFsignatureList += [ [['EF_upc_step3_APerf']] ]
+            self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
+        
         self.TErenamingDict = {
             'L2_upc_step1': 'L2_TTSummation',
             'L2_upc_step2': 'L2_TTGapCalculation',
@@ -438,10 +456,6 @@ class L2EFChain_HI(L2EFChainDef):
             'EF_upc_step3_APerf': 'EF_CellGapAPerf',
             'EF_upc_step3_CPerf': 'EF_CellGapCPerf',
             'EF_upc_step4': 'EF_twoTracks',
-            'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
-            'L2_hi_mbtsveto': mergeRemovingOverlap('EF_hi_mbtsveto_', chainSuffix),
-            'L2_hi_iddataprep': mergeRemovingOverlap('EF_hi_iddataprep_', chainSuffix),
-            'L2_hi_pixel': mergeRemovingOverlap('EF_hi_pixel_', chainSuffix),
             }
     def setup_hi_PEB(self):
         from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
