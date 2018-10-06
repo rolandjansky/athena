@@ -31,7 +31,7 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     auto mappingIter = m_mapping.find( chain );
     // each chain has to have stream
     if( mappingIter == m_mapping.end() ) { 
-      ATH_MSG_ERROR("Each chain has to have the associated whereas the " << HLT::Identifier( chain ) << " does not" );
+      ATH_MSG_ERROR("Each chain has to have the bit/counter associated whereas the " << HLT::Identifier( chain ) << " does not" );
       return StatusCode::FAILURE;
     }
     const int chainBitPosition = mappingIter->second;
