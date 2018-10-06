@@ -44,7 +44,7 @@ if [ -z ${release} ]; then
 fi
 
 l1psk="'lvl1key': ${l1psk}"
-subshellcmd='source $AtlasSetup/scripts/asetup.sh AthenaP1,21.1,'${release}'; athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey '${smk}' --db-hltpskey '${hltpsk}' --db-extra "{'${l1psk}'}"; Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root; RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode 2>&1 | tee ${JOB_LOG}'
+subshellcmd='source $AtlasSetup/scripts/asetup.sh AthenaP1,21.1,'${release}'; athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey '${smk}' --db-hltpskey '${hltpsk}' --db-extra "{'${l1psk}'}"; Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root; RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --ratesMode 2>&1 | tee ${JOB_LOG}'
 echo "running in subshell: $subshellcmd"
 (eval $subshellcmd)
 
