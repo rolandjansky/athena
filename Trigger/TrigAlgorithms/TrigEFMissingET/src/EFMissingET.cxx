@@ -540,6 +540,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
      m_n_sizePers = 9;
 
 
+  if(m_doTrackTopoClusters) m_n_sizePers = 9;
 
   // Setup xAOD EDM
   m_met = new xAOD::TrigMissingET(); m_met->makePrivateStore();
