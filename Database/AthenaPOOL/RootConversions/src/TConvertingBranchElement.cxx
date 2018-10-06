@@ -335,6 +335,7 @@ TConvertingBranchElement::~TConvertingBranchElement()
  */
 void TConvertingBranchElement::Initialize()
 {
+#if 0
   static bool initialized = false;
   if (initialized)
     return;
@@ -350,6 +351,7 @@ void TConvertingBranchElement::Initialize()
   // Change the @c New() method for @c TBranchElement to make
   // an instance of this class instead.
   cl->SetNew (TConvertingBranchElement::new_TConvertingBranchElement);
+#endif
 }
 
 
