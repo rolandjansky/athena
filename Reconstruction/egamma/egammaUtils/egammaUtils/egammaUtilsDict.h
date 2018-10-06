@@ -4,5 +4,7 @@
 
 #ifndef EGAMMAUTILS_EGAMMAUTILSDICT_H
 #define EGAMMAUTILS_EGAMMAUTILSDICT_H
+
 #include "egammaUtils/eg_resolution.h"
+
 #endif

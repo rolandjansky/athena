@@ -3,7 +3,7 @@
 */
 
 #ifndef EGAMMAMVACALIBANALYSIS_EGAMMAMVACALIBANALYSISDICT_H
-
+#define EGAMMAMVACALIBANALYSIS_EGAMMAMVACALIBANALYSISDICT_H
 #include "egammaMVACalibAnalysis/egammaMVACalib.h"
 #include "egammaMVACalibAnalysis/IegammaMVATool.h"
 #include "egammaMVACalibAnalysis/egammaMVATool.h"
