@@ -261,8 +261,8 @@ echo "Uploading prescale keys..."
 # the upload of the xmls is now done standalone following the discussion on ATR-16799
 
 # test checking out RB with atnight user
-ART_dir=${PWD}
-echo 'ART_dir: '${ART_dir}
+TrigP1Test_ART_dir=${PWD}
+echo 'TrigP1Test_ART_dir: '${TrigP1Test_ART_dir}
 MENU='Physics_pp_v7'
 echo 'Menu:' ${MENU}
 export ATLAS_LOCAL_ROOT_BASE="/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase"
@@ -274,11 +274,11 @@ echo 'RB_dir: '${RB_dir}
 echo 'l1menu: '${l1menu}
 echo 'l1topo: '${l1topo}
 echo 'hltmenu: '${hltmenu1}
-cd ${RB_dir}/scripts
+cd TrigMenuRulebook/scripts
 rm -f l1.xml hlt.xml
 
-ln -s ${ART_dir}/${l1menu}   l1.xml
-ln -s ${ART_dir}/${hltmenu1}   hlt.xml
+ln -s ../../${l1menu}   l1.xml
+ln -s ../../${hltmenu1}   hlt.xml
 ls -alhtr
 
 # RB configured to ingnore errors and leave unprescaled any new chain not yet defined in RB. It won't try to copy keys to P1
@@ -287,7 +287,7 @@ sed -i -e 's/doUnprescaledIfUndefined = False/doUnprescaledIfUndefined = True/g'
 sed -i -e 's/doUseOnline = True/doUseOnline = False/g' runOptions.py
 
 ./runRuleBook.py 17000
-cd ${ART_dir}
+cd ../..
 PSdir=`find TrigMenuRulebook/scripts -name "prescales_*" -type d`
 echo "PSdir: "${PSdir}
 rm $PSdir/Set_*.xml
@@ -315,11 +315,11 @@ echo "echo 'setting these keys: SMK ' \$smk ', L1 PSK ' \$l1psk ', HLT PSK ' \$h
 
 rm uploadPSK_prescaled.log
 
-cd ${RB_dir}/scripts
+cd TrigMenuRulebook/scripts
 rm -r prescales_*
 
 ./runRuleBook.py 9000
-cd ${ART_dir}
+cd ../..
 PSdir=`find TrigMenuRulebook/scripts -name "prescales_*" -type d`
 echo "PSdir: "${PSdir}
 rm $PSdir/Set_*.xml
