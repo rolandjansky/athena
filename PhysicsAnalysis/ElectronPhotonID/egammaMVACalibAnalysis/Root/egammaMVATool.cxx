@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaMVACalib/egammaMVATool.h"
-#include "egammaMVACalib/egammaMVACalib.h"
-#include "egammaMVACalib/egammaMVATree.h"
+#include "egammaMVACalibAnalysis/egammaMVATool.h"
+#include "egammaMVACalibAnalysis/egammaMVACalib.h"
+#include "egammaMVACalibAnalysis/egammaMVATree.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODEgamma/Electron.h"

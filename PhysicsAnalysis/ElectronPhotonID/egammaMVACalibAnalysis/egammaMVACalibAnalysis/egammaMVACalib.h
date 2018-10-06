@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef egammaMVACalibNew_H
-#define egammaMVACalibNew_H
+#ifndef egammaMVACalibAnalysisNew_H
+#define egammaMVACalibAnalysisNew_H
 
 #include <map>
 #include <vector>

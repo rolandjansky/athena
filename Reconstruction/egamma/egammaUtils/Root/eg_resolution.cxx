@@ -7,7 +7,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Egamma.h"
-#include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
+#include "egammaUtils/eg_resolution.h"
 #include "PathResolver/PathResolver.h"
 #include "CxxUtils/make_unique.h"
 
