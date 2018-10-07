@@ -41,10 +41,17 @@ histSvc("THistSvc",name){
 
   declareProperty("outputNoise",m_outputNoise=false);
   declareProperty("noise_file",m_noise_file="");
+
   declareProperty("jJet_threshold",m_jJet_thr=2.0);
   declareProperty("jSeed_size",m_jSeed_size=0.2);
   declareProperty("jMax_r",m_jMax_r=0.4);
   declareProperty("jJet_r",m_jJet_r=0.4);
+
+  declareProperty("jJet_jet_threshold",m_jJet_jet_thr=2.0);
+  declareProperty("jJet_seed_size",m_jJet_seed_size=0.3);
+  declareProperty("jJet_max_r",m_jJet_max_r=0.4);
+  declareProperty("jJet_jet_r",m_jJet_jet_r=0.4);
+
   declareProperty("gJet_threshold",m_gJet_thr=2.0);
   declareProperty("gSeed_size",m_gSeed_size=0.2);
   declareProperty("gMax_r",m_gMax_r=0.4);
@@ -53,12 +60,13 @@ histSvc("THistSvc",name){
 
 
 JGTowerReader::~JGTowerReader() {
-
   delete jSeeds;
+  delete jJetSeeds;
   delete gSeeds;
   delete jMET;
   delete gMET;
   jL1Jets.clear();
+  jJet_L1Jets.clear();
   gL1Jets.clear();
 }
 
@@ -74,18 +82,19 @@ StatusCode JGTowerReader::initialize() {
   TH1F*jh_noise = (TH1F*)noise->Get("jT_noise");
   TH1F*gh_noise = (TH1F*)noise->Get("gT_noise");
 
-  for(int i=0;i<jh_noise->GetSize();i++){
-     float noise_base = jh_noise->GetBinContent(i+1);
-     jT_noise.push_back(noise_base);
-     jJet_thr.push_back(noise_base*m_jJet_thr);
+  for(int i=0;i<jh_noise->GetSize();i++){ // nbins + 2
+    float noise_base = jh_noise->GetBinContent(i+1);
+    jT_noise.push_back(noise_base);
+    jJet_thr.push_back(noise_base*m_jJet_thr);
+    jJet_jet_thr.push_back(noise_base*m_jJet_jet_thr);
   }
-
+  
   for(int i=0;i<gh_noise->GetSize();i++){
      float noise_base = gh_noise->GetBinContent(i+1);
      gT_noise.push_back(noise_base);
      gJet_thr.push_back(noise_base*m_gJet_thr);
   } 
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -96,7 +105,18 @@ StatusCode JGTowerReader::finalize() {
 }
 
 StatusCode JGTowerReader::execute() {  
-  ATH_MSG_DEBUG ("Executing " << name() << "...");
+  
+  if(m_eventCount % 100 == 0){
+    ATH_MSG_INFO ("Executing " << name() << " on event " << m_eventCount);
+  }
+  else if(m_eventCount % 10 == 0){
+    ATH_MSG_INFO ("    Executing " << name() << " on event " << m_eventCount);
+  }
+  else {
+    ATH_MSG_DEBUG ("Executing " << name() << " on event " << m_eventCount);
+  }
+  m_eventCount += 1;
+
   setFilterPassed(false); //optional: start with algorithm not passed
 
   const xAOD::EventInfo* eventInfo = 0;
@@ -105,6 +125,18 @@ StatusCode JGTowerReader::execute() {
   //events with bcid distance from bunch train <20 vetoed 
   ToolHandle<Trig::IBunchCrossingTool> m_bcTool("Trig::MCBunchCrossingTool/BunchCrossingTool");
   int distFrontBunchTrain = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+
+  ATH_MSG_DEBUG ("dist from front of bunch train is " << distFrontBunchTrain << "...");
+  if(distFrontBunchTrain<0) {
+    ATH_MSG_DEBUG ("... hasn't worked, ignoring");
+  }
+  else if(distFrontBunchTrain<20) {
+    ATH_MSG_DEBUG ("... skipping event");
+    return StatusCode::SUCCESS;
+  }
+  else {
+    ATH_MSG_DEBUG ("... continuing");
+  }
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, "SCell") );
@@ -115,12 +147,17 @@ StatusCode JGTowerReader::execute() {
   const xAOD::JGTowerContainer* gTowers =0;
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
 
-  if(distFrontBunchTrain<20){
-    CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
-    CHECK(GFexAlg(gTowers)); // all the functions for GFex shall be executed here
-  }
+  ATH_MSG_DEBUG ("Successfully retrieved cells, jTowers and gTowers");
 
+
+  ATH_MSG_DEBUG ("About to call JFexAlg");
+  CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
+  ATH_MSG_DEBUG ("About to call GFexAlg");
+  CHECK(GFexAlg(gTowers)); // all the functions for GFex shall be executed here
+  ATH_MSG_DEBUG ("About to call ProcessObject()");
   CHECK(ProcessObjects());  // this is the function to make output as well as memory cleaning
+  ATH_MSG_DEBUG ("Algorithm passed");
+
   setFilterPassed(true); //if got here, assume that means algorithm passed
   return StatusCode::SUCCESS;
 }
@@ -147,13 +184,45 @@ StatusCode JGTowerReader::beginInputFile() {
 //L1Calo algorithms are here:
 StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
-// jet algorithms
-  if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
-  
-  CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr)); //the diameter of seed, and its range to be local maximum
-  CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets,m_jJet_r,jJet_thr)); 
-  CHECK(METAlg::BuildMET(jTs,jMET,jT_noise));
+  ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
 
+  // fill the seed vectors with all jtower positions
+  if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
+  if(jJetSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jJetSeeds));
+
+  // sort out the wrong-size list of noise vector
+  if(jTs->size() > jT_noise.size()) {
+    ATH_MSG_ERROR("Found " << jTs->size() << " jTowers, but the noise vector only has " << jT_noise.size() << " entries");
+    ATH_MSG_WARNING("Setting the jTower noise vector to have the right number of entries, all 500");
+    jT_noise.clear();
+    jJet_thr.clear();
+    jJet_jet_thr.clear();
+    for(int i=0; i<int(jTs->size()); i++){
+      jT_noise.push_back(500);
+      jJet_thr.push_back(500 * m_jJet_thr);
+      jJet_jet_thr.push_back(500 * m_jJet_jet_thr);
+    }
+  }
+
+  // find all seeds
+  ATH_MSG_DEBUG("JFexAlg: SeedFinding");
+  // the diameter of seed, and its range to be local maximum
+  // Careful to ensure the range set to be no tower double counted
+  CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr)); 
+  CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJet_seed_size,m_jJet_max_r,jJet_jet_thr));
+  
+  // build initial JFexjet
+  ATH_MSG_DEBUG("JFexAlg: BuildJet from "  << jSeeds->eta.size() << " jSeeds");
+  CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr)); 
+
+  // build round JFexJet
+  ATH_MSG_DEBUG("JFexAlg: BuildRoundJet from " << jJetSeeds->eta.size() << " jJetSeeds");
+  CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr)); 
+
+  ATH_MSG_DEBUG("JFexAlg: BuildMET");
+  CHECK(METAlg::BuildMET(jTs, jMET, jT_noise));
+
+  ATH_MSG_DEBUG("JFexAlg: Done");
   return StatusCode::SUCCESS;
 }
 
@@ -161,7 +230,21 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
 // jet algorithms
   if(gSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(gTs,gSeeds));
+
+  // sort out the wrong-size list of noise vector
+  if(gTs->size() > gT_noise.size()) {
+    ATH_MSG_ERROR("Found " << gTs->size() << " gTowers, but the noise vector only has " << gT_noise.size() << " entries");
+    ATH_MSG_WARNING("Setting the gTower noise vector to have the right number of entries, all 1000");
+    gT_noise.clear();
+    gJet_thr.clear();
+    for(int i=0; i<int(gTs->size()); i++){
+      gT_noise.push_back(1000);
+      gJet_thr.push_back(1000 * m_gJet_thr);
+    }
+  }
+  
   CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gSeed_size,m_gMax_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
+                                                                         // Careful to ensure the range set to be no tower double counted
   CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
   CHECK(METAlg::BuildMET(gTs,gMET,gT_noise));
 
@@ -171,7 +254,7 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 StatusCode JGTowerReader::ProcessObjects(){
 
 
-// Ouptut Jets
+  // Ouptut Jets
   xAOD::JetRoIAuxContainer* jFexJetContAux = new xAOD::JetRoIAuxContainer();
   xAOD::JetRoIContainer* jFexJetCont = new xAOD::JetRoIContainer(); 
   jFexJetCont->setStore(jFexJetContAux);
@@ -186,10 +269,21 @@ StatusCode JGTowerReader::ProcessObjects(){
      jFexJet->initialize(0x0,jet.eta,jet.phi);
      jFexJet->setEt8x8(jet.et);
   }
+  for(unsigned j=0;j<jJet_L1Jets.size();j++  ){
+     JetAlg::L1Jet jet = jJet_L1Jets.at(j);
+     CHECK(HistBookFill("jJet_round_et",50,0,500,jet.et/1000.,1.));
+     CHECK(HistBookFill("jJet_round_eta",49,-4.9,4.9,jet.eta,1.));
+     CHECK(HistBookFill("jJet_round_phi",31,-3.1416,3.1416,jet.phi,1.));
+  }
+  for(unsigned j=0;j<gL1Jets.size();j++  ){
+     JetAlg::L1Jet jet = gL1Jets.at(j);
+     CHECK(HistBookFill("gJet_et",50,0,500,jet.et/1000.,1.));
+     CHECK(HistBookFill("gJet_eta",49,-4.9,4.9,jet.eta,1.));
+     CHECK(HistBookFill("gJet_phi",31,-3.1416,3.1416,jet.phi,1.));
 
   CHECK(evtStore()->record(jFexJetCont,"jFexJets"));
   CHECK(evtStore()->record(jFexJetContAux,"jFexJetsAux."));
-//output MET
+  //output MET
   xAOD::EnergySumRoIAuxInfo* jFexMETContAux = new xAOD::EnergySumRoIAuxInfo();
   xAOD::EnergySumRoI* jFexMETCont = new xAOD::EnergySumRoI();
   jFexMETCont->setStore(jFexMETContAux);
@@ -203,6 +297,7 @@ StatusCode JGTowerReader::ProcessObjects(){
 
 
   jL1Jets.clear();
+  jJet_L1Jets.clear();
   gL1Jets.clear();
   jSeeds->et.clear();
   jSeeds->local_max.clear();

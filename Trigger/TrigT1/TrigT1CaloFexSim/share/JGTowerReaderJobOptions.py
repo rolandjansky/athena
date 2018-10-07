@@ -83,6 +83,16 @@ svcMgr.THistSvc.Output += ["OUTPUT DATAFILE='myOutputFile.root' OPT='RECREATE'"]
 
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
+# declareProperty("outputNoise",m_outputNoise=false);
+# declareProperty("noise_file",m_noise_file="");
+# declareProperty("jJet_threshold",m_jJet_thr=2.0);
+# declareProperty("jSeed_size",m_jSeed_size=0.2);
+# declareProperty("jMax_r",m_jMax_r=0.4);
+# declareProperty("jJet_r",m_jJet_r=0.4);
+# declareProperty("gJet_threshold",m_gJet_thr=2.0);
+# declareProperty("gSeed_size",m_gSeed_size=0.2);
+# declareProperty("gMax_r",m_gMax_r=0.4);
+# declareProperty("gJet_r",m_gJet_r=0.4);
 
 algseq += CfgMgr.JGTowerReader(
 outputNoise=True,
