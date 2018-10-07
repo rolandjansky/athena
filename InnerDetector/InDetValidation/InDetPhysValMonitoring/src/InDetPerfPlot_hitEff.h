@@ -44,11 +44,16 @@ private:
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
   };
+  
+  const static int N_LAYERS = 5;
+  const static int N_SCTLAYERS = 4;
+  
 private:
   void initializePlots();
 
   //TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
   TEfficiency* m_hitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];
+  TEfficiency* m_hitEfficiencyVsEta_PerLayer[N_LAYERS][N_SUBDETECTORS][N_REGIONS];
   bool m_debug;
 };
 

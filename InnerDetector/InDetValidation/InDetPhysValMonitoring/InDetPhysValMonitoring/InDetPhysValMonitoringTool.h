@@ -122,6 +122,8 @@ private:
 	float m_maxTrkJetDR;
 	bool m_fillTIDEPlots;
 	bool m_fillExtraTIDEPlots;
+  
+  bool m_fillITkResolutionPlots;
 
 	std::string m_folder;
 };

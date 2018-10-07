@@ -226,6 +226,7 @@ ToolSvc += TrackTruthSelectionTool
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 InDetPhysValMonitoringTool = InDetPhysValMonitoringTool("InDetPhysValMonitoringTool")
 InDetPhysValMonitoringTool.useTrackSelection = True
+InDetPhysValMonitoringTool.FillITkResolutionPlots = True
 InDetPhysValMonitoringTool.TrackSelectionTool = InDetTrackSelectorTool
 #InDetPhysValMonitoringTool.TruthSelectionTool = TrackTruthSelectionTool
 InDetPhysValMonitoringTool.TruthParticleContainerName = "TruthParticles"

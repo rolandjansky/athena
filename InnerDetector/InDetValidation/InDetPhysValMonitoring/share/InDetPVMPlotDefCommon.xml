@@ -587,6 +587,195 @@
   <x title="num. strips" n="10" lo="0" hi="10"/>
   <y title="Entries"/>
 </h>
+
+<!-- cluster width plots -->
+<h id="clusterEtaWidth_eta_l0pix_barrel" type="TProfile" title="Cluster width in eta vs eta: Pixel Barrel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterPhiWidth_eta_l0pix_endcap" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_pixel_barrel" type="TProfile" title="Cluster width in phi vs eta: Pixel Barrel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_pixel_endcap" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_barrel" type="TProfile" title="Cluster width in eta vs eta: Pixel Barrel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_endcap" type="TProfile" title="Cluster width in eta vs eta: Pixel Endcap">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterPhiWidth_eta_sct_barrel" type="TProfile" title="Cluster width in phi vs eta: SCT Barrel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_sct_endcap" type="TProfile" title="Cluster width in phi vs eta: SCT Endcap">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+
+<!--Splitting all layers-->
+
+<h id="clusterPhiWidth_eta_pixel_barrel_layer0" type="TProfile" title="Cluster width in phi vs eta: Pixel Barrel - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_pixel_endcap_layer0" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_barrel_layer0" type="TProfile" title="Cluster width in eta vs eta: Pixel Barrel - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_endcap_layer0" type="TProfile" title="Cluster width in eta vs eta: Pixel Endcap - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_pixel_barrel_layer1" type="TProfile" title="Cluster width in phi vs eta: Pixel Barrel - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_pixel_endcap_layer1" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_barrel_layer1" type="TProfile" title="Cluster width in eta vs eta: Pixel Barrel - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_endcap_layer1" type="TProfile" title="Cluster width in eta vs eta: Pixel Endcap - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_pixel_barrel_layer2" type="TProfile" title="Cluster width in phi vs eta: Pixel Barrel - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_pixel_endcap_layer2" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_barrel_layer2" type="TProfile" title="Cluster width in eta vs eta: Pixel Barrel - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_endcap_layer2" type="TProfile" title="Cluster width in eta vs eta: Pixel Endcap - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_pixel_barrel_layer3" type="TProfile" title="Cluster width in phi vs eta: Pixel Barrel - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_pixel_endcap_layer3" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_barrel_layer3" type="TProfile" title="Cluster width in eta vs eta: Pixel Barrel - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_endcap_layer3" type="TProfile" title="Cluster width in eta vs eta: Pixel Endcap - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_pixel_barrel_layer4" type="TProfile" title="Cluster width in phi vs eta: Pixel Barrel - Layer 4">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_pixel_endcap_layer4" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap - Layer 4">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_barrel_layer4" type="TProfile" title="Cluster width in eta vs eta: Pixel Barrel - Layer 4">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel_endcap_layer4" type="TProfile" title="Cluster width in eta vs eta: Pixel Endcap - Layer 4">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_sct_barrel_layer0" type="TProfile" title="Cluster width in phi vs eta: SCT Barrel - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_sct_endcap_layer0" type="TProfile" title="Cluster width in phi vs eta: SCT Endcap - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_barrel_layer0" type="TProfile" title="Cluster width in eta vs eta: SCT Barrel - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_endcap_layer0" type="TProfile" title="Cluster width in eta vs eta: SCT Endcap - Layer 0">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_sct_barrel_layer1" type="TProfile" title="Cluster width in phi vs eta: SCT Barrel - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_sct_endcap_layer1" type="TProfile" title="Cluster width in phi vs eta: SCT Endcap - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_barrel_layer1" type="TProfile" title="Cluster width in eta vs eta: SCT Barrel - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_endcap_layer1" type="TProfile" title="Cluster width in eta vs eta: SCT Endcap - Layer 1">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_sct_barrel_layer2" type="TProfile" title="Cluster width in phi vs eta: SCT Barrel - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_sct_endcap_layer2" type="TProfile" title="Cluster width in phi vs eta: SCT Endcap - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_barrel_layer2" type="TProfile" title="Cluster width in eta vs eta: SCT Barrel - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_endcap_layer2" type="TProfile" title="Cluster width in eta vs eta: SCT Endcap - Layer 2">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<h id="clusterPhiWidth_eta_sct_barrel_layer3" type="TProfile" title="Cluster width in phi vs eta: SCT Barrel - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterPhiWidth_eta_sct_endcap_layer3" type="TProfile" title="Cluster width in phi vs eta: SCT Endcap - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_barrel_layer3" type="TProfile" title="Cluster width in eta vs eta: SCT Barrel - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+<h id="clusterEtaWidth_eta_sct_endcap_layer3" type="TProfile" title="Cluster width in eta vs eta: SCT Endcap - Layer 3">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
 <!--
    =======================================================
    end of hit residuals & cluster width plots
@@ -623,6 +812,90 @@
   <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETASct;"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
+
+<!--Splitting all layers-->
+
+<h id="eff_hit_vs_eta_pix_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 0">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 0">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 1">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 1">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 2">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 2">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 3">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 3">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 4">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 4">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 0">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 0">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 1">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 1">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 2">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 2">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 3">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 3">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
 <!--
    =======================================================
    end of hit efficiency plots

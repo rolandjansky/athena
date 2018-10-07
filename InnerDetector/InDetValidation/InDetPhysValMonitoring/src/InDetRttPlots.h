@@ -54,6 +54,13 @@ public:
   SetFillExtraTIDEPlots(bool fillthem) {
     m_moreJetPlots = fillthem;
   }
+  
+  void
+  SetFillITkResolutionPlots(bool fillthem) {
+    m_ITkResPlots = fillthem;
+    m_ITkResolutionPlotPrim = new InDetPerfPlot_resITk(this, "Tracks/SelectedMatchedTracks/Primary");
+    m_ITkResolutionPlotSecd = new InDetPerfPlot_resITk(this, "Tracks/SelectedMatchedTracks/Secondary");
+  }
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);

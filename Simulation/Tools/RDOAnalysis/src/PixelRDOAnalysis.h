@@ -16,14 +16,20 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimData/PixelSimHelper.h"
 #include "InDetIdentifier/PixelID.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include <string>
 #include <vector>
 #include "TH1.h"
+#include "TProfile.h"
 
 class TTree;
 class PixelID;
 class PixelRDORawData;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 class PixelRDOAnalysis : public AthAlgorithm {
 
@@ -39,6 +45,8 @@ private:
   SG::ReadHandleKey<PixelRDO_Container> m_inputKey;
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const PixelID *m_pixelID;
+  const InDetDD::PixelDetectorManager   *m_pixelManager;
+  
   // RDO
   std::vector<unsigned long long>* m_rdoID;
   std::vector<unsigned int>* m_rdoWord;
@@ -123,6 +131,24 @@ private:
   TH1* m_h_barcode;
   TH1* m_h_eventIndex;
   TH1* m_h_charge;
+  
+  TH1* m_h_belowThresh_brl;
+  TH1* m_h_belowThresh_ec;
+  
+  TH1* m_h_disabled_brl;  
+  TH1* m_h_disabled_ec;
+  
+  TH1* m_h_brlinclPhiIndex_perLayer[5];
+  TH1* m_h_brlinclEtaIndex_perLayer[5];
+   
+  TH1* m_h_brlflatPhiIndex_perLayer[5];
+  TH1* m_h_brlflatEtaIndex_perLayer[5];
+   
+  TH1* m_h_brlPhiIndex_perLayer[5];
+  TH1* m_h_brlEtaIndex_perLayer[5];
+   
+  TH1* m_h_ecPhiIndex_perLayer[5];
+  TH1* m_h_ecEtaIndex_perLayer[5];
 
   TTree* m_tree;
   std::string m_ntupleFileName;
@@ -130,6 +156,8 @@ private:
   std::string m_ntupleTreeName;
   std::string m_path;
   ServiceHandle<ITHistSvc> m_thistSvc;
+  
+  bool m_doITk;
 };
 
 #endif // PIXEL_RDO_ANALYSIS_H

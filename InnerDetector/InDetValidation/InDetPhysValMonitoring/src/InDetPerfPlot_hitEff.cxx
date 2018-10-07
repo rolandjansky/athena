@@ -46,6 +46,19 @@ InDetPerfPlot_hitEff::initializePlots() {
   book(m_hitEfficiencyVsEta[PIXEL][ENDCAP], "eff_hit_vs_eta_pix_endcap");
   book(m_hitEfficiencyVsEta[SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap");
   book(m_hitEfficiencyVsEta[TRT][ENDCAP], "eff_hit_vs_eta_trt_endcap");
+  
+  book(m_hitEfficiencyVsEta_PerLayer[0][L0PIXBARR][BARREL], "eff_hit_vs_eta_pix_barrel_layer0");
+  book(m_hitEfficiencyVsEta_PerLayer[0][PIXEL][ENDCAP]    , "eff_hit_vs_eta_pix_endcap_layer0");
+    
+  for (int layer=1; layer < N_LAYERS; layer++) {
+    book(m_hitEfficiencyVsEta_PerLayer[layer][PIXEL][BARREL], "eff_hit_vs_eta_pix_barrel_layer"+std::to_string(layer));
+    book(m_hitEfficiencyVsEta_PerLayer[layer][PIXEL][ENDCAP], "eff_hit_vs_eta_pix_endcap_layer"+std::to_string(layer));
+  }
+  
+  for (int layer=0; layer < N_SCTLAYERS; layer++) {
+    book(m_hitEfficiencyVsEta_PerLayer[layer][SCT][BARREL], "eff_hit_vs_eta_sct_barrel_layer"+std::to_string(layer));
+    book(m_hitEfficiencyVsEta_PerLayer[layer][SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap_layer"+std::to_string(layer));
+  }  
 }
 
 void
@@ -65,7 +78,7 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
     if (!result_det.empty()) {
       const std::vector<int>& result_measureType = trkprt.auxdata< std::vector<int> >("measurement_type");
       const std::vector<int>& result_region = trkprt.auxdata< std::vector<int> >("measurement_region");
-      // const std::vector<int> &result_iLayer = trkprt.auxdata< std::vector<int> >("hitResiduals_iLayer");
+      const std::vector<int>& result_iLayer = trkprt.auxdecor<std::vector<int> >("measurement_iLayer");
       // NP: this should be fine... residual filled with -1 if not hit
 
       for (unsigned int idx = 0; idx < result_region.size(); ++idx) {
@@ -73,12 +86,15 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
         const bool isHit((measureType == 0)or(measureType == 4));
         const int det = result_det[idx]; // LAYER TYPE L0PIXBARR / PIXEL / ...
         const int region = result_region[idx]; // BARREL OR ENDCAP
+        const int layer = result_iLayer[idx];
         float eta = std::fabs(trkprt.eta());
         if (det == DBM) {
           continue; // ignore DBM
         }
         //fillHisto(m_eff_hit_vs_eta[det][region], eta, int(isHit));
         fillHisto(m_hitEfficiencyVsEta[det][region], eta, isHit);
+        if (det==PIXEL or det==L0PIXBARR or (det==SCT and layer<N_SCTLAYERS))
+          fillHisto(m_hitEfficiencyVsEta_PerLayer[layer][det][region], eta, isHit);
       }
     }
   }
