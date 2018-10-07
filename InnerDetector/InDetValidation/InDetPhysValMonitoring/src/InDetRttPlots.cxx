@@ -72,7 +72,6 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
   m_trkInJetTrackTruthInfoPlots(this, "TruthInJet"),
   m_specPlots(this, "Tracks/PreSelectionSpectrumPlots") {
   m_moreJetPlots = false; // changed with setter function
-  m_ITkResPlots = false;
   // These settings are probably all redundant & can be removed from this script
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
@@ -81,11 +80,6 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
     m_trkInJetResPlotsDr0010 = new InDetPerfPlot_res(this, "Tracks/SelectedGoodJetDr0010Tracks");
     m_trkInJetResPlotsDr1020 = new InDetPerfPlot_res(this, "Tracks/SelectedGoodJetDr1020Tracks");
     m_trkInJetResPlotsDr2030 = new InDetPerfPlot_res(this, "Tracks/SelectedGoodJetDr2030Tracks");
-  }
-  if (m_ITkResPlots) {
-    // Resolutions for ITk
-    m_ITkResolutionPlotPrim = new InDetPerfPlot_resITk(this, "Tracks/SelectedMatchedTracks/Primary");
-    m_ITkResolutionPlotSecd = new InDetPerfPlot_resITk(this, "Tracks/SelectedMatchedTracks/Secondary");
   }
 }
 

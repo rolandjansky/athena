@@ -114,6 +114,15 @@ private:
   TH1* m_h_eventIndex;
   TH1* m_h_charge;
   TH2* m_h_phi_v_eta_sdo;
+  
+  TH1* m_h_belowThresh_brl;
+  TH1* m_h_belowThresh_ec;
+  
+  TH1* m_h_disabled_brl;  
+  TH1* m_h_disabled_ec;
+  
+  TH1* m_h_brl_strip_perLayer[4];
+  TH1* m_h_ec_strip_perLayer[9];
 
   TTree* m_tree;
   std::string m_ntupleFileName;
@@ -121,6 +130,8 @@ private:
   std::string m_ntupleTreeName;
   std::string m_path;
   ServiceHandle<ITHistSvc> m_thistSvc;
+  
+  bool m_doITk;
 
 };
 

@@ -18,6 +18,10 @@ dophy=1    # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
 # Following specify DCube output directories. Set empty to disable.
 dcube_sim_muons_100GeV_fixref="dcube_sim_muons_100GeV"
 dcube_sim_muons_100GeV_lastref="dcube_sim_muons_100GeV_last"
+dcube_digi_pixel_muons_100GeV_fixref="dcube_digi_pixel_muons_100GeV"
+dcube_digi_pixel_muons_100GeV_lastref="dcube_digi_pixel_muons_100GeV_last"
+dcube_digi_strip_muons_100GeV_fixref="dcube_digi_strip_muons_100GeV"
+dcube_digi_strip_muons_100GeV_lastref="dcube_digi_strip_muons_100GeV_last"
 dcube_rec_muons_100GeV_fixref="dcube_muons_100GeV"
 dcube_rec_muons_100GeV_lastref="dcube_muons_100GeV_last"
 
@@ -42,10 +46,16 @@ else
 fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_muons_100GeV_sim=SiHitValid_muons_100GeV.root
+dcubemon_muons_100GeV_digi_pixel=PixelRDOAnalysis_muons_100GeV.root
+dcubemon_muons_100GeV_digi_strip=SCT_RDOAnalysis_muons_100GeV.root
 dcubemon_muons_100GeV_rec=physval_muons_100GeV.root
 dcubecfg_sim=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_SiHitValid.xml 
+dcubecfg_digi_pixel=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_PixelRDOAnalysis.xml 
+dcubecfg_digi_strip=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_SCT_RDOAnalysis.xml 
 dcubecfg_rec=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_physval.xml
 dcuberef_muons_100GeV_sim=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_muons_100GeV_SiHitValid.root
+dcuberef_muons_100GeV_digi_pixel=$artdata/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis_muons_100GeV.root
+dcuberef_muons_100GeV_digi_strip=$artdata/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis_muons_100GeV.root
 dcuberef_muons_100GeV_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_muons_100GeV_physval.root
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 lastref_muons_100GeV_dir=last_results_muons_100GeV
@@ -135,7 +145,7 @@ if [ $dorec -ne 0 ]; then
     --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
     --DataRunNumber    242000 \
     --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' \
-                  HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' \
+                  HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.RDOAnalysis.py' \
                   RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' \
     --preExec     all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption="InclinedDuals";' \
                   HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' \
@@ -155,6 +165,16 @@ if [ $dorec -ne 0 ]; then
     echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
     run rm -f jobReport.json
   fi
+  
+  mv ./PixelRDOAnalysis.root ./$dcubemon_muons_100GeV_digi_pixel
+  mv ./SCT_RDOAnalysis.root ./$dcubemon_muons_100GeV_digi_strip
+  
+  # DCube digi plots
+  dcube Reco_tf digi-plot "$dcubemon_muons_100GeV_digi_pixel" "$dcubecfg_digi_pixel" "$lastref_muons_100GeV_dir/$dcubemon_muons_100GeV_digi_pixel" "$dcube_digi_pixel_muons_100GeV_lastref"
+  dcube Reco_tf  ""       "$dcubemon_muons_100GeV_digi_pixel" "$dcubecfg_digi_pixel"                           "$dcuberef_muons_100GeV_digi_pixel" "$dcube_digi_pixel_muons_100GeV_fixref"
+  
+  dcube Reco_tf digi-plot "$dcubemon_muons_100GeV_digi_strip" "$dcubecfg_digi_strip" "$lastref_muons_100GeV_dir/$dcubemon_muons_100GeV_digi_strip" "$dcube_digi_strip_muons_100GeV_lastref"
+  dcube Reco_tf  ""       "$dcubemon_muons_100GeV_digi_strip" "$dcubecfg_digi_strip"                           "$dcuberef_muons_100GeV_digi_strip" "$dcube_digi_strip_muons_100GeV_fixref"
   
 fi
 

@@ -81,13 +81,17 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_h_eventIndex(0)
   , m_h_charge(0)
   , m_h_phi_v_eta_sdo(0)
-
+  , m_h_belowThresh_brl(0)
+  , m_h_belowThresh_ec(0)
+  , m_h_disabled_brl(0)
+  , m_h_disabled_ec(0)
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/SCT_RDOAnalysis/")
   , m_ntupleTreeName("SCT_RDOAna")
   , m_path("/SCT_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
+  , m_doITk(false)
 {
   declareProperty("InputKey", m_inputKey);
   declareProperty("InputTruthKey", m_inputTruthKey);
@@ -95,6 +99,7 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
   declareProperty("HistPath", m_path);
+  declareProperty("DoITk", m_doITk);
 }
 
 StatusCode SCT_RDOAnalysis::initialize() {
@@ -149,11 +154,17 @@ StatusCode SCT_RDOAnalysis::initialize() {
   }
 
   // HISTOGRAMS
-  m_h_rdoID = new TH1F("h_rdoID", "rdoID", 100, 0, 1e18);
+  if (not m_doITk)
+    m_h_rdoID = new TH1F("h_rdoID", "rdoID", 100, 0, 1e18);
+  else 
+    m_h_rdoID = new TH1F("h_rdoID", "rdoID", 100, 0, 25e17);
   m_h_rdoID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rdoID->GetName(), m_h_rdoID));
 
-  m_h_rdoWord = new TH1F("h_rdoWord", "rdoWord", 100, 0, 1e7);
+  if (not m_doITk)
+    m_h_rdoWord = new TH1F("h_rdoWord", "rdoWord", 100, 0, 1e7);
+  else
+    m_h_rdoWord = new TH1F("h_rdoWord", "rdoWord", 100, 0, 17e6);
   m_h_rdoWord->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rdoWord->GetName(), m_h_rdoWord));
 
@@ -292,7 +303,35 @@ StatusCode SCT_RDOAnalysis::initialize() {
   m_h_phi_v_eta_sdo = new TH2F("h_phi_v_eta_sdo", "Phi module vs eta module (SDO)", 100, -7, 7, 100, 0, 60);
   m_h_phi_v_eta_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_phi_v_eta_sdo->GetName(), m_h_phi_v_eta_sdo));
-
+  
+  m_h_belowThresh_brl = new TH1F("h_belowThresh_brl", "Below threshold strips - Barrel; # below threshold strips; layer", 8, -0.5, 7.5);
+  m_h_belowThresh_brl->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_belowThresh_brl->GetName(), m_h_belowThresh_brl));
+  
+  m_h_belowThresh_ec = new TH1F("h_belowThresh_ec", "Below threshold strips - Endcap; # below threshold strips; layer", 8, -0.5, 7.5);
+  m_h_belowThresh_ec->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_belowThresh_ec->GetName(), m_h_belowThresh_ec));
+  
+  m_h_disabled_brl = new TH1F("m_h_disabled_brl", "Disabled strips - Barrel; # disabled strips; layer", 8, -0.5, 7.5);
+  m_h_disabled_brl->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_disabled_brl->GetName(), m_h_disabled_brl));
+  
+  m_h_disabled_ec = new TH1F("m_h_disabled_ec", "Disabled strips - Endcap; # disabled strips; layer", 8, -0.5, 7.5);
+  m_h_disabled_ec->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_disabled_ec->GetName(), m_h_disabled_ec));
+  
+  for (unsigned int layer=0; layer<4; layer++) {
+    m_h_brl_strip_perLayer[layer] = new TH1F(("m_h_brl_strip_perLayer"+std::to_string(layer)).c_str(), ("Strip index - Barrel - Layer "+std::to_string(layer)).c_str(), 1300, 0, 1300);
+    m_h_brl_strip_perLayer[layer]->StatOverflows();
+    ATH_CHECK(m_thistSvc->regHist(m_path + m_h_brl_strip_perLayer[layer]->GetName(), m_h_brl_strip_perLayer[layer]));
+  }
+  
+  for (unsigned int layer=0; layer<9; layer++) {
+    m_h_ec_strip_perLayer[layer] = new TH1F(("m_h_ec_strip_perLayer"+std::to_string(layer)).c_str(), ("Strip index - Barrel - Layer "+std::to_string(layer)).c_str(), 1300, 0, 1300);
+    m_h_ec_strip_perLayer[layer]->StatOverflows();
+    ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ec_strip_perLayer[layer]->GetName(), m_h_ec_strip_perLayer[layer]));
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -379,6 +418,8 @@ StatusCode SCT_RDOAnalysis::execute() {
           m_h_brlStrip->Fill(sctStrip);
           m_h_brlGroupSize->Fill(sctGroupSize);
           m_h_brl_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
+          m_h_brl_strip_perLayer[sctLayerDisk]->Fill(sctStrip);
+          m_h_brl_strip_perLayer[sctLayerDisk]->Fill(sctStrip);
         }
         else if (abs(sctBrlEc) == 2) {
           m_h_ecDisk->Fill(sctLayerDisk);
@@ -388,6 +429,8 @@ StatusCode SCT_RDOAnalysis::execute() {
           m_h_ecStrip->Fill(sctStrip);
           m_h_ecGroupSize->Fill(sctGroupSize);
           m_h_ec_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
+          m_h_ec_strip_perLayer[sctLayerDisk]->Fill(sctStrip);
+          m_h_ec_strip_perLayer[sctLayerDisk]->Fill(sctStrip);
         }
       }
     }
@@ -429,6 +472,20 @@ StatusCode SCT_RDOAnalysis::execute() {
       m_noise->push_back(noise);
       m_belowThresh->push_back(belowThresh);
       m_disabled->push_back(disabled);
+      
+      if (belowThresh) {
+        if (sctBrlEc_sdo==0)
+          m_h_belowThresh_brl->Fill(sctLayerDisk_sdo);     
+        else if (abs(sctBrlEc_sdo)==2)
+          m_h_belowThresh_ec->Fill(sctLayerDisk_sdo);
+      }
+      
+      if (disabled) {
+        if (sctBrlEc_sdo==0)
+          m_h_disabled_brl->Fill(sctLayerDisk_sdo);     
+        else if (abs(sctBrlEc_sdo)==2)
+          m_h_disabled_ec->Fill(sctLayerDisk_sdo);
+      }
 
       m_h_sdoID->Fill(sdoID_int);
       m_h_sdoWord->Fill(sdoWord);
