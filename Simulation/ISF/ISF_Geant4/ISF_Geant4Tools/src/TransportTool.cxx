@@ -100,11 +100,6 @@ StatusCode iGeant4::G4TransportTool::initialize()
 
   ATH_CHECK (m_detGeoSvc.retrieve());
 
-  // retrieve (and run) the Geant4 Python Config tool
-  if (!m_configTool.empty()) {
-    ATH_CHECK (m_configTool.retrieve());
-  }
-
   ATH_CHECK(m_senDetTool.retrieve());
   ATH_CHECK(m_fastSimTool.retrieve());
 

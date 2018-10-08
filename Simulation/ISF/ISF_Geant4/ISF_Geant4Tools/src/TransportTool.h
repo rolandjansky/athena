@@ -102,8 +102,6 @@ namespace iGeant4
 
     /// @name Configurable Properties
     /// @{
-    /** Geant4 Python Configuration Tool */
-    PublicToolHandle<IAlgTool>                 m_configTool{this, "G4ConfigTool", "", ""}; //!< Pointer to the G4 Python Config Tool
 
     // timing checks
     bool  m_doTiming{true};
