@@ -48,10 +48,14 @@ trackOnlySelection = '( count('+trackRequirements+') >= 2 && 5 >= count('+trackR
 objectSelection = '('+muonOnlySelection+' || '+electronOnlySelection+' || '+photonOnlySelection+' || '+electronPhotonSelection+' ||'+trackOnlySelection+')'
 
 #2015 triggers
-triggers  = ['HLT_hi_gg_upc_L1TE5_VTE200']
-triggers += ['HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50']
-triggers += ['HLT_mb_sptrk_vetombts2in_L1MU0_VTE50']
+triggers  = ['HLT_mb_sptrk_vetombts2in_L1MU0_VTE50']
+triggers += ['HLT_noalg_L1MU0_VTE50']
+triggers += ['HLT_hi_loose_upc_L1ZDC_A_C_VTE50']
 triggers += ['HLT_mb_sptrk_vetombts2in_L1ZDC_A_C_VTE50']
+triggers += ['HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50']
+triggers += ['HLT_noalg_L1ZDC_A_C_VTE50']
+triggers += ['HLT_hi_gg_upc_L1TE5_VTE200']
+
 
 #2016 triggers
 triggers += ['HLT_e5_etcut_L1EM3_VZDC_A']
