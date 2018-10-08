@@ -796,7 +796,7 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
             ATH_MSG_ERROR("Wrong time for in-time event: " << SubEvtTimOffset << " Ignoring all hits ");
           } else {
             ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
-            //this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
+            this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
             //if( m_doDigiTruth && iEvt == bSubEvents) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_signalHits);
           }
         } else if (m_pileUp) { // pileup code
