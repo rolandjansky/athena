@@ -141,6 +141,12 @@ _setup_python_package( configparser
    cfdd915a5b7a6c09917a64a573140538
    SINGLE_VERSION )
 
+# Install enum34:
+_setup_python_package( enum34
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/enum34-1.1.6.tar.gz
+   5f13a0841a61f7fc295c514490d120d0
+   SINGLE_VERSION )
+
 # Install mccabe:
 _setup_python_package( mccabe
    ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-0.6.1.tar.gz
