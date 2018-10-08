@@ -408,8 +408,7 @@ void LArNoiseCorrelationMon::fillInCorrelations()
       double tmp_maxcorr = 0.0;
       TH1F *hist_tmp_correlation;
       hist_tmp_correlation         = new TH1F("Tmp_correlation_value", "TMP correlation value", 40, -1.0, 1.0 );
-      TF1 *fit_gaus                = new TF1("Tmp Gaussian fit", "gaus", -1.0, 1.0);
-      double Sigma_gaus  = 0.0;
+      double tmp_RMS  = 0.0;
       m_histos=feb_entry.second;
       for(int i=1;i<=Nchan;i++)
 	{
@@ -436,13 +435,12 @@ void LArNoiseCorrelationMon::fillInCorrelations()
 	      // First variable: maximum correlation in the FEB
 	      if ( tmp_maxcorr < std::abs(cor) )
 		tmp_maxcorr = std::abs(cor);
-	      // Second maximum correlation/sigma
+	      // Second valiable: RMS value in correlation distribution
 	      hist_tmp_correlation->Fill(cor);
 	    }
 	}
-      
-      hist_tmp_correlation->Fit(fit_gaus);
-      Sigma_gaus = fit_gaus->GetParameter(2);
+
+      tmp_RMS = hist_tmp_correlation->GetRMS();
 
       // Fill in summary histogram
       TPMERegexp tmp('_');
@@ -453,51 +451,51 @@ void LArNoiseCorrelationMon::fillInCorrelations()
 	  if(m_LArOnlineIDHelper->isEMBchannel( feb_entry.first )){
 	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first) ){
 	      h_summary_plot1_EMBA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr);
-	      h_summary_plot2_EMBA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus);
+	      h_summary_plot2_EMBA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_RMS);
 	    }
 	    else{
 	      h_summary_plot1_EMBC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr);
-	      h_summary_plot2_EMBC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus);
+	      h_summary_plot2_EMBC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_RMS);
 	    }
 	  }
 	  // EMEC
 	  else if(m_LArOnlineIDHelper->isEMECchannel( feb_entry.first )){
 	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first)){
 	      h_summary_plot1_EMECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr);
-	      h_summary_plot2_EMECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr/Sigma_gaus);
+	      h_summary_plot2_EMECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_RMS);
 	    }
 	    else{
 	      h_summary_plot1_EMECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr);
-	      h_summary_plot2_EMECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr/Sigma_gaus);
+	      h_summary_plot2_EMECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_RMS);
 	    }
 	  }
 	  // HEC
 	  else if(m_LArOnlineIDHelper->isHECchannel( feb_entry.first )){
 	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first)){
 	      h_summary_plot1_HECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr );
-	      h_summary_plot2_HECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus );
+	      h_summary_plot2_HECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_RMS );
 	    }
 	    else{
 	      h_summary_plot1_HECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr );
-	      h_summary_plot2_HECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus );
+	      h_summary_plot2_HECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_RMS );
 	    }
 	  }
 	  // FCAL
 	  else if(m_LArOnlineIDHelper->isFCALchannel( feb_entry.first )){
 	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first)){
 	      h_summary_plot1_FCALA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
-	      h_summary_plot2_FCALA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
+	      h_summary_plot2_FCALA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_RMS );
 	    }
 	    else{
 	      h_summary_plot1_FCALC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
-	      h_summary_plot2_FCALC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
+	      h_summary_plot2_FCALC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_RMS );
 	    }
 	  }
 	}
       }
       // Delete them in order to save the memory
       delete hist_tmp_correlation;
-      delete fit_gaus;
+
     }
 }
 
