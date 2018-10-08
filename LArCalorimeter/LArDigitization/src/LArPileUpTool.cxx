@@ -2220,7 +2220,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
   for(i=0;i<m_NSamples;i++)
   {
     double xAdc;
-    double xAdc_DigiHSTruth;
+    double xAdc_DigiHSTruth = 0;
 
     if ( m_NoiseOnOff ){
       xAdc =  m_Samples[i]*energy2adc + m_Noise[i] + Pedestal + 0.5;
