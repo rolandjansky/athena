@@ -371,6 +371,9 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
+  const LArOnOffIdMapping* cabling(*cablingHdl);
+
   ATH_MSG_DEBUG ("Executing LArCellBuilderFromLArHitTool");
 
   unsigned int nCells0 = theCellContainer->size();
@@ -398,8 +401,9 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 	if (e < m_eHitThreshold) continue;
       }
       
-      Identifier id  = hit->cellID();
-
+      const Identifier id  = hit->cellID();
+      const HWIdentifier hwid=cabling->createSignalChannelID(id);
+      
       //FIXME
       //log << MSG::DEBUG << " Hit : " << m_atlas_id->show_to_string(id)
       //	  << " energy " << e << endmsg ;
@@ -432,7 +436,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
       else
 	{	
 	  // directly make the cells and add them to theCellContainer
-	  e/= m_dd_fSampl->FSAMPL(id);	  
+	  e/= m_dd_fSampl->FSAMPL(hwid);	  
 
 	  //FIXME
 	  //  log << MSG::DEBUG << " .. new e " << e << endmsg ;
@@ -484,7 +488,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
       double e = hit ? hit->energy() : 0;
 
       // scale     
-      e/= m_dd_fSampl->FSAMPL( info.caloDDE()->identify() ); 
+      e/= m_dd_fSampl->FSAMPL(cabling->createSignalChannelID(info.caloDDE()->identify()) ); 
 
       // choose the gain   
 

@@ -33,9 +33,6 @@ class ILArfSampl {
   // online ID
   virtual const float& FSAMPL(const HWIdentifier& id )  const = 0 ;
   
-  // offline ID 
-  virtual const float& FSAMPL(const Identifier& id )  const=0;
-
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
   
 } ;

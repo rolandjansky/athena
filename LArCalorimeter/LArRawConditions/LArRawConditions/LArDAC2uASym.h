@@ -23,8 +23,6 @@ class LArDAC2uASym: virtual public ILArDAC2uA {
   
   virtual const float& DAC2UA(const HWIdentifier& hwid) const override;
   
-  virtual const float& DAC2UA(const Identifier& CellID) const override;
-  
  private: 
 
   const LArMCSym* m_mcSym;

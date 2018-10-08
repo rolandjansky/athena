@@ -7,7 +7,7 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-
+#include "LArCabling/LArCablingService.h"
 
 CaloMBAverageTool::CaloMBAverageTool (const std::string& type, 
 				  const std::string& name, 
@@ -16,6 +16,7 @@ CaloMBAverageTool::CaloMBAverageTool (const std::string& type,
     m_OFCTool("LArOFCTool"),
     m_calo_id(nullptr),
     m_Nminbias(-1),m_deltaBunch(1),m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBiasAverage("LArMinBiasAverage"),
+    m_cabling("LArCablingService"),
     m_ncell(0)
 { 
   declareInterface<ICaloMBAverageTool>(this);
@@ -76,6 +77,9 @@ StatusCode CaloMBAverageTool::initialize() {
                                 &ICaloMBAverageTool::LoadCalibration,dynamic_cast<ICaloMBAverageTool*>(this),true) );
   ATH_MSG_INFO( "Registered callbacks for LArOFCTool -> CaloMBAverageTool" );
 
+
+  ATH_CHECK(m_cabling.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -91,22 +95,22 @@ StatusCode CaloMBAverageTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
   for (unsigned int icell=0;icell<m_ncell;icell++) {
     IdentifierHash cellHash = icell;
     Identifier id = m_calo_id->cell_id(cellHash);
-
+    HWIdentifier hwid=m_cabling->createSignalChannelID(id);
     if (m_calo_id->is_em(cellHash) || m_calo_id->is_hec(cellHash) || m_calo_id->is_fcal(cellHash)) {
 
       //  get MinBiasAverage
-      float MinBiasAverage = m_dd_minbiasAverage->minBiasAverage(id);
+      float MinBiasAverage = m_dd_minbiasAverage->minBiasAverage(hwid);
 
       if (MinBiasAverage<0.) MinBiasAverage=0.;
 
       //  get fSampl
-      const float fSampl = m_dd_fsampl->FSAMPL(id);
+      const float fSampl = m_dd_fsampl->FSAMPL(hwid);
       const float inv_fSampl = 1. / fSampl;
 
       for (int igain=0;igain<3;igain++) {
  
          //  get Shape
-         ILArShape::ShapeRef_t Shape = m_dd_shape->Shape(id,igain);
+         ILArShape::ShapeRef_t Shape = m_dd_shape->Shape(hwid,igain);
 
          //  get OFC
          ILArOFCTool::OFCRef_t OFC = m_OFCTool->OFC_a(id, igain, m_Nminbias) ;
