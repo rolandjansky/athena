@@ -191,6 +191,9 @@ namespace MuonCombined {
     //associate segments to MuGirlLowBeta muons;
     bool m_segLowBeta;
 
+    //use calo cells
+    bool m_useCaloCells;
+
     /// copy truth links from primary track particle (or put dummy link if this is missing)
     //bool m_fillMuonTruthLinks;
     
