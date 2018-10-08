@@ -17,7 +17,10 @@ ChainDictionary ={  'HLT_e8'     : ['HLT_e8'],
                     'HLT_e7_etcut': ['HLT_e7_etcut'],
                     'HLT_mu6_e3_etcut': ['HLT_mu6', 'HLT_e3_etcut'],
                     'HLT_e3_etcut_mu6': ['HLT_e3_etcut', 'HLT_mu6'],
-                    'HLT_g5_etcut' : ['HLT_g5_etcut']
+                    'HLT_g5_etcut' : ['HLT_g5_etcut'],
+                    'HLT_j35_gsc45_boffperf_split' : ['HLT_j35_gsc45_boffperf_split'],
+                    'HLT_j35_gsc45_bmv2c1070_split' : ['HLT_j35_gsc45_bmv2c1070_split'],
+                    'HLT_j35_gsc45_bmv2c1070' : ['HLT_j35_gsc45_bmv2c1070']
                  }
 
 

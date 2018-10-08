@@ -50,6 +50,12 @@ StatusCode TrigGSCFexMT::initialize() {
   ATH_MSG_INFO( "Initializing TrigGSCFexMT, version " << PACKAGE_VERSION );
 
   // declareProperty overview 
+  ATH_MSG_DEBUG( "declareProperty review:"                );
+  ATH_MSG_DEBUG( "   "     << m_JetContainerKey           );
+  ATH_MSG_DEBUG( "   "     << m_VertexContainerKey        );
+  ATH_MSG_DEBUG( "   "     << m_TrackParticleContainerKey );
+  ATH_MSG_DEBUG( "   "     << m_jetOutputKey              );
+
   ATH_MSG_DEBUG( "Initializing ReadHandleKeys" );
   ATH_CHECK( m_JetContainerKey.initialize()           );
   ATH_CHECK( m_VertexContainerKey.initialize()        );

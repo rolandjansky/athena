@@ -3,18 +3,18 @@
 */
 
 #include "GaudiKernel/Property.h"
-#include "TrigBjetHypoAlg.h"
+#include "TrigBjetEtHypoAlg.h"
 
 using namespace TrigCompositeUtils;
 
-TrigBjetHypoAlg::TrigBjetHypoAlg( const std::string& name, 
+TrigBjetEtHypoAlg::TrigBjetEtHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigBjetHypoAlg::~TrigBjetHypoAlg()
+TrigBjetEtHypoAlg::~TrigBjetEtHypoAlg()
 {}
 
-StatusCode TrigBjetHypoAlg::initialize()
+StatusCode TrigBjetEtHypoAlg::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
@@ -28,7 +28,7 @@ StatusCode TrigBjetHypoAlg::initialize()
 
   CHECK( m_decisionsKey.initialize() );
 
-  ATH_MSG_INFO("Initializing TrigBjetHypoAlg");
+  ATH_MSG_INFO("Initializing TrigBjetEtHypoAlg");
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_roisKey          );
@@ -37,11 +37,11 @@ StatusCode TrigBjetHypoAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlg::finalize() {
+StatusCode TrigBjetEtHypoAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const {  
+StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   SG::ReadHandle< xAOD::BTaggingContainer > bTagHandle = SG::makeHandle( m_bTagKey, context );
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roisKey, context );
@@ -69,8 +69,8 @@ StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const {
     const TrigRoiDescriptor *roiDescriptor = roisHandle->at( index );
     TrigCompositeUtils::Decision *decision = decisions->at( index );
 
-
-    for ( const ToolHandle< TrigBjetHypoTool >& tool : m_hypoTools ) {
+    /* // TO BE CHANGED
+    for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
       // interface of the tool needs to be suitable for current system, so no TrigComposite
       // also no support for the multi-electrons yet ( will be additional method )
       if ( tool->decide( bTag, roiDescriptor ) ) {   
@@ -80,7 +80,7 @@ StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const {
 	ATH_MSG_DEBUG( " - " << tool->name() );
       }
     }
-    
+    */
   }
 
   {
