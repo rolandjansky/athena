@@ -482,7 +482,7 @@ def setupMenu():
 	#PCpeb
 	['mb_sptrk_hipeb_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50_PEB', [], [PCpebStream],["BW:PCpeb", "RATE:PCpeb"], 1],
 	#PC
-	['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream],["BW:PC", "RATE:PC"], 1],
+	['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream, 'express'],["BW:PC", "RATE:PC"], 1],
 	
 	
 	#MB UPC:
@@ -650,9 +650,9 @@ def setupMenu():
 	#['noalg_mb_L1TE9000.0ETA49',      'L1_TE9000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
     
     #PC
- 	['noalg_pc_L1TE50_VTE600.0ETA49',      'L1_TE50_VTE600.0ETA49', [], [PCStream], ["BW:PC", "RATE:PC"], 1],
+ 	['noalg_pc_L1TE50_VTE600.0ETA49',      'L1_TE50_VTE600.0ETA49', [], [PCStream, 'express'], ["BW:PC", "RATE:PC"], 1],
 	#CC
-	['noalg_cc_L1TE600.0ETA49',      'L1_TE600.0ETA49', [], [CCStream], ["BW:CC", "RATE:CC"], 1],
+	['noalg_cc_L1TE600.0ETA49',      'L1_TE600.0ETA49', [], [CCStream, 'express'], ["BW:CC", "RATE:CC"], 1],
     
 	#min bias
         ['noalg_mb_L1MBTS_2',    'L1_MBTS_2', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
