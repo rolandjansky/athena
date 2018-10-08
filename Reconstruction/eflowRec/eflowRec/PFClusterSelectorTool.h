@@ -1,25 +1,25 @@
-#ifndef PFCLUSTERSELECTOR_H
-#define PFCLUSTERSELECTOR_H
+#ifndef PFCLUSTERSELECTORTOOL_H
+#define PFCLUSTERSELECTORTOOL_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "eflowRec/IPFClusterSelectorTool.h"
+#include "eflowRec/eflowRecCluster.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include <map>
 
-class eflowRecClusterContainer;
-
-class PFClusterSelector : public AthAlgorithm {
+class PFClusterSelectorTool : public extends<AthAlgTool, IPFClusterSelectorTool> {
 
 public:
   /** Default constructor */
-  PFClusterSelector(const std::string& name, ISvcLocator* pSvcLocator);
+  PFClusterSelectorTool(const std::string& type,const std::string& name,const IInterface* parent);
   /** Default destructor */
-  ~PFClusterSelector() {};
+  ~PFClusterSelectorTool() {};
 
   /** Gaudi AthAlgorithm hooks */
   StatusCode initialize();
-  StatusCode execute();
+  StatusCode execute(eflowRecClusterContainer& theEFlowRecClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
   StatusCode finalize();
 
 private:
@@ -30,12 +30,7 @@ private:
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClustersReadHandleKey{this,"clustersName","CaloTopoCluster","ReadHandleKey for the CaloClusterContainer to be used as input"};
 
   /** ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoClusters","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};
-
-  /** WriteHandleKey for the eflowRecClusterContainer to write out */
-  SG::WriteHandleKey<eflowRecClusterContainer> m_eflowRecClustersWriteHandleKey{this,"eflowRecClustersOutputName","eflowRecClusters","WriteHandleKey for the eflowRecClusterContainer to write out"};
-  
-
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoClusters","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};  
   
 };
 #endif
