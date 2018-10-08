@@ -21,9 +21,21 @@ conddb.addOverride("/LAR/ElecCalibMCSC/Ramp", "LARElecCalibMCSRamp-"+tagToOverri
 #Input file
 from PyUtils import AthFile
 import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POOL files (e.g. xAODs)
-svcMgr.EventSelector.InputCollections=[""]               #left blank for no proper sample
+svcMgr.EventSelector.InputCollections=["/eos/user/c/cylin/L1Calo/r10684/mc16_13TeV.345058.PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_vvbb.recon.AOD.e6004_e5984_s3126_r10684/AOD.15453878._000020.pool.root.1"]               #left blank for no proper sample
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
+
+#Output AOD 
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+xaodStream = MSMgr.NewPoolRootStream( "StreamXAOD", "xAOD.out.root" )
+xaodStream.AddItem( ["xAOD::JetRoIContainer#*"] )
+xaodStream.AddItem( ["xAOD::JetRoIAuxContainer#*"] )
+xaodStream.AddItem( ["xAOD::EnergySumRoI#*"] )
+xaodStream.AddItem( ["xAOD::EnergySumRoIAuxInfo#*"] )
+
+
+xaodStream.Stream.TakeItemsFromInput = True
+
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff() 
@@ -33,7 +45,7 @@ include("RecExCond/AllDet_detDescr.py")
 include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
-svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
+#svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
 svcMgr.IOVRegistrationSvc.RecreateFolders = True
 svcMgr.IOVRegistrationSvc.SVFolder = False
 svcMgr.IOVRegistrationSvc.userTags = False
@@ -41,6 +53,13 @@ svcMgr.IOVRegistrationSvc.userTags = False
 
 #svcMgr.IOVDbSvc.dbConnection  = "impl=cool;techno=oracle;schema=ATLAS_COOL_LAR;ATLAS_COOLPROD:OFLP130:ATLAS_COOL_LAR_W:"
 svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=gJTowerMap.db;dbname=OFLP200"
+
+af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
+isMC = 'IS_SIMULATION' in af.fileinfos['evt_type']
+
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+if isMC: ToolSvc += BunchCrossingTool( "MC" )
+else: ToolSvc += BunchCrossingTool( "LHC" )
 
 
 
@@ -64,20 +83,10 @@ svcMgr.THistSvc.Output += ["OUTPUT DATAFILE='myOutputFile.root' OPT='RECREATE'"]
 
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-  declareProperty("outputNoise",m_outputNoise=false);
-  declareProperty("noise_file",m_noise_file="");
-  declareProperty("jJet_threshold",m_jJet_thr=2.0);
-  declareProperty("jSeed_size",m_jSeed_size=0.2);
-  declareProperty("jMax_r",m_jMax_r=0.4);
-  declareProperty("jJet_r",m_jJet_r=0.4);
-  declareProperty("gJet_threshold",m_gJet_thr=2.0);
-  declareProperty("gSeed_size",m_gSeed_size=0.2);
-  declareProperty("gMax_r",m_gMax_r=0.4);
-  declareProperty("gJet_r",m_gJet_r=0.4);
 
 algseq += CfgMgr.JGTowerReader(
 outputNoise=True,
-noise_file="../../Trigger/TrigT1/TrigT1CaloFexSim/data/noise_r9813.root",
+noise_file="$WorkDir_DIR/data/TrigT1CaloFexSim/noise_r10684.root",
 jJet_threshold=3,
 jSeed_size=0.2,
 jMax_r=0.4,
