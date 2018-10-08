@@ -200,26 +200,12 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
     // set status to Processing
     metComp->m_status |= m_maskProcessing;
 
-    ATH_MSG_DEBUG( " Fetch topo cluster component " );
-
-    metComp = metHelper->GetComponent(metHelper->GetElements() - m_metHelperPosition); // fetch Cluster component
-
-    if (metComp==0) {
-        ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
-        return StatusCode::FAILURE;
-    }
-    if(string(metComp->m_name).substr(0,2)!="TC") {
-        ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" );
-        return StatusCode::FAILURE;
-    }
-
-
     //######################################################################
 
 
-    ATH_MSG_INFO( "num of tracks: " << trackContainer->size() );
-    ATH_MSG_INFO( "num of topoclusters: " << caloCluster->size() );
-    ATH_MSG_INFO( "num of vertices: " << vertexContainer->size() );
+    ATH_MSG_DEBUG( "num of tracks: " << trackContainer->size() );
+    ATH_MSG_DEBUG( "num of topoclusters: " << caloCluster->size() );
+    ATH_MSG_DEBUG( "num of vertices: " << vertexContainer->size() );
 
     std::vector<const xAOD::Muon*> MuonVec;
     if(muonContainer!=nullptr) {
@@ -250,7 +236,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
                 }
             } //end of loop over stored muon tracks
 
-            ATH_MSG_INFO( "Found muon track --> pt = " << idtrk->pt()/1000.
+            ATH_MSG_DEBUG( "Found muon track --> pt = " << idtrk->pt()/1000.
                           << " eta= " << idtrk->eta()
                           << " phi= " << idtrk->phi()
                           <<  " Found duplicate=" << find_duplicate
@@ -266,7 +252,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
     const xAOD::Vertex* primaryVertexFTK = nullptr;
     for (auto vertex: *vertexContainer) {
         //count the number of vertices with at least 2 tracks
-        ATH_MSG_INFO ( " x: " << vertex->x() << "\ty: " << vertex->y() << "\tz: " << vertex->z()
+        ATH_MSG_DEBUG ( " x: " << vertex->x() << "\ty: " << vertex->y() << "\tz: " << vertex->z()
                        << "\tntracks: " <<  vertex->nTrackParticles()
                        << "\ttype: " << vertex->vertexType()
                        << "\txAOD::VxType::PriVtx: " << xAOD::VxType::PriVtx
@@ -517,8 +503,6 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
     }
 
 
-
-    ATH_MSG_DEBUG( " Start TrackAndClusters algorithm: " );
 
 
     // move from "processing" to "processed" state
