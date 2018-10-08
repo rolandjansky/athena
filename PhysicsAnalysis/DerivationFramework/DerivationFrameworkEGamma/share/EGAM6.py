@@ -51,11 +51,11 @@ EGAM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 
 if RecomputeElectronSelectors :
-    requirement_tag = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
-    requirement_probe = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement_tag = '(Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
+    requirement_probe = '(Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
 else :
-    requirement_tag = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
-    requirement_probe = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement_tag = '(Electrons.LHTight) && Electrons.pt > 24.5*GeV'
+    requirement_probe = '(Electrons.LHMedium) && Electrons.pt > 19.5*GeV'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM6_ZEEMassTool1 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEEMassTool1",
@@ -78,11 +78,10 @@ print EGAM6_ZEEMassTool1
 # OS, mee>60 GeV
 #====================================================================
 
-# switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 if RecomputeElectronSelectors:
-    requirement = '(Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement = '(Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
 else:
-    requirement = '(Electrons.Loose || Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement = '(Electrons.LHLoose || Electrons.LHMedium) && Electrons.pt > 19.5*GeV'
 EGAM6_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEEMassTool2",
                                                                Object1Requirements = requirement,
                                                                Object2Requirements = requirement,
@@ -109,9 +108,9 @@ print EGAM6_ZEEMassTool2
 
 # switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 if RecomputeElectronSelectors :
-    requirement_tag = '(Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
 else :
-    requirement_tag = '(Electrons.Loose || Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.LHLoose || Electrons.LHMedium) && Electrons.pt > 24.5*GeV'
 
 # central electrons: collection = Electrons, pt>14.5 GeV
 requirement_probe = 'Electrons.pt > 14.5*GeV'
@@ -139,9 +138,9 @@ print EGAM6_ZEEMassTool3
 
 # switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 if RecomputeElectronSelectors:
-    requirement_tag = '(Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
 else:
-    requirement_tag = '(Electrons.Loose || Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.LHLoose || Electrons.LHMedium) && Electrons.pt > 24.5*GeV'
 requirement_probe = 'DFCommonPhotons_et > 14.5*GeV'
 EGAM6_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEGMassTool",
                                                               Object1Requirements = requirement_tag,

@@ -51,6 +51,10 @@ public:
   void setDBM(bool flag = false);
   bool dbm() const;
 
+  //dynamic alignment folders
+  void setDynamicAlignFolders(const bool useDynAlignFolders);
+  bool dynamicAlignFolders() const;
+
 private:
 
   // flag to build also the services
@@ -80,6 +84,8 @@ private:
   // DBM
   bool m_dbm;
 
+  //controls which set of alignment folders is used
+  bool m_dynAlignFolders;
 };
 
 #endif // PixelSwitches_H

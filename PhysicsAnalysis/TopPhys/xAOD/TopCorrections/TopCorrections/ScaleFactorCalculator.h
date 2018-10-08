@@ -25,6 +25,7 @@
 
 // PMG Tools
 #include "PMGTools/PMGSherpa22VJetsWeightTool.h"
+#include "PMGAnalysisInterfaces/IPMGTruthWeightTool.h"
 
 // Local include(s):
 #include "TopCorrections/PhotonScaleFactorCalculator.h"
@@ -34,6 +35,7 @@
 #include "TopCorrections/JetScaleFactorCalculator.h"
 #include "TopCorrections/BTagScaleFactorCalculator.h"
 #include "TopCorrections/PileupScaleFactorCalculator.h"
+#include "TopCorrections/GlobalLeptonTriggerCalculator.h"
 
 namespace top {
 
@@ -65,8 +67,9 @@ class ScaleFactorCalculator final : public asg::AsgTool{
   std::unique_ptr<top::JetScaleFactorCalculator>      m_jetSF;
   std::unique_ptr<top::BTagScaleFactorCalculator>     m_btagSF;
   std::unique_ptr<top::PileupScaleFactorCalculator>   m_pileupSF;
-  ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool> m_sherpa_22_reweight_tool;
-  
+  ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool>    m_sherpa_22_reweight_tool;
+  std::unique_ptr<top::GlobalLeptonTriggerCalculator> m_globalLeptonTriggerSF;
+  ToolHandle<PMGTools::IPMGTruthWeightTool>           m_pmg_truth_weight_tool;
 };
 }  // namespace top
 

@@ -8,14 +8,14 @@
 #include "GaudiKernel/MsgStream.h"
 
 TileRawChannelContainer_PERS* TileRawChannelContainerCnv::createPersistent(TileRawChannelContainer* transCont) {
-    MsgStream mlog(messageService(), "TileRawChannelContainerConverter" );
+    MsgStream mlog(msgSvc(), "TileRawChannelContainerConverter" );
     TileRawChannelContainerCnv_p1   converter;
     TileRawChannelContainer_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
 }
 
 TileRawChannelContainer* TileRawChannelContainerCnv::createTransient() {
-    MsgStream mlog(messageService(), "TileRawChannelContainerConverter" );
+    MsgStream mlog(msgSvc(), "TileRawChannelContainerConverter" );
     TileRawChannelContainerCnv_p1   converter_p1;
 
     TileRawChannelContainer       *trans_cont(0);
@@ -33,12 +33,12 @@ TileRawChannelContainer* TileRawChannelContainerCnv::createTransient() {
         bool lDebug = (mlog.level()<=MSG::DEBUG);
 
         if (lDebug) 
-          mlog << MSG::DEBUG << "Read IDC, size " << rdoV->size() << endreq;
+          mlog << MSG::DEBUG << "Read IDC, size " << rdoV->size() << endmsg;
 
         // fixing bug with units in 13.0.20 - should be removed once all RDO files produced with 13.0.20 disappear
         if (rdoV->m_type == 104) {
           if (lDebug) 
-            mlog << MSG::DEBUG << "fixing units bug in 13.0.20 RDO data: if (type=104) type=4;" << endreq;
+            mlog << MSG::DEBUG << "fixing units bug in 13.0.20 RDO data: if (type=104) type=4;" << endmsg;
           rdoV->m_type = (TileFragHash::TYPE)4;
         }
 
@@ -49,7 +49,7 @@ TileRawChannelContainer* TileRawChannelContainerCnv::createTransient() {
 
         if (lDebug) 
           mlog << MSG::DEBUG << MSG::hex << "m_type=" << rdoV->m_type 
-               << " " <<  bsflags << " " << unit << " " << type << " " << hashType << MSG::dec << endreq;
+               << " " <<  bsflags << " " << unit << " " << type << " " << hashType << MSG::dec << endmsg;
     
         // create the Tile IdentifiableContainer to contain the rdo collections
         trans_cont = new TileRawChannelContainer(false,hashType,unit,SG::OWN_ELEMENTS);
@@ -68,7 +68,7 @@ TileRawChannelContainer* TileRawChannelContainerCnv::createTransient() {
           TileRawChannelCollection::ID id_coll = rdoColl->identify();
           StatusCode sc = trans_cont->addCollection(rdoColl,trans_cont->hashFunc()(id_coll));
           if(sc.isFailure()) {
-            mlog << MSG::ERROR << "Can't add collection " << id_coll << " to container" << endreq;
+            mlog << MSG::ERROR << "Can't add collection " << id_coll << " to container" << endmsg;
           }
         }
         delete rdoV;

@@ -15,12 +15,18 @@ HadMuBuilder::HadMuBuilder( const std::string& name ) :
   m_sDiTauHadMuContainerName("DiTauJetsHadMu"),
   m_sDiTauHadMuAuxContainerName("DiTauJetsHadMuAux."),
   m_sMuonContainerName("Muons"),
-  m_sTauContainerName("TauJets")
+  m_sTauContainerName("TauJets"),
+  m_fTauMinPt(0),
+  m_iTauMinNtracks(1),
+  m_iTauMaxNtracks(9999)
 {
   declareProperty("DiTauHadMuContainer", m_sDiTauHadMuContainerName);
   declareProperty("DiTauHadMuAuxContainer", m_sDiTauHadMuAuxContainerName);
   declareProperty("MuonContainer", m_sMuonContainerName);
   declareProperty("TauContainer", m_sTauContainerName);
+  declareProperty("TauMinPt", m_fTauMinPt);
+  declareProperty("TauMinNtracks", m_iTauMinNtracks);
+  declareProperty("TauMaxNtracks", m_iTauMaxNtracks);
 }
 
 HadMuBuilder::~HadMuBuilder()
@@ -39,8 +45,8 @@ StatusCode HadMuBuilder::execute()
   xAOD::DiTauJetAuxContainer* xDiTauJetAuxContainerHadMu  = new xAOD::DiTauJetAuxContainer();
   xDiTauJetContainerHadMu->setStore(xDiTauJetAuxContainerHadMu);
   
-  ANA_CHECK(evtStore()->record(xDiTauJetContainerHadMu, m_sDiTauHadMuContainerName));
-  ANA_CHECK(evtStore()->record(xDiTauJetAuxContainerHadMu, m_sDiTauHadMuAuxContainerName));
+  ATH_CHECK(evtStore()->record(xDiTauJetContainerHadMu, m_sDiTauHadMuContainerName));
+  ATH_CHECK(evtStore()->record(xDiTauJetAuxContainerHadMu, m_sDiTauHadMuAuxContainerName));
     
   const xAOD::MuonContainer* muonContainer = evtStore()->retrieve<const xAOD::MuonContainer>(m_sMuonContainerName);
   const xAOD::TauJetContainer* tauContainer = evtStore()->retrieve<const xAOD::TauJetContainer>(m_sTauContainerName);
@@ -68,6 +74,9 @@ StatusCode HadMuBuilder::execute()
   for(auto muon : *muonContainer){
     TLorentzVector p4_muon = muon->p4();
     for(auto tau : *tauContainer){
+      if (tau->pt() < m_fTauMinPt) continue;
+      if (tau->nTracks() < m_iTauMinNtracks) continue;
+      if (tau->nTracks() > m_iTauMaxNtracks) continue;
       TLorentzVector p4_tau = tau->p4();
       if(p4_muon.DeltaR(p4_tau) < 1.0){
 	xAOD::DiTauJet* hadMuDiTau = new xAOD::DiTauJet();

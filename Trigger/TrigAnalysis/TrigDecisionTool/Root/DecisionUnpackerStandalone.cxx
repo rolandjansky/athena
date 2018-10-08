@@ -53,12 +53,12 @@ namespace Trig {
   
   StatusCode
   DecisionUnpackerStandalone::
-  unpackDecision( std::map< std::string,
+  unpackDecision( std::unordered_map< std::string,
                              const LVL1CTP::Lvl1Item* >& itemsByName,
                    std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
-                   std::map< std::string, const HLT::Chain* >& l2chainsByName,
+                   std::unordered_map< std::string, const HLT::Chain* >& l2chainsByName,
                    std::map< CHAIN_COUNTER, HLT::Chain* >& l2chainsCache,
-                   std::map< std::string, const HLT::Chain* >& efchainsByName,
+                   std::unordered_map< std::string, const HLT::Chain* >& efchainsByName,
                    std::map< CHAIN_COUNTER, HLT::Chain* >& efchainsCache,
                    char& bgCode,
                    bool unpackHLT ) {
@@ -200,9 +200,9 @@ namespace Trig {
    StatusCode
    DecisionUnpackerStandalone::
    unpackItems( std::map< unsigned, LVL1CTP::Lvl1Item* >& itemsCache,
-                std::map< std::string,
+                std::unordered_map< std::string,
                           const LVL1CTP::Lvl1Item* >& itemsByName ) {
-
+      itemsByName.reserve( itemsByName.size() + itemsCache.size() );
       auto cacheItr = itemsCache.begin();
       auto cacheEnd = itemsCache.end();
       for( ; cacheItr != cacheEnd; ++cacheItr ) {
@@ -234,8 +234,9 @@ namespace Trig {
                  const std::vector< uint32_t >& passedthrough,
                  const std::vector< uint32_t >& prescaled,
                  const std::vector< uint32_t >& resurrected,
-                 std::map< std::string, const HLT::Chain* >& output ) {
-      
+                 std::unordered_map< std::string, const HLT::Chain* >& output ) {
+      output.reserve( output.size() + cache.size() );
+
       for( auto& cntrchain : cache ) {
 
          unsigned cntr = cntrchain.first;

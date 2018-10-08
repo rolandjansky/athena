@@ -166,12 +166,14 @@ def update_dict_for_release(updict, release):
         extraSetup += " AtlasProduction"
     elif relProj == "Athena":
         extraSetup += " Athena"
+    elif relProj == "AthDataQuality":
+        extraSetup += " AthDataQuality"
     elif relProj != "AtlasOffline":
         s="ERROR: The project specified (" + relProj +") is not Athena, AtlasOffline or AtlasProduction. Are you sure?"
         raise RuntimeError(s)
 
     # update dictionary
-    tasktransinfo = {'trfpath': 'DQM_Tier0Wrapper_trf.py',
+    tasktransinfo = {'trfpath': 'DQM_Tier0Wrapper_tf.py',
                                'trfsetupcmd': "/afs/cern.ch/atlas/tzero/software/setup/usetuptrf.sh " + relNbr + extraSetup}
     updict['moreInfo'] = '"{\'tasktransinfo\': %s}"' % tasktransinfo.__str__()
     updict['SWReleaseCache'] = release.replace('-', '_')

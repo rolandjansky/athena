@@ -44,6 +44,7 @@ namespace DerivationFramework {
     declareProperty("MassMin"              , m_massMin               = 2000);                   
     declareProperty("Chi2Max"              , m_chi2Max               = 200);
     declareProperty("DoVertexType"              , m_DoVertexType          = 7);
+    declareProperty("Do3d"                 , m_do3d = false);
     
   }
 
@@ -72,7 +73,7 @@ namespace DerivationFramework {
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
   
   void Select_onia2mumu::ProcessVertex(xAOD::BPhysHypoHelper &onia, xAOD::BPhysHelper::pv_type pv_t) const{
-
+      constexpr float errConst = -9999999;
       const xAOD::Vertex* pv = onia.pv(pv_t); 
       if(pv) {
         // decorate the vertex. 
@@ -96,7 +97,7 @@ namespace DerivationFramework {
         //enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0, PV_MIN_Z0_BA};
       }else{
       
-        const float errConst = -9999999;
+
         BPHYS_CHECK( onia.setTau(errConst, pv_t,
                                   xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
         // Proper decay time assuming error constant mass hypothesis m_massHypo
@@ -112,7 +113,27 @@ namespace DerivationFramework {
                                      pv_t,
                                      xAOD::BPhysHypoHelper::TAU_INV_MASS) );        
     }
-  } 
+
+    if(m_do3d){
+        BPHYS_CHECK( onia.setTau3d( pv ? m_v0Tools->tau3D(onia.vtx(), pv,  m_massHypo) : errConst, 
+                                  pv_t,
+                                  xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+        // Proper decay time assuming error constant mass hypothesis m_massHypo
+        BPHYS_CHECK( onia.setTau3dErr( pv ? m_v0Tools->tau3DError(onia.vtx(), pv,  m_massHypo) : errConst,
+                                     pv_t,
+                                     xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+        
+        BPHYS_CHECK( onia.setTau3d( pv ? m_v0Tools->tau3D(onia.vtx(), pv,  m_trkMasses) : errConst,
+                                  pv_t,
+                                  xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+
+        BPHYS_CHECK( onia.setTau3dErr( pv ? m_v0Tools->tau3DError(onia.vtx(), pv,  m_trkMasses) : errConst,
+                                     pv_t,
+                                     xAOD::BPhysHypoHelper::TAU_INV_MASS) );    
+
+    }
+
+  }
   
   
   StatusCode Select_onia2mumu::addBranches() const

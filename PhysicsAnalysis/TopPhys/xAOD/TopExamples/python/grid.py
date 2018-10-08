@@ -64,6 +64,9 @@ def AvailableDatasets():
 def Samples(names):
     samples = []
     for n in names:
+        #removing whitespaces from concatenated lines - ANALYSISTO-553
+        for ds in range(0,len(availableDatasets[n].datasets)):
+            availableDatasets[n].datasets[ds]=availableDatasets[n].datasets[ds].replace(' ','')
         samples.append(availableDatasets[n])
     return samples
 
@@ -105,6 +108,7 @@ class Config:
     memory          = '2000' #in MB
     maxNFilesPerJob = ''
     otherOptions    = ''
+    skipShowerCheck = False
     nameShortener   = basicInDSNameShortener # default shortener function
     customTDPFile   = None
     reuseTarBall    = False
@@ -129,6 +133,7 @@ class Config:
         print ' -MergeType:     ', self.mergeType, 'out of (None, Default, xAOD)'
         print ' -memory:        ', self.memory, 'in MB'
         print ' -maxNFilesPerJob', self.maxNFilesPerJob        
+        print ' -skipShowerCheck', self.skipShowerCheck        
         print ' -OtherOptions:  ', self.otherOptions 
         print ' -nameShortener: ', self.nameShortener
         print ' -reuseTarBall:  ', self.reuseTarBall
@@ -185,7 +190,8 @@ def submit(config, allSamples):
   checkForPrun()
   checkMergeType(config)
   config.details()
-  checkForShowerAlgorithm(allSamples, config.settingsFile)
+  if not config.skipShowerCheck:
+      checkForShowerAlgorithm(allSamples, config.settingsFile)
   if config.checkPRW:
       checkPRWFile(allSamples, config.settingsFile)
 
@@ -233,6 +239,7 @@ def submit(config, allSamples):
 
       if l.find('OutputFilename') > -1:
           outputFilename = l.replace('OutputFilename', '').strip()
+          outputFilename = outputFilename.replace(".root","_root") + ":" + outputFilename
 
   if outputFilename == 'EMPTY':
       print 'OutputFilename not found in %s' % config.settingsFile
@@ -248,7 +255,9 @@ def submit(config, allSamples):
       currentDatasets = sample.datasets
       actuallyExists = []
       for ds in currentDatasets:
-          if checkDatasetExists(ds):
+          # doing this check only for the first sample, in case of coma-separated list of samples with same DSID and same first tag of each type
+          # a priori it's not a big deal if the additional datasets don't exist; panda will take care of it
+          if checkDatasetExists(getShortenedConcatenatedSample(ds)):
               actuallyExists.append(ds)
 
       sample.details(actuallyExists)
@@ -267,7 +276,8 @@ def submit(config, allSamples):
   print ''
 
   isfirst = True
-  for i, d in enumerate(these):
+  for i, d_concatenated in enumerate(these):
+     d = getShortenedConcatenatedSample(d_concatenated) # in case of coma-separated list of samples with same DSID and same first tag of each type
      print logger.OKBLUE + 'Submitting %d of %d' % (i+1, len(these)) + logger.ENDC
 
      #Make the output dataset name
@@ -281,7 +291,7 @@ def submit(config, allSamples):
      #special care for group production - we assume that gridUsername is the name of the group (e.g. phys-top)
      if config.groupProduction:
          cmd += '--official --voms atlas:/atlas/' + config.gridUsername + '/Role=production  \\\n'
-     cmd += '--inDS=' + d + ' \\\n'
+     cmd += '--inDS=' + d_concatenated + ' \\\n' # the inDS may be a comma-separated list of samples with same DSID and same first tag of each type
      cmd += '--outDS=' + output + ' \\\n'
      if config.CMake:
          CMTCONFIG = os.getenv("CMTCONFIG")
@@ -302,10 +312,18 @@ def submit(config, allSamples):
 
      #tar-up the first time only, to save time when submitting
      if isfirst:
-         cmd += '--outTarBall=%s \\\n' % tarfile
+         if checkForFile(tarfile) and config.reuseTarBall:# reuse existing tarball if it already exists
+            print logger.OKBLUE + 'Reusing existing tarball %s' % (tarfile) + logger.ENDC
+            cmd += '--inTarBall=%s \\\n' % tarfile
+         elif config.reuseTarBall:# reuse existing tarball if it already exists
+            print logger.WARNING + 'Tarball %s not found - will re-create it' % (tarfile) + logger.ENDC
+            cmd += '--outTarBall=%s \\\n' % tarfile
+         else:
+            cmd += '--outTarBall=%s \\\n' % tarfile
          isfirst = False
      else:
          cmd += '--inTarBall=%s \\\n' % tarfile
+
 
      #maybe you don't want to submit the job?
      if config.noSubmit:
@@ -434,7 +452,8 @@ def checkForShowerAlgorithm(Samples, cutfile):
     for TopSample in availableDatasets.values():
         for List in Samples:
             SublistSamples = List.datasets
-            for sample in SublistSamples:
+            for sample_concatenated in SublistSamples:
+                sample=getShortenedConcatenatedSample(sample_concatenated) # in the case of comma-separated samples with same DSIDs and same first tags (it's the same sample)
                 scope = sample.split('.')[0]
                 if 'mc' not in scope:
                     continue
@@ -451,6 +470,21 @@ def checkForShowerAlgorithm(Samples, cutfile):
             print ds
         raise RuntimeError("Datasets without shower.")
 
+def isAF2(dataset):
+    tags = dataset.split('.')[-1]
+    tagList = tags.split('_')
+    for tag in tagList:
+        if tag.find('a')>-1:
+            return True
+    return False
+
+def isData(dataset):
+    scope = dataset.split('.')[0]
+    if scope.find('data')>-1:
+        return True
+    else:
+        return False
+
 def checkPRWFile(Samples, cutfile):
     # Some imports
     import subprocess, shlex
@@ -461,32 +495,119 @@ def checkPRWFile(Samples, cutfile):
     print logger.OKBLUE + " - Processing checks for PRWConfig" + logger.ENDC
     tmp = open(cutfile, "r")
     PRWConfig = None
+    PRWConfig_FS = None
+    PRWConfig_AF = None
     for line in tmp.readlines():
-        if "PRWConfigFiles" not in line:
-            continue
-        else:
+        if "PRWConfigFiles_AF" in line:
+            PRWConfig_AF = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        elif "PRWConfigFiles_FS" in line:
+            PRWConfig_FS = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        elif "PRWConfigFiles" in line:
             PRWConfig = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
             PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
             PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        else:
+            continue
 
-    if not PRWConfig:
+    if PRWConfig and PRWConfig_AF:
+        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_AF" + logger.ENDC
+        return
+    elif PRWConfig and PRWConfig_FS:
+        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_FS" + logger.ENDC
+        return
+    elif PRWConfig and not PRWConfig_FS and not PRWConfig_AF:
+        PRWConfig_FS = PRWConfig
+        PRWConfig_AF = PRWConfig
+    elif not PRWConfig and not PRWConfig_FS and not PRWConfig_AF:
         print logger.FAIL + " - Error reading PRWConfigFiles from cutfile" + logger.ENDC
-        return 
+        return
+    # else: we assume that PRWConfigFiles_FS and PRWConfigFiles_AF are set
+
     # Print the PRW files
-    print logger.OKGREEN + "\n".join(PRWConfig) + logger.ENDC
+    print logger.OKGREEN + "PRW files used for FS:" + logger.ENDC
+    print logger.OKGREEN + "\n".join(PRWConfig_FS) + logger.ENDC
+    print logger.OKGREEN + "PRW files used for AF2:" + logger.ENDC
+    print logger.OKGREEN + "\n".join(PRWConfig_AF) + logger.ENDC
+
     # Create a temporary sample list
-    tmpFileName = "samplesforprwcheck.txt"
-    tmpOut = open(tmpFileName,"w")
+    tmpFileNameFS = "samplesforprwcheck_FS.txt"
+    tmpOutFS = open(tmpFileNameFS,"w")
+    tmpFileNameAF = "samplesforprwcheck_AF.txt"
+    tmpOutAF = open(tmpFileNameAF,"w")
     for List in Samples:
         SublistSamples = List.datasets
-        for sample in SublistSamples:
-            tmpOut.write(sample+"\n")
-    tmpOut.close()
-    # Make a command
-    cmd = "checkPRW.py --inDsTxt %s %s"%(tmpFileName, " ".join(PRWConfig))
-    print logger.OKBLUE + " - Running command : " + cmd + logger.ENDC
-    # Run
-    proc = subprocess.Popen(shlex.split(cmd))
-    proc.wait()
+        for sample_concatenated in SublistSamples: # the listed samples may be comma-separated list of samples
+            for sample in sample_concatenated.split(','): # we need to check all of them, not just the first one
+                if (isData(sample)):
+                    continue
+                else:
+                    if not isAF2(sample):
+                        tmpOutFS.write(sample+"\n")
+                    else:
+                        tmpOutAF.write(sample+"\n")
+    tmpOutFS.close()
+    tmpOutAF.close()
+
+    # then do the check
+    if (os.path.getsize(tmpFileNameFS)): # what follows only makes sense if the file isn't empty
+        # Make the FS command
+        cmdFS = "checkPRW.py --inDsTxt %s %s"%(tmpFileNameFS, " ".join(PRWConfig_FS))
+        print logger.OKBLUE + " - Running command : " + cmdFS + logger.ENDC
+        # Run
+        procFS = subprocess.Popen(shlex.split(cmdFS))
+        procFS.wait()
+    else:
+        print logger.OKBLUE + " - No PRWConfig check is needed for FS." + logger.ENDC
+    if (os.path.getsize(tmpFileNameAF)): # what follows only makes sense if the file isn't empty
+        # Make the AF command
+        cmdAF = "checkPRW.py --inDsTxt %s %s"%(tmpFileNameAF, " ".join(PRWConfig_AF))
+        print logger.OKBLUE + " - Running command : " + cmdAF + logger.ENDC
+        # Run
+        procAF = subprocess.Popen(shlex.split(cmdAF))
+        procAF.wait()
+    else:
+        print logger.OKBLUE + " - No PRWConfig check is needed for AF2." + logger.ENDC
     # At the moment, just print the output, but we need to learn what to catch also
+
+## gets the first AMI tag of a kind
+def getFirstTag(tags,letter):
+    tagList = tags.split('_')
+    first = ''
+    for tag in tagList:
+        if tag.find(letter,0,1) != -1 and tag[1:].isdigit() and first == '':
+            first = tag
+    return first
+
+
+# In MC16, a given DSID can have been "split" into several datasets, were some have more ami-tags
+# This function takes as input a coma-separated list of datasets, and returns the name of the first sample if we are in such case
+# It throws an error if the DSID of these datasets is different, or if the first ami-tag of each time is different for the different datasets
+def getShortenedConcatenatedSample(sampleName):
+    samples = sampleName.split(',')
+    if len(samples) == 1: # the simplest case
+        return samples[0]
     
+    # check if the DSIDs are all the same
+    DSID = samples[0].split('.')[1]
+    firstTagOfFirstSample = { 'e':'', 's':'', 'a':'', 'r':'', 'f':'', 'm':'', 'p':'', }
+    isFirstSample = True
+    for s in samples:
+        if s.split('.')[1] != DSID:
+            print logger.FAIL + " Issue with this concatenated sample: " + sampleName + logger.ENDC
+            print logger.FAIL + " This syntax can only work if all dataset containers have the same DSID " + logger.ENDC
+            raise RuntimeError("Issue with contatenated samples.")
+        AmiTags = s.split('.')[-1]
+        for tagType in firstTagOfFirstSample:
+            if firstTagOfFirstSample[tagType] == '' and isFirstSample:
+                firstTagOfFirstSample[tagType] = getFirstTag(AmiTags,tagType)
+            elif firstTagOfFirstSample[tagType] != getFirstTag(AmiTags,tagType):
+                print logger.FAIL + " Issue with this concatenated sample: " + sampleName + logger.ENDC
+                print logger.FAIL + " This syntax can only work if all dataset containers have the same first tag of each type " + logger.ENDC
+                print logger.FAIL + " And it seems there are two samples in this list, one with " + firstTagOfFirstSample[tagType] + " and one with " + getFirstTag(AmiTags,tagType) + " as first " + tagType + "-tag" + logger.ENDC
+                raise RuntimeError("Issue with contatenated samples.")
+        isFirstSample = False
+    return samples[0] # if we survived all the tests, return the first of the list

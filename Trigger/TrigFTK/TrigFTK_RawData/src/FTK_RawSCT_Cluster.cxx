@@ -68,19 +68,17 @@ unsigned int FTK_RawSCT_Cluster::getHitWidth() const{
   // width is 3 bits, starting at bit 28
   unsigned int width = (m_word & 0x70000000)>> 28;
 
-  // Store this as nominal (starting from 0)
-//  return (width+1);
+  return (width+1);  // transform from packed width=0 to 7 to width 1-8
 
-  return width;
 }
 
 void FTK_RawSCT_Cluster::setHitWidth( unsigned int hit_width ){
 
   // TopBit 26 BottomBit 24  (3 bits) Max 8
 
-  // Store this as nominal (starting from 0)
-  // if (width>0) width-=1; // transform from width=1 to 8 to packed width 0-7
   uint32_t width = hit_width;
+
+  if (width>0) width-=1; // transform from width=1 to 8 to packed width 0-7
 
   if(width > 7) width = 7;
   width = width << 28;

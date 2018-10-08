@@ -21,6 +21,16 @@ TEST10Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 TEST10Stream.AcceptAlgs(["TEST10Kernel"])
 
 #====================================================================
+# Regular Expressions 
+# ---- NOTE: Please test these carefully so no trigger is missed ----
+#====================================================================
+singleElectronChains='^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*'
+singleMuonChains='^(?!.*_[0-9]*(e|j|xe|tau|ht|xs|te))(?!HLT_mu.*_[0-9]*mu.*)HLT_mu.*'
+singleJetChains='^(?!.*_[0-9]*(mu|e|xe|tau|ht|xs|te))(?!HLT_j[0-9]+_[0-9]*j[0-9]+.*)HLT_j[0-9]+.*'
+singleJetSmallRChains='^(?!.*_[0-9]*(mu|e|xe|tau|ht|xs|te))(?!HLT_j[0-9]+_[0-9]*j[0-9]+.*)HLT_j[0-9]+(?![0-9])(?!_a10).*'
+singlejetLargeRChains='^(?!.*_[0-9]*(mu|e|xe|tau|ht|xs|te))(?!HLT_j[0-9]+_[0-9]*j[0-9]+.*)HLT_j[0-9]+_a10.*'
+
+#====================================================================
 # THINNING  
 #====================================================================
 # Establish the thinning helper (which will set up the services behind the scenes)
@@ -30,11 +40,9 @@ TEST10ThinningHelper = ThinningHelper( "TEST10ThinningHelper" )
 TEST10ThinningHelper.TriggerChains = '^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*'
 TEST10ThinningHelper.AppendToStream( TEST10Stream )
 
-
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
-
 # The name of the kernel (TEST10Kernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TEST10Kernel")

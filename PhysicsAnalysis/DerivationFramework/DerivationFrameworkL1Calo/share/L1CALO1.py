@@ -13,7 +13,7 @@ from AthenaCommon import CfgMgr
 
 # Set up stream auditor
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-if not hasattr(svcMgr, 'DecisionSvc'):
+if not hasattr(svcMgr, "DecisionSvc"):
         svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
 
@@ -33,7 +33,7 @@ from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__T
 L1CALO1CaloThinningTool = DerivationFramework__TriggerTowerThinningAlg( name = "L1CALO1CaloThinningTool",
 									ThinService = "L1CALO1ThinningSvc",
     									TriggerTowerLocation = "xAODTriggerTowers",
-    									MinCaloCellEnergy = 0.8,
+    									MinCaloCellET = 0.8,
     									MinADC = 36,
     									UseRandom = True,
     									MinRandom = 0.01)
@@ -80,6 +80,7 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="L1CALO1ThinningSvc", outStreams=[evtStream] )
 
+trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 # Generic event info
 L1CALO1Stream.AddItem("xAOD::EventInfo#*")
@@ -159,8 +160,16 @@ L1CALO1Stream.AddItem("xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.")
 L1CALO1Stream.AddItem("xAOD::L1TopoRawDataContainer#L1TopoRawData")
 L1CALO1Stream.AddItem("xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.")
 
+###Egamma CP additions###
 
+L1CALO1Stream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
+L1CALO1Stream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."+trackParticleAuxExclusions)
+L1CALO1Stream.AddItem("xAOD::VertexContainer#GSFConversionVertices")
+L1CALO1Stream.AddItem("xAOD::VertexAuxContainer#GSFConversionVerticesAux.-vxTrackAtVertex")
+L1CALO1Stream.AddItem("xAOD::CaloClusterContainer#egammaTopoSeededClusters")
+L1CALO1Stream.AddItem("xAOD::CaloClusterAuxContainer#egammaTopoSeededClustersAux.")
 
+###############
 
 
 

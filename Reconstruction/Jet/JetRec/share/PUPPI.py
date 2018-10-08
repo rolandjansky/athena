@@ -94,7 +94,7 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xAODStream = MSMgr.NewPoolRootStream( "StreamXAOD", outputName )
 
 xAODStream.AddItem(   "xAOD::JetContainer#AntiKt4EMPFlowPUPPIJets")
-xAODStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowPUPPIJets")
+xAODStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowPUPPIJets*")
 
 xAODStream.AddItem(       "xAOD::PFOContainer#*ParticleFlowObjects*")
 xAODStream.AddItem(    "xAOD::PFOAuxContainer#*ParticleFlowObjects*")

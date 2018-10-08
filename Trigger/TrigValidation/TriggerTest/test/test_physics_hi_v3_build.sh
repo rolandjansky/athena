@@ -18,6 +18,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="physics_hi_v3_build"
 export MENU="Physics_HI_v3"

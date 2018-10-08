@@ -72,36 +72,36 @@ TileRDOAnalysis::TileRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   , m_muFragBCID(0)
   , m_muDigits(0)
 
-  , h_adcID(0)
-  , h_rawAmp(0)
-  , h_rawTime(0)
-  , h_rawQual(0)
-  , h_rawPed(0)
-  , h_adcID_mu(0)
-  , h_rawAmp_mu(0)
-  , h_rawTime_mu(0)
-  , h_rawQual_mu(0)
-  , h_rawPed_mu(0)
-  , h_muRcvID(0)
-  , h_muRcv_dec(0)
-  , h_muRcv_thresh(0)
-  , h_muRcv_energy(0)
-  , h_muRcv_time(0)
-  , h_ttl1MBTS_ID(0)
-  , h_ttl1MBTS_digits(0)
-  , h_ttl1_ID(0)
-  , h_ttl1_digits(0)
-  , h_L2ID(0)
-  , h_L2val(0)
-  , h_L2eta(0)
-  , h_L2phi(0)
-  , h_L2energyA(0)
-  , h_L2energyBC(0)
-  , h_L2energyD(0)
-  , h_L2qual(0)
-  , h_L2sumE(0)
-  , h_digits(0)
-  , h_muDigits(0)
+  , m_h_adcID(0)
+  , m_h_rawAmp(0)
+  , m_h_rawTime(0)
+  , m_h_rawQual(0)
+  , m_h_rawPed(0)
+  , m_h_adcID_mu(0)
+  , m_h_rawAmp_mu(0)
+  , m_h_rawTime_mu(0)
+  , m_h_rawQual_mu(0)
+  , m_h_rawPed_mu(0)
+  , m_h_muRcvID(0)
+  , m_h_muRcv_dec(0)
+  , m_h_muRcv_thresh(0)
+  , m_h_muRcv_energy(0)
+  , m_h_muRcv_time(0)
+  , m_h_ttl1MBTS_ID(0)
+  , m_h_ttl1MBTS_digits(0)
+  , m_h_ttl1_ID(0)
+  , m_h_ttl1_digits(0)
+  , m_h_L2ID(0)
+  , m_h_L2val(0)
+  , m_h_L2eta(0)
+  , m_h_L2phi(0)
+  , m_h_L2energyA(0)
+  , m_h_L2energyBC(0)
+  , m_h_L2energyD(0)
+  , m_h_L2qual(0)
+  , m_h_L2sumE(0)
+  , m_h_digits(0)
+  , m_h_muDigits(0)
 
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
@@ -196,125 +196,125 @@ StatusCode TileRDOAnalysis::initialize() {
   }
 
   // HISTOGRAMS
-  h_adcID = new TH1F("h_adcID", "adc ID", 100, 0, 9.25e18);
-  h_adcID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_adcID->GetName(), h_adcID));
+  m_h_adcID = new TH1F("h_adcID", "adc ID", 100, 0, 9.25e18);
+  m_h_adcID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_adcID->GetName(), m_h_adcID));
 
-  h_rawAmp = new TH1F("h_rawAmp", "Raw amplitude", 100, -1200, 1200);
-  h_rawAmp->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawAmp->GetName(), h_rawAmp));
+  m_h_rawAmp = new TH1F("h_rawAmp", "Raw amplitude", 100, -1200, 1200);
+  m_h_rawAmp->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawAmp->GetName(), m_h_rawAmp));
 
-  h_rawTime = new TH1F("h_rawTime", "Raw time", 100, -90, 90);
-  h_rawTime->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawTime->GetName(), h_rawTime));
+  m_h_rawTime = new TH1F("h_rawTime", "Raw time", 100, -90, 90);
+  m_h_rawTime->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawTime->GetName(), m_h_rawTime));
 
-  h_rawQual = new TH1F("h_rawQual", "Raw quality", 100, 0, 1100);
-  h_rawQual->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawQual->GetName(), h_rawQual));
+  m_h_rawQual = new TH1F("h_rawQual", "Raw quality", 100, 0, 1100);
+  m_h_rawQual->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawQual->GetName(), m_h_rawQual));
 
-  h_rawPed = new TH1F("h_rawPed", "Raw pedestal", 100, 0, 2e5);
-  h_rawPed->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawPed->GetName(), h_rawPed));
+  m_h_rawPed = new TH1F("h_rawPed", "Raw pedestal", 100, 0, 2e5);
+  m_h_rawPed->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawPed->GetName(), m_h_rawPed));
 
-  h_adcID_mu = new TH1F("h_adcID_mu", "MuRcv adc ID", 100, 0, 9.25e18);
-  h_adcID_mu->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_adcID_mu->GetName(), h_adcID_mu));
+  m_h_adcID_mu = new TH1F("h_adcID_mu", "MuRcv adc ID", 100, 0, 9.25e18);
+  m_h_adcID_mu->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_adcID_mu->GetName(), m_h_adcID_mu));
 
-  h_rawAmp_mu = new TH1F("h_rawAmp_mu", "MuRcv raw amplitude", 100, -1000, 11000);
-  h_rawAmp_mu->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawAmp_mu->GetName(), h_rawAmp_mu));
+  m_h_rawAmp_mu = new TH1F("h_rawAmp_mu", "MuRcv raw amplitude", 100, -1000, 11000);
+  m_h_rawAmp_mu->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawAmp_mu->GetName(), m_h_rawAmp_mu));
 
-  h_rawTime_mu = new TH1F("h_rawTime_mu", "MuRcv raw time", 100, -90, 90);
-  h_rawTime_mu->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawTime_mu->GetName(), h_rawTime_mu));
+  m_h_rawTime_mu = new TH1F("h_rawTime_mu", "MuRcv raw time", 100, -90, 90);
+  m_h_rawTime_mu->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawTime_mu->GetName(), m_h_rawTime_mu));
 
-  h_rawQual_mu = new TH1F("h_rawQual_mu", "MuRcv raw quality", 100, 0, 8e34);
-  h_rawQual_mu->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawQual_mu->GetName(), h_rawQual_mu));
+  m_h_rawQual_mu = new TH1F("h_rawQual_mu", "MuRcv raw quality", 100, 0, 8e34);
+  m_h_rawQual_mu->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawQual_mu->GetName(), m_h_rawQual_mu));
 
-  h_rawPed_mu = new TH1F("h_rawPed_mu", "MuRcv raw pedestal", 100, 0, 13);
-  h_rawPed_mu->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawPed_mu->GetName(), h_rawPed_mu));
+  m_h_rawPed_mu = new TH1F("h_rawPed_mu", "MuRcv raw pedestal", 100, 0, 13);
+  m_h_rawPed_mu->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawPed_mu->GetName(), m_h_rawPed_mu));
 
-  h_muRcvID = new TH1F("h_muRcvID", "Muon receiver object ID", 100, 0, 500);
-  h_muRcvID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcvID->GetName(), h_muRcvID));
+  m_h_muRcvID = new TH1F("h_muRcvID", "Muon receiver object ID", 100, 0, 500);
+  m_h_muRcvID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_muRcvID->GetName(), m_h_muRcvID));
 
-  h_muRcv_dec = new TH1F("h_muRcv_dec", "Muon receiver object decision", 100, 0, 2);
-  h_muRcv_dec->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_dec->GetName(), h_muRcv_dec));
+  m_h_muRcv_dec = new TH1F("h_muRcv_dec", "Muon receiver object decision", 100, 0, 2);
+  m_h_muRcv_dec->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_muRcv_dec->GetName(), m_h_muRcv_dec));
 
-  h_muRcv_thresh = new TH1F("h_muRcv_thresh", "Muon receiver object threshold", 100, 0, 650);
-  h_muRcv_thresh->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_thresh->GetName(), h_muRcv_thresh));
+  m_h_muRcv_thresh = new TH1F("h_muRcv_thresh", "Muon receiver object threshold", 100, 0, 650);
+  m_h_muRcv_thresh->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_muRcv_thresh->GetName(), m_h_muRcv_thresh));
 
-  h_muRcv_energy = new TH1F("h_muRcv_energy", "Muon receiver object energy", 100, 0, 20000);
-  h_muRcv_energy->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_energy->GetName(), h_muRcv_energy));
+  m_h_muRcv_energy = new TH1F("h_muRcv_energy", "Muon receiver object energy", 100, 0, 20000);
+  m_h_muRcv_energy->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_muRcv_energy->GetName(), m_h_muRcv_energy));
 
-  h_muRcv_time = new TH1F("h_muRcv_time", "Muon receiver object time", 100, -90, 90);
-  h_muRcv_time->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_time->GetName(), h_muRcv_time));
+  m_h_muRcv_time = new TH1F("h_muRcv_time", "Muon receiver object time", 100, -90, 90);
+  m_h_muRcv_time->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_muRcv_time->GetName(), m_h_muRcv_time));
 
-  h_ttl1MBTS_ID = new TH1F("h_ttl1MBTS_ID", "TTL1 MBTS ID", 100, 0, 9.25e18);
-  h_ttl1MBTS_ID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1MBTS_ID->GetName(), h_ttl1MBTS_ID));
+  m_h_ttl1MBTS_ID = new TH1F("h_ttl1MBTS_ID", "TTL1 MBTS ID", 100, 0, 9.25e18);
+  m_h_ttl1MBTS_ID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ttl1MBTS_ID->GetName(), m_h_ttl1MBTS_ID));
 
-  h_ttl1MBTS_digits = new TH1F("h_ttl1MBTS_digits", "TTL1 MBTS digits", 100, 0, 2000);
-  h_ttl1MBTS_digits->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1MBTS_digits->GetName(), h_ttl1MBTS_digits));
+  m_h_ttl1MBTS_digits = new TH1F("h_ttl1MBTS_digits", "TTL1 MBTS digits", 100, 0, 2000);
+  m_h_ttl1MBTS_digits->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ttl1MBTS_digits->GetName(), m_h_ttl1MBTS_digits));
 
-  h_ttl1_ID = new TH1F("h_ttl1_ID", "TTL1 ID", 100, 0, 2e19);
-  h_ttl1_ID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1_ID->GetName(), h_ttl1_ID));
+  m_h_ttl1_ID = new TH1F("h_ttl1_ID", "TTL1 ID", 100, 0, 2e19);
+  m_h_ttl1_ID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ttl1_ID->GetName(), m_h_ttl1_ID));
 
-  h_ttl1_digits = new TH1F("h_ttl1_digits", "TTL1 digits", 100, 0, 2000);
-  h_ttl1_digits->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1_digits->GetName(), h_ttl1_digits));
+  m_h_ttl1_digits = new TH1F("h_ttl1_digits", "TTL1 digits", 100, 0, 2000);
+  m_h_ttl1_digits->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ttl1_digits->GetName(), m_h_ttl1_digits));
 
-  h_L2ID = new TH1F("h_L2ID", "L2 ID", 100, 0, 2e19);
-  h_L2ID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2ID->GetName(), h_L2ID));
+  m_h_L2ID = new TH1F("h_L2ID", "L2 ID", 100, 0, 2e19);
+  m_h_L2ID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2ID->GetName(), m_h_L2ID));
 
-  h_L2val = new TH1F("h_L2val", "L2 data values", 100, 0, 100);
-  h_L2val->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2val->GetName(), h_L2val));
+  m_h_L2val = new TH1F("h_L2val", "L2 data values", 100, 0, 100);
+  m_h_L2val->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2val->GetName(), m_h_L2val));
 
-  h_L2eta = new TH1F("h_L2eta", "L2 eta", 100, -1.5, 1.5);
-  h_L2eta->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2eta->GetName(), h_L2eta));
+  m_h_L2eta = new TH1F("h_L2eta", "L2 eta", 100, -1.5, 1.5);
+  m_h_L2eta->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2eta->GetName(), m_h_L2eta));
 
-  h_L2phi = new TH1F("h_L2phi", "L2 phi", 100, -3.5, 3.5);
-  h_L2phi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2phi->GetName(), h_L2phi));
+  m_h_L2phi = new TH1F("h_L2phi", "L2 phi", 100, -3.5, 3.5);
+  m_h_L2phi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2phi->GetName(), m_h_L2phi));
 
-  h_L2energyA = new TH1F("h_L2energyA", "L2 energy in A cells", 100, 0, 12500);
-  h_L2energyA->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2energyA->GetName(), h_L2energyA));
+  m_h_L2energyA = new TH1F("h_L2energyA", "L2 energy in A cells", 100, 0, 12500);
+  m_h_L2energyA->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2energyA->GetName(), m_h_L2energyA));
 
-  h_L2energyBC = new TH1F("h_L2energyBC", "L2 energy in BC cells", 100, 0, 12500);
-  h_L2energyBC->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2energyBC->GetName(), h_L2energyBC));
+  m_h_L2energyBC = new TH1F("h_L2energyBC", "L2 energy in BC cells", 100, 0, 12500);
+  m_h_L2energyBC->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2energyBC->GetName(), m_h_L2energyBC));
 
-  h_L2energyD = new TH1F("h_L2energyD", "L2 energy in D cells", 100, 0, 12500);
-  h_L2energyD->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2energyD->GetName(), h_L2energyD));
+  m_h_L2energyD = new TH1F("h_L2energyD", "L2 energy in D cells", 100, 0, 12500);
+  m_h_L2energyD->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2energyD->GetName(), m_h_L2energyD));
 
-  h_L2qual = new TH1F("h_L2qual", "L2 quality", 100, 0, 2);
-  h_L2qual->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2qual->GetName(), h_L2qual));
+  m_h_L2qual = new TH1F("h_L2qual", "L2 quality", 100, 0, 2);
+  m_h_L2qual->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2qual->GetName(), m_h_L2qual));
 
-  h_L2sumE = new TH1F("h_L2sumE", "L2 energy sum", 100, 0, 2.25e5);
-  h_L2sumE->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2sumE->GetName(), h_L2sumE));
+  m_h_L2sumE = new TH1F("h_L2sumE", "L2 energy sum", 100, 0, 2.25e5);
+  m_h_L2sumE->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_L2sumE->GetName(), m_h_L2sumE));
 
-  h_digits = new TH1F("h_digits", "Tile digits", 100, 0, 1100);
-  h_digits->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_digits->GetName(), h_digits));
+  m_h_digits = new TH1F("h_digits", "Tile digits", 100, 0, 1100);
+  m_h_digits->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_digits->GetName(), m_h_digits));
 
-  h_muDigits = new TH1F("h_muDigits", "Tile muon receiver object digits", 100, 0, 150);
-  h_muDigits->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_muDigits->GetName(), h_muDigits));
+  m_h_muDigits = new TH1F("h_muDigits", "Tile muon receiver object digits", 100, 0, 150);
+  m_h_muDigits->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_muDigits->GetName(), m_h_muDigits));
 
 
 
@@ -402,25 +402,25 @@ StatusCode TileRDOAnalysis::execute() {
         m_mtID->push_back(mtID_int);
         m_fragID->push_back(fragID);
 
-        h_adcID->Fill(adcID_int);
+        m_h_adcID->Fill(adcID_int);
 
         for (int ix = 0; ix != (*raw_itr)->size(); ++ix) {
           m_rawAmp->push_back((*raw_itr)->amplitude(ix)); // [ADC counts]
-          h_rawAmp->Fill((*raw_itr)->amplitude(ix));
+          m_h_rawAmp->Fill((*raw_itr)->amplitude(ix));
           m_rawQual->push_back((*raw_itr)->quality(ix)); // sampling distr.
-          h_rawQual->Fill((*raw_itr)->quality(ix));
+          m_h_rawQual->Fill((*raw_itr)->quality(ix));
         }
         for (int jx = 0; jx != (*raw_itr)->sizeTime(); ++jx) {
           m_rawTime->push_back((*raw_itr)->time(jx)); // rel to triggering bunch
-          h_rawTime->Fill((*raw_itr)->time(jx));
+          m_h_rawTime->Fill((*raw_itr)->time(jx));
         }
         // // cannot find member 'sizeQuality()' --- using old header?
         // for (int kx = 0; kx != (*raw_itr)->sizeQuality(); ++kx) {
         //   m_rawQual->push_back((*raw_itr)->quality(kx)); // sampling distr.
-        //   h_rawQual->Fill((*raw_itr)->quality(kx));
+        //   m_h_rawQual->Fill((*raw_itr)->quality(kx));
         // }
         m_rawPed->push_back((*raw_itr)->pedestal()); // reconstructed
-        h_rawPed->Fill((*raw_itr)->pedestal());
+        m_h_rawPed->Fill((*raw_itr)->pedestal());
       }
     }
   }
@@ -456,25 +456,25 @@ StatusCode TileRDOAnalysis::execute() {
         m_mtID_mu->push_back(mtID_mu_int);
         m_fragID_mu->push_back(fragID_mu);
 
-        h_adcID_mu->Fill(adcID_mu_int);
+        m_h_adcID_mu->Fill(adcID_mu_int);
 
         for (int lx = 0; lx != (*muRaw_itr)->size(); ++lx){
           m_rawAmp_mu->push_back((*muRaw_itr)->amplitude(lx));
-          h_rawAmp_mu->Fill((*muRaw_itr)->amplitude(lx));
+          m_h_rawAmp_mu->Fill((*muRaw_itr)->amplitude(lx));
           m_rawQual_mu->push_back((*muRaw_itr)->quality(lx));
-          h_rawQual_mu->Fill((*muRaw_itr)->quality(lx));
+          m_h_rawQual_mu->Fill((*muRaw_itr)->quality(lx));
         }
         for (int mx = 0; mx != (*muRaw_itr)->sizeTime(); ++mx) {
           m_rawTime_mu->push_back((*muRaw_itr)->time(mx));
-          h_rawTime_mu->Fill((*muRaw_itr)->time(mx));
+          m_h_rawTime_mu->Fill((*muRaw_itr)->time(mx));
         }
         // // cannot find member 'sizeQuality()' --- using old header?
         // for (int nx = 0; nx != (*muRaw_itr)->sizeQuality(); ++nx) {
         //   m_rawQual_mu->push_back((*muRaw_itr)->quality(nx));
-        //   h_rawQual_mu->Fill((*muRaw_itr)->quality(nx));
+        //   m_h_rawQual_mu->Fill((*muRaw_itr)->quality(nx));
         // }
         m_rawPed_mu->push_back((*muRaw_itr)->pedestal());
-        h_rawPed_mu->Fill((*muRaw_itr)->pedestal());
+        m_h_rawPed_mu->Fill((*muRaw_itr)->pedestal());
       }
     }
   }
@@ -497,22 +497,22 @@ StatusCode TileRDOAnalysis::execute() {
 
       for (std::vector<bool>::size_type i = 0; i != dec_vec.size(); ++i) {
         m_muRcv_dec->push_back(dec_vec.at(i));
-        h_muRcv_dec->Fill(dec_vec.at(i));
+        m_h_muRcv_dec->Fill(dec_vec.at(i));
       }
       for (std::vector<float>::size_type j = 0; j != thresh_vec.size(); ++j) {
         m_muRcv_thresh->push_back(thresh_vec.at(j));
-        h_muRcv_thresh->Fill(thresh_vec.at(j));
+        m_h_muRcv_thresh->Fill(thresh_vec.at(j));
       }
       for (std::vector<float>::size_type k = 0; k != ene_vec.size(); ++k) {
         m_muRcv_energy->push_back(ene_vec.at(k));
-        h_muRcv_energy->Fill(ene_vec.at(k));
+        m_h_muRcv_energy->Fill(ene_vec.at(k));
       }
       for (std::vector<float>::size_type l = 0; l != time_vec.size(); ++l) {
         m_muRcv_time->push_back(time_vec.at(l));
-        h_muRcv_time->Fill(time_vec.at(l));
+        m_h_muRcv_time->Fill(time_vec.at(l));
       }
 
-      h_muRcvID->Fill(muRcvID);
+      m_h_muRcvID->Fill(muRcvID);
     }
   }
 
@@ -534,10 +534,10 @@ StatusCode TileRDOAnalysis::execute() {
 
       for (std::vector<double>::size_type iy = 0; iy != ttl1MBTS_digits.size(); ++iy) {
 
-        h_ttl1MBTS_digits->Fill(ttl1MBTS_digits.at(iy));
+        m_h_ttl1MBTS_digits->Fill(ttl1MBTS_digits.at(iy));
       }
 
-      h_ttl1MBTS_ID->Fill(ttl1MBTS_ID_int);
+      m_h_ttl1MBTS_ID->Fill(ttl1MBTS_ID_int);
     }
   }
   SG::ReadHandle<TileTTL1Container> p_ttl1Cont(m_inputTileTTL1Key);
@@ -554,10 +554,10 @@ StatusCode TileRDOAnalysis::execute() {
       m_ttl1_digits->push_back(ttl1_digits);
 
       for (std::vector<double>::size_type jy = 0; jy != ttl1_digits.size(); ++jy) {
-        h_ttl1_digits->Fill(ttl1_digits.at(jy));
+        m_h_ttl1_digits->Fill(ttl1_digits.at(jy));
       }
 
-      h_ttl1_ID->Fill(ttl1ID_int);
+      m_h_ttl1_ID->Fill(ttl1ID_int);
     }
   }
 
@@ -583,7 +583,7 @@ StatusCode TileRDOAnalysis::execute() {
       // packed muon info (32-bit words)
       for (unsigned int ii = 0; ii != (*L2_itr)->Ndata(); ii++) {
         val_vec.push_back((*L2_itr)->val(ii));
-        h_L2val->Fill(val_vec.at(ii));
+        m_h_L2val->Fill(val_vec.at(ii));
       }
       // muon info - energy deposited in TileCal layers, eta, quality flag
       for (unsigned int jj = 0; jj != (*L2_itr)->NMuons(); jj++) {
@@ -593,18 +593,18 @@ StatusCode TileRDOAnalysis::execute() {
         enemu2_vec.push_back((*L2_itr)->enemu2(jj));
         qual_vec.push_back((*L2_itr)->qual(jj));
 
-        h_L2eta->Fill(eta_vec.at(jj));
-        h_L2energyA->Fill(enemu0_vec.at(jj));
-        h_L2energyBC->Fill(enemu1_vec.at(jj));
-        h_L2energyD->Fill(enemu2_vec.at(jj));
-        h_L2qual->Fill(qual_vec.at(jj));
+        m_h_L2eta->Fill(eta_vec.at(jj));
+        m_h_L2energyA->Fill(enemu0_vec.at(jj));
+        m_h_L2energyBC->Fill(enemu1_vec.at(jj));
+        m_h_L2energyD->Fill(enemu2_vec.at(jj));
+        m_h_L2qual->Fill(qual_vec.at(jj));
       }
       // drawer phi
       const float l2phi((*L2_itr)->phi(0));
       // vector sumE = [sumEt, sumEz, sumE] per TileCal superdrawer
       for (unsigned int kk = 0; kk != (*L2_itr)->NsumE(); kk++) {
         sumE_vec.push_back((*L2_itr)->sumE(kk));
-        h_L2sumE->Fill(sumE_vec.at(kk));
+        m_h_L2sumE->Fill(sumE_vec.at(kk));
       }
 
       m_L2ID->push_back(L2ID);
@@ -617,8 +617,8 @@ StatusCode TileRDOAnalysis::execute() {
       m_L2phi->push_back(l2phi);
       m_L2sumE->push_back(sumE_vec);
 
-      h_L2ID->Fill(L2ID);
-      h_L2phi->Fill(l2phi);
+      m_h_L2ID->Fill(L2ID);
+      m_h_L2phi->Fill(l2phi);
 
       val_vec.clear();
       eta_vec.clear();
@@ -652,7 +652,7 @@ StatusCode TileRDOAnalysis::execute() {
         m_digits->push_back(digits);
 
         for (std::vector<double>::size_type iz = 0; iz != digits.size(); ++iz) {
-          h_digits->Fill(digits.at(iz));
+          m_h_digits->Fill(digits.at(iz));
         }
       }
     }
@@ -679,7 +679,7 @@ StatusCode TileRDOAnalysis::execute() {
         m_muDigits->push_back(muDigits);
 
         for (std::vector<double>::size_type jz = 0; jz != muDigits.size(); ++jz) {
-          h_muDigits->Fill(muDigits.at(jz));
+          m_h_muDigits->Fill(muDigits.at(jz));
         }
       }
     }

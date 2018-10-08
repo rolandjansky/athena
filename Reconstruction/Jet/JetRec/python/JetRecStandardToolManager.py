@@ -241,6 +241,8 @@ groomed_modifiers = [
     jtm.ktdr,
     jtm.ktsplitter,
     jtm.encorr,
+    jtm.energycorrelatorgeneralized,
+    jtm.energycorrelatorgeneralizedratios,
     jtm.charge,
     jtm.angularity,
     jtm.comshapes,
@@ -250,7 +252,8 @@ groomed_modifiers = [
     jtm.planarflow,
     jtm.width,
     jtm.qw,
-    jtm.trksummoms
+    jtm.trksummoms,
+    jtm.jetens
     ]
 
 # Modifiers for pflow jets.

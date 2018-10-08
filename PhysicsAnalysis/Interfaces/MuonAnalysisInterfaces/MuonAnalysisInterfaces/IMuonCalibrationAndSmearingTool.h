@@ -32,9 +32,9 @@ class IMuonCalibrationAndSmearingTool : public virtual asg::IAsgTool, virtual pu
     /// Create a corrected copy from a constant muon
     virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const = 0;
     /// Get the expected pT resolution
-    virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const=0;
+    virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const=0;
     /// Get the expected pT resolution - int argument is more efficient
-    virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const=0;
+    virtual double expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const=0;
     // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
     virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType) const = 0;
 

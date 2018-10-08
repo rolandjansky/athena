@@ -1246,7 +1246,7 @@ void AnalysisConfig_Ntuple::loop() {
 		for( ; comb!=combEnd ; ++comb) {
 
 		        m_provider->msg(MSG::INFO) << "Chain " << chainName << "\tcombination " << icomb << endmsg;
-			//		std::cout << "Chain " << chainName << "\tcombination " << icomb << std::endl;;
+			//		std::cout << "Chain " << chainName << "\tcombination " << icomb << std::endl;
 
 		        icomb++;
 		  

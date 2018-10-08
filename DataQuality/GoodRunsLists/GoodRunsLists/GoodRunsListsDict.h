@@ -7,6 +7,7 @@
 
 
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
+#include "GoodRunsLists/GRLSelectorAlg.h"
 
 /* removed for now ... maybe move to AsgAnalysisInterfaces if need a dictionary for specific ToolHandle
 #include "AsgTools/ToolHandle.h"

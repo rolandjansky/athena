@@ -192,7 +192,7 @@ bool TrigRingerPreprocessor::ppExecute( Pattern& rings) {
 //!======================================================================================
 float TrigRingerPreprocessor::normalize_eta( float eta, float etamin, float etamax ){
   int s = eta >= 0 ? 1 : -1;
-  return ((std::abs(eta)-etamin) * s)/(etamax);
+  return ((std::abs(eta)-etamin) * s)/(etamax-etamin);
 }
 //!======================================================================================
 float TrigRingerPreprocessor::normalize_mu(float mu, float mumax ){

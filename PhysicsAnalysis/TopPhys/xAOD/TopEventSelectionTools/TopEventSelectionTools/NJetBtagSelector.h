@@ -18,6 +18,8 @@ public:
     explicit NJetBtagSelector(const std::string& params,std::shared_ptr<top::TopConfig> config);
 
     bool apply(const top::Event& event) const override;
+
+    const std::string getFullCutName(){return SignValueSelector::valueStringDelimReplace(); };
 };
 
 }

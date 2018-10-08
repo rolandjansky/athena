@@ -15,7 +15,6 @@ TestPileUpTool::TestPileUpTool(const std::string& type,
   , m_doFiltering(false)
   , m_maxInTimePileUp(4)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("DoFiltering", m_doFiltering, "");
   declareProperty("MaxInTimePileUp", m_maxInTimePileUp, "");
 }

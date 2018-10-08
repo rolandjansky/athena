@@ -16,7 +16,9 @@
 #include "GaudiKernel/ToolHandle.h"
 
 namespace ExpressionParsing {
+  class IProxyLoader;
   class ExpressionParser;
+  class MultipleProxyLoader;
 }
 
 class IThinningSvc;
@@ -34,9 +36,11 @@ namespace DerivationFramework {
     private:
       ServiceHandle<IThinningSvc> m_thinningSvc;
       mutable unsigned int m_ntot, m_npass, m_ntotCC, m_npassCC, m_ntotTCC, m_npassTCC;
-      std::string m_tccSGKey, m_inDetSGKey, m_calCTCSGKey, m_oCalCTCSGKey, m_jetSGKey/*, m_selectionString*/;
+      std::string m_tccSGKey, m_inDetSGKey, m_calCTCSGKey, m_oCalCTCSGKey, m_jetSGKey, m_selectionString;
       bool m_and, m_thinO;
-//       ExpressionParsing::ExpressionParser *m_parser;
+      std::vector<std::unique_ptr<ExpressionParsing::IProxyLoader> > m_cleanup;
+      std::unique_ptr<ExpressionParsing::MultipleProxyLoader>        m_proxyLoaders;
+      std::unique_ptr<ExpressionParsing::ExpressionParser>           m_parser;
   }; 
 }
 

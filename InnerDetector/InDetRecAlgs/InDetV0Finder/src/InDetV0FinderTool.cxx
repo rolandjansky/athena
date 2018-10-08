@@ -39,7 +39,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-
+#include "EventKernel/PdtPdg.h"
 #include <vector>
 #include <cmath>
 

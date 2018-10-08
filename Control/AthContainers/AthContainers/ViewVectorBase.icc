@@ -95,6 +95,9 @@ template <class DV>
 void
 ViewVectorBase::doToPersistent1 (DV& v, const std::true_type&)
 {
+#ifdef XAOD_STANDALONE
+  using AthContainers::IProxyDict;
+#endif // XAOD_STANDALONE
   IProxyDict* store = SG::CurrentEventStore::store();
   std::vector<ElementLink<DV> > elv = SG::dataVectorAsELV (v, store);
   m_persKey.clear();
@@ -181,6 +184,9 @@ void ViewVectorBase::doToTransient2 (DV& v, const std::true_type&)
     }
   }
   v.clear (SG::VIEW_ELEMENTS);
+#ifdef XAOD_STANDALONE
+  using AthContainers::IProxyDict;
+#endif // XAOD_STANDALONE
   IProxyDict* store = SG::CurrentEventStore::store();
 
   assert (m_persKey.size() == m_persIndex.size());

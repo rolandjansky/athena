@@ -7,9 +7,10 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth
 # Add all the particle derivation tools
 # This sets up its own common kernel and adds the common tools to it
-from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles,addLargeRJetD2
 addStandardTruthContents()
 addWbosonsAndDownstreamParticles()
+addLargeRJetD2()
 # Extra classifiers for the Higgs group
 import DerivationFrameworkHiggs.TruthCategories
 # Extra classifiers for the SUSY group
@@ -56,7 +57,7 @@ TRUTH3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContai
                                           }
 TRUTH3SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson","TruthWbosonWithDecayParticles","TruthWbosonWithDecayVertices"]
 TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
-                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta",
+                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                        "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
 TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)
 # Keep the metadata of course!

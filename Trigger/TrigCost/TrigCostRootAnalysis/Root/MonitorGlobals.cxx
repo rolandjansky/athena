@@ -249,7 +249,10 @@ namespace TrigCostRootAnalysis {
     _toSave.push_back(TableColumnFormatter("CostMon Time/Event [ms]",
                                            "Average time per event to execute cost monitoring.",
                                            kVarTrigCostTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
-
+    
+    _toSave.push_back(TableColumnFormatter("Mu",
+					   "Average pileup per LB", 
+					   kDecLBMuValue, kSavePerEvent, 2, kFormatOptionUseFloatDecoration));
 
     // _toSave.push_back( TableColumnFormatter("Texec Time/Event [ms]",
     //   "Average time per event for the Texec timer.",

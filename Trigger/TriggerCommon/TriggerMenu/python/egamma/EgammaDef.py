@@ -72,6 +72,8 @@ from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_1
 from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
 
 from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
+from TrigEgammaRec.TrigEgammaRecConfig import TrigTopoEgammaBuilder
+
 from TrigEgammaHypo.TrigEFCaloCalibFexConfig import (TrigEFCaloCalibFex_Electron,TrigEFCaloCalibFex_Photon)
 
 
@@ -122,6 +124,10 @@ from TrigEgammaHypo.TrigEFPhotonHypoConfig import (EFPhotonHypo_g_EtCut,
                                                    EFPhotonHypo_g_ID_CaloOnly_Iso)
 
 from TriggerMenu.egamma.EgammaCleanMonitoring import EgammaChainsToKeepMonitoring
+
+# In order to smartly turn off monitoring, and to avoid turning off monitoring on algorithms previusly selected to keep monitoring The following list will keep track of what is turned on:
+ListOfMonitoredHypos=[]
+
 from TriggerMenu.menu.CleanMonitoring import KeepMonitoring, DisableMonitoringButValAndTime
 
 # Helper utilities
@@ -173,6 +179,18 @@ class EgammaFexBuilder(object):
                                                      doTrackMatching = False,doTrackIsolation = False,
                                                      doCaloTopoIsolation=True,doPrint=False)()
         self._egamma_rec_el_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_electron",
+                                                    ElectronContainerName="egamma_Iso_Electrons",
+                                                    PhotonContainerName="egamma_Iso_Photons",
+                                                    doCaloTopoIsolation=True,doPrint=False)()
+                                                     
+
+        self._egamma_rec_sc         = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_eGamma",doPrint=False)()
+        self._egamma_rec_sc_conv    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_Conv_eGamma", doConversions = True,doPrint=False)()
+        self._egamma_rec_sc_noid    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
+        self._egamma_rec_sc_ph_caloiso    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
+                                                        doTrackMatching = False,doTrackIsolation = False,
+                                                        doCaloTopoIsolation=True,doPrint=False)()
+        self._egamma_rec_sc_el_caloiso    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_CaloIso_electron",
                                                     ElectronContainerName="egamma_Iso_Electrons",
                                                     PhotonContainerName="egamma_Iso_Photons",
                                                     doCaloTopoIsolation=True,doPrint=False)()
@@ -319,6 +337,12 @@ class EgammaFexBuilder(object):
     def _get_electronrec(self,chainDict):
         chain_part = chainDict['chainParts']
         do_caloiso = False
+        do_superclusters=False
+        if 'addInfo' in chain_part:
+            if 'sc' in chain_part['addInfo']:
+                do_superclusters=True
+                log.debug('Superclusters for electron')
+
         log.debug('Electron preciserec')
         if 'isoInfo' in chain_part:
             iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
@@ -327,16 +351,31 @@ class EgammaFexBuilder(object):
                 do_caloiso = True
     
         if do_caloiso:
-            log.debug('Electron calo + track isolation')
-            return self._egamma_rec_el_caloiso
+            if do_superclusters:
+                log.debug('SuperClusters Electron calo + track isolation')
+                return self._egamma_rec_sc_el_caloiso
+            else:
+                log.debug('Electron calo + track isolation')
+                return self._egamma_rec_el_caloiso
         else:
-            log.debug('Electron default rec')
-            return self._egamma_rec
+            if do_superclusters:
+                log.debug('SuperClusters Electron default rec')
+                return self._egamma_rec_sc
+            else:
+                log.debug('Electron default rec')
+                return self._egamma_rec
+
 
     def _get_photonrec(self,chainDict):
         chain_part = chainDict['chainParts']
         do_conv = False
         do_caloiso = False
+        do_superclusters=False
+        if 'addInfo' in chain_part:
+            if 'sc' in chain_part['addInfo']:
+                log.debug('Superclusters for photon')
+                do_superclusters=True
+
         log.debug('Photon preciserec') 
         if 'addInfo' in chain_part:
             if 'conv' in chain_part['addInfo']:
@@ -348,14 +387,28 @@ class EgammaFexBuilder(object):
                 log.debug('Electron calo isolation %s',iso[0])
                 do_caloiso = True
         if do_caloiso:
-            log.debug('Photon isolation')
-            return self._egamma_rec_ph_caloiso
+            if do_superclusters:
+                log.debug('SuperClusterse Photon isolation')
+                return self._egamma_rec_sc_ph_caloiso
+            else:
+                log.debug('Photon isolation')
+                return self._egamma_rec_ph_caloiso
+
         elif do_conv:
-            log.debug('Photon conversions')
-            return self._egamma_rec_conv
+            if do_superclusters:
+                log.debug('SuperClusters Photon conversions')
+                return self._egamma_rec_sc_conv
+            else:
+                log.debug('Photon conversions')
+                return self._egamma_rec_conv
         else:
-            log.debug('Photon default rec')
-            return self._egamma_rec_noid
+            if do_superclusters:
+                log.debug('SuperClusters Photon default rec')
+                return self._egamma_rec_sc_noid
+            else:
+                log.debug('Photon default rec')
+                return self._egamma_rec_noid
+
 
 class EgammaHypoBuilder(object):
     '''
@@ -383,6 +436,7 @@ class EgammaHypoBuilder(object):
                             'etcut':False,
                             'perf':False,
                             'ringer':False,
+                            'sc':False,
                             'g':False,
                             'e':False,
                             'hiptrt':False,
@@ -886,8 +940,18 @@ class EgammaSequence(object):
             if step not in seq:
                 log.debug('Hypo only step %s ', step)
                 seq[step]=hypo[step]
-        if ( self._disable_mon ):
-            self._config_monitoring(hypo)
+        if ( self._disable_mon):
+            if not hypo in ListOfMonitoredHypos:
+                #only disable monitoring of hypo if both, chain is *not* in list and if hypo NOT in the list of hypos to keep monitoring
+                self._config_monitoring(hypo)
+                log.debug('DISABLED_MON for '+str(hypo))
+            else:
+                log.debug('NOTDISABLED_MON for '+str(hypo))
+        else:
+            # if here it means this hypo IS to be configured. So store it in ListOfMonitoredHypos, unless is already there:
+            if not hypo in ListOfMonitoredHypos:
+                log.debug('ENABLED_MON for '+str(hypo))
+                ListOfMonitoredHypos.append(hypo)
         self.sequences = seq
         return seq       
     

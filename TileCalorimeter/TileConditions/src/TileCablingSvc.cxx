@@ -40,7 +40,7 @@ TileCablingSvc::TileCablingSvc(const std::string& name, ISvcLocator* pSvcLocator
   , m_detStore("DetectorStore", name)
 {
   declareProperty("ConnectedDrawers", m_connectedDrawers, "List of connected drawer ranges: starts,end1,start2,end2,...");
-  declareProperty("CablingType", m_cablingType = -9, "Cabling type: -1 - testbeam, 0 - old simulation, 1 - without MBTS, 2 - with MBTS instead of crack scin, 3 - MBTS in spare channels, 4 - RUN2 cabling");
+  declareProperty("CablingType", m_cablingType = -9, "Cabling type: -1 - testbeam, 0 - old simulation, 1 - without MBTS, 2 - with MBTS instead of crack scin, 3 - MBTS in spare channels, 4 - RUN2 cabling, 5 - RUN2a cabling");
   declareProperty("UseCache", m_useCache = true, "Use cache for channel_id to cell_id conversion");
 }
 
@@ -203,14 +203,23 @@ StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
         ATH_MSG_INFO( "RUN2 ATLAS UpgradeABC geometry flag detected for geometry: " << atlasVersion );
         m_cablingType = TileCablingService::UpgradeABC;
       } else {
-        m_cablingType = TileCablingService::RUN2Cabling;
+        if (m_cablingType == TileCablingService::RUN2Cabling) {
+          ATH_MSG_INFO( "Cabling for RUN2 (2014-2017) ATLAS geometry is set via jobOptions " );
+        } else if (m_cablingType == TileCablingService::RUN2aCabling) {
+          ATH_MSG_INFO( "Cabling for RUN2a (2018) ATLAS geometry is set via jobOptions " );
+        } else {
+          ATH_MSG_INFO( "Setting RUN2 (2014-2017) cabling" );
+          m_cablingType = TileCablingService::RUN2Cabling;
+        }
       }
 
     } else if (RUN4) {
       ATH_MSG_INFO( "RUN4 ATLAS geometry detected - use RUN1 cabling: " << atlasVersion );
       m_cablingType = TileCablingService::MBTSOnly;
     } else if (m_cablingType == TileCablingService::RUN2Cabling) {
-      ATH_MSG_INFO( "Cabling for RUN2 ATLAS geometry is set via jobOptions " );
+      ATH_MSG_INFO( "Cabling for RUN2 (2014-2017) ATLAS geometry is set via jobOptions " );
+    } else if (m_cablingType == TileCablingService::RUN2aCabling) {
+      ATH_MSG_INFO( "Cabling for RUN2a (2018) ATLAS geometry is set via jobOptions " );
     }  else if (ctb == 0) {
       ATH_MSG_INFO( "CTB geometry detected: " << atlasVersion );
       m_cablingType = TileCablingService::TestBeam;
@@ -573,7 +582,7 @@ StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
     }
 
     // checking E4'
-    if (m_cablingType == TileCablingService::RUN2Cabling) {
+    if (m_cablingType == TileCablingService::RUN2Cabling || m_cablingType == TileCablingService::RUN2aCabling) {
 
       std::cout << "========= E4' cells ==========" << std::endl;
     

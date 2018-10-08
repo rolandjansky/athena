@@ -5,7 +5,6 @@
 /***************************************************************************
  * Identifier utility
  * -----------------------------------------
- * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 28 April 2004

@@ -359,6 +359,8 @@ private:
   std::vector<uint32_t> m_vrodid32hec1;
   std::vector<uint32_t> m_vrodid32hec2;
   std::vector<uint32_t> m_vrodid32hec3;
+  std::vector<uint32_t> m_vrodid32hec0SideA;
+  std::vector<uint32_t> m_vrodid32hec0SideC;
   std::vector<uint32_t> m_vrodid32fcalem;
   std::vector<uint32_t> m_vrodid32fcalhad;
   std::vector<uint32_t> m_vrodid32tile;

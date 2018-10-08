@@ -4,6 +4,7 @@
 
 #include "TopObjectSelectionTools/IsolationTools.h"
 
+#include "TopConfiguration/ConfigurationSettings.h"
 #include "TopEvent/EventTools.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
@@ -121,7 +122,8 @@ StandardIsolation::StandardIsolation(const std::string& tightLeptonIsolation,con
   m_doTightIsolation(true),
   m_doLooseIsolation(true),
   m_doTightPromptLeptonIso(false),
-  m_doLoosePromptLeptonIso(false)
+  m_doLoosePromptLeptonIso(false),
+  m_skipUnavailable(!ConfigurationSettings::get()->feature("AbortOnUnavailableIsolation"))
 {
   if (tightLeptonIsolation == "PromptLepton") m_doTightPromptLeptonIso = true;
   if (looseLeptonIsolation == "PromptLepton") m_doLoosePromptLeptonIso = true;
@@ -146,7 +148,7 @@ bool StandardIsolation::passSelection(const xAOD::IParticle& p) const
        p.type() == xAOD::Type::Muon )
   {
     if(!m_doTightPromptLeptonIso){
-      if (p.isAvailable<char>(m_tightLeptonDecoration)) {
+      if (!m_skipUnavailable || p.isAvailable<char>(m_tightLeptonDecoration)) {
 	if (p.auxdataConst<char>(m_tightLeptonDecoration) == 1) {
 	  return true;
 	}
@@ -154,7 +156,7 @@ bool StandardIsolation::passSelection(const xAOD::IParticle& p) const
     }
     else{
       // Hardcoded a bit - With PLI we need to check that it passes Loose isolation AND passes the BDT cut
-      if (p.isAvailable<char>(m_tightLeptonDecoration) && p.isAvailable<char>("AnalysisTop_Isol_Loose")){
+      if (!m_skipUnavailable || (p.isAvailable<char>(m_tightLeptonDecoration) && p.isAvailable<char>("AnalysisTop_Isol_Loose"))){
 	if (p.auxdataConst<char>(m_tightLeptonDecoration) == 1 && p.auxdataConst<char>("AnalysisTop_Isol_Loose") == 1) {
 	  return true;
 	}
@@ -179,7 +181,7 @@ bool StandardIsolation::passSelectionLoose(const xAOD::IParticle& p) const
        p.type() == xAOD::Type::Muon ) 
   {
     if(!m_doLoosePromptLeptonIso){
-      if (p.isAvailable<char>(m_looseLeptonDecoration)) {
+      if (!m_skipUnavailable || p.isAvailable<char>(m_looseLeptonDecoration)) {
 	if (p.auxdataConst<char>(m_looseLeptonDecoration) == 1) {
 	  return true;
 	}
@@ -187,7 +189,7 @@ bool StandardIsolation::passSelectionLoose(const xAOD::IParticle& p) const
     }
     else{
       // Hardcoded a bit - With PLI we need to check that it passes Loose isolation AND passes the BDT cut              
-      if (p.isAvailable<char>(m_looseLeptonDecoration) && p.isAvailable<char>("AnalysisTop_Isol_Loose")){
+      if (!m_skipUnavailable || (p.isAvailable<char>(m_looseLeptonDecoration) && p.isAvailable<char>("AnalysisTop_Isol_Loose"))){
 	if (p.auxdataConst<char>(m_looseLeptonDecoration) == 1 && p.auxdataConst<char>("AnalysisTop_Isol_Loose") == 1) {
 	  return true;
 	}

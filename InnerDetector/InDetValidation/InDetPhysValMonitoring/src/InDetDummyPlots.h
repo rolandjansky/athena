@@ -34,6 +34,9 @@ public:
   void BT_fill(const xAOD::TruthParticle& truth, float weight);
   void track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp);
   void minDR(float min_dR, float prod_rad, float prob, double BIDPt);
+  void algoEfficiency(double radius, int SiSPweight, int TRTSeededweight, int TRTStandaloneweight, int other_weight);
+  void track_author(std::bitset<52> authorset);
+
 
 private:
   TH1* m_lepton_disappearance_radius;
@@ -63,6 +66,16 @@ private:
   TH1* m_minimum_delta_R_2_not_found;
   TH1* m_minimum_delta_R_3_not_found;
   TH1* m_delta_inverse_pt;
+  
+  TProfile* m_SiSPSeededFinder_eff_vs_radius;
+  TProfile* m_TRTSeeded_eff_vs_radius;
+  TProfile* m_TRTStandalone_eff_vs_radius;
+  TProfile* m_combo_eff_vs_radius;
+  TProfile* m_exclotherAlgo_eff_vs_radius;
+  TProfile* m_otherAlgo_eff_vs_radius;
+
+  TH1* m_track_author_use;
+
 
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();

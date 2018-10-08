@@ -19,7 +19,7 @@ TrigL2CaloRingerReader::TrigL2CaloRingerReader(std::string  name):m_name(name)
   m_weights=nullptr;
   m_bias=nullptr;
   // current version
-  m_version = 2;
+  m_version = 3;
 }
 
 
@@ -49,32 +49,33 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<Multi
 {
   m_etaBins=nullptr;
   m_etBins=nullptr;
+  m_muBins=nullptr;
   m_weights=nullptr;
   m_bias=nullptr;
   m_nodes=nullptr;
-
   discriminators.clear();
+
   // Retrive the
   msg() << MSG::INFO << "Checking discriminators CalibPath: "<< calibPath<< endreq;
   auto fullpath = PathResolverFindCalibFile(calibPath);
 	TFile file(fullpath.c_str(),"READ");
   auto version = ((TParameter<int>*)file.Get("__version__"))->GetVal();
+  TTree *t = (TTree*)file.Get("tuning/discriminators");
 
-  if(version == m_version){
-    TTree *t = (TTree*)file.Get("tuning/discriminators");
+  if(version == 2){
 	  // Link all branches
     InitBranch(t, "weights", &m_weights);
     InitBranch(t, "bias"   , &m_bias   );
     InitBranch(t, "nodes"  , &m_nodes  );
     InitBranch(t, "etaBin" , &m_etaBins );
     InitBranch(t, "etBin"  , &m_etBins  );
-
+   
     for(Long64_t d=0; d<t->GetEntries();++d){
       t->GetEntry(d);
       // Create the discriminator object
       try{
 	  	  discriminators.push_back(new MultiLayerPerceptron(*m_nodes,*m_weights,*m_bias,m_etBins->at(0),
-              m_etBins->at(1),m_etaBins->at(0),m_etaBins->at(1))); 
+              m_etBins->at(1),m_etaBins->at(0),m_etaBins->at(1), -999, 999) ); 
         //msg() << MSG::INFO << "Added new discriminator into the list." << endreq;
 	    }catch(std::bad_alloc xa){
         msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
@@ -85,14 +86,44 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<Multi
     // retrieve metadata
     m_useEtaVar = ((TParameter<bool>*)file.Get("metadata/UseEtaVar"))->GetVal();
     m_useLumiVar = ((TParameter<bool>*)file.Get("metadata/UseLumiVar"))->GetVal();
+  
+
+  // After version 2, the neural networks include mu bins
+  }else if ( version == m_version ){ // version 3
+ 	  // Link all branches
+    InitBranch(t, "weights", &m_weights);
+    InitBranch(t, "bias"   , &m_bias   );
+    InitBranch(t, "nodes"  , &m_nodes  );
+    InitBranch(t, "etaBin" , &m_etaBins );
+    InitBranch(t, "etBin"  , &m_etBins  );
+    InitBranch(t, "muBin"  , &m_muBins  );
+   
+    for(Long64_t d=0; d<t->GetEntries();++d){
+      t->GetEntry(d);
+      // Create the discriminator object
+      try{
+	  	  discriminators.push_back(new MultiLayerPerceptron(*m_nodes,*m_weights,*m_bias,m_etBins->at(0),
+              m_etBins->at(1),m_etaBins->at(0),m_etaBins->at(1), m_muBins->at(0), m_muBins->at(1) ) ); 
+        //msg() << MSG::INFO << "Added new discriminator into the list." << endreq;
+	    }catch(std::bad_alloc xa){
+        msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
+        return false;
+      }
+    }	// Loop over ttree events	
+ 
+    // retrieve metadata
+    m_useEtaVar = ((TParameter<bool>*)file.Get("metadata/UseEtaVar"))->GetVal();
+    m_useLumiVar = ((TParameter<bool>*)file.Get("metadata/UseLumiVar"))->GetVal();
+
   }else{
     msg() << MSG::WARNING << "version not supported" << endreq;
     return false;
   }
 
-  msg() << MSG::INFO << "Total of discriminators retrievied is      : " << discriminators.size() << endreq;
-  msg() << MSG::INFO << "Using eta variable                         : " << (m_useEtaVar?"Yes":"No") << endreq;
-  msg() << MSG::INFO << "Using lumi variable                        : " << (m_useLumiVar?"Yes":"No") << endreq;
+  msg() << MSG::INFO << "Config file version                         : " << version << endreq;
+  msg() << MSG::INFO << "Total of discriminators retrievied is       : " << discriminators.size() << endreq;
+  msg() << MSG::INFO << "Using eta variable                          : " << (m_useEtaVar?"Yes":"No") << endreq;
+  msg() << MSG::INFO << "Using lumi variable                         : " << (m_useLumiVar?"Yes":"No") << endreq;
   file.Close();
   
   return true;
@@ -104,6 +135,7 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<TrigC
 {
   m_etaBins=nullptr;
   m_etBins=nullptr;
+  m_muBins=nullptr;
   m_thresholds=nullptr;
 
   cutDefs.clear();
@@ -111,11 +143,9 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<TrigC
  	auto fullpath = PathResolverFindCalibFile(calibPath);
 	TFile file(fullpath.c_str(),"READ");
   auto version = ((TParameter<int>*)file.Get("__version__"))->GetVal();
+  TTree *t = (TTree*)file.Get("tuning/thresholds");
 	
-  
-  if(version == m_version){
-    TTree *t = (TTree*)file.Get("tuning/thresholds");
-    
+  if(version == 2){  
     InitBranch(t, "thresholds", &m_thresholds);
     InitBranch(t, "etBin"     , &m_etBins  );
     InitBranch(t, "etaBin"    , &m_etaBins );
@@ -125,7 +155,7 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<TrigC
       // Create the discriminator object
       try{
         cutDefs.push_back(new TrigCaloRingsHelper::CutDefsHelper(*m_thresholds,m_etaBins->at(0),
-                                                    m_etaBins->at(1), m_etBins->at(0),m_etBins->at(1)));
+                                                    m_etaBins->at(1), m_etBins->at(0),m_etBins->at(1),-999 , 999));
         //msg() << MSG::INFO << "Added new cutDef into the list." << endreq;
       }catch(std::bad_alloc xa){
         msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
@@ -134,11 +164,36 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<TrigC
 	  }	// Loop over ttree events	
     
     // retrieve metadata
-    //m_useEtaVar = ((TParameter<bool>*)file.Get("metadata/UseEtaVar"))->GetVal();
-    //m_useLumiVar = ((TParameter<bool>*)file.Get("metadata/UseLumiVar"))->GetVal();
     m_useNoActivationFunctionInTheLastLayer = ((TParameter<bool>*)file.Get("metadata/UseNoActivationFunctionInTheLastLayer"))->GetVal();
     m_lumiCut = ((TParameter<int>*)file.Get("metadata/LumiCut"))->GetVal();
     m_doPileupCorrection = ((TParameter<bool>*)file.Get("metadata/DoPileupCorrection"))->GetVal();
+  
+  }else if(version == m_version){ // version 3
+  
+    InitBranch(t, "thresholds", &m_thresholds);
+    InitBranch(t, "etBin"     , &m_etBins  );
+    InitBranch(t, "etaBin"    , &m_etaBins );
+    InitBranch(t, "muBin"     , &m_muBins );
+	  
+	  for(Long64_t d=0; d<t->GetEntries();++d){
+	    t->GetEntry(d);
+      // Create the discriminator object
+      try{
+        cutDefs.push_back(new TrigCaloRingsHelper::CutDefsHelper(*m_thresholds,m_etaBins->at(0),
+                                                    m_etaBins->at(1), m_etBins->at(0),m_etBins->at(1),
+                                                    m_muBins->at(0), m_muBins->at(1)) );
+        //msg() << MSG::INFO << "Added new cutDef into the list." << endreq;
+      }catch(std::bad_alloc xa){
+        msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
+        return false;
+      }
+	  }	// Loop over ttree events	
+    
+    // retrieve metadata
+    m_useNoActivationFunctionInTheLastLayer = ((TParameter<bool>*)file.Get("metadata/UseNoActivationFunctionInTheLastLayer"))->GetVal();
+    m_lumiCut = ((TParameter<int>*)file.Get("metadata/LumiCut"))->GetVal();
+    m_doPileupCorrection = ((TParameter<bool>*)file.Get("metadata/DoPileupCorrection"))->GetVal();
+  
   }else{
     msg() << MSG::WARNING << "version not supported" << endreq;
     return false;
@@ -146,6 +201,7 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<TrigC
   
   file.Close();
   
+  msg() << MSG::INFO << "Config file version                         : " << version << endreq;
   msg() << MSG::INFO << "Total of cutDefs retrievied is              : " << cutDefs.size() << endreq;
   msg() << MSG::INFO << "Using pileup correction                     : " << (m_doPileupCorrection?"Yes":"No") << endreq;
   msg() << MSG::INFO << "Using useNoActivationFunctionInTheLastLayer : " << (m_useNoActivationFunctionInTheLastLayer?"Yes":"No") << endreq;

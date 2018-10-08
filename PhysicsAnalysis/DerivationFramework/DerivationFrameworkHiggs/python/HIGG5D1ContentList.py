@@ -22,6 +22,8 @@ HIGG5D1Content = [
 ### Jet
 "xAOD::JetContainer_v1#AntiKt4EMTopoJets",
 "xAOD::JetAuxContainer_v1#AntiKt4EMTopoJetsAux.",
+"xAOD::JetContainer_v1#AntiKt4EMPFlowJets",
+"xAOD::JetAuxContainer_v1#AntiKt4EMPFlowJetsAux.",
 # "xAOD::JetContainer_v1#AntiKt4TruthJets",
 # "xAOD::JetAuxContainer_v1#AntiKt4TruthJetsAux.",
 # "xAOD::JetContainer_v1#AntiKt4TruthWZJets",
@@ -36,7 +38,7 @@ HIGG5D1Content = [
 "xAOD::JetAuxContainer_v1#AntiKt3PV0TrackJetsAux.",
 "xAOD::EventShape_v1#*",
 "xAOD::EventShapeAuxInfo_v1#*",
-### Calo cluster 
+### Calo cluster
 #"xAOD::CaloClusterContainer_v1#CaloCalTopoCluster",
 #"xAOD::CaloClusterAuxContainer_v1#CaloCalTopoClusterAux.",
 "xAOD::CaloClusterContainer_v1#LArClusterEMFrwd",
@@ -67,24 +69,26 @@ HIGG5D1Content = [
 "xAOD::MissingETAuxContainer_v1#MET_TruthAux.",
 #"xAOD::MissingETContainer_v1#MET_Track",
 #"xAOD::MissingETAuxContainer_v1#MET_TrackAux.",
-"xAOD::MissingETContainer_v1#MET_TrackFix", 
-"xAOD::MissingETAuxContainer_v1#MET_TrackFixAux.", 
-"xAOD::MissingETComponentMap_v1#METMap_EMJets", 
+"xAOD::MissingETContainer_v1#MET_TrackFix",
+"xAOD::MissingETAuxContainer_v1#MET_TrackFixAux.",
+"xAOD::MissingETComponentMap_v1#METMap_EMJets",
 "xAOD::MissingETAuxComponentMap_v1#METMap_EMJetsAux.",
 "xAOD::MissingETComponentMap_v1#METMap_EleLHMedEMJets",
 "xAOD::MissingETAuxComponentMap_v1#METMap_EleLHMedEMJetsAux.",
 "xAOD::MissingETComponentMap_v1#METMap_RefFinalFix",
 "xAOD::MissingETAuxComponentMap_v1#METMap_RefFinalFixAux.",
-"xAOD::MissingETComponentMap_v1#METMap_Truth", 
-"xAOD::MissingETAuxComponentMap_v1#METMap_TruthAux.", 
-"xAOD::MissingETComponentMap_v1#METMap_TrackFix", 
-"xAOD::MissingETAuxComponentMap_v1#METMap_TrackFixAux.", 
+"xAOD::MissingETComponentMap_v1#METMap_Truth",
+"xAOD::MissingETAuxComponentMap_v1#METMap_TruthAux.",
+"xAOD::MissingETComponentMap_v1#METMap_TrackFix",
+"xAOD::MissingETAuxComponentMap_v1#METMap_TrackFixAux.",
 ### Vertex
 "xAOD::VertexContainer_v1#*",
 "xAOD::VertexAuxContainer_v1#*",
 ### B-tag
 "xAOD::BTaggingContainer_v1#BTagging_AntiKt4EMTopo",
 "xAOD::BTaggingAuxContainer_v1#BTagging_AntiKt4EMTopoAux.",
+"xAOD::BTaggingContainer_v1#BTagging_AntiKt4EMPFlow",
+"xAOD::BTaggingAuxContainer_v1#BTagging_AntiKt4EMPFlowAux."
 "xAOD::BTaggingContainer_v1#BTagging_AntiKt4Truth",
 "xAOD::BTaggingAuxContainer_v1#BTagging_AntiKt4TruthAux.",
 "xAOD::BTaggingContainer_v1#BTagging_AntiKt4TruthWZ",
@@ -93,7 +97,7 @@ HIGG5D1Content = [
 "xAOD::BTaggingAuxContainer_v1#BTagging_AntiKt10TruthAux.",
 "xAOD::BTaggingContainer_v1#BTagging_AntiKt10TruthWZ",
 "xAOD::BTaggingAuxContainer_v1#BTagging_AntiKt10TruthWZAux.",
-### Trigger 
+### Trigger
 "xAOD::TrigDecision_v1#xTrigDecision",
 "xAOD::TrigDecisionAuxInfo_v1#xTrigDecisionAux.",
 "xAOD::TriggerMenuContainer_v1#TriggerMenu",

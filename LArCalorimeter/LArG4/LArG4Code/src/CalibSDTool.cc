@@ -34,7 +34,8 @@ namespace LArG4
       m_larFcalID(nullptr),
       m_larHecID(nullptr),
       m_larMiniFcalID(nullptr),
-      m_caloDmID(nullptr)
+      m_caloDmID(nullptr),
+      m_id_helper(nullptr)
   {
     declareProperty("ParticleID", m_doPID);
   }
@@ -68,6 +69,8 @@ namespace LArG4
       ATH_MSG_ERROR("Invalid CaloDM ID helper");
       return StatusCode::FAILURE;
     }
+
+    ATH_CHECK(detStore()->retrieve(m_id_helper));
 
     // No general volume list for SensitiveDetectorBase
     m_noVolumes = true;
@@ -106,6 +109,11 @@ namespace LArG4
     // Create the calib SD
     auto sd = CxxUtils::make_unique<LArG4CalibSD>(sdName, calc, m_doPID);
     sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID, m_caloDmID);
+
+    const std::string dead("Dead");
+    if(sdName.find(dead)==std::string::npos) {
+      sd->addDetectorHelper(m_id_helper);
+    }
 
     // Assign the volumes to the SD
     if( assignSD( sd.get(), parsedVolumes ).isFailure() ) {

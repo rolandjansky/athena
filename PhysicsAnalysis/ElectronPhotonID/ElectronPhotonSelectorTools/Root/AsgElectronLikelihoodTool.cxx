@@ -42,11 +42,8 @@
 AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   AsgTool(myname),
   m_configFile(""),
-  m_rootTool(0)
+  m_rootTool(new Root::TElectronLikelihoodTool( ("T"+myname).c_str() ))
 {
-
-  // Create an instance of the underlying ROOT tool
-  m_rootTool = new Root::TElectronLikelihoodTool( ("T"+myname).c_str() );
 
   // Declare the needed properties
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
@@ -57,9 +54,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("useCaloSumsContainer", m_useCaloSumsCont=true, "Whether to use the CaloSums container");
   declareProperty("fcalEtDefault", m_fcalEtDefault = 0, "The default FCal sum ET");
   declareProperty("CaloSumsContainer", m_CaloSumsContName="CaloSums", "The CaloSums container name" );
-
-
-
   //
   // Configurables in the root tool
   //
@@ -97,8 +91,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("doRemoveTRTPIDAtHighEt",m_rootTool->doRemoveTRTPIDAtHighEt,"Turn off TRTPID at high Et");
   // use smooth interpolation between LH bins
   declareProperty("doSmoothBinInterpolation",m_rootTool->doSmoothBinInterpolation,"use smooth interpolation between LH bins");
-  // use binning for high ET LH
-  declareProperty("useHighETLHBinning",m_rootTool->useHighETLHBinning,"Use binning for high ET LH");
   // use one extra bin for high ET LH
   declareProperty("useOneExtraHighETLHBin",m_rootTool->useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
   // cut on Wstot above HighETBinThreshold
@@ -135,21 +127,19 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if it is a calo-only LH");
 }
 
-
 //=============================================================================
 // Standard destructor
 //=============================================================================
 AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgElectronLikelihoodTool finalize()");
-  }
-  delete m_rootTool;
+  if ( !(m_rootTool->finalize()) )
+    {
+      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
+    }
 }
 
-
 //=============================================================================
-// Asgena initialize method
+// Asg/athena initialize method
 //=============================================================================
 StatusCode AsgElectronLikelihoodTool::initialize()
 {
@@ -226,7 +216,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
     m_caloOnly = env.GetValue("caloOnly", false);
 
-    m_rootTool->useHighETLHBinning = env.GetValue("useHighETLHBinning", false);
     m_rootTool->useOneExtraHighETLHBin = env.GetValue("useOneExtraHighETLHBin", false);
     // cut on Wstot above HighETBinThreshold
     m_rootTool->CutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);
@@ -268,28 +257,11 @@ StatusCode AsgElectronLikelihoodTool::initialize()
       return StatusCode::FAILURE;
     }
 
-  // Copy the now filled TAccept and TResult to the dummy
-  m_acceptDummy = m_rootTool->getTAccept();
+  // Copy the now filled TResult to the dummy
   m_resultDummy = m_rootTool->getTResult();
 
   return StatusCode::SUCCESS ;
 }
-
-
-//=============================================================================
-// Asgena finalize method (now called by destructor)
-//=============================================================================
-StatusCode AsgElectronLikelihoodTool::finalize()
-{
-  if ( !(m_rootTool->finalize()) )
-    {
-      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
-      return StatusCode::FAILURE;
-    }
-
-  return StatusCode::SUCCESS;
-}
-
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
@@ -298,23 +270,23 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
     ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   const double energy =  cluster->e();
@@ -370,8 +342,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
         EoverP = fabs(t->qOverP()) * energy;
       }
       else {
-        ATH_MSG_ERROR( "Failed, no track particle. et= " << et << "eta= " << eta );
-        return m_acceptDummy;
+        ATH_MSG_WARNING( "Failed, no track particle. et= " << et << "eta= " << eta );
+        return m_rootTool->cleanTAccept();
       }
 
       if( !eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1) ){
@@ -406,8 +378,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 			wstot, EoverP, ip ));
   
   if (!allFound) {
-    ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
-    return m_acceptDummy;
+    ATH_MSG_WARNING("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
+    return m_rootTool->cleanTAccept();
   }
   
   // Get the answer from the underlying ROOT tool
@@ -435,7 +407,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   // Call the main accept if this is not a calo-only LH
@@ -446,18 +418,18 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 
   if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
     ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
-    ATH_MSG_ERROR ("Failed, no cluster.");
-    return m_acceptDummy;
+    ATH_MSG_WARNING ("Failed, no cluster.");
+    return m_rootTool->cleanTAccept();
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
-    ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_acceptDummy;
+    ATH_MSG_WARNING("Failed, cluster is missing samplings EMB2 and EME2");
+    return m_rootTool->cleanTAccept();
   }
   
   const double energy =  cluster->e();
@@ -508,7 +480,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 
   if (!allFound) {
     ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   // Get the answer from the underlying ROOT tool
@@ -903,8 +875,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* pa
       return accept(eg);
     }
   else{
-    ATH_MSG_ERROR("AsgElectronLikelihoodTool::could not cast to const Electron");
-    return m_acceptDummy;
+    ATH_MSG_WARNING("AsgElectronLikelihoodTool::could not cast to const Electron");
+    return m_rootTool->cleanTAccept();
   }
 }
 
@@ -917,12 +889,10 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle*
     }
   else
     {
-      ATH_MSG_ERROR ( " Could not cast to const Electron " );
+      ATH_MSG_WARNING( " Could not cast to const Electron " );
       return m_resultDummy;
     }
 }
-
-
 
 
 //=============================================================================

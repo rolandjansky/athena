@@ -19,7 +19,7 @@ public:
     // do the track extraction stuff here....
     if ( track ) { 
       TIDA::Track* t = new TIDA::Track( *track );
-      if ( !addTrack( t ) ) delete t;;
+      if ( !addTrack( t ) ) delete t;
       // addTrack( track );
     }
   }

@@ -27,7 +27,7 @@ class JetParticleShrinkingConeAssociation : public JetParticleAssociation {
 
 
     private:
-        std::string m_inputParticleCollectionName;
+        std::string m_InputParticleCollectionName;
         double m_coneSizeFitPar1;
         double m_coneSizeFitPar2;
         double m_coneSizeFitPar3;

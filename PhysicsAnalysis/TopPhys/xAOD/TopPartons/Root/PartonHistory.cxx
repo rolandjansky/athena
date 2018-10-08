@@ -33,6 +33,11 @@ namespace xAOD{
    this->auxdecor< float >( "MC_ttbar_afterFSR_eta" ) = -1000 ; 
    this->auxdecor< float >( "MC_ttbar_afterFSR_phi" ) = -1000 ; 
 
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_m" ) = -1;
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_pt" ) = -1;
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_eta" ) = -1000;
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_phi" ) = -1000;
+
    //t variables  
    this->auxdecor< float >( "MC_t_beforeFSR_m" ) = -1 ; 
    this->auxdecor< float >( "MC_t_beforeFSR_pt" ) = -1 ; 
@@ -352,6 +357,29 @@ namespace xAOD{
     this->auxdecor< float >( "MC_b_not_from_top_afterFSR_m" ) = -1 ; 
     this->auxdecor< int >( "MC_b_not_from_top_pdgId" ) = 0 ; 
 
+  }
+
+  // Initialize variables for an additional final-state Z.
+  void PartonHistory::IniVarZ(){
+    this->auxdecor< float >( "MC_Z_m" ) = -1;
+    this->auxdecor< float >( "MC_Z_pt" ) = -1;
+    this->auxdecor< float >( "MC_Z_eta" ) = -1000;
+    this->auxdecor< float >( "MC_Z_phi" ) = -1000;
+
+    this->auxdecor< float >( "MC_Zdecay1_m" ) = -1;
+    this->auxdecor< float >( "MC_Zdecay1_pt" ) = -1;
+    this->auxdecor< float >( "MC_Zdecay1_eta" ) = -1000;
+    this->auxdecor< float >( "MC_Zdecay1_phi" ) = -1000;
+    this->auxdecor< int >( "MC_Zdecay1_pdgId" ) = 0;
+
+    this->auxdecor< float >( "MC_Zdecay2_m" ) = -1;
+    this->auxdecor< float >( "MC_Zdecay2_pt" ) = -1;
+    this->auxdecor< float >( "MC_Zdecay2_eta" ) = -1000;
+    this->auxdecor< float >( "MC_Zdecay2_phi" ) = -1000;
+    this->auxdecor< int >( "MC_Zdecay2_pdgId" ) = 0;
+
+    this->auxdecor< int >( "MC_Z_AncestryCorrupted" ) = -1;
+    this->auxdecor< int >( "MC_Z_IsOnShell" ) = -1;
   }
 
 }

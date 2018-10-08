@@ -93,7 +93,7 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     tools = []
     if muonCombinedRecFlags.doCombinedFit():
         tools.append(getPublicTool("MuonCombinedFitTagTool"))
-    if muonCombinedRecFlags.doStatisticalCombination():
+    if muonCombinedRecFlags.doStatisticalCombination() and beamFlags.beamType() != 'cosmics':
         tools.append(getPublicTool("MuonCombinedStacoTagTool"))
     kwargs.setdefault("MuonCombinedTagTools", tools )
     return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)

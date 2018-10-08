@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EVENTTAGALGS_ANALYSYSTAGBUILDER_H
+#ifndef EVENTTAGALGS_ANALYSISTAGBUILDER_H
 #define EVENTTAGALGS_ANALYSISTAGBUILDER_H
 
 /**
@@ -36,9 +36,6 @@ private:
 
   //! Attribute list name
   std::string m_attributeListName;
-
-  //! StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
 
   //! Analysis Specific tools
   ToolHandle<JetMissingEtIdentificationTagTool> m_jetMissingEtTagTool;

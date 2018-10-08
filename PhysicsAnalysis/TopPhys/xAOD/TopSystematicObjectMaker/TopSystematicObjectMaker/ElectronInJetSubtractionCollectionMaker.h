@@ -55,7 +55,7 @@ namespace top{
       ElectronInJetSubtractionCollectionMaker& operator=(const ElectronInJetSubtractionCollectionMaker& rhs) = delete; 
       
       StatusCode initialize(); 
-      StatusCode execute();
+      StatusCode execute(bool);
       
     private:      
       std::shared_ptr<top::TopConfig> m_config;

@@ -140,7 +140,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
   
   if(m_data->LoadMBTS(m_itBegin,m_itEnd).isFailure()){
     m_error|=m_data->report_error();
-    return StatusCode::FAILURE;
+    return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
   }
   
   if(msgLvl() <= MSG::WARNING) {
@@ -306,23 +306,21 @@ HLT::ErrorCode T2MbtsFex::hltInitialize() {
   }
 
   if(m_data.retrieve().isFailure()) {
-    m_log << MSG::ERROR << "Could not get m_data" << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Could not get m_data");
+    return HLT::BAD_JOB_SETUP;
   }
   
   // Connect to the Detector Store to retrieve TileTBID.
   if(m_detStore.retrieve().isFailure()) {
-    m_log << MSG::ERROR << "Couldn't connect to " << m_detStore.typeAndName()
-	  << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Couldn't connect to " << m_detStore.typeAndName());
+    return HLT::BAD_JOB_SETUP;
   }
  
-  // Retrieve TileTBID helper from det store
+ // Retrieve TileTBID helper from det store
   // (The MBTS was added to the Test Beam (TB) list.)
   if(m_detStore->retrieve(m_tileTBID).isFailure()) {
-    m_log << MSG::ERROR
-	  << "Unable to retrieve TileTBID helper from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Unable to retrieve TileTBID helper from DetectorStore");
+    return HLT::BAD_JOB_SETUP;
   }
 
   // Create timers

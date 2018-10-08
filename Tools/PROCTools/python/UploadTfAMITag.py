@@ -192,7 +192,7 @@ def GetProcessConfigs(release):
         'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'}
                     #'outputTAGFile': {'dstype': 'TAG', 'ifMatch': '(?!.*calibration.*)'}
                     },
-        'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
+        'phconfig': {'autoConfiguration': 'everything'},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
                           'trfsetupcmd':  setupScript+' '+rel+' '+specialT0Setup },

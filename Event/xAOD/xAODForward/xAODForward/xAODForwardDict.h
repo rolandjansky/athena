@@ -58,6 +58,12 @@
 #include "xAODForward/versions/AFPTrackAuxContainer_v2.h"
 #include "xAODForward/versions/AFPTrack_v2.h"
 
+#include "xAODForward/AFPProtonContainer.h"
+#include "xAODForward/AFPProtonAuxContainer.h"
+#include "xAODForward/versions/AFPProtonContainer_v1.h"
+#include "xAODForward/versions/AFPProtonAuxContainer_v1.h"
+#include "xAODForward/versions/AFPProton_v1.h"
+
 #include "xAODForward/ZdcModuleContainer.h"
 #include "xAODForward/ZdcModuleAuxContainer.h"
 #include "xAODForward/versions/ZdcModuleContainer_v1.h"
@@ -122,6 +128,13 @@ namespace xAOD
     ElementLink<xAOD::AFPTrackContainer_v1> afpTrack_l3;
     std::vector<ElementLink<xAOD::AFPTrackContainer_v1> > afpTrack_l4;
     std::vector<std::vector<ElementLink<xAOD::AFPTrackContainer_v1> > > afpTrack_l5;
+
+    xAOD::AFPProtonContainer_v1 afpProton_c1;
+    DataLink<xAOD::AFPProtonContainer_v1> afpProton_l1;
+    std::vector<DataLink<xAOD::AFPProtonContainer_v1> > afpProton_l2;
+    ElementLink<xAOD::AFPProtonContainer_v1> afpProton_l3;
+    std::vector<ElementLink<xAOD::AFPProtonContainer_v1> > afpProton_l4;
+    std::vector<std::vector<ElementLink<xAOD::AFPProtonContainer_v1> > > afpProton_l5;
 
   };
 

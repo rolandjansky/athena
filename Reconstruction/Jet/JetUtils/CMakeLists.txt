@@ -62,6 +62,6 @@ elseif( XAOD_STANDALONE OR XAOD_ANALYSIS )
       SOURCES test/JetUtils_CaloQual_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCaloEvent JetUtils AthLinks 
-      EXTRA_PATTERNS "no dictionary for class" )
+      EXTRA_PATTERNS "no dictionary for class|xAOD::Init" )
 endif()
 

@@ -41,7 +41,7 @@ namespace xAOD {
 
    double L2CombinedMuon_v1::e() const {
 
-      return p4().M();
+      return p4().E();
    }
 
    double L2CombinedMuon_v1::rapidity() const {

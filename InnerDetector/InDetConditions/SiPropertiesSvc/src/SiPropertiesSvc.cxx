@@ -21,8 +21,10 @@ const double DEFAULTTEMPERATURE = -7;  // Degree C
 const double DEFAULTDEPLVOLTAGE = 70;  // Volt
 const double DEFAULTBIASVOLTAGE = 150; // Volt
 
-SiPropertiesSvc::SiPropertiesSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
+SiPropertiesSvc::SiPropertiesSvc( const std::string& name, ISvcLocator* pSvcLocator ):
   AthService(name, pSvcLocator),
+  m_electronSaturationVelocity(1.53e9),
+  m_holeSaturationVelocity(1.62e8),
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
   m_conditionsSvcValid(false),
@@ -30,69 +32,42 @@ SiPropertiesSvc::SiPropertiesSvc( const std::string& name, ISvcLocator* pSvcLoca
 {
   declareProperty("TemperatureMin",m_temperatureMin = -80., "Minimum temperature allowed in Celcius.");
   declareProperty("TemperatureMax",m_temperatureMax = 100., "Maximum temperature allowed in Celcius.");
+  declareProperty("ElectronSaturationVelocity", m_electronSaturationVelocity = 1.53e9, "Electron Saturation Velocity [cm/s]");
+  declareProperty("HoleSaturationVelocity",     m_holeSaturationVelocity     = 1.62e8, "Hole Saturation Velocity [cm/s]");
   declareProperty("SiConditionsServices", m_siConditionsSvc);
   declareProperty("DetectorName", m_detectorName="Pixel");
+  declareProperty("UseConditionsDB", m_conditionsSvcValid=true);
 }
 
 SiPropertiesSvc::~SiPropertiesSvc()
 {}
 
 
-StatusCode 
-SiPropertiesSvc::initialize()
-{ 
-  msg(MSG::INFO) << "SiPropertiesSvc Initialized" << endreq;
-  
-  StatusCode sc = AthService::initialize();
-  if (sc.isFailure()) { 
-    msg(MSG::FATAL) << "Unable to initialize the service!" << endreq;
-    return sc;
-  } 
-  
-  if (m_detectorName != "Pixel" && m_detectorName != "SCT") {
-    msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName << ". Must be Pixel or SCT." << endreq;
+StatusCode SiPropertiesSvc::initialize() { 
+  ATH_MSG_INFO("SiPropertiesSvc Initialized");
+
+  CHECK(AthService::initialize());
+
+  if (m_detectorName!="Pixel" && m_detectorName!="SCT") {
+    ATH_MSG_FATAL("Invalid detector name: " << m_detectorName << ". Must be Pixel or SCT.");
     return StatusCode::FAILURE;
   }
 
   // Get conditions summary service. 
-  m_conditionsSvcValid = false; 
-  sc =  m_siConditionsSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to to retrieve Conditions Summary Service" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "SiPropertiesSvc successfully loaded Conditions Summary Service." << endreq;
-    m_conditionsSvcValid = true;
-  }
- 
-  // Detector store
-  sc = m_detStore.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;  
+  if (m_conditionsSvcValid) {
+    CHECK(m_siConditionsSvc.retrieve());
   }
 
+  // Detector store
+  CHECK(m_detStore.retrieve());
+
   // Get the detector manager
-  m_detStore->retrieve(m_detManager, m_detectorName);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find the detector manager: " << m_detectorName << " !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
-  if (m_conditionsSvcValid) {  
-    if (m_siConditionsSvc->hasCallBack()) {
-      //Register callback. To be triggered after SiConditionsSvc's callback,
-      msg(MSG::INFO) << "Registering callback." << endreq;
-      sc = m_detStore->regFcn(&ISiliconConditionsSvc::callBack, &*m_siConditionsSvc,
-			      &ISiPropertiesSvc::callBack, dynamic_cast<ISiPropertiesSvc *>(this),
-			      true);
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Could not register callback." << endreq;
-	return sc;
-      }
-    } else {
-      msg(MSG::DEBUG) << "Conditions Summary Service has no callback." << endreq;
-    }
+  CHECK(m_detStore->retrieve(m_detManager,m_detectorName));
+
+  //Register callback. To be triggered after SiConditionsSvc's callback,
+  if (m_siConditionsSvc->hasCallBack()) {
+    ATH_MSG_INFO("Registering callback.");
+    CHECK(m_detStore->regFcn(&ISiliconConditionsSvc::callBack,&*m_siConditionsSvc,&ISiPropertiesSvc::callBack,dynamic_cast<ISiPropertiesSvc *>(this),true));
   }
 
   bool isPixel = (m_detectorName == "Pixel");
@@ -102,18 +77,13 @@ SiPropertiesSvc::initialize()
   if (isPixel) {
     // Pixel
     const PixelID * idHelper;
-    if (m_detStore->retrieve(idHelper, "PixelID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
-      return StatusCode::FAILURE;
-    }
+    CHECK(m_detStore->retrieve(idHelper,"PixelID"));
     maxHash = idHelper->wafer_hash_max();
-  } else {
+  } 
+  else {
     // SCT
     const SCT_ID * idHelper;
-    if (m_detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
-      return StatusCode::FAILURE;
-    }
+    CHECK(m_detStore->retrieve(idHelper,"SCT_ID"));
     maxHash = idHelper->wafer_hash_max();
   }
   
@@ -123,41 +93,13 @@ SiPropertiesSvc::initialize()
   //m_outOfRangeWarning.resize(maxHash); // initialized to false
 
   return StatusCode::SUCCESS;
-  
 }
 
-StatusCode 
-SiPropertiesSvc::finalize()
-{
-  // Count number of modules that produced out of range errors.
-  //int count = std::count(m_outOfRangeWarning.begin(),m_outOfRangeWarning.end(),true);
-  
-  //if (count > 0) {
-    //if (count > m_outOfRangeWarningThresh) {
-      //if (count == 1) { 
-	//if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "There was 1 detector element returning an invalid temperature. Temperature was set to " 
-	//					    << m_temperature << " C for this detector element." << endreq; 
-      //} else {
-	//if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "There were " << count 
-		//				    << " detector elements returning an invalid temperature. Temperature was set to " 
-			//			    << m_temperature << " C for these detector elements." << endreq; 
-      //}
-    //} else {
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of detector elements returning invalid temperature: " << count << endreq; 
-    //}
-  //}
-  
+StatusCode SiPropertiesSvc::finalize() {
   return StatusCode::SUCCESS;
 }
 
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode
-SiPropertiesSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
+StatusCode SiPropertiesSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   if ( ISiPropertiesSvc::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<ISiPropertiesSvc *>(this);
   }  else  {
@@ -169,26 +111,21 @@ SiPropertiesSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 
-StatusCode
-SiPropertiesSvc::callBack(IOVSVC_CALLBACK_ARGS)
-{  
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Callback called." << endreq;
+StatusCode SiPropertiesSvc::callBack(IOVSVC_CALLBACK_ARGS) {  
+  if (msgLvl(MSG::DEBUG)) { 
+    ATH_MSG_DEBUG("Callback called.");
+  }
   invalidateCache();
   return StatusCode::SUCCESS;
 }
 
-const InDet::SiliconProperties &
-SiPropertiesSvc::getSiProperties(const IdentifierHash & elementHash){ 
+const InDet::SiliconProperties & SiPropertiesSvc::getSiProperties(const IdentifierHash & elementHash) { 
   if (!valid(elementHash)) updateCache(elementHash);
   return m_propertiesCache[elementHash];
 }
 
-void
-SiPropertiesSvc::updateCache(const IdentifierHash & elementHash)
-{
-  
+void SiPropertiesSvc::updateCache(const IdentifierHash & elementHash) {
   const InDetDD::SiDetectorElement * element = m_detManager->getDetectorElement(elementHash);
-  
   double temperature;
   double deplVoltage;
   double biasVoltage;
@@ -208,17 +145,12 @@ SiPropertiesSvc::updateCache(const IdentifierHash & elementHash)
     //if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Invalid temperature: " << temperatureC << " C. "
     //						<< "Setting to " << DEFAULTTEMPERATURE << " C."
     //						<< endreq;
-   //  temperature = m_temperature + 273.15;
-
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Invalid temperature: "  
- 					    << temperatureC << " C. " 
- 					    << "Setting to " <<  DEFAULTTEMPERATURE << " C. " 
- 					    << "Detector element hash: " << elementHash  
- 					    << endreq;       
-    
+    //  temperature = m_temperature + 273.15;
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("Invalid temperature: "  << temperatureC << " C. " << "Setting to " <<  DEFAULTTEMPERATURE << " C. " << "Detector element hash: " << elementHash);
+    }
     temperature = DEFAULTTEMPERATURE + 273.15;
   }
-
 
 
   // Calculate depletion depth. If biasVoltage is less than depletionVoltage
@@ -232,37 +164,33 @@ SiPropertiesSvc::updateCache(const IdentifierHash & elementHash)
   double meanElectricField = 0;
   if (depletionDepth) meanElectricField = biasVoltage / depletionDepth;
 
+  // Change saturation velocity
+  m_propertiesCache[elementHash].setElectronSaturationVelocity(m_electronSaturationVelocity*CLHEP::cm/CLHEP::s);
+  m_propertiesCache[elementHash].setHoleSaturationVelocity(m_holeSaturationVelocity*CLHEP::cm/CLHEP::s);
+
   m_propertiesCache[elementHash].setConditions(temperature, meanElectricField);
   m_cacheValid[elementHash] = true;
 
-
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Temperature (C), bias voltage, depletion voltage: "
-		      << temperature - 273.15 << ", "
-		      << biasVoltage/CLHEP::volt << ", "
-		      << deplVoltage/CLHEP::volt << endreq;
+    ATH_MSG_VERBOSE("Temperature (C), bias voltage, depletion voltage: " << temperature - 273.15 << ", " << biasVoltage/CLHEP::volt << ", " << deplVoltage/CLHEP::volt);
     double hallMobility = m_propertiesCache[elementHash].signedHallMobility(element->carrierType());
     double driftMobility = m_propertiesCache[elementHash].driftMobility(element->carrierType());
     double ehPairsPerEnergy = m_propertiesCache[elementHash].electronHolePairsPerEnergy();
     double diffConst = m_propertiesCache[elementHash].diffusionConstant(element->carrierType());
-    msg(MSG::VERBOSE) << "Signed Mobility (cm2/V/s):  " <<  hallMobility/(CLHEP::cm2/CLHEP::volt/CLHEP::s) << endreq;
-    msg(MSG::VERBOSE) << "Drift Mobility (cm2/V/s):   " <<  driftMobility/(CLHEP::cm2/CLHEP::volt/CLHEP::s) << endreq;
-    msg(MSG::VERBOSE) << "eh pairs per eV:            " <<  ehPairsPerEnergy/(1./CLHEP::eV) << endreq;
-    msg(MSG::VERBOSE) << "Diffusion constant (cm2/s): " <<  diffConst/(CLHEP::cm2/CLHEP::s) << endreq;
+    ATH_MSG_VERBOSE("Signed Mobility (cm2/V/s):  " <<  hallMobility/(CLHEP::cm2/CLHEP::volt/CLHEP::s));
+    ATH_MSG_VERBOSE("Drift Mobility (cm2/V/s):   " <<  driftMobility/(CLHEP::cm2/CLHEP::volt/CLHEP::s));
+    ATH_MSG_VERBOSE("eh pairs per eV:            " <<  ehPairsPerEnergy/(1./CLHEP::eV));
+    ATH_MSG_VERBOSE("Diffusion constant (cm2/s): " <<  diffConst/(CLHEP::cm2/CLHEP::s));
   }
-
 }
 
-void 
-SiPropertiesSvc::invalidateCache()
-{
+void SiPropertiesSvc::invalidateCache() {
   // Invalidate all caches.
   std::fill(m_cacheValid.begin(), m_cacheValid.end(), false);
 }
 
 
-bool
-SiPropertiesSvc::valid(const IdentifierHash & elementHash){
+bool SiPropertiesSvc::valid(const IdentifierHash & elementHash) {
   //if (msgLvl(MSG::VERBOSE) msg(MSG::VERBOSE) << "Cache valid = " <<  m_cacheValid[elementHash] << endreq;
   return m_cacheValid[elementHash];
 }

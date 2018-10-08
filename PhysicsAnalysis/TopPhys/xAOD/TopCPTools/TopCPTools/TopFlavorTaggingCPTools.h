@@ -51,6 +51,8 @@ class FlavorTaggingCPTools final : public asg::AsgTool {
   std::vector<std::string> m_trackAntiKt2_WPs;
   std::vector<std::string> m_trackAntiKt4_WPs_calib;
   std::vector<std::string> m_trackAntiKt4_WPs;
+  std::vector<std::string> m_pflow_WPs_calib;
+  std::vector<std::string> m_pflow_WPs;
   // Some tools here
   ToolHandleArray<IBTaggingEfficiencyTool> m_btagging_efficiency_tools;
   ToolHandleArray<IBTaggingSelectionTool> m_btagging_selection_tools;
@@ -58,8 +60,9 @@ class FlavorTaggingCPTools final : public asg::AsgTool {
   StatusCode checkExcludedSysts(BTaggingEfficiencyTool*, std::string);
   void createExcludedSystMapping(std::vector<std::string>);
   std::map<std::string, std::string> m_mapped_excluded_systs;
-  
-
+  // Helper function for tracking tagger/WP/Calibration 
+  StatusCode setTaggerWorkingPoints(std::string, bool, std::string, std::vector<std::string>);
+  void printConfigurations();
 
 };
 }  // namespace top

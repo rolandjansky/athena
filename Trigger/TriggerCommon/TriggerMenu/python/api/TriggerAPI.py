@@ -3,32 +3,41 @@ __author__  = 'Javier Montejo'
 __version__="$Revision: 1.01 $"
 __doc__="Interface to retrieve lists of unprescaled triggers according to types and periods"
 
-import sys, pickle
+import sys, pickle, os.path
 from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from PathResolver import PathResolver
+from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo_180219.pickle"
+    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180228.pickle")
+    if centralPickleFile: centralPickleFile = os.path.realpath(centralPickleFile)
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
     privatedbQueries = {}
     customGRL = None
+    log = logging.getLogger( 'TriggerMenu.api.TriggerAPI.py' )
 
     @classmethod
     def init(cls):
         if cls.dbQueries: return
-        try:
-            with open(cls.centralPickleFile, 'r') as f:
-                print "Reading cached information"
-                cls.dbQueries = pickle.load(f)
-        except Exception:
-            print "Reading cached information failed"
+        if cls.centralPickleFile:
+            try:
+                with open(cls.centralPickleFile, 'r') as f:
+                    cls.log.info("Reading cached information from: "+cls.centralPickleFile)
+                    cls.dbQueries = pickle.load(f)
+            except pickle.PickleError:
+                cls.log.info("Reading cached information failed")
+                cls.dbQueries = {}
+        else:
             cls.dbQueries = {}
         try:
             with open(cls.privatePickleFile, 'r') as f:
                 cls.privatedbQueries = pickle.load(f)
                 cls.dbQueries.update(cls.privatedbQueries)
-        except Exception:
+        except pickle.PickleError:
+            cls.log.error("Error unpickling the private file")
+        except IOError:
             pass
 
     @classmethod
@@ -36,8 +45,8 @@ class TriggerAPI:
         if TriggerInfo.testCustomGRL(grl):
             cls.customGRL = grl
         else:
-            print "Couldn't set GRL:",grl
-            print "Will use default GRL"
+            cls.log.warning("Couldn't set GRL: "+grl)
+            cls.log.warning("Will use default GRL")
             cls.customGRL = None
 
     @classmethod
@@ -126,7 +135,7 @@ class TriggerAPI:
 def main():
     ''' Run some tests '''
     for triggerType in TriggerType:
-        unprescaled = TriggerAPI.getLowestUnprescaled(332303,triggerType)
+        unprescaled = TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017,triggerType)
         print triggerType
         print sorted(unprescaled)
 

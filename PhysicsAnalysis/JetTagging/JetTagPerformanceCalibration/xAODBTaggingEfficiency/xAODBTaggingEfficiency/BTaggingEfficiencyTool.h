@@ -12,23 +12,26 @@
 #define CPBTAGGINGEFFICIENCYTOOL_H
 
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
+#include "PATInterfaces/ISystematicsTool.h"
 
 #include "xAODBTagging/BTagging.h"
 
-#include "AsgTools/AsgTool.h"
 #include <string>
 #include <set>
 #include <vector>
 #include <map>
 //#include <memory>
 
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
+
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
-#include "PATInterfaces/ISystematicsTool.h"
 
 class BTaggingEfficiencyTool: public asg::AsgTool,
             public virtual IBTaggingEfficiencyTool
-   {
+{
   //  typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
 
   /// Create a proper constructor for Athena
@@ -56,7 +59,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getScaleFactor( const xAOD::Jet & jet,
-				     float & sf) const;
+             float & sf) const;
 
   /** Computes the data efficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
@@ -68,19 +71,19 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiency( const xAOD::Jet & jet,
-				      float & eff) const;
+              float & eff) const;
 
   /** Computes the data/MC inefficiency scale factor for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiencyScaleFactor( const xAOD::Jet & jet,
-						 float & sf) const;
+             float & sf) const;
 
   /** Computes the MC efficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getMCEfficiency( const xAOD::Jet & jet,
-				      float & eff) const;
+              float & eff) const;
 
   /// @name Methods equivalent to those above but not relying on the xAOD format
   /// @{
@@ -89,19 +92,19 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
   */
   CP::CorrectionCode getScaleFactor( int flavour, const Analysis::CalibrationDataVariables& v,
-				     float & sf) const;
+             float & sf) const;
 
   /** Computes the data efficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getEfficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				    float & eff) const;
+            float & eff) const;
 
   /** Computes the data inefficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				      float & eff) const;
+              float & eff) const;
 
   /** Computes the data/MC inefficiency scale factor for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
@@ -113,7 +116,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getMCEfficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				      float & eff) const;
+              float & eff) const;
 
   /// @}
 
@@ -206,7 +209,7 @@ private:
   bool addSystematics(const std::vector<std::string> & systematicNames,unsigned int flavourID, Analysis::Uncertainty uncType);
 
   /// generate names for the eigenvector variations for the given jet flavour
-  std::vector<std::string> makeEigenSyst(const std::string & flav, int number);
+  std::vector<std::string> makeEigenSyst(const std::string & flav, int number, const std::string& suffix);
 
   /// helper function for retrieving object indices
   bool getIndices(unsigned int flavour, unsigned int & sf, unsigned int & ef) const;
@@ -266,6 +269,9 @@ private:
   /// @name core configuration properties (set at initalization time and not modified afterwards)
   /// @{
 
+  /// we need access to a BTaggingSelectionTool, at least for DL1 weight computation
+  asg::AnaToolHandle<IBTaggingSelectionTool> m_selectionTool;
+
   /// name of the data/MC efficiency scale factor calibration file (may be changed by the @c PathResolver)
   std::string m_SFFile;
   /// name of the optional MC efficiency file (may be changed by the @c PathResolver)
@@ -280,13 +286,15 @@ private:
   std::string m_excludeFromEV;
   /// semicolon-separated list of uncertainties to be excluded from the eigenvector variation procedure for b, c, and light-flavour jets
   std::map<std::string, std::string> m_excludeFlvFromEV;
+  /// optional (per-flavour) suffix that can be used to decorrelate uncertainties (between flavours, or -in case of a result from different runs- between periods)
+  std::map<std::string, std::string> m_uncertaintySuffixes;
   /// tagger name
   std::string m_taggerName;
   /// operating point
   std::string m_OP;
   ///  jet collection name
   std::string m_jetAuthor;
-  /// systematics model to be used (current choices are "SFEigen" and "Envelope")
+  /// systematics model to be used (current choices are "SFEigen", "SFEigenRefined", and "Envelope")
   std::string m_systStrategy;
   /// if true, attempt to retrieve the data/MC efficiency scale factor calibration files from the @PathResolver development area
   bool m_useDevFile;
@@ -297,6 +305,10 @@ private:
   /// when using cone-based labelling (see above), if true, use the "traditional" (parton-based) labelling instead of the current default (hadron-based, exclusive)
   bool m_oldConeFlavourLabel;
   // bool m_excludeJESFromEV;
+  /// if true, extract pre-set lists of uncertainties to be recommended from the EV decomposition (in addition to user specified ones)
+  bool m_useRecommendedEVExclusions;
+  /// if true, ignore out-of-extrapolation range errors (i.e., return CorrectionCode::Ok if these are encountered)
+  bool m_ignoreOutOfValidityRange;
   /// @}
 
   /// @name Cached variables

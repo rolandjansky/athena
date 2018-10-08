@@ -31,7 +31,7 @@ namespace ana
   struct ObjectTypeInfo
   {
     /// \brief the number of object types available
-    static const unsigned numTypes = OBJECT_OVERLAP_REMOVAL;
+    static const unsigned numTypes = OBJECT_CLEANING;
 
     /// \brief the number of object types available as definitions
     static const unsigned numDefTypes = OBJECT_NONE + 1;

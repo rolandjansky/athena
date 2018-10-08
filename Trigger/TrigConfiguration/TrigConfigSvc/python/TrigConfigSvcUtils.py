@@ -645,6 +645,43 @@ def getChains(connection, smk):
 
     return chainsl2, chainsef
 
+
+def getChainsWithLowerChainNames(connection, smk):
+    cursor,schemaname = getTriggerDBCursor(connection)
+
+    isrun2 = isRun2(cursor,schemaname)
+
+    output = []
+    chainshlt = {}
+
+    if isrun2:
+        output = ['TC.HTC_ID', 'TC.HTC_CHAIN_COUNTER', 'TC.HTC_NAME', 'TC.HTC_LOWER_CHAIN_NAME']
+    else:
+        print "ERROR: This method is compatibly with Run2 only"
+        return chainshlt
+    
+    tables = {}
+    tables['SM']    = 'SUPER_MASTER_TABLE'
+    tables['M2C']   = 'HLT_TM_TO_TC'
+    tables['TC']    = 'HLT_TRIGGER_CHAIN'
+    tables['MT']    = 'HLT_MASTER_TABLE'
+
+    condition = [ "SM.SMT_ID = :smk",
+                  'SM.SMT_HLT_MASTER_TABLE_ID = MT.HMT_ID',
+                  'MT.HMT_TRIGGER_MENU_ID = M2C.HTM2TC_TRIGGER_MENU_ID',
+                  'M2C.HTM2TC_TRIGGER_CHAIN_ID = TC.HTC_ID' ]
+
+    bindvars = { "smk": smk }
+
+    res = executeQuery(cursor, output, condition, schemaname, tables, bindvars)
+
+
+    for x in res:
+        chainshlt[x[1]] = (x[2],x[3])
+
+    return chainshlt
+
+
 def getStreams(connection, smk):
     cursor,schemaname = getTriggerDBCursor(connection)
         

@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+import DerivationFrameworkJetEtMiss.ExtendedJetCommon
 
 #====================================================================
 # SET UP STREAM

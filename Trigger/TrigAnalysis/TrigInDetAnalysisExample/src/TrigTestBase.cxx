@@ -37,7 +37,8 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_runPurity(false),
      m_shifter(false),
      m_shifterChains(1),
-     m_sliceTag("")
+     m_sliceTag(""),
+     m_containTracks(false)
 {
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
@@ -67,6 +68,8 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // essentially no limit
   declareProperty( "sctHolesOffline",   m_sctHolesOffline   =  20 ); // essentially no limit
   declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 ( not degrees of freedom ! )   
+
+  declareProperty( "ContainTracks",     m_containTracks     = false );  // use only basic track containment
 
   declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
   declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
@@ -232,11 +235,12 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 
       while ( chainitr!=m_ntupleChainNames.end() ) {
-  
+	
 	/// get chain
         ChainString chainName = (*chainitr);
 
 	msg(MSG::DEBUG) << "configuring chain: " << chainName.head() << "\t: " << chainName.tail() << endmsg;
+
 
 	if ( chainName.roi()!="" ) { 
 	  msg(MSG::DEBUG) << "trying chain: " << chainName.head() 
@@ -250,24 +254,49 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 			  << endmsg;
 	}
 	
-	/// check for configured chains only ...
+	/// do offline type analyses first ...
 
-	if ( chainName.head().find("HLT_")==std::string::npos && 
-	     chainName.head().find("EF_")==std::string::npos  && 
-	     chainName.head().find("L2_")==std::string::npos ) { 
-	  chainitr++;
-	  continue;
+
+	if ( chainName.head() == "" ) { 
+	  
+	  std::string selectChain = "";
+
+            if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
+	    if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
+	    if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
+
+            if ( chainName.extra()!="" )   continue;
+            if ( chainName.element()!="" ) continue;
+	    if ( chainName.roi()!="" )     continue;
+	    //            if ( !chainName.passed() )     continue;
+
+            chains.push_back( selectChain );
+
 	}
+	else { 
 
-	/// get matching chains
-	std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
+	  /// check for configured chains only ...
 
-	if ( selectChains.size()==0 ) { 
-	  msg(MSG::DEBUG) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
-	}
+	  if ( chainName.head().find("HLT_")==std::string::npos && 
+	       chainName.head().find("EF_")==std::string::npos  && 
+	       chainName.head().find("L2_")==std::string::npos ) { 
+	    chainitr++;
+	    continue;
+	  }
+	  
+	  /// get matching chains
 
-	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+	  std::vector<std::string> selectChains;
+	  selectChains.clear();
 
+	  if ( chainName.head()!="" ) selectChains = m_tdt->getListOfTriggers( chainName.head() );
+	  
+	  if ( selectChains.size()==0 ) { 
+	    msg(MSG::DEBUG) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
+	  }
+	  
+	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+	    
             if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
             if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
             if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
@@ -277,7 +306,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    //            if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
 	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
-
+	    
 #if 0
 	    std::cout << "\nTrigTestBase::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
 	    std::cout << "\tchain: " << chainName.head()    << std::endl;
@@ -286,6 +315,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
 	    std::cout << "\tte:    " << chainName.element() << std::endl;
 #endif
+
 	    int shifterChains = m_shifterChains;
 	    if ( chainName.vtx()=="" ) shifterChains = ( m_shifterChains>1 ? 1 : m_shifterChains );
 	    
@@ -333,15 +363,16 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
             msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
 
-	}
-        
-        ++chainitr;
+	  }
+	}	 
+ 
+	++chainitr;
       }
-
+	
       m_chainNames = chains;
-
+      
       for (unsigned i=0; i<m_chainNames.size(); ++i) {
-
+	
 	//     	std::cout << "\tcreating analysis : " << m_chainNames[i] << std::endl;
 
 	AnalysisConfig_Tier0* analysis =  new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
@@ -357,7 +388,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setRunPurity(m_runPurity);
 	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setShifter(m_shifter);
-
+	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->containTracks(m_containTracks);
 
 	std::string highestPT_str = "";
 	std::string vtxindex_str  = "";

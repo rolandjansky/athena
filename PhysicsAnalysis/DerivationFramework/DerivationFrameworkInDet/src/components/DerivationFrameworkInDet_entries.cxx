@@ -19,6 +19,7 @@
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
 #include "DerivationFrameworkInDet/TCCTrackParticleThinning.h"
+#include "DerivationFrameworkInDet/VsiTrackThinningTool.h"
 
 using namespace DerivationFramework;
 
@@ -42,6 +43,7 @@ DECLARE_TOOL_FACTORY( EGammaPrepRawDataThinning )
 DECLARE_TOOL_FACTORY( TrackMeasurementThinning )
 DECLARE_TOOL_FACTORY( EventInfoPixelDecorator )
 DECLARE_TOOL_FACTORY( TCCTrackParticleThinning )
+DECLARE_TOOL_FACTORY( VsiTrackThinningTool )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( InDetTrackSelectionToolWrapper )
@@ -64,5 +66,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackMeasurementThinning )
    DECLARE_TOOL( EventInfoPixelDecorator )
    DECLARE_TOOL( TCCTrackParticleThinning )
+   DECLARE_TOOL( VsiTrackThinningTool )
 }
 

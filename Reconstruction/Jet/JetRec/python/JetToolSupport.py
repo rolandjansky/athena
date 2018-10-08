@@ -136,12 +136,13 @@ class JetToolManager:
 
   # Build the list of modifiers, replacing the string "calib:XXX:CALIB" with
   # the appropriate calibration tool.
-  def buildModifiers(self, modifiersin, finder, getters, altname, output, calibOpt):
+  def buildModifiers(self, modifiersin, finder, getters, altname, output, calibOpt, constmods=[]):
     from GaudiKernel.Proxy.Configurable import ConfigurableAlgTool
     from JetRec.JetRecConf import JetFinder
     outmods = []
     inmods = self.getModifiers(modifiersin, altname)
     ncalib = 0
+    constmodstr = "".join(constmods)
     for mod in inmods:
       jetlog.info( self.prefix + "Adding modifier " + str(mod) )
       mod0 = ""
@@ -202,7 +203,7 @@ class JetToolManager:
         sinp = getters[0].Label.split("Origin")[0]
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Truth")
+        cname = output.replace(sinp, "Truth").replace(constmodstr, "")
         if cname == output:
             jetlog.info( sinp, cname, output )
             raise TypeError
@@ -222,7 +223,7 @@ class JetToolManager:
         sinp = getters[0].Label.split("Origin")[0]
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "PV0Track")
+        cname = output.replace(sinp, "PV0Track").replace(constmodstr, "")
         if cname == output:
             jetlog.info( sinp, cname, output )
             raise TypeError
@@ -296,7 +297,7 @@ class JetToolManager:
   #         is the highest.
   def addJetFinderTool(self, toolname, alg, radius, ivtx =None,
                        ghostArea =0.0, ptmin =0.0, rndseed =1,
-                       variableRMinRadius =-1.0, variableRMassScale =-1.0):
+                       variableRMinRadius =-1.0, variableRMassScale =-1.0, constmods=[]):
     myname = "JetToolManager:addJetFinderTool: "
     if toolname in self.tools:
       self.msg(0, "Tool " + myname + " is already registered")
@@ -369,7 +370,7 @@ class JetToolManager:
                    variableRMinRadius =-1.0, variableRMassScale =-1.0,
                    calibOpt ="", jetPseudojetCopier ="",
                    warnIfDuplicate=True,
-                   overwrite=False):
+                   overwrite=False, constmods=[]):
     self.msg(2, "Adding finder")
     from JetRec.JetRecConf import JetRecTool
     if type(gettersin) == str:
@@ -383,14 +384,14 @@ class JetToolManager:
       elif gettersin == "pv0track": ivtx = 0     # Find tracks only for 1st vertex
     # Retrieve/build the jet finder.
     lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                            variableRMinRadius, variableRMassScale)
+                                            variableRMinRadius, variableRMassScale, constmods=constmods)
     jetrec = JetRecTool(output)
     jetrec.PseudoJetGetters = getters
     jetrec.JetFinder = hifinder
     jetrec.OutputContainer = output
     ptminSave = self.ptminFilter
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt, constmods=constmods)
     if consumers != None:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
@@ -654,13 +655,13 @@ class JetToolManager:
                         ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                         isTrigger =False, useTriggerStore =False,
                         variableRMinRadius =-1.0, variableRMassScale =-1.0,
-                        calibOpt ="", jetPseudojetCopier =""):
+                        calibOpt ="", jetPseudojetCopier ="", constmod=[]):
     self.msg(2, "Adding reclusterer")
     from JetRec.JetRecConf import JetRecTool
     from JetRec.JetRecConf import JetReclusterer
     # Retrieve/build the jet finder.
     lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                              variableRMinRadius, variableRMassScale)
+                                              variableRMinRadius, variableRMassScale, constmods=constmods)
     reclname = output + "Reclusterer"
     groomer = JetReclusterer(
       reclname,
@@ -690,7 +691,7 @@ class JetToolManager:
   #   output = name for input container
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   def addJetCopier(self, output, input, modifiersin, ptminFilter =0.0, radius =0.0, alg ="", inp ="",
-                   isTrigger=False, useTriggerStore=False, calibOpt ="", shallow =True):
+                   isTrigger=False, useTriggerStore=False, calibOpt ="", shallow =True, constmods=[]):
     from JetRec.JetRecConf import JetRecTool
     jetrec = JetRecTool(output)
     jetrec.InputContainer = input
@@ -703,7 +704,7 @@ class JetToolManager:
     class get:
       Label = inp
     getters = [get]
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt, constmods=constmods)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()

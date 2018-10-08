@@ -33,7 +33,7 @@ namespace DerivationFramework {
   }
 
   BJetRegressionVariables::~BJetRegressionVariables(){
- }
+  }
  
   StatusCode BJetRegressionVariables::initialize()
   {
@@ -106,12 +106,14 @@ namespace DerivationFramework {
 	const std::string baseNameClean = getMomentBaseName(minPt, m_requireTrackPV);
 	SG::AuxElement::Decorator< float > scalSumPtTrk("ScalSumPtTrk"+baseName);
 	SG::AuxElement::Decorator< float > vecSumPtTrk("VecSumPtTrk"+baseName);
-	SG::AuxElement::Decorator< float > scalSumPtTrkClean("ScalSumPtTrkClean"+baseNameClean);
-	SG::AuxElement::Decorator< float > vecSumPtTrkClean("VecSumPtTrkClean"+baseNameClean);
-	scalSumPtTrk( **jetItr )        = moments.vecSumPtTrk;
-	vecSumPtTrk( **jetItr )         = moments.scalSumPtTrk;
-	scalSumPtTrkClean( **jetItr )   = moments.vecSumPtTrkClean;
-        vecSumPtTrkClean( **jetItr )    = moments.scalSumPtTrkClean;
+	SG::AuxElement::Decorator< float > scalSumPtTrkClean("ScalSumPtTrkClean"+baseName);
+	SG::AuxElement::Decorator< float > scalSumPtTrkCleanPV0("ScalSumPtTrkClean"+baseNameClean);
+	SG::AuxElement::Decorator< float > vecSumPtTrkCleanPV0("VecSumPtTrkClean"+baseNameClean);
+	scalSumPtTrk( **jetItr )           = moments.scalSumPtTrk;
+	vecSumPtTrk( **jetItr )            = moments.vecSumPtTrk;
+	scalSumPtTrkClean( **jetItr )      = moments.scalSumPtTrkClean;
+	scalSumPtTrkCleanPV0( **jetItr )   = moments.vecSumPtTrkCleanPV0;
+        vecSumPtTrkCleanPV0( **jetItr )    = moments.scalSumPtTrkCleanPV0;
       }
       
     }
@@ -126,7 +128,8 @@ namespace DerivationFramework {
     BJetRegressionVariables::TrackMomentStruct moments;
     TLorentzVector trackP4Sum;
     double trackPtSum = 0;
-    TLorentzVector trackP4SumClean;
+    TLorentzVector trackP4SumCleanPV0;
+    double trackPtSumCleanPV0 = 0;
     double trackPtSumClean = 0;
     for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack)
       {
@@ -140,19 +143,21 @@ namespace DerivationFramework {
 	trackP4Sum         += trackP4;
 	
 	if(m_TrackSelTool->accept(*track)){
+	  trackPtSumClean += trackPt;
 	  const xAOD::Vertex* ptvtx = tva->associatedVertex(track);
 	  if (!m_requireTrackPV || (ptvtx != nullptr && vertex != nullptr) ){
 	    if (!m_requireTrackPV || (ptvtx->index() == vertex->index()) ) {
-	      trackPtSumClean         += trackPt;
-	      trackP4SumClean         += trackP4;
+	      trackPtSumCleanPV0         += trackPt;
+	      trackP4SumCleanPV0         += trackP4;
 	    }
 	  }
 	}
       }
-    moments.scalSumPtTrk = trackPtSum;
-    moments.vecSumPtTrk  = trackP4Sum.Pt();
-    moments.scalSumPtTrkClean = trackPtSumClean;
-    moments.vecSumPtTrkClean  = trackP4SumClean.Pt();
+    moments.scalSumPtTrk         = trackPtSum;
+    moments.vecSumPtTrk          = trackP4Sum.Pt();
+    moments.scalSumPtTrkClean    = trackPtSumClean;
+    moments.scalSumPtTrkCleanPV0 = trackPtSumCleanPV0;
+    moments.vecSumPtTrkCleanPV0  = trackP4SumCleanPV0.Pt();
     
     return moments;
     

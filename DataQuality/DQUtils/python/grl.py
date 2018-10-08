@@ -8,7 +8,7 @@ import xml.etree.cElementTree as cElementTree
 
 from .db import fetch_iovs
 from .events import process_iovs
-from .sugar import define_iov_type, IOVSet, RunLumi
+from .sugar import define_iov_type, IOVSet, RunLumi, RunLumiType
 
 @define_iov_type
 def GRL_IOV():
@@ -81,6 +81,15 @@ def make_grl(iovset, name="unknown", version="unknown"):
     result.append("   </NamedLumiRange>")
     result.append("</LumiRangeCollection>")
     return "\n".join(result)
+
+def grl_contains_run_lb(grl, runlb):
+    # takes IOVSet of GRL_IOV, says whether runlb is in it
+    # runlb can be RunLumi type or tuple pair
+    if isinstance(runlb, RunLumiType):
+        runlb_ = runlb
+    else:
+        runlb_ = RunLumi(*runlb)
+    return any(_.contains_point(runlb_) for _ in grl)
 
 # Deprecated alias
 def grl_iovs_from_xml(*args, **kwargs):

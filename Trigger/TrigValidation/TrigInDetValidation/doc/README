@@ -1,18 +1,48 @@
 TrigInDetValidation
 -------------------
+
+Contents:
+
+1. Package contents
+
+2. General building and preparing the files for the RTT 
+   2.1 Making the xml file
+   2.2 Data samples
+
+3. Utilsities for testing
+   3.1 basic bash run scripts
+
+4. ART extension
+   4.1 Creating the ART run scripts
+   4.2 Testing and running locally
+   4.3 Testing using the ART framework itself
+   4.4 Technical details
+   4.41 How the scripts work
+
+
+1. Package contents
+-----------------------
 This contains everything you need to run and test the IDTrigger in the RTT
 
 The directory structure is 
 
   share      -   py job options files for running the RTT processing
   test       -   global TestConfiguration xml file for running the jobs in the RTT
+             -   ART scripts 
   TIDAbuild  -   xml fragments and makefile to build the global xml file
   utils      -   useful utilities to allow testing the xml jobs 
+             -   build scripts for the ART jobs
   doc        -   this documantation
 
 
-Making the xml file
--------------------
+2. General building and preparing the files for the RTT 
+-------------------------------------------------------
+
+This section includes information on building the global RTT driver file
+and general related items
+
+2.1 Making the xml file
+-----------------------
 In the 
 
    TIDAbuild
@@ -38,11 +68,12 @@ xml file for the RTT.
 Do NOT edit this large xml file directly - instead modify the xml fragments
 and then run 
 
-  make 
+%  make 
 
 in the build directory.
 
-This also tests the xml integrity of the file.
+This also runs the xml checker to ensure that there are no xml syntax errors 
+and tests the integrity of the xml file.
 
 NB: Because we use the c preprocessor to compine the xml fragments, then 
     the pattern /* as used in say the "<keepPattern>" entries for 
@@ -57,11 +88,12 @@ NB: Because we use the c preprocessor to compine the xml fragments, then
       #define STAR *
 
     so the preprocessor creates these patterns for us, and they are not then 
-    interpretted as the open comments     
+    interpretted as the opening of comment blocks.     
 
 
-Data samples
--------------
+
+2.2 Data samples
+----------------
 
 The different data samples to run on are stored in the 
 
@@ -73,19 +105,23 @@ directory. The different data samples should be used by
 
 statements in the xml fragment for the relevant job.       
 
-Utilsities for testing
-----------------------
+3. Utilsities for testing
+------------------------
 
-in the 
+3.1 basic bash run scripts
+--------------------------
 
-  utils
+basic bash run scripts can be created using 
 
-directory there are two utilities ...
+% make scripts
 
-  mkargs
-  mkdatasets
+from the TIDAbuild directory. This uses the two utilities ...
 
-These take the xml fragments and write out ...
+  utils/mkargs
+  utils/mkdatasets
+
+These take the xml fragments and decode them to create a basic bash script which 
+will run the exact same stages as the RTT jobs
 
   mkdatasets -  a pythion fragment to be included in job options to run exactly 
                 the data set that is used in the xml file  
@@ -99,42 +135,183 @@ These take the xml fragments and write out ...
 The script mkargs calls the mkdatasets script, so you do not need to use mkdatasets
 itself, unless you are only interested in the py jo fragment.
 
-Both scripts can be executed from the utils directory as follows ...
 
-   mkargs ../build
+4. ART extension
+----------------
 
-which will create py fragments and shell scripts for all xml job files  in the 
+4.1 Creating the ART run scripts
+--------------------------------
 
-  ../build directory  
+in the test directory there are a number of scripts for the ART framework.
 
-Running as 
-  
-  mkargs ../build/*.xml
-
-will run for all the xml files matching the pattern etc. This is also try for the 
-
-  mkdatasets 
-
-script. 
-
-Rather than try to run the script directly, which may not work,  you should edit 
-it, or simply cut and paste the commands to ru nthe stages that you require.
+For instance, each job xml fragment has a corresponding job:
 
 
-Finishing up
-------------
+ TrigInDetValidation_all_ttbar_pu40.xml -> test_trigindetvalidation_all_ttbar_pu40.sh
 
-To build the full, large xml configuration file ...
+The art job names must only contain lower case letters (a requiredment of the art 
+system)
 
-  test/TrigInDetValidation_TestConfiguration.xml
+The art scripts are made automatically in the same way as the global xml file.
 
-you need to run 
+The make specific target is "artfiles" so running
 
-make 
+% make artfiles
 
-in the TIDAbuild directory.
+in the TIDAbuild directory will rebuild the art scripts. The default target ia "all"
+such that 
 
-This also runs the xml checker to ensure that there are no xml syntax errors 
-in main file 
+% make
 
+will also build the art scripts. 
+
+NB: The datasets used in the art jobs must be registered in the specific art container. 
+    This is done automatically by the make procedure, but it requires rucio to be set 
+    up to enable checking if the datasets are already included. If rucio is not set up
+    the scripts will still be created just the same, but the datasets will not be 
+    checked. If the dataset for a job does not exist on the grid at all, then the ART
+    grid job can not be run, and the job is disabled by renaking it from 
+
+       test/test_trigindet... -> test/trigindet...
+
+
+4.2 Testing and running locally
+-------------------------------
+    
+Jobs can be tested running locally using eg 
+
+% test_trigindetanalysis_all_ttbar_pu40.sh --local
+
+The "--local" option overrides the art 
+
+  "fetch the data set files, and run over them by looping over the files from 
+   the current directory" 
+
+approach, instead extracting the job dataset locatiosn from eos, using the XML lookup
+implemented for the RTT jobs. Because of this it will only run one athena job, and the 
+number of events will be the number of events run by one athena process when running
+the multicore jobs from ART on the grid.
+
+
+4.3 Testing using the ART framework itself
+------------------------------------------
+
+ART is easier to use and test directly than the RTT. To do this you for can for instance
+run 
+
+% art.py grid <package_directory> <output_dataset_extension>
+
+Neither of the <package_directory> or <output_dataset_extension> can contain the "/"
+so full paths are not permitted.
+
+The <package_directory> must be the directory that contains a 
+
+  test
+
+directory, in turn containing the test_trigindet*.sh scripts. The art.py submission looks
+for the 
+
+   package_directory/test/test_*.sh 
+
+scripts and submits a grid job for each. The <output_dataset_extension> is appended to 
+the mangled output dataset name to create a unique data set. If the data set is the same
+as an existing dataset, then the job submission will fail, so you can not run with any 
+given <output_dataset_extension> on the same release more than once. 
  
+
+4.4 Technical details
+---------------------
+
+Because of the name mangling required for the art scripts, rather than explicit 
+dependencies in the makefile, the "artfiles" target runs the 
+
+  utils/mkartlist 
+
+scripts. This determines whether any of the xml scripts are newer than the art 
+scripts and only initiates the build for those that are, as if they had been 
+specified by a target in the makefile, but without the complication of trying 
+to get the makefile to generate a target with the conversion to lower case
+etc.
+
+ART specifies how the jobs run by the number of files, and we specify the number of 
+events per job.
+
+Because of this the number of events from the xml files does not correspond well 
+with the running of the art jobs, sice specifying a laregr number of events that 
+contained in the number of files will result in fewer than expected events being 
+processed. 
+
+In addition, to allow for more events to be processed we have added an "art-ncores"
+option to the art framework.
+
+This means that if we specify eg 
+
+# art-ncores: 8
+
+then 8 simultaneous athena jobs will run in the jobs. In this case, each will run 
+with the number of events, such that the nukber of events specifed for the job is
+no longer the total number of events that will be processed, but ncores*nevents. 
+
+Therefore the information on the number of cores, the number of files and the number 
+of events for each job can be controlled by the files
+
+ art-events.dat - input numbers of events
+ art-files.dat  - input number of files
+ art-input.dat  - input data samples
+
+To give flexibility with respect to the xml files with respect to the number of events
+and files processed.
+
+These are created using the 
+
+  utils/createstats
+
+script and is sadly run over the test/test*.sh scripts, which means that these 
+must be built before creating the files.
+
+Subsequently the information in these art-*.dat files can be changed, but then 
+the relevant test_*.sh scripts must be removed and the scripts rebuilt with 
+
+% make artfiles
+
+4.41 How the scripts work
+-------------------------
+
+The actual art scripts are now rather complicated. This is because they contain
+the code to monitor how many jobs are running in the background to prevent more 
+than Ncores jobs running at the same time, and to wait for the athena jobs to 
+all complete before running the post processing.
+
+In addition, the output from the athena jobs must be collected so that the 
+postprocessing stages can run.
+
+The 
+  
+   utils/mkart-template
+
+script builds the parallel job using the file 
+
+   utils/template.sh
+
+as the core of the code for the concurrent athena jobs. the additional code in 
+the mkart-template script decodes the xml fragments and generates the remainning 
+code for the art scripts to run the post processing.
+
+Following the build of the scripts, the checkdata target is run automatically.
+This runs ths 
+
+  utils/submit.sh
+
+script which checks whether the data samples are in the art container. If they 
+are not, an automatic jira item is posted to the jira item which is used to
+request that the data sets are added. The jira message is posted by the script 
+
+   utils/submit.py
+
+NB: it would be more efficient if the script could simply add the datasets 
+    itself, but unfortunately this is not allowed and we must make a manual 
+    request to the jira, and wait for that request to be dealt with by hand.
+    This script makes this request automatically so that you don't have to !
+
+
+M. Sutton : Sun Feb 18 13:32:48 CET 2018      

@@ -1,3 +1,4 @@
+
 //-*- C++ -*-
 
 /*
@@ -24,6 +25,8 @@
 
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/EgammaDefs.h"
 
 
 #include "JetRec/JetRecTool.h"
@@ -69,6 +72,7 @@ public:
      
      @return The number of removed clusters
   */
+  int filterElectronClusters(std::vector<const xAOD::Electron*>&selected_el,ConstDataVector<xAOD::CaloClusterContainer> & selected_cl) const ;
   int fillSelectedClusters(std::vector<const xAOD::Electron*>&selected_el, ConstDataVector<xAOD::CaloClusterContainer> & selected_cl) const ;
   int fillSelectedClustersInJets(std::vector<const xAOD::Electron*>&selected_el, ConstDataVector<xAOD::CaloClusterContainer> & selected_cl) const ;
   
@@ -98,7 +102,7 @@ private:
   std::string m_clInputContainer = "CaloCalTopoClusters" ;  // input name for clusters
   std::string m_clOutputContainer = "CaloCalTopoClustersNoEl" ; // output name for clusters 
   
-  bool m_useOnlyclInJets=false; //Use only clusters from jets
+  int m_clusterSelectionType=1; //1 Uses Cluster associated to electrons 2 Use a position matching 3 Use a position matching with only clusters from jets
   std::string m_jetINputContainer = "AntiKt4EMTopoJets" ; // Name of the jet container to be used
   
   float m_clRemovRadius =0.15; // remove clusters within this radius around electron  

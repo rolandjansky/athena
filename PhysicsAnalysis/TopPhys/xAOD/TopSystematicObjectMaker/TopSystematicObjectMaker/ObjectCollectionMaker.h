@@ -50,9 +50,11 @@ namespace top{
       ObjectCollectionMaker(ObjectCollectionMaker&& rhs) = delete;
       ObjectCollectionMaker& operator=(const ObjectCollectionMaker& rhs) = delete;
 
-      StatusCode initialize(); 
-      StatusCode execute();
-      StatusCode recalculateMET();
+      StatusCode initialize();
+      StatusCode execute(bool);
+      StatusCode executeNominal();
+      StatusCode executeSystematics();
+      StatusCode recalculateMET(bool);
       StatusCode printout();
       
       bool isTruthDxAOD() const;

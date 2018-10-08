@@ -77,7 +77,7 @@ int main(int argc, char** argv ) {
 
     if ( !f.IsOpen() || f.IsZombie() ) {
       std::cerr << "Error: could not open input file: " << args[i] << std::endl;
-      std::exit(1);;
+      std::exit(1);
     }
 
     //    gDirectory->ls();

@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 /**
  * @file InDetPerfPlot_spectrum.cxx
  * @author Stewart Swift
@@ -43,6 +42,7 @@ InDetPerfPlot_spectrum::InDetPerfPlot_spectrum(InDetPlotBase* pParent, const std
   m_recod0_vs_z0_good{},
   m_recod0_vs_z0_crazy{},
 
+  m_fillPreSelTruth(false),
   m_truthPt{},
   m_truthEta{},
   m_truthPhi{},
@@ -59,9 +59,16 @@ InDetPerfPlot_spectrum::InDetPerfPlot_spectrum(InDetPlotBase* pParent, const std
   m_nSCTHits_vs_eta{},
   m_nPixHits_vs_eta{},
   m_nTotHits_vs_eta{},
+  m_nSCTHoles_vs_eta{},
+  m_nPixHoles_vs_eta{},
+  m_nTotHoles_vs_eta{},
+  m_nSCTOutliers_vs_eta{},
+  m_nPixOutliers_vs_eta{},
+  m_nTotOutliers_vs_eta{},
   m_nSCTHits_phi_vs_eta{},
   m_nPixHits_phi_vs_eta{},
   m_nTotHits_phi_vs_eta{},
+
   m_nSCTDeadSensors_vs_eta{},
   m_nPixDeadSensors_vs_eta{},
   m_nTotDeadSensors_vs_eta{},
@@ -147,6 +154,12 @@ InDetPerfPlot_spectrum::initializePlots() {
   book(m_nSCTHits_vs_eta, "nSCTHits_vs_eta");
   book(m_nPixHits_vs_eta, "nPixHits_vs_eta");
   book(m_nTotHits_vs_eta, "nTotHits_vs_eta");
+  book(m_nSCTHoles_vs_eta, "nSCTHoles_vs_eta");
+  book(m_nPixHoles_vs_eta, "nPixHoles_vs_eta");
+  book(m_nTotHoles_vs_eta, "nTotHoles_vs_eta");
+  book(m_nSCTOutliers_vs_eta, "nSCTOutliers_vs_eta");
+  book(m_nPixOutliers_vs_eta, "nPixOutliers_vs_eta");
+  book(m_nTotOutliers_vs_eta, "nTotOutliers_vs_eta");
 
   book(m_nSCTDeadSensors_vs_eta, "nSCTDeadSensors_vs_eta");
   book(m_nPixDeadSensors_vs_eta, "nPixDeadSensors_vs_eta");
@@ -163,6 +176,9 @@ InDetPerfPlot_spectrum::initializePlots() {
   book(m_truthEta, "truthEtaSpectrum");
   book(m_truthPt, "truthPtSpectrum");
   book(m_truthPhi, "truthPhiSpectrum");
+  if ( NULL!=m_truthEta || NULL!=m_truthPt || NULL!=m_truthPhi )
+    m_fillPreSelTruth=true;
+  
   book(m_recod0_TruthVtxR, "recod0TVRSpectrum");
   book(m_recoz0_TruthVtxZ, "recoz0TVZSpectrum");
   book(m_recoz0_TruthVtxZsin, "recoz0TVZsinSpectrum");
@@ -244,17 +260,30 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle& trkprt, Float_t 
   double d0(trkprt.d0());
   double z0(trkprt.z0());
   double sinth = sin(trkprt.theta());
-  uint8_t iPixHits, iSCTHits, iPixDead, iSCTDead;
-  int pixHits = 0;
+  uint8_t iPixHits, iSCTHits, iPixDead, iSCTDead, iPixHoles, iSCTHoles, iPixOutliers, iSCTOutliers;
+  /*  int pixHits = 0;
   int sctHits = 0;
   int pixDead = 0;
   int sctDead = 0;
-
+  */
+  int pixHits(0), sctHits(0), pixDead(0), sctDead(0), pixOutliers(0), sctOutliers(0), pixHoles(0), sctHoles(0);
   if (trkprt.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
     pixHits = iPixHits;
   }
   if (trkprt.summaryValue(iSCTHits, xAOD::numberOfSCTHits)) {
     sctHits = iSCTHits;
+  }
+  if (trkprt.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
+    pixHoles = iPixHoles;
+  }
+  if (trkprt.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
+    sctHoles = iSCTHoles;
+  }
+  if (trkprt.summaryValue(iPixOutliers, xAOD::numberOfPixelOutliers)) {
+    pixOutliers = iPixOutliers;
+  }
+  if (trkprt.summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
+    sctOutliers = iSCTOutliers;
   }
   if (trkprt.summaryValue(iPixDead, xAOD::numberOfPixelDeadSensors)) {
     pixDead = iPixDead;
@@ -281,6 +310,12 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle& trkprt, Float_t 
   fillHisto(m_nSCTHits_vs_eta, eta, sctHits);
   fillHisto(m_nPixHits_vs_eta, eta, pixHits);
   fillHisto(m_nTotHits_vs_eta, eta, sctHits + pixHits);
+  fillHisto(m_nSCTHoles_vs_eta, eta, sctHoles);
+  fillHisto(m_nPixHoles_vs_eta, eta, pixHoles);
+  fillHisto(m_nTotHoles_vs_eta, eta, sctHoles + pixHoles);
+  fillHisto(m_nSCTOutliers_vs_eta, eta, sctOutliers);
+  fillHisto(m_nPixOutliers_vs_eta, eta, pixOutliers);
+  fillHisto(m_nTotOutliers_vs_eta, eta, sctOutliers + pixOutliers);
   fillHisto(m_nSCTDeadSensors_vs_eta, eta, sctDead);
   fillHisto(m_nPixDeadSensors_vs_eta, eta, pixDead);
   fillHisto(m_nTotDeadSensors_vs_eta, eta, sctDead + pixDead);
@@ -288,6 +323,14 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle& trkprt, Float_t 
 
 void
 InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TruthParticle& particle) {
+
+  // these histograms are time-consuming for large mu and full pu-truth
+  // they will not be filled by default,
+  // but only filled if the histogram defs are included in the .xml
+  if (!m_fillPreSelTruth) {
+    return;  
+  }
+  
   double pt = particle.pt() * 1_GeV;
   // double eta = particle.eta();
   double eta = 0.0;
@@ -298,9 +341,9 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TruthParticle& particle) {
 
   double phi = particle.phi();
 
-  fillHisto(m_truthPt, pt);
-  fillHisto(m_truthEta, eta);
-  fillHisto(m_truthPhi, phi);
+  if (NULL!=m_truthPt) fillHisto(m_truthPt, pt);
+  if (NULL!=m_truthEta) fillHisto(m_truthEta, eta);
+  if (NULL!=m_truthPhi) fillHisto(m_truthPhi, phi);
 }
 
 void

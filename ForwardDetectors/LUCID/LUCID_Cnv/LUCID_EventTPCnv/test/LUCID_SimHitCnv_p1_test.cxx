@@ -16,6 +16,21 @@
 #include <cassert>
 #include <iostream>
 
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+
+
+void compare (const HepMcParticleLink& p1,
+              const HepMcParticleLink& p2)
+{
+  assert ( p1.isValid() == p2.isValid() );
+  assert ( p1.barcode() == p2.barcode() );
+  assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.cptr() == p2.cptr() );
+  assert ( p1 == p2 );
+}
+
 
 void compare (const LUCID_SimHit& p1,
               const LUCID_SimHit& p2)
@@ -23,6 +38,7 @@ void compare (const LUCID_SimHit& p1,
   assert (p1.GetTubeID() == p2.GetTubeID());
   assert (p1.GetPdgCode() == p2.GetPdgCode());
   assert (p1.GetTrack() == p2.GetTrack());
+  compare (p1.particleLink(), p2.particleLink());
   assert (p1.particleLink() == p2.particleLink());
   assert (p1.GetGenVolume() == p2.GetGenVolume());
   assert (p1.GetX() == p2.GetX());
@@ -51,21 +67,27 @@ void testit (const LUCID_SimHit& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-
-  LUCID_SimHit trans1 (1, 2, 3, 4,
+  LUCID_SimHit trans1 (1, genPartVector.at(0)->pdg_id(), genPartVector.at(0)->barcode(), 4,
                        5.5, 6.5, 7.5,
                        8.5, 9.5, 10.5,
                        11.5, 12.5, 13.5, 14.5);
-    
+
   testit (trans1);
 }
 
 
 int main()
 {
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }

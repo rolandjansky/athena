@@ -292,22 +292,19 @@ void AuxVectorBase::swapElementsAux (size_t aindex,
 
   // Swap aux data.
 
-  const SG::auxid_set_t& a_ids = acont->getAuxIDs();
-  const SG::auxid_set_t& b_ids = bcont->getAuxIDs();
-
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-  SG::AuxTypeRegistry::lock_t lock (r);
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, a_ids) {
+  SG::auxid_set_t a_ids = acont->getAuxIDs();
+  for (SG::auxid_t auxid : a_ids) {
     void* aptr = acont->getDataArray (auxid);
     void* bptr = bcont->getDataArray (auxid);
-    r.swap (lock, auxid, aptr, aindex, bptr, bindex);
+    r.swap (auxid, aptr, aindex, bptr, bindex);
   }
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, b_ids) {
-    if (a_ids.find (auxid) == a_ids.end()) {
+  for (SG::auxid_t auxid : bcont->getAuxIDs()) {
+    if (!a_ids.test (auxid)) {
       void* aptr = acont->getDataArray (auxid);
       void* bptr = bcont->getDataArray (auxid);
-      r.swap (lock, auxid, aptr, aindex, bptr, bindex);
+      r.swap (auxid, aptr, aindex, bptr, bindex);
     }
   }
 }
@@ -325,8 +322,7 @@ AuxVectorBase::ResortAuxHelper::ResortAuxHelper (size_t sz,
   : m_vec (vec),
     m_index (index),
     m_imap (sz),
-    m_rmap (sz),
-    m_lock (SG::AuxTypeRegistry::instance())
+    m_rmap (sz)
 {
   for (size_t i = 0; i < sz; i++)
     m_imap[i] = m_rmap[i] = i;
@@ -389,7 +385,7 @@ AuxVectorBase::ResortAuxHelper::resortElement (size_t idx, SG::AuxElement* elt)
     size_t naux = m_auxids.size();
     for (size_t iid = 0; iid < naux; iid++) {
       void* ptr = m_auxdata[iid];
-      r.swap (m_lock, m_auxids[iid], ptr, idx+index, ptr, ii1+index);
+      r.swap (m_auxids[iid], ptr, idx+index, ptr, ii1+index);
     }
     std::swap (m_rmap[idx], m_rmap[ii1]);
     std::swap (m_imap[m_rmap[idx]], m_imap[m_rmap[ii1]]);

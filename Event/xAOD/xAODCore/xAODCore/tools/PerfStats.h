@@ -90,6 +90,33 @@ namespace xAOD {
       /// Function used by PROOF to set the number of processed events correctly
       virtual ::Long64_t GetNumEvents() const;
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 14, 0 )
+      // new methods (ROOT 6.14) - need forwarding to the original TPerfStats
+
+      /// Print the TTree basket read caching statistics
+      virtual void PrintBasketInfo(Option_t *option = "") const;
+
+      /// Increase by 1 the counter of how many times a basket was cached
+      virtual void SetLoaded(TBranch *b, size_t basketNumber);
+      virtual void SetLoaded(size_t bi, size_t basketNumber);
+
+      /// Increase by 1 the counter of how many times a basket was cached on access
+      virtual void SetLoadedMiss(TBranch *b, size_t basketNumber);
+      virtual void SetLoadedMiss(size_t bi, size_t basketNumber);
+
+      /// Increase count (by 1) of not cached basket reads
+      virtual void SetMissed(TBranch *b, size_t basketNumber);
+      virtual void SetMissed(size_t bi, size_t basketNumber);
+
+      /// Mark a basket as accessed
+      virtual void SetUsed(TBranch *b, size_t basketNumber);
+      virtual void SetUsed(size_t bi, size_t basketNumber);
+
+      /// Update the fBranchIndexCache collection to match the current TTree given
+      /// the ordered list of branch names.
+      virtual void UpdateBranchIndices(TObjArray *branches);
+#endif
+
       /// @}
 
    protected:

@@ -66,9 +66,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Interface - Use specific systematic
     virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
     // Interface - get the expected resolution of the muon
-    virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const;
     // Interface - get the expected resolution of the muon
-    virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const;
 
   public:
     // InfoHelper is intended to be used to ease the passing of information between internal
@@ -108,8 +108,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual StatusCode initialize();
 
-    double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
-    double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc ) const;
+    double ExpectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const;
+    double ExpectedResolution( const int DetType, const xAOD::Muon& mu, const bool mc ) const;
 
     // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
     virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType ) const;
@@ -122,7 +122,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
                                                  double& chi2) const;
     virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const;
-    virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC) const;
+    virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC, double p2Kin=0) const;
     virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
 
 
@@ -159,7 +159,6 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
-
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     //private:
     // fake assignment operator missing actual implementation

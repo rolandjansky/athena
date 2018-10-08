@@ -40,6 +40,7 @@ private:
   float m_ghost_area = 0.01;
   bool m_common_bge_for_rho_and_rhom = false;
   bool m_ignoreChargedPFOs = true;
+  bool m_useWorkaroundForBugInFastjetContrib=true;
 };
 
 #endif

@@ -566,6 +566,32 @@ class WriteDAOD_L1CALO3(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO3)
 listESDtoDPD.append(WriteDAOD_L1CALO3.StreamName)
 
+class WriteDAOD_L1CALO4(JobProperty):
+    """ Produce the DAOD for L1Calo4."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_L1CALO4"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkL1Calo/L1CALO4.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO4)
+listESDtoDPD.append(WriteDAOD_L1CALO4.StreamName)
+
+class WriteDAOD_L1CALO5(JobProperty):
+    """ Produce the DAOD for L1Calo5."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_L1CALO5"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkL1Calo/L1CALO5.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO5)
+listESDtoDPD.append(WriteDAOD_L1CALO5.StreamName)
+
 class WriteDESD_DEDX(JobProperty):
     """ Produce pixel dE/dx ESD """
     statusOn     = True

@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODJet
                           xAODMissingET
                           TopParticleLevel
-			  UpgradePerformanceFunctions )
+                          UpgradePerformanceFunctions )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -32,7 +32,7 @@ atlas_add_library( TopHLUpgrade Root/*.cxx Root/*.h Root/*.icc
                                   xAODJet
                                   xAODMissingET
                                   TopParticleLevel
-				  UpgradePerformanceFunctions
+                                  UpgradePerformanceFunctionsLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

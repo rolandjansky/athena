@@ -113,3 +113,6 @@ def getFluxRecorderTool(name="G4UA::FluxRecorderTool", **kwargs):
         #theApp.exit(1)
         return False
     return CfgMgr.G4UA__FluxRecorderTool(name, **kwargs)
+
+def getRadiationMapsMakerTool(name="G4UA::RadiationMapsMakerTool", **kwargs):
+    return CfgMgr.G4UA__RadiationMapsMakerTool(name, **kwargs)

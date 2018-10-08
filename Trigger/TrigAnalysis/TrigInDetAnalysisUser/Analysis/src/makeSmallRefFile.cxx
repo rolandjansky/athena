@@ -106,7 +106,7 @@ void makeSmallRefFile( const std::string& in, const std::string& out ) {
 
 int usage(int status=0) {
   std::cout << "Usage: makeSmallRefFile <intputfile> <outputfile>" << std::endl;
-  return status;;
+  return status;
 }
 
 

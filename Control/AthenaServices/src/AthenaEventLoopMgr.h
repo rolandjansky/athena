@@ -225,6 +225,8 @@ private:
   unsigned int m_lastNev;
   unsigned int m_intervalInSeconds;
   time_t m_lastTime;
+  
+  bool m_liteLoop;
 
   StoreGateSvc* eventStore() const;
 

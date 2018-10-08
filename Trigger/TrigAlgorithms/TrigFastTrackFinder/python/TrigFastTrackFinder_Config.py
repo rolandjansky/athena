@@ -578,7 +578,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             ToolSvc += theTrigZFinder
             self.trigZFinder = theTrigZFinder
             self.doFastZVertexSeeding = True
-            self.zVertexResolution = 7.5
+            self.zVertexResolution = 1
           
           from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool

@@ -29,7 +29,6 @@ MergeTruthJetsTool::MergeTruthJetsTool(const std::string& type,
   , m_signal_max_pT(-1.)
   , m_pileup_max_pT(-1.)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("InputTruthJetCollKey", m_inputJetCollKey);
   declareProperty("InTimeOutputTruthJetCollKey", m_inTimeOutputJetCollKey);
   declareProperty("OutOfTimeTruthJetCollKey", m_outOfTimeOutputJetCollKey);

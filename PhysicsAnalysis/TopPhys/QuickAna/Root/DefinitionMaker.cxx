@@ -134,6 +134,8 @@ namespace ana
     RCU_READ_INVARIANT (this);
     RCU_REQUIRE (!args.filled());
     ObjectType type = args.type();
+    if (type == OBJECT_PFLOW_JET)
+      type = OBJECT_JET;
     if (type == OBJECT_FAT_JET)
       type = OBJECT_JET;
     if (type == OBJECT_MET2)

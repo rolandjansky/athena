@@ -20,7 +20,7 @@ public:
   ///xing. Note how the xing is a signed int, relative to the t0 xing
   virtual float normFactor(int bunchXing) const = 0;
 
-  ///the largest element in the beam intensity pattern. Required by the 
+  ///the largest element in the beam intensity pattern. Required by the
   ///BkgStreamsCaches to ensure the background caches are large enough.
   virtual float largestElementInPattern() const = 0;
 
@@ -34,9 +34,7 @@ public:
   ///return the length of the beam pattern
   virtual unsigned int getBeamPatternLength() const =0;
 
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID( "IBeamIntensity", 1, 0 );
-    return IID;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IBeamIntensity, 1, 0 );
 };
-#endif
+#endif // PILEUPTOOLS_IBEAMINTENSITY_H

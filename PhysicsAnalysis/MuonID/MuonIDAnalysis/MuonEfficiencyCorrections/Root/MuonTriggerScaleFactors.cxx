@@ -36,7 +36,7 @@ namespace CP {
     //static const double commonSystMTSG = 0.01;
     static const double muon_barrel_endcap_boundary = 1.05;
     unsigned int MuonTriggerScaleFactors::getFallBackRunNumber() const{
-        return 340453;
+      return 340453;
     }
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
                 asg::AsgTool(name),
@@ -47,28 +47,28 @@ namespace CP {
                 m_fileName(),
                 m_efficiencyMap(),
                 m_efficiencyMapReplicaArray(),
-
                 m_muonquality("Medium"),
-
-                m_calibration_version("180214_Moriond21"),
+                m_calibration_version("180905_TriggerUpdate"),
                 m_custom_dir(),
                 m_binning("fine"),
 		m_eventInfoContName("EventInfo"),
                 m_allowZeroSF(false),
 		m_experimental(false),
 		m_useRel207(false),
+		m_useMC16c(false),
                 m_replicaTriggerList(),
                 m_replicaSet(),
                 m_nReplicas(100),
                 m_ReplicaRandomSeed(12345) {
       
-        declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose
+        declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose,LowPt
         declareProperty("CalibrationRelease", m_calibration_version);
         // these are for debugging / testing, *not* for general use!
         declareProperty("filename", m_fileName);
         declareProperty("CustomInputFolder", m_custom_dir);
         declareProperty("Binning", m_binning); // fine or coarse
         declareProperty("UseExperimental", m_experimental); // enable experimental features like single muon SF
+        declareProperty("MC16c", m_useMC16c); // enable if MC16c scale factors should be used for 2017
         declareProperty("useRel207", m_useRel207); // fine or coarse	
         //Properties needed for TOY setup for a given trigger: No replicas if m_replicaTriggerList is empty
         declareProperty("ReplicaTriggerList", m_replicaTriggerList, "List of triggers on which we want to generate stat. uncertainty toy replicas.");
@@ -85,9 +85,14 @@ namespace CP {
 
         std::string fileName = m_fileName;
         if (fileName.empty() && !m_useRel207) {
-            if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v01.root";
-            else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v01.root";
-	    else if (year == 2017) fileName = "muontrigger_sf_2017_mc16c_v01.root";
+            if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v02.root";
+            else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v02.root";
+	    else if (year == 2017){
+	      if(m_useMC16c)
+		fileName = "muontrigger_sf_2017_mc16c_v02.root";
+	      else
+		fileName = "muontrigger_sf_2017_mc16d_v01.root";
+	    }
             else {
                 ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
                 return StatusCode::SUCCESS;
@@ -128,11 +133,10 @@ namespace CP {
 
         static const std::vector<std::string> type { "data", "mc" };
         static const std::vector<std::string> region { "barrel", "endcap" };
-        //Why loading coarse binning if you never use it?!
-//        static const std::vector<std::string> bins { "coarse", "fine" };
         static const std::vector<std::string> systematic { "nominal", "stat_up", "stat_down", "syst_up", "syst_down" };
-
-        const std::string quality = m_muonquality;
+	if(m_muonquality.compare("LowPt") == 0)
+	  m_muonquality = "Medium";
+	const std::string quality = m_muonquality;
         TDirectory* qualityDirectory = file->GetDirectory(m_muonquality.c_str());
         if (qualityDirectory == nullptr) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize cannot find directory with selected quality");
@@ -151,7 +155,10 @@ namespace CP {
                 if (not triggerKey->IsFolder()) continue;
                 TDirectory* triggerDirectory = periodDirectory->GetDirectory(triggerKey->GetName());
                 std::string triggerName = std::string(triggerKey->GetName());
-
+		if(!std::set<std::string>{"HLT_mu26_ivarmedium", "HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50"}.count(triggerName) && m_binning == "coarse"){
+		  ATH_MSG_DEBUG("Coarse binning not supported for di-muon trigger legs at the moment");
+		  continue;
+		}
                 for (const auto& iregion : region) {
                     bool isBarrel = iregion.find("barrel") != std::string::npos;
                     for (const auto& itype : type) {
@@ -163,6 +170,7 @@ namespace CP {
                             std::string path = "eff_etaphi_" + m_binning + "_" + iregion + "_" + itype + "_" + isys;
                             TH2* hist = dynamic_cast<TH2*>(triggerDirectory->Get(path.c_str()));
                             if (not hist) {
+			      
                                 ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize " << path << " not found under trigger " << triggerName << " and period " << periodName);
                                 continue;
                             }
@@ -246,14 +254,6 @@ namespace CP {
 	return CorrectionCode::Error;
       }
 
-      unsigned int run = getRunNumber();
-      auto year = getYear(run);
-      if(year == 2017 && m_muonquality=="HighPt"){
-	ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
-	triggersf = 1.;
-	return CorrectionCode::Ok;
-      }
-      
       TrigMuonEff::Configuration configuration;
 
       if (trigger == "HLT_mu8noL1")
@@ -271,25 +271,13 @@ namespace CP {
             return CorrectionCode::Error;
         }
 
-	unsigned int run = getRunNumber();
-	auto year = getYear(run);
-	if(year == 2017 && m_muonquality=="HighPt"){
-	  ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
-	  triggersf = 1.;
-	  return CorrectionCode::Ok;
-	}
-
         TrigMuonEff::Configuration configuration;
 
         if (trigger == "HLT_mu8noL1") {
             ATH_MSG_WARNING("What you are trying to do is not correct. For di-muon triggers you should get the efficiency with getTriggerEfficiency and compute the SF by yourself.");
         }
 	else if (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos) {
-	  if(!m_useRel207){
-	    ATH_MSG_ERROR("You try to retrieve scale factors for di-muon triggers which have not been measured in release 21, yet. If you want to use the SFs measured in release 20.7, please set m_useRel207. This will be updated soon, for now giving up.");
-	    return CorrectionCode::Error;
-	  }
-            CorrectionCode cc = GetTriggerSF_dimu(triggersf, configuration, mucont, trigger);
+	  CorrectionCode cc = GetTriggerSF_dimu(triggersf, configuration, mucont, trigger);
 	  return cc;
         } else {
             CorrectionCode cc = GetTriggerSF(triggersf, configuration, mucont, trigger);
@@ -334,9 +322,9 @@ namespace CP {
         static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
 
         std::string systype = "";
-        if (appliedSystematics().matchSystematic(syst_down)) {
+        if (appliedSystematics().matchSystematic(syst_down) && !dataType) {
             systype = "syst_down";
-        } else if (appliedSystematics().matchSystematic(syst_up)) {
+        } else if (appliedSystematics().matchSystematic(syst_up) && !dataType) {
             systype = "syst_up";
         } else if (appliedSystematics().matchSystematic(stat_down)) {
             systype = "stat_down";
@@ -355,7 +343,6 @@ namespace CP {
             configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
             if (configuration.replicaIndex != -1) systype = "replicas";
         }
-
         CorrectionCode cc = getMuonEfficiency(efficiency, configuration, mu, trigger, systype);
         return cc;
     }
@@ -404,7 +391,8 @@ namespace CP {
     bool isBarrel = fabs(mu_eta) < muon_barrel_endcap_boundary;
     TH1_Ptr cit = getEfficiencyHistogram(trigger, true, "nominal", isBarrel);
     if(!cit.get()){
-      ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
+      if(!m_allowZeroSF)
+	ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
       return -1;
     }
     auto eff_h2 = cit;
@@ -426,6 +414,7 @@ namespace CP {
 
     }
     TH1_Ptr MuonTriggerScaleFactors::getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel) const {
+      
         EffiHistoIdent Ident = EffiHistoIdent(YearPeriod(year, period), encodeHistoName(period, trigger, isData, Systematic, isBarrel));
         EfficiencyMap::const_iterator Itr = m_efficiencyMap.find(Ident);
         if (Itr == m_efficiencyMap.end()) {
@@ -629,7 +618,6 @@ namespace CP {
         if ((mucont.size()) and (fabs(1. - rate_not_fired_mc) > 0.0001)) {
 
             event_SF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
-
         }
         TriggerSF = event_SF;
 
@@ -642,8 +630,6 @@ namespace CP {
         if (result != CorrectionCode::Ok)
 	  return result;
 
-        double rate_not_fired_data = 1.;
-        double rate_not_fired_mc = 1.;
 	double eff_data = 0., eff_mc = 0.;
 
 	if (mu.pt() < threshold) {
@@ -694,11 +680,10 @@ namespace CP {
 	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
 	if (result_mc != CorrectionCode::Ok)
 	  return result_data;
-	if (1 - rate_not_fired_data == 0)
+	if (eff_data == 0)
 	  TriggerSF =  0;
-        if (fabs(1. - rate_not_fired_mc) > 0.0001)
-	  TriggerSF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
-
+        if (fabs(eff_mc) > 0.0001)
+	  TriggerSF = eff_data / eff_mc;
         return CorrectionCode::Ok;
   }
   
@@ -803,6 +788,7 @@ namespace CP {
         //Return some  default  value
         return getDataPeriod(getFallBackRunNumber() , getYear(getFallBackRunNumber() ));
     }
+  
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
         static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
         const xAOD::EventInfo* info = nullptr;

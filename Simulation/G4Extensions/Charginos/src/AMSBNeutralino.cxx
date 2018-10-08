@@ -10,12 +10,12 @@
 // ######################################################################
 
 
-AMSBNeutralino* AMSBNeutralino::theInstance = NULL;
+AMSBNeutralino* AMSBNeutralino::s_theInstance = NULL;
 
 AMSBNeutralino* AMSBNeutralino::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
 {
 
-  if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
+  if (s_theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
     {
       G4ExceptionDescription description;
       description << "Trying to redefine the AMSB Neutralino properties after it has been constructed is not allowed";
@@ -23,9 +23,9 @@ AMSBNeutralino* AMSBNeutralino::Definition(G4double mass, G4double width, G4doub
       abort();
     }
 
-  if (theInstance != 0)
+  if (s_theInstance != 0)
     {
-      return theInstance;
+      return s_theInstance;
     }
 
 
@@ -48,8 +48,8 @@ AMSBNeutralino* AMSBNeutralino::Definition(G4double mass, G4double width, G4doub
                                  stable,               lifetime,            NULL,
                                  shortlived,              "Neutralino");
 
-      theInstance = reinterpret_cast<AMSBNeutralino*>(anInstance);
-      return theInstance;
+      s_theInstance = reinterpret_cast<AMSBNeutralino*>(anInstance);
+      return s_theInstance;
     }
   else
     {

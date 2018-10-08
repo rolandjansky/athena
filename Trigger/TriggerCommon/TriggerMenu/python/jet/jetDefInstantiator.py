@@ -46,10 +46,12 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,     
 
 from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,              # noqa: F401
                                                  TrigHLTJetHypo_DijetMassDEta, # noqa: F401
+                                                 TrigHLTJetHypo_DijetMassDEtaDPhi,
                                                  TrigHLTJetHypo_EtaEt,         # noqa: F401
                                                  TrigHLTJetHypo_HT,            # noqa: F401
                                                  TrigHLTJetHypo_TLA,           # noqa: F401
                                                  TrigHLTJetHypo_SMC,           # noqa: F401
+                                                 TrigHLTJetHypo_Dijet,         
                                                  )
 
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter    # noqa: F401

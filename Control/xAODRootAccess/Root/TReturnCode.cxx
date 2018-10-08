@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TReturnCode.cxx 598368 2014-05-22 10:23:54Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -26,7 +24,11 @@ namespace {
 
    public:
       /// Default constructor
-      TUncheckedCounter() : m_uncheckedSuccess( 0 ), m_uncheckedFailure( 0 ) {}
+      TUncheckedCounter() :
+        m_uncheckedSuccess( 0 ),
+        m_uncheckedFailure( 0 ),
+        m_uncheckedRecoverable( 0 )
+     {}
       /// Destructor
       ~TUncheckedCounter() {
          // If we need to destruct the object, then there must have been

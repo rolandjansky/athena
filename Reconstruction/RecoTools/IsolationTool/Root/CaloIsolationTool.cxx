@@ -597,8 +597,8 @@ namespace xAOD {
     ATH_MSG_DEBUG("In CaloIsolationTool::topoClustCones");
     
     BOOST_FOREACH (const CaloCluster* cl, clusts) {
-      float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
-      if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
+      float et = m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt();
+      if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
       float st = 1./cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
       float tilegap3_et = cl->eSample(CaloSampling::TileGap3)*st;
@@ -607,10 +607,17 @@ namespace xAOD {
       float dPhi = Phi_mpi_pi(cl->phi()-phi);
       float dEta = cl->eta()-eta;
       float dr=sqrt(dPhi*dPhi+ dEta*dEta);
-      
+
+      bool printed = false;
       for (unsigned int i = 0; i < coneSizes.size(); i++) {
 	if (dr < coneSizes[i]) {
-	  ATH_MSG_DEBUG("Adding topo " << cl << " dR = " << dr << " et of a topo clust et = " << et << " (calibrated " << cl->pt() << ", tilegap et = " << tilegap3_et << ")");
+	  // lower printouts...
+	  if (!printed) {
+	    ATH_MSG_DEBUG("Adding topo " << cl << " dR = " << dr
+			  << " et of a topo clust et (TG3 subtracted) = " << et
+			  << " (calibrated " << cl->pt() << ", tilegap et = " << tilegap3_et << ")");
+	    printed = true;
+	  }
 	  result.etcones[i] += et;
 	}
       }
@@ -638,9 +645,16 @@ namespace xAOD {
       float dPhi = Phi_mpi_pi(cl->phi()-phi);
       float dEta = cl->eta()-eta;
       float dR   = sqrt(dPhi*dPhi+ dEta*dEta);
-      
+
+      bool printed = false;
       for (unsigned int i = 0; i < coneSizes.size(); i++) {
 	if (dR < coneSizes[i]) {
+	  if (!printed) {
+	    ATH_MSG_DEBUG("Adding pflow " << cl << " linked cluster ptr = " << cl->cluster(0) << ", dR = " << dR
+			  << " et of pflow obj = " << et
+			  << " (calibrated " << cl->pt() << ")");
+	    printed = true;
+	  }
 	  result.etcones[i] += et;
 	}
       }
@@ -657,44 +671,59 @@ namespace xAOD {
 
     float coreV = 0;
     bool gotIso = eg->isolationCaloCorrection(coreV,Iso::etcone, Iso::core57cells, Iso::coreEnergy);
-    if (gotIso) 
+    if (gotIso){ 
       ATH_MSG_DEBUG("core57cells available = " << coreV);
-    else
+    }
+    else{
       ATH_MSG_DEBUG("core57cells not available");
-    if ((gotIso && fabs(coreV) < 1e-3) || !gotIso) { 
+    }
+
+    /**
+     * If we have a caloFillRectangular cluster tool 
+     * (we are in an full Athena like environment)
+     * and we did not have an IsolationCaloCorrection
+     * or when we had one was really small 
+     * execute the following
+*/
 #ifndef XAOD_ANALYSIS
+    if ( !m_caloFillRectangularTool.empty() && ((gotIso && fabs(coreV) < 1e-3) || !gotIso) ) { 
       const CaloCluster *cleg = eg->caloCluster();
       // now correct the isolation energy for the core cluster energy
       float eraw57=0., eta=0.;
-
       if(cleg && cleg->getCellLinks()){
-	double seedEta = cleg->eta0(), seedPhi = cleg->phi0();
-	CaloCluster* egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
-									 seedEta,seedPhi,
-									 cleg->clusterSize());
+          double seedEta = cleg->eta0(), seedPhi = cleg->phi0();
+          CaloCluster* egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
+                  seedEta,seedPhi,
+                  cleg->clusterSize());
 	
-	if (!m_caloFillRectangularTool->execute (egcCloneFor57).isSuccess())
-	  {
-	    return false;
-	  }
-	if(egcCloneFor57->size()==0){
-	  ATH_MSG_WARNING("Size of Created Cluster is 0 aka no cells");
-	  return false;
-	}
+          if (!m_caloFillRectangularTool->execute (egcCloneFor57).isSuccess()){
+              return false;
+          }
+          if(egcCloneFor57->size()==0){
+              ATH_MSG_WARNING("Size of Created Cluster is 0 aka no cells");
+              return false;
+          }
 
-	eraw57 = egcCloneFor57->e();
-	eta    = cleg->eta(); //FillRectangularCluster doesn't recalculated the overall cluster eta (only per-sampling)
-	coreV  = eraw57/cosh(eta);
-	ATH_MSG_DEBUG("Number of cells in 5x7 " << egcCloneFor57->size() 
-		      << " seed eta,phi " << cleg->eta0() << " " << cleg->phi0()
-		      << " eraw = " << eraw57 << " etraw = " << coreV
-		      );
-	delete egcCloneFor57;
+          eraw57 = egcCloneFor57->e();
+          eta    = cleg->eta(); //FillRectangularCluster doesn't recalculated the overall cluster eta (only per-sampling)
+          coreV  = eraw57/cosh(eta);
+          ATH_MSG_DEBUG("Number of cells in 5x7 " << egcCloneFor57->size() 
+                  << " seed eta,phi " << cleg->eta0() << " " << cleg->phi0()
+                  << " eraw = " << eraw57 << " etraw = " << coreV
+                  );
+          delete egcCloneFor57;
       }
-#else
-      return false;
-#endif // XAOD_ANALYSIS
     }
+    /**
+     * in non full Athena environments 
+     * if it is not already there nothing much
+     * one can do
+     */
+#else 
+    if ((gotIso && fabs(coreV) < 1e-3) || !gotIso) {
+        return false;
+    }
+#endif // XAOD_ANALYSIS
 
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
     corecorr[Iso::coreEnergy] = coreV;
@@ -733,79 +762,103 @@ namespace xAOD {
       topoCore = fwdClus->p4(CaloCluster::State::UNCALIBRATED).Et();
       ATH_MSG_DEBUG("Including " << topoCore << " in the core transverse energy of the fwd electron");
     } else {
+      // This is the standard old coreCone : everything within a give radius (0.1)
       BOOST_FOREACH (const CaloCluster* cl, clusts) {
-	ATH_MSG_DEBUG("cl: eta " << cl->eta() << " phi " << cl->phi() 
-		      << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() 
-		      << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
-		      << " cal E " << cl->e());
 	/// check distance
 	float dPhi = Phi_mpi_pi(cl->phi()-phi);
 	if(dEtaMax_core>0 && fabs(dPhi) > dPhiMax_core) continue;
 	float dEta = cl->eta()-eta;
 	if(dPhiMax_core>0 && fabs(dEta) > dEtaMax_core) continue;
 	if(dR2Max_core>0 && dPhi*dPhi+dEta*dEta > dR2Max_core) continue;
+	double st = 1./cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
 	ATH_MSG_DEBUG("dist: dPhi " << dPhi << " dEta " << dEta << " dR2 " << dPhi*dPhi+dEta*dEta);
-	
-	/// get enenrgy
-	float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
-	if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
-	
+	ATH_MSG_DEBUG("cl: ptr = " << cl << " eta " << cl->eta() << " phi " << cl->phi() 
+		      << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() << " sinTheta = " << st 
+		      << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
+		      << " cal E " << cl->e());
+
+	/// get energy
+	float et = m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt();
+	if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
+
 	/// remove TileGap3
-	double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
+	double ettg3 = cl->eSample(CaloSampling::TileGap3)*st;
 	et -= ettg3;
 	if (fabs(ettg3) > 1) 
-	  ATH_MSG_DEBUG("After TG3 removal, pt = " << et);
+	  ATH_MSG_DEBUG("After TG3 removal, pt = " << et << " where I removed " << ettg3);
 	
 	/// if only EM
 	double emfrac = 1.;
 	if(onlyEM){
-	  double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
-	  emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
+	  double eEM  = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
+	  double eTot = cl->p4(CaloCluster::State::UNCALIBRATED).E(); // just for debug
+	  emfrac = eEM/eTot;
+	  et = eEM*st;
 	}
-	et *= emfrac;
 	
 	/// add to the core
 	topoCore += et;
 	ATH_MSG_DEBUG("adding in core et: " << et << " (em frac = " << emfrac << " dR = " << sqrt(dPhi*dPhi+dEta*dEta) << ") total " << topoCore);
       }
     }
+    ATH_MSG_DEBUG("Done with the normal correction");
 
-    double topoCoreSC(0.);
-    double test         = 0;
-    double topoCoreSCem = 0;
+    // Now for super cluster : the improved one : only constituent clusters go in the core
+    double topoCoreSC   = 0;
     if (egObj && egObj->caloCluster()->clusterSize() == CaloCluster::ClusterSize::SuperCluster) {
+      topoCore     = 0; // I overwrite this for a check of onlyEM case...
+      ATH_MSG_DEBUG("Now trying the SC-based one");
       const std::vector<const CaloCluster*> assocClus = EgammaHelpers::getAssociatedTopoClusters(egObj->caloCluster());
       for (unsigned int ic = 0; ic < assocClus.size(); ic++) {
 	const CaloCluster* cl = assocClus.at(ic);
-	test       += cl->pt();
-	topoCoreSC += cl->p4(CaloCluster::State::UNCALIBRATED).Et();
+	// to "fix" the far-away-satellite bug (pre mc16d and reprocessing, MR 7195)
+	double dRsat = egObj->caloCluster()->p4().DeltaR(cl->p4(CaloCluster::State::UNCALIBRATED));
+	if (dRsat > 0.2) {
+	  ATH_MSG_DEBUG("Very far away satellite, dR = " << dRsat << ", rejecting it for core");
+	  continue;
+	}
+	float et = m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt();
+	if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
+	double st = 1./cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
+
 	ATH_MSG_DEBUG("Adding topo " << ic << " ptr = " << cl << " contrib, pt = " << cl->pt()
 		      << " uncal pt = " << cl->p4(CaloCluster::State::UNCALIBRATED).Et()
 		      << " eta,phi = " << cl->eta() << " " << cl->phi()
 		      << " uncal eta,phi = " << cl->p4(CaloCluster::State::UNCALIBRATED).Eta()
-		      << " " << cl->p4(CaloCluster::State::UNCALIBRATED).Phi()
-		      << " nCells = " << cluster_size(cl)
+		      << " " << cl->p4(CaloCluster::State::UNCALIBRATED).Phi() << " sinTheta = " << st
+		      //<< " nCells = " << cluster_size(cl) // cannot work on AOD since do not have all cells
                       );
 	
 	/// remove TileGap3
-	double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
-	topoCoreSCem -= ettg3;
+	double ettg3 = cl->eSample(CaloSampling::TileGap3)*st;
+	et -= ettg3;
+	topoCore   += et; // different if onlyEM is true
 
 	/// if only EM
 	double emfrac = 1.;
 	if(onlyEM){
-	  double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
-	  emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
+	  double eEM  = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
+	  et = eEM*st;
+	  if (msg().level() <= MSG::DEBUG) {
+	    double eTot = cl->p4(CaloCluster::State::UNCALIBRATED).E();
+	    emfrac = eEM/eTot;
+	    for (int i = 0; i < 28; i++) {
+	      double es = cl->eSample((CaloSampling::CaloSample)i);
+	      if (es != 0) ATH_MSG_DEBUG("Energy in sampling " << i << " = " << es);
+	    }
+	  }
 	}
-	topoCoreSCem += emfrac*cl->p4(CaloCluster::State::UNCALIBRATED).Et();
+	ATH_MSG_DEBUG("check emfrac = " << emfrac);
+	topoCoreSC += et;
 
 	//auto itc = assocClus.at(ic)->begin();
 	//for (; itc != assocClus.at(ic)->end(); itc++)
 	//  std::cout << "A cell " << (*itc) << " eta = " << (*itc)->eta() << std::endl;
       }
-      ATH_MSG_DEBUG("Including " << topoCore << " only em, no tg3 " << topoCoreSCem << " calibrated " << test << " in the core transverse energy of the super cluster egamma object made of "
+      ATH_MSG_DEBUG("Including all = " << topoCore << " only in SC = " << topoCoreSC
+		    << " in the core transverse energy of the super cluster egamma object made of "
 		    << assocClus.size() << " clusters with corresponding pT = " << egObj->pt()
-		    << " cluster pT = " << egObj->caloCluster()->pt() << " cluster un cal pT = "
+		    << " cluster pT = " << egObj->caloCluster()->pt() << " cluster uncal pT = "
 		    << egObj->caloCluster()->p4(CaloCluster::State::UNCALIBRATED).Et()
 		    << " nCells = " << cluster_size(egObj->caloCluster())
                     );
@@ -814,13 +867,13 @@ namespace xAOD {
       //std::cout << "A cell in the SC " << (*itc) << " eta = " << (*itc)->eta() << std::endl;
       
       std::map<Iso::IsolationCorrectionParameter,float> corecorrSC;
-      corecorrSC[Iso::coreEnergy] = topoCoreSCem;
+      corecorrSC[Iso::coreEnergy] = topoCoreSC;
       corecorrSC[Iso::coreArea]   = areacore;
       result.coreCorrections[Iso::coreConeSC] = corecorrSC;
 
     }
 
-    ATH_MSG_DEBUG("core energy, std = " << topoCore << " topo-assoc (full) = " << topoCoreSC << " topo-assoc (only em, no tg3) = " << topoCoreSCem);
+    ATH_MSG_DEBUG("core energy, std = " << topoCore << " topo-assoc (only em, no tg3) = " << topoCoreSC);
         
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
     corecorr[Iso::coreEnergy] = topoCore;
@@ -837,7 +890,7 @@ namespace xAOD {
 	toSub = topoCore;
       else if (!result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)) &&
 	       result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreConeSC)))
-	toSub = topoCoreSCem;
+	toSub = topoCoreSC;
       else {
 	ATH_MSG_WARNING("Cannot do two core subtraction ! Using coreCone");
 	toSub = topoCore;
@@ -876,10 +929,13 @@ namespace xAOD {
       if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
       double emfrac = 1.;
-      if (onlyEM) {
+      if (onlyEM) { // will not work on aod because ocl is probably a null pointer !
 	const xAOD::CaloCluster *ocl = cl->cluster(0);
-	double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
-	emfrac     = std::min(1.,eEM / cl->eEM());
+	if (ocl) {
+	  double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
+	  emfrac     = std::min(1.,eEM / cl->eEM());
+	} else 
+	  ATH_MSG_DEBUG("No cluster associated to pflow object");
       }
       et *= emfrac;
       

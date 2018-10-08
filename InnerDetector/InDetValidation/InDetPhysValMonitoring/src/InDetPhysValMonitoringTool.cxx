@@ -179,6 +179,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("DirName", m_dirName = "IDPerformanceMon/");
   declareProperty("SubFolder", m_folder);
   declareProperty("PileupSwitch", m_pileupSwitch = "All");
+  declareProperty("PileupPlots",m_pileupPlots = false);
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -210,27 +211,24 @@ StatusCode
 InDetPhysValMonitoringTool::fillHistograms() {
   ATH_MSG_DEBUG("Filling hists " << name() << "...");
   // function object could be used to retrieve truth: IDPVM::CachedGetAssocTruth getTruth;
-  const char* debugBacktracking = std::getenv("BACKTRACKDEBUG");
 
   // retrieve trackParticle container
   const auto ptracks = getContainer<xAOD::TrackParticleContainer>(m_trkParticleName);
   if (not ptracks) {
     return StatusCode::FAILURE;
   }
-  if(debugBacktracking){
-    std::cout<<"Rey: Start of new event \n";
-    std::cout<<"Finn: Number of particles in container: "<<ptracks->size()<<"\n";
-  }
+  
   //
   // retrieve truthParticle container
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
   // IDPVM::TrackTruthLookup getAsTruth(ptracks, &truthParticlesVec); //caches everything upon construction
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks
   //
-  bool incFake = false;
+
   int nMuEvents = 0;
   const xAOD::TruthPileupEventContainer* truthPileupEventContainer = 0;
-  if (incFake) {
+  
+  if (m_pileupPlots) {
     ATH_MSG_VERBOSE("getting TruthPileupEvents container");
     const char* truthPUEventCollName =
       evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" :
@@ -241,6 +239,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   ATH_MSG_DEBUG("Filling vertex plots");
   const xAOD::VertexContainer* pvertex = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
   const xAOD::Vertex* pvtx = nullptr;
+  
   if (pvertex and not pvertex->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event " << pvertex->size());
     const auto& stdVertexContainer = pvertex->stdcont();
@@ -297,7 +296,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   m_truthSelectionTool->clearCounters();
 
   // dummy variables
-  int base(0), hasTruth(0), hashighprob(0), passtruthsel(0);
+  int hasTruth(0), hashighprob(0), passtruthsel(0);
 
   for (const auto& thisTrack: *ptracks) {
     m_monPlots->fillSpectrum(*thisTrack); // This one needs prob anyway, why not rearrange & eliminate
@@ -349,7 +348,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       m_monPlots->fillSpectrumUnlinked2(*thisTrack);
       Unlinked_w = 1; // Unlinked, set weight to 1
     }
-    base += 1;
+    
     if (associatedTruth) {
       hasTruth += 1;
       if (prob < minProbEffLow) { // nan will also fail this test
@@ -374,7 +373,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
     }
 
-    m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w);
+    m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w, nMuEvents);
   }
   ATH_MSG_DEBUG(m_truthSelectionTool->str());
   const auto& tmp = m_truthSelectionTool->counters(); // get array of counters for the cuts
@@ -389,9 +388,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
   };
 
   // This is the beginning of the Nested Loop, built mainly for the Efficiency Plots
-  if (debugBacktracking) {
-    std::cout << "Start of new nested loop event ------------------------------------------------ \n";
-  }
   // preselect tracks to do efficiency calculation
   std::vector<const xAOD::TrackParticle*> selectedTracks {};
   selectedTracks.reserve(ptracks->size());
@@ -412,6 +408,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
   }
 
   ATH_MSG_DEBUG("Starting nested loop efficiency calculation");
+  const int SiSPSF = 0;
+  const int TRTSeededTrackFinder = 4;
+  const int TRTStandalone = 20;
+
+  int truth_count(0);
   for (int itruth = 0; itruth < (int) truthParticlesVec.size(); itruth++) {  // Outer loop over all truth particles
     nTruths += 1;
     const xAOD::TruthParticle* thisTruth = truthParticlesVec[itruth];
@@ -437,70 +438,41 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
       // LMTODO add this Jain/Swift
       bool addsToEfficiency(true); // weight for the trackeff histos
-
-      if (debugBacktracking) {
-        float lepton_w(0);
-        std::cout << "Barcode: " << thisTruth->barcode() << "\n";
-        std::cout << "PDGId: " << thisTruth->pdgId() << "\n";
-        std::cout << "Number of Parents: " << thisTruth->nParents() << "\n";
-
-        if (thisTruth->hasProdVtx()) {
-          const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
-          double prod_rad = vtx->perp();
-          double prod_z = vtx->z();
-          std::cout << "Vertex Radial Position: " << prod_rad << "\n";
-          std::cout << "Vertex z Position: " << prod_z << "\n";
-        }
-        double Px = thisTruth->px();
-        double Py = thisTruth->py();
-        std::cout << "Px: " << Px << "\n";
-        std::cout << "Py: " << Py << "\n";
-        std::cout << "Pz: " << thisTruth->pz() << "\n";
-        constexpr int electronId = 11;
-        if (thisTruth->absPdgId() == electronId) {
-          double PtSquared = (Px * Px) + (Py * Py);
-          if (PtSquared < 9000000) {
-            lepton_w = 1;
+      
+      if(truth_count <= 1){
+        std::bitset<52> base_bits;
+        std::vector< const xAOD::TrackParticle* > bestTrack;
+        int SiSPweight(0), TRTSeededweight(0), TRTStandaloneweight(0), other_weight(0);
+        double truth_charge = thisTruth->charge();
+        const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
+        double prod_rad = vtx->perp();
+        double best_match = -1;
+        for(const auto& thisTrack: selectedTracks){
+          double track_charge = thisTrack->charge();
+          double charge_product = truth_charge * track_charge;
+          if(charge_product == 1){
+            double tmp = getMatchingProbability(*thisTrack);
+            if(tmp > best_match){
+              best_match = tmp;
+              bestTrack.push_back(thisTrack);
+            }
           }
         }
-        m_monPlots->lepton_fill(*thisTruth, lepton_w);
-      }// end of debugging backtracking section
-
-      if(debugBacktracking){
-	if(thisTruth->hasProdVtx()){
-	  const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
-	  double prod_rad = vtx->perp();
-	  if(prod_rad < 300){
-	    double min_dR = 10;
-	    float bestmatch = 0;
-	    double best_inverse_delta_pt(0);
-	    double inverse_delta_pt(0);
-	    for(const auto& thisTrack: selectedTracks){
-	      float prob(0);
-	      if((thisTrack->qOverP()) * (thisTruth->auxdata<float>("qOverP")) > 0){
-		prob = getMatchingProbability(*thisTrack);
-		double track_theta = thisTrack->theta();
-		double truth_theta = thisTruth->auxdata< float >("theta");
-		double truth_eta = thisTruth->eta();
-		double track_eta = -std::log(std::tan(track_theta/2));
-		
-		double track_pt = thisTrack->pt() * 0.001;
-		double truth_pt = thisTruth->pt() * 0.001;
-	      
-		if((track_pt != 0) and (truth_pt != 0))  inverse_delta_pt = ((1./track_pt) - (1./truth_pt));
-
-		double delta_eta = track_eta - truth_eta;
-		double delta_theta = track_theta - truth_theta;
-		double delta_R = sqrt(delta_eta * delta_eta + delta_theta * delta_theta);
-		if(min_dR > delta_R) min_dR = delta_R;
-	      }
-	      if(prob >= bestmatch) best_inverse_delta_pt = inverse_delta_pt;
-	      bestmatch = std::max(prob, bestmatch);
-	    }
-	    m_monPlots->minDR(min_dR, prod_rad, bestmatch, best_inverse_delta_pt);
-	  }
-	}
+        if(best_match > 0.50){
+          std::bitset< xAOD::NumberOfTrackRecoInfo > author_bitset = bestTrack.back()->patternRecoInfo(); //grab the best of the possible TrackParticles
+          if(author_bitset.test(SiSPSF)) SiSPweight = 1;
+          if(author_bitset.test(TRTSeededTrackFinder)) TRTSeededweight = 1;
+          if(author_bitset.test(TRTStandalone)) TRTStandaloneweight = 1;
+          int bitlength = author_bitset.size();
+          for(int j=1; j<bitlength; j++){
+            if((author_bitset.test(j)) && (j != 4) && (j != 20)) other_weight = 1;
+          }
+          base_bits |= author_bitset;
+        }
+        m_monPlots->algoEfficiency(prod_rad, SiSPweight, TRTSeededweight, TRTStandaloneweight, other_weight);
+        m_monPlots->track_author(base_bits);
       }
+      truth_count += 1;
 
       std::vector <std::pair<float, const xAOD::TrackParticle*> > matches; // Vector of pairs:
                                                                            // <truth_matching_probability, track> if
@@ -579,7 +551,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         addsToEfficiency = false;
       }
 
-      m_monPlots->fillEfficiency(*thisTruth, addsToEfficiency);
+      m_monPlots->fillEfficiency(*thisTruth, addsToEfficiency,nMuEvents);
     } // end of the "if(accept)" loop
   }// End of Big truthParticle loop
   ATH_MSG_DEBUG("End of efficiency calculation");
@@ -598,7 +570,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
   } else {
     ATH_MSG_DEBUG(num_truthmatch_match << " tracks out of " << ptracks->size() << " had associated truth.");
   }
-  m_monPlots->fillIncTrkRate(nMuEvents, incTrkNum, incTrkDenom);
   m_monPlots->fillCounter(nSelectedTracks, InDetPerfPlot_nTracks::SELECTED);
   m_monPlots->fillCounter(ptracks->size(), InDetPerfPlot_nTracks::ALL);
   m_monPlots->fillCounter(truthParticlesVec.size(), InDetPerfPlot_nTracks::TRUTH);

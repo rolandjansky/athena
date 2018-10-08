@@ -9,9 +9,9 @@ include ( "JetMissingEtTagTools/JetMissingEtIdentificationTagTool_jobOptions.py"
 from EventTagAlgs.EventTagAlgsConf import AnalysisTagBuilder
 
 AnalysisTagBuilder = AnalysisTagBuilder(
-  AttributeList=EventTagGlobal.AttributeList,
-  JetMissingEtIdentificationTagTool=JetMissingEtIdentificationTagTool,
-  NumJetMissinEt=1,
-  CheckAttribute=True)
+  AttributeList  = EventTagGlobal.AttributeList,
+  JetMissingEtIdentificationTagTool = JetMissingEtIdentificationTagTool,
+  NumJetMissinEt = 1,
+  CheckAttribute = True)
 
 topSequence += AnalysisTagBuilder

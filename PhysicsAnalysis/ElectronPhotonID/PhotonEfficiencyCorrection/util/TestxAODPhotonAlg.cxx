@@ -89,7 +89,11 @@ int main( int argc, char* argv[] ) {
    //  photonSF_Iso.msg().setLevel( MSG::DEBUG );
    //  photonSF_Trig.msg().setLevel( MSG::DEBUG );
 
-
+   // Set map file !!! THIS IS OBSOLETE, NO NEED TO SETUP MANUALLY, DEFINED IN AsgPhotonEfficiencyCorrectionTool.cxx L62 !!!
+   //CHECK(photonSF_ID.setProperty("MapFilePath","PhotonEfficiencyCorrection/map2.txt"));
+   //CHECK(photonSF_Iso.setProperty("MapFilePath","PhotonEfficiencyCorrection/map2.txt"));
+   //CHECK(photonSF_Trig.setProperty("MapFilePath","PhotonEfficiencyCorrection/map2.txt"));
+   
    //Set Properties for photonID_SF tool
    CHECK(photonSF_ID.setProperty("ForceDataType",1));
 
@@ -99,7 +103,7 @@ int main( int argc, char* argv[] ) {
 
    //Set Properties for PhotonTrig_SF tool
    CHECK(photonSF_Trig.setProperty("IsoKey","Loose"));  // Set isolation WP: Loose,TightCaloOnly
-   CHECK(photonSF_Trig.setProperty("TriggerKey","HLT_g22_tight_L1EM15VHI"));        // Set photon trigger
+   CHECK(photonSF_Trig.setProperty("TriggerKey","DI_PH_2015_g25_loose_2016_g25_loose_2017_g25_medium_L1EM20VH"));        // Set photon trigger
    CHECK(photonSF_Trig.setProperty("ForceDataType",1)); //set data type: 1 for FULLSIM, 3 for AF2
 
    // If the Pileup reweighting tool is not initialized, one can use next properties:

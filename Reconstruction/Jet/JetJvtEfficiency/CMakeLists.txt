@@ -10,13 +10,13 @@ endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODJet
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PRIVATE
-   Tools/PathResolver
-   ${extra_deps} )
+    PUBLIC
+    Control/AthToolSupport/AsgTools
+    Event/xAOD/xAODJet
+    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+    PRIVATE
+    Tools/PathResolver
+    ${extra_deps} )
 
 # External(s):
 find_package( ROOT COMPONENTS Core Hist RIO )
@@ -26,7 +26,7 @@ atlas_add_library( JetJvtEfficiencyLib
    JetJvtEfficiency/*.h Root/*.cxx
    PUBLIC_HEADERS JetJvtEfficiency
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet PATInterfaces
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet JetAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )

@@ -18,15 +18,29 @@
 #include <iostream>
 #include <cmath>
 
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
 
 using Athena_test::isEqual;
 using std::atan2;
 
 
+void compare (const HepMcParticleLink& p1,
+              const HepMcParticleLink& p2)
+{
+  assert ( p1.isValid() == p2.isValid() );
+  assert ( p1.barcode() == p2.barcode() );
+  assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.cptr() == p2.cptr() );
+  assert ( p1 == p2 );
+}
+
 void compare (const TRTUncompressedHit& p1,
               const TRTUncompressedHit& p2)
 {
   assert (p1.GetHitID() == p2.GetHitID());
+  compare(p1.particleLink(), p2.particleLink());
   assert (p1.particleLink() == p2.particleLink());
   assert (p1.GetParticleEncoding() == p2.GetParticleEncoding());
   assert (isEqual (p1.GetKineticEnergy(), p2.GetKineticEnergy(), 5e-4));
@@ -78,31 +92,43 @@ void testit (const TRTUncompressedHitCollection& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
 
   TRTUncompressedHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     int o = i*100;
-    trans1.Emplace (101+o, 102+o, 20+o,
+    const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
+    HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+    trans1.Emplace (101+o, trkLink, 20+o,
                     104.5+o, 105.5+o,
-                    (106.5+o)/1000, (107.5+o)/1000, 108.5+o, 
+                    (106.5+o)/1000, (107.5+o)/1000, 108.5+o,
                     (109.5+o)/1000, (110.5+o)/1000, 111.5+o,
                     112.5+o);
   }
-  trans1.Emplace (131, 132, 22,
+  // Special case for photons
+  const HepMC::GenParticle* pGenParticle = genPartVector.at(10);
+  HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+  trans1.Emplace (131, trkLink, 22,
                   134.5, 135.5,
                   10, 3, 138.5,
                   3, 10, 148.5,
                   142.5);
-    
+
   testit (trans1);
 }
 
 
 int main()
 {
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc, genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }

@@ -47,6 +47,7 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
   , m_isPileup(false)
   , m_rankId(-1)
   , m_nEventsBeforeFork(0)
+  , m_inpFile("")
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_incidentSvc("IncidentSvc", name)
   , m_evtSeek(0)
@@ -721,6 +722,8 @@ StatusCode EvtRangeProcessor::startProcess()
 
 StatusCode EvtRangeProcessor::setNewInputFile(const std::string& newFile)
 {
+  if(m_inpFile == newFile) return StatusCode::SUCCESS;
+
   // Get Property Server
   IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
   if(!propertyServer) {
@@ -729,12 +732,25 @@ StatusCode EvtRangeProcessor::setNewInputFile(const std::string& newFile)
   }
 
   std::string propertyName("InputCollections");
+  if(m_inpFile.empty()) {
+    std::vector<std::string> vect;
+    StringArrayProperty inputFileList(propertyName, vect);
+    if(propertyServer->getProperty(&inputFileList).isFailure()) {
+      ATH_MSG_ERROR("Failed to get InputCollections property value of the Event Selector");
+      return StatusCode::FAILURE;
+    }
+    if(newFile==inputFileList.value()[0]) {
+      m_inpFile = newFile;
+      return StatusCode::SUCCESS;
+    }
+  }
   std::vector<std::string> vect{newFile,};
   StringArrayProperty newInputFileList(propertyName, vect);
   if(propertyServer->setProperty(newInputFileList).isFailure()) {
     ATH_MSG_ERROR("Unable to update " << newInputFileList.name() << " property on the Event Selector");
     return StatusCode::FAILURE;
   }
+  m_inpFile=newFile;
   return StatusCode::SUCCESS;
 }
 

@@ -10,6 +10,7 @@
 #include "xAODMuon/Muon.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 /**
  *
@@ -61,6 +62,9 @@ class TrigMuonEFTrackIsolationTool : public AthAlgTool, virtual public IMuonEFTr
   bool m_useVarIso;
   // which type of self removal to use
   int m_removeSelfType;
+
+  /// Track selection tool
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelTool;
 
   StatusCode checkIsolation(const xAOD::IParticle* muon, double selfpt, const xAOD::TrackParticle* muon_idtrk, const Trk::Perigee* muidtrk_perigee, const xAOD::TrackParticleContainer* trks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, bool FTK, std::vector<double>* selfremoval);
   

@@ -79,7 +79,8 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
   m_zBegin=m_zEnd;
   
   if( m_data->LoadZdcCollection(m_zBegin,m_zEnd).isFailure() ){
-    return StatusCode::FAILURE;
+    return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
+    //    return StatusCode::FAILURE;
   }
   
   if(timerSvc()){
@@ -206,21 +207,21 @@ HLT::ErrorCode T2ZdcFex::hltInitialize() {
   }
   
   if(m_data.retrieve().isFailure()) {
-    m_log << MSG::ERROR << "Could not get m_data" << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Could not get m_data");
+    return HLT::BAD_JOB_SETUP;
   }
 
   StoreGateSvc* detStore(0);
   if ( service("DetectorStore",detStore).isFailure() ) {
-    m_log << MSG::ERROR << "Could not get detStore" << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Could not get detStore");
+    return HLT::BAD_JOB_SETUP;
   }
   
   const ZdcID* zdcID = 0;
   if ( detStore->retrieve( zdcID ).isFailure() )  {
     //if ( detSvc()->retrieve( zdcID ).isFailure() )  {
-    m_log << MSG::ERROR << "Could not get ZdcIDs" << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Could not get ZdcIDs");
+    return HLT::BAD_JOB_SETUP;
   }
   
   m_zdcID = zdcID;

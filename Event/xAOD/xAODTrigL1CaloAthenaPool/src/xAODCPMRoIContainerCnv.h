@@ -5,52 +5,10 @@
 #ifndef XAODTRIGL1CALOATHENAPOOL_XAODCPMROICONTAINERCNV_H
 #define XAODTRIGL1CALOATHENAPOOL_XAODCPMROICONTAINERCNV_H
 
-// Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-
-// EDM include(s):
+#include "AthenaPoolCnvSvc/T_AthenaPoolxAODCnv.h"
 #include "xAODTrigL1Calo/CPMRoIContainer.h"
 
-/// Type definition for the converter's base
-typedef T_AthenaPoolCustomCnv< xAOD::CPMRoIContainer,
-                               xAOD::CPMRoIContainer >
-   xAODCPMRoIContainerCnvBase;
-
-/**
- *  @short POOL converter for the xAOD::CPMRoIContainer class
- *
- *         Simple converter class making the xAOD::CPMRoIContainer
- *         class known to POOL.
- *
- * @author Edward Moyse <Edward.Moyse@cern.ch>
- * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
- * @author John Morris <john.morris@cern.ch>
- *
- */
-class xAODCPMRoIContainerCnv : public xAODCPMRoIContainerCnvBase {
-
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODCPMRoIContainerCnv >;
-
-public:
-   /// Converter constructor
-   xAODCPMRoIContainerCnv( ISvcLocator* svcLoc );
-
-   /// Re-implemented function in order to get access to the SG key
-   virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );    
-   /// Function preparing the container to be written out
-   virtual xAOD::CPMRoIContainer*
-   createPersistent( xAOD::CPMRoIContainer* trans );
-   /// Function reading in the persistent object
-   virtual xAOD::CPMRoIContainer* createTransient();
-
-private:
-   /// Function preparing a vertex object for persistence
-   void toPersistent( xAOD::CPMRoI* cluster ) const;
-   
-   /// StoreGate key of the container just being created
-   std::string m_key;
-
-}; // class xAODCPMRoIContainerCnv
-
-#endif 
+typedef T_AthenaPoolxAODCnv<xAOD::CPMRoIContainer>
+  xAODCPMRoIContainerCnv;
+  
+#endif   

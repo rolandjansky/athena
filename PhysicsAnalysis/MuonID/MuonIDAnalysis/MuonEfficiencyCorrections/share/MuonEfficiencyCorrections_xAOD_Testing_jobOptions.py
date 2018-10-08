@@ -1,12 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #!/usr/bin/env python
 import sys
-include("MuonEfficiencyCorrections/CommonToolSetup.py")
+from MuonEfficiencyCorrections.CommonToolSetup import *
+
 
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #
-# Usage: athena -c "inputFile='<input file>'" MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
+# Usage: athena --filesInput <InputFile> MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
 
 # Access the algorithm sequence:
 AssembleIO("MUONEFFTESTER")
@@ -17,12 +18,12 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
-alg.DefaultRelease="cRecommendationsSep17"
-alg.ValidationRelease="cRecommendationsToday"
+alg.DefaultRelease="cMoriond2018"
+alg.ValidationRelease="cSummer2018"
 
 WPs = [
          # reconstruction WPs
-        # "LowPt",
+         "LowPt",
          "Loose", 
          "Medium", 
          "Tight", 
@@ -30,15 +31,15 @@ WPs = [
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
-         "BadMuonVeto_HighPt",
+        # "BadMuonVeto_HighPt",
          # isolation WPs
-         "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
-         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
+        # "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+        # "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
 for WP in WPs: 
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180214_Moriond21")]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180516_HighEtaUpdate")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Summer_2018", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Summer_2018/")]
 theJob += alg
 
 # Do some additional tweaking:

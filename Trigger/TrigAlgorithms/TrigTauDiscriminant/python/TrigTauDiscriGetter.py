@@ -99,13 +99,13 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
             from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
             # BDT evaluators 1p / mp
             bdt_1p = TauJetBDTEvaluator(
-                "TrigTauJetBDT1P", 
+                name = "TrigTauJetBDT1P", 
                 calibFolder='tauRecTools/00-02-00/',
                 weightsFile='vars2016_pt_gamma_1p_isofix.root', 
                 inTrigger=True,
                 minNTracks=0, maxNTracks=1)
             bdt_mp = TauJetBDTEvaluator(
-                "TrigTauJetBDTMP", 
+                name = "TrigTauJetBDTMP", 
                 calibFolder='tauRecTools/00-02-00/',
                 weightsFile='vars2016_pt_gamma_3p_isofix.root', 
                 inTrigger=True,
@@ -118,8 +118,9 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
             from tauRecTools.tauRecToolsConf import TauWPDecorator
             # wp creators 1p / mp
             wp_decorator = TauWPDecorator(
-                "TrigTauJetWPDecorator",
+                name = "TrigTauJetWPDecorator",
                 calibFolder='TrigTauRec/00-11-01/',
+                inTrigger = True,
                 flatteningFile1Prong = "FlatJetBDT1P_trigger_v1.root", 
                 flatteningFile3Prong = "FlatJetBDT3P_trigger_v1.root", 
                 CutEnumVals=[

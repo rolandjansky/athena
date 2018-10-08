@@ -27,6 +27,11 @@ atlas_add_executable( test_det_id
                       test/test_indet_id.cxx
                       LINK_LIBRARIES IdDict XMLCoreParser Identifier IdDictParser )
 
+atlas_add_dictionary( IdDictParserDict
+                      IdDictParser/IdDictParserDict.h
+                      IdDictParser/selection.xml
+                      LINK_LIBRARIES IdDictParser )
+
 # Install files from the package:
 atlas_install_xmls( data/*.dtd data/*.xml )
 

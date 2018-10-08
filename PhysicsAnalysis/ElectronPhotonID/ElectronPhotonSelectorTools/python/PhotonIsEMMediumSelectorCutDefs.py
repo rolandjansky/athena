@@ -17,9 +17,12 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
-def PhotonIsEMMediumSelectorConfigDC14(theTool) :
+#
+# The "current" Medium ID menu, to be picked up by the rest of Athena.
+#
+def PhotonIsEMMediumSelectorConfig(theTool) :
     '''
-    These are the photon isEM definitions from *DC14*
+    These are the current photon isEM Medium definitions.
     '''
     
     theTool = GetTool(theTool)

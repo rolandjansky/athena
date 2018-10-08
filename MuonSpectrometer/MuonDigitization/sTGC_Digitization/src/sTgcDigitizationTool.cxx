@@ -203,7 +203,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   
   // initialize class to execute digitization 
   m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");
     return StatusCode::FAILURE;

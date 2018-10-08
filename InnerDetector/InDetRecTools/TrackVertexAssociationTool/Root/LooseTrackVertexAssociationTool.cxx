@@ -27,6 +27,9 @@ namespace CP
   StatusCode LooseTrackVertexAssociationTool::initialize()
   {
     //    dz_cut=2;
+
+    ATH_MSG_WARNING("LooseTrackVertexAssociationTool is being depricated. Please use the new TrackVertexAssociationTool instead.");
+
     return StatusCode::SUCCESS;
   }
 

@@ -28,6 +28,7 @@ for histName in inputFile.GetKeyNames():
     if TString(histName).Contains(compName):
         newHistName = re.sub(compName,newName,histName)
         print "Renaming component: %s --> %s"%(histName,newHistName)
+        outputFile.cd()
         hist.Write(newHistName)
         continue
     else:

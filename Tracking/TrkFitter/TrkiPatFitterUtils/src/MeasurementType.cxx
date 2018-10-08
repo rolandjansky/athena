@@ -16,7 +16,7 @@ namespace Trk
 	switch (type)
 	{
 	case perigeeParameters:
-	    return log << " perigeeParameters  ";	
+	    return log << " perigeeParameters";	
 	case transverseVertex:
 	    return log << " transverseVertex ";
 	case vertex:
@@ -36,7 +36,7 @@ namespace Trk
 	case endcapScatterer:
 	    return log << " endcapScatterer  ";
 	case calorimeterScatterer:
-	    return log << " calorimeterScatterer  ";
+	    return log << " calorimeterScat  ";
 	case barrelInert:
 	    return log << " barrelInert      ";
 	case endcapInert:

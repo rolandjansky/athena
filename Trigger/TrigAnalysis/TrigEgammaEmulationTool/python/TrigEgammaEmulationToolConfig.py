@@ -9,7 +9,7 @@
 #
 #********************************************************************************
 
-OutputLevel = 0
+OutputLevel = 3
 
 from AthenaCommon.Logging import logging
 logger = logging.getLogger("TrigEgammaEmulationToolConfig")

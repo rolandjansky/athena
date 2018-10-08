@@ -217,7 +217,7 @@ namespace Analysis {
           newBTag->setDynTPELName(basename, "tracksAtPVlinks");
 	}	
         
-	return StatusCode::SUCCESS;
+	continue;
       }    
 	
       for (  ; itEL != itELend; ++itEL ) {

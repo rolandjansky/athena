@@ -20,20 +20,7 @@
 
 
 #include <cstddef>
-
-// Can't do this until dictionaries are built with c++11.
-// Can't use the boost version either; genreflex mishandles it.
-#if 0
-#if __cplusplus < 201100
-# include "CxxUtils/unordered_set.h"
-namespace SG_STD_OR_SG = SG;
-#else
-# include <unordered_set>
-namespace SG_STD_OR_SG = std;
-#endif
-#endif
-
-#include "CxxUtils/unordered_set.h"
+#include "CxxUtils/ConcurrentBitset.h"
 
 
 namespace SG {
@@ -41,16 +28,34 @@ namespace SG {
 /// Identifier for a particular aux data item.
 typedef size_t auxid_t;
 
-/// A set of aux data identifiers.
-typedef SG::unordered_set<size_t> auxid_set_t;
-
 /// To signal no aux data item.
 static const auxid_t null_auxid = static_cast<auxid_t> (-1);
 
 /// Used as type_info when we read an aux data item but it doesn't
 /// exist in the registry.
 class AuxTypePlaceholder {};
-   
+
+/// A hint for how large we should make the auxid bitsets.  It's best if we don't
+/// need to reallocate them later; but on the other hand, we don't want this to be
+/// larger than it really needs to be.  The largest auxid i saw in a reco job
+/// was about 1800, so this is probably good for now.
+static const auxid_t auxid_set_size_hint = 2048;
+
+
+/// A set of aux data identifiers.
+/// This is a ConcurrentBitset, with the default size set to auxid_set_size_hint.
+class auxid_set_t
+  : public CxxUtils::ConcurrentBitset
+{
+public:
+  using CxxUtils::ConcurrentBitset::ConcurrentBitset;
+  auxid_set_t (size_t nbits = auxid_set_size_hint)
+    : CxxUtils::ConcurrentBitset (nbits)
+  {
+  }
+};
+
+
 } // namespace SG
 
 

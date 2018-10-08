@@ -65,7 +65,9 @@ namespace EL
     /// rationale: the virtual part of batch submission
   private:
     virtual void
-    batchSubmit (const std::string& location, const SH::MetaObject& options, std::size_t njob) const override;
+    batchSubmit (const std::string& location, const SH::MetaObject& options,
+ 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
+      const override;
 
     /// effects: special initialization for slurm scripts: export PATH
     /// guarantee: strong
@@ -86,8 +88,6 @@ namespace EL
     bool m_b_account;
     bool m_b_partition;
     bool m_b_run_time;
-    bool m_b_memory;
-    bool m_b_constraint;
 
     //
     // private interface

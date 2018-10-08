@@ -210,7 +210,7 @@ namespace ana
     // Initialize the AsgPhotonEfficiencyCorrectionTool.
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_efficiencyTool, AsgPhotonEfficiencyCorrectionTool));
     // Reco scale factors
-    ATH_CHECK( m_efficiencyTool.setProperty("MapFilePath", "PhotonEfficiencyCorrection/map0.txt"));
+    ATH_CHECK( m_efficiencyTool.setProperty("MapFilePath", "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt"));
     ATH_CHECK( m_efficiencyTool.setProperty("ForceDataType", 1 ) ); //+ (m_isAF2?2:0)) );
     ATH_CHECK( m_efficiencyTool.initialize() );
     registerTool(&*m_efficiencyTool);

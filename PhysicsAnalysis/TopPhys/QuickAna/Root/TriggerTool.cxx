@@ -158,6 +158,7 @@ namespace ana
       m_isEleToolSetup (false),
       m_mu_trig_sf2015 ("ana_MuonTriggerScaleFactors2015", nullptr),
       m_mu_trig_sf2016 ("ana_MuonTriggerScaleFactors2016", nullptr),
+      m_mu_trig_sf2017 ("ana_MuonTriggerScaleFactors2017", nullptr),
       m_el_trig_sf ("ana_AsgElectronEfficiencyCorrectionTool", this),
       m_el_trig_eff ("ana_AsgElectronEfficiencyTool", this)
   {
@@ -205,26 +206,37 @@ namespace ana
     ATH_CHECK (m_mu_trig_sf2016.initialize());
     registerTool(&*m_mu_trig_sf2016);
 
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_mu_trig_sf2017, CP::MuonTriggerScaleFactors));
+    ATH_CHECK (m_mu_trig_sf2017.setProperty("MuonQuality", m_muon_wp));
+    ATH_CHECK (m_mu_trig_sf2017.setProperty("AllowZeroSF", true));
+    ATH_CHECK (m_mu_trig_sf2017.initialize());
+    registerTool(&*m_mu_trig_sf2017);
+
+
     // Thanks to Moritz (SUSY trigger contact): using same SFs for AF2 and full sim for the time being
     // Pre-built keys for the trigger tool -- will come in handy later
-    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/map0.txt";
+    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map5.txt";
     const std::string id_key = TString(m_ele_wp).ReplaceAll("AndBLayer", "BLayer").ReplaceAll("LLH", "").Data();
     std::string trig_key = "";
 
     // Finally, fill the SF file list
-    if (m_trigList.find("e24_lhmedium_L1EM20VH") != std::string::npos ||
+    //if (m_trigList.find("e24_lhmedium_L1EM20VH") != std::string::npos ||
+    if (m_trigList.find("e24_lhmedium") != std::string::npos ||
         m_trigList.find("e60_lhmedium") != std::string::npos || // already matches e60_lhmedium_nod0; for post-ICHEP this should only be nod0
         m_trigList.find("e120_lhloose") != std::string::npos ||
         m_trigList.find("e26_lhtight_nod0_ivarloose") != std::string::npos ||
         m_trigList.find("e140_lhloose_nod0") != std::string::npos )
-      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
+      //trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
+      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
     else if (m_trigList.find("e12_lhloose_L1EM10VH") != std::string::npos ||
-             m_trigList.find("e17_lhvloose_nod0") != std::string::npos)
-      trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0";
+             m_trigList.find("e17_lhvloose_nod0") != std::string::npos ||
+             m_trigList.find("e24_lhvloose_nod0_L1EM20VH") != std::string::npos )
+      trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH";
     else if (m_trigList.find("e15_lhvloose_nod0_L1EM13VH") != std::string::npos)
       trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e15_lhvloose_nod0_L1EM13VH";
-    else if (m_trigList.find("e17_lhloose"))
-      trig_key = "DI_E_2015_e17_lhloose_2016_e17_lhloose";
+    else 
+      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
+      //trig_key = "DI_E_2015_e17_lhloose_2016_e17_lhloose";
     // QA only has single- and di-electron trigger tools, so only supporting those for the time being
     /* For the very brave, these are also available:
       * TRI_E_2015_e17_lhloose_2016_e17_lhloose_nod0
@@ -241,7 +253,7 @@ namespace ana
       ATH_CHECK (m_el_trig_sf.setProperty ("MapFilePath", egMapFile) );
       ATH_CHECK (m_el_trig_sf.setProperty ("IdKey", id_key) );
       // For triggers with isolation, include isolation
-      if (m_trigList.find("_i")!=std::string::npos)
+      //if (m_trigList.find("_i")!=std::string::npos)
         ATH_CHECK (m_el_trig_sf.setProperty ("IsoKey", m_ele_iso_wp) );
       ATH_CHECK (m_el_trig_sf.setProperty ("TriggerKey", trig_key) );
       ATH_CHECK (m_el_trig_sf.setProperty ("ForceDataType",1+(m_isAF2?2:0)) );
@@ -252,7 +264,7 @@ namespace ana
       ATH_CHECK (ASG_MAKE_ANA_TOOL (m_el_trig_eff, AsgElectronEfficiencyCorrectionTool));
       ATH_CHECK (m_el_trig_eff.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK (m_el_trig_eff.setProperty("IdKey", id_key) );
-      if (m_trigList.find("_i")!=std::string::npos)
+      //if (m_trigList.find("_i")!=std::string::npos)
         ATH_CHECK( m_el_trig_eff.setProperty ("IsoKey", m_ele_iso_wp) );
       ATH_CHECK (m_el_trig_eff.setProperty ("TriggerKey", "Eff_"+trig_key) );
       ATH_CHECK (m_el_trig_eff.setProperty ("ForceDataType",1+(m_isAF2?2:0)) );
@@ -325,8 +337,9 @@ namespace ana
       // therefre been changed to the run in 2015 with the most luminosity.
 
       // If we are in the wrong year, then stop here
-      if ( (my_runNumber<290000 && m_year==Only2016) ||
-           (my_runNumber>290000 && m_year==Only2015) ) return StatusCode::SUCCESS;
+      if ( (my_runNumber<290000 && m_year!=Only2015 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017) ||
+           (my_runNumber>290000 && my_runNumber<320000 && m_year!=Only2016 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017 && m_year!=Only2016_2017) || 
+           (my_runNumber>320000 && m_year!=Only2017 && m_year!=Only2016_2017 && m_year!=Only2015_2016_2017) ) return StatusCode::SUCCESS;
 
       // This is unreadably ugly...
       bool isDiMuTrig = (m_muon_trig_str.find("2mu") != std::string::npos || m_muon_trig_str.find("mu", m_muon_trig_str.find("mu")+1 ) != std::string::npos);
@@ -343,10 +356,13 @@ namespace ana
                m->pt() > m_TriggerPtThreshold*1000. ){
             my_muons.push_back( m ); // 1.05*online pt requirement
             //// As long as we are here, get the efficiency
-            double trig_eff = 1.;
+            double trig_eff_mc = 1., trig_eff_data = 1.;
             QA_CHECK_WEIGHT
-              ( double , trig_eff, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff,m_muon_trig_str,m_isData) );
-            m->auxdata<double>(m_groupName + "_Mu_TrigEff") = trig_eff;
+              ( double , trig_eff_mc, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_mc,m_muon_trig_str,false) );
+            m->auxdata<double>(m_groupName + "_Mu_TrigEff_MC") = trig_eff_mc;
+            QA_CHECK_WEIGHT
+              ( double , trig_eff_data, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_data,m_muon_trig_str,true) );
+            m->auxdata<double>(m_groupName + "_Mu_TrigEff_Data") = trig_eff_data;
           }
         }
       }
@@ -403,7 +419,8 @@ namespace ana
   asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>& TriggerSFTool::muonSFToolForThisYear(const int runNumber)
   {
     // Was it 2016?
-    if (runNumber>290000) return m_mu_trig_sf2016;
+    if (runNumber>290000 && runNumber<320000) return m_mu_trig_sf2016;
+    if (runNumber>320000) return m_mu_trig_sf2017;
     // It was 2015 then
     return m_mu_trig_sf2015;
   }
@@ -486,9 +503,9 @@ namespace ana
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_imedium",
     makeTriggerTool (args, "HLT_mu26_imedium", "HLT_mu26_imedium", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_ivarmedium",
-    makeTriggerTool (args, "HLT_mu26_ivarmedium", "HLT_mu26_ivarmedium", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016))
+    makeTriggerTool (args, "HLT_mu26_ivarmedium", "HLT_mu26_ivarmedium", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016_2017))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu50",
-    makeTriggerTool (args, "HLT_mu50", "HLT_mu50", "HLT_mu50", false, true, 50, TriggerSFTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu50", "HLT_mu50", "HLT_mu50", false, true, 50, TriggerSFTool::Only2015_2016_2017))
 
   // single muon 2016 --> disable the sf for the moment
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_ivarloose",
@@ -514,7 +531,7 @@ namespace ana
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_ivarmedium_OR_HLT_mu50",
     makeTriggerTool (args, "HLT_mu24_ivarmedium HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", false, true, 24, TriggerSFTool::Only2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_ivarmedium_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu26_ivarmedium HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016))
+    makeTriggerTool (args, "HLT_mu26_ivarmedium HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016_2017))
 
   // Stand alone muon triggers
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_2mu14",

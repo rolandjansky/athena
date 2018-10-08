@@ -380,5 +380,12 @@ else:
 for tool in EGAM7_ClusterEnergyPerLayerDecorators:
     EGAM7SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
+# Add detailed shower shape variables
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+EGAM7SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+EGAM7SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+EGAM7SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
+
 # This line must come after we have finished configuring EGAM7SlimmingHelper
 EGAM7SlimmingHelper.AppendContentToStream(EGAM7Stream)

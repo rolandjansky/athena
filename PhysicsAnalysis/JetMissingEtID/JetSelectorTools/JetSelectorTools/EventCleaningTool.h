@@ -65,6 +65,7 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     std::string m_or; 
     std::string m_prefix; 
     bool m_decorate; 
+    bool m_useDecorations;
     std::string m_cleaningLevel; 
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool; //!
 

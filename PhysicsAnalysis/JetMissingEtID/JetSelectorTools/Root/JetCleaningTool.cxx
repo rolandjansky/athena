@@ -22,7 +22,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 #include <iostream>
 #include <cmath>
 #include <cfloat>
-
+#include <stdexcept>
 // ROOT includes
 #include "TEnv.h"
 
@@ -103,11 +103,16 @@ JetCleaningTool::JetCleaningTool(const std::string& name)
   , m_cutName("")
   , m_cutLevel(LooseBad)
   , m_doUgly(false)
+  , m_useDecorations(true)
+  , m_jetCleanDFName("")
+  , m_acc_jetClean("DFCommonJets_jetClean_LooseBad")
+  , m_acc_looseClean("DFCommonJets_jetClean_LooseBad")
   , m_hotCellsFile("")
-  , m_hotCellsMap(NULL)
+  , m_hotCellsMap(nullptr)
 {
   declareProperty( "CutLevel" , m_cutName = "" );
   declareProperty( "DoUgly"   , m_doUgly = false);
+  declareProperty( "UseDecorations"   , m_useDecorations = true);
   declareProperty( "HotCellsFile" , m_hotCellsFile = "");
 }
 
@@ -145,7 +150,7 @@ JetCleaningTool::~JetCleaningTool()
                     if (cellVec->at(index))
                     {
                         delete cellVec->at(index);
-                        cellVec->at(index) = NULL;
+                        cellVec->at(index) = nullptr;
                     }
                 delete cellVec;
             }
@@ -166,6 +171,10 @@ StatusCode JetCleaningTool::initialize()
 
   if (m_cutName!="") m_cutLevel = getCutLevel( m_cutName );
   ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
+  m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(m_cutLevel);
+  m_acc_jetClean = m_jetCleanDFName;
+  m_acc_looseClean = "DFCommonJets_jetClean_"+getCutName(LooseBad);
+  ATH_MSG_DEBUG( "Initialized decorator name: " << m_jetCleanDFName );
 
   m_accept.addCut( "Cleaning", "Cleaning of the jet" );
     
@@ -179,6 +188,69 @@ StatusCode JetCleaningTool::initialize()
 
 
   return StatusCode::SUCCESS;
+}
+//===============================================================
+// Calculate the accept from the DFCommonJets_jetClean decorator
+//===============================================================
+const Root::TAccept& JetCleaningTool::accept( const int isJetClean, const int fmaxIndex ) const
+{                
+    m_accept.clear();
+    m_accept.setCutResult( "Cleaning", false );
+
+    //=============================================================
+    //Run-II ugly cuts
+    //=============================================================
+    if(m_doUgly && fmaxIndex==17) return m_accept;
+
+    //=============================================================
+    //Loose/tight cleaning taken from decoration
+    //=============================================================
+    if(isJetClean==0) return m_accept; 
+    else{
+        m_accept.setCutResult( "Cleaning", true );
+        return m_accept;
+    }
+
+    // We should never arrive here!
+    ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
+    return m_accept;
+
+}
+//===============================================================
+// Calculate tight cleaning from loose decoration + variables
+//===============================================================
+const Root::TAccept& JetCleaningTool::accept( const int isJetClean,
+        const double sumpttrk, //in MeV, same as sumpttrk
+        const double fmax,
+        const double eta,
+        const double pt,
+        const int    fmaxIndex                        
+        ) const
+{                
+    m_accept.clear();
+    m_accept.setCutResult( "Cleaning", false );
+    const double chf=sumpttrk/pt;
+
+    //=============================================================
+    //Run-II ugly cuts
+    //=============================================================
+    if(m_doUgly && fmaxIndex==17) return m_accept;
+
+    //=============================================================
+    //Tight cleaning taken from decoration
+    //=============================================================
+    if(isJetClean==0) return m_accept;  //fails Loose cleaning
+    else if (fmax<DBL_MIN) return m_accept;
+        else if(std::fabs(eta)<2.4 && chf/fmax<0.1) return m_accept;    
+    else{
+        m_accept.setCutResult( "Cleaning", true );
+        return m_accept;
+    }
+
+    // We should never arrive here!
+    ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
+    return m_accept;
+
 }
 
 //=============================================================================
@@ -259,16 +331,16 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
     return m_accept;
   }
 
-
   // We should never arrive here!
   ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
   return m_accept;
 }
 
 
-void missingVariable(const char* varName)
+void JetCleaningTool::missingVariable(const std::string& varName) const
 {
-    throw std::string(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName));
+    ATH_MSG_FATAL(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
+    throw std::runtime_error(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
 }
 
 const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
@@ -277,51 +349,68 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
   jet.getAttribute( xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec );
   double sumpttrk = 0;
   if( ! sumPtTrkvec.empty() ) sumpttrk = sumPtTrkvec[0];
-
-  // Get all of the required variables
-  // Do it this way so we can gracefully handle missing variables (rather than segfaults)
-  float EMFrac = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::EMFrac,EMFrac))
-    missingVariable("EMFrac");
-  float HECFrac = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::HECFrac,HECFrac))
-    missingVariable("HECFrac");
-  float LArQuality = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::LArQuality,LArQuality))
-    missingVariable("LArQuality");
-  float HECQuality = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::HECQuality,HECQuality))
-    missingVariable("HECQuality");
-  float FracSamplingMax = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMax,FracSamplingMax))
-    missingVariable("FracSamplingMax");
-  float NegativeE = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::NegativeE,NegativeE))
-    missingVariable("NegativeE");
-  float AverageLArQF = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::AverageLArQF,AverageLArQF))
-    missingVariable("AverageLArQF");
-
   // fmax index is not necessarily required
   // This is only used if doUgly is set
   // Handle it gracefully if the variable is not present but doUgly is false
   int FracSamplingMaxIndex = -1;
   if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMaxIndex,FracSamplingMaxIndex) && m_doUgly)
-    missingVariable("FracSamplingMaxIndex");
+      missingVariable("FracSamplingMaxIndex"); 
+  // get tight cleaning variables
+  float FracSamplingMax = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMax,FracSamplingMax))
+      missingVariable("FracSamplingMax");
+ 
+  //start jet cleaning 
+  int isJetClean = 0; 
+  if( m_useDecorations && m_acc_jetClean.isAvailable(jet) ) { //decoration is already available for all jets 
+          isJetClean = m_acc_jetClean(jet);
+          return accept (isJetClean, FracSamplingMaxIndex);
+  }
+  else{   //running over AOD, need to use all variables
+      ATH_MSG_DEBUG("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
+      // Get all of the required variables
+      // Do it this way so we can gracefully handle missing variables (rather than segfaults)
+      
+      float EMFrac = 0;
+      if (!jet.getAttribute(xAOD::JetAttribute::EMFrac,EMFrac))
+          missingVariable("EMFrac");
+      
+      float HECFrac = 0;
+      if (!jet.getAttribute(xAOD::JetAttribute::HECFrac,HECFrac))
+          missingVariable("HECFrac");
+      
+      float LArQuality = 0;
+      if (!jet.getAttribute(xAOD::JetAttribute::LArQuality,LArQuality))
+          missingVariable("LArQuality");
+    
+     
+      float HECQuality = 0;
+      if (!jet.getAttribute(xAOD::JetAttribute::HECQuality,HECQuality))
+          missingVariable("HECQuality");
 
-  
-  return accept (EMFrac,
-                 HECFrac,
-                 LArQuality,
-                 HECQuality,
-                 //jet.getAttribute<float>(xAOD::JetAttribute::Timing),
-                 sumpttrk,
-                 jet.eta(),
-                 jet.pt(),
-                 FracSamplingMax,
-                 NegativeE,
-                 AverageLArQF,
-                 FracSamplingMaxIndex);
+     
+      float NegativeE = 0;
+      if (!jet.getAttribute(xAOD::JetAttribute::NegativeE,NegativeE))
+          missingVariable("NegativeE");
+
+     
+
+      float AverageLArQF = 0;
+      if (!jet.getAttribute(xAOD::JetAttribute::AverageLArQF,AverageLArQF))
+          missingVariable("AverageLArQF");
+
+      return accept (EMFrac,
+              HECFrac,
+              LArQuality,
+              HECQuality,
+              //jet.getAttribute<float>(xAOD::JetAttribute::Timing),
+              sumpttrk,
+              jet.eta(),
+              jet.pt(),
+              FracSamplingMax,
+              NegativeE,
+              AverageLArQF,
+              FracSamplingMaxIndex);}
 }
 
 /** Hot cell checks */

@@ -31,10 +31,9 @@ class Analysis_Tier0 : public TrackAnalysis {
   virtual void initialise();
   
   virtual void execute(const std::vector<TIDA::Track*>& referenceTracks,
-		       const std::vector<TIDA::Track*>& testTracks,
-		       TrackAssociator* associator);
+  		       const std::vector<TIDA::Track*>& testTracks,
+  		       TrackAssociator* associator );
   
-
   virtual void execute_vtx(const std::vector<TIDA::Vertex*>& vtx0,
 			   const std::vector<TIDA::Vertex*>& vtx1, 
 			   const TIDA::Event* tevt=0 );
@@ -133,6 +132,9 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1F* h_trkphi;
   TH1F* h_trkd0;
   TH1F* h_trkz0;
+
+  TH1F* h_trketaroi;
+  TH1F* h_trketazroi;
 
   TH1F* h_trkdd0;
   TH1F* h_trkdz0;

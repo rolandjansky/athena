@@ -50,8 +50,13 @@ void L1CaloDisabledTowersContainer::makeTransient(const std::map<std::string, Co
 {
   clear();
 
-  auto it = condAttrListCollectionMap.find(m_coolFolderKey);
-  if(it == std::end(condAttrListCollectionMap)) return;
+//   auto it = condAttrListCollectionMap.find(m_coolFolderKey);
+//   if(it == std::end(condAttrListCollectionMap)) return;
+  
+  if (condAttrListCollectionMap.empty()) return;
+  auto it = condAttrListCollectionMap.rbegin();
+//   std::cout<<"JOHN - L1CaloDisabledTowersContainer::makeTransient - taking first map element, with key: "<< (it->first) <<" whereas m_coolFolderKey is: "<<m_coolFolderKey<<std::endl;
+  
 
   auto attrListCollection = it->second;
   for(const auto& item : *attrListCollection) {

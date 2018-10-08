@@ -28,8 +28,8 @@ namespace ana
   Configuration ()
     : eventinfoDef ("none"), eventSelectDef ("none"),
       electronDef ("none"), photonDef ("none"), muonDef ("none"),
-      tauDef ("none"), jetDef ("none"), fatJetDef ("none"),
-      metDef ("none"), met2Def ("none"), orDef ("none"), triggerDef(""),
+      tauDef ("none"), jetDef ("none"), pfJetDef ("none"), fatJetDef ("none"),
+      metDef ("none"), met2Def ("none"), cleanDef ("none"), orDef ("none"), triggerDef(""),
       schedulerDef ("basic")
   {}
 

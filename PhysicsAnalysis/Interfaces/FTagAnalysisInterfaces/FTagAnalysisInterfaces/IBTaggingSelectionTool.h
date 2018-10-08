@@ -39,9 +39,9 @@ class IBTaggingSelectionTool : virtual public asg::IAsgTool {
     virtual int getQuantile( const xAOD::Jet& ) const = 0;
     virtual int getQuantile( double, double, double ) const = 0;
 
-    virtual CP::CorrectionCode getCutValue(double /* jet pt */, double & cutval) const = 0;
-    virtual CP::CorrectionCode getTaggerWeight( const xAOD::Jet& jet, double & weight ) const = 0;
-    virtual CP::CorrectionCode getTaggerWeight( double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */ , double & weight) const = 0;
+    virtual CP::CorrectionCode getCutValue(double /* jet pt */, double & cutval, bool useVetoWP=false) const = 0;
+    virtual CP::CorrectionCode getTaggerWeight( const xAOD::Jet& jet, double & weight , bool useVetoWP=false) const = 0;
+    virtual CP::CorrectionCode getTaggerWeight( double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */ , double & weight,bool useVetoWP=false) const = 0;
 
   };
 #endif // CPIBTAGGINGSELECTIONTOOL_H

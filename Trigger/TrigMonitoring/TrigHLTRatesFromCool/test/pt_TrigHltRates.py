@@ -9,6 +9,8 @@ class TestTrigHltRates(unittest.TestCase):
     def setUp(self):
         self.hltrates = TrigHltRates.TrigHltRates(ratetag="TestTagRateM13", chaintag="TestTagChainM13")
         self.runno = 319018 # Run during M13
+        self.runno2018 = 345808 # Test run during 2018 with IOVs in nanoseconds
+        self.hltrates2018 = TrigHltRates.TrigHltRates(ratetag="TestTagRate2018", chaintag="TestTagChain2018")
 
     #Each test function MUST start with test, rest is not important
     def testException(self):
@@ -18,31 +20,61 @@ class TestTrigHltRates(unittest.TestCase):
     def testIOV(self):
         """ Test IOV-timestamp conversions """
 
+        # Testing for both a 2017 and 2018 run, as starting from 2018,
+        # IOVs of rates folder are in ns
+
         iov = self.hltrates.getIOV(runno=self.runno, timestamp=1490875399)
+        self.assertEqual(iov,-1)
+
+        iov = self.hltrates2018.getIOV(runno=self.runno2018, timestamp=1521122530)
         self.assertEqual(iov,-1)
 
         iov = self.hltrates.getIOV(runno=self.runno, timestamp=1490875400)
         self.assertEqual(iov,0)
 
+        iov = self.hltrates2018.getIOV(runno=self.runno2018, timestamp=1521122560)
+        self.assertEqual(iov,0)
+
         iov = self.hltrates.getIOV(runno=self.runno, timestamp=1490883690)
         self.assertEqual(iov,138)
 
+        iov = self.hltrates2018.getIOV(runno=self.runno2018, timestamp=1521122799)
+        self.assertEqual(iov,4)
+
         iov = self.hltrates.getIOV(runno=self.runno, timestamp=1490888120)
+        self.assertEqual(iov,-1)
+
+        iov = self.hltrates2018.getIOV(runno=self.runno2018, timestamp=1521122999)
         self.assertEqual(iov,-1)
 
         timestamp =  self.hltrates.getTimestamp(runno=self.runno, iov=0)
         self.assertEqual(timestamp,1490875400)
 
+        timestamp =  self.hltrates2018.getTimestamp(runno=self.runno2018, iov=0)
+        self.assertEqual(timestamp,1521122538)
+
         timestamp =  self.hltrates.getTimestamp(runno=self.runno, iov=1)
         self.assertEqual(timestamp,1490875460)
+
+        timestamp =  self.hltrates2018.getTimestamp(runno=self.runno2018, iov=1)
+        self.assertEqual(timestamp,1521122606)
 
         timestamp =  self.hltrates.getTimestamp(runno=self.runno, iov=138)
         self.assertEqual(timestamp,1490883680)
 
+        timestamp =  self.hltrates2018.getTimestamp(runno=self.runno2018, iov=4)
+        self.assertEqual(timestamp,1521122786)
+
         timestamp =  self.hltrates.getTimestamp(runno=self.runno, iov=-1)
         self.assertEqual(timestamp,-1)
 
+        timestamp =  self.hltrates2018.getTimestamp(runno=self.runno2018, iov=-1)
+        self.assertEqual(timestamp,-1)
+
         timestamp =  self.hltrates.getTimestamp(runno=self.runno, iov=1000)
+        self.assertEqual(timestamp,-1)
+
+        timestamp =  self.hltrates2018.getTimestamp(runno=self.runno2018, iov=1000)
         self.assertEqual(timestamp,-1)
 
     def testRegex(self):

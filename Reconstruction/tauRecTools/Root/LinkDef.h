@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauCalibrateLC.h"
@@ -17,6 +17,7 @@
 #include "tauRecTools/TauChargedPFOCreator.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
+#include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/BuildTruthTaus.h"
@@ -54,6 +55,7 @@
 #pragma link C++ class TauChargedPFOCreator+;
 #pragma link C++ class TauWPDecorator+;
 #pragma link C++ class TauJetBDTEvaluator+;
+#pragma link C++ class TauJetRNNEvaluator+;
 #pragma link C++ class TauIDVarCalculator+;
 #pragma link C++ class TauEleOLRDecorator+;
 #pragma link C++ class BuildTruthTaus+;

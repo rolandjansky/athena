@@ -73,9 +73,9 @@ StatusCode InDet::InDetBeamSpotReader::execute(){
     ATH_MSG_INFO("Beamspot position at PV z-position");
 
   const VxContainer* importedVxContainer =0;
-  static const std::string m_containerName = "VxPrimaryCandidate";
-  if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,m_containerName)){
-    ATH_MSG_ERROR( "No " << m_containerName << " found in StoreGate" );
+  static const std::string containerName = "VxPrimaryCandidate";
+  if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,containerName)){
+    ATH_MSG_ERROR( "No " << containerName << " found in StoreGate" );
     return StatusCode::FAILURE;
   }
   //get list of PVs

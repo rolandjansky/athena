@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_VERSIONS_JET_V1_H
@@ -370,6 +370,9 @@ namespace xAOD {
 
 
 } // namespace xAOD
+
+#include "AthContainers/DataVector.h"
+DATAVECTOR_BASE( xAOD::Jet_v1, xAOD::IParticle );
 
 #include "xAODJet/versions/Jet_v1.icc"
 

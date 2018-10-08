@@ -5,7 +5,6 @@
 /***************************************************************************
  global functions and stuff ...
  -----------------------------------------
- Copyright (C) 2004 by ATLAS Collaboration
  ***************************************************************************/
  
 #ifndef RPCRAWDATAMONITORING_RPCGLOBALUTILITIES_H

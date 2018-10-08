@@ -117,7 +117,7 @@ MDTCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 
 StatusCode MDTCondSummarySvc::update_MDT(IOVSVC_CALLBACK_ARGS){
 
-  msg(MSG::INFO)<<"Register Call Back for MDT System"<<endmsg;
+  msg(MSG::DEBUG)<<"Register Call Back for MDT System"<<endmsg;
 
    return StatusCode::SUCCESS;
 }

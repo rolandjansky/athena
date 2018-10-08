@@ -10,10 +10,6 @@
 
 #include "GaudiKernel/IService.h"
 
-//#include "globals.hh"
-
-//#include "LArG4Code/LArG4Identifier.h"
-
 #include <string>
 
 class G4Step;
@@ -32,10 +28,7 @@ namespace LArG4
       IHECGeometry() {}
       virtual ~IHECGeometry() {}
 
-      static const InterfaceID& interfaceID() {
-        static const InterfaceID  IID_IHECGeometry("IHECGeometry",1,0);
-        return IID_IHECGeometry;
-      }
+      DeclareInterfaceID(IHECGeometry,1,0);
 
       virtual LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eHECGeometryType type = kWheelActive, int *subgap=NULL) const = 0;
 

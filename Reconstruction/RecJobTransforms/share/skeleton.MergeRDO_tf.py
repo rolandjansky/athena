@@ -116,6 +116,7 @@ import MuonCnvExample.MuonCablingConfig
 from InDetRecExample.InDetJobProperties import InDetFlags
 include("InDetRecExample/InDetRecConditionsAccess.py")
 
+
 #--------------------------------------------------------------
 # Setup Input
 #--------------------------------------------------------------
@@ -172,6 +173,13 @@ StreamRDO.ExtendProvenanceRecord = False
 
 ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
 
+if athenaCommonFlags.UseLZMA():
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_ALGORITHM = '2'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_LEVEL = '1'" ]
+else:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_LEVEL = '4'" ]
+ 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:
@@ -183,6 +191,5 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         merRDOLog.info(cmd)
         exec(cmd)
-
 
 #--------------------------------------------------------------

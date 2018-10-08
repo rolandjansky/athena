@@ -64,7 +64,7 @@ def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
     if name in simFlags.UserActionConfig.get_Value().keys():
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
-    return CfgMGr.G4UA__VolumeDebuggerTool(name, **kwargs)
+    return CfgMgr.G4UA__VolumeDebuggerTool(name, **kwargs)
 
 
 def getGeant4SetupCheckerTool(name="G4UA::Geant4SetupCheckerTool", **kwargs):

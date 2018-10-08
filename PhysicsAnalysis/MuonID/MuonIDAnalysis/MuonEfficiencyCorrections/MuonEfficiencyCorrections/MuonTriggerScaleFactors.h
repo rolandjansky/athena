@@ -112,12 +112,11 @@ namespace CP {
             CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger) const;
 
             std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) const;
-
         protected:      
-            unsigned int getRunNumber() const;
+
             unsigned int getFallBackRunNumber() const;
             std::string getDataPeriod() const;
-     
+            unsigned int getRunNumber() const;     
             unsigned int getYear(unsigned int run) const;
             std::string getDataPeriod(unsigned int run) const;
             std::string getDataPeriod(unsigned int runNumber, unsigned int year) const;
@@ -145,6 +144,7 @@ namespace CP {
             bool m_allowZeroSF;
             bool m_experimental;
             bool m_useRel207;
+            bool m_useMC16c;
             
             //Variables for toy replicas setup
             std::vector<std::string> m_replicaTriggerList;

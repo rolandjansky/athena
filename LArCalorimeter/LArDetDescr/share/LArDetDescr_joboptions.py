@@ -7,15 +7,17 @@ print "now initializing the LAr readout geometry : standard Atlas flavour"
 include( "CaloConditions/CaloConditions_jobOptions.py" )
 
 from AthenaCommon.GlobalFlags import globalflags
+from RecExConfig.RecFlags import rec
 
-if globalflags.DataSource() == 'geant4' :
-  include( "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py" )
-  include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
-elif globalflags.DataSource() == 'data'  :
-  include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
-  include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
-else :
-  raise RunTimeError, " from LArDetDescr_joboptions.py: DataSource not supported" 
+if not rec.doAODMerging():
+  if globalflags.DataSource() == 'geant4' :
+    include( "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py" )
+    include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
+  elif globalflags.DataSource() == 'data'  :
+    include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
+    include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
+  else :
+    raise RunTimeError, " from LArDetDescr_joboptions.py: DataSource not supported" 
 
 # must be included once only :
 include.block ("LArDetDescr/LArDetDescr_joboptions.py")

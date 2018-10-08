@@ -262,6 +262,10 @@ namespace xAOD {
     //AUX_VARIABLE( pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
     //AUX_VARIABLE( pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts );
     //AUX_VARIABLE( pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
+
+    // RNN tau ID
+    AUX_VARIABLE( RNNJetScore );
+    AUX_VARIABLE( RNNJetScoreSigTrans ); 
     
   }
   

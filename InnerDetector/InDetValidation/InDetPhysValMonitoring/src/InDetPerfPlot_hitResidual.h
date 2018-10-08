@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef INDETPHYSVALMONITORING_InDetPerfPlot_hitResidual
 #define INDETPHYSVALMONITORING_InDetPerfPlot_hitResidual
 /**
@@ -12,8 +11,6 @@
 
 // std includes
 #include <string>
-#include <vector>
-#include "TProfile.h"
 
 // local includes
 
@@ -24,9 +21,7 @@
 #include "xAODTruth/TruthParticle.h"
 
 // fwd declaration
-class IToolSvc;
-class IExtrapolator;
-
+class TH1;
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
 class InDetPerfPlot_hitResidual: public InDetPlotBase {

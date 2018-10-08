@@ -87,13 +87,13 @@ class ZDC_PileUpTool: public PileUpToolBase {
   ZDC_SimStripHit_Collection *m_mergedStripHitList;
   ZDC_SimPixelHit_Collection *m_mergedPixelHitList;
    
-  std::ofstream MyFile;
+  std::ofstream m_MyFile;
   ZdcDigitsCollection *m_digitContainer;
   
   double HighToLow(double signal, double gain_ratio, double gain_error, CLHEP::HepRandomEngine* rndEngine); 
   
-  double GainRatio_Strip[8], GainRatioError_Strip[8];
-  double GainRatio_Pixel,    GainRatioError_Pixel;
+  double m_GainRatio_Strip[8], m_GainRatioError_Strip[8];
+  double m_GainRatio_Pixel,    m_GainRatioError_Pixel;
 
   unsigned int PixelID(int Side=-1, int Module=-1, int PixNo=-1); 
 };

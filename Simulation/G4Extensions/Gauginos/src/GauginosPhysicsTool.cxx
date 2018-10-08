@@ -31,21 +31,21 @@ GauginosPhysicsTool::GauginosPhysicsTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
   : base_class ( type, nam , parent )
 {
-  declareProperty("GravitinoMass",GravitinoMass=0.108E-04*CLHEP::GeV,"Gravitino Mass");
-  declareProperty("GravitinoWidth",GravitinoWidth=0.*CLHEP::GeV,"Gravitino Width");
-  declareProperty("GravitinoCharge",GravitinoCharge=0,"Gravitino charge");
-  declareProperty("GravitinoPDGCode",GravitinoPDGCode=1000039,"Gravitino PDG CODE");
-  declareProperty("GravitinoLifetime",GravitinoLifetime=-1 ,"Gravitino Lifetime");
-  declareProperty("GravitinoStable",GravitinoStable=true ,"Gravitino Stable");
-  declareProperty("GravitinoShortlived",GravitinoShortlived=false ,"Gravitino Shortlived");
+  declareProperty("GravitinoMass",m_GravitinoMass=0.108E-04*CLHEP::GeV,"Gravitino Mass");
+  declareProperty("GravitinoWidth",m_GravitinoWidth=0.*CLHEP::GeV,"Gravitino Width");
+  declareProperty("GravitinoCharge",m_GravitinoCharge=0,"Gravitino charge");
+  declareProperty("GravitinoPDGCode",m_GravitinoPDGCode=1000039,"Gravitino PDG CODE");
+  declareProperty("GravitinoLifetime",m_GravitinoLifetime=-1 ,"Gravitino Lifetime");
+  declareProperty("GravitinoStable",m_GravitinoStable=true ,"Gravitino Stable");
+  declareProperty("GravitinoShortlived",m_GravitinoShortlived=false ,"Gravitino Shortlived");
 
-  declareProperty("NeutralinoMass",NeutralinoMass=118.848*CLHEP::GeV,"Neutralino Mass");
-  declareProperty("NeutralinoWidth",NeutralinoWidth=0.*CLHEP::GeV,"Neutralino Width");
-  declareProperty("NeutralinoCharge",NeutralinoCharge=0,"Neutralino charge");
-  declareProperty("NeutralinoPDGCode",NeutralinoPDGCode=1000022,"Neutralino PDG CODE");
-  declareProperty("NeutralinoStable",NeutralinoStable=true,"Neutralino Stable");
-  declareProperty("NeutralinoLifetime",NeutralinoLifetime=-1,"Neutralino Lifetime");
-  declareProperty("NeutralinoShortlived",NeutralinoShortlived=false,"Neutralino Shortlived");
+  declareProperty("NeutralinoMass",m_NeutralinoMass=118.848*CLHEP::GeV,"Neutralino Mass");
+  declareProperty("NeutralinoWidth",m_NeutralinoWidth=0.*CLHEP::GeV,"Neutralino Width");
+  declareProperty("NeutralinoCharge",m_NeutralinoCharge=0,"Neutralino charge");
+  declareProperty("NeutralinoPDGCode",m_NeutralinoPDGCode=1000022,"Neutralino PDG CODE");
+  declareProperty("NeutralinoStable",m_NeutralinoStable=true,"Neutralino Stable");
+  declareProperty("NeutralinoLifetime",m_NeutralinoLifetime=-1,"Neutralino Lifetime");
+  declareProperty("NeutralinoShortlived",m_NeutralinoShortlived=false,"Neutralino Shortlived");
 
 }
 
@@ -78,9 +78,9 @@ void GauginosPhysicsTool::ConstructParticle()
 {
   ATH_MSG_DEBUG("Create particle of Gauginos" );
 
-  GMSBNeutralino::Definition(NeutralinoMass, NeutralinoWidth, NeutralinoCharge, NeutralinoPDGCode, NeutralinoStable, NeutralinoLifetime, NeutralinoShortlived );
+  GMSBNeutralino::Definition(m_NeutralinoMass, m_NeutralinoWidth, m_NeutralinoCharge, m_NeutralinoPDGCode, m_NeutralinoStable, m_NeutralinoLifetime, m_NeutralinoShortlived );
 
-  GMSBGravitino::Definition(GravitinoMass, GravitinoWidth, GravitinoCharge, GravitinoPDGCode, GravitinoStable, GravitinoLifetime, NeutralinoShortlived);
+  GMSBGravitino::Definition(m_GravitinoMass, m_GravitinoWidth, m_GravitinoCharge, m_GravitinoPDGCode, m_GravitinoStable, m_GravitinoLifetime, m_NeutralinoShortlived);
 
 }
 

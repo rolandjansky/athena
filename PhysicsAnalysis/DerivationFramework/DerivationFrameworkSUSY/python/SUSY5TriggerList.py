@@ -3,10 +3,10 @@
 #====================================================================
 # Importing common triggers
 #====================================================================
-from DerivationFrameworkSUSY.SUSYCommonTriggerList import MET_2017,MET_2016,MET_2015
-from DerivationFrameworkSUSY.SUSYCommonTriggerList import SingleLepton_2017,SingleLepton_2016,SingleLepton_2015
-from DerivationFrameworkSUSY.SUSYCommonTriggerList import DiLepton_2017,DiLepton_2016,DiLepton_2015
-from DerivationFrameworkSUSY.SUSYCommonTriggerList import SinglePhoton_2017,SinglePhoton_2016,SinglePhoton_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import MET_2018,MET_2017,MET_2016,MET_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import SingleLepton_2018,SingleLepton_2017,SingleLepton_2016,SingleLepton_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import DiLepton_2018,DiLepton_2017,DiLepton_2016,DiLepton_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import SinglePhoton_2018,SinglePhoton_2017,SinglePhoton_2016,SinglePhoton_2015
 
 NonMetTriggers = [
 'HLT_e26_lhtight_smooth_iloose',
@@ -248,7 +248,7 @@ PrescaledHighPtTriggers = [
 'HLT_mu24_idperf',
 ]
 
-METorPhoton_triggers = MetTriggers+MET_2017+MET_2016+MET_2015+SinglePhoton_2017+SinglePhoton_2016+SinglePhoton_2015
-Lepton_triggers = NonMetTriggers+SingleLepton_2017+SingleLepton_2016+SingleLepton_2015+DiLepton_2017+DiLepton_2016+DiLepton_2015
+METorPhoton_triggers = MetTriggers+MET_2018+MET_2017+MET_2016+MET_2015+SinglePhoton_2018+SinglePhoton_2017+SinglePhoton_2016+SinglePhoton_2015
+Lepton_triggers = NonMetTriggers+SingleLepton_2018+SingleLepton_2017+SingleLepton_2016+SingleLepton_2015+DiLepton_2018+DiLepton_2017+DiLepton_2016+DiLepton_2015
 triggersNavThin = METorPhoton_triggers+Lepton_triggers+PrescaledHighPtTriggers+PrescaledLowPtTriggers
 

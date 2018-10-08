@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "UserSetting.h"
 #include "Pythia8_i/UserHooksFactory.h"
 #include "Pythia8/PhaseSpace.h"
@@ -18,10 +22,10 @@ namespace Pythia8 {
    
     // Constructor
     mHatReweight()
-        : m_slope("mHatReweight:Slope", 1) 
-        , m_mHatConstMin("mHatReweight:mHatConstMin", 1500) 
-        , m_p1("mHatReweight:p1", -3.872) 
-        , m_p2("mHatReweight:p2", 15.606) 
+        : m_slope("mHatReweight:Slope", 1)
+        , m_mHatConstMin("mHatReweight:mHatConstMin", 1500)
+        , m_p1("mHatReweight:p1", -3.872)
+        , m_p2("mHatReweight:p2", 15.606)
     {
       std::cout<<"*************************************************************"<<std::endl;
       std::cout<<"*                                                           *"<<std::endl;

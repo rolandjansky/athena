@@ -45,9 +45,8 @@ namespace CLHEP {
 /** @class BkgStreamsConcentricCache
  * @brief Optimized in-memory cache for pileup events
  */
-class BkgStreamsConcentricCache : 
-  virtual public IBkgStreamsCache, 
-  virtual public AthAlgTool 
+class BkgStreamsConcentricCache :
+  public extends<AthAlgTool, IBkgStreamsCache>
 {
 public:
   BkgStreamsConcentricCache( const std::string&, const std::string&, const IInterface*);
@@ -90,8 +89,6 @@ public:
 				int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/);
   /// how many stores in cache
   virtual unsigned int nStores() const { return m_nStores; }
-
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
 
   /// meant to be used (mainly) via m_f_collDistr
   long collXing() { return m_collXing * m_collXingSF; }

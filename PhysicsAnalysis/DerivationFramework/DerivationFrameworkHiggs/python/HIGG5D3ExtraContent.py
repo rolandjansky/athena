@@ -2,30 +2,17 @@
 
 #Content included in addition to the Smart Slimming Content
 
-ExtraContent=[
-    "Muons.clusterLink.EnergyLoss.energyLossType",
-    "AntiKt4EMTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt",
-    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta",
-    "AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m",
+import HIGG5Common
+ExtraContent=HIGG5Common.filterContentList('egammaClusters|Muons|TauJets|AntiKt4EMTopoJets|AntiKt4EMPFlowJets|AntiKtVR30Rmax4Rmin02TrackJets|AntiKt10LCTopoJets|AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets|BTagging_AntiKtVR30Rmax4Rmin02Track|Photons|BTagging_AntiKt4EMTopo|BTagging_AntiKt4EMPFlow',
+                                                  HIGG5Common.getHIGG5Common() )
+ExtraContent+=[
     "Photons.f3core",
-    "BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
+#    "AntiKt4EMPFlowJets.btaggingLink",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore.KtDR.Dip12.ZCut12.ThrustMin.ThrustMaj.Angularity.Aplanarity.Sphericity.PlanarFlow.FoxWolfram2.FoxWolfram0"
+    ]
 
-ExtraContentTruth=[
-    "AntiKt4EMTopoJets.ConeTruthLabelID"]
+ExtraContentTruth=HIGG5Common.getHIGG5CommonTruth()
 
 ExtraContainers=[]
-    #"BTagging_AntiKt10LCTopo",
-    #"xTrigDecision", # for xAOD::TrigDecision_v1
-    #"xTrigDecisionAux", # for xAOD::TrigDecisionAuxInfo_v1
-    #"TrigDecision", # for TrigDec::TrigDecision
-    #"HLT_TrigEFBjetContainer_EFBjetFex", # for TrigEFBjetContainer
-    #"HLT_TrigL2BjetContainer_L2BjetFex", # for TrigL2BjetContainer
-    #"HLT_JetCollection_TrigJetRec",
-    #"MuonSegments"]
 
-
-ExtraContainersTruth=[
-    "TruthEvents",
-    "TruthParticles",
-    "TruthVertices",
-    "MuonTruthParticles"]
+ExtraContainersTruth=[]

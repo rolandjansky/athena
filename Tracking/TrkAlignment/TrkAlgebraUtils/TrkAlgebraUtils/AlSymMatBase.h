@@ -9,7 +9,7 @@
 // modified from SiGlobalChi2AlgebrUtils::AlSymMatBase, modified to make
 // pure virtual
 
-#include <iostream>
+#include <exception>
 #include <map>
 #include <vector>
 
@@ -46,8 +46,8 @@ class AlSymMatBase  {
     inline AlSymMatBase_row(AlSymMatBase&,long int);
     double & operator[](long int);
   private:
-    AlSymMatBase& _a;
-    long int  _r;
+    AlSymMatBase& m_a;
+    long int  m_r;
   };
 
   class AlSymMatBase_row_const {
@@ -55,8 +55,8 @@ class AlSymMatBase  {
     inline AlSymMatBase_row_const(const AlSymMatBase&,long int);
     double operator[](long int) const;
   private:
-    const AlSymMatBase& _a;
-    long int  _r;
+    const AlSymMatBase& m_a;
+    long int  m_r;
   };
   // helper class to implement m[i][j]
 
@@ -97,11 +97,11 @@ class AlSymMatBase  {
   AlSymMatBase(const AlSymMatBase&);
   AlSymMatBase& operator=(const AlSymMatBase&);
 
-  int      _matrix_type;
-  datamap  ptr_map;
+  int      m_matrix_type;
+  datamap  m_ptr_map;
 
-  long int _size;
-  long int _nele;
+  long int m_size;
+  long int m_nele;
 
 };
 
@@ -118,38 +118,36 @@ inline AlSymMatBase::AlSymMatBase_row_const AlSymMatBase::operator[] (long int r
 }
 
 inline double & AlSymMatBase::AlSymMatBase_row::operator[](long int c) {
-  if(_r<0||_r>=_a.nrow() || c<0||c>=_a.ncol()) {
-    std::cerr << "Range error in AlSymMatBase::operator[][]" << std::endl;
-    return _a.elemr(0,0);
+  if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol()) {
+    throw std::out_of_range( "Range error in AlSymMatBase::operator[][]" );
   } else {
-    return _a.elemr(_r,c);
+    return m_a.elemr(m_r,c);
   }
 }
 
 inline double AlSymMatBase::AlSymMatBase_row_const::operator[](long int c) const {
-  if(_r<0||_r>=_a.nrow() || c<0||c>=_a.ncol()) {
-    std::cerr << "Range error in AlSymMatBase::operator[][]" << std::endl;
-    return _a.elemc(0,0);
+  if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol()) {
+    throw std::out_of_range( "Range error in AlSymMatBase::operator[][]" );
   } else {
-    return _a.elemc(_r,c);
+    return m_a.elemc(m_r,c);
   }
 }
 
 inline AlSymMatBase::AlSymMatBase_row::AlSymMatBase_row(AlSymMatBase &a,long int r)
-  : _a(a), _r(r)
+  : m_a(a), m_r(r)
 {}
 
 inline AlSymMatBase::AlSymMatBase_row_const::AlSymMatBase_row_const
 (const AlSymMatBase&a,long int r)
-  : _a(a), _r(r)
+  : m_a(a), m_r(r)
 {}
 
 
-inline long int AlSymMatBase::size() const { return _size; }
-inline long int AlSymMatBase::nrow() const { return _size; }
-inline long int AlSymMatBase::ncol() const { return _size; }
-inline int AlSymMatBase::matrix_type() const  { return _matrix_type; }
-inline const datamap * AlSymMatBase::ptrMap() const { return &ptr_map; }
+inline long int AlSymMatBase::size() const { return m_size; }
+inline long int AlSymMatBase::nrow() const { return m_size; }
+inline long int AlSymMatBase::ncol() const { return m_size; }
+inline int AlSymMatBase::matrix_type() const  { return m_matrix_type; }
+inline const datamap * AlSymMatBase::ptrMap() const { return &m_ptr_map; }
 
 } // end namespace Trk
 

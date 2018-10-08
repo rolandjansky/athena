@@ -39,10 +39,12 @@ qa.metDef = "default";
 qa.orDef = "default";
 
 # We just need some files for testing. Do not use these in your analysis
+#qa.muMcFiles.push_back(ROOT.string(
+#    "dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root"))
+#qa.muMcFiles.push_back(ROOT.string(
+#    "dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"))
 qa.muMcFiles.push_back(ROOT.string(
-    "dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root"))
-qa.muMcFiles.push_back(ROOT.string(
-    "dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"))
+     "dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root"))
 # Using test file from SUSYTools
 qa.muDataFiles.push_back(ROOT.string("dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root"))
 

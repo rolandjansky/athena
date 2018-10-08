@@ -3,9 +3,9 @@
 */
 
 
-#ifdef ROOTCORE
+//#ifdef XAOD_STANDALONE
 #   include "xAODRootAccess/TStore.h"
-#endif // ROOTCORE
+//#endif // XAOD_STANDALONE
 
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 
@@ -21,7 +21,7 @@ int main() {
 
   BTaggingEfficiencyTool * tool = new BTaggingEfficiencyTool("BTagTest");
   // tagger name as specified in the CDI file
-  StatusCode code = tool->setProperty("TaggerName",          "MV2c10");
+  StatusCode code = tool->setProperty("TaggerName",          "DL1");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool TaggerName property" << std::endl;
   // operating point as specified in the CDI file
   code = tool->setProperty("OperatingPoint",      "FixedCutBEff_77");
@@ -30,7 +30,7 @@ int main() {
   code = tool->setProperty("JetAuthor",           "AntiKt4EMTopoJets");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool JetAuthor property" << std::endl;
   // name of the CDI file
-  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root");
+  code = tool->setProperty("ScaleFactorFileName", "13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool ScaleFactorFileName property" << std::endl;
   // calibration specification (there should always be a "default" available so this doesn't need to be set
   // tool->setProperty("ScaleFactorBCalibration", "ttbar_PDF_7b_SF");
@@ -44,6 +44,13 @@ int main() {
   // tool->setProperty("EigenvectorReductionB", "Medium");
   // tool->setProperty("EigenvectorReductionC", "Medium");
   // tool->setProperty("EigenvectorReductionLight", "Medium");
+  // use the following to exclude pre-determined sets of uncertainty from the eigenvector treatment
+  // tool->setProperty("ExcludeRecommendedFromEigenVectorTreatment", true);
+  // use the following to add a (per-flavour) suffix to the variations as seen at the user end (NB an underscore will be added if not provided)
+  // tool->setProperty("UncertaintyBSuffix", "test");
+  // tool->setProperty("UncertaintyCSuffix", "test");
+  // tool->setProperty("UncertaintyTSuffix", "test");
+  // tool->setProperty("UncertaintyLightSuffix", "test");
   // specify that the file is to be looked for in the PathResolver "development" area (don't use this for official productions)
   // tool->setProperty("UseDevelopmentFile",  true);
   // specify the use of the cone-based labelling rather than the ghost association
@@ -142,7 +149,9 @@ int main() {
   // systematics interface
   jet->setAttribute("ConeTruthLabelID", 5);
   jet->setAttribute("HadronConeExclTruthLabelID", 5);
-  std::cout << "\nTesting application of systematics to b jets..." << std::endl;
+
+  int ID; jet->getAttribute("HadronConeExclTruthLabelID", ID);
+  std::cout << "\nTesting application of systematics to jets with labelID " << ID << "..." << std::endl;
   CP::SystematicSet systs = tool->affectingSystematics();
   for( CP::SystematicSet::const_iterator iter = systs.begin();
        iter!=systs.end(); ++iter) {

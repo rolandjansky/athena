@@ -34,10 +34,9 @@ m_inDetSGKey("InDetTrackParticles"),
 m_calCTCSGKey("CaloCalTopoClusters"),
 m_oCalCTCSGKey("LCOriginTopoClusters"),
 m_jetSGKey("AntiKt10TrackCaloClusterJets"),
-// m_selectionString(""),
+m_selectionString(""),
 m_and(false),
 m_thinO(false)
-// ,m_parser(0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService"               , m_thinningSvc);
@@ -46,7 +45,7 @@ m_thinO(false)
     declareProperty("CaloCalTopoClustersKey"        , m_calCTCSGKey);
     declareProperty("OriginCaloCalTopoClustersKey"  , m_oCalCTCSGKey);
     declareProperty("JetKey"                        , m_jetSGKey);
-//     declareProperty("SelectionString", m_selectionString);
+    declareProperty("SelectionString", m_selectionString);
     declareProperty("ApplyAnd"                      , m_and);
     declareProperty("ThinOriginCorrectedClusters"   , m_thinO);
 }
@@ -86,13 +85,15 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::initialize()
     } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_tccSGKey << " will be retained in this format with the rest being thinned away");}
         
     // Set up the text-parsing machinery for selectiong the TCC directly according to user cuts
-//     if (m_selectionString!="") {
-// 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-// 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-// 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-// 	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-// 	    m_parser->loadExpression(m_selectionString);
-//     }
+    if (m_selectionString!="") {
+      m_proxyLoaders = std::move( std::make_unique<ExpressionParsing::MultipleProxyLoader>());
+      m_cleanup.push_back( std::move(std::make_unique<ExpressionParsing::SGxAODProxyLoader>(evtStore())));
+      m_proxyLoaders->push_back(m_cleanup.back().get());
+      m_cleanup.push_back( std::move(std::make_unique<ExpressionParsing::SGNTUPProxyLoader>(evtStore())));
+      m_proxyLoaders->push_back(m_cleanup.back().get());
+      m_parser = std::move( std::make_unique<ExpressionParsing::ExpressionParser>(m_proxyLoaders.get()));
+      m_parser->loadExpression(m_selectionString);
+    }
     return StatusCode::SUCCESS;
 }
 
@@ -102,10 +103,6 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::finalize()
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotCC <<" calo clusters, "<< m_npassCC<< " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotTCC <<" TCCs, "<< m_npassTCC<< " were retained ");
-//     if (m_selectionString!="") {
-//         delete m_parser;
-//         m_parser = 0;
-//     }
     return StatusCode::SUCCESS;
 }
 
@@ -140,7 +137,9 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
         ATH_MSG_ERROR("No jet collection with name " << m_jetSGKey << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
-    
+    unsigned int nJets(importedJets->size());
+    std::vector<const xAOD::Jet*> jetToCheck; jetToCheck.clear();
+ 
     // Check the event contains tracks
     unsigned int nTracks = importedTrackParticles->size();
     // Check the event contains calo clusters
@@ -171,26 +170,66 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
     maskTCCs.assign(nTCCs,false); // default: don't keep any tracks
     m_ntotTCC += nTCCs;
     
-    for(auto jet : *importedJets){
-        for( size_t j = 0; j < jet->numConstituents(); ++j ) {
-            auto tcc = jet->constituentLinks().at(j);
-            int index = tcc.index();
-            maskTCCs[index] = true;
-            const xAOD::TrackCaloCluster* tccO = dynamic_cast<const xAOD::TrackCaloCluster*>(*tcc);
-            if(!tccO) continue;
-            if(tccO->taste()!=1){
-                    index = tccO->trackParticleLink().index();
-                    maskTracks[index] = true;
-            }
-            if(tccO->taste()!=0){
-                for (size_t c = 0; c < tccO->caloClusterLinks().size(); ++c) {
-                    index = tccO->caloClusterLinks().at(c).index();
-                    maskClusters[index] = true;
-                }
-            }
+        // Execute the text parser if requested
+    if (m_selectionString!="") {
+        std::vector<int> entries =  m_parser->evaluateAsVector();
+        unsigned int nEntries = entries.size();
+        // check the sizes are compatible
+        if (nJets != nEntries ) {
+        	ATH_MSG_ERROR("Sizes incompatible! Are you sure your selection string used jets??");
+            return StatusCode::FAILURE;
+        } else {
+        	// identify which jets to keep for the thinning check
+        	for (unsigned int i=0; i<nJets; ++i) if (entries[i]==1) jetToCheck.push_back((*importedJets)[i]);
         }
     }
     
+    if (m_selectionString=="") { // check all jets as user didn't provide a selection string
+
+        for(auto jet : *importedJets){
+	    for( size_t j = 0; j < jet->numConstituents(); ++j ) {
+	        auto tcc = jet->constituentLinks().at(j);
+		int index = tcc.index();
+		maskTCCs[index] = true;
+		const xAOD::TrackCaloCluster* tccO = dynamic_cast<const xAOD::TrackCaloCluster*>(*tcc);
+		if(!tccO) continue;
+		if(tccO->taste()!=1){
+		  index = tccO->trackParticleLink().index();
+		  maskTracks[index] = true;
+		}
+		if(tccO->taste()!=0){
+		    for (size_t c = 0; c < tccO->caloClusterLinks().size(); ++c) {
+		        index = tccO->caloClusterLinks().at(c).index();
+		        maskClusters[index] = true;
+		    }
+		}
+	    }
+	}
+	
+    } else {
+	
+	for (std::vector<const xAOD::Jet*>::iterator jetIt=jetToCheck.begin(); jetIt!=jetToCheck.end(); ++jetIt) {
+            for( size_t j = 0; j < (*jetIt)->numConstituents(); ++j ) {
+	        auto tcc = (*jetIt)->constituentLinks().at(j);
+		int index = tcc.index();
+		maskTCCs[index] = true;
+		const xAOD::TrackCaloCluster* tccO = dynamic_cast<const xAOD::TrackCaloCluster*>(*tcc);
+		if(!tccO) continue;
+		if(tccO->taste()!=1){
+		  index = tccO->trackParticleLink().index();
+		  maskTracks[index] = true;
+		}
+		if(tccO->taste()!=0){
+		    for (size_t c = 0; c < tccO->caloClusterLinks().size(); ++c) {
+		        index = tccO->caloClusterLinks().at(c).index();
+		        maskClusters[index] = true;
+		    }
+		}
+	    }
+	}
+	
+    }
+
     // Count up the mask contents
     for (unsigned int i=0; i<nTracks; ++i) {
         if (maskTracks[i]) ++m_npass;

@@ -19,19 +19,20 @@ def readDsFromFile(txtName):
     dsList = []
     try:
         # read lines
-        txt = open(txtName)
-        for tmpLine in txt:
-            # remove \n
-            tmpLine = re.sub('\n','',tmpLine)
-            # remove white spaces
-            tmpLine = tmpLine.strip()
-            # skip comment or empty
-            if tmpLine.startswith('#') or tmpLine == '':
-                continue
-            # append
-            dsList += [tmpLine]
-        # close file    
-        txt.close()
+        for fileName in txtName.split(","):
+            txt = open(fileName)
+            for tmpLine in txt:
+                # remove \n
+                tmpLine = re.sub('\n','',tmpLine)
+                # remove white spaces
+                tmpLine = tmpLine.strip()
+                # skip comment or empty
+                if tmpLine.startswith('#') or tmpLine == '':
+                    continue
+                # append
+                dsList += [tmpLine]
+            # close file    
+            txt.close()
     except:
         errType,errValue = sys.exc_info()[:2]
         logging.error("cannot read datasets from %s due to %s:%s" % (txtName,errType,errValue))
@@ -306,25 +307,26 @@ def main():
          # read lines
         commentcount=0
         import re
-        txt = open(args.inDsTxt)
-        for tmpLine in txt:
-            # remove \n
-            tmpLine = re.sub('\n','',tmpLine)
-            # remove white spaces
-            tmpLine = tmpLine.strip()
-            # skip comment or empty
-            if tmpLine.startswith('#') or tmpLine == '':
-                complete_values['comment%d'%(commentcount)] = tmpLine
-                commentcount = commentcount+1
-                continue
-            # append
-            tmpLine = tmpLine.rstrip("/")
-            if tmpLine in dataset_values.keys():
-                complete_values[tmpLine] = dataset_values[tmpLine]
-            else:
-                print("cannot find %s" % tmpLine)
-        # close file    
-        txt.close()
+        for fileName in args.inDsTxt.split(","):
+            txt = open(fileName)
+            for tmpLine in txt:
+                # remove \n
+                tmpLine = re.sub('\n','',tmpLine)
+                # remove white spaces
+                tmpLine = tmpLine.strip()
+                # skip comment or empty
+                if tmpLine.startswith('#') or tmpLine == '':
+                    complete_values['comment%d'%(commentcount)] = tmpLine
+                    commentcount = commentcount+1
+                    continue
+                # append
+                tmpLine = tmpLine.rstrip("/")
+                if tmpLine in dataset_values.keys():
+                    complete_values[tmpLine] = dataset_values[tmpLine]
+                else:
+                    print("cannot find %s" % tmpLine)
+            # close file    
+            txt.close()
         dataset_values = complete_values
 
     logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.timestamp))

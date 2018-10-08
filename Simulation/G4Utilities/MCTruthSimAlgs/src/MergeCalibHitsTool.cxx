@@ -17,7 +17,6 @@ MergeCalibHitsTool::MergeCalibHitsTool(const std::string& type,
   m_pMergeSvc("PileUpMergeSvc", name),
   m_oldFormat(false)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("OldFormat", m_oldFormat);
 }
 

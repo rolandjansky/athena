@@ -56,7 +56,6 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            ISF_FastCaloSimParametrizationLibDictSource
                            ROOT_HEADERS
                            ISF_FastCaloSimParametrization/MeanAndRMS.h
-                           ISF_FastCaloSimParametrization/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TreeReader.h

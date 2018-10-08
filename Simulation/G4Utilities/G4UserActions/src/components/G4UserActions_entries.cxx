@@ -15,6 +15,7 @@
 #include "G4UserActions/StoppedParticleActionTool.h"
 #include "G4UserActions/FluxRecorderTool.h"
 #include "G4UserActions/ScoringPlaneTool.h"
+#include "G4UserActions/RadiationMapsMakerTool.h"
 
 DECLARE_TOOL_FACTORY( G4UA::G4SimTimerTool )
 DECLARE_TOOL_FACTORY( G4UA::G4TrackCounterTool )
@@ -31,6 +32,7 @@ DECLARE_TOOL_FACTORY( G4UA::ScoringVolumeTrackKillerTool )
 DECLARE_TOOL_FACTORY( G4UA::StoppedParticleActionTool )
 DECLARE_TOOL_FACTORY( G4UA::FluxRecorderTool )
 DECLARE_TOOL_FACTORY( G4UA::ScoringPlaneTool )
+DECLARE_TOOL_FACTORY( G4UA::RadiationMapsMakerTool )
 
 
 DECLARE_FACTORY_ENTRIES( G4UserActions ) {
@@ -49,5 +51,6 @@ DECLARE_FACTORY_ENTRIES( G4UserActions ) {
   DECLARE_TOOL( G4UA::StoppedParticleActionTool )
   DECLARE_TOOL( G4UA::FluxRecorderTool )
   DECLARE_TOOL( G4UA::ScoringPlaneTool )
+  DECLARE_TOOL( G4UA::RadiationMapsMakerTool )
 
 }

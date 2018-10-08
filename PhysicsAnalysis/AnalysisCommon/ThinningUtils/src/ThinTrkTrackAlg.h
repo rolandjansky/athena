@@ -5,7 +5,7 @@
 */
 
 #ifndef THINNINGUTILS_ThinTrkTrackAlg_H
-#define THINNINGUTILS_ThinTrkTrackAlg_H 
+#define THINNINGUTILS_ThinTrkTrackAlg_H
 /**
  @class ThinTrkTrackAlg
 */
@@ -23,30 +23,30 @@ class IThinningSvc;
 
 class ThinTrkTrackAlg : public ::AthAlgorithm {
 public:
-  
+
   /// Constructor with parameters:
   ThinTrkTrackAlg( const std::string& name, ISvcLocator* pSvcLocator );
-    
+
   /// Destructor:
   virtual ~ThinTrkTrackAlg();
-  
+
   /// Athena algorithm's initalize hook
   virtual StatusCode  initialize() final;
-  
+
   /// Athena algorithm's execute hook
   virtual StatusCode  execute() final;
-  
+
   /// Athena algorithm's finalize hook
   virtual StatusCode  finalize() final;
-  
+
  private:
   /// Inline method
   StatusCode doEGamma() ;
   StatusCode doMuons() ;
-  
+
   /// Pointer to IThinningSvc
   ServiceHandle<IThinningSvc> m_thinningSvc;
-  
+
   /// Should the thinning run?
   bool m_doElectrons;
   bool m_doPhotons;
@@ -69,4 +69,4 @@ public:
 };
 
 
-#endif 
+#endif

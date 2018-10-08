@@ -3,6 +3,8 @@
 */
 
 #include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 
 #include "CxxUtils/make_unique.h"
 #include "FourMomUtils/xAODP4Helpers.h"
@@ -18,11 +20,14 @@ namespace InDet {
 
   static const CP::SystematicSet FilterSystematics = 
     {
-      InDet::TrackSystematicMap[TRK_EFF_LOOSE_TIDE]
+      InDet::TrackSystematicMap[TRK_EFF_LOOSE_TIDE],
+      InDet::TrackSystematicMap[TRK_FAKE_RATE_TIGHT_TIDE],
+      InDet::TrackSystematicMap[TRK_FAKE_RATE_LOOSE_TIDE]
     };
 
   JetTrackFilterTool::JetTrackFilterTool(const std::string& name) :
-    InDetTrackSystematicsTool(name)
+    InDetTrackSystematicsTool(name),
+     m_trackOriginTool("InDet::InDetTrackTruthOriginTool")
   {
 
 #ifndef XAOD_STANDALONE
@@ -32,9 +37,10 @@ namespace InDet {
     declareProperty("Seed", m_seed, "Seed used to initialize the RNG");
     declareProperty("DeltaR", m_deltaR, "Delta-R cut in which to apply jet-track efficiency rejection");
     declareProperty("trkEffSystScale", m_trkEffSystScale, "Option to scale the effect of the systematic (default 1)");
-
+    declareProperty("FakeUncertainty",  m_fakeUncertTIDE, "Option to set the fake uncertainty");
     declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TrackingRecommendations_final_rel21.root");
     declareProperty("calibFileJetEff", m_calibFileJetEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TIDErejectProbv3.root");
+    declareProperty("trackOriginTool", m_trackOriginTool);
   }
 
   StatusCode JetTrackFilterTool::initialize()
@@ -52,6 +58,8 @@ namespace InDet {
 
     ATH_MSG_INFO( "Using for nominal track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileNomEff) );
     ATH_MSG_INFO( "Using for jet track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileJetEff) );
+
+    ATH_CHECK ( m_trackOriginTool.retrieve() );
     
     ATH_CHECK ( InDetTrackSystematicsTool::initialize() );
 
@@ -78,6 +86,8 @@ namespace InDet {
       return true;
     }
 
+    int origin = m_trackOriginTool->getTrackOrigin(track);
+
     // if the track is outside of the range of this jet, then it is allowed to pass
     constexpr bool useRapidity = false; // use eta instead of rapidity - the default for this function is true
     if ( !xAOD::P4Helpers::isInDeltaR( *track, *jet, m_deltaR, useRapidity ) ) return true;
@@ -91,6 +101,19 @@ namespace InDet {
       if ( m_rnd->Uniform(0, 1) < probDrop ) return false;
     }
 
+    if( isActive( TRK_FAKE_RATE_LOOSE_TIDE ) ){
+      if ( InDet::TrkOrigin::isFake(origin) ) {
+	if(m_rnd->Uniform(0, 1) <  m_fakeUncertTIDE) return false;
+      }
+    }
+
+    if( isActive( TRK_FAKE_RATE_TIGHT_TIDE ) ){
+      if ( InDet::TrkOrigin::isFake(origin) ) {
+	ATH_MSG_DEBUG("Track fakes in jets uncertainty (Tight) covered by inclusive (Tight) uncertainty - operating in pass-through mode...");
+	return true;
+      }
+    } 
+    
     return true;
   }
 

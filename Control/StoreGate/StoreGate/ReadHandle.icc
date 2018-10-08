@@ -209,7 +209,7 @@ template <class T>
 inline
 bool ReadHandle<T>::isValid()
 {
-  return 0 != this->typeless_cptr(); 
+  return 0 != this->typeless_cptr(true);
 }
 
 

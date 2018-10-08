@@ -20,8 +20,10 @@ atlas_depends_on_subdirs( PUBLIC
                           TrigDecisionTool
                           TriggerMatchingTool
                           TrigTauMatching
+                          TriggerAnalysisInterfaces
+                          TrigGlobalEfficiencyCorrection
                           GoodRunsLists
-                          JetJvtEfficiency
+                          JetAnalysisInterfaces
                           JetSubStructureMomentTools
                           JetSubStructureUtils
                           JetReclustering
@@ -60,15 +62,16 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TrigDecisionToolLib
                                   TriggerMatchingToolLib
                                   TrigTauMatchingLib
+                                  TrigGlobalEfficiencyCorrectionLib
                                   GoodRunsListsLib
-                                  JetJvtEfficiencyLib
+                                  JetAnalysisInterfacesLib
                                   JetSubStructureMomentToolsLib
                                   JetSubStructureUtils
                                   JetReclusteringLib
                                   BoostedJetTaggersLib
 				  MuonAnalysisInterfacesLib
 				  FTagAnalysisInterfacesLib
-                                  ${ROOT_LIBRARIES}
+                                  ${ROOT_LIBRARIES}		  
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 
 # Install data files from the package:

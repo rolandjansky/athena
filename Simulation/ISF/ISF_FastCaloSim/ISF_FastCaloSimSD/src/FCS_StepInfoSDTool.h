@@ -26,6 +26,7 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class LArMiniFCAL_ID;
+class TileID;
 class ITileCalculator;
 
 namespace FCS_Param
@@ -113,6 +114,7 @@ namespace FCS_Param
     const LArFCAL_ID*     m_larFcalID;
     const LArHEC_ID*      m_larHecID;
     const LArMiniFCAL_ID* m_larMiniFcalID;
+    const TileID*         m_tileID;
     /// @}
     FCS_Param::Config m_config;
 

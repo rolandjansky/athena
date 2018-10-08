@@ -89,6 +89,7 @@ class LArCoverage: public ManagedMonitorToolBase
   /** Handle to bad-channel tools */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
   ToolHandle<ILArBadChanTool> m_badChannelTool;
+  ToolHandle<ILArBadChanTool> m_badMNBFEBsTool;
  /** Handle to caloNoiseTool */
   ToolHandle < ICaloNoiseTool > m_caloNoiseTool ;
 
@@ -139,6 +140,12 @@ class LArCoverage: public ManagedMonitorToolBase
   TH2I_LW*   m_hBadChannelsBarrelC;
   TH2I_LW*   m_hBadChannelsEndcapA;
   TH2I_LW*   m_hBadChannelsEndcapC;
+
+  // Bad Channels from DB
+  TH2I_LW*   m_hSuspiciousMNBFEBsBarrelA;
+  TH2I_LW*   m_hSuspiciousMNBFEBsBarrelC;
+  TH2I_LW*   m_hSuspiciousMNBFEBsEndcapA;
+  TH2I_LW*   m_hSuspiciousMNBFEBsEndcapC;
 
 };
 

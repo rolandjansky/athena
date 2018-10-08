@@ -34,7 +34,6 @@ BCM_DigitizationTool::BCM_DigitizationTool(const std::string &type, const std::s
   m_mergeSvc(NULL), //("PileUpMergeSvc",name),
   m_atRndmGenSvc("AtRndmGenSvc",name)
 {
-  declareInterface<IPileUpTool>(this);
   //declareProperty("PileupMergeSvc", m_mergeSvc, "Pileup merging service");
   declareProperty("RndmSvc", m_atRndmGenSvc, "Random number service used in BCM digitization");
   declareProperty("HitCollName", m_hitCollName="BCMHits", "Input simulation hits collection name");

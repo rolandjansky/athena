@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -133,6 +133,8 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
 
 
 bool SUSYObjDef_xAOD::IsSignalTau(const xAOD::TauJet& input, float ptcut, float etacut) const {
+
+  dec_signal(input) = false;
 
   if ( !dec_baseline(input) ) return false;
 

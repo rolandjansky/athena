@@ -13,14 +13,14 @@
  */
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PileUpTools/IPileUpTool.h"
-class PileUpToolBase :  virtual public IPileUpTool, public AthAlgTool {
+class PileUpToolBase :  public extends<AthAlgTool, IPileUpTool> {
 public:
   /// \name structors and AlgTool implementation
   //@{
   PileUpToolBase(const std::string& name,
                  const std::string& type,
                  const IInterface* parent);
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
   virtual StatusCode initialize() override {
     return StatusCode::SUCCESS;
   }

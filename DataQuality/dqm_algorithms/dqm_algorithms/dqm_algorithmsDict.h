@@ -30,6 +30,7 @@
 #include "dqm_algorithms/BinPrint.h"
 #include "dqm_algorithms/BinThresh.h"
 #include "dqm_algorithms/BinThreshold.h"
+#include "dqm_algorithms/BinHeightThreshold.h"
 #include "dqm_algorithms/BinsDiffByStrips.h"
 #include "dqm_algorithms/BinsDiffFromStripMedian.h"
 #include "dqm_algorithms/BinsDiffFromStripMedianOnline.h"

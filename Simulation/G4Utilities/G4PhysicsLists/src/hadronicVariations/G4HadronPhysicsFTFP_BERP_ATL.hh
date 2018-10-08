@@ -103,7 +103,6 @@ class G4HadronPhysicsFTFP_BERP_ATL : public G4VPhysicsConstructor
 
   private:
     void CreateModels();
-    G4bool QuasiElastic;
 
     G4NeutronRadCapture * theNeutronCaptureModel;
 
@@ -111,7 +110,6 @@ class G4HadronPhysicsFTFP_BERP_ATL : public G4VPhysicsConstructor
     G4GeneratorPrecompoundInterface * theCascade;
     G4FTFModel * theStringModel;
     G4ExcitedStringDecay * theStringDecay;
-    G4QuasiElasticChannel * theQuasiElastic;
     G4LundStringFragmentation * theLund;
     G4ExcitationHandler * theHandler;
 
@@ -121,7 +119,6 @@ class G4HadronPhysicsFTFP_BERP_ATL : public G4VPhysicsConstructor
     G4CascadeInterface * theBertini1;
     G4CascadeInterface * theBertini2;
 
-    G4HadronFissionProcess * theNeutronFissionProcess;
     G4HadronCaptureProcess * theNeutronCaptureProcess;
 
     G4NeutronInelasticProcess *   theNeutronInelastic;

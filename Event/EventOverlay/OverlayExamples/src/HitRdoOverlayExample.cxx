@@ -71,19 +71,19 @@ StatusCode HitRdoOverlayExample::execute()
 }
   // get LArHit
 
-  std::vector <std::string> m_HitContainer;
+  std::vector <std::string> hitContainer;
 
-  m_HitContainer.push_back("LArHitEMB");
+  hitContainer.push_back("LArHitEMB");
 
-  m_HitContainer.push_back("LArHitEMEC");
+  hitContainer.push_back("LArHitEMEC");
 
-  m_HitContainer.push_back("LArHitHEC");
+  hitContainer.push_back("LArHitHEC");
 
-  m_HitContainer.push_back("LArHitFCAL");
+  hitContainer.push_back("LArHitFCAL");
 
   int nhit_tot=0;
 
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
+  for (unsigned int iHitContainer=0;iHitContainer<hitContainer.size();iHitContainer++)
 
     {
 
@@ -91,7 +91,7 @@ StatusCode HitRdoOverlayExample::execute()
 
       TimedHitContList hitContList;
 
-      if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
+      if (!(m_mergeSvc->retrieveSubEvtsData(hitContainer[iHitContainer]
 
                                             ,hitContList).isSuccess()) && hitContList.size()==0) {
 

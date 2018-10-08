@@ -109,6 +109,14 @@ class doMomentsfromAbs(JobProperty):
     StoredValue=False       
   
 
+class doTimeCut(JobProperty):
+    """                                                                                                                    
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 # add the flags container to the top container 
 jobproperties.add_Container(CaloTopoClusterFlags)
 
@@ -129,6 +137,7 @@ list_jobproperties = [
     ,doTwoGaussianNoise
     ,doTreatEnergyCutAsAbsolute
     ,doMomentsfromAbs
+    ,doTimeCut
     ]
 
 for i in list_jobproperties:

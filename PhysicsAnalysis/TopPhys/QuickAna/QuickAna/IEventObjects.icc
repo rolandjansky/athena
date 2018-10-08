@@ -73,6 +73,15 @@ namespace ana
 
 
   inline xAOD::JetContainer *IEventObjects ::
+  pflow_jets () const
+  {
+    return get<xAOD::JetContainer> (OBJECT_PFLOW_JET);
+  }
+
+
+
+
+  inline xAOD::JetContainer *IEventObjects ::
   fat_jets () const
   {
     return get<xAOD::JetContainer> (OBJECT_FAT_JET);

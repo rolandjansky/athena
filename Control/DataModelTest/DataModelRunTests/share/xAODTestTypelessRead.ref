@@ -4,7 +4,6 @@ Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [WorkDir-21.1.2] [x86_64-slc6-gcc62-opt] [private/private] -- built on [2017-03-28 11:45]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestTypelessRead_jo.py"

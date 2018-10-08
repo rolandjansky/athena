@@ -20,9 +20,14 @@
 #include <vector>
 #else
 #include <AthenaBaseComps/AthHistogramAlgorithm.h>
+#include <AsgTools/MessageCheck.h>
+#include <GaudiKernel/IIncidentListener.h>
 #endif
 
 class TH1;
+class TH2;
+class TH3;
+class TTree;
 class ISvcLocator;
 #ifdef ROOTCORE
 class Property;
@@ -70,7 +75,7 @@ namespace EL
 #ifdef ROOTCORE
     : public asg::AsgMessaging, public INamedInterface
 #else
-    : public AthHistogramAlgorithm
+    : public AthHistogramAlgorithm, virtual public IIncidentListener
 #endif
   {
     //
@@ -133,6 +138,24 @@ namespace EL
     TH1 *hist (const std::string& name) const;
 
 
+    /// \brief get the 2-d histogram with the given name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   histogram not found
+  public:
+    TH2 *hist2d (const std::string& name) const;
+
+
+    /// \brief get the 3-d histogram with the given name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   histogram not found
+  public:
+    TH3 *hist3d (const std::string& name) const;
+
+
     /// \brief the histogram worker interface
     /// \par Guarantee
     ///   strong
@@ -141,6 +164,34 @@ namespace EL
     /// \post result != nullptr
   public:
     IHistogramWorker *histogramWorker () const;
+
+
+    /// \brief book the given tree
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tree booking error
+  public:
+    ::StatusCode book (const TTree& tree);
+
+
+    /// \brief get the tree with the given name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   histogram not found
+  public:
+    TTree *tree (const std::string& name) const;
+
+
+    /// \brief the histogram worker interface
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   no histogram worker configured
+    /// \post result != nullptr
+  public:
+    ITreeWorker *treeWorker () const;
 
 
     /// \brief the filter worker interface
@@ -177,6 +228,26 @@ namespace EL
   public:
     Worker *wk () const;
 #endif
+
+
+    /// \brief register this algorithm to have an implementation of
+    /// \ref fileexecute
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   fileexecute not supported
+  public:
+    ::StatusCode requestFileExecute ();
+
+
+    /// \brief register this algorithm to have an implementation of
+    /// \ref beginInputFile
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   beginInputFile not supported
+  public:
+    ::StatusCode requestBeginInputFile ();
 
 
 
@@ -243,6 +314,29 @@ namespace EL
   protected:
     virtual void print () const;
 
+    /// \brief perform the action exactly once for each file in the
+    /// dataset
+    ///
+    /// Ideally you don't use this, but instead rely on meta-data
+    /// tools instead.  However, there are enough people asking for it
+    /// that I decided to implement it anyways.
+    ///
+    /// \warn To use this you have to call \ref requestFileExecute
+    /// to use this.
+  protected:
+    virtual ::StatusCode fileExecute ();
+
+    /// \brief perform the action for the beginning of an input file
+    ///
+    /// Ideally you don't use this, but instead rely on meta-data
+    /// tools instead.  However, there are enough people asking for it
+    /// that I decided to implement it anyways.
+    ///
+    /// \warn To use this you have to call \ref requestBeginInputFile
+    /// to use this.
+  protected:
+    virtual ::StatusCode beginInputFile ();
+
 
 
     //
@@ -266,6 +360,14 @@ namespace EL
   public:
     void sysPrint ();
 
+    /// \brief call \ref fileExecute
+  public:
+    ::StatusCode sysFileExecute ();
+
+    /// \brief call \ref beginInputFile
+  public:
+    ::StatusCode sysBeginInputFile ();
+
 
     /// \brief set the value of \ref evtStore
     /// \par Guarantee
@@ -282,6 +384,14 @@ namespace EL
     ///   service already configured
   public:
     void setHistogramWorker (IHistogramWorker *val_histogramWorker);
+
+    /// \brief set the value of \ref treeWorker
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   service already configured
+  public:
+    void setTreeWorker (ITreeWorker *val_treeWorker);
 
     /// \brief set the value of \ref filterWorker
     /// \par Guarantee
@@ -305,6 +415,33 @@ namespace EL
     /// This is mostly used to attach private tools to the algorithm.
   public:
     void addCleanup (const std::shared_ptr<void>& cleanup);
+
+
+    /// \brief whether we have an implementation for \ref
+    /// fileExecute
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool hasFileExecute () const noexcept;
+
+
+    /// \brief whether we have an implementation for \ref
+    /// beginInputFile
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool hasBeginInputFile () const noexcept;
+#endif
+
+
+#ifndef ROOTCORE
+    /// \brief receive the given incident
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   incident handling errors
+  public:
+    void handle (const Incident& inc);
 #endif
 
 
@@ -348,6 +485,15 @@ namespace EL
 #endif
 
 #ifdef ROOTCORE
+    /// \brief the value of \ref treeWorker
+  private:
+    ITreeWorker *m_treeWorker = nullptr;
+    /// \brief the output stream name for tree writing
+  private:
+    std::string m_treeStreamName;
+#endif
+
+#ifdef ROOTCORE
     /// \brief the value of \ref filterWorker
   private:
     IFilterWorker *m_filterWorker = nullptr;
@@ -357,6 +503,18 @@ namespace EL
     /// \brief the value of \ref wk
   private:
     Worker *m_wk = nullptr;
+#endif
+
+#ifdef ROOTCORE
+    /// \brief the value of \ref hasFileExecute
+  private:
+    bool m_hasFileExecute {false};
+#endif
+
+#ifdef ROOTCORE
+    /// \brief the value of \ref hasBeginInputFile
+  private:
+    bool m_hasBeginInputFile {false};
 #endif
 
 #ifdef ROOTCORE

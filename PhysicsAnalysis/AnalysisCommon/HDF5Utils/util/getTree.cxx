@@ -43,6 +43,9 @@ namespace H5Utils {
     }
     std::set<std::string> keys;
     int n_keys = file->GetListOfKeys()->GetSize();
+    if (n_keys == 0) {
+      throw std::logic_error("no keys found in file");
+    }
     for (int keyn = 0; keyn < n_keys; keyn++) {
       keys.insert(file->GetListOfKeys()->At(keyn)->GetName());
     }

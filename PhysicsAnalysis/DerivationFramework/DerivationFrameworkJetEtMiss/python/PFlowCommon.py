@@ -19,7 +19,7 @@ def applyPFOAugmentation(sequence=DerivationFrameworkJob):
         if hasattr(ToolSvc,"PFlowAugmentationTool"):
             pfoaugtool = getattr(ToolSvc,"PFlowAugmentationTool")
         else:
-            weightpfotool = CfgMgr.CP__WeightPFOTool("PFAugmentationWeightTool",DoEoverPWeight=False)
+            weightpfotool = CfgMgr.CP__WeightPFOTool("PFAugmentationWeightTool",DoEoverPWeight=True)
             ToolSvc += weightpfotool
             pfoaugtool = CfgMgr.DerivationFramework__PFlowAugmentationTool("PFlowAugmentationTool",
                                                                            WeightPFOTool=weightpfotool)

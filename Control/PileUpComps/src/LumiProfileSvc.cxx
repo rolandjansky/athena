@@ -5,7 +5,7 @@
 #include "LumiProfileSvc.h"
 
 LumiProfileSvc::LumiProfileSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_runlumilist()
   , m_scalefactorlist()
   , m_scaleFactorMap()
@@ -64,16 +64,4 @@ float LumiProfileSvc::scaleFactor(unsigned int run, unsigned int lumi, bool & up
       updated = false;
     }
   return m_currentSF;
-}
-
-StatusCode LumiProfileSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IBeamLuminosity::interfaceID().versionMatch(riid) )
-    {
-      *ppvInterface = (IBeamLuminosity*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available: try out the base class
-  return AthService::queryInterface(riid, ppvInterface);
 }

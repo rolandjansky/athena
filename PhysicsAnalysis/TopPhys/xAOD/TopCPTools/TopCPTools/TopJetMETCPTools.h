@@ -8,6 +8,7 @@
 // Include what you use
 #include <vector>
 #include <string>
+#include <cstdlib>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -21,9 +22,7 @@
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetSelector.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "JetSelectorTools/IEventCleaningTool.h"
 
 // MET include(s):
@@ -57,6 +56,9 @@ class JetMETCPTools final : public asg::AsgTool {
   std::string m_jetAntiKt4_MCAFII_ConfigFile;
   std::string m_jetAntiKt4_MCAFII_CalibSequence;
 
+  std::string m_jetAntiKt4_MCAFII_PFlow_ConfigFile;
+  std::string m_jetAntiKt4_MCAFII_PFlow_CalibSequence;
+
   std::string m_jetAntiKt4_PFlow_MCFS_ConfigFile;
   std::string m_jetAntiKt4_PFlow_MCFS_CalibSequence;
 
@@ -84,8 +86,6 @@ class JetMETCPTools final : public asg::AsgTool {
   ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolLooseBad;
   ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolTightBad;
 
-  ToolHandle<IJERTool> m_jetJERTool;
-  ToolHandle<IJERSmearingTool> m_jetJERSmearingTool;
   ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
   ToolHandle<IJetModifier> m_fjvtTool;
 
@@ -105,6 +105,7 @@ class JetMETCPTools final : public asg::AsgTool {
     setupJetUncertaintiesTool(const std::string& name,
                               const std::string& jet_def,
                               const std::string& mc_type,
+			      bool  isMC,
                               const std::string& config_file,
                               std::vector<std::string>* variables,
                               const std::string& analysis_file = "",

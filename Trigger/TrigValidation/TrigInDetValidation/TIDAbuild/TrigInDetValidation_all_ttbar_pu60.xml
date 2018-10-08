@@ -1,0 +1,202 @@
+         <athena trendId='all_pu60' userJobId='TrigInDetValidation_all_ttbar_pu60'>
+            <doc>All slices, ttbar events, pu60,</doc>
+            <displayName>All slices, ttbar, pu60,</displayName>
+	    <commandLineFlags>EventMax=1000;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+#          include "samples/TrigInDetValidation_ttbar_mu60.xml"
+	   
+
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -r Offline -f data-all.root -b Test_bin.dat  </argvalue>
+                </arg>
+            </action>
+
+
+
+           <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-all_ttbar_pu60-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots-electron  </argvalue>
+              </arg>
+            </action>
+
+
+
+
+            <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-all_ttbar_pu60-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots-electron  </argvalue>
+              </arg>
+            </action>
+
+
+
+
+            <action position="04">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-all_ttbar_pu60-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots-electron-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="05">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-all_ttbar_pu60-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots-electron-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="06">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-all_ttbar_pu60-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots-muon </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="07">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-all_ttbar_pu60-reference.root  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  -d HLTL2-plots-muon </argvalue>
+              </arg>
+            </action>
+
+
+	   
+            <action position="08">
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDArun.sh</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-all.root data-all_ttbar_pu60-reference.root   HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3 -d HLTEF-plots-tau </argvalue>
+             </arg>
+           </action> 
+
+
+	   
+         	   
+           <action position="09">
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDArun.sh</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-all.root data-all_ttbar_pu60-reference.root  HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTL2-plots-tau </argvalue>
+             </arg>
+           </action> 
+
+
+	   
+ 
+           <action position="10">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-all.root data-all_ttbar_pu60-reference.root HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID   -d HLTEF-plots-bjet </argvalue>
+                </arg>
+            </action>
+
+           <action position="11">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-all.root data-all_ttbar_pu60-reference.root   HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots-bjet </argvalue>
+                </arg>
+            </action>
+
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+#           include "TrigInDetValidation_aux.xml"
+
+   
+         <athenaCommonFlags /><alwaysRunPostProc /> 
+         </athena>
+
+
+

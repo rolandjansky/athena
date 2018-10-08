@@ -107,6 +107,8 @@ namespace xAOD {
 
       }; // enum ObjectType
 
+     struct ROOT6_NamespaceAutoloadHook{};
+
    } // namespace Type
 
 } // namespace xAOD

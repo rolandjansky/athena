@@ -114,14 +114,37 @@ if globalflags.DataSource()=='geant4':
 #==============================================================================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
+# these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
-    HIGG8D1tthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusHeavyFlavorFilterTool")
-    ToolSvc += HIGG8D1tthffiltertool
+
+    HIGG8D1ttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusBFilterTool")
+    HIGG8D1ttbarBfiltertool.SelectB = True
+    HIGG8D1ttbarBfiltertool.BpTMinCut = 5000
+    HIGG8D1ttbarBfiltertool.BMultiplicityCut = 1 # >=
+    ToolSvc += HIGG8D1ttbarBfiltertool
+
+    HIGG8D1ttbarBBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusBBFilterTool")
+    HIGG8D1ttbarBBfiltertool.SelectB = True
+    HIGG8D1ttbarBBfiltertool.BpTMinCut = 15000
+    HIGG8D1ttbarBBfiltertool.BMultiplicityCut = 2 # >=
+    ToolSvc += HIGG8D1ttbarBBfiltertool
+
+    HIGG8D1ttbarCfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusCFilterTool")
+    HIGG8D1ttbarCfiltertool.SelectC = True
+    HIGG8D1ttbarCfiltertool.CpTMinCut = 15000
+    HIGG8D1ttbarCfiltertool.CMultiplicityCut = 1 # >=
+    # these two are the default values
+    # B-hadrons have precedence; if one B is found, it won't pass the CFilter
+    HIGG8D1ttbarCfiltertool.BpTMinCut = 5000
+    HIGG8D1ttbarCfiltertool.BMultiplicityCut = 1 # >=
+    ToolSvc += HIGG8D1ttbarCfiltertool
    
     from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
     HIGG8D1TopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "HIGG8D1TopHFFilterAugmentation")
-    HIGG8D1TopHFFilterAugmentation.FilterTool = HIGG8D1tthffiltertool
+    HIGG8D1TopHFFilterAugmentation.BFilterTool = HIGG8D1ttbarBfiltertool
+    HIGG8D1TopHFFilterAugmentation.BBFilterTool = HIGG8D1ttbarBBfiltertool
+    HIGG8D1TopHFFilterAugmentation.CFilterTool = HIGG8D1ttbarCfiltertool
     ToolSvc += HIGG8D1TopHFFilterAugmentation
     augmentationTools.append(HIGG8D1TopHFFilterAugmentation)
     print "HIGG8D1TopHFFilterAugmentationTool: ", HIGG8D1TopHFFilterAugmentation
@@ -254,15 +277,15 @@ thinningTools.append(HIGG8D1TauTPThinningTool)
 
 # Electrons - calo cluster thinning
 #from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG8D1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "HIGG8D1ElectronCCThinningTool",
-                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
-                                                                          SGKey                   = "Electrons",
-                                                                          CaloClCollectionSGKey   = "egammaClusters",
-                                                                          SelectionString         = "Electrons.pt >= 5*GeV",
-                                                                          ConeSize                = 0.4)
-ToolSvc += HIGG8D1ElectronCCThinningTool
-thinningTools.append(HIGG8D1ElectronCCThinningTool)
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+#HIGG8D1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "HIGG8D1ElectronCCThinningTool",
+#                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+#                                                                          SGKey                   = "Electrons",
+#                                                                          CaloClCollectionSGKey   = "egammaClusters",
+#                                                                          SelectionString         = "Electrons.pt >= 5*GeV",
+#                                                                          ConeSize                = 0.4)
+#ToolSvc += HIGG8D1ElectronCCThinningTool
+#thinningTools.append(HIGG8D1ElectronCCThinningTool)
 
 #====================================================================
 # Truth Thinning
@@ -334,14 +357,14 @@ if globalflags.DataSource()=='geant4':
 # Clusters for Tau TES
 #====================================================================
                                                                                                                                                                                                                                    
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG8D1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "HIGG8D1CaloClusterThinning",
-                            ThinningService       = HIGG8D1ThinningHelper.ThinningSvc(),
-                            SGKey                 = "TauJets",
-                            TopoClCollectionSGKey = "CaloCalTopoClusters",
-                            )
-ToolSvc += HIGG8D1CaloClusterThinning
-thinningTools.append(HIGG8D1CaloClusterThinning)
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+#HIGG8D1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "HIGG8D1CaloClusterThinning",
+#                            ThinningService       = HIGG8D1ThinningHelper.ThinningSvc(),
+#                            SGKey                 = "TauJets",
+#                            TopoClCollectionSGKey = "CaloCalTopoClusters",
+#                            )
+#ToolSvc += HIGG8D1CaloClusterThinning
+#thinningTools.append(HIGG8D1CaloClusterThinning)
 
 
 
@@ -475,6 +498,11 @@ HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.ext
                                         "PrimaryVertices.x.y"                                        
                                         ]
 
+#Adding Egamma details
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+HIGG8D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+
+
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 
@@ -507,10 +535,11 @@ ExtraContentTaus=[
 
 HIGG8D1SlimmingHelper.ExtraVariables += ExtraContentTaus
 
-HIGG8D1SlimmingHelper.AllVariables = ["egammaClusters","CaloCalTopoClusters"]
+#HIGG8D1SlimmingHelper.AllVariables = ["egammaClusters","CaloCalTopoClusters"]
 
 if globalflags.DataSource()=='geant4':
-    HIGG8D1SlimmingHelper.AllVariables += ["TruthParticles", "TruthEvents","TruthVertices","AntiKt4TruthJets"]
+    HIGG8D1SlimmingHelper.AllVariables += ["TruthParticles", "TruthEvents","TruthVertices"]
+    HIGG8D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"] 
     HIGG8D1SlimmingHelper.ExtraVariables += ["Electrons.truthOrigin.truthType.truthParticleLink.bkgTruthType.bkgTruthOrigin.bkgTruthParticleLink.bkgMotherPdgId.deltaPhi1",
                                              "MuonTruthParticles.truthOrigin.truthType.truthParticleLink",
                                              "InDetTrackParticles.truthOrigin.truthType.truthParticleLink",

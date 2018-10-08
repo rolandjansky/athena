@@ -96,50 +96,54 @@ class CaloClusterTopoFromTowerGetter ( Configured )  :
                                                           OrderClusterByPt=jobproperties.CaloTopoClusterFromTowerFlags.orderByPt.get_Value())
 
         # moment makers
-        from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
         TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
         TopoMoments.MaxAxisAngle = 20*deg
         TopoMoments.CaloNoiseTool = theCaloNoiseTool
         TopoMoments.UsePileUpNoise = True
         TopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         TopoMoments.MinBadLArQuality = 4000
-        TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
-        TopoMoments.MomentsNames = ["FIRST_PHI" 
-                                    ,"FIRST_ETA"
-                                    ,"SECOND_R" 
-                                    ,"SECOND_LAMBDA"
-                                    ,"DELTA_PHI"
-                                    ,"DELTA_THETA"
-                                    ,"DELTA_ALPHA" 
+        TopoMoments.MomentsNames = ["AVG_LAR_Q"
+                                    ,"AVG_TILE_Q"
+                                    ,"BAD_CELLS_CORR_E"
+                                    ,"BADLARQ_FRAC"
+                                    ,"CELL_SIGNIFICANCE"
+                                    ,"CELL_SIG_SAMPLING"
+                                    ,"CENTER_LAMBDA"
+                                    ,"CENTER_MAG"
                                     ,"CENTER_X"
                                     ,"CENTER_Y"
                                     ,"CENTER_Z"
-                                    ,"CENTER_MAG"
-                                    ,"CENTER_LAMBDA"
-                                    ,"LATERAL"
-                                    ,"LONGITUDINAL"
-                                    ,"FIRST_ENG_DENS" 
+                                    ,"DELTA_ALPHA" 
+                                    ,"DELTA_PHI"
+                                    ,"DELTA_THETA"
+                                    ,"ENG_BAD_CELLS"
+                                    ,"ENG_FRAC_CORE" 
                                     ,"ENG_FRAC_EM" 
                                     ,"ENG_FRAC_MAX" 
-                                    ,"ENG_FRAC_CORE" 
+                                    ,"ENG_POS"
                                     ,"FIRST_ENG_DENS" 
-                                    ,"SECOND_ENG_DENS" 
+                                    ,"FIRST_ETA"
+                                    ,"FIRST_PHI" 
                                     ,"ISOLATION"
-                                    ,"ENG_BAD_CELLS"
+                                    ,"LATERAL"
+                                    ,"LONGITUDINAL"
+                                    ,"MASS"
                                     ,"N_BAD_CELLS"
                                     ,"N_BAD_CELLS_CORR"
-                                    ,"BAD_CELLS_CORR_E"
-                                    ,"BADLARQ_FRAC"
-                                    ,"ENG_POS"
-                                    ,"ENG_BAD_HV_CELLS"
-                                    ,"N_BAD_HV_CELLS"
-                                    ,"SIGNIFICANCE"
-                                    ,"CELL_SIGNIFICANCE"
-                                    ,"CELL_SIG_SAMPLING"
-                                    ,"AVG_LAR_Q"
-                                    ,"AVG_TILE_Q"
-                                    ,"TIME"
-                                    ]
+                                    ,"PTD"
+                                    ,"SECOND_ENG_DENS" 
+                                    ,"SECOND_LAMBDA"
+                                    ,"SECOND_R" 
+                                    ,"SIGNIFICANCE"]
+
+        # only add HV related moments if it is offline.
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.isOnline:
+            from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
+            TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
+            TopoMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
+                                         ,"N_BAD_HV_CELLS"
+                                         ]
 
         # cluster maker
         CaloTopoCluster = CaloClusterMaker(jobproperties.CaloTopoClusterFromTowerFlags.clusterMakerName.get_Value())

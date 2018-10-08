@@ -224,7 +224,7 @@ namespace Trk
                   
 
               } catch (Error::NewtonProblem e) {
-                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Problem with Newton finder " << e.p << endreq;
+                if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Problem with Newton finder " << e.p << endreq;
               } catch (...) {
                 msg(MSG::ERROR) << "Could not catch error " << endreq;
               }

@@ -751,46 +751,53 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       }
       
       double mTAFactor = 1;
-      // Use the correct histogram binning parametrisation when reading the corrected mass
-      switch (m_binParam)
-      {
-        case BinningParam::pt_mass_eta:
-          if (m_use3Dhisto)
-            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.pt()/m_GeV, mTA/m_GeV, absdetectorEta );
-          else
-            mTAFactor = getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
-          break;
-        case BinningParam::e_LOGmOe_eta:
-          if (m_use3Dhisto)
-            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), absdetectorEta);
-          else
-            mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), etabin);
-          break;
-        case BinningParam::e_LOGmOet_eta:
-          if (m_use3Dhisto)
-            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
-          else
-            mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
-          break;
-        case BinningParam::e_LOGmOpt_eta:
-          if (m_use3Dhisto)
-            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
-          else
-            mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
-          break;
-        case BinningParam::et_LOGmOet_eta:
-          if (m_use3Dhisto)
-            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
-          else
-            mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
-          break;
-        default:
-          ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
-          return StatusCode::FAILURE;
-          break;
+
+      if(mTA!=0){ // Read the calibration values from histograms only when this value is non-zero
+        // Use the correct histogram binning parametrisation when reading the corrected mass
+        switch (m_binParam)
+        {
+          case BinningParam::pt_mass_eta:
+            if (m_use3Dhisto)
+              mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.pt()/m_GeV, mTA/m_GeV, absdetectorEta );
+            else
+              mTAFactor = getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
+            break;
+          case BinningParam::e_LOGmOe_eta:
+            if (m_use3Dhisto)
+              mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), absdetectorEta);
+            else
+              mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), etabin);
+            break;
+          case BinningParam::e_LOGmOet_eta:
+            if (m_use3Dhisto)
+              mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
+            else
+              mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
+            break;
+          case BinningParam::e_LOGmOpt_eta:
+            if (m_use3Dhisto)
+              mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
+            else
+              mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
+            break;
+          case BinningParam::et_LOGmOet_eta:
+            if (m_use3Dhisto)
+              mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
+            else
+              mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
+            break;
+          default:
+            ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
+            return StatusCode::FAILURE;
+            break;
+        }  
       }
 
-      mass_corr = mTA/mTAFactor;
+      if(mTAFactor!=0) mass_corr = mTA/mTAFactor;
+      else{
+        ATH_MSG_FATAL("The calibration histogram may have a bad filling bin that is causing mTAFactor to be zero. This value should be different from zero in order to take the ratio. Please contact the tool developer to fix this since the calibration histogram may be corrupted. ");
+        return StatusCode::FAILURE;
+      }
 
       if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
       else{E_corr  = sqrt(jetStartP4.P()*jetStartP4.P()+mass_corr*mass_corr);}

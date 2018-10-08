@@ -40,7 +40,7 @@ void FTK_RawPixelCluster::setColWidth(unsigned int col_width){
   uint32_t width = col_width;
 
   // Store width starting with 0
-  //  if (width>0) width-=1; //transform from width=1 to 8 to packed width 0-7
+  if (width>0) width-=1; //transform from width=1 to 8 to packed width 0-7
 
   if (width>7) width=7;
 
@@ -74,7 +74,7 @@ void FTK_RawPixelCluster::setRowWidth(unsigned int row_width){
   uint32_t width = row_width;  
 
   // Store width starting with 0  
-  ///  if (width>0) width-=1; //transform from width=1 to 8 to packed width 0-7
+  if (width>0) width-=1; //transform from width=1 to 8 to packed width 0-7
 
 
   if (width>7) width=7; 
@@ -152,15 +152,13 @@ float FTK_RawPixelCluster::getRowCoord() const {
 unsigned int FTK_RawPixelCluster::getColWidth() const { 
 
   uint32_t col = (m_word_b & 0x70000000) >> 28; //bits 28-30
-  return (unsigned int) (col); 
-//  return (unsigned int) (col+1); 
+  return (unsigned int) (col+1); // transform from packed width=0 to 7 to width 1-8
 }
 
 unsigned int FTK_RawPixelCluster::getRowWidth() const { 
 
   uint16_t row = (m_word_b & 0x7000)>>12; // select bits 12-14
-  return (unsigned int) (row);
-  //  return (unsigned int) (row+1); 
+  return (unsigned int) (row+1);  // transform from packed width=0 to 7 to width 1-8
 }
 
 #if defined(__MAKECINT__)

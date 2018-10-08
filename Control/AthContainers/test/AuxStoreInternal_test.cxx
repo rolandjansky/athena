@@ -27,9 +27,6 @@
 #include <cassert>
 
 
-#include "auxid_set_equal.icc"
-
-
 struct MoveTest
 {
   MoveTest(int x=0) : m_v(x) {}
@@ -236,13 +233,21 @@ void test2()
   assert (idset.size() == 3);
   assert (s.getAuxIDs() == idset);
 
-  s.clearDecorations();
+  assert (s.clearDecorations() == true);
   idset.erase (ityp3);
   assert (idset.size() == 2);
   assert (s.getAuxIDs() == idset);
   assert (s.getData(ityp3) == 0);
   assert (s.getData(ityp1) == i1);
   assert (s.getData(ityp2) == i2);
+
+  assert (s.clearDecorations() == false);
+  assert (s.getAuxIDs() == idset);
+
+  i3 = reinterpret_cast<int*> (s.getDecoration(ityp3, 10, 20));
+  assert (i3 != 0);
+  assert (i3 == s.getDecoration (ityp3, 10, 20));
+  assert (i3 == s.getData (ityp3));
 
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.resize(100));
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.reserve(100));

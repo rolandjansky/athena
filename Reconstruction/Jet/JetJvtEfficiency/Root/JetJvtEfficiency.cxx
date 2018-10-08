@@ -12,43 +12,49 @@
 
 namespace CP {
 
-static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
-static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
+static SG::AuxElement::Decorator<char>  isPUDec("isJvtPU");
+//static SG::AuxElement::ConstAccessor<char>  isHSAcc("isJvtHS");
 
 JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name ),
   m_appliedSystEnum(NONE),
+  m_sfDec(nullptr),
+  m_isHSDec(nullptr),
+  m_isHSAcc(nullptr),
   h_JvtHist(nullptr),
   h_EffHist(nullptr),
   m_jvtCut(0),
-  m_rand(0)
+  m_jvtCutBorder(0)
   {
     declareProperty( "WorkingPoint", m_wp = "Medium"                             );
-    declareProperty( "SFFile",m_file="JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root");
-    //declareProperty( "SFFile",m_file="JetJvtEfficiency/JvtSFFile.root");
+    declareProperty( "SFFile",m_file="JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root");
     declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "JvtSF"  );
-    declareProperty( "RandomDropDecorationName", m_drop_decoration_name = "drop"  );
     declareProperty( "JetJvtMomentName",   m_jetJvtMomentName   = "Jvt"           );
     declareProperty( "JetfJvtMomentName",   m_jetfJvtMomentName   = "passFJVT"    );
     declareProperty("OverlapDecorator", m_ORdec = ""                        );
     declareProperty( "JetEtaName",   m_jetEtaName   = "DetectorEta"               );
-    declareProperty( "MaxPtForJvt",   m_maxPtForJvt   = 60e3                      );
-    declareProperty( "TruthLabel",   m_truthLabel   = "isJvtHS"                      );
+    declareProperty( "MaxPtForJvt",   m_maxPtForJvt   = 120e3                      );
+    declareProperty( "DoTruthReq",   m_doTruthRequirement   = true );
+    declareProperty( "TruthLabel",   m_isHS_decoration_name  = "isJvtHS"          );
     applySystematicVariation(CP::SystematicSet()).ignore();
 }
 
 StatusCode JetJvtEfficiency::initialize(){
-  m_sfDec = new SG::AuxElement::Decorator< float>(m_sf_decoration_name);
-  m_dropDec = new SG::AuxElement::Decorator<char>(m_drop_decoration_name);
+  m_sfDec.reset(new SG::AuxElement::Decorator< float>(m_sf_decoration_name));
+  m_isHSDec.reset(new SG::AuxElement::Decorator<char>(m_isHS_decoration_name));
+  m_isHSAcc.reset(new SG::AuxElement::ConstAccessor<char>(m_isHS_decoration_name));
   m_dofJVT = (m_file.find("fJvt") != std::string::npos);
   m_doOR = (!m_ORdec.empty());
-  m_doTruthRequirement = !(m_truthLabel.empty());
   if (!m_doTruthRequirement) ATH_MSG_WARNING ( "No truth requirement will be performed, which is not recommended.");
 
   bool ispflow = (m_file.find("EMPFlow") != std::string::npos);
+  m_jvtCutBorder = -2.;
   if (m_wp=="Loose" && !ispflow) m_jvtCut = 0.11;
   else if (m_wp=="Medium" && ispflow) m_jvtCut = 0.2;
   else if (m_wp=="Tight" && ispflow) m_jvtCut = 0.5;
-  else if (m_wp=="Medium") m_jvtCut = 0.59;
+  else if (m_wp=="Medium"){
+    m_jvtCut = 0.59;
+    m_jvtCutBorder = 0.11;
+  }
   else if (m_wp=="Tight") m_jvtCut = 0.91;
   else if (m_wp=="None") {
     m_jvtCut = -2;
@@ -71,17 +77,22 @@ StatusCode JetJvtEfficiency::initialize(){
 
   TFile *infile = TFile::Open(filename.c_str());
 
-  if (m_wp=="Loose") h_JvtHist = dynamic_cast<TH2*>(infile->Get("JvtLoose")) ;
-  else if (m_wp=="Medium") h_JvtHist = dynamic_cast<TH2*>(infile->Get("JvtDefault")) ;
-  else if (m_wp=="Tight") h_JvtHist = dynamic_cast<TH2*>(infile->Get("JvtTight")) ;
+  if (m_wp=="Loose") h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get("JvtLoose")) );
+  else if (m_wp=="Medium") h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get("JvtDefault")) );
+  else if (m_wp=="Tight") h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get("JvtTight")) );
 
   h_JvtHist->SetDirectory(0);
 
-  if (m_wp=="Loose") h_EffHist = dynamic_cast<TH2*>(infile->Get("EffLoose"));
-  else if (m_wp=="Medium") h_EffHist = dynamic_cast<TH2*>(infile->Get("EffDefault"));
-  else if (m_wp=="Tight") h_EffHist = dynamic_cast<TH2*>(infile->Get("EffTight"));
+  if (m_wp=="Loose") h_EffHist.reset( dynamic_cast<TH2*>(infile->Get("EffLoose")) );
+  else if (m_wp=="Medium") h_EffHist.reset( dynamic_cast<TH2*>(infile->Get("EffDefault")) );
+  else if (m_wp=="Tight") h_EffHist.reset( dynamic_cast<TH2*>(infile->Get("EffTight")) );
 
   h_EffHist->SetDirectory(0);
+
+  if(h_JvtHist.get()==nullptr || h_EffHist.get()==nullptr) {
+    ATH_MSG_ERROR("Failed to retrieve histograms.");
+    return StatusCode::FAILURE;
+  }
 
   if (!addAffectingSystematic(JvtEfficiencyUp,true) || !addAffectingSystematic(JvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyUp,true)) {
     ATH_MSG_ERROR("failed to set up Jvt systematics");
@@ -91,8 +102,6 @@ StatusCode JetJvtEfficiency::initialize(){
 }
 
 StatusCode JetJvtEfficiency::finalize(){
-  delete h_JvtHist;
-  delete h_EffHist;
   return StatusCode::SUCCESS;
 }
 
@@ -101,6 +110,17 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
       sf = 1;
       return CorrectionCode::OutOfValidityRange;
     }
+    if (m_doTruthRequirement) {
+        if(!m_isHSAcc->isAvailable(jet)) {
+            ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::tagTruth(...) first.");
+            return CorrectionCode::Error;
+        } else {
+            if (!(*m_isHSAcc)(jet)) {
+                sf = 1;
+                return CorrectionCode::Ok;
+            }
+        }
+    }
     int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
     float errorTerm  = h_JvtHist->GetBinError(jetbin);
@@ -108,8 +128,7 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
     else if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP) baseFactor += errorTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
-    if (m_doTruthRequirement && !jet.auxdata<char>(m_truthLabel)) sf = 1;
-    else sf = baseFactor;
+    sf = baseFactor;
     return CorrectionCode::Ok;
 }
 
@@ -117,6 +136,17 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
     if (!isInRange(jet)) {
       sf = 1;
       return CorrectionCode::OutOfValidityRange;
+    }
+    if (m_doTruthRequirement) {
+        if(!m_isHSAcc->isAvailable(jet)) {
+            ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::tagTruth(...) first.");
+            return CorrectionCode::Error;
+        } else {
+            if(!(*m_isHSAcc)(jet)) {
+                sf = 1;
+                return CorrectionCode::Ok;
+            }
+        }
     }
     int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
@@ -131,8 +161,7 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
     else if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN) effFactor -= errorEffTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP) effFactor += errorEffTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) effFactor -= errorEffTerm;
-    if (m_doTruthRequirement && !jet.auxdata<char>(m_truthLabel)) sf = 1;
-    else sf = (1-baseFactor*effFactor)/(1-effFactor);
+    sf = (1-baseFactor*effFactor)/(1-effFactor);
     return CorrectionCode::Ok;
 }
 
@@ -177,37 +206,11 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
   return CorrectionCode::Ok;
 }
 
-CorrectionCode JetJvtEfficiency::applyRandomDropping( const xAOD::Jet& jet ) {
-  float sf = 0;
-  CorrectionCode result = this->getEfficiencyScaleFactor(jet,sf);
-  if (result == CP::CorrectionCode::Error) {
-    ATH_MSG_WARNING("Inexplicably failed JVT calibration" );
-    return result;
-  }
-  if (!isInRange(jet) || jet.getAttribute<float>(m_jetJvtMomentName)<m_jvtCut || (m_doTruthRequirement && !jet.auxdata<char>(m_truthLabel))) (*m_dropDec)(jet) = 0;
-  else (*m_dropDec)(jet) = m_rand.Rndm()>sf?1:0;
-  return result;
-}
 
-CorrectionCode JetJvtEfficiency::applyAllRandomDropping(const xAOD::IParticleContainer *jets) {
-  for(const auto& ipart : *jets) {
-    if (ipart->type()!=xAOD::Type::Jet) {
-      ATH_MSG_WARNING("Input is not a jet");
-      return CP::CorrectionCode::Error;
-    }
-    const xAOD::Jet *jet = static_cast<const xAOD::Jet*>(ipart);
-    CorrectionCode result = this->applyRandomDropping(*jet);
-    if (result == CP::CorrectionCode::Error) {
-      ATH_MSG_WARNING("Inexplicably failed JVT calibration" );
-      return result;
-    }
-  }
-  return CorrectionCode::Ok;
-}
 
 bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
-  if (jet.isAvailable<char>(m_drop_decoration_name) && jet.auxdata<char>(m_drop_decoration_name)) return false;
   if (!isInRange(jet)) return true;
+  if (fabs(jet.getAttribute<float>(m_jetEtaName))>2.4 && fabs(jet.getAttribute<float>(m_jetEtaName))<2.5) return jet.getAttribute<float>(m_jetJvtMomentName)>m_jvtCutBorder;
   return jet.getAttribute<float>(m_jetJvtMomentName)>m_jvtCut;
 }
 
@@ -242,10 +245,6 @@ SystematicCode JetJvtEfficiency::sysApplySystematicVariation(const CP::Systemati
   return SystematicCode::Ok;
 }
 
-  void JetJvtEfficiency::setRandomSeed(int seed){
-    m_rand.SetSeed(seed);
-  }
-
 StatusCode JetJvtEfficiency::tagTruth(const xAOD::IParticleContainer *jets,const xAOD::IParticleContainer *truthJets) {
     for(const auto& jet : *jets) {
       bool ishs = false;
@@ -254,8 +253,8 @@ StatusCode JetJvtEfficiency::tagTruth(const xAOD::IParticleContainer *jets,const
         if (tjet->p4().DeltaR(jet->p4())<0.3 && tjet->pt()>10e3) ishs = true;
         if (tjet->p4().DeltaR(jet->p4())<0.6) ispu = false;
       }
-      isHS(*jet)=ishs;
-      isPU(*jet)=ispu;
+      (*m_isHSDec)(*jet)=ishs;
+      isPUDec(*jet)=ispu;
     }
     return StatusCode::SUCCESS;
   }

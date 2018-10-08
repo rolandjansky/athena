@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """
 Import default Classes.
 
@@ -7,6 +7,6 @@ Allows one to do:
 from ART import ArtBase
 """
 
-from art_base import ArtBase
-from art_build import ArtBuild
-from art_grid import ArtGrid
+from art_base import ArtBase  # noqa: F401
+from art_build import ArtBuild  # noqa: F401
+from art_grid import ArtGrid  # noqa: F401

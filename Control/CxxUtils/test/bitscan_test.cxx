@@ -9,10 +9,16 @@
  */
 
 #undef NDEBUG
-#include "CxxUtils/bitscan.h"
 #include <iostream>
 #include <vector>
 #include <bitset>
+
+// Compile with -DTEST_PORTABLE to test the non-GNU/CLANG version
+#ifdef TEST_PORTABLE
+#undef __GNUC__
+#undef __clang_
+#endif
+#include "CxxUtils/bitscan.h"
 
 using namespace CxxUtils;
 
@@ -28,12 +34,15 @@ int check(const std::vector<T>& v)
     unsigned lz2 = detail::clz_portable(t);
     unsigned tz1 = count_trailing_zeros(t);
     unsigned tz2 = detail::ctz_portable(t);
+    unsigned nz1 = count_ones(t);
+    unsigned nz2 = detail::popcount_portable(t);
 
-    bool ok = (lz1==lz2) && (tz1==tz2);
+    bool ok = (lz1==lz2) && (tz1==tz2) && (nz1 == nz2);
     if (!ok) ++error;
     std::cout << std::bitset<sizeof(T)*8>(t) << " "
               << lz1 << "=" << lz2 << " "
-              << tz1 << "=" << tz2
+              << tz1 << "=" << tz2 << " "
+              << nz1 << "=" << nz2
               << (ok ? "" : " ERROR")
               << std::endl;
   }
@@ -44,16 +53,21 @@ int check(const std::vector<T>& v)
 int main()
 {
   // Some test data for 32 and 64 bit
-  std::vector<uint32_t> t1 = {0x0, 0x1, 0x80000000, 
+  std::vector<unsigned> t1 = {0x0, 0x1, 0x80000000, 
                               0xcbaa3f00, 0xff1c2301, 0x1aff04};
 
-  std::vector<uint64_t> t2 = {0x0, 0x1, 0x8000000000000000, 
-                              0x12345678cbaa3f00, 0x10000000, 0x1000000000};
+  std::vector<unsigned long> t2 = {0x0, 0x1, 0x8000000000000000, 
+                                   0x12345678cbaa3f00, 0x10000000, 0x1000000000};
+
+  std::vector<unsigned long long> t3 = {0x0, 0x1, 0x8000000000000000, 
+                                        0x12345678cbaa3f00, 0x10000000, 0x1000000000};
 
   int rc(0);
   rc += check(t1);
   std::cout << std::endl;
   rc += check(t2);
+  std::cout << std::endl;
+  rc += check(t3);
 
   return rc;
 }

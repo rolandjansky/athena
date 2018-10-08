@@ -20,7 +20,7 @@
 #include "PileUpTools/IBeamIntensity.h"
 #include "AthenaBaseComps/AthService.h"
 
-class FixedArrayBM : virtual public IBeamIntensity, public AthService
+class FixedArrayBM : public extends<AthService, IBeamIntensity>
 {
 public:
   /// \name Constructor and Destructor
@@ -31,7 +31,6 @@ public:
   /// \name AthService methods
   //@{
   virtual StatusCode initialize() override final;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   //@}
   /// \name IBeamIntensity methods
   //@{

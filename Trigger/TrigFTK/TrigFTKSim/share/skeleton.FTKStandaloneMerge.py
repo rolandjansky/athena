@@ -105,6 +105,12 @@ FTKTagOptions["64Tower2017.v1.ECFix"] = \
 FTKTagOptions["64Tower2018.v1.ECFix"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2018.data.v1"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2018.MC16.v1"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
 FTKTagOptions["64Tower2017.v1"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}

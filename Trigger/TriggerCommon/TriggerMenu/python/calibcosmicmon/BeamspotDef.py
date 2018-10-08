@@ -196,7 +196,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
 #     self.L2sequenceList +=[[ self.L2InputTE, [theFex], 'L2_fex']]
 #     self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
 #
-     if ('FTK' in self.l2IDAlg and 'idperf' in self.chainPart['addInfo']):
+     if (('FTK' in self.l2IDAlg or 'FTKRefit' in self.l2IDAlg) and 'idperf' in self.chainPart['addInfo']):
         self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpotFTFtracks']]
         self.L2sequenceList +=[[['L2_BeamSpotFTFtracks'], [moni_alg], 'L2_moni']]
         self.L2sequenceList +=[[['L2_moni'], ftk_alg, 'L2_BeamSpottracks']]
@@ -209,7 +209,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
         self.L2sequenceList +=[[['L2_BeamSpottracks'], [theFex], 'L2_fex']]
         self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
 
-     if ('FTK' in self.l2IDAlg and 'idperf' in self.chainPart['addInfo']):
+     if (('FTK' in self.l2IDAlg or 'FTKRefit' in self.l2IDAlg) and 'idperf' in self.chainPart['addInfo']):
         self.L2signatureList += [ [['L2_BeamSpotFTFtracks']] ]     
         self.L2signatureList += [ [['L2_moni']] ]     
 

@@ -5,68 +5,94 @@
 #ifndef AFP_MONITORING_AFPSISTATIONMONITOR_H
 #define AFP_MONITORING_AFPSISTATIONMONITOR_H
 
-#include <vector>
-#include <string>
+#include "AFP_Monitoring/IAFPSiStationMonitor.h"
+#include "AFP_Monitoring/IAFPSiLayerMonitor.h"
 
 #include <xAODForward/AFPSiHit.h>
 
-// forward declarations for lightweight histograms
-class LWHist1D;
-class LWHist2D;
+#include "AthenaBaseComps/AthAlgTool.h"
 
+#include <string>
+
+// forward declarations
 class AFPHitsMonitorTool;
 class AFPSiLayerMonitor;
 
-class AFPSiStationMonitor
+/// @brief Class representing an object monitoring one AFP station with silicon detectors
+///
+/// Python options:
+/// * `stationID` - ID number of station in which is the monitored layer (default: -1)
+/// * `layersMonitors` - array of tools monitoring layers
+class AFPSiStationMonitor : virtual public IAFPSiStationMonitor, public AthAlgTool
 {
 public:
+  /// Declares python properties.
+  AFPSiStationMonitor(const std::string& type,
+		      const std::string& name,
+		      const IInterface* parent);
 
-  AFPSiStationMonitor(const int stationID);
+  /// Does nothing.
   ~AFPSiStationMonitor();
 
-  //  void bookHistogramsRecurrent(ManagedMonitorToolBase* toolToStoreHistograms);
-  void bookHistograms(AFPHitsMonitorTool* toolToStoreHistograms);
-  void fillHistograms(const xAOD::AFPSiHit& hit);
-  void eventEnd();		///< method to call eventEnd in layers
+  /// Retrieves all tools in array #m_layersMonitors.
+  StatusCode initialize() override;
 
-  void endOfLumiBlock(AFPHitsMonitorTool* toolToStoreHistograms); ///< process histograms at the end of lumi block
+  /// Does nothing
+  StatusCode finalize() override;
+
+  /// @copydoc IAFPSiStationMonitor::bookHistograms()
+  ///
+  /// Books histograms specific to monitoring whole station but also
+  /// executes AFPSiLayerMonitor::bookHistograms() for each object in
+  /// #m_layersMonitors.
+  void bookHistograms(AFPHitsMonitorTool* toolToStoreHistograms) override;
+
+  /// @copydoc IAFPSiStationMonitor::fillHistograms()
+  ///
+  /// Fills histograms specific to monitoring the whole station and
+  /// calls AFPSiLayerMonitor::fillHistograms() for all objects in
+  /// #m_layersMonitors.
+  void fillHistograms(const xAOD::AFPSiHit& hit) override;
+
+  /// @copydoc IAFPSiStationMonitor::eventEnd()
+  ///
+  /// Calls IAFPSiLayerMonitor::eventEnd() for all monitors in #m_layersMonitors.
+  void eventEnd() override;
+
+  /// @copydoc IAFPSiStationMonitor::endOfLumiBlock()
+  void endOfLumiBlock(AFPHitsMonitorTool* toolToStoreHistograms) override;
+
+  /// @copydoc AFPSiStationMonitor::m_stationID
+  int stationID () const override {return m_stationID;}
+
+  /// @copydoc AFPSiStationMonitor::m_layersMonitors
+  const ToolHandleArray<IAFPSiLayerMonitor>& layersMonitors () const override {return m_layersMonitors;}
+
+  /// @copydoc IAFPSiStationMonitor::makeName()
+  ///
+  /// Returns a string with station number and provided text.
+  ///
+  /// @param name string to be added in front of the standard text e.g. "Station1"
+  std::string makeName (const std::string name) const override;
+
+  /// @copydoc IAFPSiStationMonitor::makeTitle()
+  ///
+  /// Returns a string with station number and provided text.
+  ///
+  /// @param title string to be added in front of the standard text e.g. " in station 1"
+  std::string makeTitle (const std::string title) const override;
+
+  /// @copydoc IAFPSiStationMonitor::setAllLayersParent()
+  ///
+  /// Executes IAFPSilayerMonitor::setParentMonitor() on all tools in #m_layersMonitors.
+  void setAllLayersParent (AFPHitsMonitorTool* parent) override;
 
 protected:
-  AFPSiLayerMonitor* createAndAddLayerMonitor(const int layerID);
-  std::string makeName (const std::string name) const;
-  std::string makeTitle (const std::string title) const;
-  void fill1DHitCorrelations (AFPSiLayerMonitor* firstLayer, AFPSiLayerMonitor* secondLayer, LWHist1D* histogramRow, LWHist1D* histogramCol);
-  void fill2DHitCorrelations (AFPSiLayerMonitor* firstLayer, AFPSiLayerMonitor* secondLayer, LWHist2D* histogramRow, LWHist2D* histogramCol);
+  /// ID number of the monitored station
+  int m_stationID;
 
-  static const int s_firstLayerIndex;
-  static const int s_secondLayerIndex;
-  static const int s_thirdLayerIndex;
-  
-  // internal variables
-  const int m_stationID;
-
-  // layers
-  std::vector<AFPSiLayerMonitor*> m_layersMonitors;
-  AFPSiLayerMonitor* m_firstLayer;
-  AFPSiLayerMonitor* m_secondLayer;
-  AFPSiLayerMonitor* m_thirdLayer;
-
-  // histograms
-  LWHist2D* m_correlationRow12;
-  LWHist2D* m_correlationRow13;
-  LWHist2D* m_correlationRow23;
-  LWHist2D* m_correlationCol12;
-  LWHist2D* m_correlationCol13;
-  LWHist2D* m_correlationCol23;
-
-  LWHist1D* m_corr1DRow12;
-  LWHist1D* m_corr1DRow13;
-  LWHist1D* m_corr1DRow23;
-
-  LWHist1D* m_corr1DCol12;
-  LWHist1D* m_corr1DCol13;
-  LWHist1D* m_corr1DCol23;
-
+  /// Array of tools monitoring planes in the station
+  ToolHandleArray<IAFPSiLayerMonitor> m_layersMonitors;
 };
 
 #endif

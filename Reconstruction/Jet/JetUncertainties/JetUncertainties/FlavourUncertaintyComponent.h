@@ -19,8 +19,10 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         FlavourUncertaintyComponent(const ComponentHelper& component,
                                     const TString jetType,
                                     const TString analysisRootFileName,
+                                    const TString defaultAnalysisRootFileName,
                                     const TString path,
-                                    const TString calibArea
+                                    const TString calibArea,
+                                    const TString analysisHistPattern=""
                                     );
         FlavourUncertaintyComponent(const FlavourUncertaintyComponent& toCopy);
         virtual FlavourUncertaintyComponent* clone() const;
@@ -46,6 +48,8 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         const FlavourComp::TypeEnum m_flavourType;
         const TString m_jetType;
         const TString m_analysisFileName;
+        const TString m_analysisHistPattern;
+        const TString m_defAnaFileName;
         const TString m_path;
         const TString m_calibArea;
         const bool m_absEta;
@@ -65,17 +69,19 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         double getFlavourResponseUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
         double getFlavourCompositionUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
         double getBJESUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+
         double getGluonFraction(const double pT, const double eta, const int nJets) const;
         double getGluonFractionError(const double pT, const double eta, const int nJets) const;
         double getGluonResponseDifference(const double pT, const double eta) const;
         double getGluonResponseBaseline(const double pT, const double eta) const;
         double getQuarkResponseBaseline(const double pT, const double eta) const;
-        
+
         // Private helper indices and functions
         StatusCode readNjetsHistograms(std::vector<UncertaintyHistogram*>& hists, const std::vector<TString>& histKeys);
         StatusCode getNjetFromKey(const TString& key, int& nJets) const;
         StatusCode checkNjetsInput(int& nJets) const;
         bool isBjet(const xAOD::Jet& jet) const;
+        void getGluonKeys(TFile* analysisFile, std::vector<TString>& gluonFractionKeys, std::vector<TString>& gluonFractionErrorKeys) const;
 };
 
 } // end jet namespace

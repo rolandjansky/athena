@@ -17,6 +17,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="physics_pp_v7_rdotoesdaod_build"
 export COST_MONITORING="False"

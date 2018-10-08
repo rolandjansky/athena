@@ -45,7 +45,7 @@ void mergeAuxStore (const SG::IConstAuxStore& orig,
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
   // The auxiliary IDs that the original container has:
-  SG::auxid_set_t auxids = orig.getAuxIDs();
+  const SG::auxid_set_t& auxids = orig.getAuxIDs();
 
   copy.resize (size);
   
@@ -626,12 +626,13 @@ void TBranchAlias::setStore (bool clear, long long entry)
                               entry,
                               standalone);
         tmpstore.GetEntry (entry);
-        for (SG::auxid_t id : tmpstore.getAuxIDs())
+        for (SG::auxid_t id : tmpstore.getAuxIDs()) {
           tmpstore.getData(id);
-        mergeAuxStore (tmpstore, *store);
+        }
+
         SG::IConstAuxStore* auxobj =
           reinterpret_cast<SG::IConstAuxStore*> (*auxptr + m_aux_offset);
-        static_cast<SG::IAuxStore*>(auxobj)->clearDecorations(); // rebuild auxid set
+        mergeAuxStore (tmpstore, *static_cast<SG::IAuxStore*>(auxobj));
       }
     }
   }

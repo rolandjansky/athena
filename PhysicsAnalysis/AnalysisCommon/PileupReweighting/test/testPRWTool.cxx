@@ -134,12 +134,23 @@ int main() {
 
    std::cout << "prw1 Integrated lumi = " << prw1->GetIntegratedLumi() << " (expected=2.7e-5) " << std::endl;  testValue(prw1->GetIntegratedLumi(),2.7e-5);
    std::cout << "prw1 periodWeights : " << prw1->expert()->GetPeriodWeight(100,2002) << " (expected=1.6666) " << prw1->expert()->GetPeriodWeight(101,2002) << " (expected=0.5555)" << std::endl; testValue(prw1->expert()->GetPeriodWeight(100,2002),1.6666);
-   std::cout << "prw1 primaryWeights : " << prw1->expert()->GetPrimaryWeight(100,2002,0.5) << " (expected=0.5555) " << prw1->expert()->GetPrimaryWeight(100,2002,1.5) << " (expected=1.4444) " << prw1->expert()->GetPrimaryWeight(101,2002,0.5) << " (expected=inf .. no MC) " <<  prw1->expert()->GetPrimaryWeight(101,2002,1.5) << " (expected=2.3333) " << prw1->expert()->GetPrimaryWeight(101,2002,2.5) << " (expected=0.6666) " << prw1->expert()->GetPrimaryWeight(101,2002,3.5) << " (expected=0.) " << std::endl;
+   std::cout << "prw1 primaryWeights : " << prw1->expert()->GetPrimaryWeight(100,2002,0.5) << " (expected=0.5555) " << prw1->expert()->GetPrimaryWeight(100,2002,1.5) << " (expected=1.4444) " << /*prw1->expert()->GetPrimaryWeight(101,2002,0.5) << " (expected=inf .. no MC) " <<*/  prw1->expert()->GetPrimaryWeight(101,2002,1.5) << " (expected=2.3333) " << prw1->expert()->GetPrimaryWeight(101,2002,2.5) << " (expected=0.6666) " << prw1->expert()->GetPrimaryWeight(101,2002,3.5) << " (expected=0.) " << std::endl;
    testValue(prw1->expert()->GetPrimaryWeight(100,2002,0.5),0.5555);
    testValue(prw1->expert()->GetPrimaryWeight(100,2002,1.5),1.4444);
    testValue(prw1->expert()->GetPrimaryWeight(101,2002,1.5),2.3333);
    testValue(prw1->expert()->GetPrimaryWeight(101,2002,2.5),0.6666);
    testValue(prw1->expert()->GetPrimaryWeight(101,2002,3.5),0);
+
+   bool exceptionThrown=false;
+   try {
+    prw1->expert()->GetPrimaryWeight(101,2002,0.5); //should throw exception because of unavvailable MC
+   } catch(std::exception) {
+    exceptionThrown=true;
+   }
+   if(!exceptionThrown) {
+    std::cout << "did not throw exception when expected" << std::endl;
+    throw std::runtime_error("no exception when expected");
+   }
 
    //test the random run number and lumiblock number generating 
    int num1(0); int lnum1(0);

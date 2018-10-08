@@ -6,13 +6,14 @@
 #define CaloGeometryFromFile_h
 
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
+#include "TString.h"
 
 class CaloGeometryFromFile:public CaloGeometry {
 public :
    CaloGeometryFromFile();
    virtual ~CaloGeometryFromFile();
    
-   virtual bool LoadGeometryFromFile(TString filename,TString treename);
+   virtual bool LoadGeometryFromFile(TString filename,TString treename,TString hashfile="/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/cellId_vs_cellHashId_map.txt");
    virtual void LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3);
    void DrawFCalGraph(int isam,int color);
 };

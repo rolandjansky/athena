@@ -33,7 +33,7 @@ else()
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
       PRIVATE
-      Control/AthAnalysisBaseComps
+      Control/AthenaBaseComps
       Control/AthContainers
       Generators/TruthUtils )
 endif()
@@ -41,7 +41,7 @@ endif()
 # Component(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_library( ParticleJetToolsLib
-      ParticleJetTools/*.h Root/*.cxx src/*.cxx
+      ParticleJetTools/*.h Root/*.cxx
       PUBLIC_HEADERS ParticleJetTools
       LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth
       JetInterface MCTruthClassifierLib JetRecLib

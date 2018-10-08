@@ -16,7 +16,6 @@ MergeTrackRecordCollTool::MergeTrackRecordCollTool(const std::string& type,
   m_pMergeSvc("PileUpMergeSvc", name),
   m_firstSubEvent(true)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("TrackRecordCollKey", m_trRecCollKey=std::string("MuonEntryLayer"));
 }
 

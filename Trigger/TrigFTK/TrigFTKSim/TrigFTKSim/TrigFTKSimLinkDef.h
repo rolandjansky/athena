@@ -35,5 +35,6 @@
 #pragma link C++ class std::vector<FTKTrack>+; 
 #pragma link C++ class FTKTrackStream+;
 #pragma link C++ class FTKTruthTrack+;
+#pragma link C++ class FTKSSMap+;
 #pragma link C++ class std::vector<FTKTruthTrack>+;
 #endif

@@ -60,8 +60,6 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   double m_highptidthr;
   double m_highptjetthr;
   bool   m_applyIDon0p;
-  /** min BDTScore cut **/
-  //double m_BDTScoreMin;
 
   /** variables used for cuts in hypo algorithm */   
   int m_numTrack;

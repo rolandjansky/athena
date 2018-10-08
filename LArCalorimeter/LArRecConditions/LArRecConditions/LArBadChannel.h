@@ -49,6 +49,7 @@ class  LArBadChannel : public LArBadChannelEnum {
   bool sporadicBurstNoise() const {return statusBad( sporadicBurstNoiseBit);}
   bool deadSCACell() const {return statusBad( deadSCACellBit);}
   bool badFirstSample() const {return statusBad( badFirstSampleBit);}
+  bool unflaggedByLADIeS() const {return statusBad( unflaggedByLADIeSBit);}
 	
   bool reallyNoisy() const {return (highNoiseHG() || highNoiseMG() || highNoiseLG() ||
 				    unstableNoiseHG() || unstableNoiseMG() || unstableNoiseLG());}

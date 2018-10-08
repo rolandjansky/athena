@@ -1,43 +1,81 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SV1TrackThinning.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+#ifndef DERIVATIONFRAMEWORKTOP_SV1TRACKTHINNING_H
+#define DERIVATIONFRAMEWORKTOP_SV1TRACKTHINNING_H
 
-#ifndef DERIVATIONFRAMEWORK_SV1TRACKTHINNING_H
-#define DERIVATIONFRAMEWORK_SV1TRACKTHINNING_H
-
+// System include(s):
 #include <string>
+#include <memory>
 
+// Framework include(s):
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+// DF include(s):
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-class IThinningSvc;
+#include "DerivationFrameworkInterfaces/ExpressionParserHelper.h"
 
 namespace DerivationFramework {
 
-  class SV1TrackThinning : public AthAlgTool, public IThinningTool {
-    public: 
-      SV1TrackThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~SV1TrackThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+   /// Tool selecting track particles from jets to keep
+   ///
+   /// This tool is used in derivation jobs to set up the thinning such that
+   /// track particles associated with jet objects would be kept for a given
+   /// output stream.
+   ///
+   class SV1TrackThinning : public AthAlgTool, public IThinningTool {
 
-    private:
-      ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntot, m_npass;
-      std::string m_jetSGKey, m_inDetSGKey, m_selectionString;
-      bool m_and;
-      ExpressionParsing::ExpressionParser *m_parser;
-  }; 
-}
+   public:
+      /// AlgTool constructor
+      SV1TrackThinning( const std::string& type, const std::string& name,
+                        const IInterface* parent );
 
-#endif // DERIVATIONFRAMEWORK_SV1TRACKTHINNING_H
+      /// @name Function(s) implementing the @c IAlgTool interface
+      /// @{
+
+      /// Function initialising the tool
+      StatusCode initialize() override;
+      /// Function finalising the tool
+      StatusCode finalize() override;
+
+      /// @}
+
+      /// @name Function(s) implementing the
+      ///       @c DerivationFramework::IThinningTool interface
+      /// @{
+
+      /// Function performing the configured thinning operation
+      StatusCode doThinning() const override;
+
+      /// @}
+
+   private:
+      /// @name Tool properties
+      /// @{
+
+      /// SG key for the jet container to use
+      std::string m_jetSGKey;
+      /// SG key of the track particle container to use
+      std::string m_inDetSGKey = "InDetTrackParticles";
+      /// Selection string to use with the expression evaluation
+      std::string m_selectionString;
+      /// Flag for using @c IThinningSvc::Operator::And (instead of "or")
+      bool m_and = false;
+
+      /// @}
+
+      /// Handle for accessing the thinning service
+      ServiceHandle< IThinningSvc > m_thinningSvc;
+      /// Variables keeping statistics information about the job
+      mutable unsigned int m_ntot = 0, m_npass = 0;
+      /// The expression evaluation helper object
+      std::unique_ptr< ExpressionParserHelper > m_parser;
+
+   }; // class SV1TrackThinning
+
+} // namespace DerivationFramework
+
+#endif // DERIVATIONFRAMEWORKTOP_SV1TRACKTHINNING_H

@@ -67,55 +67,55 @@ TRT_FastRDOAnalysis::TRT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
   , m_allStrAxis_r(0)
   , m_allStrAxis_phi(0)
 
-  , h_word(0)
-  , h_driftTimeBin(0)
-  , h_trailEdge(0)
-  , h_highLevel(0)
-  , h_firstBin(0)
-  , h_lastBin(0)
-  , h_timeOverThreshold(0)
-  , h_rawDriftTime(0)
-  , h_driftTimeValid(0)
-  , h_noise(0)
-  , h_brl_ec(0)
-  , h_trtID(0)
-  , h_surfType(0)
-  , h_bndsType(0)
-  , h_cntr_x(0)
-  , h_cntr_y(0)
-  , h_cntr_z(0)
-  , h_cntr_r(0)
-  , h_cntr_phi(0)
-  , h_norm_x(0)
-  , h_norm_y(0)
-  , h_norm_z(0)
-  , h_norm_r(0)
-  , h_norm_phi(0)
-  , h_strSurfType(0)
-  , h_strBndsType(0)
-  , h_strCntr_x(0)
-  , h_strCntr_y(0)
-  , h_strCntr_z(0)
-  , h_strCntr_r(0)
-  , h_strCntr_phi(0)
-  , h_strNorm_x(0)
-  , h_strNorm_y(0)
-  , h_strNorm_z(0)
-  , h_strNorm_r(0)
-  , h_strNorm_phi(0)
-  , h_strawN(0)
-  , h_strawL(0)
-  , h_strawD(0)
-  , h_allStrCntr_x(0)
-  , h_allStrCntr_y(0)
-  , h_allStrCntr_z(0)
-  , h_allStrCntr_r(0)
-  , h_allStrCntr_phi(0)
-  , h_allStrAxis_x(0)
-  , h_allStrAxis_y(0)
-  , h_allStrAxis_z(0)
-  , h_allStrAxis_r(0)
-  , h_allStrAxis_phi(0)
+  , m_h_word(0)
+  , m_h_driftTimeBin(0)
+  , m_h_trailEdge(0)
+  , m_h_highLevel(0)
+  , m_h_firstBin(0)
+  , m_h_lastBin(0)
+  , m_h_timeOverThreshold(0)
+  , m_h_rawDriftTime(0)
+  , m_h_driftTimeValid(0)
+  , m_h_noise(0)
+  , m_h_brl_ec(0)
+  , m_h_trtID(0)
+  , m_h_surfType(0)
+  , m_h_bndsType(0)
+  , m_h_cntr_x(0)
+  , m_h_cntr_y(0)
+  , m_h_cntr_z(0)
+  , m_h_cntr_r(0)
+  , m_h_cntr_phi(0)
+  , m_h_norm_x(0)
+  , m_h_norm_y(0)
+  , m_h_norm_z(0)
+  , m_h_norm_r(0)
+  , m_h_norm_phi(0)
+  , m_h_strSurfType(0)
+  , m_h_strBndsType(0)
+  , m_h_strCntr_x(0)
+  , m_h_strCntr_y(0)
+  , m_h_strCntr_z(0)
+  , m_h_strCntr_r(0)
+  , m_h_strCntr_phi(0)
+  , m_h_strNorm_x(0)
+  , m_h_strNorm_y(0)
+  , m_h_strNorm_z(0)
+  , m_h_strNorm_r(0)
+  , m_h_strNorm_phi(0)
+  , m_h_strawN(0)
+  , m_h_strawL(0)
+  , m_h_strawD(0)
+  , m_h_allStrCntr_x(0)
+  , m_h_allStrCntr_y(0)
+  , m_h_allStrCntr_z(0)
+  , m_h_allStrCntr_r(0)
+  , m_h_allStrCntr_phi(0)
+  , m_h_allStrAxis_x(0)
+  , m_h_allStrAxis_y(0)
+  , m_h_allStrAxis_z(0)
+  , m_h_allStrAxis_r(0)
+  , m_h_allStrAxis_phi(0)
 
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
@@ -203,201 +203,201 @@ StatusCode TRT_FastRDOAnalysis::initialize() {
   }
 
   // HISTOGRAMS
-  h_word = new TH1F("h_word", "word", 100, 0, 7e7);
-  h_word->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_word->GetName(), h_word));
+  m_h_word = new TH1F("h_word", "word", 100, 0, 7e7);
+  m_h_word->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_word->GetName(), m_h_word));
 
-  h_driftTimeBin = new TH1F("h_driftTimeBin", "driftTimeBin", 100, 0, 12);
-  h_driftTimeBin->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_driftTimeBin->GetName(), h_driftTimeBin));
+  m_h_driftTimeBin = new TH1F("h_driftTimeBin", "driftTimeBin", 100, 0, 12);
+  m_h_driftTimeBin->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_driftTimeBin->GetName(), m_h_driftTimeBin));
 
-  h_trailEdge = new TH1F("h_trailEdge", "trailEdge", 100, 0, 16);
-  h_trailEdge->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_trailEdge->GetName(), h_trailEdge));
+  m_h_trailEdge = new TH1F("h_trailEdge", "trailEdge", 100, 0, 16);
+  m_h_trailEdge->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_trailEdge->GetName(), m_h_trailEdge));
 
-  h_highLevel = new TH1F("h_highLevel", "highLevel", 100, 0, 2);
-  h_highLevel->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_highLevel->GetName(), h_highLevel));
+  m_h_highLevel = new TH1F("h_highLevel", "highLevel", 100, 0, 2);
+  m_h_highLevel->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_highLevel->GetName(), m_h_highLevel));
 
-  h_firstBin = new TH1F("h_firstBin", "firstBin", 100, 0, 2);
-  h_firstBin->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_firstBin->GetName(), h_firstBin));
+  m_h_firstBin = new TH1F("h_firstBin", "firstBin", 100, 0, 2);
+  m_h_firstBin->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_firstBin->GetName(), m_h_firstBin));
 
-  h_lastBin = new TH1F("h_lastBin", "lastBin", 100, 0, 2);
-  h_lastBin->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_lastBin->GetName(), h_lastBin));
+  m_h_lastBin = new TH1F("h_lastBin", "lastBin", 100, 0, 2);
+  m_h_lastBin->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_lastBin->GetName(), m_h_lastBin));
 
-  h_timeOverThreshold = new TH1F("h_timeOverThreshold", "timeOverThreshold", 100, 0, 255);
-  h_timeOverThreshold->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_timeOverThreshold->GetName(), h_timeOverThreshold));
+  m_h_timeOverThreshold = new TH1F("h_timeOverThreshold", "timeOverThreshold", 100, 0, 255);
+  m_h_timeOverThreshold->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_timeOverThreshold->GetName(), m_h_timeOverThreshold));
 
-  h_rawDriftTime = new TH1F("h_rawDriftTime", "rawDriftTime", 100, 0, 35);
-  h_rawDriftTime->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawDriftTime->GetName(), h_rawDriftTime));
+  m_h_rawDriftTime = new TH1F("h_rawDriftTime", "rawDriftTime", 100, 0, 35);
+  m_h_rawDriftTime->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rawDriftTime->GetName(), m_h_rawDriftTime));
 
-  h_driftTimeValid = new TH1F("h_driftTimeValid", "driftTimeValid", 100, 0, 2);
-  h_driftTimeValid->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_driftTimeValid->GetName(), h_driftTimeValid));
+  m_h_driftTimeValid = new TH1F("h_driftTimeValid", "driftTimeValid", 100, 0, 2);
+  m_h_driftTimeValid->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_driftTimeValid->GetName(), m_h_driftTimeValid));
 
-  h_noise = new TH1F("h_noise", "noise", 100, 0, 2);
-  h_noise->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_noise->GetName(), h_noise));
+  m_h_noise = new TH1F("h_noise", "noise", 100, 0, 2);
+  m_h_noise->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_noise->GetName(), m_h_noise));
 
-  h_brl_ec = new TH1F("h_brl_ec", "brl_ec", 100, 0, 2);
-  h_brl_ec->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_brl_ec->GetName(), h_brl_ec));
+  m_h_brl_ec = new TH1F("h_brl_ec", "brl_ec", 100, 0, 2);
+  m_h_brl_ec->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_brl_ec->GetName(), m_h_brl_ec));
 
-  h_trtID = new TH1F("h_trtID", "trtID", 100, 0, 2e18);
-  h_trtID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_trtID->GetName(), h_trtID));
+  m_h_trtID = new TH1F("h_trtID", "trtID", 100, 0, 2e18);
+  m_h_trtID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_trtID->GetName(), m_h_trtID));
 
-  h_surfType = new TH1F("h_surfType", "surfType", 100, 0, 7);
-  h_surfType->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_surfType->GetName(), h_surfType));
+  m_h_surfType = new TH1F("h_surfType", "surfType", 100, 0, 7);
+  m_h_surfType->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_surfType->GetName(), m_h_surfType));
 
-  h_bndsType = new TH1F("h_bndsType", "bndsType", 100, 0, 7);
-  h_bndsType->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_bndsType->GetName(), h_bndsType));
+  m_h_bndsType = new TH1F("h_bndsType", "bndsType", 100, 0, 7);
+  m_h_bndsType->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_bndsType->GetName(), m_h_bndsType));
 
-  h_cntr_x = new TH1F("h_cntr_x", "cntr_x", 100, -1250, 1250);
-  h_cntr_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cntr_x->GetName(), h_cntr_x));
+  m_h_cntr_x = new TH1F("h_cntr_x", "cntr_x", 100, -1250, 1250);
+  m_h_cntr_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cntr_x->GetName(), m_h_cntr_x));
 
-  h_cntr_y = new TH1F("h_cntr_y", "cntr_y", 100, -1250, 1250);
-  h_cntr_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cntr_y->GetName(), h_cntr_y));
+  m_h_cntr_y = new TH1F("h_cntr_y", "cntr_y", 100, -1250, 1250);
+  m_h_cntr_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cntr_y->GetName(), m_h_cntr_y));
 
-  h_cntr_z = new TH1F("h_cntr_z", "cntr_z", 100, -3000, 3000);
-  h_cntr_z->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cntr_z->GetName(), h_cntr_z));
+  m_h_cntr_z = new TH1F("h_cntr_z", "cntr_z", 100, -3000, 3000);
+  m_h_cntr_z->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cntr_z->GetName(), m_h_cntr_z));
 
-  h_cntr_r = new TH1F("h_cntr_r", "cntr_r", 100, 0, 1250);
-  h_cntr_r->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cntr_r->GetName(), h_cntr_r));
+  m_h_cntr_r = new TH1F("h_cntr_r", "cntr_r", 100, 0, 1250);
+  m_h_cntr_r->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cntr_r->GetName(), m_h_cntr_r));
 
-  h_cntr_phi = new TH1F("h_cntr_phi", "cntr_phi", 100, -3.5, 3.5);
-  h_cntr_phi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cntr_phi->GetName(), h_cntr_phi));
+  m_h_cntr_phi = new TH1F("h_cntr_phi", "cntr_phi", 100, -3.5, 3.5);
+  m_h_cntr_phi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cntr_phi->GetName(), m_h_cntr_phi));
 
-  h_norm_x = new TH1F("h_norm_x", "norm_x", 100, -1.25, 1.25);
-  h_norm_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_norm_x->GetName(), h_norm_x));
+  m_h_norm_x = new TH1F("h_norm_x", "norm_x", 100, -1.25, 1.25);
+  m_h_norm_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_norm_x->GetName(), m_h_norm_x));
 
-  h_norm_y = new TH1F("h_norm_y", "norm_y", 100, -1.25, 1.25);
-  h_norm_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_norm_y->GetName(), h_norm_y));
+  m_h_norm_y = new TH1F("h_norm_y", "norm_y", 100, -1.25, 1.25);
+  m_h_norm_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_norm_y->GetName(), m_h_norm_y));
 
-  h_norm_z = new TH1F("h_norm_z", "norm_z", 100, -1, 1);
-  h_norm_z->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_norm_z->GetName(), h_norm_z));
+  m_h_norm_z = new TH1F("h_norm_z", "norm_z", 100, -1, 1);
+  m_h_norm_z->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_norm_z->GetName(), m_h_norm_z));
 
-  h_norm_r = new TH1F("h_norm_r", "norm_r", 100, 0, 1);
-  h_norm_r->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_norm_r->GetName(), h_norm_r));
+  m_h_norm_r = new TH1F("h_norm_r", "norm_r", 100, 0, 1);
+  m_h_norm_r->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_norm_r->GetName(), m_h_norm_r));
 
-  h_norm_phi = new TH1F("h_norm_phi", "norm_phi", 100, -3.5, 3.5);
-  h_norm_phi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_norm_phi->GetName(), h_norm_phi));
+  m_h_norm_phi = new TH1F("h_norm_phi", "norm_phi", 100, -3.5, 3.5);
+  m_h_norm_phi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_norm_phi->GetName(), m_h_norm_phi));
 
-  h_strSurfType = new TH1F("h_strSurfType", "strSurfType", 100, 0, 7);
-  h_strSurfType->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strSurfType->GetName(), h_strSurfType));
+  m_h_strSurfType = new TH1F("h_strSurfType", "strSurfType", 100, 0, 7);
+  m_h_strSurfType->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strSurfType->GetName(), m_h_strSurfType));
 
-  h_strBndsType = new TH1F("h_strBndsType", "strBndsType", 100, 0, 7);
-  h_strBndsType->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strBndsType->GetName(), h_strBndsType));
+  m_h_strBndsType = new TH1F("h_strBndsType", "strBndsType", 100, 0, 7);
+  m_h_strBndsType->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strBndsType->GetName(), m_h_strBndsType));
 
-  h_strCntr_x = new TH1F("h_strCntr_x", "strCntr_x", 100, -1250, 1250);
-  h_strCntr_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strCntr_x->GetName(), h_strCntr_x));
+  m_h_strCntr_x = new TH1F("h_strCntr_x", "strCntr_x", 100, -1250, 1250);
+  m_h_strCntr_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strCntr_x->GetName(), m_h_strCntr_x));
 
-  h_strCntr_y = new TH1F("h_strCntr_y", "strCntr_y", 100, -1250, 1250);
-  h_strCntr_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strCntr_y->GetName(), h_strCntr_y));
+  m_h_strCntr_y = new TH1F("h_strCntr_y", "strCntr_y", 100, -1250, 1250);
+  m_h_strCntr_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strCntr_y->GetName(), m_h_strCntr_y));
 
-  h_strCntr_z = new TH1F("h_strCntr_z", "strCntr_z", 100, -3000, 3000);
-  h_strCntr_z->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strCntr_z->GetName(), h_strCntr_z));
+  m_h_strCntr_z = new TH1F("h_strCntr_z", "strCntr_z", 100, -3000, 3000);
+  m_h_strCntr_z->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strCntr_z->GetName(), m_h_strCntr_z));
 
-  h_strCntr_r = new TH1F("h_strCntr_r", "strCntr_r", 100, 0, 1250);
-  h_strCntr_r->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strCntr_r->GetName(), h_strCntr_r));
+  m_h_strCntr_r = new TH1F("h_strCntr_r", "strCntr_r", 100, 0, 1250);
+  m_h_strCntr_r->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strCntr_r->GetName(), m_h_strCntr_r));
 
-  h_strCntr_phi = new TH1F("h_strCntr_phi", "strCntr_phi", 100, -3.5, 3.5);
-  h_strCntr_phi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strCntr_phi->GetName(), h_strCntr_phi));
+  m_h_strCntr_phi = new TH1F("h_strCntr_phi", "strCntr_phi", 100, -3.5, 3.5);
+  m_h_strCntr_phi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strCntr_phi->GetName(), m_h_strCntr_phi));
 
-  h_strNorm_x = new TH1F("h_strNorm_x", "strNorm_x", 100, -1.25, 1.25);
-  h_strNorm_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strNorm_x->GetName(), h_strNorm_x));
+  m_h_strNorm_x = new TH1F("h_strNorm_x", "strNorm_x", 100, -1.25, 1.25);
+  m_h_strNorm_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strNorm_x->GetName(), m_h_strNorm_x));
 
-  h_strNorm_y = new TH1F("h_strNorm_y", "strNorm_y", 100, -1.25, 1.25);
-  h_strNorm_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strNorm_y->GetName(), h_strNorm_y));
+  m_h_strNorm_y = new TH1F("h_strNorm_y", "strNorm_y", 100, -1.25, 1.25);
+  m_h_strNorm_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strNorm_y->GetName(), m_h_strNorm_y));
 
-  h_strNorm_z = new TH1F("h_strNorm_z", "strNorm_z", 100, -1, 1);
-  h_strNorm_z->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strNorm_z->GetName(), h_strNorm_z));
+  m_h_strNorm_z = new TH1F("h_strNorm_z", "strNorm_z", 100, -1, 1);
+  m_h_strNorm_z->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strNorm_z->GetName(), m_h_strNorm_z));
 
-  h_strNorm_r = new TH1F("h_strNorm_r", "strNorm_r", 100, 0, 1);
-  h_strNorm_r->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strNorm_r->GetName(), h_strNorm_r));
+  m_h_strNorm_r = new TH1F("h_strNorm_r", "strNorm_r", 100, 0, 1);
+  m_h_strNorm_r->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strNorm_r->GetName(), m_h_strNorm_r));
 
-  h_strNorm_phi = new TH1F("h_strNorm_phi", "strNorm_phi", 100, -3.5, 3.5);
-  h_strNorm_phi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strNorm_phi->GetName(), h_strNorm_phi));
+  m_h_strNorm_phi = new TH1F("h_strNorm_phi", "strNorm_phi", 100, -3.5, 3.5);
+  m_h_strNorm_phi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strNorm_phi->GetName(), m_h_strNorm_phi));
 
-  h_strawN = new TH1F("h_strawN", "strawN", 100, 0, 30);
-  h_strawN->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strawN->GetName(), h_strawN));
+  m_h_strawN = new TH1F("h_strawN", "strawN", 100, 0, 30);
+  m_h_strawN->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strawN->GetName(), m_h_strawN));
 
-  h_strawL = new TH1F("h_strawL", "strawL", 100, 0, 750);
-  h_strawL->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strawL->GetName(), h_strawL));
+  m_h_strawL = new TH1F("h_strawL", "strawL", 100, 0, 750);
+  m_h_strawL->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strawL->GetName(), m_h_strawL));
 
-  h_strawD = new TH1F("h_strawD", "strawD", 100, -2, 2);
-  h_strawD->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_strawD->GetName(), h_strawD));
+  m_h_strawD = new TH1F("h_strawD", "strawD", 100, -2, 2);
+  m_h_strawD->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_strawD->GetName(), m_h_strawD));
 
-  h_allStrCntr_x = new TH1F("h_allStrCntr_x", "allStrCntr_x", 100, -1250, 1250);
-  h_allStrCntr_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrCntr_x->GetName(), h_allStrCntr_x));
+  m_h_allStrCntr_x = new TH1F("h_allStrCntr_x", "allStrCntr_x", 100, -1250, 1250);
+  m_h_allStrCntr_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrCntr_x->GetName(), m_h_allStrCntr_x));
 
-  h_allStrCntr_y = new TH1F("h_allStrCntr_y", "allStrCntr_y", 100, -1250, 1250);
-  h_allStrCntr_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrCntr_y->GetName(), h_allStrCntr_y));
+  m_h_allStrCntr_y = new TH1F("h_allStrCntr_y", "allStrCntr_y", 100, -1250, 1250);
+  m_h_allStrCntr_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrCntr_y->GetName(), m_h_allStrCntr_y));
 
-  h_allStrCntr_z = new TH1F("h_allStrCntr_z", "allStrCntr_z", 100, -3000, 3000);
-  h_allStrCntr_z->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrCntr_z->GetName(), h_allStrCntr_z));
+  m_h_allStrCntr_z = new TH1F("h_allStrCntr_z", "allStrCntr_z", 100, -3000, 3000);
+  m_h_allStrCntr_z->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrCntr_z->GetName(), m_h_allStrCntr_z));
 
-  h_allStrCntr_r = new TH1F("h_allStrCntr_r", "allStrCntr_r", 100, 0, 1250);
-  h_allStrCntr_r->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrCntr_r->GetName(), h_allStrCntr_r));
+  m_h_allStrCntr_r = new TH1F("h_allStrCntr_r", "allStrCntr_r", 100, 0, 1250);
+  m_h_allStrCntr_r->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrCntr_r->GetName(), m_h_allStrCntr_r));
 
-  h_allStrCntr_phi = new TH1F("h_allStrCntr_phi", "allStrCntr_phi", 100, -3.5, 3.5);
-  h_allStrCntr_phi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrCntr_phi->GetName(), h_allStrCntr_phi));
+  m_h_allStrCntr_phi = new TH1F("h_allStrCntr_phi", "allStrCntr_phi", 100, -3.5, 3.5);
+  m_h_allStrCntr_phi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrCntr_phi->GetName(), m_h_allStrCntr_phi));
 
-  h_allStrAxis_x = new TH1F("h_allStrAxis_x", "allStrAxis_x", 100, -1.25, 1.25);
-  h_allStrAxis_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrAxis_x->GetName(), h_allStrAxis_x));
+  m_h_allStrAxis_x = new TH1F("h_allStrAxis_x", "allStrAxis_x", 100, -1.25, 1.25);
+  m_h_allStrAxis_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrAxis_x->GetName(), m_h_allStrAxis_x));
 
-  h_allStrAxis_y = new TH1F("h_allStrAxis_y", "allStrAxis_y", 100, -1.25, 1.25);
-  h_allStrAxis_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrAxis_y->GetName(), h_allStrAxis_y));
+  m_h_allStrAxis_y = new TH1F("h_allStrAxis_y", "allStrAxis_y", 100, -1.25, 1.25);
+  m_h_allStrAxis_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrAxis_y->GetName(), m_h_allStrAxis_y));
 
-  h_allStrAxis_z = new TH1F("h_allStrAxis_z", "allStrAxis_z", 100, -1, 1);
-  h_allStrAxis_z->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrAxis_z->GetName(), h_allStrAxis_z));
+  m_h_allStrAxis_z = new TH1F("h_allStrAxis_z", "allStrAxis_z", 100, -1, 1);
+  m_h_allStrAxis_z->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrAxis_z->GetName(), m_h_allStrAxis_z));
 
-  h_allStrAxis_r = new TH1F("h_allStrAxis_r", "allStrAxis_r", 100, 0, 1);
-  h_allStrAxis_r->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrAxis_r->GetName(), h_allStrAxis_r));
+  m_h_allStrAxis_r = new TH1F("h_allStrAxis_r", "allStrAxis_r", 100, 0, 1);
+  m_h_allStrAxis_r->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrAxis_r->GetName(), m_h_allStrAxis_r));
 
-  h_allStrAxis_phi = new TH1F("h_allStrAxis_phi", "allStrAxis_phi", 100, -3.5, 3.5);
-  h_allStrAxis_phi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_allStrAxis_phi->GetName(), h_allStrAxis_phi));
+  m_h_allStrAxis_phi = new TH1F("h_allStrAxis_phi", "allStrAxis_phi", 100, -3.5, 3.5);
+  m_h_allStrAxis_phi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_allStrAxis_phi->GetName(), m_h_allStrAxis_phi));
 
   return StatusCode::SUCCESS;
 }
@@ -490,16 +490,16 @@ StatusCode TRT_FastRDOAnalysis::execute() {
         m_driftTimeValid->push_back(driftTimeValid);
         m_noise->push_back(noise);
 
-        h_word->Fill(word);
-        h_driftTimeBin->Fill(driftTimeBin);
-        h_trailEdge->Fill(trailEdge);
-        h_highLevel->Fill(HL);
-        h_firstBin->Fill(firstBin);
-        h_lastBin->Fill(lastBin);
-        h_timeOverThreshold->Fill(ToT);
-        h_rawDriftTime->Fill(rawDriftTime);
-        h_driftTimeValid->Fill(driftTimeValid);
-        h_noise->Fill(noise);
+        m_h_word->Fill(word);
+        m_h_driftTimeBin->Fill(driftTimeBin);
+        m_h_trailEdge->Fill(trailEdge);
+        m_h_highLevel->Fill(HL);
+        m_h_firstBin->Fill(firstBin);
+        m_h_lastBin->Fill(lastBin);
+        m_h_timeOverThreshold->Fill(ToT);
+        m_h_rawDriftTime->Fill(rawDriftTime);
+        m_h_driftTimeValid->Fill(driftTimeValid);
+        m_h_noise->Fill(noise);
 
         // ---------------
         // TRT_BaseElement
@@ -585,17 +585,17 @@ StatusCode TRT_FastRDOAnalysis::execute() {
           m_allStrAxis_r->push_back(strawAxis_r);
           m_allStrAxis_phi->push_back(strawAxis_phi);
 
-          h_allStrCntr_x->Fill(strawCenter_x);
-          h_allStrCntr_y->Fill(strawCenter_y);
-          h_allStrCntr_z->Fill(strawCenter_z);
-          h_allStrCntr_r->Fill(strawCenter_r);
-          h_allStrCntr_phi->Fill(strawCenter_phi);
+          m_h_allStrCntr_x->Fill(strawCenter_x);
+          m_h_allStrCntr_y->Fill(strawCenter_y);
+          m_h_allStrCntr_z->Fill(strawCenter_z);
+          m_h_allStrCntr_r->Fill(strawCenter_r);
+          m_h_allStrCntr_phi->Fill(strawCenter_phi);
 
-          h_allStrAxis_x->Fill(strawAxis_x);
-          h_allStrAxis_y->Fill(strawAxis_y);
-          h_allStrAxis_z->Fill(strawAxis_z);
-          h_allStrAxis_r->Fill(strawAxis_r);
-          h_allStrAxis_phi->Fill(strawAxis_phi);
+          m_h_allStrAxis_x->Fill(strawAxis_x);
+          m_h_allStrAxis_y->Fill(strawAxis_y);
+          m_h_allStrAxis_z->Fill(strawAxis_z);
+          m_h_allStrAxis_r->Fill(strawAxis_r);
+          m_h_allStrAxis_phi->Fill(strawAxis_phi);
         }
 
         m_brl_ec->push_back(brl_ec);
@@ -628,35 +628,35 @@ StatusCode TRT_FastRDOAnalysis::execute() {
         m_strawL->push_back(strawL);
         m_strawD->push_back(strawD);
 
-        h_brl_ec->Fill(brl_ec);
-        h_trtID->Fill(trtID_int);
-        h_surfType->Fill(surfType);
-        h_bndsType->Fill(bndsType);
-        h_cntr_x->Fill(cntr_x);
-        h_cntr_y->Fill(cntr_y);
-        h_cntr_z->Fill(cntr_z);
-        h_cntr_r->Fill(cntr_r);
-        h_cntr_phi->Fill(cntr_phi);
-        h_norm_x->Fill(norm_x);
-        h_norm_y->Fill(norm_y);
-        h_norm_z->Fill(norm_z);
-        h_norm_r->Fill(norm_r);
-        h_norm_phi->Fill(norm_phi);
-        h_strSurfType->Fill(strSurfType);
-        h_strBndsType->Fill(strBndsType);
-        h_strCntr_x->Fill(strCntr_x);
-        h_strCntr_y->Fill(strCntr_y);
-        h_strCntr_z->Fill(strCntr_z);
-        h_strCntr_r->Fill(strCntr_r);
-        h_strCntr_phi->Fill(strCntr_phi);
-        h_strNorm_x->Fill(strNorm_x);
-        h_strNorm_y->Fill(strNorm_y);
-        h_strNorm_z->Fill(strNorm_z);
-        h_strNorm_r->Fill(strNorm_r);
-        h_strNorm_phi->Fill(strNorm_phi);
-        h_strawN->Fill(strawN);
-        h_strawL->Fill(strawL);
-        h_strawD->Fill(strawD);
+        m_h_brl_ec->Fill(brl_ec);
+        m_h_trtID->Fill(trtID_int);
+        m_h_surfType->Fill(surfType);
+        m_h_bndsType->Fill(bndsType);
+        m_h_cntr_x->Fill(cntr_x);
+        m_h_cntr_y->Fill(cntr_y);
+        m_h_cntr_z->Fill(cntr_z);
+        m_h_cntr_r->Fill(cntr_r);
+        m_h_cntr_phi->Fill(cntr_phi);
+        m_h_norm_x->Fill(norm_x);
+        m_h_norm_y->Fill(norm_y);
+        m_h_norm_z->Fill(norm_z);
+        m_h_norm_r->Fill(norm_r);
+        m_h_norm_phi->Fill(norm_phi);
+        m_h_strSurfType->Fill(strSurfType);
+        m_h_strBndsType->Fill(strBndsType);
+        m_h_strCntr_x->Fill(strCntr_x);
+        m_h_strCntr_y->Fill(strCntr_y);
+        m_h_strCntr_z->Fill(strCntr_z);
+        m_h_strCntr_r->Fill(strCntr_r);
+        m_h_strCntr_phi->Fill(strCntr_phi);
+        m_h_strNorm_x->Fill(strNorm_x);
+        m_h_strNorm_y->Fill(strNorm_y);
+        m_h_strNorm_z->Fill(strNorm_z);
+        m_h_strNorm_r->Fill(strNorm_r);
+        m_h_strNorm_phi->Fill(strNorm_phi);
+        m_h_strawN->Fill(strawN);
+        m_h_strawL->Fill(strawL);
+        m_h_strawD->Fill(strawD);
 
       }
     }

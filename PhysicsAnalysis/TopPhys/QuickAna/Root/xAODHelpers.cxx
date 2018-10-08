@@ -242,6 +242,7 @@ namespace ana
         TMP (OBJECT_EVENTINFO);
         TMP (OBJECT_EVENT_SELECT);
         TMP (OBJECT_JET);
+        TMP (OBJECT_PFLOW_JET);
         TMP (OBJECT_FAT_JET);
         TMP (OBJECT_ELECTRON);
         TMP (OBJECT_PHOTON);
@@ -251,6 +252,7 @@ namespace ana
       case OBJECT_NONE:
       case OBJECT_MET:
       case OBJECT_MET2:
+      case OBJECT_CLEANING:
       case OBJECT_OVERLAP_REMOVAL:
       case OBJECT_TRIGGER:
         ANA_MSG_ERROR ("unsupported object type " << type);
@@ -280,11 +282,13 @@ namespace ana
 #undef TMP
       case OBJECT_EVENTINFO:
       case OBJECT_JET:
+      case OBJECT_PFLOW_JET:
       case OBJECT_FAT_JET:
       case OBJECT_ELECTRON:
       case OBJECT_PHOTON:
       case OBJECT_MUON:
       case OBJECT_TAU:
+      case OBJECT_CLEANING:
       case OBJECT_OVERLAP_REMOVAL:
       case OBJECT_TRIGGER:
       case OBJECT_NONE:
@@ -307,6 +311,7 @@ namespace ana
         case TYPE:                                                      \
           return getParticlesType<TYPE> (pointer);
         TMP (OBJECT_JET);
+        TMP (OBJECT_PFLOW_JET);
         TMP (OBJECT_FAT_JET);
         TMP (OBJECT_ELECTRON);
         TMP (OBJECT_PHOTON);
@@ -317,6 +322,7 @@ namespace ana
       case OBJECT_EVENT_SELECT:
       case OBJECT_MET:
       case OBJECT_MET2:
+      case OBJECT_CLEANING:
       case OBJECT_OVERLAP_REMOVAL:
       case OBJECT_TRIGGER:
       case OBJECT_NONE:

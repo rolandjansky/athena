@@ -315,8 +315,9 @@ namespace xAOD {
     std::vector< float > PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged;
     std::vector< float > PanTau_BDTVar_Charged_HLV_SumM;
 
-    
-    
+    // RNN tau ID
+    std::vector< float > RNNJetScore;
+    std::vector< float > RNNJetScoreSigTrans;
     
   }; // class TauJetAuxContainer_v3
 

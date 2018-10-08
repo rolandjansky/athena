@@ -111,6 +111,19 @@ namespace EL
     void setUseXAODs (bool val_useXAODs) noexcept;
 
 
+    /// \brief whether we are really a public tool
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool isPublicTool () const noexcept;
+
+    /// \brief set the value of \ref isPublicTool
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    void setIsPublicTool (bool val_isPublicTool) noexcept;
+
+
     /// \brief set the given property
     /// \par Guarantee
     ///   strong
@@ -202,6 +215,10 @@ namespace EL
     /// \brief the value of \ref useXAODs
   private:
     bool m_useXAODs = true;
+
+    /// \brief the value of \ref isPublicTool
+  private:
+    bool m_isPublicTool {false};
 
     /// \brief the map of private tools to create
   private:

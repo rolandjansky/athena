@@ -241,6 +241,7 @@ protected:
     bool m_doLooseIsolation;
     bool m_doTightPromptLeptonIso;
     bool m_doLoosePromptLeptonIso;
+    bool m_skipUnavailable; // skip unavailable working points (instead of aborting)
 };
 
 }

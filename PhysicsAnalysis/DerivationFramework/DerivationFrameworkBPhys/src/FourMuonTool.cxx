@@ -11,6 +11,7 @@
 // ****************************************************************************
 
 #include "DerivationFrameworkBPhys/FourMuonTool.h"
+#include "DerivationFrameworkBPhys/BPhysPVTools.h"
 #include "xAODBPhys/BPhysHelper.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
@@ -19,7 +20,6 @@
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "DataModel/ElementLink.h"
@@ -107,7 +107,6 @@ namespace DerivationFramework {
         
     }
     FourMuonTool::FourMuonTool(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
-    m_particleDataTable(0),
     m_ptCut(0.0),
     m_etaCut(0.0),
     m_useV0Fitter(false),
@@ -324,9 +323,9 @@ namespace DerivationFramework {
     // fit - does the fit
     // ---------------------------------------------------------------------------------
     
-    xAOD::Vertex* FourMuonTool::fit(std::vector<const xAOD::TrackParticle*> inputTracks,
+    xAOD::Vertex* FourMuonTool::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,
                                     const xAOD::TrackParticleContainer* importedTrackCollection,
-                                    Amg::Vector3D beamSpot) {
+                                    const Amg::Vector3D &beamSpot) {
         
         Trk::TrkV0VertexFitter* concreteVertexFitter=0;
         if (m_useV0Fitter) {
@@ -343,48 +342,17 @@ namespace DerivationFramework {
         //Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         //startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
         //Trk::Vertex vertex(beamSpot);
+
+        xAOD::Vertex* myVxCandidate = nullptr;
         if (m_useV0Fitter) {
-            xAOD::Vertex* myVxCandidate = concreteVertexFitter->fit(inputTracks, beamSpot /*vertex startingPoint*/ );
-            
-            // Added by ASC
-            if(myVxCandidate != 0){
-                std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
-                for(unsigned int i=0; i< myVxCandidate->trackParticleLinks().size(); i++)
-                { ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[i]; //makes a copy (non-const)
-                    mylink.setStorableObject(*importedTrackCollection, true);
-                    mylink.index(); // Use index (should be faster)
-                    newLinkVector.push_back( mylink ); }
-                
-                myVxCandidate->clearTracks();
-                myVxCandidate->setTrackParticleLinks( newLinkVector );
-            }
-            
-            
-            
-            return myVxCandidate;
+            myVxCandidate = concreteVertexFitter->fit(inputTracks, beamSpot /*vertex startingPoint*/ );
         } else {
-            xAOD::Vertex* myVxCandidate = m_iVertexFitter->fit(inputTracks, beamSpot /*vertex startingPoint*/ );
-            
-            // Added by ASC
-            if(myVxCandidate != 0){
-                std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
-                for(unsigned int i=0; i< myVxCandidate->trackParticleLinks().size(); i++)
-                { ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[i]; //makes a copy (non-const)
-                    mylink.setStorableObject(*importedTrackCollection, true);
-                    mylink.index(); // Use index (should be faster)
-                    newLinkVector.push_back( mylink ); }
-                
-                myVxCandidate->clearTracks();
-                myVxCandidate->setTrackParticleLinks( newLinkVector );
-            }
-            
-            
-            return myVxCandidate;
+            myVxCandidate = m_iVertexFitter->fit(inputTracks, beamSpot /*vertex startingPoint*/ );
         }
         
+        if(myVxCandidate) BPhysPVTools::PrepareVertexLinks(myVxCandidate, importedTrackCollection);
         
-        
-        return NULL;
+        return myVxCandidate;
         
     } // End of fit method
     
@@ -459,7 +427,7 @@ namespace DerivationFramework {
     // buildCombinations: forms up the quadruplet of muons/tracks
     // ---------------------------------------------------------------------------------
     
-    void FourMuonTool::buildCombinations(std::vector<const xAOD::Muon*> muonsIn,
+    void FourMuonTool::buildCombinations(const std::vector<const xAOD::Muon*> &muonsIn,
                                          std::vector<Combination> &pairs,
                                          std::vector<Combination> &quadruplets,
                                          unsigned int nSelectedMuons) {
@@ -501,7 +469,7 @@ namespace DerivationFramework {
     // passesQuadSelection: 4-muon selection
     // ---------------------------------------------------------------------------------
     
-    bool FourMuonTool::passesQuadSelection(std::vector<const xAOD::Muon*> muons) {
+    bool FourMuonTool::passesQuadSelection(const std::vector<const xAOD::Muon*> &muons) {
         bool accept(false);
         bool charges(true);
         bool quality(false);

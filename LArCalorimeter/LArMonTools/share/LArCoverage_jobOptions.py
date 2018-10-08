@@ -20,6 +20,13 @@ theLArBadChannelTool.ReadFromASCII=False
 ToolSvc+=theLArBadChannelTool
 ToolSvc.LArCoverage.LArBadChannelTool=theLArBadChannelTool
 
+# KnownMNBFEBsTool configuration
+theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
+theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
+ToolSvc+=theMNBFebTool
+ToolSvc.LArCoverage.LArKnownMNBFEBsTool=theMNBFebTool
+
+
 # CaloNoiseTool configuration
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theLArCoverageCaloNoiseTool=CaloNoiseToolDefault()

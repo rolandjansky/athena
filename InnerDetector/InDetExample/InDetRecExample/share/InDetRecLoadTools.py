@@ -1412,11 +1412,22 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or
       InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
       InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
-      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ):
+      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' or 
+      InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' or
+      InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
     #
     # --- load configured Seed finder
     #
-    if (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding'):
+    if (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
+      from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__GaussianTrackDensity
+      GaussDensityEstimator = Trk__GaussianTrackDensity( name = "GaussianDensity" )
+      ToolSvc += GaussDensityEstimator
+
+      from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__TrackDensitySeedFinder
+      InDetVtxSeedFinder = Trk__TrackDensitySeedFinder( name = "GaussianDensitySeedFinder",
+                                                        DensityEstimator = GaussDensityEstimator )
+    elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding'):
       from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__LocalMax1DClusterFinder, Trk__VertexImageMaker
       InDetMedImgClusterFinder = Trk__LocalMax1DClusterFinder( name            = "InDetMedImgClusterFinder",
                                                                weightThreshold = 1500.0,
@@ -1594,7 +1605,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (InDetFlags.primaryVertexSetup() == 'DefaultKalmanFinding' or
       InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or
       InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
-      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ):
+      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' or
+      InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ):
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexSmoother
     InDetVertexSmoother = Trk__SequentialVertexSmoother(name = "InDetSequentialVertexSmoother")
     ToolSvc += InDetVertexSmoother
@@ -1656,7 +1668,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                     XAODConverter                = InDetVxEdmCnv)
 
   elif (InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or 
-        InDetFlags.primaryVertexSetup() == 'IterativeFinding') : 
+        InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) : 
     #
     # --- load configured adaptive vertex fitter
     #
@@ -1669,7 +1682,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                   VertexSmoother               = InDetVertexSmoother,
                                                   XAODConverter                = InDetVxEdmCnv)
 
-  elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
+  elif (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
     #
     # --- load adaptive multi vertex fitter
     #
@@ -1700,7 +1714,9 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (not (InDetFlags.primaryVertexSetup() == 'IterativeFinding') and
       not (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding') and
       not (InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding') and
-      not (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ) ):
+      not (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ) and
+      not (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) and
+      not (InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding' ) ):
     #
     # --- load primary vertex finder tool
     #
@@ -1730,7 +1746,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                             maxVertices                  = 200,
                                                             InternalEdmFactory           = InDetVxEdmCnv)
 
-  elif InDetFlags.primaryVertexSetup() == 'IterativeFinding':
+  elif ( (InDetFlags.primaryVertexSetup() == 'IterativeFinding') or
+         (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) ):
     #
     # --- load adaptive primary vertex finder
     #
@@ -1750,7 +1767,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                 MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()
                                                                 )
 
-  elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
+  elif (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding' ):
     #
     # --- load adaptive multi primary vertex finder
     #

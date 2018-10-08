@@ -212,6 +212,9 @@ private:
   /// Stop on filter failure Override flag
   BooleanProperty m_stopOverride;
   
+  /// Stop on filter success flag (used to make sequence an 'OR' of many algorithms)
+  BooleanProperty m_stopOnSuccess;
+  
   /// set optional algorithm / sequence time outs
   double m_timeout;
   int m_timeoutMilliseconds;

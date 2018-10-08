@@ -51,6 +51,7 @@
 
 using namespace std;
 
+
 StatusCode HLTMuonMonTool::initMuonEFDQA()
 {
   return StatusCode::SUCCESS;
@@ -225,6 +226,19 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
     addHistogram( new TH1F("EF_MS_Over_Moore_MS_10GeV_Cut",     "EF_MS_Over_Moore_MS_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
     addHistogram( new TH1F("EF_SA_Over_Moore_SA_10GeV_Cut",     "EF_SA_Over_Moore_SA_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
     addHistogram( new TH1F("EF_CB_Over_Muid_10GeV_Cut",         "EF_CB_Over_Muid_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
+
+    //single chain monitoring ATR-17713
+    std::vector<string> triggerlist;
+    triggerlist.insert(triggerlist.end(), m_chainsGeneric.begin(), m_chainsGeneric.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());
+    triggerlist.insert(triggerlist.end(), m_chainsMSonly.begin(), m_chainsMSonly.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFFS.begin(), m_chainsEFFS.end());
+    triggerlist.insert(triggerlist.end(), m_chainsLowpt.begin(), m_chainsLowpt.end());
+    for (std::string trig : triggerlist){
+      addHistogram( new TH1F(Form("EF_pt_%s",trig.c_str()),    Form("TrigMuonEF pT %s; p_{T}; Entries", trig.c_str()),    105, 0., 105.), m_histdirmuonef );
+      addHistogram( new TH1F(Form("EF_eta_%s",trig.c_str()),    Form("TrigMuonEF #eta %s; #eta; Entries", trig.c_str()),    108, -2.7, 2.7), m_histdirmuonef );
+      addHistogram( new TH1F(Form("EF_phi_%s",trig.c_str()),    Form("TrigMuonEF #phi[rad] %s; #phi [rad]; Entries", trig.c_str()),   96, -CLHEP::pi,CLHEP::pi), m_histdirmuonef );
+    }
 
   }else if( endOfLumiBlockFlag() ){
   }
@@ -1399,9 +1413,23 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
     } // close loop on j
   }
+
+    //single chain monitoring ATR-17713
+    std::vector<string> triggerlist;
+    triggerlist.insert(triggerlist.end(), m_chainsGeneric.begin(), m_chainsGeneric.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());
+    triggerlist.insert(triggerlist.end(), m_chainsMSonly.begin(), m_chainsMSonly.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFFS.begin(), m_chainsEFFS.end());
+    triggerlist.insert(triggerlist.end(), m_chainsLowpt.begin(), m_chainsLowpt.end());
+    
+    sc = fillEFSingleChainHistos(triggerlist);
+    if ( sc.isFailure() ) {
+      ATH_MSG_WARNING( "fillEFSingleChainHistos() failed." );
+      return StatusCode::SUCCESS;
+    }
  
   return StatusCode::SUCCESS;
-}
+}//fillMuonEFDQA
 
 
 StatusCode HLTMuonMonTool::procMuonEFDQA()
@@ -1457,5 +1485,29 @@ StatusCode HLTMuonMonTool::procMuonEFDQA()
 
   }else if(endOfLumiBlockFlag()){
   }
+  return StatusCode::SUCCESS;
+}//procMuonEFDQA
+
+
+StatusCode HLTMuonMonTool :: fillEFSingleChainHistos(const std::vector<std::string> &triggerlist ){
+
+  for(std::string trig : triggerlist){
+    ATH_MSG_DEBUG("Retrieving feature container for " << trig);
+    const Trig::FeatureContainer fc = getTDT()->features( trig, TrigDefs::alsoDeactivateTEs);
+    const std::vector< Trig::Feature<xAOD::MuonContainer> > fEFs = fc.get<xAOD::MuonContainer>( "", TrigDefs::alsoDeactivateTEs );
+    for(const Trig::Feature<xAOD::MuonContainer> &fEF : fEFs){
+      const xAOD::MuonContainer *cont = fEF.cptr(); 
+      for( const xAOD::Muon* ef : *cont ){
+	const HLT::TriggerElement *efTE = fEF.te();
+	if(efTE->getActiveState()){//pass
+	  hist(Form("EF_pt_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->pt()/CLHEP::GeV );
+	  hist(Form("EF_eta_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->eta() );
+	  hist(Form("EF_phi_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->phi() );
+	}
+      }
+    }
+  }
+
+
   return StatusCode::SUCCESS;
 }

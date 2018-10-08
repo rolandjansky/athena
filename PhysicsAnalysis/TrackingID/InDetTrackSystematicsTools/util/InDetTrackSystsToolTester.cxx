@@ -116,6 +116,7 @@ int main( int argc, char* argv[] ) {
    CHECK( filterTool.setProperty("trackOriginTool", trackTruthOriginToolHandle) );
 
    InDet::JetTrackFilterTool jetFilterTool( "JetTrackFilterTool" );
+   CHECK( jetFilterTool.setProperty("trackOriginTool", trackTruthOriginToolHandle) );
    
    // Not a realistic set of systematics - we just want to make sure they can all be applied without breaking the tools
    CP::SystematicSet systSet = {
@@ -140,7 +141,8 @@ int main( int argc, char* argv[] ) {
      // CP::SystematicVariation("TRK_EFF_TIGHT_IBL"),
      // CP::SystematicVariation("TRK_EFF_TIGHT_PP0"),
      // CP::SystematicVariation("TRK_EFF_TIGHT_PHYSMODEL"),
-     CP::SystematicVariation("TRK_EFF_LOOSE_TIDE")
+     CP::SystematicVariation("TRK_EFF_LOOSE_TIDE"),
+     CP::SystematicVariation("TRK_FAKE_RATE_LOOSE_TIDE")
    };
    std::vector< InDet::InDetTrackSystematicsTool* > tools = {&smearingTool, &biasingTool, &filterTool, &jetFilterTool};
 

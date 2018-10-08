@@ -35,7 +35,8 @@ add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/L1Common
    COMMAND ${CMAKE_COMMAND} -E make_directory
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1Common
    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/L1Common/*.py
-   ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1Common )
+   ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1Common
+   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/schema/L1Specifications.xml )
 add_custom_target( L1CommonGen ALL DEPENDS
    ${CMAKE_CURRENT_BINARY_DIR}/L1Common )
 add_dependencies( Package_L1Common L1CommonGen )

@@ -5,7 +5,7 @@ atlas_subdir( HDF5Utils )
 find_package( HDF5 1.10.1 REQUIRED COMPONENTS C CXX )
 
 # find root
-find_package(ROOT REQUIRED COMPONENTS RIO Hist Tree Net Core)
+find_package(ROOT REQUIRED COMPONENTS RIO Hist Tree Net Core TreePlayer)
 
 # find boost
 find_package( Boost 1.54.0 REQUIRED COMPONENTS program_options)

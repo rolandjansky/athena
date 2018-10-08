@@ -17,7 +17,8 @@ if ("EventInfo#McEventInfo" not in inputFileSummary['eventdata_itemsList']) and 
 if ("McEventCollection#GEN_EVENT" in inputFileSummary['eventdata_itemsList']):
     DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
 elif ("McEventCollection#TruthEvent" in inputFileSummary['eventdata_itemsList']):
-    DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")
+    if not hasattr(DerivationFrameworkJob,'GEN_AOD2xAOD'):
+        DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")
 
 #==============================================================================
 # Create the derivation kernel algorithm

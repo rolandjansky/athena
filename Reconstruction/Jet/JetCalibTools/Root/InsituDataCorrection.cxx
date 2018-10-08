@@ -79,6 +79,10 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     }
     else {
       gROOT->cd();
+      // save pTmax of the relative and absolute in situ calibrations
+      m_relhistoPtMax = rel_histo->GetXaxis()->GetBinLowEdge(rel_histo->GetNbinsX()+1);
+      m_abshistoPtMax = abs_histo->GetBinLowEdge(abs_histo->GetNbinsX()+1);
+      // combine in situ calibrations
       m_insituCorr = combineCalibration(rel_histo,abs_histo);
       m_insituEtaMax = m_insituCorr->GetYaxis()->GetBinLowEdge(m_insituCorr->GetNbinsY()+1);
       m_insituPtMin = m_insituCorr->GetXaxis()->GetBinLowEdge(1);
@@ -132,11 +136,13 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
   if(m_applyRelativeandAbsoluteInsitu) calibP4=calibP4*getInsituCorr( jetStartP4.pt(), detectorEta, "RelativeAbs" );
 
   // If the jet mass calibration was applied the calibrated mass needs to be used!
+  /*
   if(m_jetStartScale.Contains("JetJMSScaleMomentum")){
     TLorentzVector TLVjet;
     TLVjet.SetPtEtaPhiM( calibP4.pt(), jetStartP4.eta(), jetStartP4.phi(), jetStartP4.mass() ); // mass at JMS
     calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() ); 
   }
+  */
 
   //Transfer calibrated jet properties to the Jet object
   jet.setAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentum",calibP4);

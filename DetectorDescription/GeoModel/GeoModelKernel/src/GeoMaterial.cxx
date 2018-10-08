@@ -358,7 +358,7 @@ void GeoMaterial::lock ()
 
   { // ===============Renormalization================================
     double wSum=std::accumulate(m_fraction.begin(),m_fraction.end(),0.0);
-    if (fabs(wSum-1.0)>FLT_EPSILON) { 
+    if (fabs(wSum-1.0)>0.00001) { 
       std::cerr << "Warning in material " 
 		<< m_name 
 		<< ". Mass fractions sum to "      

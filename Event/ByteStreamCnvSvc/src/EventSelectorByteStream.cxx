@@ -395,9 +395,9 @@ StatusCode EventSelectorByteStream::openNewRun() const {
       if (m_eventSource->ready()) m_eventSource->closeBlockIterator(true);
       this->nextFile();
       return openNewRun();
-   // check if skipping all events in that file
-   } else if (m_SkipEvents > nev) {
-      ATH_MSG_WARNING("skipping more events " << m_SkipEvents << " than in file " << *m_inputCollectionsIterator << ", try next");
+   // check if skipping all events in that file (minus events already skipped)
+   } else if (m_SkipEvents - m_NumEvents > nev) {
+      ATH_MSG_WARNING("skipping more events " << m_SkipEvents-m_NumEvents << "(" << nev <<") than in file " << *m_inputCollectionsIterator << ", try next");
       m_NumEvents += nev;
       m_numEvt[m_fileCount] = nev;
       if (m_eventSource->ready()) m_eventSource->closeBlockIterator(true);

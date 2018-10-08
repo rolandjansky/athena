@@ -38,6 +38,11 @@ const void* VarHandleBase::typeless_cptr()
 {
   return typeless_dataPointer();
 }
+inline
+const void* VarHandleBase::typeless_cptr(bool quiet)
+{
+  return typeless_dataPointer (quiet);
+}
 
 
 } // namespace SG

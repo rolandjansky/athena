@@ -13,11 +13,6 @@
 
 // Local include(s):
 #include "xAODEgamma/versions/Electron_v1.h"
-#include "xAODEgamma/versions/EgammaContainer_v1.h"
-#include "xAODEgamma/ElectronContainerFwd.h"
-
-//Need that to compler the DATAVECTOR_BASE_FWD
-template struct DataVector_detail::DVLEltBaseInit< xAOD::Electron_v1>;
 
 namespace xAOD {
    /// The container is a simple typedef for now

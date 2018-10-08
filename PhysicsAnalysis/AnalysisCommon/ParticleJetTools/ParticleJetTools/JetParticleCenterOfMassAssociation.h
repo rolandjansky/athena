@@ -7,6 +7,7 @@
 #ifndef PARTICLEJETTOOLS_JETPARTICLECENTEROFMASSASSOCIATION_H
 #define PARTICLEJETTOOLS_JETPARTICLECENTEROFMASSASSOCIATION_H
 
+#include "AsgTools/AsgTool.h"
 #include "ParticleJetTools/JetParticleAssociation.h"
 
 #include <vector>

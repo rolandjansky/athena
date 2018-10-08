@@ -16,7 +16,6 @@ MergeHijingParsTool::MergeHijingParsTool(const std::string& type,
   m_outputObject("Hijing_event_params"),
   m_firstSubEvent(true)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("HijingParamsKey", m_outputObject, "");
 }
 

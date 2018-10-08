@@ -13,7 +13,7 @@
 L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer()
   : AbstractL1CaloPersistentCondition("CondAttrListCollection") 
 {
-  this->addSpecification(edescription, "description", "char*");
+  this->addSpecification(edescription, "description", "string");
   this->addSpecification(ebaselinePointer, "baselinePointer", "unsigned int");
   this->addSpecification(enumFadcSlices, "numFadcSlices", "unsigned int");
   this->addSpecification(el1aFadcSlice, "l1aFadcSlice", "unsigned int");
@@ -54,9 +54,9 @@ L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer()
   this->addSpecification(ebcOffsetJemSum, "bcOffsetJemSum", "unsigned int");
   this->addSpecification(ebcOffsetCmx, "bcOffsetCmx", "int");
   this->addSpecification(ebcOffsetTopo, "bcOffsetTopo", "int");
-  this->addSpecification(eformatTypePpm, "formatTypePpm", "char*");
-  this->addSpecification(eformatTypeCpJep, "formatTypeCpJep", "char*");
-  this->addSpecification(eformatTypeTopo, "formatTypeTopo", "char*");
+  this->addSpecification(eformatTypePpm, "formatTypePpm", "string");
+  this->addSpecification(eformatTypeCpJep, "formatTypeCpJep", "string");
+  this->addSpecification(eformatTypeTopo, "formatTypeTopo", "string");
   this->addSpecification(ecompressionThresholdPpm, "compressionThresholdPpm", "unsigned int");
   this->addSpecification(ecompressionThresholdCpJep, "compressionThresholdCpJep", "unsigned int");
   this->addSpecification(ecompressionThresholdTopo, "compressionThresholdTopo", "unsigned int");
@@ -150,7 +150,7 @@ void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, Con
     auto chanNum = item.first;
     const auto& attrList = item.second;
     
-    auto description = attrList[specificationName(edescription)].data<char*>();
+    auto description = attrList[specificationName(edescription)].data<std::string>();
     auto baselinePointer = attrList[specificationName(ebaselinePointer)].data<unsigned int>();
     auto numFadcSlices = attrList[specificationName(enumFadcSlices)].data<unsigned int>();
     auto l1aFadcSlice = attrList[specificationName(el1aFadcSlice)].data<unsigned int>();
@@ -191,9 +191,9 @@ void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, Con
     auto bcOffsetJemSum = attrList[specificationName(ebcOffsetJemSum)].data<unsigned int>();
     auto bcOffsetCmx = attrList[specificationName(ebcOffsetCmx)].data<int>();
     auto bcOffsetTopo = attrList[specificationName(ebcOffsetTopo)].data<int>();
-    auto formatTypePpm = attrList[specificationName(eformatTypePpm)].data<char*>();
-    auto formatTypeCpJep = attrList[specificationName(eformatTypeCpJep)].data<char*>();
-    auto formatTypeTopo = attrList[specificationName(eformatTypeTopo)].data<char*>();
+    auto formatTypePpm = attrList[specificationName(eformatTypePpm)].data<std::string>();
+    auto formatTypeCpJep = attrList[specificationName(eformatTypeCpJep)].data<std::string>();
+    auto formatTypeTopo = attrList[specificationName(eformatTypeTopo)].data<std::string>();
     auto compressionThresholdPpm = attrList[specificationName(ecompressionThresholdPpm)].data<unsigned int>();
     auto compressionThresholdCpJep = attrList[specificationName(ecompressionThresholdCpJep)].data<unsigned int>();
     auto compressionThresholdTopo = attrList[specificationName(ecompressionThresholdTopo)].data<unsigned int>();

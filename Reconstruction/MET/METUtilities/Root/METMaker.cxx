@@ -12,6 +12,7 @@
 
 // METUtilities includes
 #include "METUtilities/METMaker.h"
+#include "METUtilities/METHelpers.h"
 
 // MET EDM
 #include "xAODMissingET/MissingETContainer.h"
@@ -76,8 +77,6 @@ namespace met {
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
 
-  const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
-
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
@@ -105,6 +104,7 @@ namespace met {
     declareProperty("DoPFlow",            m_doPFlow            = false               );
     declareProperty("DoSoftTruth",        m_doSoftTruth        = false               );
     declareProperty("DoJetTruth",         m_doConstJet         = false               );
+    declareProperty("StoreSoftLinks",     m_storeSoftLinks     = false               );
 
     declareProperty("JetSelection",       m_jetSelection       = "Tight"             );//Loose, Tight, PFlow or Expert
     declareProperty("CustomCentralJetPt", m_customCenJetPtCut  = 20e3                );
@@ -234,6 +234,7 @@ namespace met {
       ATH_MSG_WARNING("Invalid object type provided: " << metType);
       return StatusCode::FAILURE;
     }
+    ATH_MSG_VERBOSE("Executing rebuildMET with input type " << metType);
 
     MissingET* met = nullptr;
     if( fillMET(met,metCont, metKey , metSource) != StatusCode::SUCCESS) {
@@ -243,6 +244,7 @@ namespace met {
 
     // If muon eloss corrections are required, create a new term to hold these if it doesn't already exist
     if(metType==xAOD::Type::Muon && (m_muEloss || m_doSetMuonJetEMScale) && !(*metCont)["MuonEloss"]) {
+      ATH_MSG_VERBOSE("Creating Muon Eloss term");
       MissingET* met_muEloss = nullptr;
       if( fillMET(met_muEloss,metCont,"MuonEloss",
 		  MissingETBase::Source::Muon | MissingETBase::Source::Calo) != StatusCode::SUCCESS) {
@@ -301,6 +303,7 @@ namespace met {
     if(!collection->empty()) {
       bool originalInputs = !acc_originalObject.isAvailable(*collection->front());
       bool isShallowCopy = dynamic_cast<const xAOD::ShallowAuxContainer*>(collection->front()->container()->getConstStore());
+      SG::sgkey_t objkey = iplink_t(*static_cast<const xAOD::IParticleContainer*>(collection->front()->container()),0).key();
       ATH_MSG_VERBOSE("const store = " << collection->front()->container()->getConstStore());
       if(isShallowCopy && originalInputs) {
 	ATH_MSG_WARNING("Shallow copy provided without \"originalObjectLinks\" decoration! "
@@ -321,7 +324,7 @@ namespace met {
 	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
 	  // if this is an uncalibrated electron below the threshold, then we put it into the soft term
 	  if(orig->type()==xAOD::Type::Electron){
-	    uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(obj->container()),obj->index()) );
+	    uniqueLinks.emplace_back( iplink_t(objkey,obj->index()) );
 	    uniqueWeights.emplace_back( 0. );
 	    ATH_MSG_WARNING("Missing an electron from the MET map. Included as a track in the soft term. pT: " << obj->pt());
 	    continue;
@@ -387,7 +390,7 @@ namespace met {
 	  }
 	}
         if(selected) {
-	  uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(obj->container()),obj->index()) );
+	  uniqueLinks.emplace_back( iplink_t(objkey,obj->index()) );
 	  uniqueWeights.emplace_back( 1. );
         }
       }
@@ -618,6 +621,8 @@ namespace met {
     std::vector<iplink_t> softJetLinks;
     std::vector<float> softJetWeights;
     bool originalInputs = jets->empty() ? false : !acc_originalObject.isAvailable(*jets->front());
+
+    SG::sgkey_t jetkey = jets->empty() ? 0 : iplink_t(*static_cast<const xAOD::JetContainer*>(jets->front()->container()),0).key();
 
     for(const auto& jet : *jets) {
       const MissingETAssociation* assoc = 0;
@@ -919,15 +924,15 @@ namespace met {
 
 	  if(hardJet){
 	    ATH_MSG_VERBOSE("Jet added at full scale");
-	    uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(jet->container()),jet->index()) );
+	    uniqueLinks.emplace_back( iplink_t(jetkey,jet->index()) );
 	    uniqueWeights.emplace_back( uniquefrac );
 	  } else {
 	    if(metSoftClus && !JVT_reject) {
 	      // add fractional contribution
 	      ATH_MSG_VERBOSE("Jet added at const scale");
 	      if (fabs(jet->eta())<2.5 || !(coreSoftClus->source()&MissingETBase::Source::Central)) {
-		softJetLinks.emplace_back( iplink_t(*static_cast<const xAOD::JetContainer*>(jet->container()),jet->index()) );
-		softJetWeights.emplace_back( uniquefrac );
+		if (m_storeSoftLinks) softJetLinks.emplace_back( iplink_t(jetkey,jet->index()) );
+		if (m_storeSoftLinks) softJetWeights.emplace_back( uniquefrac );
 		metSoftClus->add(opx,opy,opt);
 	      }
 
@@ -969,8 +974,8 @@ namespace met {
 	      metSoftTrk->add(opx,opy,opt);
 	      // Don't need to add if already done for softclus.
 	      if(!metSoftClus) {
-		softJetLinks.emplace_back( iplink_t(*static_cast<const xAOD::JetContainer*>(jet->container()),jet->index()) );
-		softJetWeights.emplace_back( uniquefrac );
+		if (m_storeSoftLinks) softJetLinks.emplace_back( iplink_t(jetkey,jet->index()) );
+		if (m_storeSoftLinks) softJetWeights.emplace_back( uniquefrac );
 	      }
 
 	      // Fill a vector with the soft constituents, if one was provided.
@@ -1116,68 +1121,19 @@ namespace met {
     return rebuildMET(met,collection,map,MissingETBase::UsageHandler::PhysicsObject);
   }
 
-  // **** Sum up MET terms ****
-
   StatusCode METMaker::buildMETSum(const std::string& totalName,
 				   xAOD::MissingETContainer* metCont,
 				   MissingETBase::Types::bitmask_t softTermsSource)
   {
-    ATH_MSG_DEBUG("Build MET total: " << totalName);
-
-    MissingET* metFinal = nullptr;
-    if( fillMET(metFinal, metCont, totalName, MissingETBase::Source::total()) != StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("failed to fill MET term \"" << totalName << "\"");
-      return StatusCode::FAILURE;
-    }
-
-    for(const auto& met : *metCont) {
-      if(MissingETBase::Source::isTotalTerm(met->source())) continue;
-      if(met->source()==invisSource) continue;
-      if(softTermsSource && MissingETBase::Source::isSoftTerm(met->source())) {
-	if(!MissingETBase::Source::hasPattern(met->source(),softTermsSource)) continue;
-      }
-      // skip the duplicate terms
-      if( met->name().find("_Duplicate")!=std::string::npos){
-	continue;
-      }
-      ATH_MSG_VERBOSE("Add MET term " << met->name() );
-      *metFinal += *met;
-    }
-
-    ATH_MSG_DEBUG( "Rebuilt MET Final --"
-		   << " mpx: " << metFinal->mpx()
-		   << " mpy: " << metFinal->mpy()
-		   );
-
-    return StatusCode::SUCCESS;
+    return met::buildMETSum (totalName, metCont, softTermsSource);
   }
 
-  //this is used to not create a private store
-  //it puts the given new MET object into the container
+
   StatusCode METMaker::fillMET(xAOD::MissingET *& met,
 			       xAOD::MissingETContainer * metCont,
 			       const std::string& metKey,
 			       const MissingETBase::Types::bitmask_t metSource){
-    if(met != nullptr){
-      ATH_MSG_ERROR("You can't fill a filled MET value");
-      return StatusCode::FAILURE;
-    }
-    metCont->reserve(10);
-
-    // add the new container as a "duplicate". This should be for the soft term to make sure the jet term is reconstructed correctly
-    std::string duplicate = "";
-    if(metCont->find(metKey)!=metCont->end()){
-      ATH_MSG_VERBOSE("avoiding adding a duplicate term");
-      duplicate = "_Duplicate";
-    }
-
-    met = new xAOD::MissingET();
-    metCont->push_back(met);
-
-    met->setName  (metKey+duplicate);
-    met->setSource(metSource);
-
-    return StatusCode::SUCCESS;
+    return met::fillMET (met, metCont, metKey, metSource);
   }
 
   // Accept Track

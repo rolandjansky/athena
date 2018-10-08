@@ -5,7 +5,6 @@
 /***************************************************************************
  The MM detector = an assembly module = STGC in amdb 
  ----------------------------------------------------
- Copyright (C) 2004 by ATLAS Collaboration
 ***************************************************************************/
 
 
@@ -16,6 +15,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
@@ -64,9 +64,7 @@ namespace MuonGM {
     bool foundShape = false;
 
     if (mgr->MinimalGeoFlag() == 0) {
-      GeoPhysVol* pvc = NULL;
-      pvc = (GeoPhysVol*)pv;
-      if (pvc != NULL) {
+      if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*> (pv)) {
 	unsigned int nchildvol = pvc->getNChildVols();
 	int llay = 0;
 	std::string::size_type npos;

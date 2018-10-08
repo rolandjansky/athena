@@ -306,9 +306,7 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString& configName) {
       Info("UsePeriodConfig","Using Run2 Period configuration, which assumes period assignment of 222222 to 999999");
       return 0;
    } else if(configName=="MC16") {
-     AddPeriod(284500,222222,324300); //MC16a: 2015 + 2016
-     AddPeriod(300000,324300,999999); //MC16c: 2017+  ... will need to update this when we know end of 2017 
-     //AddPeriod(310000,xxxxxx,999999); //MC16d: 2018+ .. to be added at end of 2017
+     /* period configs are now assigned through the parent tool for MC16 */
      
      SetUniformBinning(100,0,100);
      Info("UsePeriodConfig","Using MC16 Period configuration");
@@ -747,6 +745,31 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
 
    //iterator over bins of histogram, filling the TH1 stored in the data map
    Double_t numEntries = inputHist->GetEntries();
+   
+   std::unique_ptr<TH1> tmpHist;
+   if(channelNumber<0) {
+    m_runs[runNumber].nominalFromHists = true;
+    //for data we will do an interpolation to build the shape and then scale it to the integral ...
+    tmpHist.reset( static_cast<TH1*>(inputHist->Clone("tmpHist")) );
+    tmpHist->Reset();
+    Int_t bin,binx,biny;
+    for(biny=1; biny<=tmpHist->GetNbinsY(); biny++) {
+      for(binx=1; binx<=tmpHist->GetNbinsX(); binx++) {
+         bin = tmpHist->GetBin(binx,biny);
+         Double_t x = tmpHist->GetXaxis()->GetBinCenter(binx)/m_dataScaleFactorX;
+         Double_t y = tmpHist->GetYaxis()->GetBinCenter(biny)/m_dataScaleFactorY;
+         if(tmpHist->GetDimension()==1){
+          tmpHist->SetBinContent(bin, hist->Interpolate(x));
+         } else {
+          tmpHist->SetBinContent(bin, hist->Interpolate(x,y));
+         }
+      }
+    }
+    tmpHist->Scale( hist->Integral() / tmpHist->Integral() );
+    tmpHist->SetEntries( hist->GetEntries() );
+    hist = tmpHist.get();
+   }
+   
    Int_t bin,binx,biny;
    for(biny=1; biny<=hist->GetNbinsY(); biny++) {
       for(binx=1; binx<=hist->GetNbinsX(); binx++) {
@@ -756,7 +779,7 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
          Double_t y = hist->GetYaxis()->GetBinCenter(biny);
          //shift x,y,z by the MCScaleFactors as appropriate 
          if(channelNumber>=0) {x *= m_mcScaleFactorX; y *= m_mcScaleFactorY;}
-         else { x *= m_dataScaleFactorX; y *= m_dataScaleFactorY; }
+         //data scale factor now dealt with in above interpolation
          Int_t inBin = inputHist->FindFixBin(x,y);
          Double_t inValue = inputHist->GetBinContent(inBin);
          inputHist->SetBinContent(inBin,inValue+value);
@@ -766,6 +789,8 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
    //also keep track of the number of entries 
    //SetBinContent screws with the entry count, so had to record it before the loops above
    inputHist->SetEntries(numEntries+hist->GetEntries());
+   
+   
    m_countingMode=false;
    return 0;
 
@@ -820,7 +845,14 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TSt
                if(!m_parentTool->runLbnOK(runNbr,lbn)) continue;
 
                Run& r = m_runs[runNbr];
-               if(trigger=="None") {r.lumiByLbn[lbn].first += intLumi; r.lumiByLbn[lbn].second = mu;}
+               if(trigger=="None") {
+                r.lumiByLbn[lbn].first += intLumi; 
+                r.lumiByLbn[lbn].second = mu;
+                if(r.nominalFromHists) continue; //don't fill runs that we already filled from hists ... only happens for the 'None' trigger
+               }
+               
+               
+               
                //rescale the mu value  ... do this *after* having stored the mu value in the lumiByLbn map
                mu *= m_dataScaleFactorX; 
                //fill into input data histograms 
@@ -837,6 +869,9 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TSt
             Info("AddLumiCalcFile","Adding LumiMetaData for DataWeight (trigger=%s) (scale factor=%f)...",trigger.Data(),m_dataScaleFactorX);
          }
          
+      } else {
+        Error("AddLumiCalcFile","No LumiMetaData found in file %s. not a LumiCalcFile?", fileName.Data());
+        throw std::runtime_error("No LumiMetaData found in file, not a LumiCalcFile?");
       }
    }
 
@@ -969,6 +1004,8 @@ Int_t CP::TPileupReweighting::Initialize() {
 
    //find all channels that have too much unrepresented data (more than tolerance). We will remove these channels entirely 
 
+   std::map<int,std::map<int,bool>> trackWarnings; //map used to avoid reprinting warnings as loop over histogram bins
+
    double totalData(0);
    //count up the unrepresented data, indexed by channel 
    for(auto& run : m_runs) {
@@ -985,17 +1022,27 @@ Int_t CP::TPileupReweighting::Initialize() {
             std::map<Int_t, bool> doneChannels;
             for(auto& period : m_periods) {
                if(period.first != period.second->id) continue; //skip remappings
+	       if(period.first == -1) continue; //don't look at the global period when calculating unrepresented data
                if(!period.second->contains(run.first)) continue;
-               for(auto& inHist : period.second->inputHists) {
+               for(auto& inHist : m_periods[-1]->inputHists) { //use global period to iterate over channels
                   if(inHist.first<0) continue; //skips any data hists (shouldn't happen really)
-                  if((inHist.second)->GetBinContent(bin)==0) { 
-                     period.second->unrepData[inHist.first] += value;  //store unrep data by period too, because will use in GetUnrepresentedFraction 
-                     if(!isUnrep) {isUnrep=true; unrepDataByChannel[-1] += value;}    //store total unrep data... must be sure not to double count across the channels (if multiple channels have same unrep data
-                  }
-                  if(doneChannels[inHist.first]) continue; //dont doublecount the data if the channel was to blame across multiple periods
-                  if((inHist.second)->GetBinContent(bin)==0) {unrepDataByChannel[inHist.first] += value;doneChannels[inHist.first]=true;  }
+		  if(doneChannels[inHist.first]) continue; //dont doublecount the data if the channel was to blame across multiple period
+		  if(period.second->inputHists.find(inHist.first)==period.second->inputHists.end()) {
+		    //all the data is missing ..
+		    isUnrep=true;doneChannels[inHist.first]=true;
+		    unrepDataByChannel[inHist.first] += value; 
+		    if(!trackWarnings[inHist.first][period.first]) {
+		      trackWarnings[inHist.first][period.first]=true;
+		      Warning("Initialize","Channel %d has no configuration for period %d -- this is symptomatic of you trying to reweight an MC campaign to data not intended for that campaign (e.g. MC16a with 2017 data)",inHist.first,period.first);
+		    }
+		  } else if(period.second->inputHists[inHist.first]->GetBinContent(bin)==0) {
+		    //hist for this channel in this period exists, but this bin is empty 
+		    isUnrep=true;doneChannels[inHist.first]=true;
+		    unrepDataByChannel[inHist.first] += value; 
+		  }
                }
             }
+	    if(isUnrep) unrepDataByChannel[-1] += value; //store total unrep data
          }
       }
    }
@@ -1118,6 +1165,18 @@ Int_t CP::TPileupReweighting::Initialize() {
                 }
             }
          }
+         
+         //ensure hist is normalized correctly, if was read in from the 'actual mu' config files (where the normalization can be slightly wrong)
+         if(run.second.nominalFromHists) {
+          //get the total lumi for the run ...
+          double totLumi(0);
+          for(auto lb : run.second.lumiByLbn) {
+            totLumi += lb.second.first; 
+          }
+          hist->Scale( totLumi / hist->Integral() );
+          
+         }
+         
          //create the period's 'data' hist if necessary 
          if( hist->GetDimension()==1 ) {
               if(!period.second->primaryHists[-1] )  {
@@ -1367,7 +1426,7 @@ UInt_t CP::TPileupReweighting::GetRandomLumiBlockNumber(UInt_t runNumber) {
       lumisum += lbn.second.first;
       if(lumisum >= lumi) return lbn.first;
    }
-   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d",runNumber);
+   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d (%f vs %f)",runNumber,lumi,lumisum);
    throw std::runtime_error("Throwing 46: overran integrated luminosity for runNumber");
    return 0;
 }
@@ -1550,8 +1609,8 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
    double l = p->primaryHists[-1]->GetBinContent(bin);
 
    if (l==0 && n==0){
-      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Returning weight of zero.");
-      return 0.;
+      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Throwing exception ...");
+      throw std::runtime_error(Form("Incorrect PRW profile detected. x=%g is not in the config file profile for channel %d, period %d", x, channelNumber, periodNumber ));
    }
 
    return l/n;
@@ -1656,6 +1715,9 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
 
    Int_t bin=(m_doPrescaleWeight) ? numerHist->FindFixBin(x) : //DO NOT SHIFT IF GETTING A PRESCALE WEIGHT - applied to MC, we only shift incoming mu if we are data
      numerHist->FindFixBin(x*m_dataScaleFactorX); //if getting a data weight (i.e. running on data) MUST SCALE BY THE DATA SCALE FACTOR! (assume incoming is raw unscaled)
+   
+   //we also need to redirect the binning if necessary (unrepData=3)
+   if( (!m_doPrescaleWeight) && m_unrepresentedDataAction==3) bin = p->inputBinRedirect[bin];
    
    if(!denomHist->GetBinContent(bin)) {
      if(m_doPrescaleWeight) return -1; //happens if trigger was disabled/unavailable for that mu, even though that mu is in the dataset

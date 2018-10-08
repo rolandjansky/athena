@@ -46,6 +46,8 @@
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
 + MuonSpectrometer/MuonIdHelpers
+- PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
++ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/EventUtils
@@ -59,6 +61,7 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/ThinningUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/D3PDTools/SampleHandler
@@ -99,9 +102,11 @@
 + Reconstruction/tauRecTools
 + Tools/PathResolver
 + Tools/ART
++ Tools/DirectIOART
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 + Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 + Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
@@ -109,6 +114,9 @@
 + Trigger/TrigConfiguration/TrigConfInterfaces
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TrigCost/EnhancedBiasWeighter
++ Trigger/TrigCost/RatesAnalysis
++ Trigger/TrigCost/RatesAnalysisExamplesXAOD
 + Trigger/TrigEvent/TrigDecisionInterface
 + Trigger/TrigEvent/TrigNavStructure
 + Trigger/TrigEvent/TrigRoiConversion

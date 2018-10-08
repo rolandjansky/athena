@@ -83,6 +83,13 @@ public:
      */
   void registerParameter(const std::string& name, const std::string& message, const std::string& default_val="");
 
+  /**
+  * @brief test whether an (experimental) feature should be enabled
+  *
+  * Note: It's not a particularly cheap operation, so avoid it in loops.
+  */
+  bool feature(std::string const & name) const;
+
 private:
     ///True if the class has read the settings from a file or something
     bool m_configured;
@@ -95,6 +102,9 @@ private:
 
     ///Data used when configuring the selections
     std::vector<SelectionConfigurationData> m_selections;
+
+    ///Kill-switch for experimental features
+    std::vector<std::string> m_killedFeatures;
 
     ///private constructor
     ConfigurationSettings();

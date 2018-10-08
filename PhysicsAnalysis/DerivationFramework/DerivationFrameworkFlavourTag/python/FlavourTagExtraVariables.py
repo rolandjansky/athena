@@ -6,7 +6,7 @@
 ## b-jet triggers:
 ## tracks: keep variables as used for the tracking CP group smart-list:
 FTExtraVars_bjetTriggerTracks=[]
-from DerivationFrameworkCore.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent as FTExtraVars_InDetTrackParticlesCPContent
+from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent as FTExtraVars_InDetTrackParticlesCPContent
 FT_IDTPstring="InDetTrackParticlesAux"
 for FT_IDTPitem in FTExtraVars_InDetTrackParticlesCPContent:
     if (FT_IDTPstring == FT_IDTPitem.split(".")[0]):

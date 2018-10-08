@@ -2,6 +2,7 @@
 
   <!-- GoodRunsListSelectionTool -->
   <class name="GoodRunsListSelectionTool" />
+  <class name="GRLSelectorAlg" />
   
 
   <exclusion>

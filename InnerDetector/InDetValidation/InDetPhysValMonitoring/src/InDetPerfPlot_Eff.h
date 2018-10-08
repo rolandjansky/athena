@@ -34,6 +34,8 @@ public:
   void fill(const xAOD::TruthParticle& truth, const bool isGood);
   void BT_fill(const xAOD::TruthParticle& truth, float weight);
   void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
+  void mu_fill(const xAOD::TruthParticle& truth, const bool isGood, const unsigned int nMuEvents);
+
 private:
   TEfficiency* m_trackeff_vs_eta;
   TEfficiency* m_trackeff_vs_pt;
@@ -61,6 +63,11 @@ private:
   TProfile* m_trackinjeteff_vs_dr_lt_j50;
   TProfile* m_trackinjeteff_vs_dr_gr_j100;
   TProfile* m_trackinjeteff_vs_jetet;
+  
+  TEfficiency* m_eff_vs_mu;
+  TEfficiency* m_eff_vs_mu2;
+  TEfficiency* m_eff_vs_mu3;
+  TEfficiency* m_eff_vs_muTotal;
 
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
