@@ -593,7 +593,7 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="Cluster width in eta"/>
 </h>
-<h id="clusterPhiWidth_eta_l0pix_endcap" type="TProfile" title="Cluster width in phi vs eta: Pixel Endcap">
+<h id="clusterPhiWidth_eta_l0pix_barrel" type="TProfile" title="Cluster width in phi vs eta: Pixel Barrel">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="Cluster width in phi"/>
 </h>
