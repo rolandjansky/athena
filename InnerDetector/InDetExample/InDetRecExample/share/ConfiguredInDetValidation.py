@@ -116,7 +116,7 @@ class  ConfiguredInDetValidation:
                                                           useTRT                 = DetFlags.haveRIO.TRT_on()       )
       
       if InDetFlags.useEtaDependentCuts() and NewTrackingCuts.mode() == "SLHC":
-        InDetTrackClusterAssValidation.MomentumCut               = 2. * NewTrackingCuts.minPT()[0]
+        InDetTrackClusterAssValidation.MomentumCut               = min(NewTrackingCuts.minPT())
         InDetTrackClusterAssValidation.MinNumberClusters         = NewTrackingCuts.minClusters()[0]
         InDetTrackClusterAssValidation.InDetEtaDependentCutsSvc  = InDetEtaDependentCutsSvc
       else:

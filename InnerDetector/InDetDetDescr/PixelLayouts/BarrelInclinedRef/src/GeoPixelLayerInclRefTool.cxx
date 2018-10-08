@@ -320,7 +320,7 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   //
   // Calculate layerThicknessN: Thickness from layer radius to min radius of envelope
   // Calculate layerThicknessP: Thickness from layer radius to max radius of envelope
-  //      
+  //       
   double ladderHalfThickN = pixelLadder.thicknessN();
   double ladderHalfThickP = pixelLadder.thicknessP();
   double ladderHalfWidth = pixelLadder.width()/2;
@@ -328,20 +328,29 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
 	    << ladderHalfThickN << " "<< ladderHalfThickP << " " << ladderHalfWidth 
 	    << " " << ladderTilt << " " << layerRadius << endreq;
   
-  // Calculate distance of closest approach to a line following the surface of the ladder.
-  double grad = -1/tan(std::abs(ladderTilt)); // Gradient of this line.
-  // x1, y1 is the point on the center of ladder surface.
-  double y1 = -ladderHalfThickN*sin(std::abs(ladderTilt));
-  double x1 = -ladderHalfThickN*cos(std::abs(ladderTilt))+layerRadius;
-  // x1, y2 is the point of closest approach.
-  double y2 = (y1 - grad*x1)/(1+grad*grad);
-  double x2 = -grad*y2;
-  // dist is the distance between these two points. If this is further than the width of the ladder we 
-  // can use the corner of the ladder.
-  double distToClosestPoint = sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
-  // distance of closest approach.
-  double radClosest = (y1 - grad*x1)/(sqrt(1+grad*grad));
-
+  double distToClosestPoint = 0.;
+  double radClosest = -ladderHalfThickN*cos(std::abs(ladderTilt))+layerRadius;
+  
+  if (ladderTilt!=0.) {
+    // Calculate distance of closest approach to a line following the surface of the ladder.
+    double grad = -1/tan(std::abs(ladderTilt)); // Gradient of this line.
+    
+    // x1, y1 is the point on the center of ladder surface.
+    double y1 = -ladderHalfThickN*sin(std::abs(ladderTilt));
+    
+    std::cout << "y1 = " << y1 << std::endl;
+    
+    double x1 = -ladderHalfThickN*cos(std::abs(ladderTilt))+layerRadius;
+    
+    // x1, y2 is the point of closest approach.
+    double y2 = (y1 - grad*x1)/(1+grad*grad);
+    double x2 = -grad*y2;
+    // dist is the distance between these two points. If this is further than the width of the ladder we 
+    // can use the corner of the ladder.
+    distToClosestPoint = sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
+    // distance of closest approach.
+    radClosest = (y1 - grad*x1)/(sqrt(1+grad*grad));
+  }
   //msg(MSG::DEBUG) << "Distance of closest approach: " << radClosest << endreq;
   //msg(MSG::DEBUG) << "Distance along ladder surface from center to point of closest approach: " <<  distToClosestPoint << endreq;
 
@@ -364,6 +373,6 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   if (distToClosestPoint < ladderHalfWidth) {
     m_layerThicknessN = layerRadius - radClosest;
   }
-
+  
 }
 

@@ -6017,7 +6017,7 @@ public:
                                       0) +
             covmat(1, 1)) - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))));
             newsinstereo = sin(0.5 * asin(2 * covmat(0, 1) / (v0 - v1)));
-            newerror[0] = sqrt(v0);
+            if (v0 > 0.) newerror[0] = sqrt(v0);
           }
           double cosstereo = (newsinstereo == 0) ? 1. : sqrt(1 - newsinstereo * newsinstereo);
           if (cosstereo != 1.) {
