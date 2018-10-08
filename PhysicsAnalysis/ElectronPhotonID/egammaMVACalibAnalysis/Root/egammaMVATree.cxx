@@ -18,7 +18,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackingPrimitives.h"
 
-#include "egammaMVACalib/egammaMVATree.h"
+#include "egammaMVACalibAnalysis/egammaMVATree.h"
 
 
 using namespace egammaMVAFunctions;

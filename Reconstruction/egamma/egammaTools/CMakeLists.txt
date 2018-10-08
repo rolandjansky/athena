@@ -33,7 +33,6 @@ atlas_depends_on_subdirs( PRIVATE
 	LumiBlock/LumiBlockComps
 	PhysicsAnalysis/AnalysisCommon/PATCore
 	PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-	PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
 	Reconstruction/egamma/egammaInterfaces
 	Reconstruction/egamma/egammaRecEvent
 	Reconstruction/egamma/egammaUtils
@@ -47,8 +46,8 @@ atlas_add_component( egammaTools
 	INCLUDE_DIRS
 	LINK_LIBRARIES CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel 
 	AthContainers StoreGateLib  Identifier EventKernel EventPrimitives FourMom FourMomUtils  xAODCaloEvent  
-	xAODEgamma xAODTracking xAODTruth GaudiKernel LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib 
-	ElectronPhotonFourMomentumCorrectionLib egammaRecEvent egammaUtils TrkEventPrimitives )
+	xAODEgamma xAODTracking xAODTruth GaudiKernel LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib 
+	EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils TrkEventPrimitives )
 
 # Install files from the package:
 atlas_install_headers( egammaTools )

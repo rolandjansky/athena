@@ -1,18 +1,16 @@
-// Dear Emacs, this is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef MVA_CALIB_TOOL_H_
-#define MVA_CALIB_TOOL_H_
+#ifndef MVA_CALIB_ANALYSIS_TOOL_H_
+#define MVA_CALIB_ANALYSIS_TOOL_H_
 
 #include <string>
 #include <set>
 
 #include "AsgTools/AsgTool.h"
-#include "egammaMVACalib/IegammaMVATool.h"
+#include "egammaMVACalibAnalysis/IegammaMVATool.h"
 #include "xAODTracking/TrackParticleFwd.h"
 
 class egammaMVACalib;

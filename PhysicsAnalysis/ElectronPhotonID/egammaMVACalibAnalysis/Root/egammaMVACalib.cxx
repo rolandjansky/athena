@@ -34,7 +34,7 @@
 #include <TMVA/MethodBDT.h>
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
-#include "egammaMVACalib/egammaMVACalib.h"
+#include "egammaMVACalibAnalysis/egammaMVACalib.h"
 #include "MVAUtils/BDT.h"
 #include "PathResolver/PathResolver.h"
 
