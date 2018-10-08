@@ -107,6 +107,9 @@ StatusCode G4AtlasAlg::initialize()
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
 
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
+
   ATH_MSG_DEBUG("End of initialize()");
   return StatusCode::SUCCESS;
 }
@@ -290,10 +293,6 @@ StatusCode G4AtlasAlg::execute()
 
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
-  if(!m_senDetTool) {
-    // FIXME temporary lazy init. To be (re)moved
-    ATH_CHECK(m_senDetTool.retrieve());
-  }
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   SG::ReadHandle<McEventCollection> inputTruthCollection(m_inputTruthCollectionKey);
@@ -360,10 +359,6 @@ StatusCode G4AtlasAlg::execute()
 
   // Register all of the collections if there are any new-style SDs
   ATH_CHECK(m_senDetTool->EndOfAthenaEvent());
-  if(!m_fastSimTool) {
-    // FIXME temporary lazy init. To be (re)moved
-    ATH_CHECK(m_fastSimTool.retrieve());
-  }
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   ATH_CHECK( m_truthRecordSvc->releaseEvent() );
