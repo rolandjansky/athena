@@ -333,6 +333,8 @@ class RingerFexNoHadBelow15GeVConfig( RingerFexConfig ):
     super(RingerFexNoHadBelow15GeVConfig, self).__init__(name)
     self.UseHad = False
     self.NoHadUB = 15
+    #self.HltFeature = "HLT_TrigT2CaloEgamma_NoHad"
+    #self.Feature = "TrigT2CaloEgamma_NoHad"
     #from AthenaCommon.Constants import VERBOSE,DEBUG
     #self.OutputLevel = VERBOSE
 

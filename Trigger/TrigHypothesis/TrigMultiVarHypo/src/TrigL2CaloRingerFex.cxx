@@ -166,7 +166,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   ///Retrieve rings pattern information
   const xAOD::TrigRingerRings *ringerShape = get_rings(outputTE);
   if(!ringerShape){
-    ATH_MSG_WARNING( "Can not retrieve xADO::TrigRingerRings from storegate." );
+    ATH_MSG_WARNING( "Can not retrieve xAOD::TrigRingerRings from storegate." );
     return HLT::OK;
   }///protection
 

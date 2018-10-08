@@ -91,7 +91,7 @@ class ringerNoHadBelow15GeVVersion (JobProperty):
     """ Version of Ringer tunes for nohadfc chains """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='RingerSelectorTools/TrigL2_20180915_v9_nohad15/'
+    StoredValue='RingerSelectorTools/TrigL2_20180927_v9p4_nohad15'
 
 _flags.append(ringerNoHadBelow15GeVVersion)
 

@@ -169,6 +169,8 @@ class TrigL2CaloRingerNoHadBelow15GeVFex( TrigL2CaloRingerFex ):
     self.SectionRingsNoHad = preprocNoHad.SectionRings
     self.NormalisationRingsNoHad =  preprocNoHad.NormalisationRings
     self.NRingsNoHad = preprocNoHad.NRings
+    #self.Feature    = "TrigT2CaloEgamma_NoHad"
+    #self.HltFeature = "TrigRingerNeuralFex_NoHad"
 
 class TrigL2CaloRingerFex_Empty( TrigL2CaloRingerFexBase ):
   __slots__ = []
@@ -205,6 +207,7 @@ class TrigL2CaloRingerNoHadHypo_e_ID(TrigL2CaloRingerHypo_e_ID):
   def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerNoHadHypo_e_ID, self ).__init__( name, threshold, IDinfo, trigType )
     self.CalibPath = theRingerNoHadBelow15GeVConfig.get_cutDefs_path(trigType, IDinfo)
+    #self.HltFeature = 'TrigRingerNeuralFex_NoHad'
 
 
 class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):

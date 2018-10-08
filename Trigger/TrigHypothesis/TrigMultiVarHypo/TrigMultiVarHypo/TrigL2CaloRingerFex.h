@@ -46,8 +46,6 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
 
     /* Helper functions for feature extraction */
     const xAOD::TrigRingerRings* get_rings(const HLT::TriggerElement* te);
-    /* Helper functions for feature extraction */
-    const xAOD::TrigEMCluster* get_cluster(const HLT::TriggerElement* te);
 
     std::string m_calibPath;
     ///feature keys
@@ -84,13 +82,6 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     TrigL2CaloRingerReader                   m_reader;
 
 };
-//!===============================================================================================
-/// get the cluster inside of container
-const xAOD::TrigEMCluster* TrigL2CaloRingerFex::get_cluster(const HLT::TriggerElement* te) {
-    const xAOD::TrigEMCluster *pattern = nullptr;
-    HLT::ErrorCode status = getFeature(te, pattern, m_feature);
-    return (status == HLT::OK) ? pattern : nullptr;
-}
 //!===============================================================================================
 // get the ringer rings inside of container
 const xAOD::TrigRingerRings* TrigL2CaloRingerFex::get_rings(const HLT::TriggerElement* te){
