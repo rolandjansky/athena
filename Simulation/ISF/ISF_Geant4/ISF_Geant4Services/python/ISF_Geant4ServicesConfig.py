@@ -58,25 +58,3 @@ def getPassBackGeant4SimSvc(name="ISF_PassBackGeant4SimSvc", **kwargs):
 def getAFIIGeant4SimSvc(name="ISF_AFIIGeant4SimSvc", **kwargs):
     kwargs.setdefault('SimulatorTool'       , 'ISF_AFIIGeant4Tool')
     return getPassBackGeant4SimSvc(name, **kwargs)
-
-def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('SimulationTool'        , 'ISFG4TransportTool'         )
-    kwargs.setdefault('PrintTimingInfo'       , ISF_Flags.DoTimeMonitoring() )
-    return CfgMgr.ISF__Geant4Tool(name, **kwargs)
-
-def getFullGeant4Tool(name="ISF_FullGeant4Tool", **kwargs):
-    kwargs.setdefault('SimulationTool'        , 'FullG4TransportTool'        )
-    return getGeant4Tool(name, **kwargs)
-
-def getLongLivedGeant4Tool(name="ISF_LongLivedGeant4Tool", **kwargs):
-    kwargs.setdefault('SimulationTool'       , 'QuasiStableG4TransportTool')
-    return getFullGeant4Tool(name, **kwargs)
-
-def getPassBackGeant4Tool(name="ISF_PassBackGeant4Tool", **kwargs):
-    kwargs.setdefault('SimulationTool'        , 'PassBackG4TransportTool'        )
-    return getGeant4Tool(name, **kwargs)
-
-def getAFIIGeant4Tool(name="ISF_AFIIGeant4Tool", **kwargs):
-    kwargs.setdefault('SimulationTool'       , 'AFII_G4TransportTool')
-    return getPassBackGeant4Tool(name, **kwargs)
