@@ -33,7 +33,13 @@ namespace Trk {
 
     /** default destructor */
     virtual ~SpaceTimePointBase() {};
-      
+
+    /** default move constructor */
+    SpaceTimePointBase(SpaceTimePointBase&& ) = default;
+
+    /** default move assignment operator */
+    SpaceTimePointBase& operator= (SpaceTimePointBase&& ) = default;		
+
     /** access to the global position (implemented in concrete classes) */
     virtual const Amg::Vector3D& globalPosition() const = 0;
     
