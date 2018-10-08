@@ -1869,16 +1869,6 @@ class archiveExecutor(scriptExecutor):
         self.setPreExeStart()
         self._memMonitor = False
 
-        #unpack archived inputs
-        import zipfile
-        if 'inputDataFile' in self.conf.argdict:
-            for f in self.conf.argdict['inputDataFile'].value:
-                if zipfile.is_zipfile(f):
-                    archive = zipfile.ZipFile(f, mode='r')
-                    print 'Extracting input zip file {0} to temporary directory {1}'.format(f,'tmp')
-                    archive.extractall('tmp')
-                    archive.close()
-
         #archiving
         if self._exe == 'zip':
             if 'outputArchFile' not in self.conf.argdict:
@@ -1887,7 +1877,7 @@ class archiveExecutor(scriptExecutor):
             self._cmd = ['python']
             try:
                 with open('zip_wrapper.py', 'w') as zip_wrapper:
-                    print >> zip_wrapper, "import zipfile, tarfile, os, shutil"
+                    print >> zip_wrapper, "import zipfile, os, shutil"
                     if os.path.exists(self.conf.argdict['outputArchFile'].value[0]):
                         #appending input file(s) to existing archive
                         print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='a', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
@@ -1895,18 +1885,27 @@ class archiveExecutor(scriptExecutor):
                         #creating new archive
                         print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
                     print >> zip_wrapper, "for f in {}:".format(self.conf.argdict['inputDataFile'].value)
-                    print >> zip_wrapper, "    if not zipfile.is_zipfile(f):"
+                    print >> zip_wrapper, "    if zipfile.is_zipfile(f):"
+                    print >> zip_wrapper, "        archive = zipfile.ZipFile(f, mode='r')"
+                    print >> zip_wrapper, "        print 'Extracting input zip file {0} to temporary directory {1}'.format(f,'tmp')"
+                    print >> zip_wrapper, "        archive.extractall('tmp')"
+                    print >> zip_wrapper, "        archive.close()"
+                    # remove stuff as soon as it is saved to output in order to save disk space at worker node
+                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
+                    print >> zip_wrapper, "            print 'Removing input zip file {}'.format(f)"
+                    print >> zip_wrapper, "            os.unlink(f)"
+                    print >> zip_wrapper, "        if os.path.isdir('tmp'):"
+                    print >> zip_wrapper, "            for root, dirs, files in os.walk('tmp'):"
+                    print >> zip_wrapper, "                for name in files:"
+                    print >> zip_wrapper, "                    print 'Zipping {}'.format(name)"
+                    print >> zip_wrapper, "                    zf.write(os.path.join(root, name), name, compress_type=zipfile.ZIP_STORED)"
+                    print >> zip_wrapper, "            shutil.rmtree('tmp')"
+                    print >> zip_wrapper, "    else:"
                     print >> zip_wrapper, "        print 'Zipping {}'.format(os.path.basename(f))"
                     print >> zip_wrapper, "        zf.write(f, arcname=os.path.basename(f), compress_type=zipfile.ZIP_STORED)"
-                    print >> zip_wrapper, "    if os.access(f, os.F_OK):"
-                    print >> zip_wrapper, "        print 'Removing input file {}'.format(f)"
-                    print >> zip_wrapper, "        os.unlink(f)"
-                    print >> zip_wrapper, "if os.path.isdir('tmp'):"
-                    print >> zip_wrapper, "    for root, dirs, files in os.walk('tmp'):"
-                    print >> zip_wrapper, "        for name in files:"
-                    print >> zip_wrapper, "            print 'Zipping {}'.format(name)"
-                    print >> zip_wrapper, "            zf.write(os.path.join(root, name), name, compress_type=zipfile.ZIP_STORED)"
-                    print >> zip_wrapper, "    shutil.rmtree('tmp')"
+                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
+                    print >> zip_wrapper, "            print 'Removing input file {}'.format(f)"
+                    print >> zip_wrapper, "            os.unlink(f)"
                     print >> zip_wrapper, "zf.close()"
                 os.chmod('zip_wrapper.py', 0755)
             except (IOError, OSError) as e:
@@ -1921,6 +1920,7 @@ class archiveExecutor(scriptExecutor):
 
         #unarchiving
         elif self._exe == 'unarchive':
+            import zipfile
             for infile in self.conf.argdict['inputArchFile'].value:
                  if not zipfile.is_zipfile(infile):
                      raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
@@ -1946,3 +1946,4 @@ class archiveExecutor(scriptExecutor):
                 )
             self._cmd.append('unarchive_wrapper.py')
         super(archiveExecutor, self).preExecute(input=input, output=output)
+
