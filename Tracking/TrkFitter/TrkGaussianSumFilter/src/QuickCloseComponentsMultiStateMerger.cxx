@@ -192,7 +192,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   MultiComponentStateMap unmergedComponentsMap(comparator);
   
   // Clone unmerged state as STL methods deletes components
-  Trk::MultiComponentState* clonedUnmergedState = const_cast<Trk::MultiComponentState*>( unmergedState.clone() );
+  Trk::MultiComponentState* clonedUnmergedState = unmergedState.clone();
 
   component = clonedUnmergedState->begin();
 
