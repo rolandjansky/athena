@@ -41,6 +41,7 @@
 
 //ROOT
 #include "TPRegexp.h"
+#include "TF1.h"
 
 //LAr infos:
 #include "Identifier/HWIdentifier.h"
@@ -200,7 +201,8 @@ LArNoiseCorrelationMon::bookHistograms()
 
     /**declare strings for histograms title*/
     hist_name = "NoiseCorr_"; 
-    hist_summary_name = "SummaryPlot_maximumCorr"; 
+    hist_summary_name1 = "SummaryPlot_maximumCorr"; 
+    hist_summary_name2 = "SummaryPlot_maximumCorr_sigma"; 
     hist_title = "LAr Noise Correlation";
     m_strHelper = new LArOnlineIDStrHelper(m_LArOnlineIDHelper);
     m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
@@ -404,6 +406,10 @@ void LArNoiseCorrelationMon::fillInCorrelations()
   for (auto const& feb_entry : m_FEBhistograms)
     {
       double tmp_maxcorr = 0.0;
+      TH1F *hist_tmp_correlation;
+      hist_tmp_correlation         = new TH1F("Tmp_correlation_value", "TMP correlation value", 40, -1.0, 1.0 );
+      TF1 *fit_gaus                = new TF1("Tmp Gaussian fit", "gaus", -1.0, 1.0);
+      double Sigma_gaus  = 0.0;
       m_histos=feb_entry.second;
       for(int i=1;i<=Nchan;i++)
 	{
@@ -427,48 +433,71 @@ void LArNoiseCorrelationMon::fillInCorrelations()
 	      m_histos.first->SetBinContent(i,j,cor);
 	      m_histos.first->SetBinContent(j,i,cor);
 	      // calculate maximum correlation
+	      // First variable: maximum correlation in the FEB
 	      if ( tmp_maxcorr < std::abs(cor) )
 		tmp_maxcorr = std::abs(cor);
-	      else
-		tmp_maxcorr = tmp_maxcorr;
-
+	      // Second maximum correlation/sigma
+	      hist_tmp_correlation->Fill(cor);
 	    }
 	}
+      
+      hist_tmp_correlation->Fit(fit_gaus);
+      Sigma_gaus = fit_gaus->GetParameter(2);
 
+      // Fill in summary histogram
       TPMERegexp tmp('_');
       int nsplit = tmp.Split( m_histos.first->GetTitle() );
       if(m_DoSummary){
 	if(nsplit > 1){
 	  // EMB
 	  if(m_LArOnlineIDHelper->isEMBchannel( feb_entry.first )){
-	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first) )
-	      h_summary_plot_EMBA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr);
-	    else
-	      h_summary_plot_EMBC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr);
+	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first) ){
+	      h_summary_plot1_EMBA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr);
+	      h_summary_plot2_EMBA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus);
+	    }
+	    else{
+	      h_summary_plot1_EMBC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr);
+	      h_summary_plot2_EMBC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus);
+	    }
 	  }
 	  // EMEC
 	  else if(m_LArOnlineIDHelper->isEMECchannel( feb_entry.first )){
-	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first))
-	      h_summary_plot_EMECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr);
-	    else
-	      h_summary_plot_EMECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr);
+	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first)){
+	      h_summary_plot1_EMECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr);
+	      h_summary_plot2_EMECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr/Sigma_gaus);
+	    }
+	    else{
+	      h_summary_plot1_EMECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr);
+	      h_summary_plot2_EMECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr/Sigma_gaus);
+	    }
 	  }
 	  // HEC
 	  else if(m_LArOnlineIDHelper->isHECchannel( feb_entry.first )){
-	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first))
-	      h_summary_plot_HECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr );
-	    else
-	      h_summary_plot_HECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr );
+	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first)){
+	      h_summary_plot1_HECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr );
+	      h_summary_plot2_HECA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus );
+	    }
+	    else{
+	      h_summary_plot1_HECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr );
+	      h_summary_plot2_HECC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]),  tmp_maxcorr/Sigma_gaus );
+	    }
 	  }
 	  // FCAL
 	  else if(m_LArOnlineIDHelper->isFCALchannel( feb_entry.first )){
-	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first))
-	      h_summary_plot_FCALA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
-	    else
-	      h_summary_plot_FCALC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
+	    if(m_LArOnlineIDHelper->pos_neg(feb_entry.first)){
+	      h_summary_plot1_FCALA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
+	      h_summary_plot2_FCALA->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
+	    }
+	    else{
+	      h_summary_plot1_FCALC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
+	      h_summary_plot2_FCALC->SetBinContent( atoi(tmp[0]), atoi(tmp[1]), tmp_maxcorr );
+	    }
 	  }
 	}
       }
+      // Delete them in order to save the memory
+      delete hist_tmp_correlation;
+      delete fit_gaus;
     }
 }
 
@@ -494,22 +523,38 @@ void LArNoiseCorrelationMon::bookSelectedFEBs(MonGroup& grEMBA,MonGroup& grEMBC,
   }
   // summary plot
   if(m_DoSummary){
-    h_summary_plot_EMBA     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMBA"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_EMBC     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMBC"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_EMECA    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMECA" ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_EMECC    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMECC" ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_HECA     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot HECA"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_HECC     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot HECC"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_FCALA    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot FCALA" ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_FCALC    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot FCALC" ,16, 0, 16, 34, 0, 34);
-    grEMBA.regHist(h_summary_plot_EMBA).ignore();  
-    grEMBC.regHist(h_summary_plot_EMBC).ignore();  
-    grEMECA.regHist(h_summary_plot_EMECA).ignore();  
-    grEMECC.regHist(h_summary_plot_EMECC).ignore();  
-    grHECA.regHist(h_summary_plot_HECA).ignore();  
-    grHECC.regHist(h_summary_plot_HECC).ignore();  
-    grFCALA.regHist(h_summary_plot_FCALA).ignore();  
-    grFCALC.regHist(h_summary_plot_FCALC).ignore();  
+    h_summary_plot1_EMBA     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMBA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_EMBC     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMBC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_EMECA    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMECA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_EMECC    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMECC" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_HECA     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot HECA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_HECC     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot HECC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_FCALA    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot FCALA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_FCALC    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot FCALC" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMBA     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMBA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMBC     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMBC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMECA    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMECA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMECC    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMECC" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_HECA     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot HECA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_HECC     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot HECC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_FCALA    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot FCALA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_FCALC    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot FCALC" ,16, 0, 16, 34, 0, 34);
+    grEMBA.regHist(h_summary_plot1_EMBA).ignore();  
+    grEMBC.regHist(h_summary_plot1_EMBC).ignore();  
+    grEMECA.regHist(h_summary_plot1_EMECA).ignore();  
+    grEMECC.regHist(h_summary_plot1_EMECC).ignore();  
+    grHECA.regHist(h_summary_plot1_HECA).ignore();  
+    grHECC.regHist(h_summary_plot1_HECC).ignore();  
+    grFCALA.regHist(h_summary_plot1_FCALA).ignore();  
+    grFCALC.regHist(h_summary_plot1_FCALC).ignore();  
+    grEMBA.regHist(h_summary_plot2_EMBA).ignore();  
+    grEMBC.regHist(h_summary_plot2_EMBC).ignore();  
+    grEMECA.regHist(h_summary_plot2_EMECA).ignore();  
+    grEMECC.regHist(h_summary_plot2_EMECC).ignore();  
+    grHECA.regHist(h_summary_plot2_HECA).ignore();  
+    grHECC.regHist(h_summary_plot2_HECC).ignore();  
+    grFCALA.regHist(h_summary_plot2_FCALA).ignore();  
+    grFCALC.regHist(h_summary_plot2_FCALC).ignore();  
   }
 }
 
@@ -528,22 +573,41 @@ void LArNoiseCorrelationMon::bookAllFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGr
   }
   // summary plot
   if(m_DoSummary){
-    h_summary_plot_EMBA     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMBA"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_EMBC     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMBC"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_EMECA    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMECA" ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_EMECC    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot EMECC" ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_HECA     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot HECA"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_HECC     = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot HECC"  ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_FCALA    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot FCALA" ,16, 0, 16, 34, 0, 34);
-    h_summary_plot_FCALC    = TH2F_LW::create(hist_summary_name.c_str(), "Summary plot FCALC" ,16, 0, 16, 34, 0, 34);
-    grEMBA.regHist(h_summary_plot_EMBA).ignore();  
-    grEMBC.regHist(h_summary_plot_EMBC).ignore();  
-    grEMECA.regHist(h_summary_plot_EMECA).ignore();  
-    grEMECC.regHist(h_summary_plot_EMECC).ignore();  
-    grHECA.regHist(h_summary_plot_HECA).ignore();  
-    grHECC.regHist(h_summary_plot_HECC).ignore();  
-    grFCALA.regHist(h_summary_plot_FCALA).ignore();  
-    grFCALC.regHist(h_summary_plot_FCALC).ignore();  
+    h_summary_plot1_EMBA     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMBA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_EMBC     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMBC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_EMECA    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMECA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_EMECC    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot EMECC" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_HECA     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot HECA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_HECC     = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot HECC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_FCALA    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot FCALA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot1_FCALC    = TH2F_LW::create(hist_summary_name1.c_str(), "Summary1 plot FCALC" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMBA     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMBA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMBC     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMBC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMECA    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMECA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_EMECC    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot EMECC" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_HECA     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot HECA"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_HECC     = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot HECC"  ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_FCALA    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot FCALA" ,16, 0, 16, 34, 0, 34);
+    h_summary_plot2_FCALC    = TH2F_LW::create(hist_summary_name2.c_str(), "Summary2 plot FCALC" ,16, 0, 16, 34, 0, 34);
+
+    grEMBA.regHist(h_summary_plot1_EMBA).ignore();  
+    grEMBC.regHist(h_summary_plot1_EMBC).ignore();  
+    grEMECA.regHist(h_summary_plot1_EMECA).ignore();  
+    grEMECC.regHist(h_summary_plot1_EMECC).ignore();  
+    grHECA.regHist(h_summary_plot1_HECA).ignore();  
+    grHECC.regHist(h_summary_plot1_HECC).ignore();  
+    grFCALA.regHist(h_summary_plot1_FCALA).ignore();  
+    grFCALC.regHist(h_summary_plot1_FCALC).ignore();  
+
+    grEMBA.regHist(h_summary_plot2_EMBA).ignore();  
+    grEMBC.regHist(h_summary_plot2_EMBC).ignore();  
+    grEMECA.regHist(h_summary_plot2_EMECA).ignore();  
+    grEMECC.regHist(h_summary_plot2_EMECC).ignore();  
+    grHECA.regHist(h_summary_plot2_HECA).ignore();  
+    grHECC.regHist(h_summary_plot2_HECC).ignore();  
+    grFCALA.regHist(h_summary_plot2_FCALA).ignore();  
+    grFCALC.regHist(h_summary_plot2_FCALC).ignore();  
+
   }
 }
 
