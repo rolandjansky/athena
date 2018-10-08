@@ -215,8 +215,13 @@ StatusCode LArCellDeadOTXCorr::initialize()
 //  process method
 //
 
-StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ) {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
+StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  return process(cellCont,ctx);
+}
+
+StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont, 
+					const EventContext& ctx) const {
         ATH_MSG_DEBUG (" in process...");
 
 	SG::ReadCondHandle<LArBadFebCont> badFebHdl{m_badFebKey,ctx};
