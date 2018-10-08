@@ -181,10 +181,11 @@ namespace met {
 	}
 
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
-	toolName = "MuonCalibrationAndSmearingTool";
-	m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/STAutoConf_"+toolName);
-	ATH_CHECK(m_muonCalibrationAndSmearingTool.retrieve());
-
+	if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) { 
+	  toolName = "MuonCalibrationAndSmearingTool";
+	  m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/STAutoConf_"+toolName);
+	  ATH_CHECK(m_muonCalibrationAndSmearingTool.retrieve());
+	}
 	ATH_MSG_DEBUG( "Initialising EgcalibTool " );
 	toolName = "EgammaCalibrationAndSmearingTool";
 	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
