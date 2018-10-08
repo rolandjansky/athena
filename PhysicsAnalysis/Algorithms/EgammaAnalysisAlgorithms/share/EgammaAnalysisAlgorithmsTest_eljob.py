@@ -106,7 +106,7 @@ submitDir = options.submission_dir
 if options.unit_test:
     import os
     import tempfile
-    submitDir = tempfile.mkdtemp( prefix = 'egammaTest_', dir = os.getcwd() )
+    submitDir = tempfile.mkdtemp( prefix = 'egammaTest_'+dataType+'_', dir = os.getcwd() )
     os.rmdir( submitDir )
     pass
 

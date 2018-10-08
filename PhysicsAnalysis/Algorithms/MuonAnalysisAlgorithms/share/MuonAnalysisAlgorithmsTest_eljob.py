@@ -115,7 +115,7 @@ submitDir = options.submission_dir
 if options.unit_test:
     import os
     import tempfile
-    submitDir = tempfile.mkdtemp( prefix = 'muonTest_', dir = os.getcwd() )
+    submitDir = tempfile.mkdtemp( prefix = 'muonTest_'+dataType+'_', dir = os.getcwd() )
     os.rmdir( submitDir )
     pass
 

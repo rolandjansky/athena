@@ -41,8 +41,12 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-   atlas_add_test( testJob
+   atlas_add_test( testJobData
       SCRIPT MetAnalysisAlgorithmsTest_eljob.py )
+   atlas_add_test( testJobFullSim
+      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type mc )
+   atlas_add_test( testJobFastSim
+      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type afii )
 else()
    atlas_add_test( testJob
       SCRIPT athena.py
