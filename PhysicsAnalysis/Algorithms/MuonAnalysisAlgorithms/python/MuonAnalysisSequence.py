@@ -82,7 +82,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     alg.selectionTool.minPt = 20e3
     alg.selectionTool.maxEta = 2.4
-    selectList.append ('kin_select' + postfix)
+    selectList.append ('kin_select' + postfix + ',as_bits')
     nCutsList.append (2)
     alg.selectionDecoration = selectList[-1]
     seq.append( alg, inputPropName = 'particles',
@@ -92,7 +92,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
                            'MuonTrackSelectionAlg' + postfix )
-    selectList.append ('trackSelection' + postfix)
+    selectList.append ('trackSelection' + postfix + ',as_bits')
     nCutsList.append (2)
     alg.selectionDecoration = selectList[-1]
     alg.maxD0Significance = 3
@@ -104,7 +104,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                            'MuonSelectionAlg' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionTool.MuQuality = quality
-    selectList.append ('good_muon' + postfix)
+    selectList.append ('good_muon' + postfix + ',as_bits')
     nCutsList.append (4)
     alg.selectionDecoration = selectList[-1]
     seq.append( alg, inputPropName = 'particles',
@@ -116,12 +116,22 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         alg = createAlgorithm( 'CP::MuonIsolationAlg',
                                'MuonIsolationAlg' + postfix )
         addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
-        selectList.append ('isolated_muon' + postfix)
+        selectList.append ('isolated_muon' + postfix + ',as_bits')
         nCutsList.append (1)
         alg.isolationDecoration = selectList[-1]
         seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                     stageName = 'selection' )
         pass
+
+    # Set up an algorithm used for debugging the muon selection:
+    alg = createAlgorithm( 'CP::AsgSelectionAlg',
+                           'SummarySelection' + postfix )
+    addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+    alg.selectionTool.selectionFlags = selectList[:]
+    alg.selectionDecoration = 'select' + postfix + ',as_char'
+    seq.append( alg, inputPropName = 'particles',
+                outputPropName = 'particlesOut',
+                stageName = 'selection' )
 
     # Set up an algorithm used for debugging the muon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
