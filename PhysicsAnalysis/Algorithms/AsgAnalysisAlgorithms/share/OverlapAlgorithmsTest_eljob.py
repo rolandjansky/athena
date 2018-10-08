@@ -20,7 +20,8 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
                    help = 'Run the job in "unit test mode"' )
 ( options, args ) = parser.parse_args()
 
-# Set up (Py)ROOT.import ROOT
+# Set up (Py)ROOT.
+import ROOT
 import os
 ROOT.xAOD.Init().ignore()
 
