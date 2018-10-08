@@ -26,6 +26,8 @@ def getConfFromChainName(name):
     if name in ChainDictionary:
         print "MenuChains.getConfFromChainName: Called chain "+name+" and hypoTool conf "+ str(ChainDictionary[name])
         return ChainDictionary[name]
+    else:
+        return [name]
     log.error("MenuChains.getConfFromChainName: Wrong chain name given: found %s",name)
     sys.exit("ERROR, in chain configuration") 
 
