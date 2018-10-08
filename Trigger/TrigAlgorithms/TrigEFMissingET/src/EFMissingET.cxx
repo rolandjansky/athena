@@ -539,6 +539,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
      m_n_sizePers = 9;
 
 
+  if(m_doTrackTopoClusters) m_n_sizePers = 9;
 
   // Setup xAOD EDM
   m_met = new xAOD::TrigMissingET(); m_met->makePrivateStore();
@@ -611,12 +612,10 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 	    if(status_vtx!=HLT::OK || !m_vertices) {
 	      ATH_MSG_ERROR( "Failed to get vertices" ); return HLT::NAV_ERROR;
 	    } else {
-	      if (true){//msgLvl(MSG::DEBUG) ) {
 		ATH_MSG_DEBUG( "size of vertex container " << m_vertices->size() );
 		for (auto& ivtx : *m_vertices)
 		  ATH_MSG_DEBUG( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
 				 << ivtx->nTrackParticles() );
-        }
 	    }//retrieve vertex container
 	  }//retrieve te3 
 	}//more than 3 tes (0-3)
