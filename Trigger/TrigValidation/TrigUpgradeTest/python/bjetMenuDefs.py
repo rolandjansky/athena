@@ -31,7 +31,7 @@ def bJetStep1Sequence():
     InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = 'FSJETRoIs'
+    InputMakerAlg.Output = 'FSBJETRoIs'
 
     # Construct jets ( how do I impose split or non-split configuration ? ) 
     from TrigUpgradeTest.jetDefs import jetRecoSequence
@@ -42,10 +42,10 @@ def bJetStep1Sequence():
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
     hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg")
     hypo.OutputLevel = DEBUG
-#    hypo.RoIsKey = sequenceOut
+    hypo.Jets = sequenceOut
 
     # Sequence                                                                                                                                                                                       
-    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence])
+    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence,hypo])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
@@ -71,7 +71,7 @@ def bJetSequence():
     InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = 'FSJETRoIs'
+    InputMakerAlg.Output = 'FSBJETRoIs'
 
     # Construct jets ( how do I impose split or non-split configuration ? )
     from TrigUpgradeTest.jetDefs import jetRecoSequence

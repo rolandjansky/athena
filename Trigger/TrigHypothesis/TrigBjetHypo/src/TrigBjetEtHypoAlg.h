@@ -41,9 +41,7 @@ class TrigBjetEtHypoAlg
   ToolHandleArray< TrigBjetEtHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
  private:
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey {this,"RoIsKey","RoIs","Key for RoIs"};
-  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
-
+  SG::ReadHandleKey< xAOD::JetContainer > m_jetsKey {this,"Jets","Jets","Input Jet Container Key"};
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
 

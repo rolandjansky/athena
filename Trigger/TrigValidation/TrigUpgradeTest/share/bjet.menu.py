@@ -15,13 +15,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 #from TrigUpgradeTest.bjetMenuDefs import BjetSequence, BjetSplitSequence
 
 from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
-step1 = ChainStep("Step1", [getBJetSequence('j')])
-step3 = ChainStep("Step3", [getBJetSequence('bTag')])
+step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
+step3 = ChainStep("Step3_bjet", [getBJetSequence('bTag')])
 
 testChains  = [                                                                                                                                                                         
-    Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1,step3] ),
-    Chain(name='HLT_j35_gsc45_bmv2c1070_split', Seed="L1_J20",  ChainSteps=[step1,step3] ),
-    Chain(name='HLT_j35_gsc45_bmv2c1070'      , Seed="L1_J20",  ChainSteps=[step1,step3] )
+    Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1] ),
+    Chain(name='HLT_j35_gsc45_bmv2c1070_split', Seed="L1_J20",  ChainSteps=[step1] ),
+    Chain(name='HLT_j35_gsc45_bmv2c1070'      , Seed="L1_J20",  ChainSteps=[step1] )
     ]                                                                                                                                                                                   
 
 #################################

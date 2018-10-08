@@ -5,7 +5,6 @@
 #include "GaudiKernel/Property.h"
 #include "TrigBjetEtHypoAlg.h"
 
-using namespace TrigCompositeUtils;
 
 TrigBjetEtHypoAlg::TrigBjetEtHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
@@ -18,21 +17,15 @@ StatusCode TrigBjetEtHypoAlg::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
+  ATH_MSG_DEBUG(  "declareProperty review:"   );
+  ATH_MSG_DEBUG(  "   " << m_jetsKey          );
+
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
-  //  ATH_CHECK( m_etHypoTools.retrieve() );
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
-  CHECK( m_bTagKey.initialize() );
-  CHECK( m_roisKey.initialize() );
-
-  CHECK( m_decisionsKey.initialize() );
-
-  ATH_MSG_INFO("Initializing TrigBjetEtHypoAlg");
-
-  ATH_MSG_DEBUG(  "declareProperty review:"   );
-  ATH_MSG_DEBUG(  "   " << m_roisKey          );
-  ATH_MSG_DEBUG(  "   " << m_bTagKey          );
+  CHECK( m_jetsKey.initialize() );
+  CHECK( m_decisionsKey.initialize() ); // Output Decisions
 
   return StatusCode::SUCCESS;
 }
@@ -42,14 +35,29 @@ StatusCode TrigBjetEtHypoAlg::finalize() {
 }
 
 StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {  
-  ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-  SG::ReadHandle< xAOD::BTaggingContainer > bTagHandle = SG::makeHandle( m_bTagKey, context );
-  SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roisKey, context );
+  ATH_MSG_INFO ( "Executing " << name() << "..." );
+
+  // In case I need it (not sure). Taker from Jet code
+  // Read in previous Decisions made before running this Hypo Alg.
+  // The container should have only one such Decision in case we are cutting on 'j' threshold (for L1)
+  SG::ReadHandle< TrigCompositeUtils::DecisionContainer > h_prevDecisions = SG::makeHandle( decisionInput(),context );
+  CHECK( h_prevDecisions.isValid() );
+
+  // Retrieve Jet Container
+  SG::ReadHandle< xAOD::JetContainer > h_jetCollection = SG::makeHandle( m_jetsKey,context );
+  ATH_MSG_DEBUG( "Retrieved jets from : " << m_jetsKey.key() );
+  CHECK( h_jetCollection.isValid() );
+  const xAOD::JetContainer *jetCollection = h_jetCollection.get();
+  ATH_MSG_DEBUG( "Found " << jetCollection->size()<< " jets."  );
+
+  // Decide (Hypo Tool)
   
-  std::unique_ptr< DecisionContainer > decisions = std::make_unique< DecisionContainer >();
-  std::unique_ptr< DecisionAuxContainer > aux = std::make_unique< DecisionAuxContainer >();
+  // Output
+  std::unique_ptr< TrigCompositeUtils::DecisionContainer > decisions = std::make_unique< TrigCompositeUtils::DecisionContainer >();
+  std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > aux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer >();
   decisions->setStore( aux.get() );
 
+  /*
   // prepare decision storage ( we could simplify it )
   // Lidija: should be checked once more
   size_t counter = 0;
@@ -69,19 +77,9 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
     const TrigRoiDescriptor *roiDescriptor = roisHandle->at( index );
     TrigCompositeUtils::Decision *decision = decisions->at( index );
 
-    /* // TO BE CHANGED
-    for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
-      // interface of the tool needs to be suitable for current system, so no TrigComposite
-      // also no support for the multi-electrons yet ( will be additional method )
-      if ( tool->decide( bTag, roiDescriptor ) ) {   
-	addDecisionID( tool->decisionId(), decision );	  
-	ATH_MSG_DEBUG( " + " << tool->name() );
-      } else {
-	ATH_MSG_DEBUG( " - " << tool->name() );
-      }
-    }
-    */
   }
+
+    */
 
   {
     SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( m_decisionsKey, context );

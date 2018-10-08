@@ -42,49 +42,49 @@ StatusCode TrigBjetEtHypoTool::initialize()  {
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
-bool TrigBjetEtHypoTool::decide(  const xAOD::Jet* jet ) const {
-  ATH_MSG_DEBUG( "Executing TrigBjetEtHypoTool " );
-  return true;
-  /*
-  bool pass = false;
+bool TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,bool &pass ) const {
+  // Right now only considering single b-jet chains. 
+  // Will be revised with higher multeplicity
 
-  // AcceptAll declare property setting - no need to save it in TrigPassBit, but instead it will go into decission, where we can save also properties and attach them to objects
-  if ( m_acceptAll ) 
-    ATH_MSG_DEBUG(  "REGTEST: AcceptAll property is set: taking all events"  );
-  else 
-    ATH_MSG_DEBUG(  "REGTEST: AcceptAll property not set: applying the selection"  );
-  
-  ATH_MSG_DEBUG( "EtHypo on Jet " << jet->p4().Et() );
-  ATH_MSG_DEBUG( "  Threshold "   << m_etThreshold  );
+  ATH_MSG_INFO( "Executing TrigBjetEtHypoTool " ); // DEBUG
+  ATH_MSG_DEBUG( "Evaluating 'decide' on " << jetCollection->size() << " input jets " );
 
-  float et = jet->p4().Et();
+  pass = false;
 
-  if ( m_acceptAll ) {
-    ATH_MSG_DEBUG( "REGTEST: AcceptAll property is set: taking all events" );
-    ATH_MSG_DEBUG( "REGTEST: Trigger decision is 1" );
-    pass = true;
-  } else {
-    ATH_MSG_DEBUG( "REGTEST: EF jet with et = " << et );
-    ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold );
+  // Run on Jet Collection
+  for ( const xAOD::Jet* jet : *jetCollection ) {
+    ATH_MSG_DEBUG( "EtHypo on Jet " << jet->p4().Et() );
+    ATH_MSG_DEBUG( "  Threshold 'j' "   << m_etThreshold  );
+    ATH_MSG_DEBUG( "  Threshold 'gsc '"   << m_gscThreshold  );
+
+    float et = jet->p4().Et(); 
     
-    if (et >= m_etThreshold)
+    if ( m_acceptAll ) {
+      ATH_MSG_DEBUG( "REGTEST: AcceptAll property is set: taking all events" );
+      ATH_MSG_DEBUG( "REGTEST: Trigger decision is 1" );
       pass = true;
+    } else {
+      ATH_MSG_DEBUG( "REGTEST: AcceptAll property not set: applying the selection" );
+      ATH_MSG_DEBUG( "REGTEST: EF jet with et = " << et );
+      ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy 'j' Et > " << m_etThreshold );
+      ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy 'gsc' Et > " << m_gscThreshold );
+      
+      if (et >= m_etThreshold)
+	pass = true;
 
-    ATH_MSG_DEBUG( "REGTEST: Pass " << pass );
+      ATH_MSG_DEBUG( "REGTEST: Pass " << pass );
+    }
+
+    if ( pass ) {
+      ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" ); 
+    } else { 
+      ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" ); 
+    }
+
+    ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
   }
 
-  if (pass) {
-    ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" );
-  } 
-  else {
-    ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" );
-  }
-  
-  ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
-
-
-  return pass;
-  */
+  return true;
 }
 
 
