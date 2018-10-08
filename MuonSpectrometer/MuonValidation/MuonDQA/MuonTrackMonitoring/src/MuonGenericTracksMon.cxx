@@ -100,8 +100,6 @@ StatusCode MuonGenericTracksMon::bookHistograms()
     return StatusCode::SUCCESS;
   }
 
-  std::cout<<"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx HISTOS BOOKING xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"<<std::endl;
-
   MgmtAttr_t attr = ATTRIB_MANAGED;
 
   //set the path with trigger chain name
@@ -161,18 +159,18 @@ StatusCode MuonGenericTracksMon::bookHistograms()
   		dirpath = m_MuonTriggerChainName + "Muons/" + sources[SOURCE::CBMUONS];
   		MonGroup mongroup_mutracks(this, rootpath + dirpath, run, attr);
   		m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, true));
-  		bookInMongroup(*m_oRecoMuonPlots[0], mongroup_mutracks, sources[SOURCE::CBMUONS], "").ignore(); std::cout<<"NT0"<<std::endl;
+  		bookInMongroup(*m_oRecoMuonPlots[0], mongroup_mutracks, sources[SOURCE::CBMUONS], "").ignore();
 
         dirpath = m_MuonTriggerChainName + "Muons/" + sources[SOURCE::NONCBMUONS];
   		MonGroup mongroup_mutracks2(this, rootpath + dirpath, run, attr);
   		m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
-  		bookInMongroup(*m_oRecoMuonPlots[1], mongroup_mutracks2, sources[SOURCE::NONCBMUONS], "NonCB").ignore(); std::cout<<"NT1"<<std::endl;
+  		bookInMongroup(*m_oRecoMuonPlots[1], mongroup_mutracks2, sources[SOURCE::NONCBMUONS], "NonCB").ignore();
 
         for (int type=0; type<4; type++){  ///separate nonCB types
-  		dirpath = m_MuonTriggerChainName + "Muons/" + sources[SOURCE::NONCBMUONS]+"/"+NonCBMuonsType[type];
+  		dirpath = m_MuonTriggerChainName + "Muons/" +NonCBMuonsType[type];
   		MonGroup mongroup_mutracks2(this, rootpath + dirpath, run, attr);
   		m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
-  		bookInMongroup(*m_oRecoMuonPlots[2+type], mongroup_mutracks2, sources[SOURCE::NONCBMUONS], "NonCB").ignore();std::cout<<"NT"<<2+type<<std::endl;}
+  		bookInMongroup(*m_oRecoMuonPlots[2+type], mongroup_mutracks2, sources[SOURCE::NONCBMUONS], "NonCB").ignore();}
   		//book id tracks
   		dirpath = m_MuonTriggerChainName + "TracksID/" + sources[SOURCE::CBMUONS];
   		MonGroup mongroup_idtracks(this, rootpath + dirpath, run, attr);
@@ -228,15 +226,15 @@ StatusCode MuonGenericTracksMon::bookHistograms()
     			MonGroup mongroup_mutracks(this, rootpath + dirpath, run, attr);
     			if(i > SOURCE::CBMUONS)  m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
     			else                     m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, true));
-    			bookInMongroup(*m_oRecoMuonPlots[i], mongroup_mutracks, sources[i], "").ignore(); std::cout<<"T"<<i<<std::endl;
+    			bookInMongroup(*m_oRecoMuonPlots[i], mongroup_mutracks, sources[i], "").ignore();
 
 
     			if (i == SOURCE::NONCBMUONS){ ///separate nonCB types
                      for (int type=0; type<4; type++){
-                                         dirpath = "Muons/" + sources[i]+"/"+NonCBMuonsType[type];
+                                         dirpath = "Muons/" + NonCBMuonsType[type];
                                          MonGroup mongroup_mutracks(this, rootpath + dirpath, run, attr);
                                          m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
-                                         bookInMongroup(*m_oRecoMuonPlots[i+1+type], mongroup_mutracks, sources[i], "NonCB").ignore();std::cout<<"T"<<i+1+type<<std::endl;}}
+                                         bookInMongroup(*m_oRecoMuonPlots[i+1+type], mongroup_mutracks, sources[i], "").ignore();}}
 
                 dirpath = "TracksME/" + sources[i];
   		        MonGroup mongroup_metracks(this, rootpath + dirpath, run, attr);
@@ -265,7 +263,6 @@ StatusCode MuonGenericTracksMon::bookHistograms()
     }//end of different trigger situations
   }//end of new run condition
 
-  std::cout<<"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx HISTOS BOOKED xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"<<std::endl;
   return StatusCode::SUCCESS;
 }
 
@@ -311,6 +308,11 @@ StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mo
 
     // rebin and/or change the axis range label
     // move rebin of all 2D eta_phi plots to post processing
+
+    if      (sHistName.Contains("StandAlone"))           hist.first->SetTitle("Stand Alone Muons");
+    else if (sHistName.Contains("SegmentTagged"))            hist.first->SetTitle("Segment Tagged Muons");
+    else if (sHistName.Contains("CaloTagged"))               hist.first->SetTitle("Calo Tagged Muons");
+    else if (sHistName.Contains("SiliconAssociatedForward")) hist.first->SetTitle("Silicon Associated Forward Muons");
 
     if (sHistName.Contains("_eta_phi")){
         hist.first->GetXaxis()->SetTitle("#eta");
@@ -459,12 +461,12 @@ StatusCode MuonGenericTracksMon::fillHistograms()
         // plot Muon container
         for (const xAOD::Muon* muon: *Muons)
         {
-            if(muon->muonType() == xAOD::Muon::Combined)                     { plot_muon_notrig(*muon, 0); std::cout<<"NT CB"<<std::endl; }
-            else                                                             { plot_muon_notrig(*muon, 1);  std::cout<<"NT nonCB"<<std::endl;}
-            if(muon->muonType() == xAOD::Muon::MuonStandAlone)               { plot_muon_notrig(*muon, 2);  std::cout<<"NT MSA"<<std::endl;} ///plot nonCB types
-            if(muon->muonType() == xAOD::Muon::SegmentTagged)                { plot_muon_notrig(*muon, 3);  std::cout<<"NT ST"<<std::endl;}
-            if(muon->muonType() == xAOD::Muon::CaloTagged)                   { plot_muon_notrig(*muon, 4);  std::cout<<"NT CT"<<std::endl;}
-            if(muon->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) { plot_muon_notrig(*muon, 5);  std::cout<<"NT SAFM"<<std::endl;}
+            if(muon->muonType() == xAOD::Muon::Combined)                     { plot_muon_notrig(*muon, 0); }
+            else                                                             { plot_muon_notrig(*muon, 1); }
+            if(muon->muonType() == xAOD::Muon::MuonStandAlone)               { plot_muon_notrig(*muon, 2); } ///plot nonCB types
+            if(muon->muonType() == xAOD::Muon::SegmentTagged)                { plot_muon_notrig(*muon, 3); }
+            if(muon->muonType() == xAOD::Muon::CaloTagged)                   { plot_muon_notrig(*muon, 4); }
+            if(muon->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) { plot_muon_notrig(*muon, 5); }
         }
         // plot ms vertices
         for (const xAOD::Vertex* aVx: *MSVertices)
@@ -519,12 +521,12 @@ StatusCode MuonGenericTracksMon::fillHistograms()
         // plot muons, all
         for (const xAOD::Muon* muon: *Muons)
         {
-           if(muon->muonType() == xAOD::Muon::Combined)                      { plot_muon(*muon, 2);  std::cout<<"T CB"<<std::endl; }
-            else                                                             { plot_muon(*muon, 3);  std::cout<<"T nonCB"<<std::endl;}
-            if(muon->muonType() == xAOD::Muon::MuonStandAlone)               { plot_muon(*muon, 4);  std::cout<<"T MSA"<<std::endl;} ///plot nonCB types
-            if(muon->muonType() == xAOD::Muon::SegmentTagged)                { plot_muon(*muon, 5);  std::cout<<"T ST"<<std::endl;}
-            if(muon->muonType() == xAOD::Muon::CaloTagged)                   { plot_muon(*muon, 6);  std::cout<<"T CT"<<std::endl;}
-            if(muon->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) { plot_muon(*muon, 7);  std::cout<<"T SAFM"<<std::endl;}
+            if(muon->muonType() == xAOD::Muon::Combined)                     { plot_muon(*muon, 2); }
+            else                                                             { plot_muon(*muon, 3); }
+            if(muon->muonType() == xAOD::Muon::MuonStandAlone)               { plot_muon(*muon, 4); } ///plot nonCB types
+            if(muon->muonType() == xAOD::Muon::SegmentTagged)                { plot_muon(*muon, 5); }
+            if(muon->muonType() == xAOD::Muon::CaloTagged)                   { plot_muon(*muon, 6); }
+            if(muon->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) { plot_muon(*muon, 7); }
         }
         // plot segments container
         for (const xAOD::MuonSegment* segment : *MuonSegments)
