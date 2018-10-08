@@ -428,6 +428,7 @@ def defineMenu():
                        #'L1_2MU0',
                        'L1_2MU4',
                        #'L1_2MU0_MU6',
+                       'L1_2MU10',
                        'L1_2MU11',
                        'L1_2MU20',
                        'L1_2MU6',
@@ -839,6 +840,7 @@ def defineMenu():
         'L1_2MU6' : 71,
         'L1_2MU11' : 72,
         'L1_2MU20' : 73,
+        'L1_2MU10' : 70,
         
         'L1_MU11_EMPTY' : 75,
         'L1_MBTSC2' : 76,

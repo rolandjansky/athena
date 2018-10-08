@@ -156,6 +156,10 @@ class L2EFChain_MB(L2EFChainDef):
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
+        if "vetombts8" in self.chainPart['veto']: #do EFID
+            doMbtsVeto=True
+            theL2MbtsFex=L2MbMbtsFex
+            theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_8_8_NTime_veto")
         doexclusivelooseN=False
         ########## L2 algos ##################
         #if "sptrk" or "sp" in self.chainPart['recoAlg']:
@@ -185,7 +189,8 @@ class L2EFChain_MB(L2EFChainDef):
                 chainSuffix = chainSuffix+"_vetombts2in"
             if "vetombts1side2in" in self.chainPart['veto']:
                 chainSuffix = chainSuffix+"_vetombts1side2in"
-
+            if "vetombts8" in self.chainPart['veto']:
+                chainSuffix = chainSuffix+"_vetombts8"
         if doMbtsVeto and doVetoSp: # this will never be done w tracks
             chainSuffix = "sp_vetospmbts2in"
 
