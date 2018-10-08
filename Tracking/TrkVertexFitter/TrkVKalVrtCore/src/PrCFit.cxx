@@ -9,9 +9,7 @@
 
 namespace Trk {
 
-extern ForCFT      forcft_;
-
-#define forcft_1 forcft_
+ForCFT      forcft_1;
 
 /*------------------------------------------------------------------------------*/
 /* Package for vertex fit with constraints 					*/
@@ -48,7 +46,6 @@ void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double 
     long int i__1;
     double   summ;
 
-#define indtrkmc_ref(a_1,a_2) forcft_1.indtrkmc[(a_2)*NTrkM + (a_1) - (NTrkM+1)]
 
 /*------------------------------------------------------------------------------*/
 /*        SETTING OF INITIAL PARAMETERS FOR C-FIT 				*/
@@ -83,7 +80,7 @@ void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double 
     forcft_1.nmcnst = 0;
     for (int i=0; i<8; ++i) forcft_1.wmfit[i] = -10000.;
     summ = 0.;
-    i__1 = (*ntrk)<NTrkM ? (*ntrk): NTrkM;
+    i__1 = (*ntrk)<vkalNTrkM ? (*ntrk): vkalNTrkM;
     for (int i=0; i<i__1; ++i) {
 	forcft_1.wm[i] =  fabs(wm[i]);
 	summ += wm[i];
@@ -91,9 +88,9 @@ void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double 
     if ((*wmfit) > summ) {
 /*  Set general mass constraint based on ALL tracks */
 	forcft_1.nmcnst = 1;
-	for (int i = 1; i <= NTrkM; ++i) {
-	    indtrkmc_ref(i, forcft_1.nmcnst) = 0;
-	    if (i <= (*ntrk)) {indtrkmc_ref(i, 1) = 1;}
+	for (int i = 0; i < vkalNTrkM; ++i) {
+	    forcft_1.indtrkmc[0][i] = 0;
+	    if (i < (*ntrk)) {forcft_1.indtrkmc[0][i] = 1;}
 	}
 	forcft_1.wmfit[0] = (*wmfit);
     }
@@ -110,7 +107,7 @@ void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double 
     forcft_1.irob = 0;
     forcft_1.IterationNumber    = 50;
     forcft_1.IterationPrecision = 1.e-3;
-    for (int i = 0; i < NTrkM; ++i) forcft_1.robres[i]=1.; //Safety
+    for (int i = 0; i < vkalNTrkM; ++i) forcft_1.robres[i]=1.; //Safety
 //
 // Reset all constraints
 //
@@ -172,16 +169,15 @@ void setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcnst)
 
     ++forcft_1.nmcnst;
     if (forcft_1.nmcnst > 8) return ;
-    for (int i = 1; i <= NTrkM; ++i) {
-	indtrkmc_ref(i, forcft_1.nmcnst) = 0;
+    for (int i = 0; i < vkalNTrkM; ++i) {
+	forcft_1.indtrkmc[forcft_1.nmcnst-1][i] = 0;
     }
-    for (int i = 1; i <= (*ncnsttrk);  ++i) {
-	if (indextrk[i] > 0 && indextrk[i] <= NTrkM) {
-	    indtrkmc_ref(indextrk[i], forcft_1.nmcnst) = 1;
+    for (int i = 0; i < (*ncnsttrk);  ++i) {
+	if (indextrk[i] > 0 && indextrk[i] < vkalNTrkM) {
+	    forcft_1.indtrkmc[forcft_1.nmcnst-1][indextrk[i]] = 1;
 	}
     }
     forcft_1.wmfit[forcft_1.nmcnst - 1] = (*wmcnst);
  }
-#undef indtrkmc_ref
 
 } /* End of namespace */

@@ -28,7 +28,7 @@ namespace Trk {
 			      // not touched during PostFit
     double ywgt[3], rv0[2];
     double cvder[12];	              /* was [2][6] */
-    double dcv[6*(NTrkM*3+3)];	      /* was [6][903] */
+    double dcv[6*(vkalNTrkM*3+3)];    /* was [6][903] */
 
     ForVrtClose(){
       Charge=0;  vrt[0]=vrt[1]=vrt[2]=0.;
