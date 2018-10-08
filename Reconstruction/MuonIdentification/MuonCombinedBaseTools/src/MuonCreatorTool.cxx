@@ -872,20 +872,22 @@ namespace MuonCombined {
     }
     
     ATH_MSG_DEBUG("Adding Segment Tag Muon  " << tag->author() << " type " << tag->type());
-    if( !muon.muonSegmentLinks().empty() ) return;
     
     std::vector< ElementLink< xAOD::MuonSegmentContainer > > segments;
+    bool foundseg=false;
     for( const auto& info : tag->segmentsInfo() ){
-      if( info.link.isValid() ){
-        segments.push_back(info.link);
-	if(segments.size()==1){ //add parameters for the first segment
+      if( info.link.isValid()){
+        if(muon.author()==xAOD::Muon::MuTagIMO) segments.push_back(info.link); //non-segment-tagged muons get their list of segments in a different way
+	if(!foundseg){ //add parameters for the first segment
           muon.setParameter(static_cast<float>(info.dtheta),xAOD::Muon::segmentDeltaEta);
           muon.setParameter(static_cast<float>(info.dphi),xAOD::Muon::segmentDeltaPhi);
           muon.setParameter(static_cast<float>(info.segment->fitQuality()->chiSquared()/info.segment->fitQuality()->numberDoF()),xAOD::Muon::segmentChi2OverDoF);
+	  foundseg=true;
 	}
+	else if(muon.author()!=xAOD::Muon::MuTagIMO) break; //for non-segment-tagged muons, we only need to set the above parameters
       }
     }
-    muon.setMuonSegmentLinks(segments) ;
+    if(muon.author()==xAOD::Muon::MuTagIMO) muon.setMuonSegmentLinks(segments) ; //set the associated segments
   }
 
   void MuonCreatorTool::addCaloTag( xAOD::Muon& mu, const CaloTag* tag ) const {
@@ -1424,7 +1426,7 @@ namespace MuonCombined {
 
     if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
-    if( !m_trackSegmentAssociationTool.empty() && (muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon);
+    if( !m_trackSegmentAssociationTool.empty() && muon.author()!=xAOD::Muon::MuTagIMO && (muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon);
 
     addMSIDScatteringAngles(muon);
     if(muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));
@@ -1543,7 +1545,7 @@ namespace MuonCombined {
     if( !m_trackSegmentAssociationTool->associatedSegments(muon,associatedSegments) ){
       ATH_MSG_DEBUG("Failed to find associated segments ");
     }
-    muon.auxdata< std::vector< ElementLink<xAOD::MuonSegmentContainer> > >("segmentsOnTrack") = associatedSegments;
+    muon.setMuonSegmentLinks(associatedSegments) ;
     
   }
 
@@ -1677,8 +1679,8 @@ namespace MuonCombined {
     // get ParticleCellAssociation
     ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
 
-    std::unique_ptr<Trk::CaloExtension> caloExtension = nullptr;
-    if(!m_caloExtTool->caloExtension(*tp,caloExtension)){
+    std::unique_ptr<Trk::CaloExtension> caloExtension =m_caloExtTool->caloExtension(*tp);
+    if(!caloExtension){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return;
     };

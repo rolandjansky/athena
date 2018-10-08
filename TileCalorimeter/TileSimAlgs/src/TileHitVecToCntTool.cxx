@@ -470,7 +470,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
     eHitTot += ener;
 
     TileHit * pHit = m_allHits[hit_idhash];
-    TileHit * pHit_DigiHSTruth = nullptr;
+    TileHit * pHit_DigiHSTruth(nullptr);
     if(m_doDigiTruth) pHit_DigiHSTruth = m_allHits_DigiHSTruth[hit_idhash];
 
     if (0 == pHit) {
@@ -914,7 +914,6 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     std::vector<TileHit *>::iterator iHit = m_allHits.begin();
     std::vector<TileHit *>::iterator lastHit = m_allHits.end();
     std::vector<TileHit *>::iterator iHit_DigiHSTruth = m_allHits_DigiHSTruth.begin();
-    std::vector<TileHit *>::iterator lastHit_DigiHSTruth = m_allHits_DigiHSTruth.end();
 
     int nHitUni = 0;
     double eHitInTime = 0.0;
@@ -923,7 +922,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
 
     for (; iHit != lastHit; ++iHit) {
       TileHit *pHit = (*iHit);
-      TileHit *pHit_DigiHSTruth = nullptr;
+      TileHit *pHit_DigiHSTruth(nullptr);
       if(m_doDigiTruth) pHit_DigiHSTruth = new TileHit(**iHit_DigiHSTruth);
       if (pHit->size() > 1 || pHit->energy() != 0.0) {       // hit exists
         m_hits->push_back(pHit);   // store hit in container
@@ -973,9 +972,6 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //loop over all hits in TileHitContainer and take energy deposited in certain period of time
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
   
-  TileHitNonConstContainer::iterator collIt = m_hits->begin();
-  TileHitNonConstContainer::iterator endcoll = m_hits->end();
-
   TileHitNonConstContainer::iterator collIt_DigiHSTruth; 
   TileHitNonConstContainer::iterator endColl_DigiHSTruth;
 	if(m_doDigiTruth) collIt_DigiHSTruth = m_hits_DigiHSTruth->begin();

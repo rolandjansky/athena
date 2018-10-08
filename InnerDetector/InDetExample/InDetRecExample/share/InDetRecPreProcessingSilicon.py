@@ -216,9 +216,9 @@ if InDetFlags.doPRDFormation():
                                                           ClustersName            = InDetKeys.SCT_Clusters(),
                                                           conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
       if InDetFlags.cutSCTOccupancy():
-        InDetSCT_Clusterization.maxRDOs = 384 #77
+        InDetSCT_Clusterization.maxFiredStrips = 384 #77
       else:
-        InDetSCT_Clusterization.maxRDOs = 0
+        InDetSCT_Clusterization.maxFiredStrips = 0
       topSequence += InDetSCT_Clusterization
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_Clusterization
@@ -231,9 +231,9 @@ if InDetFlags.doPRDFormation():
                                                               ClustersName            = InDetKeys.SCT_PU_Clusters(),
                                                               conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
         if InDetFlags.cutSCTOccupancy():
-          InDetSCT_ClusterizationPU.maxRDOs = 384 #77
+          InDetSCT_ClusterizationPU.maxFiredStrips = 384 #77
         else:
-          InDetSCT_ClusterizationPU.maxRDOs = 0
+          InDetSCT_ClusterizationPU.maxFiredStrips = 0
         topSequence += InDetSCT_ClusterizationPU
         if (InDetFlags.doPrintConfigurables()):
           print InDetSCT_ClusterizationPU

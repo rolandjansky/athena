@@ -83,7 +83,7 @@ StatusCode Sherpa_i::genInitialize(){
     }
     return StatusCode::FAILURE;
   }
-  catch (std::exception exception) {
+  catch (const std::exception& exception) {
     ATH_MSG_ERROR("std::exception caught.");
     return StatusCode::FAILURE;
   }

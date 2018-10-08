@@ -589,7 +589,10 @@ StatusCode PixelFastDigitizationTool::digitize()
       Amg::Vector3D exitPoint(localEndPosition.x(),localEndPosition.y(),localEndPosition.z());
 
       const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design()));
-
+      if (not design){
+        ATH_MSG_FATAL("Failed to cast the hitSiDetElement::design pointer to a PixelModuleDesign*; aborting due to null pointer");
+        return StatusCode::FAILURE;
+      }
       const Amg::Vector2D localEntry(localStartPosition.x(),localStartPosition.y());
       const Amg::Vector2D localExit(localEndPosition.x(),localEndPosition.y());
 
@@ -599,7 +602,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       InDetDD::SiCellId entryCellId = hitSiDetElement->cellIdFromIdentifier(entryId);
       InDetDD::SiCellId exitCellId = hitSiDetElement->cellIdFromIdentifier(exitId);
 
-      double halfthickness = hitSiDetElement->thickness()/2.;
+      double halfthickness = hitSiDetElement->thickness()*0.5;
 
       bool EntryValid(entryCellId.isValid());
       bool ExitValid(exitCellId.isValid());
@@ -667,7 +670,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       std::vector<int>                  PixelIndicesX;
       std::vector<int>                  PixelIndicesY;
 
-      bool   isGanged = false;
+      const bool   isGanged = false;
       int lvl1a = 0;
 
       double accumulatedPathLength=0.;
@@ -1017,8 +1020,7 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
 
   int readoutDirection = design->readoutSide();
 
-  //bool m_useLorentzAngle = (hitSiDetElement->getLorentzCorrection() == 0.);
-  bool useLorentzAngle = true;
+  const bool useLorentzAngle{true};
   const IdentifierHash detElHash = hitSiDetElement->identifyHash();
   float lorentzAngle   = useLorentzAngle ? hitSiDetElement->hitDepthDirection()*hitSiDetElement->hitPhiDirection()*std::atan(m_lorentzAngleTool->getTanLorentzAngle(detElHash)) : 0.;
 

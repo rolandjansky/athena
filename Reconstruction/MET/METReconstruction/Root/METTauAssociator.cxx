@@ -38,7 +38,8 @@ namespace met {
   ////////////////
   METTauAssociator::METTauAssociator(const std::string& name) :
     AsgTool(name),
-    METAssociator(name)
+    METAssociator(name),
+    m_tauContKey("")
   {}
 
   // Destructor
@@ -52,6 +53,9 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_CHECK( m_tauContKey.assign(m_input_data_key));
+    ATH_CHECK( m_tauContKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -79,14 +83,14 @@ namespace met {
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
-    const TauJetContainer* tauCont(0);
-    if( evtStore()->retrieve(tauCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_tauContKey);
+    if (!tauCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input tau container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved tau collection");
-    if (fillAssocMap(metMap,tauCont).isFailure()) {
+    if (fillAssocMap(metMap,tauCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with tau container " << m_input_data_key);
       return StatusCode::FAILURE;
     }

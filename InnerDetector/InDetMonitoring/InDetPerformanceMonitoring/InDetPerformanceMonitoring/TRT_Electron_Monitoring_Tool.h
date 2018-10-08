@@ -8,29 +8,27 @@
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "TrkTrack/TrackStateOnSurface.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
-
 #include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/Electron.h"
+#include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 
 
 #include <vector>
 #include <string>
 
+namespace InDetDD{
+  class TRT_DetectorManager;
+}
 
 class TH1F_LW;
 class TH2F_LW;
 class TProfile_LW;
-
+class TRT_ID;
 
 
 enum myIsEMType { ISEMLOOSE , ISEMMEDIUM , ISEMTIGHT };
@@ -107,7 +105,6 @@ public:
 	void bookPCandHistograms( MonGroup &monGroup, lw_partcand_hists_t &hists, const std::string& name);
 
 	void loopOverConversions(std::vector<Trk::Track*> &v_usedTrks);
-	//	const Trk::Track* getTrackFromTrackAtVertex(Trk::VxTrackAtVertex * VxTrkTag);
 	bool conversionQualityCuts(const xAOD::TrackParticle* trkTag, const xAOD::TrackParticle* trkProbe);
 
 	void loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks);

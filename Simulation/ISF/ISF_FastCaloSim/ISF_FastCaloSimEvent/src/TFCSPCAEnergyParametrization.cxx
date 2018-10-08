@@ -2,6 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandGauss.h"
+
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
@@ -11,7 +13,6 @@
 #include "TFile.h"
 #include "TKey.h"
 #include "TClass.h"
-#include "TRandom3.h"
 #include "TMatrixD.h"
 #include "TMatrixDSymEigen.h"
 #include "TMath.h"
@@ -60,6 +61,9 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
 
 FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
+  if (!simulstate.randomEngine()) {
+    return FCSFatal;
+  }
 
   int pcabin=simulstate.Ebin();
  
@@ -69,8 +73,6 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
   TVectorD* Gauss_means   =m_Gauss_means[pcabin-1];
   TVectorD* Gauss_rms     =m_Gauss_rms[pcabin-1];
   std::vector<TFCS1DFunction*> cumulative=m_cumulative[pcabin-1];
-  
-  TRandom3* Random3=new TRandom3(); Random3->SetSeed(0);
 
   std::vector<int> layerNr;
   for(unsigned int i=0;i<m_RelevantLayers.size();i++)
@@ -86,7 +88,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
   {
    double mean=vals_gauss_means[l];
    double rms =vals_gauss_rms[l];
-   double gauszz=Random3->Gaus(mean,rms);
+   double gauszz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), mean, rms);
    input_data[l]=gauszz;
   }
 
@@ -129,7 +131,6 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
    simulstate.set_SF(scalefactor);
   }
 
-  delete Random3;
   delete [] output_data;
   delete [] input_data;
   delete [] simdata;

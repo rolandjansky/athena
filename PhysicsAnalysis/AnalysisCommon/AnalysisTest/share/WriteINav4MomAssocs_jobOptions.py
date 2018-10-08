@@ -50,7 +50,6 @@ EventSelector = Service( "EventSelector" )
 EventSelector.InputCollections = [ "AOD.pool.root" ]
 
 PoolSvc.ReadCatalog = [ 'xmlcatalog_file:PoolFileCatalog.xml' ]
-#EventSelector.BackNavigation = TRUE
 
 PoolSvc.WriteCatalog = 'xmlcatalog_file:PoolFileCatalog.xml'
 

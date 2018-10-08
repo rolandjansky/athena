@@ -113,7 +113,6 @@ if inputStreamType == "HITS" or inputStreamType == "RDO":
   include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
   from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import EventSelectorAthenaPool
   cscEventSelector = EventSelectorAthenaPool( "EventSelector" )
-  #cscEventSelector.BackNavigation = True
 elif inputStreamType == "RAW":
   include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
   include("MuonByteStream/ReadCscRDO_jobOptions.py")

@@ -27,6 +27,12 @@
 // METRecoInterface includes
 #include "METRecoInterface/IMETAssocToolBase.h"
 
+#include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 //#include "xAODCaloEvent/CaloClusterContainer.h"
@@ -76,11 +82,22 @@ namespace met {
     ///////////////////////////////////////////////////////////////////
     protected:
 
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
+    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
+    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
+
     std::string m_input_data_key;
     std::string m_pvcoll;
     std::string m_trkcoll;
     std::string m_clcoll;
     std::string m_pfcoll;
+
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey;
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey;
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey;
+    SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey;
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_forcollKey;
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey;
 
     bool m_pflow;
     bool m_useTracks;
@@ -90,9 +107,6 @@ namespace met {
     bool m_weight_charged_pfo;
     bool m_cleanChargedPFO;
 
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
-    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
-    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
     bool m_skipconst;
     std::string m_forcoll;
     double m_foreta;

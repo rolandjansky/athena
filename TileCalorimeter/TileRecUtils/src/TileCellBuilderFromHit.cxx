@@ -370,7 +370,7 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
     flag |= fl << (p - 1);
   }
 
-  // number of cosecutively masked modules (if it's > 15 we have error already set)
+  // number of consecutively masked modules (if it's > 15 we have error already set)
   flag |= (std::min(15, drConsecMaxMax) << 16);
 
   if (drConsecMaxMax > 1 && error < xAOD::EventInfo::Warning) {

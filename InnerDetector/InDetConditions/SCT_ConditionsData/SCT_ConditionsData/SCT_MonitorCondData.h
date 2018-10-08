@@ -11,11 +11,12 @@
 #ifndef SCT_MONITORCONDDATA_H
 #define SCT_MONITORCONDDATA_H
 
-#include <map>
-#include <string>
-
 // Include Athena stuff
 #include "AthenaKernel/CLASS_DEF.h"
+#include "Identifier/IdentifierHash.h"
+
+#include <array>
+#include <string>
 
 class SCT_MonitorCondData {
 public:
@@ -24,20 +25,21 @@ public:
   SCT_MonitorCondData();
 
   // Destructor
-  virtual ~SCT_MonitorCondData();
+  virtual ~SCT_MonitorCondData() = default;
 
   // Check if a module has a defect (a list of bad strips). If it does not have defect return false.
-  bool find(const int& channelNumber, std::string& defectList) const;
+  bool find(const IdentifierHash& hash, std::string& defectList) const;
 
   // Insert a new defect (a list of bad strips) for a module
-  void insert(const int& channelNumber, const std::string& defectList);
+  void insert(const IdentifierHash& hash, const std::string& defectList);
 
-  // Clear m_defectListMap
+  // Clear m_defectListArray
   void clear();
 
 private:
+  enum {N_MODULES=4088};
   // Store the relation between modules and defects (lists of bad strips).
-  std::map<const int, const std::string> m_defectListMap;
+  std::array<std::string, N_MODULES> m_defectListArray;
 
 };
 

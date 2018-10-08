@@ -41,7 +41,7 @@ class ALFA_DetectorManager : public GeoVDetectorManager
 }; 
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 class ALFA_DetectorManager;
 CLASS_DEF(ALFA_DetectorManager, 114886926, 1)
 #endif

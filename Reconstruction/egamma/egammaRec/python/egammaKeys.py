@@ -11,9 +11,6 @@ from InDetRecExample.InDetKeys import InDetKeys
 # option =  for additional suppression for  AOD only]
 class egammaKeysDict:
   inputs = dict(
-    Cluster  =      [ 'xAOD::CaloClusterContainer', 'LArClusterEM', '',''],
-    TopoCluster =   [ 'xAOD::CaloClusterContainer', 'EMTopoCluster430', '','' ],
-    TrackParticle = [ 'xAOD::TrackParticleContainer', '', '' ,'']
     )
 
   ShowerShapesSuppress = '-e033.-e011.-e333.-e335.-e337.-e377' 
@@ -37,8 +34,6 @@ class egammaKeysDict:
     Track         = [ 'TrackCollection', 'GSFTracks', '',''],
     Truth         = [ 'xAOD::TruthParticleContainer', 'egammaTruthParticles','-caloExtension','']
     )  
-  #
-  inputs['TrackParticle'][1] = InDetKeys.xAODTrackParticleContainer()
   #
   outputs['CellLink'] = ['CaloClusterCellLinkContainer', outputs['Cluster'][1] + '_links', '','']
   outputs['TopoSeededCellLink'] = ['CaloClusterCellLinkContainer', outputs['TopoSeededCluster'][1] + '_links', '','']

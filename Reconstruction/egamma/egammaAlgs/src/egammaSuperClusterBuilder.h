@@ -48,10 +48,7 @@ protected:
   /** @brief Seed selection requirements */
   Gaudi::Property<float> m_EtThresholdCut {this,
       "EtThresholdCut", 1.5*CLHEP::GeV,
-      "The minimum Et required of SEED clusters (not applied to secondaries)"};
-
-  Gaudi::Property<float> m_emFracCut {this, "EMFracCut", 0.5,
-      "The minimum EM fraction required of both seed and secondary clusters"};
+      "The minimum EM Et required of SEED clusters (not applied to secondaries)"};
 
   // these are calculated search window values
   float m_searchWindowEtaBarrel; //!< half of search window size, converted to units of eta

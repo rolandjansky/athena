@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
+#                          PhysicsAnalysis/JetTagging/JetTagTools
                           Database/APR/FileCatalog
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/AthenaPOOL/PoolSvc

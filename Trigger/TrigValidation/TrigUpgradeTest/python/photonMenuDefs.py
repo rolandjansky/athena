@@ -8,7 +8,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 # ===============================================================================================
 #      L2 Calo
@@ -48,11 +48,14 @@ theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 fastCaloAthSequence =  seqAND("fastCaloAthSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
+
+from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+
 def fastCaloSequence():
-    return MenuSequence(  Sequence=fastCaloAthSequence,
-                              Maker=fastCaloViewsMaker, 
-                              Hypo=theFastCaloHypo,
-                              HypoToolClassName="TrigL2CaloHypoToolConf")
+    return MenuSequence( Sequence    = fastCaloAthSequence,
+                         Maker       = fastCaloViewsMaker, 
+                         Hypo        = theFastCaloHypo,
+                         HypoToolGen = TrigL2CaloHypoToolFromName )
 
 
 
@@ -96,10 +99,10 @@ thePhotonHypo.OutputLevel = VERBOSE
 
 photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
 
-
+from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromName
 def photonSequence():
     return MenuSequence( Maker=l2PhotonViewsMaker,
                              Sequence=photonAthSequence,
                              Hypo=thePhotonHypo,
-                             HypoToolClassName="TrigL2PhotonHypoToolConf")
+                             HypoToolGen=TrigL2PhotonHypoToolFromName)
 

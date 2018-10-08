@@ -132,11 +132,6 @@ class CaloClusterMomentsMaker_DigiHSTruth final: public extends<AthAlgTool, Calo
   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
   ToolHandle<ILArHVCorrTool> m_larHVScaleRetriever;
 
-  /**
-   * @brief HV fraction is need to check for HV affected LAr cells
-   */
-  LArHVFraction * m_larHVFraction;
-
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.
   std::string m_momentsNamesAOD;

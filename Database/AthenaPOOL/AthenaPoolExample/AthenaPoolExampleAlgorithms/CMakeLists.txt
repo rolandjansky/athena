@@ -90,25 +90,12 @@ _add_test( AthenaPoolExample_ReWrite
 # Read all output
 _add_test( AthenaPoolExample_Read
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-   EXTRA_PATTERNS "BYTES_READ|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:"
+   EXTRA_PATTERNS "BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
-# Read all output including scoped BackNavigation
-_add_test( AthenaPoolExample_ReadBN
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBNJobOptions.py"
-   EXTRA_PATTERNS "BYTES_READ|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
-# Read all output w/o BackNavigation
-_add_test( AthenaPoolExample_ReadNoBN
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadNoBNJobOptions.py"
-   EXTRA_PATTERNS "BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
-
 # Copy 'Hits' file without extending provenance
 _add_test( AthenaPoolExample_Copy
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Read_ctest
-           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBN_ctest
-           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadNoBN_ctest
    EXTRA_PATTERNS "DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO" )
 # Read copied 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWriteAgain
@@ -130,7 +117,7 @@ _add_test( AthenaPoolExample_RFilter
 # Read all (including bad files, skipped for now expected failure)
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
-   EXTRA_PATTERNS "Deaccess DbContainer|Database being retired|BYTES_READ|endTransaction|Bytes:|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO"
+   EXTRA_PATTERNS "BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RFilter_ctest )
 
 # Concatenate jobs write 'Hits' and 'Tracks' to different streams
@@ -149,7 +136,7 @@ _add_test( AthenaPoolExample_ReadConcat
 _add_test( AthenaPoolExample_WCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadConcat_ctest
-   EXTRA_PATTERNS "DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO" )
+   EXTRA_PATTERNS "BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
 _add_test( AthenaPoolExample_RCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest

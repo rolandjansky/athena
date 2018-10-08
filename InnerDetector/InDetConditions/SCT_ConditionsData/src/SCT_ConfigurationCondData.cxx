@@ -15,11 +15,13 @@
 // Constructor
 SCT_ConfigurationCondData::SCT_ConfigurationCondData():
   m_badStripIds{},
+  m_badStripArray{},
   m_badWaferIds{},
   m_badModuleIds{},
-  m_badLinks{},
   m_badChips{}
-{}
+{
+  clearBadLinks();
+}
 
 //----------------------------------------------------------------------
 // Destructor
@@ -28,8 +30,9 @@ SCT_ConfigurationCondData::~SCT_ConfigurationCondData()
 
 //----------------------------------------------------------------------
 // Set a bad strip identifier
-void SCT_ConfigurationCondData::setBadStripId(const Identifier& badStripId) {
+void SCT_ConfigurationCondData::setBadStripId(const Identifier& badStripId, const IdentifierHash& hash, const int strip) {
   m_badStripIds.insert(badStripId);
+  m_badStripArray[hash].set(strip);
 }
 
 //----------------------------------------------------------------------
@@ -42,12 +45,13 @@ const std::set<Identifier>* SCT_ConfigurationCondData::getBadStripIds() const {
 // Clear all bad strip identifiers
 void SCT_ConfigurationCondData::clearBadStripIds() {
   m_badStripIds.clear();
+  m_badStripArray.fill(std::bitset<N_STRIPS>());
 }
 
 //----------------------------------------------------------------------
 // Check if a strip identifier is bad one
-bool SCT_ConfigurationCondData::isBadStripId(const Identifier& stripId) const {
-  return (m_badStripIds.find(stripId)!=m_badStripIds.end());
+bool SCT_ConfigurationCondData::isBadStrip(const IdentifierHash& hash, const int strip) const {
+  return m_badStripArray[hash][strip];
 }
 
 //----------------------------------------------------------------------
@@ -100,14 +104,18 @@ bool SCT_ConfigurationCondData::isBadModuleId(const Identifier& moduleId) const 
 
 //----------------------------------------------------------------------
 // Set bad links for a module
-void SCT_ConfigurationCondData::setBadLinks(const Identifier& moduleId, const bool isBadLink0, const bool isBadLink1) {
-  m_badLinks[moduleId].first  |= isBadLink0;
-  m_badLinks[moduleId].second |= isBadLink1;
+void SCT_ConfigurationCondData::setBadLinks(const IdentifierHash& hash, const bool isBadLink0, const bool isBadLink1) {
+  unsigned int iHash{hash};
+  iHash = (iHash/2)*2; // Make iHash even
+  m_badLinks[iHash].first  &= isBadLink0;
+  m_badLinks[iHash].second &= isBadLink1;
+  m_badLinksArray[iHash/2].first  &= isBadLink0;
+  m_badLinksArray[iHash/2].second &= isBadLink1;
 }
 
 //----------------------------------------------------------------------
 // Get all bad links
-const std::map<Identifier, std::pair<bool, bool>>* SCT_ConfigurationCondData::getBadLinks() const {
+const std::map<IdentifierHash, std::pair<bool, bool>>* SCT_ConfigurationCondData::getBadLinks() const {
   return &m_badLinks;
 }
 
@@ -115,14 +123,14 @@ const std::map<Identifier, std::pair<bool, bool>>* SCT_ConfigurationCondData::ge
 // Clear all bad links
 void SCT_ConfigurationCondData::clearBadLinks() {
   m_badLinks.clear();
+  m_badLinksArray.fill(std::make_pair(true, true));
 }
 
 //----------------------------------------------------------------------
 // Check if a module has bad links
-std::pair<bool, bool> SCT_ConfigurationCondData::areBadLinks(const Identifier& moduleId) const {
+std::pair<bool, bool> SCT_ConfigurationCondData::areBadLinks(const IdentifierHash& hash) const {
   // Bad convetion is used. true is for good link and false is for bad link...
-  std::map<Identifier, std::pair<bool, bool>>::const_iterator it{m_badLinks.find(moduleId)};
-  return (it!=m_badLinks.end()) ? (*it).second : std::make_pair(true, true);
+  return m_badLinksArray[hash/2];
 }
 
 //----------------------------------------------------------------------

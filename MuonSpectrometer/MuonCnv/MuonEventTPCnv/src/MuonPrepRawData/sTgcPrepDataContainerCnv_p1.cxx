@@ -15,10 +15,13 @@
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
+// #include "GaudiKernel/CnvFactory.h"
+// #include "GaudiKernel/StatusCode.h"
+// #include "GaudiKernel/Service.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 StatusCode Muon::sTgcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:

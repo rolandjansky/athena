@@ -58,47 +58,38 @@ const xAOD::TrackParticle* ParticleCaloExtensionTool::getTrackParticle(const xAO
   return nullptr;
 }
 
-bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
-                                               std::unique_ptr<Trk::CaloExtension>& extension) const {
+ std::unique_ptr<Trk::CaloExtension> 
+ ParticleCaloExtensionTool::caloExtension(const xAOD::IParticle& particle) const {
 
   ATH_MSG_DEBUG(" caloExtension: index " << particle.index());
   // work out the type of particle and get the extension
 
-  extension = nullptr;
   const xAOD::TrackParticle* trackParticle = getTrackParticle(particle);
   if( trackParticle ) {
-    extension = caloExtension(*trackParticle);
+    return caloExtension(*trackParticle);
   }
   else if (particle.type()==xAOD::Type::TruthParticle){
     const xAOD::TruthParticle* truthParticle = static_cast< const xAOD::TruthParticle*>(&particle);
-    extension = caloExtension(*truthParticle);
+    return caloExtension(*truthParticle);
 
   }
   else if(particle.type()==xAOD::Type::NeutralParticle){
     const xAOD::NeutralParticle* neutralParticle = static_cast< const xAOD::NeutralParticle*>(&particle);
-    extension = caloExtension(*neutralParticle);
-  }
-  else{
-    ATH_MSG_WARNING("Unsupported IParticle type");
-    return false;
-  }
-  return extension.get()!=nullptr;
+    return caloExtension(*neutralParticle);
+  } 
+  ATH_MSG_WARNING("Unsupported IParticle type");
+  return nullptr;
 }
 
 const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
                                                                     IParticleCaloExtensionTool::Cache& cache ) const{
-  auto findExtension= cache.find(particle.index());
-  if (findExtension!=cache.end()){
-    ATH_MSG_DEBUG(" Found cached caloExtension for index: " << particle.index());
-    return findExtension->second.get();
-  }   
-  std::unique_ptr<Trk::CaloExtension> tmpExtension;
-  if(caloExtension(particle,tmpExtension)){
+  /*if not there , default ctor for unique_ptr (nullptr)*/
+  std::unique_ptr<Trk::CaloExtension>& extension= cache[particle.index()];
+  if (extension.get()==nullptr){   
     ATH_MSG_DEBUG(" Adding  caloExtension to cahce for index: " << particle.index());
-    auto insertedExtension=cache.emplace(std::make_pair(size_t(particle.index()),std::move(tmpExtension)));
-    return insertedExtension.first->second.get();
+    extension=caloExtension(particle);
   }
-  return nullptr;
+  return extension.get();
 }
 
 const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
@@ -125,8 +116,8 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
    */
   for (size_t i=0 ; i<numparticles; ++i){
     if (mask[i]==true){
-      std::unique_ptr<Trk::CaloExtension> extension;
-      if(caloExtension(*(particles[i]),extension)){
+      std::unique_ptr<Trk::CaloExtension> extension=caloExtension(*(particles[i]));
+      if(extension!=nullptr){
         caloextensions.push_back(std::move(extension));
       }
       else {

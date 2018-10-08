@@ -9,7 +9,6 @@ DetFlags.digitize.all_setOff()
 include ("AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py")
 
 EventSelector = Service("EventSelector") 
-# EventSelector.BackNavigation = True 
 
 if not 'inputFile'  in dir() : 
  inputFile="cosmic.reco.pool.root"

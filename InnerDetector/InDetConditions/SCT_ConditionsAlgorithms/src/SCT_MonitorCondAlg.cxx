@@ -4,12 +4,15 @@
 
 #include "SCT_MonitorCondAlg.h"
 
+#include "InDetIdentifier/SCT_ID.h"
+
 #include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
 SCT_MonitorCondAlg::SCT_MonitorCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
+  , m_helper{nullptr}
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -17,6 +20,8 @@ SCT_MonitorCondAlg::SCT_MonitorCondAlg(const std::string& name, ISvcLocator* pSv
 StatusCode SCT_MonitorCondAlg::initialize()
 {
   ATH_MSG_DEBUG("initialize " << name());
+
+  ATH_CHECK(detStore()->retrieve(m_helper, "SCT_ID"));
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
@@ -76,7 +81,9 @@ StatusCode SCT_MonitorCondAlg::execute()
   for (; iter!=last; ++iter) {
     const AthenaAttributeList& list{iter->second};
     if (list.size()>defectListIndex) {
-      writeCdo->insert(iter->first, list[defectListIndex].data<std::string>());
+      const Identifier moduleId{m_helper->module_id(Identifier{iter->first})};
+      const IdentifierHash moduleHash{m_helper->wafer_hash(moduleId)};
+      writeCdo->insert(moduleHash, list[defectListIndex].data<std::string>());
     }
   }
 

@@ -13,7 +13,10 @@
 #+ HLT/Trigger/TrigTransforms/TrigTransform
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
+- HLT/HLTTestApps
 - HLT/HLToks
+- Trigger/ALP
+- Event/DFStreamEventSelector
 
 # Offload service has build problems
 - Offloading/.*
@@ -26,7 +29,7 @@
 - graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
-+ graphics/VP1/.*
+- graphics/VP1/.*
 
 # Suspend building of Qat
 - graphics/Qat/.*

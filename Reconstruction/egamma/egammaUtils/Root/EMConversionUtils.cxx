@@ -10,9 +10,6 @@
 
 namespace EMConversionUtils {
 
-  /** @brief struct of Particle Masses */
-  const Trk::ParticleMasses particleMasses;
-
   /** @brief Get the position and momentum of the conversion candidate  */
   void getConversionPositionAndPt(const xAOD::Vertex* myCandidate, Amg::Vector3D& pos, double& pt) 
   {

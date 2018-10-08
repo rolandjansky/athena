@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -132,9 +132,10 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   ATH_MSG_VERBOSE(  "Merging state with " << unmergedState.size() << " components" );
 
   unsigned int numberOfComponents = unmergedState.size();
-
+  //Assembler Cache
+    IMultiComponentStateAssembler::Cache cache;
   // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if (unmergedState.size() <= m_maximumNumberOfComponents){
     ATH_MSG_VERBOSE( "State is already sufficiently small... no component reduction required" );
@@ -175,10 +176,10 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   // Options to use full KL distance-based algorithm.
   if (m_useFullDistanceCalcArray) {
     delete combinedState;
-    return mergeFullDistArray(unmergedState);
+    return mergeFullDistArray(cache,unmergedState);
   } else if(m_useFullDistanceCalcVector){
     delete combinedState;
-    return mergeFullDistVector(unmergedState);
+    return mergeFullDistVector(cache,unmergedState);
   }
  
   
@@ -191,7 +192,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   MultiComponentStateMap unmergedComponentsMap(comparator);
   
   // Clone unmerged state as STL methods deletes components
-  Trk::MultiComponentState* clonedUnmergedState = const_cast<Trk::MultiComponentState*>( unmergedState.clone() );
+  Trk::MultiComponentState* clonedUnmergedState = unmergedState.clone();
 
   component = clonedUnmergedState->begin();
 
@@ -300,7 +301,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   for ( ; mapComponent != unmergedComponentsMap.end(); ++mapComponent) {
 
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(mapComponent->second);
+    bool componentAdded = m_stateAssembler->addComponent(cache,mapComponent->second);
 
     if ( !componentAdded )
       ATH_MSG_WARNING( "Component could not be added to the state in the assembler" );
@@ -310,7 +311,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
 
   }
   
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
 
   ATH_MSG_VERBOSE( "Number of components in merged state: " << mergedState->size() );
 
@@ -582,7 +583,8 @@ void Trk::QuickCloseComponentsMultiStateMerger::mergeStateComponents (std::vecto
 
 // Method to take an input MCS and minimize it from 'X' components to
 // 'm_maximumNumberOfComponents' components.
-const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistVector(const Trk::MultiComponentState& mcs) const
+const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistVector(IMultiComponentStateAssembler::Cache& cache,
+                                                                                               const Trk::MultiComponentState& mcs) const
 {
 
   m_chronoSvc->chronoStart("QCCM::mergeFullDist");
@@ -628,7 +630,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   for ( ; mcsIter != tempComponents.end(); ++mcsIter){
     
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(*(*mcsIter));
+    bool componentAdded = m_stateAssembler->addComponent(cache,*(*mcsIter));
 
     if ( !componentAdded )
       msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
@@ -637,7 +639,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
 
   ATH_MSG_VERBOSE("Got states, doing final assembly of merged state");
   
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
 
   // Memory clean up. Gotta also clean up those pesky track parameters.
   // for (unsigned int ic(0); ic < clonedUnmergedState->size(); ic++)
@@ -651,7 +653,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   for (unsigned int it(0); it < tempComponents.size(); it++) {
     if (tempComponents[it]) {
       if (tempComponents[it]->first)
-  delete tempComponents[it]->first;
+        delete tempComponents[it]->first;
       delete tempComponents[it];
     }
   }
@@ -693,7 +695,8 @@ void Trk::QuickCloseComponentsMultiStateMerger::deleteStoredDistances(int i1, in
       
 }
 
-const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(const Trk::MultiComponentState& mcs) const
+const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
+                                                                                              const Trk::MultiComponentState& mcs) const
 {
   //m_chronoSvc->chronoStart("QCCM::mergeFullDistArray");
 
@@ -866,13 +869,13 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
     if(state == 0) continue;
     
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent( *state );
+    bool componentAdded = m_stateAssembler->addComponent( cache,*state );
 
     if ( !componentAdded )
       ATH_MSG_WARNING( "Component could not be added to the state in the assembler" );
   }
   
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
 
   ATH_MSG_VERBOSE( "Number of components in merged state: " << mergedState->size() );
 

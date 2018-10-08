@@ -47,21 +47,21 @@ CaloCell_ID* make_helper (TileID* tile_id)
                                     "IdDictLArCalorimeter.xml");
   IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
   em_id->set_do_neighbours (false);
-  em_id->initialize_from_dictionary (idd);
-  hec_id->initialize_from_dictionary (idd);
+  assert (em_id->initialize_from_dictionary (idd) == 0);
+  assert (hec_id->initialize_from_dictionary (idd) == 0);
   fcal_id->set_do_neighbours (false);
-  fcal_id->initialize_from_dictionary (idd);
+  assert (fcal_id->initialize_from_dictionary (idd) == 0);
   minifcal_id->set_do_neighbours (false);
-  minifcal_id->initialize_from_dictionary (idd);
+  assert (minifcal_id->initialize_from_dictionary (idd) == 0);
   tile_id->set_do_neighbours (false);
-  tile_id->initialize_from_dictionary (idd);
+  assert (tile_id->initialize_from_dictionary (idd) == 0);
 
   CaloCell_ID* calo_helper = new CaloCell_ID (em_id,
                                               hec_id,
                                               fcal_id,
                                               minifcal_id,
                                               tile_id);
-  calo_helper->initialize_from_dictionary (idd);
+  assert (calo_helper->initialize_from_dictionary (idd) == 0);
   return calo_helper;
 }
 

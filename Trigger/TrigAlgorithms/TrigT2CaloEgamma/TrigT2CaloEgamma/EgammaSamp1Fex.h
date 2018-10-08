@@ -43,8 +43,7 @@ class EgammaSamp1Fex: public IAlgToolCalo {
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
 		       const IRoiDescriptor& roi,
-		       const CaloDetDescrElement*& caloDDE = caloDDENull,
-                       const EventContext* context = nullptr );
+		       const CaloDetDescrElement*& caloDDE = caloDDENull);
 };
 
 

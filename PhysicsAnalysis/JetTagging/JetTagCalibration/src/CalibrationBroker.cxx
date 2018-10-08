@@ -392,7 +392,12 @@ namespace Analysis {
 	std::string hname = histnames[h];
 	ATH_MSG_DEBUG( "#BTAG# registrating tagger "<< m_taggers[i] <<" with " 
 		       << m_channels.size() << " histograms (1 per channel): ");
-	for(uint j=0;j<m_channels.size();j++) {
+	for(uint j=0;j<mappedAlias.size();j++) {
+          std::string fname = this->fullHistoName(mappedAlias[j],hname);
+          TObject* dummy = nullptr;
+          m_histos[i].insert(std::make_pair(fname, std::make_pair(dummy,false)));
+        }
+	/*for(uint j=0;j<m_channels.size();j++) {
 	  if(this->channelAlias(m_channels[j])==m_channels[j]) { // skip aliased channels
 	    std::string fname = this->fullHistoName(m_channels[j],hname);
 	    TObject* dummy = nullptr;
@@ -401,7 +406,7 @@ namespace Analysis {
 	    ATH_MSG_DEBUG( "#BTAG# " << m_channels[j] << " is aliased to " << this->channelAlias(m_channels[j]) 
 			   << " : not registering twice histogram " << hname );
 	  }
-	}
+	}*/
       }
     }
 

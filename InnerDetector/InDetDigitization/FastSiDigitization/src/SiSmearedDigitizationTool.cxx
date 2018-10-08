@@ -766,21 +766,6 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Pixel_detElement_RIO_map * c
     }
   }
 
-  // i = cluster_map->begin();
-  // e = cluster_map->end();
-
-  // for (; i != e; i = cluster_map->upper_bound(i->first)){
-  //   IdentifierHash current_id = i->first;
-  //   // Check if clusters with current_id have been already considered
-
-  //   ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
-
-  //   std::pair <Pixel_detElement_RIO_map::iterator, Pixel_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
-  //   for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-  //     ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: Planar Cluster = " << *((*iter).second) );
-  //   }
-  // }
-
   return StatusCode::SUCCESS;
 }
 
@@ -848,21 +833,6 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(SCT_detElement_RIO_map * clu
     REPEAT_LOOP: ;
     }
   }
-
-  // i = cluster_map->begin();
-  // e = cluster_map->end();
-
-  // for (; i != e; i = cluster_map->upper_bound(i->first)){
-  //   IdentifierHash current_id = i->first;
-  //   // Check if clusters with current_id have been already considered
-
-  //   ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
-
-  //   std::pair <SCT_detElement_RIO_map::iterator, SCT_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
-  //   for ( SCT_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-  //     ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: Pixel Cluster = " << *((*iter).second) );
-  //   }
-  // }
 
   return StatusCode::SUCCESS;
 }
@@ -937,20 +907,6 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Planar_detElement_RIO_map * 
     REPEAT_LOOP: ;
     }
   }
-
-  // i = cluster_map->begin();
-  // e = cluster_map->end();
-
-  // for (; i != e; i = cluster_map->upper_bound(i->first)){
-  //   IdentifierHash current_id = i->first;
-  //   // Check if clusters with current_id have been already considered
-
-  //   ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
-  //   std::pair <Planar_detElement_RIO_map::iterator, Planar_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
-  //   for ( Planar_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-  //     ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: Planar Cluster = " << *((*iter).second) );
-  //   }
-  // }
 
   return StatusCode::SUCCESS;
 }
@@ -1183,8 +1139,8 @@ StatusCode SiSmearedDigitizationTool::digitize()
           if (hitSurface->type() == Trk::Surface::Disc) {
             m_useDiscSurface = true;
             const Trk::DiscSurface* disc = dynamic_cast<const Trk::DiscSurface*>(hitSurface);
-            Amg::Vector2D polLocalEntry = *(disc->localCartesianToPolar(Amg::Vector2D(localEntry.x(), localEntry.y())));
-            Amg::Vector2D polLocalExit = *(disc->localCartesianToPolar(Amg::Vector2D(localExit.x(), localExit.y())));
+            Amg::Vector2D polLocalEntry {disc->localCartesianToPolarValue(Amg::Vector2D(localEntry.x(), localEntry.y()))};
+            Amg::Vector2D polLocalExit {disc->localCartesianToPolarValue(Amg::Vector2D(localExit.x(), localExit.y()))};
             sct_localStartPosition = HepGeom::Point3D<double>( polLocalEntry.x(), polLocalEntry.y(), localEntry.z());
             sct_localEndPosition = HepGeom::Point3D<double>( polLocalExit.x(), polLocalExit.y(), localExit.z());
           }
@@ -1198,8 +1154,8 @@ StatusCode SiSmearedDigitizationTool::digitize()
         localExitZ  = sct_localEndPosition.z();
       }
 
-      double distX = fabs(fabs(localExitX)-fabs(localEntryX));
-      double distY = fabs(fabs(localExitY)-fabs(localEntryY));
+      double distX = std::fabs(std::fabs(localExitX)-std::fabs(localEntryX));
+      double distY = std::fabs(std::fabs(localExitY)-std::fabs(localEntryY));
 
       if(m_SmearPixel){ // Smear Pixel
         ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel start position --- " << localEntryX << ",  " << localEntryY << ",  " << localEntryZ );

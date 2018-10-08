@@ -8,32 +8,10 @@
 
 using namespace std;
 
-SimpleView::SimpleView() :
-  m_store( "StoreGateSvc", "SimpleView" ),
-  m_name( "SimpleView" ),
-  m_allowFallThrough( false )
-{
-}
-
-SimpleView::SimpleView( std::string Name, bool AllowFallThrough ) :
-  m_store( "StoreGateSvc", "SimpleView" ),
-  m_name( Name ),
-  m_allowFallThrough( AllowFallThrough )
-{
-}
-
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
   m_store( storeName, "SimpleView" ),
   m_name( Name ),
   m_allowFallThrough( AllowFallThrough )
-{
-}
-
-SimpleView::SimpleView( const SimpleView* original ) :
-  m_store( original->m_store ),
-  m_name( original->m_name ),
-  m_parents( original->m_parents ),
-  m_allowFallThrough( original->m_allowFallThrough )
 {
 }
 
@@ -78,15 +56,15 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
 {
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
   const std::string viewKey = m_name + "_" + key;
-  auto localProxy =  m_store->proxy( id, viewKey );
+  auto localProxy = m_store->proxy( id, viewKey );
   
-  //  std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in this view store with validity " << isValid( localProxy ) << std::endl;
+  //std::cout << " while looking for object " << key << " in view " << name() << " found proxy in this view store with validity " << isValid( localProxy ) << std::endl;
   for ( auto parent: m_parents ) {
-    auto inParentProxy = parent->proxy( id, key ); 
-    //    std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in parent view store with validity " << isValid( inParentProxy ) << std::endl;
+    auto inParentProxy = parent->proxy( id, key );
+    //std::cout << " while looking for object " << key << " in view " << name() << " found proxy in parent view store with validity " << isValid( inParentProxy ) << std::endl;
     if ( isValid( inParentProxy ) ) {
       if ( isValid( localProxy ) ) {
-        throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
+	throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
       }
       localProxy = inParentProxy;
       break;
@@ -96,9 +74,9 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
   //Look in the default store if cound not find in any view - for instance for event-wise IDCs
   if ( (not isValid( localProxy ))  and  m_allowFallThrough ) {
     auto mainStoreProxy = m_store->proxy( id, key );
-    //    std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in the main store with validity " << isValid( mainStoreProxy ) << std::endl;
+    //std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in the main store with validity " << isValid( mainStoreProxy ) << std::endl;
     return mainStoreProxy;
-  }
+  }	
   return localProxy; // can be the nullptr still
 }
 
@@ -138,7 +116,6 @@ std::vector< const SG::DataProxy* > SimpleView::proxies() const
  */
 StatusCode SimpleView::addToStore( CLID id, SG::DataProxy * proxy )
 {
-  const std::string viewKey = m_name + "_" + proxy->name();
   return m_store->addToStore( id, proxy );
 }
 
@@ -232,12 +209,12 @@ const std::string* SimpleView::keyToString( IStringPool::sgkey_t key, CLID& clid
 {
   cout << "Not implemented: SimpleView::keyToString" << endl;
   //TODO - view rename maybe?
-  return m_store->keyToString( key, clid ); 
+  return m_store->keyToString( key, clid );
 }
 void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid )
 {
-  const std::string viewKey = m_name + "_" + str;
-  m_store->registerKey( key, viewKey, clid );
+	const std::string viewKey = m_name + "_" + str;
+	m_store->registerKey( key, viewKey, clid );
 }
 
 

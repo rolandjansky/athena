@@ -171,18 +171,17 @@ SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId) const {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 std::string
-SCT_MonitorConditionsTool::getList(const Identifier& imodule) const {
-  string currentDefectList = "";
-  int channelNumber{static_cast<int>(imodule.get_identifier32().get_compact())};
+SCT_MonitorConditionsTool::getList(const Identifier& moduleId) const {
+  string currentDefectList{""};
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MonitorCondData* condData{getCondData(ctx)};
   if (condData) {
-    condData->find(channelNumber, currentDefectList);
+    const IdentifierHash moduleHash{m_pHelper->wafer_hash(moduleId)};
+    condData->find(moduleHash, currentDefectList);
   } else {
     ATH_MSG_ERROR("In getList - no data");
   }
   return currentDefectList;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -374,11 +373,12 @@ SCT_MonitorConditionsTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cache.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cache[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_MonitorCondData> condData{m_condKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());

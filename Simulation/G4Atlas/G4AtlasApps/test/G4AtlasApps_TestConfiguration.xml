@@ -3,61 +3,6 @@
 
 <unifiedTestConfiguration>
 
-  <atn>
-    <TEST name="G4Atlas" type="athena" suite="Simulation-Core">
-      <doc>Tests standard simu job</doc>
-      <classification>
-        <displayClass>OfflineValidation</displayClass>
-        <displayProcess>Simul</displayProcess>
-        <displayComponent>Athena-Core</displayComponent>
-      </classification>
-      <options_atn>G4AtlasApps/jobOptions.G4Atlas.py</options_atn>
-      <timelimit>15</timelimit>
-      <author>A. Buckley</author>
-      <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <expectations>
-        <errorMessage>FAILURE </errorMessage>
-        <returnValue>0</returnValue>
-      </expectations>
-    </TEST>
-
-    <TEST name="G4AtlasReadEvgen" type="athena" suite="Simulation-Core">
-      <doc>Tests standard simu job</doc>
-      <classification>
-        <displayClass>OfflineValidation</displayClass>
-        <displayProcess>Simul</displayProcess>
-        <displayComponent>Athena-Core</displayComponent>
-      </classification>
-      <options_atn>G4AtlasApps/jobOptions.G4Atlas_ReadEvgen.py</options_atn>
-      <timelimit>20</timelimit>
-      <author>A. Buckley, J. Chapman</author>
-      <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <expectations>
-        <errorMessage>FAILURE </errorMessage>
-        <returnValue>0</returnValue>
-      </expectations>
-    </TEST>
-
-    <TEST name="G4Cosmic" type="athena" suite="Simulation-Core">
-      <doc>Tests commissioning simulation</doc>
-      <classification>
-        <displayClass>OfflineValidation</displayClass>
-        <displayProcess>Simul</displayProcess>
-        <displayComponent>Athena-Core</displayComponent>
-      </classification>
-      <options_atn>G4AtlasApps/jobOptions.G4Cosmic.py</options_atn>
-      <timelimit>15</timelimit>
-      <author>A. Buckley</author>
-      <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <expectations>
-        <errorMessage>FAILURE </errorMessage>
-        <returnValue>0</returnValue>
-      </expectations>
-    </TEST>
-
-  </atn>
-
-
   <kv/>
 
 

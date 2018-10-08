@@ -8,16 +8,21 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.DetFlags import DetFlags
 
+TriggerFlags.doID   = False;
+TriggerFlags.doMuon = True;
 
 ### Set muon sequence ###
 if not 'doL2SA' in dir():
-  doL2SA=True
+  doL2SA = True
 if not 'doL2CB' in dir():
-  doL2CB=True
+  doL2CB = True
+  TriggerFlags.doID = True
 if not 'doL2ISO' in dir():
   doL2ISO = True 
 if not 'doEFSA' in dir():
-  doEFSA=True
+  doEFSA = True
+if not 'doEFISO' in dir():
+  doEFISO=True
 
 ### workaround to prevent online trigger folders to be enabled ###
 if doL2CB or doL2ISO:
@@ -73,20 +78,6 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
-
-TriggerFlags.doID   = False;
-TriggerFlags.doMuon = True;
-
-### Set muon sequence ###
-if not 'doL2SA' in dir():
-  doL2SA = True
-if not 'doL2CB' in dir():
-  doL2CB = True
-  TriggerFlags.doID = True
-if not 'doL2ISO' in dir():
-  doL2ISO = True 
-if not 'doEFSA' in dir():
-  doEFSA = True
 
 ### muon thresholds ###
 CTPToChainMapping = {"HLT_mu6":       "L1_MU6",
@@ -439,6 +430,7 @@ if TriggerFlags.doMuon:
     themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
+    themuoncreatoralg.MuonContainerLocation="Muons"
     themuoncreatoralg.MakeClusters=False
     themuoncreatoralg.MuonContainerLocation = "Muons"
 
@@ -461,8 +453,8 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
     muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
-
-    muonEFSAStep = seqAND("muonEFSAStep", [filterEFSAAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
+    muEFSASequence = seqAND("muEFSASequence", [efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo])
+    muonEFSAStep = stepSeq("muonEFSAStep", filterEFSAAlg, [muEFSASequence, muonEFSADecisionsDumper])
 
 
   if doL2CB and doL2ISO:

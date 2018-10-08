@@ -4,9 +4,8 @@
 
 // Tile includes
 #include "TileConditions/TileExpertToolEmscale.h"
+#include "TileConditions/Exception.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileCalibBlobObjs/Exception.h"
-#include "TileConditions/TileCondProxyWrapper.h"
 
 //
 //____________________________________________________________________
@@ -31,6 +30,8 @@ TileExpertToolEmscale::TileExpertToolEmscale(const std::string& type, const std:
 //___________________________________________________________________
 float TileExpertToolEmscale::channelCalib(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float amplitude
                                           , TileRawChannelUnit::UNIT rawDataUnitIn, TileRawChannelUnit::UNIT rawDataUnitOut) const {
+
+  SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
 
   //=== Undo online calibration, result is offline ADC counts
   if (rawDataUnitIn >= TileRawChannelUnit::OnlineADCcounts) {
@@ -103,39 +104,40 @@ float TileExpertToolEmscale::channelCalib(unsigned int drawerIdx, unsigned int c
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibEms(unsigned int drawerIdx, unsigned int channel, float amplitude) const {
 
-  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflEms))
+  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflEms)) {
     return TileCondToolEmscale::doCalibEms(drawerIdx, channel, amplitude);
-  else
+  } else {
     return amplitude;
+  }
 }
 
 //
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibCes(unsigned int drawerIdx, unsigned int channel, float amplitude, bool applyLasCorr) const {
 
-  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflCes))
+  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflCes)) {
     return TileCondToolEmscale::doCalibCes(drawerIdx, channel, amplitude, applyLasCorr);
-  else
+  } else {
     return amplitude;
+  }
+
 }
 
 //
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibLas(unsigned int drawerIdx, unsigned int channel, float amplitude) const {
 
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileExpertToolEmscale::doCalibLas", drawerIdx,TileCalibUtils::MAX_DRAWERIDX);
-  }
+  SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
 
   //=== Linear correction
   if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflLasLin)) {
-    amplitude = m_pryOflLasLin->getCalibDrawer(drawerIdx)->getCalib(channel, 0, amplitude);
+    amplitude = emScale->applyLaserLinearCalibration(drawerIdx, channel, amplitude);
   } // OflLasLin
 
   //=== Non-linear correction
   if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflLasNln)) {
-    amplitude = m_pryOflLasNln->getCalibDrawer(drawerIdx)->getCalib(channel, 0, amplitude);
-  } // OflLasNln  
+    amplitude = emScale->applyLaserNonLinearCalibration(drawerIdx, channel, amplitude);
+  } // OflLasNln
 
   return amplitude;
 }
@@ -144,19 +146,17 @@ float TileExpertToolEmscale::doCalibLas(unsigned int drawerIdx, unsigned int cha
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibCis(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float amplitude) const {
 
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileExpertToolEmscale::doCalibCis", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
-  }
+  SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
 
   //=== Linear correction
   if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflCisFitLin)) {
-    amplitude = m_pryOflCisLin->getCalibDrawer(drawerIdx)->getCalib(channel, adc, amplitude);
+    amplitude = emScale->applyChargLinearCalibration(drawerIdx, channel, adc, amplitude);
   } // OflCisFitLin
 
   //=== non-linear correction
   if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflCisFitNln)) {
-    amplitude = m_pryOflCisNln->getCalibDrawer(drawerIdx)->getCalib(channel, adc, amplitude);
-  } // OflCisFitNln  
+    amplitude = emScale->applyChargeNonLinearCalibration(drawerIdx, channel, adc, amplitude);
+  } // OflCisFitNln
 
   return amplitude;
 }
@@ -165,14 +165,11 @@ float TileExpertToolEmscale::doCalibCis(unsigned int drawerIdx, unsigned int cha
 //____________________________________________________________________
 float TileExpertToolEmscale::channelCalibOnl(unsigned int drawerIdx, unsigned int channel, unsigned int adc
                                              , float amplitude, TileRawChannelUnit::UNIT onlUnit) const {
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileExpertToolEmscale::channelCalibOnl", drawerIdx,
-        TileCalibUtils::MAX_DRAWERIDX);
-  }
 
   ATH_MSG_VERBOSE( "Recalculating total online constant for "
                   << drawerIdx << "/" << channel << "/" << adc << " , " << onlUnit );
 
+  SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
 
   //=== CIS calibration
   if (onlUnit > TileRawChannelUnit::OnlineADCcounts) {
@@ -207,40 +204,48 @@ float TileExpertToolEmscale::channelCalibOnl(unsigned int drawerIdx, unsigned in
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibEmsOnl(unsigned int drawerIdx, unsigned int channel, float amplitude) const {
 
-  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlEms))
+  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlEms)) {
     return TileCondToolEmscale::doCalibEmsOnl(drawerIdx, channel, amplitude);
-  else
+  } else {
     return amplitude;
+  }
+
 }
 
 //
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibCesOnl(unsigned int drawerIdx, unsigned int channel, float amplitude, bool applyLasCorr) const {
 
-  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlCes))
+  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlCes)) {
     return TileCondToolEmscale::doCalibCesOnl(drawerIdx, channel, amplitude, applyLasCorr);
-  else
+  } else {
     return amplitude;
+  }
+
 }
 
 //
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibLasOnl(unsigned int drawerIdx, unsigned int channel, float amplitude) const {
 
-  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlLasLin))
+  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlLasLin)) {
     return TileCondToolEmscale::doCalibLasOnl(drawerIdx, channel, amplitude);
-  else
+  } else {
     return amplitude;
+  }
+
 }
 
 //
 //____________________________________________________________________
 float TileExpertToolEmscale::doCalibCisOnl(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float amplitude) const {
 
-  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlCisLin))
+  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OnlCisLin)) {
     return TileCondToolEmscale::doCalibCisOnl(drawerIdx, channel, adc, amplitude);
-  else
+  } else {
     return amplitude;
+  }
+
 }
 
 //
@@ -248,8 +253,10 @@ float TileExpertToolEmscale::doCalibCisOnl(unsigned int drawerIdx, unsigned int 
 float TileExpertToolEmscale::undoOnlCalib(unsigned int drawerIdx, unsigned int channel, unsigned int adc
                                           , float amplitude, TileRawChannelUnit::UNIT onlUnit) const {
 
+  SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
+
   //=== Check if online folders are available
-  if (m_onlCacheUnit == TileRawChannelUnit::Invalid) {
+  if (emScale->getOnlineCacheUnit() == TileRawChannelUnit::Invalid) {
     ATH_MSG_FATAL( "Trying to undo online calibration, but COOL folders were not loaded" );
     std::abort();
   }
@@ -276,10 +283,12 @@ float TileExpertToolEmscale::undoOnlCalib(unsigned int drawerIdx, unsigned int c
 //____________________________________________________________________
 float TileExpertToolEmscale::getLasPartition(unsigned int drawerIdx) const {
 
-  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflLasPart))
+  if (m_emOptions.getEmscaleCalibBit(TileEmscaleCalibOptions::OflLasPart)) {
     return TileCondToolEmscale::getLasPartition(drawerIdx);
-  else
+  } else {
     return 1.0;
+  }
+
 }
 
 //

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -27,12 +27,12 @@ Trk::CloseComponentsMultiStateMerger::CloseComponentsMultiStateMerger(
   m_stateCombiner("Trk::MultiComponentStateCombiner/CloseComponentsCombiner"),
   m_chronoSvc( "ChronoStatSvc", name )
 {
-  
+
   declareInterface<IMultiComponentStateMerger>(this);
 
   declareProperty("MaximumNumberOfComponents", m_maximumNumberOfComponents);
   declareProperty("DistanceType", m_distance);
-  
+
 }
 
 Trk::CloseComponentsMultiStateMerger::~CloseComponentsMultiStateMerger()
@@ -47,7 +47,7 @@ StatusCode Trk::CloseComponentsMultiStateMerger::initialize()
   if ( m_chronoSvc.retrieve().isFailure() ) {
    msg(MSG::FATAL) << "Failed to retrieve service " << m_chronoSvc << endmsg;
    return StatusCode::FAILURE;
-	} else 
+	} else
    msg(MSG::INFO) << "Retrieved service " << m_chronoSvc << endmsg;
 
   // Retrieve the distance tool
@@ -63,8 +63,6 @@ StatusCode Trk::CloseComponentsMultiStateMerger::initialize()
     return StatusCode::FAILURE;
   }
   
-  m_stateCombiner->useMode(false);
-
   // Request an instance of the MultiComponentStateAssembler
   if ( m_stateAssembler.retrieve().isFailure() ){
     msg(MSG::FATAL) << "Could not retrieve an instance of the mutli-component state assembler... Exiting!" << endmsg;
@@ -92,7 +90,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   // Start the timer
   m_chronoSvc->chronoStart("MS::scan");
 
- 
+
   if (msgLvl(MSG::VERBOSE)) msg() << "Merging state with " << unmergedState.size() << " components" << endmsg;
 
   bool componentWithoutMeasurement = false;
@@ -122,8 +120,10 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   unsigned int numberOfComponents = unmergedState.size();
 
+  //Assembler Cache
+  IMultiComponentStateAssembler::Cache cache;
   // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
@@ -151,7 +151,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   // Clone unmerged state as STL methods deletes components
 
-  Trk::MultiComponentState* clonedUnmergedState = const_cast<Trk::MultiComponentState*>( unmergedState.clone() );
+  Trk::MultiComponentState* clonedUnmergedState = unmergedState.clone();
 
   component = clonedUnmergedState->begin();
 
@@ -164,7 +164,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   while (numberOfComponents > m_maximumNumberOfComponents){
 
     // Reset the merged components multi-map for next iteration
-    
+
     if ( !mergedComponentsMap.empty() )
       mergedComponentsMap.clear();
 
@@ -184,7 +184,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
     // Combine the closest distance components
     const Trk::ComponentParameters* combinedComponents = m_stateCombiner->combineWithWeight( *componentsToBeMerged );
-  
+
     // Erase these components from the unmerged components map. These need to be deleted also as new memory is assigned in the combiner
     delete componentsToBeMerged;
 
@@ -193,7 +193,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
     // Insert this merged component into the merged components multi-map
     mergedComponentsMap.insert( std::make_pair(combinedComponents->second, *combinedComponents) );
-    
+
     // Try deleting the minimum distance pair
     delete minimumDistancePair;
 
@@ -248,7 +248,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   for ( ; mapComponent != unmergedComponentsMap.end(); ++mapComponent){
 
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(mapComponent->second);
+    bool componentAdded = m_stateAssembler->addComponent(cache,mapComponent->second);
 
     if ( !componentAdded )
       msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
@@ -263,7 +263,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   for ( ; mapComponent != mergedComponentsMap.end(); ++mapComponent){
 
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(mapComponent->second);
+    bool componentAdded = m_stateAssembler->addComponent(cache,mapComponent->second);
 
     if ( !componentAdded )
       msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
@@ -273,7 +273,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   }
 
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
 
   if (msgLvl(MSG::VERBOSE)) msg() << "Number of components in merged state: " << mergedState->size() << endmsg;
 

@@ -228,6 +228,9 @@ else
          echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
        fi
        reflog=../share/${test}.ref
+       if [ "$reflog_location" != "" ]; then
+         reflog=$reflog_location/${test}.ref
+       fi
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back

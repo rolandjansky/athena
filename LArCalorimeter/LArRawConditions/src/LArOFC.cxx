@@ -9,8 +9,7 @@
 
 LArOFC::LArOFC(const LArOnlineID_Base* onlineID, const LArOnOffIdMapping* cabling, const size_t nGains) :
   m_onlineID(onlineID),
-  m_cabling(cabling),
-  m_nGains(nGains) {
+  m_cabling(cabling) {
 
   assert(m_onlineID); 
   assert(nGains<=CaloGain::LARNGAIN && nGains>0);
@@ -37,7 +36,7 @@ ILArOFC::OFCRef_t LArOFC::OFC_a(const HWIdentifier &hwid, int gain, int) const {
 }
 
 ILArOFC::OFCRef_t LArOFC::OFC_a(const Identifier &id, int gain, int) const {
-    const Identifier hwid = m_cabling->createSignalChannelID(id);
+    const HWIdentifier hwid = m_cabling->createSignalChannelID(id);
     return this->OFC_a(hwid, gain);
 }
 
@@ -47,7 +46,7 @@ ILArOFC::OFCRef_t LArOFC::OFC_b(const HWIdentifier &hwid, int gain, int) const {
 }
 
 ILArOFC::OFCRef_t LArOFC::OFC_b(const Identifier &id, int gain, int) const {
-    const Identifier hwid = m_cabling->createSignalChannelID(id);
+    const HWIdentifier hwid = m_cabling->createSignalChannelID(id);
     return this->OFC_b(hwid, gain);
 }
 

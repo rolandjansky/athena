@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import jobproperties
@@ -66,11 +66,6 @@ class TriggerGetter(Configured):
 
         if recAlgs.doTrigger():
 
-            # setup the trigger from the DB
-            if TF.readConfigFromTriggerDb():
-                return self.configureTriggerFromDB()
-
-        
             if ((TF.doLVL1()==True or TF.doLVL2()==True or TF.doEF()==True or TF.doHLT()==True) and TF.doTriggerConfigOnly()==False):
                 log.info("generating menu")
                 # trigger menu files generation
@@ -165,52 +160,3 @@ class TriggerGetter(Configured):
             hltouput = HLTTriggerResultGetter()
       
         return True
-
-    def configureTriggerFromDB(self):
-        """ configures trigger from the DB """
-        log = logging.getLogger( "TriggerGetter.py")
-        log.info("configureTriggerFromDb")
-        from TrigConfOffline.HLTConfOffline import HLTConfOffline
-        hltConfOffline = HLTConfOffline()
-        # Set the properties
-        hltConfOffline.setupSource = 'db'
-        hltConfOffline.OutputLevel = 1
-        # Set the connection to the DB
-        if TF.triggerDbConnection.statusOn :
-            hltConfOffline.dbType = TF.triggerDbConnection()['dbType']
-            hltConfOffline.dbHost = TF.triggerDbConnection()['dbServer']
-            hltConfOffline.dbUser = TF.triggerDbConnection()['dbUser']
-            hltConfOffline.dbName = TF.triggerDbConnection()['dbName']
-            hltConfOffline.dbPasswd = TF.triggerDbConnection()['dbPasswd']
-        else:
-            # try to get connection parameters from authentication files
-            if not hltConfOffline.setDbConnectionFromAuthFile() :
-                log.error('failed to set HLTConfOffline service')
-                return False
-            
-        if TF.triggerDbKeys.statusOn :
-            hltConfOffline.SMKey = TF.triggerDbKeys()[0]
-            hltConfOffline.LVL1PrescaleKey = TF.triggerDbKeys()[1]
-            hltConfOffline.HLTPrescaleKey = TF.triggerDbKeys()[2]
-        else:
-            log.error( 'missing DB keys, set the TriggerFlags.triggerDBKeys flag')
-            return False
-      
-        if TF.doLVL2() and TF.doEF() :
-            hltConfOffline.Level = 'BOTH'
-        elif TF.doLVL2() :
-            hltConfOffline.Level = 'L2'
-        elif TF.doEF() :
-            hltConfOffline.Level = 'EF'
-        elif TF.doHLT() :
-            hltConfOffline.Level = 'HLT'
-        else:
-            hltConfOffline.Level = None
-            log.error( 'no trigger level set')
-            return False
-          
-        # Load the setup and set the services on this place
-        hltConfOffline.load()
-              
-        return True
-

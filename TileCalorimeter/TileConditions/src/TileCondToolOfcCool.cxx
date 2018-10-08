@@ -2,15 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileConditions/TileCondToolOfcCool.h"
-#include "TileCalibBlobObjs/Exception.h"
-#include "TileConditions/TileCondProxyWrapper.h"
-#include "TileConditions/ITileCondToolOfc.h"
+#include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
 
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //
 //____________________________________________________________________
@@ -25,24 +24,20 @@ const InterfaceID& TileCondToolOfcCool::interfaceID() {
 TileCondToolOfcCool::TileCondToolOfcCool(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_pryOfcCool("TileCondProxyCool<TileCalibDrawerOfc>/TileCondProxyDefault_OfcCool", this)
     , m_weights(0)
     , m_NPhases(0)
     , m_NFields(0)
-    , m_Phamin(0)
-    , m_Phamax(0)
     , m_NSamples(0)
     , m_first(true)
 {
   declareInterface<TileCondToolOfcCool>(this);
   declareInterface<ITileCondToolOfc>(this);
-  declareProperty("ProxyOfcCool", m_pryOfcCool);
 }
 
 //
 //____________________________________________________________________
 TileCondToolOfcCool::~TileCondToolOfcCool() {
-  //  if(m_weights) delete m_weights;
+
 }
 
 //
@@ -50,8 +45,7 @@ TileCondToolOfcCool::~TileCondToolOfcCool() {
 StatusCode TileCondToolOfcCool::initialize() {
   ATH_MSG_DEBUG( "In initialize()" );
 
-  //=== Retrieve offline proxies
-  CHECK( m_pryOfcCool.retrieve() );
+  ATH_CHECK( m_calibOfcKey.initialize() );
 
   //=== prepare structure for OFCs
   m_weights = new TileOfcWeightsStruct;
@@ -77,23 +71,22 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
                                                                float& phase, 
                                                                bool /* of2 */) {
 
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
-  }
+
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
 
   if (m_first) {
     m_first = false;
-    m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
-    m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
+    m_NPhases = calibOFC->getCalibDrawer(drawerIdx)->getNPhases();
+    m_NFields = calibOFC->getCalibDrawer(drawerIdx)->getNFields();
+    m_NSamples = calibOFC->getCalibDrawer(drawerIdx)->getNSamples();
 
-    ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
+    ATH_MSG_DEBUG( "OFC Blob Type " << calibOFC->getCalibDrawer(drawerIdx)->getType()
                    << " NPhases " << m_NPhases
                    << " NFields " << m_NFields );
 
   }
 
-  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, m_weights->w_a, m_weights->w_b, 
+  calibOFC->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, m_weights->w_a, m_weights->w_b,
                                                    m_weights->w_c, m_weights->g, m_weights->dg);
 
   m_weights->n_samples = m_NSamples;
@@ -109,23 +102,21 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx,
                                        float& phase, 
                                        float *a, float *b, float *c, float *g, float *dg) {
 
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
-  }
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
 
   if (m_first) {
     m_first = false;
-    m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
-    m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
+    m_NPhases = calibOFC->getCalibDrawer(drawerIdx)->getNPhases();
+    m_NFields = calibOFC->getCalibDrawer(drawerIdx)->getNFields();
+    m_NSamples = calibOFC->getCalibDrawer(drawerIdx)->getNSamples();
 
-    ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
+    ATH_MSG_DEBUG( "OFC Blob Type " << calibOFC->getCalibDrawer(drawerIdx)->getType()
                   << " NPhases " << m_NPhases
                   << " NFields " << m_NFields );
 
   }
 
-  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, a, b, c, g, dg);
+  calibOFC->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, a, b, c, g, dg);
 
   return m_NSamples;
 }
@@ -139,15 +130,13 @@ void TileCondToolOfcCool::getOfcParams(unsigned int drawerIdx
                                        , int &Phamax
                                        , int &NSamples) {
 
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
-  }
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
 
-  NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
-  NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-  Phamin = round(m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, 0) * (1 / PHASE_PRECISION));
-  Phamax = round(m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, abs(NPhases) - 1) * (1 / PHASE_PRECISION));
-  NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
+  NPhases = calibOFC->getCalibDrawer(drawerIdx)->getNPhases();
+  NFields = calibOFC->getCalibDrawer(drawerIdx)->getNFields();
+  Phamin = round(calibOFC->getCalibDrawer(drawerIdx)->getPhase(0, 0, 0) * (1 / PHASE_PRECISION));
+  Phamax = round(calibOFC->getCalibDrawer(drawerIdx)->getPhase(0, 0, abs(NPhases) - 1) * (1 / PHASE_PRECISION));
+  NSamples = calibOFC->getCalibDrawer(drawerIdx)->getNSamples();
 }
 
 //

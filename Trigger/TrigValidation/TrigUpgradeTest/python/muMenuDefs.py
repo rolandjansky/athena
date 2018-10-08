@@ -39,7 +39,7 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
@@ -180,10 +180,13 @@ trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastAlg.MuonL2SAInfo
 
 l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode ])
 
-muFastStep = MenuSequence( Sequence=l2muFastSequence,
-                             Maker=l2MuViewsMaker,
-                             Hypo=trigMufastHypo,
-                             HypoToolClassName="TrigMufastHypoToolConf")
+
+from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
+
+muFastStep = MenuSequence( Sequence    = l2muFastSequence,
+                           Maker       = l2MuViewsMaker,
+                           Hypo        = trigMufastHypo,
+                           HypoToolGen = TrigMufastHypoToolFromName )
 
 
 ### ************* Step2  ************* ###
@@ -231,10 +234,11 @@ trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName
 
 l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode ] )
 
-muCombStep = MenuSequence(  Sequence=l2muCombSequence,
-                              Maker=l2muCombViewsMaker,
-                              Hypo=trigmuCombHypo,
-                              HypoToolClassName="TrigmuCombHypoToolConf")
+from TrigMuonHypo.testTrigMuonHypoConfig import TrigmuCombHypoToolFromName
+muCombStep = MenuSequence( Sequence    = l2muCombSequence,
+                           Maker       = l2muCombViewsMaker,
+                           Hypo        = trigmuCombHypo,
+                           HypoToolGen = TrigmuCombHypoToolFromName )
 
 
 ### ************* Step3  ************* ###
@@ -349,10 +353,12 @@ trigMuonEFSAHypo.MuonDecisions = "Muons"
 
 muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efMuViewsMaker, efMuViewNode] )
 
-muonEFSAStep = MenuSequence( Sequence=muonEFMSonlySequence,
-                             Maker=efMuViewsMaker,
-                             Hypo=trigMuonEFSAHypo,
-                             HypoToolClassName="TrigMuonEFMSonlyHypoToolConf")
+from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
+
+muonEFSAStep = MenuSequence( Sequence    = muonEFMSonlySequence,
+                             Maker       = efMuViewsMaker,
+                             Hypo        = trigMuonEFSAHypo,
+                             HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
 
 
 ### setup l2Muiso 
@@ -379,14 +385,14 @@ trigmuIsoHypo = TrigMuisoHypoAlg("L2MuisoHypoAlg")
 trigmuIsoHypo.OutputLevel = DEBUG
 trigmuIsoHypo.MuonL2ISInfoName = trigL2muIso.MuonL2ISInfoName
 
-
+from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuisoHypoToolFromName
 ### Define a Sequence to run for muIso ### 
 l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muIsoViewNode ] )
 
-muIsoStep = MenuSequence(  Sequence=l2muIsoSequence,
-                              Maker=l2muIsoViewsMaker,
-                              Hypo=trigmuIsoHypo,
-                              HypoToolClassName="TrigMuisoHypoToolConf")
+muIsoStep = MenuSequence( Sequence    = l2muIsoSequence,
+                          Maker       = l2muIsoViewsMaker,
+                          Hypo        = trigmuIsoHypo,
+                          HypoToolGen = TrigMuisoHypoToolFromName )
 
    
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):

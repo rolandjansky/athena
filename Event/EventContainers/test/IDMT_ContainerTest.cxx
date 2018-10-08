@@ -9,7 +9,7 @@
 #include "EventContainers/IdentifiableContTemp.h"
 #include "ID_ContainerTest.h" 
 #include "GaudiKernel/System.h" 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // define a bunch of fake data classes 
 using namespace std;

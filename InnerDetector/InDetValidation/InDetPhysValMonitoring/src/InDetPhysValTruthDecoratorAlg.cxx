@@ -40,6 +40,9 @@ InDetPhysValTruthDecoratorAlg::initialize() {
   ATH_CHECK(m_extrapolator.retrieve());
   ATH_CHECK(m_beamSpotSvc.retrieve());
   ATH_CHECK( m_truthSelectionTool.retrieve( EnableTool { not m_truthSelectionTool.name().empty() } ) );
+  if (not m_truthSelectionTool.name().empty() ) {
+    m_cutFlow = CutFlow(m_truthSelectionTool->nCuts() );
+  }
 
   ATH_CHECK( m_truthParticleName.initialize());
 
@@ -60,6 +63,10 @@ InDetPhysValTruthDecoratorAlg::initialize() {
 
 StatusCode
 InDetPhysValTruthDecoratorAlg::finalize() {
+  if (not m_truthSelectionTool.name().empty()) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    ATH_MSG_DEBUG( "Truth selection cut flow : " << m_cutFlow.report(m_truthSelectionTool->names()) );
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -81,10 +88,15 @@ InDetPhysValTruthDecoratorAlg::execute_r(const EventContext &ctx) const {
     float_decor( IDPVM::createDecoratorsWithAccessor(m_decor, ctx) );
 
   if ( m_truthSelectionTool.get() ) {
+    CutFlow tmp_cut_flow(m_truthSelectionTool->nCuts());
     for (const xAOD::TruthParticle *truth_particle : *ptruth) {
-      if (not m_truthSelectionTool->accept(truth_particle)) continue;
+      auto passed = m_truthSelectionTool->accept(truth_particle);
+      tmp_cut_flow.update( passed.missingCuts() );
+      if (not passed) continue;
       decorateTruth(*truth_particle, float_decor);
     }
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_cutFlow.merge(std::move(tmp_cut_flow));
   }
   else {
     for (const xAOD::TruthParticle *truth_particle : *ptruth) {
@@ -117,7 +129,7 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
   const xAOD::TruthVertex* ptruthVertex(0);
   try{
     ptruthVertex = particle.prodVtx();
-  } catch (std::exception e) {
+  } catch (const std::exception& e) {
     if (not errorEmitted) {
       ATH_MSG_WARNING("A non existent production vertex was requested in calculating the track parameters d0 etc");
     }

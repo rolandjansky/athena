@@ -41,8 +41,7 @@ EgammaSamp2Fex::~EgammaSamp2Fex(){
 
 StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi,
-				   const CaloDetDescrElement*& caloDDE,
-                                   const EventContext* context ) { 
+				   const CaloDetDescrElement*& caloDDE) { 
   
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
@@ -57,13 +56,6 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 	// Region Selector, sampling 2
 	int sampling = 2;
 
-	LArTT_Selector<LArCellCont> sel;
-        if ( context ) {
-		m_dataSvc->loadCollections( *context, roi, TTEM, 2, sel );
-		m_iBegin = sel.begin();
-		m_iEnd = sel.end();
-	} else { // old mode
-
 	// Get detector offline ID's for Collections
 	m_data->RegionSelector( sampling, roi );
 
@@ -77,17 +69,14 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 		if (!m_timersvc.empty()) m_timer[2]->stop();      
 		return StatusCode::SUCCESS;
 	}
-	m_error|=m_data->report_error();
-/*
 	if ( m_error ) {
-		if (!m_timersvc.empty()) m_timer[2]->stop();      
-		return StatusCode::SUCCESS;
-	}
-*/
+                if (!m_timersvc.empty()) m_timer[2]->stop();
+                return StatusCode::SUCCESS;
+        }
+	m_error|=m_data->report_error();
 	if ( m_saveCells && !m_error ){
 	   m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
         }
-	}
 	// Finished to access Collection
 	if (!m_timersvc.empty()) m_timer[2]->stop();      
 	// Algorithmic time
