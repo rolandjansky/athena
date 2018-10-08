@@ -14,7 +14,6 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 if AnalysisFlags.DoNavigation:
    include( "RecExCommon/AllDet_detDescr.py" ) 
-   ServiceMgr.EventSelector.BackNavigation = True
 
 # the Dlls
 # Don't need them

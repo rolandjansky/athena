@@ -12,8 +12,6 @@ include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py" )
 
 # The input file already specified near the top of this file
 ServiceMgr.EventSelector.InputCollections = jp.AthenaCommonFlags.FilesInput()
-#
-ServiceMgr.EventSelector.BackNavigation = False 
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
