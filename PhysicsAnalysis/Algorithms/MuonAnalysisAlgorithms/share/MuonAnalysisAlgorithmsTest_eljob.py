@@ -63,7 +63,7 @@ job.algsAdd( sysLoader )
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 muonSequenceMedium = makeMuonAnalysisSequence( dataType, deepCopyOutput = True,
-                                               workingPoint = 'Medium', postfix = 'medium' )
+                                               workingPoint = 'Medium_Iso', postfix = 'medium' )
 muonSequenceMedium.configure( inputName = 'Muons',
                               outputName = 'AnalysisMuonsMedium_%SYS%' )
 print( muonSequenceMedium ) # For debugging
@@ -74,7 +74,7 @@ for alg in muonSequenceMedium:
     pass
 
 muonSequenceTight = makeMuonAnalysisSequence( dataType, deepCopyOutput = True,
-                                               workingPoint = 'Tight', postfix = 'tight' )
+                                               workingPoint = 'Tight_Iso', postfix = 'tight' )
 muonSequenceTight.removeStage ("calibration")
 muonSequenceTight.configure( inputName = 'AnalysisMuonsMedium_%SYS%',
                              outputName = 'AnalysisMuons_%SYS%',

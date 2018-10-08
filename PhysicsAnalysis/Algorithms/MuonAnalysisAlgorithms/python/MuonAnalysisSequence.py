@@ -28,32 +28,44 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         postfix = '_' + postfix
         pass
 
-    sfWorkingPoint = workingPoint
-    if workingPoint == 'Tight' :
+    splitWP = workingPoint.split ('_')
+    if len (splitWP) != 2 :
+        raise ValueError ('working point should be of format "quality_isolation", not ' + workingPoint)
+
+    sfWorkingPoint = splitWP[0]
+    if splitWP[0] == 'Tight' :
         quality = ROOT.xAOD.Muon.Tight
         pass
-    elif workingPoint == 'Medium' :
+    elif splitWP[0] == 'Medium' :
         quality = ROOT.xAOD.Muon.Medium        
         pass
-    elif workingPoint == 'Loose' :
+    elif splitWP[0] == 'Loose' :
         quality = ROOT.xAOD.Muon.Loose        
         pass
-    elif workingPoint == 'VeryLoose' :
+    elif splitWP[0] == 'VeryLoose' :
         quality = ROOT.xAOD.Muon.VeryLoose        
         pass
-    elif workingPoint == 'HighPt' :
+    elif splitWP[0] == 'HighPt' :
         quality = 4
         pass
-    elif workingPoint == 'LowPtEfficiency' :
+    elif splitWP[0] == 'LowPtEfficiency' :
         quality = 5
         pass
     else :
-        raise ValueError ("invalid working point: \"" + workingPoint +
+        raise ValueError ("invalid muon quality: \"" + splitWP[0] +
                           "\", allowed values are Tight, Medium, Loose, " +
                           "VeryLoose, HighPt, LowPtEfficiency")
 
+    if not splitWP[1] in ["Iso", "NonIso"] :
+        raise ValueError ('invalid muon isolation \"' + splitWP[1] +
+                          '\", allowed values are Iso, NonIso')
+
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "MuonAnalysisSequence" + postfix )
+
+    # tracking variables for selection decorations
+    selectList = []
+    nCutsList = []
 
     # Set up the muon calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::MuonCalibrationAndSmearingAlg',
@@ -70,7 +82,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     alg.selectionTool.minPt = 20e3
     alg.selectionTool.maxEta = 2.4
-    alg.selectionDecoration = 'kin_select' + postfix
+    selectList.append ('kin_select' + postfix)
+    nCutsList.append (2)
+    alg.selectionDecoration = selectList[-1]
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
                 stageName = 'selection' )
@@ -78,7 +92,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
                            'MuonTrackSelectionAlg' + postfix )
-    alg.selectionDecoration = "trackSelection" + postfix
+    selectList.append ('trackSelection' + postfix)
+    nCutsList.append (2)
+    alg.selectionDecoration = selectList[-1]
     alg.maxD0Significance = 3
     alg.maxDeltaZ0SinTheta = 0.5
     seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut',
@@ -88,25 +104,31 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                            'MuonSelectionAlg' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionTool.MuQuality = quality
-    alg.selectionDecoration = 'good_muon' + postfix
+    selectList.append ('good_muon' + postfix)
+    nCutsList.append (4)
+    alg.selectionDecoration = selectList[-1]
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
                 stageName = 'selection' )
 
     # Set up the isolation calculation algorithm:
-    alg = createAlgorithm( 'CP::MuonIsolationAlg',
-                           'MuonIsolationAlg' + postfix )
-    addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
-    alg.isolationDecoration = 'isolated_muon' + postfix
-    seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
-                stageName = 'selection' )
+    if splitWP[1] != 'NonIso' :
+        alg = createAlgorithm( 'CP::MuonIsolationAlg',
+                               'MuonIsolationAlg' + postfix )
+        addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
+        selectList.append ('isolated_muon' + postfix)
+        nCutsList.append (1)
+        alg.isolationDecoration = selectList[-1]
+        seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
+                    stageName = 'selection' )
+        pass
 
     # Set up an algorithm used for debugging the muon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'MuonCutFlowDumperAlg' + postfix )
     alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
-    alg.selection = [ 'kin_select' + postfix, 'trackSelection' + postfix, 'good_muon' + postfix, 'isolated_muon' + postfix ]
-    alg.selectionNCuts = [ 2, 2, 4, 1 ]
+    alg.selection = selectList[:]
+    alg.selectionNCuts = nCutsList[:]
     seq.append( alg, inputPropName = 'input',
                 stageName = 'selection' )
 
@@ -114,7 +136,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'MuonViewFromSelectionAlg' + postfix )
-    alg.selection = [ 'kin_select' + postfix, 'trackSelection' + postfix, 'good_muon' + postfix, 'isolated_muon' + postfix ]
+    alg.selection = selectList[:]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                 stageName = 'selection' )
 
