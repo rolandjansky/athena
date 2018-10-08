@@ -44,8 +44,8 @@ def bJetStep1Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
 
-    # Sequence                                                                                                                                                                                       
-    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence,hypo])
+    # Sequence     
+    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
