@@ -14,7 +14,6 @@
 #include <sstream>
 #include <fstream>
 #include <TMath.h>
-
 #include "StoreGate/ReadHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TrigT1CaloFexSim/JGTowerMaker.h"
@@ -26,7 +25,12 @@
 #include "CaloTriggerTool/JTowerSCMap.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/JGTowerContainer.h"
-
+#include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODTrigger/JetRoIAuxContainer.h"
+#include "xAODTrigger/JetRoIContainer.h"
+#include "xAODTrigger/JetRoI.h"
+#include "xAODTrigger/EnergySumRoI.h"
+#include "xAODTrigger/EnergySumRoIAuxInfo.h"
 #include "TFile.h"
 
 
@@ -101,7 +105,6 @@ StatusCode JGTowerReader::execute() {
   //events with bcid distance from bunch train <20 vetoed 
   ToolHandle<Trig::IBunchCrossingTool> m_bcTool("Trig::MCBunchCrossingTool/BunchCrossingTool");
   int distFrontBunchTrain = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-  if(distFrontBunchTrain<20)   return StatusCode::SUCCESS;
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, "SCell") );
@@ -112,11 +115,12 @@ StatusCode JGTowerReader::execute() {
   const xAOD::JGTowerContainer* gTowers =0;
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
 
-  CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
-  CHECK(GFexAlg(gTowers)); // all the functions for GFex shall be executed here
-  CHECK(ProcessObject());  // this is the function to make output as well as memory cleaning
+  if(distFrontBunchTrain<20){
+    CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
+    CHECK(GFexAlg(gTowers)); // all the functions for GFex shall be executed here
+  }
 
-
+  CHECK(ProcessObjects());  // this is the function to make output as well as memory cleaning
   setFilterPassed(true); //if got here, assume that means algorithm passed
   return StatusCode::SUCCESS;
 }
@@ -147,8 +151,8 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
   if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
   
   CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr)); //the diameter of seed, and its range to be local maximum
-  CHECK(JetAlg::BuildJet(jTs, jJet_thr,jSeeds, jL1Jets,m_jJet_r)); 
-  CHECK(METAlg::BuildMET(jTs,jT_noise,jMET));
+  CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets,m_jJet_r,jJet_thr)); 
+  CHECK(METAlg::BuildMET(jTs,jMET,jT_noise));
 
   return StatusCode::SUCCESS;
 }
@@ -158,38 +162,54 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 // jet algorithms
   if(gSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(gTs,gSeeds));
   CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gSeed_size,m_gMax_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
-  CHECK(JetAlg::BuildJet(gTs,gJet_thr,gSeeds,gL1Jets,m_gJet_r)); //default gFex jets are cone jets wih radius of 1.0
-  CHECK(METAlg::BuildMET(gTs,gT_noise,gMET));
+  CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
+  CHECK(METAlg::BuildMET(gTs,gMET,gT_noise));
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode JGTowerReader::ProcessObject(){
+StatusCode JGTowerReader::ProcessObjects(){
 
-  
+
+// Ouptut Jets
+  xAOD::JetRoIAuxContainer* jFexJetContAux = new xAOD::JetRoIAuxContainer();
+  xAOD::JetRoIContainer* jFexJetCont = new xAOD::JetRoIContainer(); 
+  jFexJetCont->setStore(jFexJetContAux);
+
   for(unsigned j=0;j<jL1Jets.size();j++  ){
+     xAOD::JetRoI* jFexJet = new xAOD::JetRoI();     
+     jFexJetCont->push_back(jFexJet);
      JetAlg::L1Jet jet = jL1Jets.at(j);
      CHECK(HistBookFill("jJet_et",50,0,500,jet.et/1000.,1.));
      CHECK(HistBookFill("jJet_eta",49,-4.9,4.9,jet.eta,1.));
      CHECK(HistBookFill("jJet_phi",31,-3.1416,3.1416,jet.phi,1.));
+     jFexJet->initialize(0x0,jet.eta,jet.phi);
+     jFexJet->setEt8x8(jet.et);
   }
-  for(unsigned j=0;j<gL1Jets.size();j++  ){
-     JetAlg::L1Jet jet = gL1Jets.at(j);
-     CHECK(HistBookFill("jJet_et",50,0,500,jet.et/1000.,1.));
-     CHECK(HistBookFill("jJet_eta",49,-4.9,4.9,jet.eta,1.));
-     CHECK(HistBookFill("jJet_phi",31,-3.1416,3.1416,jet.phi,1.));
-  }
-  CHECK(HistBookFill("jMet_et",50,0,500,jMET->et,1.));
-  CHECK(HistBookFill("jMet_phi",31,-3.1416,-3.1416,jMET->et,1.));
-  CHECK(HistBookFill("gMet_et",50,0,500,gMET->et,1.));
-  CHECK(HistBookFill("gMet_phi",31,-3.1416,-3.1416,gMET->et,1.));
-  
+
+  CHECK(evtStore()->record(jFexJetCont,"jFexJets"));
+  CHECK(evtStore()->record(jFexJetContAux,"jFexJetsAux."));
+//output MET
+  xAOD::EnergySumRoIAuxInfo* jFexMETContAux = new xAOD::EnergySumRoIAuxInfo();
+  xAOD::EnergySumRoI* jFexMETCont = new xAOD::EnergySumRoI();
+  jFexMETCont->setStore(jFexMETContAux);
+
+  CHECK(HistBookFill("jMet_et",50,0,500,jMET->et/1000.,1.));
+  CHECK(HistBookFill("jMet_phi",31,-3.1416,-3.1416,jMET->phi,1.));
+  jFexMETCont->setEnergyX(jMET->et*cos(jMET->phi));
+  jFexMETCont->setEnergyY(jMET->et*sin(jMET->phi));  
+  CHECK(evtStore()->record(jFexMETCont,"jFexMET"));
+  CHECK(evtStore()->record(jFexMETContAux,"jFexMETAux."));
+
+
   jL1Jets.clear();
   gL1Jets.clear();
   jSeeds->et.clear();
   jSeeds->local_max.clear();
   gSeeds->et.clear();
   gSeeds->local_max.clear();
+
+
   return StatusCode::SUCCESS;
 }
 

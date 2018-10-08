@@ -17,6 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODJet
+                          Event/xAOD/xAODMissingET
                           Calorimeter/CaloEvent
                           Calorimeter/CaloTriggerTool
                           LArCalorimeter/LArElecCalib 
@@ -32,8 +34,9 @@ atlas_add_component( TrigT1CaloFexSim
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps GaudiKernel LArToolsLib CaloTriggerToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODMissingET xAODJet xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps GaudiKernel LArToolsLib CaloTriggerToolLib )
 
 # Install files from the package:
+atlas_install_data( data/* )
 atlas_install_joboptions( share/*.py )
 atlas_install_headers( TrigT1CaloFexSim )
