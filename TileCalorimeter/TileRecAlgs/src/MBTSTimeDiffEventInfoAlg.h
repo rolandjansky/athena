@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MBTSTIMEDIFFEVENTINFOALG
-#define MBTSTIMEDIFFEVENTINFOALG
+#ifndef TILERECALGS_MBTSTIMEDIFFEVENTINFOALG_
+#define TILERECALGS_MBTSTIMEDIFFEVENTINFOALG_
 
 // Tile includes
 #include "TileEvent/TileContainer.h"

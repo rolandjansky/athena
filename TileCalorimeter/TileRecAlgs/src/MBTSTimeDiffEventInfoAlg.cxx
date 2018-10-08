@@ -3,7 +3,7 @@
 */
 
 // Tile includes
-#include "TileRecAlgs/MBTSTimeDiffEventInfoAlg.h"
+#include "MBTSTimeDiffEventInfoAlg.h"
 #include "TileIdentifier/TileTBID.h"
 
 // Atlas includes
