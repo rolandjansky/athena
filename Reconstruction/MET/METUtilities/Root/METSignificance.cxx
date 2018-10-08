@@ -156,8 +156,9 @@ namespace met {
         ATH_MSG_INFO ("Initializing " << name() << "...");
 
 
+	std::string toolName = "JetCalibrationTool/jetCalibTool_"+m_JetCollection;
 	ATH_MSG_INFO("Set up jet resolution tool");
-	m_jetCalibTool.setTypeAndName("JetCalibrationTool/jetCalibTool_"+m_JetCollection);
+	m_jetCalibTool.setTypeAndName(toolName);
 	
 	if( !m_jetCalibTool.isUserConfigured() ){
 
