@@ -16,7 +16,6 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-#EventSelector.BackNavigation = True
 
 # this line is needed for reading AOD files made with pre-14.1.X releases
 # If you leave it uncommented, you can still read post-14.1.X releases

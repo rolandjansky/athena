@@ -32,12 +32,6 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
 
-### CF construction ###
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
-
-
-
 
 if  TriggerFlags.doMuon==True:
     ##########################################

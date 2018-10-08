@@ -23,13 +23,13 @@ PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
 topSequence += PFTrackSelector
 
-from eflowRec.eflowRecConf import PFClusterSelector
-PFClusterSelector=PFClusterSelector("PFClusterSelector")
-
-topSequence += PFClusterSelector
-
 from eflowRec.eflowRecConf import PFAlgorithm
 PFAlgorithm = PFAlgorithm("PFAlgorithm")
+
+from eflowRec.eflowRecConf import PFClusterSelectorTool
+PFClusterSelectorTool = PFClusterSelectorTool("PFClusterSelectorTool")
+
+PFAlgorithm.PFClusterSelectorTool = PFClusterSelectorTool
 
 PFAlgorithm.SubtractionToolList  = []
 

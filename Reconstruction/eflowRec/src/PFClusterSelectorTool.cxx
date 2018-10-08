@@ -1,25 +1,23 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "eflowRec/eflowRecCluster.h"
-#include "eflowRec/PFClusterSelector.h"
+#include "eflowRec/PFClusterSelectorTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
-PFClusterSelector::PFClusterSelector(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator)
+PFClusterSelectorTool::PFClusterSelectorTool(const std::string& type,const std::string& name,const IInterface* parent):
+  base_class(type, name, parent)
 {
 }
 
-StatusCode PFClusterSelector::initialize(){
+StatusCode PFClusterSelectorTool::initialize(){
 
   ATH_CHECK(m_caloClustersReadHandleKey.initialize());
   ATH_CHECK(m_caloCalClustersReadHandleKey.initialize());
 
-  ATH_CHECK(m_eflowRecClustersWriteHandleKey.initialize());
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode PFClusterSelector::execute(){
+StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer){
 
   SG::ReadHandle<xAOD::CaloClusterContainer> caloClustersReadHandle(m_caloClustersReadHandleKey);
   
@@ -28,9 +26,6 @@ StatusCode PFClusterSelector::execute(){
     ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::CaloCluster with key: " <<  caloClustersReadHandle.key());
     return StatusCode::SUCCESS;
   }
-  /* Record the eflowRecCluster output container */
-  SG::WriteHandle<eflowRecClusterContainer> eflowRecClustersWriteHandle(m_eflowRecClustersWriteHandleKey);
-  ATH_CHECK(eflowRecClustersWriteHandle.record(std::make_unique<eflowRecClusterContainer>()));
 
   SG::ReadHandle<xAOD::CaloClusterContainer> caloCalClustersReadHandle(m_caloCalClustersReadHandleKey);
   
@@ -38,7 +33,7 @@ StatusCode PFClusterSelector::execute(){
   unsigned int nClusters = caloClustersReadHandle->size();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
     /* Create the eflowRecCluster and put it in the container */
-    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = std::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*caloClustersReadHandle, iCluster));
+    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = std::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*caloClustersReadHandle, iCluster), theCaloClusterContainer);
     
     if (caloCalClustersReadHandle.isValid()){
       std::map<IdentifierHash,double> cellsWeightMap;
@@ -58,8 +53,8 @@ StatusCode PFClusterSelector::execute(){
     }
 
     thisEFRecCluster->setClusterId(iCluster);
-    eflowRecClustersWriteHandle->push_back(std::move(thisEFRecCluster));
-
+    theEFlowRecClusterContainer.push_back(std::move(thisEFRecCluster));
+    
     if (msgLvl(MSG::DEBUG)) {
       const xAOD::CaloCluster* thisCluster = caloClustersReadHandle->at(iCluster);
       ATH_MSG_DEBUG("eflowPreparation clus = " << thisCluster->eta() << " " << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()));
@@ -69,11 +64,11 @@ StatusCode PFClusterSelector::execute(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode PFClusterSelector::finalize(){
+StatusCode PFClusterSelectorTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
-void PFClusterSelector::retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight, const xAOD::CaloClusterContainer& caloCalClustersContainer) {
+void PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight, const xAOD::CaloClusterContainer& caloCalClustersContainer) {
   
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
   /* first try the position at 'index'. If we are lucky, the loop can be avoided. */

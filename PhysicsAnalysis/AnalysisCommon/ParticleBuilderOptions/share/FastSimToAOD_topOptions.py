@@ -22,7 +22,6 @@ topSequence = AlgSequence()
 from AthenaCommon.AppMgr import ServiceMgr
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-#EventSelector.BackNavigation = True
 
 # Particle Properties
 from PartPropSvc.PartPropSvcConf import PartPropSvc

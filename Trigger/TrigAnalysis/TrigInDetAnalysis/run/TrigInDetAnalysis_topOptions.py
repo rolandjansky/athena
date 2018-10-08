@@ -4,7 +4,6 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-#EventSelector.BackNavigation = True
 
 ServiceMgr.EventSelector.InputCollections = [ "/project/gruppo1/atlas1/atlas/data/2009/data09_cos.00121330.physics_IDCosmic.recon.ESD.r733_tid073214/ESD.073214._000002.pool.root.2" ]
 

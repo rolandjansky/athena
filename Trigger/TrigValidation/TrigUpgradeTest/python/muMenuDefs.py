@@ -12,6 +12,7 @@ from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr as CfgMgr
 import AthenaCommon.CfgGetter as CfgGetter
 
+
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
@@ -52,6 +53,7 @@ doL2ISO = True
 TriggerFlags.doID   = True;
 TriggerFlags.doMuon = True;
 
+
 # ===========================================
 #          SET PREPARATOR DATA               
 # ===========================================
@@ -77,7 +79,7 @@ viewAlgs.append(ViewVerify)
 
 ### Used the algorithms as Step1 "muFast step" ###
 ### Load data from Muon detectors ###
-import MuonRecExample.MuonRecStandaloneOnlySetup
+#import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
@@ -148,6 +150,7 @@ if muonRecFlags.doMDTs():
   muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
 
 l2MuViewNode += muFastAlg
+
 
 ### RPCRDO ###
 if muonRecFlags.doRPCs():

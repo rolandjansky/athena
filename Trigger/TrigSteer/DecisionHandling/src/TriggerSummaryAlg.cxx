@@ -37,6 +37,11 @@ StatusCode TriggerSummaryAlg::initialize()
 
   CHECK( m_outputTools.retrieve() );
 
+  if (m_enableCostMonitoring) {
+    CHECK( m_trigCostSvcHandle.retrieve() );
+    CHECK( m_costWriteHandleKey.initialize() );
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -90,6 +95,13 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
 
   auto timeStampHandle = SG::makeHandle( m_startStampKey, context );
   ATH_MSG_DEBUG( "Time since the start of L1 decoding " << timeStampHandle.cptr()->millisecondsSince()  << " ms" );
+
+  // Do cost monitoring
+  if (m_enableCostMonitoring) {
+    SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = TrigCompositeUtils::createAndStore(m_costWriteHandleKey, context);
+    // Populate collection (assuming monitored event, otherwise collection will remain empty)
+    ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));
+  }
 
   return StatusCode::SUCCESS;
 }

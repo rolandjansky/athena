@@ -151,7 +151,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   // Clone unmerged state as STL methods deletes components
 
-  Trk::MultiComponentState* clonedUnmergedState = const_cast<Trk::MultiComponentState*>( unmergedState.clone() );
+  Trk::MultiComponentState* clonedUnmergedState = unmergedState.clone();
 
   component = clonedUnmergedState->begin();
 

@@ -155,7 +155,7 @@ class MultipleScatterUpdator : public AthAlgTool, virtual public IMaterialEffect
   }
 
   /** Validation Action: */
-  virtual void validationAction(ICache& icache) const{ 
+  virtual void validationAction(ICache& icache) const override {
     (void) icache;
     validationAction(); 
   }

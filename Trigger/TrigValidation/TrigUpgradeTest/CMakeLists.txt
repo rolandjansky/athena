@@ -100,6 +100,20 @@ atlas_add_test( muMenu
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
               )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jet )
+atlas_add_test( jetRunData
+		SCRIPT test/test_jet.sh
+                PROPERTIES TIMEOUT 500
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jet
+              )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jetMenu )
+atlas_add_test( jetMenu
+		SCRIPT test/test_jet_menu.sh
+                PROPERTIES TIMEOUT 500
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jetMenu
+              )
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu )
 atlas_add_test( fullMenu
 		SCRIPT test/test_full_menu.sh
@@ -154,3 +168,4 @@ atlas_add_test( bJetMenu
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/test* )

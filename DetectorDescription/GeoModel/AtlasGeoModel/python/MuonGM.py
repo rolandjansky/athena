@@ -12,8 +12,9 @@ elif ( DetFlags.detdescr.Muon_on() ):
 
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
     GeoModelSvc.DetectorTools += [ MuonDetectorTool() ]
+    import os
     GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].BuildFromNova = 0
-    if ( not DetFlags.simulate.any_on() or DetFlags.overlay.any_on() ):
+    if ( ( not DetFlags.simulate.any_on() or DetFlags.overlay.any_on() ) and "AthSimulation_DIR" not in os.environ ):
       GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = "MuonAlignmentDbTool/MGM_AlignmentDbTool"
     else:
       GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = ""
