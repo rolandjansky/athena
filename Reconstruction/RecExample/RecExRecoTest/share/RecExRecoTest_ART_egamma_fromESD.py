@@ -144,6 +144,11 @@ jobproperties.CaloCellFlags.doLArDeadOTXCorr=False
 
 include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 
+from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
+try:
+   egammaTopoClusterCopier()
+except Exception:
+   treatExeption("could not get handle to egammaTopoClusterCopier")
 
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 

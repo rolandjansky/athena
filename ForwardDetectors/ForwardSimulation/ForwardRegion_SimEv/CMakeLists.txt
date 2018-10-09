@@ -7,8 +7,7 @@ atlas_subdir( ForwardRegion_SimEv )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Simulation/HitManagement
                           PRIVATE
                           GaudiKernel )
@@ -24,12 +23,12 @@ atlas_add_library( ForwardRegion_SimEv
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} SGTools HitManagement
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel HitManagement
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( ForwardRegion_SimEvDict
                       ForwardRegion_SimEv/SimulationHitDict.h
                       ForwardRegion_SimEv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} SGTools HitManagement GaudiKernel ForwardRegion_SimEv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} HitManagement GaudiKernel ForwardRegion_SimEv )
 

@@ -5,8 +5,8 @@
 // Header include
 #include "TrigVKalFitter/TrigVKalFitter.h"
 #include "TrigVKalFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 //-------------------------------------------------
-// Other stuff
 // Other stuff
 #include "GaudiKernel/MsgStream.h"
 //
@@ -14,34 +14,25 @@
 
 
 namespace Trk {
-   // extern 
-   //  void cfit_( long int* iflag,  long int* ifcovv0,long int* ntrk,  long int* ich, 
-   //	     double* xyz0, double* par0,                 // initial guess
-   //	     double* apar, double* awgt,                 // track parameters
-   //	     double* xyzfit, double* parfs, double* ptot, // results
-   //	     double* covf, double* chi2, double* chi2tr,  long int* ierr); 
 
-   extern
-   int CFit(long int iflag, long int ifCovV0, long int NTRK, 
-            long int *ich, double *xyz0, double *par0,
-            double *inp_Trk5, double *inp_CovTrk5, 
-            double *xyzfit, double *parfs, double *ptot,
-            double *covf, double *chi2, double *chi2tr);
+extern void cfpest( int ntrk, double *vrt, long int *Charge, double (*part)[5], double (*par0)[3]);
+extern void xyztrp( long int* Charge, double* vrt, double* Mom, double* CovVrtMom, double BMAG, double* Perig, double* CovPerig);
 
-   extern
-   void cfpest( long int* ntrk, double* vrt, long int* Charge,double* part, double* par0);
-   extern
-   void xyztrp( long int* Charge, double* Vertex, double* Mom,
-                double* CovVrtMom, double* Perig, double* CovPerig);
-   extern
-   int fiterm( long int ntrk, double* errmtx);
+extern int CFit(VKalVrtControl *FitCONTROL, int ifCovV0, int NTRK, 
+	      long int *ich, double xyz0[3], double (*par0)[3],
+	      double (*inp_Trk5)[5], double (*inp_CovTrk5)[15], 
+	      double xyzfit[3], double (*parfs)[3], double ptot[4],
+              double covf[21], double & chi2, double *chi2tr);
+  // extern   int CFit(long int iflag, long int ifCovV0, long int NTRK, 
+  //          long int *ich, double *xyz0, double *par0,
+  //          double *inp_Trk5, double *inp_CovTrk5, 
+  //          double *xyzfit, double *parfs, double *ptot,
+  //          double *covf, double *chi2, double *chi2tr);
+  //
+  // extern void cfpest( long int* ntrk, double* vrt, long int* Charge,double* part, double* par0);
+  // extern void xyztrp( long int* Charge, double* Vertex, double* Mom,
+  //              double* CovVrtMom, double* Perig, double* CovPerig);
 
-   extern
-   void cfmasserr_( long int* NTRK,  long int* List, double* parfs, double* wm, double* Deriv,
-                    double* dM, double* MassError);
-
-   extern vkalMagFld      myMagFld;
-   extern vkalPropagator  myPropagator;
 }
 
 //
@@ -98,9 +89,6 @@ TrigVKalFitter:: TrigVKalFitter(const std::string& type,
 
 
    m_fitField = new TrigAtlasMagFld(); 
-   Trk::myMagFld.setMagHandler(m_fitField); // Init for fixed field in constructor
-   m_PropagatorType = 0;                    // fixed field propagator from VKalVrtCore(constructor)
-   //    Trk::myPropagator.setTypeProp(0);       // To set standard fixed field propagator
 }
 
 
@@ -139,7 +127,9 @@ TrigVKalFitter::initialize() {
       ATH_MSG_DEBUG("Valid ATHENA field service is retrieved");
       setAthenaField( &(*m_magFieldAthenaSvc) );  
    }
-       
+    
+   m_vkalFitControl = new Trk::VKalVrtControl(Trk::VKalVrtControlBase(m_fitField,0,0,0));  // Create main control object
+   
    return StatusCode::SUCCESS;
 }
 
@@ -152,10 +142,6 @@ TrigVKalFitter::initialize() {
 StatusCode TrigVKalFitter::VKalVrtFit(const std::vector<const TrigInDetTrack*>& InpTrk,
                                       dvect& FitResult) 
 {
-   Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-   if(m_PropagatorType <=1 ){                           // needed for reenterability
-      Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-   }
    //
    //  extract information about selected tracks
    //
@@ -195,13 +181,17 @@ long int TrigVKalFitter::VKalVrtFit1(long int ntrk, dvect& FitResult)
    } else {
       xyz0[0]=xyz0[1]=xyz0[2]=0.;
    }
-   Trk::cfpest( &ntrk, xyz0, m_ich, &m_apar[0][0], &m_par0[0][0]);
-   //    Trk::cfit_( &m_iflag, &m_ifcovv0, &ntrk, 
-   //                        m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
-   // 	                xyzfit, &m_parfs[0][0], ptot, covf, &chi2, m_chi2tr, &ierr); 
-   ierr=Trk::CFit( m_iflag, m_ifcovv0, ntrk,
-                   m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
-	               xyzfit, &m_parfs[0][0], ptot, covf, &chi2, m_chi2tr); 
+
+   //Trk::cfpest( &ntrk, xyz0, m_ich, &m_apar[0][0], &m_par0[0][0]);
+   //ierr=Trk::CFit( m_iflag, m_ifcovv0, ntrk,
+   //                m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
+   //	             xyzfit, &m_parfs[0][0], ptot, covf, &chi2, m_chi2tr); 
+
+   Trk::cfpest( ntrk, xyz0, m_ich, m_apar, m_par0);
+   ierr=Trk::CFit( m_vkalFitControl, m_ifcovv0, ntrk, m_ich, xyz0, m_par0, m_apar, m_awgt,
+                    xyzfit, m_parfs, ptot, covf, chi2, m_chi2tr); 
+
+
 
    FitResult.clear();
    if(ierr)return ierr;
@@ -235,10 +225,6 @@ StatusCode TrigVKalFitter::VKalVrtFit(const std::vector<const TrigInDetTrack*>& 
                                       std::vector< std::vector<double> >& TrkAtVrt,
                                       double& Chi2 ) 
 {
-   Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-   if(m_PropagatorType <=1 ){                           // needed for reenterability
-      Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-   }
    //
    //------  extract information about selected tracks
    //
@@ -289,16 +275,14 @@ long int TrigVKalFitter::VKalVrtFit3( long int ntrk,
    } else {
       xyz0[0]=xyz0[1]=xyz0[2]=0.;
    }
-   //if(m_ich[0]+m_ich[0]==0){
-   //std::cout<<" Per for fit="<<m_apar[0][0]<<", "<<m_apar[0][1]<<", "
-   //             <<m_apar[0][2]<<", "<<m_apar[0][3]<<", "<<m_apar[0][4]<<'\n';
-   Trk::cfpest( &ntrk, xyz0, m_ich, &m_apar[0][0], &m_par0[0][0]);
-   //    Trk::cfit_( &m_iflag, &m_ifcovv0, &ntrk,
-   //                        m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
-   //	                xyzfit, &m_parfs[0][0], ptot, covf, &chi2f, m_chi2tr, &ierr); 
-   ierr=Trk::CFit( m_iflag, m_ifcovv0, ntrk,
-                   m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
-	               xyzfit, &m_parfs[0][0], ptot, covf, &chi2f, m_chi2tr); 
+
+   //Trk::cfpest( &ntrk, xyz0, m_ich, &m_apar[0][0], &m_par0[0][0]);
+   //ierr=Trk::CFit( m_iflag, m_ifcovv0, ntrk,
+   //                m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
+   //	               xyzfit, &m_parfs[0][0], ptot, covf, &chi2f, m_chi2tr); 
+   Trk::cfpest( ntrk, xyz0, m_ich, m_apar, m_par0);
+   ierr=Trk::CFit( m_vkalFitControl, m_ifcovv0, ntrk, m_ich, xyz0, m_par0, m_apar, m_awgt,
+                    xyzfit, m_parfs, ptot, covf, chi2f, m_chi2tr); 
 
    Chi2 = 100000000.;
    if(ierr)return ierr;
@@ -392,7 +376,7 @@ StatusCode TrigVKalFitter::VKalVrtCvtTool(const Amg::Vector3D& Vertex,
    }
 
    long int vkCharge=Charge;
-   Trk::xyztrp( &vkCharge, Vrt, PMom, Cov0, Per, CovPer);
+   Trk::xyztrp( &vkCharge, Vrt, PMom, Cov0, m_BMAG, Per, CovPer);
 
    Perigee.clear();
    CovPerigee.clear();
@@ -428,11 +412,10 @@ StatusCode TrigVKalFitter::VKalGetTrkCov(const long int iTrk,const long int NTrk
    double ErrMtx[ (3*NTRMAXTRIG+3)*(3*NTRMAXTRIG+4)/2 ];
    double CovMtxOld[6][6];
    double CovMtx   [6][6];
-   long int vkNTrk = NTrk;
 
-   //Trk::fiterm_(&vkNTrk,ErrMtx); //Real error matrix after fit
-   int IERR = Trk::fiterm(vkNTrk,ErrMtx); //Real error matrix after fit
-   if(IERR)       return StatusCode::FAILURE;
+   //long int vkNTrk = NTrk;
+   //int IERR = Trk::fiterm(vkNTrk,ErrMtx); //Real error matrix after fit
+   //if(IERR)       return StatusCode::FAILURE;
 
    CovVrtTrk.clear();
 
@@ -531,18 +514,8 @@ StatusCode TrigVKalFitter::VKalGetMassError( std::vector<int> ListOfTracks , dou
    if(!m_FitStatus) return StatusCode::FAILURE;
    if((int) ListOfTracks.size() != m_FitStatus) return StatusCode::FAILURE;
 
-   double Deriv[ 3*NTRMAXTRIG+3 ];
-   long int Tist[NTRMAXTRIG];
- 
-   for (int i=0; i<(int)ListOfTracks.size();i++){
-      Tist[i]=0;
-      if(ListOfTracks[i] != 0 ) Tist[i]=1;
-   }
-
-   long int NTRK=ListOfTracks.size();
-        
-   Trk::cfmasserr_(&NTRK, Tist, &m_parfs[0][0], m_wm, Deriv, &dM, &MassError);
-
+   dM        = m_vkalFitControl->getVertexMass();
+   MassError = m_vkalFitControl->getVrtMassError();
 
    return StatusCode::SUCCESS;
 }

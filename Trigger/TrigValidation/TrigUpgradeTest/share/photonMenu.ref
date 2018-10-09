@@ -6,4 +6,4 @@ TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_g5_etcut ID#140
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_g5_etcut ID#1407390618
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_g5_etcut ID#1407390618
 TriggerSummaryStep2                     9   0     DEBUG  +++ HLT_g5_etcut ID#1407390618
-TriggerMonitorFinal                               DEBUG HLT_g5_etcut                  10        10        0         4         4         
+TrigSignatureMoniMT                                INFO HLT_g5_etcut                  10        10        4         4         4         

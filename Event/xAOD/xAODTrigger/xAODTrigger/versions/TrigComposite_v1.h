@@ -64,41 +64,61 @@ namespace xAOD {
       bool hasDetail( const std::string& name ) const;
 
       /// Set an integer detail on the object
-      bool setDetail( const std::string& name, int value );
+      bool setDetail( const std::string& name, int32_t value );
       /// Set an unsigned detail on the object
-      bool setDetail( const std::string& name, unsigned int value );
+      bool setDetail( const std::string& name, uint32_t value );
       /// Set a floating point detail on the object
       bool setDetail( const std::string& name, float value );
+      /// Set a string detail on the object
+      bool setDetail( const std::string& name,
+                      const std::string& value );
       /// Set a vector<int> detail on the object
       bool setDetail( const std::string& name,
-                      const std::vector< int >& value );
+                      const std::vector< int32_t >& value );
       /// Set a vector<unsigned int> detail on the object 
       bool setDetail( const std::string& name,
-                      const std::vector< unsigned int >& value );
+                      const std::vector< uint32_t >& value );
+      /// Set a vector<unsigned short> detail on the object. Note: For an even vector, the final entry cannot be (2^16)-1=65535
+      bool setDetail( const std::string& name,
+                      const std::vector< uint16_t >& value );
       /// Set a vector<float> detail on the object
       bool setDetail( const std::string& name,
                       const std::vector< float >& value );
+      /// Set a vector<string> detail on the object
+      bool setDetail( const std::string& name,
+                      const std::vector< std::string >& value );
 
       /// Get an integer detail from the object
-      bool getDetail( const std::string& name, int& value ) const;
+      bool getDetail( const std::string& name, int32_t& value ) const;
 
       /// Get an unsigned integer detail from the object
-      bool getDetail( const std::string& name, unsigned int& value ) const;
+      bool getDetail( const std::string& name, uint32_t& value ) const;
 
       /// Get a floating point detail from the object
       bool getDetail( const std::string& name, float& value ) const;
 
+      /// Get a string detail from the object
+      bool getDetail( const std::string& name, std::string& value ) const;
+
       /// Get a vector<int> detail from the object
       bool getDetail( const std::string& name,
-                      std::vector< int >& value ) const;
+                      std::vector< int32_t >& value ) const;
 
       /// Get a vector<insigned int> detail from the object
       bool getDetail( const std::string& name,
-                      std::vector< unsigned int>& value ) const;     
+                      std::vector< uint32_t >& value ) const;
+
+      /// Get a vector<unsigned short> detail from the object
+      bool getDetail( const std::string& name,
+                      std::vector< uint16_t >& value ) const;
+
       /// Get a vector<float> detail from the object
       bool getDetail( const std::string& name,
                       std::vector< float >& value ) const;
 
+      /// Get a vector<string> detail from the object
+      bool getDetail( const std::string& name,
+                      std::vector< std::string >& value ) const;
 
       /// Get a detail by name, missing detail will result on std::runtime_error exception
       template<typename T>

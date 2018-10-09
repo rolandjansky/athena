@@ -59,19 +59,16 @@ class TileCalibData {
 
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
 typedef TileCalibData<TileCalibDrawerFlt> TileCalibDataFlt;
-template class TileCalibData<TileCalibDrawerFlt>;
 CLASS_DEF(TileCalibData<TileCalibDrawerFlt>, 111225290, 0)
 CONDCONT_DEF(TileCalibData<TileCalibDrawerFlt>, 149264696);
 
 #include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
 typedef TileCalibData<TileCalibDrawerOfc> TileCalibDataOfc;
-template class TileCalibData<TileCalibDrawerOfc>;
 CLASS_DEF(TileCalibData<TileCalibDrawerOfc>, 141822674, 0)
 CONDCONT_DEF(TileCalibData<TileCalibDrawerOfc>, 262948840);
 
 #include "TileCalibBlobObjs/TileCalibDrawerBch.h"
 typedef TileCalibData<TileCalibDrawerBch> TileCalibDataBch;
-template class TileCalibData<TileCalibDrawerBch>;
 CLASS_DEF(TileCalibData<TileCalibDrawerBch>, 88425733, 0)
 CONDCONT_DEF(TileCalibData<TileCalibDrawerBch>, 218165589);
 

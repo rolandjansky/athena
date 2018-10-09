@@ -5,7 +5,15 @@
 #ifndef TRIGHLTRESULTBYTESTREAM_HLTResultMTByteStreamCnv_H
 #define TRIGHLTRESULTBYTESTREAM_HLTResultMTByteStreamCnv_H
 
+// Trigger includes
+#include "TrigHLTResultByteStream/HLTSrcIdMap.h"
+
+// Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "ByteStreamCnvSvcBase/FullEventAssembler.h"
+
+// Gaudi includes
 #include "GaudiKernel/Converter.h"
 
 // Externals
@@ -33,11 +41,21 @@ namespace HLT {
 
     // ------------------------- Converter definition helpers ------------------
     /// Storage type used by this converter
-    static unsigned char storageType() {return ByteStream_StorageType;} 
+    static unsigned char storageType() {return ByteStream_StorageType;}
     /// CLID of the class HLTResultMT converted by this converter
     static const CLID& classID();
 
     long repSvcType() const override { return i_repSvcType(); } //!< return repSvcType
+
+  private:
+    /// Helper to obtain the RawEvent pointer
+    ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
+
+    /// Helper for filling ROBFragments
+    FullEventAssembler<HLTSrcIdMap> m_fullEventAssembler;
+
+    /// Buffer for serialised StreamTag data
+    std::unique_ptr<uint32_t[]> m_streamTagData;
   };
 } // namespace HLT
 

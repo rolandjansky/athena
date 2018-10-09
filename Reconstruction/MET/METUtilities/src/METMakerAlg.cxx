@@ -10,6 +10,7 @@
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
@@ -139,8 +140,7 @@ namespace met {
     ATH_CHECK( m_metMap.isValid() );
 
     MissingETAssociationMap* metMap = new MissingETAssociationMap((*m_metMap));
-    metMap->resetObjSelectionFlags();
-
+    MissingETAssociationHelper metHelper(metMap);
     // Retrieve containers ***********************************************
 
     /// MET
@@ -201,7 +201,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
     				 metElectrons.asDataVector(),
-    				 metMap, objScale).isFailure() ) {
+    				 &metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
       ATH_MSG_DEBUG("Selected " << metElectrons.size() << " MET electrons. "
@@ -218,7 +218,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
     				 metPhotons.asDataVector(),
-    				 metMap, objScale).isFailure() ) {
+    				 &metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
       ATH_MSG_DEBUG("Selected " << metPhotons.size() << " MET photons. "
@@ -235,7 +235,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
     				 metTaus.asDataVector(),
-    				 metMap, objScale).isFailure() ){
+    				 &metHelper, objScale).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
       ATH_MSG_DEBUG("Selected " << metTaus.size() << " MET taus. "
@@ -254,7 +254,7 @@ namespace met {
       if(m_doTruthLep) objScale = MissingETBase::UsageHandler::OnlyTrack;
       if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
     				 metMuons.asDataVector(),
-    				 metMap, objScale).isFailure() ) {
+    				 &metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build muon term.");
       }
       ATH_MSG_DEBUG("Selected " << metMuons.size() << " MET muons. "
@@ -262,7 +262,7 @@ namespace met {
     }
 
     if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
-				  Jets.cptr(), coreMet.cptr(), metMap, false ).isFailure() ) {
+				  Jets.cptr(), coreMet.cptr(), &metHelper, false ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
     ATH_MSG_DEBUG("Of " << Jets.cptr()->size()  << " jets, "

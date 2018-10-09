@@ -9,9 +9,7 @@
 #include "AFP_SimEv/AFP_TDSimHit.h"
 #include "HitManagement/AtlasHitsVector.h"
 
-#ifndef __CINT__
-#include "CLIDSvc/CLASS_DEF.h"
-#endif //__CINT__
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef AtlasHitsVector<AFP_TDSimHit> AFP_TDSimHitCollection;
 typedef AtlasHitsVector<AFP_TDSimHit>::iterator AFP_TDSimHitIter;

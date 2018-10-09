@@ -22,7 +22,8 @@
 // STD
 #include <cstring>
 #include <exception>
-#include <atomic>
+
+#include "GaudiKernel/Counters.h"
 
 
 namespace Trk {
@@ -32,7 +33,7 @@ namespace Trk {
   /** Exception to be thrown when TrackingGeometry not found */
   class NavigatorException : public std::exception
   {
-     virtual const char* what() const throw()
+     const char* what() const throw()
      { return "Problem with TrackingGeometry loading"; } 
   };
 
@@ -66,36 +67,36 @@ namespace Trk {
       /** Destructor */
       virtual ~Navigator();
        
-      /** AlgTool initailize method.*/
-      StatusCode initialize();
+      /** AlgTool initialize method.*/
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize();
+      virtual StatusCode finalize() override;
       
       /** INavigator interface method - returns the TrackingGeometry used for navigation */
-      virtual const TrackingGeometry* trackingGeometry() const override;   
+      virtual const TrackingGeometry* trackingGeometry() const override final;   
       
       /** INavigator interface methods - global search for the Volume one is in */
-      virtual const TrackingVolume*               volume(const Amg::Vector3D& gp) const override;
+      virtual const TrackingVolume*               volume(const Amg::Vector3D& gp) const override final;
             
       /** INavigator interface method - forward hightes TrackingVolume */
-      virtual const TrackingVolume*               highestVolume() const override;
+      virtual const TrackingVolume*               highestVolume() const override final;
         
       /** INavigator interface methods - getting the next BoundarySurface not knowing the Volume*/
       virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface( const IPropagator& prop,
                                                        const TrackParameters& parms,
-                                                       PropDirection dir) const override;  
+                                                       PropDirection dir) const override final;  
       
       /** INavigator interface methods - getting the next BoundarySurface when knowing the Volume*/
       virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface( const IPropagator& prop,
                                                        const TrackParameters& parms,
                                                        PropDirection dir,
-                                                       const TrackingVolume& vol  ) const override;
+                                                       const TrackingVolume& vol  ) const override final;
 
       /** INavigator interface method - getting the next Volume and the parameter for the next Navigation*/
       virtual const NavigationCell nextTrackingVolume( const IPropagator& prop,
                                                const TrackParameters& parms,
                                                PropDirection dir,
-                                               const TrackingVolume& vol) const override;
+                                               const TrackingVolume& vol) const override final;
 
       /** INavigator interface method - getting the next Volume and the parameter for the next Navigation
         - contains full loop over volume boundaries
@@ -106,19 +107,19 @@ namespace Trk {
 						    PropDirection dir, 
 						    ParticleHypothesis particle, 
 						    const TrackingVolume& vol,
-						    double& path) const override;
+						    double& path) const override final;
      
       /** INavigator interface method - getting the closest TrackParameters from a Track to a Surface*/
       virtual const TrackParameters*      closestParameters( const Track& trk,
                                                      const Surface& sf,
-                                                     const IPropagator* prop = 0) const override;
+                                                     const IPropagator* prop = 0) const override final;
 
       /** INavigator method to resolve navigation at boundary */
       virtual bool atVolumeBoundary( const Trk::TrackParameters* parms, 
 							const Trk::TrackingVolume* vol,  
 							Trk::PropDirection dir, 
 							const Trk::TrackingVolume*& nextVol, 
-							double tol) const override;
+							double tol) const override final;
     
      /** Validation Action:
         Can be implemented optionally, outside access to internal validation steps */
@@ -163,18 +164,18 @@ namespace Trk {
 
       // ------ PERFORMANCE STATISTICS -------------------------------- //
       /* All performance stat counters are atomic (the simplest solution perhaps not the most performant one)*/
-      mutable std::atomic<int>                               m_forwardCalls;              //!< counter for forward nextBounday calls
-      mutable std::atomic<int>                               m_forwardFirstBoundSwitch;   //!< counter for failed first forward nextBounday calls
-      mutable std::atomic<int>                               m_forwardSecondBoundSwitch;  //!< counter for failed second forward nextBounday calls
-      mutable std::atomic<int>                               m_forwardThirdBoundSwitch;   //!< counter for failed third forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_forwardCalls;              //!< counter for forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_forwardFirstBoundSwitch;   //!< counter for failed first forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_forwardSecondBoundSwitch;  //!< counter for failed second forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_forwardThirdBoundSwitch;   //!< counter for failed third forward nextBounday calls
                                                 
-      mutable std::atomic<int>                               m_backwardCalls;             //!< counter for backward nextBounday calls
-      mutable std::atomic<int>                               m_backwardFirstBoundSwitch;  //!< counter for failed first backward nextBounday calls
-      mutable std::atomic<int>                               m_backwardSecondBoundSwitch; //!< counter for failed second backward nextBounday calls
-      mutable std::atomic<int>                               m_backwardThirdBoundSwitch;  //!< counter for failed third backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_backwardCalls;             //!< counter for backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_backwardFirstBoundSwitch;  //!< counter for failed first backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_backwardSecondBoundSwitch; //!< counter for failed second backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>                               m_backwardThirdBoundSwitch;  //!< counter for failed third backward nextBounday calls
                                                 
-      mutable std::atomic<int>                               m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
-      mutable std::atomic<int>                               m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc 
+      mutable Gaudi::Accumulators::Counter<int>                               m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
+      mutable Gaudi::Accumulators::Counter<int>                               m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc 
       
     };
 

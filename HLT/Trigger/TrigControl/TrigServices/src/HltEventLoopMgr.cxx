@@ -1119,8 +1119,8 @@ void HltEventLoopMgr::failedEvent(EventContext* eventContext,
 }
 
 // ==============================================================================
-std::unique_ptr<uint32_t[]> HltEventLoopMgr::fullHltResult(const xAOD::EventInfo* eventInfo,
-                                                           HLT::HLTResult* hltResult) const
+std::unique_ptr<uint32_t[]> HltEventLoopMgr::fullHltResult(const xAOD::EventInfo* /*eventInfo*/,
+                                                           HLT::HLTResult* /*hltResult*/) const
 {
   // method to be removed
   return nullptr;
@@ -1128,7 +1128,7 @@ std::unique_ptr<uint32_t[]> HltEventLoopMgr::fullHltResult(const xAOD::EventInfo
 
 // ==============================================================================
 // This method is now trivial and could be removed
-void HltEventLoopMgr::eventDone(std::unique_ptr<uint32_t[]> hltResult) const
+void HltEventLoopMgr::eventDone(std::unique_ptr<uint32_t[]> /*hltResult*/) const
 {
   // method to be removed
 }

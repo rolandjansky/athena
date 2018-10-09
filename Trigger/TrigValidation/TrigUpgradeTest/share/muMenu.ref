@@ -5,6 +5,6 @@ TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu6 ID#16721627
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu6fast ID#2393852230
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_mu6 ID#1672162766
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_mu6fast ID#2393852230
-TriggerMonitorFinal                               DEBUG HLT_mu6fast                   10        10        3         0         0         3         
-TriggerMonitorFinal                               DEBUG HLT_mu6                       10        10        3         0         0         3         
-TriggerMonitorFinal                               DEBUG HLT_2mu6                      10        10        1         0         0         1         
+TrigSignatureMoniMT                                INFO HLT_2mu6                      10        10        1         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu6fast                   10        10        3         0         0         3         
+TrigSignatureMoniMT                                INFO HLT_mu6                       10        10        3         0         0         0         

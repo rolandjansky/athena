@@ -4,7 +4,7 @@
 
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/Derivt.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include <iostream>
 #include <math.h>
 
