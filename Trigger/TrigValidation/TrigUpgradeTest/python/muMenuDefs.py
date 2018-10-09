@@ -101,6 +101,7 @@ from TrigUpgradeTest.MuonSetup import makeMuonPrepDataAlgs
 ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
 ### set the EVCreator ###
+
 l2MuViewNode = parOR("l2MuViewNode")
 
 l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
@@ -148,8 +149,6 @@ if muonRecFlags.doMDTs():
   ToolSvc += L2MdtDataPreparator
   
   muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
-
-l2MuViewNode += muFastAlg
 
 
 ### RPCRDO ###
