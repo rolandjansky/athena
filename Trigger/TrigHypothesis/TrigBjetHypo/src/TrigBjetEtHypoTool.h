@@ -46,6 +46,10 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
     return m_id.numeric();
   }
 
+  const HLT::Identifier getId() const {
+    return m_id;
+  }
+
   bool decide(  const xAOD::JetContainer*,bool& ) const;
 
  private:

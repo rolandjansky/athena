@@ -9,6 +9,32 @@ from AthenaCommon.Constants import VERBOSE,DEBUG
 
 ####################################################################################################
 
+bTaggingWP = { 
+    # MV2c20
+    'mv2c2040' : 0.75,
+    'mv2c2050' : 0.5,
+    'mv2c2060' : -0.0224729,
+    'mv2c2070' : -0.509032,
+    'mv2c2077' : -0.764668,
+    'mv2c2085' : -0.938441,
+    # MV2c10
+    'mv2c1040' : 0.978,
+    'mv2c1050' : 0.948,
+    'mv2c1060' : 0.846,
+    'mv2c1070' : 0.580,
+    'mv2c1077' : 0.162,
+    'mv2c1085' : -0.494,
+    # MV2c00 (Hybrid MV2c10)
+    'hmv2c1040' : 0.973,
+    'hmv2c1050' : 0.939,
+    'hmv2c1060' : 0.835,
+    'hmv2c1070' : 0.588,
+    'hmv2c1077' : 0.192,
+    'hmv2c1085' : -0.402,
+    }
+
+####################################################################################################  
+
 def TrigBjetHypoToolFromName( name, conf ):
     from AthenaCommon.Constants import DEBUG
     """ Configure a b-jet hypo tool from chain name. """
@@ -35,50 +61,6 @@ def TrigBjetHypoToolFromName( name, conf ):
     return tool
 
 ####################################################################################################  
-# Utilities 
-
-def retrieveBtaggingCut( tagger ):
-    # MV2c20
-    if tagger == "mv2c2040" :
-        return 0.75
-    if tagger == "mv2c2050" :
-        return 0.5
-    if tagger == "mv2c2060" :
-        return -0.0224729
-    if tagger == "mv2c2070" :
-        return -0.509032
-    if tagger == "mv2c2077" :
-        return -0.764668
-    if tagger == "mv2c2085" :
-        return -0.938441
-    # MV2c10
-    if tagger == "mv2c1040" :
-        return 0.978
-    if tagger == "mv2c1050" :
-        return 0.948
-    if tagger == "mv2c1060" :
-        return 0.846
-    if tagger == "mv2c1070" :
-        return 0.580
-    if tagger == "mv2c1077" :
-        return 0.162
-    if tagger == "mv2c1085" :
-        return -0.494
-    # MV2c00 (Hybrid MV2c10)
-    if tagger == "hmv2c1040" :
-        return 0.973
-    if tagger == "hmv2c1050" :
-        return 0.939
-    if tagger == "hmv2c1060" :
-        return 0.835
-    if tagger == "hmv2c1070" :
-        return 0.588
-    if tagger == "hmv2c1077" :
-        return 0.192
-    if tagger == "hmv2c1085" :
-        return -0.402
-    # If not found
-    return -20
 
 def decodeThreshold( threshold_btag ):
     """ decodes the b-tagging thresholds """
@@ -90,7 +72,7 @@ def decodeThreshold( threshold_btag ):
     elif "hmv2c10" in threshold_btag : 
         tagger = "MV2c00"
 
-    cut = retrieveBtaggingCut( threshold_btag )
+    cut = bTaggingWP.get( threshold_btag,-20 )
     return [tagger,cut]
 
 ####################################################################################################
