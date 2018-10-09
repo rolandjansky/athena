@@ -5,7 +5,7 @@
 #include <math.h>
 #include <algorithm>
 #include <iostream>
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 
 namespace Trk {
 
@@ -74,17 +74,16 @@ double cfchi2(double *xyzt, long int *ich, double *part,
 double cfchi2(double *vrtt, double * part, VKTrack * trk)
 {
 
-    double phif, epsf, d1, d2, d3, d4, d5, sr, uu, vv, res, zpf;
+    double d1, d2, d3, d4, d5;
     double theta_f = part[0];
     double phi_f   = part[1];
     double invR_f  = part[2];
-
-    uu = vrtt[0] * cos(phi_f) + vrtt[1] * sin(phi_f );
-    vv = vrtt[1] * cos(phi_f) - vrtt[0] * sin(phi_f);
-    sr = invR_f * abs(trk->Charge);                // Zero in case of zero charge
-    epsf = -vv - (uu * uu + vv * vv) * sr / 2.;
-    zpf  = vrtt[2] - uu * (1. - vv * sr) / tan(theta_f);
-    phif = phi_f - uu * sr;
+    double uu = vrtt[0] * cos(phi_f) + vrtt[1] * sin(phi_f );
+    double vv = vrtt[1] * cos(phi_f) - vrtt[0] * sin(phi_f);
+    double sr = invR_f * abs(trk->Charge);                // Zero in case of zero charge
+    double epsf = -vv - (uu * uu + vv * vv) * sr / 2.;
+    double zpf  = vrtt[2] - uu * (1. - vv * sr) / tan(theta_f);
+    double phif = phi_f - uu * sr;
     d1 = epsf    - trk->Perig[0];
     d2 = zpf     - trk->Perig[1];
     d3 = theta_f - trk->Perig[2];
@@ -92,11 +91,11 @@ double cfchi2(double *vrtt, double * part, VKTrack * trk)
     d5 = invR_f  - trk->Perig[4];
     if(d4 >  M_PI)d4-=2.*M_PI;
     if(d4 < -M_PI)d4+=2.*M_PI;
-    res = trk->WgtM[0] * (d1*d1) 
-        + trk->WgtM[2] * (d2*d2) 
-        + trk->WgtM[5] * (d3*d3) 
-        + trk->WgtM[9] * (d4*d4) 
-        + trk->WgtM[14]* (d5*d5) 
+    double res = trk->WgtM[0] * (d1*d1) 
+               + trk->WgtM[2] * (d2*d2) 
+               + trk->WgtM[5] * (d3*d3) 
+               + trk->WgtM[9] * (d4*d4) 
+               + trk->WgtM[14]* (d5*d5) 
             +(d2 *  d1*trk->WgtM[1]
 	    + d3 * (d1*trk->WgtM[3]  + d2*trk->WgtM[4])
 	    + d4 * (d1*trk->WgtM[6]  + d2*trk->WgtM[7]  + d3*trk->WgtM[8])
@@ -106,7 +105,7 @@ double cfchi2(double *vrtt, double * part, VKTrack * trk)
     trk->rmnd[2] = d3;
     trk->rmnd[3] = d4;
     trk->rmnd[4] = d5;
-//std::cout<<d1<<", "<<d2<<", "<<d3<<", "<<d4<<", "<<d5<<'\n';
+//std::cout<<__func__<<":"<<d1<<", "<<d2<<", "<<d3<<", "<<d4<<", "<<d5<<'\n';
 //std::cout<<trk->Perig[0]<<", "<<trk->Perig[1]<<", "<<trk->Perig[2]<<", "<<trk->Perig[3]<<", "<<trk->Perig[4]<<'\n';
 //std::cout<<theta_f<<", "<<phi_f<<", "<<invR_f<<'\n';
 //std::cout<<trk->WgtM[0]<<", "<<trk->WgtM[2]<<", "<<trk->WgtM[5]<<", "<<trk->WgtM[9]<<", "<<trk->WgtM[14]<<'\n';
@@ -151,23 +150,6 @@ double finter(double y0, double y1, double y2, double x0, double x1, double x2)
 //    }
     return ret_val/2.;
 } 
-
-
-//  
-//  Implementation for fortran function SIGN()
-//------------------------------------------------
-double d_sign(double value, double sign)
-{
-     if( value >= 0){
-        if (sign >=0) return  value;
-        if (sign < 0) return -value;
-     }
-     if( value < 0){
-        if (sign >=0) return -value;
-        if (sign < 0) return  value;
-     }
-     return value;  //safety
-}
 
 
 

@@ -1,62 +1,59 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+/* General magnetic field in any point access              */
+/* If external magnetic field handler is provided as       */
+/* either an object inherited from the baseMagFld class    */
+/* or a function addrMagHandler - the vkalMagFld class     */
+/* will use it, otherwise the vkalMagFld returns           */
+/* the constant magnetic field.                            */
+/* 							   */
+/*  Thread-safe implementation				   */
+/*---------------------------------------------------------*/
 #ifndef _TrkVKalVrtCore_VKalVrtBMag_H
 #define _TrkVKalVrtCore_VKalVrtBMag_H
+
+
 namespace Trk {
 
-/* Structure for keeping magnetic field in the fitting point.          */
-/* This field is used for mass, momentum and constraints calculation   */
-/* in the package.                                                     */
-/*  The field here is set BEFORE starting of propagation of all tracks */
-/*  to the estimated vertex position on each iteration of the fit      */
-/*     Used for error matrix calculation AFTER fit also!!!             */
-/***********************************************************************/
-
-  struct VKalVrtBMag{
-    double bmag, bmagx, bmagy, bmagz;
-  };
-
-
-
-
-/* Now general magnetic field in any point definition*/
-/*     Changeable at any moment!!!                   */
-/*---------------------------------------------------*/
+  class VKalVrtControlBase;
 
   typedef void (*addrMagHandler)(double,double,double, double& ,double& , double& );
 
+//
+//  Base class for concrete megnetic field implementations (e.g. Athena tool) to be called by vkalMagFld
+//
   class baseMagFld {
   public:
      baseMagFld();
      virtual ~baseMagFld();
-     virtual void getMagFld(const double,const double,const double,double&,double&,double&)=0;
+     virtual void getMagFld(const double,const double,const double,double&,double&,double&) const =0;
   };
 
-
+//
+// Main magnetic field implememtation in VKalVrtCore package.
+// Depending on VKalVrtControlBase it either calls external magnetic field
+// or uses default fixed magnetic field.
+//
   class vkalMagFld {
   public:
      vkalMagFld();
     ~vkalMagFld();
 
-     void getMagFld(const double,const double,const double,double&,double&,double&);
-     void setMagHandler(addrMagHandler);
-     void setMagHandler(baseMagFld*);
-     double getCnvCst();
+     void getMagFld(const double,const double,const double,double&,double&,double&, const VKalVrtControlBase*)  const;
+     double getMagFld(const double xyz[3], const VKalVrtControlBase* FitControl)  const;
+     double getCnvCst() const;
   
    private:
-     double m_cnstBMAG;
-     addrMagHandler m_functionHandler;
-     double m_vkalCnvMagFld;
-     baseMagFld*    m_objectHandler;   
+     const double m_cnstBMAG;
+     const double m_vkalCnvMagFld;
+     const double m_mm;
      double m_saveXpos;
      double m_saveYpos;
      double m_saveZpos;
      double m_saveBX;
      double m_saveBY;
      double m_saveBZ;
-     double m_mm;
    };
 
 }

@@ -15,7 +15,6 @@
 namespace Trk {
  extern void vkvfast_( double* , double* , double* , double*);
  extern void vkvFastV( double* , double* , double* vRef, double dbmag, double*);
- extern vkalPropagator  myPropagator;
 }
 //
 //__________________________________________________________________________
@@ -35,14 +34,12 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    if(m_useMagFieldRotation) return StatusCode::FAILURE;
-    if(m_PropagatorType <=1 ){  Trk::myPropagator.setTypeProp(m_PropagatorType);   // needed for reenterability
-    }else{                      Trk::myPropagator.setPropagator(m_fitPropagator);} // needed for reenterability
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrkTrack(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
@@ -102,14 +99,12 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    if(m_useMagFieldRotation) return StatusCode::FAILURE;
-    if(m_PropagatorType <=1 ){    Trk::myPropagator.setTypeProp(m_PropagatorType);    // needed for reenterability
-    }else{                        Trk::myPropagator.setPropagator(m_fitPropagator); } // needed for reenterability
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParticle(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
@@ -169,14 +164,12 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    if(m_useMagFieldRotation) return StatusCode::FAILURE;
-    if(m_PropagatorType <=1 ){  Trk::myPropagator.setTypeProp(m_PropagatorType);    // needed for reenterability
-    }else{                      Trk::myPropagator.setPropagator(m_fitPropagator); } // needed for reenterability
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParticle(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
@@ -236,13 +229,12 @@ namespace Trk{
 //
 //--- Magnetic field
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    if(m_PropagatorType <=1 ){  Trk::myPropagator.setTypeProp(m_PropagatorType);     // needed for reenterability
-    }else{                      Trk::myPropagator.setPropagator(m_fitPropagator); }  // needed for reenterability
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParameters(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;

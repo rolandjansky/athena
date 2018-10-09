@@ -67,10 +67,10 @@ namespace Trk {
       /** Destructor */
       virtual ~Navigator();
        
-      /** AlgTool initailize method.*/
-      StatusCode initialize() override;
+      /** AlgTool initialize method.*/
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize() override;
+      virtual StatusCode finalize() override;
       
       /** INavigator interface method - returns the TrackingGeometry used for navigation */
       virtual const TrackingGeometry* trackingGeometry() const override final;   

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAMVACALIB_EGAMMAMVATREE
-#define EGAMMAMVACALIB_EGAMMAMVATREE
+#ifndef EGAMMAMVACALIBANALYSIS_EGAMMAMVATREE
+#define EGAMMAMVACALIBANALYSIS_EGAMMAMVATREE
 
 #include <functional>
 #include <string>

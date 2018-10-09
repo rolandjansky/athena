@@ -11,7 +11,7 @@
 #include "Identifier/Range.h"
 #include "Identifier/IdHelper.h"
 #include "IdDict/IdDictFieldImplementation.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <string>
 #include <map>

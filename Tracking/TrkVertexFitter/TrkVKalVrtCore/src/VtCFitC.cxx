@@ -4,23 +4,13 @@
 
 #include <math.h>
 #include "TrkVKalVrtCore/ForCFT.h"
-#include "TrkVKalVrtCore/Derivt.h"
-#include "TrkVKalVrtCore/WorkArray.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include "TrkVKalVrtCore/Derivt.h"
 #include <iostream>
 
 namespace Trk {
 
-
-extern ForCFT forcft_;
-extern WorkArray workarray_;
-extern DerivT derivt_;
-
-
-#define forcft_1 forcft_
-#define derivt_1 derivt_
-#define workarray_1 workarray_
 
     //extern void digx(double *, double *, double *, long int , long int );
     extern void dsinv(long int *, double *, long int , long int *);

@@ -3,16 +3,12 @@
 */
 
 #include <math.h>
-#include "TrkVKalVrtCore/WorkArray.h"
-#include "TrkVKalVrtCore/ForCFT.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include <iostream>
 #include <vector>
 
 namespace Trk {
 
-extern WorkArray workarray_;
-extern ForCFT forcft_;
 
 //extern void digx(double*, double*, double*, long int , long int );
  
@@ -40,8 +36,8 @@ void robtest(VKVertex * vk, long int ifl)
 
     int NTRK = vk->TrackList.size();
 
-    long int irob = forcft_.irob;
-    double    Scl = forcft_.RobustScale;  //Tuning constant
+    long int irob = vk->vk_fitterControl->vk_forcft.irob;
+    double    Scl = vk->vk_fitterControl->vk_forcft.RobustScale;  //Tuning constant
     double    C;                          // Breakdown constant
 
     if ( ifl == 0) {                               /* FILLING OF EIGENVALUES AND VECTORS */
@@ -119,8 +115,8 @@ void robtest(VKVertex * vk, long int ifl)
 		kk++;
 	    }
 	}
-	forcft_.robres[it] = roba[0] * roba[1] * roba[2] * roba[3] * roba[4];
-	if(forcft_.robres[it]>1.)forcft_.robres[it]=1.;
+	vk->vk_fitterControl->vk_forcft.robres[it] = roba[0] * roba[1] * roba[2] * roba[3] * roba[4];
+	if(vk->vk_fitterControl->vk_forcft.robres[it]>1.)vk->vk_fitterControl->vk_forcft.robres[it]=1.;
     }
 //std::cout<<" Fin="<<vk->TrackList[0]->WgtM[0]<<", "<<vk->TrackList[0]->WgtM[1]<<", "<<vk->TrackList[0]->WgtM[2]
 //            <<", "<<vk->TrackList[0]->WgtM[3]<<", "<<vk->TrackList[0]->WgtM[4]<<", "<<vk->TrackList[0]->WgtM[5]

@@ -3,6 +3,7 @@
 */
 
 #include <math.h>
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include <iostream>
 
@@ -15,16 +16,13 @@ extern int cfdinv(double *, double *, long int);
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 
 
- void   cfimp(long int TrkID, long int ich, long int IFL, double *par, 
+ void   cfimp(long int TrkID, long int ich, int IFL, double *par, 
 	double *err, double *vrt, double *vcov, double *rimp, 
-	double *rcov, double *sign )
+	double *rcov, double *sign , const VKalVrtControlBase * FitCONTROL )
 {
     double dcov[3], errd[15], paro[5];
     double dwgt[3], errn[15];
-    long int jerr, i__, j, ij;
-
-
-    double cs, sn;
+    int jerr, i__, j, ij;
 
     double cnv[6]	/* was [2][3] */;
 /* --------------------------------------------------------- */
@@ -57,7 +55,8 @@ extern int cfdinv(double *, double *, long int);
 
 
     double Ref0[3]={0.,0.,0.};  //base reference point for standard perigee
-    myPropagator.Propagate( TrkID, ich, par, errd, Ref0, vrt, paro, errn);
+
+    myPropagator.Propagate(TrkID, ich, par, errd, Ref0, vrt, paro, errn, FitCONTROL);
 
 //std::cout <<" CFImp new par R,Z="<<paro[0]<<", "<<paro[1]<<'\n';
 /* ---------- */
@@ -67,8 +66,8 @@ extern int cfdinv(double *, double *, long int);
     rimp[3] = paro[3];
     rimp[4] = paro[4];
 /*  X=paro(1)*sn, Y=-paro(1)*cs */
-    sn = sin(paro[3]);
-    cs = cos(paro[3]);
+    double sn = sin(paro[3]);
+    double cs = cos(paro[3]);
 /* -- New error version */
     cnv[0] = -sn;
     cnv[2] = cs;
@@ -109,9 +108,9 @@ extern int cfdinv(double *, double *, long int);
 } 
 
 
- void   cfimpc(long int TrkID, long int ich, long int IFL, double *par, 
+ void   cfimpc(long int TrkID, long int ich, int IFL, double *par, 
 	double *err, double *vrt, double *vcov, double *rimp, 
-	double *rcov, double *sign )
+	double *rcov, double *sign, const VKalVrtControlBase * FitCONTROL )
 {
     double dcov[3], errd[15], paro[5];
     double dwgt[3], errn[15], cnv[6];	/* was [2][3] */
@@ -129,7 +128,7 @@ extern int cfdinv(double *, double *, long int);
     for (int ii = 0; ii < 15; ++ii) {errd[ii] = err[ii];}
 
     double Ref0[3]={0.,0.,0.};  //base reference point for standard perigee
-    myPropagator.Propagate( TrkID, ich, par, errd, Ref0, vrt, paro, errn);
+    myPropagator.Propagate(TrkID, ich, par, errd, Ref0, vrt, paro, errn, FitCONTROL);
 
     double tmpVrt[3]={0.,0.,0.}; double ClosestPnt[3];
     cfClstPnt( paro, tmpVrt, ClosestPnt);

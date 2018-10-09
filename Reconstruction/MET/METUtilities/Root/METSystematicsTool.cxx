@@ -280,11 +280,17 @@ namespace met {
   }
 
   CP::CorrectionCode METSystematicsTool::applyCorrection(xAOD::MissingET& inputMet,
-							 const xAOD::MissingETAssociationMap * map) const{
+							 const xAOD::MissingETAssociationHelper * helper) const{
 
-    //if asking for jet track systematics, the user needs to give a met association map as well
+    //if asking for jet track systematics, the user needs to give a met association helper (with a map)  as well
     //if using a different jetContainer, you can give it as an option to applyCorrection
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
+
+    if(!helper) {
+      ATH_MSG_ERROR("MissingETAssociationHelper is null, returning without applying correction.");
+      return CP::CorrectionCode::Error;
+    }
+
     if( getDefaultEventInfo() == nullptr) {
 	ATH_MSG_WARNING("event info is empty, returning without applying correction");
 	return CP::CorrectionCode::Error;
@@ -309,12 +315,12 @@ namespace met {
   //  if( MissingETBase::Source::isTrackTerm(inputMet.source()) &&
     if(MissingETBase::Source::isJetTerm  (inputMet.source())
 					    ){
-      if( map == nullptr) {
-	ATH_MSG_WARNING("To calculate jet track systematics, you must give applyCorrection a MissingETAssociationMap, as applyCorrection(inputMet, map).  Returning without applying correction ");
+      if( helper->map() == nullptr) {
+	ATH_MSG_WARNING("The MissingETAssociationMap for the given MissingETAssociationHelper is null.  Returning without applying correction ");
 	return CP::CorrectionCode::Error;
       }
 
-      return getCorrectedJetTrackMET(inputMet, map);
+      return getCorrectedJetTrackMET(inputMet, helper);
     }
 
     ATH_MSG_WARNING("METSystematicsTool received a MissingET object it can't correct.  You should only pass soft MET terms or jet track MET terms.");
@@ -323,9 +329,14 @@ namespace met {
 
 
   CP::CorrectionCode METSystematicsTool::correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-						       const xAOD::MissingETAssociationMap * map) const
+						       const xAOD::MissingETAssociationHelper * helper) const
   { ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
     xAOD::MissingET * copy = nullptr;
+
+    if(outputmet != nullptr ){
+      ATH_MSG_WARNING("MissingETAssociationHelper was null, returning without making a correctedCopy");
+      return CP::CorrectionCode::Error;
+    }
 
     if(outputmet != nullptr ){
       ATH_MSG_WARNING("Please pass a nullptr to the 2nd argument of correctedCopy to fill the output pointer");
@@ -362,14 +373,14 @@ namespace met {
     if( //MissingETBase::Source::isTrackTerm(met.source()) &&
 	MissingETBase::Source::isJetTerm  (met.source())
 	){
-      if( map == nullptr) {
-	ATH_MSG_WARNING("To calculate jet track systematics, you must give correctedCopy a MissingETAssociationMap, as correctedCopy(inputMet, map).  ");
+      if( helper->map() == nullptr) {
+	ATH_MSG_WARNING("MissingETAssociationHelper contained a null MissingETAssociationMap pointer");
 	outputmet = nullptr;
 	return CP::CorrectionCode::Error;
       }
 
       copy = new xAOD::MissingET(met);
-      if(getCorrectedJetTrackMET(*copy, map) != CP::CorrectionCode::Ok){
+      if(getCorrectedJetTrackMET(*copy, helper) != CP::CorrectionCode::Ok){
 	outputmet = nullptr; delete copy;
 	return CP::CorrectionCode::Error;
       }
@@ -503,11 +514,16 @@ namespace met {
   }
 
   CP::CorrectionCode METSystematicsTool::calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationMap* map,
+  								 const xAOD::MissingETAssociationHelper* helper,
  								 const xAOD::Jet* jet) const
 
   {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
+
+    if(!helper) {
+      ATH_MSG_ERROR("MissingETAssociationHelper null, error calculating jet track systematics.");
+      return CP::CorrectionCode::Error;
+    }
 
     if( m_jet_systRpt_pt_eta == nullptr ) {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
@@ -515,8 +531,8 @@ namespace met {
     }
 
     if(m_appliedSystEnum==MET_JETTRK_SCALEUP || m_appliedSystEnum==MET_JETTRK_SCALEDOWN) {
-      xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(map,jet);
-      MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
+      xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(helper->map(),jet);
+      MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec(helper);
 
       int phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
       if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
@@ -548,10 +564,15 @@ namespace met {
   }
 
   CP::CorrectionCode METSystematicsTool::calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationMap* map) const
+  								 const xAOD::MissingETAssociationHelper* helper) const
 
   {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
+
+    if(!helper) {
+      ATH_MSG_ERROR("MissingETAssociationHelper null, error calculating jet track systematics.");
+      return CP::CorrectionCode::Error;
+    }
 
     if( m_jet_systRpt_pt_eta == nullptr ) {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
@@ -573,6 +594,7 @@ namespace met {
       bool originalInputs = jets.empty() ? false : !acc_originalObject.isAvailable(*jets.front());
       for(const xAOD::Jet *jet : jets) {
 	const MissingETAssociation* assoc = 0;
+        const MissingETAssociationMap* map = helper->map();
 	if(originalInputs) {
 	  assoc = MissingETComposition::getAssociation(map,jet);
 	} else {
@@ -625,16 +647,22 @@ namespace met {
 
 
   CP::CorrectionCode METSystematicsTool::getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationMap* map
+  								 const xAOD::MissingETAssociationHelper* helper
   								 ) const
    {
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
+
+    if(!helper) {
+      ATH_MSG_ERROR("MissingETAssociationHelper null, error calculating jet track systematics.");
+      return CP::CorrectionCode::Error;
+    }
+    const MissingETAssociationMap* map = helper->map();
     if(!map) {
       ATH_MSG_ERROR("MissingETAssociationMap null, error calculating jet track systematics.");
       return CP::CorrectionCode::Error;
     }
 
-    if(calcJetTrackMETWithSyst(jettrkmet, map) != CP::CorrectionCode::Ok){
+    if(calcJetTrackMETWithSyst(jettrkmet, helper) != CP::CorrectionCode::Ok){
       ATH_MSG_ERROR("Failed to calculate jet track systematics.");
       return CP::CorrectionCode::Error;
     }

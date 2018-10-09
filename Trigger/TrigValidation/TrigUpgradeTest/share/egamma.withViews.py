@@ -34,10 +34,10 @@ if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
 CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
-                    "HLT_e5_etcut":  "L1_EM3",
-                    "HLT_e7_etcut":  "L1_EM7",
-                    "HLT_2e3_etcut": "L1_2EM3",
-                    "HLT_e3e5_etcut":"L1_2EM3"}
+                     "HLT_e5_etcut":  "L1_EM3",
+                     "HLT_e7_etcut":  "L1_EM7",
+                     "HLT_2e3_etcut": "L1_2EM3",
+                     "HLT_e3e5_etcut":"L1_2EM3"}
 
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
@@ -287,7 +287,10 @@ step2filter = parOR("step2filter", [ findAlgorithm(egammaEFCaloStep, "filterL2El
 step0rfilter = parOR("step0rfilter", [ findAlgorithm(egammaCaloStepRR, "Rerurn_filterL1RoIsAlg") ] )
 
 
+
 steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step2filter, step2,  step0rfilter, step0r ]  )
+
+
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
@@ -305,6 +308,8 @@ step2Collector.Decisions = ["ElectronL2Decisions"]
 mon.CollectorTools = [step1Collector, step2Collector]
 
 
+
+
 import AthenaPoolCnvSvc.WriteAthenaPool
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
@@ -316,7 +321,6 @@ def addTC(name):
 for tc in egammaViewsMerger.TrigCompositeContainer:
    addTC( tc + "_remap" )
 
-addTC("HLTSummary")
 
 StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
                         "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",
@@ -339,7 +343,43 @@ StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
 print "ESD file content " 
 print StreamESD.ItemList
 
-hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
+from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, StreamTagMakerTool
+summMaker = DecisionSummaryMakerAlg()
+summMaker.FinalDecisionKeys = [ theElectronHypo.HypoOutputDecisions ]
+summMaker.FinalStepDecisions =  dict( [ ( tool.getName(), theElectronHypo.HypoOutputDecisions ) for tool in theElectronHypo.HypoTools ] )
+summMaker.OutputLevel=DEBUG
+print summMaker
+
+################################################################################
+# test online HLT Result maker
+
+stmaker = StreamTagMakerTool()
+stmaker.OutputLevel = DEBUG
+stmaker.ChainDecisions = "HLTFinalDecisions"
+stmaker.ChainToStream = dict( [(c, "Main") for c in testChains ] )
+stmaker.ChainToStream["HLT_e5_etcut"] = "PhotonPerf"  # just made up the name
+hltResultMaker =  HLTResultMTMakerAlg()
+hltResultMaker.MakerTools = [ stmaker ]
+hltResultMaker.OutputLevel = DEBUG
+
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+hltResultMaker.MonTool = GenericMonitoringTool("MonOfHLTResultMTtest")
+hltResultMaker.MonTool.HistPath = "OutputMonitoring"
+hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result construction in;[micro seccond]',
+                                                       xbins=100, xmin=0, xmax=1000 ),
+                                      defineHistogram( 'nstreams', path='EXPERT', type='TH1F', title='number of streams',
+                                                       xbins=60, xmin=0, xmax=60 ),
+                                      defineHistogram( 'nfrags', path='EXPERT', type='TH1F', title='number of HLT results',
+                                                       xbins=10, xmin=0, xmax=10 ),
+                                      defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
+                                                       xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
+
+
+
+################################################################################
+# assemble top list of algorithms
+
+hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD, summMaker, hltResultMaker ] )
 topSequence += hltTop
 
 ###### Begin Cost Monitoring block
