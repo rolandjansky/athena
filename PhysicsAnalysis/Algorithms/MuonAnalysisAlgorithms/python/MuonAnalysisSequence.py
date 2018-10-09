@@ -28,9 +28,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         postfix = '_' + postfix
         pass
 
-    splitWP = workingPoint.split ('_')
+    splitWP = workingPoint.split ('.')
     if len (splitWP) != 2 :
-        raise ValueError ('working point should be of format "quality_isolation", not ' + workingPoint)
+        raise ValueError ('working point should be of format "quality.isolation", not ' + workingPoint)
 
     sfWorkingPoint = splitWP[0]
     if splitWP[0] == 'Tight' :
