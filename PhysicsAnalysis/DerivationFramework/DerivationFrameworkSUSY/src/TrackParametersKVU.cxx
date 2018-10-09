@@ -53,8 +53,7 @@ StatusCode DerivationFramework::TrackParametersKVU::initialize()
     ATH_MSG_ERROR("No selection variables for the TrackParametersKVU tool!");
     return StatusCode::FAILURE;
   }
-  
-  
+    
   CHECK(m_vertexTrackUpdator.retrieve());
 
   CHECK(m_extrapolator.retrieve());
