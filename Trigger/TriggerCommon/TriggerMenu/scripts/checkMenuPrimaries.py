@@ -7,11 +7,6 @@ def main():
     log = logging.getLogger("checkMenuPrimaries")
     log.setLevel(logging.INFO)
     
-    p18 =  TriggerAPI.checkPeriodConsistency(TriggerPeriod.future1p8e34, TriggerType.ALL)
-    p20 =  TriggerAPI.checkPeriodConsistency(TriggerPeriod.future2e34, TriggerType.ALL)
-    print p18.difference(p20)
-    print p20.difference(p18)
-
     TriggerAPI.setRelease("current")
     inconsistent =  TriggerAPI.checkPeriodConsistency(TriggerPeriod.future2e34, TriggerType.ALL)
     if inconsistent:
