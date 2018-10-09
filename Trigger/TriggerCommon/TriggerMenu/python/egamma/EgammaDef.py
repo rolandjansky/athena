@@ -520,7 +520,8 @@ class EgammaHypoBuilder(object):
             log.debug('Hypo %s'%key)
             sequences[key] = self._gensequence[key]()
         # Remove key for algos not defined
-        return update_map(sequences)
+        return update_map(sequences) 
+    
 
     def _set_base_name(self):
         thr = str(self._chain_part['threshold'])

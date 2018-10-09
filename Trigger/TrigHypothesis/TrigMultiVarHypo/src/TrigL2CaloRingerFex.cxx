@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///Local include(s)
@@ -166,7 +166,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   ///Retrieve rings pattern information
   const xAOD::TrigRingerRings *ringerShape = get_rings(outputTE);
   if(!ringerShape){
-    ATH_MSG_WARNING( "Can not retrieve xADO::TrigRingerRings from storegate." );
+    ATH_MSG_WARNING( "Can not retrieve xAOD::TrigRingerRings from storegate." );
     return HLT::OK;
   }///protection
 

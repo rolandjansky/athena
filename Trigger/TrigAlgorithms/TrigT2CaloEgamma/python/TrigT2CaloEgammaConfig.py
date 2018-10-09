@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 #from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloSwCluster
@@ -327,33 +327,14 @@ class RingerFexConfig( RingerFex ):
     #from AthenaCommon.Constants import VERBOSE,DEBUG
     #self.OutputLevel = VERBOSE
 
-#class RingerFexNoHadConfig( RingerFexConfig ):
-#  __slots__ = []
-#  def __init__(self, name = "RingerFexNoHadConfig"):
-#    super(RingerFexNoHadConfig, self).__init__(name)
-#    from TrigT2CaloEgamma.RingerConstants import Layer
-#    self.DEtaRings = [0.025, 0.003125, 0.025, 0.05];
-#    self.DPhiRings = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170];
-#    self.NRings = [8, 64, 8, 8];
-#    self.LayersRings = [
-#                        Layer.PreSamplerB,Layer.PreSamplerE,
-#                        Layer.EMB1,       Layer.EME1,
-#                        Layer.EMB2,       Layer.EME2,
-#                        Layer.EMB3,       Layer.EME3,
-#                        ];
-#    self.NLayersRings = [2, 2, 2, 2];
-#    self.NMaxCells = [320, 512, 272, 128];
-#    self.UseHAD = False
-#    self.NoHadUB = 99e3 # 99 TeV should be high enough
-#    #from AthenaCommon.Constants import VERBOSE,DEBUG
-#    #self.OutputLevel = VERBOSE
-
 class RingerFexNoHadBelow15GeVConfig( RingerFexConfig ):
   __slots__ = []
   def __init__(self, name = "RingerFexNoHadBelow15GeVConfig"):
     super(RingerFexNoHadBelow15GeVConfig, self).__init__(name)
     self.UseHad = False
     self.NoHadUB = 15
+    #self.HltFeature = "HLT_TrigT2CaloEgamma_NoHad"
+    #self.Feature = "TrigT2CaloEgamma_NoHad"
     #from AthenaCommon.Constants import VERBOSE,DEBUG
     #self.OutputLevel = VERBOSE
 
@@ -401,12 +382,13 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 
-class T2CaloEgamma_Ringer_NoHadBelow15GeV (T2CaloEgamma_eGamma):
+class T2CaloEgamma_Ringer_NoHadBelow15GeV (T2CaloEgamma_eGamma_NoHad):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_Ringer_NoHadBelow15GeV"):
        super(T2CaloEgamma_Ringer_NoHadBelow15GeV, self).__init__(name)
        # here put your customizations
-       self.IAlgToolList += [RingerFexNoHadBelow15GeVConfig()]
+       self.IAlgToolList += [RingerFexConfig()]
        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger_NoHad"
        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
-
+       #from AthenaCommon.Constants import VERBOSE,DEBUG
+       #self.OutputLevel = VERBOSE

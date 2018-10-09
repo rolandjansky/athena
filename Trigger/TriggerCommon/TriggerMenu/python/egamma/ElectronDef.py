@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """ Electron trigger slice signatures  """
 
@@ -315,9 +315,6 @@ class L2EFChain_e(L2EFChainDef):
             else:
                 self.TErenamingDict['EF_eCache_step2']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_ED')
                 self.TErenamingDict['EF_e_step3']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult)
-        print "========================= NEW CHAIN =============================="
-        from pprint import pprint
-        print pprint(self.__dict__)
 
     def setup_eXXvh_idperf(self):
 
