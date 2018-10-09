@@ -46,7 +46,7 @@ def setupMenu():
 	['mu10_idperf',         'L1_MU6', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 
 	#RoI muons
-	['mu3',                 'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu3',                 'L1_MU4', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu4',                 'L1_MU4', [], [HardProbesStream,  'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu6',                 'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu8',                 'L1_MU6', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
@@ -59,9 +59,10 @@ def setupMenu():
 	['mu20_msonly',            'L1_MU15',           [], [HardProbesStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
 	#di-muons RoI based
-	['2mu3',                 'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['2mu3',                 'L1_2MU4', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['2mu4',                 'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['2mu6',                 'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['2mu14',                 'L1_2MU10', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['2mu4_msonly',          'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
     ['2mu6_msonly',          'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 
@@ -228,22 +229,22 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
     
-    ['g18_etcut',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+    ['g18_etcut',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     
 	#heavy ion instances	
 	['e13_etcut_ion',       'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-    ['e15_etcut_ion',       'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+    ['e15_etcut_ion',       'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e18_etcut_ion',              'L1_EM14', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1], 
-    ['e20_etcut_ion',              'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+    ['e20_etcut_ion',              'L1_EM16', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e30_etcut_ion',              'L1_EM22', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1], 
 	['e50_etcut_ion',              'L1_EM22', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	
 	#['g12_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
-    ['g13_etcut_ion',              'L1_EM10', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
-	['g18_etcut_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+    ['g13_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g18_etcut_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 
     ['e15_loose_ion',       'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-    ['e15_medium_ion',      'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+    ['e15_medium_ion',      'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e15_lhloose_ion_L1EM12',     'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e15_lhmedium_ion_L1EM12',    'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
  
@@ -255,24 +256,24 @@ def setupMenu():
 
 	#backup for e15
 	
-	['e20_loose_ion',              'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['e20_medium_ion',              'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e20_loose_ion',              'L1_EM16', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e20_medium_ion',              'L1_EM16', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e20_lhloose_ion',            'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e20_lhmedium_ion',            'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	
 	#monitoring
-	['2e20_loose_ion',            'L1_2EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['2e20_loose_ion',            'L1_2EM16', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	
 	#idperf
-	['e15_loose_ion_idperf',       'L1_EM12', [], [HardProbesStream], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
-	['e18_loose_ion_idperf',       'L1_EM14', [], [HardProbesStream], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
-	['e20_loose_ion_idperf',       'L1_EM16', [], [HardProbesStream], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
+	['e15_loose_ion_idperf',       'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
+	['e18_loose_ion_idperf',       'L1_EM14', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
+	['e20_loose_ion_idperf',       'L1_EM16', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
 	
 	
-	['g15_loose_ion',              'L1_EM10', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g15_loose_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     #['g15_medium_ion',             'L1_EM10', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
-    ['g20_loose',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
-    ['g20_loose_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+    ['g20_loose',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+    ['g20_loose_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     #['g20_medium_ion',             'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     ['g50_loose_ion',              'L1_EM22', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     
@@ -468,7 +469,7 @@ def setupMenu():
         ['mb_mbts_L1MBTS_4_4',  'L1_MBTS_4_4', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 
 	#sptrk
-        ['mb_vetospmbts2in_L1TE5_VTE200',  'L1_TE5_VTE200', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp_vetospmbts2in_L1TE5_VTE200',  'L1_TE5_VTE200', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sp',  'L1_RD0_FILLED', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk',  'L1_ZDC_A_C_VTE50', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_L1MBTS_1_1_VTE50', 'L1_MBTS_1_1_VTE50', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
@@ -481,7 +482,7 @@ def setupMenu():
 	#PCpeb
 	['mb_sptrk_hipeb_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50_PEB', [], [PCpebStream],["BW:PCpeb", "RATE:PCpeb"], 1],
 	#PC
-	['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream],["BW:PC", "RATE:PC"], 1],
+	['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream, 'express'],["BW:PC", "RATE:PC"], 1],
 	
 	
 	#MB UPC:
@@ -502,6 +503,8 @@ def setupMenu():
 	#UPC: Other primary 
 	['mb_sptrk_exclusiveloose_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
 	['mb_sptrk_exclusivetight_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream, 'express'], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_exclusiveloose_vetombts8_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_exclusivetight_vetombts8_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream, 'express'], ["BW:UPC", "RATE:UPC"], -1],
 		
 	#['mb_sptrk_exclusiveloose_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
 	#['mb_sptrk_exclusivetight_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
@@ -647,9 +650,9 @@ def setupMenu():
 	#['noalg_mb_L1TE9000.0ETA49',      'L1_TE9000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
     
     #PC
- 	['noalg_pc_L1TE50_VTE600.0ETA49',      'L1_TE50_VTE600.0ETA49', [], [PCStream], ["BW:PC", "RATE:PC"], 1],
+ 	['noalg_pc_L1TE50_VTE600.0ETA49',      'L1_TE50_VTE600.0ETA49', [], [PCStream, 'express'], ["BW:PC", "RATE:PC"], 1],
 	#CC
-	['noalg_cc_L1TE600.0ETA49',      'L1_TE600.0ETA49', [], [CCStream], ["BW:CC", "RATE:CC"], 1],
+	['noalg_cc_L1TE600.0ETA49',      'L1_TE600.0ETA49', [], [CCStream, 'express'], ["BW:CC", "RATE:CC"], 1],
     
 	#min bias
         ['noalg_mb_L1MBTS_2',    'L1_MBTS_2', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
@@ -709,6 +712,7 @@ def setupMenu():
 	['noalg_L1EM16',   'L1_EM16', [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
 	['noalg_L1EM18',   'L1_EM18', [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
 	['noalg_L1EM20',   'L1_EM20', [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
+	['noalg_L1EM22',   'L1_EM22', [], [HardProbesStream, 'express'], ["BW:SingleElectron", "RATE:Egamma"], 1],
 
 	#data min-bias overlay
 	['noalg_L1ZDC_A_C_OVERLAY',   'L1_ZDC_A_C_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
