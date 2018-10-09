@@ -219,7 +219,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
     for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint && beamSpot != nullptr) {
         Trk::RecVertex beamPosition { beamSpot->beamVtx() };
-        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition);
+        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &beamPosition);
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
         selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &null);

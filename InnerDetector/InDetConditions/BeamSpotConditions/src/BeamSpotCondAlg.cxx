@@ -54,7 +54,6 @@ StatusCode BeamSpotCondAlg::execute()
   SG::WriteCondHandle<InDet::BeamSpotData> writeHandle { m_writeKey };
   if ( writeHandle.isValid() )
   {
-    writeHandle.updateStore();
     ATH_MSG_DEBUG( "CondHandle " << writeHandle.fullKey() << " is already valid " <<
 		   "Forcing update of Store contents" );
     return StatusCode::SUCCESS;
