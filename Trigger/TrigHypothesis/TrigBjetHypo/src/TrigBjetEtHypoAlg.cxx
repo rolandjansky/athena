@@ -36,7 +36,6 @@ StatusCode TrigBjetEtHypoAlg::finalize() {
 
 StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {  
   ATH_MSG_INFO ( "Executing " << name() << "..." );
-  ATH_MSG_INFO( "SONO QUI ADESSO" );
 
   // In case I need it (not sure). Taken from Jet code
   // Read in previous Decisions made before running this Hypo Alg.
