@@ -42,7 +42,7 @@ class TrigBjetEtHypoAlg
 
  private:
   SG::ReadHandleKey< xAOD::JetContainer > m_jetsKey {this,"Jets","Jets","Input Jet Container Key"};
-  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"OutputDecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
+  //  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"OutputDecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
 
 #endif //> !TRIGBJETHYPO_TRIGBJETETHYPOALG_H
