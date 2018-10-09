@@ -24,7 +24,7 @@ namespace Muon
 			    const std::vector<Identifier>& rdoList,
 			    const Amg::MatrixX* locErrMat,
 			    const MuonGM::TgcReadoutElement* detEl,
-          const uint16_t bcBitMap) :
+			    const uint16_t bcBitMap) :
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
     m_bcBitMap(bcBitMap)

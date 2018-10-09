@@ -162,6 +162,9 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     const int gasGap  = m_stgcIdHelper->gasGap(rdoId);
     const int channel = m_stgcIdHelper->channel(rdoId);
 
+    const int charge = (int) rdo->charge();
+    const uint16_t bcTag = rdo->bcTag();
+
     // to be fixed: for now do not set the resolution, it will be added in the 
     // next update
     double width = 0.;
@@ -214,16 +217,16 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 // eta strips 
       if(channelType==1) {
         sTgcflag.push_back(0);
-        sTgcprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
+        sTgcprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
       } else if (channelType==2) { 
 // wires
-        sTgcWireprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
+        sTgcWireprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
       } else if (channelType==0) { 
 // pads 
-        sTgcPadprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
+        sTgcPadprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
       }
     } else {
-      prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
+      prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
     } 
   } //end it = rdoColl
 
@@ -286,7 +289,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
            covN->setIdentity();
            (*covN)(0,0) = covX;
-           sTgcPrepData* prdN = new sTgcPrepData(id_prd, hash, sTgcprds[i].localPosition(), rdoList, covN, sTgcprds[i].detectorElement(), sTgcprds[i].getBcBitMap());
+           sTgcPrepData* prdN = new sTgcPrepData(id_prd, hash, sTgcprds[i].localPosition(), rdoList, covN, sTgcprds[i].detectorElement(), sTgcprds[i].charge(), sTgcprds[i].getBcBitMap());
            prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
            prdColl->push_back(prdN);
          } else {
@@ -348,7 +351,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            if(nmerge<=1 || stripDifference==1) (*covN)(0,0) = covX;
            ATH_MSG_VERBOSE(" make merged prepData at strip " << m_stgcIdHelper->channel(sTgcprds[j].identify())  << " channelType " << channelType << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
  
-           sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j].identify(), hash, sTgcprds[j].localPosition(), rdoList, covN, sTgcprds[j].detectorElement(), sTgcprds[j].getBcBitMap());
+           sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j].identify(), hash, sTgcprds[j].localPosition(), rdoList, covN, sTgcprds[j].detectorElement(), sTgcprds[j].charge(), sTgcprds[j].getBcBitMap());
            prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
            prdColl->push_back(prdN);
          }
