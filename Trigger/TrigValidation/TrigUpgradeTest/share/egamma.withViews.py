@@ -343,7 +343,7 @@ StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
 print "ESD file content " 
 print StreamESD.ItemList
 
-from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, StreamTagMakerTool
+from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool
 summMaker = DecisionSummaryMakerAlg()
 summMaker.FinalDecisionKeys = [ theElectronHypo.HypoOutputDecisions ]
 summMaker.FinalStepDecisions =  dict( [ ( tool.getName(), theElectronHypo.HypoOutputDecisions ) for tool in theElectronHypo.HypoTools ] )
@@ -358,8 +358,13 @@ stmaker.OutputLevel = DEBUG
 stmaker.ChainDecisions = "HLTFinalDecisions"
 stmaker.ChainToStream = dict( [(c, "Main") for c in testChains ] )
 stmaker.ChainToStream["HLT_e5_etcut"] = "PhotonPerf"  # just made up the name
+bitsmaker = TriggerBitsMakerTool()
+bitsmaker.ChainDecisions = "HLTFinalDecisions"
+bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
+bitsmaker.OutputLevel = DEBUG
+
 hltResultMaker =  HLTResultMTMakerAlg()
-hltResultMaker.MakerTools = [ stmaker ]
+hltResultMaker.MakerTools = [ stmaker, bitsmaker ]
 hltResultMaker.OutputLevel = DEBUG
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -373,6 +378,8 @@ hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPER
                                                        xbins=10, xmin=0, xmax=10 ),
                                       defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
                                                        xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
+
+
 
 
 
