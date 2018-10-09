@@ -84,8 +84,7 @@ class MuFastSteering : public HLT::FexAlgo,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
 			       TrigRoiDescriptorCollection&	 		outputMS,
-			       DataVector<xAOD::TrigComposite>&			outputComposite,
-                               Monitored::MonitoredTimer::MonitoredTimer&       prepTimer );
+			       DataVector<xAOD::TrigComposite>&			outputComposite );
 
   int L2MuonAlgoMap(const std::string& name);
   
