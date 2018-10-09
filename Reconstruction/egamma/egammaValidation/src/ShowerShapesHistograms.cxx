@@ -38,31 +38,26 @@ StatusCode ShowerShapesHistograms::initializePlots() {
 } // initializePlots
 
 void ShowerShapesHistograms::fill(const xAOD::Egamma& egamma) {
+
+  float eta2 = -999, rhad = -999, rhad1 = -999, hadrleak = -999, Reta = -999, Rphi = -999, shweta2 = -999, Eratio = -999, DeltaE = -999, frac_f1 = -999, shfside = -999, shwtots1= -999, shws3= -999; 
+  eta2 = fabs(egamma.caloCluster()->etaBE(2));
   
-  m_eta2 = fabs(egamma.caloCluster()->etaBE(2));
-  
-  if(egamma.showerShapeValue(m_rhad , xAOD::EgammaParameters::Rhad) &&
-     egamma.showerShapeValue(m_rhad1, xAOD::EgammaParameters::Rhad1)) {  
+  if(egamma.showerShapeValue(rhad , xAOD::EgammaParameters::Rhad) &&
+     egamma.showerShapeValue(rhad1, xAOD::EgammaParameters::Rhad1)) {  
     
-    m_hadrleak = (m_eta2 >= 0.8 && m_eta2 < 1.37) ? m_rhad : m_rhad1;
-    histoMap["hadleak"]->Fill(m_hadrleak);
+    hadrleak = (eta2 >= 0.8 && eta2 < 1.37) ? rhad : rhad1;
+    histoMap["hadleak"]->Fill(hadrleak);
     
   }
   
-  if(egamma.showerShapeValue(m_Reta, xAOD::EgammaParameters::Reta)) histoMap["reta"]->Fill(m_Reta);
-  if(egamma.showerShapeValue(m_Rphi, xAOD::EgammaParameters::Rphi)) histoMap["rphi"]->Fill(m_Rphi);
-  
-  if(egamma.showerShapeValue(m_shweta2, xAOD::EgammaParameters::weta2)) histoMap["weta2"]->Fill(m_shweta2);
-  
-  if(egamma.showerShapeValue(m_Eratio, xAOD::EgammaParameters::Eratio)) histoMap["eratio"]->Fill(m_Eratio);
-  if(egamma.showerShapeValue(m_DeltaE, xAOD::EgammaParameters::DeltaE)) histoMap["deltae"]->Fill(m_DeltaE);
-  
-  if(egamma.showerShapeValue(m_frac_f1  , xAOD::EgammaParameters::f1)) histoMap["f1"]->Fill(m_frac_f1);
-  
-  if(egamma.showerShapeValue(m_shfside, xAOD::EgammaParameters::fracs1)) histoMap["fside"]->Fill(m_shfside);
-  
-  if(egamma.showerShapeValue(m_shwtots1, xAOD::EgammaParameters::wtots1)) histoMap["wtots1"]->Fill(m_shwtots1);
-  
-  if(egamma.showerShapeValue(m_shws3, xAOD::EgammaParameters::weta1)) histoMap["ws3"]->Fill(m_shws3);
+  if(egamma.showerShapeValue(Reta, xAOD::EgammaParameters::Reta)) histoMap["reta"]->Fill(Reta);
+  if(egamma.showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi)) histoMap["rphi"]->Fill(Rphi);
+  if(egamma.showerShapeValue(shweta2, xAOD::EgammaParameters::weta2)) histoMap["weta2"]->Fill(shweta2);
+  if(egamma.showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio)) histoMap["eratio"]->Fill(Eratio);
+  if(egamma.showerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE)) histoMap["deltae"]->Fill(DeltaE);
+  if(egamma.showerShapeValue(frac_f1  , xAOD::EgammaParameters::f1)) histoMap["f1"]->Fill(frac_f1);
+  if(egamma.showerShapeValue(shfside, xAOD::EgammaParameters::fracs1)) histoMap["fside"]->Fill(shfside);
+  if(egamma.showerShapeValue(shwtots1, xAOD::EgammaParameters::wtots1)) histoMap["wtots1"]->Fill(shwtots1);
+  if(egamma.showerShapeValue(shws3, xAOD::EgammaParameters::weta1)) histoMap["ws3"]->Fill(shws3);
 
 }
