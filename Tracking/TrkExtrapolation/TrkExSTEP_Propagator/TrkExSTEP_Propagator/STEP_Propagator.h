@@ -144,11 +144,11 @@ namespace Trk {
 
 
     /** AlgTool initailize method.*/
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
 
     /** AlgTool finalize method */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
 
     /** Main propagation method for ParametersBase. Use StraightLinePropagator for neutrals */
