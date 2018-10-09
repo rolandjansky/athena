@@ -19,13 +19,14 @@ StatusCode TrigBjetEtHypoAlg::initialize()
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_jetsKey          );
+  ATH_MSG_DEBUG(  "   " << m_decisionsKey     );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_jetsKey.initialize() );
-  //  CHECK( m_decisionsKey.initialize() ); // Output Decisions
+  CHECK( m_decisionsKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -51,13 +52,31 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
 
   const xAOD::JetContainer *jetCollection = h_jetCollection.get();
   ATH_MSG_DEBUG( "Found " << jetCollection->size()<< " jets."  );
+  for ( const xAOD::Jet *jet : * jetCollection ) 
+    ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
+
+
+
+
 
   // Prepare Output
   std::unique_ptr< TrigCompositeUtils::DecisionContainer > decisions = std::make_unique< TrigCompositeUtils::DecisionContainer >();
   std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > aux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer >();
   decisions->setStore( aux.get() );
 
+  {
+    SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( m_decisionsKey, context );
+    CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
+  }
+
+
+  /*
+  std::unique_ptr< TrigCompositeUtils::DecisionContainer > decisions = std::make_unique< TrigCompositeUtils::DecisionContainer >();
+  std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > aux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer >();
+  decisions->setStore( aux.get() );
+
   // Taken from Jet Code here
+
   const TrigCompositeUtils::Decision *prevDecision = previousDecision->at(0);
   TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
 
@@ -65,7 +84,7 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
     TrigCompositeUtils::decisionIDs( prevDecision ).begin(),
       TrigCompositeUtils::decisionIDs( prevDecision ).end() 
       };
- 
+   
   // Decide (Hypo Tool)
   for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
     const HLT::Identifier  decisionId = tool->getId();
@@ -75,12 +94,14 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
       if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
     }
   }
-  
+
+
   // Save Output
-  //  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( m_decisionsKey, context );
-  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
+  //  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
+  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( m_decisionsKey, context );
   ATH_MSG_DEBUG( "Exit with " << handle->size() << " decisions" );
   CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
+  */
 
   return StatusCode::SUCCESS;
 }

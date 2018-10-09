@@ -31,7 +31,7 @@ def bJetStep1Sequence():
     InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = 'FSJETRoIs'
+    InputMakerAlg.Output = "FSJETRoIs"
 
     # Construct jets ( how do I impose split or non-split configuration ? ) 
     from TrigUpgradeTest.jetDefs import jetRecoSequence
