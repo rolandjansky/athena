@@ -16,7 +16,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
-#include "TopoClusterMap.h"
 #include "CxxUtils/make_unique.h"
 #include <algorithm>
 #include <utility>
@@ -40,8 +39,6 @@ namespace ClusterMatching {
     // 
     declareProperty( "RequirePositiveE",       m_reqPosE         = true );
     declareProperty( "MinSharedEfrac",         m_minSharedEfrac  = 0.2  );
-    declareProperty( "InputClusterCollection", m_clustersIn  = "CaloCalTopoClusters"  );
-    declareProperty( "ClusterMapName",         m_mapName     = "TopoClusterEtaPhiMap" );
     declareProperty( "ElementLinkName",        m_elementLinkName = "constituentClusterLinks" );
   }
 
@@ -62,6 +59,9 @@ namespace ClusterMatching {
     } else {
       m_elementLinkDec = SG::AuxElement::Decorator<std::vector<ElementLink<CaloClusterContainer> > >(m_elementLinkName);
     }
+
+    ATH_CHECK( m_clustersIn.initialize() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -76,16 +76,12 @@ namespace ClusterMatching {
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
-  StatusCode CaloClusterMatchingTool::fillClusterMap() const
+  StatusCode CaloClusterMatchingTool::fillClusterMap(const EventContext& ctx, TopoClusterMap& tcmap) const
   {
-    if( evtStore()->contains<TopoClusterMap>(m_mapName) ) return StatusCode::SUCCESS;
 
-    const CaloClusterContainer* topoclusters(nullptr);
-    ATH_CHECK( evtStore()->retrieve(topoclusters,m_clustersIn) );
-    auto tcmap = CxxUtils::make_unique<TopoClusterMap>();
-    ATH_CHECK( tcmap->SetTopoClusters(topoclusters) );
+    SG::ReadHandle<xAOD::CaloClusterContainer> topoclusters (m_clustersIn, ctx);
+    ATH_CHECK( tcmap.SetTopoClusters(topoclusters.cptr()) );
 
-    ATH_CHECK( evtStore()->record(std::move(tcmap),m_mapName) );
     return StatusCode::SUCCESS;
   }
 
@@ -142,20 +138,9 @@ namespace ClusterMatching {
   // return true if matchedClusters list is non-empty
   bool CaloClusterMatchingTool::getMatchedClusters(const xAOD::CaloCluster& refCluster,
 						   std::vector<const xAOD::CaloCluster*>& matchedClusters,
+						   const TopoClusterMap& tcmap,
 						   bool useLeadingCellEtaPhi) const
   {
-    const TopoClusterMap* tcmap(0);
-    bool gotMap(false);
-    if( evtStore()->contains<TopoClusterMap>(m_mapName) || fillClusterMap().isSuccess()) {
-      if( evtStore()->retrieve(tcmap,m_mapName).isSuccess() ) {
-	gotMap = true;
-      }
-    }
-    if(!gotMap) {
-      ATH_MSG_WARNING("Failed to get cluster eta-phi map!");
-      return false;
-    }
-
     float refEta(0.), refPhi(0.);
     if(useLeadingCellEtaPhi) { // needed for muons because muon clusters have no eta/phi
       const CaloCell* leadcell(nullptr);
@@ -175,7 +160,7 @@ namespace ClusterMatching {
     // for now use the standard matching sizes determined by egamma, but may need to change for muons??
     // egamma shower is probably wider than muon cell track
     const std::vector<const xAOD::CaloCluster*> testClusters = 
-      tcmap->RetrieveTopoClusters(refEta, refPhi, refCluster.e()*cosh(refEta));
+      tcmap.RetrieveTopoClusters(refEta, refPhi, refCluster.e()*cosh(refEta));
 
     return getMatchedClusters(refCluster, testClusters, matchedClusters);
   }
@@ -204,20 +189,9 @@ namespace ClusterMatching {
   // return true if matchedClusters list is non-empty
   bool CaloClusterMatchingTool::getMatchedClusters(const xAOD::CaloCluster& refCluster,
 						   std::vector<std::pair<const xAOD::CaloCluster*, float> >& matchedClustersAndE,
+						   const TopoClusterMap& tcmap,
 						   bool useLeadingCellEtaPhi) const
   {
-    const TopoClusterMap* tcmap(0);
-    bool gotMap(false);
-    if( evtStore()->contains<TopoClusterMap>(m_mapName) || fillClusterMap().isSuccess()) {
-      if( evtStore()->retrieve(tcmap,m_mapName).isSuccess() ) {
-	gotMap = true;
-      }
-    }
-    if(!gotMap) {
-      ATH_MSG_WARNING("Failed to get cluster eta-phi map!");
-      return false;
-    }
-
     float refEta(0.), refPhi(0.);
     if(useLeadingCellEtaPhi) { // needed for muons because muon clusters have no eta/phi
       const CaloCell* leadcell(nullptr);
@@ -237,7 +211,7 @@ namespace ClusterMatching {
     // for now use the standard matching sizes determined by egamma, but may need to change for muons??
     // egamma shower is probably wider than muon cell track
     const std::vector<const xAOD::CaloCluster*> testClusters = 
-      tcmap->RetrieveTopoClusters(refEta, refPhi, refCluster.e()*cosh(refEta));
+      tcmap.RetrieveTopoClusters(refEta, refPhi, refCluster.e()*cosh(refEta));
 
     return getMatchedClusters(refCluster, testClusters, matchedClustersAndE);
   }
@@ -279,6 +253,7 @@ namespace ClusterMatching {
   // works via getMatchedClusters
   // return true if matchedClusters list is non-empty
   StatusCode CaloClusterMatchingTool::linkMatchedClusters(const xAOD::CaloCluster& refCluster,
+							  const TopoClusterMap& tcmap,
 							  bool useLeadingCellEtaPhi,
 							  bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
 									  const std::pair<const xAOD::CaloCluster*,float>& pair2)) const
@@ -292,7 +267,7 @@ namespace ClusterMatching {
     std::vector<ElementLink<CaloClusterContainer> > tcLinks;
     std::vector<float> tcSharedE;
     // no need to worry about return value.
-    if(getMatchedClusters(refCluster, matchedClustersAndE, useLeadingCellEtaPhi)) {
+    if(getMatchedClusters(refCluster, matchedClustersAndE, tcmap, useLeadingCellEtaPhi)) {
       const CaloClusterContainer* pClCont = static_cast<const CaloClusterContainer*>(matchedClustersAndE.front().first->container());
       std::sort(matchedClustersAndE.begin(),matchedClustersAndE.end(),gtrthan);
       for(const auto& tcAndE : matchedClustersAndE) {
