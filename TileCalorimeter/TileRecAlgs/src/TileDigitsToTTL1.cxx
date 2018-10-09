@@ -31,7 +31,7 @@
 //*****************************************************************************
 
 // Tile includes
-#include "TileRecAlgs/TileDigitsToTTL1.h"
+#include "TileDigitsToTTL1.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileInfo.h"

@@ -34,8 +34,8 @@ class IntersectorWrapper: public AthAlgTool,
                          const IInterface* parent);
     ~IntersectorWrapper	(void); 	// destructor
 
-    StatusCode			initialize();
-    StatusCode			finalize();
+    virtual StatusCode		initialize() override;
+    virtual StatusCode		finalize() override;
 
 
 
