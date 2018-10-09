@@ -36,6 +36,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloInterface/ICaloCellMakerTool.h"
 
 template<class TYPE> class SvcFactory;
 class TileHWID;
@@ -45,6 +46,7 @@ class TileCondToolTiming;
 class TileCellNoiseFilter;
 class ITileBadChanTool;
 class TileCellMaskingTool;
+class CaloCellContainer;
 
 #include <string>
 #include <vector>

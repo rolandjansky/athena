@@ -19,7 +19,7 @@
 //*****************************************************************************
 
 // Tile includes
-#include "TileRecAlgs/TileDigitsFilter.h"
+#include "TileDigitsFilter.h"
 
 // Atlas includes
 #include "AthContainers/ConstDataVector.h"
