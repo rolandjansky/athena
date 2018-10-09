@@ -246,7 +246,7 @@ SiDetectorElement::updateCache() const
       if (m_design->depthSymmetric()) {
 	m_depthDirection = false;
       } else {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local depth axis." << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local depth axis." << endreq;
       }
     }
     if (std::abs(depthDir) < 0.5) { // Check that it is in roughly the right direction.
@@ -264,7 +264,7 @@ SiDetectorElement::updateCache() const
       if (m_design->phiSymmetric()) {
 	m_phiDirection = false;
       } else {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xPhi axis." << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xPhi axis." << endreq;
       }
     }
     
@@ -283,7 +283,7 @@ SiDetectorElement::updateCache() const
       if (m_design->etaSymmetric()) {
 	m_etaDirection = false;
       } else {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xEta axis." << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
       }
     }
     if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
