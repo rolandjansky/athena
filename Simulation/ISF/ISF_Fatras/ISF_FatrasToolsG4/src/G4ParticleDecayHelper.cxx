@@ -406,6 +406,7 @@ iFatras::G4ParticleDecayHelper::decayParticle(const ISF::ISFParticle& parent,
 
     children.push_back( childParticle);
   }
+  if (products) delete products;
   return children;
 }
 
