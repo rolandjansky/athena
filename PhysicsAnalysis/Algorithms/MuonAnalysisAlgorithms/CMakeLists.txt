@@ -44,7 +44,7 @@ atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
    atlas_add_test( testJobData
-      SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --unit-test )
+      SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test )
    atlas_add_test( testJobFullSim
       SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test )
    atlas_add_test( testJobFastSim

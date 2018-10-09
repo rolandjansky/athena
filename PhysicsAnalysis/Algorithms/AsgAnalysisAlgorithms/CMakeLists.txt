@@ -51,7 +51,7 @@ atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
    atlas_add_test( OverlapRemovalTestJobData
-      SCRIPT OverlapAlgorithmsTest_eljob.py --unit-test
+      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 300 )
    atlas_add_test( OverlapRemovalTestJobFullSim
       SCRIPT OverlapAlgorithmsTest_eljob.py --data-type mc --unit-test
