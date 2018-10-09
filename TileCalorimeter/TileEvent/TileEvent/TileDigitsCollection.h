@@ -123,13 +123,13 @@ public:
    * If calib mode, this is LOW gain CRC
    * @param chipCRCWords Reference to vector filled with 16 chip CRC words
    */
-  void setFraghipCRCWords(std::vector<uint32_t>& chipCRCWords) {
+  void setFragChipCRCWords(std::vector<uint32_t>& chipCRCWords) {
        m_FragChipCRCWords = chipCRCWords;
   }
   /**
    * High gain CRC
    */
-  void setFraghipCRCWordsHigh(std::vector<uint32_t>& chipCRCWordsH) {
+  void setFragChipCRCWordsHigh(std::vector<uint32_t>& chipCRCWordsH) {
        m_FragChipCRCWordsHIGH = chipCRCWordsH;
   }
 
