@@ -42,6 +42,7 @@ HLT::ErrorCode LbyLTopoClusterHypo::hltExecute(const HLT::TriggerElement* output
     ATH_MSG_DEBUG( "Missing clusters, rejecting" );
     return HLT::OK;
   }
+  ATH_MSG_DEBUG( "Clusters present" << clusters->size() );
 
   auto passEt = [&]( double et1, const double  et2 ) {
     if ( et1 > m_et1Threshold and et2 > m_et2Threshold ) 
@@ -53,6 +54,10 @@ HLT::ErrorCode LbyLTopoClusterHypo::hltExecute(const HLT::TriggerElement* output
 
   for ( auto cl1Iter = begin(*clusters); cl1Iter != end(*clusters); ++cl1Iter  ) {    
     for ( auto cl2Iter = cl1Iter + 1; cl2Iter != end(*clusters); ++cl2Iter ) {
+	ATH_MSG_DEBUG( "found pair of clusters et/phi" 
+		       << (*cl1Iter)->et() << "/" <<  (*cl1Iter)->phi() << " and  "
+		       << (*cl2Iter)->et() << "/" <<  (*cl2Iter)->phi() );
+	
       if ( not passEt( (*cl1Iter)->et(), (*cl2Iter)->et() ) ) continue;
       
       const double dPhi = HLT::deltaPhi( (*cl1Iter)->phi(), (*cl2Iter)->phi() );
