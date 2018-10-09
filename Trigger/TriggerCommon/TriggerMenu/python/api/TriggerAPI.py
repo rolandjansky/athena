@@ -47,6 +47,8 @@ class TriggerAPI:
         import re
         if release and re.match('21\.1(\.[0-9]+)+$',release):
             cls.release = release
+        elif release=="current": #Don't allow the release to be automatically overwritten
+            cls.release = release
         else:
             cls.log.warning("Release doesn't seem to be a well-formed 21.1 release, ignoring: "+release)
 
