@@ -28,7 +28,8 @@ class LArfSamplSym: virtual public ILArfSampl {
   // retrieving fSampl using online ID
   
   virtual const float& FSAMPL(const HWIdentifier&  CellID) const override;
- 
+  
+  virtual const float& FSAMPL(const Identifier&  CellID) const override;
     
  private: 
   

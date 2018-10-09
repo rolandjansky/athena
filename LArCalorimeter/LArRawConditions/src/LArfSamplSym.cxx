@@ -18,4 +18,8 @@ const float& LArfSamplSym::FSAMPL(const HWIdentifier&  hwid) const {
   HWIdentifier symhwid=m_mcSym->ZPhiSymOnl(hwid);
   return m_fSamplComplete->FSAMPL(symhwid);
 }
-
+  
+const float& LArfSamplSym::FSAMPL(const Identifier&  id) const {
+  HWIdentifier symhwid=m_mcSym->ZPhiSymOfl(id);
+  return m_fSamplComplete->FSAMPL(symhwid);
+}
