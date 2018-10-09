@@ -496,7 +496,6 @@ namespace ST {
     std::string m_prwActualMu2017File;
     std::string m_prwActualMu2018File;
 
-    double m_muUncert;
     double m_prwDataSF;
     double m_prwDataSF_UP;
     double m_prwDataSF_DW;
