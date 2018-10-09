@@ -53,11 +53,7 @@ HLT::ErrorCode LbyLTopoClusterHypo::hltExecute(const HLT::TriggerElement* output
    
 
   for ( auto cl1Iter = begin(*clusters); cl1Iter != end(*clusters); ++cl1Iter  ) {    
-    for ( auto cl2Iter = cl1Iter + 1; cl2Iter != end(*clusters); ++cl2Iter ) {
-	ATH_MSG_DEBUG( "found pair of clusters et/phi" 
-		       << (*cl1Iter)->et() << "/" <<  (*cl1Iter)->phi() << " and  "
-		       << (*cl2Iter)->et() << "/" <<  (*cl2Iter)->phi() );
-	
+    for ( auto cl2Iter = cl1Iter + 1; cl2Iter != end(*clusters); ++cl2Iter ) {	
       if ( not passEt( (*cl1Iter)->et(), (*cl2Iter)->et() ) ) continue;
       
       const double dPhi = HLT::deltaPhi( (*cl1Iter)->phi(), (*cl2Iter)->phi() );
@@ -65,7 +61,7 @@ HLT::ErrorCode LbyLTopoClusterHypo::hltExecute(const HLT::TriggerElement* output
       
       if ( dPhi > m_dPhiCut ) {	
 	pass=true;
-	ATH_MSG_DEBUG( "found pair of clusters matching criteria et/phi" 
+	ATH_MSG_DEBUG( "found pair of clusters matching criteria et/phi " 
 		       << (*cl1Iter)->et() << "/" <<  (*cl1Iter)->phi() << " and  "
 		       << (*cl2Iter)->et() << "/" <<  (*cl2Iter)->phi() );
       }
