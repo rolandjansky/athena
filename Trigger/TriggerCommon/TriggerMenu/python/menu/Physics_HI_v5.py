@@ -430,6 +430,9 @@ def setupMenu():
  	    ['hi_upc_FgapAC_hi_gg_upc_L1TE4_VTE100',        'L1_TE4_VTE100',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC","hi_gg_upc"]]],
  	    ['hi_upc_FgapAC_hi_gg_upc_L1TE5_VTE50',        'L1_TE5_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC","hi_gg_upc"]]],
  	    ['hi_upc_FgapAC_hi_gg_upc_L1TE4_VTE50',        'L1_TE4_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC","hi_gg_upc"]]],
+ 	    
+ 	    #nois suppresion ATR-18764
+ 	    ['hi_upc_FgapAC_hi_gg_upc_noiseSup_L1TE4_VTE200',        'L1_TE4_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC","hi_gg_upc_noiseSup"]]],
  	     	    
  	    ['hi_upc_FgapAC_hi_gg_upc_L12TAU2_VTE200',        'L1_2TAU2_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC","hi_gg_upc"]]],
  	    ['hi_upc_FgapAC_hi_gg_upc_L12TAU3_VTE200',        'L1_2TAU3_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC","hi_gg_upc"]]],
