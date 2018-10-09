@@ -49,7 +49,7 @@ if not SkipTriggerRequirement:
      year=17
    print "HIGG1D2.py: Setting up trigger requirement for year 20" + str(year)
    if year==17:
-     TriggerMerged          = ["HLT_e25_mergedtight_g35_medium_Heg","HLT_2g50_loose_L12EM20VH"]
+     TriggerMerged          = ["HLT_e25_mergedtight_g35_medium_Heg","HLT_e30_mergedtight_g35_medium_Heg","HLT_2g50_loose_L12EM20VH","e24_lhmedium_nod0_L1EM20VH_g25_medium"]
      TriggerExp             = [ 
                                "HLT_g25_medium_mu24", #photon muon
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
@@ -57,6 +57,7 @@ if not SkipTriggerRequirement:
                                "HLT_g35_loose_L1EM24VHI_mu18",  #photon muon
                                "HLT_g35_tight_icalotight_L1EM24VHI_mu15noL1_mu2noL1", # photon dimuon 
                                "HLT_g35_tight_icalotight_L1EM24VHI_mu18noL1", # photon muon
+                               "HLT_g25_medium_mu24"
                                "HLT_2mu14", #dimuon 
                                "HLT_mu22_mu8noL1", #dimuon
                                "HLT_mu26_ivarmedium", #single muon
@@ -80,6 +81,7 @@ if not SkipTriggerRequirement:
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
                                "HLT_g35_loose_L1EM22VHI_mu15noL1_mu2noL1", # photon dimuon
                                "HLT_g35_loose_L1EM22VHI_mu18noL1",  #photon muon
+                               "HLT_g25_medium_mu24",
                                "HLT_2mu10",
                                "HLT_2mu14", #dimuon 
                                "HLT_mu22_mu8noL1", #dimuon
@@ -121,7 +123,7 @@ if not SkipTriggerRequirement:
                               ]
    else:
      print "HIGG1D2.py : Year not supported -- results might be ugly. Year : ", year 
-
+     SkipTriggerRequirement =  True
 
 
 print "HIGG1D2.py TriggerExp", TriggerExp
@@ -138,7 +140,6 @@ MergedElectronIsEM = CfgMgr.AsgElectronIsEMSelector("MergedElectronIsEM",
                                              ConfigFile="ElectronPhotonSelectorTools/trigger/rel21_20161021/ElectronIsEMMergedTightSelectorCutDefs.conf")
 ToolSvc += MergedElectronIsEM
     
-
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG1
 HIGG1D2SkimmingTool = DerivationFramework__SkimmingToolHIGG1(
@@ -276,6 +277,28 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(HIGG1D2TruthThinningTool)
 print "HIGG1D2.py thinningTools", thinningTools
 
+
+
+#====================================================================
+# AugmentationTools 
+#====================================================================
+
+from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
+egammaExtrapolationTool = EMExtrapolationTools(name = 'egammaExtrapolationTool')
+ToolSvc += egammaExtrapolationTool
+
+
+from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__MergedElectronDetailsDecorator
+HIGG1D2MergedElectronDetailsDecorator = DerivationFramework__MergedElectronDetailsDecorator(
+                                 name = "HIGG1D2MergedElectronDetailsDecorator",
+                                 EMExtrapolationTool = egammaExtrapolationTool
+                                 )
+
+ToolSvc += HIGG1D2MergedElectronDetailsDecorator
+print HIGG1D2MergedElectronDetailsDecorator
+
+
+
 # Create private sequence
 # The name of the kernel  must be unique to this derivation
 HIGG1D2Seq = CfgMgr.AthSequencer("HIGG1D2Sequence")
@@ -287,7 +310,7 @@ HIGG1D2Seq = CfgMgr.AthSequencer("HIGG1D2Sequence")
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D2Kernel",
-                                                                       #AugmentationTools = [HIGG1D2_EEMassTool,HIGG1D2_MuMuMassTool],
+                                                                       AugmentationTools = [HIGG1D2MergedElectronDetailsDecorator],
                                                                        SkimmingTools = [HIGG1D2SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                       )
@@ -339,16 +362,21 @@ HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
                                           "BTagging_AntiKt4EMTopo",
+                                          "MET_Reference_AntiKt4EMPFlow",
+                                          "AntiKt4EMPFlowJets",
+                                          "BTagging_AntiKt4EMPFlow",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
 HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthElectrons","TruthPhotons","TruthMuons","TruthBoson","TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "MET_Track", "egammaTruthParticles","CaloCalTopoClusters"]
 
-HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType.etcone20.ptconecoreTrackPtrCorrection",
+HIGG1D2SlimmingHelper.ExtraVariables = ["PhotonsAux.DFCommonPhotonsIsEMTightPtIncl.DFCommonPhotonsIsEMTightPtInclIsEMValue",
+                                        "Muons.quality.EnergyLoss.energyLossType.etcone20.ptconecoreTrackPtrCorrection",
                                         "MuonClusterCollection.eta_sampl.phi_sampl",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
                                         "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale",
+                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "BTagging_AntiKt4EMTopo.MV1_discriminant",                                        
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
