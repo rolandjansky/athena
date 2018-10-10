@@ -258,7 +258,11 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
 
             ATH_MSG_VERBOSE("[ trthit ] Add a TRTUncompressedHit hit to the collection. ");
             // fill into the HitCollection
-            m_hitColl->Insert(uncompressedHit);           
+            m_hitColl->Insert(uncompressedHit);
+	    if (partLink) {
+	      delete partLink;
+	      partLink = nullptr;
+	    }
         } 
 
      }       
