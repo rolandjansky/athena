@@ -332,12 +332,9 @@ theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool
 theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg",MuonCandidateTool=theCandidateTool)
 
 
-thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, OutputLevel=DEBUG)
+thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, OutputLevel=DEBUG)
 
-themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
-themuoncreatoralg.MuonCreatorTool=thecreatortool
-themuoncreatoralg.CreateSAmuons=True
-themuoncreatoralg.MakeClusters=False
+themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[])
 
 #Algorithms to views
 efMuViewNode += theSegmentFinderAlg

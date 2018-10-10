@@ -133,6 +133,7 @@ namespace MuonCombined {
     declareProperty("FillTimingInformationOnMuon", m_fillTimingInformationOnMuon = false );
     declareProperty("AssociateSegmentsToLowBetaMuons",m_segLowBeta = false);
     declareProperty("UseCaloCells",m_useCaloCells = true);
+    declareProperty("MakeSAMuons", m_doSA=false);
     //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
      
   }
@@ -178,7 +179,8 @@ namespace MuonCombined {
     ATH_MSG_INFO("ET_Core calculation: tool, doNoiseCut, sigma - " << m_caloNoiseTool.name() << " "
                  << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
 
-    ATH_CHECK(m_caloMaterialProvider.retrieve());
+    if(!m_doSA) ATH_CHECK(m_caloMaterialProvider.retrieve());
+    else m_caloMaterialProvider.disable();
 
     ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
 
