@@ -331,8 +331,9 @@ StatusCode HltEventLoopMgr::stop()
 // =============================================================================
 StatusCode HltEventLoopMgr::finalize()
 {
-  ATH_MSG_INFO(" ---> HltEventLoopMgr = " << name() << " finalize ");
-  ATH_MSG_INFO(" Total number of events processed " << m_localEventNumber);
+  ATH_MSG_INFO(" ---> HltEventLoopMgr/" << name() << " finalize ");
+  // Usually (but not necessarily) corresponds to the number of processed events +1
+  ATH_MSG_INFO("Total number of EventContext objects created " << m_localEventNumber);
 
   // Need to release now - automatic release in destructor is too late since services are already gone
   m_hltTHistSvc.reset();
@@ -356,6 +357,37 @@ StatusCode HltEventLoopMgr::finalize()
   }
   m_topAlgList.clear();
 
+// Backward compatibility can be removed when we switch to using C++17 by default
+#if __cplusplus >= 201500L // C++17 (needed for fold expressions)
+  // Release all handles
+  auto releaseAndCheck = [&](auto& handle, std::string handleType) {
+    if (handle.release().isFailure())
+      ATH_MSG_WARNING("finalize(): Failed to release " << handleType << " " << handle.typeAndName());
+  };
+  auto releaseService = [&](auto&&... args) { (releaseAndCheck(args,"service"), ...); };
+  auto releaseTool = [&](auto&&... args) { (releaseAndCheck(args,"tool"), ...); };
+  auto releaseSmartIF = [](auto&&... args) { (args.reset(), ...); };
+
+  releaseService(m_incidentSvc,
+                 m_robDataProviderSvc,
+                 m_evtStore,
+                 m_detectorStore,
+                 m_inputMetaDataStore,
+                 m_THistSvc,
+                 m_evtSelector,
+                 m_outputCnvSvc);
+
+  releaseTool(m_coolHelper,
+              m_hltResultBuilder);
+
+  releaseSmartIF(m_whiteboard,
+                 m_algResourcePool,
+                 m_aess,
+                 m_schedulerSvc,
+                 m_hltTHistSvc,
+                 m_hltROBDataProviderSvc);
+
+#else // standard older than C++17
   // Release service handles
   if (m_incidentSvc.release().isFailure())
     ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_incidentSvc.typeAndName());
@@ -387,6 +419,8 @@ StatusCode HltEventLoopMgr::finalize()
   m_schedulerSvc.reset();
   m_hltTHistSvc.reset();
   m_hltROBDataProviderSvc.reset();
+
+#endif
 
   return StatusCode::SUCCESS;
 }
@@ -536,7 +570,8 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 StatusCode HltEventLoopMgr::executeRun(int maxevt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  if (nextEvent(maxevt).isFailure()) {
+  StatusCode sc = nextEvent(maxevt);
+  if (sc.isFailure()) {
     ATH_MSG_ERROR(ST_WHERE << "Event loop failed");
     // Extra clean-up may be needed here after the failure
   }
