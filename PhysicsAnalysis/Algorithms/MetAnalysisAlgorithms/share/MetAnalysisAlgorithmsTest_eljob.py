@@ -9,9 +9,16 @@
 # extend the list of arguments with your private ones later on.
 import optparse
 parser = optparse.OptionParser()
+parser.add_option( '-d', '--data-type', dest = 'data_type',
+                   action = 'store', type = 'string', default = 'data',
+                   help = 'Type of data to run over. Valid options are data, mc, afii' )
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
+parser.add_option( '-u', '--unit-test', dest='unit_test',
+                   action = 'store_true', default = False,
+                   help = 'Run the job in "unit test mode"' )
+
 ( options, args ) = parser.parse_args()
 
 # Set up (Py)ROOT.
@@ -23,9 +30,8 @@ from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
+
+dataType = options.data_type
 
 if not dataType in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
@@ -111,6 +117,15 @@ ntupleMaker.systematicsRegex = '.*'
 job.algsAdd( ntupleMaker )
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
 
+# Find the right output directory:                                                                                      
+submitDir = options.submission_dir
+if options.unit_test:
+    import os
+    import tempfile
+    submitDir = tempfile.mkdtemp( prefix = 'metTest_'+dataType+'_', dir = os.getcwd() )
+    os.rmdir( submitDir )
+    pass
+
 # Run the job using the direct driver.
 driver = ROOT.EL.DirectDriver()
-driver.submit( job, options.submission_dir )
+driver.submit( job, submitDir )

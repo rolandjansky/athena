@@ -36,8 +36,12 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-   atlas_add_test( testJob
-      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --unit-test )
+   atlas_add_test( testJobData
+      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test )
+   atlas_add_test( testJobFullSim
+      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test )
+   atlas_add_test( testJobFastSim
+      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test )
 else()
    atlas_add_test( testJob
       SCRIPT athena.py
