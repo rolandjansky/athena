@@ -172,7 +172,7 @@ namespace met {
 
 
 
-  // extractPFO modified for W measurements
+  //  extractPFO for W precision-type measurements (same as current extractPFO)
   StatusCode METTauAssociator::GetPFOWana(const xAOD::IParticle* obj,
                std::vector<const xAOD::IParticle*>& pfolist,
                const met::METAssociator::ConstitHolder& constits,
@@ -211,31 +211,10 @@ namespace met {
       }
     }
 
-    //std::cout << "!!!!!!!!!!!!!!!!!!!!!! METTauAssociator::GetPFOWana !!! " << std::endl;
-
     return StatusCode::SUCCESS;
 
 
   }
-
-
-
-/*
-  StatusCode METTauAssociator::hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
-                                                const met::METAssociator::ConstitHolder& constits, 
-                                                TLorentzVector& HR,
-                                                std::vector<double>& vPhiRnd) const
-  {
-
-    //std::cout << "!!!!!!!!!!!!!!!!!!!!!! METTauAssociator::hadrecoil_PFO !!! " << std::endl;
-
-
-    return StatusCode::SUCCESS;
-
-  }
-*/
-
-
 
 
 }

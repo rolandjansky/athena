@@ -206,7 +206,7 @@ namespace met {
   }
 
 
-  // extractPFO modified for W measurements
+  // extractPFO for W precision-type measurements
   StatusCode METMuonAssociator::GetPFOWana(const xAOD::IParticle* obj,
              std::vector<const xAOD::IParticle*>& pfolist,
              const met::METAssociator::ConstitHolder& constits,
