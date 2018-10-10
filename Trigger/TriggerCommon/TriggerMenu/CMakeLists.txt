@@ -32,6 +32,12 @@ if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
         POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf checkL1Menu.log" )
 endif()
 
+if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
+    atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
+                POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf checkMenuPrimaries.log" 
+              )
+endif()
+
 # Function to create lowest-unprescaled lists
 function( atlas_run_lowestunprescaled )
 
@@ -50,11 +56,6 @@ function( atlas_run_lowestunprescaled )
       ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled
       COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
       ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateUnprescaledLists.py ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled
-      COMMAND ${CMAKE_COMMAND} -E make_directory
-      ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/TriggerMenu
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled/
-      ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/TriggerMenu/api/
       COMMAND ${CMAKE_COMMAND} -E touch
       ${CMAKE_CURRENT_BINARY_DIR}/unprescaled.stamp
       DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
@@ -83,7 +84,7 @@ function( atlas_run_lowestunprescaled )
    # executed after the previous code. So by this time the files should be
    # in place, if they could be produced.
    install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled/
-      DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/TriggerMenu
+      DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/TriggerMenu/api
       USE_SOURCE_PERMISSIONS
       FILES_MATCHING PATTERN "list*.py" )
 
