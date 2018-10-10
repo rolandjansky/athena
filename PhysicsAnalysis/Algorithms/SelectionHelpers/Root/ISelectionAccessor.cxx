@@ -54,7 +54,7 @@ namespace CP
       if (name.substr (split + 1) == "as_char")
       {
         asChar = true;
-      } else if (name.substr (split + 1) != "as_bits")
+      } else if (name.substr (split + 1) == "as_bits")
       {
         asBits = true;
       } else
