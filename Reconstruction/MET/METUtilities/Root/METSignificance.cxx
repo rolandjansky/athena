@@ -64,12 +64,9 @@ namespace met {
     typedef ElementLink<xAOD::IParticleContainer> iplink_t;
 
 
-  //static const SG::AuxElement::ConstAccessor<float> acc_varX("varX");
-  //static const SG::AuxElement::ConstAccessor<float> acc_varY("varY");
-  //static const SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
-    static SG::AuxElement::Accessor<float> acc_varX("varX");
-    static SG::AuxElement::Accessor<float> acc_varY("varY");
-    static SG::AuxElement::Accessor<float> acc_covXY("covXY");
+    static SG::AuxElement::ConstAccessor<float> acc_varX("varX");
+    static SG::AuxElement::ConstAccessor<float> acc_varY("varY");
+    static SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
     static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
     static SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
 
