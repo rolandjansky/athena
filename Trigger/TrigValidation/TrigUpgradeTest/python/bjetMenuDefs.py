@@ -37,6 +37,13 @@ def bJetStep1Sequence():
     from TrigUpgradeTest.jetDefs import jetRecoSequence
     (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
 
+    # Construct Super RoI
+    from TrigBjetHypo.TrigBjetHypoConf import TrigSuperRoiBuilderMT
+    algo1 = TrigSuperRoiBuilderMT("SuperRoIBuilder")
+    algo1.OutputLevel = DEBUG
+    algo1.JetInputKey = sequenceOut
+    recoSequence += algo1 
+
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
