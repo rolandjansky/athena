@@ -32,8 +32,8 @@ def _configureReadAthenaPool():
     # Load the basic services
     import AthenaPoolCnvSvc.AthenaPool
 
-    # Switch off TTreeCache for POOLContainerForm (most of the time only first entry is needed
-    #svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "ContainerName = 'POOLContainerForm'; TREE_CACHE = '0'" ]
+    # Switch on TTreeCache for CollectionTree
+    svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; ContainerName = 'CollectionTree'; TREE_CACHE = '-1'" ]
 
     # Load ProxyProviderSvc
     if not hasattr (svcMgr, 'ProxyProviderSvc'):
