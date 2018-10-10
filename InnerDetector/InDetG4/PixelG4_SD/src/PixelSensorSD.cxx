@@ -247,7 +247,7 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       double ypos = coord1.y();
       double zpos = coord1.z();
       double r = sqrt(xpos*xpos+ypos*ypos);
-      G4cout << "In the Alpine " << G4endl;
+      G4cout << "In the Inclined Region " << G4endl;
       G4cout << "----- PhiModule # " << phiMod << G4endl;
       G4cout << "----- Ring/Eta #  " << etaMod << G4endl;
       G4cout << "----- Disk #      " << LayerDisk << G4endl;
@@ -304,6 +304,15 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
 
   // get the HepMcParticleLink from the TrackHelper
   TrackHelper trHelp(aStep->GetTrack());
+  
+  if (verboseLevel>5){
+      G4cout << "lp1 = " << lP1[SiHit::xEta] << ", " << lP1[SiHit::xPhi] << ", " << lP1[SiHit::xDep] <<G4endl;
+      G4cout << "lp2 = " << lP2[SiHit::xEta] << ", " << lP2[SiHit::xPhi] << ", " << lP2[SiHit::xDep] <<G4endl;
+      G4cout << "edep = " << edep <<G4endl;
+      G4cout << "aStep->GetPreStepPoint()->GetGlobalTime() = " << aStep->GetPreStepPoint()->GetGlobalTime() <<G4endl;
+      G4cout << "trHelp.GetParticleLink() = " << trHelp.GetParticleLink() <<G4endl;
+    }
+    
   m_HitColl->Emplace(lP1,
                      lP2,
                      edep,
