@@ -5,26 +5,20 @@
 #ifndef MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
 #define MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
 
-#include "PileUpTools/PileUpToolBase.h"
-
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include <utility> /* pair */
 
-class McEventCollection;
-class StoreGateSvc;
-class PileUpMergeSvc;
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 
+#include "GeneratorObjects/McEventCollection.h"
 
-namespace HepMC {
-  class GenParticle;
-  class GenVertex;
-}
+#include "PileUpTools/PileUpMergeSvc.h"
+
+#include "PileUpTools/PileUpToolBase.h"
+
 /** @class NewMergeMcEventCollTool
  *  @brief a PileUpTool to merge MC truth collection in the overlay store
- *
- *  $Id:
- *  @author jchapman@cern.ch
  *
  */
 class NewMergeMcEventCollTool : public PileUpToolBase {
@@ -45,38 +39,23 @@ public:
     processBunchXing(int /*bunchXing*/,
                      SubEventIterator bSubEvents,
                      SubEventIterator eSubEvents) override final;
-  /// return false if not interested in  certain xing times (in ns)
-  /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
-  //  virtual bool toProcess(int bunchXing) const;
 
   virtual StatusCode processAllSubEvents() override final;
 
 private:
-  //** Prepare the required output McEventCollections
-  StatusCode prepareOutputMcEventCollections(const int pileUpType);
   //** Add the required information from the current GenEvent to the output McEventCollection
-  StatusCode processEvent(const McEventCollection *pMcEvtColl, const int& dsid, PileUpTimeEventIndex::time_type timeOffset=0);
+  StatusCode processEvent(const McEventCollection *pMcEvtColl, McEventCollection *outputMcEventCollection, PileUpTimeEventIndex::time_type timeOffset=0);
   //** Print out detailed debug info if required.
-  void printDetailsOfMergedMcEventCollection() const;
+  void printDetailsOfMergedMcEventCollection(McEventCollection *outputMcEventCollection) const;
   //** Handle for the PileUpMergeSvc (provides input McEventCollections)
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  //** New McEventCollections to be written out to file
-  std::map<int,McEventCollection*> m_outputMcEventCollectionMap; // FIXME avoid hard-coding in General
-  //** Do we expect to need a McEventCollection for low-pT pileup events ?
-  bool m_expectLowPtMinBiasBackgroundCollection;
-  //** Do we expect to need a McEventCollection for high-pT pileup events ?
-  bool m_expectHighPtMinBiasBackgroundCollection;
   //** Name of input McEventCollection
   StringProperty m_truthCollKey;
-  //** Bool to indicate that the next GenEvent is a new signal event
-  bool m_newevent;
-  //** The total number of GenEvents that will be passed for the current signal event
-  unsigned int m_nInputMcEventColls;
-  //** How many background events have been read so far for this signal event
-  unsigned int m_nBkgEventsReadSoFar;
   //** Depends on PileUpTimeEventIndex::PileUpType; provide one instance of this tool for each type
-  unsigned int m_pileUpType;
+  int m_pileUpType{-1}; // initialise to PileUpTimeEventIndex::PileUpType::Unknown
   //** Writing to StoreGate safely in MT
-  SG::WriteHandleKey<McEventCollection> m_wrhMcEventCollection;
+  SG::WriteHandle<McEventCollection> m_outputMcEventCollection{};
+  //** Writing to StoreGate safely in MT
+  SG::WriteHandleKey<McEventCollection> m_outputMcEventCollectionKey{"TruthEvent"};
 };
 #endif //MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H

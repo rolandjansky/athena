@@ -119,27 +119,32 @@ def getNewMergeMcEventCollTool_Signal(name="NewMergeMcEventCollTool_Signal", **k
         kwargs.setdefault("LastXing",  0)
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.Signal)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent')
     return getNewMergeMcEventCollTool_Base(name, **kwargs)
 
 ### All bunch-crossing pileup `NewMergeMcEventCollTool`s
 def getNewMergeMcEventCollTool_MinBias(name="NewMergeMcEventCollTool_MinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.MinimumBias)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_PU')
     return getNewMergeMcEventCollTool_Base(name, **kwargs)
 
 def getNewMergeMcEventCollTool_HighPtMinBias(name="NewMergeMcEventCollTool_HighPtMinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HighPtMinimumBias)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_HighPtPU')
     return getNewMergeMcEventCollTool_Base(name, **kwargs)
 
 def getNewMergeMcEventCollTool_Cavern(name="NewMergeMcEventCollTool_Cavern", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.Cavern)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_Cavern')
     return getNewMergeMcEventCollTool_Base(name, **kwargs)
 
 def getNewMergeMcEventCollTool_HaloGas(name="NewMergeMcEventCollTool_HaloGas", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HaloGas)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_HaloGas')
     return getNewMergeMcEventCollTool_Base(name, **kwargs)
 
 ### InTimeOnly pileup `NewMergeMcEventCollTool`s
@@ -152,21 +157,25 @@ def getInTimeOnlyNewMergeMcEventCollTool_Base(name="InTimeOnlyNewMergeMcEventCol
 def getInTimeOnlyNewMergeMcEventCollTool_MinBias(name="InTimeOnlyNewMergeMcEventCollTool_MinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.MinimumBias)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_PU')
     return getInTimeOnlyNewMergeMcEventCollTool_Base(name, **kwargs)
 
 def getInTimeOnlyNewMergeMcEventCollTool_HighPtMinBias(name="InTimeOnlyNewMergeMcEventCollTool_HighPtMinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HighPtMinimumBias)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_HighPtPU')
     return getInTimeOnlyNewMergeMcEventCollTool_Base(name, **kwargs)
 
 def getInTimeOnlyNewMergeMcEventCollTool_Cavern(name="InTimeOnlyNewMergeMcEventCollTool_Cavern", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.Cavern)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_Cavern')
     return getInTimeOnlyNewMergeMcEventCollTool_Base(name, **kwargs)
 
 def getInTimeOnlyNewMergeMcEventCollTool_HaloGas(name="InTimeOnlyNewMergeMcEventCollTool_HaloGas", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HaloGas)
+    kwargs.setdefault("McEventCollectionKey", 'TruthEvent_HaloGas')
     return getInTimeOnlyNewMergeMcEventCollTool_Base(name, **kwargs)
 
 ############################################################################
