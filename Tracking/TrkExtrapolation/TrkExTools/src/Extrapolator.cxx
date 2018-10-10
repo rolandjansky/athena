@@ -959,7 +959,7 @@ Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
   // create a new internal helper vector
   cache.m_parametersOnDetElements = new std::vector<const Trk::TrackParameters *>;
   // run the extrapolation
-  const Trk::TrackParameters *parameterOnSf = extrapolate(prop, parm, sf, dir, bcheck, particle);
+  const Trk::TrackParameters *parameterOnSf = extrapolateImpl(cache,prop, parm, sf, dir, bcheck, particle);
   // assign the return parameter and set cache.m_parametersOnDetElements = 0;
   returnParameters = cache.m_parametersOnDetElements;
   cache.m_parametersOnDetElements = 0;
@@ -2962,7 +2962,7 @@ Trk::Extrapolator::extrapolateM(const TrackParameters &parameters,
   }
 
   // collect the material
-  const Trk::TrackParameters *parameterAtDestination = extrapolate(parameters, sf, dir, bcheck, particle, Trk::addNoise,
+  const Trk::TrackParameters *parameterAtDestination = extrapolateImpl(cache,parameters, sf, dir, bcheck, particle, Trk::addNoise,
                                                                    cache.m_extrapolationCache);
   // there are no parameters
   if (!parameterAtDestination && m_requireMaterialDestinationHit) {
