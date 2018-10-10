@@ -193,8 +193,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int m_nGood_mod[PixLayerIBL2D3DDBM::COUNT];
   int m_nActive_mod[PixLayerIBL2D3DDBM::COUNT];
 
-  unsigned int m_nRefresh;
-  unsigned int m_nRefresh5min;
+  int m_nRefresh;
+  int m_nRefresh5min;
 
   const AtlasDetectorID* m_idHelper;
 

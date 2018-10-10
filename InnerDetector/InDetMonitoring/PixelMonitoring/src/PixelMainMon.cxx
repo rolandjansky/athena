@@ -710,8 +710,8 @@ StatusCode PixelMainMon::fillHistograms() {
   } else {
     m_currentTime = thisEventInfo->event_ID()->time_stamp();
     m_currentBCID = thisEventInfo->event_ID()->bunch_crossing_id();
-    int currentdiff = (m_currentTime - m_firstBookTime) / 100;
-    int currentdiff5min = (m_currentTime - m_firstBookTime) / 300;
+    int currentdiff = (int)(m_currentTime - m_firstBookTime) / 100;
+    int currentdiff5min = (int)(m_currentTime - m_firstBookTime) / 300;
     // for 100 sec
     if (currentdiff > m_nRefresh) {
       m_doRefresh = true;
