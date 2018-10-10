@@ -158,7 +158,8 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_truthCutCounters{},
   m_fillTIDEPlots(false),
   m_fillExtraTIDEPlots(false),
-  m_fillITkResolutionPlots(false)
+  m_fillITkResolutionPlots(false),
+  m_fillAdditionalITkPlots(false)
   {
   declareProperty("TrackParticleContainerName", m_trkParticleName = "InDetTrackParticles"); // Aug 8th: switch
                                                                                             // "InDetTrackParticles"
@@ -182,6 +183,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("SubFolder", m_folder);
   declareProperty("PileupSwitch", m_pileupSwitch = "All");
   declareProperty("FillITkResolutionPlots", m_fillITkResolutionPlots = false);
+  declareProperty("FillAdditionalITkPlots", m_fillAdditionalITkPlots=false);
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -207,6 +209,7 @@ InDetPhysValMonitoringTool::initialize() {
   m_monPlots = std::move(std::unique_ptr<InDetRttPlots> (new InDetRttPlots(0, m_dirName + m_folder)));
   m_monPlots->SetFillExtraTIDEPlots(m_fillExtraTIDEPlots);
   m_monPlots->SetFillITkResolutionPlots(m_fillITkResolutionPlots);
+  m_monPlots->SetFillAdditionalITkPlots(m_fillAdditionalITkPlots);
   return StatusCode::SUCCESS;
 }
 

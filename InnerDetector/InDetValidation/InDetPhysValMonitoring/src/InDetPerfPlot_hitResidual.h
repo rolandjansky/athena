@@ -33,6 +33,8 @@ public:
   ~InDetPerfPlot_hitResidual() {/** nop **/
   }
 
+  void FillAdditionalITkPlots(bool fill=false);
+
 private:
   // enum copied from the hitDecorator tool in InDetPhysValMonitoring
   enum Subdetector {
@@ -46,6 +48,8 @@ private:
   const static int N_SCTLAYERS = 4;
     
   void initializePlots();
+
+  bool m_fillAdditionalITkPlots;
 
   TH1* m_residualx_1hit[TRT][N_REGIONS]; // excludes TRT, DBM
   TH1* m_residualx_2ormorehits[TRT][N_REGIONS]; // excludes TRT, DBM

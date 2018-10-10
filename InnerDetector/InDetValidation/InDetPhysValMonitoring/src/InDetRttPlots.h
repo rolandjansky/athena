@@ -62,6 +62,11 @@ public:
     m_ITkResolutionPlotSecd = new InDetPerfPlot_resITk(this, "Tracks/SelectedMatchedTracks/Secondary");
   }
 
+  void SetFillAdditionalITkPlots(bool fillthem) {
+    m_hitResidualPlot.FillAdditionalITkPlots(fillthem);
+    m_hitEffPlot.FillAdditionalITkPlots(fillthem);
+  }
+
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
   ///fill for things needing track only
@@ -157,6 +162,7 @@ private:
 
   bool m_moreJetPlots;
   bool m_ITkResPlots;
+
   InDetPerfPlot_TrkInJet m_trkInJetPlot;
   InDetPerfPlot_TrkInJet m_trkInJetPlot_highPt;
   InDetPerfPlot_Pt m_trkInJetPtPlot;
