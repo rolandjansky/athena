@@ -9,14 +9,13 @@
 #include "TrigKernel/IHltTHistSvc.h"
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
-#include "TrigSteering/ResultBuilderMT.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/Timeout.h"
 #include "EventInfo/EventID.h" // number_type
-#include "StoreGate/WriteHandle.h"
-#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/IEventProcessor.h"
@@ -36,6 +35,7 @@
 // Forward declarations
 class CondAttrListCollection;
 class EventContext;
+class EventInfo;
 class IAlgExecStateSvc;
 class IAlgorithm;
 class IAlgResourcePool;
@@ -51,10 +51,13 @@ namespace coral {
   class AttributeList;
 }
 namespace HLT {
-  class HLTResult;
+  class HLTResultMT;
+  class ResultBuilderMT;
 }
 
-
+/** @class HltEventLoopMgr
+ *  @brief AthenaMT event loop manager for running HLT online
+ **/
 class HltEventLoopMgr : public extends2<AthService, ITrigEventLoopMgr, IEventProcessor>,
                         public Athena::TimeoutMaster
 {
@@ -136,29 +139,19 @@ private:
   void printSORAttrList(const coral::AttributeList& atr) const;
 
   /// Handle a failure to process an event
-  void failedEvent(EventContext* eventContext,
-                   const xAOD::EventInfo* eventInfo=nullptr,
-                   HLT::HLTResult* hltResult=nullptr) const;
-
-  // Build an HLT result FullEventFragment and serialise it into uint32[]
-  std::unique_ptr<uint32_t[]> fullHltResult(const xAOD::EventInfo* eventInfo,
-                                            HLT::HLTResult* hltResult) const;
-
-  /// Send an HLT result to the DataCollector
-  void eventDone(std::unique_ptr<uint32_t[]> hltResult) const;
+  void failedEvent(const EventContext& eventContext,
+                   const EventInfo* eventInfo=nullptr,
+                   const HLT::HLTResultMT* hltResult=nullptr) const;
 
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
   // ------------------------- Reimplemented AthenaHiveEventLoopMgr helpers ----
-  /// Create event context
-  StatusCode createEventContext(EventContext*& eventContext) const;
-
   /// Drain the scheduler from all actions that may be queued
   int drainScheduler();
 
   /// Clear an event slot in the whiteboard
-  StatusCode clearWBSlot(int evtSlot) const;
+  StatusCode clearWBSlot(size_t evtSlot) const;
 
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
@@ -184,9 +177,6 @@ private:
 
   /// Tool to create HLTResult
   ToolHandle<HLT::ResultBuilderMT> m_hltResultBuilder;
-
-  /// EventInfo -> xAOD::EventInfo conversion tool
-  ToolHandle<xAODMaker::IEventInfoCnvTool> m_eventInfoCnvTool;
 
   // ------------------------- Optional services/tools -------------------------
   /// Reference to a THistSvc which implements also the Hlt additions
@@ -218,8 +208,12 @@ private:
   /// Hard event processing timeout
   FloatProperty m_softTimeoutFraction;
 
-  /// StoreGate key for xAOD::EventInfo WriteHandle (needed for manual conversion from old EventInfo)
-  SG::WriteHandleKey<xAOD::EventInfo> m_xEventInfoWHKey;
+  /// StoreGate key for recording EventContext
+  SG::WriteHandleKey<EventContext> m_eventContextWHKey;
+  /// StoreGate key for reading EventInfo
+  SG::ReadHandleKey<EventInfo> m_eventInfoRHKey;
+  /// StoreGate key for reading the HLT result
+  SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields
@@ -232,8 +226,8 @@ private:
 
   /// Current run number
   EventID::number_type m_currentRun{0};
-  /// Number of events which started processing
-  size_t m_nevt;
+  /// Event counter used for local bookkeeping; incremental per instance of HltEventLoopMgr, unrelated to global_id
+  size_t m_localEventNumber;
   /// Current run number
   int m_threadPoolSize;
 
