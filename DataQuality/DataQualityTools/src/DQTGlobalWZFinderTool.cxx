@@ -28,9 +28,14 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEvent.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -655,6 +660,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      bool isJPsimumu = (goodmuonsJPsi.size() > 1);
      ATH_MSG_DEBUG("Evaluated Event"); 
 
+
      if (isZee){ 
        ATH_MSG_DEBUG("Zee found");
        TLorentzVector Zee = (leadingEle->p4() + subleadingEle->p4());
@@ -940,11 +946,11 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
 
       // even if the probe is a bad electron, we still require it to not be in the gap
       // the no gap is built into the good criterion anyway so don't need it for good electrons
-      bool leading_probe_nogap = ((leadingAllEle)->caloCluster()->etaBE(2) > 1.37) &&
-         	    		 ((leadingAllEle)->caloCluster()->etaBE(2) < 1.52); 
+      bool leading_probe_nogap = fabs((leadingAllEle)->caloCluster()->etaBE(2)) > 1.37 &&
+         	    		 fabs((leadingAllEle)->caloCluster()->etaBE(2)) < 1.52; 
 
-      bool subleading_probe_nogap = ((subleadingAllEle)->caloCluster()->etaBE(2) > 1.37) &&
-                                    ((subleadingAllEle)->caloCluster()->etaBE(2) < 1.52);
+      bool subleading_probe_nogap = fabs((subleadingAllEle)->caloCluster()->etaBE(2)) > 1.37 &&
+                                    fabs((subleadingAllEle)->caloCluster()->etaBE(2)) < 1.52;
 
       // do trigger matching
       bool leading_trig = false;
@@ -1007,14 +1013,13 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
   }// leading pointer exists
 }// end doEleTP
 
-
 bool DQTGlobalWZFinderTool::goodElectrons(const xAOD::EventInfo* thisEventInfo, 
     		   		          const xAOD::Electron* electron_itr, 
 		  			  const xAOD::Vertex* pVtx, 
 		   			  bool isBad){
   bool isGood = false;
+  Float_t m_electronEtCut = m_muonPtCut; 
 
-  Float_t m_electronEtCut = 25; 
   bool passSel = false;
   if (!((electron_itr)->passSelection(passSel, "LHMedium"))) ATH_MSG_WARNING("Electron ID WP Not Defined");
   auto elTrk = (electron_itr)->trackParticle();
@@ -1036,16 +1041,16 @@ bool DQTGlobalWZFinderTool::goodElectrons(const xAOD::EventInfo* thisEventInfo,
   }
 
   if ( ((electron_itr)->pt() > m_electronEtCut*GeV) &&
-       ((electron_itr)->caloCluster()->etaBE(2) < 2.4) &&
+       fabs((electron_itr)->caloCluster()->etaBE(2)) < 2.4 &&
        passSel &&
-       // m_isolationSelectionTool->accept(**electron_itr) &&
+       m_isolationSelectionTool->accept(*electron_itr) &&
        fabs(d0sig) < 5 &&
        pVtx &&
        fabs((elTrk->z0()+elTrk->vz()-pVtx->z())*std::sin(elTrk->theta())) < 0.5*mm &&
        !isBad
      ){    // electron dead zone
-    if ( ((electron_itr)->caloCluster()->etaBE(2) > 1.37) &&
-         ((electron_itr)->caloCluster()->etaBE(2) < 1.52) ){
+    if ( fabs((electron_itr)->caloCluster()->etaBE(2)) > 1.37 &&
+         fabs((electron_itr)->caloCluster()->etaBE(2)) < 1.52 ){
       isGood = false;
     } else{
       isGood = true;

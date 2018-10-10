@@ -272,8 +272,6 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
         }
     }
 
-  std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-
   std::vector<Trk::HitInfo>::iterator it2 = hitVector->begin();
   while(it2 < hitVector->end() )
     {

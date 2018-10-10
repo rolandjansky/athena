@@ -647,7 +647,7 @@ def main():
 #        mysetup=mysetup+",builds"
         logging.info("------------------ Run Athena q-test jobs---------------"                )
 
-        sim_input_file = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root" # For sim test
+        sim_input_file = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root" # For sim test
 
         if RunFast:
             for qtest in qTestsToRun:
