@@ -10,10 +10,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-#include "xAODBTagging/BTaggingAuxContainer.h"
-#include "xAODBTagging/BTaggingContainer.h"
-#include "xAODBTagging/BTagging.h"
-
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 #include "TrigBjetEtHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
@@ -42,7 +40,7 @@ class TrigBjetEtHypoAlg
 
  private:
   SG::ReadHandleKey< xAOD::JetContainer > m_jetsKey {this,"Jets","Jets","Input Jet Container Key"};
-  //  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"OutputDecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
+  SG::WriteHandleKey< xAOD::JetContainer > m_outputJetsKey {this,"OutputJets","SplitJets","Output Jet Container Key"};
 }; 
 
 #endif //> !TRIGBJETHYPO_TRIGBJETETHYPOALG_H

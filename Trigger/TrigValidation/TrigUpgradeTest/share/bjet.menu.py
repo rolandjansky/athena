@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 # We should retrieve all the steps here
 from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
 step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
-#step3 = ChainStep("Step3_bjet", [getBJetSequence('bTag')])
+step3 = ChainStep("Step3_bjet", [getBJetSequence('bTag')])
 
 testChains  = [                                                                                                                                                                         
     Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1] ),

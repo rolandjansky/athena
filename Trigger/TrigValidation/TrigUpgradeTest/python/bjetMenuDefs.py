@@ -28,7 +28,7 @@ def bJetStep1Sequence():
 
     # input maker
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker")
+    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step1")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
     InputMakerAlg.Output = "FSJETRoIs"
@@ -43,6 +43,7 @@ def bJetStep1Sequence():
     hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
+    hypo.OutputJets = "SplitJets"
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence])
@@ -68,24 +69,33 @@ def bJetSequence():
 
     # input maker
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker")
+    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step3")
     InputMakerAlg.OutputLevel = DEBUG
-    InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = 'FSJETRoIs'
+#    InputMakerAlg.LinkName = "initialRoI"
+#    InputMakerAlg.Output = 'SplitJet' # not sure about this
 
-    # Construct jets ( how do I impose split or non-split configuration ? )
-    from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
+    from TrigBjetHypo.TrigBtagFexMTConfig import getBtagFexSplitInstance
+    bTagAlgo = getBtagFexSplitInstance("EF","2012","EFID")
+    bTagAlgo.OutputLevel = DEBUG
+    # Define Inputs
+    bTagAlgo.JetKey = "SplitJet"
+    bTagAlgo.PriVtxKey = "xPrimVx"
+    bTagAlgo.PriVtxKeyBackup = "EFHistoPrmVtx"
+    bTagAlgo.TrackKey = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+    # Define Outputs
+    bTagAlgo.OutputBTagKey = "HLTBjetFex"
+    bTagAlgo.OutputVtxKey = "HLT_BjetVertexFex"
+    bTagAlgo.OutputBtagVtxKey = "HLT_BjetSecondaryVertexFex"
 
     # Hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypoAlg
     from TrigBjetHypo.TrigBjetHypoTool import TrigBjetHypoToolFromName
     hypo = TrigBjetHypoAlg("TrigBjetHypoAlg")
     hypo.OutputLevel = DEBUG
-    hypo.RoIsKey = sequenceOut
+#    hypo.RoIsKey = sequenceOut
 
     # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence])
+    BjetAthSequence = seqAND("BjetAthSequence_step3",[InputMakerAlg,bTagAlgo])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,

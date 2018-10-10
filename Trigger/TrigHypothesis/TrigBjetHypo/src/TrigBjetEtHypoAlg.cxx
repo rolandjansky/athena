@@ -19,14 +19,14 @@ StatusCode TrigBjetEtHypoAlg::initialize()
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_jetsKey          );
-  //  ATH_MSG_DEBUG(  "   " << m_decisionsKey     );
+  ATH_MSG_DEBUG(  "   " << m_outputJetsKey    );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_jetsKey.initialize() );
-  //  CHECK( m_decisionsKey.initialize() );
+  CHECK( m_outputJetsKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -61,25 +61,18 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > aux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer >();
   decisions->setStore( aux.get() );
 
-
   // Taken from Jet Code here 
   const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
   TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
+  // Link Jet Collection to decision so that I can use it in the following b-jet trigger steps
+  newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_jetsKey.key(),0 ) );
+  ATH_MSG_DEBUG( "Linking 'SplitJets' to output decisions" );
 
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs { 
     TrigCompositeUtils::decisionIDs( prevDecision ).begin(),
       TrigCompositeUtils::decisionIDs( prevDecision ).end() 
       };
 
-  // Run decide method of hypo tools
-  /*
-  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) { 
-    bool pass = false;
-    CHECK( tool->decide(jetCollection,pass) );
-    ATH_MSG_INFO( "Event Passes ? " << (pass?"Y":"N") );
-  }
-  */
-   
   // Decide (Hypo Tool)
   for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
     const HLT::Identifier  decisionId = tool->getId();
@@ -90,11 +83,25 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
     }
   }
 
-
-  // Save Output
+  // Save Output Decisions
   SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
   CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
+
+  // Output Jet Collection
+  std::unique_ptr< xAOD::JetContainer > outputJets( new xAOD::JetContainer() );
+  std::unique_ptr< xAOD::JetAuxContainer > outputJetsAux( new xAOD::JetAuxContainer() );
+  outputJets->setStore( outputJetsAux.get() );
+  // Make a copy of the jet containers
+  for ( const xAOD::Jet *jet : *jetCollection ) {
+    xAOD::Jet *toBeAdded = new xAOD::Jet();
+    outputJets->push_back( toBeAdded );
+    *toBeAdded = *jet;
+  }
+
+  SG::WriteHandle< xAOD::JetContainer > outputJetHandle = SG::makeHandle( m_outputJetsKey,context );
+  ATH_MSG_DEBUG( "Saving jet collection " << m_outputJetsKey.key() << " with " << outputJets->size() << " elements " );
+  CHECK( outputJetHandle.record( std::move( outputJets ), std::move( outputJetsAux ) ) );
 
   return StatusCode::SUCCESS;
 }
