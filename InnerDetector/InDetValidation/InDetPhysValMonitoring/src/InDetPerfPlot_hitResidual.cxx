@@ -12,6 +12,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 InDetPerfPlot_hitResidual::InDetPerfPlot_hitResidual(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(
     pParent, sDir),
+  m_fillAdditionalITkPlots(false),
   m_residualx_1hit{},
   m_residualx_2ormorehits{},
   m_residualx{},
@@ -124,12 +125,19 @@ InDetPerfPlot_hitResidual::initializePlots() {
   //
   book(m_phiWidth_eta[SCT][BARREL], "clusterPhiWidth_eta_sct_barrel");
   book(m_phiWidth_eta[SCT][ENDCAP], "clusterPhiWidth_eta_sct_endcap");
+}
+
+void InDetPerfPlot_hitResidual::FillAdditionalITkPlots(bool fill) {
+
+  m_fillAdditionalITkPlots = fill;
   
+  if (not m_fillAdditionalITkPlots) return;
+
   book(m_phiWidth_eta_perLayer[0][L0PIXBARR][BARREL], "clusterPhiWidth_eta_pixel_barrel_layer0");
   book(m_phiWidth_eta_perLayer[0][PIXEL][ENDCAP]    , "clusterPhiWidth_eta_pixel_endcap_layer0");
   book(m_etaWidth_eta_perLayer[0][L0PIXBARR][BARREL], "clusterEtaWidth_eta_pixel_barrel_layer0");
   book(m_etaWidth_eta_perLayer[0][PIXEL][ENDCAP]    , "clusterEtaWidth_eta_pixel_endcap_layer0");
-    
+  
   for (int layer = 1; layer < N_LAYERS; layer++) {
     book(m_phiWidth_eta_perLayer[layer][PIXEL][BARREL], "clusterPhiWidth_eta_pixel_barrel_layer"+std::to_string(layer));
     book(m_phiWidth_eta_perLayer[layer][PIXEL][ENDCAP], "clusterPhiWidth_eta_pixel_endcap_layer"+std::to_string(layer));
@@ -159,7 +167,8 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
     if (!result_det.empty()) {
       const std::vector<int>& result_measureType = trkprt.auxdata< std::vector<int> >("measurement_type");
       const std::vector<int>& result_region = trkprt.auxdata< std::vector<int> >("measurement_region");
-      const std::vector<int> &result_iLayer = trkprt.auxdata< std::vector<int> >("measurement_iLayer");
+      std::vector<int> result_iLayer;
+      if (m_fillAdditionalITkPlots) result_iLayer = trkprt.auxdata< std::vector<int> >("measurement_iLayer");
       const std::vector<float>& result_residualLocX = trkprt.auxdata< std::vector<float> >("hitResiduals_residualLocX");
       const std::vector<float>& result_pullLocX = trkprt.auxdata< std::vector<float> >("hitResiduals_pullLocX");
       const std::vector<float>& result_residualLocY = trkprt.auxdata< std::vector<float> >("hitResiduals_residualLocY");
@@ -179,7 +188,8 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
         }
         const int det = result_det[idx];
         const int region = result_region[idx];
-        const int layer = result_iLayer[idx];
+        int layer = 0;
+	if (m_fillAdditionalITkPlots) layer = result_iLayer[idx];
         const int width = result_phiWidth[idx];
         const int etaWidth = result_etaWidth[idx];
         const float residualLocX = result_residualLocX[idx];
@@ -197,7 +207,7 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
           fillHisto(m_etaWidth[det][region], etaWidth);
           fillHisto(m_phiWidth_eta[det][region], trkprt.eta(), width);
           fillHisto(m_etaWidth_eta[det][region], trkprt.eta(), etaWidth);
-          if (det==PIXEL or det==L0PIXBARR or (det==SCT and layer<N_SCTLAYERS)) {
+          if (m_fillAdditionalITkPlots and (det==PIXEL or det==L0PIXBARR or (det==SCT and layer<N_SCTLAYERS))) {
             fillHisto(m_phiWidth_eta_perLayer[layer][det][region], trkprt.eta(), width);
             fillHisto(m_etaWidth_eta_perLayer[layer][det][region], trkprt.eta(), etaWidth);
           }

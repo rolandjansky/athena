@@ -36,6 +36,8 @@ public:
   ~InDetPerfPlot_hitEff() {/** nop **/
   }
 
+  void FillAdditionalITkPlots(bool fill=false);
+
 private:
   // enum copied from the hitDecorator tool in InDetPhysValMonitoring
   enum Subdetector {
@@ -47,9 +49,10 @@ private:
   
   const static int N_LAYERS = 5;
   const static int N_SCTLAYERS = 4;
-  
-private:
+
   void initializePlots();
+
+  bool m_fillAdditionalITkPlots;
 
   //TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
   TEfficiency* m_hitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];

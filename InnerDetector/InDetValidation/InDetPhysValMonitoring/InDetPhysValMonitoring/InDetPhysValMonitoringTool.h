@@ -123,7 +123,8 @@ private:
 	bool m_fillTIDEPlots;
 	bool m_fillExtraTIDEPlots;
   
-  bool m_fillITkResolutionPlots;
+        bool m_fillITkResolutionPlots;
+        bool m_fillAdditionalITkPlots;
 
 	std::string m_folder;
 };
