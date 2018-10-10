@@ -182,12 +182,12 @@ namespace met {
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
 	if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) { 
 	  toolName = "MuonCalibrationAndSmearingTool";
-	  m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/STAutoConf_"+toolName);
+	  m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/METSigAutoConf_"+toolName);
 	  ATH_CHECK(m_muonCalibrationAndSmearingTool.retrieve());
 	}
 	ATH_MSG_DEBUG( "Initialising EgcalibTool " );
 	toolName = "EgammaCalibrationAndSmearingTool";
-	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
+	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/METSigAutoConf_" + toolName);
 	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2017_R21_v0"));
 	ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
 	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 1));
@@ -195,7 +195,7 @@ namespace met {
 	ATH_CHECK( m_egammaCalibTool.retrieve() );
 
 	toolName = "TauPerfTool";
-	m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/STAutoConf_" + toolName);
+	m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/METSigAutoConf_" + toolName);
 	ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
 	ATH_CHECK( m_tCombinedP4FromRecoTaus.retrieve() );
 
