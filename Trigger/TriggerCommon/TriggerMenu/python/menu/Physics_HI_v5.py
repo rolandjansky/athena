@@ -375,22 +375,35 @@ def setupMenu():
       
     TriggerFlags.HeavyIonSlice.signatures = [
 	#event shape triggers
-        ['hi_v2_th5_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3_th5_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2_th10_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3_th10_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2_th13_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3_th13_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2_th14_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3_th14_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2_th15_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3_th15_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2_th16_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3_th16_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3_th13_veto2_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2_th13_veto3_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v23_th14_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v23_th15_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+
+        ['hi_v2C_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+
+
+        ['hi_v3A_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+
+        ['hi_v3C_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+
 
 	#ultra-central triggers
 	#physics
