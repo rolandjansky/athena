@@ -194,6 +194,9 @@ namespace MuonCombined {
     //use calo cells
     bool m_useCaloCells;
 
+    //flag for SA muons
+    bool m_doSA;
+
     /// copy truth links from primary track particle (or put dummy link if this is missing)
     //bool m_fillMuonTruthLinks;
     
