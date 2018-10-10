@@ -25,6 +25,7 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+include ('DataModelRunTests/loadReadDicts.py')
 
 #--------------------------------------------------------------
 # Define input
@@ -52,15 +53,6 @@ if nThreads >= 1:
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__xAODTestReadDecor
 topSequence += DMTest__xAODTestReadDecor ("xAODTestReadDecor", DecorName="dInt1")
-
-
-# Note: can't autoload these.
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataReadDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
 
 
 #--------------------------------------------------------------

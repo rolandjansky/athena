@@ -22,11 +22,8 @@ from AthenaCommon.AppMgr import theApp
 # Load POOL support
 #--------------------------------------------------------------
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
+
+include ('DataModelRunTests/loadReadDicts.py')
 
 
 #--------------------------------------------------------------
