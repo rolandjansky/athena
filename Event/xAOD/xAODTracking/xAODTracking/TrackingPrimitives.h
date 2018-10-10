@@ -35,7 +35,7 @@ namespace xAOD {
   enum TrackFitter
   {
       ///Track fitter not defined.
-    Unknown        = 0,
+      Unknown        = 0,
       ///tracks produced by iPat
       iPatTrackFitter      = 1,
       ///tracks produced by xKalman
@@ -181,7 +181,7 @@ namespace xAOD {
     // SLHCConversion Track flag
     SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
     // Pseudotracking
-    Pseudotracking			   = 51,
+    Pseudotracking         = 51,
      ///maximum number of enums
     NumberOfTrackRecoInfo                  = 52
   };
@@ -406,15 +406,15 @@ namespace xAOD {
     etaLayer2STGCHoles = 86,  //!< number of eta holes in the second STGC trigger layer (STGC2)
 
     //MM
-    MMHits = 87,
-    MMHoles = 88,
+    mmHits = 87,
+    mmHoles = 88,
     // Note: there is currently no MuonStationIndex for the two MM layers
     // In the future it might be needed to add them in order to have 
     // separate counters as follows
-    // Layer1MMHits  = 87,  //!< number of eta hits  in the first  MM layer
-    // Layer2MMHits  = 88,  //!< number of eta hits  in the second MM layer
-    // Layer1MMHoles = 89,  //!< number of eta holes in the first  MM layer
-    // Layer2MMHoles = 90,  //!< number of eta holes in the second MM layer
+    // Layer1mmHits  = 87,  //!< number of eta hits  in the first  MM layer
+    // Layer2mmHits  = 88,  //!< number of eta hits  in the second MM layer
+    // Layer1mmHoles = 89,  //!< number of eta holes in the first  MM layer
+    // Layer2mmHoles = 90,  //!< number of eta holes in the second MM layer
 
 
     //CSC debugging
@@ -433,7 +433,7 @@ namespace xAOD {
     /// reconstruction.
     ///
     enum VertexType {
-      NoVtx   = 0, ///< Dummy vertex. TrackParticle was not used in vertex fit
+        NoVtx   = 0, ///< Dummy vertex. TrackParticle was not used in vertex fit
         PriVtx  = 1, ///< Primary vertex
         SecVtx  = 2, ///< Secondary vertex
         PileUp  = 3, ///< Pile-up vertex

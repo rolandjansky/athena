@@ -129,15 +129,15 @@ namespace xAOD {
         AUX_VARIABLE( etaLayer2STGCHoles );
 
         // MM
-        AUX_VARIABLE( MMHits );
-        AUX_VARIABLE( MMHoles );
+        AUX_VARIABLE( mmHits );
+        AUX_VARIABLE( mmHoles );
         // Note: there is currently no MuonStationIndex for the two MM layers
         // In the future it might be needed to add them in order to have 
         // separate counters as follows
-        // AUX_VARIABLE( Layer1MMHits );
-        // AUX_VARIABLE( Layer2MMHits );
-        // AUX_VARIABLE( Layer1MMHoles );
-        // AUX_VARIABLE( Layer2MMHoles );
+        // AUX_VARIABLE( Layer1mmHits );
+        // AUX_VARIABLE( Layer2mmHits );
+        // AUX_VARIABLE( Layer1mmHoles );
+        // AUX_VARIABLE( Layer2mmHoles );
 
         AUX_VARIABLE( cscEtaHits );
         AUX_VARIABLE( cscUnspoiledEtaHits );
