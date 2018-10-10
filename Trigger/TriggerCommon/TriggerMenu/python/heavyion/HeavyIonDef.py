@@ -28,6 +28,9 @@ dummyRoI=DummyRoI(name='MinBiasDummyRoI', createRoIDescriptors = True, NumberOfO
 from TrigHIHypo.TrigHIHypoConfig import HIEFTrackHypo_AtLeastOneTrack
 atLeastOneTrack = HIEFTrackHypo_AtLeastOneTrack(name='HIEFTrackHypo_AtLeastOneTrack')
 
+#For noise supression
+from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
+
 ###########################################################################
 #  All min bias
 ###########################################################################
@@ -269,6 +272,8 @@ class L2EFChain_HI(L2EFChainDef):
         theL2MbtsFex=L2MbMbtsFex
         theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
         theL2PixelFex  = L2MbSpFex
+        
+        fullScanSeqMap = getFullScanCaloSequences()
 
         if 'loose' in self.chainPart['hypoL2Info']:
             minPixel=6
@@ -292,10 +297,11 @@ class L2EFChain_HI(L2EFChainDef):
         if self.doggFgap:
              chainSuffix = chainSuffix + '_' + self.chainPart['gap']
             
-        ########### Sequence List ##############
+        ########### Sequence List ##############    
         self.L2sequenceList += [["",
                                  [dummyRoI],
                                  'L2_hi_step1']] 
+         	
         if not self.doggFgap:    
             self.L2sequenceList += [[['L2_hi_step1'], 
                                          [theL2MbtsFex, theL2MbtsHypo], 'L2_hi_mbtsveto']]
@@ -309,7 +315,14 @@ class L2EFChain_HI(L2EFChainDef):
         self.L2sequenceList += [[['L2_hi_iddataprep'],
                                  [theL2PixelFex, theL2PixelHypo],
                                  'L2_hi_pixel']]
-
+        
+        if "noiseSup" in self.chainPart['addInfo']:
+            te_in=''
+            for step in fullScanSeqMap:
+                self.EFsequenceList += [[[te_in],fullScanSeqMap[step],step]]
+                self.EFsignatureList += [ [[step]] ]
+                te_in=step
+        
         ########### Signatures ###########
         self.L2signatureList += [ [['L2_hi_step1']] ]
         if not self.doggFgap: self.L2signatureList += [ [['L2_hi_mbtsveto']] ]
@@ -323,6 +336,11 @@ class L2EFChain_HI(L2EFChainDef):
             }
         if not self.doggFgap:
             self.TErenamingDict ['L2_hi_mbtsveto'] = mergeRemovingOverlap('EF_hi_mbtsveto_', chainSuffix)
+        if "noiseSup" in self.chainPart['addInfo']:
+            self.TErenamingDict['EF_full']=mergeRemovingOverlap('EF_', chainSuffix+'fs')
+            self.TErenamingDict['EF_full_cell']=mergeRemovingOverlap('EF_', chainSuffix+'fscalocell')
+            self.TErenamingDict['EF_FSTopoClusters']=mergeRemovingOverlap('EF_', chainSuffix+'fscalotopo')
+            self.TErenamingDict['EF_FSTopoClustersED']=mergeRemovingOverlap('EF_', chainSuffix+'fscalotopoed')
                 
     def setup_hi_ultraperipheral_gap(self):
         gapthX=""    
