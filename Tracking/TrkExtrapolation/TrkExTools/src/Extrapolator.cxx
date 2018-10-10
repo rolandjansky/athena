@@ -1097,7 +1097,7 @@ Trk::Extrapolator::extrapolateBlindlyImpl(
   // create a new internal helper vector
   cache.m_parametersOnDetElements = new std::vector<const Trk::TrackParameters *>;
   // run the extrapolation
-  const Trk::TrackParameters *parameterOnSf = extrapolate(prop, parm, *m_referenceSurface, dir, bcheck, particle);
+  const Trk::TrackParameters *parameterOnSf = extrapolateImpl(cache,prop, parm, *m_referenceSurface, dir, bcheck, particle);
   // delete them if necessary
   if (parameterOnSf && parameterOnSf != (&parm)) {
     delete parameterOnSf;
@@ -2784,7 +2784,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
     // chose the propagator fromt he geometry signature -- start with default
     const IPropagator *currentPropagator = m_subPropagators.size() ? m_subPropagators[Trk::Global] : 0;
     if (currentPropagator) {
-      return(extrapolate((*currentPropagator), parm, sf, dir, bcheck, particle, matupmode));
+      return(extrapolateImpl(cache,(*currentPropagator), parm, sf, dir, bcheck, particle, matupmode));
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
