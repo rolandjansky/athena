@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /** @file Filter_TrackQuality.h */
 
 #ifndef TrigInDetAnalysisUtils_Filter_TrackQuality_H

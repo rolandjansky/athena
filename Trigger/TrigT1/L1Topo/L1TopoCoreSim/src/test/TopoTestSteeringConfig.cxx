@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // test the loading of the topo menu xml and configuration of the topo steering
 
 #include <iostream>

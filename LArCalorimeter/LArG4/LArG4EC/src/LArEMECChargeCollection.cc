@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArEMECChargeCollection.cc
@@ -85,7 +85,6 @@
 #include "G4ThreeVector.hh"
 #include "globals.hh"
 
-#include "LArG4Code/LArG4BirksLaw.h"
 #include "EnergyCalculator.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -431,15 +430,9 @@ void LArG4::EC::EnergyCalculator::LoadFieldMaps(const G4String fname){
 
   for(G4int foldtype  = 0; foldtype  < foldtypemx; ++ foldtype) {
     for(G4int wheeltype = 0; wheeltype < 2; ++ wheeltype) {
-      //if(wheeltype == 0)  ChCollWheelType = &ChCollInner;
-      //if(wheeltype == 1)  ChCollWheelType = &ChCollOuter;
-      Wheel_Efield_Map *ChCollWheelType = (wheeltype == 0) ? &s_ChCollInner :
-        ( (wheeltype == 1) ? &s_ChCollOuter : 0 );
+      Wheel_Efield_Map *ChCollWheelType = (wheeltype == 0) ? &s_ChCollInner : &s_ChCollOuter;
 
-      //if(foldtype  == 0 ) ChCollFoldType  = &(ChCollWheelType->Fold1);
-      //if(foldtype  == 1 ) ChCollFoldType  = &(ChCollWheelType->Fold0);
-      Fold_Efield_Map *ChCollFoldType = ( foldtype == 0 ) ? &(ChCollWheelType->Fold1) :
-        ( ( foldtype == 1 ) ? &(ChCollWheelType->Fold0) : 0 );
+      Fold_Efield_Map *ChCollFoldType = ( foldtype == 0 ) ? &(ChCollWheelType->Fold1) : &(ChCollWheelType->Fold0);
 
       const G4int nlayer = ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
 
@@ -508,15 +501,9 @@ void LArG4::EC::EnergyCalculator::LoadFieldMaps(const G4String fname){
 
   for(G4int foldtype  = 0; foldtype  < foldtypemx; ++ foldtype) {
     for(G4int wheeltype = 0; wheeltype < 2; ++ wheeltype){
-      //if(wheeltype == 0)  ChCollWheelType = &ChCollInner;
-      //if(wheeltype == 1)  ChCollWheelType = &ChCollOuter;
-      Wheel_Efield_Map *ChCollWheelType = (wheeltype == 0) ? &s_ChCollInner :
-        ( (wheeltype == 1) ? &s_ChCollOuter : 0 );
+      Wheel_Efield_Map *ChCollWheelType = (wheeltype == 0) ? &s_ChCollInner : &s_ChCollOuter;
 
-      //if(foldtype  == 0 ) ChCollFoldType  = &(ChCollWheelType->Fold1);
-      //if(foldtype  == 1 ) ChCollFoldType  = &(ChCollWheelType->Fold0);
-      Fold_Efield_Map *ChCollFoldType = ( foldtype == 0 ) ? &(ChCollWheelType->Fold1) :
-        ( ( foldtype == 1 ) ? &(ChCollWheelType->Fold0) : 0 );
+      Fold_Efield_Map *ChCollFoldType = ( foldtype == 0 ) ? &(ChCollWheelType->Fold1) : &(ChCollWheelType->Fold0);
 
       const G4int nlayer = ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
       for(G4int i=0; i<nlayer; ++i){
@@ -589,8 +576,7 @@ void LArG4::EC::EnergyCalculator::PrepareFieldMap(Wheel_Efield_Map* ChCollWheelT
 
     //if(foldtype  == 0 ) ChCollFoldType  = &(ChCollWheelType->Fold1); //normal fold
     //if(foldtype  == 1 ) ChCollFoldType  = &(ChCollWheelType->Fold0); //very first fold
-    Fold_Efield_Map *ChCollFoldType = ( foldtype == 0 ) ? &(ChCollWheelType->Fold1) :
-      ( ( foldtype == 1 ) ? &(ChCollWheelType->Fold0) : 0 );
+    Fold_Efield_Map *ChCollFoldType = ( foldtype == 0 ) ? &(ChCollWheelType->Fold1) : &(ChCollWheelType->Fold0);
 
     for(G4int i=0; i<nlayer; ++i) {
       if(foldtype == 0) {  //normal fold

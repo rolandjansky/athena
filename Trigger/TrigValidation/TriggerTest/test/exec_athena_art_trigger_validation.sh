@@ -65,11 +65,13 @@ jp.Rec.OutputLevel=WARNING;\
 ${EXTRA}\
 LVL1OutputLevel=WARNING;\
 HLTOutputLevel=WARNING;" \
-${JOBOPTION} | tee ${JOB_LOG}
+${JOBOPTION} &> ${JOB_LOG}
 
 ######################################
 
-COMMAND=$PREVIOUS_COMMAND ATH_RETURN=${PIPESTATUS[0]}
-echo "Command to reproduce: ${COMMAND}"
+COMMAND=$PREVIOUS_COMMAND ATH_RETURN=$?
+echo ${COMMAND} > command.txt
+echo "Command to reproduce:"
+envsubst < command.txt
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
 echo  $(date "+%FT%H:%M %Z")"     Done executing Athena test ${NAME}"

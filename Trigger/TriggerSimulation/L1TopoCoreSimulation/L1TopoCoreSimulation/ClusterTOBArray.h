@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //  ClusterTOBArray.h
 //  TopoCore
 //
 //  Created by Joerg Stelzer on 11/17/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //
 
 #ifndef __TopoCore__ClusterTOBArray__

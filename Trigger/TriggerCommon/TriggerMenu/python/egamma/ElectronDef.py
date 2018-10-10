@@ -129,7 +129,7 @@ class L2EFChain_e(L2EFChainDef):
         thr = self.chainPart['threshold']
         log.debug("Apply ringer %s",self._ringer_selection)
 
-        if 'noringer' in self.chainPart['addInfo']:
+        if 'noringer' in self.chainPart['addInfo'] or 'ion' in self.chainPart['extra']:
           log.debug('No Ringer selection used. Disable the ringer for this chain.')
           self._ringer_selection=False
         elif TriggerFlags.EgammaSlice.doRinger:

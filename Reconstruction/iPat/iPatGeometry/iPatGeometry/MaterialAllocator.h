@@ -6,7 +6,6 @@
  hard-wired material properties for silicon layers, inert structure and Trt
  (radiation thickness, energy loss coefficients)
  --------------------------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATGEOMETRY_MATERIALALLOCATOR_H

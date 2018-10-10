@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  TopoInputEvent.h
 //  L1TopoEvent
 //  Created by Joerg Stelzer on 11/21/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __L1TopoEvent__TopoInputEvent__
 #define __L1TopoEvent__TopoInputEvent__

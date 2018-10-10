@@ -49,9 +49,21 @@ class dataStore(JobProperty):
     """Data EvtStore name for overlay"""
     statusOn=True
     allowedTypes=['str']
-    StoredValue = 'StoreGateSvc/OriginalEvent_SG'
+    StoredValue = 'OriginalEvent_SG'
 
- 
+class outputStore(JobProperty):
+    """Output EvtStore name for overlay"""
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue = 'StoreGateSvc'
+
+class extraTagInfoPairs(JobProperty):
+    """ workaround to correctly populate the /TagInfo metadata container
+    """
+    statusOn=False
+    allowedTypes=['dict']
+    StoredValue=dict()
+
 ## Definition and registration of the simulation flag container
 
 class Overlay_Flags(JobPropertyContainer):

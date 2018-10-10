@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  LateMuonTOBArray.cxx
 //  TopoCore
 //  Based on MuonTOBArray created by Joerg Stelzer on 11/17/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #include "L1TopoEvent/LateMuonTOBArray.h"
 

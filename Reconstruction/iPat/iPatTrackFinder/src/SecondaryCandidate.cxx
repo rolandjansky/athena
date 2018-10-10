@@ -6,7 +6,6 @@
  a SecondaryCandidate is a track with approximate parameters formed from 
  3 SpacePoints or from 2 SpacePoints with a vertex region
  ------------------------------------------------------------------------
- Copyright (C) 1999 by ATLAS Collaboration
  ***************************************************************************/
 
 //<<<<<< INCLUDES                                                       >>>>>>

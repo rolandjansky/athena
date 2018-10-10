@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  MuonNextBCTOB.h
 //  TopoCore
 //  Baesd on MuonTOB.h Created by Joerg Stelzer on 11/10/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __TopoCore__MuonNextBCTOB__
 #define __TopoCore__MuonNextBCTOB__

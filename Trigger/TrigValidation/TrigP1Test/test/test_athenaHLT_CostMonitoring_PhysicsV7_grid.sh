@@ -7,6 +7,7 @@
 # art-include: 21.0/AthenaP1
 # art-include: 21.0-TrigMC/AthenaP1
 # art-include: master/AthenaP1
+# art-include: master/Athena
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
 # art-output: L1AV.txt

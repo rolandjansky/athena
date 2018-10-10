@@ -324,7 +324,7 @@ class Registry(object):
         self.add_default("pdfreweight", 1, frozen=True, description="store PDF information. Deprecated for processes with XML-reweighting. [1:enabled]")
         self.add_default("Phasespace", 1, name="phasespace", description="phasespace to use. [1:standard; 2:use separate unweighted events from event.total.lhe as input]")
         self.add_default("photoninduced", -1, description="[-1:use Powheg default]")
-        self.add_default("PHOTOS_enabled", 1, description="use PHOTOS for photon radiation. [1:enabled]")
+        self.add_default("PHOTOS_enabled", True, description="use PHOTOS for photon radiation. [False:disabled; True:enabled]")
         self.add_default("phsp_Wm", atlas_common.mass.W, name="mass_W", description="W boson mass in GeV")
         self.add_default("phsp_Ww", atlas_common.width.W, name="width_W", description="W boson width in GeV")
         self.add_default("phsp_Zm", atlas_common.mass.Z, name="mass_Z", description="Z boson mass in GeV")

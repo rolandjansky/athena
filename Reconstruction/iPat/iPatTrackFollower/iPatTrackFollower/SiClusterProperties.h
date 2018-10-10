@@ -6,7 +6,6 @@
  helper class to assign correct cluster properties, hopefully
  this is a temporary requirement (only needed during the EDM upheavals)
  ----------------------------------------------------------------------
- Copyright (C) 2001 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKFOLLOWER_SICLUSTERPROPERTIES_H

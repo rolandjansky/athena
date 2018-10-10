@@ -51,6 +51,8 @@ else:
 if 'LArDigitKey'  in dir() :
     LArMonFlags.LArDigitKey=LArDigitKey 
 
+
+
 # This is the main block choosing what monitoring to run.
 # There is some repetition, but I think maintenance is easier (Rob).
 
@@ -74,12 +76,15 @@ if jobproperties.Beam.beamType() == 'cosmics':
                 include ("LArMonTools/LArCoverage_jobOptions.py")
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
+            if LArMonFlags.doLArNoiseCorrelationMon():
+                include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")
             if LArMonFlags.doLArRawChannelMon():
                 include ("LArMonTools/LArRawChannelMonTool_jobOptions.py")
             if LArMonFlags.doLArCollisionTimeMon():
                 include("LArMonTools/LArCollisionTimeMonTool_jobOptions.py")
+
 
 elif jobproperties.Beam.beamType() == 'singlebeam':
     if larESDMon and not athenaCommonFlags.isOnline():
@@ -99,6 +104,8 @@ elif jobproperties.Beam.beamType() == 'singlebeam':
                 include ("LArMonTools/LArCoverage_jobOptions.py")
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
+            if LArMonFlags.doLArNoiseCorrelationMon():
+                include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")
             if LArMonFlags.doLArRawChannelMon():
@@ -123,6 +130,8 @@ else:  # should be jobproperties.Beam.beamType() =='collisions'
                 include ("LArMonTools/LArCoverage_jobOptions.py")
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
+            if LArMonFlags.doLArNoiseCorrelationMon():
+                include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")
             if LArMonFlags.doLArRawChannelMon():

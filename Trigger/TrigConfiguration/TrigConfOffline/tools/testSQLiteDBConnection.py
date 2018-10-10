@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 ###########################################################################
-#    Copyright (C) 2009 by Miroslav Nozicka                                      
+#                                          
 #    <nozicka@mail.desy.de>                                                             
-#
-# Copyright: See COPYING file that comes with this distribution
 #
 ###########################################################################
 

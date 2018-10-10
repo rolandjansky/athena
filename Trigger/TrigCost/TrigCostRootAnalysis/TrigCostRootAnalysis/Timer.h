@@ -21,7 +21,7 @@
 #include "Utility.h"
 
 /**
- * @file Timer.h
+ * @file TrigCostRootAnalysis/Timer.h
  *
  * A simple class to keep track of time useage
  *
@@ -34,7 +34,7 @@ namespace TrigCostRootAnalysis {
    */
   class Timer {
   public:
-    Timer(std::string _type, std::string _name);
+    Timer(std::string type, std::string name);
     ~Timer();
     void start();
     void stop();

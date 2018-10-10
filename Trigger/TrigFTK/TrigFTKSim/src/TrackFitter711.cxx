@@ -17,6 +17,8 @@
 #include <cassert>
 using namespace std;
 
+static int print_guessed=0; //1000;
+
 TrackFitter711::TrackFitter711() :
   TrackFitter(),
   m_use_guessing(true),
@@ -619,6 +621,7 @@ void TrackFitter711::processor_end(int ibank)
   // m_trackoutput_pre_hw->addNFitsHWRejectedMajorityI(ibank,m_nfits_rejmajI);
   // m_trackoutput_pre_hw->addNConnections(ibank,m_nconn);
   // m_trackoutput_pre_hw->addNExtrapolatedTracks(ibank,m_nextrapolatedTracks);
+
 }
 
 
@@ -654,12 +657,18 @@ void TrackFitter711::processor(const FTKRoad &road) {
       for (;itrack!=road_tracks.end();++itrack) {
         m_trackoutput->addTrackI(region,*itrack);
       }
+      if (m_saveStepByStepTracks) {
+        itrack = road_tracks_pre_hw.begin();
+        for (;itrack!=road_tracks_pre_hw.end();++itrack) {
+          m_trackoutput->addTrackI_pre_hw(region,*itrack);
+        }
+      }
       // itrack = road_tracks_pre_hw.begin();
       // for (;itrack!=road_tracks_pre_hw.end();++itrack) {
       //   m_trackoutput_pre_hw->addTrackI(region,*itrack);
       //      }
     }
-    // extrapolate and complete the  fit
+    // extrapolate and complete the fit
     if (!m_super_extrapolate){
       processor_Extrapolate(road,road_tracks);
     }
@@ -850,6 +859,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        newtrkI.setHWRejected(HWbase);
        newtrkI.setHWTrackID(-1);
 
+       if (m_saveStepByStepTracks) m_tracks_hits.push_back(newtrkI);
+
        // add one fit in the counters
        if (nmissing==0) m_nfitsI += 1;
        if (nmissing>0) m_nfits_majI += 1;
@@ -863,13 +874,12 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        bool toAdd(true);
 
        // exact 0 means no valid constants, skipped
-       if( newtrkI.getChi2() == 0.)
-         toAdd = false;
+       if( newtrkI.getChi2() == 0.) toAdd = false;
+       else if (m_saveStepByStepTracks) m_tracks_pattern.push_back(newtrkI);
 
        // majority track with bad chisq have no reason to be kept, recovery is not possible
        if (newtrkI.getNMissing() > 0) {
-           // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-           float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+           float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
            if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
            float chisqcut = m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut_maj;
            if (newtrkI.getChi2()>chisqcut)
@@ -929,8 +939,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        newtrkI = theCombos[idx];
        if( newtrkI.getNMissing() != 0 ) continue;
 
-       // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing(); 
-       float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+       float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing(); //Rui's change to match fw
        if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
        if( newtrkI.getChi2() < ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut ) ) {
@@ -943,8 +952,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
    for( unsigned int idx = 0; idx < theCombos.size(); idx++ ) {
      newtrkI = theCombos[idx];
 
-     // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-     float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+     // float dof = m_ncoords_incomplete - m_npars - m_newtrkI.getNMissing();
+     float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // Try to recover majority if chi2 no good
@@ -1009,17 +1018,16 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
      } // end block to recover complete tracks with bad chi2
 
-     //dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-     dof = m_ncoords - m_npars - newtrkI.getNMissing();
+     dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // check if the track pass the quality requirements
      if (newtrkI.getChi2()< ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux :
-                             (newtrkI.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
+                             (newtrkI.getNMissing() > 0 ? dof*m_Chi2DofCutAux : m_Chi2Cut) )  &&
          newtrkI.getChi2() != 0 ) {
 
        // appending pre-HW tracks to dump
-       //       road_tracks_pre_hw.push_back(newtrkI);
+       road_tracks_pre_hw.push_back(newtrkI);
 
        // to append the found track go trought the HW filter
        // add this track to track list only if
@@ -3366,7 +3374,10 @@ void TrackFitter711::guessedHitsToSSID() {
       m_ssid[ip] = m_ssmap_complete->getSSGlobal(tmphit, 1);
     }
 
-
+    if(print_guessed && (m_idplanes_eff[ip]==0)) {
+       cout<<"guessed_hit: "<< m_ssid[ip]<<":"<<moduleID
+           <<","<<tmphit[0]<<","<<tmphit[1]<<"\n";
+    }
 
     //    std::cout << "SSID current " << m_ssid[ip] << std::endl;
 
@@ -3836,6 +3847,9 @@ void TrackFitter711::saveCompleteTracks() {
       // add this track to track list only if
       // don't have common hits with another track,
       // in this case keep the best
+
+      // appending pre-HW tracks to dump
+      m_tracks_pre_hw.push_back(newtrk);
 
       // remains 0 if the track has to be added
       // -1 means is worse than an old track (duplicated)

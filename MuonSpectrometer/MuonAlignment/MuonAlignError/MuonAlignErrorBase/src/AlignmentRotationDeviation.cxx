@@ -3,17 +3,19 @@
 */
 
 #include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
-
 #include <iostream>
+
 using namespace MuonAlign;
 using namespace std;
 
 AlignmentRotationDeviation::AlignmentRotationDeviation (Amg::Vector3D center, Amg::Vector3D axis, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits)
   : m_center(center),
   m_axis(axis),
-  m_sigma(sigma),
-  m_hits(hits)
+  m_sigma(sigma)
 {
+  m_hits = hits;
+  m_hitshash = 0;
+  m_hitshashdone = false;
 }
 
 AlignmentRotationDeviation::~AlignmentRotationDeviation () {
@@ -35,10 +37,6 @@ Amg::Transform3D AlignmentRotationDeviation::getTransform (const std::vector<dou
   Amg::Transform3D t = transl2 * angleaxis * transl1;
 
   return t;
-}
-
-void AlignmentRotationDeviation::getListOfHits (std::vector<const Trk::RIO_OnTrack*>& hits) const {
-  hits = m_hits;
 }
 
 void AlignmentRotationDeviation::print (std::ostream& out) const {

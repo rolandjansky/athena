@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  JetSort.cxx
 //  TopoCore
 //  Created by Joerg Stelzer on 11/10/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //  algorithm to make sorted Jets lists
 //
 #include "L1TopoAlgorithms/JetSort.h"

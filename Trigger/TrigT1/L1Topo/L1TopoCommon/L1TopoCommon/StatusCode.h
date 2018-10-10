@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  StatusCode.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/10/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __TopoCore__StatusCode__
 #define __TopoCore__StatusCode__

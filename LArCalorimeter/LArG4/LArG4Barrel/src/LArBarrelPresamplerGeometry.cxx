@@ -53,6 +53,7 @@ namespace LArG4 {
       : base_class(name, pSvcLocator)
     {
       declareProperty("DetectorName",m_detectorName);
+      declareProperty("TestBeam", m_testbeam);
     }
 
     //=====================================================================================
@@ -125,7 +126,6 @@ namespace LArG4 {
       const G4NavigationHistory* g4navigation = a_step->GetPreStepPoint()->GetTouchable()->GetHistory();
       const G4int ndep = g4navigation->GetDepth();
       bool iactive(false);
-      bool isTestBeam(false);
       G4int idep(-999);
 
       /** Now navigate through the volumes hierarchy */
@@ -133,16 +133,15 @@ namespace LArG4 {
         // FIXME Need to find a way to avoid these string-comparisons
         const G4String& vname = g4navigation->GetVolume(ii)->GetName();
         if (idep<0 && vname==fullPSName) idep=ii;    // half barrel
-        else if (!isTestBeam && vname==fullCryoName) isTestBeam=true;  // TB or not ?
         else if (!iactive && vname==fullModuleName) iactive=true;
       }
 
       if (idep < 0) std::abort();
 
       if ( iactive ) {
-        return this->CalculatePSActiveIdentifier( a_step , idep , isTestBeam );
+        return this->CalculatePSActiveIdentifier( a_step , idep );
       }
-      return this->CalculatePS_DMIdentifier( a_step , idep , isTestBeam);
+      return this->CalculatePS_DMIdentifier( a_step , idep );
     }
 
     // ==========================================================================================
@@ -151,7 +150,7 @@ namespace LArG4 {
     used for calibration hit even if the hit is not really in the
     "fiducial" active part */
 
-    LArG4Identifier Geometry::CalculatePSActiveIdentifier(const G4Step* a_step, const G4int ind, const bool isTestBeam) const
+    LArG4Identifier Geometry::CalculatePSActiveIdentifier(const G4Step* a_step, const G4int ind) const
     {
       LArG4Identifier PSActiveID = LArG4Identifier();
 
@@ -167,7 +166,7 @@ namespace LArG4 {
       const G4NavigationHistory* g4navigation = a_step->GetPreStepPoint()->GetTouchable()->GetHistory();
       const G4ThreeVector ploc = g4navigation->GetTransform(ind).TransformPoint(p);
 
-      const G4int zSide(this->determineZSide(isTestBeam, p.z()));
+      const G4int zSide(this->determineZSide(p.z()));
 
       CalcData currentCellData;
       (void)this->findCell(currentCellData,ploc.x(),ploc.y(),ploc.z());
@@ -202,7 +201,7 @@ namespace LArG4 {
 
     //==========================================================================================
 
-    LArG4Identifier Geometry::CalculatePS_DMIdentifier(const G4Step* a_step, const G4int ind, const bool isTestBeam) const
+    LArG4Identifier Geometry::CalculatePS_DMIdentifier(const G4Step* a_step, const G4int ind) const
     {
 
       /******************************************************************************
@@ -249,7 +248,7 @@ namespace LArG4 {
 #endif
 
       // 01-Feb-2001 WGS: Add zSide calculation.
-      const G4int zSide(this->determineZSide(isTestBeam, p.z()));
+      const G4int zSide(this->determineZSide(p.z()));
 
       /** eta,phi in "local" half barrel coordinates */
       const G4double phi = (ploc2.phi() < 0.) ? ploc2.phi()+2.*M_PI : ploc2.phi();

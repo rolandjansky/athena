@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //  ClusterSortingAlg.cxx
 //  TopoCore
 //
 //  Created by Joerg Stelzer on 11/10/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //
 
 #include "L1TopoCoreSimulation/ClusterSortingAlg.h"

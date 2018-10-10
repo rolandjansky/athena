@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef TRIGT1CALO_JEPBSCOLLECTION_H
 #define TRIGT1CALO_JEPBSCOLLECTION_H
 

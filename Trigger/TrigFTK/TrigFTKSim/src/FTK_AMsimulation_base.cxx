@@ -9,6 +9,8 @@
 
 //#define VERBOSE_DEBUG
 
+#define PRINT_IBL_HITS 0
+
 using namespace std;
 
 /* class FTK_AMsimulation_base
@@ -201,7 +203,7 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
 
     std::map<int,FTKSS>::iterator issitem = ssmap.find(ssid);
     if (issitem==ssmap.end()) {
-      // ad the item related to this SS number
+      // add the item related to this SS number
       ssmap[ssid] = FTKSS();
       issitem = ssmap.find(ssid);
     }
@@ -212,6 +214,43 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
   if(error) {
      FTKSetup::PrintMessageFmt(ftk::warn,"FTK_AMsimulation_base::passHitsUnused number or errors=%d\n",error );
   }
+  static int print=PRINT_IBL_HITS;
+  if(print) {
+     cout<<"PassHitsUnused\n";
+     for(std::map< int, std::map< int, FTKSS > >::const_iterator
+            ipl=m_usedssmap_ignored.begin();
+         ipl!=m_usedssmap_ignored.end();ipl++) {
+        cout<<"unused plane="<<(*ipl).first<<" nSS="<<(*ipl).second.size();
+        int nhit=0;
+        int lastHash=-1;
+        for(std::map< int, FTKSS >::const_iterator ihit=(*ipl).second.begin();
+            ihit!=(*ipl).second.end();ihit++) {
+           nhit+= (*ihit).second.getNHits();
+           if((*ipl).first==0) {
+              int localID,localX,localY;
+              getSSMapUnused()->decodeSSTowerXY((*ihit).first,
+                                                getBankID(),(*ipl).first,0,
+                                                localID,localX,localY,true);
+              int hash=getSSMapUnused()->getRegionMap()
+                 ->getGlobalId(getBankID(),(*ipl).first,localID);
+              if(hash!=lastHash) {
+                 cout<<"\nModule="<<hash;
+                 lastHash=hash;
+              }
+              cout<<" "<<(*ihit).first;
+              //<<":"<<localX<<","<<localY;
+              for(int ih=0;ih<(*ihit).second.getNHits();ih++) {
+                 const FTKHit &h=(*ihit).second.getHit(ih);
+                 cout<<"["<<h[0]<<","<<h[1]<<"]";
+              }
+           }
+        }
+        cout<<" nhit="<<nhit;
+        cout<<"\n";
+     }
+     print--;
+  }
+
   return res;
 }
 

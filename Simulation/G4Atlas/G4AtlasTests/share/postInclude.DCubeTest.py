@@ -22,6 +22,7 @@ simFlags.ReleaseGeoModel=False;
 from AthenaCommon import CfgGetter
 if DetFlags.Truth_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("BeamTruthTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EvgenTruthTestTool", checkType=True)]
 if DetFlags.pixel_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PixelHitsTestTool", checkType=True)]

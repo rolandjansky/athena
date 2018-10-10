@@ -56,14 +56,14 @@ class trfAMIUnitTests(unittest.TestCase):
     # test a new transform tag from AMI
     def test_info_q220(self):
         self.maxDiff = None
-        physics = {'conditionsTag': {'all': 'CONDBR2-BLKPA-2015-02'},
+        physics = {'conditionsTag': {'all': 'CONDBR2-BLKPA-2018-03'},
                    'beamType': 'cosmics',
                    'ignoreErrors': False,
                    'autoConfiguration': ['everything'],
                    'maxEvents': '25',
                    'AMITag': 'q220',
                    'preExec': {'all': ['from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doCTPMon=False;']},
-                   'geometryVersion': {'all': 'ATLAS-R2-2015-03-01-00'}}
+                   'geometryVersion': {'all': 'ATLAS-R2-2016-01-00-01'}}
 
         tag = TagInfo("q220")
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))

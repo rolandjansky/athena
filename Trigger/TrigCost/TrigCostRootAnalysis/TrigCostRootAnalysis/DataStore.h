@@ -47,36 +47,36 @@ namespace TrigCostRootAnalysis {
 
   class DataStore {
   public:
-    DataStore(CounterBase* _parent = 0);
+    DataStore(CounterBase* parent = 0);
     ~DataStore();
-    DataStore& newVariable(ConfKey_t _name);
-    void setSaveMode(ConfKey_t, VariableOption_t _vo, std::string _title = "");
-    DataStore& setSavePerCall(std::string _title = "");
-    DataStore& setSavePerEvent(std::string _title = "");
-    DataStore& setSavePerPeriod(std::string _title = "");
-    DataStore& setSavePerEventFraction(std::string _title = "");
-    void setHistogramming(Bool_t _histogrammingEnabled = kTRUE);
-    void setBinLabels(ConfKey_t _name, VariableOption_t _vo, std::vector<std::string> _titles);
+    DataStore& newVariable(ConfKey_t name);
+    void setSaveMode(ConfKey_t, VariableOption_t vo, std::string title = "");
+    DataStore& setSavePerCall(std::string title = "");
+    DataStore& setSavePerEvent(std::string title = "");
+    DataStore& setSavePerPeriod(std::string title = "");
+    DataStore& setSavePerEventFraction(std::string title = "");
+    void setHistogramming(Bool_t histogrammingEnabled = kTRUE);
+    void setBinLabels(ConfKey_t name, VariableOption_t vo, std::vector<std::string> titles);
     void endEvent();
-    void setVariableDenominator(ConfKey_t _name, Float_t _denominator);
-    void store(ConfKey_t _name, Float_t _value, Float_t _weight = 1.);
-    Float_t getValue(ConfKey_t _name, VariableOption_t _vo) const;
-    Bool_t getValueExists(ConfKey_t _name, VariableOption_t _vo) const;
-    Float_t getValueError(ConfKey_t _name, VariableOption_t _vo) const;
-    Int_t getEntries(ConfKey_t _name, VariableOption_t _vo) const;
-    void setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
-    void setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val);
-    void setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
-    TH1F* getHist(ConfKey_t _name, VariableOption_t _vo, Bool_t _silent = kFALSE);
-    void setHist(ConfKey_t _name, VariableOption_t _vo, TH1F* _hist);
-    // TH2F* getHist2D(ConfKey_t _name, VariableOption_t _vo);
+    void setVariableDenominator(ConfKey_t name, Float_t denominator);
+    void store(ConfKey_t name, Float_t value, Float_t weight = 1.);
+    Float_t getValue(ConfKey_t name, VariableOption_t vo) const;
+    Bool_t getValueExists(ConfKey_t name, VariableOption_t vo) const;
+    Float_t getValueError(ConfKey_t name, VariableOption_t vo) const;
+    Int_t getEntries(ConfKey_t name, VariableOption_t vo) const;
+    void setValue(ConfKey_t name, VariableOption_t vo, Float_t val);
+    void setEntries(ConfKey_t name, VariableOption_t vo, UInt_t val);
+    void setErrorSquared(ConfKey_t name, VariableOption_t vo, Float_t val);
+    TH1F* getHist(ConfKey_t name, VariableOption_t vo, Bool_t silent = kFALSE);
+    void setHist(ConfKey_t name, VariableOption_t vo, TH1F* hist);
+    // TH2F* getHist2D(ConfKey_t name, VariableOption_t vo);
     Bool_t getHistogramming() const {return m_histogrammingEnabled;}
     CounterBase* getParent() const {return m_parent;}
     VariableOptionVector_t getAllHistograms();
     const std::string& getNameOfMostRecentCall() const;
   private:
-    Bool_t checkRegistered(ConfKey_t _name, Bool_t _silent = kFALSE) const;
-    DataStore& setSaveInternal(VariableOption_t _vo, std::string& _title, ConfKey_t _name = kBlankString);
+    Bool_t checkRegistered(ConfKey_t name, Bool_t silent = kFALSE) const;
+    DataStore& setSaveInternal(VariableOption_t vo, std::string& title, ConfKey_t name = kBlankString);
     Bool_t m_histogrammingEnabled; //!< If histograming is to be unsed on newly created VariableOptions. Designed to be
                                    // toggled on and off.
     mutable DataVariable* m_mostRecent; //!< Pointer to most recently created/modified variable, used with the chaining

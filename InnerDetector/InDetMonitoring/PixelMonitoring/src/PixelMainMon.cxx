@@ -282,9 +282,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
   memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
   memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
-  m_errhist_expert_servrec_ibl_unweighted = 0;
-  m_errhist_expert_servrec_ibl_weighted = 0;
-  m_errhist_expert_servrec_ibl_count = 0;
 
   // space point
   m_num_spacepoints = 0;
@@ -880,6 +877,11 @@ StatusCode PixelMainMon::procHistograms() {
     if (m_doRDO) {
       if (procHitsMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
+      }
+    }
+    if (m_doCluster) {
+      if (procClustersMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Cluster histograms" << endmsg;
       }
     }
     if (m_doTrack) {

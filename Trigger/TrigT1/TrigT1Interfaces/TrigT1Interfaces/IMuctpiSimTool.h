@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef TrigT1Muctpi_IMuctpiSimTool
 #define TrigT1Muctpi_IMuctpiSimTool
 

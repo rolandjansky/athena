@@ -24,11 +24,11 @@ namespace TrigCostRootAnalysis {
   class EnergyExtrapolation {
   public:
     static EnergyExtrapolation& energyExtrapolation(); //!< Use this method to get the singleton
-    Float_t getEventWeight(const TrigCostData* _costData);
+    Float_t getEventWeight(const TrigCostData* costData);
   private:
     void load8To13();
     void loadMenuV5();
-    Float_t eval(Float_t _x);
+    Float_t eval(Float_t x);
 
     /**
      * Private constructor.

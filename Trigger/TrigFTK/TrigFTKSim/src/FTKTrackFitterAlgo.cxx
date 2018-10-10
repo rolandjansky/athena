@@ -58,6 +58,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_SSF_TR_min_eta(1.0),
   m_SSF_TR_max_eta(1.4),
   m_save_1stStageTrks(false),
+  m_save_StepByStepTrks(false),
   m_doTrackFile(false),
   m_addRoads(false),
   m_trackfilepath("./"), 
@@ -113,6 +114,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("ssmapunused_path",m_ssmapunused_path);
   declareProperty("TRACKFITTER_MODE",m_SSF_TFMode);
   declareProperty("Save1stStageTrks",m_save_1stStageTrks);
+  declareProperty("SaveStepByStepTrks",m_save_StepByStepTrks);
   declareProperty("SSFMultiConnection",m_SSF_multiconn);
   declareProperty("SSFNConnections",m_SSF_maxnconn);
   declareProperty("SSFAllowExtraMiss",m_SSF_allow_extramiss);
@@ -358,6 +360,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   m_tfpobj->setRequireFirst(0);
   m_tfpobj->setOnePerRoad(m_OnePerRoad);
 
+  if (m_save_StepByStepTrks) m_tfpobj->setSaveStepByStepTracks(true);
+  else m_tfpobj->setSaveStepByStepTracks(false);
+
   //std::cout << "chi2cut "        << m_tfpobj->getChi2Cut()         << std::endl;
   //std::cout << "hitwarr "        << m_tfpobj->getHitWarrior()      << std::endl;
   //std::cout << "chi2cutmaj "     << m_tfpobj->getChi2Cut_maj()     << std::endl;
@@ -488,7 +493,8 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	moduleIDvec.clear();
 
 	Int_t Max_1stStage_sectors = 16383;
-        for(Int_t isec=0;isec<Max_1stStage_sectors;isec++){
+  Int_t applied_sector_max = bank8->getNSectors() > Max_1stStage_sectors ? Max_1stStage_sectors : bank8->getNSectors();
+  for(Int_t isec=0;isec<applied_sector_max;isec++){
 	  
 	  if((int)sector->getNSimilarSectors(isec) == 0 )break;
 

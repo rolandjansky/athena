@@ -55,7 +55,8 @@ class ArtRucio(object):
         self.exit_if_no_rucio()
 
         # rucio downloads cache properly
-        log.info("Shell = %s", shell)
+        log.debug("DID = %s", did)
+        log.debug("Shell = %s", shell)
         env = os.environ.copy()
         if shell:
             cmd = ' '.join((os.path.join(self.art_directory, 'art-download.sh'), did, dst_dir))
@@ -152,6 +153,7 @@ class ArtRucio(object):
         pattern = self.get_outfile_name(user, package, '*', None, nightly_tag)
         outfile = None
         sequence = None
+        log.debug("Pattern 1 %s", pattern)
         for out in rucio_client.list_dids(self.get_scope(user), {'name': '.'.join((pattern, 'log'))}):
             sequence_tag = self.get_sequence_tag(out)
             if sequence is None or sequence_tag > sequence:
@@ -159,14 +161,13 @@ class ArtRucio(object):
                 sequence = sequence_tag
 
         if outfile is not None:
-            log.debug("Adding 'batch': %s", outfile)
             result.append(outfile)
 
         # look for "single" outfile, deduce sequence_tag
         pattern = self.get_outfile_name(user, package, '*', '*', nightly_tag)
-        log.debug("Trying pattern %s", pattern)
         outfile = None
         sequence = None
+        log.debug("Pattern 2 %s", pattern)
         for out in rucio_client.list_dids(self.get_scope(user), {'name': '.'.join((pattern, 'log'))}):
             sequence_tag = self.get_sequence_tag(out)
             if sequence is None or sequence_tag > sequence:
@@ -179,6 +180,7 @@ class ArtRucio(object):
             if sequence_tag is not None:
                 # found sequence_tag, find all 'single' outfiles
                 pattern = self.get_outfile_name(user, package, sequence_tag, '*', nightly_tag)
+                log.debug("Pattern 3 %s", pattern)
                 for out in rucio_client.list_dids(self.get_scope(user), {'name': '.'.join((pattern, 'log'))}):
                     outfile = os.path.splitext(out)[0]
                     log.debug("Adding 'single': %s", outfile)
@@ -186,7 +188,7 @@ class ArtRucio(object):
 
         return result
 
-    def get_table(self, user, package, nightly_tag=None, shell=False):
+    def get_table(self, user, package, nightly_tag=None, shell=False, tmp=None):
         """Get full table with grid_index, single_index and test_name for particular package and nightly_tag."""
         log = logging.getLogger(MODULE)
 
@@ -195,6 +197,8 @@ class ArtRucio(object):
 
         self.exit_if_no_rucio()
 
+        tmp = tempfile.gettempdir() if tmp is None else tmp
+
         table = []
 
         nightly_tag = self.nightly_tag if nightly_tag is None else nightly_tag
@@ -202,61 +206,63 @@ class ArtRucio(object):
         outfiles = self.get_outfiles(user, package, nightly_tag)
 
         outfiles_str = [x + ArtRucio.JSON for x in outfiles]
-        outfiles_str = ' '.join(outfiles_str)
+        if outfiles_str:
+            outfiles_str = ' '.join(outfiles_str)
 
-        tmp_dir = tempfile.gettempdir()
-        dst_dir = tmp_dir
+            dst_dir = tmp
 
-        log.info("Shell = %s", shell)
-        exit_code = self.download(outfiles_str, dst_dir, shell)
-        if exit_code != 0:
-            log.error("Failed to execute rucio download %d", exit_code)
-            return table
+            log.debug("Shell = %s", shell)
+            exit_code = self.download(outfiles_str, dst_dir, shell)
+            if exit_code != 0:
+                log.error("Failed to execute rucio download %d", exit_code)
+                return table
 
-        for outfile in outfiles:
-            single_index = self.get_single_index(outfile)
+            for outfile in outfiles:
+                single_index = self.get_single_index(outfile)
 
-            json_directory = os.path.join(dst_dir, outfile + ArtRucio.JSON)
-            if not os.path.isdir(json_directory):
-                # print single_index, rucio_name
-                table.append({
-                    'single_index': single_index,
-                    'grid_index': -1,
-                    'file_index': -1,
-                    'job_index': -1,
-                    'outfile': outfile,
-                    'job_name': None
-                })
-                continue
+                json_directory = os.path.join(dst_dir, outfile + ArtRucio.JSON)
+                if not os.path.isdir(json_directory):
+                    log.debug("Adding, single_index: %d, outfile: %s", single_index, outfile)
+                    table.append({
+                        'single_index': single_index,
+                        'grid_index': -1,
+                        'file_index': -1,
+                        'job_index': -1,
+                        'outfile': outfile,
+                        'job_name': None
+                    })
+                    continue
 
-            for json_file in os.listdir(json_directory):
-                json_path = os.path.join(json_directory, json_file)
-                if os.path.isfile(json_path):
-                    with open(json_path) as json_fd:
-                        info = json.load(json_fd)
-                        job_name = os.path.splitext(info['name'])[0]
+                for json_file in os.listdir(json_directory):
+                    if json_file.endswith(".json"):
+                        json_path = os.path.join(json_directory, json_file)
+                        if os.path.isfile(json_path):
+                            with open(json_path) as json_fd:
+                                info = json.load(json_fd)
+                                job_name = os.path.splitext(info['name'])[0]
 
-                        # Match: user.artprod.13199077.EXT0._000002.art-job.json
-                        # Match: user.artprod.13199077.EXT0._000003.art-job.json.4
-                        # job_index = 13199077, grid_index = 3, file_index = 4
-                        match = re.search(r"user\.([^\.]+)\.(\d+)\.EXT0\._(\d+)\.art-job.json(?:\.(\d+))?", json_file)
-                        if match:
-                            job_index = int(match.group(2))
-                            grid_index = int(match.group(3))
-                            file_index = -1 if match.group(4) is None else int(match.group(4))
-                        else:
-                            job_index = -1
-                            grid_index = -1
-                            file_index = -1
+                                # Match: user.artprod.13199077.EXT0._000002.art-job.json
+                                # Match: user.artprod.13199077.EXT0._000003.art-job.json.4
+                                # job_index = 13199077, grid_index = 3, file_index = 4
+                                match = re.search(r"user\.([^\.]+)\.(\d+)\.EXT0\._(\d+)\.art-job.json(?:\.(\d+))?", json_file)
+                                if match:
+                                    job_index = int(match.group(2))
+                                    grid_index = int(match.group(3))
+                                    file_index = -1 if match.group(4) is None else int(match.group(4))
+                                else:
+                                    job_index = -1
+                                    grid_index = -1
+                                    file_index = -1
 
-                        table.append({
-                            'single_index': single_index,
-                            'grid_index': grid_index,
-                            'file_index': file_index,
-                            'job_index': job_index,
-                            'outfile': outfile,
-                            'job_name': job_name
-                        })
+                                log.debug("Adding, single_index: %d, grid_index: %d, file_index: %d, job_index %d, outfile: %s, job_name: %s", single_index, grid_index, file_index, job_index, outfile, job_name)
+                                table.append({
+                                    'single_index': single_index,
+                                    'grid_index': grid_index,
+                                    'file_index': file_index,
+                                    'job_index': job_index,
+                                    'outfile': outfile,
+                                    'job_name': job_name
+                                })
 
         self.table = table
         return table

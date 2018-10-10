@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // /***************************************************************************
 //                           JEMJetSim.cxx  -  description
 //                              -------------------
 //     begin                : Wed Mar 12 2014
-//     copyright            : (C) 2014 by Alan Watson
 //     email                : Alan.Watson@CERN.CH
 //  ***************************************************************************/
 //

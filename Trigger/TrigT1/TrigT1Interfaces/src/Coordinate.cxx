@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                          Coordinate.cxx  -  description
                             -------------------
    begin                : 26/02/2002
-   copyright            : (C) 2002 by moyse
    email                : e.moyse@qmul.ac.uk
 ***************************************************************************/
 

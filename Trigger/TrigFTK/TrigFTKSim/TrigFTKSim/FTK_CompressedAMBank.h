@@ -330,6 +330,7 @@ protected:
   // holds all pattern data
   PatternBank m_bank;
   MAP<int,std::pair<int,int> > m_SectorFirstLastPattern;
+  MAP<int,bool> m_tooFew;
   //
   // hold wildcards (layer mask) per sector
   typedef uint8_t HitPattern_t;

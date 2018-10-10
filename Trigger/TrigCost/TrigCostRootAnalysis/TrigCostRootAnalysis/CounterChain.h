@@ -33,15 +33,15 @@ namespace TrigCostRootAnalysis {
    */
   class CounterChain: public CounterBase {
   public:
-    CounterChain(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-                 MonitorBase* _parent = 0);
+    CounterChain(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+                 MonitorBase* parent = 0);
     ~CounterChain();
     void startEvent();
-    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent(Float_t _weight = 1.);
-    void debug(UInt_t _e);
+    void processEventCounter(UInt_t e, UInt_t f, Float_t weight = 1.);
+    void endEvent(Float_t weight = 1.);
+    void debug(UInt_t e);
   private:
-    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
+    Double_t getPrescaleFactor(UInt_t e = INT_MAX);
 
     static Float_t s_eventTimeExecute; //<! Global tabulator of total chain time for all chains in an event
     Float_t m_prescaleWeight; //<! Chain's effective HLT*L1 prescale, cached

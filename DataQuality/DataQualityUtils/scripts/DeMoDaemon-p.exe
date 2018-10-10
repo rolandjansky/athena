@@ -1,0 +1,34 @@
+#!/bin/bash
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble) - 2017
+# Daemon job to update daily the DQ stats for a single system
+# This script can replace the default DeMoDaemon to debug or prepare 
+# special request (especially for longtasks)
+# Arguments:
+# -$1 : directory when to run the daemon (a priori ~atlasdqm/w1/DeMo
+# -$2 : DeMo year
+# -$3 : DeMo tag
+# -$4 : System 
+##################################################################
+
+date
+
+cd $1
+
+export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
+source $AtlasSetup/scripts/asetup.sh 21.0.66,Athena,gcc62
+
+system=$4
+
+echo "====================================================================================="
+echo "====================================================================================="
+echo "Processing "$system
+echo "====================================================================================="
+echo "====================================================================================="
+
+python DeMoUpdate.py -b -y $2 -t $3 -s $system --allRuns --resetYS --vetoLumiEvol &> YearStats-$system/daemon-allruns.out
+python DeMoUpdate.py -b -y $2 -t $3 -s $system --grlUpdate &> YearStats-$system/daemon-grl.out
+python DeMoStatus.py -y $2 -t $3 -s $system --savePlots &> YearStats-$system/daemon-grl2.out
+python DeMoScan.py -y $2 -t $3 -s $system --recapDefects &> YearStats-$system/daemon-recapdefects.out
+
+/afs/cern.ch/user/a/atlasdqm/www/DeMo/generate.exe

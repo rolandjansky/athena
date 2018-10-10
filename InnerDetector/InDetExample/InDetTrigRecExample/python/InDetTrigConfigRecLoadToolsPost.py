@@ -136,45 +136,37 @@ if InDetTrigFlags.doNewTracking():
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigTrackZ0SortingTool
 
-  if (InDetTrigFlags.primaryVertexSetup() == 'DefaultFastFinding' or
-      InDetTrigFlags.primaryVertexSetup() == 'DefaultFullFinding' or
-      InDetTrigFlags.primaryVertexSetup() == 'DefaultKalmanFinding'):
 
 
-    #if (not InDetTrigFlags.useBeamConstraint()):
-    if False:
-      from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Trk2dDistanceSeeder
-      TrkTrig2dDistanceSeeder = Trk__Trk2dDistanceSeeder(name = "TrkTrig2dDistanceSeederFor2D",
-                                                         #SolveAmbiguityUsingZ = False
-                                                         )
-      try:
-        TrkTrig2dDistanceSeeder.SolveAmbiguityUsingZ = False
-      except:
-        pass
-
-      ToolSvc+=TrkTrig2dDistanceSeeder
-      if (InDetTrigFlags.doPrintConfigurables()):
-        print TrkTrig2dDistanceSeeder
-     #
-      from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Trk2DDistanceFinder
-      TrkTrig2DDistanceFinder = Trk__Trk2DDistanceFinder(name = "TrkTrig2DDistanceFinder",
-                                                         Trk2dDistanceSeeder = TrkTrig2dDistanceSeeder)
-  
-      ToolSvc+=TrkTrig2DDistanceFinder
-      if (InDetTrigFlags.doPrintConfigurables()):
-        print TrkTrig2DDistanceFinder                                     
+  if (not InDetTrigFlags.useBeamConstraint()):
+    from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Trk2dDistanceSeeder
+    TrkTrig2dDistanceSeeder = Trk__Trk2dDistanceSeeder(name = "TrkTrig2dDistanceSeederFor2D",
+                                                       SolveAmbiguityUsingZ = False
+    )
     
-      from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
-      InDetTrig2DVtxSeedFinder = Trk__CrossDistancesSeedFinder(name = "InDetTrig2DCrossDistancesSeedFinder",
-                                                           TrkDistanceFinder = TrkTrig2DDistanceFinder,
-                                                           trackdistcutoff = 1.,
-                                                           trackdistexppower = 2,
-                                                           useweights=True
-                                                           #Mode1dFinder = # default, no setting needed
-                                                           )
-      ToolSvc+=InDetTrig2DVtxSeedFinder
-      if (InDetTrigFlags.doPrintConfigurables()):
-        print InDetTrig2DVtxSeedFinder   
+    ToolSvc+=TrkTrig2dDistanceSeeder
+    if (InDetTrigFlags.doPrintConfigurables()):
+      print TrkTrig2dDistanceSeeder
+    #
+    from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Trk2DDistanceFinder
+    TrkTrig2DDistanceFinder = Trk__Trk2DDistanceFinder(name = "TrkTrig2DDistanceFinder",
+                                                       Trk2dDistanceSeeder = TrkTrig2dDistanceSeeder)
+
+    ToolSvc+=TrkTrig2DDistanceFinder
+    if (InDetTrigFlags.doPrintConfigurables()):
+      print TrkTrig2DDistanceFinder                                     
+  
+    from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
+    InDetTrig2DVtxSeedFinder = Trk__CrossDistancesSeedFinder(name = "InDetTrig2DCrossDistancesSeedFinder",
+                                                             TrkDistanceFinder = TrkTrig2DDistanceFinder,
+                                                             trackdistcutoff = 1.,
+                                                             trackdistexppower = 2,
+                                                             useweights=True
+                                                             #Mode1dFinder = # default, no setting needed
+                                                         )
+    ToolSvc+=InDetTrig2DVtxSeedFinder
+    if (InDetTrigFlags.doPrintConfigurables()):
+      print InDetTrig2DVtxSeedFinder   
 
   if InDetTrigFlags.vertexSeedFinder() == 'SlidingWindowMultiSeedFinder':
     #now setup new stuff

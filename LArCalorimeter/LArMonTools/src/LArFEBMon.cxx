@@ -51,6 +51,7 @@ LArFEBMon::LArFEBMon(const std::string& type,
     m_eventTime_ns(0),
     m_l1Trig(0),
     m_strHelper(0),
+    m_larCablingService("LArCablingService"),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_trigok(false),
     m_febInError(),
@@ -125,7 +126,14 @@ StatusCode LArFEBMon::initialize() {
     ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
     return StatusCode::FAILURE;
   }
-  
+
+  // Get LAr Cabling Service
+  sc=m_larCablingService.retrieve();
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
+    return StatusCode::FAILURE;
+  }
+    
   m_strHelper = new  LArOnlineIDStrHelper(m_onlineHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
   
@@ -526,10 +534,16 @@ StatusCode LArFEBMon::fillHistograms() {
       int ft        = m_onlineHelper->feedthrough(febid);
       int slot      = m_onlineHelper->slot(febid);      
       int partitionNb_dE = returnPartition(barrel_ec,pos_neg,ft,slot);
+      HWIdentifier rodid = m_larCablingService->getReadoutModuleID(febid);
+      int rodcrate = m_readoutModuleService.rodCrate(rodid);
+      int rodslot = m_readoutModuleService.rodSlot(rodid);
+      int rosid = m_readoutModuleService.rosId(rodid);
+
+      //std::cout << m_readoutModuleService.barrel_ec(rodid) << " " << m_readoutModuleService.pos_neg(rodid) << " " << m_readoutModuleService.rodCrate(rodid) << " " << m_readoutModuleService.rodSlot(rodid) << std::endl;
       
       // Fill the errors in partition histograms
       
-      fillErrorsSummary(partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+      fillErrorsSummary(partitionNb_dE,ft,slot,rodcrate,rodslot,rosid,feberrorSummary,lumi_block,lar_inerror);
       if (m_currentFebStatus && m_febInErrorTree.size()<33){
 	m_febInErrorTree.push_back(febid.get_identifier32().get_compact());
 	m_febErrorTypeTree.push_back(m_rejectionBits.to_ulong());
@@ -654,7 +668,7 @@ StatusCode LArFEBMon::fillHistograms() {
 
 // ********************************************************************
 // Method to fill the error partition-histograms
-void LArFEBMon::fillErrorsSummary(int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block, bool lar_inerror)
+void LArFEBMon::fillErrorsSummary(int partitNb_2,int ft,int slot,int rodcrate,int rodslot,int rosid,uint16_t error, unsigned lumi_block, bool lar_inerror)
 {  
   // If the FEB has a special treatment (masked in DB), do not set errors.
   if (m_partHistos[partitNb_2].maskedFEB->GetBinContent(slot,ft+1) != 0) return;
@@ -763,6 +777,8 @@ void LArFEBMon::fillErrorsSummary(int partitNb_2,int ft,int slot,uint16_t error,
 
   if (m_currentFebStatus){
     (m_partHistos[partitNb_2].LArAllErrors)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].LArAllErrors_ROD)->Fill(rodslot,rodcrate);
+    (m_partHistos[partitNb_2].LArAllErrors_ROS)->Fill(rosid);
     if (lar_inerror) {// LArinError
        if (m_isOnline) (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->Fill(0.5,100);
     } else {
@@ -791,14 +807,46 @@ StatusCode LArFEBMon::bookNewPartitionSumm(int partNb)
   MonGroup perPartitionDataGroup( this, "/LAr/FEBMon/perPartitionData", run, ATTRIB_MANAGED );
   MonGroup perPartitionMiscGroup( this, "/LAr/FEBMon/perPartitionMisc", run, ATTRIB_MANAGED );
   
-  int nbOfFT = 25;
-  int nbOfSlot = 15;
-  if (partName.find("B",0) != std::string::npos){
+  // Define number of FT/slot for FEBs...
+  int nbOfFT;
+  int nbOfSlot;
+  int nbOfRodCrate;
+  int nbOfRodSlot;
+  int nbOfRosLink;
+  
+  if (partName.find("EMB",0) != std::string::npos){
     nbOfFT = 32;
     nbOfSlot = 14;
+    nbOfRodCrate = 4;
+    nbOfRodSlot = 14;
+    nbOfRosLink = 28;
+  }
+  if (partName.find("EMEC",0) != std::string::npos){
+    nbOfFT = 25;
+    nbOfSlot = 15;
+    nbOfRodCrate = 3;
+    nbOfRodSlot = 13;
+    nbOfRosLink = 18;
+  }
+  if (partName.find("HEC",0) != std::string::npos){
+    nbOfFT = 25;
+    nbOfSlot = 15;
+    nbOfRodCrate = 1;
+    nbOfRodSlot = 6;
+    nbOfRosLink = 3;
+  }
+  if (partName.find("FCal",0) != std::string::npos){
+    nbOfFT = 25;
+    nbOfSlot = 15;
+    nbOfRodCrate = 1;
+    nbOfRodSlot = 4;
+    nbOfRosLink = 2;
   }
   double ftMax = (double) nbOfFT - 0.5;
   double slotMax = (double) nbOfSlot + 0.5;
+  double rodCrateMax = (double) nbOfRodCrate + 0.5;
+  double rodSlotMax = (double) nbOfRodSlot + 0.5;
+  double rosLinkMax = (double) nbOfRosLink - 0.5;
   
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -899,6 +947,34 @@ StatusCode LArFEBMon::bookNewPartitionSumm(int partNb)
   m_partHistos[partNb].maskedFEB = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
   sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].maskedFEB);
   sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].maskedFEB);
+
+  // ROD histograms - 
+  hName = "LArFEBMonErrorsAbsolute"+partName+"_ROD";
+  hTitle = "Nb of events with at least one error - " + partName;
+  m_partHistos[partNb].LArAllErrors_ROD = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfRodSlot,0.5,rodSlotMax,nbOfRodCrate,0.5,rodCrateMax);
+  m_partHistos[partNb].LArAllErrors_ROD->GetXaxis()->SetTitle("ROD slot");
+  m_partHistos[partNb].LArAllErrors_ROD->GetYaxis()->SetTitle("ROD crate");
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].LArAllErrors_ROD);
+  
+  hName = "LArFEBMonErrors"+partName+"_ROD";
+  hTitle = "% of events with at least one error - " + partName;
+  m_partHistos[partNb].LArAllErrors_RODYield = TH2F_LW::create(hName.c_str(),hTitle.c_str(),nbOfRodSlot,0.5,rodSlotMax,nbOfRodCrate,0.5,rodCrateMax);
+  m_partHistos[partNb].LArAllErrors_RODYield->GetXaxis()->SetTitle("ROD slot");
+  m_partHistos[partNb].LArAllErrors_RODYield->GetYaxis()->SetTitle("ROD crate");
+  sc = sc && perPartitionYieldGroup.regHist(m_partHistos[partNb].LArAllErrors_RODYield);
+  
+  // ROS histograms - 
+  hName = "LArFEBMonErrorsAbsolute"+partName+"_ROS";
+  hTitle = "Nb of events with at least one error - " + partName;
+  m_partHistos[partNb].LArAllErrors_ROS = TH1I_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,-0.5,rosLinkMax);
+  m_partHistos[partNb].LArAllErrors_ROS->GetXaxis()->SetTitle("ROS link");
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].LArAllErrors_ROS);
+  
+  hName = "LArFEBMonErrors"+partName+"_ROS";
+  hTitle = "% of events with at least one error - " + partName;
+  m_partHistos[partNb].LArAllErrors_ROSYield = TH1F_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,-0.5,rosLinkMax);
+  m_partHistos[partNb].LArAllErrors_ROSYield->GetXaxis()->SetTitle("ROS link");
+  sc = sc && perPartitionYieldGroup.regHist(m_partHistos[partNb].LArAllErrors_ROSYield);  
   
   // These are misc histograms-This may be changed in error histograms if needed
   // They are stored in /perPartitionMisc directory
@@ -1130,13 +1206,36 @@ LArFEBMon::fillFebInError(int partNb,int errorType)
   }
   
   fillYieldHistos(m_partHistos[partNb].LArAllErrors,m_partHistos[partNb].LArAllErrorsYield);
+  fillYieldHistos(m_partHistos[partNb].LArAllErrors_ROD,m_partHistos[partNb].LArAllErrors_RODYield);
+  fillYieldHistos(m_partHistos[partNb].LArAllErrors_ROS,m_partHistos[partNb].LArAllErrors_ROSYield);
   
   return;
 }
 
 /*---------------------------------------------------------*/
+void LArFEBMon::fillYieldHistos(TH1I_LW* summaryHisto,TH1F_LW* statusHisto)
+// Compute the yield of odd events in error per ROS
+// The number of events in error is stored in summaryHisto and the yield is stored in statusHisto
+{
+  ATH_MSG_DEBUG( "in fillYieldHistos() - " << m_eventsCounter );
+  
+  if (m_eventsCounter != 0){
+    for (unsigned int ix=1;ix<=summaryHisto->GetNbinsX();ix++){
+      // Initialize normalization factor
+      float normFactor = (float)m_eventsCounter;
+      
+      float numer = (float) (summaryHisto->GetBinContent(ix));
+      float propOfErrors = numer/normFactor*100;
+      statusHisto->SetBinContent(ix,propOfErrors);
+    }//End of loop on x axis
+  }//End of test on nb of events
+  statusHisto->SetEntries(m_eventsCounter);
+  
+  return;
+}
+/*---------------------------------------------------------*/
 void LArFEBMon::fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto)
-// Compute the yield of odd events in error per FEB
+// Compute the yield of odd events in error per FEB/ROD
 // The number of events in error is stored in summaryHisto and the yield is stored in statusHisto
 {
   ATH_MSG_DEBUG( "in fillYieldHistos() - " << m_eventsCounter );

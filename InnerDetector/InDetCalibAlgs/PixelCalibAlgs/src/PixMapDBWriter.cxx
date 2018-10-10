@@ -80,7 +80,7 @@ StatusCode PixMapDBWriter::finalize(){
   
   ATH_MSG_DEBUG( "Reading map of special pixels from file" );
   
-  TFile* pixMapFile = new TFile(m_pixMapFileName.c_str(), "READ");
+  TFile pixMapFile(m_pixMapFileName.c_str(), "READ");
 
   std::map<std::string, std::map<unsigned int, TH2C*> > specialPixelHistograms;
   std::map<std::string, std::map<unsigned int, TH2D*> > hitMaps;
@@ -107,7 +107,7 @@ StatusCode PixMapDBWriter::finalize(){
       for(int j = 0; j < 48; j++){
 	std::string name((static_cast<TKey*>
 			  ((static_cast<TDirectory*>
-			    (pixMapFile->Get(specialPixelHistogramsPath.str().c_str())))->
+			    (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))->
 			   GetListOfKeys()->At(j)))->GetName());
 	
 	int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
@@ -116,7 +116,7 @@ StatusCode PixMapDBWriter::finalize(){
 	  static_cast<TH2C*>
 	  ((static_cast<TKey*>
 	    ((static_cast<TDirectory*>
-	      (pixMapFile->Get(specialPixelHistogramsPath.str().c_str())))
+	      (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))
 	     ->GetListOfKeys()->At(j)))->ReadObj());
       }
 
@@ -129,7 +129,7 @@ StatusCode PixMapDBWriter::finalize(){
 	for(int j = 0; j < 48; j++){
 	  std::string name((static_cast<TKey*>
 			    ((static_cast<TDirectory*>
-			      (pixMapFile->Get(hitMapsPath.str().c_str())))->
+			      (pixMapFile.Get(hitMapsPath.str().c_str())))->
 			     GetListOfKeys()->At(j)))->GetName());
 	  
 	  int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
@@ -138,7 +138,7 @@ StatusCode PixMapDBWriter::finalize(){
 	    static_cast<TH2D*>
 	    ((static_cast<TKey*>
 	      ((static_cast<TDirectory*>
-		(pixMapFile->Get(hitMapsPath.str().c_str())))
+		(pixMapFile.Get(hitMapsPath.str().c_str())))
 	       ->GetListOfKeys()->At(j)))->ReadObj());
 	}
       }
@@ -169,7 +169,7 @@ StatusCode PixMapDBWriter::finalize(){
       
       std::string name((static_cast<TKey*>
 			((static_cast<TDirectory*>
-			  (pixMapFile->Get(specialPixelHistogramsPath.str().c_str())))->
+			  (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))->
 			 GetListOfKeys()->At(j)))->GetName());
 
       int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
@@ -178,7 +178,7 @@ StatusCode PixMapDBWriter::finalize(){
 	static_cast<TH2C*>
 	((static_cast<TKey*>
 	  ((static_cast<TDirectory*>
-	    (pixMapFile->Get(specialPixelHistogramsPath.str().c_str())))
+	    (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))
 	   ->GetListOfKeys()->At(j)))->ReadObj());
     }
 
@@ -192,7 +192,7 @@ StatusCode PixMapDBWriter::finalize(){
 	
 	std::string name((static_cast<TKey*>
 			  ((static_cast<TDirectory*>
-			    (pixMapFile->Get(hitMapsPath.str().c_str())))->
+			    (pixMapFile.Get(hitMapsPath.str().c_str())))->
 			   GetListOfKeys()->At(j)))->GetName());
 	
 	int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
@@ -201,15 +201,13 @@ StatusCode PixMapDBWriter::finalize(){
 	  static_cast<TH2D*>
 	  ((static_cast<TKey*>
 	    ((static_cast<TDirectory*>
-	      (pixMapFile->Get(hitMapsPath.str().c_str())))
+	      (pixMapFile.Get(hitMapsPath.str().c_str())))
 	     ->GetListOfKeys()->At(j)))->ReadObj());
       }
     }
   }
   
-
-  DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap();
-  
+  auto spm = std::make_unique<DetectorSpecialPixelMap>();
   double nHitsBeforeMask = 0.;
   double nHitsAfterMask = 0.;
 
@@ -436,11 +434,8 @@ StatusCode PixMapDBWriter::finalize(){
 
     ATH_MSG_INFO("");
 
-    pixMapFile->Close();
-    delete pixMapFile;
+    pixMapFile.Close();
     
-    delete spm;
-
     return StatusCode::SUCCESS;
   }
   
@@ -452,8 +447,8 @@ StatusCode PixMapDBWriter::finalize(){
     TH1D* disabledModules = 0;
     TH1D* nEvents = 0;
 
-    pixMapFile->GetObject( "DisabledModules", disabledModules );
-    pixMapFile->GetObject( "NEvents", nEvents );
+    pixMapFile.GetObject( "DisabledModules", disabledModules );
+    pixMapFile.GetObject( "NEvents", nEvents );
 
     double nDisabledModules = 0.;
     
@@ -500,7 +495,7 @@ StatusCode PixMapDBWriter::finalize(){
   }
 
   if( !m_doValidate ){
-    StatusCode sc = m_specialPixelMapSvc->registerCondAttrListCollection(spm);
+    StatusCode sc = m_specialPixelMapSvc->registerCondAttrListCollection(spm.get());
 
     if( !sc.isSuccess() ){
       ATH_MSG_FATAL( "Unable to construct and record CondAttrListCollection" );
@@ -508,10 +503,7 @@ StatusCode PixMapDBWriter::finalize(){
     }
   }
 
-  pixMapFile->Close();
-  delete pixMapFile;
-
-  delete spm;
+  pixMapFile.Close();
   
   return StatusCode::SUCCESS;
 }

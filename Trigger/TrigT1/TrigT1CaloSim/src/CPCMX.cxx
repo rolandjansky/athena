@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // /***************************************************************************
 //                           CPCMX.cxx  -  description
 //                              -------------------
 //     begin                : Mon Jul 28 2014
-//     copyright            : (C) 2014 by Alan Watson
 //     email                : Alan.Watson@CERN.CH
 //  ***************************************************************************/
 //

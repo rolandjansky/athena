@@ -1,19 +1,13 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           RoIROD.h  -  description
                              -------------------
     begin                : Mon Jul 28 2014
-    copyright            : (C) 2014 by Alan Watson
     email                : Alan.Watson@CERN.CH
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 #ifndef _RoIROD_H_
 #define _RoIROD_H_

@@ -26,7 +26,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
-  MonitorFullEvent::MonitorFullEvent(const TrigCostData* _costData) : MonitorBase(_costData, "Full_Evnt"),
+  MonitorFullEvent::MonitorFullEvent(const TrigCostData* costData) : MonitorBase(costData, "Full_Evnt"),
     m_probability(0.),
     m_usePickList(kFALSE),
     m_rando(4), // Seed chosen by fair dice role.
@@ -73,13 +73,13 @@ namespace TrigCostRootAnalysis {
   /**
    * Process new event for this monitor.
    * The full event execution will be summarised.
-   * @param _weight The event weight.
+   * @param weight The event weight.
    */
-  void MonitorFullEvent::newEvent(Float_t _weight) {
+  void MonitorFullEvent::newEvent(Float_t weight) {
     m_timer.start();
-    Bool_t _doSlow = (Bool_t) Config::config().getInt(kCurrentEventIsSlow);
+    Bool_t doSlow = (Bool_t) Config::config().getInt(kCurrentEventIsSlow);
 
-    if ((m_doPick || _doSlow || m_doRND) == kFALSE) {
+    if ((m_doPick || doSlow || m_doRND) == kFALSE) {
       m_timer.stop();
       return;
     }
@@ -90,25 +90,25 @@ namespace TrigCostRootAnalysis {
       return;
     }
 
-    std::string _type;
-    if (m_doPick == kTRUE || m_doRND == kTRUE) _type = m_randomString;
-    else _type = m_slowString;
+    std::string type;
+    if (m_doPick == kTRUE || m_doRND == kTRUE) type = m_randomString;
+    else type = m_slowString;
 
     // Check if we have already saved our max number of events.
     // In this monitor, we use a new counter collection for every event.
     // Gets a little confusing as we need to see what type of saved event it was by looking at one of the counters.
     if (m_doPick == kFALSE) {
-      Int_t _count = 0;
-      for (CounterCollectionIt_t _ccIt = m_counterCollections.begin(); _ccIt != m_counterCollections.end(); ++_ccIt) {
+      Int_t count = 0;
+      for (CounterCollectionIt_t ccIt = m_counterCollections.begin(); ccIt != m_counterCollections.end(); ++ccIt) {
         // Get first counter
-        if ((_ccIt->second).size() == 0) continue;
-        CounterMapIt_t _mapIt = (_ccIt->second).begin();
-        if (m_doRND == kTRUE && _mapIt->second->getStrDecoration(kDecCounterClassification) == m_randomString) ++_count;
+        if ((ccIt->second).size() == 0) continue;
+        CounterMapIt_t mapIt = (ccIt->second).begin();
+        if (m_doRND == kTRUE && mapIt->second->getStrDecoration(kDecCounterClassification) == m_randomString) ++count;
 
-        else if (_doSlow == kTRUE &&
-                 _mapIt->second->getStrDecoration(kDecCounterClassification) == m_slowString) ++_count;
+        else if (doSlow == kTRUE &&
+                 mapIt->second->getStrDecoration(kDecCounterClassification) == m_slowString) ++count;
       }
-      if (_count >= Config::config().getInt(kFullEventMaxNumToSave)) {
+      if (count >= Config::config().getInt(kFullEventMaxNumToSave)) {
         if (Config::config().debug()) {
           Warning("MonitorFullEvent::newEvent", "Reached maximum number of Full-Events to save (%i). Skipping.",
                   (Int_t) m_counterCollections.size());
@@ -120,8 +120,8 @@ namespace TrigCostRootAnalysis {
 
     // For this monitor - we have a CounterCollection per event.
     // The event number is used as the key. Pad with 6 0's
-    const std::string _eventNumberStr = std::string("Event_") + intToString(m_costData->getEventNumber(), 6);
-    CounterMap_t* _eventMap = getCounterCollection(_eventNumberStr, kDoAllSummary); // We don't care what this counter
+    const std::string eventNumberStr = std::string("Event_") + intToString(m_costData->getEventNumber(), 6);
+    CounterMap_t* eventMap = getCounterCollection(eventNumberStr, kDoAllSummary); // We don't care what this counter
                                                                                     // collection is classified as so
                                                                                     // second parameter is not important
 
@@ -130,48 +130,48 @@ namespace TrigCostRootAnalysis {
 
     if (Config::config().getDisplayMsg(kMsgSaveFullEvent) == kTRUE) {
       Info("MonitorFullEvent::newEvent", "Saving full %s event for event number %s",
-           _type.c_str(), _eventNumberStr.c_str());
+           type.c_str(), eventNumberStr.c_str());
     }
 
     // Loop over all sequences.
-    Int_t _location = 0; // Algs are in the D3PD in execution order - note this order so we can sort by it later
-    for (UInt_t _s = 0; _s < m_costData->getNSequences(); ++_s) {
+    Int_t location = 0; // Algs are in the D3PD in execution order - note this order so we can sort by it later
+    for (UInt_t s = 0; s < m_costData->getNSequences(); ++s) {
       // Get the name of the chain this sequence instance is in (Supplying L2 or EF helps, but is not needed)
-      Int_t _chainID = m_costData->getSequenceChannelCounter(_s);
-      const std::string _chainName =
-        TrigConfInterface::getHLTNameFromChainID(_chainID, m_costData->getSequenceLevel(_s));
+      Int_t chainID = m_costData->getSequenceChannelCounter(s);
+      const std::string chainName =
+        TrigConfInterface::getHLTNameFromChainID(chainID, m_costData->getSequenceLevel(s));
 
       // Loop over all algorithms in sequence
-      for (UInt_t _a = 0; _a < m_costData->getNSeqAlgs(_s); ++_a) {
-        Int_t _seqIndex = m_costData->getSequenceIndex(_s);
-        const std::string _seqName = TrigConfInterface::getHLTSeqNameFromIndex(_seqIndex);
-        Int_t _seqAlgPos = m_costData->getSeqAlgPosition(_s, _a);
+      for (UInt_t a = 0; a < m_costData->getNSeqAlgs(s); ++a) {
+        Int_t seqIndex = m_costData->getSequenceIndex(s);
+        const std::string seqName = TrigConfInterface::getHLTSeqNameFromIndex(seqIndex);
+        Int_t seqAlgPos = m_costData->getSeqAlgPosition(s, a);
 
-        const std::string _algName = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
-        const std::string _algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
+        const std::string algName = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
+        const std::string algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
 
-        Int_t _seqAlgNameHash = TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
+        Int_t seqAlgNameHash = TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
 
         // Count how many we have already saved
-        UInt_t _nCountersOfThisAlg = 0;
-        for (CounterMapIt_t _it = _eventMap->begin(); _it != _eventMap->end(); ++_it) {
-          if (_it->first.find(_algName) != std::string::npos) ++_nCountersOfThisAlg;
+        UInt_t nCountersOfThisAlg = 0;
+        for (CounterMapIt_t it = eventMap->begin(); it != eventMap->end(); ++it) {
+          if (it->first.find(algName) != std::string::npos) ++nCountersOfThisAlg;
         }
 
         // Change the name such that we always get a new counter
-        const std::string _algNewName = _algName + std::string("[") + intToString(_nCountersOfThisAlg) +
+        const std::string algNewName = algName + std::string("[") + intToString(nCountersOfThisAlg) +
                                         std::string("]");
-        CounterBase* _counter = getCounter(_eventMap, _algNewName, _seqAlgNameHash);
-        _counter->decorate(kDecAlgClassName, _algType);
-        _counter->decorate(kDecChainName, _chainName);
-        _counter->decorate(kDecSeqName, _seqName);
-        _counter->decorate(kDecCounterClassification, _type);
-        _counter->decorate(kDecID, _location++);
-        _counter->processEventCounter(_s, _a, _weight);
+        CounterBase* counter = getCounter(eventMap, algNewName, seqAlgNameHash);
+        counter->decorate(kDecAlgClassName, algType);
+        counter->decorate(kDecChainName, chainName);
+        counter->decorate(kDecSeqName, seqName);
+        counter->decorate(kDecCounterClassification, type);
+        counter->decorate(kDecID, location++);
+        counter->processEventCounter(s, a, weight);
       }
     }
 
-    endEvent(_weight);
+    endEvent(weight);
     m_timer.stop();
   }
 
@@ -179,23 +179,23 @@ namespace TrigCostRootAnalysis {
    * The full event monitor does not care for ranges, this should never be called
    * @return false
    */
-  Bool_t MonitorFullEvent::getIfActive(ConfKey_t _mode) {
+  Bool_t MonitorFullEvent::getIfActive(ConfKey_t mode) {
     Error("MonitorFullEvent::getIfActive", "Does not make sense to call for the FullEvent monitor (key %s)",
-          Config::config().getName(_mode).c_str());
+          Config::config().getName(mode).c_str());
     return kFALSE;
   }
 
   /**
    * Construct new counter of correct derived type, pass back as base type.
    * This function must be implemented by all derived monitor types.
-   * @see MonitorBase::addCounter( const std::string &_name, Int_t _ID )
-   * @param _name Cost reference to name of counter.
-   * @param _ID Reference to ID number of counter.
+   * @see MonitorBase::addCounter( const std::string &_name, Int_t ID )
+   * @param name Cost reference to name of counter.
+   * @param ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.
    */
-  CounterBase* MonitorFullEvent::newCounter(const std::string& _name, Int_t _ID) {
+  CounterBase* MonitorFullEvent::newCounter(const std::string& name, Int_t ID) {
     // Note - we use Algorithm counter objects in this monitor
-    return new CounterAlgorithm(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
+    return new CounterAlgorithm(m_costData, name, ID, m_detailLevel, (MonitorBase*) this);
   }
 
   /**
@@ -205,85 +205,84 @@ namespace TrigCostRootAnalysis {
     // No histogram output for MonitorFullEvent
 
     // Define output table
-    std::vector<TableColumnFormatter> _toSave;
+    std::vector<TableColumnFormatter> toSave;
 
-    _toSave.push_back(TableColumnFormatter("Execution ID",
+    toSave.push_back(TableColumnFormatter("Execution ID",
                                            "0 is the first algorithm to execute in the event. 1 is the second and so on.",
                                            kDecID, kSavePerCall, 0, kFormatOptionUseIntDecoration));
 
-    //_toSave.push_back( TableColumnFormatter("Start Time (s)",
+    //toSave.push_back( TableColumnFormatter("Start Time (s)",
     //  "Timestamp of the begining of this algorithms execution.",
     //  kDecStartTime, kSavePerCall, 4, kFormatOptionUseFloatDecoration ) );
 
-    _toSave.push_back(TableColumnFormatter("Elapsed Time (s)",
+    toSave.push_back(TableColumnFormatter("Elapsed Time (s)",
                                            "How long into the execution was it before this alg was called.",
                                            kDecElapsedTime, kSavePerCall, 4, kFormatOptionUseFloatDecoration));
 
-    _toSave.push_back(TableColumnFormatter("Chain Name",
+    toSave.push_back(TableColumnFormatter("Chain Name",
                                            "Chain which requested this algorithm call.",
                                            kDecChainName, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
-    _toSave.push_back(TableColumnFormatter("Sequence Step",
+    toSave.push_back(TableColumnFormatter("Sequence Step",
                                            "Sequence step of this algorithm.",
                                            kDecSeqName, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
-    _toSave.push_back(TableColumnFormatter("Algorithm Class",
+    toSave.push_back(TableColumnFormatter("Algorithm Class",
                                            "Class name of this algorithm instance.",
                                            kDecAlgClassName, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
-    _toSave.push_back(TableColumnFormatter("RoI ID(s)",
+    toSave.push_back(TableColumnFormatter("RoI ID(s)",
                                            "Regions of interest to be processed by this algorithm.",
                                            kDecROIString, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
-    _toSave.push_back(TableColumnFormatter("Algorithm Status",
+    toSave.push_back(TableColumnFormatter("Algorithm Status",
                                            "If the result of this algorithm call was cached.",
                                            kDecCallOrCache, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
-    _toSave.push_back(TableColumnFormatter("Algorithm Total Time (ms)",
+    toSave.push_back(TableColumnFormatter("Algorithm Total Time (ms)",
                                            "Total (CPU + ROS) time for this algorithm execution",
                                            kVarTime, kSavePerCall, 2));
 
-    _toSave.push_back(TableColumnFormatter("# Data Requests",
+    toSave.push_back(TableColumnFormatter("# Data Requests",
                                            "Number of calls to the ROS made by this algorithm execution",
                                            kVarROSCalls, kSavePerCall, 0));
 
-    _toSave.push_back(TableColumnFormatter("ROB Time (ms)",
+    toSave.push_back(TableColumnFormatter("ROB Time (ms)",
                                            "Time spent retrieving data from ROBs for this algorithm execution.",
                                            kVarROSTime, kSavePerCall, 2));
 
-    _toSave.push_back(TableColumnFormatter("# Cached ROBs",
+    toSave.push_back(TableColumnFormatter("# Cached ROBs",
                                            "Number of cached ROBs fetched by this algorithm execution.",
                                            kVarROBReqs, kSavePerCall, 0));
 
-    _toSave.push_back(TableColumnFormatter("# Retrieved ROBs",
+    toSave.push_back(TableColumnFormatter("# Retrieved ROBs",
                                            "Number of ROBs retrieved by this algorithm execution",
                                            kVarROBRets, kSavePerCall, 0));
 
-    _toSave.push_back(TableColumnFormatter("Cached ROBs Size (kB)",
+    toSave.push_back(TableColumnFormatter("Cached ROBs Size (kB)",
                                            "Size of cached ROBs fetched by this algorithm execution.",
                                            kVarROBReqSize, kSavePerCall, 2));
 
-    _toSave.push_back(TableColumnFormatter("Retrieved ROBs Size (kB)",
+    toSave.push_back(TableColumnFormatter("Retrieved ROBs Size (kB)",
                                            "Size of ROBs fetched by this algorithm execution.",
                                            kVarROBRetSize, kSavePerCall, 2));
 
-    _toSave.push_back(TableColumnFormatter("Data Requests",
+    toSave.push_back(TableColumnFormatter("Data Requests",
                                            "List of ROS calls by this algorithm and their multiplicity.",
                                            kDecROSString, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
     m_filterOutput = kTRUE;
     filterOutputOnStrDecoration(kDecCounterClassification, m_randomString);
-    sharedTableOutputRoutine(_toSave);
+    sharedTableOutputRoutine(toSave);
 
     setName("Slow_Evnt");
     filterOutputOnStrDecoration(kDecCounterClassification, m_slowString);
-    sharedTableOutputRoutine(_toSave);
+    sharedTableOutputRoutine(toSave);
   }
 } // namespace TrigCostRootAnalysis
 
 // Store some old code here - could come in handy again
-// void CounterFullEvent::debug(UInt_t _e) {
-//   UNUSED( _e );
+// void CounterFullEvent::debug(UInt_t /*e*/) {
 //   // Loop over TEs
 //   std::ofstream fout(std::string("te_test"+getName()+".dot").c_str());
 //   fout << "digraph G{" << std::endl;

@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*- 
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    JpsiEfficiency.h        
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: TrackEfficiency.h, v0.0   Sun 18 Jan 2009 19:08:11 GMT sutt $
 

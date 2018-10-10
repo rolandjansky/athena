@@ -40,7 +40,6 @@
 #include "TH2F.h"
 #include "TAxis.h"
 #include "TH1.h"
-#include "TRandom.h"
 #include "TMath.h"
 
 // PathResolver
@@ -70,12 +69,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
                                          const std::string& name,
                                          const IInterface*  parent )
 : base_class(type, name, parent),
-  m_parentGenEvt(0),
-  m_particleDataTable(0),
   m_randomSvc("AtDSFMTGenSvc", name),
-  m_randomEngineName("ISFRnd"),
-  m_randomEngine(0),
-  m_filenameLookupTable("CaloPunchThroughParametrisation.root"),
   m_pdgInitiators(),
   m_punchThroughParticles(),
   m_doAntiParticles(),
@@ -91,8 +85,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
   m_particlePropSvc("PartPropSvc",name),
   m_geoIDSvc("ISF::GeoIDSvc",name),
   m_barcodeSvc("BarcodeSvc",name),
-  m_envDefSvc("AtlasGeometry_EnvelopeDefSvc",name),
-  m_beamPipe(500.)
+  m_envDefSvc("AtlasGeometry_EnvelopeDefSvc",name)
 {
   // property definition and initialization - allows to set variables from python
 

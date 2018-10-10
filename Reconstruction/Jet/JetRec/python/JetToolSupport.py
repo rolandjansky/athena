@@ -598,7 +598,10 @@ class JetToolManager:
     jetrec.Timer = jetFlags.timeJetRecTool()
     jetrec.ShallowCopy = shallow
     self += jetrec
-    self.jetrecs += [jetrec]
+    if isTrigger:
+      self.trigjetrecs += [jetrec]
+    else:
+      self.jetrecs += [jetrec]
     self.jetcons += [output]
     return jetrec
 

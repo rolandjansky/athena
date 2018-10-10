@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /****************************************************
  *
  * TMConst contains constants relevant to all the L1 trigger. There

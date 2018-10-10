@@ -162,7 +162,7 @@ def getMvaTESEvaluator():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'OnlineMvaTES_BRT_v0.weights.root')
+                                      WeightFileName = 'OnlineMvaTES_BRT_v1.weights.root')
 
     ToolSvc += MvaTESEvaluator
     cached_instances[_name] = MvaTESEvaluator
@@ -820,8 +820,8 @@ def getTauIDVarCalculator():
 
 ########################################################################
 # TauJetRNNEvaluator
-def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
-                          MinChargedTracks=1, MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
+def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
+                          MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
                           InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
                           OutputLayer="rnnid_output", OutputNode="sig_prob"):
 
@@ -833,10 +833,10 @@ def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNN
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
     TauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
+                                      NetworkFile0P=NetworkFile0P,
                                       NetworkFile1P=NetworkFile1P,
                                       NetworkFile3P=NetworkFile3P,
                                       OutputVarname=OutputVarname,
-                                      MinChargedTracks=MinChargedTracks,
                                       MaxTracks=MaxTracks,
                                       MaxClusters=MaxClusters,
                                       MaxClusterDR=MaxClusterDR,
@@ -867,13 +867,15 @@ def getTauWPDecoratorJetRNN():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile1Prong = "rnnid_flat_deep_1p_v0.root",
-                                     flatteningFile3Prong = "rnnid_flat_deep_3p_v0.root",
+                                     flatteningFile0Prong = "rnnid_flat_0p_v4.root",
+                                     flatteningFile1Prong = "rnnid_flat_1p_v4.root",
+                                     flatteningFile3Prong = "rnnid_flat_mp_v4.root",
                                      CutEnumVals =
                                      [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
                                        ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
-                                     SigEff1P = [0.992, 0.99, 0.98, 0.96],
-                                     SigEff3P = [0.99, 0.98, 0.95, 0.90],
+                                     SigEff0P = [0.98, 0.90, 0.65, 0.50],
+                                     SigEff1P = [0.992, 0.99, 0.965, 0.94],
+                                     SigEff3P = [0.99, 0.98, 0.865, 0.80],
                                      ScoreName = "RNNJetScore",
                                      NewScoreName = "RNNJetScoreSigTrans",
                                      DefineWPs = True,

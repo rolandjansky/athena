@@ -4,7 +4,7 @@
 
 #ifndef FASTSHOWER_CELLBUILDERTOOL_H
 #define FASTSHOWER_CELLBUILDERTOOL_H
-// 
+//
 // CellBuilderTool.cxx
 //     Building Cells objects from Atlfast
 //
@@ -17,30 +17,31 @@
 //#include "TruthHelper/GenAccessIO.h"
 #include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "TrkExInterfaces/ITimedExtrapolator.h" 
+#include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
+#include "GaudiKernel/IPartPropSvc.h"
 
 /*
-#if FastCaloSim_project_release_v1 == 12
+  #if FastCaloSim_project_release_v1 == 12
   #include "CLHEP/HepPDT/ParticleDataTable.hh"
-#else  
+  #else
   #include "HepPDT/ParticleDataTable.hh"
-#endif  
+  #endif
 */
 /*
-#include "AtlfastEvent/CollectionDefs.h"
+  #include "AtlfastEvent/CollectionDefs.h"
 
-namespace HepMC_helper{
+  namespace HepMC_helper{
   class IMCselector;
-}
+  }
 
-namespace FastShower{
+  namespace FastShower{
   class GridletForger;
-}
+  }
 
-namespace Atlfast {
+  namespace Atlfast {
   class TesIO;
-}  
+  }
 */
 
 namespace HepMC {
@@ -69,11 +70,11 @@ class TLateralShapeCorrectionBase;
 
 class FastShowerCellBuilderTool: public BasicCellBuilderTool
 {
-public:    
+public:
   FastShowerCellBuilderTool(
-			     const std::string& type, 
-			     const std::string& name, 
-			     const IInterface* parent);
+                            const std::string& type,
+                            const std::string& name,
+                            const IInterface* parent);
   ~FastShowerCellBuilderTool();
 
 
@@ -86,8 +87,8 @@ public:
   // the actual simulation code for one particle can run standalone without process(CaloCellContainer* theCellContainer),
   // but setupEvent() should be called before the first particle and releaseEvent() after the last particle
   StatusCode process_particle(CaloCellContainer* theCellContainer, std::vector<Trk::HitInfo>* hitVector,
-			      Amg::Vector3D initMom, double mass, int pdgId, int barcode );
-  
+                              Amg::Vector3D initMom, double mass, int pdgId, int barcode );
+
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
 
   typedef std::map<int,int> MCdo_simul_state;
@@ -98,75 +99,72 @@ private:
   void LoadParametrizationsFromDir(std::string dir);
   void LoadParametrizationsFromFile(TDirectory& infile,MSG::Level level=MSG::INFO);
   StatusCode OpenParamSource(std::string insource);
-  
-  std::string                    m_mcLocation;   
-  std::string                    m_ParticleParametrizationFileName;
+
+  std::string                    m_mcLocation{"TruthEvent"};
+  std::string                    m_ParticleParametrizationFileName{""};
   std::vector< std::string >     m_AdditionalParticleParametrizationFileNames;
-  
+
   std::vector< std::string >     m_DB_folder;
   std::vector< int >             m_DB_channel;
   std::vector< std::string >     m_DB_dirname;
-  
-  std::string                    m_MuonEnergyInCaloContainer;
-  bool                           m_simul_ID_only;
-  bool                           m_simul_ID_v14_truth_cuts;
-  bool                           m_simul_EM_geant_only;
-  bool                           m_simul_heavy_ions;
-  
-  ICoolHistSvc*                  p_coolhistsvc;
-//  const std::string              m_histfolder; // COOL folder to access
 
-//  HepMC_helper::IMCselector*     m_mcSelector; //selects input particles
-/*  
-  FastShower::LateralShape*      m_latshape;
-  FastShower::LateralShape*      m_latshape_pion;
-  FastShower::LongitudinalShape* m_longshape;
-*/
+  std::string                    m_MuonEnergyInCaloContainer{"FatrasDepositedMuonEnergyInCalo"};
+  bool                           m_simul_ID_only{true};
+  bool                           m_simul_ID_v14_truth_cuts{false};
+  bool                           m_simul_EM_geant_only{false};
+  bool                           m_simul_heavy_ions{false};
 
+  ServiceHandle<ICoolHistSvc>    m_coolhistsvc;
+  //  const std::string              m_histfolder; // COOL folder to access
+
+  //  HepMC_helper::IMCselector*     m_mcSelector; //selects input particles
+  /*
+    FastShower::LateralShape*      m_latshape;
+    FastShower::LateralShape*      m_latshape_pion;
+    FastShower::LongitudinalShape* m_longshape;
+  */
+  ServiceHandle<IPartPropSvc>    m_partPropSvc;
   ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
-  CLHEP::HepRandomEngine*               m_randomEngine;
-  std::string                    m_randomEngineName;         //!< Name of the random number stream
+  CLHEP::HepRandomEngine*        m_randomEngine{};
+  std::string                    m_randomEngineName{"FastCaloSimRnd"};         //!< Name of the random number stream
 
   //CaloDepthTool*                 m_calodepth;
   //CaloDepthTool*                 m_calodepthEntrance;
-  
+
   /** The Extrapolator setup */
-  ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;          
+  ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator; //public tool
 
-  ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper;
-  ICaloCoordinateTool*           m_calo_tb_coord;
-  
-  std::string                    m_calosurf_middle_InstanceName;
-  std::string                    m_calosurf_entrance_InstanceName;
+  ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper; //public tool
+  ToolHandle<ICaloCoordinateTool>  m_calo_tb_coord; //public tool
 
-  bool                           m_jo_interpolate; //ATA: make marjorie's iterpolation optional
-  bool                           m_energy_eta_selection;//mwerner: make new selection of EnergyParam optional
-  bool                           m_use_Ekin_for_depositions;//Use the kinetic energy of a particle to as measure of the energie to deposit in the calo
-  
+  bool                           m_jo_interpolate{false}; //ATA: make marjorie's iterpolation optional
+  bool                           m_energy_eta_selection{false};//mwerner: make new selection of EnergyParam optional
+  bool                           m_use_Ekin_for_depositions{false};//Use the kinetic energy of a particle to as measure of the energie to deposit in the calo
+
   std::vector< float >           m_sampling_energy_reweighting;
-  
+
   void                           CaloLocalPoint (const Trk::TrackParameters* parm, Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local);
-  
-  int                            m_n_surfacelist;
+
+  int                            m_n_surfacelist{5};
   CaloCell_ID_FCS::CaloSample    m_surfacelist[CaloCell_ID_FCS::MaxSample];
-  
-  HepPDT::ParticleDataTable*     m_particleDataTable;
-  
-  TRandom*                       m_rndm;
+
+  HepPDT::ParticleDataTable*     m_particleDataTable{};
+
+  TRandom*                       m_rndm{};
 
   std::vector< int >             m_invisibles;
-  
-//  TGraphErrors*                  geometry[CaloCell_ID_FCS::MaxSample][3];
-  
+
+  //  TGraphErrors*                  geometry[CaloCell_ID_FCS::MaxSample][3];
+
   ParticleEnergyParametrization* findElower(int id,double E,double eta);
   ParticleEnergyParametrization* findEupper(int id,double E,double eta);
   TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange);
-  
+
   //void sum_par(const HepMC::GenParticle* par,MsgStream& log,std::vector<double>& sums,int level=0);
   //void print_par(const HepMC::GenParticle* par,MsgStream& log,int level=0);
-  
 
-public:    
+
+public:
   enum flag_simul_sate {
     zero_state=0,
     out_of_ID=-1,
@@ -183,8 +181,8 @@ public:
 private:
   //std::vector< double > m_spline_reweight_x;
   //std::vector< double > m_spline_reweight_y;
-  
-  bool m_is_init_shape_correction;
+
+  bool m_is_init_shape_correction{false};
   void init_shape_correction();
   typedef std::vector< TLateralShapeCorrectionBase* > t_shape_correction;
   t_shape_correction m_shape_correction;
@@ -200,15 +198,15 @@ private:
   void MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
   void MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
   void MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
-  
-//ID              Energy             Eta
+
+  //ID              Energy             Eta
   typedef std::map< double , ParticleEnergyParametrization* > t_map_PEP_Eta;
   typedef std::map< double , t_map_PEP_Eta > t_map_PEP_Energy;
   typedef std::map< int    , t_map_PEP_Energy > t_map_PEP_ID;
   t_map_PEP_ID m_map_ParticleEnergyParametrizationMap;
 
-//ID              Energy             Eta                Dist
-//  typedef std::map< double , TShape_Result* > t_map_PSP_Eta;
+  //ID              Energy             Eta                Dist
+  //  typedef std::map< double , TShape_Result* > t_map_PSP_Eta;
   typedef std::vector< TShape_Result* > t_map_PSP_DistEta;
   typedef std::map< double , t_map_PSP_DistEta > t_map_PSP_Energy;
   typedef std::map< int    , t_map_PSP_Energy > t_map_PSP_calosample;
@@ -223,14 +221,14 @@ private:
   std::map< int , double> simul_sum_energy;
   std::map< int , double> simul_sum_energyEM;
   std::map< int , double> simul_sum_energyHAD;
-  
-// Variables used during single event generation
+
+  // Variables used during single event generation
 private:
   double E_tot_em;
   double E_tot_had;
   double Et_tot_em;
   double Et_tot_had;
-  
+
   double E_tot_sample[CaloCell_ID_FCS::MaxSample];
   double E_lost_sample[CaloCell_ID_FCS::MaxSample];
   double Et_tot_sample[CaloCell_ID_FCS::MaxSample];
@@ -268,19 +266,14 @@ public:
   double get_eta_calo_surf(int layer) const {return letaCalo[layer];};
   double get_phi_calo_surf(int layer) const {return lphiCalo[layer];};
   double get_d_calo_surf(int layer) const {return dCalo[layer];};
-  
+
 private:
-  std::string 	           m_FastShowerInfoContainerKey;
-  bool 			   m_storeFastShowerInfo;
-  FastShowerInfoContainer* m_FastShowerInfoContainer;
+  std::string              m_FastShowerInfoContainerKey{"FastShowerInfoContainer"};
+  bool                     m_storeFastShowerInfo{false};
+  FastShowerInfoContainer* m_FastShowerInfoContainer{};
   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
-  mutable const Trk::TrackingVolume*  m_caloEntrance;
-  std::string                         m_caloEntranceName; 
+  mutable const Trk::TrackingVolume*  m_caloEntrance{};
+  std::string                         m_caloEntranceName{"InDet::Containers::InnerDetector"};
 };
 
 #endif
-
-
-
-
-

@@ -70,17 +70,27 @@ class TrigBphysElectronCounter_bBee (TrigBphysElectronCounterPy):
         self.ptElectronMin = []
         self.setEFElectronThresholds( self.ptElectronMin, defaultThreshold )
         self.electronCollectionKey = "egamma_Electrons"
+        self.overlapdR = 0.005
 
         # set up PID - defined in TrigHypothesis/TrigEgammaHypo/python/TrigEgammaPidTools
-        from TrigEgammaHypo.TrigEgammaPidTools import (ElectronToolName,BLooseISEMBits)
-        if pidKey == None or not pidKey in ElectronToolName.keys() or not pidKey in BLooseISEMBits.keys() :
+        from TrigEgammaHypo.TrigEgammaPidTools import (ElectronToolName,BLooseISEMBits,ElectronIsEMBits)
+        if pidKey == None or not pidKey in ElectronToolName.keys()  :
             log.info(" Setting up bphys electron chain with no electron PID requirement")
             self.ApplyIsEM = False
         else :        
             self.ApplyIsEM = True
-            self.egammaElectronCutIDToolName =  ElectronToolName[pidKey]
-            self.IsEMrequiredBits = BLooseISEMBits[pidKey]            
-
+            if "LH" in ElectronToolName[pidKey] :
+                self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ ElectronToolName[pidKey]
+                self.UseAthenaElectronLHIDSelectorTool = True
+                self.IsEMrequiredBits = 0
+            else :
+                self.egammaElectronCutIDToolName =  ElectronToolName[pidKey]
+                self.UseAthenaElectronLHIDSelectorTool = False
+                if pidKey in BLooseISEMBits.keys() :
+                    self.IsEMrequiredBits = BLooseISEMBits[pidKey]
+                else :
+                    self.IsEMrequiredBits = ElectronIsEMBits[pidKey]
+                
         time = TrigTimeHistToolConfig("Time")
         validation = TrigBphysElectronCounterValidationMonitoring()
         online = TrigBphysElectronCounterOnlineMonitoring()

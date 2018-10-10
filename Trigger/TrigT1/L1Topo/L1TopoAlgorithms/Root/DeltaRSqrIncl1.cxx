@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DeltaRSqrIncl1.cpp
  * Created by Joerg Stelzer / V Sorin on 9/16/14.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm calculates the R2-distance between objects in one  list and applies dR criteria
  *

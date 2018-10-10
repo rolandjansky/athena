@@ -52,10 +52,10 @@ ChainDictTemplate = {
 #==========================================================
 # ----- Allowed HLT Topo Keywords (in addition to generic topos like DR, DETA, DPHI...)
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg", "bBeexv2", "bBeexM2700", "bBeexM6000"]
+AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg", "bBeexv2", "bBeexM2700", "bBeexM6000", "bBeexM6000t"]
 AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi10', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
-AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut','bVertex2', 'bVertex3',
+AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bDimu6000', 'bNocut','bVertex2', 'bVertex3',
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
                       'bBmumuxv2', 'bBmumuxv3', 
@@ -80,8 +80,12 @@ AllowedTopos_jet = ['muvtx',
                     'deta25',
                     'deta30',
                     'deta35',
+                    'deta40',
+                    'deta45',
+                    'dphi20',
                     'dphi24',
                     'dphi26',
+                    'dphi28',
                     'invm250',
                     'invm400',
                     'invm400j40',
@@ -96,6 +100,8 @@ AllowedTopos_jet = ['muvtx',
                     'invm900',
                     'invm1000',
                     'invm1000j50',
+                    'invm1100j70',
+                    'invm1200j50'
                     ]
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
 AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99', 'bXemu']
@@ -733,6 +739,7 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'l1satmon',
                                 'zdcpeb',
                                 'calibAFP',
+                                'calibAFPALFA',
                                 'rpcpeb',
                                 'idpsl1',
                                 'larpebcalib'

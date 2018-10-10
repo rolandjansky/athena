@@ -61,7 +61,11 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   double halfSupportLength=endblockLength*0.5+dogLegStaveLength*0.5;
   
   gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : "<<endblockZpos<<"  "<<serviceZpos<<"   "<<endblockLength<<endmsg;
-  
+  if((!endblockA) || (!endblockC) || (!endblockFlex) || (!serviceCoolPipe))
+  {
+    gmt_mgr->msg(MSG::ERROR) <<"dynamic_cast failure in "<<__FILE__<< ":"<< __LINE__<<endmsg;
+    exit(EXIT_FAILURE);
+  }
   
   // Define staveRing for side A
   GeoPixelStaveRing staveRing;

@@ -23,8 +23,9 @@ timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${J
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
-# this is RTT and will need some moving
-#timeout 1m PerfMonRunner.py --fileName=ntuple.pmon.gz --options="-f 0.90"
+# Run perfmon
+timeout 1m perfmon.py -f 0.90 ntuple.pmon.gz
+timeout 1m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50% ntuple.perfmon.png
 
 echo $(date "+%FT%H:%M %Z")"     Running chainDump"
 timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
@@ -59,22 +60,27 @@ else
   echo $(date "+%FT%H:%M %Z")"     file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
 fi
 
-echo $(date "+%FT%H:%M %Z")"     Running check for zero L1, HLT or TE counts"
-export COUNT_EXIT=0
-if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
-  echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
-  (( COUNT_EXIT = COUNT_EXIT || 1 ))
-fi
-if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
-  echo "HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt"
-  (( COUNT_EXIT = COUNT_EXIT || 1 ))
-fi
-if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
-  echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
-  (( COUNT_EXIT = COUNT_EXIT || 1 ))
-fi
-echo "art-result: ${COUNT_EXIT} ZeroCounts"
 
+echo "trigedm SKIP_CHAIN_DUMP" $[SKIP_CHAIN_DUMP]
+if [ $[SKIP_CHAIN_DUMP] != 1 ]; then 
+   echo $(date "+%FT%H:%M %Z")"     Running check for zero L1, HLT or TE counts"
+   export COUNT_EXIT=0
+   if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
+      echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
+     (( COUNT_EXIT = COUNT_EXIT || 1 ))
+   fi
+   if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
+      echo "HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt"
+      (( COUNT_EXIT = COUNT_EXIT || 1 ))
+   fi
+   if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
+      echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
+      (( COUNT_EXIT = COUNT_EXIT || 1 ))
+   fi
+   echo "art-result: ${COUNT_EXIT} ZeroCounts"
+else
+  echo $(date "+%FT%H:%M %Z")"    Do not run ZERO counts for this test, SKIP_CHAIN_DUMP=1"
+fi
 
 if [ -f ESD.pool.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on ESD"
@@ -94,5 +100,8 @@ if [ -f AOD.pool.root ]; then
 else 
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
+
+echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
+ls -lh
 
 echo  $(date "+%FT%H:%M %Z")"     Finished TriggerTest post processing for test ${NAME}"

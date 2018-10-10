@@ -31,6 +31,7 @@ class FTK_RawTrack {
 
  public:
   FTK_RawTrack(); 
+  FTK_RawTrack(const FTK_RawTrack&); 
   FTK_RawTrack(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
   FTK_RawTrack(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, const std::vector<FTK_RawPixelCluster>&, const std::vector<FTK_RawSCT_Cluster>&);
   ~FTK_RawTrack();
@@ -62,6 +63,7 @@ class FTK_RawTrack {
   uint32_t getPixelBarcode( int ) const;
   uint32_t getSCTWord( int )      const;
   uint32_t getSCTBarcode( int )   const;
+  bool getIsAuxFormat();
 
   signed long getBarcode() const {return m_barcode; }
   FTK_RawPixelCluster& getPixelCluster( int );
@@ -92,6 +94,8 @@ class FTK_RawTrack {
   void setCotTh(float);
   void setInvPt(float);
   void setChi2(float);
+  void setIsAuxFormat(bool);
+
   //  void setQuality(float);
   void setPixelCluster(unsigned int layer,  const FTK_RawPixelCluster& );
   void setSCTCluster( unsigned int layer,    const FTK_RawSCT_Cluster&  );
@@ -99,8 +103,6 @@ class FTK_RawTrack {
   void setSCTClusters(   std::vector<FTK_RawSCT_Cluster>&  );
   void setBarcode(signed long barcode) { m_barcode = barcode; }
 
-
-  
  private:
 
   inline unsigned int trackVersion() const  

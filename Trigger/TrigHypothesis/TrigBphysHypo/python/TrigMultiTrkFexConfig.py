@@ -190,7 +190,7 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.nL2CombMuon = 0
         self.nL2SAMuon = 0
         self.ptMuonMin = [] #3600., 3600.]
-        #self.overlapdR  = 0.005 
+        self.overlapdR  = 0.005 
 
 
         time = TrigTimeHistToolConfig("Time")
@@ -469,3 +469,36 @@ class TrigMultiTrkFex_EMu (TrigMultiTrkFexPy):
         online = TrigMultiTrkFexOnlineMonitoring()
                                 
         self.AthenaMonTools = [ validation, online, time ]
+
+#############################################################################
+class TrigMultiTrkFex_DiE (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_DiE"):
+        super( TrigMultiTrkFex_DiE, self ).__init__( name )
+        self.nTrk = 2
+        self.trkMass =  0.511  # looking for di-electron resonances       
+        self.nTrkVertexChi2 = 20  # set twice worse than for muons
+        self.nTrkCharge = 0
+        self.nTrkMassMin = [10.]
+        self.nTrkMassMax = [9000.] 
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for 2mu passing L1 - changed in generateBphysicsChainDefs
+        self.diTrkMassMin = []   # phi window
+        self.diTrkMassMax = []
+        self.diTrkCharge = -1
+        self.outputTrackCollectionKey = "MultiTrkFex_DiE"
+        self.bphysCollectionKey = "MultiTrkFex_DiE"
+        self.maxNOutputObject = 10
+
+        # muons are not matched to tracks, but still require to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
+

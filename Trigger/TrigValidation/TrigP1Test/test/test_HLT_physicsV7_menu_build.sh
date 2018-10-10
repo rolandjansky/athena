@@ -3,10 +3,6 @@
 # art-description:  Run athenaHLT on all events to create trigger configuration, generates and uploads SMKs created from the HLT first and compares after rerun jobs from DB, then compare the SMK created from the HLT_physicsV7 first and rerun jobs 
 # art-type: build
 # art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
-# art-include: 21.0/AthenaP1
-# art-include: 21.0-TrigMC/AthenaP1
-# art-include: master/AthenaP1
 
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"

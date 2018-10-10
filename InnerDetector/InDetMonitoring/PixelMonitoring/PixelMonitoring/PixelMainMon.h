@@ -399,6 +399,20 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH2F_LW* m_npixhits_per_track_lumi;
   TH2F* m_npixhits_per_track_lastXlb;
 
+  // zoomed clusterToTxcosAlpha peak region
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_IBL;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_IBL;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B0;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B0;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B1;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B1;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B2;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B2;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_ECA;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_ECA;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_ECC;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_ECC;
+
   // cluster size
   TH1F_LW* m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_clusize_offtrack_mod[PixLayerIBL2D3D::COUNT];
@@ -484,9 +498,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_errhist_expert_LB[PixLayer::COUNT - 1][kNumErrorStates];
   TProfile_LW* m_errhist_expert_DBMIBL_LB[PixLayerDBM::COUNT - PixLayerDBM::kDBMA][kNumErrorStatesIBL];
   TH3F* m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
-  TH1F_LW* m_errhist_expert_servrec_ibl_unweighted;
-  TH1F_LW* m_errhist_expert_servrec_ibl_weighted;
-  TH1F_LW* m_errhist_expert_servrec_ibl_count;
 
   // Histograms in low-stat folder
   std::unique_ptr<PixelMon2DMapsLW> m_errors_LB;

@@ -30,7 +30,9 @@ class ExternalPHOTOS(ExternalBase):
         """
         # Check that PHOTOS is not disabled
         self.expose()
-        if self.PHOTOS_enabled != 1:
-            logger.warning("PHOTOS not enabled")
+        if self.PHOTOS_enabled:
+            logger.info("Running with PHOTOS enabled")
+        else:
+            logger.info("Running without PHOTOS")
             return False
         return True

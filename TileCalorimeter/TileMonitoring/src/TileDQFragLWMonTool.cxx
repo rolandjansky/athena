@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <cmath>
 
+#include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2I_LW.h"
 #include "LWHists/TProfile_LW.h"
 
@@ -290,6 +291,22 @@ void TileDQFragLWMonTool::bookFirstEventHistograms() {
 
   memset(m_globalErrCount, 0, sizeof(m_globalErrCount));
 
+  /* tibor.zenis@cern.ch */
+  /* histograms of errors from eventinfo */
+
+  m_eventinfoError_LB = book1ILW(badDrawersDir, "TileEventsWithErrEventinfo", "# events with errors in eventinfo", m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+  m_eventinfoError_LB->GetXaxis()->SetTitle("LumiBlock");
+  m_eventinfoError_LB->GetYaxis()->SetTitle("# events with error");
+
+  m_nConsecBad_LB = book2ILW(badDrawersDir, "TileConsecutiveBadLB", "Max # consecutive bad modules", m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, 17, -0.5, 16.5);
+  m_nConsecBad_LB->GetXaxis()->SetTitle("LumiBlock");
+  m_nConsecBad_LB->GetYaxis()->SetTitle("# consecutive bad modules");
+
+  m_nConsecBad = book1ILW(badDrawersDir, "TileConsecutiveBad", "Max # consecutive bad modules", 17, -0.5, 16.5);
+  m_nConsecBad->GetXaxis()->SetTitle("# consecutive bad modules");
+  m_nConsecBad->GetYaxis()->SetTitle("n");
+
+
   for (unsigned int ros = 0; ros < 4; ros++) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer){
       bookErrorsHistograms(ros, drawer);
@@ -342,6 +359,7 @@ StatusCode TileDQFragLWMonTool::fillHistograms() {
 /*---------------------------------------------------------*/
 
 
+  int nbad;
   fillEvtInfo();
 
   if (m_isFirstEvent) { // first event of the run, fill masked dmu
@@ -350,11 +368,21 @@ StatusCode TileDQFragLWMonTool::fillHistograms() {
     m_isFirstEvent = false;
   }
 
+  if (m_manager->forkedProcess()) {
+    fillMasking();
+    m_nEvents = 1;
+    m_nEventsWithAllDigits = 0;
+  }
+
   if (getL1info() == 0x82) {
     ++m_nEventsWithAllDigits;
   }
 
   fillBadDrawer();
+  nbad = gettileError_error() ? 16 : ((gettileFlag() >> 16) & 0xF);
+  m_eventinfoError_LB->Fill(getLumiBlock(), gettileError_error() ? 1 : 0);
+  m_nConsecBad_LB->Fill(getLumiBlock(), nbad);
+  m_nConsecBad->Fill(nbad);
   for (unsigned int ros = 0; ros < 4; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer){
       fillErrorsHistograms(ros, drawer);

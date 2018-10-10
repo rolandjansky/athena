@@ -6,7 +6,6 @@
  least squared fit to track hit data => PerigeeParameters with covariance
  and fit quality. 
  ------------------------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 //<<<<<< INCLUDES                                                       >>>>>>

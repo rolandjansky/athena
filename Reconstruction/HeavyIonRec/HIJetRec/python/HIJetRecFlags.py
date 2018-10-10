@@ -126,6 +126,13 @@ class ExtraFlowMoments(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class DoHIBTagging(JobProperty):
+    """ Perform b-tagging over HI jet collections
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 
 class HIClusterKey(JobProperty):
     """ Key of CaloClusterContainer containing HI clusters
@@ -251,6 +258,7 @@ list_jobproperties = [UnsubtractedSuffix,
                       ModulationScheme,
                       Remodulate,
                       ExtraFlowMoments,
+                      DoHIBTagging,
                       HIClusterKey,
                       IteratedEventShapeKey,
                       TruthJetPtMin,

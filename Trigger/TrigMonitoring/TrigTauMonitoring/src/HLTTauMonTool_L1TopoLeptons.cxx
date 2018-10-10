@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  @file HLTTauMonTool_L1TopoLeptons.cxx
 //  created by Eleni-Myrto Asimakopoulou <eleni.myrto.asimakopoulou@cern.ch>
 #include "TProfile.h"

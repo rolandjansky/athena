@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  @file HLTTauMonTool_efficiencyRatioPlots.cxx
 //  created by Eleni Myrto Asimakopoulou <eleni.myrto.asimakopoulou@cern.ch>
 #include "TROOT.h"
@@ -17,23 +20,30 @@
 #include "AthenaKernel/Units.h"
 using namespace std;
 using Athena::Units::GeV;
-StatusCode HLTTauMonTool::efficiencyRatioPlots(const std::string & trigItem){
+StatusCode HLTTauMonTool::efficiencyRatioPlots(const std::string & trigItem, const std::string & goodTauRefType){
 	
 	//StatusCode sc;
    
     ATH_MSG_DEBUG ("HLTTauMonTool::doEffRatioPlots");
     setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
    
+	  std::vector<const xAOD::TauJet *> m_taus_here;
+		if (goodTauRefType == "RNN") {
+			m_taus_here = m_taus_RNN;
+		} else {
+			m_taus_here = m_taus_BDT;
+		}
+
     std::string trig_item_EF = "HLT_"+trigItem;
     std::string trig_item_L1(LowerChain( trig_item_EF ) );
 
     // Loop over selected offline taus  
-    for(unsigned int t=0;t<m_taus.size();t++)
+    for(unsigned int t=0;t<m_taus_here.size();t++)
     {
-   	    TLorentzVector TauTLV = m_taus.at(t)->p4();
+   	    TLorentzVector TauTLV = m_taus_here.at(t)->p4();
 	    float eta = (float)TauTLV.Eta();
 	    float pt = (float)TauTLV.Pt();
-	    int ntracks = m_taus.at(t)->nTracks();
+	    int ntracks = m_taus_here.at(t)->nTracks();
 		float mu(Pileup());
 
 		// Eff comp TProfiles for FTK vs Non-FTK chains

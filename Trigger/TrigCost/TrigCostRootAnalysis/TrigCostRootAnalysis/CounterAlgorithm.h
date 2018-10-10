@@ -33,18 +33,18 @@ namespace TrigCostRootAnalysis {
    */
   class CounterAlgorithm: public CounterBase {
   public:
-    CounterAlgorithm(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-                     MonitorBase* _parent = 0);
+    CounterAlgorithm(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+                     MonitorBase* parent = 0);
     ~CounterAlgorithm();
     void startEvent();
-    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent(Float_t _weight = 1);
-    void debug(UInt_t _e, UInt_t _a);
+    void processEventCounter(UInt_t e, UInt_t f, Float_t weight = 1.);
+    void endEvent(Float_t weight = 1);
+    void debug(UInt_t e, UInt_t a);
   private:
-    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
+    Double_t getPrescaleFactor(UInt_t e = INT_MAX);
 
-    void fullExecutionInformation(UInt_t _e, UInt_t _f, Float_t _weight);
-    Float_t getElapsedTime(UInt_t _e, UInt_t _f);
+    void fullExecutionInformation(UInt_t e, UInt_t f, Float_t weight);
+    Float_t getElapsedTime(UInt_t e, UInt_t f);
 
     static Float_t s_eventTimeExecute; //!< Static tabulation of execute time for all algorithms in an event.
     Float_t m_firstAlgStartTime; //!< Used to keep track of the earliest (first) execution of this counter in any one

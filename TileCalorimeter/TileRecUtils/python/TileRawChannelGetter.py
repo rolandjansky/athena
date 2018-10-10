@@ -140,15 +140,17 @@ class TileRawChannelGetter ( Configured)  :
             TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
             TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
 
-            if (jobproperties.TileRecFlags.doTileFitCool()
+            if (jobproperties.TileRecFlags.doTileMF()
                 or (not jobproperties.TileRecFlags.OfcFromCOOL()
-                    and (jobproperties.TileRecFlags.doTileMF()
-                         or jobproperties.TileRecFlags.doTileOF1()
+                    and (jobproperties.TileRecFlags.doTileOF1()
                          or jobproperties.TileRecFlags.doTileOpt2()
                          or jobproperties.TileRecFlags.doTileOptATLAS()))):
 
-                    tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
-                    tileInfoConfigurator.setupCOOLAutoCr()
+                tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
+                tileInfoConfigurator.setupCOOLAutoCr()
+
+            elif jobproperties.TileRecFlags.doTileFitCool():
+                tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
 
             if jobproperties.TileRecFlags.OfcFromCOOL():
                 if (jobproperties.TileRecFlags.doTileMF()

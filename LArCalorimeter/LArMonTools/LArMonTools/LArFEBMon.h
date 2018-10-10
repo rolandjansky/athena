@@ -10,6 +10,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArTools/LArCablingService.h"
+#include "LArIdentifier/LArReadoutModuleService.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "Identifier/HWIdentifier.h"
 
@@ -76,7 +78,12 @@ private:
   // a handle on StoreGate 
   //   StoreGateSvc* m_storeGate;
   const LArOnlineID* m_onlineHelper;
+
+  LArReadoutModuleService m_readoutModuleService;
   LArOnlineIDStrHelper* m_strHelper;
+  /** Handle to LArCablingService */
+  ToolHandle<LArCablingService> m_larCablingService;  
+
   ToolHandle<ILArBadChanTool> m_badChannelTool;
   // trig. decision tool
   ToolHandle<Trig::TrigDecisionTool>  m_trigDec;
@@ -103,6 +110,10 @@ private:
       badGain = NULL;
       LArAllErrors = NULL;
       LArAllErrorsYield = NULL;
+      LArAllErrors_ROD = NULL;
+      LArAllErrors_RODYield = NULL;
+      LArAllErrors_ROS = NULL;
+      LArAllErrors_ROSYield = NULL;
       maskedFEB = NULL;
       missingTriggerType = NULL;
       nbOfEvts = NULL;
@@ -131,6 +142,10 @@ private:
     TH2I_LW* badGain;
     TH2I_LW* LArAllErrors;
     TH2F_LW* LArAllErrorsYield;
+    TH2I_LW* LArAllErrors_ROD;
+    TH2F_LW* LArAllErrors_RODYield;
+    TH1I_LW* LArAllErrors_ROS;
+    TH1F_LW* LArAllErrors_ROSYield;
     TH2I_LW* maskedFEB;
     // Stored in Misc directory
     TH2I_LW* missingTriggerType;
@@ -184,11 +199,12 @@ private:
   TTree* m_CorruptTree;
   
   StatusCode bookNewPartitionSumm(int partNb);
-  void fillErrorsSummary(int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
+  void fillErrorsSummary(int partitNb_2,int ft,int slot,int rodcrate,int rodslot,int rosid,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
   void plotMaskedFEB();
   //  void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
   void fillFebInError(int partNb,int errorType);
   void fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto);
+  void fillYieldHistos(TH1I_LW* summaryHisto,TH1F_LW* statusHisto);
   int returnPartition(int be,int pn,int ft,int sl);
 };
 

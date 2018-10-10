@@ -47,7 +47,7 @@ class TFile;
 #define UNUSED(expr) do {(void) (expr);} while (0)
 
 /**
- * @file Utility.h
+ * @file TrigCostRootAnalysis/Utility.h
  *
  * Place for handy utility functions
  *
@@ -163,6 +163,7 @@ namespace TrigCostRootAnalysis {
     kExtrapolate13To5,
     kLumiExtrapWeight,
     kMaxMultiSeed,
+    kMaxMultiSeedForGroup,
     kWroteProgressFile,
     kBasicEventWeight,
     kOnlinePeakMuAverage,
@@ -174,7 +175,7 @@ namespace TrigCostRootAnalysis {
     kDoNotWriteMetadata,
     kCurrentEventBunchGroupID,
     kCurrentEventEBWeight,
-    kCurrentEventWasRandomOnline, // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
+    kCurrentEventWasRandomOnline, // \<BEGIN\> Monitors - ORDERING IS IMPORTANT HERE
     kMonitorBegin, //!< This entry must be first (used in loops elsewhere). The rest of the monitors can technically
                    // come in any order, and new ones may be added
     kDoRatesUpgradeMonitor,
@@ -195,7 +196,7 @@ namespace TrigCostRootAnalysis {
     kDoGlobalsMonitor,
     kDoFullEventMonitor, //!< This entry must be after the GlobalsMonitor/ breaks the partitioning (to be fixed :( )
     kDoEventProfileMonitor,
-    kDoAllMonitor, //!< This entry must be last // <END> Monitors - ORDERING IS IMPORTANT HERE
+    kDoAllMonitor, //!< This entry must be last // \<END\> Monitors - ORDERING IS IMPORTANT HERE
     kEnableROSToAlgMatching,
     kPatternsMonitor,
     kPatternsOutput,
@@ -316,6 +317,7 @@ namespace TrigCostRootAnalysis {
     kWriteDummyPSXML,
     kNoMsgSuppression,
     kIgnoreRerun,
+    kHLTPass,
     kHistBins,
     kHistBinMin,
     kHistBinMax,
@@ -588,94 +590,94 @@ namespace TrigCostRootAnalysis {
   // Helper functions
   // These need to find a more permanent home
 
-  Bool_t checkPatternNameMonitor(const std::string& _patternName, Bool_t _invert, Bool_t _isRerun = kFALSE);
-  Bool_t checkPatternNameOutput(const std::string& _patternName, Bool_t _invert);
-  Bool_t checkPatternUnique(const std::string& _patternName, Bool_t _invert);
-  Bool_t checkPatternOverlap(const std::string& _patternName, Bool_t _invert);
-  Bool_t checkPatternInternal(const std::string& _counterName, ConfKey_t _list, Bool_t _invert);
-  Bool_t checkPatternNoLumiWeight(const std::string& _counterName);
-  Bool_t checkPatternNoMuLumiWeight(const std::string& _counterName);
-  Bool_t checkPatternNoBunchLumiWeight(const std::string& _counterName);
-  Bool_t checkPatternExponentialWithMu(const std::string& _counterName);
+  Bool_t checkPatternNameMonitor(const std::string& patternName, Bool_t invert, Bool_t isRerun = kFALSE);
+  Bool_t checkPatternNameOutput(const std::string& patternName, Bool_t invert);
+  Bool_t checkPatternUnique(const std::string& patternName, Bool_t invert);
+  Bool_t checkPatternOverlap(const std::string& patternName, Bool_t invert);
+  Bool_t checkPatternInternal(const std::string& counterName, ConfKey_t list, Bool_t invert);
+  Bool_t checkPatternNoLumiWeight(const std::string& counterName);
+  Bool_t checkPatternNoMuLumiWeight(const std::string& counterName);
+  Bool_t checkPatternNoBunchLumiWeight(const std::string& counterName);
+  Bool_t checkPatternExponentialWithMu(const std::string& counterName);
 
-  Int_t stringToInt(const std::string& _i);
-  Float_t stringToFloat(const std::string& _i);
-  Double_t stringToDouble(const std::string& _i);
-  std::string intToString(Long64_t _i, UInt_t _pad = 0);
-  std::string intToString(Int_t _i, UInt_t _pad = 0);
-  std::string intToString(UInt_t _i, UInt_t _pad = 0);
-  std::string floatToString(Float_t _f, Int_t _precision = 4);
-  std::string doubleToString(Double_t _d, Int_t _precision = 4);
+  Int_t stringToInt(const std::string& i);
+  Float_t stringToFloat(const std::string& i);
+  Double_t stringToDouble(const std::string& i);
+  std::string intToString(Long64_t i, UInt_t pad = 0);
+  std::string intToString(Int_t i, UInt_t pad = 0);
+  std::string intToString(UInt_t i, UInt_t pad = 0);
+  std::string floatToString(Float_t f, Int_t precision = 4);
+  std::string doubleToString(Double_t d, Int_t precision = 4);
   void plotText(Double_t x, Double_t y, const char* text);
-  void plotHistogram(TH1F* _h, Bool_t _isLogY = kTRUE, std::string _opt = "");
-  Bool_t isZero(Float_t _float, Float_t _precision = 0.00000001);
-  Bool_t isEqual(Float_t _float1, Float_t _float2, Float_t _precision = 0.00000001);
-  ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
-  UInt_t stringToIntHash(const std::string& s);
-  const std::string& getLevelString(UInt_t _level);
-  Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2);
+  void plotHistogram(TH1F* h, Bool_t isLogY = kTRUE, std::string opt = "");
+  Bool_t isZero(Float_t float_, Float_t precision = 0.00000001);
+  Bool_t isEqual(Float_t float1, Float_t float2, Float_t precision = 0.00000001);
+  ConfVariableOptionPair_t makePair(ConfKey_t name, VariableOption_t vo);
+  UInt_t stringToIntHash(std::string& s);
+  const std::string& getLevelString(UInt_t level);
+  Float_t deltaR(Float_t phi1, Float_t phi2, Float_t eta1, Float_t eta2);
 
   class JsonExport {
   public:
     JsonExport() : m_level(0), m_hasLeaves(kFALSE), m_justEnded(kFALSE), m_minimal(kFALSE) {
     }
 
-    void addNode(std::ostream& _fout, std::string _name, std::string _icon = "") {
-      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
-      if (m_justEnded == kTRUE) _fout << ",";
-      _fout << "{";
-      if (!m_minimal) _fout << std::endl;
+    void addNode(std::ostream& fout, std::string name, std::string icon = "") {
+      if (!m_minimal) fout << std::string(m_level * 2, ' ');
+      if (m_justEnded == kTRUE) fout << ",";
+      fout << "{";
+      if (!m_minimal) fout << std::endl;
       m_justEnded = kFALSE;
 
       ++m_level;
 
-      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
-      _fout << "\"text\": \"" << _name << "\",";
-      if (!m_minimal) _fout << std::endl << std::string(m_level * 2, ' ');
-      if (_icon != "") _fout << "\"icon\": \"images/" << _icon << ".png\",";
-      if (!m_minimal && _icon != "") _fout << std::endl << std::string(m_level * 2, ' ');
-      _fout << "\"children\": [";
+      if (!m_minimal) fout << std::string(m_level * 2, ' ');
+      fout << "\"text\": \"" << name << "\",";
+      if (!m_minimal) fout << std::endl << std::string(m_level * 2, ' ');
+      if (icon != "") fout << "\"icon\": \"images/" << icon << ".png\",";
+      if (!m_minimal && icon != "") fout << std::endl << std::string(m_level * 2, ' ');
+      fout << "\"children\": [";
       ++m_level;
-      if (!m_minimal) _fout << std::endl;
+      if (!m_minimal) fout << std::endl;
     }
 
-    void addLeaf(std::ostream& _fout, std::string _name, std::string _icon = "") {
-      if (m_hasLeaves != 0) _fout << "," << std::endl;
+    void addLeaf(std::ostream& fout, std::string name, std::string icon = "") {
+      if (m_hasLeaves != 0) fout << "," << std::endl;
       m_hasLeaves = kTRUE;
-      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
-      _fout << "{\"text\": \"" << _name << "\"";
-      if (_icon != "") _fout << ", \"icon\": \"images/" << _icon << ".png\"";
-      _fout << "}";
+      if (!m_minimal) fout << std::string(m_level * 2, ' ');
+      fout << "{\"text\": \"" << name << "\"";
+      if (icon != "") fout << ", \"icon\": \"images/" << icon << ".png\"";
+      fout << "}";
     }
 
-    void addLeafCustom(std::ostream& _fout, std::string _name, std::string _value, std::string _name2 = "",
-                       std::string _value2 = "") {
-      if (m_hasLeaves != 0) _fout << "," << std::endl;
+    void addLeafCustom(std::ostream& fout, std::string name, std::string value, std::string name2 = "",
+                       std::string value2 = "") {
+      if (m_hasLeaves != 0) fout << "," << std::endl;
       m_hasLeaves = kTRUE;
-      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
-      _fout << "{\"" << _name << "\": \"" << _value << "\"";
-      if (_name2 != "") {
-        _fout << ", \"" << _name2 << "\": \"" << _value2 << "\"}";
+      if (!m_minimal) fout << std::string(m_level * 2, ' ');
+      fout << "{\"" << name << "\": \"" << value << "\"";
+      if (name2 != "") {
+        fout << ", \"" << name2 << "\": \"" << value2 << "\"}";
       } else {
-        _fout << "}";
+        fout << "}";
       }
     }
 
-    void endNode(std::ostream& _fout) {
+    void endNode(std::ostream& fout) {
       if (m_hasLeaves != 0) {
-        _fout << std::endl;
+        fout << std::endl;
       }
       m_hasLeaves = kFALSE;
       m_justEnded = kTRUE;
 
 
-      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
-      _fout << "]";
+      if (!m_minimal) fout << std::string(m_level * 2, ' ');
+      fout << "]";
       --m_level; // Leaves
 
 
-      if (!m_minimal) _fout << std::endl;
-      _fout << std::string(m_level * 2, ' ') << "}" << std::endl; //always do this endl to make the file not crazy
+      if (!m_minimal) fout << std::endl;
+      fout << std::string(m_level * 2, ' ') << "}" << std::endl; //always do this endl to make the file not crazy
       --m_level; // Node
     }
 

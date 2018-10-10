@@ -30,6 +30,7 @@ void TFCSLateralShapeParametrizationHitChain::set_geometry(ICaloGeometry* geo)
 
 int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
+  // TODO: should we still do it?
   if(m_number_of_hits_simul) {
     int n=m_number_of_hits_simul->get_number_of_hits(simulstate,truth,extrapol);
     if(n<1) n=1;
@@ -42,32 +43,49 @@ int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationSt
   return 1;
 }
 
-void TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   // Call get_number_of_hits() only once, as it could contain a random number
-  int nhit=get_number_of_hits(simulstate,truth,extrapol);
+  int nhit = get_number_of_hits(simulstate, truth, extrapol);
+  if (nhit <= 0) {
+    ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): number of hits could not be calculated");
+    return FCSFatal;
+  }
+
   float Ehit=simulstate.E(calosample())/nhit;
-  
-  if(msgLvl(MSG::DEBUG)) {
+
+  bool debug = msgLvl(MSG::DEBUG);
+  if (debug) {
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" #hits="<<nhit);
-    for(int i=0;i<nhit;++i) {
-      TFCSLateralShapeParametrizationHitBase::Hit hit; 
-      hit.E()=Ehit;
-      for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
-        if(i<2) hitsim->setLevel(MSG::DEBUG);
-         else hitsim->setLevel(MSG::INFO);
-        hitsim->simulate_hit(hit,simulstate,truth,extrapol);
-      } 
-    }  
-  } else {
-    for(int i=0;i<nhit;++i) {
-      TFCSLateralShapeParametrizationHitBase::Hit hit; 
-      hit.E()=Ehit;
-      for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
-        hitsim->simulate_hit(hit,simulstate,truth,extrapol);
-      } 
-    }  
-  }  
+  }
+
+  for (int i = 0; i < nhit; ++i) {
+    TFCSLateralShapeParametrizationHitBase::Hit hit; 
+    hit.E()=Ehit;
+    for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
+      if (debug) {
+        if (i < 2) hitsim->setLevel(MSG::DEBUG);
+        else hitsim->setLevel(MSG::INFO);
+      }
+
+      for (int i = 0; i <= FCS_RETRY_COUNT; i++) {
+        if (i > 0) ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Retry simulate_hit call " << i << "/" << FCS_RETRY_COUNT);
+  
+        FCSReturnCode status = hitsim->simulate_hit(hit, simulstate, truth, extrapol);
+
+        if (status == FCSSuccess)
+          break;
+        else if (status == FCSFatal)
+          return FCSFatal;
+
+        if (i == FCS_RETRY_COUNT) {
+          ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): simulate_hit call failed after " << FCS_RETRY_COUNT << "retries");
+        }
+      }
+    }
+  }
+
+  return FCSSuccess;
 }
 
 void TFCSLateralShapeParametrizationHitChain::Print(Option_t *option) const
