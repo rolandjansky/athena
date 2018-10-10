@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinsDiffFromPreviousLBs.cxx evaluates the number of consecutive bins with bin value different from set threshold. Also usable for single bins. 
@@ -39,32 +39,15 @@ dqm_algorithms::BinsDiffFromPreviousLBs::clone()
   return new BinsDiffFromPreviousLBs();
 }
 
-
-int dqm_algorithms::BinsDiffFromPreviousLBs::getMax(std::vector<int> lbs, int n)
-{
-  int max = lbs[0]; 
-  for (int i = 1; i < n; i++) 
-    if (lbs[i] > max) 
-      max = lbs[i]; 
-  return max; 
-}
-
-int dqm_algorithms::BinsDiffFromPreviousLBs::getMin(std::vector<int> lbs, int n)
-{
-  int min = lbs[0];
-  for (int i = 1; i < n; i++)
-    if (lbs[i] < min)
-      min = lbs[i];
-  return min;
-}
-
 bool dqm_algorithms::BinsDiffFromPreviousLBs::areConsecutive(std::vector<int> lbs, int n) 
 { 
   if ( n <  1 ) 
     return false; 
   
-  int min = getMin(lbs, n); 
-  int max = getMax(lbs, n); 
+  auto result = std::minmax_element(lbs.begin(), lbs.end());
+  
+  int min = lbs[*result.first];
+  int max = lbs[*result.second];
   
   if (max - min  + 1 == n) 
     { 
@@ -87,7 +70,7 @@ dqm_algorithms::BinsDiffFromPreviousLBs::execute(const std::string &  name,
 					   const TObject& object, 
 					   const dqm_core::AlgorithmConfig& config )
 { 
-  TH1* histogram;
+  TH1* histogram = NULL;
 
   if( object.IsA()->InheritsFrom( "TH1" ) ) {
     histogram = (TH1*)&object;
@@ -133,7 +116,7 @@ dqm_algorithms::BinsDiffFromPreviousLBs::execute(const std::string &  name,
     throw dqm_core::BadConfig( ERS_HERE, name, ex.what(), ex );
   }
   
-  TH1* resulthisto;
+  TH1* resulthisto = NULL;
   if (histogram->InheritsFrom("TH2")) {
 	resulthisto=(TH1*)(histogram->Clone());
   } else if (histogram->InheritsFrom("TH1")) {
