@@ -18,7 +18,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
-// EDM: typedefs, so must be included and not forward-referenced
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
@@ -38,7 +37,6 @@ namespace DerivationFramework {
   private:
 
     void fillMatchDetails( std::vector<float>& trkMatchTrk, const  xAOD::TrackParticle* tp, const xAOD::CaloCluster* cluster) const;
-
 
     ToolHandle<IEMExtrapolationTools> m_emExtrapolationTool; 
 

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "DerivationFrameworkHiggs/MergedElectronDetailsDecorator.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
-
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include <vector>
@@ -55,37 +55,68 @@ namespace DerivationFramework {
 
     for( const auto& el : *electrons ){
       
-      std::vector<float> trkMatchTrk0(8,-999);
-      std::vector<float> trkMatchTrk1(8,-999);
-      std::vector<float> trkMatchTrk2(8,-999);
-      
+      std::vector<float> trkMatchTrkP_dEta1(el->nTrackParticles(),-999);
+      std::vector<float> trkMatchTrkP_dEta2(el->nTrackParticles(),-999);
+      std::vector<float> trkMatchTrkP_dPhi1(el->nTrackParticles(),-999);
+      std::vector<float> trkMatchTrkP_dPhi2(el->nTrackParticles(),-999);
+      std::vector<float> trkMatchTrkLM_dEta1(el->nTrackParticles(),-999);
+      std::vector<float> trkMatchTrkLM_dEta2(el->nTrackParticles(),-999);
+      std::vector<float> trkMatchTrkLM_dPhi1(el->nTrackParticles(),-999);
+      std::vector<float> trkMatchTrkLM_dPhi2(el->nTrackParticles(),-999);
+
       auto caloCluster =  el->caloCluster();
 
       if( caloCluster && caloCluster->pt() > m_minET ){ 
-
+        std::vector<float> trkMatch(8,-999);
         for( unsigned int i(0); i < el->nTrackParticles(); ++i ){
-          if( i > 2 ) {
-            break;
-          }
-          
           auto trackParticle = el->trackParticle( i );
           if(trackParticle){        
-            if( i == 0 ) {
-              fillMatchDetails( trkMatchTrk0, trackParticle, caloCluster);
-            } else if( i == 1 ) {
-              fillMatchDetails( trkMatchTrk1, trackParticle, caloCluster);
-            } else if( i == 2 ) {
-              fillMatchDetails( trkMatchTrk2, trackParticle, caloCluster);
-            }
+            fillMatchDetails( trkMatch, trackParticle, caloCluster);
+            trkMatchTrkP_dEta1[i]  = trkMatch[0];
+            trkMatchTrkP_dEta2[i]  = trkMatch[1];
+            trkMatchTrkP_dPhi1[i]  = trkMatch[2];
+            trkMatchTrkP_dPhi2[i]  = trkMatch[3];
+            trkMatchTrkLM_dEta1[i] = trkMatch[4];
+            trkMatchTrkLM_dEta2[i] = trkMatch[5];
+            trkMatchTrkLM_dPhi1[i] = trkMatch[6];
+            trkMatchTrkLM_dPhi2[i] = trkMatch[7];
           }
         }  
       }
-         // delta layer {1,2}  {Eta, phi}, {first and last measurement}  
 
-      // Decorate the enums
-      el->auxdecor<std::vector<float>>("Track0Matching") = trkMatchTrk0 ;
-      el->auxdecor<std::vector<float>>("Track1Matching") = trkMatchTrk1 ;
-      el->auxdecor<std::vector<float>>("Track2Matching") = trkMatchTrk2 ;
+      el->auxdecor<std::vector<float>>("TrackMatchingP_dEta1") = trkMatchTrkP_dEta1;
+      el->auxdecor<std::vector<float>>("TrackMatchingP_dEta2") = trkMatchTrkP_dEta2;
+      el->auxdecor<std::vector<float>>("TrackMatchingP_dPhi1") = trkMatchTrkP_dPhi1;
+      el->auxdecor<std::vector<float>>("TrackMatchingP_dPhi2") = trkMatchTrkP_dPhi2;
+      el->auxdecor<std::vector<float>>("TrackMatchingLM_dEta1") = trkMatchTrkLM_dEta1;
+      el->auxdecor<std::vector<float>>("TrackMatchingLM_dEta2") = trkMatchTrkLM_dEta2;
+      el->auxdecor<std::vector<float>>("TrackMatchingLM_dPhi1") = trkMatchTrkLM_dPhi1;
+      el->auxdecor<std::vector<float>>("TrackMatchingLM_dPhi2") = trkMatchTrkLM_dPhi2;
+   
+
+      std::vector<float> subCluster_E;
+      std::vector<float> subCluster_dEta;
+      std::vector<float> subCluster_dPhi;
+
+      static SG::AuxElement::Accessor<std::vector<ElementLink<xAOD::CaloClusterContainer> > > clusterLinksAcc("constituentClusterLinks");
+      if(caloCluster && clusterLinksAcc.isAvailable(*caloCluster) ){
+        std::vector<ElementLink<xAOD::CaloClusterContainer> >  clusterLinks = clusterLinksAcc(*caloCluster);
+        for( auto link : clusterLinks){
+          if( link.isValid() ){
+            subCluster_E.push_back( (*link)->e() );
+            subCluster_dEta.push_back( caloCluster->eta() - (*link)->eta() );
+            float dphi =  caloCluster->phi() - (*link)->phi();
+            while( dphi > TMath::Pi() )
+              dphi -= TMath::Pi() * 2; 
+            while( dphi < -TMath::Pi() )
+              dphi += TMath::Pi() * 2;
+            subCluster_dPhi.push_back(dphi);
+          }
+        }
+      }
+      el->auxdecor<std::vector<float>>("SubCluster_E") = subCluster_E;
+      el->auxdecor<std::vector<float>>("SubCluster_dEta") = subCluster_dEta;
+      el->auxdecor<std::vector<float>>("SubCluster_dPhi") = subCluster_dPhi;
     }
 
     return StatusCode::SUCCESS;
@@ -109,6 +140,9 @@ namespace DerivationFramework {
     int nSCT_DS = tp->summaryValue( dummy, xAOD::numberOfSCTDeadSensors )? dummy :-1;
 
     bool isTRT = nPix + nPix_DS + nSCT + nSCT_DS < 7 ? true : false;
+   
+    if(isTRT) 
+      return; 
 
     if(m_emExtrapolationTool->matchesAtCalo (cluster, 
                                            tp, 
