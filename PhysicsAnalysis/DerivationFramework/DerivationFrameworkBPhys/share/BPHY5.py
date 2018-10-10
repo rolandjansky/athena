@@ -209,7 +209,7 @@ print      BPHY5BJpsipipiX
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk	
 BPHY5BsKKSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name                 = "BPHY5BsKKSelectAndWrite",
                                                            Jpsi2PlusTrackName       = BPHY5BsJpsiKK,
-                                                           OutputVtxContainerName   = "BsJpsiKKCandidates",
+                                                           OutputVtxContainerName   = "BPHY5BsJpsiKKCandidates",
                                                            PVContainerName          = "PrimaryVertices",
                                                            RefPVContainerName       = "BPHY5RefittedPrimaryVertices",
                                                            RefitPV                  = True, Do3d = False,
@@ -220,7 +220,7 @@ print      BPHY5BsKKSelectAndWrite
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrk
 BPHY5BplKplSelectAndWrite = DerivationFramework__Reco_dimuTrk(name				     	= "BPHY5BplKplSelectAndWrite",
 															  Jpsi1PlusTrackName	    =  BPHY5BplJpsiKpl,
-															  OutputVtxContainerName 	= "BpmJpsiKpmCandidates",
+															  OutputVtxContainerName 	= "BPHY5BpmJpsiKpmCandidates",
                                                               PVContainerName           = "PrimaryVertices",
                                                               RefPVContainerName        = "BPHY5RefBplJpsiKplPrimaryVertices",                                                              
                                                               RefitPV                   = True,
@@ -244,7 +244,7 @@ print      BPHY5BpipiXSelectAndWrite
 BPHY5_Select_Bs2JpsiKK = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY5_Select_Bs2JpsiKK",
   HypothesisName             = "Bs",
-  InputVtxContainerName      = "BsJpsiKKCandidates",
+  InputVtxContainerName      = "BPHY5BsJpsiKKCandidates",
   TrkMasses                  = [105.658, 105.658, 493.677, 493.677],
   VtxMassHypo                = 5366.3,
   MassMin                    = 5000.0,
@@ -257,7 +257,7 @@ print      BPHY5_Select_Bs2JpsiKK
 BPHY5_Select_Bpl2JpsiKpl     = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY5_Select_Bpl2JpsiKpl",
   HypothesisName             = "Bplus",
-  InputVtxContainerName      = "BpmJpsiKpmCandidates",
+  InputVtxContainerName      = "BPHY5BpmJpsiKpmCandidates",
   TrkMasses                  = [105.658, 105.658, 493.677],
   VtxMassHypo                = 5279.26,
   MassMin                    = 5279.26 - 500, Do3d = False,
@@ -270,7 +270,7 @@ print      BPHY5_Select_Bpl2JpsiKpl
 BPHY5_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY5_Select_Bpl2JpsiPi",
   HypothesisName             = "Bc",
-  InputVtxContainerName      = "BpmJpsiKpmCandidates",
+  InputVtxContainerName      = "BPHY5BpmJpsiKpmCandidates",
   TrkMasses                  = [105.658, 105.658, 139.570],
   VtxMassHypo                = 6275.1, Do3d = False,
   MassMin                    = 6275.1 - 500,
@@ -293,7 +293,7 @@ BPHY5_Select_B2JpsipipiX = DerivationFramework__Select_onia2mumu(
 ToolSvc += BPHY5_Select_B2JpsipipiX
 print      BPHY5_Select_B2JpsipipiX
 
-#expression = "count(BpmJpsiKpmCandidates.passed_Bplus) > 0"
+#expression = "count(BPHY5BpmJpsiKpmCandidates.passed_Bplus) > 0"
 #from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 #BPHY5_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY5_SelectEvent",
 #                                                                expression = expression)
@@ -307,18 +307,18 @@ if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY5_SelectBsJpsiKKEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY5_SelectBsJpsiKKEvent",
-     expression = "count(BsJpsiKKCandidates.passed_Bs > 0) > 0")
+     expression = "count(BPHY5BsJpsiKKCandidates.passed_Bs > 0) > 0")
                                                     
    ToolSvc += BPHY5_SelectBsJpsiKKEvent
    print BPHY5_SelectBsJpsiKKEvent
 
    BPHY5_SelectBplJpsiKplEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY5_SelectBplJpsiKplEvent",
-                                                                    expression = "count(BpmJpsiKpmCandidates.passed_Bplus>0) > 0")
+                                                                    expression = "count(BPHY5BpmJpsiKpmCandidates.passed_Bplus>0) > 0")
    ToolSvc += BPHY5_SelectBplJpsiKplEvent
    print      BPHY5_SelectBplJpsiKplEvent
 
    BPHY5_SelectBplJpsiKplEventBc = DerivationFramework__xAODStringSkimmingTool(name = "BPHY5_SelectBplJpsiKplEventBc",
-                                                                    expression = "count(BpmJpsiKpmCandidates.passed_Bc>0) > 0")
+                                                                    expression = "count(BPHY5BpmJpsiKpmCandidates.passed_Bc>0) > 0")
    ToolSvc += BPHY5_SelectBplJpsiKplEventBc
    print      BPHY5_SelectBplJpsiKplEventBc
    
@@ -336,7 +336,7 @@ BPHY5_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY5_thinningTool_Tracks",
   ThinningService            = "BPHY5ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
+  VertexContainerNames       = ["BPHY5BsJpsiKKCandidates", "BPHY5BpmJpsiKpmCandidates"],
   PassFlags                  = ["passed_Bs", "passed_Bplus", "passed_Bc"] )
 
 ToolSvc += BPHY5_thinningTool_Tracks
@@ -345,7 +345,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY5_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "BPHY5_thinningTool_PV",
   ThinningService            = "BPHY5ThinningSvc",
-  CandidateCollections       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
+  CandidateCollections       = ["BPHY5BsJpsiKKCandidates", "BPHY5BpmJpsiKpmCandidates"],
   KeepPVTracks  =True
  )
 
@@ -471,7 +471,7 @@ AllVariables += ["GSFTrackParticles", "Electrons" , "Photons", "MuonSpectrometer
 tagJetCollections = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4PV0TrackJets']
 
 AllVariables += [ "Kt4LCTopoOriginEventShape", "Kt4EMTopoOriginEventShape" ]
-SmartVar = [] #[ tagJetCollections ]
+SmartVar = ["Photons" ] #[ tagJetCollections ]
 
 
 
