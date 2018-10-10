@@ -18,7 +18,6 @@
 //
 // method implementations
 //
-static const SG::AuxElement::ConstAccessor<float> dec_avgMu("avgMu");
 namespace CP
 {
   MetSignificanceAlg ::
@@ -64,9 +63,8 @@ namespace CP
 	
 	const xAOD::EventInfo* evtInfo = 0;
 	ANA_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-	float avgmu = dec_avgMu(*evtInfo); 
 
-        ANA_CHECK (m_significanceTool->varianceMET (met, avgmu, m_jetTermName, m_softTermName, m_totalMETName));
+        ANA_CHECK (m_significanceTool->varianceMET (met, evtInfo->averageInteractionsPerCrossing(), m_jetTermName, m_softTermName, m_totalMETName));
         const float significance = m_significanceTool->GetSignificance();
         (*m_significanceAccessor) (*(*met)[m_totalMETName]) = significance;
 
