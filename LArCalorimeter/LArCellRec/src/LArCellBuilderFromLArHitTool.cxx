@@ -331,6 +331,8 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
     m_mcEventKey = "";
   }
 
+  ATH_CHECK(m_cablingKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
