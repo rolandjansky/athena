@@ -59,8 +59,11 @@ BTaggingExtendedAux = [
 
 JetExtendedAux = [
     "GhostBHadronsFinalCount",
+    "GhostBHadronsFinalPt",
     "GhostCHadronsFinalCount",
+    "GhostCHadronsFinalPt",
     "GhostTausFinalCount",
+    "GhostTausFinalPt",
     "GhostTrack",
 ]
 
