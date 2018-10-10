@@ -493,5 +493,8 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
      ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
    
    m_hitColl->Insert(siHit);
-  
+   if (partLink) {
+     delete partLink;
+     partLink = nullptr;
+   }
 }
