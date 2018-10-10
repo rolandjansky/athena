@@ -70,8 +70,8 @@ namespace met {
     static SG::AuxElement::Accessor<float> acc_varX("varX");
     static SG::AuxElement::Accessor<float> acc_varY("varY");
     static SG::AuxElement::Accessor<float> acc_covXY("covXY");
-    static SG::AuxElement::Accessor<float> acc_jvt("Jvt");
-    static SG::AuxElement::Accessor<float> acc_fjvt("fJvt");
+    static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
+    static SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
 
   static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
 
