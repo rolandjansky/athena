@@ -90,7 +90,7 @@ def generateVnThresholds(a,b,c, etbins):
     return [ a - b*et +c*pow(et, 2)  for et in etbins]
     
 def generateAssymVnThresholds(a,b,c, etbins):
-    ret = [ a - 1.e6*b*et +c*pow(et,2)  for et in etbins]
+    ret = [ a + b*et +c*pow(et, 2)  for et in etbins]
     ret[0] = 1e9
     return ret
 # thresholds mappint
@@ -317,13 +317,13 @@ class V3HypoAssym(VnHypo):
         self.CentralityBins = _EtCuts_v2_assym 
         if side == "A":
             self.MinEta=3.2 
-            self.QxShifts = [0.0]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0.0]*len(_EtCuts_v2_assym)
+            self.QxShifts = [-0.0031]*len(_EtCuts_v2_assym)
+            self.QyShifts = [-0.0012]*len(_EtCuts_v2_assym)
 
         elif side == "C":
             self.MaxEta=-3.2
-            self.QxShifts = [0.0]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0.0]*len(_EtCuts_v2_assym)
+            self.QxShifts = [0.001]*len(_EtCuts_v2_assym)
+            self.QyShifts = [0.0013]*len(_EtCuts_v2_assym)
         else:
             raise 'The V3 hypothesis algorithm is insufficiently configured, no FCal side specified '
 
@@ -385,3 +385,4 @@ if __name__ == "__main__":
     print V2C_thresholds
     print V3A_thresholds 
     print V3C_thresholds
+    print V2A_thresholds["001p"]
