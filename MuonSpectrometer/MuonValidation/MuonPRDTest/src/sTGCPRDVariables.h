@@ -28,6 +28,8 @@ class sTGCPRDVariables : public ValAlgVariables
     m_NSWsTGC_prd_gas_gap(0),
     m_NSWsTGC_prd_channel_type(0),
     m_NSWsTGC_prd_channel(0),
+    m_NSWsTGC_prd_charge(0),
+    m_NSWsTGC_prd_bcTag(0),
     m_NSWsTGC_prd_globalPosX(0),
     m_NSWsTGC_prd_globalPosY(0),
     m_NSWsTGC_prd_globalPosZ(0),
@@ -70,6 +72,8 @@ class sTGCPRDVariables : public ValAlgVariables
   std::vector<int> *m_NSWsTGC_prd_gas_gap;
   std::vector<int> *m_NSWsTGC_prd_channel_type;
   std::vector<int> *m_NSWsTGC_prd_channel;
+  std::vector<int> *m_NSWsTGC_prd_charge;
+  std::vector<uint16_t> *m_NSWsTGC_prd_bcTag;
 
   std::vector<double> *m_NSWsTGC_prd_globalPosX;
   std::vector<double> *m_NSWsTGC_prd_globalPosY;
