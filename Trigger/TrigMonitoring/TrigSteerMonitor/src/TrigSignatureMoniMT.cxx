@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+#include <algorithm>
 #include "GaudiKernel/Property.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
@@ -165,8 +165,12 @@ StatusCode TrigSignatureMoniMT::initHist() {
 
   TAxis* x = m_outputHistogram->GetXaxis();
   x->SetBinLabel(1, "All");
-  int bin = 2;
-  for ( auto chainName:  m_allChains ) {
+  int bin = 2; // 1 is for total count, (remember bins numbering in ROOT start from 1)
+
+  std::vector<std::string> sortedChainsList( m_allChains );
+  std::sort( sortedChainsList.begin(), sortedChainsList.end() );
+  
+  for ( auto chainName:  sortedChainsList ) {
     x->SetBinLabel( bin, chainName.c_str() );
     m_chainIDToBinMap[ HLT::Identifier( chainName ).numeric() ] = bin;
     bin++;
