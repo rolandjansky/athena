@@ -84,7 +84,6 @@ if not SkipTriggerRequirement:
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
                                "HLT_g35_loose_L1EM22VHI_mu15noL1_mu2noL1", # photon dimuon
                                "HLT_g35_loose_L1EM22VHI_mu18noL1",  #photon muon
-                               "HLT_g25_medium_mu24",
                                "HLT_2mu10",
                                "HLT_2mu14", #dimuon 
                                "HLT_mu22_mu8noL1", #dimuon
