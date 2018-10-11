@@ -461,13 +461,13 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    int    barcode       = isp.barcode();
 
   //HepMcParticleLink from ISFParticle
-  HepMcParticleLink *partLink = nullptr;
+   std::unique_ptr<HepMcParticleLink> partLink = nullptr;
   if (isp.getParticleLink()) {
-    partLink = new HepMcParticleLink(*isp.getParticleLink());
+    partLink = std::make_unique<HepMcParticleLink>(*isp.getParticleLink());
   }
   else {
     ATH_MSG_WARNING("Could not retrieve original HepMcParticleLink from ISFParticle to associate to SiHit, creating one from barcode " << barcode);
-    partLink = new HepMcParticleLink(barcode);
+    partLink = std::make_unique<HepMcParticleLink>(barcode);
   }
   ATH_MSG_DEBUG( "Creating SiHit for HMPL with barcode=" << partLink->barcode() << ", eventIndex=" << partLink->eventIndex() << " and collection enum=" << partLink->getEventCollection() );
 
@@ -493,8 +493,4 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
      ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
    
    m_hitColl->Insert(siHit);
-   if (partLink) {
-     delete partLink;
-     partLink = nullptr;
-   }
 }
