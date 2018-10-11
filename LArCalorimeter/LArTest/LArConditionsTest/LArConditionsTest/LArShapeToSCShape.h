@@ -11,6 +11,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -47,7 +48,7 @@ class LArShapeToSCShape
 
   ToolHandle<ICaloSuperCellIDTool> m_scidTool;
   ToolHandle<LArSuperCellCablingTool> m_scCablingTool;
-
+  ToolHandle<LArCablingService> m_cablingService;
   
 
 }; 

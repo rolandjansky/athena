@@ -104,7 +104,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
                    const LArDigit * rndm_digit, const std::vector<std::pair<float,float> > *TimeE_DigiHSTruth = nullptr);
 
 
-  StatusCode ConvertHits2Samples(const Identifier & cellId,
+  StatusCode ConvertHits2Samples(const Identifier & cellId, HWIdentifier ch_id,
                    CaloGain::CaloGain igain,
                    //const std::vector<std::pair<float,float> >  *TimeE);
                    const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);

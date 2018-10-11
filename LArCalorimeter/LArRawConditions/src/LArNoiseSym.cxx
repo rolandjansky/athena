@@ -20,7 +20,3 @@ const float&  LArNoiseSym::noise(const HWIdentifier&  hwid, int gain) const {
   return m_noiseComplete->noise(symhwid,gain);
 }
   
-const float& LArNoiseSym::noise(const Identifier&  id, int gain) const {
-  HWIdentifier symhwid=m_mcSym->ZPhiSymOfl(id);
-  return m_noiseComplete->noise(symhwid,gain);
-}

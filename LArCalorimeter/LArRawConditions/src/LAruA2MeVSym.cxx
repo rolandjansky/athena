@@ -19,8 +19,3 @@ const float&  LAruA2MeVSym::UA2MEV(const HWIdentifier&  hwid) const {
   HWIdentifier symhwid=m_mcSym->ZPhiSymOnl(hwid);
   return m_uA2MeVComplete->UA2MEV(symhwid);
 }
-  
-const float& LAruA2MeVSym::UA2MEV(const Identifier&  id) const {
-  HWIdentifier symhwid=m_mcSym->ZPhiSymOfl(id);
-  return m_uA2MeVComplete->UA2MEV(symhwid);
-}
