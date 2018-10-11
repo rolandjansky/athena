@@ -62,8 +62,6 @@ def bJetStep1Sequence():
         print 'view Alg Name :',viewAlg.name()
         viewAlg.OutputLevel = DEBUG
         if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-            print '   ** Track Particle Name :',viewAlg.TrackParticlesName
-            TrackParticlesName = viewAlg.TrackParticlesName
             print '   ** Setting TrigRoiDescriptorCollection to', SuperRoIBuilder.SuperRoIOutputKey
             viewAlg.roiCollectionName = SuperRoIBuilder.SuperRoIOutputKey
         if viewAlg.name() in ["InDetPixelRawDataProvider","InDetSCTRawDataProvider","InDetTRTRawDataProvider",
@@ -82,6 +80,7 @@ def bJetStep1Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
     hypo.OutputJets = "SplitJets"
+    hypo.TrackParticles = "TrigFastTrackFinder_Tracks"
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence,bJetEtSequence])
