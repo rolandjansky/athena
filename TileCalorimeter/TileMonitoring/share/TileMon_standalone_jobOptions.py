@@ -50,6 +50,20 @@ toolSvc += CfgMgr.TileRODMonTool( name             = 'TileRODMon'
 
 ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileRODMon ];
 
+if doTileTMDBMon:
+    from TileConditions.TileCondToolConf import getTileCondToolTMDB
+    tileCondToolTMDB = getTileCondToolTMDB('COOL')
+    if tileCondToolTMDB:
+        ToolSvc += tileCondToolTMDB
+        toolSvc += CfgMgr.TileTMDBMonTool( name                = 'TileTMDBMon'
+                                         , OutputLevel         = INFO
+                                         , TileDigitsContainer = "MuRcvDigitsCnt"
+                                         , TileCondToolTMDB    = tileCondToolTMDB
+                                         , histoPathBase       = "Tile/TMDB"      )
+        if (athenaCommonFlags.isOnline()):
+            toolSvc.TileTMDBMon.SummaryUpdateFrequency = 1000
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileTMDBMon ]
+        print toolSvc.TileTMDBMon
 
 if doTileTMDBDigitsMon:
     toolSvc += CfgMgr.TileTMDBDigitsMonTool(name                  = 'TileTMDBDigitsMon'
