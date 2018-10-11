@@ -31,6 +31,7 @@ UPDATE : 25/06/2018
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, 
                                                  ISvcLocator* pSvcLocator):
@@ -98,6 +99,14 @@ StatusCode egammaSelectedTrackCopy::execute()
   unsigned int selectedTRTTracks(0); 
   unsigned int selectedSiTracks(0);  
 
+  // // lets first check which clusters to seed on;
+  std::vector<const xAOD::CaloCluster *> passingClusters;
+  for(const xAOD::CaloCluster* cluster : *clusterTES ){
+    if (m_egammaCaloClusterSelector->passSelection(cluster)) {
+      passingClusters.push_back(cluster);
+    }
+  }
+
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
@@ -119,13 +128,8 @@ StatusCode egammaSelectedTrackCopy::execute()
       isTRT = false;
       ++allSiTracks;
     }
-    for(const xAOD::CaloCluster* cluster : *clusterTES ){
 
-      // check that cluster passes basic selection
-      if (!m_egammaCaloClusterSelector->passSelection(cluster)) {
-	ATH_MSG_DEBUG("Cluster did not pass selection");
-	continue;
-      }
+    for(const xAOD::CaloCluster* cluster : passingClusters ){
 
       /*
          check if it the track is selected due to this cluster.
