@@ -1,6 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+
+///////////////////////////////////////////////////////////////////
+// SCTRawDataProvider.cxx
+//   Implementation file for class SCTRawDataProvider
+///////////////////////////////////////////////////////////////////
 
 #include "SCTRawDataProvider.h"
 
@@ -14,8 +19,8 @@
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-/// --------------------------------------------------------------------
-/// Constructor
+// --------------------------------------------------------------------
+// Constructor
 
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
                                        ISvcLocator* pSvcLocator) :
@@ -28,22 +33,22 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }
 
-/// --------------------------------------------------------------------
-/// Initialize
+// --------------------------------------------------------------------
+// Initialize
 
 StatusCode SCTRawDataProvider::initialize() {
-  /** Get ROBDataProviderSvc */
+  // Get ROBDataProviderSvc
   ATH_CHECK(m_robDataProvider.retrieve());
-  /** Get the SCT ID helper **/
+  // Get the SCT ID helper
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   if (m_roiSeeded.value()) {
-    //Don't need SCT cabling if running in RoI-seeded mode
+    // Don't need SCT cabling if running in RoI-seeded mode
     ATH_CHECK(m_roiCollectionKey.initialize());
     ATH_CHECK(m_regionSelector.retrieve());
     m_cabling.disable();
   } 
   else {
-    /** Retrieve Cabling service */ 
+    // Retrieve Cabling service
     ATH_CHECK(m_cabling.retrieve());
   }
   //Initialize 
@@ -61,8 +66,8 @@ StatusCode SCTRawDataProvider::initialize() {
 
 typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> dummySCTRDO_t;
 
-/// --------------------------------------------------------------------
-/// Execute
+// --------------------------------------------------------------------
+// Execute
 StatusCode SCTRawDataProvider::execute()
 {
 
@@ -88,9 +93,7 @@ StatusCode SCTRawDataProvider::execute()
   SG::WriteHandle<SCT_ByteStreamFractionContainer> bsFracContainer(m_bsFracContainerKey);
   ATH_CHECK(bsFracContainer.record(std::make_unique<SCT_ByteStreamFractionContainer>()));
 
-  //// do we need this??  rdoIdc->cleanup();
-
-  /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
+  // Ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs
   std::vector<const ROBFragment*> vecROBFrags;
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
@@ -98,11 +101,11 @@ StatusCode SCTRawDataProvider::execute()
     m_robDataProvider->getROBData(rodList , vecROBFrags);
   } 
   else {
-    //Only load ROBs from RoI
+    // Only load ROBs from RoI
     std::vector<uint32_t> listOfROBs;
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
     ATH_CHECK(roiCollection.isValid());
-    TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+    TrigRoiDescriptor superRoI; // Add all RoIs to a super-RoI
     superRoI.setComposite(true);
     superRoI.manageConstituents(false);
     for (const TrigRoiDescriptor* roi: *roiCollection) {
@@ -123,15 +126,12 @@ StatusCode SCTRawDataProvider::execute()
   bcIdCollection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
   ATH_CHECK(bcIdCollection.isValid());
 
-  //std::vector<const ROBFragment*>::const_iterator rob_it{vecROBFrags.begin()};
   for (const ROBFragment* robFrag : vecROBFrags) {
     
     uint32_t robId{(robFrag)->rod_source_id()};
-    /**
-     * Store LVL1ID and BCID information in InDetTimeCollection 
-     * to be stored in StoreGate at the end of the loop.
-     * We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
-     **/
+    // Store LVL1ID and BCID information in InDetTimeCollection 
+    // to be stored in StoreGate at the end of the loop.
+    // We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
     
     unsigned int lvl1Id{(robFrag)->rod_lvl1_id()};
     auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robId, lvl1Id)};
@@ -148,7 +148,7 @@ StatusCode SCTRawDataProvider::execute()
   if (externalCacheRDO) dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
   ISCT_RDO_Container *rdoInterface = externalCacheRDO ? static_cast< ISCT_RDO_Container*> (dummyRDO.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
-  /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
+  // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }

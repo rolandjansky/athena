@@ -3,16 +3,9 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-/// Top algorithm to decode the SCT BS
-/// copied from TRT equivalent
-/// Gets vector of ROBFragments from the ROBDataProviderSvc
-/// and uses AlgTools (SCTRawDataProviderTool and SCT_RodDecoder
-/// to read the ByteStream and make RDOs.
-/// Output is one RDO container (IDC) per event, which contains
-/// one Collection per link (8196 in total), each of which contains
-/// RDOs for hits (one RDO per strip in expanded mode, one per cluster
-/// in condensed mode).
-///////////////////////////////////////////////////////////////////
+//// SCTRawDataProvider.h
+////   Header file for class SCTRawDataProvider
+/////////////////////////////////////////////////////////////////////
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
@@ -36,23 +29,37 @@ class ISCT_CablingTool;
 class SCT_ID;
 class SCT_ByteStreamFractionContainer;
 
+/** @class SCTRawDataProvider
+ *
+ * @brief Athena Algorithm Tool to decode the SCT Byte Stream
+ *
+ * Gets vector of ROBFragments from the ROBDataProviderSvc
+ * and uses AlgTools (SCTRawDataProviderTool and SCT_RodDecoder
+ * to read the ByteStream and make RDOs.
+ * Output is one RDO container (IDC) per event, which contains
+ * one Collection per link (8196 in total), each of which contains
+ * RDOs for hits (one RDO per strip in expanded mode, one per cluster
+ * in condensed mode).
+ *
+ * Class based on TRT equivalent.
+ */
 class SCTRawDataProvider : public AthAlgorithm
 {
  public:
 
-  //! Constructor.
+  /** Constructor */
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
 
-  //! Destructur
+  /** Destructor */
   virtual ~SCTRawDataProvider() = default;
 
-  //! Initialize
+  /** Initialize */
   virtual StatusCode initialize() override;
 
-  //! Execute
+  /** Execute */
   virtual StatusCode execute() override;
 
-  //! Finalize empty, no need to override
+  // Finalize empty, no need to override
 
  private:
 
