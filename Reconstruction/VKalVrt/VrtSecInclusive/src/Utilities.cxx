@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -671,7 +671,7 @@ namespace VKalVrtAthena {
     declareProperty("McParticleContainer",             m_jp.truthParticleContainerName      = "TruthParticles"              );
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );
     declareProperty("AugmentingVersionString",         m_jp.augVerString                    = ""                            );
-    declareProperty("TruthParticleFilter",             m_jp.truthParticleFilter             = "Rhadron"                     ); // Either "", "Kshort", "Rhadron", "HNL"
+    declareProperty("TruthParticleFilter",             m_jp.truthParticleFilter             = "Rhadron"                     ); // Either "", "Kshort", "Rhadron", "HNL", "HadInt", "Bhadron"
     
     declareProperty("All2trkVerticesContainerName",    m_jp.all2trksVerticesContainerName   = "All2TrksVertices"            );
     declareProperty("SecondaryVerticesContainerName",  m_jp.secondaryVerticesContainerName  = "SecondaryVertices"           );
@@ -689,7 +689,13 @@ namespace VKalVrtAthena {
     declareProperty("MCTrackResolution",               m_jp.mcTrkResolution                 = 0.06                          ); // see getTruth for explanation
     declareProperty("TruthTrkLen",                     m_jp.TruthTrkLen                     = 1000                          ); // in [mm]
     declareProperty("ExtrapPV",                        m_jp.extrapPV                        = false                         ); // Leave false. only for testing
-    
+    declareProperty("PassThroughTrackSelection",       m_jp.passThroughTrackSelection       = false                         );
+
+
+    declareProperty("DoTwoTrSoftBtag",                 m_jp.doTwoTrSoftBtag                 = false                         );
+    declareProperty("TwoTrVrtAngleCut",                m_jp.twoTrVrtAngleCut                = -10                           );
+    declareProperty("TwoTrVrtMinDistFromPVCut",        m_jp.twoTrVrtMinDistFromPV           = 0.                            );
+        
     // default values are set upstream - check top of file
     declareProperty("do_PVvetoCut",                    m_jp.do_PVvetoCut                    = true                          );
     declareProperty("do_d0Cut",                        m_jp.do_d0Cut                        = true                          );
@@ -2328,7 +2334,7 @@ namespace VKalVrtAthena {
     auto sc0 = evtStore()->retrieve( eventInfo, "EventInfo" );
     if( sc0.isFailure() ) { return; }
     
-    if( eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+    if( !eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
       return;
     }
     
@@ -2352,6 +2358,7 @@ namespace VKalVrtAthena {
     
     auto selectRhadron = [](const xAOD::TruthVertex* truthVertex ) -> bool {
       if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( !truthVertex->incomingParticle(0) )                           return false;
       if( abs(truthVertex->incomingParticle(0)->pdgId()) < 1000000 )    return false;
       if( abs(truthVertex->incomingParticle(0)->pdgId()) > 1000000000 ) return false; // Nuclear codes, e.g. deuteron
       // neutralino in daughters
@@ -2369,18 +2376,28 @@ namespace VKalVrtAthena {
   
     auto selectHNL = [](const xAOD::TruthVertex* truthVertex ) -> bool {
       if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( !truthVertex->incomingParticle(0) )                           return false;
       if( abs(truthVertex->incomingParticle(0)->pdgId()) != 50 )        return false;
       return true;
     };
     
     auto selectKshort = [](const xAOD::TruthVertex* truthVertex ) -> bool {
       if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( !truthVertex->incomingParticle(0) )                           return false;
       if( abs(truthVertex->incomingParticle(0)->pdgId()) != 310 )       return false;
+      return true;
+    };
+    
+    auto selectBhadron = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( !truthVertex->incomingParticle(0) )                           return false;
+      if( !( abs(truthVertex->incomingParticle(0)->pdgId()) > 500 && abs(truthVertex->incomingParticle(0)->pdgId()) < 600 ) ) return false;
       return true;
     };
     
     auto selectHadInt = [](const xAOD::TruthVertex* truthVertex ) -> bool {
       if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( !truthVertex->incomingParticle(0) )                           return false;
       
       auto* parent = truthVertex->incomingParticle(0);
       if( parent->isLepton() )                                          return false;
@@ -2406,6 +2423,7 @@ namespace VKalVrtAthena {
     using ParticleSelectFunc = bool (*)(const xAOD::TruthVertex*);
     std::map<std::string, ParticleSelectFunc> selectFuncs { { "",        selectNone    },
                                                             { "Kshort",  selectKshort  },
+                                                            { "Bhadron", selectBhadron },
                                                             { "Rhadron", selectRhadron },
                                                             { "HNL",     selectHNL     },
                                                             { "HadInt",  selectHadInt  }  };
@@ -2423,7 +2441,7 @@ namespace VKalVrtAthena {
       if( selectFunc( truthVertex ) ) {
         m_tracingTruthVertices.emplace_back( truthVertex );
         std::string msg;
-        msg += Form("(r, z) = (%.2f, %.2f), ", truthVertex->perp(), truthVertex->z());
+        msg += Form("pdgId = %d, (r, z) = (%.2f, %.2f), ", truthVertex->incomingParticle(0)->pdgId(), truthVertex->perp(), truthVertex->z());
         msg += Form("nOutgoing = %lu, ", truthVertex->nOutgoingParticles() );
         msg += Form("mass = %.3f GeV, pt = %.3f GeV", truthVertex->incomingParticle(0)->m()/1.e3, truthVertex->incomingParticle(0)->pt()/1.e3 );
         ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );

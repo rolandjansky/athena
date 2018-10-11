@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // VKalVrt.h
@@ -127,6 +127,8 @@ namespace VKalVrtAthena {
       bool   doMapToLocal;
       bool   extrapPV; //extrapolate reco and prim truth trks to PV (for testing only)
       
+      bool   passThroughTrackSelection;
+
       // track selection conditions
       unsigned int SelTrkMaxCutoff;
       bool  SAloneTRT;
@@ -184,7 +186,10 @@ namespace VKalVrtAthena {
       double VertexMergeFinalDistScaling;
       double VertexMergeCut;
       double TrackDetachCut;
-      
+
+      bool   doTwoTrSoftBtag;
+      double twoTrVrtAngleCut;
+      double twoTrVrtMinDistFromPV;
       
       double associateMinDistanceToPV;
       double associateMaxD0Signif;
