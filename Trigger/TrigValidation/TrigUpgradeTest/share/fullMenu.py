@@ -15,7 +15,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
 
-doEgamma = True
+doElectron = True
 doMuon   = True
 doJet    = False
 doCombo  = True
@@ -30,8 +30,8 @@ EnabledElComboChains = []
 testChains = []
 
 # egamma chains
-if (doEgamma):
-    from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
+if (doElectron):
+    from TrigUpgradeTest.electronMenuDefs import fastCaloSequence, electronSequence
     fastCaloStep=fastCaloSequence()
     electronStep=electronSequence()
 
