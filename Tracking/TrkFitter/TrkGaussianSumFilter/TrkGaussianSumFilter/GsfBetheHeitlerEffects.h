@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -42,15 +42,15 @@ class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMate
 
     // Evaluation of the polynomial for given material thickness (t)
     double operator () (const double& t) const
-      {
-  double sum(0.);
-  std::vector<double>::const_iterator coefficient = m_coefficients.begin();
-
-  for ( ; coefficient != m_coefficients.end(); ++coefficient)
-    sum = t * sum + (*coefficient);
-
-  return sum;
-      }
+    {
+      double sum(0.);
+      std::vector<double>::const_iterator coefficient = m_coefficients.begin();
+    
+      for ( ; coefficient != m_coefficients.end(); ++coefficient)
+        sum = t * sum + (*coefficient);
+    
+      return sum;
+    }
 
   private:
     std::vector<double> m_coefficients;

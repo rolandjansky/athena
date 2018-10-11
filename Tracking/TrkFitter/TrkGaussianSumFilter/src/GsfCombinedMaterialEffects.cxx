@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -139,7 +139,9 @@ void Trk::GsfCombinedMaterialEffects::compute (
     ATH_MSG_DEBUG( "WARNING: Multiple scattering effects are not determined" );
     cache_multipleScatter.weights.push_back(1.);
     cache_multipleScatter.deltaPs.push_back(0.);
-    cache_multipleScatter.deltaCovariances.push_back( new AmgSymMatrix(5) );
+    AmgSymMatrix(5)* newCov = new AmgSymMatrix(5);
+    newCov->setZero();
+    cache_multipleScatter.deltaCovariances.push_back( newCov );
   }
 
   ATH_MSG_VERBOSE( "Calculating energy loss material effects" );
@@ -186,7 +188,7 @@ void Trk::GsfCombinedMaterialEffects::compute (
     cache_energyLoss.deltaPs.push_back(0.);
     AmgSymMatrix(5)* newCov = new AmgSymMatrix(5);
     newCov->setZero();
-    cache_energyLoss.deltaCovariances.push_back( newCov);
+    cache_energyLoss.deltaCovariances.push_back( newCov );
   }
 
   if (msgLvl(MSG::VERBOSE))
