@@ -60,7 +60,7 @@ class QZeroMonitoring(TrigGenericMonitoringToolConfig):
 _EtCuts_v2=[ x*1e-3 for x in reversed(range(300, 6050, 50)) ] # equidistant bins
 _EtCuts_v3=[ x*1e-3 for x in reversed(range(400, 6050, 50)) ]
 
-_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(100, 303, 2))]
+_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(250, 3001, 10))]
 
 ########################################################################################
 # V2
