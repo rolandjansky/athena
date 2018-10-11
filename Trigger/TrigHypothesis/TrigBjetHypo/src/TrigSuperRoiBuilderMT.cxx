@@ -144,8 +144,10 @@ StatusCode TrigSuperRoiBuilderMT::execute() {
   SG::WriteHandle< xAOD::JetContainer > outputJetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
   CHECK( outputJetContainerHandle.record( std::move( outputJets ),std::move( outputJetsAux ) ) );
 
-  SG::WriteHandle< TrigRoiDescriptor > outputSuperRoiHandle = SG::makeHandle( m_superRoIOutputKey,ctx );
-  CHECK( outputSuperRoiHandle.record( std::move( superRoI ) ) );
+  std::unique_ptr< TrigRoiDescriptorCollection > superRoICollection( new TrigRoiDescriptorCollection() );
+  superRoICollection->push_back( std::move(superRoI) );
+  SG::WriteHandle< TrigRoiDescriptorCollection > outputSuperRoiHandle = SG::makeHandle( m_superRoIOutputKey,ctx );
+  CHECK( outputSuperRoiHandle.record( std::move( superRoICollection ) ) );
 
   return StatusCode::SUCCESS;
 }

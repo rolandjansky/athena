@@ -44,7 +44,7 @@ class TrigSuperRoiBuilderMT : public AthAlgorithm {
 
   SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key"};
   SG::WriteHandleKey< xAOD::JetContainer > m_jetOutputKey {this,"JetOutputKey","SuperRoi","Output Jet Collection Key"};
-  SG::WriteHandleKey< TrigRoiDescriptor > m_superRoIOutputKey {this,"SuperRoIOutputKey","SuperRoi","Output Jet Collection Key"};
+  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_superRoIOutputKey {this,"SuperRoIOutputKey","SuperRoi","Output Super RoI Collection Key"};
 };
  
 

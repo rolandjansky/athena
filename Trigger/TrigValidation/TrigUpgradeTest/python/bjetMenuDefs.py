@@ -37,12 +37,43 @@ def bJetStep1Sequence():
     from TrigUpgradeTest.jetDefs import jetRecoSequence
     (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
 
+    # Start with b-jet-specific algo sequence
+    bJetEtSequence = parOR("bJetEtSequence")
     # Construct Super RoI
     from TrigBjetHypo.TrigBjetHypoConf import TrigSuperRoiBuilderMT
-    algo1 = TrigSuperRoiBuilderMT("SuperRoIBuilder")
-    algo1.OutputLevel = DEBUG
-    algo1.JetInputKey = sequenceOut
-    recoSequence += algo1 
+    SuperRoIBuilder = TrigSuperRoiBuilderMT("SuperRoIBuilder")
+    SuperRoIBuilder.OutputLevel = DEBUG
+    SuperRoIBuilder.JetInputKey = sequenceOut
+    SuperRoIBuilder.JetOutputKey = "superRoi"
+    SuperRoIBuilder.SuperRoIOutputKey = SuperRoIBuilder.JetOutputKey # Same as Output Jet Collection
+    bJetEtSequence += SuperRoIBuilder
+
+    # Fast Tracking 
+    from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs()
+
+    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
+    theFTF = TrigFastTrackFinder_Jet()
+    theFTF.RoIs = SuperRoIBuilder.SuperRoIOutputKey
+    viewAlgs.append(theFTF)
+
+    TrackParticlesName = ""
+    for viewAlg in viewAlgs:
+        print 'view Alg Name :',viewAlg.name()
+        viewAlg.OutputLevel = DEBUG
+        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+            print '   ** Track Particle Name :',viewAlg.TrackParticlesName
+            TrackParticlesName = viewAlg.TrackParticlesName
+            print '   ** Setting TrigRoiDescriptorCollection to', SuperRoIBuilder.SuperRoIOutputKey
+            viewAlg.roiCollectionName = SuperRoIBuilder.SuperRoIOutputKey
+        if viewAlg.name() in ["InDetPixelRawDataProvider","InDetSCTRawDataProvider","InDetTRTRawDataProvider",
+                              "InDetPixelClusterization","InDetSCT_Clusterization"]:
+            print '   ** Setting TrigRoiDescriptorCollection to', SuperRoIBuilder.SuperRoIOutputKey
+            viewAlg.RoIs = SuperRoIBuilder.SuperRoIOutputKey
+
+            
+    bJetEtSequence += eventAlgs
+    bJetEtSequence += viewAlgs
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
@@ -53,7 +84,7 @@ def bJetStep1Sequence():
     hypo.OutputJets = "SplitJets"
 
     # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence])
+    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence,bJetEtSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
