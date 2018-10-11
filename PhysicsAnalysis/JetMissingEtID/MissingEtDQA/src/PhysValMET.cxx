@@ -563,6 +563,18 @@ namespace MissingEtDQA {
       ATH_CHECK(regHist(m_MET_PVTrack_Pileup_phi = new  TH1D("PVTrack_Pileup_phi", (name_met + " " + names["PVTrack_Pileup"] + " phi; #Phi; Entries / 0.1").c_str(), m_nbinphi,-m_binphi,m_binphi), sub_dir, all));
       ATH_CHECK(regHist(m_MET_PVTrack_Pileup_sum = new  TH1D("PVTrack_Pileup_sum", (name_met + " " + names["PVTrack_Pileup"] + " sum; E_{T}^{sum} [GeV]; Entries / 25 GeV").c_str(), m_nbinE, m_lowET, m_suET), sub_dir, all));
 
+	//-------------------------------------------------------------------------------------
+	//Now MET_Calo
+
+      name_met = "MET_Calo";
+      dir = "MET/" + name_met + "/";
+
+      ATH_CHECK(regHist(m_MET_Calo = new  TH1D("Calo", (name_met + " " + names["Calo"] + "; E_{T}^{miss} [GeV]; Entries / 5 GeV").c_str(), m_nbinp, 0., m_suptmi), dir, all));
+      ATH_CHECK(regHist(m_MET_Calo_x = new  TH1D("Calo_x", (name_met + " " + names["Calo"] + " x; E_{x}^{miss} [GeV]; Entries / 5 GeV").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+      ATH_CHECK(regHist(m_MET_Calo_y = new  TH1D("Calo_y", (name_met + " " + names["Calo"] + " y; E_{y}^{miss} [GeV]; Entries / 5 GeV").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+      ATH_CHECK(regHist(m_MET_Calo_phi = new  TH1D("Calo_phi", (name_met + " " + names["Calo"] + " phi;  #Phi; Entries / 0.1").c_str(), m_nbinphi,-m_binphi,m_binphi), dir, all));
+      ATH_CHECK(regHist(m_MET_Calo_sum = new  TH1D("Calo_sum", (name_met + " " + names["Calo"] + " sum; E_{T}^{sum} [GeV]; Entries / 25 GeV").c_str(), m_nbinE, m_lowET, m_suET), dir, all));
+
     }
 
     return StatusCode::SUCCESS;      
@@ -1268,6 +1280,39 @@ namespace MissingEtDQA {
     	}
       }
 
+      if(type == "AntiKt4EMTopo") {
+     	//Calo MET
+      	//const xAOD::JetContainer* emptyjets = 0;
+	ConstDataVector<JetContainer> metJetsEmpty(SG::VIEW_ELEMENTS);
+      	MissingETContainer* met_Calo = new MissingETContainer();
+      	if( evtStore()->record(met_Calo,("MET_Calo"+type).c_str()).isFailure() ) {
+      	  ATH_MSG_WARNING("Unable to record MissingETContainer: MET_Calo_" << type);
+      	  return StatusCode::FAILURE;
+      	}
+      	MissingETAuxContainer* met_CaloAux = new MissingETAuxContainer();
+      	if( evtStore()->record(met_CaloAux,("MET_Calo"+type+"Aux").c_str()).isFailure() ) {
+      	  ATH_MSG_WARNING("Unable to record MissingETAuxContainer: MET_Calo" << type);
+      	  return StatusCode::FAILURE;
+      	}
+      	met_Calo->setStore(met_CaloAux);
+      	metMap->resetObjSelectionFlags();
+	if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Calo, metJetsEmpty.asDataVector(), coreMet, metMap, true).isFailure() ) {
+      	  ATH_MSG_WARNING("Failed to build jet and soft terms.");
+      	}
+
+      	if((*met_Calo)["SoftClus"]) clsource = (*met_Calo)["SoftClus"]->source();
+      	if( m_metmaker->buildMETSum("FinalClus", met_Calo, clsource).isFailure() ) {
+      	  ATH_MSG_WARNING("Building MET FinalClus sum failed.");
+      	}
+
+      	m_MET_Calo->Fill((*met_Calo)["FinalClus"]->met()/1000., 1.);
+      	m_MET_Calo_x->Fill((*met_Calo)["FinalClus"]->mpx()/1000., 1.);
+      	m_MET_Calo_y->Fill((*met_Calo)["FinalClus"]->mpy()/1000., 1.);
+      	m_MET_Calo_phi->Fill((*met_Calo)["FinalClus"]->phi(), 1.);
+      	m_MET_Calo_sum->Fill((*met_Calo)["FinalClus"]->sumet()/1000., 1.);
+
+      }
+
     }
 
     // Fill MET Track
@@ -1395,6 +1440,12 @@ namespace MissingEtDQA {
     m_MET_PVTrack_Pileup_y->Sumw2();
     m_MET_PVTrack_Pileup_phi->Sumw2();
     m_MET_PVTrack_Pileup_sum->Sumw2();
+
+    m_MET_Calo->Sumw2();
+    m_MET_Calo_x->Sumw2();
+    m_MET_Calo_y->Sumw2();
+    m_MET_Calo_phi->Sumw2();
+    m_MET_Calo_sum->Sumw2();
 
     return StatusCode::SUCCESS;
   }
