@@ -959,7 +959,7 @@ Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
   // create a new internal helper vector
   cache.m_parametersOnDetElements = new std::vector<const Trk::TrackParameters *>;
   // run the extrapolation
-  const Trk::TrackParameters *parameterOnSf = extrapolate(prop, parm, sf, dir, bcheck, particle);
+  const Trk::TrackParameters *parameterOnSf = extrapolateImpl(cache,prop, parm, sf, dir, bcheck, particle);
   // assign the return parameter and set cache.m_parametersOnDetElements = 0;
   returnParameters = cache.m_parametersOnDetElements;
   cache.m_parametersOnDetElements = 0;
@@ -1097,7 +1097,7 @@ Trk::Extrapolator::extrapolateBlindlyImpl(
   // create a new internal helper vector
   cache.m_parametersOnDetElements = new std::vector<const Trk::TrackParameters *>;
   // run the extrapolation
-  const Trk::TrackParameters *parameterOnSf = extrapolate(prop, parm, *m_referenceSurface, dir, bcheck, particle);
+  const Trk::TrackParameters *parameterOnSf = extrapolateImpl(cache,prop, parm, *m_referenceSurface, dir, bcheck, particle);
   // delete them if necessary
   if (parameterOnSf && parameterOnSf != (&parm)) {
     delete parameterOnSf;
@@ -2756,7 +2756,6 @@ Trk::Extrapolator::extrapolate(const TrackParameters &parm,
                                MaterialUpdateMode matupmode,
                                Trk::ExtrapolationCache *extrapolationCache) const {
 Cache cache{};
-cache.m_extrapolationCache = extrapolationCache;
 return extrapolateImpl(cache,parm,sf,dir,bcheck,particle,matupmode,extrapolationCache);
 }
  
@@ -2769,11 +2768,12 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                                    ParticleHypothesis particle,
                                    MaterialUpdateMode matupmode,
                                    Trk::ExtrapolationCache *extrapolationCache) const {
+  
   cache.m_extrapolationCache = extrapolationCache;
   cache.m_cacheEloss = extrapolationCache ? dynamic_cast<const Trk::EnergyLoss *>(extrapolationCache->eloss()) : 0;
 
-  if (cache.m_extrapolationCache && m_dumpCache) {
-    ATH_MSG_DEBUG("  In extrapolate cache pointer input: " << cache.m_extrapolationCache << " cache.m_extrapolationCache " <<
+  if (extrapolationCache && m_dumpCache) {
+    ATH_MSG_DEBUG("  In extrapolate cache pointer input: " << extrapolationCache << " cache.m_extrapolationCache " <<
       cache.m_extrapolationCache);
     if (cache.m_extrapolationCache) {
       dumpCache(cache," In extrapolate ");
@@ -2784,7 +2784,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
     // chose the propagator fromt he geometry signature -- start with default
     const IPropagator *currentPropagator = m_subPropagators.size() ? m_subPropagators[Trk::Global] : 0;
     if (currentPropagator) {
-      return(extrapolate((*currentPropagator), parm, sf, dir, bcheck, particle, matupmode));
+      return(extrapolateImpl(cache,(*currentPropagator), parm, sf, dir, bcheck, particle, matupmode));
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
@@ -2956,14 +2956,13 @@ Trk::Extrapolator::extrapolateM(const TrackParameters &parameters,
   Cache cache{};
   // create a new vector for the material to be collected
   cache.m_matstates = new std::vector<const Trk::TrackStateOnSurface *>;
-  cache.m_extrapolationCache = extrapolationCache;
-  if (m_dumpCache && cache.m_extrapolationCache) {
-    ATH_MSG_DEBUG(" extrapolateM pointer cache.m_extrapolationCache " << cache.m_extrapolationCache<< " x0tot " << cache.m_extrapolationCache->x0tot());
+  if (m_dumpCache && extrapolationCache) {
+    ATH_MSG_DEBUG(" extrapolateM pointer extrapolationCache " << extrapolationCache<< " x0tot " << extrapolationCache->x0tot());
   }
 
   // collect the material
-  const Trk::TrackParameters *parameterAtDestination = extrapolate(parameters, sf, dir, bcheck, particle, Trk::addNoise,
-                                                                   cache.m_extrapolationCache);
+  const Trk::TrackParameters *parameterAtDestination = extrapolateImpl(cache,parameters, sf, dir, bcheck, particle, Trk::addNoise,
+                                                                       extrapolationCache);
   // there are no parameters
   if (!parameterAtDestination && m_requireMaterialDestinationHit) {
     ATH_MSG_VERBOSE(
