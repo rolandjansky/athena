@@ -740,6 +740,8 @@ namespace MissingEtDQA {
 
     for (const auto& type : types){
       std::string name_met = "MET_Reference_" + type;
+      double JvtCut = 0.59;
+      if (type == "AntiKt4EMPFlow") JvtCut = 0.2;
     
       // Retrieve Reference MET
       const xAOD::MissingETContainer* met_Ref = 0;
@@ -1019,14 +1021,14 @@ namespace MissingEtDQA {
       unsigned int jetcount = 0;
 
       for (auto jet_itr = jets->begin(); jet_itr != jets->end(); ++jet_itr) {
-	if ((*jet_itr)->pt() > leadPt && Accept(*jet_itr,0)) {
+	if ((*jet_itr)->pt() > leadPt && Accept(*jet_itr,JvtCut)) {
 	  subleadPt = leadPt;
 	  subleadPhi = leadPhi;
 	  leadPt = (*jet_itr)->pt();
 	  leadPhi = (*jet_itr)->phi();
  	  jetcount++;
 	}
-	else if ((*jet_itr)->pt() > subleadPt && Accept(*jet_itr,0)) {
+	else if ((*jet_itr)->pt() > subleadPt && Accept(*jet_itr,JvtCut)) {
 	  subleadPt = (*jet_itr)->pt();
 	  subleadPhi = (*jet_itr)->phi();
  	  jetcount++;
@@ -1218,8 +1220,6 @@ namespace MissingEtDQA {
       // For rebuilt MET add only jets with pT>20e3 and JVT cut
       TLorentzVector jetReb_tlv;
       double sum_jetReb = 0;
-      double JvtCut = 0.59;
-      if (type == "AntiKt4EMPFlow") JvtCut = 0.2;
       for(const auto jet : metJetsOR) {
     	if(Accept(jet, JvtCut)) {
     	  jetReb_tlv += jet->p4();
