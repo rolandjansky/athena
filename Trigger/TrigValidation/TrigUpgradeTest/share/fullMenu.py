@@ -15,6 +15,11 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
 
+doElectron = True
+doMuon   = True
+doJet    = False
+doCombo  = True
+
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 EnabledElChains = []
@@ -22,44 +27,63 @@ EnabledMuChains = []
 EnabledMuComboChains = []
 EnabledElComboChains = []
 
+testChains = []
 
 # egamma chains
-from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
-fastCaloStep=fastCaloSequence()
-electronStep=electronSequence()
+if (doElectron):
+    from TrigUpgradeTest.electronMenuDefs import fastCaloSequence, electronSequence
+    fastCaloStep=fastCaloSequence()
+    electronStep=electronSequence()
 
-step1=ChainStep("Step1_etcut", [fastCaloStep])
-step2=ChainStep("Step2_etcut", [electronStep])
-egammaChains  = [
-    Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
-    Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-    Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-    Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  )
-    ]
+    step1=ChainStep("Step1_etcut", [fastCaloStep])
+    step2=ChainStep("Step2_etcut", [electronStep])
 
+    egammaChains  = [
+        Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
+        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
+        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
+        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+        ]
+    testChains += egammaChains
 
 
 # muon chains
-from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, doL2SA, doL2CB, doEFSA
-MuonChains  = []
-step1mufast=ChainStep("Step1_mufast", [muFastStep])
+if (doMuon):
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, doL2SA, doL2CB, doEFSA
+    MuonChains  = []
+    step1mufast=ChainStep("Step1_mufast", [muFastStep])
 
-MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
-MuonChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
-if TriggerFlags.doID==True:
-    step2muComb=ChainStep("Step2_muComb", [muCombStep])
-    MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
-    MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
+    
+    MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
+    MuonChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
+    if TriggerFlags.doID==True:
+        step2muComb=ChainStep("Step2_muComb", [muCombStep])
+        MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
+        MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
 
-
-# combo chains
-comboChains= []
-comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
-comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
+    testChains += MuonChains
 
 
-# sum all
-testChains = egammaChains + MuonChains+ comboChains
+# jet chains
+if (doJet):
+    from TrigUpgradeTest.jetMenuDefs import jetSequence
+
+    jetSeq1 = jetSequence()
+    jetstep1=ChainStep("Step1_jet", [jetSeq1])
+    
+    jetChains  = [
+        Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
+        Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[jetstep1]  )
+        ]
+    testChains += jetChains
+
+
+if (doCombo):
+    # combo chains
+    comboChains= []
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
+    comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
+    testChains += comboChains
 
 
 #################################
@@ -78,11 +102,14 @@ if globalflags.InputFormat.is_bytestream():
 for unpack in topSequence.L1DecoderTest.roiUnpackers:
     if unpack.name() is "EMRoIsUnpackingTool":
         unpack.Decisions="L1EM"
-        emUnpacker=unpack
+ 
     if unpack.name() is "MURoIsUnpackingTool":
         unpack.Decisions="L1MU"
-        muUnpacker=unpack
-
+ 
+    if unpack.name() is "JRoIsUnpackingTool":
+        unpack.FSDecisions="L1J"
+ 
+ 
 for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
     if unpack.name() is "EMRerunRoIsUnpackingTool":
         unpack.Decisions="RerunL1EM"
@@ -96,18 +123,6 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
 topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
 
-# EnabledElChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in egammaChains]
-# EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MuonChains]
-# for c in comboChains:
-#         seeds=c.seed.split("_")
-#         seeds.pop(0) #remove first L1 string
-#         for s in seeds:
-#             if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
-#             if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name)
-
-# muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
-# emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
-#topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
 
 ##########################################

@@ -19,7 +19,4 @@ const float& LArMinBiasSym::minBiasRMS(const HWIdentifier&  hwid) const {
   return m_MinBiasComplete->get(symhwid).m_MinBiasRMS;
 }
   
-const float& LArMinBiasSym::minBiasRMS(const Identifier&  id) const {
-  HWIdentifier symhwid=m_mcSym->ZPhiSymOfl(id);
-  return m_MinBiasComplete->minBiasRMS(symhwid);
-}
+

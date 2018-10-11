@@ -73,13 +73,12 @@ void Subtractor::annihilateClusters(std::vector<xAOD::CaloCluster*>& clusters) {
 
 void Subtractor::annihilateCluster(xAOD::CaloCluster* cluster) {
 
-  const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
-  CaloClusterCellLink* theCellLink_nonConst = const_cast<CaloClusterCellLink*>(theCellLink);
+  CaloClusterCellLink* theCellLink = cluster->getCellLinks();
 
-  CaloClusterCellLink::iterator theFirstCell = theCellLink_nonConst->begin();
-  CaloClusterCellLink::iterator theLastCell = theCellLink_nonConst->end();
+  CaloClusterCellLink::iterator theFirstCell = theCellLink->begin();
+  CaloClusterCellLink::iterator theLastCell = theCellLink->end();
 
-  for (; theFirstCell != theLastCell; ++theFirstCell) theCellLink_nonConst->removeCell(theFirstCell);
+  for (; theFirstCell != theLastCell; ++theFirstCell) theCellLink->removeCell(theFirstCell);
 
   cluster->setE(0.0);
   cluster->setRawE(0.0);

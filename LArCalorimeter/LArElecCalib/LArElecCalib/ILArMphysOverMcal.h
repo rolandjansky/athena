@@ -26,9 +26,6 @@ class ILArMphysOverMcal {
   // online ID
   virtual const float& MphysOverMcal(const HWIdentifier& id , int gain)  const = 0 ;
   
-  // offline ID 
-  virtual const float& MphysOverMcal(const Identifier& id , int gain)  const =0;
-  
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 };
 

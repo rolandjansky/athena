@@ -19,7 +19,4 @@ const float&  LArDAC2uASym::DAC2UA(const HWIdentifier&  hwid) const {
   return m_DAC2uAComplete->get(symhwid).m_data;
 }
   
-const float& LArDAC2uASym::DAC2UA(const Identifier&  id) const {
-  HWIdentifier symhwid=m_mcSym->ZPhiSymOfl(id);
-  return m_DAC2uAComplete->DAC2UA(symhwid);
-}
+

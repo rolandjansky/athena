@@ -21,9 +21,7 @@ class LAruA2MeVSym: virtual public ILAruA2MeV {
   virtual ~LAruA2MeVSym( );
   
   virtual const float& UA2MEV(const HWIdentifier& hwid) const override;
-  
-  virtual const float& UA2MEV(const Identifier& CellID) const override;
-  
+   
  private: 
   const LArMCSym* m_mcSym;
   const LArConditionsContainer<LArSingleFloatP>* m_uA2MeVComplete;

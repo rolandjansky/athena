@@ -19,7 +19,3 @@ ILArRamp::RampRef_t LArRampSym::ADC2DAC(const HWIdentifier&  hwid, int gain) con
   return m_rampComplete->get(symhwid,gain).m_vRamp;
 }
   
-ILArRamp::RampRef_t LArRampSym::ADC2DAC(const Identifier&  id, int gain) const {
-  HWIdentifier symhwid=m_mcSym->ZPhiSymOfl(id);
-  return m_rampComplete->ADC2DAC(symhwid,gain);
-}

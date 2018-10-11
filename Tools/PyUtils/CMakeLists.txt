@@ -46,4 +46,4 @@ atlas_add_alias( meta-reader "meta-reader.py" )
 atlas_add_test( RootUtils
    SCRIPT test/test_RootUtils.py
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "Ran 1 test in " )
+   EXTRA_PATTERNS "Ran 1 test in |CheckABICompatibility|standard library" )

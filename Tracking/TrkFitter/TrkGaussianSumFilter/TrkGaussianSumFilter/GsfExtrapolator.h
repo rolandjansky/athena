@@ -94,10 +94,10 @@ public:
   ~GsfExtrapolator();
 
   /** AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
   virtual const MultiComponentState* extrapolate ( const IPropagator&,

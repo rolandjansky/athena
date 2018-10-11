@@ -14,12 +14,16 @@
 
 #include "xAODMissingET/versions/MissingETCompositionBase.h"
 #include "xAODMissingET/versions/MissingET_v1.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include <vector>
 #include <set>
 
 namespace xAOD
 {
+  // Forward declaration
+  class MissingETAssociationHelper;
+
   /*!  @brief MET association descriptor contains object links and corresponding parameters */ 
   class MissingETAssociation_v1 : public SG::AuxElement
   {
@@ -247,7 +251,6 @@ namespace xAOD
     bool resetContrib(const IParticle* pPart);                /*!< @brief Reset the contribution parameters of an object referenced by a pointer */
     bool resetContrib(size_t objIdx);                         /*!< @brief Reset the contribution parameters of an object referenced by an index */
     bool resetContrib();                                      /*!< @brief Reset all contribution parameters */
-    void resetCache();                                        /*!< @brief reset cache for overlap removal decisions */
     /*!@}*/
 
     /*! @name Dedicated accessors for linked objects */
@@ -275,13 +278,6 @@ namespace xAOD
     /*!@}*/ 
 
     /*! @name Adding and retrieving selection and overlap information */
-    void setObjSelectionFlag(size_t objIdx, bool status) const;           /*!< @brief Flag object as selected for MET calculation */
-    void setObjSelectionFlag(const IParticle* pPart, bool status) const;  /*!< @brief Flag object as selected for MET calculation */
-    void resetObjSelectionFlags() const;                                  /*!< @brief Reset flags */
-
-    bool objSelected(size_t objIdx) const;                                /*!< @brief Test if object is selected for MET calculation */
-    bool objSelected(const IParticle* pPart) const;                       /*!< @brief Test if object is selected for MET calculation */
-
     bool addOverlap(const IParticle* pPart,size_t index, unsigned char type);  /*!< @brief Add overlap index for a given contributing object referenced by pointer */
     bool addOverlap(size_t objIdx,size_t index, unsigned char type);           /*!< @brief Add overlap index for a given contributing object referenced by index */
 
@@ -289,22 +285,22 @@ namespace xAOD
     bool identifyOverlaps(size_t objIdx);                                 /*!< @brief Search association for particles that share constituents with this one */
     bool identifyOverlaps(const IParticle* pPart);                        /*!< @brief Search association for particles that share constituents with this one */
 
-    bool hasOverlaps(size_t objIdx,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
+    bool hasOverlaps(const MissingETAssociationHelper* helper, size_t objIdx,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
                                                                           /*!< @brief Check if any selected particles overlap this one */
-    bool hasOverlaps(const IParticle* pPart,
+    bool hasOverlaps(const MissingETAssociationHelper* helper, const IParticle* pPart,
 		     MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
                                                                           /*!< @brief Check if any selected particles overlap this one */
 
     bool hasAlternateConstVec() const;
     xAOD::JetFourMom_t getAlternateConstVec() const;
 
-    ConstVec overlapCalVec() const;                                       /*!< @brief Retrieve total cluster-based vector to be subtracted from the jet */
-    ConstVec overlapTrkVec() const;                                       /*!< @brief Retrieve total track-based vector to be subtracted from the jet */
+    ConstVec overlapCalVec(const MissingETAssociationHelper* helper) const;    /*!< @brief Retrieve total cluster-based vector to be subtracted from the jet */
+    ConstVec overlapTrkVec(const MissingETAssociationHelper* helper) const;    /*!< @brief Retrieve total track-based vector to be subtracted from the jet */
 
     bool containsSignal(const IParticle* pSig) const;                     /*!< @brief Check if this signal object matches the constituents of any contributing objects */
     bool containsPhysics(const IParticle* pPhys) const;                   /*!< @brief Check if this physics object matches any contributing objects */
-    bool checkUsage(const IParticle* pSig,MissingETBase::UsageHandler::Policy p) const; /*!< @brief Check if this signal object matches the constituents of any flagged contributing objects */
     bool isMisc() const;                                                  /*!< @brief Check if this association is a miscellaneous association */
+    bool checkUsage(const MissingETAssociationHelper* helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const; /*!< @brief Check if this signal object matches the constituents of any flagged contributing objects */
 
     /*! @name Allocating and accessing objects in the contribution
      *  @anchor contrib_alloc
@@ -425,20 +421,10 @@ namespace xAOD
 
     /*! @name Internal data for local cache */
     /*!@{*/
-    mutable std::vector<std::vector<ElementLink<IParticleContainer> > > m_objConstLinks;   /*!< @brief Cache object constituents for overlap-finding
-											    */
-    mutable MissingETBase::Types::bitmask_t m_useObjectFlags;  /*< @brief Cache overlap removal decisions
-								*/
-    mutable std::vector<const IParticle*> m_contribObjects;  /*< @brief Cache pointers to accepted objects
-							      */
+    std::vector<std::vector<ElementLink<IParticleContainer> > > m_objConstLinks;   /*!< @brief Cache object constituents for overlap-finding */
     /*!@}*/
   private:
-    mutable std::map<const IParticle*,ConstVec> m_override;
-    /*! @name Cache remembering the previous search result */
-    /*!@{*/
-    mutable const IParticle* m_lastObjectPointer; /*!< @brief Pointer to last searched object */
-    mutable size_t           m_lastObjectIndex;   /*!< @brief Index of last searched object in list */
-    /*!@}*/
+    std::map<const IParticle*,ConstVec> m_override;
 
     static size_t m_objConstLinkReserve;
     static size_t m_contribObjReserve;

@@ -56,7 +56,7 @@ process(CaloCellContainer * theCellContainer)
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadHandleKeyArray.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArHitInfo.h"
@@ -68,6 +68,7 @@ process(CaloCellContainer * theCellContainer)
 
 #include <CLHEP/Random/Randomize.h>
 
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class CaloDetDescrManager; 
 class Identifier; 
@@ -138,11 +139,10 @@ private:
   const DataHandle<ILArfSampl> m_dd_fSampl;
 
 
-
 //
   std::string     m_LArRegion;         //Region to build  
   SG::ReadHandleKeyArray<LArHitContainer> m_HitContainerKeys;      //Hit containers
-  
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey { this, "CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 //THRESHOLDS on E
   bool m_applyHitEnergyThreshold ;
   

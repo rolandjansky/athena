@@ -52,12 +52,8 @@ def MainServicesSerialCfg():
     from StoreGate.StoreGateConf import StoreGateSvc
     cfg.addService(StoreGateSvc())
     cfg.addService(StoreGateSvc("DetectorStore"))
-    cfg.addService(StoreGateSvc("ConditionsStore"))
-    cfg.setAppProperty('ExtSvc',['ToolSvc/ToolSvc','StoreGateSvc/StoreGateSvc', 'StoreGateSvc/DetectorStore'])
-    cfg.setAppProperty('CreateSvc', ['ToolSvc/ToolSvc',])
-
+    cfg.addService(StoreGateSvc("ConditionStore"))
+    
+    cfg.setAppProperty('InitializationLoopCheck',False)
     return cfg
     
-
-
-

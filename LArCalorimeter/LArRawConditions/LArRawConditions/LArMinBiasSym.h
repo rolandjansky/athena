@@ -21,8 +21,6 @@ class LArMinBiasSym: virtual public ILArMinBias {
 
   virtual const float& minBiasRMS(const HWIdentifier& hwid) const override;
   
-  virtual const float& minBiasRMS(const Identifier& CellID) const override;
-  
  private: 
   const LArMCSym* m_mcSym;
   const LArConditionsContainer<LArMinBiasP>* m_MinBiasComplete;

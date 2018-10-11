@@ -323,13 +323,17 @@ class ComponentAccumulator(object):
 
 
     def setAppProperty(self,key,value,overwrite=False):
-        if (overwrite):
+        if (overwrite or key not in (self._theAppProps)):
             self._theAppProps[key]=value
         else:
-            if key in self._theAppProps and isinstance(self._theAppProps[key],collections.Sequence):
+            if isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
                 value=unifySet(self._theAppProps[key],value) 
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
-            self._theAppProps[key]=value
+                self._theAppProps[key]=value
+            else:
+                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s",key,(self._theAppProps[key],value))
+
+
         pass
 
 
@@ -575,7 +579,7 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
 
-    def run(self,maxEvents=None):
+    def run(self,maxEvents=None,OutputLevel=3):
         log = logging.getLogger("ComponentAccumulator")
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
@@ -589,15 +593,22 @@ class ComponentAccumulator(object):
         svcToCreate=[]
         extSvc=[]
         for svc in self._services:
-            extSvc+=svc.getFullName()
+            print svc.getFullName()
+            extSvc+=[svc.getFullName(),]
             if svc.getJobOptName() in _servicesToCreate:
-                svcToCreate+=svc.getFullName()
+                svcToCreate+=[svc.getFullName(),]
     
+        #print self._services
+        #print extSvc
+        #print svcToCreate        
         app.setProperty("ExtSvc",str(extSvc))
         app.setProperty("CreateSvc",str(svcToCreate))
     
+        print "CONFIGURE STEP"
         app.configure()
 
+        msp=app.getService("MessageSvc")
+        bsh.setProperty(msp,"OutputLevel",str(OutputLevel))
         #Feed the jobO service with the remaining options
         jos=app.getService("JobOptionsSvc")
     
@@ -608,9 +619,11 @@ class ComponentAccumulator(object):
                     log.debug("Adding "+name+"."+k+" = "+v.getFullName())
                     bsh.addPropertyToCatalogue(jos,name,k,v.getFullName())
                     addCompToJos(v)
+                elif isinstance(v,GaudiHandles.GaudiHandleArray):
+                    bsh.addPropertyToCatalogue(jos,name,k,str([ v1.getFullName() for v1 in v ]))
                 else:
                     if not isSequence(comp) and k!="Members": #This property his handled separatly
-                        log.debug("Adding"+name+"."+k+" = "+str(v))
+                        log.debug("Adding "+name+"."+k+" = "+str(v))
                         bsh.addPropertyToCatalogue(jos,name,k,str(v))
                     pass
                 pass
@@ -618,6 +631,10 @@ class ComponentAccumulator(object):
                 addCompToJos(ch)
             return
 
+        #Add services
+        for svc in self._services:
+            addCompToJos(svc)
+            pass
 
         #Add tree of algorithm sequences: 
         for seqName, algoList in flatSequencers( self._sequence ).iteritems():
@@ -637,9 +654,6 @@ class ComponentAccumulator(object):
             pass
 
     
-        for svc in self._services:
-            addCompToJos(svc)
-            pass
      #Public Tools:
         for pt in self._publicTools:
             addCompToJos(pt)
@@ -653,7 +667,7 @@ class ComponentAccumulator(object):
                 maxEvents=-1
 
 
-
+        print "INITIALIZE STEP"
         sc = app.initialize()
         if not sc.isSuccess(): 
             log.error("Failed to initialize AppMgr")

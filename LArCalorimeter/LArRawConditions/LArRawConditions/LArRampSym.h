@@ -20,6 +20,7 @@ class LArRampSym: public ILArRamp {
   virtual ~LArRampSym( );
   
   virtual RampRef_t ADC2DAC(const HWIdentifier& CellID, int gain) const override;
+
  private: 
   const LArMCSym* m_mcSym;
   const LArConditionsContainer<LArRampP1>* m_rampComplete;

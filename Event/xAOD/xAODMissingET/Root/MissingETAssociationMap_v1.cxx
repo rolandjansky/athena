@@ -25,18 +25,12 @@ using namespace xAOD;
 
 MissingETAssociationMap_v1::MissingETAssociationMap_v1(SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETAssociation_v1>(own,trackIndices)
-  , m_lastRefJet((const Jet*)0)
-  , m_lastContribIndex(MissingETBase::Numerical::invalidIndex())
-  , m_miscAssocIndex(MissingETBase::Numerical::invalidIndex())
 {
 }
 
 MissingETAssociationMap_v1::MissingETAssociationMap_v1(MissingETAssociationMap_v1::iterator first, MissingETAssociationMap_v1::iterator last,
 						   SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETAssociation_v1>(first,last,own,trackIndices)
-  , m_lastRefJet((const Jet*)0)
-  , m_lastContribIndex(MissingETBase::Numerical::invalidIndex())
-  , m_miscAssocIndex(MissingETBase::Numerical::invalidIndex())
 {
 }
 
@@ -48,24 +42,22 @@ MissingETAssociationMap_v1::~MissingETAssociationMap_v1()
 /////////////
 
 MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::find(const Jet* pJet) const
-{ 
-  if ( pJet == m_lastRefJet ) 
-    { const_iterator fAssoc(this->begin()); std::advance<const_iterator>(fAssoc,m_lastContribIndex);  return fAssoc; }
-  else { return this->f_findConst(pJet); }
+{
+  return this->f_findConst(pJet);
 }
 
 MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::find(const Jet* pJet)
-{ 
-  if ( pJet == m_lastRefJet ) 
-    { iterator fAssoc(this->begin()); std::advance<iterator>(fAssoc,m_lastContribIndex); return fAssoc; }
-  else { return this->f_find(pJet); }
+{
+  return this->f_find(pJet);
 }
 
 size_t MissingETAssociationMap_v1::findIndex(const Jet* pJet) const
-{ 
-  //  printf("METAssociationMap: Last ref jet = %p, searching for %p\n",(void*)m_lastRefJet,(void*)pJet);
-  if ( m_lastRefJet != pJet ) { this->f_findConst(pJet); }
-  return m_lastContribIndex; }
+{
+  const_iterator fAssoc = this->f_findConst(pJet);
+  if(fAssoc != this->end() && !(*fAssoc)->isMisc())
+      return std::distance<const_iterator>(this->begin(),fAssoc);
+  return MissingETBase::Numerical::invalidIndex();
+}
 
 ///////////////////////
 // Protected finders //
@@ -76,7 +68,6 @@ MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::f_findCon
   const_iterator fAssoc(this->begin());
   const_iterator lAssoc(this->end());
   while ( fAssoc != lAssoc && !(*fAssoc)->isMisc() && (*fAssoc)->refJet() != pJet ) { ++fAssoc; }
-  this->f_setConstCache(fAssoc);
   return fAssoc;
 }
 
@@ -85,28 +76,7 @@ MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::f_find(const Je
   iterator fAssoc(this->begin());
   iterator lAssoc(this->end());
   while ( fAssoc != lAssoc && !(*fAssoc)->isMisc() && (*fAssoc)->refJet() != pJet ) { ++fAssoc; }
-  this->f_setCache(fAssoc);
   return fAssoc;
-}
-
-void MissingETAssociationMap_v1::f_setConstCache(const_iterator fAssoc) const
-{
-  if ( fAssoc != this->end() && !(*fAssoc)->isMisc() )
-    { 
-      m_lastRefJet = (*fAssoc)->refJet();
-      m_lastContribIndex = (size_t)std::distance<const_iterator>(this->begin(),fAssoc);
-    } 
-  else { m_lastRefJet = (const Jet*)0; m_lastContribIndex = MissingETBase::Numerical::invalidIndex(); }
-}
-
-void MissingETAssociationMap_v1::f_setCache(iterator fAssoc)
-{
-  if ( fAssoc != this->end() && !(*fAssoc)->isMisc() )
-    { 
-      m_lastRefJet = (*fAssoc)->refJet();
-      m_lastContribIndex =  std::distance<iterator>(this->begin(),fAssoc);
-    }
-  else  { m_lastRefJet = (const Jet*)0; m_lastContribIndex = MissingETBase::Numerical::invalidIndex(); }
 }
 
 ////////////////////////
@@ -124,19 +94,19 @@ void MissingETAssociationMap_v1::f_clearJetConstMap()
   m_jetConstLinks.clear();  
 }
 
-bool MissingETAssociationMap_v1::setJetConstituents(const Jet* pJet) const
+bool MissingETAssociationMap_v1::setJetConstituents(const Jet* pJet)
 {
   std::vector<ElementLink<IParticleContainer> > jetconst = pJet->constituentLinks();
   return this->setJetConstituents(jetconst,pJet);
 }
 
-bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, const Jet* pJet) const
+bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, const Jet* pJet)
 {
   size_t jetIdx = findIndex(pJet);  
   return this->setJetConstituents(constLinks,jetIdx);
 }
 
-bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, size_t jetIndex) const
+bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, size_t jetIndex)
 {
   bool setConst = (jetIndex!=MissingETBase::Numerical::invalidIndex());
   if(setConst) {
@@ -169,7 +139,6 @@ MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::findByJet
   if(index!=MissingETBase::Numerical::invalidIndex()) {
     iAssoc = this->begin() + index;
   }
-  this->f_setConstCache(iAssoc);
   return iAssoc;
 }
 
@@ -180,7 +149,6 @@ MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::findByJetConst(
   if(index!=MissingETBase::Numerical::invalidIndex()) {
     iAssoc = this->begin() + index;
   }
-  this->f_setCache(iAssoc);
   return iAssoc;
 }
 
@@ -194,31 +162,13 @@ size_t MissingETAssociationMap_v1::findIndexByJetConst(const IParticle* pConst) 
 size_t MissingETAssociationMap_v1::findIndexByJetConst(ElementLink<IParticleContainer> constLink) const
 {
   size_t index = MissingETBase::Numerical::invalidIndex();
-  // int objtype = (*constLink)->type();
-  // size_t objindex = (*constLink)->index();
-  // printf("METAssociationMap: Find by constLink to object type %i #%lu\n",objtype,objindex);
-  // if(m_lastConstLink.isDefault()) {
-  //   printf("METAssociationMap: Last constLink is to default\n");
-  // } else {
-  //   objtype = (*m_lastConstLink)->type();
-  //   objindex = (*m_lastConstLink)->index();
-  //   printf("METAssociationMap: Last constLink is to object type %i #%lu\n",objtype,objindex);
-  // }
-  if(m_lastConstLink.isValid() && *constLink==*m_lastConstLink) {
-    // printf("METAssociationMap: Matched!");
-    index = m_lastContribIndex;
-  } else {
-    std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
-    if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
-    if(iConstMap!=m_jetConstLinks.end()) {
-      index = iConstMap->second;
-      m_lastConstLink = constLink;
-      const_iterator fAssoc(this->begin());
-      std::advance<const_iterator>(fAssoc,index);
-      this->f_setConstCache(fAssoc);
-    }
+  std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
+  if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+  if(iConstMap!=m_jetConstLinks.end()) {
+    index = iConstMap->second;
+    const_iterator fAssoc(this->begin());
+    std::advance<const_iterator>(fAssoc,index);
   }
-  // printf("METAssociationMap: Returning index %lu\n",index);
   return index;
 }
 
@@ -226,12 +176,7 @@ const MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation() 
 {
   MissingETAssociationMap_v1::const_reverse_iterator rIter(this->rbegin());
   MissingETAssociationMap_v1::const_reverse_iterator fAssoc(this->rend());
-  if(m_miscAssocIndex==MissingETBase::Numerical::invalidIndex()) {
-    while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
-    m_miscAssocIndex = std::distance<const_reverse_iterator>(this->rbegin(),rIter);
-  } else {
-    std::advance<const_reverse_iterator>(rIter,m_miscAssocIndex);
-  }
+  while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
   return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)0;
 }
 
@@ -239,12 +184,7 @@ MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation()
 { 
   MissingETAssociationMap_v1::reverse_iterator rIter(this->rbegin());
   MissingETAssociationMap_v1::reverse_iterator fAssoc(this->rend());
-  if(m_miscAssocIndex==MissingETBase::Numerical::invalidIndex()) {
-    while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
-    m_miscAssocIndex = std::distance<reverse_iterator>(this->rbegin(),rIter);
-  } else {
-    std::advance<reverse_iterator>(rIter,m_miscAssocIndex);
-  }
+  while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
   return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)0;
 }
 
@@ -313,7 +253,7 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
   return uniques->asDataVector();
 }
 
-const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSignals(const xAOD::IParticleContainer* signals,MissingETBase::UsageHandler::Policy p) const
+const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSignals(const MissingETAssociationHelper* helper,const xAOD::IParticleContainer* signals,MissingETBase::UsageHandler::Policy p) const
 {
   MissingETBase::Types::const_signal_vector_t* uniques = new MissingETBase::Types::const_signal_vector_t(SG::VIEW_ELEMENTS);
   for(const auto& sig : *signals) {
@@ -326,31 +266,17 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSig
       if(!assoc) {
 	uniques->push_back(sig);
       } else {
-	if(!assoc->checkUsage(sig,p)) {
+	if(!assoc->checkUsage(helper,sig,p)) {
 	  uniques->push_back(sig);
 	}
       }
     } // add if not associated to any jet
     else {
-      if(!(*this)[assocIndex]->checkUsage(sig,p)) {
+      if(!(*this)[assocIndex]->checkUsage(helper,sig,p)) {
 	uniques->push_back(sig);	
       } // add if not associated to any selected object in its parent jet
     }
   }
 
   return uniques->asDataVector();
-}
-
-void xAOD::MissingETAssociationMap_v1::resetObjSelectionFlags() const
-{
-  for(const auto& assoc : *this) {
-    assoc->resetObjSelectionFlags();
-  }
-}
-
-void xAOD::MissingETAssociationMap_v1::resetAssocCache()
-{
-  for(const auto& assoc : *this) {
-    assoc->resetCache();
-  }
 }

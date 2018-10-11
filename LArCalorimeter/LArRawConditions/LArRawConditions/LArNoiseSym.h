@@ -19,8 +19,6 @@ class LArNoiseSym: virtual public ILArNoise {
   
   virtual const float& noise(const HWIdentifier& hwid, int gain) const override;
   
-  virtual const float& noise(const Identifier& CellID, int gain) const override;
-  
  private: 
   const LArMCSym* m_mcSym;
   const LArConditionsContainer<LArNoiseP>* m_noiseComplete;

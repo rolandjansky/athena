@@ -23,7 +23,6 @@
 Trk::DummyMaterialEffectsUpdator::DummyMaterialEffectsUpdator(const std::string &t, const std::string &n,
                                                               const IInterface *p) :
   AthAlgTool(t, n, p),
-  m_considerPrePostMapping(true),
   m_validationMode(false),
   m_validationDirectionSwitch(1),
   m_validationDirection(Trk::alongMomentum),
