@@ -1101,6 +1101,12 @@ class xAODLambdabarVertexContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "V0LambdabarVertices"
 
+class xAODSecVertexDecayContainer(JobProperty):
+    """xAOD Secondary Vertex Decay container name"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "VrtSecDecay"
+
 class xAODForwardTrackParticleContainer(JobProperty):
     """xAOD TrackParticle from Forward Tracking"""
     statusOn = True
@@ -1374,6 +1380,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODV0VertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODKshortVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdaVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdabarVertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODSecVertexDecayContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
