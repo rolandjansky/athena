@@ -41,15 +41,15 @@ if not SkipTriggerRequirement:
    
    try:
      year=int(rec.projectName()[4:6])
-     if year > 17 :
-       year=17
+     if year > 18 :
+       year=18
      print "HIGG1D2.py: Project tag: " + rec.projectName() +  " Year: " +  str(year)
    except:
      print "HIGG1D2.py: Failed to extract year from project tag "+ rec.projectName() +". Guessing 2017"
      year=17
    print "HIGG1D2.py: Setting up trigger requirement for year 20" + str(year)
-   if year==17:
-     TriggerMerged          = ["HLT_e25_mergedtight_g35_medium_Heg","HLT_e30_mergedtight_g35_medium_Heg","HLT_2g50_loose_L12EM20VH","e24_lhmedium_nod0_L1EM20VH_g25_medium"]
+   if year==17 and year==18:
+     TriggerMerged          = ["HLT_e25_mergedtight_g35_medium_Heg","HLT_e30_mergedtight_g35_medium_Heg","HLT_2g50_loose_L12EM20VH","HLT_e24_lhmedium_nod0_L1EM20VH_g25_medium","HLT_g35_medium_g25_medium_L12EM20VH"]
      TriggerExp             = [ 
                                "HLT_g25_medium_mu24", #photon muon
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
@@ -57,7 +57,6 @@ if not SkipTriggerRequirement:
                                "HLT_g35_loose_L1EM24VHI_mu18",  #photon muon
                                "HLT_g35_tight_icalotight_L1EM24VHI_mu15noL1_mu2noL1", # photon dimuon 
                                "HLT_g35_tight_icalotight_L1EM24VHI_mu18noL1", # photon muon
-                               "HLT_g25_medium_mu24"
                                "HLT_2mu14", #dimuon 
                                "HLT_mu22_mu8noL1", #dimuon
                                "HLT_mu26_ivarmedium", #single muon
@@ -69,13 +68,16 @@ if not SkipTriggerRequirement:
                                "HLT_2e17_lhvloose_nod0_L12EM15VHI", #dielectron
                                "HLT_2e24_lhvloose_nod0",
                                "HLT_e25_mergedtight_g35_medium_Heg", #merged electron
+                               "HLT_e30_mergedtight_g35_medium_Heg",
+                               "HLT_e24_lhmedium_nod0_L1EM20VH_g25_medium",
+                               "HLT_g35_medium_g25_medium_L12EM20VH",
                                "HLT_2g50_loose_L12EM20VH", #di photon
                                "HLT_g200_loose", #single photon
                                "HLT_g300_etcut"  #single photon
                               ]
    elif year==16:
      #2016
-     TriggerMerged          = ["HLT_g35_loose_g25_loose","HLT_e20_lhmedium_nod0_g35_loose"]
+     TriggerMerged          = ["HLT_g35_loose_g25_loose","HLT_g35_medium_g25_medium","HLT_e20_lhmedium_nod0_g35_loose"]
      TriggerExp             = [ 
                                "HLT_g25_medium_mu24", #photon muon
                                "HLT_g15_loose_2mu10_msonly", #photon dimuon
@@ -97,6 +99,7 @@ if not SkipTriggerRequirement:
                                "HLT_2e15_lhvloose_nod0_L12EM153VHI", #dielectron
                                "HLT_2e17_lhvloose_nod0",
                                "HLT_g35_loose_g25_loose", #di photon
+                               "HLT_g35_medium_g25_medium",
                                "HLT_e20_lhmedium_nod0_g35_loose", # electron  +  photon
                                "HLT_g140_loose", #single photon
                                "HLT_g300_etcut"  #single photon
