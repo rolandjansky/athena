@@ -64,17 +64,52 @@ class SCTRawDataProvider : public AthAlgorithm
  private:
 
   ServiceHandle<IRegSelSvc> m_regionSelector;     
+
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-  ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, "ProviderTool", "SCTRawDataProviderTool", "SCT  Raw Data Provider Tool"};
-  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
+
+  ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, 
+                                                    "ProviderTool", 
+                                                    "SCTRawDataProviderTool", 
+                                                    "SCT  Raw Data Provider Tool"};
+
+  ToolHandle<ISCT_CablingTool> m_cabling{this, 
+                                         "SCT_CablingTool", 
+                                         "SCT_CablingTool", 
+                                         "Tool to retrieve SCT Cabling"};
+
   const SCT_ID* m_sctId; 
+
   BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{this, "RoIs", "", "RoIs to read in"};
-  SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOKey", "SCT_RDOs", "SCT RDO key"};
-  SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey{this, "LVL1IDKey", "SCT_LVL1ID", "SCT LVL1ID key"};
-  SG::WriteHandleKey<InDetTimeCollection> m_bcIdCollectionKey{this, "BCIDKey", "SCT_BCID", "SCT BCID key"};
-  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey{this, "ByteStreamErrContainer", "SCT_ByteStreamErrs", "SCT BS error key"};
-  SG::WriteHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerKey{this, "ByteStreamFracContainer", "SCT_ByteStreamFrac", "SCT BS fraction key"};
+
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{this, 
+                                                                    "RoIs",   
+                                                                    "", 
+                                                                    "RoIs to read in"};
+
+  SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, 
+                                                          "RDOKey", 
+                                                          "SCT_RDOs", 
+                                                          "SCT RDO key"};
+
+  SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey{this, 
+                                                              "LVL1IDKey", 
+                                                              "SCT_LVL1ID", 
+                                                              "SCT LVL1ID key"};
+
+  SG::WriteHandleKey<InDetTimeCollection> m_bcIdCollectionKey{this, 
+                                                              "BCIDKey", 
+                                                              "SCT_BCID", 
+                                                              "SCT BCID key"};
+
+  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey{this, 
+                                                              "ByteStreamErrContainer", 
+                                                              "SCT_ByteStreamErrs", 
+                                                              "SCT BS error key"};
+
+  SG::WriteHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerKey{this, 
+                                                                           "ByteStreamFracContainer", 
+                                                                           "SCT_ByteStreamFrac", 
+                                                                           "SCT BS fraction key"};
   SG::UpdateHandleKey<SCT_RDO_Cache> m_rdoContainerCacheKey;
 };
 

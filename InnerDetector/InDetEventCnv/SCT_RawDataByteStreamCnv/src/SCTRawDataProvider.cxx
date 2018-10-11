@@ -146,10 +146,15 @@ StatusCode SCTRawDataProvider::execute()
   }
   std::unique_ptr<dummySCTRDO_t> dummyRDO;
   if (externalCacheRDO) dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
-  ISCT_RDO_Container *rdoInterface = externalCacheRDO ? static_cast< ISCT_RDO_Container*> (dummyRDO.get()) 
+  ISCT_RDO_Container *rdoInterface = externalCacheRDO 
+                     ? static_cast< ISCT_RDO_Container*> (dummyRDO.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
-  if (m_rawDataTool->convert(vecROBFrags, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
+  if (m_rawDataTool->convert(vecROBFrags, 
+                             *rdoInterface, 
+                             bsErrContainer.ptr(), 
+                             bsFracContainer.ptr()).isFailure()) 
+  {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
   if (dummyRDO) dummyRDO->MergeToRealContainer(rdoContainer.ptr());
