@@ -8,7 +8,6 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 
 #include "TH2.h"
-#include "TRandom3.h"
 
 
 class TFCSLateralShapeParametrizationHitNumberFromE:public TFCSLateralShapeParametrizationHitBase {
