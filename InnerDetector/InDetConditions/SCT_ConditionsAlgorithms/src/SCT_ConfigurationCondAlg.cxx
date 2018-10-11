@@ -415,8 +415,6 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
     const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(serialNumber.to_uint())};
     if (not hash.is_valid()) continue;
 
-    Identifier waferId{m_pHelper->wafer_id(hash)};
-    Identifier moduleId{m_pHelper->module_id(waferId)};
     int link0{run1 ? (itr->second[link0Index].data<int>()) : static_cast<int>(itr->second[link0Index].data<unsigned char>())};
     int link1{run1 ? (itr->second[link1Index].data<int>()) : static_cast<int>(itr->second[link1Index].data<unsigned char>())};
 
