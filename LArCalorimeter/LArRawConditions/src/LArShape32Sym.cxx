@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "LArRawConditions/LArShape32Sym.h"
 #include "LArRawConditions/LArShape32MC.h"
 #include "LArRawConditions/LArMCSym.h"

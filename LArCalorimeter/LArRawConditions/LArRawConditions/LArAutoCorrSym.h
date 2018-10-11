@@ -1,3 +1,4 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
@@ -9,25 +10,21 @@
 
 class LArMCSym;
 class LArAutoCorrMC;
-class LArAutoCorrComplete;
+class LArAutoCorrP1;
+template<typename LArAutoCorrP1> class LArConditionsContainer; 
 
-class LArAutoCorrSym: public ILArAutoCorr {
-  
+
+class LArAutoCorrSym: public ILArAutoCorr {  
  public:
-
   LArAutoCorrSym() = delete;
-
-  LArAutoCorrSym(const LArMCSym* mcsym,  const LArAutoCorrMC* acComplete);
-  
+  LArAutoCorrSym(const LArMCSym* mcsym, const LArAutoCorrMC* acComplete);
   virtual ~LArAutoCorrSym( );
-  
-  virtual AutoCorrRef_t autoCorr(const HWIdentifier&  CellID, int gain) const override;
+ 
+  virtual AutoCorrRef_t autoCorr(const HWIdentifier& CellID, int gain) const override;
    
  private: 
-
   const LArMCSym* m_mcSym;
-  const LArAutoCorrComplete* m_acComplete;
-
+  const LArConditionsContainer<LArAutoCorrP1>* m_acComplete;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

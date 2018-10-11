@@ -74,5 +74,8 @@ typedef LArSymConditionsAlg<LArShape32MC,LArShape32Sym> LArShapeSymCondAlg;
 #include "LArRawConditions/LArAutoCorrSym.h"
 typedef LArSymConditionsAlg<LArAutoCorrMC,LArAutoCorrSym> LArAutoCorrSymCondAlg;
 
+#include "LArRawConditions/LArMphysOverMcalMC.h"
+#include "LArRawConditions/LArMphysOverMcalSym.h"
+typedef LArSymConditionsAlg<LArMphysOverMcalMC,LArMphysOverMcalSym> LArMphysOverMcalSymCondAlg;
 
 #endif

@@ -7,27 +7,24 @@
 
 #include "LArElecCalib/ILArMinBiasAverage.h"
 
+
 class LArMCSym;
 class LArMinBiasAverageMC;
-class LArMinBiasAverageComplete;
+class LArMinBiasAverageP;
+template<typename LArMinBiasAverageP> class LArConditionsContainer;
 
 class LArMinBiasAverageSym: virtual public ILArMinBiasAverage {
   
  public:
-
   LArMinBiasAverageSym() = delete;
-
   LArMinBiasAverageSym(const LArMCSym* mcsym,  const LArMinBiasAverageMC* MinBiasAverageComplete);
-  
   virtual ~LArMinBiasAverageSym( );
   
   virtual const float& minBiasAverage(const HWIdentifier& hwid) const override;
   
  private: 
-
   const LArMCSym* m_mcSym;
-  const LArMinBiasAverageComplete* m_MinBiasAverageComplete;
-
+  const LArConditionsContainer<LArMinBiasAverageP>* m_MinBiasAverageComplete;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"
