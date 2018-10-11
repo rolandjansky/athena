@@ -122,8 +122,10 @@ StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Contex
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  // Get event context from event store
-  EventContext* eventContext = nullptr;
+  // Get the EventContext via event store because the interface doesn't allow passing it explicitly as an argument
+  // and we don't want to use ThreadLocalContext. Don't use ReadHandle here because it calls ThreadLocalContext if
+  // not given a context (which we want to retrieve).
+  const EventContext* eventContext = nullptr;
   ATH_CHECK(m_evtStore->retrieve(eventContext));
 
   // Perhaps the name shouldn't be hard-coded
