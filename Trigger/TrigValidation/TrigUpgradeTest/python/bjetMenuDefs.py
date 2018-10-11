@@ -3,10 +3,25 @@
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 
-# My idea would be to create three steps, thus three different hypoTools
-# 1 TFT + Jet Reco + j cut
-# 2 Precision Tracking + GSC + gsc cut
-# 3 BTagging
+# Set InDet Flags
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doCaloSeededBrem = False
+InDetFlags.InDet25nsec = True 
+InDetFlags.doPrimaryVertex3DFinding = False 
+InDetFlags.doPrintConfigurables = False
+InDetFlags.doResolveBackTracks = True 
+InDetFlags.doSiSPSeededTrackFinder = True
+InDetFlags.doTRTPhaseCalculation = True
+InDetFlags.doTRTSeededTrackFinder = True
+InDetFlags.doTruth = False
+InDetFlags.init()
+
+from AthenaCommon.Include import include
+include("InDetRecExample/InDetRecConditionsAccess.py")
+
+# ====================================================================================================  
+#    Get MenuSequences
+# ==================================================================================================== 
 
 def getBJetSequence( step ):
     if step == "j":
@@ -53,25 +68,29 @@ def bJetStep1Sequence():
     (viewAlgs, eventAlgs) = makeInDetAlgs()
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
-    theFTF = TrigFastTrackFinder_Jet()
-    theFTF.RoIs = SuperRoIBuilder.SuperRoIOutputKey
-    viewAlgs.append(theFTF)
+    theFTF_Jet = TrigFastTrackFinder_Jet()
+    theFTF_Jet.OutputLevel = DEBUG
+    theFTF_Jet.isRoI_Seeded = True
+    theFTF_Jet.RoIs = SuperRoIBuilder.SuperRoIOutputKey
+    viewAlgs.append( theFTF_Jet )
 
+    # Setting RoI names
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
         print 'view Alg Name :',viewAlg.name()
         viewAlg.OutputLevel = DEBUG
-        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+        if viewAlg.properties().has_key("roiCollectionName"):
             print '   ** Setting TrigRoiDescriptorCollection to', SuperRoIBuilder.SuperRoIOutputKey
             viewAlg.roiCollectionName = SuperRoIBuilder.SuperRoIOutputKey
-        if viewAlg.name() in ["InDetPixelRawDataProvider","InDetSCTRawDataProvider","InDetTRTRawDataProvider",
-                              "InDetPixelClusterization","InDetSCT_Clusterization"]:
+        if viewAlg.properties().has_key("RoIs"):
             print '   ** Setting TrigRoiDescriptorCollection to', SuperRoIBuilder.SuperRoIOutputKey
             viewAlg.RoIs = SuperRoIBuilder.SuperRoIOutputKey
+        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+            TrackParticlesName = viewAlg.TrackParticlesName
 
-            
-    bJetEtSequence += eventAlgs
-    bJetEtSequence += viewAlgs
+    print '### TrackParticlesName:',TrackParticlesName
+
+    fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
@@ -80,10 +99,11 @@ def bJetStep1Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
     hypo.OutputJets = "SplitJets"
-    hypo.TrackParticles = "TrigFastTrackFinder_Tracks"
+    hypo.TrackParticles = "TrigFastTrackFinder_Tracks" # Output from "theFTF_Jet". Do I need it ?
+    hypo.TrackParticleContainerKey = TrackParticlesName
 
     # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence,bJetEtSequence])
+    BjetAthSequence = seqAND("BjetAthSequence",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence,fastTrackingSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
