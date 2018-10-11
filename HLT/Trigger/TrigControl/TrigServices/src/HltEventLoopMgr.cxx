@@ -43,10 +43,9 @@
 #include <sstream>
 
 // Helper macros, typedefs and constants
-#define ST_WHERE __FUNCTION__ << "(): "
 #define HLT_EVTLOOP_CHECK(sc,errmsg,...) \
   if (sc.isFailure()) {\
-    ATH_MSG_ERROR(ST_WHERE << errmsg); \
+    ATH_REPORT_ERROR(sc) << errmsg; \
     failedEvent(__VA_ARGS__); \
     continue; \
   }
@@ -133,23 +132,23 @@ StatusCode HltEventLoopMgr::initialize()
         ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: " << m_jobOptionsType);
     }
     catch (...) {
-      ATH_MSG_WARNING(ST_WHERE << "Could not set Property '" << m_jobOptionsType.name() << "' from DataFlow");
+      ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set Property '" << m_jobOptionsType.name() << "' from DataFlow";
     }
 
     if ( m_topAlgNames.value().empty() ) {
       if (setProperty(propMgr->getProperty("TopAlg")).isFailure()) {
-        ATH_MSG_WARNING(ST_WHERE << "Could not set the TopAlg property from ApplicationMgr");
+        ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set the TopAlg property from ApplicationMgr";
       }
     }
   }
   else {
-    ATH_MSG_WARNING(ST_WHERE << "Error retrieving IProperty interface of ApplicationMgr" );
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Error retrieving IProperty interface of ApplicationMgr";
   }
 
   // get JobOptionsSvc to read the configuration of NumConcurrentEvents and NumThreads
   ServiceHandle<IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
   if ((jobOptionsSvc.retrieve()).isFailure()) {
-    ATH_MSG_WARNING(ST_WHERE << "Could not find JobOptionsSvc to read configuration");
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not find JobOptionsSvc to read configuration";
   }
 
   // print properties
@@ -165,12 +164,12 @@ StatusCode HltEventLoopMgr::initialize()
     if (prop)
       ATH_MSG_INFO(" ---> NumConcurrentEvents    = " << *prop);
     else
-      ATH_MSG_WARNING(ST_WHERE << "Failed to retrieve the job property EventDataSvc.NSlots");
+      ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property EventDataSvc.NSlots";
     prop = jobOptionsSvc->getClientProperty("AvalancheSchedulerSvc","ThreadPoolSize");
     if (prop)
       ATH_MSG_INFO(" ---> NumThreads             = " << *prop);
     else
-      ATH_MSG_WARNING(ST_WHERE << "Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize");
+      ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize";
   }
   ATH_MSG_INFO(" ---> Enabled ROBs: size = " << m_enabledROBs.value().size()
                << (m_enabledROBs.value().size()==0 ? ". No check will be performed" : " "));
@@ -342,17 +341,17 @@ StatusCode HltEventLoopMgr::finalize()
   // Finalise top level algorithms
   for (auto& ita : m_topAlgList) {
     if (ita->sysFinalize().isFailure())
-      ATH_MSG_WARNING(ST_WHERE << "Finalisation of algorithm " << ita->name() << " failed");
+      ATH_REPORT_MESSAGE(MSG::WARNING) << "Finalisation of algorithm " << ita->name() << " failed";
   }
   // Release top level algorithms
   SmartIF<IAlgManager> algMgr = serviceLocator()->as<IAlgManager>();
   if (!algMgr.isValid()) {
-    ATH_MSG_WARNING(ST_WHERE << "Failed to retrieve AlgManager - cannot finalise top level algorithms");
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve AlgManager - cannot finalise top level algorithms";
   }
   else {
     for (auto& ita : m_topAlgList) {
       if (algMgr->removeAlgorithm(ita).isFailure())
-        ATH_MSG_WARNING(ST_WHERE << "Problems removing Algorithm " << ita->name());
+        ATH_REPORT_MESSAGE(MSG::WARNING) << "Problems removing Algorithm " << ita->name();
     }
   }
   m_topAlgList.clear();
@@ -390,27 +389,27 @@ StatusCode HltEventLoopMgr::finalize()
 #else // standard older than C++17
   // Release service handles
   if (m_incidentSvc.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_incidentSvc.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_incidentSvc.typeAndName();
   if (m_robDataProviderSvc.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_robDataProviderSvc.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_robDataProviderSvc.typeAndName();
   if (m_evtStore.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_evtStore.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_evtStore.typeAndName();
   if (m_detectorStore.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_detectorStore.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_detectorStore.typeAndName();
   if (m_inputMetaDataStore.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_inputMetaDataStore.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_inputMetaDataStore.typeAndName();
   if (m_THistSvc.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_THistSvc.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_THistSvc.typeAndName();
   if (m_evtSelector.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_evtSelector.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_evtSelector.typeAndName();
   if (m_outputCnvSvc.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release service " << m_outputCnvSvc.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release service " << m_outputCnvSvc.typeAndName();
 
   // Release tool handles
   if (m_coolHelper.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release tool " << m_coolHelper.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release tool " << m_coolHelper.typeAndName();
   if (m_hltResultBuilder.release().isFailure())
-    ATH_MSG_WARNING(ST_WHERE << "Failed to release tool " << m_hltResultBuilder.typeAndName());
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release tool " << m_hltResultBuilder.typeAndName();
 
   // Release SmartIFs
   m_whiteboard.reset();
@@ -469,11 +468,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
     // do the necessary resets
     // internalPrepareResets() was here
-    StatusCode sc = clearTemporaryStores();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR(ST_WHERE << "Clearing temporary stores failed");
-      return sc;
-    }
+    ATH_CHECK(clearTemporaryStores());
 
     const SOR* sor;
     // update SOR in det store and get it back
@@ -506,15 +501,15 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
   }
   catch(const ptree_bad_path & e)
   {
-    ATH_MSG_ERROR(ST_WHERE << "Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what());
+    ATH_REPORT_MESSAGE(MSG::ERROR) << "Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what();
   }
   catch(const ptree_bad_data & e)
   {
-    ATH_MSG_ERROR(ST_WHERE << "Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - " << e.what());
+    ATH_REPORT_MESSAGE(MSG::ERROR) << "Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - " << e.what();
   }
   catch(const std::runtime_error& e)
   {
-    ATH_MSG_ERROR(ST_WHERE << "Runtime error: " << e.what());
+    ATH_REPORT_MESSAGE(MSG::ERROR) << "Runtime error: " << e.what();
   }
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
@@ -544,7 +539,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
     ATH_MSG_DEBUG("Done a stop-start of CoreDumpSvc");
   }
   else {
-    ATH_MSG_WARNING(ST_WHERE << "Could not retrieve CoreDumpSvc");
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not retrieve CoreDumpSvc";
   }
 
   // Start the timeout thread
@@ -572,7 +567,7 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   StatusCode sc = nextEvent(maxevt);
   if (sc.isFailure()) {
-    ATH_MSG_ERROR(ST_WHERE << "Event loop failed");
+    ATH_REPORT_ERROR(sc) << "Event loop failed";
     // Extra clean-up may be needed here after the failure
   }
 
@@ -665,8 +660,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         events_available = false;
         sc = clearWBSlot(eventContext->slot());
         if (sc.isFailure()) {
-          ATH_MSG_WARNING(ST_WHERE << "Failed to clear the whiteboard slot " << eventContext->slot()
-                          << " after NoMoreEvents detected");
+          ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to clear the whiteboard slot " << eventContext->slot()
+                                           << " after NoMoreEvents detected";
         }
         continue;
       }
@@ -724,7 +719,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       ATH_MSG_DEBUG("No free slots or no more events to process - draining the scheduler");
       int drainResult = drainScheduler();
       if (drainResult<0) {
-        ATH_MSG_ERROR(ST_WHERE << "Error draining scheduler");
+        ATH_REPORT_MESSAGE(MSG::ERROR) << "Error draining scheduler";
         continue;
       }
       else if (drainResult==0 && !events_available) {
@@ -755,7 +750,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* pEvtContext)
 
   EventContext* eventContext = static_cast<EventContext*>(pEvtContext);
   if (!eventContext) {
-    ATH_MSG_ERROR(ST_WHERE << "Failed to cast the call parameter to EventContext*");
+    ATH_REPORT_MESSAGE(MSG::ERROR) << "Failed to cast the call parameter to EventContext*";
     return StatusCode::FAILURE;
   }
 
@@ -766,9 +761,9 @@ StatusCode HltEventLoopMgr::executeEvent(void* pEvtContext)
   StatusCode addEventStatus = m_schedulerSvc->pushNewEvent(eventContext);
 
   // If this fails, we need to wait for something to complete
-  if (!addEventStatus.isSuccess()){
-    ATH_MSG_ERROR(ST_WHERE << "Failed adding event " << eventContext->evt() << ", slot " << eventContext->slot()
-                  << " to the scheduler");
+  if (addEventStatus.isFailure()){
+    ATH_REPORT_MESSAGE(MSG::ERROR) << "Failed adding event " << eventContext->evt() << ", slot " << eventContext->slot()
+                                   << " to the scheduler";
     return StatusCode::FAILURE;
   }
 
@@ -782,7 +777,7 @@ void HltEventLoopMgr::updateDFProps()
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
   if ((p_jobOptionsSvc.retrieve()).isFailure()) {
-    ATH_MSG_WARNING(ST_WHERE << "Could not find JobOptionsSvc to set DataFlow properties");
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not find JobOptionsSvc to set DataFlow properties";
   } else {
     auto dfprops = p_jobOptionsSvc->getProperties("DataFlowConfig");
 
@@ -792,7 +787,7 @@ void HltEventLoopMgr::updateDFProps()
     if(prop && m_applicationName.assign(*prop)) {
       ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: " << m_applicationName);
     } else {
-      ATH_MSG_WARNING(ST_WHERE << "Could not set Property '" << pname << "' from DataFlow");
+      ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set Property '" << pname << "' from DataFlow";
     }
 
     // Partition name
@@ -801,7 +796,7 @@ void HltEventLoopMgr::updateDFProps()
     if (prop && m_partitionName.assign(*prop)) {
       ATH_MSG_DEBUG(" ---> Read from DataFlow configuration: " << m_partitionName);
     } else {
-      ATH_MSG_WARNING(ST_WHERE << "Could not set Property '" << pname << "' from DataFlow");
+      ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not set Property '" << pname << "' from DataFlow";
     }
 
     // get the list of enabled ROBs
@@ -846,7 +841,7 @@ const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
   TrigSORFromPtreeHelper sorhelp{msgStream()};
   const SOR* sor = sorhelp.fillSOR(pt.get_child("RunParams"),runStartEventContext);
   if(!sor) {
-    ATH_MSG_ERROR(ST_WHERE << "setup of SOR from ptree failed");
+    ATH_REPORT_MESSAGE(MSG::ERROR) << "setup of SOR from ptree failed";
   }
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
@@ -901,7 +896,7 @@ void HltEventLoopMgr::updateMetadataStore(const coral::AttributeList & sor_attrl
 
   // Record ByteStreamMetadata in MetaData Store
   if(m_inputMetaDataStore->record(metadata,"ByteStreamMetadata").isFailure()) {
-    ATH_MSG_WARNING(ST_WHERE << "Unable to record MetaData in InputMetaDataStore");
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Unable to record MetaData in InputMetaDataStore";
     delete metadata;
   }
   else {
@@ -916,22 +911,16 @@ StatusCode HltEventLoopMgr::clearTemporaryStores()
   //----------------------------------------------------------------------------
   // Clear the event store, if used in the event loop
   //----------------------------------------------------------------------------
-  auto sc = m_evtStore->clearStore();
-  ATH_MSG_DEBUG("clear of Event Store " << sc);
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR(ST_WHERE << "clear of Event Store failed");
-    return sc;
-  }
+  ATH_CHECK(m_evtStore->clearStore());
+  ATH_MSG_DEBUG("Cleared the EventStore");
 
   //----------------------------------------------------------------------------
   // Clear the InputMetaDataStore
   //----------------------------------------------------------------------------
-  sc = m_inputMetaDataStore->clearStore();
-  ATH_MSG_DEBUG("clear of InputMetaDataStore store " << sc);
-  if(sc.isFailure())
-    ATH_MSG_ERROR(ST_WHERE << "clear of InputMetaDataStore failed");
+  ATH_CHECK(m_inputMetaDataStore->clearStore());
+  ATH_MSG_DEBUG("Cleared the InputMetaDataStore");
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -958,7 +947,7 @@ const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) cons
     // corresponding to the SOR should contain one single AttrList). Since
     // that's required by code ahead but not checked at compile time, we
     // explicitly guard against any potential future mistake with this check
-    ATH_MSG_ERROR(ST_WHERE << "Wrong SOR: size = " << sor->size());
+    ATH_REPORT_MESSAGE(MSG::ERROR) << "Wrong SOR: size = " << sor->size();
     throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + sor->size());
   }
 
@@ -1027,8 +1016,8 @@ void HltEventLoopMgr::runEventTimer()
         if (!Athena::Timeout::instance(ctx).reached()) {
           auto procTime = now - m_eventTimerStartPoint.at(i);
           auto procTimeMillisec = std::chrono::duration_cast<std::chrono::milliseconds>(procTime);
-          ATH_MSG_ERROR(ST_WHERE << "Soft timeout in slot " << i << ". Processing time = "
-                        << procTimeMillisec.count() << " ms");
+          ATH_REPORT_MESSAGE(MSG::ERROR) << "Soft timeout in slot " << i << ". Processing time = "
+                                         << procTimeMillisec.count() << " ms";
           setTimeout(Athena::Timeout::instance(ctx));
         }
       }
@@ -1165,8 +1154,8 @@ int HltEventLoopMgr::drainScheduler()
     // so we should not call failedEvent anymore
     if (clearWBSlot(thisFinishedEvtContext->slot()).isFailure()) {
       atLeastOneFailed = true;
-      ATH_MSG_ERROR(ST_WHERE << "Whiteboard slot " << thisFinishedEvtContext->slot()
-                    << " could not be properly cleared");
+      ATH_REPORT_MESSAGE(MSG::ERROR) << "Whiteboard slot " << thisFinishedEvtContext->slot()
+                                     << " could not be properly cleared";
     }
 
     ATH_MSG_DEBUG("Finished processing event with context " << thisFinishedEvtContext);
@@ -1185,7 +1174,7 @@ StatusCode HltEventLoopMgr::clearWBSlot(size_t evtSlot) const
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   StatusCode sc = m_whiteboard->clearStore(evtSlot);
   if( !sc.isSuccess() )  {
-    ATH_MSG_WARNING(ST_WHERE << "Clear of event data store failed");
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Clear of event data store failed";
   }
   ATH_MSG_VERBOSE("end of " << __FUNCTION__ << ", returning m_whiteboard->freeStore(evtSlot=" << evtSlot << ")");
   return m_whiteboard->freeStore(evtSlot);
