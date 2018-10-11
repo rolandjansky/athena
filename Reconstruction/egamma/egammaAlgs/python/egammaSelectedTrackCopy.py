@@ -18,7 +18,7 @@ egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloCluste
                                             egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
                                             EMEtRanges = [1000., 2500.],
                                             EMFCuts = [0.9, 0.0],
-                                            RetaCut = [0.65, 0.0]
+                                            LateralCuts = [0.7, 1.0]
                                           )  
 
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
