@@ -153,6 +153,7 @@ namespace met {
     int    m_softTermParam;
     double m_softTermReso;
     bool   m_treatPUJets;
+    bool   m_treatPUJetsOld;
     bool   m_doPhiReso;
     bool   m_applyBias;
 

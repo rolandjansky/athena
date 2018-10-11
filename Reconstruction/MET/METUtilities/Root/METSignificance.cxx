@@ -110,7 +110,8 @@ namespace met {
       //
       declareProperty("SoftTermParam",        m_softTermParam = met::Random );
       declareProperty("SoftTermReso",         m_softTermReso  = 10.0         );
-      declareProperty("TreatPUJets",          m_treatPUJets   = true        );
+      declareProperty("TreatPUJets",          m_treatPUJets   = true         );
+      declareProperty("TreatPUJetsOld",       m_treatPUJetsOld= false        );
       declareProperty("DoPhiReso",            m_doPhiReso     = false       );
       declareProperty("ApplyBias",            m_applyBias     = false       );
       declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
@@ -681,19 +682,20 @@ namespace met {
 				    float avgmu) {
 
     double unc=0.0;
-    //if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0){
-    //  unc=0.95;
-    //}else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
-    //  unc=0.4;
-    //}else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
-    //  unc=0.4;
-    //}else if(jet_pt<30.0 && fabs(jet_eta)>2.7){
-    //  unc=0.2;
-    //}else if(jet_pt<40.0 && fabs(jet_eta)>2.7){
-    //  unc=0.07;
-    //}
-    //return unc;
-
+    if(m_treatPUJetsOld){
+      if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0){
+	unc=0.95;
+      }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
+	unc=0.4;
+      }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
+	unc=0.4;
+      }else if(jet_pt<30.0 && fabs(jet_eta)>2.7){
+	unc=0.2;
+      }else if(jet_pt<40.0 && fabs(jet_eta)>2.7){
+	unc=0.07;
+      }
+      return unc;
+    }
 
     if(m_JetCollection == "AntiKt4EMTopoJets"){
       if(jet_eta<2.4){
