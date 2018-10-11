@@ -72,7 +72,8 @@ if not SkipTriggerRequirement:
                                "HLT_e24_lhmedium_nod0_L1EM20VH_g25_medium",
                                "HLT_g35_medium_g25_medium_L12EM20VH",
                                "HLT_2g50_loose_L12EM20VH", #di photon
-                               "HLT_g200_loose", #single photon
+                               "HLT_g140_loose", #single photon
+                               "HLT_g200_loose",
                                "HLT_g300_etcut"  #single photon
                               ]
    elif year==16:
@@ -118,7 +119,7 @@ if not SkipTriggerRequirement:
                                "HLT_e24_lhmedium_L1EM20VH", #single electron
                                "HLT_e60_lhmedium",
                                "HLT_e120_lhloose",
-                               "HLT_2e12_lhvloose_L12EM10VH", #dielectron
+                               "HLT_2e12_lhloose_L12EM10VH", #dielectron
                                "HLT_e20_lhmedium_g35_loose", #electron + photon
                                "HLT_g35_loose_g25_loose", #di photon
                                "HLT_g120_loose", #single photon
