@@ -48,7 +48,7 @@ if not SkipTriggerRequirement:
      print "HIGG1D2.py: Failed to extract year from project tag "+ rec.projectName() +". Guessing 2017"
      year=17
    print "HIGG1D2.py: Setting up trigger requirement for year 20" + str(year)
-   if year==17 and year==18:
+   if year==17 or year==18:
      TriggerMerged          = ["HLT_e25_mergedtight_g35_medium_Heg","HLT_e30_mergedtight_g35_medium_Heg","HLT_2g50_loose_L12EM20VH","HLT_e24_lhmedium_nod0_L1EM20VH_g25_medium","HLT_g35_medium_g25_medium_L12EM20VH"]
      TriggerExp             = [ 
                                "HLT_g25_medium_mu24", #photon muon
@@ -97,7 +97,7 @@ if not SkipTriggerRequirement:
                                "HLT_e60_lhmedium_nod0",
                                "HLT_e60_medium",
                                "HLT_e140_lhloose_nod0",
-                               "HLT_2e15_lhvloose_nod0_L12EM153VHI", #dielectron
+                               "HLT_2e15_lhvloose_nod0_L12EM13VHI", #dielectron
                                "HLT_2e17_lhvloose_nod0",
                                "HLT_g35_loose_g25_loose", #di photon
                                "HLT_g35_medium_g25_medium",
