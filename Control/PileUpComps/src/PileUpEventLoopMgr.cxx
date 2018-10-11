@@ -5,6 +5,8 @@
 
 // Class header
 #include "PileUpEventLoopMgr.h"
+// Helper header
+#include "PileUpHashHelper.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -496,6 +498,34 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
               ++cacheIterator;
             }
         }  //loop over xings
+
+      // Calculate/copy pile-up hash
+      xAOD::EventInfo::PileUpMixtureID pileUpMixtureID;
+      if (m_isEventOverlayJob && m_isEventOverlayJobMC) {
+        // Just copy over the background PileUpMixtureID
+        pileUpMixtureID = pEvent->pileUpMixtureID();
+        if ( pileUpMixtureID.lowBits != 0 || pileUpMixtureID.highBits != 0 ) {
+          pOverEvent->setPileUpMixtureID( pileUpMixtureID );
+        }
+      } else {
+        PileUpHashHelper pileUpHashHelper;
+
+        if (m_isEventOverlayJob) {
+          pileUpHashHelper.addToHashSource(std::to_string(pEvent->eventNumber()));
+        } else {
+          pileUpHashHelper.addToHashSource(pOverEvent);
+        }
+
+        ATH_MSG_VERBOSE("Pile-up hash source:" << pileUpHashHelper.hashSource());
+
+        // Calculate and set hash
+        uuid_t pileUpHash;
+        pileUpHashHelper.calculateHash(pileUpHash);
+
+        pOverEvent->setPileUpMixtureID( PileUpHashHelper::uuidToPileUpMixtureId(pileUpHash) );
+      }
+
+      ATH_MSG_DEBUG("PileUpMixtureID = " << pOverEvent->pileUpMixtureID());
 
       //set active store back to the overlaid one
       pActiveStore->setStore(&(*m_evtStore));
