@@ -12,13 +12,7 @@
 #include <vector>
 #include <iostream>
 
-class LArCablingService ;
-
 /** This class implements the ILArOFC interface
- * Two ways of filling this data class:
- *   - intra ATHENA
- *   - from NOVA DB
- *
  * @author W. Lampl, S. Laplace
  * @version  0-0-1 , 10/12/03
  *
@@ -44,33 +38,20 @@ class LArOFCComplete: public ILArOFC,
   
   virtual OFCRef_t OFC_a(const HWIdentifier&  CellID,
                          int gain,
-                         int tbin=0) const ;
+                         int tbin=0) const override;
   virtual OFCRef_t OFC_b(const HWIdentifier&  CellID,
                          int gain,
-                         int tbin=0) const ;
+                         int tbin=0) const override;
   
-  // retrieving coefficients using offline ID
-  
-  virtual OFCRef_t OFC_a(const Identifier&  CellID,
-                         int gain,
-                         int tbin=0) const;  
-  virtual OFCRef_t OFC_b(const Identifier&  CellID,
-                         int gain,
-                         int tbin=0) const;
-
   // retrieving time offset using online/offline ID
 
-  virtual  float timeOffset(const Identifier&  CellID, int gain) const;
-  virtual  float timeOffset(const HWIdentifier&  CellID, int gain) const;
+  virtual  float timeOffset(const HWIdentifier&  CellID, int gain) const override;
 
   //For the TB / cosmic case: retrieve the number of time-bins (aka "phases")
-  virtual unsigned nTimeBins(const HWIdentifier&  CellID, int gain) const;
-  virtual unsigned nTimeBins(const Identifier&  CellID, int gain) const;
+  virtual unsigned nTimeBins(const HWIdentifier&  CellID, int gain) const override;
  
   //For the TB / cosmic case: retrieve the witdth of the time bin (default 24 bins in 25 ns)
-  virtual float timeBinWidth(const HWIdentifier&  CellID, int gain) const;
-  virtual float timeBinWidth(const Identifier&  CellID, int gain) const;
-
+  virtual float timeBinWidth(const HWIdentifier&  CellID, int gain) const override;
 
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)

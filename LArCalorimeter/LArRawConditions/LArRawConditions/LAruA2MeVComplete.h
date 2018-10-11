@@ -27,11 +27,8 @@ class LAruA2MeVComplete: public ILAruA2MeV ,
   virtual ~LAruA2MeVComplete();
   
   // retrieving uA2MeV using online ID
-  virtual const float& UA2MEV(const HWIdentifier&  chid) const ;
+  virtual const float& UA2MEV(const HWIdentifier&  chid) const override;
 
-    // retrieving uA2MeV using offline ID
-  virtual const float& UA2MEV(const Identifier&  id) const;
-  
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, const float vuA2MeV);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARDAC2UACOMPLETE_H
@@ -17,10 +17,8 @@
  * History:
  *  - 08/02/2004, S. Laplace: new online ID
  *  - 29/04/2004, S. Laplace: added ERRORCODE
-
  *   - July 16, 2005  Hong Ma
  *      use LArDAC2uAP. 
-
  */
 
 
@@ -28,24 +26,17 @@
 class LArDAC2uAComplete: public ILArDAC2uA ,
  public LArConditionsContainer<LArSingleFloatP> {
 
- public: 
-  
+ public:   
   typedef LArConditionsContainer<LArSingleFloatP> CONTAINER ;
   LArDAC2uAComplete();
-  
   virtual ~LArDAC2uAComplete( );
   
   // retrieving DAC2uA using online ID
-  
-  virtual const float& DAC2UA(const HWIdentifier& chid) const ;
+  virtual const float& DAC2UA(const HWIdentifier& chid) const override;
 
-    // retrieving DAC2uA using offlineId
-  virtual const float& DAC2UA(const Identifier& id) const;
-  
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, const float vDAC2uA);
-
 };
 
 
