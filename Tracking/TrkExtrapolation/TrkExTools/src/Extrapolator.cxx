@@ -2436,8 +2436,10 @@ Trk::Extrapolator::validationAction() const {
 }
 
 /* Private methods
- * The mostly accept a Cache struct that is propagated from the public
- * ones to the private and inbetween the private ones
+ *
+ * Most accept a Cache struct  as an argument. 
+ * This is passed to them from the public/interface methods.
+ * Then it is also propagated in-between the private methods.
  *
  * Start with the extrapolate Implementation ones
  */
