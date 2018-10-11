@@ -327,7 +327,7 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
     declareProperty("doSpacePointBasedNoise", m_doSpacePointBasedNoise = true);
     declareProperty("doTimeBinFilteringForNoise", m_doTimeBinFilteringForNoise = true);
     declareProperty("doTrackHits", m_doTrackHits = true);
-    declareProperty("MaxTracks", m_maxTracks = 250);
+    declareProperty("MaxTracks", m_maxTracks = 1000);
     declareProperty("doLogXNoise", m_doLogXNoise = true);
     declareProperty("conditionsService", m_ConfigurationSvc);
 
