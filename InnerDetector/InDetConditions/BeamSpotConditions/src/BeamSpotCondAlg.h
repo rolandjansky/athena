@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef BEAMSPOT_CONDITIONSALGS_BEAMSPOTCONDALG_H
 #define BEAMSPOT_CONDITIONSALGS_BEAMSPOTCONDALG_H 1
 

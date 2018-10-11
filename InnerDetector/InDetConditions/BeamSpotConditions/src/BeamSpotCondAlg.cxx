@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // BeamSpot_ConditionsAlgs includes
 #include "BeamSpotCondAlg.h"
 #include "CoralBase/AttributeListException.h"
