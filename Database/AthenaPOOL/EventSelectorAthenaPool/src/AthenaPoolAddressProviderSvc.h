@@ -59,15 +59,11 @@ public: // Constructor and Destructor
 
 private: // data
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
+   ServiceHandle<StoreGateSvc> m_metaDataStore;
    ServiceHandle<IClassIDSvc> m_clidSvc;
    Guid m_guid;
 
 private: // properties
-   /// BackNavigation, switch on back navigation to find objects in input streams: default = false.
-   BooleanProperty m_backNavigationFlag;
-   /// BackNavigationScope, vector with '<processTag>::<type>#<key>' hints for backNavigation.
-   StringArrayProperty m_backNavigationScope;
-
    /// DataHeaderKey, StoreGate key of event entry object (type DataHeader).
    StringProperty m_dataHeaderKey;
 
