@@ -60,7 +60,7 @@ class QZeroMonitoring(TrigGenericMonitoringToolConfig):
 _EtCuts_v2=[ x*1e-3 for x in reversed(range(300, 6050, 50)) ] # equidistant bins
 _EtCuts_v3=[ x*1e-3 for x in reversed(range(400, 6050, 50)) ]
 
-_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(100, 303, 2))]
+_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(250, 3001, 10))]
 
 ########################################################################################
 # V2
@@ -138,13 +138,13 @@ class V2HypoAssym(VnHypo):
         self.CentralityBins = _EtCuts_v2_assym 
         if side == "A":
             self.MinEta=3.2 
-            self.QxShifts = [0.00289428]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0.00369803]*len(_EtCuts_v2_assym)
+            self.QxShifts = [0.0012]*len(_EtCuts_v2_assym)
+            self.QyShifts = [0.0032]*len(_EtCuts_v2_assym)
 
         elif side == "C":
             self.MaxEta=-3.2
-            self.QxShifts = [-0.0015]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0.0039]*len(_EtCuts_v2_assym)
+            self.QxShifts = [0.0023]*len(_EtCuts_v2_assym)
+            self.QyShifts = [-0.0023]*len(_EtCuts_v2_assym)
         else:
             raise 'The V2 hypothesis algorithm is insufficiently configured, no FCal side specified '
 
