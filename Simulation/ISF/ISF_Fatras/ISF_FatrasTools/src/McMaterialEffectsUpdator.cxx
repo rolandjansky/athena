@@ -666,6 +666,13 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     }
     
     if (childs.size()>0) { // assume that interaction processing failed if no children
+      if (iStatus==1) {
+	for (auto *child: childs) {
+	  double mom = child->momentum().mag();
+	  if (mom>=m_minimumMomentum) continue;
+	  delete child;
+	}
+      }
       if (isp!=m_isp) { delete isp; delete parm; }
       else delete updated;   // non-updated parameters registered with the extrapolator
       return nullptr;
