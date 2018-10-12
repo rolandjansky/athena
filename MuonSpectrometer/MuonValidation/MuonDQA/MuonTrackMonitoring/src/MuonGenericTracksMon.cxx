@@ -171,6 +171,8 @@ StatusCode MuonGenericTracksMon::bookHistograms()
   		MonGroup mongroup_mutracks2(this, rootpath + dirpath, run, attr);
   		m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
   		bookInMongroup(*m_oRecoMuonPlots[2+type], mongroup_mutracks2, sources[SOURCE::NONCBMUONS], "NonCB").ignore();}
+  		/// m_oRecoMuonPlots[0] stands for CBMuons, 1 for total NonCBMuons, 2-5 for different NonCB types
+
   		//book id tracks
   		dirpath = m_MuonTriggerChainName + "TracksID/" + sources[SOURCE::CBMUONS];
   		MonGroup mongroup_idtracks(this, rootpath + dirpath, run, attr);
@@ -234,7 +236,8 @@ StatusCode MuonGenericTracksMon::bookHistograms()
                                          dirpath = "Muons/" + NonCBMuonsType[type];
                                          MonGroup mongroup_mutracks(this, rootpath + dirpath, run, attr);
                                          m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
-                                         bookInMongroup(*m_oRecoMuonPlots[i+1+type], mongroup_mutracks, sources[i], "").ignore();}}
+                                         bookInMongroup(*m_oRecoMuonPlots[4+type], mongroup_mutracks, sources[i], "").ignore();}}
+                /// m_oRecoMuonPlots[0] stands for Z, 1 for j/psi, 2 for CBMuons, 3 for total NonCBMuons, 4-7 for different NonCB types
 
                 dirpath = "TracksME/" + sources[i];
   		        MonGroup mongroup_metracks(this, rootpath + dirpath, run, attr);
