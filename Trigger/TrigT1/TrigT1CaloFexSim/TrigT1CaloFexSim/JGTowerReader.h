@@ -44,15 +44,19 @@ class JGTowerReader: public ::AthAlgorithm {
  private: 
   bool m_outputNoise;
 
+  bool  m_makeSquareJets;
   float m_jJet_thr;
   float m_jSeed_size;
   float m_jMax_r;
   float m_jJet_r;
 
+  bool  m_makeRoundJets;
   float m_jJet_jet_thr;
-  float m_jJet_seed_size;
+  float m_jJetSeed_size;
   float m_jJet_max_r;
   float m_jJet_jet_r;
+
+  bool m_plotSeeds;
 
   float m_gJet_thr;
   float m_gSeed_size;

@@ -42,15 +42,19 @@ histSvc("THistSvc",name){
   declareProperty("outputNoise",m_outputNoise=false);
   declareProperty("noise_file",m_noise_file="");
 
+  declareProperty("makeSquareJets", m_makeSquareJets = true);
   declareProperty("jJet_threshold",m_jJet_thr=2.0);
   declareProperty("jSeed_size",m_jSeed_size=0.2);
   declareProperty("jMax_r",m_jMax_r=0.4);
   declareProperty("jJet_r",m_jJet_r=0.4);
 
+  declareProperty("makeRoundJets", m_makeRoundJets = false); 
   declareProperty("jJet_jet_threshold",m_jJet_jet_thr=2.0);
-  declareProperty("jJet_seed_size",m_jJet_seed_size=0.3);
+  declareProperty("jJetSeed_size",m_jJetSeed_size=0.3);
   declareProperty("jJet_max_r",m_jJet_max_r=0.4);
   declareProperty("jJet_jet_r",m_jJet_jet_r=0.4);
+
+  declareProperty("plotSeeds", m_plotSeeds = false);
 
   declareProperty("gJet_threshold",m_gJet_thr=2.0);
   declareProperty("gSeed_size",m_gSeed_size=0.2);
@@ -187,8 +191,12 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
 
   // fill the seed vectors with all jtower positions
-  if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
-  if(jJetSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jJetSeeds));
+  if(m_makeSquareJets) {
+    if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
+  }
+  if(m_makeRoundJets) {
+    if(jJetSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jJetSeeds));
+  }
 
   // sort out the wrong-size list of noise vector
   if(jTs->size() > jT_noise.size()) {
@@ -208,30 +216,38 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
   ATH_MSG_DEBUG("JFexAlg: SeedFinding");
   // the diameter of seed, and its range to be local maximum
   // Careful to ensure the range set to be no tower double counted
-  ATH_MSG_DEBUG("jSeeds: m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
-  CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr)); 
-  ATH_MSG_DEBUG("jJetSeeds: m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
-  CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJet_seed_size,m_jJet_max_r,jJet_jet_thr));
-
+  if(m_makeSquareJets) {
+    ATH_MSG_DEBUG("jSeeds: m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
+    CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr));
+  }
+  if(m_makeRoundJets) {
+    ATH_MSG_DEBUG("jJetSeeds: m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
+    CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr));
+  }
 
   // compare jSeeds and jJetSeeds - they should be identical
   // but they are not.......
-  for(unsigned iseed_eta=0; iseed_eta<jSeeds->eta.size(); iseed_eta++){
-    for(unsigned iseed_phi=0; iseed_phi<jSeeds->phi.at(iseed_eta).size(); iseed_phi++){
-      if(jSeeds->local_max.at(iseed_eta).at(iseed_phi) || jJetSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
-        std::cout << iseed_eta << ", " << iseed_phi << " = " << jSeeds->eta.at(iseed_eta) << ", " << jSeeds->phi.at(iseed_eta).at(iseed_phi) << " - pt: " << jSeeds->et.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->et.at(iseed_eta).at(iseed_phi) << "; local max: " << jSeeds->local_max.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->local_max.at(iseed_eta).at(iseed_phi) << std::endl;
+  if(m_makeSquareJets && m_makeRoundJets) {
+    for(unsigned iseed_eta=0; iseed_eta<jSeeds->eta.size(); iseed_eta++){
+      for(unsigned iseed_phi=0; iseed_phi<jSeeds->phi.at(iseed_eta).size(); iseed_phi++){
+        if(jSeeds->local_max.at(iseed_eta).at(iseed_phi) || jJetSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
+          std::cout << iseed_eta << ", " << iseed_phi << " = " << jSeeds->eta.at(iseed_eta) << ", " << jSeeds->phi.at(iseed_eta).at(iseed_phi) << " - pt: " << jSeeds->et.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->et.at(iseed_eta).at(iseed_phi) << "; local max: " << jSeeds->local_max.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->local_max.at(iseed_eta).at(iseed_phi) << std::endl;
+        }
       }
     }
   }
-
   
   // build initial JFexjet
-  ATH_MSG_DEBUG("JFexAlg: BuildJet");
-  CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr)); 
-
-  // build round JFexJet
-  ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
-  CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr)); 
+  if(m_makeSquareJets) {
+    ATH_MSG_DEBUG("JFexAlg: BuildJet");
+    CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr)); 
+  }
+  
+  // build round JFexJe
+  if(m_makeRoundJets) {
+    ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
+    CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr)); 
+  }
 
   ATH_MSG_DEBUG("JFexAlg: BuildMET");
   CHECK(METAlg::BuildMET(jTs, jMET, jT_noise));
@@ -265,8 +281,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   return StatusCode::SUCCESS;
 }
 
-StatusCode JGTowerReader::ProcessObjects(){
 
+StatusCode JGTowerReader::ProcessObjects(){
 
   // Ouptut Jets
   xAOD::JetRoIAuxContainer* jFexJetContAux = new xAOD::JetRoIAuxContainer();
@@ -309,12 +325,36 @@ StatusCode JGTowerReader::ProcessObjects(){
   CHECK(evtStore()->record(jFexMETCont,"jFexMET"));
   CHECK(evtStore()->record(jFexMETContAux,"jFexMETAux."));
 
+  
+  if(m_plotSeeds) {
+    for(unsigned iseed_eta=0; iseed_eta<jSeeds->eta.size(); iseed_eta++){
+      for(unsigned iseed_phi=0; iseed_phi<jSeeds->phi.at(iseed_eta).size(); iseed_phi++){
+        if(jSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
+          CHECK(HistBookFill("jSeed_et",50,0,500,jSeeds->et.at(iseed_eta).at(iseed_phi)/1000.,1.));
+          CHECK(HistBookFill("jSeed_eta",49,-4.9,4.9,jSeeds->eta.at(iseed_eta),1.));
+          CHECK(HistBookFill("jSeed_phi",31,-3.1416,3.1416,jSeeds->phi.at(iseed_eta).at(iseed_phi),1.));
+        }
+      }
+    }
+    for(unsigned iseed_eta=0; iseed_eta<jJetSeeds->eta.size(); iseed_eta++){
+      for(unsigned iseed_phi=0; iseed_phi<jJetSeeds->phi.at(iseed_eta).size(); iseed_phi++){
+        if(jJetSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
+          CHECK(HistBookFill("jJetSeed_et",50,0,500,jJetSeeds->et.at(iseed_eta).at(iseed_phi)/1000.,1.));
+          CHECK(HistBookFill("jJetSeed_eta",49,-4.9,4.9,jJetSeeds->eta.at(iseed_eta),1.));
+          CHECK(HistBookFill("jJetSeed_phi",31,-3.1416,3.1416,jJetSeeds->phi.at(iseed_eta).at(iseed_phi),1.));
+        }
+      }
+    }
+  }
+  
 
   jL1Jets.clear();
   jJet_L1Jets.clear();
   gL1Jets.clear();
   jSeeds->et.clear();
   jSeeds->local_max.clear();
+  jJetSeeds->et.clear();
+  jJetSeeds->local_max.clear();
   gSeeds->et.clear();
   gSeeds->local_max.clear();
 
