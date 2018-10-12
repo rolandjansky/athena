@@ -470,8 +470,8 @@ StatusCode FTKRegionalWrapper::initOutputFile() {
 
   m_evtinfo->Branch("LB",&m_LB,"LB/I");
   m_evtinfo->Branch("BCID",&m_BCID,"BCID/I");
-  m_evtinfo->Branch("ExtendedLevel1ID",&m_extendedLevel1ID,"ExtendedLevel1ID/I");
-  m_evtinfo->Branch("Level1TriggerType",&m_level1TriggerType,"Level1TriggerType/I");
+  m_evtinfo->Branch("ExtendedLevel1ID",&m_extendedLevel1ID,"ExtendedLevel1ID/i");
+  m_evtinfo->Branch("Level1TriggerType",&m_level1TriggerType,"Level1TriggerType/i");
   m_evtinfo->Branch("Level1TriggerInfo",&m_level1TriggerInfo);
   m_evtinfo->Branch("AverageInteractionsPerCrossing",&m_averageInteractionsPerCrossing,"AverageInteractionsPerCrossing/F");
   m_evtinfo->Branch("ActualInteractionsPerCrossing",&m_actualInteractionsPerCrossing,"ActualInteractionsPerCrossing/F");  

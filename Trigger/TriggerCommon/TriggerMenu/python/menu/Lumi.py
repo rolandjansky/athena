@@ -43,14 +43,7 @@ def lumi(triggerPythonConfig):
     elif  menu_name.startswith('MC_pp_v7'):
         from TriggerMenu.menu.MC_pp_v7 import setupMenu, Prescales
         setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        elif 'tightperf_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tightperf_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tightperf_mc_prescale
-            log.info(" HLTPrescales %s" % HLTPrescales)
-        elif 'loose_mc_prescale' in menu_name:
+        if 'loose_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_loose_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_loose_mc_prescale
             log.info(" HLTPrescales %s" % HLTPrescales)

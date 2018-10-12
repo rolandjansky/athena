@@ -338,7 +338,7 @@ METChainParts = {
     'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit', 'pufittrack', 'trktc'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks','FTK'],
+    'addInfo'      : ['FStracks','FTK','LArH11offMETphi','LArH12offMETphi','LArH11offLArH12offMETphi','LArH11offMETphiJpt1','LArH11offMETphiJpt2','LArH11offMETphiJpt5','LArH11offMETphiJpt10','LArH11offMETphiJpt20','LArH11offMETphiJpt30','LArH12offMETphiJpt1','LArH12offMETphiJpt2','LArH12offMETphiJpt5','LArH12offMETphiJpt10','LArH12offMETphiJpt20','LArH12offMETphiJpt30','LArH11offLArH12offMETphiJpt1','LArH11offLArH12offMETphiJpt2','LArH11offLArH12offMETphiJpt5','LArH11offLArH12offMETphiJpt10','LArH11offLArH12offMETphiJpt20','LArH11offLArH12offMETphiJpt30','LArH11offJpt1','LArH11offJpt2','LArH11offJpt5','LArH11offJpt10','LArH11offJpt20','LArH11offJpt30','LArH12offJpt1','LArH12offJpt2','LArH12offJpt5','LArH12offJpt10','LArH12offJpt20','LArH12offJpt30','LArH11offLArH12offJpt1','LArH11offLArH12offJpt2','LArH11offLArH12offJpt5','LArH11offLArH12offJpt10','LArH11offLArH12offJpt20','LArH11offLArH12offJpt30'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
@@ -558,7 +558,7 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusiveloose1', 'exclusiveloose2', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
+    'extra'          : ['noisesup', 'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusiveloose1', 'exclusiveloose2', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
@@ -574,6 +574,7 @@ MinBiasChainParts = {
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : ['peb','hipeb'],
+    'veto'           : ['vetombts2in', 'vetombts1side2in',  'vetospmbts2in', 'vetosp', 'vetombts8'],
     }
 # ---- MinBiasDictinary of default Values ----
 MinBiasChainParts_Default = {
@@ -593,6 +594,7 @@ MinBiasChainParts_Default = {
     'hypoEFsumEtInfo': '',    
     'recoAlg'        : [],
     'addInfo'        : [],
+    'veto'           : '',
     }
 
 #==========================================================
@@ -607,18 +609,18 @@ HeavyIonChainParts = {
     'trigType'       : ['hi'],
     'threshold'      : '',
     'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15', 'th16', 
-                        'th0p', 'th005p', 'th01p', 'th025p', 'th05p', 'th10p', 'th15p', 'th20p',
+                        'th0p', 'th001p', 'th005p', 'th01p', 'th025p', 'th05p', 'th10p', 'th15p', 'th20p',
                         'perf', 'perfzdc'],
     'IDinfo'         : [],
     'trkInfo'        : [],
-    'eventShape'     : ['v2', 'v3', 'v23', 'v2A', 'v2C'],    
+    'eventShape'     : ['v2', 'v3', 'v23', 'v2A', 'v2C', 'v3A', 'v3C'],    
     'eventShapeVeto' : ['veto2', 'veto3'],
     'hypoL2Info'     : ['loose', 'medium', 'tight', 'gg',],
     'pileupInfo'     : ['zdcpu'],
     'hypoEFInfo'     : [],
     'hypoEFsumEtInfo': ['fcalet3000', 'fcalet3306', 'fcalet3391', 'fcalet3516',],
     'recoAlg'        : ['ucc', 'upc'],
-    'addInfo'        : ['hipeb'],
+    'addInfo'        : ['hipeb','noiseSup'],
     'gap'            : [ 'FgapA', 'FgapC', 'FgapAC', 'FgapA5', 'FgapC5', 'FgapA10', 'FgapC10',  'L2FgapA', 'L2FgapC', 'L2FgapAC',   'EFFgapA', 'EFFgapC', 'EFFgapAC' ],
     }
 

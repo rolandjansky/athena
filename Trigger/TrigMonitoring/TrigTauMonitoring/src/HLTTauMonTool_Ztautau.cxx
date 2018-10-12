@@ -20,9 +20,19 @@ using namespace std;
 using Athena::Units::GeV;
 
 //--------------------------------------------------------------------------------------
-StatusCode HLTTauMonTool::RealZTauTauEfficiency()
+StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefType)
 {
   ATH_MSG_DEBUG("Real ZTauTau Efficiency");  
+
+  std::vector<const xAOD::TauJet *> m_taus_here;
+	std::vector<std::string> m_trigItemsZtt_here;
+	if (goodTauRefType == "RNN") {
+		m_taus_here = m_taus_RNN;
+		m_trigItemsZtt_here = m_trigItemsZtt_RNN;
+	} else {
+		m_taus_here = m_taus_BDT;
+		m_trigItemsZtt_here = m_trigItemsZtt_BDT;
+	}
 
   // compute eff only for events passing single muon triggers
   if(! ( getTDT()->isPassed("HLT_mu20_iloose_L1MU15") 
@@ -68,6 +78,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
   double tauPt_dum  = -1.  , muPt_dum    = -1.;
   float  Tau_charge = -99.0, Muon_charge = -99.0;
   bool   lead_tau   = false, single_mu   = false;
+  int  Tau_NTrack = -99;
   
   //Muon Selection
   xAOD::MuonContainer::const_iterator muonItr, muon_cont_end = muon_cont->end();
@@ -78,8 +89,9 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       
       double pt_mu  = MuonTLV.Pt();
       double eta_mu = MuonTLV.Eta();
-      float  etcone = 0.0, ptcone = 0.0, etcone40Rel = 0.0, ptcone40Rel = 0.0;
+      //float  etcone = 0.0, ptcone = 0.0, etcone40Rel = 0.0, ptcone40Rel = 0.0;
 
+/*
       if (!muon.isolation(etcone,xAOD::Iso::etcone40))
 	{
 	  ATH_MSG_WARNING("No EtCone defined for muon.");
@@ -95,14 +107,13 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       else
 	{
 	  ptcone40Rel = ptcone/pt_mu;
-	}
+	} 
+*/
       
       if(pt_mu<27000.)			             continue;
       if(fabs(eta_mu)>2.5)                           continue;
       if((*muonItr)->author() != xAOD::Muon::MuidCo) continue;
       if(! muon.passesIDCuts() )                     continue;
-      if(etcone40Rel > 0.1)                          continue;
-      if(ptcone40Rel > 0.2)                          continue;
 
       if(single_mu)
 	{
@@ -118,16 +129,21 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	  Muon_charge = (*muonItr)->charge();
 	  single_mu = true;
 	}
-    }
+    } // end of Muon Container loop
 
   //Tau Selection
-  for(auto recoTau : m_taus)
+  for(auto recoTau : m_taus_here)
     {
     TLorentzVector TauTLV = recoTau->p4();
     double pt_Tau     = TauTLV.Pt();
     double eta_Tau    = TauTLV.Eta();
     int    ntrack_Tau = recoTau->nTracks();
-    bool   good_Tau   = recoTau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
+    bool   good_Tau(false);
+		if (goodTauRefType == "RNN") {
+			good_Tau = recoTau->isTau(xAOD::TauJetParameters::JetRNNSigLoose);
+		} else {
+			good_Tau = recoTau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
+		}
     float  charge_Tau = recoTau->charge();
         
     if(pt_Tau<20000.)                  continue;
@@ -151,6 +167,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	tauPt_dum = pt_Tau;
 	Tau_TLV.SetPtEtaPhiM(pt_Tau,eta_Tau,TauTLV.Phi(),TauTLV.M());
 	Tau_charge = charge_Tau;
+	Tau_NTrack = ntrack_Tau;
 	lead_tau = true;
       }
     }
@@ -180,56 +197,62 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
   MET_TLV.SetPxPyPzE(off_ex,off_ey,0.,off_met);
   ATH_MSG_DEBUG("off_met:" << off_met );
      
+/*
   float  ltau_charge  = -99.0;
   double ltau_vismass = -99.0;
   double cos_dphi     = -99.0;
   double mt           = -99.0;
   double ltau_deta    =  99.0;
   //double ltau_dR      =  99.0;
-  
+*/  
   //Events variables with Lead Tau and Single Muon
   if(lead_tau && single_mu)
     {
+/*
       ltau_charge  = Tau_charge + Muon_charge;
       ltau_vismass = (Tau_TLV + Muon_TLV).M();
       cos_dphi     = cos(Muon_TLV.DeltaPhi(MET_TLV)) + cos(Tau_TLV.DeltaPhi(MET_TLV)) ;
       mt           = sqrt(2 * Muon_TLV.Pt() * off_met * (1 - cos(Muon_TLV.DeltaPhi(MET_TLV)) ) );
       ltau_deta    = deltaEta(Tau_TLV.Eta(), Muon_TLV.Eta());
       //ltau_dR      = Tau_TLV.DeltaR(Muon_TLV);
-    }
- 
-  //Event Selection
-  if(ltau_charge == 0.     &&  
-     mt < 60000.           && 
-     cos_dphi > -0.5       && 
-     fabs(ltau_deta) < 1.5 && 
-     //ltau_dR > 2.9         &&
-     ltau_vismass > 45000. && ltau_vismass < 85000.)
-    {
-      for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
-	{
-	  std::string l1_chain(LowerChain("HLT_"+m_trigItemsZtt[i]));
-	  std::string hlt_chain = "HLT_"+m_trigItemsZtt[i];
+*/
+				bool is1P(false), isMP(false);
+				if (Tau_NTrack==1) is1P = true;
+				if (Tau_NTrack>1) isMP = true;
 
-	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItemsZtt[i]);
-	  //hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/GeV);
+		    for(unsigned int i=0;i<m_trigItemsZtt_here.size();++i)
+		{
+			std::string l1_chain(LowerChain("HLT_"+m_trigItemsZtt_here[i]));
+			std::string hlt_chain = "HLT_"+m_trigItemsZtt_here[i];
+		
+			setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItemsZtt_here[i]);
+			//hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/GeV);
 
-	  //L1
-	  if(getTDT()->isPassed(l1_chain , TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
-	    {
-	      //hist("hRealZttL1PtNum")->Fill(Tau_TLV.Pt()/GeV);
-	      profile("TProfRealZttL1PtEfficiency")->Fill(Tau_TLV.Pt()/GeV,1);
-	    }
-	  else profile("TProfRealZttL1PtEfficiency")->Fill(Tau_TLV.Pt()/GeV,0);
-
-	  //HLT
-	  if(getTDT()->isPassed(hlt_chain, TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
-	    {
-	      //hist("hRealZttHLTPtNum")->Fill(Tau_TLV.Pt()/GeV);
-	      profile("TProfRealZttHLTPtEfficiency")->Fill(Tau_TLV.Pt()/GeV,1);
-	    }
-	  else profile("TProfRealZttHLTPtEfficiency")->Fill(Tau_TLV.Pt()/GeV,0);
-	}
-    }
+			//L1
+			if(getTDT()->isPassed(l1_chain , TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
+			  {
+			    //hist("hRealZttL1PtNum")->Fill(Tau_TLV.Pt()/GeV);
+					// safe to fill them this way (without if-else statement) as we discard all non 1P or 3P taus.
+			    if (is1P) profile("TProfRealZttL1Pt1PEfficiency")->Fill(Tau_TLV.Pt()/GeV,1);
+					if (isMP) profile("TProfRealZttL1Pt3PEfficiency")->Fill(Tau_TLV.Pt()/GeV,1);
+			  }
+			else {
+					if (is1P) profile("TProfRealZttL1Pt1PEfficiency")->Fill(Tau_TLV.Pt()/GeV,0);
+					if (isMP) profile("TProfRealZttL1Pt3PEfficiency")->Fill(Tau_TLV.Pt()/GeV,0);
+			}
+			//HLT
+			if(getTDT()->isPassed(hlt_chain, TrigDefs::Physics | TrigDefs::allowResurrectedDecision))
+			  {
+			    //hist("hRealZttHLTPtNum")->Fill(Tau_TLV.Pt()/GeV);
+					// safe to fill them this way (without if-else statement) as we discard all non 1P or 3P taus.
+			    if (is1P) profile("TProfRealZttHLTPt1PEfficiency")->Fill(Tau_TLV.Pt()/GeV,1);
+					if (isMP) profile("TProfRealZttHLTPt3PEfficiency")->Fill(Tau_TLV.Pt()/GeV,1);
+			  }
+			else {
+					if (is1P) profile("TProfRealZttHLTPt1PEfficiency")->Fill(Tau_TLV.Pt()/GeV,0);
+					if (isMP) profile("TProfRealZttHLTPt3PEfficiency")->Fill(Tau_TLV.Pt()/GeV,0);
+			}
+		}
+    } // end of Event Selection
   return StatusCode::SUCCESS;
 }

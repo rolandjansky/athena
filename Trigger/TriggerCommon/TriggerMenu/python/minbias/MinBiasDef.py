@@ -137,7 +137,7 @@ class L2EFChain_MB(L2EFChainDef):
             doBLayer=True
 
         doVetoSp=False
-        if 'vetosp' in self.chainPart['extra']:
+        if 'vetosp' in self.chainPart['veto']:
             doVetoSp=True
         doVetoSpN=False
         if 'vetosp' in self.chainPart['hypoL2Info']:
@@ -147,15 +147,19 @@ class L2EFChain_MB(L2EFChainDef):
             doSptrk=True
 
         doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra'] or "vetospmbts2in" in self.chainPart['extra']: #do EFID
+        if "vetombts2in" in self.chainPart['veto'] or "vetospmbts2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
 
-        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
+        if "vetombts1side2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
+        if "vetombts8" in self.chainPart['veto']: #do EFID
+            doMbtsVeto=True
+            theL2MbtsFex=L2MbMbtsFex
+            theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_8_8_NTime_veto")
         doexclusivelooseN=False
         ########## L2 algos ##################
         #if "sptrk" or "sp" in self.chainPart['recoAlg']:
@@ -181,11 +185,12 @@ class L2EFChain_MB(L2EFChainDef):
                 chainSuffix = "sp"
         
         if doMbtsVeto:
-            if "vetombts2in" in self.chainPart['extra']:
+            if "vetombts2in" in self.chainPart['veto']:
                 chainSuffix = chainSuffix+"_vetombts2in"
-            if "vetombts1side2in" in self.chainPart['extra']:
+            if "vetombts1side2in" in self.chainPart['veto']:
                 chainSuffix = chainSuffix+"_vetombts1side2in"
-
+            if "vetombts8" in self.chainPart['veto']:
+                chainSuffix = chainSuffix+"_vetombts8"
         if doMbtsVeto and doVetoSp: # this will never be done w tracks
             chainSuffix = "sp_vetospmbts2in"
 
@@ -305,7 +310,7 @@ class L2EFChain_MB(L2EFChainDef):
             if 'hipeb' in self.chainPart['addInfo']:
                 from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
                 HISubDetListWriter = TrigSubDetListWriter("HISubDetListWriter")
-                HISubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FCal','FORWARD_ZDC']
+                HISubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FCal','FORWARD_ZDC','Muons']
                 HISubDetListWriter.MaxRoIsPerEvent=1
                 self.EFsequenceList += [[['EF_mb_step1'],
                                          [ HISubDetListWriter ],
@@ -469,11 +474,11 @@ class L2EFChain_MB(L2EFChainDef):
         theL2Fex  = L2MbMbtsFex
 
         doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra']: #do EFID
+        if "vetombts2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
 
-        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
+        if "vetombts1side2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
 
@@ -516,9 +521,9 @@ class L2EFChain_MB(L2EFChainDef):
                     logMinBiasDef.error("Something weird in the setup_mb_mbts(), please check")
             else:
                 theL2Hypo = theL2MbtsVetoHypo
-                if "vetombts2in" in self.chainPart['extra']:
+                if "vetombts2in" in self.chainPart['veto']:
                     chainSuffix = chainSuffix+"_vetombts2in"
-                if "vetombts1side2in" in self.chainPart['extra']:
+                if "vetombts1side2in" in self.chainPart['veto']:
                     chainSuffix = chainSuffix+"_vetombts1side2in"
                 
         ########## EF algos ##################
