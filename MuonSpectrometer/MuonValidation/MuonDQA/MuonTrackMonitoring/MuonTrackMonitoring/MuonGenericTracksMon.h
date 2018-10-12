@@ -11,7 +11,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGate.h"
- 
+
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "MuonTrackMonitoring/RecoMuonPlots.h"
@@ -22,10 +22,10 @@
 #include "MuonTrackMonitoring/RecoPhysPlots.h"
 #include "MuonTrackMonitoring/RecoVertexPlots.h"
 #include "MuonHistUtils/MuonEnumDefs.h"
- 
+
 #include "TrigConfL1Data/TriggerItem.h"
 //#include "TrigDecisionInterface/ITrigDecisionTool.h"
- 
+
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -40,7 +40,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h" 
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonancePairingTool.h"
@@ -60,29 +60,29 @@
 #include <vector>
 #include <string>
 #include <algorithm>
- 
+
 class MuonGenericTracksMon : public ManagedMonitorToolBase
 {
- 
+
  public:
 
-  MuonGenericTracksMon( const std::string & type, const std::string & name, const IInterface* parent ); 
+  MuonGenericTracksMon( const std::string & type, const std::string & name, const IInterface* parent );
   virtual ~MuonGenericTracksMon(){;}
-  
+
   StatusCode initialize();
-  virtual StatusCode bookHistograms();   
+  virtual StatusCode bookHistograms();
   virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();  
+  virtual StatusCode procHistograms();
   StatusCode finalize();
 
   //second argument is the souce type
-  void plot_lumi(   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_Z, 
-    std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_jpsi, 
+  void plot_lumi(   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_Z,
+    std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_jpsi,
     const xAOD::MuonContainer* Muons,
-    const xAOD::TrackParticleContainer*   tracksMS, 
+    const xAOD::TrackParticleContainer*   tracksMS,
     const xAOD::MuonSegmentContainer* MuonSegments);
-  void plot_lumi_notrig(const xAOD::MuonContainer* Muons, 
-    const xAOD::TrackParticleContainer*   tracksMS, 
+  void plot_lumi_notrig(const xAOD::MuonContainer* Muons,
+    const xAOD::TrackParticleContainer*   tracksMS,
     const xAOD::MuonSegmentContainer* MuonSegments);
   //other plots
   void plot_muon(   const xAOD::Muon&          muon,    int source);
@@ -93,7 +93,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   void plot_resonances(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int source);
 
   void FillPullResid(RecoMuonTrackPlots *, const xAOD::TrackParticle*);
-  
+
   float m_inst_lumi_bcid;
   float m_inst_lumi_lb;
   int   m_current_lb;
@@ -112,13 +112,13 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   std::vector<RecoPhysPlots*>         m_oRecoPhysPlots;
   std::vector<RecoVertexPlots*>       m_oRecoVertexPlots;
 
-  
+
  protected:
 
   //
-    
+
  private:
-  
+
   StoreGateSvc* m_storeGate;
   std::string m_muonsName;
   std::string m_muonSegmentsName;
@@ -126,7 +126,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   std::string m_msVertexCollection;
   std::string m_muonExtrapTracksName;
   std::string m_innerTracksName;
-            
+
   StatusCode setupTools();
   StatusCode bookInMongroup(TH1* hist, MonGroup& mongroup);
   StatusCode bookInMongroup(HistData& hist, MonGroup& mongroup, std::string source);
@@ -136,12 +136,13 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   // define the different classes of plots;
   enum SOURCE {Z = 0, JPSI, CBMUONS, NONCBMUONS, CONTAINER, N_SOURCE};
   std::string sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "CBMuons", "NonCBMuons", "Container", "N_SOURCE"};
+  std::string NonCBMuonsType[4] = {"MuonStandAlone", "SegmentTagged", "CaloTagged", "SiliconAssociatedForward"}; ///for separating non combined types
   enum MUON_COMPONENT {TRACK_MS=0, TRACK_ME, TRACK_ID, N_COMPONENTS};
   // Trigger items
-  bool m_useTrigger; 
+  bool m_useTrigger;
   std::string m_MuonTriggerChainName;
-  std::vector<std::string> m_muon_triggers;  
-        
+  std::vector<std::string> m_muon_triggers;
+
   // ATLAS Detector Description
   // Handle for the trig decision tool
   ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
@@ -157,18 +158,18 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   ToolHandle<IMuonResonancePairingTool>   m_ZmumuResonancePairingTool;
   ToolHandle<IMuonResonanceSelectionTool> m_JpsimumuResonanceSelectionTool;
   ToolHandle<IMuonResonancePairingTool>   m_JpsimumuResonancePairingTool;
-    
+
   std::string pathToHistName(std::string str){
     std::replace( str.begin(), str.end(), '/', '_');
     return str;
   }
-  // isMC required by MCP tools. 
+  // isMC required by MCP tools.
   // only matters for scalefactors, i.e., keep isMC=false for SF=1.
   bool m_isMC;
-  
+
 };
 
 #endif
- 
+
 
 
