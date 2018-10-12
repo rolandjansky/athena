@@ -87,12 +87,15 @@ if TriggerFlags.doCalo:
   
      ### final monitor algorithm
      from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+     from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+     summMaker = DecisionSummaryMakerAlg()
+     summMaker.FinalDecisionKeys = [ hypo.HypoOutputDecisions ]
+     summMaker.FinalStepDecisions = dict.fromkeys( testChains, hypo.HypoOutputDecisions )
+
      mon = TrigSignatureMoniMT()
-     mon.FinalDecisions = [ hypo.HypoOutputDecisions ]
      from TrigUpgradeTest.TestUtils import MenuTest
      mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
      mon.OutputLevel = DEBUG
-
     
-     hltTop = seqOR( "hltTop", [ HLTsteps, mon ] )
+     hltTop = seqOR( "hltTop", [ HLTsteps, summMaker, mon ] )
      topSequence += hltTop   
