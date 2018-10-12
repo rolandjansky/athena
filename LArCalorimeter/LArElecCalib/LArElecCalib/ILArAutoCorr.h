@@ -8,7 +8,6 @@
 
 #include "CLIDSvc/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
-#include "Identifier/Identifier.h"
 #include "LArElecCalib/LArVectorProxy.h"
 
 /** This class defines the interface for accessing AutoCorrelation 
@@ -37,9 +36,6 @@ class ILArAutoCorr {
 
   //online ID
   virtual AutoCorrRef_t autoCorr( const HWIdentifier&  CellID, int gain) const=0 ;
-
-  // offline ID
-  virtual AutoCorrRef_t autoCorr( const Identifier&  CellID, int gain) const = 0 ;
   
 } ;
 

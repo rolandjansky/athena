@@ -1864,7 +1864,11 @@ SGImplSvc::createObj (IConverter* cvt,
                       IOpaqueAddress* addr,
                       DataObject*& refpObject)
 {
-  lock_t lock (m_mutex);
+  // This lock was here originally, but is probably not really needed ---
+  // both DataProxy and the I/O components have their own locks.
+  // Further, this was observed to cause deadlocks for the detector store,
+  // and would in general be expected to be a contention issue.
+  //lock_t lock (m_mutex);
   return cvt->createObj (addr, refpObject);
 }
 

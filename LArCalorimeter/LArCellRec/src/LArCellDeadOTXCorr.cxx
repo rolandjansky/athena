@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 /**
  *  @file  LArCellDeadOTXCorr.cxx
  *  @brief  CaloCell energy correction tool for missing FEBs
@@ -44,15 +43,10 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/LArEM_ID.h"
 #include "CaloEvent/CaloCell.h"
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArRecConditions/ILArBadChanTool.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
-// #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
-//#include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 
@@ -118,26 +112,24 @@ LArCellDeadOTXCorr::LArCellDeadOTXCorr(
 		const std::string& name, 
 		const IInterface* parent)
   : base_class(type, name, parent),
-    m_cablingService("LArCablingService"),
     m_caloMgr(nullptr),
     m_lvl1Helper(nullptr),
     m_calo_id(nullptr),
     m_onlineID(nullptr),
     m_TT_ID(nullptr),
     m_l1CondSvc(nullptr),
-    m_ttSvc(nullptr)
+    m_ttSvc("CaloTriggerTowerService")
 {
 	declareProperty("triggerTowerLocation", m_TTLocation  = "xAODTriggerTowers");
-	declareProperty("badChannelTool",m_badChannelTool);
 	declareProperty("triggerNoiseCut", m_triggerNoiseCut);
 	declareProperty("useL1CaloDB", m_useL1CaloDBProp = false);
 	declareProperty("ignoredTTs", m_ignoredTTs);
-
+	declareProperty("CaloTriggerTowerService",m_ttSvc);
 	declareConstant("etaCalibrationSizes", m_etaCalibrationSizes);
 	declareConstant("etaCalibrations", m_etaCalibrations);
 	declareConstant("energyCalibrationTypes", m_energyCalibrationTypes);
 	declareConstant("energyCalibrations", m_energyCalibrations);
-
+	
 	finish_ctor();
 
         m_useL1CaloDB = m_useL1CaloDBProp;
@@ -199,15 +191,12 @@ StatusCode LArCellDeadOTXCorr::initialize()
                 ATH_MSG_INFO ("L1Calo database won't be used. Pedestal values will be constant and equal to 32.");
 
 
-	const  CaloIdManager* caloIdMgr;
-	ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
-	m_calo_id = caloIdMgr->getCaloCell_ID();
-
-	ATH_CHECK( m_cablingService.retrieve() );
+	ATH_CHECK( m_badFebKey.initialize());
+	ATH_CHECK( m_cablingKey.initialize());
 	ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
+	ATH_CHECK( detStore()->retrieve(m_calo_id, "CaloCell_ID") );
 	ATH_CHECK( detStore()->retrieve(m_caloMgr) );
-
-
+	
 	// Use the CaloIdManager to get a pointer to an instance of the CaloLVL1_ID helper
 	m_lvl1Helper = m_caloMgr->getLVL1_ID();
 	if (!m_lvl1Helper) {
@@ -215,29 +204,10 @@ StatusCode LArCellDeadOTXCorr::initialize()
 		return StatusCode::FAILURE;
 	}
 
-	// ..... need cabling services, to get channels associated to each TT
-
-	IToolSvc* toolSvc = 0;
-	ATH_CHECK( service( "ToolSvc",toolSvc  ) );
-        ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
-
-
-        /*
-          IAlgTool *algtool;
-
-          sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
-          ATH_MSG_DEBUG("L1CaloTTIdTools retrieved" );
-          if (sc!=StatusCode::SUCCESS) {
-          ATH_MSG_WARNING( " Cannot get L1CaloTTIdTools !"  );
-          // m_bTTMapInitialized = false;
-          }
-          m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
-        */
-
         m_useL1CaloDB = m_useL1CaloDBProp;
 
-	ATH_CHECK( m_badChannelTool.retrieve() );
 	ATH_CHECK( detStore()->retrieve(m_TT_ID) );
+	ATH_CHECK( m_ttSvc.retrieve());
 	return StatusCode::SUCCESS;
 }
 
@@ -245,18 +215,29 @@ StatusCode LArCellDeadOTXCorr::initialize()
 //  process method
 //
 
-StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ) {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
+StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  return process(cellCont,ctx);
+}
+
+StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont, 
+					const EventContext& ctx) const {
         ATH_MSG_DEBUG (" in process...");
-        ATH_MSG_DEBUG (" Nb of eta calibration factors found : "<<m_etaCalibrations.size());
-        for(unsigned int i=0;i<m_etaCalibrations.size();i++)
-        {
-          ATH_MSG_DEBUG ("calibration["<<i<<"] = "<<m_etaCalibrations[i]);
-        }
+
+	SG::ReadCondHandle<LArBadFebCont> badFebHdl{m_badFebKey,ctx};
+	const LArBadFebCont* badFebs=*badFebHdl;
+
+	SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
+	const LArOnOffIdMapping* cabling=*cablingHdl;
+
+	if (msgLvl(MSG::DEBUG)) {
+	  msg(MSG::DEBUG) << " Nb of eta calibration factors found : "<<m_etaCalibrations.size() << endmsg;
+	  for(unsigned int i=0;i<m_etaCalibrations.size();i++) {
+	    msg(MSG::DEBUG) << "calibration["<<i<<"] = "<<m_etaCalibrations[i] << endmsg;
+	  }
+	}
 
 	//Retrieve Trigger Towers from SG
-	//const TriggerTowerCollection* storedTTs = 0; 
-	//const xAOD::TriggerTowerContainer* storedTTs = 0;
 	SG::ReadHandle<xAOD::TriggerTowerContainer> storedTTs(m_TTLocation, ctx);
 	if(!storedTTs.isValid()) { 
 	  ATH_MSG_ERROR("Could not read container " << m_TTLocation.key());
@@ -285,6 +266,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ) {
 		}
 	}
 
+	const LArBadFebCont::BadChanVec& allMissingFebs=badFebs->fullCont();
 	// vector of all missing cells Id
 	std::vector<Identifier> cell_array;
 	cell_array.reserve(512);
@@ -296,31 +278,24 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ) {
 	trigtow.reserve(32);
 	en_array.reserve(32);
 
-	std::vector<HWIdentifier>::const_iterator firstFeb = m_onlineID->feb_begin();
-	std::vector<HWIdentifier>::const_iterator lastFeb  = m_onlineID->feb_end();
+	for (const LArBadFebCont::BadChanEntry& it : allMissingFebs) {
+	  const LArBadFeb& febstatus=it.second;
+	  if (febstatus.deadReadout()) {
+	    const HWIdentifier febId(it.first);
+	    //Loop over channels belonging to this FEB
+	    const int chansPerFeb=m_onlineID->channelInSlotMax(febId);
+	    for (int ch=0; ch<chansPerFeb; ++ch) {
+	      const HWIdentifier hwid = m_onlineID->channel_Id(febId, ch);
+	      if ( cabling->isOnlineConnected(hwid)) {
+		const Identifier id=cabling->cnvToIdentifier(hwid);
+		cell_array.push_back(id);
+	      }//end is connected
+	    }//end loop over channels on a feb
+	  }//end if feb is dead
+	}//end loop over problematic febs
 
-
-	// Step ONE - Loop Over FEB, find missing FEB
-	for (std::vector<HWIdentifier>::const_iterator i= firstFeb; i != lastFeb; ++i) {
-		HWIdentifier febId = (*i);
-		LArBadFeb febstatus = m_badChannelTool->febStatus(febId);
-		bool missing = febstatus.deadReadout();
-		//bool missing = m_badChannelTool->febMissing(febId);
-		if(missing){
-			//Find the corresponding Cell(s)
-			for (int ch=0; ch<128; ++ch) {
-				HWIdentifier hwid = m_onlineID->channel_Id(febId, ch);
-				if (m_cablingService->isOnlineConnected(hwid)) {
-					Identifier fid = m_cablingService->cnvToIdentifier( hwid);
-					//Save the CellIds 
-					cell_array.push_back(fid);
-				} //If Online
-
-			}//Cell Loop
-
-		}//Missing FEB
-	}   // loop over Febs
-
+	//Debug printout:
+	//for (auto& c : cell_array)  std::cout << "Missing cell: " << c.get_identifier32().get_compact() << std::endl;
 
         ATH_MSG_DEBUG (" Number of missing cells " << cell_array.size());
 

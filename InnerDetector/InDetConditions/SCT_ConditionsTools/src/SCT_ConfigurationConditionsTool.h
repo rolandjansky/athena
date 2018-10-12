@@ -64,9 +64,9 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   /**List of bad strips for a given module*/
   virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   /**List of bad links*/
-  virtual std::pair<bool, bool>         badLinks(const Identifier& moduleId) const override;
+  virtual std::pair<bool, bool>         badLinks(const IdentifierHash& hash) const override;
   /**Bad links for a given module*/
-  virtual const std::map<Identifier, std::pair<bool, bool>>* badLinks() const override;
+  virtual const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks() const override;
   /**List of bad chips*/
   virtual const std::map<Identifier, unsigned int>* badChips() const override;
   /**Bad chips for a given module*/

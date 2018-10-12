@@ -6,6 +6,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoring/MonitoredScope.h"
+#include "TrigConfL1Data/CTPConfig.h"
 
 JRoIsUnpackingTool::JRoIsUnpackingTool( const std::string& type, 
                                         const std::string& name, 
@@ -26,10 +27,25 @@ StatusCode JRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
-  using namespace TrigConf;
+StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding) {
+  using namespace TrigConf;  
+
+  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::JET; }, 
+			    m_configSvc->ctpConfig()->menu().itemVector(),
+			    seeding ) );
 
   m_jetThresholds.clear();
+  const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
+  for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::JET ) ) {
+    if ( th != nullptr ) {
+      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
+      m_jetThresholds.push_back( th );    
+    }
+  }
+  //
+  
+
+  //  m_jetThresholds.clear();
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JET ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JF ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JB ), m_jetThresholds ) );
@@ -125,6 +141,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   }
 
   ATH_MSG_DEBUG( "Unpacked " <<  trigRoIs->size() << " RoIs" );
+  ATH_MSG_DEBUG( "Unpacked " <<  trigFSRoIs->size() << " FS RoIs" );
   // recording
   {
     SG::WriteHandle<TrigRoiDescriptorCollection> handle( m_trigRoIsKey, ctx );

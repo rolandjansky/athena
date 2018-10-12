@@ -51,7 +51,6 @@ EventSelector.InputCollections = [ "assocs.pool.root" ]
 
 #PoolSvc.ReadCatalog = [ 'xmlcatalog_file:TestCatalog.xml' ]
 #PoolSvc.WriteCatalog = 'xmlcatalog_file:TestCatalog.xml'
-EventSelector.BackNavigation = TRUE
 
 #--------------------------------------------------------------
 # Private Application Configuration options

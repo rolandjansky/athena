@@ -94,7 +94,7 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
     return multiComponentState.clone();
   }
 
-  Trk::MultiComponentState* unmergedState = const_cast<Trk::MultiComponentState*>( multiComponentState.clone() );
+  Trk::MultiComponentState* unmergedState = multiComponentState.clone();
 
   std::vector<double> weights;
   Trk::MultiComponentState* componentsForCollapse = new Trk::MultiComponentState;

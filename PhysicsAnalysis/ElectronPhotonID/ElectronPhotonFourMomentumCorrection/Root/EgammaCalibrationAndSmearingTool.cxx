@@ -28,7 +28,7 @@
 // internal (old) tool
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 
-#include "egammaMVACalib/egammaMVATool.h"
+#include "egammaMVACalibAnalysis/egammaMVATool.h"
 #include "egammaLayerRecalibTool/egammaLayerRecalibTool.h"
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"
 

@@ -7,6 +7,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
+from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle
 import ast
 import collections
 
@@ -198,8 +199,10 @@ class ComponentAccumulator(object):
     def _deduplicate(self,newComp,compList):
         #Check for duplicates:
         for comp in compList:
-            if comp.getType()==newComp.getType() and comp.getJobOptName()==newComp.getJobOptName():
+            if comp.getType()==newComp.getType() and comp.getFullName()==newComp.getFullName():
                 #Found component of the same type and name
+                if isinstance(comp,PublicToolHandle) or isinstance(comp,ServiceHandle):
+                    continue # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
                 self._deduplicateComponent(newComp,comp)
                 #We found a service of the same type and name and could reconcile the two instances
                 self._msg.debug("Reconciled configuration of component %s", comp.getJobOptName())
@@ -221,7 +224,7 @@ class ComponentAccumulator(object):
 
 
     def _deduplicateComponent(self,newComp,comp):
-        #print "Checking ", comp.getType(), comp.getJobOptName()
+        #print "Checking ", comp, comp.getType(), comp.getJobOptName()
         allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
         for prop in allProps:
             if not prop.startswith('_'):
@@ -234,14 +237,29 @@ class ComponentAccumulator(object):
                 except AttributeError:
                     newprop=None
 
+                if type(oldprop) != type(newprop):
+                    raise DeduplicationFailed(" '%s' defined multiple times with conflicting types %s and %s" % \
+                                                      (comp.getJobOptName(),type(oldprop),type(newprop)))
+                
                 #Note that getattr for a list property works, even if it's not in ValuedProperties
                 if (oldprop!=newprop):
                     #found property mismatch
-                    if isinstance(oldprop,GaudiHandles.GaudiHandle):
+                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle): 
+                        if oldprop.getFullName()==newprop.getFullName():
+                            # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
+                            continue
+                        else:
+                            raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
+                                                              (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
+                    elif isinstance(oldprop,PublicToolHandleArray):
+                            for newtool in newprop:
+                                if newtool not in oldprop: 
+                                    oldprop+=[newtool,]
+                            continue
+                    elif isinstance(oldprop,ConfigurableAlgTool):
                         self._deduplicateComponent(oldprop,newprop)
                         pass
                     elif isinstance(oldprop,GaudiHandles.GaudiHandleArray):
-                        print oldprop,newprop
                         for newTool in newprop:
                             self._deduplicate(newTool,oldprop)
                         pass
@@ -261,6 +279,9 @@ class ComponentAccumulator(object):
                         mergeprop=oldprop
                         mergeprop.update(prop)
                         setattr(comp,prop,mergeprop)
+                    elif isinstance(oldprop,PrivateToolHandle):
+                        # This is because we get a PTH if the Property is set to None, and for some reason the equality doesn't work as expected here.
+                        continue
                     else:
                         #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                         raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
@@ -302,13 +323,17 @@ class ComponentAccumulator(object):
 
 
     def setAppProperty(self,key,value,overwrite=False):
-        if (overwrite):
+        if (overwrite or key not in (self._theAppProps)):
             self._theAppProps[key]=value
         else:
-            if key in self._theAppProps and isinstance(self._theAppProps[key],collections.Sequence):
+            if isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
                 value=unifySet(self._theAppProps[key],value) 
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
-            self._theAppProps[key]=value
+                self._theAppProps[key]=value
+            else:
+                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s",key,(self._theAppProps[key],value))
+
+
         pass
 
 
@@ -554,7 +579,7 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
 
-    def run(self,maxEvents=None):
+    def run(self,maxEvents=None,OutputLevel=3):
         log = logging.getLogger("ComponentAccumulator")
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
@@ -568,15 +593,22 @@ class ComponentAccumulator(object):
         svcToCreate=[]
         extSvc=[]
         for svc in self._services:
-            extSvc+=svc.getFullName()
+            print svc.getFullName()
+            extSvc+=[svc.getFullName(),]
             if svc.getJobOptName() in _servicesToCreate:
-                svcToCreate+=svc.getFullName()
+                svcToCreate+=[svc.getFullName(),]
     
+        #print self._services
+        #print extSvc
+        #print svcToCreate        
         app.setProperty("ExtSvc",str(extSvc))
         app.setProperty("CreateSvc",str(svcToCreate))
     
+        print "CONFIGURE STEP"
         app.configure()
 
+        msp=app.getService("MessageSvc")
+        bsh.setProperty(msp,"OutputLevel",str(OutputLevel))
         #Feed the jobO service with the remaining options
         jos=app.getService("JobOptionsSvc")
     
@@ -587,9 +619,11 @@ class ComponentAccumulator(object):
                     log.debug("Adding "+name+"."+k+" = "+v.getFullName())
                     bsh.addPropertyToCatalogue(jos,name,k,v.getFullName())
                     addCompToJos(v)
+                elif isinstance(v,GaudiHandles.GaudiHandleArray):
+                    bsh.addPropertyToCatalogue(jos,name,k,str([ v1.getFullName() for v1 in v ]))
                 else:
                     if not isSequence(comp) and k!="Members": #This property his handled separatly
-                        log.debug("Adding"+name+"."+k+" = "+str(v))
+                        log.debug("Adding "+name+"."+k+" = "+str(v))
                         bsh.addPropertyToCatalogue(jos,name,k,str(v))
                     pass
                 pass
@@ -597,6 +631,10 @@ class ComponentAccumulator(object):
                 addCompToJos(ch)
             return
 
+        #Add services
+        for svc in self._services:
+            addCompToJos(svc)
+            pass
 
         #Add tree of algorithm sequences: 
         for seqName, algoList in flatSequencers( self._sequence ).iteritems():
@@ -616,9 +654,6 @@ class ComponentAccumulator(object):
             pass
 
     
-        for svc in self._services:
-            addCompToJos(svc)
-            pass
      #Public Tools:
         for pt in self._publicTools:
             addCompToJos(pt)
@@ -632,7 +667,7 @@ class ComponentAccumulator(object):
                 maxEvents=-1
 
 
-
+        print "INITIALIZE STEP"
         sc = app.initialize()
         if not sc.isSuccess(): 
             log.error("Failed to initialize AppMgr")

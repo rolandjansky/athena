@@ -15,7 +15,7 @@
 #include "ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
 #include "IPrescalingTool.h"
-
+#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 
 /*
   @brief an algorithm used to unpack the RoIB result and provide CTP bits, active chains and RoIs
@@ -66,7 +66,14 @@ private:
   Gaudi::Property<std::map<std::string, std::string>> m_chainToCTPProperty{
     this, "ChainToCTPMapping", {}, "Seeding in the form: HLT_chain : L1_item"};
 
+  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
+    "The trigger cost service" };
 
+  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+    "Enables start-of-event cost monitoring behavior."};
+
+  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
+    "Name of the chain which should enable HLT cost montoring."};
 
 };
 

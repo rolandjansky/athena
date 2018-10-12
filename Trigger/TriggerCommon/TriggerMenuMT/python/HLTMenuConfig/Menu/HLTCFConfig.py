@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.Logging import logging
@@ -173,12 +175,24 @@ def makeHLTTree(HLTChains):
     #edmCreator.TrigCompositeContainer = flatDecisions
     #summary.OutputTools= [ edmCreator ]
     hltTop += summary
-    hltTop += makeMonitor("TriggerMonitorFinal", finalDecisions, EnabledChainNames)
-    #hltTop += makeStreamESD("StreamESD", flatDecisions)
-   
-    
+
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
+
+    #hltTop += makeMonitor("TriggerMonitorFinal", finalDecisions, EnabledChainNames)
+    from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+
+    ConfigFlags.lock()
+    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
+    if len(l1decoder)  != 1 :
+        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
+
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, collectHypos(steps), l1decoder[0] )
+    monAcc.appendToGlobals()
+    hltTop += monAlg
+    #hltTop += makeStreamESD("StreamESD", flatDecisions)       
     topSequence += hltTop
 
         

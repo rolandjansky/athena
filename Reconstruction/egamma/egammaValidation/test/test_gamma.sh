@@ -11,8 +11,6 @@
 # art-output: *.hist.root
 # art-output: *.txt
 # art-output: *.png
-# art-output: log.RAWtoESD
-# art-output: log.ESDtoAOD
 
 echo "ArtProcess: $ArtProcess"
 
@@ -67,7 +65,7 @@ case $ArtProcess in
 	unset  ATHENA_NUM_PROC
 	unset  ATHENA_PROC_NUMBER
 	
-	Reco_tf.py --inputRDOFile=$x --outputAODFile=Nightly_AOD_gamma.pool.root --maxEvents=2000 --autoConfiguration="everything" --preExec="from ParticleBuilderOptions.AODFlags import AODFlags; AODFlags.ThinGeantTruth.set_Value_and_Lock(False); rec.doTrigger=False; rec.doMuon=True; rec.doTau=True ; from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doMuonSpShower=False ; rec.doBTagging=True ; recAlgs.doEFlow=True ; recAlgs.doEFlowJet=True ; recAlgs.doMissingET=True ; recAlgs.doMissingETSig=True ; from JetRec.JetRecFlags import jetFlags ; jetFlags.Enabled=True ; "
+	Reco_tf.py --inputRDOFile=$x --outputAODFile=Nightly_AOD_gamma.pool.root --maxEvents=2000 --autoConfiguration="everything" --preExec="from ParticleBuilderOptions.AODFlags import AODFlags; AODFlags.ThinGeantTruth.set_Value_and_Lock(False); rec.doTrigger=False; rec.doMuon=False; rec.doTau=False ; from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doMuonSpShower=False ; rec.doBTagging=False ; recAlgs.doEFlow=False ; recAlgs.doEFlowJet=False ; recAlgs.doMissingET=False ; recAlgs.doMissingETSig=False ; from JetRec.JetRecFlags import jetFlags ; jetFlags.Enabled=False ; "
 	
 	echo  "art-result: $? reconstruction"
 

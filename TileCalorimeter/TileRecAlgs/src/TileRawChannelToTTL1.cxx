@@ -28,7 +28,7 @@
 
 // Tile includes
 // small hack to be able to modify original TileRawChannel
-#include "TileRecAlgs/TileRawChannelToTTL1.h"
+#include "TileRawChannelToTTL1.h"
 
 #define private public
 #include "TileEvent/TileRawChannel.h"

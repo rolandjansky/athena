@@ -23,6 +23,8 @@ class UltraCentral(UltraCentralHypo):
         super( UltraCentralHypo, self ).__init__( name )
         self.FcalEtLowerBound = minCut
         self.FcalEtUpperBound = maxCut
+        self.EtaMin = 3.2
+        self.isFgap = False
         self.AthenaMonTools += [UltraCentralMonitoring(name="UltraCentralMonitoring")]
 
 class UltraCentral_PT(UltraCentralHypo):
@@ -31,11 +33,13 @@ class UltraCentral_PT(UltraCentralHypo):
         super( UltraCentralHypo, self ).__init__( name )
         self.forceAccept     = True
         self.FcalEtLowerBound = 5000.
+        self.EtaMin = 3.2
+        self.isFgap = False
         self.AthenaMonTools += [UltraCentralMonitoring(name="UltraCentralMonitoring")]
 
 
-UCC_th = {"th1": UltraCentral("UCCHypo_th1", 4172*GeV, 5200*GeV), 
-          "th2": UltraCentral("UCCHypo_th2", 4326*GeV, 5200*GeV), 
+UCC_th = {"th1": UltraCentral("UCCHypo_th1", 3610*GeV, 5200*GeV), 
+          "th2": UltraCentral("UCCHypo_th2", 4080*GeV, 5200*GeV), 
           "th3": UltraCentral("UCCHypo_th3", 4500*GeV, 5200*GeV) }
 
 

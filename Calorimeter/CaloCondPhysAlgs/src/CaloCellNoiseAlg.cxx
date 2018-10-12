@@ -125,6 +125,8 @@ StatusCode CaloCellNoiseAlg::initialize()
 
   ATH_CHECK( m_noiseToolDB.retrieve() );
 
+  ATH_CHECK( m_cablingKey.initialize());
+
   ATH_MSG_INFO ( " end of CaloCellNoiseAlg::initialize " );
   return StatusCode::SUCCESS; 
 }
@@ -393,6 +395,9 @@ StatusCode CaloCellNoiseAlg::readNtuple()
 //_________________________________________________
 StatusCode CaloCellNoiseAlg::fitNoise()
 {
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=(*cablingHdl);
+ 
  ATH_MSG_INFO ( " in  CaloCellNoiseAlg::fitNoise() " );
 
  FILE* fp = fopen("calonoise.txt","w");
@@ -513,6 +518,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
  for (int icell=0;icell<m_ncell;icell++) {
    IdentifierHash idHash = icell;
    Identifier id=m_calo_id->cell_id(idHash);
+   HWIdentifier hwid=cabling->createSignalChannelID(id);
    int subCalo;
    IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
    const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
@@ -564,9 +570,9 @@ StatusCode CaloCellNoiseAlg::fitNoise()
 
 // noise and ADC2MeV in gain ref
           float noise0=-1.;
-          if (m_doMC) noise0 = m_dd_noise->noise(id,gainref);
+          if (m_doMC) noise0 = m_dd_noise->noise(hwid,gainref);
           else {
-           float noise = m_dd_pedestal->pedestalRMS(id,gainref);
+           float noise = m_dd_pedestal->pedestalRMS(hwid,gainref);
            if (noise>= (1.0+LArElecCalib::ERRORCODE)) noise0 = noise;
           }
           const std::vector<float> *
@@ -577,13 +583,13 @@ StatusCode CaloCellNoiseAlg::fitNoise()
 // noise and ADC2MeV in gain
 
           float noise1=-1;
-          if (m_doMC) noise1 = m_dd_noise->noise(id,gain);
+          if (m_doMC) noise1 = m_dd_noise->noise(hwid,gain);
           else {
-             float noise = m_dd_pedestal->pedestalRMS(id,gain);
+             float noise = m_dd_pedestal->pedestalRMS(hwid,gain);
              if (noise>= (1.0+LArElecCalib::ERRORCODE)) noise1 = noise;
           }
           const std::vector<float> *
-            polynom_adc2mev1 = &(m_adc2mevTool->ADC2MEV(id,gain));
+            polynom_adc2mev1 = &(m_adc2mevTool->ADC2MEV(hwid,gain));
           float adc2mev1=-1;
           if (polynom_adc2mev1->size()>1) adc2mev1=(*polynom_adc2mev1)[1];
 

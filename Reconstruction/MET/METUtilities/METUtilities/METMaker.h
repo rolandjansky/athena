@@ -64,17 +64,17 @@ namespace met {
                           xAOD::Type::ObjectType metType,
                           xAOD::MissingETContainer* metCont,
                           const xAOD::IParticleContainer* collection,
-                          const xAOD::MissingETAssociationMap* map,
+                          xAOD::MissingETAssociationHelper* helper,
                           MissingETBase::UsageHandler::Policy objScale);
     //
     StatusCode rebuildMET(xAOD::MissingET* met,
                           const xAOD::IParticleContainer* collection,
-                          const xAOD::MissingETAssociationMap* map,
+                          xAOD::MissingETAssociationHelper* helper,
                           MissingETBase::UsageHandler::Policy objScale);
     //
     StatusCode rebuildMET(xAOD::MissingET* met,
                           const xAOD::IParticleContainer* collection,
-                          const xAOD::MissingETAssociationMap* map,
+                          xAOD::MissingETAssociationHelper* helper,
                           MissingETBase::UsageHandler::Policy p,
                           bool removeOverlap,
                           MissingETBase::UsageHandler::Policy objScale);
@@ -85,18 +85,18 @@ namespace met {
                              xAOD::MissingETContainer* metCont,
                              const xAOD::JetContainer* jets,
                              const xAOD::MissingETContainer* metCoreCont,
-                             const xAOD::MissingETAssociationMap* map,
+                             xAOD::MissingETAssociationHelper* helper,
                              bool doJetJVT);
     StatusCode rebuildJetMET(const std::string& metJetKey,
                              const std::string& metSoftKey,
                              xAOD::MissingETContainer* metCont,
                              const xAOD::JetContainer* jets,
                              const xAOD::MissingETContainer* metCoreCont,
-                             const xAOD::MissingETAssociationMap* map,
+                             xAOD::MissingETAssociationHelper* helper,
                              bool doJetJVT);
     StatusCode rebuildJetMET(xAOD::MissingET* metJet,
                              const xAOD::JetContainer* jets,
-                             const xAOD::MissingETAssociationMap* map,
+                             xAOD::MissingETAssociationHelper* helper,
                              xAOD::MissingET* metSoftClus,
                              const xAOD::MissingET* coreSoftClus,
                              xAOD::MissingET* metSoftTrk,
@@ -110,17 +110,17 @@ namespace met {
                              xAOD::MissingETContainer* metCont,
                              const xAOD::JetContainer* jets,
                              const xAOD::MissingETContainer* metCoreCont,
-                             const xAOD::MissingETAssociationMap* map,
+                             xAOD::MissingETAssociationHelper* helper,
                              bool doJetJVT);
     StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
                              const xAOD::JetContainer* jets,
-                             const xAOD::MissingETAssociationMap* map,
+                             xAOD::MissingETAssociationHelper* helper,
                              xAOD::MissingET* metSoftTrk,
                              const xAOD::MissingET* coreSoftTrk,
                              bool doJetJVT);
 
     StatusCode markInvisible(const xAOD::IParticleContainer* collection,
-			     const xAOD::MissingETAssociationMap* map,
+			     xAOD::MissingETAssociationHelper* helper,
 			     xAOD::MissingETContainer* metCont);
 
     StatusCode buildMETSum(const std::string& totalName,

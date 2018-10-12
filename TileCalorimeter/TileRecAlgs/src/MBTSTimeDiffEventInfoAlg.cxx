@@ -3,11 +3,10 @@
 */
 
 // Tile includes
-#include "TileRecAlgs/MBTSTimeDiffEventInfoAlg.h"
+#include "MBTSTimeDiffEventInfoAlg.h"
 #include "TileIdentifier/TileTBID.h"
 
 // Atlas includes
-#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/errorcheck.h"
@@ -50,6 +49,7 @@ StatusCode MBTSTimeDiffEventInfoAlg::initialize() {
   CHECK( detStore()->retrieve(m_tileTBID));
 
   ATH_CHECK( m_mbtsContainerKey.initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_mbtsCollisionTimeKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -61,8 +61,7 @@ StatusCode MBTSTimeDiffEventInfoAlg::finalize() {
 
 StatusCode MBTSTimeDiffEventInfoAlg::execute() {
 
-  const EventInfo * eventInfo = 0;
-  CHECK( evtStore()->retrieve(eventInfo));
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
 
   float eneA = 0.F;
   float eneC = 0.F;
@@ -128,21 +127,24 @@ StatusCode MBTSTimeDiffEventInfoAlg::execute() {
     const float timediff = fabs(timeA - timeC);
     ATH_MSG_DEBUG( "Time diff " << timediff << "(" << m_timeDiffThreshold << ")");
     
-    if (timediff > m_timeDiffThreshold) {
-      ATH_MSG_DEBUG( "Event identified as background, set bit 'MBTSTimeDiffHalo' in EventInfo Background word" );
+    if (eventInfo.isValid()) {
+      if (timediff > m_timeDiffThreshold) {
+        ATH_MSG_DEBUG( "Event identified as background, set bit 'MBTSTimeDiffHalo' in EventInfo Background word" );
       
-      if (eventInfo->updateEventFlagBit(EventInfo::Background,
-                                        EventInfo::MBTSTimeDiffHalo) == false)
+        if (eventInfo->updateEventFlagBit(EventInfo::Background,
+                                          EventInfo::MBTSTimeDiffHalo) == false)
         
-        ATH_MSG_WARNING( "Failed to set EventInfo Background word!" );
-    } //end if above theshold
-    else {
-      ATH_MSG_DEBUG( "Event identified as collision, set bit 'MBTSTimeDiffCol' in EventInfo Background word" );
+          ATH_MSG_WARNING( "Failed to set EventInfo Background word!" );
+      } else { //end if above theshold
+        ATH_MSG_DEBUG( "Event identified as collision, set bit 'MBTSTimeDiffCol' in EventInfo Background word" );
       
-      if (eventInfo->updateEventFlagBit(EventInfo::Background,
-                                        EventInfo::MBTSTimeDiffCol) == false)
-        ATH_MSG_WARNING( "Failed to set EventInfo Background word!" );
-    } //end if below threshold
+        if (eventInfo->updateEventFlagBit(EventInfo::Background,
+                                          EventInfo::MBTSTimeDiffCol) == false)
+          ATH_MSG_WARNING( "Failed to set EventInfo Background word!" );
+      } //end if below threshold
+    } else {
+      ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
+    }
   } else {
     ATH_MSG_DEBUG( "Not enough hits above threshold to distinguish halo from collision event");
   }

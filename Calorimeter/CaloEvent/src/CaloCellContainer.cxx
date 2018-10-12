@@ -343,6 +343,15 @@ const CaloCell * CaloCellContainer::findCell(const IdentifierHash   theHash) con
 }
 
 
+ CaloCell * CaloCellContainer::findCell(const IdentifierHash   theHash)
+{
+  int ndx = findIndex (theHash);
+  if (ndx >= 0)
+    return (*this)[ndx];
+  return 0;
+}
+
+
 int CaloCellContainer::findIndex(const IdentifierHash   theHash) const
 {
   //cache Identifierhash->unsigned int conversion (maybe too much)

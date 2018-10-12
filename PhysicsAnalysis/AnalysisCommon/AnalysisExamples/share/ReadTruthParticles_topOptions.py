@@ -10,7 +10,6 @@ topSequence = AlgSequence()
 
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-#svcMgr.EventSelector.BackNavigation = True
 
 # the POOL converters: loaded on demand from now on (release 13)
 ## include( "ParticleBuilderOptions/ESD_PoolCnv_jobOptions.py" )

@@ -160,7 +160,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
     }
 
     /** Validation Action: */
-    virtual void validationAction(ICache& icache) const{ 
+    virtual void validationAction(ICache& icache) const override { 
       (void) icache;
       validationAction(); 
     }
@@ -175,7 +175,6 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
   private:
 
     // ---------------- validation mode ------------------
-    bool                         m_considerPrePostMapping;    //!< take pre/post mapping into account
     bool                         m_validationMode;            //!< boolean switch for the validation mode
     int                          m_validationDirectionSwitch; //!< jO switch for PropDirection
     PropDirection                m_validationDirection;       //!< distinction between forward and backward validation

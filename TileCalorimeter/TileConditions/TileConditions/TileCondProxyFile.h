@@ -40,7 +40,7 @@ class TileCondProxyFile: public AthAlgTool, virtual public ITileCondProxy<T> {
     * @param[out] eventRange EventIDRange during wich Tile conditions data are valid
     */
     virtual StatusCode fillCalibData(TileCalibData<T>& calibData, EventIDRange& eventRange) const override;
-    const T* getCalibDrawer(unsigned int drawerIdx) const;
+    virtual const T* getCalibDrawer(unsigned int drawerIdx) const override;
 
   private:
 

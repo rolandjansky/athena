@@ -7,7 +7,6 @@
 
 #include "CLIDSvc/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
-#include "Identifier/Identifier.h"
 #include "LArElecCalib/LArVectorProxy.h"
 
 class ILArRamp {
@@ -34,7 +33,6 @@ class ILArRamp {
   virtual ~ILArRamp() {};
 
   virtual RampRef_t ADC2DAC(const HWIdentifier& id, int gain )  const =0;
-  virtual RampRef_t ADC2DAC(const Identifier& id, int gain )  const =0;
   
 } ;
 

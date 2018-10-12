@@ -26,8 +26,12 @@ class MenuTest:
                          "HLT_e15mu24":    "L1_EM7_MU15",    
                          "HLT_xe10":      "L1_XE10",   
                          "HLT_te15":      "L1_TE15.0ETA24", 
-                         "HLT_j85":       "L1_J30",         
-                         "HLT_j60":       "L1_J30"      }
+                         "HLT_j85":       "L1_J20",         
+                         "HLT_j60":       "L1_J20",
+                         "HLT_j35_gsc45_boffperf_split" : "L1_J20",                         
+                         "HLT_j35_gsc45_bmv2c1070_split" : "L1_J20",
+                         "HLT_j35_gsc45_bmv2c1070" : "L1_J20"
+      }
 
 def applyMenu(l1decoder ):
     l1decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
@@ -81,7 +85,9 @@ class L1DecoderTest(L1Decoder) :
 
             jUnpacker = JRoIsUnpackingTool(OutputLevel = self.OutputLevel,
                                              Decisions = "JRoIDecisions",
-                                             OutputTrigRoIs = "JRoIs")
+                                             OutputTrigRoIs = "JRoIs",
+                                             FSDecisions = "FSDecisions",
+                                             OutputFSTrigRoIs = "FSJETRoIs"   )
 
             jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
             self.roiUnpackers += [jUnpacker]

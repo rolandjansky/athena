@@ -157,6 +157,11 @@ not ordered and complete a look up map is used, which is build the first
 time this method of findCellVector is used */
   const CaloCell * findCell(const IdentifierHash   theHash) const;
 
+  /** @brief fast find method given identifier hash. If the container is 
+not ordered and complete a look up map is used, which is build the first 
+time this method of findCellVector is used */
+  CaloCell * findCell(const IdentifierHash   theHash);
+
   /** @brief Return index of the cell with a given hash.
       Returns -1 if the cell isn't found. */
   int findIndex(const IdentifierHash   theHash) const;

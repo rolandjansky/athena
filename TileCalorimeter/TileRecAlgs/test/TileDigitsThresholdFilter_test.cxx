@@ -4,7 +4,7 @@
 
 #undef NDEBUG
 
-#include "TileRecAlgs/TileDigitsThresholdFilter.h"
+#include "../src/TileDigitsThresholdFilter.h"
 #include "TileConditions/ITileCondToolDspThreshold.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
