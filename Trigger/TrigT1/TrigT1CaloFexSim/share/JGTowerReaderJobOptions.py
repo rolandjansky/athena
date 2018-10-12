@@ -86,7 +86,7 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 
 algseq += CfgMgr.JGTowerReader(
 outputNoise=True,
-noise_file="$WorkDir_DIR/data/TrigT1CaloFexSim/noise_r10684.root",
+noise_file="/afs/cern.ch/work/c/cylin/public/noise_threshold/noise_r10684.root",
 jJet_threshold=3,
 jSeed_size=0.2,
 jMax_r=0.4,
