@@ -53,7 +53,6 @@ def bJetStep1Sequence():
     (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
 
     # Start with b-jet-specific algo sequence
- #   bJetEtSequence = parOR("bJetEtSequence")
     # Construct Super RoI
     from TrigBjetHypo.TrigBjetHypoConf import TrigSuperRoiBuilderMT
     SuperRoIBuilder = TrigSuperRoiBuilderMT("SuperRoIBuilder")
@@ -61,7 +60,6 @@ def bJetStep1Sequence():
     SuperRoIBuilder.JetInputKey = sequenceOut
     SuperRoIBuilder.JetOutputKey = "superRoi"
     SuperRoIBuilder.SuperRoIOutputKey = SuperRoIBuilder.JetOutputKey # Same as Output Jet Collection
-#    bJetEtSequence += SuperRoIBuilder
 
     # Fast Tracking 
     from TrigUpgradeTest.InDetSetup import makeInDetAlgs
