@@ -187,8 +187,6 @@ namespace VKalVrtAthena {
 
       bool flag = true;
 
-      int nSelections = m_trackSelectionAlgs.size();
-      int iCuts = 0;
       for( auto& pair : m_trackSelectionAlgs ){
       	if ( !(this->*(pair.second))( trk ) ){
 	  m_flags[pair.first] = false;
