@@ -485,10 +485,6 @@ class L2EFChain_HI(L2EFChainDef):
             'EF_upc_step3_APerf': 'EF_CellGapAPerf',
             'EF_upc_step3_CPerf': 'EF_CellGapCPerf',
             'EF_upc_step4': 'EF_twoTracks',
-            'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
-            'L2_hi_mbtsveto': mergeRemovingOverlap('EF_hi_mbtsveto_', chainSuffix),
-            'L2_hi_iddataprep': mergeRemovingOverlap('EF_hi_iddataprep_', chainSuffix),
-            'L2_hi_pixel': mergeRemovingOverlap('EF_hi_pixel_', chainSuffix),
             }
     def setup_hi_PEB(self):
         from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
