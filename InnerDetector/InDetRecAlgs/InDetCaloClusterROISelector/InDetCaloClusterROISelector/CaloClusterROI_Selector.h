@@ -17,7 +17,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
-#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
+#include "egammaInterfaces/IegammaCaloClusterSelector.h"
 #include "InDetRecToolInterfaces/ICaloClusterROI_Builder.h"
 
 #include "xAODCaloEvent/CaloClusterFwd.h"
@@ -47,7 +47,6 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   StatusCode execute_r(const EventContext& ctx) const;
 
  private:
-  bool PassClusterSelection(const xAOD::CaloCluster* cluster) const;
 
   /** @brief Name of the cluster intput collection*/
   SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_inputClusterContainerName {this,
@@ -61,33 +60,18 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   //
   // The tools
   //
-  /** @brief Pointer to the egammaCheckEnergyDepositTool*/
-  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this, 
-      "egammaCheckEnergyDepositTool", "",
-      "Optional tool that performs basic checks of viability of cluster"};
+  /** @brief Tool to filter the calo clusters */
+  ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector {this, 
+      "egammaCaloClusterSelector", "egammaCaloClusterSelector",
+      "Tool that makes the cluster selection"};
+
   /** @brief Tool to build ROI*/
   ToolHandle<InDet::ICaloClusterROI_Builder>   m_caloClusterROI_Builder {this,
       "CaloClusterROIBuilder", "","Handle of the CaloClusterROI_Builder Tool"};
 
-  Gaudi::Property<double>  m_ClusterEtCut {this,
-      "ClusterEtCut", 0.0, "Cut on cluster EM Et"};
-
-  Gaudi::Property<double>  m_ClusterEMFCut {this,
-      "ClusterEMFCut", 0.0, "Cut on cluster EM fraction"};
-
-  Gaudi::Property<double>  m_ClusterLateralCut {this,
-      "ClusterLateralCut", 1.0,
-      "Cut on cluster LATERAL, i.e., the second transverse moment normalized"};
-
-  Gaudi::Property<double>  m_ClusterEMEtCut {this,
-      "ClusterEMEtCut", 0.0, "Cut on cluster Et"};
-
   // use atomics
   mutable std::atomic_uint m_allClusters{0};
   mutable std::atomic_uint m_selectedClusters{0};
-
-  // others:
-  IChronoStatSvc* m_timingProfile;
 
 };
 
