@@ -171,7 +171,4 @@ private :
 protected:
 };
 
-// Register enum as StatusCode
-//STATUSCODE_ENUM_DECL(ITrigCaloDataAccessSvc::Status)
-
 #endif
