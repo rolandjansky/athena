@@ -136,16 +136,16 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL 
 #====================================================================
 
-muonsRequirementsSL = '(Muons.pt >= 3.5*GeV) && (Muons.pt <= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-electronsRequirementsSL = '(Electrons.pt > 4.5*GeV) && (Electrons.pt <= 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
+muonsRequirementsSL = '(Muons.pt >= 2.5*GeV) && (Muons.pt <= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+electronsRequirementsSL = '(Electrons.pt > 4.*GeV) && (Electrons.pt <= 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 objectSelectionSL = '(count('+electronsRequirementsSL+') + count('+muonsRequirementsSL+') >= 1)'
 
 muonsRequirementsHL = '(Muons.pt >= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirementsHL = '(Electrons.pt > 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 objectSelectionHL = '(count('+electronsRequirementsHL+') + count('+muonsRequirementsHL+') >= 1)'
 
-muonsRequirements = '(Muons.pt >= 3.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-electronsRequirements = '(Electrons.pt > 4.5*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
+muonsRequirements = '(Muons.pt >= 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+electronsRequirements = '(Electrons.pt > 4.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 1)'
 
 
@@ -154,10 +154,12 @@ MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')'
 
 if not DerivationFrameworkIsMonteCarlo:
   JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+')'
-else :
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')' 
+  JetEleHighExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>200*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelection+'&&'+JetEleHighExpression+')'+' )'
 
+else :
+  JetEleHighExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>200*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY5SkimmingTool",
@@ -254,7 +256,10 @@ SUSY5SlimmingHelper.SmartCollections = ["Electrons",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices"]
+                                        "PrimaryVertices",
+                                        # As SUSY1
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+
 SUSY5SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
@@ -268,7 +273,11 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
                                       "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
                                       "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
-                                      "BTagging_AntiKt2Track.MV2c10_discriminant"]
+                                      "BTagging_AntiKt2Track.MV2c10_discriminant",
+#As SUSY1
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
+                                        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m"]
+
 
 # Saves BDT and input variables for light lepton algorithms. 
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument. 
