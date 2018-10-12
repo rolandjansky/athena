@@ -22,22 +22,12 @@ void LArNoiseComplete::set(const HWIdentifier& CellID, int gain, float Noise) {
 }
 
 
-/* retrieve Noise ******************************************************
- */
-const float& LArNoiseComplete::noise(const HWIdentifier& CellID, int gain) const 
-{ 
-
+// retrieve Noise ****************************************************
+const float& LArNoiseComplete::noise(const HWIdentifier& CellID, int gain) const { 
   const LArNoiseP& t  = get(CellID, gain); 
-  
   return (t.m_Noise);
 }
 
-const float& LArNoiseComplete::noise(const Identifier&  CellID, int gain) const
-{
-
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return noise(OnId, gain);
-}
 
 
 

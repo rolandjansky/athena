@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -54,41 +54,9 @@ LArShapeComplete::ShapeDer(const HWIdentifier& CellID,
   return t.shapeDer (tbin);
 }
 
-/* retrieve Shape for a given tbin using offline ID ****************************
- */
-LArShapeComplete::ShapeRef_t
-LArShapeComplete::Shape(const Identifier&  CellID,
-                        int gain,
-                        int tbin,
-                        int /*mode*/) const
-{
-  // 'mode' setting is ignored
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return Shape(OnId, gain, tbin);
-} 
-
-/* retrieve Shape derivative for a given tbin using offline ID ****************************
- */
-LArShapeComplete::ShapeRef_t
-LArShapeComplete::ShapeDer(const Identifier&  CellID,
-                           int gain,
-                           int tbin,
-                           int /*mode*/) const
-{
-  // 'mode' setting is ignored
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return ShapeDer(OnId, gain, tbin);
-} 
 
 
-/*   retrieving time offset using online/offline ID
- */
-
-float LArShapeComplete::timeOffset(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return timeOffset(OnId,gain);
-}
-
+//retrieving time offset using onlineID
 float LArShapeComplete::timeOffset(const HWIdentifier&  CellID, int gain) const {
   if (gain<0 || gain>3) {
     std::cout << "ERROR! LArShapeComplete::timeOffset time offset called for gain " << gain << std::endl;
@@ -112,11 +80,6 @@ unsigned LArShapeComplete::nTimeBins(const HWIdentifier&  CellID, int gain) cons
   return t.shapeSize(); //Check also b-coefficient?
 }
 
-unsigned LArShapeComplete::nTimeBins(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return nTimeBins(OnId,gain);
-} 
-
 //For the TB / cosmic case: retrieve the width of the time bin (default 24 bins in 25 ns)
 float LArShapeComplete::timeBinWidth(const HWIdentifier&  CellID, int gain) const {
   if (gain<0 || gain>3) {
@@ -126,9 +89,4 @@ float LArShapeComplete::timeBinWidth(const HWIdentifier&  CellID, int gain) cons
   CONTAINER::ConstReference t = get(CellID,gain) ; 
   if (!t.isValid()) return 0;
   return t.timeBinWidth();
-}
-
-float LArShapeComplete::timeBinWidth(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return timeBinWidth(OnId,gain);
 }

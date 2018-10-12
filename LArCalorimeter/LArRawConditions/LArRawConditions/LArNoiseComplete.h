@@ -24,31 +24,19 @@ class LArCablingService ;
  */
 
 class LArNoiseComplete: public ILArNoise,
-public  LArConditionsContainer<LArNoiseP> 
+  public  LArConditionsContainer<LArNoiseP> 
 {
-
-  
- public: 
-  
+public: 
   typedef LArConditionsContainer<LArNoiseP> CONTAINER ;
-
   LArNoiseComplete();
-  
   virtual ~LArNoiseComplete( );
   
   // retrieving Noise using online ID
-  
-  virtual  const float& noise(const HWIdentifier&  CellID,int gain) const ;
-  
-  virtual  const float& noise(const Identifier&  CellID, int gain) const;
-  
+  virtual  const float& noise(const HWIdentifier&  CellID,int gain) const override;
+
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
-  void set(const HWIdentifier& CellID, int gain, float vNoise);
-  
- protected: 
-  
-  
+  void set(const HWIdentifier& CellID, int gain, float vNoise);  
 };
 
 CLASS_DEF( LArNoiseComplete, 12532144, 1)

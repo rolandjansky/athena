@@ -19,10 +19,4 @@ const float& LAruA2MeVComplete::UA2MEV(const HWIdentifier& chid) const {
   return this->get(chid).m_data; 
 }
 
-const float& LAruA2MeVComplete::UA2MEV(const Identifier& id) const{
-  const HWIdentifier chid = larCablingSvc()->createSignalChannelID(id); 
-  return UA2MEV(chid);
-}
-
-
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -34,12 +34,9 @@ class LArMphysOverMcalComplete: public ILArMphysOverMcal,
   virtual ~LArMphysOverMcalComplete();
   
   // retrieving MphysOverMcal using online ID  
-  virtual const float& MphysOverMcal(const HWIdentifier& chid, int gain) const
+  virtual const float& MphysOverMcal(const HWIdentifier& chid, int gain) const override
     {return (this->get(chid,gain).m_data);};
 
-  // retrieving MphysOverMcal using offline ID  
-  virtual const float& MphysOverMcal(const Identifier& id, int gain) const;
-  
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, int gain, float vMphysOverMcal);
   
