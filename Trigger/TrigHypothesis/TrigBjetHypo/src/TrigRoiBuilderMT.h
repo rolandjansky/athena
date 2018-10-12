@@ -1,16 +1,16 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    TrigSuperRoiBuilderAllTE.h        
+//   @file    TrigRoiBuilderMT.h        
 //
 //                   
 //  
 //   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: TrigSuperRoiBuilderAllTE.h 797477 2017-02-16 09:56:10Z kleney $
+//   $Id: TrigRoiBuilderMT.h 797477 2017-02-16 09:56:10Z kleney $
 
 
-#ifndef  TRIGSUPERROIBUILDER_MT_H
-#define  TRIGSUPERROIBUILDER_MT_H
+#ifndef  TRIGROIBUILDER_MT_H
+#define  TRIGROIBUILDER_MT_H
 
 #include <iostream>
 
@@ -22,11 +22,11 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-class TrigSuperRoiBuilderMT : public AthAlgorithm {
+class TrigRoiBuilderMT : public AthAlgorithm {
 
  public:
-  TrigSuperRoiBuilderMT(const std::string&, ISvcLocator*);
-  ~TrigSuperRoiBuilderMT();
+  TrigRoiBuilderMT(const std::string&, ISvcLocator*);
+  ~TrigRoiBuilderMT();
   
   StatusCode initialize();
   StatusCode finalize();
@@ -42,9 +42,8 @@ class TrigSuperRoiBuilderMT : public AthAlgorithm {
   Gaudi::Property< int >   m_dynamicNJetsMax {this,"DynamicNJetsMax",9999,"variable X above"};
   Gaudi::Property< float > m_dynamicEtFactor {this,"DynamicEtFactor",0,"variable Y above "};
 
-  SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key"};
-  SG::WriteHandleKey< xAOD::JetContainer > m_jetOutputKey {this,"JetOutputKey","SuperRoi","Output Jet Collection Key"};
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_superRoIOutputKey {this,"SuperRoIOutputKey","SuperRoi","Output Super RoI Collection Key"};
+  SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key, retrieved from reconstructed jets"};
+  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","EMViewRoIs","Output RoI Collection Key"};
 };
  
 

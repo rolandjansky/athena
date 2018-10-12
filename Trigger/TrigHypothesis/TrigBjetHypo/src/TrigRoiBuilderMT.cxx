@@ -5,9 +5,9 @@
 */
 
 //
-//   @file    TrigSuperRoiBuilderAllTE.cxx        
+//   @file    TrigRoiBuilderMT.cxx        
 //
-//            Creates a super ROI from a jet collection
+//            Creates a ROI from a jet collection
 //                   
 //  
 //   Katharine (dot) Leney (at cern dot ch)
@@ -15,18 +15,18 @@
 //   20th October 2014
 
 
-#include "src/TrigSuperRoiBuilderMT.h"
+#include "src/TrigRoiBuilderMT.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-TrigSuperRoiBuilderMT::TrigSuperRoiBuilderMT(const std::string & name, ISvcLocator* pSvcLocator) :
+TrigRoiBuilderMT::TrigRoiBuilderMT(const std::string & name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator) {}
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode TrigSuperRoiBuilderMT::initialize() {
+StatusCode TrigRoiBuilderMT::initialize() {
   ATH_MSG_INFO( "Initializing " << name() << " ... " );
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
@@ -41,8 +41,7 @@ StatusCode TrigSuperRoiBuilderMT::initialize() {
 
   ATH_MSG_DEBUG( "Initialising HandleKeys" );
   CHECK( m_jetInputKey.initialize()        );
-  CHECK( m_jetOutputKey.initialize()       );  
-  CHECK( m_superRoIOutputKey.initialize()  );  
+  CHECK( m_roIOutputKey.initialize()  );  
 
   return StatusCode::SUCCESS;
 }
@@ -51,13 +50,13 @@ StatusCode TrigSuperRoiBuilderMT::initialize() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-TrigSuperRoiBuilderMT::~TrigSuperRoiBuilderMT(){}
+TrigRoiBuilderMT::~TrigRoiBuilderMT(){}
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode TrigSuperRoiBuilderMT::execute() {
+StatusCode TrigRoiBuilderMT::execute() {
 
   ATH_MSG_DEBUG( "Running "<< name() <<" ... " );
   const EventContext& ctx = getContext();
@@ -70,14 +69,7 @@ StatusCode TrigSuperRoiBuilderMT::execute() {
   }
 
   // Prepare Outputs
-  std::unique_ptr< TrigRoiDescriptor > superRoI( new TrigRoiDescriptor() );
-  superRoI->setComposite( true );
-
-  std::unique_ptr< xAOD::JetContainer > outputJets( new  xAOD::JetContainer() );
-  std::unique_ptr< xAOD::JetAuxContainer > outputJetsAux( new xAOD::JetAuxContainer() ); 
-  outputJets->setStore( outputJetsAux.get() );
-
-  std::unique_ptr< TrigRoiDescriptorCollection > superRoICollection( new TrigRoiDescriptorCollection() );
+  std::unique_ptr< TrigRoiDescriptorCollection > roICollection( new TrigRoiDescriptorCollection() );
 
   // Retrieve Input Jets
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_jetInputKey,ctx );
@@ -132,26 +124,15 @@ StatusCode TrigSuperRoiBuilderMT::execute() {
     TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta, etaMinus, etaPlus, 
 						    jetPhi, phiMinus, phiPlus );
 
-    ATH_MSG_DEBUG( "Adding ROI descriptor to superROI!" );
+    ATH_MSG_DEBUG( "Adding ROI descriptor ROI collection !" );
     ATH_MSG_DEBUG( "    ** roi : eta=" << roi->eta() <<" phi=" << roi->phi() );
-    //    superRoI->push_back( roi );
-    superRoICollection->push_back( roi );
-
-    // Make a Copy of the input Jet 
-    xAOD::Jet *outJet = new xAOD::Jet();
-    outputJets->push_back( outJet );
-    *outJet = *jet;
+    roICollection->push_back( roi );
   }
 
   // Save Outputs 
-  ATH_MSG_DEBUG( "Saving Super RoIs and Jets" );
-  SG::WriteHandle< xAOD::JetContainer > outputJetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
-  CHECK( outputJetContainerHandle.record( std::move( outputJets ),std::move( outputJetsAux ) ) );
-
-  ATH_MSG_DEBUG( "Saving Super Roi : eta=" << superRoI->eta()<<" phi="<<superRoI->phi() );
-  //  superRoICollection->push_back( std::move(superRoI) );
-  SG::WriteHandle< TrigRoiDescriptorCollection > outputSuperRoiHandle = SG::makeHandle( m_superRoIOutputKey,ctx );
-  CHECK( outputSuperRoiHandle.record( std::move( superRoICollection ) ) );
+  ATH_MSG_DEBUG( "Saving RoIs to be used as input to Fast Tracking -- TO BE CHANGED -- ::: " << m_roIOutputKey.key() );
+  SG::WriteHandle< TrigRoiDescriptorCollection > outputRoiHandle = SG::makeHandle( m_roIOutputKey,ctx );
+  CHECK( outputRoiHandle.record( std::move( roICollection ) ) );
 
   return StatusCode::SUCCESS;
 }
@@ -160,7 +141,7 @@ StatusCode TrigSuperRoiBuilderMT::execute() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode TrigSuperRoiBuilderMT::finalize() {
+StatusCode TrigRoiBuilderMT::finalize() {
   ATH_MSG_INFO( "Finalizing " << name() << " ... " );
   return StatusCode::SUCCESS;
 }

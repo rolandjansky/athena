@@ -32,9 +32,9 @@ StatusCode TrigBjetEtHypoAlg::initialize()
   CHECK( m_jetsKey.initialize() );
   CHECK( m_outputJetsKey.initialize() );
   CHECK( m_outputRoiKey.initialize() );
-  CHECK( m_trackParticleKey.initialize() ); // TMP
+  // FOLLOWING WILL CHANGE -- JUST FOR TEMPORARY DEBUGGING
   CHECK( m_trackParticleContainerKey.initialize() ); // TMP
-  CHECK( m_superRoiKey.initialize() ); // TMP
+  CHECK( m_roiKey.initialize() ); // TMP
 
   return StatusCode::SUCCESS;
 }
@@ -54,28 +54,26 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
 
+  // =============================================================  
+  // Just for debugging -- WILL BE REMOVED
+
+  // Retrieve ROIs from RoIBuilder // TMP
+  SG::ReadHandle< TrigRoiDescriptorCollection > superRoiHandle = SG::makeHandle( m_roiKey,context ); // TMP
+  CHECK( superRoiHandle.isValid() ); // TMP
+  const TrigRoiDescriptorCollection *superRoi = superRoiHandle.get(); // TMP
+  ATH_MSG_DEBUG( "Retrieved Super RoI Container with size " << superRoi->size() ); // TMP
+  for ( auto *roi : *superRoi ) // TMP
+    ATH_MSG_DEBUG( "   ** roi : eta=" << roi->eta() <<" phi="<< roi->phi() ); // TMP
+
   // Retrieve Track Particles // TMP
-
-  //TrigRoiDescriptorCollection > m_superRoiKey 
-  SG::ReadHandle< TrigRoiDescriptorCollection > superRoiHandle = SG::makeHandle( m_superRoiKey,context ); // TMP
-  CHECK( superRoiHandle.isValid() );
-  const TrigRoiDescriptorCollection *superRoi = superRoiHandle.get();
-  ATH_MSG_DEBUG( "Retrieved Super RoI Container with size " << superRoi->size() );
-  for ( auto *roi : *superRoi )
-    ATH_MSG_DEBUG( "   ** roi : eta=" << roi->eta() <<" phi="<< roi->phi() );
-
-  /*
-  SG::ReadHandle< TrackCollection > trackParticleContainerHandle = SG::makeHandle( m_trackParticleKey,context ); // TMP
-  CHECK( trackParticleContainerHandle.isValid() ); // TMP
-  ATH_MSG_DEBUG( "Retrieved " << trackParticleContainerHandle.get()->size() << " Tracks from FTF step" ); // TMP
-
-  
-  SG::ReadHandle< xAOD::TrackParticleContainer > trackParticleContainerHandle = SG::makeHandle( m_trackParticleContainerKey,context ); // TMP
-  const xAOD::TrackParticleContainer *trackParticleContainer = trackParticleContainerHandle.get(); // TMP
-  ATH_MSG_DEBUG( "Retrieved " << trackParticleContainer->size() << " Track Particles from FTF step" ); // TMP
-  for ( auto *particle : *trackParticleContainer ) // TMP
+  SG::ReadHandle< xAOD::TrackParticleContainer > recoTracksContainerHandle = SG::makeHandle( m_trackParticleContainerKey,context ); // TMP
+  CHECK( recoTracksContainerHandle.isValid() ); // TMP
+  const xAOD::TrackParticleContainer *recoTracksContainer = recoTracksContainerHandle.get(); // TMP
+  ATH_MSG_DEBUG( "Retrieved " << recoTracksContainer->size() << " Track Particles from FTF step" ); // TMP
+  for ( auto *particle : *recoTracksContainer ) // TMP
     ATH_MSG_DEBUG( "   ** pt=" << particle->p4().Et()<<" eta="<< particle->eta() <<" phi="<< particle->phi()  ); // TMP
-  */
+
+  // =============================================================
 
   // Retrieve Jet Container
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_jetsKey,context );
@@ -88,8 +86,8 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
     ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
   // Prepare Output 
-  // RoIs
-  std::unique_ptr< TrigRoiDescriptorCollection > roiContainer( new TrigRoiDescriptorCollection() );
+  // RoIs -- WILL CHANGE -- TMP
+  std::unique_ptr< TrigRoiDescriptorCollection > roiContainer( new TrigRoiDescriptorCollection() ); // TMP
 
   // Decisions
   std::unique_ptr< TrigCompositeUtils::DecisionContainer > decisions = std::make_unique< TrigCompositeUtils::DecisionContainer >();
@@ -150,10 +148,10 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Saving jet collection " << m_outputJetsKey.key() << " with " << outputJets->size() << " elements " );
   CHECK( outputJetHandle.record( std::move( outputJets ), std::move( outputJetsAux ) ) );
 
-  // Output RoI Container
-  SG::WriteHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_outputRoiKey,context );
-  ATH_MSG_DEBUG( "Sabing roi collection " << m_outputRoiKey.key() << " with " << roiContainer->size() <<" elements " );
-  CHECK( roiContainerHandle.record( std::move( roiContainer ) ) );
+  // Output RoI Container -- WILL CHANGE -- TMP
+  SG::WriteHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_outputRoiKey,context ); // TMP
+  ATH_MSG_DEBUG( "Sabing roi collection " << m_outputRoiKey.key() << " with " << roiContainer->size() <<" elements " ); // TMP
+  CHECK( roiContainerHandle.record( std::move( roiContainer ) ) ); // TMP
 
   return StatusCode::SUCCESS;
 }

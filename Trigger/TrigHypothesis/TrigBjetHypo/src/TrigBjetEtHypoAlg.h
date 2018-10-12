@@ -51,10 +51,9 @@ class TrigBjetEtHypoAlg
   SG::WriteHandleKey< xAOD::JetContainer > m_outputJetsKey {this,"OutputJets","SplitJets","Output Jet Container Key"};
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_outputRoiKey {this,"OutputRoi","SplitJet","Output RoI Container Key -- Same as OutputJets"};
 
-  // Just for checking I have reconstructed tracks
-  SG::ReadHandleKey< TrackCollection > m_trackParticleKey {this,"TrackParticles","TrackParticles","TrackParticle Container"};
+  // Just for checking I have reconstructed tracks and the roi for the super roi -- WILL CHANGE
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trackParticleContainerKey {this,"TrackParticleContainerKey","xAODTracks",""}; 
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_superRoiKey {this,"SuperRoiKey","superRoI",""};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roiKey {this,"RoiKey","Undefined",""};
 }; 
 
 #endif //> !TRIGBJETHYPO_TRIGBJETETHYPOALG_H

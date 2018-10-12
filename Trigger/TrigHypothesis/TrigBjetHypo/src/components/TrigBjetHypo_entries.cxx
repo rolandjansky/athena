@@ -16,7 +16,7 @@
 #include "../TrigBjetEtHypoTool.h"
 #include "../TrigGSCFexMT.h"
 #include "../TrigBtagFexMT.h"
-#include "../TrigSuperRoiBuilderMT.h"
+#include "../TrigRoiBuilderMT.h"
 
 DECLARE_COMPONENT( TrigBjetHypo )
 DECLARE_COMPONENT( TrigBjetFex )
@@ -36,4 +36,4 @@ DECLARE_COMPONENT( TrigBjetEtHypoAlg )
 DECLARE_COMPONENT( TrigBjetEtHypoTool )
 DECLARE_COMPONENT( TrigGSCFexMT )
 DECLARE_COMPONENT( TrigBtagFexMT )
-DECLARE_COMPONENT( TrigSuperRoiBuilderMT )
+DECLARE_COMPONENT( TrigRoiBuilderMT )
