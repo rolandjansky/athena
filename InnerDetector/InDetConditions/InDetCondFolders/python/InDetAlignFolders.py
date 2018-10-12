@@ -55,9 +55,11 @@ if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.S
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCT_AlignCondAlg"):
-        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-        condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                    UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
-        if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
-            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
-            condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
+        import os
+        if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+            condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
+                                        UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
+            if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
+                from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+                condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")

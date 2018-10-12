@@ -25,6 +25,6 @@ public: // Constructor and Destructor
    /// Destructor
    virtual ~ExampleTrackContainer() {};
 };
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ExampleTrackContainer, 9103, 1)
 #endif

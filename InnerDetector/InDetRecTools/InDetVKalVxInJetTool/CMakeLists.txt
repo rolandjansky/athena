@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Particle
                           Tracking/TrkVertexFitter/TrkVKalVrtFitter
                           PRIVATE
+                          Tools/PathResolver
                           DetectorDescription/GeoPrimitives
                           PhysicsAnalysis/AnalysisCommon/AnalysisUtils
                           Tracking/TrkEvent/TrkNeutralParameters
@@ -43,7 +44,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread TMVA )
 atlas_add_component( InDetVKalVxInJetTool 
                      src/*.cxx  src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
 		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters 
 		        TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver )
  

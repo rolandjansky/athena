@@ -470,7 +470,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
     eHitTot += ener;
 
     TileHit * pHit = m_allHits[hit_idhash];
-    TileHit * pHit_DigiHSTruth = nullptr;
+    TileHit * pHit_DigiHSTruth(nullptr);
     if(m_doDigiTruth) pHit_DigiHSTruth = m_allHits_DigiHSTruth[hit_idhash];
 
     if (0 == pHit) {
@@ -796,7 +796,7 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
             ATH_MSG_ERROR("Wrong time for in-time event: " << SubEvtTimOffset << " Ignoring all hits ");
           } else {
             ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
-            //this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
+            this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
             //if( m_doDigiTruth && iEvt == bSubEvents) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_signalHits);
           }
         } else if (m_pileUp) { // pileup code
@@ -922,7 +922,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
 
     for (; iHit != lastHit; ++iHit) {
       TileHit *pHit = (*iHit);
-      TileHit *pHit_DigiHSTruth = nullptr;
+      TileHit *pHit_DigiHSTruth(nullptr);
       if(m_doDigiTruth) pHit_DigiHSTruth = new TileHit(**iHit_DigiHSTruth);
       if (pHit->size() > 1 || pHit->energy() != 0.0) {       // hit exists
         m_hits->push_back(pHit);   // store hit in container

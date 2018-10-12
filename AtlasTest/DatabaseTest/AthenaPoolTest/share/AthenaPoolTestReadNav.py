@@ -30,8 +30,6 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 # To read back from two files:
 svcMgr.EventSelector.InputCollections       = [ "SimplePoolFile1.root" ]
-svcMgr.AthenaPoolAddressProviderSvc.BackNavigation = True
-#svcMgr.EventSelector.BackNavigation         = TRUE
 #svcMgr.EventSelector.OutputLevel            = 2
 #--------------------------------------------------------------
 # Event related parameters

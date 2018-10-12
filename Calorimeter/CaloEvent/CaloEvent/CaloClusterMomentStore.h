@@ -40,27 +40,38 @@ class CaloClusterMomentStore
   /*! \brief List of moment types */
   typedef std::vector<moment_type>                  moment_type_list;
 
+  // Work around ROOT-9709.  Hide m_actual from cling --- but that means
+  // that we also need to ensure that the inline functions defined here
+  // are actually emitted out-of-line.
+#ifdef __CLING__
+#  define ATH_CLING_BODY(BODY) ;
+#else
+#  define ATH_CLING_BODY(BODY) __attribute__((used)) BODY
+#endif
+
   /*! \brief Internally used iterator */
   class CaloClusterMomentIterator
     {
     public:
       /*! \brief Default constructor */
-      CaloClusterMomentIterator() { };
+      CaloClusterMomentIterator() ATH_CLING_BODY( { } )
       /*! \brief Useful constructor */
       CaloClusterMomentIterator(moment_store_const_iter iStore)
-	: m_actual(iStore) { };
+	ATH_CLING_BODY (: m_actual(iStore) { } )
       /*! \brief Destructor */
-      ~CaloClusterMomentIterator() { };
+      ~CaloClusterMomentIterator() ATH_CLING_BODY( { } )
 
       /*! \brief Iterator advance method */
-      CaloClusterMomentIterator next()          { m_actual++; return *this; }
+      CaloClusterMomentIterator next()
+        ATH_CLING_BODY( { m_actual++; return *this; } )
       /*! \brief Iterator post advance operator */
       CaloClusterMomentIterator operator++()    { return this->next(); }
       /*! \brief Iterator prior advance operator */
       CaloClusterMomentIterator operator++(int) { return this->next(); }
       
       /*! \brief Iterator reverse method */
-      CaloClusterMomentIterator prev()          { m_actual--; return *this; }
+      CaloClusterMomentIterator prev()
+        ATH_CLING_BODY( { m_actual--; return *this; } )
       /*! \brief Iterator post reverse operator */
       CaloClusterMomentIterator operator--()    { return this->prev(); }
       /*! \brief Iterator prior reverse operator */
@@ -72,7 +83,7 @@ class CaloClusterMomentStore
        *                     compared to 
        */
       bool operator==(const CaloClusterMomentIterator& anOtherIter) const
-	{ return m_actual == anOtherIter.m_actual; }
+        ATH_CLING_BODY( { return m_actual == anOtherIter.m_actual; } )
       /*! \brief Equality comparator
        *
        *  \overload
@@ -81,7 +92,7 @@ class CaloClusterMomentStore
        *                     compared to 
        */
       bool operator==(CaloClusterMomentIterator& anOtherIter)
-	{ return m_actual == anOtherIter.m_actual; } 
+        ATH_CLING_BODY( { return m_actual == anOtherIter.m_actual; } )
 
       /*! \brief Inequality comparator
        *
@@ -89,7 +100,7 @@ class CaloClusterMomentStore
        *                     compared to 
        */
       bool operator!=(const CaloClusterMomentIterator& anOtherIter) const
-	{ return m_actual != anOtherIter.m_actual; }
+        ATH_CLING_BODY( { return m_actual != anOtherIter.m_actual; } )
       /*! \brief Inequality comparator
        *
        *  \overload
@@ -98,22 +109,24 @@ class CaloClusterMomentStore
        *                     compared to 
        */
       bool operator!=(CaloClusterMomentIterator& anOtherIter)
-	{ return m_actual != anOtherIter.m_actual; }
+        ATH_CLING_BODY( { return m_actual != anOtherIter.m_actual; } )
 
       /*! \brief Data access operator */
       //      CaloClusterMoment& operator*() { return this->getMoment(); }
       const CaloClusterMoment& operator*() const { return this->getMoment(); }
       /*! \brief Data access method */
       //      CaloClusterMoment& getMoment() { return (*m_actual).second; }
-      const CaloClusterMoment& getMoment() const { return (*m_actual).second; }
+      const CaloClusterMoment& getMoment() const
+        ATH_CLING_BODY( { return (*m_actual).second; } )
       /*! \brief Key access method */
       moment_type getMomentType() const   
-	{ return (moment_type)(*m_actual).first; }
+        ATH_CLING_BODY( { return (moment_type)(*m_actual).first; } )
 
     private:
-
+#ifndef __CLING__
       /*! \brief Internal moment iterator */
       moment_store_const_iter m_actual;
+#endif
     };
 
   /*! \brief External moment iterator type */

@@ -25,4 +25,4 @@ atlas_add_component( McEventSelector
 
 # Install files from the package:
 atlas_install_headers( McEventSelector )
-
+atlas_install_python_modules( python/*.py )

@@ -5,6 +5,7 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkTrack/Track.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -18,10 +19,6 @@
 // Other stuff
 #include<iostream>
 
-namespace Trk {
-    extern vkalMagFld      myMagFld;
-    extern vkalPropagator  myPropagator;
-}
 namespace Trk{
 
 //
@@ -33,8 +30,7 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_Robustness(0),
     m_RobustScale(1.),
     m_cascadeCnstPrecision(1.e-4),
-    m_Constraint(0),
-    m_MassForConstraint(0.),
+    m_massForConstraint(-1.),
     m_IterationNumber(0),
     m_IterationPrecision(0),
     m_IDsizeR(1150.),
@@ -53,7 +49,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_useZPointingCnst(false),
     m_usePassNear(false),
     m_usePassWithTrkErr(false),
-    m_useMagFieldRotation(false),
     m_Charge(0),
     m_Chi2(0.),
     m_cascadeSize(0),
@@ -84,21 +79,20 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     declareProperty("Robustness",   m_Robustness);
     declareProperty("RobustScale",  m_RobustScale);
     declareProperty("CascadeCnstPrecision", m_cascadeCnstPrecision);
-    declareProperty("Constraint",           m_Constraint);
-    declareProperty("MassForConstraint",    m_MassForConstraint);
+    declareProperty("MassForConstraint",    m_massForConstraint);
     declareProperty("IterationNumber",      m_IterationNumber);
     declareProperty("IterationPrecision",   m_IterationPrecision);
     declareProperty("IDsizeR",              m_IDsizeR);
     declareProperty("IDsizeZ",              m_IDsizeZ);
     declareProperty("VertexForConstraint",  m_c_VertexForConstraint);
     declareProperty("CovVrtForConstraint",  m_c_CovVrtForConstraint);
-    declareProperty("InputParticleMasses",  m_c_MassInputParticles);
-    declareProperty("ZeroChgTracks",        m_c_TrackCharge);
+    declareProperty("InputParticleMasses",  m_c_MassInputParticles, "List of masses of input particles (pions assumed if this list is absent)" );
+    declareProperty("ZeroChgTracks",        m_c_TrackCharge, "Numbers of neutral tracks in input set (numbering from zero)");
     declareProperty("Extrapolator",         m_extPropagator);
     declareProperty("AtlasMagFieldSvc",     m_magFieldAthenaSvc);
     declareProperty("FirstMeasuredPoint",   m_firstMeasuredPoint);
     declareProperty("FirstMeasuredPointLimit",   m_firstMeasuredPointLimit);
-    declareProperty("MakeExtendedVertex",   m_makeExtendedVertex);
+    declareProperty("MakeExtendedVertex",   m_makeExtendedVertex, "VKalVrt returns VxCandidate with full covariance matrix");
 //
     declareProperty("useAprioriVertexCnst",   m_useAprioriVertex);
     declareProperty("useThetaCnst",           m_useThetaCnst);
@@ -107,9 +101,7 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     declareProperty("useZPointingCnst",       m_useZPointingCnst);
     declareProperty("usePassNearCnst",        m_usePassNear);
     declareProperty("usePassWithTrkErrCnst",  m_usePassWithTrkErr);
-    declareProperty("useMagFieldRotation",    m_useMagFieldRotation);
 // 
-    m_iflag=0;
     m_ifcovv0=0;
     m_FitStatus=0;
     m_refFrameX = 0.;   
@@ -117,33 +109,26 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_refFrameZ = 0.;
     m_globalFirstHit = 0;
     m_planeCnstNDOF = 0;
-    VKalVrtSetOptions( 2 );    //Needed for initialisation of the fitting kernel
+    m_vkalFitControl = 0;
                                
 /*--------------------------------------------------------------------------*/
 /*  New magnetic field object is created. It's provided to VKalVrtCore.     */
 /*  VKalVrtFitter must set up Core BEFORE any call required propagation!!!  */  
-/*           myMagFld is a static oblect in VKalVrtCore                     */ 
 
     m_fitField = new VKalAtlasMagFld();
-    m_fitField->setAtlasMag(m_BMAG);
-    Trk::myMagFld.setMagHandler(m_fitField);  // fixed field
-    m_PropagatorType = 0;                     // fixed field propagator from VKalVrtCore
+    m_fitField->setAtlasField(m_BMAG);
 
-    m_fitRotatedField = new VKalAtlasMagFld();   // New field object for  field in rotated frame
-    m_fitRotatedField->setAtlasMag(m_BMAG);
-
-//    Trk::myPropagator.setTypeProp(1);     //For test only. Runge-Kutta propagator
 /*--------------------------------------------------------------------------*/
 /*  New propagator object is created. It's provided to VKalVrtCore.         */
 /*  VKalVrtFitter must set up Core BEFORE any call required propagation!!!  */  
 /*  This object is created ONLY if IExtrapolator pointer is provideded.     */
 /*         see VKalExtPropagator.cxx for details                            */
-//  m_fitPropagator = new VKalExtPropagator( this );
-    m_fitPropagator = 0;
-    m_InDetExtrapolator = 0;
+/*--------------------------------------------------------------------------*/
+    m_fitPropagator = 0;       //Pointer to VKalVrtFitter propagator object to supply to VKalVrtCore (specific interface) 
+    m_InDetExtrapolator = 0;   //Direct pointer to Athena propagator
 
     m_isAtlasField       = false;   // To allow callback and then field first call only at execute stage
-    m_isFieldInitialized = false;   //
+    //m_isFieldInitialized = false;   //
 }
 
 
@@ -152,9 +137,9 @@ TrkVKalVrtFitter::~TrkVKalVrtFitter(){
     //log << MSG::DEBUG << "TrkVKalVrtFitter destructor called" << endmsg;
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"TrkVKalVrtFitter destructor called" << endmsg;
     delete m_fitField;
-    delete m_fitRotatedField;
     if(m_fitPropagator) delete m_fitPropagator;
     if(m_ErrMtx)delete[] m_ErrMtx;
+    if(m_vkalFitControl) delete m_vkalFitControl;
 }
 
 
@@ -176,7 +161,7 @@ void TrkVKalVrtFitter::setInitializedField() {
       setAthenaField(mtmp);
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is initialized and used" << endmsg;  
   }
-  m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
+  //m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
   return;
 }
 
@@ -200,7 +185,7 @@ StatusCode TrkVKalVrtFitter::initialize()
     m_TrackCharge.resize(nItr);       for(int itr=0; itr<nItr; itr++)m_TrackCharge[itr]        =m_c_TrackCharge[itr];
 
 
-// Setting constraint type
+// Setting constraint type - not used anymore, left for old code reference here....
 //    if( m_Constraint == 2)  m_usePointingCnst   = true;    
 //    if( m_Constraint == 3)  m_useZPointingCnst  = true;    
 //    if( m_Constraint == 4)  m_usePointingCnst   = true;    
@@ -213,12 +198,6 @@ StatusCode TrkVKalVrtFitter::initialize()
 //    if( m_Constraint == 11) m_usePhiCnst = true;    
 //    if( m_Constraint == 12) { m_usePhiCnst = true; m_useThetaCnst = true;}
 //    setCnstType((int)m_Constraint);
-    if( m_Constraint ){
-       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"jobOption Constraint is obsolte now! Use the following jobO instead:"<< endmsg;
-       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"       useAprioriVertexCnst,useThetaCnst,usePhiCnst,usePointingCnst"<<endmsg;
-       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"       useZPointingCnst,usePassNearCnst,usePassWithTrkErrCnst"<<endmsg;
-       m_Constraint=0;
-    }
 
     StatusCode sc=m_magFieldAthenaSvc.retrieve();
     if (sc.isFailure() ){
@@ -228,7 +207,12 @@ StatusCode TrkVKalVrtFitter::initialize()
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is retrieved" << endmsg;  
     }
 //
-//
+// Only here the VKalVrtFitter propagator object is created if ATHENA propagator is provided (see setAthenaPropagator)
+// In this case the ATHENA propagator can be used via pointers:
+//     m_InDetExtrapolator - direct access
+//     m_fitPropagator     - via VKalVrtFitter object VKalExtPropagator
+// If ATHENA propagator is not provided, only defined object is
+//     myPropagator      - extern propagator from TrkVKalVrtCore
 //
     if (m_extPropagator.name() == "DefaultVKalPropagator" ){
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator is not supplied - use internal one"<<endmsg;
@@ -241,17 +225,38 @@ StatusCode TrkVKalVrtFitter::initialize()
       }else{
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator="<<m_extPropagator<<" retrieved" << endmsg;
         const IExtrapolator * tmp =& (*m_extPropagator);
-        setAthenaPropagator(tmp);
+        setAthenaPropagator(tmp); 
       }
     }
+//
+//---Set Control object for TrkVKalVrtCore with constraints defined in jobO
+//
+    m_vkalFitControl = new VKalVrtControl(VKalVrtControlBase(m_fitField,0,m_fitPropagator,0));  // Create main control object for TrkVKalVrtCore
 
+    for(int it=0; it<(int)m_MassInputParticles.size(); it++) m_vkalFitControl->vk_forcft.wm[it]=m_MassInputParticles[it]; //jobO track masses
+    m_vkalFitControl->setRobustness(m_Robustness);
+    m_vkalFitControl->setRobustScale(m_RobustScale);
+    for(int it=0; it<(int)m_VertexForConstraint.size(); it++) m_vkalFitControl->vk_forcft.vrt[it]=m_VertexForConstraint[it]; //jobO vertex for cnst
+    for(int it=0; it<(int)m_CovVrtForConstraint.size(); it++) m_vkalFitControl->vk_forcft.covvrt[it]=m_CovVrtForConstraint[it]; //jobO vertex covariance
+    if(m_massForConstraint>0.) m_vkalFitControl->setMassCnstData(m_MassInputParticles.size(),m_massForConstraint); // configure general mass constraint
+    if(m_IterationPrecision>0.)m_vkalFitControl->setIterationPrec(m_IterationPrecision);
+    if(m_IterationNumber)  m_vkalFitControl->setIterationNum(m_IterationNumber);
+    if(m_useAprioriVertex) m_vkalFitControl->setUseAprioriVrt();
+    if(m_useThetaCnst)     m_vkalFitControl->setUseThetaCnst();
+    if(m_usePhiCnst)       m_vkalFitControl->setUsePhiCnst();
+    if(m_usePointingCnst)  m_vkalFitControl->setUsePointingCnst(1);
+    if(m_useZPointingCnst) m_vkalFitControl->setUsePointingCnst(2);
+    if(m_usePassNear)      m_vkalFitControl->setUsePassNear(1);
+    if(m_usePassWithTrkErr)m_vkalFitControl->setUsePassNear(2);
+//
+//
     m_timingProfile=0;
     sc = service("ChronoStatSvc", m_timingProfile);
     if ( sc.isFailure() || 0 == m_timingProfile) {
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Can not find ChronoStatSvc name="<<m_timingProfile << endmsg;
     }
 
-//    m_PropagatorType=1;  //Just for technical checks
+
 //
     m_ErrMtx=0;            // pointer to double array for error matrix
 //
@@ -265,8 +270,8 @@ StatusCode TrkVKalVrtFitter::initialize()
        msg(MSG::DEBUG)<< "   ZPointing to other vertex constraint: "<< m_useZPointingCnst <<endmsg;
        msg(MSG::DEBUG)<< "   Comb. particle pass near other vertex:"<< m_usePassNear <<endmsg;
        msg(MSG::DEBUG)<< "   Pass near with comb.particle errors:  "<< m_usePassWithTrkErr <<endmsg;
-       if(m_MassForConstraint>0){ 
-         msg(MSG::DEBUG)<< "   Mass constraint M="<< m_MassForConstraint <<endmsg; 
+       if(m_massForConstraint>0){ 
+         msg(MSG::DEBUG)<< "   Mass constraint M="<< m_massForConstraint <<endmsg; 
          msg(MSG::DEBUG)<< " with particles M=";
          for(int i=0; i<(int)m_MassInputParticles.size(); i++) msg(MSG::DEBUG)<<m_MassInputParticles[i]<<", ";
          msg(MSG::DEBUG)<<endmsg; ;
@@ -283,10 +288,6 @@ StatusCode TrkVKalVrtFitter::initialize()
        if(m_firstMeasuredPoint){ msg(MSG::DEBUG)<< " VKalVrt will use FirstMeasuredPoint strategy in fits with InDetExtrapolator"<<endmsg; }
        else                    { msg(MSG::DEBUG)<< " VKalVrt will use Perigee strategy in fits with InDetExtrapolator"<<endmsg; }
        if(m_firstMeasuredPointLimit){ msg(MSG::DEBUG)<< " VKalVrt will use FirstMeasuredPointLimit strategy "<<endmsg; }
-       if(m_useMagFieldRotation){ 
-                 msg(MSG::DEBUG)<< " VKalVrt will use ROTATION to magnetic field direction. NO pointing constraints are allowed "<<endmsg;
-                 msg(MSG::DEBUG)<< "        The only function fit(Trk::TrackParameters trk, Trk::Vertex vrt) is allowed for the moment "<<endmsg;
-       }
     }
 
 
@@ -303,12 +304,6 @@ StatusCode TrkVKalVrtFitter::initialize()
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
                                     const Amg::Vector3D & firstStartingPoint)
 {
-//    m_fitSvc->setDefault();
-    if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<< " fit(Track trk, Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
-       return 0;
-    }
     m_globalFirstHit = 0;
     setApproximateVertex(firstStartingPoint.x(),
                          firstStartingPoint.y(),
@@ -341,12 +336,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*> & vectorTrk,
                                     const Amg::Vector3D & firstStartingPoint)
 {
-//    m_fitSvc->setDefault();
-    if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParticleBase trk, Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
-       return 0;
-    }
     m_globalFirstHit = 0;
     setApproximateVertex(firstStartingPoint.x(),
                          firstStartingPoint.y(),
@@ -386,11 +375,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
                                                  const xAOD::Vertex& firstStartingPoint)
 {   
-    if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(Track trk, xAOD::Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Amg::Vector3D vrt) instead"<<endmsg;
-       return 0;
-    }
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
 //    m_fitSvc->setDefault();
     m_globalFirstHit = 0;
@@ -440,11 +424,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>& vectorTrk,
                                     const xAOD::Vertex & firstStartingPoint)
 {   
-    if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParticleBase trk, xAOD::Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Amg::Vector3D vrt) instead"<<endmsg;
-       return 0;
-    }
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
 //    m_fitSvc->setDefault();
     m_globalFirstHit = 0;
@@ -838,11 +817,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk)
 {
-    if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(Track trk) is not allowed with  useMagFieldRotation jobO"<<endmsg;
-       msg(MSG::WARNING)<<"Use fit(ParametersBase trk, Amg::Vector3D vrt) instead"<<endmsg;
-       return 0;
-    }
     Amg::Vector3D VertexIni(0.,0.,0.);
     m_globalFirstHit = 0;
 
@@ -873,11 +847,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> & perigeeListC)
 {
-    if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParameters trk) is not allowed with  useMagFieldRotation jobO"<<endmsg;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
-       return 0;
-    }
     m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
@@ -901,11 +870,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*>   & perigeeListC,
                                     const std::vector<const  NeutralParameters*> & perigeeListN)
 {
-    if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParameters trk) is not allowed with  useMagFieldRotation jobO"<<endmsg;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
-       return 0;
-    }
     m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 

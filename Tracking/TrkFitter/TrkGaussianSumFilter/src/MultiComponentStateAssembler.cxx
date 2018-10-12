@@ -95,7 +95,7 @@ bool Trk::MultiComponentStateAssembler::addMultiState (Cache& cache, const Multi
     return false;
   }
 
-  Trk::MultiComponentState* clonedMultiComponentState = const_cast<Trk::MultiComponentState*>( multiComponentState.clone() );
+  Trk::MultiComponentState* clonedMultiComponentState = multiComponentState.clone();
 
   this->addComponentsList(cache,clonedMultiComponentState);
   clonedMultiComponentState->clear();

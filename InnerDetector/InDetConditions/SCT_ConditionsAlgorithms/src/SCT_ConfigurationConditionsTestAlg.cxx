@@ -39,9 +39,9 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(){
   unsigned int nBadMods = m_configConditions->badModules()->size();
 
   // Bad links
-  const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_configConditions->badLinks();
-  std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
-  std::map<Identifier, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
+  const std::map<IdentifierHash, std::pair<bool, bool> >* badLinks = m_configConditions->badLinks();
+  std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
+  std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
 
   unsigned int nBadLink0(0), nBadLink1(0), nBadLinkBoth(0);
   while (linkItr != linkEnd) {

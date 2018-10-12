@@ -11,20 +11,21 @@
 //-------------------------------------------------
 // Other stuff
 #include <cmath>
-//#include<iostream>
 
 
 namespace InDet{  
 
   double InDetVKalVxInJetTool::RankBTrk(double TrkPt, double JetPt, double Signif)  const
   {
+    //code re-ordered to avoid divide by zero
+     double coeffPt=10.;
+     double pfrac=(TrkPt-m_cutPt)/std::sqrt(JetPt);
+     double p_prob= pfrac/(coeffPt+pfrac);    // Old probability to be b-track
+     if (Signif == 0.) return p_prob; //should be less than some epsilon?
+     //
      double coeffSig=1.0;
      double s_prob=(Signif-coeffSig)/Signif;   // Old probability to be b-track
-     double coeffPt=10.;
-     double pfrac=(TrkPt-m_cutPt)/sqrt(JetPt);
-     double p_prob= pfrac/(coeffPt+pfrac);    // Old probability to be b-track
      if(TrkPt + JetPt == 0.) return s_prob;
-     else if(Signif == 0.)   return p_prob;
      //----------------------------------Initial definition of selective variable
      double contrib=0.4;
      return (1.+contrib)*std::max(s_prob,0.)+(1.-contrib)*p_prob;

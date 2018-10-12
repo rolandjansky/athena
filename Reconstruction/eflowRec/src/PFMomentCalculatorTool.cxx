@@ -26,12 +26,12 @@ StatusCode PFMomentCalculatorTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) {
 
   /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
   bool useNonModifiedClusters = true;
   if (true == m_LCMode) useNonModifiedClusters = false;
-  std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, useNonModifiedClusters, theCaloClusterContainer);
+  std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, useNonModifiedClusters);
 
   /* Set the layer energies */
   /* This must be set before the cluster moment calculations, which use the layer energies */

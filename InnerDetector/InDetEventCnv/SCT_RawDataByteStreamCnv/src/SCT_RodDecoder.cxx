@@ -68,6 +68,7 @@ StatusCode SCT_RodDecoder::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID"));
   m_cntx_sct = m_sct_id->wafer_context();
+  m_swapPhiReadoutDirection.resize(m_sct_id->wafer_hash_max(), false);
 
   ATH_CHECK(m_configTool.retrieve());
 
@@ -81,7 +82,7 @@ StatusCode SCT_RodDecoder::initialize() {
   const InDetDD::SiDetectorElementCollection* elements{detManager->getDetectorElementCollection()};
   for (const InDetDD::SiDetectorElement* element: *elements) {
     if (element->swapPhiReadoutDirection()) {
-      m_swapPhiReadoutDirection.insert(element->identifyHash());
+      m_swapPhiReadoutDirection[element->identifyHash()] = true;
     }
   }
 
@@ -867,7 +868,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
   }
 
   /** see if strips go from 0 to 767 or vice versa */
-  if (m_swapPhiReadoutDirection.count(idCollHash)) {
+  if (m_swapPhiReadoutDirection[idCollHash]) {
     strip = 767 - strip;
     strip = strip-(groupSize-1);
   }
@@ -961,7 +962,7 @@ SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashId, unsigned in
 
   int type{0};
   // Check if Rx redundancy is used or not in this module
-  const std::pair<bool, bool> badLinks{m_configTool->badLinks(moduleId)};
+  const std::pair<bool, bool> badLinks{m_configTool->badLinks(hashId)};
   if (badLinks.first xor badLinks.second) {
     // Rx redundancy is used in this module.
     if (badLinks.first and not badLinks.second) {

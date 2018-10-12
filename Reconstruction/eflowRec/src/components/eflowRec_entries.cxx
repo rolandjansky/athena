@@ -7,7 +7,7 @@
 #include "eflowRec/eflowOverlapRemoval.h"
 #include "eflowRec/PFLeptonSelector.h"
 #include "eflowRec/PFTrackSelector.h"
-#include "eflowRec/PFClusterSelector.h"
+#include "eflowRec/PFClusterSelectorTool.h"
 #include "eflowRec/PFAlgorithm.h"
 #include "eflowRec/PFCellLevelSubtractionTool.h"
 #include "eflowRec/PFRecoverSplitShowersTool.h"
@@ -20,7 +20,7 @@
 
 DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
-DECLARE_COMPONENT( PFClusterSelector )
+DECLARE_COMPONENT( PFClusterSelectorTool )
 DECLARE_COMPONENT( PFTrackSelector )
 DECLARE_COMPONENT( PFAlgorithm )
 DECLARE_COMPONENT( PFOChargedCreatorAlgorithm )

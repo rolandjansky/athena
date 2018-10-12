@@ -191,7 +191,7 @@ StatusCode NtupleSplitterTool::handleEvent(const MuonCalibEvent &event, int evnt
       const MuonCalibEvent_E & extra_event = dynamic_cast<const MuonCalibEvent_E &>(event);
       fillTrackNtuple(extra_event);
     }
-    catch(std::bad_cast exp) {
+    catch(const std::bad_cast& exp) {
       ATH_MSG_WARNING("Not reading extra tree, but track writing is requested!");
       m_track_authors.clear();
     }

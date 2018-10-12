@@ -4079,9 +4079,17 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
     for (const xAOD::TrigComposite* tc : *container ) {
       // Output my name
-      ss << "    \"" << tc << "\" [label=\"" << typeNameTC << "\\n" << key << ":" << std::to_string(index);
-      if (tc->name() != "") ss << "\\n" << tc->name();
-      ss << "\"]" << std::endl;    
+      ss << "    \"" << tc << "\" [label=\"Container=" << typeNameTC; 
+      if (tc->name() != "") ss << "\\nName=" << tc->name();
+      ss << "\\nKey=" << key << "\\nIndex=" << std::to_string(index);
+      std::vector<unsigned> decisions;
+      if (tc->getDetail("decisions", decisions) && decisions.size() > 0) {
+        ss << "\\nPass=";
+        for (unsigned decisionID : decisions) {
+          ss << std::hex << decisionID << "," ;
+        }
+      }
+      ss << "\"]" << std::endl;
       // Output all the things I link to
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
         const std::string link = tc->linkColNames().at(i);
@@ -4108,10 +4116,10 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           }
           // Print
           ss << "    \"" << tc << "\" -> \"";
-          ss << tname << "\\n";
-          if (keyStr != nullptr) ss << *keyStr << ":";
-          else ss << "[KEY "<< key <<" NOT IN STORE]:"; 
-          ss << index << "\" [label=\"" << link << "\"]" << std::endl; 
+          ss << "Container=" << tname << "\\nKey=";
+          if (keyStr != nullptr) ss << *keyStr;
+          else ss << "[KEY "<< key <<" NOT IN STORE]"; 
+          ss << "\\nIndex=" << index << "\" [label=\"" << link << "\"]" << std::endl; 
         }
       }
       ++index;

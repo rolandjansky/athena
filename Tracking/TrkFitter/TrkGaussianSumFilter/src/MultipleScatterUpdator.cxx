@@ -21,14 +21,6 @@ decription           : Implementation code for multiple scatter updator
 
 #include <cmath>
 
-namespace {
-const Trk::ParticleMasses s_particleMasses{};
-constexpr double s_multipleScatterMainFactor = 13.6 * Gaudi::Units::MeV;
-constexpr double s_multipleScatterLogFactor = 0.038;
-constexpr double s_main_RossiGreisen = 17.5 * Gaudi::Units::MeV;
-constexpr double s_log_RossiGreisen = 0.125;
-}
-
 Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),

@@ -53,7 +53,6 @@ typedef LArSymConditionsAlg<LArDAC2uAMC,LArDAC2uASym> LArDAC2uASymCondAlg;
 typedef LArSymConditionsAlg<LArfSamplMC,LArfSamplSym> LArfSamplSymCondAlg;
 
 
-
 #include "LArRawConditions/LArMinBiasMC.h"
 #include "LArRawConditions/LArMinBiasSym.h"
 typedef LArSymConditionsAlg<LArMinBiasMC,LArMinBiasSym> LArMinBiasSymCondAlg;
@@ -62,5 +61,21 @@ typedef LArSymConditionsAlg<LArMinBiasMC,LArMinBiasSym> LArMinBiasSymCondAlg;
 #include "LArRawConditions/LArNoiseSym.h"
 typedef LArSymConditionsAlg<LArNoiseMC,LArNoiseSym> LArNoiseSymCondAlg;
 
+
+#include "LArRawConditions/LArMinBiasAverageMC.h"
+#include "LArRawConditions/LArMinBiasAverageSym.h"
+typedef  LArSymConditionsAlg<LArMinBiasAverageMC,LArMinBiasAverageSym> LArMinBiasAverageSymCondAlg;
+
+#include "LArRawConditions/LArShape32MC.h"
+#include "LArRawConditions/LArShape32Sym.h"
+typedef LArSymConditionsAlg<LArShape32MC,LArShape32Sym> LArShapeSymCondAlg;
+
+#include "LArRawConditions/LArAutoCorrMC.h"
+#include "LArRawConditions/LArAutoCorrSym.h"
+typedef LArSymConditionsAlg<LArAutoCorrMC,LArAutoCorrSym> LArAutoCorrSymCondAlg;
+
+#include "LArRawConditions/LArMphysOverMcalMC.h"
+#include "LArRawConditions/LArMphysOverMcalSym.h"
+typedef LArSymConditionsAlg<LArMphysOverMcalMC,LArMphysOverMcalSym> LArMphysOverMcalSymCondAlg;
 
 #endif

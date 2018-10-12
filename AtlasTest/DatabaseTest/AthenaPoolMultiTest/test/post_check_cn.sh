@@ -86,7 +86,7 @@ else
                 egrep -a -v 'registerPFN'
 
 	    diffStatus=$?
-	    if [ $diffStatus = 0 ] 
+	    if [ $diffStatus -ne 1 ] 
 		then
 		echo "[97;101;1m post_check_cn.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1

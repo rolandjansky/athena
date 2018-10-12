@@ -12,10 +12,6 @@ AthenaPOOL. The tests write and read data objects which are both
 simple types and as well classes taken from the standard atlas
 event. Different features of I/O are also tested, i.e.
 
-  - Back navigation from file to file: where a first file is written
-    and then read and a second file is written. When reading back the
-    EventSelector.BackNavigation property is set true and objects
-    from both files may be read
   - Navigating element links across files: when objects in a
     container in one file have element links to objects in a previously
     written file, one can read objects from both files by opening the

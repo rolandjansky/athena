@@ -148,7 +148,6 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
   declareProperty( "ReadMetaDataWithPool", m_readMetadataWithPool=false, "If true, using POOL to read metadata, will ensure input file is registered with catalog");
 
 #ifndef XAOD_ANALYSIS
-  declareProperty( "BackNavigation", m_backNavigation=false, "Compability flag for RecExCommon");
   declareProperty( "CollectionType", m_collectionType="", "Compability flag for RecExCommon");
 #endif
 

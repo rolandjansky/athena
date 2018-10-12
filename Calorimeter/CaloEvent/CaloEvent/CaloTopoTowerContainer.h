@@ -29,7 +29,7 @@ UPDATE:   March 15, 2010
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 

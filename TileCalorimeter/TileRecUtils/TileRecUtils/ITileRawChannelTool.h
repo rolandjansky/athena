@@ -13,15 +13,13 @@ class TileRawChannelContainer ;
 #include "GaudiKernel/IAlgTool.h"
 
 
-static const InterfaceID IID_ITileRawChannelTool("ITileRawChannelTool", 1 , 0);
-
-class ITileRawChannelTool: virtual public IAlgTool {
-
+class ITileRawChannelTool: virtual public IAlgTool
+{
 public:
-  // update TileRawChannelContainer, subtract common mode noise for example
-  virtual StatusCode process(TileRawChannelContainer * rchCnt)=0 ;
+  DeclareInterfaceID (ITileRawChannelTool, 1, 0);
 
-  static const InterfaceID& interfaceID() { return IID_ITileRawChannelTool;}
+  // update TileRawChannelContainer, subtract common mode noise for example
+  virtual StatusCode process(TileRawChannelContainer * rchCnt) const = 0;
 };
 
 #endif 

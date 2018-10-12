@@ -155,61 +155,40 @@ class CaloCluster :  public CaloCompositeKineBase,
   public:
 
     /*! \brief Default constructor builds unusable iterator */
-    MomentStoreIter() : m_iter(), m_firstStore(0), m_secndStore(0) { };
+    MomentStoreIter();
     /*! \brief Standard constructor for a useable iterator */
     MomentStoreIter(moment_iterator_i iter,
 		    const moment_store* firstStore, 
-		    const moment_store* secndStore=0) 
-      : m_iter(iter), m_firstStore(firstStore), m_secndStore(secndStore)
-    { }; 
+		    const moment_store* secndStore=0) ;
     /*! Destructor */
-    ~MomentStoreIter() { };
+    ~MomentStoreIter();
 
     /*! \brief Advance iterator */
-    MomentStoreIter next()
-    {
-      m_iter++;
-      if ( m_iter == m_firstStore->end() &&
-	   ( m_secndStore != 0 && m_secndStore->size() > 0 ) ) 
-	{
-	  m_iter = m_secndStore->begin();
-	}
-      return *this;
-    }
+    MomentStoreIter next();
 
     /*! Step back iterator */
-    MomentStoreIter prev() 
-    {
-      if ( m_secndStore != 0 && m_iter == m_secndStore->begin() )
-	{
-	  m_iter = m_firstStore->end();
-	}
-      m_iter--;
-      return *this;
-    }
+    MomentStoreIter prev() ;
      
     /*! \brief Post-advance operator */
-    MomentStoreIter operator++()    { return this->next(); }
+    MomentStoreIter operator++();
     /*! \brief Pre-advance operator */
-    MomentStoreIter operator++(int) { return this->next(); }
+    MomentStoreIter operator++(int);
     /*! \brief Post-step back operator */    
-    MomentStoreIter operator--()    { return this->prev(); }
+    MomentStoreIter operator--();
     /*! \brief Pre-step back operator */ 
-    MomentStoreIter operator--(int) { return this->prev(); }
+    MomentStoreIter operator--(int);
 
     /*! \brief Equality comparator */
-    bool operator==(const MomentStoreIter& anOther)
-    { return m_iter == anOther.m_iter; }
+    bool operator==(const MomentStoreIter& anOther);
     /*! \brief Inequality comparator */
-    bool operator!=(const MomentStoreIter& anOther)
-    { return m_iter != anOther.m_iter; }
+    bool operator!=(const MomentStoreIter& anOther);
 
     /*! \brief Operator access to \a CaloClusterMoment */
-    const CaloClusterMoment& operator*() const { return *m_iter; }
+    const CaloClusterMoment& operator*() const;
     /*! \brief Function access to \a CaloClusterMoment */
-    const CaloClusterMoment& getMoment() const { return *m_iter; }
+    const CaloClusterMoment& getMoment() const;
     /*! \brief Function access to moment type */
-    moment_type getMomentType() const { return m_iter.getMomentType(); }
+    moment_type getMomentType() const;
 
   private: 
      

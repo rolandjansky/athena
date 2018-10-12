@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
@@ -17,6 +17,7 @@ Updated:
 #include "AsgTools/AsgTool.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
+
 // EDM includes
 
 #include "xAODTruth/TruthParticleContainerFwd.h"
@@ -128,7 +129,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    //
    static double partCharge(const xAOD::TruthParticle*);
 #ifndef XAOD_ANALYSIS
-   bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool& ) const;
+   bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool&, Cache* cache) const;
    const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool,
                                               Info* info) const;
 #endif

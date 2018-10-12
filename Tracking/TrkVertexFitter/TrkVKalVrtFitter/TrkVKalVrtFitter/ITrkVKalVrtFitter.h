@@ -15,13 +15,14 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 // Gaudi includes
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+//#include "GaudiKernel/IToolSvc.h"
 //
 #include  "TrkTrack/Track.h"
 #include  "TrkParticleBase/TrackParticleBase.h"
-#include  "xAODTracking/TrackParticle.h" 
-#include  "xAODTracking/NeutralParticle.h" 
+#include  "xAODTracking/TrackParticleContainer.h" 
+#include  "xAODTracking/NeutralParticleContainer.h" 
+#include  "xAODTracking/VertexContainer.h"
 
 namespace MagField{
    class IMagFieldSvc;
@@ -97,7 +98,7 @@ namespace Trk{
       virtual StatusCode VKalGetTrkWeights(std::vector<double>& Weights) =0;
       virtual StatusCode VKalGetTrkCov(long int, long int, std::vector<double>& CovMtx) =0;
       virtual StatusCode VKalGetFullCov(long int, std::vector<double>& CovMtx, int =0) =0;
-      virtual StatusCode VKalGetMassError(std::vector<int> ListOfTracks, double& Mass, double& MassError) =0;
+      virtual StatusCode VKalGetMassError(double& Mass, double& MassError) =0;
       virtual int VKalGetNDOF() =0;
 
       virtual void setApproximateVertex(double,double,double)=0;
@@ -119,8 +120,8 @@ namespace Trk{
 //
 //  Interface with ATLAS reconstruction software
 //
-      virtual void setAthenaField(MagField::IMagFieldSvc*)=0;
-      virtual void setAthenaPropagator(const IExtrapolator*)=0;
+//      virtual void setAthenaField(MagField::IMagFieldSvc*)=0;
+//      virtual void setAthenaPropagator(const IExtrapolator*)=0;
 //----------------------------------------------------------------------------------------------------
 
       virtual double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,

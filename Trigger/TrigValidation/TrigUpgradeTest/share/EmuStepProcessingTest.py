@@ -69,8 +69,8 @@ from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
 
 # signatures
-from TrigUpgradeTest.HLTCFConfig import makeHLTTree
-from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
 
 
 doMuon=True
@@ -206,7 +206,8 @@ for unpack in l1Decoder.roiUnpackers:
 
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer, dumpSequence
 topSequence = AlgSequence()
-topSequence += L1UnpackingSeq
+#topSequence += L1UnpackingSeq
+topSequence += l1Decoder
 ##### Make all HLT #######
 makeHLTTree(HLTChains)
    

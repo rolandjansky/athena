@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARMCSYM_H
@@ -26,6 +26,7 @@ class LArMCSym {
 	   ); 
    
   HWIdentifier ZPhiSymOfl(const Identifier notSymOffId) const {
+    if (m_caloCellID->is_tile(notSymOffId)) return HWIdentifier();
     const IdentifierHash h=m_caloCellID->calo_cell_hash(notSymOffId);
     return ZPhiSymOfl(h);
   }

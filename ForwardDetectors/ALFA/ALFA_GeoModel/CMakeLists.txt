@@ -8,8 +8,6 @@ atlas_subdir( ALFA_GeoModel )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
@@ -29,7 +27,7 @@ atlas_add_component( ALFA_GeoModel
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel SGTools AthenaPoolUtilities GeoModelKernel GeoModelUtilities ALFA_Geometry StoreGateLib SGtests GaudiKernel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel AthenaPoolUtilities GeoModelKernel GeoModelUtilities ALFA_Geometry StoreGateLib SGtests GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( ALFA_GeoModel )

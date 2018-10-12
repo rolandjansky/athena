@@ -4,23 +4,14 @@
 
 #include <math.h>
 #include <iostream>
+#include <thread>
+#include <algorithm>
 #include "TrkVKalVrtCore/ForCFT.h"
-#include "TrkVKalVrtCore/Derivt.h"
-#include "TrkVKalVrtCore/WorkArray.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 
 namespace Trk {
 
-
-extern WorkArray workarray_;
-extern ForCFT forcft_;
-extern DerivT derivt_;
-
-
-#define workarray_1 workarray_
-#define forcft_1 forcft_
-#define derivt_1 derivt_
 
 /* ************************************************************************/
 /*                                                                        */
@@ -56,67 +47,35 @@ extern DerivT derivt_;
 /*                 IERR = 2 :  covariance or weight matrix not positive */
 /**************************************************************************/
 
-
-
-  double calcChi2Addition(VKVertex * vk, double wgtvrtd[6], double xyztmp[3]){
-
-    extern double cfVrtDstSig( VKVertex * vk, bool );
-
-    double Chi2t=0., signif;
-    if ( vk->useApriorVertex) {
-	    double d1 = vk->apriorV[0] - xyztmp[0];
-	    double d2 = vk->apriorV[1] - xyztmp[1];
-	    double d3 = vk->apriorV[2] - xyztmp[2];
-	    Chi2t  +=  wgtvrtd[0]*d1*d1 + wgtvrtd[2]*d2*d2 + wgtvrtd[5]*d3*d3 
-	          + 2.*(d2*d1*wgtvrtd[1] + d3*(d1*wgtvrtd[3] + d2*wgtvrtd[4]));
-    }
-    if (vk->passNearVertex){
-           signif = cfVrtDstSig( vk, vk->passWithTrkCov);
-	   Chi2t += signif*signif;
-    }
-    return Chi2t;
-  }
-
-
-
-      long int vtcfit( VKVertex * vk)
-{
+    int vtcfit( VKVertex * vk) {
     
 
-    double chi2i, dxyz[3], xyzt[3], eigv[8];
+    double dxyz[3], xyzt[3], eigv[8];
     double dpipj[3][3]	/* was [3][3] */;
     double drdpy[2][3]	/* was [2][3] */;
     double drdvy[2][3]	/* was [2][3] */;
-    double cosf, sinf, cotth;
     double pyv[3][3] /*was [3][3]*/;
     double vyv[3][3] /*was [3][3]*/;
+    double wa[6], stv[3], wgtvrtd[6], tv[3];
 
-
-    double d11, d12, d21, d22, d41, d42;
-    double e12, e13, e21, e22, e23, e43, wa[6];
-    double tv[3], uu, vv;
-
-    long int ic, jj, it, jt, ii, kt;
-    long int  i__, j, k, l;
+    int ic, jj, it, jt, ii, kt;
+    int j, k, l;
 
     extern void dsinv(long int *, double *, long int , long int *);
     //extern void digx(double *, double *, double *, long int , long int );
     extern void vkGetEigVal(double ci[], double d[], int n);
     extern int cfdinv(double *, double *, long int);
-    extern void makePostFit(VKVertex *, double [], double);
+           bool makePostFit(VKVertex *, double [], double&);
+           void makeNoPostFit(VKVertex *, double [], double&);
     extern int vtcfitc( VKVertex * );
     extern void FullMTXfill( VKVertex* , double *);
     extern int FullMCNSTfill(VKVertex*, double*, double *);
 
  
-    double  dw11, dw12, dw13, dw14, dw15, dw21, dw22, dw23, dw24, dw25,
-	    dw31, dw32, dw33, dw34, dw35, ew11, ew12, ew13, ew14, ew15, 
-	    ew21, ew22, ew23, ew24, ew25, ew31, ew32, ew33, ew34, ew35;
-    double  stv[3], wgtvrtd[6];
 
 
 
-#define ader_ref(a_1,a_2) workarray_1.ader[(a_2)*(NTrkM*3+3) + (a_1) - (NTrkM*3+4)]
+#define ader_ref(a_1,a_2) vk->ader[(a_2)*(vkalNTrkM*3+3) + (a_1) - (vkalNTrkM*3+4)]
 #define cvder_ref(a_1,a_2) vk->FVC.cvder[(a_2)*2 + (a_1) - 3]
 #define dcv_ref(a_1,a_2) vk->FVC.dcv[(a_2)*6 + (a_1) - 7]
 
@@ -160,24 +119,21 @@ extern DerivT derivt_;
 /* ---------------------------------------------------------------------- */
 
     long int IERR = 0;
-    long int NTRK = vk->TrackList.size();
+    int NTRK = vk->TrackList.size();
     double xyz[3]={vk->iniV[0],vk->iniV[1],vk->iniV[2]};
     double twb[9];
     double twci[6];
     double twbci[9];
     double xyzf[3];
 
-    if ( NTRK > NTrkM ) return 1;
+    vk->truncatedStep=false;
+    if ( NTRK > vkalNTrkM ) return 1;
 
-// Dynamic arrays are created already in CFit
-    double *dphi 	= workarray_1.myWorkArrays->get_dphi();
-    double *deps	= workarray_1.myWorkArrays->get_deps();
-    double *drho  	= workarray_1.myWorkArrays->get_drho();
-    double *dtet 	= workarray_1.myWorkArrays->get_dtet();
-    double *dzp 	= workarray_1.myWorkArrays->get_dzp();
-
-    double phip,zp,eps;
-
+    std::unique_ptr<double[]> dphi   = std::unique_ptr<double[]>(new double[NTRK]);
+    std::unique_ptr<double[]> deps   = std::unique_ptr<double[]>(new double[NTRK]);
+    std::unique_ptr<double[]> drho   = std::unique_ptr<double[]>(new double[NTRK]);
+    std::unique_ptr<double[]> dtet   = std::unique_ptr<double[]>(new double[NTRK]);
+    std::unique_ptr<double[]> dzp    = std::unique_ptr<double[]>(new double[NTRK]);
     
     for (int i=0; i<3; ++i) { tv[i] = 0.; stv[i] = 0.;}
     for (int i=0; i<6; ++i) { vk->wa[i] = 0.; wa[i] = 0.;}
@@ -202,20 +158,20 @@ extern DerivT derivt_;
 	}
     }
 
-    chi2i = 0.;
-    VKTrack * trk; TWRK * t_trk;
+    double chi2i = 0.;
     for ( kt = 0; kt < NTRK; ++kt) {
-       trk = vk->TrackList[kt];
+       VKTrack* trk = vk->TrackList[kt];
        double theta_ini =trk->iniP[0];
        double phi_ini   =trk->iniP[1];
        double invR_ini  =trk->iniP[2];
 /*  "perigee" parameters EPS and ZP if the trajectory goes through XYZ */
 /*   and its theta,phi,1/R at perigee are equal to the values at input*/
-	cotth = 1. / tan( theta_ini );    /*   theta at vertex */
-	cosf = cos(phi_ini);
-	sinf = sin(phi_ini);
-	uu = xyz[0]*cosf + xyz[1]*sinf;
-	vv = xyz[1]*cosf - xyz[0]*sinf;
+	double cotth = 1. / tan( theta_ini );    /*   theta at vertex */
+	double cosf = cos(phi_ini);
+	double sinf = sin(phi_ini);
+	double uu = xyz[0]*cosf + xyz[1]*sinf;
+	double vv = xyz[1]*cosf - xyz[0]*sinf;
+        double phip,zp,eps;
 	if ( trk->Charge ) {
 	     eps     = -vv - uu*uu * invR_ini / 2.;
 	      zp     = -uu * (1. - vv * invR_ini) * cotth;   //xyz[2] is added later to gain precision
@@ -247,13 +203,13 @@ extern DerivT derivt_;
 		+    trk->WgtM[2] *  dzp[kt]* dzp[kt];
 
 /*   derivatives (deriv1) of perigee param. w.r.t. X,Y,Z (vertex) uu=Q, vv=R */
-	d11 =  sinf             - (                 uu*cosf   *invR_ini);
-	d12 = -cosf             - (                 uu*sinf   *invR_ini);
-	d21 = -cosf * cotth     + (  (vv*cosf-uu*sinf)*cotth  *invR_ini);
-	d22 = -sinf * cotth     + (  (vv*sinf+uu*cosf)*cotth  *invR_ini);
+	double d11 =  sinf             - (                 uu*cosf   *invR_ini);
+	double d12 = -cosf             - (                 uu*sinf   *invR_ini);
+	double d21 = -cosf * cotth     + (  (vv*cosf-uu*sinf)*cotth  *invR_ini);
+	double d22 = -sinf * cotth     + (  (vv*sinf+uu*cosf)*cotth  *invR_ini);
 	//double d23 = 1.;        //VK for reference
-	d41 = -cosf * invR_ini;
-	d42 = -sinf * invR_ini;
+	double d41 = -cosf * invR_ini;
+	double d42 = -sinf * invR_ini;
 	if (trk->Charge == 0) {
 	    d11 =  sinf;
 	    d12 = -cosf;
@@ -264,23 +220,23 @@ extern DerivT derivt_;
 	}
 
 /*   matrix DW = (deriv1)t * weight */
-	dw11 = d11 * trk->WgtM[0] + d21 * trk->WgtM[1] + d41 * trk->WgtM[6];
-	dw12 = d11 * trk->WgtM[1] + d21 * trk->WgtM[2] + d41 * trk->WgtM[7];
-	dw13 = d11 * trk->WgtM[3] + d21 * trk->WgtM[4] + d41 * trk->WgtM[8];
-	dw14 = d11 * trk->WgtM[6] + d21 * trk->WgtM[7] + d41 * trk->WgtM[9];
-	dw15 = d11 * trk->WgtM[10]+ d21 * trk->WgtM[11]+ d41 * trk->WgtM[13];
+	double dw11 = d11 * trk->WgtM[0] + d21 * trk->WgtM[1] + d41 * trk->WgtM[6];
+	double dw12 = d11 * trk->WgtM[1] + d21 * trk->WgtM[2] + d41 * trk->WgtM[7];
+	double dw13 = d11 * trk->WgtM[3] + d21 * trk->WgtM[4] + d41 * trk->WgtM[8];
+	double dw14 = d11 * trk->WgtM[6] + d21 * trk->WgtM[7] + d41 * trk->WgtM[9];
+	double dw15 = d11 * trk->WgtM[10]+ d21 * trk->WgtM[11]+ d41 * trk->WgtM[13];
 
 
-	dw21 = d12 * trk->WgtM[0] + d22 * trk->WgtM[1] + d42 * trk->WgtM[6];
-	dw22 = d12 * trk->WgtM[1] + d22 * trk->WgtM[2] + d42 * trk->WgtM[7];
-	dw23 = d12 * trk->WgtM[3] + d22 * trk->WgtM[4] + d42 * trk->WgtM[8];
-	dw24 = d12 * trk->WgtM[6] + d22 * trk->WgtM[7] + d42 * trk->WgtM[9];
-	dw25 = d12 * trk->WgtM[10]+ d22 * trk->WgtM[11]+ d42 * trk->WgtM[13];
-	dw31 = trk->WgtM[1];
-	dw32 = trk->WgtM[2];
-	dw33 = trk->WgtM[4];
-	dw34 = trk->WgtM[7];
-	dw35 = trk->WgtM[11];
+	double dw21 = d12 * trk->WgtM[0] + d22 * trk->WgtM[1] + d42 * trk->WgtM[6];
+	double dw22 = d12 * trk->WgtM[1] + d22 * trk->WgtM[2] + d42 * trk->WgtM[7];
+	double dw23 = d12 * trk->WgtM[3] + d22 * trk->WgtM[4] + d42 * trk->WgtM[8];
+	double dw24 = d12 * trk->WgtM[6] + d22 * trk->WgtM[7] + d42 * trk->WgtM[9];
+	double dw25 = d12 * trk->WgtM[10]+ d22 * trk->WgtM[11]+ d42 * trk->WgtM[13];
+	double dw31 = trk->WgtM[1];
+	double dw32 = trk->WgtM[2];
+	double dw33 = trk->WgtM[4];
+	double dw34 = trk->WgtM[7];
+	double dw35 = trk->WgtM[11];
 
 /*  summation of  DW * DPAR  to vector TV */
 	tv[0]  +=  dw11 * deps[kt] + dw12 * dzp[kt];
@@ -298,12 +254,12 @@ extern DerivT derivt_;
 	stv[2] +=  dw33 * dtet[kt] + dw34 * dphi[kt] + dw35*drho[kt]; 
 
 /*   derivatives (deriv2) of perigee param. w.r.t. theta,phi,1/R (vertex) uu=Q, vv=R */
-	e12 =  uu - invR_ini * vv * uu;
-	e13 = -uu*uu / 2.;
-	e21 =  uu *(1. - vv*invR_ini) * (cotth*cotth + 1.);
-	e22 = -vv*cotth  + (vv*vv-uu*uu)*invR_ini*cotth;
-	e23 =  uu*vv*cotth;
-	e43 = -uu + 2.*uu*vv*invR_ini;
+	double e12 =  uu - invR_ini * vv * uu;
+	double e13 = -uu*uu / 2.;
+	double e21 =  uu *(1. - vv*invR_ini) * (cotth*cotth + 1.);
+	double e22 = -vv*cotth  + (vv*vv-uu*uu)*invR_ini*cotth;
+	double e23 =  uu*vv*cotth;
+	double e43 = -uu + 2.*uu*vv*invR_ini;
 /*  if straight line, set to zero derivatives w.r.t. the curvature */
 /*  and curvature terms in derivatives */
 	if (trk->Charge == 0) {
@@ -316,24 +272,24 @@ extern DerivT derivt_;
 	}
 
 /*   matrix EW = (deriv2)t * weight */
-	ew11 = e21 * trk->WgtM[1] + trk->WgtM[3];
-	ew12 = e21 * trk->WgtM[2] + trk->WgtM[4];
-	ew13 = e21 * trk->WgtM[4] + trk->WgtM[5];
-	ew14 = e21 * trk->WgtM[7] + trk->WgtM[8];
-	ew15 = e21 * trk->WgtM[11]+ trk->WgtM[12];
-	ew21 = e12 * trk->WgtM[0] + e22 * trk->WgtM[1] + trk->WgtM[6];
-	ew22 = e12 * trk->WgtM[1] + e22 * trk->WgtM[2] + trk->WgtM[7];
-	ew23 = e12 * trk->WgtM[3] + e22 * trk->WgtM[4] + trk->WgtM[8];
-	ew24 = e12 * trk->WgtM[6] + e22 * trk->WgtM[7] + trk->WgtM[9];
-	ew25 = e12 * trk->WgtM[10]+ e22 * trk->WgtM[11]+ trk->WgtM[13];
-	ew31 = e13 * trk->WgtM[0] + e23 * trk->WgtM[1] + e43 * trk->WgtM[6] + trk->WgtM[10];
-	ew32 = e13 * trk->WgtM[1] + e23 * trk->WgtM[2] + e43 * trk->WgtM[7] + trk->WgtM[11];
-	ew33 = e13 * trk->WgtM[3] + e23 * trk->WgtM[4] + e43 * trk->WgtM[8] + trk->WgtM[12];
-	ew34 = e13 * trk->WgtM[6] + e23 * trk->WgtM[7] + e43 * trk->WgtM[9] + trk->WgtM[13];
-	ew35 = e13 * trk->WgtM[10]+ e23 * trk->WgtM[11]+ e43 * trk->WgtM[13]+ trk->WgtM[14];
+	double ew11 = e21 * trk->WgtM[1] + trk->WgtM[3];
+	double ew12 = e21 * trk->WgtM[2] + trk->WgtM[4];
+	double ew13 = e21 * trk->WgtM[4] + trk->WgtM[5];
+	double ew14 = e21 * trk->WgtM[7] + trk->WgtM[8];
+	double ew15 = e21 * trk->WgtM[11]+ trk->WgtM[12];
+	double ew21 = e12 * trk->WgtM[0] + e22 * trk->WgtM[1] + trk->WgtM[6];
+	double ew22 = e12 * trk->WgtM[1] + e22 * trk->WgtM[2] + trk->WgtM[7];
+	double ew23 = e12 * trk->WgtM[3] + e22 * trk->WgtM[4] + trk->WgtM[8];
+	double ew24 = e12 * trk->WgtM[6] + e22 * trk->WgtM[7] + trk->WgtM[9];
+	double ew25 = e12 * trk->WgtM[10]+ e22 * trk->WgtM[11]+ trk->WgtM[13];
+	double ew31 = e13 * trk->WgtM[0] + e23 * trk->WgtM[1] + e43 * trk->WgtM[6] + trk->WgtM[10];
+	double ew32 = e13 * trk->WgtM[1] + e23 * trk->WgtM[2] + e43 * trk->WgtM[7] + trk->WgtM[11];
+	double ew33 = e13 * trk->WgtM[3] + e23 * trk->WgtM[4] + e43 * trk->WgtM[8] + trk->WgtM[12];
+	double ew34 = e13 * trk->WgtM[6] + e23 * trk->WgtM[7] + e43 * trk->WgtM[9] + trk->WgtM[13];
+	double ew35 = e13 * trk->WgtM[10]+ e23 * trk->WgtM[11]+ e43 * trk->WgtM[13]+ trk->WgtM[14];
 
 /*   computation of vector  TT = EW * DPAR */
-        t_trk=vk->tmpArr[kt];
+        TWRK* t_trk=vk->tmpArr[kt];
 	t_trk->tt[0]  = ew11*deps[kt] + ew12*dzp[kt];
 	t_trk->tt[1]  = ew21*deps[kt] + ew22*dzp[kt];
 	t_trk->tt[2]  = ew31*deps[kt] + ew32*dzp[kt];
@@ -342,8 +298,7 @@ extern DerivT derivt_;
 	t_trk->tt[2] += ew33*dtet[kt] + ew34*dphi[kt] + ew35*drho[kt];
 	if ( vk->passNearVertex ) {
 	    for (j = 1; j <= 2; ++j) {                             /* Derivatives dR/dQi */
-		i__=kt+1;
-	        int i3=i__*3;
+	        int i3=(kt+1)*3;
 		t_trk->drdp[j-1][0] = cvder_ref(j,4) * dcv_ref(4,i3 + 1) + cvder_ref(j,5) * dcv_ref(5,i3 + 1);
 		t_trk->drdp[j-1][1] = cvder_ref(j,4) * dcv_ref(4,i3 + 2) + cvder_ref(j,5) * dcv_ref(5,i3 + 2);
 		t_trk->drdp[j-1][2] = cvder_ref(j,4) * dcv_ref(4,i3 + 3) + cvder_ref(j,5) * dcv_ref(5,i3 + 3);
@@ -470,7 +425,7 @@ extern DerivT derivt_;
 	stv[2] = stv[2] + xyzt[0] * wgtvrtd[3] + xyzt[1] * wgtvrtd[4] + xyzt[2] * wgtvrtd[5];
     }
 //Save T vector(see Billoir...)
-    vk->T[0]=stv[0];vk->T[1]=stv[1];vk->T[2]=stv[2];
+    vk->T[0]=stv[0]; vk->T[1]=stv[1]; vk->T[2]=stv[2];
 
 //std::cout<<" newwa="<<wa[0]<<", "<<wa[1]<<", "<<wa[2]<<", "<<wa[3]<<", "<<wa[4]<<", "<<wa[5]<<'\n';
 
@@ -479,7 +434,7 @@ extern DerivT derivt_;
 	                               /* because solution is calculated with full error matrix*/
 
      if( vk->ConstraintList.size() == 0){
-        double EigThreshold = 5.e-8;         /* Def. for fit without constraints 5.e-8*/
+        double EigThreshold = 1.e-9;         /* Def. for fit without constraints 5.e-8*/
         vkGetEigVal(wa, eigv, 3);
         if (eigv[0] < 0.) { wa[0] -= 1.*eigv[0];  wa[2] -= 1.*eigv[0]; wa[5] -= 1.*eigv[0]; }
         if (eigv[0] < eigv[2] * EigThreshold) {
@@ -513,8 +468,7 @@ extern DerivT derivt_;
 	vk->fitV[j]  = xyzf[j] =  vk->iniV[j] + dxyz[j];
     }
     //std::cout<< "NVertex Old="<<vk->iniV[0]<<", "<<vk->iniV[1]<<", "<<vk->iniV[2]<<" CloseV="<<vk->passNearVertex<<'\n';
-    //std::cout<< "NVertex shift="<<dxyz[0]<<", "<<dxyz[1]<<", "<<dxyz[2]<<'\n';
-
+    //std::cout<<__func__<<":NVertex shift="<<dxyz[0]<<", "<<dxyz[1]<<", "<<dxyz[2]<<'\n';
 
 
 
@@ -539,10 +493,9 @@ extern DerivT derivt_;
 	vk->TrackList[kt]->fitP[0] = vk->TrackList[kt]->iniP[0] + vk->tmpArr[kt]->parf0[0];
 	vk->TrackList[kt]->fitP[1] = vk->TrackList[kt]->iniP[1] + vk->tmpArr[kt]->parf0[1];
 	vk->TrackList[kt]->fitP[2] = vk->TrackList[kt]->iniP[2] + vk->tmpArr[kt]->parf0[2];
-        //std::cout<< "NTrack  shift="<<vk->tmpArr[kt]->parf0[0]<<", "<<vk->tmpArr[kt]->parf0[1]<<", "
+        //std::cout<<__func__<<":NTrack  shift="<<vk->tmpArr[kt]->parf0[0]<<", "<<vk->tmpArr[kt]->parf0[1]<<", "
 	//                                                            <<vk->tmpArr[kt]->parf0[2]<<'\n';
     }
-  
 /* ------------------------------------------------------------ */
 /*  The same solution but through full matrix */
 /* ------------------------------------------------------------ */
@@ -560,7 +513,7 @@ extern DerivT derivt_;
 	vk->wa[3] += vyv[2][0];
 	vk->wa[4] += vyv[2][1];
 	vk->wa[5] += vyv[2][2];
-	FullMTXfill(vk, workarray_1.ader);
+	FullMTXfill(vk, vk->ader);
 	if ( vk->passNearVertex ) {
 	  for (it = 1; it <= NTRK; ++it) {
 	    drdpy[0][0] = vk->tmpArr[it-1]->drdp[0][0] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][0] * vk->FVC.ywgt[1];
@@ -592,18 +545,18 @@ extern DerivT derivt_;
         //digx(ArrTmp, eigv, work, 3, 0);
 	for (k=1; k<=3; ++k) {     for (l=1; l<=k; ++l)  { ArrTmp[ktmp++] = ader_ref(k,l); }}
         vkGetEigVal(ArrTmp, eigv, 3);
-	  double EigAddon=0.;
-	  if( eigv[0]<0 ){EigAddon=eigv[0];std::cout<<" EIGENVALUE after negative="<<eigv[0]<<'\n';}
+	double EigAddon=0.;
+	if( eigv[0]<0 ){EigAddon=eigv[0];std::cout<<" EIGENVALUE after negative="<<eigv[0]<<'\n';}
 	  for (k = 1; k <=3; ++k) {   
 	     ader_ref(k,k) = ader_ref(k,k) - EigAddon + eigv[2] * 1.e-18 ;    
 	  }
 //----------------------------------------------------------------------------------
 	long int NParam = NTRK*3 + 3;
-	dsinv(&NParam, workarray_1.ader, NTrkM*3+3, &IERR);
+	dsinv(&NParam, vk->ader, vkalNTrkM*3+3, &IERR);
 	if ( IERR != 0) {
         std::cout << " Bad problem in CFIT inversion ierr="<<IERR<<", "<<eigv[2]<<'\n'; return IERR;
 	} else {
-            double *fortst = new double[NTrkM*3+3];
+            double *fortst = new double[vkalNTrkM*3+3];
 	    for (j = 0; j < 3; ++j) {
 		fortst[j] = stv[j];
 		for (ii=0; ii<NTRK; ++ii) { fortst[ii*3 +3 +j] = vk->tmpArr[ii]->tt[j];}
@@ -614,15 +567,13 @@ extern DerivT derivt_;
 		vk->dxyz0[j]  = dxyz [j];
 	        vk->fitV[j] = vk->iniV[j] + dxyz[j];
 	    }
-	    double tparf0[3];
+	    double tparf0[3]={0.};
 	    for (it = 1; it <= NTRK; ++it) {
-                t_trk=vk->tmpArr[it-1];
+                TWRK* t_trk=vk->tmpArr[it-1];
 		for (j=0; j<3; ++j) {
                    tparf0[j] = 0.;
 		   for (ii = 1; ii <= NParam; ++ii) { tparf0[j] +=  ader_ref(it*3+j+1, ii)*fortst[ii-1];}
-		}
-//std::cout<<tparf0[0]<<", "<<tparf0[1]<<", "<<tparf0[2]<<", "<<'\n';
-//std::cout<<t_trk->parf0[0]<<", "<<t_trk->parf0[1]<<", "<<t_trk->parf0[2]<<" it= "<<it<<'\n';
+                }
 		for (j=0; j<3; ++j) { t_trk->parf0[j] = tparf0[j];
 	                              vk->TrackList[it-1]->fitP[j] = vk->TrackList[it-1]->iniP[j] + tparf0[j];}
 	    }
@@ -637,7 +588,7 @@ extern DerivT derivt_;
         //std::cout<< "NVertex Full="<<vk->fitV[0]<<", "<<vk->fitV[1]<<", "<<vk->fitV[2]<<'\n';
         //std::cout<< "NVertex Full shft="<<dxyz[0]<<", "<<dxyz[1]<<", "<<dxyz[2]<<'\n';
         //double *tmpA=new double[3+3*NTRK+20];
-        //IERR = FullMCNSTfill( vk, workarray_.ader, tmpA);
+        //IERR = FullMCNSTfill( vk, vk->ader, tmpA);
         //delete[] tmpA;
     }
 /* ------------------------------------------------------------ */
@@ -681,7 +632,7 @@ extern DerivT derivt_;
     //                                               <<vk->TrackList[it]->fitP[1] - vk->TrackList[it]->iniP[1]<<", "
     //                                               <<vk->TrackList[it]->fitP[2] - vk->TrackList[it]->iniP[2]<<'\n';
     //tmpA=new double[3+3*NTRK+20];
-    //IERR = FullMCNSTfill( vk, workarray_.ader, tmpA);
+    //IERR = FullMCNSTfill( vk, vk->ader, tmpA);
     //delete[] tmpA;
    }
 
@@ -699,8 +650,14 @@ extern DerivT derivt_;
 	}
       }
     }
+    //--Additional iterations along shift direction
+    bool improved=makePostFit( vk , wgtvrtd, dCoefNorm);
+    if(!improved)improved=makePostFit( vk , wgtvrtd, dCoefNorm); //Step truncation doesn't help. Make second pass
+    if(!improved)vk->truncatedStep=true;
 
-    makePostFit( vk , wgtvrtd, dCoefNorm);
+    //-- If no additional iterations (for tests)
+    //makeNoPostFit( vk , wgtvrtd, dCoefNorm);
+
 
     return 0;
 
@@ -712,73 +669,105 @@ extern DerivT derivt_;
   extern double getCnstValues2( VKVertex * vk );
   extern void applyConstraints( VKVertex * vk );
 
+  double setLimitedFitVrt(VKVertex * vk, double alf, double bet, double dCoefNorm, double newVrt[3])
+  {
+    int NTRK = vk->TrackList.size(); 
+    double chi2t=0.; 
+    for (int ii=0; ii<3; ++ii) {     // Intermediate vertex. 
+       newVrt[ii]   = vk->iniV[ii] +   (alf+bet) * (vk->fitV[ii] - vk->iniV[ii])  +  bet * dCoefNorm*vk->dxyz0[ii];
+    }
 
-  void makePostFit( VKVertex * vk, double wgtvrtd[], double dCoefNorm)
+    for(int ii = 0; ii < NTRK; ++ii) {         // track parameters at intermediate vertex. Also save to cnstP for constraint
+        VKTrack*  trk=vk->TrackList[ii]; 
+        TWRK*   t_trk=vk->tmpArr[ii];
+        t_trk->part[0]=trk->cnstP[0]= trk->iniP[0] + (alf+bet)*(trk->fitP[0] - trk->iniP[0]) + bet*dCoefNorm * t_trk->parf0[0];
+	t_trk->part[1]=trk->cnstP[1]= trk->iniP[1] + (alf+bet)*(trk->fitP[1] - trk->iniP[1]) + bet*dCoefNorm * t_trk->parf0[1];
+	t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2] - trk->iniP[2]) + bet*dCoefNorm * t_trk->parf0[2];
+	    //Limit momentum change if too big
+        if(bet!=0. && fabs(t_trk->part[2])<1.e-7)t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2]-trk->iniP[2]);
+        trk->Chi2 = cfchi2(newVrt, t_trk->part, trk );
+	chi2t += trk->Chi2 ;
+    }
+    return chi2t;
+  }
+
+//  Calculates Chi2 due "apriory vertex" and/or "pass near" constraints   
+//--------------------------------------------------------------------------
+  double calcChi2Addition(VKVertex * vk, double wgtvrtd[6], double xyzf[3])
+ {
+
+    extern double cfVrtDstSig( VKVertex * vk, bool );
+
+    double Chi2t=0., signif;
+    if ( vk->useApriorVertex) {
+	    double d1 = vk->apriorV[0] - vk->refIterV[0] - xyzf[0];
+	    double d2 = vk->apriorV[1] - vk->refIterV[0] - xyzf[1];
+	    double d3 = vk->apriorV[2] - vk->refIterV[0] - xyzf[2];
+	    Chi2t  +=  wgtvrtd[0]*d1*d1 + wgtvrtd[2]*d2*d2 + wgtvrtd[5]*d3*d3 
+	          + 2.*(d2*d1*wgtvrtd[1] + d3*(d1*wgtvrtd[3] + d2*wgtvrtd[4]));
+    }
+    if (vk->passNearVertex){
+           signif = cfVrtDstSig( vk, vk->passWithTrkCov);
+	   Chi2t += signif*signif;
+    }
+    return Chi2t;
+  }
+
+
+
+  void makeNoPostFit( VKVertex * vk, double wgtvrtd[], double & dCoefNorm)
+  {
+    double xyzt[3]={0.};
+    vk->Chi2 = setLimitedFitVrt(vk,1.,0.,dCoefNorm,xyzt);// track parameters at intermediate vertex.
+    vk->setCnstV(xyzt);                                  // Also save to cnstP for constraint
+    vk->Chi2 += calcChi2Addition( vk, wgtvrtd, xyzt);    // Constraints of Chi2 type
+    if (vk->ConstraintList.size()) {                     // Restore initial derivatives 
+      int NTRK=vk->TrackList.size();
+      vk->setCnstV(vk->iniV); 
+      for(int i=0; i<NTRK; ++i){ VKTrack* trk=vk->TrackList[i]; for (int j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}
+      applyConstraints(vk);
+    }
+  }
+
+
+  bool makePostFit( VKVertex * vk, double wgtvrtd[], double & dCoefNorm)
   {
 
-  long int NTRK=vk->TrackList.size();
+  int NTRK=vk->TrackList.size();
   double dScale=1.e10, dScaleMax=1.e12;
-  double alfLowLim=0.1;
+  double alfLowLim=0.03;
   double alfUppLim=1.1;  //Should be compatible with vkalAllowedPtChange - not causing 1/p shift up to zero.
-  double xyzt[3],xyztmp[3],chi2t[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+  double xyzt[3],chi2t[10]={0.};
   double alf=1.,bet=0.;
-  long int ii,j, icadd=0;
-  double ContribC[10];
+  int ii,j;
+  double ContribC[10]={0.};
 //
-//    Limit too big total shift
-  double totalShift=sqrt(  (vk->fitV[0] - vk->iniV[0])*(vk->fitV[0] - vk->iniV[0])
-                          +(vk->fitV[1] - vk->iniV[1])*(vk->fitV[1] - vk->iniV[1])
-                          +(vk->fitV[2] - vk->iniV[2])*(vk->fitV[2] - vk->iniV[2]) );
-  bool limitationMade=false;
-  if(totalShift>vkalInternalStepLimit) {  
-      limitationMade=true;                            // to exclude other convergence improvements 
-      alfUppLim *=  vkalInternalStepLimit/totalShift;
-      alfLowLim *=  vkalInternalStepLimit/totalShift;
-  }
-  
   int NCNST = vk->ConstraintList.size();
   int PostFitIteration=4; if (NCNST) PostFitIteration=7; double ValForChk;
-  VKTrack * trk; TWRK * t_trk;
 
-  do {                                           // Additional iterations start from here
     for (j = 1; j <= PostFitIteration; ++j) {
 	int jm1=j-1;
 	chi2t[jm1] = 0.; ContribC[jm1]=0.;
 //--
 	if (j < 4){ alf = jm1 * .5;  bet = 0.;}
 	else{ if(j==4)bet=0.; if(j==5)bet=-0.02; if(j==6)bet= 0.02;}
-//--
-	for (ii=0; ii<3; ++ii) {     // Intermediate vertex. 
-	    xyzt[ii]   = vk->iniV[ii] +   (alf+bet) * (vk->fitV[ii] - vk->iniV[ii])  +  bet * dCoefNorm*vk->dxyz0[ii];
-	    xyztmp[ii] = vk->refIterV[ii] + xyzt[ii];  // current position in global ref.frame
-	}
-
-	for ( ii = 0; ii < NTRK; ++ii) {         // track parameters at intermediate vertex. Also save to cnstP for constraint
-            trk=vk->TrackList[ii]; t_trk=vk->tmpArr[ii];
-	    t_trk->part[0]=trk->cnstP[0]= trk->iniP[0] + (alf+bet)*(trk->fitP[0] - trk->iniP[0]) + bet*dCoefNorm * t_trk->parf0[0];
-	    t_trk->part[1]=trk->cnstP[1]= trk->iniP[1] + (alf+bet)*(trk->fitP[1] - trk->iniP[1]) + bet*dCoefNorm * t_trk->parf0[1];
-	    t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2] - trk->iniP[2]) + bet*dCoefNorm * t_trk->parf0[2];
-	    //Limit momentum change if too big
-	    if(bet!=0. && fabs(t_trk->part[2])<1.e-7)t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2]-trk->iniP[2]);
-	    trk->Chi2 = cfchi2(xyzt, t_trk->part, trk );
-	    chi2t[jm1] += trk->Chi2 ;
-	}
-        vk->setCnstV(xyzt); 
-        chi2t[jm1] += calcChi2Addition( vk, wgtvrtd, xyztmp); // Constraints of Chi2 type
+//
+//--vk->fitV and trk->fitP stay untouched during these iterations
+//
+        chi2t[jm1]= setLimitedFitVrt(vk,alf,bet,dCoefNorm,xyzt);// track parameters at intermediate vertex.
+        vk->setCnstV(xyzt);                                     // Also save to cnstP for constraint
+        chi2t[jm1] += calcChi2Addition( vk, wgtvrtd, xyzt); // Constraints of Chi2 type
 //
 // Addition of constraints
 	if (NCNST) {         //VK 25.10.2006 new mechanism for constraint treatment
             applyConstraints(vk);
 	    double dCnstContrib=getCnstValues2(vk);
-	    if(j == 1 ) { if( chi2t[0]>10.) {dScale = chi2t[0] / (dCnstContrib + 1/dScaleMax);}
-	                               else {dScale =      10. / (dCnstContrib + 1/dScaleMax);}
+	    if(j == 1 ) { dScale = std::max(chi2t[0],10.) / (dCnstContrib + 1/dScaleMax);
 	                  if(dScale > dScaleMax)  dScale=dScaleMax;
 	                  if(dScale < 0.01)       dScale=0.01;
 	    }
 	    ContribC[jm1] = 25.*dCnstContrib*dScale;
-	    if ( j != PostFitIteration) {           // Last cycle is ALWAYS without constraints
-	      chi2t[jm1] += 25.*dCnstContrib*dScale;   // constraint contribution is 50*chi2(def)
-	    }
+	    if ( j != PostFitIteration) {  chi2t[jm1] += 25.*ContribC[jm1]; }  // Last cycle is ALWAYS without constraints
 	}
 //Having 3 points (0,0.5,1.) find a pabolic minimum
 	if (j == 3) {  alf = finter(chi2t[0], chi2t[1], chi2t[2], 0., 0.5, 1.);
@@ -788,77 +777,72 @@ extern DerivT derivt_;
 		          alf = alfLowLim;
 			  PostFitIteration=4;  //Something is wrong. Don't make second optimisation
 		       }
-                       if(NCNST && alf>vkalInternalStepLimit/totalShift)
-	                 { alf=vkalInternalStepLimit/totalShift; PostFitIteration=4; icadd=2; limitationMade=true; }
         }
 
 //Having 3 points (0,-0.02,0.02) find a pabolic minimum
 	if (j == 6) {  bet = finter(chi2t[4], chi2t[3], chi2t[5], -0.02, 0., 0.02);
 	               if (chi2t[3] == chi2t[4] && chi2t[4] == chi2t[5])  bet = 0.;
-	               if (bet >0.3)bet = 0.3;
-                       if (bet <-0.3)bet = -0.3;
+	               if (bet > 0.2)bet =  0.2;
+                       if (bet <-0.2)bet = -0.2;
 	}
 //Check if minimum is really a minimum. Otherwise use bet=0. point
-	if (j == 7 &&  ContribC[6]>ContribC[3]) { bet = 0.; j--; /*repeat step 7*/}   
+	if (j == 7 &&  ContribC[6]>ContribC[3]) { 
+//std::cout<<__func__<<": step7 no improvement. Revert back bet=0"<<'\n';
+            bet = 0.;
+            chi2t[jm1]= setLimitedFitVrt(vk,alf,bet,dCoefNorm,xyzt);// track parameters at intermediate vertex.
+            vk->setCnstV(xyzt);                                     // Also save to cnstP for constraint
+            chi2t[jm1] += calcChi2Addition( vk, wgtvrtd, xyzt);     // Constraints of Chi2 type
+	    if (NCNST) {         //VK 25.10.2006 new mechanism for constraint treatment
+              applyConstraints(vk);
+	      ContribC[jm1] = 25.*dScale*getCnstValues2(vk);
+            }
+        }
 
-
-      // Trick to cut step in case of divergence and wrong ALFA. Step==4!!!  MUST not work is case of total step limitation
-      // Check if minimum is really a minimum. Otherwise use alf=0.02 or alf=0.5 or alf=1. points
-      if(j==4 && alf!=alfLowLim && !limitationMade){ ValForChk=chi2t[3]; 
-                             if((PostFitIteration==4) && NCNST) ValForChk+=ContribC[3];
-	                     if(ValForChk>chi2t[0]*1.0001) { alf = alfLowLim; ValForChk=chi2t[0]; j--; /*repeat step 4*/
-			                                     /*PostFitIteration=4;*/ } //Something is wrong. Don't make second optimisation
-	                     if(ValForChk>chi2t[1]*1.0001) { alf = 0.5;       ValForChk=chi2t[1]; if(j==4) j--;/*repeat step 4*/}   
-	                     if(ValForChk>chi2t[2]*1.0001) { alf = 1.0;       ValForChk=chi2t[2]; if(j==4) j--;/*repeat step 4*/}
-      }
+// Trick to cut step in case of divergence and wrong ALFA. Step==4!!!
+// Check if minimum is really a minimum. Otherwise use alf=0.02 or alf=0.5 or alf=1. points
+        if(j==4 && alf!=alfLowLim ){ 
+          ValForChk=chi2t[3]; if((PostFitIteration==4) && NCNST) ValForChk+=ContribC[3];
+          int notImproved=false;
+	  if(ValForChk>chi2t[0]*1.0001) { alf = alfLowLim; ValForChk=chi2t[0]; notImproved=true; }
+	  if(ValForChk>chi2t[1]*1.0001) { alf = 0.5;       ValForChk=chi2t[1]; notImproved=true; }   
+	  if(ValForChk>chi2t[2]*1.0001) { alf = 1.0;       ValForChk=chi2t[2]; notImproved=true; }
+          if(notImproved){  //Recalculate all with reverted alf
+//std::cout<<__func__<<": step4 no improvement. Revert back alf="<<alf<<'\n';
+            chi2t[jm1]= setLimitedFitVrt(vk,alf,bet,dCoefNorm,xyzt);// track parameters at intermediate vertex.
+            vk->setCnstV(xyzt);                                     // Also save to cnstP for constraint
+            chi2t[jm1] += calcChi2Addition( vk, wgtvrtd, xyzt);     // Constraints of Chi2 type
+	    if (NCNST) {         //VK 25.10.2006 new mechanism for constraint treatment
+              applyConstraints(vk);
+	      ContribC[jm1] = 25.*dScale*getCnstValues2(vk);
+	      if ( j != PostFitIteration) {  chi2t[jm1] += ContribC[jm1]; }  // Last cycle is ALWAYS without constraints
+            }
+          }
+        }
     }
 /* -- Saving of final j=PostFitIteration step as output */
 /*------------------------------------------------------*/
-    for (j=0; j<3; ++j)vk->fitV[j] = xyzt[j];
-    for (ii=0; ii<NTRK; ++ii){
-        trk=vk->TrackList[ii]; t_trk=vk->tmpArr[ii];
-        for (j=0; j<3; ++j) trk->fitP[j] = t_trk->part[j];
-    }
+    std::copy_n(xyzt,3,vk->fitV);
+    for (ii=0; ii<NTRK; ++ii) {  std::copy_n( vk->tmpArr[ii]->part, 3, vk->TrackList[ii]->fitP);   }
     vk->Chi2 = chi2t[PostFitIteration-1]; // Chi2 from last try.
-
-//    if (vk->passNearVertex == 7) {  
+//--------------------------------------------------------------------------------------------------------
+    if (NCNST) {                  /* Restore initial derivatives */
+      vk->setCnstV(vk->iniV); 
+      for (ii=0; ii<NTRK; ++ii){ VKTrack* trk=vk->TrackList[ii]; for (j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}
+      applyConstraints(vk);
+    }
+   
 //    if (PostFitIteration == 7) {  
 //std::cout<<" NBETA="<<ContribC[4]<<", "<<ContribC[5]<<", "<<ContribC[6]<<
 //                                  " aa="<<vk->ConstraintList[0]->aa[0]<<", "<<vk->ConstraintList[0]->aa[1]<<'\n';
 //std::cout<<"NDCOEF="<<chi2t[0]<<", "<<chi2t[1]<<", "<<chi2t[2]<<", "<<chi2t[3]<<", "
-//                    <<chi2t[4]<<", "<<chi2t[5]<<", "<<chi2t[6]<<", "<<icadd<<", "<<alf<<", "<<bet<<'\n';
-//std::cout<<"NDCOEF="<<chi2t[0]<<", "<<chi2t[1]<<", "<<chi2t[2]<<", "<<chi2t[3]<<", "<<icadd<<", "<<alf <<'\n';
+//                    <<chi2t[4]<<", "<<chi2t[5]<<", "<<chi2t[6]<<" alf="<<alf<<" bet="<<bet<<'\n';
 //std::cout<<"CNSTCN="<<ContribC[0]<<", "<<ContribC[1]<<", "<<ContribC[2]<<", "<<ContribC[3]<<", "
 //                    <<ContribC[4]<<", "<<ContribC[5]<<", "<<ContribC[6]<<" dScale="<<dScale<<'\n';
 //    }
 
-    dCoefNorm *= alf;   // Rescale normalisation according to found results
-    ValForChk=vk->Chi2;  if (NCNST)ValForChk += ContribC[PostFitIteration-1];
-    } while ( ( ValForChk>chi2t[0]*1.000001 || ValForChk>chi2t[1]*1.000001 || alf==alfLowLim)  && (++icadd<=1) );   // 1 additional iterations now
 
-
-
-//--------------------------------------------------------------------------------------------------------------------
-// Final check if there is any improvement. If not - stay with initial solution. Works only if constraints are present
-//
-//VK 22.02.2010 - this check is moved to fitVertex (5 such steps are allowed at maximum)
-//                Cascade fitter doesn't use fitVertex -> check influence!!!
-//
-//    double Chi2Ini=chi2t[0]-ContribC[0];
-//    if( (dScale==dScaleMax || ContribC[0]<ContribC[PostFitIteration-1]) && chi2t[PostFitIteration-1] > Chi2Ini ){
-//      for (j=0; j<3; ++j)vk->fitV[j] = vk->iniV[j];
-//      for (ii=0; ii<NTRK; ++ii){  trk=vk->TrackList[ii];
-//        for (j=0; j<3; ++j) trk->fitP[j] = trk->iniP[j];
-//      }
-//      vk->Chi2 = Chi2Ini; // Initial Chi2
-//    }
-//--------------------------------------------------------------------------------------------------------
-    if (NCNST) {                  /* Restore initial derivatives */
-      vk->setCnstV(vk->iniV); 
-      for (ii=0; ii<NTRK; ++ii){ trk=vk->TrackList[ii]; for (j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}
-      applyConstraints(vk);
-    }
-    return;
+    if(alf==alfLowLim) return false;  //Truncated step
+    return true;
 } 
 
 

@@ -33,6 +33,9 @@ namespace pool {
       /// Standard constructor
       RootTreeIndexContainer();
 
+      RootTreeIndexContainer (const RootTreeIndexContainer&) = delete;
+      RootTreeIndexContainer& operator= (const RootTreeIndexContainer&) = delete;
+
       /// Standard destructor
       virtual ~RootTreeIndexContainer();
 

@@ -19,7 +19,6 @@ include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
 EventSelector = Service( "EventSelector" )
 # To read back from two files:
 EventSelector.InputCollections       = [ "SimplePoolFile2.root" ]
-EventSelector.BackNavigation         = True
 #EventSelector.OutputLevel            = DEBUG
 #--------------------------------------------------------------
 # Event related parameters

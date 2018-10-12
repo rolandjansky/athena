@@ -50,7 +50,6 @@ Trk::MaterialEffectsUpdator::MaterialEffectsUpdator(const std::string &t, const 
   m_validationIgnoreUnmeasured(true),
   m_landauMode(false),
   m_validationDirection(1), 
-  m_uniqueID{1},
   m_momentumCut(50. * Gaudi::Units::MeV),
   m_momentumMax(10. * Gaudi::Units::TeV),
   m_forcedMomentum(2000. * Gaudi::Units::MeV),
@@ -88,23 +87,6 @@ Trk::MaterialEffectsUpdator::~MaterialEffectsUpdator() {
 // initialize
 StatusCode
 Trk::MaterialEffectsUpdator::initialize() {
-
-  /*
-   * Create a unique_ID (in range 1 ... N) based on the unique AlgTool name
-   * Initialize is a non-const method. We expect a small vector 
-   * and the initialize to run only a few times
-   */
-  size_t NameID=std::hash<std::string>{}(this->name());
-  
-  static std::unique_ptr< std::vector<size_t> > s_vectorNamedIDs
-    =std::make_unique<std::vector<size_t>>();
-  auto iter= std::find(s_vectorNamedIDs->begin(),s_vectorNamedIDs->end(),NameID);
-  if(iter==s_vectorNamedIDs->end()){
-    s_vectorNamedIDs->push_back(NameID);
-    m_uniqueID=s_vectorNamedIDs->size();
-  }else{
-    m_uniqueID = std::distance(s_vectorNamedIDs->begin(),iter) +1;
-  }
 
   ATH_MSG_INFO("Minimal momentum cut for material update : " << m_momentumCut << " MeV");
 

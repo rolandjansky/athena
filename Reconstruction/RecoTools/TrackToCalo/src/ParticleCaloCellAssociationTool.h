@@ -20,12 +20,14 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "PathLengthUtils.h"
 
-
+#include "StoreGate/ReadHandle.h"
 
 namespace Trk {
   class IParticleCaloExtensionTool;
   class CaloExtension;
 }
+
+class CaloCellContainer;
 
 namespace Rec {
 
@@ -63,12 +65,11 @@ namespace Rec {
                                const std::vector<const CaloCell*>& cells,
                                ParticleCellAssociation::CellIntersections& cellIntersections) const;
 
-    const CaloCellContainer* getCellContainer() const;
     void associateCells( const CaloCellContainer& container, const Trk::CaloExtension& caloExtension, float dr,
                          std::vector<const CaloCell*>& cells ) const;
 
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
-    std::string m_cellContainerName;
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerName;
     double      m_coneSize;
     mutable Trk::CaloCellSelectorLayerdR m_defaultSelector;
 

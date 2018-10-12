@@ -7,7 +7,6 @@
 
 #include "CLIDSvc/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
-class Identifier;
 class HWIdentifier;
 
 class ILArNoise {
@@ -36,8 +35,6 @@ public:
   virtual ~ILArNoise() {};
 
   virtual const float& noise( const HWIdentifier& id, int gain) const =0 ;
-
-  virtual const float& noise( const Identifier& id, int gain ) const = 0 ;
 
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 

@@ -30,9 +30,6 @@ print thed
 
 print ":"*80
 
-from RecExConfig.RecConfFlags import jobproperties as jp
-jp.RecConfFlags.AllowBackNavigation = True
-
 ## testing singleton-ness
 m = ObjKeyStore()
 b = ObjKeyStore()

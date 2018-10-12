@@ -129,7 +129,7 @@ public: // Constructor and Destructor
    virtual StatusCode io_finalize() override;
 
    /// Incident service handle listening for BeginProcessing and EndProcessing
-   void handle(const Incident& incident);
+   virtual void handle(const Incident& incident) override;
 
 private: // internal member functions
    /// Return pointer to active event SG
@@ -144,7 +144,7 @@ private: // internal member functions
    int findEvent(int evtNum) const;
 
    /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
-   void fireEndFileIncidents(bool isLastFile, bool fireEndTagIncident) const;
+   void fireEndFileIncidents(bool isLastFile) const;
 
    // Disconnect DB if all events from the source FID were processed and the Selector moved to another file
    bool disconnectIfFinished( SG::SourceID fid ) const;
@@ -154,7 +154,6 @@ private: // data
    EventContextAthenaPool*      m_endIter;
 
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
-   ServiceHandle<StoreGateSvc> m_tagDataStore;
 
    mutable PoolCollectionConverter* m_poolCollectionConverter;
    mutable pool::ICollectionCursor* m_headerIterator;
@@ -165,8 +164,6 @@ private: // data
    ServiceHandle<IIncidentSvc> m_incidentSvc;
 
 private: // properties
-   /// BackNavigation, switch on back navigation to find objects in input streams: default = false.
-   Gaudi::Property<bool> m_backNavigationFlag;
    /// ProcessMetadata, switch on firing of FileIncidents which will trigger processing of metadata: default = true.
    Gaudi::Property<bool> m_processMetadata;
    /// ShowSizeStat, show size statistics from POOL for all persistified objects: default = false.
@@ -188,9 +185,6 @@ private: // properties
    void inputCollectionsHandler(Property&);
    /// Query, query string.
    Gaudi::Property<std::string> m_query;
-
-   /// SkipBadFiles, boolean flag to allow skipping of non-existing or corrupted files.
-   Gaudi::Property<bool> m_skipBadFiles;
 
    /// KeepInputFilesOpen, boolean flag to keep files open after PoolCollection reaches end: default = false.
    /// Needed for PilUp to run without PoolFileCatalog. Relies on POOL to close files when reaching DB_AGE_LIMIT.

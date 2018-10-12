@@ -36,5 +36,3 @@ atlas_add_dictionary( TrigConfStorageDict
 # Install files from the package:
 atlas_install_headers( TrigConfOffline )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( share/LoadTriggerMenuFromXML.py )
-

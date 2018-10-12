@@ -3,14 +3,16 @@
 */
 
 #include <math.h>
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include "TrkVKalVrtCore/CommonPars.h"
 #include <iostream>
 
 namespace Trk {
 
 extern vkalMagFld  myMagFld;
 
-void vkgrkuta_(double *charge, double *step, double *vect, double *vout)
+void vkgrkuta_(double *charge, double *step, double *vect, double *vout, const VKalVrtControlBase* CONTROL)
 {
     double equiv_2[3], equiv_5[3];
     long int iter, ncut, j;
@@ -59,8 +61,7 @@ void vkgrkuta_(double *charge, double *step, double *vect, double *vout)
     iter = 0;
     ncut = 0;
     for (j = 1; j <= 7; ++j) {vout[j] = vect[j];}
-//    pinv = (*charge) * 2.9979251e-4 / vect[7];    // Old definition
-    pinv = (*charge) * 2.9979251e-2 / vect[7];      // New for MM, MEV/C and KGAUSS 
+    pinv = (*charge) * 2.9979251e-2 / vect[7];      // New for MM, MEV/C and KGAUSS
     tl = 0.;
     hst = *step;
 
@@ -70,12 +71,10 @@ L20:
     rest = *step - tl;
     if (fabs(hst) > fabs(rest)) hst = rest;
 /* *****      CALL GUFLD(VOUT,F) */
-//VK    vkmagfld_(&vout[1], &vout[2], &vout[3], &fx, &fy, &fz);
-    myMagFld.getMagFld( vout[1], vout[2], vout[3], fx, fy, fz);
-    f[0] = fx*10.;
+    myMagFld.getMagFld( vout[1], vout[2], vout[3], fx, fy, fz, CONTROL);
+    f[0] = fx*10.;   //VK Convert returned field in Tesla into kGauss for old code
     f[1] = fy*10.;
     f[2] = fz*10.;
-//std::cout <<" Now in grkuta="<<fx<<", "<<fy<<", "<<fz<<'\n';
 
 /*  Start of integration */
 
@@ -109,9 +108,8 @@ L20:
     
     
 /* *****      CALL GUFLD(XYZT,F) */
-//VK    vkmagfld_(xyzt, &xyzt[1], &xyzt[2], &fx, &fy, &fz);
-    myMagFld.getMagFld( xyzt[0], xyzt[1], xyzt[2], fx, fy, fz);
-    f[0] = fx*10.;
+    myMagFld.getMagFld( xyzt[0], xyzt[1], xyzt[2], fx, fy, fz, CONTROL);
+    f[0] = fx*10.;   //VK Convert returned field in Tesla into kGauss for old code
     f[1] = fy*10.;
     f[2] = fz*10.;
     at = a + secxs[0];
@@ -140,9 +138,8 @@ L20:
     est = fabs(dxt) + fabs(dyt) + fabs(dzt);
     if (est > fabs(hst) * 2.)          goto L30;
 /* *****      CALL GUFLD(XYZT,F) */
-//VK    vkmagfld_(xyzt, &xyzt[1], &xyzt[2], &fx, &fy, &fz);
-    myMagFld.getMagFld( xyzt[0], xyzt[1], xyzt[2], fx, fy, fz);
-    f[0] = fx*10.;
+    myMagFld.getMagFld( xyzt[0], xyzt[1], xyzt[2], fx, fy, fz, CONTROL);
+    f[0] = fx*10.; //VK Convert returned field in Tesla into kGauss for old code
     f[1] = fy*10.;
     f[2] = fz*10.;
 

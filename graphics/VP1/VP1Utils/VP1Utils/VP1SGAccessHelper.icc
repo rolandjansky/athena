@@ -30,7 +30,7 @@ inline const T* VP1SGAccessHelper::retrieve( const QString& key ) const
   try {
     t = storeGate()->retrieve<const T>(key.toStdString());
     exception = false;
-  } catch (std::runtime_error e) {
+  } catch (const std::runtime_error& e) {
     exception = true;
     t = 0;
   }

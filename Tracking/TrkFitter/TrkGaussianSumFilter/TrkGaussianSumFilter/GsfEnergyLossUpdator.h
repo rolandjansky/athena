@@ -157,7 +157,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
   }
 
   /** Validation Action: */
-  virtual void validationAction(ICache& icache) const{ 
+  virtual void validationAction(ICache& icache) const override { 
     (void) icache;
     validationAction(); 
   }
