@@ -83,9 +83,6 @@ namespace met{
 
     private:
 
-    void deltaPhi(float phi1, float phi2, float& result) const;
-    void deltaR(float eta1, float phi1, float eta2, float phi2, float& result) const;
-
     const float m_Drcone = 0.2;       // Cone size for mu-pfo association
     const float m_MinDistCone = 0.4;  // Cone size for getting random Phi of PFO which is not assoc to el or HR        
 

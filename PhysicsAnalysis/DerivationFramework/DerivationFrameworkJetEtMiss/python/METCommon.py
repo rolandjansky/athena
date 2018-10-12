@@ -3,7 +3,7 @@
 #********************************************************************
 # METCommon.py
 # Schedules default DF MET content building tools and writes the
-# results into SG. These may then be accessed along the train  
+# results into SG. These may then be accessed along the train
 #********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
@@ -106,7 +106,7 @@ def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                AssocConfig('Gamma'),
                AssocConfig('Tau'),
                AssocConfig('Soft')]
-    
+
     modConstKey="OriginCorr"
     modClusColls={
         'LCOriginCorrClusters':'LCOriginTopoClusters',
@@ -172,20 +172,30 @@ def scheduleMETCustomTrkSel(trkseltool,
     METLists.setdefault(outputlist,[]).append(cfg.suffix)
 
 
-# ********  Methods for HR construction (W precision measurements approach), STDM derivations ********
 # Add association map for HR calculation
-def addMETAssocMap(sequence=DerivationFrameworkJob, 
-                jettype='PFlowJet',
-                assocname='AntiKt4EMPFlow',
-                jetcoll='AntiKt4EMPFlowJets',
-                doPflow=True,
-                dorecoil=False,
-                algname='METAssociation'):
+def addMETAssocMapMakeMetHR(sequence, stream, outGroup):
 
     from METReconstruction.METRecoFlags import metFlags
     from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
     from METReconstruction.METAssocConfig import getMETAssocAlg
 
+    # Add PFlow jets
+    from DerivationFrameworkJetEtMiss.JetCommon import *
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+    addCHSPFlowObjects()
+    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="CHS", ptmin=5000, ptminFilter=10000, 
+                     mods="pflow_ungroomed", algseq=sequence, outputGroup=outGroup,calibOpt="ar:pflow")
+
+
+    # Settings for association map
+    jettype='PFlowJetHR'
+    assocname='AntiKt4EMPFlowHR'
+    jetcoll='AntiKt4EMPFlowCHSJets'
+    doPflow=True
+    dorecoil=True
+    algname='METAssociation'
+
+    # Build association map
     associators = [AssocConfig(jettype),
                    AssocConfig('Muon'),
                    AssocConfig('Ele'),
@@ -202,20 +212,21 @@ def addMETAssocMap(sequence=DerivationFrameworkJob,
     metFlags.METAssocConfigs()[cfg.suffix] = cfg
     metFlags.METAssocOutputList().append(cfg.suffix)
 
-
     metAlg = getMETAssocAlg(algname)
     sequence += metAlg
 
-# Make MET for HR calculation
-def MakeMET(sequence=DerivationFrameworkJob, 
-            assocname='AntiKt4EMPFlow',
-            jetcoll='AntiKt4EMPFlowJets',
-            setjetminptToinf=False):
-
+    # Make MET
     from METUtilities.METMakerConfig import getMETMakerAlg
-
+    setjetminptToinf=True
     makerAlg = getMETMakerAlg(assocname,jetColl=jetcoll,setJetMinWPtToInf=setjetminptToinf)
     sequence += makerAlg
+
+    stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMPFlowHR')
+    stream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMPFlowHRAux.')
+    stream.AddItem('xAOD::MissingETContainer#MET_Core_AntiKt4EMPFlowHR')
+    stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMPFlowHRAux.')
+    stream.AddItem('xAOD::MissingETContainer#MET_Reference_AntiKt4EMPFlowHR')
+    stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMPFlowHRAux.-ConstitObjectLinks.-ConstitObjectWeights')
 
 
 

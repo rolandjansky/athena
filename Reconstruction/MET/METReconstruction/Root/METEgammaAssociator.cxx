@@ -292,10 +292,10 @@ namespace met {
         TLorentzVector tv_pfo;
         tv_pfo.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
         float dR = 0.;
-        deltaR( tv_pfo.Eta(), tv_pfo.Phi(), eta_rndphi.first,  eta_rndphi.second, dR);
+        deltaR_HR( tv_pfo.Eta(), tv_pfo.Phi(), eta_rndphi.first,  eta_rndphi.second, dR);
         if( dR < m_Drcone ){
           float angle;
-          METEgammaAssociator::deltaPhi(tv_swclus.Phi(), tv_pfo.Phi(), angle);
+          deltaPhi_HR(tv_swclus.Phi(), tv_pfo.Phi(), angle);
           if( tv_swclus.Phi() <  tv_pfo.Phi() )
             angle = -1. * angle;
           tv_pfo.RotateZ(angle);
@@ -317,9 +317,7 @@ namespace met {
     for(const auto& pfo_itr : *constits.pfoCont) {
       if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
         continue;
-      TLorentzVector pfo_tmp;
-      pfo_tmp.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
-      HR += pfo_tmp;
+      HR += pfo_itr->p4();
     }
     //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
@@ -338,11 +336,8 @@ namespace met {
         swclus_orig.push_back( eg_i->caloCluster() );
 
     std::vector<TLorentzVector> swclus;
-    for(const auto& swclus_orig_i : swclus_orig){
-      TLorentzVector sw_curr;
-      sw_curr.SetPtEtaPhiE( swclus_orig_i->pt(), swclus_orig_i->eta(), swclus_orig_i->phi(), swclus_orig_i->e() );
-      swclus.push_back(sw_curr);
-    }
+    for(const auto& swclus_orig_i : swclus_orig)
+      swclus.push_back( swclus_orig_i->p4() );
     //std::cout << "swclus.size()  = " << swclus.size() << std::endl;
 
     for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
@@ -356,7 +351,7 @@ namespace met {
       for(const auto& swclus_i : swclus) {
         float dR = 0.;
         //std::cout << "swclus_i->eta() swclus_i->phi() swclus_i->pt(): " << swclus_i.Eta() << "  " << swclus_i.Phi() << "  " << swclus_i.Pt() << std::endl;
-        deltaR( pfo_curr.Eta(), pfo_curr.Phi(), swclus_i.Eta(), swclus_i.Phi(), dR);
+        deltaR_HR( pfo_curr.Eta(), pfo_curr.Phi(), swclus_i.Eta(), swclus_i.Phi(), dR);
         if( dR < m_Drcone )
           HR -= pfo_curr;
       } // over swclus
@@ -364,11 +359,10 @@ namespace met {
     //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 3. Get random phi
-    unsigned int seed;
+    unsigned int seed = 0;
     TRandom3 hole;
-
-    for(const auto& swclus_i : swclus) {
-      seed = floor( swclus_i.Pt() * 1.e3 );      
+    if( !swclus.empty() ){
+      seed = floor( swclus.back().Pt() * 1.e3 );     
       hole.SetSeed(seed);
     }
   
@@ -383,14 +377,14 @@ namespace met {
   
         Rnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
         float dR = 0.;
-        this->METEgammaAssociator::deltaR(HR.Eta(), HR.Phi(), swclus_i.Eta(), Rnd, dR);
+        deltaR_HR(HR.Eta(), HR.Phi(), swclus_i.Eta(), Rnd, dR);
   
         if(dR > m_MinDistCone) 
           isNextToHR = false;
   
         for(const auto& swclus_j : swclus) {
           dR = 0.;
-          this->METEgammaAssociator::deltaR( swclus_i.Eta(), Rnd, swclus_j.Eta(), swclus_j.Phi(), dR );
+          deltaR_HR( swclus_i.Eta(), Rnd, swclus_j.Eta(), swclus_j.Phi(), dR );
           if(dR < m_MinDistCone)
             isNextToPart = true;
         } // swclus_j
@@ -400,27 +394,6 @@ namespace met {
     } // swclus_i
 
     return StatusCode::SUCCESS;
-  }
-
-  
-  void METEgammaAssociator::deltaR(float eta1, float phi1, float eta2, float phi2, float& result) const {
-    float deta = eta1 - eta2;  
-    float dphi = 0;
-    METEgammaAssociator::deltaPhi(phi1, phi2, dphi);    
-    
-    result = sqrt(deta*deta + dphi*dphi);  
-  
-    return;
-  } 
-  
-  
-  void METEgammaAssociator::deltaPhi(float phi1, float phi2, float& result) const {
-    float dphi = std::fabs(phi1 - phi2);
-    if (dphi > TMath::Pi()) dphi = 2*TMath::Pi() - dphi;
-  
-    result = dphi;
-    
-    return;
   }
 
 

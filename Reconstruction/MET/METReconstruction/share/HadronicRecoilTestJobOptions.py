@@ -101,7 +101,7 @@ if not (containerexists or algexists):
     print "adding JetToolRunner"
     from JetRec.JetRecConf import JetAlgorithm
     filterseq += JetAlgorithm("jetalgCHSPFlow", Tools=[jtm.jetconstitCHSPFlow])
-    print "adding JetAlgorithm"   
+    print "adding JetAlgorithm"
 #######
 
 
@@ -122,7 +122,7 @@ cfg_akt4pf = METAssocConfig('NewAntiKt4EMPFlow',
                             associators,
                             doPFlow=True,
                             doRecoil=False,
-                            #modConstKey="JetETMissNeutralParticleFlowObjects" 
+                            #modConstKey="JetETMissNeutralParticleFlowObjects"
                             modConstKey="CHSParticleFlowObjects"
                             )
 
@@ -132,16 +132,16 @@ metFlags.METAssocOutputList().append(cfg_akt4pf.suffix)
 
 
 
-#metFlags.AllowOverwrite = True 
-JetType = 'PFlowJetRecoil'
+#metFlags.AllowOverwrite = True
+JetType = 'PFlowJetHR'
 associators = [AssocConfig(JetType),
                AssocConfig('Muon'),
                AssocConfig('Ele'),
                AssocConfig('Gamma'),
                AssocConfig('Soft')]
 #cfg_akt4pf = METAssocConfig('RecoilPFlow',
-cfg_akt4pfHR = METAssocConfig('NewAntiKt4EMPFlowHR', 
-#cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',  
+cfg_akt4pfHR = METAssocConfig('NewAntiKt4EMPFlowHR',
+#cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
                             associators,
                             doPFlow=True,
                             doRecoil=True,

@@ -75,7 +75,7 @@ namespace met{
     StatusCode hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
                              const met::METAssociator::ConstitHolder& constits, 
                              TLorentzVector& HR,
-                             std::vector<double>& vPhiRnd) const final;    
+                             std::vector<double>& vPhiRnd) const final;                                
 
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
@@ -96,9 +96,6 @@ namespace met{
     double m_extraTrkMatch_dR;
 
     private:
-
-    void deltaPhi(float phi1, float phi2, float& result) const;
-    void deltaR(float eta1, float phi1, float eta2, float phi2, float& result) const;
 
     const float m_Drcone = 0.2;       // Cone size for el-pfo association
     const float m_MinDistCone = 0.4;  // Cone size for getting random Phi of PFO which is not assoc to el or HR

@@ -210,14 +210,13 @@ namespace met {
   StatusCode METMuonAssociator::GetPFOWana(const xAOD::IParticle* obj,
              std::vector<const xAOD::IParticle*>& pfolist,
              const met::METAssociator::ConstitHolder& constits,
-             std::map<const IParticle*,MissingETBase::Types::constvec_t>& momenta,
+             std::map<const IParticle*,MissingETBase::Types::constvec_t>& /*momenta*/,
              std::vector<double>& vPhiRnd,
              unsigned int& lept_count,
              float& UEcorr) const
   {
-    //std::cout<<"METMuonAssociator::extractPFO_Wana:  muons"<<std::endl;
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
-    const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle); // not used currently
+    const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle); 
     const CaloCluster* muclus = mu->cluster();
 
     // Loop over all PFOs
@@ -236,7 +235,7 @@ namespace met {
     } // loop over all PFOs
 
 
-    // Step 2. Calculating UE energy correction for given lepton (using muclus only)
+    // Step 2. Calculating UE energy correction for a given lepton (using muclus only)
     if(muclus){
       TLorentzVector tv_UEcorr; // vector of UE correction
       TLorentzVector tv_muclus; // make TLorentzVector from muclus to simplify operations
@@ -255,10 +254,10 @@ namespace met {
         tv_pfo.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
   
         float dR = 0.;
-        deltaR( tv_pfo.Eta(), tv_pfo.Phi(), eta_rndphi.first,  eta_rndphi.second, dR);
+        deltaR_HR( tv_pfo.Eta(), tv_pfo.Phi(), eta_rndphi.first,  eta_rndphi.second, dR);
         if( dR < m_Drcone ){
           float angle;
-          METMuonAssociator::deltaPhi(tv_muclus.Phi(), tv_pfo.Phi(), angle);
+          deltaPhi_HR(tv_muclus.Phi(), tv_pfo.Phi(), angle);
           if( tv_muclus.Phi() <  tv_pfo.Phi() )
             angle = -1. * angle;
           tv_pfo.RotateZ(angle);
@@ -281,13 +280,11 @@ namespace met {
     for(const auto& pfo_itr : *constits.pfoCont) {
       if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
         continue;
-      TLorentzVector pfo_tmp;
-      pfo_tmp.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
-      HR += pfo_tmp;
+      HR += pfo_itr->p4();
     }
     //std::cout << "HR->pt() HR->eta() HR->phi() HR->e(): " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
-    // 2. Subtracting PFOs mathed to electrons from HR 
+    // 2. Subtracting PFOs matched to muons from HR 
     std::vector<const xAOD::Muon*> mu;
     for(const auto& obj_i : hardObjs){
       if(obj_i->pt()<5e3 && obj_i->type() != xAOD::Type::Muon) // similar to METAssociator
@@ -303,12 +300,8 @@ namespace met {
 
     // convert to TLorentzVector
     std::vector<TLorentzVector> idtrack;
-    for(const auto& idtrack_orig_i : idtrack_orig){
-      TLorentzVector idtrack_curr;
-
-      idtrack_curr.SetPtEtaPhiE( idtrack_orig_i->pt(), idtrack_orig_i->eta(), idtrack_orig_i->phi(), idtrack_orig_i->e() );
-      idtrack.push_back(idtrack_curr);
-    }
+    for(const auto& idtrack_orig_i : idtrack_orig)
+      idtrack.push_back( idtrack_orig_i->p4() );
     //std::cout << "idtrack.size()  = " << idtrack.size() << std::endl;
 
     std::vector<const CaloCluster*> muclus_orig;
@@ -319,11 +312,8 @@ namespace met {
 
     // convert to TLorentzVector
     std::vector<TLorentzVector> muclus;
-    for(const auto& muclus_orig_i : muclus_orig){
-      TLorentzVector muclus_curr;
-      muclus_curr.SetPtEtaPhiE( muclus_orig_i->pt(), muclus_orig_i->eta(), muclus_orig_i->phi(), muclus_orig_i->e() );
-      muclus.push_back(muclus_curr);
-    }
+    for(const auto& muclus_orig_i : muclus_orig)
+      muclus.push_back( muclus_orig_i->p4() );
     //std::cout << "muclus.size()  = " << muclus.size() << std::endl;
 
     for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
@@ -337,7 +327,7 @@ namespace met {
       if( fabs(pfo_i->charge()) > FLT_MIN ) {
         for(const auto& idtrack_i : idtrack) {
           float dR = 0.;
-          deltaR( pfo_curr.Eta(), pfo_curr.Phi(), idtrack_i.Eta(), idtrack_i.Phi(), dR);
+          deltaR_HR( pfo_curr.Eta(), pfo_curr.Phi(), idtrack_i.Eta(), idtrack_i.Phi(), dR);
           if( dR < m_Drcone ) 
             HR -= pfo_curr;
         } // over muon idtrack
@@ -345,7 +335,7 @@ namespace met {
       else{ // neutral PFOs
         for(const auto& muclus_i : muclus) {
           float dR = 0.;
-          deltaR( pfo_curr.Eta(), pfo_curr.Phi(), muclus_i.Eta(), muclus_i.Phi(), dR);
+          deltaR_HR( pfo_curr.Eta(), pfo_curr.Phi(), muclus_i.Eta(), muclus_i.Phi(), dR);
           if( dR < m_Drcone ) 
             HR -= pfo_curr;
         } // over muon muclus
@@ -354,11 +344,10 @@ namespace met {
 
     
     // 3. Get random phi based on muclus
-    unsigned int seed;
+    unsigned int seed = 0;
     TRandom3 hole;
-  
-    for(const auto& muclus_i : muclus) {
-      seed = floor( muclus_i.Pt() * 1.e3 );      
+    if( !muclus.empty() ){
+      seed = floor( muclus.back().Pt() * 1.e3 );     
       hole.SetSeed(seed);
     }
   
@@ -373,14 +362,14 @@ namespace met {
   
         Rnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
         float dR = 0.;
-        this->METMuonAssociator::deltaR(HR.Eta(), HR.Phi(), muclus_i.Eta(), Rnd, dR);
+        deltaR_HR(HR.Eta(), HR.Phi(), muclus_i.Eta(), Rnd, dR);
   
         if(dR > m_MinDistCone) 
           isNextToHR = false;
   
         for(const auto& muclus_j : muclus) {
           dR = 0.;
-          this->METMuonAssociator::deltaR( muclus_i.Eta(), Rnd, muclus_j.Eta(), muclus_j.Phi(), dR );
+          deltaR_HR( muclus_i.Eta(), Rnd, muclus_j.Eta(), muclus_j.Phi(), dR );
           if(dR < m_MinDistCone)
             isNextToPart = true;
         } // muclus_j
@@ -392,25 +381,7 @@ namespace met {
 
   }
   
-  void METMuonAssociator::deltaR(float eta1, float phi1, float eta2, float phi2, float& result) const {
-    float deta = eta1 - eta2;  
-    float dphi = 0;
-    METMuonAssociator::deltaPhi(phi1, phi2, dphi);    
-    
-    result = sqrt(deta*deta + dphi*dphi);  
-  
-    return;
-  } 
-  
-  
-  void METMuonAssociator::deltaPhi(float phi1, float phi2, float& result) const {
-    float dphi = std::fabs(phi1 - phi2);
-    if (dphi > TMath::Pi()) dphi = 2*TMath::Pi() - dphi;
-  
-    result = dphi;
-  
-    return;
-  }
+
   // **********************************
 
 

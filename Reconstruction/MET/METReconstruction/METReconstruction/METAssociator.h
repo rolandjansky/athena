@@ -131,6 +131,10 @@ namespace met {
                                     TLorentzVector& HR, 
                                     std::vector<double>& vPhiRnd) const = 0;
 
+
+    virtual void deltaPhi_HR(float phi1, float phi2, float& result) const;
+    virtual void deltaR_HR(float eta1, float phi1, float eta2, float phi2, float& result) const;    
+
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
 				     std::vector<const xAOD::IParticle*>& constlist,
 				     const met::METAssociator::ConstitHolder& constits) const = 0;

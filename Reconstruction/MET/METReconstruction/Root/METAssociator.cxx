@@ -244,13 +244,12 @@ namespace met {
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
     // HR and random Phi calculation
-    TLorentzVector HR;
-    float UEcorr_Pt = 0.;
-    unsigned int lept_count = 0;
-    std::vector<double> vPhiRnd;   
+    unsigned int lept_count = 0;  // Lepton counter
+    std::vector<double> vPhiRnd;  // vector of random phi for UE correction   
     if (m_pflow && m_useTracks && m_recoil) {
+      TLorentzVector HR;            // uncorrected had. recoil  
       constlist.clear();
-      ATH_CHECK( this->hadrecoil_PFO(hardObjs_tmp, constits, HR, vPhiRnd) );
+      ATH_CHECK( this->hadrecoil_PFO(hardObjs_tmp, constits, HR, vPhiRnd) ); // get HR and vPhiRnd
     }
 
     // Loop over leptons in the event
@@ -265,8 +264,7 @@ namespace met {
         }else{
           std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;          
           if(m_recoil){ // HR part:
-            UEcorr_Pt = 0.;
-
+            float UEcorr_Pt = 0.; // Underlying event correction for HR
             ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr_Pt) );
             dec_UEcorr(*obj) = UEcorr_Pt;
           } 
@@ -367,6 +365,28 @@ namespace met {
       }
     }
     return true;
+  }
+
+
+  // Delta R and phi for HR calculations
+  void METAssociator::deltaR_HR(float eta1, float phi1, float eta2, float phi2, float& result) const {
+    float deta = eta1 - eta2;  
+    float dphi = 0;
+    METAssociator::deltaPhi_HR(phi1, phi2, dphi);    
+    
+    result = sqrt(deta*deta + dphi*dphi);  
+  
+    return;
+  } 
+  
+  
+  void METAssociator::deltaPhi_HR(float phi1, float phi2, float& result) const {
+    float dphi = std::fabs(phi1 - phi2);
+    if (dphi > TMath::Pi()) dphi = 2*TMath::Pi() - dphi;
+  
+    result = dphi;
+  
+    return;
   }
 
 }
