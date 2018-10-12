@@ -8,8 +8,8 @@
 // PACKAGE:  TileMonitoring
 //
 // AUTHOR:   Luca Fiorini (Luca.Fiorini@cern.ch)
-// 
-// July 2006	
+//
+// July 2006
 // ********************************************************************//
 
 #include "TileMonitoring/TileFatherMonTool.h"
@@ -152,7 +152,7 @@ StatusCode TileFatherMonTool::initialize() {
 
 
 /// Method to navigate from a cell to its Tile partition
-/// EBA, LBA, LBC, EBC. Other kind of cell or non Tile cells 
+/// EBA, LBA, LBC, EBC. Other kind of cell or non Tile cells
 /// will return a conventional number NumPart
 /// Argument cell is a pointer to a CaloCell
 /*---------------------------------------------------------*/
@@ -186,8 +186,8 @@ int TileFatherMonTool::getPartition(const CaloCell* cell) {
 
 
 
-/// Method to get the Level1 Trigger word: 
-/// 32bit long, but only 8 bit are used 
+/// Method to get the Level1 Trigger word:
+/// 32bit long, but only 8 bit are used
 /// If no trigger word or empty it will return 0
 /*---------------------------------------------------------*/
 void TileFatherMonTool::fillEvtInfo()
@@ -205,6 +205,8 @@ void TileFatherMonTool::fillEvtInfo()
     m_lumiBlock = 0;
     m_evtBCID = 0;
     m_runNum = 0;
+    m_tileFlag = 0;
+    m_tileError_error = 0;
 
   } else {
 
@@ -213,6 +215,9 @@ void TileFatherMonTool::fillEvtInfo()
     m_lumiBlock = eventInfo->lumiBlock();
     m_evtBCID = eventInfo->bcid();
     m_runNum = eventInfo->runNumber();
+
+    m_tileFlag = eventInfo->eventFlags(xAOD::EventInfo::Tile);
+    m_tileError_error = eventInfo->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error;
 
 //    const std::vector< xAOD::EventInfo::StreamTag >& evtStreamTags = eventInfo->streamTags();
 //    for (const auto& evtStreamTag : evtStreamTags) {
@@ -230,7 +235,7 @@ void TileFatherMonTool::fillEvtInfo()
 }
 
 
-/// Method to get the run Number in words: 
+/// Method to get the run Number in words:
 /*---------------------------------------------------------*/
   std::string  TileFatherMonTool::getRunNumStr() {
 /*---------------------------------------------------------*/
@@ -243,9 +248,9 @@ void TileFatherMonTool::fillEvtInfo()
 
 
 
-/// Method to get the list of all Level1 trigger passed 
+/// Method to get the list of all Level1 trigger passed
 /// by the event.
-/// Results are stored in m_eventTrigs  
+/// Results are stored in m_eventTrigs
 /// Beware: vector contains always at least 1 element: AnyPhystrig or calib
 /// Argument lvl1info is the 32 bit Level 1 trigger word
 /*---------------------------------------------------------*/
@@ -302,7 +307,7 @@ void TileFatherMonTool::checkIsCollision() {
 
       for (const TileCell* mbts_cell : *mbts_container) {
         if (mbts_cell->energy() < 0.27 || TMath::Abs(mbts_cell->time()) < 1.e-5) continue; //threshold approx 60./222.
-        
+
         if (m_tileTBID->side(mbts_cell->ID()) > 0) {
           ++nHitsA;
           timeA += mbts_cell->time();
@@ -310,9 +315,9 @@ void TileFatherMonTool::checkIsCollision() {
           ++nHitsC;
           timeC += mbts_cell->time();
         }
-        
+
       } // end Cell loop
-      
+
       if (nHitsA > 1 && nHitsC > 1) {
         TileFatherMonTool::m_time_difference = timeA / nHitsA - timeC / nHitsC;
         if (TMath::Abs(TileFatherMonTool::m_time_difference) < 7.5) {
@@ -352,7 +357,7 @@ void TileFatherMonTool::checkIsCollision() {
           double time = tile_cell->time();
           double energy = tile_cell->energy();
 
-          if (energy < 500.0 || TMath::Abs(time) < 1.e-5) continue; 
+          if (energy < 500.0 || TMath::Abs(time) < 1.e-5) continue;
 
           if (m_tileID->sample(id) == TileID::SAMP_E) {
             if (m_tileID->side(id) == TileID::POSITIVE) {
@@ -393,7 +398,7 @@ template<class T>
 void TileFatherMonTool::SetBinLabel(T* axis, const std::string* labels, int nLabels) {
   if (nLabels < 0) return;
   for (unsigned int bin = 1; bin <= (unsigned int) nLabels; ++bin) {
-    axis->SetBinLabel(bin, (labels[bin]).c_str());
+    axis->SetBinLabel(bin, (labels[bin - 1]).c_str());
   }
 }
 
@@ -415,7 +420,7 @@ void TileFatherMonTool::ShiftTprofile(TProfile* histo, int delta_lb) {
   }
 
   for (; i <= 100; i++) { // set rest to zero
-     
+
     histo->SetBinEntries(i, 0.);
     histo->SetBinContent(i, 0.);
     histo->SetBinError(i, 0.);

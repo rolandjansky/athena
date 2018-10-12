@@ -29,10 +29,6 @@ class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 
-namespace InDetDD{
-  class SCT_DetectorManager;
-}
-
 namespace Trk {
   class RIO_OnTrack;
   class Track;
@@ -79,7 +75,6 @@ protected:
 
 	//tools
 	const AtlasDetectorID*                m_idHelper;
-	const InDetDD::SCT_DetectorManager*   m_SCT_Mgr;
 	const PixelID*                        m_pixelID;
 	const SCT_ID*                         m_sctID; 
 	PublicToolHandle<Trk::IUpdator>             m_iUpdator

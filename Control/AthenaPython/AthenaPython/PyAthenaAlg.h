@@ -42,16 +42,16 @@ class Alg : virtual public ::IPyComponent,
   virtual ~Alg(); 
 
   // Framework's Hooks
-  virtual StatusCode initialize();
-  virtual StatusCode reinitialize();
-  virtual StatusCode beginRun();
-  virtual StatusCode execute();
-  virtual StatusCode endRun();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode reinitialize() override;
+  virtual StatusCode start() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
 
-  virtual StatusCode sysInitialize();
+  virtual StatusCode sysInitialize() override;
 
-  virtual void resetExecuted();
+  virtual void resetExecuted() override;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -61,7 +61,7 @@ class Alg : virtual public ::IPyComponent,
    *  This is used by concrete implementations to connect a python
    *  component to its C++ counter-part
    */
-  virtual const char* typeName() const;
+  virtual const char* typeName() const override;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -69,7 +69,7 @@ class Alg : virtual public ::IPyComponent,
 
   /** @brief return associated python object. BORROWED reference.
    */ 
-  virtual PyObject* self() { return m_self; }
+  virtual PyObject* self() override { return m_self; }
 
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 
@@ -78,7 +78,7 @@ class Alg : virtual public ::IPyComponent,
 
   /** attach the C++ component to its python cousin
    */
-  virtual bool setPyAttr( PyObject* pyobj );
+  virtual bool setPyAttr( PyObject* pyobj ) override;
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

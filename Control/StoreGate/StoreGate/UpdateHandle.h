@@ -220,7 +220,7 @@ namespace SG {
     /**
      * @brief Return the cached pointer directly; no lookup.
      */
-    pointer_type cachedPtr() const;
+    pointer_type cachedPtr();
 
 
     /**
@@ -237,7 +237,7 @@ namespace SG {
      * @brief Reset this handle.
      * @param hard If true, anything depending on the event store is cleared.
      *
-     * Clear the updated flag, then call reset() from the base class.
+     * Call reset() from the base class.
      */
     virtual void reset (bool hard) override;
 
@@ -248,9 +248,6 @@ namespace SG {
      * Throws ExcNullUpdateHandle on failure.
      */
     pointer_type checkedPtr();
-
-    /// Flag to prevent multiple calls to IProxyDict::udpatedObject.
-    bool m_updated;
   }; 
 
 

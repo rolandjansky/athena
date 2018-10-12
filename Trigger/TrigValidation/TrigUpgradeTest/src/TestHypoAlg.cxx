@@ -15,7 +15,8 @@ namespace HLTTest {
   StatusCode TestHypoAlg::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
     ATH_MSG_DEBUG("Link name is "<<m_linkName.value());
-    CHECK( m_recoInput.initialize() );
+    if ( not m_recoInput.key().empty() )
+      CHECK( m_recoInput.initialize() );
     CHECK( m_tools.retrieve() );  
     return StatusCode::SUCCESS;
   }
@@ -28,6 +29,11 @@ namespace HLTTest {
 
   StatusCode TestHypoAlg::execute_r( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
+    if ( m_recoInput.key().empty() ) {
+      ATH_MSG_DEBUG( "No input configured, not producing the output" );
+      return StatusCode::SUCCESS;      
+    }
+
     auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
     if( not previousDecisionsHandle.isValid() ) {//implicit
       ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
@@ -47,8 +53,8 @@ namespace HLTTest {
     // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;
     for ( auto previousDecision: *previousDecisionsHandle ) {
-      ElementLink<FeatureContainer> featureLink;
-      recursivelyFindFeature(previousDecision, featureLink);
+      TrigCompositeUtils::LinkInfo<FeatureContainer> linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
+      ElementLink<FeatureContainer> featureLink = linkInfo.link;
       //auto featureLink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
       CHECK( featureLink.isValid() );
       const FeatureOBJ* feature = *featureLink;
@@ -120,22 +126,6 @@ namespace HLTTest {
 
     return StatusCode::SUCCESS;
   }
-
-
-bool TestHypoAlg::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<FeatureContainer>& featurelink) const{
-    //recursively find in the seeds
-    if ( start->hasObjectLink( m_linkName.value() ) ) {
-      featurelink=start->objectLink<FeatureContainer>( m_linkName.value() );
-      return true;
-    }
-    if  (TrigCompositeUtils::hasLinkToPrevious(start) ){
-      auto thelinkToPrevious =TrigCompositeUtils::linkToPrevious( start);      
-      return recursivelyFindFeature( *thelinkToPrevious, featurelink);
-    }
-    return false;
-  }
-
-
 
   
 } //> end namespace HLTTest

@@ -60,8 +60,6 @@ ToolSvc += FCalCmbTwrBldr
 from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
 TileCmbTwrBldr = TileTowerBuilderTool("TileCmbTwrBldr")
 TileCmbTwrBldr.CellContainerName = "AllCalo"
-TileCmbTwrBldr.DumpTowers        = FALSE
-TileCmbTwrBldr.DumpWeightMap     = FALSE
 ToolSvc += TileCmbTwrBldr
 
 CmbTowerBldr.TowerBuilderTools=[ TileCmbTwrBldr, LArCmbTwrBldr, FCalCmbTwrBldr ]

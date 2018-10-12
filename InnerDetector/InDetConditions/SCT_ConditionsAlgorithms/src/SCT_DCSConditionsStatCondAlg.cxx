@@ -4,20 +4,15 @@
 
 #include "SCT_DCSConditionsStatCondAlg.h"
 
-#include <memory>
-
 #include "Identifier/IdentifierHash.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
+#include <memory>
+
 SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKeyHV{"/SCT/DCS/HV"}
-  , m_readKeyState{"/SCT/DCS/CHANSTAT"}
-  , m_writeKeyState{"SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
-  , m_readAllDBFolders{true}
-  , m_returnHVTemp{true}
   , m_doState{true}
   , m_chanstatCut{"NORM"}
   , m_hvLowLimit{0.0}
@@ -27,8 +22,6 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
   , m_useHVUpLimit{1000000.0}
   , m_useHVChanCut{"LOOSE"}
 {
-  declareProperty("ReadAllDBFolders", m_readAllDBFolders);
-  declareProperty("ReturnHVTemp", m_returnHVTemp);
   declareProperty("HVCutLow", m_hvLowLimit);
   declareProperty("HVCutUp", m_hvUpLimit);
   declareProperty("StateCut", m_chanstatCut);
@@ -36,21 +29,17 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
   declareProperty("useHVLow", m_useHVLowLimit);
   declareProperty("useHVUp", m_useHVUpLimit);
   declareProperty("useHVChan", m_useHVChanCut);
-  
-  declareProperty("ReadKeyHV", m_readKeyHV, "Key of input (raw) HV conditions folder");
-  declareProperty("ReadKeyState", m_readKeyState, "Key of input (raw) State conditions folder");
-  declareProperty("WriteKeyState", m_writeKeyState, "Key of output (derived) State conditions folder");
 }
 
 StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  m_doState = ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp));
+  m_doState = ((m_readAllDBFolders.value() and m_returnHVTemp.value()) or (not m_readAllDBFolders.value() and not m_returnHVTemp.value()));
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
-  if (m_returnHVTemp) {
+  if (m_returnHVTemp.value()) {
     // Read Cond Handle (HV)
     ATH_CHECK(m_readKeyHV.initialize());
   }
@@ -60,7 +49,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
     ATH_CHECK(m_readKeyState.initialize());
     // Write Cond Handle
     ATH_CHECK(m_writeKeyState.initialize());
-    if(m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
+    if (m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
       ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
     }
@@ -128,9 +117,8 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
       unsigned int hvstate{val bitand 240};
       unsigned int lvstate{val bitand 15};
       if (   ( (m_chanstatCut=="NORM")  and not ((hvstate==16 or hvstate==48)                                and (lvstate==1 or lvstate==3))                             )
-             or ( (m_chanstatCut=="NSTBY") and not ((hvstate==16 or hvstate==48 or hvstate==32)                 and (lvstate==1 or lvstate==3 or lvstate==2))               )
-             or ( (m_chanstatCut=="LOOSE") and not ((hvstate==16 or hvstate==48 or hvstate==32 or hvstate==128) and (lvstate==1 or lvstate==3 or lvstate==2 or lvstate==8)) )
-             ) {
+          or ( (m_chanstatCut=="NSTBY") and not ((hvstate==16 or hvstate==48 or hvstate==32)                 and (lvstate==1 or lvstate==3 or lvstate==2))               )
+          or ( (m_chanstatCut=="LOOSE") and not ((hvstate==16 or hvstate==48 or hvstate==32 or hvstate==128) and (lvstate==1 or lvstate==3 or lvstate==2 or lvstate==8)) )) {
         writeCdoState->fill(channelNumber, paramState);
       } else {
         writeCdoState->remove(channelNumber, paramState);
@@ -140,7 +128,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
     }
   }
 
-  if (m_returnHVTemp) {
+  if (m_returnHVTemp.value()) {
     // Read Cond Handle 
     SG::ReadCondHandle<CondAttrListCollection> readHandleHV{m_readKeyHV};
     const CondAttrListCollection* readCdoHV{*readHandleHV};
@@ -159,7 +147,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
 
     // Combined the validity ranges of state and range
     EventIDRange rangeIntersection{EventIDRange::intersect(rangeState, rangeHV)};
-    if(rangeIntersection.start()>rangeIntersection.stop()) {
+    if (rangeIntersection.stop().isValid() and rangeIntersection.start()>rangeIntersection.stop()) {
       ATH_MSG_FATAL("Invalid intersection range: " << rangeIntersection);
       return StatusCode::FAILURE;
     }

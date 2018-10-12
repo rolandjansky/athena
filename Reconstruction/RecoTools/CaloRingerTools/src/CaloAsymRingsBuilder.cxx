@@ -30,7 +30,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 
 // STL
-#include <algorithm> 
+#include <algorithm>
 #include <math.h>
 #include <cfloat>
 
@@ -44,8 +44,8 @@ CaloAsymRingsBuilder::CaloAsymRingsBuilder(const std::string& type,
 {
 
   // declare interface
-  declareInterface<ICaloRingsBuilder>(this); 
-  
+  declareInterface<ICaloRingsBuilder>(this);
+
   declareProperty("DoEtaAxesDivision", m_doEtaAxesDivision = false,
       "Eta Axes can be divide in two.");
   declareProperty("DoPhiAxesDivision", m_doPhiAxesDivision = false,
@@ -77,7 +77,7 @@ StatusCode CaloAsymRingsBuilder::initialize()
     // convert the types:
     const auto& caloSampleItr = reinterpret_cast<
         std::vector<CaloSampling::CaloSample>::iterator&
-      >(itr); 
+      >(itr);
     const auto& caloSampleEndItr = reinterpret_cast<
         std::vector<CaloSampling::CaloSample>::iterator&
       >(end_itr);
@@ -87,7 +87,7 @@ StatusCode CaloAsymRingsBuilder::initialize()
 
     itr += rsNLayers;
 
-    const auto rawConf = xAOD::RingSetConf::RawConf( 
+    const auto rawConf = xAOD::RingSetConf::RawConf(
           m_nRings[rsConfIdx],
           rsLayers,
           m_etaWidth[rsConfIdx], m_phiWidth[rsConfIdx],
@@ -125,14 +125,22 @@ StatusCode CaloAsymRingsBuilder::finalize()
 }
 
 // =================================================================================
-StatusCode CaloAsymRingsBuilder::buildRingSet( 
+StatusCode CaloAsymRingsBuilder::buildRingSet(
     const xAOD::RingSetConf::RawConf &rawConf,
     const AtlasGeoPoint &seed,
     xAOD::RingSet *rs)
 {
+  // Retrieve CaloCells
+  SG::ReadHandle<CaloCellContainer> cellsCont(m_cellsContName);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!cellsCont.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_cellsContName.key());
+    return StatusCode::FAILURE;
+  }
+  CaloCellList cells( cellsCont.ptr() );
+
   // Get this RingSet size:
-  const auto nRings = rawConf.nRings; 
-  CaloCellList cells( m_cellCont );
+  const auto nRings = rawConf.nRings;
   // loop over cells
   for ( const int layer : rawConf.layers) { // We use int here because the
     // cells.select() method needs int as param
@@ -140,7 +148,7 @@ StatusCode CaloAsymRingsBuilder::buildRingSet(
     // needed window:
     // If the nRings * eta/phi width is lower than cellMaxDEtaDist, then use it
     // instead
-    cells.select(seed.eta(), seed.phi(), m_cellMaxDEtaDist, m_cellMaxDPhiDist, layer ); 
+    cells.select(seed.eta(), seed.phi(), m_cellMaxDEtaDist, m_cellMaxDPhiDist, layer );
     for ( const CaloCell *cell : cells ) {
       unsigned int ringNumber(0);
 
@@ -175,7 +183,7 @@ StatusCode CaloAsymRingsBuilder::buildRingSet(
           }
         }
         else if (etaPositive){
-          ringNumber = (ringNumber * 4) - 1; 
+          ringNumber = (ringNumber * 4) - 1;
         }
         else{
           ringNumber = (ringNumber * 4);

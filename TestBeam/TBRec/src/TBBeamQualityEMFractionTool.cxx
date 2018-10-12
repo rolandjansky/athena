@@ -12,23 +12,12 @@
 //#                                                   #
 //#####################################################
 
-#include "TBRec/TBBeamQualityEMFractionTool.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/AlgTool.h"
-
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/Property.h"
-
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h" 
+#include "TBBeamQualityEMFractionTool.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 
 #include "Identifier/Identifier.h"
-#include <list>
 
 TBBeamQualityEMFractionTool::TBBeamQualityEMFractionTool(const std::string& name,
 							 const std::string& type,

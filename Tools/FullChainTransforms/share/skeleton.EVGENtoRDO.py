@@ -143,8 +143,8 @@ try:
 except:
     ## Select detectors
     if 'DetFlags' not in dir():
-        ## If you configure one det flag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags
+        ## If you configure one det flag, you're responsible for configuring them all!
         DetFlags.all_setOn()
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
@@ -153,6 +153,7 @@ except:
     if checkHGTDOff is not None:
         checkHGTDOff() #Default for now
 
+from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()
 
 # removed configuration of forward detectors from standard simulation config
@@ -171,10 +172,9 @@ else:
 ## Don't use the SeedsG4 override
 simFlags.SeedsG4.set_Off()
 
-## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool')
-else:
+## The looper killer is on by default. Disable it if this is requested.
+if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
+    simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool')
     fast_chain_log.warning("The looper killer will NOT be run in this job.")
 
 

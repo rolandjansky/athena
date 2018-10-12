@@ -105,10 +105,10 @@ if TriggerFlags.doID():
 
     PixelConditionsSetup.config(useDCS=False, onlineMode=True, prefix='')
     PixelConditionsSetup.lock()
-    PixelConditionsSetup.createSvc()
-    SCT_ConditionsSetup.config(useDCS=False, onlineMode=True, prefix='')
+    PixelConditionsSetup.createTool()
+    SCT_ConditionsSetup.config(useDCS=False, onlineMode=True, prefix='InDetTrig')
     SCT_ConditionsSetup.lock()
-    SCT_ConditionsSetup.createSvc()
+    SCT_ConditionsSetup.createTool()
     TRT_ConditionsSetup.config(useDCS=False, onlineMode=True, prefix='')
     TRT_ConditionsSetup.lock()
     TRT_ConditionsSetup.createSvc()

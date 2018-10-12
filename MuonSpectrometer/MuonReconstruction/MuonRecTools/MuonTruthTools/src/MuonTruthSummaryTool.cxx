@@ -38,33 +38,15 @@ namespace Muon {
   StatusCode  MuonTruthSummaryTool::initialize()
   {
     ATH_MSG_VERBOSE("Initializing ...");
-    if (m_idHelper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_idHelper << endmsg;
-      return StatusCode::FAILURE; 
-    }
+    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_incidentSvc.retrieve() );      
 
-    if (m_printer.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_printer << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
-    if (m_helper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_helper << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
-    // call handle in case of EndEvent
-    if( m_incidentSvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Could not get " << m_incidentSvc);
-      return StatusCode::FAILURE;      
-    }
     m_incidentSvc->addListener( this, std::string("EndEvent"));
     
     if (m_writeTree){
-      if(service("THistSvc", m_thistSvc).isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve THistSvc");
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( service("THistSvc", m_thistSvc) );
     
       m_tree = new TTree(m_treeName.c_str(), "Ntuple of MuonTruthSummary");
       static unsigned int numLevels=3;// Hardcoding to 3 levels for the moment.
@@ -74,12 +56,8 @@ namespace Muon {
       treePathAndName+="/";
       treePathAndName+=m_treeName;
       
-      if(m_thistSvc->regTree(treePathAndName.c_str(), m_tree).isFailure()) {
-        ATH_MSG_FATAL("Unable to register " << m_tree->GetName());
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_VERBOSE("Registered tree as "<<treePathAndName);
-    }
+      ATH_CHECK( m_thistSvc->regTree(treePathAndName.c_str(), m_tree) );
+      ATH_MSG_VERBOSE("Registered tree as "<<treePathAndName);
       
       initChamberVariables(numLevels); 
     }
@@ -96,8 +74,6 @@ namespace Muon {
     ATH_CHECK(m_TruthNames.initialize());
     return StatusCode::SUCCESS;
   }
-
-                                    
 
   StatusCode  MuonTruthSummaryTool::finalize() {
     ATH_MSG_INFO("Of "<<m_truthHitsTotal<<" truth hits in total...");

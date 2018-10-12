@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloToolInterfaces/IL1CPHitsTools.h"
 
 namespace LVL1 

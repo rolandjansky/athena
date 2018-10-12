@@ -11,10 +11,8 @@ def buildDL1(basename):
   metaInstance = { 'IsATagger'          : False,
                   'xAODBaseName'       : basename,
                   'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : [basename],
-                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+                  'CalibrationTaggers' : [basename],
                   'ToolCollection'     : basename+'Tag'}
 
   def DL1Instance(name, useBTagFlagsDefaults = True, **options):

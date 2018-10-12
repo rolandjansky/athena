@@ -123,71 +123,25 @@ namespace Muon {
     }
 
     ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::Initializing");
-    StatusCode sc = m_muonCombinePatternTool.retrieve();
+    ATH_CHECK( m_muonCombinePatternTool.retrieve() );
+    ATH_MSG_VERBOSE ("found Service MuonCombinePatternTool " << m_muonCombinePatternTool);
 
-    if(sc.isFailure())
-      {
-	ATH_MSG_FATAL ("Could not get MuonCombinePatternTool tool");
-	return sc;
-      }
-    else
-      {
-	ATH_MSG_VERBOSE ("found Service MuonCombinePatternTool " << m_muonCombinePatternTool);
-      }
+    ATH_CHECK( m_muonHoughPatternTool.retrieve() );
+    ATH_MSG_VERBOSE ("found Service muonHoughPatternTool: " << m_muonHoughPatternTool);
 
-    sc = m_muonHoughPatternTool.retrieve();
+    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_MSG_DEBUG ("Retrieved " << m_idHelperTool);
 
-    if(sc.isFailure())
-      {
-	ATH_MSG_FATAL ("Could not get muonHoughPatternTool tool");
-	return sc;
-      }
-    else
-      {
-	ATH_MSG_VERBOSE ("found Service muonHoughPatternTool: " << m_muonHoughPatternTool);
-      }
-
-    sc = m_idHelperTool.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_DEBUG ("Retrieved " << m_idHelperTool);
-    }else{ 
-      ATH_MSG_FATAL ("Could not get " << m_idHelperTool);
-      return sc;
-    }
-
-    sc = m_printer.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_DEBUG ("Retrieved " << m_printer);
-    }else{
-      ATH_MSG_FATAL ("Could not get " << m_printer);
-      return sc;
-    }
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_MSG_DEBUG ("Retrieved " << m_printer);
   
-    StoreGateSvc* detStore=0;
-    sc = serviceLocator()->service("DetectorStore", detStore);
+    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
-    if ( sc.isSuccess() ) 
-      {
-	sc = detStore->retrieve( m_detMgr );
-
-	if ( sc.isFailure() ) {
-          ATH_MSG_WARNING (" Cannot retrieve MuonDetDescrMgr ");
-          return sc;
-	} 
-	else 
-	  {
-	    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-	    m_cscIdHelper = m_detMgr->cscIdHelper();    
-	    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-	    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-	    ATH_MSG_DEBUG (" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
-	  }
-      } 
-    else 
-      {
-	ATH_MSG_WARNING (" MuonDetDescrMgr not found in DetectorStore ");
-	return sc;
-      }
+    m_mdtIdHelper = m_detMgr->mdtIdHelper();
+    m_cscIdHelper = m_detMgr->cscIdHelper();    
+    m_rpcIdHelper = m_detMgr->rpcIdHelper();
+    m_tgcIdHelper = m_detMgr->tgcIdHelper();
+    ATH_MSG_DEBUG (" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
 
     if ( m_hit_reweights ) {
       ATH_MSG_DEBUG ("Hit Reweighting " << m_hit_reweights);

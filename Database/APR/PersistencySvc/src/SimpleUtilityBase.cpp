@@ -12,7 +12,6 @@
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/FileDescriptor.h"
-#include "StorageSvc/poolDb.h"
 
 using namespace pool;
 
@@ -63,7 +62,7 @@ void SimpleUtilityBase::startSession()
       throw std::runtime_error( "Could not retrieve a IStorageExplorer interface" );
    }
    long technologyId = pool::DbType::getType( technologyName ).majorType();
-   if( ! storageExplorer->startSession( poolDb::READ, technologyId, session ).isSuccess() ) {
+   if( ! storageExplorer->startSession( pool::READ, technologyId, session ).isSuccess() ) {
       throw std::runtime_error( "Could not start a new session" );
    }
    if( technologyId == pool::ROOT_StorageType.majorType() ) {
@@ -85,7 +84,7 @@ std::string SimpleUtilityBase::readFileGUID( const std::string& pfn )
 {
    std::string fid;
    pool::FileDescriptor fd( fid, pfn );
-   if( ! storageExplorer->connect( session, poolDb::READ, fd ).isSuccess() ) {
+   if( ! storageExplorer->connect( session, pool::READ, fd ).isSuccess() ) {
       throw std::runtime_error( "Could not open file \"" + pfn + "\"" );
    }
    if( ! storageExplorer->dbParam( fd, "FID", fid ).isSuccess() ) {

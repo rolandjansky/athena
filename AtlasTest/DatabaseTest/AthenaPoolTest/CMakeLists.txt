@@ -97,11 +97,6 @@ athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
 athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
                          "^..AthenaPoolTestD"
                          DEPENDS AthenaPoolTestRead )
-# AthenaPoolTestReadNav - read back from Step2 - part in one file,
-# part in another file
-athenapooltest_run_test( AthenaPoolTestReadNav AthenaPoolTestReadNav
-                         "AthenaPoolTestD"
-                         DEPENDS AthenaPoolTestStep2Write )
 
 # Copy the Step2 file
 #athenapooltest_run_test( AthenaPoolTestCopy AthenaPoolTestCopy
@@ -128,7 +123,7 @@ athenapooltest_run_test( AthenaPoolTestReadNav AthenaPoolTestReadNav
 # Test write/read of indet rdos:
 athenapooltest_run_test( InDetRawDataWriter InDetRawDataWriter_jobOptions
                          "InDetRawDataFak"
-                         DEPENDS AthenaPoolTestReadNav )
+                         DEPENDS AthenaPoolTestStep2Write )
 athenapooltest_run_test( InDetRawDataRead InDetRawDataReader_jobOptions
                          "InDetRawDataFak"
                          DEPENDS InDetRawDataWriter )

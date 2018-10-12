@@ -12,8 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/ByteStreamData
                           InnerDetector/InDetConditions/InDetByteStreamErrors
+                          InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetConditions/PixelConditionsServices
-                          InnerDetector/InDetConditions/SCT_ConditionsServices
+                          InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/PixelCabling

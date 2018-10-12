@@ -37,11 +37,10 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	///////////////////////////////////////////////////////////////////
 	public:
 	
-	/** default, copy = operator constructors */
 	TRT_DriftCircle();
-	TRT_DriftCircle(const TRT_DriftCircle &);
-	TRT_DriftCircle &operator=(const TRT_DriftCircle &);
-	
+	TRT_DriftCircle(const TRT_DriftCircle &) =default;
+	TRT_DriftCircle &operator=(const TRT_DriftCircle &)=default;
+	TRT_DriftCircle &operator=(TRT_DriftCircle &&)=default;
         /** Constructor with parameters:
 	compact id of the DriftCircle, 
 	the driftRadius and its error
@@ -65,28 +64,28 @@ class TRT_DriftCircle :   public Trk::PrepRawData
                 const unsigned int word=0
 		);
                 
-        TRT_DriftCircle( 
-                const Identifier &Id, 
-                const Amg::Vector2D& driftRadius,
-		std::vector<Identifier>&& rdoList,
-                std::unique_ptr<const Amg::MatrixX> errDriftRadius,
-                const InDetDD::TRT_BaseElement* detEl,
-                const unsigned int word);
+  TRT_DriftCircle( 
+    const Identifier &Id, 
+    const Amg::Vector2D& driftRadius,
+    std::vector<Identifier>&& rdoList,
+    std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+    const InDetDD::TRT_BaseElement* detEl,
+    const unsigned int word);
 
 	/** Destructor*/
 	virtual ~TRT_DriftCircle();
 
 	//accesors
 
-        /** returns the TRT dataword */
-        virtual unsigned int getWord() const;
+  /** returns the TRT dataword */
+  virtual unsigned int getWord() const;
 
-        /** returns the leading edge bin
-         *  defined as in TRT_LoLumRawData to be the first 0-1 transition */
-        virtual int driftTimeBin() const;
+  /** returns the leading edge bin
+   *  defined as in TRT_LoLumRawData to be the first 0-1 transition */
+  virtual int driftTimeBin() const;
 
-        /** returns the trailing edge bin */
-        virtual int trailingEdge() const;
+  /** returns the trailing edge bin */
+  virtual int trailingEdge() const;
 	
 	/** returns true if the high level threshold was passed */
 	virtual bool highLevel() const ;
@@ -143,7 +142,7 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	private:
 	// not const because of DataPool
 	const InDetDD::TRT_BaseElement* m_detEl;
-        unsigned int m_word;
+  unsigned int m_word;
 
 };
 

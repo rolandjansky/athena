@@ -7,7 +7,7 @@ atlas_subdir( TileFastCaloSim )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Tools/AtlasDoxygen
+                          
                           PRIVATE
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier

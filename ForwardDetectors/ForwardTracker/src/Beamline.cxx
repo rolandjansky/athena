@@ -45,7 +45,7 @@ namespace ForwardTracker {
 
   public:
     
-    ParticleTracker(IParticle& particle): m_particle(particle), m_element(0) {}
+    ParticleTracker(IParticle& particle): m_particle(particle) {}
     
     bool operator()(const IBeamElement::ConstPtr_t& be) { 
       
@@ -59,7 +59,6 @@ namespace ForwardTracker {
   private:
     
     IParticle& m_particle;
-    int        m_element;
   };
 
   void Beamline::track(IParticle& particle) const { // Pass the particle to beam elements until out of aperture or endPlane

@@ -11,6 +11,8 @@
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
+#include "AthContainers/tools/AtomicDecorator.h"
+#include "CxxUtils/stall.h"
 
 // Local include(s):
 #include "xAODEventInfo/versions/EventInfo_v1.h"
@@ -572,7 +574,7 @@ namespace xAOD {
 
    uint32_t EventInfo_v1::eventFlags( EventFlagSubDet subDet ) const {
 
-      return ( ( *eventFlagsAccessorsV1( subDet ) )( *this ) &
+      return ( ( *eventFlagsConstAccessorsV1( subDet ) )( *this ) &
                EF_BITS );
    }
 
@@ -586,7 +588,7 @@ namespace xAOD {
       }
 
       // Get the value of the flags:
-      uint32_t value = ( *eventFlagsAccessorsV1( subDet ) )( *this );
+      uint32_t value = ( *eventFlagsConstAccessorsV1( subDet ) )( *this );
 
       // Dig out the bit we are asking for:
       return ( ( value >> bit ) & 0x1 );
@@ -595,28 +597,34 @@ namespace xAOD {
    bool EventInfo_v1::setEventFlags( EventFlagSubDet subDet, uint32_t flags ) {
 
       // Get the accessor:
-      Accessor< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
+      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
       if( ! acc ) {
          return false;
       }
 
       // Construct the value that we want to store, taking the current error
       // flags into account:
-      const uint32_t value = ( ( ( *acc )( *this ) & EF_ERROR_BITS ) |
-                               ( flags & EF_BITS ) );
-
-      // Set this value:
-      ( *acc )( *this ) = value;
+      std::atomic<uint32_t>& a = (*acc)(*this);
+      uint32_t orig = a;
+      uint32_t value = ( ( orig & EF_ERROR_BITS ) | ( flags & EF_BITS ) );
+      while (!a.compare_exchange_strong (orig, value)) {
+        CxxUtils::stall();
+        value = ( ( orig & EF_ERROR_BITS ) | ( flags & EF_BITS ) );
+      }
 
       // Tell the user that we were successful:
       return true;
    }
 
-   bool EventInfo_v1::setEventFlagBit( EventFlagSubDet subDet, size_t bit,
-                                       bool set ) {
+   bool EventInfo_v1::setEventFlagBit( EventFlagSubDet subDet, size_t bit)
+   {
+     return updateEventFlagBit (subDet, bit);
+   }
 
+   bool EventInfo_v1::updateEventFlagBit( EventFlagSubDet subDet, size_t bit) const
+   {
       // Get the accessor:
-      Accessor< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
+      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
       if( ! acc ) {
          return false;
       }
@@ -626,18 +634,44 @@ namespace xAOD {
          return false;
       }
 
-      // Construct the new value:
-      uint32_t value = 0;
-      if( set ) {
-         value = ( *acc )( *this ) | ( 1u << bit );
-      } else {
-         const uint32_t mask = EF_BITS ^ ( 1u << bit );
-         value = ( ( EF_ERROR_BITS & ( *acc )( *this ) ) |
-                   ( mask & ( *acc )( *this ) ) );
+      // Set the new value:
+      ( *acc )( *this ) |= ( 1u << bit );
+
+      // Tell the user that we were successful:
+      return true;
+   }
+
+   bool EventInfo_v1::resetEventFlagBit( EventFlagSubDet subDet, size_t bit)
+   {
+      // Get the accessor:
+      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
+      if( ! acc ) {
+         return false;
+      }
+
+      // Check if the bit makes sense:
+      if( bit >= EF_ERROR_SHIFT ) {
+         return false;
       }
 
       // Set the new value:
-      ( *acc )( *this ) = value;
+      ( *acc )( *this ) &= ~( 1u << bit );
+
+      // Tell the user that we were successful:
+      return true;
+   }
+
+   bool EventInfo_v1::updateEventFlags( const EventFlagSubDet subDet,
+                                        const uint32_t flags) const
+   {
+      // Get the accessor:
+      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
+      if( ! acc ) {
+         return false;
+      }
+
+      // Set the new value:
+      ( *acc )( *this ) |= ( flags & EF_BITS );
 
       // Tell the user that we were successful:
       return true;
@@ -648,7 +682,7 @@ namespace xAOD {
 
       // Get the value in one go:
       return static_cast< EventFlagErrorState >(
-         ( ( *eventFlagsAccessorsV1( subDet ) )( *this ) >> EF_ERROR_SHIFT ) &
+         ( ( *eventFlagsConstAccessorsV1( subDet ) )( *this ) >> EF_ERROR_SHIFT ) &
          0xF );
    }
 
@@ -656,7 +690,7 @@ namespace xAOD {
                                      EventFlagErrorState state ) {
 
       // Get the accessor:
-      Accessor< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
+      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
       if( ! acc ) {
          return false;
       }
@@ -667,12 +701,60 @@ namespace xAOD {
       }
 
       // Construct the new value:
-      const uint32_t value = ( ( ( *acc )( *this ) & EF_BITS ) |
-                               ( static_cast< uint32_t >( state ) <<
-                                 EF_ERROR_SHIFT ) );
+      std::atomic<uint32_t>& a = (*acc)(*this);
+      uint32_t orig = a;
+      uint32_t value = ( ( orig & EF_BITS ) |
+                         ( static_cast< uint32_t >( state ) <<
+                           EF_ERROR_SHIFT ) );
+      while (!a.compare_exchange_strong (orig, value)) {
+        CxxUtils::stall();
+        value = ( ( orig & EF_BITS ) |
+                  ( static_cast< uint32_t >( state ) <<
+                    EF_ERROR_SHIFT ) );
+      }
 
-      // Update the flag:
-      ( *acc )( *this ) = value;
+      // Tell the user that we were successful:
+      return true;
+   }
+
+   bool EventInfo_v1::updateErrorState( const EventFlagSubDet subDet,
+                                        const EventFlagErrorState state ) const
+   {
+
+      // Get the accessor:
+      const SG::AtomicDecorator< uint32_t >* acc = eventFlagsAccessorsV1( subDet );
+      if( ! acc ) {
+         return false;
+      }
+
+      // Check its value:
+      if( ( state != NotSet ) && ( state != Warning ) && ( state != Error ) ) {
+         return false;
+      }
+
+      // Construct the new value:
+      std::atomic<uint32_t>& a = (*acc)(*this);
+      uint32_t orig = a;
+
+      // Only allow increasing the error state in an update.
+      if (state < ((orig >> EF_ERROR_SHIFT) & 0xf)) {
+        return false;
+      }
+
+      uint32_t value = ( ( orig & EF_BITS ) |
+                         ( static_cast< uint32_t >( state ) <<
+                           EF_ERROR_SHIFT ) );
+      while (!a.compare_exchange_strong (orig, value)) {
+        if (state < ((orig >> EF_ERROR_SHIFT) & 0xf)) {
+          return false;
+        }
+
+        value = ( ( orig & EF_BITS ) |
+                  ( static_cast< uint32_t >( state ) <<
+                    EF_ERROR_SHIFT ) );
+
+        CxxUtils::stall();
+      }
 
       // Tell the user that we were successful:
       return true;

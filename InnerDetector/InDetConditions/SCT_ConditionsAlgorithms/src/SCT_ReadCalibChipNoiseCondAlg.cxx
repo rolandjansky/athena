@@ -19,13 +19,9 @@ using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipNoiseCondAlg::SCT_ReadCalibChipNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DAQ/Calibration/ChipNoise"}
-  , m_writeKey{"SCT_NoiseCalibData"}
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) noise conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) noise conditions folder");
 }
 
 StatusCode SCT_ReadCalibChipNoiseCondAlg::initialize() {
@@ -41,7 +37,7 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::initialize() {
   ATH_CHECK(m_readKey.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }

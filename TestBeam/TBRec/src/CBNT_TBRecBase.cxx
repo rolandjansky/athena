@@ -2,10 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNT_TBRecBase.h"
+#include "CBNT_TBRecBase.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloIdManager.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 
 CBNT_TBRecBase::CBNT_TBRecBase(const std::string& name, ISvcLocator* pSvcLocator): 

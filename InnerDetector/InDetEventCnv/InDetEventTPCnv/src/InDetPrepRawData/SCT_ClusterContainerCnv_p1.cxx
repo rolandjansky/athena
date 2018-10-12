@@ -2,29 +2,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetPrepRawData/SCT_Cluster.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetEventTPCnv/InDetPrepRawData/SiCluster_p1.h"
-#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterContainerCnv_p1.h"
 
-// Gaudi
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
+#include "InDetEventTPCnv/InDetPrepRawData/SiCluster_p1.h"
+#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
+#include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p1.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetPrepRawData/SCT_Cluster.h"
 
 // Athena
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
-
-
-#include "AthAllocators/DataPool.h"
+// Gaudi
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/StatusCode.h"
 
 void InDet::SCT_ClusterContainerCnv_p1::transToPers(const InDet::SCT_ClusterContainer* transCont,  InDet::InDetPRD_Container_p1* persCont, MsgStream &log) 
 {
@@ -94,6 +90,15 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
     // So here we loop over all collection and extract their channels
     // from the vector.
 
+    const InDetDD::SiDetectorElementCollection* elements(nullptr);
+    if (m_useDetectorElement) {
+        SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+        elements = *sctDetEleHandle;
+        if (not sctDetEleHandle.isValid() or elements==nullptr) {
+            log << MSG::FATAL << m_SCTDetEleCollKey.fullKey() << " is not available." << endmsg;
+            return;
+        }
+    }
 
     InDet::SCT_ClusterCollection* coll = 0;
 
@@ -104,7 +109,7 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of SCT_Cluster (SG::VIEW_ELEMENTS)
-	// IDet collection don't have the Ownership policy c'tor
+        // IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p1& pcoll = persCont->m_collections[icoll];        
         //Identifier collID(Identifier(pcoll.m_id));
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
@@ -112,7 +117,7 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
         coll->setIdentifier(Identifier(pcoll.m_id));
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
-        InDetDD::SiDetectorElement * de = m_sctMgr->getDetectorElement(collIDHash);
+        const InDetDD::SiDetectorElement * de = (m_useDetectorElement ? elements->getDetectorElement(collIDHash) : nullptr);
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
@@ -186,12 +191,15 @@ StatusCode InDet::SCT_ClusterContainerCnv_p1::initialize(MsgStream &log) {
    //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
    //   }
 
-   sc = detStore->retrieve(m_sctMgr);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endmsg;
-      return sc;
+   if (m_useDetectorElement) {
+      CHECK(m_SCTDetEleCollKey.initialize());
    }
 
    //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
+}
+
+// Method for test/SCT_ClusterContainerCnv_p1_test.cxx
+void InDet::SCT_ClusterContainerCnv_p1::setUseDetectorElement(const bool useDetectorElement) {
+   m_useDetectorElement = useDetectorElement;
 }

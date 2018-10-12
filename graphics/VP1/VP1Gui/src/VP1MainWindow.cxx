@@ -13,6 +13,7 @@
 /////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1MainWindow.h"
+
 #include "VP1Gui/VP1ChannelManager.h"
 #include "VP1Gui/VP1TabManager.h"
 #include "VP1Gui/VP1ExecutionScheduler.h"
@@ -701,10 +702,11 @@ void VP1MainWindow::request_loadPlugin()
 #else
 	QString sharedlibsuffix = "so";
 #endif
+  qDebug() << "VP1MainWindow::request_loadPlugin()"<<m_currentloadpluginpath;
 
 	QString filename = QFileDialog::getOpenFileName(this, "Select plugin file to load",
 			m_currentloadpluginpath,
-			"VP1 plugin files (*."+sharedlibsuffix+")",0,QFileDialog::DontResolveSymlinks);
+			"VP1 plugin files (*VP1*."+sharedlibsuffix+")",0,QFileDialog::DontResolveSymlinks);
 	if(filename.isEmpty())
 		return;
 	m_currentloadpluginpath = QFileInfo(filename).dir().absolutePath();
@@ -719,7 +721,7 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 		bool currentdir ) const
 {
 
-    qDebug() << "VP1MainWindow::availableFiles()";
+  qDebug() << "VP1MainWindow::availableFiles()";
  	qDebug() << "extension:" << extension << "pathvar:" << pathvar << "instareasubdir:" << instareasubdir << "extradirenvvar:" << extradirenvvar << "currentdir:" << currentdir;
 
 	//Add directories from extradirenvvar (e.g. $VP1PlUGINPATH)
@@ -909,7 +911,8 @@ void VP1MainWindow::setRunEvtNumber(const int& r, const unsigned long long& e, c
 				+ QString(time>0 ? ", time: "+QDateTime::fromTime_t(time).toString(Qt::ISODate).replace('T',' ') : "")
 				+ QString(m_currentStream.isEmpty()?"":", "+m_currentStream);
 		setWindowTitle("Virtual Point 1 ["+expandedevtstr+"]");
-		groupBox_event->setTitle("Event ["+evtstr+"]");
+		groupBox_event->setTitle("Event [loaded]");
+		label_run_event->setText("["+evtstr+"]");
 
 		addToMessageBox("New event: "+expandedevtstr,"color:#ff0000");
 

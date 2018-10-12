@@ -12,10 +12,10 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelUtilities
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           PRIVATE
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/SGTools
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           GaudiKernel

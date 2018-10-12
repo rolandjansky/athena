@@ -8,9 +8,9 @@
 #define ATHENASERVICES_TESTRANDOMSEQALG_H 1
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
-class IAtRndmGenSvc;
 namespace CLHEP { class HepRandomEngine; }
 /** @class TestRandomSegAlg
    * @brief a trivial algorithm to test the sequence of random numbers

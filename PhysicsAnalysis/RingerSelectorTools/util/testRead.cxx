@@ -51,7 +51,7 @@ using namespace Ringer;
 
 /**
  * Read first wrapper on file with type wrapper_t
- **/ 
+ **/
 template< class wrapper_t >
 void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName);
 
@@ -83,7 +83,7 @@ int main(){
     EtaIndependent,
     EtIndependent,
     NoSegmentation > *basicWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicWrapper)>::type
   >( basicWrapper, "basicWrapper.root" );
   msg << MSG::INFO << BREAKER << endmsg;
@@ -93,7 +93,7 @@ int main(){
       EtaDependent,
       EtIndependent,
       NoSegmentation > *basicEtaDepWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaDepWrapper)>::type
   >( basicEtaDepWrapper, "basicEtaDepWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -103,7 +103,7 @@ int main(){
       EtaIndependent,
       EtDependent,
       NoSegmentation > *basicEtDepWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtDepWrapper)>::type
   >( basicEtDepWrapper, "basicEtDepWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -113,7 +113,7 @@ int main(){
       EtaDependent,
       EtDependent,
       NoSegmentation > *basicEtaEtDepWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaEtDepWrapper)>::type
   >( basicEtaEtDepWrapper, "basicEtaEtDepWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
@@ -130,7 +130,7 @@ int main(){
     EtaDependent,
     EtDependent,
     NoSegmentation > *basicWrapperWrong(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicWrapperWrong)>::type
   >( basicWrapperWrong, "basicWrapper.root" );
   msg << MSG::INFO << BREAKER << endmsg;
@@ -140,7 +140,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicEtaDepWrapperWrong(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaDepWrapperWrong)>::type
   >( basicEtaDepWrapperWrong, "basicEtaDepWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -150,7 +150,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicEtDepWrapperWrong(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtDepWrapperWrong)>::type
   >( basicEtDepWrapperWrong, "basicEtDepWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -160,7 +160,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalJointLayers > *basicEtaEtDepWrapperWrong(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaEtDepWrapperWrong)>::type
   >( basicEtaEtDepWrapperWrong, "basicEtaEtDepWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
@@ -177,7 +177,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicPPWrapper)>::type
   >( basicPPWrapper, "basicPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -187,7 +187,7 @@ int main(){
       EtaDependent,
       EtIndependent,
       NoSegmentation > *basicEtaDepPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaDepPPWrapper)>::type
   >( basicEtaDepPPWrapper, "basicEtaDepPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -197,7 +197,7 @@ int main(){
       EtaIndependent,
       EtDependent,
       NoSegmentation > *basicEtDepPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtDepPPWrapper)>::type
   >( basicEtDepPPWrapper, "basicEtDepPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -207,7 +207,7 @@ int main(){
       EtaDependent,
       EtDependent,
       NoSegmentation > *basicEtEtaDepPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtEtaDepPPWrapper)>::type
   >( basicEtEtaDepPPWrapper, "basicEtEtaDepPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -217,7 +217,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalSegmentation > *basicEtEtaTrackCalDepPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtEtaTrackCalDepPPWrapper)>::type
   >( basicEtEtaTrackCalDepPPWrapper, "basicEtEtaTrackCalDepPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -227,7 +227,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalPatTypeSegmentation > *basicEtEtaTrackCalPatTypeDepPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtEtaTrackCalPatTypeDepPPWrapper)>::type
   >( basicEtEtaTrackCalPatTypeDepPPWrapper, "basicEtEtaTrackCalPatTypeDepPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -237,7 +237,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalJointSections > *basicEtaEtSectionDepPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaEtSectionDepPPWrapper)>::type
   >( basicEtaEtSectionDepPPWrapper, "basicEtaEtSectionDepPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -247,7 +247,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalJointLayers > *basicEtaEtLayerDepPPWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaEtLayerDepPPWrapper)>::type
   >( basicEtaEtLayerDepPPWrapper, "basicEtaEtLayerDepPPWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -257,7 +257,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicNorm1Wrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicNorm1Wrapper)>::type
   >( basicNorm1Wrapper, "basicNorm1Wrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -267,7 +267,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalJointLayers > *basicLayerDepNorm1Wrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicLayerDepNorm1Wrapper)>::type
   >( basicLayerDepNorm1Wrapper, "basicLayerDepNorm1Wrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -277,7 +277,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       TrackCalJointLayers > *basicNorm2Wrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicNorm2Wrapper)>::type
   >( basicNorm2Wrapper, "basicNorm2Wrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -287,7 +287,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicSqrtWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicSqrtWrapper)>::type
   >( basicSqrtWrapper, "basicSqrtWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -297,7 +297,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicConstantValueWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicConstantValueWrapper)>::type
   >( basicConstantValueWrapper, "basicConstantValueWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -307,7 +307,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicMevToGevWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicMevToGevWrapper)>::type
   >( basicMevToGevWrapper, "basicMevToGevWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -317,7 +317,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicSequentialWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicSequentialWrapper)>::type
   >( basicSequentialWrapper, "basicSequentialWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -327,7 +327,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicSpherizationWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicSpherizationWrapper)>::type
   >( basicSpherizationWrapper, "basicSpherizationWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -337,7 +337,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *basicMinMaxWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicMinMaxWrapper)>::type
   >( basicMinMaxWrapper, "basicMinMaxWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -346,7 +346,7 @@ int main(){
   msg << MSG::INFO << BREAKER << endmsg;
   msg << MSG::INFO << "Reading discriminators with pre-processings!" << endmsg;
   msg << MSG::INFO << BREAKER << endmsg;
-  
+
   // ----------------------------------------------------------------------------
   // Read discriminators with pre-processings
   // ----------------------------------------------------------------------------
@@ -355,7 +355,7 @@ int main(){
       EtaDependent,
       EtDependent,
       NoSegmentation > *randomNorm1PPDiscrWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(randomNorm1PPDiscrWrapper)>::type
   >( randomNorm1PPDiscrWrapper, "randomNorm1PPDiscrWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -365,7 +365,7 @@ int main(){
       EtaDependent,
       EtDependent,
       NoSegmentation > *randomDepPPrandomDepPPDiscrWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(randomDepPPrandomDepPPDiscrWrapper)>::type
   >( randomDepPPrandomDepPPDiscrWrapper, "randomDepPPrandomDepPPDiscrWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -383,7 +383,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalJointLayers > *randomDepPPrandomDepPPDiscrSegmentedWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(randomDepPPrandomDepPPDiscrSegmentedWrapper)>::type
   >( randomDepPPrandomDepPPDiscrSegmentedWrapper, "randomDepPPrandomDepPPDiscrSegmentedWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
@@ -400,7 +400,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *NNWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(NNWrapper)>::type
   >( NNWrapper, "NNWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -410,7 +410,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalJointLayers > *FullDepNNWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(FullDepNNWrapper)>::type
   >( FullDepNNWrapper, "FullDepNNWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
@@ -427,7 +427,7 @@ int main(){
       EtaIndependent,
       EtIndependent,
       NoSegmentation > *Norm1NNWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(Norm1NNWrapper)>::type
   >( Norm1NNWrapper, "Norm1NNWrapper.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -437,7 +437,7 @@ int main(){
       EtaDependent,
       EtDependent,
       TrackCalJointLayers > *Norm1Norm1FullDepNNWrapper(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(Norm1Norm1FullDepNNWrapper)>::type
   >( Norm1Norm1FullDepNNWrapper, "Norm1Norm1FullDepNNWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
@@ -453,7 +453,7 @@ int main(){
   RingerProcedureWrapper<Discrimination::IThresholdVarDep,
       EtaIndependent,
       EtIndependent > *basicThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicThres)>::type
   >( basicThres, "basicThres.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -462,7 +462,7 @@ int main(){
   RingerProcedureWrapper<Discrimination::IThresholdVarDep,
       EtaDependent,
       EtIndependent > *basicEtaDepThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaDepThres)>::type
   >( basicEtaDepThres, "basicEtaDepThres.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -471,7 +471,7 @@ int main(){
   RingerProcedureWrapper<Discrimination::IThresholdVarDep,
       EtaIndependent,
       EtDependent > *basicEtDepThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtDepThres)>::type
   >( basicEtDepThres, "basicEtDepThres.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -480,7 +480,7 @@ int main(){
   RingerProcedureWrapper<Discrimination::IThresholdVarDep,
       EtaDependent,
       EtDependent > *basicEtaEtDepThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(basicEtaEtDepThres)>::type
   >( basicEtaEtDepThres, "basicEtaEtDepThres.root");
   // -------------------------- END --- END --- END -----------------------------
@@ -496,7 +496,7 @@ int main(){
   RingerProcedureWrapper<Discrimination::UniqueThresholdVarDep,
       EtaIndependent,
       EtIndependent > *uniqueThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(uniqueThres)>::type
   >( uniqueThres, "uniqueThres.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -505,7 +505,7 @@ int main(){
   RingerProcedureWrapper<Discrimination::UniqueThresholdVarDep,
       EtaDependent,
       EtIndependent > *uniqueEtaDepThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(uniqueEtaDepThres)>::type
   >( uniqueEtaDepThres, "uniqueEtaDepThres.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -514,7 +514,7 @@ int main(){
   RingerProcedureWrapper<Discrimination::UniqueThresholdVarDep,
       EtaIndependent,
       EtDependent > *uniqueEtDepThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(uniqueEtDepThres)>::type
   >( uniqueEtDepThres, "uniqueEtDepThres.root");
   msg << MSG::INFO << BREAKER << endmsg;
@@ -523,11 +523,11 @@ int main(){
   RingerProcedureWrapper<Discrimination::UniqueThresholdVarDep,
       EtaDependent,
       EtDependent > *uniqueEtaEtDepThres(nullptr);
-  readWrapperFromFile< 
+  readWrapperFromFile<
     typename Ringer::remove_pointer<decltype(uniqueEtaEtDepThres)>::type
   >( uniqueEtaEtDepThres, "uniqueEtaEtDepThres.root");
   // -------------------------- END --- END --- END -----------------------------
-  
+
 
   msg << MSG::INFO << BREAKER << endmsg;
   msg << MSG::INFO << "Special reading" << endmsg;
@@ -555,7 +555,7 @@ template< class wrapper_t >
 void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
 {
 
-  msg << MSG::INFO << "Reading wrapper: " << wrapper_t::staticFullName() 
+  msg << MSG::INFO << "Reading wrapper: " << wrapper_t::staticFullName()
     << ", at file named: " << fileName << endmsg;
 
   // Read file and bring everything to memory:
@@ -568,7 +568,7 @@ void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
     throw std::runtime_error(std::string("There are no directories available"));
   }
 
-  msg << MSG::INFO << "Number(s) of folder(s) within this TFile is " 
+  msg << MSG::INFO << "Number(s) of folder(s) within this TFile is "
     << wrapperDirList->GetSize()
     << endmsg;
 
@@ -576,15 +576,15 @@ void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
 
     TIter iter( wrapperDirList.get() );
     TDirectory* wrapperDir(nullptr);
-    
+
     bool foundDir = false;
 
     while ( (wrapperDir = static_cast<TDirectoryFile*>(iter())) ){
-      if ( wrapperDir->GetName() == 
-            ( std::string(wrapper_t::wrapName) + 
+      if ( wrapperDir->GetName() ==
+            ( std::string(wrapper_t::wrapName) +
               IOHelperFcns::makeIdxStr(0) ) )
       {
-        msg << MSG::INFO << "Found directory named " 
+        msg << MSG::INFO << "Found directory named "
           << wrapperDir->GetName() << endmsg;
         foundDir = true;
         break;
@@ -610,7 +610,7 @@ void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
     wrapper->print();
 
   } catch ( const std::runtime_error &e){
-    msg << MSG::ERROR << "Couldn't read due to error: " 
+    msg << MSG::ERROR << "Couldn't read due to error: "
       << e.what() << endmsg;
   }
 
@@ -631,8 +631,8 @@ void readCollectionFromFile(const char* fileName)
 
   unsigned counter(0);
   for ( auto *wrapper : col ) {
-    if (wrapper){ 
-      msg << MSG::INFO << "Printing wrapper " << wrapper->fullName() 
+    if (wrapper){
+      msg << MSG::INFO << "Printing wrapper " << wrapper->fullName()
         << " at position " << IOHelperFcns::makeIdxStr(counter++) << endmsg;
       wrapper->setMsgStream(&msg);wrapper->print();
     } else {
@@ -650,7 +650,7 @@ void readCollectionFromFile(const char* fileName)
 template<>
 void readCollectionFromFile<IThresWrapper>(const char* fileName)
 {
-  
+
   msg << MSG::INFO << "Reading file: " << fileName << endmsg;
 
   // Get wrapper collection and read it:

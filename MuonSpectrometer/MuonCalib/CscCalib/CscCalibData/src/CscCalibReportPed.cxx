@@ -6,7 +6,7 @@
 #include "TH2F.h"
 
 #include "CscCalibData/CscCalibReportPed.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include <string>
 
 /* default constructor */

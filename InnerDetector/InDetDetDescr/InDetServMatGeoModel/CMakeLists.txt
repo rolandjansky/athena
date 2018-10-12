@@ -9,13 +9,13 @@ atlas_subdir( InDetServMatGeoModel )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           PRIVATE
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/SGTools
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces

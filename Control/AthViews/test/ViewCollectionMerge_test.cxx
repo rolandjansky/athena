@@ -24,6 +24,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/EventContext.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "StoreGate/WriteHandle.h"
@@ -93,6 +94,9 @@ protected:
 
     m_jobOptionsSvc = m_svcLoc->service("JobOptionsSvc");
     ASSERT_TRUE( m_jobOptionsSvc.isValid() );
+
+    m_sg = nullptr;
+    ASSERT_TRUE( m_svcLoc->service ("StoreGateSvc", m_sg).isSuccess() );
   }
 
   void TearDownGaudi() {
@@ -104,6 +108,11 @@ protected:
     Gaudi::setInstance( static_cast<IAppMgrUI*>(nullptr) );
   }
 
+  StoreGateSvc* evtStore()
+  {
+    return m_sg;
+  }
+
   // protected member variables for Core Gaudi components
   IAppMgrUI*               m_appMgr = nullptr;
   SmartIF<ISvcLocator>     m_svcLoc;
@@ -111,6 +120,7 @@ protected:
   SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
   SmartIF<IToolSvc>        m_toolSvc;
   SmartIF<IProperty>       m_propMgr;
+  StoreGateSvc*            m_sg = nullptr;
 };
 
 
@@ -133,29 +143,29 @@ protected:
 TEST_F( ViewCollectionMerge_test, testBasicReadWrite ) {
 
   // Make a view vector
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
-  viewVector->push_back( new SG::View( "testView" ) );
+  auto viewVector = std::make_unique< ViewContainer >();
+  viewVector->push_back( new SG::View( "testView", -1 ) );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 1 );
+  ASSERT_EQ( inputViewsHandle->size(), 1u );
 }
 
 // Write data to a view, and retrieve
 TEST_F( ViewCollectionMerge_test, testViewReadWrite ) {
 
   // Make a view vector
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
-  viewVector->push_back( new SG::View( "testView" ) );
+  auto viewVector = std::make_unique< ViewContainer >();
+  viewVector->push_back( new SG::View( "testView", -1 ) );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
@@ -170,15 +180,15 @@ TEST_F( ViewCollectionMerge_test, testViewReadWrite ) {
   ASSERT_TRUE( outputDataHandle.isValid() );
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 1 );
+  ASSERT_EQ( inputViewsHandle->size(), 1u );
 
-  // Retrieve the data vector from a view
+  // Retrieve the data vector from a view  
   SG::ReadHandle< DataVector< int > > inputDataHandle( DATA_NAME );
   ASSERT_TRUE( inputDataHandle.setProxyDict( inputViewsHandle->at( 0 ) ).isSuccess() );
   ASSERT_TRUE( inputDataHandle.isValid() );
-  ASSERT_EQ( inputDataHandle->size(), 1 );
+  ASSERT_EQ( inputDataHandle->size(), 1u );
   ASSERT_EQ( *inputDataHandle->at(0), 1 );
 }
 
@@ -186,12 +196,12 @@ TEST_F( ViewCollectionMerge_test, testViewReadWrite ) {
 TEST_F( ViewCollectionMerge_test, testManyViewReadWrite ) {
 
   // Make a view vector
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  auto viewVector = std::make_unique< ViewContainer >();
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
@@ -208,9 +218,9 @@ TEST_F( ViewCollectionMerge_test, testManyViewReadWrite ) {
   }
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 2 );
+  ASSERT_EQ( inputViewsHandle->size(), 2u );
 
   // Retrieve the data vector from each view
   for ( unsigned int viewIndex = 0; viewIndex < outputViewsHandle->size(); ++viewIndex ) {
@@ -218,8 +228,8 @@ TEST_F( ViewCollectionMerge_test, testManyViewReadWrite ) {
     SG::ReadHandle< DataVector< int > > inputDataHandle( DATA_NAME );
     ASSERT_TRUE( inputDataHandle.setProxyDict( inputViewsHandle->at( viewIndex ) ).isSuccess() );
     ASSERT_TRUE( inputDataHandle.isValid() );
-    ASSERT_EQ( inputDataHandle->size(), 1 );
-    ASSERT_EQ( *inputDataHandle->at(0), viewIndex );
+    ASSERT_EQ( inputDataHandle->size(), 1u );
+    ASSERT_EQ( *inputDataHandle->at(0), static_cast<int> (viewIndex) );
   }
 }
 
@@ -227,12 +237,12 @@ TEST_F( ViewCollectionMerge_test, testManyViewReadWrite ) {
 TEST_F( ViewCollectionMerge_test, testViewMerge ) {
 
   // Make a view vector
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  auto viewVector = std::make_unique< ViewContainer >();
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
@@ -249,9 +259,9 @@ TEST_F( ViewCollectionMerge_test, testViewMerge ) {
   }
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 2 );
+  ASSERT_EQ( inputViewsHandle->size(), 2u );
 
   // Make a merge collection
   auto mergedData = std::make_unique< DataVector< int > >();
@@ -260,11 +270,12 @@ TEST_F( ViewCollectionMerge_test, testViewMerge ) {
   for ( unsigned int viewIndex = 0; viewIndex < outputViewsHandle->size(); ++viewIndex ) {
 
     SG::ReadHandle< DataVector< int > > inputDataHandle( DATA_NAME );
+    
     ASSERT_TRUE( inputDataHandle.setProxyDict( inputViewsHandle->at( viewIndex ) ).isSuccess() );
     ASSERT_TRUE( inputDataHandle.isValid() );
-    ASSERT_EQ( inputDataHandle->size(), 1 );
-    ASSERT_EQ( *inputDataHandle->at(0), viewIndex );
-
+    ASSERT_EQ( inputDataHandle->size(), 1u );
+    ASSERT_EQ( *inputDataHandle->at(0), static_cast<int> (viewIndex) );
+    
     //Merge the data
     for ( int const* inputDatum : *inputDataHandle.cptr() )
     {
@@ -278,7 +289,7 @@ TEST_F( ViewCollectionMerge_test, testViewMerge ) {
   ASSERT_EQ( mergedData->size(), inputViewsHandle->size() );
   for ( unsigned int dataIndex = 0; dataIndex < mergedData->size(); ++dataIndex ) {
 
-    ASSERT_EQ( dataIndex, *mergedData->at( dataIndex ) );
+    ASSERT_EQ( static_cast<int>(dataIndex), *mergedData->at( dataIndex ) );
   }
 }
 
@@ -286,12 +297,12 @@ TEST_F( ViewCollectionMerge_test, testViewMerge ) {
 TEST_F( ViewCollectionMerge_test, testOtherViewMerge ) {
 
   // Make a view vector
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  auto viewVector = std::make_unique< ViewContainer >();
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
@@ -308,9 +319,9 @@ TEST_F( ViewCollectionMerge_test, testOtherViewMerge ) {
   }
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 2 );
+  ASSERT_EQ( inputViewsHandle->size(), 2u );
 
   // Make a merge collection
   DataVector< int > mergedData(SG::VIEW_ELEMENTS);
@@ -319,10 +330,11 @@ TEST_F( ViewCollectionMerge_test, testOtherViewMerge ) {
   for ( unsigned int viewIndex = 0; viewIndex < outputViewsHandle->size(); ++viewIndex ) {
 
     SG::ReadHandle< DataVector< int > > inputDataHandle( DATA_NAME );
+
     ASSERT_TRUE( inputDataHandle.setProxyDict( inputViewsHandle->at( viewIndex ) ).isSuccess() );
     ASSERT_TRUE( inputDataHandle.isValid() );
-    ASSERT_EQ( inputDataHandle->size(), 1 );
-    ASSERT_EQ( *inputDataHandle->at(0), viewIndex );
+    ASSERT_EQ( inputDataHandle->size(), 1u );
+    ASSERT_EQ( *inputDataHandle->at(0), static_cast<int> (viewIndex) );
 
     //Merge the data (don't fiddle incautiously with the details here)
     const size_t sizeSoFar = mergedData.size();
@@ -335,7 +347,7 @@ TEST_F( ViewCollectionMerge_test, testOtherViewMerge ) {
   ASSERT_EQ( mergedData.size(), inputViewsHandle->size() );
   for ( unsigned int dataIndex = 0; dataIndex < mergedData.size(); ++dataIndex ) {
 
-    ASSERT_EQ( dataIndex, *mergedData.at( dataIndex ) );
+    ASSERT_EQ( static_cast<int> (dataIndex), *mergedData.at( dataIndex ) );
   }
 }
 
@@ -354,7 +366,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkTest ) {
   // Make element link and test
   ElementLink< DataVector< int > > dataLink( DATA_NAME, 0 );
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 1 );
   ASSERT_EQ( **dataLink, 1 );
 }
@@ -374,7 +386,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkRemapTest ) {
   // Make element link and test
   ElementLink< DataVector< int > > dataLink( DATA_NAME, 0 );
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 1 );
   ASSERT_EQ( **dataLink, 1 );
 
@@ -390,12 +402,11 @@ TEST_F( ViewCollectionMerge_test, elementLinkRemapTest ) {
   ASSERT_TRUE( outputDataHandle2.isValid() );
 
   // Declare remapping
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), DATA_NAME, DATA_NAME + "2", 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), DATA_NAME, DATA_NAME + "2", 0 );
 
   // Test the link again - should not have changed
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 1 );
   ASSERT_EQ( **dataLink, 1 );
 
@@ -404,7 +415,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkRemapTest ) {
 
   // Element link should now point to the other container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 3 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 3u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 2 );
   ASSERT_EQ( **dataLink, 2 );
 }
@@ -412,7 +423,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkRemapTest ) {
 // Make an element link and remap it in view
 TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
 
-  SG::View * testView = new SG::View( "testView" );
+  SG::View * testView = new SG::View( "testView", -1 );
 
   // Make a data vector
   auto viewData = std::make_unique< DataVector< int > >();
@@ -427,7 +438,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
   // Make element link and test
   ElementLink< DataVector< int > > dataLink( DATA_NAME, 0, testView );
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 1 );
   ASSERT_EQ( **dataLink, 1 );
 
@@ -444,12 +455,11 @@ TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
   ASSERT_TRUE( outputDataHandle2.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), "testView_" + DATA_NAME, "testView_" + DATA_NAME + "2", 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_" + DATA_NAME, "testView_" + DATA_NAME + "2", 0 );
 
   // Test the link again - should not have changed
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 1 );
   ASSERT_EQ( **dataLink, 1 );
 
@@ -458,7 +468,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
 
   // Element link should now point to the other container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 3 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 3u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 2 );
   ASSERT_EQ( **dataLink, 2 );
 }
@@ -468,12 +478,12 @@ TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
 TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
 
   // Make a view vector
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  auto viewVector = std::make_unique< ViewContainer >();
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
@@ -495,9 +505,9 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
   ASSERT_EQ( **dataLink, 0 );
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 2 );
+  ASSERT_EQ( inputViewsHandle->size(), 2u );
 
   // Make a merge collection
   auto mergedData = std::make_unique< DataVector< int > >();
@@ -506,10 +516,11 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
   for ( unsigned int viewIndex = 0; viewIndex < outputViewsHandle->size(); ++viewIndex ) {
 
     SG::ReadHandle< DataVector< int > > inputDataHandle( DATA_NAME );
+
     ASSERT_TRUE( inputDataHandle.setProxyDict( inputViewsHandle->at( viewIndex ) ).isSuccess() );
     ASSERT_TRUE( inputDataHandle.isValid() );
-    ASSERT_EQ( inputDataHandle->size(), 1 );
-    ASSERT_EQ( *inputDataHandle->at(0), viewIndex );
+    ASSERT_EQ( inputDataHandle->size(), 1u );
+    ASSERT_EQ( *inputDataHandle->at(0), static_cast<int> (viewIndex) );
 
     //Merge the data
     for ( int const* inputDatum : *inputDataHandle.cptr() )
@@ -524,7 +535,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
   ASSERT_EQ( mergedData->size(), inputViewsHandle->size() );
   for ( unsigned int dataIndex = 0; dataIndex < mergedData->size(); ++dataIndex ) {
 
-    ASSERT_EQ( dataIndex, *mergedData->at( dataIndex ) );
+    ASSERT_EQ( static_cast<int> (dataIndex), *mergedData->at( dataIndex ) );
   }
 
   // Store the merged collection
@@ -533,13 +544,12 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
   ASSERT_TRUE( outputDataHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(0) ), 0 );
   ASSERT_EQ( **dataLink, 0 );
 
@@ -548,7 +558,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
 
   // Element link should now point to the merged container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 2 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 2u );
   ASSERT_EQ( *( dataLink.getDataPtr()->at(1) ), 1 );
   ASSERT_EQ( **dataLink, 0 );
 }
@@ -557,12 +567,12 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
 TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
 
   // Make a view vector
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  auto viewVector = std::make_unique< ViewContainer >();
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
@@ -584,9 +594,9 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 2 );
+  ASSERT_EQ( inputViewsHandle->size(), 2u );
 
   // Make a merge collection
   auto mergedData = std::make_unique< DataVector< DummyData > >();
@@ -599,10 +609,12 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   for ( unsigned int viewIndex = 0; viewIndex < outputViewsHandle->size(); ++viewIndex ) {
 
     SG::ReadHandle< DataVector< DummyData > > inputDataHandle( DATA_NAME );
+
+
     ASSERT_TRUE( inputDataHandle.setProxyDict( inputViewsHandle->at( viewIndex ) ).isSuccess() );
     ASSERT_TRUE( inputDataHandle.isValid() );
-    ASSERT_EQ( inputDataHandle->size(), 1 );
-    ASSERT_EQ( inputDataHandle->at(0)->value(), viewIndex );
+    ASSERT_EQ( inputDataHandle->size(), 1u );
+    ASSERT_EQ( inputDataHandle->at(0)->value(), static_cast<int> (viewIndex) );
 
     //Merge the data
     for ( DummyData const* inputDatum : *inputDataHandle.cptr() )
@@ -618,7 +630,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   ASSERT_EQ( mergedData->size(), inputViewsHandle->size() );
   for ( unsigned int dataIndex = 0; dataIndex < mergedData->size(); ++dataIndex ) {
 
-    ASSERT_EQ( dataIndex, mergedData->at( dataIndex )->value() );
+    ASSERT_EQ( static_cast<int> (dataIndex), mergedData->at( dataIndex )->value() );
   }
 
   // Store the merged collection
@@ -632,13 +644,12 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   ASSERT_TRUE( auxHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
-  storeGate->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView_1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView_2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( dataLink.getDataPtr()->at(0)->value(), 0 );
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 
@@ -647,7 +658,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
 
   // Element link should now point to the merged container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 2 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 2u );
   ASSERT_EQ( dataLink.getDataPtr()->at(1)->value(), 1 );
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 
@@ -661,8 +672,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
 
   // Make a dummy event context
   EventContext dummyContext( 0, 0 );
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  dummyContext.setExtension( Atlas::ExtendedEventContext( storeGate, 0 ) );
+  dummyContext.setExtension( Atlas::ExtendedEventContext( evtStore(), 0 ) );
 
   // Parcel the view data
   auto viewData = std::vector< DataVector< DummyData > >( 2 );
@@ -670,13 +680,13 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
   viewData[1].push_back( new DummyData( 1 ) );
 
   // Make a view vector and store data in each view, with a helper
-  auto viewVector = std::make_unique< std::vector< SG::View* > >();
+  auto viewVector = std::make_unique< ViewContainer >();
   SG::WriteHandleKey< DataVector< DummyData > > outputDataHandleKey( DATA_NAME );
   outputDataHandleKey.initialize();
-  ASSERT_TRUE( ViewHelper::MakeAndPopulate( "testView", *viewVector, outputDataHandleKey, dummyContext, viewData ).isSuccess() );
+  ASSERT_TRUE( ViewHelper::MakeAndPopulate( "testView", viewVector.get(), outputDataHandleKey, dummyContext, viewData ).isSuccess() );
 
   // Store the view vector
-  SG::WriteHandle< std::vector< SG::View* > > outputViewsHandle( VIEWS_NAME );
+  SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( outputViewsHandle.record( std::move( viewVector ) ).isSuccess() );
   ASSERT_TRUE( outputViewsHandle.isValid() );
 
@@ -686,9 +696,9 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 
   // Retrieve the view vector
-  SG::ReadHandle< std::vector< SG::View* > > inputViewsHandle( VIEWS_NAME );
+  SG::ReadHandle< ViewContainer > inputViewsHandle( VIEWS_NAME );
   ASSERT_TRUE( inputViewsHandle.isValid() );
-  ASSERT_EQ( inputViewsHandle->size(), 2 );
+  ASSERT_EQ( inputViewsHandle->size(), 2u );
 
   // Make a merge collection
   auto mergedData = std::make_unique< DataVector< DummyData > >();
@@ -699,13 +709,16 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
   // Merge data into the collection with a helper
   SG::ReadHandleKey< DataVector< DummyData > > inputDataHandleKey( DATA_NAME );
   inputDataHandleKey.initialize();
-  ASSERT_TRUE( ViewHelper::MergeViewCollection( *inputViewsHandle, inputDataHandleKey, dummyContext, *mergedData ).isSuccess() );
+  
+  MsgStream log(Athena::getMessageSvc(), "ViewCollectionMerge_test");
+  ViewHelper::ViewMerger merger( evtStore(),  log);
+  ASSERT_TRUE( merger.mergeViewCollection( *inputViewsHandle, inputDataHandleKey, dummyContext, *mergedData ).isSuccess() );
 
   // Verify merging
   ASSERT_EQ( mergedData->size(), inputViewsHandle->size() );
   for ( unsigned int dataIndex = 0; dataIndex < mergedData->size(); ++dataIndex ) {
 
-    ASSERT_EQ( dataIndex, mergedData->at( dataIndex )->value() );
+    ASSERT_EQ( static_cast<int> (dataIndex), mergedData->at( dataIndex )->value() );
   }
 
   // Store the merged collection
@@ -720,7 +733,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 1 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 1u );
   ASSERT_EQ( dataLink.getDataPtr()->at(0)->value(), 0 );
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 
@@ -729,7 +742,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
 
   // Element link should now point to the merged container
   ASSERT_TRUE( dataLink.isValid() );
-  ASSERT_EQ( dataLink.getDataPtr()->size(), 2 );
+  ASSERT_EQ( dataLink.getDataPtr()->size(), 2u );
   ASSERT_EQ( dataLink.getDataPtr()->at(1)->value(), 1 );
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 

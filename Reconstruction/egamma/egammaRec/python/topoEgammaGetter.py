@@ -28,7 +28,7 @@ from egammaTools.egammaToolsFactories import \
 #The tools used to add properties 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"
-  return [EMClusterTool(), EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
+  return [ EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
 
 def electronDecorationTools():
   "Return a list with the tools that decorate only electrons"
@@ -45,16 +45,16 @@ class topoEgammaGetter ( Configured ) :
         mlog = logging.getLogger ('topoEgammaGetter.py::configure:')
         mlog.info('entering')
 
-        # the egammaTopoClusterCopier
-        from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
-        try:
-            self._egammaTopoClusterCopierHandle = egammaTopoClusterCopier()
-        except Exception:
-            mlog.error("could not get handle to egammaTopoClusterCopier")
-            import traceback
-            print traceback.format_exc()
-            return False
-        print self._egammaTopoClusterCopierHandle
+        # # the egammaTopoClusterCopier
+        # from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
+        # try:
+        #     self._egammaTopoClusterCopierHandle = egammaTopoClusterCopier()
+        # except Exception:
+        #     mlog.error("could not get handle to egammaTopoClusterCopier")
+        #     import traceback
+        #     print traceback.format_exc()
+        #     return False
+        # print self._egammaTopoClusterCopierHandle
 
 
         # the egammaRecBuilder
@@ -89,7 +89,8 @@ class topoEgammaGetter ( Configured ) :
         from egammaAlgs.topoEgammaBuilder import topoEgammaBuilder
         try:
             self._topoEgammaBuilder = topoEgammaBuilder(                                   
-                               # Decoration tools
+			       EMClusterTool=EMClusterTool,                         
+			       # Decoration tools
                                egammaTools = FcnWrapper(egammaDecorationTools),
                                ElectronTools = FcnWrapper(electronDecorationTools),
                                PhotonTools = FcnWrapper(photonDecorationTools)

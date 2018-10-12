@@ -84,7 +84,6 @@ StatusCode PixelClusterPixelRDOAssociationTool::reset (const  InDet::PixelCluste
   if ( sc.isFailure() ) REPORT_MESSAGE (MSG::ERROR)<< "Failed to calculate the tempID.";
 
   std::vector< Identifier> pixelClusterIdentifier; 
-  std::vector<Identifier>::iterator posItr;
 
   const std::vector<Identifier>& rdoList = p.rdoList();
   pixelClusterIdentifier.insert(pixelClusterIdentifier.end(),rdoList.begin(),rdoList.end());

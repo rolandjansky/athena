@@ -40,8 +40,8 @@ SCT_Pigtail::build()
   
   // Build the Pigtail. Just a simple box.
   const GeoBox * pigtailShape = new GeoBox(0.5*m_thickness,
-					   0.5*m_width,
-					   0.5*m_length);
+                                           0.5*m_width,
+                                           0.5*m_length);
   const GeoLogVol * pigtailLog = 
     new GeoLogVol(getName(), pigtailShape, m_material);
   GeoPhysVol * pigtail = new GeoPhysVol(pigtailLog);

@@ -123,10 +123,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
         not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
-# Avoid command line preInclude for event service
-if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
-
 from ISF_Config.ISF_jobProperties import ISF_Flags
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
@@ -250,10 +246,9 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool')
-else:
+## The looper killer is on by default. Disable it if this is requested.
+if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
+    simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool')
     atlasG4log.warning("The looper killer will NOT be run in this job.")
 
 #### *********** import ISF_Example code here **************** ####

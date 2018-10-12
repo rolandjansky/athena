@@ -21,7 +21,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "InDetIdentifier/PixelID.h"
+class PixelID;
 
 class MsgStream;
 
@@ -32,7 +32,7 @@ class PixelClusterOnTrackCnv_p1
 				       InDet::PixelClusterOnTrack_p1 >
 {
 public:
- PixelClusterOnTrackCnv_p1() : m_scCnv(0), m_isInitialized(0) {}
+ PixelClusterOnTrackCnv_p1() : m_scCnv(0), m_pixId{},m_isInitialized(0) {}
 
   void persToTrans( const InDet :: PixelClusterOnTrack_p1 *persObj,
 		    InDet :: PixelClusterOnTrack    *transObj,

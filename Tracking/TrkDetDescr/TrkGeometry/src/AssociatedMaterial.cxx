@@ -100,7 +100,7 @@ Trk::AssociatedMaterial::AssociatedMaterial(const Amg::Vector3D& hitpos,
    m_cleanup(false)
 {}  
                                             
-Trk::AssociatedMaterial::AssociatedMaterial(const AssociatedMaterial& am)
+Trk::AssociatedMaterial::AssociatedMaterial(const Trk::AssociatedMaterial& am)
  : m_materialPosition(am.m_materialPosition),
    m_correctionFactor(am.m_correctionFactor), 
    m_materialProperties(am.m_cleanup && am.m_materialProperties ? am.m_materialProperties->clone() : am.m_materialProperties),
@@ -110,6 +110,19 @@ Trk::AssociatedMaterial::AssociatedMaterial(const AssociatedMaterial& am)
    m_cleanup(am.m_cleanup)
 {}
 
+Trk::AssociatedMaterial::AssociatedMaterial( Trk::AssociatedMaterial&& am )
+  : m_materialPosition(std::move(am.m_materialPosition)),
+    m_correctionFactor(am.m_correctionFactor),
+    m_materialProperties(am.m_materialProperties),
+    m_materialStep(am.m_materialStep),
+    m_trackingVolume(am.m_trackingVolume),
+    m_layer(am.m_layer),
+    m_cleanup(am.m_cleanup)
+{
+  am.m_materialProperties = nullptr;
+  am.m_materialStep = nullptr;
+  am.m_cleanup=false;
+}
 
 Trk::AssociatedMaterial& Trk::AssociatedMaterial::operator =( const Trk::AssociatedMaterial& am )
 {
@@ -127,6 +140,32 @@ Trk::AssociatedMaterial& Trk::AssociatedMaterial::operator =( const Trk::Associa
         m_cleanup = am.m_cleanup;
     }
     return (*this);
+}
+
+
+Trk::AssociatedMaterial& Trk::AssociatedMaterial::operator =( Trk::AssociatedMaterial&& am )
+{
+
+  m_materialPosition = std::move(am.m_materialPosition);
+  m_correctionFactor = am.m_correctionFactor;
+  m_trackingVolume = am.m_trackingVolume;
+  m_layer = am.m_layer;
+  m_cleanup = am.m_cleanup;
+
+  if(m_materialProperties && m_materialProperties != am.m_materialProperties){
+    delete m_materialProperties;
+  }
+  m_materialProperties = am.m_materialProperties;
+  am.m_materialProperties = nullptr;
+
+  if(m_materialStep && m_materialStep != am.m_materialStep){
+    delete m_materialStep;
+  }
+  m_materialStep = am.m_materialStep;
+  am.m_materialStep = nullptr;
+
+  am.m_cleanup=false;
+  return *this;
 }
 
 Trk::AssociatedMaterial::~AssociatedMaterial() 

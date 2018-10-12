@@ -5,8 +5,8 @@
 #ifndef TRKROAD_TRKROADCOLLECTION_H
 #define TRKROAD_TRKROADCOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkRoad/TrackRoad.h"
 
 namespace Trk

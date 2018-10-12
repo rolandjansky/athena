@@ -17,7 +17,6 @@
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/DbDomain.h"
 #include "POOLCore/DbPrint.h"
-#include "StorageSvc/DbTransaction.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -35,22 +34,19 @@
 
 using namespace pool;
 using namespace std;
-//namespace pool {
-//  void patchStreamers(RootDatabase* db, TFile* file);
-//}
 
 /// Standard Constuctor
-RootDatabase::RootDatabase(IOODatabase* idb)
-: DbDatabaseImp(idb), m_file(nullptr), 
-  m_defCompression(1),
-  m_defCompressionAlg(1),
-  m_defSplitLevel(99),
-  m_defAutoSave(16*1024*1024),
-  m_defBufferSize(16*1024),
-  m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
-  m_branchOffsetTabLen(0),
-  m_defTreeCacheLearnEvents(100),
-  m_fileMgr(nullptr)
+RootDatabase::RootDatabase() :
+        m_file(nullptr), 
+        m_defCompression(1),
+        m_defCompressionAlg(1),
+        m_defSplitLevel(99),
+        m_defAutoSave(16*1024*1024),
+        m_defBufferSize(16*1024),
+        m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
+        m_branchOffsetTabLen(0),
+        m_defTreeCacheLearnEvents(100),
+        m_fileMgr(nullptr)
 {
   m_version = "1.1";
   DbInstanceCount::increment(this);
@@ -783,13 +779,13 @@ void RootDatabase::registerBranchContainer(RootTreeContainer* cont)
 }
 
 
-/// Start/Commit/Rollback Database Transaction
-DbStatus RootDatabase::transAct(DbTransaction&  refTr )
+/// Execute Database Transaction action
+DbStatus RootDatabase::transAct(Transaction::Action action)
 {
    // process flush to write file
-   if( refTr.state() == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable()) m_file->Write();
+   if( action == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable()) m_file->Write();
    // process commits only
-   if( refTr.state() != Transaction::TRANSACT_COMMIT )
+   if( action != Transaction::TRANSACT_COMMIT )
       return Success;
 
    // check all TTrees with branch containers, if they need Filling

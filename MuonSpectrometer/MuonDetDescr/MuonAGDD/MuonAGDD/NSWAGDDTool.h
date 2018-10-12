@@ -25,7 +25,22 @@ public:
 
 private:
 	
+	int m_outFileActV;
+	std::string m_outFileActN;
+	int m_outFileAlgV;
+	std::string m_outFileAlgN;
+	int m_outFilePasV;
+	std::string m_outFilePasN;
+	std::string m_outFileForm;
+	std::string m_outFileInName;
 
+	std::string m_outFileType;
+	std::string m_outPREsqlName;
+
+	bool m_readAGDD;
+	bool m_dumpAGDD;
+
+	bool WritePREsqlFile() const;
 };
 
 #endif

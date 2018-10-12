@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 #/** @file post_check_bi.sh
 # @brief sh script that check the return code of an executable and compares 
 # its output with a reference (if available). Modified to restrict checks 
@@ -18,7 +18,7 @@ else
     joblog=${test}.log
     if [ "$status" = 0 ]
 	then 
-	echo "[92;1m post_check_bi.sh> OK: ${test} exited normally. Output is in $joblog [m"
+	#echo "[92;1m post_check_bi.sh> OK: ${test} exited normally. Output is in $joblog [m"
 	reflog=../share/${test}.ref
         grep -e 'WriteData' \
              -e 'AddTrigMap' \
@@ -32,7 +32,7 @@ else
 	joblog=${joblog}.small
 	if [ -r $reflog ]
 	    then
-	    echo " post_check_bi.sh> Now comparing output with reference"
+	    #echo " post_check_bi.sh> Now comparing output with reference"
 
             # ignore diff annotations
             PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
@@ -82,6 +82,8 @@ else
             PP="$PP"'|NewEventCollection.root, recovered'
             # ignore new file catalog messages
             PP="$PP"'|registerPFN'
+            # EventSelector sourceID
+            PP="$PP"'|Disconnecting input sourceID'
 
             jobdiff=`basename ${joblog}`-todiff
             refdiff=`basename ${reflog}`-todiff
@@ -90,12 +92,13 @@ else
             diff -a -b -E -B -u $jobdiff $refdiff
 
 	    diffStatus=$?
-	    if [ $diffStatus != 0 ] 
+	    if [ $diffStatus -ne 0 ] 
 		then
 		echo "[97;101;1m post_check_bi.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1
 	    else
-		echo "[92;1m post_check_bi.sh> OK: $joblog and $reflog identical [m"
+                true
+		#echo "[92;1m post_check_bi.sh> OK: $joblog and $reflog identical [m"
 	    fi
 	else
 	    tail $joblog
@@ -112,7 +115,7 @@ fi
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
-echo 
+#echo 
 
 exit $status
 

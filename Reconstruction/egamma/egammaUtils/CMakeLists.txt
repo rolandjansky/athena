@@ -7,28 +7,28 @@ atlas_subdir( egammaUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Event/EventPrimitives
+	                  Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODTracking
-                          Tracking/TrkEvent/TrkNeutralParameters
+			  Event/xAOD/xAODEgamma
                           PRIVATE
-                          Control/AthenaBaseComps
                           Event/FourMomUtils
-                          PhysicsAnalysis/AnalysisCommon/AnalysisUtils
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters )
+			  PhysicsAnalysis/AnalysisCommon/AnalysisUtils
+			  Tools/PathResolver)
 
 # External dependencies:
-find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
+find_package( ROOT COMPONENTS Tree Core  Hist)
 
-# Component(s) in the package:
+# Component(s in tne package:
 atlas_add_library( egammaUtils
                    Root/*.cxx
                    PUBLIC_HEADERS egammaUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives xAODCaloEvent xAODTracking TrkNeutralParameters AnalysisUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps FourMomUtils TrkSurfaces TrkEventPrimitives TrkParameters )
-
+		   PRIVATE_INCLUDE_DIRS 
+		   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODTracking xAODEgamma  
+		   PRIVATE_LINK_LIBRARIES FourMomUtils  PathResolver AnalysisUtilsLib)
+	  
+atlas_add_dictionary( egammaUtilsDict
+		      egammaUtils/egammaUtilsDict.h
+		      egammaUtils/selection.xml
+		      LINK_LIBRARIES egammaUtils )

@@ -365,6 +365,25 @@ public:
 };
 
 
+/**
+ * @brief Exception --- Non-atomic access to atomic aux variable.
+ *
+ * Must use AtomicDecorator to access the variable.
+ */
+class ExcAtomicMismatch
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param auxid ID of the requested aux data item.
+   * @param new_type Type of the item.
+   */
+  ExcAtomicMismatch (SG::auxid_t auxid,
+                     const std::type_info& type);
+};
+
+
 } // namespace SG
 
 

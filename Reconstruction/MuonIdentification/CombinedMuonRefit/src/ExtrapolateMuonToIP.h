@@ -12,9 +12,9 @@
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 namespace Muon{
-  class MuonEDMPrinterTool;
   class IMuonTrackExtrapolationTool;
 }
 

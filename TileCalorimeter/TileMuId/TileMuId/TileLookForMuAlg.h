@@ -29,27 +29,28 @@
 #include "CaloEvent/CaloCellContainer.h"
 
 // Athena includes 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // C++ STL includes
-#include  <vector> 
+#include <vector> 
 #include <string>
 
 //Forward declaration
 class TileID;
 
-class TileLookForMuAlg: public AthAlgorithm {
+class TileLookForMuAlg: public AthReentrantAlgorithm {
   public:
     // constructor 
     TileLookForMuAlg(const std::string& name, ISvcLocator* pSvcLocator);
     // destructor 
-    ~TileLookForMuAlg();
+    virtual ~TileLookForMuAlg();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute_r (const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
+
 
     //static std::string TileLookForMuAlg_stream;
 

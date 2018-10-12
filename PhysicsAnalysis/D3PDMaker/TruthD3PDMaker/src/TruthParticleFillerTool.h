@@ -19,8 +19,7 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "xAODTruth/TruthParticle.h"
 #include "GaudiKernel/ServiceHandle.h"
-class IPartPropSvc;
-
+#include "GaudiKernel/IPartPropSvc.h"
 
 namespace D3PD {
 

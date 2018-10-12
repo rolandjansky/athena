@@ -106,7 +106,7 @@ namespace JiveXML {
       }
     }else {
       //obtain all collections with the given keys
-      std::vector<std::string>::const_iterator keyIter,endIter;
+      std::vector<std::string>::const_iterator keyIter;
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
         if ( !evtStore()->contains<xAOD::JetContainer>( (*keyIter) ) ){ continue; } // skip if not in SG
         StatusCode sc = evtStore()->retrieve( Jets, (*keyIter) );

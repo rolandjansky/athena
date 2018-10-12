@@ -13,28 +13,24 @@
 
 */
 // Include the interfaces
-#include "PATCore/IAsgSelectionTool.h"
-// Forward declarations
-namespace Root{
-  class TAccept;
-}
+#include "AsgAnalysisInterfaces/ISelectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 
-class IAsgElectronMultiLeptonSelector : virtual public IAsgSelectionTool
+class IAsgElectronMultiLeptonSelector : virtual public CP::ISelectionTool
 {
 
   ASG_TOOL_INTERFACE(IAsgElectronMultiLeptonSelector)
 
 public:
 
-  /// @name IAsgElectronMultiLeptonSelector methods in addition to the IAsgSelectionTool ones
+  /// @name IAsgElectronMultiLeptonSelector methods in addition to the ISelectionTool ones
   ///{@
 
-  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
+  /// accept with pointer to  IParticle  so as to not hide the ISelectionTool one
+  virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
 
   /// accept method with pointer to electron */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Electron* part ) const = 0;
 
   ///Method to get the operating point */
   virtual std::string getOperatingPointName( ) const=0;

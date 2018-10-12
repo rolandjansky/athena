@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
    Control/AthContainersInterfaces
    Control/AthenaBaseComps
    Control/AthenaKernel
+   Control/RootUtils
    Control/CxxUtils
    Control/AthContainers
    Control/DataModelRoot
@@ -24,7 +25,6 @@ atlas_depends_on_subdirs(
    Control/SGTools
    Control/StoreGate
    Database/PersistentDataModel
-   Database/AthenaPOOL/AthenaPoolKernel
    Event/EventInfo
    GaudiKernel )
 
@@ -38,7 +38,7 @@ atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
    ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
-   ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel CxxUtils
+   ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel RootUtils CxxUtils
    AthContainers DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
    StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel )
 
@@ -68,8 +68,20 @@ atlas_add_test( AthenaEventLoopMgr_test
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( ConditionsCleanerSvc_test
+  SOURCES test/ConditionsCleanerSvc_test.cxx
+  LINK_LIBRARIES TestTools AthenaKernel GaudiKernel AthenaBaseComps
+  EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
+  ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 atlas_add_test( RCUSvc_test
    SOURCES test/RCUSvc_test.cxx
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
+   EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( DelayedConditionsCleanerSvc_test
+   SOURCES test/DelayedConditionsCleanerSvc_test.cxx
    LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
@@ -83,6 +95,18 @@ atlas_add_test( AthTPCnvSvc
    SCRIPT test/AthTPCnvSvc.sh
    PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO" )
+
+
+atlas_add_test( SimplePOSIXTimeKeeperSvc
+   SCRIPT test/SimplePOSIXTimeKeeperSvc.sh
+   PROPERTIES TIMEOUT 300
+   EXTRA_PATTERNS "allocated job time|average time" )
+
+
+atlas_add_test( AthDictLoaderSvc
+   SCRIPT test/AthDictLoaderSvc.sh
+   PROPERTIES TIMEOUT 300 )
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

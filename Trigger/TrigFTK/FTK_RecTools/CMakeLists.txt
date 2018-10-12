@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tools/PyJobTransforms
                           DetectorDescription/GeoPrimitives
+                          InnerDetector/InDetConditions/InDetCondServices
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkVertexFitter/TrkVxEdmCnv
@@ -24,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkTools/TrkAmbiguityProcessor
                           PRIVATE
                           Event/EventPrimitives
@@ -44,7 +46,7 @@ atlas_add_library( FTK_RecToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS FTK_RecTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData TrkVxEdmCnvLib  InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces)
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GeoPrimitives xAODTracking TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData TrkVxEdmCnvLib  InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkRIO_OnTrack TrkAmbiguityProcessorLib StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces)
 
 atlas_add_component( FTK_RecTools
                      src/*.cxx src/components/*.cxx

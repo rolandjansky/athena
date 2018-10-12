@@ -41,13 +41,11 @@ class HLTResultCnv : public HLTResultCnvBase {
   
   friend class CnvFactory< HLTResultCnv >;
   
- protected:
-
 public:
   HLTResultCnv (ISvcLocator* svcloc);
-protected:
-
   ~HLTResultCnv();
+
+protected:
 
   virtual HLTResult_PERS* createPersistent (HLT::HLTResult* transCont);
 

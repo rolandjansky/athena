@@ -176,7 +176,6 @@ StatusCode TrackParticleToPixelClusterAssociationTool::reset (const  Rec::TrackP
 
 
   std::vector< Identifier> pixelClusterIdentifier;  
-  std::vector<Identifier>::iterator posItr;
 
   const DataVector<const Trk::TrackStateOnSurface>* trackHits = track->trackStateOnSurfaces();
   

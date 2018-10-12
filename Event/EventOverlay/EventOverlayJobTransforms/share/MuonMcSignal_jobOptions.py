@@ -14,25 +14,19 @@ theApp.Dlls += [ "MuonByteStreamCnvTest" ]
 theApp.Dlls += [ "TrigT1RPChardware" ]
 theApp.Dlls += [ "TrigT1RPCsteering" ]
 theApp.Dlls += [ "TrigT1RPCmonitoring" ]
-
+from AthenaCommon.CfgGetter import getAlgorithm
 if DetFlags.overlay.MDT_on():
-        from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MdtDigitToMdtRDO
-        job += MdtDigitToMdtRDO( "SigMdtDigitToMdtRDO" )
-        job.SigMdtDigitToMdtRDO.EvtStore = job.MdtOverlay.MCStore
+        job += getAlgorithm( "SigMdtDigitToMdtRDO" )
         #ACH if readBS==False:
            #ACH job += MdtDigitToMdtRDO( "BkgMdtDigitToMdtRDO" )
            #ACH job.BkgMdtDigitToMdtRDO.Store = job.MdtOverlay.TempBkgStore
 if DetFlags.overlay.RPC_on():
-        from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import RpcDigitToRpcRDO
-        job += RpcDigitToRpcRDO( "SigRpcDigitToRpcRDO" )
-        job.SigRpcDigitToRpcRDO.EvtStore = job.RpcOverlay.MCStore
+        job += getAlgorithm( "SigRpcDigitToRpcRDO" )
         #ACH if readBS==False:
            #ACH job += RpcDigitToRpcRDO( "BkgRpcDigitToRpcRDO" )
            #ACH job.BkgRpcDigitToRpcRDO.Store = job.RpcOverlay.TempBkgStore
 if DetFlags.overlay.TGC_on():
-        from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import TgcDigitToTgcRDO
-        job += TgcDigitToTgcRDO( "SigTgcDigitToTgcRDO" )
-        job.SigTgcDigitToTgcRDO.EvtStore = job.TgcOverlay.MCStore
+        job += getAlgorithm( "SigTgcDigitToTgcRDO" )
         #ACH if readBS==False:
            #ACH job += TgcDigitToTgcRDO( "BkgTgcDigitToTgcRDO" )
            #ACH job.BkgTgcDigitToTgcRDO.Store = job.TgcOverlay.TempBkgStore

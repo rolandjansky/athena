@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARMCSYM_H
@@ -21,10 +21,12 @@ class LArMCSym {
   LArMCSym(const LArOnlineID* onlId, 
 	   const CaloCell_ID* caloId,
 	   std::vector<HWIdentifier>&& oflHashtoSymOnl,
-	   std::vector<HWIdentifier>&& onlHashtoSymOnl
+	   std::vector<HWIdentifier>&& onlHashtoSymOnl,
+	   std::vector<HWIdentifier>&& symIds
 	   ); 
    
   HWIdentifier ZPhiSymOfl(const Identifier notSymOffId) const {
+    if (m_caloCellID->is_tile(notSymOffId)) return HWIdentifier();
     const IdentifierHash h=m_caloCellID->calo_cell_hash(notSymOffId);
     return ZPhiSymOfl(h);
   }
@@ -45,11 +47,16 @@ class LArMCSym {
     return m_onlHashtoSymOnl[notSymOnlHash];
   }
 
+  const std::vector<HWIdentifier>& symIds() const {
+    return m_symIds;
+  }
+
  private:
   const LArOnlineID* m_onlineID;
   const CaloCell_ID* m_caloCellID;
   const std::vector<HWIdentifier> m_oflHashtoSymOnl;
   const std::vector<HWIdentifier> m_onlHashtoSymOnl;
+  const std::vector<HWIdentifier> m_symIds;
 
 };
 

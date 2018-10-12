@@ -137,17 +137,18 @@ namespace MuonGM {
       double xMfirst = firstPos;
       double xMid;
       int chNum;
-      // sTGC strips no longer use the "eta" orientation in their local geometry.
-      // Its coordinates are "rotated". sTGC strip pitch == 3.2mm is a way to check if sTGC only
+      //sTGC strip pitch == 3.2mm is a way to check if sTGC only
       if (inputPitch == 3.2){ // if sTGC strip
-        xMid = pos.y() - pos.x()*tan(sAngle);
+        xMid = pos.x() - pos.y()*tan(sAngle);
        if (xMid < xMfirst && xMid > xMfirst - firstPitch) chNum = 1; // If position between bottom boundary and 1st strip
        else if (xMid > xMfirst) // position higher than first Pos
           chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch ) + 2;
         else chNum = -1;
       }
       else {
-        xMid = pos.x() - pos.y()*tan(sAngle);
+//        xMid = pos.x() - pos.y()*tan(sAngle);
+// For all MM planes the local position is already rotated
+        xMid = pos.x();
         chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+1.5 );
       }
       if (chNum<1) return -1;
@@ -185,9 +186,17 @@ namespace MuonGM {
       //find wire group associated to wire number
       int grNumber;
       if (wireNumber <= firstPitch) grNumber = 1; // firstPitch in this case is number of wires in 1st group
-      else grNumber = (wireNumber - 1 - firstPitch)/groupWidth +2; // 20 wires per group,
-      // If hit is in inactive wire region of QL1/QS1, return 63.
-      if (wireCutout >800 && pos.y() < 0.5*xSize - wireCutout) return 63;
+      else {
+        grNumber = (wireNumber - 1 - firstPitch)/groupWidth +2; // 20 wires per group,
+        /* If a hit is positionned after the last wire but inside the gas volume
+           This is really a check for the few mm on the fringe of the gas volume
+           Especially important for QL3. We still consider the digit active */
+        if (grNumber > nGroups && pos.x() < 0.5*maxYSize) grNumber = nGroups;
+      }
+      /* If hit is in inactive wire region of QL1/QS1, return 63
+         This digit is not added as 63 is an invalid wire number
+         But it allows for better tracking of hits */
+      if (wireCutout !=0. && pos.y() < 0.5*xSize - wireCutout) return 63;
       if (grNumber<1) return -1;
       if (grNumber>nGroups) return -1;
       return grNumber;
@@ -241,7 +250,9 @@ namespace MuonGM {
 
     } else if ( type==MuonChannelDesign::etaStrip ) {
 
-      if (sAngle==0.) {
+      if (sAngle==0.||inputPitch<1.0) {
+
+// MM == inputPitch<1.0 always use same code to calculate strip position for layers with and without stereo angle
 
 	double x = firstPos + inputPitch*(st-1);
         if (inputPitch == 3.2) { // check if sTGC, preferably 2 unique values
@@ -254,9 +265,8 @@ namespace MuonGM {
           else if (st <= nch) x = xFirst + (st-1) * inputPitch;
           else return false;
           if (st == nch && firstPitch == 3.2) x = x - firstPitch/4; // accounts for staggering
-          // Here we "rotate" the coordinates. We changed the local geometry from a RotatedTrapezoid to a Trapezoid
-          pos[0] = 0;
-          pos[1] = x;
+          pos[0] = x;
+          pos[1] = 0;
         }
         else { // default
 	  pos[0] = x;

@@ -50,7 +50,7 @@
 namespace egammaPIDObs { 
   
  /*! \enum Bitdefinitons for the egamma identification tools */
-  enum PID {
+  enum PID : unsigned int {
     /** @brief cut-based identification for egamma objects (cluster and track-based) */
     IsEM                = 0,
     /** @brief loglikelihood identification */

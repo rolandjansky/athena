@@ -19,6 +19,7 @@
 #include "StorageSvc/pool.h"
 #include "StorageSvc/DbSection.h"
 #include "StorageSvc/DbHandleBase.h"
+#include "StorageSvc/Transaction.h"
 
 // STL include files
 #include <vector>
@@ -39,7 +40,6 @@ namespace pool  {
   class DbDatabaseObj;
   class DbContainer;
   class DbContainerObj;
-  class DbTransaction;
   class DbOption;
   class DbTypeInfo;
 
@@ -91,8 +91,6 @@ namespace pool  {
     }
     /// Access reference counter
     int refCount()  const;
-    /// Allow query if Transaction is active
-    bool transactionActive() const;
     /// Access to access mode member
     DbAccessMode openMode() const;
     /// Access to db name (FID)
@@ -139,11 +137,11 @@ namespace pool  {
     DbStatus retire() const;
     /// Check if the database was opened
     bool isOpen() const;
-    /// Start/Commit/Rollback Database Transaction
-    /** @param   refTr     [IN]  Valid transaction handle.
+    /// Commit/Rollback Database Transaction
+    /** @param   action     [IN]  action to perform
       * @return Status code indicating success or failure.
       */
-    DbStatus transAct(DbTransaction& refTr);
+    DbStatus transAct(Transaction::Action action);
     /// Set options
     /** @param   refOpt    [IN]  Reference to option object.
       * @return Status code indicating success or failure.

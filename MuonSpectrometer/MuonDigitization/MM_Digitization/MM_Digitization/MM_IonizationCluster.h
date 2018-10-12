@@ -47,7 +47,7 @@ class MM_NelectronProb {
     NelectronProb.SetBinContent(21,0.0490);
     NelectronProb.SetBinContent(22,0.0450);
     NelectronProb.SetBinContent(23,0.0440);
-    
+
     for (uint Nelectron = 24; Nelectron <= 300; Nelectron++)
       NelectronProb.SetBinContent(Nelectron, 21.6/((Nelectron)*(Nelectron)));
   }
@@ -57,27 +57,26 @@ class MM_NelectronProb {
 
 class MM_IonizationCluster {
 
+  static MM_NelectronProb s_NelectronProb;
+
+ public:
+
+  MM_IonizationCluster ();
+  MM_IonizationCluster (float HitX, float IonizationX, float IonizationY);
+  MM_IonizationCluster (const MM_IonizationCluster& MM_IonizationCluster);
+  void createElectrons(TRandom3* rndm);
+  void propagateElectrons(float lorentzAngle, float driftVel);
+  std::vector<MM_Electron*> getElectrons() const;
+  float getHitX() const { return m_HitX; }
+  TVector2 getIonizationStart() const { return m_IonizationStart; }
+
+ private:
 
   // Members supplied by user
   std::vector<MM_Electron*> m_Electrons;
   float m_HitX;
   TVector2 m_IonizationStart;
 
-  static MM_NelectronProb s_NelectronProb;
-
- public:
-
-
-  MM_IonizationCluster ();
-  MM_IonizationCluster (float HitX, float IonizationX, float IonizationY);
-  MM_IonizationCluster (const MM_IonizationCluster& other);
-  void createElectrons(TRandom3* rndm);    
-  void diffuseElectrons(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm);
-  void propagateElectrons(float driftVelx, float driftVely, float driftVel);
-  void avalancheElectrons(float gain, TRandom3* rndm);
-  std::vector<MM_Electron*> getElectrons() const;
-  float getHitX() const { return m_HitX; }
-  TVector2 getIonizationStart() const { return m_IonizationStart; }
 };
 
 #endif

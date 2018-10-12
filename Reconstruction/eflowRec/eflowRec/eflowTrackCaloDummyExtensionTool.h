@@ -21,6 +21,9 @@ class eflowTrackCaloPoints;
 
 static const InterfaceID IID_eflowTrackCaloDummyExtensionTool("eflowTrackCaloDummyExtensionTool", 1, 0);
 
+/*
+Inherits from eflowTrackExtrapolatorBaseAlgTool and AthAlgTool. Uses simple parameterisation to extrapolate tracks to the calorimeter, and creates an eflowTrackCaloPoints object.
+*/
 class eflowTrackCaloDummyExtensionTool: virtual public eflowTrackExtrapolatorBaseAlgTool, public AthAlgTool {
 
 public:

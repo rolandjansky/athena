@@ -7,14 +7,14 @@ atlas_subdir( SCT_SLHC_GeoModel )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelUtilities
                           DetectorDescription/Identifier
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           PRIVATE
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/SGTools
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces

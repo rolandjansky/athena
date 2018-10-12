@@ -227,11 +227,7 @@ StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
   {
     // Call the sysExecute() of the method the algorithm
     m_abortTimer.start(m_timeoutMilliseconds);
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-    sc = theAlgorithm->sysExecute();
-#else
     sc = theAlgorithm->sysExecute( getContext() );
-#endif
     all_good = sc.isSuccess();
     // I think this should be done by the algorithm itself, 
     // but just in case...
@@ -338,7 +334,14 @@ AthSequencer::beginRun()
     for (it = theAlgs->begin(); it != itend; it++) {
       Algorithm* theAlgorithm = (*it);
       if ( ! theAlgorithm->isEnabled( ) ) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
         theAlgorithm->beginRun( ).ignore();
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
       }
     }
     
@@ -361,7 +364,14 @@ AthSequencer::endRun()
     for (it = theAlgms->begin(); it != itend; it++) {
       Algorithm* theAlgorithm = (*it);
       if ( ! theAlgorithm->isEnabled( ) ) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
         theAlgorithm->endRun( ).ignore();
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
       }
     }
   }
@@ -536,7 +546,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
           status = StatusCode::FAILURE;
         }
       }
-      if ( status.isSuccess( ) ) {
+      if ( status.isSuccess( ) && theAlgorithm != nullptr ) {
         
         // The specified Algorithm already exists - 
         // just append it to the membership list.
@@ -545,7 +555,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
           ATH_MSG_DEBUG 
             (theName << " already exists - appended to member list");
         } else {
-          ATH_MSG_WARNING 
+          ATH_MSG_WARNING
             (theName << " already exists - append failed!!!");
           result = StatusCode::FAILURE;
         }

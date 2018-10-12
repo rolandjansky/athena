@@ -109,13 +109,13 @@ class ZmumuEvent : public EventAnalysis
   double m_etaCut;
   bool m_doDebug;
   // Member variables : Mostly to store relevant muon data for quick access.
-  unsigned int     m_numberOfFullPassMuons;
-  bool             m_passedSelectionCuts;
+  unsigned int     m_numberOfFullPassMuons{};
+  bool             m_passedSelectionCuts{};
 
-  const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS];
-  const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )
-  const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS];      // Pointer to muon spectro
-  const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS];       // Pointer to ID track
+  const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS] {};
+  const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS] {};  // Pointer to muon spectro ( corr. )
+  const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS] {};      // Pointer to muon spectro
+  const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS] {};       // Pointer to ID track
 
   // Keep kinematic information on the Z
   float m_fZPt[NUM_TYPES];

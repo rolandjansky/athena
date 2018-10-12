@@ -11,12 +11,9 @@
 
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/ErrorMatrix.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // cannot forward declare
-#include <ostream>
+#include <iosfwd>
 
-//#include <iostream.h>
 class MsgStream;
 
 namespace Trk {
@@ -65,10 +62,6 @@ public:
         //const Trk::Surface* sf,
         std::vector<const InDet::PixelClusterOnTrack*>* childrots,
         std::vector<AssignmentProb>* assgnProb
-        //        const Trk::TrackParameters*  assumedTrkPars,
-        //const Trk::LocalParameters* effecLocalPars,
-        //const Trk::ErrorMatrix* effecLocalErrMat,
-        //int ROTsHaveComSrfc // meaning of the values are described in the definition of ROTsHaveCommonSurface()
     );
 
     /** Destructor */
@@ -100,33 +93,14 @@ public:
     /**returns some information about this MeasurementBase/CompetingPixelClustersOnTrack. */
     std::ostream& dump( std::ostream& out ) const;
 
-//    /** returns the effective LocalParameters @f$ \hat{m} @f$ according to the weights @f$ p_i @f$ (assignment probabilities).
-//     - interface from MeasurementBase
-//     - CompetingPixelClustersOnTrack overwrites implementation in CompetingRIOsOnTrack, because TRT
-//        needs special attention in calculating the effective parameters */
-//    const Trk::LocalParameters& localParameters() const;
-
-//    /** returns the effective local ErrorMatrix (@f$ \hat{G} @f$ = effective WeightMatrix) according to the weights @f$ p_i @f$ (assignment probabilities) .
-//    - interface from MeasurementBase
-//    - CompetingPixelClustersOnTrack overwrites implementation in CompetingRIOsOnTrack, because TRT
-//       needs special attention in calculating the effective ErrorMatrix */
-//    const Trk::ErrorMatrix& localErrorMatrix() const;
-
-    //    /** returns the TrackParameters used for calculation of the effective measurement.
-    //    - specific for CompetingPixelClustersOnTrack */
-    //    const Trk::TrackParameters* assumedTrackParameters() const;
 
 
 private:
 
-    //    /** returns the RIO_OnTrack vector (of base class type) i.e. cast upwards to provide RIO_OnTrack
-    //    for base class CompetingRIOsOnTrack*/
-    //    const std::vector<const Trk::RIO_OnTrack*>* getBaseRioOnTrack() const;
 
     /** private method to clear the Trk::RIO_OnTrack vector */
     void                               clearChildRotVector();
-//    /** The surface to which the competingROTs parameters are expressed to */
-//    mutable const Trk::Surface*             m_associatedSurface;
+
 
     /** The global Position */
     mutable const Amg::Vector3D*        m_globalPosition;
@@ -159,9 +133,7 @@ inline const std::vector<const InDet::PixelClusterOnTrack*>& CompetingPixelClust
 }
 
 inline const InDet::PixelClusterOnTrack& CompetingPixelClustersOnTrack::rioOnTrack(unsigned int indx) const {
-  //if (m_containedChildRots && indx<m_containedChildRots->size())
         return * m_containedChildRots->operator[](indx);
-	//return 0;
 }
 
  inline const Amg::Vector3D& CompetingPixelClustersOnTrack::globalPosition() const {
@@ -175,10 +147,7 @@ inline unsigned int CompetingPixelClustersOnTrack::numberOfContainedROTs() const
     return m_containedChildRots->size();
 }
 
-// inline const Trk::LocalParameters& CompetingPixelClustersOnTrack::localParameters() const {
-//     return (*m_localParameters);
-// }
-// 
+
 // inline const Trk::ErrorMatrix& CompetingPixelClustersOnTrack::localErrorMatrix() const {
 //     return (*m_localErrorMatrix);
 // }

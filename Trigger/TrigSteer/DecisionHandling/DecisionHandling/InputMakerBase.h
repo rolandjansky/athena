@@ -24,18 +24,24 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /// initialise this base class and renounce input decision key handles
   virtual StatusCode sysInitialize() override;
   /// execute to be implemented in derived clas
-  virtual StatusCode execute_r(const EventContext&) const = 0;
-  virtual StatusCode finalize() = 0;
-  virtual StatusCode initialize()= 0;  
+  virtual StatusCode execute_r(const EventContext&) const override = 0;
+  virtual StatusCode finalize() override = 0;
+  virtual StatusCode initialize() override = 0;  
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;
+  /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionOutputs() const;
+  // helper methods for derived classes to reduce boiler plate code
+  /// provides debug printout of the output of the algorithm
+  StatusCode debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const;
+  /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, return outputHandles
+  StatusCode decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
  private:
   /// input decisions, will be implicit (renounced).
-  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputDecisions", {}, "Input Decisions (implicit)" };
+  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputMakerInputDecisions", {}, "Input Decisions (implicit)" };
   /// output decisions
-  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "OutputDecisions", {}, "Ouput Decisions" };
+  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
 };
 
 

@@ -4,23 +4,20 @@
 
 #include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
 
-#include "InDetReadoutGeometry/SiLocalPosition.h"  
-#include "InDetReadoutGeometry/SiDetectorElement.h"  
-
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include <cmath>
 
+#include <cmath>
 
 //#define GCDEBUG 
 
 #define WAFER_WIDTH 0.1
 
-SCT_GCBuilder::SCT_GCBuilder(const InDetDD::SiDetectorManager* &manager, const SCT_ID* sctId, bool useOffline,
+SCT_GCBuilder::SCT_GCBuilder(const SCT_ID* sctId, bool useOffline,
 			     int offsetBarrelSCT, int offsetEndcapSCT) {
-  m_manager=manager;
   m_sctID = sctId;
   m_useOfflineAlgorithm=useOffline;
   m_OffsetBarrelSCT = offsetBarrelSCT;
@@ -31,6 +28,7 @@ SCT_GCBuilder::~SCT_GCBuilder() {
 }
 
 void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clusterColl, 
+                                     const InDetDD::SiDetectorElementCollection* elements,
 				     std::vector<TrigSiSpacePoint*>& space_points) {
   double locT, locL, errLocT, errLocL, x, y;
   double r, dr, phi, dphi, z, dz;
@@ -40,7 +38,7 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
   const Identifier& waferId = phi_clusterColl.identify();
   const IdentifierHash& waferIdHash = phi_clusterColl.identifyHash();
 
-  const InDetDD::SiDetectorElement* element=m_manager->getDetectorElement(waferIdHash);
+  const InDetDD::SiDetectorElement* element=elements->getDetectorElement(waferIdHash);
 
   double pitchPhi = element->phiPitch();
   double pitchPhiRadians = pitchPhi/element->center().mag();
@@ -147,7 +145,8 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 
 void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clusterColl, 
 				     const InDet::SCT_ClusterCollection& uv_clusterColl, 
-				     bool allowPhiOnly,
+				     const bool allowPhiOnly,
+                                     const InDetDD::SiDetectorElementCollection* elements,
 				     std::vector<TrigSiSpacePoint*>& space_points) 
 {
   double errLocT,errLocL,x,y;
@@ -170,8 +169,8 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
   IdentifierHash phi_waferIdHash = phi_clusterColl.identifyHash();  
   IdentifierHash uv_waferIdHash  = uv_clusterColl.identifyHash();
 
-  const InDetDD::SiDetectorElement* phi_element=m_manager->getDetectorElement(phi_waferIdHash);
-  const InDetDD::SiDetectorElement* uv_element=m_manager->getDetectorElement(uv_waferIdHash);
+  const InDetDD::SiDetectorElement* phi_element=elements->getDetectorElement(phi_waferIdHash);
+  const InDetDD::SiDetectorElement* uv_element=elements->getDetectorElement(uv_waferIdHash);
 
   if(phi_element->isStereo())
     {

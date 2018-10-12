@@ -11,7 +11,6 @@ metaSV1Tag = { 'IsATagger'         : True,
                                       'InDetVKalVxInJetTool',
                                       'SV1NewLikelihoodTool'],
                'PassByPointer'     : {'LikelihoodTool'  : 'SV1NewLikelihoodTool'},
-#               'PassByName'        : {'SecVxFinderName' : 'InDetVKalVxInJetTool' },
                'JetCollectionList' : 'jetCollectionList',
                'ToolCollection'    : 'SV1Tag' }
 
@@ -52,9 +51,7 @@ def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
 
 #-----------------------------------------------------------------
 
-metaSV1NewLikelihoodTool = { 'CalibrationFolders' : ['SV1',],
-                             'DependsOn'          : ['BTagCalibrationBrokerTool',],
-                             'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool' },
+metaSV1NewLikelihoodTool = { 'CalibrationTaggers' : ['SV1',],
                              'ToolCollection'     : 'SV1Tag' }
 
 def toolSV1NewLikelihoodTool(name, useBTagFlagsDefaults = True, **options):

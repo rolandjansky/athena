@@ -8,7 +8,7 @@ from InDetRecExample.InDetKeys import InDetKeys
 if doAllHits:
   doDCS = False
   from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-  if  (globalflags.DataSource() == 'data' and CommonGeometryFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"):
+  if  (globalflags.DataSource() == 'data' and ( CommonGeometryFlags.Run() in ["RUN2", "RUN3"] ) and conddb.dbdata == "CONDBR2"):
      doDCS = True 
   InDetPixelMainsMon=PixelMainMon(name                = "InDetPixelMonitoringAllHits",
                                   onTrack             = False,

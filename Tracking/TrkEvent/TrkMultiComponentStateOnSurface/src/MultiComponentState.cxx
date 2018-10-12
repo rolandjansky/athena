@@ -38,7 +38,7 @@ Trk::MultiComponentState::~MultiComponentState()
   this->clear(); 
 }
 
-const Trk::MultiComponentState* Trk::MultiComponentState::clone() const
+Trk::MultiComponentState* Trk::MultiComponentState::clone() const
 {
   Trk::MultiComponentState* clonedState = new Trk::MultiComponentState();
   Trk::MultiComponentState::const_iterator component = this->begin();
@@ -51,7 +51,7 @@ const Trk::MultiComponentState* Trk::MultiComponentState::clone() const
 }
 
 
-const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithWeightScaling( double scalingFactor ) const
+Trk::MultiComponentState* Trk::MultiComponentState::cloneWithWeightScaling( double scalingFactor ) const
 {
   Trk::MultiComponentState* clonedState = new Trk::MultiComponentState();
   Trk::MultiComponentState::const_iterator component = this->begin();
@@ -65,8 +65,8 @@ const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithWeightScaling
 }
 
 
-const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double errorScaleLocX,double errorScaleLocY, double errorScalePhi,
-                                                                                double errorScaleTheta,double errorScaleQoverP ) const
+Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double errorScaleLocX,double errorScaleLocY, double errorScalePhi,
+                                                                          double errorScaleTheta,double errorScaleQoverP ) const
 {
   Trk::MultiComponentState* stateWithScaledErrors = new Trk::MultiComponentState();
   Trk::MultiComponentState::const_iterator component = this->begin();
@@ -131,7 +131,7 @@ const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( 
 
 
 
-const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double errorScale ) const
+Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double errorScale ) const
 {
 
   Trk::MultiComponentState* stateWithScaledErrors = new Trk::MultiComponentState();
@@ -214,7 +214,7 @@ bool Trk::MultiComponentState::isMeasured() const
 
 }
 
-const Trk::MultiComponentState* Trk::MultiComponentState::clonedRenormalisedState() const
+Trk::MultiComponentState* Trk::MultiComponentState::clonedRenormalisedState() const
 {
 
   Trk::MultiComponentState::const_iterator component = this->begin();

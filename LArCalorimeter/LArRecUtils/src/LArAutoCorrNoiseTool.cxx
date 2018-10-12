@@ -2,10 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArRecUtils/LArAutoCorrNoiseTool.h"
+#include "LArAutoCorrNoiseTool.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include <cmath>
 

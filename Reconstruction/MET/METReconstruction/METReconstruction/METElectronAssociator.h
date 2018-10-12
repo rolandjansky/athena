@@ -18,6 +18,9 @@
 #include "METReconstruction/METEgammaAssociator.h"
 #include "xAODEgamma/ElectronFwd.h"
 
+//Includes for DataHandles
+#include "StoreGate/DataHandle.h"
+
 namespace met{
   class METElectronAssociator final
     : public METEgammaAssociator
@@ -58,6 +61,8 @@ namespace met{
  
     /// Default constructor: 
     METElectronAssociator();
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_elContKey;
+    
 
   }; 
 

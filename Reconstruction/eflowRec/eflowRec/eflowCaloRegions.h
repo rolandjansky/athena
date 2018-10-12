@@ -18,6 +18,9 @@ CREATED:  03 May, 2006
 
 #include "CaloIdentifier/CaloCell_ID.h"
 
+/**
+This defines the eflowCalo enum, which is used to label calorimeter layers in a simplified scheme which exludes the presamplers and combines the Tile regions.
+*/
 class eflowCalo
 {
  public:
@@ -45,7 +48,9 @@ class eflowCalo
 
 typedef eflowCalo::LAYER eflowCaloENUM;
 
-
+/**
+This defines the J1STLAYER enum, which is used to label calorimeter layers in a simplified scheme which exludes the presamplers and combines the HEC layers. It also combines both the Tile regions and layers into one Tile quantity. This enum is used to label layers for the LHED calculation.
+ */
 class eflowFirstIntRegions
 {
  public:

@@ -18,7 +18,7 @@
 #define ZDCEVENT_ZDCRAWCHANNEL_H
 
 #include "ZdcEvent/ZdcRawData.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class ZdcRawChannel : public ZdcRawData
 {

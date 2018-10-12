@@ -11,7 +11,7 @@
 // M.Grothe, 28/11/02
 // K. Assamagan 06/12/02
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MuonRDO/RpcFiredChannel.h"
 #include "Identifier/Identifier.h"
 

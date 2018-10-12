@@ -12,16 +12,8 @@
 //# Last Modified: Jun 30/2005                        #
 //##################################################### 
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/AlgTool.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/Property.h"
-
+#include "TBBeamQualityTrackingTool.h"
 #include "TBEvent/TBTrack.h"
-
-#include "TBRec/TBBeamQualityTrackingTool.h"
 
 #include <string>
 #include <ios>

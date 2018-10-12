@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // VKalVrt.h
@@ -81,7 +81,6 @@ namespace VKalVrtAthena {
     /** Default Destructor */
     ~VrtSecInclusive();
 
-    virtual StatusCode beginRun();
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode execute();

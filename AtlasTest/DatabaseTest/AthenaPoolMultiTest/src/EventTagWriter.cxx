@@ -221,7 +221,7 @@ StatusCode EventTagWriter::execute()
   {
     attribList = new AthenaAttributeList(*m_attribListSpec);
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception during creation of AthenaAttributeList object."
                    << "Message: " << e.what()  );
@@ -262,7 +262,7 @@ StatusCode EventTagWriter::execute()
     (*attribList)["TestDouble"].data<double>() = testDouble;
     (*attribList)["TestString"].data<std::string>() = testString;
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting type test "
                    << "attributes; Message:" << e.what() );
@@ -306,7 +306,7 @@ StatusCode EventTagWriter::execute()
     nGlobal++;
     (*attribList)["NGlobal"].data<unsigned short>() = nGlobal;
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
                    << "attributes; Message:" << e.what() );

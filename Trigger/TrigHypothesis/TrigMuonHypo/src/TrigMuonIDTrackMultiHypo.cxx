@@ -88,9 +88,8 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltFinalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltBeginRun()
+HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltStart()
 {
-  msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
   msg() << MSG::INFO << "AcceptAll : " << m_acceptAll << endmsg;
   
   if (m_acceptAll) {

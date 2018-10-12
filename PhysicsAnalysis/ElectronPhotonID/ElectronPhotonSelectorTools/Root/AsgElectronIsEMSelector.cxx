@@ -45,118 +45,118 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   
   // Name of the quality to use
   declareProperty("isEMMask",
-		  m_rootTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
+		  m_rootTool->m_isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
 
   // Boolean to use TRT outliers
-  declareProperty("useTRTOutliers",m_rootTool->useTRTOutliers=false,
+  declareProperty("useTRTOutliers",m_rootTool->m_useTRTOutliers=false,
 		  "Boolean to use TRT outliers");
 
   // Boolean to use TRT Xenon Hits 
   declareProperty("useTRTXenonHits",
-		  m_rootTool->useTRTXenonHits = false, 
+		  m_rootTool->m_useTRTXenonHits = false, 
 		  "Boolean to use TRT Xenon Hits"); 
 
   // Eta binning
-  declareProperty("CutBinEta",m_rootTool->CutBinEta,
+  declareProperty("CutBinEta",m_rootTool->m_cutBinEta,
 		  "Eta binning");
 
   // ET binning
-  declareProperty("CutBinET",m_rootTool->CutBinET,
+  declareProperty("CutBinET",m_rootTool->m_cutBinET,
 		  "ET binning");
   // Cut on fraction of energy to use 1st sampling
-  declareProperty("CutF1",m_rootTool->CutF1,
+  declareProperty("CutF1",m_rootTool->m_cutF1,
 		  "Cut on fraction of energy to use 1st sampling");
   // Cut on hadronic leakage
-  declareProperty("CutHadLeakage",m_rootTool->CutHadLeakage,
+  declareProperty("CutHadLeakage",m_rootTool->m_cutHadLeakage,
 		  "Cut on hadronic leakage");
   // Cut on lateral shower shape in 2nd sampling
-  declareProperty("CutRphi33",m_rootTool->CutRphi33,
+  declareProperty("CutRphi33",m_rootTool->m_cutRphi33,
 		  "Cut on lateral shower shape in 2nd sampling");
   // Cut on longitudinal shower shape in 2nd sampling
-  declareProperty("CutReta37",m_rootTool->CutReta37,
+  declareProperty("CutReta37",m_rootTool->m_cutReta37,
 		  "Cut on longitudinal shower shape in 2nd sampling");
   // Cut on shower width in 2nd sampling
-  declareProperty("CutWeta2c",m_rootTool->CutWeta2c,
+  declareProperty("CutWeta2c",m_rootTool->m_cutWeta2c,
 		  "Cut on shower width in 2nd sampling");
   // Cut on Demax 2 in 1st sampling
-  declareProperty("CutDeltaEmax2",m_rootTool->CutDeltaEmax2,
+  declareProperty("CutDeltaEmax2",m_rootTool->m_cutDeltaEmax2,
 		  "Cut on Demax 2 in 1st sampling");
   // Cut on Delta E in 1st sampling
-  declareProperty("CutDeltaE",m_rootTool->CutDeltaE,
+  declareProperty("CutDeltaE",m_rootTool->m_cutDeltaE,
 		  "Cut on Delta E in 1st sampling");
   // Cut on (Emax1-Emax2)/(Emax1+Emax2) in 1st sampling
-  declareProperty("CutDEmaxs1",m_rootTool->CutDEmaxs1,
+  declareProperty("CutDEmaxs1",m_rootTool->m_cutDEmaxs1,
 		  "Cut on (Emax1-Emax2)/(Emax1+Emax2) in 1st sampling");
   // Cut on total shower width in 1st sampling
-  declareProperty("CutWtot",m_rootTool->CutWtot,
+  declareProperty("CutWtot",m_rootTool->m_cutWtot,
 		  "Cut on total shower width in 1st sampling");
   // Cut on shower width in 3 strips
-  declareProperty("CutWeta1c",m_rootTool->CutWeta1c,
+  declareProperty("CutWeta1c",m_rootTool->m_cutWeta1c,
 		  "Cut on shower width in 3 strips");
   // Cut on fraction of energy outside core in 1st sampling
-  declareProperty("CutFracm",m_rootTool->CutFracm,
+  declareProperty("CutFracm",m_rootTool->m_cutFracm,
 		  "Cut on fraction of energy outside core in 1st sampling");
 
   declareProperty("useF3core",m_useF3core = false,
 		  "Cut on f3 or f3core?");
   // Cut on fraction of energy to use 3rd sampling
-  declareProperty("CutF3",m_rootTool->CutF3 ,
+  declareProperty("CutF3",m_rootTool->m_cutF3 ,
 		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core)");
 
   // cut on b-layer
-  declareProperty("CutBL",m_rootTool->CutBL,
+  declareProperty("CutBL",m_rootTool->m_cutBL,
 		  "Cut on b-layer");
   // cut on pixel hits
-  declareProperty("CutPi",m_rootTool->CutPi,
+  declareProperty("CutPi",m_rootTool->m_cutPi,
 		  "Cut on pixel hits");
   // cut on precision hits
-  declareProperty("CutSi",m_rootTool->CutSi,
+  declareProperty("CutSi",m_rootTool->m_cutSi,
 		  "Cut on precision hits");
   // cut on A0
-  declareProperty("CutA0",m_rootTool->CutA0,
+  declareProperty("CutA0",m_rootTool->m_cutA0,
 		  "Cut on transverse impact parameter");
   // cut on A0 for tight menu
-  declareProperty("CutA0Tight",m_rootTool->CutA0Tight,
+  declareProperty("CutA0Tight",m_rootTool->m_cutA0Tight,
 		  "Cut on transverse impact parameter for tight selection");
   // cut on Delta eta
-  declareProperty("CutDeltaEta",m_rootTool->CutDeltaEta,
+  declareProperty("CutDeltaEta",m_rootTool->m_cutDeltaEta,
 		  "cut on Delta eta");
   // cut on Delta eta for tight selection
-  declareProperty("CutDeltaEtaTight",m_rootTool->CutDeltaEtaTight,
+  declareProperty("CutDeltaEtaTight",m_rootTool->m_cutDeltaEtaTight,
 		  "cut on Delta eta for tight selection");
   // cut min on Delta phi (negative)
-  declareProperty("CutminDeltaPhi",m_rootTool->CutminDeltaPhi,
+  declareProperty("CutminDeltaPhi",m_rootTool->m_cutminDeltaPhi,
 		  "cut min on Delta phi");
   // cut max on Delta phi (negative)
-  declareProperty("CutmaxDeltaPhi",m_rootTool->CutmaxDeltaPhi,
+  declareProperty("CutmaxDeltaPhi",m_rootTool->m_cutmaxDeltaPhi,
 		  "cut max on Delta phi");
   // cut min on E/p
-  declareProperty("CutminEp",m_rootTool->CutminEp,
+  declareProperty("CutminEp",m_rootTool->m_cutminEp,
 		  "Cut min on E/p");
   // cut max on E/p
-  declareProperty("CutmaxEp",m_rootTool->CutmaxEp,
+  declareProperty("CutmaxEp",m_rootTool->m_cutmaxEp,
 		  "Cut max on E/p");
 
   // cuts on TRT
-  declareProperty("CutBinEta_TRT",m_rootTool->CutBinEta_TRT,
+  declareProperty("CutBinEta_TRT",m_rootTool->m_cutBinEta_TRT,
 		  "Eta binning in TRT");
 
   // cuts on TRT
-  declareProperty("CutBinET_TRT",m_rootTool->CutBinET_TRT,
+  declareProperty("CutBinET_TRT",m_rootTool->m_cutBinET_TRT,
 		  "ET binning in TRT");
 
   // cut on Number of TRT hits
-  declareProperty("CutNumTRT",m_rootTool->CutNumTRT,
+  declareProperty("CutNumTRT",m_rootTool->m_cutNumTRT,
 		  "cut on Number of TRT hits");
   // cut on Ratio of TR hits to Number of TRT hits
-  declareProperty("CutTRTRatio",m_rootTool->CutTRTRatio,
+  declareProperty("CutTRTRatio",m_rootTool->m_cutTRTRatio,
 		  "Cut on Ratio of TR hits to Number of TRT hits");
   // cut on Ratio of TR hits to Number of TRT hits for 90% efficiency
-  declareProperty("CutTRTRatio90",m_rootTool->CutTRTRatio90,
+  declareProperty("CutTRTRatio90",m_rootTool->m_cutTRTRatio90,
 		  "cut on Ratio of TR hits to Number of TRT hits for 90% efficiency");
   //cut on eProbabilityHT new TRT PID tool
-  declareProperty("CutEProbabilityHT",m_rootTool->CutEProbabilityHT,
+  declareProperty("CutEProbabilityHT",m_rootTool->m_cutEProbabilityHT,
 		  "Cut on eProabbiility new TRT PID Tool");
   
   // for the trigger needs:
@@ -202,66 +202,66 @@ StatusCode AsgElectronIsEMSelector::initialize()
     ///------- Read in the TEnv config ------///
     
     //Override the mask via the config only if it is not set 
-    if(m_rootTool->isEMMask==egammaPID::EgPidUndefined){ 
+    if(m_rootTool->m_isEMMask==egammaPID::EgPidUndefined){ 
 
       int default_mask = static_cast<int>(egammaPID::EgPidUndefined); 
       int mask(env.GetValue("isEMMask",default_mask));
-      m_rootTool->isEMMask=static_cast<unsigned int> (mask);
+      m_rootTool->m_isEMMask=static_cast<unsigned int> (mask);
 
     }
     //
     ATH_MSG_DEBUG("Read in the TEnv config ");
     //From here on the conf ovverides all other properties
     bool useTRTOutliers(env.GetValue("useTRTOutliers", true));
-    m_rootTool->useTRTOutliers =useTRTOutliers;
+    m_rootTool->m_useTRTOutliers =useTRTOutliers;
     bool  useTRTXenonHits(env.GetValue(" useTRTXenonHits", false));
-    m_rootTool->useTRTXenonHits =useTRTXenonHits;
+    m_rootTool->m_useTRTXenonHits =useTRTXenonHits;
     
     ///------- Use helpers to read in the cut arrays ------///
-    m_rootTool->CutBinEta  =AsgConfigHelper::HelperFloat("CutBinEta",env);
-    m_rootTool->CutBinET = AsgConfigHelper::HelperFloat("CutBinET",env);
-    m_rootTool->CutF1 = AsgConfigHelper::HelperFloat("CutF1",env);
-    m_rootTool->CutHadLeakage = AsgConfigHelper::HelperFloat("CutHadLeakage",env);
-    m_rootTool->CutReta37 = AsgConfigHelper::HelperFloat("CutReta37",env);
-    m_rootTool->CutRphi33 = AsgConfigHelper::HelperFloat("CutRphi33",env);
-    m_rootTool->CutWeta2c = AsgConfigHelper::HelperFloat("CutWeta2c",env);
-    m_rootTool->CutDeltaEmax2 = AsgConfigHelper::HelperFloat("CutDeltaEmax2",env);
-    m_rootTool->CutDeltaE = AsgConfigHelper::HelperFloat("CutDeltaE",env);
-    m_rootTool->CutDEmaxs1 = AsgConfigHelper::HelperFloat("CutDEmaxs1",env);
-    m_rootTool->CutDeltaE = AsgConfigHelper::HelperFloat("CutDeltaE",env);
-    m_rootTool->CutWtot = AsgConfigHelper::HelperFloat("CutWtot",env);
-    m_rootTool->CutWeta1c = AsgConfigHelper::HelperFloat("CutWeta1c",env);
-    m_rootTool->CutFracm = AsgConfigHelper::HelperFloat("CutFracm",env);
-    m_rootTool->CutF3 = AsgConfigHelper::HelperFloat("CutF3",env);
-    m_rootTool->CutBL = AsgConfigHelper::HelperInt("CutBL",env);
-    m_rootTool->CutPi = AsgConfigHelper::HelperInt("CutPi",env);
-    m_rootTool->CutSi = AsgConfigHelper::HelperInt("CutSi",env);
-    m_rootTool->CutA0 = AsgConfigHelper::HelperFloat("CutA0",env);
-    m_rootTool->CutA0Tight = AsgConfigHelper::HelperFloat("CutA0Tight",env);
-    m_rootTool->CutDeltaEta = AsgConfigHelper::HelperFloat("CutDeltaEta",env);
-    m_rootTool->CutDeltaEtaTight = AsgConfigHelper::HelperFloat("CutDeltaEtaTight",env);
-    m_rootTool->CutminDeltaPhi = AsgConfigHelper::HelperFloat("CutminDeltaPhi",env);    
-    m_rootTool->CutmaxDeltaPhi = AsgConfigHelper::HelperFloat("CutmaxDeltaPhi",env);    
-    m_rootTool->CutminEp = AsgConfigHelper::HelperFloat("CutminEp",env);    
-    m_rootTool->CutmaxEp = AsgConfigHelper::HelperFloat("CutmaxEp",env);    
-    m_rootTool->CutBinEta_TRT = AsgConfigHelper::HelperFloat("CutBinEta_TRT",env); 
-    m_rootTool->CutBinET_TRT = AsgConfigHelper::HelperFloat("CutBinET_TRT",env); 
-    m_rootTool->CutNumTRT = AsgConfigHelper::HelperFloat("CutNumTRT",env);        
-    m_rootTool->CutTRTRatio = AsgConfigHelper::HelperFloat("CutTRTRatio",env);    
-    m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);  
-    m_rootTool->CutEProbabilityHT = AsgConfigHelper::HelperFloat("CutEProbabilityHT",env);
+    m_rootTool->m_cutBinEta         = AsgConfigHelper::HelperFloat("CutBinEta",env);
+    m_rootTool->m_cutBinET          = AsgConfigHelper::HelperFloat("CutBinET",env);
+    m_rootTool->m_cutF1             = AsgConfigHelper::HelperFloat("CutF1",env);
+    m_rootTool->m_cutHadLeakage     = AsgConfigHelper::HelperFloat("CutHadLeakage",env);
+    m_rootTool->m_cutReta37         = AsgConfigHelper::HelperFloat("CutReta37",env);
+    m_rootTool->m_cutRphi33         = AsgConfigHelper::HelperFloat("CutRphi33",env);
+    m_rootTool->m_cutWeta2c         = AsgConfigHelper::HelperFloat("CutWeta2c",env);
+    m_rootTool->m_cutDeltaEmax2     = AsgConfigHelper::HelperFloat("CutDeltaEmax2",env);
+    m_rootTool->m_cutDeltaE         = AsgConfigHelper::HelperFloat("CutDeltaE",env);
+    m_rootTool->m_cutDEmaxs1        = AsgConfigHelper::HelperFloat("CutDEmaxs1",env);
+    m_rootTool->m_cutDeltaE         = AsgConfigHelper::HelperFloat("CutDeltaE",env);
+    m_rootTool->m_cutWtot           = AsgConfigHelper::HelperFloat("CutWtot",env);
+    m_rootTool->m_cutWeta1c         = AsgConfigHelper::HelperFloat("CutWeta1c",env);
+    m_rootTool->m_cutFracm          = AsgConfigHelper::HelperFloat("CutFracm",env);
+    m_rootTool->m_cutF3             = AsgConfigHelper::HelperFloat("CutF3",env);
+    m_rootTool->m_cutBL             = AsgConfigHelper::HelperInt("CutBL",env);
+    m_rootTool->m_cutPi             = AsgConfigHelper::HelperInt("CutPi",env);
+    m_rootTool->m_cutSi             = AsgConfigHelper::HelperInt("CutSi",env);
+    m_rootTool->m_cutA0             = AsgConfigHelper::HelperFloat("CutA0",env);
+    m_rootTool->m_cutA0Tight        = AsgConfigHelper::HelperFloat("CutA0Tight",env);
+    m_rootTool->m_cutDeltaEta       = AsgConfigHelper::HelperFloat("CutDeltaEta",env);
+    m_rootTool->m_cutDeltaEtaTight  = AsgConfigHelper::HelperFloat("CutDeltaEtaTight",env);
+    m_rootTool->m_cutminDeltaPhi    = AsgConfigHelper::HelperFloat("CutminDeltaPhi",env);    
+    m_rootTool->m_cutmaxDeltaPhi    = AsgConfigHelper::HelperFloat("CutmaxDeltaPhi",env);    
+    m_rootTool->m_cutminEp          = AsgConfigHelper::HelperFloat("CutminEp",env);    
+    m_rootTool->m_cutmaxEp          = AsgConfigHelper::HelperFloat("CutmaxEp",env);    
+    m_rootTool->m_cutBinEta_TRT     = AsgConfigHelper::HelperFloat("CutBinEta_TRT",env); 
+    m_rootTool->m_cutBinET_TRT      = AsgConfigHelper::HelperFloat("CutBinET_TRT",env); 
+    m_rootTool->m_cutNumTRT         = AsgConfigHelper::HelperFloat("CutNumTRT",env);        
+    m_rootTool->m_cutTRTRatio       = AsgConfigHelper::HelperFloat("CutTRTRatio",       env);    
+    m_rootTool->m_cutTRTRatio90     = AsgConfigHelper::HelperFloat("CutTRTRatio90",     env);  
+    m_rootTool->m_cutEProbabilityHT = AsgConfigHelper::HelperFloat("CutEProbabilityHT", env);
     
   } else {
     ATH_MSG_INFO("Conf file empty. Just user Input");
   }
 
-  ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootTool->isEMMask  );
+  ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootTool->m_isEMMask  );
 
   // Get the message level and set the underlying ROOT tool message level accordingly
   m_rootTool->msg().setLevel(this->msg().level());
 
   // We need to initialize the underlying ROOT TSelectorTool
-  if ( 0 == m_rootTool->initialize() )
+  if ( m_rootTool->initialize().isFailure() )
     {
       ATH_MSG_ERROR("Could not initialize the TElectronIsEMSelector!");
       sc = StatusCode::FAILURE;
@@ -273,26 +273,18 @@ StatusCode AsgElectronIsEMSelector::initialize()
 
 
 //=============================================================================
-// finalize method (now called by destructor)
+// return the accept info object
 //=============================================================================
-StatusCode AsgElectronIsEMSelector::finalize()
+
+const asg::AcceptInfo& AsgElectronIsEMSelector::getAcceptInfo() const
 {
-  // The standard status code
-  StatusCode sc = StatusCode::SUCCESS ;
-
-  if ( !(m_rootTool->finalize()) )
-    {
-      ATH_MSG_ERROR("Something went wrong at finalize!");
-      sc = StatusCode::FAILURE;
-    }
-
-  return sc ;
+    return m_rootTool->getAcceptInfo();
 }
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
+asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
 
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if(part->type()==xAOD::Type::Electron || part->type()==xAOD::Type::Photon){
@@ -300,39 +292,36 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::IParticle* par
   }
   else{
     ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Electron/Photon");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
+asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
 
   ATH_MSG_DEBUG("Entering accept( const Egamma* part )");  
   if ( eg ){
-    StatusCode sc = execute(eg);
+    unsigned int isEM = ~0;
+    StatusCode sc = execute(eg, isEM);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("could not calculate isEM");
-      return m_acceptDummy;
+      return m_rootTool->accept();
     }
-    return m_rootTool->fillAccept();
+    return m_rootTool->fillAccept(isEM);
   }
   else{
     ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* el) const{
+asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Electron* el) const{
   ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
   return accept(static_cast<const xAOD::Egamma*> (el));
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
+asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
   ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
   return accept(static_cast<const xAOD::Egamma*> (ph));  
-}
-
-unsigned int AsgElectronIsEMSelector::IsemValue() const {
-  return m_rootTool->isEM(); 
 }
 
 //=============================================================================
@@ -343,18 +332,18 @@ std::string AsgElectronIsEMSelector::getOperatingPointName() const{
   if(!m_WorkingPoint.empty()){
     return m_WorkingPoint;
   }
-  else if (m_rootTool->isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
-  else if (m_rootTool->isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
-  else if (m_rootTool->isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
-  else if (m_rootTool->isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
-  else if (m_rootTool->isEMMask == egammaPID::ElectronMedium1){return "Medium1";}
-  else if (m_rootTool->isEMMask == egammaPID::ElectronTight1){return "Tight1";}
-  else if (m_rootTool->isEMMask == egammaPID::ElectronLooseHLT){return "LooseHLT";}
-  else if (m_rootTool->isEMMask == egammaPID::ElectronMediumHLT){return "MediumHLT";}
-  else if (m_rootTool->isEMMask == egammaPID::ElectronTightHLT){return "TightHLT";}
-  else if (m_rootTool->isEMMask == 0){ return "0 No cuts applied"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronMedium1){return "Medium1";}
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronTight1){return "Tight1";}
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronLooseHLT){return "LooseHLT";}
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronMediumHLT){return "MediumHLT";}
+  else if (m_rootTool->m_isEMMask == egammaPID::ElectronTightHLT){return "TightHLT";}
+  else if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
   else{
-    ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );
+    ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootTool->m_isEMMask );
     return "";
   }
 }
@@ -362,19 +351,18 @@ std::string AsgElectronIsEMSelector::getOperatingPointName() const{
 ///==========================================================================================//
 
 // ==============================================================
-StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const{
+StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM ) const{
   //
   // Particle identification for electrons based on cuts
   //
   ATH_MSG_DEBUG("entering execute(const Egamma* eg...)");
   // initialisation
-  unsigned int iflag = 0; 
+  isEM = 0; 
   // protection against null pointer
   if (eg==0) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_ERROR("exiting because el is NULL");
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
-    m_rootTool->setIsEM(iflag);
+    isEM = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     return StatusCode::SUCCESS; 
   }
   // retrieve associated cluster
@@ -382,8 +370,7 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const{
   if ( cluster == 0 ) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_ERROR("exiting because cluster is NULL");
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
-    m_rootTool->setIsEM(iflag);
+    isEM = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     return StatusCode::SUCCESS; 
   }
   // eta position in second sampling
@@ -404,14 +391,13 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const{
   }  
 
   //Call the calocuts using the egamma object
-  iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
+  isEM = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
   
   //Call the calo cuts using the el , if available and we want to apply them
   if(el && el->trackParticle() &&!m_caloOnly ){
-    iflag = TrackCut(el, eta2, et, energy, iflag);
+    isEM = TrackCut(el, eta2, et, energy, isEM);
   }
   
-  m_rootTool->setIsEM(iflag);  
   return StatusCode::SUCCESS;
 
 }
@@ -578,8 +564,5 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      iflag);
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::getTAccept( ) const{
-    return m_rootTool->getTAccept();
-}
 
 //  LocalWords:  const el

@@ -165,7 +165,7 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins = 9 , xmin=-0.5, xmax=8.5,
                                              labels='PIX_TimeOut : PIX_BCID : PIX_L1ID : PIX_Preamble : PIX_Trailer : PIX_Flagged : PIX_DisabledFE : PIX_TruncatedROD : PIX_Decoding')]
 
-        # SCT Errors are defined in : InnerDetector/InDetConditions/SCT_ConditionsServices/SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h
+        # SCT Errors are defined in : InnerDetector/InDetConditions/SCT_ConditionsData/SCT_ConditionsData/SCT_ByteStreamErrors.h
         self.Histograms += [ defineHistogram('SctDataErrors',
                                              type='TH1F',
                                              title="SCT BS Errors",

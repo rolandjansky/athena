@@ -13,6 +13,7 @@
 #define JetTagD3PDMaker_JetTagPixelModCondFillerTool_H
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include <vector>
 
@@ -23,7 +24,6 @@ namespace InDetDD{
 
 
 class PixelID;
-class IInDetConditionsSvc;
 
 namespace D3PD {
 

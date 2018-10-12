@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -55,11 +55,6 @@ TrigMissingETMuon::TrigMissingETMuon(const std::string& name, ISvcLocator* pSvcL
   declareMonitoredVariable("Muon_Ey_log",      m_mu_ey_log);
   declareMonitoredVariable("Muon_SumEt_log",    m_mu_set_log);
 
-  m_StoreGate=0;
-  m_current_run_id=0;
-  m_current_lbk_id=0;
-  m_current_evt_id=0;
-  m_current_bcg_id=0;
   /** definition of the meaning for the component flag bits **/
   m_maskErrMuon            = 0x0004; // bit  2
   m_maskCompErrors         = 0x8000; // bit 15
@@ -67,56 +62,6 @@ TrigMissingETMuon::TrigMissingETMuon(const std::string& name, ISvcLocator* pSvcL
   m_met=NULL;
 }
 
-
-//////////////////////////////////////////////////////////
-HLT::ErrorCode TrigMissingETMuon::hltBeginRun() {
-
-  // access StoreGate
-  m_StoreGate = store();
-  if (m_StoreGate==0) {
-    msg() << MSG::ERROR << "Can not access StoreGate" << endmsg;
-    return HLT::SG_ERROR;
-  }
-
-  // get EventInfo
-  const EventInfo* pEvent(0);
-  StatusCode sc = m_StoreGate->retrieve(pEvent);
-  if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Can not find EventInfo object" << endmsg;
-    return HLT::SG_ERROR;
-  }
-
-  const EventID* pEventId = pEvent->event_ID();
-  if(pEventId==0) {
-    msg() << MSG::ERROR << "Can not find EventID object" << endmsg;
-    return HLT::SG_ERROR;
-  }
-  m_current_run_id = pEventId->run_number();
-  m_current_lbk_id = pEventId->lumi_block();
-  m_current_evt_id = pEventId->event_number();
-  m_current_bcg_id = pEventId->bunch_crossing_id();
-
-  if(msgLvl() <= MSG::DEBUG){
-    char buff[512];
-    snprintf(buff,512,
-	     "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
-	     m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
-    msg() << MSG::DEBUG << buff << endmsg;
-  }
-
-  // Retrieve run number and detector mask
-  uint32_t mask0 = pEventId->detector_mask0();
-  uint32_t mask1 = pEventId->detector_mask1();
-  if(msgLvl() <= MSG::DEBUG){
-    char buff[512];
-    snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08x, DetMask_0 = 0x%08x",mask1,mask0);
-    msg() << MSG::DEBUG << buff << endmsg;
-  }
-
-  if (mask0==0 && mask1==0) return HLT::OK; // 0 means present
-
-  return HLT::OK; 
-}
 
 //////////////////////////////////////////////////////////
 HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in, unsigned int type_out)

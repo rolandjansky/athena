@@ -10,7 +10,7 @@
 #include "CaloUtils/CaloTowerBuilderTool.h"
 
 // Tile includes
-#include "TileRecUtils/TileTowerBuilderTool.h"
+#include "TileTowerBuilderTool.h"
 
 #include <string>
 
@@ -18,22 +18,28 @@ TileTowerBuilderTool::TileTowerBuilderTool(const std::string& name, const std::s
     const IInterface* parent)
     : CaloTowerBuilderTool(name, type, parent)
 {
-  declareProperty("DumpTowers", m_dumpTowers = false);
-  declareProperty("DumpWeightMap", m_dumpWeightMap = false);
 }
 
 TileTowerBuilderTool::~TileTowerBuilderTool() {
 }
 
-StatusCode TileTowerBuilderTool::initializeTool() {
 
-  // allow only TILE cells!
-  for (size_t iCalos = 0; iCalos < m_includedCalos.size(); iCalos++) {
-    if (m_includedCalos[iCalos] == "TILE") {
-      m_caloIndices.push_back(CaloCell_ID::TILE);
+/**
+ * @brief Convert calorimeter strings to enums.
+ * @param includedCalos Property with calorimeter strings.
+ */
+std::vector<CaloCell_ID::SUBCALO>
+TileTowerBuilderTool::parseCalos 
+  (const std::vector<std::string>& includedCalos) const
+{
+  // convert to enumerators
+  std::vector<CaloCell_ID::SUBCALO> indices;
+
+  for (const std::string& s : includedCalos) {
+    if (s == "TILE") {
+      indices.push_back(CaloCell_ID::TILE);
     }
   }
 
-  // check setup
-  return this->checkSetup(msg());
+  return indices;
 }

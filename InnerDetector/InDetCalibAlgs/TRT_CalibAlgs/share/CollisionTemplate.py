@@ -222,9 +222,11 @@ from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
 TRTCalibDBSvc=TRT_CalDbSvc()
 ServiceMgr += TRTCalibDBSvc
 
+
 from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
 InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
-                                                   TRTCalDbTool=TRTCalibDBSvc           )
+                                                   TRTCalDbTool=TRTCalibDBSvc,
+                                                   IsMC=(globalflags.DataSource == 'geant4'))
 
 ToolSvc += InDetTRT_DriftFunctionTool
 print InDetTRT_DriftFunctionTool
@@ -384,6 +386,13 @@ TRTCalibDBSvc.StreamTool=TRTCondStream
 
 from IOVDbSvc.CondDB import conddb
 conddb.addFolder(\"PIXEL_OFL\",\"/PIXEL/PixelClustering/PixelClusNNCalib\")
+
+# DCS Data Folders
+if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
+    if InDetFlags.useTrtDCS():
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>",classname='CondAttrListCollection')
 
 
 """

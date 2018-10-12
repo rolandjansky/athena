@@ -38,9 +38,9 @@ class FTK_RawTrackContainerCnv : public FTK_RawTrackContainerCnvBase{
 
 public:
   FTK_RawTrackContainerCnv(ISvcLocator* svcloc);
-protected:
   ~FTK_RawTrackContainerCnv();
 
+protected:
   virtual FTK_RawTrackContainer_PERS*  createPersistent(FTK_RawTrackContainer* transObj);
   virtual FTK_RawTrackContainer*       createTransient ();
 

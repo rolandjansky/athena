@@ -81,10 +81,6 @@ private:
     /// first time
     StatusCode parseXMLDescription();
 
-    /// We hold on to the manager to be able to reinitialize it if the
-    /// dictionary changes
-    IdDictManager* m_dictMgr;
-
     /// The xml parser for the dictionary descriptions
     IdDictParser*  m_parser;
 

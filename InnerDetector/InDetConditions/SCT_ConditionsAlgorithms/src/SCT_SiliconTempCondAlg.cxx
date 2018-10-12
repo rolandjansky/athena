@@ -4,26 +4,20 @@
 
 #include "SCT_SiliconTempCondAlg.h"
 
-#include <memory>
-
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
+#include <memory>
+
 SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_useState{true}
-  , m_readKeyState{"SCT_DCSStatCondData"}
-  , m_readKeyTemp0{"SCT_DCSTemp0CondData"}
-  , m_writeKey{"SCT_SiliconTempCondData"}
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
   declareProperty("UseState", m_useState, "Flag to use state conditions folder");
-  declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
-  declareProperty("ReadKeyTemp", m_readKeyTemp0, "Key of input (hybrid) temperature conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (sensor) temperature conditions folder");
 }
 
 StatusCode SCT_SiliconTempCondAlg::initialize() {
@@ -43,7 +37,7 @@ StatusCode SCT_SiliconTempCondAlg::initialize() {
   ATH_CHECK(m_readKeyTemp0.initialize());
   // Write Cond Handles
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -97,7 +91,7 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
 
     // Combined the validity ranges of state and range
     rangeW = EventIDRange::intersect(rangeState, rangeTemp0);
-    if(rangeW.start()>rangeW.stop()) {
+    if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
       ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
       return StatusCode::FAILURE;
     }

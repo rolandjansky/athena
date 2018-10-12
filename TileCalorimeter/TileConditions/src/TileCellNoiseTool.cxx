@@ -2,15 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
 
 // Tile includes
 #include "TileConditions/TileCellNoiseTool.h"
+#include "TileConditions/ITileCondToolNoise.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCondIdTransforms.h"
-#include "TileConditions/ITileCondToolNoise.h"
 #include "TileConditions/Exception.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
 
 #include <cmath>
 #include <algorithm>
@@ -122,7 +123,7 @@ float TileCellNoiseTool::getCellNoise(const Identifier& cell_id,
   }
 
   unsigned int gain1 = gain & 3; // gain for first  PMT
-  unsigned int gain2 = (gain >> 2) & 3; // gain for second PMT 
+  unsigned int gain2 = (gain >> 2) & 3; // gain for second PMT
 
   float noise1(0.), noise2(0.), noise12(0.), noise21(0.);
   unsigned int drawerIdx(0), channel(0), adc(0);

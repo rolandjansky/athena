@@ -33,10 +33,17 @@ from PFlowUtils.PFlowUtilsConf import CP__WeightPFOTool as WeightPFOTool
 from JetRecTools.JetRecToolsConf import CorrectPFOTool
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
-from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
+# PS 5/12/2017 from JetSimTools.JetSimToolsConf import TruthPseudoJetGetter
+# FIXME JE
+#from JetRecTools.JetRecToolsConf import CorrectPFOTool
+# FIXME JE
+#from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
+# FIXME JE
+#from JetRecTools.JetRecToolsConf import JetConstituentModSequence
+
 try:
   from JetRecCalo.JetRecCaloConf import MissingCellListTool
   jtm.haveJetRecCalo = True
@@ -248,7 +255,7 @@ jtm += PseudoJetGetter(
   "lcoriginget",
   InputContainer = jtm.JetConstitSeq_LCOrigin.OutputContainer,
   Label = "LCTopoOrigin",
-  OutputContainer = jtm.JetConstitSeq_LCOrigin.OutputContainer+"PseudoJet",
+  OutputContainer = "PseudoJetLCTopoOrigin",
   SkipNegativeEnergy = True,
   GhostScale = 0.0
 )
@@ -257,7 +264,7 @@ jtm += PseudoJetGetter(
   "emoriginget",
   InputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer,
   Label = "EMTopoOrigin",
-  OutputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer+"PseudoJet",
+  OutputContainer = "PseudoJetEMTopoOrigin",
   SkipNegativeEnergy = True,
   GhostScale = 0.0
 )
@@ -287,7 +294,7 @@ jtm += TrackPseudoJetGetter(
   "trackget",
   InputContainer = jtm.trackselloose_trackjets.OutputContainer,
   Label = "Track",
-  OutputContainer = "PseudoJetTracks",
+  OutputContainer = "PseudoJetTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
   SkipNegativeEnergy = True,
   GhostScale = 0.0
@@ -298,7 +305,7 @@ jtm += TrackPseudoJetGetter(
   "gtrackget",
   InputContainer = jtm.tracksel.OutputContainer,
   Label = "GhostTrack",
-  OutputContainer = "PseudoJetGhostTracks",
+  OutputContainer = "PseudoJetGhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
   SkipNegativeEnergy = True,
   GhostScale = ghostScaleFactor
@@ -326,13 +333,13 @@ useTrackVertexTool = False
 if True == jetFlags.useTrackVertexTool:
   useTrackVertexTool = True
 
-import cppyy
-try: cppyy.loadDictionary('xAODBaseDict')
-except: pass
-from ROOT import xAOD
-
 # Weight tool for charged pflow objects.
 jtm += WeightPFOTool("pflowweighter")
+
+# Trigger xAOD.Type.ObjectType dict entry loading
+import ROOT
+from ROOT import xAOD
+xAOD.Type.ObjectType
 
 # Would go in JetRecToolsConfig but this hits a circular dependency on jtm?
 # this applies four-momentum corrections to PFlow objects:
@@ -364,7 +371,7 @@ if not jetFlags.useTracks:
   ctm.modifiersMap['chsPFO'].IgnoreVertex=True
 
 # EM-scale pflow.
-jtm += PFlowPseudoJetGetter(
+jtm += PseudoJetGetter(
   "empflowget",
   Label = "EMPFlow",
   InputContainer = "CHSParticleFlowObjects",
@@ -395,6 +402,7 @@ jtm += PseudoJetGetter(
 
 # Truth.
 if jetFlags.useTruth and jtm.haveParticleJetTools:
+  # PS 5/1/2017  jtm += TruthPseudoJetGetter(
   jtm += PseudoJetGetter(
     "truthget",
     Label = "Truth",
@@ -404,6 +412,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     SkipNegativeEnergy = True,
 
   )
+  # PS 5/1/2017  jtm += TruthPseudoJetGetter(
   jtm += PseudoJetGetter(
     "truthwzget",
     Label = "TruthWZ",
@@ -413,6 +422,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     SkipNegativeEnergy = True,
     
   )
+  # PS 5/1/2017  jtm += TruthPseudoJetGetter(
   jtm += PseudoJetGetter(
     "gtruthget",
     Label = "GhostTruth",
@@ -424,6 +434,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
 
   # Truth flavor tags.
   for ptype in jetFlags.truthFlavorTags():
+    # PS 5/1/2017  jtm += TruthPseudoJetGetter(
     jtm += PseudoJetGetter(
       "gtruthget_" + ptype,
       InputContainer = "TruthLabel" + ptype,
@@ -691,14 +702,17 @@ jtm += JetOriginCorrectionTool(
   OnlyAssignPV = True,
 )
 
-# Load the xAODCaloEvent dictionary for cluster scale enum
-import cppyy
-try: cppyy.loadDictionary('xAODCaloEventDict')
-except: pass
-from ROOT import xAOD
-# Touch an unrelated class so the dictionary is loaded
-# and therefore the CaloCluster version typedef is recognised
-xAOD.CaloVertexedTopoCluster
+### Not ideal, but because CaloCluster.Scale is an internal class
+### it makes the dict load really slow.
+### So just copy the enum to a dict...
+### Defined in Event/xAOD/xAODCaloEvent/versions/CaloCluster_v1.h
+CaloClusterStates = { 
+  "UNKNOWN"       : -1,
+  "UNCALIBRATED"  :  0,
+  "CALIBRATED"    :  1,
+  "ALTCALIBRATED" :  2,
+  "NSTATES"       :  3
+  }
 
 ### Workaround for inability of Gaudi to parse single-element tuple
 import GaudiPython.Bindings as GPB
@@ -714,7 +728,7 @@ jtm += JetConstitFourMomTool(
   "constitfourmom_lctopo",
   JetScaleNames = ["DetectorEtaPhi"],
   AltConstitColls = ["CaloCalTopoClusters"],
-  AltConstitScales = [xAOD.CaloCluster.CALIBRATED],
+  AltConstitScales = [CaloClusterStates["CALIBRATED"]],
   AltJetScales = [""]
   )
 
@@ -722,7 +736,7 @@ jtm += JetConstitFourMomTool(
   "constitfourmom_emtopo",
   JetScaleNames = ["DetectorEtaPhi","JetLCScaleMomentum"],
   AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if jetFlags.useTracks() else "CaloCalTopoClusters"],
-  AltConstitScales = [xAOD.CaloCluster.UNCALIBRATED,xAOD.CaloCluster.CALIBRATED],
+  AltConstitScales = [CaloClusterStates["UNCALIBRATED"],CaloClusterStates["CALIBRATED"]],
   AltJetScales = ["",""]
   )
 

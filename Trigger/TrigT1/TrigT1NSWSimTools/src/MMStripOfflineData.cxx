@@ -4,7 +4,7 @@
 
 
 //Local includes
-#include "MMStripOfflineData.h"
+#include "TrigT1NSWSimTools/MMStripOfflineData.h"
 
 #include <string>
 

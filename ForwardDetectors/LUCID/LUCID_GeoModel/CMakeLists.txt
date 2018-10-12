@@ -12,10 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaKernel
-                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces )
 
 # External dependencies:

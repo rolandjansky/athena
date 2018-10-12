@@ -1,4 +1,5 @@
 #include "../JetAlgorithm.h"
+#include "../PseudoJetAlgorithm.h"
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
 #include "JetRec/JetDumper.h"
@@ -41,4 +42,5 @@ DECLARE_COMPONENT( JetPseudojetCopier )
 DECLARE_COMPONENT( JetConstitRemover )
 
 DECLARE_COMPONENT( JetAlgorithm )
+DECLARE_COMPONENT( PseudoJetAlgorithm )
 

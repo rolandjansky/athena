@@ -18,6 +18,7 @@
 #define TRIGHLTJETREC_TRIGHLTJETRECGROOMER_H
 
 #include "TrigHLTJetRec/TrigHLTJetRecFromCluster.h"
+#include "TrigHLTJetRec/ITriggerJetGroomerTool.h"
 
 class TrigHLTJetRecGroomer : public TrigHLTJetRecFromCluster
 {
@@ -28,11 +29,11 @@ class TrigHLTJetRecGroomer : public TrigHLTJetRecFromCluster
         virtual HLT::ErrorCode hltInitialize() override;
 
     protected:
-        const xAOD::JetContainer* build() const override;
-    
+        HLT::ErrorCode build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const override;
+
     private:
         // properties configurable via python
-        ToolHandle<IJetBuildTool> m_jetTrimTool;
+        ToolHandle<ITriggerJetGroomerTool> m_jetTrimTool;
 
 };
 

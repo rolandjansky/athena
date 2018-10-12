@@ -3,6 +3,16 @@
 ################################################################################
 
 #--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
+#--------------------------------------------------------------
 # Set some basic options
 #--------------------------------------------------------------
 DoTestmyConditionsSummary             = True  # Test return bool conditionsSummary?
@@ -80,10 +90,6 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
-
 #--------------------------------------------------------------
 # Load ReadCalibData Alg and Service
 #--------------------------------------------------------------
@@ -102,7 +108,7 @@ sct_ReadCalibChipDataToolSetup.setup()
 SCT_ReadCalibChipDataTool=sct_ReadCalibChipDataToolSetup.getTool()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipDataTestAlg
-topSequence+= SCT_ReadCalibChipDataTestAlg()
+topSequence+= SCT_ReadCalibChipDataTestAlg(SCT_ReadCalibChipDataTool=SCT_ReadCalibChipDataTool)
 
 ##Modules to test:
 ##136523776, strips 0-255 BAD_OPE=good

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,23 +20,24 @@
 /** Base class */
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-/** Gaudi */
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 /** other */
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+/** Gaudi */
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 /** forward declarations */
 class ISCTRawDataProviderTool;
-class ISCT_CablingSvc;
 class SCT_ID;
 
 class SCTRawDataProvider : public AthAlgorithm
@@ -47,8 +48,7 @@ class SCTRawDataProvider : public AthAlgorithm
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
 
   //! Destructur
-  ~SCTRawDataProvider() {
-  }
+  ~SCTRawDataProvider() = default;
 
   //! Initialize
   virtual StatusCode initialize() override;
@@ -63,15 +63,15 @@ class SCTRawDataProvider : public AthAlgorithm
   ServiceHandle<IRegSelSvc> m_regionSelector;     
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, "ProviderTool", "SCTRawDataProviderTool", "SCT  Raw Data Provider Tool"};
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_sct_id; 
-  bool m_roiSeeded;
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey;
-  SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey;
-  SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey;
-  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey;
-  SG::WriteHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerKey;
+  BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{this, "RoIs", "", "RoIs to read in"};
+  SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOKey", "SCT_RDOs", "SCT RDO key"};
+  SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey{this, "LVL1IDKey", "SCT_LVL1ID", "SCT LVL1ID key"};
+  SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey{this, "BCIDKey", "SCT_BCID", "SCT BCID key"};
+  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey{this, "ByteStreamErrContainer", "SCT_ByteStreamErrs", "SCT BS error key"};
+  SG::WriteHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerKey{this, "ByteStreamFracContainer", "SCT_ByteStreamFrac", "SCT BS fraction key"};
   SG::UpdateHandleKey<SCT_RDO_Cache> m_rdoContainerCacheKey;
 };
 

@@ -3,14 +3,10 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/Property.h"
+#include "TBPhaseRec.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-
-#include "TBRec/TBPhaseRec.h"
 
 #include "TBEvent/TBTDCRaw.h"
 #include "TBEvent/TBTDCRawCont.h"

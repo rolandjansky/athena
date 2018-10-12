@@ -13,9 +13,9 @@
 #ifndef MUONCALIB_MDTTUBECALIBCONTAINERCOLLECTION_H
 #define MUONCALIB_MDTTUBECALIBCONTAINERCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
 This typedef representing:

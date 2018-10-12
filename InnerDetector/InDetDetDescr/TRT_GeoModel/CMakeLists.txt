@@ -8,14 +8,13 @@ atlas_subdir( TRT_GeoModel )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelUtilities
                           GaudiKernel
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           PRIVATE
-                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities

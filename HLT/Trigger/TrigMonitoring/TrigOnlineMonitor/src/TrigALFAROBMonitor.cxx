@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../src/TrigALFAROBMonitor.h"
@@ -15,7 +15,6 @@
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
@@ -38,8 +37,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile2D.h>
-
-#include "boost/foreach.hpp"
 
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
@@ -236,6 +233,28 @@ StatusCode TrigALFAROBMonitor::initialize(){
     m_ALFARobIds.push_back(m_lvl1ALFA2ROBid.value());
   }
 
+  const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
+  if (chainlist) {
+         for (auto *chain: *chainlist) {
+            if (chain->chain_name() == "HLT_costmonitor") {
+               m_HLTcostMon_chain = chain;               
+               ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << m_HLTcostMon_chain->prescale()
+                                << " and the SB flag set to: "<<m_SBflag);
+               if (m_HLTcostMon_chain->prescale() >=1 ) {
+                      m_SBflag = true;
+               } else {
+                      m_SBflag = false;
+               }
+            } else {
+                      //ATH_MSG_INFO ("HLT prescale key evaluation - " << chain->chain_name());
+            }  
+         }
+  } else {
+       ATH_MSG_WARNING ("HLT prescale key evaluation  - failed");
+  }
+
+
+
   ATH_MSG_INFO("Initialize completed");
   return StatusCode::SUCCESS;
 }
@@ -290,51 +309,27 @@ StatusCode TrigALFAROBMonitor::execute() {
   const EventID* p_EventID = p_EventInfo->event_ID();
   m_LB = p_EventID->lumi_block();
 
-  // check if we have new LB and any histograms need reset
-  // if we have new LB and StableBeams start filling and resetting SB histograms
-             //ATH_MSG_INFO ("HLT prescale key evaluation ");
-             const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
-             if (chainlist) {
-                 BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
-                   if (chain->chain_name() == "HLT_costmonitor") {
-                        if (chain->prescale() >=1 ) {
-                               m_SBflag = true;
-                        } else {
-                               m_SBflag = false;
-                        }
-                        //ATH_MSG_INFO ("HLT_costmonitor chain with prescale " << chain->prescale()<< " and the SB flag set to: "<<m_SBflag);
-                   } else {
-                      //ATH_MSG_INFO ("HLT prescale key evaluation - " << chain->chain_name());
-                   }
-                 }
-             } else {
-             ATH_MSG_WARNING ("HLT prescale key evaluation  - failed");
-             }
-
   if (m_previousEventLB < 0) {
     m_previousEventLB = m_LB;  // first event
+    m_prevLB10reset = m_LB;
+    m_prevLB60reset = m_LB;
   } else {
      if (m_LB > m_previousEventLB){ // new LB
         reset1LBhistos(m_previousEventLB);
-        if (m_LB % 10 == 0) reset10LBhistos(m_previousEventLB);
-        if (m_LB % 60 == 0) reset60LBhistos(m_previousEventLB);
+        if ((m_LB - m_prevLB10reset) > 10 ) {reset10LBhistos(m_previousEventLB); m_prevLB10reset = m_LB;};
+        if ((m_LB - m_prevLB10reset) > 60 ) {reset60LBhistos(m_previousEventLB); m_prevLB60reset = m_LB;};
         uint32_t newPrescKey = m_configSvc->hltPrescaleKey();
         if (newPrescKey != m_prescKey) {
-             // check with cont monitor if the SB fla has been set
              ATH_MSG_INFO ("HLT prescale key changed to "<<newPrescKey );
-             const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
-             if (chainlist) {
-                 BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
-                   if (chain->chain_name() == "HLT_costmonitor") {
-                        if (chain->prescale() >=1 ) {
-                               m_SBflag = true;
-                        } else {
-                               m_SBflag = false;
-                        }
-                        ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << chain->prescale()<< " and the SB flag set to: "<<m_SBflag);
-                   }
-                 }
+             
+             // check with cont monitor if the SB fla has been set
+             if (m_HLTcostMon_chain->prescale() >=1 ) {
+                        m_SBflag = true;
+             } else {
+                        m_SBflag = false;
              }
+             ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << m_HLTcostMon_chain->prescale()
+                                << " and the SB flag set to: "<<m_SBflag);
              m_prescKey = newPrescKey;
         }
         m_previousEventLB = m_LB;
@@ -422,24 +417,10 @@ StatusCode TrigALFAROBMonitor::execute() {
 
     // decode ALFA ROBs
     if (! event_with_checksum_failure) {
-       decodeALFA(**it );
-
-       //LVL1CTP::Lvl1Result resultL1(true);
-       //if (getLvl1Result(resultL1)) {
-       		std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
-                for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
-                    int word = it->first>>5;
-                    int offset = (it->first)%32;
-                    if (itemsBP.at(word) & 1<<offset) {
-                       //ATH_MSG_INFO ("found item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
-                    }
-                }
-       		for(std::vector<uint32_t>::iterator it = itemsBP.begin(); it != itemsBP.end(); ++it) {
-          		//ATH_MSG_INFO ("triggerWord: "<<*it);
-       		}
-       findALFATracks(resultL1);
-       //}
-       findODTracks ();
+       if (decodeALFA(**it ) == 0) {
+          findALFATracks(resultL1);
+          findODTracks ();
+      }
     }
   }
 
@@ -491,26 +472,10 @@ StatusCode TrigALFAROBMonitor::execute() {
   return StatusCode::SUCCESS;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode TrigALFAROBMonitor::finalize() {
-
-  // Get the messaging service
-  ATH_MSG_INFO( "finalize()" );
-
-  // delete decoded objects
-
-//  m_trigROBDataProviderSvc.reset();
-
-  return StatusCode::SUCCESS;
-}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode TrigALFAROBMonitor::beginRun() {
-
-  // Get a message stream instance
-  ATH_MSG_INFO("beginRun()");
+StatusCode TrigALFAROBMonitor::start() {
 
   const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
   if(!ctp_confg) {
@@ -547,7 +512,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
   //}
 
   // *-- booking path
-  m_pathHisto = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  m_pathHisto = std::string("/EXPERT/") + name() + "/";
 
   // Specific source identifiers
   //eformat::helper::SourceIdentifier srcID_ALFA( eformat::FORWARD_ALPHA ,0);
@@ -588,6 +553,11 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     m_hist_goodDataLB18 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
     if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodDataLB18->GetName(), m_hist_goodDataLB18).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_goodDataLB18->GetName());
+    }
+    histTitle = "corruptedROD";
+    m_hist_corruptedROD_LB = new TH2F (histTitle.c_str(), (histTitle + " perLB").c_str(), 1000, -0.5, 999.5, 2, -0.5, 1.5);
+    if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_corruptedROD_LB->GetName(), m_hist_corruptedROD_LB).isFailure() ) {
+	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_corruptedROD_LB->GetName());
     }
   }
 
@@ -782,16 +752,15 @@ StatusCode TrigALFAROBMonitor::beginRun() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode TrigALFAROBMonitor::endRun() {
+StatusCode TrigALFAROBMonitor::stop() {
 
-  ATH_MSG_INFO("endRun()");
   reset1LBhistos(m_LB);
 
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-bool TrigALFAROBMonitor::verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+bool TrigALFAROBMonitor::verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) {
 
   bool failed_checksum(false);
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType it(0); 
@@ -843,7 +812,7 @@ bool TrigALFAROBMonitor::verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBF
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+void TrigALFAROBMonitor::verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) {
 
   // print check for received ROB
 	ATH_MSG_VERBOSE(" verifyROBStatusBits: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
@@ -871,7 +840,7 @@ void TrigALFAROBMonitor::verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFra
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) {
 
   ATH_MSG_DEBUG(" decodeALFA: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
 
@@ -895,7 +864,7 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
 				     << robFragSize << " ROD fragment size " << rodFragSize << " evtNum " <<evtNum );
 
   // check if we have real data in the ROB - ALFA has fixed fragment size of 0x1e1 - skip such event and return if not real
-  if (robFragSize != 0x1e1) return;
+  if (robFragSize != 0x1e1) return (1);
 
   if ((rodId == (uint32_t)m_lvl1ALFA1ROBid.value()) || (rodId == (uint32_t)m_lvl1ALFA2ROBid.value())) {
     ATH_MSG_DEBUG( "   Found ALFA ROB " << std::to_string(rodId) );
@@ -912,7 +881,7 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
      
     uint32_t ndata = robFrag.rod_ndata();
     for( uint32_t i = 0; i < ndata; ++i, ++data ) {
-      ATH_MSG_DEBUG( "       0x" << MSG::hex << std::setw( 8 )
+      ATH_MSG_DEBUG( MSG::dec<< " i: "<<i<<"       0x" << MSG::hex << std::setw( 8 )
 	    << static_cast< uint32_t >( *data ) );
     } 
     /* Create trailer */
@@ -943,41 +912,38 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
 
     
     while ( 1 ) {
+	uint32_t mbNb = 0; // from 20.07.2010 MB numbers are as PMF0 15-0 bits - counting from 1 and coded as 1 from N 
+        
         // check consistency of the ROD data - if data from LWC point to TWC
         if ((*lwcPtr & 0xff000000) != 0x81000000) {
 	    //AlfaEventObj->framingStatus |= 0x4;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *lwcPtr);
-    	    ATH_MSG_DEBUG("ROD skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
-            continue;
+            m_hist_corruptedROD_LB->Fill(m_LB, rodId&0x1);
+    	    ATH_MSG_DEBUG("ROD "<< MSG::hex<<rodId<<" skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
+    	    ATH_MSG_INFO("ROD "<< MSG::hex<<rodId<<"skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
+            return (1); //continue;
         }
         if ((*twcPtr & 0xff000000) != 0x8a000000) {
 	    //AlfaEventObj->framingStatus |= 0x8;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *twcPtr);
-    	    ATH_MSG_DEBUG( "ROD skipped - TWC: "<< *twcPtr );
-            continue;
+            m_hist_corruptedROD_LB->Fill(m_LB, rodId&0x1);
+    	    ATH_MSG_DEBUG( "ROD "<< MSG::hex<<rodId<<" skipped - TWC: "<< *twcPtr );
+    	    ATH_MSG_INFO( "ROD "<< MSG::hex<<rodId<<" skipped - TWC(-1): "<< *(twcPtr-1)<< " TWC: "<< *twcPtr <<" TWC+1: " << *(twcPtr+1) 
+                           <<" LWC: " << *lwcPtr << " mbNb: "<< mbNb);
+            return (1); //continue;
         }
 
 
         const uint32_t* dataPtr = lwcPtr;
         dataPtr++; // bol
 
-	//uint32_t mrodInputNb =  (*dataPtr) & 0xf; 
-	uint32_t mbNb = 0; // from 20.07.2010 MB numbers are as PMF0 15-0 bits - counting from 1 and coded as 1 from N 
-	//uint32_t mrodNb = ((*dataPtr)>>4) & 0xfff;
-
 	dataPtr++; // tlp - always 5 TDCs (5 captons) - use it as mask for scanning TDC data
         uint32_t tlp = (*dataPtr) & 0xffff; 
         dataPtr++; // bot
 
         for ( ; tlp; tlp>>=1 ) {
-            //uint32_t bot = *dataPtr;  // event number and bcx numbers 
-
-            //if ((bob&0xFFF) != ((bot>>12)&0xFFF)) // synch check: TTC at MB against TTC at ROD 
-            //{
-              // AlfaEventObj->synchRODvsMB[0] |= (0x1)<<mrodInputNb; // offest zero in synchRODvsMB should be replaced by the ROD number
-            //}
 
             dataPtr++; // TDC data
 	    uint32_t data16channels = *dataPtr;
@@ -1028,8 +994,6 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
                 data16channels = *dataPtr;
             }
 
-	    //AlfaEventObj->bcxAtALFA_M[mbNb-1] = bot & 0xFFF;
-
             // TDC trailer EOT ?
             if (( *dataPtr & 0xF0000000) != 0xC0000000) {
                 break;
@@ -1044,22 +1008,19 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
             continue;
         }
         
-        //if ((*dataPtr & 0xff000000) == 0xf0000000)  { //EOB
-            //break; 
-        //}
-
-        return; //break;  // end of data or data corrupted - break decoding
+        return (0); //break;  // end of data or data corrupted - break decoding
     } //ERS_INFO ("gnamDecode - end of decoding MROD:" << MrodId);
   }
  }
+ return (0);
 }
 
 void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf) {
 
   // save input stream flags
 
-    int layerNb = pmf2layer[pmf];
-    int RPNumber = mbNb2RP[mbNb];
+    int layerNb = m_pmf2layer[pmf];
+    int RPNumber = m_mbNb2RP[mbNb];
         RPNumber = RPNumber - 1;  // to access data from array in C - which starts with index 0
 	
     int mask = 0x1;
@@ -1072,10 +1033,10 @@ void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uin
 
            if (layerNb >= 0) {
 
-		//std::cout <<"mbNb " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << maroc2fiber[channel] << std::endl;
+		//std::cout <<"mbNb " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << m_maroc2fiber[channel] << std::endl;
 
-	   	ATH_MSG_DEBUG( "ROD data "<< "mbNb [counts from 0]: " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << maroc2fiber[channel] );
-		Float_t data = mm_a_f[mbNb][layerNb][maroc2fiber[channel]];
+	   	ATH_MSG_DEBUG( "ROD data "<< "mbNb [counts from 0]: " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << m_maroc2fiber[channel] );
+		Float_t data = m_mm_a_f[mbNb][layerNb][m_maroc2fiber[channel]];
 
 	   	if (layerNb &0x1) {
 	   		m_pV[mbNb][layerNb>>1].push_back(data);
@@ -1084,17 +1045,17 @@ void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uin
 	   	}
            } else {
                // OD data
-               int od_offset = (4 - pmf) * 64 + maroc2mapmt[channel];
-               int side = od_channel2side[RPNumber][od_offset];
+               int od_offset = (4 - pmf) * 64 + m_maroc2mapmt[channel];
+               int side = m_od_channel2side[RPNumber][od_offset];
 
-               if (od_channel2fiber[RPNumber][od_offset]<35) {
+               if (m_od_channel2fiber[RPNumber][od_offset]<35) {
                   if (side==1) {
-                          m_FiberHitsODPos[mbNb][od_channel2layer[RPNumber][od_offset]-1][od_channel2fiber[RPNumber][od_offset]-1] = true;
+                          m_FiberHitsODPos[mbNb][m_od_channel2layer[RPNumber][od_offset]-1][m_od_channel2fiber[RPNumber][od_offset]-1] = true;
                    } else { 
-                          m_FiberHitsODNeg[mbNb][od_channel2layer[RPNumber][od_offset]-1][od_channel2fiber[RPNumber][od_offset]-1] = true;
+                          m_FiberHitsODNeg[mbNb][m_od_channel2layer[RPNumber][od_offset]-1][m_od_channel2fiber[RPNumber][od_offset]-1] = true;
                   }
-	   	  //ATH_MSG_INFO( "OD hit "<< "mbNb [counts from 0]: " << mbNb << "side: "<< side << " RPNumber: " << RPNumber << " od_offset: " << od_offset << " chan2layer: " << od_channel2layer[RPNumber][od_offset]-1  << 
-                                            //"chan2fiber: "<<od_channel2fiber[RPNumber][od_offset]-1) ;
+	   	  //ATH_MSG_INFO( "OD hit "<< "mbNb [counts from 0]: " << mbNb << "side: "<< side << " RPNumber: " << RPNumber << " od_offset: " << od_offset << " chan2layer: " << m_od_channel2layer[RPNumber][od_offset]-1  << 
+                                            //"chan2fiber: "<<m_od_channel2fiber[RPNumber][od_offset]-1) ;
             }
 
            }
@@ -1240,7 +1201,7 @@ void TrigALFAROBMonitor::reset60LBhistos(int lbNumber) {
 
 
 
-void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
+void TrigALFAROBMonitor::findALFATracks( const LVL1CTP::Lvl1Result &resultL1 ) {
 	float x_Rec[8];
 	float y_Rec[8];
 	
@@ -1377,7 +1338,7 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
                                 x_Rec[iDet] = (RecPos_U-RecPos_V)/2.;
                                 y_Rec[iDet] = sign*(-(RecPos_V+RecPos_U)/2.-115.);
 
-       		                std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
+       		                const std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
                                 for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
                                        int word = it->first>>5;
                                        int offset = (it->first)%32;
@@ -1407,7 +1368,7 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
 
         }
 
-        std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
+        const std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
         if (itemsBP.at(m_elast15>>5) & (1 <<(m_elast15%32))) {
            m_hist_goodData->Fill(1.);
            m_hist_goodDataLB15->Fill(m_LB, 1.);
@@ -1530,28 +1491,28 @@ void TrigALFAROBMonitor::findODTracks( ) {
                                 if (m_FiberHitsODPos[iStation*2+iUL][(iLay+1)%3][iFib1] && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2]){
                                     if (iFib1<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+1)%3][iFib1+1]){
                                         if (iFib2<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
                                             if (Pos[iUL]>-10){
-                                                Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                                Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
                                                 if (Pos[iUL]>-10){
-                                                    Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                                    Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
                                                     if (Pos[iUL]>-10){
-                                                        Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                                        Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                                     }
                                                 }
                                             }
                                         }
                                         else{
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
                                     }
                                     else{
                                         if (iFib2<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
-                                        else Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        else Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                     }
                                 }
                                 if (Pos[iUL]<-10) { 
@@ -1608,28 +1569,28 @@ void TrigALFAROBMonitor::findODTracks( ) {
                                 if (m_FiberHitsODNeg[iStation*2+iUL][(iLay+1)%3][iFib1] && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2]){
                                     if (iFib1<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+1)%3][iFib1+1]){
                                         if (iFib2<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
                                             if (Pos[iUL]>-10){
-                                                Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                                Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
                                                 if (Pos[iUL]>-10){
-                                                    Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                                    Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
                                                     if (Pos[iUL]>-10){
-                                                        Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                                        Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                                     }
                                                 }
                                             }
                                         }
                                         else{
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
                                     }
                                     else{
                                         if (iFib2<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
-                                        else Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        else Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                     }
                                 }
                                 if (Pos[iUL]<-10) {
@@ -1659,7 +1620,7 @@ void TrigALFAROBMonitor::findODTracks( ) {
             }
             //if (FoundTrack[0] && FoundTrack[1]){
             if( (m_ODtracks[iStation*2][iSide] < 0) && (m_ODtracks[iStation*2+1][iSide] < 0) ) {
-                 m_hist_DistStation[2*iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + alfa_edge[iStation*2] + alfa_edge[iStation*2+1]);
+              m_hist_DistStation[2*iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
             }
 
         }//end of iSide-loop

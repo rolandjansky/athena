@@ -2,14 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/TBCellContainerFillerTool.h"
-
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "TBCellContainerFillerTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"

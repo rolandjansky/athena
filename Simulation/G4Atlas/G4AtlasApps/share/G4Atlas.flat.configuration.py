@@ -12,6 +12,17 @@ from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType() == "cosmics" and "cosmics_flags" not in simFlags.extra_flags:
     simFlags.load_cosmics_flags()
 
+## Global flags needed by externals
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DataSource = 'geant4'
+if jobproperties.Beam.beamType() == 'cosmics':
+    globalflags.DetGeo = 'commis'
+else:
+    globalflags.DetGeo = 'atlas'
+
+## At this point we can set the global job properties flag
+globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
+
 from AthenaCommon.DetFlags import DetFlags
 ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
@@ -19,10 +30,10 @@ DetFlags.DBM_setOff()
 ## Tidy up NSW DetFlags: temporary measure
 DetFlags.sTGC_setOff()
 DetFlags.Micromegas_setOff()
-if hasattr(simFlags, 'SimulateNewSmallWheel'):
-    if simFlags.SimulateNewSmallWheel():
-        DetFlags.sTGC_setOn()
-        DetFlags.Micromegas_setOn()
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+    DetFlags.sTGC_setOn()
+    DetFlags.Micromegas_setOn()
 
 ## Switch off tasks
 DetFlags.pileup.all_setOff()
@@ -38,17 +49,6 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 DetFlags.writeRDOPool.all_setOff()
-
-## Global flags needed by externals
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DataSource = 'geant4'
-if jobproperties.Beam.beamType() == 'cosmics':
-    globalflags.DetGeo = 'commis'
-else:
-    globalflags.DetGeo = 'atlas'
-
-## At this point we can set the global job properties flag
-globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
 
 # Switch off GeoModel Release in the case of parameterization
 if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
@@ -120,22 +120,21 @@ if DetFlags.Muon_on():
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
     MuonDetectorTool = MuonDetectorTool()
     MuonDetectorTool.FillCacheInitTime = 0 # default is 1
-    if hasattr(simFlags, 'SimulateNewSmallWheel'):
-        if simFlags.SimulateNewSmallWheel():
-            MuonDetectorTool.StationSelection  = 2
-            MuonDetectorTool.SelectedStations  = [ "EIL1" ]
-            MuonDetectorTool.SelectedStations  += [ "EIL2" ]
-            MuonDetectorTool.SelectedStations  += [ "EIL6" ]
-            MuonDetectorTool.SelectedStations  += [ "EIL7" ]
-            MuonDetectorTool.SelectedStations  += [ "EIS*" ]
-            MuonDetectorTool.SelectedStations  += [ "EIL10" ]
-            MuonDetectorTool.SelectedStations  += [ "EIL11" ]
-            MuonDetectorTool.SelectedStations  += [ "EIL12" ]
-            MuonDetectorTool.SelectedStations  += [ "EIL17" ]
-            MuonDetectorTool.SelectedStations  += [ "CSS*" ]
-            MuonDetectorTool.SelectedStations  += [ "CSL*" ]
-            MuonDetectorTool.SelectedStations  += [ "T4E*" ]
-            MuonDetectorTool.SelectedStations  += [ "T4F*" ]
+    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+        MuonDetectorTool.StationSelection  = 2
+        MuonDetectorTool.SelectedStations  = [ "EIL1" ]
+        MuonDetectorTool.SelectedStations  += [ "EIL2" ]
+        MuonDetectorTool.SelectedStations  += [ "EIL6" ]
+        MuonDetectorTool.SelectedStations  += [ "EIL7" ]
+        MuonDetectorTool.SelectedStations  += [ "EIS*" ]
+        MuonDetectorTool.SelectedStations  += [ "EIL10" ]
+        MuonDetectorTool.SelectedStations  += [ "EIL11" ]
+        MuonDetectorTool.SelectedStations  += [ "EIL12" ]
+        MuonDetectorTool.SelectedStations  += [ "EIL17" ]
+        MuonDetectorTool.SelectedStations  += [ "CSS*" ]
+        MuonDetectorTool.SelectedStations  += [ "CSL*" ]
+        MuonDetectorTool.SelectedStations  += [ "T4E*" ]
+        MuonDetectorTool.SelectedStations  += [ "T4F*" ]
 
     ## Additional material in the muon system
     from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
@@ -144,11 +143,10 @@ if DetFlags.Muon_on():
     if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
         ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
         AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-    if hasattr(simFlags, 'SimulateNewSmallWheel'):
-        if simFlags.SimulateNewSmallWheel():
-            if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
-                ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
-                AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
+    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+        if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
+            ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
+            AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
     theApp.CreateSvc += ["AGDDtoGeoSvc"]
     ServiceMgr += AGDD2Geo
 
@@ -228,9 +226,9 @@ if not simFlags.ISFRun:
                                  "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            if hasattr(simFlags, 'SimulateNewSmallWheel'):
-                if simFlags.SimulateNewSmallWheel():
-                    stream1.ItemList += ["GenericMuonSimHitCollection#*"]
+            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+                stream1.ItemList += ["GenericMuonSimHitCollection#*"] #MicroMegas only
+                stream1.ItemList += ["sTGCSimHitCollection#*"]
         ## Lucid
         if DetFlags.Lucid_on():
             stream1.ItemList += ["LUCID_SimHitCollection#*"]

@@ -11,6 +11,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "tauRecTools/TauRecToolBase.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
 #include "xAODTau/TauJet.h"
 
 class ICaloCellMakerTool;
@@ -59,6 +62,10 @@ private:
 
     /** @brief hash map in order to keep track, which cells have been added to output cell container*/
     std::vector<CaloCell*> m_addedCellsMap;
+
+    SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
+    SG::WriteHandleKey<CaloCellContainer> m_tauCaloOutputContainer{this,"Key_tauCaloOutputContainer","TauCommonPi0Cells","output calo cell key"};
+
 };
 
 #endif	/* TAUPI0CREATEROI_H */

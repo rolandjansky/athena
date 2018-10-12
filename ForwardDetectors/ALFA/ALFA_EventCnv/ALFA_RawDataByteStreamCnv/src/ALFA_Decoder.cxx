@@ -148,16 +148,12 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 
 
   // retrieve EventInfo
-  const EventInfo* eventInfo_c=0;
-  StatusCode sc = evtStore()->retrieve(eventInfo_c);
+  const EventInfo* eventInfo=0;
+  StatusCode sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) {
     ATH_MSG_WARNING (" cannot retrieve EventInfo, will not set ALFA bit information ");
   }
   
-  EventInfo* eventInfo=0;
-  if (eventInfo_c)
-    eventInfo = const_cast<EventInfo*>(eventInfo_c);
-
   // Check the ROB and ROD fragment for lenght and version consistency
 
   try
@@ -168,7 +164,7 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
   catch (eformat::Issue &ex)
     {
       msg(MSG::WARNING) <<ex.what ()<< endmsg;
-      if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+      if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 	msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
       return StatusCode::SUCCESS;  // error in fragment - we search for no collection
     }
@@ -186,9 +182,9 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
       if (*it)
 	{
 	  msg(MSG::WARNING) << " Error in ROB status word: 0x" << endmsg;
-	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	  if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
-	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::ROB_ERROR))
+	  if (!eventInfo->updateEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::ROB_ERROR))
 	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
 
 	  return StatusCode::SUCCESS;
@@ -293,9 +289,9 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 	  if (wordPos >= size)
 	    {
 	      msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
-	      if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	      if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 		msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
-	      if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+	      if (!eventInfo->updateEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
 		msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
 	      
 	      return StatusCode::SUCCESS;
@@ -314,9 +310,9 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
       else if (m_ALFA_RawDataCollectionReadOut->is_EOB())
 	{
 	  msg(MSG::WARNING)<<" Error: collection not found " << endmsg;
-	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	  if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
-	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::COLL_NOT_FOUND))
+	  if (!eventInfo->updateEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::COLL_NOT_FOUND))
 	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
 	      
 	  return StatusCode::SUCCESS;
@@ -327,9 +323,9 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
       if (wordPos >= size)
 	{
 	  msg(MSG::WARNING)<<" Error: data corrupted"<< endmsg;
-	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	  if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
-	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+	  if (!eventInfo->updateEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
 	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
 	  return StatusCode::SUCCESS;
 	}
@@ -355,9 +351,9 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 	      if (wordPos >= size)
 		{
 		  msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
-		  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+		  if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 		    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
-		  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+		  if (!eventInfo->updateEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
 		    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
 
 		  return StatusCode::SUCCESS;
@@ -526,9 +522,9 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 	  if (wordPos >= size)
 	    {
 	      msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
-	      if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	      if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 		msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
-	      if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+	      if (!eventInfo->updateEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
 		msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
 
 	      return StatusCode::SUCCESS;
@@ -544,9 +540,9 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
       if (wordPos >= size)
 	{
 	  msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
-	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	  if (!eventInfo->updateErrorState(EventInfo::ForwardDet, EventInfo::Error))
 	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
-	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+	  if (!eventInfo->updateEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
 	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
 
 	  return StatusCode::SUCCESS;

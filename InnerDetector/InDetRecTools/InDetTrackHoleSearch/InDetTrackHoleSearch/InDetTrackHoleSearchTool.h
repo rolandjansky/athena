@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 class AtlasDetectorID;
 class Identifier;
 class AtlasID;
-class IInDetConditionsSvc;
 namespace InDet {class IInDetTestPixelLayerTool; }
 class IGeoModelSvc;
 
@@ -112,9 +111,9 @@ namespace InDet
       /** Pointer to Extrapolator AlgTool*/
       ToolHandle< Trk::IExtrapolator >  m_extrapolator;
 
-      /** Handles to IConditionsSummaryServices for Pixels and SCT*/
-      ServiceHandle <IInDetConditionsSvc> m_sctCondSummarySvc;
-      ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool;
+      /** Handles to IConditionsSummaryTools for Pixels and SCT*/
+      ToolHandle <IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
+      ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelSummaryTool", "PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
       
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
 

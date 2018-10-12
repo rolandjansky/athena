@@ -19,59 +19,101 @@ isUsedDataBaseRun2 = (conddb.GetInstance() == 'CONDBR2')
 validRunTypes = ['PHY','LAS', 'GAPLAS','CIS','PED','CISPULSE100','CISPULSE5P2','CISLEAK100','CISLEAK5P2']
 validSources = ['COOL','FILE']
 
+from AthenaCommon.AlgSequence import AthSequencer
+condSequence = AthSequencer("AthCondSeq")
+
+from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+
+def bookTileCalibCondAlg(calibData, proxy):
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+
+    calibCondAlg = calibData + 'CondAlg'
+    if not hasattr(condSequence, calibCondAlg):
+        condSequence += TileCalibFltCondAlg( name = calibCondAlg,
+                                             ConditionsProxy = proxy,
+                                             TileCalibData = calibData)
+
+
 #
 #____________________________________________________________________________
-def getTileCondToolEmscale(source='FILE', name='TileCondToolEmscale', **kwargs):
+def getTileCondToolEmscale(source = 'FILE', name = 'TileCondToolEmscale', **kwargs):
 
-    if not source in validSources: raise(Exception("Invalid source: %s"%source))
+    if not source in validSources: raise(Exception("Invalid source: %s" % source))
     from TileConditions.TileConditionsConf import TileCondToolEmscale
 
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+
     #do some check for global flag here: if source='' and flag set, adopt flag
-
     tool = None
-    if source=='COOL':
-        #====================================================
-        #=== Connect COOL TileCondProxies to the tool
-        #====================================================
-        from AthenaCommon.GlobalFlags import globalflags
-        if (globalflags.DataSource() != 'data'): onlunit = "Invalid"
-        else: onlunit = "OnlineMegaElectronVolts"
 
-        if isOnline and isUsedDataBaseRun2: oflLasFibProxy = None
-        else: oflLasFibProxy = getTileCondProxy('COOL', 'Flt', 'oflLasFib', 'TileCondProxyCool_OflLasFib')
+    emScale = 'TileEMScale'
+    emScaleCondAlg = emScale + 'CondAlg'
 
-        tool = TileCondToolEmscale(name
-                                   , OnlCacheUnit = onlunit
-                                   , ProxyOflCisLin = getTileCondProxy('COOL', 'Flt', 'oflCisFitLin', 'TileCondProxyCool_OflCisLin')
-                                   , ProxyOflCisNln = getTileCondProxy('COOL', 'Flt', 'oflCisFitNln', 'TileCondProxyCool_OflCisNln')
-                                   , ProxyOflLasLin = getTileCondProxy('COOL', 'Flt', 'oflLasLin',    'TileCondProxyCool_OflLasLin')
-                                   , ProxyOflLasNln = getTileCondProxy('COOL', 'Flt', 'oflLasNln',    'TileCondProxyCool_OflLasNln')
-                                   , ProxyOflLasFib = oflLasFibProxy
-                                   , ProxyOflCes    = getTileCondProxy('COOL', 'Flt', 'oflCes',       'TileCondProxyCool_OflCes'   )
-                                   , ProxyOflEms    = getTileCondProxy('COOL', 'Flt', 'oflEms',       'TileCondProxyCool_OflEms'   )
-                                   , ProxyOnlCis    = getTileCondProxy('COOL', 'Flt', 'onlCisLin',    'TileCondProxyCool_OnlCis'   )
-                                   , ProxyOnlLas    = getTileCondProxy('COOL', 'Flt', 'onlLasLin',    'TileCondProxyCool_OnlLas'   )
-                                   , ProxyOnlCes    = getTileCondProxy('COOL', 'Flt', 'onlCes',       'TileCondProxyCool_OnlCes'   )
-                                   , ProxyOnlEms    = getTileCondProxy('COOL', 'Flt', 'onlEms',       'TileCondProxyCool_OnlEms'   ))
-    else:
-        #========================================================
-        #=== Connect FILE TileCondProxies to the tool (default)
-        #========================================================
-        #--- Undoing "online" calibrations makes no sense here and is disabled
-        tool = TileCondToolEmscale(name
-                                   , OnlCacheUnit = "Invalid"
-                                   , ProxyOflCisLin = getTileCondProxy('FILE','Flt','TileDefault.cisFitLin','TileCondProxyFile_OflCisLin')
-                                   , ProxyOflCisNln = getTileCondProxy('FILE','Flt','TileDefault.cisFitNln','TileCondProxyFile_OflCisNln')
-                                   , ProxyOflLasLin = getTileCondProxy('FILE','Flt','TileDefault.lasLin'   ,'TileCondProxyFile_OflLasLin')
-                                   , ProxyOflLasNln = getTileCondProxy('FILE','Flt','TileDefault.lasNln'   ,'TileCondProxyFile_OflLasNln')
-                                   , ProxyOflLasFib = getTileCondProxy('FILE','Flt','TileDefault.lasFib'   ,'TileCondProxyFile_OflLasFib')
-                                   , ProxyOflCes    = getTileCondProxy('FILE','Flt','TileDefault.ces'      ,'TileCondProxyFile_OflCes'   )
-                                   , ProxyOflEms    = getTileCondProxy('FILE','Flt','TileDefault.ems'      ,'TileCondProxyFile_OflEms'   )
-                                   , ProxyOnlCis    = None
-                                   , ProxyOnlLas    = None
-                                   , ProxyOnlCes    = None
-                                   , ProxyOnlEms    = None)
-        
+    if not hasattr(condSequence, emScaleCondAlg):
+
+        onlCacheUnit = "Invalid"
+
+        if source == 'COOL':
+            #====================================================
+            #=== Connect COOL TileCondProxies to the tool
+            #====================================================
+            from AthenaCommon.GlobalFlags import globalflags
+            if (globalflags.DataSource() == 'data'): onlCacheUnit = "OnlineMegaElectronVolts"
+
+            if isOnline and isUsedDataBaseRun2: oflLasFibProxy = None
+            else: oflLasFibProxy = getTileCondProxy('COOL', 'Flt', 'oflLasFib', 'TileCondProxyCool_OflLasFib')
+
+            oflCisLinProxy = getTileCondProxy('COOL', 'Flt', 'oflCisFitLin', 'TileCondProxyCool_OflCisLin')
+            oflCisNlnProxy = getTileCondProxy('COOL', 'Flt', 'oflCisFitNln', 'TileCondProxyCool_OflCisNln')
+            oflLasLinProxy = getTileCondProxy('COOL', 'Flt', 'oflLasLin',    'TileCondProxyCool_OflLasLin')
+            oflLasNlnProxy = getTileCondProxy('COOL', 'Flt', 'oflLasNln',    'TileCondProxyCool_OflLasNln')
+            oflCesProxy    = getTileCondProxy('COOL', 'Flt', 'oflCes',       'TileCondProxyCool_OflCes'   )
+            oflEmsProxy    = getTileCondProxy('COOL', 'Flt', 'oflEms',       'TileCondProxyCool_OflEms'   )
+            onlCisProxy    = getTileCondProxy('COOL', 'Flt', 'onlCisLin',    'TileCondProxyCool_OnlCis'   )
+            onlLasProxy    = getTileCondProxy('COOL', 'Flt', 'onlLasLin',    'TileCondProxyCool_OnlLas'   )
+            onlCesProxy    = getTileCondProxy('COOL', 'Flt', 'onlCes',       'TileCondProxyCool_OnlCes'   )
+            onlEmsProxy    = getTileCondProxy('COOL', 'Flt', 'onlEms',       'TileCondProxyCool_OnlEms'   )
+
+        else:
+            #========================================================
+            #=== Connect FILE TileCondProxies to the tool (default)
+            #========================================================
+            #--- Undoing "online" calibrations makes no sense here and is disabled
+            oflCisLinProxy = getTileCondProxy('FILE','Flt','TileDefault.cisFitLin','TileCondProxyFile_OflCisLin')
+            oflCisNlnProxy = getTileCondProxy('FILE','Flt','TileDefault.cisFitNln','TileCondProxyFile_OflCisNln')
+            oflLasLinProxy = getTileCondProxy('FILE','Flt','TileDefault.lasLin'   ,'TileCondProxyFile_OflLasLin')
+            oflLasNlnProxy = getTileCondProxy('FILE','Flt','TileDefault.lasNln'   ,'TileCondProxyFile_OflLasNln')
+            oflLasFibProxy = getTileCondProxy('FILE','Flt','TileDefault.lasFib'   ,'TileCondProxyFile_OflLasFib')
+            oflCesProxy    = getTileCondProxy('FILE','Flt','TileDefault.ces'      ,'TileCondProxyFile_OflCes'   )
+            oflEmsProxy    = getTileCondProxy('FILE','Flt','TileDefault.ems'      ,'TileCondProxyFile_OflEms'   )
+            onlCisProxy    = getTileCondProxy('FILE','Flt','TileDefault.cisFitLin','TileCondProxyFile_OflCisLin')
+            onlLasProxy    = getTileCondProxy('FILE','Flt','TileDefault.lasLin'   ,'TileCondProxyFile_OflLasLin')
+            onlCesProxy    = getTileCondProxy('FILE','Flt','TileDefault.ces'      ,'TileCondProxyFile_OflCes'   )
+            onlEmsProxy    = getTileCondProxy('FILE','Flt','TileDefault.ems'      ,'TileCondProxyFile_OflEms'   )
+
+
+        from TileConditions.TileConditionsConf import TileEMScaleCondAlg
+        condSequence += TileEMScaleCondAlg( name = emScaleCondAlg,
+                                            OnlCacheUnit = onlCacheUnit,
+                                            OflCisLinProxy = oflCisLinProxy,
+                                            OflCisNlnProxy = oflCisNlnProxy,
+                                            OflLasLinProxy = oflLasLinProxy,
+                                            OflLasNlnProxy = oflLasNlnProxy,
+                                            OflLasFibProxy = oflLasFibProxy,
+                                            OflCesProxy = oflCesProxy,
+                                            OflEmsProxy = oflEmsProxy,
+                                            OnlCisProxy = onlCisProxy,
+                                            OnlLasProxy = onlLasProxy,
+                                            OnlCesProxy = onlCesProxy,
+                                            OnlEmsProxy = onlEmsProxy,
+                                            TileEMScale = emScale)
+
+
+    tool = TileCondToolEmscale(name, TileEMScale = emScale)
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -80,48 +122,77 @@ def getTileCondToolEmscale(source='FILE', name='TileCondToolEmscale', **kwargs):
 #
 #____________________________________________________________________________
 def getTileExpertToolEmscale(source='FILE', name='TileExpertToolEmscale', **kwargs):
+
     if not source in validSources: raise(Exception("Invalid source: %s"%source))
     from TileConditions.TileConditionsConf import TileExpertToolEmscale
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
 
     #do some check for global flag here: if source='' and flag set, adopt flag
 
     tool = None
-    if source=='COOL':
-        #====================================================
-        #=== Connect COOL TileCondProxies to the tool
-        #====================================================
-        tool = TileExpertToolEmscale(name,
-                                   OnlCacheUnit = "OnlineMegaElectronVolts",
-                                   ProxyOflCisLin = getTileCondProxy('COOL','Flt','oflCisFitLin','TileCondProxyCool_OflCisLin'),
-                                   ProxyOflCisNln = getTileCondProxy('COOL','Flt','oflCisFitNln','TileCondProxyCool_OflCisNln'),
-                                   ProxyOflLasLin = getTileCondProxy('COOL','Flt','oflLasLin'   ,'TileCondProxyCool_OflLasLin'),
-                                   ProxyOflLasNln = getTileCondProxy('COOL','Flt','oflLasNln'   ,'TileCondProxyCool_OflLasNln'),
-                                   ProxyOflLasFib = getTileCondProxy('COOL','Flt','oflLasFib'   ,'TileCondProxyCool_OflLasFib'),
-                                   ProxyOflCes    = getTileCondProxy('COOL','Flt','oflCes'      ,'TileCondProxyCool_OflCes'   ),
-                                   ProxyOflEms    = getTileCondProxy('COOL','Flt','oflEms'      ,'TileCondProxyCool_OflEms'   ),
-                                   ProxyOnlCis    = getTileCondProxy('COOL','Flt','onlCisLin'   ,'TileCondProxyCool_OnlCis'   ),
-                                   ProxyOnlLas    = getTileCondProxy('COOL','Flt','onlLasLin'   ,'TileCondProxyCool_OnlLas'   ),
-                                   ProxyOnlCes    = getTileCondProxy('COOL','Flt','onlCes'      ,'TileCondProxyCool_OnlCes'   ),
-                                   ProxyOnlEms    = getTileCondProxy('COOL','Flt','onlEms'      ,'TileCondProxyCool_OnlEms'   ))
-    else:
-        #========================================================
-        #=== Connect FILE TileCondProxies to the tool (default)
-        #========================================================
-        #--- Undoing "online" calibrations makes no sense here and is disabled
-        tool = TileExpertToolEmscale(name,
-                                   OnlCacheUnit = "Invalid",
-                                   ProxyOflCisLin = getTileCondProxy('FILE','Flt','TileDefault.cisFitLin','TileCondProxyFile_OflCisLin'),
-                                   ProxyOflCisNln = getTileCondProxy('FILE','Flt','TileDefault.cisFitNln','TileCondProxyFile_OflCisNln'),
-                                   ProxyOflLasLin = getTileCondProxy('FILE','Flt','TileDefault.lasLin'   ,'TileCondProxyFile_OflLasLin'),
-                                   ProxyOflLasNln = getTileCondProxy('FILE','Flt','TileDefault.lasNln'   ,'TileCondProxyFile_OflLasNln'),
-                                   ProxyOflLasFib = getTileCondProxy('FILE','Flt','TileDefault.lasFib'   ,'TileCondProxyFile_OflLasFib'),
-                                   ProxyOflCes    = getTileCondProxy('FILE','Flt','TileDefault.ces'      ,'TileCondProxyFile_OflCes'   ),
-                                   ProxyOflEms    = getTileCondProxy('FILE','Flt','TileDefault.ems'      ,'TileCondProxyFile_OflEms'   ),
-                                   ProxyOnlCis    = None,
-                                   ProxyOnlLas    = None,
-                                   ProxyOnlCes    = None,
-                                   ProxyOnlEms    = None)
-        
+
+    emScale = 'TileEMScale'
+    emScaleCondAlg = emScale + 'CondAlg'
+
+    if not hasattr(condSequence, emScaleCondAlg):
+
+        if source == 'COOL':
+            #====================================================
+            #=== Connect COOL TileCondProxies to the tool
+            #====================================================
+            onlCacheUnit = "OnlineMegaElectronVolts",
+            oflCisLinProxy = getTileCondProxy('COOL','Flt','oflCisFitLin','TileCondProxyCool_OflCisLin')
+            oflCisNlnProxy = getTileCondProxy('COOL','Flt','oflCisFitNln','TileCondProxyCool_OflCisNln')
+            oflLasLinProxy = getTileCondProxy('COOL','Flt','oflLasLin'   ,'TileCondProxyCool_OflLasLin')
+            oflLasNlnProxy = getTileCondProxy('COOL','Flt','oflLasNln'   ,'TileCondProxyCool_OflLasNln')
+            oflLasFibProxy = getTileCondProxy('COOL','Flt','oflLasFib'   ,'TileCondProxyCool_OflLasFib')
+            oflCesProxy    = getTileCondProxy('COOL','Flt','oflCes'      ,'TileCondProxyCool_OflCes'   )
+            oflEmsProxy    = getTileCondProxy('COOL','Flt','oflEms'      ,'TileCondProxyCool_OflEms'   )
+            onlCisProxy    = getTileCondProxy('COOL','Flt','onlCisLin'   ,'TileCondProxyCool_OnlCis'   )
+            onlLasProxy    = getTileCondProxy('COOL','Flt','onlLasLin'   ,'TileCondProxyCool_OnlLas'   )
+            onlCesProxy    = getTileCondProxy('COOL','Flt','onlCes'      ,'TileCondProxyCool_OnlCes'   )
+            onlEmsProxy    = getTileCondProxy('COOL','Flt','onlEms'      ,'TileCondProxyCool_OnlEms'   )
+
+        else:
+            #========================================================
+            #=== Connect FILE TileCondProxies to the tool (default)
+            #========================================================
+            #--- Undoing "online" calibrations makes no sense here and is disabled
+            onlCacheUnit = "Invalid",
+            oflCisLinProxy = getTileCondProxy('FILE','Flt','TileDefault.cisFitLin','TileCondProxyFile_OflCisLin')
+            oflCisNlnProxy = getTileCondProxy('FILE','Flt','TileDefault.cisFitNln','TileCondProxyFile_OflCisNln')
+            oflLasLinProxy = getTileCondProxy('FILE','Flt','TileDefault.lasLin'   ,'TileCondProxyFile_OflLasLin')
+            oflLasNlnProxy = getTileCondProxy('FILE','Flt','TileDefault.lasNln'   ,'TileCondProxyFile_OflLasNln')
+            oflLasFibProxy = getTileCondProxy('FILE','Flt','TileDefault.lasFib'   ,'TileCondProxyFile_OflLasFib')
+            oflCesProxy    = getTileCondProxy('FILE','Flt','TileDefault.ces'      ,'TileCondProxyFile_OflCes'   )
+            oflEmsProxy    = getTileCondProxy('FILE','Flt','TileDefault.ems'      ,'TileCondProxyFile_OflEms'   )
+            onlCisProxy    = None
+            onlLasProxy    = None
+            onlCesProxy    = None
+            onlEmsProxy    = None
+
+
+        from TileConditions.TileConditionsConf import TileEMScaleCondAlg
+        condSequence += TileEMScaleCondAlg( name = emScaleCondAlg,
+                                            OnlCacheUnit = onlCacheUnit,
+                                            OflCisLinProxy = oflCisLinProxy,
+                                            OflCisNlnProxy = oflCisNlnProxy,
+                                            OflLasLinProxy = oflLasLinProxy,
+                                            OflLasNlnProxy = oflLasNlnProxy,
+                                            OflLasFibProxy = oflLasFibProxy,
+                                            OflCesProxy = oflCesProxy,
+                                            OflEmsProxy = oflEmsProxy,
+                                            OnlCisProxy = onlCisProxy,
+                                            OnlLasProxy = onlLasProxy,
+                                            OnlCesProxy = onlCesProxy,
+                                            OnlEmsProxy = onlEmsProxy,
+                                            TileEMScale = emScale)
+
+
+    tool = TileExpertToolEmscale(name, TileEMScale = emScale)
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -130,25 +201,24 @@ def getTileExpertToolEmscale(source='FILE', name='TileExpertToolEmscale', **kwar
 #
 #____________________________________________________________________________
 def getTileCondToolIntegrator(source = 'FILE', name = 'TileCondToolIntegrator', **kwargs):
-    
+
     from TileConditions.TileConditionsConf import TileCondToolIntegrator
-    
+
     #do some check for global flag here: if source='' and flag set, adopt flag
-    
     tool = None
+    integrator = 'TileIntegrator'
+
     if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-        tool = TileCondToolIntegrator(name,
-                                       ProxyIntegrator = getTileCondProxy('COOL','Flt','oflIntGain','TileCondProxyCool_Integrator'))
-        
+        integratorProxy = getTileCondProxy('COOL','Flt','oflIntGain','TileCondProxyCool_Integrator')
+
     elif source == 'FILE':
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-        tool = TileCondToolIntegrator(name,
-                                       ProxyIntegrator = getTileCondProxy('FILE','Flt','TileDefault.int','TileCondProxyFile_Integrator'))
+        integratorProxy = getTileCondProxy('FILE','Flt','TileDefault.int','TileCondProxyFile_Integrator')
 
     else:
         #====================================================
@@ -157,13 +227,14 @@ def getTileCondToolIntegrator(source = 'FILE', name = 'TileCondToolIntegrator', 
 
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolIntegrator(name
-                                          , ProxyIntegrator = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_Integrator'))
+            integratorProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_Integrator')
 
         else:
             raise(Exception("Invalid source: %s" %source ))
 
-        
+    bookTileCalibCondAlg(integrator, integratorProxy)
+    tool = TileCondToolIntegrator(name, integrator)
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -172,39 +243,35 @@ def getTileCondToolIntegrator(source = 'FILE', name = 'TileCondToolIntegrator', 
 #
 #____________________________________________________________________________
 def getTileCondToolMuID(source = 'FILE', name = 'TileCondToolMuID', **kwargs):
-    
+
     from TileConditions.TileConditionsConf import TileCondToolMuID
-    
+
     #do some check for global flag here: if source='' and flag set, adopt flag
-    
     tool = None
+    muID = 'TileMuID'
+
     if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-        tool = TileCondToolMuID(name
-                                , ProxyMuID = getTileCondProxy('COOL','Flt','onlMuID','TileCondProxyCool_MuID'))
-        
+        muIdProxy = getTileCondProxy('COOL','Flt','onlMuID','TileCondProxyCool_MuID')
     elif source == 'FILE':
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-        tool = TileCondToolMuID(name
-                                , ProxyMuID = getTileCondProxy('FILE','Flt','TileDefault.muid','TileCondProxyFile_MuID'))
-        
+        muIdProxy = getTileCondProxy('FILE','Flt','TileDefault.muid','TileCondProxyFile_MuID')
     else:
         #====================================================
         #=== guess source is file name
         #====================================================
-
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolMuID(name
-                                    , ProxyMuID = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_MuID'))
-
+            muIdProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_MuID')
         else:
             raise(Exception("Invalid source: %s" %source ))
 
+    bookTileCalibCondAlg(muID, muIdProxy)
+    tool = TileCondToolMuID(name, muID)
 
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
@@ -215,40 +282,34 @@ def getTileCondToolMuID(source = 'FILE', name = 'TileCondToolMuID', **kwargs):
 #____________________________________________________________________________
 def getTileCondToolTiming(source = 'FILE', runType = 'PHY', online = False, name = 'TileCondToolTiming', **kwargs):
 
-
     if not runType in validRunTypes: raise(Exception("Invalid run type %s"%runType))
     from TileConditions.TileConditionsConf import TileCondToolTiming
 
     #do some check for global flag here: if source='' and flag set, adopt flag
     tool = None
+    timing = 'TileOnlineTiming' if online else 'TileTiming'
+
     if source == 'COOL':
         sourcePrefix = 'onl' if online else 'ofl'
 
         if runType == 'PHY' or runType == 'PED':
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCphy','TileCondProxyCool_AdcOffset'))
+            adcOffsetProxy = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCphy','TileCondProxyCool_AdcOffset')
         if runType == 'LAS':
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeClas','TileCondProxyCool_AdcOffset'))
+            adcOffsetProxy = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeClas','TileCondProxyCool_AdcOffset')
         if runType == 'GAPLAS':
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCgapLas','TileCondProxyCool_AdcOffset'))
+            adcOffsetProxy = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCgapLas','TileCondProxyCool_AdcOffset')
         if runType == 'CIS':
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCcis','TileCondProxyCool_AdcOffset'))
+            adcOffsetProxy = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCcis','TileCondProxyCool_AdcOffset')
     elif source == 'FILE':
         #=== create tool
         if runType == 'PHY' or runType == 'PED':
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('FILE','Flt','TileDefault.tcphy','TileCondProxyFile_AdcOffset'))
+            adcOffsetProxy = getTileCondProxy('FILE','Flt','TileDefault.tcphy','TileCondProxyFile_AdcOffset')
         if runType == 'LAS':
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('FILE','Flt','TileDefault.tclas','TileCondProxyFile_AdcOffset'))
+            adcOffsetProxy = getTileCondProxy('FILE','Flt','TileDefault.tclas','TileCondProxyFile_AdcOffset')
         if runType == 'GAPLAS':
             raise(Exception("Invalid source %s " %source))
         if runType == 'CIS':
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('FILE','Flt','TileDefault.tccis','TileCondProxyFile_AdcOffset'))
+            adcOffsetProxy = getTileCondProxy('FILE','Flt','TileDefault.tccis','TileCondProxyFile_AdcOffset')
 
     else:
         #====================================================
@@ -257,13 +318,13 @@ def getTileCondToolTiming(source = 'FILE', runType = 'PHY', online = False, name
 
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_AdcOffset'))
-
+            adcOffsetProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_AdcOffset')
         else:
             raise(Exception("Invalid source: %s" %source ))
-        
-        
+
+    bookTileCalibCondAlg(timing, adcOffsetProxy)
+    tool = TileCondToolTiming(name, TileTiming = timing)
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -277,64 +338,39 @@ def getTileCondToolPulseShape(source = 'FILE', runType = 'PHY', name = 'TileCond
     from TileConditions.TileConditionsConf import TileCondToolPulseShape
 
     #do some check for global flag here: if source='' and flag set, adopt flag
-
     tool = None
+    pulseShape = 'TilePulseShape'
+
     if source == 'COOL':
         #=== create tool
         if runType == 'PHY':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('COOL','Flt','oflPlsPhy','TileCondProxyCool_PulseShapePhy'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('COOL','Flt','oflPlsPhy','TileCondProxyCool_PulseShapePhy')
         if runType == 'LAS':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('COOL','Flt','oflPlsLas','TileCondProxyCool_PulseShapeLas'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('COOL','Flt','oflPlsLas','TileCondProxyCool_PulseShapeLas')
         if runType == 'CISPULSE100':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('COOL','Flt','oflPlsCisPl100','TileCondProxyCool_PulseShapeCisPl100'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('COOL','Flt','oflPlsCisPl100','TileCondProxyCool_PulseShapeCisPl100')
         if runType == 'CISPULSE5P2':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('COOL','Flt','oflPlsCisPl5p2','TileCondProxyCool_PulseShapeCisPl5p2'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('COOL','Flt','oflPlsCisPl5p2','TileCondProxyCool_PulseShapeCisPl5p2')
         if runType == 'CISLEAK100':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('COOL','Flt','oflPlsCisLk100','TileCondProxyCool_PulseShapeCisLk100'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('COOL','Flt','oflPlsCisLk100','TileCondProxyCool_PulseShapeCisLk100')
         if runType == 'CISLEAK5P2':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('COOL','Flt','oflPlsCisLk5p2','TileCondProxyCool_PulseShapeCisLk5p2'),
-                                          )
-
+            pulseShapeProxy = getTileCondProxy('COOL','Flt','oflPlsCisLk5p2','TileCondProxyCool_PulseShapeCisLk5p2')
     elif source == 'FILE':
         #====================================================
         #=== create tool
         #====================================================
         if runType == 'PHY':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('FILE','Flt','TileDefault.plsPhy','TileCondProxyFile_PulseShapePhy'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('FILE','Flt','TileDefault.plsPhy','TileCondProxyFile_PulseShapePhy')
         if runType == 'LAS':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('FILE','Flt','TileDefault.plsLas','TileCondProxyFile_PulseShapeLas'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('FILE','Flt','TileDefault.plsLas','TileCondProxyFile_PulseShapeLas')
         if runType == 'CISPULSE100':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('FILE','Flt','TileDefault.plsCisPulse100','TileCondProxyFile_PulseShapeCisPl100'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('FILE','Flt','TileDefault.plsCisPulse100','TileCondProxyFile_PulseShapeCisPl100')
         if runType == 'CISPULSE5P2':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('FILE','Flt','TileDefault.plsCisPulse5p2','TileCondProxyFile_PulseShapeCisPl5p2'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('FILE','Flt','TileDefault.plsCisPulse5p2','TileCondProxyFile_PulseShapeCisPl5p2')
         if runType == 'CISLEAK100':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('FILE','Flt','TileDefault.plsCisLeak100','TileCondProxyFile_PulseShapeCisLk100'),
-                                          )
+            pulseShapeProxy = getTileCondProxy('FILE','Flt','TileDefault.plsCisLeak100','TileCondProxyFile_PulseShapeCisLk100')
         if runType == 'CISLEAK5P2':
-            tool = TileCondToolPulseShape(name,
-                                          ProxyPulseShape = getTileCondProxy('FILE','Flt','TileDefault.plsCisLeak5p2','TileCondProxyFile_PulseShapeCisLk5p2'),
-                                          )
-
+            pulseShapeProxy = getTileCondProxy('FILE','Flt','TileDefault.plsCisLeak5p2','TileCondProxyFile_PulseShapeCisLk5p2')
 
     else:
         #====================================================
@@ -343,19 +379,18 @@ def getTileCondToolPulseShape(source = 'FILE', runType = 'PHY', name = 'TileCond
 
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolPulseShape(name
-                                          , ProxyPulseShape = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_PulseShape'))
-
+            pulseShapeProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_PulseShape')
         else:
             raise(Exception("Invalid source: %s" %source ))
 
-        
-        
+    bookTileCalibCondAlg(pulseShape, pulseShapeProxy)
+    tool = TileCondToolPulseShape(name, TilePulseShape = pulseShape)
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
     return tool
-    
+
 #
 #____________________________________________________________________________
 def getTileCondToolMuRcvPulseShape(source = 'FILE', name = 'TileCondToolMuRcvPulseShape', **kwargs):
@@ -363,6 +398,8 @@ def getTileCondToolMuRcvPulseShape(source = 'FILE', name = 'TileCondToolMuRcvPul
     from TileConditions.TileConditionsConf import TileCondToolPulseShape
 
     tool = None
+    muRcvPulseShape = 'TileMuRcvPulseShape'
+
     if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
@@ -373,25 +410,19 @@ def getTileCondToolMuRcvPulseShape(source = 'FILE', name = 'TileCondToolMuRcvPul
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-
-        tool = TileCondToolPulseShape(name
-                                      , ProxyPulseShape = getTileCondProxy('FILE','Flt','TileDefault.plsMuRcv','TileCondProxyFile_PulseShapeMuRcv'))
-
-
+        muRcvPulseShapeProxy = getTileCondProxy('FILE','Flt','TileDefault.plsMuRcv','TileCondProxyFile_PulseShapeMuRcv')
     else:
         #====================================================
         #=== guess source is file name
         #====================================================
-
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolPulseShape(name
-                                          , ProxyPulseShape = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_PulseShapeMuRcv'))
-
+            muRcvPulseShapeProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_PulseShapeMuRcv')
         else:
             raise(Exception("Invalid source: %s" %source ))
 
-
+    bookTileCalibCondAlg(muRcvPulseShape, muRcvPulseShapeProxy)
+    tool = TileCondToolPulseShape(name, TilePulseShape = muRcvPulseShape)
 
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
@@ -405,6 +436,54 @@ def getTileBadChanTool(source = 'FILE', name = 'TileBadChanTool', **kwargs):
     if not source in validSources: raise(Exception("Invalid source: %s"%source))
     from TileConditions.TileConditionsConf import TileBadChanTool
 
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+
+    #do some check for global flag here: if source='' and flag set, adopt flag
+
+    tool = None
+
+    badChannels = 'TileBadChannels'
+    badChannelsCondAlg = badChannels + 'CondAlg'
+
+    if not hasattr(condSequence, badChannelsCondAlg):
+
+        if source == 'COOL':
+            #====================================================
+            #=== Connect COOL TileCondProxies to the tool
+            #====================================================
+            if isOnline and isUsedDataBaseRun2: offlineBadChannelsProxy = None
+            else: offlineBadChannelsProxy = getTileCondProxy('COOL','Bch','oflStatAdc','TileCondProxyCool_OflBch')
+            onlineBadChannelsProxy = getTileCondProxy('COOL','Bch','onlStatAdc','TileCondProxyCool_OnlBch')
+        else:
+            #========================================================
+            #=== Connect FILE TileCondProxies to the tool (default)
+            #========================================================
+            onlineBadChannelsProxy = getTileCondProxy('FILE','Bch','TileDefault.onlBch','TileCondProxyFile_OnlBch')
+            offlineBadChannelsProxy = getTileCondProxy('FILE','Bch','TileDefault.oflBch','TileCondProxyFile_OflBch')
+
+
+        from TileConditions.TileConditionsConf import TileBadChannelsCondAlg
+        condSequence += TileBadChannelsCondAlg( name = badChannelsCondAlg,
+                                                OnlBchProxy = onlineBadChannelsProxy,
+                                                OflBchProxy = offlineBadChannelsProxy,
+                                                TileBadChannels = badChannels)
+
+    tool = TileBadChanTool(name, TileBadChannels = badChannels)
+
+    #=== set the arguments passed and return tool
+    for n,v in kwargs.items():
+        setattr(tool, n, v)
+    return tool
+
+
+#
+#____________________________________________________________________________
+def getTileBadChanLegacyTool(source = 'FILE', name = 'TileBadChanLegacyTool', **kwargs):
+
+    if not source in validSources: raise(Exception("Invalid source: %s"%source))
+    from TileConditions.TileConditionsConf import TileBadChanLegacyTool
+
     #do some check for global flag here: if source='' and flag set, adopt flag
 
     tool = None
@@ -415,56 +494,60 @@ def getTileBadChanTool(source = 'FILE', name = 'TileBadChanTool', **kwargs):
         if isOnline and isUsedDataBaseRun2: oflBchProxy = None
         else: oflBchProxy = getTileCondProxy('COOL','Bch','oflStatAdc','TileCondProxyCool_OflBch')
 
-        tool = TileBadChanTool(name
-                               , ProxyOnlBch = getTileCondProxy('COOL','Bch','onlStatAdc','TileCondProxyCool_OnlBch')
-                               , ProxyOflBch = oflBchProxy)
-                               
+        tool = TileBadChanLegacyTool(name
+                                     , ProxyOnlBch = getTileCondProxy('COOL','Bch','onlStatAdc','TileCondProxyCool_OnlBch')
+                                     , ProxyOflBch = oflBchProxy)
+
 
     else:
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-        tool = TileBadChanTool(name
-                               , ProxyOnlBch = getTileCondProxy('FILE','Bch','TileDefault.onlBch','TileCondProxyFile_OnlBch')
-                               , ProxyOflBch = getTileCondProxy('FILE','Bch','TileDefault.oflBch','TileCondProxyFile_OflBch'))
+        tool = TileBadChanLegacyTool(name
+                                     , ProxyOnlBch = getTileCondProxy('FILE','Bch','TileDefault.onlBch','TileCondProxyFile_OnlBch')
+                                     , ProxyOflBch = getTileCondProxy('FILE','Bch','TileDefault.oflBch','TileCondProxyFile_OflBch'))
 
-        
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
-    return tool
 
+    return tool
 
 #
 #____________________________________________________________________________
 def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample', **kwargs):
-    
+
     from TileConditions.TileConditionsConf import TileCondToolNoiseSample
-    
+
     #do some check for global flag here: if source='' and flag set, adopt flag
+
     tool = None
+    sampleNoise = 'TileSampleNoise'
 
-    if isOnline or not isUsedDataBaseRun2: onlNoiseSampleProxy = None
-    else: onlNoiseSampleProxy = getTileCondProxy('COOL','Flt','onlNoiseAdc','TileCondProxyCool_OnlineNoiseSample')
+    if isOnline or not isUsedDataBaseRun2: onlineSampleNoiseProxy = None
+    else: onlineSampleNoiseProxy = getTileCondProxy('COOL','Flt','onlNoiseAdc','TileCondProxyCool_OnlineNoiseSample')
 
-    if source == 'COOL': 
+    onlineSampleNoise = 'TileOnlineSampleNoise' if onlineSampleNoiseProxy else ''
+
+    if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-        tool = TileCondToolNoiseSample(name,
-                                       ProxyNoiseSample = getTileCondProxy('COOL','Flt','oflNoiseAdc','TileCondProxyCool_NoiseSample'),
-                                       ProxyOnlineNoiseSample = onlNoiseSampleProxy)
-#                                       ProxyNoiseAutoCr = getTileCondProxy('COOL','Flt','oflNoiseAcr','TileCondProxyCool_NoiseAutoCr'))
-        
+        sampleNoiseProxy = getTileCondProxy('COOL','Flt','oflNoiseAdc','TileCondProxyCool_NoiseSample')
     else:
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-        tool = TileCondToolNoiseSample(name,
-                                       ProxyNoiseSample = getTileCondProxy('FILE','Flt','TileDefault.ped','TileCondProxyFile_NoiseSample'),
-                                       ProxyOnlineNoiseSample = None)
-#                                       ProxyNoiseAutoCr = getTileCondProxy('FILE','Flt','TileDefault.acr','TileCondProxyFile_NoiseAutoCr'))
-       
+        sampleNoiseProxy = getTileCondProxy('FILE','Flt','TileDefault.ped','TileCondProxyFile_NoiseSample')
+
+    bookTileCalibCondAlg(sampleNoise, sampleNoiseProxy)
+    if (onlineSampleNoiseProxy): bookTileCalibCondAlg(onlineSampleNoise, onlineSampleNoiseProxy)
+
+    tool = TileCondToolNoiseSample(name,
+                                   TileSampleNoise = sampleNoise,
+                                   TileOnlineSampleNoise = onlineSampleNoise)
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -473,26 +556,26 @@ def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample'
 #
 #____________________________________________________________________________
 def getTileCondToolAutoCr(source = 'FILE', name = 'TileCondToolAutoCr', **kwargs):
-    
+
     from TileConditions.TileConditionsConf import TileCondToolAutoCr
-    
+
     #do some check for global flag here: if source='' and flag set, adopt flag
-    
+
     tool = None
+
+    autoCorrelation = 'TileAutoCorrelation'
+
     if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-        tool = TileCondToolAutoCr(name
-                                  , ProxyNoiseAutoCr = getTileCondProxy('COOL','Flt','oflNoiseAcr','TileCondProxyCool_NoiseAutoCr'))
-        
+        autoCorrelationProxy = getTileCondProxy('COOL','Flt','oflNoiseAcr','TileCondProxyCool_NoiseAutoCr')
+
     elif source == 'FILE':
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-        tool = TileCondToolAutoCr(name
-                                  , ProxyNoiseAutoCr = getTileCondProxy('FILE','Flt','TileDefault.acr','TileCondProxyFile_NoiseAutoCr'))
-        
+        autoCorrelationProxy = getTileCondProxy('FILE','Flt','TileDefault.acr','TileCondProxyFile_NoiseAutoCr')
 
     else:
         #====================================================
@@ -501,12 +584,13 @@ def getTileCondToolAutoCr(source = 'FILE', name = 'TileCondToolAutoCr', **kwargs
 
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolAutoCr(name
-                                      , ProxyNoiseAutoCr = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_NoiseAutoCr'))
+            autoCorrelationProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_NoiseAutoCr')
 
         else:
             raise(Exception("Invalid source: %s" %source ))
 
+    bookTileCalibCondAlg(autoCorrelation, autoCorrelationProxy)
+    tool = TileCondToolAutoCr(name, TileAutoCorrelation = autoCorrelation)
 
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
@@ -516,40 +600,37 @@ def getTileCondToolAutoCr(source = 'FILE', name = 'TileCondToolAutoCr', **kwargs
 #
 #____________________________________________________________________________
 def getTileCondToolNoiseRawChn(source = 'FILE', name = 'TileCondToolNoiseRawChn', **kwargs):
-    
+
     from TileConditions.TileConditionsConf import TileCondToolNoiseRawChn
-    
+
     #do some check for global flag here: if source='' and flag set, adopt flag
-    
+
     tool = None
+
+    rawChannelNoise = 'TileRawChannelNoise'
+
     if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-        tool = TileCondToolNoiseRawChn(name
-                                       , ProxyNoiseRawChn = getTileCondProxy('COOL','Flt','onlNoise1gOfni','TileCondProxyCool_NoiseRawChn'))
-        
-    elif  source == 'FILE':
+        rawChannelNoiseProxy = getTileCondProxy('COOL','Flt','onlNoise1gOfni','TileCondProxyCool_NoiseRawChn')
+    elif source == 'FILE':
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-        tool = TileCondToolNoiseRawChn(name
-                                       , ProxyNoiseRawChn = getTileCondProxy('FILE','Flt','TileDefault.rchFit','TileCondProxyFile_NoiseRawChn'))
-        
-
+        rawChannelNoiseProxy = getTileCondProxy('FILE','Flt','TileDefault.rchFit','TileCondProxyFile_NoiseRawChn')
     else:
         #====================================================
         #=== guess source is file name
         #====================================================
-
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolNoiseRawChn(name
-                                           , ProxyNoiseRawChn = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_NoiseRawChn'))
-
+            rawChannelNoiseProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_NoiseRawChn')
         else:
             raise(Exception("Invalid source: %s" %source ))
 
+    bookTileCalibCondAlg(rawChannelNoise, rawChannelNoiseProxy)
+    tool = TileCondToolNoiseRawChn(name, TileRawChannelNoise = rawChannelNoise)
 
     #=== set the arguments passed and return tool
     for n, v in kwargs.items():
@@ -560,16 +641,16 @@ def getTileCondToolNoiseRawChn(source = 'FILE', name = 'TileCondToolNoiseRawChn'
 #
 #____________________________________________________________________________
 def getTileCellNoiseTool(source = 'FILE', name = 'TileCellNoiseTool', **kwargs):
-    
+
     if not source in validSources: raise(Exception("Invalid source: %s"%source))
     from TileConditions.TileConditionsConf import TileCellNoiseTool
-    
+
     #do some check for global flag here: if source='' and flag set, adopt flag
 
     #=== create private noise source
     noiseSource = getTileCondToolNoiseRawChn(source, "TileToolNoiseRawChnForNoiseTool")
     tool = TileCellNoiseTool(name, NoiseSource = noiseSource)
-        
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -582,32 +663,48 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
 
     if not source  in validSources : raise(Exception("Invalid source: %s" % source ))
     if not runType in validRunTypes: raise(Exception("Invalid run type %s" % runType))
+
     from TileConditions.TileConditionsConf import TileCondToolOfcCool
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
 
     #do some check for global flag here: if source='' and flag set, adopt flag
     from AthenaCommon.GlobalFlags import globalflags
     isMC = (globalflags.DataSource() != 'data')
 
     tool = None
+
     if source == 'COOL':
         # There are OFC for OF1 only in DB used in Run2
         if ofcType == 'OF1' and not (isUsedDataBaseRun2 or isMC): return None
 
         from TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
-        
-        proxySource = GetTileOfcCoolSource(ofcType, runType)
-        if not tileCoolMgr.isSourceAvailable(proxySource):
-            splitOnline = isUsedDataBaseRun2 and (runType == 'PHY')
-            AddTileOfcCoolSource(ofcType, runType, splitOnline)
-            
-        proxyName = 'TileCondProxyCool_' + proxySource
 
-        tool = TileCondToolOfcCool(name, ProxyOfcCool = getTileCondProxy('COOL', 'Ofc', proxySource, proxyName))
+        ofc = 'TileOfc' + ofcType.capitalize()
+        ofcCondAlg = ofc + 'CondAlg'
+
+        if not hasattr(condSequence, ofcCondAlg):
+            proxySource = GetTileOfcCoolSource(ofcType, runType)
+            if not tileCoolMgr.isSourceAvailable(proxySource):
+                splitOnline = isUsedDataBaseRun2 and (runType == 'PHY')
+                AddTileOfcCoolSource(ofcType, runType, splitOnline)
+
+            proxyName = 'TileCondProxyCool_' + proxySource
+            ofcCoolProxy = getTileCondProxy('COOL', 'Ofc', proxySource, proxyName)
+
+            from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerOfc_ as TileCalibOfcCondAlg
+            condSequence += TileCalibOfcCondAlg( name = ofcCondAlg,
+                                                 ConditionsProxy = ofcCoolProxy,
+                                                 TileCalibData = ofc)
+
+        tool = TileCondToolOfcCool(name, TileOfc = ofc)
 
     else:
         raise(Exception("Invalid source %s" % source))
 
-        
+
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -625,28 +722,39 @@ def getTileCondToolTMDB(source = 'FILE', runType = 'PHY', name = 'TileCondToolTM
     tool = None
 
     if not isUsedDataBaseRun2: return None
-    
-    if source == 'COOL': 
+
+    TMDBThreshold = 'TileTMDBThreshold'
+    TMDBDelay = 'TileTMDBDelay'
+    TMDBTMF = 'TileTMDBTMF'
+    TMDBCalib = 'TileTMDBCalib'
+
+    if source == 'COOL':
         run = string.capwords(runType)
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-        tool = TileCondToolTMDB(name,
-                                ProxyThreshold = getTileCondProxy('COOL', 'Flt', 'onlTmdbThreshold' + run, 'TileCondProxyCool_TmdbThreshold' + run),
-                                ProxyDelay = getTileCondProxy('COOL', 'Flt', 'onlTmdbDelay' + run, 'TileCondProxyCool_TmdbDelay' + run),
-                                ProxyTMF = getTileCondProxy('COOL', 'Flt', 'onlTmdbTmf' + run, 'TileCondProxyCool_TmdbTmf' + run),
-                                ProxyCalib = getTileCondProxy('COOL', 'Flt', 'onlTmdbCalibPhy', 'TileCondProxyCool_TmdbCalibPhy'))
-                                
+        TMDBThresholdProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbThreshold' + run, 'TileCondProxyCool_TMDBThreshold' + run)
+        TMDBDelayProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbDelay' + run, 'TileCondProxyCool_TMDBDelay' + run)
+        TMDBTMFProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbTmf' + run, 'TileCondProxyCool_TMDBTmf' + run)
+        TMDBCalibProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbCalibPhy', 'TileCondProxyCool_TMDBCalibPhy')
 
-
-        
     else:
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
         raise(Exception("Invalid source %s" % source))
 
-       
+    bookTileCalibCondAlg(TMDBThreshold, TMDBThresholdProxy)
+    bookTileCalibCondAlg(TMDBDelay, TMDBDelayProxy)
+    bookTileCalibCondAlg(TMDBTMF, TMDBTMFProxy)
+    bookTileCalibCondAlg(TMDBCalib, TMDBCalibProxy)
+
+    tool = TileCondToolTMDB(name,
+                            TileTMDBThreshold = TMDBThreshold,
+                            TileTMDBDelay = TMDBDelay,
+                            TileTMDBTMF = TMDBTMF,
+                            TileTMDBCalib = TMDBCalib)
+
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
@@ -657,44 +765,37 @@ def getTileCondToolTMDB(source = 'FILE', runType = 'PHY', name = 'TileCondToolTM
 #
 #____________________________________________________________________________
 def getTileCondToolDspThreshold(source = 'FILE', name = 'TileCondToolDspThreshold', **kwargs):
-    
+
     from TileConditions.TileConditionsConf import TileCondToolDspThreshold
-    
+
     #do some check for global flag here: if source='' and flag set, adopt flag
-    
     tool = None
+    dspThreshold = 'TileDSP_Threshold'
 
     if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-
         if not isUsedDataBaseRun2: return None
-
-        tool = TileCondToolDspThreshold(name,
-                                         ProxyDspThreshold = getTileCondProxy('COOL', 'Flt', 'oflDspThreshold', 'TileCondProxyCool_DspThreshold'))
-        
+        dspThresholdProxy = getTileCondProxy('COOL', 'Flt', 'oflDspThreshold', 'TileCondProxyCool_DspThreshold')
     elif  source == 'FILE':
         #========================================================
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
-        tool = TileCondToolDspThreshold(name,
-                                         ProxyDspThreshold = getTileCondProxy('FILE', 'Flt', 'TileDefault.dspThreshold', 'TileCondProxyFile_DspThreshold'))
-        
-
+        dspThresholdProxy = getTileCondProxy('FILE', 'Flt', 'TileDefault.dspThreshold', 'TileCondProxyFile_DspThreshold')
     else:
         #====================================================
         #=== guess source is file name
         #====================================================
-
         file_name = find_data_file(source)
         if file_name is not None:
-            tool = TileCondToolDspThreshold(name,
-                                             ProxyDspThreshold = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_DspThreshold'))
-
+            dspThresholdProxy = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_DspThreshold')
         else:
             raise(Exception("Invalid source: %s" %source ))
 
+
+    bookTileCalibCondAlg(dspThreshold, dspThresholdProxy)
+    tool = TileCondToolDspThreshold(name, TileDSP_Threshold = dspThreshold)
 
     #=== set the arguments passed and return tool
     for n, v in kwargs.items():
@@ -717,5 +818,5 @@ def find_data_file(fname, pathlist = None, access = os.R_OK):
         f = os.path.join( path, fname )
         if os.access( f, access ):
             return f
-  
+
     return None

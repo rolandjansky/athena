@@ -7,7 +7,6 @@ atlas_subdir( AthenaPoolMultiTest )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/MinimalRunTime
                           Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleAlgorithms
                           PRIVATE
                           AtlasTest/DatabaseTest/AthenaPoolTestData

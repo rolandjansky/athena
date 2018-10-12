@@ -1,5 +1,15 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+#--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
 
@@ -46,24 +56,15 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 
-
-
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
+# Set up SCT cabling
+from AthenaCommon.Include import include
+include('InDetRecExample/InDetRecCabling.py')
 
 from AthenaCommon.AlgSequence import AlgSequence
-
 job = AlgSequence()
-
-
-from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
-ToolSvc = ServiceMgr.ToolSvc
-ServiceMgr+=SCT_CablingSvc()
 
 #--------------------------------------------------------------
 # Load IOVDbSvc
@@ -84,12 +85,11 @@ sct_RODVetoToolSetup.setup()
 sct_RODVetoToolSetup.getAlg().BadRODIds = [0x240100, 0x240030]
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_RODVetoTestAlg
-job+= SCT_RODVetoTestAlg()
+job+= SCT_RODVetoTestAlg(SCT_RODVetoTool=sct_RODVetoToolSetup.getTool())
 
 
 import AthenaCommon.AtlasUnixGeneratorJob
-ServiceMgr.SCT_CablingSvc.OutputLevel = INFO
-ToolSvc.SCT_RODVetoTool.OutputLevel=VERBOSE
+sct_RODVetoToolSetup.getTool().OutputLevel=VERBOSE
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
 theApp.EvtMax = 1

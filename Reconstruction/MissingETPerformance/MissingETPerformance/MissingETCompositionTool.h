@@ -46,11 +46,6 @@ public:
 
    inline void SetFolderName(const std::string& folderName) { m_folderName=folderName; }
 
-protected:
-
-   /** Standard destructor */
-   virtual ~MissingETCompositionTool( );
-
  private:
   StatusCode CBNT_initialize_jets();
   StatusCode CBNT_initialize_taus();

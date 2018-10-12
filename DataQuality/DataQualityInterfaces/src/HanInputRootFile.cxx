@@ -93,7 +93,7 @@ dolsr(const TDirectory* dir, std::vector<std::string>& hists, const TDirectory* 
 
 void
 HanInputRootFile::
-addListener( const boost::regex& regex, dqm_core::InputListener* listener ) throw (dqm_core::Exception)
+addListener( const boost::regex& regex, dqm_core::InputListener* listener )
 {
   // avoid building directory until actually demanded
   if (! m_histNamesBuilt) {
@@ -124,7 +124,7 @@ addListener( const boost::regex& regex, dqm_core::InputListener* listener ) thro
 
 void
 HanInputRootFile::
-addListener( const std::vector<std::string>& names, dqm_core::InputListener* listener ) throw (dqm_core::Exception)
+addListener( const std::vector<std::string>& names, dqm_core::InputListener* listener )
 {
   dqm_core::InputRootFile::addListener( names, listener );
 }
@@ -132,7 +132,7 @@ addListener( const std::vector<std::string>& names, dqm_core::InputListener* lis
 
 void
 HanInputRootFile::
-addListener(const std::string& name, dqm_core::InputListener *listener) throw (dqm_core::Exception)
+addListener(const std::string& name, dqm_core::InputListener *listener)
 {
   // TKeys are owned by the TFile
   TKey* key = getObjKeyFromTDir( m_basedir, name );

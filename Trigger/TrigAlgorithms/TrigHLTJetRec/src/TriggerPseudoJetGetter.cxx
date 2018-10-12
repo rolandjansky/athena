@@ -15,7 +15,6 @@
 
 TriggerPseudoJetGetter::TriggerPseudoJetGetter(const std::string& name)
   :AsgTool(name),  m_primed(false), m_label(""), m_pseudoJetVector(nullptr){
-  // declareInterface<ITriggerPseudoJetGetter>(this);
   declareProperty("Label", m_label); 
   declareProperty("OutputContainer", m_outputContainer); 
 }
@@ -62,7 +61,7 @@ int TriggerPseudoJetGetter::outputContainerNames(std::vector<std::string>&) {
   return 0;
 }
 
-// needed for future changes to offline jet code
-// StatusCode TriggerPseudoJetGetter::createAndRecord() const {
-//   return StatusCode::FAILURE; // Trigger: should never be called.
-// }
+// methods not relevant for the trigger - use will give a runtime error.
+StatusCode TriggerPseudoJetGetter::createAndRecord() const {
+  return StatusCode::FAILURE; // Trigger: should never be called.
+}

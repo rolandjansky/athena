@@ -78,7 +78,7 @@ StatusCode Trk::TrackSlimmingTool::finalize()
   return sc;
 }
 
-Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
+Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
 {
   // //std::cout<<"^^^^^^^^^^^ Input track is: "<<track<<std::endl;
 
@@ -319,7 +319,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
   }
 }
 
-void Trk::TrackSlimmingTool::checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas){
+void Trk::TrackSlimmingTool::checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas) const {
   if (tsos->measurementOnTrack()!=0){
     bool isPseudo = (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())!=0);
     // Handle horrible cROTs

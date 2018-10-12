@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimData
+                          Simulation/Tools/AtlasCLHEP_RandomGenerators
                           Tools/PathResolver
                           Tracking/TrkDetDescr/TrkDetDescrUtils
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -52,15 +53,14 @@ atlas_add_library( MM_DigitizationLib
                    PRIVATE_INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier xAODEventInfo GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib SGtests MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} EventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
+                   PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} EventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
 
 atlas_add_component( MM_Digitization
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier xAODEventInfo GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives MM_DigitizationLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier xAODEventInfo GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives MM_DigitizationLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( data/*.gas )
-atlas_install_data( data/*.gas )
+atlas_install_runtime( share/*.gas )

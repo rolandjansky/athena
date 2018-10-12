@@ -55,30 +55,29 @@ StatusCode AddTrigMap::execute()
    // Since we have an event, add the dummy trigger object
    // 
    int event = evt->event_ID()->event_number();
-   FauxTriggerMap* ftm=0;
-   ftm = new FauxTriggerMap();
+   auto ftm = std::make_unique<FauxTriggerMap>();
    // Add some paths
    ftm->addPath(TrigPath(event%3, 2,event%6)); // repeats with period 3
    ftm->addPath(TrigPath(event%16,2,event%11+(event+1)%2)); // repeats with period 16
    if (event==3) {
-     delete ftm ; ftm = new FauxTriggerMap();
+     ftm = std::make_unique<FauxTriggerMap>();
      ftm->addPath(TrigPath(8,2,1)); // non normal trigger
    }
   
    // Extra map for testing exclude list 
-   FauxTriggerMap* ftm2 = new FauxTriggerMap();
+   auto ftm2 = std::make_unique<FauxTriggerMap>();
    // Add some paths
    ftm2->addPath(TrigPath(event%4, 2,event%6)); // repeats with period 3
    
    // Set up the writing
-   if (ftm!=0) {
+   if (ftm) {
      SG::WriteHandle<FauxTriggerMap> wftm(m_wftm);
-     ATH_CHECK( wftm.record (std::make_unique<FauxTriggerMap>(*ftm)) );
+     ATH_CHECK( wftm.record (std::move (ftm)) );
    }
    // Now add a copy for exclude list test
-   if (ftm2!=0) {
+   if (ftm2) {
      SG::WriteHandle<FauxTriggerMap> wftm2(m_wftm2);
-     ATH_CHECK( wftm2.record (std::make_unique<FauxTriggerMap>(*ftm2)) );
+     ATH_CHECK( wftm2.record (std::move (ftm2)) );
    }
 
    ATH_MSG_INFO( "registered all data"  );

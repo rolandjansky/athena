@@ -22,7 +22,7 @@
 
 CaloTowerAlgorithm::CaloTowerAlgorithm(const std::string& name, 
 				       ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name,pSvcLocator)
+  : AthReentrantAlgorithm(name,pSvcLocator)
   , m_nEtaTowers(50)
   , m_nPhiTowers(64)
   , m_minEta(-2.5)
@@ -94,11 +94,6 @@ StatusCode CaloTowerAlgorithm::initialize()
     ATH_MSG_INFO(std::setw(2) << toolCtr << ".) " << (*firstITool)->type()
         << "::name() = \042" << (*firstITool)->name() << "\042");
 
-    // reset statistics
-    m_toolInvoke[(*firstITool)->name()] = 0;
-    m_toolReject[(*firstITool)->name()] = 0;
-    m_toolAccept[(*firstITool)->name()] = 0;
-
     ATH_MSG_INFO("------------------------------------");
     ATH_MSG_INFO(" ");
 
@@ -119,7 +114,7 @@ StatusCode CaloTowerAlgorithm::initialize()
 // Execute //
 /////////////
 
-StatusCode CaloTowerAlgorithm::execute()
+StatusCode CaloTowerAlgorithm::execute_r (const EventContext& ctx) const
 {
 
   //////////////////////////
@@ -135,12 +130,12 @@ StatusCode CaloTowerAlgorithm::execute()
 
   CaloTowerSeg theTowerSeg(m_nEtaTowers,m_nPhiTowers,m_minEta,m_maxEta);
 
-  SG::WriteHandle<CaloTowerContainer> theTowers(m_towerContainerKey);
+  SG::WriteHandle<CaloTowerContainer> theTowers(m_towerContainerKey, ctx);
   ATH_CHECK( theTowers.record(std::make_unique<CaloTowerContainer>(theTowerSeg)) );
   
 
-  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator firstITool  = m_ptools.begin();
-  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator lastITool   = m_ptools.end();
+  ToolHandleArray<ICaloTowerBuilderToolBase>::const_iterator firstITool  = m_ptools.begin();
+  ToolHandleArray<ICaloTowerBuilderToolBase>::const_iterator lastITool   = m_ptools.end();
   StatusCode processStatus = StatusCode::SUCCESS;
   //
   // loop stops only when Failure indicated by one of the tools
@@ -150,7 +145,6 @@ StatusCode CaloTowerAlgorithm::execute()
   
   while (!processStatus.isFailure() && firstITool != lastITool) {
 
-    m_toolInvoke[(*firstITool)->name()]++;
     if (theTicker != 0) {
       theTicker->chronoStart((*firstITool)->name());
     }
@@ -164,7 +158,6 @@ StatusCode CaloTowerAlgorithm::execute()
       ATH_MSG_DEBUG((*firstITool)->name()
           << ": CaloTowerContainer::size() = " << theTowers->size());
 
-      m_toolAccept[(*firstITool)->name()]++;
       firstITool++;
     } else {
       // some problem - but do not skip event loop!
@@ -173,7 +166,6 @@ StatusCode CaloTowerAlgorithm::execute()
           << "\042 - cross-check CaloTowerContainer::size() = "
           << theTowers->size());
 
-      m_toolReject[(*firstITool)->name()]++;
       firstITool++;
     }
   }
@@ -187,28 +179,5 @@ StatusCode CaloTowerAlgorithm::execute()
 
 StatusCode CaloTowerAlgorithm::finalize()
 {
-
-  ////////////////
-  // Tool Stats //
-  ////////////////
-  
-  ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("Summary of Tool invocation: (invoked/success/failure)");
-  ATH_MSG_INFO("---------------------------");
-
-  tool_stats_iterator firstName = m_toolInvoke.begin();
-  tool_stats_iterator lastName  = m_toolInvoke.end();
-  unsigned int toolCtr = 0;
-  for (; firstName != lastName; firstName++) {
-      toolCtr++;
-    ATH_MSG_INFO(std::setw(2) << toolCtr << ".) "
-        << std::setw(36) //<< std::setfill(".")
-        << (*firstName).first << " (" << (*firstName).second << "/"
-        << m_toolAccept[(*firstName).first] << "/"
-        << m_toolReject[(*firstName).first] << ")");
-  }
-  ATH_MSG_INFO("---------------------------");
-  ATH_MSG_INFO(" ");
- 
   return StatusCode::SUCCESS;
 }

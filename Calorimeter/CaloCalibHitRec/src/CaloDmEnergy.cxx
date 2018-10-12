@@ -195,7 +195,7 @@ int CaloDmEnergy::assign2clusters(const std::string &clusterContainerName)
   // retreiving DM containers
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
   for (std::vector<std::string>::iterator iter=m_CalibrationContainerNamesDM.begin();iter!=m_CalibrationContainerNamesDM.end();iter++) {
-    const DataHandle<CaloCalibrationHitContainer> dmcchc;
+    const CaloCalibrationHitContainer* dmcchc = nullptr;
     sc = m_storeGate->retrieve(dmcchc,*iter);
     if (sc.isFailure() ) {
       log << MSG::WARNING << "Cannot retrieve DM calibration hit container " << *iter << endmsg;
@@ -206,7 +206,7 @@ int CaloDmEnergy::assign2clusters(const std::string &clusterContainerName)
   }
 
   // retreiving cluster container
-  const DataHandle<xAOD::CaloClusterContainer > theClusters;
+  const xAOD::CaloClusterContainer* theClusters = nullptr;
   sc = m_storeGate->retrieve(theClusters, clusterContainerName);
   if (sc.isFailure()) {
     log << MSG::WARNING << " Couldn't get cluster container '" << clusterContainerName << "'" << endmsg;

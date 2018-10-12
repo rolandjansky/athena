@@ -6,7 +6,7 @@
 #define MUONRDO_STGC_RawDataCOLLECTION_H
 
 #include "MuonRDO/STGC_RawData.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "Identifier/IdentifierHash.h"
 
 namespace Muon {

@@ -10,10 +10,17 @@
     <field name="m_evtStore" transient="true" />
   </class>
   <class name="xAOD::EventAuxInfo_v1"
-         id="2CFD72A2-D3AA-4C18-9B40-E5ACBA20D785" />
-
+         id="2CFD72A2-D3AA-4C18-9B40-E5ACBA20D785">
+    <field name="m_decorFlags" transient="true" />
+  </class>
   <read sourceClass="xAOD::EventInfo_v1" version="[1-]"
         targetClass="xAOD::EventInfo_v1" source="" target="" >
+    <![CDATA[
+       newObj->toTransient();
+     ]]>
+  </read>
+  <read sourceClass="xAOD::EventAuxInfo_v1" version="[1-]"
+        targetClass="xAOD::EventAuxInfo_v1" source="" target="" >
     <![CDATA[
        newObj->toTransient();
      ]]>
@@ -21,8 +28,17 @@
 
   <class name="xAOD::EventInfoContainer_v1"
          id="8F061263-D744-4D72-9377-1573FE21CDCE" />
+
   <class name="xAOD::EventInfoAuxContainer_v1"
-         id="742479C0-2699-4949-A9D0-01DBC421BE5B" />
+         id="742479C0-2699-4949-A9D0-01DBC421BE5B">
+    <field name="m_decorFlags" transient="true" />
+  </class>
+  <read sourceClass="xAOD::EventInfoAuxContainer_v1" version="[1-]"
+        targetClass="xAOD::EventInfoAuxContainer_v1" source="" target="" >
+    <![CDATA[
+       newObj->toTransient();
+     ]]>
+  </read>
 
   <!-- Smart pointer dictionaries: -->
   <class name="DataLink<xAOD::EventInfo_v1>" />

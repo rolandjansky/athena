@@ -220,7 +220,7 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
 
         int det      = m_TRTHelper->barrel_ec(rdo_id)     ;
 
-        unsigned int m_word = (*r)->getWord();
+        unsigned int word = (*r)->getWord();
 
         double t0 = 0.;
         if (m_T0Shift) {
@@ -229,8 +229,8 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
           int tdcvalue; 
           for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
           { 
-            if      (  (m_word & mask) && SawZero) break; 
-            else if ( !(m_word & mask) ) SawZero = true; 
+            if      (  (word & mask) && SawZero) break; 
+            else if ( !(word & mask) ) SawZero = true; 
             mask>>=1; 
             if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
           } 
@@ -240,7 +240,7 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
           }
         }
 
-        if (!passValidityGate(m_word, t0)) continue;
+        if (!passValidityGate(word, t0)) continue;
 
         hitCounter[det] +=1;
       }

@@ -17,6 +17,9 @@
 #include "hltinterface/HLTInterface.h"
 #include "hltinterface/EventId.h"
 
+// to be removed together with the Psc::process method
+#include "hltinterface/HLTResult.h"
+
 // Gaudi Includes
 #include "GaudiKernel/StatusCode.h"
 
@@ -36,13 +39,13 @@ namespace psc {
 
   // Fwd decl
   class Config;
-  
+
   /**
    * Common base class for HLT Pesa Steering Controller.
    */
   class Psc: public hltinterface::HLTInterface
   {
-  public:    
+  public:
     /**
      * C'tor. (Nothing happens here...)
      */
@@ -90,28 +93,14 @@ namespace psc {
     virtual bool publishStatistics (const boost::property_tree::ptree& args);
 
     /**
-     * Calls the HLT framework to notify it that a time out is imminent
-     */
-    virtual void timeOutReached (const boost::property_tree::ptree& args);
-
-    /**
      * Calls the HLT framework to notify it that a user command has arrived
      */
     virtual bool hltUserCommand (const boost::property_tree::ptree& args);
 
     /**
-     * Process one event, taking as input, the LVL1 Result and producing as
-     * output, the HLT Result.
-     *
-     * @param l1r.  LVL1 result ROBs (input)
-     * @param hltr. HLT result (output)
-     * @param evId. EventId structure containing global event number l1id and lb
-     *  number (input)
+     * Starts the HLT event loop. The HLT framework will start requesting and processing events.
      */
-    virtual bool
-    process(const std::vector<eformat::ROBFragment<const uint32_t*>>& l1r,
-            hltinterface::HLTResult& hltr,
-            const hltinterface::EventId& evId);
+    virtual void doEventLoop ();
 
     /**
      * Method which can be called for a worker to perform the necessary steps to set
@@ -125,9 +114,9 @@ namespace psc {
      */
     virtual bool finalizeWorker (const boost::property_tree::ptree& args);
 
-
   private:
     bool setDFProperties(std::map<std::string, std::string> name_tr_table);
+    bool setAthenaProperties();
 
     /**
      * Initialize the application manager
@@ -149,12 +138,12 @@ namespace psc {
     IAppMgrUI*          m_pesaAppMgr;         ///< Application Manager
     std::string         m_nameEventLoopMgr;   ///< name of the event loop manager
     bool                m_interactive;        ///< Running in interactive mode (athenaMT/PT)
-    
+
     // User command handling
     bool           m_failNextUsrCmd;
     unsigned int   m_sleepNextUsrCmd;
     psc::Config * m_config;
   };
 }
-  
+
 #endif /* TRIGPSC_PSC_H */

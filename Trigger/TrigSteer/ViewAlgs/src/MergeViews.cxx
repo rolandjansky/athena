@@ -13,7 +13,7 @@ StatusCode MergeViews::initialize() {
 
 StatusCode MergeViews::execute_r( const EventContext& context ) const {
   auto viewsHandle = SG::makeHandle( m_viewsKey, context );
-  const std::vector<SG::View*>& viewsRef = *viewsHandle;
+  const ViewContainer& viewsRef = *viewsHandle;
 
   for ( auto & tool : m_mergingTools ) {
     CHECK( tool->merge( context, viewsRef ) );

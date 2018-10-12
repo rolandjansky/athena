@@ -108,9 +108,6 @@ int main(int argc, char* argv[]) {
   TrigCostData EFData;
   TrigCostData HLTData; 
   
-  if ( config.getInt(kDoL2) == kTRUE ) L2Data.setup( event, config.getStr(kL2Prefix).c_str(), &chain );
-  if ( config.getInt(kDoEF) == kTRUE ) EFData.setup( event, config.getStr(kEFPrefix).c_str(), &chain );
-  if ( config.getInt(kDoHLT) == kTRUE ) HLTData.setup( event, config.getStr(kHLTPrefix).c_str(), &chain );
 
   // Need to be explicit here else coverity pipes up
   const Bool_t doL2 = config.getInt(kDoL2);

@@ -20,6 +20,9 @@ namespace fastjet {
   class ClusterSequence;
 }
 
+class PseudoJetContainer;
+
+
 /// Tool to find jets by vertex.
 /// A JetFinder is called separately with the input pseudojets
 /// associated with each vertex.
@@ -44,21 +47,34 @@ public:
   JetByVertexFinder(std::string name);
 
   // Initialization.
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Find jets and put them in a container.
-  int find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-           xAOD::JetInput::Type contype,
-           const NameList& ghostlabs) const;
-
+  // For JetByVertexFinder, find and findNoSave are the same.
+  // This is not the case for all IJetFinder implementations
+  virtual int find(const PseudoJetContainer& cont, 
+                   xAOD::JetContainer & finalJets,
+                   xAOD::JetInput::Type contype) const override;
+  
+  virtual int findNoSave(const PseudoJetContainer& cont, 
+                         xAOD::JetContainer & finalJets,
+                         xAOD::JetInput::Type contype,
+                         fastjet::ClusterSequence*&) const override;
+  
   // Dump to log.
-  void print() const;
+  virtual void print() const override;
 
 private:  //data
 
   // Job options.
   ToolHandle<IJetFinder> m_finder;  // Tool to find jets.
   int m_ivtx;                       // Vertex index or <0 for all
+
+  int find_(const PseudoJetContainer& cont,
+            xAOD::JetContainer & finalJets,
+            xAOD::JetInput::Type contype,
+            fastjet::ClusterSequence*&) const;
+  
 
 };
 

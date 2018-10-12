@@ -28,7 +28,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 // Calo helpers
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
+#include "xAODCaloEvent/CaloVertexedClusterBase.h"
+
 
 // PFlow EDM and helpers
 #include "xAODPFlow/PFOContainer.h"
@@ -64,10 +65,13 @@ namespace met {
   METSoftTermsTool::METSoftTermsTool(const std::string& name) : 
     AsgTool(name),
     METBuilderTool(name),
-    m_st_objtype(0)
+    m_st_objtype(0),
+    m_pv_inputkey("PrimaryVertices"),
+    m_caloClusterKey(""),
+    m_trackParticleKey("")
   {
     declareProperty( "InputComposition", m_inputType = "Clusters" ); // Options : Clusters (default) OR Tracks OR PFOs
-    declareProperty( "InputPVKey",      m_pv_inputkey = "PrimaryVertices"    );
+    //declareProperty( "InputPVKey",      m_pv_inputkey = "PrimaryVertices"    );
     declareProperty( "VetoNegEClus",     m_cl_vetoNegE = true     );
     declareProperty( "OnlyNegEClus",     m_cl_onlyNegE = false    );
     declareProperty( "PFOTool",          m_pfotool                );
@@ -98,7 +102,18 @@ namespace met {
     else {
       ATH_MSG_FATAL("Invalid input collection type " << m_inputType << " supplied!");
     }
+    // ReadHandleKey(s)
 
+    ATH_CHECK( m_pv_inputkey.initialize() );
+    if(m_st_objtype==0){
+      ATH_CHECK( m_caloClusterKey.assign(m_input_data_key));
+      ATH_CHECK( m_caloClusterKey.initialize());
+    }
+    else if(m_st_objtype==1){
+      ATH_CHECK( m_trackParticleKey.assign(m_input_data_key));
+      ATH_CHECK( m_trackParticleKey.initialize());
+
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -238,19 +253,15 @@ namespace met {
 
     // First retrieve the necessary container
     // Currently rely on only one: either CaloClusterContainer or TrackParticleContainer
-    const CaloClusterContainer*   caloClusCont = 0;
-    const TrackParticleContainer* trackParCont = 0;
     const PFOContainer* pfoCont = 0;
-    vector<const IParticle*> signalList;
-    CaloClusterChangeSignalStateList stateHelperList;
-
+     vector<const IParticle*> signalList;
     if( m_st_objtype == 0 ) {
-
       // Retrieve the calo container
-      if( evtStore()->retrieve(caloClusCont, m_input_data_key).isFailure() ) {
+      SG::ReadHandle<xAOD::CaloClusterContainer> caloClusCont(m_caloClusterKey);
+      if (!caloClusCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
-        return StatusCode::SUCCESS;
       }
+
       signalList.reserve(caloClusCont->size());
       //stateHelperList.reserve(caloClusCont->size());
 
@@ -259,24 +270,19 @@ namespace met {
 
       MissingETComponentMap::iterator iter = MissingETComposition::find(metMap,metTerm);
       if(iter==metMap->end()) {
-	ATH_MSG_WARNING("Could not find current METComponent in MET Map!");
-	return StatusCode::SUCCESS;
+        ATH_MSG_WARNING("Could not find current METComponent in MET Map!");
+        return StatusCode::SUCCESS;
       }
       MissingETComponent* newComp = *iter;
       newComp->setStatusWord(MissingETBase::Status::contributedSoftTerm());
 
       // Loop over all clusters
       for( CaloClusterContainer::const_iterator iClus=caloClusCont->begin(); iClus!=caloClusCont->end(); ++iClus ) {
-	// create a helper to change the signal state and retain it until the end of the execute
-	// signal state will be reset when it goes out of scope
-	//CaloClusterChangeSignalState stateHelper(*iClus, CaloCluster::State(m_signalstate));
-	stateHelperList.add(*iClus, CaloCluster::State(m_signalstate));
-	
         // Check if cluster satisfies the requirements
-        if( this->accept(*iClus) ) {
-	  // Add the selected clusters to the list
-	  signalList.push_back(*iClus);
-	}
+        if( this->accept(*iClus)) {
+          // Add the selected clusters to the list
+          signalList.push_back(*iClus);
+        }
       } // end loop over clusters
 
       ATH_MSG_DEBUG("Selected " << signalList.size() << " topoclusters for soft MET");
@@ -285,9 +291,9 @@ namespace met {
     else if( m_st_objtype == 1 ) {
 
       // Retrieve the track container
-      if ( evtStore()->retrieve(trackParCont, m_input_data_key).isFailure() ) {
+      SG::ReadHandle<xAOD::TrackParticleContainer> trackParCont(m_trackParticleKey);
+      if (!trackParCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input track particle container");
-        return StatusCode::SUCCESS;
       }
       signalList.reserve(trackParCont->size());
 
@@ -321,9 +327,8 @@ namespace met {
         ATH_MSG_WARNING("Unable to retrieve input pfo container");
         return StatusCode::SUCCESS;
       }
-
-      const xAOD::VertexContainer* pv_cont(0);
-      if( evtStore()->retrieve( pv_cont, m_pv_inputkey).isFailure() ) {
+      SG::ReadHandle<xAOD::VertexContainer> pv_cont(m_pv_inputkey);
+      if (!pv_cont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input primary vertex container");
         return StatusCode::SUCCESS;
       }
@@ -394,8 +399,8 @@ namespace met {
       }
     } else {
       for( vector<const IParticle*>::const_iterator iPart=signalList.begin();
-	   iPart!=signalList.end(); ++iPart) {
-	this->addToMET(*iPart,dummyList,metTerm,metMap,unitWeight);
+           iPart!=signalList.end(); ++iPart) {
+        this->addToMET(*iPart,dummyList,metTerm,metMap,unitWeight);
       }
     }
 

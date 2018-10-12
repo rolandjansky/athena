@@ -64,7 +64,9 @@ StatusCode JetSplitter::initialize() {
 
 //**********************************************************************
 
-int JetSplitter::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
+int JetSplitter::groom(const xAOD::Jet& jin,
+                       const PseudoJetContainer& pjContainer,
+                       xAOD::JetContainer& jets) const {
   MassDropTagger mdtagger(m_mumax, m_ymin);
   if ( pseudojetRetriever() == nullptr ) {
     ATH_MSG_WARNING("Pseudojet retriever is null.");
@@ -136,7 +138,7 @@ int JetSplitter::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   ATH_MSG_DEBUG("      y: " << yclus);
 
   // Add jet to collection.
-  xAOD::Jet* pjet = m_bld->add(pjclus, jets, &jin);
+  xAOD::Jet* pjet = m_bld->add(pjclus, pjContainer, jets, &jin);
   if ( pjet == 0 ) {
     ATH_MSG_ERROR("Unable to add jet to container");
   } else {

@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           PRIVATE
                           Control/SGTools
+                          Control/RootUtils
                           Database/APR/RootCollection
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/PersistentDataModel

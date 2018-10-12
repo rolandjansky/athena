@@ -34,8 +34,6 @@ public:
 
 protected:
   
-  ~CPMTowerCollectionCnv() {}
-  
   virtual CPMTowerCollection_PERS*   createPersistent (CPMTowerCollection* transCont);
   virtual CPMTowerCollection*        createTransient ();
 

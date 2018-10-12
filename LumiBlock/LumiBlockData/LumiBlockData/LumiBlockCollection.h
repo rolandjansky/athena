@@ -12,11 +12,8 @@
 // STL includes
 #include <iostream>
 
-// DataModel includes
-#include "DataModel/DataVector.h"
-
-// CLIDSvc includes (for persistency)
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "LumiBlockData/LB_IOVRange.h"
 

@@ -136,18 +136,20 @@ namespace met {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
     // First retrieve the BaseMET
-    const MissingETContainer* base_met_container = 0;
-    if( evtStore()->retrieve( base_met_container, m_base_met_containerKey ).isFailure() ) {
+    SG::ReadHandle<xAOD::MissingETContainer> base_met_container(m_base_met_containerKey);
+    if (!base_met_container.isValid()) {
       ATH_MSG_WARNING("Could not retrieve base MET container!");
       return StatusCode::SUCCESS;
     }
 
+
     // First retrieve the BaseMET
-    const MissingETComponentMap* base_met_map = 0;
-    if( evtStore()->retrieve( base_met_map, m_base_met_mapKey ).isFailure() ) {
+    SG::ReadHandle<xAOD::MissingETComponentMap> base_met_map(m_base_met_mapKey);
+    if (!base_met_map.isValid()) {
       ATH_MSG_WARNING("Could not retrieve base MET map!");
       return StatusCode::SUCCESS;
     }
+
 
     // Add to the Container 
     MissingETContainer* metCont = static_cast<MissingETContainer*>( metTerm_central->container() );
@@ -158,7 +160,7 @@ namespace met {
 
     // Get the components of the base MET
     MissingETContainer::const_iterator iterBaseCont = base_met_container->find( m_base_met_inputKey );
-    MissingETComponentMap::const_iterator iterBaseConstit = MissingETComposition::find( base_met_map, (*iterBaseCont) );
+    MissingETComponentMap::const_iterator iterBaseConstit = MissingETComposition::find( base_met_map.cptr(), (*iterBaseCont) );
 
     if( iterBaseCont == base_met_container->end() ) {
       ATH_MSG_WARNING("Could not find base MET object " << m_base_met_inputKey << " in MET container!");

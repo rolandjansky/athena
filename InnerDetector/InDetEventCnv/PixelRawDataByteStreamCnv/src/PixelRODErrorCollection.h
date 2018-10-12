@@ -11,8 +11,7 @@ This class is implemented to store the error flag information decoded from the b
 
 
 
-//#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 class PixelRODErrorCollection {

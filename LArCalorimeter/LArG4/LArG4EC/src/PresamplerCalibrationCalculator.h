@@ -33,10 +33,10 @@ class G4Step;
 
 namespace LArG4 {
 
-  namespace EC {
+  // Forward declaration
+  class IECPresamplerGeometry;
 
-    // Forward declaration
-    class PresamplerGeometry;
+  namespace EC {
 
     class PresamplerCalibrationCalculator : public LArCalibCalculatorSvcImp {
     public:
@@ -57,14 +57,14 @@ namespace LArG4 {
       // VCalibrationCalculator.h) to control any special processing.
 
 
-      virtual G4bool Process (const G4Step* step, LArG4Identifier & _identifier,
-                  std::vector<G4double> & _energies,
+      virtual G4bool Process (const G4Step* step, LArG4Identifier & identifier,
+                  std::vector<G4double> & energies,
                   const eCalculatorProcessing p = kEnergyAndID) const override final;
 
     private:
 
       // Geometry calculator
-      const PresamplerGeometry* m_geometryCalculator;
+      ServiceHandle<IECPresamplerGeometry> m_geometryCalculator;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;

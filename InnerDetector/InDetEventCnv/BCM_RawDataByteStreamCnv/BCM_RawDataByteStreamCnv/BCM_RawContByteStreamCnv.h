@@ -34,9 +34,9 @@ extern long ByteStream_StorageType;
 
 class BCM_RawContByteStreamCnv: public Converter {
 
-  ~BCM_RawContByteStreamCnv();
-
  public:
+
+  // ~BCM_RawContByteStreamCnv();
 
   BCM_RawContByteStreamCnv(ISvcLocator* svcloc);
 

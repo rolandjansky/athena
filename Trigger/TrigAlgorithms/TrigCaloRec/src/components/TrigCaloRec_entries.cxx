@@ -15,11 +15,18 @@
 #include "TrigCaloRec/TrigL1BSTowerMaker.h"
 #include "TrigCaloRec/TrigL1BSTowerHypo.h"
 
+#include "../TrigCaloClusterMakerMT.h"
+#include "../TrigCaloCellMakerMT.h"
+#include "../TrigCaloTowerMakerMT.h"
+
 #include "TrigCaloRec/TrigCaloTopoTowerAlgorithm.h"
 #include "TrigCaloRec/TrigCaloCell2ClusterMapper.h"
 #include "../HLTCaloCellMaker.h"
 #include "../HLTCaloCellSumMaker.h"
 
+DECLARE_COMPONENT( TrigCaloCellMakerMT )
+DECLARE_COMPONENT( TrigCaloTowerMakerMT )
+DECLARE_COMPONENT( TrigCaloClusterMakerMT )
 DECLARE_COMPONENT( TrigCaloCellMaker )
 DECLARE_COMPONENT( TrigFullCaloCellMaker )
 DECLARE_COMPONENT( TrigCaloTowerMaker )

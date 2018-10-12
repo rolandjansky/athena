@@ -3,7 +3,7 @@
 */
 
 //****************************************************************************
-/// Filename : TileTBAANtuple.h
+/// Filenajme : TileTBAANtuple.h
 /// Author   : Luca Fiorini (based on TileTBNtuple)
 /// Created  : Mar, 2007
 ///
@@ -308,7 +308,10 @@ class TileTBAANtuple: public AthAlgorithm {
     int* m_tof;
     int* m_btdc1;
     int* m_btdc2;
+    std::vector<std::vector<int> > *m_btdc;
     int m_tjitter;
+    int m_btdcNhit[16];
+    int m_btdcNchMultiHit[2];
 
     float m_xChN2;
     float m_yChN2;
@@ -321,9 +324,19 @@ class TileTBAANtuple: public AthAlgorithm {
     float m_yCha1;
     float m_xCha2;
     float m_yCha2;
+    float m_xCha1_0;
+    float m_yCha1_0;
+    float m_xCha2_0;
+    float m_yCha2_0;
     float m_xImp;
     float m_yImp;
 
+    float m_xImp_0;
+    float m_yImp_0;
+    float m_xImp_90;
+    float m_yImp_90;
+    float m_xImp_min90;
+    float m_yImp_min90;
     // Digi/Energy items
     std::vector<int*> m_evtVec;
     std::vector<short*> m_rodBCIDVec;
@@ -374,6 +387,15 @@ class TileTBAANtuple: public AthAlgorithm {
     std::vector<short*> m_ROD_DMUDataformatErrVec;
     std::vector<short*> m_ROD_DMUDataparityErrVec;
     std::vector<short*> m_ROD_DMUMaskVec;
+
+    std::vector<int*> m_mdL1idVec;
+    std::vector<int*> m_mdBcidVec;
+    std::vector<int*> m_mdModuleVec;
+    std::vector<int*> m_mdRunTypeVec;
+    std::vector<int*> m_mdRunVec;
+    std::vector<int*> m_mdChargeVec;
+    std::vector<int*> m_mdChargeTimeVec;
+    std::vector<int*> m_mdCapacitorVec;
 
     float* m_LarEne;
     float* m_BarEne;
@@ -443,6 +465,12 @@ class TileTBAANtuple: public AthAlgorithm {
     float m_beamBC2Zperiod1;
     float m_beamBC2Zperiod2;
 
+    float m_beamBC1Z_0;
+    float m_beamBC1Z_90;
+    float m_beamBC1Z_min90;
+    float m_beamBC2Z_0;
+    float m_beamBC2Z_90;
+    float m_beamBC2Z_min90;
     //run number
     int m_runNumber;
     float m_eta;
@@ -500,6 +528,10 @@ class TileTBAANtuple: public AthAlgorithm {
     int m_eventsPerFile;
 
     std::string m_streamName;
+
+    std::map<int, int> m_nSamplesInDrawerMap;
+
+    static const int MAX_MINIDRAWERS = 4;
 };
 
 #endif

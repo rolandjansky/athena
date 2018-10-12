@@ -16,6 +16,7 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
+#include "CaloEvent/CaloTester.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -127,61 +128,23 @@ MyDetDescriptor::MyDetDescriptor (const Identifier& id,
 }
 
 
-CaloDetDescriptor* make_dd ()
+const CaloDetDescriptor* make_dd (CaloTester& tester)
 {
-  LArEM_ID*   em_id   = new LArEM_ID;
-  LArHEC_ID*  hec_id  = new LArHEC_ID;
-  LArFCAL_ID* fcal_id = new LArFCAL_ID;
-  LArMiniFCAL_ID* minifcal_id = new LArMiniFCAL_ID;
-  TileID*     tile_id = new TileID;
+  Identifier reg_id = tester.caloID().region_id (CaloCell_ID::LAREM,
+                                                 1, // + barrel
+                                                 2, // sampling 2
+                                                 0); // sampling 2
+  auto ddp = std::make_unique<MyDetDescriptor> (reg_id,
+                                                nullptr,
+                                                &tester.caloID());
+  CaloDetDescriptor* descr = ddp.get();
 
-  IdDictParser parser;
-  parser.register_external_entity ("LArCalorimeter",
-                                   "IdDictLArCalorimeter.xml");
-  IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
-  em_id->set_do_neighbours (false);
-  em_id->initialize_from_dictionary (idd);
-  hec_id->initialize_from_dictionary (idd);
-  fcal_id->set_do_neighbours (false);
-  fcal_id->initialize_from_dictionary (idd);
-  minifcal_id->set_do_neighbours (false);
-  minifcal_id->initialize_from_dictionary (idd);
-  tile_id->set_do_neighbours (false);
-  tile_id->initialize_from_dictionary (idd);
-
-  CaloCell_ID* calo_helper = new CaloCell_ID (em_id,
-                                              hec_id,
-                                              fcal_id,
-                                              minifcal_id,
-                                              tile_id);
-  calo_helper->initialize_from_dictionary (idd);
-  Identifier reg_id = calo_helper->region_id (CaloCell_ID::LAREM,
-                                              1, // + barrel
-                                              2, // sampling 2
-                                              0); // sampling 2
-  CaloDetDescriptor* descr = new MyDetDescriptor (reg_id,
-                                                  0,
-                                                  calo_helper);
-
-  CaloDetDescrManager* ddman =
-    const_cast<CaloDetDescrManager*> (CaloDetDescrManager::instance());
-  if (!ddman) {
-    ddman = new CaloDetDescrManager;
-    ISvcLocator* svcLoc = Gaudi::svcLocator();
-    StoreGateSvc* detStore = 0;
-    StatusCode status = svcLoc->service("DetectorStore",detStore);
-    if (!status.isSuccess()) abort();
-    status = detStore->record (ddman, "CaloMgr");
-    if (!status.isSuccess()) abort();
-  }
-  ddman->set_helper (calo_helper);
-  ddman->initialize();
-  ddman->add (descr);
+  tester.mgr().add (std::move (ddp));
   return descr;
 }
 
 
-CaloCell* make_cell (CaloDetDescriptor* descr,
+CaloCell* make_cell (const CaloDetDescriptor* descr,
                      float energy, float eta, float phi)
 {
   int ieta = static_cast<int> (eta * (1./deta));
@@ -202,8 +165,8 @@ CaloCell* make_cell (CaloDetDescriptor* descr,
 
 
 void make_cells (CaloCellContainer* cont,
-                 CaloDetDescriptor* descr,
-                 Testcell* cells,
+                 const CaloDetDescriptor* descr,
+                 const Testcell* cells,
                  double eta0,
                  double phi0)
 {
@@ -218,9 +181,9 @@ void make_cells (CaloCellContainer* cont,
 }
 
 
-const CaloCellContainer* fill_cells()
+const CaloCellContainer* fill_cells (CaloTester& tester)
 {
-  CaloDetDescriptor* descr = make_dd();
+  const CaloDetDescriptor* descr = make_dd (tester);
   CaloCellContainer* cells = new CaloCellContainer;
   make_cells (cells,
               descr,
@@ -278,7 +241,9 @@ int main()
   StoreGateSvc* sg = 0;
   assert ( svcLoc->service("StoreGateSvc", sg).isSuccess() );
 
-  const CaloCellContainer* cells = fill_cells();
+  CaloTester tester;
+  tester.record_mgr();
+  const CaloCellContainer* cells = fill_cells (tester);
   assert (sg->record (cells, "cells").isSuccess());
 
   test1(cells);

@@ -9,7 +9,7 @@
 #ifndef TBDetDescrManager_H
 #define TBDetDescrManager_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TBDetDescr/TBElement.h"
 class TBElementContainer;

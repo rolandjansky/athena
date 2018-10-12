@@ -70,7 +70,6 @@ class FolderInfo {
   int m_size;
   int m_period;
   std::vector<int> m_noisychan;
-  float m_noisyperiod;
   std::string m_tag;
   bool m_paytable;
 

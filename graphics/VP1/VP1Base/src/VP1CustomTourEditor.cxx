@@ -31,6 +31,7 @@
 #include <QShortcut>
 #include <QCloseEvent>
 #include <QScrollBar>
+#include <QAction>
 
 #include <iostream>
 

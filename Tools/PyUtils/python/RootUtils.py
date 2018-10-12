@@ -21,10 +21,18 @@ import os
 import sys
 import re
 from pprint import pprint
+from array import array
 
 from .Decorators import memoize
 
 ### functions -----------------------------------------------------------------
+# Set buffer size, in bytes.
+# The argument to SetSize is in elements, not bytes.
+def _set_byte_size (buf, sz):
+    eltsz = array(buf.typecode).itemsize
+    buf.SetSize (sz / eltsz)
+    return
+
 def import_root(batch=True):
     """a helper method to wrap the 'import ROOT' statement to prevent ROOT
     from screwing up the display or loading graphics libraries when in batch
@@ -148,7 +156,7 @@ def _pythonize_tfile():
                 #self.seek(c_buf.sz+self.tell())
                 #print "-->2",self.tell()
                 buf = c_buf.buffer()
-                buf.SetSize(c_buf.sz)
+                _set_byte_size (buf, c_buf.sz)
                 return str(buf[:])
             return ''
         else:
@@ -159,7 +167,7 @@ def _pythonize_tfile():
                 c_buf = read_root_file(self, size)
                 if c_buf and c_buf.sz:
                     buf = c_buf.buffer()
-                    buf.SetSize(c_buf.sz)
+                    _set_byte_size (buf, c_buf.sz)
                     out.append(str(buf[:]))
                 else:
                     break

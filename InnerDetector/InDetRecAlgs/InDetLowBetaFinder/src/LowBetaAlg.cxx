@@ -47,7 +47,8 @@ namespace InDet
     m_fieldServiceHandle("AtlasFieldSvc",name),
     m_TrtTool(0),
     m_TRTdEdxTool("TRT_ToT_dEdx"),
-    m_TrtToolInitSuccess(0)
+    m_TrtToolsSuccess{},
+    m_TrtToolInitSuccess{}
   {
     declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
     declareProperty("TracksName",             m_trackParticleCollection);
@@ -123,7 +124,7 @@ namespace InDet
                       float TRTLikelihoodError   = CSMP_indicators[8];
                       float TRTHighTbits         = CSMP_indicators[9];
 
-                      CSMP_Candidate = std::move (
+                      CSMP_Candidate = 
                           std::make_unique<InDet::InDetLowBetaCandidate>(TRTToTdEdx,
                                                                          TRTTrailingEdge,
                                                                          TRTTGapdEdx,
@@ -131,7 +132,7 @@ namespace InDet
                                                                          TRTToolsdEdx,
                                                                          TRTLikelihoodBeta,
                                                                          TRTLikelihoodError,
-                                                                         TRTHighTbits) );
+                                                                         TRTHighTbits);
 		    }
 	          }//check for valid CSMP
                 }

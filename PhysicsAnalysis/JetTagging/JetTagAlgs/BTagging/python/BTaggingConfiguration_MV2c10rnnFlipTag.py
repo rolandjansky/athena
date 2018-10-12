@@ -10,7 +10,7 @@ metaMV2c10rnnFlipTag = { 'IsATagger'          : False,#True,
                                           'BTagCalibrationBrokerTool',
                                           'SoftMuonTag',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c10rnn',],
+                  'CalibrationTaggers' : ['MV2c10rnn',],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : 'MV2c10rnnFlipTag'}
 

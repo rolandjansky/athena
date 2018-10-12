@@ -9,7 +9,8 @@
 #include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/MsgStream.h"
 #include "InDetCompetingRIOsOnTrack/CompetingPixelClustersOnTrack.h"
-#include <math.h>
+#include <ostream>
+#include <cmath>
 
 // default constructor
 InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack():
@@ -34,14 +35,9 @@ InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack(const InDet:
 InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack(
     std::vector<const InDet::PixelClusterOnTrack*>* childrots,
     std::vector<AssignmentProb>* assgnProb
-    //const Trk::LocalParameters* effecLocalPars,
-    //const Trk::ErrorMatrix* effecLocalErrMat
-    //int ROTsHaveComSrfc // meaning of the values are described in the definition of ROTsHaveCommonSurface()
     )
     :
     Trk::CompetingRIOsOnTrack( assgnProb),
-    //m_localParameters(effecLocalPars);
-    //m_localErrorMatrix(effecLocalErrMat);
     m_globalPosition(0),
     m_containedChildRots(childrots)
 {
@@ -59,7 +55,6 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
         delete m_globalPosition;
         m_containedChildRots = new std::vector<const InDet::PixelClusterOnTrack*>;
         m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
-        //m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface;
         std::vector<const InDet::PixelClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
         for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
             m_containedChildRots->push_back((*rotIter)->clone());

@@ -13,6 +13,7 @@ TrigHLTJetRecFromTriggerTower::TrigHLTJetRecFromTriggerTower(const std::string& 
 
 TrigHLTJetRecFromTriggerTower::~TrigHLTJetRecFromTriggerTower(){}
 
-const xAOD::JetContainer* TrigHLTJetRecFromTriggerTower::build() const{
-  return TrigHLTJetRecBase<xAOD::TriggerTowerContainer>::defaultBuild();
+HLT::ErrorCode TrigHLTJetRecFromTriggerTower::build(fastjet::ClusterSequence*& cs,
+                                                    xAOD::JetContainer*& jc) const{
+  return TrigHLTJetRecBase<xAOD::TriggerTowerContainer>::defaultBuild(cs, jc);
 }

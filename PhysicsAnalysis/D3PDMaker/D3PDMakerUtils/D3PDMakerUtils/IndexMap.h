@@ -25,6 +25,7 @@
 
 
 #include "D3PDMakerUtils/TypeConverter.h"
+#include "D3PDMakerInterfaces/ICollectionGetterRegistryTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
@@ -35,7 +36,6 @@
 namespace D3PD {
 
 
-class ICollectionGetterRegistryTool;
 class ICollectionGetterTool;
 
 

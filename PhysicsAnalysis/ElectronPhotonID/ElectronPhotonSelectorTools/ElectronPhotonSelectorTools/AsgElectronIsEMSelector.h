@@ -26,8 +26,6 @@
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 
-#include "PATCore/TAccept.h"
-
 #include <string>
 
 namespace Root{
@@ -40,7 +38,7 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
 {
 
   ASG_TOOL_CLASS3(AsgElectronIsEMSelector, IAsgElectronIsEMSelector,
-		  IAsgEGammaIsEMSelector,IAsgSelectionTool)
+		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
 
   public:
   /** Standard constructor */
@@ -52,31 +50,23 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
   /** Gaudi Service Interface method implementations */
   virtual StatusCode initialize();
 
-  /** Gaudi Service Interface method implementations */
-  virtual StatusCode finalize();
-
   /// @name Methods from the  IAsgSelectionTool interface
   /// @{
 
-  /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
+  /** Method to get the plain AcceptInfo.
+      This is needed so that one can already get the AcceptInfo 
+      and query what cuts are defined before the first object 
+      is passed to the tool. */
+  virtual const asg::AcceptInfo& getAcceptInfo() const;
+    
+
   /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
+  virtual asg::AcceptData accept( const xAOD::IParticle* part ) const ;
 
   ///@}
 
-  /// @name  Methods from the IAsgEGammaIsEMSelectorinterface
-  /// @{
-
   /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
-  /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const {
-    return accept(&part);
-  }
-
-  /** The value of the isem **/
-  virtual unsigned int IsemValue() const; 
+  virtual asg::AcceptData accept( const xAOD::Egamma* part) const ;
 
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
@@ -86,14 +76,14 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
   /// @name Methods from the IAsgElectronIsEMSelectorinterface
   /// @{
   /** Accept with Photon objects */
-  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
+  virtual asg::AcceptData accept( const xAOD::Photon* part ) const ;
 
 
   /** Accept with Electron objects */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
+  virtual asg::AcceptData accept( const xAOD::Electron* part ) const ;
 
   //The main execute method
-  StatusCode execute(const xAOD::Egamma* eg) const;
+  StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const;
   /// @}
 
   // Private member variables
@@ -120,14 +110,10 @@ private:
   /** @brief use f3core or f3 (default: use f3)*/
   bool m_useF3core;
 
-  /** A dummy return TAccept object */
-  Root::TAccept m_acceptDummy;
-
   /// Flag for calo only cut-base 
   bool m_caloOnly; 
   float m_trigEtTh;
 
-  
 }; // End: class definition
 
 

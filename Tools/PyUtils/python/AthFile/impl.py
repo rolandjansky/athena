@@ -230,7 +230,8 @@ def ami_dsinfos(dsname):
         pass
     
     return af_infos
-        
+
+ 
 ### classes -------------------------------------------------------------------
 class AthFile (object):
     """A handle to an athena file (POOL,ROOT or ByteStream)
@@ -395,27 +396,31 @@ class AthFileServer(object):
             f.Close()
         return md5.hexdigest()
     
-    def _root_open(self, fname):
-        import PyUtils.Helpers as H
-        # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
+    def _root_open(self, fname, raw=True):
+        root = self.pyroot
         import re
         with H.ShutUp(filters=[
-            re.compile(
-                'TClass::TClass:0: RuntimeWarning: no dictionary for.*'),
-            re.compile(
-                'Warning in <TEnvRec::ChangeValue>: duplicate entry.*'
-                ),
-            ]):
-            root_open = self.pyroot.TFile.Open
+            re.compile('TClass::TClass:0: RuntimeWarning: no dictionary for class.*') ]):
+            root.gSystem.Load('libRootCollection')
+            root_open = root.TFile.Open
+
+            # we need to get back the protocol b/c of the special
+            # case of secure-http which needs to open TFiles as TWebFiles...
             protocol, _ = self.fname(fname)
             if protocol == 'https':
-                _setup_ssl(self.msg, self.pyroot)
-                root_open = self.pyroot.TWebFile
-                pass
-            f = root_open(fname+"?filetype=raw", "read")
+                _setup_ssl(self.msg(), root)
+                root_open = root.TWebFile.Open
+            if raw:
+                if protocol == 'https' and '?' in fname:
+                   # append filetype to existing parameters
+                   f = root_open(fname+'&filetype=raw', 'READ')
+                else:
+                   f = root_open(fname+'?filetype=raw', 'READ')
+            else:
+                f = root_open(fname, 'READ')
             if f is None or not f:
-                raise IOError(errno.ENOENT, 'No such file or directory',
-                              fname)
+                raise IOError(errno.ENOENT,
+                              'No such file or directory',fname)
             return f
         return
 
@@ -1006,36 +1011,8 @@ class FilePeeker(object):
                 del self._sub_env[k]
 
     def _root_open(self, fname, raw=False):
-        import PyUtils.Helpers as H
-        root = self.pyroot
-        import re
-        with H.ShutUp(filters=[
-            re.compile('TClass::TClass:0: RuntimeWarning: no dictionary for class.*'),
-            re.compile("Error in <T.*?File::Init>:.*? not a ROOT file")]):
-            # for AttributeListLayout which uses CINT for its dict...
-            # first try the APR version
-            ooo = root.gSystem.Load('libRootCollection')
-            if ooo < 0:
-                # then try the POOL one
-                root.gSystem.Load('liblcg_RootCollection')
-            root_open = root.TFile.Open
-
-            # we need to get back the protocol b/c of the special
-            # case of secure-http which needs to open TFiles as TWebFiles...
-            protocol, _ = self.server.fname(fname)
-            if protocol == 'https':
-                _setup_ssl(self.msg(), root)
-                root_open = root.TWebFile
-            if raw:
-                f = root_open(fname+'?filetype=raw', 'READ')
-            else:
-                f = root_open(fname, 'READ')
-            if f is None or not f:
-                raise IOError(errno.ENOENT,
-                              'No such file or directory',
-                              fname)
-            return f
-        
+        return self.server._root_open(fname, raw)
+ 
     def _is_tag_file(self, fname, evtmax):
         is_tag = False
         tag_ref= None

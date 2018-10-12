@@ -19,9 +19,9 @@
 
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
-class IGeoModelSvc;
-class IRDBAccessSvc;
 class SCT_ID;
 
 /**
@@ -45,18 +45,18 @@ class SCT_SiliconConditionsTool: public extends<AthAlgTool, ISiliconConditionsTo
   virtual StatusCode finalize() override;
 
   /** Silicon temperature by Identifier */
-  virtual float temperature(const Identifier& elementId) override;
+  virtual float temperature(const Identifier& elementId) const override;
   /** Silicon bias voltage by Identifier */
-  virtual float biasVoltage(const Identifier& elementId) override;
+  virtual float biasVoltage(const Identifier& elementId) const override;
   /** Silicon depletion voltage by Identifier */
-  virtual float depletionVoltage(const Identifier& elementId) override;
+  virtual float depletionVoltage(const Identifier& elementId) const override;
 
   /** Silicon temperature by IdentifierHash */
-  virtual float temperature(const IdentifierHash& elementHash) override;
+  virtual float temperature(const IdentifierHash& elementHash) const override;
   /** Silicon bias voltage by IdentifierHash */
-  virtual float biasVoltage(const IdentifierHash& elementHash) override;
+  virtual float biasVoltage(const IdentifierHash& elementHash) const override;
   /** Silicon depletion voltage by IdentifierHash */
-  virtual float depletionVoltage(const IdentifierHash& elementHash) override;
+  virtual float depletionVoltage(const IdentifierHash& elementHash) const override;
 
  private:
  
@@ -77,8 +77,8 @@ class SCT_SiliconConditionsTool: public extends<AthAlgTool, ISiliconConditionsTo
   float                                       m_geoModelDepletionVoltage;
   bool                                        m_useGeoModel;
 
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV{this, "CondKeyHV", "SCT_SiliconBiasVoltCondData", "SCT silicon bias voltage"};
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp{this, "CondKeyTemp", "SCT_SiliconTempCondData", "SCT silicon temperature"};
 
   const SCT_ID* m_sct_id;
 

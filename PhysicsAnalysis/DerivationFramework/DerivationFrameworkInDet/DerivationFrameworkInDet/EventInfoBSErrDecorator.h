@@ -15,14 +15,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthLinks/ElementLink.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 
 class AtlasDetectorID;
@@ -45,8 +44,8 @@ namespace DerivationFramework {
     
       const SCT_ID*          m_sctId;
 
-      ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
-      ServiceHandle<ISCT_CablingSvc> m_cabling;
+      ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
+      ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
   }; 
 }

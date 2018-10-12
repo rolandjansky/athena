@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "FTK_RecTools/FTK_PixelClusterOnTrackTool.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
@@ -28,6 +27,9 @@
 #include "CoralBase/Attribute.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+
+#include "TrkRIO_OnTrack/check_cast.h"
+
 using CLHEP::mm;
 using CLHEP::micrometer;
 
@@ -68,10 +70,8 @@ FTK_PixelClusterOnTrackTool::FTK_PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
   m_pixDistoTool("PixelDistortionsTool", this),
-  m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool", this),
   m_calibSvc("PixelOfflineCalibSvc", n),
   m_detStore(nullptr),
-  m_scalePixelCov(false),
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
@@ -90,7 +90,6 @@ FTK_PixelClusterOnTrackTool::FTK_PixelClusterOnTrackTool
   m_splitClusterMapName("SplitClusterAmbiguityMap") {
   declareInterface<IRIO_OnTrackCreator>(this);
 
-  declareProperty("ErrorScalingTool", m_errorScalingTool, "The error scaling tool");
   declareProperty("PixelDistortionsTool", m_pixDistoTool, "Tool to retrieve pixel distortions");
   declareProperty("PositionStrategy", m_positionStrategy = 1, "Which calibration of cluster positions");
   declareProperty("ErrorStrategy", m_errorStrategy = 2, "Which calibration of cluster position errors");
@@ -144,15 +143,9 @@ FTK_PixelClusterOnTrackTool::initialize() {
   }
 
   // get the error scaling tool
-  if (m_errorScalingTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_errorScalingTool);
-    m_scalePixelCov = m_errorScalingTool->needToScalePixel();
-    if (m_scalePixelCov) {
-      ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
-    }
+  if (!m_pixelErrorScalingKey.key().empty()) {
+    ATH_CHECK(m_pixelErrorScalingKey.initialize());
+    ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
   }
 
   // the NN corrections
@@ -218,6 +211,7 @@ FTK_PixelClusterOnTrackTool::initialize() {
 #include "IBL_calibration.h"
   ///  
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
    
   return sc;
 }
@@ -382,7 +376,7 @@ FTK_PixelClusterOnTrackTool::correctDefault
     double boweta = atan2(trketacomp, trknormcomp);
     float etatrack = trackPar.eta();
 
-    float tanl = element->getTanLorentzAnglePhi();
+    float tanl = m_lorentzAngleTool->getTanLorentzAngle(iH);
     int readoutside = element->design().readoutSide();
 
     // map the angles of inward-going tracks onto [-PI/2, PI/2]
@@ -421,7 +415,7 @@ FTK_PixelClusterOnTrackTool::correctDefault
     const int col = m_pixelid->eta_index(rId);
 
     InDetDD::SiLocalPosition centroid = pix->localPosition();
-    double shift = element->getLorentzCorrection();
+    double shift = m_lorentzAngleTool->getLorentzShift(iH);
     int nrows = pix->width().colRow()[Trk::locX];
     int ncol = pix->width().colRow()[Trk::locX];
     double ang = 999.;
@@ -644,14 +638,10 @@ FTK_PixelClusterOnTrackTool::correctDefault
   ATH_MSG_VERBOSE(" errphi =  " << errphi << " erreta = " << erreta);
 
   // create new copy of error matrix
-  if (m_scalePixelCov) {
-    Amg::MatrixX *newCov = m_errorScalingTool->createScaledPixelCovariance(cov, element->identify());
-    if (!newCov) {
-      ATH_MSG_WARNING("Failed to create scaled error for Pixel");
-      return 0;
-    }
-    cov = *newCov;
-    delete newCov;
+  if (!m_pixelErrorScalingKey.key().empty()) {
+    //SG::ReadCondHandle<PixelRIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    cov = check_cast<PixelRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,  *m_pixelid, element->identify() );
   }
   bool isbroad = (m_errorStrategy == 0) ? true : false;
 

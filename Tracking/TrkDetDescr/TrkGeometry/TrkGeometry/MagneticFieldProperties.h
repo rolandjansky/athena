@@ -45,6 +45,9 @@ namespace Trk {
       
       /**Assignment operator */
       MagneticFieldProperties& operator=(const MagneticFieldProperties& matprop);
+
+      /**Move assignment operator */
+      MagneticFieldProperties& operator=(MagneticFieldProperties && matprop);
       
       /**Cast operator*/
       operator MagneticFieldMode () const;

@@ -12,8 +12,8 @@
 // Migrate to athenaMT, March 2018, W.Lampl
 
 
+#include "LArCellBuilderFromLArRawChannelTool.h"
 #include "LArRecEvent/LArCell.h"
-#include "LArCellRec/LArCellBuilderFromLArRawChannelTool.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "CaloEvent/CaloCellContainer.h"

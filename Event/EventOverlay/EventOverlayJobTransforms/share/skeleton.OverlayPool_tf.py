@@ -39,10 +39,10 @@ if hasattr(runArgs,"inputHITSFile"):
 else:
     raise RuntimeError ("No input HITS file defined")
 
-if hasattr(runArgs,"outputRDOFile"): 
+if hasattr(runArgs,"outputRDOFile"):
     athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
     OverlayCollection = runArgs.outputRDOFile
-    
+
 if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
     overlayFlags.doSignal=False
     SignalCollection = "NONE"
@@ -60,14 +60,48 @@ if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runAr
 if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
-readBS = False
-isRealData = False
+readBS = overlayFlags.isDataOverlay()
+isRealData = overlayFlags.isDataOverlay()
 
 from RecExConfig.RecFlags import rec
 rec.projectName = 'IS_SIMULATION'
 
 DataInputCollections=runArgs.inputRDO_BKGFile
 athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
+
+print "================ DetFlags ================ "
+if 'DetFlags' in dir():
+    overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+else:
+    from AthenaCommon.DetFlags import DetFlags
+
+    DetFlags.ID_setOn()
+    DetFlags.Muon_setOn()
+    DetFlags.LAr_setOn()
+    DetFlags.Tile_setOn()
+    DetFlags.BCM_setOn()
+    DetFlags.Lucid_setOn()
+    DetFlags.Truth_setOn()
+
+    if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig == "NONE":
+        DetFlags.LVL1_setOff()
+    else:
+        DetFlags.LVL1_setOn()
+
+    DetFlags.digitize.LVL1_setOff()
+
+DetFlags.Print()
+
+globalflags.DataSource.set_Value_and_Lock('geant4')
+
+#--------------------------------------------------------------
+# Read Simulation MetaData (unless override flag set to True)
+#--------------------------------------------------------------
+if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
+    overlaylog.info("Skipping input file MetaData check.")
+else :
+    from EventOverlayJobTransforms.OverlayPoolReadMetaData import readInputFileMetadata
+    readInputFileMetadata()
 
 import MagFieldServices.SetupField
 
@@ -95,36 +129,6 @@ if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     cfg = TriggerConfigGetter("HIT2RDO")
 
 
-print "================ DetFlags ================ "
-if 'DetFlags' in dir():
-    overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
-else:
-    from AthenaCommon.DetFlags import DetFlags
-
-    DetFlags.ID_setOn()
-    DetFlags.Muon_setOn()
-    DetFlags.LAr_setOn()
-    DetFlags.Tile_setOn()
-
-    if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
-        DetFlags.LVL1_setOff()
-    else:
-        DetFlags.LVL1_setOn()
-
-    DetFlags.digitize.LVL1_setOff()
-
-    DetFlags.BCM_setOn()
-    DetFlags.Lucid_setOn()
-    DetFlags.Truth_setOn()
-    DetFlags.simulateLVL1.Lucid_setOn()
-    DetFlags.simulateLVL1.LAr_setOn()
-    DetFlags.simulateLVL1.Tile_setOn()
-
-DetFlags.Print()
-
-globalflags.DataSource.set_Value_and_Lock('geant4')
-
-
 print "================ Start ================= "
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
@@ -139,7 +143,7 @@ except:
     overlaylog.warning('Could not add TimingAlg, no timing info will be written out.')
 
 
-include ( "RecExCond/AllDet_detDescr.py" )
+include ( "RecExCond/AllDet_detDescr.py" ) #FIXME Dangerous to use this one
 
 from AthenaCommon.AppMgr import theApp
 theApp.EventLoop = "PileUpEventLoopMgr"
@@ -147,6 +151,8 @@ if hasattr( runArgs, 'maxEvents'):
     theApp.EvtMax = runArgs.maxEvents
 
 include ( "EventOverlayJobTransforms/ConfiguredOverlay_jobOptions.py" )
+
+include("Digitization/RunNumberOverride.py")
 
 if DetFlags.overlay.Truth_on():
    include ( "EventOverlayJobTransforms/TruthOverlay_jobOptions.py" )
@@ -199,6 +205,16 @@ if hasattr(runArgs,"postInclude"):
 if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
     for cmd in runArgs.postExec:
         exec(cmd)
+
+from AthenaCommon.AppMgr import ServiceMgr
+
+#Patch /TagInfo metadata container
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+for key in overlayFlags.extraTagInfoPairs.get_Value().keys():
+    ServiceMgr.TagInfoMgr.ExtraTagValuePairs += [str(key), str(overlayFlags.extraTagInfoPairs.get_Value()[key])]
+if hasattr(runArgs, 'AMITag'):
+    if runArgs.AMITag != "NONE":
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 #print "OverlayPool_tf.py: at the end. job=\n", job
 print "\nOverlayPool_tf.py: at the end. ServiceMgr=\n", ServiceMgr

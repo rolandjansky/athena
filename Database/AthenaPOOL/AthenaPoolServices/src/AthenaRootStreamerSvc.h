@@ -25,9 +25,6 @@
  **/
 
 class AthenaRootStreamer;
-namespace pool {
-  class IOODatabase;
-}
 
 class AthenaRootStreamerSvc :  public virtual IAthenaRootStreamerSvc,
                                public AthService

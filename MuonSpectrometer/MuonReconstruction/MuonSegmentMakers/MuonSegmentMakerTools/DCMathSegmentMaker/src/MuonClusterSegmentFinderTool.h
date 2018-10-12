@@ -43,8 +43,8 @@ namespace Muon {
         
     static const InterfaceID& interfaceID();
 
-    virtual StatusCode initialize(void);  
-    virtual StatusCode finalize(void);  
+    virtual StatusCode initialize(void) override;
+    virtual StatusCode finalize(void) override;
 
   private:
     ToolHandle<Trk::ITrackFitter>                 m_slTrackFitter;  //<! fitter, always use straightline
@@ -59,7 +59,7 @@ namespace Muon {
 
   public:
     //find segments given a list of MuonCluster
-    std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters);
+    std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters) const override;
     
   private:
     //reconstruct the segments in the precision (eta) plane
@@ -77,11 +77,14 @@ namespace Muon {
     std::vector<std::pair<double,double> > getPadPhiOverlap(std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& pads) const;
     //associate clusters to the segment seeds
     std::vector< const Muon::MuonClusterOnTrack* > getClustersOnSegment(std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& clusters, 
-									std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const;
+									std::pair<Amg::Vector3D,Amg::Vector3D>& seed, bool tight) const;
     //distance of cluster to segment seed
     double clusterDistanceToSeed(const Muon::MuonClusterOnTrack* clust, std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const;
     Amg::Vector3D intersectPlane( const Trk::PlaneSurface& surf, const Amg::Vector3D& pos, const Amg::Vector3D& dir ) const;
     Trk::Track* fit( const std::vector<const Trk::MeasurementBase*>& vec2, const Trk::TrackParameters& startpar ) const;
+
+    //check if enough surfaces are hitted
+    bool belowThreshold(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters, int threshold) const;
   };
   
   

@@ -7,7 +7,7 @@
 #include <vector>
 #include <stdint.h>
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace Muon
 {

@@ -8,8 +8,8 @@
 #include<stdint.h>
 #include<vector>
 
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "MuonRDO/RpcSLTriggerHit.h"
 

@@ -17,6 +17,7 @@
 #include "PersistentDataModel/Token.h"
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/DbHandleBase.h"
+#include "StorageSvc/Transaction.h"
 
 /*
  * POOL namespace declaration
@@ -130,12 +131,10 @@ namespace pool  {
                   const DbType&       dbtyp,
                   DbAccessMode        mod) const;
 
-    /// Allow query if Transaction is active
-    bool transactionActive() const;
     /// Check if the container was opened
     bool isOpen() const;
-    /// Start/Commit/Rollback Database Transaction
-    DbStatus transAct(DbTransaction& refTransaction);
+    /// Execute Database Transaction Action
+    DbStatus transAct(Transaction::Action action);
     /// Pass options to the implementation
     DbStatus setOption(const DbOption& refOpt);
     /// Access options

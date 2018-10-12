@@ -64,9 +64,12 @@ TRT_RodDecoder::TRT_RodDecoder
      m_compressTableFolder   ( "/TRT/Onl/ROD/Compress" ),
      m_maxCompressionVersion ( 255 ),
      m_forceRodVersion       ( -1 ),
+     m_trt_id                ( nullptr ),
+     m_eventTypeIsSim        ( false ),
      //     m_Nsymbols              ( 0 ),
      m_escape_marker         ( 0x8000000 ),
      m_Nrdos                 ( 0 )
+
 {
   declareProperty ( "TRT_Cabling", m_CablingSvc );
   declareProperty ( "BSCondSvc", m_bsErrSvc );
@@ -213,7 +216,6 @@ StatusCode TRT_RodDecoder::initialize()
     m_incsvc->addListener( this, "BeginRun");
 
 
-  m_eventTypeIsSim = false;
 
   if ( m_loadCompressTableFile )
   {
@@ -287,6 +289,8 @@ StatusCode TRT_RodDecoder::initialize()
 StatusCode TRT_RodDecoder::finalize() {
 
   ATH_MSG_VERBOSE( "in TRT_RodDecoder::finalize" );
+  for(auto &pair : m_CompressionTables) delete pair.second;
+  m_CompressionTables.clear();
   ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos );
 
   return StatusCode::SUCCESS;
@@ -1388,7 +1392,7 @@ TableFilename
 	return StatusCode::FAILURE;
       }
 
-      Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+      Ctable->m_syms       = std::make_unique< unsigned int[] >( Ctable->m_Nsymbols );
 
       if ( lengths )
 	 delete[] lengths;
@@ -1432,7 +1436,7 @@ TableFilename
 	return StatusCode::FAILURE;
       }
 
-      Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+      Ctable->m_syms       = std::make_unique< unsigned int[] >( Ctable->m_Nsymbols );
 
       if ( lengths )
 	 delete[] lengths;
@@ -1857,7 +1861,7 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
        ATH_MSG_DEBUG( "Nsymbols = " << Ctable->m_Nsymbols );
 
 
-       Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+       Ctable->m_syms       = std::make_unique< unsigned int[] >( Ctable->m_Nsymbols );
 
        const cool::Blob16M& blob = (atrlist)["syms"].data<cool::Blob16M> ();
 
@@ -1868,7 +1872,6 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 			 << (Ctable->m_Nsymbols * sizeof(unsigned int))
 			 << " )" );
 
-	  delete[] Ctable->m_syms;
 	  delete Ctable;
 
 	  return StatusCode::FAILURE;
@@ -1958,7 +1961,7 @@ TRT_RodDecoder::handle( const Incident &inc )
   if ( inc.type() != "BeginRun" )
     return;
 
-  t_CompressTable *Ctable = new t_CompressTable;
+  auto Ctable = std::make_unique<t_CompressTable>();
 
   ATH_MSG_INFO ("Updating TRT_RodDecoder Compression Table from DB in BeginRun handle");
  
@@ -1972,7 +1975,7 @@ TRT_RodDecoder::handle( const Incident &inc )
      Ctable->m_TableVersion = (atrlist)["Version"].data<cool::Int32>();
      Ctable->m_Nsymbols = (atrlist)["Nsymbols"].data<cool::Int32>();
 
-     Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+     Ctable->m_syms       = std::make_unique< unsigned int[] >( Ctable->m_Nsymbols );
 
      const cool::Blob16M& blob = (atrlist)["syms"].data<cool::Blob16M> ();
      const unsigned char* BlobStart =

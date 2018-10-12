@@ -18,6 +18,9 @@
 #include "METReconstruction/METAssociator.h"
 
 #include "AsgTools/ToolHandle.h"
+//Includes for DataHandles
+#include "StoreGate/DataHandle.h"
+
 
 class ICaloClusterMatchingTool;
 
@@ -72,7 +75,9 @@ namespace met{
     bool m_doMuonClusterMatch;
 
     /// Default constructor: 
-    METMuonAssociator();    
+    METMuonAssociator();  
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muContKey;
+  
 
   }; 
 

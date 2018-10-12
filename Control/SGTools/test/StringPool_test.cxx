@@ -14,7 +14,7 @@
 #undef NDEBUG
 
 #include "SGTools/StringPool.h"
-#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 #include <vector>
 #include <string>
 #include <cstdlib>
@@ -80,7 +80,7 @@ void test1()
     strings.push_back (teststrings[i]);
     keys.push_back (key);
     aux.push_back (i);
-    std::cout << SG::crc64format (key) << " " << teststrings[i] << "\n";
+    std::cout << CxxUtils::crc64format (key) << " " << teststrings[i] << "\n";
   }
   size_t nstore = ntest;
   assert (sp.size() == nstore);

@@ -7,6 +7,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
+# art-include: master/AthenaP1
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
 # art-output: L1AV.txt
@@ -23,7 +24,6 @@
 export NAME="mc_hi_v4_grid"
 export MENU="MC_HI_v4"
 export EVENTS="500"
-export INPUT="pbpb"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh

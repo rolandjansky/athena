@@ -32,9 +32,9 @@ class PixelClusterContainerCnv_p3 : public T_AthenaPoolTPCnvBase<InDet::PixelClu
   
 
  private:
-   const PixelID *m_pixId;
-   StoreGateSvc *m_storeGate;
-   const InDetDD::PixelDetectorManager* m_pixMgr;
+   const PixelID *m_pixId{};
+   StoreGateSvc *m_storeGate{};
+   const InDetDD::PixelDetectorManager* m_pixMgr{};
    bool m_isInitialized;
    StatusCode initialize(MsgStream &log);
 

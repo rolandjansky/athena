@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h" 
@@ -37,7 +37,6 @@ namespace InDet {
 					   const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
     m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
-    m_pixelCondSummaryTool("PixelConditionsSummaryTool",this),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_idHelper(nullptr),
     m_pixelId(nullptr),
@@ -48,7 +47,6 @@ namespace InDet {
   {
     declareInterface<IInDetTestPixelLayerTool>(this);
     declareProperty("Extrapolator"   , m_extrapolator);
-    declareProperty("PixelSummaryTool", m_pixelCondSummaryTool);
     declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
@@ -93,19 +91,7 @@ namespace InDet {
       }
     }
     
-    // Get PixelConditionsSummarySvc
-    if( m_pixelCondSummaryTool.empty() ){
-      msg(MSG::INFO) << "PixelConditionsSummaryTool not configured " << endmsg; //n
-      m_configured=false;
-    }
-    else{
-      if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummaryTool << endmsg; //n
-	return StatusCode::FAILURE;
-      } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummaryTool << endmsg; //n
-      }
-    }
+    ATH_CHECK(m_pixelCondSummaryTool.retrieve());
 
     if(!m_configured){
       msg(MSG::INFO) << "you are using an unconfigured tool" << endmsg; 
@@ -436,7 +422,7 @@ namespace InDet {
     bool expect_hit = false; /// will be set to true if at least one good module is passed
 
     Identifier id = trackpar->associatedSurface().associatedDetectorElement()->identify();
-        
+
     if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
       if(m_checkDeadRegions){
@@ -893,7 +879,7 @@ namespace InDet {
     }
 
     double frac = m_pixelCondSummaryTool->goodFraction(id_hash,startId,endId);
-    
+
     return frac;
   }
 

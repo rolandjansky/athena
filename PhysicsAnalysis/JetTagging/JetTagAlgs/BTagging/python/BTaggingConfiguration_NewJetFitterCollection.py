@@ -444,18 +444,16 @@ def toolNeuralNetworkToHistoToolNN(name, useBTagFlagsDefaults = True, **options)
 
 #-------------------------------------------------------------------------
 
-metaJetFitterNNTool = { 'CalibrationFolders' : ['JetFitter',],
-                        'DependsOn'          : ['NeuralNetworkToHistoToolNN',
-                                                'BTagCalibrationBrokerTool'],
-                        'PassByPointer'      : {'calibrationTool'          : 'BTagCalibrationBrokerTool',
-                                                'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolNN'},
+metaJetFitterNNTool = { 'CalibrationTaggers' : ['JetFitter',],
+                        'DependsOn'          : ['NeuralNetworkToHistoToolNN'],
+                        'PassByPointer'      : {'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolNN'},
                         'ToolCollection'     : 'JetFitterCollection' }
 
 def _slim_jf_options(options):
     new_opts = {}
     removed = set(
         ['CalibrationDirectory', 'CalibrationSubDirectory',
-         'calibrationTool', 'NeuralNetworkToHistoTool'])
+         'NeuralNetworkToHistoTool'])
     kept = set(options) - removed
     for optname in kept:
         new_opts[optname] = options[optname]
@@ -585,11 +583,9 @@ def toolNeuralNetworkToHistoToolCOMBNN(name, useBTagFlagsDefaults = True, **opti
 
 #-----------------------------------------------------------------------------
 
-metaJetFitterCOMBNNTool = { 'CalibrationFolders' : ['JetFitter',],
-                            'DependsOn'          : ['NeuralNetworkToHistoToolCOMBNN',
-                                                    'BTagCalibrationBrokerTool'],
-                            'PassByPointer'      : {'calibrationTool'          : 'BTagCalibrationBrokerTool',
-                                                    'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolCOMBNN'},
+metaJetFitterCOMBNNTool = { 'CalibrationTaggers' : ['JetFitter',],
+                            'DependsOn'          : ['NeuralNetworkToHistoToolCOMBNN'],
+                            'PassByPointer'      : {'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolCOMBNN'},
                             'ToolCollection'     : 'JetFitterCollection' }
 
 def toolJetFitterCOMBNNTool(name, useBTagFlagsDefaults = True, **options):

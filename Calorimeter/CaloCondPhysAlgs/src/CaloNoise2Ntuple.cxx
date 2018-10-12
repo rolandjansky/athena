@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloCondPhysAlgs/CaloNoise2Ntuple.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "CaloNoise2Ntuple.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
@@ -54,10 +49,9 @@ StatusCode CaloNoise2Ntuple::initialize()
 
   ATH_CHECK( service("THistSvc",m_thistSvc) );
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
-
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
 
   ATH_CHECK( m_noiseTool.retrieve() );
 
@@ -104,12 +98,15 @@ StatusCode CaloNoise2Ntuple::stop()
 {
   ATH_MSG_INFO ( "  Run Number, lumiblock " << m_runNumber << " " << m_lumiBlock );
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
-       const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+       const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
        int subCalo;
        IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
 

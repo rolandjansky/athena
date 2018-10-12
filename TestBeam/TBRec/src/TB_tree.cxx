@@ -2,8 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define TB_tree_cxx
-#include "TBRec/TB_tree.h"
+#include "TB_tree.h"
 
 TB_tree::TB_tree(TTree *tree)
   : fChain(0),

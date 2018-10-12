@@ -24,7 +24,6 @@
 AGDDtoGeoSvc::AGDDtoGeoSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc),m_tagInfoMgr(0)
 {
-	ATH_MSG_INFO("creating AGDDtoGeoSvc!!!");
 	declareProperty( "Builders",      	m_builders, "Builders");
 }
 

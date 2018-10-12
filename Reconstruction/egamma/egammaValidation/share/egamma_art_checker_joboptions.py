@@ -8,11 +8,16 @@ from AthenaCommon.AlgSequence               import AlgSequence
 from GaudiSvc.GaudiSvcConf                  import THistSvc
 import AthenaRootComps.ReadAthenaxAODHybrid
 
+
+from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+MCClassifier = MCTruthClassifier( name                      = "MCTruthClassifier",
+                                  ParticleCaloExtensionTool = "" )
+ToolSvc += MCClassifier
 # Ouput Message Level
 svcMgr.MessageSvc.OutputLevel = INFO
 
 # ART File
-testFile = 'ART_Rec_'+particleType+'.pool.root'
+testFile = 'Nightly_AOD_'+particleType+'.pool.root'
 svcMgr.EventSelector.InputCollections = [testFile]
 
 
@@ -20,10 +25,10 @@ job = CfgMgr.AthSequencer("AthAlgSeq")
 job += CfgMgr.EgammaMonitoring('MonitoringAlg', sampleType = particleType)
 
 
-theApp.EvtMax = 2000
+theApp.EvtMax = 60000
 
 
-outputFile = 'ART-monitoring_'+particleType+'.root'
+outputFile = 'Nightly-monitoring_'+particleType+'.hist.root'
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output = ["MONITORING DATAFILE='"+outputFile+"' OPT='RECREATE'"]
 

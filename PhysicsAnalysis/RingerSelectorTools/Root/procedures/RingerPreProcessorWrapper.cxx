@@ -7,20 +7,20 @@
 
 namespace Ringer {
 #if !(RINGER_USE_NEW_CPP_FEATURES)
-const char* IPreProcWrapper::wrapName = "RingerPreProcessorWrapper"; 
+const char* IPreProcWrapper::wrapName = "RingerPreProcessorWrapper";
 #else
-constexpr const char* IPreProcWrapper::wrapName; 
+constexpr const char* IPreProcWrapper::wrapName;
 #endif
 
 // =============================================================================
-void IPreProcWrapper::writeCol(const IPreProcWrapperCollection &ppWrapperCol, 
+void IPreProcWrapper::writeCol(const IPreProcWrapperCollection &ppWrapperCol,
     TDirectory *configDir)
 {
   bool hasPP = !( ppWrapperCol.empty() );
   IOHelperFcns::writeVar( configDir, "hasPP", hasPP );
   // Write pre-processing wrappers:
   if (hasPP){
-    // Write pre-processing 
+    // Write pre-processing
     unsigned ppWrapperSize = ppWrapperCol.size();
     IOHelperFcns::writeVar( configDir, "ppWrapperSize", ppWrapperSize );
     for (size_t ppIdx = 0;  ppIdx < ppWrapperSize; ++ppIdx ) {
@@ -31,8 +31,8 @@ void IPreProcWrapper::writeCol(const IPreProcWrapperCollection &ppWrapperCol,
 }
 
 // =============================================================================
-void IPreProcWrapper::read(IPreProcWrapperCollection &ppWrapperCol, 
-    TDirectory *configDir, 
+void IPreProcWrapper::read(IPreProcWrapperCollection &ppWrapperCol,
+    TDirectory *configDir,
     unsigned version)
 {
 
@@ -51,7 +51,7 @@ void IPreProcWrapper::read(IPreProcWrapperCollection &ppWrapperCol,
     if ( ppDir == nullptr || ppDir == configDir )
     {
       throw std::runtime_error(std::string("Could not find directory \"")
-            + folderName + "\" containing PreProcessing Wrapper" 
+            + folderName + "\" containing PreProcessing Wrapper"
             "information.");
     }
     // Get basic preprocessing wrapper information:
@@ -59,21 +59,21 @@ void IPreProcWrapper::read(IPreProcWrapperCollection &ppWrapperCol,
     EtaDependency fileEtaDep;
     EtDependency fileEtDep;
     SegmentationType fileSegType;
-    IOHelperFcns::readVar<preProcEnum_t, unsigned int>( ppDir, 
+    IOHelperFcns::readVar<preProcEnum_t, unsigned int>( ppDir,
         "ppType",
         ppType);
     IOHelperFcns::readVar<SegmentationType, unsigned int>( ppDir,
         "segType",
         fileSegType);
-    IOHelperFcns::readVar<EtaDependency, unsigned int>( ppDir, 
+    IOHelperFcns::readVar<EtaDependency, unsigned int>( ppDir,
         "etaDependency",
         fileEtaDep);
-    IOHelperFcns::readVar<EtDependency, unsigned int>( ppDir, 
+    IOHelperFcns::readVar<EtDependency, unsigned int>( ppDir,
         "etDependency",
         fileEtDep);
     //ATH_MSG_DEBUG("It's type is " << toStr(ppType) << " and dependency is :["
     //    << toStr(fileSegType) << ","
-    //    << toStr(fileEtaDep) << "," 
+    //    << toStr(fileEtaDep) << ","
     //    << toStr(fileEtDep) << "]");
     // Create wrapper and append it to collection. Here we make some checks
     // whether the wrapper preprocessing type is not IDiscriminatorVarDep.
@@ -90,12 +90,12 @@ void IPreProcWrapper::read(IPreProcWrapperCollection &ppWrapperCol,
         // type for the norm1, which is one normalization that we shall use
         // frequently. On the other hand, as it hasn't parameters, it makes
         // no sense for it to be variable dependent:
-        READ_SEG_DEP_WRAPPER(ppWrapperCol, 
-            PreProcessing::Norm::Norm1VarDep, 
-            fileSegType, 
-            EtaIndependent, 
-            EtIndependent, 
-            ppDir, 
+        READ_SEG_DEP_WRAPPER(ppWrapperCol,
+            PreProcessing::Norm::Norm1VarDep,
+            fileSegType,
+            EtaIndependent,
+            EtIndependent,
+            ppDir,
             version)
         break;
       }
@@ -104,12 +104,12 @@ void IPreProcWrapper::read(IPreProcWrapperCollection &ppWrapperCol,
       //  //  We might want to uncomment this if we want to use spherization
       //  // as a normalization procedure:
       //
-      //  READ_ALL_DEP_WRAPPER(ppWrapperCol, 
-      //      PreProcessing::Norm::SpherizationVarDep, 
-      //      fileSegType, 
-      //      fileEtaDep, 
-      //      fileEtDep, 
-      //      ppDir, 
+      //  READ_ALL_DEP_WRAPPER(ppWrapperCol,
+      //      PreProcessing::Norm::SpherizationVarDep,
+      //      fileSegType,
+      //      fileEtaDep,
+      //      fileEtDep,
+      //      ppDir,
       //      version)
       //}
       default:

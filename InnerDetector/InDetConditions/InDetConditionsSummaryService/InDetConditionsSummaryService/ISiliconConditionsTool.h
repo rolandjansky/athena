@@ -29,15 +29,15 @@ public:
 
   //@name methods taking the detector identifier
   //@{
-  virtual float temperature(const Identifier& detectorElement) = 0;
-  virtual float biasVoltage(const Identifier& detectorElement) = 0;
-  virtual float depletionVoltage(const Identifier& detectorElement) = 0;
+  virtual float temperature(const Identifier& detectorElement) const = 0;
+  virtual float biasVoltage(const Identifier& detectorElement) const = 0;
+  virtual float depletionVoltage(const Identifier& detectorElement) const = 0;
   //@}
   //@name methods taking the detector hash identifier
   //@{
-  virtual float temperature(const IdentifierHash& detectorElement) = 0;
-  virtual float biasVoltage(const IdentifierHash& detectorElement) = 0;
-  virtual float depletionVoltage(const IdentifierHash& detectorElement) = 0;
+  virtual float temperature(const IdentifierHash& detectorElement) const = 0;
+  virtual float biasVoltage(const IdentifierHash& detectorElement) const = 0;
+  virtual float depletionVoltage(const IdentifierHash& detectorElement) const = 0;
   //@}
 
 };

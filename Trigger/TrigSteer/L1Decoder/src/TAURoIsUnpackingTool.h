@@ -34,7 +34,7 @@ public:
                     const HLT::IDSet& activeChains) const override;
   
   virtual StatusCode initialize() override;
-  virtual StatusCode updateConfiguration() override;
+  virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) override;
   virtual StatusCode finalize() override;
   
 private: 
@@ -50,7 +50,7 @@ private:
   ///@}
   
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
+  std::vector<TrigConf::TriggerThreshold*> m_tauThresholds;
 
 }; 
 

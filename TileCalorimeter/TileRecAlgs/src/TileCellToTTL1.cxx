@@ -20,7 +20,7 @@
 //*****************************************************************************
 
 // Tile includes
-#include "TileRecAlgs/TileCellToTTL1.h"
+#include "TileCellToTTL1.h"
 #include "TileConditions/TileCablingService.h"
 
 // Calo includes

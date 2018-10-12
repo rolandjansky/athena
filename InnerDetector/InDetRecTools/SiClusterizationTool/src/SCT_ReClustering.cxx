@@ -9,7 +9,6 @@
    BAD CHANNELS DO NOT BECOME CLUSTERS
    Later we may want to distinguish between dead and noisy
 */
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SiClusterizationTool/SCT_ReClustering.h"
 #include "SiClusterizationTool/SCT_ClusteringTool.h"
 #include "Identifier/Identifier.h"

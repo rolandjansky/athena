@@ -11,7 +11,7 @@
 */
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "egammaEvent/egDetail.h"
 
 class egDetailContainer : public DataVector<egDetail> 
@@ -22,12 +22,6 @@ class egDetailContainer : public DataVector<egDetail>
 
   /** @brief Main constructor */
   egDetailContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) ;
-
- private:
-
-  /** wether it owns or not the cel SG::OWN_ELEMENTS or VIEW_ELEMENTS */
-  //SG::OwnershipPolicy  m_ownPolicy ;
-
 };
 
 CLASS_DEF(egDetailContainer, 1180687045, 1)

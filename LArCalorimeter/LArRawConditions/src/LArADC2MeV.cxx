@@ -5,8 +5,8 @@
 
 LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID, const LArOnOffIdMapping* cabling, const size_t nGains) :
   m_onlineID(onlineID),
-  m_cabling(cabling),
-  m_nGains(nGains) {
+  m_cabling(cabling)
+{
 
   assert(m_onlineID); 
   assert(nGains<=CaloGain::LARNGAIN && nGains>0);

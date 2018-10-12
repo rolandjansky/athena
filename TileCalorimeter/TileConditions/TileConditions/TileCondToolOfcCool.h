@@ -5,18 +5,15 @@
 #ifndef TILECONDITIONS_TILECONDTOOLOFCCOOL_H
 #define TILECONDITIONS_TILECONDTOOLOFCCOOL_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileConditions/TileCalibData.h"
+#include "TileConditions/ITileCondToolOfc.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-// Tile includes
-#include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/ITileCondProxy.h"
-#include "TileConditions/ITileCondToolOfc.h"
+
 
 #include <vector>
 
@@ -40,8 +37,8 @@ class TileCondToolOfcCool: public AthAlgTool, public ITileCondToolOfc {
     const TileOfcWeightsStruct* getOfcWeights(unsigned int drawerIdx, unsigned int channel
                                               , unsigned int adc, float& phase, bool of2);
 
-    int getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase
-                     , float *a, float *b, float *c, float *g, float *dg);
+    int getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase,
+                      float *a, float *b, float *c, float *g, float *dg);
 
     void getOfcParams(unsigned int drawerIdx, int &NPhases, int &NFields, int &Phamin, int &Phamax, int &NSamples);
 
@@ -49,17 +46,14 @@ class TileCondToolOfcCool: public AthAlgTool, public ITileCondToolOfc {
 
   private:
 
-    StatusCode recache( IOVSVC_CALLBACK_ARGS);
+    SG::ReadCondHandleKey<TileCalibData<TileCalibDrawerOfc>> m_calibOfcKey{this,
+        "TileOfc", "TileOfc", "Input Tile OFC constants"};
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerOfc> > m_pryOfcCool;
 
     TileOfcWeightsStruct* m_weights;
 
     int m_NPhases;
     int m_NFields;
-    int m_Phamin;
-    int m_Phamax;
     int m_NSamples;
     bool m_first = true;
 };

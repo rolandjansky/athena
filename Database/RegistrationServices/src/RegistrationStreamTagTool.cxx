@@ -19,7 +19,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
-#include "PoolSvc/IPoolSvc.h"
 #include "PersistentDataModel/Token.h"
 
 // Framework include files

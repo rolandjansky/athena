@@ -80,10 +80,15 @@ protected:
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names
    StringArrayProperty      m_excludeList;
+   /// List of items that are known to be present in the transient store
+   /// (and hence we can make input dependencies on them).
+   StringArrayProperty      m_transientItems;
    /// the top-level folder with items to be written
    ToolHandle<SG::IFolder>  m_p2BWritten;
    /// the top-level folder with items to be written
    ToolHandle<SG::IFolder>  m_decoder;
+   /// Decoded list of transient ids.
+   ToolHandle<SG::IFolder>  m_transient;
    /// map of (clid,key) pairs to be excluded (comes from m_excludeList)
    std::multimap<CLID,std::string> m_CLIDKeyPairs;
    /// Collection of objects being selected

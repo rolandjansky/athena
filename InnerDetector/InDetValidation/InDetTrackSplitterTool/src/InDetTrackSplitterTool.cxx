@@ -478,6 +478,10 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
     (I dont think this matters, but a surface needs to be specified)
       */
       Trk::StraightLineSurface const* trtSurf = dynamic_cast<Trk::StraightLineSurface const*>(&(rio->associatedSurface()));
+      if (not trtSurf){
+        ATH_MSG_DEBUG("Cast of rio associated surface to StraightLineSurface failed.");
+        continue;
+      }
       /** Create the psuesdoMeasurement with the constraints */
       Trk::PseudoMeasurementOnTrack const* constraint = makePConstraint(originalPerigee,trtSurf);
       

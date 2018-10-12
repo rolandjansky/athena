@@ -193,12 +193,12 @@ namespace TrigCostRootAnalysis {
                                              kVarHLTEvents, kSavePerCall, 0));
     } else {
       // If not weighting, then just count events where a chain passes
-      toSave.push_back(TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Passes"),
-                                             "Total number of events seen at this which have at least one chain passing raw.",
+      toSave.push_back(TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Physics Passes"),
+                                             "Total number of events seen at this which have at least one physics chain passing raw.",
                                              kVarHLTPassEvents, kSavePerCall, 0));
 
-      toSave.push_back(TableColumnFormatter(getLevelStr() + std::string(" Pass Fraction [%]"),
-                                             "What percentage of L1 events are kept",
+      toSave.push_back(TableColumnFormatter(getLevelStr() + std::string(" Physics Pass [%]"),
+                                             "What percentage of events are kept in the Main stream",
                                              kVarHLTPassEvents, kSavePerCall, kVarL1PassEvents, kSavePerCall, 2,
                                              kFormatOptionToPercentage));
 
@@ -246,28 +246,6 @@ namespace TrigCostRootAnalysis {
                                            "Average per event number of Regions of Interest supplied from the lower trigger level.",
                                            kVarROI, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
 
-    const IntStringMap_t comp = TrigXMLService::trigXMLService().getComputerTypeToNameMap();
-    if (comp.size() >= 4) {
-      toSave.push_back(TableColumnFormatter(std::string(comp.at(1) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType1, kSavePerEvent, kVarEventsCPUType1, kSavePerCall,
-                                             2));
-
-      toSave.push_back(TableColumnFormatter(std::string(comp.at(2) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType2, kSavePerEvent, kVarEventsCPUType2, kSavePerCall,
-                                             2));
-
-      toSave.push_back(TableColumnFormatter(std::string(comp.at(3) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType3, kSavePerEvent, kVarEventsCPUType3, kSavePerCall,
-                                             2));
-
-      toSave.push_back(TableColumnFormatter(std::string(comp.at(4) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType4, kSavePerEvent, kVarEventsCPUType4, kSavePerCall,
-                                             2));
-    }
 
     toSave.push_back(TableColumnFormatter("CostMon Time/Event [ms]",
                                            "Average time per event to execute cost monitoring.",

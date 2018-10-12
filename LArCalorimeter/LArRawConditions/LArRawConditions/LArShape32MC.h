@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARSHAPE32MC_H
@@ -61,7 +61,9 @@ class LArShape32MC: public ILArShape,
 
 };
 
-
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArShape32MC,107446859,1)
-SG_BASE(LArShape32MC, ILArShape);
+CONDCONT_DEF(LArShape32MC, 27292873, ILArShape);
+
+
 #endif 

@@ -10,9 +10,7 @@
 #include "MuonHoughPatternTools/IMuonHoughPatternTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/MsgStream.h"
 
-class IInterface;
 class MuonHoughTransformSteering;
 class MuonHoughTransformer;
 class TFile;

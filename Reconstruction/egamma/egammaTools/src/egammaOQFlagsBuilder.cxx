@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -30,8 +30,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    m_emHelper(0),
-    m_cellCentrId(0)
+    m_emHelper(0)
 {
   //
   // constructor
@@ -128,7 +127,8 @@ StatusCode egammaOQFlagsBuilder::finalize()
 
 
 // ===============================================================
-bool egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster)
+bool egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster,
+        Identifier& cellCentrId) const
 {
 
   bool thereIsACentrCell = false;
@@ -149,7 +149,7 @@ bool egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster)
     CaloSampling::CaloSample layer = cell->caloDDE()->getSampling() ;
     if(fabs(eta - clusEta)<0.025 && fabs(P4Helpers::deltaPhi(phi, clusPhi))<0.025 && (layer==CaloSampling::EMB2 || layer==CaloSampling::EME2) && (energy>energymax)) { 
       energymax=energy;
-      m_cellCentrId = cellIter->ID();
+      cellCentrId = cellIter->ID();
       thereIsACentrCell = true;
     }
   }
@@ -174,7 +174,7 @@ std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(Identifier cell
 }
 
 // =====================================================================
-StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
+StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg) const
 { 
   // Protection against bad pointers
   if (eg==0) return StatusCode::SUCCESS;
@@ -210,7 +210,8 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   unsigned int iflag = 0;
   
   //Find the central cell in the middle layer 
-  bool foundCentralCell = egammaOQFlagsBuilder::findCentralCell(cluster);
+  Identifier cellCentrId;
+  bool foundCentralCell = egammaOQFlagsBuilder::findCentralCell(cluster,cellCentrId);
   
   //=================== Set timing bit ===================================================//
   const double absEnergyGeV = fabs(cluster->e()*(1./GeV));
@@ -226,7 +227,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
 
   if (foundCentralCell) {
     //Find the list of neighbours cells, to define the 3x3 cluster core
-    std::vector<IdentifierHash> neighbourList = findNeighbours(m_cellCentrId);
+    std::vector<IdentifierHash> neighbourList = findNeighbours(cellCentrId);
     
     //Loop over all the Lar cluster cells
     xAOD::CaloCluster::const_cell_iterator cellIter    = cluster->cell_begin();

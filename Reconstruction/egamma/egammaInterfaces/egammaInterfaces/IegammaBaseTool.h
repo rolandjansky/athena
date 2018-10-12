@@ -42,12 +42,9 @@ class IegammaBaseTool : virtual public IAlgTool
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   /** @brief execute method*/
-  virtual StatusCode execute(xAOD::Egamma* eg) = 0; 
+  virtual StatusCode execute(xAOD::Egamma* eg) const = 0; 
   /** @brief execute method for tools that operate on containers*/
-  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
-				 xAOD::PhotonContainer *photonContainer) = 0; 
-
-};
+ };
 
 inline const InterfaceID& IegammaBaseTool::interfaceID()
 {

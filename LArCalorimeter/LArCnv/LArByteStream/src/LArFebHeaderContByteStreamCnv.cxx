@@ -33,7 +33,7 @@
 
 
 LArFebHeaderContByteStreamCnv::LArFebHeaderContByteStreamCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(),svcloc),m_tool(NULL),m_ByteStreamEventAccess(NULL),m_container(NULL),m_rdpSvc(NULL),m_storeGate(NULL){}
+  Converter(ByteStream_StorageType, classID(),svcloc),m_tool(NULL),m_ByteStreamEventAccess(NULL),m_rdpSvc(NULL),m_storeGate(NULL){}
 
 const CLID& LArFebHeaderContByteStreamCnv::classID(){
   return ClassID_traits<LArFebHeaderContainer>::ID() ;

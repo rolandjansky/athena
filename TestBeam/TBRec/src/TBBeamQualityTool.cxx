@@ -13,12 +13,7 @@
 //#####################################################
 
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-#include "TBRec/TBBeamQualityTool.h"
+#include "TBBeamQualityTool.h"
 
 #include <string>
 #include <vector>

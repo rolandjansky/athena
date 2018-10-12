@@ -30,12 +30,10 @@
 // Atlas includes
 #include "AthAllocators/DataPool.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-//using xAOD::EventInfo;
 using CLHEP::MeV;
  
 // uncomment line below for debug output
@@ -172,7 +170,7 @@ TileCellBuilder::~TileCellBuilder(){
  * Initializer
  */
 StatusCode TileCellBuilder::initialize() {
-  
+
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
   if (m_MBTSContainerKey.key().empty()) {
     m_mbtsMgr = nullptr;
@@ -186,6 +184,8 @@ StatusCode TileCellBuilder::initialize() {
       m_mbtsMgr = nullptr;
     }
   }
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   CHECK( detStore()->retrieve(m_tileMgr) );
   CHECK( detStore()->retrieve(m_tileID) );
@@ -310,7 +310,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
 
   } else {
     
-    ATH_MSG_DEBUG( "Container " << m_rawChannelContainerKey.key() << " with TileRawChannles found ");
+    ATH_MSG_DEBUG( "Container " << m_rawChannelContainerKey.key() << " with TileRawChannels found ");
 
     m_RChType = rawChannelContainer->get_type();
     m_RChUnit = rawChannelContainer->get_unit();
@@ -402,7 +402,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
           dspTimeCut = 63.9375; // 64-1/16 ns is hard limit in DSP
           dspCorrectAmplitude = ((dspFlags & 0x3000000) == 0);
           dspCorrectTime = ((dspFlags & 0x3000000) != 0);
-        } else { // dsp container contains resluts of offline reco
+        } else { // dsp container contains results of offline reco
           dspTimeCut = ((dspFlags >> 27) & 1) ? 100.0 : 75.0; // 100 or 75 ns is the limit for 9 or 7 samples
         }
 
@@ -631,39 +631,28 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   ++m_eventErrorCounter[error]; // error index is 0 or 1 or 2 here
   ++m_eventErrorCounter[3]; // count separately total number of events
   
-  // retrieve EventInfo
-  const xAOD::EventInfo* eventInfo_c = 0;
-  if (evtStore()->retrieve(eventInfo_c).isFailure()) {
-    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
-  }
-  xAOD::EventInfo* eventInfo = 0;
-  if (eventInfo_c) {
-    /// FIXME: const_cast; changing EventInfo.
-    eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
-    if (!eventInfo->getStore()) {
-      const SG::IAuxStore* store = dynamic_cast<const SG::IAuxStore*> (eventInfo->getConstStore());
-      if (store) {
-        eventInfo->setStore (const_cast<SG::IAuxStore*> (store));
-      }
-    }
-  }
 
-  if (eventInfo) {
+  // retrieve EventInfo
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+
+  if (eventInfo.isValid()) {
 
     if (flag != 0) {
       ATH_MSG_DEBUG( " set eventInfo for Tile for this event to 0x" << MSG::hex << flag << MSG::dec );
-      if (!eventInfo->setEventFlags(xAOD::EventInfo::Tile, flag)) {
+      if (!eventInfo->updateEventFlags(xAOD::EventInfo::Tile, flag)) {
         ATH_MSG_WARNING( " cannot set eventInfo for Tile " );
       }
     }
     
     if (error != xAOD::EventInfo::NotSet) {
       ATH_MSG_DEBUG( " set error bits for Tile for this event to " << error );
-      if (!eventInfo->setErrorState(xAOD::EventInfo::Tile, error)) {
+      if (!eventInfo->updateErrorState(xAOD::EventInfo::Tile, error)) {
         ATH_MSG_WARNING( " cannot set error state for Tile " );
       }
     }
 
+  } else {
+    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
   }
   
   // Execution completed.
@@ -1017,12 +1006,6 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 template<class ITERATOR, class COLLECTION>
 void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
 
-  // disable checks for TileID and remember previous state
-  bool do_checks = m_tileID->do_checks();
-  m_tileID->set_do_checks(false);
-  bool do_checks_tb = m_tileID->do_checks();
-  m_tileTBID->set_do_checks(false);
-
   // Now retrieve the TileDQStatus
   if(m_notUpgradeCabling) m_DQstatus = m_beamInfo->getDQstatus();
 
@@ -1133,20 +1116,25 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     int index, pmt;
     int channel1 = channel;
+
     if (m_useDemoCabling == 2015 && ros == 4 && drawer == 1) {
         int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
                                26,25,24,29,31,32,27,28,30,35,34,33,38,37,43,44,41,40,39,36,42,47,46,45};
         channel1 = pmt2channel[channel];
-    } else if ( m_useDemoCabling == 2016 && (/* (ros == 1 && drawer == 0) || */ (ros == 2 && drawer == 1) || (drawer>2) )) {
-        int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
-                               26,25,24,29,28,27,32,31,30,35,34,33,38,37,36,41,40,39,44,43,42,47,46,45};
-        channel1 = pmt2channel[channel];
+
+    } else if ( (m_useDemoCabling == 2016 || m_useDemoCabling == 2017 )
+                && (/* (ros == 1 && drawer == 0) || */ (ros == 2 && drawer == 1) || (drawer>2) )) {
+      int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
+                             26,25,24,29,28,27,32,31,30,35,34,33,38,37,36,41,40,39,44,43,42,47,46,45
+      };
+      channel1 = pmt2channel[channel];
     }
+
     Identifier cell_id = (TileCablingService::getInstance())->h2s_cell_id_index (ros, drawer, channel1, index, pmt);
 
     if (index == -3) { // E4' cells
 
-      if (m_E4prCells) { // do something with them only if contaier existst
+      if (m_E4prCells) { // do something with them only if container exists
         ++nE4pr;
 
         // convert ADC counts to MeV. like for normal cells
@@ -1431,9 +1419,4 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     msg(MSG::DEBUG) << endmsg;
   }
-
-  m_tileID->set_do_checks(do_checks);
-  // set back this flag to TileID
-  m_tileTBID->set_do_checks(do_checks_tb);
-
 }

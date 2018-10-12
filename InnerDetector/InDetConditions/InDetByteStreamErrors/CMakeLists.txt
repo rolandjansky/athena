@@ -8,9 +8,7 @@ atlas_subdir( InDetByteStreamErrors )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthContainers
                           DetectorDescription/Identifier )
 
 # External dependencies:
@@ -23,7 +21,7 @@ find_package( Boost COMPONENTS filesystem thread system )
 atlas_add_dictionary( InDetByteStreamErrorsDict
                       InDetByteStreamErrors/InDetByteStreamErrorsDict.h
                       InDetByteStreamErrors/selection.xml
-                      LINK_LIBRARIES DataModel SGTools Identifier )
+                      LINK_LIBRARIES AthContainers Identifier )
 
 atlas_add_library( InDetByteStreamErrors
                    src/*.cxx

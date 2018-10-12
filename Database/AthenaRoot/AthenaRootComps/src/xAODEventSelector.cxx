@@ -285,14 +285,22 @@ StatusCode xAODEventSelector::initialize()
   //ensure the MetaDataSvc is added as a provider first, if we are in hybrid mode
   if(m_readMetadataWithPool) {
     std::vector<std::string> propVal;
-    CHECK( Gaudi::Parsers::parse( propVal , dynamic_cast<IProperty*>(&*m_ppSvc)->getProperty("ProviderNames").toString() ) );
+    IProperty* prop = dynamic_cast<IProperty*>(&*m_ppSvc);
+    if (!prop) {
+      return StatusCode::FAILURE;
+    }
+    CHECK( Gaudi::Parsers::parse( propVal , prop->getProperty("ProviderNames").toString() ) );
     bool foundSvc(false);
     for(auto s : propVal) {
       if(s=="MetaDataSvc") { foundSvc=true; break; }
     }
     if(!foundSvc) {
       propVal.push_back("MetaDataSvc");
-      CHECK( dynamic_cast<IProperty*>(&*m_ppSvc)->setProperty("ProviderNames", Gaudi::Utils::toString( propVal ) ));
+      IProperty* prop = dynamic_cast<IProperty*>(&*m_ppSvc);
+      if (!prop) {
+        return StatusCode::FAILURE;
+      }
+      CHECK( prop->setProperty("ProviderNames", Gaudi::Utils::toString( propVal ) ));
     }
   }
 
@@ -596,6 +604,9 @@ xAODEventSelector::seek (Context& refCtxt, int evtnum) const
   if (coll_idx != m_collIdx) {
     // tell everyone we switched files...
     xAODEventContext* rctx = dynamic_cast<xAODEventContext*>(&refCtxt);
+    if (!rctx) {
+      return StatusCode::FAILURE;
+    }
     rctx->setFile("");
   }
 

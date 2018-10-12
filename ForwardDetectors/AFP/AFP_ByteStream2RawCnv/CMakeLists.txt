@@ -9,7 +9,7 @@ atlas_subdir( AFP_ByteStream2RawCnv )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthenaBaseComps                          
-			  Control/DataModel
+			  Control/AthContainers
                           Control/StoreGate
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData

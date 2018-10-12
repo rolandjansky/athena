@@ -13,7 +13,8 @@
 //
 // ********************************************************************
 
-#include "LArMonTools/LArRODMonTool.h"
+#include "LArRODMonTool.h"
+#include "LArOnlineIDStrHelper.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -31,7 +32,6 @@
 #include "LArRawEvent/LArFebHeaderContainer.h"
 
 #include "LArRawEvent/LArFebHeader.h" 
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"

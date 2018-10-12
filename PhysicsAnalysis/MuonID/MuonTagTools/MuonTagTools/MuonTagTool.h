@@ -47,12 +47,7 @@ class MuonTagTool : public AthAlgTool {
   virtual StatusCode attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap, const int max);
   virtual StatusCode execute(TagFragmentCollection& muonTagCol, const int max);
   virtual StatusCode finalize();
-  
- protected:
-  
-  /** Standard destructor */
-  virtual ~MuonTagTool( );
-  
+    
  private:
   
   inline int bit2int(int b) const { return 1<<b; };

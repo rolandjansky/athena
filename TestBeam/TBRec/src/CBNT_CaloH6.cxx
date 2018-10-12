@@ -12,15 +12,7 @@
 //#                                                   #
 //#####################################################
 
-#include "TBRec/CBNT_CaloH6.h"
-
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h" 
+#include "CBNT_CaloH6.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -33,7 +25,6 @@
 
 #include "Identifier/Identifier.h"
 
-#include <list>
 
 CBNT_CaloH6::CBNT_CaloH6(const std::string & name, ISvcLocator * pSvcLocator) :
   CBNT_TBRecBase(name, pSvcLocator),

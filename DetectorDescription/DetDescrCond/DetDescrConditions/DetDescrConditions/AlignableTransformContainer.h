@@ -10,11 +10,13 @@
 // Richard Hawkings, 31/8/05
 
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
 #include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "DetDescrConditions/AlignableTransform.h"
 
 typedef CondMultChanCollection<AlignableTransform> AlignableTransformContainer;
 
 CLASS_DEF( AlignableTransformContainer , 1170039409 , 1 )
+CONDCONT_DEF( AlignableTransformContainer , 1141302089 );
 
 #endif // DETDESCRCOND_ALIGNTRKCONTAINER_H

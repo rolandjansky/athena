@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTTRACKEXTRAPOLATOR_H
@@ -41,7 +41,7 @@ namespace TrigL2MuonSA {
 
     double getMuFastRes(std::vector<double> vec, const double pt, const int add, const double eta, const double phi);
 
-    int whichECRegion(const double eta, const double phi);
+    //int whichECRegion(const double eta, const double phi);
 
   private:
     // Reference to StoreGateSvc

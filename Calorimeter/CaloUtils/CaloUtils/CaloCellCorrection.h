@@ -36,6 +36,7 @@ Update : June 2004 David Rousseau
 
 class CaloCell;
 class CaloCellContainer;
+class EventContext;
 
 // Includes for Gaudi
 
@@ -49,28 +50,30 @@ static const InterfaceID IID_CaloCellCorrection("CaloCellCorrection", 1 , 0);
 class CaloCellCorrection : public AthAlgTool
 {
 
- public:
+public:
+  static const InterfaceID& interfaceID() { return IID_CaloCellCorrection;}
 
   CaloCellCorrection(const std::string& type, const std::string& name,
-		    const IInterface* parent);
+                     const IInterface* parent);
   virtual ~CaloCellCorrection();
 
   // Main access method: Correct cells in cellCollection:
-  StatusCode execute(CaloCellContainer* cellCollection);
+  virtual StatusCode execute (CaloCellContainer* cellCollection,
+                              const EventContext& ctx) const;
+
 
   // All derived class must implement the following method:
-  virtual void MakeCorrection(CaloCell*) = 0 ; 
-
-  static const InterfaceID& interfaceID() { return IID_CaloCellCorrection;}
+  virtual void MakeCorrection (CaloCell* cellCollection,
+                               const EventContext& ctx) const = 0;
 
  protected:
 
   // All derived classes can call the following to correct CaloCell object:
-  void setenergy(CaloCell* lar_cell, float energy);
+  void setenergy(CaloCell* lar_cell, float energy) const;
 
-  void addenergy(CaloCell* lar_cell, float energy);
+  void addenergy(CaloCell* lar_cell, float energy) const;
 
-  void scaleenergy(CaloCell* lar_cell, float scale);
+  void scaleenergy(CaloCell* lar_cell, float scale) const;
 
 };
 

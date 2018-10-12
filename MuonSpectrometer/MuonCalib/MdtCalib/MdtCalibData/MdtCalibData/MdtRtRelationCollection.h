@@ -13,9 +13,9 @@
 #ifndef MUONCALIB_MDTRTRELATIONCOLLECTION_H
 #define MUONCALIB_MDTRTRELATIONCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MdtCalibData/MdtRtRelation.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
 This typedef representing:

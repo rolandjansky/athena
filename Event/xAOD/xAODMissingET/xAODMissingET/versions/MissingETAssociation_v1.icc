@@ -256,12 +256,6 @@ inline bool xAOD::MissingETAssociation_v1::setOverlaps(const IParticle* pPart,co
 						       const std::vector<unsigned char>& overlapTypes)
 { return this->setOverlaps(this->findIndex(pPart),overlapIndices,overlapTypes); }
 
-inline void xAOD::MissingETAssociation_v1::resetObjSelectionFlags() const
-{ m_useObjectFlags = 0; }
-
-inline void xAOD::MissingETAssociation_v1::setObjSelectionFlag(const IParticle* pPart, bool status) const
-{ this->setObjSelectionFlag(this->findIndex(pPart),status); }
-
 inline void xAOD::MissingETAssociation_v1::setOverrideMom(std::map<const IParticle*,MissingETBase::Types::constvec_t> pOverride)
 { this->m_override = pOverride;}
 inline std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> xAOD::MissingETAssociation_v1::overrideMom()
@@ -269,14 +263,11 @@ inline std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> xAOD::M
 inline void xAOD::MissingETAssociation_v1::addOverrideMom(std::map<const IParticle*,MissingETBase::Types::constvec_t>& pOverride)
 { this->m_override.insert(pOverride.begin(),pOverride.end());}
 
-inline bool xAOD::MissingETAssociation_v1::objSelected(const IParticle* pPart) const
-{ return this->objSelected(this->findIndex(pPart)); }
-
 inline bool xAOD::MissingETAssociation_v1::identifyOverlaps(const IParticle* pPart)
 { return this->identifyOverlaps(this->findIndex(pPart)); }
 
-inline bool xAOD::MissingETAssociation_v1::hasOverlaps(const IParticle* pPart,MissingETBase::UsageHandler::Policy p) const
-{ return this->hasOverlaps(this->findIndex(pPart),p); }
+inline bool xAOD::MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper* helper,const IParticle* pPart,MissingETBase::UsageHandler::Policy p) const
+{ return this->hasOverlaps(helper,this->findIndex(pPart),p); }
 
 inline bool xAOD::MissingETAssociation_v1::addOverlap(const IParticle* pPart,size_t overlapIndex,unsigned char overlapType)
 { return this->addOverlap(this->findIndex(pPart),overlapIndex,overlapType); }

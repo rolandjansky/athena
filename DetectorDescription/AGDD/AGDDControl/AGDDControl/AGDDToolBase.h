@@ -28,6 +28,8 @@ protected:
 	bool m_printSections;
 	bool m_disableSections;
 	bool m_locked;
+	bool m_writeDBfile;
+	std::string m_outFileName;
 	std::string m_defaultDetector;
 	std::string m_navigateDetector;
 	

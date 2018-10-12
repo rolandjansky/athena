@@ -28,7 +28,7 @@ namespace Trk
       /**This method 'skims' interesting information from the passed track, and creates a new one with cloned copies of this information
         @param track A reference to the track to be skimmed. It will not be modified in any way.
         @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured*/
-        virtual Trk::Track* slim(const Trk::Track& track)=0;
+        virtual Trk::Track* slim(const Trk::Track& track) const = 0;
 
     };
 

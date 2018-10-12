@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4ATLASUSERWORKERTHREADINITIALIZATION_H
@@ -25,11 +25,6 @@
 class G4AtlasUserWorkerThreadInitialization : public G4UserWorkerThreadInitialization {
 
 public:
-
-  /// @brief Override thread-local setup of RNG engine.
-  /// This currently just clones the master's engine.
-  /// Assumes we're just using a MTwistEngine for now.
-  void SetupRNGEngine(const CLHEP::HepRandomEngine* aRNGEngine) const;
 
   /// @brief Create ATLAS worker run manager
   G4WorkerRunManager* CreateWorkerRunManager() const;

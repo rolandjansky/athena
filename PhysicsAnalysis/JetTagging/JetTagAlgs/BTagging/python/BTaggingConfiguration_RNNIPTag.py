@@ -11,9 +11,8 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
     cal_dir = calibration or basename
     meta = {'IsATagger'         : True,
             'xAODBaseName'      : basename,
-            'CalibrationFolders' : [cal_dir],
+            'CalibrationTaggers' : [cal_dir],
             'DependsOn'         : ['AtlasExtrapolator',
-                                   'BTagCalibrationBrokerTool',
                                    'BTagTrackToVertexTool',
                                    'InDetVKalVxInJetTool',
                                    'BTagTrackToVertexIPEstimator',
@@ -26,7 +25,6 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
             'PassByPointer'     : {
                 'SVForIPTool'                : 'SVForIPTool_IP3D',
                 'trackSelectorTool'          : 'IP3DTrackSelector',
-                'calibrationTool'            : 'BTagCalibrationBrokerTool',
                 'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory',
                 'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator'},
             'PassTracksAs'      : 'trackAssociationName',

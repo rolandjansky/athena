@@ -1,5 +1,15 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+#--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.CheckDependencies( True )
+  AlgScheduler.ShowControlFlow( True )
+  AlgScheduler.ShowDataDependencies( True )
+
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import AuditorSvc
@@ -48,13 +58,12 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
-
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
+
+# Set up SCT cabling
+from AthenaCommon.Include import include
+include('InDetRecExample/InDetRecCabling.py')
 
 #--------------------------------------------------------------
 # Load IOVDbSvc
@@ -121,9 +130,12 @@ else:
   # conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
   # conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
   # conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+  if not conddb.folderRequested("/SCT/DAQ/Config/ROD"):
+    conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+  if not conddb.folderRequested("/SCT/DAQ/Config/Geog"):
+    conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+  if not conddb.folderRequested("/SCT/DAQ/Config/RODMUR"):
+    conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
 
 from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
 sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()

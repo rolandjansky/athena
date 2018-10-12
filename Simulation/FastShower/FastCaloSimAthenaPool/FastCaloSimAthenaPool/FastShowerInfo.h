@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _FASTSHOWERINFO_H_
-#define _FASTSHOWERINFO_H_
+#ifndef FASTSHOWERINFO_H
+#define FASTSHOWERINFO_H
 
 #include <vector>
 
@@ -135,7 +135,7 @@ class FastShowerInfo
 		
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FastShowerInfo, 666777, 1)
 
 #endif

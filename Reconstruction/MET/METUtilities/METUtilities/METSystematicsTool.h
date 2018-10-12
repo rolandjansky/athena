@@ -17,6 +17,7 @@ class TH1D;
 
 #include "METInterface/IMETSystematicsTool.h"
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/DataHandle.h"
 
 #include "PATInterfaces/SystematicsTool.h"
 
@@ -24,6 +25,7 @@ class TH1D;
 
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include <gtest/gtest_prod.h>
 
@@ -107,9 +109,9 @@ namespace met {
     //required correction tool functions
     //we don't inherit from CorrectionTool directly, since we don't want to implement applyContainerCorrection
     CP::CorrectionCode applyCorrection(xAOD::MissingET& inputMet,
-				       const xAOD::MissingETAssociationMap * map = nullptr ) const;
+				       const xAOD::MissingETAssociationHelper * helper = nullptr ) const;
     CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-				     const xAOD::MissingETAssociationMap * map = nullptr) const;
+				     const xAOD::MissingETAssociationHelper * helper = nullptr) const;
     //We don't want these for MET since we only apply systematics to the soft term, and this may be unclear
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
@@ -136,9 +138,9 @@ namespace met {
 						       xAOD::MissingETContainer const * METcont,
 						       xAOD::EventInfo          const & eInfo
 						       ) const;
-    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map) const;
-    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::Jet* jet) const;
-    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map) const;
+    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper* helper) const;
+    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper* helper, const xAOD::Jet* jet) const;
+    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper* helper) const;
 
     //declared properties
     std::string m_configPrefix;
@@ -166,6 +168,13 @@ namespace met {
 
     int getNPV() const;
     xAOD::EventInfo const * getDefaultEventInfo() const;
+
+
+    //Read/write handles
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_VertexContKey;
+    SG::ReadHandleKey<xAOD::MissingETContainer>  m_TruthContKey;
+    SG::ReadHandleKey<xAOD::EventInfo>  m_EventInfoKey;
+
 
     StatusCode addMETAffectingSystematics();
     StatusCode extractHistoPath(std::string & histfile, std::string & systpath, std::string & configdir, std::string & suffix, SystType const & type);

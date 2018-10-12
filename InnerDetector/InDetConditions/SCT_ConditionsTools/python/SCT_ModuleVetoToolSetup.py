@@ -61,11 +61,9 @@ class SCT_ModuleVetoToolSetup:
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ModuleVetoTool
-            ToolSvc += SCT_ModuleVetoTool(name = self.toolName)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_ModuleVetoTool(name = self.toolName)
 
     def getTool(self):
         return self.tool

@@ -17,6 +17,9 @@
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 
+//Includes for DataHandles
+#include "StoreGate/DataHandle.h"
+
 namespace met{
   class METJetAssocTool final
     : public METAssociator
@@ -71,7 +74,7 @@ namespace met{
  
     /// Default constructor: 
     METJetAssocTool();
-
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetContKey;
     void getPFOs(const xAOD::Jet *jet,
                  std::vector<const xAOD::IParticle*> &consts,
                  const met::METAssociator::ConstitHolder& constits,

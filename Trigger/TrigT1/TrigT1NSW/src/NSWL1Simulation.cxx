@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -38,15 +38,13 @@ namespace NSWL1 {
 
     m_counters.clear();
 
-    // Services
-
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
     declareProperty( "DoNtuple",     m_doNtuple     = false, "Create an ntuple for data analysis" );
     declareProperty( "DoMM",         m_doMM         = false, "Run data analysis for MM" );
     declareProperty( "DosTGC",       m_dosTGC       = true, "Run data analysis for sTGCs" );
     declareProperty( "DoPadTrigger", m_doPadTrigger = true, "Run the pad trigger simulation" );
-
+    
     // declare monitoring tools
     declareProperty( "AthenaMonTools",  m_monitors, "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
 
@@ -58,9 +56,8 @@ namespace NSWL1 {
     declareProperty( "MMStripTdsTool",  m_mmstrip_tds,  "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",   m_mmtrigger,    "Tool that simulates the MM Trigger");
 
-
     // declare monitoring variables
-    declareMonitoredStdContainer("COUNTERS", m_counters); // custom monitoring: number of processed events
+    declareMonitoredStdContainer("COUNTERS", m_counters); // custom monitoring: number of processed events    
   }
 
   NSWL1Simulation::~NSWL1Simulation() {
@@ -72,7 +69,6 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initialize " << name() );
 
     StatusCode sc;
-
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -105,57 +101,66 @@ namespace NSWL1 {
 
 
     // retrieving the private tools implementing the simulation
-    if ( m_pad_tds.retrieve().isFailure() ) {
-      ATH_MSG_FATAL (m_pad_tds.propertyName() << ": Failed to retrieve tool " << m_pad_tds.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO (m_pad_tds.propertyName() << ": Retrieved tool " << m_pad_tds.type());
-    }
+    
+    if(m_dosTGC){
+        if ( m_pad_tds.retrieve().isFailure() ) {
+            ATH_MSG_FATAL (m_pad_tds.propertyName() << ": Failed to retrieve tool " << m_pad_tds.type());
+            return StatusCode::FAILURE;
+        } 
+        else {
+            ATH_MSG_INFO (m_pad_tds.propertyName() << ": Retrieved tool " << m_pad_tds.type());
+        }
 
-    if ( m_pad_trigger.retrieve().isFailure() ) {
-      ATH_MSG_FATAL (m_pad_trigger.propertyName() << ": Failed to retrieve tool " << m_pad_trigger.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO (m_pad_trigger.propertyName() << ": Retrieved tool " << m_pad_trigger.type());
-    }
+        if ( m_pad_trigger.retrieve().isFailure() ) {
+            ATH_MSG_FATAL (m_pad_trigger.propertyName() << ": Failed to retrieve tool " << m_pad_trigger.type());
+            return StatusCode::FAILURE;
+        } 
+        else {
+            ATH_MSG_INFO (m_pad_trigger.propertyName() << ": Retrieved tool " << m_pad_trigger.type());
+        }
 
-    if ( m_strip_tds.retrieve().isFailure() ) {
-      ATH_MSG_FATAL (m_strip_tds.propertyName() << ": Failed to retrieve tool " << m_strip_tds.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO (m_strip_tds.propertyName() << ": Retrieved tool " << m_strip_tds.type());
-    }
-    if ( m_mmtrigger.retrieve().isFailure() ) {
-      ATH_MSG_FATAL (m_mmtrigger.propertyName() << ": Failed to retrieve tool " << m_mmtrigger.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO (m_mmtrigger.propertyName() << ": Retrieved tool " << m_mmtrigger.type());
-    }
+        if ( m_strip_tds.retrieve().isFailure() ) {
+            ATH_MSG_FATAL (m_strip_tds.propertyName() << ": Failed to retrieve tool " << m_strip_tds.type());
+        return StatusCode::FAILURE;
+        } 
+        else {
+            ATH_MSG_INFO (m_strip_tds.propertyName() << ": Retrieved tool " << m_strip_tds.type());
+        }
 
-    if ( m_strip_cluster.retrieve().isFailure() ) {
-      ATH_MSG_FATAL (m_strip_cluster.propertyName() << ": Failed to retrieve tool " << m_strip_cluster.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO (m_strip_cluster.propertyName() << ": Retrieved tool " << m_strip_cluster.type());
+        if ( m_strip_cluster.retrieve().isFailure() ) {
+            ATH_MSG_FATAL (m_strip_cluster.propertyName() << ": Failed to retrieve tool " << m_strip_cluster.type());
+            return StatusCode::FAILURE;
+        } 
+        else {
+        ATH_MSG_INFO (m_strip_cluster.propertyName() << ": Retrieved tool " << m_strip_cluster.type());
+        }
+
+        if ( m_strip_segment.retrieve().isFailure() ) {
+            ATH_MSG_FATAL (m_strip_segment.propertyName() << ": Failed to retrieve tool " << m_strip_segment.type());
+            return StatusCode::FAILURE;
+        } 
+        else {
+            ATH_MSG_INFO (m_strip_segment.propertyName() << ": Retrieved tool " << m_strip_segment.type());
+        }
     }
-
-    if ( m_strip_segment.retrieve().isFailure() ) {
-      ATH_MSG_FATAL (m_strip_segment.propertyName() << ": Failed to retrieve tool " << m_strip_segment.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO (m_strip_segment.propertyName() << ": Retrieved tool " << m_strip_segment.type());
+    
+    if(m_doMM ){
+        if ( m_mmtrigger.retrieve().isFailure() ) {
+            ATH_MSG_FATAL (m_mmtrigger.propertyName() << ": Failed to retrieve tool " << m_mmtrigger.type());
+            return StatusCode::FAILURE;
+        } else {
+            ATH_MSG_INFO (m_mmtrigger.propertyName() << ": Retrieved tool " << m_mmtrigger.type());
+        }
     }
-
-
     // Connect to Monitoring Service
     sc = m_monitors.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR("Monitoring tools not initialized: " << m_monitors);
       return sc;
-    } else {
+    } 
+    else {
       ATH_MSG_DEBUG("Connected to " << m_monitors.typesAndNames());
     }
-
     return StatusCode::SUCCESS;
   }
 
@@ -180,15 +185,8 @@ namespace NSWL1 {
   }
 
 
-  StatusCode NSWL1Simulation::beginRun() {
-    ATH_MSG_INFO( "beginRun " << name() );
-    m_counters.clear();
-    return StatusCode::SUCCESS;
-  }
-
-
   StatusCode NSWL1Simulation::execute() {
-    ATH_MSG_INFO( "execute" << name() );
+
     m_counters.clear();
 
     // retrieve the current run number and event number
@@ -199,8 +197,13 @@ namespace NSWL1 {
 
 
     m_counters.push_back(1.);  // a new event is being processed
-
-
+    //S.I those could be members ...
+    std::vector<std::shared_ptr<PadData>> pads;  
+    std::vector<std::unique_ptr<PadTrigger>> padTriggers;
+    std::vector<std::unique_ptr<StripData>> strips;
+    std::vector< std::unique_ptr<StripClusterData> > clusters;
+    //S.I
+    
     // retrieve the PAD hit and compute pad trigger
     if(m_dosTGC){
         // DG-2015-10-02
@@ -208,26 +211,25 @@ namespace NSWL1 {
         // Perhaps we could do here for(sector) instead of inside
         // PadTriggerLogicOfflineTool (since all the pad and
         // pad-trigger info is per-sector...)
-      std::vector<PadData*> pads;
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
-
-      std::vector<NSWL1::PadTrigger*> padTriggers; // will be passed on to m_strip_tds
+      
       if(m_doPadTrigger){
           ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
-
+      pads.clear();
       // retrieve the STRIP hit data
-      std::vector<StripData*> strips;
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
-      std::vector< NSWL1::StripClusterData* > clusters;
+      padTriggers.clear();
       // Cluster STRIPs readout by TDS
       ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
+      strips.clear();
       ATH_CHECK( m_strip_segment->find_segments(clusters) );
-
+      clusters.clear();
     } // if(dosTGC)
 
 
     //retrive the MM Strip hit data
+    
     if(m_doMM){
  //      std::vector<MMStripData*> mmstrips;
  //      sc = m_mmstrip_tds->gather_mmstrip_data(mmstrips);
@@ -237,7 +239,6 @@ namespace NSWL1 {
  //      }
       ATH_CHECK( m_mmtrigger->runTrigger() );
     }
-
     //
     // do monitoring
     //

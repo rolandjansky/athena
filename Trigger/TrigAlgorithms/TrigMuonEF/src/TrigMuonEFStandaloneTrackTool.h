@@ -24,6 +24,7 @@
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
@@ -265,6 +266,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   ToolHandle<Trk::ITrackSummaryTool >    m_trackSummaryTool;
 
   // handles to the RoI driven data access
+  ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
@@ -299,6 +301,9 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   // if true do caching
   bool m_doCache;
   
+  // Flag to decide whether or not to run BS decoding
+  Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
+
   bool m_useCscData;
   bool m_useRpcData;
   bool m_useTgcData;
@@ -312,7 +317,6 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   bool m_useTgcSeededDecoding;
   bool m_useCscSeededDecoding;
   bool m_useMdtRobDecoding;
-  bool m_useRpcRobDecoding;
   bool m_useTgcRobDecoding;
   bool m_useCscRobDecoding;
   

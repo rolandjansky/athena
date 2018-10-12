@@ -4,6 +4,10 @@
 ###     derivation framework / event selection
 ####################################################
 
+# needed for dynamic determination of lowest-unprescaled single-muon and dimuon triggers
+from TriggerMenu.api.TriggerAPI import TriggerAPI
+from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+
 # Sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence() 
@@ -14,7 +18,7 @@ sel_muon1  = 'Muons.pt > 25*GeV && Muons.ptcone40/Muons.pt < 0.3'
 sel_muon2  = 'Muons.pt > 20*GeV && Muons.ptcone40/Muons.pt < 0.3'
 
 # Event selection string
-draw_zmumu = '( count (  DRZmumuMass > 70*GeV   &&  DRZmumuMass < 110*GeV ) >= 1 )'
+dimuonMassString = '( count (  DRZmumuMass > 70*GeV   &&  DRZmumuMass < 110*GeV ) >= 1 )'
 
 # Invariant masses in various configurations
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__InvariantMassTool
@@ -26,12 +30,33 @@ DRZmumuMassTool = DerivationFramework__InvariantMassTool(name = "DRZmumuMassTool
                                                       SecondMassHypothesis       = 105.66,
                                                       StoreGateEntryName         = "DRZmumuMass")
 ToolSvc += DRZmumuMassTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+dimuonMassSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_DiMuonMass_SkimmingTool",
+                                                                     expression = dimuonMassString)
+ToolSvc += dimuonMassSkimmingTool
+
+# Tightening by requiring at least one good (i.e. preselected) muon and either a single-muon or dimuon trigger to have passed
+from DerivationFrameworkMuons.MuonsCommon import *
+goodMuonString = 'count((Muons.DFCommonGoodMuon) && (Muons.pt > 20*GeV)) >= 1'
+goodMuonSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_GoodMuon_SkimmingTool",
+                                                                   expression = goodMuonString)
+ToolSvc += goodMuonSkimmingTool
+
+periods = TriggerPeriod.future | TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017
+allUnprescaledTriggers = TriggerAPI.getLowestUnprescaledAnyPeriod(periods, TriggerType.mu)
+print "DRAW_ZMUMU: will skim on an OR of the following muon triggers (list provided at run-time by the TriggerAPI):"
+print allUnprescaledTriggers
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+triggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "DRAWZMUMUTriggerSkimmingTool", 
+                                                               TriggerListOR = allUnprescaledTriggers)
+ToolSvc += triggerSkimmingTool
 
 # Event selection tool
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-DRAW_ZMUMU_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_SkimmingTool",
-                                                                        expression = draw_zmumu)
-
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+DRAW_ZMUMU_SkimmingTool = DerivationFramework__FilterCombinationAND( name = "DRAW_ZMUMU_FinalFilter",
+                                                                     FilterList=[dimuonMassSkimmingTool, 
+                                                                                 goodMuonSkimmingTool, 
+                                                                                 triggerSkimmingTool] )
 ToolSvc += DRAW_ZMUMU_SkimmingTool
 print DRAW_ZMUMU_SkimmingTool
 

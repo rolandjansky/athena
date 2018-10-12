@@ -16,6 +16,8 @@
 namespace fastjet {
 class PseudoJet;
 }
+class PseudoJetContainer;
+
 /// Vector of fastjet pseudojets.
 typedef std::vector<fastjet::PseudoJet> PseudoJetVector;
 
@@ -30,8 +32,11 @@ public:
   /// Destructor.
   virtual ~IPseudoJetGetter() { };
 
+  /// Method to construct the PseudoJetVector and record in StoreGate
+  virtual StatusCode createAndRecord() const =0;
+
   /// Method to return a vector of pseudojets.
-  virtual const PseudoJetVector* get() const =0;
+  virtual const PseudoJetVector* get() const;
 
   /// Label assignd to this collection of pseudojets.
   virtual std::string label() const =0;

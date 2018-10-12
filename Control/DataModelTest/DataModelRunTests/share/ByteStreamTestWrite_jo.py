@@ -20,6 +20,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
 
+include ('DataModelRunTests/loadWriteDicts.py')
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -70,15 +71,6 @@ topSequence += DMTest__HLTResultWriter \
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
-# Note: can't autoload these.
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataWriteDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
-ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataWriteSerCnv.so')
-
 # ItemList:
 fullItemList = []
 fullItemList+=["HLT::HLTResult#HLTResult_HLT"]

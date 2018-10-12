@@ -27,7 +27,6 @@ namespace pool  {
   class FileDescriptor;
   typedef class Session            *SessionH;
   typedef class DatabaseConnection *ConnectionH;
-  typedef class Transaction        *TransactionH;
   typedef const class Shape        *ShapeH;
 
   /** @class IStorageSvc IStorageSvc.h StorageSvc/IStorageSvc.h
@@ -84,9 +83,8 @@ namespace pool  {
     virtual std::string getContName(const FileDescriptor& refDB,
                                     const Token&          pToken) = 0;
 
-    /// Register object identified by its pointer with for write.
+    /// Register object for write
     /**
-      * @param   trCxtH    [IN] Handle to the Transaction context.
       * @param   refDB     [IN] Reference to Database descriptor 
       * @param   refCont   [IN] Reference to container name 
       * @param   technology[IN] Specialised sub-technology
@@ -97,20 +95,13 @@ namespace pool  {
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus allocate(    TransactionH          trCxtH,
-                                  const FileDescriptor& refDB,
+    virtual DbStatus allocate(    const FileDescriptor& refDB,
                                   const std::string&    refCont,
                                   int                   technology,
                                   const void*           object,
                                   ShapeH                shapeH,
                                   Token*&               refpTok) = 0;
 
-    /// Free a persistent object from the heap.
-    /**
-      * @param   pToken    [IN] Token to the persistent object.
-      * @return                 DbStatus code indicating success or failure.
-      */
-    virtual DbStatus free(        const Token&        pToken)  = 0;
 
     /// Read a persistent object from the medium.
     /** Reading an object does not create the object.
@@ -128,7 +119,6 @@ namespace pool  {
 
     /// In place update of an existing object.
     /**
-      * @param   trCxtH    [IN] Handle to the Transaction context.
       * @param   refDB     [IN] Reference to Database descriptor 
       * @param   object    [IN] Pointer to persistent data object.
       * @param   shapeH    [IN] Handle to persistent type information
@@ -137,23 +127,20 @@ namespace pool  {
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus update(      TransactionH          trCxtH,
-                                  const FileDescriptor& refDB,
+    virtual DbStatus update(      const FileDescriptor& refDB,
                                   const void*           object,
                                   ShapeH                shapeH,
                                   const Token&          refToken) = 0;
 
     /// Destroy an existing persistent object.
     /**
-      * @param   trCxtH    [IN] Handle to the Transaction context.
       * @param   refDB     [IN] Reference to Database descriptor 
       * @param   refToken  [IN] Reference to token containing the location
       *                         information of the persistent object.
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus destroy(     TransactionH          trCxtH,
-                                  const FileDescriptor& refDB,
+    virtual DbStatus destroy(     const FileDescriptor& refDB,
                                   const Token&          refToken) = 0;
 
     /// Retrieve persistent shape from Storage manager.
@@ -304,25 +291,6 @@ namespace pool  {
     virtual DbStatus openMode(    FileDescriptor&     refDB,
                                   int&                mode ) = 0;
 
-    /// Start a new Transaction sequence.
-    /** When a new Transaction sequence is started, a new context is delivered
-      * to the user. Using this context he will then start collecting objects
-      * for persistency. After this excercise he will finally commit the
-      * objects he collected during the open Transaction.
-      *
-      * @param    dbcH     [IN] Handle to the Database context containing all 
-      *                         information necessary to access the 
-      *                         proper Database. The Database handle was
-      *                         retrieved when connecting to the Database.
-      *
-      * @param    refCtxt [OUT] Handle to a location where the pointer
-      *                         of the Transaction context can be stored.
-      *
-      * @return                 DbStatus code indicating success or failure.
-      */
-    virtual DbStatus startTransaction(const ConnectionH   dbcH,
-                                      TransactionH&       refCtxt) = 0;
-
     /// End/Finish an existing Transaction sequence.
     /** At  this  phase all  objects, which were marked for  write when 
       * the Transaction was started, are either going to be made persistent
@@ -330,7 +298,7 @@ namespace pool  {
       * is invalidated and may no longer be used independent wether the 
       * Transaction was successful or not.
       *
-      * @param    ctxtH [IN]    Transaction context handle.
+      * @param    conn  [IN]    Database connection
       * @param    typ   [IN]    Enum indicating an action to be performed.
       *                         Valid arguments are COMMIT and ROLLBACK.
       *                         ROLLBACK can only be suported if the 
@@ -339,8 +307,7 @@ namespace pool  {
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus endTransaction(TransactionH        ctxtH,
-                                    Transaction::Action typ) = 0;
+    virtual DbStatus endTransaction( ConnectionH conn, Transaction::Action typ) = 0;
 
     /// DbStatus code definitions
     enum   {

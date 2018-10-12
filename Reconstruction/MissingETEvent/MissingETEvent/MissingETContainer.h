@@ -15,8 +15,8 @@ CREATED:  Oct 2004
 
 PURPOSE:  Container class for MissingET objects
 ********************************************************************/
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "MissingETEvent/MissingET.h"
 
 class MissingETContainer : public DataVector<MissingET> {

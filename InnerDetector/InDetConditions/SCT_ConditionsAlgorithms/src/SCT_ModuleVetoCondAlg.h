@@ -7,11 +7,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-
-#include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -26,8 +25,8 @@ class SCT_ModuleVetoCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey;
-  SG::WriteCondHandleKey<SCT_ModuleVetoCondData> m_writeKey;
+  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey{this, "ReadKey", "/SCT/Manual/BadModules", "Key of input (raw) bad module conditions folder"};
+  SG::WriteCondHandleKey<SCT_ModuleVetoCondData> m_writeKey{this, "WriteKey", "SCT_ModuleVetoCondData", "Key of output (derived) bad module conditions data"};
 
   ServiceHandle<ICondSvc> m_condSvc;
 };

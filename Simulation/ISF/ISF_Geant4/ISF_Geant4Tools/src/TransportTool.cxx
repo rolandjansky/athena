@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TransportTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 // class header
 #include "TransportTool.h"
 
@@ -26,7 +22,6 @@
 #include "HepMC/GenParticle.h"
 
 // Geant4 classes
-#include "G4UImanager.hh"
 #include "G4LorentzVector.hh"
 #include "G4PrimaryVertex.hh"
 #include "G4PrimaryParticle.hh"
@@ -34,6 +29,7 @@
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 #include "G4ParticleTable.hh"
+#include "G4StateManager.hh"
 #include "G4TransportationManager.hh"
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
@@ -48,24 +44,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p )
   : base_class(t,n,p)
-  , m_libList("")
-  , m_physList("")
-  , m_fieldMap("")
-  , m_rndmGen("")
-  , m_releaseGeoModel(true)
-  , m_recordFlux(false)
-  , m_mcEventCollectionName("TruthEvent")
-  , m_useMT(false)
-  , m_rndmGenSvc("AtDSFMTGenSvc",n)
-  , m_g4atlasSvc("G4AtlasSvc", n)
-  , m_userActionSvc("",n)
-  , m_detGeoSvc("DetectorGeometrySvc", n)
-  , m_inputConverter("ISF_InputConverter",n)
-  , m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper")
-  , m_physListTool("PhysicsListToolBase")
-  , m_senDetTool("SensitiveDetectorMasterTool")
-  , m_fastSimTool("FastSimulationMasterTool")
-  , m_pRunMgr(nullptr)
 {
   declareProperty("Dll",                   m_libList);
   declareProperty("Physics",               m_physList);
@@ -74,22 +52,10 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty("ReleaseGeoModel",       m_releaseGeoModel);
   declareProperty("RecordFlux",            m_recordFlux);
   declareProperty("McEventCollection",     m_mcEventCollectionName);
+  declareProperty("G4Commands",            m_g4commands, "Commands to send to the G4UI");
+  declareProperty("MultiThreading",        m_useMT, "Multi-threading specific settings");
   //declareProperty("KillAllNeutrinos",      m_KillAllNeutrinos=true);
   //declareProperty("KillLowEPhotons",       m_KillLowEPhotons=-1.);
-  // Commands to send to the G4UI
-  declareProperty("G4Commands",            m_g4commands);
-  // Multi-threading specific settings
-  declareProperty("MultiThreading",        m_useMT=false);
-  declareProperty("RandomNumberService",   m_rndmGenSvc);
-  declareProperty("G4AtlasSvc",            m_g4atlasSvc );
-  declareProperty("UserActionSvc",         m_userActionSvc);
-  declareProperty("DetGeoSvc",             m_detGeoSvc);
-  declareProperty("InputConverter",        m_inputConverter);
-  declareProperty("G4RunManagerHelper",    m_g4RunManagerHelper);
-  declareProperty("PhysicsListTool",       m_physListTool);
-  declareProperty("SenDetMasterTool",      m_senDetTool);
-  declareProperty("FastSimMasterTool",     m_fastSimTool);
-
 
 }
 
@@ -185,9 +151,10 @@ void iGeant4::G4TransportTool::initializeOnce()
   }
 
   // Send UI commands
-  for (auto g4command : m_g4commands){
-    int the_return = ui->ApplyCommand(g4command);
-    ATH_MSG_INFO("Returned " << the_return << " from G4 Command: " << g4command);
+  ATH_MSG_DEBUG("G4 Command: Trying at the end of initializeOnce()");
+  for (auto g4command : m_g4commands) {
+    int returnCode = ui->ApplyCommand( g4command );
+    commandLog(returnCode, g4command);
   }
 
   return;
@@ -287,6 +254,26 @@ HepMC::GenEvent* iGeant4::G4TransportTool::genEvent() const
     }
   }
   return nullptr;
+
+}
+
+//________________________________________________________________________
+void iGeant4::G4TransportTool::commandLog(int returnCode, const std::string& commandString) const
+{
+  switch(returnCode) {
+  case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;
+  case 100: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Command Not Found!"); } break;
+  case 200: {
+    auto* stateManager = G4StateManager::GetStateManager();
+    ATH_MSG_DEBUG("G4 Command: " << commandString << " - Illegal Application State (" <<
+                    stateManager->GetStateString(stateManager->GetCurrentState()) << ")!");
+  } break;
+  case 300: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Range!"); } break;
+  case 400: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Unreadable!"); } break;
+  case 500: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Candidates!"); } break;
+  case 600: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Alias Not Found!"); } break;
+  default: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Unknown Status!"); } break;
+  }
 
 }
 

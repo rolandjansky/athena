@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCREATORALG_H
@@ -9,9 +9,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/SlowMuonContainer.h"
@@ -47,12 +49,14 @@ class MuonCreatorAlg : public AthAlgorithm
   SG::WriteHandleKey<TrackCollection> m_msOnlyExtrapolatedTrkCollectionName{this,"MSOnlyExtrapolatedTrackLocation","MSOnlyExtrapolatedMuon","MS extrapolated muon tracks"};
   SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","ID candidates"};
   SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","Muon candidates"};
+  SG::ReadHandleKeyArray<MuonCombined::InDetCandidateToTagMap> m_tagMaps{this,"TagMaps",{"muidcoTagMap","stacoTagMap","muGirlTagMap","caloTagMap","segmentTagMap"},"ID candidate to tag maps"};
   SG::WriteHandleKey<xAOD::MuonSegmentContainer> m_segContainerName{this, "SegmentContainerName", "MuonSegments", "Segments"};
   SG::WriteHandleKey<Trk::SegmentCollection> m_segTrkContainerName{this,"TrackSegmentContainerName","MuonSegments","Track segments"};
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName{this, "ClusterContainerName", "MuonClusterCollection", "Clusters"};
   SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterContainerLinkName{this,"CaloClusterCellLinkName","MuonClusterCollection","Cluster links"};
   bool m_buildSlowMuon;
   bool m_doSA;
+  bool m_makeClusters;
 
 };
 

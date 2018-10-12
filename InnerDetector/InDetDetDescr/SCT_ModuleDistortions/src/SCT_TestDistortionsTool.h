@@ -5,43 +5,33 @@
 #ifndef SCT_TestDistortionsTool_h
 #define SCT_TestDistortionsTool_h
 
-#include <string>
-#include <memory>
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "TH2F.h"
-#include "TH3F.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
-
-
-
-//Gaudi
-#include "GaudiKernel/ToolHandle.h"
 
 //package includes
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 
-class ITHistSvc;
-class TH2I;
-class TH2F;
-class TH3F;
-namespace InDetDD
-{
-  class SiDetectorManager;
-}
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
 
-class SCT_TestDistortionsTool:public AthAlgorithm{
+//STL
+#include <string>
+#include <memory>
+
+//ROOT
+#include "TH2F.h"
+#include "TH3F.h"
+
+class SCT_TestDistortionsTool:public AthAlgorithm {
   public:
-    SCT_TestDistortionsTool( const std::string & name, ISvcLocator * pSvcLocator);
-    ~SCT_TestDistortionsTool();
+    SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator);
+    ~SCT_TestDistortionsTool() = default;
     // Standard Gaudi functions
     StatusCode initialize(); //!< Gaudi initialiser
     StatusCode execute();    //!< Gaudi executer
     StatusCode finalize();   //!< Gaudi finaliser
     
   private:
-    PublicToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
+    ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
        {this,"SCT_DistortionsTool","SCT_DistortionsTool",""};
 
     std::unique_ptr<TH2F> m_ZvsX;
@@ -54,5 +44,3 @@ class SCT_TestDistortionsTool:public AthAlgorithm{
 
 };
 #endif
-
-

@@ -27,14 +27,14 @@
 
 // INCLUDE HEADER FILES: 
 #include "GaudiKernel/ToolHandle.h"
-#include "egammaBaseTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "StoreGate/ReadHandleKey.h"
 
-class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionBuilder
+class EMConversionBuilder : public AthAlgTool, virtual public IEMConversionBuilder
 {
 
  public:
@@ -50,11 +50,11 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   /** @brief initialize method*/
   StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* egRec) override;
+  virtual StatusCode executeRec(egammaRec* egRec) const override final;
   /** @brief execute method*/
-  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) override;
+  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const override final;
   /** @brief execute method*/
-  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) override;
+  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const override final;
   /** @brief finalize method*/
   StatusCode finalize() override;
 

@@ -18,6 +18,7 @@
 #include <vector>
 #include <iostream>
 #include <iterator>
+#include <unordered_map>
 
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigConfHLTData/HLTSignature.h"
@@ -174,7 +175,6 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
     // -- assume that the groups and streams have all changed!!!
     m_groups.clear();
     m_streams.clear();
-    std::vector<std::string>::iterator gpIt;
 
     for(auto ch : *m_confChains) {
       if (( ch->level() == "EF" || ch->level() == "HLT") && ch->streams().size()>0 ) {
@@ -253,11 +253,11 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
 
 const HLT::Chain* Trig::CacheGlobalMemory::chain(const std::string& name) const {
-  std::map<std::string, const HLT::Chain*>::const_iterator i = m_efchainsByName.find(name);
+  auto i = m_efchainsByName.find(name);
   if (i != m_efchainsByName.end()) {
     return i->second;
   }
-  
+
   i = m_l2chainsByName.find(name);
   if ( i != m_l2chainsByName.end() ) {
     return i->second;

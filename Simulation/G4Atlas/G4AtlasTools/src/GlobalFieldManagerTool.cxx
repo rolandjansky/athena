@@ -16,7 +16,8 @@
 #include "G4ChordFinder.hh"
 #include "G4PropagatorInField.hh"
 #include "G4MagIntegratorStepper.hh"
-
+#include "G4Version.hh"
+#include "G4MagIntegratorDriver.hh"
 
 //-----------------------------------------------------------------------------
 // Tool constructor
@@ -71,12 +72,21 @@ StatusCode GlobalFieldManagerTool::initializeField()
     fieldMgr->SetDetectorField(field);
     ATH_CHECK( setFieldParameters(fieldMgr) );
 
-    // Construct the stepper
-    auto stepper = getStepper(m_integratorStepper, field);
-
     // Create and configure the ChordFinder
     fieldMgr->CreateChordFinder(field);
-    fieldMgr->GetChordFinder()->GetIntegrationDriver()->RenewStepperAndAdjust(stepper);
+
+    // Construct the stepper
+    auto stepper = getStepper(m_integratorStepper, field);
+    
+    G4MagInt_Driver* magDriver = nullptr;
+    
+#if G4VERSION_NUMBER < 1040
+    magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
+#else
+    magDriver = static_cast<G4MagInt_Driver*>(fieldMgr->GetChordFinder()->GetIntegrationDriver());
+#endif
+    
+    magDriver->RenewStepperAndAdjust(stepper);
 
     // Configure the propagator
     G4PropagatorInField* propagator = transpManager->GetPropagatorInField();

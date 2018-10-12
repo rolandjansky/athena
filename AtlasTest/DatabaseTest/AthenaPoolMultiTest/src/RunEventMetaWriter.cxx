@@ -83,7 +83,7 @@ StatusCode RunEventMetaWriter::start()
   {
     attribList = new AthenaAttributeList(*m_attribListSpec);
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception during creation of AthenaAttributeList object."
                    << "Message: " << e.what()  );
@@ -102,7 +102,7 @@ StatusCode RunEventMetaWriter::start()
     (*attribList)["RunNumber"].data<unsigned int>() = 88;
     (*attribList)["EventNumber"].data<unsigned int>() = 99;
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
                    << "attributes; Message: " << e.what() );

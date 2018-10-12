@@ -42,7 +42,6 @@ SCT_CalibBsErrorSvc::SCT_CalibBsErrorSvc(const std::string &name, ISvcLocator * 
   AthService(name,svc),
   m_detStore("DetectorStore", name),
   m_evtStore("StoreGateSvc", name), 
-  m_bytestreamErrorsSvc( "SCT_ByteStreamErrorsSvc", name ),
   m_pSCTHelper(0),
   m_scterr_bec(0),
   m_scterr_layer(0),
@@ -60,7 +59,7 @@ StatusCode
 SCT_CalibBsErrorSvc::initialize(){
   if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endmsg, StatusCode::FAILURE;
   if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endmsg, StatusCode::FAILURE;
-  if ( m_bytestreamErrorsSvc.retrieve().isFailure()) return msg( MSG::ERROR) << "Unable to retrieve BS Error Svc" << endmsg, StatusCode::FAILURE;
+  if ( m_bytestreamErrorsTool.retrieve().isFailure()) return msg( MSG::ERROR) << "Unable to retrieve BS Error Tool" << endmsg, StatusCode::FAILURE;
   //
   MAXHASH=m_pSCTHelper->wafer_hash_max();
   m_waferItrBegin  = m_pSCTHelper->wafer_begin();
@@ -149,7 +148,7 @@ SCT_CalibBsErrorSvc::fillFromData(){
  m_numberOfEventsHisto->Fill( 1 );
  //--- Loop over BSErrors
   for ( int type = 0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type ) {
-    const std::set<IdentifierHash>* errorSet = m_bytestreamErrorsSvc->getErrorSet( type );
+    const std::set<IdentifierHash>* errorSet = m_bytestreamErrorsTool->getErrorSet( type );
     if ( errorSet != 0 ) {
       std::set<IdentifierHash>::const_iterator it  = errorSet->begin();
       std::set<IdentifierHash>::const_iterator itE = errorSet->end();

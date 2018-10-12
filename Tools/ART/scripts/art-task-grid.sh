@@ -5,9 +5,9 @@
 #
 # Example command lines for three types:
 #
-# art-task-grid.sh [--no-action] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_type> <number_of_tests>
+# art-task-grid.sh [--no-action] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_type> <number_of_tests>
 #
-# art-task-grid.sh [--no-action] single [--inds <input_file> --n-files <number_of_files> --split <split>] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_name>
+# art-task-grid.sh [--no-action] single [--inds <input_file> --n-files <number_of_files> --split <split>] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_name>
 #
 # env: ART_GRID_OPTIONS
 #
@@ -21,7 +21,7 @@ set -e
 echo "art-task-grid.sh executed by $(whoami) on $(date)"
 
 NO_ACTION=0
-if [ $1 == "--no-action" ]; then
+if [ "$1" == "--no-action" ]; then
     NO_ACTION=1
     shift
     echo "NO_ACTION=${NO_ACTION}"
@@ -40,22 +40,23 @@ case ${TYPE} in
     'single')
         echo "Running 'single'"
         INDS=""
-        if [ $1 == "--inds" ]; then
+        if [ "$1" == "--inds" ]; then
             INDS="--inDS $2"
             shift
             shift
         fi
         NFILES=""
         NFILES_PER_JOB=""
-        if [ $1 == "--n-files" ]; then
+        if [ "$1" == "--n-files" ]; then
             NFILES="--nFiles $2"
             NFILES_PER_JOB="--nFilesPerJob $2"
+            NCORE_NFILES_PER_JOB="--nFilesPerJob $2"
             shift
             shift
         fi
         SPLIT=""
         LARGE_JOB="--long --memory 4096"
-        if [ $1 == "--split" ]; then
+        if [ "$1" == "--split" ]; then
             SPLIT="--split $2"
             NFILES_PER_JOB=""
             LARGE_JOB=""
@@ -63,9 +64,24 @@ case ${TYPE} in
             shift
         fi
         IN_FILE=""
-        if [ $1 == "--in" ]; then
+        if [ "$1" == "--in" ]; then
           IN_FILE="--in=%IN"
           shift
+        fi
+        NCORES=""
+        if [ "$1" == "--ncore" ]; then
+            NCORES="--nCore $2"
+            NFILES_PER_JOB="${NCORE_NFILES_PER_JOB}"
+            LARGE_JOB=""
+            shift
+            shift
+        fi
+        ATHENA_MT=""
+        if [ "$1" == "--athena_mt" ]; then
+            NCORES="--nCore $2"
+            LARGE_JOB=""
+            shift
+            shift
         fi
         ;;
     *)
@@ -94,6 +110,10 @@ OUTFILE=$1
 shift
 echo "OUTFILE=${OUTFILE}"
 
+INFORM_PANDA=$1
+shift
+echo "INFORM_PANDA=${INFORM_PANDA}"
+
 case ${TYPE} in
 
     'batch')
@@ -116,7 +136,7 @@ case ${TYPE} in
 esac
 
 # general options
-PATHENA_OPTIONS="--destSE=CERN-PROD_SCRATCHDISK"
+PATHENA_OPTIONS="--noBuild --expertOnly_skipScout --noEmail --maxAttempt 2"
 OUT="%OUT.tar"
 
 # we seem to have to copy the env variables locally
@@ -137,7 +157,7 @@ case ${TYPE} in
     'single')
         # <script_directory> <sequence_tag> <package> <outfile> <job_name>
         INTERNAL_COMMAND="grid single"
-        PATHENA_TYPE_OPTIONS="${LARGE_JOB} ${INDS} ${NFILES} ${NFILES_PER_JOB}"
+        PATHENA_TYPE_OPTIONS="${LARGE_JOB} ${INDS} ${NFILES} ${NFILES_PER_JOB} ${NCORES} ${ATHENA_MT}"
         ARGS="${JOB_NAME}"
         echo "PATHENA_TYPE_OPTIONS=${PATHENA_TYPE_OPTIONS}"
         echo "ARGS=${ARGS}"
@@ -146,19 +166,18 @@ esac
 
 
 # NOTE: for art-internal.py the current dir can be used as it is copied there
-cd ${SUBMIT_DIRECTORY}/${PACKAGE}/run
-SUBCOMMAND="./art-internal.py ${INTERNAL_COMMAND} ${IN_FILE} ${SCRIPT_DIRECTORY} ${SEQUENCE_TAG} ${PACKAGE} ${OUT} ${ARGS}"
-CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --noBuild --expertOnly_skipScout --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json"
+cd "${SUBMIT_DIRECTORY}"/"${PACKAGE}"/run
+SUBCOMMAND="./art-internal.py ${INTERNAL_COMMAND} ${IN_FILE} ${SCRIPT_DIRECTORY} ${SEQUENCE_TAG} ${PACKAGE} ${OUT} ${INFORM_PANDA} ${ARGS}"
+CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json"
 
 #--disableAutoRetry
 #--excludedSite=ANALY_TECHNION-HEP-CREAM
 #--site=ANALY_NIKHEF-ELPROD_SHORT,ANALY_NIKHEF-ELPROD"
-#--site=ANALY_FZK,ANALY_BNL,ANALY_RAL"
 
 echo "Command: ${CMD}"
 
 if [ ${NO_ACTION} -ne 1 ]; then
     echo "Submitting..."
-    RESULT=`eval "${CMD}"`
-    echo ${RESULT}
+    RESULT=$(eval "${CMD}")
+    echo "${RESULT}"
 fi

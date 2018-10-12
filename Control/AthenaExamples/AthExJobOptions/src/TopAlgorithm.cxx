@@ -126,15 +126,6 @@ StatusCode TopAlgorithm::reinitialize()
 }
 
 //___________________________________________________________________________
-StatusCode TopAlgorithm::beginRun()
-{
-
-// perform work needed at start of every run
-
-   return StatusCode::SUCCESS;
-}
-
-//___________________________________________________________________________
 StatusCode TopAlgorithm::execute()
 {
 
@@ -232,15 +223,6 @@ StatusCode TopAlgorithm::execute()
      ("wrote data: " << newdata->getValue() << " for key: " << getOutputKey());
 
 // no deletion of newdata after successful record
-   return StatusCode::SUCCESS;
-}
-
-//___________________________________________________________________________
-StatusCode TopAlgorithm::endRun()
-{
-
-// perform work done at end of every run
-
    return StatusCode::SUCCESS;
 }
 

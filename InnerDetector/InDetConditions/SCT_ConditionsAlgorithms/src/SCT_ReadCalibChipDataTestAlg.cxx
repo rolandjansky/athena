@@ -12,11 +12,9 @@
 
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/ReadHandle.h"
 
 // Include Gaudi stuff
-
-// Include Read Handle
-#include "StoreGate/ReadHandle.h"
 
 // Include STL stuff
 #include <vector>
@@ -24,7 +22,6 @@
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataTestAlg::SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_sc{0},
   m_id_sct{nullptr},
   m_currentEventKey{std::string("EventInfo")},
   m_moduleId{0},
@@ -44,31 +41,13 @@ StatusCode SCT_ReadCalibChipDataTestAlg::initialize() {
   ATH_MSG_DEBUG("in initialize()");
   
   // Get SCT ID helper
-  m_sc = detStore()->retrieve(m_id_sct, "SCT_ID");
-  if (m_sc.isFailure()) {
-    ATH_MSG_FATAL("Failed to get SCT ID helper");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Found SCT detector manager");
-  }
+  ATH_CHECK( detStore()->retrieve(m_id_sct, "SCT_ID"));
   
   // Process jobOption properties
-  m_sc = processProperties();
-  if (m_sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to process jobOpt properties");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Processed jobOpt properties");
-  }
+  ATH_CHECK(processProperties());
 
   // Get the SCT_ReadCaliChipDataSvc
-  m_sc = m_ReadCalibChipDataTool.retrieve();
-  if (m_sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot locate CalibChipData service");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("CalibChipData Service located ");
-  }
+  ATH_CHECK(m_ReadCalibChipDataTool.retrieve());
 
   // Read Handle
   ATH_CHECK(m_currentEventKey.initialize());
@@ -126,7 +105,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
   // Get the current event
   SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
   if (not currentEvent.isValid()) {
-    ATH_MSG_ERROR("Could not get event info");
+    ATH_MSG_FATAL("Could not get event info");
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Current Run.Event,Time: "

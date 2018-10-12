@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -16,7 +16,6 @@ TrigL2MuonSA::PtEndcapLUTSvc::PtEndcapLUTSvc(const std::string& name, ISvcLocato
   AthService(name,sl),
   m_ptEndcapLUT("TrigL2MuonSA::PtEndcapLUT")
 {
-  declareProperty("FileNameRun2", m_lut_fileName="pt_endcap_run2.lut");
 }
 
 // --------------------------------------------------------------------------------

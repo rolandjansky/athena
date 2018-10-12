@@ -16,7 +16,7 @@ public:
    * @brief processes views to create merged collection collection of the content
    * 
    **/
-  virtual StatusCode merge( const EventContext& context, const std::vector<SG::View*>& ) const = 0;
+  virtual StatusCode merge( const EventContext& context, const ViewContainer& ) const = 0;
   
   virtual ~IViewsMergerTool() {}
 };

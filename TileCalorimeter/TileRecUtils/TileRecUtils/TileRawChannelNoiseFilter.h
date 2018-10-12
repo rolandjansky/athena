@@ -32,7 +32,8 @@ class TileBeamInfoProvider;
  @class TileRawChannelNoiseFilter
  @brief This tool subtracts common-mode noise from all TileRawChannels in one container
  */
-class TileRawChannelNoiseFilter: public AthAlgTool, virtual public ITileRawChannelTool {
+class TileRawChannelNoiseFilter: public extends<AthAlgTool, ITileRawChannelTool>
+{
   public:
 
     /** AlgTool like constructor */
@@ -42,16 +43,13 @@ class TileRawChannelNoiseFilter: public AthAlgTool, virtual public ITileRawChann
     /** Virtual destructor */
     virtual ~TileRawChannelNoiseFilter() {};
 
-    /** AlgTool InterfaceID */
-    static const InterfaceID& interfaceID();
-
     /** AlgTool initialize method.*/
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** AlgTool finalize method */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /** proceed the coherent noise subtruction algorithm and correct TileRawChannel amplitudes */
-    virtual StatusCode process(TileRawChannelContainer *rchCnt);
+    virtual StatusCode process(TileRawChannelContainer *rchCnt) const override;
 
   private:
 

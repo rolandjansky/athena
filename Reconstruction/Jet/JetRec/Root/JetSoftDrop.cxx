@@ -53,7 +53,9 @@ StatusCode JetSoftDrop::initialize() {
 
 //**********************************************************************
 
-int JetSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
+int JetSoftDrop::groom(const xAOD::Jet& jin,
+                       const PseudoJetContainer& pjContainer,
+                       xAOD::JetContainer& jets) const {
   if ( pseudojetRetriever() == nullptr ) {
     ATH_MSG_WARNING("Pseudojet retriever is null.");
     return 1;
@@ -71,7 +73,7 @@ int JetSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   fastjet::contrib::SoftDrop softdropper(m_beta, m_zcut);
   PseudoJet pjsoftdrop = softdropper(*ppjin);
   int npsoftdrop = pjsoftdrop.pieces().size();
-  xAOD::Jet* pjet = m_bld->add(pjsoftdrop, jets, &jin);
+  xAOD::Jet* pjet = m_bld->add(pjsoftdrop, pjContainer, jets, &jin);
   //pjet->SetAttribute<int>("TransformType", xAOD::JetTransform::SoftDrop); //xAOD::JetTransform::SoftDrop probably doesn't exist yet
   pjet->setAttribute("ZCut", m_zcut);
   pjet->setAttribute("SoftDropBeta", m_beta);

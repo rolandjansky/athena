@@ -29,8 +29,6 @@
 #include "xAODPrimitives/IsolationCorrection.h"
 #include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODPrimitives/IsolationCorrectionHelper.h"
-#include "xAODPrimitives/tools/getIsolationDecorator.h"
-#include "xAODPrimitives/tools/getIsolationCorrectionDecorator.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaDefs.h"
@@ -521,8 +519,8 @@ namespace xAOD {
 #ifndef XAOD_ANALYSIS
     /// try the extention in athena if it's not obtained from muon yet.
     ATH_MSG_DEBUG("Geting calo extension caloExtension tool.");
-    const Trk::CaloExtension* caloExtension = 0;
-    if(!m_caloExtTool->caloExtension(*tp,caloExtension,m_useCaloExtensionCaching)){
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*tp);
+    if(!caloExtension){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return false;
     };
@@ -1350,163 +1348,6 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return &particle;
   }
 
-  bool CaloIsolationTool::decorateParticle(CaloIsolation& result,
-					   const IParticle& tp,
-					   const std::vector<Iso::IsolationType>& cones,
-					   CaloCorrection corrections){
-    // get the applied corrections
-    std::vector<Iso::IsolationCaloCorrection> correctionTypes;
-    Iso::IsolationCaloCorrectionBitsetHelper::decode(corrections.calobitset,correctionTypes);
-    ATH_MSG_DEBUG("Decoded correction types: " << correctionTypes.size());
-
-    // decorate the particle
-    SG::AuxElement::Decorator< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
-
-    if( bitsetAcc )
-      (*bitsetAcc)(tp) = corrections.calobitset.to_ulong();
-    else
-      ATH_MSG_WARNING("Cannot find bitset accessor for flavour " << toCString(Iso::isolationFlavour(cones[0])));
-    
-    // Fill all computed corrections
-    // core correction type (e.g. coreMuon, core57cells)
-    for (auto coretype : result.coreCorrections) {
-      Iso::IsolationCaloCorrection ctype = coretype.first;
-      // core energy and area
-      for (auto par : coretype.second) {
-	if (par.first == Iso::coreArea) continue; // do not store area, as they are constant ! (pi R**2 or 5*0.025 * 7*pi/128)
-	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype, par.first );
-	if (isoCorAcc) { 
-	  ATH_MSG_DEBUG("Storing core correction " << Iso::toCString(ctype) << " var " << Iso::toCString(par.first) << " = " << par.second);
-	  (*isoCorAcc)(tp) = par.second;
-	} else {
-	  ATH_MSG_WARNING("Accessor not found for core correction " << Iso::toCString(ctype) << ", var " << Iso::toCString(par.first));
-	}
-      }
-    }
-    // noncore correction type (e.g. pileup)
-    for (auto corrtype : result.noncoreCorrections) {
-      Iso::IsolationCaloCorrection ctype = corrtype.first;
-      if (ctype == Iso::pileupCorrection) continue; // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
-      std::vector<float> corrvec         = corrtype.second;
-      if (corrvec.size() != cones.size()) {
-	ATH_MSG_WARNING("Only cone size-based corrections are supported. Will do nothing to" << Iso::toCString(ctype) );
-	continue;
-      }
-      for (unsigned int i = 0; i < corrvec.size();i++) {
-	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator(cones[i],ctype);
-	if (isoCorAcc) {
-	  ATH_MSG_DEBUG("Storing non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]) << " = " << corrvec[i]);
-	  (*isoCorAcc)(tp) = corrvec[i];
-	} else
-	  ATH_MSG_WARNING("Accessor not found for non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]));
-      }
-    }
-
-    // fill main isolation
-    // loop over cones
-    if (result.etcones.size() == cones.size()) {
-      for( unsigned int i=0;i<cones.size();++i ){
-	
-	Iso::IsolationType type = cones[i];
-        SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
-        if ( isoTypeAcc ) {
-	  ATH_MSG_DEBUG("Filling " << Iso::toCString(type) << " = " << result.etcones[i]);
-          (*isoTypeAcc)(tp) = result.etcones[i];
-        } else 
-	  ATH_MSG_WARNING("Cannot find accessor for " << Iso::toCString(type));
-      }
-    } else if( !result.etcones.empty() )
-      ATH_MSG_WARNING("Inconsistent etcones vector size: results : " << result.etcones.size() << ", number of wanted cones : " << cones.size() );
-    
-    return true;
-  }
-
-  bool CaloIsolationTool::decorateParticle_caloCellIso( const IParticle& tp,
-                                          const std::vector<Iso::IsolationType>& cones,
-                                          CaloCorrection corrections,
-                                          const CaloCellContainer* Cells){
-    // calculate the isolation
-    CaloIsolation result;
-    if( !caloCellIsolation(result,tp,cones,corrections,Cells) ) {
-      ATH_MSG_DEBUG("Calculation of caloCellIsolation failed");
-      return false;
-    }
-    if( !decorateParticle(result, tp, cones, corrections) ){
-      ATH_MSG_DEBUG("Decoration of caloCellIsolation failed");
-      return false;
-    }
-
-    return true;
-  }
-
-
-  bool CaloIsolationTool::decorateParticle_topoClusterIso( const IParticle& tp,
-                                          const std::vector<Iso::IsolationType>& cones,
-                                          CaloCorrection corrections,
-                                          const CaloClusterContainer* TopClusters) {
-    // calculate the isolation
-    CaloIsolation result;
-    if( !caloTopoClusterIsolation(result,tp,cones,corrections,TopClusters) ) {
-      ATH_MSG_DEBUG("Calculation of caloTopoClusterIsolation failed");
-      return false;
-    }
-    if( !decorateParticle(result, tp, cones, corrections) ){
-      ATH_MSG_DEBUG("Decoration of caloTopoClusterIsolation failed");
-      return false;
-    }
-
-    return true;
-  }
-
-  bool CaloIsolationTool::decorateParticle_eflowIso( const IParticle& tp,
-                                          const std::vector<Iso::IsolationType>& cones,
-                                          CaloCorrection corrections){
-    // calculate the isolation
-    CaloIsolation result;
-    if( !neutralEflowIsolation(result,tp,cones,corrections) ) {
-      ATH_MSG_DEBUG("Calculation of neutralEflowIsolation failed");
-      return false;
-    }
-    if( !decorateParticle(result, tp, cones, corrections) ){
-      ATH_MSG_DEBUG("Decoration of neutralEflowIsolation failed");
-      return false;
-    }
-    
-    return true;
-  }
-
-#ifndef XAOD_ANALYSIS
-  bool CaloIsolationTool::decorateParticle( const IParticle& tp,
-                                          const std::vector<Iso::IsolationType>& cones,
-                                          CaloCorrection corrections,
-                                          const CaloCellContainer* Cells,
-                                          const CaloClusterContainer* TopClusters){
-    ATH_MSG_DEBUG("just a test ");
-    /// check Isolation flavour
-    Iso::IsolationFlavour flavour = Iso::numIsolationFlavours;
-    for( unsigned int i=0;i<cones.size();++i ){
-      if(i==0) {flavour = isolationFlavour( cones[i] ); continue;}
-      if(flavour != isolationFlavour( cones[i] )){
-	ATH_MSG_FATAL("decorateParticle does not support mixture of the isolation flavour!!!");
-	return false;
-      }
-    }
-    
-    bool suc(false);
-    switch(flavour) {
-    case Iso::etcone:
-      suc = decorateParticle_caloCellIso(tp, cones, corrections, Cells); break;
-    case Iso::topoetcone:
-      suc = decorateParticle_topoClusterIso(tp, cones, corrections, TopClusters); break;
-    case Iso::neflowisol:
-      suc = decorateParticle_eflowIso(tp, cones, corrections); break;
-    default:
-      ATH_MSG_FATAL("Unsupported isolation flavour!!!"); return false;
-    }
-    
-    return suc;    
-  }
-#endif
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
   bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& output ) const {
@@ -1556,6 +1397,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   }
 #endif // XAOD_ANALYSIS
 
+  // FIXME! This should be updated to use the standard caching of extrapolation to calo
   void CaloIsolationTool::decorateTrackCaloPosition(const IParticle& p, float eta, float phi) const{
     static SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
     static SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");

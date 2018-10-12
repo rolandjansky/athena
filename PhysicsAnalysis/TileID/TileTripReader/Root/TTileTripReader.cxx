@@ -28,7 +28,7 @@ namespace Root{
 TTileTripReader::TTileTripReader(const char*
 #ifndef ROOTCORE
       name)
-    : TSelectorToolBase(name),TCalculatorToolBase(name)
+    : TSelectorToolBase(name)
 #else
       )
 #endif /*ROOTCORE*/
@@ -100,10 +100,9 @@ double TTileTripReader::areaTripFraction(int run, int lbn, double eta, double ph
     return tripArea/jetArea;
 }
 #ifndef ROOTCORE
-const TResult& TTileTripReader::calculate(int run, int lbn, double eta, double phi, double dR, int tileError, int tileFlags){
+float TTileTripReader::calculate(int run, int lbn, double eta, double phi, double dR, int tileError, int tileFlags){
     readTileFlags(run,lbn,tileError,tileFlags);
-    m_result.setResult("TripAreaFrac",areaTripFraction(run,lbn,eta,phi,dR));
-    return m_result;
+    return areaTripFraction(run,lbn,eta,phi,dR);
 }
 #endif /*ROOTCORE*/
 void TTileTripReader::buildOffsets(){
@@ -399,7 +398,6 @@ vector<TripRegion> TTileTripReader::getEtaPhi(int run, int lbn, bool force){
 int TTileTripReader::initialize(){
 #ifndef ROOTCORE
     m_accept.addCut("InTrip","true if eta phi fall inside a powered off module");
-    m_result.addResult("TripAreaFrac","The fraction of the area coverd by trips");
 #endif /*ROOTCORE*/
     return 1;
 }

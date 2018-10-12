@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build the global support frame
@@ -119,7 +119,6 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   const GeoMaterial* cornerMat = m_mat_mgr->getMaterialForVolume(cornerMatName,numSides*cornerShape->volume()); // CHeck volume calc.
   //const GeoMaterial* cornerMat = m_mat_mgr->getMaterial("std::Carbon");
   GeoLogVol * cornerLV = new GeoLogVol("FrameCorner",cornerShape,cornerMat);
-  GeoPhysVol * cornerPV = new GeoPhysVol(cornerLV);
   
 
   ////////////////////////
@@ -169,21 +168,15 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 	shapeVolume = sideElementShape->volume();
       } else if (same(zMax1-zMin1, zMax2-zMin2)) {
 	// Use a parallelepiped
-	//GeoPara (double XHalfLength, double YHalfLength, double ZHalfLength, double Alpha, double Theta, double Phi); 
 	double alphaPara = atan2(zMin2-zMin1,sideWidth);
 	double thetaPara = 0; 
 	double phiPara = 0;
-	//sideElementShape = new GeoPara(0.5*sideThick,  0.5*sideWidth-epsilon, 0.5*std::abs(zMax1-zMin1), alphaPara, thetaPara, phiPara);
 	sideElementShape = new GeoPara(0.5*std::abs(zMax1-zMin1),  0.5*sideWidth-epsilon, 0.5*sideThick, alphaPara, thetaPara, phiPara);
 	rotateShape = HepGeom::RotateY3D(-90*CLHEP::deg);
-	//shapeVolume = sideElementShape->volume(); // bug in GeoModel calculation
 	shapeVolume =  std::abs(zMax1-zMin1) * (sideWidth-2*epsilon) * sideThick;
-	// Test GeoModel volume calculation. Not OK.
-	// double volumeParaTest = std::abs(zMax1-zMin1) * (sideWidth-2*epsilon) * sideThick;
-        // std::cout << "Volume Para: GeoModel: " <<  sideElementShape->volume() << "   My calc: " << volumeParaTest << std::endl;
       } else {// 
-	// other cases not implemented. Should not occur for the frame.
-	std::cout << "GeoPixelFrame: This case is not handled for building the frame" << std::endl;
+	      // other cases not implemented. Should not occur for the frame.
+	      std::cout << "GeoPixelFrame: This case is not handled for building the frame" << std::endl;
       }
       sideTransVec.push_back(HepGeom::TranslateZ3D(0.25*(zMin1+zMin2+zMax1+zMax2))*rotateShape);
       sideElementShapeVec.push_back(sideElementShape);
@@ -199,9 +192,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
     zSideCenter =  0.5*(zSideMin+zSideMax);
 
     std::string sideMatName = m_gmt_mgr->PixelFrameSideMaterial(section);
-    const GeoMaterial* sideMat = m_mat_mgr->getMaterialForVolume(sideMatName,numSides*totSideVolume); 
-    //const GeoMaterial* sideMat = m_mat_mgr->getMaterial("std::Carbon");
- 
+    const GeoMaterial* sideMat = m_mat_mgr->getMaterialForVolume(sideMatName,numSides*totSideVolume);  
     for (int iElement = 0; iElement < numElements; iElement++) {
       GeoTransform * transSideElement = new GeoTransform(HepGeom::TranslateZ3D(-zSideCenter)*sideTransVec[iElement]);
       std::ostringstream frameSideName;
@@ -216,35 +207,30 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   /////////////////////////
   // Put it together
   /////////////////////////
+  GeoPhysVol * cornerPV = new GeoPhysVol(cornerLV);
 
   // place the corners and sides.
   for (int iSide = 0; iSide<numSides; iSide++) {
     double angleCorner = phiLoc + alpha * (2*iSide - 1);
     GeoTransform * cornerTrans = new GeoTransform(HepGeom::TranslateZ3D(zCenter)*HepGeom::RotateZ3D(angleCorner));
- 
     // Place the corners
-    //frameEnvPV->add(cornerTrans);
-    //frameEnvPV->add(cornerPV);
     parent->add(cornerTrans);
     parent->add(cornerPV);
-
     if (sideEnvelopePV) {
- 
       double angleSide   = phiLoc + alpha * (2*iSide);
       HepGeom::Transform3D oddEvenRotate;
       if (iSide%2 && mirrorSides) {
-	oddEvenRotate = HepGeom::RotateZ3D(CLHEP::pi); // Every 2nd side we mirror the side. 
+	      oddEvenRotate = HepGeom::RotateZ3D(CLHEP::pi); // Every 2nd side we mirror the side. 
       }
       GeoTransform * sideTrans = new GeoTransform(HepGeom::TranslateZ3D(zSideCenter)*HepGeom::RotateZ3D(angleSide)
 						  *HepGeom::TranslateX3D(midRadius)*oddEvenRotate);
 
       // Place the sides
-      //frameEnvPV->add(sideTrans);
-      //frameEnvPV->add(sideEnvelopePV);
       parent->add(sideTrans);
       parent->add(sideEnvelopePV);
     }
   }
+  
 }
 
 bool GeoPixelFrame::same(double v1, double v2) 

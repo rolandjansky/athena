@@ -15,6 +15,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include <string>
 #include <vector>
@@ -22,14 +24,12 @@
 
 namespace Trk
 {
-	class IExtrapolator;
 	class CylinderSurface;
 	class Track;
 	class Surface;
 }
 
 class TRT_ID;
-class IInDetConditionsSvc;
 
 class TRTTrackHoleSearchTool : public Trk::ITrackHoleSearchTool, public AthAlgTool
 {

@@ -9,6 +9,7 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include <stdexcept>
 
 class greater{
 public:
@@ -92,16 +93,7 @@ StatusCode egammaTopoClusterCopier::execute_r(const EventContext& ctx) const {
     }
 
     //Check if it passes the cuts
-    float emfrac(0.);
-    bool  passesCuts(checkEMFraction(*cciter, emfrac));
-
-    //Special condition for crack on EM fraction OR EM Et due to observed
-    //fragmentation of showers.
-    bool isCrack(fabs((*cciter)->eta()) > 1.37 && fabs((*cciter)->eta()) < 1.52);
-    if(isCrack){
-      passesCuts = (passesCuts || (emfrac*(*cciter)->et()) > m_EMCrackEtCut);
-    }
-    if (!passesCuts){
+    if (!passSelection(*cciter)) {
       continue;
     }
     //Clone the cluster 
@@ -117,25 +109,25 @@ StatusCode egammaTopoClusterCopier::execute_r(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *clus, float &emFrac) const{
+
+bool egammaTopoClusterCopier::passSelection (xAOD::CaloCluster *clus) const{
   
   double emfrac(0);
   if(!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
-    ATH_MSG_ERROR("No EM fraction momement stored");
-    return StatusCode::FAILURE;
+    throw std::runtime_error("No EM fraction momement stored");
   } 
   ///
-  double clusterE= clus->e();
+  const double clusterE= clus->e();
   const bool pass_no_correction= ( (emfrac>m_EMFracCut) &&  ( (clusterE*emfrac) > m_ECut) );
   ATH_MSG_DEBUG("Initial emfrac: " <<emfrac);
   //
-  double aeta= fabs(clus->eta());
+  const double aeta= fabs(clus->eta());
   // Try to add the TileGap cells to its EM energy 
   // For crack clusters, also want to consider EME0, EMB0
   if(aeta>1.37 && aeta<1.63 && clusterE>0){
     double EMEnergy= clusterE*emfrac;
-    xAOD::CaloCluster::const_cell_iterator cell_itr = clus->begin();
-    xAOD::CaloCluster::const_cell_iterator cell_end = clus->end();   
+    auto cell_itr = clus->cell_cbegin();
+    auto cell_end = clus->cell_cend();   
 
     for (; cell_itr != cell_end; ++cell_itr) { 
       const CaloCell* cell = *cell_itr; 
@@ -167,17 +159,21 @@ StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *cl
     ATH_MSG_DEBUG("Corrected emfrac for E4 in TileGap3: " <<emfrac);
   }
   //
-  static const  SG::AuxElement::Decorator<float> acc("EMFraction");
+  static const  SG::AuxElement::Accessor<float> acc("EMFraction");
   acc(*clus)=emfrac;
   //Did it pass after correction
-  const bool pass_after_correction= ((emfrac>m_EMFracCut) &&  ( (clusterE*emfrac) > m_ECut));
-  static const SG::AuxElement::Decorator<bool> acc1("isCrackRecovered");
+  bool pass_after_correction= ((emfrac>m_EMFracCut) &&  ( (clusterE*emfrac) > m_ECut));
+
+  //Special condition for crack on EM fraction OR EM Et due to observed
+  //fragmentation of showers.
+  if (aeta > 1.37 && aeta < 1.52) {
+    pass_after_correction = pass_after_correction || (emfrac*clus->et() > m_EMCrackEtCut);
+  }
+
+  static const SG::AuxElement::Accessor<bool> acc1("isCrackRecovered");
   acc1(*clus)= (pass_no_correction!=pass_after_correction);
   ATH_MSG_DEBUG("Cluster need to be recovered " << (pass_no_correction!=pass_after_correction));
-  //
-  emFrac = emfrac;
-  //Could re
-  return StatusCode(pass_after_correction);
+  return pass_after_correction;
 }
   
 

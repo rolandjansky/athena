@@ -38,6 +38,7 @@ namespace D3PD {
   {
     CHECK( Base::initialize() );
     CHECK( detStore()->retrieve(m_sctId,"SCT_ID") );
+    CHECK( m_SCTDetEleCollKey.initialize() );
 
     m_eventNumber = -1;
     return StatusCode::SUCCESS;

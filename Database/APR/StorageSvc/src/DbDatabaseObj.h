@@ -97,8 +97,6 @@ namespace pool    {
     const DbTypeInfo*             m_string_t;
     /// Physical Database login
     std::string                   m_logon;
-    /// Flag to mark ongoing Transactions
-    bool                          m_transactOpen;
     /// File age counter
     int                           m_fileAge;
     /// Token describing the object
@@ -127,8 +125,6 @@ namespace pool    {
     IDbDatabase* info() const         {  return m_info;         }
     /// Access to domain handle (CONST)
     DbDomain& domain()                {  return m_dom;          }
-    /// Allow query if Transaction is active
-    bool transactionActive() const    {  return m_transactOpen; }
     /// Access age value
     int  age()  const                 {  return m_fileAge;      }
     /// Access the token of the database object
@@ -146,8 +142,8 @@ namespace pool    {
     DbStatus retire();
     /// Check for pending updates
     bool updatesPending() const;
-    /// Start/Commit/Rollback Database Transaction
-    DbStatus transAct(DbTransaction& refTransaction);
+    /// Execute Database Transaction action
+    DbStatus transAct(Transaction::Action action);
 
     /// Retrieve association link from token with redirection when file is merged.
     DbStatus getRedirection(const Token& token, Token::OID_t& obj_linkH);

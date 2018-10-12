@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesGroup.h"
@@ -159,13 +159,9 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
   m_rateAccumulatorOR2  += wOR * wOR;
   m_rateAccumulatorAND2 += wAND * wAND;
 
-  // We don't apply any lumi extrapolation when filling the MU histogram
-  // This is wOR but without weights.m_linearLumiFactor or any other scaling in L
-  if (m_rateVsMu != nullptr) m_rateVsMu->Fill(weights.m_eventMu, weights.m_enhancedBiasWeight * (1. - weightOR));
-
-  if (m_rateVsTrain != nullptr) m_rateVsTrain->Fill(weights.m_distanceInTrain, wOR);
-
-  if (m_data != nullptr) {
+  if (m_doHistograms) {
+    m_rateVsMu->Fill(weights.m_eventMu, wOR);
+    m_rateVsTrain->Fill(weights.m_distanceInTrain, wOR);
     m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, wOR);
     m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_AND, wAND);
   }

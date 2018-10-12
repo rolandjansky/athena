@@ -14,7 +14,6 @@
 #define POOL_ROOTSTORAGESVC_ROOTDATAPTR_H 1
 
 #include "PersistentDataModel/Token.h"
-#include "StorageSvc/poolDb.h"
 #include "StorageSvc/DbBlob.h"
 #include "StorageSvc/DbArray.h"
 #include <string>

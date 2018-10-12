@@ -47,7 +47,7 @@ namespace pool {
      class RelationalCollection : virtual public ICollection, public ICollectionRelationalExtensions
     {
     public:
-    typedef Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
+      typedef Gaudi::PluginService::Factory<ICollection*( const ICollectionDescription*, ICollection::OpenMode, ISession*)> Factory;
 
       /** 
        * Constructor.

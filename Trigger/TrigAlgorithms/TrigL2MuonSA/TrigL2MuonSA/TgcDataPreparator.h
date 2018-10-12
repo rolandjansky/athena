@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCDATAPREPARATOR_H
@@ -9,7 +9,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+//#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
@@ -90,28 +91,24 @@ class TgcDataPreparator: public AthAlgTool
       const MuonGM::MuonDetectorManager* m_muonMgr;
       const MuonGM::TgcReadoutElement* m_tgcReadout;
       const TgcIdHelper* m_tgcIdHelper;
-      ActiveStoreSvc* m_activeStore;
 
-      // vector of the TGC hash ID list
-      std::vector<IdentifierHash> m_tgcHashList;         
+      //ActiveStoreSvc* m_activeStore;
+      ServiceHandle<ActiveStoreSvc> m_activeStore;
 
-      // Tool for Rdo to Prep Data conversion
-      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
-	
       // Cabling (new)
       MuonTGC_CablingSvc* m_tgcCabling;	
 
-      // Tools for the Raw data conversion
-      ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider;
-
-      // TGC raw data
-      std::vector<tgcRawData> m_tgcRawData;
+      // Tool for Rdo to Prep Data conversion
+      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
+      //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider {
+      // 	this, "TgcPrepDataProvider", "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool", ""};
+      //  
 
       // Region Selector
-      IRegSelSvc*          m_regionSelector;
+      ServiceHandle<IRegSelSvc> m_regionSelector;
 
       // ROB DataProvider
-      ROBDataProviderSvc*  m_robDataProvider;
+      ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
       // option
       TrigL2MuonSA::TgcDataPreparatorOptions m_options;
@@ -123,6 +120,13 @@ class TgcDataPreparator: public AthAlgTool
 	this, "TGCPrepDataContainer", "TGC_Measurements", "Name of the TGCContainer to read in"};
 
       bool m_use_RoIBasedDataAccess;
+
+      // vector of the TGC hash ID list
+      std::vector<IdentifierHash> m_tgcHashList;         
+
+      // TGC raw data
+      std::vector<tgcRawData> m_tgcRawData;
+
 };
 
 } // namespace TrigL2MuonSA

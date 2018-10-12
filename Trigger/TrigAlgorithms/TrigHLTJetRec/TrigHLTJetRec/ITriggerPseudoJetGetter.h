@@ -28,13 +28,6 @@ class ITriggerPseudoJetGetter: virtual public IPseudoJetGetter {
 
 public:
 
-  /*  static const InterfaceID& interfaceID() {
-    static const InterfaceID
-      IID_ITriggerPseudoJetGetter("ITriggerPseudoJetGetter", 1, 0);
-    return IID_ITriggerPseudoJetGetter;
-  }
-  */
-
   virtual ~ITriggerPseudoJetGetter();
 
   // Pseudojet vector setter

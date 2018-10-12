@@ -2,10 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArRecUtils/LArFlatConditionSvc.h"
+#include "LArFlatConditionSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreClearedIncident.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 

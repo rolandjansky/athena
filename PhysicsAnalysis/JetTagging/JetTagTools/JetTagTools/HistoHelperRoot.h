@@ -46,10 +46,7 @@ class HistoHelperRoot
   TH1* getHisto1D(const std::string& histoName);
   TH2* getHisto2D(const std::string& histoName);
   TH3* getHisto3D(const std::string& histoName);
-  void normalizeHistos();
-  void normalizeHistos(const std::string);
-  void smoothHistos(const std::string);
-  //
+
   // Interpolating
   static double Interpol1d(double, TH1*);
   static double Interpol2d(double, double, TH2*);

@@ -41,17 +41,17 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 
   // Name of the PID
   declareProperty("isEMMask",
-		  m_rootTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
+		  m_rootTool->m_isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
 
   // boolean to force to test converted photon hypothesis
   declareProperty("ForceConvertedPhotonPID",
-		  m_rootTool->forceConvertedPhotonPID=false,
+		  m_rootTool->m_forceConvertedPhotonPID=false,
 		  "boolean to force to test converted photon hypothesis");
 
   // boolean to force to test non converted photon hypothesis
   declareProperty("ForceNonConvertedPhotonPID",
-		  m_rootTool->forceNonConvertedPhotonPID=false,
+		  m_rootTool->m_forceNonConvertedPhotonPID=false,
 		  "boolean to force to test non converted photon hypothesis");
 
   // new cuts on f3
@@ -59,78 +59,78 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
   declareProperty("useF3core", m_useF3core = false,
 		  "Cut on f3 or f3core?");
   // Cut on fraction of energy to use 3rd sampling
-  declareProperty("CutF3_photonsNonConverted",m_rootTool->CutF3_photonsNonConverted,
+  declareProperty("CutF3_photonsNonConverted",m_rootTool->m_cutF3_photonsNonConverted,
 		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core) for unconverted");
   // Cut on fraction of energy to use 3rd sampling
-  declareProperty("CutF3_photonsConverted",m_rootTool->CutF3_photonsConverted,
+  declareProperty("CutF3_photonsConverted",m_rootTool->m_cutF3_photonsConverted,
 		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core) for converted");
   //
   // selection for non-converted photons
   //
   // Eta binning
   declareProperty("CutBinEta_photonsNonConverted",
-		  m_rootTool->CutBinEta_photonsNonConverted,
+		  m_rootTool->m_cutBinEta_photonsNonConverted,
 		  "Eta binning for non converted photons");
   // ET binning
   declareProperty("CutBinEnergy_photonsNonConverted",
-		  m_rootTool->CutBinEnergy_photonsNonConverted,
+		  m_rootTool->m_cutBinEnergy_photonsNonConverted,
 		  "E binning for photonsNonConverted");
 
   // Cut on hadronic leakage
   declareProperty("CutHadLeakage_photonsNonConverted",
-		  m_rootTool->CutHadLeakage_photonsNonConverted,
+		  m_rootTool->m_cutHadLeakage_photonsNonConverted,
 		  "Cut on hadronic leakage for non converted photons");
   // Cut on E277
   declareProperty("e277_photonsNonConverted",
-		  m_rootTool->e277_photonsNonConverted,
+		  m_rootTool->m_e277_photonsNonConverted,
 		  "Cut on E277 for non converted photons");
   // Cut on Reta37
   declareProperty("Reta37_photonsNonConverted",
-		  m_rootTool->Reta37_photonsNonConverted,
+		  m_rootTool->m_Reta37_photonsNonConverted,
 		  "Cut on Reta37 for non converted photons");
   // Cut on Rphi33
   declareProperty("Rphi33_photonsNonConverted",
-		  m_rootTool->Rphi33_photonsNonConverted,
+		  m_rootTool->m_Rphi33_photonsNonConverted,
 		  "Cut on Rphi33 for non converted photons");
   // Cut on Weta2
   declareProperty("weta2_photonsNonConverted",
-		  m_rootTool->weta2_photonsNonConverted,
+		  m_rootTool->m_weta2_photonsNonConverted,
 		  "Cut on Weta2 for non converted photons");
   // eta binning in strips
   declareProperty("CutBinEtaStrips_photonsNonConverted",
-		  m_rootTool->CutBinEtaStrips_photonsNonConverted,
+		  m_rootTool->m_cutBinEtaStrips_photonsNonConverted,
 		  "eta binning in strips for non converted photons");
   // Cut on energy in strips
   declareProperty("CutBinEnergyStrips_photonsNonConverted",
-		  m_rootTool->CutBinEnergyStrips_photonsNonConverted,
+		  m_rootTool->m_cutBinEnergyStrips_photonsNonConverted,
 		  "Cut on energy in strips for non converted photons");
   // Cut on fraction of energy to use 1st sampling
   declareProperty("f1_photonsNonConverted",
-		  m_rootTool->f1_photonsNonConverted,
+		  m_rootTool->m_f1_photonsNonConverted,
 		  "Cut on fraction of energy to use 1st sampling for non converted photons");
   // Cut on Emax2 [NOT USED]
   // declareProperty("emax2r_photonsNonConverted",
-  //                 m_rootTool->emax2r_photonsNonConverted,
+  //                 m_rootTool->m_emax2r_photonsNonConverted,
   //		     "Cut on Emax2 for non converted photons");
   // Cut on Delta E
   declareProperty("deltae_photonsNonConverted",
-		  m_rootTool->deltae_photonsNonConverted,
+		  m_rootTool->m_deltae_photonsNonConverted,
 		  "Cut on Delta E for non converted photons");
   // Cut on (Emax1-Emax2)/(Emax1+Emax2) in 1st sampling
   declareProperty("DEmaxs1_photonsNonConverted",
-		  m_rootTool->DEmaxs1_photonsNonConverted,
+		  m_rootTool->m_DEmaxs1_photonsNonConverted,
 		  "Cut on (Emax1-Emax2)/(Emax1+Emax2) in 1st sampling for non converted photons");
   // Cut on total shower width in strips
   declareProperty("wtot_photonsNonConverted",
-		  m_rootTool->wtot_photonsNonConverted,
+		  m_rootTool->m_wtot_photonsNonConverted,
 		  "Cut on total shower width in strips for non converted photons");
   // Cut on fraction of energy outside core in strips
   declareProperty("fracm_photonsNonConverted",
-		  m_rootTool->fracm_photonsNonConverted,
+		  m_rootTool->m_fracm_photonsNonConverted,
 		  "Cut on fraction of energy outside core in strips for non converted photons");
   // Cut on shower width in 3 strips
   declareProperty("w1_photonsNonConverted",
-		  m_rootTool->w1_photonsNonConverted,
+		  m_rootTool->m_w1_photonsNonConverted,
 		  "Cut on shower width in 3 strips for non converted photons");
 
   //================================================
@@ -139,76 +139,76 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
   //
   // Eta binning
   declareProperty("CutBinEta_photonsConverted",
-		  m_rootTool->CutBinEta_photonsConverted,
+		  m_rootTool->m_cutBinEta_photonsConverted,
 		  "Eta binning for converted photons");
   // ET binning
   declareProperty("CutBinEnergy_photonsConverted",
-		  m_rootTool->CutBinEnergy_photonsConverted,
+		  m_rootTool->m_cutBinEnergy_photonsConverted,
 		  "E binning for converted photons");
 
   // Cut on hadronic leakage
   declareProperty("CutHadLeakage_photonsConverted",
-		  m_rootTool->CutHadLeakage_photonsConverted,
+		  m_rootTool->m_cutHadLeakage_photonsConverted,
 		  "Cut on hadronic leakage for converted photons");
   // Cut on E277
   declareProperty("e277_photonsConverted",
-		  m_rootTool->e277_photonsConverted,
+		  m_rootTool->m_e277_photonsConverted,
 		  "Cut on E277 for converted photons");
   // Cut on Reta37
   declareProperty("Reta37_photonsConverted",
-		  m_rootTool->Reta37_photonsConverted,
+		  m_rootTool->m_Reta37_photonsConverted,
 		  "Cut on Reta37 for converted photons");
   // Cut on Rphi33
   declareProperty("Rphi33_photonsConverted",
-		  m_rootTool->Rphi33_photonsConverted,
+		  m_rootTool->m_Rphi33_photonsConverted,
 		  "Cut on Rphi33 for converted photons");
   // Cut on Weta2
   declareProperty("weta2_photonsConverted",
-		  m_rootTool->weta2_photonsConverted,
+		  m_rootTool->m_weta2_photonsConverted,
 		  "Cut on Weta2 for converted photons");
   // eta binning in strips
   declareProperty("CutBinEtaStrips_photonsConverted",
-		  m_rootTool->CutBinEtaStrips_photonsConverted,
+		  m_rootTool->m_cutBinEtaStrips_photonsConverted,
 		  "eta binning in strips for converted photons");
   // ET binning in strips
   declareProperty("CutBinEnergyStrips_photonsConverted",
-		  m_rootTool->CutBinEnergyStrips_photonsConverted,
+		  m_rootTool->m_cutBinEnergyStrips_photonsConverted,
 		  "Cut on energy in strips for converted photons");
   // Cut on fraction of energy to use 1st sampling
   declareProperty("f1_photonsConverted",
-		  m_rootTool->f1_photonsConverted,
+		  m_rootTool->m_f1_photonsConverted,
 		  "Cut on fraction of energy to use 1st sampling for converted photons");
   // Cut on Emax2 [NOT USED]
   //declareProperty("emax2r_photonsConverted",
-  //		  m_rootTool->emax2r_photonsConverted,
+  //		  m_rootTool->m_emax2r_photonsConverted,
   //		  "Cut on Emax2 for converted photons");
   // Cut on Delta E
   declareProperty("deltae_photonsConverted",
-		  m_rootTool->deltae_photonsConverted,
+		  m_rootTool->m_deltae_photonsConverted,
 		  "Cut on Delta E for converted photons");
   // Cut on (Emax1-Emax2)/(Emax1+Emax2) in 1st sampling
   declareProperty("DEmaxs1_photonsConverted",
-		  m_rootTool->DEmaxs1_photonsConverted,
+		  m_rootTool->m_DEmaxs1_photonsConverted,
 		  "Cut on (Emax1-Emax2)/(Emax1+Emax2) in 1st sampling for converted photons");
   // Cut on total shower width in strips
   declareProperty("wtot_photonsConverted",
-		  m_rootTool->wtot_photonsConverted,
+		  m_rootTool->m_wtot_photonsConverted,
 		  "Cut on total shower width in strips for converted photons");
   // Cut on fraction of energy outside core in strips
   declareProperty("fracm_photonsConverted",
-		  m_rootTool->fracm_photonsConverted,
+		  m_rootTool->m_fracm_photonsConverted,
 		  "Cut on fraction of energy outside core in strips for converted photons");
   // Cut on shower width in 3 strips
   declareProperty("w1_photonsConverted",
-		  m_rootTool->w1_photonsConverted,
+		  m_rootTool->m_w1_photonsConverted,
 		  "Cut on shower width in 3 strips for converted photons");
   // cut min on E/p
   declareProperty("CutminEp_photonsConverted",
-		  m_rootTool->CutminEp_photonsConverted,
+		  m_rootTool->m_cutminEp_photonsConverted,
 		  "Cut min on E/p for converted converted photons");
   // cut max on E/p
   declareProperty("CutmaxEp_photonsConverted",
-		  m_rootTool->CutmaxEp_photonsConverted,
+		  m_rootTool->m_cutmaxEp_photonsConverted,
 		  "Cut max on E/p for converted photons");
   
   // for the trigger needs:
@@ -232,9 +232,11 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
+  ATH_MSG_INFO("initialize : WP " << m_WorkingPoint.size() << " " << m_configFile.size());
+  
   if(!m_WorkingPoint.empty()){
     m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::PhotonCutPointToConfFile);
-    m_rootTool->isEMMask=AsgConfigHelper::findMask(m_WorkingPoint,EgammaSelectors::PhotonCutPointToMask);
+    m_rootTool->m_isEMMask=AsgConfigHelper::findMask(m_WorkingPoint,EgammaSelectors::PhotonCutPointToMask);
   }
 
   if(!m_configFile.empty()){
@@ -250,46 +252,46 @@ StatusCode AsgPhotonIsEMSelector::initialize()
     ///------- Read in the TEnv config ------///
     ATH_MSG_DEBUG("Read in the TEnv config ");
     //Override the mask via the config only if it is not set     
-    if(m_rootTool->isEMMask==egammaPID::EgPidUndefined){ 
+    if(m_rootTool->m_isEMMask == egammaPID::EgPidUndefined){ 
       unsigned int mask(env.GetValue("isEMMask",static_cast<int>(egammaPID::EgPidUndefined)));
-      m_rootTool->isEMMask=mask;
+      m_rootTool->m_isEMMask = mask;
     }
     
     ///------- Use helpers to read in the cut arrays ------///
-    m_rootTool->CutBinEta_photonsNonConverted             =AsgConfigHelper::HelperFloat("CutBinEta_photonsNonConverted",env);
-    m_rootTool->CutBinEnergy_photonsNonConverted          =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsNonConverted",env);
-    m_rootTool->e277_photonsNonConverted                  =AsgConfigHelper::HelperFloat("e277_photonsNonConverted",env);
-    m_rootTool->CutHadLeakage_photonsNonConverted         =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsNonConverted",env);
-    m_rootTool->Reta37_photonsNonConverted                =AsgConfigHelper::HelperFloat("Reta37_photonsNonConverted",env);
-    m_rootTool->Rphi33_photonsNonConverted                =AsgConfigHelper::HelperFloat("Rphi33_photonsNonConverted",env);
-    m_rootTool->weta2_photonsNonConverted                 =AsgConfigHelper::HelperFloat("weta2_photonsNonConverted",env);
-    m_rootTool->CutBinEtaStrips_photonsNonConverted       =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsNonConverted",env);
-    m_rootTool->CutBinEnergyStrips_photonsNonConverted    =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsNonConverted",env);
-    m_rootTool->f1_photonsNonConverted                    =AsgConfigHelper::HelperFloat("f1_photonsNonConverted",env);
-    m_rootTool->deltae_photonsNonConverted                =AsgConfigHelper::HelperFloat("deltae_photonsNonConverted",env);
-    m_rootTool->DEmaxs1_photonsNonConverted               =AsgConfigHelper::HelperFloat("DEmaxs1_photonsNonConverted",env);
-    m_rootTool->wtot_photonsNonConverted                  =AsgConfigHelper::HelperFloat("wtot_photonsNonConverted",env);
-    m_rootTool->fracm_photonsNonConverted                 =AsgConfigHelper::HelperFloat("fracm_photonsNonConverted",env);
-    m_rootTool->w1_photonsNonConverted                    =AsgConfigHelper::HelperFloat("w1_photonsNonConverted",env);
-    m_rootTool->CutF3_photonsNonConverted                 =AsgConfigHelper::HelperFloat("CutF3_photonsNonConverted",env);
-    m_rootTool->CutBinEta_photonsConverted                =AsgConfigHelper::HelperFloat("CutBinEta_photonsConverted",env);
-    m_rootTool->CutBinEnergy_photonsConverted             =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsConverted",env);
-    m_rootTool->e277_photonsConverted                     =AsgConfigHelper::HelperFloat("e277_photonsConverted",env);
-    m_rootTool->CutHadLeakage_photonsConverted            =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsConverted",env);
-    m_rootTool->Reta37_photonsConverted                   =AsgConfigHelper::HelperFloat("Reta37_photonsConverted",env);
-    m_rootTool->Rphi33_photonsConverted                   =AsgConfigHelper::HelperFloat("Rphi33_photonsConverted",env);
-    m_rootTool->weta2_photonsConverted                    =AsgConfigHelper::HelperFloat("weta2_photonsConverted",env);
-    m_rootTool->CutBinEtaStrips_photonsConverted          =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsConverted",env);
-    m_rootTool->CutBinEnergyStrips_photonsConverted       =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsConverted",env);
-    m_rootTool->f1_photonsConverted                       =AsgConfigHelper::HelperFloat("f1_photonsConverted",env);
-    m_rootTool->deltae_photonsConverted                   =AsgConfigHelper::HelperFloat("deltae_photonsConverted",env);
-    m_rootTool->DEmaxs1_photonsConverted                  =AsgConfigHelper::HelperFloat("DEmaxs1_photonsConverted",env);
-    m_rootTool->wtot_photonsConverted                     =AsgConfigHelper::HelperFloat("wtot_photonsConverted",env);
-    m_rootTool->fracm_photonsConverted                    =AsgConfigHelper::HelperFloat("fracm_photonsConverted",env);
-    m_rootTool->w1_photonsConverted                       =AsgConfigHelper::HelperFloat("w1_photonsConverted",env);
-    m_rootTool->CutminEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutminEp_photonsConverted",env);
-    m_rootTool->CutmaxEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutmaxEp_photonsConverted",env);
-    m_rootTool->CutF3_photonsConverted                    =AsgConfigHelper::HelperFloat("CutF3_photonsConverted",env);
+    m_rootTool->m_cutBinEta_photonsNonConverted             =AsgConfigHelper::HelperFloat("CutBinEta_photonsNonConverted",env);
+    m_rootTool->m_cutBinEnergy_photonsNonConverted          =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsNonConverted",env);
+    m_rootTool->m_e277_photonsNonConverted                  =AsgConfigHelper::HelperFloat("e277_photonsNonConverted",env);
+    m_rootTool->m_cutHadLeakage_photonsNonConverted         =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsNonConverted",env);
+    m_rootTool->m_Reta37_photonsNonConverted                =AsgConfigHelper::HelperFloat("Reta37_photonsNonConverted",env);
+    m_rootTool->m_Rphi33_photonsNonConverted                =AsgConfigHelper::HelperFloat("Rphi33_photonsNonConverted",env);
+    m_rootTool->m_weta2_photonsNonConverted                 =AsgConfigHelper::HelperFloat("weta2_photonsNonConverted",env);
+    m_rootTool->m_cutBinEtaStrips_photonsNonConverted       =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsNonConverted",env);
+    m_rootTool->m_cutBinEnergyStrips_photonsNonConverted    =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsNonConverted",env);
+    m_rootTool->m_f1_photonsNonConverted                    =AsgConfigHelper::HelperFloat("f1_photonsNonConverted",env);
+    m_rootTool->m_deltae_photonsNonConverted                =AsgConfigHelper::HelperFloat("deltae_photonsNonConverted",env);
+    m_rootTool->m_DEmaxs1_photonsNonConverted               =AsgConfigHelper::HelperFloat("DEmaxs1_photonsNonConverted",env);
+    m_rootTool->m_wtot_photonsNonConverted                  =AsgConfigHelper::HelperFloat("wtot_photonsNonConverted",env);
+    m_rootTool->m_fracm_photonsNonConverted                 =AsgConfigHelper::HelperFloat("fracm_photonsNonConverted",env);
+    m_rootTool->m_w1_photonsNonConverted                    =AsgConfigHelper::HelperFloat("w1_photonsNonConverted",env);
+    m_rootTool->m_cutF3_photonsNonConverted                 =AsgConfigHelper::HelperFloat("CutF3_photonsNonConverted",env);
+    m_rootTool->m_cutBinEta_photonsConverted                =AsgConfigHelper::HelperFloat("CutBinEta_photonsConverted",env);
+    m_rootTool->m_cutBinEnergy_photonsConverted             =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsConverted",env);
+    m_rootTool->m_e277_photonsConverted                     =AsgConfigHelper::HelperFloat("e277_photonsConverted",env);
+    m_rootTool->m_cutHadLeakage_photonsConverted            =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsConverted",env);
+    m_rootTool->m_Reta37_photonsConverted                   =AsgConfigHelper::HelperFloat("Reta37_photonsConverted",env);
+    m_rootTool->m_Rphi33_photonsConverted                   =AsgConfigHelper::HelperFloat("Rphi33_photonsConverted",env);
+    m_rootTool->m_weta2_photonsConverted                    =AsgConfigHelper::HelperFloat("weta2_photonsConverted",env);
+    m_rootTool->m_cutBinEtaStrips_photonsConverted          =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsConverted",env);
+    m_rootTool->m_cutBinEnergyStrips_photonsConverted       =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsConverted",env);
+    m_rootTool->m_f1_photonsConverted                       =AsgConfigHelper::HelperFloat("f1_photonsConverted",env);
+    m_rootTool->m_deltae_photonsConverted                   =AsgConfigHelper::HelperFloat("deltae_photonsConverted",env);
+    m_rootTool->m_DEmaxs1_photonsConverted                  =AsgConfigHelper::HelperFloat("DEmaxs1_photonsConverted",env);
+    m_rootTool->m_wtot_photonsConverted                     =AsgConfigHelper::HelperFloat("wtot_photonsConverted",env);
+    m_rootTool->m_fracm_photonsConverted                    =AsgConfigHelper::HelperFloat("fracm_photonsConverted",env);
+    m_rootTool->m_w1_photonsConverted                       =AsgConfigHelper::HelperFloat("w1_photonsConverted",env);
+    m_rootTool->m_cutminEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutminEp_photonsConverted",env);
+    m_rootTool->m_cutmaxEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutmaxEp_photonsConverted",env);
+    m_rootTool->m_cutF3_photonsConverted                    =AsgConfigHelper::HelperFloat("CutF3_photonsConverted",env);
     
   } else {
     ATH_MSG_INFO("Conf file empty. Just user Input");
@@ -300,7 +302,7 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   m_rootTool->msg().setLevel(this->msg().level());
 
   // We need to initialize the underlying ROOT TSelectorTool
-  if ( 0 == m_rootTool->initialize() )
+  if ( m_rootTool->initialize().isFailure() )
     {
       ATH_MSG_ERROR("Could not initialize the TPhotonIsEMSelector!");
       sc = StatusCode::FAILURE;
@@ -310,26 +312,19 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   return sc ;
 }
 
-// ===============================================================
-StatusCode AsgPhotonIsEMSelector::finalize()
+//=============================================================================
+// return the accept info object
+//=============================================================================
+
+const asg::AcceptInfo& AsgPhotonIsEMSelector::getAcceptInfo() const
 {
-  // The standard status code
-  StatusCode sc = StatusCode::SUCCESS ;
-
-  if ( !(m_rootTool->finalize()) )
-    {
-      ATH_MSG_ERROR("Something went wrong at finalize!");
-      sc = StatusCode::FAILURE;
-    }
-
-  return sc ;
+    return m_rootTool->getAcceptInfo();
 }
-
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::IParticle* part ) const{
+asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::IParticle* part ) const{
 
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if(part->type()==xAOD::Type::Photon || part->type()==xAOD::Type::Electron){
@@ -337,63 +332,59 @@ const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::IParticle* part 
   }
   else{
     ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Photon/Electron");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 
 }
 
-const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Egamma* eg ) const{
+asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::Egamma* eg ) const{
  
   ATH_MSG_DEBUG("Entering accept( const Egamma* part )");  
   if ( eg ){
-    StatusCode sc = execute(eg);
+    unsigned int isEM = ~0;
+    StatusCode sc = execute(eg, isEM);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("could not calculate isEM");
-      return m_acceptDummy;
+      return m_rootTool->accept();
     }
-    return m_rootTool->fillAccept();
+    return m_rootTool->fillAccept(isEM);
   }
   else{
     ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 }
 
-const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Photon* ph) const{
+asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::Photon* ph) const{
   ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
   return accept(static_cast<const xAOD::Egamma*> (ph));  
 }
 
-const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Electron* el) const{
+asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::Electron* el) const{
   ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
   return accept(static_cast<const xAOD::Egamma*> (el));  
 }
-
-  /** The value of the isem **/
-unsigned int AsgPhotonIsEMSelector::IsemValue() const {
-    return m_rootTool->isEM(); 
-}
-
+  
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
 std::string AsgPhotonIsEMSelector::getOperatingPointName() const{
  
-  if (m_rootTool->isEMMask == egammaPID::PhotonLoose){ return "Loose"; }
-  else if (m_rootTool->isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
-  else if (m_rootTool->isEMMask == egammaPID::PhotonTight){ return "Tight"; }
-  else if (m_rootTool->isEMMask == egammaPID::PhotonLooseEF ){ return "LooseEF"; }
-  else if (m_rootTool->isEMMask == egammaPID::PhotonMediumEF){ return "MediumEF"; }
-  else if (m_rootTool->isEMMask == 0){ return "0 No cuts applied"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonLoose){ return "Loose"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::PhotonTight){ return "Tight"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::PhotonLooseEF ){ return "LooseEF"; }
+  else if (m_rootTool->m_isEMMask == egammaPID::PhotonMediumEF){ return "MediumEF"; }
+  else if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
   else{
-    ATH_MSG_ERROR( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );
+    ATH_MSG_ERROR( "Didn't recognize the given operating point with mask: " << m_rootTool->m_isEMMask );
     return "";
   }
 }
 
 // A simple execute command wrapper
 // ==============================================================
-StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
+StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM) const
 {
   //
   // Particle identification for photons based on cuts
@@ -403,14 +394,13 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
   ATH_MSG_DEBUG("Executing AsgPhotonIsEMSelector");
 
   // initialisation
-  unsigned int iflag = 0;
+  isEM = 0;
 
   // protection against null pointer
   if (eg==0) {
     ATH_MSG_ERROR("eg == 0");
     // if object is bad then use the bit for "bad eta"
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Photon); 
-    m_rootTool->setIsEM(iflag);
+    isEM = (0x1 << egammaPID::ClusterEtaRange_Photon); 
     return StatusCode::SUCCESS; 
   }
 
@@ -419,8 +409,7 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
   if ( cluster == 0 ) {
     ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
     // if object is bad then use the bit for "bad eta"
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Photon); 
-    m_rootTool->setIsEM(iflag);
+    isEM = (0x1 << egammaPID::ClusterEtaRange_Photon); 
     return StatusCode::SUCCESS;  
   }
 
@@ -505,28 +494,24 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
   if(m_trigEtTh > 0) et = m_trigEtTh*1.01; 
 
   // apply calorimeter selection for photons
-  iflag = m_rootTool->calcIsEm(eta2,
-			       et,
-			       Rhad1,
-			       Rhad,
-			       e277,
-			       Reta,
-			       Rphi,
-			       weta2c,
-			       //emax2,
-			       f1,
-			       Eratio,
-			       DeltaE,
-			       weta1c,
-			       wtot,
-			       fracm,
-			       f3,
-			       ep,
-			       xAOD::EgammaHelpers::isConvertedPhoton(eg));
-  m_rootTool->setIsEM(iflag);  
+  isEM = m_rootTool->calcIsEm(eta2,
+                              et,
+                              Rhad1,
+                              Rhad,
+                              e277,
+                              Reta,
+                              Rphi,
+                              weta2c,
+                              //emax2,
+                              f1,
+                              Eratio,
+                              DeltaE,
+                              weta1c,
+                              wtot,
+                              fracm,
+                              f3,
+                              ep,
+                              xAOD::EgammaHelpers::isConvertedPhoton(eg));
   return StatusCode::SUCCESS;
 }
 
-const Root::TAccept& AsgPhotonIsEMSelector::getTAccept( ) const {
-  return m_rootTool->getTAccept();
-}

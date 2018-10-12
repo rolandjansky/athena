@@ -115,36 +115,11 @@ _setup_python_package( futures
    a6fa247e3c5fe3d60d8e12f1b873cc88
    )
 
-# Install grin:
-_setup_python_package( grin
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/grin-1.2.1.tar.gz
-   d894426dfbf70bc105388c2a51348199
-   )
-
 # Install jsonpickle:
 _setup_python_package( jsonpickle
    ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonpickle-0.4.0.tar.gz
    63916228294218ca6e53fd1b16b626fa
    DEPENDS simplejson
-   SINGLE_VERSION )
-
-# Install keyring:
-_setup_python_package( keyring
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/keyring-0.5.1.tar.gz
-   a2f0dcea7185580c163ef2db1f4fbe0c
-   SINGLE_VERSION )
-
-# Install pip:
-_setup_python_package( pip
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pip-1.1.tar.gz
-   62a9f08dd5dc69d76734568a6c040508
-   )
-
-# Install pycrypto:
-_setup_python_package( pycrypto
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto-2.6.1.tar.gz
-   55a61a054aa66812daf5161a0d5d7eda
-   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto-warning.patch
    SINGLE_VERSION )
 
 # Install pyflakes:
@@ -158,6 +133,30 @@ _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
    3df622aac9bad27c04f34164609bbed8
    DEPENDS pyflakes
+   SINGLE_VERSION )
+
+# Install configparser:
+_setup_python_package( configparser
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/configparser-3.5.0.tar.gz
+   cfdd915a5b7a6c09917a64a573140538
+   SINGLE_VERSION )
+
+# Install enum34:
+_setup_python_package( enum34
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/enum34-1.1.6.tar.gz
+   5f13a0841a61f7fc295c514490d120d0
+   SINGLE_VERSION )
+
+# Install mccabe:
+_setup_python_package( mccabe
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-0.6.1.tar.gz
+   723df2f7b1737b8887475bac4c763e1e
+   SINGLE_VERSION )
+
+# Install :
+_setup_python_package( pycodestyle 
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle-2.3.1.tar.gz
+   240e342756af30cae0983b16303a2055
    SINGLE_VERSION )
 
 # Install pyinotify:
@@ -179,11 +178,10 @@ _setup_python_package( simplejson
    2f8351f6e6fe7ef25744805dfa56c0d5
    )
 
-
 # Install gcovr:
 _setup_python_package( gcovr
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.3.tar.gz
-   85af705ca6e1187d2bae967d26810c55
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.4.tar.gz
+   0e8aece2bd438530853e7e10968efd56
    SINGLE_VERSION )
 
 # Install scandir:
@@ -191,7 +189,6 @@ _setup_python_package( scandir
    ${CMAKE_CURRENT_SOURCE_DIR}/src/scandir-1.6.tar.gz
    0180ddb97c96cbb2d4f25d2ae11c64ac
    )
-
 
 # Clean up:
 unset( _setup_python_package )

@@ -4,9 +4,9 @@
 
 #include "SCT_ModuleVetoCondAlg.h"
 
-#include <memory>
-
 #include "GaudiKernel/EventIDRange.h"
+
+#include <memory>
 
 template <class T> 
 static std::vector<T> 
@@ -15,18 +15,14 @@ string2Vector(const std::string& s) {
   std::istringstream inputStream{s};
   std::istream_iterator<T> vecRead{inputStream};
   std::istream_iterator<T> endOfString; //relies on default constructor to produce eof
-  std::copy(vecRead,endOfString, std::back_inserter(v));// DOESN'T ALLOW NON-WHITESPACE DELIMITER !
+  std::copy(vecRead,endOfString, std::back_inserter(v)); // DOESN'T ALLOW NON-WHITESPACE DELIMITER !
   return v;
 }
 
 SCT_ModuleVetoCondAlg::SCT_ModuleVetoCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/Manual/BadModules"}
-  , m_writeKey{"SCT_ModuleVetoCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) bad module conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) bad module conditions folder");
 }
 
 StatusCode SCT_ModuleVetoCondAlg::initialize() {
@@ -39,7 +35,7 @@ StatusCode SCT_ModuleVetoCondAlg::initialize() {
   ATH_CHECK(m_readKey.initialize());
   // Write Cond Handles
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }

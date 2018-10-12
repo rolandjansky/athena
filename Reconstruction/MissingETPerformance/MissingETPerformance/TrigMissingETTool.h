@@ -46,10 +46,6 @@ public:
   inline void SetFolderName(const std::string& folderName) { m_folderName=folderName; }
 
 protected:
-
-   /** Standard destructor */
-   virtual ~TrigMissingETTool( );
-
   /** a handle on Store Gate for access to the Event Store */
   StoreGateSvc* m_storeGate;
 

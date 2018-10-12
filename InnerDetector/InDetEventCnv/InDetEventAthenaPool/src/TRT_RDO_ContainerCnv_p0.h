@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -18,6 +19,8 @@ class MsgStream;
 class TRT_RDO_ContainerCnv_p0  : public T_AthenaPoolTPCnvBase<TRT_RDO_Container, TRT_RDO_Container_p0> {
    const TRT_ID*  m_trtId;
 public:
+
+	TRT_RDO_ContainerCnv_p0(): m_trtId(nullptr) {}
   virtual void   persToTrans(const TRT_RDO_Container_p0*, TRT_RDO_Container*, MsgStream&) {
     // everything is done in createTransient()
   }

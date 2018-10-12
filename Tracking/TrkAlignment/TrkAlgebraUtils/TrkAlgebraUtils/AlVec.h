@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALGS_ALVEC_H
@@ -7,7 +7,7 @@
 
 // PBdR (17Apr2007)
 
-#include <iostream>
+#include <exception>
 #include <map>
 #include <vector>
 
@@ -25,6 +25,16 @@ class AlVec {
   AlVec(int N);
   AlVec();
   AlVec(const AlVec& v);
+  AlVec(AlVec&& v)
+     : m_size (v.m_size),
+       m_ptr_data (v.m_ptr_data),
+       m_pathbin ( std::move(v.m_pathbin) ),
+       m_pathtxt ( std::move(v.m_pathtxt) )
+  { 
+
+     v.m_size = 0;
+     v.m_ptr_data = nullptr;
+  }
 
   ~AlVec();
 
@@ -32,6 +42,20 @@ class AlVec {
   inline const double& operator[](int i) const;
 
   AlVec& operator=(const AlVec& v);
+  AlVec& operator=(AlVec&& v){
+   if (&v != this ) {  
+      m_pathbin = std::move(v.m_pathbin);
+      m_pathtxt = std::move(v.m_pathtxt);
+      m_size = v.m_size;
+      m_ptr_data = v.m_ptr_data;
+      v.m_size = 0;
+      v.m_ptr_data = nullptr;
+   }
+
+   return *this;  
+
+  }
+
   AlVec& operator=(const double& v);
   AlVec  operator+(const AlVec&) const;
   AlVec& operator+=(const AlVec&);
@@ -91,13 +115,11 @@ inline double* AlVec::ptrData() const {
 
 inline double& AlVec::operator[](int i) {
   if( i < 0 ) {
-    std::cerr << "AlVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index < zero! " );
   }
 
   if( i >= m_size ) {
-    std::cerr << "AlVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index too large! ");
   }
 
   return *(m_ptr_data+i);
@@ -105,13 +127,11 @@ inline double& AlVec::operator[](int i) {
 
 inline const double& AlVec::operator[](int i) const {
   if( i < 0 ) {
-    std::cerr << "AlVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index < zero! " );
   }
 
   if( i >= m_size ) {
-    std::cerr << "AlVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index too large! " );
   }
 
   return *(m_ptr_data+i);

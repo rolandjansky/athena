@@ -138,6 +138,19 @@ void AGDDController::ParseString(std::string s)
 	m_theParser->ParseStringAndNavigate(s);
 }
 
+bool AGDDController::WriteAGDDtoDBFile(std::string s)
+{
+	if (!m_theParser)
+	{
+		std::cout<< "  -----> asking for a dump without defined parser makes no sense - crashing!" <<std::endl;
+		return false;
+	}
+	else {
+		m_theParser->WriteToFile(s);
+		return true;
+	}
+}
+
 AGDDController* AGDDController::GetController()
 {
 //	std::cout<<" this is AGDDController::GetController()"<<std::endl;

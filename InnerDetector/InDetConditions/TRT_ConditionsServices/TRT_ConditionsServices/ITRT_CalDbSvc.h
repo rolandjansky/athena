@@ -49,6 +49,7 @@ class ITRT_CalDbSvc: virtual public IService
   virtual StatusCode writeTextFile_Format1(std::ostream&) const =0;
   virtual StatusCode writeTextFile_Format2(std::ostream&) const =0;
   virtual StatusCode writeTextFile_Format3(std::ostream&) const =0;
+  virtual StatusCode checkTextFile(const std::string&, int&) =0;
   virtual StatusCode readTextFile(const std::string&, int&) =0;
   virtual StatusCode readTextFile_Format0(std::istream&) =0 ;
   virtual StatusCode readTextFile_Format1(std::istream&) =0 ;
@@ -64,7 +65,7 @@ class ITRT_CalDbSvc: virtual public IService
   virtual void setErrContainer(RtRelationContainer*)= 0 ;
   virtual void setSlopeContainer(RtRelationContainer*)= 0 ;
   virtual void setT0Container(StrawT0Container*) = 0 ;
-  virtual void useCachedPtr(const bool&) = 0;
+
 };
 inline const InterfaceID& ITRT_CalDbSvc::interfaceID() {
   static const InterfaceID IID("ITRT_CalDbSvc",1,0);

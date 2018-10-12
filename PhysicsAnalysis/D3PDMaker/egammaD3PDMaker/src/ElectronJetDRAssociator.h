@@ -18,22 +18,23 @@
 #define EGAMMAD3PDMAKER_ELECTRONJETDRASSOCIATOR_H
 
 
+#include "D3PDMakerInterfaces/ICollectionGetterRegistryTool.h"
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODJet/Jet.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <vector>
 
 
 
-namespace Trk  { class VxCandidate; class ITrackToVertexIPEstimator; }
+namespace Trk  { class VxCandidate; }
 
 
 namespace D3PD {
 
 
-class ICollectionGetterRegistryTool;
 class ICollectionGetterTool;
 
 

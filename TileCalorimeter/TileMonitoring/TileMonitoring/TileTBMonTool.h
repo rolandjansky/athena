@@ -59,7 +59,8 @@ class TileTBMonTool : public TileFatherMonTool {
     bool m_isFirstEvent;
     unsigned char m_maskedChannels[276][48]; // max drawerIdx = 276 and max channel = 48
     std::vector<std::string> m_masked;
-    
+
+    double m_maxTotalEnergy;
 };
 
 #endif

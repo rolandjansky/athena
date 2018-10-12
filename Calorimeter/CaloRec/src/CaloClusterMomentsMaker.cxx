@@ -133,7 +133,7 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
     m_twoGaussianNoise(false),
     m_caloDepthTool("CaloDepthTool",this),
     m_noiseTool("CaloNoiseTool"),
-    m_larHVScaleRetriever("LArHVScaleRetriever"),
+    m_larHVScaleRetriever("LArHVScaleRetriever", this),
     m_absOpt(false) 
 {
   declareInterface<CaloClusterCollectionProcessor> (this);

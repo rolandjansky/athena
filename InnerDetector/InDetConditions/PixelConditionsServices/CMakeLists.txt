@@ -15,15 +15,15 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsData
+   InnerDetector/InDetConditions/PixelConditionsTools
    PRIVATE
    Control/SGTools
    Control/StoreGate
-   Database/AthenaPOOL/RDBAccessSvc
+   Database/RDBAccessSvc
    Database/CoralDB
    DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/GeoModel/GeoModelUtilities
    DetectorDescription/Identifier
-   InnerDetector/InDetConditions/PixelConditionsTools
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling

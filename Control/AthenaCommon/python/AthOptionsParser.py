@@ -23,13 +23,13 @@ _useropts = "bidc:hl:svp:r:t:"
 _userlongopts = [
     "batch", "interactive", "no-display", "debug=", "command=", "help",
     "loglevel=", "showincludes", "trace=", "check-properties",
-    "version", "preconfig=",
+    "version",
     "leak-check=", "leak-check-execute", "delete-check=", "heapmon",
     "perfmon", "pmon=", "repeat-evts=", "profile-python=",
     "enable-ers-hdlr=",
     "keep-configuration","drop-configuration", "drop-and-reload", "config-only=",
     "dump-configuration=",
-    "tcmalloc", "stdcmalloc", "preloadlib=",
+    "tcmalloc", "stdcmalloc", "stdcmath", "imf", "preloadlib=",
     "nprocs=",
     "debugWorker",
     "pycintex_minvmem=", "cppyy_minvmem",
@@ -78,7 +78,6 @@ Accepted command line options:
  -t, --check-properties <level>       ...  check properties based on setting history,
                                               report details depend <level>
  -v, --version                        ...  print version number
- -p, --preconfig                      ...  specify location of bootstrap file
      --perfmon                        ...  enable performance monitoring toolkit
                                            (same as --pmon=perfmon)
      --pmon=<level-or-name>           ...  enable performance monitoring toolkit
@@ -94,6 +93,8 @@ Accepted command line options:
      --dump-configuration=<file>      ...  dump an ASCII version of the post-setup() configuration to <file>
      --tcmalloc                       ...  use tcmalloc.so for memory allocation [DEFAULT]. This disables leak-check
      --stdcmalloc                     ...  use libc malloc for memory allocation
+     --stdcmath                       ...  use glibc math functions [DEFAULT]
+     --imf                            ...  use Intel Math Function library: faster, but may give different numerical results from --stdcmath
      --preloadlib=<lib>               ...  localized preload of library <lib>
      --nprocs=n                       ...  enable AthenaMP if n>=1 or n==-1
      --threads=n                      ...  number of threads for AthenaMT
@@ -140,7 +141,6 @@ def parse(chk_tcmalloc=True):
     opts.showincludes = 0        # don't show include files
     opts.trace_pattern = ""      # defaults decided in Include module
     opts.check_properties = 0    # no checking by default
-    opts.preconfig = "AthenaCommon"       # location of bootstrap file
     opts.do_pmon = False         # default is to NOT enable perfmon
     opts.nbr_repeat_evts = 0     # default is to NOT repeat events
     opts.enable_ers_hdlr = False # enable/disable TDAQ ERS signal handlers
@@ -195,14 +195,8 @@ def parse(chk_tcmalloc=True):
     _p = 0
     args = sys.argv[1:]
     for arg in args:
-        if arg == '-p' or arg == '--preconfig':
-            _p = 1
-            _opts.append(arg)
-            continue
-
         if (arg[-3:] == '.py' and 
-            not ( _p or arg[:11] == '--preconfig'
-                  or arg[:7] == '--trace' )):
+            (arg[:7] != '--trace' )):
             scripts.append(arg)
         elif arg[-4:] == '.pkl' and not '=' in arg:
             fromdb = arg
@@ -285,9 +279,6 @@ def parse(chk_tcmalloc=True):
         elif opt in ("-v", "--version"):
             print __version__
             sys.exit()
-            
-        elif opt in ("-p", "--preconfig"):
-            opts.preconfig = arg
             
         elif opt in ("--leak-check", "--leak-check-execute", "--delete-check"):
             if using_tcmalloc == False:

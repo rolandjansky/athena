@@ -14,7 +14,7 @@ CREATED:  Oct 2004
 
 PURPOSE:   
 ********************************************************************/
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "MissingETEvent/MissingET.h"
 #include "MissingETEvent/MissingEtRegions.h"
 

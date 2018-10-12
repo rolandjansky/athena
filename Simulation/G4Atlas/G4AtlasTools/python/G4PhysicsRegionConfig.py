@@ -52,7 +52,7 @@ def getPixelPhysicsRegionTool(name='PixelPhysicsRegionTool', **kwargs):
     volumeList = ['Pixel::siLog', 'Pixel::siBLayLog']
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    if commonGeoFlags.Run()=="RUN2" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL()):
+    if (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL()):
         volumeList += ['Pixel::dbmDiamondLog']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)

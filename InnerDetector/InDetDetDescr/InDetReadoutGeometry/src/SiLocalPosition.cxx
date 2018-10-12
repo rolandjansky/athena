@@ -15,19 +15,14 @@
 
 namespace InDetDD {
 
-// Implicit constructor:
+// Default constructor:
 SiLocalPosition::SiLocalPosition() :
   m_xEta(0),
   m_xPhi(0),
   m_xDepth(0)
 {}
 
-// Copy constructor:
-SiLocalPosition::SiLocalPosition(const SiLocalPosition &position) :
-  m_xEta(position.m_xEta),
-  m_xPhi(position.m_xPhi),
-  m_xDepth(position.m_xDepth)
-{}
+
 
 // Constructor with parameters:
 SiLocalPosition::SiLocalPosition(const double xEta,const double xPhi,
@@ -49,16 +44,7 @@ SiLocalPosition::operator Amg::Vector2D(void) const
   return Amg::Vector2D(m_xPhi, m_xEta);
 }
 
-// Assignment operator:
-SiLocalPosition &SiLocalPosition::operator=(const SiLocalPosition &position)
-{
-  if (this!=&position) {
-    m_xEta=position.m_xEta;
-    m_xPhi=position.m_xPhi;
-    m_xDepth=position.m_xDepth;
-  } else {}
-  return *this;
-}
+
 
 // addition of positions:
 SiLocalPosition &SiLocalPosition::operator+=(const SiLocalPosition &position)

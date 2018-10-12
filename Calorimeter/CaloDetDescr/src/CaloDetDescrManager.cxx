@@ -759,6 +759,12 @@ void CaloDetDescrManager_Base::add(CaloDetDescriptor* descr)
     m_descr_vec[descr->calo_hash()] = descr;
 }
 
+void CaloDetDescrManager_Base::add(std::unique_ptr<CaloDetDescriptor> descr)
+{
+    IdentifierHash idhash = descr->calo_hash();
+    m_descr_vec[idhash] = descr.release();
+}
+
 void CaloDetDescrManager_Base::add_tile(CaloDetDescriptor* descr)
 {
   m_tile_descr_vec.push_back(descr);
@@ -1611,8 +1617,9 @@ const CaloDetDescrManager* CaloDetDescrManager::instance()
 	if(detStore->contains<CaloDetDescrManager>("CaloMgr")) 
 	{
 	  // The instance already exists - retrieve it and save it locally.
-	  status = detStore->retrieve(theMgr);
-	  s_instance = const_cast<CaloDetDescrManager*>(theMgr);
+	  if (detStore->retrieve(theMgr).isSuccess()) {
+            s_instance = const_cast<CaloDetDescrManager*>(theMgr);
+          }
 	}
       } 
       else {

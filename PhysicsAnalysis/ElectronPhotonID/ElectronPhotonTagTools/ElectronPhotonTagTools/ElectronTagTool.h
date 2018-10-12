@@ -49,11 +49,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection& electronTagCol, const int& max);
   virtual StatusCode finalize();
 
-protected:
-
-  /** Standard destructor */
-  virtual ~ElectronTagTool( );
-
 private:
 
   /** private function to get impact parameter */

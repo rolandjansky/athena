@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // RatesAnalysis includes
@@ -17,11 +17,10 @@
 RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAnalysisAlgorithm( name, pSvcLocator ),
   m_enhancedBiasRatesTool("EnhancedBiasWeighter/EnhancedBiasRatesTool"),
-  m_tdt("Trig::TrigDecisionTool"),
+  m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_targetMu(0.),
   m_targetBunches(0.),
   m_targetLumi(0.),
-  m_populatedTriggers(false),
   m_ratesDenominator(0),
   m_eventCounter(0),
   m_weightedEventCounter(0),
@@ -43,6 +42,9 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
   declareProperty("MCFilterEfficiency", m_mcFilterEfficiency = 0, "If running over MC. The process filter efficiency (0.0-1.0). Required.");
   declareProperty("MCKFactor", m_mcKFactor = 1., "If running over MC. Higher-order corrections fudge factor to the cross section. Optional.");
   declareProperty("InelasticCrossSection", m_inelasticCrossSection = 8e-26, "Inelastic cross section in units cm^2. Default 80 mb at 13 TeV.");
+
+  declareProperty( "TrigDecisionTool", m_tdt, "The tool to access TrigDecision" );
+  declareProperty( "EnhancedBiasRatesTool", m_enhancedBiasRatesTool, "The tool to access enhanced bias weighting data" );
 }
 
 RatesAnalysisAlg::~RatesAnalysisAlg() {}
@@ -64,8 +66,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
   }
 
   const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
-
-  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, e)));
+  m_scanTriggers.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(name, msg(), thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, e));
   RatesScanTrigger* newScanTrigger = &(m_scanTriggers.at(name));
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -89,7 +90,7 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
 
   const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
 
-  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, e)));
+  m_scanTriggers.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(name, msg(), thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, e));
   RatesScanTrigger* newScanTrigger = &(m_scanTriggers.at(name));
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -126,7 +127,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   const Method_t method,
   const ExtrapStrat_t extrapolation) {
 
-  if (m_populatedTriggers) { // All triggers must be defined before we start looping over the sample
+  if (m_eventCounter > 0) { // All triggers must be defined before we start looping over the sample
     ATH_MSG_FATAL("Too late to call newTrigger. All emulated triggers must be registered during ratesInitialize().");
     return StatusCode::FAILURE;
   }
@@ -141,7 +142,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
 
   const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
 
-  m_triggers.emplace(std::make_pair(name, RatesTrigger(name, msg(), prescale, expressPrescale, seedName, seedPrecale, m_doHistograms, e)));
+  m_triggers.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(name, msg(), prescale, expressPrescale, seedName, seedPrecale, m_doHistograms, e));
   RatesTrigger* newTriggerPtr = &(m_triggers.at(name));
 
   if (isRandomSeed(name, seedName)) newTriggerPtr->setSeedsFromRandom(true);
@@ -161,7 +162,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   // Add this trigger to its groups
   for (const std::string& group : groups) {
     if (m_groups.count(group) == 0) {
-      m_groups.emplace(std::make_pair(group, RatesGroup(group, msg(), m_doHistograms, m_enableLumiExtrapolation)));
+      m_groups.emplace(std::piecewise_construct, std::forward_as_tuple(group), std::forward_as_tuple(group, msg(), m_doHistograms, m_enableLumiExtrapolation));
       // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)
       m_activeGroups.insert( &(m_groups.at(group)) );
     }
@@ -192,6 +193,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
 }
 
 StatusCode RatesAnalysisAlg::addAllExisting() {
+  ATH_CHECK(checkGotTDT());
   return addExisting(".*");
 }
 
@@ -214,7 +216,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
     const std::string lowerName = (isHLT ? trigConf->lower_chain_name() : "");
     const std::set<std::string> groups = (isHLT ? trigConf->groups() : std::set<std::string>());
 
-    //ATH_MSG_INFO(" chain " << trigger << " has "  << groups.size() << " groups");
+    ATH_MSG_DEBUG(" chain " << trigger << " has "  << groups.size() << " groups");
 
     if (isHLT) {
       // If this is a HLT item, we require it to be seeded by at most one item. This allows us to use a factorising rates algorithm
@@ -273,11 +275,16 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
 }
 
 StatusCode RatesAnalysisAlg::checkGotTDT() {
-  if (!m_tdt.isSet()) {
-    ATH_MSG_INFO("Setting up TDT");
-    ATH_CHECK(m_tdt.retrieve());
-    m_tdt->ExperimentalAndExpertMethods()->enable();
-  }
+  // if (!m_tdt.isSet()) { // We used to have to actually fetch the TDT here. Leaving this in should the behaviour change, we can at least confirm the TDT is configured here.
+    // ATH_MSG_INFO("Setting up TDT");
+    // ATH_CHECK(m_tdt.retrieve());
+    // m_tdt->ExperimentalAndExpertMethods()->enable();
+  // }
+  static bool printed = false;
+  if (!printed) ATH_MSG_INFO("TDT contains: " << m_tdt->getListOfTriggers().size() << " triggers, " 
+    << m_tdt->getListOfStreams().size() << " streams and " 
+    << m_tdt->getListOfGroups().size() << " groups.");
+  printed = true;
   return StatusCode::SUCCESS;
 }
 
@@ -329,15 +336,16 @@ StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const 
 StatusCode RatesAnalysisAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  m_globalGroups.emplace(std::make_pair(m_l1GroupName,      RatesGroup(m_l1GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation)));
-  m_globalGroups.emplace(std::make_pair(m_l2GroupName,      RatesGroup(m_l2GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation)));
-  m_globalGroups.emplace(std::make_pair(m_expressGroupName, RatesGroup(m_expressGroupName, msg(), m_doHistograms, m_enableLumiExtrapolation)));
+  m_globalGroups.emplace(std::piecewise_construct, std::forward_as_tuple(m_l1GroupName),      std::forward_as_tuple(m_l1GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation));
+  m_globalGroups.emplace(std::piecewise_construct, std::forward_as_tuple(m_l2GroupName),      std::forward_as_tuple(m_l2GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation));
+  m_globalGroups.emplace(std::piecewise_construct, std::forward_as_tuple(m_expressGroupName), std::forward_as_tuple(m_expressGroupName, msg(), m_doHistograms, m_enableLumiExtrapolation));
   m_globalGroups.at(m_l2GroupName).setDoCachedWeights( m_doUniqueRates ); // This extra sub-weight caching is only utilised by unique-rate groups 
   m_globalGroups.at(m_expressGroupName).setExpressGroup( true );
   return StatusCode::SUCCESS;
 }
 
 StatusCode RatesAnalysisAlg::beginInputFile() { 
+  ATH_MSG_INFO ("beginInputFile " << name() << "...");
 
   if (m_enhancedBiasRatesTool.isSet() == false) {
     ATH_MSG_INFO("Setting up EnhancedBiasRatesTool");
@@ -377,12 +385,18 @@ StatusCode RatesAnalysisAlg::beginInputFile() {
     }
   }
 
+  if (m_tdt.isSet() == false) {
+    ATH_MSG_INFO("Setting up TDT in initialize()");
+    ATH_CHECK(m_tdt.retrieve());
+    m_tdt->ExperimentalAndExpertMethods()->enable();
+  }
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode RatesAnalysisAlg::populateTriggers() {  
   // Let user add their triggers
-  ATH_MSG_INFO("Setting up User's Triggers");
+  ATH_MSG_INFO("Initializing User's Triggers (note: we are actually now in the event loop)");
   ATH_CHECK( ratesInitialize() ); 
 
   ATH_MSG_INFO("Computing coherent factors for coherent prescale groups.");
@@ -398,7 +412,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     const RatesGroup* l1GroupPtr = &(m_globalGroups.at(m_l1GroupName)); // The finalised list of all L1 chains
     for (const auto& trigger : m_triggers) {
       const uint32_t level = getLevel(trigger.first);
-      m_uniqueGroups.emplace(std::make_pair(trigger.first, RatesGroup(trigger.first, msg(), false, m_enableLumiExtrapolation))); // Each trigger gets its own unique group. No hist needed
+      m_uniqueGroups.emplace(std::piecewise_construct, std::forward_as_tuple(trigger.first), std::forward_as_tuple(trigger.first, msg(), false, m_enableLumiExtrapolation)); // Each trigger gets its own unique group. No hist needed
       RatesTrigger* triggerPtr = &(m_triggers.at(trigger.first));
       RatesGroup* uniqueGroupPtr = &(m_uniqueGroups.at(trigger.first));
       triggerPtr->setUniqueGroup( uniqueGroupPtr ); // Create two-way links
@@ -438,47 +452,44 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/normalisation"), m_scalingHist) );
     m_bcidHist = new TH1D("bcid",";BCID;Events",3565,-.5,3564.5);
     ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/bcid"), m_bcidHist) );
-    for (const auto& trigger : m_triggers) {
+    for (auto& trigger : m_triggers) {
       if (!trigger.second.doHistograms()) continue; // Not all may be doing histograming
-      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/data"), trigger.second.getDataHist()) );
-      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsMu"), trigger.second.getMuHist()) );
-      if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsTrain"), trigger.second.getTrainHist()) );
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/data"), trigger.second.getDataHist(true)) );
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsMu"), trigger.second.getMuHist(true)) );
+      if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsTrain"), trigger.second.getTrainHist(true)) );
     }
-    for (const auto& trigger : m_scanTriggers) {
-      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/ScanTriggers/" + trigger.first + "/rateVsThreshold"), trigger.second.getThresholdHist()) );
+    for (auto& trigger : m_scanTriggers) {
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/ScanTriggers/" + trigger.first + "/rateVsThreshold"), trigger.second.getThresholdHist(true)) );
     }
-    for (const auto& group : m_groups) {
+    for (auto& group : m_groups) {
       if (!group.second.doHistograms()) continue;
-      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/data"),     group.second.getDataHist()) );
-      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/rateVsMu"), group.second.getMuHist()) );
-      if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/rateVsTrain"), group.second.getTrainHist()) );
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/data"),     group.second.getDataHist(true)) );
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/rateVsMu"), group.second.getMuHist(true)) );
+      if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/rateVsTrain"), group.second.getTrainHist(true)) );
     }
-    for (const auto& group : m_globalGroups) {
+    for (auto& group : m_globalGroups) {
       if (!group.second.doHistograms()) continue;
-      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/data"), group.second.getDataHist()) );
-      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/rateVsMu"), group.second.getMuHist()) );
-      if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/rateVsTrain"), group.second.getTrainHist()) );
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/data"), group.second.getDataHist(true)) );
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/rateVsMu"), group.second.getMuHist(true)) );
+      if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/rateVsTrain"), group.second.getTrainHist(true)) );
     }
   }
-
 
   // Has the user set a lumi extrapolation? If not - set a default
   if (m_enableLumiExtrapolation && m_targetLumi == 0) setTargetLumi(1e34);
 
   // We now know the final lumi scaling so we can set the bunch scaling
   const uint32_t ebPairedBunches = m_enhancedBiasRatesTool->getPairedBunches();
+  ATH_MSG_INFO("Number of paired bunches in input file:" << m_enhancedBiasRatesTool->getPairedBunches());
   m_weightingValues.m_bunchFactor = m_targetBunches / (double)ebPairedBunches;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode RatesAnalysisAlg::execute() {  
-  ATH_MSG_DEBUG("Executing " << name() << "...");
-  setFilterPassed(false);
-  if (m_populatedTriggers == false) { // First time in execute loop - cannot access TDT before this.
-    //ATH_CHECK( checkGotTDT() ); upgrade samples don't have TDT
+  ATH_MSG_DEBUG("Executing " << name() << " on event " << m_eventCounter << "...");
+  if (m_eventCounter == 0) { // First time in execute loop - cannot access TDT before this.
     ATH_CHECK( populateTriggers() );
-    m_populatedTriggers = true;
   }
 
   // Get event characteristics
@@ -527,7 +538,7 @@ StatusCode RatesAnalysisAlg::execute() {
   if (m_doHistograms) m_bcidHist->Fill(eventInfo->bcid(), m_weightingValues.m_enhancedBiasWeight);
 
   // Some debug info
-  if (m_eventCounter++ % 1000 == 0) {
+  if (++m_eventCounter % 1000 == 0) {
     ATH_MSG_INFO( "Event " << m_eventCounter << " " << m_weightingValues.print() << " currentWallTime:" << m_ratesDenominator );
   }
 
@@ -537,9 +548,7 @@ StatusCode RatesAnalysisAlg::execute() {
 
 StatusCode RatesAnalysisAlg::executeTrigDecisionToolTriggers() {
   for (const auto& trigger : m_existingTriggers) {
-    if (trigger.second->isPassed()) {
-      ATH_CHECK( setTriggerDesicison(trigger.first) );
-    }
+    ATH_CHECK( setTriggerDesicison(trigger.first, trigger.second->isPassed()) );
   }
   return StatusCode::SUCCESS;
 }
@@ -561,7 +570,9 @@ StatusCode RatesAnalysisAlg::finalize() {
   }
   if (m_triggers.size()) {
     ATH_MSG_INFO("################## Computed Rate Estimations for Single Items:");
-    for (const auto& trigger : m_triggers) ATH_MSG_INFO(trigger.second.printRate(m_ratesDenominator));
+    std::set<std::string> keys; // Used an unordered map for speed, but now we'd like the items in order
+    for (const auto& trigger : m_triggers) keys.insert(trigger.first);
+    for (const std::string& key : keys) ATH_MSG_INFO(m_triggers.at(key).printRate(m_ratesDenominator));
   }
   if (m_expressTriggers.size()) {
     ATH_MSG_INFO("################## Computed Express Rate Estimations for Single Items:");
@@ -593,13 +604,13 @@ StatusCode RatesAnalysisAlg::finalize() {
     for (auto& group   : m_globalGroups)    group.second.normaliseHist(m_ratesDenominator);
   }
 
-  if (m_tdt.isSet()) ATH_CHECK(m_tdt->finalize());
+  //if (m_tdt.isSet()) ATH_CHECK(m_tdt->finalize()); // Has issues
   ATH_CHECK(m_enhancedBiasRatesTool->finalize());
   return StatusCode::SUCCESS;
 }
 
 void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
-  if (m_populatedTriggers) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiMu. Do this during ratesInitialize().");
     return;
   }
@@ -619,7 +630,7 @@ void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
 }
 
 void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bunches) {
-  if (m_populatedTriggers) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiBunches. Do this during ratesInitialize().");
     return;
   }
@@ -636,7 +647,7 @@ void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bun
 
 
 void RatesAnalysisAlg::setTargetMuBunches(const double mu, const int32_t bunches) {
-  if (m_populatedTriggers) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetMuBunches. Do this during ratesInitialize().");
     return;
   }

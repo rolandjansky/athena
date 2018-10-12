@@ -30,7 +30,7 @@
 
 CaloTopoTowerAlgorithm::CaloTopoTowerAlgorithm(const std::string& name, 
 				       ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name,pSvcLocator)
+  : AthReentrantAlgorithm(name,pSvcLocator)
   , m_genericLink(true) 
   , m_ptools( this )
   , m_cellContainerKey("AllCalo")
@@ -189,10 +189,6 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
 	  << "::name() = \042"
 	  << (*firstITool)->name()
 	  << "\042" );
-      // reset statistics
-      m_toolInvoke[(*firstITool)->name()] = 0;
-      m_toolReject[(*firstITool)->name()] = 0;
-      m_toolAccept[(*firstITool)->name()] = 0;
 
       ATH_MSG_INFO( "------------------------------------" );
       ATH_MSG_INFO( " "  );
@@ -210,7 +206,7 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
 // Execute //
 /////////////
 
-StatusCode CaloTopoTowerAlgorithm::execute()
+StatusCode CaloTopoTowerAlgorithm::execute_r (const EventContext& ctx) const
 {
 
   //////////////////////////
@@ -224,14 +220,14 @@ StatusCode CaloTopoTowerAlgorithm::execute()
   // Tool Processing //
   /////////////////////
   /// retrieve existing Tower container
-  SG::ReadHandle<CaloTowerContainer> towerContainer(m_towerContainerKey);
+  SG::ReadHandle<CaloTowerContainer> towerContainer(m_towerContainerKey, ctx);
   if ( !towerContainer.isValid() ) {
     ATH_MSG_WARNING( " cannot retrieve tower container with key " << towerContainer.name()  );
     return StatusCode::SUCCESS;
   }
 
   /// get CaloCell container from StoreGate
-  SG::ReadHandle<CaloCellContainer> theCells(m_cellContainerKey);
+  SG::ReadHandle<CaloCellContainer> theCells(m_cellContainerKey, ctx);
   if ( !theCells.isValid()) {
     ATH_MSG_WARNING( " cannot retrieve cell container with key " << theCells.name()  );
     return StatusCode::SUCCESS;
@@ -239,7 +235,7 @@ StatusCode CaloTopoTowerAlgorithm::execute()
   ATH_MSG_DEBUG( "CaloTopoTowerAlgorithm::execute " << theCells.name() << " size= " << theCells->size()  );
       
   ///+++ pick up TopoCluster from StoreGate
-  SG::ReadHandle<CaloClusterContainer> clusters(m_clusterKey);
+  SG::ReadHandle<CaloClusterContainer> clusters(m_clusterKey, ctx);
 
   if ( !clusters.isValid() )
     {
@@ -249,7 +245,7 @@ StatusCode CaloTopoTowerAlgorithm::execute()
     }
 
   ///+++ pick up CaloCell2ClusterMap from StoreGate
-  SG::ReadHandle<CaloCell2ClusterMap>  cellToClusterMap(m_cellToClusterMapKey);
+  SG::ReadHandle<CaloCell2ClusterMap>  cellToClusterMap(m_cellToClusterMapKey, ctx);
    if ( !cellToClusterMap.isValid() ){
     ATH_MSG_WARNING( "cannot retrieve CaloCell2ClusterMap with key <"
 	  << cellToClusterMap.name() << ">"  );
@@ -258,7 +254,7 @@ StatusCode CaloTopoTowerAlgorithm::execute()
   
   ATH_MSG_DEBUG( "Successfully retrieved CaloCell2ClusterMap <"<< cellToClusterMap.name() << ">" );
 
-  SG::WriteHandle<CaloTopoTowerContainer> theTowers( m_newTowerContainerKey);
+  SG::WriteHandle<CaloTopoTowerContainer> theTowers( m_newTowerContainerKey, ctx);
   ATH_CHECK( theTowers.record (std::make_unique<CaloTopoTowerContainer>(towerContainer->towerseg())) );
 
   ////////////////////////////////////////////////////////////////////////////
@@ -288,8 +284,8 @@ StatusCode CaloTopoTowerAlgorithm::execute()
   //Finished saving variable to CaloTopoTowerContainer
   ////////////////////////////////////////////////////////////////////////////
   
-  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::iterator firstITool  = m_ptools.begin();
-  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::iterator lastITool   = m_ptools.end();
+  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::const_iterator firstITool  = m_ptools.begin();
+  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::const_iterator lastITool   = m_ptools.end();
   StatusCode processStatus = StatusCode::SUCCESS;
   //
   // loop stops only when Failure indicated by one of the tools
@@ -306,7 +302,6 @@ StatusCode CaloTopoTowerAlgorithm::execute()
       //if ( (*firstITool).empty() ) { log << MSG::INFO << "tool is empty " << endmsg; }
 
       //ATH_MSG_INFO( "tool retrieved, going to start "  );
-      m_toolInvoke[(*firstITool)->name()]++;
       if ( theTicker != 0 )
 	{
 	  //	  ATH_MSG_INFO( "Chrono start "  );
@@ -335,7 +330,6 @@ StatusCode CaloTopoTowerAlgorithm::execute()
 	  ATH_MSG_DEBUG( (*firstITool)->name()
 	      << ": CaloTopoTowerContainer::size() = "
 	      << theTowers->size() );
-	  m_toolAccept[(*firstITool)->name()]++;
 	  firstITool++;
 	}
       else
@@ -345,7 +339,6 @@ StatusCode CaloTopoTowerAlgorithm::execute()
 	      << (*firstITool)->name()
 	      << "\042 - cross-check CaloTopoTowerContainer::size() = "
 	      << theTowers->size() );
-	  m_toolReject[(*firstITool)->name()]++;
 	  firstITool++;
 	}
     }
@@ -378,37 +371,5 @@ StatusCode CaloTopoTowerAlgorithm::execute()
 
 StatusCode CaloTopoTowerAlgorithm::finalize()
 {
-  //////////////////////////
-  // Re-allocate Services //
-  //////////////////////////
-
-  ////////////////
-  // Tool Stats //
-  ////////////////
-  
-  ATH_MSG_INFO( " " );
-  ATH_MSG_INFO( "Summary of Tool invocation: (invoked/success/failure)" );
-  ATH_MSG_INFO( "---------------------------" );
-
-  tool_stats_iterator firstName = m_toolInvoke.begin();
-  tool_stats_iterator lastName  = m_toolInvoke.end();
-  unsigned int toolCtr = 0;
-  for ( ; firstName != lastName; firstName++ )
-    {
-      toolCtr++;
-      ATH_MSG_INFO( std::setw(2) << toolCtr << ".) "
-	  << std::setw(36) //<< std::setfill(".") 
-	  << (*firstName).first
-	  << " ("
-	  << (*firstName).second
-	  << "/"
-	  << m_toolAccept[(*firstName).first]
-	  << "/"
-	  << m_toolReject[(*firstName).first]
-	  << ")" );
-    }
-  ATH_MSG_INFO( "---------------------------" );
-  ATH_MSG_INFO( " "  );
- 
   return StatusCode::SUCCESS;
 }

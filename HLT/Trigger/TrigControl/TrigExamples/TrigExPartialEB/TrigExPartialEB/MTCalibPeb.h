@@ -10,11 +10,11 @@
 #include "EventInfo/EventType.h"
 #include "eformat/eformat.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include <stdint.h>
 #include <set>
 
 /////////////////////////////////////////////////////////////////////////////
-class IROBDataProviderSvc;
 class StreamTag;
 
 class MTCalibPeb:public AthAlgorithm {

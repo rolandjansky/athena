@@ -40,11 +40,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection& higgsTagCol, const int max);  
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~HiggsPhysTagTool( );
-
 private:
 
   /** Properties */

@@ -24,8 +24,10 @@
 namespace TrigCostRootAnalysis {
   /**
    * Monitor constructor. Sets name and calls base constructor.
+   * Chain monitor looks at the level of activated HLT chains and monitors how many algorithms are executed and the time
    */
   MonitorChain::MonitorChain(const TrigCostData* costData) : MonitorBase(costData, "Chain") {
+    // Dummy counter still knows of the histograms defined for counters of this type
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
   }
 
@@ -40,6 +42,8 @@ namespace TrigCostRootAnalysis {
 
     //Now loop over the counter collections;
 
+    const Bool_t hltPass = (Bool_t) Config::config().getInt(kHLTPass);
+
     for (CounterMapSetIt_t cmsIt = m_collectionsToProcess.begin(); cmsIt != m_collectionsToProcess.end(); ++cmsIt) {
       CounterMap_t* counterMap = *cmsIt;
 
@@ -48,8 +52,6 @@ namespace TrigCostRootAnalysis {
       // Loop over all chains.
       for (UInt_t c = 0; c < m_costData->getNChains(); ++c) {
         if ((UInt_t) m_costData->getChainLevel(c) != getLevel()) {
-          //Info("MonitorChain::newEvent", "Trigger mis-match %i-chain in %i-MonitorChain",
-          // m_costData->getChainLevel(c), getLevel() );
           continue;
         }
 
@@ -68,6 +70,12 @@ namespace TrigCostRootAnalysis {
         // Are we running over this chain?
         if (checkPatternNameMonitor(chainName, m_invertFilter,
                                     m_costData->getIsChainResurrected(c)) == kFALSE) continue;
+
+        if (m_costData->getIsChainResurrected(c)) { // Am I scheduled for 2nd pass?
+          if (!hltPass) continue; // If so then the event needs to pass
+        } else if (m_costData->getIsChainPrescaled(c)) {
+          continue; // Don't include prescaled out chains from the 1st pass
+        }
 
         CounterBase* counter = getCounter(counterMap, chainName, chainID);
         if (counter->getCalls() ==

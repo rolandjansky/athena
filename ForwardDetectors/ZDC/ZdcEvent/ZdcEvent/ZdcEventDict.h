@@ -16,7 +16,7 @@
 #include "ZdcEvent/ZdcRawChannel.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /*
 void dummyZdcForTVCollTypedef(DataVector<ZdcRdo> a,

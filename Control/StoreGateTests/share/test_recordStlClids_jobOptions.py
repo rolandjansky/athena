@@ -9,12 +9,12 @@ from AthenaCommon.AppMgr import theApp
 ###############################
 # Load perf service
 ###############################
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-if not 'doMonitoring' in dir():
-    doMonitoring = True
-    pass
-from PerfMonComps.PerfMonFlags import jobproperties as jp
-jp.PerfMonFlags.doMonitoring = doMonitoring
+# from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+# if not 'doMonitoring' in dir():
+#     doMonitoring = True
+#     pass
+# from PerfMonComps.PerfMonFlags import jobproperties as jp
+# jp.PerfMonFlags.doMonitoring = doMonitoring
 
 #--------------------------------------------------------------
 # General Application Configuration options

@@ -24,7 +24,7 @@
 #include "xercesc/framework/LocalFileFormatTarget.hpp"
 	
 // Gaudi includes
-#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 
 // ATLAS Includes
 #include "AthenaKernel/errorcheck.h"
@@ -306,7 +306,7 @@ StatusCode TrigCountDumper::execute(void) {
     }
     // Turn the configuration source name (probably an XML file in this case) into an
     // imaginary Super Master Key:
-    smk    = SG::crc64(dsSvc->configurationSource()) & 0xffff;
+    smk    = CxxUtils::crc64(dsSvc->configurationSource()) & 0xffff;
     l1psk  = 0;
     hltpsk = 0;
   }

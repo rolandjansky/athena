@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -65,16 +65,7 @@ public:
         @param code status code according to the enum */
     FitterStatusCode( FitCode );
 
-    //! copy ctor
-    FitterStatusCode( const FitterStatusCode& rhs );
-
-    ~FitterStatusCode();
-
     bool isFailure() const;
-
-    //! Assignment operator.
-    FitterStatusCode& operator=(unsigned long value);
-    FitterStatusCode& operator=(const FitterStatusCode& rhs);
 
     //    /** Comparison operator*/
     //    friend bool operator< ( const FitterStatusCode& a, const FitterStatusCode& b );

@@ -1,5 +1,15 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+#--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
 
@@ -50,11 +60,6 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
-
 #------------------------------------------------------------
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -72,12 +77,10 @@ SCT_MonitorConditionsTool=sct_MonitorConditionsToolSetup.getTool()
 SCT_MonitorConditionsTool.OutputLevel = DEBUG
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorConditionsTestAlg
-job+= SCT_MonitorConditionsTestAlg()
+job+= SCT_MonitorConditionsTestAlg(SCT_MonitorConditionsTool=SCT_MonitorConditionsTool)
 
 SCT_MonitorTest=job.SCT_MonitorConditionsTestAlg
 SCT_MonitorTest.OutputLevel  = 2
-SCT_MonitorTest.RunNumber    = 310809
-SCT_MonitorTest.EventNumber  = 5
 
 #--------------------------------------------------------------
 # Load IOVDbSvc

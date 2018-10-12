@@ -428,241 +428,12 @@ OddPhiCMA::cable_CMA_channels(void)
     return true;
 }
 
-bool
-OddPhiCMA::cable_CMA_channelsP03(void)
-{
-    if(pivot_station())  //Check and connect strips with Pivot matrix channels
-    {
-        WORlink::iterator found = m_pivot_WORs.find(this->pivot_start_ch());
-        WiredOR* wor = (*found).second;
 
-        m_pivot_rpc_read = wor->RPCacquired();
-        create_pivot_map(m_pivot_rpc_read);
-
-        int start   = pivot_start_st();
-        int stop    = pivot_stop_st();
-        int max_st  = wor->give_max_phi_strips();
-
-	std::vector <int> multiplicity(max_st);
-
-        for(int i = 0; i < m_pivot_rpc_read; ++i)
-        { 
-            const RPCchamber* rpc = wor->connected_rpc(i);
-            int rpc_st = rpc->phi_strips();
-            int cham = rpc->number();
-            int local_strip = max_st - (max_st - start) - (max_st - rpc_st);
-            int final_strip = max_st - (max_st - stop ) - (max_st - rpc_st);
-            int chs = 0;
-            do
-            {
-	        if(chs == pivot_channels)
-                {
-                    noMoreChannels("Pivot");
-		    return false;
-	        }
-                if(local_strip > 0)
-	        {
-		    if(rpc->ijk_phiReadout() == 1)
-		    {
-	            m_pivot[i][0][chs] = cham*100 + local_strip - 1;
-	            m_pivot[i][1][chs] = 10000 + cham*100 + local_strip - 1;
-		    } else
-		    {
-		    m_pivot[i][1][chs] = cham*100 + local_strip - 1;
-	            m_pivot[i][0][chs] = 10000 + cham*100 + local_strip - 1;
-		    }
-                    multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
-	        }
-	        ++chs;
-            }while(--local_strip >= final_strip);
-
-            if(chs > m_active_pivot_chs) m_active_pivot_chs = chs;
-        }
-        wor->add_odd_read_mul(multiplicity);
-	
-	// Set first and last connectors code
-	int code = m_pivot_station*100000 + 1*100000000;
-	int ch = 0;
-	
-	for(ch=0;ch < m_pivot_rpc_read; ++ch) if(m_pivot[ch][0][0] >= 0) break;
-	m_first_pivot_code = code + m_pivot[ch][0][0];
-        if(ch == m_pivot_rpc_read ) --ch;
-	
-	for(ch=0;ch < m_pivot_rpc_read; ++ch)
-	    if(m_pivot[ch][0][m_active_pivot_chs-1] >= 0) break;
-        if(ch == m_pivot_rpc_read ) --ch;
-	m_last_pivot_code  = code + m_pivot[ch][0][m_active_pivot_chs-1];	
-    }
-   
-    if(lowPt_station() && lowPt_start_ch() != -1)
-    {   //Check and connect strips with Low Pt matrix channels
-        for (int i = lowPt_start_ch(); i <= lowPt_stop_ch(); ++i)
-	{
-            WORlink::iterator found = m_lowPt_WORs.find(i);
-            m_lowPt_rpc_read += (*found).second->RPCacquired();
-	}
-
-        create_lowPt_map(m_lowPt_rpc_read);
-
-        int start   = lowPt_start_st();
-        int stop    = lowPt_stop_st();
-        int max_st  = get_max_strip_readout(lowPt_station());
-
-        int r = 0; 
-        
-        for (int w = lowPt_start_ch(); w <= lowPt_stop_ch(); ++w)
-	{
-            WORlink::iterator found = m_lowPt_WORs.find(w);
-            WiredOR* wor = (*found).second;  
-	    std::vector <int> multiplicity(wor->give_max_phi_strips());
-            multiplicity.clear();
-
-            for(int i = 0; i < wor->RPCacquired(); ++i)
-            { 
-                const RPCchamber* rpc = wor->connected_rpc(i);
-
-                int rpc_st = rpc->phi_strips();
-                int cham   = rpc->number();
-                int local_strip= max_st - (max_st - start) - (max_st - rpc_st);
-                int final_strip= max_st - (max_st - stop ) - (max_st - rpc_st);
-                int chs = 0;
-                do
-                {
-	            if(chs == confirm_channels)
-                    {
-                        noMoreChannels("Pivot");
-		        return false;
-	            }
-                    if(local_strip > 0)
-	            {
-		        if(rpc->ijk_phiReadout() == 1)
-			{
-	                m_lowPt[r][0][chs]= cham*100 + local_strip - 1;
-	                m_lowPt[r][1][chs]= 10000 + cham*100 + local_strip - 1;
-			} else
-			{
-			m_lowPt[r][1][chs]= cham*100 + local_strip - 1;
-	                m_lowPt[r][0][chs]= 10000 + cham*100 + local_strip - 1;
-			}
-			if(max_st > wor->give_max_phi_strips())
-			{
-			  multiplicity[local_strip - 1] = 1;
-			} else {
-                          multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
-			}
-	            }
-	            ++chs;
-                }while(--local_strip >= final_strip);
-
-                ++r;
-                if(chs > m_active_lowPt_chs) m_active_lowPt_chs = chs;
-
-            }
-            wor->add_odd_read_mul(multiplicity);
-	    
-	    // Set first and last connectors code
-	    int code = m_lowPt_station*100000 + 1*100000000;
-	    int ch = 0;
-	
-	    for(ch=0;ch < m_lowPt_rpc_read; ++ch) if(m_lowPt[ch][0][0] >= 0) break;
-	    m_first_lowPt_code = code + m_lowPt[ch][0][0];
-	    if(ch == m_lowPt_rpc_read) --ch;
-	
-	    for(ch=0;ch < m_lowPt_rpc_read; ++ch)
-	        if(m_lowPt[ch][0][m_active_lowPt_chs-1] >= 0) break;
-            if(ch == m_lowPt_rpc_read) --ch;
-	    m_last_lowPt_code = code + m_lowPt[ch][0][m_active_lowPt_chs-1];	    
-        }
-    }
-
-    if(highPt_station() && highPt_start_ch() != -1)
-    {   //Check and connect strips with High Pt matrix channels
-        for (int i = highPt_start_ch(); i <= highPt_stop_ch(); ++i)
-	{
-            WORlink::iterator found = m_highPt_WORs.find(i);
-            m_highPt_rpc_read += (*found).second->RPCacquired();
-	}
-
-        create_highPt_map(m_highPt_rpc_read);
-
-        int start   = highPt_start_st();
-        int stop    = highPt_stop_st();
-        int max_st  = get_max_strip_readout(highPt_station());
-
-        int r = 0; 
-
-        for (int w = highPt_start_ch(); w <= highPt_stop_ch(); ++w)
-	{
-            WORlink::iterator found = m_highPt_WORs.find(w);
-            WiredOR* wor = (*found).second;  
-	    std::vector <int> multiplicity(wor->give_max_phi_strips());
-            multiplicity.clear();
-
-            for(int i = 0; i < wor->RPCacquired(); ++i)
-            { 
-                const RPCchamber* rpc = wor->connected_rpc(i);
-
-                int rpc_st = rpc->phi_strips();
-                int cham   = rpc->number();
-                int local_strip= max_st - (max_st - start) - (max_st - rpc_st);
-                int final_strip= max_st - (max_st - stop ) - (max_st - rpc_st);
-                int chs = 0;
-                do
-                {
-	            if(chs == confirm_channels)
-                    {
-                        noMoreChannels("Pivot");
-		        return false;
-	            }
-                    if(local_strip > 0)
-	            {
-		        if(rpc->ijk_phiReadout() == 1)
-			{
-	                m_highPt[r][0][chs]=cham*100 + local_strip - 1;
-	                m_highPt[r][1][chs]=10000 + cham*100 + local_strip - 1;
-			} else
-			{
-			m_highPt[r][1][chs]=cham*100 + local_strip - 1;
-	                m_highPt[r][0][chs]=10000 + cham*100 + local_strip - 1;
-			}
-			if(max_st > wor->give_max_phi_strips())
-			{
-			  multiplicity[local_strip - 1] = 1;
-			} else {
-                          multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
-			}
-	            }
-	            ++chs;
-                }while(--local_strip >= final_strip);
-
-                ++r;
-                if(chs > m_active_highPt_chs) m_active_highPt_chs = chs;
-            }
-            wor->add_odd_read_mul(multiplicity);
-	    
-	    // Set first and last connectors code
-	    int code = m_highPt_station*100000 + 1*100000000;
-	    int ch = 0;
-	
-	    for(ch=0;ch < m_highPt_rpc_read; ++ch) if(m_highPt[ch][0][0] >= 0) break;
-            if (ch == m_highPt_rpc_read) --ch;
-	    m_first_highPt_code = code + m_highPt[ch][0][0];
-	
-	    for(ch=0;ch < m_highPt_rpc_read; ++ch)
-	        if(m_highPt[ch][0][m_active_highPt_chs-1] >= 0) break;
-            if (ch == m_highPt_rpc_read) --ch;
-	    m_last_highPt_code = code + m_highPt[ch][0][m_active_highPt_chs-1];
-	}
-    }
-
-    return true;
-}
 
 bool
 OddPhiCMA::connect(SectorLogicSetup& setup)
 {
-    bool oldPhiSchema = (setup.layout()=="P03" || setup.layout()=="H8")?
-                        true : false;
+
     
     if(pivot_station())  //Check and connect Pivot chambers
     {
@@ -737,8 +508,9 @@ OddPhiCMA::connect(SectorLogicSetup& setup)
                     return false;
                 }
             }
-            if(!oldPhiSchema) get_confirm_strip_boundaries(lowPt_station(),max);
-	    else get_confirm_strip_boundariesP03(lowPt_station(),max);
+
+	    get_confirm_strip_boundaries(lowPt_station(),max);
+
 	}
     }
     if(highPt_station())  //Check and connect High Pt plane chambers
@@ -797,8 +569,8 @@ OddPhiCMA::connect(SectorLogicSetup& setup)
                     return false;
                 }
             }
-            if(!oldPhiSchema) get_confirm_strip_boundaries(highPt_station(),max);
-	    else get_confirm_strip_boundariesP03(highPt_station(),max);
+            get_confirm_strip_boundaries(highPt_station(),max);
+
 	}
     }
     return true;
@@ -850,41 +622,6 @@ OddPhiCMA::get_confirm_strip_boundaries(int stat,int max)
     
 }
 
-void
-OddPhiCMA::get_confirm_strip_boundariesP03(int stat,int max)
-{
-    OddPhiCMA::WORlink::const_iterator it = m_pivot_WORs.begin();
-    int max_pivot_strips = (*it).second->give_max_phi_strips();
-    if(stat == lowPt_station())
-    {
-        if(pivot_start_st() == max_pivot_strips)
-        {
-	    m_lowPt_start_st = max;
-	    m_lowPt_stop_st = max - confirm_channels + 1;
-            if (m_lowPt_stop_st <= 0) m_lowPt_stop_st = 1;
-        }
-        else if (pivot_stop_st() == 1)
-        {
-	    m_lowPt_stop_st = 1;
-            m_lowPt_start_st = (confirm_channels<max)? confirm_channels : max;
-        }
-    }
-    else if (stat == highPt_station())
-    {
-        if(pivot_start_st() == max_pivot_strips)
-        {
-	    m_highPt_start_st = max;
-	    m_highPt_stop_st = max - confirm_channels + 1;
-            if (m_highPt_stop_st <= 0) m_highPt_stop_st = 1;
-        }
-        else if (pivot_stop_st() == 1)
-        {
-	    m_highPt_stop_st = 1;
-            m_highPt_start_st = (confirm_channels<max)? confirm_channels : max;
-        }
-    }
-    
-}
 
 int
 OddPhiCMA::get_max_strip_readout(int stat)
@@ -929,8 +666,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
     m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, name());
     m_debug = log.level() <= MSG::DEBUG;
-    bool oldPhiSchema = (setup.layout()=="P03" || setup.layout()=="H8")?
-                        true : false;
+
     
     OddPhiCMA* prev = setup.previousCMA(*this);    
     if(prev && pivot_station() )
@@ -959,8 +695,9 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
     }
 
     if( !this->connect(setup) ) return false;
-    if( !oldPhiSchema && !this->cable_CMA_channels() ) return false;
-    if(  oldPhiSchema && !this->cable_CMA_channelsP03() ) return false;
+
+    if( !this->cable_CMA_channels() ) return false;
+
 
     // invert the strip cabling if needed
     //if( !this->doInversion(setup) ) return false;

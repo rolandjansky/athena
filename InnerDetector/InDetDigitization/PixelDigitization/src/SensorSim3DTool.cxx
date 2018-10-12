@@ -49,10 +49,10 @@ SensorSim3DTool::~SensorSim3DTool() { }
 //    I N I T I A L I Z E
 //===============================================
 StatusCode SensorSim3DTool::initialize() {
-  CHECK(SensorSimTool::initialize());
+  ATH_CHECK(SensorSimTool::initialize());
  	  
   // -- Get ChargeCollProb  Service
-  CHECK(m_chargeCollSvc.retrieve());
+  ATH_CHECK(m_chargeCollSvc.retrieve());
 
   ATH_MSG_DEBUG("SensorSim3DTool::initialize()");
   return StatusCode::SUCCESS;
@@ -93,7 +93,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
 
   ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
   double sensorThickness = Module.design().thickness();
-  const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
+  const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
   double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
 
   // Charge Collection Probability Map bin size

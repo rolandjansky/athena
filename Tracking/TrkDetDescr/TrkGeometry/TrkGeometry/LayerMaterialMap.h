@@ -15,7 +15,7 @@
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/ElementTable.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 namespace Trk {
           

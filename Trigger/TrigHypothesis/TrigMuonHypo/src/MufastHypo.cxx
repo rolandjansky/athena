@@ -13,6 +13,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "xAODTrigMuon/TrigMuonDefs.h"
+
 class ISvcLocator;
 
 // --------------------------------------------------------------------------------
@@ -179,12 +181,14 @@ HLT::ErrorCode MufastHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
       if ( absEta > m_ptBins[i] && absEta < m_ptBins[i+1] ) threshold = m_ptThresholds[i]; 
 
    // if in the weak Bfield regions at endcap, set special threshold
-   MufastHypoConsts::ECRegions ecRegion = whichECRegion( m_fex_eta, m_fex_phi );
-   if( ecRegion == MufastHypoConsts::WeakBFieldA ) {
+
+   xAOD::L2MuonParameters::ECRegions ecRegion = xAOD::L2MuonParameters::whichECRegion( m_fex_eta , m_fex_phi );
+   if( ecRegion == xAOD::L2MuonParameters::ECRegions::WeakBFieldA ) {
       if(doDebug) msg() << MSG::DEBUG << "threshold is set for EC WeakBField A" << endmsg;
       threshold = m_ptThresholdForECWeakBRegionA;
    }
-   if( ecRegion == MufastHypoConsts::WeakBFieldB ) {
+
+   if( ecRegion == xAOD::L2MuonParameters::ECRegions::WeakBFieldA ) {
       if(doDebug) msg() << MSG::DEBUG << "threshold is set for EC WeakBField B" << endmsg;
       threshold = m_ptThresholdForECWeakBRegionB;
    }
@@ -218,6 +222,7 @@ HLT::ErrorCode MufastHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+/*
 MufastHypoConsts::ECRegions MufastHypo::whichECRegion( const float eta, const float phi ) const
 {
    float absEta = fabs(eta);
@@ -241,6 +246,7 @@ MufastHypoConsts::ECRegions MufastHypo::whichECRegion( const float eta, const fl
    
    else return MufastHypoConsts::Bulk;
 }
+*/
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

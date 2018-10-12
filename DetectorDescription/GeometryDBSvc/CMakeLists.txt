@@ -7,7 +7,7 @@ atlas_subdir( GeometryDBSvc )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps )

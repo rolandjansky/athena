@@ -72,7 +72,7 @@ namespace FTF {//FastTrackFinder
   class BaseSpacePointFilter {
   public:
   BaseSpacePointFilter(std::vector<TrigSiSpacePointBase>& vec, LayerCalculator& lc) : m_vec(vec), m_layerCalculator(lc),
-      m_layerId(-1), m_dr(0.0), m_dphi(0.0), m_dz(0.0) {};
+      m_layerId(-1), m_dr(0.0), m_dz(0.0) {};
       virtual ~BaseSpacePointFilter(){};
       virtual void operator()(const Trk::SpacePoint*) = 0;
       int vectorSize() {
@@ -90,7 +90,6 @@ namespace FTF {//FastTrackFinder
       
       void setErrors(const Identifier& id) {
 	if(m_layerCalculator.isPixel(id)) { 
-	  m_dphi=0.0001;
 	  if(m_layerCalculator.isBarrel(id)) {
 	    m_dr=0.01;
 	    m_dz=0.13;
@@ -101,7 +100,6 @@ namespace FTF {//FastTrackFinder
 	  }
 	}
 	else { 
-	  m_dphi=0.00005;
 	  if(m_layerCalculator.isBarrel(id)) {
 	    m_dr=0.01;
 	    m_dz=0.82;
@@ -115,13 +113,13 @@ namespace FTF {//FastTrackFinder
       
       void createSpacePoint(const Trk::SpacePoint* p) {
         m_vec.push_back(TrigSiSpacePointBase(m_layerId, p->globalPosition().perp(), p->globalPosition().phi(), p->globalPosition().z(), 
-              m_dr, m_dphi, m_dz, p));
+              m_dr, m_dz, p));
       }
   protected:
       std::vector<TrigSiSpacePointBase>& m_vec;
       LayerCalculator m_layerCalculator;
       int m_layerId;
-      double m_dr, m_dphi, m_dz;
+      double m_dr, m_dz;
   };
 
   class RoI_Filter : public BaseSpacePointFilter {

@@ -157,6 +157,7 @@ namespace TrigCostRootAnalysis {
     static std::string getChainStreamName(UInt_t c, UInt_t g);
     static std::vector<std::string> getChainStreamNames(UInt_t c);
     static Bool_t getChainIsMainStream(UInt_t c);
+    static Bool_t getChainIsMainStream(const std::string& name);
 
     // // Chain->Sig //todo gruntwork
     // UInt_t      GetSigN(UInt_t c) const;
@@ -202,6 +203,8 @@ namespace TrigCostRootAnalysis {
 
     static std::set<DBKey> m_seenKeys; //!< Set of keys which we have seen in the processing
     static std::map<UInt_t, DBKey> m_lumiToKeyMap; //!< Which LB are using which keys
+
+    static std::map<std::string, Bool_t> m_mainChains; //!< Cache of which chains are in the Main stream (by name)
   }; //class TrigConfInterface
 } // namespace TrigCostRootAnalysis
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,13 +17,13 @@
 #include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "iPatInterfaces/ISiliconLayerAssociator.h"
 #include "iPatTrackFollower/LayerAssociation.h"
 #include "iPatTrackFollower/SiliconClusterMap.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-class IInDetConditionsSvc;
 
 class SiliconLayerAssociator: public AthAlgTool,
 	                      virtual public ISiliconLayerAssociator
@@ -69,8 +69,8 @@ private:
     void	       	makeEndcapPixelAssociations (LayerPrediction*	prediction);
     void	       	makeEndcapStereoAssociations (LayerPrediction*	prediction);
 
-    ServiceHandle<IInDetConditionsSvc>	m_pixelConditions;
-    ServiceHandle<IInDetConditionsSvc>	m_sctConditions;
+    ToolHandle<IInDetConditionsTool> m_pixelConditions{this, "PixelConditionsTool", "PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+    ToolHandle<IInDetConditionsTool> m_sctConditions{this, "SCT_ConditionsTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"};
     association_vector			m_associations;
     const SiliconClusterMap*		m_clusterMap;
     double				m_cosPhi;

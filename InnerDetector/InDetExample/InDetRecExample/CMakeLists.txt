@@ -8,7 +8,7 @@ atlas_subdir( InDetRecExample )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaCommon
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           TestPolicy )
 
 # External dependencies:

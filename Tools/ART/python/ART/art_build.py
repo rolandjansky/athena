@@ -11,10 +11,9 @@ import json
 import logging
 import multiprocessing
 import os
+import socket
 
-from datetime import datetime
-
-from art_misc import run_command, mkdir_p
+from art_misc import memory, mkdir, run_command, GByte
 from art_base import ArtBase
 from art_header import ArtHeader
 
@@ -30,11 +29,9 @@ def run_job(art_directory, sequence_tag, script_directory, package, job_type, jo
     """
     # <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
     log = logging.getLogger(MODULE)
-    start_time = datetime.now()
     log.info("job started %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
-    (exit_code, out, err) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "build", "job", script_directory, sequence_tag, package, "out", job_type, str(job_index))))
+    (exit_code, out, err, command, start_time, end_time) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "build", "job", script_directory, sequence_tag, package, "out", job_type, str(job_index))))
     log.info("job ended %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
-    end_time = datetime.now()
 
     return (package, test_name, exit_code, out, err, start_time, end_time)
 
@@ -53,7 +50,10 @@ class ArtBuild(ArtBase):
         self.project = project
         self.platform = platform
         self.nightly_tag = nightly_tag
-        self.max_jobs = multiprocessing.cpu_count() if max_jobs <= 0 else max_jobs
+        mem = memory(GByte)
+        max_cores = min(mem / 4, multiprocessing.cpu_count())
+        max_cores = max_cores if max_cores >= 4 else 1
+        self.max_jobs = max_cores if max_jobs <= 0 else max_jobs
         self.ci = ci
 
     def task_list(self, job_type, sequence_tag):
@@ -79,15 +79,13 @@ class ArtBuild(ArtBase):
         status['release_info']['nightly_tag'] = self.nightly_tag
         status['release_info']['project'] = self.project
         status['release_info']['platform'] = self.platform
+        status['release_info']['hostname'] = socket.gethostname()
 
         # Package information with all tests in each package
         for future in concurrent.futures.as_completed(future_set):
             (package, test_name, exit_code, out, err, start_time, end_time) = future.result()
             log.debug("Handling job for %s %s", package, test_name)
             status[package][test_name]['exit_code'] = exit_code
-            # Removed, seem to give empty lines
-            # status[package][test_name]['out'] = out
-            # status[package][test_name]['err'] = err
             status[package][test_name]['start_time'] = start_time.strftime('%Y-%m-%dT%H:%M:%S')
             status[package][test_name]['end_time'] = end_time.strftime('%Y-%m-%dT%H:%M:%S')
             status[package][test_name]['start_epoch'] = start_time.strftime('%s')
@@ -115,7 +113,7 @@ class ArtBuild(ArtBase):
 
             status[package][test_name]['result'] = result
 
-        mkdir_p(sequence_tag)
+        mkdir(sequence_tag)
         with open(os.path.join(sequence_tag, "status.json"), 'w') as outfile:
             json.dump(status, outfile, sort_keys=True, indent=4, ensure_ascii=False)
 
@@ -165,7 +163,7 @@ class ArtBuild(ArtBase):
         test_name = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform)[int(job_index)]
 
         work_directory = os.path.join(sequence_tag, package, os.path.splitext(test_name)[0])
-        mkdir_p(work_directory)
+        mkdir(work_directory)
         log.debug("Work dir %s", work_directory)
 
         # Tests are called with arguments: PACKAGE TEST_NAME SCRIPT_DIRECTORY TYPE
@@ -176,7 +174,7 @@ class ArtBuild(ArtBase):
         env['ArtJobType'] = job_type
         env['ArtJobName'] = test_name
         cmd = ' '.join((os.path.join(test_directory, test_name), package, test_name, script_directory, job_type))
-        (exit_code, output, err) = run_command(cmd, dir=work_directory, env=env)
+        (exit_code, output, err, command, start_time, end_time) = run_command(cmd, dir=work_directory, env=env)
 
         with open(os.path.join(work_directory, "stdout.txt"), "w") as text_file:
             log.debug("Copying stdout into %s", work_directory)

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/TBEMECCellEtaCorrection.h"
+#include "TBEMECCellEtaCorrection.h"
 
 // INCLUDE LAr header files:
 
@@ -90,7 +90,9 @@ TBEMECCellEtaCorrection::~TBEMECCellEtaCorrection()
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-void TBEMECCellEtaCorrection::MakeCorrection(CaloCell* theCell)
+void
+TBEMECCellEtaCorrection::MakeCorrection (CaloCell* theCell,
+                                         const EventContext& /*ctx*/) const
 {
   MsgStream log(msgSvc(), name());
 

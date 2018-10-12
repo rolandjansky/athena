@@ -13,7 +13,7 @@ Trk::TrkAmbiguitySolver::TrkAmbiguitySolver(const std::string& name, ISvcLocator
   m_resolveTracks(true), 
   m_trackInCount(0),   
   m_trackOutCount(0),
-  m_ambiTool("Trk::SimpleAmbiguityProcessorTool/TrkAmbiguityProcessor")
+  m_ambiTool("Trk::SimpleAmbiguityProcessorTool/TrkAmbiguityProcessor", this)
 {  
   declareProperty("TrackInput"        , m_tracksLocation);
   declareProperty("TrackOutput"       , m_resolvedTracksLocation);

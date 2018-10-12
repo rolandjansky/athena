@@ -60,7 +60,7 @@ namespace AthViews {
       SG::WriteHandle< xAOD::TrigCompositeContainer > m_decisions;
       SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_decisionsAux;
 
-      SG::WriteHandle< std::vector<SG::View*> > m_views;
+      SG::WriteHandle< ViewContainer > m_views;
       std::string  m_viewName;
       //      std::vector< std::string > m_viewNames;
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc; //!< access to trigger menu

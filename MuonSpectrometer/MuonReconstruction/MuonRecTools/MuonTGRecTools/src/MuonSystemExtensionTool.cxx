@@ -116,7 +116,8 @@ namespace Muon {
                           << " lpos3d " << lpos3d.x() << " " << lpos3d.y() << " " << lpos3d.z()
                           << " lpos " << lpos[Trk::loc1] << " " << lpos[Trk::loc2]
                           << " center " << surface->center().z()
-                          << " normal: theta " << surface->normal().phi() << " phi " << surface->normal().theta() );
+                          << " normal: phi " << surface->normal().phi() << " theta " << surface->normal().theta()
+                          << " normal: x " << surface->normal().x() << " y " << surface->normal().y() << " z " << surface->normal().z() );
           globalPosition[0] += 100;
         }
       }
@@ -165,7 +166,8 @@ namespace Muon {
         ATH_MSG_VERBOSE(" sector " << sector << " layer " << MuonStationIndex::layerName(layer) << " phi " << sectorPhi
                         << " ref theta " << globalPosition.theta() << " phi " << globalPosition.phi() << " r " << globalPosition.perp()
                         << " pos " << globalPosition.x() << " " << globalPosition.y() << " " << globalPosition.z()
-                        << " lpos3d " << lpos3d.x() << " " << lpos3d.y() << " " << lpos3d.z() );
+                        << " lpos3d " << lpos3d.x() << " " << lpos3d.y() << " " << lpos3d.z()
+                        << " normal: x " << surface->normal().x() << " y " << surface->normal().y() << " z " << surface->normal().z() );
         // << " lpos " << lpos[Trk::loc1] << " " << lpos[Trk::loc2]
         // << " ref theta2 " << globalPosition2.theta() << " phi " << globalPosition2.phi() << " r " << globalPosition2.perp()
         // << " lpos3d2 " << lpos3d2.x() << " " << lpos3d2.y() << " " << lpos3d2.z()
@@ -178,8 +180,7 @@ namespace Muon {
 
   bool MuonSystemExtensionTool::muonSystemExtension( const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension*& muonSystemExtention ) const {
     // get calo extension
-    const Trk::CaloExtension* caloExtension = 0;
-    m_caloExtensionTool->caloExtension( indetTrackParticle, caloExtension );    
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension( indetTrackParticle );    
     if( !caloExtension || !caloExtension->muonEntryLayerIntersection() ) {
       ATH_MSG_VERBOSE("Failed to get CaloExtension ");
       return false;
@@ -206,8 +207,8 @@ namespace Muon {
       // extrapolate to next layer
       const Trk::Surface& surface = *it->surfacePtr;
       if( msgLvl(MSG::VERBOSE) ){
-        msg(MSG::VERBOSE) << " startPars: phi "  << currentPars->position().phi() 
-                          << " r " << currentPars->position().perp() << " z " << currentPars->position().z() 
+        msg(MSG::VERBOSE) << " startPars: phi pos "  << currentPars->position().phi() << " direction phi " << currentPars->momentum().phi() << " theta pos " << currentPars->position().theta()  << " theta " << currentPars->momentum().theta()
+                          << " r " << currentPars->position().perp() << " z " << currentPars->position().z()  << " momentum " << currentPars->momentum().mag()
                           << " local " << currentPars->parameters()[Trk::locX] << " " << currentPars->parameters()[Trk::locY];
         if( currentPars->covariance() ) msg(MSG::VERBOSE) << " err " << Amg::error(*currentPars->covariance(),Trk::locX) << " " << Amg::error(*currentPars->covariance(),Trk::locY);
         msg(MSG::VERBOSE) << " destination: sector " << it->sector << "  " << MuonStationIndex::regionName(it->regionIndex)
@@ -219,6 +220,10 @@ namespace Muon {
         ATH_MSG_VERBOSE("extrapolation failed, trying next layer ");
         continue;
       }
+
+//    reject intersections with very big uncertainties (parallel to surface)
+      if(Amg::error(*exPars->covariance(),Trk::locX) > 10000. || Amg::error(*exPars->covariance(),Trk::locY) > 10000.) continue;
+
       // create shared pointer and add to garbage collection
       std::shared_ptr<const Trk::TrackParameters> sharedPtr(exPars);
       trackParametersVec.push_back(sharedPtr);
@@ -248,7 +253,11 @@ namespace Muon {
         MuonSystemExtension::Intersection intersection(sharedPtr,*it);
         intersections.push_back( intersection );
       }
-      currentPars = exPars;
+      if(Amg::error(*exPars->covariance(),Trk::locX) < 10.*Amg::error(*currentPars->covariance(),Trk::locX) &&
+         Amg::error(*exPars->covariance(),Trk::locY) < 10.*Amg::error(*currentPars->covariance(),Trk::locY)) {
+         // only update the parameters if errors don't blow up
+        currentPars = exPars;
+      }
     }
     
     ATH_MSG_DEBUG(" completed extrapolation: destinations " << surfaces.size() << " intersections " << intersections.size() );

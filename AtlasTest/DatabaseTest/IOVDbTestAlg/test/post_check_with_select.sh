@@ -21,7 +21,7 @@ select=$2
     joblog=${test}.log
 #    if [ "$status" = 0 ]
 #	then 
-	echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
+	#echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
 	reflog=../share/${test}.ref
 
         # If we can't find the reference file, maybe it's located outside
@@ -126,7 +126,8 @@ select=$2
 		echo "[97;101;1m post.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1
 	    else
-		echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
+                true
+		#echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
 	    fi
 	else
 	    tail $joblog
@@ -143,7 +144,7 @@ select=$2
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
-echo 
+#echo 
 
 exit $status
 

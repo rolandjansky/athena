@@ -1,11 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-""" Trigger specific flags  """
-
-
-__author__  = 'T. Bold, J. Baines'
-__version__=""
-__doc__="Trigger specific flags  "
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -13,7 +6,7 @@ log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
 log.setLevel(logging.DEBUG)
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import AllowedList
+from TriggerJobOpts.CommonSignatureHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
 
 
@@ -366,7 +359,7 @@ class OnlineCondTag(JobProperty):
     """ Default (online) HLT conditions tag """
     statusOn=True
     allowedType=['str']
-    StoredValue='CONDBR2-HLTP-2016-01'
+    StoredValue='CONDBR2-HLTP-2018-01'
 
 _flags.append(OnlineCondTag)
 
@@ -374,7 +367,7 @@ class OnlineGeoTag(JobProperty):
     """ Default (online) HLT geometry tag """
     statusOn=True
     allowedType=['str']
-    StoredValue='ATLAS-R2-2015-04-00-00'
+    StoredValue='ATLAS-R2-2016-01-00-01'
     
 _flags.append(OnlineGeoTag)
 
@@ -786,23 +779,6 @@ class readMenuFromTriggerDb(JobProperty):
 #            TriggerFlags.readHLTconfigFromXML = True
 _flags.append(readMenuFromTriggerDb)
 
-# trigger configuration source list
-class readConfigFromTriggerDb(JobProperty):
-    """ define the TriggerDb to be the source of the LVL1 and HLT trigger menu"""
-    statusOn=False
-    allowedType=['bool']
-    StoredValue=False
-
-    def _do_action(self):
-        """ setup reading from DB requires menu readingFromXML """
-        if self.get_Value() is True:
-            # readMenuFromTriggerDb dumps only the HLTMenu to an XML file - it is of no use since HLTConfigSvc is set for the DB
-            TriggerFlags.readMenuFromTriggerDb = False
-            TriggerFlags.readLVL1configFromXML = False
-            TriggerFlags.readHLTconfigFromXML = False
-
-_flags.append(readConfigFromTriggerDb)
-
 class triggerDbKeys(JobProperty):
     """ define the keys [Configuration, LVL1Prescale, HLTPrescale, L1BunchGroupSet] in that order!"""
     statusOn=False
@@ -1041,6 +1017,10 @@ class triggerMenuSetup(JobProperty):
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
         'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale',
+        # -----------------------------------------------------------------
+        # Run 3 (and preparation for Run-3)
+        'LS2_v1', # for development of AthenaMT
+       
         ]
 
     _default_menu='MC_pp_v7_tight_mc_prescale'
@@ -1149,7 +1129,7 @@ from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags
 
 ## add slices generation flags
 
-from TriggerMenu.menu.SliceFlags import *
+from TriggerJobOpts.SliceFlags import *
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags
 from TrigTier0.NtupleProdFlags              import NtupleProductionFlags
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // @file StrawT0MultChanContainer.h
@@ -62,8 +62,11 @@ namespace TRTCond
     /// public method to unpack a StrawT0 object
     void unpack(const ExpandedIdentifier& id, const StrawT0& sd, float& t0 , float& t0err) const {
       const StrawT0LayerContainer* container = getContainer(channelId(id)) ;
-      if(container==0) std::cout << "ERRRRRRORRRRRR: cannot find container ..." << id << " " << channelId(id) << std::endl ;
-      container->unpack( sd,t0,t0err ) ;
+      if(not container){ 
+        std::cout << "ERRRRRRORRRRRR: cannot find container ..." << id << " " << channelId(id) << std::endl ;
+      } else {
+        container->unpack( sd,t0,t0err ) ;
+      }
     }
 
     /// change the packing limits. NOTE: this only works for channels that already exist!

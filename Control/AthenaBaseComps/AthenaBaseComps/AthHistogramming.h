@@ -19,7 +19,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 #include "GaudiKernel/MsgStream.h"
 
 // ROOT includes
@@ -341,7 +341,7 @@ inline ServiceHandle<ITHistSvc>& AthHistogramming::histSvc() const
 // Create a 32-bit hash out of the histogram name
 inline AthHistogramming::hash_t AthHistogramming::hash( const std::string& histName ) const
 {
-  const uint64_t hash64 = SG::crc64( histName );
+  const uint64_t hash64 = CxxUtils::crc64( histName );
   return (hash_t)(hash64 & 0xFFFFFFFF);
 }
 

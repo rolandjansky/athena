@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMONTHISTSVC_THISTSVC_H
@@ -33,41 +33,31 @@ class TTree;
 
 #include <boost/regex.hpp>
 
-// Forward declarations
-template <class TYPE> class SvcFactory;
-
-class TrigMonTHistSvc: virtual public THistSvcHLT,
-                       public AthMessaging
+class TrigMonTHistSvc: public THistSvcHLT
 { 
 public:
   
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
+  TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
+  virtual ~TrigMonTHistSvc();
 
+  virtual StatusCode queryInterface( const InterfaceID& riid, 
+                                     void** ppvInterface );
+  
   // implemenataion of the interface from TrigNetTHistSvc
   virtual StatusCode initialize();
   virtual StatusCode reinitialize();
   virtual StatusCode finalize();
   
-  // Query the interfaces.
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-  				     void** ppvInterface );
-  
-
   virtual StatusCode regHist(const std::string& name);
+  virtual StatusCode regHist(const std::string& name, std::unique_ptr<TH1> hist);
+  virtual StatusCode regHist(const std::string& name, std::unique_ptr<TH1> hist, TH1* hist_ptr);
   virtual StatusCode regHist(const std::string& name, TH1*);
-  virtual StatusCode regHist(const std::string& name, TH2*);
-  virtual StatusCode regHist(const std::string& name, TH3*);
-  
-  virtual StatusCode getHist(const std::string& name, TH1*&) const;
-  virtual StatusCode getHist(const std::string& name, TH2*&) const;
-  virtual StatusCode getHist(const std::string& name, TH3*&) const;
 
   virtual StatusCode regTree(const std::string& name);
+  virtual StatusCode regTree(const std::string& name, std::unique_ptr<TTree>);
   virtual StatusCode regTree(const std::string& name, TTree*);
   virtual StatusCode getTree(const std::string& name, TTree*&) const;
 
-  // new since Gaudi 0.16.1.11
   virtual StatusCode deReg(TObject* obj);            //<! very slow
   virtual StatusCode deReg(const std::string& name); //<! use this instead
 
@@ -80,14 +70,19 @@ public:
   virtual StatusCode getTTrees(TDirectory *td, TList &) const;
   virtual StatusCode getTTrees(const std::string& name, TList &) const;
 
-  // new since Gaudi 19
   virtual StatusCode regGraph(const std::string& name);
+  virtual StatusCode regGraph(const std::string& name, std::unique_ptr<TGraph>);
   virtual StatusCode regGraph(const std::string& name, TGraph*);
   virtual StatusCode getGraph(const std::string& name, TGraph*&) const;
 
-  TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
-
-  // new since Gaudi 20
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH1>, LockedHandle<TH1>& ) { return notSupported(); }
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH2>, LockedHandle<TH2>& ) { return notSupported(); }
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH3>, LockedHandle<TH3>& ) { return notSupported(); }
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TGraph>, LockedHandle<TGraph>& )  { return notSupported(); }
+  virtual StatusCode getShared( const std::string&, LockedHandle<TH1>& ) const { return notSupported(); }
+  virtual StatusCode getShared( const std::string&, LockedHandle<TH2>& ) const { return notSupported(); }
+  virtual StatusCode getShared( const std::string&, LockedHandle<TH3>& ) const { return notSupported(); }
+  virtual StatusCode getShared( const std::string&, LockedHandle<TGraph>& ) const { return notSupported(); }
 
   virtual StatusCode getTHists(TDirectory *td, TList &,
                                bool recurse=false) const;
@@ -110,16 +105,16 @@ public:
   virtual bool exists(const std::string& name) const;
 
 protected:
-  StatusCode  isObjectAllowed(std::string path, const TObject *o);
+  StatusCode isObjectAllowed(std::string path, const TObject *o);
 
   StatusCode getTHists_i(const std::string& name, TList &) const;
   
-  virtual ~TrigMonTHistSvc();
 
 private:
   template <typename T>
-  StatusCode regHist_i(T* hist, const std::string& name);
-  bool m_add;
+  StatusCode regHist_i(std::unique_ptr<T> hist, const std::string& name, bool shared);
+  StatusCode notSupported() const;
+
   std::string m_excludeType;
   std::string m_includeType;
   std::string m_excludeName;

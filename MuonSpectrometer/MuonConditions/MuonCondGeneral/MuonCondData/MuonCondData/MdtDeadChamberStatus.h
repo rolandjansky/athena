@@ -5,7 +5,7 @@
 #ifndef MUONCONDDATA_MDTDEADCHAMBERSTATUS_H
 #define MUONCONDDATA_MDTDEADCHAMBERSTATUS_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <map>
 #include <vector>

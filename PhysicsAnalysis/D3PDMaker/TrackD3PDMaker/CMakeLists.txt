@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetBeamSpotService
-                          InnerDetector/InDetConditions/SCT_ConditionsServices
+                          InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry

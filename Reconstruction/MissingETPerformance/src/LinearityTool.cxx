@@ -450,8 +450,3 @@ StatusCode LinearityTool::linearity(MissingETData *data) {
 StatusCode LinearityTool::finalize() {
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-LinearityTool::~LinearityTool() {}
-
-

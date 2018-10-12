@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloHECRetriever.h"
@@ -193,7 +193,7 @@ namespace JiveXML {
 	    cellGain.push_back(DataType( (*it1)->gain() ) ); 
       	
 	    int hecgain = (*it1)->gain();
-	    float pedestal=larPedestal->pedestal(cellid,hecgain);
+	    float pedestal=larPedestal->pedestal(LArhwid,hecgain);
 	    float pedvalue=0;
 	    if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) pedvalue = pedestal;
 	    else pedvalue = 0;

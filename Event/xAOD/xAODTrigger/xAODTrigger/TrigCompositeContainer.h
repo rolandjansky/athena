@@ -17,6 +17,10 @@ namespace xAOD{
    typedef TrigCompositeContainer_v1 TrigCompositeContainer;
 }
 
+namespace TrigCompositeUtils{ 
+   typedef xAOD::TrigCompositeContainer DecisionContainer;
+}
+
 // Set up a CLID for the container:
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigCompositeContainer, 1333228823, 1 )

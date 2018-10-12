@@ -9,7 +9,7 @@ atlas_subdir( LArGeoHec )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaKernel
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities

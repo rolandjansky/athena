@@ -16,6 +16,8 @@
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryBuilder.h"
 #include "TrkTruthTrackInterfaces/PRD_TruthTrajectory.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryManipulator.h"
+#include "TrkToolInterfaces/IPRD_Provider.h"
 
 class AtlasDetectorID;
 
@@ -25,8 +27,6 @@ namespace HepMC {
   
 namespace Trk {
     
-  class IPRD_Provider;
-  class IPRD_TruthTrajectoryManipulator;
   class PrepRawData;
     
   /**

@@ -28,6 +28,8 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackExtensionMap.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkToolInterfaces/ITrackScoringTool.h"
 
 // Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
@@ -35,10 +37,6 @@
 
 class StoreGateSvc;
 
-namespace Trk {
-  class ITrackScoringTool;
-  class ITrackFitter;
-}
 
 namespace InDet {
 

@@ -16,15 +16,16 @@
 #include "Identifier/IdentifierHash.h"
 #include "LArIdentifier/LArOnlineID.h"
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
+#include "LArOnlineIDStrHelper.h"
 
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "TAxis.h"
 #include "TH2.h"
 
 #include "boost/io/ios_state.hpp"
+
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 
 /*---------------------------------------------------------*/

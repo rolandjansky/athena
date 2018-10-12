@@ -2,7 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Suppress a gcc8 warning from boost.
+// (Binaries apparently include boost with -I rather than -isystem.)
+// Fixed in boost 1.68 (see https://github.com/boostorg/mpl/issues/31)
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wparentheses"
+#endif
 #include "GeneratorUtils/StringParse.h"
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 #include <iostream>
 #include <cmath>
 

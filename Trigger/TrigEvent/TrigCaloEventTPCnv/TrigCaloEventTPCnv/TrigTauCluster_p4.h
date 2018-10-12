@@ -22,6 +22,7 @@
 //need this for MAXSIZE, NUMEMSAMP, and NUMHADSAMP
 #include "TrigCaloEvent/TrigTauCluster.h"
 #include "TrigCaloEventTPCnv/TrigCaloCluster_p2.h"
+#include "CxxUtils/unused.h"
 
 class TrigTauCluster_p4 {
 	friend class TrigTauClusterCnv_p4;
@@ -35,7 +36,8 @@ private:
 //	float m_allTheFloats[9];
 	int m_allTheInts[2];
 
-	bool m_valid;
+        // Unused, but shouldn't delete it since it's part of the persistent data.
+        bool ATH_UNUSED_MEMBER(m_valid);
 	/** ElementLink to TrigTauClusterDetailsContainer **/
 	ElementLinkInt_p3 m_details;
 	TrigCaloCluster_p2 m_trigCaloCluster;

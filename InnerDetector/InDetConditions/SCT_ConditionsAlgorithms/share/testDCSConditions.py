@@ -10,6 +10,16 @@
 import AthenaCommon.AtlasUnixStandardJob
 
 #--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
+#--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import ServiceMgr
@@ -60,10 +70,10 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
+# Set up SCT_DCSConditionsTool and required conditions folders and conditions algorithms
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
 
 #--------------------------------------------------------------
 # Load DCSConditions Alg and Service
@@ -72,12 +82,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTestAlg
-topSequence+= SCT_DCSConditionsTestAlg()
-
-# Set up SCT_DCSConditionsTool and required conditions folders and conditions algorithms
-from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-sct_DCSConditionsToolSetup.setup()
+topSequence+= SCT_DCSConditionsTestAlg(SCT_DCSConditionsTool=sct_DCSConditionsToolSetup.getTool())
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector

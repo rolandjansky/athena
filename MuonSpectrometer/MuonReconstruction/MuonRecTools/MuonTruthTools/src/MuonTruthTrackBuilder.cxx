@@ -99,62 +99,18 @@ namespace Muon {
   StatusCode  MuonTruthTrackBuilder::initialize()
   {
     ATH_MSG_VERBOSE("Initializing ...");
-    if (m_mdtCreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_mdtCreator << endmsg;
-      return StatusCode::FAILURE; 
-    }
-    if (m_muonClusterCreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_muonClusterCreator << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
-    if (m_idHelper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_idHelper << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
-    if (m_printer.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_printer << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
-    if (m_helper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_helper << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
-    if (m_muonCompRotCreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_muonCompRotCreator << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
-    // track fitter
-    if (m_trackFitter.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not retrieve " << m_trackFitter << ". Aborting ...");
-      return StatusCode::FAILURE;
-    }
-    if (m_slTrackFitter.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not retrieve " << m_slTrackFitter << ". Aborting ...");
-      return StatusCode::FAILURE;
-    }
-    if (m_extrapolator.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not retrieve " << m_extrapolator << ". Aborting ...");
-      return StatusCode::FAILURE;
-    }
-    if (m_trackToSegmentTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not retrieve " << m_trackToSegmentTool << ". Aborting ...");
-      return StatusCode::FAILURE;
-    }
-
-    if (m_trackExtrapolationTool.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_trackExtrapolationTool << endmsg;
-      return StatusCode::FAILURE; 
-    }
-    if (m_trackCleaner.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_trackCleaner << endmsg;
-      return StatusCode::FAILURE; 
-    }
-
+    ATH_CHECK( m_mdtCreator.retrieve() );
+    ATH_CHECK( m_muonClusterCreator.retrieve() );
+    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_muonCompRotCreator.retrieve() );
+    ATH_CHECK( m_trackFitter.retrieve() );
+    ATH_CHECK( m_slTrackFitter.retrieve() );
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_trackToSegmentTool.retrieve() );
+    ATH_CHECK( m_trackExtrapolationTool.retrieve() );
+    ATH_CHECK( m_trackCleaner.retrieve() ); 
 
     m_nsegmentFits.resize(MuonStationIndex::StIndexMax);
     m_nsegmentCleaned.resize(MuonStationIndex::StIndexMax);

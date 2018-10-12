@@ -124,13 +124,13 @@ class InDetHoleSearchTool(object) :
           # If InDetSCT_ConditionsSummarySvc instance configured by InDetRecConditionsAccess.py is available, use it.
           # Otherwise, the default SCT_ConditionsSummarySvc instance is used.
           # @TODO find a better to solution to get the correct service for the current job.
-          SctSummarySvc = "InDetSCT_ConditionsSummarySvc"
-          if not hasattr(ServiceMgr, SctSummarySvc):
-              SctSummarySvc = "SCT_ConditionsSummarySvc"
+          SctSummaryTool = "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool"
+          if not hasattr(ToolSvc, SctSummaryTool):
+              SctSummaryTool = "SCT_ConditionsSummaryTool"
           super(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool,self).__init__(**_args( kwargs,
                                                                                                  name         = self.__class__.__name__,
                                                                                                  Extrapolator = ToolSvc.InDetExtrapolator,
-                                                                                                 SctSummarySvc = SctSummarySvc,
+                                                                                                 SctSummaryTool = SctSummaryTool,
                                                                                                  usePixel     = True,
                                                                                                  useSCT       = True,
                                                                                                  # OutputLevel  = 1,

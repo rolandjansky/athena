@@ -1,0 +1,37 @@
+CaloCellContainerFromClusterTool_test
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/CaloCellContainerFromClusterTool_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/CaloCellContainerFromClusterTool_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/StoreGateSvc", "StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO # (4,1): ToolSvc.testtool1.CaloClustersName = "Clusts1"
+JobOptionsSvc        INFO # (5,1): ToolSvc.testtool2.CaloClusterNames = ["Clusts1", "Clusts2"]
+JobOptionsSvc        INFO # (6,1): ToolSvc.testtool3.CaloClusterNames = ["Clusts1", "Clusts2"]
+JobOptionsSvc        INFO # (7,1): ToolSvc.testtool3.AddSamplingCells = 1
+JobOptionsSvc        INFO # (8,1): ToolSvc.testtool3.SamplingCellsName = ["HEC0", "HEC1", "EMB3"]
+JobOptionsSvc        INFO Job options successfully read in from ../share/CaloCellContainerFromClusterTool_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sun Jul  8 09:16:01 2018
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 7080 CLIDRegistry entries for module ALL
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+test1
+clust 0.3 0.1 336 cells 237 99 0 0 0 0
+clust 0.32 0.12 340 cells 240 100 0 0 0 0
+clust -0.5 1.4 336 cells 237 99 0 0 0 0
+clust 1.8 0.3 347 cells 0 0 0 207 90 50
+clust 1.82 0.32 369 cells 0 0 0 204 110 55
+clust -2 1.4 301 cells 0 0 0 147 99 55
+ToolSvc.testtool1    INFO Will add cells from the following cluster container(s): Clusts1, 
+ToolSvc.testtool2    INFO Will add cells from the following cluster container(s): Clusts1, Clusts2, 
+ToolSvc.testtool3    INFO Will add cells from the following cluster container(s): Clusts1, Clusts2, 
+ToolSvc.testtool3    INFO Samplings to consider for AODcellContainer: HEC0 HEC1 EMB3

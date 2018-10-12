@@ -184,8 +184,8 @@ private:
 
 inline const InterfaceID& TrigCOOLUpdateHelper::interfaceID()
 {
-  static const InterfaceID _IID("TrigCOOLUpdateHelper", 1, 0);
-  return _IID;
+  static const InterfaceID IID("TrigCOOLUpdateHelper", 1, 0);
+  return IID;
 }
 
 #endif

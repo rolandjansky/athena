@@ -42,6 +42,9 @@ public:
 
   virtual ~TopLevelTPCnvBaseP()  { deleteTLPersObject(); }
 
+  TopLevelTPCnvBaseP (const TopLevelTPCnvBaseP&) = delete;
+  TopLevelTPCnvBaseP& operator= (const TopLevelTPCnvBaseP&) = delete;
+
  
   // ---------------  internals - "non-public" use
 
@@ -67,6 +70,13 @@ public:
   /// @return pointer to the persistent object owned by this converter
   TL_PERS*	getTLPersObject() const {
      return m_tlPersObject;
+  }
+
+  /// @release the persistent object from this converter
+  TL_PERS*	releaseTLPersObject() {
+     TL_PERS	*tmp = m_tlPersObject;
+     clearTLPersObject();
+     return tmp;
   }
 
   /// @copydoc TopLevelTPCnvBase::getTLPersObjectAsVoid()

@@ -20,17 +20,10 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/LArEM_ID.h"
-#include "CaloIdentifier/LArHEC_ID.h"
-#include "CaloIdentifier/LArFCAL_ID.h"
-#include "CaloIdentifier/LArMiniFCAL_ID.h"
-#include "CaloIdentifier/TileID.h"
-#include "IdDictParser/IdDictParser.h"
+#include "CaloIdentifier/CaloHelpersTest.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/setupStoreGate.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <map>
@@ -66,117 +59,43 @@ class DummyAlgorithm: public AthAlgorithm {
 class CaloHelper
 {
 public:
-
-  CaloHelper (const CaloHelper&) = delete;
-  CaloHelper& operator= (const CaloHelper&) = delete;
-
-  static CaloHelper* GetInstance(void)
-  {
-    if (!s_instance) {
-      s_instance = new CaloHelper();
-      s_instance->Initialize();
-    }
-    ++s_refCount;
-    return s_instance;
-  }
-
-
-  static void DeleteInstance(void)
-  {
-    --s_refCount;
-    if (s_refCount == 0) delete s_instance;
-    s_instance = NULL;
-  }
-
+  CaloHelper() {}
 
   ~CaloHelper()
   {
-    if (m_emID) delete m_emID;
-    if (m_hecID) delete m_hecID;
-    if (m_fcalID) delete m_fcalID;
-    if (m_minifcalID) delete m_minifcalID;
-    if (m_tileID) delete m_tileID;
-    if (m_parser) delete m_parser;
-
     std::map<Identifier, CaloDetDescriptor*>::iterator it = m_ddmap.begin();
     for (; it != m_ddmap.end(); ++it) {
       if (it->second) delete it->second;
     }
   }
 
-  CaloCell_ID* GetCaloID()
+  const CaloCell_ID* GetCaloID()
   {
-    return m_caloID;
+    return &m_helpers.caloID();
   }
 
   CaloCell* GetCell(IdentifierHash calo_hash)
   {
-    Identifier reg_id = m_caloID->region_id(m_caloID->cell_id(calo_hash));
+    Identifier cell_id = m_helpers.caloID().cell_id(calo_hash);
+    Identifier reg_id = m_helpers.caloID().region_id (cell_id);
     CaloDetDescriptor* dd = m_ddmap[reg_id];
     if (!dd) {
-      dd = new CaloDetDescriptor(reg_id, m_tileID, m_caloID);
+      dd = new CaloDetDescriptor(reg_id,
+                                 &m_helpers.tileID(),
+                                 &m_helpers.caloID());
       m_ddmap[reg_id] = dd;
     }
     int sub_calo;
-    IdentifierHash subcalo_hash = m_caloID->subcalo_cell_hash(calo_hash, sub_calo);
+    IdentifierHash subcalo_hash = m_helpers.caloID().subcalo_cell_hash(calo_hash, sub_calo);
     CaloDetDescrElement* dde = new DummyDetDescrElement(subcalo_hash, dd->caloCellMin(), 0, dd);
     return new CaloCell(dde, 1, 1, 1, CaloGain::LARHIGHGAIN);
   }
 
 private:
 
-  CaloHelper()
-    : m_emID(0)
-    , m_hecID(0)
-    , m_fcalID(0)
-    , m_minifcalID(0)
-    , m_tileID(0)
-    , m_parser(0)
-    , m_caloID(0)
-  {
-  }
-
-
-  void Initialize (void)
-  {
-    m_emID = new LArEM_ID;
-    m_hecID = new LArHEC_ID;
-    m_fcalID = new LArFCAL_ID;
-    m_minifcalID = new LArMiniFCAL_ID;
-    m_tileID = new TileID;
-
-    m_parser = new IdDictParser;
-    m_parser->register_external_entity("LArCalorimeter", "IdDictLArCalorimeter.xml");
-    IdDictMgr& idd = m_parser->parse("IdDictParser/ATLAS_IDS.xml");
-    m_emID->set_do_neighbours(false);
-    m_emID->initialize_from_dictionary(idd);
-    m_hecID->initialize_from_dictionary(idd);
-    m_fcalID->set_do_neighbours(false);
-    m_fcalID->initialize_from_dictionary(idd);
-    m_minifcalID->set_do_neighbours(false);
-    m_minifcalID->initialize_from_dictionary(idd);
-    m_tileID->set_do_neighbours(false);
-    m_tileID->initialize_from_dictionary(idd);
-
-    m_caloID = new CaloCell_ID(m_emID, m_hecID, m_fcalID, m_minifcalID, m_tileID);
-    m_caloID->initialize_from_dictionary(idd);
-  }
-
-  static CaloHelper* s_instance;
-
-  LArEM_ID* m_emID;
-  LArHEC_ID* m_hecID;
-  LArFCAL_ID* m_fcalID;
-  LArMiniFCAL_ID* m_minifcalID;
-  TileID* m_tileID;
-  IdDictParser* m_parser;
-  CaloCell_ID* m_caloID;
+  CaloHelpersTest m_helpers;
   std::map<Identifier, CaloDetDescriptor*> m_ddmap;
-  static int s_refCount;
 };
-
-CaloHelper* CaloHelper::s_instance = 0;
-int CaloHelper::s_refCount = 0;
 
 
 /** Class to test the "CaloCellFastCopyTool.h" class
@@ -187,11 +106,11 @@ class CaloCellFastCopyToolTest
 {
 public:
   
-  CaloCellFastCopyToolTest()
+  CaloCellFastCopyToolTest (CaloHelper& helper)
     : m_evtStore("StoreGateSvc","")
     , m_detStore("DetectorStore","")
     , m_alg(0)
-    , m_caloHelper(0)
+    , m_caloHelper(helper)
     , m_caloID(0)
   {
   }
@@ -210,8 +129,7 @@ public:
     m_detStore.retrieve();
     m_alg = new DummyAlgorithm("DummyAlgorithm", svcloc);
     m_alg->addRef();
-    m_caloHelper = CaloHelper::GetInstance();
-    m_caloID = m_caloHelper->GetCaloID();
+    m_caloID = m_caloHelper.GetCaloID();
 
     if (!m_detStore->contains<CaloCell_ID>("CaloCell_ID"))
       m_detStore->record(m_caloID, "CaloCell_ID");
@@ -228,9 +146,17 @@ public:
 
       std::vector<IdentifierHash>::const_iterator it = m_allHashes.begin();
       for (; it != m_allHashes.end(); ++it) {
-        cellCont->push_back(m_caloHelper->GetCell(*it));
+        cellCont->push_back(m_caloHelper.GetCell(*it));
       }
     }
+  }
+
+
+  template <class CONT>
+  StatusCode testProcess (CaloCellFastCopyTool* tool,
+                          CONT* destCont)
+  {
+    return tool->process (destCont);
   }
 
 
@@ -260,10 +186,10 @@ public:
                           isFindCellFast));
 
     std::unique_ptr<CaloConstCellContainer> destCont =
-      CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
+      std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells from source container has
     // been copied in destination container.
@@ -289,7 +215,7 @@ public:
     }
 
     // Test next event (imitated);
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
     // Not avoiding duplicates, therefore
     // size of destination container has been doubled
     assert( destCont->size() == (2 * m_tileGap3Hashes.size()) );
@@ -325,14 +251,14 @@ public:
 
     // Initialize destination container
     std::unique_ptr<CaloConstCellContainer> destCont =
-      CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
+      std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
     // Add one TileGap3 cell to destination in order to test
     // if tool is avoiding duplicates in destination container
-    std::unique_ptr<CaloCell> cell (m_caloHelper->GetCell(m_tileGap3Hashes[0]));
+    std::unique_ptr<CaloCell> cell (m_caloHelper.GetCell(m_tileGap3Hashes[0]));
     destCont->push_back(cell.get());
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells from source container
     // has been copied to destination container
@@ -359,7 +285,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -392,10 +318,10 @@ public:
                           isFindCellFast));
 
     std::unique_ptr<CaloCellContainer> destCont =
-      CxxUtils::make_unique<CaloCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
+      std::make_unique<CaloCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isFailure());
+    assert(testProcess (tool.get(), destCont.get()).isFailure());
   }
 
 
@@ -428,9 +354,9 @@ public:
 
     // Initialize destination container
     std::unique_ptr<CaloCellContainer> destCont =
-      CxxUtils::make_unique<CaloCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
+      std::make_unique<CaloCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
     // Test tool
-    assert(tool->process(destCont.get()).isFailure());
+    assert(testProcess (tool.get(), destCont.get()).isFailure());
   }
 
 
@@ -463,10 +389,10 @@ public:
 
     // Initialize destination container
     std::unique_ptr<CaloCellContainer> destCont =
-      CxxUtils::make_unique<CaloCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
+      std::make_unique<CaloCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -496,7 +422,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has been doubled
     // because of not avoiding duplicates
@@ -533,14 +459,14 @@ public:
     
     // Initialize destination container
     std::unique_ptr<CaloCellContainer> destCont =
-      CxxUtils::make_unique<CaloCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
+      std::make_unique<CaloCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
     // Add one TileGap3 cell to destination in order to test
     // if tool is avoiding duplicates in destination container
-    CaloCell* cell = m_caloHelper->GetCell(m_tileGap3Hashes[0]);
+    CaloCell* cell = m_caloHelper.GetCell(m_tileGap3Hashes[0]);
     destCont->push_back(cell);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -571,7 +497,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.
@@ -608,10 +534,10 @@ public:
 
     // Initialize destination container
     std::unique_ptr<CaloConstCellContainer> destCont =
-      CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
+      std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -641,7 +567,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has been doubled
     // because of not avoiding duplicates
@@ -678,14 +604,14 @@ public:
     
     // Initialize destination container
     std::unique_ptr<CaloConstCellContainer> destCont =
-      CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
+      std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
     // Add one TileGap3 cell to destination in order to test
     // if tool is avoiding duplicates in destination container
-    CaloCell* cell = m_caloHelper->GetCell(m_tileGap3Hashes[0]);
+    CaloCell* cell = m_caloHelper.GetCell(m_tileGap3Hashes[0]);
     destCont->push_back(cell);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -716,7 +642,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.
@@ -746,7 +672,7 @@ public:
     unsigned int nTileGap1(0);
     unsigned int nTileGap3(0);
     for (IdentifierHash cellHash = 0; cellHash < maxCellHash; cellHash += 1) {
-      srcCont->push_back(m_caloHelper->GetCell(cellHash));
+      srcCont->push_back(m_caloHelper.GetCell(cellHash));
       if (m_caloID->calo_sample(cellHash) == CaloCell_ID::TileGap1) ++nTileGap1;
       if (m_caloID->calo_sample(cellHash) == CaloCell_ID::TileGap3) ++nTileGap3;
     }
@@ -756,7 +682,7 @@ public:
 
     // Initialize destination container
     std::unique_ptr<CaloConstCellContainer> destCont =
-      CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
+      std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
 
     // Get initialized tool to be tested.
     std::vector<std::string> includeSamplings(1, "TileGap3");
@@ -769,13 +695,13 @@ public:
                           caloCellName));
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == nTileGap3 );
 
     // Test next event (imitated)
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has been doubled
     // because of not avoiding duplicates
@@ -786,7 +712,7 @@ public:
 
     // Initialize destination container
     destCont =
-      CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
+      std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
 
     // Get initialized tool to be tested.
     includeSamplings.push_back("TileGap1");
@@ -799,14 +725,14 @@ public:
                           caloCellName));
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap1 + TileGap3 cells has been copied to destination container.
     unsigned int nTileGap1AndTileGap3((nTileGap1 + nTileGap3));
     assert( destCont->size() == nTileGap1AndTileGap3 );
 
     // Test next event (imitated)
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.
@@ -838,8 +764,8 @@ private:
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
   DummyAlgorithm* m_alg;
-  CaloHelper* m_caloHelper;
-  CaloCell_ID* m_caloID;
+  CaloHelper& m_caloHelper;
+  const CaloCell_ID* m_caloID;
 
   std::vector<IdentifierHash> m_tileGap3Hashes;
   std::vector<IdentifierHash> m_tileGap1Hashes;
@@ -848,11 +774,11 @@ private:
 
 
 
-void test1()
+void test1 (CaloHelper& helper)
 {
   std::cout << "test1\n";
 
-  CaloCellFastCopyToolTest tester;
+  CaloCellFastCopyToolTest tester (helper);
   tester.setUp();
 
   tester.testViewNotAvoidingDuplicatesFindCellIsNotFast();
@@ -883,6 +809,9 @@ void test1()
 int main (int /*argc*/, char** argv)
 {
   Athena_test::setupStoreGate (argv[0]);
-  test1();
+
+  CaloHelper helper;
+  test1 (helper);
+
   return 0;
 }

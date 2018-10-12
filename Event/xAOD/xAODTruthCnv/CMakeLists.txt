@@ -23,6 +23,7 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/CxxUtils
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTruth
    ${extra_dep} )

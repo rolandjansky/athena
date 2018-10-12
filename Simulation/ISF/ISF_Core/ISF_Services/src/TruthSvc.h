@@ -57,7 +57,7 @@ namespace ISF {
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
-  class TruthSvc : public extends<AthService, ITruthSvc> {
+  class TruthSvc final : public extends<AthService, ITruthSvc> {
 
     // allow test to access private data
     friend ISFTesting::TruthSvc_test;
@@ -71,18 +71,18 @@ namespace ISF {
     virtual ~TruthSvc();
 
     /** Athena algorithm's interface method initialize() */
-    StatusCode  initialize() override final;
+    StatusCode  initialize() override;
     /** Athena algorithm's interface method finalize() */
-    StatusCode  finalize() override final;
+    StatusCode  finalize() override;
 
     /** Register a truth incident */
-    void registerTruthIncident( ITruthIncident& truthincident) const override final;
+    void registerTruthIncident( ITruthIncident& truthincident) const override;
 
     /** Initialize the Truth Svc at the beginning of each event */
-    StatusCode initializeTruthCollection() override final;
+    StatusCode initializeTruthCollection() override;
 
     /** Finalize the Truth Svc at the end of each event*/
-    StatusCode releaseEvent() override final;
+    StatusCode releaseEvent() override;
 
   private:
     /** Record the given truth incident to the MC Truth */
@@ -105,8 +105,8 @@ namespace ISF {
 
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
 
-    /** the truth strategie applied (as AthenaToolHandle Array) */
-    TruthStrategyArray                        m_geoStrategyHandles[AtlasDetDescr::fNumAtlasRegions];
+    /** the truth strategies applied (as AthenaToolHandle Array) */
+    TruthStrategyArray                        m_truthStrategies;
     /** for faster access: using an internal pointer to the actual ITruthStrategy instances */
     ITruthStrategy**                          m_geoStrategies[AtlasDetDescr::fNumAtlasRegions];
     unsigned short                            m_numStrategies[AtlasDetDescr::fNumAtlasRegions];

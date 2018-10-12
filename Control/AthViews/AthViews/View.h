@@ -20,16 +20,22 @@ class DataObject;
 namespace SG {
 class View : public IProxyDict {
 public:
-  View (const std::string& name, bool AllowFallThrough = true);
-  View (const std::string& name, bool AllowFallThrough, std::string const& storeName);
+  View () = delete;
+  View (const std::string& name, const int index, const bool AllowFallThrough = true, std::string const& storeName = "StoreGateSvc");
   virtual ~View ();
   View (const View&) = delete;
   View& operator= (const View&) = delete;
   
   void impl ( SimpleView* impl ) { m_implementation = impl; }
   IProxyDict* impl (void ) { return m_implementation; }
-  const IProxyDict* impl (void ) const { return m_implementation; }
+  const IProxyDict* impl ( void ) const { return m_implementation; }
+  size_t viewID() const{ return m_index; }
 
+  /**
+   * for printing the content of the view
+   * @warning - expensive call
+   **/
+  std::string dump( const std::string& delim = " " ) const;
 
   /*virtual SG::DataProxy* proxy(const CLID& id) const { 
     return m_implementation->proxy(id); 
@@ -81,10 +87,6 @@ public:
   
 
   
-  virtual StatusCode updatedObject (CLID id, const std::string& key) {
-    return m_implementation->updatedObject(id, key);
-  }
-
   virtual void boundHandle (IResetable* handle) {
     return m_implementation->boundHandle(handle);
   }
@@ -111,12 +113,49 @@ public:
 
 private:
   SimpleView *m_implementation;
+  size_t m_index;
 };
 } // EOF SG namespace
 
 
 #include "SGTools/CLASS_DEF.h"
-CLASS_DEF( std::vector< SG::View* >, 1111111111 , 1 )
+
+// Do we need to do this?
+class ViewContainer {
+  typedef std::vector<SG::View*> T;
+  T m_data;
+public:
+
+  typedef T::const_iterator const_iterator;
+  typedef T::iterator iterator;
+  typedef T::const_reference const_reference;
+  typedef T::reference reference;
+  typedef T::value_type value_type;
+
+
+  ~ViewContainer() { 
+    std::for_each(m_data.begin(), m_data.end(), [](SG::View* v){ delete v; } ); 
+  }
+  void push_back( SG::View* ptr ) { m_data.push_back( ptr ); }
+  size_t size() const { return m_data.size(); }
+  bool empty() const { return m_data.empty(); }
+  void clear() {     
+    std::for_each(m_data.begin(), m_data.end(), [](SG::View* v){ delete v; } );   m_data.clear(); 
+  }
+  const_iterator begin() const { return m_data.begin(); }
+  const_iterator end() const { return m_data.end(); }
+  iterator begin() { return m_data.begin(); }
+  iterator end() { return m_data.end(); }
+  const_reference at(size_t pos) const { return m_data.at(pos); }
+  reference at(size_t pos) { return m_data.at(pos); }
+  const_reference back() const { return m_data.back(); }
+  reference back() { return m_data.back(); }
+};
+
+#include "AthLinks/DeclareIndexingPolicy.h"
+CONTAINER_IS_SEQUENCE(ViewContainer)
+
+CLASS_DEF( ViewContainer , 1160627009 , 1 )
 
 
 #endif

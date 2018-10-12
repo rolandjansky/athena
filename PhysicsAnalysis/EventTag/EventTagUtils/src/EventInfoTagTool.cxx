@@ -305,6 +305,3 @@ StatusCode  EventInfoTagTool::stop() {
   
   return AthAlgTool::stop();
 }
-
-/** destructor */
-EventInfoTagTool::~EventInfoTagTool() {}

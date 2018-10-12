@@ -24,29 +24,23 @@ if not "ToolSvc"         in theApp.ExtSvc and \
 # Import Beam job properties
 from AthenaCommon.BeamFlags import jobproperties
 
-# Setup the DCS folders and Svc used in the sctSiliconConditionsSvc
-if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
-    conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-if not conddb.folderRequested('/SCT/DCS/MODTEMP'):
-    conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-if not conddb.folderRequested('/SCT/DCS/HV'):
-    conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
+# # Setup the DCS folders and tool used in the sctSiliconConditionsTool
+# from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+# sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+# sct_DCSConditionsToolSetup.setup()
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
-ServiceMgr += InDetSCT_DCSConditionsSvc
+# # Silicon conditions tool
+# from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+# sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+# sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsSvcSetup.getTool())
+# sct_SiliconConditionsToolSetup.setup()
 
-# Silicon conditions service (set up by LorentzAngleSvcSetup)
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-ServiceMgr += SCT_SiliconConditionsSvc()
-sctSiliconConditionsSvc=ServiceMgr.SCT_SiliconConditionsSvc
-
-# Silicon properties service
-from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
-sctSiPropertiesSvc = SiPropertiesSvc(name = "SCT_SiPropertiesSvc",
-                                     DetectorName="SCT",
-                                     SiConditionsServices = sctSiliconConditionsSvc)
-ServiceMgr += sctSiPropertiesSvc
+# # Silicon properties tool
+# from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+# sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
+# sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
+# sct_SiPropertiesToolSetup.setup()
+# sctSiPropertiesTool = sct_SiPropertiesToolSetup.getTool()
 
 from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
 ToolSvc += PixelRecoDbTool()

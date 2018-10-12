@@ -5,7 +5,7 @@
 #ifndef ATHENAINTERPROCESS_SHAREDQUEUE_H
 #define ATHENAINTERPROCESS_SHAREDQUEUE_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // full include needed, as message_queue has changed into a
 // template for more recent versions of boost

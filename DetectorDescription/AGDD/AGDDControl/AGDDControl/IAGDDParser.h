@@ -17,6 +17,7 @@ public:
 	virtual bool ParseFileAndNavigate(std::string)=0;
 	virtual bool ParseString(std::string)=0;
 	virtual bool ParseStringAndNavigate(std::string)=0;
+	virtual bool WriteToFile(std::string)=0;
 	virtual void navigateTree()=0;
 protected:
 	std::string m_fileName;

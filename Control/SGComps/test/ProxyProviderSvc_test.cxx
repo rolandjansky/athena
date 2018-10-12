@@ -99,8 +99,8 @@ void TestProvider::add (CLID clid, const std::string& name,
                         const std::vector<CLID>& tclids)
 {
   m_tads.emplace_back (clid, name);
-  for (CLID clid : tclids) {
-    m_tads.back().setTransientID (clid);
+  for (CLID tclid : tclids) {
+    m_tads.back().setTransientID (tclid);
   }
 }
 

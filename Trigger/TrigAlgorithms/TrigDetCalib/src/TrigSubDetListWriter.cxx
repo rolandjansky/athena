@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -299,7 +299,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
   return HLT::OK;
 }
 
-HLT::ErrorCode TrigSubDetListWriter::hltBeginRun()
+HLT::ErrorCode TrigSubDetListWriter::hltStart()
 {
   TrigRoiDescriptor roi(true); /// create a fullscan RoI 
 

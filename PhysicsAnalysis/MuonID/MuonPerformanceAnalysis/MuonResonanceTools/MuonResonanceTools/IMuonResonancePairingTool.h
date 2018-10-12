@@ -12,7 +12,6 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODBase/IParticleContainer.h"
-//#include "MuonPerformanceHistUtils/ProbeContainer.h"
 
 class IMuonResonancePairingTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMuonResonancePairingTool)

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloCellCorrection/CaloCellTimeCorrTool.h" 
+#include "CaloCellTimeCorrTool.h" 
 #include "CaloEvent/CaloCell.h"
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 
@@ -51,7 +51,9 @@ StatusCode CaloCellTimeCorrTool::load(IOVSVC_CALLBACK_ARGS) {
 }
 
 
-void CaloCellTimeCorrTool::MakeCorrection(CaloCell* theCell) {
+void CaloCellTimeCorrTool::MakeCorrection (CaloCell* theCell,
+                                           const EventContext& /*ctx*/) const
+{
   if (m_corrValues) {
     const IdentifierHash& hash_id=theCell->caloDDE()->calo_hash();
     if (hash_id<m_corrValues->getNChans()) {

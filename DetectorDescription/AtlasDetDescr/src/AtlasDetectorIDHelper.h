@@ -46,7 +46,7 @@ public:
 //      static AtlasDetectorIDHelper*	instance();
     
     /// Initialization from the identifier dictionary
-    int         initialize_from_dictionary(const IdDictMgr& dict_mgr);
+  int         initialize_from_dictionary(const IdDictMgr& dict_mgr, bool quiet);
 
     ~AtlasDetectorIDHelper(void);
     

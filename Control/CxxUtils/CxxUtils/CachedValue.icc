@@ -52,7 +52,8 @@ CachedValue<T>::CachedValue (T&& val)
 template <class T>
 inline
 CachedValue<T>::CachedValue (const CachedValue& other)
-  : m_cacheValid (INVALID)
+  : m_cacheValid (INVALID),
+    m_val()
 {
   // If the source is in the middle of an update, set this value
   // to invalid.  Don't copy the value itself unless the source is valid.

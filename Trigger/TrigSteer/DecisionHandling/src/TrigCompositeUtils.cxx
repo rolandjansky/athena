@@ -30,6 +30,11 @@ namespace TrigCompositeUtils {
     readWriteAccessor( *x ).size(); // fake operation just to make the decsions decoration
     return x;
   }
+  Decision* newDecisionIn (DecisionContainer* dc, const std::string& name) {
+    Decision* d = newDecisionIn( dc );
+    d->setName( name );
+    return d;
+  }
 
   void addDecisionID( DecisionID id,  Decision* d ) {   
     std::vector<int>& decisions = readWriteAccessor( *d );
@@ -55,7 +60,7 @@ namespace TrigCompositeUtils {
     return decisions.empty();
   }
 
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required ) {
+  bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required ) {
     for ( auto id : readOnlyAccessor( *d ) ) {
       if ( required.count( id ) > 0 )
 	return true;
@@ -66,8 +71,6 @@ namespace TrigCompositeUtils {
   bool passed( DecisionID id, const DecisionIDContainer& idSet ) {
     return idSet.count( id ) != 0;
   }
-
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required );
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
     d->setObjectLink( "seed", ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ) );
@@ -84,27 +87,7 @@ namespace TrigCompositeUtils {
 
 
   bool copyLinks(const Decision* src, Decision* dest) {
-    if ( not dest->linkColNames().empty() ) {
-      return false;
-    }
-
-    {
-      static SG::AuxElement::Accessor< std::vector< std::string > > accNames( "linkColNames" );
-      accNames( *dest ) = src->linkColNames(); 
-    }
-    {
-      static SG::AuxElement::Accessor< std::vector< uint32_t > > accKeys( "linkColKeys" );
-      accKeys( *dest ) = src->linkColKeys();
-    }
-    {
-      static SG::AuxElement::Accessor< std::vector< uint16_t > > accIndices( "linkColIndices" );
-      accIndices( *dest ) = src->linkColIndices();
-    }
-    {
-      static SG::AuxElement::Accessor< std::vector< uint32_t > > accClids( "linkColClids" );
-      accClids( *dest ) = src->linkColClids();
-    }
-    return true;
+    return dest->copyAllLinksFrom(src);
   }
 
 
@@ -142,6 +125,18 @@ namespace TrigCompositeUtils {
     std::move( links.begin(), links.end(), std::back_inserter( linkVector ) );
 
     return true;
+  }
+
+  std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc ) {
+    std::string ret; 
+    ret += printerFnc( tc );
+    if ( tc->hasObjectLink("seed") ) {
+      const xAOD::TrigComposite* seedTc = tc->object<xAOD::TrigComposite>( "seed" );
+      if ( seedTc ) {
+	ret += " -> " + dump( seedTc, printerFnc );
+      }
+    }
+    return ret;
   }
   
 }

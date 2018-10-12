@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
 			  Control/AthenaBaseComps
+                          AtlasTest/GoogleTestTools
                           TestPolicy )
 
 # The component lib:

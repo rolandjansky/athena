@@ -9,7 +9,7 @@ atlas_subdir( AmdcDb )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate
@@ -35,4 +35,4 @@ atlas_add_component( AmdcDb
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-
+atlas_install_scripts( AmdcDbCnvSqlToolKit/* )

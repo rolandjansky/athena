@@ -25,6 +25,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <string>
 
@@ -32,8 +34,6 @@
 class DataObject;
 class StatusCode;
 class IAddressCreator;
-class IROBDataProviderSvc;
-class IByteStreamEventAccess;
 
 class MsgStream;
 

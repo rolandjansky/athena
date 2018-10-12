@@ -22,7 +22,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TRandom3.h"
-#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 #include "GaudiKernel/FileIncident.h"
 #include <sstream>
 
@@ -62,7 +62,7 @@ StatusCode PrimaryDPDPrescaler::initialize()
 
   m_tRand = new TRandom3();
   // Create a 32-bit integer from the instance name of this class
-  const uint64_t hash64 = SG::crc64( this->name() );
+  const uint64_t hash64 = CxxUtils::crc64( this->name() );
   uint32_t tmpInt = (uint32_t)(hash64 & 0xFFFFFFFF);
   m_nameHash = (unsigned int)tmpInt;
 

@@ -15,9 +15,9 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/SGTools
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           GaudiKernel
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileIdentifier )

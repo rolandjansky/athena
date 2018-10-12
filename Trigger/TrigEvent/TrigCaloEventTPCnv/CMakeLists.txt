@@ -12,10 +12,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Trigger/TrigEvent/TrigCaloEvent
+                          Control/CxxUtils
                           PRIVATE
                           AtlasTest/TestTools
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/SGTools
                           GaudiKernel )
 

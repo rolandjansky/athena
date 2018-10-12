@@ -23,15 +23,16 @@
 #include <GeoPrimitives/GeoPrimitives.h>
 #include <EventPrimitives/EventPrimitives.h>
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class PixelID;
 class SCT_ID;
 class TRT_ID;
 class ITRT_AlignDbSvc;
 
 namespace InDetDD {
-  class SiDetectorManager;
   class PixelDetectorManager;
-  class SCT_DetectorManager;
   class TRT_DetectorManager;
   class SiDetectorElement;
 }
@@ -65,7 +66,7 @@ class InDetAlignCog : public AthAlgorithm {
   };
 
 
-  StatusCode getSiElements(const InDetDD::SiDetectorManager*,const bool, InDetAlignCog::Params_t &params);  
+  StatusCode getSiElements(const InDetDD::SiDetectorElementCollection*,const bool, InDetAlignCog::Params_t &params);
   StatusCode getTRT_Elements(const bool, InDetAlignCog::Params_t &params);  
   StatusCode shiftIDbyCog();
   StatusCode addL1();
@@ -90,7 +91,6 @@ class InDetAlignCog : public AthAlgorithm {
 
   // managers
   const InDetDD::PixelDetectorManager *m_Pixel_Manager;
-  const InDetDD::SCT_DetectorManager *m_SCT_Manager;
   const InDetDD::TRT_DetectorManager *m_TRT_Manager;
   
   // helpers
@@ -104,6 +104,8 @@ class InDetAlignCog : public AthAlgorithm {
   // TRTAlignDbTool
   // ToolHandle<ITRTAlignDbTool> m_TRTAlignDbTool; 
   ServiceHandle<ITRT_AlignDbSvc> m_TRTAlignDbTool; 
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   
   // Select which detectors will be considered for cog calculation 
   int m_det;       //!< Pixel=1, SCT=2, Pixel+SCT=12, TRT=3, all (silicon and TRT)=99

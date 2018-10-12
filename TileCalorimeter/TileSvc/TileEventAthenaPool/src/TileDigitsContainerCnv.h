@@ -7,15 +7,17 @@
 
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileTPCnv/TileDigitsContainer_p1.h"
+#include "TileTPCnv/TileDigitsContainer_p2.h"
+#include "TileTPCnv/TileDigitsContainer_p3.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 // typedef to the latest persistent version
-typedef TileDigitsContainer_p1  TileDigitsContainer_PERS;
+typedef TileDigitsContainer_p3  TileDigitsContainer_PERS;
 
 class TileDigitsContainerCnv  : public T_AthenaPoolCustomCnv<TileDigitsContainer, TileDigitsContainer_PERS > {
   friend class CnvFactory<TileDigitsContainerCnv>;
 public:
-  TileDigitsContainerCnv(ISvcLocator* svcloc) :
-        T_AthenaPoolCustomCnv<TileDigitsContainer, TileDigitsContainer_PERS >( svcloc) {}
+  TileDigitsContainerCnv(ISvcLocator* svcloc);
+
 protected:
   TileDigitsContainer_PERS*  createPersistent(TileDigitsContainer* transCont);
   TileDigitsContainer*       createTransient ();

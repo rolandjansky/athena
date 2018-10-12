@@ -32,11 +32,8 @@ metaIP3DTag = { 'IsATagger'         : True,
                                        'InDetTrackSelectionTool'    : 'InDetTrackSelector',
                                        'TrackVertexAssociationTool' : 'SpecialTrackAssociator',
                                        'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory',
-#                                       'trackToVertexTool'          : 'BTagTrackToVertexTool',
                                        'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
                                        'LikelihoodTool'             : 'IP3DNewLikelihoodTool'},
-#                'PassByName'        : {'SecVxFinderNameForV0Removal' : 'InDetVKalVxInJetTool',
-#                                       'SecVxFinderNameForIPSign'    : 'InDetVKalVxInJetTool'},
                 'PassTracksAs'      : 'trackAssociationName',
                 'JetCollectionList' : 'jetCollectionList',
                 'ToolCollection'    : 'IP3DTag' }
@@ -264,9 +261,7 @@ def toolSpecialTrackAssociator(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------
 
-metaIP3DNewLikelihoodTool = { 'CalibrationFolders' : ['IP3D',],
-                              'DependsOn'          : ['BTagCalibrationBrokerTool',],
-                              'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+metaIP3DNewLikelihoodTool = { 'CalibrationTaggers' : ['IP3D',],
                               'ToolCollection'     : 'IP3DTag' }
 
 def toolIP3DNewLikelihoodTool(name, useBTagFlagsDefaults = True, **options):

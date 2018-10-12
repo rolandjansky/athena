@@ -28,7 +28,7 @@ MODIFIED :
 class egammaRec;
 static const InterfaceID IID_IEMTrackMatchBuilder("IEMTrackMatchBuilder", 1, 0);
 
-class IEMTrackMatchBuilder : virtual public IegammaBaseTool
+class IEMTrackMatchBuilder : virtual public IAlgTool
 {
 
  public:
@@ -41,9 +41,9 @@ class IEMTrackMatchBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg) = 0;
+  virtual StatusCode executeRec(egammaRec* eg) const = 0;
   /** @brief execute method*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) = 0;
+  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) const = 0;
 };
 
 inline const InterfaceID& IEMTrackMatchBuilder::interfaceID()

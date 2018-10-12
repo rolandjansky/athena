@@ -32,8 +32,7 @@ VP1EventProd::VP1EventProd(const std::string& name, ISvcLocator* svcLocator):
   m_eventNumber(0),
   m_timeStamp(0),
   m_humanTimestamp(""),
-  m_nEvent(0),
-  m_poolSvc("PoolSvc", name)
+  m_nEvent(0)
 {
   declareProperty("InputPoolFile", m_inputPoolFile="");
   declareProperty("DestinationDirectory", m_destinationDir="."); // produce files in the run directory by default
@@ -64,11 +63,6 @@ StatusCode VP1EventProd::initialize()
     msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endmsg;
   else
     incsvc->addListener(this, "BeginEvent", 0);
-
-  // get hold of the PoolSvc
-  status = m_poolSvc.retrieve();
-  if(status.isFailure())
-    msg(MSG::WARNING) << "Unable to get PoolSvc" << endmsg;
 
   return result;
 }

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/ProcessSamplingTool.h"
+#include "ProcessSamplingTool.h"
 
 // Tracking
 #include "TrkParameters/TrackParameters.h"

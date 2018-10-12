@@ -26,11 +26,16 @@ namespace SG {
 inline
 LockedAllocator ArenaBase::allocator (size_t i)
 {
-  lock_t l (m_mutex);
+  std::unique_lock<std::mutex> l (m_mutex);
   if (i < m_allocs.size()) {
     ArenaAllocatorBase* allocbase = m_allocs[i].m_alloc.get();
-    if (allocbase) return LockedAllocator (allocbase,
-                                           *m_allocs[i].m_mutex);
+    if (allocbase) {
+      std::mutex& m = *m_allocs[i].m_mutex;
+      // Need to give up this mutex before waiting on m;
+      // otherwise we can deadlock.
+      l.unlock();
+      return LockedAllocator (allocbase, m);
+    }
   }
   return makeAllocator (i);
 }

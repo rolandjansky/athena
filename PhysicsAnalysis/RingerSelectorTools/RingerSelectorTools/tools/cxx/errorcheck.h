@@ -21,6 +21,7 @@
         return 1;                                       \
     }                                                   \
    } while( false )
+#define ATH_CHECK CHECK
 #endif
 
 #endif // RINGERSELECTORTOOLS_TOOLS_CXX_ERRORCHECK_H

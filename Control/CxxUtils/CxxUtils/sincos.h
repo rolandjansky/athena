@@ -81,7 +81,7 @@ struct sincos
   { __asm __volatile__ ("fsincos\n\t" : "=t" (cs), "=u" (sn) : "0" (x)); }
 #elif defined(__USE_GNU)
   // Version using the GNU sincos() function.
-  { sincos(x, &sn, &cs); }
+  { ::sincos(x, &sn, &cs); }
 #else
   // Generic version.
   : sn (std::sin (x)), cs (std::cos (x)) {}

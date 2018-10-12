@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -55,8 +55,6 @@ class TrigMissingETMuon : public HLT::AllTEAlgo
   HLT::ErrorCode hltInitialize() { return HLT::OK; } //!< hlt initialize, doing nothing here
   HLT::ErrorCode hltFinalize()   { return HLT::OK; } //!< hlt finalize, doing nothing here
 
-  virtual HLT::ErrorCode hltBeginRun();
-
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int output);
   HLT::ErrorCode makeOutputTE(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int type_out ) ;
 
@@ -67,14 +65,6 @@ class TrigMissingETMuon : public HLT::AllTEAlgo
  private:
 
   std::string m_featureLabel; //!< label for the MET feature in the HLT Navigation
-
-  StoreGateSvc* m_StoreGate; //!< pointer to StoreGate
-
-  // the following are 32-bit unsigned values:
-  unsigned int m_current_run_id;  //!< run number
-  unsigned int m_current_lbk_id;  //!< luminosity block
-  unsigned int m_current_evt_id;  //!< event number
-  unsigned int m_current_bcg_id;  //!< bunch crossing
 
   bool m_useCachedResult;  //!< internal caching: true when the hltExecute will run in cached mode
 

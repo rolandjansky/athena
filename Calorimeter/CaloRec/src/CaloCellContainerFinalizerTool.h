@@ -13,6 +13,8 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloInterface/ICaloConstCellMakerTool.h"
 
+class CaloCell_ID;
+
 class CaloCellContainerFinalizerTool
   : public AthAlgTool,
     virtual public ICaloCellMakerTool,
@@ -33,6 +35,8 @@ public:
 private:
   template <class CONTAINER>
   StatusCode doProcess (CONTAINER* theCellContainer);
+
+  const CaloCell_ID* m_theCaloCCIDM;
 };
 
 #endif

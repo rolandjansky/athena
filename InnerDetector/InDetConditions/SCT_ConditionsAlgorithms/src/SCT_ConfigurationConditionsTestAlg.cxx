@@ -25,15 +25,9 @@ SCT_ConfigurationConditionsTestAlg::SCT_ConfigurationConditionsTestAlg(const std
 StatusCode SCT_ConfigurationConditionsTestAlg::initialize(){  
   ATH_MSG_INFO("in initialize()");
  
-  if (m_configConditions.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve SCT_ConfigurationConditions service");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_configConditions.retrieve());
 
-  if (detStore()->retrieve(m_sctId,"SCT_ID").isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve SCT_ID");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
 
   return StatusCode::SUCCESS;
 } 
@@ -45,9 +39,9 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(){
   unsigned int nBadMods = m_configConditions->badModules()->size();
 
   // Bad links
-  const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_configConditions->badLinks();
-  std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
-  std::map<Identifier, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
+  const std::map<IdentifierHash, std::pair<bool, bool> >* badLinks = m_configConditions->badLinks();
+  std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
+  std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
 
   unsigned int nBadLink0(0), nBadLink1(0), nBadLinkBoth(0);
   while (linkItr != linkEnd) {

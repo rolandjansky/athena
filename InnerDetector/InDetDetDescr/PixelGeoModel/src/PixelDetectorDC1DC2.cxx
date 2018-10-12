@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file is basically a concatenation of all the *.cxx files.
@@ -37,11 +37,9 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+
 
 #include <vector>
-#include <sstream>
-#include <stdexcept>
 
 
 using namespace PixelGeoDC2;
@@ -132,11 +130,7 @@ GeoVPhysVol* GeoPixelCable::Build() {
   double width = m_gmt_mgr->PixelCableWidth();
   GeoMaterial* cable = m_mat_mgr->getMaterial("pix::Cable");
   const GeoBox* cableBox = new GeoBox(thickness/2.,width/2.,length/2.);
-  std::string logName = "cableLog";
-  std::ostringstream o;
-  o << m_moduleNumber;
-  logName = logName+o.str();
-
+  std::string logName = std::string("cableLog")+std::to_string(m_moduleNumber);;
   GeoLogVol* theCable = new GeoLogVol(logName,cableBox,cable);
   GeoPhysVol* cablePhys = new GeoPhysVol(theCable);
   return cablePhys;
@@ -236,11 +230,16 @@ GeoPixelDisk::GeoPixelDisk() {
   //
   double rmin = RMin();
   double rmax = RMax();
-  double halflength = Thickness()/2.;
+  double halflength = Thickness()*0.5;
   GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* diskTube = new GeoTube(rmin,rmax,halflength);
   m_theDisk = new GeoLogVol("diskLog",diskTube,air);
+  m_theDisk->ref();
 }
+GeoPixelDisk::~GeoPixelDisk() {
+  m_theDisk->unref();
+}
+
 GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
   // Define the Sensor to be used here, so it will be the same for all the disk
@@ -404,10 +403,7 @@ GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
   double rmax = m_rmax[m_nframe];
   double halflength = m_halflength[m_nframe];
   const GeoTube* supportTube = new GeoTube(rmin,rmax,halflength);
-  std::string logName = "diskSupLog";
-  std::ostringstream o;
-  o << m_nframe;
-  logName = logName+o.str();
+  std::string logName = std::string("diskSupLog")+std::to_string(m_nframe);
   GeoLogVol* theSupport = new GeoLogVol(logName,supportTube,supportMat);
   GeoPhysVol* supportPhys = new GeoPhysVol(theSupport);
   return supportPhys;
@@ -432,13 +428,18 @@ GeoPixelECCable::GeoPixelECCable() {
   double rmax = m_gmt_mgr->PixelECCablesRMax();
   double thickness = m_gmt_mgr->PixelECCablesThickness();
   GeoMaterial* cableMat = m_mat_mgr->getMaterial("pix::ECCables");
-  const GeoTube* cableTube = new GeoTube(rmin,rmax,thickness/2.);
+  const GeoTube* cableTube = new GeoTube(rmin,rmax,thickness*0.5);
   m_theECCable = new GeoLogVol("ECCableLog",cableTube,cableMat);
+  m_theECCable->ref();
 }
 
 GeoVPhysVol* GeoPixelECCable::Build( ) {
   GeoPhysVol* cablePhys = new GeoPhysVol(m_theECCable);
   return cablePhys;
+}
+
+GeoPixelECCable::~GeoPixelECCable(){
+  m_theECCable->unref();
 }
 
 //---------------------------------------------------//
@@ -699,9 +700,14 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor) :
   //
   double thickness = this->Thickness();
   GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
-  const GeoBox* ladderBox = new GeoBox(thickness/2.,width/2.,halflength);
+  const GeoBox* ladderBox = new GeoBox(thickness*0.5,width*0.5,halflength);
   m_theLadder = new GeoLogVol("ladderLog",ladderBox,air);
+  m_theLadder->ref();
 }
+GeoPixelLadder::~GeoPixelLadder(){
+  m_theLadder->unref();
+}
+
 GeoVPhysVol* GeoPixelLadder::Build( ) {
   GeoPhysVol* ladderPhys = new GeoPhysVol(m_theLadder);
   //
@@ -920,8 +926,12 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   double thickness = this->Thickness();
   double width = this->Width();
   GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
-  const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
+  const GeoBox* moduleBox = new GeoBox(thickness*0.5,width*0.5,length*0.5);
   m_theModule = new GeoLogVol("moduleLog",moduleBox,air);
+  m_theModule->ref();
+}
+GeoPixelModule::~GeoPixelModule(){
+  m_theModule->unref();
 }
 
 GeoVPhysVol* GeoPixelModule::Build( ) {
@@ -1140,9 +1150,7 @@ GeoVPhysVol* GeoPixelServices::Build( ) {
   std::string logName;
   if(m_gmt_mgr->isBarrel() ) logName = m_zone+"Brl";
   else logName = m_zone+"EC";
-  std::ostringstream o;
-  o << m_nframe;
-  logName = logName+o.str();
+  logName = logName+std::to_string(m_nframe);
   GeoLogVol* theService = new GeoLogVol(logName,serviceTube,serviceMat);
   GeoPhysVol* servicePhys = new GeoPhysVol(theService);
   return servicePhys;
@@ -1345,7 +1353,12 @@ m_theSensor(theSensor)
   GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()+0.000005,360.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()-0.00001);
   m_theSubDisk = new GeoLogVol("SubDiskLog",SDTubs,air);
+  m_theSubDisk->ref();
 }
+GeoPixelSubDisk::~GeoPixelSubDisk(){
+  m_theSubDisk->unref();
+}
+
 
 GeoVPhysVol* GeoPixelSubDisk::Build( ) {
   GeoFullPhysVol* SDPhys = new GeoFullPhysVol(m_theSubDisk);
@@ -1433,8 +1446,12 @@ GeoPixelTubeCables::GeoPixelTubeCables() {
   //
   double thickness = this->Thickness();
   GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
-  const GeoBox* solBox = new GeoBox(thickness/2.,width/2.,halflength+m_epsilon);
+  const GeoBox* solBox = new GeoBox(thickness*0.5,width*0.5,halflength+m_epsilon);
   m_theBox = new GeoLogVol("TubeCablesLog",solBox,air);
+  m_theBox->ref();
+}
+GeoPixelTubeCables::~GeoPixelTubeCables(){
+  m_theBox->unref();
 }
 
 
@@ -1698,11 +1715,11 @@ void OraclePixGeoManager::SetEndcap() {
 //
 /////////////////////////////////////////////////////////
 bool OraclePixGeoManager::isLDPresent() {
+  const std::string uscore("_");
   if(isBarrel()) {
     if (m_initialLayout && m_currentLD == 1) return false;
-    std::ostringstream A;
-    A << "_" << m_currentLD;
-    if((*m_PixelBarrelGeneral)[0]->getInt("USELAYER"+A.str()) == 1) {
+    std::string a=uscore+std::to_string(m_currentLD);
+    if((*m_PixelBarrelGeneral)[0]->getInt("USELAYER"+a) == 1) {
       return true;
     } else {
       return false;
@@ -1710,9 +1727,8 @@ bool OraclePixGeoManager::isLDPresent() {
   }
   if(isEndcap() ) {
     if (m_initialLayout && m_currentLD == 1) return false;
-    std::ostringstream A;
-    A << "_" << m_currentLD;
-    if((*m_PixelEndcapGeneral)[0]->getInt("USEDISK"+A.str()) == 1) {
+    std::string a=uscore+std::to_string(m_currentLD);
+    if((*m_PixelEndcapGeneral)[0]->getInt("USEDISK"+a) == 1) {
       return true;
     } else {
       return false;
@@ -2199,16 +2215,14 @@ int OraclePixGeoManager::NumberOfEmptyRows()
 
 int OraclePixGeoManager::EmptyRows(int index)
 {
-  std::ostringstream A;
-  A << "_" << index;
- return static_cast<int>((*m_pdch)[0]->getInt("JYEMPTY"+A.str())) - 1;
+ const std::string a=std::string("_")+std::to_string(index);
+ return static_cast<int>((*m_pdch)[0]->getInt("JYEMPTY"+a)) - 1;
 }  
 
 int OraclePixGeoManager::EmptyRowConnections(int index)
 {
-  std::ostringstream A;
-  A << "_" << index;
-  return static_cast<int>((*m_pdch)[0]->getInt("JYCONNEC"+A.str())) - 1;
+  const std::string a=std::string("_")+std::to_string(index);
+  return static_cast<int>((*m_pdch)[0]->getInt("JYCONNEC"+a)) - 1;
 }
 
 double OraclePixGeoManager::Voltage(bool isBLayer){

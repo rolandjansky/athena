@@ -21,6 +21,7 @@
 
 //need this for MAXSIZE, NUMEMSAMP, and NUMHADSAMP
 #include "TrigCaloEvent/TrigTauCluster.h"
+#include "CxxUtils/unused.h"
 
 class TrigTauCluster_p2
 {
@@ -64,7 +65,8 @@ class TrigTauCluster_p2
 	/**  Width as in Offline */
         float m_stripWidthOffline;
 	
-	bool m_valid;
+        // Unused, but shouldn't delete it since it's part of the persistent data.
+        bool ATH_UNUSED_MEMBER(m_valid);
 	/** ElementLink to TrigTauClusterDetailsContainer **/
 	ElementLinkInt_p1 m_details;
   

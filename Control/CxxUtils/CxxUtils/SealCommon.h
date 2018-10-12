@@ -30,7 +30,7 @@ typedef int   IOFD;
 
 
 // platform specific defines from SealPlatform/config.h
-#ifdef __linux
+#ifdef __linux__
 
 /* C++ features --------------------------------------------------------- */
 

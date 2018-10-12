@@ -13,9 +13,7 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-
-//class LArOnlineID;
-//class LArOnline_SuperCellID;
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class LArBadChannelCondAlg: public AthAlgorithm {
  public:
@@ -29,6 +27,7 @@ class LArBadChannelCondAlg: public AthAlgorithm {
 
  private:
   SG::ReadCondHandleKey<CondAttrListCollection>   m_BCInputKey; 
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey;   
   SG::WriteCondHandleKey<LArBadChannelCont>      m_BCOutputKey;
   ServiceHandle<ICondSvc> m_condSvc;
   std::string m_inputFileName;

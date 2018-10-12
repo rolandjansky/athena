@@ -10,10 +10,9 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/CxxUtils
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities

@@ -54,6 +54,7 @@ void test1()
   std::cout << SG::ExcViewVectorNotView().what() << "\n";
   std::cout << SG::ExcMissingViewVectorCLID(typeid(int)).what() << "\n";
   std::cout << SG::ExcInsertMoveOwnershipMismatch().what() << "\n";
+  std::cout << SG::ExcAtomicMismatch(id2, typeid(int)).what() << "\n";
 }
 
 

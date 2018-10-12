@@ -14,10 +14,11 @@ class ICaloGeometry {
 public :
    virtual bool PostProcessGeometry() = 0;
 
-   virtual void Validate() = 0;
+   virtual void Validate(int nrnd=100) = 0;
 
    virtual const CaloDetDescrElement* getDDE(Identifier identify) = 0;
    virtual const CaloDetDescrElement* getDDE(int sampling,float eta,float phi,float* distance=0,int* steps=0) = 0;
+   virtual const CaloDetDescrElement* getFCalDDE(int sampling,float x,float y,float z,float* distance=0,int* steps=0) = 0;
    
    virtual double deta(int sample,double eta) const = 0;
    virtual void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const = 0;

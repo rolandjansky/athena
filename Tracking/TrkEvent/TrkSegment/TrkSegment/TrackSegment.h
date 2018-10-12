@@ -18,7 +18,7 @@
 #include <ostream>
 #include <vector>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 class MsgStream;
 class TrackSegmentCnv_p1;
 

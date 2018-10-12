@@ -949,19 +949,6 @@ namespace TrigSim {
                       << (*it)->name() << endmsg;
                 failed = true;
             } 
-
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-            Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*it) );
-            if (alg != nullptr) {
-              alg->setContext( &m_eventContext );
-            } else {
-              m_log << MSG::ERROR
-                    << "Unable to dcast IAlgorithm " << (*it)->name() 
-                    << " to Algorithm"
-                    << endmsg;
-              failed = true;
-            }
-#endif
         }
 
         for(it = m_outStreamList.begin(); it != m_outStreamList.end(); ++it) {
@@ -971,20 +958,7 @@ namespace TrigSim {
                 m_log << MSG::ERROR << "Unable to initialize Output Stream: "
                       << (*it)->name() << endmsg;
                 failed = true;
-        }
-
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-            Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*it) );
-            if (alg != nullptr) {
-              alg->setContext( &m_eventContext );
-            } else {
-              m_log << MSG::ERROR
-                    << "Unable to dcast IAlgorithm " << (*it)->name() 
-                    << " to Algorithm"
-                    << endmsg;
-              failed = true;
             }
-#endif
         }
 
 
@@ -1026,15 +1000,10 @@ namespace TrigSim {
     }
 //------------------------------------------------------------------------------
     StatusCode MergingEventLoopMgr::executeAlgorithms() {
-        StatusCode sc;
 
         for(ListAlg::iterator it = m_topAlgList.begin(); it != m_topAlgList.end(); ++it) {
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
             const StatusCode& sc = (*it)->sysExecute(m_eventContext); 
-#else
-            sc = (*it)->sysExecute();
-#endif
             // this duplicates what is already done in Algorithm::sysExecute, which
             // calls Algorithm::setExecuted, but eventually we plan to remove that 
             // function
@@ -1046,7 +1015,7 @@ namespace TrigSim {
                 return sc;
             } 
         }
-        return sc;
+        return StatusCode::SUCCESS;
     }
 //------------------------------------------------------------------------------
     StatusCode MergingEventLoopMgr::overwriteTriggerInfo(EventInfo *pFrom, EventInfo *pTo) {

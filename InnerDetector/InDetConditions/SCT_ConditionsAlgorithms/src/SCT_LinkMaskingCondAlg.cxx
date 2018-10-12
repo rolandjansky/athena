@@ -10,13 +10,8 @@
 
 SCT_LinkMaskingCondAlg::SCT_LinkMaskingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/purple/pants"}
-  // This folder can be created by SCT_ConditionsServices/python/createLinkMaskingSQLiteFile.py
-  , m_writeKey{"SCT_LinkMaskingCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) bad wafer conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) bad wafer conditions folder");
 }
 
 StatusCode SCT_LinkMaskingCondAlg::initialize() {
@@ -29,7 +24,7 @@ StatusCode SCT_LinkMaskingCondAlg::initialize() {
   ATH_CHECK(m_readKey.initialize());
   // Write Cond Handles
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }

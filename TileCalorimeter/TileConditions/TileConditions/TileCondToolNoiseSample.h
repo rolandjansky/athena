@@ -5,23 +5,18 @@
 #ifndef TILECONDITIONS_TILECONDTOOLNOISESAMPLE_H
 #define TILECONDITIONS_TILECONDTOOLNOISESAMPLE_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileConditions/ITileCondToolNoise.h"
+#include "TileConditions/TileCalibData.h"
+#include "TileConditions/TileEMScale.h"
+#include "TileIdentifier/TileRawChannelUnit.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-
-// Tile includes
-#include "TileIdentifier/TileRawChannelUnit.h"
-#include "TileConditions/ITileCondToolNoise.h"
-#include "TileConditions/ITileCondProxy.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 
-
-// Forward declaration
-class TileCalibDrawerFlt;
-class TileCondToolEmscale;
 
 class TileCondToolNoiseSample: public AthAlgTool
                              , virtual public ITileCondToolNoise {
@@ -36,13 +31,13 @@ class TileCondToolNoiseSample: public AthAlgTool
     StatusCode finalize();
 
     float getPed(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-        TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
+                 TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
 
     float getHfn(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-        TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
+                 TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
 
     float getLfn(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-        TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
+                 TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const;
 
     float getHfn1(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
 
@@ -50,10 +45,7 @@ class TileCondToolNoiseSample: public AthAlgTool
 
     float getHfnNorm(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
 
-    //  void  getAutoCorr(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-    //		    std::vector<float>& vec) const;
-
-    float getOnlinePedestalDifference(unsigned int drawerIdx, unsigned int channel, unsigned int adc, 
+    float getOnlinePedestalDifference(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
                                       TileRawChannelUnit::UNIT onlineUnit = TileRawChannelUnit::OnlineADCcounts) const;
 
 
@@ -64,13 +56,15 @@ class TileCondToolNoiseSample: public AthAlgTool
 
   private:
 
-    //=== used tools
-    ToolHandle<TileCondToolEmscale> m_tileToolEms;
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibSampleNoiseKey{this,
+        "TileSampleNoise", "TileSampleNoise", "Input Tile sample noise constants"};
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryNoiseSample;
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryOnlineNoiseSample;
-    //  ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryNoiseAutoCr;
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibOnlineSampleNoiseKey{this,
+        "TileOnlineSampleNoise", "TileOnlineSampleNoise", "Input Tile online noise sample constants"};
+
+    SG::ReadCondHandleKey<TileEMScale> m_emScaleKey{this,
+        "TileEMScale", "TileEMScale", "Input Tile EMS conditions"};
+
     bool m_useOnlineNoise;
 };
 

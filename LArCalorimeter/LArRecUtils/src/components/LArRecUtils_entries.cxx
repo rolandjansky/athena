@@ -1,27 +1,34 @@
-#include "LArRecUtils/LArADC2MeVTool.h"
-#include "LArRecUtils/LArAutoCorrNoiseTool.h"
-#include "LArRecUtils/LArAutoCorrTotalTool.h"
-#include "LArRecUtils/LArCellFakeProbElectronics.h"
+#include "../LArADC2MeVTool.h"
+#include "../LArAutoCorrNoiseTool.h"
+#include "../LArAutoCorrTotalTool.h"
+#include "../LArCellFakeProbElectronics.h"
 //#include "LArRecUtils/LArCellFakeProbHV.h"
-#include "LArRecUtils/LArHVCorrTool.h"
+#include "../LArHVCorrTool.h"
 //#include "LArRecUtils/LArHVGeometryTool.h"
-#include "LArRecUtils/LArOFCTool.h"
+#include "../LArOFCTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
 #include "LArRecUtils/LArShapePeakRecoTool.h"
-#include "LArRecUtils/LArTowerBuilderTool.h"
-#include "LArRecUtils/LArFCalTowerBuilderTool.h"
-#include "LArRecUtils/LArFEBConfigReader.h"
-#include "LArRecUtils/LArFlatConditionSvc.h"
+#include "../LArTowerBuilderTool.h"
+#include "../LArFCalTowerBuilderTool.h"
+#include "../LArFEBConfigReader.h"
+#include "../LArFlatConditionSvc.h"
 #include "../LArFCalTowerBuilderToolTestAlg.h"
 #include "../LArHVScaleRetriever.h"
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
 #include "../LArFebRodMappingAlg.h"
+#include "../LArHVIdMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
 #include "../LArMCSymCondAlg.h"
-#include "LArRecUtils/LArADC2MeVCondAlg.h"
+#include "../LArADC2MeVCondAlg.h"
+#include "../LArAutoCorrTotalCondAlg.h"
+#include "../LArOFCCondAlg.h"
+#include "../LArHVPathologyDbCondAlg.h"
+#include "../LArHVIdMappingAlg.h"
+#include "../LArHVCondAlg.h"
+
 
 DECLARE_COMPONENT( LArADC2MeVTool )
 DECLARE_COMPONENT( LArAutoCorrNoiseTool )
@@ -69,6 +76,15 @@ DECLARE_COMPONENT( LAruA2MeVSymCondAlg )
 DECLARE_COMPONENT( LArDAC2uASymCondAlg )
 DECLARE_COMPONENT( LArfSamplSymCondAlg )
 DECLARE_COMPONENT( LArMinBiasSymCondAlg )
+DECLARE_COMPONENT( LArMinBiasAverageSymCondAlg )
 DECLARE_COMPONENT( LArNoiseSymCondAlg )
+DECLARE_COMPONENT( LArShapeSymCondAlg )
+DECLARE_COMPONENT( LArAutoCorrSymCondAlg )
+DECLARE_COMPONENT( LArMphysOverMcalSymCondAlg ) 
 
+DECLARE_COMPONENT( LArAutoCorrTotalCondAlg )
 DECLARE_COMPONENT( LArADC2MeVCondAlg )
+DECLARE_COMPONENT( LArHVPathologyDbCondAlg )
+DECLARE_COMPONENT( LArHVIdMappingAlg )
+DECLARE_COMPONENT( LArOFCCondAlg )
+DECLARE_COMPONENT( LArHVCondAlg )

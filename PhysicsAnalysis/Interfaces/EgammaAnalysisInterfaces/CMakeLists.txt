@@ -6,6 +6,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODEgamma
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/AnalysisCommon/PATInterfaces 
    PhysicsAnalysis/AnalysisCommon/PATCore
 )

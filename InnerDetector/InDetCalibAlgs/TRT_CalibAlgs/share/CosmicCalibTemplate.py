@@ -336,6 +336,14 @@ conddb.blockFolder("/TRT/Calib/RT" )
 conddb.blockFolder("/TRT/Calib/T0" )   
 #InDetTRT_DriftFunctionTool.UniversalError=0.17
 #InDetTRT_DriftFunctionTool.ForceUniversalErrors=True
+
+# DCS Data Folders
+if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
+    if InDetFlags.useTrtDCS():
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>",classname='CondAttrListCollection')
+
 """
 
     if not calibconstants=="":

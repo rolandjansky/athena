@@ -26,6 +26,8 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.WriteAthenaPool
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+include ('DataModelRunTests/loadReadDicts.py')
+
 #--------------------------------------------------------------
 # Define input
 #--------------------------------------------------------------
@@ -174,14 +176,6 @@ Stream2_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream2 = Stream2_Augmented.GetEventStream()
 Stream2.WritingTool.SubLevelBranchName = '<key>'
 Stream2.ItemList   += fullItemList # List of DO's to write out
-
-# Note: can't autoload these.
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataReadDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
 
 theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 

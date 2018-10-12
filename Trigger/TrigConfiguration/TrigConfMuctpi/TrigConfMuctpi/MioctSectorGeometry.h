@@ -19,7 +19,7 @@ class MictROIGeometry;
 class MioctSectorGeometry {
    public:
       MioctSectorGeometry();
-      ~MioctSectorGeometry();
+      virtual ~MioctSectorGeometry();
      
       // getters
     unsigned int                            connector() const {return m_connector; };

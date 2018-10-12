@@ -17,8 +17,6 @@
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
-  SCT_ClusterContainerCnv::~SCT_ClusterContainerCnv() {}
-
 
 
 StatusCode SCT_ClusterContainerCnv::initialize() {

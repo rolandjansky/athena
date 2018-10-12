@@ -16,6 +16,7 @@ SCT_SensorsTool::SCT_SensorsTool(const std::string& type, const std::string& nam
   m_cache{},
   m_condData{},
   m_condKey{"SCT_SensorsCondData"} {
+    declareProperty("CondKey", m_condKey);
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode SCT_SensorsTool::initialize() {
@@ -64,7 +65,7 @@ void SCT_SensorsTool::printManufacturers() const {
   const SCT_SensorsCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return;
 
-  for(auto it: *condData) {
+  for (const std::pair<CondAttrListCollection::ChanNum, SCT_SensorCondData>& it: *condData) {
     ATH_MSG_ALWAYS("channel " << it.first << " manufacturer " << (it.second).getManufacturer());
   }
 }
@@ -74,11 +75,12 @@ SCT_SensorsTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cache.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cache[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_SensorsCondData> condData{m_condKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());

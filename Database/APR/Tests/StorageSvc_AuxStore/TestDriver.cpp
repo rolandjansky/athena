@@ -12,7 +12,6 @@
 #include "PersistentDataModel/Token.h"
 
 #include "StorageSvc/Shape.h"
-#include "StorageSvc/poolDb.h"
 #include "StorageSvc/IStorageSvc.h"
 #include "StorageSvc/IStorageExplorer.h"
 #include "StorageSvc/DbSelect.h"
@@ -78,21 +77,16 @@ TestDriver::testWriting()
    storSvc->addRef();
    cout << "startSession" << endl;
    pool::Session* sessionHandle = 0;
-   if ( ! ( storSvc->startSession( poolDb::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+   if ( ! ( storSvc->startSession( pool::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
       throw std::runtime_error( "Could not start a session." );
    }
 
    cout << "Session connect" << endl;
    pool::FileDescriptor fd( file, file );
-   if ( ! ( storSvc->connect( sessionHandle, poolDb::RECREATE, fd ).isSuccess() ) ) {
+   if ( ! ( storSvc->connect( sessionHandle, pool::RECREATE, fd ).isSuccess() ) ) {
       throw std::runtime_error( "Could not start a connection." );
    }
    pool::DatabaseConnection* connection = fd.dbc();
-   pool::Transaction* transaction = 0;
-   cout << "startTransaction" << endl;
-   if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-      throw std::runtime_error( "Could not start a transaction." );
-   }
 
    void *pVoid;
    pool::DbStatus sc = storSvc->queryInterface( pool::IStorageExplorer::interfaceID(), &pVoid );
@@ -151,24 +145,21 @@ TestDriver::testWriting()
    cout << "Writing objects" << endl;
    for( int objn=0; objn <nObjects; objn++ ) {
       Token* token;
-      if( ! ( storSvc->allocate( transaction, fd,
+      if( ! ( storSvc->allocate( fd,
                                  container, pool::ROOTTREE_StorageType.type(),
                                  objs[objn], shape, token ).isSuccess() ) ) {
          throw std::runtime_error( "Could not write an object" );
       }
       cout << "Committing transaction" << endl;
-      if( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+      if( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
          throw std::runtime_error( "Commit ERROR" );
-      }
-      if( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-         throw std::runtime_error( "Could not restart the transaction." );
       }
       delete token;
    }
 
    // Closing the transaction.
    cout << "Committing transaction" << endl;
-   if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+   if ( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
       throw std::runtime_error( "Could not end a transaction." );
    }
 
@@ -212,12 +203,12 @@ TestDriver::testReading()
   SG::auxid_t nodict_type = SG::AuxTypeRegistry::instance().getAuxID<TestClassNoDict*>("nodict");
 
   pool::Session* sessionHandle = 0;
-  if ( ! ( storSvc->startSession( poolDb::READ, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+  if ( ! ( storSvc->startSession( pool::READ, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a session." );
   }
 
   pool::FileDescriptor* fd = new pool::FileDescriptor( file, file );
-  sc = storSvc->connect( sessionHandle, poolDb::READ, *fd );
+  sc = storSvc->connect( sessionHandle, pool::READ, *fd );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
   }

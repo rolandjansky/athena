@@ -10,6 +10,7 @@
 
 #include "AnalysisTools/AANTEventSelector.h"
 #include "AnalysisTools/AANTEventContext.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
@@ -166,6 +167,7 @@ StatusCode AANTEventSelector::next(IEvtSelector::Context& it, int jump) const
       // increment pointer
       ++m_numEvents;
       // convert C++ obj to Python obj
+      RootUtils::PyGILStateEnsure gil;
       PyObject *pyObj = PyObject_CallObject(m_convFunc,NULL); 
       // execute Python code fragment
       PyObject *tup = Py_BuildValue((char*)"(O)",pyObj);

@@ -10,6 +10,10 @@
 /* date of creation : 01/07/2001 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArHVIdMapping.h"
+
 #include <string>
 
 /** 
@@ -115,7 +119,7 @@ class TestLArHWID_Algo : public AthAlgorithm {
   //std::string m_Connected ; 
 
 
-  LArCablingService*      m_cablingSvc ; 
+  //LArCablingService*      m_cablingSvc ; 
   const CaloLVL1_ID*      m_lvl1Helper;
   const LArEM_ID*         m_emHelper;
   const LArHEC_ID*        m_hecHelper;
@@ -123,7 +127,9 @@ class TestLArHWID_Algo : public AthAlgorithm {
   const LArOnlineID*      m_onlineHelper;
   const LArHVLineID*      m_hvHelper;
   const LArElectrodeID*   m_electrodeHelper;
-  LArHVCablingTool*       m_hvcablingTool;
+  //LArHVCablingTool*       m_hvcablingTool;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingReadKey{this,"CablingKey","LArOnOffIdMap","Key for OnOffId map"};
+  SG::ReadCondHandleKey<LArHVIdMapping> m_HVReadKey{this,"HVMapKey","LArHVIdMap", "LArHV mapping object key"};
   
 
   public :

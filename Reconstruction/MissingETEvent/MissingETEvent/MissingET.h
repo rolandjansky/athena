@@ -15,7 +15,7 @@ CREATED:  Oct 2004
 
 PURPOSE:  Base Class for MissingETEvent package, it owns the region object
 ********************************************************************/
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "MissingETEvent/MissingEtRegions.h"
 #include "CaloEvent/CaloCell.h"
 

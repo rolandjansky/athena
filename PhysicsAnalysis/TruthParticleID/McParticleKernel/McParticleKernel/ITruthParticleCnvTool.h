@@ -34,6 +34,7 @@
 class McEventCollection;
 class TruthParticle;
 class TruthParticleContainer;
+class EventContext;
 
 static const InterfaceID IID_ITruthParticleCnvTool("ITruthParticleCnvTool", 1, 0);
 
@@ -51,7 +52,8 @@ class ITruthParticleCnvTool : virtual public IAlgTool,
   virtual ~ITruthParticleCnvTool();
 
   // Athena algorithm's Hooks
-  virtual StatusCode  execute()    = 0;
+  virtual StatusCode  execute() const    = 0;
+  virtual StatusCode  execute(const EventContext& ctx) const    = 0;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

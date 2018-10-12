@@ -65,6 +65,18 @@ atlas_add_test( TileDigitsCnv_p1_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv )
 
+atlas_add_test( TileDigitsCnv_p2_test
+                SOURCES
+                test/TileDigitsCnv_p2_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv )
+
+atlas_add_test( TileDigitsCnv_p3_test
+                SOURCES
+                test/TileDigitsCnv_p3_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv )
+
 atlas_add_test( TileRawChannelCnv_p1_test
                 SOURCES
                 test/TileRawChannelCnv_p1_test.cxx

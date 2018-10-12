@@ -134,7 +134,7 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
 
   // compute the LH score if there is a match
   if(xEleMatch!=0)
-    fLHScore = (m_tEMLHTool->calculate(xEleMatch)).getMVAResponse ();
+      fLHScore = m_tEMLHTool->calculate(xEleMatch);
 
   // static SG::AuxElement::Decorator< ElementLink< xAOD::ElectronContainer > > decElectronLink("electronLink");
   // // create link to the matched electron

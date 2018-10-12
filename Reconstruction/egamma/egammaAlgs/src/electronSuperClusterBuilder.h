@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_ELECTRONSUPERCLUSTERBUILDER_H
@@ -26,12 +26,9 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   electronSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   //Tool standard routines.
-  StatusCode initialize();
-  StatusCode finalize();
-  //New StoreGate-based execute routine. Will use previously-established
-  //track-cluster matches and make a supercluster egammaRec
-  //container in StoreGate.
-  StatusCode execute();
+  StatusCode initialize() override final;
+  StatusCode finalize() override final;
+  StatusCode execute() override final;
 
  private:
 

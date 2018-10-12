@@ -63,11 +63,8 @@ TrigEFMuonOverlapRemover::TrigEFMuonOverlapRemover(const std::string& name, ISvc
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode TrigEFMuonOverlapRemover::hltBeginRun()
+HLT::ErrorCode TrigEFMuonOverlapRemover::hltStart()
 {
-   msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
-
-   //
    m_doDebug   =  msgLvl() <= MSG::DEBUG;
    msg() << MSG::INFO << "m_doDebug=" << m_doDebug << endmsg;   
 

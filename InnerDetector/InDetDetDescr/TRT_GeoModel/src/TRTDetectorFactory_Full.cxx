@@ -69,7 +69,8 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
 						 int overridedigversion,
 						 bool alignable,
 						 bool doArgon,
-             bool doKrypton)
+						 bool doKrypton,
+						 bool useDynamicAlignmentFolders)
   : InDetDD::DetectorFactoryBase(athenaComps), 
     m_detectorManager(0), 
     m_materialManager(0),
@@ -81,7 +82,8 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
     m_sumSvc("TRT_StrawStatusSummarySvc","InDetTRTStrawStatusSummarySvc"),
     m_strawsvcavailable(0),
     m_doArgon(doArgon),
-    m_doKrypton(doKrypton)
+    m_doKrypton(doKrypton),
+    m_useDynamicAlignFolders(useDynamicAlignmentFolders)
 { 
   m_sumSvc=summarySvc;
 }
@@ -280,10 +282,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   const int AlignmentLevelTop       = 3; // Level 1
 
   if (m_alignable) {
-    InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
-    m_detectorManager->addAlignFolderType(AlignFolder);
 
-    if (AlignFolder==InDetDD::static_run1){
+    if (!m_useDynamicAlignFolders){
+      m_detectorManager->addAlignFolderType(InDetDD::static_run1);
       m_detectorManager->addFolder("/TRT/Align");
       m_detectorManager->addChannel("/TRT/Align/TRT", AlignmentLevelTop, InDetDD::global);
 
@@ -300,7 +301,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       }
     }
 
-    if (AlignFolder==InDetDD::timedependent_run2){
+    else {
+      m_detectorManager->addAlignFolderType(InDetDD::timedependent_run2);
+
       m_detectorManager->addGlobalFolder("/TRT/AlignL1/TRT");
       m_detectorManager->addChannel("/TRT/AlignL1/TRT", AlignmentLevelTop, InDetDD::global);
       m_detectorManager->addFolder("/TRT/AlignL2");
@@ -318,43 +321,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
         m_detectorManager->addChannel("/TRT/AlignL2/L2C", AlignmentLevelSubWheel, InDetDD::global);
       }
     }
-
-    // Matthias: Is this obsolete? No clear answer from alignment group january 2016
-    // Commented for now
-    /*if (endcapABPlusPresent) { // EndcapA
-      m_detectorManager->addChannel("/TRT/Align/A0",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A1",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A2",  AlignmentLevelModule, InDetDD::global);   
-      m_detectorManager->addChannel("/TRT/Align/A3",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A4",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A5",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A6",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A7",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A8",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A9",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A10", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A11", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A12", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/A13", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/L2A", AlignmentLevelSubWheel, InDetDD::global);   
-    }                                                                                             
-    if (endcapABMinusPresent) {// EndcapC                                                         
-      m_detectorManager->addChannel("/TRT/Align/C0",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C1",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C2",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C3",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C4",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C5",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C6",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C7",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C8",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C9",  AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C10", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C11", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C12", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/C13", AlignmentLevelModule, InDetDD::global);     
-      m_detectorManager->addChannel("/TRT/Align/L2C", AlignmentLevelSubWheel, InDetDD::global);   
-      }*/
 
     // Unchanged in Run1 and new Run2 schema                                                     
     m_detectorManager->addSpecialFolder("/TRT/Calib/DX");
@@ -392,7 +358,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   m_detectorManager->getNumerology()->setNBarrelRings(m_data->nBarrelRings);
   //Note: This next line is now consistent with TRT_TestBeamDetDescr.
   m_detectorManager->getNumerology()->setNBarrelPhi(m_data->nBarrelModulesUsed);
-  //  m_detectorManager->getNumerology()->setNBarrelPhi(m_data->nBarrelPhi);
 
   unsigned int nEndcapWheels = 0;
   if (endcapABPlusPresent||endcapABMinusPresent) nEndcapWheels += m_data->endcapNumberOfAWheels + m_data->endcapNumberOfBWheels;
@@ -416,7 +381,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   // This is used by HepVis.
   GeoNameTag * topLevelNameTag = new GeoNameTag("TRT");
-
+  topLevelNameTag->ref(); //(sar) Set this up for deletion if it never gets added
   // The top level volumes
   GeoFullPhysVol *pBarrelVol = 0;
   GeoFullPhysVol *pEndCapABPlus = 0;
@@ -434,21 +399,12 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoTube* sBarrelVol = new GeoTube( m_data->virtualBarrelInnerRadius,
 				       m_data->virtualBarrelOuterRadius,
 				       m_data->virtualBarrelVolumeLength );
-    //     GeoTube    *sBarrelVol;
-    //     if (m_data->includeBarServiceAndFlange) {
-    //       sBarrelVol = new GeoTube( m_data->virtualBarrelInnerRadius,
-    // 				m_data->virtualBarrelOuterRadius,
-    // 				m_data->virtualBarrelVolumeLength );
-    //     } else if (!(m_data->includeBarServiceAndFlange)) {
-    //       sBarrelVol = new GeoTube( m_data->innerRadiusOfBarrelVolume - m_data->thicknessOfBarrelInnerSupport,
-    // 				m_data->outerRadiusOfBarrelVolume,
-    // 				m_data->lengthOfBarrelVolume/2.);
-    //     }
+   
 
     GeoLogVol  *lBarrelVol = new GeoLogVol("TRTBarrel", sBarrelVol, m_materialManager->getMaterial("trt::CO2"));
     pBarrelVol = new GeoFullPhysVol(lBarrelVol);
 
-    msg(MSG::DEBUG) << "Virtuel TRT Barrel volume defined by RMin = "<<m_data->virtualBarrelInnerRadius 
+    msg(MSG::DEBUG) << "Virtual TRT Barrel volume defined by RMin = "<<m_data->virtualBarrelInnerRadius 
 		    <<", Rmax = "<<m_data->virtualBarrelOuterRadius<<" Zmax = "<<m_data->virtualBarrelVolumeLength  << endmsg;
 
     // Common Endcap volumes (one for forward, one for backward):
@@ -536,9 +492,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     world->add(new GeoIdentifierTag(0));
     world->add(pEndCapCPlus);
     m_detectorManager->addTreeTop(pEndCapCPlus);
-    // If we ever have a wheel C, it will need to be identified differently than wheels AB
-    // Identifier id = idHelper->barrel_ec_id(2);
-    // m_detectorManager->addAlignableTransform(AlignmentLevelTop, id, transform, pEndCapCPlus); // global if other selected
   }
 
   if (endcapCMinusPresent) {
@@ -552,9 +505,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     world->add(new GeoIdentifierTag(0));
     world->add(pEndCapCMinus);
     m_detectorManager->addTreeTop(pEndCapCMinus);
-    // If we ever have a wheel C, it will need to be identified differently than wheels AB
-    // Identifier id = idHelper->barrel_ec_id(-2);
-    // m_detectorManager->addAlignableTransform(3, id, transform, pEndCapCMinus); // global if other selected
   }
 
   // Pointers to the Endcap volumes (index 0: for forward, index 1: for backward):
@@ -896,9 +846,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	m_detectorManager->setBarrelTransformField(iABC,tx2.clone());
       }
 	//AALONSO
-      GeoSerialTransformer *serialTransformer = NULL;
-      GeoSerialTransformer *serialTransformerAR = NULL;  //Ruslan
-      GeoSerialTransformer *serialTransformerKR = NULL;  //Artem
+      GeoSerialTransformer *serialTransformer = nullptr;
+      GeoSerialTransformer *serialTransformerAR = nullptr;  //Ruslan
+      GeoSerialTransformer *serialTransformerKR = nullptr;  //Artem
 
       serialTransformer     = new GeoSerialTransformer(pHoleForMixedStraw,   &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
       if (m_doArgon)
@@ -906,14 +856,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       if (m_doKrypton)
         serialTransformerKR = new GeoSerialTransformer(pHoleForMixedStrawKR, &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
 
-      //GeoSerialTransformer *serialTransformer=new GeoSerialTransformer(pHoleForMixedStraw, &tx2,
-      //							       m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
 
-      GeoSerialTransformer *serialTransformerDead = NULL;
-      GeoSerialTransformer *serialTransformerDeadAR = NULL;
-      GeoSerialTransformer *serialTransformerDeadKR = NULL;
-      //if (iABC==0) serialTransformerDead = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegionAR, &tx2Dead,
-      //							    nStrawsWithLargeDeadRegion);
+      GeoSerialTransformer *serialTransformerDead = nullptr;
+      GeoSerialTransformer *serialTransformerDeadAR = nullptr;
+      GeoSerialTransformer *serialTransformerDeadKR = nullptr;
       serialTransformerDead     = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegion  , &tx2Dead,
 								      nStrawsWithLargeDeadRegion);
       if (m_doArgon)
@@ -923,8 +869,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
         serialTransformerDeadKR = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegionKR, &tx2Dead,
                       nStrawsWithLargeDeadRegion);
 
-      //if (iABC==0) serialTransformerDead = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegion, &tx2Dead,
-	//							    nStrawsWithLargeDeadRegion);
      
       
       pRad->add(new GeoSerialIdentifier(0));
@@ -973,16 +917,12 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	    bDescriptor.back()->strawZPos(activeGasZPositionStrawsWithLargeDeadRegion);
 	    bDescriptor.back()->strawZDead(startZOfActiveGas);
 	    bDescriptor.back()->strawLength(lengthOfActiveGas);
-	    //std::cout << "TK inner [mm] ZPos = "<< bDescriptor.back()->strawZPos()/mm << ", ZDead = " <<
-	    //  bDescriptor.back()->strawZDead()/mm << ", Length = "<<bDescriptor.back()->strawLength()/mm << std::endl;
 	  } else {
 	    double lengthOfActiveGas=(m_data->barrelLengthOfStraw-m_data->barrelLengthOfTwister)/2.0 - 2*m_data->lengthOfDeadRegion;
 	    double startZOfActiveGas=activeGasZPositionNormalStraws-lengthOfActiveGas/2.0;
 	    bDescriptor.back()->strawZPos(activeGasZPositionNormalStraws);
 	    bDescriptor.back()->strawZDead(startZOfActiveGas);
 	    bDescriptor.back()->strawLength(lengthOfActiveGas);
-	    //std::cout << "TK outer [mm] ZPos = "<< bDescriptor.back()->strawZPos()/mm << ", ZDead = " <<
-	    // bDescriptor.back()->strawZDead()/mm << ", Length = "<<bDescriptor.back()->strawLength()/mm << std::endl;
 	  }
 
 	}
@@ -1083,7 +1023,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     // Set up the nearest neighbor pointers: in R.
     for (unsigned int e=0;e<2;e++) {
       for  (unsigned int iMod=0;iMod<m_data->nBarrelModulesUsed; iMod++) {
-	InDetDD::TRT_BarrelElement *prev=NULL;
+	InDetDD::TRT_BarrelElement *prev=nullptr;
 	for (unsigned int iABC=0;iABC<m_data->nBarrelRings;iABC++) {
 	  for (unsigned int s=0;s<m_detectorManager->getNumerology()->getNBarrelLayers(iABC); s++) {
 	    InDetDD::TRT_BarrelElement *current = m_detectorManager->getBarrelElement(e,iABC, iMod, s);
@@ -1101,7 +1041,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     for (unsigned int e=0;e<2;e++) {
       for (unsigned int iABC=0;iABC<m_data->nBarrelRings;iABC++) {
 	for (unsigned int s=0;s<m_detectorManager->getNumerology()->getNBarrelLayers(iABC); s++) {
-	  InDetDD::TRT_BarrelElement *prev=NULL;
+	  InDetDD::TRT_BarrelElement *prev=nullptr;
 	  for  (unsigned int iMod=0;iMod<m_data->nBarrelModulesUsed; iMod++) {
 	    InDetDD::TRT_BarrelElement *current = m_detectorManager->getBarrelElement(e,iABC, iMod, s);
 	    if (prev && current) {
@@ -1123,30 +1063,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     }
   }//end of if (pBarrelVol)
 
-  //       {  //Final straw positions test
-  //       const int side = 0;
-  //       const unsigned int imod  = 0;
-  //       for  (unsigned int iRing = 0; iRing < m_data->nBarrelRings ; iRing++) {
-  //       unsigned int absStrawNum = 0;
-  //       for (unsigned int iLayerInMod = 0; iLayerInMod < m_detectorManager->getNumerology()->getNBarrelLayers(iRing); iLayerInMod++ ) {
-  //       InDetDD::TRT_BarrelElement * elem = m_detectorManager->getBarrelElement(side,iRing,imod,iLayerInMod);
-  //       //      int nstrawsafterlayer=absStrawNum+elem->nStraws();
-  //       for (unsigned int iStraw = 0 ; iStraw <  elem->nStraws(); iStraw++) {
-  //       //      int newabsnum = static_cast<int>(absStrawNum)-2*static_cast<int>(iStraw)+static_cast<int>((elem->nStraws())) -1;
-  //       // 	    int newabsnum = absStrawNum-2*iStraw+elem->nStraws() -1;
-  //       //  	    std::cout << "TKstrawpos: Ring = "<<iRing<< ", layer = " <<iLayerInMod << ", straw = " << iStraw
-  //       // 		      << " (absstraw =" << absStrawNum << ", newabsstrawnum = "<< newabsnum<<") => (x,y) = "
-  //       //  		      << elem->strawCenter(iStraw).x()<< ", " << elem->strawCenter(iStraw).y() << ")" << std::endl;
-  //       std::cout << " strawXPosition["<<iRing<<"]["<<absStrawNum<<"]="<< elem->strawCenter(iStraw).x() << ";"<<std::endl;
-  //       std::cout << " strawYPosition["<<iRing<<"]["<<absStrawNum<<"]="<< elem->strawCenter(iStraw).y() << ";"<<std::endl;
-  //       //  	    std::cout << " newstrawXPosition["<<iRing<<"]["<<newabsnum<<"]="<< elem->strawCenter(iStraw).x() << ";"<<std::endl;
-  //       //  	    std::cout << " newstrawYPosition["<<iRing<<"]["<<newabsnum<<"]="<< elem->strawCenter(iStraw).y() << ";"<<std::endl;
-
-  //       absStrawNum++;
-  //       }
-  //       }
-  //       }
-  //       }
+ 
 
   //-----------------------------------------------------------------------//
   //                                                                       //
@@ -1158,10 +1075,11 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   //     There is no need to repeat the same code for A, B & C endcaps.
 
 
-  //if (m_data->isCosmicRun) return;
   // if none of the endcaps is being built we can return.
-  if (!(endcapABPlusPresent || endcapABMinusPresent || endcapCPlusPresent || endcapCMinusPresent))  return;
-
+  if (!(endcapABPlusPresent || endcapABMinusPresent || endcapCPlusPresent || endcapCMinusPresent)){
+    topLevelNameTag->unref();//(sar) delete this before returning
+    return;
+  }
   unsigned int firstIndexOfA = 0;
   unsigned int firstIndexOfB = m_data->endcapNumberOfAWheels;
   unsigned int firstIndexOfC = m_data->endcapNumberOfAWheels + m_data->endcapNumberOfBWheels;
@@ -1426,10 +1344,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		      pDescriptor->innerRadius() = m_data->endCapInnerRadiusOfSupportA + m_data->endCapRadialThicknessOfInnerSupportA
 			+ m_data->lengthOfDeadRegion;
 		      pDescriptor->setStrawTransformField(m_detectorManager->endcapTransformField(0),iiPhi*pDescriptor->nStraws());
-
-		      //		      if(iiPlane > nStrawLayMaxEc)
-		      //	std::cerr << "\nTRTDetectorFactory_Full ERROR: Cannot place descriptor in the array\n"
-		      //		  << "Number of layers got from database exceeds nStrawLayMaxEc constant!\n";
 
 		      descriptorsAB[iiSide][iiPlane%nStrawLayMaxEc][iiPhi] = pDescriptor;
 		    }
@@ -1795,7 +1709,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 							 m_data->endCapFaradayFoilThickness/2);
 	      GeoLogVol* lFaradayFoilWheelAB = new GeoLogVol("FaradayKaptonFoil",sFaradayFoilWheelAB,  m_materialManager->getMaterial("trt::FaradayFoilMaterial"));
 	      GeoPhysVol* pFaradayFoilWheelAB = new GeoPhysVol(lFaradayFoilWheelAB);
-
+        pFaradayFoilWheelAB->ref(); //add a ref count here, then unref at the end to allow deletion (sar)
 
 	      // Heat Exchanger 
 	      GeoTube* sHeatExchangerB = new GeoTube(m_data->endCapRMinOfHeatExchanger,m_data->endCapRMaxOfHeatExchanger,m_data->endCapHeatExchangerThicknessB/2);
@@ -1821,7 +1735,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 	      // Place kapton foils on a wheel just like a sandwitch 
 	      if(iiWheel-firstIndexOfB<firstIndexOfC-firstIndexOfB)
-		{ 
+		    { 
 		  xfFaradayFoilFront = new GeoTransform(HepGeom::TranslateZ3D(WheelPlacerB 
 									- m_data->endCapLengthOfWheelsB/2
 									- m_data->endCapFaradayFoilThickness/2.0));
@@ -1864,13 +1778,13 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	      pHeatExchangerB->unref();
 	      pInnerSupportGapperB->unref();
 	      pOuterSupportGapperB->unref();
-
+        pFaradayFoilWheelAB->unref(); //added 31/05/2018 (sar)
 	    } // include foil, heat exchanger and membrane
 	  }// iiWheel loop  for Wheel B
       } // if (pCommonEndcapAB[iiSide]) block for Wheel B
     } // iiSide loop for Wheel B
     //pStrawPlaneB->unref(); // Get eventual seg fault if unref. Clone doesn't increment ref count of orig, See bug #34074
-
+    
   } // end AB
 
 
@@ -1882,11 +1796,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   if (m_data->includeECFoilHeatExchangerAndMembranes) {
     // Membranes 
-    //double thicknessOfMbrane = m_data->zMaxPositionOfMbraneWheelA1-m_data->zMinPositionOfMbraneWheelA1;
     
     GeoTube* sMbrane = new GeoTube(m_data->endCapRMinOfMbrane, m_data->endCapRMaxOfMbrane, m_data->endCapThicknessOfMbrane/2.0); 
     GeoLogVol* lMbrane = new GeoLogVol("Membrane", sMbrane, m_materialManager->getMaterial("trt::EndCapMbrane"));
-    //GeoLogVol* lMbrane = new GeoLogVol("Membrane", sMbrane, m_materialManager->getMaterial("trt::FaradayFoilMaterial"));
     GeoPhysVol* pMbrane = new GeoPhysVol(lMbrane);
     
     GeoTransform *xfMbraneWheelA1 = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapZMinOfMbraneWheelA1 + m_data->endCapThicknessOfMbrane/2.0));
@@ -1964,9 +1876,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		  phiPlane +=  deltaPhiForStrawsC;
 		}
 
-		//AALONSO
-		//if ((iiSide >= 0) &&  (iiWheel > 0) ) 		childPlane = pStrawPlaneC_Ar->clone();   // FOr side A, wheel 3
-	//	else 						childPlane = pStrawPlaneC->clone();
+
 		childPlane = pStrawPlaneC->clone();
 
 		xfPlane = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionC[iiPlane]
@@ -2005,10 +1915,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 			- 2*m_data->lengthOfDeadRegion - m_data->endCapRadialThicknessOfInnerSupportC - m_data->endCapInnerRadiusOfSupportC;
 		      pDescriptor->innerRadius() = m_data->endCapInnerRadiusOfSupportC + m_data->endCapRadialThicknessOfInnerSupportC + m_data->lengthOfDeadRegion;
 		      pDescriptor->setStrawTransformField(m_detectorManager->endcapTransformField(2),iiPhi*pDescriptor->nStraws());
-		      
-		      //if(iiPlane > nStrawLayMaxEc)
-		      //	std::cerr << "\nTRTDetectorFactory_Full ERROR: Cannot place descriptor in the array\n"
-		      //		  << "Number of layers got from database exceeds nStrawLayMaxEc constant!\n";
+
 
 		      descriptorsC[iiSide][iiPlane%nStrawLayMaxEc][iiPhi] = pDescriptor;
 		    }
@@ -2142,41 +2049,6 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep
   CLHEP::Hep2Vector delta12 = corner1 - corner2;   CLHEP::Hep2Vector delta23 = corner2 - corner3;
   CLHEP::Hep2Vector delta34 = corner3 - corner4;   CLHEP::Hep2Vector delta14 = corner1 - corner4;
 
-
-  /* Why doesnt this work?? (well, it works, but are the results ok?)
-     if (shrinkDist!=0) {
-     // We should move the corners inwards (there are many ways - this one should leave the right shell thickness).
-
-     // Unit-vectors normal to the edges, pointing inwards.
-     CLHEP::Hep2Vector e12 = delta12.unit();     CLHEP::Hep2Vector e23 = delta23.unit();
-     CLHEP::Hep2Vector e34 = delta34.unit();     CLHEP::Hep2Vector e14 = delta14.unit();
-     e12.rotate(90*CLHEP::deg); e23.rotate(90*CLHEP::deg); e34.rotate(90*CLHEP::deg); e14.rotate(-90*CLHEP::deg);
-
-     std::cout << "TK: makeModule : corner1 before (cm). X = " <<  corner1.x()/CLHEP::cm << " Y = " <<corner1.y()/CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner2 before (cm). X = " <<  corner2.x()/CLHEP::cm << " Y = " <<corner2.y()/CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner3 before (cm). X = " <<  corner3.x()/CLHEP::cm << " Y = " <<corner3.y()/CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner4 before (cm). X = " <<  corner4.x()/CLHEP::cm << " Y = " <<corner4.y()/CLHEP::cm <<std::endl;
-
-     //Moving the corners
-     corner1 += shrinkDist * ( e12 + e14 );    corner2 += shrinkDist * ( e12 + e23 );
-     corner3 += shrinkDist * ( e23 + e34 );    corner4 += shrinkDist * ( e34 + e14 );
-
-     std::cout << "TK: makeModule : corner1 after (cm). X = " <<  corner1.x()/CLHEP::cm << " Y = " <<corner1.y()/CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner2 after (cm). X = " <<  corner2.x()/CLHEP::cm << " Y = " <<corner2.y()/CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner3 after (cm). X = " <<  corner3.x()/CLHEP::cm << " Y = " <<corner3.y()/CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner4 after (cm). X = " <<  corner4.x()/CLHEP::cm << " Y = " <<corner4.y()/CLHEP::cm <<std::endl;
-
-     std::cout << "TK: makeModule : corner1 moved (cm) " <<  shrinkDist * ( e12 + e14 ).mag() /CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner2 moved (cm) " <<  shrinkDist * ( e12 + e23 ).mag() /CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner3 moved (cm) " <<  shrinkDist * ( e23 + e34 ).mag() /CLHEP::cm <<std::endl;
-     std::cout << "TK: makeModule : corner4 moved (cm) " <<  shrinkDist * ( e34 + e14 ).mag() /CLHEP::cm <<std::endl;
-
-     // Recalculate since we changed the corners:
-     delta12 = corner1 - corner2;    delta23 = corner2 - corner3;
-     delta34 = corner3 - corner4;    delta14 = corner1 - corner4;
-     }
-  */
-
   // We also need the diagonals.
   CLHEP::Hep2Vector delta24 = corner2 - corner4;
   CLHEP::Hep2Vector delta13 = corner1 - corner3;
@@ -2203,7 +2075,6 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep
   }
 
   double height1 = sqrt (commonSide*commonSide-0.25*base1*base1);
-  //  std::cout << "TK: makeModule : height1 is " << height1 << std::endl;
   double height2 = sqrt (commonSide*commonSide-0.25*base2*base2);
   double rot     = atan(base2/height2/2)-atan(base1/height1/2);
   double epsilon = 1*CLHEP::micrometer; // needed to ensure perfect overlaps.
@@ -2298,7 +2169,7 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
 
   // Dead regions:
   GeoShape   *sDeadRegion = new GeoTube(m_data->outerRadiusOfWire , m_data->innerRadiusOfStraw , m_data->lengthOfDeadRegion/2 );
-  GeoLogVol  *lDeadRegion = NULL;
+  GeoLogVol  *lDeadRegion = nullptr;
   if (gasMixture == GM_ARGON) 
     lDeadRegion = new GeoLogVol("DeadRegion_Ar", sDeadRegion, m_materialManager->getMaterial("trt::ArCO2O2"));
   else if (gasMixture == GM_KRYPTON)
@@ -2309,7 +2180,7 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
 
   // InnerDeadRegions, part II:
   GeoShape  * sInnerDeadRegion = new GeoTube(m_data->outerRadiusOfWire , m_data->innerRadiusOfStraw, lengthOfInnerDeadRegion/2 );
-  GeoLogVol * lInnerDeadRegion = NULL;
+  GeoLogVol * lInnerDeadRegion = nullptr;
   if (gasMixture == GM_ARGON)
     lInnerDeadRegion = new GeoLogVol("InnerDeadRegion_Ar", sInnerDeadRegion, m_materialManager->getMaterial("trt::ArCO2O2"));
   else if(gasMixture == GM_KRYPTON)
@@ -2333,7 +2204,7 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
 
   // Gas for mixed straws, part I:
   GeoTube      *sGasMA    = new GeoTube(m_data->outerRadiusOfWire  , m_data->innerRadiusOfStraw,lengthOfActiveGas/2.0);
-  GeoLogVol * lGasMA = NULL;
+  GeoLogVol * lGasMA = nullptr;
   if (gasMixture == GM_ARGON)
     lGasMA = new GeoLogVol("GasMA_Ar", sGasMA, m_materialManager->getMaterial("trt::ArCO2O2"));
   else if (gasMixture == GM_KRYPTON)
@@ -2408,7 +2279,7 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
   // In order to economize, we shall only create two planes.                            //
   // -----------------------------------------------------------------------------------//
 
-  static GeoFullPhysVol *type1Plane=NULL, *type2Plane=NULL, *type1PlaneAr=NULL, *type2PlaneAr=NULL, *type1PlaneKr=NULL, *type2PlaneKr=NULL;
+  static GeoFullPhysVol *type1Plane=nullptr, *type2Plane=nullptr, *type1PlaneAr=nullptr, *type2PlaneAr=nullptr, *type1PlaneKr=nullptr, *type2PlaneKr=nullptr;
   size_t nstraws=0;
 
   //A and B wheels have similar straw planes, but the C wheels are different.
@@ -2423,13 +2294,13 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
                                                                  type2Plane;
 
   if (w>=firstIndexOfC) {
-    if (cur_type2Plane!=NULL) {
+    if (cur_type2Plane!=nullptr) {
       return cur_type2Plane;
     }
     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
   } 
   else {
-    if (cur_type1Plane!=NULL) {
+    if (cur_type1Plane!=nullptr) {
       return cur_type1Plane;
     }
     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
@@ -2458,11 +2329,8 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
   double pos    = 0.5*(R0+R1);
 
 
-  GeoFullPhysVol *pStrawPlane=NULL;//TK update
+  GeoFullPhysVol *pStrawPlane=nullptr;//TK update
   GeoTube   *sStrawPlane = new GeoTube(R0,R1,r2);
-//  GeoLogVol *lStrawPlane = NULL;
-//  if(isArgon)	lStrawPlane = new GeoLogVol("StrawPlaneAr", sStrawPlane,  m_materialManager->getMaterial("trt::CO2"));
-//  else		lStrawPlane = new GeoLogVol("StrawPlane", sStrawPlane,  m_materialManager->getMaterial("trt::CO2"));
   GeoLogVol *lStrawPlane = new GeoLogVol("StrawPlane", sStrawPlane,  m_materialManager->getMaterial("trt::CO2"));
   pStrawPlane            = new GeoFullPhysVol(lStrawPlane); //TK update
 
@@ -2496,7 +2364,7 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
   // Gas :
   //   (Function TRTConstructionOfTube::ConstructAndPosition #2)
   GeoTube    *sGas = new GeoTube (r0,r1,(Length-2*ldead)/2);
-  GeoLogVol  *lGas = NULL;
+  GeoLogVol  *lGas = nullptr;
   if (gasMixture == GM_ARGON)
     lGas = new GeoLogVol("Gas_Ar", sGas, m_materialManager->getMaterial("trt::ArCO2O2"));
   else if (gasMixture == GM_KRYPTON)
@@ -2508,7 +2376,7 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
 
   // Dead region :
   GeoTube *sDeadRegion    = new GeoTube(r0,r1,ldead/2);
-  GeoLogVol *lDeadRegion  = NULL;
+  GeoLogVol *lDeadRegion  = nullptr;
   if (gasMixture == GM_ARGON)
     lDeadRegion = new GeoLogVol("DeadRegion_Ar",sDeadRegion,m_materialManager->getMaterial("trt::ArCO2O2"));
   else if (gasMixture == GM_KRYPTON)
@@ -2531,8 +2399,8 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
   GeoPhysVol *pWire = new GeoPhysVol(lWire);
   pStraw->add(pWire);
 
-  // Look above *type2Plane=NULL
-  if (w>=firstIndexOfC && type2Plane!=NULL) {
+  // Look above *type2Plane=nullptr
+  if (w>=firstIndexOfC && type2Plane!=nullptr) {
     cur_type2Plane=pStrawPlane;
     return cur_type2Plane;
   }
@@ -2565,31 +2433,5 @@ TRTDetectorFactory_Full::ActiveGasMixture TRTDetectorFactory_Full::DecideGasMixt
     }
   return return_agm; 
   }
-
-// Determine which alignment folders are loaded to decide if we register old or new folders    
-InDetDD::AlignFolderType TRTDetectorFactory_Full::getAlignFolderType() const
-{
-
-  bool static_folderStruct = false;
-  bool timedep_folderStruct = false;
-  if (detStore()->contains<CondAttrListCollection>("/TRT/AlignL1/TRT") &&
-      detStore()->contains<AlignableTransformContainer>("/TRT/AlignL2") ) timedep_folderStruct = true;
-
-  if (detStore()->contains<AlignableTransformContainer>("/TRT/Align") ) static_folderStruct = true;
-
-  if (static_folderStruct && !timedep_folderStruct){
-    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endmsg;
-    return InDetDD::static_run1;
-  }
-  else if (!static_folderStruct && timedep_folderStruct){
-    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endmsg;
-    return InDetDD::timedependent_run2;
-  }
-  else if (static_folderStruct && timedep_folderStruct){
-    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");
-  }
-  else return InDetDD::none;
-
-}
 
 //////////////////////////////////////////////////////////////////////////////////

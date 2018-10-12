@@ -30,7 +30,7 @@ StoreClearedIncident::StoreClearedIncident (StoreGateSvc* sg,
 
 
 /// Return the store that was cleared.
-StoreGateSvc* StoreClearedIncident::store() const
+const StoreGateSvc* StoreClearedIncident::store() const
 {
   return m_sg;
 }

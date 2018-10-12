@@ -14,14 +14,14 @@ namespace HLTTest {
 				      ISvcLocator* pSvcLocator ) : 
     ::AthReentrantAlgorithm( name, pSvcLocator )  {
     //declareProperty( "Property", m_nProperty );
-    declareProperty( "Input1", m_recoInput1 ); 
-    declareProperty( "Input2", m_recoInput2 );
+    // declareProperty( "Input1", m_recoInput1 ); 
+    // declareProperty( "Input2", m_recoInput2 );
     declareProperty( "Property1", m_property1 );
     declareProperty( "Property2", m_property2 );
     declareProperty( "Threshold1", m_threshold1 = 0);
     declareProperty( "Threshold2", m_threshold2 = 0);
-    declareProperty( "Output1", m_output1 );
-    declareProperty( "Output2", m_output2 );
+    // declareProperty( "Output1", m_output1 );
+    // declareProperty( "Output2", m_output2 );
     declareProperty( "DecisionLabel", m_decisionLabel );
   }
 

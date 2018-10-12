@@ -22,6 +22,8 @@ RoIsUnpackingEmulationTool::RoIsUnpackingEmulationTool( const std::string& type,
 
 
 
+
+
 StatusCode RoIsUnpackingEmulationTool::initialize() {  
 
   CHECK( RoIsUnpackingToolBase::initialize() );
@@ -32,8 +34,41 @@ StatusCode RoIsUnpackingEmulationTool::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( decodeThresholdToChainMapping() );
+
   return StatusCode::SUCCESS;
 }
+
+
+StatusCode RoIsUnpackingEmulationTool::decodeThresholdToChainMapping() {
+  // decode overrides
+  std::istringstream input;
+  for ( auto entry: m_thresholdToChainProperty ) {
+    input.clear();
+    input.str(entry);
+    std::string thresholdName;
+    char delim;
+    std::string chainName;
+    input >> thresholdName >> delim >> chainName;
+    if ( delim != ':' ) {
+      ATH_MSG_ERROR( "Wrong delimeter in:" << entry );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG( "Decoded override mapping " << thresholdName << " to " << chainName );
+    m_thresholdToChainMapping[HLT::Identifier(thresholdName)].push_back(HLT::Identifier(chainName));
+  }
+
+  if ( m_thresholdToChainMapping.empty() ) {
+    ATH_MSG_WARNING( "No chains configured in ThresholdToChainMapping: " << m_thresholdToChainProperty );
+  }
+  for ( auto el: m_thresholdToChainMapping ) {
+    ATH_MSG_DEBUG( "Threshold " << el.first << " mapped to chains " << el.second );
+  }
+
+
+  return StatusCode::SUCCESS;
+}
+
 
 
 StatusCode RoIsUnpackingEmulationTool::readEmulatedData(){
@@ -106,7 +141,13 @@ std::vector<RoIsUnpackingEmulationTool::FakeRoI> RoIsUnpackingEmulationTool::par
   std::string roi;
   
   while (getline(inputLine, roi, ';'))  {
-    result.push_back(parseInputRoI(roi, lineNumber, ++roiNumber));
+    // FIXME: If there aren't as many input fields in roi as parseInputRoI expects,
+    // it'll return uninitialized data (which can lead to a practically infinite
+    // loop when we try to normalize the phi).  Add an elementary check here to
+    // fix such a loop observed from creatingEVTest in ViewAlgsTest.
+    if (roi.find (',') != std::string::npos) {
+      result.push_back(parseInputRoI(roi, lineNumber, ++roiNumber));
+    }
   }
   return result;
 }
@@ -134,11 +175,6 @@ RoIsUnpackingEmulationTool::FakeRoI RoIsUnpackingEmulationTool::parseInputRoI(co
   }
   
   return result;
-}
-
-
-StatusCode RoIsUnpackingEmulationTool::updateConfiguration() {
-  return StatusCode::SUCCESS;
 }
 
 

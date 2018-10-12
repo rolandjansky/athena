@@ -21,7 +21,7 @@
 
 #include "CxxUtils/fpcompare.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "boost/type_traits/remove_pointer.hpp"
 #include "boost/type_traits/is_convertible.hpp"
 

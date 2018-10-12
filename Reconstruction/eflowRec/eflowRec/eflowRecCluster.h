@@ -27,15 +27,17 @@
 class eflowTrackClusterLink;
 class eflowMatchCluster;
 
+/**
+This class extends the information about a xAOD::CaloCluster. It includes an element link and raw pointer back to the CaloCluster, the index of the cluster in the CaloClusterContainer, a bool to determine if the CaloCluster is allowed to be modified or not (only if we have already copied the CaloCluster), the type (ECAL/HCAL), a map to store the LC weights for the calorimeter cluster cells, a pointer to an eflowMatchCluster and a vector of eflowTrackClusterLink
+*/
 class eflowRecCluster {
 public:
-  eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink);
+  eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink, xAOD::CaloClusterContainer& newClusContainer);
   eflowRecCluster(const eflowRecCluster& originalEflowRecCluster);
   eflowRecCluster&  operator=(const eflowRecCluster& originalEflowRecCluster);
   virtual ~eflowRecCluster();
 
-  const xAOD::CaloCluster* getCluster() const { return m_cluster; }
-  xAOD::CaloCluster* getClusterForModification(xAOD::CaloClusterContainer* container);
+  xAOD::CaloCluster* getCluster() const { return m_cluster; }
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
   ElementLink<xAOD::CaloClusterContainer> getOriginalClusElementLink() const { return m_originalClusElementLink; }
@@ -59,21 +61,23 @@ public:
   const bool& isTouchable() { return m_isTouchable;}
 
 private:
+  /** ENUM that defines calorimeter regions as ECAL, HCAL or FCAL  */
+  enum CalorimeterType { CALORIMETER_START = 0, UNASSIGNED = CALORIMETER_START, ECAL = 1, HCAL = 2, FCAL = 3, UNKNOWN = 4, CALORIMETER_END = 5};
+  
   int m_clusterId;
-  const xAOD::CaloCluster* m_cluster;
+  xAOD::CaloCluster* m_cluster;
   ElementLink<xAOD::CaloClusterContainer> m_originalClusElementLink;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
-  /* 1: ECAL, 2: HCAL */
-  int m_type;
+
+  /** Specifies if we have a cluster mainly in ECAL, HCAL or FCAL  */
+  CalorimeterType m_calorimeterType;
 
   /* for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
   std::map<IdentifierHash,double> m_cellsWeightMap;
 
   std::unique_ptr<eflowMatchCluster> m_matchCluster;
   std::vector<eflowTrackClusterLink*> m_trackMatches;
-
-  void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);
 
 public:
   class SortDescendingPt {
@@ -85,6 +89,9 @@ public:
   };
 };
 
+/**
+ This class, which inherits from the pure virtual ICluster, stores a pointer to an eflowRecCluster. It also stores assorted kinematic information such as cluster energy, mean energy weighted eta/phi values etc.
+*/
 class eflowMatchCluster: public PFMatch::ICluster {
 public:
  eflowMatchCluster(eflowRecCluster* efRecCluster) :  m_efRecCluster(efRecCluster), m_clusterEne(m_efRecCluster->getCluster()->e()), m_clusterEta(m_efRecCluster->getCluster()->eta()), m_clusterPhi(m_efRecCluster->getCluster()->phi()), m_clusterEtaMean(0.0), m_clusterPhiMean(0.0), m_clusterEtaVariance(0), m_clusterPhiVariance(0), m_calVariance(false) {

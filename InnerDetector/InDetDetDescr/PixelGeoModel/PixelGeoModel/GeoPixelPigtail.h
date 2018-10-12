@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELPIGTAIL_H
@@ -12,19 +12,9 @@ class GeoPixelPigtail : public GeoVPixelFactory {
  public:
   GeoPixelPigtail();
   virtual GeoVPhysVol* Build();
-  double bendCenterX() {return m_posBendX;}
-  double bendCenterY() {return m_posBendY;}
 
  private:
-  const GeoLogVol* m_thePigtail;
-  double m_rmin;
-  double m_rmax;
-  double m_phi;
-  double m_dphi;
-  double m_width;
-  double m_posBendX;
-  double m_posBendY;
-  double m_posZ;
+  
 };
 
 #endif

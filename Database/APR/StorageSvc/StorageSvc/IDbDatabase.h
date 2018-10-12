@@ -16,6 +16,7 @@
 
 // Framework include files
 #include "StorageSvc/pool.h"
+#include "StorageSvc/Transaction.h"
 
 /*
  *  POOL namespace declaration
@@ -27,7 +28,6 @@ namespace pool    {
   class DbDomain;
   class DbDatabase;
   class DbContainer;
-  class DbTransaction;
 
   /** @class IDbDatabase IDbDatabase.h StorageSvc/IDbDatabase.h
     *
@@ -40,13 +40,8 @@ namespace pool    {
     * @version 1.0
     */
   class IDbDatabase    {
-  protected:
-    /// Destructor (called only by sub-classes)
-    virtual ~IDbDatabase()   {     }
-
   public:
-    /// Release implementation object
-    virtual void release() = 0;
+    virtual ~IDbDatabase()   { }
 
     /// Access the size of the database: May be undefined for some technologies
     virtual long long int size()  const = 0;
@@ -64,13 +59,6 @@ namespace pool    {
       * @return DbStatus code indicating success or failure.  
       */
     virtual DbStatus getOption(DbOption& refOpt) const = 0;
-
-    /// Find container in Database
-    /** @param handle   [IN]  Handle to invalid container object.
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus find(DbContainer& handle) = 0;
 
     /// Close database access
     /** @param mode     [IN]  Desired session access mode.
@@ -107,12 +95,11 @@ namespace pool    {
       */
     virtual DbStatus reopen(DbAccessMode mode) = 0;
 
-    /// Start/Commit/Rollback Database Transaction
-    /** @param refTransaction [IN/OUT]  Transaction context.
-      *
-      * @return DbStatus code indicating success or failure.  
+    /// Execute Database Transaction action
+    /** @param   action     [IN]  action to perform
+      * @return Status code indicating success or failure.
       */
-    virtual DbStatus transAct(DbTransaction& refTransaction) = 0;
-  };
+    virtual DbStatus transAct(Transaction::Action action) = 0;
+ };
 }      // End namespace pool
 #endif // POOL_IDBDATABASE_H

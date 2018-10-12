@@ -77,11 +77,7 @@ StatusCode DFlowAlg2::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
 
   SG::ReadHandle< int > inputHandle( m_r_int, ctx );
   ATH_MSG_INFO("================================");

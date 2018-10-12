@@ -8,7 +8,7 @@ atlas_subdir( TrkExAlgs )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           GaudiKernel
@@ -33,7 +33,7 @@ atlas_add_component( TrkExAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives GaudiKernel MagFieldInterfaces TrkSurfaces TrkParameters StoreGateLib SGtests TrkGeometry TrkVolumes TrkEventPrimitives TrkTrack TrkExInterfaces TrkExUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives EventPrimitives GaudiKernel MagFieldInterfaces TrkSurfaces TrkParameters StoreGateLib SGtests TrkGeometry TrkVolumes TrkEventPrimitives TrkTrack TrkExInterfaces TrkExUtils )
 
 # Install files from the package:
 atlas_install_headers( TrkExAlgs )

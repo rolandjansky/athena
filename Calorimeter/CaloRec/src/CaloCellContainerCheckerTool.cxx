@@ -37,13 +37,9 @@ CaloCellContainerCheckerTool::CaloCellContainerCheckerTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent) ,
-   m_eventsToCheck(5),m_eventsLeftToCheck(5)
+  :base_class(type, name, parent)
 { 
-  declareInterface<ICaloCellMakerTool>(this); 
-  declareInterface<ICaloConstCellMakerTool>(this); 
-
-  declareProperty ("EventsToCheck",m_eventsToCheck) ;
+  declareProperty ("EventsToCheck",m_eventsToCheck = 5);
 }
 
 
@@ -55,29 +51,31 @@ CaloCellContainerCheckerTool::CaloCellContainerCheckerTool(
 /////////////////////////////////////////////////////////////////////
 
 StatusCode CaloCellContainerCheckerTool::initialize() {
-  m_eventsLeftToCheck = m_eventsToCheck;
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode
-CaloCellContainerCheckerTool::process(CaloCellContainer * theCont )
+CaloCellContainerCheckerTool::process (CaloCellContainer* theCont)
 {
-  return doProcess (theCont);
+  return doProcess (theCont, Gaudi::Hive::currentContext());
 }
 
 
 StatusCode
-CaloCellContainerCheckerTool::process(CaloConstCellContainer * theCont )
+CaloCellContainerCheckerTool::process (CaloConstCellContainer* theCont)
 {
-  return doProcess (theCont->asDataVector());
+  return doProcess (theCont->asDataVector(), Gaudi::Hive::currentContext());
 }
 
 
 StatusCode
-CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
+CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
+                                         const EventContext& ctx) const
 {
-  if (m_eventsLeftToCheck<0) return StatusCode::SUCCESS; else m_eventsLeftToCheck--;
+  if (ctx.evt() >= m_eventsToCheck) {
+    return StatusCode::SUCCESS;
+  }
 
   StatusCode returnSc = StatusCode::SUCCESS ;
 

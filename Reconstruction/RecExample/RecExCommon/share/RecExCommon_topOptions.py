@@ -228,10 +228,6 @@ if globalflags.InputFormat()=='pool':
         # if file not in catalog put it there
         svcMgr.PoolSvc.AttemptCatalogPatch=True
 
-        # skip missing file with a warning instead of stopping the job
-        # not to be done in production
-        # svcMgr.EventSelector.SkipBadFiles=True
-
         # G4 Pool input
         # it is possible to specify a list of files to be processed consecutively
         # If using logical file name or using back navigation the relevant input
@@ -257,12 +253,6 @@ if globalflags.InputFormat()=='pool':
             else:
                 svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
-
-        from RecExConfig.RecConfFlags import recConfFlags
-        ServiceMgr.EventSelector.BackNavigation = recConfFlags.AllowBackNavigation()
-        # FIXME temporary
-        #logRecExCommon_topOptions.warning("temporary : EventSelector.OverrideRunNumber = True")
-        #ServiceMgr.EventSelector.OverrideRunNumber=True
 
         # backward compatibility (needed for RTT overwriting InputCollections)
         EventSelector=ServiceMgr.EventSelector
@@ -1356,12 +1346,12 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD("LArClusterEM7_11Nocorr")
 
             from egammaRec.egammaRecFlags import jobproperties
-            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4  :
+            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
 
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-            if rec.readESD() or muonCombinedRecFlags.doMuonClusters():
+            if ( rec.readESD() or muonCombinedRecFlags.doMuonClusters() ) and rec.doMuon:
                 addClusterToCaloCellAOD("MuonClusterCollection")
 
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
@@ -1532,11 +1522,6 @@ except Exception:
      # protect until doPyDump is defined in all releases
      treatException("problem with the dumpers")
 
-#Trigger ntuple (from Clemencia Mora). Not if not rec.doTrigger
-if rec.readESD() and rec.doTrigger() and  TriggerFlags.NtupleProductionFlags.produceNtuples():
-    #old Tier0TriggerFlags.doTier0TriggerNtuple():
-    protectedInclude("TriggerRelease/TriggerNTupleProduction.py")
-
 if rec.doCBNT():
     # AANTupleStream should be at the very end
     topSequence+=theAANTupleStream
@@ -1584,13 +1569,6 @@ if rec.doWriteBS():
 
     #Lucid
     StreamBSFileOutput.ItemList += ["LUCID_DigitContainer#Lucid_Digits"]
-
-
-    # special SCT CABLING (ONLY FOR OLD FDR DATA)
-    #from InDetCabling.InDetCablingConf import SCT_CablingSelector
-    #SCT_CablingSelector = SCT_CablingSelector(Method = "MANUAL", Layout = "FromTextFile", Filename = "SCT_MC_FullCabling.dat")
-    #ToolSvc            += SCT_CablingSelector
-
 
 
     # LAr
@@ -1712,3 +1690,6 @@ if rec.readAOD():
 
 include("RecExCommon/RecoUtils.py")
 include("RecExCommon/PrintRecoSummary.py")
+
+from RecAlgs.RecAlgsConf import AppStopAlg
+topSequence+=AppStopAlg()

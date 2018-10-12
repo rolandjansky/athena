@@ -18,7 +18,7 @@
 #include "CscCalibEvent/CscCalibDataCollection.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
 class CscCalibDataContainer : public IdentifiableContainer<CscCalibDataCollection> {

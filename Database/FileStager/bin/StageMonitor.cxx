@@ -70,7 +70,11 @@ void term(int sig)
         std::cout << "rm -f " << files[i] << std::endl;
         continue; // remainder are staged files
       }
-    } else remove(files[i].c_str());
+    } else {
+      if (remove(files[i].c_str()) == -1) {
+        std::cerr << "ERROR: remove() fails for " << files[i] << std::endl;
+      }
+    }
   }  
   if (tmpdir.compare(baseTmpdir)!=0)
     rmdir(tmpdir.c_str());

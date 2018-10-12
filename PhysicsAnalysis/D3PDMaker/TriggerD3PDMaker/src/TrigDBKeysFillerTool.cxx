@@ -6,7 +6,7 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
-#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 
 // Trigger include(s):
 #include "TrigConfigSvc/DSConfigSvc.h"
@@ -78,7 +78,7 @@ namespace D3PD {
 
          // Turn the configuration source name (probably an XML file in this case) into an
          // imaginary Super Master Key:
-         *m_smk = SG::crc64( dsSvc->configurationSource() ) & 0xffff;
+         *m_smk = CxxUtils::crc64( dsSvc->configurationSource() ) & 0xffff;
          *m_l1psk = 0;
          *m_hltpsk = 0;
       }

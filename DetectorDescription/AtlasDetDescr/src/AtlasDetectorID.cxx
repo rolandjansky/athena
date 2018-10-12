@@ -30,11 +30,12 @@
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
-AtlasDetectorID::AtlasDetectorID(void)
+AtlasDetectorID::AtlasDetectorID()
         :
         m_do_checks(false),
         m_do_neighbours(true),
         m_msgSvc(0),
+        m_quiet(false),
         m_is_initialized_from_dict(false),
         m_DET_INDEX(999),
         m_SUBDET_INDEX(999),
@@ -84,6 +85,7 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_do_checks               (other.m_do_checks),
         m_do_neighbours           (other.m_do_neighbours),
         m_msgSvc                  (other.m_msgSvc),
+        m_quiet                   (other.m_quiet),
         m_dict_version            (other.m_dict_version),
         m_is_initialized_from_dict(other.m_is_initialized_from_dict),
         m_DET_INDEX               (other.m_DET_INDEX),
@@ -149,6 +151,7 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_do_checks             = other.m_do_checks;
         m_do_neighbours         = other.m_do_neighbours;
         m_msgSvc                = other.m_msgSvc;
+        m_quiet                 = other.m_quiet;
         m_dict_version          = other.m_dict_version;
         m_is_initialized_from_dict = other.m_is_initialized_from_dict;
         m_DET_INDEX             = other.m_DET_INDEX;
@@ -510,19 +513,21 @@ AtlasDetectorID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         m_helper->setMsgSvc(m_msgSvc);
     }
 
-    if(m_helper->initialize_from_dictionary(dict_mgr)) return (1);
+    if(m_helper->initialize_from_dictionary(dict_mgr, m_quiet)) return (1);
 
     // Initialize level indices and id values from dicts
     if(initLevelsFromDict(dict_mgr)) return (1);
 
     m_is_initialized_from_dict = true;
 
-    if(m_msgSvc) {
+    if (!m_quiet) {
+      if(m_msgSvc) {
         MsgStream log(m_msgSvc, "AtlasDetectorID" );
         log << MSG::INFO << "initialize_from_dictionary - OK" << endmsg;
-    }
-    else {
+      }
+      else {
         std::cout << " AtlasDetectorID::initialize_from_dictionary - OK " << std::endl;
+      }
     }
     
     return (0);
@@ -916,6 +921,11 @@ void            AtlasDetectorID::set_do_neighbours      (bool do_neighbours) con
 void            AtlasDetectorID::setMessageSvc  (IMessageSvc* msgSvc)
 {
     m_msgSvc = msgSvc ;
+}
+
+void            AtlasDetectorID::set_quiet  (bool quiet)
+{
+    m_quiet = quiet ;
 }
 
 void
@@ -1729,14 +1739,16 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
             }
         }
         else {
-            if(m_msgSvc) {
+            if (!m_quiet) {
+              if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorID" );
                 log << MSG::DEBUG << "initLevelsFromDict - there are no sTGC entries in the dictionary! "
                     << endmsg;
-            }
-            else {
+              }
+              else {
                 std::cout << "AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! "
                           << std::endl;
+              }
             }
         }
         label = field->find_label("MM");
@@ -1758,14 +1770,16 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
             }
         }
         else {
-            if(m_msgSvc) {
+            if (!m_quiet) {
+              if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorID" );
                 log << MSG::DEBUG << "initLevelsFromDict - there are no MM entries in the dictionary! "
                     << endmsg;
-            }
-            else {
+              }
+              else {
                 std::cout << "AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! "
                           << std::endl;
+              }
             }
         }
         label = field->find_label("CSC");
@@ -1922,7 +1936,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
         m_lvl1_onl_field.clear();
 
         int notok = m_calo_dict->get_label_value("DetZside", "no_side", value);
-        if (notok) {
+        if (notok && !m_quiet) {
             if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorID" );
                 log << MSG::DEBUG << "initLevelsFromDict -  Could not get value for label 'no_side' of field 'DetZside' in dictionary "

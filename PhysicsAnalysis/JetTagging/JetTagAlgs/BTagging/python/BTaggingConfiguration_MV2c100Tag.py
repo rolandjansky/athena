@@ -7,10 +7,8 @@ from BTagging.BTaggingFlags import BTaggingFlags
 metaMV2c100Tag = { 'IsATagger'          : False,#True,
                   'xAODBaseName'       : 'MV2c100',
                   'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c100',],
-                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+                  'CalibrationTaggers' : ['MV2c100',],
                   'ToolCollection'     : 'MV2c100Tag'}
 
 def toolMV2c100Tag(name, useBTagFlagsDefaults = True, **options):

@@ -7,8 +7,7 @@ atlas_subdir( AtlasDetDescr )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/IdDict
                           DetectorDescription/Identifier
                           PRIVATE
@@ -24,12 +23,12 @@ atlas_add_library( AtlasDetDescr
                    src/AtlasRegionHelper.cxx
                    PUBLIC_HEADERS AtlasDetDescr
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools IdDict Identifier
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} IdDict Identifier AthenaKernel
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_dictionary( AtlasDetDescrDict
                       AtlasDetDescr/AtlasDetDescrDict.h
                       AtlasDetDescr/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools IdDict Identifier GaudiKernel AtlasDetDescr )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} IdDict Identifier GaudiKernel AtlasDetDescr )
 

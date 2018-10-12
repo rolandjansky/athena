@@ -26,7 +26,6 @@ public:
   virtual StatusCode initialize();
 
  
-  //std::vector<std::pair<xAOD::Muon*, xAOD::Muon*> >  buildPairs(std::pair<xAOD::MuonContainer*,xAOD::MuonContainer*>) const;
   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > buildPairs(std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> >) const;
 
  private:

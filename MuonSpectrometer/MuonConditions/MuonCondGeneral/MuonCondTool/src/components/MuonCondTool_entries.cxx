@@ -1,5 +1,4 @@
 #include "MuonCondTool/MuonAlignmentDbTool.h"
-#include "MuonCondTool/MultiLevelAlignmentDbTool.h"
 #include "MuonCondTool/MDT_DCSConditionsTool.h"
 #include "MuonCondTool/MDT_DCSConditionsRun2Tool.h"
 #include "MuonCondTool/RpcDetectorStatusDbTool.h"
@@ -12,7 +11,6 @@
 #include "MuonCondTool/MuonAlignmentErrorDbTool.h"
 
 DECLARE_COMPONENT( MuonAlignmentDbTool )
-DECLARE_COMPONENT( MultiLevelAlignmentDbTool )
 DECLARE_COMPONENT( MDT_DCSConditionsTool )
 DECLARE_COMPONENT( CSC_DCSConditionsTool )
 DECLARE_COMPONENT( RPC_DCSConditionsTool )

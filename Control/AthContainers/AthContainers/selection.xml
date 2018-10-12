@@ -78,6 +78,8 @@
   <class name="SG::AuxElement::ConstAccessor<std::vector<bool> >"/>
   <class name="SG::AuxElement::ConstAccessor<std::vector<std::string> >"/>
 
+  <class name="SG::AuxElement::AtomicConstAccessor<unsigned int>"/>
+
   <class name="SG::AuxElement::Accessor<char>"/>
   <class name="SG::AuxElement::Accessor<unsigned char>"/>
   <class name="SG::AuxElement::Accessor<int>"/>

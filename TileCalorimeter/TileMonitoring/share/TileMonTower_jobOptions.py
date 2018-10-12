@@ -15,9 +15,7 @@ TileTowerBldr.EtaMin=-5.0
 TileTowerBldr.EtaMax=5.0
 from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
 TileCmbTwrBldr = TileTowerBuilderTool( name = 'TileCmbTwrBldr',
-                                       CellContainerName = "AllCalo",
-                                       DumpTowers        = False,
-                                       DumpWeightMap     = False);
+                                       CellContainerName = "AllCalo")
 TileTowerBldr +=  TileCmbTwrBldr
 TileTowerBldr.TowerBuilderTools = [ TileCmbTwrBldr ]
 

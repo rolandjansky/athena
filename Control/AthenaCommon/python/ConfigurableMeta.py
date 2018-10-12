@@ -4,7 +4,7 @@
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 import weakref
-import Logging, PropertyProxy
+from AthenaCommon import Logging, PropertyProxy
 
 
 ### data ---------------------------------------------------------------------
@@ -49,13 +49,13 @@ class ConfigurableMeta( type ):
             try:
                f = getattr( newclass, meth ).im_func
             except AttributeError:
-               raise NotImplementedError, "%s is missing in class %s" % (meth,str(newclass))
+               raise NotImplementedError("%s is missing in class %s" % (meth,str(newclass)))
 
           # in addition, verify the number of arguments w/o defaults
             nargcount = f.func_code.co_argcount
             ndefaults = f.func_defaults and len(f.func_defaults) or 0
             if not nargcount - ndefaults <= nArgs <= nargcount:
-               raise TypeError, "%s.%s requires exactly %d arguments" % (newclass,meth,nArgs)
+               raise TypeError("%s.%s requires exactly %d arguments" % (newclass,meth,nArgs))
 
     # cache references of instances by name for duplicate removal
       newclass.configurables = weakref.WeakValueDictionary()

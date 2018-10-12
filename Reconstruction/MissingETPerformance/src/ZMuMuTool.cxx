@@ -565,6 +565,3 @@ StatusCode ZMuMuTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-ZMuMuTool::~ZMuMuTool() {}

@@ -22,14 +22,15 @@ Description:
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-   //#include "CaloIdentifier/CaloGain.h"                   //included by ILArBadChannelMasker.h
-#include "LArRecConditions/ILArBadChanTool.h"
-   //#include "Identifier/HWIdentifier.h"                   //included by ILArBadChanTool.h
-   //#include "LArRecConditions/LArBadChannel.h"            //included by ILArBadChanTool.h
+#include "CaloIdentifier/CaloGain.h"           
+#include "Identifier/HWIdentifier.h" 
+#include "LArRecConditions/LArBadChannelCont.h"
       //#include "LArRecConditions/LArBadChannelEnum.h"        //included by LArBadChannel.h
       //#include "LArRecConditions/LArBadChanBitPacking.h"     //included by LArBadChannel.h
 
 //class StoreGateSvc;
+
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArBadChannelMasker : virtual public ILArBadChannelMasker, public AthAlgTool
 {
@@ -43,7 +44,6 @@ public:
 
    virtual bool cellShouldBeMasked(const HWIdentifier& hardwareId, const int gain=CaloGain::UNKNOWNGAIN) const;
    virtual bool cellShouldBeMasked(const Identifier& offlineId, const int gain=CaloGain::UNKNOWNGAIN) const;
-   virtual bool cellShouldBeMaskedFEB(const HWIdentifier& FEBid, const int channelNumber, const int gain=CaloGain::UNKNOWNGAIN) const;
 
    virtual bool isMaskingOn() const //allow the client code to check in order to optimize
       {return m_doMasking;}
@@ -63,12 +63,7 @@ private:
 
    bool statusShouldBeMasked(const LArBadChannel& cellStatus, const int gain=CaloGain::UNKNOWNGAIN) const;
 
-   //virtual StatusCode testCallBack(IOVSVC_CALLBACK_ARGS);
-   //StoreGateSvc*                m_detStore;
-
-   ToolHandle<ILArBadChanTool>  m_badChanToolHandle; // The tool for accessing bad-channel information.
-   ILArBadChanTool*             m_badChanTool;       // Cache a pointer to save significant time.
-
+   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey;
    static LArBadChanBitPacking  s_bitPacking;        // A helper for bit operations, etc.
    std::vector<std::string>     m_problemWords;      // The list of bad-channel problems to be masked.
    BitWord                      m_bitMask;           // The list of problems from m_problemWords, in bit form.

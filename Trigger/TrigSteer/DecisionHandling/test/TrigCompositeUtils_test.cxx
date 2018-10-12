@@ -10,6 +10,7 @@
 
 int main() {
   using namespace TrigCompositeUtils;
+  xAOD::TrigComposite::s_throwOnCopyError = true;
 
   auto dc = std::make_unique<DecisionContainer>();
   auto decisionAux = std::make_unique<DecisionAuxContainer>();
@@ -41,13 +42,13 @@ int main() {
   ids.insert( 7 );
   const DecisionIDContainer& cids = ids;
   {
-    bool yn = passingIDs( d1, cids );
+    bool yn = isAnyIDPassing( d1, cids );
     std::cout <<  " either 3 or 7 contained in d1 " << ( yn ? "YES" : "NO" ) << std::endl;
     VALUE( yn ) EXPECTED ( false );
   }
 
   {
-    bool yn = passingIDs( d2, cids );
+    bool yn = isAnyIDPassing( d2, cids );
     std::cout <<  " either 3 or 7 contained in d2 " << ( yn ? "YES" : "NO" ) << std::endl;
     VALUE( yn ) EXPECTED ( true );
   }
@@ -66,15 +67,15 @@ int main() {
 
   
   ElementLink<DecisionContainer> el("CollKey", 1);
-  d3->setObjectLink( "self", el );
+  d3->setObjectLink( "seed", el );
   
-  ElementLink<DecisionContainer > resEl = d3->objectLink<DecisionContainer>("self");
+  ElementLink<DecisionContainer > resEl = d3->objectLink<DecisionContainer>("seed");
   VALUE( resEl.index() ) EXPECTED ( el.index() );
   VALUE( resEl.key() ) EXPECTED ( el.key() );
   
   auto d4 = newDecisionIn( dc.get() );
   copyLinks(d3, d4);
-  ElementLink<DecisionContainer > resElCopied = d4->objectLink<DecisionContainer>("self");
+  ElementLink<DecisionContainer > resElCopied = d4->objectLink<DecisionContainer>("seed");
   VALUE( resElCopied.index() ) EXPECTED ( el.index() );
   VALUE( resElCopied.key() ) EXPECTED ( el.key() );
 

@@ -80,6 +80,9 @@ IParticleHandle_CaloCluster::IParticleHandle_CaloCluster(IParticleCollHandleBase
 	m_d->m_cluster = cluster;
 	m_d->sep = 0;
 	m_d->m_genericBox = 0;
+  
+  //
+  SoGenericBox::initClass();
 }
 
 

@@ -18,7 +18,6 @@
 * @author Peter Rosendahl, peter.lundgaard.rosendahl@cern.ch
 **/
 
-#include <limits>
 #include "SCT_CalibAlgs/SCTCalib.h"
 #include "SCT_CalibAlgs/SCT_LorentzAngleFunc.h"
 #include "SCT_CalibUtilities.h"
@@ -28,12 +27,22 @@
 #include "SCT_CalibEventInfo.h"
 #include "SCT_CalibHitmapSvc.h"
 
-
 #include "XmlHeader.h"
 #include "XmlStreamer.h"
 
-//STL, boost
-#include <boost/lexical_cast.hpp>
+//InnerDetector
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+
+//infrastructure
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
+//coral/cool
+#include "CoralBase/TimeStamp.h"
+
+//Gaudi
+#include "GaudiKernel/IEventProcessor.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 //root
 #include "TFileCollection.h"
@@ -48,17 +57,9 @@
 #include "TMath.h"
 #include "Math/ProbFuncMathCore.h"
 
-//infrastructure
-#include "EventInfo/EventInfo.h"
-#include "GaudiKernel/IEventProcessor.h"
-#include "GaudiKernel/ITHistSvc.h"
-
-//coral/cool
-#include "CoralBase/TimeStamp.h"
-
-//InnerDetector
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+//STL, boost
+#include <limits>
+#include <boost/lexical_cast.hpp>
 
 using namespace SCT_CalibAlgs;
 using namespace std;
@@ -157,16 +158,11 @@ normalizeList( const std::string& strList ) {
 
 SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
     AthAlgorithm( name, pSvcLocator ),
-
     p_sgSvc                     ("StoreGateSvc",name),
     m_thistSvc(0),
     m_pSCTHelper(0),
-    m_pManager(0),
+    m_eventInfoKey(std::string("ByteStreamEventInfo")),
     m_pCalibWriteSvc            ("SCTCalibWriteSvc",name),
-    m_DCSConditionsSvc          ("SCT_DCSConditionsSvc",name),
-    m_ConfigurationConditionsSvc("SCT_ConfigurationConditionsSvc",name),
-    m_ReadCalibDataSvc          ("SCT_ReadCalibDataSvc",name),
-    m_CablingSvc                ("SCT_CablingSvc",name),
     m_calibHitmapSvc            ("SCT_CalibHitmapSvc",name),
     m_calibBsErrSvc             ("SCT_CalibBsErrorSvc",name),
     m_calibLbSvc                ("SCT_CalibLbSvc",name),
@@ -321,33 +317,20 @@ StatusCode SCTCalib::initialize() {
     m_waferItrBegin  = m_pSCTHelper->wafer_begin();
     m_waferItrEnd  = m_pSCTHelper->wafer_end();
     //
-    if ( detStore()->retrieve( m_pManager, "SCT").isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve SCTManager" << endmsg,StatusCode::FAILURE;
     if ( not retrievedService(m_pCalibWriteSvc)) return StatusCode::FAILURE;
     if ( m_doHV) msg( MSG::FATAL ) << "Not yet properly implemented and tested!" << endmsg;
-    if ( !m_useDCS ) {
-        ATH_MSG_DEBUG( "DCSConditionsSvc was removed in initialization" );
-        if ( m_doHV ) {
-            ATH_MSG_ERROR( "DCSConditionsSvc has to be initialized for HvSvc" );
-            return StatusCode::FAILURE ;
-        }
-    } else {
-        if (not retrievedService(m_DCSConditionsSvc)) return StatusCode::FAILURE;
-    }
 
-    if ( !m_useConfiguration ) {
-        ATH_MSG_DEBUG( "ConfigurationConditionsSvc was removed in initialization" );
-    } else {
-        if (not retrievedService(m_ConfigurationConditionsSvc)) return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_ConfigurationConditionsTool.retrieve( EnableTool {m_useConfiguration} ) );
 
     if ( !m_useCalibration ) {
-        ATH_MSG_DEBUG( "ReadCalibDataSvc was removed in initialization" );
+        ATH_MSG_DEBUG( "ReadCalibDataTool was removed in initialization" );
+        m_ReadCalibDataTool.disable();
     } else {
-        if (not retrievedService(m_ReadCalibDataSvc)) return StatusCode::FAILURE;
+      if (m_ReadCalibDataTool.retrieve().isFailure()) return StatusCode::FAILURE;
     }
 
     if ( !m_useMajority ) {
-        ATH_MSG_DEBUG( "MajorityConditionsSvc was removed in initialization" );
+        ATH_MSG_DEBUG( "MajorityConditionsTool was removed in initialization" );
     } else {
       if (m_MajorityConditionsTool.retrieve().isFailure()) return StatusCode::FAILURE;
     }
@@ -365,7 +348,7 @@ StatusCode SCTCalib::initialize() {
     }
     if ( not retrievedService(m_calibLbSvc) ) return StatusCode::FAILURE;
 
-    if ( not retrievedService(m_CablingSvc)) return StatusCode::FAILURE;
+    ATH_CHECK(m_CablingTool.retrieve());
 
     //--- LB range
     try {
@@ -390,6 +373,7 @@ StatusCode SCTCalib::initialize() {
     if ( m_readBS ) {
         ATH_MSG_INFO( "------------> Reading from ByteStream <-------------");
         m_calibEvtInfoSvc->setSource("BS");
+        ATH_CHECK(m_eventInfoKey.initialize());
     }
 
 
@@ -485,14 +469,7 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 
 StatusCode SCTCalib::beginRun() {
     ATH_MSG_INFO ("----- in beginRun() -----" );
-    //--- Check if configuration data is available or not
-    if ( m_useConfiguration and ( m_doNoisyStrip or m_doDeadStrip or m_doDeadChip ) ) {
-        if ( not m_ConfigurationConditionsSvc->filled() ) return msg( MSG::ERROR ) << "Configuration data is not available" << endmsg, StatusCode::FAILURE;
-    }
     //--- Check if calibration data is available or not
-    if ( m_useCalibration and m_doNoisyStrip ) {
-        if ( not m_ReadCalibDataSvc->filled() ) return msg( MSG::ERROR ) << "Calibration data is not available" << endmsg, StatusCode::FAILURE;
-    }
     return StatusCode::SUCCESS;
 }
 
@@ -501,6 +478,28 @@ StatusCode SCTCalib::beginRun() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode SCTCalib::execute() {
+    if ( m_readBS ) {
+        SG::ReadHandle<EventInfo> evt(m_eventInfoKey);
+        if (not evt.isValid()) {
+            ATH_MSG_FATAL("Unable to get the EventInfo");
+            return StatusCode::FAILURE;
+        }
+        const EventInfo* evt_ptr = &(*evt);
+        ATH_MSG_VERBOSE(SCT_CalibAlgs::eventInfoAsString(evt_ptr));
+      //--- TimeStamp/LB range analyzed
+      const int timeStamp = evt->event_ID()->time_stamp();
+      const int lumiBlock = evt->event_ID()->lumi_block();
+      int timeStampBeginOld;
+      int timeStampEndOld;
+      m_calibEvtInfoSvc->getTimeStamps(timeStampBeginOld, timeStampEndOld);
+      m_calibEvtInfoSvc->setTimeStamp(std::min(timeStamp, timeStampBeginOld), std::max(timeStamp, timeStampEndOld));
+      int lbBeginOld;
+      int lbEndOld;
+      m_calibEvtInfoSvc->getLumiBlock(lbBeginOld, lbEndOld);
+      m_calibEvtInfoSvc->setLumiBlock(std::min(lumiBlock, lbBeginOld), std::max(lumiBlock, lbEndOld));
+      m_calibEvtInfoSvc->setLumiBlock(lumiBlock);
+      m_calibEvtInfoSvc->setTimeStamp(timeStamp);
+    }
 
     const bool majorityIsGoodOrUnused=( m_useMajority and m_MajorityConditionsTool->isGood() ) or !m_useMajority;
     //--- Fill histograms for (1) Number of events and (2) Hitmaps
@@ -625,7 +624,7 @@ StatusCode SCTCalib::finalize() {
 ///////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int> & timeInterval, const std::pair<int,int> & lbRange, Identifier waferId) {
     const IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-    const SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+    const SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
     XmlStreamer mod("module", m_gofile);
     {
@@ -777,20 +776,20 @@ StatusCode SCTCalib::getDeadStrip() {
     ATH_MSG_INFO( "getDeadStrip() called" );
 
     // Bad Mods
-    const std::set<Identifier>* badMods = m_ConfigurationConditionsSvc->badModules();
+    const std::set<Identifier>* badMods = m_ConfigurationConditionsTool->badModules();
     std::set<Identifier>::const_iterator ModItr(badMods->begin());
     std::set<Identifier>::const_iterator ModEnd(badMods->end());
     // Bad links
-    const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsSvc->badLinks();
-    std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
-    std::map<Identifier, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
+    const std::map<IdentifierHash, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsTool->badLinks();
+    std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
+    std::map<IdentifierHash, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
     // Bad chips
-    const std::map<Identifier, unsigned int>* badChips = m_ConfigurationConditionsSvc->badChips();
+    const std::map<Identifier, unsigned int>* badChips = m_ConfigurationConditionsTool->badChips();
     std::map<Identifier, unsigned int>::const_iterator chipItr(badChips->begin());
     std::map<Identifier, unsigned int>::const_iterator chipEnd(badChips->end());
     // Bad strips (w/o bad modules and chips)
     std::set<Identifier> badStripsExclusive;
-    m_ConfigurationConditionsSvc->badStrips(badStripsExclusive, true, true);
+    m_ConfigurationConditionsTool->badStrips(badStripsExclusive, true, true);
     //std::set<Identifier>::const_iterator stripItr(badStripsExclusive.begin());
     std::set<Identifier>::const_iterator stripEnd(badStripsExclusive.end());
     //To get #(Enabled Modules)
@@ -868,6 +867,14 @@ StatusCode SCTCalib::getDeadStrip() {
         }
     }
 
+    // Get SCT_DetectorElementCollection
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+
     //Dead identification
     bool hasDeadStrip=false;
     bool hasDeadChip=false;
@@ -921,7 +928,7 @@ StatusCode SCTCalib::getDeadStrip() {
         //check if module/link is disabled or not
         bool disabled=false;
         if(badMods->find(moduleId)!=badMods->end()) disabled=true;
-        linkItr=badLinks->find(moduleId);
+        linkItr=badLinks->find(waferHash);
         if(linkItr!=linkEnd) {
             std::pair<bool, bool> status = (*linkItr).second;
             if((side==0 && status.first==true) || (side==1 && status.second==true)) disabled=true;
@@ -980,7 +987,7 @@ StatusCode SCTCalib::getDeadStrip() {
 
         //retrieving #hits in each strip
         for(int j=0; j<n_stripPerChip*n_chipPerSide; j++) {
-            const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement(waferHash);
+            const InDetDD::SiDetectorElement* pElement = elements->getDetectorElement(waferHash);
             bool swap=(pElement->swapPhiReadoutDirection()) ? true : false;
             int chipNum=0;
             if(side==0) chipNum = swap ? 5-j/n_stripPerChip : j/n_stripPerChip;
@@ -1363,7 +1370,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                     meanNO_ECC[iDisk][iEta]+=occupancy;
                     //outFile << outFile << xmlChannelNoiseOccDataString(waferId, occupancy)<<endl;
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                     //--- DB output
                     if ( m_writeToCool ) {
@@ -1389,7 +1396,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                     //--- For calculating average Noise Occupancy
                     meanNO_Barrel[iLayer]+=occupancy;
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                     //--- DB output
                     if ( m_writeToCool ) {
@@ -1414,7 +1421,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                     //--- For calculating average Noise Occupancy
                     meanNO_ECA[iDisk][iEta]+=occupancy;
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                     //--- DB output
                     if ( m_writeToCool ) {
@@ -1720,7 +1727,7 @@ StatusCode SCTCalib::getEfficiency() {
                         else if( stemItr->second==ENDCAP_A ) meanEff_ECA[iDisk][iEta]+=(double)eff;
                         //--- For Efficiency _not_ averaged over modules
                         IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                        SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                        SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                         outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
                         //--- DB writing
                         if( m_writeToCool ) {
@@ -1749,7 +1756,7 @@ StatusCode SCTCalib::getEfficiency() {
                     meanEff_Barrel[iLayer]+=(double)eff;
                     //--- For Efficiency _not_ averaged over modules
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
                     //--- DB writing
                     if( m_writeToCool ) {
@@ -1907,7 +1914,7 @@ StatusCode SCTCalib::getBSErrors() {
                         ostringstream osProbList;
                         Identifier waferId = m_pSCTHelper->wafer_id( thisBec, iDisk, iPhi, iEta, iSide );
                         IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                        SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                        SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
                         if( thisBec==ENDCAP_C )
                             nErrLink_ECC_module_serial[iDisk][iSide][iEta][iPhi]=sn.str();
@@ -1994,7 +2001,7 @@ StatusCode SCTCalib::getBSErrors() {
                     ostringstream osProbList;
                     Identifier waferId = m_pSCTHelper->wafer_id( BARREL, iLayer, iPhi, iEta-6, iSide );
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     nErrLink_Barrel_module_serial[iLayer][iSide][iEta][iPhi] = sn.str();
                     IntStringMap::iterator errItr=ErrMap.begin();
                     for ( int iType = 0; iType < n_BSErrorType; ++iType ) {
@@ -2670,7 +2677,7 @@ StatusCode SCTCalib::addToSummaryStr( std::ostringstream& list, const Identifier
     if( len_chip  > 0 ) chipList  = tmpchip.substr( 1, len_chip-2 );
     //--- Identifier/SN
     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
     cout<<"sn.str()"<<endl;
     cout<<sn.str()<<endl;
     //--- Preparing linkList
@@ -2793,8 +2800,8 @@ SCTCalib::addStripsToList( Identifier& waferId, std::set<Identifier>& stripIdLis
                 if ( !isNew ) { //--- All noisy strips
                     stripIdList.insert( stripId );
                 } else { //--- New noisy strips : compared with configuration and calibration
-                    const bool isGoodInConfiguration = m_useConfiguration ? m_ConfigurationConditionsSvc->isGood( stripId, InDetConditions::SCT_STRIP ) : true;
-                    const bool isGoodInCalibration   = m_useCalibration   ? m_ReadCalibDataSvc->isGood( stripId, InDetConditions::SCT_STRIP )           : true;
+                    const bool isGoodInConfiguration = m_useConfiguration ? m_ConfigurationConditionsTool->isGood( stripId, InDetConditions::SCT_STRIP ) : true;
+                    const bool isGoodInCalibration   = m_useCalibration   ? m_ReadCalibDataTool->isGood( stripId, InDetConditions::SCT_STRIP )           : true;
                     if ( m_useConfiguration or m_useCalibration ) {
                         if ( isGoodInConfiguration && isGoodInCalibration ) {
                             stripIdList.insert( stripId );
@@ -2969,7 +2976,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
         Identifier       waferId   = *waferItr;
         Identifier       moduleId  = m_pSCTHelper->module_id( waferId );
         IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-        SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+        SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
         //--- Initialization for a module
         if ( m_pSCTHelper->side( waferId ) == 0 ) {
@@ -3167,7 +3174,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
 //   //   Identifier       waferId   = *waferItr;
 //   //   Identifier       moduleId  = m_pSCTHelper->module_id( waferId );
 //   //   IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-//   //   SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+//   //   SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
 //   //   //--- Initialization for a module
 //   //   if ( m_pSCTHelper->side( waferId ) == 0 ) {
@@ -3334,6 +3341,15 @@ std::set<int>
 SCTCalib::getNoisyChips( const std::set<Identifier>& stripIdList ) const {
     std::set<int> chipIdList;
     chipIdList.clear();
+
+    // Get SCT_DetectorElementCollection
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+    if (elements==nullptr) {
+        ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+        return chipIdList;
+    }
+
     //--- Minimum number of noisy strips for a noisy chip
     unsigned int noisyChipThr = m_noisyChipFraction*n_stripPerChip;
     if ( stripIdList.size() > noisyChipThr ) {
@@ -3346,7 +3362,7 @@ SCTCalib::getNoisyChips( const std::set<Identifier>& stripIdList ) const {
             int stripOffline = m_pSCTHelper->strip( stripId );
             //--- Chip number : taken from SCT_ConfigurationConditionsSvc::getChip
             IdentifierHash waferHash = m_pSCTHelper->wafer_hash( m_pSCTHelper->wafer_id( stripId ) );
-            const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement( waferHash );
+            const InDetDD::SiDetectorElement* pElement = elements->getDetectorElement( waferHash );
             if ( !pElement ) {
                 msg( MSG::FATAL ) << "Element pointer is NULL" << endmsg;
                 continue;

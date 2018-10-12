@@ -49,7 +49,6 @@ public:
                                        const std::string&,
                                        bool,
                                        bool) override { std::abort(); }
-  virtual StatusCode updatedObject (CLID, const std::string&) override { std::abort(); }
 
   virtual SG::SourceID sourceID() const override { return source; }
   std::string source;

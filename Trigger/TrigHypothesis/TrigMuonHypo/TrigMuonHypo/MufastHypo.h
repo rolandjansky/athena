@@ -35,8 +35,8 @@ class MufastHypo: public HLT::HypoAlgo {
   private:
     
     float getLocalPhi(float, float, float) const;
-    MufastHypoConsts::ECRegions whichECRegion(const float eta, const float phi) const;
-    
+    //MufastHypoConsts::ECRegions whichECRegion(const float eta, const float phi) const;
+
     // Properties:
     std::vector<float> m_ptBins;
     std::vector<float> m_ptThresholds;

@@ -2,16 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArMonTools/LArRawChannelMonTools.h"
+#include "LArRawChannelMonTools.h"
+
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnlID_Exception.h"
+
+#include <boost/foreach.hpp>
 
 #include <stdexcept>
 #include <cmath>
 #include <cfloat>
-
-#include <boost/foreach.hpp>
-
-#include "LArIdentifier/LArOnlineID.h"
-#include "LArIdentifier/LArOnlID_Exception.h"
 
 #define foreach BOOST_FOREACH
 

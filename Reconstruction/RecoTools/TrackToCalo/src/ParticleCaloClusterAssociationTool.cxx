@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParticleCaloClusterAssociationTool.h"
@@ -87,8 +87,8 @@ namespace Rec {
     }
 
     // get the extrapolation into the calo
-    const Trk::CaloExtension* caloExtension = 0;
-    if( !m_caloExtensionTool->particleToCaloExtrapolate(particle,caloExtension) ) {
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(particle);
+    if( caloExtension.get()==nullptr ) {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }
@@ -106,9 +106,9 @@ namespace Rec {
     // update cone size in case it is smaller than the default
     if( dr < m_coneSize ) dr = m_coneSize;
     ParticleClusterAssociation::Data clusters;
-    associateClusters(container,*caloExtension,dr,clusters,particle);    
+    associateClusters(container,*(caloExtension.get()),dr,clusters,particle);    
     
-    association = new ParticleClusterAssociation( *caloExtension, std::move(clusters), dr, container );
+    association = new ParticleClusterAssociation( caloExtension.release(), std::move(clusters), dr, container );
 
     // now add particle and CaloExtension to the container
     IParticleToCaloExtensionMap * caloExtensionMap = 0;

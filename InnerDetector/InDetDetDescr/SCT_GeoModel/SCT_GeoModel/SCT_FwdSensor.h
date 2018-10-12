@@ -32,6 +32,7 @@ class SCT_FwdSensor : public SCT_UniqueComponentFactory
 {
 public:
   SCT_FwdSensor(const std::string & name, int ringType);
+  ~SCT_FwdSensor();
 
   // Ring type
   int ringType() const {return m_ringType;}

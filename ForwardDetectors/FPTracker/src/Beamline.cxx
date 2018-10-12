@@ -73,7 +73,7 @@ namespace FPTracker{
 
   class ParticleTracker{
   public:
-    ParticleTracker(IParticle& particle):m_particle(particle), m_element(0){
+    ParticleTracker(IParticle& particle):m_particle(particle) {
     }
     bool  operator()(const IBeamElement::ConstPtr_t& be){
 
@@ -89,7 +89,6 @@ namespace FPTracker{
     }
   private:
     IParticle& m_particle;
-    int       m_element;
 
   };
     
@@ -111,7 +110,7 @@ namespace FPTracker{
 
   class Calibrator{
   public:
-    Calibrator(IParticle& particle):m_particle(particle), m_element(0)
+    Calibrator(IParticle& particle):m_particle(particle)
     {
     }
     
@@ -122,7 +121,6 @@ namespace FPTracker{
     }
   private:
     IParticle& m_particle;
-    int       m_element;
 
   };
 

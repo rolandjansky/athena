@@ -8,7 +8,7 @@ atlas_subdir( TrkGaussianSumFilter )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           GaudiKernel
@@ -48,7 +48,7 @@ atlas_add_component( TrkGaussianSumFilter
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMultiComponentStateOnSurface TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces CxxUtils xAODEventInfo PathResolver TrkDetElementBase TrkVolumes TrkCaloCluster_OnTrack TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMultiComponentStateOnSurface TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces CxxUtils xAODEventInfo PathResolver TrkDetElementBase TrkVolumes TrkCaloCluster_OnTrack TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkGaussianSumFilter )

@@ -26,7 +26,7 @@ PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 PP="$PP"'|^==> New TileCablingService created$'
 
 # CLIDsvc output depends on module cache, existing files?
-PP="$PP"'|^ClassIDSvc[ 0]*INFO'
+PP="$PP"'|^ClassIDSvc[ 0123456789]*INFO'
 
 # File catalog stuff.
 PP="$PP"'|^Domain.ROOT_All.'
@@ -85,7 +85,9 @@ PP="$PP"'|^Warning in <TClass::TClass>: no dictionary for class'
 PP="$PP"'|^.+ *INFO Initializing .+ - package version .*'
 PP="$PP"'|^.+ *INFO Finalizing .+ - package version .*'
 PP="$PP"'|^PoolSvc *INFO Database .* attribute .FILE_SIZE.:'
-PP="$PP"'|^ChronoStatSvc        INFO  Number of skipped events for MemStat-1'
+PP="$PP"'|^ChronoStatSvc +INFO +Number of skipped events for MemStat'
+PP="$PP"'|^Py:Athena +INFO +including file'
+PP="$PP"'|^Athena +INFO +including file'
 PP="$PP"'|^  StorageSvc    Error Cannot connect to proper technology domain.'
 PP="$PP"'|^PoolSvc             ERROR Failed to set POOL property, TREE_MAX_SIZE to 1099511627776L'
 PP="$PP"'|^AthenaPoolCnvSvc  WARNING setAttribute FAILED for TREE_MAX_SIZE'

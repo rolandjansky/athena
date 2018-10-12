@@ -32,8 +32,6 @@ public:
      {}
   
 protected:
-
-  ~CMMEtSumsCollectionCnv() {}
   
   virtual CMMEtSumsCollection_PERS*   createPersistent (CMMEtSumsCollection* transCont);
   virtual CMMEtSumsCollection*        createTransient ();

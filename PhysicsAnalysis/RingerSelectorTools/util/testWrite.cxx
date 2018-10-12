@@ -56,14 +56,14 @@ using namespace Ringer;
  * Method dedicated for testing pre-processing wrapper creation
  **/
 template<
-  typename procedure_t, 
+  typename procedure_t,
   EtaDependency etaDependency,
   EtDependency etDependency,
   SegmentationType segType
 >
 IPreProcWrapper* createPPWrapper(const char *fileName,
     const std::vector<float> &etaDepBounderies = {0, 2.5},
-    const std::vector<float> &etDepBounderies 
+    const std::vector<float> &etDepBounderies
       = {0, std::numeric_limits<float>::infinity()}
     );
 
@@ -72,9 +72,9 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
  * PP factory with segType, eta and et dependency
  **/
 template<typename procedure_t>
-procedure_t* ppFactoryEtaEtDep(SegmentationType cSegType, 
-    unsigned segIdx, 
-    float etaMin, float etaMax, 
+procedure_t* ppFactoryEtaEtDep(SegmentationType cSegType,
+    unsigned segIdx,
+    float etaMin, float etaMax,
     float etMin, float etMax,
     MSG::Level lvl);
 
@@ -83,16 +83,16 @@ procedure_t* ppFactoryEtaEtDep(SegmentationType cSegType,
  **/
 template<typename procedure_t>
 procedure_t* ppFactoryEtaDep(SegmentationType cSegType,
-    unsigned segIdx, 
+    unsigned segIdx,
     float etaMin, float etaMax,
     MSG::Level lvl);
- 
+
 /**
  * PP factory with segType and et dependency
  **/
 template<typename procedure_t>
 procedure_t* ppFactoryEtDep(SegmentationType cSegType,
-    unsigned segIdx, 
+    unsigned segIdx,
     float etMin, float etMax,
     MSG::Level lvl);
 
@@ -100,7 +100,7 @@ procedure_t* ppFactoryEtDep(SegmentationType cSegType,
  * PP factory with segType dependency
  **/
 template<typename procedure_t>
-procedure_t* ppFactoryDep(SegmentationType cSegType, 
+procedure_t* ppFactoryDep(SegmentationType cSegType,
     unsigned segIdx = 0,
     MSG::Level lvl = MSG::INFO);
 
@@ -108,7 +108,7 @@ procedure_t* ppFactoryDep(SegmentationType cSegType,
  * PP random factory
  **/
 PreProcessing::IPreProcessorVarDep* createRandomPP(
-    SegmentationType cSegType, 
+    SegmentationType cSegType,
     unsigned segIdx = 0,
     MSG::Level lvl = MSG::INFO);
 
@@ -117,7 +117,7 @@ PreProcessing::IPreProcessorVarDep* createRandomPP(
  **/
 template<typename procedure_t>
 procedure_t* createPP(
-    SegmentationType cSegType, 
+    SegmentationType cSegType,
     unsigned segIdx = 0,
     MSG::Level lvl = MSG::INFO);
 
@@ -125,7 +125,7 @@ procedure_t* createPP(
  * Method dedicated for testing discriminator wrapper creation
  **/
 template<
-  typename procedure_t, 
+  typename procedure_t,
   EtaDependency etaDependency,
   EtDependency etDependency,
   SegmentationType segType
@@ -133,14 +133,14 @@ template<
 void createDiscrWrapper(const char* fileName,
     const IPreProcWrapperCollection* ppWrapper = nullptr,
     const std::vector<float> &etaDepBounderies = {0, 2.5},
-    const std::vector<float> &etDepBounderies = 
+    const std::vector<float> &etDepBounderies =
       {0, std::numeric_limits<float>::infinity()}
     );
 
 /**
  * @brief Write wrapper to file
  **/
-void writeWrapperOnFile(const IProcWrapperBase &wrapper, 
+void writeWrapperOnFile(const IProcWrapperBase &wrapper,
     const char* fileName, MSG::Level);
 
 /**
@@ -152,15 +152,15 @@ void writeWrapperOnFile(const IProcWrapperBase &wrapper,
  * An old MC12 Zee x JF14 neural network is created otherwise.
  **/
 template<bool goodStatus = true>
-Discrimination::NNFeedForwardVarDep* createNN(SegmentationType cSegType, 
+Discrimination::NNFeedForwardVarDep* createNN(SegmentationType cSegType,
     unsigned segIdx);
 
 /**
  * Creates eta dependent, et independent neural network
  **/
 template<bool goodStatus = true>
-Discrimination::NNFeedForwardVarDep* createEtaDepNN(SegmentationType cSegType, 
-    unsigned segIdx, 
+Discrimination::NNFeedForwardVarDep* createEtaDepNN(SegmentationType cSegType,
+    unsigned segIdx,
     float etaMin, float etaMax);
 
 /**
@@ -168,8 +168,8 @@ Discrimination::NNFeedForwardVarDep* createEtaDepNN(SegmentationType cSegType,
  **/
 template<bool goodStatus = true>
 Discrimination::NNFeedForwardVarDep* createEtDepNN(
-    SegmentationType cSegType, 
-    unsigned segIdx, 
+    SegmentationType cSegType,
+    unsigned segIdx,
     float etMin, float etMax);
 
 /**
@@ -177,7 +177,7 @@ Discrimination::NNFeedForwardVarDep* createEtDepNN(
  **/
 template<bool goodStatus = true>
 Discrimination::NNFeedForwardVarDep* createEtaEtDepNN(
-    SegmentationType cSegType, 
+    SegmentationType cSegType,
     unsigned segIdx,
     float etaMin, float etaMax,
     float etMin, float etMax);
@@ -186,13 +186,13 @@ Discrimination::NNFeedForwardVarDep* createEtaEtDepNN(
  * Method dedicated for testing threshold wrapper creation
  **/
 template<
-  typename procedure_t, 
+  typename procedure_t,
   EtaDependency etaDependency,
   EtDependency etDependency
 >
 void createThresWrapper(const char* fileName,
     const std::vector<float> &etaDepBounderies = {0, 2.5},
-    const std::vector<float> &etDepBounderies = 
+    const std::vector<float> &etDepBounderies =
       {0, std::numeric_limits<float>::infinity()},
     float thresValue = 0
     );
@@ -207,13 +207,13 @@ Discrimination::UniqueThresholdVarDep* createEtaEtDepThres(
     float etMin, float etMax,
     float thresValue);
 
-std::vector< std::vector<unsigned> > segmentationEntries = 
+std::vector< std::vector<unsigned> > segmentationEntries =
 {
   { 100 },
   { 100, (unsigned)(TrackPatternsHolder::numberOfPatterns()) },
   { 100, (unsigned)(TrackPatternsHolder::numberOfPatterns()), 10 },
   { 88,  12, (unsigned)(TrackPatternsHolder::numberOfPatterns()), 10 },
-  { 8, 64, 8, 8, 4, 4, 4, (unsigned)(TrackPatternsHolder::numberOfPatterns()), 10 } 
+  { 8, 64, 8, 8, 4, 4, 4, (unsigned)(TrackPatternsHolder::numberOfPatterns()), 10 }
 };
 
 // =============================================================================
@@ -227,7 +227,7 @@ int main( /*int argc, char* argv[]*/){
 
   // Eta and Et dependency bounderies:
   const std::vector<float> etaIndepBounderies = {0, 2.5};
-  const std::vector<float> etaDepBounderies = 
+  const std::vector<float> etaDepBounderies =
         {0, .1, .6, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47, 2.5};
 
   const std::vector<float> etIndepBounderies = {0, std::numeric_limits<float>::infinity()};
@@ -483,7 +483,7 @@ int main( /*int argc, char* argv[]*/){
   msg << MSG::INFO << BREAKER << endmsg;
   msg << MSG::INFO << "Creating discriminator with PP wrappers:" << endmsg;
   msg << MSG::INFO << BREAKER << endmsg;
-  
+
   // ----------------------------------------------------------------------------
   // Write discriminators with pre-processings
   // ----------------------------------------------------------------------------
@@ -738,7 +738,7 @@ void writeWrapperOnFile(const IProcWrapperBase &wrapper, const char* fileName,
 
 // =============================================================================
 template<
-  typename procedure_t, 
+  typename procedure_t,
   EtaDependency etaDependency,
   EtDependency etDependency,
   SegmentationType segType
@@ -748,27 +748,27 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
     const std::vector<float> &etDepBounderies)
 {
   // Typedef to make things easier
-  typedef RingerProcedureWrapper<procedure_t, 
-          etaDependency, 
-          etDependency, 
+  typedef RingerProcedureWrapper<procedure_t,
+          etaDependency,
+          etDependency,
           segType> wrapper_t;
 
   typedef typename RingerProcedureType<procedure_t>::procEnum_t procEnum_t;
 
   msg << MSG::INFO << "Attempting to create a RingerProcedureWrapper<"
-        << toStr(procedure_t::template procType<procEnum_t>() ) 
+        << toStr(procedure_t::template procType<procEnum_t>() )
         << ((std::is_same<procedure_t,PreProcessing::IPreProcessorVarDep>::value)?",":"(VarDep),")
-        << toStr(etaDependency) << "," 
-        << toStr(etDependency) << "," 
+        << toStr(etaDependency) << ","
+        << toStr(etDependency) << ","
         << toStr(segType) << "> with file name: " << fileName << "." << endmsg;
 
-  unsigned etaDepProc = etaDepBounderies.size() - 1; 
-  unsigned etDepProc = etDepBounderies.size() - 1; 
+  unsigned etaDepProc = etaDepBounderies.size() - 1;
+  unsigned etDepProc = etDepBounderies.size() - 1;
 
   IPreProcWrapper *ret(nullptr);
 
   // Loop over variable dependencies
-  for ( unsigned uSegType = NoSegmentation; 
+  for ( unsigned uSegType = NoSegmentation;
       uSegType < NSegmentations;
       ++uSegType )
   {
@@ -784,7 +784,7 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
         // Change message level accondingly if we are creating correct wrapper
         // type
         MSG::Level lvl(MSG::VERBOSE);
-        if ( cSegType == segType && 
+        if ( cSegType == segType &&
             etaDep == etaDependency &&
             etDep == etDependency )
         {
@@ -814,32 +814,32 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
               // Fill collection:
               if (etaDep) {
                 if (etDep) {
-                  ppCol[segDepIdx][etDepIdx][etaDepIdx] = 
+                  ppCol[segDepIdx][etDepIdx][etaDepIdx] =
                     ppFactoryEtaEtDep<procedure_t>(cSegType,
                         segDepIdx,
-                        etaMin, 
-                        etaMax, 
-                        etMin, 
+                        etaMin,
+                        etaMax,
+                        etMin,
                         etMax,
                         MSG::VERBOSE);
                 } else {
-                  ppCol[segDepIdx][etDepIdx][etaDepIdx] = 
+                  ppCol[segDepIdx][etDepIdx][etaDepIdx] =
                     ppFactoryEtaDep<procedure_t>(cSegType,
                         segDepIdx,
-                        etaMin, 
+                        etaMin,
                         etaMax,
                         MSG::VERBOSE);
                 }
               } else {
                 if (etDep) {
-                  ppCol[segDepIdx][etDepIdx][etaDepIdx] = 
-                    ppFactoryEtDep<procedure_t>(cSegType, 
+                  ppCol[segDepIdx][etDepIdx][etaDepIdx] =
+                    ppFactoryEtDep<procedure_t>(cSegType,
                         segDepIdx,
-                        etMin, 
+                        etMin,
                         etMax,
                         MSG::VERBOSE);
                 } else {
-                  ppCol[segDepIdx][etDepIdx][etaDepIdx] = 
+                  ppCol[segDepIdx][etDepIdx][etaDepIdx] =
                     ppFactoryDep<procedure_t>(cSegType,
                         segDepIdx,
                         MSG::VERBOSE);
@@ -852,8 +852,8 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
         // Attempt to create a wrapper with filled collection:
         try {
 
-          msg << lvl << "Attempting to create wrapper with (" 
-            << toStr(segType) << "," << toStr(etaDep) << "," << toStr(etDep) 
+          msg << lvl << "Attempting to create wrapper with ("
+            << toStr(segType) << "," << toStr(etaDep) << "," << toStr(etDep)
             << ") pre-processing" << endmsg;
 
           //msg << lvl << ppCol << endmsg;
@@ -901,8 +901,8 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
 // =============================================================================
 template<typename procedure_t>
 procedure_t* ppFactoryEtaEtDep(SegmentationType cSegType,
-    unsigned segIdx, 
-    float etaMin, float etaMax, 
+    unsigned segIdx,
+    float etaMin, float etaMax,
     float etMin, float etMax,
     MSG::Level lvl)
 {
@@ -920,7 +920,7 @@ procedure_t* ppFactoryEtaEtDep(SegmentationType cSegType,
 // =============================================================================
 template<typename procedure_t>
 procedure_t* ppFactoryEtaDep(SegmentationType cSegType,
-    unsigned segIdx, 
+    unsigned segIdx,
     float etaMin, float etaMax,
     MSG::Level lvl)
 {
@@ -934,11 +934,11 @@ procedure_t* ppFactoryEtaDep(SegmentationType cSegType,
   pp->setEtaDep(etaMin, etaMax);
   return pp;
 }
- 
+
 // =============================================================================
 template<typename procedure_t>
 procedure_t* ppFactoryEtDep(SegmentationType cSegType,
-    unsigned segIdx, 
+    unsigned segIdx,
     float etMin, float etMax,
     MSG::Level lvl)
 {
@@ -955,7 +955,7 @@ procedure_t* ppFactoryEtDep(SegmentationType cSegType,
 
 // =============================================================================
 template<typename procedure_t>
-procedure_t* ppFactoryDep(SegmentationType cSegType, 
+procedure_t* ppFactoryDep(SegmentationType cSegType,
     unsigned segIdx,
     MSG::Level lvl)
 {
@@ -968,7 +968,7 @@ procedure_t* ppFactoryDep(SegmentationType cSegType,
 }
 
 // =============================================================================
-PreProcessing::IPreProcessorVarDep* createRandomPP(SegmentationType cSegType, 
+PreProcessing::IPreProcessorVarDep* createRandomPP(SegmentationType cSegType,
     unsigned segIdx,
     MSG::Level lvl)
 {
@@ -1056,7 +1056,7 @@ procedure_t* createPP(SegmentationType cSegType, unsigned segIdx,
 
 // =============================================================================
 template<
-  typename procedure_t, 
+  typename procedure_t,
   EtaDependency etaDependency,
   EtDependency etDependency,
   SegmentationType segType
@@ -1067,22 +1067,22 @@ void createDiscrWrapper(const char *fileName,
     const std::vector<float> &etDepBounderies)
 {
   // Typedef to make things easier
-  typedef RingerProcedureWrapper<procedure_t, 
-          etaDependency, 
-          etDependency, 
+  typedef RingerProcedureWrapper<procedure_t,
+          etaDependency,
+          etDependency,
           segType> wrapper_t;
 
   typedef typename RingerProcedureType<procedure_t>::procEnum_t procEnum_t;
 
   msg << MSG::INFO << "Attempting to create a RingerProcedureWrapper<"
-        << toStr(procedure_t::template procType<procEnum_t>() ) 
+        << toStr(procedure_t::template procType<procEnum_t>() )
         << ((Ringer::is_same<procedure_t,Discrimination::IDiscriminatorVarDep>::value)?",":"(VarDep),")
-        << toStr(etaDependency) << "," 
-        << toStr(etDependency) << "," 
+        << toStr(etaDependency) << ","
+        << toStr(etDependency) << ","
         << toStr(segType) << "> with file name: " << fileName << "." << endmsg;
 
-  unsigned etaDepProc = etaDepBounderies.size() - 1; 
-  unsigned etDepProc = etDepBounderies.size() - 1; 
+  unsigned etaDepProc = etaDepBounderies.size() - 1;
+  unsigned etDepProc = etDepBounderies.size() - 1;
 
   // Loop over variable dependencies
   for ( unsigned uEtaDep = EtaIndependent; uEtaDep <= EtaDependent; ++uEtaDep ){
@@ -1122,21 +1122,21 @@ void createDiscrWrapper(const char *fileName,
               if (etDep) {
                 discrCol[segDepIdx][etDepIdx][etaDepIdx] = createEtaEtDepNN(
                     segType, segDepIdx,
-                    etaMin, 
-                    etaMax, 
-                    etMin, 
+                    etaMin,
+                    etaMax,
+                    etMin,
                     etMax);
               } else {
                 discrCol[segDepIdx][etDepIdx][etaDepIdx] = createEtaDepNN(
                     segType, segDepIdx,
-                    etaMin, 
+                    etaMin,
                     etaMax);
             }
             } else {
               if (etDep) {
                 discrCol[segDepIdx][etDepIdx][etaDepIdx] = createEtDepNN(
                     segType, segDepIdx,
-                    etMin, 
+                    etMin,
                     etMax);
               } else {
                 discrCol[segDepIdx][etDepIdx][etaDepIdx] = createNN(segType, segDepIdx);
@@ -1149,11 +1149,11 @@ void createDiscrWrapper(const char *fileName,
       // Attempt to create a wrapper with filled collection:
       try {
 
-        msg << lvl << "Attempting to create wrapper with (" 
-          << toStr(etaDep) << "," << toStr(etDep) << ") discriminator" 
+        msg << lvl << "Attempting to create wrapper with ("
+          << toStr(etaDep) << "," << toStr(etDep) << ") discriminator"
           << endmsg;
 
-        wrapper_t* wrapper(nullptr); 
+        wrapper_t* wrapper(nullptr);
         // Create wrapper:
         if ( !ppWrapperCol || ppWrapperCol->empty() ){
           wrapper = new wrapper_t(discrCol);
@@ -1207,7 +1207,7 @@ void createDiscrWrapper(const char *fileName,
 
 // =============================================================================
 template<bool goodStatus>
-Discrimination::NNFeedForwardVarDep* createNN(SegmentationType cSegType, 
+Discrimination::NNFeedForwardVarDep* createNN(SegmentationType cSegType,
     unsigned segIdx)
 {
   if ( goodStatus ){
@@ -1239,8 +1239,8 @@ Discrimination::NNFeedForwardVarDep* createNN(SegmentationType cSegType,
 // =============================================================================
 template<bool goodStatus>
 Discrimination::NNFeedForwardVarDep* createEtaDepNN(
-    SegmentationType cSegType, 
-    unsigned segIdx, 
+    SegmentationType cSegType,
+    unsigned segIdx,
     float etaMin, float etaMax)
 {
   Discrimination::NNFeedForwardVarDep* nn = createNN(cSegType, segIdx);
@@ -1251,7 +1251,7 @@ Discrimination::NNFeedForwardVarDep* createEtaDepNN(
 // =============================================================================
 template<bool goodStatus>
 Discrimination::NNFeedForwardVarDep* createEtDepNN(
-    SegmentationType cSegType, 
+    SegmentationType cSegType,
     unsigned segIdx,
     float etMin, float etMax)
 {
@@ -1262,7 +1262,7 @@ Discrimination::NNFeedForwardVarDep* createEtDepNN(
 
 // =============================================================================
 template<bool goodStatus>
-Discrimination::NNFeedForwardVarDep* createEtaEtDepNN(SegmentationType cSegType, 
+Discrimination::NNFeedForwardVarDep* createEtaEtDepNN(SegmentationType cSegType,
     unsigned segIdx,
     float etaMin, float etaMax,
     float etMin, float etMax)
@@ -1274,7 +1274,7 @@ Discrimination::NNFeedForwardVarDep* createEtaEtDepNN(SegmentationType cSegType,
 
 // =============================================================================
 template<
-  typename procedure_t, 
+  typename procedure_t,
   EtaDependency etaDependency,
   EtDependency etDependency
 >
@@ -1284,20 +1284,20 @@ void createThresWrapper(const char* fileName,
     float thresValue)
 {
   // Typedef to make things easier
-  typedef RingerProcedureWrapper<procedure_t, 
-          etaDependency, 
+  typedef RingerProcedureWrapper<procedure_t,
+          etaDependency,
           etDependency> wrapper_t;
 
   typedef typename RingerProcedureType<procedure_t>::procEnum_t procEnum_t;
 
   msg << MSG::INFO << "Attempting to create a RingerProcedureWrapper<"
-        << toStr(procedure_t::template procType<procEnum_t>() ) 
+        << toStr(procedure_t::template procType<procEnum_t>() )
         << ((Ringer::is_same<procedure_t,Discrimination::IThresholdVarDep>::value)?",":"(VarDep),")
-        << toStr(etaDependency) << "," 
+        << toStr(etaDependency) << ","
         << toStr(etDependency) << "> with file name: " << fileName << "." << endmsg;
 
-  unsigned etaDepProc = etaDepBounderies.size() - 1; 
-  unsigned etDepProc = etDepBounderies.size() - 1; 
+  unsigned etaDepProc = etaDepBounderies.size() - 1;
+  unsigned etDepProc = etDepBounderies.size() - 1;
 
   // Loop over variable dependencies
   for ( unsigned uEtaDep = EtaIndependent; uEtaDep <= EtaDependent; ++uEtaDep ){
@@ -1316,7 +1316,7 @@ void createThresWrapper(const char* fileName,
       }
 
       // The collection holder
-      typename wrapper_t::ThresDepProcCollection thresCol( etDepProc, 
+      typename wrapper_t::ThresDepProcCollection thresCol( etDepProc,
           std::vector<procedure_t*>(etaDepProc, nullptr));
 
       // Fill collection
@@ -1333,21 +1333,21 @@ void createThresWrapper(const char* fileName,
           if (etaDep) {
             if (etDep) {
               thresCol[etDepIdx][etaDepIdx] = createEtaEtDepThres(
-                  etaMin, 
-                  etaMax, 
-                  etMin, 
+                  etaMin,
+                  etaMax,
+                  etMin,
                   etMax,
                   thresValue);
             } else {
               thresCol[etDepIdx][etaDepIdx] = createEtaDepThres(
-                  etaMin, 
+                  etaMin,
                   etaMax,
                   thresValue);
           }
           } else {
             if (etDep) {
               thresCol[etDepIdx][etaDepIdx] = createEtDepThres(
-                  etMin, 
+                  etMin,
                   etMax,
                   thresValue);
             } else {
@@ -1360,8 +1360,8 @@ void createThresWrapper(const char* fileName,
       // Attempt to create a wrapper with filled collection:
       try {
 
-        msg << lvl << "Attempting to create wrapper with (" 
-          << toStr(etaDep) << "," << toStr(etDep) << ") discriminator" 
+        msg << lvl << "Attempting to create wrapper with ("
+          << toStr(etaDep) << "," << toStr(etDep) << ") discriminator"
           << endmsg;
 
         // Create wrapper:

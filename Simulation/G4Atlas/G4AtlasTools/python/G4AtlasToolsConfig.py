@@ -69,8 +69,8 @@ def generateInDetSensitiveDetectorList():
 
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    isUpgrade = commonGeoFlags.Run()=="RUN3" or commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
-    isRUN2 = commonGeoFlags.Run()=="RUN2" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
+    isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
+    isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
     isRUN1 = not (isRUN2 or isUpgrade)
 
     from AthenaCommon.DetFlags import DetFlags
@@ -132,7 +132,8 @@ def generateMuonSensitiveDetectorList():
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetector' ]
             if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetector' ]
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetector' ]
-        if simFlags.SimulateNewSmallWheel():
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+        if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
             if DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
             if DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
         elif DetFlags.simulate.CSC_on():

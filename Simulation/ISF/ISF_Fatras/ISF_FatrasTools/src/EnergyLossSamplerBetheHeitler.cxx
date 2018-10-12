@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_FatrasTools/EnergyLossSamplerBetheHeitler.h"
+#include "EnergyLossSamplerBetheHeitler.h"
 
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"

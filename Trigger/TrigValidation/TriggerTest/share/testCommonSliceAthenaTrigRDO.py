@@ -5,11 +5,6 @@
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
-include ("RecExCond/RecExCommon_flags.py")
-rec.AutoConfiguration = ['everything']
-import RecExConfig.AutoConfiguration as auto
-auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
-
 if not acf.EvtMax.is_locked():
     acf.EvtMax=10
 if not ('OutputLevel' in dir()):
@@ -46,6 +41,9 @@ rec.doTruth.set_Value_and_Lock(False)
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 # set up trigger monitoring                                                                                                                                                        
 if not ('RunningRTT' in dir() and bool(RunningRTT) == True):

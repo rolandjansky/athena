@@ -7,7 +7,7 @@ atlas_subdir( TrkFitterUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -38,6 +38,6 @@ atlas_add_library( TrkFitterUtils
                    PUBLIC_HEADERS TrkFitterUtils
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} DataModel GeoPrimitives Identifier GaudiKernel TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMeasurementBase TrkParameters TrkExUtils
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers GeoPrimitives Identifier GaudiKernel TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMeasurementBase TrkParameters TrkExUtils
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr TrkMaterialOnTrack TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkVertexOnTrack TrkExInterfaces TrkToolInterfaces )
 

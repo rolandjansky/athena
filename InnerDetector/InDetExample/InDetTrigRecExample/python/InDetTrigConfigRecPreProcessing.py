@@ -58,7 +58,7 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigClusterMakerTool
 
       from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-      
+
       # MergedPixelTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool
@@ -111,14 +111,12 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
 
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
+      from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ByteStreamErrorsTool
       from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-      InDetTrigBSErrorSvc = SCT_ByteStreamErrorsSvc(name=SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsSvc"))
+      InDetTrigBSErrorTool = SCT_ByteStreamErrorsTool(name=SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsTool"))
 
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-      InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder",
-                                              ErrorsSvc = InDetTrigBSErrorSvc,
-                                              TriggerMode = True)
+      InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder")
       ToolSvc += InDetTrigSCTRodDecoder
       if (InDetTrigFlags.doPrintConfigurables()):
         print      InDetTrigSCTRodDecoder
@@ -127,9 +125,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
       from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
       InDetTrigSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetTrigSCTRawDataProviderTool",
-                                                               Decoder = InDetTrigSCTRodDecoder,
-                                                               ErrorsSvc = InDetTrigBSErrorSvc
-                                                               )
+                                                               Decoder = InDetTrigSCTRodDecoder)
       ToolSvc += InDetTrigSCTRawDataProviderTool
 
 
@@ -142,12 +138,15 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
 
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigClusterMakerTool
 
+      from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+      self.conditionsSummaryTool=SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+
       # SCT_ClusteringTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
       InDetTrigSCT_ClusteringTool = \
           InDet__SCT_ClusteringTool(name          = "InDetTrigSCT_ClusteringTool",
                                     globalPosAlg  = InDetTrigClusterMakerTool,
-                                    conditionsService = "SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
+                                    conditionsTool = self.conditionsSummaryTool
                                     )
       if InDetTrigFlags.doSCTIntimeHits():
          if InDetTrigFlags.InDet25nsec():
@@ -160,7 +159,6 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       self.RawDataProvider   = InDetTrigSCTRawDataProvider
       self.clusteringTool = InDetTrigSCT_ClusteringTool
       self.SCT_RDOContainerName=EF_SCTRDOKey
-      self.conditionsSummarySvc="SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]
@@ -274,6 +272,12 @@ class SiTrigSpacePointFinder_EF( InDet__SiTrigSpacePointFinder ):
          print SCT_TrigSpacePointTool 
       ToolSvc +=  SCT_TrigSpacePointTool
 
+      # Condition algorithm for SiTrigSpacePointFinder
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+         from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+         condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
       self.SiSpacePointMakerTool = InDetTrigSiSpacePointMakerTool
       self.SCTSpacePointTrigHelperTool = SCT_TrigSpacePointTool

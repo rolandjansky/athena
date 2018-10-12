@@ -28,14 +28,14 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-
-// for CondDB
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
 // Forward declarations
 class IInterface;
@@ -53,6 +53,7 @@ class TProfile2D_LW;
 class Identifier;
 class StatusCode;
 class SCT_ID;
+class ISCT_ConfigurationConditionsTool;
 
 class PairBuilder;
 
@@ -505,9 +506,10 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
     profFactory(const std::string & name, const std::string & title, MonGroup & registry);
   //@}
 
-  //@name Service methods
+  //@name Tool methods
   //@{
-  ServiceHandle<ISCT_ConfigurationConditionsSvc> m_ConfigurationSvc;
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
+      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
  
   ///Format the position as a string
   std::string
@@ -516,6 +518,9 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_clusContainerKey;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 };
 
 #endif

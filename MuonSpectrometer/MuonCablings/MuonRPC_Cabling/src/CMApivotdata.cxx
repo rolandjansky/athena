@@ -123,25 +123,14 @@ CMApivotdata::confirm_data(ViewType side)
     }
     if(side == Phi && start)
     {
-        bool oldPhiSchema = (m_layout=="P03" || m_layout=="H8")? true : false;
-        if(start >= stop && m_coverage == EvenSectors && !oldPhiSchema)
+
+        if(start >= stop && m_coverage == EvenSectors)
         {
             disp << "CMA cabling error into configuration for Sector Type "
              << m_type << ", " << m_covtag << " " << view 
 	     << " CMA number " << m_number << std::endl
              << " start position (" << m_start_ch << ":" << m_start_st
              << ") is greater than stop position (" << m_stop_ch << ":"
-             << m_stop_st << ")" << std::endl;
-            display_error(disp);
-            return false;
-        }
-	if(start <= stop && m_coverage == EvenSectors && oldPhiSchema)
-        {
-            disp << "CMA cabling error into configuration for Sector Type "
-             << m_type << ", " << m_covtag << " " << view
-             << " CMA number " << m_number << std::endl
-             << " start position (" << m_start_ch << ":" << m_start_st
-             << ") is lower than stop position (" << m_stop_ch << ":"
              << m_stop_st << ")" << std::endl;
             display_error(disp);
             return false;

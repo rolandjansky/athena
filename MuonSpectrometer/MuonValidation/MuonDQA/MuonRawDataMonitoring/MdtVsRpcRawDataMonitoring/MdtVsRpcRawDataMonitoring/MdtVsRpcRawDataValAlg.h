@@ -21,7 +21,6 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -36,6 +35,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 class TFile;
 class RpcIdHelper;
@@ -61,9 +63,6 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   // Private function to add the clusters to the ntuple
   StatusCode addClusters(std::string clusterContainerName);  
    
-  StoreGateSvc* m_eventStore;  
-  ActiveStoreSvc* m_activeStore;
-
   //mdt stuff
   const MdtIdHelper* m_mdtIdHelper;
   //m_chambersIdmdt;
@@ -103,7 +102,8 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   
   std::string m_chamberName;
   std::string m_StationSize;
-  std::string m_key_rpc; 
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
+  SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
   int m_StationEta;
   int m_StationPhi;
   int m_lastEvent;
@@ -113,8 +113,6 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   TH1*    m_MdtRpcZdiff             ; 
  
   TH2*    m_MdtNHitsvsRpcNHits      ;
-  
-  std::string m_key_mdt;
 };
 
 #endif

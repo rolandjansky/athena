@@ -9,7 +9,7 @@ atlas_subdir( TagCollectionTest )
 atlas_depends_on_subdirs( PUBLIC
                           Control/MinimalRunTime
                           TestPolicy
-                          Tools/AtlasDoxygen )
+                        )
 
 # Install files from the package:
 atlas_install_headers( TagCollectionTest )

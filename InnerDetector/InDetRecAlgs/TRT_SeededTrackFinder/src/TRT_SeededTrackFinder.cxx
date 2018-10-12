@@ -15,9 +15,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TRT_SeededTrackFinder/TRT_SeededTrackFinder.h"
 #include "TrkTrack/TrackInfo.h"
-//#include "TrkParameters/MeasuredPerigee.h"
-//#include "TrkParameters/MeasuredAtaStraightLine.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
+
 ///Needed for my scoring
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 
@@ -35,6 +34,7 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_nprint(0),
+    m_ntracks(0),
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_trtExtension("InDet::TRT_TrackExtensionTool_xk"),
@@ -84,52 +84,29 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 
   //Get the TRT seeded track maker tool
   //
-  if(m_trackmaker.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_trackmaker << endmsg; return StatusCode::FAILURE;
-  }else{
-    msg(MSG::INFO) << "Got track maker tool " << m_trackmaker << endmsg;
-  }
+  ATH_CHECK(m_trackmaker.retrieve());
 
   //Get the refitting tool
   //
   if(m_doRefit){
-    if(m_fitterTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_fitterTool << endmsg; return StatusCode::FAILURE;
-    }else{
-      msg(MSG::INFO) << "Got refitting tool " << m_fitterTool << endmsg;
-    }
+    ATH_CHECK(m_fitterTool.retrieve());
   } else {
     m_fitterTool.disable();
   }
 
   if (m_SiExtensionCuts) {
     // get extrapolator
-    sc = m_extrapolator.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
-      return StatusCode::FAILURE;
-    } else
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
-
+    ATH_CHECK( m_extrapolator.retrieve());
     // get beam spot service
-    sc = m_iBeamCondSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::INFO) << "Could not find BeamCondSvc." << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_iBeamCondSvc.retrieve());
   } else {
     m_extrapolator.disable();
   }
 
-  // Get tool for track ectension to TRT
+  // Get tool for track extension to TRT
   //
   if(m_doExtension){
-    if( m_trtExtension.retrieve().isFailure()) {
-      msg(MSG::FATAL)<< "Could not get " << m_trtExtension << endmsg; return StatusCode::FAILURE;
-    }
-    else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endmsg;
-    }
+    ATH_CHECK( m_trtExtension.retrieve());
   } else {
     m_trtExtension.disable();
   }

@@ -5,7 +5,7 @@
 #ifndef MUONLINEARSEGMENTMAKERUTILITIES_UTILITIES_H
 #define MUONLINEARSEGMENTMAKERUTILITIES_UTILITIES_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include <string>
 #include "GeoPrimitives/GeoPrimitives.h"
 class MsgStream;

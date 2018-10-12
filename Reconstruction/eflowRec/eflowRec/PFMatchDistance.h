@@ -21,6 +21,9 @@ class EtaPhiWithVariance;
 
 /* Distance calculator classes */
 
+/**
+Calculates distance between two EtaPhi objects
+*/
 class EtaPhiSqDistanceCalculator: public DistanceCalculator<EtaPhi, EtaPhi> {
 public:
   EtaPhiSqDistanceCalculator() { }
@@ -29,6 +32,9 @@ public:
   virtual double distanceBetween(EtaPhi* position1, EtaPhi* position2);
 };
 
+/**
+Calculates distance between EtaPhi and EtaPhiWithVariance object
+*/
 class EtaPhiSqSignificanceCalculator: public DistanceCalculator<EtaPhi, EtaPhiWithVariance> {
 public:
   EtaPhiSqSignificanceCalculator() { }
@@ -40,6 +46,9 @@ public:
 
 /* Distance calculator factory */
 
+/**
+Factory to create IDistanceProvider of the type requested.
+*/
 class DistanceFactory {
 public:
   static std::unique_ptr<IDistanceProvider> Get(std::string distanceType, std::unique_ptr<IPositionProvider> trackPosition,

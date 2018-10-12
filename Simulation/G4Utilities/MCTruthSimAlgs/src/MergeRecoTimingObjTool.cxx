@@ -37,13 +37,12 @@ StatusCode MergeRecoTimingObjTool::processBunchXing(int bunchXing,
     {
       if (bSubEvents != eSubEvents)
         {
-          StoreGateSvc& seStore(*bSubEvents->ptr()->evtStore());
-          if(seStore.contains<RecoTimingObj>(m_recTimingObjKey.value()))
-            {
-              const RecoTimingObj *oldColl(0);
-              CHECK(seStore.retrieve(oldColl, m_recTimingObjKey.value()));
-              CHECK(processRecoTimingObj(oldColl));
-            }
+	  const RecoTimingObj *oldColl(0);
+	  if (m_pMergeSvc->retrieveSingleSubEvtData(m_recTimingObjKey.value(), oldColl,
+						    bunchXing, bSubEvents).isSuccess())
+	    {
+	      CHECK(processRecoTimingObj(oldColl));
+	    }
           else
             {
               ATH_MSG_DEBUG ( "processBunchXing: No RecoTimingObj found." );

@@ -19,7 +19,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
@@ -86,11 +85,7 @@ namespace Muon {
     // Private data:
     // /////////////////////////////////////////////////////////////////
 
-    ToolHandle<Trk::IRIO_OnTrackErrorScalingTool>   m_errorScalingTool;
     ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
-    bool                                 m_scaleCscCov;
-    bool                                 m_scaleRpcCov;
-    bool                                 m_scaleTgcCov;
 
     bool                                 m_doCsc;
     bool                                 m_doRpc;
@@ -108,6 +103,8 @@ namespace Muon {
     double                               m_fixedErrorTgcPhi;
     double                               m_fixedErrorRpcPhi;
     double                               m_fixedErrorCscPhi;
+
+    double                               m_eDriftVelocityMM;
   };
 }
 #endif // MuonClusterOnTrackCreator_H

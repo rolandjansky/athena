@@ -68,7 +68,7 @@ StatusCode TrigCaloDataAccessSvc::finalize() {
       EventContext ec;
       ec.setSlot( slot );
       HLTCaloEventCache *cache = m_larcell.get( ec );
-      cache->container->finalize();
+      ATH_CHECK(cache->container->finalize());
       delete cache->container;
       cache->lastFSEvent = 0xFFFFFFFF;
       delete cache->fullcont;
@@ -97,7 +97,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
   StatusCode sc = prepareLArCollections( context, roi, sampling, detID );
 
-  if ( !sc.isFailure() ) return sc;
+  if ( sc.isFailure() ) return sc;
   
   { 
     // this has to be guarded because getTT called on the LArCollection bu other threads updates internal map
@@ -123,10 +123,13 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   return sc;
 }
 
+
+/*
 StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
                                                         ConstDataVector<CaloCellContainer>& cont ) {
 
   StatusCode sc = prepareLArFullCollections( context );
+  if ( sc.isFailure() ) return StatusCode::FAILURE;
 
   std::lock_guard<std::mutex> getCollClock{ m_getCollMutex };   
   CaloCellContainer* cont_to_copy = m_larcell.get(context)->fullcont ;
@@ -135,6 +138,40 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
       
   return sc;
+}
+*/
+
+
+StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
+                                                        CaloCellContainer* cont ) {
+
+  StatusCode sc = prepareLArFullCollections( context );
+  if ( sc.isFailure() ) return StatusCode::FAILURE;
+
+  std::lock_guard<std::mutex> getCollClock{ m_getCollMutex };   
+  *cont = *(m_larcell.get(context)->fullcont);
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
+                                                        ConstDataVector<CaloCellContainer>& cont ) {
+  ATH_MSG_DEBUG("loadFullcollctions sent 0");
+  CaloCellContainer* cont_to_copy = new CaloCellContainer();
+  ATH_MSG_DEBUG("loadFullcollctions sent 10");
+
+  ATH_CHECK(loadFullCollections(context, cont_to_copy));
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 20");
+  cont.clear();
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 30");
+  cont.reserve( cont_to_copy->size() );
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 40");
+  for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
+  ATH_MSG_DEBUG(  "loadFullcollctions sent 50");
+  delete cont_to_copy;
+  ATH_MSG_DEBUG( "loadFullcollctions sent 60");
+  return StatusCode::SUCCESS;
 }
 
 
@@ -182,7 +219,9 @@ StatusCode TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext&
   Monitored::MonitoredScope::declare( m_monTool, lockTime, detidMon );
   // collection prepared
   cache->lastFSEvent = context.evt();
-  return StatusCode(static_cast<Status>(status));
+  if ( status ) return StatusCode::FAILURE;
+  else return StatusCode::SUCCESS;
+  //return StatusCode(static_cast<Status>(status));
 }
 
 StatusCode TrigCaloDataAccessSvc::lateInit() { // non-const this thing
@@ -456,6 +495,7 @@ StatusCode TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& con
   auto roiPhi = Monitored::MonitoredScalar::declare( "roiPhi_LAr", roi.phi() );
 
   Monitored::MonitoredScope::declare( m_monTool, lockTime, roiEta, roiPhi, roiROBs );
-  return static_cast<Status>(status);
+  if ( status ) return StatusCode::FAILURE;
+  else return StatusCode::SUCCESS;
 }
 

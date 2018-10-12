@@ -56,7 +56,9 @@ SCT_FwdSensor::SCT_FwdSensor(const std::string & name,
   m_logVolume = preBuild();
 }
 
-
+SCT_FwdSensor::~SCT_FwdSensor() {
+  if (m_inactive) m_inactive->unref();
+}
 
 void
 SCT_FwdSensor::getParameters()
@@ -86,7 +88,7 @@ SCT_FwdSensor::getParameters()
   m_lengthN     = parameters->fwdSensorLengthNear(m_ringType);
   m_radiusN     = parameters->fwdSensorRadiusNear(m_ringType);
 
-  if (m_ringType == 3) {	
+  if (m_ringType == 3) {
     // For Inner Module only use number for far sensor.
     m_innerRadius = m_radiusF - 0.5 * m_lengthF;
     m_innerWidth = m_innerWidthF;
@@ -100,16 +102,16 @@ SCT_FwdSensor::getParameters()
   m_activeHalfLengthFar  = parameters->fwdSensorActiveHalfLengthFar(m_ringType);
   m_activeHalfLengthNear = parameters->fwdSensorActiveHalfLengthNear(m_ringType);
 
-  if (m_ringType == 3) {	// Inner 
+  if (m_ringType == 3) { // Inner 
     m_sensorRadius = m_radiusF;
   } else {
     m_sensorRadius = 0.5 * (m_radiusF + m_activeHalfLengthFar  
-			    + m_radiusN - m_activeHalfLengthNear);
+                            + m_radiusN - m_activeHalfLengthNear);
   }
 
   // For truncated middle the sensor is offset from what it would be if it was a full middle.
   m_sensorOffset = 0;
-  if (m_ringType == 2) {	// truncated middle
+  if (m_ringType == 2) { // truncated middle
     m_sensorOffset = m_radiusF - m_sensorRadius;
   }
   
@@ -134,15 +136,15 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
 {
 
   const GeoTrd * sensorShapeF = new GeoTrd(0.5 * m_thicknessF, 0.5 * m_thicknessF,
-					   0.5 * m_innerWidthF, 0.5 * m_outerWidthF,
-					   0.5 * m_lengthF);
+                                           0.5 * m_innerWidthF, 0.5 * m_outerWidthF,
+                                           0.5 * m_lengthF);
   
   
   const GeoTrd * sensorShapeN= 0;
   if (m_ringType != 3) {
     sensorShapeN= new GeoTrd(0.5 * m_thicknessN, 0.5 * m_thicknessN,
-			     0.5 * m_innerWidthN, 0.5 * m_outerWidthN,
-			     0.5 * m_lengthN);
+                             0.5 * m_innerWidthN, 0.5 * m_outerWidthN,
+                             0.5 * m_lengthN);
   }
 
 
@@ -171,8 +173,9 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
     // Make inactive glass sensor. 
     double positionZ = m_radiusN - m_sensorRadius;
     const GeoShape & sensorPosN = (*sensorShapeN<< HepGeom::TranslateZ3D(positionZ) );
-    GeoLogVol * inactiveLog = new GeoLogVol(getName()+"Glass", &sensorPosN, m_materialGlass); 	
-    m_inactive = new GeoPhysVol(inactiveLog);	
+    GeoLogVol * inactiveLog = new GeoLogVol(getName()+"Glass", &sensorPosN, m_materialGlass);
+    m_inactive = new GeoPhysVol(inactiveLog);
+    m_inactive->ref();
   } else {
     m_inactive = NULL;
   }
@@ -195,23 +198,23 @@ void SCT_FwdSensor::makeDesign()
   // Design names are no longer used/needed, but might be used in the future for 
   // information purposes.
   /*
-  std::string designName;
-  switch (m_ringType) {
-  case 0: // Outer
+    std::string designName;
+    switch (m_ringType) {
+    case 0: // Outer
     designName = "SCT:ForwardRing1G3";
     break;
-  case 1: // Middle
+    case 1: // Middle
     designName = "SCT:ForwardRing2G3";
     break;
-  case 2: // Truncated Middle
+    case 2: // Truncated Middle
     designName = "SCT:ForwardRing3G3";
     break;
-  case 3: // Inner
+    case 3: // Inner
     designName = "SCT:ForwardRing4G3";
     break;
-  default:
+    default:
     break;
-  }
+    }
   */
 
   // These can no longer be user defined and are ignored.
@@ -246,24 +249,24 @@ void SCT_FwdSensor::makeDesign()
   int crystals=0;
   
   switch (m_ringType) {
-    case 0: // Outer Module
-    case 1: // Full Middle module
-      crystals = 2;
-      radius1 = m_radiusN;
-      radius2 = m_radiusF;
-      halfHeight1 = m_activeHalfLengthNear;
-      halfHeight2 = m_activeHalfLengthFar;
-      break;
-    case 2: // Truncated Middle Module
-    case 3: // Inner Module
-      crystals = 1;
-      radius1 = m_radiusF;
-      radius2 = 0.;
-      halfHeight1 = m_activeHalfLengthFar;
-      halfHeight2 = 0.;
-      break;
-    default:
-      std::cout << "ERROR!!!! SCT_FwdSensor: Invalid ring type" << std::endl;
+  case 0: // Outer Module
+  case 1: // Full Middle module
+    crystals = 2;
+    radius1 = m_radiusN;
+    radius2 = m_radiusF;
+    halfHeight1 = m_activeHalfLengthNear;
+    halfHeight2 = m_activeHalfLengthFar;
+    break;
+  case 2: // Truncated Middle Module
+  case 3: // Inner Module
+    crystals = 1;
+    radius1 = m_radiusF;
+    radius2 = 0.;
+    halfHeight1 = m_activeHalfLengthFar;
+    halfHeight2 = 0.;
+    break;
+  default:
+    std::cout << "ERROR!!!! SCT_FwdSensor: Invalid ring type" << std::endl;
   }
   
   double etaCenter = 0;
@@ -279,10 +282,10 @@ void SCT_FwdSensor::makeDesign()
      
   double step = parameters->fwdSensorAngularPitch(m_ringType);
 
-/* 
-  std::cout << "ZB -----------------" << cells << " " << std::endl;
-  std::cout << radius1 << "  " << radius2 << "  " << halfHeight1 << "  " << halfHeight2 << std::endl;
-*/
+  /* 
+     std::cout << "ZB -----------------" << cells << " " << std::endl;
+     std::cout << radius1 << "  " << radius2 << "  " << halfHeight1 << "  " << halfHeight2 << std::endl;
+  */
 
   // Readout direction is same direction as local phi direction for outer module
   // and the opposite direction for inner and middle module.
@@ -292,20 +295,20 @@ void SCT_FwdSensor::makeDesign()
   int readoutSide = +1;
 
   m_design = new SCT_ForwardModuleSideDesign(m_thicknessN,    
-					     crystals, 
-					     diodes, 
-					     cells, 
-					     shift,
-					     swapStripReadout, 
-					     InDetDD::holes,	     
-					     radius1, 
-					     halfHeight1, 
-					     radius2, 
-					     halfHeight2, 
-					     step,
-					     etaCenter, 
-					     phiCenter,
-					     readoutSide);
+                                             crystals, 
+                                             diodes, 
+                                             cells, 
+                                             shift,
+                                             swapStripReadout, 
+                                             InDetDD::holes,
+                                             radius1, 
+                                             halfHeight1, 
+                                             radius2, 
+                                             halfHeight2, 
+                                             step,
+                                             etaCenter, 
+                                             phiCenter,
+                                             readoutSide);
 
   //
   // Flags to signal if axis can be swapped.
@@ -325,9 +328,7 @@ void SCT_FwdSensor::makeDesign()
 
 GeoVPhysVol *SCT_FwdSensor::build(SCT_Identifier id) const
 {
-
-
-			
+    
   GeoFullPhysVol * sensor = new GeoFullPhysVol(m_logVolume);
   
   // Make detector element and add to collection

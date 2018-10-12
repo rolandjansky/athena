@@ -21,6 +21,8 @@
 class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/HistoDef.h"
 #include <vector>
 #include <string>
@@ -108,7 +110,7 @@ class GetLCClassification : public AthAlgorithm
   /**
    * @brief Name of the CaloClusterContainer to use. */
 
-  std::string m_clusterCollName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterCollName;
 
   /** 
    * @brief string to choose different normalization types

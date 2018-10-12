@@ -15,6 +15,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "AthLinks/ElementLink.h"
+#include "TestTools/expect_exception.h"
 #include <iostream>
 #include <cassert>
 
@@ -90,15 +91,9 @@ void test_type(const std::string& typname,
   assert (auxid == r.getAuxID<T> (name, clsname));
   assert (auxid == r.findAuxID (name, clsname));
   assert (auxid == r.getAuxID (typeid(T), name, clsname));
+  assert (r.getFlags (auxid) == SG::AuxTypeRegistry::Flags::None);
 
-  bool caught = false;
-  try {
-    r.getAuxID<char> (name, clsname);
-  }
-  catch (const SG::ExcAuxTypeMismatch& m) {
-    caught = true;
-  }
-  assert (caught);
+  EXPECT_EXCEPTION (SG::ExcAuxTypeMismatch, r.getAuxID<char> (name, clsname));
 
   r.getAuxID<char> (name, "otherclass");
 
@@ -381,6 +376,26 @@ void test_renameMap()
 }
 
 
+void test_atomic()
+{
+  std::cout << "test_atomic\n";
+
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t auxid1 = r.getAuxID<int> ("atest1");
+  SG::auxid_t auxid2 = r.getAuxID<int> ("atest2", "",
+                                        SG::AuxTypeRegistry::Flags::Atomic);
+  assert (r.getAuxID<int> ("atest1", "",
+                           SG::AuxTypeRegistry::Flags::Atomic) == auxid1);
+  assert (r.getAuxID<int> ("atest2", "",
+                           SG::AuxTypeRegistry::Flags::Atomic) == auxid2);
+
+  assert (r.getFlags (auxid1) == SG::AuxTypeRegistry::Flags::None);
+  assert (r.getFlags (auxid2) == SG::AuxTypeRegistry::Flags::Atomic);
+  
+  EXPECT_EXCEPTION (SG::ExcAtomicMismatch, r.getAuxID<int> ("atest2"));
+}
+
+
 int main()
 {
   test2();
@@ -389,5 +404,6 @@ int main()
   test_get_by_ti();
   test_copyForOutput();
   test_renameMap();
+  test_atomic();
   return 0;
 }

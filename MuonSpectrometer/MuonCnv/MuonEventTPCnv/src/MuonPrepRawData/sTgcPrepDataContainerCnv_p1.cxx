@@ -15,10 +15,13 @@
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
+// #include "GaudiKernel/CnvFactory.h"
+// #include "GaudiKernel/StatusCode.h"
+// #include "GaudiKernel/Service.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 StatusCode Muon::sTgcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -259,7 +262,7 @@ Muon::sTgcPrepDataContainer* Muon::sTgcPrepDataContainerCnv_p1::createTransient(
             return 0;
         } 
     }
-    std::auto_ptr<Muon::sTgcPrepDataContainer> trans(new Muon::sTgcPrepDataContainer(m_sTgcId->detectorElement_hash_max()));
+    std::auto_ptr<Muon::sTgcPrepDataContainer> trans(new Muon::sTgcPrepDataContainer(m_sTgcId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

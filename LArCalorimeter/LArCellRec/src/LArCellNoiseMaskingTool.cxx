@@ -14,12 +14,7 @@ PURPOSE:
 
 ********************************************************************/
 
-#include "LArCellRec/LArCellNoiseMaskingTool.h"
-
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
+#include "LArCellNoiseMaskingTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -34,8 +29,8 @@ LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_maskingTool(""),
-   m_maskingSporadicTool(""),
+   m_maskingTool(this),
+   m_maskingSporadicTool(this),
    m_qualityCut(65536),
    m_maskNoise(true),
    m_maskSporadic(true)

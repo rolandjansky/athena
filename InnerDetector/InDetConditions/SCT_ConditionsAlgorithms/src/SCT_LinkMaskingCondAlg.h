@@ -7,14 +7,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
 
 class SCT_LinkMaskingCondAlg : public AthAlgorithm 
 {  
@@ -26,8 +24,9 @@ class SCT_LinkMaskingCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<SCT_ModuleVetoCondData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/purple/pants", "Key of input (raw) bad wafer conditions folder"};
+  // This folder can be created by InnerDetector/InDetConditions/SCT_ConditionsTools/python/createLinkMaskingSQLiteFile.py
+  SG::WriteCondHandleKey<SCT_ModuleVetoCondData> m_writeKey{this, "WriteKey", "SCT_LinkMaskingCondData", "Key of output (derived) bad wafer conditions data"};
 
   ServiceHandle<ICondSvc> m_condSvc;
 };

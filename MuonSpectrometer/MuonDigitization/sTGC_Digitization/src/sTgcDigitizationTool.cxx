@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,16 +21,6 @@
 #include "sTGC_Digitization/sTgcDigitMaker.h"
 #include "sTGC_Digitization/sTgcVMMSim.h"
 #include "sTGC_Digitization/sTgcSimDigitData.h"
-
-//Gaudi - Core
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "PathResolver/PathResolver.h"
-#include "AIDA/IHistogram1D.h"
-#include "EventInfo/TagInfo.h"
-#include "EventInfoMgt/ITagInfoMgr.h"
 
 //Geometry
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -55,11 +45,9 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include <string>
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include <TFile.h>
 #include <TH2.h>
@@ -91,7 +79,7 @@ typedef struct {
 } structReadoutElement;
 typedef std::map<Identifier,std::pair<structReadoutElement, std::vector<tempDigitType> > > tempDigitCollectionType; // map<ReadoutElementID, pair< read or not,  all DigitObject with the identical ReadoutElementId but at different time>>; for the int(read or not) : 0 --> do not read this strip, 1 --> turned on by neighborOn mode; 2 --> this channel has signal over threshold
 typedef std::map<IdentifierHash, tempDigitCollectionType> tempDigitContainerType; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
-typedef std::map<GenericMuonSimHit*, int> tempHitEventMap; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
+typedef std::map<sTGCSimHit*, int> tempHitEventMap; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
 
 inline bool sort_EarlyToLate(tempDigitType a, tempDigitType b){
   return a.first < b.first;
@@ -146,7 +134,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_timeJitterElectronicsStrip(0),
     m_timeJitterElectronicsPad(0),
     m_hitTimeMergeThreshold(0),
-    m_energyDepositThreshold(300.0*Gaudi::Units::eV)
+    m_energyDepositThreshold(300.0*CLHEP::eV)
 
     //m_file(0),
     //m_SimHitOrg(0),
@@ -297,15 +285,6 @@ StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 
   ATH_MSG_DEBUG("sTgcDigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
   m_STGCHitCollList.clear();
-  //m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
-  
-  //Perform null check on m_thpcsTGC. If pointer is not null throw error
-  //  if(!m_thpcsTGC) { 
-  //      m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
-  //}else{
-  //	ATH_MSG_ERROR ( "m_thpcsTGC is not null" );
-  //	return StatusCode::FAILURE;	
-  //}
 
   return StatusCode::SUCCESS;
 }
@@ -316,36 +295,40 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
 						  SubEventIterator eSubEvents) {
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in processBunchXing()" );
   if(!m_thpcsTGC) {
-    m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
+    m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
   }
-  SubEventIterator iEvt = bSubEvents;
-  //loop on event and sub-events for the current bunch Xing
-  for (; iEvt!=eSubEvents; ++iEvt) {
-    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-                     << " bunch crossing : " << bunchXing );
-//                     << " time offset : " << iEvt->time()
-//                     << " event number : " << iEvt->ptr()->eventNumber()
-//                     << " run number : " << iEvt->ptr()->runNumber() );
-    const GenericMuonSimHitCollection* seHitColl(nullptr);
-    if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent sTGC SimHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE ( "sTGC SimHitCollection found with " << seHitColl->size() << " hits" );
-    //Copy hit Collection
-    GenericMuonSimHitCollection* sTGCHitColl = new GenericMuonSimHitCollection("sTGCSensitiveDetector");
-    GenericMuonSimHitCollection::const_iterator i = seHitColl->begin();
-    GenericMuonSimHitCollection::const_iterator e = seHitColl->end();
-	   
-    // Read hits from this collection
-    for (; i!=e; ++i){
-      sTGCHitColl->Emplace(*i);
-    }
-    m_thpcsTGC->insert(thisEventIndex, sTGCHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_STGCHitCollList.push_back(sTGCHitColl);
+
+  typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
+
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
+                                          bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " sTGCSimHitCollection with key " <<
+                    m_inputHitCollectionName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
+
+    sTGCSimHitCollection *hitCollPtr = new sTGCSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+
+    ATH_MSG_DEBUG("sTGCSimHitCollection found with " << hitCollPtr->size() <<
+                  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
+
+    m_thpcsTGC->insert(timeIndex, hitCollPtr);
+    m_STGCHitCollList.push_back(hitCollPtr);
+
   }
 
   return StatusCode::SUCCESS;
@@ -368,9 +351,9 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
   //m_thpcsTGC = 0;
  
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<GenericMuonSimHitCollection>::type TimedHitCollList;
+  typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
  
-  //this is a list<info<time_t, DataLink<GenericMuonSimHitCollection> > >
+  //this is a list<info<time_t, DataLink<sTGCSimHitCollection> > >
   TimedHitCollList hitCollList;
 	 
   if (!(m_mergeSvc->retrieveSubEvtsData(m_inputHitCollectionName, hitCollList).isSuccess()) ) {
@@ -386,11 +369,11 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
   }
 	 
   // create a new hits collection
-  //m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>() ;
+  //m_thpcsTGC = new TimedHitCollection<sTGCSimHit>() ;
   
   //Perform null check on m_thpcsTGC. If pointer is not null throw error
   if(!m_thpcsTGC) { 
-        m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
+        m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
   }else{
  	ATH_MSG_ERROR ( "m_thpcsTGC is not null" );
 	return StatusCode::FAILURE;	
@@ -400,7 +383,7 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
   while (iColl != endColl) {
-    const GenericMuonSimHitCollection* p_collection(iColl->second);  
+    const sTGCSimHitCollection* p_collection(iColl->second);  
     m_thpcsTGC->insert(iColl->first, p_collection);
     ATH_MSG_DEBUG ( "sTGC SimHitCollection found with " << p_collection->size() << " hits"  );
     ++iColl;
@@ -433,8 +416,8 @@ StatusCode sTgcDigitizationTool::mergeEvent() {
   m_thpcsTGC = 0;
 
 	
-  std::list<GenericMuonSimHitCollection*>::iterator STGCHitColl = m_STGCHitCollList.begin();
-  std::list<GenericMuonSimHitCollection*>::iterator STGCHitCollEnd = m_STGCHitCollList.end();
+  std::list<sTGCSimHitCollection*>::iterator STGCHitColl = m_STGCHitCollList.begin();
+  std::list<sTGCSimHitCollection*>::iterator STGCHitCollEnd = m_STGCHitCollList.end();
   while(STGCHitColl!=STGCHitCollEnd) {
     delete (*STGCHitColl);
     ++STGCHitColl;
@@ -489,7 +472,7 @@ StatusCode sTgcDigitizationTool::digitize() {
 StatusCode sTgcDigitizationTool::processAllSubEvents() {
   // 
   StatusCode status = StatusCode::SUCCESS;
-  //m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
+  //m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
   ATH_MSG_DEBUG (" sTgcDigitizationTool::processAllSubEvents()" );
   
   status = recordDigitAndSdoContainers();
@@ -542,7 +525,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   
   ATH_MSG_DEBUG ("sTgcDigitizationTool::doDigitization()" );
     
-  TimedHitCollection<GenericMuonSimHit>::const_iterator i, e; 
+  TimedHitCollection<sTGCSimHit>::const_iterator i, e; 
 
   // Collections of digits by digit type associated with a detector element
   //std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedPadDigits;
@@ -567,16 +550,16 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
   // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
   while(m_thpcsTGC->nextDetectorElement(i, e)) {
-//	  std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> > merged_SimHit;
-      std::map< const GenericMuonSimHit*, int > SimHits;  //std::map container to associate if this hit came from the signal (0) or pileup (!0) simEvent
+//	  std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const sTGCSimHit*> > merged_SimHit;
+      std::map< const sTGCSimHit*, int > SimHits;  //std::map container to associate if this hit came from the signal (0) or pileup (!0) simEvent
 	  int nhits = 0;
       ATH_MSG_VERBOSE("Next Detector Element");
 	  while(i != e){ //loop through the hits on this Detector Element
           ATH_MSG_VERBOSE("Looping over hit " << nhits+1 << " on this Detector Element." );
           
           nhits++;
-		  TimedHitPtr<GenericMuonSimHit> phit = *i++;
-		  const GenericMuonSimHit& hit = *phit;
+		  TimedHitPtr<sTGCSimHit> phit = *i++;
+		  const sTGCSimHit& hit = *phit;
           ATH_MSG_VERBOSE("Hit Particle ID : " << hit.particleEncoding() );
           float eventTime = phit.eventTime(); 
           if(eventTime < earliestEventTime) earliestEventTime = eventTime;
@@ -592,7 +575,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
               msg(MSG::DEBUG) << "This hit came from the in time bunch." << endmsg;
           }
 		  sTgcSimIdToOfflineId simToOffline(*m_idHelper);
-		  const int idHit = hit.GenericId();
+		  const int idHit = hit.sTGCId();
           ATH_MSG_VERBOSE("Hit ID " << idHit );
 		  Identifier layid = simToOffline.convert(idHit);
           ATH_MSG_VERBOSE("Layer ID[" << layid.getString() << "]");
@@ -660,7 +643,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
           ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
           
-          GenericMuonSimHit* wireHit = new GenericMuonSimHit(idHit, (hit.globalTime() + eventTime), eventTime, G_HITONSURFACE_WIRE, HITONSURFACE_WIRE, hit.globalPrePosition(), hit.localPrePosition(), hit.particleEncoding(), hit.kineticEnergy(), hit.globalDirection(), hit.depositEnergy(), hit.StepLength(), hit.trackNumber() );
+          sTGCSimHit* wireHit = new sTGCSimHit(idHit, (hit.globalTime() + eventTime), G_HITONSURFACE_WIRE, hit.particleEncoding(), hit.globalDirection(), hit.depositEnergy() , hit.trackNumber() );
           SimHits[wireHit] = eventId;  //Associate the sub event the hit came from
           ATH_MSG_VERBOSE("Put hit number " << nhits << " into the map with eventID " << eventId );
 	  } // end of while(i != e)
@@ -670,7 +653,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
     
     // Loop over the hits:
     int hitNum = 0;
-    typedef std::map< const GenericMuonSimHit*, int >::iterator it_SimHits;
+    typedef std::map< const sTGCSimHit*, int >::iterator it_SimHits;
  
         ATH_MSG_VERBOSE("Digitizing " << SimHits.size() << " hits.");
         
@@ -681,19 +664,15 @@ StatusCode sTgcDigitizationTool::doDigitization() {
     		msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endmsg;
     		continue;
     	}
-    	const GenericMuonSimHit temp_hit = *(it_SimHit->first);
+    	const sTGCSimHit temp_hit = *(it_SimHit->first);
 
-    	const GenericMuonSimHit hit(temp_hit.GenericId(), temp_hit.globalTime(), temp_hit.globalpreTime(),
-    			temp_hit.globalPosition(),
-				temp_hit.localPosition(),
-				temp_hit.globalPrePosition(),
-				temp_hit.localPrePosition(),
-				temp_hit.particleEncoding(),
-				temp_hit.kineticEnergy(),
-				temp_hit.globalDirection(),
-				depositEnergy,
-				temp_hit.StepLength(),
-				temp_hit.trackNumber());
+    	const sTGCSimHit hit(temp_hit.sTGCId(), temp_hit.globalTime(), 
+    			 temp_hit.globalPosition(),
+			     temp_hit.particleEncoding(),
+			     temp_hit.globalDirection(),
+			     depositEnergy,
+			     temp_hit.particleLink()
+			     );
 
 
     	float globalHitTime = hit.globalTime();

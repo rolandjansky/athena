@@ -42,53 +42,129 @@ class MultipleScatterUpdator : public AthAlgTool, virtual public IMaterialEffect
   virtual ~MultipleScatterUpdator();
 
   /** AlgTool initialise method */
-  StatusCode initialize();
+  StatusCode initialize() override;
   
   /** AlgTool finalise method */
-  StatusCode finalize();
+  StatusCode finalize() override;
 
   /** Layer based material effects update - track parameters given by pointer */
-  const TrackParameters* update( const TrackParameters* parameters,
+  virtual const TrackParameters* update( const TrackParameters* parameters,
 																 const Layer& layer,
 																 PropDirection direction = anyDirection,
 																 ParticleHypothesis particleHypothesis = nonInteracting,
-																 MaterialUpdateMode matmode = Trk::addNoise ) const;
+																 MaterialUpdateMode matmode = Trk::addNoise ) const override;
 
   /** Material properties based effects update - track parameters are given by reference */
-  const TrackParameters* update( const TrackParameters&,
+  virtual const TrackParameters* update( const TrackParameters&,
 																 const MaterialProperties&,
 																 double,
 																 PropDirection direction = anyDirection,
 																 ParticleHypothesis particleHypothesis = nonInteracting,
-																 MaterialUpdateMode matmode = Trk::addNoise) const;
+																 MaterialUpdateMode matmode = Trk::addNoise) const override;
 
   /** User updator interface (full update for a layer):
   The parmeters are given as a pointer, they are deleted inside the update method.
   Update occurs on the place where the parameters parm are according to the specified MaterialEffectsOnTrack
   */
-  const TrackParameters*      update( const TrackParameters* parm,
+  virtual const TrackParameters*      update( const TrackParameters* parm,
                                       const MaterialEffectsOnTrack&,
                                       ParticleHypothesis particle=pion,
-                                      MaterialUpdateMode matupmode=addNoise) const 
+                                      MaterialUpdateMode matupmode=addNoise) const override 
 	{ (void)particle; 
 		(void)matupmode;
 		 return parm; }         
 	
   /** Pre-Update */
-  const TrackParameters* preUpdate( const TrackParameters*,
+  virtual const TrackParameters* preUpdate( const TrackParameters*,
 																		const Layer&,
 																		PropDirection,
 																		ParticleHypothesis,
-																		MaterialUpdateMode ) const
+																		MaterialUpdateMode ) const override
 	{ return 0; };
 
   /** Post-Update */
-  const TrackParameters* postUpdate( const TrackParameters&,
+  virtual const TrackParameters* postUpdate( const TrackParameters&,
                                      const Layer&,
                                      PropDirection,
                                      ParticleHypothesis,
-                                     MaterialUpdateMode ) const
+                                     MaterialUpdateMode ) const override
 	{ return 0; };
+
+  virtual void validationAction() const override {};
+
+  virtual void modelAction(const TrackParameters* parm=0) const override{ 
+    if(parm) return; 
+  } 
+
+
+  typedef IMaterialEffectsUpdator::ICache ICache;                                          
+  class Cache : public ICache{
+  };
+
+  virtual std::unique_ptr<ICache> getCache() const override{
+    return std::make_unique<Cache>();
+  }
+
+  virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
+                                         const Layer& sf,
+                                         PropDirection dir=alongMomentum,
+                                         ParticleHypothesis particle=pion,
+                                         MaterialUpdateMode matupmode=addNoise) const override {
+
+    (void)icache;
+    return update(parm,sf,dir,particle,matupmode);
+  } 
+
+  virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
+                                         const MaterialEffectsOnTrack& meff,
+                                         Trk::ParticleHypothesis particle=pion,
+                                         MaterialUpdateMode matupmode=addNoise) const override{
+
+    (void)icache;
+    return update(parm,meff,particle,matupmode);
+  } 
+
+  virtual const TrackParameters*   preUpdate(ICache& icache, const TrackParameters* parm,
+                                             const Layer& sf,
+                                             PropDirection dir=alongMomentum,
+                                             ParticleHypothesis particle=pion,
+                                             MaterialUpdateMode matupmode=addNoise) const override{
+
+    (void)icache;
+    return preUpdate(parm,sf,dir,particle,matupmode);
+  }
+
+  virtual const TrackParameters*   postUpdate(ICache& icache,const TrackParameters& parm,
+                                              const Layer& sf,
+                                              PropDirection dir=alongMomentum,
+                                              ParticleHypothesis particle=pion,
+                                              MaterialUpdateMode matupmode=addNoise) const override{
+
+    (void)icache;
+    return postUpdate(parm,sf,dir,particle,matupmode);
+  }
+
+  virtual const TrackParameters*    update(ICache& icache, const TrackParameters& parm,
+                                     const MaterialProperties& mprop,
+                                     double pathcorrection,
+                                     PropDirection dir=alongMomentum,
+                                     ParticleHypothesis particle=pion,
+                                     MaterialUpdateMode matupmode=addNoise) const override{
+    (void) icache;
+    return update(parm,mprop,pathcorrection,dir,particle,matupmode);
+  }
+
+  /** Validation Action: */
+  virtual void validationAction(ICache& icache) const override {
+    (void) icache;
+    validationAction(); 
+  }
+
+  /** Model Action:*/
+  virtual void modelAction(ICache& icache,const TrackParameters* parm=0) const override{     
+    (void) icache;
+    modelAction(parm); 
+  }   
 
 
  private:
@@ -96,14 +172,7 @@ class MultipleScatterUpdator : public AthAlgTool, virtual public IMaterialEffect
   PublicToolHandle< IMultipleScatteringUpdator > m_msUpdator
      {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""}; //!< AlgoTool for MultipleScatterin effects
  
- protected:
-  static ParticleMasses   s_particleMasses;
   bool                    m_multipleScatterLogTermOn;
-  static double           s_multipleScatterMainFactor;
-  static double           s_multipleScatterLogFactor;
-  static double           s_main_RossiGreisen;
-  static double           s_log_RossiGreisen;
-
 };
 
 }

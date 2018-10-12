@@ -34,10 +34,12 @@ simFlags.SimLayout='ATLAS-SLHC-02-00-00'
 simFlags.SimLayout.set_On()
 simFlags.EventFilter.set_On()
 
-from SiLorentzAngleSvc.LorentzAngleSvcSetup import SCTLorentzAngleSvc
-# SCTLorentzAngleSvc.OutputLevel=VERBOSE
-SCTLorentzAngleSvc.SiConditionsServices=None
-SCTLorentzAngleSvc.Temperature=-20.
-SCTLorentzAngleSvc.BiasVoltage=400.
-SCTLorentzAngleSvc.DepletionVoltage=70.
-SCTLorentzAngleSvc.CorrectionFactor=1.0
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if hasattr(condSeq, "SCTSiLorentzAngleCondAlg"):
+    # condSeq.SCTSiLorentzAngleCondAlg.OutputLevel=VERBOSE
+    condSeq.SCTSiLorentzAngleCondAlg.SiConditionsTool=""
+    condSeq.SCTSiLorentzAngleCondAlg.Temperature=-20.
+    condSeq.SCTSiLorentzAngleCondAlg.BiasVoltage=400.
+    condSeq.SCTSiLorentzAngleCondAlg.DepletionVoltage=70.
+

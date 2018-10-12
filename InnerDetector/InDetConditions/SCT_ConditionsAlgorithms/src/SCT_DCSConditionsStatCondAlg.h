@@ -26,21 +26,21 @@ class SCT_DCSConditionsStatCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState;
-  SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV{this, "ReadKeyHV", "/SCT/DCS/HV", "Key of input (raw) HV conditions folder"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState{this, "ReadKeyState", "/SCT/DCS/CHANSTAT", "Key of input (raw) State conditions folder"};
+  SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState{this, "WriteKeyState", "SCT_DCSStatCondData", "Key of output (derived) State conditions data"};
 
   ServiceHandle<ICondSvc> m_condSvc;
 
-  BooleanProperty m_readAllDBFolders;
-  BooleanProperty m_returnHVTemp;
+  BooleanProperty m_readAllDBFolders{this, "ReadAllDBFolders", true};
+  BooleanProperty m_returnHVTemp{this, "ReturnHVTemp", true};
   bool m_doState;
   std::string m_chanstatCut;
   float m_hvLowLimit;
   float m_hvUpLimit;
   bool m_useHV;
   float m_useHVLowLimit;
-  float  m_useHVUpLimit;
+  float m_useHVUpLimit;
   std::string m_useHVChanCut;
 };
 

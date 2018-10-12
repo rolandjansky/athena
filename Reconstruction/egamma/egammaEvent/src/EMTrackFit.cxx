@@ -22,12 +22,12 @@ MODIFIED:
 #include <math.h>
 #include "egammaEvent/EMTrackFit.h"
 #include "GaudiKernel/GaudiException.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 #include "TrkTrack/Track.h" 
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/PerigeeSurface.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 

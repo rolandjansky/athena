@@ -1,7 +1,7 @@
 # -- for calibration from COOL
 from BTagging.BTaggingFlags import BTaggingFlags
 include("JetTagCalibration/BTagCalibrationBroker_Trig_jobOptions.py")
-BTagCalibrationBrokerTool_Trig.folders[:] = [] # Wipe folders; these will be dynamically filled by the configuration code
+BTagCalibrationBrokerTool_Trig.taggers[:] = [] # Wipe taggers; these will be dynamically filled by the configuration code
 from BTagging.BTaggingConfiguration import getConfiguration
 ConfInst = getConfiguration("Trig")
 ConfInst.registerTool("BTagCalibrationBrokerTool", BTagCalibrationBrokerTool_Trig)

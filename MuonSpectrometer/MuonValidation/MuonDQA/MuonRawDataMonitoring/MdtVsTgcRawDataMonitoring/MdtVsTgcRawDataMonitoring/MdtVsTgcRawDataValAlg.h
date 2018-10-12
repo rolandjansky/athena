@@ -18,7 +18,6 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -49,6 +48,8 @@
 #include "MuonDQAUtils/MuonDQAFitFunc.h"
 //use new mdt segment container
 #include "xAODMuon/MuonSegmentContainer.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 #include "SegmTrack.h"
 
@@ -95,21 +96,17 @@ public:
 
   MuonDQAHistMap m_stationHists;
 
-  ActiveStoreSvc* m_activeStore;
-
   const MuonGM::MuonDetectorManager* m_muonMgr;
 
   const MdtIdHelper* m_mdtIdHelper;
   const TgcIdHelper* m_tgcIdHelper;
   
   //  const ITGCcablingSvc* m_cabling;
-    
 
   //Declare Properties  
   
   bool m_checkCabling;
   bool m_tgclv1file;
-  bool m_new_MDTSG;
 
   std::string m_chamberName;
   std::string m_StationSize;
@@ -117,10 +114,10 @@ public:
   int m_side;
   int m_lastEvent;
   int m_cosmicStation;
-  std::string m_tgc_PrepDataContainerName;
-  std::string m_tgc_CoinContainerName;
-  std::string m_mdt_PrepDataContainerName;
-  std::string m_mdt_SegmentCollectionName;
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgc_PrepDataContainerName{this,"TgcPrepDataContainer","TGC_Measurements","TGC PRDs"};
+  SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_tgc_CoinContainerName{this,"OutputCoinCollection","TrigT1CoinDataCollection","TGC coincidences"};
+  SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdt_PrepDataContainerName{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
+  SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_mdt_SegmentCollectionName{this,"MdtSegmentCollection","MuonSegments","muon segments"};
 
   int m_MdtAdcCut;
   int m_MdtTdcCut;
@@ -140,8 +137,6 @@ public:
   // Functions to Map TGC & MDT data
   StatusCode bookmaphists(MonGroup &mdtvstgclv1_expert_a,                   // Book Mapping histograms
                           MonGroup &mdtvstgclv1_expert_c);
-  void maphists(const Trk::SegmentCollection *m_segmcollection,             // Fills TGC&MDT data positions
-                const Muon::TgcPrepDataContainer *tgc_prepcontainer);
   void maphists(const xAOD::MuonSegmentContainer *m_newsegment,             // Fills TGC&MDT data positions
                 const Muon::TgcPrepDataContainer *tgc_prepcontainer);
 
@@ -155,13 +150,9 @@ public:
   // Functions to Calculate Efficiency
   StatusCode bookeffhists(MonGroup &mdtvstgclv1_expert_a,                                  // Book Efficiency histograms
                           MonGroup &mdtvstgclv1_expert_c);
-  void tgceffcalc(const Trk::SegmentCollection     *m_segmcollection,                      // Fills efficiency histograms using subsidiary functions
-                  const Muon::TgcPrepDataContainer *tgc_prepcontainer);
   void tgceffcalc(const xAOD::MuonSegmentContainer *m_newsegment,                      // Fills efficiency histograms using subsidiary functions
                   const Muon::TgcPrepDataContainer *tgc_prepcontainer);
 
- 	void SortMDTSegments(const Trk::SegmentCollection *m_segmcollection,                     // Sorts MDT segments into stations
-                       std::vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
   void SortMDTSegments(const xAOD::MuonSegmentContainer *m_newsegment,                     // Sorts MDT segments into stations
                        std::vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
 

@@ -46,6 +46,13 @@ atlas_add_component( TrigInDetAnalysisExample
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} EventInfo GeneratorObjects McParticleEvent muonEvent egammaEvent tauEvent VxVertex TrigDecisionToolLib TrigInDetAnalysis TrigInDetAnalysisUtils TrigInDetEvent TrigSteeringEvent TrigHLTMonitoringLib AthenaMonitoringLib GaudiKernel TrkParameters TrkTrack TrigInDetAnalysisExampleLib )
 
+# Disable naming convention checker.
+# FIXME: This should be fixed properly once run2 is finished.
+if( ${CMAKE_CXX_FLAGS} MATCHES "libchecker_gccplugins" )
+  set_target_properties( TrigInDetAnalysisExampleLib PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TrigInDetAnalysisExample PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+endif()
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 

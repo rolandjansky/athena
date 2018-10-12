@@ -31,12 +31,14 @@ public:
 
     TileBeamElem() { }
 
-    TileBeamElem(const Identifier& id, const std::vector<uint32_t>& digits );
-
     TileBeamElem(const HWIdentifier& HWid, const std::vector<uint32_t>& digits );
     TileBeamElem(const HWIdentifier& HWid, std::vector<uint32_t>&& digits );
-  
-    TileBeamElem(const HWIdentifier& HWid, uint32_t digit );
+
+    // Needs to come after HWIdentifier for proper overload resolution
+    // with pyroot.
+    TileBeamElem(const Identifier& id, const std::vector<uint32_t>& digits );
+
+  TileBeamElem(const HWIdentifier& HWid, uint32_t digit );
   
     /* Destructor */
 

@@ -10,14 +10,14 @@ atlas_depends_on_subdirs( PUBLIC
                           AsgTools
                           TopEvent
                           TopEventSelectionTools
-                          TopAnalysis
-			  KLFitter )
+                          TopAnalysis )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO Math MathMore MathCore Graf Minuit Minuit2 )
 
-# Custom definitions needed for this package:
-add_definitions( -g )
+# Find KLFitter package. As of May '18, included via atlasexternals,
+# source code pulled from https://www.github.com/KLFitter/KLFitter.
+find_package( KLFitter )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopEventReconstructionTools _cintDictSource
@@ -35,9 +35,9 @@ atlas_add_library( TopEventReconstructionTools Root/*.cxx Root/*.h Root/*.icc
                                   TopEvent
                                   TopEventSelectionTools
                                   TopAnalysis
-				  KLFitter
+                                  ${KLFITTER_LIBRARIES}
                                   ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${KLFITTER_INCLUDE_DIRS} )
 
 # Install data files from the package:
 atlas_install_data( share/* )
@@ -51,7 +51,8 @@ atlas_add_executable( topreco_test_mt2
                                      TopEvent
                                      TopEventSelectionTools
                                      TopAnalysis
-				     KLFitter
+                                     ${KLFITTER_LIBRARIES}
                                      ${ROOT_LIBRARIES}
-                                     TopEventReconstructionTools )
+                                     TopEventReconstructionTools
+                      INCLUDE_DIRS ${KLFITTER_INCLUDE_DIRS} )
 

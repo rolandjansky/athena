@@ -17,8 +17,10 @@ void test1() {
   std::cout << "test1\n";
 
 
-  TileCablingSvc::init_idhelpers("IdDictTileCalorimeter-upgradeABC.xml", 
-                                 TileCablingService::UpgradeABC);
+  IdDictParser parser;
+  TileCablingSvc::init_idhelpers (parser,
+                                  "IdDictTileCalorimeter-upgradeABC.xml", 
+                                  TileCablingService::UpgradeABC);
 
   TileCablingService* cabling = TileCablingService::getInstance();
 
@@ -191,6 +193,7 @@ int main(int /*argc*/, char** argv) {
 
   Athena_test::setupStoreGate (argv[0]);
 
+  std::cout << "TileCablingService_UpgradeABC_test\n";
   test1();
 
   return 0;

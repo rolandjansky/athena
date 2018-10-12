@@ -17,7 +17,7 @@
 
 #include "JetRec/PseudoJetGetter.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
+#include "JetRec/PseudoJetContainer.h"
 
 namespace jet{
   class TrackVertexAssociation;
@@ -28,14 +28,24 @@ class TrackPseudoJetGetter : public PseudoJetGetter {
 public:
   TrackPseudoJetGetter(const std::string &name);
 
-  virtual int appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const;
+  virtual StatusCode initialize() override;
+
+  /// Method to construct the PseudoJetVector and record in StoreGate
+  virtual StatusCode createAndRecord() const override;
 
 protected:
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_incolltrk;        /// Input collection name.
 
-  virtual jet::IConstituentUserInfo* buildCUI(const xAOD::IParticle* p, jet::IConstituentUserInfo::Index id, const LabelIndex* pli) const ;
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_inTVA;
 
-  std::string m_trkVtxAssocName;
-  mutable const jet::TrackVertexAssociation* m_trkVtxAssoc;
+
+private:
+
+  std::vector<fastjet::PseudoJet> 
+  createPseudoJets(const xAOD::TrackParticleContainer*) const;
+
+  const PseudoJetContainer* getC() const;
+
 };
 
 #endif

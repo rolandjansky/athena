@@ -24,18 +24,21 @@ This is a base class for HLT Hypos to reduce boilerplate and enforce the common 
   /// initialise this base class and renounce input decision key handles
   virtual StatusCode sysInitialize() override;
   /// execute to be implemented in derived clas
-  virtual StatusCode execute_r(const EventContext&) const = 0;
-  virtual StatusCode finalize() = 0;
-  virtual StatusCode initialize()= 0;  
+  virtual StatusCode execute_r(const EventContext&) const override = 0;
+  virtual StatusCode finalize() override = 0;
+  virtual StatusCode initialize() override = 0;
+
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& decisionInput() const;
   const SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer>& decisionOutput() const;
  private:
+  
   /// input decisions, will be implicit (renounced).
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_input { this, "previousDecisions", "InputDecision", "Input Decision (implicit)" };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_input { this, "HypoInputDecisions", "UNSPECIFIED_INPUT", "Input Decision (implicit)" };
   /// output decisions
-  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_output { this, "Output", "OutputDecision", "Ouput Decision" };
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_output { this, "HypoOutputDecisions", "UNSPECIFIED_OUTPUT", "Ouput Decision" };
+    
   // for future implementation: ToolHandleArray<ITestHypoTool> m_tools { this, "HypoTools", {}, "Hypo tools" };
 };
 

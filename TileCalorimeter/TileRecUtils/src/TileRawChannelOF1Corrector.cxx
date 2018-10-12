@@ -18,17 +18,11 @@
 #include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
-static const InterfaceID IID_ITileRawChannelOF1Corrector("TileRawChannelOF1Corrector", 1, 0);
-
-const InterfaceID& TileRawChannelOF1Corrector::interfaceID() {
-  return IID_ITileRawChannelOF1Corrector;
-}
-
 //========================================================
 // constructor
 TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
     const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent)
+    : base_class(type, name, parent)
     , m_tileHWID(0)
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_tileCondToolOfc("TileCondToolOfcCool/TileCondToolOfcCoolOF1")
@@ -36,9 +30,6 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
     , m_tileToolEms("TileCondToolEmscale")
     , m_tileDspThreshold("TileCondToolDspThreshold")
 {
-  declareInterface<ITileRawChannelTool>(this);
-  declareInterface<TileRawChannelOF1Corrector>(this);
-
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("TileCondToolOfc", m_tileCondToolOfc);
   declareProperty("TileCondToolTiming", m_tileToolTiming);
@@ -97,8 +88,8 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChannelContainer) {
-
+StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChannelContainer) const
+{
   ATH_MSG_DEBUG("in process()");
 
   TileFragHash::TYPE rawChannelType = rawChannelContainer->get_type();
@@ -153,6 +144,7 @@ StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChann
 
           float onlinePedestalDifference = m_tileToolNoiseSample->getOnlinePedestalDifference(drawerIdx, channel, gain, rawChannelUnit);
           float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+          // FIXME: const violation
           const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false);
           float weightsSum(0.0);
           for (int i = 0; i < weights->n_samples; ++i) weightsSum += weights->w_a[i];

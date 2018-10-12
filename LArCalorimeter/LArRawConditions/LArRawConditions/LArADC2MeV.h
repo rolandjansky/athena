@@ -31,10 +31,13 @@ class LArADC2MeV {
     return m_adc2MeV[gain][h];
   }
 
+  const std::vector<float>& ADC2MEV(const IdentifierHash& hid, int gain) const {
+    return m_adc2MeV[gain][hid];
+  }
 
-  const std::vector<float>& ADC2MeV(const Identifier& offid, int gain) const {
-    const Identifier hwid=m_cabling->createSignalChannelID(offid);
-    return ADC2MeV(hwid,gain);
+  const std::vector<float>& ADC2MEV(const Identifier& offid, int gain) const {
+    const HWIdentifier hwid=m_cabling->createSignalChannelID(offid);
+    return ADC2MEV(hwid,gain);
   }
 
   bool set(const IdentifierHash& hid, const int gain, std::vector<float>& adc2mev);
@@ -48,7 +51,6 @@ class LArADC2MeV {
 
   const LArOnlineID_Base* m_onlineID;
   const LArOnOffIdMapping* m_cabling;
-  const size_t m_nGains;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

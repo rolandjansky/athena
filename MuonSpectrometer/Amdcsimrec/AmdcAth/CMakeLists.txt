@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonAlignment/MuonAlignmentData
                           PRIVATE
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/EventInfo

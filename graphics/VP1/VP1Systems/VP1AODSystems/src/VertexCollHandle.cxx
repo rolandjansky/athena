@@ -114,11 +114,6 @@ VertexCollHandle::~VertexCollHandle()
   // clean the vector<handle>
   cleanupPtrContainer(m_d->handles);
 
-  // clean the QList<handle>
-  foreach(AODHandleBase* handle, m_d->handlesList) {
-    delete handle;
-  }
-
   // delete the Imp instance
   delete m_d;
 

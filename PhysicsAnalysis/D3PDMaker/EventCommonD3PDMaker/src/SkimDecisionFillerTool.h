@@ -19,11 +19,9 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "EventBookkeeperMetaData/SkimDecisionCollection.h"
 #include <string>
 #include <vector>
-
-
-class SkimDecisionCollection;
 
 
 namespace D3PD {

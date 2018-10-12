@@ -24,6 +24,7 @@ ISF::CylinderVolumeTruthStrategy::CylinderVolumeTruthStrategy(const std::string&
     // cylinder dimensions
     declareProperty("InnerRadius"        , m_ri=0.        );
     declareProperty("OuterRadius"        , m_ro=1148.     );
+    declareProperty("Regions"            , m_regionListProperty );
 }
 
 /** Destructor **/
@@ -35,6 +36,13 @@ ISF::CylinderVolumeTruthStrategy::~CylinderVolumeTruthStrategy()
 StatusCode  ISF::CylinderVolumeTruthStrategy::initialize()
 {
     ATH_MSG_VERBOSE("Initializing ...");
+
+    for(auto region : m_regionListProperty.value()) {
+      if(region < AtlasDetDescr::fFirstAtlasRegion || region >= AtlasDetDescr::fNumAtlasRegions) {
+        ATH_MSG_ERROR("Unknown Region (" << region << ") specified. Please check your configuration.");
+        return StatusCode::FAILURE;
+      }
+    }
 
     ATH_MSG_VERBOSE("Initialize successful");
     return StatusCode::SUCCESS;
@@ -57,4 +65,11 @@ bool ISF::CylinderVolumeTruthStrategy::pass( ITruthIncident& ti) const
   bool onSurf = (r>m_ri) && (r<m_ro);
 
   return onSurf;
+}
+
+bool ISF::CylinderVolumeTruthStrategy::appliesToRegion(unsigned short geoID) const
+{
+  return std::find( m_regionListProperty.begin(),
+                    m_regionListProperty.end(),
+                    geoID ) != m_regionListProperty.end();
 }

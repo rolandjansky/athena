@@ -31,7 +31,7 @@
 #include "InDetRawData/PixelRDO_Container.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "IRegionSelector/IRegSelSvc.h"
-
+#include "SiClusterizationTool/IPixelClusteringTool.h"
 
 
 // Fwd declarations
@@ -44,7 +44,6 @@ namespace InDetDD{
   class SiDetectorManager;
 }
 namespace InDet {
-  class IPixelClusteringTool;
   class PixelGangedAmbiguitiesFinder;
 }
 

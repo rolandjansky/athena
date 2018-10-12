@@ -182,7 +182,7 @@ PixelConditionsSetup.lock()
 PixelConditionsSetup.createSvc()
 SCT_ConditionsSetup.config(useDCS=False, onlineMode=True, prefix='')
 SCT_ConditionsSetup.lock()
-SCT_ConditionsSetup.createSvc()
+SCT_ConditionsSetup.createTool()
 TRT_ConditionsSetup.config(useDCS=False, onlineMode=True, prefix='')
 TRT_ConditionsSetup.lock()
 TRT_ConditionsSetup.createSvc()
@@ -552,7 +552,6 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'detailedErrorStreams',
                                 'optimizeChainOrder',
                                 'enableHotIDMasking',
-                                'softTRTsettings',
                                 'openThresholdRPCCabling',
                                 #special streaming setup
                                 'enable7BitL1TTStreaming']

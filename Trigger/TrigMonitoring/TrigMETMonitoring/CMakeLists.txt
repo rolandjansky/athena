@@ -26,18 +26,12 @@ find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 # Component(s) in the package:
-atlas_add_library( TrigMETMonitoringLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigMETMonitoring
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES xAODEgamma xAODMissingET xAODMuon xAODTrigMissingET xAODTrigger MissingETEvent TrigMissingEtEvent TrigSteeringEvent TrigHLTMonitoringLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel TrigConfL1Data )
-
 atlas_add_component( TrigMETMonitoring
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} xAODEgamma xAODMissingET xAODMuon xAODTrigMissingET xAODTrigger MissingETEvent TrigMissingEtEvent TrigSteeringEvent TrigHLTMonitoringLib StoreGateLib SGtests GaudiKernel TrigConfL1Data TrigMETMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel TrigConfL1Data 
+                     xAODEgamma xAODMissingET xAODMuon xAODTrigMissingET xAODTrigger MissingETEvent 
+                     TrigMissingEtEvent TrigSteeringEvent TrigHLTMonitoringLib StoreGateLib SGtests )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

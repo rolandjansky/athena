@@ -27,12 +27,8 @@ metaIP2DTag = { 'IsATagger'         : True,
                 'PassByPointer'     : {'SVForIPTool'                : 'SVForIPTool_IP2D',
                                        'trackSelectorTool'          : 'IP2DTrackSelector',
                                        'trackGradeFactory'          : 'IP2DDetailedTrackGradeFactory',
-#                                       'trackToVertexTool'          : 'BTagTrackToVertexTool',
                                        'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
                                        'LikelihoodTool'             : 'IP2DNewLikelihoodTool'},
-#                'PassByName'        : {'SecVxFinderNameForV0Removal' : 'InDetVKalVxInJetTool',
-#                                       'SecVxFinderNameForIPSign'    : 'InDetVKalVxInJetTool'},
-#                'PassTracksAs'      : 'trackAssociation',
                 'PassTracksAs'      : 'trackAssociationName',
                 'JetCollectionList' : 'jetCollectionList',
                 'ToolCollection'    : 'IP2DTag' }
@@ -204,9 +200,7 @@ def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------
 
-metaIP2DNewLikelihoodTool = { 'CalibrationFolders' : ['IP2D',],
-                              'DependsOn'          : ['BTagCalibrationBrokerTool',],
-                              'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+metaIP2DNewLikelihoodTool = { 'CalibrationTaggers' : ['IP2D',],
                               'ToolCollection'     : 'IP2DTag' }
 
 def toolIP2DNewLikelihoodTool(name, useBTagFlagsDefaults = True, **options):

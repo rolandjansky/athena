@@ -38,7 +38,7 @@ if DetFlags.overlay.LAr_on():
    theLArPileUpTool.NoiseOnOff = False
    theLArPileUpTool.RecordMap = False
    
-   if isRealData:
+   if overlayFlags.isDataOverlay():
       theLArPileUpTool.PedestalKey = job.digitmaker1.LArPileUpTool.PedestalKey
 
    theLArPileUpTool.ADC2MeVTool = job.digitmaker1.LArPileUpTool.ADC2MeVTool
@@ -59,7 +59,7 @@ if DetFlags.overlay.LAr_on():
       newLArRawChannelBuilder.UseOFCTool= False
       newLArRawChannelBuilder.PhaseInversion=True
       newLArRawChannelBuilder.LArRawChannelContainerName = "LArRawChannels"
-      newLArRawChannelBuilder.PedestalKey='Pedestal'
+      newLArRawChannelBuilder.PedestalKey='LArPedestal'
    else :
       from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
       theOFCTool = LArOFCToolDefault()

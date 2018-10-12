@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -109,18 +109,18 @@ namespace Trk {
       virtual ~EnergyLossUpdator();
        
       /** AlgTool initailize method.*/
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize();
+      virtual StatusCode finalize() override;
         
       /** dEdX calculation when providing MaterialProperties,
         a momentum, a pathlength, and a ParicleHypothesis:
         
         Units: [MeV/mm]
         */
-      double dEdX(const MaterialProperties& mat,
-                  double p,
-                  ParticleHypothesis particle=pion) const;
+      virtual double dEdX(const MaterialProperties& mat,
+                          double p,
+                          ParticleHypothesis particle=pion) const override;
                   
       /** deltaE calculation
         using dEdX and integrating along pathlength,
@@ -131,39 +131,40 @@ namespace Trk {
 
         mpv steers the most probable energy loss
         */
-     EnergyLoss* energyLoss(
+     virtual EnergyLoss* energyLoss(
 			    const MaterialProperties& mat,
 			    double p,
 			    double pathcorrection,
 			    PropDirection dir=alongMomentum,
 			    ParticleHypothesis particle=pion,
 			    bool mpv = false,
-			    bool usePDGformula = false) const;   
+			    bool usePDGformula = false) const override;   
     
 
      /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
          the detailed Eloss information Calorimeter energy, error momentum and momentum error */
-     EnergyLoss* updateEnergyLoss(EnergyLoss* eLoss, double caloEnergy, double caloEnergyError, 
-                          double pCaloEntry, double momentumError, int & elossFlag) const;
+     virtual EnergyLoss* updateEnergyLoss(EnergyLoss* eLoss, double caloEnergy, double caloEnergyError, 
+                          double pCaloEntry, double momentumError, int & elossFlag) const override;
 
      /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
-     void getX0ElossScales(int icalo, double eta, double phi, double & X0Scale, double & ElossScale ) const;
+     virtual void getX0ElossScales(int icalo, double eta, double phi, double & X0Scale, double & ElossScale ) const override;
 
+
+    private:
       /** Method to return the variance of the change in q/p for the Bethe-Heitler parameterisation */
       double varianceDeltaQoverP(const MaterialProperties&,
                                  double p,
                                  double pathcorrection,
                                  PropDirection direction = alongMomentum,
-                                 ParticleHypothesis particleHypothesis = electron ) const;
+                                 ParticleHypothesis particleHypothesis = electron ) const ;
 
 
-    private:
-
-      Trk::MaterialInteraction       m_matInt;
       /** dEdX BetheBloch calculation: 
         Units: [MeV]
         */
       double dEdXBetheBloch(const MaterialProperties& mat,
+                            double& transKaz,
+                            double& transTmax,
                             double gamma,
                             double beta,
                             ParticleHypothesis particle=pion) const;
@@ -180,31 +181,17 @@ namespace Trk {
       double dEdXBetheHeitler(const MaterialProperties& mat,
                               double initialE,
                               ParticleHypothesis particle=pion) const;
- 
+
+      Trk::MaterialInteraction       m_matInt;
+      double                  m_stragglingErrorScale;      //!< stragglingErrorScale
+      double                  m_mpvScale;                  //!< a scalor that can be introduced for the MPV 
       bool                    m_useTrkUtils;               //!< use eloss parametrisation from TrkUtils MaterialInterAction.h
       bool                    m_gaussianVavilovTheory;     //!< include energy loss straggling or not
       bool                    m_useBetheBlochForElectrons; //!< use adopted bethe bloch for electrons 
-      mutable double          m_transKaz;                  //!< transport kaz for straggling 
-      mutable double          m_transTmax;                 //!< transport Tmax for straggling
-      double                  m_stragglingErrorScale;      //!< stragglingErrorScale
-      double                  m_mpvScale;                  //!< a scalor that can be introduced for the MPV
       bool                    m_mpvSigmaParametric;        //!< take the (crude) parametric mpv sigma 
       bool                    m_detailedEloss;             //!< provide extended EnergyLoss info 
       bool                    m_optimalRadiation;          //!< use calorimeter more optimal for radiation detection
-
-      static double           s_ka_BetheBloch;          //!< KOverA factor in Bethe-Bloch equation [MeV*cm2/gram]
-      static double           s_eulerConstant;          //!< the euler constant for mip calculations
-
-      static double           s_fwhmToSigma;            //!< 1./[2.*sart(2.*ln(2.))] for fwhm -> sigma
-
-      static double           s_mpv_p0;                 //! variable obtained from a fit to landau distribution for sigma(landau)
-      static double           s_mpv_p1;                 //! variable obtained from a fit to landau distribution for sigma(landau)
-      static double           s_mpv_p2;                 //! variable obtained from a fit to landau distribution for sigma(landau)
-
-      static ParticleMasses   s_particleMasses;         //!< struct of Particle masses                                                        
-                                                      
   };
-
 
 } // end of namespace
 

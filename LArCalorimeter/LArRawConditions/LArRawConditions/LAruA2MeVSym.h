@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARUA2MEVSYM_H
@@ -9,26 +9,22 @@
 
 class LArMCSym;
 class LAruA2MeVMC;
-class LAruA2MeVComplete;
+class LArSingleFloatP;
+template<typename LArSingleFloatP> class LArConditionsContainer;
+
 
 class LAruA2MeVSym: virtual public ILAruA2MeV {
   
  public:
-
   LAruA2MeVSym() = delete;
-
   LAruA2MeVSym(const LArMCSym* mcsym,  const LAruA2MeVMC* uA2MeVComplete);
-  
   virtual ~LAruA2MeVSym( );
   
   virtual const float& UA2MEV(const HWIdentifier& hwid) const override;
-  
-  virtual const float& UA2MEV(const Identifier& CellID) const override;
-  
+   
  private: 
-
   const LArMCSym* m_mcSym;
-  const LAruA2MeVComplete* m_uA2MeVComplete;
+  const LArConditionsContainer<LArSingleFloatP>* m_uA2MeVComplete;
 
 };
 

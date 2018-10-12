@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetConditions/SCT_ConditionsServices
+                          InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRawEvent/InDetRawData

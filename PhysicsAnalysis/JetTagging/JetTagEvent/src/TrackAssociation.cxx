@@ -12,7 +12,7 @@ namespace Analysis
   TrackAssociation::TrackAssociation()
   { }  
   
-  TrackAssociation::TrackAssociation(NameType& name)
+  TrackAssociation::TrackAssociation(const NameType& name)
   {  this->setName(name); }  
   
   TrackAssociation::~TrackAssociation()
@@ -41,7 +41,7 @@ namespace Analysis
   }
   
   void TrackAssociation::set_track(const Rec::TrackParticleContainer* theContainer, 
-				   index_type& theIndex, double weight)
+				   const index_type& theIndex, double weight)
   {
     double newWeight = weight;
     // track already in collection
@@ -64,7 +64,7 @@ namespace Analysis
   }
   
   void TrackAssociation::set_association(const Rec::TrackParticleContainer* theContainer, 
-					 index_type& theIndex, double weight)
+					 const index_type& theIndex, double weight)
   {
     this->set_track(theContainer, theIndex, weight);
   }
@@ -78,7 +78,7 @@ namespace Analysis
   }
   
   double TrackAssociation::getTrackWeight(const Rec::TrackParticleContainer* theContainer,
-					  index_type& theIndex) const
+					  const index_type& theIndex) const
   {
     // from Navigable
     return (this->contains(theContainer,theIndex))

@@ -8,7 +8,7 @@ atlas_subdir( InDetGeoModelUtils )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
                           PRIVATE

@@ -173,3 +173,12 @@ unsigned TrackHandle_TrackParticle::getNCSCHits() const
 { 
   return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0; 
 }
+
+//____________________________________________________________________
+unsigned TrackHandle_TrackParticle::getNMuonPrecisionHits() const
+{ 
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0; 
+}
+
+
+

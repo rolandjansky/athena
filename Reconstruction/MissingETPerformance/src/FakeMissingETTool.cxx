@@ -864,6 +864,3 @@ StatusCode FakeMissingETTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-FakeMissingETTool::~FakeMissingETTool() {}

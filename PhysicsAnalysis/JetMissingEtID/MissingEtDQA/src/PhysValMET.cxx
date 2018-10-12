@@ -27,6 +27,7 @@
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -37,6 +38,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "PATCore/AcceptData.h"
 
 using namespace xAOD;
 
@@ -880,7 +882,7 @@ namespace MissingEtDQA {
     	ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_mapname);
     	return StatusCode::SUCCESS;
       }
-      metMap->resetObjSelectionFlags();
+      MissingETAssociationHelper metHelper(metMap);
       const MissingETContainer* coreMet(0);
       if( evtStore()->retrieve(coreMet, m_corename).isFailure() ) {
     	ATH_MSG_WARNING("Unable to retrieve MissingETContainer: " << m_corename);
@@ -893,27 +895,27 @@ namespace MissingEtDQA {
       else m_metmaker = m_metmakerTopo;
 
       // Electrons
-      if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, met_Reb, metElectrons.asDataVector(), metMap).isFailure() ) {
+      if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, met_Reb, metElectrons.asDataVector(), &metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
 
       // Photons
-      if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, met_Reb, metPhotons.asDataVector(), metMap).isFailure() ) {
+      if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, met_Reb, metPhotons.asDataVector(), &metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
 
       // Taus
-      if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, met_Reb,metTaus.asDataVector(),metMap).isFailure() ){
+      if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, met_Reb,metTaus.asDataVector(),&metHelper).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
 
       // Muons
-      if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, met_Reb, metMuons.asDataVector(), metMap).isFailure() ) {
+      if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, met_Reb, metMuons.asDataVector(), &metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build muon term.");
       }
 
       // Jets
-      if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, metMap, true).isFailure() ) {
+      if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, &metHelper, true).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build jet and soft terms.");
       }
       MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
@@ -1410,13 +1412,13 @@ namespace MissingEtDQA {
   bool PhysValMET::Accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(el);
+    return static_cast<bool> (m_elecSelLHTool->accept(el));
   }
 
   bool PhysValMET::Accept(const xAOD::Photon* ph)
   {
     if( !(ph->author()&20) || fabs(ph->eta())>2.47 || ph->pt()<10e3 ) return false;
-    return m_photonSelIsEMTool->accept(ph);
+    return static_cast<bool>(m_photonSelIsEMTool->accept(ph));
   }
 
   bool PhysValMET::Accept(const xAOD::TauJet* tau)

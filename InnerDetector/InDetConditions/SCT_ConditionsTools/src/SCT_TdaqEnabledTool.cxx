@@ -27,8 +27,7 @@ SCT_TdaqEnabledTool::SCT_TdaqEnabledTool(const std::string& type, const std::str
   m_cache{},
   m_condData{},
   m_pHelper{nullptr},
-  m_useDatabase{true},
-  m_condKey{std::string{"SCT_TdaqEnabledCondData"}}
+  m_useDatabase{true}
 {
   declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"});
 }
@@ -80,11 +79,12 @@ SCT_TdaqEnabledTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cache.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cache[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_TdaqEnabledCondData> condData{m_condKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());

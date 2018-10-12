@@ -329,7 +329,7 @@ class _BTaggingFlags:
         setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip'])
 
       for attr in self._TriggerTaggers:
-        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c00','MV2c10','MV2c20', 'MV2c10hp'])
+        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c10'])#,'MV2c00','MV2c20', 'MV2c10hp'])
 
       for attr in self._jetFinderBasedOn:
         setattr(self, attr, 'Cells')
@@ -445,7 +445,8 @@ class _BTaggingFlags:
                               "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt3Track->AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt2Track->AntiKt2Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
+                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
+                              "AntiKt4HI->AntiKt4HI,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
 
       for attr in self._CalibrationSingleFolder:
         setattr(self, attr, True)

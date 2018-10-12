@@ -8,6 +8,8 @@ atlas_subdir( xAODEventInfo )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
+   PRIVATE
+   AtlasTest/TestTools
    PUBLIC
    Control/AthContainers
    Control/AthLinks
@@ -32,7 +34,8 @@ atlas_add_dictionary( xAODEventInfoDict
 atlas_add_test( ut_xaodeventinfo_evtstore_test
    SOURCES test/ut_xaodeventinfo_evtstore_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo
+   EXTRA_PATTERNS "[0-9]+ bytes" )
 
 atlas_add_test( ut_xaodeventinfo_printop_test
    SOURCES test/ut_xaodeventinfo_printop_test.cxx
@@ -40,4 +43,16 @@ atlas_add_test( ut_xaodeventinfo_printop_test
 
 atlas_add_test( ut_xaodeventinfo_subevent_test
    SOURCES test/ut_xaodeventinfo_subevent_test.cxx
+   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+
+atlas_add_test( ut_xaodeventinfo_eventauxinfo_v1_test
+   SOURCES test/ut_xaodeventinfo_eventauxinfo_v1_test.cxx
+   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+
+atlas_add_test( ut_xaodeventinfo_eventinfoauxcontainer_v1_test
+   SOURCES test/ut_xaodeventinfo_eventinfoauxcontainer_v1_test.cxx
+   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+
+atlas_add_test( ut_xaodeventinfo_eventinfo_v1_test
+   SOURCES test/ut_xaodeventinfo_eventinfo_v1_test.cxx
    LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )

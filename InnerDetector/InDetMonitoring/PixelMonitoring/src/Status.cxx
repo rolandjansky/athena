@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,17 +40,17 @@ StatusCode PixelMainMon::bookStatusMon(void) {
 
   StatusCode sc;
 
-  m_status = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+  m_status = std::make_unique<PixelMon2DProfilesLW>("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true);
   sc = m_status->regHist(statusHistos);
   m_status->setMaxValue(2.0);
 
-  m_status_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+  m_status_mon = std::make_unique<PixelMon2DProfilesLW>("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true);
   sc = m_status_mon->regHist(statusHistos);
   m_status_mon->setMaxValue(2.0);
 
   if (!m_doOnTrack) {   // skip the rest
     if (m_doOffline) {
-      m_dqStatus = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Ok_modules", ("module problems, empty bin means dead module not listed in status database" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
+      m_dqStatus = std::make_unique<PixelMon2DMapsLW>("Ok_modules", ("module problems, empty bin means dead module not listed in status database" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
       sc = m_dqStatus->regHist(statusHistos);
     }
     
@@ -98,7 +98,7 @@ StatusCode PixelMainMon::bookStatusLumiBlockMon(void) {
   if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
   MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED);
 
-  m_status_LB = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+  m_status_LB = std::make_unique<PixelMon2DProfilesLW>("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true);
   StatusCode sc = m_status_LB->regHist(lumiBlockHist);
   m_status_LB->setMaxValue(2.0);
 
@@ -130,9 +130,9 @@ StatusCode PixelMainMon::fillStatusMon(void) {
     if (pixlayer == 99) continue;
 
     // check in order of occurrence to reduce number of calls to conditions service
-    if (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true) {
+    if (m_pixelCondSummaryTool->isActive(id_hash) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
       Index = 0;
-    } else if (m_pixelCondSummarySvc->isActive(id_hash) == false) {
+    } else if (m_pixelCondSummaryTool->isActive(id_hash) == false) {
       Index = 2;
     } else {
       Index = 1;

@@ -15,7 +15,7 @@
 #define TRK_FITTERTYPES_H
 
 #include <vector>
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace Trk {
 

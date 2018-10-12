@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,6 +15,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "GeoModelKernel/GeoVFullPhysVol.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "CLHEP/Geometry/Point3D.h"
@@ -34,7 +35,6 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include <cmath>
 #include <cassert>
 #include <limits>
@@ -46,9 +46,10 @@ using Trk::distDepth;
 
 // Constructor with parameters:
 SiDetectorElement::SiDetectorElement(const Identifier &id,
-				     const SiDetectorDesign *design,
-				     const GeoVFullPhysVol *geophysvol,
-				     SiCommonItems * commonItems) :
+                                     const SiDetectorDesign *design,
+                                     const GeoVFullPhysVol *geophysvol,
+                                     SiCommonItems * commonItems,
+                                     const GeoAlignmentStore* geoAlignStore) :
   TrkDetElementBase(geophysvol),
   m_id(id),
   m_design(design),
@@ -59,13 +60,10 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_prevInPhi(0),
   m_otherSide(0),
   m_cacheValid(false),
-  m_conditionsCacheValid(false),
   m_firstTime(true),
   m_isStereo(false),
-  m_tanLorentzAnglePhi(0),
-  m_tanLorentzAngleEta(0),
-  m_lorentzCorrection(0),
-  m_surface(0)
+  m_surface(0),
+  m_geoAlignStore(geoAlignStore)
 {
   //The following are fixes for coverity bug 11955, uninitialized scalars:
   const bool boolDefault(true);
@@ -365,31 +363,13 @@ SiDetectorElement::updateCache() const
 }
 
 
-void 
-SiDetectorElement::updateConditionsCache() const
-{
-  m_conditionsCacheValid = true;
-
-  // 
-  // Lorentz Angle related stuff
-  // 
-
-  if (m_commonItems->lorentzAngleSvc()) {
-    m_tanLorentzAnglePhi = m_commonItems->lorentzAngleSvc()->getTanLorentzAngle(m_idHash);
-    m_tanLorentzAngleEta = m_commonItems->lorentzAngleSvc()->getTanLorentzAngleEta(m_idHash);
-    m_lorentzCorrection = m_commonItems->lorentzAngleSvc()->getLorentzShift(m_idHash);
-  } else {
-    // Set to zero
-    m_tanLorentzAnglePhi = 0;
-    m_tanLorentzAngleEta = 0;
-    m_lorentzCorrection =  0;
-  }
-}
-
-
 const HepGeom::Transform3D &
 SiDetectorElement::transformHit() const
 {
+  if (m_geoAlignStore) {
+    const HepGeom::Transform3D* ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
+    if(ptrXf) return *ptrXf;
+  }
   return getMaterialGeom()->getAbsoluteTransform();
 }
 
@@ -410,16 +390,21 @@ SiDetectorElement::transformCLHEP() const
   return m_transformCLHEP;
 
 }
+
 const HepGeom::Transform3D 
 SiDetectorElement::defTransformCLHEP() const
 {
+  if (m_geoAlignStore) {
+    const HepGeom::Transform3D* ptrXf = m_geoAlignStore->getDefAbsPosition(getMaterialGeom());
+    if(ptrXf) return *ptrXf * recoToHitTransform();
+  }
   return getMaterialGeom()->getDefAbsoluteTransform() * recoToHitTransform();
 }  
    
 const Amg::Transform3D 
 SiDetectorElement::defTransform() const
 {
-  HepGeom::Transform3D tmpTransform =  getMaterialGeom()->getDefAbsoluteTransform() * recoToHitTransform();
+  HepGeom::Transform3D tmpTransform = defTransformCLHEP();
   return Amg::CLHEPTransformToEigen(tmpTransform);
 }
 
@@ -628,14 +613,6 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
     return false;
   }
 }  
-
-
-  Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
-{
-  Amg::Vector2D correctedPosition(position);
-  correctedPosition[distPhi] += getLorentzCorrection();
-  return correctedPosition;
-}
 
 // compute sin(tilt angle) at center:
 double SiDetectorElement::sinTilt() const
@@ -1054,22 +1031,6 @@ SiDetectorElement::nearBondGap(HepGeom::Point3D<double> globalPosition, double e
 {
   return m_design->nearBondGap(localPosition(globalPosition), etaTol);
 }  
-
-
-  Amg::Vector2D
-SiDetectorElement::localPositionOfCell(const SiCellId &cellId) const
-{
-  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
-  return correctLocalPosition(pos);
-}
-
-Amg::Vector2D
-SiDetectorElement::localPositionOfCell(const Identifier & id) const
-{
-  SiCellId cellId = cellIdFromIdentifier(id);
-  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
-  return correctLocalPosition(pos);
-}
 
 Amg::Vector2D
 SiDetectorElement::rawLocalPositionOfCell(const SiCellId &cellId) const

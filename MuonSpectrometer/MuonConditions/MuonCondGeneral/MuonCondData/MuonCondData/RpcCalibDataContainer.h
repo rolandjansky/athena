@@ -14,8 +14,8 @@
         Holds conditions constants from the cool database. Designed for internal use by RpcCoolStrSvc. based on similar CSC code
 
 **/
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "MuonCondData/RpcCalibData.h"
 
 namespace MuonCalib {

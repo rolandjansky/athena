@@ -19,10 +19,9 @@
  *--------------------------------------------------------------------*/
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
 
 namespace ROIB { class RoIBResult; }
-namespace LVL1 { class RecMuonRoiSvc; }
-
 
 namespace MuComm {
 enum {

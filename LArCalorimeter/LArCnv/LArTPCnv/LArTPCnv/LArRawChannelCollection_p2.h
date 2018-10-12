@@ -7,6 +7,7 @@
 #define LARTPCNV_LARRAWCHANNELCOLLECTION_P2_H
 
 #include "LArTPCnv/LArRawChannel_p1.h"
+#include "CxxUtils/unused.h"
 
 #include <vector>
 /**
@@ -26,20 +27,15 @@ public:
             m_end(0)
         { } ;
 
-    // container cnv does conversion
-    friend class LArRawChannelContainerCnv_p2;
-    
-private:
-  
+    // Unused, but shouldn't delete them since they're part of the persistent data.
     // Identifier of this collection
-    unsigned int m_id;
+    unsigned int ATH_UNUSED_MEMBER(m_id);
 
     // Begin index into master collection
-    unsigned int m_begin;
+    unsigned int ATH_UNUSED_MEMBER(m_begin);
 
     // End index into master collection
-    unsigned int m_end;
-  
+    unsigned int ATH_UNUSED_MEMBER(m_end);
 };
 
 #endif

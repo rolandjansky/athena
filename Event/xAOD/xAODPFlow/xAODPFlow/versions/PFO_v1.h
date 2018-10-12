@@ -110,6 +110,8 @@ namespace xAOD {
     /** set CenterMag moment needed for vertex correction */
     void setCenterMag(float CenterMag);
     
+    /** is a charged PFO */
+    bool isCharged() const;
     /** get charge of PFO */
     float charge() const;
     /** set charge of PFO */
@@ -191,7 +193,7 @@ namespace xAOD {
     bool isJetETMissFloatForCompression(xAOD::PFODetails::PFOAttributes AttributeType) const;
 
     /** this defines the factor to compress floats by */
-    int m_floatCompressionFactor;
+    const static int s_floatCompressionFactor = 1000;
 
   }; // class PFO
 

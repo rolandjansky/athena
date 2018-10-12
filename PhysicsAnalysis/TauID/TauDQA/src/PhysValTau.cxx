@@ -194,8 +194,6 @@ StatusCode PhysValTau::fillHistograms()
 	
 	//    std::cout<<"Number of matched: "<<m_matched_itr.size()<<std::endl;
 	if(taus != 0){
-	    xAOD::TauJetContainer::const_iterator tau_itr = taus->begin();
-	    xAOD::TauJetContainer::const_iterator tau_end = taus->end();
 	    for (size_t iRecTau = 0 ; iRecTau < taus->size(); iRecTau++) {
 		bool alreadymatched = false;
 		if(m_matched_itr.size()>0)
@@ -272,8 +270,6 @@ bool PhysValTau::matchTrueAndRecoTau(const xAOD::TauJetContainer *&taus, const x
     TLorentzVector visSum = m_truthHandler.getTauVisibleSumTruth(trueTau);                    // Get visible TLV for true had tau		
     if ((visSum.Et()/GeV < m_visETcut) || (fabs(visSum.Eta()) > m_visEtacut)) return false;    // Detector limitations
     
-    xAOD::TauJetContainer::const_iterator tau_itr = taus->begin();
-    xAOD::TauJetContainer::const_iterator tau_end = taus->end();
     double minDeltaR = m_DeltaRMatchCut;
     bool matched = false;
     size_t iMatchedRecTau = 0;

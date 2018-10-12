@@ -46,6 +46,7 @@ ISF::GenericTruthStrategy::GenericTruthStrategy(const std::string& t, const std:
     declareProperty("VertexTypeRangeLow"         , m_vertexTypeRangeLow  );
     declareProperty("VertexTypeRangeHigh"        , m_vertexTypeRangeHigh );
     declareProperty("ParentPDGCodes"            , m_parentPdgCodesVector  );
+    declareProperty("Regions"                   , m_regionListProperty );
 }
 
 /** Destructor **/
@@ -125,6 +126,12 @@ StatusCode  ISF::GenericTruthStrategy::initialize()
     // fill vertex type std::set used for optimized search
     m_vertexTypes.insert( m_vertexTypesVector.begin(), m_vertexTypesVector.end());
 
+    for(auto region : m_regionListProperty.value()) {
+      if(region < AtlasDetDescr::fFirstAtlasRegion || region >= AtlasDetDescr::fNumAtlasRegions) {
+        ATH_MSG_ERROR("Unknown Region (" << region << ") specified. Please check your configuration.");
+        return StatusCode::FAILURE;
+      }
+    }
     return StatusCode::SUCCESS;
 }
 
@@ -198,4 +205,11 @@ bool ISF::GenericTruthStrategy::pass( ITruthIncident& ti) const {
 
   // all cuts passed
   return true;
+}
+
+bool ISF::GenericTruthStrategy::appliesToRegion(unsigned short geoID) const
+{
+  return std::find( m_regionListProperty.begin(),
+                    m_regionListProperty.end(),
+                    geoID ) != m_regionListProperty.end();
 }

@@ -26,7 +26,7 @@ class egammaRec;
 
 static const InterfaceID IID_IEMConversionBuilder("IEMConversionBuilder", 1, 0);
 
-class IEMConversionBuilder : virtual public IegammaBaseTool
+class IEMConversionBuilder : virtual public IAlgTool
 {
 
  public:
@@ -40,11 +40,11 @@ class IEMConversionBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* egRec)=0;
+  virtual StatusCode executeRec(egammaRec* egRec) const =  0;
   /** @brief execute method*/
-  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions)=0;
+  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const =0;
   /** @brief execute method*/
-  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions)=0;
+  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const =0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   

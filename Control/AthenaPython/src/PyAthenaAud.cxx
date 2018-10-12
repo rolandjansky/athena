@@ -19,7 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAud.h"
-#include "PyAthenaGILStateEnsure.h"
+#include "AthenaPython/PyAthenaGILStateEnsure.h"
 
 // STL includes
 

@@ -7,7 +7,7 @@
 
 namespace Rec {
   
-  ParticleCellAssociation::ParticleCellAssociation( const Trk::CaloExtension& caloExtension, ParticleCellAssociation::Data&& data, 
+  ParticleCellAssociation::ParticleCellAssociation( const Trk::CaloExtension* caloExtension, ParticleCellAssociation::Data&& data, 
                                                     float coneSize, const CellIntersections&& intersections, const CaloCellContainer* container ) :
     ParticleCaloAssociation<const CaloCell*>(caloExtension,std::move(data),coneSize), 
     m_cellInteresections(intersections), m_container(container)

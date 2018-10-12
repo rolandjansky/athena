@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModel/GeoPixelDisk.h"
@@ -26,18 +26,25 @@ GeoPixelDisk::GeoPixelDisk() {
 }
 
 GeoVPhysVol* GeoPixelDisk::Build( ) {
-
+  // Need to specify some eta. Assume all module the same
+  m_gmt_mgr->SetEta(0);
+  // angle between two adjacent modules on one side of the disk
+  // it is 360 deg / 24 modules = 15 deg	 	
+  int nbECSector = m_gmt_mgr->PixelECNSectors1();
+  if(nbECSector==0){
+    return 0;
+  }
   //   
   // Dimensions from class methods.
   //
   double rmin = RMin();
   double rmax = RMax();
-  double halflength = Thickness()/2.;
+  double halflength = Thickness()*0.5;
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* diskTube = new GeoTube(rmin,rmax,halflength);
-  std::ostringstream ostr; ostr << m_gmt_mgr->GetLD();
+  std::ostringstream ostr; 
+  ostr << m_gmt_mgr->GetLD();
   const GeoLogVol* theDisk = new GeoLogVol("Disk"+ostr.str(),diskTube,air);
-
   //
   // Define the Sensor to be used here, so it will be the same for all the disk
   GeoPixelSiCrystal theSensor(false);
@@ -46,18 +53,11 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   // Place the disk sectors (on both sides):
   //
   // Need to specify some eta. Assume all module the same
-  m_gmt_mgr->SetEta(0);
   GeoPixelModule psd(theSensor);
-  double zpos = m_gmt_mgr->PixelECSiDz1()/2.;
-
-  // angle between two adjacent modules on one side of the disk
-  // it is 360 deg / 24 modules = 15 deg	 	
-  int nbECSector = m_gmt_mgr->PixelECNSectors1();
-  if(nbECSector==0) return 0;
+  double zpos = m_gmt_mgr->PixelECSiDz1()*0.5;
   double deltaPhi = 360.*CLHEP::deg/ (float) nbECSector;
- 
   // This is the start angle of the even modules (3.75 deg):
-  double startAngle = deltaPhi/4.;
+  double startAngle = deltaPhi*0.25;
   // Start angle could eventually come from the database...
   // double startAngle = m_gmt_mgr->PixelECStartPhi();
 

@@ -2,7 +2,6 @@ Wed Nov 21 09:02:49 CET 2012
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [AtlasOffline-17.7.0] [x86_64-slc5-gcc43-opt] [17.X.0-VAL/rel_1] -- built on [2012 11/18 22:05]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaPoolTest/CaloClusterReader_jobOptions.py"

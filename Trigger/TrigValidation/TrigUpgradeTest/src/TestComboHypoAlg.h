@@ -38,21 +38,23 @@ namespace HLTTest {
   typedef TrigRoiDescriptor FeatureOBJ;
   typedef TrigRoiDescriptorCollection FeatureContainer;
 
-  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput1;
-  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput2;
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput1  { this, "Input1", "first input", "Key for reco input 1" };
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput2  { this, "Input2", "second input", "Key for reco input 2" };
   SG::ReadHandleKey <DecisionContainer> m_previousDecisions1    { this, "previousDecisions1", "previousDecisions1", "Key for decisions per RoI for input 1" };
   SG::ReadHandleKey <DecisionContainer> m_previousDecisions2    { this, "previousDecisions2", "previousDecisions2", "Key for decisions per RoI for input 2" };
 
-  SG::WriteHandleKey<DecisionContainer> m_output1;
-  SG::WriteHandleKey<DecisionContainer> m_output2;
+  SG::WriteHandleKey<DecisionContainer> m_output1 { this, "Output1", "decision1", "Key for decision input 1" };
+  SG::WriteHandleKey<DecisionContainer> m_output2 { this, "Output2", "decision2", "Key for decision input 2" };
 
+  Gaudi::Property<std::vector<std::string> > m_chainsProperty{ this, "Chains", {}, "Chains of whihc this Hypo is concerned" };
+    
   // equivalent to tools:
   std::string m_decisionLabel; // I am lazy and do not create tools for now, alg is able to make just one decision
   std::string m_property1;
   std::string m_property2;
   float m_threshold1;
   float m_threshold2;
-  Gaudi::Property<std::vector<std::string> > m_chainsProperty{ this, "Chains", {}, "Chains of whihc this Hypo is concerned" };
+
   std::set<HLT::Identifier> m_chains;
   bool passed( const Decision* d1, const Decision* d2 ) const;
 }; 

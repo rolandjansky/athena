@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -17,6 +17,10 @@
 
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteeringEvent/HLTResult.h"
+
+#include "TrigConfHLTData/HLTChain.h"
+#include "TrigConfHLTData/HLTChainList.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -38,9 +42,8 @@ public:
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
-  StatusCode beginRun();  
-  StatusCode endRun();
+  StatusCode start();  
+  StatusCode stop();
 
 private:
 	
@@ -101,6 +104,7 @@ private:
   TH1F*                            m_hist_goodData;
   TH2F*                            m_hist_goodDataLB15;
   TH2F*                            m_hist_goodDataLB18;
+  TH2F*                            m_hist_corruptedROD_LB;
   BooleanProperty                  m_doODDistance;
   TH1F*                            m_hist_PosDetector[8][2];
   TH1F*                            m_hist_DistStation[8][2];
@@ -119,6 +123,8 @@ private:
 
   int m_LB; // luminosity block number
   int m_previousEventLB; // luminosity block number of the previous events
+  int m_prevLB10reset;   // LB at which previous reset of 10LB histograms happened
+  int m_prevLB60reset;   // LB  -- 60LB histograms were reset
   uint32_t m_prescKey; // current hlt prescale key
 
   BooleanProperty                  m_doTiming;
@@ -152,7 +158,8 @@ private:
 
   std::string m_pathHisto;
 
-  bool m_SBflag;
+  bool                m_SBflag;
+  TrigConf::HLTChain* m_HLTcostMon_chain;
 
   int m_elast15, m_elast18;     // ctp-items id numbers to select golden alfa trigger for data quality assesment
   int m_nbOfTracksInDetectors[8]; // counters for track candidates - needed in data quality assesment
@@ -174,12 +181,12 @@ private:
 
 // ALFA extensions
 // geometry data
-  int mbNb2RP[8]={2,1,8,3,5,6,7,4};
-int maroc2mapmt[64]={56,32,40,41,24,33,16,25,48,17,57,18,26,43,59,51,35,49,60,58,52,61,44,54,62,63,50,53,34,45,36,42,46,55,27,37,31,47,28,38,39,30,23,10,29,15,22,14,20,9,7,21,19,4,12,6,13,5,11,3,2,1,8,0}; 
-  int maroc2fiber[64]={0,6,4,12,1,14,3,9,2,11,8,19,17,28,24,26,30,10,32,16,34,40,36,50,48,56,18,42,22,44,38,20,52,58,25,46,57,60,33,54,62,49,59,21,41,61,51,53,35,13,63,43,27,39,37,55,45,47,29,31,23,15,5,7};
-  int pmf2layer[24]={0,19,-1,-1,-1,15,17,18,14,16,11,13,10,12,7,9,1,6,8,3,5,0,2,4};
+  int m_mbNb2RP[8]={2,1,8,3,5,6,7,4};
+  int m_maroc2mapmt[64]={56,32,40,41,24,33,16,25,48,17,57,18,26,43,59,51,35,49,60,58,52,61,44,54,62,63,50,53,34,45,36,42,46,55,27,37,31,47,28,38,39,30,23,10,29,15,22,14,20,9,7,21,19,4,12,6,13,5,11,3,2,1,8,0}; 
+  int m_maroc2fiber[64]={0,6,4,12,1,14,3,9,2,11,8,19,17,28,24,26,30,10,32,16,34,40,36,50,48,56,18,42,22,44,38,20,52,58,25,46,57,60,33,54,62,49,59,21,41,61,51,53,35,13,63,43,27,39,37,55,45,47,29,31,23,15,5,7};
+  int m_pmf2layer[24]={0,19,-1,-1,-1,15,17,18,14,16,11,13,10,12,7,9,1,6,8,3,5,0,2,4};
 
-#include "../src/TrigALFAROBMon_geomTable.cxx"
+#include "../src/TrigALFAROBMon_geomTable.icc"
 
   std::vector <float> m_pU[8][10];
   std::vector <float> m_pV[8][10];
@@ -195,20 +202,20 @@ bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
 
   /// Helper for checksum test
   /// returns true if a ROB checksum failed
-  bool verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
-  bool verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
   /// Helper for status bits test
-  void verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
   /// Helper for decoding the ALFA ROB 
-  void decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  uint32_t  decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
   void decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf);
   uint32_t  decodePMT0 (uint32_t dataWord);
 
   /// find tacks in ALFA detectors
-  void findALFATracks(LVL1CTP::Lvl1Result &resultL1);
+  void findALFATracks(const LVL1CTP::Lvl1Result &resultL1);
 
   // find OD tracks and calculate distance
   void findODTracks ();

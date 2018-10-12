@@ -9,7 +9,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 ForDetEnvelopeTool::ForDetEnvelopeTool(const std::string& type, 
@@ -57,9 +57,9 @@ StatusCode ForDetEnvelopeTool::create()
 
 StatusCode ForDetEnvelopeTool::clear()
 {
-  SG::DataProxy* _proxy = detStore()->proxy(ClassID_traits<ForDetEnvelopeManager>::ID(),m_manager->getName());
-  if(_proxy) {
-    _proxy->reset();
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<ForDetEnvelopeManager>::ID(),m_manager->getName());
+  if(proxy) {
+    proxy->reset();
     m_manager = 0;
   }
   return StatusCode::SUCCESS;

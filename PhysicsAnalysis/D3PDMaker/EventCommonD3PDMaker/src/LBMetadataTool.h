@@ -19,9 +19,7 @@
 #include "D3PDMakerInterfaces/IMetadataTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
-
-class ILumiBlockMetaDataTool;
+#include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 
 
 namespace D3PD {

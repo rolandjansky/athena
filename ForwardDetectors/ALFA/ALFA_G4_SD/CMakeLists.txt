@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           ForwardDetectors/ALFA/ALFA_SimEv
                           Simulation/G4Atlas/G4AtlasTools
-                          Tools/AtlasDoxygen )
+                           )
 
 # External dependencies:
 find_package( CLHEP )

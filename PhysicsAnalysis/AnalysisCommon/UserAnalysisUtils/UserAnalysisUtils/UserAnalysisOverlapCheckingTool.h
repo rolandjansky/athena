@@ -67,11 +67,6 @@ public:
   template<class Object1, class Object2>
   bool overlap(const Object1* object1, const Object2* object2, double& deltaR) const ;
 
-protected:
-
-   /** Standard destructor */
-   virtual ~UserAnalysisOverlapCheckingTool();
-
 private:
 
 

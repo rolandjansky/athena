@@ -135,6 +135,7 @@ namespace TrigCostRootAnalysis {
     static Int_t doExponentialMu = kFALSE;
     static Int_t invertHighMuRunVeto = kFALSE;
     static Int_t ignoreGRL = kFALSE;
+    static Int_t ignorePSGreaterThanOne = kFALSE;
 
     // User options
     std::vector< std::string > inputFiles;
@@ -192,6 +193,7 @@ namespace TrigCostRootAnalysis {
     UInt_t maxNumberFullEvents = 10;
     UInt_t ratesOverlapWarning = 80;
     UInt_t maxMultiSeed = 1;
+    UInt_t maxMultiSeedForGroup = 15;
     UInt_t runNumber = 0;
     UInt_t messageWait = 10;
     Float_t rateFallbackPrescaleL1 = FLT_MIN;
@@ -436,7 +438,10 @@ namespace TrigCostRootAnalysis {
         },
         {
           "ignoreGRL", no_argument, &ignoreGRL, 1
-        },       
+        },  
+        {
+          "ignorePSGreaterThanOne", no_argument, &ignorePSGreaterThanOne, 1
+        }, 
         {
           "invertHighMuRunVeto", no_argument, &invertHighMuRunVeto, 1
         }, // Hidden option
@@ -629,6 +634,9 @@ namespace TrigCostRootAnalysis {
         {
           "useOnlyTheseBCIDs", required_argument, 0, '8'
         }, // Hidden option
+        {
+          "maxMultiSeedForGroup", required_argument, 0, '9'
+        },
 
         {
           0, 0, 0, 0
@@ -836,6 +844,9 @@ namespace TrigCostRootAnalysis {
           std::cout <<
             "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales."
                     << std::endl;
+          std::cout <<
+            "--ignorePSGreaterThanOne\t\t\t\t\tAll prescales greater than 1 will be set to -1."
+                    << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." <<
             std::endl;
           std::cout << "--doCPS\t\t\t\t\t\tEnable special treatment for chains in coherent prescale groups." <<
@@ -888,7 +899,10 @@ namespace TrigCostRootAnalysis {
             "--scaleRatesByPS\t\t\t\tScale up chains by their L1 prescale to get their rate for L1 PS=1. Only for basic L1 and HLT chains, not combinations and global rates."
                     << std::endl;
           std::cout << "--maxMultiSeed " << maxMultiSeed <<
-            "\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity."
+            "\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from global Union rate groups due to exploding (2^nL1) computational complexity."
+                    << std::endl;
+          std::cout << "--maxMultiSeedForGroup " << maxMultiSeedForGroup <<
+            "\t\t\tMaximum number of L1 seeds any individual Union group will allow due to exploding (2^nL1) computational complexity."
                     << std::endl;
           std::cout <<
             "--noOnlineDTCorrection\t\t\t\tFlag to prevent automated scaling to correct for L1 deadtime of EB data." <<
@@ -1224,9 +1238,15 @@ namespace TrigCostRootAnalysis {
         break;
 
       case 'X':
-        // Default lumiblock length
+        // Max multi seed for chains going into "big" groups such as total rates
         ss << optarg;
         ss >> maxMultiSeed;
+        break;
+
+      case '9':
+        // Max multi seed for an individual grouo
+        ss << optarg;
+        ss >> maxMultiSeedForGroup;
         break;
 
       case 'q':
@@ -1245,6 +1265,7 @@ namespace TrigCostRootAnalysis {
         // expoRateScaleModifier
         ss << optarg;
         ss >> expoRateScaleModifierL1;
+        break;
 
       case '6':
         // expoRateScaleModifier
@@ -1823,6 +1844,7 @@ namespace TrigCostRootAnalysis {
     set(kInvertHighMuRunVeto, invertHighMuRunVeto, "InvertHighMuRunVeto");
     set(kUseOnlyTheseBCIDs, useOnlyTheseBCIDs, "UseOnlyTheseBCIDs");
     set(kIgnoreGRL, ignoreGRL, "IgnoreGRL");
+    set(kIgnorePSGreaterThanOne, ignorePSGreaterThanOne, "IgnorePSGreaterThanOne");
 
     std::stringstream multiRunss(multiRun); // Comma separated
     std::string tempStr;
@@ -1832,6 +1854,7 @@ namespace TrigCostRootAnalysis {
 
 
     set(kMaxMultiSeed, maxMultiSeed, "MaxMultiSeed");
+    set(kMaxMultiSeedForGroup, maxMultiSeedForGroup, "MaxMultiSeedForGroup");
     if (runNumber != 0) set(kRunNumber, runNumber, "RunNumber");
 
     // Load files to be accessed
@@ -2027,15 +2050,10 @@ namespace TrigCostRootAnalysis {
     set(kVersionString, version, "Version");
 
     // Different variables to save
+    for (int i = 0; i <= 90; ++i) {
+      set(ConfKey_t(kVarSteeringTimeCPUType + 8192 + i), std::string("Rack" + intToString(i)) );
+    }
     set(kVarTime, "Time");
-    set(kVarSteeringTimeCPUType1, "SteeringTimeCPUType1");
-    set(kVarSteeringTimeCPUType2, "SteeringTimeCPUType2");
-    set(kVarSteeringTimeCPUType3, "SteeringTimeCPUType3");
-    set(kVarSteeringTimeCPUType4, "SteeringTimeCPUType4");
-    set(kVarEventsCPUType1, "EventsCPUType1");
-    set(kVarEventsCPUType2, "EventsCPUType2");
-    set(kVarEventsCPUType3, "EventsCPUType3");
-    set(kVarEventsCPUType4, "EventsCPUType4");
     set(kVarRerunTime, "RerunTime");
     set(kVarPassTime, "PassTime");
     set(kVarTimeExec, "TimeExec");

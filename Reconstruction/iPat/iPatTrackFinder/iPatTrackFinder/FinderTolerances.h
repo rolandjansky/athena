@@ -26,7 +26,7 @@
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class IIncidentSvc;
-namespace InDetDD	{ class SiDetectorManager; }
+namespace InDetDD	{ class PixelDetectorManager; }
 namespace MagField	{ class IMagFieldSvc; }
 
 class FinderTolerances: public AthAlgTool,
@@ -89,7 +89,7 @@ private:
     // services and managers:
     ServiceHandle<IIncidentSvc>	       	m_incidentSvc;   //!< IncidentSvc to catch begin of event
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-    const InDetDD::SiDetectorManager*	m_manager;
+    const InDetDD::PixelDetectorManager*	m_manager;
     
     double				m_halfField;
     double				m_maxPhiSlope;

@@ -36,7 +36,9 @@ public:
   StatusCode initialize();
 
   // Groom a jet and add result to a container.
-  int groom(const xAOD::Jet& jin, xAOD::JetContainer& jout) const;
+  int groom(const xAOD::Jet& jin,
+            const PseudoJetContainer&,
+            xAOD::JetContainer& jout) const;
 
   // Dump to log.
   void print() const;

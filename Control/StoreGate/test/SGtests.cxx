@@ -17,6 +17,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
+#include <atomic>
 
 #include <boost/config.hpp>
 
@@ -25,6 +26,8 @@
 
 #ifndef NOGAUDI
 
+#include "AthContainers/AuxVectorBase.h"
+#include "AthContainers/AuxElement.h"
 #include "SGTools/DataHandleBase.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
@@ -37,6 +40,7 @@
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
+#include "CxxUtils/checker_macros.h"
 
 using namespace std;
 using namespace SG;
@@ -47,7 +51,7 @@ using std::make_unique;
 class Base {};
 class Foo : public Base {
 public:
-  static std::vector<int> dtor_log;
+  static std::vector<int> dtor_log ATLAS_THREAD_SAFE;
   Foo() : m_i(0) {}
   Foo(int i) : m_i(i) {}
   int i() const { return m_i; }
@@ -77,7 +81,7 @@ private:
 };
 
 //-----------------------------------
-static int b1_dtor = 0;
+static std::atomic<int> b1_dtor { 0 };
 struct B1 { B1() : b(0){} virtual ~B1() { ++b1_dtor; } int b; };
 struct D1 : virtual public B1 { int d; };
 CLASS_DEF(B1, 8111, 1)
@@ -94,19 +98,10 @@ CLASS_DEF(NotThere, 8103, 1)
 
 #include "AthContainersInterfaces/IAuxElement.h"
 struct BX
-  : public IAuxElement
+  : public SG::AuxElement
 {
   int x;
-  BX(int the_x=0) : x(the_x), m_store(0), m_constStore(nullptr) {}
-
-  bool hasStore() const { return m_store != 0; }
-  void setStore (SG::IAuxStore* store) { m_store = store; }
-  void setStore (SG::IConstAuxStore* store) { m_constStore = store; }
-  bool usingStandaloneStore() const { return hasStore(); }
-  SG::IAuxStore* getStore() { return m_store; }
-
-  SG::IAuxStore* m_store;
-  SG::IConstAuxStore* m_constStore;
+  BX(int the_x=0) : x(the_x) {}
 };
 struct BBX
   : public IAuxElement
@@ -116,16 +111,14 @@ struct BBX
 };
 template <class T>
 class  TestVector
-  : public std::vector<T*>
+  : public std::vector<T*>, public SG::AuxVectorBase
 {
 public:
   typedef T base_value_type;
-  TestVector() : m_constStore(0) {}
-  void setStore (SG::IAuxStore* s) { m_constStore = s; }
-  void setStore (const SG::IConstAuxStore* s) { m_constStore = s; }
-  bool hasStore() const { return m_constStore != 0; }
-private:
-  const SG::IConstAuxStore* m_constStore;
+  TestVector() {}
+  virtual size_t size_v() const override { return 0; }
+  virtual size_t capacity_v() const override { return 0; }
+
 };
 CLASS_DEF( BX , 82835621, 1 )
 CLASS_DEF( TestVector<BX> , 82735621, 1 )

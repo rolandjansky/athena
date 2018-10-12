@@ -15,8 +15,8 @@ class to hold all calibration run results in storegate
 *******************************************************************/
 
 #include "CscCalibData/CscCalibResultCollection.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class CscCalibResultContainer : public DataVector<CscCalibResultCollection> 
 {

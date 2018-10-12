@@ -106,6 +106,7 @@ namespace Muon {
       int                                 m_buildRails;                 // build rails 
       bool                                m_buildShields;               // build shieldings 
       bool                                m_buildSupports;              // build other 
+      bool                                m_buildNSWInert;              // build NSW inert material
       double                              m_blendLimit;                 // volume limit for blending (except shields) 
       mutable Trk::Material               m_muonMaterial;               //!< the material
 //mw

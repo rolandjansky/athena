@@ -79,10 +79,10 @@ namespace hltca {
       unsigned int m_total;
       TriggerLevel m_lvl;
 
-      static int g_inputbin;
-      static int g_afterPSbin;
-      static int g_rawbin;
-      static int g_totalbin;
+      static int s_inputbin;
+      static int s_afterPSbin;
+      static int s_rawbin;
+      static int s_totalbin;
 
       friend std::ostream & operator<<(std::ostream &, const HLTCounter &);
 

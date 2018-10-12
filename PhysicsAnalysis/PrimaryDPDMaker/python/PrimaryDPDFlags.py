@@ -150,8 +150,21 @@ class WriteAllcellsStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteAllcellsStream)
 listESDtoDPD.append(WriteAllcellsStream.StreamName)
 
+class WriteEOverPStream(JobProperty):
+    """ Produce the primary DPD EOverP DPD."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDESDM_EOVERP"
+    FileName     = ""
+    isVirtual    = False
+    DPDMakerScript = "PrimaryDPDMaker/PerfDESDM_EOverP.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteEOverPStream)
+listESDtoDPD.append(WriteEOverPStream.StreamName)
+
 class WriteIDALIGNStream(JobProperty):
-    """ Produce the primary DPD AllCells DPD."""
+    """ Produce the primary DPD ID alignment DPD."""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -435,19 +448,6 @@ listRAWtoDPD.append(WriteDRAW_TOPSLMU.StreamName)
 ## Skimmed ESD
 ##--------------------------------------------
 
-class WriteDAOD_RPVLLStream(JobProperty):
-    """ Produce the xAOD for DPD RPVLL and UEH groups searches """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_RPVLL"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "LongLivedParticleDPDMaker/DAOD_RPVLL.py"
-    pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_RPVLLStream)
-listESDtoDPD.append(WriteDAOD_RPVLLStream.StreamName)
-
 class WriteDAOD_IDNCBStream(JobProperty):
     """ Produce the DPD for DAOD_IDNCB - AOD with PrepRawData """
     statusOn     = True
@@ -565,6 +565,32 @@ class WriteDAOD_L1CALO3(JobProperty):
     pass
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO3)
 listESDtoDPD.append(WriteDAOD_L1CALO3.StreamName)
+
+class WriteDAOD_L1CALO4(JobProperty):
+    """ Produce the DAOD for L1Calo4."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_L1CALO4"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkL1Calo/L1CALO4.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO4)
+listESDtoDPD.append(WriteDAOD_L1CALO4.StreamName)
+
+class WriteDAOD_L1CALO5(JobProperty):
+    """ Produce the DAOD for L1Calo5."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_L1CALO5"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkL1Calo/L1CALO5.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO5)
+listESDtoDPD.append(WriteDAOD_L1CALO5.StreamName)
 
 class WriteDESD_DEDX(JobProperty):
     """ Produce pixel dE/dx ESD """

@@ -43,7 +43,6 @@ del args[0]
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = args
-ServiceMgr.EventSelector.BackNavigation = False
 
 theApp.Dlls += [ 'RootHistCnv' ]
 theApp.HistogramPersistency = 'ROOT'

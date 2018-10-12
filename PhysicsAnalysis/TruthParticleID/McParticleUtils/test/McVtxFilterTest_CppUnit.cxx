@@ -26,8 +26,7 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
-// DataModel includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // McParticleUtils includes
 #include "McParticleUtils/McVtxFilter.h"

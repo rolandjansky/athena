@@ -12,6 +12,9 @@
 #ifndef ISCT_ChargeTrappingTool_h
 #define ISCT_ChargeTrappingTool_h
 
+//Athena include
+#include "SCT_ConditionsData/SCT_ChargeTrappingCondData.h"
+
 //Gaudi Includes
 #include "GaudiKernel/IAlgTool.h"
 
@@ -31,17 +34,8 @@ class ISCT_ChargeTrappingTool: virtual public IAlgTool
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(ISCT_ChargeTrappingTool, 1, 0);
 
-  virtual double getTrappingProbability(const IdentifierHash& elementHash, const double& pos) const =0;
-  virtual double getTrappingElectrons(const IdentifierHash& elementHash, const double& pos) const =0;
-  virtual double getElectricField(const IdentifierHash& elementHash, const double& pos) const =0;
-  virtual double getTrappingTime(const IdentifierHash& elementHash, const double& pos) const =0;
-  virtual double getTimeToElectrode(const IdentifierHash& elementHash, const double& pos) const =0;
-  virtual double getTrappingPositionZ(const IdentifierHash& elementHash, const double& pos) const =0;
-  virtual double getTrappingHoles(const IdentifierHash& elementHash, const double& pos) const =0;  
-  virtual double getHoleDriftMobility(const IdentifierHash& elementHash, const double& pos) const =0;
-  virtual bool getdoCTrap(const IdentifierHash& elementHash,  const double& pos)=0;
+  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos) const =0;
   virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const =0;
-  virtual void getInitPotentialValue()=0;
 
 };
 

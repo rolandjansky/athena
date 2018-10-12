@@ -11,6 +11,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AtlasDetDescr/AtlasRegion.h"
 
 // ISF includes
 #include "ISF_HepMC_Interfaces/ITruthStrategy.h"
@@ -24,7 +25,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class ValidationTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
+  class ValidationTruthStrategy final : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
      /** Constructor with parameters */
@@ -34,16 +35,20 @@ namespace ISF {
      ~ValidationTruthStrategy();
 
      // Athena algtool's Hooks
-     StatusCode  initialize();
-     StatusCode  finalize();
+     virtual StatusCode  initialize() override;
+     virtual StatusCode  finalize() override;
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     bool pass( ITruthIncident& incident) const;
+     virtual bool pass( ITruthIncident& incident) const override;
+
+     virtual bool appliesToRegion(unsigned short geoID) const override;
+
 
 	  private:
      /** cuts on the parent particle */
      double                          m_minParentP2;  //!< minimum parent particle momentum ^ 2
 
+     IntegerArrayProperty            m_regionListProperty;
    }; 
   
 }

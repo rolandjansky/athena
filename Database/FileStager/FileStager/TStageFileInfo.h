@@ -28,7 +28,11 @@ class TStageFileInfo  : public TObject
 		RELEASED, ERRORSTAGING, KILLEDSTAGING, 
 		ERRORRELEASED, KILLERROR };
 
-  TStageFileInfo() : pid(-999) {}; 
+  TStageFileInfo() : pid(-999), status(UNKNOWN)
+#ifndef __CINT__
+    , statFile()
+#endif
+  {}; 
   virtual ~TStageFileInfo() {};
 
   int  pid;

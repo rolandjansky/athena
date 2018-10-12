@@ -49,62 +49,50 @@
 class CaloCell_ID;
 
 
-class CaloCellFastCopyTool: public AthAlgTool,
-                            virtual public ICaloCellMakerTool,
-                            virtual public ICaloConstCellMakerTool
+class CaloCellFastCopyTool
+  : public extends<AthAlgTool,ICaloCellMakerTool, ICaloConstCellMakerTool>
 {
   public:
 
     /// AthAlgTool constructor
-    CaloCellFastCopyTool(const std::string& name, const std::string& type,
-        const IInterface* parent);
+    CaloCellFastCopyTool(const std::string& name,
+                         const std::string& type,
+                         const IInterface* parent);
 
-    //    virtual ~TileGapScintilatorsCopyTool();
-
-    virtual StatusCode initialize();
-    virtual StatusCode process(CaloCellContainer* theCellContainer);
-    virtual StatusCode process(CaloConstCellContainer* theCellContainer);
-
-
-  private:
-
-    typedef StatusCode (CaloCellFastCopyTool::*COPY_CELLS)(const CaloCellContainer* srcCont
-                                                           , CaloCellContainer* destCont);
-    typedef StatusCode (CaloCellFastCopyTool::*COPY_CONST_CELLS)(const CaloCellContainer* srcCont
-                                                                 , CaloConstCellContainer* destCont);
+    virtual StatusCode initialize() override;
+    virtual StatusCode process(CaloCellContainer* theCellContainer) override;
+    virtual StatusCode process(CaloConstCellContainer* theCellContainer) override;
 
 
+private:
   StatusCode viewNotAvoidingDuplicatesFindCellIsFast(const CaloCellContainer* srcCont,
-                                                     CaloConstCellContainer* destCont);
+                                                     CaloConstCellContainer* destCont) const;
   StatusCode viewAvoidingDuplicatesFindCellIsFast(const CaloCellContainer* srcCont,
-                                                  CaloConstCellContainer* destCont);
+                                                  CaloConstCellContainer* destCont) const;
   StatusCode viewNotAvoidingDuplicatesFindCellIsNotFast(const CaloCellContainer* srcCont,
-                                                        CaloConstCellContainer* destCont);
+                                                        CaloConstCellContainer* destCont) const;
   StatusCode viewAvoidingDuplicatesFindCellIsNotFast(const CaloCellContainer* srcCont,
-                                                     CaloConstCellContainer* destCont);
+                                                     CaloConstCellContainer* destCont) const;
 
 
   template <class CONTAINER>
   StatusCode cloneNotAvoidingDuplicatesFindCellIsFast(const CaloCellContainer* srcCont,
-                                                      CONTAINER* destCont);
+                                                      CONTAINER* destCont) const;
   template <class CONTAINER>
   StatusCode cloneAvoidingDuplicatesFindCellIsFast(const CaloCellContainer* srcCont,
-                                                   CONTAINER* destCont);
+                                                   CONTAINER* destCont) const;
 
   template <class CONTAINER>
   StatusCode cloneNotAvoidingDuplicatesFindCellIsNotFast(const CaloCellContainer* srcCont,
-                                                         CONTAINER* destCont);
+                                                         CONTAINER* destCont) const;
   template <class CONTAINER>
   StatusCode cloneAvoidingDuplicatesFindCellIsNotFast(const CaloCellContainer* srcCont,
-                                                      CONTAINER* destCont);
+                                                      CONTAINER* destCont) const;
 
   StatusCode dispatchCopy(const CaloCellContainer* srcCont,
-                          CaloCellContainer* destCont);
+                          CaloCellContainer* destCont) const;
   StatusCode dispatchCopyConst(const CaloCellContainer* srcCont,
-                               CaloConstCellContainer* destCont);
-
-    COPY_CELLS m_copyCells;
-    COPY_CONST_CELLS m_copyConstCells;
+                               CaloConstCellContainer* destCont) const;
 
     SG::ReadHandleKey<CaloCellContainer> m_srcCellContainerKey;
     bool m_avoidDuplicates;
@@ -118,7 +106,6 @@ class CaloCellFastCopyTool: public AthAlgTool,
     // Calo cell hashes
     std::vector<IdentifierHash> m_acceptedCellHashes;
     std::vector<bool> m_cellsToBeCopied;
-
 };
 
 

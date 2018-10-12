@@ -7,10 +7,8 @@
 # This Job option:
 # ----------------
 # 1. Updates (appends to) SimplePoolFile2.root file with EventInfo and EventStreamInfo MetaData.
-# 2. Appends event TAGs to SimplePoolCollection2.root.
 # ------------------------------------------------------------
 # Expected output file (20 + 20 events):
-# -rw-r--r--  1 gemmeren zp 11408 Aug  5 17:23 SimplePoolCollection2.root
 # -rw-r--r--  1 gemmeren zp 31305 Aug  5 17:23 SimplePoolFile2.root
 # ------------------------------------------------------------
 # File:SimplePoolFile2.root
@@ -65,8 +63,6 @@ svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalog1.xml"
 #Open file in "update" mode
 svcMgr.PoolSvc.FileOpen = "update";
 
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
@@ -84,21 +80,6 @@ Stream1 = AthenaPoolOutputStream ( "Stream1" , "SimplePoolFile2.root" , True, no
 Stream1.WritingTool.AttributeListKey = "RunEventTag"
 
 #--------------------------------------------------------------
-# Event Collection Registration
-#--------------------------------------------------------------
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
-TagTool = RegistrationStreamTagTool("TagTool")
-
-from RegistrationServices.RegistrationServicesConf import RegistrationStream
-RegStream1 = RegistrationStream( "RegStream1" , CollectionType="ExplicitROOT" , Tool=TagTool )
-RegStream1.WriteInputDataHeader = False
-RegStream1.OutputCollection = "SimplePoolCollection2.root"
-RegStream1.CollectionOpenMode = "UPDATE"
-RegStream1.ItemList += [ "DataHeader#Stream1" ]
-RegStream1.ItemList += [ "TagAthenaAttributeList#RunEventTag" ]
-topSequence += RegStream1
-
-#--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 #--------------------------------------------------------------
 svcMgr.MessageSvc.OutputLevel = 3
@@ -108,8 +89,6 @@ topSequence.WriteData.OutputLevel = 2
 Stream1.OutputLevel = 2
 Stream1.WritingTool.OutputLevel = 3
 Stream1.HelperTools[0].OutputLevel = 3
-RegStream1.OutputLevel = 2
-RegStream1.Tool.OutputLevel = 3
 
 #
 # End of job options file

@@ -20,7 +20,7 @@ PURPOSE:  This is a data object, containing a collection of IParticle Objects.
 // INCLUDE HEADER FILES:
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventKernel/IParticle.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
