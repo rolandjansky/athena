@@ -27,6 +27,7 @@
 
 // INCLUDE HEADER FILES: 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
@@ -50,7 +51,7 @@ class EMConversionBuilder : public AthAlgTool, virtual public IEMConversionBuild
   /** @brief initialize method*/
   StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* egRec) const override final;
+  virtual StatusCode executeRec(const EventContext& ctx, egammaRec* egRec) const override final;
   /** @brief execute method*/
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const override final;
   /** @brief execute method*/

@@ -24,7 +24,7 @@ PURPOSE:  subAlgorithm which creates an EMConversion object.
 #include "egammaRecEvent/egammaRec.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "StoreGate/ReadHandle.h"
-
+#include "GaudiKernel/EventContext.h"
 //  END OF HEADER FILES INCLUDE
 
 /////////////////////////////////////////////////////////////////
@@ -68,10 +68,10 @@ StatusCode EMConversionBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) const {
+StatusCode EMConversionBuilder::executeRec(const EventContext& ctx, egammaRec* egRec) const {
   // retrieve Conversion Container
   
-  SG::ReadHandle<xAOD::VertexContainer> conversions(m_conversionContainerKey); 
+  SG::ReadHandle<xAOD::VertexContainer> conversions(m_conversionContainerKey, ctx); 
 
   // only for serial running; remove for MT
   if(!conversions.isValid()){

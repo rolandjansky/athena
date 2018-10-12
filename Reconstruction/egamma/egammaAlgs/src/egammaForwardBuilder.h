@@ -26,6 +26,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
+
 #include "EventKernel/IParticle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -65,7 +67,7 @@ class egammaForwardBuilder : public AthAlgorithm
   /** @brief retrieve 4-mom builder */
   StatusCode RetrieveEMFourMomBuilder();
   /** @brief execute object quality tool */
-  StatusCode ExecObjectQualityTool(xAOD::Egamma *eg); 
+  StatusCode ExecObjectQualityTool(const EventContext &ctx, xAOD::Egamma *eg); 
 
  private:
 

@@ -15,6 +15,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -46,7 +47,8 @@ private:
   bool passSelection(const xAOD::CaloCluster *clus) const;
 
   /** @brief broad track selection */
-  bool Select(const xAOD::CaloCluster* cluster,
+  bool Select(const EventContext& ctx,
+              const xAOD::CaloCluster* cluster,
               const xAOD::TrackParticle* track,
               IEMExtrapolationTools::Cache& cache,
               bool trkTRT) const;

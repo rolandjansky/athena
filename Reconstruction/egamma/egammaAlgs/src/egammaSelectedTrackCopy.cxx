@@ -25,7 +25,7 @@ UPDATE : 25/06/2018
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
+#include "GaudiKernel/EventContext.h"
 //std includes
 #include <algorithm>
 #include <cmath>
@@ -135,7 +135,7 @@ StatusCode egammaSelectedTrackCopy::execute()
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if(!Select(cluster,track,cache,isTRT)){
+      if(!Select(Gaudi::Hive::currentContext(), cluster,track,cache,isTRT)){
         ATH_MSG_DEBUG ("Track did not match cluster");
         continue;
       }
@@ -176,7 +176,8 @@ StatusCode egammaSelectedTrackCopy::execute()
 }
 
 
-bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
+bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
+                                     const xAOD::CaloCluster* cluster,
                                      const xAOD::TrackParticle* track,
                                      IEMExtrapolationTools::Cache& cache,
                                      bool trkTRT) const
@@ -242,7 +243,8 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
   std::vector<double>  phi(4, -999.0);
   std::vector<double>  deltaEta(4, -999.0);
   std::vector<double>  deltaPhi(4, -999.0);
-  if (m_extrapolationTool->getMatchAtCalo (cluster, 
+  if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                           cluster, 
                                            track, 
                                            trkTRT,
                                            Trk::alongMomentum, 
@@ -270,7 +272,8 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
-    if (m_extrapolationTool->getMatchAtCalo (cluster, 
+    if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                             cluster, 
                                              track, 
                                              trkTRT,
                                              Trk::alongMomentum, 

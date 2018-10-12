@@ -10,14 +10,14 @@
 #include "AsgTools/AsgTool.h"
 #include "PATCore/AcceptData.h"
 #include "MVAUtils/BDT.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronChargeIDSelectorTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include <unordered_map>
 
 class AsgElectronChargeIDSelectorTool : public asg::AsgTool, 
-					virtual public IAsgElectronLikelihoodTool
+					virtual public IAsgElectronChargeIDSelectorTool
 {
-  ASG_TOOL_CLASS2(AsgElectronChargeIDSelectorTool, IAsgElectronLikelihoodTool, CP::ISelectionTool)
+  ASG_TOOL_CLASS2(AsgElectronChargeIDSelectorTool, IAsgElectronChargeIDSelectorTool, CP::ISelectionTool)
 
 public:
   /** Standard constructor */

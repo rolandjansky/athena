@@ -4,10 +4,8 @@
 
 // INCLUDE HEADER FILES:
 #include "AthenaKernel/errorcheck.h"
-
 #include "EMPIDBuilder.h"
 #include "xAODEgamma/Egamma.h"
-//#include "LumiBlockComps/LumiBlockMuTool.h"
 #include "PATCore/AcceptData.h"
 
 // ===========================================================================
@@ -103,8 +101,8 @@ StatusCode EMPIDBuilder::finalize()
 
 
 // =====================================================================
-StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
-{ 
+StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
+{   
 
     ATH_MSG_DEBUG("Executing EMPIDBuilder::execute");
 
@@ -122,7 +120,7 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
         eg->setPassSelection(static_cast<bool>(accept), m_electronIsEMselectorResultNames[i]);
         //save the isem
         unsigned int isEM = (~0);
-        if ( m_electronIsEMselectors[i]->execute(eg, isEM).isFailure() ) {
+        if ( m_electronIsEMselectors[i]->execute(ctx, eg, isEM).isFailure() ) {
             ATH_MSG_ERROR("problem to get isEM for " << m_electronIsEMselectorResultNames[i]);
             return StatusCode::FAILURE;
         }

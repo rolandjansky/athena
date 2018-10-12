@@ -18,7 +18,7 @@
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
-
+#include "GaudiKernel/EventContext.h"
 // STL includes
 #include <string>
 #include <cstdint>
@@ -293,7 +293,12 @@ const asg::AcceptInfo& AsgElectronLikelihoodTool::getAcceptInfo() const
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, double mu ) const
+asg::AcceptData AsgElectronLikelihoodTool::accept(const xAOD::Electron* eg, double mu ) const
+{
+  //Backwards compatibility
+  return accept(Gaudi::Hive::currentContext(), eg, mu );
+}
+asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const xAOD::Electron* eg, double mu ) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
@@ -386,15 +391,15 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, dou
   // Get the number of primary vertices or FCal ET in this event
   bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
-    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
-    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt(ctx) : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices(ctx) : m_nPVdefault);
   }
   else {
     ip = mu;
   }
 
   // for now don't cache. 
-  double likelihood = calculate(eg, ip); 
+  double likelihood = calculate(ctx, eg, ip); 
 
   ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
 			likelihood, eta, et,
@@ -429,6 +434,11 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, dou
 // Accept method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
 asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, double mu) const
+{
+  //Backwards compatbility
+  return accept(Gaudi::Hive::currentContext(), eg, mu);
+}
+asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const xAOD::Egamma* eg, double mu) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
@@ -474,15 +484,15 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, doubl
 
   bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
-    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
-    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt(ctx) : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices(ctx) : m_nPVdefault);
 
   }
   else {
     ip = mu;
   }
   // for now don't cache. 
-  double likelihood = calculate(eg, ip); 
+  double likelihood = calculate(ctx, eg, ip); 
 
   double deltaEta=0,deltaPhiRescaled2=0,d0=0;
   float wstot=0, EoverP=0;
@@ -533,6 +543,11 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, doubl
 // The main result method: the actual likelihood is calculated here
 //=============================================================================
 double AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu ) const
+{
+  //Backward compatbility
+  return calculate(Gaudi::Hive::currentContext(), eg, mu);
+}
+double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD::Electron* eg, double mu ) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
@@ -690,8 +705,8 @@ double AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu
 
   bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
-    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
-    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt(ctx) : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices(ctx) : m_nPVdefault);
   }
   else{
     ip = mu;
@@ -735,7 +750,13 @@ double AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu
 //=============================================================================
 // Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-double AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const
+double AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const 
+{
+  //Backward compatibility
+  return calculate(Gaudi::Hive::currentContext(), eg, mu);
+
+}
+double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD::Egamma* eg, double mu ) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
@@ -744,7 +765,7 @@ double AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu )
 
   if( !m_caloOnly ){
     const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
-    return calculate(el, mu);
+    return calculate(ctx, el, mu);
   }
 
  const xAOD::CaloCluster* cluster = eg->caloCluster();
@@ -828,8 +849,8 @@ double AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu )
 
   bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
-    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
-    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt(ctx) : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices(ctx) : m_nPVdefault);
   }
   else {
     ip = mu;
@@ -881,10 +902,16 @@ std::string AsgElectronLikelihoodTool::getOperatingPointName() const
 //=============================================================================
 asg::AcceptData AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
 {
+  //Backwards compatibility
+  return accept(Gaudi::Hive::currentContext(), part);
+}
+
+asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const xAOD::IParticle* part) const
+{
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if(eg) {
-      return accept(eg);
+      return accept(ctx, eg);
   }
   else {
     ATH_MSG_ERROR("AsgElectronLikelihoodTool::could not cast to const Electron");
@@ -894,9 +921,15 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) c
 
 double AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
 {
+  //Backwards compatibily
+  return calculate(Gaudi::Hive::currentContext(), part);
+}
+
+double AsgElectronLikelihoodTool::calculate(const EventContext& ctx, const xAOD::IParticle* part) const
+{
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if (eg) {
-      return calculate(eg);
+      return calculate(ctx, eg);
   }
   else {
       ATH_MSG_ERROR ( " Could not cast to const Electron " );
@@ -912,10 +945,10 @@ double AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
 // ( This is horrible! We don't want to iterate over all vertices in the event for each electron!!! 
 //   This is slow!)
 //=============================================================================
-unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
+unsigned int AsgElectronLikelihoodTool::getNPrimVertices(const EventContext& ctx) const
 {
   unsigned int nVtx(0);
-  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey); 
+  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey, ctx); 
   for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
       const xAOD::Vertex* vxcand = vtxCont->at(i);
       if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
@@ -926,10 +959,10 @@ unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 //=============================================================================
 // Helper method to get FCal ET for centrality determination
 //=============================================================================
-double AsgElectronLikelihoodTool::getFcalEt() const
+double AsgElectronLikelihoodTool::getFcalEt(const EventContext& ctx) const
 {
   double fcalEt(0.);
-  SG::ReadHandle<xAOD::HIEventShapeContainer> HIESCont (m_HIESContKey); 
+  SG::ReadHandle<xAOD::HIEventShapeContainer> HIESCont (m_HIESContKey,ctx); 
   xAOD::HIEventShapeContainer::const_iterator es_itr = HIESCont->begin();
   xAOD::HIEventShapeContainer::const_iterator es_end = HIESCont->end();
   for (; es_itr != es_end; es_itr++){

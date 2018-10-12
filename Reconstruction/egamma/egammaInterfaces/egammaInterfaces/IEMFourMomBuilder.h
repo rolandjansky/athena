@@ -16,7 +16,7 @@ MODIFIED : May,2009 (remove an argument from fourMomExecute)
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/IAlgTool.h"
-
+#include "GaudiKernel/EventContext.h"
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
@@ -45,7 +45,7 @@ class IEMFourMomBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method */
-  virtual StatusCode execute(xAOD::Egamma* eg) const = 0;
+  virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma* eg) const = 0;
   /** @brief execute method for the HLT*/
   virtual StatusCode hltExecute(xAOD::Egamma* eg) const = 0;
 };

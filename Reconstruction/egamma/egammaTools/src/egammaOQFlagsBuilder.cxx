@@ -174,7 +174,7 @@ std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(Identifier cell
 }
 
 // =====================================================================
-StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg) const
+StatusCode egammaOQFlagsBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
 { 
   // Protection against bad pointers
   if (eg==0) return StatusCode::SUCCESS;
@@ -417,7 +417,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg) const
 
   //====================  Check the tile component  ==================================//
   //Get CaloCellContainer
-  SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+  SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
   // check is only used for serial running; remove when MT scheduler used
   if(!cellcoll.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
