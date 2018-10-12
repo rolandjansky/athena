@@ -158,6 +158,13 @@ atlas_add_test( l1sim
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim
 		)
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu )
+atlas_add_test( bJetMenu
+                SCRIPT test/test_bjet_menu.sh
+                 PROPERTIES TIMEOUT 500
+                EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*"
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu   )
+
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 atlas_install_python_modules( python/*.py )

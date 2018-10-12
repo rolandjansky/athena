@@ -27,7 +27,11 @@ class MenuTest:
                          "HLT_xe10":      "L1_XE10",   
                          "HLT_te15":      "L1_TE15.0ETA24", 
                          "HLT_j85":       "L1_J20",         
-                         "HLT_j60":       "L1_J20"      }
+                         "HLT_j60":       "L1_J20",
+                         "HLT_j35_gsc45_boffperf_split" : "L1_J20",                         
+                         "HLT_j35_gsc45_bmv2c1070_split" : "L1_J20",
+                         "HLT_j35_gsc45_bmv2c1070" : "L1_J20"
+      }
 
 def applyMenu(l1decoder ):
     l1decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping

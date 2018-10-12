@@ -9,9 +9,13 @@
 #include "TrigBjetHypo/TrigSuperRoiBuilderAllTE.h"
 #include "TrigBjetHypo/TrigBjetEtHypo.h"
 #include "TrigBjetHypo/TrigFarawayJetFinderAllTE.h"
+
 #include "../TrigBjetHypoAlg.h"
 #include "../TrigBjetHypoTool.h"
-
+#include "../TrigBjetEtHypoAlg.h"
+#include "../TrigBjetEtHypoTool.h"
+#include "..//TrigGSCFexMT.h"
+#include "../TrigBtagFexMT.h"
 
 DECLARE_COMPONENT( TrigBjetHypo )
 DECLARE_COMPONENT( TrigBjetFex )
@@ -24,6 +28,10 @@ DECLARE_COMPONENT( TrigJetSplitterAllTE )
 DECLARE_COMPONENT( TrigSuperRoiBuilderAllTE )
 DECLARE_COMPONENT( TrigBjetEtHypo )
 DECLARE_COMPONENT( TrigFarawayJetFinderAllTE )
+
 DECLARE_COMPONENT( TrigBjetHypoAlg )
 DECLARE_COMPONENT( TrigBjetHypoTool )
-
+DECLARE_COMPONENT( TrigBjetEtHypoAlg )
+DECLARE_COMPONENT( TrigBjetEtHypoTool )
+DECLARE_COMPONENT( TrigGSCFexMT )
+DECLARE_COMPONENT( TrigBtagFexMT )
