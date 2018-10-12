@@ -102,7 +102,7 @@ StatusCode InDetIterativePriVxFinderTool::initialize()
 {
     if (m_createSplitVertices==true && m_useBeamConstraint==true)
     {
-      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." << endmsg;
+      ATH_MSG_FATAL(" Split vertices cannot be obtained if beam spot constraint is true! Change settings...");
       return StatusCode::FAILURE;
     }
 

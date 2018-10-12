@@ -150,12 +150,9 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
   ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
   if (!m_overrideBS){
-    if (m_beamSpotKey.initialize().isFailure()) {
-      m_overrideBS = true;
-      ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. " );
-      ATH_MSG_WARNING( "Using instead pre-set beam spot at ( " << m_xVertex
-          <<" , "<< m_yVertex << " , " << m_yVertex<< " ) " );
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
+  }else{
+//    m_beamSpotKey = "";//Remove request for condition object
   }
 
   ATH_CHECK(m_SpacePointCache_SCTKey.initialize(!m_SpacePointCache_SCTKey.key().empty()));

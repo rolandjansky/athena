@@ -16,21 +16,32 @@
 namespace InDet
 {
 
-  class BeamSpotData
+  class BeamSpotData final //Class declared as final because no virtual destructor is used
+                           //if you want to inherit, remove final keyword and add virtual destructor
   {
   public:
     BeamSpotData(int status, float posX, float posY, float posZ,
 		 float sigmaX, float sigmaY, float sigmaZ,
 		 float tiltX, float tiltY, float sigmaXY);
 
-    virtual ~BeamSpotData() { }
+    BeamSpotData() = delete; //Forbid undefined behaviour
 
     const Amg::Vector3D& beamPos() const;
 
+   /**
+    * @brief Returns the beam sigma for the i-th error matrix element
+    * @return The matrix element as float
+    * @param i the requested index
+    */
     float beamSigma(int i) const;
 
     float beamSigmaXY() const;
 
+   /**
+    * @brief Returns the beam sigma for the i+3-th error matrix element (the 'tilt')
+    * @return The (i + 3)th element as float
+    * @param i the requested index after the addition of 3
+    */
     float beamTilt(int i) const;
 
     int beamStatus() const;

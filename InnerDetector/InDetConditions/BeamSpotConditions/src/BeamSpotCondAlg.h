@@ -22,9 +22,9 @@ class BeamSpotCondAlg : public AthAlgorithm
   virtual ~BeamSpotCondAlg(); 
 
                                         //IS EXECUTED:
-  virtual StatusCode  initialize();     //once, before any input is loaded
-  virtual StatusCode  execute();        //per event
-  virtual StatusCode  finalize();       //once, after all events processed
+  virtual StatusCode  initialize() override;     //once, before any input is loaded
+  virtual StatusCode  execute()    override;     //per event
+  virtual StatusCode  finalize()   override;     //once, after all events processed
   
   static const EventIDRange alwaysValid;
 
