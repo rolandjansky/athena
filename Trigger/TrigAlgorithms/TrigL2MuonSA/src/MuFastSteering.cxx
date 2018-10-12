@@ -277,12 +277,8 @@ StatusCode MuFastSteering::execute()
   // TimerSvc
   using namespace Monitored;
   auto totalTimer = MonitoredTimer::declare( "TIME_Total" );
-  auto prepTimer  = MonitoredTimer::declare( "TIME_Data_Preparator" );
-
-  auto monitorIt	= MonitoredScope::declare(m_monTool, totalTimer, prepTimer );
-
+  auto monitorIt	= MonitoredScope::declare(m_monTool, totalTimer );
   totalTimer.start();
-  prepTimer.start();
 
   auto ctx = getContext();
   ATH_MSG_DEBUG("Get event context << " << ctx );
@@ -343,7 +339,7 @@ StatusCode MuFastSteering::execute()
 
   // to StatusCode findMuonSignature()
   ATH_CHECK(findMuonSignature(*internalRoI, *recRoIVector, 
-			      *muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer, prepTimer ));	  
+			      *muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer ));	  
 
 
   // DEBUG TEST: Recorded data objects
@@ -389,12 +385,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   // TimerSvc
   using namespace Monitored;
   auto totalTimer = MonitoredTimer::declare( "TIME_Total" );
-  auto prepTimer  = MonitoredTimer::declare( "TIME_Data_Preparator" );
-
-  auto monitorIt	= MonitoredScope::declare(m_monTool, totalTimer, prepTimer );
-  
+  auto monitorIt	= MonitoredScope::declare(m_monTool, totalTimer );
   totalTimer.start();
-  prepTimer.start();
 
   std::vector< const TrigRoiDescriptor*> roids;
   std::vector< const TrigRoiDescriptor*>::const_iterator p_roids;
@@ -453,7 +445,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   
   // to StatusCode findMuonSignature()
   StatusCode sc = findMuonSignature(*internalRoI, *internalRecRoI, 
-				    *outputTracks, *outputID, *outputMS, *outputComposite, prepTimer );	
+				    *outputTracks, *outputID, *outputMS, *outputComposite );	
   
   HLT::ErrorCode code = HLT::OK;
   // in case of findMuonSignature failed
@@ -572,21 +564,20 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
 				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
 					     TrigRoiDescriptorCollection& 		outputID,
 					     TrigRoiDescriptorCollection&		outputMS,
-					     DataVector<xAOD::TrigComposite>&          	outputComposite,
-                                             Monitored::MonitoredTimer::MonitoredTimer& prepTimer )
-
+					     DataVector<xAOD::TrigComposite>&          	outputComposite )
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
   StatusCode sc = StatusCode::SUCCESS;
 
   using namespace Monitored;
+  auto prepTimer           = MonitoredTimer::declare( "TIME_Data_Preparator" );
   auto patternTimer        = MonitoredTimer::declare( "TIME_Pattern_Finder" );
   auto stationFitterTimer  = MonitoredTimer::declare( "TIME_Station_Fitter" );
   auto trackFitterTimer    = MonitoredTimer::declare( "TIME_Track_Fitter" );
   auto trackExtraTimer     = MonitoredTimer::declare( "TIME_Track_Extrapolator" );
   auto calibrationTimer    = MonitoredTimer::declare( "TIME_Calibration_Streamer" );
 
-  auto monitorIt	= MonitoredScope::declare(m_monTool, patternTimer, stationFitterTimer, 
+  auto monitorIt	= MonitoredScope::declare(m_monTool, prepTimer, patternTimer, stationFitterTimer, 
                                                   trackFitterTimer, trackExtraTimer, calibrationTimer );
  
   if (m_use_timer) {
@@ -606,6 +597,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
   p_roids = roids.begin();
   for (p_roi=(muonRoIs).begin(); p_roi!=(muonRoIs).end(); ++p_roi) {
 
+    prepTimer.start();
     std::vector<TrigL2MuonSA::TrackPattern> trackPatterns;
     m_mdtHits_normal.clear();
     m_mdtHits_overlap.clear();
@@ -713,6 +705,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     } else { // Endcap
       ATH_MSG_DEBUG("Endcap");
 
+      prepTimer.start();
       // Data preparation
       m_rpcHits.clear();
       m_tgcHits.clear();     

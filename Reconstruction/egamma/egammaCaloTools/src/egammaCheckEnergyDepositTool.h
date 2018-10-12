@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
-#define EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
+#ifndef EGAMMACALOTOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
+#define EGAMMACALOTOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -35,14 +35,9 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
   /** @brief finalize method */
   virtual StatusCode finalize() override;
   /** @brief execute method */
-  virtual bool checkFractioninSampling(const xAOD::Egamma* eg) const override final;
   virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) const override final ;
 
  private:
-
-  /** @brief Boolean to apply threshold on maximal fraction of energy reconstructed in each sampling to write egamma objects */
-  Gaudi::Property<bool> m_useThrFmax {this, "UseThrFmax", false,
-      "Boolean to apply threshold on maximal fraction of energy reconstructed in each sampling to write egamma objects"};
 
   /** @brief Threshold on maximal fraction of energy reconstructed in presampler */
   Gaudi::Property<double> m_thrF0max {this, "ThrF0max", 0.9,

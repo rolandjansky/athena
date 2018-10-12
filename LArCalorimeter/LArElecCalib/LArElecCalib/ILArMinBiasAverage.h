@@ -7,7 +7,6 @@
 
 #include "CLIDSvc/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
-class Identifier;
 class HWIdentifier;
 
 
@@ -28,9 +27,6 @@ class ILArMinBiasAverage {
   // online ID
   virtual const float& minBiasAverage(const HWIdentifier& id)  const = 0 ;
   
-  // offline ID 
-  virtual const float& minBiasAverage(const Identifier& id)  const =0;
-
   enum {ERRORCODE = LArElecCalib::ERRORCODE};  
 } ;
 #include "AthenaKernel/CondCont.h"
