@@ -25,6 +25,7 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 atlas_add_component( EventSelectorAthenaPool
                      src/AthenaPoolAddressProviderSvc.cxx
                      src/CondProxyProvider.cxx
+                     src/DoubleEventSelectorAthenaPool.cxx
                      src/EventSelectorAthenaPool.cxx
                      src/PoolCollectionConverter.cxx
                      src/registerKeys.cxx
