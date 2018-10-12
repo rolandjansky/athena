@@ -84,6 +84,8 @@ def setupMenu():
     #UPC muons
     ['mu4_L1MU4_VZDC_AORC_VTE200',                 'L1_MU4_VZDC_AORC_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
     ['mu4_L1MU4_VTE50',                 'L1_MU4_VTE50',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+    ['mu3_mu3noL1_L1MU4_VTE50',         'L1_MU4_VTE50', ['L1_MU4',''], [HardProbesStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu3","mu3noL1"]]],
+    ['2mu3_L12MU4_VTE50',                 'L1_2MU4_VTE50',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
     ['2mu4_L12MU4_VTE50',                 'L1_2MU4_VTE50',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
     ['mu4_mu4noL1_L1MU4_VTE50',                 'L1_MU4_VTE50',['L1_MU4',''], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1, ['serial',-1,["mu4","mu4noL1"]]],
     ['mu6_L1MU4_VTE50',                 'L1_MU4_VTE50',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
@@ -342,6 +344,7 @@ def setupMenu():
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1ZDC_A_C_VTE50',        'L1_ZDC_A_C_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
  	['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1VZDC_A_C_VTE50',        'L1_VZDC_A_C_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
  	['mu4_hi_upc_FgapAC_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['mu4','hi_upc_FgapAC'],False]],
+ 	['mu3_hi_upc_FgapAC_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['mu3','hi_upc_FgapAC'],False]],
  	
  	
  	#UPC HMT
