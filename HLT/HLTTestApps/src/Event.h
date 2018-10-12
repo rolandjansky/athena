@@ -23,6 +23,8 @@
 #include <set>
 #include <vector>
 #include <cstdint>
+#include <iostream>
+#include <fstream>
 #include "eformat/ROBFragment.h"
 #include "eformat/FullEventFragment.h"
 #include "hltinterface/DataCollector.h"
@@ -203,17 +205,22 @@ namespace HLTTestApps {
     static void debug_print_rob_ros_map();
     static void debug_print_l1r_robs();
 
+    // data output files
+    static std::ofstream sm_ros_rejected_outfile;      ///< name of output file with ROS hits for rejected events
+    static std::ofstream sm_ros_accepted_outfile;      ///< name of output file with ROS hits for accepted events
+
   // Representation
   private:
     struct ROB
     {
       ROB(ROBID id, const uint32_t * r) : id(id), rob{r} {}
+      ROB(ROBID id, const uint32_t * r, const uint32_t s) : id(id), rob{r} , size_word(s) {}
       const ROBID id;
       const uint32_t * rob = nullptr;
+      const uint32_t size_word = 0;
       bool reserved = false;
       bool prefetched = false;
     };
-
 
     std::map<uint32_t, ROB> m_map; ///< The ROB ID to ROB info map
     std::set<ROSID> m_hit_roses; ///< ROSes ROBs were retrieved from
