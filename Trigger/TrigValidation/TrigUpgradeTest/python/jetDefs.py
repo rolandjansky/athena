@@ -45,6 +45,8 @@ def jetRecoSequence(inputMakerOut):
     algo1=HLTCaloCellMaker("testFastAlgo1")
     algo1.RoIs=inputMakerOut
     #     algo1.RoIs="StoreGateSvc+FSJETRoIs"
+    # temporary fix for Tile
+    algo1.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale')]
     algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
     algo1.roiMode=False
     # algo1.roiMode=True
