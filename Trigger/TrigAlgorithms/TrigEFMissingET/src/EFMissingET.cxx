@@ -54,6 +54,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("doTopoClusters", m_doTopoClusters = false, "run with or without topo. clusters");
   declareProperty("doTrackTopoClusters", m_doTrackTopoClusters = false, "run with or without track and topo. clusters");
   declareProperty("doJets", m_doJets = false, "run with or without jets");
+  declareProperty("doJetVeto", m_doJetVeto = false, "run with or without Jet Veto");
   declareProperty("doTracks", m_doTracks = false, "run with or without tracks");
   declareProperty("doPUC", m_doPUC = false, "run with or without pile-up correction fit");
   declareProperty("ComponentFlags",  m_flags,  "(vector) set to -1 to switch off a component");
@@ -567,6 +568,23 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
          }
 
       } // end loop over topoclusters
+
+      if (m_doJetVeto && tes_in.size() > 0) {
+        for (const auto& te_in : tes_in.at(1) ) {
+          HLT::ErrorCode status = getFeature(  te_in , m_jets );
+
+          if(status!=HLT::OK || !m_jets) {
+            ATH_MSG_ERROR( "Failed to get Jets" ); return HLT::NAV_ERROR;
+          } else {
+            if (msgLvl(MSG::DEBUG) ) {
+              ATH_MSG_INFO( "size of jet container " << m_jets->size() );
+              for (const auto& ijet : *m_jets)
+                ATH_MSG_INFO( " Jet E, eta, phi: " << ijet->e()<<", "<< ijet->eta()<<", "<< ijet->phi() );
+            }
+          }
+        }
+      }
+
       if (m_doJets  && m_doTracks && tes_in.size() > 0) {
 	for (const auto& te_in : tes_in.at(1) ) {
 	  HLT::ErrorCode status = getFeature(  te_in , m_jets );

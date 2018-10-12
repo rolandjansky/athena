@@ -174,12 +174,33 @@ class L2EFChain_met(L2EFChainDef):
                     theEFMETHypo = EFMetHypoTCXE('EFMetHypo_TC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)  
                 
             if EFrecoAlg=='pufit':
+
+                doLArH11off=False
+                doLArH12off=False
+                LArTag=''
+                if "LArH11off" in addInfo: 
+                    doLArH11off = True
+                    LArTag += '_LArH11off'
+                if "LArH12off" in addInfo:
+                    doLArH12off = True
+                    LArTag += '_LArH12off'
+                if "METphi" in addInfo: 
+                    LArTag += '_METphi'
+
+                jpt_thr = '-1'
+                if len(addInfo.split('Jpt'))==2: jpt_thr = addInfo.split('Jpt')[1] 
+
+                if "Jpt" in addInfo:
+                    LArTag += '_Jpt'+jpt_thr
+
                 #MET fex
-                theEFMETFex = EFMissingET_Fex_topoClustersPUC() 
+                theEFMETFex = EFMissingET_Fex_topoClustersPUC("EFMissingET_Fex_topoClustersPUC%s"%(addInfo),doLArH11off,doLArH12off,float(jpt_thr)) 
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
                 mucorr= '_wMu' if EFmuon else '' 
-                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+
+                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC'+LArTag+'_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV,labelMET=addInfo)
+
 
             if EFrecoAlg=='pufittrack':
                 calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
@@ -258,7 +279,11 @@ class L2EFChain_met(L2EFChainDef):
             elif  self.chainPart['trigType'] == "te":
                 theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d'% threshold,ef_thr=threshold*GeV)
             else:               
-                theEFMETHypo = EFMetHypoXE('EFMetHypo_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
+                LArTag=''
+                if "LArH11off" in addInfo: LArTag += '_LArH11off'
+                if "LArH12off" in addInfo: LArTag += '_LArH12off'
+                if "METphi" in addInfo: LArTag += '_METphi'
+                theEFMETHypo = EFMetHypoXE('EFMetHypo'+LArTag+'_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
 
         else:
             log.warning("MET EF algorithm not recognised")
@@ -362,7 +387,8 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
             self.EFsequenceList +=[[ input2,algo2,  output2 ]]           
             self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
-            self.EFsequenceList +=[[ [output3],          [theEFMETFex],  'EF_xe_step1' ]]            
+            self.EFsequenceList +=[[ input4,algo4,  output4 ]]
+            self.EFsequenceList +=[[ [output3,output4],          [theEFMETFex],  'EF_xe_step1' ]]            
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
 
 

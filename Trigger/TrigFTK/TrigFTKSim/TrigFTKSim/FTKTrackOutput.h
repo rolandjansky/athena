@@ -41,6 +41,7 @@ public:
 
 
   virtual void addTrack(int, const FTKTrack&) = 0;
+  virtual void addTrack_pre_hw(int, const FTKTrack&) = 0;
 
   virtual void addNCombs(int ib, int v) = 0;
   virtual void addNFits(int ib, int v) = 0;
@@ -57,6 +58,8 @@ public:
   virtual void addNExtrapolatedTracks(int ib, int v) = 0;
 
   virtual void addTrackI(int, const FTKTrack&) = 0;
+  virtual void addTrackI_pre_hw(int, const FTKTrack&) = 0;
+  
   virtual void addNCombsI(int ib, int v) = 0;
   virtual void addNFitsI(int ib, int v) = 0;
   virtual void addNFitsMajorityI(int ib, int v) = 0;
@@ -68,6 +71,9 @@ public:
   virtual void addNFitsHWRejectedI(int ib, int v) = 0;
   virtual void addNFitsBadMajorityI(int ib, int v) = 0;
   virtual void addNFitsHWRejectedMajorityI(int ib, int v) = 0;
+
+  virtual void addTrack_pattern(int, const FTKTrack&) = 0;
+  virtual void addTrack_hits(int, const FTKTrack&) = 0;
 
 };
 

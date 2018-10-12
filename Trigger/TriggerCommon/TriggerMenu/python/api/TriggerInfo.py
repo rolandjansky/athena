@@ -10,14 +10,14 @@ class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
         Stores a list of TriggerChain objects and the functions to skim them
     '''
-    def __init__(self,period=0, customGRL=None):
+    def __init__(self,period=0, customGRL=None, release=None):
         self.triggerChains = []
         self.period = period
         self.totalLB = 0
 
         if not period: return
         from TriggerDataAccess import getHLTlist
-        HLTlist, totalLB = getHLTlist(period, customGRL)
+        HLTlist, totalLB = getHLTlist(period, customGRL, release)
         self.totalLB = totalLB
         for hlt, l1, livefraction, activeLB, hasRerun in HLTlist:
             self.triggerChains.append( TriggerChain(hlt, l1, livefraction, activeLB, hasRerun))
@@ -95,10 +95,11 @@ class TriggerInfo:
 class TriggerLeg:
     types          = ('e','j','mu','tau','xe','g','ht')
     legpattern     = re.compile('([0-9]*)(%s)([0-9]+)' % '|'.join(types))
-    detailpattern  = re.compile('(?:-?\d+)|(?:[^0-9|-]+)')
-    bjetpattern    = re.compile('bmv|btight|bmedium|bloose')
+    detailpattern  = re.compile('(?:-?\d+)|(?:[^0-9 -]+)') #split into text-only vs number-only
+    bjetpattern    = re.compile('bmv|bhmv|btight|bmedium|bloose')
     bphyspattern   = re.compile('b[A-Z]')
     exoticspattern = re.compile('llp|LLP|muvtx|hiptrt|LATE|NOMATCH')
+    afppattern     = re.compile('afp|AFP')
 
     def __init__(self,legname, chainseed, chainname):
         self.legname = legname
@@ -142,11 +143,15 @@ class TriggerLeg:
                     self.legtype = TriggerType.mu_bphys
                 if self.exoticspattern.search(token):
                     self.legtype = TriggerType.exotics
+                if self.afppattern.search(token):
+                    self.legtype = TriggerType.afp
                 self.details.append(token)
 
         for l1seed in blocks[1:]:
             if self.exoticspattern.search(l1seed):
                 self.legtype = TriggerType.exotics
+            if self.afppattern.search(l1seed):
+                self.legtype = TriggerType.afp
             if l1seed == chainseed: continue
             else: 
                 assert self.l1seed=="", (self.l1seed, chainseed, chainname, blocks[1:])
@@ -219,7 +224,7 @@ class TriggerLeg:
                     return 1
             return -9
         compl1seed  = self.compareTags(self.l1seed, other.l1seed, stringSubset=True, debug=debug)
-        compdetails = self.compareTags("".join(self.details), "".join(other.details), debug=debug )
+        compdetails = self.compareTags(" ".join(self.details), " ".join(other.details), debug=debug )
         if self.l1seed == other.l1seed:
             if self.details == other.details: return -1
             if debug: print "compareTags 1:",compdetails
@@ -358,10 +363,14 @@ class TriggerChain:
                 mtype &= ~(TriggerType.mu_single | TriggerType.mu_multi)
             elif l.legtype & TriggerType.exotics:
                 mtype |=  TriggerType.exotics
+            elif l.legtype & TriggerType.afp:
+                mtype  =  TriggerType.afp #on purpose not OR-ed
             else:
                 mtype |= l.legtype
 
         l1seed= l1seed.replace("L1_","")
+        if mtype & TriggerType.exotics or mtype & TriggerType.afp:
+            return mtype
         for token in l1seed.split("_"):
             m = self.l1pattern.match(token)
             if m:
