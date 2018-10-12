@@ -34,6 +34,7 @@ StatusCode TrigBjetEtHypoAlg::initialize()
   CHECK( m_outputRoiKey.initialize() );
   CHECK( m_trackParticleKey.initialize() ); // TMP
   CHECK( m_trackParticleContainerKey.initialize() ); // TMP
+  CHECK( m_superRoiKey.initialize() ); // TMP
 
   return StatusCode::SUCCESS;
 }
@@ -54,18 +55,27 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
 
   // Retrieve Track Particles // TMP
+
+  //TrigRoiDescriptorCollection > m_superRoiKey 
+  SG::ReadHandle< TrigRoiDescriptorCollection > superRoiHandle = SG::makeHandle( m_superRoiKey,context ); // TMP
+  CHECK( superRoiHandle.isValid() );
+  const TrigRoiDescriptorCollection *superRoi = superRoiHandle.get();
+  ATH_MSG_DEBUG( "Retrieved Super RoI Container with size " << superRoi->size() );
+  for ( auto *roi : *superRoi )
+    ATH_MSG_DEBUG( "   ** roi : eta=" << roi->eta() <<" phi="<< roi->phi() );
+
   /*
   SG::ReadHandle< TrackCollection > trackParticleContainerHandle = SG::makeHandle( m_trackParticleKey,context ); // TMP
   CHECK( trackParticleContainerHandle.isValid() ); // TMP
   ATH_MSG_DEBUG( "Retrieved " << trackParticleContainerHandle.get()->size() << " Tracks from FTF step" ); // TMP
-  */
 
+  
   SG::ReadHandle< xAOD::TrackParticleContainer > trackParticleContainerHandle = SG::makeHandle( m_trackParticleContainerKey,context ); // TMP
   const xAOD::TrackParticleContainer *trackParticleContainer = trackParticleContainerHandle.get(); // TMP
   ATH_MSG_DEBUG( "Retrieved " << trackParticleContainer->size() << " Track Particles from FTF step" ); // TMP
   for ( auto *particle : *trackParticleContainer ) // TMP
     ATH_MSG_DEBUG( "   ** pt=" << particle->p4().Et()<<" eta="<< particle->eta() <<" phi="<< particle->phi()  ); // TMP
-  
+  */
 
   // Retrieve Jet Container
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_jetsKey,context );

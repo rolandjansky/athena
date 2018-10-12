@@ -101,6 +101,7 @@ def bJetStep1Sequence():
     hypo.OutputJets = "SplitJets"
     hypo.TrackParticles = "TrigFastTrackFinder_Tracks" # Output from "theFTF_Jet". Do I need it ?
     hypo.TrackParticleContainerKey = TrackParticlesName
+    hypo.SuperRoiKey = SuperRoIBuilder.JetOutputKey
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence,fastTrackingSequence])

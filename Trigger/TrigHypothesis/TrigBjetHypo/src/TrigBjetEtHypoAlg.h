@@ -54,6 +54,7 @@ class TrigBjetEtHypoAlg
   // Just for checking I have reconstructed tracks
   SG::ReadHandleKey< TrackCollection > m_trackParticleKey {this,"TrackParticles","TrackParticles","TrackParticle Container"};
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trackParticleContainerKey {this,"TrackParticleContainerKey","xAODTracks",""}; 
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_superRoiKey {this,"SuperRoiKey","superRoI",""};
 }; 
 
 #endif //> !TRIGBJETHYPO_TRIGBJETETHYPOALG_H
