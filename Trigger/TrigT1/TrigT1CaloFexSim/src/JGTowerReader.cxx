@@ -208,15 +208,29 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
   ATH_MSG_DEBUG("JFexAlg: SeedFinding");
   // the diameter of seed, and its range to be local maximum
   // Careful to ensure the range set to be no tower double counted
+  ATH_MSG_DEBUG("jSeeds: m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
   CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr)); 
+  ATH_MSG_DEBUG("jJetSeeds: m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
   CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJet_seed_size,m_jJet_max_r,jJet_jet_thr));
+
+
+  // compare jSeeds and jJetSeeds - they should be identical
+  // but they are not.......
+  for(unsigned iseed_eta=0; iseed_eta<jSeeds->eta.size(); iseed_eta++){
+    for(unsigned iseed_phi=0; iseed_phi<jSeeds->phi.at(iseed_eta).size(); iseed_phi++){
+      if(jSeeds->local_max.at(iseed_eta).at(iseed_phi) || jJetSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
+        std::cout << iseed_eta << ", " << iseed_phi << " = " << jSeeds->eta.at(iseed_eta) << ", " << jSeeds->phi.at(iseed_eta).at(iseed_phi) << " - pt: " << jSeeds->et.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->et.at(iseed_eta).at(iseed_phi) << "; local max: " << jSeeds->local_max.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->local_max.at(iseed_eta).at(iseed_phi) << std::endl;
+      }
+    }
+  }
+
   
   // build initial JFexjet
-  ATH_MSG_DEBUG("JFexAlg: BuildJet from "  << jSeeds->eta.size() << " jSeeds");
+  ATH_MSG_DEBUG("JFexAlg: BuildJet");
   CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr)); 
 
   // build round JFexJet
-  ATH_MSG_DEBUG("JFexAlg: BuildRoundJet from " << jJetSeeds->eta.size() << " jJetSeeds");
+  ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
   CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr)); 
 
   ATH_MSG_DEBUG("JFexAlg: BuildMET");

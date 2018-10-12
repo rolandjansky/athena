@@ -78,8 +78,10 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*se
 StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds,  float seed_size,float range, std::vector<float> noise){
   
   // get the energy of each seeds which is defined as 2x2 towers in barrel and endcap, and single tower in fcal
+  std::cout << "JetAlg::SeedFinding: getting seeds with " << seed_size << " and " << range << std::endl;
   for(unsigned i=0; i<seeds->eta.size(); i++){
     std::vector<float> tmp_et;
+    tmp_et.clear();
     for(unsigned ii=0; ii<seeds->phi.at(i).size(); ii++){
       float et=0;
       float thr=0;
@@ -92,11 +94,16 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed
           std::cout << "JetAlg::SeedFinding FATAL: the noise vector is smaller (at " << noise.size() << " entries) than the tower number " << t << " that you are attempting to use" << std::endl;
           return StatusCode::FAILURE;
         }
-        if( tower->et()> 5*noise.at(t) ) et+= tower->et();
+        if( tower->et() > 5*noise.at(t) ) {
+          std::cout << "found a tower with high et = " << tower->et() << " at " << tower->eta() << ", " << tower->phi() << std::endl;
+          et+= tower->et();
+        }
         thr += noise.at(t);
       }
       if(et<thr*6) et = 0;
       tmp_et.push_back(et);
+      if (et > 0)
+        std::cout << eta << ", " << phi << " - pushed back tmp_et " << i << " with et = " << et << " after thr = " << thr << std::endl;
     }
     seeds->et.push_back(tmp_et);
   }
@@ -168,6 +175,7 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*see
         if(!seeds->local_max.at(eta_ind).at(phi_ind)) continue;
         float eta = seeds->eta.at(eta_ind);
         float phi = seeds->phi.at(eta_ind).at(phi_ind);
+        std::cout << "BuildJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
         float j_et = 0;
         for(unsigned t=0; t<towers->size(); t++){
            const xAOD::JGTower* tower = towers->at(t);
@@ -192,7 +200,7 @@ StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, std::vecto
         float eta = seeds->eta.at(eta_ind);
         float phi = seeds->phi.at(eta_ind).at(phi_ind);
         float j_et = 0;
-        std::cout << "found a seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
+        std::cout << "BuildRoundJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
         for(unsigned t=0; t<towers->size(); t++){
            const xAOD::JGTower* tower = towers->at(t);
            if(fabs(tower->et())<noise.at(t)) continue;
