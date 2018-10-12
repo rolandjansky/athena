@@ -245,6 +245,10 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SkimmingToolEXOT5
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 
+#from egammaRec.Factories import ToolFactory, AlgFactory
+#import PhotonVertexSelection.PhotonVertexSelectionConf as PVS
+#PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool)
+
 triggers = [
     # MET
     'HLT_xe35',
@@ -459,6 +463,33 @@ applyJetCalibration_xAODColl("AntiKt4EMPFlow", exot5Seq)
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
+isMC = False
+if globalflags.DataSource() == 'geant4':
+  isMC = True
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+if isMC:
+  ToolSvc += BunchCrossingTool( "MC" )
+else:
+  ToolSvc += BunchCrossingTool( "LHC" )
+
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BCDistanceAugmentationTool
+
+EXOT5BCDistanceAugmentationTool = DerivationFramework__BCDistanceAugmentationTool(name="EXOT5BCDistanceAugmentationTool")
+
+if isMC:
+  EXOT5BCDistanceAugmentationTool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
+else:
+  EXOT5BCDistanceAugmentationTool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
+ToolSvc += EXOT5BCDistanceAugmentationTool
+
+augmentationTools.append(EXOT5BCDistanceAugmentationTool)
+
+# Vertex
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__VertexAugmentationTool
+EXOT5VertexAugmentationTool = DerivationFramework__VertexAugmentationTool(name="EXOT5VertexAugmentationTool")
+ToolSvc += EXOT5VertexAugmentationTool
+augmentationTools.append(EXOT5VertexAugmentationTool)
+
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
@@ -505,6 +536,7 @@ EXOT5SlimmingHelper.ExtraVariables = [
     ]
 
 if DerivationFrameworkIsMonteCarlo:
+    EXOT5SlimmingHelper.AllVariables = ['TruthVertex']
     EXOT5SlimmingHelper.StaticContent = [
         'xAOD::TruthParticleContainer#EXOT5TruthMuons',
         'xAOD::TruthParticleAuxContainer#EXOT5TruthMuonsAux.',
@@ -514,14 +546,18 @@ if DerivationFrameworkIsMonteCarlo:
         'xAOD::TruthParticleAuxContainer#EXOT5TruthNeutrinosAux.',
         'xAOD::TruthParticleContainer#TruthTaus',
         'xAOD::TruthParticleAuxContainer#TruthTausAux.',
+        #'xAOD::TruthVertex#TruthVertices',
+        #'xAOD::TruthVertexAuxContainer#TruthVertexAux',
         ]
     EXOT5SlimmingHelper.ExtraVariables += [
         'AntiKt4TruthJets.pt.eta.phi.m.ConstituentScale.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.InputType.AlgorithmType.SizeParameter.JetGhostArea.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.Width.WidthPhi.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.GhostHBosons.GhostHBosonsCount.GhostHBosonsPt.GhostPartons.GhostPartonsCount.GhostPartonsPt.GhostTQuarksFinal.GhostTQuarksFinalCount.GhostTQuarksFinalPt.GhostTausFinal.GhostTausFinalCount.GhostTausFinalPt.GhostWBosons.GhostWBosonsCount.GhostWBosonsPt.GhostZBosons.GhostZBosonsCount.GhostZBosonsPt.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
         'MET_Truth.name.mpx.mpy.source.sumet',
         'TruthEvents.truthParticleLinks.truthVertexLinks.signalProcessVertexLink.beamParticle1Link.beamParticle2Link.crossSectionError.weights.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.crossSection',
-        'TruthParticles.px.py.pz.pdgId.status.e.barcode.prodVtxLink'
+        'TruthParticles.px.py.pz.pdgId.status.e.barcode.prodVtxLink',
         'AntiKt4EMPFlowJets.GhostTruthAssociationLink.HadronConeExclTruthLabelID.PartonTruthLabelID',
-        'TruthVertices.incomingParticleLinks'
+        'TruthVertices.incomingParticleLinks',
+        'TruthVertices.x.y.z.t.id.Pt.Eta.Phi.M.E.pdg.barcode.status.sumPt.sumPt2.vertexType.chiSquared',
+        'PrimaryVertices.x.y.z.t.sumPt.sumPt2.M.Pt.Phi.Eta.vertexType.chiSquared',
         ]
 
 EXOT5SlimmingHelper.UserContent = []
