@@ -10,6 +10,9 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
+
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
@@ -41,6 +44,8 @@ class TrigBjetHypoAlg
   ToolHandleArray< TrigBjetHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
  private:
+  SG::ReadHandleKey< xAOD::JetContainer > m_jetKey {this,"Jets","SplitJet","Input Jet Collection"};
+
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey {this,"RoIsKey","RoIs","Key for RoIs"};
   SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
 

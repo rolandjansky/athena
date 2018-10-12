@@ -20,11 +20,11 @@ StatusCode TrigBjetHypoAlg::initialize()
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
-  //  ATH_CHECK( m_etHypoTools.retrieve() );
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_bTagKey.initialize() );
   CHECK( m_roisKey.initialize() );
+  CHECK( m_jetKey.initialize()  );
 
   CHECK( m_decisionsKey.initialize() );
 
@@ -33,6 +33,7 @@ StatusCode TrigBjetHypoAlg::initialize()
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_roisKey          );
   ATH_MSG_DEBUG(  "   " << m_bTagKey          );
+  ATH_MSG_DEBUG(  "   " << m_jetKey           );
 
   return StatusCode::SUCCESS;
 }
@@ -43,6 +44,22 @@ StatusCode TrigBjetHypoAlg::finalize() {
 
 StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
+
+  SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );
+  CHECK( prevDecisionHandle.isValid() );
+  const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
+  ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
+  /*
+  // Let's retrieve Jets, just to check we can access the 'Split Jets'
+  SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_jetKey,context );
+  CHECK( jetContainerHandle.isValid() );
+  const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
+  ATH_MSG_DEBUG( "Retrieving " << jetContainer->size() << " Jets from previous step" );
+  for ( const xAOD::Jet *jet : *jetContainer )
+    ATH_MSG_DEBUG("   ** pt=" << jet->p4().Et()<<" eta="<< jet->eta()<<" phi="<<jet->phi());
+  */
+  return StatusCode::SUCCESS;
+
   SG::ReadHandle< xAOD::BTaggingContainer > bTagHandle = SG::makeHandle( m_bTagKey, context );
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roisKey, context );
   

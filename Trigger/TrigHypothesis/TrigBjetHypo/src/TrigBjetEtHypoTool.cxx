@@ -42,7 +42,7 @@ StatusCode TrigBjetEtHypoTool::initialize()  {
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
-bool TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,bool &pass ) const {
+StatusCode TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,bool &pass ) const {
   // Right now only considering single b-jet chains. 
   // Will be revised with higher multeplicity
 
@@ -84,7 +84,7 @@ bool TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,bool &p
     ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
   }
 
-  return true;
+  return StatusCode::SUCCESS;
 }
 
 
