@@ -17,17 +17,17 @@ def L1DecoderCfg(flags):
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 
 
-    decoderAlg.roiUnpackers += [ EMRoIsUnpackingTool( Decisions = "EMRoIDecisions",
+    decoderAlg.roiUnpackers += [ EMRoIsUnpackingTool( Decisions = "L1EM",
                                                       OutputTrigRoIs = "EMRoIs",
                                                       MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )) ]
 
-    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = "METRoIDecisions",
+    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = "L1MET",
                                                       OutputTrigRoI = "METRoI") ]
 
     from L1Decoder.L1MuonConfig import RPCCablingConfig, TGCCablingConfig
     acc.merge(TGCCablingConfig(flags ))
     acc.merge(RPCCablingConfig(flags ))
-    decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "MURoIDecisions",
+    decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "L1MU",
                                                       OutputTrigRoIs = "MURoIs",
                                                       MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
     

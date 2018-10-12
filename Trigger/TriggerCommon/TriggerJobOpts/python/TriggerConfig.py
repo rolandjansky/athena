@@ -112,9 +112,11 @@ def triggerRunCfg(flags, menu=None):
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
-        menuAcc, HLTSteps = menu( flags )
+        menuAcc = menu( flags )
+        HLTSteps = menuAcc.getSequence( "HLTAllSteps" )
         __log.info( "Configured menu with "+ str( len(HLTSteps.getChildren()) ) +" steps" )
-        
+    
+    
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )           
     
