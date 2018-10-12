@@ -134,8 +134,8 @@ StatusCode TrigSuperRoiBuilderMT::execute() {
 
     ATH_MSG_DEBUG( "Adding ROI descriptor to superROI!" );
     ATH_MSG_DEBUG( "    ** roi : eta=" << roi->eta() <<" phi=" << roi->phi() );
-    superRoI->push_back( roi );
-    superRoICollection->push_back( roi ); // TMP PER CONTROLLARE
+    //    superRoI->push_back( roi );
+    superRoICollection->push_back( roi );
 
     // Make a Copy of the input Jet 
     xAOD::Jet *outJet = new xAOD::Jet();
@@ -149,7 +149,7 @@ StatusCode TrigSuperRoiBuilderMT::execute() {
   CHECK( outputJetContainerHandle.record( std::move( outputJets ),std::move( outputJetsAux ) ) );
 
   ATH_MSG_DEBUG( "Saving Super Roi : eta=" << superRoI->eta()<<" phi="<<superRoI->phi() );
-  //y  superRoICollection->push_back( std::move(superRoI) );
+  //  superRoICollection->push_back( std::move(superRoI) );
   SG::WriteHandle< TrigRoiDescriptorCollection > outputSuperRoiHandle = SG::makeHandle( m_superRoIOutputKey,ctx );
   CHECK( outputSuperRoiHandle.record( std::move( superRoICollection ) ) );
 

@@ -53,7 +53,7 @@ def bJetStep1Sequence():
     (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
 
     # Start with b-jet-specific algo sequence
-    bJetEtSequence = parOR("bJetEtSequence")
+ #   bJetEtSequence = parOR("bJetEtSequence")
     # Construct Super RoI
     from TrigBjetHypo.TrigBjetHypoConf import TrigSuperRoiBuilderMT
     SuperRoIBuilder = TrigSuperRoiBuilderMT("SuperRoIBuilder")
@@ -61,7 +61,7 @@ def bJetStep1Sequence():
     SuperRoIBuilder.JetInputKey = sequenceOut
     SuperRoIBuilder.JetOutputKey = "superRoi"
     SuperRoIBuilder.SuperRoIOutputKey = SuperRoIBuilder.JetOutputKey # Same as Output Jet Collection
-    bJetEtSequence += SuperRoIBuilder
+#    bJetEtSequence += SuperRoIBuilder
 
     # Fast Tracking 
     from TrigUpgradeTest.InDetSetup import makeInDetAlgs
@@ -91,6 +91,7 @@ def bJetStep1Sequence():
     print '### TrackParticlesName:',TrackParticlesName
 
     fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
+    bJetEtSequence = seqAND("bJetEtSequence",[ SuperRoIBuilder,fastTrackingSequence] )
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
@@ -104,7 +105,7 @@ def bJetStep1Sequence():
     hypo.SuperRoiKey = SuperRoIBuilder.JetOutputKey
 
     # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence,fastTrackingSequence])
+    BjetAthSequence = seqAND("BjetAthSequence",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
