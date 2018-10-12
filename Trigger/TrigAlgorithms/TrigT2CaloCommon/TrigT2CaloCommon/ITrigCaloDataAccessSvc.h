@@ -25,26 +25,6 @@ class ITrigCaloDataAccessSvc: virtual public IService {
   /** Interface for Virtual Class */
   DeclareInterfaceID(ITrigCaloDataAccessSvc, 1, 0);
   
-#ifdef DONTDO
-  /** Enum for StatusCode */
-  enum class Status {
-    // Gaudi defaults
-    FAILURE          = 0,
-    SUCCESS          = 1,
-    RECOVERABLE      = 2,
-    // Our own error codes
-    MissingROB       = 0x10000000,
-    RawDataCorrupted = 0x20000000,
-    InternalError    = 0x40000000,
-    // Masks and bitshifts
-    StatusMask       = 0xff000000,  // 1 byte for our own error codes
-    LArDecoderMask   = 0x00000ff0,  // 1 byte for LAr decoder error
-    LArDecoderShift  = 4,           // error shift (relative to LArRodDecoder::report_error)
-    TileDecoderMask  = 0x00ff0000,  // 1 byte for Tile decoder error
-    TileDecoderShift = 0            // error shift (relative to TileRodDecoder::report_error)
-  };
-#endif
-
   /** 
    * @brief downloads the LAr data for an RoI and makes sure the cache collection is filled wiht decoded cells   
    */
