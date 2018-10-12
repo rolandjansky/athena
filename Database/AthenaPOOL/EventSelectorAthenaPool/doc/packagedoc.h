@@ -14,11 +14,6 @@ The EventSelectorAthenaPool package reimplements the Gaudi IEvtSelector interfac
 The package also contains equivalent support (via CondProxyProvider) for
 conditions data input from POOL.
 
-@subsection BackNavigation
-
-The EventSelectorAthenaPool implements BackNavigation using the "Provenance" vector in the DataHeader.
-
-
 @section EventSelectorAthenaPool_Properties Settable EventSelectorAthenaPool Properties (Job Options)
 
 @include EventSelectorAthenaPool_jobOptions.py
