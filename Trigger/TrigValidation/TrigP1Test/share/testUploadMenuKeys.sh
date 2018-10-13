@@ -268,8 +268,10 @@ rm $PSdir/*Standby*
 ls $PSdir
 
 # upload PS keys
-#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
-/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60"
+echo $cmd " &> uploadPSK_prescaled.log"
+eval $cmd &> uploadPSK_prescaled.log
+
 hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
@@ -301,8 +303,10 @@ rm $PSdir/*Standby*
 ls $PSdir
 
 # upload PS keys
-#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
-/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh --dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60"
+echo $cmd " &> uploadPSK_prescaled.log"
+eval $cmd &> uploadPSK_prescaled.log
 hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
