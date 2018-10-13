@@ -25,24 +25,6 @@ class ITrigCaloDataAccessSvc: virtual public IService {
   /** Interface for Virtual Class */
   DeclareInterfaceID(ITrigCaloDataAccessSvc, 1, 0);
   
-  /** Enum for StatusCode */
-  enum class Status : StatusCode::code_t {
-    // Gaudi defaults
-    FAILURE          = 0,
-    SUCCESS          = 1,
-    RECOVERABLE      = 2,
-    // Our own error codes
-    MissingROB       = 0x10000000,
-    RawDataCorrupted = 0x20000000,
-    InternalError    = 0x40000000,
-    // Masks and bitshifts
-    StatusMask       = 0xff000000,  // 1 byte for our own error codes
-    LArDecoderMask   = 0x00000ff0,  // 1 byte for LAr decoder error
-    LArDecoderShift  = 4,           // error shift (relative to LArRodDecoder::report_error)
-    TileDecoderMask  = 0x00ff0000,  // 1 byte for Tile decoder error
-    TileDecoderShift = 0            // error shift (relative to TileRodDecoder::report_error)
-  };
-
   /** 
    * @brief downloads the LAr data for an RoI and makes sure the cache collection is filled wiht decoded cells   
    */
@@ -62,10 +44,9 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 	/* *	considered as already existing (multilayer HEC or Tile */
 	/* *	access). */
 	/* *\/ */
-	/* virtual ExtendedStatusCode loadCollections (const EventContext& context, */
-	/* 					    TileCellCollection::const_iterator&, */
-	/* 					    TileCellCollection::const_iterator&, */
-	/* 					    const unsigned int sample = 0, bool prepare=true) = 0; */
+	virtual StatusCode loadCollections (const EventContext& context,
+					    const IRoiDescriptor& roi,
+	 				    TileCellCollection&) = 0;
         /* /\** MBTS loading *\/ */
 	/* virtual ExtendedStatusCode loadMBTS(const EventContext& context, */
 	/* 				    TileCellCollection::const_iterator&, */
@@ -95,13 +76,12 @@ class ITrigCaloDataAccessSvc: virtual public IService {
         * @brief Loads the full collection for the missing et computation
         */
 
+/*
   virtual StatusCode prepareFullCollections( const EventContext& context ) = 0;
+*/
   
   virtual StatusCode loadFullCollections ( const EventContext& context,
                                            ConstDataVector<CaloCellContainer>& cont ) = 0;
-
-  virtual StatusCode loadFullCollections ( const EventContext& context,
-                                           CaloCellContainer* ) = 0;
 
         /* /\** */
         /* * @brief Loads the full collection for the missing et computation */
@@ -190,8 +170,5 @@ private :
 	}
 protected:
 };
-
-// Register enum as StatusCode
-STATUSCODE_ENUM_DECL(ITrigCaloDataAccessSvc::Status)
 
 #endif
