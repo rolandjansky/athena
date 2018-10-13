@@ -58,7 +58,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 
   std::set<uint32_t> tmpRobIdSet;
 
-  for (const ROBFragment* rob_it : vecRobs) {
+  for (const ROBFragment* robFrag : vecROBFrags) {
     // get the ID of this ROB/ROD
     uint32_t robid{(robFrag)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
