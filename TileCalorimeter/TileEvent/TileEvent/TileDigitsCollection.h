@@ -31,6 +31,13 @@ public:
   TileDigitsCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) 
     : MyBase(ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
 
+  /**
+   * @brief Copy constructor.
+   * @param other Collection to copy.
+   * Does a deep copy of the contents.
+   */
+  TileDigitsCollection (const TileDigitsCollection& other);
+
   ~TileDigitsCollection() { }
 
   /**
@@ -162,31 +169,11 @@ public:
                          return m_FragChipCRCWordsHIGH;
   }
   
-  void printExtra() const {
-    std::cout<<std::hex<<"id=0x"<<this->identify()
-             <<std::dec<<", bcid="<<m_FragBCID
-             <<std::hex<<"(0x"<<m_FragBCID
-             <<std::dec<<"), size="<<m_FragSize
-             <<std::hex;
-    std::cout<<std::endl<<"FragExtraWords:     ";
-    for (unsigned int i=0; i<m_FragExtraWords.size(); ++i)
-      std::cout<<" "<<m_FragExtraWords[i];
-    std::cout<<std::endl<<"FragChipHeaderWords:";
-    for (unsigned int i=0; i<m_FragChipHeaderWords.size(); ++i)
-      std::cout<<" "<<m_FragChipHeaderWords[i];
-    std::cout<<std::endl<<"FragChipCRCWords:   ";
-    for (unsigned int i=0; i<m_FragChipCRCWords.size(); ++i)
-      std::cout<<" "<<m_FragChipCRCWords[i];
-    std::cout<<std::endl<<"FragChipHeaderWHigh:";
-    for (unsigned int i=0; i<m_FragChipHeaderWordsHIGH.size(); ++i)
-      std::cout<<" "<<m_FragChipHeaderWordsHIGH[i];
-    std::cout<<std::endl<<"FragChipCRCWHigh:   ";
-    for (unsigned int i=0; i<m_FragChipCRCWordsHIGH.size(); ++i)
-      std::cout<<" "<<m_FragChipCRCWordsHIGH[i];
-    std::cout<<std::endl<<std::dec;
-  }
+  void printExtra() const;
+  void printExtra(std::ostream& os) const;
 
- private:
+
+private:
   /**
    * CRC words from Frag data, one word for each chip
    * LOW gain if calib mode

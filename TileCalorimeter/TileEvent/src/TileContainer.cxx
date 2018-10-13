@@ -27,22 +27,6 @@
 #include "TileEvent/TileBeamElemContainer.h"
 #include "SGTools/BaseInfo.h"
  
-void TileDigitsCollection::clear()
-{
-  m_FragChipCRCWords.clear();
-  m_FragChipCRCWordsHIGH.clear();
-  m_FragChipHeaderWords.clear();
-  m_FragChipHeaderWordsHIGH.clear();
-
-  m_FragExtraWords.resize(2);
-  m_FragExtraWords[0] = m_FragExtraWords[1] = 0;
-
-  m_FragSize = 0;
-  m_FragBCID = 0;
-
-  TileDigitsCollection::MyBase::clear();
-}
-
 void TileRawChannelCollection::clear()
 {
   m_FragGlobalCRC   = 0;
