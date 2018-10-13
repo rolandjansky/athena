@@ -506,6 +506,9 @@ def defineMenu():
 		       'L1_TE4_VTE200',
 		       'L1_TE4_VTE100',
 		       'L1_TE4_VTE50',
+		       'L1_TE4_VTE200_EMPTY',
+		       'L1_TE5_VTE200_EMPTY',
+		       'L1_TE50_VTE200',
 		       # restricted TE
 		       'L1_TE600.0ETA49_PEB',
 		       'L1_TE600.0ETA49',
@@ -1108,12 +1111,15 @@ def defineMenu():
         'L1_TE3.0ETA49': 333,
 
 	#'L1_J5': 334,
+	'L1_TE50_VTE200': 364,
 	'L1_TE5_VTE200': 335,
 	'L1_TE5_VTE100': 346,
 	'L1_TE5_VTE50': 347,
 	'L1_TE4_VTE200': 348,
 	'L1_TE4_VTE100': 349,
 	'L1_TE4_VTE50': 350,
+	'L1_TE4_VTE200_EMPTY': 362,
+	'L1_TE5_VTE200_EMPTY': 363,
 
         'L1_TE50_VTE600.0ETA49_PEB': 305,
         'L1_TE50_VTE600.0ETA49': 334,
