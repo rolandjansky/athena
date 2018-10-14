@@ -6,7 +6,7 @@
 #define NSW_TRIGRAWDATACONTAINER_H
 
 #include "DataModel/DataVector.h"
-#include "SGTools/Class_DEF.h"
+#include "SGTools/CLASS_DEF.h"
 
 #include "MuonRDO/NSW_TrigRawData.h"
 
@@ -26,7 +26,8 @@ namespace Muon {
 
 CLASS_DEF(Muon::NSW_TrigRawDataContainer,1172141273,1)
 
-#endif
+#endif   /// NSW_TRIGRAWDATACONTAINER_H
+
 
 
 
