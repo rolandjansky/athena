@@ -294,7 +294,7 @@ StatusCode TileTMDBMonTool::fillHistograms()
             double energy = rch->amplitude(); 
 
             if (ros > 2) {
-                TMDB::CHANNEL chName;
+                TMDB::CHANNEL chName = TMDB::D5L;
                 switch (channel){
                     case 0:
                         chName = TMDB::D5L;
