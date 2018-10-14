@@ -21,7 +21,6 @@ namespace Trk
     ParametersT<DIM,T,S>(Amg::Vector3D(parameters[x],parameters[y],parameters[z]),
 			 Amg::Vector3D(parameters[3],parameters[4],parameters[5]),
 			 covariance),
-    m_curvilinearFrame(),
     m_cIdentifier(cIdentifier)
   {
     // flip the charge according to qOverP
@@ -44,7 +43,6 @@ namespace Trk
 							AmgSymMatrix(DIM)* cov,
 							unsigned int cIdentifier):
     ParametersT<DIM,T,S>(),
-    m_curvilinearFrame(),
     m_cIdentifier(cIdentifier)
   {
     this->m_position   = pos;
@@ -77,7 +75,6 @@ namespace Trk
 							AmgSymMatrix(DIM)* cov,
 							unsigned int cIdentifier) :
     ParametersT<DIM,T,S>(),
-    m_curvilinearFrame(),
     m_cIdentifier(cIdentifier)    
   {
     this->m_chargeDef.setCharge(charge);
@@ -101,7 +98,6 @@ namespace Trk
   template<int DIM,class T,class S>
   CurvilinearParametersT<DIM,T,S>::CurvilinearParametersT(const CurvilinearParametersT<DIM,T,S>& copy):
     ParametersT<DIM,T,S>(copy),
-    m_curvilinearFrame(),
     m_cIdentifier(copy.m_cIdentifier)
   {}
 							
@@ -109,11 +105,8 @@ namespace Trk
   template<int DIM,class T,class S>
   CurvilinearParametersT<DIM,T,S>::CurvilinearParametersT(CurvilinearParametersT<DIM,T,S>&& copy):
     ParametersT<DIM,T,S>(std::move(copy)),
-    m_curvilinearFrame(),
     m_cIdentifier(copy.m_cIdentifier)
   {
-    if(copy.m_curvilinearFrame)
-      copy.m_curvilinearFrame.reset();
   }
   
   // Assignment operator
@@ -123,7 +116,6 @@ namespace Trk
     if(this != &rhs)
     {
       ParametersT<DIM,T,S>::operator=(rhs);
-      m_curvilinearFrame.reset();
       // and the curvilinear identifier 
       m_cIdentifier = rhs.m_cIdentifier;
     }
@@ -138,8 +130,6 @@ namespace Trk
     if(this != &rhs)
     {
       ParametersT<DIM,T,S>::operator=(std::move(rhs));
-      // assign the UVT framce
-      m_curvilinearFrame = std::move(rhs.m_curvilinearFrame);
       // and the curvilinear identifier 
       m_cIdentifier = std::move(rhs.m_cIdentifier);
     }
@@ -168,15 +158,14 @@ namespace Trk
       return false;
 
     // compare UVT frame
-    if(m_curvilinearFrame && pCasted->m_curvilinearFrame)
-    {
-      if(!m_curvilinearFrame->curvU().isApprox(pCasted->m_curvilinearFrame->curvU(),tolerance))
-	return false;
-      if(!m_curvilinearFrame->curvV().isApprox(pCasted->m_curvilinearFrame->curvV(),tolerance))
-	return false;
-      if(!m_curvilinearFrame->curvT().isApprox(pCasted->m_curvilinearFrame->curvT(),tolerance))
-	return false;
-    }
+    CurvilinearUVT local_curvilinearFrame=curvilinearFrame();
+    CurvilinearUVT casted_curvilinearFrame=pCasted->curvilinearFrame();
+    if(!local_curvilinearFrame.curvU().isApprox(casted_curvilinearFrame.curvU(),tolerance))
+      return false;
+    if(!local_curvilinearFrame.curvV().isApprox(casted_curvilinearFrame.curvV(),tolerance))
+      return false;
+    if(!local_curvilinearFrame.curvT().isApprox(casted_curvilinearFrame.curvT(),tolerance))
+      return false;
     
     // compare equality of base class parts
     return ParametersT<DIM,T,S>::operator==(rhs);
@@ -221,21 +210,20 @@ namespace Trk
   {
     static Amg::RotationMatrix3D mFrame;
     // the columnes
-    mFrame.col(0) = curvilinearFrame().curvU();
-    mFrame.col(1) = curvilinearFrame().curvV();
-    mFrame.col(2) = curvilinearFrame().curvT();
+    CurvilinearUVT local_curvilinearFrame=curvilinearFrame();
+    mFrame.col(0) = local_curvilinearFrame.curvU();
+    mFrame.col(1) = local_curvilinearFrame.curvV();
+    mFrame.col(2) = local_curvilinearFrame.curvT();
 
     // return the rotation matrix that defines the curvilinear parameters
     return mFrame;
   }
 
   template<int DIM,class T,class S>
-  const CurvilinearUVT& CurvilinearParametersT<DIM,T,S>::curvilinearFrame() const
+  const CurvilinearUVT CurvilinearParametersT<DIM,T,S>::curvilinearFrame() const
   {
-    if(!m_curvilinearFrame)
-      m_curvilinearFrame.reset(new CurvilinearUVT(this->momentum().unit()));
-
-    return *m_curvilinearFrame;
+    CurvilinearUVT curvilinFrame(this->momentum().unit());
+    return curvilinFrame;
   }
 
   // Dedicated update method for non-curvilinear parameters - private and controlled by friendship 
@@ -269,15 +257,13 @@ namespace Trk
       this->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
 						       p*sin(phi)*sin(theta),
 						       p*cos(theta));
-      // new momentum needs a new curvilinear UVT frame
-      m_curvilinearFrame.reset(new Trk::CurvilinearUVT(this->m_momentum.unit()));                                                         
     }
     // position update if needed -  loc1
     if (updatedParameters[Trk::loc1] != 0.) 
-      this->m_position += updatedParameters[Trk::loc1] * m_curvilinearFrame->curvU();
+      this->m_position += updatedParameters[Trk::loc1] * curvilinearFrame().curvU();
     // position update if needed -  loc2
     if (updatedParameters[Trk::loc2] != 0.) 
-      this->m_position += updatedParameters[Trk::loc2] * m_curvilinearFrame->curvV();
+      this->m_position += updatedParameters[Trk::loc2] * curvilinearFrame().curvV();
     // in any case, the (eventually existing) surface is invalidated
     delete this->m_surface;
     this->m_surface = 0;

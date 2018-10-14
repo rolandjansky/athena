@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -119,11 +119,8 @@ namespace Trk
 
   private:
     /** return the curvilinear frame */
-    const CurvilinearUVT& curvilinearFrame() const;
+    const CurvilinearUVT curvilinearFrame() const;
     
-    /** the curvilinear frame */
-    mutable std::unique_ptr<CurvilinearUVT>  m_curvilinearFrame;  
-
     /** the curvilinear parameters identifier */
     unsigned int m_cIdentifier=0;
   };
