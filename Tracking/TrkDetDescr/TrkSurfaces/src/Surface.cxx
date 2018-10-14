@@ -17,11 +17,12 @@
 #include <iomanip>
 
 
-double Trk::Surface::s_onSurfaceTolerance               = 10e-5; // 0.1 * micron
+const double Trk::Surface::s_onSurfaceTolerance               = 10e-5; // 0.1 * micron
 
-unsigned int Trk::Surface::s_numberOfInstantiations     = 0;
-unsigned int Trk::Surface::s_numberOfFreeInstantiations = 0;
-
+#ifndef NDEBUG
+std::atomic<unsigned int> Trk::Surface::s_numberOfInstantiations{0};
+std::atomic<unsigned int> Trk::Surface::s_numberOfFreeInstantiations{0};
+#endif
 
 Trk::Surface::Surface() :
   m_transform(0),
@@ -197,13 +198,21 @@ const Amg::RotationMatrix3D Trk::Surface::measurementFrame(const Amg::Vector3D&,
 // for the EDM monitor
 unsigned int Trk::Surface::numberOfInstantiations()
 {
+#ifndef NDEBUG 
   return s_numberOfInstantiations;
+#else
+  return 0;
+#endif
 }
 
 // for the EDM monitor
 unsigned int Trk::Surface::numberOfFreeInstantiations()
 {
+#ifndef NDEBUG
     return s_numberOfFreeInstantiations;
+#else
+    return 0;
+#endif
 }
 
 // overload dump for MsgStream operator

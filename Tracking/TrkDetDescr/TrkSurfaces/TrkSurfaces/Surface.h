@@ -28,6 +28,7 @@
 // Identifier
 #include "Identifier/Identifier.h"
 
+#include <atomic>
 
 class MsgStream;
 class SurfaceCnv_p1;
@@ -297,11 +298,10 @@ namespace Trk {
       virtual std::string name() const = 0;   
 
       /**return number of surfaces currently created - needed for EDM monitor */
-      static unsigned int numberOfInstantiations(); 
-      
+      unsigned int numberOfInstantiations();  
       /**return number of free surfaces currently created (i.e. those not belonging to a DE) - needed for EDM monitor */
-      static unsigned int numberOfFreeInstantiations(); 
-
+      unsigned int numberOfFreeInstantiations(); 
+    
       /** method to associate the associated Trk::Layer which is alreay owned
          - only allowed by LayerBuilder
          - only done if no Layer is set already  */
@@ -312,7 +312,7 @@ namespace Trk {
             
       /** Private members are in principle implemented as mutable pointers to objects for easy checks
         if they are already declared or not */           
-      mutable Amg::Transform3D*                 m_transform;     //!< Transform3D to orient surface w.r.t to global frame
+      Amg::Transform3D*                         m_transform;     //!< Transform3D to orient surface w.r.t to global frame
       mutable Amg::Vector3D*                    m_center;        //!< center position of the surface
       mutable Amg::Vector3D*                    m_normal;        //!< normal vector of the surface
        
@@ -335,13 +335,14 @@ namespace Trk {
       mutable SurfaceOwner                      m_owner;
          
       /**Tolerance for being on Surface */
-      static double                             s_onSurfaceTolerance;
-      
+      const static double                       s_onSurfaceTolerance;
+#ifndef NDEBUG 
       /** number of objects of this type in memory - needed for EDM monitor*/
-      static unsigned int                       s_numberOfInstantiations; 
+      static std::atomic<unsigned int>          s_numberOfInstantiations; 
       
       /** number of objects of this type in memory which do not belong to a detector element - needed for EDM monitor*/
-      static unsigned int                       s_numberOfFreeInstantiations; 
+      static std::atomic<unsigned int>          s_numberOfFreeInstantiations; 
+#endif 
   };
 
 

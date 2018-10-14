@@ -57,13 +57,13 @@ namespace Trk {
      virtual const Amg::Transform3D& nominalTransform() const = 0;
 
      /** Add an alignment correction on top of the actual one */
-     virtual void addAlignmentCorrection(Amg::Transform3D& corr) const = 0;
+     virtual void addAlignmentCorrection(Amg::Transform3D& corr)  = 0;
 
      /** Set an alignment correction on top of the nominal one */
-     virtual void setAlignmentCorrection(Amg::Transform3D& corr) const = 0;
+     virtual void setAlignmentCorrection(Amg::Transform3D& corr)  = 0;
 
      /** Set an alignment correction on top of the nominal one */
-     virtual void setAlignableTransform(Amg::Transform3D& trans) const = 0;
+     virtual void setAlignableTransform(Amg::Transform3D& trans)  = 0;
  
                          
   };
