@@ -312,7 +312,7 @@ namespace Trk {
             
       /** Private members are in principle implemented as mutable pointers to objects for easy checks
         if they are already declared or not */           
-      Amg::Transform3D*                         m_transform;     //!< Transform3D to orient surface w.r.t to global frame
+      mutable Amg::Transform3D*                 m_transform;     //!< Transform3D to orient surface w.r.t to global frame
       mutable Amg::Vector3D*                    m_center;        //!< center position of the surface
       mutable Amg::Vector3D*                    m_normal;        //!< normal vector of the surface
        
