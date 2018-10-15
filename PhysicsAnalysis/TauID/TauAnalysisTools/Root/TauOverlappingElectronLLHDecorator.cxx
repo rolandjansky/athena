@@ -177,7 +177,7 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
     bPass = true;
   SG::AuxElement::Decorator< char > decEleOlrPass(m_sEleOlrPassDecorationName);
   decEleOlrPass(xTau) = (char)bPass;
-  std::cout << "Decorate 7 retr" << std::endl;
+
   return StatusCode::SUCCESS;
 }
 
