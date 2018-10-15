@@ -3,7 +3,7 @@
 */
 
 //****************************************************************************
-/// Filenajme : TileTBAANtuple.h
+/// Filename : TileTBAANtuple.h
 /// Author   : Luca Fiorini (based on TileTBNtuple)
 /// Created  : Mar, 2007
 ///
@@ -72,6 +72,7 @@ class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
 class TileLaserObject;
 class TileCondToolEmscale;
+class TileHit;
 
 class TileTBAANtuple: public AthAlgorithm {
   public:
@@ -108,6 +109,9 @@ class TileTBAANtuple: public AthAlgorithm {
     StatusCode storeBeamElements();
     StatusCode storeCells();
     StatusCode storeLaser();
+    StatusCode storeHitVector();
+    StatusCode storeHitContainer();
+    void storeHit(const TileHit *hit, int fragType, int fragId, float* ehitVec, float* thitVec);
 
     StatusCode initList(void);
     StatusCode initNTuple(void);
@@ -125,6 +129,7 @@ class TileTBAANtuple: public AthAlgorithm {
     void BEAM_addBranch(void);
     void DIGI_addBranch(void);
     //void RAW_addBranch(void);
+    void HIT_addBranch(void);
     void ENETOTAL_addBranch(void);
     void COINCBOARD_addBranch(void);
     void LASEROBJ_addBranch(void);
@@ -139,6 +144,7 @@ class TileTBAANtuple: public AthAlgorithm {
     void BEAM_clearBranch(void);
     void DIGI_clearBranch(void);
     //void RAW_clearBranch(void);
+    void HIT_clearBranch(void);
     void ENETOTAL_clearBranch(void);
     void COINCBOARD_clearBranch(void);
     void LASEROBJ_clearBranch(void);
@@ -480,6 +486,11 @@ class TileTBAANtuple: public AthAlgorithm {
     //inner radius of calo
     float m_radius;
 
+    //MC truth info
+    std::vector<float*> m_ehitVec;
+    std::vector<float*> m_thitVec;
+    std::vector<float*> m_ehitCnt;
+    std::vector<float*> m_thitCnt;
     // Container Parameters
     std::string m_digitsContainer;
     std::string m_beamElemContainer;
@@ -489,6 +500,9 @@ class TileTBAANtuple: public AthAlgorithm {
     std::string m_optRawChannelContainer;
     std::string m_dspRawChannelContainer;
     std::string m_laserObject;
+    std::string m_hitVector;
+    std::string m_hitContainer;
+    std::string m_infoName;
 
     bool m_calibrateEnergyThisEvent;
     bool m_calibrateEnergy;
@@ -515,6 +529,7 @@ class TileTBAANtuple: public AthAlgorithm {
     // Identifiers
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
+    const TileInfo* m_tileInfo;
     const TileCablingService* m_cabling;
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
