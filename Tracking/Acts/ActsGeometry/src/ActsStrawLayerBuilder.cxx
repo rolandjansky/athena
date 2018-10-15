@@ -2,18 +2,24 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// PACKAGE
-#include "ActsGeometry/ActsStrawLayerBuilder.h"
-
 // ATHENA
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_Numerology.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "Identifier/Identifier.h"
+
+// PACKAGE
+#include "ActsGeometry/ActsStrawLayerBuilder.h"
+#include "ActsGeometry/ActsDetectorElement.h"
 
 // ACTS
 #include "Acts/Tools/ILayerBuilder.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/StrawSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
+#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Layers/ProtoLayer.hpp"
 
 // STL
 #include <iostream>

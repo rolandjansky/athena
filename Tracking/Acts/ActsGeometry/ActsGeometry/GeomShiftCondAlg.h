@@ -6,15 +6,11 @@
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "EventInfo/EventInfo.h"
-#include "GaudiKernel/ICondSvc.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "EventInfo/EventInfo.h" // ReadHandleKey wants complete type
 
 // PACKAGE
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
-#include "ActsGeometry/ActsAlignmentStore.h"
 
 // STL
 #include <string>
@@ -24,6 +20,13 @@ namespace InDetDD {
   class SiDetectorManager;
   class TRT_DetectorManager;
 }
+
+class EventInfo;
+class ICondSvc;
+class StoreGateSvc;
+class IActsTrackingGeometrySvc;
+class ActsAlignmentStore;
+class GeoAlignableTransform;
 
 
 class GeomShiftCondAlg  :  public AthAlgorithm {
@@ -45,7 +48,6 @@ private:
 
   SG::WriteCondHandleKey<ActsAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
-  Gaudi::Property<std::string> m_dbKey {this, "Key_DB", "X2", "explicit dbKey for cond handle"};
   Gaudi::Property<double> m_zShiftPerLB {this, "ZShiftPerLB", 10.5, ""};
 
   ServiceHandle<ICondSvc> m_cs;

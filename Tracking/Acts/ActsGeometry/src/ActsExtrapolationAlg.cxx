@@ -11,8 +11,11 @@
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+
 // ACTS
 #include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
@@ -81,7 +84,7 @@ StatusCode ActsExtrapolationAlg::execute_r(const EventContext& ctx) const
   Acts::Vector3D momentum(
       pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
 
-  double theta = momentum.theta();
+  double theta = Acts::VectorHelpers::theta(momentum);
 
   double charge = rngEngine->flat() > 0.5 ? -1 : 1;
 

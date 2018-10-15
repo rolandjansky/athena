@@ -4,10 +4,10 @@
 
 #include "ActsInterop/Logger.h"
 
-#include "AthenaKernel/getMessageSvc.h"
-#include "AthenaBaseComps/AthMessaging.h"
-#include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/CommonMessaging.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/CommonMessaging.h"
 
 #include "Acts/Utilities/Logger.hpp"

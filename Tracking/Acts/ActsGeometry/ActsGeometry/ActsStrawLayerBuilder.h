@@ -7,24 +7,21 @@
 
 
 // ATHENA
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 // PACKAGE
-#include "ActsGeometry/ActsDetectorElement.h"
 
 // ACTS
-#include "Acts/Layers/Layer.hpp"
-#include "Acts/Layers/ProtoLayer.hpp"
 #include "Acts/Tools/ILayerBuilder.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
-#include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 class TRT_ID;
-class ActsTrackingGeomtrySvc;
+class ActsTrackingGeometrySvc;
+class TRT_DetectorManager;
+class ActsDetectorElement;
 
 namespace Acts {
 class Surface;
+class LayerCreator;
 }
 
 /// @class ActsStrawLayerBuilder

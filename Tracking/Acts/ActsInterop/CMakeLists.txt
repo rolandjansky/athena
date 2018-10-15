@@ -4,6 +4,7 @@ atlas_subdir( ActsInterop )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          GaudiKernel
                           Control/AtenaBaseComps
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -18,9 +19,13 @@ endif()
 # Component(s) in the package:
 atlas_add_library( ActsInteropLib
                      src/*.cxx
-                     src/components/*.cxx
                      PUBLIC_HEADERS ActsInterop
-                     LINK_LIBRARIES AthenaBaseComps Identifier InDetIdentifier InDetReadoutGeometry ActsCore)
+                     LINK_LIBRARIES 
+                     AthenaBaseComps
+                     Identifier
+                     InDetIdentifier
+                     InDetReadoutGeometry
+                     ActsCore)
 
 # Install files from the package:
 atlas_install_headers( ActsInterop )

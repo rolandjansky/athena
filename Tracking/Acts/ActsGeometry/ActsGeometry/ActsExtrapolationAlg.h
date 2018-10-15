@@ -6,29 +6,22 @@
 #define ACTSGEOMETRY_ACTSEXTRAPOLATIONALG_H
 
 // ATHENA
-#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Utilities/BFieldMapUtils.hpp"
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Plugins/MaterialMapping/MaterialStep.hpp"
 #include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
 #include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 
 // PACKAGE
-#include "ActsGeometry/ActsObjWriterTool.h"
-#include "ActsGeometry/IActsExCellWriterSvc.h"
-#include "ActsGeometry/ActsExtrapolationTool.h"
 
 // STL
 #include <memory>
@@ -46,8 +39,10 @@ class IActsMaterialTrackWriterSvc;
 
 template<typename>
 class RootExCellWriter;
-
 class EventContext;
+class IAthRNGSvc;
+class IActsExCellWriterSvc;
+class ActsExtrapolationTool;
 
 class ActsExtrapolationAlg : public AthReentrantAlgorithm {
 public:
@@ -81,14 +76,10 @@ private:
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
   ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
   
-  // we need alignment, even though it should be nominal
-  SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
-
   template <class T>
   Acts::MaterialTrack
   makeMaterialTrack(const T& ecell) const
   {
-
     double totDInX0 = 0;
     double totDInL0 = 0;
 
@@ -106,8 +97,8 @@ private:
     }
 
     const Acts::Vector3D& mom = ecell.startParameters->momentum();
-    double theta = mom.theta();
-    double phi = mom.phi();
+    double theta = Acts::VectorHelpers::theta(mom);
+    double phi = Acts::VectorHelpers::phi(mom);
     Acts::MaterialTrack mTrack(ecell.startParameters->position(),
                          theta,
                          phi,

@@ -1,19 +1,24 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+// ATHENA
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetReadoutGeometry/SiDetectorManager.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsLayerBuilder.h"
 #include "ActsInterop/IdentityHelper.h"
 
 // ACTS
-#include "Acts/Tools/ILayerBuilder.hpp"
 #include "Acts/Material/SurfaceMaterialProxy.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
 #include "Acts/Layers/GenericApproachDescriptor.hpp"
-#include "Acts/Layers/GenericApproachDescriptor.hpp"
 #include "Acts/Utilities/ApproachDescriptor.hpp"
+#include "Acts/Layers/ProtoLayer.hpp"
+#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 
 using Acts::Surface;
 using Acts::Transform3D;

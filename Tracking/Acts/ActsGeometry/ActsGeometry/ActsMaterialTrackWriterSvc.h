@@ -11,8 +11,6 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
-#include "Acts/EventData/TrackParameters.hpp"
-
 #include <vector>
 #include <deque>
 #include <mutex>

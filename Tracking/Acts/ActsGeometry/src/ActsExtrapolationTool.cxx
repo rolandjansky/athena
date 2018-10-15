@@ -6,12 +6,13 @@
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "ActsInterop/Logger.h"
+#include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // ACTS
 #include "Acts/Extrapolation/ExtrapolationCell.hpp" // for excell and ecode
@@ -138,4 +139,10 @@ std::shared_ptr<Acts::IExtrapolationEngine>
 ActsExtrapolationTool::extrapolationEngine() const 
 {
   return std::dynamic_pointer_cast<Acts::IExtrapolationEngine>(m_exEngine);
+}
+
+void
+ActsExtrapolationTool::prepareAlignment() const 
+{
+  m_trackingGeometryTool->prepareAlignment();
 }

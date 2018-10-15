@@ -6,20 +6,21 @@
 #define ACTSGEOMETRY_ACTSEXTRAPOLATIONTOOL_H
 
 // ATHENA
-#include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "GaudiKernel/Property.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // ACTS
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
-#include "Acts/Extrapolation/IExtrapolationEngine.hpp"
+#include "Acts/Extrapolation/IExtrapolationEngine.hpp" // for ExCell*
+
+namespace MagField {
+  class IMagFieldSvc;
+}
 
 namespace Acts {
 class ExtrapolationCode;
@@ -68,11 +69,5 @@ private:
 };
 
 
-inline
-void
-ActsExtrapolationTool::prepareAlignment() const 
-{
-  m_trackingGeometryTool->prepareAlignment();
-}
 
 #endif

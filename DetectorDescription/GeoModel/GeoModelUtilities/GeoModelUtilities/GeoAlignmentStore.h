@@ -27,6 +27,7 @@ class GeoAlignmentStore : public GeoVAlignmentStore
   virtual void setDefAbsPosition(const GeoVFullPhysVol*, const HepGeom::Transform3D&) override;
   virtual const HepGeom::Transform3D* getDefAbsPosition(const GeoVFullPhysVol*) const override;
 
+
  private:
   TransformMap<GeoAlignableTransform,HepGeom::Transform3D> m_deltas;
   TransformMap<GeoVFullPhysVol,HepGeom::Transform3D> m_absPositions;

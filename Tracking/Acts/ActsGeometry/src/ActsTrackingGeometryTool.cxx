@@ -5,11 +5,10 @@
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // ATHENA
-#include "GaudiKernel/IInterface.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/IActsTrackingGeometrySvc.h"
 
 // STL
 #include <iostream>

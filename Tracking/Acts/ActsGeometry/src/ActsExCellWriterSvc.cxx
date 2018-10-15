@@ -5,10 +5,6 @@
 #include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "GaudiKernel/IInterface.h"
 
-#include "GaudiKernel/Kernel.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ThreadLocalContext.h"
-
 #include <vector>
 #include <deque>
 #include <mutex>

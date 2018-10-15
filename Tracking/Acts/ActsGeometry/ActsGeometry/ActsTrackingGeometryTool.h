@@ -6,26 +6,21 @@
 #define ACTSGEOMETRY_ACTSTRACKINGGEOMETRYTOOL_H
 
 // ATHENA
-#include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-#include "GaudiKernel/Property.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
-#include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/ActsAlignmentStore.h" // ReadCondHandleKey wants complete type
 
 // ACTS
-#include "Acts/Extrapolation/ExtrapolationCell.hpp"
-#include "Acts/Extrapolation/IExtrapolationEngine.hpp"
 
 namespace Acts {
 class TrackingGeometry;
 }
+
+class IActsTrackingGeometrySvc;
 
 static const InterfaceID IID_ActsTrackingGeometryTool("ActsTrackingGeometryTool", 1, 0);
 

@@ -9,29 +9,21 @@
 #include "ActsGeometry/ActsDetectorElement.h"
 
 // ATHENA
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
 
 // ACTS
-#include "Acts/Layers/Layer.hpp"
-#include "Acts/Layers/ProtoLayer.hpp"
 #include "Acts/Tools/ILayerBuilder.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
-#include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/BinningType.hpp"
 
 class ActsTrackingGeomtrySvc;
 
+namespace InDetDD {
+  class SiDetectorManager;
+}
+
 namespace Acts {
 class Surface;
+class LayerCreator;
 }
 
 /// @class ActsLayerBuilder

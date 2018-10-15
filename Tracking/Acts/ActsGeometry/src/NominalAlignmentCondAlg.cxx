@@ -3,36 +3,26 @@
 */
 
 // ATHENA
+#include "ActsGeometry/NominalAlignmentCondAlg.h"
 
 #include "StoreGate/WriteCondHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "GeoModelKernel/GeoVPhysVol.h"
-#include "GeoModelKernel/GeoNodeAction.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 
 // PACKAGE
-#include "ActsGeometry/NominalAlignmentCondAlg.h"
+#include "ActsGeometry/IActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsGeometry/ActsAlignmentStore.h"
 
 // ACTS
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 
-#include <thread>
-#include <chrono>
-#include <memory>
-#include <iostream>
 
 NominalAlignmentCondAlg::NominalAlignmentCondAlg( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 

@@ -9,9 +9,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/EventContext.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/ReadCondHandle.h"
 
 // PACKAGE
 #include "ActsGeometry/IActsTrackingGeometrySvc.h"

@@ -4,32 +4,8 @@
 
 /**
 
-@page InDetDetDescrExample_page InDetDetDescrExample Package
+@page ActsGeometry_page ActsGeometry Package
 
-@author Grant Gorfine
+@author Paul Gessinger
 
-@section InDetDetDescrExample_InDetDDExampleIntro Introduction
-
-This package contains 
-example and test packages for Inner Detector Detector Description.
-
-@section InDetDetDescrExample_InDetDDExampleContents Contents
-
-
- - ReadSiDetectorElements: Loops over all silicon elements and exercises
-   various methods in the SiDetectorElement class.\n
-   JobOption: ReadSiDetectorElements_jobOptions.py
-
- - ReadTRT_DetectorElements: Loops over all TRT elements and exercises
-   various methods in the detector element class.\n
-   JobOption: ReadTRT_DetectorElements_jobOptions.py
-
- - TestSiAlignment: Loops over all elements and prints out shifts of elements
-   with respect to their default position.\n
-   JobOption: TestSiAlignment_jobOptions.py
-
- - TestTRT_Alignment: Loops over all elements and prints out shifts of
-   several straws with respect to their default position.\n
-   JobOption: TestTRT_Alignment.py
-   
 */

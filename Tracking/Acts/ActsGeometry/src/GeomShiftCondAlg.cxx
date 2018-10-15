@@ -6,24 +6,23 @@
 
 // ATHENA
 #include "StoreGate/WriteCondHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "GeoModelKernel/GeoVPhysVol.h"
-#include "GeoModelKernel/GeoNodeAction.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
+#include "GaudiKernel/ICondSvc.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h"
 #include "ActsGeometry/ActsDetectorElement.h"
+#include "ActsGeometry/IActsTrackingGeometrySvc.h"
 
 // ACTS
 #include "Acts/Utilities/Definitions.hpp"
@@ -32,10 +31,7 @@
 #include "Acts/Surfaces/Surface.hpp"
 
 // STL
-#include <thread>
-#include <chrono>
 #include <memory>
-#include <iostream>
 
 GeomShiftCondAlg::GeomShiftCondAlg( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
@@ -61,7 +57,6 @@ StatusCode GeomShiftCondAlg::initialize() {
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
 
-  m_wchk.setDbKey(m_dbKey);
 
   if (m_wchk.initialize().isFailure()) {
     ATH_MSG_ERROR("unable to initialize WriteCondHandle with key" << m_wchk.key() );

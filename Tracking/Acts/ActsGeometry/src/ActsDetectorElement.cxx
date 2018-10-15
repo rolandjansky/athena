@@ -7,14 +7,11 @@
 // ATHENA
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
-#include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "ActsInterop/IdentityHelper.h"
-#include "GaudiKernel/Kernel.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ThreadLocalContext.h"
-#include "StoreGate/ReadCondHandle.h"
+#include "TrkSurfaces/RectangleBounds.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
@@ -23,6 +20,9 @@
 // ACTS
 #include "Acts/Surfaces/StrawSurface.hpp"
 #include "Acts/Surfaces/LineBounds.hpp"
+#include "Acts/Surfaces/PlaneSurface.hpp"
+#include "Acts/Surfaces/RectangleBounds.hpp"
+#include "Acts/Surfaces/TrapezoidBounds.hpp"
 
 // STL
 #include <mutex>

@@ -6,18 +6,17 @@
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // PACKAGE
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
-#include "ActsGeometry/ActsAlignmentStore.h"
 
 // STL
 #include <string>
+
+class IActsTrackingGeometrySvc;
+class ActsAlignmentStore;
 
 
 /// @class NominalAlignmentCondAlg

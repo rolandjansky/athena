@@ -10,17 +10,9 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
-#include "TrkSurfaces/RectangleBounds.h"
-#include "TrkSurfaces/SurfaceBounds.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
 
 // ACTS
 #include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Surfaces/PlaneSurface.hpp"
-#include "Acts/Surfaces/RectangleBounds.hpp"
-#include "Acts/Surfaces/TrapezoidBounds.hpp"
 
 
 // STL
@@ -30,6 +22,9 @@
 // BOOST
 #include <boost/variant.hpp>
 
+namespace Acts {
+  class SurfaceBounds;
+}
 
 class ActsTrackingGeometrySvc;
 class ActsAlignmentStore;
