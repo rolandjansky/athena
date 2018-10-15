@@ -15,6 +15,7 @@
 
 // PACKAGE
 #include "ActsGeometry/ActsObjWriterTool.h"
+#include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // STL
 #include <fstream>
@@ -35,9 +36,8 @@ public:
   StatusCode finalize() override;
 
 private:
-  ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
-  std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
+  ToolHandle<ActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
   ToolHandle<ActsObjWriterTool> m_objWriterTool{this, "ObjWriterTool", "ActsObjWriterTool"};
 

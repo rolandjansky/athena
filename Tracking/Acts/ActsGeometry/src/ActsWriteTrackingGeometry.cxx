@@ -18,25 +18,25 @@
 
 ActsWriteTrackingGeometry::ActsWriteTrackingGeometry(const std::string& name,
                                  ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator),
-      m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
+    : AthAlgorithm(name, pSvcLocator)
 {
 }
 
 StatusCode ActsWriteTrackingGeometry::initialize() {
   ATH_MSG_INFO("initializing");
 
-  ATH_CHECK(m_trackingGeometrySvc.retrieve());
   ATH_CHECK(m_objWriterTool.retrieve());
+  ATH_CHECK(m_trackingGeometryTool.retrieve());
 
-  m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
 
-  m_objWriterTool->write(*m_trackingGeometry);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode ActsWriteTrackingGeometry::execute() {
+  ATH_CHECK( m_trackingGeometryTool->prepareAlignment() );
+  auto trackingGeometry = m_trackingGeometryTool->trackingGeometry();
+  m_objWriterTool->write(*trackingGeometry);
   return StatusCode::SUCCESS;
 }
 
