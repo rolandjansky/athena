@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist Tree RIO )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( xAODCore
@@ -38,9 +39,9 @@ atlas_add_library( xAODCore
    xAODCore/*.h xAODCore/*.icc xAODCore/tools/*.h Root/*.cxx
    ${xAODCoreDictSource}
    PUBLIC_HEADERS xAODCore
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils
-   ${extra_libs} )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthContainers AthLinks
+   CxxUtils ${extra_libs} )
 
 atlas_add_dictionary( xAODCoreRflxDict
    xAODCore/xAODCoreRflxDict.h

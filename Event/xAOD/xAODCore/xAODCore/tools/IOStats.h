@@ -12,8 +12,8 @@
 #include <thread>
 #include <mutex>
 
-// EDM include(s):
-#include "AthContainers/tools/threading.h"
+// Boost include(s):
+#include <boost/thread/tss.hpp>
 
 // Local include(s):
 #include "xAODCore/tools/ReadStats.h"
@@ -72,7 +72,7 @@ namespace xAOD {
       std::map< std::thread::id, ReadStats > m_stats;
 
       /// Thread specific pointer to the ReadStats object of the current thread
-      AthContainers_detail::thread_specific_ptr< ReadStats > m_ptr;
+      boost::thread_specific_ptr< ReadStats > m_ptr;
 
       /// Mutex for accessing the read statistics
       mutable std::mutex m_mutex;
