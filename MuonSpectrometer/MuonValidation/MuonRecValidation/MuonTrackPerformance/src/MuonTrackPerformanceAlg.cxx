@@ -70,6 +70,7 @@ MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLo
   declareProperty("MuonMomentumCutSim",m_momentumCutSim = 2000. );
   declareProperty("LowMomentumThreshold",m_momentumCut = 2000. );
   declareProperty("DoSegments",m_doSegments = false );
+  declareProperty("useNSW",m_doNSW=false);
   declareProperty("ProduceEventListMissedTracks", m_doEventListMissed = 0, "0: off, 1: two station, 2: + one station" );
   declareProperty("ProduceEventListIncompleteTracks", m_doEventListIncomplete = 0, "0: off, 1: missing precision layer, 2: +missing chamber" );
   declareProperty("ProduceEventListFakeTracks", m_doEventListFake = 0, "0: off, 1: high pt, 2: +low pt, 3: +SL" );
@@ -103,6 +104,7 @@ StatusCode MuonTrackPerformanceAlg::initialize()
   ATH_CHECK(m_helper.retrieve());
 
   if( m_doTruth ) ATH_CHECK(m_truthTool.retrieve());
+  else m_truthTool.disable();
   
   ATH_CHECK(m_summaryHelperTool.retrieve());
 
@@ -121,6 +123,12 @@ StatusCode MuonTrackPerformanceAlg::initialize()
   ATH_CHECK(m_trackKey.initialize());
   ATH_CHECK(m_segmentCombiKey.initialize());
   ATH_CHECK(m_eventInfoKey.initialize());
+
+  ATH_CHECK(m_mcEventColl.initialize(m_doTruth));
+  if(m_doNSW) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
+  if(m_doTruth) ATH_CHECK(m_muonSimData.initialize());
+  ATH_CHECK(m_cscSimData.initialize(m_doTruth && !m_doNSW));
+  ATH_CHECK(m_trackRecord.initialize(m_doTruth));
 
   return StatusCode::SUCCESS; 
 }
@@ -200,8 +208,18 @@ bool MuonTrackPerformanceAlg::handleSegmentTruth( const std::vector<const Muon::
       if( trackTruth.mdts.missedChambers.size() > 0 ){
       	if( m_debug ) *m_log << MSG::DEBUG << "Missing mdt chamber " << endmsg;
       }
-      if( trackTruth.cscs.missedChambers.size() > 0 ){
-      	if( m_debug ) *m_log << MSG::DEBUG << "Missing csc chamber " << endmsg;
+      if(!m_doNSW){
+	if( trackTruth.cscs.missedChambers.size() > 0 ){
+	  if( m_debug ) *m_log << MSG::DEBUG << "Missing csc chamber " << endmsg;
+	}
+      }
+      else{
+	if( trackTruth.stgcs.missedChambers.size() > 0 ){
+	  if( m_debug ) *m_log << MSG::DEBUG << "Missing tgc chamber " << endmsg;
+	}
+	if( trackTruth.mms.missedChambers.size() > 0 ){
+	  if( m_debug ) *m_log << MSG::DEBUG << "Missing tgc chamber " << endmsg;
+	}
       }
       if( trackTruth.rpcs.missedChambers.size() > 0 ){
       	if( m_debug ) *m_log << MSG::DEBUG << "Missing rpc chamber " << endmsg;
@@ -273,7 +291,7 @@ bool MuonTrackPerformanceAlg::handleTracks() {
 }
 
 bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::TruthTreeEntry& entry ) const {
-  if( !entry.cscHits.empty() && entry.mdtHits.empty() ) return false;
+  if( (!entry.cscHits.empty() || !entry.mmHits.empty()) && entry.mdtHits.empty() ) return false;
   TrackRecord* trackRecord = const_cast<TrackRecord*>(entry.truthTrack);
   if( !trackRecord ) return false;
   if( m_usePtCut ){
@@ -283,7 +301,8 @@ bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::T
   }
   if( !selectPdg(trackRecord->GetPDGCode()) ) return false;
   if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.5 ) return false;
-  return entry.mdtHits.size() + entry.cscHits.size() > 4;
+  if(!m_doNSW) return entry.mdtHits.size() + entry.cscHits.size() > 4;
+  else return entry.mdtHits.size() + entry.mmHits.size() > 4;
 }
 
 bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackCollection ) {
@@ -293,9 +312,31 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
   unsigned int ntruthTracks(0);
   unsigned int ntruthTracksSecondary(0);
 
+  SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord);
+  SG::ReadHandle<McEventCollection> mcEventCollection(m_mcEventColl);
+  std::vector<const MuonSimDataCollection*> muonSimData;
+  for(SG::ReadHandle<MuonSimDataCollection>& simDataMap : m_muonSimData.makeHandles()){
+    if(!simDataMap.isValid()){
+      ATH_MSG_WARNING(simDataMap.key()<<" not valid");
+      continue;
+    }
+    if(!simDataMap.isPresent()) continue;
+    muonSimData.push_back(simDataMap.cptr());
+  }
+  const CscSimDataCollection* cscSimData=NULL;
+  if(!m_doNSW){
+    SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
+    if(!cscSimDataMap.isValid()){
+      ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");
+    }
+    else{
+      cscSimData=cscSimDataMap.cptr();
+    }
+  }
+  const Muon::IMuonTrackTruthTool::TruthTree truthTree=m_truthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,cscSimData);
+
   // map TrackRecord onto entry for printing
   std::map<const TrackRecord*,Muon::IMuonTrackTruthTool::TruthTreeEntry> truthTrackEntryMap;
-  const Muon::IMuonTrackTruthTool::TruthTree& truthTree = m_truthTool->createTruthTree();    
   Muon::IMuonTrackTruthTool::TruthTree::const_iterator tit = truthTree.begin();
   Muon::IMuonTrackTruthTool::TruthTree::const_iterator tit_end = truthTree.end();
   for( ;tit!=tit_end;++tit ){
@@ -679,9 +720,20 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
   MuonSimDataCollection::const_iterator mit_end =  trackTruth.mdtHits.end();
   for( ;mit!=mit_end;++mit ) allIds.insert(mit->first);
 
-  CscSimDataCollection::const_iterator cit =  trackTruth.cscHits.begin();
-  CscSimDataCollection::const_iterator cit_end =  trackTruth.cscHits.end();
-  for( ;cit!=cit_end;++cit ) allIds.insert(m_idHelperTool->layerId(cit->first));
+  if(!m_doNSW){
+    CscSimDataCollection::const_iterator cit =  trackTruth.cscHits.begin();
+    CscSimDataCollection::const_iterator cit_end =  trackTruth.cscHits.end();
+    for( ;cit!=cit_end;++cit ) allIds.insert(m_idHelperTool->layerId(cit->first));
+  }
+  else{
+    mit =  trackTruth.stgcHits.begin();
+    mit_end =  trackTruth.stgcHits.end();
+    for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
+    
+    mit =  trackTruth.mmHits.begin();
+    mit_end =  trackTruth.mmHits.end();
+    for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
+  }
 
   mit =  trackTruth.rpcHits.begin();
   mit_end =  trackTruth.rpcHits.end();
@@ -689,14 +741,6 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
 
   mit =  trackTruth.tgcHits.begin();
   mit_end =  trackTruth.tgcHits.end();
-  for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
-
-  mit =  trackTruth.stgcHits.begin();
-  mit_end =  trackTruth.stgcHits.end();
-  for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
-
-  mit =  trackTruth.mmHits.begin();
-  mit_end =  trackTruth.mmHits.end();
   for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
 
     
@@ -1115,25 +1159,29 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::evaluateTrackTruthO
 
   // handle missing chambers
   insertTechnology( truthTrack.mdts.missedChambers, truthTrack.mdts.missedHits, m_minMdtHits, 0, trackData->missingChambers );
-  insertTechnology( truthTrack.cscs.missedChambers, truthTrack.cscs.missedHits, m_minCscEtaHits, m_minCscPhiHits, trackData->missingChambers );
+  if(!m_doNSW) insertTechnology( truthTrack.cscs.missedChambers, truthTrack.cscs.missedHits, m_minCscEtaHits, m_minCscPhiHits, trackData->missingChambers );
+  else{
+    insertTechnology( truthTrack.stgcs.missedChambers, truthTrack.stgcs.missedHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->missingChambers );
+    insertTechnology( truthTrack.mms.missedChambers, truthTrack.mms.missedHits, m_minMMEtaHits, 0, trackData->missingChambers );
+  }
   insertTechnology( truthTrack.rpcs.missedChambers, truthTrack.rpcs.missedHits, m_minRpcEtaHits, m_minRpcPhiHits, trackData->missingChambers );
   insertTechnology( truthTrack.tgcs.missedChambers, truthTrack.tgcs.missedHits, m_minTgcEtaHits, m_minTgcPhiHits, trackData->missingChambers );
-  insertTechnology( truthTrack.stgcs.missedChambers, truthTrack.stgcs.missedHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->missingChambers );
-  insertTechnology( truthTrack.mms.missedChambers, truthTrack.mms.missedHits, m_minMMEtaHits, 0, trackData->missingChambers );
 
   // handle wrong chambers
   insertTechnology( truthTrack.mdts.wrongChambers, truthTrack.mdts.wrongHits, m_minMdtHits, 0, trackData->wrongChambers );
-  insertTechnology( truthTrack.cscs.wrongChambers, truthTrack.cscs.wrongHits, m_minCscEtaHits, m_minCscPhiHits, trackData->wrongChambers );
+  if(!m_doNSW) insertTechnology( truthTrack.cscs.wrongChambers, truthTrack.cscs.wrongHits, m_minCscEtaHits, m_minCscPhiHits, trackData->wrongChambers );
+  else{
+    insertTechnology( truthTrack.stgcs.wrongChambers, truthTrack.stgcs.wrongHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->wrongChambers );
+    insertTechnology( truthTrack.mms.wrongChambers, truthTrack.mms.wrongHits, m_minMMEtaHits, 0, trackData->wrongChambers );
+  }
   insertTechnology( truthTrack.rpcs.wrongChambers, truthTrack.rpcs.wrongHits, m_minRpcEtaHits, m_minRpcPhiHits, trackData->wrongChambers );
   insertTechnology( truthTrack.tgcs.wrongChambers, truthTrack.tgcs.wrongHits, m_minTgcEtaHits, m_minTgcPhiHits, trackData->wrongChambers );
-  insertTechnology( truthTrack.stgcs.wrongChambers, truthTrack.stgcs.wrongHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->wrongChambers );
-  insertTechnology( truthTrack.mms.wrongChambers, truthTrack.mms.wrongHits, m_minMMEtaHits, 0, trackData->wrongChambers );
 
   // handle layer information for precision chambers
   std::set<Muon::MuonStationIndex::StIndex> dummyList;
   insertStationLayers( truthTrack.mdts.matchedChambers, dummyList, trackData->layers );
-  insertStationLayers( truthTrack.cscs.matchedChambers, dummyList, trackData->layers );
-  insertStationLayers( truthTrack.mms.matchedChambers, dummyList, trackData->layers );
+  if(!m_doNSW) insertStationLayers( truthTrack.cscs.matchedChambers, dummyList, trackData->layers );
+  else insertStationLayers( truthTrack.mms.matchedChambers, dummyList, trackData->layers );
   
   insertStationLayers( trackData->missingChambers, trackData->layers, trackData->missingLayers, true );
   insertStationLayers( trackData->wrongChambers, trackData->layers, trackData->wrongLayers,true );
@@ -1141,7 +1189,7 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::evaluateTrackTruthO
   // handle layer information for precision chambers
   insertStationLayers( truthTrack.rpcs.matchedChambers, dummyList, trackData->layersTrigger );
   insertStationLayers( truthTrack.tgcs.matchedChambers, dummyList, trackData->layersTrigger );
-  insertStationLayers( truthTrack.stgcs.matchedChambers, dummyList, trackData->layersTrigger );
+  if(m_doNSW) insertStationLayers( truthTrack.stgcs.matchedChambers, dummyList, trackData->layersTrigger );
 
   insertStationLayers( trackData->missingChambers, trackData->layersTrigger, trackData->missingLayersTrigger, false );
   insertStationLayers( trackData->wrongChambers, trackData->layersTrigger, trackData->wrongLayersTrigger, false );
@@ -1296,11 +1344,28 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::createTrackData( co
     chambers[chId].insert(mit->first);
   }
 
-  CscSimDataCollection::const_iterator cit =  trackTruth.cscHits.begin();
-  CscSimDataCollection::const_iterator cit_end =  trackTruth.cscHits.end();
-  for( ;cit!=cit_end;++cit ) {
-    Identifier chId = m_idHelperTool->chamberId(cit->first);
-    chambers[chId].insert(m_idHelperTool->layerId(cit->first));
+  if(!m_doNSW){
+    CscSimDataCollection::const_iterator cit =  trackTruth.cscHits.begin();
+    CscSimDataCollection::const_iterator cit_end =  trackTruth.cscHits.end();
+    for( ;cit!=cit_end;++cit ) {
+      Identifier chId = m_idHelperTool->chamberId(cit->first);
+      chambers[chId].insert(m_idHelperTool->layerId(cit->first));
+    }
+  }
+  else{
+    mit =  trackTruth.stgcHits.begin();
+    mit_end =  trackTruth.stgcHits.end();
+    for( ;mit!=mit_end;++mit ) {
+      Identifier chId = m_idHelperTool->chamberId(mit->first);
+      chambers[chId].insert(mit->first);
+    }
+    
+    mit =  trackTruth.mmHits.begin();
+    mit_end =  trackTruth.mmHits.end();
+    for( ;mit!=mit_end;++mit ) {
+      Identifier chId = m_idHelperTool->chamberId(mit->first);
+      chambers[chId].insert(mit->first);
+    }
   }
 
   mit =  trackTruth.rpcHits.begin();
@@ -1312,20 +1377,6 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::createTrackData( co
 
   mit =  trackTruth.tgcHits.begin();
   mit_end =  trackTruth.tgcHits.end();
-  for( ;mit!=mit_end;++mit ) {
-    Identifier chId = m_idHelperTool->chamberId(mit->first);
-    chambers[chId].insert(mit->first);
-  }
-
-  mit =  trackTruth.stgcHits.begin();
-  mit_end =  trackTruth.stgcHits.end();
-  for( ;mit!=mit_end;++mit ) {
-    Identifier chId = m_idHelperTool->chamberId(mit->first);
-    chambers[chId].insert(mit->first);
-  }
-
-  mit =  trackTruth.mmHits.begin();
-  mit_end =  trackTruth.mmHits.end();
   for( ;mit!=mit_end;++mit ) {
     Identifier chId = m_idHelperTool->chamberId(mit->first);
     chambers[chId].insert(mit->first);
