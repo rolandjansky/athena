@@ -26,10 +26,10 @@ namespace Trk {
     SpaceTimePointBase(const float& t, const float& t_error, const float& weight);
 
     /** copy ctor*/
-    SpaceTimePointBase(const SpaceTimePointBase& stpb);
+    SpaceTimePointBase(const SpaceTimePointBase& stpb) = default;
 
     /** Assignment operator */
-    SpaceTimePointBase& operator=(const SpaceTimePointBase& stpb);
+    SpaceTimePointBase& operator=(const SpaceTimePointBase& stpb) = default;
 
     /** default destructor */
     virtual ~SpaceTimePointBase() {};
