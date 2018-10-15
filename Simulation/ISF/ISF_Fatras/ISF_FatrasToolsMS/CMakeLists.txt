@@ -33,3 +33,4 @@ atlas_add_component( ISF_FatrasToolsMS
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel Identifier GaudiKernel MuonSimEvent ISF_FatrasInterfaces TrkParameters TrkExInterfaces MuonReadoutGeometry MuonIdHelpersLib ISF_Event ISF_Interfaces TrkTrack )
 
+atlas_install_python_modules( python/*.py )
