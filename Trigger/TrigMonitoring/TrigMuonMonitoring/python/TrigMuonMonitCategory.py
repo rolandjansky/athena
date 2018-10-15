@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 monitoring_muonNonIso = ['HLT_mu50']
-monitoring_muonNonIso_HI = ['HLT_mu15_L1MU10','HLT_mu14']#8TeV
+monitoring_muonNonIso_HI = ['HLT_mu8','HLT_mu3', 'HLT_mu4']#8TeV
 #monitoring_muonNonIso_HI = ['HLT_mu10','HLT_mu14']
 monitoring_muonNonIso_pp = ['HLT_mu50']
 
@@ -31,7 +31,7 @@ monitoring_muonLowpt = ["HLT_mu14"]
 ### TE name of the hypos for the L2
 #L2 standalone
 monitoring_muonNonIso_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
-monitoring_muonNonIso_HI_L2SAHypo = ['HLT_mu15_L1MU10','L2_mu_SAhyp_Muon6GeV_v15a_MU10']#8TeV
+monitoring_muonNonIso_HI_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU6','L2_mu_SAhyp_Muon4GeV_v15a_MU4','L2_mu_SAhyp_Muon4GeV_v15a_MU4']#8TeV
 monitoring_muonNonIso_pp_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 
 monitoring_muonIso_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
@@ -56,7 +56,7 @@ monitoring_muonLowpt_pp_L2SAHypo = ["L2_mu_SAhyp_Muon6GeV_v15a_MU10"]
 
 #L2 combined
 monitoring_muonNonIso_L2CBHypo = ['L2_mucombhyp_mu22_MU20']
-monitoring_muonNonIso_HI_L2CBHypo = ['HLT_mu15_L1MU10','L2_mucombhyp_mu14_MU10']#8TeV
+monitoring_muonNonIso_HI_L2CBHypo = ['L2_mucombhyp_mu8_MU6', 'L2_mucombhyp_mu3_MU4', 'L2_mucombhyp_mu4_MU4']#8TeV
 monitoring_muonNonIso_pp_L2CBHypo = ['L2_mucombhyp_mu22_MU20']
 
 monitoring_muonIso_L2CBHypo = ['L2_mucombhyp_mu22_MU20']

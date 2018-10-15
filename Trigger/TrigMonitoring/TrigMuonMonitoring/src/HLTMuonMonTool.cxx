@@ -1057,7 +1057,7 @@ const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const
   const HLT::TriggerElement *hypote = NULL;
   std::vector<HLT::TriggerElement*> TEsuccessors = m_ExpertMethods->getNavigation()->getDirectSuccessors(te);
   for(auto te2 : TEsuccessors){
-    //ATH_MSG_DEBUG("[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) );
+    ATH_MSG_VERBOSE("[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) );
     if(Trig::getTEName(*te2)==hyponame){
       ATH_MSG_DEBUG("[" << chainname<< "] selected HypoTE: " << te2->getId() << " " <<  Trig::getTEName(*te2) <<  " isPassed=" << te2->getActiveState() );
       hypote = te2;
