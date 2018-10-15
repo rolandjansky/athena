@@ -26,7 +26,7 @@
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-#include "src/SCT_ConditionsSummarySvc.h"
+//#include "src/SCT_ConditionsSummarySvc.h"
 
 /** Forward declarations*/
 class IInterface;
@@ -48,9 +48,9 @@ class ISCT_ByteStreamErrorsSvc;
 class ISCT_DCSConditionsSvc;
 class IInDetConditionsSvc;
 class TString;
-class SCT_ConditionsSummarySvc;//add 05Jul2018
+//class SCT_ConditionsSummarySvc;//add 05Jul2018
 
-namespace InDetDD//11.09.2016
+namespace InDetDD
 {
   class SCT_DetectorManager;
 }
@@ -242,8 +242,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   ServiceHandle<ITHistSvc> m_thistSvc;
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
   ServiceHandle<ISCT_DCSConditionsSvc> m_dcsSvc;
-
-  //  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
   ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
   bool                                     m_checkBadModules;
   bool                                     m_ignore_RDO_cut_online;
@@ -268,8 +266,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   bool SyncDisabledSCT();
   bool SyncErrorSCT();
   bool summarySCT();
-  bool pstriptoeSCT();
-  bool pstripdcsSCT();
+  bool psTripDCSSCT();
   bool eventVsWafer();
 
   void fillModule( moduleGeo_t module,  TH2F* histo );
@@ -277,29 +274,39 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
+  //enum TEST
+  enum ProblemForCoverage {
+    badLinkError, //link bad
+    badRODError, // ROD bad
+    badError, // link bad + ROD bad = bad error
+    psTripDCS, // power supply trip DCS
+    summary, //total coverage using SCT_ConditionsSummarySvc
+    psTripWafer, // Counting power supply trip wafer
+    numberOfProblemForCoverage
+  };
+
   geoContainerPure_t m_disabledGeoSCT;
   geoContainer_t m_allGeoSCT;//all
+  geoContainer_t m_goodGeoSCTrod;  
+  geoContainer_t m_geoSCT[numberOfProblemForCoverage];
+  /*  
   geoContainer_t m_errorGeoSCTlink;//link bad
   geoContainer_t m_errorGeoSCTrod;//rod bad
-  geoContainer_t m_goodGeoSCTrod;
   geoContainer_t m_errorGeoSCT;//bad error
-  geoContainer_t m_pstripTOEGeoSCT;//ps trip TimeOutError
-  geoContainer_t m_pstripDCSGeoSCT;//ps trip DCS
-  geoContainer_t m_summaryGeoSCT;//summary svc
+  geoContainer_t m_pstripDCSGeoSCT;//
   geoContainer_t m_pstripWaferSCT;//Counting ps trip wafer
-  geoContainer_t m_pstripDCSTestSCT;//Counting ps trip DCS Processing LB by LB TEST
-
+  geoContainer_t m_summaryGeoSCT;//summary svc
+  */
   TH2F * m_disabledModulesMapSCT;//disabled SCT
+  TH2F * m_mapSCT[numberOfProblemForCoverage];
+  /*
   TH2F * m_errorModulesMapSCTlink;//link bad
   TH2F * m_errorModulesMapSCTrod;//ROD bad
   TH2F * m_errorModulesMapSCT;//link + ROD = bad error
-  TH2F * m_pstripTOEModulesMapSCT;//ps trip TimeOutError
   TH2F * m_pstripDCSModulesMapSCT;//ps trip DCS
-  TH2F * m_summaryModulesMapSCT;//total coverage
   TH2F * m_pstripWaferMapSCT;//Counting ps trip wafer
-  TH2F * m_pstripDCStestMapSCT;//Counting ps trip DCS Processing LB by LB TEST
-  TH2F * m_waferVsEventNum;//TEST
-
+  TH2F * m_summaryModulesMapSCT;//total coverage
+  */  
   const unsigned int m_nBinsEta;
   const double 		 m_rangeEta;
   const unsigned int m_nBinsPhi;
@@ -308,13 +315,11 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //TProfile * m_DisabledDetectorCoverageVsLB;
   //TProfile * m_ErrorDetectorCoverageVsLB;
   TProfile * m_RODoutDetectorCoverageVsLB;
-  TProfile * m_pstripTOEDetectorCoverageVsLB;
   TProfile * m_pstripDCSDetectorCoverageVsLB;
   TProfile * m_summaryDetectorCoverageVsLB;
   TProfile * m_pstripWaferVsLB;
-  TProfile * m_pstripDCSTestCoverageVsLB;
 
-  int  n_pswafer;
+  int  m_pswafer;
 };
 
 #endif
