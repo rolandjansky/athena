@@ -8,5 +8,5 @@ testcmake:
   - mkdir ../build
   - cd ../build
   - asetup master,r2018-10-09,Athena,gcc62,slc6,here
-  - cmake ../athena/Projects/Workdir/
+  - cmake ../athena/Projects/WorkDir/
   - make
