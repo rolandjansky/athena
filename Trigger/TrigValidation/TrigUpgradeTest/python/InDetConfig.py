@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def TrigInDetConfig( inputFlags, viewSeq ):
+def TrigInDetConfig( flags ):
   acc = ComponentAccumulator()
 
   from InDetRecExample.InDetKeys import InDetKeys
@@ -22,7 +22,7 @@ def TrigInDetConfig( inputFlags, viewSeq ):
 
 
   #Only add raw data decoders if we're running over raw data
-  isMC = inputFlags.get("global.isMC")
+  isMC = flags.Input.isMC
   if not isMC:
     #Pixel
 
@@ -52,8 +52,7 @@ def TrigInDetConfig( inputFlags, viewSeq ):
 
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
-                                        TriggerMode = False,)# OutputLevel = INFO)
+    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder")
     acc.addPublicTool(InDetSCTRodDecoder)
 
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
@@ -157,7 +156,7 @@ def TrigInDetConfig( inputFlags, viewSeq ):
 
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetup.setToolName("InDetSCT_ConditionsSummaryTool")
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool")
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   condTools = []
@@ -166,8 +165,7 @@ def TrigInDetConfig( inputFlags, viewSeq ):
     if condTool not in condTools:
       if condTool != InDetSCT_FlaggedConditionTool.getFullName():
         condTools.append(condTool)
-  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
@@ -187,7 +185,6 @@ def TrigInDetConfig( inputFlags, viewSeq ):
   InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                      DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -223,50 +220,34 @@ def TrigInDetConfig( inputFlags, viewSeq ):
   acc.addEventAlgo(InDetSiTrackerSpacePointFinder)
 
 
-  from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-  from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+  #from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+  #from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 
-  from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
-  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
-                                                           doIBLresidual = False,
-                                                           TrackName = "TrigFastTrackFinder_Tracks",
-                                                           TrackParticlesName = "xAODTracks",
-                                                           ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-  theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
-  acc.addEventAlgo(theTrackParticleCreatorAlg)
+  #from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+  #theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
+  #                                                         doIBLresidual = False,
+  #                                                         TrackName = "TrigFastTrackFinder_Tracks",
+  #                                                         TrackParticlesName = "xAODTracks",
+  #                                                         ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+  #theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
+  #acc.addEventAlgo(theTrackParticleCreatorAlg)
 
 
   return acc
 
 if __name__ == "__main__":
-    from AthenaCommon.Constants import INFO,DEBUG
+    from AthenaCommon.Configurable import Configurable
+    from AthenaCommon.CFElements import parOR, seqOR, seqAND
+    Configurable.configurableRun3Behavior=1
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaCommon.AlgSequence import AthSequencer
-    flags = ConfigFlags
-    flags.set("global.InputFiles", ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"])
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    ConfigFlags.lock()
+
     acc = ComponentAccumulator()
-    nThreads=1
 
-    from StoreGate.StoreGateConf import SG__HiveMgrSvc
-    eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
-    eventDataSvc.NSlots = nThreads
-    eventDataSvc.OutputLevel = DEBUG
-    acc.addService( eventDataSvc )
+    acc.merge( TrigInDetConfig( ConfigFlags ))
 
-    from SGComps.SGCompsConf import SGInputLoader
-    inputLoader = SGInputLoader(DetStore = 'StoreGateSvc/DetectorStore',
-                                EvtStore = 'StoreGateSvc',
-                                ExtraInputs = [],
-                                ExtraOutputs = [],
-                                FailIfNoProxy = False,
-                                Load = [],
-                                NeededResources = [])
-
-    acc.addEventAlgo( inputLoader, sequence='AthAlgSeq' )
-
-    viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
-    acc.addSequence(viewSeq)
-
-    acc = TrigInDetConfig( flags , viewSeq)
-    acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
+    acc.printConfig()
+    acc.store( open("test.pkl", "w") )
+    print 'All ok'
