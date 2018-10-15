@@ -149,6 +149,8 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   if ( !firstSmootherMeasurementOnTrack ){
     ATH_MSG_WARNING("Initial state on surface in smoother does not have an associated MeasurementBase object... returning 0");
+    if(!smootherPredictionMultiStateOnSurface)
+      delete smootherPredictionMultiState;
     return nullptr;
   }
 
