@@ -134,7 +134,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 ### Provide Muon_PrepDataAlgorithms ###
 from TrigUpgradeTest.MuonSetup import makeMuonPrepDataAlgs
-( eventAlgs_Muon, viewAlgs_MuL2SA, viewAlgs_MuEFSA ) = makeMuonPrepDataAlgs( doL2SA, doEFSA )
+( eventAlgs_Muon, viewAlgs_MuL2SA, viewAlgs_MuEFSA ) = makeMuonPrepDataAlgs()
 
 
 ### ************* Step1  ************* ###
@@ -162,71 +162,18 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker.Views = "MUViewRoIs"
     l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
 
-    ### Define input data of L2MuonSA PRD provider algorithms  ###
-    ### and Define EventViewNodes to run the algprithms        ###
-    for eventAlg_Muon in eventAlgs_Muon:
-      if eventAlg_Muon.properties().has_key("RoIs"):
-        eventAlg_Muon.RoIs = l2MuViewsMaker.InViewRoIs
-        
-    #for viewAlg_MuL2SA in viewAlgs_MuL2SA:
-    #  l2MuViewNode += viewAlg_MuL2SA
-
     ### set up MuFastSteering ###
-    from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
-    muFastAlg = TrigL2MuonSAMTConfig("Muon")
+    from TrigUpgradeTest.MuonSetup import makeMuFastAlgs
+    muFastAlg = makeMuFastAlgs()
     muFastAlg.OutputLevel = DEBUG
-    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
     muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
     muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
 
-    ### To create BS->RDO data                                                                     ###
-    ### viewAlgs_MuL2SA should has                                                                 ###
-    ###      [CSCRdoTool, MDTRdoTool, MDTRawTool, RPCRdoTool, RPCRawTool, TGCRdoTool, TGCRawTool ] ###
-    ### CSCRDO ###
-    if muonRecFlags.doCSCs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-      L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(OutputLevel = DEBUG,
-                                                            CscPrepDataProvider = viewAlgs_MuL2SA[0])
-      ToolSvc += L2CscDataPreparator
-       
-      muFastAlg.DataPreparator.CSCDataPreparator = L2CscDataPreparator
-
-    ### MDTRDO ###
-    if muonRecFlags.doMDTs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-      L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(OutputLevel = DEBUG,
-                                                            MdtPrepDataProvider = viewAlgs_MuL2SA[1],
-                                                            MDT_RawDataProvider = viewAlgs_MuL2SA[2])
-      ToolSvc += L2MdtDataPreparator
-      
-      muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
-
     l2MuViewNode += muFastAlg
  
-    ### RPCRDO ###
-    if muonRecFlags.doRPCs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
-      L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
-                                                            RpcPrepDataProvider = viewAlgs_MuL2SA[3],
-                                                            RpcRawDataProvider = viewAlgs_MuL2SA[4],
-                                                            DecodeBS = DetFlags.readRDOBS.RPC_on())
-      ToolSvc += L2RpcDataPreparator
-       
-      muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
-
-    ### TGCRDO ###
-    if muonRecFlags.doTGCs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-      L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(OutputLevel         = DEBUG,
-                                                            TgcPrepDataProvider = viewAlgs_MuL2SA[5])
-      ToolSvc += L2TgcDataPreparator
-       
-      muFastAlg.DataPreparator.TGCDataPreparator = L2TgcDataPreparator
-
-   
     ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMufastHypoConfig
     trigMufastHypo = TrigMufastHypoConfig("TrigL2MufastHypoAlg")

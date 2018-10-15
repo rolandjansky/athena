@@ -19,6 +19,7 @@ class MenuTest:
                          "HLT_e7_etcut":   "L1_EM7",        
                          "HLT_mu6idperf": "L1_EM7",        
                          "HLT_mu6":       "L1_EM7",        
+                         "HLT_mu20":       "L1_EM20",        
                          "HLT_xs20":      "L1_EM7",        
                          "HLT_2e3_etcut": "L1_2EM3",        
                          "HLT_e3e5_etcut":"L1_2EM3",        
