@@ -98,8 +98,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
          m_databaseMaxFileSize.insert(entry);
       } else {
          m_domainMaxFileSize = atoll(iter->c_str());
-         if (m_domainMaxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (m_domainMaxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
       }
