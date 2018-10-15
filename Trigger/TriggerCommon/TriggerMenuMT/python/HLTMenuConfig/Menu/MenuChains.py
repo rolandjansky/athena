@@ -12,7 +12,7 @@ ChainDictionary ={  'HLT_e8'           : ['HLT_e8'],
                     'HLT_mu8'          : ['HLT_mu8'],
                     'HLT_mu81step'     : ['HLT_mu8'],
                     'HLT_mu20'         : ['HLT_mu20'],
-                    'HLT_mu20_ivar'    : ['HLT_mu20'],
+                    'HLT_mu20_ivar'    : ['HLT_mu6', 'HLT_mu6', 'HLT_mu20'],
                     'HLT_2mu6'         : ['HLT_2mu6'], # review double object
                     'HLT_2mu6Comb'     : ['HLT_2mu6'], # review double object
                     'HLT_mu8_e8'       : ['HLT_mu8','HLT_e8'],                    

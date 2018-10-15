@@ -45,15 +45,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
-doL2SA  = True
-doL2CB  = True
-doEFSA  = True
-doL2ISO = True
-
-TriggerFlags.doID   = True;
-TriggerFlags.doMuon = True;
-
-
 # ===========================================
 #          SET PREPARATOR DATA               
 # ===========================================
@@ -134,10 +125,11 @@ l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode ])
 
 from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
 
-muFastStep = MenuSequence( Sequence    = l2muFastSequence,
-                           Maker       = l2MuViewsMaker,
-                           Hypo        = trigMufastHypo,
-                           HypoToolGen = TrigMufastHypoToolFromName )
+def muFastStep():
+  return MenuSequence( Sequence    = l2muFastSequence,
+                       Maker       = l2MuViewsMaker,
+                       Hypo        = trigMufastHypo,
+                       HypoToolGen = TrigMufastHypoToolFromName )
 
 
 ### ************* Step2  ************* ###
@@ -186,25 +178,19 @@ trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName
 l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode ] )
 
 from TrigMuonHypo.testTrigMuonHypoConfig import TrigmuCombHypoToolFromName
-muCombStep = MenuSequence( Sequence    = l2muCombSequence,
-                           Maker       = l2muCombViewsMaker,
-                           Hypo        = trigmuCombHypo,
-                           HypoToolGen = TrigmuCombHypoToolFromName )
+
+def muCombStep():
+  return MenuSequence( Sequence    = l2muCombSequence,
+                       Maker       = l2muCombViewsMaker,
+                       Hypo        = trigmuCombHypo,
+                       HypoToolGen = TrigmuCombHypoToolFromName )
 
 
 ### ************* Step3  ************* ###
 
-### set the EVCreator ###    
-efMuViewNode = parOR("efMuViewNode")
 
-efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
-efMuViewsMaker.ViewFallThrough = True
-efMuViewsMaker.RoIsLink = "initialRoI" # -||-
-efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
-efMuViewsMaker.Views = "EFMUViewRoIs"
-efMuViewsMaker.ViewNodeName = efMuViewNode.name()
-
-
+efAlgs = []
+  
 from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
 ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
 
@@ -286,30 +272,93 @@ thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", Scat
 themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[])
 
 #Algorithms to views
-efMuViewNode += theSegmentFinderAlg
-#efMuViewNode += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.
-efMuViewNode += TrackBuilder
-efMuViewNode += xAODTrackParticleCnvAlg
-efMuViewNode += theMuonCandidateAlg
-efMuViewNode += themuoncreatoralg
+efAlgs.append( theSegmentFinderAlg )
+#efAlgs.append( theNCBSegmentFinderAlg ) #The configuration still needs some sorting out for this so disabled for now.
+efAlgs.append( TrackBuilder )
+efAlgs.append( xAODTrackParticleCnvAlg )
+efAlgs.append( theMuonCandidateAlg )
+efAlgs.append( themuoncreatoralg )
 
-#Setup MS-only hypo
+
+###  EFMSonly step ###
+efmsViewNode = parOR("efmsViewNode")
+
+efmsViewsMaker = EventViewCreatorAlgorithm("efmsViewsMaker", OutputLevel=DEBUG)
+efmsViewsMaker.ViewFallThrough = True
+efmsViewsMaker.RoIsLink = "initialRoI" # -||-
+efmsViewsMaker.InViewRoIs = "MUEFMSRoIs" # contract with the consumer
+efmsViewsMaker.Views = "MUEFMSViewRoIs"
+efmsViewsMaker.ViewNodeName = efmsViewNode.name()
+
+# setup muEFMsonly algs
+for efAlg in efAlgs:
+  efmsViewNode += efAlg
+
+# setup RDO preparator algorithms 
+for eventAlg_Muon in eventAlgs_Muon:
+  if eventAlg_Muon.properties().has_key("RoIs"):
+    eventAlg_Muon.RoIs = efmsViewsMaker.InViewRoIs
+
+for viewAlg_MuEFSA in viewAlgs_MuEFSA:
+  efmsViewNode += viewAlg_MuEFSA
+
+# setup MS-only hypo
+from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFMSonlyHypoAlg
+trigMuonEFMSHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFMSHypoAlg" )
+trigMuonEFMSHypo.OutputLevel = DEBUG
+trigMuonEFMSHypo.MuonDecisions = "Muons"
+
+muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efmsViewsMaker, efmsViewNode] )
+
+from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
+
+def muEFMSStep():
+  return MenuSequence( Sequence    = muonEFMSonlySequence,
+                       Maker       = efmsViewsMaker,
+                       Hypo        = trigMuonEFMSHypo,
+                       HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+
+###  EFSA step ###
+efsaViewNode = parOR("efsaViewNode")
+
+efsaViewsMaker = EventViewCreatorAlgorithm("efsaViewsMaker", OutputLevel=DEBUG)
+efsaViewsMaker.ViewFallThrough = True
+efsaViewsMaker.RoIsLink = "initialRoI" # -||-
+efsaViewsMaker.InViewRoIs = "MUEFSARoIs" # contract with the consumer
+efsaViewsMaker.Views = "MUEFSAViewRoIs"
+efsaViewsMaker.ViewNodeName = efsaViewNode.name()
+
+# setup muEFMsonly algs
+for efAlg in efAlgs:
+  efsaViewNode += efAlg
+
+# setup RDO preparator algorithms 
+for eventAlg_Muon in eventAlgs_Muon:
+  if eventAlg_Muon.properties().has_key("RoIs"):
+    eventAlg_Muon.RoIs = efsaViewsMaker.InViewRoIs
+
+for viewAlg_MuEFSA in viewAlgs_MuEFSA:
+  efsaViewNode += viewAlg_MuEFSA
+
+# setup EFSA hypo
 from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFMSonlyHypoAlg
 trigMuonEFSAHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAHypoAlg" )
 trigMuonEFSAHypo.OutputLevel = DEBUG
 trigMuonEFSAHypo.MuonDecisions = "Muons"
 
-muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efMuViewsMaker, efMuViewNode] )
+muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, efsaViewNode] )
 
 from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
 
-muonEFSAStep = MenuSequence( Sequence    = muonEFMSonlySequence,
-                             Maker       = efMuViewsMaker,
-                             Hypo        = trigMuonEFSAHypo,
-                             HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+def muEFSAStep():
+  return MenuSequence( Sequence    = muonEFSAonlySequence,
+                       Maker       = efsaViewsMaker,
+                       Hypo        = trigMuonEFSAHypo,
+                       HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
 
 
-### setup l2Muiso 
+
+### l2Muiso step ###
 l2muIsoViewNode = parOR("l2muIsoViewNode")
 
 l2muIsoViewsMaker = EventViewCreatorAlgorithm("l2muIsoViewsMaker", OutputLevel=DEBUG)
@@ -333,14 +382,16 @@ trigmuIsoHypo = TrigMuisoHypoAlg("L2MuisoHypoAlg")
 trigmuIsoHypo.OutputLevel = DEBUG
 trigmuIsoHypo.MuonL2ISInfoName = trigL2muIso.MuonL2ISInfoName
 
-from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuisoHypoToolFromName
 ### Define a Sequence to run for muIso ### 
 l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muIsoViewNode ] )
 
-muIsoStep = MenuSequence( Sequence    = l2muIsoSequence,
-                          Maker       = l2muIsoViewsMaker,
-                          Hypo        = trigmuIsoHypo,
-                          HypoToolGen = TrigMuisoHypoToolFromName )
+from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuisoHypoToolFromName
+
+def muIsoStep():
+  return MenuSequence( Sequence    = l2muIsoSequence,
+                       Maker       = l2muIsoViewsMaker,
+                       Hypo        = trigmuIsoHypo,
+                       HypoToolGen = TrigMuisoHypoToolFromName )
 
    
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
