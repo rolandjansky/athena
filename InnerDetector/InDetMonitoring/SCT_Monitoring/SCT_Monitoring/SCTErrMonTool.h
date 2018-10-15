@@ -64,6 +64,11 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   typedef std::pair< std::pair<double, double>, std::pair<double, double> > moduleGeo_t;
   typedef std::map< IdentifierHash, moduleGeo_t > geoContainer_t;
   typedef std::map< Identifier, moduleGeo_t > geoContainerPure_t;
+
+  std::vector<moduleGeo_t> m_geo;
+  std::set<IdentifierHash> m_psSCTHash;
+  std::set<IdentifierHash> m_summarySCTHash;
+
  public:
   SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent);
   virtual ~SCTErrMonTool();
@@ -274,7 +279,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
-  //enum TEST
   enum ProblemForCoverage {
     badLinkError, //link bad
     badRODError, // ROD bad
@@ -289,28 +293,15 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   geoContainer_t m_allGeoSCT;//all
   geoContainer_t m_goodGeoSCTrod;  
   geoContainer_t m_geoSCT[numberOfProblemForCoverage];
-  /*  
-  geoContainer_t m_errorGeoSCTlink;//link bad
-  geoContainer_t m_errorGeoSCTrod;//rod bad
-  geoContainer_t m_errorGeoSCT;//bad error
-  geoContainer_t m_pstripDCSGeoSCT;//
-  geoContainer_t m_pstripWaferSCT;//Counting ps trip wafer
-  geoContainer_t m_summaryGeoSCT;//summary svc
-  */
+
   TH2F * m_disabledModulesMapSCT;//disabled SCT
   TH2F * m_mapSCT[numberOfProblemForCoverage];
-  /*
-  TH2F * m_errorModulesMapSCTlink;//link bad
-  TH2F * m_errorModulesMapSCTrod;//ROD bad
-  TH2F * m_errorModulesMapSCT;//link + ROD = bad error
-  TH2F * m_pstripDCSModulesMapSCT;//ps trip DCS
-  TH2F * m_pstripWaferMapSCT;//Counting ps trip wafer
-  TH2F * m_summaryModulesMapSCT;//total coverage
-  */  
+
   const unsigned int m_nBinsEta;
   const double 		 m_rangeEta;
   const unsigned int m_nBinsPhi;
   const double m_ModulesThreshold;
+  const double m_WafersThreshold;
 
   //TProfile * m_DisabledDetectorCoverageVsLB;
   //TProfile * m_ErrorDetectorCoverageVsLB;
