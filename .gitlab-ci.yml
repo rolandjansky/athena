@@ -1,0 +1,12 @@
+testcmake:
+ variables:
+    ATLAS_LOCAL_ROOT_BASE: /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+ script:
+  - ls
+  - set +e
+  - source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
+  - mkdir ../build
+  - cd ../build
+  - asetup master,r2018-10-09,Athena,gcc62,slc6,here
+  - cmake ../athena/Projects/Workdir/
+  - make
