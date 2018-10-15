@@ -12,5 +12,6 @@ EgammaChainsToKeepMonitoring={
 #HI 2018 chains
 "g20_loose",
 "e15_loose",
-"e20_medium"
+"e20_medium",
+"e15_lhmedium"
 }
