@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARDAC2UASYM_H
@@ -9,27 +9,21 @@
 
 class LArMCSym;
 class LArDAC2uAMC;
-class LArDAC2uAComplete;
+class LArSingleFloatP;
+template<typename LArSingleFloatP> class LArConditionsContainer;
+
 
 class LArDAC2uASym: virtual public ILArDAC2uA {
-  
  public:
-
   LArDAC2uASym() = delete;
-
   LArDAC2uASym(const LArMCSym* mcsym,  const LArDAC2uAMC* DAC2uAComplete);
-  
   virtual ~LArDAC2uASym( );
   
   virtual const float& DAC2UA(const HWIdentifier& hwid) const override;
   
-  virtual const float& DAC2UA(const Identifier& CellID) const override;
-  
  private: 
-
   const LArMCSym* m_mcSym;
-  const LArDAC2uAComplete* m_DAC2uAComplete;
-
+  const LArConditionsContainer<LArSingleFloatP> *m_DAC2uAComplete;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

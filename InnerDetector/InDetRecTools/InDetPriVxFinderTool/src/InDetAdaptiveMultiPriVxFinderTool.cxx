@@ -491,6 +491,7 @@ namespace InDet
 
           if (VTAV(*actualcandidate).empty()) {
             ATH_MSG_DEBUG("No tracks found near seed, while at least one track was expected.");
+            delete actualcandidate;
             break;
           }
         } else {

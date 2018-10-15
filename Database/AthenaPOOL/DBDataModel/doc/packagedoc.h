@@ -22,7 +22,7 @@ StoreGate aliases) and Token string of a DataObject.
 One vector stores DataHeaderElements for all persistified data objects (called the "DataObject" vector)
 and the other one stores the same information for all upstream DataHeader ("Provenance" vector).
 A DataHeader is written automatically by AthenaPOOL for each "event". It is used to load the persistified
-DataObject from POOL and provide support for BackNavigation.
+DataObject from POOL.
 
 
 @section DBDataModel_Properties Settable DBDataModel Properties (Job Options)

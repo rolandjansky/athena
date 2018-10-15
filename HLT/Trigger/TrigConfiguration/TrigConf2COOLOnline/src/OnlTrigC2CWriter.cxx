@@ -400,7 +400,7 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
             try {
                 sm->masterTableLoader().load(*m_CTPConfig);
             }
-            catch(std::exception e) {
+            catch(const std::exception& e) {
                 TrigConf::TriggerDBReadError issue(ERS_HERE, e.what());
                 ers::fatal(issue);
             }
@@ -412,7 +412,7 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
             try {
                 sm->prescaleSetLoader().load(l1pss);
             }
-            catch(std::exception e) {
+            catch(const std::exception& e) {
                 TrigConf::TriggerDBReadError issue(ERS_HERE, e.what());
                 ers::fatal(issue);
             }

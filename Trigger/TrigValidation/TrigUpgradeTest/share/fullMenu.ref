@@ -78,7 +78,6 @@ TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e5_etcut ID#607
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e5_etcut ID#607406625
-TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
@@ -98,14 +97,11 @@ TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e5_etcut ID#607
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e5_etcut ID#607406625
-TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6Comb ID#393364983
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6 ID#1672162766
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_e5_etcut ID#607406625
-TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
@@ -130,7 +126,7 @@ TrigSignatureMoniMT                                INFO HLT_2mu6Comb            
 TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        18        17        17        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step             20        20        18        0         18        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_mu6              20        20        3         0         0         
-TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        17        17        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        17        17        
+TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        14        14        
 TrigSignatureMoniMT                                INFO HLT_mu6                       20        20        3         0         3         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb                   20        20        3         2         2         

@@ -36,7 +36,7 @@
 #include <vector>
 
 
-static const std::string TILE_JO_NAME("jobOptions_TileDCSTest.py");
+static const std::string TILE_JO_NAME("jobOptions_TileDCSTest.txt");
 static const std::string TILE_DCS_CH_HV_IN_COOL("TileDCSChHvInCool.dat");
 static const std::string TILE_DCS_CH_STATES_IN_COOL("TileDCSChStatesInCool.dat");
 
@@ -862,6 +862,8 @@ int main() {
 
   std::ofstream jo(TILE_JO_NAME);
   jo << "ApplicationMgr.ExtSvc += { \"StoreGateSvc/DetectorStore\", \"StoreGateSvc/ConditionStore\" };" << std::endl;
+  jo << "GeoModelSvc.SupportedGeometry = 21;" << std::endl;
+  jo << "GeoModelSvc.AtlasVersion = \"ATLAS-R2-2016-01-00-01\";" << std::endl;
   jo.close();
 
 

@@ -40,7 +40,7 @@
 #include <vector>
 #include <memory>
 
-static const std::string TILE_JO_NAME("jobOptions_TileCalibEmsTest.py");
+static const std::string TILE_JO_NAME("jobOptions_TileCalibEmsTest.txt");
 static const std::string TILE_TEST_EMS("TileEMS_Test");
 static const std::string TILE_TEST_ALG_EMS("TileEMS_AlgTest");
 static const unsigned int DEF_DRAWER_IDX(0);
@@ -529,6 +529,8 @@ int main() {
 
   std::ofstream jo(TILE_JO_NAME);
   jo << "ApplicationMgr.ExtSvc += {\"StoreGateSvc/DetectorStore\",  \"StoreGateSvc/ConditionStore\" };" << std::endl;
+  jo << "GeoModelSvc.SupportedGeometry = 21;" << std::endl;
+  jo << "GeoModelSvc.AtlasVersion = \"ATLAS-R2-2016-01-00-01\";" << std::endl;
   jo.close();
 
   ISvcLocator* svcLoc;

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MBTSTIMEDIFFEVENTINFOALG
-#define MBTSTIMEDIFFEVENTINFOALG
+#ifndef TILERECALGS_MBTSTIMEDIFFEVENTINFOALG_
+#define TILERECALGS_MBTSTIMEDIFFEVENTINFOALG_
 
 // Tile includes
 #include "TileEvent/TileContainer.h"
@@ -11,6 +11,7 @@
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -39,6 +40,7 @@ class MBTSTimeDiffEventInfoAlg: public AthAlgorithm {
     const TileTBID* m_tileTBID;
 
     SG::ReadHandleKey<TileCellContainer> m_mbtsContainerKey{this,"MBTSContainer","MBTSContainer","Input MBTS container key"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "Input Event info key"};
     SG::WriteHandleKey<MBTSCollisionTime> m_mbtsCollisionTimeKey{this,"MBTSCollisionTime","MBTSCollisionTime","Output MBTS collision time key"};
 
     const uint8_t m_mask, m_pattern;

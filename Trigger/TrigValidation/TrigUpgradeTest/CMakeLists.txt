@@ -77,12 +77,12 @@ atlas_add_test( photonMenu
 		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
  		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu   )
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
-atlas_add_test( egammaMenu
-		SCRIPT test/test_egamma_menu.sh
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_electronMenu )
+atlas_add_test( electronMenu
+		SCRIPT test/test_electron_menu.sh
 		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
                 PROPERTIES TIMEOUT 500
-		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_electronMenu
               )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muRunData )
@@ -157,6 +157,13 @@ atlas_add_test( l1sim
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim
 		)
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu )
+atlas_add_test( bJetMenu
+                SCRIPT test/test_bjet_menu.sh
+                 PROPERTIES TIMEOUT 500
+                EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*"
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu   )
 
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )

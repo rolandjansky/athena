@@ -38,7 +38,8 @@ StatusCode HLTResultMTMakerAlg::execute_r(const EventContext& context) const {
   if ( iter !=  hltResult->getSerialisedData().end() ) 
     sizeMain = double(iter->second.size()*sizeof(uint32_t))/1024;
   
-  MonitoredScope::declare( m_monTool,  time, nstreams,  nfrags, sizeMain );
+  auto bitWords = MonitoredScalar::declare( "bitWords", hltResult->getHltBits().size()  ); 
+  MonitoredScope::declare( m_monTool,  time, nstreams,  nfrags, sizeMain, bitWords );
   
 
   auto hltResultHandle = SG::makeHandle( m_resultKey, context );

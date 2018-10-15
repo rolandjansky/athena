@@ -27,6 +27,8 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.WriteAthenaPool
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+include ('DataModelRunTests/loadReadDicts.py')
+
 #--------------------------------------------------------------
 # Define input
 #--------------------------------------------------------------
@@ -45,15 +47,6 @@ from DataModelTestDataRead.DataModelTestDataReadConf import DMTest__AuxDataTestR
 topSequence += DMTest__AuxDataTestRead ("AuxDataTestRead")
 topSequence += DMTest__AuxDataTestRead ("AuxDataTestRead_copy",
                                         ReadPrefix = "copy_")
-
-# Note: can't autoload these.
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataReadDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
-
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )

@@ -31,6 +31,7 @@ UPDATE : 25/06/2018
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, 
                                                  ISvcLocator* pSvcLocator):
@@ -50,11 +51,7 @@ StatusCode egammaSelectedTrackCopy::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (!m_egammaCheckEnergyDepositTool.empty()) {
-    ATH_CHECK( m_egammaCheckEnergyDepositTool.retrieve() );
-  } else {
-    m_egammaCheckEnergyDepositTool.disable();
-  }
+  ATH_CHECK( m_egammaCaloClusterSelector.retrieve() );
 
   return StatusCode::SUCCESS;
 }  
@@ -102,6 +99,14 @@ StatusCode egammaSelectedTrackCopy::execute()
   unsigned int selectedTRTTracks(0); 
   unsigned int selectedSiTracks(0);  
 
+  // // lets first check which clusters to seed on;
+  std::vector<const xAOD::CaloCluster *> passingClusters;
+  for(const xAOD::CaloCluster* cluster : *clusterTES ){
+    if (m_egammaCaloClusterSelector->passSelection(cluster)) {
+      passingClusters.push_back(cluster);
+    }
+  }
+
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
@@ -123,13 +128,8 @@ StatusCode egammaSelectedTrackCopy::execute()
       isTRT = false;
       ++allSiTracks;
     }
-    for(const xAOD::CaloCluster* cluster : *clusterTES ){
 
-      // check that cluster passes basic selection
-      if (!passSelection(cluster)) {
-	ATH_MSG_DEBUG("Cluster did not pass selection");
-	continue;
-      }
+    for(const xAOD::CaloCluster* cluster : passingClusters ){
 
       /*
          check if it the track is selected due to this cluster.
@@ -294,38 +294,3 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
   return false;
 }
-
-bool egammaSelectedTrackCopy::passSelection(const xAOD::CaloCluster *clus) const
-{
-  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-
-  double emFrac(0.);
-  if (acc.isAvailable(*clus)) {
-    emFrac = acc(*clus);
-  } else if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-    throw std::runtime_error("No EM fraction momement stored");    
-  }
-  if ( emFrac< m_ClusterEMFCut ){
-    ATH_MSG_DEBUG("Cluster failed EM Fraction cuT");
-    return false;
-  }
-
-  if ( clus->et()*emFrac< m_ClusterEMEtCut ){
-    ATH_MSG_DEBUG("Cluster failed EM Energy cut");
-    return false;
-  }
-
-  
-  double lateral(0.);
-  if (!clus->retrieveMoment(xAOD::CaloCluster::LATERAL, lateral)){
-    throw std::runtime_error("No LATERAL momement stored, normalized");
-  }
-  
-  if ( lateral >  m_ClusterLateralCut ){
-    ATH_MSG_DEBUG("Cluster failed LATERAL cut");
-    return false;
-  }
-
-  return true;
-}
-

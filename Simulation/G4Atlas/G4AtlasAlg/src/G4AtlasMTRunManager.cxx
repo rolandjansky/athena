@@ -62,6 +62,16 @@ void G4AtlasMTRunManager::InitializeGeometry()
 {
   ATH_MSG_INFO("InitializeGeometry");
 
+  // Retrieve detector geo service
+  if (m_detGeoSvc.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve the DetectorGeometrySvc");
+    G4ExceptionDescription description;
+    description << "InitializeGeometry: Failed to retrieve IDetectorGeometrySvc.";
+    G4Exception("G4AtlasMTRunManager", "CouldNotRetrieveDetGeoSvc",
+                FatalException, description);
+    abort(); // to keep Coverity happy
+  }
+
   // Set smartlessness
   G4LogicalVolumeStore *logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
   const G4String muonSys("Muon::MuonSys");
@@ -75,16 +85,6 @@ void G4AtlasMTRunManager::InitializeGeometry()
       ilv->SetSmartless( 0.5 );
       ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
     }
-  }
-
-  // Retrieve detector geo service
-  if (m_detGeoSvc.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the DetectorGeometrySvc");
-    G4ExceptionDescription description;
-    description << "InitializeGeometry: Failed to retrieve IDetectorGeometrySvc.";
-    G4Exception("G4AtlasMTRunManager", "CouldNotRetrieveDetGeoSvc",
-                FatalException, description);
-    abort(); // to keep Coverity happy
   }
 
   // Create/assign detector construction

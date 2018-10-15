@@ -25,6 +25,7 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
 
+include ('DataModelRunTests/loadWriteDicts.py')
 
 
 #--------------------------------------------------------------
@@ -43,14 +44,6 @@ topSequence += DMTest__DMTestWrite ("DMTestWrite")
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
-# Note: can't autoload these.
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataWriteDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
-
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DataVector<DMTest::B>#bvec"]

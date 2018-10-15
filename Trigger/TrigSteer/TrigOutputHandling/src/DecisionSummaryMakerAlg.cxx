@@ -63,7 +63,12 @@ StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const
 						      finalIDs.begin(), finalIDs.end() );
     
   }
-  ATH_MSG_DEBUG( "Number of positive decisions " <<  TrigCompositeUtils::decisionIDs( output ).size() );
+  if ( msgLvl( MSG::DEBUG ) ) {
+    ATH_MSG_DEBUG( "Number of positive decisions " <<  TrigCompositeUtils::decisionIDs( output ).size() << " passing chains");
+    for ( auto d: TrigCompositeUtils::decisionIDs( output ) ) {
+      ATH_MSG_DEBUG( HLT::Identifier( d ) );
+    }
+  }
   ATH_CHECK( outputHandle.record( std::move( container), std::move( aux )) );
 
   return StatusCode::SUCCESS;

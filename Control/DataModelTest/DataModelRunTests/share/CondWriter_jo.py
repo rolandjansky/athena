@@ -23,6 +23,8 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
 
+include ('DataModelRunTests/loadWriteDicts.py')
+
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -31,14 +33,6 @@ theApp.EvtMax = 20
 
 #--------------------------------------------------------------
 # Output options
-#--------------------------------------------------------------
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
-
-
 #--------------------------------------------------------------
 
 

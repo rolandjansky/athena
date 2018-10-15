@@ -8,7 +8,6 @@
 #include "CLIDSvc/CLASS_DEF.h" 
 #include "LArElecCalib/LArVectorProxy.h"
 #include "Identifier/HWIdentifier.h"
-#include "Identifier/Identifier.h"
 
 #include <vector> 
 
@@ -39,28 +38,13 @@ class ILArOFC {
                          int tbin=0) const =0 ;
   
   
-  /** access to OFCs by offline ID, gain, and tbin (!=0 for testbeam)
-   */ 
-  
-  virtual OFCRef_t OFC_a(const Identifier& id,
-                         int gain,
-                         int tbin=0) const =0;
-  
-  virtual OFCRef_t OFC_b(const Identifier& id,
-                         int gain,
-                         int tbin=0) const =0;
-
-  
-  virtual float timeOffset(const Identifier&  CellID, int gain) const =0;   //Useful only in the TB case
   virtual float timeOffset(const HWIdentifier&  CellID, int gain) const =0; //Useful only in the TB case
 
   //For the TB / cosmic case: retrieve the number of time-bins (aka "phases")
   virtual unsigned nTimeBins(const HWIdentifier&  CellID, int gain) const =0;
-  virtual unsigned nTimeBins(const Identifier&  CellID, int gain) const =0;
  
   //For the TB / cosmic case: retrieve the witdth of the time bin (default 24 bins in 25 ns)
   virtual float timeBinWidth(const HWIdentifier&  CellID, int gain) const=0;
-  virtual float timeBinWidth(const Identifier&  CellID, int gain) const=0;
 } ;
 
 CLASS_DEF( ILArOFC, 204091343, 1) 

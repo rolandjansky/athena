@@ -149,14 +149,12 @@ Nbr Events: 20
 
 @endverbatim
 
-AthenaPoolExample_ReadJobOptions.py: These jobOptions read the previous events (SimplePoolFile1-3.root) including
-BackNavigation via global flag and scope.
+AthenaPoolExample_ReadJobOptions.py: These jobOptions read the previous events (SimplePoolFile1-3.root).
 
         Tests:
 
         - Reading of EventData (with navigation) and InFile MetaData.
 	- Skipping events.
-	- BackNavigation to upstream data.
 
 SimplePoolFile1.root: EventInfo, Hits
 SimplePoolFile2.root: EventInfo
