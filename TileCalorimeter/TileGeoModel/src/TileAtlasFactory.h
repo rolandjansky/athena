@@ -26,7 +26,7 @@ public:
   
   /** Constructor */
   TileAtlasFactory(StoreGateSvc *pDetStore, TileDetDescrManager *manager, 
-                   bool addPlates, int uShape, int glue,int cstube, MsgStream *log, bool fullGeo);
+                   bool addPlates, int uShape, int glue, int cstube, MsgStream *log, bool fullGeo);
   
   /** Destructor */
   ~TileAtlasFactory();
