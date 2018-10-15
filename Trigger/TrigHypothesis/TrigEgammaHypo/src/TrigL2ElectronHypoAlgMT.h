@@ -43,8 +43,6 @@ class TrigL2ElectronHypoAlgMT  :  public ::HypoBase
   SG::ReadHandleKey< xAOD::TrigElectronContainer > m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};
 
   
-  bool  recursivelyFindFeature( const TrigCompositeUtils::Decision* d, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const;
-  
 
 }; 
 

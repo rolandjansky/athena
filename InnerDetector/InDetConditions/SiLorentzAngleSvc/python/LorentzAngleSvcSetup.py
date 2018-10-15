@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Usage:
 #
@@ -12,7 +12,6 @@
 #
 # for both pixel and SCT or to set pixel and SCT separately do:
 #
-#  lorentzAngleSvc.pixelForceUseDB()
 #  lorentzAngleSvc.sctForceUseDB()
 #
 #
@@ -47,18 +46,17 @@ class LorentzAngleSvcSetup:
         from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
 
         from AthenaCommon.DetFlags      import DetFlags
-
         ##
         ## Pixel
         ##
         if ( DetFlags.detdescr.pixel_on() ):
-
-            from PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
-
-            self.pixel = pixelLorentzAngleSvcSetup.PixelLorentzAngleSvc
-            self.pixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
-            self.PixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
-
+            from PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+            self.pixel = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
+            self.pixelDCSConditionsTool = pixelLorentzAngleToolSetup.PixelDCSConditionsTool
+            self.PixelDCSConditionsTool = pixelLorentzAngleToolSetup.PixelDCSConditionsTool
+            self.pixelSiPropertiesTool  = pixelLorentzAngleToolSetup.PixelSiPropertiesTool
+            self.PixelSiPropertiesTool  = pixelLorentzAngleToolSetup.PixelSiPropertiesTool
         ##
         ## SCT 
         ##
@@ -76,16 +74,9 @@ class LorentzAngleSvcSetup:
     def forceUseDB(self) :
         "Force usage of conditions DB"
         from AthenaCommon.DetFlags      import DetFlags
-        if ( DetFlags.detdescr.pixel_on() ):
-            self.pixelForceUseDB()
-
         if ( DetFlags.detdescr.SCT_on() ):
             self.sctForceUseDB() 
     
-    def pixelForceUseDB(self) :
-        "Force usage of conditions DB for Pixel" 
-        self.PixelSiliconConditionsSvc.CheckGeoModel = False
-
     def sctForceUseDB(self) :
         "Force usage of conditions DB for SCT"
         self.SCT_SiliconConditionsTool.CheckGeoModel = False
@@ -95,16 +86,8 @@ class LorentzAngleSvcSetup:
     def forceUseGeoModel(self) :
         "Force usage of GeoModel defaults"
         from AthenaCommon.DetFlags      import DetFlags
-        if ( DetFlags.detdescr.pixel_on() ):
-            self.pixelForceUseGeoModel()
-
         if ( DetFlags.detdescr.SCT_on() ):
             self.sctForceUseGeoModel() 
-
-
-    def pixelForceUseGeoModel(self) :
-        "Force usage of GeoModel defaults for Pixel"
-        self.PixelSiliconConditionsSvc.ForceUseGeoModel = True
 
     def sctForceUseGeoModel(self) :
         "Force usage of GeoModel defaults for SCT"
@@ -116,8 +99,11 @@ lorentzAngleSvc = LorentzAngleSvcSetup()
 
 from AthenaCommon.DetFlags      import DetFlags
 if ( DetFlags.detdescr.pixel_on() ):
-   from PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
+   from PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+   pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+   PixelLorentzAngleTool = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
 if ( DetFlags.detdescr.SCT_on() ):
    from SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
    SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
+

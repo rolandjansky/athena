@@ -19,7 +19,8 @@
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
 #include "CLHEP/Vector/LorentzVector.h"
-class INavigable4Momentum;
+#include "EventKernel/INavigable4Momentum.h"
+
 
 
 namespace D3PDTest {

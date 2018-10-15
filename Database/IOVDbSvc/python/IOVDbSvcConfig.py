@@ -29,11 +29,11 @@ def IOVDbSvcCfg(configFlags):
     #m_h_metaDataTool("IOVDbMetaDataTool"),
     #m_h_tagInfoMgr("TagInfoMgr", name),
 
-    isMC=configFlags.get("global.isMC")
+    isMC=configFlags.Input.isMC
 
     # Set up IOVDbSvc
     iovDbSvc=IOVDbSvc()
-    dbname=configFlags.get("IOVDb.DatabaseInstance")
+    dbname=configFlags.IOVDb.DatabaseInstance
 
     localfile="sqlite://;schema=mycool.db;dbname="
     iovDbSvc.dbConnection=localfile+dbname
@@ -44,7 +44,7 @@ def IOVDbSvcCfg(configFlags):
         iovDbSvc.CacheAlign=3
 
 
-    iovDbSvc.GlobalTag=configFlags.get("IOVDb.GlobalTag")
+    iovDbSvc.GlobalTag=configFlags.IOVDb.GlobalTag
 
     result.addService(iovDbSvc)
 
@@ -72,7 +72,7 @@ def IOVDbSvcCfg(configFlags):
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
     
-    return result
+    return result,iovDbSvc
 
 
 #Convenience method to add folders:
@@ -83,8 +83,7 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
     if isinstance(folderstrings,str):
         folderstrings=[folderstrings,]
 
-    result=ComponentAccumulator()
-    result.addConfig(IOVDbSvcCfg,configFlags)
+    result,iovDbSvc=IOVDbSvcCfg(configFlags)
 
     #Add class-name to CondInputLoader (if reqired)
     if className is not None:
@@ -93,12 +92,16 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
             loadFolders.append((className, _extractFolder(fs)));
         result.getCondAlgo("CondInputLoader").Load+=loadFolders
         #result.addCondAlgo(CondInputLoader(Load=loadFolders))
- 
 
-    iovDbSvc=result.getService("IOVDbSvc")
+        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+        apcs=AthenaPoolCnvSvc()
+        result.addService(apcs)
+        from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+        result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
+
     
     if detDb is not None:
-        dbname=configFlags.get("IOVDb.DatabaseInstance")
+        dbname=configFlags.IOVDb.DatabaseInstance
         if not detDb in _dblist.keys():
             raise ConfigurationError("Error, db shorthand %s not known")
         dbstr="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
@@ -112,7 +115,7 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
         else:
             iovDbSvc.Folders.append(fs)
 
-    return result
+    return result,None
 
 
 _dblist={

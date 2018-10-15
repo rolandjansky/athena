@@ -103,7 +103,7 @@ private:
 
   std::string m_inputHitCollectionName; // name of the input objects
   SG::WriteHandleKey<TgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"}; // name of the output digits
-  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOsName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
+  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
   //pileup truth veto
   bool m_includePileUpTruth;

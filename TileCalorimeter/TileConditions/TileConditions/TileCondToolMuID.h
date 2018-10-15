@@ -5,22 +5,18 @@
 #ifndef TILECONDITIONS_TILECONDTOOLMUID_H
 #define TILECONDITIONS_TILECONDTOOLMUID_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileConditions/TileCalibData.h"
 
 // Athena includes
+#include "Identifier/Identifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-// Tile includes
-#include "TileConditions/ITileCondProxy.h"
-#include "Identifier/IdentifierHash.h"
-
-//#include "CaloIdentifier/TileID.h"
 #include <vector>
 
 // Forward declaration
 class CaloCell_ID;
-class TileCalibDrawerFlt;
 
 class TileCondToolMuID: public AthAlgTool {
   public:
@@ -29,21 +25,22 @@ class TileCondToolMuID: public AthAlgTool {
     TileCondToolMuID(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TileCondToolMuID();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    void getLowThreshold(Identifier & id, int & ros, int & module, int & index);
-    void getHighThreshold(Identifier & id, int & ros, int & module, int & index);
-    float getLowThresholdValue(Identifier id);
-    float getHighThresholdValue(Identifier id);
-    //  void getAllDrawerThresholdsValues(vector<double> &thresholds, int ros, int module);
+    void getLowThreshold(Identifier & id, int & ros, int & module, int & index) const;
+    void getHighThreshold(Identifier & id, int & ros, int & module, int & index) const;
+    float getLowThresholdValue(Identifier id) const;
+    float getHighThresholdValue(Identifier id) const;
 
   private:
 
     const CaloCell_ID* m_caloID;
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryMuID;
+    //=== TileCalibData
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibMuIdKey{this,
+        "TileMuID", "TileMuID", "Input Tile MuID constants"};
+
 
 };
 

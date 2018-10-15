@@ -30,6 +30,5 @@ atlas_add_library( RootStorageSvc
                    RootUtils StorageSvc RootAuxDynIO POOLCore
                    PersistentDataModel GaudiKernel )
 
-
 # Component list generation:
 atlas_generate_componentslist( RootStorageSvc )

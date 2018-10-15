@@ -46,7 +46,9 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
    m_LArCablingService("LArCablingService"),
    m_LArOnlineIDHelper(nullptr),
    m_calo_id(nullptr),
-   m_counter_sporadic_protc(0){    
+   m_counter_sporadic_protc(0),
+   m_h_sporadicHists()
+{    
   declareInterface<IMonitorToolBase>(this);
 
   declareProperty("DoSaveTempHists",m_doSaveTempHists=false,"Store temporary, intermediate histograms in a /Temp/ directory (for debugging");

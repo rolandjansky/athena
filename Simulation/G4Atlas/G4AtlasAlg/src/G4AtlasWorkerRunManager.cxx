@@ -82,11 +82,13 @@ void G4AtlasWorkerRunManager::Initialize()
   ** If ATLAS ever decides to run multiple G4 runs in the same job, all the MT initialization
   ** will have to be thoroughly reviewed.
   */
+  ATH_MSG_DEBUG("G4 Command: Trying at the end of Initialize()");
   G4MTRunManager* masterRM = G4MTRunManager::GetMasterRunManager();
   std::vector<G4String> cmds = masterRM->GetCommandStack();
   G4UImanager* uimgr = G4UImanager::GetUIpointer();
   for(const auto& it : cmds) {
     int retVal = uimgr->ApplyCommand(it);
+    CommandLog(retVal, it);
     if(retVal!=fCommandSucceeded) {
        std::string errMsg{"Failed to apply command <"};
        errMsg += (it + ">. Return value " + std::to_string(retVal));
@@ -203,6 +205,25 @@ void G4AtlasWorkerRunManager::RunTermination()
   // Not sure what I should put here...
   // Maybe I can just use the base class?
   G4WorkerRunManager::RunTermination();
+}
+
+void G4AtlasWorkerRunManager::CommandLog(int returnCode, const std::string& commandString) const
+{
+  switch(returnCode) {
+  case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;
+  case 100: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Command Not Found!"); } break;
+  case 200: {
+    auto* stateManager = G4StateManager::GetStateManager();
+    ATH_MSG_DEBUG("G4 Command: " << commandString << " - Illegal Application State (" <<
+                    stateManager->GetStateString(stateManager->GetCurrentState()) << ")!");
+  } break;
+  case 300: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Range!"); } break;
+  case 400: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Unreadable!"); } break;
+  case 500: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Candidates!"); } break;
+  case 600: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Alias Not Found!"); } break;
+  default: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Unknown Status!"); } break;
+  }
+
 }
 
 #endif // G4MULTITHREADED

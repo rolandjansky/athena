@@ -729,12 +729,12 @@ StatusCode EventSelectorByteStream::buildEventAttributeList() const
    //bool found  = m_evtStore->contains<AthenaAttributeList>(listName);
    //if (found) {
    if (m_evtStore->contains<AthenaAttributeList>(listName)) {
-      const DataHandle<AthenaAttributeList> oldAttrList;
+      const AthenaAttributeList* oldAttrList = nullptr;
       if (!m_evtStore->retrieve(oldAttrList, listName).isSuccess()) {
          ATH_MSG_ERROR("Cannot retrieve old AttributeList from StoreGate.");
          return(StatusCode::FAILURE);
       }
-      if (!m_evtStore->removeDataAndProxy(oldAttrList.cptr()).isSuccess()) {
+      if (!m_evtStore->removeDataAndProxy(oldAttrList).isSuccess()) {
          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
          return(StatusCode::FAILURE);
       }

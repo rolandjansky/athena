@@ -1,0 +1,207 @@
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file StoreGate/SGIterator.icc
+ * @brief A standard conforming forward iterator over items in StoreGate.
+ */
+
+
+/**
+ * @brief Equality check.
+ */
+inline
+bool SG::detail::IteratorBase::eql (const IteratorBase& rhs) const
+{
+  if (m_proxies.size() != rhs.m_proxies.size()) return false;
+  if (m_proxies.empty()) return true;
+  return m_proxies.back() == rhs.m_proxies.back();
+}
+
+
+/**
+ * @brief The proxy pointed at by this iterator.
+ */
+inline
+SG::DataProxy* SG::detail::IteratorBase::proxy() const
+{
+  return m_proxies.back();
+}
+
+
+/**
+ * @brief Add a reference count to all proxies in our range.
+ */
+inline
+void SG::detail::IteratorBase::addRef()
+{
+  for (DataProxy* dp : m_proxies) {
+    dp->addRef();
+  }
+}
+
+
+/**
+ * @brief Remove a reference count from all proxies in our range.
+ */
+inline
+void SG::detail::IteratorBase::release()
+{
+  for (DataProxy* dp : m_proxies) {
+    dp->release();
+  }
+}
+
+
+/**
+ * @brief Default constructor.
+ */
+template <class DATA>
+inline
+SG::ConstIterator<DATA>::ConstIterator()
+  : detail::IteratorBase()
+{
+}
+
+
+/**
+ * @brief Constructor from proxy iterator pair.
+ * @param itr Starting proxy iterator.
+ * @param itrEnd Ending proxy iterator.
+ *
+ * Will skip ahead to the first valid proxy.
+ */
+template <class DATA>
+inline
+SG::ConstIterator<DATA>::ConstIterator (const SG::ConstProxyIterator& itr,
+                                        const SG::ConstProxyIterator& itrEnd)
+  : detail::IteratorBase (itr, itrEnd, true)
+{
+}
+
+
+/**
+ * @brief Reset state of the iterator.
+ * @param itr Starting proxy iterator.
+ * @param itrEnd Ending proxy iterator.
+ *
+ * Will skip ahead to the first valid proxy.
+ * Will return failure if the range is empty.
+ */
+template <class DATA>
+inline
+StatusCode
+SG::ConstIterator<DATA>::setState (const SG::ConstProxyIterator& itr,
+                                   const SG::ConstProxyIterator& itrEnd)
+{
+  return detail::IteratorBase::setState (itr, itrEnd, true);
+}
+
+
+/**
+ * @brief Equality check.
+ *
+ * Used by the boost iterator adapter.
+ */
+template <class DATA>
+inline
+bool SG::ConstIterator<DATA>::equal(const ConstIterator& rhs) const
+{
+  return detail::IteratorBase::eql(rhs);
+}
+
+
+/**
+ * @brief Dereference the iterator.
+ *
+ * Used by the boost iterator adapter.
+ *
+ * Will throw SG::ExcInvalidIterator() if the proxy is not valid.
+ */
+template <class DATA>
+const DATA& SG::ConstIterator<DATA>::dereference() const
+{
+  const DATA* ptr = SG::DataProxy_cast<DATA> (this->proxy());
+  if (!ptr) {
+    throw SG::ExcInvalidIterator();
+  }
+  return *ptr;
+}
+
+
+/**
+ * @brief Default constructor.
+ */
+template <class DATA>
+inline
+SG::Iterator<DATA>::Iterator()
+  : detail::IteratorBase()
+{
+}
+
+
+/**
+ * @brief Constructor from proxy iterator pair.
+ * @param itr Starting proxy iterator.
+ * @param itrEnd Ending proxy iterator.
+ *
+ * Will skip ahead to the first valid proxy.
+ */
+template <class DATA>
+inline
+SG::Iterator<DATA>::Iterator (const SG::ConstProxyIterator& itr,
+                              const SG::ConstProxyIterator& itrEnd)
+  : detail::IteratorBase (itr, itrEnd, false)
+{
+}
+
+
+/**
+ * @brief Reset state of the iterator.
+ * @param itr Starting proxy iterator.
+ * @param itrEnd Ending proxy iterator.
+ *
+ * Will skip ahead to the first valid proxy.
+ * Will return failure if the first proxy is const or if the range is empty.
+ */
+template <class DATA>
+inline
+StatusCode
+SG::Iterator<DATA>::setState (const SG::ConstProxyIterator& itr,
+                              const SG::ConstProxyIterator& itrEnd)
+{
+  return detail::IteratorBase::setState (itr, itrEnd, false);
+}
+
+
+/**
+ * @brief Equality check.
+ *
+ * Used by the boost iterator adapter.
+ */
+template <class DATA>
+inline
+bool SG::Iterator<DATA>::equal(const Iterator<DATA>& rhs) const
+{
+  return detail::IteratorBase::eql(rhs);
+}
+
+
+/**
+ * @brief Dereference the iterator.
+ *
+ * Used by the boost iterator adapter.
+ *
+ * Will throw SG::ExcInvalidIterator() if the proxy is not valid.
+ * Will throw SG::ExcConstObject if the proxy is const.
+ */
+template <class DATA>
+DATA& SG::Iterator<DATA>::dereference() const
+{
+  this->const_check();
+  DATA* ptr = SG::DataProxy_cast<DATA> (this->proxy());
+  if (!ptr) {
+    throw SG::ExcInvalidIterator();
+  }
+  return *ptr;
+}

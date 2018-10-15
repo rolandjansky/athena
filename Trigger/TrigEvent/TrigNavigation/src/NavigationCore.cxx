@@ -365,7 +365,6 @@ void NavigationCore::prepare() {
   MLOG( VERBOSE ) << "NavigationCore::prepare Preregistering objects #:" <<  m_classesToPreregister.size()<< endmsg;
 
   // populate structure with "must have" features
-  std::vector<std::pair<CLID, std::string> >::const_iterator confIt;
   for ( const CSPair& conf : m_classesToPreregister ) {
     CLID clid = conf.first;
     std::string label  = conf.second;

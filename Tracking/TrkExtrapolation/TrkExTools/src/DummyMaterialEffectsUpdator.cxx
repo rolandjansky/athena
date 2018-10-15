@@ -23,13 +23,10 @@
 Trk::DummyMaterialEffectsUpdator::DummyMaterialEffectsUpdator(const std::string &t, const std::string &n,
                                                               const IInterface *p) :
   AthAlgTool(t, n, p),
-  m_considerPrePostMapping(true),
   m_validationMode(false),
   m_validationDirectionSwitch(1),
   m_validationDirection(Trk::alongMomentum),
-  m_materialMapper("Trk::MaterialMapper"),
-  m_etaFinalize(0.),
-  m_phiFinalize(0.) {
+  m_materialMapper("Trk::MaterialMapper"){
   declareInterface<IMaterialEffectsUpdator>(this);
   declareProperty("ValidationMode", m_validationMode);
   declareProperty("ValidationDirection", m_validationDirectionSwitch);
@@ -90,9 +87,6 @@ Trk::DummyMaterialEffectsUpdator::update(const TrackParameters *parm,
       double rho = updateProperties->averageRho();
       // correct
       pathInX0 *= fabs(correctionFactor);
-      // record
-      m_etaFinalize = parm->eta();
-      m_phiFinalize = parm->parameters()[Trk::phi];
       // create the extended material step
       Trk::AssociatedMaterial assMatHit(parm->position(),
                                         pathInX0,
@@ -143,9 +137,6 @@ Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
       double A = updateProperties->averageA();
       double Z = updateProperties->averageZ();
       double rho = updateProperties->averageRho();
-      // record
-      m_etaFinalize = parm->eta();
-      m_phiFinalize = parm->parameters()[Trk::phi];
       // correct
       pathInX0 *= fabs(correctionFactor) * preFactor;
       // create the extended material step
@@ -197,9 +188,6 @@ Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
       double A = updateProperties->averageA();
       double Z = updateProperties->averageZ();
       double rho = updateProperties->averageRho();
-      // record
-      m_etaFinalize = parm.eta();
-      m_phiFinalize = parm.parameters()[Trk::phi];
       // correct
       pathInX0 *= fabs(correctionFactor);
       // create the extended material step
@@ -229,9 +217,4 @@ Trk::DummyMaterialEffectsUpdator::update(const TrackParameters &parm,
   return(parm.clone());
 }
 
-void
-Trk::DummyMaterialEffectsUpdator::validationAction() const {
-  // first record the values
-  // if (m_validationMode && m_materialMapper)
-  //      m_materialMapper->finalizeEvent(m_etaFinalize, m_phiFinalize);
-}
+

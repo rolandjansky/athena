@@ -59,16 +59,8 @@ atlas_add_dictionary( TileConditionsDict
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier CaloDetDescrLib TileDetDescr PathResolver TileConditionsLib )
 
 # Test(s) in the package:
-atlas_add_test( TileCondToolOfcCool_test
-                SOURCES test/TileCondToolOfcCool_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
-
 atlas_add_test( TileCondToolTMDB_test
                 SOURCES test/TileCondToolTMDB_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
-
-atlas_add_test( TileCondToolDspThreshold_test
-                SOURCES test/TileCondToolDspThreshold_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
 
 atlas_add_test( TileCablingService_test
@@ -79,9 +71,24 @@ atlas_add_test( TileCablingService_UpgradeABC_test
                 SOURCES test/TileCablingService_UpgradeABC_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileIdentifier StoreGateLib IdDictParser TestTools CxxUtils )
 
+atlas_add_test( TileConditionTools_test
+                SOURCES test/TileConditionTools_test.cxx
+                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES} )
+
+atlas_add_test( TileEMScaleComponents_test
+                SOURCES test/TileEMScaleComponents_test.cxx
+                LINK_LIBRARIES TileConditionsLib TileIdentifier TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES} )
+
+atlas_add_test( TileNoiseTools_test
+                SOURCES test/TileNoiseTools_test.cxx
+                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES} )
+
+atlas_add_test( TileDCSComponents_test
+                SOURCES test/TileDCSComponents_test.cxx
+                LINK_LIBRARIES TileConditionsLib AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES} )
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.txt share/Tile2003.* share/Tile2004.* share/TileDefault.* share/TileNo*.* share/dleak*.dat share/dsleak*.dat share/leak*.dat share/dpulse*.dat share/pulse*.dat share/noise*.dat share/ai_lo*.dat share/ai_hi*.dat share/bi_lo*.dat share/bi_hi*.dat share/ci_lo*.dat share/ci_hi*.dat share/DCS*.dat share/BadHVChannels.dat )
-

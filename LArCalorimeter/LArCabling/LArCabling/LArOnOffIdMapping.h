@@ -119,6 +119,6 @@ inline HWIdentifier LArOnOffIdMapping::createSignalChannelID(const Identifier & 
 #include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( LArOnOffIdMapping,148608605 , 1)
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArOnOffIdMapping>, 155467877 , 0)
+CONDCONT_DEF(  LArOnOffIdMapping, 155467877 );
 
 #endif

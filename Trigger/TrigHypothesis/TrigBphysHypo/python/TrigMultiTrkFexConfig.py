@@ -169,7 +169,7 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.nL2CombMuon = 0
         self.nL2SAMuon = 0
         self.ptMuonMin = [] #3600., 3600.]
-        #self.overlapdR  = 0.005 
+        self.overlapdR  = 0.005 
 
 
         time = TrigTimeHistToolConfig("Time")

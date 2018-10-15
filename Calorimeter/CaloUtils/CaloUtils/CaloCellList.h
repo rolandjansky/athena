@@ -19,7 +19,7 @@
     methods et() and energy() return et and energy. 
     list of cells can also be accessed through iterators.
 
-   Mod 17 Jun 2004 David Rousseau: work off big alocellcontainer
+   Mod 17 Jun 2004 David Rousseau: work off big CaloCellContainer
 
    Mod 21 Sep 2004 Damir Lelas: -speeding up using "CaloDetDescr/CaloDetDescrManager" class.
                                 -vector of cells added to an exsisting list of cells   
@@ -53,9 +53,12 @@ class CaloCellList
 
   ~CaloCellList();
 
+  // deta/dphi are the half-widths of the window.
+  // That is, we select cells within eta-deta .. eta+deta and similarly for phi.
   void select(double eta,double phi,double deta,double dphi); 
-  void select(double eta,double phi,double dR ); 
   void select(double eta,double phi,double deta,double dphi,int sam); 
+
+  void select(double eta,double phi,double dR ); 
   void select(double eta,double phi,double dR,int sam);
   void select_nstrips(double eta, double phi, int ncell_eta, int ncell_phi, CaloCell_ID::SUBCALO subCalo, int sampling_or_module, bool barrel);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTPATTERNFINDER_H
@@ -68,7 +68,7 @@ class MuFastPatternFinder: public AthAlgTool
 
    private:
       // MDT calibration service
-      MdtCalibrationSvc*     m_mdtCalibrationSvc;
+      ServiceHandle<MdtCalibrationSvc> m_mdtCalibrationSvc;
 
       // Id helper
       const MdtIdHelper* m_mdtIdHelper;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_PHOTONSUPERCLUSTERBUILDER_H
@@ -25,12 +25,9 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
   photonSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   //Tool standard routines.
-  StatusCode initialize();
-  StatusCode finalize();
-  //New StoreGate-based execute routine. Will use previously-established
-  //track-cluster vertex matches and make a supercluster egammaRec
-  //container in StoreGate.
-  StatusCode execute();
+  StatusCode initialize() override final;
+  StatusCode finalize() override final;
+  StatusCode execute() override final;
  private:
 
   /** Return extra clusters that can be added to make supercluster */

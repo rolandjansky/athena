@@ -33,8 +33,6 @@ public:
      {}
   
 protected:
-
-  ~JEMRoICollectionCnv() {}
   
   virtual JEMRoICollection_PERS*   createPersistent (JEMRoICollection* transCont);
   virtual JEMRoICollection*        createTransient ();

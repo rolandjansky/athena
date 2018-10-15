@@ -361,81 +361,51 @@ namespace InDet
 
   } 
 
-  const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::findSecVertex(const xAOD::Vertex & primaryVertex,
-                                                                            const TLorentzVector & jetMomentum,
-                                                                            const std::vector<const xAOD::IParticle*> & inputTracks) const
-  {
-    
-    std::vector<const Trk::ITrackLink*> selectedTracks;
-           
-    std::vector<const xAOD::IParticle*>::const_iterator   trk_iter;
-    //std::vector<const xAOD::IParticle*>::const_iterator   trk_end=inputTracks.end();
-
-
-    double sumpT=0;
-
-    for (trk_iter= inputTracks.begin(); trk_iter != inputTracks.end(); ++trk_iter)
-    {
-      
-      const xAOD::TrackParticle * tmp=dynamic_cast<const xAOD::TrackParticle *> ((*trk_iter));
+  const Trk::VxSecVertexInfo* 
+  InDetImprovedJetFitterVxFinder::findSecVertex(const xAOD::Vertex & primaryVertex,
+     const TLorentzVector & jetMomentum,
+     const std::vector<const xAOD::IParticle*> & inputTracks) const{
      
-      if (!m_trkFilter->decision(*tmp,&primaryVertex)) 
-      {
+    std::vector<const Trk::ITrackLink*> selectedTracks;
+    std::vector<const xAOD::IParticle*>::const_iterator   trk_iter;
+    double sumpT=0;
+    for (trk_iter= inputTracks.begin(); trk_iter != inputTracks.end(); ++trk_iter){
+      const xAOD::TrackParticle * tmp=dynamic_cast<const xAOD::TrackParticle *> ((*trk_iter));
+      if (!tmp or !m_trkFilter->decision(*tmp,&primaryVertex)){
         continue;
       }
-
-      if (!m_usepTDepTrackSel)
-      {
-
+      if (!m_usepTDepTrackSel){
         ElementLink<xAOD::TrackParticleContainer> linkTP;
         linkTP.setElement(const_cast<xAOD::TrackParticle*>(tmp));
-      
         Trk::LinkToXAODTrackParticle* link= new Trk::LinkToXAODTrackParticle(linkTP);
         selectedTracks.push_back(link);
-        
-      }
-      else
-      {
+      }else{
         sumpT+=tmp->pt();
       }
     }
-    
-    if (m_usepTDepTrackSel)
-    {
-      for (trk_iter= inputTracks.begin(); trk_iter != inputTracks.end(); ++trk_iter)
-      {
-
+    if (m_usepTDepTrackSel){
+      for (trk_iter= inputTracks.begin(); trk_iter != inputTracks.end(); ++trk_iter){
         const xAOD::TrackParticle * tmp=dynamic_cast<const xAOD::TrackParticle *> ((*trk_iter));
-       
-        if (!m_trkFilter->decision(*tmp,&primaryVertex)) 
-        {
+        if (!tmp or !m_trkFilter->decision(*tmp,&primaryVertex)){
           continue;
         }
-        
         if (!((tmp->pt()>m_pTMinOffset + sumpT * m_pTMinSlope) 
               || 
-              (sumpT > m_pTMax && tmp->pt()>m_pTMinOffset+m_pTMax* m_pTMinSlope)))
-        {
+              (sumpT > m_pTMax && tmp->pt()>m_pTMinOffset+m_pTMax* m_pTMinSlope))){
           continue;
         }
-        
         ElementLink<xAOD::TrackParticleContainer> linkTP;
         linkTP.setElement(const_cast<xAOD::TrackParticle*>(tmp));
-      
         Trk::LinkToXAODTrackParticle* link= new Trk::LinkToXAODTrackParticle(linkTP);
         selectedTracks.push_back(link);
-
       }
     }
-
     Trk::RecVertex dummy;
-    
     const Trk::VxSecVertexInfo* secVxInfo=doTheFinding(primaryVertex,
                                                        jetMomentum,
                                                        selectedTracks);
 
     return secVxInfo;
-
   }
   
   
@@ -2066,25 +2036,11 @@ namespace InDet
      }
 
 
-     //there shouldn't be much more...
-     //     int numberFirstBeamInteractions=0;
-     //    int numberSecondBeamInteractions=0;
-     //    int numberFirstLayerInteractions=0;
-     //    int numberSecondLayerInteractions=0;
-     
-     //for the moment do not store material interactions...
-
-     //now create the output object
-     //MU      std::vector<Trk::VxCandidate*> myCandidates;
      std::vector<Trk::VxJetCandidate*> myCandidates;
      // This push_back is problematic for the migration to xAOD::Vertex, it works simply because VxJetCandidate inherits from VxCandidate
      myCandidates.push_back(myJetCandidate);
 
-     /* SERIOUS PROBLEM */
-     /* 17.05.2014 Problem here: can't store jetfitter vertex in xAOD:VxCandidate! */
-//     const Trk::VxJetFitterVertexInfo* myOutputInfo=new Trk::VxJetFitterVertexInfo(myCandidates,
-//                                                                                   myTwoTrackVerticesInJet,
-//                                                                                   mySelectedTracksInJet);
+
      
      Trk::VxJetFitterVertexInfo* myOutputInfo=new Trk::VxJetFitterVertexInfo(myCandidates,
                                                                              myTwoTrackVerticesInJet,
@@ -2100,262 +2056,193 @@ namespace InDet
   }
   
 
-  Trk::VxJetCandidate* InDetImprovedJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
-                                                                     const TLorentzVector & jetMomentum,
-                                                                     const std::vector<const Trk::ITrackLink*> & firstInputTracks,
-                                                                     const std::vector<const Trk::ITrackLink*> & secondInputTracks,
-                                                                     const Amg::Vector3D & vtxSeedDirection) const 
-  {
-
-
-    if (msgLvl(MSG::VERBOSE)) msg() << " entered findSecVertex(). Applying JetFitter finding to the found sets of tracks and performing clustering (pattern recognition)  " << endmsg;
-
+  Trk::VxJetCandidate* 
+  InDetImprovedJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
+   const TLorentzVector & jetMomentum,
+   const std::vector<const Trk::ITrackLink*> & firstInputTracks,
+   const std::vector<const Trk::ITrackLink*> & secondInputTracks,
+   const Amg::Vector3D & vtxSeedDirection) const {
+    ATH_MSG_VERBOSE( " entered findSecVertex(). Applying JetFitter finding to the found sets of tracks and performing clustering (pattern recognition)  " );
     Amg::Vector3D myDirection(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
-
     std::vector<std::vector<const Trk::ITrackLink*> > bunchesOfTracks;
-    
     std::vector<const Trk::ITrackLink*> tracksToAdd;
-    
     std::vector<const Trk::ITrackLink*>::const_iterator tracks2Begin=firstInputTracks.begin();
     std::vector<const Trk::ITrackLink*>::const_iterator tracks2End=firstInputTracks.end();
     for (std::vector<const Trk::ITrackLink*>::const_iterator tracks2Iter=tracks2Begin;
-	 tracks2Iter!=tracks2End;++tracks2Iter) {
-      if (msgLvl(MSG::VERBOSE)) msg() <<" adding track to fit " << endmsg;
+	   tracks2Iter!=tracks2End;++tracks2Iter) {
+      ATH_MSG_VERBOSE(" adding track to fit " );
       tracksToAdd.push_back(*tracks2Iter);
     }
-    
     bunchesOfTracks.push_back(tracksToAdd);
     tracksToAdd.clear();
-  
     std::vector<const Trk::ITrackLink*>::const_iterator tracks3Begin=secondInputTracks.begin();
     std::vector<const Trk::ITrackLink*>::const_iterator tracks3End=secondInputTracks.end();
     for (std::vector<const Trk::ITrackLink*>::const_iterator tracks3Iter=tracks3Begin;
-	 tracks3Iter!=tracks3End;++tracks3Iter) {
-      if (msgLvl(MSG::VERBOSE)) msg() <<" adding track to fit " << endmsg;
+	   tracks3Iter!=tracks3End;++tracks3Iter) {
+      ATH_MSG_VERBOSE(" adding track to fit ");
       tracksToAdd.push_back(*tracks3Iter);
     }
-
-    if (tracksToAdd.size()!=0) 
-    {
+    if (not tracksToAdd.empty()) {
       bunchesOfTracks.push_back(tracksToAdd);
     }
     tracksToAdd.clear();
-    
-
     //now it just uses these bunches...
     //now I have just to make sure that no clustering is done at first iteration
     //while it needs to be done at second iteration (there will be only two iterations)
-
-
     std::vector<std::vector<const Trk::ITrackLink*> >::const_iterator BunchesBegin=bunchesOfTracks.begin();
     std::vector<std::vector<const Trk::ITrackLink*> >::const_iterator BunchesEnd=bunchesOfTracks.end();
-
     std::vector<const Trk::ITrackLink*>::const_iterator tracksToAddBegin;
     std::vector<const Trk::ITrackLink*>::const_iterator tracksToAddEnd;
     std::vector<const Trk::ITrackLink*>::const_iterator tracksToAddIter;
-
-
-    Trk::VxJetCandidate* myJetCandidate=0;
-
+    Trk::VxJetCandidate* myJetCandidate=nullptr;
     for (std::vector<std::vector<const Trk::ITrackLink*> >::const_iterator BunchesIter=BunchesBegin;
-	 BunchesIter!=BunchesEnd;++BunchesIter) {
-      
+	    BunchesIter!=BunchesEnd;++BunchesIter) {
       if (BunchesIter==BunchesBegin) {
-	if (msgLvl(MSG::VERBOSE)) msg() <<" initial fit with  " << (*BunchesIter).size() << " tracks " << endmsg;
-	myJetCandidate=m_initializationHelper->initializeJetCandidate(*BunchesIter,&primaryVertex,&myDirection,&vtxSeedDirection);
-	m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
-        if ((*BunchesIter).size()>0) 
-        {
+        ATH_MSG_VERBOSE(" initial fit with  " << (*BunchesIter).size() << " tracks " );
+        myJetCandidate=m_initializationHelper->initializeJetCandidate(*BunchesIter,&primaryVertex,&myDirection,&vtxSeedDirection);
+        if (not myJetCandidate) continue;
+        m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
+        if (not BunchesIter->empty()){
           doTheFit(myJetCandidate,true);
         }
       } else {
-	if (msgLvl(MSG::VERBOSE)) msg() <<" other fit with " << (*BunchesIter).size() << " tracks " << endmsg;
-	std::vector<Trk::VxVertexOnJetAxis*> setOfVertices=myJetCandidate->getVerticesOnJetAxis();
-	std::vector<Trk::VxTrackAtVertex*>* setOfTracks=myJetCandidate->vxTrackAtVertex();
-	tracksToAddBegin=(*BunchesIter).begin();
-	tracksToAddEnd=(*BunchesIter).end();
-	for (tracksToAddIter=tracksToAddBegin;tracksToAddIter!=tracksToAddEnd;++tracksToAddIter) {
-	  std::vector<Trk::VxTrackAtVertex*> temp_vector_tracksAtVertex;
-	  Trk::VxTrackAtVertex* newVxTrack=new Trk::VxTrackAtVertex((*tracksToAddIter)->clone());
-	  temp_vector_tracksAtVertex.push_back(newVxTrack);
-	  setOfTracks->push_back(newVxTrack);
-	  setOfVertices.push_back(new Trk::VxVertexOnJetAxis(temp_vector_tracksAtVertex));
-	}
-	if (msgLvl(MSG::VERBOSE)) msg() <<" new overall number of tracks to fit : " << setOfVertices.size() << endmsg;
-	myJetCandidate->setVerticesOnJetAxis(setOfVertices);
-	m_initializationHelper->updateTrackNumbering(myJetCandidate);
+        if (not myJetCandidate) continue;
+        ATH_MSG_VERBOSE(" other fit with " << (*BunchesIter).size() << " tracks " );
+        std::vector<Trk::VxVertexOnJetAxis*> setOfVertices=myJetCandidate->getVerticesOnJetAxis();
+        std::vector<Trk::VxTrackAtVertex*>* setOfTracks=myJetCandidate->vxTrackAtVertex();
+        tracksToAddBegin=(*BunchesIter).begin();
+        tracksToAddEnd=(*BunchesIter).end();
+        for (tracksToAddIter=tracksToAddBegin;tracksToAddIter!=tracksToAddEnd;++tracksToAddIter) {
+          std::vector<Trk::VxTrackAtVertex*> temp_vector_tracksAtVertex;
+          Trk::VxTrackAtVertex* newVxTrack=new Trk::VxTrackAtVertex((*tracksToAddIter)->clone());
+          temp_vector_tracksAtVertex.push_back(newVxTrack);
+          setOfTracks->push_back(newVxTrack);
+          setOfVertices.push_back(new Trk::VxVertexOnJetAxis(temp_vector_tracksAtVertex));
+        }
+        ATH_MSG_VERBOSE(" new overall number of tracks to fit : " << setOfVertices.size() );
+        myJetCandidate->setVerticesOnJetAxis(setOfVertices);
+        m_initializationHelper->updateTrackNumbering(myJetCandidate);
         //question: should this be done???
-	m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
-	doTheFit(myJetCandidate);
+        m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
+        doTheFit(myJetCandidate);
       }
     }
-    
-
-    //    std::vector<Trk::VxCandidate*> myCandidates;
-    //    myCandidates.push_back(myJetCandidate);
-    //return new Trk::VxSecVertexInfo(myCandidates);//ownership of the single objects is taken over!
-
     return myJetCandidate;
-    
   }
 
-  void InDetImprovedJetFitterVxFinder::doTheFit(Trk::VxJetCandidate* myJetCandidate,
-                                                bool performClustering) const {
-
-    
+  void 
+  InDetImprovedJetFitterVxFinder::doTheFit(Trk::VxJetCandidate* myJetCandidate,
+   bool performClustering) const {
     int numClusteringLoops=0;
     bool noMoreVerticesToCluster(false);
-
     do {//reguards clustering
-
-      if (msgLvl(MSG::VERBOSE)) msg() <<"InDetImprovedJetFitterVxFinder:      ------>>>>         new cycle of fit" << endmsg;
-
+      ATH_MSG_VERBOSE("InDetImprovedJetFitterVxFinder:      ------>>>>         new cycle of fit" );
       int numLoops=0;
       bool noMoreTracksToDelete(false);
       do {//reguards eliminating incompatible tracks...
-	
-	m_routines->performTheFit(myJetCandidate,15,false,30,0.001);
-	
-	const std::vector<Trk::VxVertexOnJetAxis*> & vertices=myJetCandidate->getVerticesOnJetAxis();
-	
-	std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesBegin=vertices.begin();
-	std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesEnd=vertices.end();
-	
-	
-	//delete incompatible tracks...
-	float max_prob(1.);
-	Trk::VxVertexOnJetAxis* worseVertex(0);
-	for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesIter=verticesBegin;
-	     verticesIter!=verticesEnd;++verticesIter) {
-	  if (*verticesIter==0) {
-	    msg(MSG::WARNING) << "One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted." << endmsg;
-	  } else {
-	    const Trk::FitQuality & fitQuality=(*verticesIter)->fitQuality();
-	    if (TMath::Prob(fitQuality.chiSquared(),(int)std::floor(fitQuality.numberDoF()+0.5))<max_prob) {
-	      max_prob=TMath::Prob(fitQuality.chiSquared(),(int)std::floor(fitQuality.numberDoF()+0.5));
-	      worseVertex=*verticesIter;
-	    }
-	  }
-	}
-	if (max_prob<m_vertexProbCut) {
-	  if (msgLvl(MSG::DEBUG)) msg() << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << endmsg;
-	  //	  std::cout << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << std::endl;
-	  if (worseVertex==myJetCandidate->getPrimaryVertex()) {
-	    if (msgLvl(MSG::VERBOSE)) msg() << " It's the primary" << endmsg;
-	  }
-
-	  m_routines->deleteVertexFromJetCandidate(worseVertex,myJetCandidate);
-
-	} else {
-	  noMoreTracksToDelete=true;
-	  if (msgLvl(MSG::VERBOSE)) msg() <<"No tracks to delete: maximum probability is " << max_prob << endmsg;
-	}
-	
-	numLoops+=1;
+        m_routines->performTheFit(myJetCandidate,15,false,30,0.001);
+        const std::vector<Trk::VxVertexOnJetAxis*> & vertices=myJetCandidate->getVerticesOnJetAxis();
+        std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesBegin=vertices.begin();
+        std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesEnd=vertices.end();
+        //delete incompatible tracks...
+        float max_prob(1.);
+        Trk::VxVertexOnJetAxis* worseVertex(nullptr);
+        for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesIter=verticesBegin;
+             verticesIter!=verticesEnd;++verticesIter) {
+          if (*verticesIter==0) {
+            ATH_MSG_WARNING( "One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted.");
+          } else {
+            const Trk::FitQuality & fitQuality=(*verticesIter)->fitQuality();
+            if (TMath::Prob(fitQuality.chiSquared(),(int)std::floor(fitQuality.numberDoF()+0.5))<max_prob) {
+              max_prob=TMath::Prob(fitQuality.chiSquared(),(int)std::floor(fitQuality.numberDoF()+0.5));
+              worseVertex=*verticesIter;
+            }
+          }
+        }
+        if (worseVertex and (max_prob<m_vertexProbCut)) {
+          ATH_MSG_DEBUG( "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob );
+          if (worseVertex==myJetCandidate->getPrimaryVertex()) {
+            ATH_MSG_VERBOSE( " It's the primary" );
+          }
+          m_routines->deleteVertexFromJetCandidate(worseVertex,myJetCandidate);
+        } else {
+          noMoreTracksToDelete=true;
+          ATH_MSG_VERBOSE("No tracks to delete: maximum probability is " << max_prob );
+        }
+        numLoops+=1;
       } while (numLoops<m_maxNumDeleteIterations&&!(noMoreTracksToDelete));
-      
       if (!performClustering) break;
-
       if (!m_useFastClustering && (int)myJetCandidate->getVerticesOnJetAxis().size()<m_maxTracksForDetailedClustering) {
-	m_routines->fillTableWithFullProbOfMerging(myJetCandidate,8,false,10,0.01);
+	      m_routines->fillTableWithFullProbOfMerging(myJetCandidate,8,false,10,0.01);
       } else {
-	m_routines->fillTableWithFastProbOfMerging(myJetCandidate);
+	      m_routines->fillTableWithFastProbOfMerging(myJetCandidate);
       }
       const Trk::VxClusteringTable* clusteringTablePtr(myJetCandidate->getClusteringTable());
-
-
-      
-
-      if (clusteringTablePtr==0) {
-	msg(MSG::WARNING) << " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endmsg;
-	noMoreVerticesToCluster=true;
+      if (not clusteringTablePtr) {
+	      ATH_MSG_WARNING( " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " );
+	      noMoreVerticesToCluster=true;
       } else {
-
-	if (msgLvl(MSG::VERBOSE)) msg() <<" clustering table is " << *clusteringTablePtr << endmsg;
-
-	//now iterate over the full map and decide wether you want to do the clustering OR not...
-	float probVertex(0.);
-	Trk::PairOfVxVertexOnJetAxis pairOfVxVertexOnJetAxis=clusteringTablePtr->getMostCompatibleVertices(probVertex);
-	//a PairOfVxVertexOnJetAxis is a std::pair<VxVertexOnJetAxis*,VxVertexOnJetAxis*>
-	
-	float probVertexExcludingPrimary(0.);
-	Trk::PairOfVxVertexOnJetAxis pairOfVxVertexOnJetAxisExcludingPrimary=clusteringTablePtr->getMostCompatibleVerticesExcludingPrimary(probVertexExcludingPrimary);
-
-	bool firstProbIsWithPrimary= ( fabs(probVertex-probVertexExcludingPrimary)>1e-6 );
-
-	if (probVertex>0.&&probVertex>m_vertexClusteringProbabilityCut&&firstProbIsWithPrimary) {
-	  if (msgLvl(MSG::VERBOSE)) msg() <<" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() << 
-                                        " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " (should be PV)." << endmsg;
-          //	  const Trk::VxVertexOnJetAxis & mergedVertex=
-          m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxis.first,
-                                                *pairOfVxVertexOnJetAxis.second,
-                                                *myJetCandidate);
-	  //now you need to update the numbering scheme
-	  m_initializationHelper->updateTrackNumbering(myJetCandidate);//maybe this should be moved to a lower level...
-          continue;
-	}
-
-        if (probVertexExcludingPrimary>0.)
-	{
-
-	  //GP suggested by Marco Battaglia, use vertex mass in order to decide wether to split or not, so derive vertex masses first
-	  const Trk::VxVertexOnJetAxis* firstVertex=pairOfVxVertexOnJetAxisExcludingPrimary.first;
-	  const Trk::VxVertexOnJetAxis* secondVertex=pairOfVxVertexOnJetAxisExcludingPrimary.second;
-          
-	  CLHEP::HepLorentzVector massVector1=m_jetFitterUtils->fourMomentumAtVertex(*firstVertex);//MeV
-	  CLHEP::HepLorentzVector massVector2=m_jetFitterUtils->fourMomentumAtVertex(*secondVertex);//MeV
-
-	  CLHEP::HepLorentzVector sumMassVector=massVector1+massVector2;
-
-	  double massTwoVertex=sumMassVector.mag();//MeV
-	  
-	  bool doMerge(false);
-
-	  double vertexClusteringProbabilityCutWithMass;
-
-	  if(massTwoVertex< 1000.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass0010;
-	  }else if(massTwoVertex< 1500.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass1015;
-	  }else if(massTwoVertex< 2000.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass1520;
-	  }else if(massTwoVertex< 2500.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass2025;
-	  }else if(massTwoVertex< 3000.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass2530;
-	  }else if(massTwoVertex< 4000.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass3040;
-	  }else if(massTwoVertex< 5000.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass4050;
-	  }else if(massTwoVertex< 6000.){
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass5060;
-	  }else{
-	    vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass6070;
-	  }
-
-	  if (probVertexExcludingPrimary>vertexClusteringProbabilityCutWithMass)
-          {
+        ATH_MSG_VERBOSE(" clustering table is " << *clusteringTablePtr );
+        //now iterate over the full map and decide wether you want to do the clustering OR not...
+        float probVertex(0.);
+        Trk::PairOfVxVertexOnJetAxis pairOfVxVertexOnJetAxis=clusteringTablePtr->getMostCompatibleVertices(probVertex);
+        //a PairOfVxVertexOnJetAxis is a std::pair<VxVertexOnJetAxis*,VxVertexOnJetAxis*>
+        float probVertexExcludingPrimary(0.);
+        Trk::PairOfVxVertexOnJetAxis pairOfVxVertexOnJetAxisExcludingPrimary=clusteringTablePtr->getMostCompatibleVerticesExcludingPrimary(probVertexExcludingPrimary);
+        bool firstProbIsWithPrimary= ( std::fabs(probVertex-probVertexExcludingPrimary)>1e-6 );
+        if (probVertex>0.&&probVertex>m_vertexClusteringProbabilityCut&&firstProbIsWithPrimary) {
+          ATH_MSG_VERBOSE(" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() << 
+                                              " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " (should be PV)." );
+                m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxis.first,
+                                                      *pairOfVxVertexOnJetAxis.second,
+                                                      *myJetCandidate);
+          //now you need to update the numbering scheme
+          m_initializationHelper->updateTrackNumbering(myJetCandidate);//maybe this should be moved to a lower level...
+                continue;
+        }
+        if (probVertexExcludingPrimary>0.){
+          //GP suggested by Marco Battaglia, use vertex mass in order to decide wether to split or not, so derive vertex masses first
+          const Trk::VxVertexOnJetAxis* firstVertex=pairOfVxVertexOnJetAxisExcludingPrimary.first;
+          const Trk::VxVertexOnJetAxis* secondVertex=pairOfVxVertexOnJetAxisExcludingPrimary.second;
+          CLHEP::HepLorentzVector massVector1=m_jetFitterUtils->fourMomentumAtVertex(*firstVertex);//MeV
+          CLHEP::HepLorentzVector massVector2=m_jetFitterUtils->fourMomentumAtVertex(*secondVertex);//MeV
+          CLHEP::HepLorentzVector sumMassVector=massVector1+massVector2;
+          double massTwoVertex=sumMassVector.mag();//MeV
+          bool doMerge(false);
+          double vertexClusteringProbabilityCutWithMass;
+          if(massTwoVertex< 1000.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass0010;
+          }else if(massTwoVertex< 1500.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass1015;
+          }else if(massTwoVertex< 2000.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass1520;
+          }else if(massTwoVertex< 2500.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass2025;
+          }else if(massTwoVertex< 3000.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass2530;
+          }else if(massTwoVertex< 4000.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass3040;
+          }else if(massTwoVertex< 5000.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass4050;
+          }else if(massTwoVertex< 6000.){
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass5060;
+          }else{
+            vertexClusteringProbabilityCutWithMass = m_vertexClusteringProbabilityCutWithMass6070;
+          }
+          if (probVertexExcludingPrimary>vertexClusteringProbabilityCutWithMass) {
             doMerge=true;
           }
-
-	  if (doMerge)
-	  {
-
-	    if (msgLvl(MSG::VERBOSE)) msg() <<" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() <<
-					" and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " mass merged vertex: " << massTwoVertex << endmsg;
-	    
-	    m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxisExcludingPrimary.first,
-						  *pairOfVxVertexOnJetAxisExcludingPrimary.second,
-						  *myJetCandidate);
-	    
-	    m_initializationHelper->updateTrackNumbering(myJetCandidate);//maybe this should be moved to a lower level...                                                                   
-	    continue;//go to next cycle, after a succesful merging
-	  }
-	}
-	  
-	noMoreVerticesToCluster=true;
-
-
+          if (doMerge){
+            ATH_MSG_VERBOSE(" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() <<
+                " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " mass merged vertex: " << massTwoVertex );
+            m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxisExcludingPrimary.first,
+                    *pairOfVxVertexOnJetAxisExcludingPrimary.second,
+                    *myJetCandidate);
+            m_initializationHelper->updateTrackNumbering(myJetCandidate);//maybe this should be moved to a lower level...                                                                   
+            continue;//go to next cycle, after a succesful merging
+          }
+        }
+        noMoreVerticesToCluster=true;
       }
       numClusteringLoops+=1;
     } while (numClusteringLoops<m_maxClusteringIterations&&!(noMoreVerticesToCluster));
@@ -2363,10 +2250,5 @@ namespace InDet
     //now a section should follow where the "complicate" VxJetCandidate is transformed in a conventional "VxCandidate" 
     //so that it can be used also by the normal B-Tagging algorithms...
     //TO BE COMPLETED
-    
-    //return myJetCandidate;
-
   }
-
-
 }//end namespace Rec

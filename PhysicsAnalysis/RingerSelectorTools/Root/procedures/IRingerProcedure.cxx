@@ -7,15 +7,15 @@
 
 #if !(RINGER_USE_NEW_CPP_FEATURES || defined(FORCE_RINGER_PROCEDURE_TYPE_CONST_EXPR))
 template< typename procedure_t >
-const bool RingerProcedureType<procedure_t>::is_pre_processor = 
+const bool RingerProcedureType<procedure_t>::is_pre_processor =
     Ringer::is_base_of<PreProcessing::IPreProcessor,procedure_t>::value;
 
 template< typename procedure_t >
-const bool RingerProcedureType<procedure_t>::is_discriminator = 
+const bool RingerProcedureType<procedure_t>::is_discriminator =
     Ringer::is_base_of<Discrimination::IDiscriminator,procedure_t>::value;
 
 template< typename procedure_t >
-const bool RingerProcedureType<procedure_t>::is_threshold = 
+const bool RingerProcedureType<procedure_t>::is_threshold =
     Ringer::is_base_of<Discrimination::IThreshold,procedure_t>::value;
 #endif
 

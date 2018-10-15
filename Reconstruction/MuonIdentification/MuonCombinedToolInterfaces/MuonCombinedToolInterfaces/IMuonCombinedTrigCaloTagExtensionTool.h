@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
@@ -29,7 +30,7 @@ namespace MuonCombined {
 
 
     /**IMuonCombinedTrigCaloTagExtensionTool interface: build combined muons from ID and MS candidates */    
-    virtual void extend( const InDetCandidateCollection& inDetCandidates, 
+    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
                          const CaloCellContainer* caloCellCont = nullptr,
                          const xAOD::CaloClusterContainer* caloClusterCont = nullptr ) = 0;
   };

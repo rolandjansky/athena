@@ -8,6 +8,7 @@
 #include "AthenaKernel/CondCont.h"
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IClassIDSvc.h"
@@ -43,7 +44,11 @@ namespace SG {
   protected:
     bool isInit() const { return m_isInit; }
 
-    CondCont<T>* getCC() const { return m_cc; }
+    // Deliberately returning a non-const pointer here from a const
+    // member function.  We don't own the CondCont, we just reference it.
+    // The Handle<> classes need to get a non-const CondCont from a
+    // const HandleKey<>.
+    CondCont<T>* getCC ATLAS_NOT_CONST_THREAD_SAFE () const { return m_cc; }
 
     StoreGateSvc* getCS() const;
 

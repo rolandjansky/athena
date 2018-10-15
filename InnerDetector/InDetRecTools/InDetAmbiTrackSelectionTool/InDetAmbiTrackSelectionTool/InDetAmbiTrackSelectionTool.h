@@ -15,7 +15,6 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include <map>
 #include <vector>
 
 class SiliconID;

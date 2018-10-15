@@ -3,13 +3,8 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "TBAlgoSequencer.h"
 #include "GaudiKernel/ListItem.h"
-
-#include "TBRec/TBAlgoSequencer.h"
 
 #include <string>
 #include <map>

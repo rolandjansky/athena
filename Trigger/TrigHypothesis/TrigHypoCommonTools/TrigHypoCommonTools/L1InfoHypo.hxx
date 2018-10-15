@@ -33,8 +33,6 @@ public:
   ~L1InfoHypo();
 
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun();
-  HLT::ErrorCode hltEndRun();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE,bool &Pass);
   HLT::ErrorCode hltFinalize();
 

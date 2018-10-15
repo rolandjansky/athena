@@ -236,6 +236,9 @@ PP="$PP"'|GeoModelSvc.*WARNING  Getting .* with default tag'
 # Verbosity removed from TrackCollection in 22.0.1
 PP="$PP"'|TrackCollectionCnv::initialize'
 
+# Ignore dumps from CondInputLoader.
+PP="$PP"'|ConditionStore\+/'
+
 
 test=$1
 if [ -z "$testStatus" ]; then

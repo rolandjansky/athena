@@ -79,18 +79,6 @@ StatusCode AthAnalysisAlgorithm::sysInitialize() {
       return StatusCode::SUCCESS;
 }
 
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-StatusCode AthAnalysisAlgorithm::sysExecute() {
-  if(!m_doneFirstEvent) {
-    m_doneFirstEvent=true;
-    if( firstExecute().isFailure() ) {
-      ATH_MSG_FATAL("Failure in firstEvent method");
-      return StatusCode::FAILURE;
-    }
-  }
-  return AthHistogramAlgorithm::sysExecute();
-}
-#else
 StatusCode AthAnalysisAlgorithm::sysExecute(const EventContext& ctx) {
   if(!m_doneFirstEvent) {
     m_doneFirstEvent=true;
@@ -101,7 +89,6 @@ StatusCode AthAnalysisAlgorithm::sysExecute(const EventContext& ctx) {
   }
   return AthHistogramAlgorithm::sysExecute(ctx);
 }
-#endif
 
 void AthAnalysisAlgorithm::handle( const Incident& inc ) {
 

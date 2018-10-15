@@ -180,7 +180,7 @@ public:
 	//use ToolSvc as parent
 	parent = Gaudi::svcLocator()->service( "ToolSvc" );
       }
-      IAlgTool* algtool = AlgTool::Factory::create(type,type,name,parent);
+      IAlgTool *algtool = AlgTool::Factory::create(type,type,name,parent).release();
       algtool->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
       W* out = dynamic_cast<W*>(algtool);
       if(!out && algtool) {
@@ -199,7 +199,7 @@ public:
    static IAlgorithm* createAlgorithm(const std::string& typeAndName) {
       std::string type = typeAndName; std::string name = typeAndName;
       if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
-      IAlgorithm* out = Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+      IAlgorithm* out = Algorithm::Factory::create(type,name,Gaudi::svcLocator()).release();
       out->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
       return out;
    }

@@ -10,10 +10,6 @@ topSequence.METAlg+=METPartTruth
 #--------------------------------------------------------------------------
 # Configuration
 #--------------------------------------------------------------------------
-# compatibility with jets
-from RecExConfig.RecConfFlags import jobproperties
-jobproperties.RecConfFlags.AllowBackNavigation = True
-
 from JetRec.JetRecFlags import jobproperties as jobpropjet
 jobpropjet.JetRecFlags.inputFileType = "GEN"
 

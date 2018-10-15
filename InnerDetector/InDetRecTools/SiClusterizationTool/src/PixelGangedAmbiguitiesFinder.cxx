@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -15,6 +15,7 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
@@ -314,6 +315,7 @@ void PixelGangedAmbiguitiesFinder::execute(
       rmNumber++;
     }    
     if(msgLvl(MSG::DEBUG)) msg() << rmNumber << " fake clusters from ganged pixel have been removed" << endmsg;
+
 }
   
 

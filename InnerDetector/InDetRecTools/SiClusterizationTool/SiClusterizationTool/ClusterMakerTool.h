@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,9 +21,10 @@
 //#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class IPixelOfflineCalibSvc;
 class IPixelCalibSvc;
@@ -141,6 +142,8 @@ private:
   bool m_calibrateCharge;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
   // Parametrization of the Pixel errors
   // now moved in PixelConditionsData, except for CTB parametrization

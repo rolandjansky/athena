@@ -12,8 +12,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "PATInterfaces/ISystematicsTool.h"
 
-// #include "../ElectronChargeEfficiencyCorrectionTool/IElectronChargeEfficiencyCorrectionTool.h"
-#include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 
 
 

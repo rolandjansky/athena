@@ -6,9 +6,9 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createLArConfigFlags(): 
     lcf=AthConfigFlags()
  
-    lcf.addFlag("LAr.doAlign",lambda prevFlags : prevFlags.get("global.GeoLayout")=="atlas")
-    lcf.addFlag("LAr.doHVCorr",lambda prevFlags : not prevFlags.get("global.isMC"))
-    lcf.addFlag("LAr.doCellEmMisCalib",lambda prevFlags : prevFlags.get("global.isMC"))
+    lcf.addFlag("LAr.doAlign",lambda prevFlags : prevFlags.GeoModel.Layout=="atlas")
+    lcf.addFlag("LAr.doHVCorr",lambda prevFlags : not prevFlags.Input.isMC)
+    lcf.addFlag("LAr.doCellEmMisCalib",lambda prevFlags : prevFlags.Input.isMC)
 
     lcf.addFlag("LAr.RawChannelSource",_determineRawChannelSource)
                 #sensible value are "input": read from the input-file, bytestream or RDO)
@@ -26,15 +26,15 @@ def _getLArRunInfo(prevFlags):
     global _lArRunInfo #Model-level cache of lar run info
     if _lArRunInfo is None:
         from LArConditionsCommon.LArRunFormat import getLArFormatForRun
-        runnbr=prevFlags.get("global.RunNumber")[0] #If more than one run, assume config for first run in valid for all runs
-        dbStr="COOLONL_LAR/"+prevFlags.get("IOVDb.DatabaseInstance")
+        runnbr=prevFlags.Input.RunNumber[0] #If more than one run, assume config for first run is valid for all runs
+        dbStr="COOLONL_LAR/"+prevFlags.IOVDb.DatabaseInstance
         _lArRunInfo=getLArFormatForRun(run=runnbr,connstring=dbStr)
         print "Got LArRunInfo for run ",runnbr
     return _lArRunInfo
     
 
 def _determineRawChannelSource(prevFlags):
-    if (prevFlags.get("global.isMC")):
+    if (prevFlags.Input.isMC):
         return "input"
     
     lri=_getLArRunInfo(prevFlags)

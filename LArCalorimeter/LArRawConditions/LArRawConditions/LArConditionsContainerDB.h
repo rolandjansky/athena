@@ -40,6 +40,7 @@
 #include "LArRawConditions/LArConditionsSubset.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 #define NChannelPerFEB  128
@@ -54,6 +55,7 @@ public:
     typedef typename Traits::ChannelVector               ChannelVector;
     typedef typename Traits::ChannelVectorPointer        ChannelVectorPointer;
     typedef typename std::map<FebId, ChannelVectorPointer >   ConditionsMap;
+    typedef typename std::unordered_map<FebId, ChannelVectorPointer >   ConditionsHashMap;
     typedef typename ChannelVector::const_iterator      ConstChannelIt;
     typedef typename ChannelVector::iterator            ChannelIt;
     typedef typename ConditionsMap::const_iterator      ConstConditionsMapIterator;
@@ -128,7 +130,7 @@ public:
   
     /// Do conditions for FebId? Used by writers to check whether add
     /// is needed. 
-    bool                         exist(FebId id);
+    bool                         exist(FebId id) const;
 
     /// Iterator over all channels 
     const_iterator               begin(const LArOnlineID* onlineHelper) const;
@@ -164,25 +166,15 @@ public:
 
 protected:
 
+    // Store the FEB -> ChannelVector mapping twice: once as an ordered map
+    // (this will be used for iteration) and once as an unordered_map
+    // (this will be used for fast lookup).
     ConditionsMap                m_febMap;
+    ConditionsHashMap            m_febHashMap;
+
     unsigned int                 m_gain; 
 
 private:
-
-    // Since the raw-data usually comes FEB-wise, we assume that
-    // subsequent calls to operator[] are likely to concern the same
-    // FEB. Therefore we cache an iterator to current FEB to save
-    // unnecessary map-lookups.  The variable is mutable to allow
-    // caching inside of const objects (the content of the DetectorStore
-    // is usually const :-)
-    mutable ConstConditionsMapIterator m_curr_feb_it;
-    mutable bool                       m_feb_it_valid; 
-
-    //Similar variables, but non-const for writing
-    mutable ConditionsMapIterator      m_curr_feb_it_write;
-    mutable bool                       m_feb_it_valid_write;
-
-  
     //Dummy iterators to mark the beginning and the end of an empty container instance
     const iterator m_dummyIt;
     const const_iterator m_dummyConstIt;
@@ -194,11 +186,7 @@ template<class T>
 inline
 LArConditionsContainerDB<T>::LArConditionsContainerDB(unsigned int gain) 
     :
-    m_gain(gain),
-    m_curr_feb_it(m_febMap.end()),
-    m_feb_it_valid(false),
-    m_curr_feb_it_write(m_febMap.end()),
-    m_feb_it_valid_write(false)
+    m_gain(gain)
 {}
 
 
@@ -577,44 +565,41 @@ inline
 void
 LArConditionsContainerDB<T>::set(const FebId febId, const int channel, const T& payload)
 {
-    // Set the payload for FEB ID + channel
-    if (!m_feb_it_valid_write || m_curr_feb_it_write->first != febId) {
-
-	// Must lookup febId again
-	m_curr_feb_it_write = m_febMap.find(febId);
-	if (m_curr_feb_it_write == m_febMap.end()) {
-	    // Should never get here
-	    std::cout << "LArConditionsContainerDB<T>::set ERROR could not find FEB ID " 
-		      << febId << std::endl;
-	    m_feb_it_valid_write = false;
-	    return;
-	}
-	m_feb_it_valid_write = true;
-    }
+  typename ConditionsHashMap::iterator it = m_febHashMap.find (febId);
+  if (it == m_febHashMap.end()) {
+    // Should never get here
+    std::cout << "LArConditionsContainerDB<T>::set ERROR could not find FEB ID " 
+              << febId << std::endl;
+    return;
+  }
     
-    // Set payload
-    (*(m_curr_feb_it_write->second))[channel] = payload;
-    
+  // Set payload
+  (*(it->second))[channel] = payload;
 }
+
 
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::ConstReference
 LArConditionsContainerDB<T>::get(const FebId febId, const int channel) const	
 {
-    if (!m_feb_it_valid || m_curr_feb_it->first!=febId) {
-	// no feb iterator cached or not valid any more
-	m_curr_feb_it = m_febMap.find(febId);
-	if (m_curr_feb_it == m_febMap.end()) { //Unknown FEB
-	    m_feb_it_valid = false;
-	    return Traits::empty();
-	}
-	m_feb_it_valid=true;
+    // The get/set methods used to cache the iterator in m_febMap where the
+    // last access was found.  That, however, is not at all thread-safe
+    // (and was in fact observed to lead to incorrect results in MT jobs).
+    // We need to get rid of the caching, but we'll also introduce
+    // m_febHashMap to try to reduce the lookup overhead.
+    // If this turns out to be a hot spot, then the iterator could
+    // be returned to the caller via a cookie.
+    typename ConditionsHashMap::const_iterator it = m_febHashMap.find (febId);
+    if (it == m_febHashMap.end()) {
+      // Unknown FEB
+      return Traits::empty();
     }
 
+    const ChannelVector& vec = *it->second;
     // First check the size - channel vec may be empty
-    if ((*(m_curr_feb_it->second)).size()) {
-	return ((*(m_curr_feb_it->second))[channel]);
+    if (channel < static_cast<int>(vec.size())) {
+	return vec[channel];
     }
     else {
         return Traits::empty();
@@ -626,37 +611,23 @@ inline
 typename LArConditionsContainerDB<T>::Reference
 LArConditionsContainerDB<T>::getNonConst(const FebId febId, const int channel)
 {
-    if (!m_feb_it_valid_write || m_curr_feb_it_write->first != febId) {
-	// no feb iterator cached or not valid any more 
-	    
-	m_curr_feb_it_write = m_febMap.find(febId);
-	if (m_curr_feb_it_write == m_febMap.end()) {//Unknown FEB
-	    m_feb_it_valid_write = false;
-	    return (Traits::empty());
-	} 
-	m_feb_it_valid_write = true;
-    } 
+    typename ConditionsHashMap::iterator it = m_febHashMap.find (febId);
+    if (it == m_febHashMap.end()) {
+      // Unknown FEB
+      return Traits::empty();
+    }
+
+    ChannelVector& vec = *it->second;
     // Note: channel vec should always be full for non-const access
-    return ((*(m_curr_feb_it_write->second))[channel]);
+    return vec[channel];
 }
 
 template<class T> 
 inline
 bool
-LArConditionsContainerDB<T>::exist(FebId id) 
+LArConditionsContainerDB<T>::exist(FebId id) const
 {
-    if (m_feb_it_valid_write && m_curr_feb_it_write->first == id) {
-	return (true);
-    }
-    m_curr_feb_it_write = m_febMap.find(id);
-    if (m_curr_feb_it_write == m_febMap.end()) {
-	m_feb_it_valid_write = false;
-	return (false);
-    }
-    else {
-	m_feb_it_valid_write = true;
-	return (true);
-    }
+  return m_febHashMap.find (id) != m_febHashMap.end();
 }
 
 template<class T> 
@@ -690,14 +661,10 @@ void LArConditionsContainerDB<T>::add(const LArConditionsContainerDB<T>* p)
   // copy the data to this container. FEB by FEB. 
   //  if FEB id exist, the old data will be overwritten. 
 
-  const ConditionsMap& febs        = p->m_febMap; 
-  ConstConditionsMapIterator it    = febs.begin(); 
-  ConstConditionsMapIterator it_e  = febs.end(); 
-  for( ;it!=it_e;++it)
-   {
-	m_febMap[(*it).first]=(*it).second ; 
-   }
-  return ;
+  for (const auto& pp : p->m_febMap) {
+    m_febMap[pp.first] = pp.second;
+    m_febHashMap[pp.first] = pp.second;
+  }
 } 
 
 template<class T> 
@@ -706,8 +673,7 @@ void
 LArConditionsContainerDB<T>::add(FebId id, ChannelVectorPointer channelVec)
 {
     m_febMap[id]   = channelVec;
-    // Map got reorganized, cached iterator maybe not valid any more.
-    m_feb_it_valid = false; 
+    m_febHashMap[id]   = channelVec;
 }
 
 template<class T> 
@@ -716,6 +682,7 @@ void
 LArConditionsContainerDB<T>::erase(FebId id)
 {
     m_febMap.erase(id);
+    m_febHashMap.erase(id);
 }
 
 

@@ -40,7 +40,7 @@ public:
                         const std::string& type = "StoreCleared");
 
   /// Return the store that was cleared.
-  StoreGateSvc* store() const;
+  const StoreGateSvc* store() const;
 
 
 private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTTRACKFITTER_H
@@ -65,10 +65,10 @@ namespace TrigL2MuonSA {
     
     BooleanProperty  m_use_mcLUT;
 
-    const PtEndcapLUTSvc*                  m_ptEndcapLUTSvc;
-    const PtBarrelLUTSvc*                  m_ptBarrelLUTSvc;
+    //const PtEndcapLUTSvc*                  m_ptEndcapLUTSvc;
+    //const PtBarrelLUTSvc*                  m_ptBarrelLUTSvc;
     
-    const AlignmentBarrelLUTSvc*           m_alignmentBarrelLUTSvc;
+    //const AlignmentBarrelLUTSvc*           m_alignmentBarrelLUTSvc;
     
     BooleanProperty  m_use_endcapInnerFromBarrel;
 

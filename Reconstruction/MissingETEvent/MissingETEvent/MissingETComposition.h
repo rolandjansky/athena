@@ -7,7 +7,7 @@
 #ifndef MISSINGETEVENT_MISSINGETCOMPOSITION_H
 #define MISSINGETEVENT_MISSINGETCOMPOSITION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Navigation/Navigable.h"
 
 #include "NavFourMom/INavigable4MomentumCollection.h"

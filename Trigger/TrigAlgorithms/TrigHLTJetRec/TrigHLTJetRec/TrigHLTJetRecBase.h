@@ -68,10 +68,10 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
   // ToolHandle<ITriggerPseudoJetGetter>  m_secondarypseudoJetGetter; // a secondary pseudojet getter (for e.g. ghost association)
   //
 
-   virtual HLT::ErrorCode build(ClusterSequence*&, JetContainer*&) const = 0;
+   virtual HLT::ErrorCode build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const = 0;
   
-   HLT::ErrorCode defaultBuild(ClusterSequence*&,
-                               JetContainer*&) const;
+   HLT::ErrorCode defaultBuild(fastjet::ClusterSequence*&,
+                               xAOD::JetContainer*&) const;
 
   const PseudoJetContainer* getPseudoJetContainer() const;
 
@@ -105,7 +105,7 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
  
   HLT::ErrorCode attachJetCollection(HLT::TriggerElement*,
                                      const xAOD::JetContainer*,
-                                     const ClusterSequence*);
+                                     const fastjet::ClusterSequence*);
   
 
 };

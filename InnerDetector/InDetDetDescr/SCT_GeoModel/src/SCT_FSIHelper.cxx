@@ -11,9 +11,9 @@
 #include <iostream>
 
 FSILocation:: FSILocation(std::string name,
-			  double radius,
-			  double phi,
-			  int side)
+                          double radius,
+                          double phi,
+                          int side)
   : m_name(name),
     m_radius(radius),
     m_phi(phi),
@@ -22,10 +22,10 @@ FSILocation:: FSILocation(std::string name,
 
 
 FSIDetails::FSIDetails(const FSILocation * location, 
-		       int simType, 
-		       const std::string & simTypeString, 
-		       const std::string & locationType, 
-		       const std::string & actualType)
+                       int simType, 
+                       const std::string & simTypeString, 
+                       const std::string & locationType, 
+                       const std::string & actualType)
   : m_location(location), 
     m_simType(simType),
     m_simTypeStr(simTypeString), 
@@ -52,7 +52,7 @@ FSIHelper::~FSIHelper()
   for(unsigned int i = 0; i < m_wheelLocMap.size(); i++) {
     if (m_wheelLocMap[i]) {
       for (unsigned int j = 0; j < m_wheelLocMap[i]->size(); j++) {
-	delete (*m_wheelLocMap[i])[j];
+        delete (*m_wheelLocMap[i])[j];
       }
       delete m_wheelLocMap[i];
     }

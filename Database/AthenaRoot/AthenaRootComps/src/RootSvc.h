@@ -86,7 +86,6 @@ public:
   /// @returns NULL if no such file is known to this service
   Athena::RootConnection* connection(const std::string& fname);
 
-protected:
   /// Destructor
   virtual ~RootSvc();
 

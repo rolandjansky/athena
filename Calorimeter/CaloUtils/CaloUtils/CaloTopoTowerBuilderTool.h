@@ -46,14 +46,14 @@ class CaloTopoTowerBuilderTool : public CaloTopoTowerBuilderToolBase
   virtual ~CaloTopoTowerBuilderTool();
 
   /// execute
-  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0);
+  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const override;
   //virtual StatusCode initialize();
 
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
 
-  virtual void handle(const Incident&);
+  virtual void handle(const Incident&) override;
 
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
  protected:
 
@@ -63,21 +63,9 @@ class CaloTopoTowerBuilderTool : public CaloTopoTowerBuilderToolBase
 
   std::vector<CaloCell_ID::SUBCALO> m_caloIndices;
 
-  double m_minimumCellEnergy;
-  double m_minimumClusterEnergy;
-  bool   m_useCellWeights;
-  
-  // Noise tool stuff
-  bool m_useNoiseTool;
-  bool m_usePileUpNoise;
-  float m_noiseSigma;
-  float m_cellESignificanceThreshold;
-    
-  // List of calorimeters from which to use cells
-  bool m_caloSelection;
 
  private:
-  const CaloCell2ClusterMap* CreateCaloCell2ClusterMap(const CaloClusterContainer* c);
+  const CaloCell2ClusterMap* CreateCaloCell2ClusterMap(const CaloClusterContainer* c) const;
   const CaloDetDescrManager* m_calo_dd_man; 
   const CaloCell_ID* m_calo_id;
 

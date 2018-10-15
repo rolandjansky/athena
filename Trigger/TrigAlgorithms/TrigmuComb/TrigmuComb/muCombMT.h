@@ -77,7 +77,7 @@ class muCombMT : public AthAlgorithm
       "MuonL2CBInfo",                          // default value of StoreGate key
       "output CB Muon container name"};
 
-  ToolHandle<GenericMonitoringTool> m_monTool;
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
   /** Handle to the G4 backExtrapolator tool */
   //ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;  

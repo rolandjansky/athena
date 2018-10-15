@@ -8,8 +8,6 @@
 //   Implementation file for class TRTDigitizationTool
 //
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "TRTDigitizationTool.h"
 #include "HitManagement/TimedHitCollection.h"
@@ -55,8 +53,6 @@
 // Gaudi includes
 #include "GaudiKernel/SmartDataPtr.h"
 
-#include <set>
-#include <sstream>
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 //CondDB
@@ -69,7 +65,6 @@ static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>:
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
-#include "StoreGate/WriteHandleKey.h"
 //#include "driftCircle.h" // local copy for debugging and development
 
 //_____________________________________________________________________________
@@ -755,26 +750,26 @@ StatusCode TRTDigitizationTool::createAndStoreRDOs()
 
     if (IdHash != IdHashOld) {
       RDOColl = new TRT_RDO_Collection(IdHash);
-
       ATH_MSG_DEBUG ( "New TRT RDO Collection created with IdHash " << static_cast<int>(IdHash) );
-
       IdHashOld = IdHash;
       RDOColl->setIdentifier(layer_id);
 
       // Add to the container
       if (m_trtrdo_container->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
-	ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
-	return StatusCode::FAILURE;
+	      ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
+	      return StatusCode::FAILURE;
       } else {
-	ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
+	      ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
       }
     }
 
     // Put RDO into Collection
     TRT_LoLumRawData *p_rdo(new TRT_LoLumRawData(idStraw, TRTDigitIter->GetDigit()));
-    if (RDOColl!=NULL) { RDOColl->push_back(p_rdo); }
-    else {
+    if (RDOColl) { 
+      RDOColl->push_back(p_rdo);
+    } else {
       ATH_MSG_FATAL ( "Failed to create the TRT_RDO_Collection before trying to add an RDO to it! IdHash = " << static_cast<int>(IdHash) );
+      delete p_rdo;
       return StatusCode::FAILURE;
     }
     ++TRTDigitIter;

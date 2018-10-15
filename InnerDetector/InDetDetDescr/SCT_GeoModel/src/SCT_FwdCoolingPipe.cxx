@@ -19,10 +19,10 @@
 inline double sqr(double x) {return x * x;}
 
 SCT_FwdCoolingPipe::SCT_FwdCoolingPipe(const std::string & name, 
-				       int numPipes, 
-				       double innerRadius, 
-				       double startPos, 
-				       double endPos)
+                                       int numPipes, 
+                                       double innerRadius, 
+                                       double startPos, 
+                                       double endPos)
   : SCT_SharedComponentFactory(name), m_numPipes(numPipes), m_innerRadius(innerRadius)
 {
   m_length = std::abs(endPos - startPos);

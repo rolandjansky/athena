@@ -19,7 +19,7 @@
  *      All derived classes work with list of probes for a given trigger.
  *      As input property, pass a list of triggers to study.
  **********************************************************************/
-#include "egammaMVACalib/IegammaMVATool.h"
+#include "egammaMVACalibAnalysis/IegammaMVATool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "xAODEventInfo/EventInfo.h"

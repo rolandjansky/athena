@@ -7,6 +7,7 @@ from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
+import traceback
 
 class CaloCellGetter (Configured)  :
     _outputType = "CaloCellContainer"
@@ -492,8 +493,7 @@ class CaloCellGetter (Configured)  :
                doPedestalCorr = True
                mlog.info("Apply cell level pedestal shift correction")
 
-        import os
-        if doPedestalCorr and os.getenv("CMTPATH") and "AtlasTrigger" in os.getenv("CMTPATH"):
+        if doPedestalCorr:
             try:
                 from CaloCellCorrection.CaloCellPedestalCorrDefault import CaloCellPedestalCorrDefault
                 theCaloCellPedestalCorr = CaloCellPedestalCorrDefault()

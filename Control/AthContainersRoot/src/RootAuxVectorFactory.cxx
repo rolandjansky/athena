@@ -17,6 +17,7 @@
 #include "AthContainers/normalizedTypeinfoName.h"
 #include "AthLinks/ElementLinkBase.h"
 #include "CxxUtils/ClassName.h"
+#include "CxxUtils/checker_macros.h"
 #include "TClass.h"
 #include "TVirtualCollectionProxy.h"
 #include "TROOT.h"
@@ -63,7 +64,7 @@ RootAuxVector::RootAuxVector (const RootAuxVectorFactory* factory,
   : m_factory (factory),
     m_ownFlag (true)
 {
-  TClass* vecClass = factory->vecClass();
+  const TClass* vecClass = factory->vecClass();
   m_proxy = vecClass->GetCollectionProxy();
   m_obj = factory->objClass()->New ();
   m_vec = reinterpret_cast<char*> (m_obj) + factory->offset();
@@ -91,7 +92,7 @@ RootAuxVector::RootAuxVector (const RootAuxVectorFactory* factory,
     m_ownFlag (ownFlag)
 {
   if (isPacked) std::abort();
-  TClass* vecClass = factory->vecClass();
+  const TClass* vecClass = factory->vecClass();
   m_proxy = vecClass->GetCollectionProxy();
   m_obj = data;
   m_vec = reinterpret_cast<char*> (m_obj) + factory->offset();

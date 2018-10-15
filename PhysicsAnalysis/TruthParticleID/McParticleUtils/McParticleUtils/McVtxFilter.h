@@ -23,8 +23,7 @@
 #include <sstream>
 #include <ostream>
 
-// DataModel
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Framework includes
 #include "AthenaKernel/getMessageSvc.h"

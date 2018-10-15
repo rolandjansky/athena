@@ -340,7 +340,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   return HLT::OK;
  }
 
-HLT::ErrorCode TrigEFElectronHypo::hltBeginRun() {
+HLT::ErrorCode TrigEFElectronHypo::hltStart() {
   prepareMonitoringVars();
   return HLT::OK;
 }

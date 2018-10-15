@@ -2,9 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNT_UpstreamMat.h"
+#include "CBNT_UpstreamMat.h"
 
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/MsgStream.h"

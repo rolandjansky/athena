@@ -100,8 +100,6 @@ namespace TrigConf {
 
       void closeSession();
 
-      //virtual std::ostream& msg() { return m_ostream; }
-
       void setUseFrontier(bool useFrontier) { m_useFrontier = useFrontier; } 
       bool useFrontier() const { return m_useFrontier; } 
 
@@ -131,7 +129,6 @@ namespace TrigConf {
       std::string     m_user {""};    ///< user name        
       std::string     m_password {""};///< password         
       bool            m_useFrontier {false}; ///< using frontier to connect to oracle (if set, disables sqlite) 
-      std::ostream &  m_ostream; ///< output stream    
 
       int             m_retrialPeriod {0};
       int             m_retrialTimeout {0};

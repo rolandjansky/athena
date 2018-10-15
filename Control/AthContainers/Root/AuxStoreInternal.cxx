@@ -419,6 +419,37 @@ const void* AuxStoreInternal::getIODataInternal (auxid_t auxid, bool quiet) cons
 /**
  * @brief Return a pointer to the data to be stored for one aux data item.
  * @param auxid The identifier of the desired aux data item.
+ * @param quiet If true, then don't print an error on failure.
+ *
+ * This will usually be a pointer to a @c std::vector; however, it may
+ * be something different for a standalone object.
+ *
+ * Returns 0 and reports an error if the requested aux data item
+ * does not exist.
+ */
+void* AuxStoreInternal::getIODataInternal (auxid_t auxid, bool quiet)
+{
+  guard_t guard (m_mutex);
+  if (auxid >= m_vecs.size() || !m_vecs[auxid]) {
+    if (!quiet) {
+      std::ostringstream ss;
+      ss  << "Requested variable "
+          << SG::AuxTypeRegistry::instance().getName (auxid)
+          << " (" << auxid << ") doesn't exist";
+      ATHCONTAINERS_ERROR("AuxStoreInternal::getIODataInternal", ss.str());
+    }
+    return 0;
+  }
+
+  if (m_standalone)
+    return m_vecs[auxid]->toPtr();
+  return m_vecs[auxid]->toVector();
+}
+
+
+/**
+ * @brief Return a pointer to the data to be stored for one aux data item.
+ * @param auxid The identifier of the desired aux data item.
  *
  * This will usually be a pointer to a @c std::vector; however, it may
  * be something different for a standalone object.

@@ -375,15 +375,12 @@ rec.__dict__.get('projectName').set_Value(projectName)
 #-------------------------------------------------------------
 from IOVDbSvc.CondDB import conddb
 conddb.dbdata = 'CONDBR2'
-conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>", className="CondAttrListCollection") 
-#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>259237</forceRunNumber>", className="CondAttrListCollection") 
 
-sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorConditionsCondAlg
-condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg", ReadKey = sctDerivedMonitoringFolder)
-
+from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
+sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
+sct_MonitorConditionsToolSetup.setFolderDb("<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>")
+# sct_MonitorConditionsToolSetup.setFolderDb("<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>259237</forceRunNumber>")
+sct_MonitorConditionsToolSetup.setup()
 
 # GeoModel & MagneticFieldSvc
 #--------------------------------------------------------------

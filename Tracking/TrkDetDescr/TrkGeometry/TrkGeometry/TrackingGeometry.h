@@ -15,7 +15,7 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
 // CLASS DEF
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 // STL
 #include <map>
 // ATH_MSG macros

@@ -117,6 +117,8 @@ StatusCode DerivationFramework::TrackParticleThinning::initialize()
 	ATH_MSG_WARNING("No TRT measurement or state collection specified. TRT hits won't be thinned.");
       } 
     }
+
+    ATH_CHECK(m_SCTDetEleCollKey.initialize());
         
     return StatusCode::SUCCESS;
 }

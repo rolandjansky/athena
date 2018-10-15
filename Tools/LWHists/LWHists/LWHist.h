@@ -18,6 +18,8 @@
 #ifndef LWHIST_H
 #define LWHIST_H
 
+#include "CxxUtils/no_sanitize_undefined.h"
+
 class TH1;
 class TAxis;
 

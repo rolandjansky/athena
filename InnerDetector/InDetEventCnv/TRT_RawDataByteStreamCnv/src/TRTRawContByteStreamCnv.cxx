@@ -20,12 +20,6 @@ TRTRawContByteStreamCnv::TRTRawContByteStreamCnv(ISvcLocator* svcloc) :
 {}
  
 // ------------------------------------------------------
-// destructor
-
-TRTRawContByteStreamCnv::~TRTRawContByteStreamCnv( )
-{}
-
-// ------------------------------------------------------
 // initialize
 
 StatusCode

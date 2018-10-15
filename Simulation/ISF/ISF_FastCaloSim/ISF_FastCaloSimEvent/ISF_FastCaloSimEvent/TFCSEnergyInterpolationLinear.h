@@ -11,23 +11,23 @@ class TFCSEnergyInterpolationLinear:public TFCSParametrization {
 public:
   TFCSEnergyInterpolationLinear(const char* name=nullptr, const char* title=nullptr);
 
-  virtual bool is_match_Ekin_bin(int /*Ekin_bin*/) const {return true;};
-  virtual bool is_match_calosample(int /*calosample*/) const {return true;};
+  virtual bool is_match_Ekin_bin(int /*Ekin_bin*/) const override {return true;};
+  virtual bool is_match_calosample(int /*calosample*/) const override {return true;};
   
   void set_slope(float slope) {m_slope=slope;};
   void set_offset(float offset) {m_offset=offset;};
 
   // Initialize simulstate with the mean reconstructed energy in the calorimater expeted from the true kinetic energy
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
-  void Print(Option_t *option="") const;
+  void Print(Option_t *option="") const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
 private:
   float m_slope;
   float m_offset;
 
-  ClassDef(TFCSEnergyInterpolationLinear,1)  //TFCSEnergyInterpolationLinear
+  ClassDefOverride(TFCSEnergyInterpolationLinear,1)  //TFCSEnergyInterpolationLinear
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

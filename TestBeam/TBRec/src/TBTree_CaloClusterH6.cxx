@@ -7,8 +7,9 @@
 // author: A.Minaenko
 // date:  25/07/2006
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
+#include "TBTree_CaloClusterH6.h"
+#include "TBRec/TBH6RunHeader.h"
+
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 
@@ -16,8 +17,6 @@
 
 #include <TFile.h>
 #include <TTree.h>
-
-#include "StoreGate/StoreGate.h" 
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -40,9 +39,6 @@
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
 #include "TBEvent/TBTailCatcher.h"
-
-#include "TBRec/TBH6RunHeader.h"
-#include "TBRec/TBTree_CaloClusterH6.h"
 
 #include <fstream>
 

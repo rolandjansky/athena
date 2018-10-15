@@ -5,7 +5,6 @@
 #ifndef MUONCOMBINEDEVENT_INDETCANDIDATE_H
 #define MUONCOMBINEDEVENT_INDETCANDIDATE_H
 
-#include "MuonCombinedEvent/TagBase.h"
 #include <vector>
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -14,8 +13,6 @@
 
 namespace MuonCombined {
 
-  class TagBase;
-  
   class InDetCandidate {
     
   public:
@@ -40,18 +37,6 @@ namespace MuonCombined {
     /** access TrackParticleLink */
     const ElementLink<xAOD::TrackParticleContainer>& indetTrackParticleLink() const;
     
-    /** extend InDetCandidate, takes ownership of tag object */
-    void addTag(const TagBase& tag);
-    
-    /** access tags */
-    const std::vector<const TagBase*>& combinedDataTags() const;
-
-    /** access last tag */
-    const TagBase*                     lastCombinedDataTag() const;
-
-    /** access of a given type tag */
-    const TagBase*                     lastCombinedDataTag( TagBase::Type type ) const;
-    
     //access MuonSystemExtension
     const Muon::MuonSystemExtension* getExtension() const;
 
@@ -74,9 +59,6 @@ namespace MuonCombined {
     /** cached pointer to the InDet TrackParticle */
     const xAOD::TrackParticle*   m_idTrackParticle;
 
-    /** vector of tags */
-    std::vector<const TagBase*> m_tags;
-    
     /** Was this created using a special far forward indet track*/
     bool m_siAssociated;
 
@@ -90,27 +72,6 @@ namespace MuonCombined {
   }
 
   inline const ElementLink<xAOD::TrackParticleContainer>& InDetCandidate::indetTrackParticleLink() const { return m_idTrackParticleLink; }
-
-
-  inline void InDetCandidate::addTag(const TagBase& tag) {
-    m_tags.push_back(&tag);
-  }
-
-  inline  const std::vector<const TagBase*>& InDetCandidate::combinedDataTags() const {
-    return m_tags;
-  }
-
-  inline const TagBase* InDetCandidate::lastCombinedDataTag() const {
-    if( m_tags.empty() ) return 0;
-    return m_tags.back();
-  }
-
-  inline const TagBase* InDetCandidate::lastCombinedDataTag( TagBase::Type type) const {
-    for( auto x : m_tags ) {
-      if( x->type() == type ) return x;
-    }
-    return 0;
-  }
 
   inline bool InDetCandidate::isSiliconAssociated() const { return m_siAssociated; }
   

@@ -27,6 +27,7 @@ public:
     kHasShapeFactor = TLateralShapeCorrectionBase::kHasShapeFactor, // set if the shapefactor function is sensible
     kHasCellFactor  = TLateralShapeCorrectionBase::kHasCellFactor   // set if the cellfactor function is sensible
   };
+  virtual ~TShape_Result();
 protected:
   inline double Sqr(double a) {return a*a;};
   double   m_fitsplines_EnergyDistribution_maxx;//!

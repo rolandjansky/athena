@@ -77,6 +77,11 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
                                  std::vector<CaloCell_ID::SUBCALO> theCalos)
 {
   m_seg = theTowerSeg;
+  m_entries.clear();
+  m_towers.clear();
+  m_weights.clear();
+  m_entry_index.store (std::vector<unsigned short>());
+  m_entry_index.reset();
 
   ///////////////////////
   // Store Preparation //
@@ -272,16 +277,19 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
  */
 void CaloTowerStore::checkEntryIndex() const
 {
-  if (!m_entry_index.empty()) return;
-  size_t sz = m_towers.size();
-  m_entry_index.resize (sz);
-  size_t ndx = 0;
-  for (size_t i = 0; i < sz; i++) {
-    m_entry_index[i] = ndx;
-    if (!m_towers[i].backref_next)
-      ndx += m_towers[i].nentries;
+  if (!m_entry_index.isValid()) {
+    std::vector<unsigned short> entries;
+    size_t sz = m_towers.size();
+    entries.resize (sz);
+    size_t ndx = 0;
+    for (size_t i = 0; i < sz; i++) {
+      entries[i] = ndx;
+      if (!m_towers[i].backref_next)
+        ndx += m_towers[i].nentries;
+    }
+    assert (ndx < std::numeric_limits<unsigned short>::max());
+    m_entry_index.set (std::move (entries));
   }
-  assert (ndx < std::numeric_limits<unsigned short>::max());
 }
 
 

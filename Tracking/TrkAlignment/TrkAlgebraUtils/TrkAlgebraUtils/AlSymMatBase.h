@@ -9,7 +9,7 @@
 // modified from SiGlobalChi2AlgebrUtils::AlSymMatBase, modified to make
 // pure virtual
 
-#include <iostream>
+#include <exception>
 #include <map>
 #include <vector>
 
@@ -119,8 +119,7 @@ inline AlSymMatBase::AlSymMatBase_row_const AlSymMatBase::operator[] (long int r
 
 inline double & AlSymMatBase::AlSymMatBase_row::operator[](long int c) {
   if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol()) {
-    std::cerr << "Range error in AlSymMatBase::operator[][]" << std::endl;
-    return m_a.elemr(0,0);
+    throw std::out_of_range( "Range error in AlSymMatBase::operator[][]" );
   } else {
     return m_a.elemr(m_r,c);
   }
@@ -128,8 +127,7 @@ inline double & AlSymMatBase::AlSymMatBase_row::operator[](long int c) {
 
 inline double AlSymMatBase::AlSymMatBase_row_const::operator[](long int c) const {
   if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol()) {
-    std::cerr << "Range error in AlSymMatBase::operator[][]" << std::endl;
-    return m_a.elemc(0,0);
+    throw std::out_of_range( "Range error in AlSymMatBase::operator[][]" );
   } else {
     return m_a.elemc(m_r,c);
   }

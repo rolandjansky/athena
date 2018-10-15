@@ -8,7 +8,7 @@
 //#include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include <vector>
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MuGirlGlobalFit/GlobalFitTool.h"
 #include "MuonSegment/MuonSegment.h"
 #include "iPatTrackParameters/PerigeeParameters.h"

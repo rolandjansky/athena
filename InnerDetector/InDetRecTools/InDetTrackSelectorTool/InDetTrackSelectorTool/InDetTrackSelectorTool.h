@@ -8,8 +8,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "TrkParameters/TrackParameters.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"//enum, do not fwd declare
+#include "TrkParameters/TrackParameters.h" //typedef
 
 /**
  * @file InDetTrackSelectorTool.h

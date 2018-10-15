@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LWHISTFACTORY_H
-#define LWHISTFACTORY_H
+#ifndef LARMONTOOLS_LWHISTFACTORY_H
+#define LARMONTOOLS_LWHISTFACTORY_H
 
-#include<string>
+#include <string>
 #include "LWHists/LWHist.h"
 #include "LWHists/TProfile_LW.h"
 #include "LWHists/TProfile2D_LW.h"

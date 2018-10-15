@@ -27,6 +27,7 @@ def LArHVCorrToolDefault (name="LArHVCorrToolDefault", **kw):
     # do the configuration
     if globalflags.DataSource()=='data':
         from LArConditionsCommon import LArHVDB
+
         from LArCondUtils.LArCondUtilsConf import LArHVToolDB
         theLArHVToolDB = LArHVToolDB("LArHVToolDB")
         from AthenaCommon.AppMgr import ToolSvc

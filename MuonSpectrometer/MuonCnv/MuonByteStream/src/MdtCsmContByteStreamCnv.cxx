@@ -37,9 +37,6 @@ MdtCsmContByteStreamCnv::MdtCsmContByteStreamCnv(ISvcLocator* svcloc) :
 {
 }
 
-MdtCsmContByteStreamCnv::~MdtCsmContByteStreamCnv() {
-}
-
 const CLID& MdtCsmContByteStreamCnv::classID(){
 return ClassID_traits<MdtCsmContainer>::ID() ;
 }

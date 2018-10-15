@@ -168,14 +168,14 @@ public:
    * @brief Dereference the pointer.
    * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
    */
-  pointer_type operator->() const;
+  pointer_type operator->();
 
 
   /**
    * @brief Dereference the pointer.
    * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
    */
-  reference_type operator*() const;
+  reference_type operator*();
 
 
   /**
@@ -189,13 +189,13 @@ public:
    * @brief Dereference the pointer.
    * Returns the cached pointer.
    */
-  pointer_type ptr() const;
+  pointer_type ptr();
 
 
   /**
    * @brief Return the cached pointer directly; no lookup.
    */
-  pointer_type cachedPtr() const;
+  pointer_type cachedPtr();
 
 
   /**
@@ -267,7 +267,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -285,7 +285,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -303,7 +303,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -322,7 +322,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -342,7 +342,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -360,7 +360,7 @@ public:
    * @param data The object to record.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -376,7 +376,7 @@ public:
    * @param data The object to record.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -393,7 +393,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -412,7 +412,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -435,7 +435,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -456,7 +456,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -531,7 +531,7 @@ private:
    *
    * If it is null, throw ExcNullWriteHandle.
    */
-  pointer_type checkedCachedPtr() const;
+  pointer_type checkedCachedPtr();
 
 
   /**
@@ -554,7 +554,7 @@ private:
    * @param[out] store The store being used.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -576,7 +576,7 @@ private:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -597,7 +597,7 @@ private:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.

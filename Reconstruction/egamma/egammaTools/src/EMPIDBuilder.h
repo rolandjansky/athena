@@ -38,11 +38,11 @@ public:
   ~EMPIDBuilder();
 	
   /** @brief initialize method*/
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** @brief standard execute method */
   virtual StatusCode execute(xAOD::Egamma*) const override final ;
   /** @brief finalize method*/
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 protected:
   /** Handle to the selectors */

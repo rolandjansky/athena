@@ -65,10 +65,12 @@ public:
   /**
    * @brief Go from a photon to a matching @c TruthParticle.
    * @param g The input photon.
+   * @param cache Truth classifier association cache.
    * @return The matching @c TruthParticle, or null.
    */
   const xAOD::TruthParticle*
-  toTruthParticle (const xAOD::Photon& g) /*const*/;
+  toTruthParticle (const xAOD::Photon& g,
+                   IMCTruthClassifier::Cache& cache) const;
 
 
   /**

@@ -63,6 +63,10 @@ StatusCode TrackParticleToSCTClusterAssociationTool::initialize()
     return StatusCode::FAILURE;
   }
 
+  if (m_SCTDetEleCollKey.initialize().isFailure()) {
+    REPORT_MESSAGE (MSG::FATAL) << "Could not initialize " << m_SCTDetEleCollKey.fullKey();
+    return StatusCode::FAILURE;
+  }
 
   return  TrackParticleToSCTClusterToTrackBase::initialize();
 }
@@ -169,7 +173,6 @@ StatusCode TrackParticleToSCTClusterAssociationTool::reset (const  Rec::TrackPar
 
 
   std::vector< Identifier> sctClusterIdentifier;  
-  std::vector<Identifier>::iterator posItr;
 
   const DataVector<const Trk::TrackStateOnSurface>* trackHits = track->trackStateOnSurfaces();
   

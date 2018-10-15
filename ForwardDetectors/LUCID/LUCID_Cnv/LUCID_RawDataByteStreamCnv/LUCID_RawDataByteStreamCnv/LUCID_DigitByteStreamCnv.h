@@ -47,8 +47,6 @@ typedef std::map<uint32_t, LUCID_RodEncoder> LucidRodEncoder_map;
 
 class LUCID_DigitByteStreamCnv: public Converter {
 
-  ~LUCID_DigitByteStreamCnv();
-
  public:
 
   LUCID_DigitByteStreamCnv(ISvcLocator* svcloc);

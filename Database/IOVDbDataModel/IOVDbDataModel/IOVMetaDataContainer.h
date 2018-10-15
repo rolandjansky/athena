@@ -158,9 +158,7 @@ IOVMetaDataContainer::setFolderDescription(const std::string& description)
     m_folderDescription = description;
 }
 
-#ifndef CLIDSVC_CLASSDEF_H
-# include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( IOVMetaDataContainer , 1316383046 , 1 )
 
 

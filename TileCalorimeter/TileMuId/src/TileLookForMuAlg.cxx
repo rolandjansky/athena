@@ -27,7 +27,7 @@
 
 TileLookForMuAlg::TileLookForMuAlg(const std::string& name,
     ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
   , m_tileID(0)
   , m_etaD()
   , m_etaBC()
@@ -100,7 +100,7 @@ StatusCode TileLookForMuAlg::initialize() {
 /////////////////////////////////////////////////////////////////////////////////
 //Execution                                                                     /
 /////////////////////////////////////////////////////////////////////////////////
-StatusCode TileLookForMuAlg::execute() {
+StatusCode TileLookForMuAlg::execute_r (const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("TileLookForMuAlg execution  started");
 
@@ -112,14 +112,14 @@ StatusCode TileLookForMuAlg::execute() {
   memset(eneBC, 0, sizeof(eneBC));
   memset(eneD, 0, sizeof(eneD));
 
-  SG::WriteHandle<TileMuContainer> muContainer(m_muContainerKey);
+  SG::WriteHandle<TileMuContainer> muContainer(m_muContainerKey, ctx);
   ATH_CHECK( muContainer.record(std::make_unique<TileMuContainer>()) );
 
 
   //  Get CaloCell  Container
   std::vector<const CaloCell*> cellList;
 
-  SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerKey);
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerKey, ctx);
   ATH_CHECK( cellContainer.isValid() );
 
   CaloCell_ID::SUBCALO tileCell_ID = CaloCell_ID::TILE;

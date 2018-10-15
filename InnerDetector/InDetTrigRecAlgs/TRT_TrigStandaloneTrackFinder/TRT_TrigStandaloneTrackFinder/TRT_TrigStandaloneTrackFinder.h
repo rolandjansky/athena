@@ -17,7 +17,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 ///Track events
-#include "TrkTrack/Track.h"
 #include "TrkSegment/TrackSegment.h"
 
 ///Track Collection to store the tracks
@@ -33,7 +32,7 @@ namespace InDet {
   /**
   @class TRT_TrigStandaloneTrackFinder
   
-  InDet::TRT_TrigStandaloneTrackFinde is an algorithm which produces tracks
+  InDet::TRT_TrigStandaloneTrackFinder is an algorithm which produces tracks
   from stand-alone TRT segments with no Si extension
   @author Thomas.Koffas@cern.ch     
   */
@@ -60,7 +59,7 @@ namespace InDet {
       HLT::ErrorCode hltFinalize();
 
       //parameters for monitoring
-      int m_nTRTTracks         ; //!< Number of TRT standalone tracks
+      int m_nTRTTracks{}         ; //!< Number of TRT standalone tracks
       //int m_nTrtSeg          ;  //!< Number of TRT segments to be investigated per event
 
       ///////////////////////////////////////////////////////////////////
@@ -76,37 +75,37 @@ namespace InDet {
       /* Private data                                                */
       ///////////////////////////////////////////////////////////////////
      
-      int                                m_outputlevel        ;  //!< Print level for debugging
-      int                                m_nprint             ;
+      int                                m_outputlevel{}        ;  //!< Print level for debugging
+      int                                m_nprint{}             ;
       //int                                m_ntracks            ;  //!< Number of tracks found
 
-      int                                m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
+      int                                m_minNumDriftCircles{} ;  //!< Minimum number of drift circles for TRT segment tracks
 
-      bool                               m_resetPRD           ;  /** Reset PRD association tool during the sub-detector pattern */
+      bool                               m_resetPRD{}           ;  /** Reset PRD association tool during the sub-detector pattern */
 
-      int                                m_matEffects         ;  //!< Particle hypothesis for track fitting
+      int                                m_matEffects{}         ;  //!< Particle hypothesis for track fitting
 
       //StoreGateSvc*                         m_store_gate    ;  //!< Pointer to store gate 
 
       ToolHandle< ITRT_SegmentToTrackTool > m_segToTrackTool; //!< Segment to track tool
       
-      const Trk::SegmentCollection      *m_Segments         ;  //!< TRT segments to use
+      const Trk::SegmentCollection      *m_Segments{}         ;  //!< TRT segments to use
 
       /**Tracks that will be passed out of AmbiProcessor. 
 	 Recreated anew each time process() is called*/ 
-      TrackCollection* m_finalTracks;
+      TrackCollection* m_finalTracks{};
 
       /** Global Counters for final algorithm statistics */
-      int m_nTrtSeg          ;  //!< Number of TRT segments to be investigated per event
-      int m_nTrtSegGood      ;  //!< Number of TRT segments that will be investigated per event
-      int m_nBckTrk          ;  //!< Total number of TRT segment back tracks found per event
-      int m_nUsedSeg         ;  //!< Total number of TRT segments assigned Si extensions per event
+      int m_nTrtSeg{}          ;  //!< Number of TRT segments to be investigated per event
+      int m_nTrtSegGood {}     ;  //!< Number of TRT segments that will be investigated per event
+      int m_nBckTrk{}          ;  //!< Total number of TRT segment back tracks found per event
+      int m_nUsedSeg {}        ;  //!< Total number of TRT segments assigned Si extensions per event
 
-      int m_nTrtSegTotal     ;  //!< Total number of TRT segments to be investigated
-      int m_nTrtSegGoodTotal ;  //!< Total number of TRT segments that will be investigated
-      int m_nBckTrkTotal     ;  //!< Total number of TRT segment back tracks found
-      int m_nUsedSegTotal    ;  //!< Total number of TRT segments assigned Si extensions
-      int m_ntimesInvoked    ;  //!< Keep track how many times the algo was invoked
+      int m_nTrtSegTotal{}     ;  //!< Total number of TRT segments to be investigated
+      int m_nTrtSegGoodTotal{} ;  //!< Total number of TRT segments that will be investigated
+      int m_nBckTrkTotal{}     ;  //!< Total number of TRT segment back tracks found
+      int m_nUsedSegTotal{}    ;  //!< Total number of TRT segments assigned Si extensions
+      int m_ntimesInvoked{}    ;  //!< Keep track how many times the algo was invoked
 
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */

@@ -18,15 +18,12 @@
 //*****************************************************************************
 
 // Gaudi includes
-#include <sstream>  // TEMP workaround for gcc5 build.  Need to remove this hack.
-#define private public
-#include "StoreGate/StoreGateSvc.h" // to be able to remove TileInfo from DetectorStore
-#undef private
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Athena includes
+#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaKernel/errorcheck.h"
@@ -44,7 +41,7 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileOptFilterWeights.h"
-#include "TileConditions/TileBadChanTool.h"
+#include "TileConditions/TileBadChanLegacyTool.h"
 
 #include "TMatrixD.h"
 #include "cstdio"
@@ -259,7 +256,7 @@ StatusCode TileInfoLoader::initialize() {
 
     bool nothing_found = (geo*run1*ibl*run2*comm*slhc*upg != 0);
     GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
-    bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2 
+    bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2
                                    || geoConfig==GeoModel::GEO_RUN3
                                    || geoConfig==GeoModel::GEO_RUN4
                                    || geoConfig==GeoModel::GEO_ITk
@@ -381,9 +378,9 @@ StatusCode TileInfoLoader::initialize() {
   m_eorCalled = false;
 
 
-  // This retrieval of TileBadChanTool is needed to avoid crash in trigger-related jobs,
+  // This retrieval of TileBadChanLegacyTool is needed to avoid crash in trigger-related jobs,
   // when TileByteStream wants to use bad channel tool at start of run
-  ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanTool");
+  ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanLegacyTool");
   CHECK( tileBadChanTool.retrieve() );
 
   // Listen for end of run
@@ -865,4 +862,3 @@ void TileInfoLoader::buildCovMatrix() {
     }
   }
 }
-

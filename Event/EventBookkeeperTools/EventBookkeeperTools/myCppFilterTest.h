@@ -34,12 +34,6 @@ public:
   StatusCode execute();
   StatusCode finalize();
 
-
-protected:
-  virtual ~myCppFilterTest();
-
-
-
 private:
   CutIdentifier m_filterCutID;
   CutIdentifier m_cut1ID;

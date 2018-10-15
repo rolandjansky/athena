@@ -6,12 +6,14 @@
 #include "StoreGate/DataHandle.h"
 
 #include "eflowRec/eflowCaloObject.h"
-#include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowRecTrack.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "eflowRec/IPFClusterSelectorTool.h"
 #include "eflowRec/IPFBaseTool.h"
 #include "eflowRec/IPFSubtractionTool.h"
+
+class eflowRecClusterContainer;
 
 class PFAlgorithm : public AthAlgorithm {
 
@@ -24,6 +26,10 @@ public:
   StatusCode finalize();
 
 private:
+
+  /** ToolHandle for the PFClusterSelectorTool which creates the set of eflowRecCluster to be used */
+  ToolHandle<IPFClusterSelectorTool> m_IPFClusterSelectorTool{this,"PFClusterSelectorTool","PFClusterSelectorTool","ToolHandle for the PFClusterSelectorTool which creates the set of eflowRecCluster to be used"};
+  
   /** List of IPFSubtractionTool, which will be executed by this algorithm */
   ToolHandleArray<IPFSubtractionTool> m_IPFSubtractionTools;
 
@@ -33,9 +39,9 @@ private:
   /** ReadHandleKey for the eflowRecTrackContainer to be read in */
   SG::ReadHandleKey<eflowRecTrackContainer> m_eflowRecTracksReadHandleKey{this,"eflowRecTracksInputName","eflowRecTracks","ReadHandleKey for the eflowRecTrackContainer to be read in"};
 
-  /** ReadHandleKey for the eflowRecClusterContainer to be read in */
-  SG::ReadHandleKey<eflowRecClusterContainer> m_eflowRecClustersReadHandleKey{this,"eflowRecClustersInputName","eflowRecClusters","ReadHandleKey for the eflowRecClusterContainer to be read in"};
-
+  /** WriteHandleKey for the eflowRecClusterContainer to write out */
+  SG::WriteHandleKey<eflowRecClusterContainer> m_eflowRecClustersWriteHandleKey{this,"eflowRecClustersOutputName","eflowRecClusters","WriteHandleKey for the eflowRecClusterContainer to write out"};
+  
   /** WriteHandleKey for CaloClusterContainer to be written out */
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_caloClustersWriteHandleKey{this,"PFCaloClustersOutputName","PFCaloCluster","WriteHandleKey for CaloClusterContainer to be written out"};
 

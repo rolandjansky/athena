@@ -48,7 +48,7 @@ StatusCode LArCalibLineMappingAlg::execute() {
   SG::WriteCondHandle<LArCalibLineMapping> writeHandle{m_writeKey};
   
   if (writeHandle.isValid()) {
-    ATH_MSG_WARNING("Found valid write handle");
+    ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }  
 
@@ -110,7 +110,6 @@ StatusCode LArCalibLineMappingAlg::execute() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
-
  
   return StatusCode::SUCCESS;
 }

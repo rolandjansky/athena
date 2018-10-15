@@ -24,7 +24,6 @@
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 
-#include <ext/functional>
 //================ Constructor =================================================
 
 InDet::InDetAmbiTrackSelectionTool::InDetAmbiTrackSelectionTool(const std::string& t,
@@ -73,49 +72,22 @@ InDet::InDetAmbiTrackSelectionTool::~InDetAmbiTrackSelectionTool()
 
 StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
 {
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) return sc;
   if (m_IBLParameterSvc.retrieve().isFailure()) {
-       ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
+    ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
+  } else {
+	  m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting,"doPixelClusterSplitting");
   }
-  else {
-	m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting,"doPixelClusterSplitting");
-  }
-
-  sc =  m_assoTool.retrieve();
-  if (sc.isFailure()) 
-    {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
-      return StatusCode::FAILURE;
-    } 
-  else
-    msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
-
+  ATH_CHECK(  m_assoTool.retrieve());
+  
   // Get segment selector tool
   //
   if(m_parameterization){
-    if(m_selectortool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endmsg;
-    }
-  }
-  else {
+    ATH_CHECK(m_selectortool.retrieve());
+  } else {
     m_selectortool.disable(); 
   }
-
-  sc = detStore()->retrieve(m_detID, "SiliconID" );
-  if (sc.isFailure()) 
-    {
-      msg(MSG::FATAL) << "Could not get SiliconID "<<endmsg;
-      return sc;
-    }
-  else
-    msg(MSG::DEBUG) << "Found SiliconID"<<endmsg;
-
-  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
+  ATH_CHECK(detStore()->retrieve(m_detID, "SiliconID" ));
+  ATH_MSG_DEBUG( "initialize() successful" );
   return StatusCode::SUCCESS;
 }
 
@@ -123,8 +95,7 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
 
 StatusCode InDet::InDetAmbiTrackSelectionTool::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //============================================================================================

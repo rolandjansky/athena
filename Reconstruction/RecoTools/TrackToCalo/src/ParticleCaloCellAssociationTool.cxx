@@ -19,7 +19,7 @@
 
 #include "xAODTracking/TrackingPrimitives.h"
 #include <math.h>
-
+#include <memory>
 
 namespace Rec {
 
@@ -48,6 +48,10 @@ namespace Rec {
 
     m_defaultSelector.setConeSize(m_coneSize);
 
+    if(!m_cellContainerName.key().empty()) {
+      ATH_CHECK(m_cellContainerName.initialize());
+    }
+
     return StatusCode::SUCCESS;
   }
 
@@ -55,17 +59,6 @@ namespace Rec {
     return StatusCode::SUCCESS;
   }
 
-  const CaloCellContainer* ParticleCaloCellAssociationTool::getCellContainer() const {
-
-    const CaloCellContainer* container = 0;
-    //retrieve the cell container
-    if( evtStore()->retrieve(container, m_cellContainerName).isFailure() || !container ) {
-      ATH_MSG_WARNING( "Unable to retrieve the cell container  " << m_cellContainerName << " container ptr " << container );
-      return 0;
-    }
-    if( container ) ATH_MSG_DEBUG("Retrieved cell container " << container->size());
-    return container;
-  }
 
   void ParticleCaloCellAssociationTool::getCellIntersections( const Trk::CaloExtension& extension,
                                                               const std::vector<const CaloCell*>& cells,
@@ -297,8 +290,8 @@ namespace Rec {
     }
 
     // get the extrapolation into the calo
-    const Trk::CaloExtension* caloExtension = 0;
-    if( !m_caloExtensionTool->caloExtension(particle,caloExtension) ) {
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(particle);
+    if( !caloExtension ) {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }
@@ -308,9 +301,13 @@ namespace Rec {
     }
     
     //retrieve the cell container if not provided, return false it retrieval failed
-    if( !container && !(container = getCellContainer()) ) {
-      ATH_MSG_DEBUG("Failed to get calo cell container");      
-      return false;
+    if (!container) {
+      if (m_cellContainerName.key().empty()) {
+	ATH_MSG_DEBUG("Failed to get calo cell container");
+	return false;
+      }
+      SG::ReadHandle<CaloCellContainer> cccHdl(m_cellContainerName);
+      container=&(*cccHdl);
     }
     std::vector<const CaloCell*> cells;
     // update cone size in case it is smaller than the default
@@ -321,27 +318,24 @@ namespace Rec {
     ParticleCellAssociation::CellIntersections cellIntersections;
     getCellIntersections(*caloExtension,cells,cellIntersections);
     
-//    for(auto it : cellIntersections){
-//      double f_exp = (it.second)->pathLength();
-//      double E_exp = (it.second)->expectedEnergyLoss();
-//      ATH_MSG_DEBUG( " path " << f_exp << " expected Eloss " << E_exp );
-//    }
-
-    ParticleCellAssociation* theAssocation = new ParticleCellAssociation( *caloExtension, std::move(cells), dr, 
+    //From here on the ParticleCellAssociation has ownership of the caloExtension
+    //We can not assume the CaloExtension stays alive in Storegate etc etc
+    ParticleCellAssociation* theAssocation = new ParticleCellAssociation( caloExtension.release(), std::move(cells), dr, 
                                                                           std::move(cellIntersections), container );
 
     // now add the extension to the output collection so we are not causing any leaks
     ParticleCellAssociationCollection* collection = 0;
-    if( !evtStore()->contains<ParticleCellAssociationCollection>(m_cellContainerName) ){
+    if( !evtStore()->contains<ParticleCellAssociationCollection>(m_cellContainerName.key()) ){
       collection = new ParticleCellAssociationCollection();
-      if( evtStore()->record( collection, m_cellContainerName).isFailure() ) {
+      if( evtStore()->record( collection, m_cellContainerName.key()).isFailure() ) {
         ATH_MSG_WARNING( "Failed to record output collection, will leak the ParticleCaloExtension");
         delete collection;
         collection = 0;
       }
     }else{
-      if(evtStore()->retrieve(collection,m_cellContainerName).isFailure()) {
-        ATH_MSG_WARNING( "Unable to retrieve " << m_cellContainerName << " will leak the ParticleCaloExtension" );
+      //ATH_MSG_WARNING("Updating existing ParticleCaloExtension container");
+      if(evtStore()->retrieve(collection,m_cellContainerName.key()).isFailure()) {
+        ATH_MSG_WARNING( "Unable to retrieve " << m_cellContainerName.key() << " will leak the ParticleCaloExtension" );
       }
     }
     if( collection ) collection->push_back(theAssocation);

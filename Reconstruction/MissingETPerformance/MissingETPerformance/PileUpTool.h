@@ -41,11 +41,6 @@ class PileUpTool : public AthAlgTool
     
   inline void SetFolderName(const std::string& folderName) { m_folderName=folderName; }
 
-  protected:
-    
-    // Standard destructor
-    virtual ~PileUpTool( );
-    
   private:
     
     StatusCode pileUp(MissingETData *data);

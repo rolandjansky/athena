@@ -89,7 +89,7 @@ InDet::TRT_SegmentsToTrack::~TRT_SegmentsToTrack()
 StatusCode InDet::TRT_SegmentsToTrack::initialize()
 {
  
-  ATH_MSG_INFO("TrkSegmenttoTrack initialize()");
+  ATH_MSG_DEBUG("TrkSegmenttoTrack initialize()");
   
   m_n_combined_fit=0;
 
@@ -138,7 +138,7 @@ StatusCode InDet::TRT_SegmentsToTrack::finalize()
     ATH_MSG_INFO("Number of combined Barrel+Endcap tracks: "<<m_n_combined_fit);
   }
 
-  ATH_MSG_INFO(name() << " finalize() successful ");
+  ATH_MSG_DEBUG(name() << " finalize() successful ");
 
   return StatusCode::SUCCESS;
 }
@@ -262,8 +262,10 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
             measpar=(**itSet).trackParameters();
           }
         }
-        const Trk::TrackParameters *myper=m_extrapolator->extrapolate(*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting);
-
+        const Trk::TrackParameters *myper{};
+        if (measpar){
+          myper=m_extrapolator->extrapolate(*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting);
+        }
         if (!myper){
           delete myper;
           delete fittedTrack;

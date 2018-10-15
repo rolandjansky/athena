@@ -18,8 +18,8 @@ class TFCS1DFunctionRegressionTF:public TFCS1DFunctionRegression
     ~TFCS1DFunctionRegressionTF() {};
 
     using TFCS1DFunctionRegression::rnd_to_fct;
-    virtual double rnd_to_fct(double rnd);
-    double retransform(double value);
+    virtual double rnd_to_fct(double rnd) const;
+    double retransform(double value) const;
 
   private:
 

@@ -15,7 +15,7 @@
 #ifndef GEOMODELSVC_GEOMODELEXPERIMENT_H
 #define GEOMODELSVC_GEOMODELEXPERIMENT_H
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <set>
 #include <string>
 #include <vector>

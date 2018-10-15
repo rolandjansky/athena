@@ -226,7 +226,7 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'enableHotIDMasking',
                                 'openThresholdRPCCabling',
                                 #special streaming setup
-                                'enable7BitL1TTStreaming',
+                                #'enable7BitL1TTStreaming',
 ]
 
 if setupForMC:  # MC modifiers
@@ -259,6 +259,7 @@ else:           # More data modifiers
                                 #'disablePixels',
                                 #'disableSCTBarrel',
                                 'useDynamicAlignFolders',
+                                'enableALFAMon',
     ]
 
 #make some more common trig cost operations easier to setup
@@ -442,6 +443,10 @@ if globalflags.InputFormat=='bytestream':
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
         _run_number = af.run_number[0]
+
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber =_run_number
+
     if _run_number>=276073:       #start of periodD1, 25ns bunch spacing 
         jobproperties.Beam.bunchSpacing=25
         log.info('Bunch spacing set to %dns for a bytestream input. It can be overriden by BunchSpacing50ns=True'

@@ -2,7 +2,7 @@ include.block ( "EventOverlayJobTransforms/ConfiguredOverlay_jobOptions.py" )
 
 #--------------------------------------------------------------
 # Load POOL support
-# (modified by Piyali.Banerjee to include skip  events) 
+# (modified by Piyali.Banerjee to include skip  events)
 #--------------------------------------------------------------
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -16,16 +16,14 @@ if not isRealData:
 #=======================================================================
 from AthenaCommon.AppMgr import ServiceMgr
 from PileUpComps.PileUpCompsConf import PileUpEventLoopMgr
-    
 from PileUpComps.PileUpCompsConf import BkgStreamsCache
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import EventSelectorAthenaPool
 
 from StoreGate.StoreGateConf import StoreGateSvc
-
-from Digitization.DigitizationFlags import jobproperties
-digitization = jobproperties.Digitization
+from Digitization.DigitizationFlags import digitizationFlags
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 pileUpEventLoopMgr = PileUpEventLoopMgr()
 pileUpEventLoopMgr.OutStreamType = "AthenaOutputStream"
@@ -35,7 +33,7 @@ print "================  DetFlags  ================ "
 DetFlags.Print()
 
 #if globalflags.InputFormat()=='bytestream':
-if readBS:
+if overlayFlags.isDataOverlay():
     #if isRealData:
     #   include ("RecExCommission/RecExCommission_BSRead_config_hack.py")
     #else:
@@ -44,7 +42,7 @@ if readBS:
     from ByteStreamCnvSvc import ReadByteStream
     include("RecExCommon/BSRead_config.py")
     ServiceMgr.ByteStreamInputSvc.FullFileName = DataInputCollections
-    ServiceMgr.ByteStreamInputSvc.EventStore= "StoreGateSvc/OriginalEvent_SG"
+    ServiceMgr.ByteStreamInputSvc.EventStore= "StoreGateSvc/"+overlayFlags.dataStore()
     from AthenaKernel import StoreID
     ServiceMgr.ByteStreamAddressProviderSvc.StoreID=StoreID.UNKNOWN
     from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import AthenaPoolAddressProviderSvc
@@ -59,7 +57,7 @@ pileUpEventLoopMgr.OrigSelector="EventSelector"
 pileUpEventLoopMgr.firstXing=0
 pileUpEventLoopMgr.lastXing=0
 pileUpEventLoopMgr.IsEventOverlayJob=True
-pileUpEventLoopMgr.IsEventOverlayJobMC=not isRealData
+pileUpEventLoopMgr.IsEventOverlayJobMC=not overlayFlags.isDataOverlay()
 ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Set up MC input
@@ -73,6 +71,11 @@ pileUpEventLoopMgr.SignalSelector="mcSignal_EventSelector"
 
 ServiceMgr += pileUpEventLoopMgr
 
+# Explicitly create the two extra StoreGateSvc instances used by
+# Overlay jobs. This prevents warnings later in the configuration.
+ServiceMgr += StoreGateSvc(overlayFlags.dataStore()) #, Dump=True, OutputLevel=DEBUG)
+ServiceMgr += StoreGateSvc(overlayFlags.evtStore()) #, Dump=True, OutputLevel=DEBUG)
+
 if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
     from PileUpTools.PileUpToolsConf import PileUpMergeSvc
     ServiceMgr += PileUpMergeSvc()
@@ -85,21 +88,21 @@ ServiceMgr.PileUpMergeSvc.ReturnTimedData=False
 #================================================================
 
 #synchronization of Beam flags and Digitization flags - KAA
-#if not (digitization.doMinimumBias.get_Value() or digitization.doCavern.get_Value() or
-#        digitization.doBeamGas.get_Value() or digitization.doBeamHalo.get_Value()) :
+#if not (digitizationFlags.doMinimumBias.get_Value() or digitizationFlags.doCavern.get_Value() or
+#        digitizationFlags.doBeamGas.get_Value() or digitizationFlags.doBeamHalo.get_Value()) :
 DetFlags.pileup.all_setOff()
-digitization.numberOfCollisions=0.0
+digitizationFlags.numberOfCollisions=0.0
 
 #-----------------------------------------------------------
 # Check Beam and Digitization jobproperties are synchronised
 #-----------------------------------------------------------
 from AthenaCommon.BeamFlags import jobproperties
-if jobproperties.Beam.numberOfCollisions.get_Value() != digitization.numberOfCollisions.get_Value() :
-   jobproperties.Beam.numberOfCollisions = digitization.numberOfCollisions.get_Value()
-   jobproperties.Beam.override = True ## just incase - default is True
+if jobproperties.Beam.numberOfCollisions.get_Value() != digitizationFlags.numberOfCollisions.get_Value() :
+    jobproperties.Beam.numberOfCollisions = digitizationFlags.numberOfCollisions.get_Value()
+    jobproperties.Beam.override = True ## just incase - default is True
 
-if jobproperties.Beam.bunchSpacing.get_Value() != digitization.bunchSpacing.get_Value() :
-   jobproperties.Beam.bunchSpacing = digitization.bunchSpacing.get_Value()
-   jobproperties.Beam.override = True ## just incase - default is True
+if jobproperties.Beam.bunchSpacing.get_Value() != digitizationFlags.bunchSpacing.get_Value() :
+    jobproperties.Beam.bunchSpacing = digitizationFlags.bunchSpacing.get_Value()
+    jobproperties.Beam.override = True ## just incase - default is True
 
 #================================================================

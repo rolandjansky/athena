@@ -28,7 +28,7 @@ class ITPCnvBase
   /////////////////////////////////////////////////////////////////// 
  public: 
 #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
-  typedef Gaudi::PluginService::Factory<ITPCnvBase*> Factory;
+  typedef Gaudi::PluginService::Factory<ITPCnvBase*()> Factory;
 #else  
   typedef Gaudi::PluginService::Factory0<ITPCnvBase*> Factory;
 #endif

@@ -19,12 +19,12 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    Control/Navigation
    Control/StoreGate
+   Control/CxxUtils
    Event/FourMom
    Event/xAOD/xAODCaloEvent
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
-   Control/CxxUtils
    Control/SGTools
    DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/IdDictParser

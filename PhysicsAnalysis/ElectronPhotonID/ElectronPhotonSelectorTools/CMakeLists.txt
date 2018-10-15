@@ -19,13 +19,13 @@ atlas_depends_on_subdirs(
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODEgamma
   Event/xAOD/xAODTracking
+  Event/xAOD/xAODHIEvent
   Reconstruction/MVAUtils
   PhysicsAnalysis/AnalysisCommon/PATCore
   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
   PRIVATE
   Control/CxxUtils
   Event/FourMomUtils
-  Event/xAOD/xAODHIEvent
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODCore
   Event/xAOD/xAODEventInfo

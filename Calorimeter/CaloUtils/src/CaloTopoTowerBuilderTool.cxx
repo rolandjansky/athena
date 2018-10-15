@@ -40,14 +40,6 @@ CaloTopoTowerBuilderTool::CaloTopoTowerBuilderTool(const std::string& name,
 					   const std::string& type,
 					   const IInterface* parent)
   : CaloTopoTowerBuilderToolBase(name,type,parent),
-    m_minimumCellEnergy(0),
-    m_minimumClusterEnergy(0),
-    m_useCellWeights(false),
-    m_useNoiseTool(false),
-    m_usePileUpNoise(false),
-    m_noiseSigma(0),
-    m_cellESignificanceThreshold(0),
-    m_caloSelection(false),
     m_calo_dd_man(nullptr),
     m_calo_id(nullptr)
 {
@@ -77,7 +69,7 @@ StatusCode CaloTopoTowerBuilderTool::initializeTool()
 // Tower Builder //
 ///////////////////
 
-StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, const CaloCellContainer* /*theCells*/)
+StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, const CaloCellContainer* /*theCells*/) const
 {
   //////////////////////////////////////////////////////////////////////////////
   //Starting loading  variables from CaloTopoTowerContainer
@@ -105,21 +97,21 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
   ATH_MSG_DEBUG( "Cluster size " << clusters->size()  );
   ATH_MSG_DEBUG( "Cell size "    << Cells->size()  );
 
-  m_minimumCellEnergy=theTowers->GetMinimumCellEnergy();
-  m_minimumClusterEnergy=theTowers->GetMinimumClusterEnergy();
+  double minimumCellEnergy = theTowers->GetMinimumCellEnergy();
+  double minimumClusterEnergy = theTowers->GetMinimumClusterEnergy();
 
-  m_useCellWeights=theTowers->GetUseCellWeights();
+  bool useCellWeights = theTowers->GetUseCellWeights();
 
-  ATH_MSG_DEBUG("Energy cuts " << m_minimumCellEnergy << " " << m_minimumClusterEnergy << " " << m_useCellWeights);
+  ATH_MSG_DEBUG("Energy cuts " << minimumCellEnergy << " " << minimumClusterEnergy << " " << useCellWeights);
 
   // Noise tool stuff
-  m_useNoiseTool=theTowers->GetUseNoiseTool();
-  m_usePileUpNoise=theTowers->GetUsePileUpNoise();
-  m_noiseSigma=theTowers->GetNoiseSigma();
-  m_cellESignificanceThreshold=theTowers->GetCellESignificanceThreshold();
+  bool useNoiseTool = theTowers->GetUseNoiseTool();
+  bool usePileUpNoise = theTowers->GetUsePileUpNoise();
+  float noiseSigma0 = theTowers->GetNoiseSigma();
+  float cellESignificanceThreshold = theTowers->GetCellESignificanceThreshold();
 
 
-  if (m_useNoiseTool) {
+  if (useNoiseTool) {
     ATH_MSG_WARNING( " Using noise tool in CaloTopoTowerBuilderTool no supported. give up => No CaloTopoTowers are made"  );
     if(delete_cellToClusterMap){
       ATH_MSG_DEBUG("Deleting cellToClusterMap Pointer");
@@ -129,13 +121,13 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
     
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_DEBUG("Noise cuts "<< m_noiseSigma << " " <<  m_cellESignificanceThreshold << " " << m_useNoiseTool << " " << m_usePileUpNoise);
+  ATH_MSG_DEBUG("Noise cuts "<< noiseSigma0 << " " <<  cellESignificanceThreshold << " " << useNoiseTool << " " << usePileUpNoise);
 
   // List of calorimeters from which to use cells
-  m_caloIndices=theTowers->GetCaloIndices();
-  m_caloSelection=theTowers->GetCaloSelection();
+  std::vector<CaloCell_ID::SUBCALO> caloIndices = theTowers->GetCaloIndices();
+  bool caloSelection = theTowers->GetCaloSelection();
 
-  ATH_MSG_DEBUG("caloSelection " << m_caloSelection << " " << m_caloIndices.size());
+  ATH_MSG_DEBUG("caloSelection " << caloSelection << " " << caloIndices.size());
   
   //Finished loading variables from CaloTopoTowerContainer 
   //////////////////////////////////////////////////////////////////////////////
@@ -226,23 +218,23 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
 	  continue;
 	}
 	
-	if (m_caloSelection) {
+	if (caloSelection) {
 	  CaloCell_ID::SUBCALO iCaloNum = (cell->caloDDE()->getSubCalo());           // keep only cells from desired calorimeter
 	  std::vector<CaloCell_ID::SUBCALO>::const_iterator theFound =
-	    find (m_caloIndices.begin(),m_caloIndices.end(),iCaloNum);
-	  if (theFound==m_caloIndices.end()) continue ;
+	    find (caloIndices.begin(),caloIndices.end(),iCaloNum);
+	  if (theFound==caloIndices.end()) continue ;
 	}
 	
 	signedE             = cell->e();                             // get the cell energy if we got a good pointer
-	if (!m_useCellWeights) weight = 1.0;                         // if we chose not to use the cell weights, reset to 1.0
+	if (!useCellWeights) weight = 1.0;                         // if we chose not to use the cell weights, reset to 1.0
 	double cellEnergy             = weight * signedE;             // calculate the energy of this cell in this tower using the weight
 	
 	
 	float signedRatio=0;
 	
 	float noiseSigma = 1.0;
-	if (m_cellESignificanceThreshold>=0.) {
-	  noiseSigma = m_noiseSigma;
+	if (cellESignificanceThreshold>=0.) {
+	  noiseSigma = noiseSigma0;
 	  if ( noiseSigma > 0. ) signedRatio = signedE/noiseSigma;
 	}
 	
@@ -252,7 +244,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
         ATH_MSG_VERBOSE( "   Cell noise sigma = " << noiseSigma  );
         ATH_MSG_VERBOSE( "  Cell noise signif = " << signedRatio  );
 	/// Require that the cell have a minimum energy and energy significance
-	if ( (signedE > m_minimumCellEnergy) && ( fabs(signedRatio) > m_cellESignificanceThreshold) ){
+	if ( (signedE > minimumCellEnergy) && ( fabs(signedRatio) > cellESignificanceThreshold) ){
 	  // find clusters associated to this cell using the hash ID
 	  size_t cellIndex(cell->caloDDE()->calo_hash());
 	  ATH_MSG_VERBOSE("Cell index from CaloCell2ClusterMap = " << cellIndex);
@@ -275,8 +267,8 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
 	      ATH_MSG_VERBOSE( " Cluster Normal Energy = " << eClus);
 	      
 	      /// filter clusters according to cluster energy
-	      if ( eClusRaw > m_minimumClusterEnergy ){
-		ATH_MSG_VERBOSE("Cluster has at least E > " << m_minimumClusterEnergy);
+	      if ( eClusRaw > minimumClusterEnergy ){
+		ATH_MSG_VERBOSE("Cluster has at least E > " << minimumClusterEnergy);
 		
 		numberOfAttachedCellsInTower++;
 		totalNumberOfCellsInAttachedClusters += clusterFromCell->getNumberOfCells();
@@ -349,8 +341,9 @@ StatusCode CaloTopoTowerBuilderTool::LoadCalibration(IOVSVC_CALLBACK_ARGS)
 
 
 
-const CaloCell2ClusterMap* CaloTopoTowerBuilderTool::CreateCaloCell2ClusterMap(const CaloClusterContainer* clusColl){
-
+const CaloCell2ClusterMap*
+CaloTopoTowerBuilderTool::CreateCaloCell2ClusterMap(const CaloClusterContainer* clusColl) const
+{
   ATH_MSG_DEBUG("CreateCaloCell2ClusterMap() Starting");
   CaloCell2ClusterMap *cell2ClusterMap;
   cell2ClusterMap = new CaloCell2ClusterMap();

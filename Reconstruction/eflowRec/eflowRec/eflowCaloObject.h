@@ -19,9 +19,6 @@ PURPOSE:  Calorimeter Object data class
 #include <vector>
 #include <memory>
 #include "AthLinks/ElementLink.h"
-#include "CaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 class eflowRecCluster;
 class eflowRecTrack;
@@ -29,6 +26,9 @@ class eflowTrackClusterLink;
 class eflowLayerIntegrator;
 class eflowEEtaBinnedParameters;
 
+/**
+An internal EDM object which stores information about systems of associated tracks and calorimeter clusters. Specifically it stores vectors of pointers to eflowRecTracks, eflowRecClusters and eflowTrackClusterLinks. In addition it stores links to an xAOD::CaloClusterContainer and its associated aux container. This class also calculates the expected energy deposit in the calorimeter from a track in the system, and stores that information so that clients can retrieve it. It also calculates the calorimeter cell ordering to be used in the subtraction. Both of these things are done in the simulateShower method which uses the data stored in an eflowEEtaBinnedParameters object, which is filled by e.g the eflowCellEOverP_mc12_JetETMiss tool.
+*/
 class eflowCaloObject {
 public:
 
@@ -68,23 +68,12 @@ public:
   std::vector<eflowTrackClusterLink*> efRecLink() const { return m_trackClusterLinks; }
   void clearLinks() { m_trackClusterLinks.clear(); }
 
-  /* Sets up static container of CaloClusters. This function does not own the objects,
-     but eventually Storegate takes ownership via calls to getClusterContainerPtr etc in eflowObjectBuilder.cxx  */
-  static void setClusterContainerPtr(xAOD::CaloClusterContainer* clusCont, xAOD::CaloClusterAuxContainer* auxCont) {
-     m_clusterContainerPtr = clusCont;
-     m_clusterAuxContainerPtr = auxCont;
-     m_clusterContainerPtr->setStore(m_clusterAuxContainerPtr);
-  }
-
   /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
   double getExpectedEnergy();
   double getExpectedVariance();
   double getClusterEnergy() ;
 
   void simulateShower(eflowLayerIntegrator *integrator, eflowEEtaBinnedParameters* binnedParameters, bool useUpdated2015ChargedShowerSubtraction);
-
-  static xAOD::CaloClusterContainer* getClusterContainerPtr() { return m_clusterContainerPtr;}
-  static xAOD::CaloClusterAuxContainer* getClusterAuxContainerPtr() { return m_clusterAuxContainerPtr;}
 
 private:
 
@@ -99,10 +88,6 @@ private:
 
   /* Vector of tracks */
   std::vector<eflowRecTrack*> m_eflowRecTracks;
-
-  /* Containers of CaloClusters */
-  static xAOD::CaloClusterContainer* m_clusterContainerPtr;
-  static xAOD::CaloClusterAuxContainer* m_clusterAuxContainerPtr;
   
 };
 

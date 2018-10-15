@@ -146,12 +146,12 @@ SCT_InterLink::build()
       m_FSIFlange->ref();
 
       for(int i=0; i<m_nRepeat; i++) {
-	double phiPosFSI = m_phiPos + (180./m_nRepeat)*CLHEP::deg;
-	double FSIFlangeAngle = phiPosFSI + (i * 360./m_nRepeat)*CLHEP::deg;
+        double phiPosFSI = m_phiPos + (180./m_nRepeat)*CLHEP::deg;
+        double FSIFlangeAngle = phiPosFSI + (i * 360./m_nRepeat)*CLHEP::deg;
         GeoTransform* geoTransform = new GeoTransform(HepGeom::RotateZ3D(FSIFlangeAngle));
         m_geoTransforms.push_back(geoTransform);
-	m_interLink->add(geoTransform);
-	m_interLink->add(m_FSIFlange);
+        m_interLink->add(geoTransform);
+        m_interLink->add(m_FSIFlange);
       }
     }
   }

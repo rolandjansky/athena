@@ -24,12 +24,18 @@
 #include "TrkParameters/TrackParameters.h"
 #include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
+#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 
 namespace Trk {
  
   class Track;
-  class ITrackFitter;
-  class IExtrapolator;
   class IRIO_OnTrackCreator;
   class RIO_OnTrack;
   class MeasurementBase;
@@ -41,12 +47,6 @@ namespace Muon {
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
   class MuonEDMHelperTool;
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
-  class IMuonCompetingClustersOnTrackCreator;
-  class IMuonTrackToSegmentTool;
-  class IMuonTrackExtrapolationTool;
-  class IMuonTrackCleaner;
   class MuonSegment;
   class MuonClusterOnTrack;
   /**

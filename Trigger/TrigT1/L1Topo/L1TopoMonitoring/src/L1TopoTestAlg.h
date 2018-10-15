@@ -6,11 +6,11 @@
 #define L1TOPOMONITORING_L1TOPOTESTALG_H 1
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
 
-
-namespace TrigConf {
-  class IL1TopoConfigSvc;
-}
+// namespace TrigConf {
+//   class IL1TopoConfigSvc;
+// }
 
 class L1TopoTestAlg: public AthAlgorithm {
  public:

@@ -31,7 +31,6 @@ PFRecoverSplitShowersTool::PFRecoverSplitShowersTool(const std::string& type,con
   m_rCell(0.75),
   m_windowRms(0.032),
   m_binnedParameters(std::make_unique<eflowEEtaBinnedParameters>()),
-  m_integrator(std::make_unique<eflowLayerIntegrator>(m_windowRms, 1.0e-3, 3.0)),
   m_nTrackClusterMatches(0)
 {
   eflowRingSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
@@ -56,10 +55,16 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
     return StatusCode::SUCCESS;
   }
 
+  const double gaussianRadius = 0.032;
+  const double gaussianRadiusError = 1.0e-3;
+  const double maximumRadiusSigma = 3.0;
+  
+  m_integrator = std::make_unique<eflowLayerIntegrator>(gaussianRadius, gaussianRadiusError, maximumRadiusSigma, m_isHLLHC);
+
   return StatusCode::SUCCESS;
 }
 
-void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*,xAOD::CaloClusterContainer& theCaloClusterContainer){
+void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*){
 
   ATH_MSG_DEBUG("Executing");
 
@@ -71,7 +76,7 @@ void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloOb
   int const nOriginalObj = matchAndCreateEflowCaloObj();
 
   /* Extrapolate tracks, match clusters, do shower simulation, run cell subtraction */
-  performRecovery(nOriginalObj,theCaloClusterContainer);
+  performRecovery(nOriginalObj);
 
 }
 
@@ -207,7 +212,7 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   return nCaloObj;
 }
 
-void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCaloObject,xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCaloObject) {
   for (unsigned iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
     eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrack);
     /* Get matched cluster via Links */
@@ -219,7 +224,7 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
     /* Do subtraction */
     std::vector<xAOD::CaloCluster*> clusterSubtractionList;
     clusterSubtractionList.reserve(matchedClusters.size());
-    for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getClusterForModification(&theCaloClusterContainer));
+    for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
 
     if (getSumEnergy(clusterSubtractionList) - thisEfRecTrack->getEExpect() < m_subtractionSigmaCut
         * sqrt(thisEfRecTrack->getVarEExpect())) {
@@ -239,11 +244,11 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
   }
 }
 
-void PFRecoverSplitShowersTool::performRecovery(int const nOriginalObj,xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFRecoverSplitShowersTool::performRecovery(int const nOriginalObj) {
   unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
   for (unsigned int iCalo = nOriginalObj; iCalo < nEFCaloObs; ++iCalo) {
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iCalo);
-    performSubtraction(thisEflowCaloObject,theCaloClusterContainer);
+    performSubtraction(thisEflowCaloObject);
   }
 
 }

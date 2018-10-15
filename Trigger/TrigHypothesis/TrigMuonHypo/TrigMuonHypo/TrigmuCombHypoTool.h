@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUCOMBHYPO_TRIGMUCOMBHYPOTOOL_H 
@@ -40,9 +40,20 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
 		       const IInterface* parent );
 
     struct CombinedMuonInfo {
-      TrigCompositeUtils::Decision* decision; 
-      const xAOD::L2CombinedMuon* cluster;
-      const xAOD::L2StandAloneMuon* muon;
+    CombinedMuonInfo( TrigCompositeUtils::Decision* d, 
+                      const xAOD::L2CombinedMuon* c,
+                      const xAOD::L2StandAloneMuon* f,
+                      const TrigCompositeUtils::Decision* previousDecision )
+    : decision( d ),
+      muComb( c ),
+      muFast( f ),
+      previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(),
+                           TrigCompositeUtils::decisionIDs( previousDecision ).end() )
+      {}
+
+      TrigCompositeUtils::Decision* decision;
+      const xAOD::L2CombinedMuon* muComb;
+      const xAOD::L2StandAloneMuon* muFast;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
     };
 

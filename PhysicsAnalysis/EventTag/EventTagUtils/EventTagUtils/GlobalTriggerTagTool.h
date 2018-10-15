@@ -56,11 +56,6 @@ parent);
   virtual StatusCode execute(TagFragmentCollection& eventTagCol, const std::vector<int>& max); 
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~GlobalTriggerTagTool( );
-
 private:
 
   inline bool isPassed(std::string, unsigned int);

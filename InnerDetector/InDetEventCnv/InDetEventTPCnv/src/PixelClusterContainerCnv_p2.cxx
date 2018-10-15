@@ -161,11 +161,14 @@ void  PixelClusterContainerCnv_p2::persToTrans(const InDet::PixelClusterContaine
 
 //================================================================
 InDet::PixelClusterContainer* PixelClusterContainerCnv_p2::createTransient(const InDet::PixelClusterContainer_p2* persObj, MsgStream& log) {
-    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "PixelClusterContainerCnv_p2::createTransient called " << endmsg;
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
       log << MSG::FATAL << "Could not initialize PixelClusterContainerCnv_p2 " << endmsg;
      }
+    }
+    if (not m_pixId) {
+      log << MSG::FATAL << "nullptr for m_pixId in PixelClusterContainerCnv_p2::createTransient" << endmsg;
+      return nullptr;
     }
     std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);

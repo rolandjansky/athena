@@ -20,7 +20,6 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 
 #include <cmath>
-#include <sstream>
 #include <vector>
 
 GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
@@ -77,7 +76,7 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
     .add(*connCEnv << connCShift);
 
   m_ladderServicesLV = new GeoLogVol("LadderSvc",&ladderSvcShape,air);
-
+  m_ladderServicesLV->ref();
   // store coordinates of corners of envelope.
   m_envelopeCornerA1 = HepGeom::Point3D<double>(xMaxConnA - xCenter, yPosConnA + 0.5* yWidthConnA + safety, 0.);
   m_envelopeCornerA2 = HepGeom::Point3D<double>(xMaxConnA - xCenter, yPosConnA - 0.5* yWidthConnA + safety, 0.);
@@ -88,6 +87,9 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
   m_xOffset = xBase;
   m_yOffset = 0;
 
+}
+GeoPixelLadderServices::~GeoPixelLadderServices(){
+  m_ladderServicesLV->unref();
 }
 
 

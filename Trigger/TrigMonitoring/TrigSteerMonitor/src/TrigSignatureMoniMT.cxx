@@ -15,13 +15,12 @@ TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name,
 
 StatusCode TrigSignatureMoniMT::initialize() {
 
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-  CHECK( m_l1DecisionsKey.initialize() );
-  CHECK( m_finalDecisionsKey.initialize() );
+  ATH_CHECK( m_l1DecisionsKey.initialize() );
+  ATH_CHECK( m_finalDecisionsKey.initialize() );
   renounceArray( m_finalDecisionsKey );
-
+  ATH_CHECK( m_collectorTools.retrieve() );
   CHECK( m_histSvc.retrieve() );
-
+      
   
   {
     const int x = nBinsX();
@@ -39,14 +38,21 @@ StatusCode TrigSignatureMoniMT::initialize() {
     m_histSvc->regHist( fullName, std::move( hist ) );
     m_outputHistogram = m_histSvc.getHist( fullName );
     */
+
     m_outputHistogram = new TH2I( "SignatureAcceptance", "Raw acceptance of signatures in;chain;step",
 				  x, 1, x + 1,
 				  y, 1, y + 1 ); // Fill and GetBinContent use the same indexing then
-    m_histSvc->regHist( m_bookingPath + "/SignatureAcceptance", m_outputHistogram );
+    const std::string fullName = m_bookingPath + "/SignatureAcceptance";
+    m_histSvc->regHist( fullName, m_outputHistogram );
     
+    ATH_MSG_DEBUG( "Registerd under " << fullName );
   }
   CHECK( initHist() );
   
+  for ( auto chainAndKey: m_finalChainStep ) {
+    m_lastStepsMap[ chainAndKey.second ].insert( HLT::Identifier( chainAndKey.first ).numeric() );
+  } 
+
 
   return StatusCode::SUCCESS;
 }
@@ -66,7 +72,7 @@ StatusCode TrigSignatureMoniMT::finalize() {
   ATH_MSG_INFO("Chain name                   L1,      AfterPS, [... steps ...], Output"  );
   for ( int bin = 1; bin <= m_outputHistogram->GetXaxis()->GetNbins(); ++bin ) {
     const std::string chainName = m_outputHistogram->GetXaxis()->GetBinLabel(bin);
-    ATH_MSG_DEBUG( chainName << std::string( 30 - chainName.size(), ' ' ) << collToString( bin ) );
+    ATH_MSG_INFO( chainName << std::string( 30 - chainName.size(), ' ' ) << collToString( bin ) );
   }
 
   return StatusCode::SUCCESS;
@@ -76,7 +82,7 @@ StatusCode TrigSignatureMoniMT::fillChains(const TrigCompositeUtils::DecisionIDC
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() ) {
-      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitred" );
+      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitored" );
     } else {
       m_outputHistogram->Fill( id2bin->second, double(row) );
     }
@@ -103,6 +109,14 @@ StatusCode TrigSignatureMoniMT::execute()  {
 
   CHECK( fillL1(0) );
   CHECK( fillL1(1) );
+  int step = 0;
+  for ( auto& ctool: m_collectorTools ) {
+    TrigCompositeUtils::DecisionIDContainer stepSum;
+    ctool->getDecisions( stepSum );
+    ATH_MSG_DEBUG( " Step " << step << " decisions " << stepSum.size() );
+    ATH_CHECK( fillChains( stepSum, 3+step ) );    
+    ++step;
+  }
   
  
   const int row = m_outputHistogram->GetYaxis()->GetNbins();
@@ -119,7 +133,12 @@ StatusCode TrigSignatureMoniMT::execute()  {
 	TrigCompositeUtils::decisionIDs( decisionObj, ids );	  
 	sum.insert( ids.begin(), ids.end() ); // merge with so far passing chains
       }
-      CHECK( fillChains( sum, row ) );
+      TrigCompositeUtils::DecisionIDContainer final;
+      std::set_intersection( sum.begin(), sum.end(),
+			     m_lastStepsMap[decisions.key()].begin(), m_lastStepsMap[decisions.key()].end(),
+			     std::inserter( final, final.begin() ) );
+
+      ATH_CHECK( fillChains( final, row ) );
       anyPassed = anyPassed or ( not sum.empty() );
     } else {
       ATH_MSG_DEBUG( "Final decision " << d.key() << " absent, possibly early rejected" );
@@ -138,24 +157,8 @@ StatusCode TrigSignatureMoniMT::execute()  {
 
 
 
-int TrigSignatureMoniMT::nBinsY() const { 
-  typedef StringToStringVectorMap::value_type v;
-  if ( m_steps.empty() ) {
-    ATH_MSG_INFO( "Step decisions are not specified, output histogram will only contain input, HLT PS, and output" );
-    return 3; // in, PS, out
-  }
-
-  
-  const int maxSteps = std::max_element( m_steps.begin(), m_steps.end(), 
-					 [](const v& el1, const v& el2){ return el1.second.size() < el2.second.size(); }
-					 ) ->second.size();
-  if ( maxSteps == 0 )
-    ATH_MSG_INFO( "Step of depth 0  specified, output histogram will only contain input, HLT PS, and output" );
-  else
-    ATH_MSG_DEBUG( "Longest step of " << maxSteps );
-  
-  
-  return 3+maxSteps;
+int TrigSignatureMoniMT::nBinsY() const {     
+  return m_collectorTools.size()+3; // in, after ps, out
 }
 
 StatusCode TrigSignatureMoniMT::initHist() {
@@ -171,8 +174,11 @@ StatusCode TrigSignatureMoniMT::initHist() {
 
 
   TAxis* y = m_outputHistogram->GetYaxis();
-  y->SetBinLabel(1, "L1");
-  y->SetBinLabel(2, "AfterPS");
+  y->SetBinLabel( 1, "L1" );
+  y->SetBinLabel( 2, "AfterPS" );
+  for ( size_t i = 0; i < m_collectorTools.size(); ++i ) {
+    y->SetBinLabel( 3+i, ("Step "+std::to_string(i)).c_str() );
+  }
   y->SetBinLabel( y->GetNbins(), "Output" ); // last bin
 
   // loop until the last bin and assign labels Step #

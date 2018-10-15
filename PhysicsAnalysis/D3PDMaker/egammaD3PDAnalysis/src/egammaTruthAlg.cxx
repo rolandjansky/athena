@@ -255,8 +255,8 @@ StatusCode egammaTruthAlg::findImpact (const xAOD::TruthParticle& tp,
   etaCalo = -999;
   phiCalo = -999;
 
-  const Trk::CaloExtension* extension = 0;
-  if (!m_exten->caloExtension (tp, extension)) {
+  std::unique_ptr<Trk::CaloExtension> extension = m_exten->caloExtension (tp);
+  if (!extension) {
     REPORT_MESSAGE (MSG::ERROR) <<  "Extension to calorimeter failed";
     return StatusCode::FAILURE;
   }

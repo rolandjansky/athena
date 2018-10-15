@@ -273,6 +273,18 @@ public:
 
 
   /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  size_t nInserts() const;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  size_t maxSize() const;
+
+
+  /**
    * @brief Return a range that can be used to iterate over the container.
    */
   const_iterator_range range() const;
@@ -346,6 +358,10 @@ private:
   /// fails, then re-fetch both pointers.
   std::atomic<value_type*> m_begin;
   std::atomic<value_type*> m_last;
+
+  /// Some basic statistics.
+  size_t m_nInserts;
+  size_t m_maxSize;
 
   /// Mutex protecting the container.
   typedef std::mutex mutex_t;

@@ -73,7 +73,7 @@
  * 64-bit quantities, producing a 127-bit result.  This allows processing
  * 128 bits at a time.
  *
- * A few other subtleties that are worth mentioning.  First, when the value
+ * A few other subtleties are worth mentioning.  First, when the value
  * of p is written, the initial 1 bit is often dropped.  So for the example
  * above, we were calculating a 4-bit CRC with a p of 0x16, but in practice
  * one might drop the initial 1 on p and  write it as 0x6 (with the bit
@@ -91,9 +91,9 @@
  * The way a CRC calculation works is by iteratively reducing the length
  * of the message in such a way that the CRC does not change.  For example,
  * suppose we have a message M that is split into two parts, A of T bits,
- * and B of U bits.  This, M = 2^U A + B.  Then suppose we find a shorter
+ * and B of U bits.  Thus, M = 2^U A + B.  Then suppose we find a shorter
  * string A' with T' bits, such that A mod P = A' mod P.  It is then easy
- * to show that the string M' = 2U A' + B has the same CRC:
+ * to show that the string M' = 2^U A' + B has the same CRC:
  *
  *   M  mod P = [(x^U mod P)(A  mod P)] mod P + B mod P
  *   M' mod P = [(x^U mod P)(A' mod P)] mod P + B mod P
@@ -106,7 +106,7 @@
  * For a folding step, we take a block of 256 bits (A in the above example)
  * and reduce it to a block of 128 bits (A' in the above).  Suppose
  * we have a 256-bit A that's divided into a 64-bit H, a 64-bit L,
- * and a 64-bit G:
+ * and a 128-bit G:
  *
  *   A = 2^192 H + 2^128 L + G
  *
@@ -674,34 +674,6 @@ uint64_t crc64 (const CRCTable& table,
 }
 
 
-/**
- * @brief Find the CRC-64 of a string, using a vectorized algorithm,
- *        with the default CRC.
- * @param table Precomputed CRC tables and constants.
- * @param data Pointer to the string to hash.
- * @param data_len Length of the string to hash, in bytes.
- */
-__attribute__ ((target ("pclmul")))
-uint64_t crc64 (const char* data,
-                size_t data_len)
-{
-  return crc64 (defaultCRCTable, data, data_len);
-}
-
-
-/**
- * @brief Find the CRC-64 of a string, using the default polynomial.
- * @param str The string to hash.
- *
- * This is the vectorized implementation, used on platforms with pclmul.
- */
-__attribute__ ((target ("pclmul")))
-uint64_t crc64 (const std::string& s)
-{
-  return crc64 (defaultCRCTable, s.data(), s.size());
-}
-
-
 #endif // ATH_CRC64_VEC
 
 
@@ -728,12 +700,7 @@ uint64_t crc64 (const CRCTable& table,
  * @brief Find the CRC-64 of a string, with the default CRC.
  * @param data Pointer to the string to hash.
  * @param data_len Length of the string to hash, in bytes.
- *
- * This is the default implementation, used on platforms without pclmul.
  */
-#if ATH_CRC64_VEC
-__attribute__ ((target ("default")))
-#endif
 uint64_t crc64 (const char* data,
                 size_t data_len)
 {
@@ -744,12 +711,7 @@ uint64_t crc64 (const char* data,
 /**
  * @brief Find the CRC-64 of a string, using the default polynomial.
  * @param str The string to hash.
- *
- * This is the default implementation, used on platforms without pclmul.
  */
-#if ATH_CRC64_VEC
-__attribute__ ((target ("default")))
-#endif
 uint64_t crc64 (const std::string& s)
 {
   return crc64 (defaultCRCTable, s.data(), s.size());

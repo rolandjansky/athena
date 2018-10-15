@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMAFORWARDBUILDER_H
@@ -25,6 +25,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "EventKernel/IParticle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -53,11 +54,11 @@ class egammaForwardBuilder : public AthAlgorithm
   ~egammaForwardBuilder();
 
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override final;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override final;
   /** @brief execute method*/
-  StatusCode execute();
+  StatusCode execute() override final;
 
   /** @brief retrieve object quality tool */
   void RetrieveObjectQualityTool();
@@ -102,9 +103,11 @@ class egammaForwardBuilder : public AthAlgorithm
   /** @brief eta cut */
   Gaudi::Property<double> m_etacut {this, "EtaCut", 2.5, "eta cut"};
 
+  /** @brief do chrono service  */
+  Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"}; 
+
   // to measure speed of the algorithm
-  IChronoStatSvc* m_timingProfile;
-  
+  ServiceHandle<IChronoStatSvc> m_timingProfile;
  protected:
   /** Handle to the selectors */
   ToolHandleArray<IAsgForwardElectronIsEMSelector> m_forwardelectronIsEMselectors {this,

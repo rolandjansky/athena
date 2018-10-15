@@ -61,9 +61,16 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_MSG_INFO( "Initializing TrigBtagFexMT, version " << PACKAGE_VERSION );
 
   // declareProperty overview 
-  ATH_MSG_DEBUG( "declareProperty review:" );
-  ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
-  ATH_MSG_DEBUG( " Offline Taggers = "     << m_TaggerBaseNames );
+  ATH_MSG_DEBUG( "declareProperty review:"                   );
+  ATH_MSG_DEBUG( "   "     << m_useBeamSpotFlag              );
+  ATH_MSG_DEBUG( "   "     << m_TaggerBaseNames              );
+  ATH_MSG_DEBUG( "   "     << m_JetContainerKey              );
+  ATH_MSG_DEBUG( "   "     << m_VertexContainerKey           );
+  ATH_MSG_DEBUG( "   "     << m_BackUpVertexContainerKey     );
+  ATH_MSG_DEBUG( "   "     << m_TrackParticleContainerKey    );
+  ATH_MSG_DEBUG( "   "     << m_outputBTaggingContainerKey   );
+  ATH_MSG_DEBUG( "   "     << m_outputVertexContainerKey     );
+  ATH_MSG_DEBUG( "   "     << m_outputBtagVertexContainerKey );
   
   ATH_MSG_DEBUG( "Initialising ReadHandleKeys" );
   ATH_CHECK( m_JetContainerKey.initialize()           );

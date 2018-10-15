@@ -160,7 +160,7 @@ namespace xAOD {
     // being added to a container.
 
     // Add a new object:
-    const std::string mangledName = collectionName + m_collectionSuffix;
+    const std::string mangledName = collectionName + s_collectionSuffix;
     linkColNamesNC().push_back( mangledName );
     linkColKeysNC().push_back( link.key() );
     linkColIndicesNC().push_back( link.index() );
@@ -183,7 +183,7 @@ namespace xAOD {
   ElementLinkVector< CONTAINER >
   TrigComposite_v1::objectCollectionLinks( const std::string& collectionName ) const {
     ElementLinkVector< CONTAINER > links;
-    const std::string mangledName = collectionName + m_collectionSuffix;
+    const std::string mangledName = collectionName + s_collectionSuffix;
 
     const std::vector< std::string >& names = linkColNames();
     for( size_t i = 0; i < names.size(); ++i ) {

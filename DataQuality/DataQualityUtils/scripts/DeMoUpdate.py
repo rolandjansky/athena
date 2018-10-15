@@ -120,6 +120,7 @@ parser.add_argument('-b','--batch',dest='parser_batchMode',help='Batch mode',act
 parser.add_argument('-s','--system',dest='parser_system',default="LAr",help='System: LAr, CaloCP [Default: "LAr"]',action='store')
 parser.add_argument('--runListUpdate',dest='parser_runListUpdate',help='Run list update. No other action allowed. Exit when done',action='store_true')
 parser.add_argument('--weekly',dest='parser_weekly',help='Weekly report. No run range to specify',action='store_true')
+parser.add_argument('--allRuns',dest='parser_allRuns',help='All year runs. No run range to specify',action='store_true')
 parser.add_argument('--grlUpdate',dest='parser_grlUpdate',help='GRL update. No run range to specify',action='store_true')
 parser.add_argument('--noPlot',dest='parser_noPlot',help='Do not plot the results',action='store_false')
 parser.add_argument('--resetYS',dest='parser_resetYS',help='Reset year stats',action='store_true')
@@ -138,6 +139,8 @@ args = parser.parse_args()
 parser.print_help()
 
 # Token to avoid having multiple update in the same time
+print "Current time: %s"%(time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime()))
+
 options = {}
 options['system'] = args.parser_system
 tokenName = "DeMo-%s-%s.token"%(options['system'],args.parser_tag)
@@ -196,7 +199,7 @@ if args.parser_runListUpdate:
     for iRun in fRunList.readlines(): # Look for the latest run in RunList/all.dat
       if int(iRun)>latestRun:
         latestRun = int(iRun)
-    recentRuns = s.get_run_beamluminfo({'low_run':"%d"%(latestRun+1),'high_run':"%s"%(latestRun+1000)})
+    recentRuns = s.get_run_beamluminfo({'low_run':"%d"%(latestRun+1),'high_run':"%s"%(latestRun+5000)})
 
     for iRecentRun in sorted(recentRuns.keys()):
       if (recentRuns[iRecentRun][2]): # ATLAS ready
@@ -259,9 +262,11 @@ if (options['updateYearStats'] and options['resetYearStats']):
     os.system("rm -f %s/runs*.dat"%options['yearStatsDir'])
     os.system("rm -f %s/errors.log"%options['yearStatsDir'])
     if (args.parser_resetYS): # The loss files are deleted only if explicit request by the user. Relevant when no GRL run found yet (hence reset forced) but defect already set
-      print "However, I did NOT delete the loss files to preserve defects set in non-GRL runs"
       os.system("rm -f %s/loss*.dat"%options['yearStatsDir'])
       os.system("rm -f %s/Run/*.txt"%options['yearStatsDir'])
+    else:
+      print "However, I did NOT delete the loss files to preserve defects set in non-GRL runs"
+
     # Delete the root file that contains the TProfiles
     os.system("rm -f %s"%(yearStatsArchiveFilename))
   else:
@@ -272,14 +277,16 @@ if (options['updateYearStats'] and options['resetYearStats']):
 runSpec = {} # Characteristics of each run: start, stop, data period, luminosity, computed inefficiencies
 
 # Fill the list of runs to be considered 
-if args.parser_weekly: # Weekly report - Look for the last 7-days runs + unsigned off
+if args.parser_allRuns: # all year runs
+  runlist['toprocess'] = runlist['all']
+elif args.parser_weekly: # Weekly report - Look for the last 7-days runs + unsigned off
   print "I am looking for all runs signed off in the past week and the older ones not yet signed off..."
   options['savePlots'] = True
   runlist['toprocess'] = []
   oneWeek = 7*24*3600 # Nb of seconds in one week
-  nbOfSignedBeyondOneWeek = 0
+  runSignedOffBeyondOneWeek = []
   for iRun in range(len(runlist['all'])):
-    if nbOfSignedBeyondOneWeek >= 5:
+    if len(runSignedOffBeyondOneWeek) >= 5: # Do not look too far in the past for unsigned off runs...
       continue
     runNb = runlist['all'][-iRun-1] # Start by the most recent run
     if len(signOff['FINAL']) != 0:
@@ -302,8 +309,10 @@ if args.parser_weekly: # Weekly report - Look for the last 7-days runs + unsigne
             signOffTime = retrievedDefects["%d"%runNb][iDef][0][3]
       
     if (fullySignedOff and time.time()-signOffTime > oneWeek):
-      nbOfSignedBeyondOneWeek += 1
+      runSignedOffBeyondOneWeek.append(runNb)
     runlist['toprocess'].append(runNb)
+  for iRun in runSignedOffBeyondOneWeek:
+    runlist['toprocess'].remove(iRun)
 
   runlist['toprocess'].reverse()
   print "I will process these runs :",runlist['toprocess']
@@ -545,6 +554,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
   lbAffected = {}
   for idef in grlDef["part"]+grlDef["partIntol_recov"]: # All partition defects
     lbAffected[idef] = {}
+    lbAffected[idef]["AllPartitions"] = []
   for idef in grlDef["glob"]+grlDef["globIntol_recov"]: # All global defects
     lbAffected[idef] = [] # Global defect - Simple list and not dictionnary
   
@@ -576,7 +586,10 @@ for irun,runNb in enumerate(runlist['toprocess']):
   if options['onlineLumiNorm']:
     thisRunPerLB["deliveredLumi"] = GetOnlineLumiFromCOOL(runNb,0)
   else:
-    thisRunPerLB["deliveredLumi"] = GetOfflineLumiFromCOOL(runNb,0,yearTagProperties["offlineLumiTag"])
+    if runNb in runlist['grl']:
+      thisRunPerLB["deliveredLumi"] = GetOfflineLumiFromCOOL(runNb,0,yearTagProperties["offlineLumiTag"]["grl"])
+    else:
+      thisRunPerLB["deliveredLumi"] = GetOfflineLumiFromCOOL(runNb,0,yearTagProperties["offlineLumiTag"]["preliminary"])
   # Look for peak lumi
   runSpec[runNb]['peakLumi'] = 0.
   for lb in thisRunPerLB['deliveredLumi'].keys(): 
@@ -627,7 +640,7 @@ for irun,runNb in enumerate(runlist['toprocess']):
   runSpec[runNb]['exprSignedOff'] = True
   runSpec[runNb]['bulkSignedOff'] = True
   runSpec[runNb]['signoff'] = 'FINAL OK'
-  # Look over all defects and store in list (1 per partition and type) the affected LB
+  # Loop over all defects and store in list (1 per partition and type) the affected LB
   # Consider only LB in runSpec[runNb]["readyLB"]
   for iRetrievedDefects in retrievedDefects:
     if debug:
@@ -649,36 +662,101 @@ for irun,runNb in enumerate(runlist['toprocess']):
       runSpec[runNb]['newInYearStats'] = False
 
     # Checks if the defect corresponds to a defect in the system list
-    defectFound = []
-    if (iRetrievedDefects.channel.startswith("CALO_ONLINEDB") or iRetrievedDefects.channel.startswith("TRT")):# CALO_[NAME] (only for CALO_ONLINEDB_LOWMU)
-      defectSplitted = iRetrievedDefects.channel.split("_",1) 
-      if len(defectSplitted) == 2: # CALO_[NAME]
-        defectFound=defectSplitted[1]
-    elif (iRetrievedDefects.channel.startswith("LAR") or iRetrievedDefects.channel.startswith("TAU") or iRetrievedDefects.channel.startswith("CALO") or iRetrievedDefects.channel.startswith("TILE")):# LAR_[PART]_[NAME], LAR_[NAME], TAU_[PART]_[NAME], CALO_[NAME] or CALO_[PART]_[NAME]
+    defectFound = ""
+    if (iRetrievedDefects.channel.startswith("PIXEL")): # [PIXEL]_[PARTITION]_[NAME]
       defectSplitted = iRetrievedDefects.channel.split("_",2)
-      if len(defectSplitted) == 2: # LAR_[NAME] or CALO_[NAME] or TRT_[NAME]
+      if len(defectSplitted) > 2:
+        partAffected=defectSplitted[1]
+        defectFound=defectSplitted[2]      
+    elif (iRetrievedDefects.channel.startswith("SCT")): # SCT_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",1)
+      if len(defectSplitted) > 1:
+        defectFound=defectSplitted[1]      
+    elif (iRetrievedDefects.channel.startswith("TRT")): # TRT_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",1)
+      if len(defectSplitted) > 1:
+        defectFound=defectSplitted[1]      
+    elif (iRetrievedDefects.channel.startswith("LAR")): # [LAR]_[PART]_[Name] or [LAR]_[Name] - No "_" in any [NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",2)
+      if len(defectSplitted) == 2: # LAR_[NAME]
         defectFound=defectSplitted[1]
-      elif len(defectSplitted) == 3: # LAR_[PART]_[NAME] or CALO_[PART]_[NAME] or TAU_[PART]_[NAME] or TILE_[PART]_[NAME]
+      elif len(defectSplitted) == 3: # LAR_[PART]_[NAME]
         partAffected=defectSplitted[1]
         defectFound=defectSplitted[2]
-    elif (iRetrievedDefects.channel.startswith("JET") or iRetrievedDefects.channel.startswith("MET") or iRetrievedDefects.channel.startswith("BTAG")):# Defect is of type JET_[NAME] or MET_[NAME] or BTAG_[NAME]
-      defectSplitted = iRetrievedDefects.channel.split("_",1)
-      if len(defectSplitted)>1:
-        defectFound=defectSplitted[1]
-    elif (iRetrievedDefects.channel.startswith("EGAMMA")):# Defect is of type EGAMMA_[NAME]_[PART]
+    elif (iRetrievedDefects.channel.startswith("CALO_ONLINEDB")):# CALO_ONLINEDB_[NAME] (only for CALO_ONLINEDB_LOWMU) - Accounted to LAr
       defectSplitted = iRetrievedDefects.channel.split("_",2)
-      if len(defectSplitted)>2:
-        defectFound=defectSplitted[1] 
+      if len(defectSplitted) > 2:
+        defectFound=defectSplitted[2]
+    elif (iRetrievedDefects.channel.startswith("TILE")): # [TILE]_[PART]_[Name]
+      defectSplitted = iRetrievedDefects.channel.split("_",2)
+      if len(defectSplitted) > 2:
+        partAffected=defectSplitted[1]
+        defectFound=defectSplitted[2]
+    elif (iRetrievedDefects.channel.startswith("MS")): # MS_[SUBDETECTOR]_[PARTITION]_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",3)
+      if len(defectSplitted) > 3:
+        systemAffected=defectSplitted[1]
         partAffected=defectSplitted[2]
-        
+        defectFound=defectSplitted[3]
+    elif (iRetrievedDefects.channel.startswith("MCP")): # MCP_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",1) 
+      if len(defectSplitted) > 1:
+        defectFound=defectSplitted[1]
+    elif (iRetrievedDefects.channel.startswith("ID")):# ID_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",1)
+      if len(defectSplitted) > 1:
+        defectFound=defectSplitted[1]
+    elif (iRetrievedDefects.channel.startswith("JET")):# JET_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",1)
+      if len(defectSplitted) > 1:
+        defectFound=defectSplitted[1]
+    elif (iRetrievedDefects.channel.startswith("MET")):# MET_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",1)
+      if len(defectSplitted) > 1:
+        defectFound=defectSplitted[1]
+    elif (iRetrievedDefects.channel.startswith("EGAMMA")):# EGAMMA_[NAME]_[PART] or EGAMMA_[NAME]
+      if ("BARREL" in iRetrievedDefects.channel or "ENDCAP" in iRetrievedDefects.channel or "FORWARD" in iRetrievedDefects.channel): #EGAMMA_[NAME]_[PART]
+        defectSplitted = iRetrievedDefects.channel.split("_",2)
+        if len(defectSplitted) > 2:
+          defectFound=defectSplitted[1] 
+          partAffected=defectSplitted[2]
+      else:
+        defectSplitted = iRetrievedDefects.channel.split("_",1)
+        if len(defectSplitted) > 1:
+          defectFound=defectSplitted[1] 
+    elif (iRetrievedDefects.channel.startswith("TAU")): # TAU_[PART]_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",2)
+      if len(defectSplitted) > 2:
+        partAffected=defectSplitted[1]
+        defectFound=defectSplitted[2]
+    elif (iRetrievedDefects.channel.startswith("CALO")): # CALO_[PART]_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",2)
+      if len(defectSplitted) > 2:
+        partAffected=defectSplitted[1]
+        defectFound=defectSplitted[2]
+    elif (iRetrievedDefects.channel.startswith("BTAG")):# BTAG_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",1)
+      if len(defectSplitted) > 1:
+        defectFound=defectSplitted[1]
+    elif (iRetrievedDefects.channel.startswith("TRIG")): # TRIG_L1_[NAME] TRIG_HLT_[NAME]
+      defectSplitted = iRetrievedDefects.channel.split("_",2)
+      if len(defectSplitted) > 2:
+        defectFound=defectSplitted[2]
+
+    # Now stored the affected - Duplication are now treated here and no longer later
     if defectFound in grlDef["part"]:
       for lb in range(iRetrievedDefects.since.lumi,iRetrievedDefects.until.lumi):
-        if((lb in runSpec[runNb]['readyLB']) or runSpec[runNb]['nLBready']==0):
-          if not lbAffected[defectFound].has_key(partAffected):
+        if((lb in runSpec[runNb]['readyLB']) or runSpec[runNb]['nLBready']==0):# The LB is with ATLAS ready
+
+          if not lbAffected[defectFound].has_key(partAffected): # Store the affected partitions
             lbAffected[defectFound][partAffected]=[]
           lbAffected[defectFound][partAffected].append(lb)
+
+          if (defectFound in grlDef["partTol"]): # For tolerable defect, do not removate duplicated betwen defects
+            lbAffected[defectFound]["AllPartitions"].append(lb)
           if (defectFound in grlDef["partIntol"]):# Update the LBs affected by an intolerable defect
             if (lb not in lbAffected['IntolDefect']): 
+              lbAffected[defectFound]["AllPartitions"].append(lb)
               lbAffected['IntolDefect'].append(lb)
             if (not iRetrievedDefects.recoverable and lb not in lbAffected['irrecov']): # Update the LBs affected by an intolerable irrecoverable defect
               lbAffected['irrecov'].append(lb)
@@ -686,12 +764,15 @@ for irun,runNb in enumerate(runlist['toprocess']):
     if defectFound in grlDef["glob"]:
       for lb in range(iRetrievedDefects.since.lumi,iRetrievedDefects.until.lumi):
         if((lb in runSpec[runNb]["readyLB"]) or runSpec[runNb]['nLBready']==0):
-          lbAffected[defectFound].append(lb)
-        if (defectFound in grlDef["globIntol"]):# Update the LBs affected by an intolerable irrecoverable defect
-          if (lb not in lbAffected['IntolDefect']):
-            lbAffected['IntolDefect'].append(lb)
-          if (not iRetrievedDefects.recoverable and lb not in lbAffected['irrecov']): 
-            lbAffected['irrecov'].append(lb)
+
+          if (defectFound in grlDef["globTol"]): # For tolerable defect, do not removate duplicated betwen defects
+            lbAffected[defectFound].append(lb)
+          if (defectFound in grlDef["globIntol"]):# Update the LBs affected by an intolerable irrecoverable defect
+            if (lb not in lbAffected['IntolDefect']):
+              lbAffected[defectFound].append(lb)
+              lbAffected['IntolDefect'].append(lb)
+            if (not iRetrievedDefects.recoverable and lb not in lbAffected['irrecov']): 
+              lbAffected['irrecov'].append(lb)
 
   # By default, an unsignedoff runs is kept in the final table/plots such that the LADIeS can use the plot. On 
   # request, they can be also ignored.
@@ -701,26 +782,26 @@ for irun,runNb in enumerate(runlist['toprocess']):
     runSpec.pop(runNb)
     continue
 
-# Now remove duplication between partition/defects (intolerable only!)
-# lbAffected[idef]["AllPartition"] are referred to all partition for this run
-# WARNING : the duplication between global and partition defect is not properly treated. Negligible impact though...
-  lbAffectedPrevDef = [] # Used to remove duplicate between defects
-  for idef in grlDef["partIntol"]:
-    lbAffected[idef]["AllPartitions"]=[]
-    for ipart in partitions["list"]:
-      if lbAffected[idef].has_key(ipart):
-        for lumiBlock in lbAffected[idef][ipart]:
-          if (lumiBlock not in lbAffected[idef]["AllPartitions"]) and (lumiBlock not in lbAffectedPrevDef):
-            lbAffected[idef]["AllPartitions"].append(lumiBlock)
-            lbAffectedPrevDef.append(lumiBlock)
-
-  for idef in grlDef["partTol"]: # In tolerable defect, do not remove overlap with previous defects
-    lbAffected[idef]["AllPartitions"]=[]
-    for ipart in partitions["list"]:
-      if lbAffected[idef].has_key(ipart):
-        for lumiBlock in lbAffected[idef][ipart]:
-          if (lumiBlock not in lbAffected[idef]["AllPartitions"]):
-            lbAffected[idef]["AllPartitions"].append(lumiBlock)
+### Now remove duplication between partition/defects (intolerable only!)
+### lbAffected[idef]["AllPartition"] are referred to all partition for this run
+### WARNING : the duplication between global and partition defect is not properly treated. Negligible impact though...
+##  lbAffectedPrevDef = [] # Used to remove duplicate between defects
+##  for idef in grlDef["partIntol"]:
+##    lbAffected[idef]["AllPartitions"]=[]
+##    for ipart in partitions["list"]:
+##      if lbAffected[idef].has_key(ipart):
+##        for lumiBlock in lbAffected[idef][ipart]:
+##          if (lumiBlock not in lbAffected[idef]["AllPartitions"]) and (lumiBlock not in lbAffectedPrevDef):
+##            lbAffected[idef]["AllPartitions"].append(lumiBlock)
+##            lbAffectedPrevDef.append(lumiBlock)
+##
+##  for idef in grlDef["partTol"]: # In tolerable defect, do not remove overlap with previous defects
+##    lbAffected[idef]["AllPartitions"]=[]
+##    for ipart in partitions["list"]:
+##      if lbAffected[idef].has_key(ipart):
+##        for lumiBlock in lbAffected[idef][ipart]:
+##          if (lumiBlock not in lbAffected[idef]["AllPartitions"]):
+##            lbAffected[idef]["AllPartitions"].append(lumiBlock)
   
   # Now treat recoverability - Storing all irrecoverable lb per defect (not partition wise as useless)
   for idef in grlDef["partIntol"]:
@@ -876,7 +957,9 @@ if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
       continue # Protection in case of the runs was not yet signed off and removed (with Unsignedoff option) from the list
           
     if newCanvas:
-      c1[canvasIndex] = TCanvas("runSummary_%s"%canvasIndex,"Run collection - %s"%canvasIndex,10,10,1000,600)
+      #c1[canvasIndex] = TCanvas("runSummary_%s"%canvasIndex,"Run collection - %s"%canvasIndex,10,10,1000,600)
+      # NewCanvas facility almost removed (50 runs cut) Size of the last TCanvas not properly computed
+      c1[canvasIndex] = TCanvas("runSummary_%s"%canvasIndex,"Run collection - %s"%canvasIndex,10,10,1000,(len(runlist['toprocess'])+1)*22)
       column[canvasIndex] = []
       lineNb[canvasIndex] = 0
       labels_col = ["Run","Run start / stop","LB ready","Peak lumi","Int. lumi","GRL ineff.","Veto ineff.","Period","Status"]
@@ -884,7 +967,8 @@ if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
       labels_xlow = [0.01,0.08,0.41,0.49,0.575,0.655,0.74,0.835,0.9,0.99]
       
       for i in xrange(len(labels_col)):
-        column[canvasIndex].append(TPaveText(labels_xlow[i],max(.99-0.08*len(runlist['toprocess']),0.01),labels_xlow[i+1],0.99))
+#        column[canvasIndex].append(TPaveText(labels_xlow[i],max(.99-0.08*len(runlist['toprocess']),0.01),labels_xlow[i+1],0.99))
+        column[canvasIndex].append(TPaveText(labels_xlow[i],0.01,labels_xlow[i+1],0.99))
         column[canvasIndex][i].AddText(labels_col[i])
         if (i%2 == 0):
           column[canvasIndex][i].SetFillColor(kOrange-3)
@@ -904,8 +988,12 @@ if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
     column[canvasIndex][7].AddText("%s"%(runSpec[runNb]["period"]))
     column[canvasIndex][8].AddText("%10s"%(runSpec[runNb]["signoff"]))
     lineNb[canvasIndex] += 1
-    if (lineNb[canvasIndex]==25 or runNb == "AllRuns"):
+    if (lineNb[canvasIndex]==50 or runNb == "AllRuns"):
       for i in xrange(len(column[canvasIndex])):
+        if i == 1:
+          column[canvasIndex][i].AddText("Completed at %s"%(time.strftime("%H:%M (%d %b)", time.localtime())))
+        else:
+          column[canvasIndex][i].AddText("")
         column[canvasIndex][i].Draw()
       c1[canvasIndex].SetWindowSize(1000,lineNb[canvasIndex]*40)
       c1[canvasIndex].Update()

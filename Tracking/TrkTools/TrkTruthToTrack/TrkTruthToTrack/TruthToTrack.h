@@ -23,9 +23,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
 namespace HepPDT { class ParticleDataTable; }
-namespace Trk { class IExtrapolator; }
 
 namespace Trk {
   

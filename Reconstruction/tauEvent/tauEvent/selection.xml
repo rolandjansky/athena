@@ -2,7 +2,6 @@
 
    <!-- Tau enums stripped into separate dictionary -->
    <!-- <enum pattern="TauJetParameters::*"/> -->
-   <!-- <variable pattern="TauJetParameters::*"/> -->
 
     <!-- Tau and constituents -->
     <class name="Analysis::TauJet" >

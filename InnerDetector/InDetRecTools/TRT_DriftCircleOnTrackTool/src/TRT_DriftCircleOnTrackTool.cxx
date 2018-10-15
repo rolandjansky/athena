@@ -14,8 +14,8 @@
 
 #include "TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "TrkEventPrimitives/LocalParameters.h"
+#include "TrkRIO_OnTrack/check_cast.h"
 
 
 ///////////////////////////////////////////////////////////////////
@@ -25,12 +25,9 @@
 InDet::TRT_DriftCircleOnTrackTool::TRT_DriftCircleOnTrackTool
 (const std::string& ty,const std::string& na,const IInterface* pa)
   : AthAlgTool(ty,na,pa),
-    m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
-    m_scaleTrtCov(false),
     m_useErrorCorrection(false)
 {
   declareInterface<IRIO_OnTrackCreator>(this);
-  declareProperty("ErrorScalingTool",m_errorScalingTool);
   declareProperty("UseErrorCorrection",m_useErrorCorrection);
 }
 
@@ -48,15 +45,13 @@ StatusCode InDet::TRT_DriftCircleOnTrackTool::initialize()
 {
   StatusCode sc = AlgTool::initialize(); 
 
-  // get error scaling tool
-  //
-  if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
-    m_scaleTrtCov   = m_errorScalingTool->needToScaleTrt();
-    if (m_scaleTrtCov) msg(MSG::DEBUG) << "Detected need for scaling TRT errors." << endmsg;
+  // get the error scaling tool
+  if (!m_trtErrorScalingKey.key().empty()) {
+    ATH_CHECK(m_trtErrorScalingKey.initialize());
+    ATH_MSG_DEBUG("Detected need for scaling trt errors.");
+  }
+  if (!m_eventInfoKey.key().empty()){
+    ATH_CHECK(m_eventInfoKey.initialize());
   }
 
   return sc;
@@ -112,21 +107,27 @@ const InDet::TRT_DriftCircleOnTrack* InDet::TRT_DriftCircleOnTrackTool::correct
 
   // TRT_DriftCircleOnTrack production
   //
-  Amg::MatrixX cov; 
-  if(!m_scaleTrtCov) {
+  Amg::MatrixX cov;
+  if (m_trtErrorScalingKey.key().empty()) {
     cov = DC->localCovariance();
   } else             {
+
+    SG::ReadHandle< xAOD::EventInfo>  eventInfo (m_eventInfoKey);
+    double mu;
+    if (!eventInfo.isValid()) {
+      ATH_MSG_ERROR("Cant retrieve EventInfo"); 
+      mu = 0.;
+    } else {
+      mu = eventInfo->averageInteractionsPerCrossing();
+    }
+
     bool endcap = false;
     if(dynamic_cast<const InDetDD::TRT_EndcapElement*>(pE)) endcap = true;
-    Amg::MatrixX* newCov = m_errorScalingTool->createScaledTrtCovariance
-      (DC->localCovariance(),endcap);
-    if( !newCov ) {
-      ATH_MSG_WARNING("Failed to create scaled error for SCT");
-      return 0;
-    }
-    cov = *newCov;
-    delete newCov;
+    //    SG::ReadCondHandle<TRTRIO_OnTrackErrorScaling> error_scaling( m_trtErrorScalingKey );
+    SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_trtErrorScalingKey );
+    cov = check_cast<TRTRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( DC->localCovariance(),endcap, mu );
   }
+
 
   if(!m_useErrorCorrection || DC->localPosition().x() > .30) {
 

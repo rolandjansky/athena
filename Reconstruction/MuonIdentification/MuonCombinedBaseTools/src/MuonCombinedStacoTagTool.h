@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDSTACOTAGTOOL_H
@@ -29,6 +29,7 @@ namespace Trk {
 namespace MuonCombined {
   class InDetCandidate;
   class MuonCandidate;
+  class InDetCandidateToTagMap;
   class IMuonTrackTagTool;
 
   class MuonCombinedStacoTagTool: public AthAlgTool, virtual public IMuonCombinedTagTool
@@ -43,7 +44,7 @@ namespace MuonCombined {
 
     /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */    
     virtual
-    void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const override;
+      void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap ) const override;
 
   private:
 

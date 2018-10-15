@@ -51,9 +51,9 @@
 inline double sqr(double x) {return x*x;}
 
 SCT_FwdWheel::SCT_FwdWheel(const std::string & name,
-			   int iWheel,
-			   const std::vector<const SCT_FwdModule *> & modules,
-			   int ec)			   
+                           int iWheel,
+                           const std::vector<const SCT_FwdModule *> & modules,
+                           int ec)
   : SCT_UniqueComponentFactory(name), 
     m_iWheel(iWheel), 
     m_endcap(ec),
@@ -132,7 +132,7 @@ SCT_FwdWheel::getParameters()
     for (int iLoc = 0; iLoc < parameters->fwdNumCylinderServiceLocs(); iLoc++) {
       // Disc fixations are at same locations at as N2 pipes
       if(parameters->fwdCylinderServiceLocName(iLoc) == "NPipe") {
-	m_discFixationLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
+        m_discFixationLocAngle.push_back(parameters->fwdCylinderServiceLocAngle(iLoc));
       }
     }
   }
@@ -316,7 +316,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     // Position cooling
     // Get a pointer to the cooling ring.
     SCT_FwdRingCooling cooling("RingCoolingW"+intToString(m_iWheel)+"R"+intToString(iRing),
-			       iRing);
+                               iRing);
     double coolingZpos = ring->ringSide() * (0.5*(m_discSupport->thickness() + cooling.thickness()));
     //std::cout << "coolingZpos, thickness = " <<  coolingZpos << ", " <<  cooling->thickness() << std::endl;
     wheel->add(new GeoTransform(HepGeom::TranslateZ3D(coolingZpos)));
@@ -325,10 +325,10 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     // Power Tapes
     // Get a pointer to the power tape
     SCT_FwdDiscPowerTape powerTape("PowerTapeW"+intToString(m_iWheel)+
-				   "R"+intToString(iRing), iRing);
+                                   "R"+intToString(iRing), iRing);
 
     double powerTapeZpos = ring->ringSide() * (0.5*(m_discSupport->thickness() + powerTape.thickness()) +
-						cooling.thickness());
+                                               cooling.thickness());
     //std::cout << "powerTapeZpos, thickness = " <<  powerTapeZpos << ", " <<  powerTape->thickness() << std::endl;
 
     // Make sure we don't overlap with powertape from outer rings
@@ -337,15 +337,15 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     if (ring->ringSide() > 0) {
       double powerTapeZstart = powerTapeZpos -  0.5 * powerTape.thickness();
       if (powerTapeZstart < powerTapeZPlusMax) {
-	powerTapeZpos = powerTapeZPlusMax +  0.5 * powerTape.thickness();
-	//std::cout << "Moving power tape!!!" << std::endl;
+        powerTapeZpos = powerTapeZPlusMax +  0.5 * powerTape.thickness();
+        //std::cout << "Moving power tape!!!" << std::endl;
       }
       powerTapeZPlusMax = powerTapeZpos +  0.5 * powerTape.thickness();
     } else {
       double powerTapeZstart = powerTapeZpos +  0.5 * powerTape.thickness();
       if (powerTapeZstart > powerTapeZMinusMax) {
-	powerTapeZpos = powerTapeZMinusMax -  0.5 * powerTape.thickness();
-	//std::cout << "Moving power tape!!!" << std::endl;
+        powerTapeZpos = powerTapeZMinusMax -  0.5 * powerTape.thickness();
+        //std::cout << "Moving power tape!!!" << std::endl;
       }
       powerTapeZMinusMax = powerTapeZpos -  0.5 * powerTape.thickness();
     }
@@ -398,9 +398,9 @@ SCT_FwdWheel::build(SCT_Identifier id) const
 
       // Check for overlap with middle ring.
       if (m_numRings >= 2 && (m_patchPanel[ppType]->innerRadius() <= m_rings[1]->outerRadius())) {
-	std::cout << "ERROR: Patch Panel clashes with middle ring" << std::endl;
-	std::cout << " PatchPanel inner radius: " << m_patchPanel[ppType]->innerRadius() << std::endl;
-	std::cout << " Ring outer radius: " << m_rings[1]->outerRadius() << std::endl;
+        std::cout << "ERROR: Patch Panel clashes with middle ring" << std::endl;
+        std::cout << " PatchPanel inner radius: " << m_patchPanel[ppType]->innerRadius() << std::endl;
+        std::cout << " Ring outer radius: " << m_rings[1]->outerRadius() << std::endl;
       }
   
       // Add it to the wheel
@@ -410,15 +410,15 @@ SCT_FwdWheel::build(SCT_Identifier id) const
       // Make and add the connector for PPF0e (type 0)
       // Positioned immediately outside PatchPanel at same angle
       if(ppType == 0 && m_pPConnectorPresent) {
-	double ppConnectorZpos =  patchPanelSide * (powerTapeZMax + 0.5*m_pPConnector->thickness() + m_safety);
-	double ppConnectorR = m_patchPanel[ppType]->outerRadius() + 0.5*m_pPConnector->deltaR() + m_safety;
-	// Check is within wheel
-	if (ppConnectorR + 0.5*m_pPConnector->deltaR() >= m_outerRadius) {
-	  std::cout << "ERROR: Patch Panel Connector clashes outside wheel" << std::endl;
-	  std::cout << " PatchPanel Connector outer radius: " << ppConnectorR + 0.5*m_pPConnector->deltaR() << std::endl;
-	  std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
-	}
-	// Add it to the wheel
+        double ppConnectorZpos =  patchPanelSide * (powerTapeZMax + 0.5*m_pPConnector->thickness() + m_safety);
+        double ppConnectorR = m_patchPanel[ppType]->outerRadius() + 0.5*m_pPConnector->deltaR() + m_safety;
+        // Check is within wheel
+        if (ppConnectorR + 0.5*m_pPConnector->deltaR() >= m_outerRadius) {
+          std::cout << "ERROR: Patch Panel Connector clashes outside wheel" << std::endl;
+          std::cout << " PatchPanel Connector outer radius: " << ppConnectorR + 0.5*m_pPConnector->deltaR() << std::endl;
+          std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
+        }
+        // Add it to the wheel
       wheel->add(new GeoTransform(HepGeom::RotateZ3D(patchPanelAngle)*HepGeom::TranslateX3D(ppConnectorR)*HepGeom::TranslateZ3D(ppConnectorZpos)));
       wheel->add(m_pPConnector->getVolume());
       }
@@ -426,15 +426,15 @@ SCT_FwdWheel::build(SCT_Identifier id) const
       // Make and add the cooling for PPF0c (type 2)
       // Positioned immediately outside PatchPanel at same angle
       if(ppType == 2 && m_pPCoolingPresent) {
-	double ppCoolingZpos =  patchPanelSide * (powerTapeZMax + 0.5*m_pPCooling->thickness() + m_safety);
-	double ppCoolingR = m_patchPanel[ppType]->outerRadius() + 0.5*m_pPCooling->deltaR() + m_safety;
-	// Check is within wheel
-	if (ppCoolingR + 0.5*m_pPCooling->deltaR() >= m_outerRadius) {
-	  std::cout << "ERROR: Patch Panel Cooling clashes outside wheel" << std::endl;
-	  std::cout << " PatchPanel Cooling outer radius: " << ppCoolingR + 0.5*m_pPCooling->deltaR() << std::endl;
-	  std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
-	}
-	// Add it to the wheel
+        double ppCoolingZpos =  patchPanelSide * (powerTapeZMax + 0.5*m_pPCooling->thickness() + m_safety);
+        double ppCoolingR = m_patchPanel[ppType]->outerRadius() + 0.5*m_pPCooling->deltaR() + m_safety;
+        // Check is within wheel
+        if (ppCoolingR + 0.5*m_pPCooling->deltaR() >= m_outerRadius) {
+          std::cout << "ERROR: Patch Panel Cooling clashes outside wheel" << std::endl;
+          std::cout << " PatchPanel Cooling outer radius: " << ppCoolingR + 0.5*m_pPCooling->deltaR() << std::endl;
+          std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
+        }
+        // Add it to the wheel
       wheel->add(new GeoTransform(HepGeom::RotateZ3D(patchPanelAngle)*HepGeom::TranslateX3D(ppCoolingR)*HepGeom::TranslateZ3D(ppCoolingZpos)));
       wheel->add(m_pPCooling->getVolume());
       }
@@ -474,10 +474,10 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     //        << "Loc type: " << (*m_fsiVector)[iFSI]->locationType() << ", "
     //        << "Radius(mm): " << fsiRadius/CLHEP::mm << ", "
     //        << "Phi(deg): " << fsiPhi/CLHEP::deg << ", "
-    // 	      << "Thickness(mm): " << m_fsiType[type]->thickness() << ", "
-    // 	      << "ZOffset(mm): " << m_fsiType[type]->zOffset() << ", "
-    // 	      << "RPhi(mm): " << m_fsiType[type]->rphi() << ", "
-    // 	      << "DeltaR(mm): " << m_fsiType[type]->deltaR()
+    //        << "Thickness(mm): " << m_fsiType[type]->thickness() << ", "
+    //        << "ZOffset(mm): " << m_fsiType[type]->zOffset() << ", "
+    //        << "RPhi(mm): " << m_fsiType[type]->rphi() << ", "
+    //        << "DeltaR(mm): " << m_fsiType[type]->deltaR()
     //        << std::endl;
 
 
@@ -485,9 +485,9 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     if (fsiUsualSide < 0) {
       double zMin =  std::abs(fsiZpos) -  0.5*m_fsiType[type]->thickness(); 
       if (maxZOfRingsFront > zMin) {
-	std::cout << "WARNING: FSI probably clashes with ring" << std::endl;
-	std::cout << " maxZOfRingsFront = " << maxZOfRingsFront << std::endl;
-	std::cout << " fsiZMin = " << zMin << std::endl;
+        std::cout << "WARNING: FSI probably clashes with ring" << std::endl;
+        std::cout << " maxZOfRingsFront = " << maxZOfRingsFront << std::endl;
+        std::cout << " fsiZMin = " << zMin << std::endl;
       }
     } else {   // ... and backside
       // Check radius of fsi. 
@@ -497,13 +497,13 @@ SCT_FwdWheel::build(SCT_Identifier id) const
       double servicesZMax = (fsiRadius > diskMidRadius) ? powerTapeZMax : optoHarnessZMax;
       double zMin =  std::abs(fsiZpos) -  0.5*m_fsiType[type]->thickness(); 
       if (servicesZMax > zMin) { 
-	std::cout << "WARNING: FSI probably clashes with disc services" << std::endl;
-      	std::cout << " servicesZMax = " << servicesZMax << std::endl;
-	std::cout << " fsiZMin = " << zMin << std::endl;
-	std::cout << " fsiRadius = " << fsiRadius << std::endl;
+        std::cout << "WARNING: FSI probably clashes with disc services" << std::endl;
+        std::cout << " servicesZMax = " << servicesZMax << std::endl;
+        std::cout << " fsiZMin = " << zMin << std::endl;
+        std::cout << " fsiRadius = " << fsiRadius << std::endl;
       }
     }    
-	
+
     wheel->add(new GeoTransform(HepGeom::RotateZ3D(fsiPhi)*HepGeom::TranslateX3D(fsiRadius)*HepGeom::TranslateZ3D(fsiZpos)));
     wheel->add(m_fsiType[type]->getVolume());    
 
@@ -515,18 +515,18 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     for (unsigned int iLoc = 0; iLoc < m_discFixationLocAngle.size() ; iLoc++) {
       // The disc fixations repeat in the four quadrants.
       for (int iRepeat = 0; iRepeat < 4; iRepeat++) {
-	// Calculate the location.
-	double discFixationAngle = m_discFixationLocAngle[iLoc] + iRepeat * 90*CLHEP::degree;
-	double discFixationR = m_ringMaxRadius + 0.5*m_discFixation->thickness() + m_safety;
-	// Check is within wheel
-	if (discFixationR + 0.5*m_discFixation->thickness() >= m_outerRadius) {
-	  std::cout << "ERROR: Disc Fixation outside wheel" << std::endl;
-	  std::cout << "Disc fixation outer radius: " << discFixationR + 0.5*m_discFixation->thickness() << std::endl;
-	  std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
-	}
-	// Add it to the wheel
-	wheel->add(new GeoTransform(HepGeom::RotateY3D(90.*CLHEP::degree)*HepGeom::RotateX3D(discFixationAngle)*HepGeom::TranslateZ3D(discFixationR)));
-	wheel->add(m_discFixation->getVolume());
+        // Calculate the location.
+        double discFixationAngle = m_discFixationLocAngle[iLoc] + iRepeat * 90*CLHEP::degree;
+        double discFixationR = m_ringMaxRadius + 0.5*m_discFixation->thickness() + m_safety;
+        // Check is within wheel
+        if (discFixationR + 0.5*m_discFixation->thickness() >= m_outerRadius) {
+          std::cout << "ERROR: Disc Fixation outside wheel" << std::endl;
+          std::cout << "Disc fixation outer radius: " << discFixationR + 0.5*m_discFixation->thickness() << std::endl;
+          std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
+        }
+       // Add it to the wheel
+        wheel->add(new GeoTransform(HepGeom::RotateY3D(90.*CLHEP::degree)*HepGeom::RotateX3D(discFixationAngle)*HepGeom::TranslateZ3D(discFixationR)));
+        wheel->add(m_discFixation->getVolume());
       }
     }
   }

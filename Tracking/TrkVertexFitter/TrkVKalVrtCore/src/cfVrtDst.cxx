@@ -3,17 +3,15 @@
 */
 
 #include <math.h>
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include <iostream>
 
 namespace Trk {
 
-extern VKalVrtBMag vkalvrtbmag;
 extern vkalPropagator  myPropagator;
-
+extern vkalMagFld      myMagFld;
 
 // Function calculates distance between summary track after fit and vertex for constraint
 // Flag UseTrkErr tells if SummaryTrack errors+VertexErrors are used or only VertexErrors
@@ -36,10 +34,8 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
     double parV0[5], covParV0[15];
     double Signif;
 
-
-    extern void cfimp(long int, long int, long int, double *, double *, double *,double *, double *, double *, double *);
-    extern void  combinedTrack(long int ICH, double *vrt0, double *pv0, double *covi, double *paro, double *covo);
-    extern std::vector<double> getCnstParticleMom( VKTrack * );
+    extern void combinedTrack(long int ICH, double *pv0, double *covi, double BMAG, double *paro, double *covo);
+    extern std::vector<double> getCnstParticleMom( VKTrack * , VKVertex *);
     extern int cfdinv(double *, double *, long int); 
  /* ------------------------------------------------------------------- */
 
@@ -47,7 +43,7 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
     int NTRK = vk->TrackList.size();
     std::vector<double> pp;
     for ( it=0; it<NTRK; it++) {
-        pp=getCnstParticleMom( vk->TrackList[it] );
+        pp=getCnstParticleMom( vk->TrackList[it], vk );
 	ptot[0] += pp[0];
 	ptot[1] += pp[1];
 	ptot[2] += pp[2];
@@ -57,8 +53,9 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
 			 vk->refIterV[2] + vk->cnstV[2]};
     long int Charge = 0; for ( it=0; it<NTRK; it++) Charge += vk->TrackList[it]->Charge; 
 //std::cout<<" cfVrtDst ntrk="<<NTRK<<" chg="<<Charge<<'\n';
+    double localField=myMagFld.getMagFld(fittedVrt,(vk->vk_fitterControl).get());
     if ( UseTrkErr){
-      combinedTrack( Charge, fittedVrt, ptot, vk->fitCovXYZMom, parV0, covParV0);
+      combinedTrack( Charge, ptot, vk->fitCovXYZMom, localField, parV0, covParV0);
     }else{
       double DummyErr[21] = { 1.e-20,
                                   0., 1.e-20,
@@ -66,14 +63,14 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
 				  0.,     0.,     0., 1.e-18,
 				  0.,     0.,     0.,     0., 1.e-18,
 				  0.,     0.,     0.,     0.,     0., 1.e-18};
-      combinedTrack( Charge, fittedVrt, ptot, DummyErr, parV0, covParV0);
+      combinedTrack( Charge, ptot, DummyErr, localField, parV0, covParV0);
     }
 //
 // Propagation to constraint vertex
 //
     double nPar[5],nCov[15];
     long int TrkID = -999;   // Abstract track propagation
-    myPropagator.Propagate( TrkID, Charge, parV0, covParV0, fittedVrt, vk->FVC.vrt, nPar, nCov);
+    myPropagator.Propagate( TrkID, Charge, parV0, covParV0, fittedVrt, vk->FVC.vrt, nPar, nCov, (vk->vk_fitterControl).get());
 //
 //
     double cnv[2][3];

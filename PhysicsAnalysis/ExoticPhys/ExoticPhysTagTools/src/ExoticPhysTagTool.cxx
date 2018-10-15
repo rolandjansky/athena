@@ -77,7 +77,4 @@ StatusCode  ExoticPhysTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-ExoticPhysTagTool::~ExoticPhysTagTool() {}
-
 

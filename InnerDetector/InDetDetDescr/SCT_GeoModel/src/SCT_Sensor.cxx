@@ -44,9 +44,9 @@ SCT_Sensor::getParameters()
   m_thickness = parameters->sensorThickness();
   m_length    = 0;
   if (parameters->sensorNumWafers() == 2) {
-     m_length = parameters->sensorLength() + parameters->sensorDistCenterToCenter();
+    m_length = parameters->sensorLength() + parameters->sensorDistCenterToCenter();
   } else {
-     m_length = parameters->sensorLength();
+    m_length = parameters->sensorLength();
   }
   m_width     = parameters->sensorWidth();
 
@@ -104,18 +104,18 @@ SCT_Sensor::makeDesign()
   int readoutSide = +1;
 
   m_design = new SCT_BarrelModuleSideDesign(m_thickness,
-					    crystals,
-					    diodes,
-					    cells,
-					    shift,
-					    swapStripReadout,
-					    InDetDD::holes,
-					    stripPitch,
-					    stripLength,
-					    xEtaStripPatternCenter,
-					    xPhiStripPatternCenter,
-					    totalDeadLength,
-					    readoutSide);
+                                            crystals,
+                                            diodes,
+                                            cells,
+                                            shift,
+                                            swapStripReadout,
+                                            InDetDD::holes,
+                                            stripPitch,
+                                            stripLength,
+                                            xEtaStripPatternCenter,
+                                            xPhiStripPatternCenter,
+                                            totalDeadLength,
+                                            readoutSide);
   //
   // Flags to signal if axis can be swapped.
   // For rectangular detector these are all true.
@@ -148,9 +148,9 @@ SCT_Sensor::build(SCT_Identifier id) const
     SiDetectorElement * detElement;
 
     detElement =  new SiDetectorElement(id.getWaferId(), 
-					m_design, 
-					sensor,  
-					commonItems);
+                                        m_design, 
+                                        sensor,  
+                                        commonItems);
     
     // Add the detector element.
     detectorManager()->addDetectorElement(detElement);

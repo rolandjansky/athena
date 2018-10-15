@@ -53,7 +53,6 @@ public:
   TrackCollectionCnv( ISvcLocator *svcloc );
 
 protected:
-  ~TrackCollectionCnv();
   virtual StatusCode initialize();
 
   virtual TrackCollection_PERS *createPersistent( TrackCollection *transCont);

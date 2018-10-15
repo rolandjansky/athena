@@ -13,15 +13,16 @@
 
 #ifndef SCT_LinkMaskingTestAlg_H
 #define SCT_LinkMaskingTestAlg_H 
-//STL
-#include <string>
-
-//Gaudi
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 
 //Athena
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
+
+//STL
+#include <string>
 
 ///Example class to show calling the SCT_LinkMaskingTool
 class SCT_LinkMaskingTestAlg : public AthAlgorithm {

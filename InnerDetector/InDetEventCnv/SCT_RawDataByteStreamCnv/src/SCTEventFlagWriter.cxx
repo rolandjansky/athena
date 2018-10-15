@@ -11,8 +11,6 @@ SCTEventFlagWriter::SCTEventFlagWriter(const std::string& name,
                                        ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("xAODEventInfoKey", m_xevtInfoKey=std::string{"EventInfo"});
-  declareProperty("EventInfoKey", m_evtInfoKey=std::string{"ByteStreamEventInfo"});
 }
 
 /// --------------------------------------------------------------------
@@ -20,7 +18,6 @@ SCTEventFlagWriter::SCTEventFlagWriter(const std::string& name,
 StatusCode SCTEventFlagWriter::initialize() {
   ATH_CHECK(m_bsErrTool.retrieve());
   ATH_CHECK(m_xevtInfoKey.initialize());
-  ATH_CHECK(m_evtInfoKey.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -40,17 +37,8 @@ StatusCode SCTEventFlagWriter::execute()
     if (xevtInfo.isValid()) {
       setOK_xAOD = xevtInfo->updateErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
     } 
-
-    /// Second the old-style one
-    bool setOK_old{false};
-    SG::ReadHandle<EventInfo> evtInfo_const{m_evtInfoKey};
-    if (evtInfo_const.isValid()) {
-      EventInfo* evtInfo{const_cast<EventInfo*>(&*evtInfo_const)};
-      setOK_old = evtInfo->setErrorState(EventInfo::SCT, EventInfo::Error);
-    }
-
-    if ((not setOK_xAOD) and (not setOK_old)) {
-      ATH_MSG_ERROR("Failed to retrieve EventInfo containers or to set error states");
+    if (not setOK_xAOD) {
+      ATH_MSG_ERROR("Failed to retrieve EventInfo containers or to update error state");
       return StatusCode::RECOVERABLE;
     }
   } /// 500 LVL1ID errors or 1000 ROBFragment errors

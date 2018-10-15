@@ -21,7 +21,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
 
 #include <string>
@@ -32,15 +32,12 @@ class StoreGateSvc;
 class CaloTowerContainer;
 class ICaloTowerBuilderToolBase;
 
-class CaloTowerAlgorithm: public AthAlgorithm {
+class CaloTowerAlgorithm: public AthReentrantAlgorithm {
   public:
 
-    typedef std::string tool_key;
     typedef CaloTowerBuilderToolBase tool_type;
     typedef std::vector<tool_type*> tool_store;
     typedef tool_store::const_iterator tool_iterator;
-    typedef std::map<tool_key, unsigned int> tool_stats;
-    typedef tool_stats::const_iterator tool_stats_iterator;
 
     /// Algorithm constructor
     CaloTowerAlgorithm(const std::string& name, ISvcLocator* pService);
@@ -48,9 +45,9 @@ class CaloTowerAlgorithm: public AthAlgorithm {
     virtual ~CaloTowerAlgorithm();
 
     /// inherited from Algorithm
-    virtual StatusCode initialize();
-    virtual StatusCode execute();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute_r (const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
 
   protected:
 
@@ -78,11 +75,5 @@ class CaloTowerAlgorithm: public AthAlgorithm {
 
     // list of tools
     tool_store m_tools;
-
-    // tool invocation stats
-    tool_stats m_toolInvoke;
-    tool_stats m_toolAccept;
-    tool_stats m_toolReject;
-
 };
 #endif

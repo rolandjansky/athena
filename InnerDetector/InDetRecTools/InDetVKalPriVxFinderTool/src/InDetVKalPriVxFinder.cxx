@@ -6,7 +6,7 @@
 #include "InDetVKalPriVxFinderTool/InDetVKalPriVxFinderTool.h"
 //-------------------------------------------------
 // Other stuff
-//#include "GaudiKernel/MsgStream.h"
+
 //
 #include  "InDetBeamSpotService/IBeamCondSvc.h"
 //----
@@ -15,13 +15,14 @@
 #include  "TrkParticleBase/LinkToTrackParticleBase.h"
 #include  "TrkTrackSummary/TrackSummary.h"
 #include  "VxVertex/VxTrackAtVertex.h"
-//#include  "VxVertex/VxContainer.h"
 #include  "TrkEventPrimitives/FitQuality.h"
 #include  "TrkToolInterfaces/ITrackSummaryTool.h"
 #include  "TrkToolInterfaces/ITrackSelectorTool.h"
+#include  "xAODTracking/VertexContainer.h"
+#include  "xAODTracking/Vertex.h"
+#include  "xAODTracking/TrackParticle.h"
 //----
 
-//#include <iostream>
 
 
 namespace InDet {
@@ -123,25 +124,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //      return StatusCode::SUCCESS; 
 //    }
 
-//TrkVKalVrtFitter
-//    sc = toolSvc->retrieveTool("TrkVKalVrtFitter",m_fitSvc,this);
-//    if (sc.isFailure()) { 
-//       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No VKalVrtFitSvc for InDetVKalPriVxFinderTool !" << endmsg;
-//       return StatusCode::SUCCESS; 
-//    } 
-//    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "VKalVrtPromCpp's VKalVrtFitSvc found" << endmsg;
-//-----------------------------------------------------------------------------------------
-//
-//  Temporary to use old VKalVrt interface
-//
-//     Trk::IVertexFitter * tmp;
-//     sc = toolSvc->retrieveTool("Trk::TrkVKalVrtFitter",tmp,this);
-//     if (sc.isFailure()) { 
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No Trk::TrkVKalVrtFitter for InDetVKalPriVxFinderTool !" << endmsg;
-//     }else{
-//        m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(tmp);
-//        if(!m_fitSvc && msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No Trk::TrkVKalVrtFitter" << endmsg;
-//     }
+
     if (m_fitSvc.retrieve().isFailure()) {
         if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "No Trk::TrkVKalVrtFitter for InDetVKalPriVxFinderTool !" << endmsg;
     }else{
@@ -218,7 +201,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 
 
 //__________________________________________________________________________
-  //VxContainer* InDetVKalPriVxFinderTool::findVertex(const TrackCollection* trackTES)
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetVKalPriVxFinderTool::findVertex(const TrackCollection* trackTES)
   {
     //.............................................
@@ -332,9 +314,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
            double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
 	   if ( CovTrkMtx11 > 4.*m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	   if ( CovTrkMtx22 > 4.*m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
-//           if( m_trkSelectorExist ) {
-//	      if(!m_trkSelector->decision(**i_ntrk,&selectionVertex)) continue;
-//	   }else{
+
 //---------------------------------------------------------
              long int PixelHits = 3, SctHits = 9, SharedHits = 0, BLayHits = 1;
 	     if(m_SummaryToolExist) {
@@ -406,7 +386,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 
 //__________________________________________________________________________
 
-  //VxContainer* InDetVKalPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* newPrtCol)
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetVKalPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* newPrtCol)
   {
     //.............................................
@@ -467,7 +446,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
               TrkQual   = (*i_nprt)->fitQuality();
               double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
               double CovTrkMtx22 = (*(mPer->covariance()))(2,2);
-//if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Error track matrix="<<CovTrkMtx11<<", "<<CovTrkMtx22<<endmsg;
 	      if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	      if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
               if( m_trkSelectorExist ) {
@@ -483,10 +461,8 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	         if(PixelHits<0)PixelHits=0;
                  if(SctHits<0)SctHits=0;
                  if(BLayHits<0)BLayHits=0; 
-                 //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError); //VK ImpactSignif not needed
                  m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=VectPerig[0]; //double ImpactZ=VectPerig[1];   // Temporary
-//if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Track impact="<<ImpactA0<<", "<<ImpactZ<<", "<<ImpactSignif<<endmsg;
 	         ImpactA0=Impact[0];           //ImpactZ=Impact[1];   
 
                  StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3] , ImpactA0 ,
@@ -508,9 +484,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
               double CovTrkMtx22 = (*(mPer->covariance()))(2,2);
 	      if ( CovTrkMtx11 > 4.*m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	      if ( CovTrkMtx22 > 4.*m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
-//              if( m_trkSelectorExist ) {
-//	         if(!m_trkSelector->decision(**i_nprt,&selectionVertex)) continue;
-//	      }else{
+
                  long int PixelHits = 3, SctHits = 9, SharedHits = 0, BLayHits = 1;
                  const Trk::TrackSummary* testSum = (*i_nprt)->trackSummary();
                  PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
@@ -567,17 +541,18 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 
 
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>  InDetVKalPriVxFinderTool::SaveResults( int NFoundVrt,
-	            std::vector< Amg::Vector3D >                & PrimVrtList,
-                    std::vector< AmgSymMatrix(3) >              & ErrorMatrixPerVrt,
-		    std::vector<double>                         & Chi2PerVrt,
-                    std::vector<int>                            & NTrkPerVrt,
-		    std::vector< std::vector<const Trk::TrackParticleBase*> > & PrtPerVrt,
-		    std::vector< std::vector<const Trk::Track*> >             & TrkPerVrt,
-		    std::vector< std::vector<double> >                        & TrkWgtPerVrt,
-                    const TrackCollection* trackTES,
-		    const Trk::TrackParticleBaseCollection* partTES)
-   {
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>  
+  InDetVKalPriVxFinderTool::SaveResults( int NFoundVrt,
+	 std::vector< Amg::Vector3D >                & PrimVrtList,
+   std::vector< AmgSymMatrix(3) >              & ErrorMatrixPerVrt,
+	 std::vector<double>                         & Chi2PerVrt,
+   std::vector<int>                            & NTrkPerVrt,
+	 std::vector< std::vector<const Trk::TrackParticleBase*> > & PrtPerVrt,
+	 std::vector< std::vector<const Trk::Track*> >             & TrkPerVrt,
+	 std::vector< std::vector<double> >                        & TrkWgtPerVrt,
+   const TrackCollection* trackTES,
+	 const Trk::TrackParticleBaseCollection* partTES){
+	 
      xAOD::VertexContainer  *  vrtCont    = new xAOD::VertexContainer;
      xAOD::VertexAuxContainer *vrtAuxCont = new xAOD::VertexAuxContainer;
      vrtCont->setStore(vrtAuxCont);
@@ -587,54 +562,53 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
           if( Chi2PerVrt[i]>12. ) continue;                  //Drop 2tr vertex with low probability
           if( i==0 && NTrkPerVrt[1]>3 ) continue;            //Drop 2tr first vertex if second is better
        }
-
-
        xAOD::Vertex * tmpVertex=new xAOD::Vertex();
        tmpVertex->setPosition(PrimVrtList[i]);
        tmpVertex->setCovariancePosition(ErrorMatrixPerVrt[i]);
        tmpVertex->setFitQuality(Chi2PerVrt[i], (float)(NTrkPerVrt[i]*2.-3.));
-
-
-       std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    tmpVTAV.clear();
+       std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    
+       tmpVTAV.clear();
        for(ii=0; ii<NTrkPerVrt[i]; ii++) {
          AmgSymMatrix(5) * tmpCovMatr=new AmgSymMatrix(5)(m_fittedTrkCov.at(i).at(ii));
          Trk::Perigee * tmpMeasPer = new Trk::Perigee( 0.,0.,
 		           m_savedTrkFittedPerigees[i][ii][0] ,        /* Phi   */
 		           m_savedTrkFittedPerigees[i][ii][1] ,        /* Theta */
 		           m_savedTrkFittedPerigees[i][ii][2] ,        /* 1/p   */
-	                   Trk::PerigeeSurface(PrimVrtList[i]),
+	             Trk::PerigeeSurface(PrimVrtList[i]),
 		           tmpCovMatr );
          Trk::VxTrackAtVertex * tmpPointer = new Trk::VxTrackAtVertex( 1., tmpMeasPer ) ;
-	 if( (int)TrkPerVrt.size() > 0 ){ 
-             ElementLink<TrackCollection>  TEL;   TEL.setElement(TrkPerVrt[i][ii]);
-             Trk::LinkToTrack *ITL = new Trk::LinkToTrack(TEL);    //pointer to initial Trk
-             ITL->setStorableObject( *trackTES );
-             tmpPointer->setOrigTrack(ITL);                       //pointer to initial Trk
+	       if( not TrkPerVrt.empty()){ 
+            ElementLink<TrackCollection>  TEL;   
+            TEL.setElement(TrkPerVrt[i][ii]);
+            Trk::LinkToTrack *ITL = new Trk::LinkToTrack(TEL);    //pointer to initial Trk
+            ITL->setStorableObject( *trackTES );
+            tmpPointer->setOrigTrack(ITL);                       //pointer to initial Trk
          }else{
-	      ElementLink<Trk::TrackParticleBaseCollection> TEL; TEL.setElement(PrtPerVrt[i][ii]);
-              Trk::LinkToTrackParticleBase *ITL = new Trk::LinkToTrackParticleBase(TEL);    //pointer to initial Prt
-              ITL->setStorableObject( *partTES );
-              tmpPointer->setOrigTrack(ITL);                                   //pointer to initial Prt
+	          ElementLink<Trk::TrackParticleBaseCollection> TEL; TEL.setElement(PrtPerVrt[i][ii]);
+            Trk::LinkToTrackParticleBase *ITL = new Trk::LinkToTrackParticleBase(TEL);    //pointer to initial Prt
+            ITL->setStorableObject( *partTES );
+            tmpPointer->setOrigTrack(ITL);                                   //pointer to initial Prt
          }
          tmpPointer->setWeight(TrkWgtPerVrt[i][ii]);
          tmpVTAV.push_back( *tmpPointer );
+         delete tmpPointer;
        }
-//
-//-Save to container
-//
+        //
+        //-Save to container
+        //
        vrtCont->push_back(tmpVertex);
      }
-//
-//-Defense against 0 found vertices 
-//
+      //
+      //-Defense against 0 found vertices 
+      //
      if( NFoundVrt == 0 ){
        xAOD::Vertex * tmpVertex=new xAOD::Vertex();
        tmpVertex->setPosition(Amg::Vector3D(0.,0.,0.));
        vrtCont->push_back(tmpVertex);
      }
-//
-//-Remove refitted track parameters from HEAP
-//
+      //
+      //-Remove refitted track parameters from HEAP
+      //
      for( i=0; i< NFoundVrt; i++){ 
        double** pntTracks=m_savedTrkFittedPerigees[i];
        removeWorkArr2(pntTracks,(long int)NTrkPerVrt[i],3);
@@ -643,122 +617,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
      m_fittedTrkCov.clear();
      Trk::TrkVKalVrtFitter* vkalPnt = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitSvc));
      if(vkalPnt)vkalPnt->clearMemory();
-
      return std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> (vrtCont,vrtAuxCont);
    }
-
-
-
-
-/*   VxContainer* InDetVKalPriVxFinderTool::SaveResults( int NFoundVrt,
-	            std::vector< Amg::Vector3D >                & PrimVrtList,
-                    std::vector< AmgSymMatrix(3) >              & ErrorMatrixPerVrt,
-		    std::vector<double>                         & Chi2PerVrt,
-                    std::vector<int>                            & NTrkPerVrt,
-		    std::vector< std::vector<const Trk::TrackParticleBase*> > & PrtPerVrt,
-		    std::vector< std::vector<const Trk::Track*> >             & TrkPerVrt,
-		    std::vector< std::vector<double> >                        & TrkWgtPerVrt,
-                    const TrackCollection* trackTES,
-		    const Trk::TrackParticleBaseCollection* partTES)
-  {
-    int i,ii;
-    VxContainer*             nVrtVx =new VxContainer;
-    for( i=0; i< NFoundVrt; i++){ 
-       if(PrimVrtList.size()>1 && NTrkPerVrt[i]==2){
-          if( Chi2PerVrt[i]>12. ) continue;                  //Drop 2tr vertex with low probability
-          if( i==0 && NTrkPerVrt[1]>3 ) continue;            //Drop 2tr first vertex if second is better
-       }
-
-       Trk::RecVertex * tmpRecV = new  Trk::RecVertex( PrimVrtList[i],
-                                       Amg::MatrixX(ErrorMatrixPerVrt[i]),
-	                               NTrkPerVrt[i]*2-1, Chi2PerVrt[i]);
-// Set up track list //
-       std::vector<Trk::VxTrackAtVertex*> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
-       for(ii=0; ii<NTrkPerVrt[i]; ii++) {
-               Trk::Perigee * tmpMeasPer; 
-               AmgSymMatrix(5) * tmpCovMatr=new AmgSymMatrix(5)(m_fittedTrkCov.at(i).at(ii));
-	       tmpMeasPer  =  new Trk::Perigee( 0.,0.,
-		     m_savedTrkFittedPerigees[i][ii][0] ,        // Phi   //
-		     m_savedTrkFittedPerigees[i][ii][1] ,        // Theta //
-		     m_savedTrkFittedPerigees[i][ii][2] ,        // 1/p   //
-	             Trk::PerigeeSurface(PrimVrtList[i]),
-		     tmpCovMatr );
-
-               Trk::VxTrackAtVertex * tmpPointer = new Trk::VxTrackAtVertex( 1., tmpMeasPer ) ;
-	       if( (int)TrkPerVrt.size() > 0 ){ 
-                   ElementLink<TrackCollection>  TEL;   TEL.setElement(TrkPerVrt[i][ii]);
-                   Trk::LinkToTrack *ITL = new Trk::LinkToTrack(TEL);    //pointer to initial Trk
-                   ITL->setStorableObject( *trackTES );
-                   tmpPointer->setOrigTrack(ITL);                       //pointer to initial Trk
-	       }else{
-		   ElementLink<Trk::TrackParticleBaseCollection> TEL; TEL.setElement(PrtPerVrt[i][ii]);
-                   Trk::LinkToTrackParticleBase *ITL = new Trk::LinkToTrackParticleBase(TEL);    //pointer to initial Prt
-                   ITL->setStorableObject( *partTES );
-                   tmpPointer->setOrigTrack(ITL);                                   //pointer to initial Prt
-               }
-	       tmpPointer->setWeight(TrkWgtPerVrt[i][ii]);
-               tmpVTAV->push_back( tmpPointer );
-       }
-       Trk::VxCandidate* tmpVx =new Trk::VxCandidate(*tmpRecV,*tmpVTAV);
-       delete tmpVTAV; delete tmpRecV;
-//
-//  Save to container
-//
-       nVrtVx->push_back(tmpVx);
-    }
-//
-// Defense against 0 found vertices 
-//
-    if( NFoundVrt == 0 ){
-       Trk::RecVertex * tmpRecV = new Trk::RecVertex(Amg::Vector3D(0.,0.,0.));
-       std::vector<Trk::VxTrackAtVertex*> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
-       Trk::VxCandidate* tmpVx =new Trk::VxCandidate(*tmpRecV,*tmpVTAV);
-       nVrtVx->push_back(tmpVx);
-       delete tmpVTAV; delete tmpRecV;
-    }
-//
-//  Remove refitted track parameters from HEAP
-//
-    for( i=0; i< NFoundVrt; i++){ 
-      double** pntTracks=m_savedTrkFittedPerigees[i];
-      removeWorkArr2(pntTracks,(long int)NTrkPerVrt[i],3);
-    }
-    m_savedTrkFittedPerigees.clear();
-    m_fittedTrkCov.clear();
-    Trk::TrkVKalVrtFitter* vkalPnt = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitSvc));
-    if(vkalPnt)vkalPnt->clearMemory();
-//----------------------------------------------------------------------------------------------------
-//
-// Additional stuff
-//
-    if ( nVrtVx->size() >= 1 )
-    {
-      Trk::VxCandidate * primaryVtx = nVrtVx->front();
-      primaryVtx->setVertexType(Trk::PriVtx);
-      Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate ( primaryVtx->recVertex(),
-                                                                   std::vector<Trk::VxTrackAtVertex*>());
-      dummyVxCandidate->setVertexType(Trk::NoVtx);
-      nVrtVx->push_back ( dummyVxCandidate );
-    }
-    //---- if no vertex is there let dummy be at beam spot
-    else if ( nVrtVx->size() == 0 )
-    {
-      Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate ( Trk::RecVertex( Amg::Vector3D(0.,0.,0.)), 
-                                                                   std::vector<Trk::VxTrackAtVertex*>());
-      dummyVxCandidate->setVertexType(Trk::NoVtx);
-      nVrtVx->push_back ( dummyVxCandidate );
-    }
-
-    // loop over the pile up to set it as pile up (EXCLUDE first and last vertex: loop from 1 to size-1)
-    for ( int i = 1 ; i < (int)nVrtVx->size()-1 ; i++)
-    {
-      (*nVrtVx)[i]->setVertexType(Trk::PileUp);
-    }
-
- //    
-    return nVrtVx;
-  }
-*/
-
  
 } // end of namespace bracket

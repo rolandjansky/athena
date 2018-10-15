@@ -5,6 +5,7 @@
 #include "InDetTrigTrackPRD_Association/InDetTrigTrackPRD_Association.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
+#include <ostream>
 
 
 ///////////////////////////////////////////////////////////////////

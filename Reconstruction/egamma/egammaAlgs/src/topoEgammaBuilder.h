@@ -18,6 +18,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -41,11 +43,11 @@ public:
     topoEgammaBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
     /** @brief initialize method*/
-    StatusCode initialize();
+    StatusCode initialize() override final;
     /** @brief finalize method*/
-    StatusCode finalize();
+    StatusCode finalize() override final;
     /** @brief execute method*/
-    StatusCode execute();
+    StatusCode execute() override final;
 
 private:
 
@@ -130,7 +132,8 @@ private:
     // Other properties.
     //
     // others:
-    IChronoStatSvc* m_timingProfile;
+    ServiceHandle<IChronoStatSvc> m_timingProfile;
+    Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"};
 };
 
 #endif

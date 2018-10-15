@@ -25,6 +25,9 @@ class StoreGateSvc;
 //C++
 #include <string>
 
+/**
+ Algorithm inheriting from eflowBaseAlg. This performs overlap checks between topocluster (which are represented by neutral PFO) and electrons/photons and decorates the PFO with the decision. This is needed for the MET calculations.
+*/
 class eflowOverlapRemoval : public AthAlgorithm {
   
  public:

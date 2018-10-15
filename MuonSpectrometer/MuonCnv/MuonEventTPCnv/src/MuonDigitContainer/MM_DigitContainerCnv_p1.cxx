@@ -137,7 +137,7 @@ void Muon::MM_DigitContainerCnv_p1::transToPers(const MmDigitContainer* transCon
       unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
       unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
       unsigned int diff = clusIdCompact - collIdCompact;
-      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::ERROR<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endmsg;
+      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::WARNING<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endmsg;
       persCont->m_digitDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
     }
   }

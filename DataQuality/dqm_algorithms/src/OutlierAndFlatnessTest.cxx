@@ -88,6 +88,9 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
     const bool normRef = static_cast<bool>(tools::GetFirstFromMap("DivideByReference", config.getParameters(), 0)); // default: false
     const bool diffRef = static_cast<bool>(tools::GetFirstFromMap("SubtractReference", config.getParameters(), 0)); // default: false
 
+    const bool subtractBinError = static_cast<bool>(tools::GetFirstFromMap("SubtractBinError", config.getParameters(), 0)); // default: false
+
+    const bool storeOutlierBins = static_cast<bool>(tools::GetFirstFromMap("StoreOutlierBins", config.getParameters(), 0)); // default: false
     // if the checks are to be done against a reference take care of this now
 
     TH1 *refhist = 0;
@@ -174,29 +177,30 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
                     const bool isOutlier = knownOutliers->GetBinContent(i, j);
                     if (isOutlier) continue; // skip known outliers
                     const double binContent = histogram->GetBinContent(i, j);
+                    const double binError = subtractBinError ? histogram->GetBinError(i, j) : 0.;
                     if ((binContent == 0) && ignore0) continue; // skip zero bins if requested
 
                     bool foundOutlier = false;
                     if (checkAbsLimit && !foundOutlier) {
-                        if (binContent > absLimit) {
+                        if (binContent - binError > absLimit) {
                             ++newBadBins;
                             foundOutlier = true;
                         }
                     }
                     if (checkAbsDev && !foundOutlier) {
-                        if (std::fabs(binContent - mean) > absDev) {
+                        if (std::fabs(binContent - mean) - binError > absDev) {
                             ++newBadBins;
                             foundOutlier = true;
                         }
                     }
                     if (checkRelDev && !foundOutlier) {
-                        if (std::fabs(binContent - mean) > (relDev * mean)) {
+                        if (std::fabs(binContent - mean) - binError > (relDev * mean)) {
                             ++newBadBins;
                             foundOutlier = true;
                         }
                     }
                     if (checkSigmaDev && !foundOutlier) {
-                        if (std::fabs(binContent - mean) > (sigmaDev * stddev)) {
+                        if (std::fabs(binContent - mean) - binError > (sigmaDev * stddev)) {
                             if (dontCountSigmaOutliers) ++newUncountedBadBins;
                             else ++newBadBins;
                             foundOutlier = true;
@@ -227,6 +231,19 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
     results["Corrected_mean"] = mean;
     results["Corrected_standard_deviation"] = stddev;
     results["Number_of_bins_equal_zero"] = zeroBins;
+
+    // store all x values of the outlier bins
+    if (storeOutlierBins) {
+        int outlierIndex = 0;
+        for (int i = xminBin; i <= xmaxBin; ++i) {
+            for (int j = yminBin; j <= ymaxBin; ++j) {
+                if (knownOutliers->GetBinContent(i, j)) {
+                    outlierIndex++;
+                    results[std::string("Outlier_bin_")+std::to_string(outlierIndex)] = knownOutliers->GetXaxis()->GetBinCenter(i);
+                }
+            }
+        }
+    }
 
     if (checkFlatness) {
         if (!isOneDimensional) {
@@ -341,6 +358,8 @@ void dqm_algorithms::OutlierAndFlatnessTest::printDescription(std::ostream& out)
         "\tAbsLimit:\tAbsolute limit a single bin has to exceed to be classified as outlier.  Has to be given if \"CheckAbsLimit\" is set to 1.\n"
         "\tDivideByReference:\tDivide test histogram by reference histogram and perform checks on the resulting ratio. (default 0)\n"
         "\tSubtractReference:\tSubtract reference histogram from test histogram and perform checks on the resulting difference. Carefull! This yields pretty unstable results for the flatness tests! (default 0)\n"
+        "\tSubtractBinError:\tSubtract the absolute bin error from the difference between bin content and mean when checking for outliers. (default 0)\n"
+        "\tStoreOutlierBins:\tStore information on outlier bins in the output. (default 0)\n"
         "Thresholds:\n"
         "\tNumber_of_outlier_bins:\tNumber of bins classified as outliers using the given thresholds.\n"
         "\tCorrected_mean:\tMean of distribution ignoring outliers.\n"

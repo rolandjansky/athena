@@ -758,6 +758,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
        // prepare the binned array, it can be with one to several rings            
        Trk::BinnedArray<Trk::Surface>* currentBinnedArray = 0;
        std::vector<Trk::BinUtility*>* singleBinUtils = new std::vector<Trk::BinUtility*>;
+       bool weOwnSingleBinUtils{true};
        if (discRsectors==1){
             double halfPhiStep = M_PI/discPhiSectors[discCounter][0];
             // protection in case phi value was fluctuating around 0 or M_PI in parsing
@@ -828,7 +829,9 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
                                                                   Trk::closed,
                                                                   Trk::binPhi));
             }
-            // a two-dimensional BinnedArray is needed                                                        
+            // a two-dimensional BinnedArray is needed ; takes possession of singleBinUtils and
+            // will delete it on destruction.
+            weOwnSingleBinUtils=false;                                                       
             currentBinnedArray = new Trk::BinnedArray1D1D<Trk::Surface>(discSurfaces[discCounter],
                                                                         currentSteerBinUtility,
                                                                         singleBinUtils);
@@ -873,6 +876,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
 
         // position & bounds of the active Layer
         Amg::Transform3D*  activeLayerTransform = new Amg::Transform3D;
+        bool weOwnActiveLayerTransform=true;
         (*activeLayerTransform) = Amg::Translation3D(0.,0.,discZpos[discCounter]);
        
         Trk::DiscBounds* activeLayerBounds    = new Trk::DiscBounds(rMin,rMax);
@@ -882,22 +886,27 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
             olDescriptor = new InDet::PixelOverlapDescriptor;
         //else olDescriptor = new  InDet::SCT_OverlapDescriptor;
 	else {
-	  std::vector<Trk::BinUtility*>* BinUtils = new std::vector<Trk::BinUtility*>;
+	  std::vector<Trk::BinUtility*>* binUtils = new std::vector<Trk::BinUtility*>;
 	  if (singleBinUtils) {
 	    std::vector<Trk::BinUtility*>::iterator binIter = singleBinUtils->begin();
-	    for ( ; binIter != singleBinUtils->end(); ++binIter)
-	      BinUtils->push_back((*binIter)->clone());
+	    for ( ; binIter != singleBinUtils->end(); ++binIter){
+	      binUtils->push_back((*binIter)->clone());
+	    }
 	  }
-	  olDescriptor = new  InDet::DiscOverlapDescriptor(currentBinnedArray, BinUtils);
+	  //DiscOverlapDescriptor takes possession of binUtils, will delete it on destruction.
+	  // but *does not* manage currentBinnedArray.
+	  olDescriptor = new  InDet::DiscOverlapDescriptor(currentBinnedArray, binUtils);
 	}
         
-        // layer creation
+        // layer creation; deletes currentBinnedArray in baseclass 'Layer' upon destruction
+        // activeLayerTransform deleted in 'Surface' baseclass
         Trk::DiscLayer* activeLayer = new Trk::DiscLayer(activeLayerTransform,
                                                          activeLayerBounds,
                                                          currentBinnedArray,
                                                          *layerMaterial,
                                                          thickness,
                                                          olDescriptor);
+        weOwnActiveLayerTransform=false;
         // cleanup
         delete layerMaterial;
         // register the layer to the surfaces --- if necessary to the other sie as well
@@ -918,7 +927,15 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         } else 
             discLayers->push_back(activeLayer);
        // increase the disc counter by one
-       ++discCounter;     
+       ++discCounter;
+       if (weOwnSingleBinUtils){
+         delete singleBinUtils;
+         singleBinUtils=nullptr;
+       }
+       if (weOwnActiveLayerTransform){
+        delete activeLayerTransform;
+        activeLayerTransform=nullptr;
+       }
   }  
 
   // multiply the check modules for SCT case

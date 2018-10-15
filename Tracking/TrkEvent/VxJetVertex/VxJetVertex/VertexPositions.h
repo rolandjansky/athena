@@ -27,8 +27,10 @@ namespace Trk {
   public:
     VertexPositions(); //!< default constructor
     VertexPositions(const Amg::VectorX &p); //!< constructor with variable-size vector
-    VertexPositions(const VertexPositions& );  //!< copy constructor
-    VertexPositions &operator= (const VertexPositions &);  //!< Assignment operator
+    VertexPositions(const VertexPositions& ) = default;  //!< copy constructor  
+    VertexPositions(VertexPositions&& ) = default;  //!< move constructor
+    VertexPositions &operator= (const VertexPositions &) = default; //!< Assignment operator
+    VertexPositions &operator= (VertexPositions &&) = default;  //!< move Assignment operator
     
     /** Output Method for MsgStream, to be overloaded by child classes */
     virtual MsgStream& dump(MsgStream& sl) const;

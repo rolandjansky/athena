@@ -17,7 +17,8 @@ public:
   /// @{
 
   /// A hook for Athena algorithms
-  virtual StatusCode execute();
+  virtual StatusCode execute() const;
+  virtual StatusCode execute (const EventContext& ctx) const;
 
   /** Converts a @c McEventCollection into an @c TruthParticleContainer (ie:
    *  converts it into an AOD compliant collection).

@@ -14,6 +14,7 @@
 #include "G4AtlasRunManager.h"
 
 // Geant4 includes
+#include "G4StateManager.hh"
 #include "G4TransportationManager.hh"
 #include "G4RunManagerKernel.hh"
 #include "G4EventManager.hh"
@@ -28,8 +29,9 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 // Athena includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "EventInfo/EventInfo.h"
-#include "CxxUtils/make_unique.h"
 #include "MCTruthBase/TruthStrategyManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
@@ -44,27 +46,6 @@ static std::once_flag releaseGeoModelOnceFlag;
 
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_libList("")
-  , m_physList("")
-  , m_fieldMap("")
-  , m_rndmGen("athena")
-  , m_releaseGeoModel(true)
-  , m_recordFlux(false)
-  , m_killAbortedEvents(true)
-  , m_flagAbortedEvents(false)
-  , m_inputTruthCollection("BeamTruthEvent")
-  , m_outputTruthCollection("TruthEvent")
-  , m_useMT(false)
-  , m_rndmGenSvc("AthRNGSvc", name)
-  , m_g4atlasSvc("G4AtlasSvc", name)
-  , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
-  , m_detGeoSvc("DetectorGeometrySvc", name)
-  , m_inputConverter("ISF_InputConverter",name)
-  , m_truthRecordSvc("ISF_TruthRecordSvc", name)
-  , m_geoIDSvc("ISF_GeoIDSvc", name)
-  , m_physListTool("PhysicsListToolBase")
-  , m_senDetTool("SensitiveDetectorMasterTool")
-  , m_fastSimTool("FastSimulationMasterTool")
 {
   declareProperty( "Dll", m_libList);
   declareProperty( "Physics", m_physList);
@@ -74,28 +55,12 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty( "RecordFlux", m_recordFlux);
   declareProperty( "KillAbortedEvents", m_killAbortedEvents);
   declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
-  declareProperty( "InputTruthCollection", m_inputTruthCollection);
-  declareProperty( "OutputTruthCollection", m_outputTruthCollection);
+  declareProperty("G4Commands", m_g4commands, "Commands to send to the G4UI");
+  // Multi-threading specific settings
+  declareProperty("MultiThreading", m_useMT, "Multi-threading specific settings");
 
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
-  // Commands to send to the G4UI
-  declareProperty("G4Commands", m_g4commands);
-  // Multi-threading specific settings
-  declareProperty("MultiThreading", m_useMT=false);
-  // ServiceHandle properties
-  declareProperty("AtRndmGenSvc", m_rndmGenSvc);
-  declareProperty("G4AtlasSvc", m_g4atlasSvc );
-  declareProperty("UserActionSvc", m_userActionSvc);
-  declareProperty("GeoIDSvc", m_geoIDSvc);
-  declareProperty("InputConverter",        m_inputConverter);
-  declareProperty("TruthRecordService", m_truthRecordSvc);
-  declareProperty("DetGeoSvc", m_detGeoSvc);
-  // ToolHandle properties
-  declareProperty("SenDetMasterTool", m_senDetTool);
-  declareProperty("FastSimMasterTool", m_fastSimTool);
-  declareProperty("PhysicsListTool", m_physListTool);
-
 }
 
 
@@ -104,6 +69,11 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode G4AtlasAlg::initialize()
 {
   ATH_MSG_DEBUG("Start of initialize()");
+
+  // Input/Ouput Keys
+  ATH_CHECK( m_inputTruthCollectionKey.initialize());
+  ATH_CHECK( m_outputTruthCollectionKey.initialize());
+
   // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
@@ -199,8 +169,10 @@ void G4AtlasAlg::initializeOnce()
   }
 
   // Send UI commands
+  ATH_MSG_DEBUG("G4 Command: Trying at the end of initializeOnce()");
   for (auto g4command : m_g4commands) {
-    ui->ApplyCommand( g4command );
+    int returnCode = ui->ApplyCommand( g4command );
+    commandLog(returnCode, g4command);
   }
 
   // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
@@ -309,14 +281,23 @@ StatusCode G4AtlasAlg::execute()
   }
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
-  if (!m_inputTruthCollection.isValid()) {
-    ATH_MSG_FATAL("Unable to read input GenEvent collection '" << m_inputTruthCollection.key() << "'");
+  SG::ReadHandle<McEventCollection> inputTruthCollection(m_inputTruthCollectionKey);
+  if (!inputTruthCollection.isValid()) {
+    ATH_MSG_FATAL("Unable to read input GenEvent collection " << inputTruthCollection.name() << " in store " << inputTruthCollection.store());
     return StatusCode::FAILURE;
   }
+  ATH_MSG_DEBUG("Found input GenEvent collection " << inputTruthCollection.name() << " in store " << inputTruthCollection.store());
   // create copy
-  m_outputTruthCollection = CxxUtils::make_unique<McEventCollection>(*m_inputTruthCollection);
-  G4Event *inputEvent(nullptr);
-  ATH_CHECK( m_inputConverter->convertHepMCToG4Event(*m_outputTruthCollection, inputEvent, false) );
+  SG::WriteHandle<McEventCollection> outputTruthCollection(m_outputTruthCollectionKey);
+  ATH_CHECK(outputTruthCollection.record(std::make_unique<McEventCollection>(*inputTruthCollection)));
+  if (!outputTruthCollection.isValid()) {
+    ATH_MSG_FATAL("Unable to record output GenEvent collection " << outputTruthCollection.name() << " in store " << outputTruthCollection.store());
+    return StatusCode::FAILURE;
+
+  }
+  ATH_MSG_DEBUG("Recorded output GenEvent collection " << outputTruthCollection.name() << " in store " << outputTruthCollection.store());
+  G4Event *inputEvent{};
+  ATH_CHECK( m_inputConverter->convertHepMCToG4Event(*outputTruthCollection, inputEvent, false) );
 
   bool abort = false;
   // Worker run manager
@@ -394,4 +375,23 @@ void G4AtlasAlg::releaseGeoModel()
   }
   m_releaseGeoModel=false; // Don't do that again...
   return;
+}
+
+void G4AtlasAlg::commandLog(int returnCode, const std::string& commandString) const
+{
+  switch(returnCode) {
+  case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;
+  case 100: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Command Not Found!"); } break;
+  case 200: {
+    auto* stateManager = G4StateManager::GetStateManager();
+    ATH_MSG_DEBUG("G4 Command: " << commandString << " - Illegal Application State (" <<
+                    stateManager->GetStateString(stateManager->GetCurrentState()) << ")!");
+  } break;
+  case 300: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Range!"); } break;
+  case 400: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Unreadable!"); } break;
+  case 500: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Candidates!"); } break;
+  case 600: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Alias Not Found!"); } break;
+  default: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Unknown Status!"); } break;
+  }
+
 }

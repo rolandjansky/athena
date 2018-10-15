@@ -123,6 +123,25 @@ atlas_add_executable( TIDAsb
                       LINK_LIBRARIES  Readcards  )
 
 
+# Disable naming convention checker.
+# FIXME: This should be fixed properly once run2 is finished.
+if( ${CMAKE_CXX_FLAGS} MATCHES "libchecker_gccplugins" )
+  set_target_properties( Resplot PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( Readcards PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDA PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAcomputils PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAruntool PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAcpucost PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAsb PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAreader PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDArefit PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAcomparitor PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDArdict PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAlistroot PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAskim PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAfastadd PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+endif()
+
 # Install files from the package:
 atlas_install_runtime( share/TIDA*.dat share/Test*.dat share/TIDA*.py )
 

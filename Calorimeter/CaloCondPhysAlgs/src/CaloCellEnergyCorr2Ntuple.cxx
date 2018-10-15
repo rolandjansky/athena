@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloCondPhysAlgs/CaloCellEnergyCorr2Ntuple.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "CaloCellEnergyCorr2Ntuple.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
@@ -55,10 +50,9 @@ StatusCode CaloCellEnergyCorr2Ntuple::initialize()
 
   ATH_CHECK( service("THistSvc",m_thistSvc) );
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
-
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
 
   ATH_CHECK( detStore()->regHandle(m_AttrListColl,m_key) );
 
@@ -98,18 +92,21 @@ StatusCode CaloCellEnergyCorr2Ntuple::stop()
   ATH_MSG_INFO ( "  Run Number, lumiblock " << m_runNumber << " " << m_lumiBlock );
 
   const coral::Blob& blob=(*m_AttrListColl)["CaloCondBlob16M"].data<coral::Blob>();
-  const CaloCondBlobFlt* flt= CaloCondBlobFlt::getInstance(blob);
+  std::unique_ptr<const CaloCondBlobFlt> flt (CaloCondBlobFlt::getInstance(blob));
 
   int nobj=flt->getNObjs();
   int nchan=flt->getNChans();
   ATH_MSG_INFO ( "NObjs: "<<nobj<<" nChans: "<<nchan<<" nGains: "<<flt->getNGains() );
+
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
-       const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+       const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
 
        m_Hash =  i;
        m_OffId = (int)(id.get_identifier32().get_compact());
@@ -139,8 +136,6 @@ StatusCode CaloCellEnergyCorr2Ntuple::stop()
        m_tree->Fill();
 
   }        // loop over cells
-
-  delete flt;
 
   return StatusCode::SUCCESS;
  }

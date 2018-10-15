@@ -13,7 +13,7 @@ def _larCablingCfg(configFlags,algo,folder):
                    "/LAR/Identifier/CalibIdMap":"LARIdentifierCalibIdMap-012"
                    }
 
-    if configFlags.get("global.isMC"):
+    if configFlags.Input.isMC:
         db='LAR_OFL'
         if folder in tagsperFolder:
             ft=tagsperFolder[folder]
@@ -23,8 +23,8 @@ def _larCablingCfg(configFlags,algo,folder):
         folderwithtag=folder
 
     result.addCondAlgo(algo(ReadKey=folder))
-    result.addConfig(addFolders,configFlags,folderwithtag,className="AthenaAttributeList",detDb=db)
-    return result
+    result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db))
+    return result,None
 
 
 def LArOnOffIdMappingCfg(configFlags):

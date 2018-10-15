@@ -3,9 +3,8 @@
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm
 
 ################################################################################
-# Tools/algorithms/services from MuonCnvExample.MuonReadBSConfig.py
+# Standard BS algorithms
 ################################################################################
-
 addTool( "MuonCnvExample.MuonReadBSConfig.MdtROD_Decoder",         "MdtROD_Decoder" )
 addTool( "MuonCnvExample.MuonReadBSConfig.MdtRawDataProviderTool", "MdtRawDataProviderTool" )
 addAlgorithm( "Muon::MdtRawDataProvider",                          "MuonMdtRawDataProvider" )
@@ -36,5 +35,7 @@ addService( "MuonCnvExample.MuonCalibConfig.MdtCalibrationSvc", "MdtCalibrationS
 # Tools/algorithms/services from MuonCnvExample.MuonCnvConfig
 ################################################################################
 addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool", "CscDigitToCscRDOTool" )
+addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool2", "CscDigitToCscRDOTool2" )
+addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool4", "CscDigitToCscRDOTool4" )
 addAlgorithm( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDO", "CscDigitToCscRDO" )
 

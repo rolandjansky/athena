@@ -16,15 +16,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 
-//#include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 //#include "xAODTau/TauJetContainer.h"
 //#include "xAODEgamma/ElectronContainer.h"
-
-/**
- * @short Forward declarations
- */
-namespace TauAnalysisTools { class ITauOverlappingElectronLLHDecorator; }
 
 /**
  * @class TauOverlappingElectronLLHDecoratorWrapper

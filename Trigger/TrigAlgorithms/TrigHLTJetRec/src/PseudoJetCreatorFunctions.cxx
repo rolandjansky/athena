@@ -13,6 +13,7 @@ namespace PseudoJetCreatorFunctions{
 
   class IRejecter{
   public:
+    virtual ~IRejecter() {}
     virtual bool operator()(const xAOD::IParticle*) = 0;
   };
 
@@ -118,6 +119,7 @@ namespace PseudoJetCreatorFunctions{
 
   class  IMomentumGetter {
   public:
+    virtual ~IMomentumGetter() {}
     virtual xAOD::IParticle::FourMom_t 
     operator()(const xAOD::IParticle*) const = 0;
   };

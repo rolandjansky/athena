@@ -13,17 +13,9 @@
 //#####################################################
                                  
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "TBBeamQuality.h"
+#include "TBBeamQualityTool.h"
 #include "TBEvent/TBEventInfo.h"
-
-#include "TBRec/TBBeamQualityTool.h"
-#include "TBRec/TBBeamQuality.h"
 
 
 TBBeamQuality::TBBeamQuality(const std::string& name,  

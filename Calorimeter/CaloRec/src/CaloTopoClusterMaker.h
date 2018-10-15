@@ -39,8 +39,8 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "Identifier/IdentifierHash.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
+#include "CaloInterface/ICalorimeterNoiseTool.h"
 
-class ICalorimeterNoiseTool;
 class Identifier; 
 class CaloDetDescrManager; 
 class CaloDetDescrElement;

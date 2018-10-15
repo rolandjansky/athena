@@ -19,14 +19,17 @@ topSequence = AlgSequence()
 #######                  Tracking Realted Packaages                    ########
 ###############################################################################
 ###############################################################################
+# SiLorentzAngleTool
+from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 #
 # load SCT ROT creator, we overwrite the defaults for it
 #
 from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
 SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("SCT_ClusterOnTrackTool",
-                                                          CorrectionStrategy = 0,  # do correct position bias
-                                                          ErrorStrategy      = 2)  # do use phi dependent errors
-from AthenaCommon.AppMgr import ToolSvc
+                                                        CorrectionStrategy = 0,  # do correct position bias
+                                                        ErrorStrategy      = 2,  # do use phi dependent errors
+                                                        LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 ToolSvc += SCT_ClusterOnTrackTool
 #
 # default ROT creator, not smart !
@@ -167,14 +170,6 @@ GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtra
 ToolSvc += GsfExtrapolator
 
 
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__BremFind
-BremFind = Trk__BremFind(name = 'BremFind',
-                         UseCalibration = True,
-                         ValidationMode = True )
-
-
-ToolSvc += BremFind
-
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
 GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitter',
                                           ToolForExtrapolation    = GsfExtrapolator,
@@ -185,8 +180,6 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                           RefitOnMeasurementBase  = True,
                                           DoHitSorting            = True,
                                           ValidationMode          = False,
-                                          BremFind                = BremFind,
-                                          runBremFinder           = False,
                                           OutputLevel = 3)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter

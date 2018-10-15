@@ -16,7 +16,7 @@
 #include <cassert>
 #include "GaudiKernel/MsgStream.h"
 #include <ostream>
-#include<limits>
+#include <limits>
 
 
 // Constructor with parameters:
@@ -109,6 +109,25 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCir
 
 //assignment operator:
 InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const InDet::TRT_DriftCircleOnTrack& rot)
+{ 
+  if ( &rot != this) {
+    Trk::RIO_OnTrack::operator= (rot);
+    delete m_globalPosition;
+    m_globalPosition        = (rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0);
+    m_rio                   = rot.m_rio;
+    m_localAngle            = rot.m_localAngle;
+    m_positionAlongWire     = rot.m_positionAlongWire;
+    m_idDE                  = rot.m_idDE;
+    m_status                = rot.m_status;
+    m_highLevel             = rot.m_highLevel;
+    m_timeOverThreshold     = rot.m_timeOverThreshold;
+    m_detEl                 = rot.m_detEl;
+   }
+  return *this;
+}
+
+//move assignment operator:
+InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::TRT_DriftCircleOnTrack&& rot)
 { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);

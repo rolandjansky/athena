@@ -13,12 +13,12 @@
 #ifndef SISPACEPOINTFORMATION_SIELEMENTPROPERTIESTABLE_H
 #define SISPACEPOINTFORMATION_SIELEMENTPROPERTIESTABLE_H
 
-#include <vector>
-#include "Identifier/IdentifierHash.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "SiSpacePointFormation/SiElementProperties.h"
 
-class SiDetectorElementCollection;
+#include "Identifier/IdentifierHash.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
+#include <vector>
 
 namespace InDet {
 
@@ -53,4 +53,10 @@ SiElementPropertiesTable::halfWidth(IdentifierHash waferID) const
 }
 
 }
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( InDet::SiElementPropertiesTable , 713446 , 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( InDet::SiElementPropertiesTable , 92686144 );
+
 #endif // SISPACEPOINTFORMATION_SIELEMENTPROPERTIESTABLE_H

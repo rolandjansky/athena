@@ -77,6 +77,10 @@ public:
   StatusCode 
   retrieveOriginal(const KEY& dataKey, const DATA*& data);
 
+  template <typename KEY, typename DATA>
+  StatusCode
+  retrieveSingleSubEvtData(const KEY& dataKey, const DATA*& data, int bunchXing, SubEventIterator iEvt);
+
   ///retrieve keyed DATA objs for all sub-events and attach a time to them
   template <typename KEY, typename TIMEDDATA>
   StatusCode 

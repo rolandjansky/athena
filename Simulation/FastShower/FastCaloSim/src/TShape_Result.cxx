@@ -34,6 +34,11 @@ TShape_Result::TShape_Result(const char* name, const char* title):TNamed(name,ti
 {
 }
 
+TShape_Result::~TShape_Result() {
+  delete m_fitsplines_EnergyDistribution;
+  delete m_fitsplines_EtaPhiAspectRatio;
+}
+
 //______________________________________________________________________________
 void TShape_Result::Streamer(TBuffer &R__b)
 {

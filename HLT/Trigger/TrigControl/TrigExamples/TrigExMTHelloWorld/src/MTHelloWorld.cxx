@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigExMTHelloWorld/MTHelloWorld.h"
@@ -64,18 +64,6 @@ StatusCode MTHelloWorld::execute()
 StatusCode MTHelloWorld::finalize()
 {
    ATH_MSG_INFO( "finalize()");
-   return StatusCode::SUCCESS;
-}
-
-StatusCode MTHelloWorld::beginRun()
-{
-   ATH_MSG_INFO( "beginRun()");
-   return StatusCode::SUCCESS;
-}
-
-StatusCode MTHelloWorld::endRun()
-{
-   ATH_MSG_INFO( "endRun()");
    return StatusCode::SUCCESS;
 }
 

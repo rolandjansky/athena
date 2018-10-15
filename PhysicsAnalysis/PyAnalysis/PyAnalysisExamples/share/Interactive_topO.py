@@ -4,7 +4,6 @@ EventSelector = Service( "EventSelector" )
 
 # The AOD input file
 EventSelector.InputCollections = [ "AOD.pool.root" ]
-EventSelector.BackNavigation = TRUE
 
 # POOL converters
 include( "ParticleBuilderOptions/ESD_PoolCnv_jobOptions.py" )

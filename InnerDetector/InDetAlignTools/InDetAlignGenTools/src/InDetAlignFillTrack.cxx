@@ -35,14 +35,14 @@
 
 
 #include "TrkToolInterfaces/ITruthToTrack.h"
-
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 #include "InDetAlignGenTools/InDetAlignFillTrack.h"
-
+#include "HepPDT/ParticleDataTable.hh"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 
@@ -197,9 +197,9 @@ StatusCode InDetAlignFillTrack::FillTrack() {
   ATH_MSG_DEBUG(" event " << m_events);
   StatusCode sc;
 
-  const TrackCollection* tracks = new TrackCollection;
-  const TrackCollection* Uptracks = new TrackCollection;
-  const TrackCollection* Lowtracks = new TrackCollection;
+  const TrackCollection* tracks;// = new TrackCollection;
+  const TrackCollection* Uptracks;// = new TrackCollection;
+  const TrackCollection* Lowtracks;// = new TrackCollection;
 
   // retrieve all tracks from TDS
   ATH_CHECK(evtStore()->retrieve(tracks, m_inputCol));
@@ -542,9 +542,10 @@ StatusCode InDetAlignFillTrack::FillTrack() {
   }
 
   if (m_events < 0) m_events = 0;
-  delete tracks;
-  delete Uptracks;
-  delete Lowtracks;
+  // no deletion because StoreGate owns these pointers.
+  //delete tracks;
+  //delete Uptracks;
+  //delete Lowtracks;
   return StatusCode::SUCCESS;
 }
 

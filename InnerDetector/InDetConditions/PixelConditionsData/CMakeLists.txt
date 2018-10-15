@@ -6,13 +6,14 @@
 atlas_subdir( PixelConditionsData )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/Identifier
-                          InnerDetector/InDetConditions/PixelCoralClientUtils
-                          PRIVATE
-                          GaudiKernel )
+atlas_depends_on_subdirs( 
+  PUBLIC
+  DetectorDescription/Identifier
+  Database/AthenaPOOL/AthenaPoolUtilities
+  InnerDetector/InDetConditions/PixelCoralClientUtils
+  PRIVATE
+  Control/AthenaKernel
+  GaudiKernel )
 
 # External dependencies:
 find_package( CLHEP )
@@ -24,6 +25,6 @@ atlas_add_library( PixelConditionsData
                    PUBLIC_HEADERS PixelConditionsData
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthContainers Identifier PixelCoralClientUtils
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GaudiKernel )
+                   LINK_LIBRARIES Identifier PixelCoralClientUtils
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities GaudiKernel )
 

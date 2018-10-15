@@ -11,7 +11,7 @@
 #include "InDetIdentifier/SiliconID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthContainers/DataVector.h"
-#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
@@ -26,12 +26,11 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
-#include "TMath.h"
 #include "TString.h"
 
 
-#include <ext/functional>
 //================ Constructor =================================================
 
 InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(const std::string& t,
@@ -726,86 +725,56 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
         if ( !clus->tooBigToBeSplit() )  {                
           tsosDetails.splitProb1[index] = clus->splitProbability1();
           tsosDetails.splitProb2[index] = clus->splitProbability2();      
-	  //if(clus->isSplit()) numissplit++;
         } else {
           tsosDetails.splitProb1[index] = 0.51;
           tsosDetails.splitProb2[index] = 0.51;        
-	  //numissplit++;
         }
       }
     }
 
 
     if (isSCT) {
-
       if(m_doSCTSplitting){
-	ATH_MSG_DEBUG ("Entered doSCTSplitting.  Getting cluster parameters.");
+	      ATH_MSG_DEBUG ("Entered doSCTSplitting.  Getting cluster parameters.");
+	      const InDet::SCT_Cluster* clussct = dynamic_cast <const InDet::SCT_Cluster*> (rot->prepRawData());
+	      if (!clussct){
+	        ATH_MSG_WARNING ("---> Cast to SCT cluster failed, should not happen !");
+          tsosDetails.type[index]    = RejectedHit;
+          continue;
+	      }
+	      if( std::abs((*iTsos)->surface().normal()(2)) < 0.1 ){
+        float px = (*iTsos)->trackParameters()->momentum()(0);
+        float py = (*iTsos)->trackParameters()->momentum()(1);
+        float nx = (*iTsos)->surface().normal()(0);
+        float ny = (*iTsos)->surface().normal()(1);
 
-	const InDet::SCT_Cluster* clussct = dynamic_cast <const InDet::SCT_Cluster*> (rot->prepRawData());
-	if( abs((*iTsos)->surface().normal()(2)) < 0.1 ){
+        //lphi will be the momentum's angle in the x-y plane minus the surface's normal angle
+        double lphi = std::atan2( py, px ) - std::atan2( ny, nx );
 
-	  //layer info; not used now but may be used later
-	  //float sx = (*iTsos)->surface().center()(0);
-	  //float sy = (*iTsos)->surface().center()(1);
-	  //float sz = (*iTsos)->surface().position()(2);
-	  //float sR = sqrt( sx*sx + sy*sy );
+        double diff = ((285*std::abs( std::tan(lphi)-std::tan(-0.07)) ) -  80*clussct->width().colRow()(0));
+        ATH_MSG_DEBUG ("Calculated width - observed width? "<< diff );
 
-	  //int layer;
-	  //if(sR < 290) layer = -1;
-	  //if(sR > 290 && sR < 310) layer = 0;
-	  //if(sR > 360 && sR < 380) layer = 1;
-	  //if(sR > 435 && sR < 455) layer = 2;
-	  //if(sR > 500 && sR < 525) layer = 3;
-	  //if(sR > 525) layer = 4;
+        //track pT would be sqrt( ( px * px ) + ( py * py ) )
+        //isStereo?: (*iTsos)->surface().isStereo()
+        //Number of split pixel clusters: numissplit <- would have to uncomment stuff out from above
 
-	  float px = (*iTsos)->trackParameters()->momentum()(0);
-	  float py = (*iTsos)->trackParameters()->momentum()(1);
-	  float nx = (*iTsos)->surface().normal()(0);
-	  float ny = (*iTsos)->surface().normal()(1);
-
-	  //lphi will be the momentum's angle in the x-y plane minus the surface's normal angle
-	  double lphi = atan2( py, px ) - atan2( ny, nx );
-
-	  double diff = ((285*abs( tan(lphi)-tan(-0.07)) ) -  80*clussct->width().colRow()(0));
-	  ATH_MSG_DEBUG ("Calculated width - observed width? "<< diff );
-
-	  //track pT would be sqrt( ( px * px ) + ( py * py ) )
-	  //isStereo?: (*iTsos)->surface().isStereo()
-	  //Number of split pixel clusters: numissplit <- would have to uncomment stuff out from above
-
-	  if(abs(diff) > 80){
-	    tsosDetails.splitProb1[index] = .99;
-	    tsosDetails.splitProb2[index] = .99;
-	  }
-	  else{
-	    tsosDetails.splitProb1[index] = 0;
-	    tsosDetails.splitProb2[index] = 0;
-	  }
-	}//This ends the "isBarrel" if statement; no endcap clusters are split
-	else{
-	  tsosDetails.splitProb1[index] = 0;
-	  tsosDetails.splitProb2[index] = 0;
-	}
-	//const InDet::SCT_Cluster* sctClus = dynamic_cast <const InDet::SCT_Cluster*> (rot->prepRawData());
-
-	//if ( !sctClus ) {
-	//  ATH_MSG_WARNING ("---> Cast to SCT cluster failed, should not happen !");
-	//  tsosDetails.type[index]    = RejectedHit;
-	//  continue; 
-	//} 
-
-	// If SCT cluster is not too big to be split  
-	//if ( sctClus->isShareable() )  {              
-	//  // We allow the cluster to be shared with one other track
-	//  tsosDetails.splitProb1[index] = sctClus->isShareable() * 0.51; 
-	//  tsosDetails.splitProb2[index] = sctClus->isShareable() * 0.;
-	//}
-
+        if(std::abs(diff) > 80){
+          tsosDetails.splitProb1[index] = .99;
+          tsosDetails.splitProb2[index] = .99;
+        }else{
+          tsosDetails.splitProb1[index] = 0;
+          tsosDetails.splitProb2[index] = 0;
+        }
+      }//This ends the "isBarrel" if statement; no endcap clusters are split
+	      else {
+	        tsosDetails.splitProb1[index] = 0;
+	        tsosDetails.splitProb2[index] = 0;
+	      }
       }
       //Always set to 0 if splitting not allowed
-      else{
-	tsosDetails.splitProb1[index] = 0;
-	tsosDetails.splitProb2[index] = 0;
+       else{
+	       tsosDetails.splitProb1[index] = 0;
+         tsosDetails.splitProb2[index] = 0;
       }
     } 
 
@@ -1460,7 +1429,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation(T
 //==========================================================================================
 bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::TrackParameters& Tp) const
 {
-  const double pi = M_PI, pi2 = 2.*M_PI;
+  constexpr double pi = M_PI;
+  constexpr double pi2 = 2.*M_PI;
   if(m_hadF.empty()) return false;
 
   auto f = m_hadF.begin(), fe = m_hadF.end();
@@ -1472,14 +1442,14 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::
   double E = Tp.eta();
 
   for(; f!=fe; ++f) {
-    double df = fabs(F-(*f));
-    if(df > pi        ) df = fabs(pi2-df);
+    double df = std::fabs(F-(*f));
+    if(df > pi        ) df = std::fabs(pi2-df);
     if(df < m_phiWidth) {
       //Correct eta of cluster to take into account the z postion of the track
       double newZ   = *z - Tp.position().z();
-      double newEta =  atanh( newZ / sqrt( (*r) * (*r) + newZ*newZ ) );
+      double newEta =  std::atanh( newZ / std::sqrt( (*r) * (*r) + newZ*newZ ) );
  
-      double de = fabs(E-newEta);
+      double de = std::fabs(E-newEta);
       if(de < m_etaWidth) return true;
 
     }
@@ -1495,7 +1465,8 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::
 bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::TrackParameters& Tp) const
 {
 
-  const double pi = M_PI, pi2 = 2.*M_PI;
+  constexpr double pi = M_PI;
+  constexpr double pi2 = 2.*M_PI;
   if(m_emF.empty()) return false;
 
   auto f = m_emF.begin(), fe = m_emF.end();
@@ -1509,14 +1480,14 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::T
   double Z = Tp.position().z();
 
   for(; f!=fe; ++f) {
-    double df = fabs(F-(*f));
-    if(df > pi        ) df = fabs(pi2-df);
+    double df = std::fabs(F-(*f));
+    if(df > pi        ) df = std::fabs(pi2-df);
     if(df < m_phiWidthEm) {
       //Correct eta of cluster to take into account the z postion of the track
       double newZ   = *z - Z;
       double newR   = *r - R;
-      double newEta =  atanh( newZ / sqrt( newR*newR + newZ*newZ ) );
-      double de = fabs(E-newEta);
+      double newEta =  std::atanh( newZ / std::sqrt( newR*newR + newZ*newZ ) );
+      double de = std::fabs(E-newEta);
        
       if(de < m_etaWidthEm) return true;
     }
@@ -1625,15 +1596,15 @@ bool  InDet::InDetDenseEnvAmbiTrackSelectionTool::isNearbyTrackCandidate(const T
 
 
   double dPhi = paraA->parameters()[Trk::phi] - paraB->parameters()[Trk::phi];
-  if(dPhi > TMath::Pi())
-    dPhi -= 2* TMath::Pi();
+  if(dPhi > M_PI)
+    dPhi -= 2* M_PI;
 
-  if(dPhi < -TMath::Pi())
-    dPhi += 2* TMath::Pi();
+  if(dPhi < -M_PI)
+    dPhi += 2* M_PI;
 
-  double dEta = fabs(1./tan(paraA->parameters()[Trk::theta]) - 1./tan(paraB->parameters()[Trk::theta]));
+  double dEta = std::fabs(1./std::tan(paraA->parameters()[Trk::theta]) - 1./std::tan(paraB->parameters()[Trk::theta]));
 
-  if(fabs(dlocalX) > m_pairDeltaX || fabs(dlocalY) > m_pairDeltaY || fabs(dPhi) > m_pairDeltaPhi || fabs(dEta) > m_pairDeltaEta)
+  if(std::fabs(dlocalX) > m_pairDeltaX || std::fabs(dlocalY) > m_pairDeltaY || std::fabs(dPhi) > m_pairDeltaPhi || std::fabs(dEta) > m_pairDeltaEta)
     pass = false;
 
 

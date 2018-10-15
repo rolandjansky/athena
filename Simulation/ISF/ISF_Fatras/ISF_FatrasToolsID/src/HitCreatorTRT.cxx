@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasToolsID/HitCreatorTRT.h"
+#include "HitCreatorTRT.h"
 
 // Framework
 #include "GaudiKernel/ISvcLocator.h"

@@ -35,6 +35,7 @@
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "Identifier/HWIdentifier.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -105,6 +106,8 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
                                                           "TileHitCnt", 
                                                           "Input Tile hit container key"};
 
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo",
+                                                      "EventInfo", "Input Event info key"};
 
     SG::WriteHandleKey<TileCellContainer> m_MBTSContainerKey{this, "MBTSContainer", 
                                                              "MBTSContainer", 

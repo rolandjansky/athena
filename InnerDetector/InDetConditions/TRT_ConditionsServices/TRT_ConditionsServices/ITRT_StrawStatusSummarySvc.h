@@ -47,23 +47,21 @@ class ITRT_StrawStatusSummarySvc: virtual public IService
   virtual bool get_pid_status(Identifier) =0;
   virtual void set_track_status(Identifier, bool) =0;
   virtual bool get_track_status(Identifier) =0;
-  virtual StatusCode readFromTextFile(const std::string&) =0;
-  virtual StatusCode writeToTextFile(const std::string& ) const =0;
+  virtual StatusCode readFromTextFile(const std::string& ) =0;
+  virtual StatusCode writeToTextFile(const std::string& ) =0;
   virtual StatusCode streamOutStrawStatObjects () const =0;
   virtual StatusCode registerObjects(std::string, int, int, int, int) const =0;
-  virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS) =0;
-  virtual StrawStatusContainer* getStrawStatusContainer() const =0;
-  virtual StrawStatusContainer* getStrawStatusPermanentContainer() const =0;
-  virtual StrawStatusContainer* getStrawStatusHTContainer() const =0;
+
+  virtual const StrawStatusContainer* getStrawStatusContainer() =0;
+  virtual const StrawStatusContainer* getStrawStatusPermanentContainer() =0;
+  virtual const StrawStatusContainer* getStrawStatusHTContainer() =0;
 
 
-  virtual StatusCode ComputeAliveStraws() =0;
+  virtual void ComputeAliveStraws() =0;
 
-
-
-   virtual int  *getStwTotal()		= 0;	 
-   virtual int **getStwLocal() 		= 0;
-   virtual int **getStwWheel()          = 0;
+  virtual int  *getStwTotal()		= 0;	 
+  virtual int **getStwLocal() 		= 0;
+  virtual int **getStwWheel()           = 0;
 };
 
 

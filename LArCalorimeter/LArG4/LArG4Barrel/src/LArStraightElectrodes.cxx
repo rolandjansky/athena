@@ -27,7 +27,7 @@ LArStraightElectrodes::LArStraightElectrodes(std::string strDetector)
   else                                                    m_parity=1;  // first wave goes down
 
   if (s_theElectrodes==nullptr) {
-    if (strDetector=="")
+    if (strDetector.empty())
       s_theElectrodes=new PhysicalVolumeAccessor("LAr::EMB::STAC",
                                                  "LAr::EMB::Electrode::Straight");
     else
@@ -63,7 +63,7 @@ double LArStraightElectrodes::XCentEle(int stackid, int cellid) const
     return m_xcent[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4ThreeVector& tv=pv->GetTranslation();
@@ -89,7 +89,7 @@ double LArStraightElectrodes::YCentEle(int stackid, int cellid) const
     return m_ycent[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4ThreeVector& tv=pv->GetTranslation();
@@ -112,7 +112,7 @@ double LArStraightElectrodes::YCentEle(int stackid, int cellid) const
 }
 double LArStraightElectrodes::SlantEle(int stackid, int cellid) const
 {
-  int id=cellid+stackid*10000;
+  const int id=cellid+stackid*10000;
   const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
   if (!pv) return 0.;
   const G4RotationMatrix *rm=pv->GetRotation();
@@ -128,7 +128,7 @@ double LArStraightElectrodes::HalfLength(int stackid, int cellid) const
     return m_halflength[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4LogicalVolume* lv = pv->GetLogicalVolume();

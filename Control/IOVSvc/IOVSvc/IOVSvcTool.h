@@ -167,8 +167,6 @@ public:
     m_ignoredProxies.insert(proxy);
   }
 
-protected:
-
   // Destructor.
   virtual ~IOVSvcTool();
 

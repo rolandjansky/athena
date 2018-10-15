@@ -32,7 +32,9 @@
 
 class Identifier;     
 class GeoAlignableTransform;
+class GeoVAlignmentStore;
 class StoreGateSvc;
+class CondAttrListCollection;
 
 namespace InDetDD {
 
@@ -187,14 +189,16 @@ namespace InDetDD {
 
     /** Set alignable transforms: Amg based */
     virtual bool setAlignableTransformDelta(int level, 
-				                            const Identifier & id, 
-				                            const Amg::Transform3D & delta,
-				                            FrameType frame) const;
+                                            const Identifier & id, 
+                                            const Amg::Transform3D & delta,
+                                            FrameType frame,
+                                            GeoVAlignmentStore* alignStore) const;
 
     /** Set alignable transforms: Amg based */
     bool setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF, 
-					                        const Amg::Transform3D & delta,
-					                        FrameType frame) const;
+                                            const Amg::Transform3D & delta,
+                                            FrameType frame,
+                                            GeoVAlignmentStore* alignStore) const;
 
 
     /** Invalidate cache for all detector elements */
@@ -211,7 +215,9 @@ namespace InDetDD {
     StatusCode alignmentCallback( IOVSVC_CALLBACK_ARGS );
 
     /** Process new global DB folders for L1 and L2 **/
-    bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
+    bool processGlobalAlignment(const std::string &, int level, FrameType frame,
+                                const CondAttrListCollection* obj,
+                                GeoVAlignmentStore* alignStore) const;
  
  private:  
   

@@ -33,6 +33,5 @@ atlas_add_component( CaloCellCorrection
                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel CaloDetDescrLib CaloEvent Identifier )
 
 # Install files from the package:
-atlas_install_headers( CaloCellCorrection )
 atlas_install_python_modules( python/*.py )
 

@@ -69,8 +69,8 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
-  const Trk::CaloExtension* extension = nullptr;
-  if (m_theTrackExtrapolatorTool->caloExtension(*track, extension)) {
+  std::unique_ptr<Trk::CaloExtension> extension = m_theTrackExtrapolatorTool->caloExtension(*track);
+  if (extension.get()!=nullptr) {
 
     /*extract the CurvilinearParameters*/
     const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = extension->caloLayerIntersections();

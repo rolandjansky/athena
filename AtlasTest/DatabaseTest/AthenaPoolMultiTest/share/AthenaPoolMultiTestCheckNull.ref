@@ -1,12 +1,13 @@
 ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
+EventSelector       DEBUG Service base class initialized successfully
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
 EventSelector        INFO Using standard collection ref 
 EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
-ReadData            DEBUG input handles: 0
+ReadData            DEBUG input handles: 2
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
 FullColl            DEBUG Property update for OutputLevel : new value = 2
@@ -32,5 +33,7 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
 FullColl            DEBUG handle() incident type: MetaDataStop
 FullColl.Regist...   INFO Collection Events output: 0
+FullColl.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:CheckNull.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 ReadData             INFO in finalize()
+ReadData            DEBUG Calling destructor
 FullColl            DEBUG In finalize

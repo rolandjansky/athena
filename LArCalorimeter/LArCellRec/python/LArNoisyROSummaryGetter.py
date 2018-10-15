@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
+from AthenaCommon.GlobalFlags  import globalflags
 from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
 from LArCabling.LArCablingAccess import LArOnOffIdMapping
@@ -45,9 +46,9 @@ class LArNoisyROSummaryGetter ( Configured )  :
         theLArNoisyROTool=LArNoisyROTool(CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
-                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs(),
                                          MNBLooseCut=larNoisyROFlags.MNBLooseCut(),
-                                         MNBTightCut=larNoisyROFlags.MNBTightCut()
+                                         MNBTightCut=larNoisyROFlags.MNBTightCut(),
+                                         MNBTight_PsVetoCut=larNoisyROFlags.MNBTight_PsVetoCut()
                                          )
 
 
@@ -57,11 +58,13 @@ class LArNoisyROSummaryGetter ( Configured )  :
         self._LArNoisyROMakerHandle = theLArNoisyROAlg
         theLArNoisyROAlg.OutputKey=self.outputKey()        
         
-
+        if globalflags.DataSource()=='geant4':
+           theLArNoisyROAlg.isMC = True
 
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
+        objKeyStore.addTransient(self.outputType(),self.outputKey())
         
         # now add algorithm to topSequence
         # this should always come at the end

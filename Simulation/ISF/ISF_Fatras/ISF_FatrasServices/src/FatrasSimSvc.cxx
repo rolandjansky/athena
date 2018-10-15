@@ -1,16 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TransportSimSvc.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 // class header include
-#include "ISF_FatrasServices/FatrasSimSvc.h"
+#include "FatrasSimSvc.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 // Remaining ISF include
 #include "ISF_Interfaces/IParticleBroker.h"
 #include "ISF_Interfaces/ITruthSvc.h"

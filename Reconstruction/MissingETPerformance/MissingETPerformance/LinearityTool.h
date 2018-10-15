@@ -46,11 +46,6 @@ public:
 
   inline void SetFolderName(const std::string& folderName) { m_folderName=folderName; }
 
-protected:
-
-   /** Standard destructor */
-   virtual ~LinearityTool( );
-
  private:
   StatusCode linearity(MissingETData *data);
 

@@ -26,7 +26,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include <TMath.h>
+#include <cmath>
 
 using CLHEP::GeV;
 using CLHEP::mm;
@@ -42,12 +42,10 @@ namespace InDet
     , m_iBeamCondSvc ("BeamCondSvc",n)
     , m_magFieldSvc("AtlasFieldSvc",n)
     , m_trtDCTool("InDet::InDetTrtDriftCircleCutTool")
-      // , m_inDetTestBLayerTool("InDet::InDetTestBLayerTool")
     , m_inDetTestBLayerTool("")
     , m_trackSumToolAvailable(true)
     , m_usePtDependentCuts(false)
-      // , m_ptBenchmarks(1, 0) // create with dummy length 1 filled with 0
-      // , m_nSCTValues(1, 0) // same
+
 
   {
     declareInterface<ITrackSelectorTool>(this);
@@ -115,19 +113,7 @@ namespace InDet
     declareProperty("TrtDCCutTool"       , m_trtDCTool);
     declareProperty("InDetTestBLayerTool", m_inDetTestBLayerTool);
     
-    //pt-dependent cuts; default vector values (can be done much smarter, but I want 
-    // to have an explicit code..)
-
-    //   std::vector<float> loc_bench;
-    //   loc_bench.push_back(100.);
-    //   loc_bench.push_back(200.);
-    //   loc_bench.push_back(300.);
    
-    //   std::vector<int> loc_nsct;
-    //   loc_nsct.push_back(2);
-    //   loc_nsct.push_back(4);
-    //   loc_nsct.push_back(6);
-
     declareProperty("UsePtDependentCuts", m_usePtDependentCuts = false);  
     declareProperty("PtBenchmarks"      , m_ptBenchmarks);  
     declareProperty("SCTCutValues"      , m_nSCTValues);  
@@ -138,126 +124,81 @@ namespace InDet
   {}
   
   // ---------------------------------------------------------------------
-  StatusCode  InDetDetailedTrackSelectorTool::initialize()
-  {
-    StatusCode sc = AthAlgTool::initialize();
-    if(sc.isFailure())
-      {
-	msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
-	return StatusCode::FAILURE;
-      }
-    
+  StatusCode  
+  InDetDetailedTrackSelectorTool::initialize(){
     m_trackSumToolAvailable=false;
-    if (!m_trackSumTool.empty())
-      {  
-	if(m_trackSumTool.retrieve().isFailure())
-	  {
-	    msg(MSG::INFO)<<" Unable to retrieve. OK if running on AOD. "<<m_trackSumTool<<endmsg;
-	  }
-	else
-	  {
-	    msg(MSG::INFO)<<"Track summary tool retrieved"<<endmsg;
-	    m_trackSumToolAvailable=true;
-	  }
-      } 
-    
-    if ( m_extrapolator.retrieve().isFailure() ) 
-      {
-	msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endmsg;
-	return StatusCode::FAILURE;
-      }
-    ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-
-    sc = m_iBeamCondSvc.retrieve();
-    if (sc.isFailure())
+    if (!m_trackSumTool.empty()) {  
+	    if(m_trackSumTool.retrieve().isFailure()){
+	      ATH_MSG_INFO(" Unable to retrieve. OK if running on AOD. "<<m_trackSumTool);
+	    }else{
+	      ATH_MSG_INFO("Track summary tool retrieved");
+	      m_trackSumToolAvailable=true;
+	    }
+    } 
+    ATH_CHECK( m_extrapolator.retrieve() );
+    if (m_iBeamCondSvc.retrieve().isFailure()){
       ATH_MSG_INFO("Could not find BeamCondSvc. Will use (0,0,0) if no vertex is given and extrapolation is needed.");
-    
-    if (m_useEtaDepententMinHitTrt || m_useEtaDepententMinHitTrtWithOutliers) 
-      {
-	if(m_trtDCTool.empty()) {
-	  msg(MSG::ERROR)<<" Eta delendent cut on number of TRT hits requested but TrtDCCutTool not specified. "<<endmsg;
-	  return StatusCode::FAILURE;
-	}
-	else if(m_trtDCTool.retrieve().isFailure()) {
-	  msg(MSG::ERROR)<<" Unable to retrieve tool "<<m_trtDCTool<<endmsg;
-	  return StatusCode::FAILURE;
-	}
-	ATH_MSG_INFO("Retrieved tool "<<m_trtDCTool);
-	
-	if(m_useEtaDepententMinHitTrt)
-	  ATH_MSG_INFO("Using eta dependent cut on number of TRT hits.");
-	if(m_useEtaDepententMinHitTrtWithOutliers)
-	  ATH_MSG_INFO("Using eta dependent cut on number of TRT hits + outliers.");
-      }
-    else{
+    }
+    if (m_useEtaDepententMinHitTrt || m_useEtaDepententMinHitTrtWithOutliers){
+	    if(m_trtDCTool.empty()) {
+	      ATH_MSG_ERROR(" Eta delendent cut on number of TRT hits requested but TrtDCCutTool not specified. ");
+	      return StatusCode::FAILURE;
+	    } else if(m_trtDCTool.retrieve().isFailure()) {
+	      ATH_MSG_ERROR(" Unable to retrieve tool "<<m_trtDCTool);
+	      return StatusCode::FAILURE;
+	    }
+	    ATH_MSG_INFO("Retrieved tool "<<m_trtDCTool);
+	    if(m_useEtaDepententMinHitTrt){
+	      ATH_MSG_INFO("Using eta dependent cut on number of TRT hits.");
+	    }
+	    if(m_useEtaDepententMinHitTrtWithOutliers){
+	      ATH_MSG_INFO("Using eta dependent cut on number of TRT hits + outliers.");
+	    }
+    }else{
       m_trtDCTool.disable();
     }
-    
-    if (m_magFieldSvc.retrieve().isFailure()) 
-      {
-	msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
-	return StatusCode::FAILURE;
-      }
-    ATH_MSG_INFO("Retrieved tool "<<m_magFieldSvc);
-    
-    if(m_inDetTestBLayerTool.empty())
-      {
-	msg(MSG::INFO)<<" The BLayerTool not specified, turning off cut. "<<endmsg;
-      }
-    else if ( m_inDetTestBLayerTool.retrieve().isFailure() ) 
-      {
-	msg(MSG::ERROR)<< "Failed to retrieve tool " << m_inDetTestBLayerTool<<endmsg;
-	return StatusCode::FAILURE;
-      } 
+    ATH_CHECK(m_magFieldSvc.retrieve());
+    if(m_inDetTestBLayerTool.empty()){
+	    ATH_MSG_INFO(" The BLayerTool not specified, turning off cut. ");
+    } else {
+      ATH_CHECK( m_inDetTestBLayerTool.retrieve());
+    }
     ATH_MSG_INFO("Using cuts on the number of Silicon hits");
-
-    if(m_usePtDependentCuts) 
-      {
-	//checking whether sizes of cuts and pt interval expressed in vectors match
-	if( m_ptBenchmarks.size() != m_nSCTValues.size())
-	  {
-	    msg(MSG::ERROR)<< "Number of cuts DOES NOT match the number of intervals to apply. Please check jobOptions. "<<endmsg;
-	    return StatusCode::FAILURE;
-	  } else if (m_ptBenchmarks.size() == 0)
-	  {
-	    msg(MSG::ERROR)<< "Zero vectors for number of cuts and pt intervals. Please check jobOptions. "<<endmsg;
-	    return StatusCode::FAILURE;
-	  }//end of vector size protection block   
-      }//end of memory protection 
-    
+    if(m_usePtDependentCuts) {
+	    //checking whether sizes of cuts and pt interval expressed in vectors match
+	    if( m_ptBenchmarks.size() != m_nSCTValues.size()){
+	      ATH_MSG_ERROR( "Number of cuts DOES NOT match the number of intervals to apply. Please check jobOptions. ");
+	      return StatusCode::FAILURE;
+	    } else if (m_ptBenchmarks.empty()){
+	      ATH_MSG_ERROR( "Zero vectors for number of cuts and pt intervals. Please check jobOptions. ");
+	      return StatusCode::FAILURE;
+	    }//end of vector size protection block   
+    }//end of memory protection 
     return StatusCode::SUCCESS;
   }
     
   // ---------------------------------------------------------------------
   StatusCode InDetDetailedTrackSelectorTool::finalize()
   {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
+    ATH_MSG_DEBUG( "Finalize successful" );
     return StatusCode::SUCCESS;
   }
 
   // ---------------------------------------------------------------------
-  bool InDetDetailedTrackSelectorTool::decision(const Trk::Track& track,const Trk::Vertex* vertex) const
-  {
-    const Trk::Perigee* perigeeBeforeExtrapolation=
-      dynamic_cast<const Trk::Perigee*>(track.perigeeParameters());
-    
-    if (perigeeBeforeExtrapolation && m_usePreselectionCuts)
-      {
-	bool preselectionDecision=preselectionBeforeExtrapolation(*perigeeBeforeExtrapolation);
-	if (!preselectionDecision) {
-	  ATH_MSG_DEBUG("Track rejected because of preselection decision!");
-	  return false;
-	}
-      }
-    else if (m_usePreselectionCuts)
-      {
-	ATH_MSG_INFO( " Preselection was requested but cannot be made since no Perigee in Track is available. This is not an error." );
-      }
-
+  bool 
+  InDetDetailedTrackSelectorTool::decision(const Trk::Track& track,const Trk::Vertex* vertex) const{
+    const Trk::Perigee* perigeeBeforeExtrapolation=dynamic_cast<const Trk::Perigee*>(track.perigeeParameters());
+    if (perigeeBeforeExtrapolation && m_usePreselectionCuts){
+	    bool preselectionDecision=preselectionBeforeExtrapolation(*perigeeBeforeExtrapolation);
+	    if (!preselectionDecision) {
+	      ATH_MSG_DEBUG("Track rejected because of preselection decision!");
+	      return false;
+	    }
+    } else if (m_usePreselectionCuts){
+	    ATH_MSG_INFO( " Preselection was requested but cannot be made since no Perigee in Track is available. This is not an error." );
+    }
     const Trk::Vertex* myVertex=vertex;
-    
     //in case no Vertex is provided by the user, beam position will be used if available
-    
     if (myVertex==0) {
       //ATH_MSG_DEBUG( "No vertex given, using beam spot or 0,0,0" );
       if (!m_iBeamCondSvc.empty()) {
@@ -267,7 +208,6 @@ namespace InDet
         myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
       }
     }
-    
     Trk::PerigeeSurface perigeeSurface(myVertex->position());
     const Trk::TrackParameters *firstmeaspar=0;
     for (unsigned int i=0;i<track.trackParameters()->size();i++){
@@ -276,204 +216,163 @@ namespace InDet
         break;
       }
     }
-    
     if (!firstmeaspar) {
       //assumes perigeeParameters exist...
       //no track selection if firstmeas + perigee does not exist !
       firstmeaspar=track.perigeeParameters();
-      if (!firstmeaspar)
-	{
-	  ATH_MSG_WARNING( " First measurment on track is missing. Using perigee Parameters, but they are missing: 0 pointer! Track selection failed " );
-	  //clean up vertex
-	  if (myVertex!=vertex) {
-	    delete myVertex;
-	    myVertex=0;
-	  }
-	  return false;
-	}
+      if (!firstmeaspar){
+	      ATH_MSG_WARNING( " First measurment on track is missing. Using perigee Parameters, but they are missing: 0 pointer! Track selection failed " );
+	      //clean up vertex
+	      if (myVertex!=vertex) {
+	        delete myVertex;
+	        myVertex=0;
+	      }
+	      return false;
+	    }
     }
-   
     const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ); 
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
-        
     if (!extrapolatedPerigee || !extrapolatedPerigee->covariance() ) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
-      if (extrapolatedParameters!=0) {
+      if (extrapolatedParameters) {
         ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
         delete extrapolatedParameters;
+        extrapolatedParameters=nullptr;
       }
     }
     
     //decision based on the track parameters 
     const Trk::RecVertex* recVertex = dynamic_cast<const Trk::RecVertex*>(myVertex);
     bool dec = decision(extrapolatedPerigee, recVertex ? &recVertex->covariancePosition() : 0 );
-    
     if (myVertex!=vertex) {
       delete myVertex;
       myVertex=0;
     }
-
     bool isInTrtAcceptance=true;
-    
-    if (!extrapolatedPerigee || fabs(extrapolatedPerigee->momentum().eta())>m_TrtMaxEtaAcceptance) {
+    if (!extrapolatedPerigee || std::fabs(extrapolatedPerigee->momentum().eta())>m_TrtMaxEtaAcceptance) {
       isInTrtAcceptance=false;
     }
-    
     if (extrapolatedPerigee!=track.perigeeParameters()) {
       delete extrapolatedPerigee;
       extrapolatedPerigee=0;
     }
-    
     if(!dec) { 
       ATH_MSG_DEBUG("Track rejected because of perigee parameters!");
       return false;
     }
-    
     if (m_useTrackQualityInfo) {
-      
       const Trk::FitQuality*  TrkQuality=track.fitQuality();
-      
       if (TrkQuality==0) {
         ATH_MSG_WARNING( "Requested cut on track quality was not possible. Track has no FitQuality object attached. Selection failed." );
         return false;
       }
-      
       if (!decision(TrkQuality)) {
         return false;
       }
     }
-    
     if (m_useTrackSummaryInfo) {
       //number of hits, silicon hits, b-layer
-      
       const Trk::TrackSummary* summary = 0;
-      
       // first ask track for summary
       summary = track.trackSummary();
-      
       if (m_trackSumToolAvailable && summary == 0) {
         // ugly but one needs to cast the const away because the method needs to update the track (the tool is a friend of track)
         Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
         m_trackSumTool->updateTrack(nonConstTrack);
         summary = nonConstTrack.trackSummary();
       }
-      
       if (!m_trackSumToolAvailable) {
         ATH_MSG_WARNING( " No Track Summary Tool available. This should be the case only when running on AOD" );
       }
-
       if (0==summary ) {
         ATH_MSG_WARNING( "Track preselection: cannot create a track summary (but useTrackSummary is true). Selection failed." );
         return false;
       }
-      
       // get the minimum nimber of TRT hits based on eta of the track
       if(m_useEtaDepententMinHitTrt) {
         m_nHitTrt = m_trtDCTool->minNumberDCs( (*track.trackParameters())[0] );
-        if(m_addToMinHitTrt!=0)
+        if(m_addToMinHitTrt!=0){
           m_nHitTrt += m_addToMinHitTrt;
-        else
+        }else{
           m_nHitTrt = (int)((double)m_nHitTrt*m_scaleMinHitTrt);
+        }
       }
-      
       // get the minimum nimber of TRT hits + outliers based on eta of the track
       if(m_useEtaDepententMinHitTrtWithOutliers) {
         m_nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( (*track.trackParameters())[0] );
-        if(m_addToMinHitTrtWithOutliers!=0)
+        if(m_addToMinHitTrtWithOutliers!=0){
           m_nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
-        else
+        }else{
           m_nHitTrtPlusOutliers = (int)((double)m_nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
+        }
       }
-
       if (!decision(summary,m_useSharedHitInfo,isInTrtAcceptance, perigeeBeforeExtrapolation)) {
         summary=0;
         return false;
       }
       summary=0;
     }
-    
-    //all ok 
     return true;  
   }
 
   // ---------------------------------------------------------------------
-  bool InDetDetailedTrackSelectorTool::decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const
-  {
-    
+  bool 
+  InDetDetailedTrackSelectorTool::decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const{
     const Trk::TrackParameters* definintParameters=&(track.definingParameters());
-
-    const Trk::Perigee* perigeeBeforeExtrapolation=
-      dynamic_cast<const Trk::Perigee*>(definintParameters);
-
+    const Trk::Perigee* perigeeBeforeExtrapolation=dynamic_cast<const Trk::Perigee*>(definintParameters);
     if (perigeeBeforeExtrapolation && m_usePreselectionCuts) {
       bool preselectionDecision=preselectionBeforeExtrapolation(*perigeeBeforeExtrapolation);  
       if (!preselectionDecision) {
         ATH_MSG_DEBUG("Track rejected because of preselection decision!");
         return false;
       }
-    }
-    else if (m_usePreselectionCuts) {
+    } else if (m_usePreselectionCuts) {
       ATH_MSG_WARNING( " Preselection was requested but cannot be made since the Perigee is not the defining Parameter of the TrackParticle. This is not an error." );
     }
-
-    
     bool isInTrtAcceptance=true;
-    if (!perigeeBeforeExtrapolation || fabs(perigeeBeforeExtrapolation->momentum().eta())>m_TrtMaxEtaAcceptance) {
+    if (!perigeeBeforeExtrapolation || std::fabs(perigeeBeforeExtrapolation->momentum().eta())>m_TrtMaxEtaAcceptance) {
       isInTrtAcceptance=false;
     }
-    
-
     if (m_useTrackQualityInfo) {
-      
       const Trk::FitQuality*  TrkQuality=track.fitQuality();
-      
       if (TrkQuality==0) {
         ATH_MSG_WARNING( "Requested cut on track quality was not possible. TrackParticleBase has no FitQuality object attached. Selection failed." );
         return false;
       }
-      
       if (!decision(TrkQuality)) {
         return false;
       }
-      
     }
-
     if (m_useTrackSummaryInfo) {
       //number of hits, silicon hits, b-layer
       const Trk::TrackSummary* summary = track.trackSummary();
-      
       if (0==summary ) { 
         ATH_MSG_WARNING( "Track preselection: cannot create a track summary (but useTrackSummary is true). Selection failed." );
         return false;
       }
-      
       if(m_useEtaDepententMinHitTrt) {
         m_nHitTrt = m_trtDCTool->minNumberDCs( (track.trackParameters())[0] );
-        if(m_addToMinHitTrt!=0)
+        if(m_addToMinHitTrt!=0){
           m_nHitTrt += m_addToMinHitTrt;
-        else
+        }else{
           m_nHitTrt = (int)((double)m_nHitTrt*m_scaleMinHitTrt);
+        }
       }
-      
       if(m_useEtaDepententMinHitTrtWithOutliers) {
         m_nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( (track.trackParameters())[0] );
-        if(m_addToMinHitTrtWithOutliers!=0)
+        if(m_addToMinHitTrtWithOutliers!=0){
           m_nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
-        else
+        }else{
           m_nHitTrtPlusOutliers = (int)((double)m_nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
+        }
       }
-      
-      if (!decision(summary, m_useSharedHitInfo, isInTrtAcceptance, perigeeBeforeExtrapolation)) {
-	return false;
+      if ((!perigeeBeforeExtrapolation) or (!decision(summary, m_useSharedHitInfo, isInTrtAcceptance, perigeeBeforeExtrapolation))) {
+	      return false;
       }      
     }
-    
     const Trk::Perigee* extrapolatedPerigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
- 
     const Trk::Vertex* myVertex=vertex;
-
     if (vertex==0) {
-      //ATH_MSG_DEBUG( "No vertex given, using beam spot or 0,0,0" );
       if (!m_iBeamCondSvc.empty()) {
         myVertex=new Trk::RecVertex(m_iBeamCondSvc->beamVtx());
       } else {
@@ -481,27 +380,23 @@ namespace InDet
         myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
       }
     }
-    
     Trk::PerigeeSurface perigeeSurface(myVertex->position());
-    
     const Trk::TrackParameters *firstmeaspar=0;
-    
     for (unsigned int i=0;i<track.trackParameters().size();i++) {
       if ((track.trackParameters())[i]->covariance() &&
-	  !dynamic_cast<const Trk::Perigee*>((track.trackParameters())[i])) {
+	     !dynamic_cast<const Trk::Perigee*>((track.trackParameters())[i])) {
         firstmeaspar=(track.trackParameters())[i];
         break;
       }
     }
-
     if (!firstmeaspar) {
       if (!extrapolatedPerigee || !extrapolatedPerigee->covariance() ) {
-	ATH_MSG_DEBUG( " Track Paraemters at first measurement not found. Perigee not found. Cannot do TrackSelection..." );
-	if (myVertex!=vertex) {
-	  delete myVertex;
-	  myVertex=0;
-	}
-	return false;
+	      ATH_MSG_DEBUG( " Track Paraemters at first measurement not found. Perigee not found. Cannot do TrackSelection..." );
+	      if (myVertex!=vertex) {
+	        delete myVertex;
+	        myVertex=0;
+	      }
+	      return false;
       }
       //using perigee instead of firstmeasurement, since first measurement was not found...
       firstmeaspar=&(track.definingParameters());
@@ -510,26 +405,20 @@ namespace InDet
     ATH_MSG_VERBOSE ("Input to extrapolation: "    << *firstmeaspar);
     ATH_MSG_VERBOSE ("Extrapolating to position: " << myVertex->position()[0] << " , " <<
 		     myVertex->position()[1] << " , " << myVertex->position()[2]);
-    
     const Trk::TrackParameters* extrapolatedParameters= firstmeaspar ?
       m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,Trk::pion ) : 0;
-    
     extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
-    
-    
     if (extrapolatedPerigee==0 || !extrapolatedPerigee->covariance()) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
-      if (extrapolatedParameters!=0) {
-	ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
-	delete extrapolatedParameters;
+      if (extrapolatedParameters) {
+	      ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
+	      delete extrapolatedParameters;
+	      extrapolatedParameters = nullptr;
       }
     }
-    
-    ATH_MSG_VERBOSE ("Result: " << *extrapolatedParameters);
-    
+    if (extrapolatedParameters) ATH_MSG_VERBOSE ("Result: " << *extrapolatedParameters);
     const Trk::RecVertex* recVertex = dynamic_cast<const Trk::RecVertex*>(myVertex);
     bool dec = decision(extrapolatedPerigee, recVertex ? &recVertex->covariancePosition() : 0 );
-    
     if (myVertex!=vertex) {
       delete myVertex;
       myVertex=0;
@@ -538,18 +427,17 @@ namespace InDet
       delete extrapolatedPerigee;
       extrapolatedPerigee=0;
     }
-    
     if(!dec) {
       ATH_MSG_DEBUG("Track rejected because of perigee parameters!");
       return false;
     }
-    
     return true;
   }
 
 
   // ---------------------------------------------------------------------
-  bool InDetDetailedTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const 
+  bool 
+  InDetDetailedTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const 
   {
     
     const Trk::Perigee& perigee=tp.perigeeParameters();
@@ -568,21 +456,20 @@ namespace InDet
 
       if(m_useEtaDepententMinHitTrt) {
         m_nHitTrt = m_trtDCTool->minNumberDCs( &perigee );
-        if(m_addToMinHitTrt!=0)
+        if(m_addToMinHitTrt!=0){
           m_nHitTrt += m_addToMinHitTrt;
-        else
+        }else{
           m_nHitTrt = (int)((double)m_nHitTrt*m_scaleMinHitTrt);
+        }
       }
-      
       if(m_useEtaDepententMinHitTrtWithOutliers) {
         m_nHitTrtPlusOutliers = m_trtDCTool->minNumberDCs( &perigee );
-        if(m_addToMinHitTrtWithOutliers!=0)
+        if(m_addToMinHitTrtWithOutliers!=0){
           m_nHitTrtPlusOutliers += m_addToMinHitTrtWithOutliers;
-        else
+        }else{
           m_nHitTrtPlusOutliers = (int)((double)m_nHitTrtPlusOutliers*m_scaleMinHitTrtWithOutliers);
+        }
       }
-      
-    
       int nb = getCount(tp,xAOD::numberOfInnermostPixelLayerHits );
       int np = getCount(tp,xAOD::numberOfPixelHits );
       int npd = getCount(tp,xAOD::numberOfPixelDeadSensors );
@@ -590,25 +477,22 @@ namespace InDet
       int nhp = getCount(tp,xAOD::numberOfPixelHoles );
       int nhs = getCount(tp,xAOD::numberOfSCTHoles );
       int ndhs = getCount(tp,xAOD::numberOfSCTDoubleHoles);
-
       //**-----------------------------------------------------------------------
       if(m_usePtDependentCuts) {
-
-	double pt = tp.pt();
-     
-	unsigned int it = 0;
-	for(; it< m_ptBenchmarks.size()-1; ++it ) {
-	  if(pt>m_ptBenchmarks[it] && pt <=m_ptBenchmarks[it+1] && ns < m_nSCTValues[it]) {
-	    ATH_MSG_DEBUG("Track rejected because of Pt-Dependent SCT Hit cut (CAREFUL! Excludes dead modules)") ;
-	    return false;
-	  }
-	}//end of  pt intervals loop
+	      double pt = tp.pt();
+	      unsigned int it = 0;
+        for(; it< m_ptBenchmarks.size()-1; ++it ) {
+          if(pt>m_ptBenchmarks[it] && pt <=m_ptBenchmarks[it+1] && ns < m_nSCTValues[it]) {
+            ATH_MSG_DEBUG("Track rejected because of Pt-Dependent SCT Hit cut (CAREFUL! Excludes dead modules)") ;
+            return false;
+          }
+        }//end of  pt intervals loop
 	
-	//now cutting all the rest by the last value in the vector   
-	if(pt>m_ptBenchmarks[it+1] && ns < m_nSCTValues[it+1]) {
-	  ATH_MSG_DEBUG("Track rejected because of Pt-Dependent SCT Hit cut (CAREFUL! Excludes dead modules)") ;
-	  return false;
-	}
+        //now cutting all the rest by the last value in the vector   
+        if(pt>m_ptBenchmarks[it+1] && ns < m_nSCTValues[it+1]) {
+          ATH_MSG_DEBUG("Track rejected because of Pt-Dependent SCT Hit cut (CAREFUL! Excludes dead modules)") ;
+          return false;
+        }
       }
       
       //*--------------------------------------------------------------------------------
@@ -616,40 +500,40 @@ namespace InDet
       //normal cuts in all their variety    
     
       if(nb == 0 && nb < m_nHitBLayer) {
-	ATH_MSG_DEBUG("Track rejected because of nHitBLayer "<<nb<<" < "<<m_nHitBLayer);
-	if(m_inDetTestBLayerTool.empty()) {
-	  ATH_MSG_DEBUG("and no blayer tool configured, so will not try to recover track");
-	  return false;
-	} else if (m_inDetTestBLayerTool->expectHitInBLayer(&perigee)) {
-	  ATH_MSG_DEBUG("and track rejected because of Number of b-layer hits ACCOUNTING for those expected") ;
-	  return false;
-	}else  ATH_MSG_DEBUG("recovered track as no b-layer expected") ;
+        ATH_MSG_DEBUG("Track rejected because of nHitBLayer "<<nb<<" < "<<m_nHitBLayer);
+        if(m_inDetTestBLayerTool.empty()) {
+          ATH_MSG_DEBUG("and no blayer tool configured, so will not try to recover track");
+          return false;
+        } else if (m_inDetTestBLayerTool->expectHitInBLayer(&perigee)) {
+          ATH_MSG_DEBUG("and track rejected because of Number of b-layer hits ACCOUNTING for those expected") ;
+          return false;
+        }else  ATH_MSG_DEBUG("recovered track as no b-layer expected") ;
       }//end of checking the b-layer
      
       if(np+npd < m_nHitPix) {
-	ATH_MSG_DEBUG("Track rejected because of nHitPix "<<np+npd<<" < "<<m_nHitPix);
-	return false;
+        ATH_MSG_DEBUG("Track rejected because of nHitPix "<<np+npd<<" < "<<m_nHitPix);
+        return false;
       }
     
       if(np < m_nHitPixPhysical) {
-	ATH_MSG_DEBUG("Track rejected because of nHitPixPhysical "<<np<<" < "<<m_nHitPixPhysical);
-	return false;
+        ATH_MSG_DEBUG("Track rejected because of nHitPixPhysical "<<np<<" < "<<m_nHitPixPhysical);
+        return false;
       }
     
       int nsd = getCount(tp,xAOD::numberOfSCTDeadSensors);
       if(ns+nsd < m_nHitSct) {
-	ATH_MSG_DEBUG("Track rejected because of nHitSct "<<ns+nsd<<" < "<<m_nHitSct);
-	return false;
+        ATH_MSG_DEBUG("Track rejected because of nHitSct "<<ns+nsd<<" < "<<m_nHitSct);
+        return false;
       }
     
       if(np+ns+npd+nsd < m_nHitSi) {
-	ATH_MSG_DEBUG("Track rejected because of nHitSi "<<np+npd+ns+nsd<<" < "<<m_nHitSi);
-	return false;
+        ATH_MSG_DEBUG("Track rejected because of nHitSi "<<np+npd+ns+nsd<<" < "<<m_nHitSi);
+        return false;
       }
     
       if(np+ns < m_nHitSiPhysical) {
-	ATH_MSG_DEBUG("Track rejected because of nHitSiPhysical "<<np+ns<<" < "<<m_nHitSiPhysical);
-	return false;
+        ATH_MSG_DEBUG("Track rejected because of nHitSiPhysical "<<np+ns<<" < "<<m_nHitSiPhysical);
+        return false;
       }
     
       if (nb+np+npd< m_nHitBLayerPlusPix){
@@ -669,69 +553,67 @@ namespace InDet
       }
    
       if(nhp > m_nHolesPix){
-	ATH_MSG_DEBUG("Track rejected because of nHolesPix "<<nhp<<" > "<<m_nHolesPix);
-	return false;
+        ATH_MSG_DEBUG("Track rejected because of nHolesPix "<<nhp<<" > "<<m_nHolesPix);
+        return false;
       }
    
       if (nhs > m_nHolesSct){
-	ATH_MSG_DEBUG("Track rejected because of nHolesSct "<<nhs<<" > "<<m_nHolesSct);
-	return false;
+        ATH_MSG_DEBUG("Track rejected because of nHolesSct "<<nhs<<" > "<<m_nHolesSct);
+        return false;
       }
    
-      if (fabs(tp.eta())>m_TrtMaxEtaAcceptance) {
-	int nh = getCount(tp,xAOD::numberOfTRTHits);
-	if(nh < m_nHitTrt) {
-	  ATH_MSG_DEBUG("Track rejected because of nHitTrt "<<nh<<" < "<<m_nHitTrt);
-	  return false;
-	}
+      if (std::fabs(tp.eta())>m_TrtMaxEtaAcceptance) {
+        int nh = getCount(tp,xAOD::numberOfTRTHits);
+        if(nh < m_nHitTrt) {
+          ATH_MSG_DEBUG("Track rejected because of nHitTrt "<<nh<<" < "<<m_nHitTrt);
+          return false;
+        }
 
-	int nhh = getCount(tp, xAOD::numberOfTRTHits ) + getCount(tp, xAOD::numberOfTRTOutliers );
-	if (nhh<m_nHitTrtPlusOutliers) {
-	  ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliers "<<nhh<<" < "<<m_nHitTrtPlusOutliers);
-	  return false;
-	}
-
-	int nhthits= getCount(tp,xAOD::numberOfTRTHighThresholdHits);
-	if (nhthits<m_nHitTrtHighE) {
-	  ATH_MSG_DEBUG("Track rejected because of nHitTrtHighE "<<nhthits<<" < "<<m_nHitTrtHighE);
-	  return false;
-	}
-      
-	int nhthitsWithOutliers= getCount(tp,xAOD::numberOfTRTHighThresholdHits) + getCount(tp,xAOD::numberOfTRTHighThresholdOutliers);
-	if (nhthitsWithOutliers<m_nHitTrtPlusOutliersHighE) {
-	  ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliersHighE "<<nhthitsWithOutliers<<" < "<<m_nHitTrtPlusOutliersHighE);
-	  return false;
-	}
-
-	if ( getCount(tp, xAOD::numberOfTRTHits )>0) {
-	  double nhe = getCount(tp,xAOD::numberOfTRTHighThresholdHits);
-	  nhe /= getCount(tp, xAOD::numberOfTRTHits);
-	  if(nhe > m_nHitTrtHighEFraction ) {
-	    ATH_MSG_DEBUG("Track rejected because of nHitTrtHighEFraction "<<nhe<<" < "<<m_nHitTrtHighEFraction);
-	    return false;
-	  }
-	}
-      
-	if ( getCount(tp, xAOD::numberOfTRTHits ) + getCount(tp, xAOD::numberOfTRTOutliers ) > 0 ) {
-	  double nheh = (double)(getCount(tp,xAOD::numberOfTRTHighThresholdHits) + getCount(tp,xAOD::numberOfTRTHighThresholdOutliers))/
-            (double)(getCount(tp, xAOD::numberOfTRTHits) + getCount(tp, xAOD::numberOfTRTOutliers ) );
-	  if(nheh<0.) nheh=0.;
-	  if (nheh>1.) nheh=1.;
-	  if(nheh > m_nHitTrtHighEFractionWithOutliers ) {
-	    ATH_MSG_DEBUG("Track rejected because of nHitTrtHighEFractionWithOutliers "<<nheh<<" < "<<m_nHitTrtHighEFractionWithOutliers);
-	    return false;
-	  }
-	}
+      int nhh = getCount(tp, xAOD::numberOfTRTHits ) + getCount(tp, xAOD::numberOfTRTOutliers );
+      if (nhh<m_nHitTrtPlusOutliers) {
+        ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliers "<<nhh<<" < "<<m_nHitTrtPlusOutliers);
+        return false;
       }
 
-      if (m_useSharedHitInfo) {
+      int nhthits= getCount(tp,xAOD::numberOfTRTHighThresholdHits);
+      if (nhthits<m_nHitTrtHighE) {
+        ATH_MSG_DEBUG("Track rejected because of nHitTrtHighE "<<nhthits<<" < "<<m_nHitTrtHighE);
+        return false;
+      }
+      
+      int nhthitsWithOutliers= getCount(tp,xAOD::numberOfTRTHighThresholdHits) + getCount(tp,xAOD::numberOfTRTHighThresholdOutliers);
+      if (nhthitsWithOutliers<m_nHitTrtPlusOutliersHighE) {
+        ATH_MSG_DEBUG("Track rejected because of nHitTrtPlusOutliersHighE "<<nhthitsWithOutliers<<" < "<<m_nHitTrtPlusOutliersHighE);
+        return false;
+      }
 
-	int nbs = getCount(tp,xAOD::numberOfInnermostPixelLayerSharedHits);
-	if (nbs>1) nbs=1;
-	if(nbs>m_nSharedBLayer) {
-	  ATH_MSG_DEBUG("Track rejected because of nSharedBLayer "<<nbs<<" < "<<m_nSharedBLayer);
-	  return false;
-	}
+      if ( getCount(tp, xAOD::numberOfTRTHits )>0) {
+        double nhe = getCount(tp,xAOD::numberOfTRTHighThresholdHits);
+        nhe /= getCount(tp, xAOD::numberOfTRTHits);
+        if(nhe > m_nHitTrtHighEFraction ) {
+          ATH_MSG_DEBUG("Track rejected because of nHitTrtHighEFraction "<<nhe<<" < "<<m_nHitTrtHighEFraction);
+          return false;
+        }
+      }
+      
+      if ( getCount(tp, xAOD::numberOfTRTHits ) + getCount(tp, xAOD::numberOfTRTOutliers ) > 0 ) {
+        double nheh = (double)(getCount(tp,xAOD::numberOfTRTHighThresholdHits) + getCount(tp,xAOD::numberOfTRTHighThresholdOutliers))/
+                (double)(getCount(tp, xAOD::numberOfTRTHits) + getCount(tp, xAOD::numberOfTRTOutliers ) );
+        if(nheh<0.) nheh=0.;
+        if (nheh>1.) nheh=1.;
+        if(nheh > m_nHitTrtHighEFractionWithOutliers ) {
+          ATH_MSG_DEBUG("Track rejected because of nHitTrtHighEFractionWithOutliers "<<nheh<<" < "<<m_nHitTrtHighEFractionWithOutliers);
+          return false;
+        }
+      }
+      }
+      if (m_useSharedHitInfo) {
+        int nbs = getCount(tp,xAOD::numberOfInnermostPixelLayerSharedHits);
+        if (nbs>1) nbs=1;
+        if(nbs>m_nSharedBLayer) {
+          ATH_MSG_DEBUG("Track rejected because of nSharedBLayer "<<nbs<<" < "<<m_nSharedBLayer);
+          return false;
+        }
 
 	int nps = getCount(tp,xAOD::numberOfPixelSharedHits);
 	if(nps>m_nSharedPix) {
@@ -759,8 +641,9 @@ namespace InDet
     if (extrapolatedPerigee==0) {
       ATH_MSG_WARNING( "Extrapolation to the vertex failed: " << perigeeSurface << std::endl << perigee );
       if (extrapolatedParameters!=0) {
-    	ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
-    	delete extrapolatedParameters;
+        ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
+        delete extrapolatedParameters;
+        extrapolatedParameters=nullptr;
       }
       return false;
     }
@@ -800,35 +683,35 @@ namespace InDet
 	ATH_MSG_DEBUG("Track rejected because of qOverP == 0.");
 	return false;
       }
-      double p = fabs(1./perigeeParms[Trk::qOverP]);
+      double p = std::fabs(1./perigeeParms[Trk::qOverP]);
       if (p<m_pMin) {
 	ATH_MSG_DEBUG("Track rejected because of p " << p << " < " << m_pMin);
 	return false;
       }
-      double pt = p*sin(perigeeParms[Trk::theta]);
+      double pt = p*std::sin(perigeeParms[Trk::theta]);
       if (pt<m_pTMin) {
 	ATH_MSG_DEBUG("Track rejected because of pt " << pt << " < " << m_pTMin);
 	return false;
       }
     }
     
-    if (fabs(perigeeParms[Trk::d0]) > m_IPd0Max) {
-      ATH_MSG_DEBUG("Track rejected because of fabs(d0) " << fabs(perigeeParms[Trk::d0]) << " > " << m_IPd0Max);
+    if (std::fabs(perigeeParms[Trk::d0]) > m_IPd0Max) {
+      ATH_MSG_DEBUG("Track rejected because of fabs(d0) " << std::fabs(perigeeParms[Trk::d0]) << " > " << m_IPd0Max);
       return false;
     }
     
-    if (fabs(perigeeParms[Trk::z0]*sin(perigeeParms[Trk::theta])) > m_IPz0Max) {
-      ATH_MSG_DEBUG("Track rejected because of fabs(z0*sin(theta)) " << fabs(perigeeParms[Trk::z0]*sin(perigeeParms[Trk::theta])) << " > " << m_IPz0Max);
+    if (std::fabs(perigeeParms[Trk::z0]*std::sin(perigeeParms[Trk::theta])) > m_IPz0Max) {
+      ATH_MSG_DEBUG("Track rejected because of fabs(z0*sin(theta)) " << std::fabs(perigeeParms[Trk::z0]*std::sin(perigeeParms[Trk::theta])) << " > " << m_IPz0Max);
       return false;
     }
     
-    if (fabs(perigeeParms[Trk::z0]) > m_z0Max) {
-      ATH_MSG_DEBUG("Track rejected because of fabs(z0) " << fabs(perigeeParms[Trk::z0]) << " > " << m_z0Max);
+    if (std::fabs(perigeeParms[Trk::z0]) > m_z0Max) {
+      ATH_MSG_DEBUG("Track rejected because of fabs(z0) " << std::fabs(perigeeParms[Trk::z0]) << " > " << m_z0Max);
       return false;
     }
 
-    if (sqrt( (*track->covariance())(Trk::z0,Trk::z0) )*sin(perigeeParms[Trk::theta])>m_sigIPz0Max) {
-      ATH_MSG_DEBUG("Track rejected because of err(z0)*sin(theta) " << sqrt( (*track->covariance())(Trk::z0,Trk::z0) )*sin(perigeeParms[Trk::theta]) << " > " << m_sigIPz0Max);
+    if (sqrt( (*track->covariance())(Trk::z0,Trk::z0) )*std::sin(perigeeParms[Trk::theta])>m_sigIPz0Max) {
+      ATH_MSG_DEBUG("Track rejected because of err(z0)*sin(theta) " << sqrt( (*track->covariance())(Trk::z0,Trk::z0) )*std::sin(perigeeParms[Trk::theta]) << " > " << m_sigIPz0Max);
       return false;
     }
     
@@ -839,8 +722,8 @@ namespace InDet
     
     if (m_d0significanceMax>0 || m_z0significanceMax>0) {
       
-      double sinTheta = sin(perigeeParms[Trk::theta]);
-      double cosTheta = cos(perigeeParms[Trk::theta]);
+      double sinTheta = std::sin(perigeeParms[Trk::theta]);
+      double cosTheta = std::cos(perigeeParms[Trk::theta]);
       double d0wrtPriVtx = perigeeParms[Trk::d0];
       double deltaZ = perigeeParms[Trk::z0];
       double z0wrtPriVtx = deltaZ*sinTheta;
@@ -849,15 +732,15 @@ namespace InDet
       double testtrackSigTh = sqrt( (*track->covariance())(Trk::theta,Trk::theta) );
       // error on IP:
       double trackPhi = perigeeParms[Trk::phi];
-      double dIPdx = sin(trackPhi);
-      double dIPdy = -cos(trackPhi);
+      double dIPdx = std::sin(trackPhi);
+      double dIPdy = -std::cos(trackPhi);
       double DD0 = testtrackSigD0*testtrackSigD0;
       double newD0Err=0;
       if (covariancePosition) {
-	double DXX = dIPdx*dIPdx* (*covariancePosition)(0,0);
-	double DYY = dIPdy*dIPdy* (*covariancePosition)(1,1);
-	double DXY = 2.*dIPdx*dIPdy* (*covariancePosition)(0,1);
-	newD0Err = DD0 + DXX + DYY + DXY;
+        double DXX = dIPdx*dIPdx* (*covariancePosition)(0,0);
+        double DYY = dIPdy*dIPdy* (*covariancePosition)(1,1);
+        double DXY = 2.*dIPdx*dIPdy* (*covariancePosition)(0,1);
+        newD0Err = DD0 + DXX + DYY + DXY;
       } else {
 	newD0Err = DD0;
       }
@@ -869,8 +752,8 @@ namespace InDet
       }
       
       if (m_d0significanceMax>0) {
-	if (fabs(d0wrtPriVtx/d0ErrwrtPriVtx)>m_d0significanceMax) {
-	  ATH_MSG_DEBUG("Track rejected because of fabs(d0wrtPriVtx/d0ErrwrtPriVtx) " << fabs(d0wrtPriVtx/d0ErrwrtPriVtx) << " > " << m_d0significanceMax);
+	if (std::fabs(d0wrtPriVtx/d0ErrwrtPriVtx)>m_d0significanceMax) {
+	  ATH_MSG_DEBUG("Track rejected because of fabs(d0wrtPriVtx/d0ErrwrtPriVtx) " << std::fabs(d0wrtPriVtx/d0ErrwrtPriVtx) << " > " << m_d0significanceMax);
 	  return false;
 	}
       }
@@ -898,16 +781,16 @@ namespace InDet
 	  ATH_MSG_WARNING( " error on z0 is negative: numeric error... (not expected. please report!)" );
 	}
 
-	if (fabs(z0wrtPriVtx/z0ErrwrtPriVtx)>m_z0significanceMax) {
-	  ATH_MSG_DEBUG("Track rejected because of fabs(z0wrtPriVtx/z0ErrwrtPriVtx) " << fabs(z0wrtPriVtx/z0ErrwrtPriVtx) << " > " << m_z0significanceMax);
+	if (std::fabs(z0wrtPriVtx/z0ErrwrtPriVtx)>m_z0significanceMax) {
+	  ATH_MSG_DEBUG("Track rejected because of fabs(z0wrtPriVtx/z0ErrwrtPriVtx) " << std::fabs(z0wrtPriVtx/z0ErrwrtPriVtx) << " > " << m_z0significanceMax);
 	  return false;
 	}
       }
       
     }
     
-    if (fabs(track->momentum().eta())>m_etaMax) {
-      ATH_MSG_DEBUG("Track rejected because of fabs(eta) " << fabs(track->momentum().eta()) << " > " << m_etaMax);
+    if (std::fabs(track->momentum().eta())>m_etaMax) {
+      ATH_MSG_DEBUG("Track rejected because of fabs(eta) " << std::fabs(track->momentum().eta()) << " > " << m_etaMax);
       return false;
     }
     
@@ -989,8 +872,8 @@ namespace InDet
          return false;
       }
       const AmgVector(5)& perigeeParms = track->parameters();
-      double p = fabs(1./perigeeParms[Trk::qOverP]);  
-      double pt = p*sin(perigeeParms[Trk::theta]);
+      double p = std::fabs(1./perigeeParms[Trk::qOverP]);  
+      double pt = p*std::sin(perigeeParms[Trk::theta]);
      
       unsigned int it = 0;
       for(; it< m_ptBenchmarks.size()-1; ++it ) {
@@ -1183,20 +1066,20 @@ namespace InDet
 	ATH_MSG_DEBUG("Track rejected because of perigee qOverP == 0.");
 	return false;
       }
-      double p = fabs(1./perigeeParms[Trk::qOverP]);
+      double p = std::fabs(1./perigeeParms[Trk::qOverP]);
       if (p<m_pMin) {
 	ATH_MSG_DEBUG("Track rejected because of p " << p << " < " << m_pMin);
 	return false;
       }
-      double pt = p*sin(perigeeParms[Trk::theta]);
+      double pt = p*std::sin(perigeeParms[Trk::theta]);
       if (pt<m_pTMin) {
 	ATH_MSG_DEBUG("Track rejected because of pt " << pt << " < " << m_pTMin);
 	return false;
       }
     }
 
-    if (fabs(perigeeParms[Trk::d0]) > m_d0MaxPreselection) {
-      ATH_MSG_DEBUG("Track rejected because of fabs(d0) "<<fabs(perigeeParms[Trk::d0])<<" < "<<m_d0MaxPreselection);
+    if (std::fabs(perigeeParms[Trk::d0]) > m_d0MaxPreselection) {
+      ATH_MSG_DEBUG("Track rejected because of fabs(d0) "<<std::fabs(perigeeParms[Trk::d0])<<" < "<<m_d0MaxPreselection);
       return false;
     }
 

@@ -1098,6 +1098,9 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //ADC2MEV
+
+  HWIdentifier hwid=m_cablingService->createSignalChannelID(id);
+
   if(m_retrieve[iADC2MEV])
   {
     if(m_WorkMode==0) 
@@ -1118,10 +1121,10 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   if(m_retrieve[iSIGMANOISE])
   {
     if(m_isMC)
-      m_SigmaNoise = m_dd_noise->noise(id,igain);
+      m_SigmaNoise = m_dd_noise->noise(hwid,igain);
     else          
     {
-      m_RMSpedestal = m_dd_pedestal->pedestalRMS(id,igain);
+      m_RMSpedestal = m_dd_pedestal->pedestalRMS(hwid,igain);
       if(m_RMSpedestal>(1.0+LArElecCalib::ERRORCODE)) 
 	m_SigmaNoise = m_RMSpedestal;
       else
@@ -1140,7 +1143,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //AUTOCORR
   if(m_retrieve[iAUTOCORR])
   {
-    m_AutoCorr = m_dd_acorr->autoCorr(id,igain);
+    m_AutoCorr = m_dd_acorr->autoCorr(hwid,igain);
     ////////// 
     if(PRINT) {
       std::cout<<"AutoCorr= ";
@@ -1154,8 +1157,8 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //OFC
   if(m_retrieve[iOFC])
   {
-    if(m_WorkMode==0) m_OFC = m_detDHOFC->OFC_a(id, igain, 0) ;
-    else              m_OFC = m_OFCTool->OFC_a(id, igain) ;
+    if(m_WorkMode==0) m_OFC = m_detDHOFC->OFC_a(hwid, igain, 0) ;
+    else              m_OFC = m_OFCTool->OFC_a(hwid, igain) ;
     /////////
     if(PRINT) {
       std::cout<<"OFC= ";
@@ -1169,7 +1172,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //SHAPE
   if(m_retrieve[iSHAPE])
   {
-    m_Shape = m_dd_shape->Shape(id,0);
+    m_Shape = m_dd_shape->Shape(hwid,0);
     //////////
     if(PRINT) {
       std::cout<<"Shape= ";
@@ -1183,7 +1186,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //MinimumBias RMS 
   if(m_retrieve[iMINBIASRMS])
   {
-    m_MinBiasRMS = m_dd_minbias->minBiasRMS(id);
+    m_MinBiasRMS = m_dd_minbias->minBiasRMS(hwid);
     if(PRINT) std::cout<<"MinBiasRMS="<<m_MinBiasRMS<<std::endl;
   }
 
@@ -1191,7 +1194,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //SAMPLING FRACTION
   if(m_retrieve[iFSAMPL])
   {
-    m_fSampl = m_dd_fsampl->FSAMPL(id);
+    m_fSampl = m_dd_fsampl->FSAMPL(hwid);
     if(PRINT) std::cout<<"fSampl="<<m_fSampl<<std::endl;
   }
 

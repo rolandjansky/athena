@@ -13,6 +13,9 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "PATCore/AcceptData.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODHIEvent/HIEventShapeContainer.h"
 
 namespace Root{
   class TElectronLikelihoodTool;
@@ -138,7 +141,12 @@ private:
   /// Flag for calo only LH
   bool m_caloOnly;
 
-
+  ///  read handle key to heavy ion container
+  SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_HIESContKey;
+    
+  ///  read handle key to primary vertex container
+  SG::ReadHandleKey<xAOD::VertexContainer> m_primVtxContKey;
+    
 
 }; // End: class definition
 

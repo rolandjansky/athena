@@ -10,7 +10,7 @@
 #include <string>
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtCsmIdHash.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
 /** This container provides acces to the MDT RDOs

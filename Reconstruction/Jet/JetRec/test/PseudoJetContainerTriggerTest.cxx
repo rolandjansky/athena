@@ -17,6 +17,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "./testHelpers.h"
+
 using ::testing::Return;
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -30,8 +32,7 @@ using xAOD::Jet;
 using xAOD::JetFourMom_t;
 
 
-#include "./testHelpers.h"
- 
+
 // Trigger tests for the PseudoJetContainer provide
 // the jet container with a JetTrigAuxContainer.
 // This allows adding consitituents, but not associated particles

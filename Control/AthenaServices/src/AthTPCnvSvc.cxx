@@ -10,6 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 #include "AthTPCnvSvc.h"
+#include "GaudiKernel/Converter.h"
 
 
 namespace {
@@ -56,7 +57,7 @@ AthTPCnvSvc::~AthTPCnvSvc()
 ITPCnvBase* 
 AthTPCnvSvc::load_tpcnv(const std::string& cls)
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (cls);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create (cls).release();
   if (cnv == nullptr) {
     ATH_MSG_INFO("could not load class [" << cls
                  << "] via Reflex::PluginService");
@@ -75,7 +76,7 @@ AthTPCnvSvc::t2p_cnv(const std::string& transClassName,
                      Athena::TPCnvType::Value type /*= Athena::TPCnvType::Athena*/)
 
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + transClassName);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + transClassName).release();
   if (cnv == nullptr && type != Athena::TPCnvType::Athena)
     return t2p_cnv (transClassName);
   if (cnv == nullptr) {
@@ -101,7 +102,7 @@ AthTPCnvSvc::t2p_cnv(const CLID& transClid,
     return nullptr;
   }
 
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type).release();
   if (cnv == nullptr) {
     // try a typeinfo-name before bailing out...
     if (!m_clidSvc->getTypeInfoNameOfID(transClid, trans_type).isSuccess()) {
@@ -109,7 +110,7 @@ AthTPCnvSvc::t2p_cnv(const CLID& transClid,
                    << transClid << "]");
       return nullptr;
     }
-    cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type);
+    cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type).release();
   }
   if (cnv == nullptr && type != Athena::TPCnvType::Athena)
     return t2p_cnv (transClid);
@@ -130,7 +131,7 @@ ITPCnvBase*
 AthTPCnvSvc::p2t_cnv(const std::string& persClassName,
                      Athena::TPCnvType::Value type /*= Athena::TPCnvType::Athena*/)
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_PERS_" + persClassName);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_PERS_" + persClassName).release();
   if (cnv == nullptr && type != Athena::TPCnvType::Athena)
     return p2t_cnv (persClassName);
   if (cnv == nullptr) {

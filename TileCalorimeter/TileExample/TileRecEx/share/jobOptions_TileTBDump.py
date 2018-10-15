@@ -108,8 +108,10 @@ if not 'InputDirectory' in dir():
             Year = 2015
         elif RunNumber < 314450:
             Year = 2016
-        else:
+        elif RunNumber < 342540:
             Year = 2017
+        else:
+            Year = 2018
 
 
         if 'RunStream' in dir():
@@ -267,7 +269,7 @@ DetFlags.Print()
 
 from AthenaCommon.GlobalFlags import jobproperties
 if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
-else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
+else:    jobproperties.Global.DetDescrVersion = "ATLAS-R1-2012-02-00-00"
 tbdump_log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
 from AtlasGeoModel import SetGeometryVersion
@@ -283,7 +285,7 @@ else:    rec.projectName = "data12_tilecomm"
 
 from IOVDbSvc.CondDB import conddb
 if MC:     conddb.setGlobalTag("OFLCOND-RUN12-SDR-25")
-elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2017-07")
+elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2018-03")
 else:      conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================

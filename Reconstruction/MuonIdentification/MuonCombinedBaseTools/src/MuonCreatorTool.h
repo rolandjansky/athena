@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCREATORTOOL_H
@@ -66,6 +66,8 @@ namespace MuonCombined {
   class SegmentTag;
   class CaloTag;
 
+  typedef std::vector<InDetCandidateTags> InDetCandidateTagsMap;
+
   class MuonCreatorTool: public AthAlgTool, virtual public IMuonCreatorTool
   {
 
@@ -77,13 +79,14 @@ namespace MuonCombined {
     StatusCode finalize();
 
     /** IMuonCreatorTool interface: build muons from ID and MS candidates */    
-    void create( const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates, OutputData& outputData ) const final;
+    void create( const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,
+		 OutputData& outputData ) const final;
 
     /** IMuonCreatorTool interface: create a muon from a muon candidate */
     xAOD::Muon* create( const MuonCandidate& candidate, OutputData& outputData ) const final;
 
     /** IMuonCreatorTool interface: create a muon from a muon candidate */
-    xAOD::Muon* create( const InDetCandidate& candidate, OutputData& outputData ) const final;
+    xAOD::Muon* create( InDetCandidateTags& candidate, OutputData& outputData ) const final;
 
   private:
     void addStatisticalCombination( xAOD::Muon& muon, const InDetCandidate& candidate, const StacoTag* tag, OutputData& outputData ) const;
@@ -115,11 +118,11 @@ namespace MuonCombined {
         Trk::SegmentCollection* muonSegmentCollection = 0 ) const ;
 
   private:
-    void resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, 
-			  std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates,
+    void resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,
+			  InDetCandidateTagsMap& resolvedInDetCandidates,
                           std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates) const;
     
-    void selectStaus( const InDetCandidateCollection* inDetCandidates, InDetCandidateCollection& resolvedInDetCandidates) const;
+    void selectStaus( const InDetCandidateCollection* inDetCandidates, InDetCandidateTagsMap& resolvedInDetCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps) const;
 
   public:
     void selectStaus( const InDetCandidateCollection* inDetCandidates,
@@ -187,6 +190,12 @@ namespace MuonCombined {
 
     //associate segments to MuGirlLowBeta muons;
     bool m_segLowBeta;
+
+    //use calo cells
+    bool m_useCaloCells;
+
+    //flag for SA muons
+    bool m_doSA;
 
     /// copy truth links from primary track particle (or put dummy link if this is missing)
     //bool m_fillMuonTruthLinks;

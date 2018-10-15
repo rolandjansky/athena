@@ -87,7 +87,9 @@ CONCURRENTRANGEMAP::ConcurrentRangeMap (Updater_t&& updater,
                                         size_t capacity /*= 16*/,
                                         const COMPARE& compare /*= COMPARE()*/)
   : m_updater (std::move (updater)),
-    m_compare (compare)
+    m_compare (compare),
+    m_nInserts (0),
+    m_maxSize (0)
 {
   auto impl = std::make_unique<Impl> (capacity);
   m_impl = impl.get();
@@ -194,6 +196,8 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
     // Update the last pointer.
     m_last = end;
     // Now the new element is visible to other threads.
+    ++m_nInserts;
+    m_maxSize = std::max (m_maxSize, static_cast<size_t> (end+1 - begin));
     return true;
   }
 
@@ -249,6 +253,8 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   updatePointers (new_begin, new_end);
   m_updater.update (std::move (new_impl), ctx);
 
+  ++m_nInserts;
+  m_maxSize = std::max (m_maxSize, static_cast<size_t> (new_end - new_begin));
   return true;
 }
 
@@ -424,6 +430,28 @@ inline
 size_t CONCURRENTRANGEMAP::capacity() const
 {
   return m_updater.get().capacity();
+}
+
+
+/**
+ * @brief Return the number times an item was inserted into the map.
+ */
+T_CONCURRENTRANGEMAP
+inline
+size_t CONCURRENTRANGEMAP::nInserts() const
+{
+  return m_nInserts;
+}
+
+
+/**
+ * @brief Return the maximum size of the map.
+ */
+T_CONCURRENTRANGEMAP
+inline
+size_t CONCURRENTRANGEMAP::maxSize() const
+{
+  return m_maxSize;
 }
 
 

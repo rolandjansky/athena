@@ -54,12 +54,7 @@ StatusCode DigiDemoSetupAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
-
 
   //Get a pointer to the digitisation store
   IProxyDict * digiStorePointer = dynamic_cast< IProxyDict* >( m_digiStore.get() );
@@ -88,7 +83,7 @@ StatusCode DigiDemoSetupAlg::execute()
     //Make all the "pileup events"
     for ( int eventIndex = 0; eventIndex < 100; ++eventIndex )
     {
-      SG::View * digiView = new SG::View( m_viewBaseName + std::to_string( eventIndex ), false, digiStorePointer->name() );
+      SG::View * digiView = new SG::View( m_viewBaseName, eventIndex, false, digiStorePointer->name() );
       SG::WriteHandle< std::vector< int > > digiHandle( m_w_ints );
       digiHandle.setProxyDict( digiView );
       digiHandle.record( std::make_unique< std::vector< int > >( 1, eventIndex ) );
@@ -101,7 +96,7 @@ StatusCode DigiDemoSetupAlg::execute()
   for ( int viewIndex = 0; viewIndex < m_viewNumber; ++viewIndex )
   {
     int sampleIndex = ( viewIndex + ctx.evt() + 37 ) % 100; // whatever
-    SG::View * digiView = new SG::View( m_viewBaseName + std::to_string( sampleIndex ), false, digiStorePointer->name() );
+    SG::View * digiView = new SG::View( m_viewBaseName, sampleIndex, false, digiStorePointer->name() );
     viewVector->push_back( digiView );
   }
 

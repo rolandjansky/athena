@@ -15,24 +15,11 @@
 #include <string>
 #include <vector>
 
-#ifndef GAUDIKERNEL_IEVTSELECTOR_H
-# include "GaudiKernel/IEvtSelector.h"
-#endif
-
-#ifndef GAUDIKERNEL_PROPERTY_H
-# include "GaudiKernel/Property.h"
-#endif 
-
-#ifndef GAUDIKERNEL_SERVICEHANDLE_H
-# include "GaudiKernel/ServiceHandle.h"
-#endif 
-
-#ifndef GAUDIKERNEL_TOOLHANDLE_H
+#include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#endif
-
 #include "GaudiKernel/IChronoStatSvc.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -42,6 +29,7 @@
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
+#include "AthenaKernel/IConditionsCleanerSvc.h"
 
 #ifndef EVENTINFO_EVENTID_H
 # include "EventInfo/EventID.h"  /* number_type */
@@ -231,6 +219,7 @@ private:
    bool m_doChrono = false;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
 
+   ServiceHandle<Athena::IConditionsCleanerSvc> m_conditionsCleaner;
 };
 
 #endif // STOREGATE_ATHENAEVENTLOOPMGR_H

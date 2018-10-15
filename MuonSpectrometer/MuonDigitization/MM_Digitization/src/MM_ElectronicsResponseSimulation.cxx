@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -109,32 +109,24 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int
 		double maxChargeLeftNeighbor = 0;
 		double maxChargeRightNeighbor = 0;
 
-		// Athena::MsgStreamMember log("MM_ElectronicsResponseSimulation::VMMResponseFunction");
 		// find the maximum charge:
 		if ( ii > 0 ) {
-			// log << MSG::DEBUG << "for Left neighbor:   tStrip.at(ii-1) "<< tStrip.at(ii-1) << " qStrip.at(ii-1) " << qStrip.at(ii-1) << endmsg;
 			shaperInputTime = tStrip.at(ii-1);
 			shaperInputCharge = qStrip.at(ii-1);
 			maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-			//  maxChargeLeftNeighbor = m_h_intFn->GetMaximum(0,3*(m_stripResponseDriftGap/m_stripResponseDriftVelocity));
 		}
 
 		if ( ii+1 < numberofStrip.size() ) {
-			// log << MSG::DEBUG << "for Right neighbor:   tStrip.at(ii+1) "<< tStrip.at(ii+1) << " qStrip.at(ii+1) " << qStrip.at(ii+1) << endmsg;
 			shaperInputTime = tStrip.at(ii+1);
 			shaperInputCharge = qStrip.at(ii+1);
 			maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-			//  maxChargeRightNeighbor = m_h_intFn->GetMaximum(0,3*(m_stripResponseDriftGap/m_stripResponseDriftVelocity));
 		}
 
-		// log << MSG::DEBUG << "for This strip:    tStrip.at(ii) "<< tStrip.at(ii) << " qStrip.at(ii) " << qStrip.at(ii) << endmsg;
 		shaperInputTime = tStrip.at(ii);
 		shaperInputCharge = qStrip.at(ii);
 		maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-		//	maxChargeThisStrip = m_h_intFn->GetMaximum(0,3*(m_stripResponseDriftGap/m_stripResponseDriftVelocity));
 
 
-		// log << MSG::DEBUG << "Check if a strip or its neighbors were above electronics threshold (" << m_electronicsThreshold << "):   maxChargeLeftNeighbor: " << maxChargeLeftNeighbor << ", maxChargeRightNeighbor: " << maxChargeRightNeighbor << ", maxChargeThisStrip: " << maxChargeThisStrip << endmsg;
 
 		// Look at strip if it or its neighbor was above threshold:
 		if ( maxChargeLeftNeighbor > m_electronicsThreshold || maxChargeRightNeighbor > m_electronicsThreshold || maxChargeThisStrip > m_electronicsThreshold ) {
@@ -147,23 +139,18 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int
 			float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
 
 			for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-			//            for (int jj = 0; jj < (3*( m_stripResponseDriftGap/m_stripResponseDriftVelocity))/stepSize; jj++) {
 
 				float thisStep = m_timeWindowLowerOffset+jj*stepSize;
 				float nextStep = m_timeWindowLowerOffset+(jj+1)*stepSize;
 				float oneAfterStep = m_timeWindowLowerOffset+(jj+2)*stepSize;
 
-				//                if (localPeak == 0 ) {  //haven't found a local peak yet
 
 				//check if the charge for the next points is less than the current step and the derivative of the first point is positive or 0 and the next point is negative:
 				if ( ( m_h_intFn->Eval(thisStep,0,0) < m_h_intFn->Eval(nextStep,0,0) ) && ( m_h_intFn->Eval(nextStep,0,0) > m_h_intFn->Eval(oneAfterStep,0,0) ) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0 && (m_h_intFn->Eval(oneAfterStep+0.001)-m_h_intFn->Eval(oneAfterStep-0.001))/0.001 < 0.0 ){ // m_h_intFn->Derivative() does not work. WHY? 2016/07/18
-					//	      if ( ( m_h_intFn->Eval(thisStep,0,0) < m_h_intFn->Eval(nextStep,0,0) ) && ( m_h_intFn->Eval(nextStep,0,0) > m_h_intFn->Eval(oneAfterStep,0,0) ) && (m_h_intFn->Derivative(thisStep,0,0.001) > 0 && m_h_intFn->Derivative(oneAfterStep,0,0.001) < 0 ) ) {
 
-					// localPeak = 1;
 					localPeakt = nextStep;
 					localPeakq = m_h_intFn->Eval(nextStep,0,0);
 
-							// log << MSG::DEBUG << "found a peak!    for strip number: " << numberofStrip.at(ii) << " at time: " << nextStep << " with charge: " << m_h_intFn->Eval(nextStep,0,0) << endmsg;
 					m_nStripElectronics.push_back(numberofStrip.at(ii));
 					m_tStripElectronicsAbThr.push_back(localPeakt);
 					m_qStripElectronics.push_back(localPeakq);
@@ -180,12 +167,9 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int
 
 void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
 
-	//    float tmp_Stripq = 0;
-	//    float tmp_Stript = 9999.0;
 
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
-		// Athena::MsgStreamMember log("MM_ElectronicsResponseSimulation::VMMTriggerResponseFunction");
 
 		shaperInputTime = tStrip.at(ii);
 		shaperInputCharge = qStrip.at(ii);
@@ -196,7 +180,6 @@ void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector
 		float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
 
 		for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-		//      for (int jj = 0; jj < (3*( m_stripResponseDriftGap/m_stripResponseDriftVelocity))/stepSize; jj++) {
 
 			float thisStep = m_timeWindowLowerOffset+jj*stepSize;
 			float preStep = (jj>0) ? m_timeWindowLowerOffset+(jj-1)*stepSize: 0.0;

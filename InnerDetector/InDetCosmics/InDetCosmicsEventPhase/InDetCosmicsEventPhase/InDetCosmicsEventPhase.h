@@ -10,16 +10,13 @@
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "CommissionEvent/ComTime.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 //class TrackCollection;
 class ITRT_CalDbSvc ;
 
-namespace Trk
-{
-  class ITrackSummaryTool;
-}
 namespace InDet 
 {
   class IInDetCosmicsEventPhaseTool;

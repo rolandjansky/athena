@@ -10,16 +10,15 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
 
 SiLorentzAngleTool::SiLorentzAngleTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
   m_isPixel{true},
   m_condData{"SCTSiLorentzAngleCondData"},
-  m_magFieldSvc{"AtlasFieldSvc", name},
-  m_detManager{nullptr}
+  m_magFieldSvc{"AtlasFieldSvc", name}
 {
   declareProperty("IgnoreLocalPos", m_ignoreLocalPos = false, 
                   "Treat methods that take a local position as if one called the methods without a local position");
@@ -41,21 +40,9 @@ StatusCode SiLorentzAngleTool::initialize() {
   }
   m_isPixel = (m_detectorName == "Pixel");
 
-  if (m_isPixel) {
-    ATH_MSG_FATAL("SiLorentzAngleTool is not yet implemented for Pixel!");
-    return StatusCode::FAILURE;
-  }
-
   // Read Cond Handle
   ATH_CHECK(m_condData.initialize());
-
-  // Get the detector manager
-  if (detStore()->contains<InDetDD::SiDetectorManager>(m_detectorName)) {
-    ATH_CHECK(detStore()->retrieve(m_detManager, m_detectorName));
-  } else {
-    ATH_MSG_INFO("InDetDD::SiDetectorManager " << m_detectorName << " is not available yet.");
-    ATH_MSG_INFO("SiLorentzAngleTool::retrieveDetectorManager() has to be called later.");
-  }
+  ATH_CHECK(m_detEleCollKey.initialize());
 
   // MagneticFieldSvc handles updates itself
   if (not m_useMagFieldSvc) {
@@ -165,7 +152,7 @@ double SiLorentzAngleTool::getValue(const IdentifierHash& elementHash, const Amg
   // Calculate depletion depth. If biasVoltage is less than depletionVoltage
   // the detector is not fully depleted and we need to take this into account.
   // We take absolute values just in case voltages are signed.
-  const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
+  const InDetDD::SiDetectorElement* element{getDetectorElement(elementHash)};
   double depletionDepth{element->thickness()};
   if (deplVoltage==0.0) ATH_MSG_WARNING("Depletion voltage in "<<__FILE__<<" is zero, which might be a bug.");
   if (std::abs(biasVoltage) < std::abs(deplVoltage)) {
@@ -180,7 +167,8 @@ double SiLorentzAngleTool::getValue(const IdentifierHash& elementHash, const Amg
   siProperties.setConditions(temperature, meanElectricField);
   mobility = siProperties.signedHallMobility(element->carrierType());
   // Get magnetic field.
-  Amg::Vector3D magneticField{getMagneticField(elementHash, locPos)};
+  Amg::Vector3D pointvec{element->globalPosition(locPos)};
+  Amg::Vector3D magneticField{getMagneticField(pointvec)};
 
   double correctionFactor{getCorrectionFactor()};
 
@@ -224,11 +212,8 @@ double SiLorentzAngleTool::getCorrectionFactor() const
   return s_invalidValue;
 }
 
-Amg::Vector3D SiLorentzAngleTool::getMagneticField(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) const {
+Amg::Vector3D SiLorentzAngleTool::getMagneticField(const Amg::Vector3D& pointvec) const {
   // Get the magnetic field.
-  const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
-  Amg::Vector3D pointvec{element->globalPosition(locPos)};
-
   if (m_useMagFieldSvc) {
     ATH_MSG_VERBOSE("Getting magnetic field from magnetic field service.");
     double field[3];
@@ -254,13 +239,14 @@ const SiLorentzAngleCondData* SiLorentzAngleTool::getCondData() const {
   return nullptr;
 }
 
-StatusCode SiLorentzAngleTool::retrieveDetectorManager() {
-  // If m_detManager is not retrieved yet, it is retrieved.
-  if (!m_detManager) {
-    ATH_CHECK(detStore()->retrieve(m_detManager, m_detectorName));
-    ATH_MSG_INFO("SiLorentzAngleTool::retrieveDetectorManager() is called now.");
-  }
-  return StatusCode::SUCCESS;
+const InDetDD::SiDetectorElement* SiLorentzAngleTool::getDetectorElement(const IdentifierHash& waferHash) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> handle{m_detEleCollKey};
+  const InDetDD::SiDetectorElementCollection* elements{nullptr};
+  if (handle.isValid()) elements = *handle;
+  if (elements!=nullptr) return elements->getDetectorElement(waferHash);
+
+  ATH_MSG_WARNING(m_detEleCollKey.key() << " cannot be retrieved.");
+  return nullptr;
 }
 
 const double SiLorentzAngleTool::s_invalidValue{std::numeric_limits<double>::quiet_NaN()};

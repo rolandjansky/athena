@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -274,9 +274,7 @@ EFMissingET::~EFMissingET(){
 
 //////////////////////////////////////////////////////////
 
-HLT::ErrorCode EFMissingET::hltBeginRun() {
-
-  ATH_MSG_DEBUG( " EFMissingET::hltBeginRun() called " );
+HLT::ErrorCode EFMissingET::hltStart() {
 
   // access StoreGate
   m_StoreGate = store();
@@ -316,8 +314,6 @@ HLT::ErrorCode EFMissingET::hltBeginRun() {
     return HLT::ERROR;
   }
 
-
-  // --
 
   m_firsteventinrun = true;
 

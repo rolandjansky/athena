@@ -115,36 +115,11 @@ _setup_python_package( futures
    a6fa247e3c5fe3d60d8e12f1b873cc88
    )
 
-# Install grin:
-_setup_python_package( grin
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/grin-1.2.1.tar.gz
-   d894426dfbf70bc105388c2a51348199
-   )
-
 # Install jsonpickle:
 _setup_python_package( jsonpickle
    ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonpickle-0.4.0.tar.gz
    63916228294218ca6e53fd1b16b626fa
    DEPENDS simplejson
-   SINGLE_VERSION )
-
-# Install keyring:
-_setup_python_package( keyring
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/keyring-0.5.1.tar.gz
-   a2f0dcea7185580c163ef2db1f4fbe0c
-   SINGLE_VERSION )
-
-# Install pip:
-_setup_python_package( pip
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pip-1.1.tar.gz
-   62a9f08dd5dc69d76734568a6c040508
-   )
-
-# Install pycrypto:
-_setup_python_package( pycrypto
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto-2.6.1.tar.gz
-   55a61a054aa66812daf5161a0d5d7eda
-   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto-warning.patch
    SINGLE_VERSION )
 
 # Install pyflakes:

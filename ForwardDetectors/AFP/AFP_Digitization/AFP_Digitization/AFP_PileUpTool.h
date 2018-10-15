@@ -22,6 +22,7 @@
 #include "AFP_SimEv/AFP_SIDSimHit.h"
 #include "AFP_DigiEv/AFP_TDDigiCollection.h"
 #include "AFP_DigiEv/AFP_SiDigiCollection.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 #include "TMath.h"
 #include "TH1.h"
 #include "TF1.h"
@@ -33,7 +34,7 @@
 #include <utility> /* pair */
 
 class IAtRndmGenSvc;
-class PileUpMergeSvc;
+// class PileUpMergeSvc;
 
 static const InterfaceID IID_IAFP_PileUpTool ("AFP_PileUpTool",1,0); //Temporary for back-compatibility with 17.3.X.Y
 

@@ -8,76 +8,62 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h" 
-
-class StoreGateSvc;
-
 #include "AthenaKernel/IOVSvcDefs.h"
-
-/////////////////////////////////////////////////////////////////////////////
 #include "AmdcDb/AmdcDbMisc.h"
-
 #include "AmdcDb/IRDBAccessSvcWithUpdate.h"
-
-class AmdcsimrecAthenaSvc;
-
-class AmdcDbSvc;
-class AmdcDbRecordset;
-class IRDBRecordset;
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBQuery.h"
 #include <memory>
 
+class StoreGateSvc;
+class AmdcsimrecAthenaSvc;
+class AmdcDbSvc;
+
 template <class TYPE> class SvcFactory;
 
-  /**
-   @class AmdcDb
+/**
+ * @class AmdcDb
+ *
+ * This class is an implementation of the class IRDBAccessSvc
+ * 
+ * @author samusog@cern.ch
+ *
+ */
 
-   This class is an implementation of the class IRDBAccessSvc
-   
-  @author samusog@cern.ch
-  
-  */
-
-class AmdcDb : public AthService, virtual public IRDBAccessSvcWithUpdate {
-public:
-///////////////////////////////////
-
+class AmdcDb final : public AthService, virtual public IRDBAccessSvcWithUpdate {
+ public:
   static const InterfaceID& interfaceID() { return IID_IRDBAccessSvc; }
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
-  virtual bool       InitializedSvc();
-  virtual bool       UsableSvc();
-  virtual StatusCode UpdatedSvc(IOVSVC_CALLBACK_ARGS);
+  virtual bool       InitializedSvc() override;
+  virtual bool       UsableSvc() override;
+  virtual StatusCode UpdatedSvc(IOVSVC_CALLBACK_ARGS) override;
 
-  virtual StatusCode AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS);
+  StatusCode AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS);
   
-  virtual const IRDBRecordset* getRecordset(const std::string& node,
-					    const std::string& tag,
-					    const std::string& tag2node="",
-					    const std::string& connName="ATLASDD");
-
-//Functions
-//  of IRDBAccessSvc Not implemented
-  virtual bool connect   (const std::string& connName);
-  virtual bool disconnect(const std::string& connName);
-  virtual bool shutdown(  const std::string& connName);
-  virtual std::string getChildTag(const std::string& childNode,
-				  const std::string& parentTag,
-				  const std::string& parentNode,
-				  const std::string& connName);
-  std::unique_ptr<IRDBQuery> getQuery(const std::string& node,
-			      const std::string& tag,
-			      const std::string& tag2node,
-			      const std::string& connName);
   virtual IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
                                             const std::string& tag,
                                             const std::string& tag2node ,
-                                            const std::string& connName);
+                                            const std::string& connName) override;
+
+  //Functions of IRDBAccessSvc Not implemented
+  virtual bool connect   (const std::string& connName) override;
+  virtual bool disconnect(const std::string& connName) override;
+  virtual bool shutdown(  const std::string& connName) override;
+  virtual std::string getChildTag(const std::string& childNode,
+				  const std::string& parentTag,
+				  const std::string& parentNode,
+				  const std::string& connName) override;
+  std::unique_ptr<IRDBQuery> getQuery(const std::string& node,
+			      const std::string& tag,
+			      const std::string& tag2node,
+			      const std::string& connName) override;
   virtual RDBTagDetails getTagDetails(const std::string& tag,
-   	                                    const std::string& connName = "ATLASDD") ;
+				      const std::string& connName = "ATLASDD") override;
   friend class SvcFactory<AmdcDb>;
 
   // Standard Constructor
@@ -86,13 +72,11 @@ public:
   // Standard Destructor
   virtual ~AmdcDb();
 
-private:
-///////////////////////////////////
-
+ private:
    bool m_IsUsable ; //!< Tell usuability state 
-
+   
    bool m_IsInitialized ; //!< Tell initialisation state 
-
+   
    StoreGateSvc* p_detStore     ; //!< Pointer On detector store
   
    AmdcDbSvc* p_AmdcDbSvcFromAmdc ; //!< Pointer on AmdcDbSvc
@@ -123,18 +107,17 @@ private:
    std::vector<int>         m_ValFromRDBEpsLengthCM  ; //!< Control precision printing  
    std::vector<int>         m_ValFromRDBEpsAngle     ; //!< Control precision printing
    
-   AmdcDbRecordset* p_AmdcDbRecordsetEmptyOne ; //!< Pointer on an empty AmdcDbRecordset
+   IRDBRecordset_ptr m_emptyRecordset ; //!< Pointer on an empty Recordset
 
    ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
 
-//Db Keys
-  std::string m_detectorKey  ;
-  std::string m_detectorNode ;
+   //Db Keys
+   std::string m_detectorKey  ;
+   std::string m_detectorNode ;
 
-  virtual StatusCode regFcnAmdcsimrecAthenaSvcUpdatedSvc();
-  StatusCode DoUpdatedSvc();
-  int m_AmdcsimrecAthenaSvcUpdatedSvcDONE ;
-
+   StatusCode regFcnAmdcsimrecAthenaSvcUpdatedSvc();
+   StatusCode DoUpdatedSvc();
+   int m_AmdcsimrecAthenaSvcUpdatedSvcDONE ;
 };
 
 #endif

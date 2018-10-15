@@ -320,7 +320,7 @@ TrackFollower::associate_trt (const Track& track)
 }
 
 Track*
-TrackFollower::extrapolate_inwards (const Track& track) const
+TrackFollower::extrapolate_inwards (const Track& track)
 {
     // extrapolate towards the vertex region
     ATH_MSG_DEBUG( "extrapolate_inwards"
@@ -418,7 +418,7 @@ TrackFollower::extrapolate_inwards (const Track& track) const
 }
 
 Track*
-TrackFollower::extrapolate_outwards (const Track& track) const
+TrackFollower::extrapolate_outwards (const Track& track)
 {
     // extrapolate outwards from last assigned hit (to last SCT layer)
     ATH_MSG_DEBUG( "extrapolate_outwards"
@@ -469,7 +469,7 @@ TrackFollower::extrapolate_outwards (const Track& track) const
 }
 
 Track*
-TrackFollower::fast_interpolate_outwards (const Track& track) const
+TrackFollower::fast_interpolate_outwards (const Track& track)
 {
     // interpolate to give a track segment outwards from the first hit
     ATH_MSG_DEBUG( "fast_interpolate_outwards"
@@ -496,7 +496,7 @@ TrackFollower::fast_interpolate_outwards (const Track& track) const
 }
 
 Track*
-TrackFollower::interpolate (const Track& track) const
+TrackFollower::interpolate (const Track& track)
 {
     // interpolate to give a track segment joining the first and last hits
     ATH_MSG_DEBUG( "interpolate"
@@ -526,7 +526,7 @@ TrackFollower::interpolate (const Track& track) const
 }
 
 Track*
-TrackFollower::interpolate_from_beam_spot (const Track& track) const
+TrackFollower::interpolate_from_beam_spot (const Track& track)
 {
     // interpolate to give a long_segment joining beam-line to last hit
     ATH_MSG_DEBUG( "interpolate_from_beam_spot"
@@ -571,7 +571,7 @@ hit_list*
 TrackFollower::associateSilicon (std::vector<SiliconLayer*>::iterator	begin,
 				 std::vector<SiliconLayer*>::iterator	end,
 				 bool					extrapolate,
-				 const Track&				track) const
+				 const Track&				track)
 {
     // create an empty hit_list
     hit_list* hits							= new hit_list;

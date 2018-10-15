@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "LArByteStream/LArRodDecoder.h"
+#include "TileByteStream/TileROD_Decoder.h"
 #include "LArRawUtils/LArTT_Selector.h"
 #include "TileByteStream/TileCellCont.h"
 #include "TrigT2CaloCommon/LArCellCont.h"
@@ -39,9 +40,12 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
                                        const int sampling,
                                        LArTT_Selector<LArCellCont>& loadedCells ) override;
   
+  virtual StatusCode loadCollections ( const EventContext& context,
+                                       const IRoiDescriptor& roi,
+                                       TileCellCollection& loadedCells ) override;
+  
 
 
-  virtual StatusCode prepareFullCollections( const EventContext& context ) override;
   
   virtual StatusCode loadFullCollections ( const EventContext& context,
                                            ConstDataVector<CaloCellContainer>& cont ) override;
@@ -49,6 +53,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
  private:
   
   PublicToolHandle<LArRodDecoder> m_larDecoder { this, "LArDecoderTool", "LArRodDecoder/LArRodDecoder", "Tool to decode LAr raw data" };
+  PublicToolHandle<TileROD_Decoder> m_tileDecoder { this, "TileDecoderTool", "TileROD_Decoder/TileROD_Decoder", "Tool to decode Tile raw data" };
 
   //!< LArRoI_Map used by LArTT_Selector, TB this is apparently a tool!
   PublicToolHandle<LArRoI_Map> m_roiMapTool { this, "LArRoIMapTool", "LArRoI_Map/LArRoI_Map", "Tool used by selectors" };           
@@ -87,22 +92,24 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
    */
   struct  HLTCaloEventCache {
     std::mutex mutex;    
-    LArCellCont* container;
+    LArCellCont* larContainer;
+    TileCellCont* tileContainer;
     CaloCellContainer* fullcont;
     unsigned int lastFSEvent;
   };
 
   
-  SG::SlotSpecificObj< HLTCaloEventCache > m_larcell;
+  SG::SlotSpecificObj< HLTCaloEventCache > m_hLTCaloSlot;
 
   std::mutex m_initMutex; // this will be gone once we move to new conditions
   std::mutex m_dataPrepMutex; // this will be gone when reg sel & Rob DP will become thread safe
   std::mutex m_getCollMutex; // this will be gone
 
-  StatusCode lateInit();
+  unsigned int lateInit();
   bool m_lateInitDone = false;
 
-  StatusCode convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
+  unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
+  unsigned int convertROBs( const std::vector<IdentifierHash>& rIds, TileCellCont* tilecell );
 
 
   /**
@@ -122,15 +129,23 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   /**
    * @brief LAr TT collections preparation code
    **/
-  StatusCode prepareLArCollections( const EventContext& context,
+  unsigned int prepareLArCollections( const EventContext& context,
 				const IRoiDescriptor& roi, 
 				const int sampling,
 				DETID detector );
 
+  unsigned int prepareTileCollections( const EventContext& context,
+				const IRoiDescriptor& roi, 
+				DETID detector );
 
-  StatusCode prepareLArFullCollections( const EventContext& context );
+  unsigned int prepareFullCollections( const EventContext& context );
+
+  unsigned int prepareLArFullCollections( const EventContext& context );
+  unsigned int prepareTileFullCollections( const EventContext& context );
 
   std::vector<uint32_t> m_vrodid32fullDet;
+  std::vector<uint32_t> m_vrodid32tile;
+  std::vector<IdentifierHash> m_rIdstile;
   std::vector<std::vector<uint32_t> > m_vrodid32fullDetHG;
   size_t m_nSlots;
 

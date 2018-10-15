@@ -51,10 +51,6 @@ atLeastOneTrack = HIEFTrackHypo_AtLeastOneTrack(name='HIEFTrackHypo_AtLeastOneTr
 from TrigHIHypo.TrigHIHypoConfig import *
 #hypos.update(hi_hypos)
 
-#L2 pileup suppression
-from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
-
-theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
 
 ###########################################################################
 #  All min bias
@@ -555,6 +551,10 @@ class L2EFChain_MB(L2EFChainDef):
             if "pusup" in self.chainPart['pileupInfo']:
                 doPusup=True
                 chainSuffixL2=l2hypo2+'_'+chainSuffixL2
+                #L2 pileup suppression
+                from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
+
+                theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
                 theL2Fex2  = theL2PileupSup
                 theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_"+l2th2, int(l2th2))
         ########## EF algos ##################
@@ -655,7 +655,8 @@ class L2EFChain_MB(L2EFChainDef):
 
             theL2Fex1  = L2MbSpFex_noPix
             theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, float(l2th1))
-
+            from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
+            theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
             theL2Fex2  = theL2PileupSup
             theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_PT")
             theL2Hypo2.AcceptAll = True

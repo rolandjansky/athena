@@ -30,7 +30,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
-                          Tracking/TrkFitter/TrkFitterInterfaces )
+                          Tracking/TrkFitter/TrkFitterInterfaces
+                          Tracking/TrkExtrapolation/TrkExInterfaces )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )

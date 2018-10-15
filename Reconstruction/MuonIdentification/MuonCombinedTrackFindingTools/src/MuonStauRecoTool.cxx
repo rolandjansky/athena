@@ -153,21 +153,21 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-					 const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-					 const Muon::MMPrepDataContainer* mmPRDs ) {
+  void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
+					 const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs,
+					 const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
     //Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
     //For now it's just a placeholder though
-    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs) extend(inDetCandidates);
+    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs) extend(inDetCandidates, tagMap);
   }
 
-  void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) {
+  void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
     InDetCandidateCollection::const_iterator it_end = inDetCandidates.end();
     for( ; it!=it_end;++it ){
-      handleCandidate( **it );
+      handleCandidate( **it, tagMap );
     }
   }
   
@@ -184,7 +184,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) {
+  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap ) {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -299,7 +299,7 @@ namespace MuonCombined {
     /** STAGE 6
         create tag
     */
-    addTag( indetCandidate, *candidates.front() );
+    addTag( indetCandidate, *candidates.front(), tagMap );
 
   }
   
@@ -592,6 +592,7 @@ namespace MuonCombined {
       rpcTimeCalibration(id,time,er);
       float sh = 0;
       bool isEta = !m_idHelper->measuresPhi(id); 
+      if(isEta) tech=MuGirlNS::RPCETA_STAU_HIT;
       float propTime = 0;
       float tof = muonBetaCalculationUtils.calculateTof(1,distance);
       float beta = muonBetaCalculationUtils.calculateBeta(time+tof,distance);
@@ -804,7 +805,7 @@ namespace MuonCombined {
     candidate.finalBetaFitResult = betaFitResult;
   }
     
-  void MuonStauRecoTool::addTag( const InDetCandidate& indetCandidate, MuonStauRecoTool::Candidate& candidate ) const {
+  void MuonStauRecoTool::addTag( const InDetCandidate& indetCandidate, MuonStauRecoTool::Candidate& candidate, InDetCandidateToTagMap* tagMap ) const {
     
     // get combined track and the segments
     const Trk::Track* combinedTrack = candidate.combinedTrack.release();
@@ -856,7 +857,7 @@ namespace MuonCombined {
 
 
     // add tag to IndetCandidate
-    const_cast<InDetCandidate&>(indetCandidate).addTag(*tag);
+    tagMap->addEntry(&indetCandidate,tag);
 
   }
 

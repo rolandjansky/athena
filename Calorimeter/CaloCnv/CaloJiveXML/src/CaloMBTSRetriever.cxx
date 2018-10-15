@@ -239,7 +239,7 @@ namespace JiveXML {
 
     if (m_mbtsdigit) {
 
-      if (scTileDigit.isSuccess()) {
+      if (scTileDigit.isSuccess() && tileDigits) {
 
         //----- get tile digits--------------------------
         TileDigitsContainer::const_iterator itColl = tileDigits->begin();

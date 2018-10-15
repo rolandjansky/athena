@@ -6,7 +6,11 @@
 #define IINDETZVTOP_TRKPARTBASEVERTEXSTATE_H 
 
 #include "VxVertex/Vertex.h"
-#include "TrkParticleBase/TrackParticleBase.h"
+#include <vector>
+
+namespace Trk{
+  class TrackParticleBase;
+}
 
 /**
  *  ZVTOP_Tool helper class
@@ -32,8 +36,9 @@ public:
 
     /**Copy Constructor */
     ZVTOP_TrkPartBaseVertexState (const ZVTOP_TrkPartBaseVertexState& vs); //copy-constructor
-    //ZVTOP_VertexState &operator=  (const ZVTOP_VertexState &);  //assignement operator
+    ZVTOP_TrkPartBaseVertexState &operator=  (const ZVTOP_TrkPartBaseVertexState &) = default;
     
+    //(sroe): why do these return references to protected data?
     double& vtx_prob(void);
 
     Trk::Vertex& vertex(void);

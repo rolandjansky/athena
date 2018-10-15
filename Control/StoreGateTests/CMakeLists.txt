@@ -8,10 +8,9 @@ atlas_subdir( StoreGateTests )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaPython
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/AthAllocators
                           Control/AthContainers
-                          Control/SGTools
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
@@ -25,16 +24,30 @@ atlas_add_component( StoreGateTests
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthAllocators AthContainers SGTools AthenaBaseComps StoreGateLib SGtests GaudiKernel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthAllocators AthContainers AthenaBaseComps StoreGateLib SGtests GaudiKernel )
 
 atlas_add_dictionary( StoreGateTestsDict
                       StoreGateTests/StoreGateTestsDict.h
                       StoreGateTests/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAllocators AthContainers SGTools AthenaBaseComps StoreGateLib SGtests GaudiKernel )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAllocators AthContainers AthenaBaseComps StoreGateLib SGtests GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( StoreGateTests )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py share/tests/*.py )
 
+atlas_add_test( PyClidsTestWriter
+                SCRIPT test/PyClidsTestWriter.sh
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "running|XMLCatalog" )
+
+atlas_add_test( SgProducerConsumer
+                SCRIPT test/SgProducerConsumer.sh
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "running|XMLCatalog" )
+
+atlas_add_test( SgProducerConsumerDataPool
+                SCRIPT test/SgProducerConsumerDataPool.sh
+                PROPERTIES TIMEOUT 600
+                EXTRA_PATTERNS "running|XMLCatalog" )

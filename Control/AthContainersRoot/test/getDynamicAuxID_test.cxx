@@ -85,7 +85,7 @@ void test1 (SG::auxid_t a1_id)
 
 SG::auxid_t init()
 {
-  static SG::AuxElement::Accessor<int> a1 ("a1");
+  static const SG::AuxElement::Accessor<int> a1 ("a1");
   return a1.auxid();
 }
 

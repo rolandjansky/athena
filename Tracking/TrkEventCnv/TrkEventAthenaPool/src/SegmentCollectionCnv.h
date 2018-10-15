@@ -48,8 +48,6 @@ public:
   SegmentCollectionCnv( ISvcLocator *svcloc );
 
 protected:
-  ~SegmentCollectionCnv();
-
   virtual SegmentCollection_PERS *createPersistent( Trk::SegmentCollection *transCont);
   virtual Trk::SegmentCollection *createTransient();
 

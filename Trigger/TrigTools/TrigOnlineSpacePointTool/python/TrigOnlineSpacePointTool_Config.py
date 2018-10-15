@@ -3,11 +3,13 @@
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import OnlineSpacePointProviderTool
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import PixelClusterCacheTool
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import SCT_ClusterCacheTool
+from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import FastSCT_RodDecoder
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
 
 class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
     __slots__ = []
@@ -21,14 +23,20 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         
         from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+
+        # --- SiLorentzAngleTool
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
                                                                PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                               PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
+                                                               SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                                                                )
 
         ToolSvc += InDetL2TrigClusterMakerTool
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+        from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
         InDetL2TrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetL2TrigMergedPixelsTool",
                                                                globalPosAlg  = InDetL2TrigClusterMakerTool,
                                                                UseSpecialPixelMap = False,
@@ -51,8 +59,18 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         ToolSvc += InDetL2TrigMergedPixelsTool
         ToolSvc += InDetL2TrigSCT_ClusteringTool
 
-        ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool)
+        # SiLorentzAngleTool for FastSCT_RodDecoder
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup() 
+
+        # FastSCT_RodDecoder
+        ToolSvc += FastSCT_RodDecoder(name = "FastSCT_RodDecoder",
+                                      LorentzAngleTool=sctLorentzAngleToolSetup.SCTLorentzAngleTool)
+
+        ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool,
+                                                                LorentzAngleTool = TrigPixelLorentzAngleTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
+                                                              FastSCT_RodDecoder = ToolSvc.FastSCT_RodDecoder
                                                               )
 
         if not self.DoBS_Conversion :

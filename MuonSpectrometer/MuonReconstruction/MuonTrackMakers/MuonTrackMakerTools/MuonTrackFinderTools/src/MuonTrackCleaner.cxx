@@ -893,17 +893,18 @@ namespace Muon {
         bool remove = hit->chId == chId && ( (removePhi && measuresPhi) || (removeEta && !measuresPhi) );
         // hits that are flagged as outlier or hits in the chamber to be removed are added as Outlier
         if( !hit->useInFit || remove ){
-          hit->useInFit = 0;
           if( msgLvl(MSG::DEBUG) && remove ) msg() << MSG::DEBUG << "   removing hit " << m_idHelper->toString(hit->id) 
 						   << " pull " << hit->resPull->pull().front() << endmsg;
           // add as outlier
           if( hit->inBounds ) tsos->push_back( MuonTSOSHelper::cloneTSOSWithUpdate( *hit->originalState,
-                                                                                    *hit->meas,
-                                                                                    *hit->pars,
-                                                                                    Trk::TrackStateOnSurface::Outlier) );
+										    *hit->meas,
+										    *hit->pars,
+										    Trk::TrackStateOnSurface::Outlier) );
           
           // if removed, add hit to vector of hits 
-          if( remove ) result.removedHits.push_back(&*hit);
+	  //but only if the hit was not already an outlier to be skipped!
+          if( remove && hit->useInFit) result.removedHits.push_back(&*hit);
+          hit->useInFit = 0;
           continue;
         }
       }
@@ -922,12 +923,12 @@ namespace Muon {
     
     // fit new track
     if ( msgLvl(MSG::DEBUG) ) {
-      const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+      const DataVector<const Trk::TrackStateOnSurface>* states = cleanedTrack->trackStateOnSurfaces();
       int nStates = 0;
       if ( states ) nStates = states->size();
       msg() << MSG::DEBUG << "removeChamber: Calling fit with hits: " << nStates;
       if ( msgLvl(MSG::VERBOSE) ) {
-	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( track );
+	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( *cleanedTrack );
       }
       msg() << endmsg;
       if( !cleanedTrack->perigeeParameters() ){
@@ -951,7 +952,7 @@ namespace Muon {
   }
 
 
-    Trk::Track* MuonTrackCleaner::outlierRecovery( Trk::Track& track, MuonStationIndex::ChIndex* currentIndex ) const {
+  Trk::Track* MuonTrackCleaner::outlierRecovery( Trk::Track& track, MuonStationIndex::ChIndex* currentIndex ) const {
     
 
     const Trk::Perigee* perigee = track.perigeeParameters();
@@ -1014,7 +1015,6 @@ namespace Muon {
       if( !hit->useInFit ){
 	if( hit->inBounds ){
 	  if( recoverableLayers.count(hit->chIndex) ) {
-
 	    // check whether we can savely add hits in this chamber to the track
 	    bool recover =  !isOutsideOnTrackCut( hit->id, hit->residual,hit->pull,m_associationScaleFactor ) ? true : false;
 	    if( recover && m_onlyUseHitErrorInRecovery && hit->pars ){
@@ -1050,8 +1050,12 @@ namespace Muon {
 	      tsos->push_back( hit->originalState->clone() );
 	    }
 	  }
+	  //layer not recoverable, drop the outliers: but if RPC, TGC, or CSC, expect track to go through all layers, so add a hole instead
+	  if(m_idHelper->isRpc(hit->id) || m_idHelper->isTgc(hit->id) || m_idHelper->isCsc(hit->id)) tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit->pars->clone()));
 	}else{
 	  ++removedOutOfBoundsHits;
+	  //if RPC, TGC, or CSC, expect track to go through all layers: add a hole to replace lost outlier
+	  if(m_idHelper->isRpc(hit->id) || m_idHelper->isTgc(hit->id) || m_idHelper->isCsc(hit->id)) tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit->pars->clone()));
 	  if( msgLvl(MSG::DEBUG) ) {
 	    msg() << MSG::DEBUG << "   removing out of bounds outlier " << m_idHelper->toString(hit->id) 
 		  << " pull " << std::setw(7) << hit->pull << endmsg;
@@ -1073,7 +1077,6 @@ namespace Muon {
       delete tsos;
       return 0;
     }
-
 
     // create new track
     Trk::Track* cleanedTrack = new Trk::Track( track.info(), tsos, track.fitQuality() ? track.fitQuality()->clone():0 );

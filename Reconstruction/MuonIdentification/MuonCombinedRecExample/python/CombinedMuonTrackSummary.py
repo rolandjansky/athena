@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 #
@@ -38,7 +38,7 @@ if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   ToolSvc += InDet__InDetTestPixelLayerTool( 
     name = "CombinedMuonInDetTestPixelLayerTool",
     Extrapolator = atlasExtrapolator,
-    PixelSummarySvc = ServiceMgr.PixelConditionsSummarySvc,
+    PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
     CheckActiveAreas = True,
     CheckDeadRegions = True
     )
@@ -107,7 +107,11 @@ if DetFlags.haveRIO.pixel_on():
 
   
 if DetFlags.haveRIO.SCT_on():
-  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool      = ToolSvc.InDetSCT_ConditionsSummaryTool
+  from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+  sct_ConditionsSummaryToolSetup.setup()
+  InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
+  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetSCT_ConditionsSummaryTool
 
 # check configuration
 #print ToolSvc.CombinedMuonIDHoleSearch

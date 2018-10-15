@@ -48,6 +48,7 @@ class SteeringParameterInt : public SteeringParameter {
  public:
    SteeringParameterInt(int init);
    virtual int &operator=(int const &);
+   using SteeringParameter::operator char const*;
    virtual operator int() const;
    virtual operator double() const;
    virtual bool Read(std::istream &in);
@@ -61,6 +62,8 @@ class SteeringParameterDouble : public SteeringParameter {
  public:
    SteeringParameterDouble(double init);
    virtual double &operator=(double const &);
+   using SteeringParameter::operator char const*;
+   using SteeringParameter::operator int;
    virtual operator double() const;
    virtual bool Read(std::istream &in);
    virtual void Write(std::ostream &out) const;
@@ -74,6 +77,8 @@ class SteeringParameterString : public SteeringParameter {
    SteeringParameterString(char const *init);
    virtual ~SteeringParameterString(void);
    virtual char const *operator=(char const *);
+   using SteeringParameter::operator double;
+   using SteeringParameter::operator int;
    virtual operator char const *() const;
    virtual bool Read(std::istream &in);
    virtual void Write(std::ostream &out) const;

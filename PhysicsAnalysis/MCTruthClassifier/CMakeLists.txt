@@ -17,14 +17,15 @@ elseif( XAOD_ANALYSIS )
 else()
    set( extra_deps GaudiKernel
       Reconstruction/RecoTools/ParticlesInConeTools
+      Reconstruction/RecoTools/RecoToolInterfaces
       PRIVATE
       Generators/TruthUtils
-      Reconstruction/RecoTools/RecoToolInterfaces
       Tracking/TrkEvent/TrkEventPrimitives
       Tracking/TrkEvent/TrkParametersIdentificationHelpers
+      Tracking/TrkEvent/TrkCaloExtension
       Control/AthenaKernel )
-   set( extra_libs GaudiKernel
-      PRIVATE_LINK_LIBRARIES GeneratorObjects RecoToolInterfaces
+   set( extra_libs GaudiKernel RecoToolInterfaces
+      PRIVATE_LINK_LIBRARIES GeneratorObjects 
       TrkEventPrimitives TrkParametersIdentificationHelpers )
 endif()
 

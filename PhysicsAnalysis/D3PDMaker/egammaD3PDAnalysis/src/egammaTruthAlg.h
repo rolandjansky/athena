@@ -20,12 +20,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <string>
-namespace Trk {
-class IParticleCaloExtensionTool;
-}
 
 
 namespace D3PD {

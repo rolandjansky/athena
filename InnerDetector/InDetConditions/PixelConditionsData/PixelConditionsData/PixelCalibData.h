@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -85,11 +85,4 @@ inline const Identifier& PixelCalibData::getModuleID() const { return m_id;}
 
 }
 #endif 
-
-
-
-
-
-
-
 

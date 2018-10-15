@@ -115,7 +115,7 @@ class EventShapes
   std::vector<double> m_values;
 };  
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(EventShapes, 255442581, 1)
 
 #endif

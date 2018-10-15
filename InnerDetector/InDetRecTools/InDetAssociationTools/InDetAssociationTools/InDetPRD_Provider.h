@@ -12,7 +12,7 @@
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-// InDet includes
+// InDet includes; these are needed (cannot be fwd declared) for template type deduction
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
@@ -20,15 +20,16 @@
 #include "TrkToolInterfaces/IPRD_Provider.h"
 #include "TrkPrepRawData/PrepRawDataContainer.h"
 #include "TrkPrepRawData/PrepRawDataCollection.h"
-// Identifier
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
  
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 class TRT_ID; 
-  
+class Identifier;
+class IdentifierHash;
 namespace InDet {
  
   /**
@@ -94,6 +95,8 @@ namespace InDet {
         const SCT_ID*                               m_sctIdHelper;                      
         std::string                                 m_sctClusterContainerName;          
         mutable const SCT_ClusterContainer*         m_sctClusterContainer;              
+        // For P->T converter of SCT_Clusters
+        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
         
         const TRT_ID*                               m_trtIdHelper;                      
         std::string                                 m_trtDriftCircleContainerName;      

@@ -6,9 +6,9 @@
 #ifndef TRIGL2PILEUP_TRIGPILEUPINFO_H 
 #define TRIGL2PILEUP_TRIGPILEUPINFO_H 
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include <vector>

@@ -9,6 +9,7 @@
 //                                                            //
 //  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
 //  Initial version: February 2008                            //
+//  Updates: Riccardo Maria Bianchi (rbianchi@cern.ch)        //
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
@@ -284,21 +285,6 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   m_d->ui_cuts.etaPhiCutWidget->setSystemBasePointer(systemBase());
 
   //Draw Styles / Complexity:
-  // VP1QtInventorUtils::setLimitsLineWidthSlider(m_d->ui_col.horizontalSlider_trackWidth);
-  // VP1QtInventorUtils::setValueLineWidthSlider(m_d->ui_col.horizontalSlider_trackWidth,1.0);
-  // VP1QtInventorUtils::setLimitsLineWidthSlider(m_d->ui_ascobjs.horizontalSlider_linewidths);
-  // VP1QtInventorUtils::setValueLineWidthSlider(m_d->ui_ascobjs.horizontalSlider_linewidths,1.0);
-  // VP1QtInventorUtils::setLimitsPointSizeSlider(m_d->ui_ascobjs.horizontalSlider_pointsizes);
-  // VP1QtInventorUtils::setValuePointSizeSlider(m_d->ui_ascobjs.horizontalSlider_pointsizes,3.0);
-
-  // m_d->trackDrawStyle = new SoDrawStyle;
-  // m_d->trackDrawStyle->setName("TrackDrawStyle");
-  // m_d->trackDrawStyle->ref();
-  //  updateTrackDrawStyle();
-
-  // addUpdateSlot(SLOT(updateTrackDrawStyle()));
-  // connectToLastUpdateSlot(m_d->ui_col.horizontalSlider_trackWidth);
-
   m_d->ascObjDrawStyle = new SoDrawStyle;
   m_d->ascObjDrawStyle->setName("AscObjDrawStyle");
   m_d->ascObjDrawStyle->ref();
@@ -312,26 +298,12 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   addUpdateSlot(SLOT(updateAscObjComplexity()));
   connectToLastUpdateSlot(m_d->ui_ascobjs.horizontalSlider_complexity);
 
-  // m_d->trackLightModel = new SoLightModel;
-  // m_d->trackLightModel->setName("TrackLightModel");
-  // m_d->trackLightModel->ref();
-  // addUpdateSlot(SLOT(updateTrackLightModel()));
-  // connectToLastUpdateSlot(m_d->ui_col.checkBox_tracksUseBaseLightModel);
-
   //Refit ui is dependent on env variable:
   m_d->ui_int.radioButton_selmode_trackfits->setVisible(VP1QtUtils::environmentVariableIsOn("VP1_DEVEL_ENABLEREFIT"));
   m_d->ui_int.groupBox_refitting->setEnabled(VP1QtUtils::environmentVariableIsOn("VP1_DEVEL_ENABLEREFIT"));
   connect(m_d->ui_int.comboBox_fitterMode,SIGNAL(currentIndexChanged(int)),this,SLOT(updateFitPRDButtonState()));
   
-  //m_d->ui_ascobjs.checkBox_usecolour_meas_outliers->setEnabled(false);
-  //m_d->ui_ascobjs.matButton_meas_outliers->setEnabled(false);
-  //m_d->ui_ascobjs.horizontalSlider_materialeffectsontrack_scale->setEnabled(false);
-  //m_d->ui_ascobjs.label_mateffects_scale->setEnabled(false);
-  // m_d->ui_ascobjs.checkBox_materialeffectsontrack_forceposontrack->setEnabled(false);
-  // m_d->ui_extrap.groupBox_otheroptions->setEnabled(false);
-  // m_d->ui_extrap.radioButton_helical->setEnabled(false);
-
-
+ 
   //Disable elements based on job configuration:
 
   if (!VP1JobConfigInfo::hasMuonGeometry()) {
@@ -481,10 +453,12 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nhits_sct);
   connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nhits_trt);
   connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nhits_muon);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nprecisionhits_muon);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_pixel);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_sct);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_trt);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_muon);
+  connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nprecisionhits_muon);
 
   // -> cutTruthFromIROnly
   addUpdateSlot(SLOT(possibleChange_cutTruthFromIROnly()));
@@ -625,10 +599,11 @@ SoMaterial * TrackSystemController::Imp::createMaterial(const int& r,const int& 
 }
 
 //____________________________________________________________________
+
 void TrackSystemController::Imp::initMaterials()
 {
   //By PID => Electrons and muons:.
-  ui_col.matButton_electrons->setMaterial(createMaterial(205,103,255));//purple
+  ui_col.matButton_electrons->setMaterial(createMaterial(255,0,0)); //red; //(205,103,255));//purple
   ui_col.matButton_muons->setMaterial(createMaterial(71,255,51));//green
 
   //By PID => Charged: bluish colours
@@ -1846,10 +1821,12 @@ QList<unsigned> TrackSystemController::cutRequiredNHits() const
   unsigned nsct = m_d->ui_cuts.checkBox_cut_nhits_sct->isChecked() ? m_d->ui_cuts.spinBox_cut_nhits_sct->value() : 0;
   unsigned ntrt = m_d->ui_cuts.checkBox_cut_nhits_trt->isChecked() ? m_d->ui_cuts.spinBox_cut_nhits_trt->value() : 0;
   unsigned nmuon = m_d->ui_cuts.checkBox_cut_nhits_muon->isChecked() ? m_d->ui_cuts.spinBox_cut_nhits_muon->value() : 0;
+  unsigned nprecmuon = m_d->ui_cuts.checkBox_cut_nprecisionhits_muon->isChecked() ? m_d->ui_cuts.spinBox_cut_nprecisionhits_muon->value() : 0;
+    
   QList<unsigned> l;
-  if (!npixel&&!nsct&&!ntrt&&!nmuon)
+  if (!npixel&&!nsct&&!ntrt&&!nmuon&&!nprecmuon)
     return l;
-  l << npixel << nsct << ntrt << nmuon;
+  l << npixel << nsct << ntrt << nmuon << nprecmuon;
   return l;
 }
 
@@ -1903,15 +1880,15 @@ bool TrackSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList
       //AtlasExtrapolater over... whatever (same for fitters):
       int i_vp1(-1), i_atlas(-1);
       for (int j = 0; j <cb->count();++j) {
-	if (i_vp1==-1&&cb->itemText(j).contains("vp1",Qt::CaseInsensitive))
-	  i_vp1 = j;
-	if (i_atlas==-1&&cb->itemText(j).contains("atlas",Qt::CaseInsensitive))
-	  i_atlas = j;
+      	if (i_vp1==-1&&cb->itemText(j).contains("vp1",Qt::CaseInsensitive))
+      	  i_vp1 = j;
+      	if (i_atlas==-1&&cb->itemText(j).contains("atlas",Qt::CaseInsensitive))
+      	  i_atlas = j;
       }
       if (i_vp1>=0)
-	cb->setCurrentIndex(i_vp1);
+      	cb->setCurrentIndex(i_vp1);
       else if (i_atlas>=0)
-	cb->setCurrentIndex(i_atlas);
+      	cb->setCurrentIndex(i_atlas);
     }
     //m_d->ui_extrap.radioButton_athenaExtrapolator->setEnabled(true);
     enabled = true;

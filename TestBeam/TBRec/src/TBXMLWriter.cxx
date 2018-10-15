@@ -3,21 +3,15 @@
 */
 
 
-// Gaudi
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
+#include "TBXMLWriterToolBase.h"
+#include "TBXMLWriter.h"
 
-// StoreGate services
-#include "StoreGate/StoreGateSvc.h"
 
 // event
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// TBRec includes
-#include "TBRec/TBXMLWriterToolBase.h"
-#include "TBRec/TBXMLWriter.h"
+#include "GaudiKernel/ListItem.h"
 
 #include <string>
 #include <vector>

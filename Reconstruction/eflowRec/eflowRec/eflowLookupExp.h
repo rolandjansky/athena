@@ -17,7 +17,7 @@
 #include <math.h>
 #include <memory>
 
-/* Lookup-table based exponential function to save CPU time */
+/** Lookup-table based exponential function to save CPU time, which is used by eflowCellIntegrator */
 class eflowLookupExp{
 public:
   static eflowLookupExp* getInstance(int nExpBins = 50, int nExpSubBins = 1000){

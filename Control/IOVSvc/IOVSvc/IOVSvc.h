@@ -210,7 +210,9 @@ private:
   ServiceHandle<StoreGateSvc> p_sgs, p_detStore;
   ServiceHandle<ICondSvc> p_condSvc;
 
-  mutable std::mutex m_lock;
+  // Recursive because createCondObj dereferences a DataProxy, which can
+  // eventually recursively call back to IOVSvc.
+  mutable std::recursive_mutex m_lock;
 
 };
 

@@ -51,6 +51,14 @@ public:
    */
   virtual StatusCode condObjAdded (const EventContext& ctx,
                                    CondContBase& cc) = 0;
+
+
+  /**
+   * @brief Print some statistics about the garbage collection.
+   *        Would generally be called in finalize(), but broken out
+   *        as a separate interface for testing/debugging purposes.
+   */
+  virtual StatusCode printStats() const = 0;
 };
 
 

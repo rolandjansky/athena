@@ -13,7 +13,10 @@
 #+ HLT/Trigger/TrigTransforms/TrigTransform
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
+- HLT/HLTTestApps
 - HLT/HLToks
+- Trigger/ALP
+- Event/DFStreamEventSelector
 
 # Offload service has build problems
 - Offloading/.*
@@ -27,6 +30,9 @@
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
+
+# Suspend building of Qat
+- graphics/Qat/.*
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
@@ -42,7 +48,6 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 #- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
-- PhysicsAnalysis/TopPhys/KLFitter
 - PhysicsAnalysis/TopPhys/QuickAna
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
@@ -53,5 +58,13 @@
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 - Trigger/TrigFTK/FTKStandaloneMonitoring
 
+# Data quality packages not needed in Athena
+- DataQuality/DataQualityConfigurations
+- DataQuality/DCSCalculator2
+
 # obsolete packages to be removed in a second step
 - Tracking/TrkTools/TrkSegmentConverter
+
+# Huge D3PD librarys not really useful any more
+- PhysicsAnalysis/D3PDMaker/TrackD3PDMaker
+- PhysicsAnalysis/D3PDMaker/CaloD3PDMaker

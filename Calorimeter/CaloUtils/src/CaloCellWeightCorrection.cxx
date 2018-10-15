@@ -87,7 +87,9 @@ StatusCode CaloCellWeightCorrection::initialize() {
 // EXECUTE method: Correct cells in input cell container
 //////////////////////////////////////////////////////////////
 
-StatusCode CaloCellWeightCorrection::execute(CaloCellContainer* cellCollection) 
+StatusCode
+CaloCellWeightCorrection::execute (CaloCellContainer* cellCollection,
+                                   const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "Executing CaloCellWeightCorrection"  );
 
@@ -101,12 +103,8 @@ StatusCode CaloCellWeightCorrection::execute(CaloCellContainer* cellCollection)
   // Note that this is the base class of all the concrete correction
   // classes which implement a Make Correction method.
 
-  CaloCellContainer::iterator cellIter = cellCollection->begin();
-  CaloCellContainer::iterator cellIterEnd = cellCollection->end();
-
-  for (; cellIter != cellIterEnd; ++cellIter)
-  { 
-    MakeCorrection( *cellIter );
+  for (CaloCell* cell : *cellCollection) {
+    MakeCorrection ( cell, ctx );
   }
 
   // Done, Return success
@@ -115,26 +113,15 @@ StatusCode CaloCellWeightCorrection::execute(CaloCellContainer* cellCollection)
 
 }
 
-void CaloCellWeightCorrection::MakeCorrection( CaloCell* theCell ) 
+void
+CaloCellWeightCorrection::MakeCorrection ( CaloCell* theCell,
+                                           const EventContext& /*ctx*/) const
 {
-  
-
   double weight = 1.0;
-  
-  std::vector<ICellWeightTool*>::iterator toolIter=m_cellWeightTools.begin();
-  std::vector<ICellWeightTool*>::iterator toolIterEnd=m_cellWeightTools.end();
-
-  ICellWeightTool* theTool;
-  
-  for (; toolIter != toolIterEnd; toolIter++){
-    theTool = *toolIter;
-    
+  for (const ICellWeightTool* tool : m_cellWeightTools) {
     // need to be able to initialize tool (i.e. set container)    
-    weight *= theTool->wtCell( theCell );    
+    weight *= tool->wtCell( theCell );    
   }
 
   theCell->scaleEnergy( weight );
-  
 }
-
-

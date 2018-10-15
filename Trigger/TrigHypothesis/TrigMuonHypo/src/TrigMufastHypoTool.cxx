@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -97,7 +97,7 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
    auto xatBeam		= MonitoredScalar::declare("XatBe", -9999.);
    auto zatBeam		= MonitoredScalar::declare("ZatBe", -9999.);
 
-   auto monitorIt	= MonitoredScope::declare(m_monTool, fexPt, fexEta, fexPhi,fexPtFL, 
+   auto monitorIt	= MonitoredScope::declare(m_monTool, fexPt, fexEta, fexPhi, fexPtFL,
    					          xatStation, yatStation, zatStation, 
 					          xatBeam, zatBeam);
 
@@ -120,7 +120,7 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
    }
 
    // Get xAOD::L2StandAloneMuon:
-   auto pMuon = input.cluster;
+   auto pMuon = input.muFast;
  
    if(!pMuon){
       result = false;
@@ -341,7 +341,7 @@ StatusCode TrigMufastHypoTool::multiplicitySelection(std::vector<TrigMufastHypoT
       auto notFromSameRoI = [&]( const HLT::Index1DVec& comb ) {
          std::set<const xAOD::L2StandAloneMuon*> setOfClusters;
          for ( auto index: comb ) {
-            setOfClusters.insert( toolInput[index].cluster );
+            setOfClusters.insert( toolInput[index].muFast );
          }
          return setOfClusters.size() == comb.size();
       };
@@ -359,7 +359,7 @@ StatusCode TrigMufastHypoTool::multiplicitySelection(std::vector<TrigMufastHypoT
 
    for ( auto idx: passingIndices ) {
       ATH_MSG_DEBUG("Muon event[" << idx << "] passes through Chain/ID " << m_decisionId 
-                    << " with pT = " << toolInput[idx].cluster->pt() << "GeV" );
+                    << " with pT = " << toolInput[idx].muFast->pt() << "GeV" );
       TrigCompositeUtils::addDecisionID( m_decisionId.numeric(), toolInput[idx].decision );
    }
 

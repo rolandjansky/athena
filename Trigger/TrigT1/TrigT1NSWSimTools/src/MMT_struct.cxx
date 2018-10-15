@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MMT_struct.h"
+#include "TrigT1NSWSimTools/MMT_struct.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"

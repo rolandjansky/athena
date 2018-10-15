@@ -25,6 +25,9 @@ class eflowFirstIntParameters;
 
 typedef std::pair<eflowCaloENUM,short> RingId;
 
+/**
+This stores information, a rank and ring thickness, about cell rings in an ordered way. The rings are ranked in descending energy density order. A ring is a list of calorimeter cells, in a given calorimeter layer, between two radii r1 and r2. This object is stored in the eflowRecTrack object, such that we have an eflowRingSubtractionManager for each track. The data in this object is filled in the simulateShower method of eflowCaloObject.
+*/
 class eflowRingSubtractionManager {
 
  public:

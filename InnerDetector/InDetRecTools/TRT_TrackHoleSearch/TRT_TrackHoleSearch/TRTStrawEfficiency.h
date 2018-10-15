@@ -13,8 +13,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
+#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -31,9 +33,7 @@ namespace Trk
 	class TrackStateOnSurface;
 }
 
-class ITHistSvc;
 class TRT_ID;
-class ITRT_StrawNeighbourSvc;
 
 class TTree;
 

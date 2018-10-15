@@ -14,8 +14,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 // HepMC
 #include "HepMC/GenParticle.h"
-//for ThreePointCircle
-//#include "TrkEventPrimitives/GlobalDirection.h"
+
 
 InDet::PRD_TruthTrajectorySelectorID::PRD_TruthTrajectorySelectorID(const std::string& t, const std::string& n, const IInterface* p) :
 AthAlgTool(t,n,p)
@@ -141,11 +140,11 @@ bool InDet::PRD_TruthTrajectorySelectorID::pass( const Trk::PRD_TruthTrajectory 
   for ( int i = 0; i  < 3 &&  prdIter != prdIterE; ++ prdIter ){
     if( m_atlasId->is_pixel((*prdIter)->identify()) ){
       const InDet::PixelCluster* pixclus=dynamic_cast<const InDet::PixelCluster*>(*prdIter);
-      pos.push_back (pixclus->globalPosition());
+      if (pixclus) pos.push_back (pixclus->globalPosition());
     }
     else if( m_atlasId->is_sct((*prdIter)->identify()) ){
             const InDet::SCT_Cluster* sctclus=dynamic_cast<const InDet::SCT_Cluster*>(*prdIter);
-            pos.push_back (sctclus->globalPosition());
+            if (sctclus) pos.push_back (sctclus->globalPosition());
     }
     else if( m_atlasId->is_trt((*prdIter)->identify()) ){
             continue;

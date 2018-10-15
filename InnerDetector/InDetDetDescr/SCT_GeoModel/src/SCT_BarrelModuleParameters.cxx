@@ -30,7 +30,7 @@ const double REF_DISTANCE_BETWEEN_FIDUCIALS = 2.19 * CLHEP::mm;
 const double DISTANCE_CORNER_MARK_TO_CENTER = 31.750 * CLHEP::mm; 
 const double DISTANCE_CORNER_MARK_TO_FIDUCIAL = 0.8 * CLHEP::mm; 
 const double DISTANCE_CENTER_TO_CENTER = 2 * (DISTANCE_CORNER_MARK_TO_CENTER - 
-					      DISTANCE_CORNER_MARK_TO_FIDUCIAL)
+                                              DISTANCE_CORNER_MARK_TO_FIDUCIAL)
                                          + REF_DISTANCE_BETWEEN_FIDUCIALS;
 */
 

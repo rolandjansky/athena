@@ -41,6 +41,7 @@ public: // Non-static members
    StatusCode initialize();
    StatusCode io_reinit();
    /// Required of all Gaudi services:
+   StatusCode start();
    StatusCode stop();
    /// Required of all Gaudi services:
    StatusCode finalize();

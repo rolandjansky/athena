@@ -59,11 +59,11 @@ class egammaBuilder : public AthAlgorithm
   ~egammaBuilder();
 
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override final;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override final;
   /** @brief execute method*/
-  StatusCode execute();
+  StatusCode execute() override final;
   
   /** Given an egammaRec object, a pointer to the electron container and the author, 
     * create and dress an electron, pushing it back to the container and 

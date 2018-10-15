@@ -2,51 +2,46 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileConditions/TileCondToolTiming.h"
-#include "TileCalibBlobObjs/Exception.h"
-#include "TileConditions/TileCondProxyWrapper.h"
+#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //
 //____________________________________________________________________
-static const InterfaceID IID_TileCondToolTiming("TileCondToolTiming", 1, 0);  
-const InterfaceID& TileCondToolTiming::interfaceID() 
-{ 
+static const InterfaceID IID_TileCondToolTiming("TileCondToolTiming", 1, 0);
+const InterfaceID& TileCondToolTiming::interfaceID()
+{
   return IID_TileCondToolTiming;
 }
 
 //
 //____________________________________________________________________
 TileCondToolTiming::TileCondToolTiming(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool( type, name, parent) 
-  , m_pryAdcOffset("TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_AdcOffset", this)
+  : AthAlgTool( type, name, parent)
 {
+
   declareInterface<TileCondToolTiming>(this);
 
-  declareProperty( "ProxyAdcOffset", m_pryAdcOffset );
-
 }
 
 //
 //____________________________________________________________________
-TileCondToolTiming::~TileCondToolTiming()
-{
+TileCondToolTiming::~TileCondToolTiming() {
 }
 
 //
 //____________________________________________________________________
-StatusCode 
-TileCondToolTiming::initialize()
-{
+StatusCode TileCondToolTiming::initialize() {
 
   ATH_MSG_DEBUG( "In initialize()" );
 
 
-  //=== always retrieve channel offset proxies
-  CHECK( m_pryAdcOffset.retrieve() );
+  //=== Initialize condition data key with timings
+  ATH_CHECK( m_calibTimingKey.initialize() );
 
 
   return StatusCode::SUCCESS;
@@ -54,8 +49,8 @@ TileCondToolTiming::initialize()
 
 //
 //____________________________________________________________________
-StatusCode TileCondToolTiming::finalize()
-{
+StatusCode TileCondToolTiming::finalize() {
+
   ATH_MSG_DEBUG( "finalize called" );
 
   return StatusCode::SUCCESS;
@@ -64,11 +59,9 @@ StatusCode TileCondToolTiming::finalize()
 
 //
 //____________________________________________________________________
-float TileCondToolTiming::getChannelOffset(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const
-{
-  if(drawerIdx>=TileCalibUtils::MAX_DRAWERIDX){
-    throw TileCalib::IndexOutOfRange("TileCondToolTiming::getChannelOffset", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
-  }
-  return m_pryAdcOffset->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
-}
+float TileCondToolTiming::getChannelOffset(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
+  SG::ReadCondHandle<TileCalibDataFlt> calibTiming(m_calibTimingKey);
+  return calibTiming->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
+
+}

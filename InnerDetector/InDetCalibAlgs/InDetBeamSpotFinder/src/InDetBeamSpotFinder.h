@@ -21,6 +21,7 @@
 #include "xAODTracking/VertexContainer.h" //typedef, can't fwd declare
 #include "xAODTracking/TrackingPrimitives.h" //for xAOD::VxType
 // #include "xAODTracking/Vertex.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "BeamSpotID.h"
 #include <string>
@@ -31,10 +32,6 @@ class ITHistSvc;
 class IToolSvc;
 class IInDetBeamSpotTool;
 class TTree;
-namespace Trig{
-  class IBunchCrossingTool;
-}
-
 
 namespace InDet {
   class InDetBeamSpotFinder : public AthAlgorithm {

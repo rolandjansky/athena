@@ -282,8 +282,6 @@ public:
       m_log = new MsgStream( msgSvc(), "TrigSerializeConverter" );
    }
 
-protected:
-
    ~TrigSerializeConverter(){
       delete m_log;
    }

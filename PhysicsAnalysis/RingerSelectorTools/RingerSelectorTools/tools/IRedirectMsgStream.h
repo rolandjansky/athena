@@ -21,7 +21,7 @@ namespace MSG {
 
   // Keep it simple
   // FIXME This needs to be tested
-  enum Level { 
+  enum Level {
     NIL = 0,
     VERBOSE,
     DEBUG,
@@ -74,7 +74,7 @@ namespace MSG {
       msg(lvl) << xmsg << std::endl;                                           \
     }                                                                          \
   } while( 0 )
-  
+
 # define ATH_MSG_VERBOSE(xmsg)                                                 \
   ATH_MSG_LVL( MSG::VERBOSE, xmsg )
 
@@ -123,7 +123,7 @@ std::ostream& operator<< ( std::ostream& out, const std::vector< T >& vec )
 // =============================================================================
 /// Helper operator for printing the contents of vector pointers (ostream)
 template <typename T>
-std::ostream& operator<< ( std::ostream& out, const std::vector< T >* vec)      
+std::ostream& operator<< ( std::ostream& out, const std::vector< T >* vec)
 {
   return out.operator<<(*vec);
 }

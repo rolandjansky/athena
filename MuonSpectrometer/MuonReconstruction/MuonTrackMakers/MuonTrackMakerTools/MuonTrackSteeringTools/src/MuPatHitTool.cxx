@@ -400,6 +400,8 @@ namespace Muon {
     else if( m_idHelperTool->isTgc(id) ) return MuPatHit::TGC;
     else if( m_idHelperTool->isCsc(id) ) return MuPatHit::CSC;
     else if( m_idHelperTool->isRpc(id) ) return MuPatHit::RPC;
+    else if( m_idHelperTool->isMM(id) ) return MuPatHit::MM;
+    else if( m_idHelperTool->issTgc(id) ) return MuPatHit::sTGC;
     else if( m_idHelperTool->isMuon(id) ) return MuPatHit::PREC;
     return MuPatHit::UnknownType;
   }
@@ -414,7 +416,7 @@ namespace Muon {
     if( hitInfo.id.is_valid() && m_idHelperTool->isMuon(hitInfo.id) ) {
       hitInfo.type = getHitType(hitInfo.id);
       hitInfo.measuresPhi = m_idHelperTool->measuresPhi(hitInfo.id);
-      if( hitInfo.type != MuPatHit::MDT  ) hitInfo.id = m_idHelperTool->layerId(hitInfo.id);
+      if( hitInfo.type != MuPatHit::MDT && hitInfo.type != MuPatHit::MM ) hitInfo.id = m_idHelperTool->layerId(hitInfo.id);
     }
   }
 
@@ -479,7 +481,7 @@ namespace Muon {
 	// if we reached the end of the list, insert the hit at the end
 	if( pos == list.end() ) {
 	  // check whether hit duplicate of last hit in list
-	  if( isLargerCal(list.back(),hit) != isLargerCal(hit,list.back()) ){
+	  if( isLargerCal(list.back(),hit) != isLargerCal(hit,list.back()) || (hit->info().type == MuPatHit::MM && hit->info().id != list.back()->info().id) ){
 	    ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperTool->toString(hit->info().id) 
 				   << " " << m_printer->print(hit->parameters()) );
   	    list.push_back(hit);
@@ -502,7 +504,7 @@ namespace Muon {
       // if we reached the first list item, check whether current hit is smaller. If so insert before first.
       if( pos == list.begin() && !isLarger  ){
 	// check whether hit duplicate of last hit in list
-	if( isLargerCal(list.front(),hit) != isLargerCal(hit,list.front()) ){
+	if( isLargerCal(list.front(),hit) != isLargerCal(hit,list.front()) || (hit->info().type == MuPatHit::MM && hit->info().id != list.front()->info().id) ){
 	  ATH_MSG_VERBOSE(" inserting hit at front  " << m_idHelperTool->toString(hit->info().id) 
 				 << " " << m_printer->print(hit->parameters()) );
  
@@ -521,7 +523,7 @@ namespace Muon {
       ++pos;
       if( pos == list.end() ) {
 	// check whether hit duplicate of last hit in list
-	if( isLargerCal(list.back(),hit) != isLargerCal(hit,list.back()) ){
+	if( isLargerCal(list.back(),hit) != isLargerCal(hit,list.back()) || (hit->info().type == MuPatHit::MM && hit->info().id != list.back()->info().id) ){
 	  ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperTool->toString(hit->info().id) 
 				 << " " << m_printer->print(hit->parameters()) ); 
  	  list.push_back(hit);
@@ -539,7 +541,7 @@ namespace Muon {
     // remove duplicates
 
     // check whether hit and entry at pos are a duplicate
-    if( isLarger == isLargerCal(*pos,hit) ){
+    if( isLarger == isLargerCal(*pos,hit) && (hit->info().type != MuPatHit::MM || hit->info().id == (*pos)->info().id) ){
       // hit is a duplicate
       ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperTool->toString(hit->info().id) 
 			     << " " << m_printer->print(hit->parameters()) );
@@ -551,7 +553,7 @@ namespace Muon {
       --pos; // move to previous hit
 
       // check whether hit and entry at pos are a duplicate
-      if( isLargerCal(hit,*pos) == isLargerCal(*pos,hit) ){
+      if( isLargerCal(hit,*pos) == isLargerCal(*pos,hit) && (hit->info().type != MuPatHit::MM || hit->info().id == (*pos)->info().id) ){
 	++pos; // move forward to insert position for pos
 	// hit is a duplicate
 	ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperTool->toString(hit->info().id) 

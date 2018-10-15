@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentTagAlg.h"
@@ -21,6 +21,7 @@ StatusCode MuonSegmentTagAlg::initialize()
   ATH_CHECK(m_muonSegmentTagTool.retrieve());
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
   ATH_CHECK(m_muonSegmentCollectionName.initialize());
+  ATH_CHECK(m_tagMap.initialize());
   
   return StatusCode::SUCCESS; 
 }
@@ -48,7 +49,10 @@ StatusCode MuonSegmentTagAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  m_muonSegmentTagTool->tag(*indetCandidateCollection,*segments);
+  SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap);
+  ATH_CHECK( tagMap.record (std::make_unique<MuonCombined::InDetCandidateToTagMap>()) );
+
+  m_muonSegmentTagTool->tag(*indetCandidateCollection,*segments,tagMap.ptr());
   
   return StatusCode::SUCCESS;
 }

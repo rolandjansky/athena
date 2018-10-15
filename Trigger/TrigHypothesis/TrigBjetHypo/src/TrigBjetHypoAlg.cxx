@@ -9,7 +9,7 @@ using namespace TrigCompositeUtils;
 
 TrigBjetHypoAlg::TrigBjetHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
-  ::AthReentrantAlgorithm( name, pSvcLocator ) {}
+  ::HypoBase( name, pSvcLocator ) {}
 
 TrigBjetHypoAlg::~TrigBjetHypoAlg()
 {}
@@ -20,12 +20,19 @@ StatusCode TrigBjetHypoAlg::initialize()
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
+  //  ATH_CHECK( m_etHypoTools.retrieve() );
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_bTagKey.initialize() );
   CHECK( m_roisKey.initialize() );
 
   CHECK( m_decisionsKey.initialize() );
+
+  ATH_MSG_INFO("Initializing TrigBjetHypoAlg");
+
+  ATH_MSG_DEBUG(  "declareProperty review:"   );
+  ATH_MSG_DEBUG(  "   " << m_roisKey          );
+  ATH_MSG_DEBUG(  "   " << m_bTagKey          );
 
   return StatusCode::SUCCESS;
 }

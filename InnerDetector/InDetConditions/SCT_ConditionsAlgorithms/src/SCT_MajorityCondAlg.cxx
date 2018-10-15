@@ -4,9 +4,11 @@
 
 #include "SCT_MajorityCondAlg.h"
 
-#include <memory>
-#include "GaudiKernel/EventIDRange.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
+
+#include "GaudiKernel/EventIDRange.h"
+
+#include <memory>
 
 SCT_MajorityCondAlg::SCT_MajorityCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -19,15 +21,15 @@ StatusCode SCT_MajorityCondAlg::initialize()
   ATH_MSG_DEBUG("initialize " << name());
 
   // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
+  ATH_CHECK(m_condSvc.retrieve());
 
   // Read Cond Handle
-  ATH_CHECK( m_readKey.initialize() );
+  ATH_CHECK(m_readKey.initialize());
 
   // Write Cond Handle
-  ATH_CHECK( m_writeKey.initialize() );
+  ATH_CHECK(m_writeKey.initialize());
   // Register write handle
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -43,7 +45,7 @@ StatusCode SCT_MajorityCondAlg::execute()
   SG::WriteCondHandle<SCT_MajorityCondData> writeHandle{m_writeKey};
 
   // Do we have a valid Write Cond Handle for current time?
-  if(writeHandle.isValid()) {
+  if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order.");
@@ -53,7 +55,7 @@ StatusCode SCT_MajorityCondAlg::execute()
   // Read Cond Handle 
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
   const CondAttrListCollection* readCdo{*readHandle}; 
-  if(readCdo==nullptr) {
+  if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
@@ -61,7 +63,7 @@ StatusCode SCT_MajorityCondAlg::execute()
 
   // Define validity of the output cond object
   EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
+  if (not readHandle.range(rangeW)) {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
@@ -114,7 +116,7 @@ StatusCode SCT_MajorityCondAlg::execute()
   writeCdo->setFilled(numFilled==SCT_ConditionsData::N_REGIONS);
 
   // Record the out output Cond Object
-  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_MajorityCondData " << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");

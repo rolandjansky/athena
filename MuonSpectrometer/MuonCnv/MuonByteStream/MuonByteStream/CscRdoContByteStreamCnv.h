@@ -30,9 +30,6 @@ extern long ByteStream_StorageType;
 class CscRdoContByteStreamCnv: public Converter 
 {
 
-protected:
-  ~CscRdoContByteStreamCnv();
-
 public:
   CscRdoContByteStreamCnv(ISvcLocator* svcloc);
 

@@ -19,7 +19,7 @@ namespace Muon {
 
   class MuPatHit {
   public:
-    enum Type   { UnknownType = -1, MDT = 0, RPC = 1, TGC = 2, CSC = 3, PREC = 4, Pseudo = 5, Scatterer = 6 };
+    enum Type   { UnknownType = -1, MDT = 0, RPC = 1, TGC = 2, CSC = 3, MM = 4, sTGC = 5, PREC = 6, Pseudo = 7, Scatterer = 8 };
     enum Status { UnknownStatus = -1, OnTrack = 0, Outlier, NotOnTrack };
     enum HitSelection { UnknownSelection = -1, Precise = 0, Broad = 1 };
     

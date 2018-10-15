@@ -145,6 +145,7 @@ StatusCode
 IOVSvc::regProxy( const DataProxy *proxy, const std::string& key,
                   const std::string& storeName ) {
 
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
     msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
@@ -185,6 +186,7 @@ StatusCode
 IOVSvc::regProxy( const CLID& clid, const std::string& key,
                   const std::string& storeName ) {
 
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
     msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
@@ -226,6 +228,7 @@ StatusCode
 IOVSvc::deregProxy( const DataProxy *proxy ) {
 
 
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( proxy );
   if (ist == 0) {
     msg() << MSG::ERROR << "deregProxy: no IOVSvcTool found for proxy "
@@ -247,6 +250,7 @@ StatusCode
 IOVSvc::deregProxy( const CLID& clid, const std::string& key ) {
 
 
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
     msg() << MSG::ERROR << "deregProxy: no IOVSvcTool found for proxy " 
@@ -830,7 +834,7 @@ StatusCode
 IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id, 
                       const EventIDBase& now) {
   
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
 
   ATH_MSG_DEBUG("createCondObj:  id: " << id << "  t: " << now << "  valid: "
                 << ccb->valid(now));

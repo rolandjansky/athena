@@ -17,10 +17,10 @@
 #include <cmath>
 
 SCT_FwdPowerTape::SCT_FwdPowerTape(const std::string & name, 
-				   int numModules,
-				   double innerRadius, 
-				   double startPos, 
-				   double endPos)
+                                   int numModules,
+                                   double innerRadius, 
+                                   double startPos, 
+                                   double endPos)
   : SCT_SharedComponentFactory(name), m_numModules(numModules), m_innerRadius(innerRadius)
 {
   m_length = std::abs(endPos - startPos);

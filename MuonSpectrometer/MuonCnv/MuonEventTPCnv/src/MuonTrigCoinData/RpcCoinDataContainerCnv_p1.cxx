@@ -167,7 +167,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
               // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
               IdentifierHash deIDHash;
               int result = m_RpcId->get_detectorElement_hash(clusId, deIDHash);
-              if (result) log << MSG::WARNING  << " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endmsg;
+              if (result) log << MSG::WARNING  << " Muon::RpcCoinDataContainerCnv_p1::persToTrans: problem converting Identifier to DE hash "<<endmsg;
               const MuonGM::RpcReadoutElement* detEl =
                 m_muonDetMgr->getRpcReadoutElement(deIDHash);
 
@@ -192,7 +192,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
           }
       }
 
-      log << MSG::DEBUG  << " ***  Reading InDet::SCT_ClusterContainer" << endmsg;
+      log << MSG::DEBUG  << " ***  Reading Muon::MuonCoinDataCollection<RpcCoinData>" << endmsg;
 
 }
 

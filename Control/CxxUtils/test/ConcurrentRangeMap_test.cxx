@@ -104,6 +104,7 @@ public:
 
   void discard (std::unique_ptr<T> p)
   {
+    std::lock_guard<std::mutex> g (m_mutex);
     m_garbage.push_back (p.release());
     m_inGrace = ((1<<nslots)-1);
   }
@@ -149,6 +150,8 @@ void test1a()
     assert (map.empty());
     assert (map.range().empty());
     assert (map.capacity() == 3);
+    assert (map.nInserts() == 0);
+    assert (map.maxSize()  == 0);
 
     //======
 
@@ -170,6 +173,9 @@ void test1a()
 
     assert (!map.emplace (Range (10, 20), std::make_unique<Payload> (100)));
 
+    assert (map.nInserts() == 1);
+    assert (map.maxSize()  == 1);
+
     //======
 
     assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
@@ -187,6 +193,9 @@ void test1a()
     assert (map.find (20)->second->m_x == 100);
     assert (map.find (25)->second->m_x == 200);
     assert (map.find (30)->second->m_x == 200);
+
+    assert (map.nInserts() == 2);
+    assert (map.maxSize()  == 2);
 
     //======
 
@@ -207,6 +216,9 @@ void test1a()
     assert (map.find (25)->second->m_x == 200);
     assert (map.find (30)->second->m_x == 300);
     assert (map.find (35)->second->m_x == 300);
+
+    assert (map.nInserts() == 3);
+    assert (map.maxSize()  == 3);
 
     //======
 
@@ -229,6 +241,9 @@ void test1a()
     assert (map.find (30)->second->m_x == 300);
     assert (map.find (35)->second->m_x == 300);
     assert (map.find (55)->second->m_x == 400);
+
+    assert (map.nInserts() == 4);
+    assert (map.maxSize()  == 4);
 
     //======
 
@@ -256,6 +271,9 @@ void test1a()
 
     assert (!map.emplace (Range (30, 35), std::make_unique<Payload> (501)));
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (15);
@@ -279,6 +297,9 @@ void test1a()
     assert (map.find (40)->second->m_x == 500);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (25);
@@ -301,6 +322,9 @@ void test1a()
     assert (map.find (40)->second->m_x == 500);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (40);
@@ -322,6 +346,9 @@ void test1a()
     assert (map.find (40)->second->m_x == 300);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (35);
@@ -335,6 +362,9 @@ void test1a()
     assert (map.find (40) == nullptr);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (50);
@@ -345,6 +375,9 @@ void test1a()
     assert (r.size() == 0);
 
     assert (map.find (55) == nullptr);
+
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
 
     //======
 
@@ -357,6 +390,9 @@ void test1a()
     assert (r.begin()->second->m_x == 600);
     assert (map.find (55) == nullptr);
     assert (map.find (75)->second->m_x == 600);
+
+    assert (map.nInserts() == 6);
+    assert (map.maxSize()  == 5);
 
     //======
 
@@ -386,6 +422,9 @@ void test1a()
     assert (map.find (94)->second->m_x == 650);
     assert (map.find (99)->second->m_x == 650);
 
+    assert (map.nInserts() == 11);
+    assert (map.maxSize()  == 6);
+
     //======
 
     map.erase (70);
@@ -404,6 +443,9 @@ void test1a()
     assert (map.find (94)->second->m_x == 650);
     assert (map.find (99)->second->m_x == 650);
 
+    assert (map.nInserts() == 11);
+    assert (map.maxSize()  == 6);
+
     //======
 
     assert (map.emplace (Range (97, 99), std::make_unique<Payload> (660, &phist)));
@@ -419,6 +461,9 @@ void test1a()
     assert (map.find (99)->second->m_x == 660);
 
     assert (!phist.empty());
+
+    assert (map.nInserts() == 12);
+    assert (map.maxSize()  == 6);
   }
 
   assert (phist.empty());

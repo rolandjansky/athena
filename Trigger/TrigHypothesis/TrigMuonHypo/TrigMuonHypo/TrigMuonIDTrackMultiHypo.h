@@ -21,7 +21,7 @@ class TrigMuonIDTrackMultiHypo: public HLT::AllTEAlgo
       HLT::ErrorCode hltInitialize();    
       HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int output);
       HLT::ErrorCode hltFinalize();
-      HLT::ErrorCode hltBeginRun();
+      HLT::ErrorCode hltStart();
 
    private:
       // Properties

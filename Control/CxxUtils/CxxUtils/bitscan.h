@@ -124,43 +124,18 @@ namespace CxxUtils {
   }
 
 
+  /**
+   * Count number of set bits.
+   *
+   * @param x Number to check
+   * @return Number of bits set in x.
+   */
+#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
   // We want to use the popcnt instruction for this if it's available.
   // However, we're still compiling for a Model-T x86_64 by default.
   // Use the target attribute and function multiversioning to use
   // this instruction if it is in fact available.
-#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
-  /**
-   * Count number of set bits.
-   *
-   * @param x Number to check
-   * @return Number of bits set in x.
-   */
-  __attribute__ ((target ("popcnt")))
-  inline unsigned count_ones(unsigned x) {
-    return __builtin_popcount(x);
-  }
-
-  __attribute__ ((target ("popcnt")))
-  inline unsigned count_ones(unsigned long x) {
-    return __builtin_popcountl(x);
-  }
-
-
-  __attribute__ ((target ("popcnt")))
-  inline unsigned count_ones(unsigned long long x) {
-    return __builtin_popcountll(x);
-  }
-#endif // defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
-
-
-  /**
-   * Count number of set bits.
-   *
-   * @param x Number to check
-   * @return Number of bits set in x.
-   */
-#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
-  __attribute__ ((target ("default")))
+  __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned x) {
 #if HAVE_BITCOUNT_INTRINSICS
@@ -171,7 +146,7 @@ namespace CxxUtils {
   }
 
 #if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
-  __attribute__ ((target ("default")))
+  __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned long x) {
 #if HAVE_BITCOUNT_INTRINSICS
@@ -183,7 +158,7 @@ namespace CxxUtils {
 
 
 #if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
-  __attribute__ ((target ("default")))
+  __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned long long x) {
 #if HAVE_BITCOUNT_INTRINSICS

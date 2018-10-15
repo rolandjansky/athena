@@ -7,12 +7,10 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-#include "TrkEventPrimitives/LocalParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 #include "Identifier/IdentifierHash.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 namespace Trk { class LocalParameters; }
 namespace InDetDD { class SiDetectorElement; }

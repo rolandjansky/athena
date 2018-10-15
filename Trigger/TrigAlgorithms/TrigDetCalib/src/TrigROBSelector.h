@@ -26,8 +26,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "IRegionSelector/RegSelEnums.h"
+#include "IRegionSelector/IRegSelSvc.h"
 
-class IRegSelSvc;
 class MsgStream;
 class PartialEventBuildingInfo;
 class TH1I;

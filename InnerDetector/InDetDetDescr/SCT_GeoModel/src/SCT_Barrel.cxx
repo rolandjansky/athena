@@ -277,10 +277,10 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
   if (!m_isOldGeometry) {
     double dphi = jointRPhi / outerRadius;
     const GeoTubs* emiJointTubs = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*length,
-						-0.5 * dphi * CLHEP::radian, dphi * CLHEP::radian);
+                                              -0.5 * dphi * CLHEP::radian, dphi * CLHEP::radian);
     //    std::cout << "EMIJoint tubs volume = " << emiJointTubs->volume() << std::endl; 
     const GeoTubs* jointCutOut = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*pixelAttachmentLength,
-						-0.5 * dphi * CLHEP::radian, dphi * CLHEP::radian);
+                                             -0.5 * dphi * CLHEP::radian, dphi * CLHEP::radian);
     //    std::cout << "Cut-out volume = " << jointCutOut->volume() << std::endl; 
     const GeoShape* jointTemp = (GeoShape*)&(emiJointTubs->subtract(*jointCutOut << HepGeom::TranslateZ3D(pixelAttachmentZpos)));
     const GeoShape* emiJointShape = (GeoShape*)&jointTemp->subtract(*jointCutOut << HepGeom::TranslateZ3D(-pixelAttachmentZpos));

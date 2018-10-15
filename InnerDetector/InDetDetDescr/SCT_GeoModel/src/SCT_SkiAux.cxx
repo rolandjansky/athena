@@ -14,7 +14,6 @@
 #include "SCT_GeoModel/SCT_Ski.h"
 #include "SCT_GeoModel/SCT_Module.h"
 // 14th Aug 2005 S.Mima modified.
-//#include "SCT_GeoModel/SCT_Bracket.h"
 #include "SCT_GeoModel/SCT_Bracket.h"
 #include "SCT_GeoModel/SCT_Harness.h"
 #include "SCT_GeoModel/SCT_SkiPowerTape.h"
@@ -37,20 +36,20 @@ inline double sqr(double x) {return x*x;}
 // Small utility function to determine min and max angle of components.
 void
 calcMinMaxRatioS(double xCenter, double yCenter, 
-		double xWidth,  double yWidth, 
-		double & minRatio, double & maxRatio);
+                 double xWidth,  double yWidth, 
+                 double & minRatio, double & maxRatio);
 
 SCT_SkiAux::SCT_SkiAux(const std::string & name,
-				   const SCT_Ski * ski,
-				   // 14th Aug 2005 S.Mima modified.
-				   //const SCT_Bracket * bracket,
-				   const SCT_Bracket * bracket,
-				   const SCT_Harness * harness,
-				   const SCT_SkiPowerTape * skiPowerTape,
-				   double innerRadius,
-				   double bracketPhiOffset, 
-				   double powerTapePhiOffset,
-				   double divisionAngle) :
+                       const SCT_Ski * ski,
+                       // 14th Aug 2005 S.Mima modified.
+                       //const SCT_Bracket * bracket,
+                       const SCT_Bracket * bracket,
+                       const SCT_Harness * harness,
+                       const SCT_SkiPowerTape * skiPowerTape,
+                       double innerRadius,
+                       double bracketPhiOffset, 
+                       double powerTapePhiOffset,
+                       double divisionAngle) :
   SCT_SharedComponentFactory(name), 
   m_innerRadius(innerRadius), 
   m_bracketPhiOffset(bracketPhiOffset),
@@ -101,8 +100,8 @@ SCT_SkiAux::build()
   double yHarnessPos = 0;
   if(m_harness != 0) {
     double radiusHarness = m_innerRadius +
-                      0.5 * m_harness->thickness() + 
-                      m_skiPowerTape->powerTapeThickness();
+      0.5 * m_harness->thickness() + 
+      m_skiPowerTape->powerTapeThickness();
     xHarnessPos = radiusHarness * cos(m_powerTapePhiOffset);
     yHarnessPos = radiusHarness * sin(m_powerTapePhiOffset);
   }
@@ -118,8 +117,8 @@ SCT_SkiAux::build()
   // If the harness is present, the power tapes are moved beyond the harness
 
   double radiusTape = m_innerRadius +
-                      0.5 * m_skiPowerTape->thickness() + 
-                      m_skiPowerTape->powerTapeThickness();
+    0.5 * m_skiPowerTape->thickness() + 
+    m_skiPowerTape->powerTapeThickness();
   if(m_harness != 0) {radiusTape += m_harness->thickness();}
   double xTapePos = radiusTape * cos(m_powerTapePhiOffset);
   double yTapePos = radiusTape * sin(m_powerTapePhiOffset);
@@ -133,11 +132,11 @@ SCT_SkiAux::build()
   // N.B. harness is inside power tape, so don't need to check it
   double rMaxExtentOfPowerTape = 
     sqrt( sqr(radiusTape + 0.5 * m_skiPowerTape->thickness()) +
-	  sqr(0.5 * m_skiPowerTape->width()) );
+          sqr(0.5 * m_skiPowerTape->width()) );
 
   double rMaxExtentOfBracket = 
     sqrt( sqr(radiusBracket + 0.5 * m_bracket->thickness()) +
-	  sqr(0.5 * m_bracket->width()) );
+          sqr(0.5 * m_bracket->width()) );
 
   m_outerRadius = std::max(rMaxExtentOfBracket,rMaxExtentOfPowerTape) + epsilon();
 
@@ -175,7 +174,7 @@ SCT_SkiAux::build()
 
   SCT_MaterialManager materials;
   const GeoTubs * skiAuxShape = new GeoTubs(m_innerRadius, m_outerRadius, 0.5*m_length, 
-					    m_sectorStartAngle, m_sectorAngle);
+                                            m_sectorStartAngle, m_sectorAngle);
   const GeoLogVol *skiAuxLog = 
     new GeoLogVol(getName(), skiAuxShape, materials.gasMaterial());
   GeoPhysVol * skiAux = new GeoPhysVol(skiAuxLog);
@@ -183,10 +182,10 @@ SCT_SkiAux::build()
   //            << ", m_sectorAngle = " << m_sectorAngle << std::endl;
   //
   //  std::cout << "minangle, maxangle, m_sectorStartAngle, m_sectorAngle = " 
-  //  	      << std::endl;
+  //         << std::endl;
   //  std::cout << minAngle << ","  << maxAngle << ", " 
-  //   	      << m_sectorStartAngle << "," 
-  //  	      << m_sectorAngle << std::endl;
+  //          << m_sectorStartAngle << "," 
+  //         << m_sectorAngle << std::endl;
 
   //
   // Position brackets
@@ -233,8 +232,8 @@ SCT_SkiAux::build()
 
 void
 calcMinMaxRatioS(double xCenter, double yCenter, 
-		double xWidth,  double yWidth, 
-		double & minRatio, double & maxRatio)
+                 double xWidth,  double yWidth, 
+                 double & minRatio, double & maxRatio)
 {
   // Returns minRatio and maxRatio
 
@@ -250,10 +249,10 @@ calcMinMaxRatioS(double xCenter, double yCenter,
   r01 = (yCenter - y) / (xCenter + x);
 
   //std::cout << "r11,r00,r10,r02: " 
-  // 	      << r11 << " "
-  //	      << r00 << " "
-  //	      << r10 << " "
-  //	      << r01 << " " << std::endl;
+  //        << r11 << " "
+  //       << r00 << " "
+  //       << r10 << " "
+  //       << r01 << " " << std::endl;
     
   minRatio = std::min(r11 , std::min(r00, std::min(r10, r01)));
   maxRatio = std::max(r11 , std::max(r00, std::max(r10, r01)));

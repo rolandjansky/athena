@@ -13,14 +13,18 @@
 #define ATHENAKERNEL_CONDCONT_H
 
 #include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/RCUUpdater.h"
+#include "AthenaKernel/IConditionsCleanerSvc.h"
 #include "CxxUtils/ConcurrentRangeMap.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/DataObjID.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "boost/preprocessor/facilities/overload.hpp"
 
 #include <iostream>
@@ -261,6 +265,18 @@ public:
 
 
   /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  virtual size_t nInserts() const = 0;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  virtual size_t maxSize() const = 0;
+
+
+  /**
    * @brief Make a run+lbn key from an EventIDBase.
    * @param Event ID to convert.
    */
@@ -321,6 +337,14 @@ public:
   };
 
 
+  /**
+   * @brief Allow overriding the name of the global conditions cleaner
+   *        service (for testing purposes).
+   * @param name The name of the global conditions cleaner service.
+   */
+  static void setCleanerSvcName ATLAS_NOT_THREAD_SAFE (const std::string& name);
+
+  
 protected:
   /**
    * @brief Internal constructor.
@@ -361,10 +385,22 @@ protected:
                                   const EventIDBase& t,
                                   EventIDRange const** r) const = 0;
 
-  
+
+  /**
+   * @brief Tell the cleaner that a new object was added to the container.
+   */
+  StatusCode inserted (const EventContext& ctx);
+
+
 private:
   /// CLID of the most-derived @c CondCont
   CLID m_clid;
+
+  /// Handle to the cleaner service.
+  ServiceHandle<Athena::IConditionsCleanerSvc> m_cleanerSvc;
+
+  /// Name of the global conditions cleaner service.
+  static std::string s_cleanerSvcName ATLAS_THREAD_SAFE;
 };
 
 
@@ -668,6 +704,18 @@ public:
    */
   virtual void
   quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) override;
+
+
+  /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  virtual size_t nInserts() const override;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  virtual size_t maxSize() const override;
 
 
 protected:

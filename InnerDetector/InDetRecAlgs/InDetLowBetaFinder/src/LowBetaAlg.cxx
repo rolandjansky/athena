@@ -47,7 +47,8 @@ namespace InDet
     m_fieldServiceHandle("AtlasFieldSvc",name),
     m_TrtTool(0),
     m_TRTdEdxTool("TRT_ToT_dEdx"),
-    m_TrtToolInitSuccess(0)
+    m_TrtToolsSuccess{},
+    m_TrtToolInitSuccess{}
   {
     declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
     declareProperty("TracksName",             m_trackParticleCollection);

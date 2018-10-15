@@ -43,13 +43,11 @@ class TrigMuonClusterFeatureContainerCnv : public TrigMuonClusterFeatureContaine
   
   friend class CnvFactory<TrigMuonClusterFeatureContainerCnv>;
   
- protected:
-  
 public:
   TrigMuonClusterFeatureContainerCnv( ISvcLocator *svcloc );
-protected:
   ~TrigMuonClusterFeatureContainerCnv();
   
+protected:
   virtual TrigMuonClusterFeatureContainer_PERS *createPersistent( TrigMuonClusterFeatureContainer *transObj);
   virtual TrigMuonClusterFeatureContainer      *createTransient();
   

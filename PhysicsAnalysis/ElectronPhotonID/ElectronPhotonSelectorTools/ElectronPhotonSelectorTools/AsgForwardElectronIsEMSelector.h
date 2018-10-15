@@ -26,6 +26,9 @@
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 
+#include "xAODTracking/VertexContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+
 #include <string>
 
 namespace Root{
@@ -99,6 +102,7 @@ private:
   /** Pointer to the underlying ROOT based tool */
   Root::TForwardElectronIsEMSelector* m_rootForwardTool;
 
+  /// Whether to use the PV (not available for trigger)
   bool m_usePVCont;
 
   // defualt nPV (when not using PVCont)
@@ -106,6 +110,9 @@ private:
 
   // The primary vertex container name
   std::string m_primVtxContName;
+
+  ///  read handle key to primary vertex container
+  SG::ReadHandleKey<xAOD::VertexContainer> m_primVtxContKey;
 
 }; // End: class definition
 

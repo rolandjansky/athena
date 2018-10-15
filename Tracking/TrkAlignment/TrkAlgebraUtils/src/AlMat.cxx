@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdint.h>
+#include <exception>
 
 namespace Trk {
 
@@ -49,14 +50,14 @@ AlMat::AlMat(const AlMat& m) {
 }
 
 AlMat::~AlMat()
-{if( m_ptr_data != NULL) delete [] m_ptr_data;}
+{if( m_ptr_data != nullptr ) delete [] m_ptr_data;}
 
 void AlMat::copy(const AlMat&  m) {
   int  nr = nrow();
   int  nc = ncol();
   if( nr != m.nrow() || nc != m.ncol() ) {
-    std::cerr << "AlMat::copy: sizes do not match!" << std::endl;
-    return; }
+    throw std::range_error( "AlMat::copy: sizes do not match!" );
+  }
 
   for( int i=0; i<nr; i++ ) {
     for( int j=0; j<nc; j++ ) {
@@ -68,8 +69,8 @@ void AlMat::copy(const AlMat&  m) {
 void AlMat::copy(const AlSymMatBase&  m) {
   long int  n = m.size();
   if( nrow() != n || ncol() != n ) {
-    std::cerr << "AlMat::copy: sizes do not match!" << std::endl;
-    return; }
+    throw std::range_error( "AlMat::copy: sizes do not match!" );
+  }
 
   for( int i=0; i<n; i++ ) {
     for( int j=0; j<n; j++ ) {
@@ -80,10 +81,10 @@ void AlMat::copy(const AlSymMatBase&  m) {
 
 double& AlMat::elemr(long int i,long int j) {
 #ifdef _DEBUG
-  if( i<0 )     { std::cerr << "AlMat::elemr: Index 1 < zero! " << i << std::endl;  return *(m_ptr_data); };
-  if( i>=size ) { std::cerr << "AlMat::elemr: Index 1 too large! " << i << std::endl;  return *(m_ptr_data); };
-  if( j<0 )     { std::cerr << "AlMat::elemr: Index 2 < zero! " << j << std::endl;  return *(m_ptr_data);  };
-  if( j>=size ) { std::cerr << "AlMat::elemr: Index 2 too large! " << j << std::endl;  return *(m_ptr_data); };
+  if( i<0 )     { throw std::out_of_range( "AlMat::elemr: Index 1 < zero! " ); };
+  if( i>=size ) { throw std::out_of_range( "AlMat::elemr: Index 1 too large!" ); };
+  if( j<0 )     { throw std::out_of_range( "AlMat::elemr: Index 2 < zero! " ); };
+  if( j>=size ) { throw std::out_of_range( "AlMat::elemr: Index 2 too large!" );  };
 #endif
 
   if( m_transpose )   return  *(m_ptr_data+j*m_ncol+i);
@@ -92,10 +93,10 @@ double& AlMat::elemr(long int i,long int j) {
 
 double AlMat::elemc(long int i,long int j) const {
 #ifdef _DEBUG
-  if( i<0 )     { std::cerr << "AlMat::elemc: Index 1 < zero! " << i << std::endl;  return *(m_ptr_data); };
-  if( i>=size ) { std::cerr << "AlMat::elemc: Index 1 too large! " << i << std::endl;  return *(m_ptr_data); };
-  if( j<0 )     { std::cerr << "AlMat::elemc: Index 2 < zero! " << j << std::endl;  return *(m_ptr_data);  };
-  if( j>=size ) { std::cerr << "AlMat::elemc: Index 2 too large! " << j << std::endl;  return *(m_ptr_data); };
+  if( i<0 )     { throw std::out_of_range( "AlMat::elemr: Index 1 < zero! " ); };
+  if( i>=size ) { throw std::out_of_range( "AlMat::elemr: Index 1 too large!" ); };
+  if( j<0 )     { throw std::out_of_range( "AlMat::elemr: Index 2 < zero! " ); };
+  if( j>=size ) { throw std::out_of_range( "AlMat::elemr: Index 2 too large!" );  };
 #endif
 
   if( m_transpose )   return  *(m_ptr_data+j*m_ncol+i);
@@ -104,10 +105,10 @@ double AlMat::elemc(long int i,long int j) const {
 
 long int AlMat::elem(long int i,long int j) const {
 #ifdef _DEBUG
-  if( i<0 )     { std::cerr << "AlMat::elem: Index 1 < zero! " << i << std::endl;  return *(m_ptr_data); };
-  if( i>=size ) { std::cerr << "AlMat::elem: Index 1 too large! " << i << std::endl;  return *(m_ptr_data); };
-  if( j<0 )     { std::cerr << "AlMat::elem: Index 2 < zero! " << j << std::endl;  return *(m_ptr_data);  };
-  if( j>=size ) { std::cerr << "AlMat::elem: Index 2 too large! " << j << std::endl;  return *(m_ptr_data); };
+  if( i<0 )     { throw std::out_of_range( "AlMat::elemr: Index 1 < zero! " ); };
+  if( i>=size ) { throw std::out_of_range( "AlMat::elemr: Index 1 too large!" ); };
+  if( j<0 )     { throw std::out_of_range( "AlMat::elemr: Index 2 < zero! " ); };
+  if( j>=size ) { throw std::out_of_range( "AlMat::elemr: Index 2 too large!" );  };
 #endif
 
   if( m_transpose )   return  (j*m_ncol+i);
@@ -127,7 +128,9 @@ AlMat& AlMat::operator=(const AlMat& m) {
   if (this==&m) return *this;
 
   if(( m_nrow!=0 || m_ncol!=0) && (m_nrow != m.nrow() || m_ncol != m.ncol() ))
-    { std::cerr << "AlMat=AlMat Assignment: size do not match!" << std::endl; return *this; }
+  { 
+    throw std::range_error( "AlMat=AlMat Assignment: size do not match!" );
+  }
 
   if ( m_ptr_data != m.m_ptr_data ) {
     reSize(m.nrow(), m.ncol());
@@ -138,7 +141,9 @@ AlMat& AlMat::operator=(const AlMat& m) {
 
 AlMat&  AlMat::operator=(const AlSymMat& m) {
   if( ( m_nrow!=0 || m_ncol!=0) && (m_nrow != m.size() || m_ncol != m.size() ))
-    { std::cerr << "AlMat=AlSymMatBase Assignment: size do not match!" << std::endl; return *this; }
+  {
+    throw std::range_error( "AlMat=AlSymMatBase Assignment: size do not match!" ); 
+  }
 
   if ( m_ptr_data != m.ptrData() ) {
     reSize(m.size(), m.size());
@@ -149,7 +154,9 @@ AlMat&  AlMat::operator=(const AlSymMat& m) {
 
 AlMat AlMat::operator+(const AlMat& m) const {
   if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
-    { std::cerr << "AlMat: operator+: size do not match!" << std::endl; return *this; }
+  { 
+    throw std::range_error( "AlMat: operator+: size do not match!" );
+  }
 
   AlMat b( m_nrow, m_ncol );
 
@@ -164,7 +171,9 @@ AlMat AlMat::operator+(const AlMat& m) const {
 AlMat&  AlMat::operator+=(const AlMat& m) {
 
   if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
-    { std::cerr << "AlMat: operator+=: size do not match!" << std::endl; return *this; }
+  {  
+    throw std::range_error( "AlMat: operator+=: size do not match!" ); 
+  }
 
   double*  p = m_ptr_data + m_nele;
   double*  q = m.m_ptr_data + m_nele;
@@ -175,7 +184,9 @@ AlMat&  AlMat::operator+=(const AlMat& m) {
 
 AlMat   AlMat::operator-(const AlMat& m) const {
   if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
-    { std::cerr << "AlMat: operator-: size do not match!" << std::endl; return *this; }
+  {  
+    throw std::range_error( "AlMat: operator-: size do not match!" ); 
+  }
 
   AlMat b( m_nrow, m_ncol );
 
@@ -189,7 +200,9 @@ AlMat   AlMat::operator-(const AlMat& m) const {
 
 AlMat&  AlMat::operator-=(const AlMat& m) {
   if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
-    { std::cerr << "AlMat: operator-=: size do not match!" << std::endl; return *this; }
+  { 
+    throw std::range_error( "AlMat: operator-=: size do not match!"); 
+  }
 
   double*  p = m_ptr_data + m_nele;
   double*  q = m.m_ptr_data + m_nele;
@@ -199,8 +212,10 @@ AlMat&  AlMat::operator-=(const AlMat& m) {
 }
 
 AlMat AlMat::operator*(const AlMat& m) const {
-  if( ncol() != m.nrow() ) {  std::cerr << "AlMat: operator*: size do not match!" << std::endl;
-  return m; }
+  if( ncol() != m.nrow() ) 
+  {  
+    throw std::range_error( "AlMat: operator*: size do not match!" );
+  }
 
   int k(nrow());
   int l(m.ncol());
@@ -216,8 +231,10 @@ AlMat AlMat::operator*(const AlMat& m) const {
 }
 
 AlMat AlMat::operator*(const AlSymMatBase& m) const {
-  if( ncol() != m.size()) {  std::cerr << "AlMat: operator*: size do not match!" << std::endl;
-  return *this; }
+  if( ncol() != m.size()) 
+  { 
+    throw std::range_error( "AlMat: operator*: size do not match!" ); 
+  }
 
   int k(nrow());
   int l(m.size());
@@ -234,7 +251,9 @@ AlMat AlMat::operator*(const AlSymMatBase& m) const {
 
 AlVec AlMat::operator*(const AlVec& v) const {
   if( ncol() != v.size() )
-    { std::cerr << "AlMat: operator*: size do not match! " << std::endl; return v; }
+  {  
+    throw std::range_error( "AlMat: operator*: size do not match! " );
+  }
 
   int k(nrow());
   int l(ncol());
@@ -290,8 +309,7 @@ AlMat& AlMat::Normal() {
 //invert sym matrix declared as non-symetric for convenience
 void AlMat::invertS(int& ierr, double Norm = 1.) {
   if(m_nrow!=m_ncol) {
-    std::cerr << "AlMat invertS: non-square matrix!" << std::endl;
-    return;
+    throw std::range_error( "AlMat invertS: non-square matrix!" );
   }
 
   AlSymMat b(m_nrow);

@@ -8,6 +8,7 @@
 
 // STL includes:
 #include <vector>
+#include <utility>
 
 // Root includes:
 #include <TDirectory.h>
@@ -36,9 +37,9 @@
  * conversion string<->enumeration function in the Types.cxx file.
  *
  * Beware that it changes scope inside class to public.
- *  
+ *
  **/
-#define RINGER_DEFINE_INTERFACE(self)                                          \
+#define RINGER_PROCEDURE_BASE_METHODS(self)                                          \
                                                                                \
   public:                                                                      \
                                                                                \
@@ -72,7 +73,10 @@
 #define __RINGER_DEFINE_PROCEDURE_STANDARD_METHODS__(self)                     \
                                                                                \
     virtual const char* name() const                                           \
-      ATH_RINGER_OVERRIDE;
+      ATH_RINGER_OVERRIDE;                                                     \
+    template <typename T = const char*>                                        \
+    static T procType();                                                       \
+                                                                               \
 
 /**
  * Use this macro when procedure has member properties
@@ -86,7 +90,7 @@
       ATH_RINGER_OVERRIDE;
 
 /**
- * Use this macro when procedure hasn't member properties 
+ * Use this macro when procedure hasn't member properties
  **/
 #define RINGER_DEFINE_NOMEMBER_PROCEDURE(self)                                 \
                                                                                \
@@ -116,7 +120,7 @@
  **/
 #define RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS(self)                          \
                                                                                \
-  /*RINGER_DEFINE_INTERFACE_DEFAULT_METHODS(self)*/                            \
+  RINGER_DEFINE_INTERFACE_DEFAULT_METHODS(self)                                \
                                                                                \
   inline                                                                       \
   const char* self::name() const                                               \
@@ -126,10 +130,12 @@
 
 
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
+
+class DepVarStruct;
 
 // Declare interface base for all Ringer procedure types:
 //
@@ -139,18 +145,18 @@ namespace Ringer {
  *
  * Note: Every Ringer Procedure redirects message stream
  **/
-class IRingerProcedure : virtual public IRedirectMsgStream { 
+class IRingerProcedure : virtual public IRedirectMsgStream {
   public:
     /**
      * @brief Write Ringer procedure to configuration directory
      **/
-    virtual void write(TDirectory *configDir, const char*idxStr = "") 
+    virtual void write(TDirectory *configDir, const char*idxStr = "")
         const = 0;
 
     /** Ensures virtual dtor for all inherited classes */
     virtual ~IRingerProcedure(){;}
 
-  protected: 
+  protected:
 
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(IRingerProcedure,0)
@@ -184,7 +190,7 @@ namespace Discrimination {
  *  - Use RingerProcedure<Procedure>::is_threshold to get if procedure is
  * of threshold type
  **/
-template<typename procedure_t > 
+template<typename procedure_t >
 struct RingerProcedureType {
 
   RINGER_STATIC_ASSERT( (Ringer::is_base_of<IRingerProcedure,procedure_t>::value),
@@ -196,37 +202,37 @@ struct RingerProcedureType {
     Ringer::is_base_of<PreProcessing::IPreProcessor,procedure_t>::value;
   static constexpr bool is_discriminator =
     Ringer::is_base_of<Discrimination::IDiscriminator,procedure_t>::value;
-  static constexpr bool is_threshold = 
+  static constexpr bool is_threshold =
     Ringer::is_base_of<Discrimination::IThreshold,procedure_t>::value;
 
-  RINGER_STATIC_ASSERT( ( is_pre_processor || is_discriminator || is_threshold ), 
+  RINGER_STATIC_ASSERT( ( is_pre_processor || is_discriminator || is_threshold ),
       "Couldn't find a procedure type.");
 
   // Determine which enumType it should have been declared
-  typedef typename Ringer::conditional< is_pre_processor, 
+  typedef typename Ringer::conditional< is_pre_processor,
     preProcEnum_t,  // true, it is_pre_processor
-      typename Ringer::conditional< is_discriminator, 
+      typename Ringer::conditional< is_discriminator,
     discrEnum_t, // true, it is discriminator
       thresEnum_t >::type >::type procEnum_t;
 
   // Boolean to determine whether this procedure inherits from VariableDependency
-  static constexpr bool inherits_from_var_dep = Ringer::is_base_of< VariableDependency, 
+  static constexpr bool inherits_from_var_dep = Ringer::is_base_of< VariableDependency,
                                                              procedure_t>::value;
 
   // Determine which interface this Ringer procedure inherits from
-  typedef typename Ringer::conditional< is_pre_processor, 
+  typedef typename Ringer::conditional< is_pre_processor,
     // true, it is_pre_processor
     typename Ringer::conditional< inherits_from_var_dep,
-        PreProcessing::IPreProcessorVarDep, PreProcessing::IPreProcessor>::type, 
+        PreProcessing::IPreProcessorVarDep, PreProcessing::IPreProcessor>::type,
     // not pre_processor, check if is_discriminator
-    typename Ringer::conditional< is_discriminator, 
+    typename Ringer::conditional< is_discriminator,
       // true, it is_discriminator
       typename Ringer::conditional< inherits_from_var_dep,
-          Discrimination::IDiscriminatorVarDep, Discrimination::IDiscriminator>::type, 
+          Discrimination::IDiscriminatorVarDep, Discrimination::IDiscriminator>::type,
       // otherwise it has to be threshold
       typename Ringer::conditional< inherits_from_var_dep,
-          Discrimination::IThresholdVarDep, Discrimination::IThreshold>::type   
-    >::type 
+          Discrimination::IThresholdVarDep, Discrimination::IThreshold>::type
+    >::type
   >::type baseInterface_t;
 
 #else
@@ -239,26 +245,23 @@ struct RingerProcedureType {
 /**
  * @brief RingerProcedureType specialization to ensure that procedure_t is not
  *        a pointer
- **/ 
+ **/
 template<typename procedure_t >
 struct RingerProcedureType<procedure_t*> : public RingerProcedureType<procedure_t>{ };
 
-/** 
- * @brief Namespace dedicated for Ringer pre-processing utilities 
+/**
+ * @brief Namespace dedicated for Ringer pre-processing utilities
  **/
 namespace PreProcessing {
 
 /**
  * @brief PreProcessing interface to be inherited by PreProcessing procedures.
  **/
-class IPreProcessor : virtual public IRingerProcedure 
+class IPreProcessor : virtual public IRingerProcedure
 {
 
-  RINGER_DEFINE_INTERFACE( IPreProcessor )
+  RINGER_PROCEDURE_BASE_METHODS( IPreProcessor )
 
-  protected:
-    /** Note: https://sft.its.cern.ch/jira/browse/CFHEP-87 */
-    IPreProcessor& operator=(IPreProcessor&&);
   public:
     /**
      * @brief Execute transform @name inputSpace to a new space representation.
@@ -276,11 +279,8 @@ class IPreProcessorVarDep : public virtual VariableDependency,
                             public virtual IPreProcessor
 {
 
-  RINGER_DEFINE_INTERFACE( IPreProcessorVarDep )
+  RINGER_PROCEDURE_BASE_METHODS( IPreProcessorVarDep )
 
-  protected:
-    /** Note: https://sft.its.cern.ch/jira/browse/CFHEP-87 */
-    IPreProcessorVarDep& operator=(IPreProcessorVarDep&&);
   public:
     //IPreProcessorVarDep(){;}
 
@@ -293,24 +293,21 @@ class IPreProcessorVarDep : public virtual VariableDependency,
 
 } // namespace PreProcessor
 
-/** 
- * @brief Namespace dedicated for Ringer Discrimination utilities 
+/**
+ * @brief Namespace dedicated for Ringer Discrimination utilities
  **/
 namespace Discrimination {
 
 /**
  * @brief Discriminator interface to be inherited by discrimination procedures.
  **/
-class IDiscriminator : virtual public IRingerProcedure 
+class IDiscriminator : virtual public IRingerProcedure
 {
 
-  RINGER_DEFINE_INTERFACE( IDiscriminator )
+  RINGER_PROCEDURE_BASE_METHODS( IDiscriminator )
 
-  protected:
-    /** Note: https://sft.its.cern.ch/jira/browse/CFHEP-87 */
-    IDiscriminator& operator=(IDiscriminator&&);
   public:
-    virtual void execute(const std::vector<float> &input, 
+    virtual void execute(const std::vector<float> &input,
         std::vector<float> &output) const = 0;
 
     /** Define it as a Root TObjebt, disable I/O */
@@ -324,11 +321,8 @@ class IDiscriminatorVarDep : public virtual VariableDependency,
                              public virtual IDiscriminator
 {
 
-  RINGER_DEFINE_INTERFACE( IDiscriminatorVarDep )
+  RINGER_PROCEDURE_BASE_METHODS( IDiscriminatorVarDep )
 
-  protected:
-    /** Note: https://sft.its.cern.ch/jira/browse/CFHEP-87 */
-    IDiscriminatorVarDep& operator=(IDiscriminatorVarDep&&);
   public:
     //IDiscriminatorVarDep(){;}
 
@@ -345,18 +339,15 @@ class IDiscriminatorVarDep : public virtual VariableDependency,
 class IThreshold : virtual public IRingerProcedure
 {
 
-  RINGER_DEFINE_INTERFACE( IThreshold )
+  RINGER_PROCEDURE_BASE_METHODS( IThreshold )
 
-  protected:
-    /** Note: https://sft.its.cern.ch/jira/browse/CFHEP-87 */
-    IThreshold& operator=(IThreshold&&);
   public:
     /**
      * @brief Execute threshold for input and retrieve throw output.
      **/
     virtual void execute(const std::vector<float> &input,
-            std::vector<bool> &output) const = 0;
-    
+            std::vector<bool> &output, const DepVarStruct &depVar) const = 0;
+
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(IThreshold,0)
 };
@@ -368,14 +359,11 @@ class IThresholdVarDep : public virtual VariableDependency,
                          public virtual IThreshold
 {
 
-  RINGER_DEFINE_INTERFACE( IThresholdVarDep )
+  RINGER_PROCEDURE_BASE_METHODS( IThresholdVarDep )
 
-  protected:
-    /** Note: https://sft.its.cern.ch/jira/browse/CFHEP-87 */
-    IThresholdVarDep& operator=(IThresholdVarDep&&);
   public:
     //IThresholdVarDep(){;}
-    
+
     // This prototype is needed for parsing wrapper
     static IThresholdVarDep* read(TDirectory *){ return nullptr;}
 

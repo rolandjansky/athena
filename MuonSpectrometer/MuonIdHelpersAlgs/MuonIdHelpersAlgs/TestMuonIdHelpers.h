@@ -12,7 +12,6 @@
 
 class StoreGateSvc;
 class ActiveStoreSvc;
-class MsgStream;
 class MdtIdHelper;
 class CscIdHelper;
 class RpcIdHelper;

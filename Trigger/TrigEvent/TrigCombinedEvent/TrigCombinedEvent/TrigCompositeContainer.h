@@ -16,8 +16,8 @@
 ******************************************************/
 // includes section
 #include "TrigCombinedEvent/TrigComposite.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** Container from TrigComposite type objects.
     See TrigComposite

@@ -203,8 +203,8 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   ATH_MSG_DEBUG("Executing tool " << m_jetBuildTool->name());
   ATH_MSG_DEBUG(m_jetBuildTool->toString(1));
 
-  ClusterSequence* clusterSequence{nullptr};
-  JetContainer* j_container{nullptr};
+  fastjet::ClusterSequence* clusterSequence{nullptr};
+  xAOD::JetContainer* j_container{nullptr};
   status = build(clusterSequence, j_container);
   if(status != HLT::OK){return HLT::ERROR;}
   
@@ -247,7 +247,7 @@ TrigHLTJetRecBase<InputContainer>::attachJetCollection(HLT::TriggerElement*
                                                        outputTE,
                                                        const xAOD::JetContainer*
                                                        j_container,
-                                                       const ClusterSequence*
+                                                       const fastjet::ClusterSequence*
                                                        cs){
   
   // We have to explicitly delete the aux store, so get a pointer to it.
@@ -359,8 +359,8 @@ TrigHLTJetRecBase<InputContainer>::getInputContainer(const HLT::TriggerElement*
 
 template<typename InputContainer>
 HLT::ErrorCode
-TrigHLTJetRecBase<InputContainer>::defaultBuild(ClusterSequence*& cs,
-                                                JetContainer*& jc) const{
+TrigHLTJetRecBase<InputContainer>::defaultBuild(fastjet::ClusterSequence*& cs,
+                                                xAOD::JetContainer*& jc) const{
   int rc =  m_jetBuildTool->build(cs, jc);
   if(rc != 0){
     ATH_MSG_ERROR("Error building jets. Build tool error code "<< rc);

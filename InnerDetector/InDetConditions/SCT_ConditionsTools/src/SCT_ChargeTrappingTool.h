@@ -11,26 +11,26 @@
 #ifndef SCT_ChargeTrappingTool_h
 #define SCT_ChargeTrappingTool_h
 
+// Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ChargeTrappingTool.h"
+
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // STL includes
 #include <string>
 #include <vector>
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-
-// Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
-#include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
-
 //forward declarations
 class IdentifierHash;
-
-namespace InDetDD {
-  class SiDetectorManager;
-}
 
 /**
  * @class SCT_ChargeTrappinTool
@@ -48,20 +48,17 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, const double& pos) const override;
+  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos) const override;
   virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const override;
-  virtual void getInitPotentialValue() override;
   
  private:
-  SCT_ChargeTrappingCondData calculate(const IdentifierHash& elementHash, const double& pos) const;
-  void initPotentialValue();
-  double induced(const int istrip, const double x, const double y) const;
+  SCT_ChargeTrappingCondData calculate(const IdentifierHash& elementHash, double pos) const;
+  double induced(int istrip, double x, double y) const;
   double getPotentialValue(int& ix, int& iy);
   void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const;
 
  private:
   // Properties
-  const InDetDD::SiDetectorManager* m_detManager;
   std::string m_detectorName;
   bool m_isSCT;
 
@@ -86,6 +83,14 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "SCT silicon conditions tool"};
   ToolHandle<ISCT_ElectricFieldTool> m_electricFieldTool{this, "SCT_ElectricFieldTool", "SCT_ElectricFieldTool", "SCT electric field tool"};
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
+  // Pointer of InDetDD::SiDetectorElementCollection
+  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
 };
 
 #endif // SCT_ChargeTrappingTool_h

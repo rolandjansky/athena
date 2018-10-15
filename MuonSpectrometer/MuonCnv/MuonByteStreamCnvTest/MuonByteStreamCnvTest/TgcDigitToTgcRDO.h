@@ -12,9 +12,9 @@
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdo.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
+#include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
 class TgcIdHelper;
-class ITGCcablingServerSvc;
 class ITGCcablingSvc;
 
 /////////////////////////////////////////////////////////////////////////////

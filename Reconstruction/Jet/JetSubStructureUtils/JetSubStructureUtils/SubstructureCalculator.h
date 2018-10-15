@@ -27,9 +27,6 @@ namespace JetSubStructureUtils {
         // std::vector<fastjet::PseudoJet> constit_pseudojets =
         //   jet::JetConstituentFiller::constituentPseudoJets(jet);
 
-        std::cerr << "SubstructureCalculator::result no of constituents "
-                  << (jet.getConstituents()).size() << '\n';
-
         std::vector<fastjet::PseudoJet> constit_pseudojets;
         std::transform(jet.getConstituents().begin(),
                        jet.getConstituents().end(),

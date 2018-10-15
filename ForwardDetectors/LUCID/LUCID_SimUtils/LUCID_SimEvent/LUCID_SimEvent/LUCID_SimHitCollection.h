@@ -7,10 +7,7 @@
 
 #include "LUCID_SimEvent/LUCID_SimHit.h"
 #include "HitManagement/AtlasHitsVector.h"
-
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef AtlasHitsVector<LUCID_SimHit>                 LUCID_SimHitCollection;
 typedef AtlasHitsVector<LUCID_SimHit>::iterator       LUCID_SimHitIterator;

@@ -365,6 +365,3 @@ StatusCode  GlobalEventTagTool::finalize() {
   ATH_MSG_DEBUG("in finalize()");
   return EventInfoTagTool::finalize();
 }
-
-/** destructor */
-GlobalEventTagTool::~GlobalEventTagTool() {}

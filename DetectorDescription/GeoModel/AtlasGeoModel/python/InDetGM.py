@@ -48,6 +48,8 @@ elif ( DetFlags.detdescr.ID_on() ):
             ToolSvc += blmTool
             GeoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
 
+        GeoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
+
     if ( DetFlags.detdescr.SCT_on() ):
         if InDetGeometryFlags.isSLHC():
             #SLHC specific code
@@ -59,13 +61,12 @@ elif ( DetFlags.detdescr.ID_on() ):
                 sctSLHCTool = SCT_SLHC_DetectorTool()
                 sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
             GeoModelSvc.DetectorTools += [ sctSLHCTool ]
-            if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-                from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-                sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         else:
             # Current atlas specific code
             from AthenaCommon import CfgGetter
             GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
+
+        GeoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
 
     if ( DetFlags.detdescr.TRT_on() ):
         from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
@@ -73,6 +74,7 @@ elif ( DetFlags.detdescr.ID_on() ):
         if ( DetFlags.simulate.TRT_on() ):
             trtDetectorTool.DoXenonArgonMixture = True
             trtDetectorTool.DoKryptonMixture = True
+        trtDetectorTool.useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
@@ -86,3 +88,4 @@ elif ( DetFlags.detdescr.ID_on() ):
 
     # Make alignable
     from InDetCondFolders import InDetAlignFolders
+

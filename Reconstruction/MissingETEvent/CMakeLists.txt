@@ -9,10 +9,9 @@ atlas_subdir( MissingETEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloGeoHelpers
-                          Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Control/Navigation
-                          Control/SGTools
                           Event/EventKernel
                           Event/NavFourMom
                           GaudiKernel
@@ -33,12 +32,12 @@ atlas_add_library( MissingETEvent
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent CaloGeoHelpers DataModel Navigation SGTools EventKernel NavFourMom GaudiKernel
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent CaloGeoHelpers AthContainers Navigation EventKernel NavFourMom GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils TruthHelper )
 
 atlas_add_dictionary( MissingETEventDict
                       MissingETEvent/MissingETEventDict.h
                       MissingETEvent/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent CaloGeoHelpers DataModel Navigation SGTools EventKernel NavFourMom GaudiKernel CxxUtils TruthHelper MissingETEvent )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent CaloGeoHelpers AthContainers Navigation EventKernel NavFourMom GaudiKernel CxxUtils TruthHelper MissingETEvent )
 

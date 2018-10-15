@@ -40,11 +40,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection& heavyIonTagCol, const int max);
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~HeavyIonPhysTagTool( );
-
 private:
 
   /** Properties */

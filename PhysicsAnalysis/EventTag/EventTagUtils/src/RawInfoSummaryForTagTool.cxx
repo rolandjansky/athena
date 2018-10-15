@@ -137,9 +137,3 @@ StatusCode  RawInfoSummaryForTagTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-/** destructor */
-RawInfoSummaryForTagTool::~RawInfoSummaryForTagTool() {}
-
-
-

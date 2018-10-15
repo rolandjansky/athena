@@ -17,36 +17,19 @@
 
 #ifndef SCTCalib_H
 #define SCTCalib_H
-// STL and boost headers
-#include <string>
-#include <vector>
-#include <utility>
-#include <map>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <queue>   // for HV trip
 
-//shaun added
+// Local
 #include "SCT_CalibAlgs/ISCT_CalibHistoSvc.h"
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
 #include "SCT_CalibAlgs/ISCT_CalibModuleListSvc.h"
-
-#include "TH1.h"
-
-// Gaudi
-#include "GaudiKernel/ServiceHandle.h" //member
-#include "GaudiKernel/ToolHandle.h" //member
-#include "GaudiKernel/IIncidentSvc.h" //template parameter, so not fwd declared
-#include "GaudiKernel/IIncidentListener.h" //baseclass
-#include "StoreGate/StoreGateSvc.h"
+#include "SCT_CalibAlgs/SCTCalibWriteSvc.h" //template parameter
 
 //Athena
 #include "AthenaBaseComps/AthAlgorithm.h"  //baseclass
 #include "AthenaKernel/IOVTime.h" //member
-
-// Include Event Info
-#include "EventInfo/EventID.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // RAW data access
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
@@ -56,18 +39,31 @@
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 // SCT Conditions
-#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h" //template parameter
-#include "SCT_ConditionsTools/ISCT_ReadCalibDataTool.h"  //template parameter
-#include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h" //template parameter
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+#include "SCT_ConditionsTools/ISCT_ReadCalibDataTool.h"
+#include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h"
 
 // SCT Cabling
-#include "SCT_Cabling/ISCT_CablingSvc.h"  //template parameter
+#include "SCT_Cabling/ISCT_CablingTool.h"
 
-// Local
-#include "SCT_CalibAlgs/SCTCalibWriteSvc.h" //template parameter
+// Gaudi
+#include "GaudiKernel/ServiceHandle.h" //member
+#include "GaudiKernel/ToolHandle.h" //member
 
+#include "TH1.h"
+
+// STL and boost headers
+#include <string>
+#include <vector>
+#include <utility>
+#include <map>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <queue>   // for HV trip
 
 //Forward declarations
 class TFile;
@@ -85,10 +81,6 @@ class StatusCode;
 class EventInfo;
 class SCT_PlanePosition;
 class Identifier;
-class Incident;
-namespace InDetDD {
-class  SCT_DetectorManager;
-}
 
 
 class SCTCalib : public AthAlgorithm {
@@ -101,19 +93,19 @@ class SCTCalib : public AthAlgorithm {
         StatusCode execute();
         StatusCode endRun();
         StatusCode finalize();
-        //void handle( const Incident& );
 
     private:
         ServiceHandle<StoreGateSvc>                     p_sgSvc;
         ITHistSvc *                                     m_thistSvc;
         const SCT_ID*                                   m_pSCTHelper;
-        const InDetDD::SCT_DetectorManager*             m_pManager;
+        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+        SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 
         ServiceHandle<SCTCalibWriteSvc>                 m_pCalibWriteSvc;
         ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};
         ToolHandle<ISCT_ReadCalibDataTool>              m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool/InDetSCT_ReadCalibDataTool", "Tool to retrieve SCT calibration data"};
         ToolHandle<ISCT_DetectorLevelConditionsTool>    m_MajorityConditionsTool{this, "SCT_MajorityConditionsTool", "SCT_MajorityConditionsTool", "Tool to retrieve the majority conditions of SCT"};
-        ServiceHandle<ISCT_CablingSvc>                  m_CablingSvc;
+        ToolHandle<ISCT_CablingTool> m_CablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
         //shaun added
         ServiceHandle<ISCT_CalibHistoSvc>               m_calibHitmapSvc;

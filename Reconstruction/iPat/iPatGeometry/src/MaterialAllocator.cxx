@@ -26,7 +26,7 @@ MaterialAllocator::MaterialAllocator (std::string versionName)
 	&& m_versionName != "DC3")
     {
 	// TODO: should flag problem
-	m_versionName == "DC3";
+	m_versionName = "DC3";
     }
 }
 

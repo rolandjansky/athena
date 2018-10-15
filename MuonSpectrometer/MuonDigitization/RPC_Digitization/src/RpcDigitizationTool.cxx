@@ -154,6 +154,7 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Parameters             " << m_paraFile                  );
   ATH_MSG_DEBUG ( "InputObjectName        " << m_inputHitCollectionName    );
   ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key() );
+  ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
   ATH_MSG_DEBUG ( "WindowLowerOffset      " << m_timeWindowLowerOffset     );
   ATH_MSG_DEBUG ( "WindowUpperOffset      " << m_timeWindowUpperOffset     );
   ATH_MSG_DEBUG ( "DeadTime               " << m_deadTime                  );
@@ -2472,7 +2473,6 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   std::map   <Identifier,std::string>::const_iterator itrs;
   std::map   <Identifier,      float>::const_iterator itrf;
   std::map   <Identifier,        int>::const_iterator itri;
-  std::vector<Identifier>            ::const_iterator itrv;
 
   ATH_MSG_DEBUG ( "Size Summary RPC_EfficiencyMap: " << m_rSummarySvc->RPC_EfficiencyMap().size() );
   for (itr=m_rSummarySvc->RPC_EfficiencyMap().begin(); itr!=m_rSummarySvc->RPC_EfficiencyMap().end(); ++itr) {

@@ -6,7 +6,7 @@
 #define ENERGYLIST_H
 
 #include "HadronicRecoilData/TransverseEnergy.h" 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include <vector>
 #include "CaloEvent/CaloCluster.h"
 #include "Particle/TrackParticle.h"

@@ -66,11 +66,9 @@ public:
    static const Guid& null();
 
    enum GuidGenMethod { GuidGenDefault, GuidGenRandom, GuidGenByTime };
-   static GuidGenMethod m_guidGenMethod;
+   static const GuidGenMethod m_guidGenMethod;
    /// Checks for POOL_GUID_TIME or POOL_GUID_RANDOM env variables
    static GuidGenMethod initGuidGenMethod();
-   /// Set method of GUID generation to time or random based
-   static void setGuidGeneration(GuidGenMethod method) { m_guidGenMethod = method; }
 
    /// Create a new Guid
    /// default method is currently Random, can be changed by param, API or environment

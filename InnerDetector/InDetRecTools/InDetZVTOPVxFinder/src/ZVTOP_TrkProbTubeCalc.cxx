@@ -14,6 +14,7 @@
 #include "CLHEP/Matrix/Vector.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include <cmath>
 
 //================ Constructor =================================================
 
@@ -37,20 +38,10 @@ InDet::ZVTOP_TrkProbTubeCalc::~ZVTOP_TrkProbTubeCalc()
 //================ Initialisation =================================================
 
 StatusCode InDet::ZVTOP_TrkProbTubeCalc::initialize()
-{
-  
-  StatusCode sc = AlgTool::initialize();
-
-  if (sc.isFailure()) return sc;
-  
+{  
   /* Get the right extrapolator tool from ToolSvc */
-  if ( m_extrapolator.retrieve().isFailure() ) {
-    msg (MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg (MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
-  }
-  msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
+  ATH_CHECK( m_extrapolator.retrieve() );
+  ATH_MSG_DEBUG( "initialize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -58,8 +49,7 @@ StatusCode InDet::ZVTOP_TrkProbTubeCalc::initialize()
 
 StatusCode InDet::ZVTOP_TrkProbTubeCalc::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //============================================================================================
@@ -68,6 +58,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Track& trk, Trk::Ve
   double probTube = 0.;
   //perigee surface 
   const Trk::Perigee* trkPer(dynamic_cast<const Trk::Perigee*>(trk.perigeeParameters()));
+  if (not trkPer) return 0.;
   probTube = calcProbTube(trkPer, vec);
   return probTube;
 }
@@ -81,7 +72,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::RecVertex& beam_spo
   diff[1]= beam_spot.position()[1] - vec.position()[1];
   diff[2]= beam_spot.position()[2] - vec.position()[2];
   AmgMatrix(3,3) beam_spot_weight = beam_spot.covariancePosition().inverse();
-  probTube = exp(-0.5*diff.transpose()*beam_spot_weight*diff);
+  probTube = std::exp(-0.5*diff.transpose()*beam_spot_weight*diff);
   return probTube;
 }
 //============================================================================================
@@ -98,6 +89,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::TrackParticleBase& 
   double probTube = 0.;
   //perigee surface 
   const Trk::Perigee* trkPer = dynamic_cast<const Trk::Perigee*>(&(trk.definingParameters()));
+  if (not trkPer) return 0;
   probTube = calcProbTube(trkPer,vec);
   return probTube;
 }
@@ -120,12 +112,12 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Perigee* trkPer, Tr
     diff[4]= extrapolatedPerigee->parameters()[Trk::qOverP] - f_qOverP;
     if (extrapolatedPerigee->covariance() != 0) {
       AmgMatrix(5,5) exp_perigee_weight = (*extrapolatedPerigee->covariance()).inverse();
-      probTube = exp(-0.5*diff.transpose()*exp_perigee_weight*diff);
+      probTube = std::exp(-0.5*diff.transpose()*exp_perigee_weight*diff);
     } else {
-      if (msgLvl(MSG::DEBUG)) msg()  << "extrapolateted perigee has NO information on the covariance matrix" << endmsg;
+      ATH_MSG_DEBUG( "extrapolateted perigee has NO information on the covariance matrix" );
     }
   } else {
-    if (msgLvl(MSG::DEBUG)) msg() << "Perigee was not extrapolated!" << endmsg;
+    ATH_MSG_DEBUG( "Perigee was not extrapolated!" );
   }
   delete extrapolatedPerigee;
   return probTube;

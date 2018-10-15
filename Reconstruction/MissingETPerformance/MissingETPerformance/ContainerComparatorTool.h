@@ -45,11 +45,6 @@ public:
   virtual StatusCode finalize();
   virtual StatusCode execute(MissingETData *data);
 
-protected:
-
-   /** Standard destructor */
-   virtual ~ContainerComparatorTool( );
-
  private:
   StatusCode comparatorPlots(MissingETData *data);
 

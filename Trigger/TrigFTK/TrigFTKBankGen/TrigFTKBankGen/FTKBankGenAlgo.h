@@ -259,8 +259,8 @@ private:
   std::ofstream m_file_recpar;
   std::ofstream m_file_coverage;
 
-  char m_str_gcon_file_name[200];
-  char m_str_sector_file_name[200];
+  char m_str_gcon_file_name[250];
+  char m_str_sector_file_name[250];
   std::string m_gcon_path;
 
    FTKTrack m_base_trk;

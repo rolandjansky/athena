@@ -78,11 +78,17 @@ namespace Trk {
       /** Copy constructor*/
       AssociatedMaterial(const AssociatedMaterial& am);
 
+      /** Move constructor*/
+      AssociatedMaterial(AssociatedMaterial&& am);
+
       /** Destructor */
       virtual ~AssociatedMaterial();
 
       /**Assignment operator */
       AssociatedMaterial& operator=(const AssociatedMaterial& am);
+
+      /**Move Assignment operator */
+      AssociatedMaterial& operator=(AssociatedMaterial&& am);
 
        /** Trivial Access methods */
        const Trk::MaterialProperties* materialProperties() const;

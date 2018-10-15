@@ -21,8 +21,8 @@ SCT_Identifier::getWaferId()
 void SCT_Identifier::print()
 {
   std::cout << "2/2/" << m_barrelEC << "/" 
-	    << m_layerDisk << "/" 
-	    << m_phiModule << "/"
-	    << m_etaModule << "/"
-	    << m_side << std::endl;
+            << m_layerDisk << "/" 
+            << m_phiModule << "/"
+            << m_etaModule << "/"
+            << m_side << std::endl;
 }

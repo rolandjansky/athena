@@ -9,16 +9,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 //#include "CLHEP/Vector/TwoVector.h"
+#include "TrkExInterfaces/IIntersector.h"
 
 class TgcIdHelper;
 
 namespace MuonGM
 {
     class MuonDetectorManager;
-}
-namespace Trk
-{
-    class IIntersector;
 }
 
 class TGC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, public AthAlgTool

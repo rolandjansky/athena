@@ -33,8 +33,6 @@ public:
      {}
   
 protected:
-
-  ~JEMEtSumsCollectionCnv() {}
   
   virtual JEMEtSumsCollection_PERS*   createPersistent (JEMEtSumsCollection* transCont);
   virtual JEMEtSumsCollection*        createTransient ();

@@ -3,7 +3,8 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
+#include "LArFCalTowerBuilderTool.h"
+#include "LArFCalTowerStore.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -16,9 +17,6 @@
 #include "CaloEvent/CaloTower.h"
 #include "CaloEvent/CaloTowerContainer.h"
 
-#include "LArRecUtils/LArFCalTowerStore.h"
-#include "LArFCalTowerBuilderTool.h"
-
 #include <string>
 #include <cmath>
 
@@ -30,7 +28,6 @@ LArFCalTowerBuilderTool::LArFCalTowerBuilderTool(const std::string& name,
 						 const IInterface* parent)
   : CaloTowerBuilderToolBase(name,type,parent)
     , m_minEt(0.)
-    , m_cacheValid(false)
 {
   // Et cut for minicells
   declareProperty("MinimumEt",m_minEt);
@@ -61,7 +58,7 @@ inline
 void
 LArFCalTowerBuilderTool::addTower (const tower_iterator& t,
                                    const CaloCellContainer* cells,
-                                   CaloTower* tower)
+                                   CaloTower* tower) const
 {
   LArFCalTowerStore::cell_iterator firstC = m_cellStore.firstCellofTower(t);
   LArFCalTowerStore::cell_iterator lastC = m_cellStore.lastCellofTower(t);
@@ -89,7 +86,7 @@ LArFCalTowerBuilderTool::addTower (const tower_iterator& t,
 inline
 void
 LArFCalTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
-                                      const CaloCellContainer* cells)
+                                      const CaloCellContainer* cells) const
 {
   size_t sz = towers->size();
   assert(m_cellStore.size() ==  sz);
@@ -106,7 +103,7 @@ inline
 void
 LArFCalTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
                                         const CaloCellContainer* cells,
-                                        const CaloTowerSeg::SubSeg* subseg)
+                                        const CaloTowerSeg::SubSeg* subseg) const
 {
   size_t sz = towers->size();
   assert(subseg->size() ==  sz);
@@ -126,22 +123,12 @@ LArFCalTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
 StatusCode
 LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
                                  const CaloCellContainer* theCells,
-                                 const CaloTowerSeg::SubSeg* subseg)
+                                 const CaloTowerSeg::SubSeg* subseg) const
 {
-  ///////////////////////////
-  // Create Cell Fragments //
-  ///////////////////////////
-
-  // only once if not done alread in begin run (for converter usage)
-  if (!m_cacheValid )
-    {
-      ATH_MSG_DEBUG( " m_cacheValid false, initializing Fcal lookup in first event "  );
-      if ( ! m_cellStore.buildLookUp(theTowers) ){
-        ATH_MSG_ERROR( "cannot construct cell fragment lookup, fatal!"  );
-        return StatusCode::FAILURE;
-      }
-      m_cacheValid=true;
-    }
+  if (m_cellStore.size() == 0) {
+    ATH_MSG_ERROR("Cell store not initialized.");
+    return StatusCode::FAILURE;
+  }
 
   // retrieve cells
   if (!theCells) {
@@ -173,23 +160,41 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
   return StatusCode::SUCCESS;
 }
 
+
+/**
+ * @brief Run tower building and add results to the tower container.
+ * @param theContainer The tower container to fill.
+ *
+ * If the segmentation hasn't been set, take it from the tower container.
+ * This is for use by converters.
+ */
+StatusCode LArFCalTowerBuilderTool::execute (CaloTowerContainer* theContainer)
+{
+  if (m_cellStore.size() == 0) {
+    setTowerSeg (theContainer->towerseg());
+    ATH_CHECK( rebuildLookup() );
+  }
+
+  return execute (theContainer, nullptr, nullptr);
+}
+
+
 void  LArFCalTowerBuilderTool::handle(const Incident&) 
 {
   ATH_MSG_DEBUG( "In Incident-handle"  );
-  if (m_cacheValid) {
-    ATH_MSG_DEBUG( "Cached data already computed."  );
-    return; 
-  }
-  CaloTowerContainer theTowers (towerSeg());
+}
 
-  if ( ! m_cellStore.buildLookUp(&theTowers) ){
-    ATH_MSG_ERROR( "cannot construct cell fragment lookup, fatal!"  );
-    m_cacheValid=false;
+
+/**
+ * @brief Rebuild the cell lookup table.
+ */
+StatusCode LArFCalTowerBuilderTool::rebuildLookup()
+{
+  CaloTowerContainer theTowers (towerSeg());
+  if ( m_cellStore.buildLookUp(&theTowers) ) {
+    return StatusCode::SUCCESS;
   }
-  else {
-    m_cacheValid=true;
-  }
-  ATH_MSG_DEBUG( " built Fcal tower lookup " << m_cacheValid  );
+  return StatusCode::FAILURE;
 }
 
 
@@ -198,8 +203,17 @@ void  LArFCalTowerBuilderTool::handle(const Incident&)
  *
  * Called when calibrations are updated.
  */
-void LArFCalTowerBuilderTool::invalidateCache()
+StatusCode LArFCalTowerBuilderTool::invalidateCache()
 {
-  m_cacheValid = false;
+  // FIXME: We don't currently handle changing alignments during a run.
+  //        This could be done if caloDD is updated to the new alignment
+  //        scheme.  Otherwise, it's incompatible with MT.
+  if (m_cellStore.size() > 0) {
+    ATH_MSG_ERROR("Cell store already filled.  FIXME: changing alignments is not handled.");
+    return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK( rebuildLookup() );
+  return StatusCode::SUCCESS;
 }
 

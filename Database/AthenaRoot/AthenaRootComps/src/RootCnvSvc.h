@@ -22,10 +22,10 @@
 // fwk includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
+#include "AthenaKernel/IDictLoaderSvc.h"
+#include "AthenaKernel/ITPCnvSvc.h"
 
 // fwd declares
-class IDictLoaderSvc;
-class ITPCnvSvc;
 class IRootSvc;
 
 namespace Athena {
@@ -74,9 +74,6 @@ public:
   StatusCode updateServiceState(IOpaqueAddress* pAddress);
 
 protected:
-  /// Destructor:
-  virtual ~RootCnvSvc();
-
   ///@{ RootType-based API
   /// Load the class (dictionary) from Root.
   RootType getType(const CLID& clid) const;

@@ -155,26 +155,12 @@ namespace MuonGM {
     // std::cout<<" MuonDetectorFactory001::create m_layout = <"<<m_layout<<">"<<std::endl;
     
     // check consistency of flags coming from the tool
-    if (m_layout.substr(0,1) != "P" && m_layout.substr(0,3) != "CTB") 
-      {
-        if (m_layout.substr(0,1) == "R") 
-	  {
-            m_includeCutouts = 1;
-            m_includeCutoutsBog = 1;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Development version for DC3 - infrastructures "
-               <<endmsg;
-            log<<MSG::INFO<<"                   BOG cutouts are activated "<<m_includeCutoutsBog
-               <<" , all other cutouts are disabled "<<m_includeCutouts<<endmsg;
-	  }            
-        if (m_layout.substr(0,3) == "CTB") 
-	  {
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = 2004 Combined Testbeam "<<endmsg;
-            if (m_includeCtbBis)
-              log<<MSG::INFO<<" The BIS (or BEE) chamber will be built"<<endmsg;
-            else
-              log<<MSG::INFO<<" The BIS (or BEE) chamber will NOT be built (this is the default)."<<endmsg;
-	  } 
-      }
+    m_includeCutouts = 1;
+    m_includeCutoutsBog = 1;
+    log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Development version for DC3 - infrastructures "
+       <<endmsg;
+    log<<MSG::INFO<<"                   BOG cutouts are activated "<<m_includeCutoutsBog
+       <<" , all other cutouts are disabled "<<m_includeCutouts<<endmsg;
 
     m_manager->setCachingFlag(m_caching);
     m_manager->setCacheFillingFlag(m_cacheFillingFlag);
@@ -355,36 +341,15 @@ namespace MuonGM {
     DBReader* dbr = NULL;
     std::string OracleTag =  m_DBkey;
     std::string OracleNode = m_DBnode;
-    if      (m_layout.substr(0,3) == "P03")     {
-      // DC1 and DC2
-      // OracleTag = "ATLAS-00";
-      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines);
-      //         else
-      //         {
-      //             //ss 21/02/2007 breaking all dependencies from NOVA
-      //             // dbr = new  DBReaderAtlasP(m_pDetStore);
-      //             log<<MSG::ERROR<<"Layout P from NOVA is NOT supported after 21/02/2007 and MuonGeoModel tag >= 00-04-01"<<endmsg;
-      //             return;
-      //         }
-    }
-    else if ( m_layout.substr(0,1) == "R" )       {
-      // Production Rome Final
-      // OracleTag = "ATLAS-Rome-Final-00";
-      //dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode);
 
-      if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"calling RDBReaderAtlas with m_altAsciiDBMap"<<endmsg;
-      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, &m_altAsciiDBMap);
-      RDBReaderAtlas* thisDbr = (RDBReaderAtlas*)dbr;
-      thisDbr->setControlCscIntAlines(m_controlCscIntAlines);
-     
-    }
-    else
-      {
-        log << MSG::ERROR<<"Uninitialized DBReader; Muon node will not be built"<<endmsg;
-      }
+    // Production Rome Final
+    // OracleTag = "ATLAS-Rome-Final-00";
+    //dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode);
 
-    // 
-  
+    if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"calling RDBReaderAtlas with m_altAsciiDBMap"<<endmsg;
+    dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, &m_altAsciiDBMap);
+    RDBReaderAtlas* thisDbr = (RDBReaderAtlas*)dbr;
+    thisDbr->setControlCscIntAlines(m_controlCscIntAlines);
     
     // set here the flag deciding whether to include cutouts:
     //m_includeCutouts = 1 => include cutouts

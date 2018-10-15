@@ -13,6 +13,13 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( PythonLibs )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
+# We don't have a direct dependency on boost from this package, but if we
+# pick up the dependency implicitly rather than explicitly, we include
+# root headers with -I rather than -isystem.
+# That exposes us to a warning found by gcc8 in mpl/assert.h.
+# [Fixed in boost 1.68; see https://github.com/boostorg/mpl/issues/31.]
+find_package( Boost )
+
 # Component(s) in the package:
 atlas_add_library( PerfMonEvent
                    src/PyStore.cxx
@@ -21,9 +28,9 @@ atlas_add_library( PerfMonEvent
                    src/MemStatsHooks.cxx
                    src/MallocStats.cxx
                    PUBLIC_HEADERS PerfMonEvent
-                   INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${PYTHON_LIBRARIES} GaudiKernel rt
+                   LINK_LIBRARIES ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} GaudiKernel rt
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( PerfMonEventDict

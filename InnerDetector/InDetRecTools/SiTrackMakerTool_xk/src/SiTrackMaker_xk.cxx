@@ -11,9 +11,8 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <ostream>
 #include <iomanip>
-#include <utility>
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -21,7 +20,8 @@
 #include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
-//#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
+
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -833,8 +833,8 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
 
     while(d!=DE.end()) {
 
-      if     ((*d)->isPixel()) {if(!m_pix) {DE.erase(d++); continue;}}
-      else if(   !m_sct      ) {            DE.erase(d++); continue; }
+      if     ((*d)->isPixel()) {if(!m_pix) {d = DE.erase(d); continue;}}
+      else if(   !m_sct      ) {            d = DE.erase(d); continue; }
       ++d;
     }
   }
@@ -843,9 +843,9 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
 
       if(!(*d)->isDBM() ) {
 
-	if((*d)->isSCT() || (*d)->isEndcap())       {DE.erase(d++); continue;}
+	if((*d)->isSCT() || (*d)->isEndcap())       {d = DE.erase(d); continue;}
 	const Amg::Transform3D& T  = (*d)->surface().transform();	
-	if(T(0,3)*T(0,3)+T(1,3)*T(1,3) > (43.*43) ) {DE.erase(d++); continue;}
+	if(T(0,3)*T(0,3)+T(1,3)*T(1,3) > (43.*43) ) {d = DE.erase(d); continue;}
 
       }
       ++d;

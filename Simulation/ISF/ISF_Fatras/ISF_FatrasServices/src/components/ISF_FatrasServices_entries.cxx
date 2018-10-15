@@ -1,4 +1,4 @@
-#include "ISF_FatrasServices/FatrasSimSvc.h"
+#include "../FatrasSimSvc.h"
 
 DECLARE_COMPONENT( iFatras::FatrasSimSvc )
 

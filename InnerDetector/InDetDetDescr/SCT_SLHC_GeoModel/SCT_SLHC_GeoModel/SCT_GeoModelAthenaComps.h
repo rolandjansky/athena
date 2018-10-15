@@ -7,7 +7,6 @@
 
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 
-class ISiLorentzAngleTool;
 class SCT_ID;
 class IInDetServMatBuilderTool;
 
@@ -20,19 +19,15 @@ public:
 
   SCT_GeoModelAthenaComps();
 
-  void setLorentzAngleTool(const ISiLorentzAngleTool*);
   void setIdHelper(const SCT_ID* idHelper);
 
   //Add Builder Tool
   void setServiceBuilderTool(IInDetServMatBuilderTool * serviceBuilderTool);
   IInDetServMatBuilderTool *serviceBuilderTool() const;
 
-  const ISiLorentzAngleTool* lorentzAngleTool() const;
   const SCT_ID* getIdHelper() const;
 
 private:
-  // Lorentz angle service
-  const ISiLorentzAngleTool* m_lorentzAngleTool;
   IInDetServMatBuilderTool * m_serviceBuilderTool;
   const SCT_ID* m_idHelper;
 

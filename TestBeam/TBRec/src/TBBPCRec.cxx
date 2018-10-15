@@ -3,9 +3,7 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/Property.h"
+#include "TBBPCRec.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -15,8 +13,6 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-
-#include "TBRec/TBBPCRec.h"
 
 // static const AlgFactory<TBBPCRec> s_factory;
 // const IAlgFactory& TBBPCRecFactory = s_factory;

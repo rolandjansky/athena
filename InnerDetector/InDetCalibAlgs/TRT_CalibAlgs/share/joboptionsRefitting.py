@@ -208,7 +208,8 @@ ServiceMgr += TRTCalibDBSvc
 
 from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
 InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
-                                                   TRTCalDbTool=TRTCalibDBSvc           )
+                                                   TRTCalDbTool=TRTCalibDBSvc,
+                                                   IsMC=(globalflags.DataSource == 'geant4'))
 
 ToolSvc += InDetTRT_DriftFunctionTool
 print InDetTRT_DriftFunctionTool

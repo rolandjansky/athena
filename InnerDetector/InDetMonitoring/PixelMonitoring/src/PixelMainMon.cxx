@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 
 #include "PixelMonitoring/PixelMainMon.h"
 
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "LWHists/TH1F_LW.h"
@@ -27,12 +26,9 @@
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include <stdint.h>
 #include <cstdlib>
 #include <fstream>
-#include <map>
 #include <sstream>
-#include <vector>
 
 #include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
@@ -52,7 +48,6 @@
 
 PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent) :
     ManagedMonitorToolBase(type, name, parent),
-    m_pixelCondSummarySvc("PixelConditionsSummarySvc", name),
     m_ErrorSvc("PixelByteStreamErrorsSvc", name),
     m_pixelCableSvc("PixelCablingSvc", name),
     m_IBLParameterSvc("IBLParameterSvc", name),
@@ -70,7 +65,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_FSM_status(new dcsDataHolder()),
     m_moduleDCSDataHolder(new moduleDcsDataHolder()) {
   // all job options flags go here
-  declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
   declareProperty("PixelByteStreamErrorsSvc", m_ErrorSvc);
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
@@ -151,6 +145,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
   memset(m_avgocc_ratio_lastXlb_mod, 0, sizeof(m_avgocc_ratio_lastXlb_mod));
+  memset(m_avgocc_ratio_lastXlb_mod_prof, 0, sizeof(m_avgocc_ratio_lastXlb_mod_prof));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
 
   // hit occupancy
@@ -274,7 +269,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
   memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
   memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
-  memset(m_errhist_expert_IBL_LB, 0, sizeof(m_errhist_expert_IBL_LB));
+  memset(m_errhist_expert_DBMIBL_LB, 0, sizeof(m_errhist_expert_DBMIBL_LB));
   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
   memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
   memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
@@ -401,12 +396,7 @@ StatusCode PixelMainMon::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-  if (m_pixelCondSummarySvc.retrieve().isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg;
-  }
+  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
 
   if (m_pixelCableSvc.retrieve().isFailure()) {
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCableSvc << endmsg;
@@ -743,7 +733,7 @@ StatusCode PixelMainMon::fillHistograms() {
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     m_nGood_mod[i] = 0;
     m_nActive_mod[i] = 0;
   }
@@ -752,20 +742,20 @@ StatusCode PixelMainMon::fillHistograms() {
     Identifier WaferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
 
-    int pixlayeribl2d3d = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-    if (pixlayeribl2d3d == PixLayer::kIBL) {
-      pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+    int pixlayeribl2d3ddbm = getPixLayerIDDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    if (pixlayeribl2d3ddbm == PixLayerDBM::kIBL) {
+      pixlayeribl2d3ddbm = getPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     }
-    if (pixlayeribl2d3d == 99) continue;
-    if (m_pixelCondSummarySvc->isActive(id_hash) == true) {
-      m_nActive_mod[pixlayeribl2d3d]++;
+    if (pixlayeribl2d3ddbm == 99) continue;
+    if (m_pixelCondSummaryTool->isActive(id_hash) == true) {
+      m_nActive_mod[pixlayeribl2d3ddbm]++;
     }
-    if (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true) {
-      m_nGood_mod[pixlayeribl2d3d]++;
+    if (m_pixelCondSummaryTool->isActive(id_hash) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
+      m_nGood_mod[pixlayeribl2d3ddbm]++;
     }
   }
-  m_nActive_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nActive_mod[PixLayerIBL2D3D::kIBL2D] + m_nActive_mod[PixLayerIBL2D3D::kIBL3D];
-  m_nGood_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nGood_mod[PixLayerIBL2D3D::kIBL2D] + m_nGood_mod[PixLayerIBL2D3D::kIBL3D];
+  m_nActive_mod[PixLayerIBL2D3DDBM::kIBL] = 2 * m_nActive_mod[PixLayerIBL2D3DDBM::kIBL2D] + m_nActive_mod[PixLayerIBL2D3DDBM::kIBL3D];
+  m_nGood_mod[PixLayerIBL2D3DDBM::kIBL] = 2 * m_nGood_mod[PixLayerIBL2D3DDBM::kIBL2D] + m_nGood_mod[PixLayerIBL2D3DDBM::kIBL3D];
 
   // event info
   if (m_doRDO) {
@@ -890,6 +880,11 @@ StatusCode PixelMainMon::procHistograms() {
     if (m_doRDO) {
       if (procHitsMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
+      }
+    }
+    if (m_doCluster) {
+      if (procClustersMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Cluster histograms" << endmsg;
       }
     }
     if (m_doTrack) {

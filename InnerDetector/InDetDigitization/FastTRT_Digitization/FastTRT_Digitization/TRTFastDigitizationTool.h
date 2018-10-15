@@ -40,13 +40,13 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include <utility>
 #include <vector>
 #include <map>
 #include <cmath>
 
-class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class TRT_ID;
 class TRTUncompressedHit;
@@ -141,6 +141,11 @@ private:
   int m_HardScatterSplittingMode;                                         // Process all TRT_Hits or just those from signal or background events
   bool m_HardScatterSplittingSkipper;
   IntegerProperty m_vetoThisBarcode;
+
+  bool m_useEventInfo;  // get mu from EventInfo ? 
+  std::string m_EventInfoKey;
+  float m_NCollPerEvent;
+
 };
 
 #endif // FASTTRT_DIGITIZATION_FASTTRT_DIGITIZATIONTOOL_H

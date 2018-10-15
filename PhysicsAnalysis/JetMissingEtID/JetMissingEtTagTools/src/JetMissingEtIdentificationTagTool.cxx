@@ -125,6 +125,3 @@ StatusCode JetMissingEtIdentificationTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-JetMissingEtIdentificationTagTool::~JetMissingEtIdentificationTagTool() {}
-

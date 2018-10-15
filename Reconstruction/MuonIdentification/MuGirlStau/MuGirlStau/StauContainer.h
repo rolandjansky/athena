@@ -6,8 +6,8 @@
 #define MUGIRLNSSTAUCONTAINER_H
 
 #include "GaudiKernel/MsgStream.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "MuGirlInterfaces/RpcSegmentInfo.h"
 #include "MuGirlInterfaces/CandidateSummary.h"
 #include "TrkTrack/Track.h"

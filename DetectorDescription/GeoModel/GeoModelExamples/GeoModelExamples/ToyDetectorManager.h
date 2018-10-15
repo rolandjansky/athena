@@ -62,7 +62,7 @@ class ToyDetectorManager : public GeoVDetectorManager  {
 // Class ToyDetectorManager 
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ToyDetectorManager, 9876, 1)
 #endif
 

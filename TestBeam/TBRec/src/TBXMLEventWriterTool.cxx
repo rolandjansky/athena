@@ -3,11 +3,9 @@
 */
 
 
-#include "GaudiKernel/AlgTool.h"
-
-#include "TBRec/TBXMLWriterToolBase.h"
-#include "TBRec/TBXMLEventWriterTool.h"
-#include "TBRec/TBXMLWriter.h"
+#include "TBXMLWriterToolBase.h"
+#include "TBXMLEventWriterTool.h"
+#include "TBXMLWriter.h"
 
 #include <string>
 

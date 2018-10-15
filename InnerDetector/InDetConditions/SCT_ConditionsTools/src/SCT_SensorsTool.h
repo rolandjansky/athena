@@ -54,7 +54,7 @@ class SCT_SensorsTool: public extends<AthAlgTool, ISCT_SensorsTool> {
   mutable std::mutex m_mutex;
   // Cache to store events for slots
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_TdaqEnabledCondData
+  // Pointer of SCT_SensorsCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_SensorsCondData> m_condData;
   // ReadCondHandleKey
   SG::ReadCondHandleKey<SCT_SensorsCondData> m_condKey{this, "CondKey", "SCT_SensorsCondData", "SCT sensor conditions"};

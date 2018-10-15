@@ -163,6 +163,7 @@ namespace TrigCostRootAnalysis {
     kExtrapolate13To5,
     kLumiExtrapWeight,
     kMaxMultiSeed,
+    kMaxMultiSeedForGroup,
     kWroteProgressFile,
     kBasicEventWeight,
     kOnlinePeakMuAverage,

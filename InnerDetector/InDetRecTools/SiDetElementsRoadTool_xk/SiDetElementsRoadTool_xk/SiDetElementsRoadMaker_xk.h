@@ -17,17 +17,23 @@
 #ifndef SiDetElementsRoadMaker_xk_H
 #define SiDetElementsRoadMaker_xk_H
 
-#include <list>
-#include <vector>
-#include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
+#include "SiDetElementsRoadTool_xk/SiDetElementsLayerVectors_xk.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/CylinderBounds.h"
 
-#include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include <iosfwd>
+#include <list>
+#include <mutex>
+#include <vector>
 
 class MsgStream;
 class IMagFieldAthenaSvc;
@@ -98,34 +104,39 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-      MagField::IMagFieldSvc*                m_fieldService      ;
+      MagField::IMagFieldSvc*                m_fieldService{}      ;
       ToolHandle<Trk::IPropagator>           m_proptool          ;  // Propagator     tool
 
-      bool                                 m_usePIX   ;
-      bool                                 m_useSCT   ;
-      bool                                 m_test     ;
-      int                                  m_outputlevel;
-      int                                  m_nprint   ;
-      int                                  m_sizeroad ;
-      double                               m_zfield   ;
-      float                                m_width    ;  // Width of the road
-      double                               m_step     ;  // Max step allowed
-      Trk::CylinderBounds                  m_bounds   ;  //  
-      int                                  m_map  [3] ;
+      bool                                 m_usePIX{}   ;
+      bool                                 m_useSCT{}   ;
+      bool                                 m_test{}     ;
+      int                                  m_outputlevel{};
+      int                                  m_nprint{}   ;
+      int                                  m_sizeroad{} ;
+      double                               m_zfield{}   ;
+      float                                m_width{}    ;  // Width of the road
+      double                               m_step {}    ;  // Max step allowed
+      Trk::CylinderBounds                  m_bounds{}   ;  //  
       std::vector<SiDetElementsLayer_xk>   m_layer[3] ;  // Layers
       std::string                          m_pix      ;  // PIX manager   location
       std::string                          m_sct      ;  // SCT manager   location
       std::string                          m_fieldmode;  // Mode of magnetic field
-      std::string                     m_callbackString;
       Trk::MagneticFieldProperties         m_fieldprop;  // Magnetic field properties
+      SG::ReadCondHandleKey<SiDetElementsLayerVectors_xk> m_layerVecKey{this, "LayerVecKey",
+          "SiDetElementsLayerVectors_xk", "Key of SiDetElementsLayerVectors_xk"};
+
+      // Mutex to protect the contents
+      mutable std::mutex m_mutex;
+      // Cache to store events for slots
+      mutable std::vector<EventContext::ContextEvt_t> m_cache;
+      // std::vector<SiDetElementsLayer_xk> for each event. This is not const.
+      mutable SiDetElementsLayerVectors_xk m_layerVectors[3];
 
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
 
       void       mapDetectorElementsProduction();
-      StatusCode mapDetectorElementsUpdate(IOVSVC_CALLBACK_ARGS);
-      void detElementInformation(const InDetDD::SiDetectorElement&,double*);
       float stepToDetElement
 	(const InDetDD::SiDetectorElement*&,Amg::Vector3D&,Amg::Vector3D&);
 
@@ -136,6 +147,8 @@ namespace InDet{
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
       MsgStream&    dumpEvent     (MsgStream   & out) const;
+
+      void getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const;
   };
 
   MsgStream&    operator << (MsgStream&   ,const SiDetElementsRoadMaker_xk&);

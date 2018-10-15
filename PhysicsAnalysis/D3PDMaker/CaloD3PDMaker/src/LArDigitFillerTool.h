@@ -14,12 +14,12 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "GaudiKernel/ToolHandle.h" 
+#include "LArCabling/LArCablingService.h"
 
 class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class LArOnlineID;
-class LArCablingService;
 
 
 namespace D3PD {

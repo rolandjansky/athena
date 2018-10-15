@@ -16,6 +16,7 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PathResolver/PathResolver.h"
+#include "TROOT.h"
 
 namespace CP {
 
@@ -104,6 +105,12 @@ namespace CP {
         if (m_LowPtSys1Up) delete m_LowPtSys1Up;
         if (m_LowPtStat1Down) delete m_LowPtStat1Down;
         if (m_LowPtStat1Up) delete m_LowPtStat1Up;
+
+        // Disable MustClean when exiting, to prevent spending
+        // an inordinate amount of time in the final cleanup.
+        // We used to do this when histograms were created, but this
+        // caused breakage in root 6.12.  See ATLASRECTS-4431.
+        gROOT->SetMustClean (false);
     }
 
     StatusCode MuonEfficiencyScaleFactors::initialize() {

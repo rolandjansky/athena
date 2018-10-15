@@ -73,12 +73,12 @@ StatusCode TriggerJetBuildTool::finalize() {
 
 //**********************************************************************
 
-int TriggerJetBuildTool::build(ClusterSequence*& pcs,
-                               JetContainer*& pjets) const {
+int TriggerJetBuildTool::build(fastjet::ClusterSequence*& pcs,
+                               xAOD::JetContainer*& pjets) const {
   ATH_MSG_DEBUG("Entering build...");
 
   // Make a new empty jet collection to write to.
-  pjets = new JetContainer;
+  pjets = new xAOD::JetContainer;
   pjets->setStore(new xAOD::JetTrigAuxContainer);
 
   ATH_MSG_DEBUG("Created jet container, set aux container...");

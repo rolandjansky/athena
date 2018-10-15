@@ -23,6 +23,8 @@
 // METReconstruction includes
 #include "METReconstruction/METBuilderTool.h"
 
+#include "xAODTruth/TruthEventContainer.h"
+
 // Truth EDM
 #include "xAODTruth/TruthParticleFwd.h"
 
@@ -83,6 +85,7 @@ namespace met{
     double m_det_maxEta;
     double m_truthmu_minPt;
     double m_truthmu_maxEta;
+    SG::ReadHandleKey<xAOD::TruthEventContainer>           m_truthEventKey;
 
     // TEMPORARILY recopy some helper from TruthHelper and GeneratorUtils packages
     //  *** via JetSimTools ***

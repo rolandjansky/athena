@@ -28,7 +28,7 @@ LArStraightAbsorbers::LArStraightAbsorbers(std::string strDetector)
   else                                                    m_parity=1;  // first wave goes down
 
   if (s_theAbsorbers==nullptr) {
-    if (strDetector=="")
+    if (strDetector.empty())
       s_theAbsorbers = new PhysicalVolumeAccessor("LAr::EMB::STAC",
                                                   "LAr::EMB::ThinAbs::Straight");
     else
@@ -64,7 +64,7 @@ double LArStraightAbsorbers::XCentAbs(int stackid, int cellid) const
     return m_xcent[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4ThreeVector& tv=pv->GetTranslation();
@@ -89,7 +89,7 @@ double LArStraightAbsorbers::YCentAbs(int stackid, int cellid) const
     return m_ycent[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4ThreeVector& tv=pv->GetTranslation();
@@ -112,12 +112,11 @@ double LArStraightAbsorbers::YCentAbs(int stackid, int cellid) const
 double LArStraightAbsorbers::SlantAbs(int stackid, int cellid) const
 {
   // both stackid and cellid start from 0 in the following code
-  int id=cellid+stackid*10000;
+  const int id=cellid+stackid*10000;
   const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
   if (!pv) return 0.;
   const G4RotationMatrix *rm=pv->GetRotation();
-  double Slant;
-  Slant = (stackid%2 ==m_parity) ? 180*CLHEP::deg-(rm->thetaY()):(rm->thetaY())-180*CLHEP::deg;
+  double Slant = (stackid%2 ==m_parity) ? 180*CLHEP::deg-(rm->thetaY()):(rm->thetaY())-180*CLHEP::deg;
   if((stackid%2 == m_parity) && (rm->phiY() > 0)) Slant = 360.*CLHEP::deg - Slant;
   if((stackid%2 == (1-m_parity)) && (rm->phiY() < 0)) Slant = - Slant;
   return Slant;
@@ -128,7 +127,7 @@ double LArStraightAbsorbers::HalfLength(int stackid, int cellid) const
     return m_halflength[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4LogicalVolume* lv = pv->GetLogicalVolume();

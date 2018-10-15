@@ -1,4 +1,4 @@
-#include "ISF_FatrasToolsMS/SimHitCreatorMS.h"
+#include "../SimHitCreatorMS.h"
 
 DECLARE_COMPONENT( iFatras::SimHitCreatorMS )
 

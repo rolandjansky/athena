@@ -16,8 +16,8 @@
 
 
 SCT_CoolingEnd::SCT_CoolingEnd(const std::string & name, int iLayer,
-				   double innerRadius,
-				   double length)
+                               double innerRadius,
+                               double length)
   : SCT_SharedComponentFactory(name), m_iLayer(iLayer),
     m_innerRadius(innerRadius),
     m_length(length)

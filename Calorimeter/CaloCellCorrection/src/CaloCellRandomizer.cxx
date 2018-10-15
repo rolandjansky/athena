@@ -9,18 +9,13 @@
 //
 // ****************************************************************************************
 
-#include "CaloCellCorrection/CaloCellRandomizer.h"
-
-#include "GaudiKernel/RndmGenerators.h"
-#include "GaudiKernel/IRndmGenSvc.h"
-
-
+#include "CaloCellRandomizer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-//#include "CaloUtils/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
-
-#include <CLHEP/Random/Randomize.h>
+#include "AthenaKernel/RNGWrapper.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "CLHEP/Random/Randomize.h"
 
 using CLHEP::RandGauss;
 
@@ -33,8 +28,9 @@ CaloCellRandomizer::CaloCellRandomizer(
 			     const std::string& name, 
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
-    m_noiseTool("undefined"),  m_corrSampleMin(0),m_corrSampleMax(0),m_fractionSigma(1),m_GaussRand(false),m_GaussRandGroupedSamples(false),m_GaussRandShifted(false),m_GaussRandShifted_Custom(false), m_shift_EMB(1),m_shift_EMEC(1),m_shift_HEC(1),m_shift_TileBar(1),m_shift_TileGap(1),m_shift_TileExt(1),m_shift_FCAL(1)
-
+    m_noiseTool("undefined"),  m_corrSampleMin(0),m_corrSampleMax(0),m_fractionSigma(1),m_GaussRand(false),m_GaussRandGroupedSamples(false),m_GaussRandShifted(false),m_GaussRandShifted_Custom(false), m_shift_EMB(1),m_shift_EMEC(1),m_shift_HEC(1),m_shift_TileBar(1),m_shift_TileGap(1),m_shift_TileExt(1),m_shift_FCAL(1),
+    m_athRNGSvc ("AthRNGSvc", name),
+    m_randomEngine (nullptr)
 {
  declareInterface<CaloCellCorrection>(this);
  declareProperty("noiseTool",m_noiseTool,"Tool Handle for noise tool");
@@ -54,7 +50,8 @@ CaloCellRandomizer::CaloCellRandomizer(
  declareProperty("CustomShiftTileGap",m_shift_TileGap);
  declareProperty("CustomShiftTileExt",m_shift_TileExt);
  declareProperty("CustomShiftFCAL",m_shift_FCAL);
-
+ declareProperty("AthRNGSvc", m_athRNGSvc);
+ declareProperty("RandomStream", m_randomStream = "CaloCellRandomizer");
 }
 
 //========================================================
@@ -66,15 +63,23 @@ StatusCode CaloCellRandomizer::initialize()
   ATH_CHECK( m_noiseTool.retrieve() );
   ATH_MSG_INFO( "Noise Tool retrieved"  );
   ATH_MSG_INFO( "CaloCellRandomizer initialize() end"  );
+  ATH_CHECK( m_athRNGSvc.retrieve() );
+  m_randomEngine = m_athRNGSvc->getEngine (this, m_randomStream);
+  if (!m_randomEngine) {
+    ATH_MSG_ERROR("Could not get random number engine from AthRNGSvc. Abort.");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
 
 // ============================================================================
 
-void CaloCellRandomizer::MakeCorrection(CaloCell* theCell)
+void CaloCellRandomizer::MakeCorrection (CaloCell* theCell,
+                                         const EventContext& ctx) const
 {
-  
+  CLHEP::HepRandomEngine* engine = m_randomEngine->getEngine (ctx);
+
   int sampl = 0;
   float Gauss = 0;
   float GaussShifted = 0;
@@ -83,10 +88,11 @@ void CaloCellRandomizer::MakeCorrection(CaloCell* theCell)
   sampl=caloDDE->getSampling();    
    
   //CaloNoiseTool
+  // FIXME: CaloNoiseTool doesn't have const interfaces.
   double SigmaNoise = m_noiseTool->getNoise(theCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
   
 
-  Gauss = RandGauss::shoot(0.,1.);
+  Gauss = RandGauss::shoot(engine, 0.,1.);
 
   GaussShifted = Gauss+m_fractionSigma;
 
@@ -104,31 +110,31 @@ void CaloCellRandomizer::MakeCorrection(CaloCell* theCell)
   
   if(m_GaussRandShifted_Custom){//var 
     if (sampl<4){ 
-      GaussShifted = RandGauss::shoot(m_shift_EMB*SigmaNoise,SigmaNoise); 
+      GaussShifted = RandGauss::shoot(engine, m_shift_EMB*SigmaNoise,SigmaNoise); 
       setenergy(theCell,(GaussShifted)); 
     }
     if (sampl>3 && sampl<8){ 
-      GaussShifted = RandGauss::shoot(m_shift_EMEC*SigmaNoise,SigmaNoise); 
+      GaussShifted = RandGauss::shoot(engine, m_shift_EMEC*SigmaNoise,SigmaNoise); 
       setenergy(theCell,(GaussShifted)); 
     }
     if (sampl>7 && sampl<12){ 
-      GaussShifted = RandGauss::shoot(m_shift_HEC*SigmaNoise,SigmaNoise); 
+      GaussShifted = RandGauss::shoot(engine, m_shift_HEC*SigmaNoise,SigmaNoise); 
       setenergy(theCell,(GaussShifted)); 
     } 
     if (sampl>11 && sampl<15){ 
-      GaussShifted = RandGauss::shoot(m_shift_TileBar*SigmaNoise,SigmaNoise); 
+      GaussShifted = RandGauss::shoot(engine, m_shift_TileBar*SigmaNoise,SigmaNoise); 
       setenergy(theCell,(GaussShifted)); 
     } 
     if (sampl>14 && sampl<18){ 
-      GaussShifted = RandGauss::shoot(m_shift_TileGap*SigmaNoise,SigmaNoise); 
+      GaussShifted = RandGauss::shoot(engine, m_shift_TileGap*SigmaNoise,SigmaNoise); 
       setenergy(theCell,(GaussShifted)); 
     }  
     if (sampl>17 && sampl<21){
-      GaussShifted = RandGauss::shoot(m_shift_TileExt*SigmaNoise,SigmaNoise);
+      GaussShifted = RandGauss::shoot(engine, m_shift_TileExt*SigmaNoise,SigmaNoise);
       setenergy(theCell,(GaussShifted));
     }
     if (sampl>20 && sampl<24){
-      GaussShifted = RandGauss::shoot(m_shift_FCAL*SigmaNoise,SigmaNoise);
+      GaussShifted = RandGauss::shoot(engine, m_shift_FCAL*SigmaNoise,SigmaNoise);
       setenergy(theCell,(GaussShifted));
     } 
     

@@ -2,15 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNTAA_TBInfo.h"
+#include "CBNTAA_TBInfo.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "TBCaloGeometry/TBCaloCoordinate.h"

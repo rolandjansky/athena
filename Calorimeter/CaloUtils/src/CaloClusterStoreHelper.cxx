@@ -60,42 +60,22 @@ xAOD::CaloClusterContainer* CaloClusterStoreHelper::makeContainer(StoreGateSvc* 
   return clusColl;
 }
 
-StatusCode CaloClusterStoreHelper::AddContainerWriteHandle(StoreGateSvc* pStoreGate,
-								  SG::WriteHandle<xAOD::CaloClusterContainer> &clusColl,
-								  MsgStream& msg) {
+StatusCode CaloClusterStoreHelper::AddContainerWriteHandle(StoreGateSvc* /*pStoreGate*/,
+                                                           SG::WriteHandle<xAOD::CaloClusterContainer> &clusColl,
+                                                           MsgStream& /*msg*/) {
   // Create the xAOD container and its auxiliary store:
-  clusColl = std::unique_ptr<xAOD::CaloClusterContainer>(new xAOD::CaloClusterContainer());
-  if (!clusColl.isValid()) return StatusCode::FAILURE;
-  xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
-  if(pStoreGate->overwrite(aux, clusColl.name()+"Aux.").isFailure()) {
-    msg << MSG::ERROR << "Failed to record xAOD::CaloClusterAuxContainer with key " << clusColl.name()+"Aux." << endmsg;
-    delete aux;
-    return StatusCode::FAILURE;
-  }
-  clusColl->setStore( aux );     
-  return StatusCode::SUCCESS;
-
+  StatusCode sc = 
+    clusColl.record (std::make_unique<xAOD::CaloClusterContainer>(),
+                     std::make_unique<xAOD::CaloClusterAuxContainer>());
+  return sc;
 }
 
 
 StatusCode CaloClusterStoreHelper::finalizeClusters(StoreGateSvc* pStoreGate,
 						    xAOD::CaloClusterContainer* pClusterColl,
 						    const std::string& clusCollKey,
-						    MsgStream& msg) {
-  //Check if object is already locked:
-  SG::DataProxy* proxy=pStoreGate->proxy(pClusterColl);
-  //Could also check CLID and name at this point ....
-  if (!proxy) {
-    msg << MSG::ERROR << "Can't get DataProxy for object at address " << pClusterColl << endmsg;    
-  }
-  else {
-    if (proxy->isConst()) {
-      msg << MSG::ERROR << "Object is already locked! Do nothing." << endmsg;
-      return StatusCode::FAILURE;
-    }
-  }
-
-
+						    MsgStream& msg)
+{
   CaloClusterCellLinkContainer* cellLinks= new CaloClusterCellLinkContainer();
   if(pStoreGate->overwrite(cellLinks, clusCollKey + "_links").isFailure()) {
     msg << MSG::ERROR << "Failed to record CaloClusterCellLinkContainer with key " << clusCollKey + "Links" << endmsg;
@@ -117,6 +97,23 @@ StatusCode CaloClusterStoreHelper::finalizeClusters(StoreGateSvc* pStoreGate,
     msg << MSG::ERROR << "Failed to lock CaloClusterCellLinkContainer" << endmsg;
   }
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+CaloClusterStoreHelper::finalizeClusters (SG::WriteHandle<CaloClusterCellLinkContainer>& h,
+                                          xAOD::CaloClusterContainer* pClusterColl)
+{
+  auto cellLinks = std::make_unique<CaloClusterCellLinkContainer>();
+
+  //Loop on clusters and call setLink to transfer ownership of CaloClusterCellLink object to 
+  //CaloClusterCellLinkContainer
+  IProxyDict* sg = SG::CurrentEventStore::store();
+  for (xAOD::CaloCluster* cl : *pClusterColl) {
+    cl->setLink(cellLinks.get(), sg);
+  }
+
+  return h.record (std::move (cellLinks));
 }
 
 

@@ -29,7 +29,7 @@ class TrigHLTJetRecGroomer : public TrigHLTJetRecFromCluster
         virtual HLT::ErrorCode hltInitialize() override;
 
     protected:
-        HLT::ErrorCode build(ClusterSequence*&, JetContainer*&) const override;
+        HLT::ErrorCode build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const override;
 
     private:
         // properties configurable via python

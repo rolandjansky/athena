@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_PTBARRELLUTSVC_H
@@ -36,8 +36,10 @@ namespace TrigL2MuonSA {
     virtual StatusCode finalize(void);
 
   private:
-    StringProperty m_lut_fileName;
-    StringProperty m_lutSP_fileName;
+    Gaudi::Property< std::string > m_lut_fileName {
+	this, "LUTfile", "pt_barrel.lut", ""};
+    Gaudi::Property< std::string > m_lutSP_fileName {
+	this, "SP_LUTfile", "pt_barrelSP_new.lut", ""};
 
     ToolHandle<PtBarrelLUT>  m_ptBarrelLUT;
 

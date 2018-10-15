@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileIdentifier
                           PRIVATE
                           AtlasTest/TestTools
-                          Calorimeter/CaloCellCorrection
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
                           Control/AthenaKernel
@@ -48,7 +47,6 @@ atlas_add_test( TileDigitsThresholdFilter_test
 
 
 # Install files from the package:
-atlas_install_headers( TileRecAlgs )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

@@ -59,6 +59,8 @@ CaloCellContainerFinalizerTool::CaloCellContainerFinalizerTool(
 
 StatusCode CaloCellContainerFinalizerTool::initialize()
 {
+
+  ATH_CHECK(detStore()->retrieve(m_theCaloCCIDM,"CaloCell_ID"));
   return StatusCode::SUCCESS;
 }
 
@@ -66,10 +68,7 @@ template <class CONTAINER>
 StatusCode CaloCellContainerFinalizerTool::doProcess(CONTAINER* theCont )
 {
 
-  // check whether has max hash id size
-  const CaloDetDescrManager * theCaloDDM = CaloDetDescrManager::instance() ;
-  const CaloCell_ID * theCaloCCIDM   = theCaloDDM->getCaloCell_ID() ;
-  unsigned int hashMax=theCaloCCIDM->calo_cell_hash_max();
+  const unsigned int hashMax=m_theCaloCCIDM->calo_cell_hash_max();
   if (theCont->size()<hashMax) {
     ATH_MSG_DEBUG("CaloCellContainer size " << theCont->size() << " smaller than hashMax: " << hashMax);
   }
@@ -150,9 +149,7 @@ StatusCode
 CaloCellContainerFinalizerTool::process(CaloCellContainer * theCont )
 {
   CHECK( doProcess (theCont) );
-
-  ATH_MSG_DEBUG("Now lock the container");
-  return evtStore()->setConst (theCont);
+  return StatusCode::SUCCESS;
 }
 
 

@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
  /***************************************************************************
                            EnergyCMX.h  -  description
                               -------------------
       begin                : 04 04 2014
-      copyright            : (C) 2014 by Alan Watson
       email                : Alan.Watson@cern.ch
   ***************************************************************************/
 

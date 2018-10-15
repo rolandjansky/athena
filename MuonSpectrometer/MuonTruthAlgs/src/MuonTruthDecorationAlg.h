@@ -30,12 +30,12 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
+#include "MCTruthClassifier/IMCTruthClassifier.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandleKeyArray.h"
 
-class IMCTruthClassifier;
 class MuonSimDataCollection;
 class CscSimDataCollection;
 
@@ -72,7 +72,6 @@ private:
   SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_PRD_TruthNames;
   SG::ReadHandleKeyArray<MuonSimDataCollection> m_SDO_TruthNames;
   SG::ReadHandleKey<CscSimDataCollection> m_CSC_SDO_TruthNames;
-  SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecName;
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;

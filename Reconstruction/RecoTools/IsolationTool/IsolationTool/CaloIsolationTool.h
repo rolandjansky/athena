@@ -13,7 +13,6 @@
 // #include "GaudiKernel/ToolHandle.h"
 #include "ParticlesInConeTools/ICaloClustersInConeTool.h"
 #include "ParticlesInConeTools/IPFlowObjectsInConeTool.h"
-#include "RecoToolInterfaces/ICaloIsolationDecoratorTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
@@ -44,9 +43,6 @@ namespace xAOD {
     virtual public ICaloTopoClusterIsolationTool,
     virtual public ICaloCellIsolationTool,
     virtual public INeutralEFlowIsolationTool,
-#ifndef XAOD_ANALYSIS
-    virtual public ICaloIsolationDecoratorTool,
-#endif // XAOD_ANALYSIS
     public asg::AsgTool {
     ASG_TOOL_CLASS3( CaloIsolationTool, ICaloTopoClusterIsolationTool, ICaloCellIsolationTool, INeutralEFlowIsolationTool )
   public:
@@ -85,31 +81,6 @@ namespace xAOD {
 				  const std::vector<Iso::IsolationType>& cones, 
 				  CaloCorrection corrections) override;
       using INeutralEFlowIsolationTool::neutralEflowIsolation;
-
-#ifndef XAOD_ANALYSIS
-      virtual
-      bool decorateParticle( const IParticle& tp,
-                             const std::vector<Iso::IsolationType>& cones,
-                             CaloCorrection corrections,
-                             const CaloCellContainer* Cells = 0,
-                             const CaloClusterContainer* TopClusters = 0) override final; 
-#endif
-      virtual
-      bool decorateParticle_caloCellIso( const IParticle& tp,
-                             const std::vector<Iso::IsolationType>& cones,
-                             CaloCorrection corrections,
-                             const CaloCellContainer* Cells) override final;
-
-      virtual
-      bool decorateParticle_topoClusterIso( const IParticle& tp,
-                             const std::vector<Iso::IsolationType>& cones,
-                             CaloCorrection corrections,
-                             const CaloClusterContainer* TopClusters) override final;
-
-      virtual
-      bool decorateParticle_eflowIso( const IParticle& tp,
-                             const std::vector<Iso::IsolationType>& cones,
-                             CaloCorrection corrections) override final;
 
   private:
       /** map to the orignal particle */
@@ -156,11 +127,6 @@ namespace xAOD {
                                  double coneCoreSize,
                                  derefMap_t& derefMap);
 
-      // final dressing function
-      bool decorateParticle(CaloIsolation& result,
-                            const IParticle& tp,
-                            const std::vector<Iso::IsolationType>& cones,
-                            CaloCorrection corrections);
       // etcone computation for TrackParticle
 #ifndef XAOD_ANALYSIS
       bool etConeIsolation( CaloIsolation& result, const TrackParticle& tp, 
@@ -247,7 +213,7 @@ namespace xAOD {
       /** get reference particle */
       const IParticle* getReferenceParticle(const IParticle& particle) const;
 
-      // add the calo decoration
+      // add the calo decoration -- FIXME! Change to use standard caching
       void decorateTrackCaloPosition(const IParticle& particle, float eta, float phi) const;
 
 #ifndef XAOD_ANALYSIS

@@ -53,3 +53,8 @@ atlas_add_test( AthAlgorithmDHUpdate_test
    SOURCES test/AthAlgorithmDHUpdate_test.cxx
    LINK_LIBRARIES StoreGateLib GaudiKernel TestTools AthenaBaseComps
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+ atlas_add_test( AthAlgStartVisitor_test
+   SOURCES test/AthAlgStartVisitor_test.cxx
+   LINK_LIBRARIES StoreGateLib GaudiKernel TestTools AthenaBaseComps
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

@@ -193,7 +193,7 @@ const InDet::PixelClusterContainer& makeclusts (StoreGateSvc* sg)
       cl->setHashAndIndex (hash, i);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash, true);
+    cont->addCollection (coll.release(), hash);
   }
 
   const InDet::PixelClusterContainer& ret = *cont;

@@ -11,7 +11,7 @@
  **/
 
 #include "GaudiKernel/IService.h"
-
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 class Identifier;
 
 #ifndef TRT_DCS_FLAGS
@@ -64,6 +64,12 @@ class ITRT_DCS_ConditionsSvc : virtual public IService {
    */
   virtual StatusCode getValue( const std::string, const int,
 			       InDet::TRT_DCS_ValueType& ) = 0;
+
+  virtual const CondAttrListCollection* getCollection( const std::string) =0;
+
+  virtual void monitorBarrel() = 0;
+  virtual void monitorEndcapA() = 0;
+  virtual void monitorEndcapC() = 0;
 
   /// Interface ID
   static const InterfaceID& interfaceID();

@@ -9,7 +9,6 @@ atlas_subdir( ByteStreamCnvSvcBase )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
                           Control/StoreGate
                           Event/ByteStreamData
                           GaudiKernel

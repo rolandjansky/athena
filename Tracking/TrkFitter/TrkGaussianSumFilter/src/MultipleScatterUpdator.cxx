@@ -21,12 +21,6 @@ decription           : Implementation code for multiple scatter updator
 
 #include <cmath>
 
-Trk::ParticleMasses Trk::MultipleScatterUpdator::s_particleMasses;
-double Trk::MultipleScatterUpdator::s_multipleScatterMainFactor = 13.6 * Gaudi::Units::MeV;
-double Trk::MultipleScatterUpdator::s_multipleScatterLogFactor = 0.038;
-double Trk::MultipleScatterUpdator::s_main_RossiGreisen = 17.5 * Gaudi::Units::MeV;
-double Trk::MultipleScatterUpdator::s_log_RossiGreisen = 0.125;
-
 Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
@@ -37,10 +31,6 @@ Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type, con
   declareInterface<IMaterialEffectsUpdator>(this);
 
   declareProperty("MultipleScatterLogarithmicTermOn", m_multipleScatterLogTermOn);
-  declareProperty("MultipleScatterMainFactor",        s_multipleScatterMainFactor);
-  declareProperty("MultipleScatterLogFactor",         s_multipleScatterLogFactor);
-  declareProperty("RossiGreisenMainFactor",           s_main_RossiGreisen);
-  declareProperty("RossiGreisenLogFactor",            s_log_RossiGreisen);
 
 }
 

@@ -5,15 +5,11 @@ from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool, LArCe
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
 
 def LArCellBuilderCfg(configFlags):
-    result=ComponentAccumulator()
-    result.addConfig(LArOnOffIdMappingCfg,configFlags)
+    result=LArOnOffIdMappingCfg(configFlags)
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
 
     theLArCellBuilder.addDeadOTX = False #Create flag? Requires bad-feb DB access
-    result.addAlgTool(theLArCellBuilder)
-
-    
-    return result
+    return result,theLArCellBuilder
 
 
 
@@ -22,36 +18,28 @@ def LArCellCorrectorCfg(configFlags):
     
     correctionTools=[]
 
-    if configFlags.get("LAr.RawChannelSource")=="both":
-        theMerger=result.addConfig(LArCellMerger,configFlags,RawChannelsName="LArRawChannels_FromDigits")
-        correctionTools.append(theMerger[0])
+    if configFlags.LAr.RawChannelSource=="both":
+        theMerger=LArCellMerger(RawChannelsName="LArRawChannels_FromDigits")
+        correctionTools.append(theMerger)
     
-    if configFlags.get("LAr.doCellNoiseMasking") or configFlags.get("LAr.doCellSporadicNoiseMasking"):
+    if configFlags.LAr.doCellNoiseMasking or configFlags.LAr.doCellSporadicNoiseMasking:
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
         theNoiseMasker=LArCellNoiseMaskingTool()
-        if configFlags.get("LAr.doCellNoiseMasking"):
-            cellNoiseMaskingTool=result.addConfig(LArBadChannelMaskerCfg,configFlags,
-                                                  problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],
-                                                  ToolName="CellNoiseMask")
-            theNoiseMasker.MaskingTool=cellNoiseMaskingTool[0]
+        if configFlags.LAr.doCellNoiseMasking:
+            acc,cellNoiseMaskingTool= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="CellNoiseMask")
+            result.merge(acc)
+            theNoiseMasker.MaskingTool=cellNoiseMaskingTool
             pass
-        if configFlags.get("LAr.doCellSporadicNoiseMasking"):
-            sporadicNoiseMaskingTool=result.addConfig(LArBadChannelMaskerCfg,configFlags,
-                                                      problemsToMask=["sporadicBurstNoise",],
-                                                      ToolName="SporadicNoiseMask")
-            theNoiseMasker.MaskingSporadicTool=sporadicNoiseMaskingTool[0]
+        if configFlags.LAr.doCellSporadicNoiseMasking:
+            acc,sporadicNoiseMaskingTool=LArBadChannelMaskerCfg(configFlags,problemsToMask=["sporadicBurstNoise",],ToolName="SporadicNoiseMask")
+            result.merge(acc)
+            theNoiseMasker.MaskingSporadicTool=sporadicNoiseMaskingTool
             pass
         correctionTools.append(theNoiseMasker)
-        pass
-
     #Many more tools to be added, eg HV correction
 
     
-    result.clearAlgTools()
-    for t in correctionTools:
-        result.addAlgTool(t)
-
-    return result
+    return result,correctionTools
         
         
         

@@ -216,12 +216,7 @@ namespace MuonGM {
     double ysFrame = stgc->ysFrame(); //Frame thickness on short parallel edge
     double ylFrame = stgc->ylFrame(); //Frame thickness on long parallel edge
     double xFrame  = stgc->xFrame(); //Frame thickness of non parallel edges
-    double yCutout = stgc->yCutout();// y of cutout of trapezoid (only in outermost detectors)
-    /* yCutout in the xml is 6mm too large for Readout geometry.
-     * The xml value includes a 6mm cover which is needed within GeoModel, but not here.
-     * As such, we take 6mm off this value if it is non 0, in order to get the proper value.
-     * As of now, xml = 545.3 whereas yCutout should be 539.3 */
-    if (yCutout) yCutout -= 6. ;
+    double yCutout = stgc->yCutoutCathode();// y of cutout of trapezoid (only in outermost detectors)
     sTGCReadoutParameters roParam = stgc->GetReadoutParameters();
 
     // AGDDParameterBagsTGCTech* parameterBagTech = dynamic_cast<AGDDParameterBagsTGCTech*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(stgc->GetName()));
@@ -277,9 +272,9 @@ namespace MuonGM {
       m_etaDesign[il].deadI = 0.;
       m_etaDesign[il].deadS = 0.;
 
-      m_etaDesign[il].inputPitch = stgc->stripPitch(); // parameterBagTech->stripPitch;
+      m_etaDesign[il].inputPitch = stgc->stripPitch();
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
-      m_etaDesign[il].inputWidth = stgc->stripPitch() - .5; // parameterBagTech->stripWidth;
+      m_etaDesign[il].inputWidth = stgc->stripWidth();
       if (!tech){
 	reLog()<<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
 	m_etaDesign[il].thickness = 0;
@@ -318,9 +313,9 @@ namespace MuonGM {
       m_phiDesign[il].deadI = 0.;
       m_phiDesign[il].deadS = 0.;
 
-      m_phiDesign[il].inputPitch = stgc->wirePitch(); // parameterBagTech->wirePitch;
+      m_phiDesign[il].inputPitch = stgc->wirePitch();
       m_phiDesign[il].inputLength = m_phiDesign[il].xSize;
-      m_phiDesign[il].inputWidth = 0.015; // parameterBagTech->wireWidth;
+      m_phiDesign[il].inputWidth = 0.015;
       m_phiDesign[il].thickness = stgc->Tck();
       	
       m_phiDesign[il].firstPos = roParam.firstWire[il]; // Position of 1st wire, accounts for staggering
@@ -366,13 +361,16 @@ namespace MuonGM {
       m_padDesign[il].deadS = 0.;	
 
       m_padDesign[il].nPadColumns = roParam.nPadPhi[il];
-      if (side == "A") m_padDesign[il].firstPhiPos = roParam.firstPadPhiDivision_A[il];
-      else if (side == "C") m_padDesign[il].firstPhiPos = roParam.firstPadPhiDivision_C[il];//PAD_COL_PHI0[2*sector+(m_ml-1)][stEta-1][il];
+      // The C side of the NSW is mirrored instead of rotated
+      // We should be using the same values for the pads for both A and C
+      // It is easier for us to simply read the same correct value once
+      // whereas changing the XML and the reading functions will make this incompatible with past versions
+      // Alexandre Laurier 12 Sept 2018
+      m_padDesign[il].firstPhiPos = roParam.firstPadPhiDivision_A[il];
 
       m_padDesign[il].inputPhiPitch = roParam.anglePadPhi;//stEta<2 ?  PAD_PHI_DIVISION/PAD_PHI_SUBDIVISION : PAD_PHI_DIVISION ;
 
-      if (side == "A")m_padDesign[il].PadPhiShift = roParam.PadPhiShift_A[il];
-      else if (side == "C")m_padDesign[il].PadPhiShift = roParam.PadPhiShift_C[il];
+      m_padDesign[il].PadPhiShift = roParam.PadPhiShift_A[il];
 
       m_padDesign[il].padEtaMin =  roParam.firstPadRow[il];//FIRST_PAD_ROW_DIVISION[2*sector+(m_ml-1)][stEta-1][il];
       m_padDesign[il].nPadH = roParam.nPadH[il];     

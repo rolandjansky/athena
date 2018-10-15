@@ -6,7 +6,7 @@
 #define PIXELCONDITIONSSERVICES_SPECIALPIXELMAPSVC_H
 
 #include "AthenaBaseComps/AthService.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
+#include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 

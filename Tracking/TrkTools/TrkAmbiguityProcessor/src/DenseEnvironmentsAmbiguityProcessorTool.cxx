@@ -476,7 +476,7 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   if (m_monitorTracks)
     m_observerTool->saveTracksToxAOD();
 
-  if (msgLvl(MSG::INFO)) dumpTracks(*m_finalTracks);
+  if (msgLvl(MSG::DEBUG)) dumpTracks(*m_finalTracks);
   
   // memory defragmantation fix. Cleaning before returning the result 
   m_prdSigSet.clear(); 

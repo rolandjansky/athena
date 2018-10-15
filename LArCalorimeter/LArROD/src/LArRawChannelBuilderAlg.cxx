@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelBuilderAlg.h" 
@@ -61,6 +61,8 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
     const HWIdentifier id=digit->hardwareID();
     const bool connected=(*cabling)->isOnlineConnected(id);
 
+    ATH_MSG_VERBOSE("Working on channel " << m_onlineId->channel_name(id));
+
     const std::vector<short>& samples=digit->samples();
     const size_t nSamples=samples.size();
     const int gain=digit->gain();
@@ -69,7 +71,6 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
 
     //The following autos will resolve either into vectors or vector-proxies
     const auto& ofca=ofcs->OFC_a(id,gain);
-    const auto& ofcb=ofcs->OFC_b(id,gain);
     const auto& adc2mev=adc2MeVs->ADC2MEV(id,gain);
     
     //Sanity check on input conditions data:
@@ -95,44 +96,68 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
     }
 
 
-    //Apply OFCs to get amplitude and time
+    //Apply OFCs to get amplitude
     float A=0;
-    float At=0;
     bool saturated=false;
     for (size_t i=0;i<nSamples;++i) {
       A+=(samples[i]-p)*ofca[i];
-      At+=(samples[i]-p)*ofcb[i];
       if (samples[i]==4096 || samples[i]==0) saturated=true;
     }
-    
-    const float tau=(std::fabs(A)>1.0) ? At/A : 0.0;
     
     //Apply Ramp
     const float E=adc2mev[0]+A*adc2mev[1];
     
     uint16_t iquaShort=0;
+    float tau=0;
+
 
     uint16_t prov=0xa5; //Means all constants from DB
     if (saturated) prov|=0x0400;
 
-    if (std::fabs(E)>m_eCutForQ) {
+    if (std::fabs(E)>m_eCutFortQ) {
+      ATH_MSG_VERBOSE("Channel " << m_onlineId->channel_name(id) << " gain " << gain << " above threshold for tQ computation");
       prov|=0x2000;
+
+      //Get time by applying OFC-b coefficients:
+      const auto& ofcb=ofcs->OFC_b(id,gain);
+      float At=0;
+      for (size_t i=0;i<nSamples;++i) {
+	At+=(samples[i]-p)*ofcb[i];
+      }
+      //Divide A*t/A to get time
+      tau=(std::fabs(A)>0.1) ? At/A : 0.0;
+      const auto& fullShape=shapes->Shape(id,gain);
+      
       //Get Q-factor
-      const auto& shape=shapes->Shape(id,gain);
-      if (ATH_UNLIKELY(shape.size()!=nSamples)) {
+      size_t firstSample=m_firstSample;
+      // fixing HEC to move +1 in case of 4 samples and firstSample 0 (copied from old LArRawChannelBuilder)
+      if (fullShape.size()>nSamples && nSamples==4 && m_firstSample==0) {
+	if (m_onlineId->isHECchannel(id)) {
+	  firstSample=1;
+	}
+      }
+
+      if (ATH_UNLIKELY(fullShape.size()<nSamples+firstSample)) {
+	if (!connected) continue; //No conditions for disconnected channel, who cares?
 	ATH_MSG_ERROR("No valid shape for channel " <<  m_onlineId->channel_name(id) 
 		      << " gain " << gain);
+	ATH_MSG_ERROR("Got size " << fullShape.size() << ", expected at least " << nSamples+firstSample);
 	return StatusCode::FAILURE;
       }
 
+      const float* shape=&*fullShape.begin()+firstSample;
+
       float q=0;
       if (m_useShapeDer) {
-	const auto& shapeDer=shapes->ShapeDer(id,gain);
-	if (ATH_UNLIKELY(shapeDer.size()!=nSamples)) {
+	const auto& fullshapeDer=shapes->ShapeDer(id,gain);
+	if (ATH_UNLIKELY(fullshapeDer.size()<nSamples+firstSample)) {
 	  ATH_MSG_ERROR("No valid shape derivative for channel " <<  m_onlineId->channel_name(id) 
 			<< " gain " << gain);
+	  ATH_MSG_ERROR("Got size " << fullshapeDer.size() << ", expected at least " << nSamples+firstSample);
 	  return StatusCode::FAILURE;
 	}
+
+	const float* shapeDer=&*fullshapeDer.begin()+firstSample;
 	for (size_t i=0;i<nSamples;++i) {
 	  q += std::pow((A*(shape[i]-tau*shapeDer[i])-(samples[i]-p)),2);
 	}
@@ -144,23 +169,18 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
 	}
       }
 
-
-
       int iqua = static_cast<int>(q);
       if (iqua > 0xFFFF) iqua=0xFFFF;
       iquaShort = static_cast<uint16_t>(iqua & 0xFFFF);
-    }
+
+      tau-=ofcs->timeOffset(id,gain);
+      tau*=(Gaudi::Units::nanosecond/Gaudi::Units::picosecond); //Convert time to ps
+    }//end if above cut
+
    
-
-    const float timeOffset = ofcs->timeOffset(id,gain);
-    
-    const float time=(tau-timeOffset)*(Gaudi::Units::nanosecond/
-				       Gaudi::Units::picosecond); //Convert time to ps
-
     outputContainer->emplace_back(id,static_cast<int>(std::floor(E+0.5)),
-				  static_cast<int>(std::floor(time+0.5)),
+				  static_cast<int>(std::floor(tau+0.5)),
 				  iquaShort,prov,(CaloGain::CaloGain)gain);
-
   }
   return StatusCode::SUCCESS;
 }

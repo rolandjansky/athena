@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -63,7 +63,6 @@
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/TRT_ID.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
 #include "InDetSimData/InDetSimDataCollection.h"
@@ -76,6 +75,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
@@ -108,10 +108,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -126,10 +123,7 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   , m_evtStore( 0 )
   , m_pixelId( 0 )
   , m_sctId( 0 )
-  , m_trtId( 0 )
   , m_PIX_mgr( 0 )
-  , m_SCT_mgr( 0 )
-  , m_TRT_mgr( 0 )
   , m_pixelContainer( 0 )
   , m_sctContainer( 0 )
   , m_particleDataTable( 0 )
@@ -223,7 +217,7 @@ DumpSp::initialize()
   //   ATH_MSG_FATAL("Failed to retrieve tool " << m_holeSearchTool);
   //   return StatusCode::FAILURE;
   // }
-  
+
   if( service("DetectorStore",m_detStore).isFailure() ) {
     ATH_MSG_FATAL("DetectorStore service not found");
     return StatusCode::FAILURE;
@@ -255,18 +249,13 @@ DumpSp::initialize()
     ATH_MSG_ERROR( "Unable to retrieve Pixel helper from DetectorStore");
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve SCT manager from DetectorStore");
-    return StatusCode::FAILURE;
-  }
   if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     ATH_MSG_ERROR( "Unable to retrieve SCT helper from DetectorStore");
     return StatusCode::FAILURE;
   }
-  //   if( m_detStore->retrieve(m_TRT_mgr, "TRT").isFailure() ) {
-  //     ATH_MSG_ERROR( "Unable to retrieve TRT manager from DetectorStore");
-  //     return StatusCode::FAILURE;
-  //   }
+
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   if( m_trkSummaryTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSummaryTool);
@@ -329,6 +318,9 @@ DumpSp::initialize()
   } else {
     ATH_MSG_INFO("Retrieved service " << m_beamCondSvc);
   }
+
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
+  ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -837,7 +829,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement );
-        const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+        Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+        localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+        const InDetDD::SiLocalPosition localPos(localPos2D);
         const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
         const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
         // update map between pixel identifier and event-unique hit index. 
@@ -950,7 +944,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           Identifier rdoId = (*iRDO)->identify();
           // get the det element from the det element collection
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-          const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+          Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+          localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+          const InDetDD::SiLocalPosition localPos(localPos2D);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
           (*m_oflraw) << "# S\t" 
@@ -1003,6 +999,13 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
     } // end dump RDO's and SDO's for debugging purposes (m_doRDODebug)
   } // dump raw pixel data
 
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
+  if (sctElements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return;
+  }
   const InDetSimDataCollection* sctSimDataMap(0);
   const bool have_sct_sdo = m_storeGate->retrieve(sctSimDataMap, "SCT_SDO_Map").isSuccess();
   const DataHandle<SCT_RDO_Container> sct_rdocontainer_iter;
@@ -1016,7 +1019,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
       for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
         const Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
-        const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
+        const Identifier wafer_id = m_sctId->wafer_id(rdoId);
+        const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+        const InDetDD::SiDetectorElement* sielement = sctElements->getDetectorElement(wafer_hash);
         const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
         const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
         const Amg::Vector3D gPos = sielement->globalPosition(localPos);    
@@ -1114,7 +1119,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         ATH_MSG_DEBUG( "SCT InDetRawDataCollection found with " << size << " RDOs");
         for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
           const Identifier rdoId = (*iRDO)->identify();
-          const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
+          const Identifier wafer_id = m_sctId->wafer_id(rdoId);
+          const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+          const InDetDD::SiDetectorElement* sielement = sctElements->getDetectorElement(wafer_hash);
           const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
           const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
           const Amg::Vector3D gPos = sielement->globalPosition(localPos);  
@@ -1272,7 +1279,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         // FlagAA: THIS CODE IS NOT BACKWARD COMPATIBLE! Commited on Sep 18th, 2013
         // now stores the local position in millimiters without Lorentz Correction
         // before it was storing a floating point coordinate in units of pixels
-        localx = (*iCluster)->localPosition()[Trk::distPhi] - sielement->getLorentzCorrection();
+        localx = (*iCluster)->localPosition()[Trk::distPhi] - m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         localy = (*iCluster)->localPosition()[Trk::distEta];
       }
 
@@ -1329,7 +1336,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
       if( have_sct_sdo && sctSimDataMap ) { 
         for( std::vector<Identifier>::const_iterator rdoIter = (*iCluster)->rdoList().begin();
              rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
-          const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(*rdoIter); 
+          const Identifier wafer_id = m_sctId->wafer_id(*rdoIter);
+          const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+          const InDetDD::SiDetectorElement* sielement = sctElements->getDetectorElement(wafer_hash);
           assert( sielement );
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
           InDetSimDataCollection::const_iterator iter( sctSimDataMap->find(*rdoIter) );
@@ -1378,7 +1387,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
       {
         const InDetDD::SiLocalPosition localCentroid( (*iCluster)->localPosition() );
         const InDetDD::SiCellId cellIdCentroid( sielement->cellIdOfPosition( localCentroid ) );
-        const Amg::Vector2D localCellCentroid( sielement->localPositionOfCell( cellIdCentroid ) );
+        Amg::Vector2D localCellCentroid( sielement->rawLocalPositionOfCell( cellIdCentroid ) );
+        localCellCentroid[Trk::distPhi] += m_sctLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         float deltaphi = (*iCluster)->localPosition()[Trk::distPhi] - localCellCentroid[Trk::distPhi];
         float deltaxphi = deltaphi / sielement->phiPitch();
         // do not add 0.5 to center in middle of strip; match SCT leading spatial edge convention
@@ -1454,10 +1464,11 @@ DumpSp::dump_bad_modules() const
       }
     } // end for each pixel module
     // dump list of bad sct modules
-    for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd(); i!=f; ++i ) {
-      const InDetDD::SiDetectorElement* sielement( *i );
-      Identifier id = sielement->identify();
-      IdentifierHash idhash = sielement->identifyHash();
+    SCT_ID::const_id_iterator wafer_it = m_sctId->wafer_begin();
+    SCT_ID::const_id_iterator wafer_end = m_sctId->wafer_end();
+    for (; wafer_it!=wafer_end; wafer_it++) {
+      const Identifier id = *wafer_it;
+      const IdentifierHash idhash = m_sctId->wafer_hash(id);
       const bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
       if( is_bad ) { 
         (*m_oflraw) << "B\t"
@@ -1663,6 +1674,13 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
     // Alberto's code for dumping hits on tracks. this code needs to
     // be updated to use the modern track classes.
     if( m_dumpHitsOnTracks ) {
+      // // Get SCT_DetectorElementCollection
+      // SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+      // const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
+      // if (sctElements==nullptr) {
+      //   ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      //   return;
+      // }
       //       // loop over list of HitOnTrack and dump them
       //       for( hit_const_iterator iHit=track->hit_list_begin(), fHit=track->hit_list_end(); iHit!=fHit; ++iHit ) {
       //         const HitOnTrack* pHit( *iHit ); 
@@ -1674,7 +1692,9 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       //         // get the PrepRawData data( cluster for Pixel and SCT hits)
       //         const Trk::PrepRawData* pPrepClu = pHit->rio(); 
       //         // is this an SCT hit?
-      //         sielement = m_SCT_mgr->getDetectorElement( rdoId );
+      //         const Identifier wafer_id = m_sctId->wafer_id(rdoId);
+      //         const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+      //         sielement = sctElements->getDetectorElement( wafer_hash );
       //         if( sielement && sielement->isSCT() ) { // hit is SCT
       //           // if there is no PrepRawData associated then the hit is
       //           // not a real hit seen by the detector, so skip it.

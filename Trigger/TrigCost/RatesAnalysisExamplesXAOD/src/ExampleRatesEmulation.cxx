@@ -10,7 +10,12 @@
 #include "xAODMuon/Muon.h"
 #include "xAODTau/TauJet.h"
 #include "xAODEgamma/Photon.h"
-
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/MuonAuxContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
 
 ExampleRatesEmulation::ExampleRatesEmulation( const std::string& name, ISvcLocator* pSvcLocator ) : RatesAnalysisAlg(name, pSvcLocator) {
   declareProperty( "TargetLuminosity", m_lumi = 1e34);
@@ -25,7 +30,8 @@ StatusCode  ExampleRatesEmulation::ratesInitialize() {
   // Here we assume a full-ring, other functions are available to change this assumption.
   // @see setTargetLumiMu(const double lumi, const double mu);
   // @see setTargetLumiBunches(const double lumi, const int32_t bunches);
-  // setTargetLumi( m_lumi );
+  // @see setTargetMuBunches(const double mu, const int32_t bunches);
+  setTargetLumi( m_lumi );
 
   const std::vector<double> jetBinEdges = {0,2.5,5,7.5,10,12.5,15,17.5,20,22.5,25,30,35,40,45,50,60,70,80,90,100,110,120,130,140,150,200,250,300,350,400,500};
   const std::vector<double> htBinEdges = {100,200,300,400,500,600,700,800,900,1000,1500,2000,2500};

@@ -10,7 +10,6 @@
 
 class IGeoSubDetTool;
 class PixelID;
-class ISiLorentzAngleSvc;
 class IInDetServMatBuilderTool;
 
 /// Class to hold various Athena components
@@ -20,10 +19,6 @@ public:
 
   PixelGeoModelAthenaComps();
 
-  // Lorentz Angle Service
-  void setLorentzAngleSvc(const ServiceHandle<ISiLorentzAngleSvc> &);
-  const ServiceHandle<ISiLorentzAngleSvc> & lorentzAngleSvc() const;
-  
   //Add BCM
   void setBCM(IGeoSubDetTool * bcmTool);
   IGeoSubDetTool *bcm() const;
@@ -41,9 +36,6 @@ public:
   const PixelID* getIdHelper() const;
 
 private:
-
-  // Lorentz angle service
-  ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
 
   // Tool for building BCM
   IGeoSubDetTool * m_bcmTool;
