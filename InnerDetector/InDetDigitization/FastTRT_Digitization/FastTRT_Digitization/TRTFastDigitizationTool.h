@@ -147,6 +147,7 @@ private:
   std::string m_EventInfoKey;
   float m_NCollPerEvent;
 
+
 };
 
 #endif // FASTTRT_DIGITIZATION_FASTTRT_DIGITIZATIONTOOL_H
