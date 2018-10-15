@@ -465,10 +465,10 @@ if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
 
-# Increase max RDO output file size to 10 GB
+# Set max RDO output file size to 15 GB
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr; import AthenaPoolCnvSvc.AthenaPool 
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ] #[ "15000000000" ] #Athena complains that 15GB files are not supported
+svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ] #Athena complains that 15GB files are not supported
 
 
 #==========================================================

@@ -277,7 +277,7 @@ if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.Glob
 
 #Stream1.ExtendProvenanceRecord = False
 
-ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ] #[ "15000000000" ]
+ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
 
 #--------------------------------------------------------------
 
