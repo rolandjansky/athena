@@ -159,7 +159,7 @@ class JetSequencesBuilder(object):
             ('tc','FS',False,'ftkrefit'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
             ('tc', 'PS', False, 'notrk'): ['ps', 'cm', 'jr'],
-            ('ion', 'FS', False, 'notrk'): ['fs','hicm','hijr'],
+            ('ion', 'FS', False, 'notrk'): ['fs2','cmfs1','hicm','hijr'],
             ('TT', 'FS', False, 'notrk'): ['tt', 'jt'],
             ('tc', 'FS', True, 'notrk'): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr']}.get((data_type,
                                                            scan_type,
@@ -333,7 +333,7 @@ class JetSequencesBuilder(object):
         alias = 'cluster_%s' % cluster_params.cluster_label
 
         algs = []
-        [algs.extend(f()) for f in (self.alg_factory.cellMaker_fullcalo_topo,
+        [algs.extend(f()) for f in (#self.alg_factory.cellMaker_fullcalo_topo,
                                     self.alg_factory.hiCombinedTowerMaker,
                                     self.alg_factory.hiClusterMaker,
                                     self.alg_factory.hiEventShapeMaker,
