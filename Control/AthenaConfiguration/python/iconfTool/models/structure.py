@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import ast
 import copy
@@ -113,7 +113,7 @@ class ComponentsStructure(Structure):
             if element.children[i].type == 'SINGLE':
                 ref_name = element.children[i].get_reference_name()
                 if ref_name in self.roots_dict and not element.has_parent(
-                        self.roots_dict[ref_name].get_name_string()):
+                        self.roots_dict[ref_name].get_name()):
                     element.children[i] = copy.deepcopy(
                         self.roots_dict[ref_name])
                     element.children[i].parent = element
@@ -171,7 +171,7 @@ class ComponentsStructure(Structure):
         return self.filter.generate_by_mark()
 
     def sort(self):
-        self.structure_list.sort(key=lambda el: el.get_name_string().lower())
+        self.structure_list.sort(key=lambda el: el.get_name().lower())
         for element in self.structure_list:
             element.sort_children()
 
@@ -203,7 +203,7 @@ class ComponentsStructureFilter(object):
         return self.output
 
     def browse_and_save_by_text(self, elements, filter_text):
-        filtered = filter(lambda el: filter_text in el.get_name_string(),
+        filtered = filter(lambda el: filter_text in el.get_name(),
                           elements)
         if len(filtered) > 0:
             # All elements are on the same level and therefore have

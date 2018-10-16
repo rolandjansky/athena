@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import copy
 
@@ -14,7 +14,7 @@ INDENT = 3
 
 class Element(object):
     def __init__(self, name, x_pos, parent=None):
-        self.name = name
+        self.name = '{}'.format(name) # handles situation when name is not str
         self.x_pos = x_pos
         self.parent = parent
         self.show_children = False
@@ -26,9 +26,6 @@ class Element(object):
 
     def get_name(self):
         return self.name
-
-    def get_name_string(self):
-        return self.name if type(self.name) == str else str(self.name)
 
     def update_xpos(self, new_xpos):
         self.x_pos = new_xpos
@@ -42,7 +39,7 @@ class Element(object):
     def has_parent(self, name_string):
         parent = self.parent
         while parent:
-            if parent.get_name_string() == name_string:
+            if parent.get_name() == name_string:
                 return True
             parent = parent.parent  # Go level up
         return False
@@ -52,7 +49,7 @@ class Element(object):
         self.generate_hash()
 
     def generate_hash(self):
-        base = self.get_name_string()
+        base = self.get_name()
         if self.parent:
             base = self.parent.hash + base
         self.hash = str(hash(base))
@@ -90,7 +87,7 @@ class GroupingElement(Element):
         self.children = []
 
     def check_filter(self, filter_text):
-        if filter_text in self.get_name_string():
+        if filter_text in self.get_name():
             return True
         for child in self.children:
             if child.check_filter(filter_text):
@@ -115,36 +112,10 @@ class GroupingElement(Element):
             child.mark()
 
     def sort_children(self):
-        self.children.sort(key=lambda c: c.get_name_string().lower())
+        self.children.sort(key=lambda c: c.get_name().lower())
         for child in self.children:
             if child.type == 'GROUP':
                 child.sort_children()
-
-
-class TitledGroupingElement(GroupingElement):
-    def __init__(self, name, x_pos, title, parent=None):
-        self.title = title
-        super(TitledGroupingElement, self).__init__(name, x_pos, parent)
-
-    @classmethod
-    def as_copy(cls, name, source_element):
-        element = cls(name, source_element.x_pos, source_element.name)
-        element.parent = source_element.parent
-        element.replaced = source_element.replaced
-        element.children = copy.deepcopy(source_element.children)
-        return element
-
-    def get_name(self):
-        return '{} : {}'.format(self.title, self.name)
-
-    def get_name_string(self):
-        return self.get_name()
-
-    def generate_hash(self):
-        base = self.get_name_string()
-        if self.parent:
-            base = self.parent.hash + base
-        self.hash = str(hash(base))
 
 
 class SingleElement(Element):
@@ -154,7 +125,7 @@ class SingleElement(Element):
         self.value_type = False
 
     def check_filter(self, filter_text):
-        return filter_text in self.get_name_string()
+        return filter_text in self.get_name()
 
     def get_reference_name(self):
         return self.name.split('/')[-1] if type(self.name) is str \
@@ -171,9 +142,6 @@ class ValueElement(SingleElement):
 
     def get_name(self):
         return '{} = {}'.format(self.name, self.value)
-
-    def get_name_string(self):
-        return self.get_name()
 
     def get_reference_name(self):
         return self.value.split('/')[-1] if type(self.value) == str \

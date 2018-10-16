@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import curses
 
@@ -209,75 +209,78 @@ class Pad(object):
                 return index
         return -1
 
+    def move_down(self):
+        if self.actual_y < len(self.lines) - 1:
+            self.move_cursor(1)
+            cursor_pos = curses.getsyx()
+            if cursor_pos[0] > self.pad_height - 4:
+                self.scroll(1)
+
+    def move_up(self):
+        if len(self.lines) == 0:
+            return
+        if self.actual_y >= 1:
+            self.move_cursor(-1)
+            cursor_pos = curses.getsyx()
+            if cursor_pos[0] < 4 and self.actual_offset > 0:
+                self.scroll(-1)
+
+    def expand(self):
+        if self.actual_y >= len(self.lines):
+            return
+        element = self.lines[self.actual_y]
+        if element.type == 'GROUP':
+            element.show_children = True
+            self.redraw()
+
+    def collapse(self):
+        if self.actual_y >= len(self.lines):
+            return
+        element = self.lines[self.actual_y]
+        if element.type == 'GROUP':
+            element.show_children = False
+            self.redraw()
+
+    def set_as_checked(self):
+        element = self.lines[self.actual_y]
+        if element.checked:
+            element.set_as_unchecked()
+            self.structure.remove_from_checked(element)
+        else:
+            element.set_as_checked()
+            self.structure.add_to_checked(element)
+        self.redraw()
+
+    def go_to_reference(self):
+        if self.actual_y >= len(self.lines):
+            return
+        element = self.lines[self.actual_y]
+        if not element.type == 'SINGLE':
+            return
+        reference_name = element.get_reference_name()
+        if reference_name not in self.root_items_names:
+            return
+        # Cancel eventual search result
+        self.filter(None)
+        index = self.get_index_by_name(reference_name)
+        if index != -1:
+            self.scroll_to_element(index)
+        else:
+            # Scroll to first element if name was not found
+            # (should never happen as the name is checked
+            # in root_items_names first)
+            self.scroll_to_element(0)
+
     def handle_event(self, event):
         if event == curses.KEY_DOWN:
-            if self.actual_y < len(self.lines) - 1:
-                self.move_cursor(1)
-                cursor_pos = curses.getsyx()
-                if cursor_pos[0] > self.pad_height - 4:
-                    self.scroll(1)
-
+            self.move_down()
         elif event == curses.KEY_UP:
-            if len(self.lines) == 0:
-                return
-            if self.actual_y >= 1:
-                self.move_cursor(-1)
-                cursor_pos = curses.getsyx()
-                if cursor_pos[0] < 4 and self.actual_offset > 0:
-                    self.scroll(-1)
-
-        elif event == ord('e'):
-            if self.actual_y >= len(self.lines):
-                return
-            element = self.lines[self.actual_y]
-            if not element.show_children:
-                element.show_children = True
-            else:
-                element.show_children = False
-            self.redraw()
-
+            self.move_up()
         elif event == curses.KEY_RIGHT:
-            if self.actual_y >= len(self.lines):
-                return
-            element = self.lines[self.actual_y]
-            if element.type == 'GROUP':
-                element.show_children = True
-                self.redraw()
-
+            self.expand()
         elif event == curses.KEY_LEFT:
-            if self.actual_y >= len(self.lines):
-                return
-            element = self.lines[self.actual_y]
-            if element.type == 'GROUP':
-                element.show_children = False
-                self.redraw()
-
+            self.collapse()
         elif event == ord(' '):
-            element = self.lines[self.actual_y]
-            if element.checked:
-                element.set_as_unchecked()
-                self.structure.remove_from_checked(element)
-            else:
-                element.set_as_checked()
-                self.structure.add_to_checked(element)
-            self.redraw()
-
+            self.set_as_checked()
         elif event == ord('g'):
-            if self.actual_y >= len(self.lines):
-                return
-            element = self.lines[self.actual_y]
-            if not element.type == 'SINGLE':
-                return
-            reference_name = element.get_reference_name()
-            if reference_name not in self.root_items_names:
-                return
-            # Cancel eventual search result
-            self.filter(None)
-            index = self.get_index_by_name(reference_name)
-            if index != -1:
-                self.scroll_to_element(index)
-            else:
-                # Scroll to first element if name was not found
-                # (should never happen as the name is checked
-                # in root_items_names first)
-                self.scroll_to_element(0)
+            self.go_to_reference()

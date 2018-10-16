@@ -1,22 +1,19 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import logging
 
 logging_file = 'run.log'
 
 
-def clean_file(filename):
-    with open(filename, 'w'):
-        pass
-
-
 def setup():
     logger = logging.getLogger('mainLogger')
     logger.setLevel(logging.DEBUG)
-    clean_file(logging_file)
+    # Creating or cleaning log file
+    with open(logging_file, 'w'):
+        pass
     handler = logging.FileHandler(logging_file)
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
