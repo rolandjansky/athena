@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -696,9 +696,9 @@ unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const un
   } else if (layer == PixLayer::kB2) {
     num_hits = m_HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
   } else if (layer == PixLayer::kECA) {
-    num_hits = m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
+    num_hits = m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)];
   } else if (layer == PixLayer::kECC) {
-    num_hits = m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
+    num_hits = m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)];
   }
 
   // Return here if we have neither hits nor errors
