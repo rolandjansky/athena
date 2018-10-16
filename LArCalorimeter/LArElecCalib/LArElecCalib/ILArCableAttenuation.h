@@ -27,12 +27,7 @@ class ILArCableAttenuation {
   // online ID
   virtual const float& CableAttenuation(const HWIdentifier& id)  const = 0 ;
   
-  // offline ID 
-  //virtual const float& CableAttenuation(const Identifier& id)  const=0;
-
   enum {ERRORCODE = LArElecCalib::ERRORCODE};  
-
-
 } ;
 
 CLASS_DEF( ILArCableAttenuation,66767159,1) 

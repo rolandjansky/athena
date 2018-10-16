@@ -44,13 +44,11 @@
 #include "LArElecCalib/ILArPhysCaliTdiff.h"
 #include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArRinj.h"
-#include "LArElecCalib/ILArRterm.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArTdrift.h"
 #include "LArElecCalib/ILArTshaper.h"
 #include "LArElecCalib/ILArfSampl.h"
 #include "LArElecCalib/ILAruA2MeV.h"
-#include "LArElecCalib/ILArTiming.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArElecCalib/ILArFEBTempTool.h"
 

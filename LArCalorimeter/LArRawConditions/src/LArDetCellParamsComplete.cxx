@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArDetCellParamsComplete.h" 
@@ -32,21 +32,4 @@ const float& LArDetCellParamsComplete::Taur(const HWIdentifier& CellID,int gain)
 { 
   const LArDetCellParamsP& t = get(CellID,gain);
   return (t.m_Taur);
-
 }
-
-const float& LArDetCellParamsComplete::Omega0(const Identifier&  CellID, int gain) const
-{
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return Omega0(OnId, gain);
-}
-
-const float& LArDetCellParamsComplete::Taur(const Identifier&  CellID, int gain) const
-{
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return Taur(OnId, gain);
-}
-
-
-  
-
