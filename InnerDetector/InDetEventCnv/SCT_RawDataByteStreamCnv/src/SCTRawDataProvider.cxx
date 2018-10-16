@@ -137,11 +137,17 @@ StatusCode SCTRawDataProvider::execute()
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1Id << " and BCID " << bcId << " in InDetTimeCollections");
     
   }
+
   std::unique_ptr<dummySCTRDO_t> dummyRDO;
-  if (externalCacheRDO) dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
-  ISCT_RDO_Container *rdoInterface = externalCacheRDO 
-                     ? static_cast< ISCT_RDO_Container*> (dummyRDO.get()) 
-                     : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
+  ISCT_RDO_Container *rdoInterface{nullptr};
+  if (externalCacheRDO) { 
+    dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
+    rdoInterface = static_cast< ISCT_RDO_Container*> (dummyRDO.get());
+  }
+  else {
+    rdoInterface = static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
+  }
+
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags, 
                              *rdoInterface, 
@@ -150,6 +156,7 @@ StatusCode SCTRawDataProvider::execute()
   {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
+
   if (dummyRDO) dummyRDO->MergeToRealContainer(rdoContainer.ptr());
   
   return StatusCode::SUCCESS;
