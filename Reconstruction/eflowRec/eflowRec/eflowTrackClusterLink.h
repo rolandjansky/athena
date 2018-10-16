@@ -44,7 +44,8 @@ public:
 
     //Read and write from the map is not thread-safe - therefore we get a mutex and pass it to a lock-guard
     //The lock is released automatically when getInstance returns
-    std::mutex mutex_instance;
+    //The mutex is static so that all threads check the status of the *same* mutex
+    static std::mutex mutex_instance;
     std::lock_guard<std::mutex> lock(mutex_instance);
     /* The find returns a valid iterator. If there is no existing entry it returns the end iterator */
     InstanceMap::iterator mapIterator = m_instances.find(thisPair);
