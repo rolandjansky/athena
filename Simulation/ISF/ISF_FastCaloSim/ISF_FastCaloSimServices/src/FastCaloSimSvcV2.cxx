@@ -139,7 +139,14 @@ StatusCode ISF::FastCaloSimSvcV2::setupEvent()
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerToolsSetup.end();
   for (; itrTool != endTool; ++itrTool)
   {
+    std::string chronoName=this->name()+"_"+ itrTool->name();
+    if (m_chrono) m_chrono->chronoStart(chronoName);
     StatusCode sc = (*itrTool)->process(m_theContainer);
+    if (m_chrono) {
+      m_chrono->chronoStop(chronoName);
+      ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER) * CLHEP::microsecond / CLHEP::second << " second " );
+    }
+
     if (sc.isFailure())
     {
       ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
