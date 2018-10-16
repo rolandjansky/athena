@@ -8,7 +8,7 @@
 #define PROMPT_DECORATEPROMPTLEPTON_H
 
 /**********************************************************************************
- * @Package: JetTagNonPromptLepton
+ * @Package: LeptonTaggers
  * @Class  : DecoratePromptLepton
  * @Author : Rhys Roberts
  * @Author : Rustem Ospanov

@@ -3139,8 +3139,8 @@ function JER_August2018 \
     configFile="rel21/Summer2018/R4_AllNuisanceParameters_AllJERNP.config"
     outFile="JER-Summer2018-Recommendations.pdf"
     compList="JER_DataVsMC;JER_N_#;JER_dijet_c#,JER_dijet_j#,JER_dijet_m#,JER_dijet_p#;JER_dijet_stat#"
-    compLabels="Nominal data vs MC difference;Random cones noise term;Dijet JER (systematics);Dijet JER (statistics)"
-    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-05/\";scaleVar=${scaleVar};IsData=false"
+    compLabels="Nominal data vs MC difference;Noise term, random cones method;Dijet #it{in situ} JER (systematics);Dijet #it{in situ} JER (statistics)"
+    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-05/\";scaleVar=${scaleVar};IsData=false;axisMax=0.05"
 }
 
 

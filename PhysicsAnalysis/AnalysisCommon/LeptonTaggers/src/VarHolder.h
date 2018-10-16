@@ -8,7 +8,7 @@
 #define PROMPT_VARHOLDER_H
 
 /**********************************************************************************
- * @Package: JetTagNonPromptLepton
+ * @Package: LeptonTaggers
  * @Class  : VarHolder
  * @Author : Rustem Ospanov
  * @Author : Rhys Roberts

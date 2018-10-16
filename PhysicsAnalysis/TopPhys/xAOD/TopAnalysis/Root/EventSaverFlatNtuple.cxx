@@ -76,11 +76,15 @@ namespace top {
 	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN(0.),
 	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP(0.),
 	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN(0.),
+	m_weight_oldTriggerSF(0.),
+	m_weight_oldTriggerSF_EL_Trigger_UP(0.),
+	m_weight_oldTriggerSF_EL_Trigger_DOWN(0.),
+	m_weight_oldTriggerSF_MU_Trigger_STAT_UP(0.),
+	m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN(0.),
+	m_weight_oldTriggerSF_MU_Trigger_SYST_UP(0.),
+	m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN(0.),
 
         // individual components electrons
-        m_weight_indiv_SF_EL_Trigger(0.),
-        m_weight_indiv_SF_EL_Trigger_UP(0.),
-        m_weight_indiv_SF_EL_Trigger_DOWN(0.),
         m_weight_indiv_SF_EL_Reco(0.),
         m_weight_indiv_SF_EL_Reco_UP(0.),
         m_weight_indiv_SF_EL_Reco_DOWN(0.),
@@ -99,11 +103,6 @@ namespace top {
         m_weight_indiv_SF_EL_ChargeMisID_SYST_UP(0.),
         m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN(0.),
 
-        m_weight_indiv_SF_MU_Trigger(0.),
-        m_weight_indiv_SF_MU_Trigger_STAT_UP(0.),
-        m_weight_indiv_SF_MU_Trigger_STAT_DOWN(0.),
-        m_weight_indiv_SF_MU_Trigger_SYST_UP(0.),
-        m_weight_indiv_SF_MU_Trigger_SYST_DOWN(0.),
         // Muon ID SF systematics (regular)
         m_weight_indiv_SF_MU_ID(0.),
         m_weight_indiv_SF_MU_ID_STAT_UP(0.),
@@ -360,6 +359,7 @@ namespace top {
 
 		if(m_config->useGlobalTriggerConfiguration())
 		  systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF,                      "weight_globalLeptonTriggerSF");
+                systematicTree->makeOutputVariable(m_weight_oldTriggerSF,                      "weight_oldTriggerSF");
 
                 // nominal b-tagging SFs
                 for( auto& tagWP : m_config -> bTagWP_available()){
@@ -429,12 +429,15 @@ namespace top {
 		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP");
 		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN");
 		    }
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_EL_Trigger_UP,        "weight_oldTriggerSF_EL_Trigger_UP");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_EL_Trigger_DOWN,      "weight_oldTriggerSF_EL_Trigger_DOWN");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_STAT_UP,   "weight_oldTriggerSF_MU_Trigger_STAT_UP");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN, "weight_oldTriggerSF_MU_Trigger_STAT_DOWN");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_SYST_UP,   "weight_oldTriggerSF_MU_Trigger_SYST_UP");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN, "weight_oldTriggerSF_MU_Trigger_SYST_DOWN");
 		    
                     // write also out the individual components:
 
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger,         "weight_indiv_SF_EL_Trigger");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger_UP,      "weight_indiv_SF_EL_Trigger_UP");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger_DOWN,    "weight_indiv_SF_EL_Trigger_DOWN");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco,            "weight_indiv_SF_EL_Reco");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco_UP,         "weight_indiv_SF_EL_Reco_UP");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco_DOWN,       "weight_indiv_SF_EL_Reco_DOWN");
@@ -453,11 +456,6 @@ namespace top {
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_SYST_UP,  "weight_indiv_SF_EL_ChargeMisID_SYST_UP");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN,"weight_indiv_SF_EL_ChargeMisID_SYST_DOWN");
 
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger,         "weight_indiv_SF_MU_Trigger");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_STAT_UP,      "weight_indiv_SF_MU_Trigger_STAT_UP");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_STAT_DOWN,    "weight_indiv_SF_MU_Trigger_STAT_DOWN");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_SYST_UP,      "weight_indiv_SF_MU_Trigger_SYST_UP");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_SYST_DOWN,    "weight_indiv_SF_MU_Trigger_SYST_DOWN");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID,              "weight_indiv_SF_MU_ID");
                     // Muon ID SF systematics (regular)
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_STAT_UP,      "weight_indiv_SF_MU_ID_STAT_UP");
@@ -624,6 +622,8 @@ namespace top {
                 systematicTree->makeOutputVariable(m_el_CF, "el_CF");
                 systematicTree->makeOutputVariable(m_el_d0sig, "el_d0sig");
                 systematicTree->makeOutputVariable(m_el_delta_z0_sintheta, "el_delta_z0_sintheta");
+		systematicTree->makeOutputVariable(m_el_ECIDS,"m_el_ECIDS");
+		systematicTree->makeOutputVariable(m_el_ECIDSResult,"m_el_ECIDSResult");
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_el_true_type,      "el_true_type");
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
@@ -1515,6 +1515,7 @@ namespace top {
 
 	    if(m_config->useGlobalTriggerConfiguration())
 	      m_weight_globalLeptonTriggerSF = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::nominal);
+            m_weight_oldTriggerSF = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::nominal);
 
             for( auto& tagWP : m_config -> bTagWP_available()) {
 	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
@@ -1582,10 +1583,13 @@ namespace top {
 		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
 		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
 		}
+                m_weight_oldTriggerSF_EL_Trigger_UP        = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
+                m_weight_oldTriggerSF_EL_Trigger_DOWN      = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
+                m_weight_oldTriggerSF_MU_Trigger_STAT_UP   = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
+                m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
+                m_weight_oldTriggerSF_MU_Trigger_SYST_UP   = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
+                m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
 		
-                m_weight_indiv_SF_EL_Trigger      = m_sfRetriever -> triggerSF(event,top::topSFSyst::nominal);
-                m_weight_indiv_SF_EL_Trigger_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_UP);
-                m_weight_indiv_SF_EL_Trigger_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_DOWN);
                 m_weight_indiv_SF_EL_Reco         = m_sfRetriever -> electronSF(event,top::topSFSyst::nominal,            top::topSFComp::RECO);
                 m_weight_indiv_SF_EL_Reco_UP      = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_Reco_UP,      top::topSFComp::RECO);
                 m_weight_indiv_SF_EL_Reco_DOWN    = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_Reco_DOWN,    top::topSFComp::RECO);
@@ -1603,17 +1607,11 @@ namespace top {
                 m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_ChargeMisID_STAT_DOWN,top::topSFComp::CHARGEMISID);
                 m_weight_indiv_SF_EL_ChargeMisID_SYST_UP   = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_ChargeMisID_SYST_UP,  top::topSFComp::CHARGEMISID);
                 m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_ChargeMisID_SYST_DOWN,top::topSFComp::CHARGEMISID);
-                ATH_MSG_DEBUG("Electron Trigger SF = "<<m_weight_indiv_SF_EL_Trigger<<" + "<<m_weight_indiv_SF_EL_Trigger_UP<<" - "<<m_weight_indiv_SF_EL_Trigger_DOWN);
                 ATH_MSG_DEBUG("Electron Reco SF = "<<m_weight_indiv_SF_EL_Reco<<" + "<<m_weight_indiv_SF_EL_Reco_UP<<" - "<<m_weight_indiv_SF_EL_Reco_DOWN);
                 ATH_MSG_DEBUG("Electron ID SF = "<<m_weight_indiv_SF_EL_ID<<" + "<<m_weight_indiv_SF_EL_ID_UP<<" - "<<m_weight_indiv_SF_EL_ID_DOWN);
                 ATH_MSG_DEBUG("Electron Charge ID SF = "<<m_weight_indiv_SF_EL_ChargeID<<" + "<<m_weight_indiv_SF_EL_ChargeID_UP<<" - "<<m_weight_indiv_SF_EL_ChargeID_DOWN);
                 ATH_MSG_DEBUG("Electron Charge Mis ID SF = "<<m_weight_indiv_SF_EL_ChargeMisID<<" + "<<m_weight_indiv_SF_EL_ChargeMisID_STAT_UP<<" - "<<m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN<<" + "<<m_weight_indiv_SF_EL_ChargeMisID_SYST_UP<<" - "<<m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN);
 
-                m_weight_indiv_SF_MU_Trigger      = m_sfRetriever -> triggerSF(event,top::topSFSyst::nominal);
-                m_weight_indiv_SF_MU_Trigger_STAT_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_STAT_UP);
-                m_weight_indiv_SF_MU_Trigger_STAT_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
-                m_weight_indiv_SF_MU_Trigger_SYST_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_SYST_UP);
-                m_weight_indiv_SF_MU_Trigger_SYST_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
                 m_weight_indiv_SF_MU_ID             = m_sfRetriever -> muonSF(event,top::topSFSyst::nominal,            top::topSFComp::ID);
                 // Muon ID SF systematics (regular)
                 m_weight_indiv_SF_MU_ID_STAT_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_STAT_UP, top::topSFComp::ID);
@@ -1637,8 +1635,6 @@ namespace top {
                 m_weight_indiv_SF_MU_TTVA_SYST_UP   = m_sfRetriever -> muonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_UP,      top::topSFComp::TTVA);
                 m_weight_indiv_SF_MU_TTVA_SYST_DOWN = m_sfRetriever -> muonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_DOWN,    top::topSFComp::TTVA);
 
-
-                ATH_MSG_DEBUG("Muon Trigger SF = "<<m_weight_indiv_SF_MU_Trigger<<" + "<< m_weight_indiv_SF_MU_Trigger_STAT_UP<<" - "<<  m_weight_indiv_SF_MU_Trigger_STAT_DOWN<<"     + "<< m_weight_indiv_SF_MU_Trigger_SYST_UP<<" - "<< m_weight_indiv_SF_MU_Trigger_SYST_DOWN);
 
                 ATH_MSG_DEBUG("Muon ID SF = "<<m_weight_indiv_SF_MU_ID<<" + "<< m_weight_indiv_SF_MU_ID_STAT_UP<<" - "<<  m_weight_indiv_SF_MU_ID_STAT_DOWN<<"     + "<< m_weight_indiv_SF_MU_ID_SYST_UP<<" - "<< m_weight_indiv_SF_MU_ID_SYST_DOWN);
 
@@ -1804,6 +1800,8 @@ namespace top {
                 m_el_trigMatched[trigger.first].resize(n_electrons);
             m_el_d0sig.resize(n_electrons);
             m_el_delta_z0_sintheta.resize(n_electrons);
+	    m_el_ECIDS.resize(n_electrons);
+	    m_el_ECIDSResult.resize(n_electrons);
             if (m_config->isMC()) {
               m_el_true_type.resize(n_electrons);
               m_el_true_origin.resize(n_electrons);
@@ -1813,6 +1811,10 @@ namespace top {
 	      m_el_true_isPrompt.resize(n_electrons);
 	      m_el_true_isChargeFl.resize(n_electrons);
             }
+
+	    static SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
+	    static SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
+
 
             for (const auto* const elPtr : event.m_electrons) {
                 m_el_pt[i] = elPtr->pt();
@@ -1839,6 +1841,9 @@ namespace top {
                 if( elPtr->isAvailable<float>("delta_z0_sintheta") )
                     m_el_delta_z0_sintheta[i] = elPtr->auxdataConst<float>("delta_z0_sintheta");
 
+		m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
+		m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
+
                 //retrieve the truth-matching variables from MCTruthClassifier
                 if (m_config->isMC()) {
                   m_el_true_type[i] = 0;
@@ -1851,7 +1856,7 @@ namespace top {
 		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
                   static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
                   static SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
-
+		  
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
 		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);

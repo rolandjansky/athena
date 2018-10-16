@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -686,7 +686,8 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonMergedElectrons() co
         passTrigger = true;
     }
   } else {
-    ATH_MSG_WARNING("Selecting Merged electrons but no Merged Triggers Selected ! -- was that intentional?");
+    if(!m_isMC) 
+      ATH_MSG_WARNING("Selecting Merged electrons but no Merged Triggers Selected ! -- was that intentional?");
     passTrigger =  true;
   }
   if(!passTrigger)
@@ -815,7 +816,7 @@ bool DerivationFramework::SkimmingToolHIGG1::MergedElectronPreselect(const xAOD:
   if (m_removeCrack && 1.37 <= eta && eta <= 1.52) return false;
   if (pt <= m_minElectronPt) return false;
 
-  return m_mergedCutTools->accept(el);
+  return m_mergedCutTools->accept(el) || ElectronPreselect(el);
 
 }
 

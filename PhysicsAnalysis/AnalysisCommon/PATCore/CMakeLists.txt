@@ -26,7 +26,7 @@ find_package( ROOT COMPONENTS Core )
 if( XAOD_STANDALONE )
    atlas_add_root_dictionary( PATCoreLib PATCoreLibDictSource
       ROOT_HEADERS PATCore/TAccept.h PATCore/TResult.h
-      PATCore/TSelectorToolBase.h PATCore/TCalculatorToolBase.h Root/LinkDef.h
+      PATCore/TSelectorToolBase.h PATCore/TCalculatorToolBase.h PATCore/PATCoreEnums.h Root/LinkDef.h
       EXTERNAL_PACKAGES ROOT )
 endif()
 

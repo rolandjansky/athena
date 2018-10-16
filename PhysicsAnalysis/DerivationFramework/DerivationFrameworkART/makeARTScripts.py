@@ -3,7 +3,7 @@ import os
 makeDataDAODs=True
 makeMCDAODs=False
 makeTruthDAODs=False
-makeTrains=False
+makeTrains=True
 
 formatList = ['PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
@@ -55,10 +55,10 @@ delayedStreamLabel = "data16DELAYED"
 blsStreamLabel = "data17BPHYSLS"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
 mcFileBPHY14 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.13151497._000097.pool.root.1"
-mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000056.DAOD_RPVLL.pool.root"
+mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14859811._000014.pool.root.1"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_13TeV.00348403.physics_Main.merge.AOD.f920_m1947._lb0829._0001.1"
-dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.13679930._004714.pool.root.1"
+dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.13725673._000089.pool.root.1"
 dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
 dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00337491.physics_BphysLS.merge.AOD.f873_m1885._lb0100._0001.1"
 dataFileZeroBias = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00339070.physics_ZeroBias.merge.AOD.f887_m1892._lb0998-lb1007._0001.1"
@@ -123,7 +123,7 @@ def generateTrains(formatList,label,inputFile,isMC):
 if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
-         if formatName=="EXOT23":
+         if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
             generateText(formatName,dataLabel,dataFileRPVLL,False,False,"-1")
          elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
@@ -145,7 +145,7 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,heavyIonFile,False,False,"-1")
          else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
-         if formatName=="EXOT23":
+         if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
             generateText(formatName,mcLabel,mcFileEXOT23,False,True,"-1")
          elif formatName=="BPHY3":
             generateText(formatName,mcLabel,mcFile,False,True,"500")
@@ -164,3 +164,5 @@ if (makeTrains):
       generateTrains(train,dataLabel,dataFile,False)
       generateTrains(train,mcLabel,mcFile,True)
    generateTrains(['TOPQ1','TOPQ2','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes
+   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],mcLabel,mcFileEXOT23,True)
+   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],dataLabel,dataFileRPVLL,False)

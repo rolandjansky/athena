@@ -9,6 +9,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkInDet.InDetCommon import *
+import DerivationFrameworkJetEtMiss.ExtendedJetCommon
 
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents

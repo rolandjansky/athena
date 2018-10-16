@@ -71,7 +71,6 @@ namespace DerivationFramework {
     ToolHandle< Trk::ITrackToVertexIPEstimator>   m_IPEstimator;
 
     std::string m_sgName;
-    std::string m_sgKey1;
 
   }; 
  

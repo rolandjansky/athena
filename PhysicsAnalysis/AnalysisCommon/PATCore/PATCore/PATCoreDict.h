@@ -24,5 +24,6 @@
 #include "PATCore/IAthHistogramTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "PATCore/IAsgSelectionWithVertexTool.h"
+#include "PATCore/PATCoreEnums.h"
 
 #endif

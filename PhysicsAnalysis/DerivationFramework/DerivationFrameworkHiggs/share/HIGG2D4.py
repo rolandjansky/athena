@@ -10,6 +10,9 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import (
+  addRecommendedXbbTaggers, xbbTaggerExtraVariables
+)
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
@@ -300,7 +303,7 @@ HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg2d4Seq)
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg2d4Seq)
 # Also add Hbb Tagger
-addHbbTagger(higg2d4Seq, ToolSvc)
+addRecommendedXbbTaggers(higg2d4Seq, ToolSvc)
 
 #===================================================================
 # Run b-tagging
@@ -349,8 +352,7 @@ HIGG2D4SlimmingHelper.AppendToDictionary = HIGG5Common.getHIGG5CommonDictionExti
 HIGG2D4SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollections()
 
 HIGG2D4SlimmingHelper.ExtraVariables = ExtraContent
-HIGG2D4SlimmingHelper.ExtraVariables.append(
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore")
+HIGG2D4SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 HIGG2D4SlimmingHelper.AllVariables = ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D4SlimmingHelper.ExtraVariables += ExtraContentTruth

@@ -3,8 +3,9 @@
 # art-description: DxAOD MC16d TOPQ1 AtlFast2 410470                                                          
 # art-type: grid                                                                                              
 # art-output: output.root                                                                                     
-# art-input: mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_a875_r10201_p3554
+# art-input: user.iconnell.410470.DAOD_TOPQ1.e6337_a875_r10201_p3554.ART.v2
 # art-input-nfiles: 5
+# art-include: 21.2/AnalysisTop
 
 import ROOT
 from PathResolver import PathResolver

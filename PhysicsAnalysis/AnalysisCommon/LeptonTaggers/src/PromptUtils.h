@@ -6,7 +6,7 @@
 #define PROMPT_PROMPTUTILS_H
 
 /**********************************************************************************
- * @Package: JetTagNonPromptLepton
+ * @Package: LeptonTaggers
  * @Class  : PromptUtils
  * @Author : Rustem Ospanov
  * @Author : Rhys Roberts

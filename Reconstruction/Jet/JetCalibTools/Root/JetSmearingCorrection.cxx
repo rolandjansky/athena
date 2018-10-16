@@ -524,7 +524,7 @@ StatusCode JetSmearingCorrection::cacheProjections(TH1* fullHistogram, std::vect
             for (Long64_t binX = 0; binX < localHist->GetNbinsX()+1; ++binX)
             {
                 // Single bin of X, interpolate across Y
-                cacheLocation.push_back(std::unique_ptr<TH1>(localHist->ProjectionY(Form("projy_%s_%lld",type.c_str(),binX),binX,binX)));
+                cacheLocation.emplace_back(localHist->ProjectionY(Form("projy_%s_%lld",type.c_str(),binX),binX,binX));
             }
         }
         else
