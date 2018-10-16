@@ -167,10 +167,8 @@ namespace VKalVrtAthena {
     bool selectTrack_JetDeltaRCut       ( const xAOD::TrackParticle* );
     bool selectTrack_pixelHits          ( const xAOD::TrackParticle* );
     bool selectTrack_sctHits            ( const xAOD::TrackParticle* );
-    bool selectTrack_trtHits            ( const xAOD::TrackParticle* );
     bool selectTrack_bLayHits           ( const xAOD::TrackParticle* );
     bool selectTrack_sharedHits         ( const xAOD::TrackParticle* );
-    bool selectTrack_siShare            ( const xAOD::TrackParticle* );
     bool selectTrack_siHits             ( const xAOD::TrackParticle* );
 
     int TrackTruthMatchParent(const xAOD::TrackParticle* track);
