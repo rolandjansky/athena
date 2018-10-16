@@ -87,7 +87,6 @@ namespace CP
             }
             const xAOD::IParticleContainer* particles = nullptr;
             ANA_CHECK (handle.retrieve (particles, sys));
-	    if(!particles) return StatusCode::SUCCESS;
             ANA_CHECK (m_makerTool->rebuildMET (term, type, met.get(),
                                                 particles, metMap));
             return StatusCode::SUCCESS;
