@@ -63,11 +63,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   typedef std::map< IdentifierHash, moduleGeo_t > geoContainer_t;
   typedef std::map< Identifier, moduleGeo_t > geoContainerPure_t;
 
-  std::vector<moduleGeo_t> m_geo;
-  std::set<IdentifierHash> m_psSCTHash;
-  std::set<IdentifierHash> m_summarySCTHash;
-  //  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
-
  public:
   SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent);
   virtual ~SCTErrMonTool();
@@ -287,16 +282,18 @@ class SCTErrMonTool : public ManagedMonitorToolBase
     numberOfProblemForCoverage
   };
 
+  std::vector<moduleGeo_t> m_geo;
+  //std::set<IdentifierHash> m_psSCTHash;
+  //std::set<IdentifierHash> m_summarySCTHash;
+  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
   geoContainerPure_t m_disabledGeoSCT;
   geoContainer_t m_geoSCT[numberOfProblemForCoverage];
-
   TH2F * m_disabledModulesMapSCT;//disabled SCT
   TH2F * m_mapSCT[numberOfProblemForCoverage];
 
   const unsigned int m_nBinsEta;
   const double 		 m_rangeEta;
   const unsigned int m_nBinsPhi;
-  //  const double m_ModulesThreshold;
   const double m_WafersThreshold;
 
   //TProfile * m_DisabledDetectorCoverageVsLB;
