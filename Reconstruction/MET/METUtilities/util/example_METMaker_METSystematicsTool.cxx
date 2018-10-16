@@ -61,12 +61,13 @@ using namespace asg::msgUserCode;
 int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl;
   // Initialize the application
 #ifdef XAOD_STANDALONE
-  xAOD::Init() ;
+  
   //enable status code failures
   CP::CorrectionCode::enableFailure();
   CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
   xAOD::TReturnCode::enableFailure();
+  xAOD::Init() ;
 #else
   IAppMgrUI* app = POOL::Init(); //important to do this first!
 #endif

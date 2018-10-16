@@ -87,6 +87,7 @@ namespace CP
             }
             const xAOD::IParticleContainer* particles = nullptr;
             ANA_CHECK (handle.retrieve (particles, sys));
+	    if(!particles) return StatusCode::SUCCESS;
             ANA_CHECK (m_makerTool->rebuildMET (term, type, met.get(),
                                                 particles, metMap));
             return StatusCode::SUCCESS;
@@ -102,11 +103,11 @@ namespace CP
         ANA_CHECK (processParticles (m_tausHandle, xAOD::Type::Tau, m_tausKey));
 
         const xAOD::JetContainer *jets {nullptr};
+        ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
 	for(const auto &jet : *jets){
 	  dec_fJvt(*jet) = 0.0;
 	}
 	
-        ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
         if (m_doTrackMet)
         {
           ANA_CHECK (m_makerTool->rebuildTrackMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metMap, m_doJetJVT));
