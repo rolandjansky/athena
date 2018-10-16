@@ -66,7 +66,6 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
   ///@}
 
   /** Accept with Egamma objects */
-  virtual asg::AcceptData accept( const xAOD::Egamma* part) const ;
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* part) const ;
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
@@ -76,14 +75,11 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
   /// @name Methods from the IAsgElectronIsEMSelectorinterface
   /// @{
   /** Accept with Photon objects */
-  virtual asg::AcceptData accept( const xAOD::Photon* part ) const ;
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Photon* part ) const ;
 
   /** Accept with Electron objects */
-  virtual asg::AcceptData accept( const xAOD::Electron* part ) const ;
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* part ) const ;  
   //The main execute method
-  StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const;
   StatusCode execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const;
   /// @}
 

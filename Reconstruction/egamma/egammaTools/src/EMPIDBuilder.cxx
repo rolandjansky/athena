@@ -115,7 +115,7 @@ StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) cons
     size_t size = m_electronIsEMselectors.size();
 
     for (size_t i = 0; i<size;++i) {
-        asg::AcceptData accept = m_electronIsEMselectors[i]->accept(eg);
+        asg::AcceptData accept = m_electronIsEMselectors[i]->accept(ctx, eg);
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_electronIsEMselectorResultNames[i]);
         //save the isem
@@ -131,12 +131,12 @@ StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) cons
     size_t sizePh = m_photonIsEMselectors.size();
 
     for (size_t i = 0; i<sizePh;++i) {
-        asg::AcceptData accept = m_photonIsEMselectors[i]->accept(eg);
+        asg::AcceptData accept = m_photonIsEMselectors[i]->accept(ctx, eg);
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_photonIsEMselectorResultNames[i]);
         //save the isem
         unsigned int isEM = ~0;
-        if ( m_photonIsEMselectors[i]->execute(eg, isEM).isFailure() ) {
+        if ( m_photonIsEMselectors[i]->execute(ctx, eg, isEM).isFailure() ) {
             ATH_MSG_ERROR("problem to get isEM for " << m_photonIsEMselectorResultNames[i]);
             return StatusCode::FAILURE;
         }
@@ -157,7 +157,7 @@ StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) cons
 
     for (size_t i = 0; i<sizeLH; ++i) {
 
-        asg::AcceptData accept = m_electronLHselectors[i]->accept(eg,avg_mu);
+        asg::AcceptData accept = m_electronLHselectors[i]->accept(ctx, eg,avg_mu);
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_electronLHselectorResultNames[i]);
         //save the isem
@@ -165,7 +165,7 @@ StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) cons
 
         //save the LHValue only once
         if(i==0){
-            eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->calculate(eg,avg_mu)), m_LHValueName);
+            eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->calculate(ctx,eg,avg_mu)), m_LHValueName);
         }  
     }
 

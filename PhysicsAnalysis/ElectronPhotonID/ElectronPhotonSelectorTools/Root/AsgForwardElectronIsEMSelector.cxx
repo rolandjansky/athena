@@ -172,7 +172,7 @@ const asg::AcceptInfo& AsgForwardElectronIsEMSelector::getAcceptInfo() const
 //=============================================================================
 asg::AcceptData
 AsgForwardElectronIsEMSelector::accept(const xAOD::IParticle* part ) const{
-    return accept(Gaudi::Hive::currentContext(), part);
+  return accept(Gaudi::Hive::currentContext(), part);
 }
 
 asg::AcceptData
@@ -186,11 +186,6 @@ AsgForwardElectronIsEMSelector::accept(const EventContext& ctx, const xAOD::IPar
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::could not convert argument to Electron/Photon");
     return m_rootForwardTool->accept();
   }
-}
-
-asg::AcceptData
-AsgForwardElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
-  return accept(Gaudi::Hive::currentContext(),eg);
 }
 
 asg::AcceptData
@@ -213,21 +208,9 @@ AsgForwardElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Ega
 }
 
 asg::AcceptData
-AsgForwardElectronIsEMSelector::accept( const xAOD::Electron* el) const{
-  ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
-  return accept(static_cast<const xAOD::Egamma*> (el));
-}
-
-asg::AcceptData
 AsgForwardElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Electron* el) const{
   ATH_MSG_DEBUG("Entering accept( const EventContext& ctx, const Electron* part )");
   return accept(ctx, static_cast<const xAOD::Egamma*> (el));
-}
-
-asg::AcceptData
-AsgForwardElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
-  ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
-  return accept(static_cast<const xAOD::Egamma*> (ph));  
 }
 
 asg::AcceptData
@@ -250,11 +233,6 @@ std::string AsgForwardElectronIsEMSelector::getOperatingPointName() const
 }
 
 ///==========================================================================================//
-StatusCode AsgForwardElectronIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM) const{
-   //Backwards compatibility, at some point this will be deprecated
-   return execute(Gaudi::Hive::currentContext(),eg,isEM);
-}
-// ==============================================================
 StatusCode AsgForwardElectronIsEMSelector::execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const{
   //
   // Particle identification for electrons based on cuts

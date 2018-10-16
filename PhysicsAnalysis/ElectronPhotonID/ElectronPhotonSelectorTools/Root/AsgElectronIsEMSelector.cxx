@@ -284,8 +284,8 @@ const asg::AcceptInfo& AsgElectronIsEMSelector::getAcceptInfo() const
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
-  return accept( Gaudi::Hive::currentContext(), part );
+asg::AcceptData AsgElectronIsEMSelector::accept(const xAOD::IParticle* part) const {
+  return accept(Gaudi::Hive::currentContext(), part);
 }
 
 asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const xAOD::IParticle* part ) const{
@@ -298,10 +298,6 @@ asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const
     ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Electron/Photon");
     return m_rootTool->accept();
   }
-}
-
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
-  return accept( Gaudi::Hive::currentContext(), eg );
 }
 
 asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const xAOD::Egamma* eg ) const{
@@ -322,18 +318,11 @@ asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const
   }
 }
 
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Electron* el) const{
-  return accept(Gaudi::Hive::currentContext(), static_cast<const xAOD::Egamma*> (el));
-}
-
 asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Electron* el) const{
   ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
   return accept(ctx, static_cast<const xAOD::Egamma*> (el));
 }
 
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
-  return accept(Gaudi::Hive::currentContext(), static_cast<const xAOD::Egamma*> (ph));
-}
 asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Photon* ph) const{
   ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
   return accept(ctx, static_cast<const xAOD::Egamma*> (ph));  
@@ -363,10 +352,6 @@ std::string AsgElectronIsEMSelector::getOperatingPointName() const{
   }
 }
 
-///==========================================================================================//
-StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM ) const{
-  return execute(Gaudi::Hive::currentContext(), eg, isEM);
-}
 // ==============================================================
 StatusCode AsgElectronIsEMSelector::execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM ) const{
   //

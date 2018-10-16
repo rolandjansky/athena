@@ -69,21 +69,17 @@ class AsgForwardElectronIsEMSelector : public asg::AsgTool,
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::IParticle* part ) const ;
 
   /** Accept with Egamma objects */
-  virtual asg::AcceptData accept( const xAOD::Egamma* part) const ;
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* part) const ;
 
   /** Accept with Photon objects */
-  virtual asg::AcceptData accept( const xAOD::Photon* part ) const ;
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Photon* part ) const ;
 
   /** Accept with Electron objects */
-  virtual asg::AcceptData accept( const xAOD::Electron* part ) const ;
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* part ) const ;
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
   //The main execute method
-  StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const;
   StatusCode execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const;
   // Private member variables
 private:

@@ -326,7 +326,7 @@ const asg::AcceptInfo& AsgPhotonIsEMSelector::getAcceptInfo() const
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
 asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::IParticle* part ) const{
-  return accept( Gaudi::Hive::currentContext(),  part );
+  return AsgPhotonIsEMSelector::accept( Gaudi::Hive::currentContext(), part );
 }
 
 asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xAOD::IParticle* part ) const{
@@ -340,9 +340,6 @@ asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xA
     return m_rootTool->accept();
   }
 
-}
-asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::Egamma* eg ) const{
-  return accept( Gaudi::Hive::currentContext(),  eg );
 }
 asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xAOD::Egamma* eg ) const{
  
@@ -361,19 +358,10 @@ asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xA
     return m_rootTool->accept();
   }
 }
-asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::Photon* ph) const{
-  return accept( Gaudi::Hive::currentContext(),   static_cast<const xAOD::Egamma*> (ph) );
-}
 asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xAOD::Photon* ph) const{
   ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
   return accept(ctx, static_cast<const xAOD::Egamma*> (ph));  
 }
-
-asg::AcceptData AsgPhotonIsEMSelector::accept( const xAOD::Electron* el) const{
-  ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
-  return accept( Gaudi::Hive::currentContext(), static_cast<const xAOD::Egamma*> (el));  
-}
-
 asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xAOD::Electron* el) const{
   ATH_MSG_DEBUG("Entering accept( const Electron* part )");
   return accept(ctx, static_cast<const xAOD::Egamma*> (el));
@@ -399,10 +387,6 @@ std::string AsgPhotonIsEMSelector::getOperatingPointName() const{
 
 // A simple execute command wrapper
 // ==============================================================
-StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM) const
-{
-  return execute(Gaudi::Hive::currentContext(), eg, isEM);
-}
 StatusCode AsgPhotonIsEMSelector::execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const
 {
   //
