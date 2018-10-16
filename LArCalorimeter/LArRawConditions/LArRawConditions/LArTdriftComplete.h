@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARTDRIFTCOMPLETE_H
@@ -9,10 +9,6 @@
 #include "LArRawConditions/LArTdriftP.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 
-
-#include <vector>
-
-class LArCablingService ;
 
 /** This class implements the ILArTdrift interface
  *
@@ -35,17 +31,12 @@ class LArTdriftComplete: public ILArTdrift,
   
   // retrieving Tdrift using online ID
   virtual  const float& Tdrift(const HWIdentifier&  CellID) const ;
-  
-  // retrieving Tdrift using offline ID
-  virtual  const float& Tdrift(const Identifier&  CellID) const;
-  
+    
   // set method filling the data members individually
   // (if one wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, float tdrift);
-  
 
 };
-
 CLASS_DEF( LArTdriftComplete,89410564,1)
 SG_BASE(LArTdriftComplete, ILArTdrift);
 #endif 

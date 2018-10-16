@@ -9,8 +9,6 @@
 #include "LArRawConditions/LArCableAttenuationP.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 
-#include <vector>
-
 /** This class implements the ILArCableAttenuation interface
  *
  * @author M. Fanti
@@ -37,8 +35,6 @@ class LArCableAttenuationComplete: public ILArCableAttenuation,
   // retrieving CableAttenuation using online ID
   
   virtual const float& CableAttenuation(const HWIdentifier&  CellID) const ;
-  
-  virtual const float& CableAttenuation(const Identifier&  CellID) const;
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)

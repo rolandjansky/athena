@@ -112,9 +112,11 @@ def triggerRunCfg(flags, menu=None):
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
-        menuAcc, HLTSteps = menu( flags )
+        menuAcc = menu( flags )
+        HLTSteps = menuAcc.getSequence( "HLTAllSteps" )
         __log.info( "Configured menu with "+ str( len(HLTSteps.getChildren()) ) +" steps" )
-        
+    
+    
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )           
     
@@ -153,8 +155,13 @@ if __name__ == "__main__":
     ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = True
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",]
     ConfigFlags.lock()    
+
+    def testMenu(flags):
+        menuCA = ComponentAccumulator()
+        menuCA.addSequence( seqAND("HLTAllSteps") )
+        return menuCA
     
-    acc = triggerRunCfg( ConfigFlags, lambda x: (ComponentAccumulator(), seqAND("whatever") ) )
+    acc = triggerRunCfg( ConfigFlags, testMenu )
 
     f=open("TriggerRunConf.pkl","w")
     acc.store(f)

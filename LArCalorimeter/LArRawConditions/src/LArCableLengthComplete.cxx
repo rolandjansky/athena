@@ -28,11 +28,5 @@ const float& LArCableLengthComplete::CableLength(const HWIdentifier& CellID) con
   return (t.m_CableLength);
 }
 
-const float& LArCableLengthComplete::CableLength(const Identifier&  CellID) const
-{
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return CableLength(OnId);
-}
-
 
   

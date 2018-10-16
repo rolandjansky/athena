@@ -29,11 +29,6 @@ const float& LArCableAttenuationComplete::CableAttenuation(const HWIdentifier& C
   return (t.m_CableAttenuation);
 }
 
-const float& LArCableAttenuationComplete::CableAttenuation(const Identifier&  CellID) const
-{
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return CableAttenuation(OnId);
-}
 
 
   

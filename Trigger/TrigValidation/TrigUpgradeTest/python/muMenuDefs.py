@@ -294,7 +294,7 @@ def muIsoStep():
                          Hypo        = trigmuIsoHypo,
                          HypoToolGen = TrigMuisoHypoToolFromName )
   
-   
+  
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)

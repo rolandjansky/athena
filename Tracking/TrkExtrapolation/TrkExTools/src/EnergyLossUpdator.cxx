@@ -18,7 +18,7 @@
 
 namespace{
 // static particle masses
-Trk::ParticleMasses  s_particleMasses{};
+const Trk::ParticleMasses  s_particleMasses{};
 // statics doubles
 constexpr double s_ka_BetheBloch = 30.7075 * Gaudi::Units::MeV;
 

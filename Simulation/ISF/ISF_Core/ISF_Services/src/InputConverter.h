@@ -91,7 +91,7 @@ namespace ISF {
     void addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
 
     /** Tests whether the given ISFParticle is within the Geant4 world volume */
-    bool isInsideG4WorldVolume(const ISF::ISFParticle& isp) const;
+    bool isInsideG4WorldVolume(const ISF::ISFParticle& isp, const G4VSolid* worldSolid) const;
 
     /** get right GenParticle mass */
     double getParticleMass(const HepMC::GenParticle& p) const;
@@ -112,8 +112,6 @@ namespace ISF {
     bool                                  m_useGeneratedParticleMass; //!< use GenParticle::generated_mass() in simulation
 
     ToolHandleArray<IGenParticleFilter>   m_genParticleFilters;       //!< HepMC::GenParticle filters
-
-    mutable G4VSolid                     *m_worldSolid;               //!< The Geant4 world volume solid <-- FIXME!!
 
     bool                                  m_quasiStableParticlesIncluded; //<! will quasi-stable particles be included in the simulation
 
