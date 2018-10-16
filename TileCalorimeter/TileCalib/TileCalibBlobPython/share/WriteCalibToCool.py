@@ -33,6 +33,7 @@ def usage():
     print "-v, --version=  specify blob version, by default version from input DB is used" 
     print "-x, --txtfile=  specify the text file with the new constants for reading"
     print "-m, --comment=  specify comment to write"
+    print "-U, --user=     specify username for comment"
     print "-p, --prefix=   specify prefix which is expected on every line in input file, default - no prefix"
     print "-k, --keep=     field numbers or channel numbers to ignore, e.g. '0,2,3,EBch0,EBch1,EBch12,EBch13,EBspD4ch18,EBspD4ch19,EBspC10ch4,EBspC10ch5' "
     print "-i, --inschema=   specify the input schema to use, default is 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2'"
@@ -40,8 +41,8 @@ def usage():
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
     print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:R:L:s:i:o:t:T:f:F:C:G:n:v:x:m:p:dcazZuk:"
-keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","prefix=","default","channel","all","zero","allzero","update","keep="]
+letters = "hr:l:R:L:s:i:o:t:T:f:F:C:G:n:v:x:m:U:p:dcazZuk:"
+keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","user=","prefix=","default","channel","all","zero","allzero","update","keep="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -76,6 +77,10 @@ comment = ""
 prefix = ""
 update = False
 keep=[]
+try:
+    user=os.getlogin()
+except:
+    user="UnknownUser"
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -126,6 +131,8 @@ for o, a in opts:
         txtFile = a
     elif o in ("-m","--comment"):
         comment = a
+    elif o in ("-U","--user"):
+        user = a
     elif o in ("-p","--prefix"):
         prefix = a
     elif o in ("-k","--keep"):
@@ -159,17 +166,6 @@ log = getLogger("WriteCalibToCool")
 import logging
 log.setLevel(logging.DEBUG)
 
-if run==0: begin=(0,0)
-if run<=0:
-    run=TileCalibTools.getLastRunNumber()
-    log.warning( "Run number is not specified, using current run number %d" %run )
-    if run<0:
-        log.error( "Bad run number" )
-        sys.exit(2)
-since = (run, lumi)
-if not "begin" in dir(): begin=since
-until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
-
 #=== set database
 dbr = TileCalibTools.openDbConn(inSchema,'READONLY')
 dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if update else 'RECREATE'))
@@ -188,6 +184,22 @@ else:
     else:
         outfolderTag = TileCalibTools.getFolderTag(dbr, outfolderPath, outtag )
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
+
+# set run number
+if run==0: begin=(0,0)
+if run<=0:
+    if "UPD4" in outtag:
+        run=TileCalibTools.getPromptCalibRunNumber()
+        log.warning( "Run number is not specified, using minimal run number in calibration loop %d" %run )
+    else:
+        run=TileCalibTools.getLastRunNumber()
+        log.warning( "Run number is not specified, using current run number %d" %run )
+    if run<0:
+        log.error( "Bad run number" )
+        sys.exit(2)
+since = (run, lumi)
+if not "begin" in dir(): begin=since
+until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
 
 #=== initialize blob reader to read previous comments
 blobReader = TileCalibTools.TileBlobReader(dbr,folderPath, folderTag)
@@ -395,7 +407,7 @@ if mval!=0 and (len(comment)>0 or len(txtFile)>0):
                 comment="Update for run %i from file %s" % (begin[0],txtFile)
             else:
                 comment="Update for run,lumi %i,%i from file %s" % (begin[0],begin[1],txtFile)
-        blobWriter.setComment(os.getlogin(),comment)
+        blobWriter.setComment(user,comment)
     blobWriter.register(begin, until, outfolderTag)
     if undo:
         if (comment is None) or (comment == "None"):
@@ -405,7 +417,7 @@ if mval!=0 and (len(comment)>0 or len(txtFile)>0):
                 comment="Update for run %i - undoing changes done for run %i from file %s" % (run2,begin[0],txtFile)
             else:
                 comment="Update for run,lumi %i,%i - undoing changes done for %i,%i from file %s" % (run2,lumi2,begin[0],begin[1],txtFile)
-            blobWriter2.setComment(os.getlogin(),comment)
+            blobWriter2.setComment(user,comment)
         blobWriter2.register((run2,lumi2), until, outfolderTag)
     elif run2>=0 and (run2<begin[0] or (run2==begin[0] and lumi2<begin[1]) and lumi2!=0):
         log.warning("(run2,lumi2)=(%i,%i) is smaller than (run,lumi)=(%i,%i) - will not create second IOV" % (run2,lumi2,begin[0],begin[1]))
