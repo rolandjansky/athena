@@ -124,16 +124,14 @@ namespace met {
           std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
           std::vector<double>& vPhiRnd,
           unsigned int& lept_count,
-          float& UEcorr) const = 0;
+          float& UEcorr) const
+    {return StatusCode::FAILURE;}
 
     virtual StatusCode hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
                                     const met::METAssociator::ConstitHolder& constits, 
                                     TLorentzVector& HR, 
-                                    std::vector<double>& vPhiRnd) const = 0;
-
-
-    virtual void deltaPhi_HR(float phi1, float phi2, float& result) const;
-    virtual void deltaR_HR(float eta1, float phi1, float eta2, float phi2, float& result) const;    
+                                    std::vector<double>& vPhiRnd) const
+    {return StatusCode::SUCCESS;}  
 
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
 				     std::vector<const xAOD::IParticle*>& constlist,

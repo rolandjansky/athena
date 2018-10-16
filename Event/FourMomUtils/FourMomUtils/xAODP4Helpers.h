@@ -22,6 +22,9 @@ on objects deriving from xAOD::IParticle (and xAOD::MissingET)
 // STL includes
 #include <cmath>
 
+// Root includes
+#include "TMath.h"
+
 // CxxUtils includes
 #include "CxxUtils/fpcompare.h" // for fpcompare::less and greater
 
@@ -158,6 +161,22 @@ namespace xAOD
     inline
     double deltaR( const xAOD::IParticle * const pA, const xAOD::IParticle * const pB, bool useRapidity=true )
     { return std::sqrt( xAOD::P4Helpers::deltaR2( *pA, *pB, useRapidity ) ); }
+
+    /** delta R, float-type parameters */
+    inline
+    double deltaR(const double& eta1, const double& phi1, const double& eta2, const double& phi2)
+    {
+      // delta eta
+      float deta = eta1 - eta2;  
+  
+      // delta phi
+      float dphi = std::fabs(phi1 - phi2);
+      if (dphi > TMath::Pi()) 
+        dphi = 2*TMath::Pi() - dphi;
+    
+      // dR
+      return std::sqrt(deta*deta + dphi*dphi);  
+    }
 
 
 

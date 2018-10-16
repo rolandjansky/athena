@@ -366,27 +366,6 @@ namespace met {
     }
     return true;
   }
-
-
-  // Delta R and phi for HR calculations
-  void METAssociator::deltaR_HR(float eta1, float phi1, float eta2, float phi2, float& result) const {
-    float deta = eta1 - eta2;  
-    float dphi = 0;
-    METAssociator::deltaPhi_HR(phi1, phi2, dphi);    
-    
-    result = sqrt(deta*deta + dphi*dphi);  
   
-    return;
-  } 
-  
-  
-  void METAssociator::deltaPhi_HR(float phi1, float phi2, float& result) const {
-    float dphi = std::fabs(phi1 - phi2);
-    if (dphi > TMath::Pi()) dphi = 2*TMath::Pi() - dphi;
-  
-    result = dphi;
-  
-    return;
-  }
 
 }

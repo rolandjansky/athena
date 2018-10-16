@@ -173,7 +173,7 @@ def scheduleMETCustomTrkSel(trkseltool,
 
 
 # Add association map for HR calculation
-def addMETAssocMapMakeMetHR(sequence, stream, outGroup):
+def addHadRecoilMETMap(sequence, stream, outGroup):
 
     from METReconstruction.METRecoFlags import metFlags
     from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
@@ -217,8 +217,7 @@ def addMETAssocMapMakeMetHR(sequence, stream, outGroup):
 
     # Make MET
     from METUtilities.METMakerConfig import getMETMakerAlg
-    setjetminptToinf=True
-    makerAlg = getMETMakerAlg(assocname,jetColl=jetcoll,setJetMinWPtToInf=setjetminptToinf)
+    makerAlg = getMETMakerAlg(assocname,jetColl=jetcoll)
     sequence += makerAlg
 
     stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMPFlowHR')

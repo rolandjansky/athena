@@ -277,28 +277,25 @@ namespace met {
 
     // Step 2. Calculating UE energy correction for given lepton
     if(swclus){
-      TLorentzVector tv_UEcorr;  // vector of UE correction
-      TLorentzVector tv_swclus; // make TLorentzVector from swclus to simplify operations
-      tv_swclus.SetPtEtaPhiE( swclus->pt(), swclus->eta(), swclus->phi(), swclus->e() );
-  
+      TLorentzVector tv_UEcorr;  // vector of UE correction 
       std::pair <double, double> eta_rndphi;
-      eta_rndphi.first = tv_swclus.Eta();
+      eta_rndphi.first = swclus->eta();
       eta_rndphi.second = vPhiRnd[lept_count];
       lept_count++;
   
       for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
         if( pfo_itr->e() < 0)
           continue;
-        TLorentzVector tv_pfo;
-        tv_pfo.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
-        float dR = 0.;
-        deltaR_HR( tv_pfo.Eta(), tv_pfo.Phi(), eta_rndphi.first,  eta_rndphi.second, dR);
-        if( dR < m_Drcone ){
-          float angle;
-          deltaPhi_HR(tv_swclus.Phi(), tv_pfo.Phi(), angle);
-          if( tv_swclus.Phi() <  tv_pfo.Phi() )
-            angle = -1. * angle;
-          tv_pfo.RotateZ(angle);
+        double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
+        if( dR < m_Drcone ){          
+          float dphi_angle = std::fabs( swclus->phi() - pfo_itr->phi() );
+          if (dphi_angle > TMath::Pi()) 
+            dphi_angle = 2*TMath::Pi() - dphi_angle;
+          if( swclus->phi() <  pfo_itr->phi() )
+            dphi_angle = -1. * dphi_angle;
+
+          TLorentzVector tv_pfo = pfo_itr->p4();
+          tv_pfo.RotateZ(dphi_angle);
           tv_UEcorr += tv_pfo;  // summing PFOs of UE for correction
         } // m_Drcone requirement   
       } // loop over PFOs
@@ -319,7 +316,6 @@ namespace met {
         continue;
       HR += pfo_itr->p4();
     }
-    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 2. Subtracting PFOs mathed to electrons from HR 
     // std::vector<const xAOD::Egamma*> eg = static_cast<std::vector<const xAOD::Egamma*>>(hardObjs);
@@ -330,39 +326,27 @@ namespace met {
       eg.push_back( static_cast<const xAOD::Egamma*>(obj_i) );
     }
  
-    std::vector<const xAOD::IParticle*> swclus_orig;
+    std::vector<const xAOD::IParticle*> swclus;
     for(const auto& eg_i : eg)
       if( eg_i->caloCluster() )
-        swclus_orig.push_back( eg_i->caloCluster() );
-
-    std::vector<TLorentzVector> swclus;
-    for(const auto& swclus_orig_i : swclus_orig)
-      swclus.push_back( swclus_orig_i->p4() );
-    //std::cout << "swclus.size()  = " << swclus.size() << std::endl;
+        swclus.push_back( eg_i->caloCluster() );
 
     for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
-      //std::cout << "in the pfoCont loop" << std::endl;
       if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
         continue;
   
-      TLorentzVector pfo_curr;
-      pfo_curr.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
-      //std::cout << "created pfo_curr" << std::endl;
       for(const auto& swclus_i : swclus) {
-        float dR = 0.;
-        //std::cout << "swclus_i->eta() swclus_i->phi() swclus_i->pt(): " << swclus_i.Eta() << "  " << swclus_i.Phi() << "  " << swclus_i.Pt() << std::endl;
-        deltaR_HR( pfo_curr.Eta(), pfo_curr.Phi(), swclus_i.Eta(), swclus_i.Phi(), dR);
+        double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), swclus_i->eta(), swclus_i->phi() );
         if( dR < m_Drcone )
-          HR -= pfo_curr;
+          HR -= pfo_i->p4();
       } // over swclus
     } // over PFOs
-    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 3. Get random phi
     unsigned int seed = 0;
     TRandom3 hole;
     if( !swclus.empty() ){
-      seed = floor( swclus.back().Pt() * 1.e3 );     
+      seed = floor( swclus.back()->pt() * 1.e3 );     
       hole.SetSeed(seed);
     }
   
@@ -376,20 +360,17 @@ namespace met {
         isNextToHR = true;
   
         Rnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
-        float dR = 0.;
-        deltaR_HR(HR.Eta(), HR.Phi(), swclus_i.Eta(), Rnd, dR);
+        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), swclus_i->eta(), Rnd );
   
         if(dR > m_MinDistCone) 
           isNextToHR = false;
   
         for(const auto& swclus_j : swclus) {
-          dR = 0.;
-          deltaR_HR( swclus_i.Eta(), Rnd, swclus_j.Eta(), swclus_j.Phi(), dR );
+          dR = P4Helpers::deltaR( swclus_i->eta(), Rnd, swclus_j->eta(), swclus_j->phi() );
           if(dR < m_MinDistCone)
             isNextToPart = true;
         } // swclus_j
       } // while isNextToPart, isNextToHR
-      //std::cout << "pushback random : " << Rnd << std::endl;
       vPhiRnd.push_back(Rnd);
     } // swclus_i
 

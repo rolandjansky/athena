@@ -237,30 +237,25 @@ namespace met {
 
     // Step 2. Calculating UE energy correction for a given lepton (using muclus only)
     if(muclus){
-      TLorentzVector tv_UEcorr; // vector of UE correction
-      TLorentzVector tv_muclus; // make TLorentzVector from muclus to simplify operations
-      tv_muclus.SetPtEtaPhiE( muclus->pt(), muclus->eta(), muclus->phi(), muclus->e() );
-  
+      TLorentzVector tv_UEcorr; // vector of UE correction       
       std::pair <double, double> eta_rndphi;
-      eta_rndphi.first = tv_muclus.Eta();
+      eta_rndphi.first = muclus->eta();
       eta_rndphi.second = vPhiRnd[lept_count];
       lept_count++;
   
-      //std::cout<<"start looping over PFO to calculate correction"<<std::endl;
       for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
         if( pfo_itr->e() < 0)
           continue;
-        TLorentzVector tv_pfo;
-        tv_pfo.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
-  
-        float dR = 0.;
-        deltaR_HR( tv_pfo.Eta(), tv_pfo.Phi(), eta_rndphi.first,  eta_rndphi.second, dR);
+        double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
         if( dR < m_Drcone ){
-          float angle;
-          deltaPhi_HR(tv_muclus.Phi(), tv_pfo.Phi(), angle);
-          if( tv_muclus.Phi() <  tv_pfo.Phi() )
-            angle = -1. * angle;
-          tv_pfo.RotateZ(angle);
+          float dphi_angle = std::fabs( muclus->phi() - pfo_itr->phi() );
+          if( dphi_angle > TMath::Pi() ) 
+            dphi_angle = 2*TMath::Pi() - dphi_angle;
+          if( muclus->phi() <  pfo_itr->phi() )
+            dphi_angle = -1. * dphi_angle;
+
+          TLorentzVector tv_pfo = pfo_itr->p4();
+          tv_pfo.RotateZ(dphi_angle);
           tv_UEcorr += tv_pfo;  // summing PFOs of UE for correction
         } // cone requirement        
       } // loop over PFOs
@@ -282,7 +277,6 @@ namespace met {
         continue;
       HR += pfo_itr->p4();
     }
-    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e(): " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 2. Subtracting PFOs matched to muons from HR 
     std::vector<const xAOD::Muon*> mu;
@@ -292,52 +286,35 @@ namespace met {
       mu.push_back( static_cast<const xAOD::Muon*>(obj_i) );
     }
 
-    std::vector<const TrackParticle*> idtrack_orig;  
+    std::vector<const TrackParticle*> idtrack;  
     for(const auto& mu_i : mu){
       if( mu_i->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) )
-        idtrack_orig.push_back( mu_i->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) );     
+        idtrack.push_back( mu_i->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) );     
     }
 
-    // convert to TLorentzVector
-    std::vector<TLorentzVector> idtrack;
-    for(const auto& idtrack_orig_i : idtrack_orig)
-      idtrack.push_back( idtrack_orig_i->p4() );
-    //std::cout << "idtrack.size()  = " << idtrack.size() << std::endl;
-
-    std::vector<const CaloCluster*> muclus_orig;
+    std::vector<const CaloCluster*> muclus;
     for(const auto& mu_i : mu){
       if( mu_i->cluster() )
-        muclus_orig.push_back( mu_i->cluster() );
+        muclus.push_back( mu_i->cluster() );
     }
-
-    // convert to TLorentzVector
-    std::vector<TLorentzVector> muclus;
-    for(const auto& muclus_orig_i : muclus_orig)
-      muclus.push_back( muclus_orig_i->p4() );
-    //std::cout << "muclus.size()  = " << muclus.size() << std::endl;
-
+    
     for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
       if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
         continue;
-  
-      TLorentzVector pfo_curr;
-      pfo_curr.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
 
       // charged PFOs 
       if( fabs(pfo_i->charge()) > FLT_MIN ) {
         for(const auto& idtrack_i : idtrack) {
-          float dR = 0.;
-          deltaR_HR( pfo_curr.Eta(), pfo_curr.Phi(), idtrack_i.Eta(), idtrack_i.Phi(), dR);
+          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), idtrack_i->eta(), idtrack_i->phi() );
           if( dR < m_Drcone ) 
-            HR -= pfo_curr;
+            HR -= pfo_i->p4();
         } // over muon idtrack
       } // charged PFOs 
       else{ // neutral PFOs
         for(const auto& muclus_i : muclus) {
-          float dR = 0.;
-          deltaR_HR( pfo_curr.Eta(), pfo_curr.Phi(), muclus_i.Eta(), muclus_i.Phi(), dR);
+          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), muclus_i->eta(), muclus_i->phi() );
           if( dR < m_Drcone ) 
-            HR -= pfo_curr;
+            HR -= pfo_i->p4();
         } // over muon muclus
       } // neutral PFOs       
     } // over all PFOs
@@ -346,8 +323,8 @@ namespace met {
     // 3. Get random phi based on muclus
     unsigned int seed = 0;
     TRandom3 hole;
-    if( !muclus.empty() ){
-      seed = floor( muclus.back().Pt() * 1.e3 );     
+    if( !muclus.empty() ) {   
+      seed = floor( muclus.back()->pt() * 1.e3 );     
       hole.SetSeed(seed);
     }
   
@@ -361,15 +338,13 @@ namespace met {
         isNextToHR = true;
   
         Rnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
-        float dR = 0.;
-        deltaR_HR(HR.Eta(), HR.Phi(), muclus_i.Eta(), Rnd, dR);
+        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), muclus_i->eta(), Rnd );
   
         if(dR > m_MinDistCone) 
           isNextToHR = false;
   
         for(const auto& muclus_j : muclus) {
-          dR = 0.;
-          deltaR_HR( muclus_i.Eta(), Rnd, muclus_j.Eta(), muclus_j.Phi(), dR );
+          dR = P4Helpers::deltaR( muclus_i->eta(), Rnd, muclus_j->eta(), muclus_j->phi() );
           if(dR < m_MinDistCone)
             isNextToPart = true;
         } // muclus_j

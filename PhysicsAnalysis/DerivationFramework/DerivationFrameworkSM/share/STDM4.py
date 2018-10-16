@@ -271,7 +271,7 @@ applyPFOAugmentation(STDM4Sequence)
 # SCHEDULE MET RECONSTRUCTION
 #=======================================
 # add map with modified association method and make MET:
-addMETAssocMapMakeMetHR(STDM4Sequence, STDM4Stream, "STDM4")
+addHadRecoilMETMap(STDM4Sequence, STDM4Stream, "STDM4")
 ##############
 
 
