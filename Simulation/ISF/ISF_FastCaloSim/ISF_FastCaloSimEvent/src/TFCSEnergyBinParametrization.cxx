@@ -113,7 +113,7 @@ FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simuls
   if (is_match_pdgid(truth_pdgid)) pdgid = truth_pdgid;
   else if (is_match_pdgid(0)) pdgid = 0;
   else {
-    ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate pdgid=" << pdgid);
+    ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate pdgid=" << truth_pdgid);
     return FCSFatal;
   }
   
