@@ -3422,11 +3422,9 @@ void TileGeoSectionBuilder::printdouble(const char * name, double val)
 
 const GeoShape * TileGeoSectionBuilder::makeHolesScint(const GeoShape * mother, double R, double H2, double off, double off0) {
     GeoShape *hole = new GeoTubs(0., R, H2, 0., 360.0 * CLHEP::deg);
-    const GeoShapeUnion * scintUnion = NULL;
-    const  GeoShapeUnion& scintUnion1 = hole->add( *hole << HepGeom::Translate3D((off0-off*2.0),0.,0.));
-    scintUnion = &scintUnion1;
+    const  GeoShapeUnion& scintUnion = hole->add( *hole << HepGeom::Translate3D((off0-off*2.0),0.,0.));
     HepGeom::Transform3D tfHole = HepGeom::Translate3D(0.,0.,(off0-off)) * HepGeom::RotateY3D(90*CLHEP::deg);
-    const GeoShape & motherWithHoles = (mother->subtract((*scintUnion)<<tfHole));
+    const GeoShape & motherWithHoles = (mother->subtract(scintUnion<<tfHole));
     return &motherWithHoles;
 }
 
