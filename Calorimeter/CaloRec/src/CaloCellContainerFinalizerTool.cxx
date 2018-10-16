@@ -38,7 +38,8 @@ CaloCellContainerFinalizerTool::CaloCellContainerFinalizerTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent) 
+  :AthAlgTool(type, name, parent),
+   m_theCaloCCIDM(nullptr)
 {
   declareInterface<ICaloCellMakerTool>(this); 
   declareInterface<ICaloConstCellMakerTool>(this); 
