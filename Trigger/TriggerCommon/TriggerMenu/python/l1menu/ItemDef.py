@@ -214,6 +214,10 @@ class ItemDef:
         LVL1MenuItem('L1_J12_VTE100'      ).setLogic( J12      & Not(TE100) & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_J12_VTE200'      ).setLogic( J12      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
         
+        LVL1MenuItem('L1_TE20_VTE200'      ).setLogic( TE20      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_TE3.0ETA49_VTE200'      ).setLogic( TE30ETA49      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_TE7.0ETA49_VTE200'      ).setLogic( TE70ETA49      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        
         LVL1MenuItem('L1_TE5_VTE200'      ).setLogic( TE5      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TE5_VTE100'      ).setLogic( TE5      & Not(TE100) & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TE5_VTE50'      ).setLogic( TE5      & Not(TE50) & physcond).setTriggerType( TT.calo )    # noqa: F821
@@ -302,6 +306,8 @@ class ItemDef:
         LVL1MenuItem('L1_MU0_VTE50').setLogic( MU0      & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU4_VTE50').setLogic( MU4      & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU6_VTE50').setLogic( MU6      & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
+
+        LVL1MenuItem('L1_MU4_VTE200').setLogic( MU4      & Not(TE200) & physcond).setTriggerType(TT.muon)    # noqa: F821
 
         LVL1MenuItem('L1_MU0_MV_VTE50').setLogic( MU0 & Not(MBTS_A & MBTS_C) & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU4_MV_VTE50').setLogic( MU4 & Not(MBTS_A & MBTS_C) & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
@@ -852,6 +858,8 @@ class ItemDef:
         LVL1MenuItem('L1_VTE10').setLogic( Not(TE10) & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_VTE20').setLogic( Not(TE20) & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_VTE50').setLogic( Not(TE50) & physcond).setTriggerType(TT.calo)    # noqa: F821
+        
+        LVL1MenuItem('L1_VTE200').setLogic( Not(TE200) & physcond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_TE5_NZ').setLogic( TE5 & Not(ZDC_AND) & physcond).setTriggerType(TT.calo) # noqa: F821
         
