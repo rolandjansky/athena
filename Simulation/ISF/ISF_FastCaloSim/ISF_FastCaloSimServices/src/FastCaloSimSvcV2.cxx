@@ -182,22 +182,25 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 
   ATH_MSG_VERBOSE("NEW PARTICLE! FastCaloSimSvcV2 called with ISFParticle: " << isfp);
 
-  int pdgid = fabs(isfp.pdgCode());
-  
-  //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
-  // float eta_isfp = particle_position.eta();  
-  // float phi_isfp = particle_position.phi();  
 
+  int pdgid_isfp = isfp.pdgCode();
+  float ekin_isfp = isfp.ekin();
+  float mass_isfp = isfp.mass(); 
   Amg::Vector3D particle_position =  isfp.position();  
   
+  
+   //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
+  // float eta_isfp = particle_position.eta();  
+  // float phi_isfp = particle_position.phi(); 
 
-  if(!(pdgid==22 || pdgid==11))
-  {
-    ATH_MSG_VERBOSE("ISF particle has pdgid "<<pdgid<<", that's not supported yet");
-    return StatusCode::SUCCESS; 
-  } 
+  //Don't simulate particles with total energy below 10 MeV
+  float e_isfp = ekin_isfp + mass_isfp;
+  if(e_isfp < 10) {
+    ATH_MSG_VERBOSE("Skipping particle with energy: " << e_isfp <<" MeV. Below the 10 MeV threshold.");
+    return StatusCode::SUCCESS;
+  }
 
-  TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(pow(isfp.ekin(),2)+pow(isfp.mass(),2)),isfp.pdgCode());
+  TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(pow(ekin_isfp,2)+pow(mass_isfp,2)),pdgid_isfp);
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   TFCSExtrapolationState extrapol;
