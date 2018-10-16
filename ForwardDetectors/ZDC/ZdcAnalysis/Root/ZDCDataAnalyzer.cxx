@@ -103,7 +103,9 @@ bool ZDCDataAnalyzer::DisableModule(size_t side, size_t module)
       return true;
     }
   }
-  return false;
+  else {
+    return false;
+  }
 }
 
 void ZDCDataAnalyzer::EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
@@ -119,6 +121,15 @@ void ZDCDataAnalyzer::SetPeak2ndDerivMinTolerances(size_t tolerance) {
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
       m_moduleAnalyzers[side][module]->SetPeak2ndDerivMinTolerance(tolerance);
+    }
+  }
+}
+
+
+void ZDCDataAnalyzer::SetFitTimeMax(float tmax) {
+  for (size_t side : {0, 1}) {
+    for (size_t module : {0, 1, 2, 3}) {
+      m_moduleAnalyzers[side][module]->SetFitTimeMax(tmax);
     }
   }
 }

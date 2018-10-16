@@ -1,0 +1,27 @@
+atlas_subdir( ZdcNtuple )
+
+
+atlas_depends_on_subdirs( PUBLIC
+			  Control/AthToolSupport/AsgTools
+			  GaudiKernel
+			  Event/xAOD/xAODForward 
+		   	  Event/xAOD/xAODTrigL1Calo
+			  PRIVATE
+       			  Event/xAOD/xAODEventInfo
+			  Tools/PathResolver)
+
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+
+atlas_add_component( ZdcNtuple
+		     src/components/*.cxx
+	             INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+		     LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop EventLoopGrid EventLoopAlgs xAODRootAccess GoodRunsLists xAODEventInfo TrigDecisionTool TrigConfxAOD xAODForward xAODHIEvent xAODTracking xAODJet JetSelectorTools InDetTrackSelectionTool xAODMuon  MuonSelectorTools HIEventUtils xAODParticleEvent xAODTruth xAODCaloEvent MuonMomentumCorrections PATInterfaces ZdcAnalysis xAODTrigMinBias MuonEfficiencyCorrections xAODEgamma ElectronPhotonSelectorTools xAODTrigL1Calo xAODBTaggingEfficiency TrigMuonMatching TrigEgammaMatchingTool IsolationSelection AsgTools PathResolver 
+		     )
+
+atlas_add_library (ZdcNtupleLib
+		  Root/*.cxx
+		  PUBLIC_HEADERS ZdcNtuple
+                  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+		  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop EventLoopGrid EventLoopAlgs xAODRootAccess GoodRunsLists xAODEventInfo TrigDecisionTool TrigConfxAOD xAODForward xAODHIEvent xAODTracking xAODJet JetSelectorTools InDetTrackSelectionTool xAODMuon  MuonSelectorTools HIEventUtils xAODParticleEvent xAODTruth xAODCaloEvent MuonMomentumCorrections PATInterfaces xAODTrigMinBias MuonEfficiencyCorrections xAODEgamma ElectronPhotonSelectorTools xAODTrigL1Calo xAODBTaggingEfficiency TrigMuonMatching TrigEgammaMatchingTool IsolationSelection AsgTools PathResolver ZdcNtupleLib AsgTools PathResolver
+		  )
+
