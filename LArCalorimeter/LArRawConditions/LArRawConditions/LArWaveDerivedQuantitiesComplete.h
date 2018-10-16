@@ -41,16 +41,7 @@ class LArWaveDerivedQuantitiesComplete: public ILArWaveDerivedQuantities ,
   virtual const float& Jitter(const HWIdentifier& CellID, int gain )  const;
   virtual const unsigned& Flag(const HWIdentifier& CellID, int gain )  const;
 
-  // retrieving WaveDerivedQuantities using offline ID
-  virtual const float& BaseLine(const Identifier& CellID, int gain )  const;
-  virtual const float& MaxAmp(const Identifier& CellID, int gain )  const;
-  virtual const float& TMaxAmp(const Identifier& CellID, int gain )  const;
-  virtual const float& Width(const Identifier& CellID, int gain )  const;
-  virtual const float& rT0(const Identifier& CellID, int gain )  const;
-  virtual const float& PosLobe(const Identifier& CellID, int gain )  const;
-  virtual const float& Jitter(const Identifier& CellID, int gain )  const;
-  virtual const unsigned& Flag(const Identifier& CellID, int gain )  const;
-
+ 
   // set method filling the data members individually
   void set(const HWIdentifier& CellID, int gain,
 	   float baseline,

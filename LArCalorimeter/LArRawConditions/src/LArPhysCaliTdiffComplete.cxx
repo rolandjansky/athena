@@ -44,32 +44,6 @@ const float& LArPhysCaliTdiffComplete::Tdiff(const HWIdentifier& CellID, int gai
   return t.m_Tdiff;
 }
 
-const float& LArPhysCaliTdiffComplete::Tdiff(const Identifier&  CellID, int gain) const
-{
-  HWIdentifier OnId;
-  // translate offline ID into online ID
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  IToolSvc* toolSvc;
-  StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
-  if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
-    if(sc.isFailure()){
-      MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
-      static float empty = ERRORCODE ; 
-      return empty; 
-    }
-    OnId = cablingService->createSignalChannelID(CellID);  
-  } else {
-    MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
-    static float empty = ERRORCODE ; 
-    return empty; 
-  }
-  return Tdiff(OnId, gain);
-}
-
 
   
 
