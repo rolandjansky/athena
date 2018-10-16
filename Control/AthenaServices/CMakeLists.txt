@@ -30,6 +30,7 @@ find_package( Boost COMPONENTS thread )
 find_package( CLHEP )
 find_package( PythonLibs )
 find_package( yampl QUIET )
+find_package( ZLIB )
 
 # Environment specific dependencies:
 set( extra_inc )
