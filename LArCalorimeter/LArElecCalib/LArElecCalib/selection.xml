@@ -31,7 +31,6 @@
   <class name="ILArRterm" />
   <class name="ILArShape" />
   <class name="ILArTdrift" />
-  <class name="ILArTiming" />
   <class name="ILArTshaper" />
   <class name="ILArfSampl" />
   <class name="ILArHVScaleCorr" />
