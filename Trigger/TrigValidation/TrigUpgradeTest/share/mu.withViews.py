@@ -80,23 +80,19 @@ from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
 ### muon thresholds ###
-CTPToChainMapping = {"HLT_mu6":       "L1_MU6",
-                    "HLT_2mu6":       "L1_2MU4" }
+CTPToChainMapping = { "HLT_mu6" :  "L1_MU6",
+                      "HLT_2mu6":  "L1_2MU4" }
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
 topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
 
 
-
-
 # ===============================================================================================
 #               Setup the standard muon chain 
 # ===============================================================================================
 
-### ************* PRD data provider algorithm ************* ###
-
-### Used the algorithms as Step2 "muComb step" ###
+## Used the algorithms as Step2 "muComb step" ###
 viewAlgs = []
 if doL2CB:
   # Only do setup of ID stuff if we run combined muon finding
@@ -117,8 +113,6 @@ if doL2CB:
   viewAlgs.append(ViewVerify)
 
 
-### Used the algorithms as Step1 "muFast step" ###
-
 ### Load data from Muon detectors ###
 import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
@@ -131,10 +125,6 @@ muonCombinedRecFlags.printSummary = False
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AlgSequence import AthSequencer
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-
-### Provide Muon_PrepDataAlgorithms ###
-from TrigUpgradeTest.MuonSetup import makeMuonPrepDataAlgs
-( eventAlgs_Muon, viewAlgs_MuL2SA, viewAlgs_MuEFSA ) = makeMuonPrepDataAlgs()
 
 
 ### ************* Step1  ************* ###
@@ -167,6 +157,7 @@ if TriggerFlags.doMuon:
     muFastAlg = makeMuFastAlgs()
     muFastAlg.OutputLevel = DEBUG
     muFastAlg.RecMuonRoI = "RecMURoIs"
+    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs 
     muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
     muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
     muFastAlg.forID = "forID"
@@ -286,109 +277,23 @@ if TriggerFlags.doMuon:
     efMuViewsMaker.Views = "EFMUViewRoIs"
     efMuViewsMaker.ViewNodeName = efMuViewNode.name()
 
-    ### Define input data of L2MuonSA PRD provider algorithms  ###
-    ### and Define EventViewNodes to run the algprithms        ### 
-    for eventAlg_Muon in eventAlgs_Muon:
-      if eventAlg_Muon.properties().has_key("RoIs"):
-        eventAlg_Muon.RoIs = efMuViewsMaker.InViewRoIs
-        
-    for viewAlg_MuEFSA in viewAlgs_MuEFSA:
-      efMuViewNode += viewAlg_MuEFSA
-
-   
-    from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
-
-    theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
-    theSegmentFinder.DoSummary=True
-    CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
-    theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
-                                                    SegmentFinder=theSegmentFinder,
-                                                    MuonSegmentOutputLocation = "MooreSegments",
-                                                    UseCSC = muonRecFlags.doCSCs(),
-                                                    UseMDT = muonRecFlags.doMDTs(),
-                                                    UseRPC = muonRecFlags.doRPCs(),
-                                                    UseTGC = muonRecFlags.doTGCs(),
-                                                    doClusterTruth=False,
-                                                    UseTGCPriorBC = False,
-                                                    UseTGCNextBC  = False,
-                                                    doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
-                                                    doRPCClust = muonRecFlags.doRPCClusterSegmentFinding(), OutputLevel=DEBUG )
-    
-
- 
-    theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
-                                                       SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
-                                                                                          DoSummary=False,
-                                                                                          Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
-                                                                                                                                 segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
-                                                                                                                                                                  "CscSegmentUtilTool",
-                                                                                                                                                                  TightenChi2 = False, 
-                                                                                                                                                                  IPconstraint=False)),
-                                                                                          Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
-                                                                                                                                 segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
-                                                                                          DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
-                                                       MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
-                                                       MuonSegmentOutputLocation = "NCB_MuonSegments", 
-                                                       MuonSegmentCombinationOutputLocation = "NCB_MooreSegmentCombinations",
-                                                       UseCSC = muonRecFlags.doCSCs(),
-                                                       UseMDT = False,
-                                                       UseRPC = False,
-                                                       UseTGC = False,
-                                                       UseTGCPriorBC = False,
-                                                       UseTGCNextBC  = False,
-                                                       doTGCClust = False,
-                                                       doRPCClust = False)
-
-    from MuonRecExample.MuonStandalone import MuonTrackSteering
-    MuonTrackSteering.DoSummary=True
-    MuonTrackSteering.DoSummary=DEBUG
-    TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
-    TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("MuonTrackSteering", "MuonTrackSteering")
-
-    from AthenaCommon.Include import include
-    include("InDetBeamSpotService/BeamCondSvc.py" )        
-    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
-  
-    muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
-  
-    muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-  
-    muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
- 
-    xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
-                                                              TrackParticleCreator = muonParticleCreatorTool,
-                                                              TrackCollectionCnvTool=muonTrackCollectionCnvTool,
-                                                              RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
-                                                              TrackContainerName = "MuonSpectrometerTracks",
-                                                              xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
-                                                              ConvertTrackParticles = False,
-                                                              ConvertTracks = True)
-
-
-    thetrkbuilder = getPublicToolClone("CombinedMuonTrackBuilder_SA", "CombinedMuonTrackBuilder", MuonHoleRecovery="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool')
-
-    theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder=thetrkbuilder)
-    theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg",MuonCandidateTool=theCandidateTool)
-
-
-    thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="",  MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, OutputLevel=DEBUG)
-
-    themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MuonContainerLocation="Muons", MakeClusters=False, TagMaps=[])
-
-    #Algorithms to views
-    efMuViewNode += theSegmentFinderAlg
-#    efMuViewNode += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.
-    efMuViewNode += TrackBuilder
-    efMuViewNode += xAODTrackParticleCnvAlg
-    efMuViewNode += theMuonCandidateAlg
-    efMuViewNode += themuoncreatoralg
+    # setup muEFMsonly algs
+    from TrigUpgradeTest.MuonSetup import makeMuEFSAAlgs
+    efAlgs = makeMuEFSAAlgs()
+    muEFSAInfo = ""
+    for efAlg in efAlgs:
+      if efAlg.properties().has_key("RoIs"):
+        efAlg.RoIs = efMuViewsMaker.InViewRoIs
+      if efAlg.properties().has_key("MuonContainerLocation"):
+        muEFSAInfo = "Muons"
+        efAlg.MuonContainerLocation = muEFSAInfo
+      efMuViewNode += efAlg
 
     #Setup MS-only hypo
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFMSonlyHypoConfig
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoConfig("TrigMuonEFSAHypoAlg")
     trigMuonEFSAHypo.OutputLevel = DEBUG
-    trigMuonEFSAHypo.MuonDecisions = "Muons"
+    trigMuonEFSAHypo.MuonDecisions = muEFSAInfo
     trigMuonEFSAHypo.HypoOutputDecisions = "EFMuonSADecisions"
     trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerOutputDecisions[0]
 
@@ -483,8 +388,8 @@ def muonViewsMergers( name ):
   if doEFSA==True:
     muonViewsMerger.TrigCompositeContainer += [ filterEFSAAlg.Output[0], trigMuonEFSAHypo.HypoOutputDecisions ]
     muonViewsMerger.MuonContainerViews = [ efMuViewsMaker.Views ]
-    muonViewsMerger.MuonContainerInViews = [ themuoncreatoralg.MuonContainerLocation ]
-    muonViewsMerger.MuonContainer = [ themuoncreatoralg.MuonContainerLocation ]
+    muonViewsMerger.MuonContainerInViews = [ muEFSAInfo ]
+    muonViewsMerger.MuonContainer = [ muEFSAInfo ]
 
   if doL2CB==True and doL2ISO==True: # L2CB should be also executed with L2ISO
     muonViewsMerger.TrigCompositeContainer += [ filterL2MuisoAlg.Output[0], trigmuIsoHypo.HypoOutputDecisions ]
@@ -531,8 +436,8 @@ def muonStreamESD( muonViewsMerger ):
                             "xAOD::L2CombinedMuonAuxContainer#"+muCombAlg.L2CombinedMuonContainerName+"Aux." ]
 
   if doEFSA==True:
-    StreamESD.ItemList += [ "xAOD::MuonContainer#"+themuoncreatoralg.MuonContainerLocation ]
-    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+themuoncreatoralg.MuonContainerLocation+"Aux." ]
+    StreamESD.ItemList += [ "xAOD::MuonContainer#"+muEFSAInfo ]
+    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+muEFSAInfo+"Aux." ]
 
   if doL2CB==True and doL2ISO==True:
     StreamESD.ItemList += [ "xAOD::L2IsoMuonContainer#"+trigL2muIso.MuonL2ISInfoName ]
@@ -545,7 +450,6 @@ def muonStreamESD( muonViewsMerger ):
     num+=1
 
   return StreamESD
-
 
 
 
