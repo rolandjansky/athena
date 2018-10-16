@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -9,21 +9,21 @@
 #include <iomanip>
 #include <cmath>
 
-const unsigned int TileCalibUtils::MAX_ROS       =   5;  /**< @brief Number of ROSs               */
-const unsigned int TileCalibUtils::MAX_DRAWER    =  64;  /**< @brief Number of drawers in ROS 1-4 */
-const unsigned int TileCalibUtils::MAX_DRAWR0    =  20;  /**< @brief Number of drawers in ROS 0   */
-const unsigned int TileCalibUtils::MAX_CHAN      =  48;  /**< @brief Number of channels in drawer */
-const unsigned int TileCalibUtils::MAX_GAIN      =   2;  /**< @brief Number of gains per channel  */
-const unsigned int TileCalibUtils::MAX_DRAWERIDX = 276;  /**< @brief Maximal drawer index         */
-const unsigned int TileCalibUtils::LAS_PART_CHAN =  43;  /**< @brief Empty channel number to store laser partition variation */
-const unsigned int TileCalibUtils::TRIPS_DRAWERIDX = 2;  /**< @brief DrawerIdx used for storing trips probabilities */
-const unsigned int TileCalibUtils::TRIPS_ROS     =   0;  /**< @brief Ros used for storing trips probabilities */
-const unsigned int TileCalibUtils::TRIPS_DRAWER  =   2;  /**< @brief Drawer used for storing trips probabilities */
-const unsigned int TileCalibUtils::DEFINITIONS_DRAWERIDX = 1; /**< @brief Drawer used for storing of bad and noisy channel definitions */
-const unsigned int TileCalibUtils::BAD_DEFINITION_CHAN = 0;  /**< @brief Channel used for storing of bad channel definitions */
-const unsigned int TileCalibUtils::NOISY_DEFINITION_CHAN = 1; /**< @brief Channel used for storing of noisy channel definitions */
-const unsigned int TileCalibUtils::NOGAINL1_DEFINITION_CHAN = 2; /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
-const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN = 3; /**< @brief Channel used for storing of bad timing channel definitions */
+const unsigned int TileCalibUtils::MAX_ROS;
+const unsigned int TileCalibUtils::MAX_DRAWER;
+const unsigned int TileCalibUtils::MAX_DRAWR0;
+const unsigned int TileCalibUtils::MAX_CHAN;
+const unsigned int TileCalibUtils::MAX_GAIN;
+const unsigned int TileCalibUtils::MAX_DRAWERIDX;
+const unsigned int TileCalibUtils::LAS_PART_CHAN;
+const unsigned int TileCalibUtils::TRIPS_DRAWERIDX;
+const unsigned int TileCalibUtils::TRIPS_ROS;
+const unsigned int TileCalibUtils::TRIPS_DRAWER;
+const unsigned int TileCalibUtils::DEFINITIONS_DRAWERIDX;
+const unsigned int TileCalibUtils::BAD_DEFINITION_CHAN;
+const unsigned int TileCalibUtils::NOISY_DEFINITION_CHAN;
+const unsigned int TileCalibUtils::NOGAINL1_DEFINITION_CHAN;
+const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN;
 
 //
 //_____________________________________________________________________________
