@@ -21,6 +21,7 @@ class EnergyCorrelatorTool :
       float m_Beta;
       bool m_includeBeta2;
       bool m_includeECF4;
+      std::string m_inputContainer;
 };
 
 

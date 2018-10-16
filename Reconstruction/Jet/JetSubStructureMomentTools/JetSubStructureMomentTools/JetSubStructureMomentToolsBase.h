@@ -8,6 +8,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODBase/IParticle.h"
 
 #include "JetRec/JetModifierBase.h"
 #include <vector>
@@ -31,7 +32,9 @@ class JetSubStructureMomentToolsBase :
           return true;
         }
       }
-};
+      fastjet::PseudoJet buildPseudoJet (const xAOD::Jet & jet) const;
+      fastjet::PseudoJet buildPseudoJet(const std::vector<const xAOD::IParticle*>& iparticles) const;
+  };
 
 
 #endif
