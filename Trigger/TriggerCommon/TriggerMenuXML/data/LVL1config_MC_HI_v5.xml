@@ -740,9 +740,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="94" partition="1" name="L1_J175" complex_deadtime="0" definition="(J175[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="94" partition="1" name="L1_J400" complex_deadtime="0" definition="(J400[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="J175_x1" triggerthreshold="J175"/>
+        <TriggerCondition multi="1" name="J400_x1" triggerthreshold="J400"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -4504,15 +4504,6 @@
     <TriggerCounter name="3J15.31ETA49" type="CTPIN">
       <TriggerCondition name="3J15.31ETA49" triggerthreshold="J15.31ETA49" multi="3"/>
     </TriggerCounter>
-    <TriggerCounter name="1J175" type="CTPIN">
-      <TriggerCondition name="1J175" triggerthreshold="J175" multi="1"/>
-    </TriggerCounter>
-    <TriggerCounter name="2J175" type="CTPIN">
-      <TriggerCondition name="2J175" triggerthreshold="J175" multi="2"/>
-    </TriggerCounter>
-    <TriggerCounter name="3J175" type="CTPIN">
-      <TriggerCondition name="3J175" triggerthreshold="J175" multi="3"/>
-    </TriggerCounter>
     <TriggerCounter name="1J20" type="CTPIN">
       <TriggerCondition name="1J20" triggerthreshold="J20" multi="1"/>
     </TriggerCounter>
@@ -4644,6 +4635,15 @@
     </TriggerCounter>
     <TriggerCounter name="3J40.0ETA25" type="CTPIN">
       <TriggerCondition name="3J40.0ETA25" triggerthreshold="J40.0ETA25" multi="3"/>
+    </TriggerCounter>
+    <TriggerCounter name="1J400" type="CTPIN">
+      <TriggerCondition name="1J400" triggerthreshold="J400" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="2J400" type="CTPIN">
+      <TriggerCondition name="2J400" triggerthreshold="J400" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="3J400" type="CTPIN">
+      <TriggerCondition name="3J400" triggerthreshold="J400" multi="3"/>
     </TriggerCounter>
     <TriggerCounter name="1J50" type="CTPIN">
       <TriggerCondition name="1J50" triggerthreshold="J50" multi="1"/>
@@ -5767,9 +5767,9 @@
         <Signal range_begin="14" range_end="15"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="2" id="84" mapping="18" name="J175" type="JET" input="ctpin" version="1">
-      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="63" name="J175full" phimin="0" phimax="64" priority="0" thresholdval="1023" type="JET" window="8" windowSize="LARGE"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-31" etamax="31" had_isolation="63" had_veto="63" name="J175full" phimin="0" phimax="64" priority="1" thresholdval="175" type="JET" window="8" windowSize="LARGE"/>
+    <TriggerThreshold active="1" bitnum="2" id="84" mapping="18" name="J400" type="JET" input="ctpin" version="1">
+      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="63" name="J400full" phimin="0" phimax="64" priority="0" thresholdval="1023" type="JET" window="8" windowSize="LARGE"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-31" etamax="31" had_isolation="63" had_veto="63" name="J400full" phimin="0" phimax="64" priority="1" thresholdval="400" type="JET" window="8" windowSize="LARGE"/>
       <Cable connector="CON1" input="SLOT8" name="JET2">
         <Signal range_begin="16" range_end="17"/>
       </Cable>

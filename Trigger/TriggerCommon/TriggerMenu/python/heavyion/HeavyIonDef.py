@@ -329,10 +329,16 @@ class L2EFChain_HI(L2EFChainDef):
         
         if "noiseSup" in self.chainPart['addInfo']:
             te_in=''
+            hypo = []
             for step in fullScanSeqMap:
-                self.EFsequenceList += [[[te_in],fullScanSeqMap[step],step]]
+                if step == 'EF_FSTopoClustersED': continue
+                if step == 'EF_FSTopoClusters':
+                    from TrigHIHypo.TrigHIHypoConfig import LbyLTopoClusterHypoConfig
+                    hypo = [ LbyLTopoClusterHypoConfig() ]
+                self.EFsequenceList += [[[te_in],fullScanSeqMap[step] + hypo ,step]]
                 self.EFsignatureList += [ [[step]] ]
                 te_in=step
+
         
         ########### Signatures ###########
         self.L2signatureList += [ [['L2_hi_step1']] ]
