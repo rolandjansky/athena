@@ -38,7 +38,7 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
   virtual StatusCode  beginInputFile();
-  virtual StatusCode  ProcessObject();
+  virtual StatusCode  ProcessObjects();
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue, float wei);
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei);
  private: 

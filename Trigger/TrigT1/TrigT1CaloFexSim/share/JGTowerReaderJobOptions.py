@@ -21,7 +21,7 @@ conddb.addOverride("/LAR/ElecCalibMCSC/Ramp", "LARElecCalibMCSRamp-"+tagToOverri
 #Input file
 from PyUtils import AthFile
 import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POOL files (e.g. xAODs)
-svcMgr.EventSelector.InputCollections=["/eos/user/c/cylin/L1Calo/r10684/mc16_13TeV.345058.PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_vvbb.recon.AOD.e6004_e5984_s3126_r10684/AOD.15453878._000020.pool.root.1"]               #left blank for no proper sample
+svcMgr.EventSelector.InputCollections=[""]               #left blank for no proper sample
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 
@@ -86,9 +86,9 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 
 algseq += CfgMgr.JGTowerReader(
 outputNoise=True,
-noise_file="/afs/cern.ch/work/c/cylin/public/noise_threshold/noise_r10684.root",
-jJet_threshold=3,
-jSeed_size=0.2,
+noise_file="/eos/user/c/cylin/public/L1Calo/noise_r10684.root",
+jJet_threshold=3,   #3 times higher than noise
+jSeed_size=0.2, 
 jMax_r=0.4,
 jJet_r=0.4,
 gJet_threshold=3,

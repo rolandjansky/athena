@@ -25,6 +25,6 @@ class METAlg{
   };
 
 
-  static StatusCode BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise,METAlg::MET* met);
+  static StatusCode BuildMET(const xAOD::JGTowerContainer*towers,METAlg::MET* met,std::vector<float> noise);
 
 };

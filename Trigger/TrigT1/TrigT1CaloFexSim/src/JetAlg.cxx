@@ -160,7 +160,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed
 }
 
 
-StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r){
+StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r,std::vector<float> noise){
 
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){

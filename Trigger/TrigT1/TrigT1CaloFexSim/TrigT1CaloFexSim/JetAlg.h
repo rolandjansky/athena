@@ -58,7 +58,7 @@ class JetAlg{
   static StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds);
   static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, float seed_size,float range, std::vector<float> noise);
 
-  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers,std::vector<float> noise, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size);
+  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size,std::vector<float> noise);
 
 };
 #endif
