@@ -16,11 +16,19 @@
 #include <stdexcept>
 #include <math.h>
 #include <memory>
+#include <mutex>
 
 /** Lookup-table based exponential function to save CPU time, which is used by eflowCellIntegrator */
 class eflowLookupExp{
 public:
   static eflowLookupExp* getInstance(int nExpBins = 50, int nExpSubBins = 1000){
+
+    //Creation of the unique_ptr is not thread-safe - therefore we get a mutex and pass it to a lock-guard
+    //The lock is released automatically when getInstance returns
+    //The mutex is static so that all threads check the status of the *same* mutex
+    static std::mutex mutex_instance;
+    std::lock_guard<std::mutex> lock(mutex_instance);
+
     if ( !m_instance) {      
       m_instance = std::make_unique<eflowLookupExp>(nExpBins, nExpSubBins);
     } else {
