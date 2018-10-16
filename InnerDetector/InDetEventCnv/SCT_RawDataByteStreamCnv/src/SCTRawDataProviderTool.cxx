@@ -2,18 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SCTRawDataProviderTool.cxx
-//   Implementation file for class SCTRawDataProviderTool
-///////////////////////////////////////////////////////////////////
-
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "SCTRawDataProviderTool.h"
 #include "StoreGate/ReadHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-// -------------------------------------------------------
 // Constructor
 
 SCTRawDataProviderTool::SCTRawDataProviderTool
@@ -25,7 +19,6 @@ SCTRawDataProviderTool::SCTRawDataProviderTool
 {
 }
 
-// -------------------------------------------------------
 // Initialize
 
 StatusCode SCTRawDataProviderTool::initialize()
@@ -41,7 +34,6 @@ StatusCode SCTRawDataProviderTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// -------------------------------------------------------
 // Convert method
 
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
@@ -98,7 +90,6 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   return sc;
 }
 
-// -------------------------------------------------------
 // beginNewEvent method
 
 void SCTRawDataProviderTool::beginNewEvent() const {

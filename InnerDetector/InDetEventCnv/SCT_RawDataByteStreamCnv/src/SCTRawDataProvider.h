@@ -2,11 +2,6 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-//// SCTRawDataProvider.h
-////   Header file for class SCTRawDataProvider
-/////////////////////////////////////////////////////////////////////
-
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
 

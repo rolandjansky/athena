@@ -2,11 +2,6 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SCTRawDataProvider.cxx
-//   Implementation file for class SCTRawDataProvider
-///////////////////////////////////////////////////////////////////
-
 #include "SCTRawDataProvider.h"
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
@@ -19,7 +14,6 @@
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-// --------------------------------------------------------------------
 // Constructor
 
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
@@ -33,7 +27,6 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }
 
-// --------------------------------------------------------------------
 // Initialize
 
 StatusCode SCTRawDataProvider::initialize() {
@@ -66,8 +59,8 @@ StatusCode SCTRawDataProvider::initialize() {
 
 typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> dummySCTRDO_t;
 
-// --------------------------------------------------------------------
 // Execute
+
 StatusCode SCTRawDataProvider::execute()
 {
 
