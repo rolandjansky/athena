@@ -26,7 +26,6 @@
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-//#include "src/SCT_ConditionsSummarySvc.h"
 
 /** Forward declarations*/
 class IInterface;
@@ -48,7 +47,6 @@ class ISCT_ByteStreamErrorsSvc;
 class ISCT_DCSConditionsSvc;
 class IInDetConditionsSvc;
 class TString;
-//class SCT_ConditionsSummarySvc;//add 05Jul2018
 
 namespace InDetDD
 {
@@ -68,6 +66,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   std::vector<moduleGeo_t> m_geo;
   std::set<IdentifierHash> m_psSCTHash;
   std::set<IdentifierHash> m_summarySCTHash;
+  //  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
 
  public:
   SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent);
@@ -285,13 +284,10 @@ class SCTErrMonTool : public ManagedMonitorToolBase
     badError, // link bad + ROD bad = bad error
     psTripDCS, // power supply trip DCS
     summary, //total coverage using SCT_ConditionsSummarySvc
-    psTripWafer, // Counting power supply trip wafer
     numberOfProblemForCoverage
   };
 
   geoContainerPure_t m_disabledGeoSCT;
-  geoContainer_t m_allGeoSCT;//all
-  geoContainer_t m_goodGeoSCTrod;  
   geoContainer_t m_geoSCT[numberOfProblemForCoverage];
 
   TH2F * m_disabledModulesMapSCT;//disabled SCT
@@ -300,7 +296,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const unsigned int m_nBinsEta;
   const double 		 m_rangeEta;
   const unsigned int m_nBinsPhi;
-  const double m_ModulesThreshold;
+  //  const double m_ModulesThreshold;
   const double m_WafersThreshold;
 
   //TProfile * m_DisabledDetectorCoverageVsLB;
