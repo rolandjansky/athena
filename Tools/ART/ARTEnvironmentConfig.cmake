@@ -6,7 +6,7 @@
 
 # Set the environment variable(s):
 set( ARTENVIRONMENT_ENVIRONMENT
-   APPEND DATAPATH "/eos/atlas/atlascerngroupdisk/data-art/grid-input" )
+   APPEND DATAPATH "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art" )
 
 # Silently declare the module found:
 set( ARTENVIRONMENT_FOUND TRUE )
