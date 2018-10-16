@@ -283,11 +283,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   };
 
   std::vector<moduleGeo_t> m_geo;
-  //std::set<IdentifierHash> m_psSCTHash;
-  //std::set<IdentifierHash> m_summarySCTHash;
   std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
   geoContainerPure_t m_disabledGeoSCT;
-  geoContainer_t m_geoSCT[numberOfProblemForCoverage];
   TH2F * m_disabledModulesMapSCT;//disabled SCT
   TH2F * m_mapSCT[numberOfProblemForCoverage];
 

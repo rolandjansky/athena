@@ -195,11 +195,8 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_ignore_RDO_cut_online(true),
   m_sctManager( 0 ),
   m_geo{},
-//  m_psSCTHash(),
-//  m_summarySCTHash(),
   m_SCTHash{{}},
   m_disabledGeoSCT(),
-  m_geoSCT{{}},
   m_disabledModulesMapSCT(nullptr),
   m_mapSCT{nullptr},
   m_nBinsEta( 100 ),
@@ -2076,8 +2073,6 @@ void SCTErrMonTool::fillModule( moduleGeo_t module, TH2F * histo )
 //====================================================================================================
 bool SCTErrMonTool::SyncErrorSCT()
 {
-  double rz = 0.;
-  const double deltaZ = 0.;
   m_SCTHash[badLinkError].clear();
   m_SCTHash[badRODError].clear();
   m_SCTHash[badError].clear();
@@ -2177,14 +2172,8 @@ bool SCTErrMonTool::psTripDCSSCT()
       if (!m_dcsSvc->isGood(hash))
         {
           npsw++; //Counting the number of PS sides
-          if (m_geoSCT[psTripDCS].count(hash))
-            {
-              continue;
-            } else
-            {
               altered = true;
 	      m_SCTHash[psTripDCS].insert(hash);
-            }
         }
     }
   m_pswafer = npsw;
