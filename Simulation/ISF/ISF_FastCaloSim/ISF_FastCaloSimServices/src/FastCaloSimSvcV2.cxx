@@ -215,9 +215,9 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   }
 
   ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
-  ATH_MSG_DEBUG("Energy fraction for layer: ");
+  ATH_MSG_VERBOSE("Energy fraction for layer: ");
   for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-  ATH_MSG_DEBUG(" Sampling " << s << " energy " << simulstate.E(s));
+  ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
 
   //Now deposit all cell energies into the CaloCellContainer
   for(const auto& iter : simulstate.cells()) {

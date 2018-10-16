@@ -32,6 +32,11 @@ int TFCSLateralShapeParametrizationHitNumberFromE::get_number_of_hits(TFCSSimula
     return 1;
   }
 
+  if (TMath::IsNaN(energy)) {
+    ATH_MSG_DEBUG("Energy is NaN");
+    return 1;
+  }
+  
   double sigma_stochastic=m_stochastic/sqrt(energy/1000.0);
   int hits = CLHEP::RandPoisson::shoot(simulstate.randomEngine(), 1.0 / (sigma_stochastic*sigma_stochastic + m_constant*m_constant));
 
