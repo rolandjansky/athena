@@ -44,7 +44,7 @@ public:
   //SbRotation& operator*=(const double s);
   void multVec(const SbVec3d& src,SbVec3d& dst) const;
 private:
-  SbVec4d quat;
+  SbVec4d m_quat;
 };
 
 }

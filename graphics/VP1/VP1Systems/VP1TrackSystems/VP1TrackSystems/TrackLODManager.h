@@ -20,7 +20,7 @@
 
 #include "VP1Base/VP1HelperClassBase.h"
 #include "VP1TrackSystems/TrackCommonFlags.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 //Fixme: Should this be a general utility class, to be used in the prd
 //       system as well?
@@ -48,7 +48,7 @@ public slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   friend class TrackLODHandle;
 };
 
@@ -65,7 +65,7 @@ private:
   friend class TrackLODManager;
   friend class TrackLODManager::Imp;
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 

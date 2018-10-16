@@ -15,18 +15,17 @@
 #ifndef VP1MainWindow_H
 #define VP1MainWindow_H
 
-// include VP1 Qt views
-#include "ui_vp1mainwindow.h"
+// include the related GUI
+#include "../src/ui_vp1mainwindow.h"
 
 // include VP1
 #include "VP1Gui/VP1TcpServer.h"
 #include "VP1Gui/VP1EventDisplayEditor.h"
 
 // include Qt
-#include <QtCore/QQueue>
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
-#include <QtWebKit>
+#include <QQueue>
+#include <QStringList>
+#include <QMap>
 
 class VP1ChannelManager;
 class VP1TabManager;
@@ -43,6 +42,12 @@ class QComboBox;
 class VP1StreamMenuUpdater;
 class QMutex;
 
+//#include <QtGlobal>
+//#if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//  class QWebEngineView; // Qt 5.6
+//#else
+//  class QWebView;
+//#endif
 
 
 struct VP1DirStatusData
@@ -54,16 +59,16 @@ struct VP1DirStatusData
     , bold(false)
   {};
 
-  VP1DirStatusData(QString _inputDir
-		   , QString _dirStatus
-		   , bool _enabled
-		   , bool _bold)
-    : inputDir(_inputDir)
-    , dirStatus(_dirStatus)
-    , enabled(_enabled)
-    , bold(_bold)
+  VP1DirStatusData(QString the_inputDir
+		   , QString the_dirStatus
+		   , bool the_enabled
+		   , bool the_bold)
+    : inputDir(the_inputDir)
+    , dirStatus(the_dirStatus)
+    , enabled(the_enabled)
+    , bold(the_bold)
   {};
-		   
+
   QString inputDir;
   QString dirStatus;
   bool enabled;
@@ -82,9 +87,9 @@ public:
   ~VP1MainWindow();
 
   bool okToProceedToNextEvent() const;
- 
+
   // Set next event to the execution scheduler and updates event controls
-  // We needed to separate this method from goToNextEvent() in order to be able 
+  // We needed to separate this method from goToNextEvent() in order to be able
   // to skip the bootstrap event in the https mode
   void nextEvent();
 
@@ -129,47 +134,47 @@ public:
   void setRunEvtNumber(const int& runnumber, const unsigned long long& eventnumber, const unsigned& triggerType = 0, const unsigned& time = 0, const bool& printmessage = true );
   bool mustQuit() const;
 
-  VP1ChannelManager * channelManager() const { return channelmanager; }
-  VP1TabManager * tabManager() const { return tabmanager; }
+  VP1ChannelManager * channelManager() const { return m_channelmanager; }
+  VP1TabManager * tabManager() const { return m_tabmanager; }
 
   bool userRequestedExit() { return m_userRequestedExit; }
 
-  int getRunNumber() { return runnumber; }
-  unsigned long long getEventNumber() { return eventnumber; }
-  int getEventTimestamp() { return timestamp; }
+  int getRunNumber() { return m_runnumber; }
+  unsigned long long getEventNumber() { return m_eventnumber; }
+  int getEventTimestamp() { return m_timestamp; }
 
 protected:
-  VP1ChannelManager * channelmanager;
-  VP1TabManager * tabmanager;
-  QString currentconfigfile;
-  int runnumber;
-  unsigned long long eventnumber;
-  unsigned timestamp;
-  bool betweenevents;
+  VP1ChannelManager * m_channelmanager;
+  VP1TabManager * m_tabmanager;
+  QString m_currentconfigfile;
+  int m_runnumber;
+  unsigned long long m_eventnumber;
+  unsigned m_timestamp;
+  bool m_betweenevents;
 
   void closeEvent(QCloseEvent *event);
-  bool mustquit;
+  bool m_mustquit;
 
-  QWidget* dummyemptycontroller;
-  VP1ExecutionScheduler*scheduler;
-  VP1AvailEvents * availEvents;
+  QWidget* m_dummyemptycontroller;
+  VP1ExecutionScheduler*m_scheduler;
+  VP1AvailEvents * m_availEvents;
 
-  VP1TcpServer tcpserver;
+  VP1TcpServer m_tcpserver;
   void listenOnTcp();
 
-  VP1IncomingMessageDialog* currentincomingdialog;
-  QQueue<VP1ExternalRequest> requestqueue;
-  bool blockallmessages;
-  QList<QString> messages_blockedsenders;
-  QList<VP1ExternalRequest> messages_blockedexactmessages;
+  VP1IncomingMessageDialog* m_currentincomingdialog;
+  QQueue<VP1ExternalRequest> m_requestqueue;
+  bool m_blockallmessages;
+  QList<QString> m_messages_blockedsenders;
+  QList<VP1ExternalRequest> m_messages_blockedexactmessages;
 
   void addChannelIconsToComboBox(QComboBox* cb, const bool& isbasenames);
 
-  QStringList currentunloadpluginfiles;
-  VP1PluginDialog*plugindialog;
+  QStringList m_currentunloadpluginfiles;
+  VP1PluginDialog*m_plugindialog;
 
   void setupStatusBar();
-  QLabel*statusbarlabel;
+  QLabel*m_statusbarlabel;
 
   QMap<QString,QString> availablePluginFiles() const;
   QMap<QString,QString> availableFiles(const QString& extension,
@@ -208,30 +213,30 @@ protected slots:
 
 
 protected:
-  QAction * action_infoAboutLoadedPlugins;
-  QMenu * menu_loadPlugin;
-  QMenu * menu_loadConfFile;
-  QMenu * menu_changeStyle;
-  QMenu * menu_changeFontSize;
-  QAction * actionAdd_empty_tab;
-  QAction * actionSave_current_tabs;
-  QAction* action_addEventFile;
-  QAction* action_openUsersGuide;
-  QAction* action_openUsersSupport;
-  QAction* action_openVP1Site;
-  QAction* action_openAbout;
+  QAction * m_action_infoAboutLoadedPlugins;
+  QMenu * m_menu_loadPlugin;
+  QMenu * m_menu_loadConfFile;
+  QMenu * m_menu_changeStyle;
+  QMenu * m_menu_changeFontSize;
+  QAction * m_actionAdd_empty_tab;
+  QAction * m_actionSave_current_tabs;
+  QAction* m_action_addEventFile;
+  QAction* m_action_openUsersGuide;
+  QAction* m_action_openUsersSupport;
+  QAction* m_action_openVP1Site;
+  QAction* m_action_openAbout;
 
-  QList<QAction*> inputdiractions;
-  VP1DirStatuses inputdirstatuses;
-  QString currentsaveimagepath;
-  QString currentloadpluginpath;
-  QString currentStream;
+  QList<QAction*> m_inputdiractions;
+  VP1DirStatuses m_inputdirstatuses;
+  QString m_currentsaveimagepath;
+  QString m_currentloadpluginpath;
+  QString m_currentStream;
 
   //Fontsize:
   QFont m_defaultfont;
   double m_defaultfont_pointsize;
   int m_defaultfont_pixelsize;
-  const QString settingsfile;
+  const QString m_settingsfile;
 
   bool m_userRequestedExit;
 
@@ -240,11 +245,15 @@ protected:
   VP1StreamMenuUpdater* m_streamMenuUpdater;
   QMutex* m_mutex;
 
-  // Web broser instance to show VP1 documentation
-  QWebView *m_view;
+//  // Web broser instance to show VP1 documentation
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *m_view; // Qt 5
+//  #else
+//    QWebView *m_view;
+//  #endif
 
   // Event display editor
-  VP1EventDisplayEditor* edEditor;
+  VP1EventDisplayEditor* m_edEditor;
 };
 
 

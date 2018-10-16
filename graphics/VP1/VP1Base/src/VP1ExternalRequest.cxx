@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////
 
 #include "VP1Base/VP1ExternalRequest.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 #include <cassert>
 
 //____________________________________________________________________

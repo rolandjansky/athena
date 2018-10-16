@@ -28,7 +28,7 @@ class SoNode;
 class SoSeparator;
 class TrackSysCommonData;
 class AssocObjAttachmentHandle;
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class AssociatedObjectHandleBase {
 public:
@@ -79,7 +79,7 @@ private:
   AssociatedObjectHandleBase & operator= ( const AssociatedObjectHandleBase & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   TrackHandleBase* m_trackHandle;
   bool m_visible;

@@ -22,7 +22,7 @@
 #define VP1STDCOLLECTION_H
 
 #include "VP1Base/VP1Collection.h"
-#include <QtCore/QObject>
+#include <QObject>
 class SoSwitch;
 class SoSeparator;
 class SoMaterial;
@@ -100,7 +100,7 @@ private:
   VP1StdCollection( const VP1StdCollection & );
   VP1StdCollection & operator= ( const VP1StdCollection & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

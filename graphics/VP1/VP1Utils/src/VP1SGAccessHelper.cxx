@@ -21,8 +21,8 @@ class VP1SGAccessHelper::Imp {
 public:
   Imp(IVP1System * sys,const bool detStore)
     : sgcontents(sys,detStore),sg(sys?(detStore?sys->detectorStore():sys->storeGate()):0) {}
-  Imp(StoreGateSvc * _sg)
-    :  sgcontents(_sg), sg(_sg) {}
+  Imp(StoreGateSvc * the_sg)
+    :  sgcontents(the_sg), sg(the_sg) {}
   VP1SGContentsHelper sgcontents;
   StoreGateSvc * sg;
 };
@@ -31,18 +31,18 @@ public:
 
 //____________________________________________________________________
 VP1SGAccessHelper::VP1SGAccessHelper( IVP1System * sys,const bool detStore )
-  : VP1HelperClassBase(sys,"VP1SGAccessHelper"), d(new Imp(sys,detStore))
+  : VP1HelperClassBase(sys,"VP1SGAccessHelper"), m_d(new Imp(sys,detStore))
 {
   if (!sys)
     message("ERROR: Received null system pointer (won't be able to get StoreGate pointer either)");
-  else if (!d->sg)
+  else if (!m_d->sg)
     message("ERROR: Could not get "+QString(detStore?"storeGate":"detectorStore")+" pointer from system");
 }
 
 
 //____________________________________________________________________
 VP1SGAccessHelper::VP1SGAccessHelper( StoreGateSvc * sg )
-  : VP1HelperClassBase(0,"VP1SGContentsHelper"), d(new Imp(sg))
+  : VP1HelperClassBase(0,"VP1SGContentsHelper"), m_d(new Imp(sg))
 {
   if (!sg)
     message("ERROR: Received null storegate pointer");
@@ -51,17 +51,17 @@ VP1SGAccessHelper::VP1SGAccessHelper( StoreGateSvc * sg )
 //____________________________________________________________________
 VP1SGAccessHelper::~VP1SGAccessHelper()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 StoreGateSvc * VP1SGAccessHelper::storeGate() const
 {
-  return d->sg;
+  return m_d->sg;
 }
 
 //____________________________________________________________________
 bool VP1SGAccessHelper::contains(const CLID& id, const QString& key) const
 {
-  return d->sgcontents.contains(id,key);
+  return m_d->sgcontents.contains(id,key);
 }

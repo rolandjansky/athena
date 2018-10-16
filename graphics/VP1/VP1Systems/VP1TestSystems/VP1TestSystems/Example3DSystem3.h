@@ -35,7 +35,7 @@ public:
   void userPickedNode(SoNode* pickedNode, SoPath * pickedPath);
 
 private:
-  std::map<SoNode*,Trk::Track *> m_nodeToTrack;
+  std::map<SoNode*,const Trk::Track *> m_nodeToTrack;
 
 };
 

@@ -20,8 +20,8 @@
 
 #include "VP1Base/VP1StdCollection.h"
 #include "VP1Base/VP1Interval.h"
-#include <QtCore/QStringList>
-#include <QtCore/QPair>
+#include <QStringList>
+#include <QPair>
 class CaloClusterSysController;
 class SoPath;
 
@@ -61,7 +61,7 @@ private slots:
   void setShowVolumeOutLines(bool);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

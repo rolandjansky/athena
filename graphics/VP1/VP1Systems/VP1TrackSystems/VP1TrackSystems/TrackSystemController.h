@@ -23,7 +23,7 @@
 #include "VP1Base/VP1Controller.h"
 #include "VP1TrackSystems/TrackCommonFlags.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include <QtCore/QFlags>
+#include <QFlags>
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 
@@ -225,7 +225,7 @@ signals:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //For verbose output:
   template <class T> static QString toString( const T& t ) { return VP1Controller::toString(t); }//unhide base methods

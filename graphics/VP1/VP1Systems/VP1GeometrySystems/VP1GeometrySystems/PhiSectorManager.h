@@ -15,7 +15,7 @@
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
 
-#include <QtCore/QObject>
+#include <QObject>
 #include "VP1GeometrySystems/VP1GeoFlags.h"
 
 class PhiSectionWidget;
@@ -71,7 +71,7 @@ protected slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

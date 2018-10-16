@@ -55,7 +55,7 @@ private:
   VP1SGAccessHelper & operator= ( const VP1SGAccessHelper & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   StoreGateSvc * storeGate() const;
   bool contains(const CLID& id, const QString&) const;

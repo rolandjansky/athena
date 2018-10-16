@@ -23,15 +23,12 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Base
    graphics/VP1/VP1Utils
    PRIVATE
-   Control/DataModel
+   Control/AthContainers
    Control/StoreGate
    DetectorDescription/AtlasDetDescr
    Event/EventPrimitives
    ForwardDetectors/ForwardSimulation/ForwardRegion_SimEv
    InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
@@ -67,9 +64,10 @@ atlas_depends_on_subdirs(
 find_package( CLHEP )
 find_package( Coin3D )
 find_package( HepMC )
-find_package( Qt4 COMPONENTS QtCore QtGui )
+find_package( Qt5 COMPONENTS Core Gui Widgets  )
 
 # Generate UI files automatically:
+# Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run
 set( CMAKE_AUTOUIC TRUE )
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
@@ -82,10 +80,10 @@ atlas_add_library( VP1TrackSystems VP1TrackSystems/*.h src/*.cxx
    LINK_LIBRARIES GeoModelKernel GeoPrimitives Identifier xAODTracking
    GaudiKernel GeneratorObjects TrkDetDescrInterfaces TrkSurfaces
    TrkEventPrimitives TrkParameters VP1Base VP1Utils StoreGateLib SGtests
-   MuonIdHelpersLib MuonRecHelperToolsLib Qt4::QtCore Qt4::QtGui
+   MuonIdHelpersLib MuonRecHelperToolsLib Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES}
-   ${HEPMC_LIBRARIES} DataModel AtlasDetDescr EventPrimitives
-   ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData
+   ${HEPMC_LIBRARIES} AthContainers AtlasDetDescr EventPrimitives
+   ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry InDetPrepRawData
    InDetRIO_OnTrack InDetSimEvent MuonReadoutGeometry MuonChamberT0s
    MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonSimEvent Particle
    TrkDetDescrUtils TrkDetElementBase TrkVolumes TrkCompetingRIOsOnTrack

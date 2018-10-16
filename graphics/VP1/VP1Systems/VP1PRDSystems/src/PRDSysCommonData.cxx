@@ -45,7 +45,7 @@ public:
 
 //____________________________________________________________________
 PRDSysCommonData::PRDSysCommonData(IVP13DSystem *sys, PRDSystemController*controller)
-  : VP1HelperClassBase(sys,"PRDSysCommonData"), d(new Imp),
+  : VP1HelperClassBase(sys,"PRDSysCommonData"), m_d(new Imp),
     m_controller(controller)
 {
   m_3dsystem = sys;
@@ -60,7 +60,7 @@ PRDSysCommonData::PRDSysCommonData(IVP13DSystem *sys, PRDSystemController*contro
   QObject::connect(m_touchedMuonChamberHelper,SIGNAL(touchedMuonChambersChanged(const std::set<GeoPVConstLink>&)),
 		   sys,SLOT(emitTouchedMuonChambersChanged(const std::set<GeoPVConstLink>&)));//Fixme: need track sys!!
 
-  m_trackAndSegmentHelper = new PRDTrackSegmentHelper(&(d->prd2handles),sys);
+  m_trackAndSegmentHelper = new PRDTrackSegmentHelper(&(m_d->prd2handles),sys);
 }
 
 //____________________________________________________________________
@@ -74,34 +74,34 @@ PRDSysCommonData::~PRDSysCommonData()
   delete m_indetProjHelper_TRT;
   delete m_touchedMuonChamberHelper;
   delete m_trackAndSegmentHelper;
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void PRDSysCommonData::clearEventData()
 {
   m_touchedMuonChamberHelper->eraseEventData();
-  d->sotransform2prdhandle.clear();
-  d->prd2handles.clear();
+  m_d->sotransform2prdhandle.clear();
+  m_d->prd2handles.clear();
 }
 
 
 //_____________________________________________________________________________________
 void PRDSysCommonData::registerTransform2Handle(SoTransform*transform,PRDHandleBase*handle)
 {
-  assert(d->sotransform2prdhandle.find(transform)==d->sotransform2prdhandle.end());
-  d->sotransform2prdhandle[transform] = handle;
+  assert(m_d->sotransform2prdhandle.find(transform)==m_d->sotransform2prdhandle.end());
+  m_d->sotransform2prdhandle[transform] = handle;
 }
 
 //_____________________________________________________________________________________
 void PRDSysCommonData::registerPRD2Handle(const Trk::PrepRawData*prd,PRDHandleBase*handle)
 {
-  if (d->prd2handles.find(prd)==d->prd2handles.end()) {
+  if (m_d->prd2handles.find(prd)==m_d->prd2handles.end()) {
     QList<PRDHandleBase*> l;
     l<<handle;
-    d->prd2handles[prd] = l;
+    m_d->prd2handles[prd] = l;
   } else {
-    d->prd2handles[prd] << handle;
+    m_d->prd2handles[prd] << handle;
   }
 }
 
@@ -113,8 +113,8 @@ PRDHandleBase * PRDSysCommonData::pickedPathToHandle( SoPath*pickedPath )
       //If at least two children and the first is an SoTransform, then it might be what we are looking for.
       SoSeparator * sep = static_cast<SoSeparator*>(pickedPath->getNodeFromTail(0));
       if (sep->getNumChildren()>1&&sep->getChild(0)->getTypeId()==SoTransform::getClassTypeId()) {
-	std::map<SoNode*,PRDHandleBase*>::iterator it = d->sotransform2prdhandle.find(sep->getChild(0));
-	if ( it!=d->sotransform2prdhandle.end())
+	std::map<SoNode*,PRDHandleBase*>::iterator it = m_d->sotransform2prdhandle.find(sep->getChild(0));
+	if ( it!=m_d->sotransform2prdhandle.end())
 	  return it->second;
       }
     }

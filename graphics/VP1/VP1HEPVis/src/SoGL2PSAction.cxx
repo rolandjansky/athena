@@ -21,14 +21,14 @@
 
 SO_ACTION_SOURCE(SoGL2PSAction)
 //////////////////////////////////////////////////////////////////////////////
-bool SoGL2PSAction::didInit = false;
+bool SoGL2PSAction::s_didInit = false;
 void SoGL2PSAction::initClass(
 )
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if ( !didInit ) {
-    didInit = true;
+  if ( !s_didInit ) {
+    s_didInit = true;
     SO_ACTION_INIT_CLASS(SoGL2PSAction,SoGLRenderAction);
     SO_ACTION_ADD_METHOD(SoSeparator,separatorAction);
     SO_ACTION_ADD_METHOD(SoDrawStyle,drawStyleAction);
@@ -39,16 +39,16 @@ SoGL2PSAction::SoGL2PSAction(
  const SbViewportRegion& aViewPortRegion
 )
 :SoGLRenderAction(aViewPortRegion)
-,fFileFormat(EPS)
-,fFileName("out.ps")
-,fFile(0)
-,fPageOptions(0)
+,m_fileFormat(EPS)
+,m_fileName("out.ps")
+,m_file(0)
+,m_pageOptions(0)
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
   SO_ACTION_CONSTRUCTOR(SoGL2PSAction);
 
-  fPageOptions = GL2PS_OCCLUSION_CULL |
+  m_pageOptions = GL2PS_OCCLUSION_CULL |
                  GL2PS_BEST_ROOT |
                  GL2PS_SILENT |
                  GL2PS_DRAW_BACKGROUND;
@@ -60,7 +60,7 @@ void SoGL2PSAction::setFileFormat(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  fFileFormat = aFileFormat;
+  m_fileFormat = aFileFormat;
 }
 //////////////////////////////////////////////////////////////////////////////
 SbBool SoGL2PSAction::setPageOptions(
@@ -93,18 +93,18 @@ SbBool SoGL2PSAction::setPageOptions(
 
 #define SET_OPT(a_opt) \
       if(value==TRUE) {\
-        fPageOptions |= a_opt;\
+        m_pageOptions |= a_opt;\
       } else {\
-        fPageOptions &= ~a_opt;\
+        m_pageOptions &= ~a_opt;\
       }
 
     if(option=="DEFAULTS") {
-      fPageOptions = GL2PS_OCCLUSION_CULL |
+      m_pageOptions = GL2PS_OCCLUSION_CULL |
                      GL2PS_BEST_ROOT |
                      GL2PS_SILENT |
                      GL2PS_DRAW_BACKGROUND;
     } else if(option=="NONE") {
-      fPageOptions = 0;
+      m_pageOptions = 0;
     } else if(option=="DRAW_BACKGROUND") {
       SET_OPT(GL2PS_DRAW_BACKGROUND)
     } else if(option=="SIMPLE_LINE_OFFSET") {
@@ -138,7 +138,7 @@ SbBool SoGL2PSAction::setPageOptions(
   }
   SbStringDelete(words);
 
-  //::printf("debug : SoGL2PSAction::setPageOptions : %d\n",fPageOptions);
+  //::printf("debug : SoGL2PSAction::setPageOptions : %d\n",m_pageOptions);
 
   return TRUE;
 }
@@ -149,7 +149,7 @@ void SoGL2PSAction::setFileName(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  fFileName = aFileName;
+  m_fileName = aFileName;
 }
 //////////////////////////////////////////////////////////////////////////////
 void SoGL2PSAction::enableFileWriting(
@@ -157,14 +157,14 @@ void SoGL2PSAction::enableFileWriting(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if(fFileFormat==GL2PS_PDF) {
-    fFile = ::fopen(fFileName.getString(),"wb");
+  if(m_fileFormat==GL2PS_PDF) {
+    m_file = ::fopen(m_fileName.getString(),"wb");
   } else {
-    fFile = ::fopen(fFileName.getString(),"w");
+    m_file = ::fopen(m_fileName.getString(),"w");
   }
-  if(!fFile) {
+  if(!m_file) {
     SoDebugError::post("SoGL2PSAction::enableFileWriting",
-                       "Cannot open file %s",fFileName.getString());
+                       "Cannot open file %s",m_fileName.getString());
     return;
   }
 }
@@ -174,8 +174,8 @@ void SoGL2PSAction::disableFileWriting(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  ::fclose(fFile);
-  fFile = 0;
+  ::fclose(m_file);
+  m_file = 0;
 }
 //////////////////////////////////////////////////////////////////////////////
 SbBool SoGL2PSAction::fileWritingEnabled(
@@ -183,7 +183,7 @@ SbBool SoGL2PSAction::fileWritingEnabled(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  return (fFile?TRUE:FALSE);
+  return (m_file?TRUE:FALSE);
 }
 //////////////////////////////////////////////////////////////////////////////
 SbBool SoGL2PSAction::addBitmap(
@@ -197,7 +197,7 @@ SbBool SoGL2PSAction::addBitmap(
 /////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if(!fFile) return FALSE;
+  if(!m_file) return FALSE;
   GLboolean valid;
   glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID,&valid);
   if(valid==GL_FALSE) return FALSE;
@@ -229,7 +229,7 @@ void SoGL2PSAction::beginViewport(
 /////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if(!fFile) return;
+  if(!m_file) return;
   GLint vp[4];
   glGetIntegerv(GL_VIEWPORT,vp);
   if(aDrawBack) {
@@ -248,7 +248,7 @@ void SoGL2PSAction::endViewport(
 /////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if(!fFile) return;
+  if(!m_file) return;
   gl2psEndViewport();
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ void SoGL2PSAction::beginTraversal(
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
 
-  if(fFile) {
+  if(m_file) {
     const SbViewportRegion& vpr = getViewportRegion();
     SoViewportRegionElement::set(getState(),vpr);
 
@@ -277,7 +277,7 @@ void SoGL2PSAction::gl2psBegin(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if(!fFile) return;
+  if(!m_file) return;
 
   int sort = GL2PS_BSP_SORT;
   //int sort = GL2PS_SIMPLE_SORT;
@@ -295,12 +295,12 @@ void SoGL2PSAction::gl2psBegin(
   int bufsize = 0;
   gl2psBeginPage("title","HEPVis::SoGL2PSAction",
                  vp,
-                 fFileFormat,
+                 m_fileFormat,
                  sort,
-                 fPageOptions,
+                 m_pageOptions,
                  GL_RGBA,0, NULL,0,0,0,
                  bufsize,
-                 fFile,fFileName.getString());
+                 m_file,m_fileName.getString());
 
   gl2psBeginViewport(vp);
 }
@@ -315,7 +315,7 @@ void SoGL2PSAction::separatorAction(
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
   SoGL2PSAction* This = (SoGL2PSAction*)aThis;
-  if(This->fFile) {
+  if(This->m_file) {
     //SoSeparator may use render caching.
     aNode->doAction(aThis);
   } else {
@@ -332,7 +332,7 @@ void SoGL2PSAction::drawStyleAction(
 {
   SoNode::GLRenderS(aThis,aNode);
   SoGL2PSAction* This = (SoGL2PSAction*)aThis;
-  if(This->fFile) {
+  if(This->m_file) {
     SoDrawStyle* soDrawStyle = (SoDrawStyle*)aNode;
     if(soDrawStyle->style.getValue()==SoDrawStyle::LINES) {
       float w = soDrawStyle->lineWidth.getValue();

@@ -62,12 +62,12 @@ QStringList TrackHandle_TrkTrack::clicked() const
     l << "ERROR: This TrackHandle_TrkTrack handle has a NULL track pointer!!";
     return l;
   }
-  l << "Author info: " << "  "+QString(m_trk->info().dumpInfo().c_str());;
+  l << "Author info: " << "  "+QString(m_trk->info().dumpInfo().c_str());
 
   l << TrackHandleBase::baseInfo();
   if (m_trk->fitQuality()) 
     l << "Fit quality [Chi^2, nDoF] = ["+QString::number(m_trk->fitQuality()->chiSquared())+", "+QString::number(m_trk->fitQuality()->doubleNumberDoF())+"]. ";
-  if (m_trk&&common()->controller()->printVerboseInfoOnSingleSelection()) {
+  if (common()->controller()->printVerboseInfoOnSingleSelection()) {
     l << " ===== dump =====";
     std::ostringstream s;
     s << *m_trk;
@@ -106,15 +106,15 @@ void TrackHandle_TrkTrack::ensureTouchedMuonChambersInitialiasedFromMeas( const 
     // for competing ROTs, it is expected that these are in the same DE. If this turns out not to be the case, need to loop & recursively call this method. EJWM
     if (crot)
       meas=&(crot->rioOnTrack(0));
-      VP1TrackSanity * sanity = common()->trackSanityHelper();
-      if (!sanity->isSafe(meas)) {
-        if (VP1Msg::verbose())
-          VP1Msg::messageVerbose("TrackHandle_TrkTrack WARNING: Skipping unsafe TSOS for touched muon chamber determination.");
-        return;
-      }
-      const MuonGM::MuonReadoutElement* muonDetEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(meas->associatedSurface().associatedDetectorElement() );
-      if (muonDetEl)
-        registerTouchedMuonChamber(muonDetEl->parentStationPV());
+    VP1TrackSanity * sanity = common()->trackSanityHelper();
+    if (!sanity->isSafe(meas)) {
+      if (VP1Msg::verbose())
+        VP1Msg::messageVerbose("TrackHandle_TrkTrack WARNING: Skipping unsafe TSOS for touched muon chamber determination.");
+      return;
+    }
+    const MuonGM::MuonReadoutElement* muonDetEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(meas->associatedSurface().associatedDetectorElement() );
+    if (muonDetEl)
+      registerTouchedMuonChamber(muonDetEl->parentStationPV());
   }
 }
 
@@ -123,11 +123,10 @@ void TrackHandle_TrkTrack::ensureTouchedMuonChambersInitialiasedFromMeas( const 
 //____________________________________________________________________
 Amg::Vector3D TrackHandle_TrkTrack::momentum() const
 {
-  std::vector<const Trk::TrackParameters*>::const_iterator it,itE=m_trk->trackParameters()->end();
-  for (it=m_trk->trackParameters()->begin();it!=itE;++it) {
-    if (!common()->trackSanityHelper()->isSafe(*it))
+  for (const Trk::TrackParameters* param : *m_trk->trackParameters()) {
+    if (!common()->trackSanityHelper()->isSafe(param))
       continue;
-    return (*it)->momentum();
+    return param->momentum();
   }
   return TrackHandleBase::momentum();
 }

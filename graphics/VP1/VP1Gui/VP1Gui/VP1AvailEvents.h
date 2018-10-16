@@ -18,9 +18,8 @@
 
 #ifndef IVP1AVAILEVENTS_H
 #define IVP1AVAILEVENTS_H
-
-#include <QtCore/QObject>
-#include <QtCore/QList>
+#include <QObject>
+#include <QList>
 #include "VP1Gui/VP1EventFile.h"
 
 class VP1AvailEvents : public QObject {
@@ -77,7 +76,7 @@ private slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

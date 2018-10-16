@@ -5,10 +5,10 @@
 #include "VP1LocalEvtRetriever.h"
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
-#include <QtCore/QMutexLocker>
+#include <QFile>
+#include <QFileInfo>
+#include <QTimer>
+#include <QMutexLocker>
 
 VP1LocalEvtRetriever::VP1LocalEvtRetriever(VP1AvailEvtsLocalDir* availEvts
 					   , QString sourcedir
@@ -72,7 +72,7 @@ void VP1LocalEvtRetriever::updateLocalDir()
       QString basefn = QFileInfo(fn).fileName();
       QString target = tmplocal + basefn;
       if (!QFile::exists(target)) {
-	QString tmptarget = ad+basefn+"_"+QString::number(ntmpdlcount++);;
+	QString tmptarget = ad+basefn+"_"+QString::number(ntmpdlcount++);
       	if (!QFile::copy(fn,tmptarget)) {
 	  m_availEvts->message("Problems copying "+fn+" to "+tmptarget);
 	  changesad = true;

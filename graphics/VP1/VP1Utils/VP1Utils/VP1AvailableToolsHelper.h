@@ -20,8 +20,8 @@
 #define VP1AVAILABLETOOLSHELPER_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 class IToolSvc;
 class IVP1System;
 class QComboBox;
@@ -69,7 +69,7 @@ protected:
   void timerEvent ( QTimerEvent * event );
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   VP1AvailableToolsHelper( const VP1AvailableToolsHelper & );
   VP1AvailableToolsHelper & operator= ( const VP1AvailableToolsHelper & );
 

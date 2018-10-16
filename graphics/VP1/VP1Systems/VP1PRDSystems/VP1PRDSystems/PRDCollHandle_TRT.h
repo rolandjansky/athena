@@ -36,7 +36,7 @@ public slots:
   void setAppropriateProjection(InDetProjFlags::InDetProjPartsFlags);
 
 protected:
-  PRDHandleBase * addPRD(Trk::PrepRawData*);
+  virtual PRDHandleBase * addPRD(const Trk::PrepRawData*) override;
   bool cut(PRDHandleBase*);
 
   void setupSettingsFromControllerSpecific(PRDSystemController*);
@@ -46,7 +46,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //Here for inlines:
   bool m_highlightHT;

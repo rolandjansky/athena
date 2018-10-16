@@ -22,12 +22,17 @@
 #include "VP1Base/AnimationSequencer.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/SbBox.h>
-#include <QtGui/QShortcut>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QScrollBar>
+
+#include <QAction>
+#include <QShortcut>
+#include <QCloseEvent>
+#include <QScrollBar>
+#include <QAction>
+
 #include <iostream>
 
 //____________________________________________________________________
@@ -54,14 +59,14 @@ QByteArray VP1CustomTourEditor::state() const
 {
   VP1Serialise s(0/*version*/);
   QList<QByteArray> frameStates;
-  foreach(VP1CustomTourFrameWidget*frame,d->frames) {
+  foreach(VP1CustomTourFrameWidget*frame,m_d->frames) {
     frameStates << frame->serialise();
     s.ignoreWidget(frame);
   }
   s.save(frameStates);
-  s.save(d->ui.doubleSpinBox_theta);
-  s.save(d->ui.doubleSpinBox_radius);
-  s.save(d->ui.groupBox_utilityZoom);
+  s.save(m_d->ui.doubleSpinBox_theta);
+  s.save(m_d->ui.doubleSpinBox_radius);
+  s.save(m_d->ui.groupBox_utilityZoom);
   s.warnUnsaved(this);
   return s.result();
 }
@@ -69,52 +74,52 @@ QByteArray VP1CustomTourEditor::state() const
 //____________________________________________________________________
 void VP1CustomTourEditor::setState(QByteArray ba)
 {
-  foreach(VP1CustomTourFrameWidget*frame,d->frames)
+  foreach(VP1CustomTourFrameWidget*frame,m_d->frames)
     frame->deleteLater();
-  d->frames.clear();
+  m_d->frames.clear();
 
   VP1Deserialise s(ba);
   if (s.version()!=0)
     return;
   QList<QByteArray> frameStates = s.restore<QList<QByteArray> >();
-  s.restore(d->ui.doubleSpinBox_theta);
-  s.restore(d->ui.doubleSpinBox_radius);
-  s.restore(d->ui.groupBox_utilityZoom);
+  s.restore(m_d->ui.doubleSpinBox_theta);
+  s.restore(m_d->ui.doubleSpinBox_radius);
+  s.restore(m_d->ui.groupBox_utilityZoom);
   s.warnUnrestored(this);
 
-  d->ui.widget_utilityZoomContents->setVisible(d->ui.groupBox_utilityZoom->isChecked());
+  m_d->ui.widget_utilityZoomContents->setVisible(m_d->ui.groupBox_utilityZoom->isChecked());
 
   foreach(QByteArray ba2, frameStates)
-    d->addFrame(new VP1CustomTourFrameWidget(ba2));
-  d->updateFrameListVisuals();
+    m_d->addFrame(new VP1CustomTourFrameWidget(ba2));
+  m_d->updateFrameListVisuals();
   enabledFrameListChanged();
 }
 
 
 //____________________________________________________________________
 VP1CustomTourEditor::VP1CustomTourEditor(VP1ExaminerViewer* viewer)
-  : QWidget(0,Qt::WindowStaysOnTopHint), d(new Imp)
+  : QWidget(0,Qt::WindowStaysOnTopHint), m_d(new Imp)
 {
 
-  d->theclass = this;
-  d->ui.setupUi(this);
-  d->ui.groupBox_utilityZoom->setChecked(false);
-  d->ui.widget_utilityZoomContents->setVisible(false);
-  d->viewer = viewer;
+  m_d->theclass = this;
+  m_d->ui.setupUi(this);
+  m_d->ui.groupBox_utilityZoom->setChecked(false);
+  m_d->ui.widget_utilityZoomContents->setVisible(false);
+  m_d->viewer = viewer;
   setWindowIcon(QIcon(QString(":/vp1/icons/icons/3d_32x32.png")));
-  d->frameHolderWidget = new QWidget;
-  d->ui.scrollArea->setWidgetResizable(true);
-  d->ui.scrollArea->setWidget(d->frameHolderWidget);
+  m_d->frameHolderWidget = new QWidget;
+  m_d->ui.scrollArea->setWidgetResizable(true);
+  m_d->ui.scrollArea->setWidget(m_d->frameHolderWidget);
 
   connect(new QShortcut(QKeySequence(Qt::Key_Escape), this),SIGNAL(activated()),this,SLOT(hide()));
-  connect(d->ui.pushButton_close,SIGNAL(clicked()),this,SLOT(hide()));
+  connect(m_d->ui.pushButton_close,SIGNAL(clicked()),this,SLOT(hide()));
 
-  connect(d->ui.pushButton_addCurrentView,SIGNAL(clicked()),this,SLOT(buttonClicked()));
-  connect(d->ui.pushButton_refreshPreviews,SIGNAL(clicked()),this,SLOT(buttonClicked()));
-  connect(d->ui.pushButton_execute,SIGNAL(clicked()),this,SLOT(buttonClicked()));
-  connect(d->ui.pushButton_utilityZoomShow,SIGNAL(clicked()),this,SLOT(buttonClicked()));
+  connect(m_d->ui.pushButton_addCurrentView,SIGNAL(clicked()),this,SLOT(buttonClicked()));
+  connect(m_d->ui.pushButton_refreshPreviews,SIGNAL(clicked()),this,SLOT(buttonClicked()));
+  connect(m_d->ui.pushButton_execute,SIGNAL(clicked()),this,SLOT(buttonClicked()));
+  connect(m_d->ui.pushButton_utilityZoomShow,SIGNAL(clicked()),this,SLOT(buttonClicked()));
 
-  d->objectsToDisableWhenTourUnavailable << d->ui.pushButton_execute;
+  m_d->objectsToDisableWhenTourUnavailable << m_d->ui.pushButton_execute;
 
   enabledFrameListChanged();
 }
@@ -122,10 +127,10 @@ VP1CustomTourEditor::VP1CustomTourEditor(VP1ExaminerViewer* viewer)
 //____________________________________________________________________
 VP1CustomTourEditor::~VP1CustomTourEditor()
 {
-  d->frameHolderWidget->deleteLater();
-  foreach(VP1CustomTourFrameWidget*frame,d->frames)
+  m_d->frameHolderWidget->deleteLater();
+  foreach(VP1CustomTourFrameWidget*frame,m_d->frames)
     frame->deleteLater();
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -184,23 +189,23 @@ void VP1CustomTourEditor::Imp::updateFrameListVisuals()
 //____________________________________________________________________
 void VP1CustomTourEditor::frameStepToEarlier()
 {
-  int iframe(d->frames.indexOf(dynamic_cast<VP1CustomTourFrameWidget*>(sender())));
+  int iframe(m_d->frames.indexOf(dynamic_cast<VP1CustomTourFrameWidget*>(sender())));
   if (iframe<=0)
     return;//not found or already at start
-  d->frames.swap(iframe-1,iframe);
-  d->updateFrameListVisuals();
+  m_d->frames.swap(iframe-1,iframe);
+  m_d->updateFrameListVisuals();
 }
 
 //____________________________________________________________________
 void VP1CustomTourEditor::frameStepToLater()
 {
-  int iframe(d->frames.indexOf(dynamic_cast<VP1CustomTourFrameWidget*>(sender())));
+  int iframe(m_d->frames.indexOf(dynamic_cast<VP1CustomTourFrameWidget*>(sender())));
   if (iframe<0)
     return;
-  if (iframe>=d->frames.count()-1)
+  if (iframe>=m_d->frames.count()-1)
     return;//already at end
-  d->frames.swap(iframe,iframe+1);
-  d->updateFrameListVisuals();
+  m_d->frames.swap(iframe,iframe+1);
+  m_d->updateFrameListVisuals();
 }
 
 //____________________________________________________________________
@@ -209,9 +214,9 @@ void VP1CustomTourEditor::frameDelete()
   VP1CustomTourFrameWidget * frame = dynamic_cast<VP1CustomTourFrameWidget*>(sender());
   if (!frame)
     return;
-  d->frames.removeAll(frame);
+  m_d->frames.removeAll(frame);
   frame->deleteLater();
-  d->updateFrameStepControlsEnablement();
+  m_d->updateFrameStepControlsEnablement();
   enabledFrameListChanged();
 }
 
@@ -222,15 +227,15 @@ void VP1CustomTourEditor::frameShow()
   if (!frame)
     return;
 
-  if (frame->camStateIsPerspective()==d->viewer->currentCamIsPerspective()) {
+  if (frame->camStateIsPerspective()==m_d->viewer->currentCamIsPerspective()) {
     //Zoom there:
-    SoCamera * cam = d->viewer->getCamera();
-    SoNode * root = d->viewer->getSceneGraph();
+    SoCamera * cam = m_d->viewer->getCamera();
+    SoNode * root = m_d->viewer->getSceneGraph();
     if (!cam||!root||!root->getTypeId().isDerivedFrom(SoGroup::getClassTypeId()))
       return;
 
-    if (d->viewer->isAnimating())
-      d->viewer->stopAnimating();
+    if (m_d->viewer->isAnimating())
+      m_d->viewer->stopAnimating();
     VP1CameraHelper::animatedZoomToCameraState( cam,static_cast<SoGroup*>(root),frame->camState(),
 		        frame->zoomToFrameTime(),
 		        frame->clipVolumePercentOfATLAS(),
@@ -238,8 +243,8 @@ void VP1CustomTourEditor::frameShow()
 						frame->zoomToFrameForcedCircular() );
   } else {
     //Go there directly:
-    d->viewer->toggleCameraType();
-    SoCamera * cam = d->viewer->getCamera();
+    m_d->viewer->toggleCameraType();
+    SoCamera * cam = m_d->viewer->getCamera();
     if (!cam)
       return;
     QByteArray ba(frame->camState());
@@ -266,40 +271,40 @@ void VP1CustomTourEditor::Imp::updateFrameStepControlsEnablement()
 void VP1CustomTourEditor::swap( VP1CustomTourFrameWidget * frame1,
 			        VP1CustomTourFrameWidget * frame2 )
 {
-  int iframe1(d->frames.indexOf(frame1));
-  int iframe2(d->frames.indexOf(frame2));
+  int iframe1(m_d->frames.indexOf(frame1));
+  int iframe2(m_d->frames.indexOf(frame2));
   if ( iframe1==iframe2
        ||iframe1<0
        ||iframe2<0
-       ||iframe1>=d->frames.count()
-       ||iframe2>=d->frames.count() )
+       ||iframe1>=m_d->frames.count()
+       ||iframe2>=m_d->frames.count() )
     return;
-  d->frames.swap(iframe1,iframe2);
-  d->updateFrameListVisuals();
+  m_d->frames.swap(iframe1,iframe2);
+  m_d->updateFrameListVisuals();
 }
 
 //____________________________________________________________________
 void VP1CustomTourEditor::buttonClicked()
 {
-  if (d->ui.pushButton_addCurrentView==sender()) {
-    VP1CustomTourFrameWidget * frame = new VP1CustomTourFrameWidget(d->viewer->currentCamIsPerspective(),
-								    d->viewer->currentCameraState());
-    d->addFrame(frame);
-    d->updateFrameSnapshot(frame);
-    d->updateFrameListVisuals();
-  } else if (d->ui.pushButton_refreshPreviews==sender()) {
-    foreach(VP1CustomTourFrameWidget*frame,d->frames)
-      d->updateFrameSnapshot(frame);
-  } else if (d->ui.pushButton_execute==sender()) {
-    d->viewer->startCustomTour();
-  } else if (d->ui.pushButton_utilityZoomShow==sender()) {
-    SoCamera * cam = d->viewer->getCamera();
-    SoNode * root = d->viewer->getSceneGraph();
+  if (m_d->ui.pushButton_addCurrentView==sender()) {
+    VP1CustomTourFrameWidget * frame = new VP1CustomTourFrameWidget(m_d->viewer->currentCamIsPerspective(),
+								    m_d->viewer->currentCameraState());
+    m_d->addFrame(frame);
+    m_d->updateFrameSnapshot(frame);
+    m_d->updateFrameListVisuals();
+  } else if (m_d->ui.pushButton_refreshPreviews==sender()) {
+    foreach(VP1CustomTourFrameWidget*frame,m_d->frames)
+      m_d->updateFrameSnapshot(frame);
+  } else if (m_d->ui.pushButton_execute==sender()) {
+    m_d->viewer->startCustomTour();
+  } else if (m_d->ui.pushButton_utilityZoomShow==sender()) {
+    SoCamera * cam = m_d->viewer->getCamera();
+    SoNode * root = m_d->viewer->getSceneGraph();
     if (!cam||!root||!root->getTypeId().isDerivedFrom(SoGroup::getClassTypeId()))
       return;
 
-    double r(d->ui.doubleSpinBox_radius->value()*1000.0/*meters*/);
-    double theta(d->ui.doubleSpinBox_theta->value()/180.0*M_PI);
+    double r(m_d->ui.doubleSpinBox_radius->value()*1000.0/*meters*/);
+    double theta(m_d->ui.doubleSpinBox_theta->value()/180.0*M_PI);
     theta += M_PI;
     while (theta<0) theta += 2*M_PI;
     while (theta>2*M_PI) theta -= 2*M_PI;
@@ -308,7 +313,7 @@ void VP1CustomTourEditor::buttonClicked()
     SbVec3f lookat = SbVec3f(sin(theta),0,cos(theta));
     SbVec3f upvec = SbVec3f(0,1,0);
     bool notifyenabled = cam->enableNotify(false);
-    d->viewer->resetCamera();
+    m_d->viewer->resetCamera();
     VP1CameraHelper::animatedZoomToBBox( cam,static_cast<SoGroup*>(root),
 					 box, 0.0, 100.0, 1.0,lookat,upvec);
     if (notifyenabled)
@@ -349,7 +354,7 @@ int VP1CustomTourEditor::Imp::countEnabledFrames( int& nEnabledPerspectiveFrames
 void VP1CustomTourEditor::enabledFrameListChanged()
 {
   int nEnabledPerspectiveFrames, nEnabledOrthographicFrames;
-  int n = d->countEnabledFrames( nEnabledPerspectiveFrames,
+  int n = m_d->countEnabledFrames( nEnabledPerspectiveFrames,
 				 nEnabledOrthographicFrames );
   QString s("dummy");
   bool enable(true);
@@ -367,9 +372,9 @@ void VP1CustomTourEditor::enabledFrameListChanged()
 	s="Orthographic camera tour";
     }
   }
-  d->ui.label_statustext->setText(s);
+  m_d->ui.label_statustext->setText(s);
 
-  foreach (QObject * o, d->objectsToDisableWhenTourUnavailable) {
+  foreach (QObject * o, m_d->objectsToDisableWhenTourUnavailable) {
     if (o->isWidgetType())
       static_cast<QWidget*>(o)->setEnabled(enable);
     else
@@ -381,7 +386,7 @@ void VP1CustomTourEditor::enabledFrameListChanged()
 bool VP1CustomTourEditor::tourAvailable() const
 {
   int nEnabledPerspectiveFrames, nEnabledOrthographicFrames;
-  int n = d->countEnabledFrames( nEnabledPerspectiveFrames,
+  int n = m_d->countEnabledFrames( nEnabledPerspectiveFrames,
 				 nEnabledOrthographicFrames );
   if (nEnabledPerspectiveFrames>0&&nEnabledOrthographicFrames>0)
     return false;
@@ -392,7 +397,7 @@ bool VP1CustomTourEditor::tourAvailable() const
 bool VP1CustomTourEditor::tourIsPerspective() const
 {
   int nEnabledPerspectiveFrames, nEnabledOrthographicFrames;
-  d->countEnabledFrames( nEnabledPerspectiveFrames,
+  m_d->countEnabledFrames( nEnabledPerspectiveFrames,
 			 nEnabledOrthographicFrames );
 
   return nEnabledOrthographicFrames==0;
@@ -404,17 +409,17 @@ void VP1CustomTourEditor::addTourToAnimationSequencer(AnimationSequencer& as,boo
   if (!tourAvailable())
     return;
   bool firstInDirectJump(jumpDirectlyToFirstFrame);
-  foreach(VP1CustomTourFrameWidget*frame,d->frames) {
+  foreach(VP1CustomTourFrameWidget*frame,m_d->frames) {
     if (frame->frameIsEnabled()) {
       double t(frame->zoomToFrameTime());
       if (firstInDirectJump) {
         t = 0.0;
         firstInDirectJump = false;
       }
-      
+
       // std::cout<<"addTourToAnimationSequencer %="<<frame->clipVolumePercentOfATLAS()<<std::endl;
-      as.sequence().addFrame(frame->camState(),t, 
-                             frame->zoomToFrameWithVariableSpeed(),frame->zoomToFrameForcedCircular(), 
+      as.sequence().addFrame(frame->camState(),t,
+                             frame->zoomToFrameWithVariableSpeed(),frame->zoomToFrameForcedCircular(),
                              frame->clipVolumePercentOfATLAS() );
       if (frame->stayOnFrameTime()>0.0)
         as.sequence().addFrame(frame->camState(),frame->stayOnFrameTime(),false, false, frame->clipVolumePercentOfATLAS());
@@ -424,7 +429,7 @@ void VP1CustomTourEditor::addTourToAnimationSequencer(AnimationSequencer& as,boo
 
 void VP1CustomTourEditor::setClipVolumePercentOfATLAS(double percent){
   emit clipVolumePercentOfATLAS( percent );
-  
+
   // Let's assume ATLAS is 40m long. So emit this.
   emit clipVolumeRadiusChanged( percent * 400 );
 }
@@ -434,5 +439,5 @@ void VP1CustomTourEditor::setClipVolumePercentOfATLAS(double percent){
 void VP1CustomTourEditor::disableObjectWhenTourNotAvailable(QObject *o)
 {
   if (o)
-    d->objectsToDisableWhenTourUnavailable << o;
+    m_d->objectsToDisableWhenTourUnavailable << o;
 }

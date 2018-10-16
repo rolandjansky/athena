@@ -27,7 +27,7 @@
 #include "VP1Base/VP1Interval.h"
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1TrackSystems/TrackSystemController.h"
-#include <QtGui/QColor>
+#include <QColor>
 #include <iostream>
 
 
@@ -201,7 +201,7 @@ public slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   int m_nshownhandles;
   TrackType::Type m_type;

@@ -71,7 +71,7 @@ public slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   COLOURBY m_colourby;
 };
 

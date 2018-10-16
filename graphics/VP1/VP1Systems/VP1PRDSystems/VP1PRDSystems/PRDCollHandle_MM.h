@@ -38,9 +38,9 @@ public slots:
   void muonChambersTouchedByTracksChanged(void);//!< Inform this handle that it might need to recheck cuts 
 
 protected:
-  PRDHandleBase * addPRD(Trk::PrepRawData*);
+  virtual PRDHandleBase * addPRD(const Trk::PrepRawData*) override;
 
-  virtual DETAIL defaultDetailLevel() const { return DETAILED; }
+  virtual DETAIL defaultDetailLevel() const override { return DETAILED; }
 
   bool cut(PRDHandleBase*);
 
@@ -54,7 +54,7 @@ private:
 
   class Imp;
   //  friend class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //Here for inlines:
   // bool m_highLightMasked;

@@ -17,8 +17,8 @@
 // include C++
 //#include <stddef.h> // this to fix the 'ptrdiff_t' does not name a type error with Qt (http://qt-project.org/forums/viewthread/16992)
 
-#include <QtCore/QObject>
-#include <QtNetwork/QNetworkReply>
+#include <QObject>
+#include <QNetworkReply>
 
 #include "VP1Gui/VP1AvailEvents.h"
 
@@ -59,7 +59,7 @@ private slots:
 
 private:
   class Imp;
-  Imp*  d;
+  Imp*  m_d;
 };
 
 #endif

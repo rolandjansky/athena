@@ -5,7 +5,7 @@
 #ifndef PRDDETTYPES_H
 #define PRDDETTYPES_H
 
-#include <QtCore/QString>
+#include <QString>
 
 class PRDDetType {
 public:

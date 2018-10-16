@@ -22,8 +22,8 @@
 #include "VP1Gui/VP1QtApplication.h"
 
 // include Qt
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 
 
@@ -97,7 +97,7 @@ signals:
 
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void refreshSystem(IVP1System*);
   void eraseSystem(IVP1System*);
   void actualUncreateAndDelete(IVP1ChannelWidget*);

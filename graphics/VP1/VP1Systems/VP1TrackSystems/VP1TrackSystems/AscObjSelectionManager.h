@@ -21,8 +21,8 @@
 //handle base class which tells simple/detailed nodes?
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
-#include <QtCore/QList>
+#include <QObject>
+#include <QList>
 
 class AssociatedObjectHandleBase;
 class IVP13DSystem;
@@ -92,7 +92,7 @@ private slots:
   void ascObjDetailLevelChanged();
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

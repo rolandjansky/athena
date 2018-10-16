@@ -15,8 +15,8 @@
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/VP1Msg.h"
 #include <cstdlib>//For setenv/unsetenv
-#include <QtGui/QImage>
-#include <QtGui/QColor>
+#include <QImage>
+#include <QColor>
 
 //____________________________________________________________________
 bool VP1QtUtils::environmentVariableIsSet(const QString& name)

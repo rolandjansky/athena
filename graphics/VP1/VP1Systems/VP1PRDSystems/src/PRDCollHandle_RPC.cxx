@@ -7,7 +7,7 @@
 #include "VP1PRDSystems/PRDHandle_RPC.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "VP1PRDSystems/PRDSystemController.h"
-#include <QtGui/QColor>
+#include <QColor>
 
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1SGContentsHelper.h"
@@ -30,17 +30,17 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_RPC::PRDCollHandle_RPC(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::RPC,cd,key), d(new Imp), m_project(false)
+  : PRDCollHandleBase(PRDDetType::RPC,cd,key), m_d(new Imp), m_project(false)
 {
-  d->muondetmgr = 0;
-  d->idhelper = 0;
-  d->attempted_detmgrload = false;
+  m_d->muondetmgr = 0;
+  m_d->idhelper = 0;
+  m_d->attempted_detmgrload = false;
 }
 
 //____________________________________________________________________
 PRDCollHandle_RPC::~PRDCollHandle_RPC()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -57,10 +57,10 @@ void PRDCollHandle_RPC::setupSettingsFromControllerSpecific(PRDSystemController*
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_RPC::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_RPC::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<Muon::RpcPrepData*>(prd));
-  return new PRDHandle_RPC(this,static_cast<Muon::RpcPrepData*>(prd));
+  assert(dynamic_cast<const Muon::RpcPrepData*>(prd));
+  return new PRDHandle_RPC(this,static_cast<const Muon::RpcPrepData*>(prd));
 }
 
 //____________________________________________________________________

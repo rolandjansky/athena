@@ -19,8 +19,8 @@
 #ifndef VP1EVTSONSERVERINFO_H
 #define VP1EVTSONSERVERINFO_H
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QString>
+#include <QStringList>
 #include "VP1Gui/VP1EventFile.h"
 
 class VP1EvtsOnServerInfo {
@@ -51,7 +51,7 @@ private:
   VP1EvtsOnServerInfo & operator= ( const VP1EvtsOnServerInfo & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

@@ -5,8 +5,8 @@
 #ifndef ZAPPEDVOLUMELISTMODEL_H
 #define ZAPPEDVOLUMELISTMODEL_H
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QList>
+#include <QAbstractListModel>
+#include <QList>
 #include "VP1GeometrySystems/VolumeHandle.h"
 
 class QWidget;
@@ -60,14 +60,16 @@ inline QVariant ZappedVolumeListModel::data ( const QModelIndex & index, int rol
 
 inline void ZappedVolumeListModel::addToZappedVolumes( VolumeHandle * handle )
 {
+  beginResetModel(); // see: http://doc.qt.io/qt-5/qabstractitemmodel-obsolete.html
   m_zappedhandles << handle;
-  reset();//Fixme!
+  endResetModel();
 }
 
 inline void ZappedVolumeListModel::removeFromZappedVolumes( VolumeHandle * handle )
 {
+  beginResetModel();
   m_zappedhandles.removeAll(handle);
-  reset();//Fixme!
+  endResetModel();
 }
 
 #endif

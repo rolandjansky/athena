@@ -102,18 +102,18 @@ const QString AODSystemController::Imp::noneAvailString = QString("None availabl
 
 //____________________________________________________________________
 AODSystemController::AODSystemController(IVP1System * sys)
-  : VP1Controller(sys,"AODSystemController"), d(new Imp)
+  : VP1Controller(sys,"AODSystemController"), m_d(new Imp)
 {
-  d->theclass = this;
+  m_d->theclass = this;
   //Stuff with tools waits until ::initTools() is called:
-  d->ui.setupUi(this);
-  d->collwidget = new AODCollWidget;
-  setupCollWidgetInScrollArea(d->ui.collWidgetScrollArea,d->collwidget);
+  m_d->ui.setupUi(this);
+  m_d->collwidget = new AODCollWidget;
+  setupCollWidgetInScrollArea(m_d->ui.collWidgetScrollArea,m_d->collwidget);
 
-  initDialog(d->ui_objBrowser, d->ui.pushButton_ObjectBrowser);
+  initDialog(m_d->ui_objBrowser, m_d->ui.pushButton_ObjectBrowser);
 
   //init:  
-  // d->initMaterials();
+  // m_d->initMaterials();
 
 
 
@@ -128,37 +128,37 @@ AODSystemController::AODSystemController(IVP1System * sys)
 
   // TrackObjBrowser
   messageVerbose("Enabling object browser");
-  d->objBrowserWidget = d->ui_objBrowser.treeWidget;
-  d->objBrowserWidget->setSortingEnabled(false);
+  m_d->objBrowserWidget = m_d->ui_objBrowser.treeWidget;
+  m_d->objBrowserWidget->setSortingEnabled(false);
   QStringList l; 
   l<<"Object"<<"Information";
-  d->objBrowserWidget->setHeaderLabels(l);
-  connect(d->objBrowserWidget,SIGNAL(itemClicked(QTreeWidgetItem *, int)),this,SLOT(objectBrowserClicked(QTreeWidgetItem *, int)));
+  m_d->objBrowserWidget->setHeaderLabels(l);
+  connect(m_d->objBrowserWidget,SIGNAL(itemClicked(QTreeWidgetItem *, int)),this,SLOT(objectBrowserClicked(QTreeWidgetItem *, int)));
 
   // Hide interactions until we're ready.
-  d->ui.pushButton_interactions->hide();
+  m_d->ui.pushButton_interactions->hide();
   
   // Tell system to dump to JSON
-  connect(d->ui.pushButton_dumpToJSON,SIGNAL(pressed()),systemBase(),SLOT(dumpToJSON()));
+  connect(m_d->ui.pushButton_dumpToJSON,SIGNAL(pressed()),systemBase(),SLOT(dumpToJSON()));
   
   if (VP1QtUtils::environmentVariableIsSet("VP1_DUMPTOJSON")){
     messageVerbose("AODSystemController enable dumping to JSON");
-    d->ui.pushButton_dumpToJSON->setMaximumHeight(static_cast<int>(0.5+QFontMetricsF(d->ui.pushButton_dumpToJSON->font()).height()*1.05+2));
-    d->ui.pushButton_dumpToJSON->setMinimumHeight(d->ui.pushButton_dumpToJSON->maximumHeight());
-    d->ui.pushButton_dumpToJSON->setCheckable(true);
+    m_d->ui.pushButton_dumpToJSON->setMaximumHeight(static_cast<int>(0.5+QFontMetricsF(m_d->ui.pushButton_dumpToJSON->font()).height()*1.05+2));
+    m_d->ui.pushButton_dumpToJSON->setMinimumHeight(m_d->ui.pushButton_dumpToJSON->maximumHeight());
+    m_d->ui.pushButton_dumpToJSON->setCheckable(true);
     
     QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     sizePolicy.setHorizontalStretch(0);
     sizePolicy.setVerticalStretch(0);
-    sizePolicy.setHeightForWidth(d->ui.pushButton_dumpToJSON->sizePolicy().hasHeightForWidth());
-    d->ui.pushButton_dumpToJSON->setSizePolicy(sizePolicy);
-    d->ui.pushButton_dumpToJSON->setFocusPolicy(Qt::NoFocus);
+    sizePolicy.setHeightForWidth(m_d->ui.pushButton_dumpToJSON->sizePolicy().hasHeightForWidth());
+    m_d->ui.pushButton_dumpToJSON->setSizePolicy(sizePolicy);
+    m_d->ui.pushButton_dumpToJSON->setFocusPolicy(Qt::NoFocus);
   } else {
-    d->ui.pushButton_dumpToJSON->hide();
+    m_d->ui.pushButton_dumpToJSON->hide();
   }
   
   // we want "Print information" on single track selection turned ON by default
-  // //d->ui_int.checkBox_selsingle_printinfo->setChecked(true);
+  // //m_d->ui_int.checkBox_selsingle_printinfo->setChecked(true);
 
   initLastVars();
 }
@@ -167,7 +167,7 @@ AODSystemController::AODSystemController(IVP1System * sys)
 AODSystemController::~AODSystemController()
 {
   messageVerbose("~AODSystemController begin");
-  delete d;
+  delete m_d;
   messageVerbose("~AODSystemController end");
 }
 
@@ -196,7 +196,7 @@ void AODSystemController::actualRestoreSettings(VP1Deserialise& /**s*/)
 //____________________________________________________________________
 AODCollWidget * AODSystemController::collWidget() const
 {
-  return d->collwidget;
+  return m_d->collwidget;
 }
 
 //Access methods:
@@ -243,7 +243,7 @@ bool AODSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList l
       else if (i_atlas>=0)
         cb->setCurrentIndex(i_atlas);
     }
-    ////d->ui_extrap.radioButton_athenaExtrapolator->setEnabled(true);
+    ////m_d->ui_extrap.radioButton_athenaExtrapolator->setEnabled(true);
     enabled = true;
     cb->setEnabled(true);
   }
@@ -257,47 +257,47 @@ bool AODSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList l
 bool AODSystemController::orientAndZoomOnSingleSelection() const
 {
   return false;
-  // return d->ui_int.checkBox_selsingle_orientzoom->isChecked();
+  // return m_d->ui_int.checkBox_selsingle_orientzoom->isChecked();
 }
 
 //____________________________________________________________________
 bool AODSystemController::printInfoOnSingleSelection() const
 {
   return false;
-  // return d->ui_int.checkBox_selsingle_printinfo->isChecked();
+  // return m_d->ui_int.checkBox_selsingle_printinfo->isChecked();
 }
 
 //____________________________________________________________________
 bool AODSystemController::printVerboseInfoOnSingleSelection() const
 {
   return false;
-  // return printInfoOnSingleSelection() && d->ui_int.checkBox_selsingle_printinfo_verbose->isChecked();
+  // return printInfoOnSingleSelection() && m_d->ui_int.checkBox_selsingle_printinfo_verbose->isChecked();
 }
 
 //____________________________________________________________________
 bool AODSystemController::printTotMomentumOnMultiTrackSelection() const
 {
   return false;
-  // return d->ui_int.checkBox_sel_printtotmom->isChecked();
+  // return m_d->ui_int.checkBox_sel_printtotmom->isChecked();
 }
 
 //____________________________________________________________________
 bool AODSystemController::showTotMomentumOnMultiTrackSelection() const
 {
   return false;
-  // return d->ui_int.checkBox_sel_showtotmom->isChecked();
+  // return m_d->ui_int.checkBox_sel_showtotmom->isChecked();
 }
 
 QTreeWidget* AODSystemController::objBrowser() const
 {
-  return d->objBrowserWidget;
+  return m_d->objBrowserWidget;
 }
 
 AODSysCommonData * AODSystemController::common() const {
-  return d->common;
+  return m_d->common;
 }
 void AODSystemController::setCommonData(AODSysCommonData * common){
-  d->common=common;
+  m_d->common=common;
 }
 
 void AODSystemController::objectBrowserClicked(QTreeWidgetItem * item, int){

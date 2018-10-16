@@ -50,7 +50,7 @@ SoPcons::SoPcons() {
   SO_NODE_ADD_FIELD(alternateRep,        (NULL));
   SO_NODE_ADD_FIELD(drawEdgeLines,       (false));
 
-  children = new SoChildList(this);
+  m_children = new SoChildList(this);
   
   float rMinDef[]={10.0,  15.0, 10.0};
   float rMaxDef[]={11.0,  17.0, 12.0};
@@ -64,17 +64,17 @@ SoPcons::SoPcons() {
 
 // Destructor
 SoPcons::~SoPcons() {
-  delete children;
+  delete m_children;
 }
 
 
 //____________________________________________________________________
-bool SoPcons::didInit = false;
+bool SoPcons::s_didInit = false;
 void SoPcons::initClass()
 {
-  if ( !didInit ) {
+  if ( !s_didInit ) {
     SO_NODE_INIT_CLASS(SoPcons,SoShape,"Shape");
-    didInit = true;
+    s_didInit = true;
   }
 }
 
@@ -348,7 +348,7 @@ shapeVertex(&pv);
 
 // getChildren
 SoChildList *SoPcons::getChildren() const {
-  return children;
+  return m_children;
 }
 
 
@@ -396,8 +396,8 @@ void SoPcons::updateChildren() {
   
   // Redraw the G4Pcons....
   
-  assert(children->getLength()==1);
-  SoSeparator       *sep                = (SoSeparator *)  ( *children)[0];
+  assert(m_children->getLength()==1);
+  SoSeparator       *sep                = (SoSeparator *)  ( *m_children)[0];
   SoCoordinate3     *theCoordinates     = (SoCoordinate3 *)      ( sep->getChild(0));
   SoNormal          *theNormals         = (SoNormal *)           ( sep->getChild(1));
   SoNormalBinding   *theNormalBinding   = (SoNormalBinding *)    ( sep->getChild(2));
@@ -559,7 +559,7 @@ void SoPcons::generateChildren() {
   // once, whereas redrawing the position of the coordinates occurs each
   // time an update is necessary, in the updateChildren routine.
   
-  assert(children->getLength() ==0);
+  assert(m_children->getLength() ==0);
   SoSeparator      *sep              = new SoSeparator();
   SoCoordinate3    *theCoordinates   = new SoCoordinate3();
   SoNormal         *theNormals       = new SoNormal();
@@ -572,7 +572,7 @@ void SoPcons::generateChildren() {
   sep->addChild(theNormals);
   sep->addChild(theNormalBinding);
   sep->addChild(theFaceSet);
-  children->append(sep);
+  m_children->append(sep);
 #endif
 }
 
@@ -584,9 +584,9 @@ void SoPcons::generateAlternateRep() {
   // This routine sets the alternate representation to the child
   // list of this mode.
   
-  //if (children->getLength() == 0) generateChildren();
+  //if (m_children->getLength() == 0) generateChildren();
   //updateChildren();
-  //  alternateRep.setValue((SoSeparator *)  ( *children)[0]);
+  //  alternateRep.setValue((SoSeparator *)  ( *m_children)[0]);
 
 
   /*         updated for generate fullfill alternaterep 

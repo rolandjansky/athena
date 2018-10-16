@@ -32,8 +32,7 @@ VP1EventProd::VP1EventProd(const std::string& name, ISvcLocator* svcLocator):
   m_eventNumber(0),
   m_timeStamp(0),
   m_humanTimestamp(""),
-  m_nEvent(0),
-  m_poolSvc("PoolSvc", name)
+  m_nEvent(0)
 {
   declareProperty("InputPoolFile", m_inputPoolFile="");
   declareProperty("DestinationDirectory", m_destinationDir="."); // produce files in the run directory by default
@@ -52,7 +51,7 @@ VP1EventProd::~VP1EventProd()
 
 StatusCode VP1EventProd::initialize()
 {
-  msg(MSG::INFO) << " in initialize() " << endreq;
+  msg(MSG::INFO) << " in initialize() " << endmsg;
 
   StatusCode result = StatusCode::SUCCESS;
 
@@ -61,33 +60,28 @@ StatusCode VP1EventProd::initialize()
   StatusCode status = service("IncidentSvc", incsvc, true);
 
   if(status.isFailure() || incsvc==0)
-    msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endreq;
+    msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endmsg;
   else
     incsvc->addListener(this, "BeginEvent", 0);
-
-  // get hold of the PoolSvc
-  status = m_poolSvc.retrieve();
-  if(status.isFailure())
-    msg(MSG::WARNING) << "Unable to get PoolSvc" << endreq;
 
   return result;
 }
 
 StatusCode VP1EventProd::execute()
 {
-  msg(MSG::DEBUG) <<" in execute() " << endreq;
+  msg(MSG::DEBUG) <<" in execute() " << endmsg;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode VP1EventProd::finalize()
 {
-  msg(MSG::INFO) <<"in finalize() " << endreq;
+  msg(MSG::INFO) <<"in finalize() " << endmsg;
 
   // handle the output of the last event
   if(m_nEvent) {
 
-    msg(MSG::INFO) << "--> Input POOL file: " << m_inputPoolFile << endreq;
+    msg(MSG::INFO) << "--> Input POOL file: " << m_inputPoolFile << endmsg;
 
     std::ostringstream ostri;
     ostri << m_inputPoolFile << "._" << std::setw(4) << std::setfill('0') << m_nEvent;
@@ -105,8 +99,8 @@ StatusCode VP1EventProd::finalize()
     		fileUtil.produceNewFile(ostri.str(), m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp);
     }
     catch(std::runtime_error& err) {
-      msg(MSG::WARNING) << "Exception caught: " << err.what() << endreq;
-      msg(MSG::WARNING) << "Unable to produce new VP1 event file" << endreq;
+      msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
+      msg(MSG::WARNING) << "Unable to produce new VP1 event file" << endmsg;
     }
   }
 
@@ -115,14 +109,14 @@ StatusCode VP1EventProd::finalize()
 
 void VP1EventProd::handle(const Incident& inc) 
 {
-  msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" <<  endreq;
+  msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" <<  endmsg;
 
   const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
   if(eventInc == 0) {
-    msg(MSG::WARNING) << " Unable to cast incident type" << endreq;
+    msg(MSG::WARNING) << " Unable to cast incident type" << endmsg;
     return;
   } else {
-    msg(MSG::DEBUG) << " Event incident casting successful" << endreq;
+    msg(MSG::DEBUG) << " Event incident casting successful" << endmsg;
   }
 
   // Let VP1FileUtilities handle the output of the previous event.
@@ -132,7 +126,7 @@ void VP1EventProd::handle(const Incident& inc)
   // Basically we run the code below while in event_2, to get the processed file for event_1
   if(m_nEvent) {
 
-    msg(MSG::INFO) << "--> Input POOL file: " << m_inputPoolFile << endreq;
+    msg(MSG::INFO) << "--> Input POOL file: " << m_inputPoolFile << endmsg;
 
     std::ostringstream ostri;
     ostri << m_inputPoolFile << "._" << std::setw(4) << std::setfill('0') << m_nEvent;
@@ -151,8 +145,8 @@ void VP1EventProd::handle(const Incident& inc)
 
     }
     catch(std::runtime_error& err) {
-      msg(MSG::WARNING) << "Exception caught: " << err.what() << endreq;
-      msg(MSG::WARNING) << "Unable to produce new VP1 event file" << endreq;
+      msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
+      msg(MSG::WARNING) << "Unable to produce new VP1 event file" << endmsg;
     }
   }
 
@@ -176,7 +170,7 @@ void VP1EventProd::handle(const Incident& inc)
 
   msg(MSG::DEBUG) << " Got run number = " << m_runNumber
 		  << ", event number = " << m_eventNumber
-		  << ", UNIX timestamp = " << m_timeStamp << endreq;
+		  << ", UNIX timestamp = " << m_timeStamp << endmsg;
 
   time_t t_timestamp = m_timeStamp;
   tm *ltm = localtime(&t_timestamp);
@@ -186,7 +180,7 @@ void VP1EventProd::handle(const Incident& inc)
 		  << " - " << "Month: "<< 1 + ltm->tm_mon<< " - "  // tm_mon is in the range [0, 11], so 1 must be added to get real months
 		  << "Day: "<<  ltm->tm_mday
 		  << " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << "CEST"
-		  << endreq;
+		  << endmsg;
 
   std::ostringstream ostri;
   ostri  << 1900 + ltm->tm_year
@@ -195,7 +189,7 @@ void VP1EventProd::handle(const Incident& inc)
 		  << "T" << ltm->tm_hour << "-" << ltm->tm_min << "-" << ltm->tm_sec << "CEST";
 
   m_humanTimestamp = ostri.str();
-  msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endreq;
+  msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endmsg;
 
 
 
@@ -212,7 +206,7 @@ void VP1EventProd::handle(const Incident& inc)
 //
 //    msg(MSG::DEBUG) << " Got run number = " << m_runNumber
 //		    << ", event number = " << m_eventNumber
-//		    << ", UNIX timestamp = " << m_timeStamp << endreq;
+//		    << ", UNIX timestamp = " << m_timeStamp << endmsg;
 //
 //    time_t t_timestamp = m_timeStamp;
 //    tm *ltm = localtime(&t_timestamp);
@@ -222,7 +216,7 @@ void VP1EventProd::handle(const Incident& inc)
 //		    << " - " << "Month: "<< 1 + ltm->tm_mon<< " - "  // tm_mon is in the range [0, 11], so 1 must be added to get real months
 //		    << "Day: "<<  ltm->tm_mday
 //		    << " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << "CEST"
-//		    << endreq;
+//		    << endmsg;
 //
 //    std::ostringstream ostri;
 //    ostri  << 1900 + ltm->tm_year
@@ -231,11 +225,11 @@ void VP1EventProd::handle(const Incident& inc)
 //	   << "T" << ltm->tm_hour << "-" << ltm->tm_min << "-" << ltm->tm_sec << "CEST";
 //
 //    m_humanTimestamp = ostri.str();
-//    msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endreq;
+//    msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endmsg;
 //
 //  }
 //  else {
-//    msg(MSG::ERROR) << " Unable to retrieve EventInfo from StoreGate" << endreq;
+//    msg(MSG::ERROR) << " Unable to retrieve EventInfo from StoreGate" << endmsg;
 //    m_eventNumber = 0;
 //    m_runNumber = 0;
 //    m_timeStamp = 0;

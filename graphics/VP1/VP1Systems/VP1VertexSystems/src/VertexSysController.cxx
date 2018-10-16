@@ -12,6 +12,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#define VP1IMPVARNAME m_d
+
 #include "VP1VertexSystems/VertexSysController.h"
 #include "ui_vp1vertexcontrollerform.h"
 #include "ui_vertex_settings_display_form.h"
@@ -44,78 +46,78 @@ public:
 
 //____________________________________________________________________
 VertexSysController::VertexSysController(IVP1System * sys)
-  : VP1Controller(sys,"VertexSysController"), d(new Imp)
+  : VP1Controller(sys,"VertexSysController"), m_d(new Imp)
 {
-  d->ui.setupUi(this);
+  m_d->ui.setupUi(this);
 
-  d->collWidget = new VP1CollectionWidget;
-  setupCollWidgetInScrollArea(d->ui.collWidgetScrollArea,d->collWidget);
+  m_d->collWidget = new VP1CollectionWidget;
+  setupCollWidgetInScrollArea(m_d->ui.collWidgetScrollArea,m_d->collWidget);
 
-  initDialog(d->ui_display, d->ui.pushButton_settings_display);
-  initDialog(d->ui_int, d->ui.pushButton_settings_interactions);
-  initDialog(d->ui_cuts, d->ui.pushButton_settings_cuts);
+  initDialog(m_d->ui_display, m_d->ui.pushButton_settings_display);
+  initDialog(m_d->ui_int, m_d->ui.pushButton_settings_interactions);
+  initDialog(m_d->ui_cuts, m_d->ui.pushButton_settings_cuts);
 
-  d->ui_cuts.etaPhiCutWidget->setEtaCutEnabled(false);
-  d->ui_display.widget_drawOptions->setBaseLightingDisabled();
+  m_d->ui_cuts.etaPhiCutWidget->setEtaCutEnabled(false);
+  m_d->ui_display.widget_drawOptions->setBaseLightingDisabled();
 
-  defineRadioButtonGroup(d->ui_display.radioButton_truthCrossSize_ProptoQuantity,
-			 d->ui_display.radioButton_truthCrossSize_Fixed);
-  d->ui_display.radioButton_truthCrossSize_Fixed->setChecked(true);
+  defineRadioButtonGroup(m_d->ui_display.radioButton_truthCrossSize_ProptoQuantity,
+			 m_d->ui_display.radioButton_truthCrossSize_Fixed);
+  m_d->ui_display.radioButton_truthCrossSize_Fixed->setChecked(true);
 
-  defineRadioButtonGroup(d->ui_display.radioButton_truthCrossSize_quantityIsEnergy,
-			 d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum,
-			 d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum,
-			 d->ui_display.radioButton_truthCrossSize_quantityIsMass);
-  d->ui_display.radioButton_truthCrossSize_quantityIsEnergy->setChecked(true);
+  defineRadioButtonGroup(m_d->ui_display.radioButton_truthCrossSize_quantityIsEnergy,
+			 m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum,
+			 m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum,
+			 m_d->ui_display.radioButton_truthCrossSize_quantityIsMass);
+  m_d->ui_display.radioButton_truthCrossSize_quantityIsEnergy->setChecked(true);
 
   addUpdateSlot(SLOT(possibleChange_truthCutAllowedEta()));
-  connectToLastUpdateSlot(d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)));
+  connectToLastUpdateSlot(m_d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)));
 
   addUpdateSlot(SLOT(possibleChange_truthCutAllowedPhi()));
-  connectToLastUpdateSlot(d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)));
+  connectToLastUpdateSlot(m_d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)));
 
   addUpdateSlot(SLOT(possibleChange_truthCutPrimaryVertexOnly()));
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_truthcut_primaryonly);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_truthcut_primaryonly);
 
   addUpdateSlot(SLOT(possibleChange_truthCutQuantity()));
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_truthcut_incomingParticleRequirement);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_truthcut_quantity_min);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_truthcut_quantity_max);
-  connectToLastUpdateSlot(d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev);
-  connectToLastUpdateSlot(d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev);
-  connectToLastUpdateSlot(d->ui_cuts.radioButton_truthcut_quantityIsEnergy);
-  connectToLastUpdateSlot(d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum);
-  connectToLastUpdateSlot(d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum);
-  connectToLastUpdateSlot(d->ui_cuts.radioButton_truthcut_quantityIsMass);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_truthcut_incomingParticleRequirement);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_truthcut_quantity_min);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_truthcut_quantity_max);
+  connectToLastUpdateSlot(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev);
+  connectToLastUpdateSlot(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev);
+  connectToLastUpdateSlot(m_d->ui_cuts.radioButton_truthcut_quantityIsEnergy);
+  connectToLastUpdateSlot(m_d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum);
+  connectToLastUpdateSlot(m_d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum);
+  connectToLastUpdateSlot(m_d->ui_cuts.radioButton_truthcut_quantityIsMass);
 
   addUpdateSlot(SLOT(possibleChange_truthCrossLength()));
-  connectToLastUpdateSlot(d->ui_display.radioButton_truthCrossSize_ProptoQuantity);
-  connectToLastUpdateSlot(d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity);
-  connectToLastUpdateSlot(d->ui_display.radioButton_truthCrossSize_quantityIsEnergy);
-  connectToLastUpdateSlot(d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum);
-  connectToLastUpdateSlot(d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum);
-  connectToLastUpdateSlot(d->ui_display.radioButton_truthCrossSize_quantityIsMass);
-  connectToLastUpdateSlot(d->ui_display.radioButton_truthCrossSize_Fixed);
-  connectToLastUpdateSlot(d->ui_display.doubleSpinBox_truthCrossSize_fixed);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_truthCrossSize_ProptoQuantity);
+  connectToLastUpdateSlot(m_d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_truthCrossSize_quantityIsEnergy);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_truthCrossSize_quantityIsMass);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_truthCrossSize_Fixed);
+  connectToLastUpdateSlot(m_d->ui_display.doubleSpinBox_truthCrossSize_fixed);
 
   addUpdateSlot(SLOT(possibleChange_reconCutAllowedTypes()));
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcuts_onlyShowTypes);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcut_type_primary);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcut_type_secondary);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcut_type_v0);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcut_type_conversion);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcut_type_kink);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcut_type_pileup);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_reconcut_type_other);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcuts_onlyShowTypes);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcut_type_primary);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcut_type_secondary);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcut_type_v0);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcut_type_conversion);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcut_type_kink);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcut_type_pileup);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_reconcut_type_other);
 
   addUpdateSlot(SLOT(possibleChange_reconVertexRepresentation()));
-  connectToLastUpdateSlot(d->ui_display.radioButton_reconVert_point);
-  connectToLastUpdateSlot(d->ui_display.radioButton_reconVert_sphere);
-  connectToLastUpdateSlot(d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm);
-  connectToLastUpdateSlot(d->ui_display.radioButton_reconVert_ellipsoid);
-  connectToLastUpdateSlot(d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_reconVert_point);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_reconVert_sphere);
+  connectToLastUpdateSlot(m_d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_reconVert_ellipsoid);
+  connectToLastUpdateSlot(m_d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma);
   // Special: -> rerandomise
-  connect(d->ui_display.pushButton_colourbyrandom_rerandomise,SIGNAL(clicked()),this,SLOT(emitRerandomise()));
+  connect(m_d->ui_display.pushButton_colourbyrandom_rerandomise,SIGNAL(clicked()),this,SLOT(emitRerandomise()));
 
   initLastVars();
 }
@@ -123,7 +125,7 @@ VertexSysController::VertexSysController(IVP1System * sys)
 //____________________________________________________________________
 VertexSysController::~VertexSysController()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -136,46 +138,46 @@ int VertexSysController::currentSettingsVersion() const
 void VertexSysController::actualSaveSettings(VP1Serialise&s) const
 {
   //Display:
-  s.save(d->ui_display.widget_drawOptions);
-  s.save(d->ui_display.radioButton_reconVert_point,
-	 d->ui_display.radioButton_reconVert_sphere,
-	 d->ui_display.radioButton_reconVert_ellipsoid);
-  s.save(d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm);
-  s.save(d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma);
-  s.save(d->ui_display.radioButton_truthCrossSize_ProptoQuantity,
-	 d->ui_display.radioButton_truthCrossSize_Fixed);
-  s.save(d->ui_display.radioButton_truthCrossSize_quantityIsEnergy,
-	 d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum,
-	 d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum,
-	 d->ui_display.radioButton_truthCrossSize_quantityIsMass);
-  s.save(d->ui_display.doubleSpinBox_truthCrossSize_fixed);
-  s.save(d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity);
+  s.save(m_d->ui_display.widget_drawOptions);
+  s.save(m_d->ui_display.radioButton_reconVert_point,
+	 m_d->ui_display.radioButton_reconVert_sphere,
+	 m_d->ui_display.radioButton_reconVert_ellipsoid);
+  s.save(m_d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm);
+  s.save(m_d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma);
+  s.save(m_d->ui_display.radioButton_truthCrossSize_ProptoQuantity,
+	 m_d->ui_display.radioButton_truthCrossSize_Fixed);
+  s.save(m_d->ui_display.radioButton_truthCrossSize_quantityIsEnergy,
+	 m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum,
+	 m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum,
+	 m_d->ui_display.radioButton_truthCrossSize_quantityIsMass);
+  s.save(m_d->ui_display.doubleSpinBox_truthCrossSize_fixed);
+  s.save(m_d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity);
 
   //Interactions:
-  s.save(d->ui_int.checkBox_printinfo);
-  s.save(d->ui_int.checkBox_printinfo_verbose);
-  s.save(d->ui_int.checkBox_zoom);
+  s.save(m_d->ui_int.checkBox_printinfo);
+  s.save(m_d->ui_int.checkBox_printinfo_verbose);
+  s.save(m_d->ui_int.checkBox_zoom);
 
   //Cuts:
-  s.save(d->ui_cuts.etaPhiCutWidget);
-  s.save(d->ui_cuts.checkBox_truthcut_primaryonly);
-  s.save(d->ui_cuts.checkBox_truthcut_incomingParticleRequirement);
-  s.save(d->ui_cuts.checkBox_truthcut_quantity_min);
-  s.save(d->ui_cuts.checkBox_truthcut_quantity_max);
-  s.save(d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev);
-  s.save(d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev);
-  s.save(d->ui_cuts.radioButton_truthcut_quantityIsEnergy,
-	 d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum,
-	 d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum,
-	 d->ui_cuts.radioButton_truthcut_quantityIsMass);
-  s.save(d->ui_cuts.checkBox_reconcuts_onlyShowTypes);
-  s.save(d->ui_cuts.checkBox_reconcut_type_primary);
-  s.save(d->ui_cuts.checkBox_reconcut_type_secondary);
-  s.save(d->ui_cuts.checkBox_reconcut_type_v0);
-  s.save(d->ui_cuts.checkBox_reconcut_type_conversion);
-  s.save(d->ui_cuts.checkBox_reconcut_type_kink);
-  s.save(d->ui_cuts.checkBox_reconcut_type_pileup);
-  s.save(d->ui_cuts.checkBox_reconcut_type_other);
+  s.save(m_d->ui_cuts.etaPhiCutWidget);
+  s.save(m_d->ui_cuts.checkBox_truthcut_primaryonly);
+  s.save(m_d->ui_cuts.checkBox_truthcut_incomingParticleRequirement);
+  s.save(m_d->ui_cuts.checkBox_truthcut_quantity_min);
+  s.save(m_d->ui_cuts.checkBox_truthcut_quantity_max);
+  s.save(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev);
+  s.save(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev);
+  s.save(m_d->ui_cuts.radioButton_truthcut_quantityIsEnergy,
+	 m_d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum,
+	 m_d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum,
+	 m_d->ui_cuts.radioButton_truthcut_quantityIsMass);
+  s.save(m_d->ui_cuts.checkBox_reconcuts_onlyShowTypes);
+  s.save(m_d->ui_cuts.checkBox_reconcut_type_primary);
+  s.save(m_d->ui_cuts.checkBox_reconcut_type_secondary);
+  s.save(m_d->ui_cuts.checkBox_reconcut_type_v0);
+  s.save(m_d->ui_cuts.checkBox_reconcut_type_conversion);
+  s.save(m_d->ui_cuts.checkBox_reconcut_type_kink);
+  s.save(m_d->ui_cuts.checkBox_reconcut_type_pileup);
+  s.save(m_d->ui_cuts.checkBox_reconcut_type_other);
 }
 
 //____________________________________________________________________
@@ -187,46 +189,46 @@ void VertexSysController::actualRestoreSettings(VP1Deserialise& s)
   }
 
   //Display:
-  s.restore(d->ui_display.widget_drawOptions);
-  s.restore(d->ui_display.radioButton_reconVert_point,
-	    d->ui_display.radioButton_reconVert_sphere,
-	    d->ui_display.radioButton_reconVert_ellipsoid);
-  s.restore(d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm);
-  s.restore(d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma);
-  s.restore(d->ui_display.radioButton_truthCrossSize_ProptoQuantity,
-	    d->ui_display.radioButton_truthCrossSize_Fixed);
-  s.restore(d->ui_display.radioButton_truthCrossSize_quantityIsEnergy,
-	    d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum,
-	    d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum,
-	    d->ui_display.radioButton_truthCrossSize_quantityIsMass);
-  s.restore(d->ui_display.doubleSpinBox_truthCrossSize_fixed);
-  s.restore(d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity);
+  s.restore(m_d->ui_display.widget_drawOptions);
+  s.restore(m_d->ui_display.radioButton_reconVert_point,
+	    m_d->ui_display.radioButton_reconVert_sphere,
+	    m_d->ui_display.radioButton_reconVert_ellipsoid);
+  s.restore(m_d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm);
+  s.restore(m_d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma);
+  s.restore(m_d->ui_display.radioButton_truthCrossSize_ProptoQuantity,
+	    m_d->ui_display.radioButton_truthCrossSize_Fixed);
+  s.restore(m_d->ui_display.radioButton_truthCrossSize_quantityIsEnergy,
+	    m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum,
+	    m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum,
+	    m_d->ui_display.radioButton_truthCrossSize_quantityIsMass);
+  s.restore(m_d->ui_display.doubleSpinBox_truthCrossSize_fixed);
+  s.restore(m_d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity);
 
   //Interactions:
-  s.restore(d->ui_int.checkBox_printinfo);
-  s.restore(d->ui_int.checkBox_printinfo_verbose);
-  s.restore(d->ui_int.checkBox_zoom);
+  s.restore(m_d->ui_int.checkBox_printinfo);
+  s.restore(m_d->ui_int.checkBox_printinfo_verbose);
+  s.restore(m_d->ui_int.checkBox_zoom);
 
   //Cuts:
-  s.restore(d->ui_cuts.etaPhiCutWidget);
-  s.restore(d->ui_cuts.checkBox_truthcut_primaryonly);
-  s.restore(d->ui_cuts.checkBox_truthcut_incomingParticleRequirement);
-  s.restore(d->ui_cuts.checkBox_truthcut_quantity_min);
-  s.restore(d->ui_cuts.checkBox_truthcut_quantity_max);
-  s.restore(d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev);
-  s.restore(d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev);
-  s.restore(d->ui_cuts.radioButton_truthcut_quantityIsEnergy,
-	    d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum,
-	    d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum,
-	    d->ui_cuts.radioButton_truthcut_quantityIsMass);
-  s.restore(d->ui_cuts.checkBox_reconcuts_onlyShowTypes);
-  s.restore(d->ui_cuts.checkBox_reconcut_type_primary);
-  s.restore(d->ui_cuts.checkBox_reconcut_type_secondary);
-  s.restore(d->ui_cuts.checkBox_reconcut_type_v0);
-  s.restore(d->ui_cuts.checkBox_reconcut_type_conversion);
-  s.restore(d->ui_cuts.checkBox_reconcut_type_kink);
-  s.restore(d->ui_cuts.checkBox_reconcut_type_pileup);
-  s.restore(d->ui_cuts.checkBox_reconcut_type_other);
+  s.restore(m_d->ui_cuts.etaPhiCutWidget);
+  s.restore(m_d->ui_cuts.checkBox_truthcut_primaryonly);
+  s.restore(m_d->ui_cuts.checkBox_truthcut_incomingParticleRequirement);
+  s.restore(m_d->ui_cuts.checkBox_truthcut_quantity_min);
+  s.restore(m_d->ui_cuts.checkBox_truthcut_quantity_max);
+  s.restore(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev);
+  s.restore(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev);
+  s.restore(m_d->ui_cuts.radioButton_truthcut_quantityIsEnergy,
+	    m_d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum,
+	    m_d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum,
+	    m_d->ui_cuts.radioButton_truthcut_quantityIsMass);
+  s.restore(m_d->ui_cuts.checkBox_reconcuts_onlyShowTypes);
+  s.restore(m_d->ui_cuts.checkBox_reconcut_type_primary);
+  s.restore(m_d->ui_cuts.checkBox_reconcut_type_secondary);
+  s.restore(m_d->ui_cuts.checkBox_reconcut_type_v0);
+  s.restore(m_d->ui_cuts.checkBox_reconcut_type_conversion);
+  s.restore(m_d->ui_cuts.checkBox_reconcut_type_kink);
+  s.restore(m_d->ui_cuts.checkBox_reconcut_type_pileup);
+  s.restore(m_d->ui_cuts.checkBox_reconcut_type_other);
 }
 
 //____________________________________________________________________
@@ -244,32 +246,32 @@ QString VertexSysController::toString( const QPair<VertexCommonFlags::QUANTITY,d
 //____________________________________________________________________
 SoGroup * VertexSysController::drawOptions() const
 {
-  return d->ui_display.widget_drawOptions->drawOptionsGroup();
+  return m_d->ui_display.widget_drawOptions->drawOptionsGroup();
 }
 
 //____________________________________________________________________
-VP1CollectionWidget * VertexSysController::collWidget() const { return d->collWidget; }
-bool VertexSysController::printInfoOnClick() const { return d->ui_int.checkBox_printinfo->isChecked(); }
-bool VertexSysController::printVerboseInfoOnClick() const { return d->ui_int.checkBox_printinfo_verbose->isChecked(); }
-bool VertexSysController::zoomOnClick() const { return d->ui_int.checkBox_zoom->isChecked(); }
-VP1Interval VertexSysController::truthCutAllowedEta() const { return d->ui_cuts.etaPhiCutWidget->allowedEta(); }
-QList<VP1Interval> VertexSysController::truthCutAllowedPhi() const { return d->ui_cuts.etaPhiCutWidget->allowedPhi(); }
-bool VertexSysController::truthCutPrimaryVertexOnly() const { return d->ui_cuts.checkBox_truthcut_primaryonly->isChecked(); }
+VP1CollectionWidget * VertexSysController::collWidget() const { return m_d->collWidget; }
+bool VertexSysController::printInfoOnClick() const { return m_d->ui_int.checkBox_printinfo->isChecked(); }
+bool VertexSysController::printVerboseInfoOnClick() const { return m_d->ui_int.checkBox_printinfo_verbose->isChecked(); }
+bool VertexSysController::zoomOnClick() const { return m_d->ui_int.checkBox_zoom->isChecked(); }
+VP1Interval VertexSysController::truthCutAllowedEta() const { return m_d->ui_cuts.etaPhiCutWidget->allowedEta(); }
+QList<VP1Interval> VertexSysController::truthCutAllowedPhi() const { return m_d->ui_cuts.etaPhiCutWidget->allowedPhi(); }
+bool VertexSysController::truthCutPrimaryVertexOnly() const { return m_d->ui_cuts.checkBox_truthcut_primaryonly->isChecked(); }
 
 //____________________________________________________________________
 QPair<VertexCommonFlags::QUANTITY,double> VertexSysController::truthCrossLength() const
 {
   VertexCommonFlags::QUANTITY quantity(VertexCommonFlags::ENERGY);
   double range(0);
-  if (d->ui_display.radioButton_truthCrossSize_Fixed->isChecked()) {
-    range = - d->ui_display.doubleSpinBox_truthCrossSize_fixed->value()*Gaudi::Units::mm;
+  if (m_d->ui_display.radioButton_truthCrossSize_Fixed->isChecked()) {
+    range = - m_d->ui_display.doubleSpinBox_truthCrossSize_fixed->value()*Gaudi::Units::mm;
   } else {
-    range = d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity->value()*(Gaudi::Units::mm/Gaudi::Units::GeV);
-    if (d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum->isChecked())
+    range = m_d->ui_display.doubleSpinBox_truthCrossSize_ProptoQuantity->value()*(Gaudi::Units::mm/Gaudi::Units::GeV);
+    if (m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsMomentum->isChecked())
       quantity = VertexCommonFlags::MOMENTUM;
-    else if (d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum->isChecked())
+    else if (m_d->ui_display.radioButton_truthCrossSize_quantityIsAbsTransverseMomentum->isChecked())
       quantity = VertexCommonFlags::TRANSVERSE_MOM;
-    else if (d->ui_display.radioButton_truthCrossSize_quantityIsMass->isChecked())
+    else if (m_d->ui_display.radioButton_truthCrossSize_quantityIsMass->isChecked())
       quantity = VertexCommonFlags::MASS;
   }
   return QPair<VertexCommonFlags::QUANTITY,double>(quantity,range);
@@ -281,22 +283,22 @@ QPair<VertexCommonFlags::QUANTITY,VP1Interval> VertexSysController::truthCutQuan
   VP1Interval range(-VP1Interval::inf(),VP1Interval::inf());
   VertexCommonFlags::QUANTITY quantity(VertexCommonFlags::ENERGY);
 
-  if (!d->ui_cuts.checkBox_truthcut_incomingParticleRequirement->isChecked())
+  if (!m_d->ui_cuts.checkBox_truthcut_incomingParticleRequirement->isChecked())
     return QPair<VertexCommonFlags::QUANTITY,VP1Interval>(quantity,range);
 
-  if (d->ui_cuts.checkBox_truthcut_quantity_min->isChecked())
-    range.setLower(d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev->value()*Gaudi::Units::GeV);
-  if (d->ui_cuts.checkBox_truthcut_quantity_max->isChecked())
-    range.setUpper(d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev->value()*Gaudi::Units::GeV);
+  if (m_d->ui_cuts.checkBox_truthcut_quantity_min->isChecked())
+    range.setLower(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_min_gev->value()*Gaudi::Units::GeV);
+  if (m_d->ui_cuts.checkBox_truthcut_quantity_max->isChecked())
+    range.setUpper(m_d->ui_cuts.doubleSpinBox_truthcut_quantity_max_gev->value()*Gaudi::Units::GeV);
 
   if (range.isAllR())
     return QPair<VertexCommonFlags::QUANTITY,VP1Interval>(quantity,range);
 
-  if (d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum->isChecked())
+  if (m_d->ui_cuts.radioButton_truthcut_quantityIsAbsMomentum->isChecked())
     quantity = VertexCommonFlags::MOMENTUM;
-  else if (d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum->isChecked())
+  else if (m_d->ui_cuts.radioButton_truthcut_quantityIsAbsTransverseMomentum->isChecked())
     quantity = VertexCommonFlags::TRANSVERSE_MOM;
-  else if (d->ui_cuts.radioButton_truthcut_quantityIsMass->isChecked())
+  else if (m_d->ui_cuts.radioButton_truthcut_quantityIsMass->isChecked())
     quantity = VertexCommonFlags::MASS;
 
   return QPair<VertexCommonFlags::QUANTITY,VP1Interval>(quantity,range);
@@ -305,34 +307,34 @@ QPair<VertexCommonFlags::QUANTITY,VP1Interval> VertexSysController::truthCutQuan
 //____________________________________________________________________
 double VertexSysController::reconVertexRepresentation() const
 {
-  if (d->ui_display.radioButton_reconVert_point->isChecked())
+  if (m_d->ui_display.radioButton_reconVert_point->isChecked())
     return 0.0;
-  if (d->ui_display.radioButton_reconVert_sphere->isChecked())
-    return - d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm->value()*Gaudi::Units::mm;
-  return d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma->value();
+  if (m_d->ui_display.radioButton_reconVert_sphere->isChecked())
+    return - m_d->ui_display.doubleSpinBox_reconVert_sphereRadius_mm->value()*Gaudi::Units::mm;
+  return m_d->ui_display.doubleSpinBox_reconVert_ellipsoid_nsigma->value();
 }
 
 //____________________________________________________________________
 VertexCommonFlags::ReconVertexTypeFlags VertexSysController::reconCutAllowedTypes() const
 {
-  if (!d->ui_cuts.checkBox_reconcuts_onlyShowTypes->isChecked())
+  if (!m_d->ui_cuts.checkBox_reconcuts_onlyShowTypes->isChecked())
     return VertexCommonFlags::RVT_Any;
 
   VertexCommonFlags::ReconVertexTypeFlags f;
 
-  if (d->ui_cuts.checkBox_reconcut_type_primary->isChecked())
+  if (m_d->ui_cuts.checkBox_reconcut_type_primary->isChecked())
     f |= VertexCommonFlags::RVT_Primary;
-  if (d->ui_cuts.checkBox_reconcut_type_secondary->isChecked())
+  if (m_d->ui_cuts.checkBox_reconcut_type_secondary->isChecked())
     f |= VertexCommonFlags::RVT_Secondary;
-  if (d->ui_cuts.checkBox_reconcut_type_v0->isChecked())
+  if (m_d->ui_cuts.checkBox_reconcut_type_v0->isChecked())
     f |= VertexCommonFlags::RVT_V0;
-  if (d->ui_cuts.checkBox_reconcut_type_conversion->isChecked())
+  if (m_d->ui_cuts.checkBox_reconcut_type_conversion->isChecked())
     f |= VertexCommonFlags::RVT_Conversion;
-  if (d->ui_cuts.checkBox_reconcut_type_kink->isChecked())
+  if (m_d->ui_cuts.checkBox_reconcut_type_kink->isChecked())
     f |= VertexCommonFlags::RVT_Kink;
-  if (d->ui_cuts.checkBox_reconcut_type_pileup->isChecked())
+  if (m_d->ui_cuts.checkBox_reconcut_type_pileup->isChecked())
     f |= VertexCommonFlags::RVT_Pileup;
-  if (d->ui_cuts.checkBox_reconcut_type_other->isChecked())
+  if (m_d->ui_cuts.checkBox_reconcut_type_other->isChecked())
     f |= VertexCommonFlags::RVT_Other;
   return f;
 }

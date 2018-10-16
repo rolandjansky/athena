@@ -20,7 +20,7 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Base
    graphics/VP1/VP1Utils
    PRIVATE
-   Control/DataModel
+   Control/AthContainers
    DetectorDescription/GeoModel/GeoModelUtilities
    Event/EventPrimitives
    InnerDetector/InDetDetDescr/InDetIdentifier
@@ -38,7 +38,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt4 COMPONENTS QtCore QtGui )
+find_package( Qt5 COMPONENTS Core Gui Widgets)
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -52,8 +52,8 @@ atlas_add_library( VP1PRDSystems VP1PRDSystems/*.h src/*.cxx
    ${CMAKE_CURRENT_BINARY_DIR}
    LINK_LIBRARIES GeoModelKernel GeoPrimitives InDetReadoutGeometry TRT_ReadoutGeometry
    InDetPrepRawData MuonPrepRawData TrkPrepRawData TrkSpacePoint VP1Base
-   VP1Utils MuonIdHelpersLib Qt4::QtCore
-   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} DataModel
+   VP1Utils MuonIdHelpersLib Qt5::Core Qt5::Gui
+   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers
    GeoModelUtilities EventPrimitives InDetIdentifier MuonReadoutGeometry
    TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack
-   TrkSegment TrkTrack VP1HEPVis VP1GuideLineSystems Qt4::QtGui )
+   TrkSegment TrkTrack VP1HEPVis VP1GuideLineSystems  )

@@ -29,22 +29,22 @@ public:
        unsigned& nPixelHits,
        unsigned& nSCTHits,
        unsigned& nTRTHits,
-       unsigned& m_nhits_muon_phi, 
-       unsigned& m_nhits_rpc, 
-       unsigned& m_nhits_mdt, 
-       unsigned& m_nhits_tgc, 
-       unsigned& m_nhits_csc
+       unsigned& nhits_muon_phi, 
+       unsigned& nhits_rpc, 
+       unsigned& nhits_mdt, 
+       unsigned& nhits_tgc, 
+       unsigned& nhits_csc
        );
        
    static bool countHits( const Trk::Segment*,
         unsigned& nPixelHits,
         unsigned& nSCTHits,
         unsigned& nTRTHits,
-        unsigned& m_nhits_muon_phi, 
-        unsigned& m_nhits_rpc, 
-        unsigned& m_nhits_mdt, 
-        unsigned& m_nhits_tgc, 
-        unsigned& m_nhits_csc
+        unsigned& nhits_muon_phi, 
+        unsigned& nhits_rpc, 
+        unsigned& nhits_mdt, 
+        unsigned& nhits_tgc, 
+        unsigned& nhits_csc
         );
         
     static void addCounts( std::set<const Trk::TrkDetElementBase*>& detelems, const Trk::MeasurementBase* meas,
@@ -52,11 +52,11 @@ public:
         unsigned& nPixelHits,
         unsigned& nSCTHits,
         unsigned& nTRTHits,
-        unsigned& m_nhits_muon_phi, 
-        unsigned& m_nhits_rpc, 
-        unsigned& m_nhits_mdt, 
-        unsigned& m_nhits_tgc, 
-        unsigned& m_nhits_csc
+        unsigned& nhits_muon_phi, 
+        unsigned& nhits_rpc, 
+        unsigned& nhits_mdt, 
+        unsigned& nhits_tgc, 
+        unsigned& nhits_csc
         );
         
 private:

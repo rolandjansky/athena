@@ -38,7 +38,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include <QtGui/QComboBox>
+#include <QComboBox>
 #include <QTreeWidgetItem>
 
 #include <qdatetime.h>
@@ -95,12 +95,13 @@ public:
 TrackCollHandleBase::TrackCollHandleBase( TrackSysCommonData * cd,
 					  const QString& name,
 					  TrackType::Type type)
-  : VP1StdCollection(cd->system(),"TrackCollHandle_"+TrackType::typeToString(type)+"_"+name), d(new Imp),
+  : VP1StdCollection(cd->system(),"TrackCollHandle_"+TrackType::typeToString(type)+"_"+name), m_d(new Imp),
     m_nshownhandles(0), m_type(type),
     m_commonData(cd),
     m_sephelper(0),
     m_propagator(0),
     m_propagationOptions(TrackSystemController::NoPropOptions),
+    m_propMaxRadius(0.0),
     m_parts(TrackCommonFlags::NoParts),
     m_labels(TrackSystemController::NoLabels), m_labelsTrkOffset(0.0),
     m_trackTubeRadius(0.0),
@@ -114,39 +115,39 @@ TrackCollHandleBase::TrackCollHandleBase( TrackSysCommonData * cd,
     m_cut_phi_allowall(false),
     m_cut_etaptphi_allwillfail(true)
 {
-  d->theclass = this;
-  d->name = name;
-  d->lastUsedPropagator = 0;
-  d->notifystatesave = false;
-  d->shownTSOSParts = TrackCommonFlags::TSOS_NoObjects;
-  d->customColouredTSOSParts = TrackCommonFlags::TSOS_NoObjects;
+  m_d->theclass = this;
+  m_d->name = name;
+  m_d->lastUsedPropagator = 0;
+  m_d->notifystatesave = false;
+  m_d->shownTSOSParts = TrackCommonFlags::TSOS_NoObjects;
+  m_d->customColouredTSOSParts = TrackCommonFlags::TSOS_NoObjects;
   //Fixme: to avoid double work on startup, these should have the same
   //values here as the controller defaults:
-  d->tsos_useShortTRTMeasurements = true;
-  d->tsos_useShortMDTMeasurements = true;
-  d->tsos_drawMeasGlobalPositions = false;  
-  d->tsos_measurementsShorttubesScale = 2.0;
-  d->tsos_nStdDevForParamErrors = false;
-  d->tsos_numberOfPointsOnCircles = 12;
-  d->tsos_materialEffectsOnTrackScale = 2.0;
-  d->tsos_parTubeErrorsDrawCylinders = false;
+  m_d->tsos_useShortTRTMeasurements = true;
+  m_d->tsos_useShortMDTMeasurements = true;
+  m_d->tsos_drawMeasGlobalPositions = false;  
+  m_d->tsos_measurementsShorttubesScale = 2.0;
+  m_d->tsos_nStdDevForParamErrors = false;
+  m_d->tsos_numberOfPointsOnCircles = 12;
+  m_d->tsos_materialEffectsOnTrackScale = 2.0;
+  m_d->tsos_parTubeErrorsDrawCylinders = false;
 
-  d->comboBox_colourby = new QComboBox;
-  d->objBrowseTree = 0;
-  d->matButton=0;
+  m_d->comboBox_colourby = new QComboBox;
+  m_d->objBrowseTree = 0;
+  m_d->matButton=0;
 }
 
 //____________________________________________________________________
 void TrackCollHandleBase::init(VP1MaterialButtonBase*)
 {
-  d->matButton = new TrackCollectionSettingsButton;
-  d->matButton->setText(text());
-  VP1StdCollection::init(d->matButton);//this call is required. Passing in TrackCollectionSettingsButton means we have the more complex button. 
+  m_d->matButton = new TrackCollectionSettingsButton;
+  m_d->matButton->setText(text());
+  VP1StdCollection::init(m_d->matButton);//this call is required. Passing in TrackCollectionSettingsButton means we have the more complex button. 
 
   setupSettingsFromController(common()->controller());
 
   //Setup colour by:
-  d->comboBox_colourby->setToolTip("Determine how tracks from this collection are coloured.\n The 'Dist. Sel.' option means the tracks will be coloured by distance from the last selected track. ");
+  m_d->comboBox_colourby->setToolTip("Determine how tracks from this collection are coloured.\n The 'Dist. Sel.' option means the tracks will be coloured by distance from the last selected track. ");
   QStringList l;
   l << Imp::comboBoxEntry_ColourByCollection();
   l << Imp::comboBoxEntry_ColourByRandom();
@@ -162,31 +163,31 @@ void TrackCollHandleBase::init(VP1MaterialButtonBase*)
     // messageVerbose("Allow colour by vertex!");
    l << Imp::comboBoxEntry_ColourByVertex(); 
   }  
-  d->comboBox_colourby->addItems(l);
-  d->comboBox_colourby->setCurrentIndex(0);//corresponds to per collection.
-  connect(d->comboBox_colourby,SIGNAL(currentIndexChanged(int)),
+  m_d->comboBox_colourby->addItems(l);
+  m_d->comboBox_colourby->setCurrentIndex(0);//corresponds to per collection.
+  connect(m_d->comboBox_colourby,SIGNAL(currentIndexChanged(int)),
 	  this,SLOT(colourByComboBoxItemChanged()));
   
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
   setColourBy(defaultColourBy());
   
   // add stuff to control per collection settings.
-  collSwitch()->addChild(d->matButton->trackLightModel());
-  collSwitch()->addChild(d->matButton->trackDrawStyle());
+  collSwitch()->addChild(m_d->matButton->trackLightModel());
+  collSwitch()->addChild(m_d->matButton->trackDrawStyle());
 }
 
 //____________________________________________________________________
 TrackCollHandleBase::~TrackCollHandleBase()
 {
   messageVerbose("destructor start");
-  cleanupPtrContainer(d->trackhandles);
+  cleanupPtrContainer(m_d->trackhandles);
   if (m_sephelper) {
     SoSeparator * sep = m_sephelper->topSeparator();
     sep->ref();
     delete m_sephelper;
     sep->unref();
   }
-  delete d;
+  delete m_d;
   messageVerbose("destructor end");
 }
 
@@ -213,43 +214,43 @@ void TrackCollHandleBase::setupSettingsFromController(TrackSystemController* con
   connect(controller,SIGNAL(extrapolateToThisVolumeChanged(void)),this,SLOT(extrapolateToThisVolumeChanged(void)));
 
   connect(controller,SIGNAL(shownTrackPartsChanged(TrackCommonFlags::TrackPartsFlags)),this,SLOT(setParts(TrackCommonFlags::TrackPartsFlags)));
-  connect(d->matButton,SIGNAL(hideActualTrackPathChanged(bool)),this,SLOT(setActualPathShown(bool)));
+  connect(m_d->matButton,SIGNAL(hideActualTrackPathChanged(bool)),this,SLOT(setActualPathShown(bool)));
   setParts(controller->shownTrackParts());
 
   connect(controller,SIGNAL(vertexProjectionAngleChanged(int)),this,SLOT(setParts(int)));
   setParts(controller->vertexProjectionAngle());
 
   // connect(controller,SIGNAL(trackTubeRadiusChanged(const double&)),this,SLOT(setTrackTubeRadius(const double&)));
-  connect(d->matButton,SIGNAL(trackTubeRadiusChanged(const double&)),this,SLOT(setTrackTubeRadius(const double&)));
-  setTrackTubeRadius(d->matButton->trackTubeRadius());
+  connect(m_d->matButton,SIGNAL(trackTubeRadiusChanged(const double&)),this,SLOT(setTrackTubeRadius(const double&)));
+  setTrackTubeRadius(m_d->matButton->trackTubeRadius());
 
   connect(controller,SIGNAL(rerandomise()),this,SLOT(rerandomiseRandomTrackColours()));
   
   connect(common()->system(),SIGNAL(newTrackSelected( const TrackHandleBase&)),this,SLOT(trackSelectionChanged()));
 
   //cuts
-  connect(d->matButton,SIGNAL(useDefaultCutsChanged(bool)),this,SLOT(setUseDefaultCuts(bool)));
-  setUseDefaultCuts(d->matButton->useDefaultCuts());
+  connect(m_d->matButton,SIGNAL(useDefaultCutsChanged(bool)),this,SLOT(setUseDefaultCuts(bool)));
+  setUseDefaultCuts(m_d->matButton->useDefaultCuts());
   
   connect(controller,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
-  connect(d->matButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
-  setCutAllowedPt(useDefaultCuts()?controller->cutAllowedPt():d->matButton->cutAllowedPt());
+  connect(m_d->matButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
+  setCutAllowedPt(useDefaultCuts()?controller->cutAllowedPt():m_d->matButton->cutAllowedPt());
 
   connect(controller,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
-  connect(d->matButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
-  setCutAllowedEta(useDefaultCuts()?controller->cutAllowedEta():d->matButton->cutAllowedEta());
+  connect(m_d->matButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
+  setCutAllowedEta(useDefaultCuts()?controller->cutAllowedEta():m_d->matButton->cutAllowedEta());
 
   connect(controller,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
-  connect(d->matButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
-  setCutAllowedPhi(useDefaultCuts()?controller->cutAllowedPhi():d->matButton->cutAllowedPhi());
+  connect(m_d->matButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
+  setCutAllowedPhi(useDefaultCuts()?controller->cutAllowedPhi():m_d->matButton->cutAllowedPhi());
 
   connect(controller,SIGNAL(cutRequiredNHitsChanged(const QList<unsigned>&)),this,SLOT(setRequiredNHits(const QList<unsigned>&)));
-  connect(d->matButton,SIGNAL(cutRequiredNHitsChanged(const QList<unsigned>&)),this,SLOT(setRequiredNHits(const QList<unsigned>&)));
-  setRequiredNHits(useDefaultCuts()?controller->cutRequiredNHits():d->matButton->cutRequiredNHits());
+  connect(m_d->matButton,SIGNAL(cutRequiredNHitsChanged(const QList<unsigned>&)),this,SLOT(setRequiredNHits(const QList<unsigned>&)));
+  setRequiredNHits(useDefaultCuts()?controller->cutRequiredNHits():m_d->matButton->cutRequiredNHits());
   
   connect(controller,SIGNAL(cutOnlyVertexAssocTracksChanged(bool)),this,SLOT(setOnlyVertexAssocTracks(bool)));
-  connect(d->matButton,SIGNAL(cutOnlyVertexAssocTracksChanged(bool)),this,SLOT(setOnlyVertexAssocTracks(bool)));
-  setOnlyVertexAssocTracks(useDefaultCuts()?controller->cutOnlyVertexAssocTracks():d->matButton->cutOnlyVertexAssocTracks());
+  connect(m_d->matButton,SIGNAL(cutOnlyVertexAssocTracksChanged(bool)),this,SLOT(setOnlyVertexAssocTracks(bool)));
+  setOnlyVertexAssocTracks(useDefaultCuts()?controller->cutOnlyVertexAssocTracks():m_d->matButton->cutOnlyVertexAssocTracks());
 
   connect(controller,SIGNAL(customColouredTSOSPartsChanged(TrackCommonFlags::TSOSPartsFlags)),
 	  this,SLOT(setCustomColouredTSOSParts(TrackCommonFlags::TSOSPartsFlags)));
@@ -302,7 +303,7 @@ void TrackCollHandleBase::setupSettingsFromController(TrackSystemController* con
 //____________________________________________________________________
 QString TrackCollHandleBase::name() const
 {
-  return d->name;
+  return m_d->name;
 }
 
 //____________________________________________________________________
@@ -311,16 +312,20 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
    if (m_cut_etaptphi_allwillfail)
     return false;
 
-  // messageVerbose("TrackCollHandleBase::cut - checking hit cuts.");
+  messageVerbose("TrackCollHandleBase::cut - checking hit cuts.");
   if (mightHaveSubSystemHitInfo()&&!m_cut_requiredNHits.isEmpty()&&handle->hasSubSystemHitInfo()) {
     assert(m_cut_requiredNHits.count()==4);
-    // Only apply ID cuts to tracks which have ID hits
+    // Only apply ID cuts to tracks which have ID hits (so ID only and combined muons)
     if (handle->isIDTrack()){
       if (handle->getNPixelHits()<m_cut_requiredNHits[0]) return false;
       if (handle->getNSCTHits()<m_cut_requiredNHits[1]) return false;
       if (handle->getNTRTHits()<m_cut_requiredNHits[2]) return false;
     }
+    // Probably we should only be applying these to MS tracks?
+    messageVerbose("TrackCollHandleBase::cut : "+QString::number(handle->getNMuonPrecisionHits())+" / "+ QString::number(m_cut_requiredNHits[4]));
+    
     if (handle->getNMuonHits()<m_cut_requiredNHits[3]) return false;
+    if (handle->getNMuonPrecisionHits()<m_cut_requiredNHits[4]) return false;
   }
 
   if (!m_cut_pt_allowall||!m_cut_eta_allowall||!m_cut_phi_allowall)
@@ -381,7 +386,7 @@ void TrackCollHandleBase::recheckCutStatusOfAllVisibleHandles()
   common()->system()->deselectAll();
 
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it) {
     if ((*it)->visible())
       recheckCutStatus(*it);
@@ -389,7 +394,7 @@ void TrackCollHandleBase::recheckCutStatusOfAllVisibleHandles()
   updateObjectBrowserVisibilityCounts();
   largeChangesEnd();
 
-  message("recheckCutStatusOfAllVisibleHandles:  "+str(nShownHandles())+"/"+str(d->trackhandles.size())+" pass cuts");
+  message("recheckCutStatusOfAllVisibleHandles:  "+str(nShownHandles())+"/"+str(m_d->trackhandles.size())+" pass cuts");
 }
 
 //____________________________________________________________________
@@ -399,7 +404,7 @@ void TrackCollHandleBase::recheckCutStatusOfAllNotVisibleHandles()
     return;
 
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it) {
     if (!(*it)->visible())
       recheckCutStatus(*it);
@@ -407,7 +412,7 @@ void TrackCollHandleBase::recheckCutStatusOfAllNotVisibleHandles()
   updateObjectBrowserVisibilityCounts();
   largeChangesEnd();
 
-  message("recheckCutStatusOfAllNotVisibleHandles:  "+str(nShownHandles())+"/"+str(d->trackhandles.size())+" pass cuts");
+  message("recheckCutStatusOfAllNotVisibleHandles:  "+str(nShownHandles())+"/"+str(m_d->trackhandles.size())+" pass cuts");
 }
 
 //____________________________________________________________________
@@ -416,13 +421,13 @@ void TrackCollHandleBase::recheckCutStatusOfAllHandles()
   if (!isLoaded())
     return;
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it)
     recheckCutStatus(*it);
   updateObjectBrowserVisibilityCounts();
   largeChangesEnd();
 
-  message("recheckCutStatusOfAllHandles:  "+str(nShownHandles())+"/"+str(d->trackhandles.size())+" pass cuts");
+  message("recheckCutStatusOfAllHandles:  "+str(nShownHandles())+"/"+str(m_d->trackhandles.size())+" pass cuts");
 }
 
 //____________________________________________________________________
@@ -435,7 +440,7 @@ void TrackCollHandleBase::update3DObjectsOfAllHandles(bool onlythosetouchingmuon
                    +str(onlythosetouchingmuonchambers)+", invalidatePropagatedPoints = "
                    +str(invalidatePropagatedPoints)+")");
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   if (onlythosetouchingmuonchambers) {
     for (;it!=itE;++it)
       if (!(*it)->touchedMuonChambers().empty())
@@ -457,7 +462,7 @@ void TrackCollHandleBase::updateInDetProjectionsOfAllHandles()
     return;
   messageVerbose("updateInDetProjectionsOfAllHandles start");
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it)
     (*it)->updateInDetProjections();
   largeChangesEnd();
@@ -472,7 +477,7 @@ void TrackCollHandleBase::updateMuonProjectionsOfAllHandles()
     return;
   messageVerbose("updateMuonProjectionsOfAllHandles start");
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it)
     (*it)->updateMuonProjections();
   largeChangesEnd();
@@ -487,7 +492,7 @@ void TrackCollHandleBase::updateMaterialOfAllHandles()
     return;
   messageVerbose("updateMaterialOfAllHandles start");
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it)
     (*it)->updateMaterial();
   largeChangesEnd();
@@ -497,13 +502,13 @@ void TrackCollHandleBase::updateMaterialOfAllHandles()
 //____________________________________________________________________
 void TrackCollHandleBase::hintNumberOfTracksInEvent(unsigned n)
 {
-  d->trackhandles.reserve(n);
+  m_d->trackhandles.reserve(n);
 }
 
 //____________________________________________________________________
 void TrackCollHandleBase::addTrackHandle(TrackHandleBase* handle)
 {
-  d->trackhandles.push_back(handle);
+  m_d->trackhandles.push_back(handle);
 }
 
 //____________________________________________________________________
@@ -515,10 +520,10 @@ void TrackCollHandleBase::setPropagator( Trk::IExtrapolator * p)
     return;
   messageVerbose("setPropagator  ==> Changed");
   m_propagator=p;
-  bool mustUpdatePropagatedPoints = (p && d->lastUsedPropagator!=p);
+  bool mustUpdatePropagatedPoints = (p && m_d->lastUsedPropagator!=p);
   update3DObjectsOfAllHandles(false,mustUpdatePropagatedPoints);
   if (p)
-    d->lastUsedPropagator = p;
+    m_d->lastUsedPropagator = p;
 }
 
 void TrackCollHandleBase::setPropagationOptions( TrackSystemController::PropagationOptionFlags options){
@@ -654,12 +659,12 @@ void TrackCollHandleBase::setColourBy( TrackCollHandleBase::COLOURBY cb )
     targetText = Imp::comboBoxEntry_ColourByCollection();
     break;
   }
-  if (targetText!=d->comboBox_colourby->currentText()) {
-    int i = d->comboBox_colourby->findText(targetText);
-    if (i>=0&&i<d->comboBox_colourby->count()) {
-      bool save = d->comboBox_colourby->blockSignals(true);
-      d->comboBox_colourby->setCurrentIndex(i);
-      d->comboBox_colourby->blockSignals(save);
+  if (targetText!=m_d->comboBox_colourby->currentText()) {
+    int i = m_d->comboBox_colourby->findText(targetText);
+    if (i>=0&&i<m_d->comboBox_colourby->count()) {
+      bool save = m_d->comboBox_colourby->blockSignals(true);
+      m_d->comboBox_colourby->setCurrentIndex(i);
+      m_d->comboBox_colourby->blockSignals(save);
     } else {
       message("ERROR: Problems finding correct text in combo box");
     }
@@ -681,7 +686,7 @@ void TrackCollHandleBase::rerandomiseRandomTrackColours()
     return;
   messageVerbose("rerandomiseRandomTrackColours start");
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it)
     (*it)->rerandomiseRandomMaterial();
   largeChangesEnd();
@@ -695,7 +700,7 @@ void TrackCollHandleBase::trackSelectionChanged()
     return;
   messageVerbose("trackSelectionChanged start");
   largeChangesBegin();
-  std::vector<TrackHandleBase*>::iterator it(d->trackhandles.begin()),itE(d->trackhandles.end());
+  std::vector<TrackHandleBase*>::iterator it(m_d->trackhandles.begin()),itE(m_d->trackhandles.end());
   for (;it!=itE;++it)
     (*it)->updateMaterial();
   largeChangesEnd();
@@ -705,29 +710,29 @@ void TrackCollHandleBase::trackSelectionChanged()
 //____________________________________________________________________
 void TrackCollHandleBase::trackHandleIterationBegin()
 {
-  d->itTrackHandles = d->trackhandles.begin();
-  d->itTrackHandlesEnd = d->trackhandles.end();
+  m_d->itTrackHandles = m_d->trackhandles.begin();
+  m_d->itTrackHandlesEnd = m_d->trackhandles.end();
 }
 
 //____________________________________________________________________
 TrackHandleBase* TrackCollHandleBase::getNextTrackHandle() {
-  if (d->itTrackHandles==d->itTrackHandlesEnd)
+  if (m_d->itTrackHandles==m_d->itTrackHandlesEnd)
     return 0;
   else
-    return *(d->itTrackHandles++);
+    return *(m_d->itTrackHandles++);
 }
 
 
 void TrackCollHandleBase::setUseDefaultCuts(bool useDefaults){
-  if (d->last_useDefaultCuts==useDefaults) return;
+  if (m_d->last_useDefaultCuts==useDefaults) return;
   messageVerbose("setUseDefaultCuts changed to "+str(useDefaults)+"- rechecking all handles");
   // recheckCutStatusOfAllHandles();
   
-  setCutAllowedPt(useDefaultCuts()? common()->controller()->cutAllowedPt():d->matButton->cutAllowedPt());
-  setCutAllowedEta(useDefaultCuts()?common()->controller()->cutAllowedEta():d->matButton->cutAllowedEta());
-  setCutAllowedPhi(useDefaultCuts()?common()->controller()->cutAllowedPhi():d->matButton->cutAllowedPhi());
-  setRequiredNHits(useDefaultCuts()?common()->controller()->cutRequiredNHits():d->matButton->cutRequiredNHits());
-  setOnlyVertexAssocTracks(useDefaultCuts()?common()->controller()->cutOnlyVertexAssocTracks():d->matButton->cutOnlyVertexAssocTracks());
+  setCutAllowedPt(useDefaultCuts()? common()->controller()->cutAllowedPt():m_d->matButton->cutAllowedPt());
+  setCutAllowedEta(useDefaultCuts()?common()->controller()->cutAllowedEta():m_d->matButton->cutAllowedEta());
+  setCutAllowedPhi(useDefaultCuts()?common()->controller()->cutAllowedPhi():m_d->matButton->cutAllowedPhi());
+  setRequiredNHits(useDefaultCuts()?common()->controller()->cutRequiredNHits():m_d->matButton->cutRequiredNHits());
+  setOnlyVertexAssocTracks(useDefaultCuts()?common()->controller()->cutOnlyVertexAssocTracks():m_d->matButton->cutOnlyVertexAssocTracks());
 }
 
 //____________________________________________________________________
@@ -876,7 +881,7 @@ void TrackCollHandleBase::actualSetCustomColouredTSOSPartsOnHandles()
   trackHandleIterationBegin();
   TrackHandleBase* handle;
   while ((handle=getNextTrackHandle()))
-    handle->setCustomColouredTSOSParts(d->customColouredTSOSParts);
+    handle->setCustomColouredTSOSParts(m_d->customColouredTSOSParts);
   largeChangesEnd();
 }
 
@@ -887,7 +892,7 @@ void TrackCollHandleBase::actualSetShownTSOSPartsOnHandles()
   trackHandleIterationBegin();
   TrackHandleBase* handle;
   while ((handle=getNextTrackHandle()))
-    handle->setShownTSOSParts(d->shownTSOSParts);
+    handle->setShownTSOSParts(m_d->shownTSOSParts);
   largeChangesEnd();
   
   fillObjectBrowser(); // FIXME! Probably not the right place to call this
@@ -896,9 +901,9 @@ void TrackCollHandleBase::actualSetShownTSOSPartsOnHandles()
 //____________________________________________________________________
 void TrackCollHandleBase::setShownTSOSParts(TrackCommonFlags::TSOSPartsFlags f)
 {
-  if (d->shownTSOSParts==f)
+  if (m_d->shownTSOSParts==f)
     return;
-  d->shownTSOSParts=f;
+  m_d->shownTSOSParts=f;
   if (visible()) messageVerbose("shown TSOS parts changed to "+str(f));
   actualSetShownTSOSPartsOnHandles();
 }
@@ -907,9 +912,9 @@ void TrackCollHandleBase::setShownTSOSParts(TrackCommonFlags::TSOSPartsFlags f)
 //____________________________________________________________________
 void TrackCollHandleBase::setCustomColouredTSOSParts(TrackCommonFlags::TSOSPartsFlags f)
 {
-  if (d->customColouredTSOSParts==f)
+  if (m_d->customColouredTSOSParts==f)
     return;
-  d->customColouredTSOSParts=f;
+  m_d->customColouredTSOSParts=f;
   if (visible()) messageVerbose("custom coloured TSOS parts changed to "+str(f));
   actualSetCustomColouredTSOSPartsOnHandles();
 }
@@ -917,9 +922,9 @@ void TrackCollHandleBase::setCustomColouredTSOSParts(TrackCommonFlags::TSOSParts
 //____________________________________________________________________
 void TrackCollHandleBase::setUseShortTRTMeasurements(bool b)
 {
-  if (d->tsos_useShortTRTMeasurements==b)
+  if (m_d->tsos_useShortTRTMeasurements==b)
     return;
-  d->tsos_useShortTRTMeasurements=b;
+  m_d->tsos_useShortTRTMeasurements=b;
   largeChangesBegin();
   trackHandleIterationBegin();
   TrackHandleBase* handle;
@@ -932,9 +937,9 @@ void TrackCollHandleBase::setUseShortTRTMeasurements(bool b)
 //____________________________________________________________________
 void TrackCollHandleBase::setUseShortMDTMeasurements(bool b)
 {
-  if (d->tsos_useShortMDTMeasurements==b)
+  if (m_d->tsos_useShortMDTMeasurements==b)
     return;
-  d->tsos_useShortMDTMeasurements=b;
+  m_d->tsos_useShortMDTMeasurements=b;
   largeChangesBegin();
   trackHandleIterationBegin();
   TrackHandleBase* handle;
@@ -948,9 +953,9 @@ void TrackCollHandleBase::setDrawMeasGlobalPositions(bool b)
 {
   // if (visible()) messageVerbose("TrackCollHandleBase::setDrawMeasGlobalPositions => "+str(b));
   
-  if (d->tsos_drawMeasGlobalPositions==b)
+  if (m_d->tsos_drawMeasGlobalPositions==b)
     return;
-  d->tsos_drawMeasGlobalPositions=b;
+  m_d->tsos_drawMeasGlobalPositions=b;
   
   largeChangesBegin();
   trackHandleIterationBegin();
@@ -963,9 +968,9 @@ void TrackCollHandleBase::setDrawMeasGlobalPositions(bool b)
 //____________________________________________________________________
 void TrackCollHandleBase::setMeasurementsShorttubesScale(double n)
 {
-  if (d->tsos_measurementsShorttubesScale==n)
+  if (m_d->tsos_measurementsShorttubesScale==n)
     return;
-  d->tsos_useShortMDTMeasurements=n;
+  m_d->tsos_useShortMDTMeasurements=n;
   largeChangesBegin();
   trackHandleIterationBegin();
   TrackHandleBase* handle;
@@ -977,9 +982,9 @@ void TrackCollHandleBase::setMeasurementsShorttubesScale(double n)
 //____________________________________________________________________
 void TrackCollHandleBase::setNStdDevForParamErrors(const double& nstddev)
 {
-  if (d->tsos_nStdDevForParamErrors==nstddev)
+  if (m_d->tsos_nStdDevForParamErrors==nstddev)
     return;
-  d->tsos_nStdDevForParamErrors=nstddev;
+  m_d->tsos_nStdDevForParamErrors=nstddev;
   largeChangesBegin();
   trackHandleIterationBegin();
   TrackHandleBase* handle;
@@ -991,9 +996,9 @@ void TrackCollHandleBase::setNStdDevForParamErrors(const double& nstddev)
 //____________________________________________________________________
 void TrackCollHandleBase::setNumberOfPointsOnCircles(int n)
 {
-  if (d->tsos_numberOfPointsOnCircles==n)
+  if (m_d->tsos_numberOfPointsOnCircles==n)
     return;
-  d->tsos_numberOfPointsOnCircles=n;
+  m_d->tsos_numberOfPointsOnCircles=n;
   largeChangesBegin();
   trackHandleIterationBegin();
   TrackHandleBase* handle;
@@ -1005,9 +1010,9 @@ void TrackCollHandleBase::setNumberOfPointsOnCircles(int n)
 //____________________________________________________________________
 void TrackCollHandleBase::setMaterialEffectsOnTrackScale(double n)
 {
-  if (d->tsos_materialEffectsOnTrackScale==n)
+  if (m_d->tsos_materialEffectsOnTrackScale==n)
     return;
-  d->tsos_materialEffectsOnTrackScale=n;
+  m_d->tsos_materialEffectsOnTrackScale=n;
   largeChangesBegin();
   trackHandleIterationBegin();
   TrackHandleBase* handle;
@@ -1019,9 +1024,9 @@ void TrackCollHandleBase::setMaterialEffectsOnTrackScale(double n)
 //____________________________________________________________________
 void TrackCollHandleBase::setParTubeErrorsDrawCylinders(bool b)
 {
-  if (d->tsos_parTubeErrorsDrawCylinders==b)
+  if (m_d->tsos_parTubeErrorsDrawCylinders==b)
     return;
-  d->tsos_parTubeErrorsDrawCylinders=b;
+  m_d->tsos_parTubeErrorsDrawCylinders=b;
   largeChangesBegin();
   trackHandleIterationBegin();
   TrackHandleBase* handle;
@@ -1047,16 +1052,16 @@ void TrackCollHandleBase::collVisibilityChanged(bool vis)
   if (vis){
     recheckCutStatusOfAllNotVisibleHandles();//Fixme -> ofallhandles? All must be not visible anyway...
     fillObjectBrowser();
-    if (d->objBrowseTree) d->objBrowseTree->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
+    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
   }else{
     recheckCutStatusOfAllVisibleHandles();
 //    QTreeWidget* trkObjBrowser = common()->controller()->trackObjBrowser();
-//    if (d->objBrowseTree && trkObjBrowser) {
-//      trkObjBrowser->takeTopLevelItem(trkObjBrowser->indexOfTopLevelItem(d->objBrowseTree));
-//      delete d->objBrowseTree; d->objBrowseTree=0;
+//    if (m_d->objBrowseTree && trkObjBrowser) {
+//      trkObjBrowser->takeTopLevelItem(trkObjBrowser->indexOfTopLevelItem(m_d->objBrowseTree));
+//      delete m_d->objBrowseTree; m_d->objBrowseTree=0;
 //    }
     // FIXME - need to loop through handles setting pointers to deleted QTreeWidgetItems
-    if (d->objBrowseTree) d->objBrowseTree->setFlags(0); // not selectable, not enabled
+    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(0); // not selectable, not enabled
   }
   actualSetShownTSOSPartsOnHandles();
   actualSetCustomColouredTSOSPartsOnHandles();
@@ -1065,13 +1070,13 @@ void TrackCollHandleBase::collVisibilityChanged(bool vis)
 void TrackCollHandleBase::updateObjectBrowserVisibilityCounts() {
   messageVerbose("TrackCollHandleBase::updateObjectBrowserVisibilityCounts called for "+name());
   QTreeWidget* trkObjBrowser = common()->controller()->trackObjBrowser();
-  if (!trkObjBrowser || !d->objBrowseTree) {
-    messageVerbose("TrackCollHandleBase::updateObjectBrowserVisibilityCounts: no common()->controller()->trackObjBrowser() and/or d->objBrowseTree. Aborting");
-    messageVerbose("trkObjBrowser: "+str(trkObjBrowser)+"\t d->objBrowseTree: "+str(d->objBrowseTree));
+  if (!trkObjBrowser || !m_d->objBrowseTree) {
+    messageVerbose("TrackCollHandleBase::updateObjectBrowserVisibilityCounts: no common()->controller()->trackObjBrowser() and/or m_d->objBrowseTree. Aborting");
+    messageVerbose("trkObjBrowser: "+str(trkObjBrowser)+"\t m_d->objBrowseTree: "+str(m_d->objBrowseTree));
     return; 
   }
-  QString text(QString(": (")+QString::number(nShownHandles())+QString("/")+QString::number(d->trackhandles.size())+QString(") visible"));
-  d->objBrowseTree->setText(1, text);
+  QString text(QString(": (")+QString::number(nShownHandles())+QString("/")+QString::number(m_d->trackhandles.size())+QString(") visible"));
+  m_d->objBrowseTree->setText(1, text);
 }
 
 void TrackCollHandleBase::fillObjectBrowser()
@@ -1093,12 +1098,12 @@ void TrackCollHandleBase::fillObjectBrowser()
   trkObjBrowser->setUpdatesEnabled(false);  
 
   bool firstTime=false;
-  if (!d->objBrowseTree) {
-    d->objBrowseTree = new QTreeWidgetItem(0);
+  if (!m_d->objBrowseTree) {
+    m_d->objBrowseTree = new QTreeWidgetItem(0);
     firstTime=true;
     messageVerbose("TrackCollHandleBase::fillObjectBrowser: First time so creating QTreeWidgetItem.");
   } else {
-    int index = trkObjBrowser->indexOfTopLevelItem(d->objBrowseTree);
+    int index = trkObjBrowser->indexOfTopLevelItem(m_d->objBrowseTree);
     if (index==-1 ) { 
       messageVerbose("Missing from WidgetTree! Will continue but something must be wrong");
     } 
@@ -1127,10 +1132,10 @@ void TrackCollHandleBase::fillObjectBrowser()
 
   QString text(QString(": (")+QString::number(numVisible)+QString("/")+QString::number(i)+QString(") visible"));
 
-  d->objBrowseTree->setText(0, name());
-  d->objBrowseTree->setText(1, text);
-  d->objBrowseTree->addChildren(list);
-  trkObjBrowser->addTopLevelItem(d->objBrowseTree);
+  m_d->objBrowseTree->setText(0, name());
+  m_d->objBrowseTree->setText(1, text);
+  m_d->objBrowseTree->addChildren(list);
+  trkObjBrowser->addTopLevelItem(m_d->objBrowseTree);
   trkObjBrowser->setUpdatesEnabled(true);
 
   messageVerbose("TrackCollHandleBase::fillObjectBrowser completed in "+QString::number(t.elapsed())+" ms");
@@ -1159,7 +1164,7 @@ QString TrackCollHandleBase::toString(const COLOURBY&cb)
 //____________________________________________________________________
 QList<QWidget*> TrackCollHandleBase::provideExtraWidgetsForGuiRow() const
 {
-  return QList<QWidget*>() << d->comboBox_colourby;
+  return QList<QWidget*>() << m_d->comboBox_colourby;
 
 }
 
@@ -1167,7 +1172,7 @@ QList<QWidget*> TrackCollHandleBase::provideExtraWidgetsForGuiRow() const
 QByteArray TrackCollHandleBase::extraWidgetsState() const
 {
   VP1Serialise serialise(0/*version*/,systemBase());
-  serialise.save(d->comboBox_colourby);
+  serialise.save(m_d->comboBox_colourby);
   serialise.disableUnsavedChecks();
   return serialise.result();
 }
@@ -1178,7 +1183,7 @@ void TrackCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
   VP1Deserialise state(ba, systemBase());
   if (state.version()!=0)
     return;//just ignore silently... i guess we ought to warn?
-  state.restore(d->comboBox_colourby);
+  state.restore(m_d->comboBox_colourby);
   state.disableUnrestoredChecks();
   colourByComboBoxItemChanged();
 }
@@ -1187,17 +1192,17 @@ void TrackCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
 void TrackCollHandleBase::colourByComboBoxItemChanged()
 {
   messageVerbose("Collection detail level combo box changed index");
-  if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByPID())
+  if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByPID())
     setColourBy(COLOUR_BYPID);
-  else if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
+  else if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
     setColourBy(COLOUR_RANDOM);
-  else if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByMomentum())
+  else if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByMomentum())
     setColourBy(COLOUR_MOMENTUM);
-  else if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByCharge())
+  else if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByCharge())
     setColourBy(COLOUR_CHARGE);  
-  else if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByDistanceFromSelectedTrack())
+  else if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByDistanceFromSelectedTrack())
     setColourBy(COLOUR_DISTANCE);  
-  else if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByVertex())
+  else if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByVertex())
     setColourBy(COLOUR_VERTEX);
   else
     setColourBy(COLOUR_PERCOLLECTION);
@@ -1208,7 +1213,7 @@ void TrackCollHandleBase::collMaterialTransparencyAndBrightnessChanged()
 {
   messageVerbose("Collection colour changed");
   
-  if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom()) {
+  if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom()) {
     largeChangesBegin();
     trackHandleIterationBegin();
     TrackHandleBase* handle;
@@ -1222,21 +1227,21 @@ void TrackCollHandleBase::collMaterialTransparencyAndBrightnessChanged()
 
 bool TrackCollHandleBase::useDefaultCuts() const
 {
-  if (!d->matButton) {
+  if (!m_d->matButton) {
     message("ERROR: useDefaultCuts(..) called before init()");
     return true;
   }
-  return d->matButton->useDefaultCuts();
+  return m_d->matButton->useDefaultCuts();
 }
 
 bool TrackCollHandleBase::cutOnlyVertexAssocTracks() const
 {
-  if (!d->matButton) {
+  if (!m_d->matButton) {
     message("ERROR: cutOnlyVertexAssocTracks(..) called before init()");
     return false;
   }
-  if (d->matButton->useDefaultCuts()) return common()->controller()->cutOnlyVertexAssocTracks();
-  return d->matButton->cutOnlyVertexAssocTracks();
+  if (m_d->matButton->useDefaultCuts()) return common()->controller()->cutOnlyVertexAssocTracks();
+  return m_d->matButton->cutOnlyVertexAssocTracks();
 }
 
 
@@ -1245,7 +1250,7 @@ bool TrackCollHandleBase::cutOnlyVertexAssocTracks() const
 //____________________________________________________________________
 void TrackCollHandleBase::setState(const QByteArray&state)
 {
-  if (!d->matButton) {
+  if (!m_d->matButton) {
     message("ERROR: setState(..) called before init()");
     return;
   }
@@ -1258,7 +1263,7 @@ void TrackCollHandleBase::setState(const QByteArray&state)
   bool vis = des.restoreBool();
     
   QByteArray matState = des.restoreByteArray();
-  d->matButton->restoreFromState(matState);
+  m_d->matButton->restoreFromState(matState);
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
   setVisible(vis);
 
@@ -1269,15 +1274,15 @@ void TrackCollHandleBase::setState(const QByteArray&state)
 //____________________________________________________________________
 QByteArray TrackCollHandleBase::persistifiableState() const
 {
-  if (!d->matButton) {
+  if (!m_d->matButton) {
     message("ERROR: persistifiableState() called before init()");
     return QByteArray();
   }
   VP1Serialise serialise(1/*version*/);
   serialise.disableUnsavedChecks();
   serialise.save(visible());
-  Q_ASSERT(d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
-  serialise.save(d->matButton->saveState());
+  Q_ASSERT(m_d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
+  serialise.save(m_d->matButton->saveState());
   serialise.save(extraWidgetsState());//version 1+
   return serialise.result();
 }

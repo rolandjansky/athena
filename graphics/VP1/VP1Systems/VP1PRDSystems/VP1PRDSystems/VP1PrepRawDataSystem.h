@@ -9,7 +9,7 @@
 #include "GeoModelKernel/GeoPVConstLink.h"//It would be good to get rid of this.
 #include "VP1Utils/InDetProjFlags.h"
 #include <vector>
-#include <QtCore/QList>
+#include <QList>
 
 class SoMaterial;
 namespace Trk
@@ -69,7 +69,7 @@ private slots:
   void updateSelectionVisualsAndPossiblyEmitPRDList();
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

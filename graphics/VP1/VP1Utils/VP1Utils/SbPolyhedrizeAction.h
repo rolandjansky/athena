@@ -63,7 +63,7 @@ class SbPolyhedrizeAction : public GeoShapeAction
       SbPolyhedrizeAction(const SbPolyhedrizeAction &right);
       const SbPolyhedrizeAction & operator=(const SbPolyhedrizeAction &right);
 
-      SbPolyhedron *_polyhedron;
+      SbPolyhedron *m_polyhedron;
 
 };
 

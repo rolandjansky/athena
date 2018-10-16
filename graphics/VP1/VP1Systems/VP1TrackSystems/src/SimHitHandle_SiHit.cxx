@@ -38,7 +38,7 @@ public:
 
 //____________________________________________________________________
 SimHitHandle_SiHit::SimHitHandle_SiHit(const SiHit * h)
-  : SimHitHandleBase(), d(new Imp(h))
+  : SimHitHandleBase(), m_d(new Imp(h))
 {
   if (!h)
     VP1Msg::message("SimHitHandle_SiHit constructor ERROR: Received null hit pointer");
@@ -47,7 +47,7 @@ SimHitHandle_SiHit::SimHitHandle_SiHit(const SiHit * h)
 //____________________________________________________________________
 SimHitHandle_SiHit::~SimHitHandle_SiHit()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -84,7 +84,7 @@ bool SimHitHandle_SiHit::Imp::ensureDetElemInit() const
 //Trk::GlobalMomentum SimHitHandle_SiHit::momentumDirection() const
 Amg::Vector3D SimHitHandle_SiHit::momentumDirection() const
 {
-  if (VP1Msg::verbose()&&d->thehit->localEndPosition()==d->thehit->localStartPosition())
+  if (VP1Msg::verbose()&&m_d->thehit->localEndPosition()==m_d->thehit->localStartPosition())
     VP1Msg::messageVerbose("SimHitHandle_SiHit::momentumDirection() ERROR: posStart()==posEnd()");
   return (posEnd()-posStart()).unit();
 }
@@ -100,25 +100,25 @@ Amg::Vector3D SimHitHandle_SiHit::Imp::localToGlobal( const HepGeom::Point3D<dou
 //____________________________________________________________________
 Amg::Vector3D SimHitHandle_SiHit::posStart() const
 {
-  return d->localToGlobal(d->thehit->localStartPosition());
+  return m_d->localToGlobal(m_d->thehit->localStartPosition());
 }
 
 //____________________________________________________________________
 Amg::Vector3D SimHitHandle_SiHit::posEnd() const
 {
-  return d->localToGlobal(d->thehit->localEndPosition());
+  return m_d->localToGlobal(m_d->thehit->localEndPosition());
 }
 
 //____________________________________________________________________
 double SimHitHandle_SiHit::hitTime() const
 {
-  return d->thehit->meanTime();
+  return m_d->thehit->meanTime();
 }
 
 //____________________________________________________________________
 const HepMcParticleLink& SimHitHandle_SiHit::particleLink() const
 {
-  return d->thehit->particleLink();
+  return m_d->thehit->particleLink();
 }
 
 //____________________________________________________________________
@@ -149,12 +149,12 @@ Trk::TrackParameters * SimHitHandle_SiHit::createTrackParameters() const
   }
 
   ////We could in principle get a surface like this:
-  //   if (!d->ensureDetElemInit()) {
+  //   if (!m_d->ensureDetElemInit()) {
   //     VP1Msg::messageDebug("SimHitHandle_SiHit WARNING: Could not get detector element!");
   //     return 0;
   //   }
   //   const Trk::PlaneSurface * surf
-  //     = dynamic_cast<const Trk::PlaneSurface *>( &(d->detelem->surface()));
+  //     = dynamic_cast<const Trk::PlaneSurface *>( &(m_d->detelem->surface()));
   //   if (!surf) {
   //     VP1Msg::message("SimHitHandle_SiHit::createTrackParameters ERROR: could not get Trk::PlaneSurface");
   //     return 0;

@@ -31,31 +31,31 @@ public:
 
 
 //____________________________________________________________________
-VP1CollectionSettingsButtonBase::VP1CollectionSettingsButtonBase(QWidget * parent,int _dim)
-: VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+VP1CollectionSettingsButtonBase::VP1CollectionSettingsButtonBase(QWidget * parent,int dim)
+: VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), m_d(new Imp)
 {
-	d->dim = _dim;
-	d->fallBackMaterial = 0;
-	d->theclass = this;
+	m_d->dim = dim;
+	m_d->fallBackMaterial = 0;
+	m_d->theclass = this;
 }
 
 
 //____________________________________________________________________
 VP1CollectionSettingsButtonBase::~VP1CollectionSettingsButtonBase()
 {
-  if (d->fallBackMaterial)
-    d->fallBackMaterial->unref();
-  delete d;
+  if (m_d->fallBackMaterial)
+    m_d->fallBackMaterial->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
 SoMaterial * VP1CollectionSettingsButtonBase::fallBackMaterial() const
 {
-  if (!d->fallBackMaterial) {
-    d->fallBackMaterial = new SoMaterial;
-    d->fallBackMaterial->ref();
+  if (!m_d->fallBackMaterial) {
+    m_d->fallBackMaterial = new SoMaterial;
+    m_d->fallBackMaterial->ref();
   }
-  return d->fallBackMaterial;
+  return m_d->fallBackMaterial;
 }
 
 //____________________________________________________________________

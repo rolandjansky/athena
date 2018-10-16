@@ -24,7 +24,7 @@ public slots:
   void setExcludeIsolatedClusters(bool);
 
 protected:
-  PRDHandleBase * addPRD(Trk::PrepRawData*);
+  virtual PRDHandleBase * addPRD(const Trk::PrepRawData*) override;
   bool cut(PRDHandleBase*);
 
   void eraseEventDataSpecific();
@@ -36,7 +36,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

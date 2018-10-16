@@ -12,15 +12,18 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
-#include <QtCore/QThread>
-#include <QtCore/QMutex>
-#include <QtCore/QTimer>
-#include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QUrl>
-#include <QtNetwork/QHttp>
+#include <QThread>
+#include <QMutex>
+#include <QTimer>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QFile>
+#include <QDir>
+#include <QUrl>
+
+//#include <QHttp> // Qt 4
+//#include <QNetworkAccessManager> // TODO: use this to port to Qt5
+
 #include "VP1Gui/VP1MD5Sum.h"
 
 class VP1HttpGetFile_DownloadThread : public QThread {
@@ -59,7 +62,7 @@ private:
   const QString m_data;
   QString m_errorString;
   mutable QMutex m_mutex;//Protects m_errors;
-  QHttp * m_http;
+//  QHttp * m_http; // Old Qt4 code --> TODO: need to be ported to Qt5!!
   enum DOWNLOADFINISHSTATUS { NOTFINISHED, NOERRORS, HTTPERROR, STALLEDERROR, SIZEDECREASEDERROR };
   DOWNLOADFINISHSTATUS m_downloadFinishedStatus;//-1: not finished, 0: error, 1: no-error
   unsigned m_lastChangeTime;
@@ -83,7 +86,7 @@ VP1HttpGetFile_DownloadThread::VP1HttpGetFile_DownloadThread( const QString& url
     m_expectedMD5Sum(expectedMD5Sum),
     m_data(data),
     m_errorString("Download not finished"),
-    m_http(0),
+//    m_http(0),
     m_downloadFinishedStatus(NOTFINISHED),
     m_lastChangeTime(0),
     m_lastcheckedsize(-2)
@@ -105,13 +108,14 @@ void VP1HttpGetFile_DownloadThread::endInFailure(const QString& err, CLEANUPOPT 
 //____________________________________________________________________
 void VP1HttpGetFile_DownloadThread::checkForStall()
 {
-  if (!m_http)
-    return;
-  unsigned currentTime = QDateTime::currentDateTime().toTime_t();
-  if (currentTime>m_lastChangeTime+10) {//10s
-    m_downloadFinishedStatus = STALLEDERROR;
-    quit();
-  }
+	// TODO: to be ported to Qt5!!
+//  if (!m_http)
+//    return;
+//  unsigned currentTime = QDateTime::currentDateTime().toTime_t();
+//  if (currentTime>m_lastChangeTime+10) {//10s
+//    m_downloadFinishedStatus = STALLEDERROR;
+//    quit();
+//  }
 }
 
 //____________________________________________________________________
@@ -143,6 +147,8 @@ void VP1HttpGetFile_DownloadThread::dataReadProgress()
 //____________________________________________________________________
 void VP1HttpGetFile_DownloadThread::run() {
 
+  // NOTE!!  TODO: This has to be ported to Qt 5!!!
+  /*
   ////////////////////////
   //  Input validation  //
   ////////////////////////
@@ -197,6 +203,7 @@ void VP1HttpGetFile_DownloadThread::run() {
   ///////////////////////////////////
 
   m_http = new QHttp(0);
+
   connect(m_http,SIGNAL(done(bool)),this,SLOT(done(bool)));
   connect(m_http,SIGNAL(dataReadProgress(int,int)),this,SLOT(dataReadProgress()));
 
@@ -261,6 +268,7 @@ void VP1HttpGetFile_DownloadThread::run() {
   m_mutex.lock();
   m_errorString = "";
   m_mutex.unlock();
+ */
 
 }
 

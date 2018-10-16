@@ -4,15 +4,10 @@
 //    22 May Riccardo-Maria BIANCHI <rbianchi@cern.ch>
 
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "VP1Algs/VP1Alg.h"
 //#include "VP1Algs/VP1EventProd.h"
 
-DECLARE_ALGORITHM_FACTORY(VP1Alg)
-//DECLARE_ALGORITHM_FACTORY(VP1EventProd)
+DECLARE_COMPONENT( VP1Alg )
+//DECLARE_COMPONENT( VP1EventProd )
 
-DECLARE_FACTORY_ENTRIES(VP1Algs) {
-  DECLARE_ALGORITHM( VP1Alg );
-  //DECLARE_ALGORITHM( VP1EventProd );
-}

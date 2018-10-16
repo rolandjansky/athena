@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -15,7 +15,8 @@
 #ifndef VP1DOCKWIDGET_H
 #define VP1DOCKWIDGET_H
 
-#include <QtGui/QDockWidget>
+#include <QDockWidget>
+
 class IVP1ChannelWidget;
 class VP1TabManager;
 class QResizeEvent;
@@ -51,7 +52,7 @@ protected:
   void resizeEvent ( QResizeEvent * event );
 protected:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

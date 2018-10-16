@@ -9,7 +9,7 @@
 
 #include "VP1GeometrySystems/VP1GeoFlags.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
-#include <QtCore/QString>
+#include <QString>
 
 //Only initialises child classes on demand. And even then their SoNodes are not initialised until they must be shown.
 class VolumeHandleSharedData;
@@ -122,7 +122,7 @@ private:
   VolumeHandle(const VolumeHandle & );
   VolumeHandle & operator= (const VolumeHandle & );
 
-  Imp * d;
+  Imp * m_d;
 
   //Here for inline methods:
   const int m_childNumber;//0 if the first child of parent, 1 if the second, etc.

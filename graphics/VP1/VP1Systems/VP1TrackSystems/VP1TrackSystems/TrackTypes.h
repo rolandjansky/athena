@@ -5,7 +5,7 @@
 #ifndef TRACKTYPES_H
 #define TRACKTYPES_H
 
-#include <QtCore/QString>
+#include <QString>
 
 class TrackType {
 public:

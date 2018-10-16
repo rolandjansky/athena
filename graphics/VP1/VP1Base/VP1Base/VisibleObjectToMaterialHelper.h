@@ -20,7 +20,7 @@
 #define VISIBLEOBJECTTOMATERIALHELPER_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
+#include <QObject>
 #include <map>
 class SoMaterial;
 

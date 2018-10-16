@@ -20,7 +20,8 @@
 
 #include "VP1Base/VP1HelperClassBase.h"
 #include "VP1Base/VP1Interval.h"
-#include <QtGui/QWidget>
+
+#include <QWidget>
 
 class VP1EtaPhiCutWidget : public QWidget, public VP1HelperClassBase {
 
@@ -51,7 +52,7 @@ signals:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 private slots:
   void handleEtaCutSymmetry();
   void possibleChange_allowedEta();

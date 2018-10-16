@@ -18,7 +18,7 @@
 #define VP1ETACONE_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 class SoMaterial;
 class SoSeparator;
@@ -46,7 +46,7 @@ public slots:
 
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

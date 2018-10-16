@@ -19,7 +19,7 @@
 #define TRACKCOLLHANDLE_REFITTEDTRACKS_H
 
 #include "VP1TrackSystems/TrackCollHandle_TrkTrack.h"
-#include <QtCore/QList>
+#include <QList>
 
 class TrackCollHandle_RefittedTracks : public TrackCollHandle_TrkTrack {
 
@@ -39,7 +39,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

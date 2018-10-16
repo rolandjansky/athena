@@ -2,9 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "VP1Gui/VP1TextBrowser.h"
-#include <QtGui/QMenu>
-#include <QtGui/QContextMenuEvent>
+
+#include <QMenu>
+#include <QContextMenuEvent>
 
 //____________________________________________________________________
 VP1TextBrowser::VP1TextBrowser(QWidget * parent)

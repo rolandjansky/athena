@@ -17,11 +17,11 @@
 #include "VP1Base/VP1TabWidget.h"
 #include "VP1Base/VP1ColorSelectButton.h"
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QVBoxLayout>
+#include <QCheckBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSpacerItem>
+#include <QVBoxLayout>
 
 
 //_____________________________________________________________________________________________________________

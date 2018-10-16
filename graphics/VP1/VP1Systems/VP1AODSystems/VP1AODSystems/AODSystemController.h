@@ -19,7 +19,7 @@
 #define VP1AODSYSTEMS_AODSYSTEMCONTROLLER_H
 
 #include "VP1Base/VP1Controller.h"
-#include <QtCore/QFlags>
+#include <QFlags>
 #include "GaudiKernel/ServiceHandle.h"
 
 class SoMaterial;
@@ -76,7 +76,7 @@ signals:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 private slots:
   void objectBrowserClicked(QTreeWidgetItem * item, int);

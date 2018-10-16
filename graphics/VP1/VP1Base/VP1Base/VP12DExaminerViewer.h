@@ -16,10 +16,10 @@
 #ifndef VP12DEXAMINERVIEWER_H
 #define VP12DEXAMINERVIEWER_H
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QStringList>
-#include <QtGui/QWidget>
+#include <QList>
+#include <QPair>
+#include <QStringList>
+#include <QWidget>
 
 class VP1GraphicsView;
 
@@ -63,7 +63,7 @@ private:
   VP12DExaminerViewer( const VP12DExaminerViewer & );
   VP12DExaminerViewer & operator= ( const VP12DExaminerViewer & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

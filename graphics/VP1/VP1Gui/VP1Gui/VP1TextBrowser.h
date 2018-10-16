@@ -5,7 +5,7 @@
 #ifndef VP1TEXTBROWSER_H
 #define VP1TEXTBROWSER_H
 
-#include <QtGui/QTextBrowser>
+#include <QTextBrowser>
 
 class VP1TextBrowser : public QTextBrowser {
 public:

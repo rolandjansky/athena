@@ -19,7 +19,7 @@
 #include "VP1Base/VP1String.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 #include <set>
 
@@ -117,7 +117,7 @@ private:
   IVP1ChannelWidget( const IVP1ChannelWidget & );
   IVP1ChannelWidget & operator= ( const IVP1ChannelWidget & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   void setCloneID(unsigned id);
   const std::set<IVP1System *>& systems();

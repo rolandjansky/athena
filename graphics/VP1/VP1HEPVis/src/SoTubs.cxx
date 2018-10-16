@@ -53,24 +53,24 @@ SoTubs::SoTubs() {
   SO_NODE_ADD_FIELD(alternateRep,        (NULL));
   SO_NODE_ADD_FIELD(drawEdgeLines,       (false));
 
-  children = new SoChildList(this);
+  m_children = new SoChildList(this);
 
   setNodeType(EXTENSION);
 }
 
 // Destructor
 SoTubs::~SoTubs() {
-  delete children;
+  delete m_children;
 }
 
 
 //____________________________________________________________________
-bool SoTubs::didInit = false;
+bool SoTubs::s_didInit = false;
 void SoTubs::initClass()
 {
-  if ( !didInit ) {
+  if ( !s_didInit ) {
     SO_NODE_INIT_CLASS(SoTubs,SoShape,"Shape");
-    didInit = true;
+    s_didInit = true;
   }
 }
 
@@ -353,7 +353,7 @@ void SoTubs::generatePrimitives(SoAction *action) {
 
 // getChildren
 SoChildList *SoTubs::getChildren() const {
-  return children;
+  return m_children;
 }
 
 
@@ -371,8 +371,8 @@ void SoTubs::updateChildren() {
 
   // Redraw the G4Tubs....
 
-  assert(children->getLength()==1);
-  SoSeparator       *sep                = (SoSeparator *)  ( *children)[0];
+  assert(m_children->getLength()==1);
+  SoSeparator       *sep                = (SoSeparator *)  ( *m_children)[0];
   SoCoordinate3     *theCoordinates     = (SoCoordinate3 *)      ( sep->getChild(0));
   SoNormal          *theNormals         = (SoNormal *)           ( sep->getChild(1));
   SoNormalBinding   *theNormalBinding   = (SoNormalBinding *)    ( sep->getChild(2));
@@ -543,7 +543,7 @@ void SoTubs::generateChildren() {
   // once, whereas redrawing the position of the coordinates occurs each
   // time an update is necessary, in the updateChildren routine.
 
-  assert(children->getLength() ==0);
+  assert(m_children->getLength() ==0);
   SoSeparator      *sep              = new SoSeparator();
   SoCoordinate3    *theCoordinates   = new SoCoordinate3();
   SoNormal         *theNormals       = new SoNormal();
@@ -556,7 +556,7 @@ void SoTubs::generateChildren() {
   sep->addChild(theNormals);
   sep->addChild(theNormalBinding);
   sep->addChild(theFaceSet);
-  children->append(sep);
+  m_children->append(sep);
 }
 
 // generateAlternateRep
@@ -565,9 +565,9 @@ void SoTubs::generateAlternateRep() {
   // This routine sets the alternate representation to the child
   // list of this mode.
 
-  if (children->getLength() == 0) generateChildren();
+  if (m_children->getLength() == 0) generateChildren();
   updateChildren();
-  alternateRep.setValue((SoSeparator *)  ( *children)[0]);
+  alternateRep.setValue((SoSeparator *)  ( *m_children)[0]);
 }
 
 // clearAlternateRep

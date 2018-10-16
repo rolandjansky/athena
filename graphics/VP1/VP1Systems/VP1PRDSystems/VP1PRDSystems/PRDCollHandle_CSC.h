@@ -24,7 +24,7 @@ public slots:
   void setProjectionMode( bool );
 
 protected:
-  PRDHandleBase * addPRD(Trk::PrepRawData*);
+  virtual PRDHandleBase * addPRD(const Trk::PrepRawData*) override;
   bool cut(PRDHandleBase*) { return true; }//accept all
   void setupSettingsFromControllerSpecific(PRDSystemController*);
   float lodArea() const { return 800.0f*800.0f; }
@@ -33,7 +33,7 @@ protected:
 
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //Here for inlines:
   bool m_project;

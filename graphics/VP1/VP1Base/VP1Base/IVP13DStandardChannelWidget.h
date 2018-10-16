@@ -68,7 +68,7 @@ private:
   IVP13DStandardChannelWidget( const IVP13DStandardChannelWidget & );
   IVP13DStandardChannelWidget & operator= ( const IVP13DStandardChannelWidget & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 private slots:
   void toggleSystemActive();

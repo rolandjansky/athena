@@ -142,126 +142,126 @@ public:
 };
 
 //____________________________________________________________________
-InDetProjHelper::InDetProjHelper( const double& _surfacethickness,
-				  const double& _data_disttosurface_epsilon,
-				  const double& _barrel_inner_radius,
-				  const double& _barrel_outer_radius,
-				  const double& _barrel_posneg_z,
-				  const double& _endcap_surface_z,
-				  const double& _endcap_surface_length,
-				  const double& _endcap_inner_radius,
-				  const double& _endcap_outer_radius,
-				  const double& _endcap_zasr_innerradius,
-				  const double& _endcap_zasr_endcapz_begin,
-				  const double& _endcap_zasr_squeezefact,
+InDetProjHelper::InDetProjHelper( double surfacethickness,
+				  double data_disttosurface_epsilon,
+				  double barrel_inner_radius,
+				  double barrel_outer_radius,
+				  double barrel_posneg_z,
+				  double endcap_surface_z,
+				  double endcap_surface_length,
+				  double endcap_inner_radius,
+				  double endcap_outer_radius,
+				  double endcap_zasr_innerradius,
+				  double endcap_zasr_endcapz_begin,
+				  double endcap_zasr_squeezefact,
 				  IVP1System* sys )
-  : VP1HelperClassBase(sys,"InDetProjHelper"), d(new Imp)
+  : VP1HelperClassBase(sys,"InDetProjHelper"), m_d(new Imp)
 {
-  d->theclass = this;
+  m_d->theclass = this;
 
-  d->surfacethickness = _surfacethickness;
-  d->data_disttosurface_epsilon = _data_disttosurface_epsilon;
-  d->barrel_inner_radius = _barrel_inner_radius;
-  d->barrel_outer_radius = _barrel_outer_radius;
-  d->barrel_posneg_z = _barrel_posneg_z;
-  d->endcap_surface_z = _endcap_surface_z;
-  d->endcap_surface_length = _endcap_surface_length;
-  d->endcap_inner_radius = _endcap_inner_radius;
-  d->endcap_outer_radius = _endcap_outer_radius;
-  d->endcap_zasr_innerradius = _endcap_zasr_innerradius;
-  d->endcap_zasr_endcapz_begin = _endcap_zasr_endcapz_begin;
-  d->endcap_zasr_squeezefact = _endcap_zasr_squeezefact;
+  m_d->surfacethickness = surfacethickness;
+  m_d->data_disttosurface_epsilon = data_disttosurface_epsilon;
+  m_d->barrel_inner_radius = barrel_inner_radius;
+  m_d->barrel_outer_radius = barrel_outer_radius;
+  m_d->barrel_posneg_z = barrel_posneg_z;
+  m_d->endcap_surface_z = endcap_surface_z;
+  m_d->endcap_surface_length = endcap_surface_length;
+  m_d->endcap_inner_radius = endcap_inner_radius;
+  m_d->endcap_outer_radius = endcap_outer_radius;
+  m_d->endcap_zasr_innerradius = endcap_zasr_innerradius;
+  m_d->endcap_zasr_endcapz_begin = endcap_zasr_endcapz_begin;
+  m_d->endcap_zasr_squeezefact = endcap_zasr_squeezefact;
 
-  d->parts = InDetProjFlags::NoProjections;
-  d->covercyl_zmin = 0.0;
-  d->covercyl_zmax = 0.0;
-  d->covercyl_rmin = 0.0;
-  d->covercyl_rmax = 0.0;
+  m_d->parts = InDetProjFlags::NoProjections;
+  m_d->covercyl_zmin = 0.0;
+  m_d->covercyl_zmax = 0.0;
+  m_d->covercyl_rmin = 0.0;
+  m_d->covercyl_rmax = 0.0;
 
 }
 
 //____________________________________________________________________
 InDetProjHelper::~InDetProjHelper()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 InDetProjFlags::InDetProjPartsFlags InDetProjHelper::setParts( InDetProjFlags::InDetProjPartsFlags newparts )
 {
-  if ( d->parts==newparts )
-    return d->parts;
-  InDetProjFlags::InDetProjPartsFlags oldparts = d->parts;
-  d->parts = newparts;
+  if ( m_d->parts==newparts )
+    return m_d->parts;
+  InDetProjFlags::InDetProjPartsFlags oldparts = m_d->parts;
+  m_d->parts = newparts;
 
   //Update parameters of smallest cylinder covering all enabled clip volumes.
-  if (d->parts == InDetProjFlags::NoProjections) {
-    d->covercyl_zmin = 0.0;
-    d->covercyl_zmax = 0.0;
-    d->covercyl_rmin = 0.0;
-    d->covercyl_rmax = 0.0;
+  if (m_d->parts == InDetProjFlags::NoProjections) {
+    m_d->covercyl_zmin = 0.0;
+    m_d->covercyl_zmax = 0.0;
+    m_d->covercyl_rmin = 0.0;
+    m_d->covercyl_rmax = 0.0;
     return oldparts;
   }
 
-  bool no_ec_neg = !( d->parts & InDetProjFlags::EndCap_AllNeg );
-  bool no_ec_pos = !( d->parts & InDetProjFlags::EndCap_AllPos );
-  bool no_brl_neg = !( d->parts & InDetProjFlags::Barrel_AllNeg );
-  bool no_brl_pos = !( d->parts & InDetProjFlags::Barrel_AllPos );
-  bool barrel = d->parts & InDetProjFlags::Barrel_All;
-  bool endcap = d->parts & InDetProjFlags::EndCap_All;
+  bool no_ec_neg = !( m_d->parts & InDetProjFlags::EndCap_AllNeg );
+  bool no_ec_pos = !( m_d->parts & InDetProjFlags::EndCap_AllPos );
+  bool no_brl_neg = !( m_d->parts & InDetProjFlags::Barrel_AllNeg );
+  bool no_brl_pos = !( m_d->parts & InDetProjFlags::Barrel_AllPos );
+  bool barrel = m_d->parts & InDetProjFlags::Barrel_All;
+  bool endcap = m_d->parts & InDetProjFlags::EndCap_All;
 
-  d->covercyl_zmin = - d->endcap_surface_z - 0.5*d->endcap_surface_length;
+  m_d->covercyl_zmin = - m_d->endcap_surface_z - 0.5*m_d->endcap_surface_length;
   if ( no_ec_neg ) {
-    d->covercyl_zmin = - d->barrel_posneg_z;
+    m_d->covercyl_zmin = - m_d->barrel_posneg_z;
     if ( no_brl_neg ) {
-      d->covercyl_zmin = 0.0;
+      m_d->covercyl_zmin = 0.0;
       if ( no_brl_pos ) {
-	d->covercyl_zmin = d->barrel_posneg_z;
+	m_d->covercyl_zmin = m_d->barrel_posneg_z;
 	if ( no_ec_pos )
-	  d->covercyl_zmin = d->endcap_surface_z + 0.5*d->endcap_surface_length + 1.0e99;
+	  m_d->covercyl_zmin = m_d->endcap_surface_z + 0.5*m_d->endcap_surface_length + 1.0e99;
       }
     }
   }
-  d->covercyl_zmax = d->endcap_surface_z + 0.5*d->endcap_surface_length;
+  m_d->covercyl_zmax = m_d->endcap_surface_z + 0.5*m_d->endcap_surface_length;
   if ( no_ec_pos ) {
-    d->covercyl_zmax = d->barrel_posneg_z;
+    m_d->covercyl_zmax = m_d->barrel_posneg_z;
     if ( no_brl_pos ) {
-      d->covercyl_zmax = 0.0;
+      m_d->covercyl_zmax = 0.0;
       if ( no_brl_neg ) {
-	d->covercyl_zmax = - d->barrel_posneg_z;
+	m_d->covercyl_zmax = - m_d->barrel_posneg_z;
 	if ( no_ec_neg )
-	  d->covercyl_zmax = - d->endcap_surface_z - 0.5*d->endcap_surface_length - 1.0e99;
+	  m_d->covercyl_zmax = - m_d->endcap_surface_z - 0.5*m_d->endcap_surface_length - 1.0e99;
       }
     }
   }
-  if ( d->covercyl_zmin >= d->covercyl_zmax )
-    d->covercyl_zmin = d->covercyl_zmax = 0;
+  if ( m_d->covercyl_zmin >= m_d->covercyl_zmax )
+    m_d->covercyl_zmin = m_d->covercyl_zmax = 0;
 
   if ( barrel && endcap ) {
-    d->covercyl_rmin = std::min(d->barrel_inner_radius,d->endcap_inner_radius);
-    d->covercyl_rmax = std::max(d->barrel_outer_radius,d->endcap_outer_radius);
+    m_d->covercyl_rmin = std::min(m_d->barrel_inner_radius,m_d->endcap_inner_radius);
+    m_d->covercyl_rmax = std::max(m_d->barrel_outer_radius,m_d->endcap_outer_radius);
   } else {
     if (barrel) {
-      d->covercyl_rmin = d->barrel_inner_radius;
-      d->covercyl_rmax = d->barrel_outer_radius;
+      m_d->covercyl_rmin = m_d->barrel_inner_radius;
+      m_d->covercyl_rmax = m_d->barrel_outer_radius;
     } else if (endcap) {
-      d->covercyl_rmin = d->endcap_inner_radius;
-      d->covercyl_rmax = d->endcap_outer_radius;
+      m_d->covercyl_rmin = m_d->endcap_inner_radius;
+      m_d->covercyl_rmax = m_d->endcap_outer_radius;
     } else {
       message("Unforeseen execution path encountered.");
-      d->covercyl_rmin = 0;
-      d->covercyl_rmax = 0;
+      m_d->covercyl_rmin = 0;
+      m_d->covercyl_rmax = 0;
     }
   }
-  if ( d->covercyl_rmin >= d->covercyl_rmax )
-    d->covercyl_rmin = d->covercyl_rmax = 0;
+  if ( m_d->covercyl_rmin >= m_d->covercyl_rmax )
+    m_d->covercyl_rmin = m_d->covercyl_rmax = 0;
   return oldparts;
 }
 
 //____________________________________________________________________
 InDetProjFlags::InDetProjPartsFlags InDetProjHelper::parts() const
 {
-  return d->parts;
+  return m_d->parts;
 }
 
 //____________________________________________________________________
@@ -287,7 +287,7 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
   resulting_subpaths_endcapC.clear();
 
   //Fixme: If verbose - perform sanity check of input data (check for NAN's).
-  if (d->parts == InDetProjFlags::NoProjections ) {
+  if (m_d->parts == InDetProjFlags::NoProjections ) {
     if (verbose())
       messageVerbose("All projections currently off.");
     return;
@@ -303,9 +303,9 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
   //For efficiency, we first clip the path to the smallest
   //axis-aligned cylinder containing all of the projective volumes
   Amg::SetVectorVector3D paths_clipped;
-  d->clipPathToHollowCylinder( path, paths_clipped,
-			       d->covercyl_rmin, d->covercyl_rmax,
-			       d->covercyl_zmin, d->covercyl_zmax );
+  m_d->clipPathToHollowCylinder( path, paths_clipped,
+			       m_d->covercyl_rmin, m_d->covercyl_rmax,
+			       m_d->covercyl_zmin, m_d->covercyl_zmax );
 
   if (paths_clipped.empty()) {
     if (verbose())
@@ -313,10 +313,10 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
     return;
   }
 
-  const bool enabled_brlA = d->parts & InDetProjFlags::Barrel_AllPos;
-  const bool enabled_brlC = d->parts & InDetProjFlags::Barrel_AllNeg;
-  const bool enabled_ecA = d->parts & InDetProjFlags::EndCap_AllPos;
-  const bool enabled_ecC = d->parts & InDetProjFlags::EndCap_AllNeg;
+  const bool enabled_brlA = m_d->parts & InDetProjFlags::Barrel_AllPos;
+  const bool enabled_brlC = m_d->parts & InDetProjFlags::Barrel_AllNeg;
+  const bool enabled_ecA = m_d->parts & InDetProjFlags::EndCap_AllPos;
+  const bool enabled_ecC = m_d->parts & InDetProjFlags::EndCap_AllNeg;
 
   //Special case: If exactly one of the four parts is enabled, we already have our result:
   if ( ( (enabled_brlA?1:0) + (enabled_brlC?1:0) + (enabled_ecA?1:0) + (enabled_ecC?1:0) ) == 1 ) {
@@ -353,15 +353,15 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
   Amg::SetVectorVector3D::const_iterator it, itE(paths_clipped.end());
   for (it = paths_clipped.begin();it!=itE;++it) {
     if ( enabled_brlA )
-      d->clipPathToHollowCylinder( *it, resulting_subpaths_barrelA, d->barrel_inner_radius, d->barrel_outer_radius, 0, d->barrel_posneg_z );
+      m_d->clipPathToHollowCylinder( *it, resulting_subpaths_barrelA, m_d->barrel_inner_radius, m_d->barrel_outer_radius, 0, m_d->barrel_posneg_z );
     if ( enabled_brlC )
-      d->clipPathToHollowCylinder( *it, resulting_subpaths_barrelC, d->barrel_inner_radius, d->barrel_outer_radius, - d->barrel_posneg_z, 0 );
+      m_d->clipPathToHollowCylinder( *it, resulting_subpaths_barrelC, m_d->barrel_inner_radius, m_d->barrel_outer_radius, - m_d->barrel_posneg_z, 0 );
     if ( enabled_ecA )
-      d->clipPathToHollowCylinder( *it, resulting_subpaths_endcapA, d->endcap_inner_radius, d->endcap_outer_radius,
-			     d->endcap_surface_z - d->endcap_surface_length * 0.5, d->endcap_surface_z + d->endcap_surface_length * 0.5 );
+      m_d->clipPathToHollowCylinder( *it, resulting_subpaths_endcapA, m_d->endcap_inner_radius, m_d->endcap_outer_radius,
+			     m_d->endcap_surface_z - m_d->endcap_surface_length * 0.5, m_d->endcap_surface_z + m_d->endcap_surface_length * 0.5 );
     if ( enabled_ecC )
-      d->clipPathToHollowCylinder( *it, resulting_subpaths_endcapC, d->endcap_inner_radius, d->endcap_outer_radius,
-			     - d->endcap_surface_z - d->endcap_surface_length * 0.5, - d->endcap_surface_z + d->endcap_surface_length * 0.5 );
+      m_d->clipPathToHollowCylinder( *it, resulting_subpaths_endcapC, m_d->endcap_inner_radius, m_d->endcap_outer_radius,
+			     - m_d->endcap_surface_z - m_d->endcap_surface_length * 0.5, - m_d->endcap_surface_z + m_d->endcap_surface_length * 0.5 );
   }
 
   messageVerbose("clipPath(..) end.");
@@ -832,7 +832,7 @@ void InDetProjHelper::projectPath( const std::vector<Amg::Vector3D >& path,
   resulting_projections_endcapC.clear();
 
   //Fixme: If verbose - perform sanity check of input data (check for NAN's).
-  if (d->parts == InDetProjFlags::NoProjections ) {
+  if (m_d->parts == InDetProjFlags::NoProjections ) {
     if (verbose())
       messageVerbose("All projections currently off.");
     return;
@@ -852,66 +852,66 @@ void InDetProjHelper::projectPath( const std::vector<Amg::Vector3D >& path,
 
   //Fixme: The dependence on surface thickness and epsilon below is very preliminary.
 
-  const double eps = d->data_disttosurface_epsilon;
+  const double eps = m_d->data_disttosurface_epsilon;
   const double endcapeps(-5*Gaudi::Units::mm);//fixme hardcoding..
 
   Amg::SetVectorVector3D::const_iterator it,itE;
 
-  if (d->parts & InDetProjFlags::Barrel_AllPos) {
+  if (m_d->parts & InDetProjFlags::Barrel_AllPos) {
     itE = paths_brlA.end();
-    if ( d->parts & InDetProjFlags::BarrelCentral )
+    if ( m_d->parts & InDetProjFlags::BarrelCentral )
       for ( it = paths_brlA.begin(); it!=itE; ++it )
-	d->projectPathToZPlane( *it, resulting_projections_barrelA, 0.5*d->surfacethickness+eps );
-    if ( d->parts & InDetProjFlags::BarrelPositive )
+	m_d->projectPathToZPlane( *it, resulting_projections_barrelA, 0.5*m_d->surfacethickness+eps );
+    if ( m_d->parts & InDetProjFlags::BarrelPositive )
       for ( it = paths_brlA.begin(); it!=itE; ++it )
-	d->projectPathToZPlane( *it, resulting_projections_barrelA, d->barrel_posneg_z - eps );
+	m_d->projectPathToZPlane( *it, resulting_projections_barrelA, m_d->barrel_posneg_z - eps );
   }
-  if ( d->parts & InDetProjFlags::Barrel_AllNeg ) {
+  if ( m_d->parts & InDetProjFlags::Barrel_AllNeg ) {
     itE = paths_brlC.end();
-    if ( d->parts & InDetProjFlags::BarrelCentral )
+    if ( m_d->parts & InDetProjFlags::BarrelCentral )
       for ( it = paths_brlC.begin(); it!=itE; ++it )
-	d->projectPathToZPlane( *it, resulting_projections_barrelC, - 0.5*d->surfacethickness - eps);
-    if ( d->parts & InDetProjFlags::BarrelNegative )
+	m_d->projectPathToZPlane( *it, resulting_projections_barrelC, - 0.5*m_d->surfacethickness - eps);
+    if ( m_d->parts & InDetProjFlags::BarrelNegative )
       for ( it = paths_brlC.begin(); it!=itE; ++it )
-	d->projectPathToZPlane( *it, resulting_projections_barrelC, - d->barrel_posneg_z );
+	m_d->projectPathToZPlane( *it, resulting_projections_barrelC, - m_d->barrel_posneg_z );
   }
-  if ( d->parts & InDetProjFlags::EndCap_AllPos ) {
+  if ( m_d->parts & InDetProjFlags::EndCap_AllPos ) {
     itE = paths_ecA.end();
-    if ( d->parts & InDetProjFlags::EndCapInnerPositive )
+    if ( m_d->parts & InDetProjFlags::EndCapInnerPositive )
       for ( it = paths_ecA.begin(); it!=itE; ++it )
-	d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapA, d->endcap_inner_radius + eps+endcapeps );
-    if ( d->parts & InDetProjFlags::EndCapOuterPositive )
+	m_d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapA, m_d->endcap_inner_radius + eps+endcapeps );
+    if ( m_d->parts & InDetProjFlags::EndCapOuterPositive )
       for ( it = paths_ecA.begin(); it!=itE; ++it )
-	d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapA, d->endcap_outer_radius + eps+endcapeps );
+	m_d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapA, m_d->endcap_outer_radius + eps+endcapeps );
     //Fixme: Make sure to use the same parameters here as in PRDHandle_TRT.cxx:
-    if ( d->parts & InDetProjFlags::TRT_EndCapZToRCentral )
+    if ( m_d->parts & InDetProjFlags::TRT_EndCapZToRCentral )
       for ( it = paths_ecA.begin(); it!=itE; ++it )
-	d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapA,
-					    0.5*d->surfacethickness + eps  );
+	m_d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapA,
+					    0.5*m_d->surfacethickness + eps  );
     //Fixme: Make sure to use the same parameters here as in PRDHandle_TRT.cxx:
-    if ( d->parts & InDetProjFlags::TRT_EndCapZToRPositive )
+    if ( m_d->parts & InDetProjFlags::TRT_EndCapZToRPositive )
       for ( it = paths_ecA.begin(); it!=itE; ++it )
-	d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapA,
-					    d->barrel_posneg_z - 0.5*d->surfacethickness - eps /*fixme: +- epsilon??*/  );
+	m_d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapA,
+					    m_d->barrel_posneg_z - 0.5*m_d->surfacethickness - eps /*fixme: +- epsilon??*/  );
   }
-  if ( d->parts & InDetProjFlags::EndCap_AllNeg ) {
+  if ( m_d->parts & InDetProjFlags::EndCap_AllNeg ) {
     itE = paths_ecC.end();
-    if ( d->parts & InDetProjFlags::EndCapInnerNegative )
+    if ( m_d->parts & InDetProjFlags::EndCapInnerNegative )
       for ( it = paths_ecC.begin(); it!=itE; ++it )
-	d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapC, d->endcap_inner_radius + eps+endcapeps );
-    if ( d->parts & InDetProjFlags::EndCapOuterNegative )
+	m_d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapC, m_d->endcap_inner_radius + eps+endcapeps );
+    if ( m_d->parts & InDetProjFlags::EndCapOuterNegative )
       for ( it = paths_ecC.begin(); it!=itE; ++it )
-	d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapC, d->endcap_outer_radius + eps+endcapeps );
+	m_d->projectPathToInfiniteCylinder( *it, resulting_projections_endcapC, m_d->endcap_outer_radius + eps+endcapeps );
     //Fixme: Make sure to use the same parameters here as in PRDHandle_TRT.cxx:
-    if ( d->parts & InDetProjFlags::TRT_EndCapZToRCentral )
+    if ( m_d->parts & InDetProjFlags::TRT_EndCapZToRCentral )
       for ( it = paths_ecC.begin(); it!=itE; ++it )
-	d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapC,
-					    - 0.5*d->surfacethickness - eps  );
+	m_d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapC,
+					    - 0.5*m_d->surfacethickness - eps  );
     //Fixme: Make sure to use the same parameters here as in PRDHandle_TRT.cxx:
-    if ( d->parts & InDetProjFlags::TRT_EndCapZToRNegative )
+    if ( m_d->parts & InDetProjFlags::TRT_EndCapZToRNegative )
       for ( it = paths_ecC.begin(); it!=itE; ++it )
-	d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapC,
-					    - d->barrel_posneg_z + 0.5*d->surfacethickness + eps/*fixme: +- epsilon??*/  );
+	m_d->projectPathToZPlane_specialZtoR( *it, resulting_projections_endcapC,
+					    - m_d->barrel_posneg_z + 0.5*m_d->surfacethickness + eps/*fixme: +- epsilon??*/  );
   }
 
 }
@@ -922,15 +922,15 @@ InDetProjHelper::PartsFlags InDetProjHelper::touchedParts( const std::vector<Amg
   if (verbose())
     messageVerbose("touchedParts(..) called. Input path has "+QString::number(path.size())+" points.");
   PartsFlags touchedparts = NoParts;
-  if ( d->touchesHollowCylinder(path,d->barrel_inner_radius, d->barrel_outer_radius, 0, d->barrel_posneg_z) )
+  if ( m_d->touchesHollowCylinder(path,m_d->barrel_inner_radius, m_d->barrel_outer_radius, 0, m_d->barrel_posneg_z) )
     touchedparts |= BarrelA;
-  if ( d->touchesHollowCylinder(path,d->barrel_inner_radius, d->barrel_outer_radius, - d->barrel_posneg_z, 0) )
+  if ( m_d->touchesHollowCylinder(path,m_d->barrel_inner_radius, m_d->barrel_outer_radius, - m_d->barrel_posneg_z, 0) )
     touchedparts |= BarrelC;
-  if ( d->touchesHollowCylinder(path,d->endcap_inner_radius, d->endcap_outer_radius,
-				d->endcap_surface_z - d->endcap_surface_length * 0.5, d->endcap_surface_z + d->endcap_surface_length * 0.5 ) )
+  if ( m_d->touchesHollowCylinder(path,m_d->endcap_inner_radius, m_d->endcap_outer_radius,
+				m_d->endcap_surface_z - m_d->endcap_surface_length * 0.5, m_d->endcap_surface_z + m_d->endcap_surface_length * 0.5 ) )
     touchedparts |= EndCapA;
-  if ( d->touchesHollowCylinder(path, d->endcap_inner_radius, d->endcap_outer_radius,
-				- d->endcap_surface_z - d->endcap_surface_length * 0.5, - d->endcap_surface_z + d->endcap_surface_length * 0.5) )
+  if ( m_d->touchesHollowCylinder(path, m_d->endcap_inner_radius, m_d->endcap_outer_radius,
+				- m_d->endcap_surface_z - m_d->endcap_surface_length * 0.5, - m_d->endcap_surface_z + m_d->endcap_surface_length * 0.5) )
     touchedparts |= EndCapC;
   return touchedparts;
 }

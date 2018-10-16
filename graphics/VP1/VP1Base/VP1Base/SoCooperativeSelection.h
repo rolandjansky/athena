@@ -7,6 +7,7 @@
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSelection.h>
+#include <Inventor/nodes/SoGroup.h>
 #include <Inventor/fields/SoSFNode.h>
 
 // Class: SoCooperativeSelection.
@@ -63,11 +64,11 @@ private:
   //Helper method:
   SoCooperativeSelection * getLastActiveSoSelectionFromPath(SoPath*) const;
 
-  SoCallbackList *clickoutsideCBList;
+  SoCallbackList *m_clickoutsideCBList;
 
   //Common code for both constructors:
   void init();
-  static bool needsinit;
+  static bool s_needsinit;
 };
 
 #endif

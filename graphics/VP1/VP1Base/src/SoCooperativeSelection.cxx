@@ -22,13 +22,13 @@ void SoCooperativeSelection::initClass()
   SO_NODE_INIT_CLASS(SoCooperativeSelection,SoSelection,"CooperativeSelection");
 }
 
-bool SoCooperativeSelection::needsinit = true;
+bool SoCooperativeSelection::s_needsinit = true;
 
 //____________________________________________________________________
 void SoCooperativeSelection::ensureInitClass()
 {
-  if (SoCooperativeSelection::needsinit) {
-    SoCooperativeSelection::needsinit = false;
+  if (SoCooperativeSelection::s_needsinit) {
+    SoCooperativeSelection::s_needsinit = false;
     initClass();
   }
 }
@@ -58,7 +58,7 @@ void SoCooperativeSelection::init()
   SO_NODE_SET_SF_ENUM_TYPE(activePolicy, ActivePolicy);
 
   setNodeType(EXTENSION);
-  clickoutsideCBList = new SoCallbackList;
+  m_clickoutsideCBList = new SoCallbackList;
 
 }
 
@@ -67,7 +67,7 @@ SoCooperativeSelection::~SoCooperativeSelection()
 {
   if (this->mouseDownPickPath)
     this->mouseDownPickPath->unref();
-  delete clickoutsideCBList;
+  delete m_clickoutsideCBList;
 }
 
 //____________________________________________________________________
@@ -86,13 +86,13 @@ SoCooperativeSelection * SoCooperativeSelection::getLastActiveSoSelectionFromPat
 //____________________________________________________________________
 void SoCooperativeSelection::addClickOutsideCallback(SoCooperativeSelectionClickOutsideCB * f, void * userData)
 {
-  clickoutsideCBList->addCallback((SoCallbackListCB *)f, userData);
+  m_clickoutsideCBList->addCallback((SoCallbackListCB *)f, userData);
 }
 
 //____________________________________________________________________
 void SoCooperativeSelection::removeClickOutsideCallback(SoCooperativeSelectionClickOutsideCB * f, void * userData)
 {
-  clickoutsideCBList->removeCallback((SoCallbackListCB *)f, userData);
+  m_clickoutsideCBList->removeCallback((SoCallbackListCB *)f, userData);
 }
 
 //____________________________________________________________________
@@ -114,7 +114,7 @@ void SoCooperativeSelection::handleEvent(SoHandleEventAction * action)
     }
     const SoPickedPoint * pp = action->getPickedPoint();
     if (!pp)
-      clickoutsideCBList->invokeCallbacks(this);
+      m_clickoutsideCBList->invokeCallbacks(this);
     if (pp) {
       SoPath * selectionpath = pp->getPath();
       if (!selectionpath)

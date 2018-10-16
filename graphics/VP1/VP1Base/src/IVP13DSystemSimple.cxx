@@ -47,11 +47,11 @@ public:
 
 //___________________________________________________________
 IVP13DSystemSimple::IVP13DSystemSimple(const QString & name, const QString & information, const QString & contact_info)
-  : IVP13DSystem(name,information,contact_info), d(new Imp())
+  : IVP13DSystem(name,information,contact_info), m_d(new Imp())
 {
-  d->theclass = this;
-  d->controllerBuilt = false;
-  d->first = true;
+  m_d->theclass = this;
+  m_d->controllerBuilt = false;
+  m_d->first = true;
   //Root node is selection node for default selections causing invocations of userPickedNode:
   SoCooperativeSelection::ensureInitClass();
   SoCooperativeSelection * selection = new SoCooperativeSelection;
@@ -60,37 +60,37 @@ IVP13DSystemSimple::IVP13DSystemSimple(const QString & name, const QString & inf
   setUserSelectionNotificationsEnabled(selection,false);
   selection->addSelectionCallback( Imp::made_selection, this );
 
-  d->root = selection;
-  d->rootR = new SoSeparator();
-  d->rootE = new SoSeparator();
-  d->root->addChild(d->rootR);
-  d->root->addChild(d->rootE);
-  d->root->ref();
-  d->rootR->ref();
-  d->rootE->ref();
-  d->root->setName(QString(name+"_SceneGraph").replace(' ','_').toStdString().c_str());
-  d->rootE->setName(QString(name+"_EventSceneGraph").replace(' ','_').toStdString().c_str());
-  d->rootR->setName(QString(name+"_PermanentSceneGraph").replace(' ','_').toStdString().c_str());
-  d->wasrefreshed=false;
-  d->wascreated=false;
+  m_d->root = selection;
+  m_d->rootR = new SoSeparator();
+  m_d->rootE = new SoSeparator();
+  m_d->root->addChild(m_d->rootR);
+  m_d->root->addChild(m_d->rootE);
+  m_d->root->ref();
+  m_d->rootR->ref();
+  m_d->rootE->ref();
+  m_d->root->setName(QString(name+"_SceneGraph").replace(' ','_').toStdString().c_str());
+  m_d->rootE->setName(QString(name+"_EventSceneGraph").replace(' ','_').toStdString().c_str());
+  m_d->rootR->setName(QString(name+"_PermanentSceneGraph").replace(' ','_').toStdString().c_str());
+  m_d->wasrefreshed=false;
+  m_d->wascreated=false;
 }
 
 //___________________________________________________________
 IVP13DSystemSimple::~IVP13DSystemSimple() {
-  unregisterSelectionNode(d->root);
-  d->root->unref();
-  d->rootR->unref();
-  d->rootE->unref();
-  delete d;
-  d=0;
+  unregisterSelectionNode(m_d->root);
+  m_d->root->unref();
+  m_d->rootR->unref();
+  m_d->rootE->unref();
+  delete m_d;
+  m_d=0;
 }
 
 //___________________________________________________________________________________________________________
 void IVP13DSystemSimple::ensureBuildController()
 {
-  if (d->controllerBuilt)
+  if (m_d->controllerBuilt)
     return;
-  d->controllerBuilt=true;
+  m_d->controllerBuilt=true;
 
   messageVerbose("IVP13DSystemSimple build controller");
   QWidget * controller = buildController();
@@ -123,42 +123,42 @@ void IVP13DSystemSimple::Imp::made_selection( void * userdata, SoPath * path )
 //___________________________________________________________
 SoSeparator * IVP13DSystemSimple::getSceneGraph() const
 {
-  return static_cast<SoSeparator*>(d->root);
+  return static_cast<SoSeparator*>(m_d->root);
 }
 
 //___________________________________________________________
 void IVP13DSystemSimple::create(StoreGateSvc* /*detstore*/)
 {
   messageVerbose("IVP13DSystemSimple create");
-  assert(!d->wasrefreshed);
-  assert(!d->wascreated);
+  assert(!m_d->wasrefreshed);
+  assert(!m_d->wascreated);
   ensureBuildController();//TODO: Move to refresh.
-  d->wascreated=true;
-  d->wasrefreshed=false;
+  m_d->wascreated=true;
+  m_d->wasrefreshed=false;
 }
 
 //___________________________________________________________
 void IVP13DSystemSimple::refresh(StoreGateSvc* sg)
 {
-  assert(d->wascreated);
-  assert(!d->wasrefreshed);
+  assert(m_d->wascreated);
+  assert(!m_d->wasrefreshed);
 
-  if (d->first) {
+  if (m_d->first) {
     messageVerbose("IVP13DSystemSimple first refresh - so calling create methods (i.e. delayed create).");
     systemcreate(detectorStore());
-    d->first = false;
-    d->root->removeChild(d->rootR);
-    buildPermanentSceneGraph(detectorStore(),d->rootR);
-    d->root->addChild(d->rootR);
+    m_d->first = false;
+    m_d->root->removeChild(m_d->rootR);
+    buildPermanentSceneGraph(detectorStore(),m_d->rootR);
+    m_d->root->addChild(m_d->rootR);
   }
 
-  d->root->removeChild(d->rootE);
+  m_d->root->removeChild(m_d->rootE);
   updateGUI();
-  buildEventSceneGraph(sg, d->rootE);
+  buildEventSceneGraph(sg, m_d->rootE);
   updateGUI();
-  d->root->addChild(d->rootE);
+  m_d->root->addChild(m_d->rootE);
 
-  d->wasrefreshed=true;
+  m_d->wasrefreshed=true;
 
 }
 
@@ -166,23 +166,23 @@ void IVP13DSystemSimple::refresh(StoreGateSvc* sg)
 void IVP13DSystemSimple::erase()
 {
   messageVerbose("IVP13DSystemSimple::erase() start");
-  assert(d->wascreated);
-  assert(d->wasrefreshed);
+  assert(m_d->wascreated);
+  assert(m_d->wasrefreshed);
 
-  bool saveE = d->rootE->enableNotify(false);
+  bool saveE = m_d->rootE->enableNotify(false);
 
   systemerase();
   messageVerbose("IVP13DSystemSimple::erase() Removing all event objects from scene");
   if (verbose())
     warnOnDisabledNotifications();
-  d->rootE->removeAllChildren();
+  m_d->rootE->removeAllChildren();
 
   if (saveE) {
-    d->rootE->enableNotify(true);
-    d->rootE->touch();
+    m_d->rootE->enableNotify(true);
+    m_d->rootE->touch();
   }
 
-  d->wasrefreshed=false;
+  m_d->wasrefreshed=false;
   messageVerbose("IVP13DSystemSimple::erase() end");
 }
 
@@ -191,15 +191,15 @@ void IVP13DSystemSimple::uncreate()
 {
 	messageDebug("uncreate()...");
 
-  assert(d->wascreated);
-  assert(!d->wasrefreshed);
-  d->rootE->enableNotify(false);
-  d->rootR->enableNotify(false);
+  assert(m_d->wascreated);
+  assert(!m_d->wasrefreshed);
+  m_d->rootE->enableNotify(false);
+  m_d->rootR->enableNotify(false);
   systemuncreate();
-  d->root->removeAllChildren();
-  d->rootE->removeAllChildren();
-  d->rootR->removeAllChildren();
-  d->wascreated=false;
+  m_d->root->removeAllChildren();
+  m_d->rootE->removeAllChildren();
+  m_d->rootR->removeAllChildren();
+  m_d->wascreated=false;
 }
 
 //___________________________________________________________
@@ -207,8 +207,8 @@ void IVP13DSystemSimple::warnOnDisabledNotifications() const
 {
   QList<SoNode*> nodesR;
   QList<SoNode*> nodesE;
-  d->getNodesWithDisabledNotifications(d->rootR, nodesR);
-  d->getNodesWithDisabledNotifications(d->rootE, nodesE);
+  m_d->getNodesWithDisabledNotifications(m_d->rootR, nodesR);
+  m_d->getNodesWithDisabledNotifications(m_d->rootE, nodesE);
   if (!nodesR.isEmpty()) {
     message("WARNING: Found "+str(nodesR.count())+" node"+QString(nodesR.count()>1?"s":0)+" with disabled notifications in permanent scenegraph:");
     foreach (SoNode * node, nodesR)

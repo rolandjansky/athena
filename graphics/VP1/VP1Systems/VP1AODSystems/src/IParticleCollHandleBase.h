@@ -29,7 +29,7 @@
 #include "xAODBase/IParticle.h" // for xAOD::Type::ObjectType
 
 // Qt
-#include <QtGui/QColor>
+#include <QColor>
 #include <QList>
 
 //Misc
@@ -118,7 +118,7 @@ public slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   VP1Interval m_cut_allowedPtSq;//We store the allowed interval for pt squared - to avoid sqrt's.
   VP1Interval m_cut_allowedEta;

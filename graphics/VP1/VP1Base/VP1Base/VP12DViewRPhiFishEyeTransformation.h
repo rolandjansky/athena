@@ -31,7 +31,7 @@ public:
 
 private:
 
-  double fisheyepar;
+  double m_fisheyepar;
 
 };
 
@@ -42,14 +42,14 @@ private:
 inline QPointF VP12DViewRPhiFishEyeTransformation::transform(const QPointF &source) const
 {
   QPointF p(source);
-  p /= 1.0+fisheyepar*sqrt(source.x()*source.x()+source.y()*source.y());
+  p /= 1.0+m_fisheyepar*sqrt(source.x()*source.x()+source.y()*source.y());
   return p;
 }
 
 inline QPointF VP12DViewRPhiFishEyeTransformation::inverseTransform(const QPointF &source) const
 {
   QPointF p(source);
-  p /= 1.0-fisheyepar*sqrt(source.x()*source.x()+source.y()*source.y());
+  p /= 1.0-m_fisheyepar*sqrt(source.x()*source.x()+source.y()*source.y());
   return p;
 }
 

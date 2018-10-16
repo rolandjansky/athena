@@ -3311,7 +3311,7 @@ static void gl2psPrintTeXFooter(void)
 
 static void gl2psPrintTeXBeginViewport(GLint viewport[4])
 {
-  GLint a = viewport[0]; a = 0; //get rid of warning
+  GLint a  __attribute__((unused)) = viewport[0];
   glRenderMode(GL_FEEDBACK);
 
   if(gl2ps->header){
@@ -3865,6 +3865,7 @@ static int gl2psPDFgroupListWriteXObjectResources(void)
       if(GL_RGBA == p->data.image->format)  /* reserve one object for image mask */
         gl2ps->objects_stack++;
       offs += fprintf(gl2ps->stream, "/Im%d %d 0 R\n", gro->imno, gro->imobjno);
+      break;
     case GL2PS_TRIANGLE:
       if(gro->trgroupno >=0)
         offs += fprintf(gl2ps->stream, "/TrG%d %d 0 R\n", gro->trgroupno, gro->trgroupobjno);

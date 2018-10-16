@@ -8,20 +8,25 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Serialise.h"
 
+/* --- FIXME: Qat has still to be ported to Qt5 I think...
 // Plotting
-#include "QatPlotting/PlotStream.h"
-#include "QatPlotWidgets/PlotView.h"
-#include "QatDataAnalysis/Hist1D.h"
-#include "QatPlotting/PlotHist1D.h"
-#include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
-#include <QtGui/QAction>
+//#include "QatPlotting/PlotStream.h"
+//#include "QatPlotWidgets/PlotView.h"
+//#include "QatDataAnalysis/Hist1D.h"
+//#include "QatPlotting/PlotHist1D.h"
+ */
+
+#include <QMainWindow>
+#include <QToolBar>
+#include <QAction>
 
 #include "TFile.h"
 #include "TROOT.h"
 #include "TH1F.h"
 #include "TKey.h"
 #include <sstream>
+
+
 class VP1PartSpectSystem::Imp {
 public:
   Imp();
@@ -77,26 +82,26 @@ VP1PartSpectSystem::VP1PartSpectSystem()
   : IVP13DSystemSimple("PartSpectrum"
 		       ,"System for displaying particle spectrum histograms"
 		       ,"Vakho Tsulaia <tsulaia@mail.cern.ch>")
-  , d(new Imp())
+  , m_d(new Imp())
 {
 }
 
 VP1PartSpectSystem::~VP1PartSpectSystem()
 {
-  delete d;
+  delete m_d;
 }
 
 QWidget* VP1PartSpectSystem::buildController()
 {
   // Standard stuff
-  d->controller = new VP1PartSpectController(this);
+  m_d->controller = new VP1PartSpectController(this);
 
   // Connect controller signals to various slots
-  connect(d->controller,SIGNAL(fileUpdated(QString)),this,SLOT( fileUpdated(QString)));
+  connect(m_d->controller,SIGNAL(fileUpdated(QString)),this,SLOT( fileUpdated(QString)));
 
-  connect(d->controller,SIGNAL(particleTypeChanged(VP1PartSpect::ParticleType)),this,SLOT(particleType()));
+  connect(m_d->controller,SIGNAL(particleTypeChanged(VP1PartSpect::ParticleType)),this,SLOT(particleType()));
 
-  return d->controller;
+  return m_d->controller;
 }
 
 void VP1PartSpectSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator*)
@@ -114,7 +119,7 @@ QByteArray VP1PartSpectSystem::saveState()
 
   ensureBuildController();
 
-  serialise.save(d->controller->saveSettings());
+  serialise.save(m_d->controller->saveSettings());
 
   serialise.disableUnsavedChecks();
   return serialise.result();
@@ -133,7 +138,7 @@ void VP1PartSpectSystem::restoreFromState(QByteArray ba)
 
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
-  d->controller->restoreSettings(state.restoreByteArray());
+  m_d->controller->restoreSettings(state.restoreByteArray());
 
   state.disableUnrestoredChecks();
 }
@@ -141,29 +146,29 @@ void VP1PartSpectSystem::restoreFromState(QByteArray ba)
 void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
 {
   // close plot main window if already open
-  delete  d->PlotMainWindow;
-  d->PlotMainWindow = 0;
+  delete  m_d->PlotMainWindow;
+  m_d->PlotMainWindow = 0;
 
   // Do something only if the system is active
   if(activeState()==IVP1System::OFF) return;
 
-  if(!d->stream) {
+  if(!m_d->stream) {
     message("No input file");
     return;
   }
 
-  d->stream->cd();
+  m_d->stream->cd();
   std::ostringstream copyNumberStream;
   copyNumberStream << copyNumber;
 
   while(path.size()>1){
     QString dirBase= path.pop().replace(QString("::"),QString("_"));
     QString directory=dirBase;
-    if(!gDirectory->cd(directory.toAscii())) {
+    if(!gDirectory->cd(directory.toLatin1())) {
       directory = (dirBase.toStdString()+"_"+copyNumberStream.str()).c_str();
-      if (!gDirectory->cd(directory.toAscii())) {
+      if (!gDirectory->cd(directory.toLatin1())) {
 	directory = (dirBase.toStdString()+"_0").c_str();
-	if (!gDirectory->cd(directory.toAscii())) {
+	if (!gDirectory->cd(directory.toLatin1())) {
 	  message(QString("Unable to cd to ") + directory);
 	  return;
 	} else {
@@ -173,7 +178,7 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
     }
   }
   
-  QString histogramName = d->histogramPrefix(d->controller->getParticleType());
+  QString histogramName = m_d->histogramPrefix(m_d->controller->getParticleType());
   QString entredHistoName = histogramName + "entred_";
   QString entredHistoName_n = histogramName + "entred_";
   QString entredHistoName_0 = histogramName + "entred_";
@@ -239,14 +244,15 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
     return;
   }
 
+  /* FIXME: Qat has to be ported to Qt5...
   // ___________ Plotting _______________
 
   // Create new window for the plot
-  d->PlotMainWindow = new QMainWindow();
-  QToolBar *toolBar=d->PlotMainWindow->addToolBar("Tools");
+  m_d->PlotMainWindow = new QMainWindow();
+  QToolBar *toolBar=m_d->PlotMainWindow->addToolBar("Tools");
   QAction  *dismissAction=toolBar->addAction("Dismiss");
-  dismissAction->setShortcut(QKeySequence("d"));
-  connect(dismissAction,SIGNAL(activated()), d->PlotMainWindow, SLOT(hide()));
+  dismissAction->setShortcut(QKeySequence("m_d"));
+  connect(dismissAction,SIGNAL(activated()), m_d->PlotMainWindow, SLOT(hide()));
 
   // Create histogram
   Hist1D* hist1D = new Hist1D(histogramName.toStdString()
@@ -260,7 +266,7 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
   PlotHist1D::Properties* prop = new PlotHist1D::Properties();
   prop->pen.setColor(QColor("darkRed"));
   prop->pen.setWidth(3);
-  pHist->setProperties(*prop);
+  pHist->setProperties(*prop); //const reference, but does not take possession of pointer
     
   // Make a plot
   QRectF rect = pHist->rectHint();
@@ -270,7 +276,7 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
   view->setLogX(true);
   view->setLogY(true);
 
-  d->PlotMainWindow->setCentralWidget(view);
+  m_d->PlotMainWindow->setCentralWidget(view);
   view->setBox(false);
   view->add(pHist);
 
@@ -306,23 +312,30 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
     << PlotStream::Center() 
     << PlotStream::Family("Sans Serif")  
     << PlotStream::Size(12)
-    << (d->controller->getParticleType()==VP1PartSpect::Neutron ? "neutrons / bin" : "electrons / bin")
+    << (m_d->controller->getParticleType()==VP1PartSpect::Neutron ? "neutrons / bin" : "electrons / bin")
     << PlotStream::EndP();
 
   // Show this view
 
-  d->PlotMainWindow->show();
+  m_d->PlotMainWindow->show();
+  delete prop;
+  prop=nullptr;
   // ___________ Plotting _______________
+  */
+
+
+
+
 }
 
 void VP1PartSpectSystem::fileUpdated(const QString& fileName)
 {
   // Close previously open file
-  delete d->stream;
-  d->stream=0;
+  delete m_d->stream;
+  m_d->stream=0;
 
   // Open the new file
-  d->stream = new TFile(fileName.toStdString().c_str(),"READ");
+  m_d->stream = new TFile(fileName.toStdString().c_str(),"READ");
   messageVerbose(fileName + " opened");
 }
 

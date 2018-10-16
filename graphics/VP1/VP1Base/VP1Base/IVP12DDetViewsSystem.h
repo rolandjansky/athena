@@ -16,7 +16,8 @@
 #define IVP12DDETVIEWSSYSTEM_H
 
 #include "VP1Base/IVP12DSystem.h"
-#include <QtCore/QSet>
+
+#include <QSet>
 
 class VP1GraphicsItemCollection;
 
@@ -65,7 +66,7 @@ public:
   virtual ~IVP12DDetViewsSystem();
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void create(StoreGateSvc* detstore);
   void refresh(StoreGateSvc* storegate);
   void erase();

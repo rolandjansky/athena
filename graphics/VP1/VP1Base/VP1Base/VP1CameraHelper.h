@@ -15,7 +15,7 @@
 #ifndef VP1CAMERAHELPER_H
 #define VP1CAMERAHELPER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbVec3f.h>
 
@@ -100,7 +100,7 @@ private:
   VP1CameraHelper( SoCamera *, SoGroup * );
   virtual ~VP1CameraHelper();
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

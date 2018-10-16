@@ -21,7 +21,7 @@
 #define VP1STRING_H
 
 
-#include <QtCore/QString>
+#include <QString>
 
 #include "GeoPrimitives/GeoPrimitives.h" // for the Amg (Eigen) vectors/matrices/...
 

@@ -18,7 +18,7 @@
 #ifndef INDETPROJECTIONFLAGS_H
 #define INDETPROJECTIONFLAGS_H
 
-#include <QtCore/QFlags>
+#include <QFlags>
 
 class InDetProjFlags {
 public:

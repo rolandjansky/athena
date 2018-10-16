@@ -54,7 +54,7 @@ private:
   IVP13DChannelWidget( const IVP13DChannelWidget & );
   IVP13DChannelWidget & operator= ( const IVP13DChannelWidget & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

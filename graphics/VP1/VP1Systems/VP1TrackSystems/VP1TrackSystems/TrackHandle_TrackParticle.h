@@ -37,6 +37,7 @@ public:
   virtual unsigned getNRPCHits() const;
   virtual unsigned getNTGCHits() const;
   virtual unsigned getNCSCHits() const;
+  virtual unsigned getNMuonPrecisionHits() const;
 
   virtual QString type() const { return QString("TrackParticle"); } //!< return very short word with type (maybe link with collection type?)
 
@@ -51,7 +52,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void ensureInitSubSysHitInfo() const;
 
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>290</width>
-    <height>420</height>
+    <width>390</width>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -185,6 +185,9 @@
         <item row="2" column="1">
          <widget class="QSpinBox" name="spinBox_cut_nhits_trt"/>
         </item>
+        <item row="3" column="1">
+         <widget class="QSpinBox" name="spinBox_cut_nhits_muon"/>
+        </item>
         <item row="3" column="0">
          <widget class="QCheckBox" name="checkBox_cut_nhits_muon">
           <property name="text">
@@ -192,10 +195,30 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QSpinBox" name="spinBox_cut_nhits_muon"/>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="checkBox_cut_nprecisionhits_muon">
+          <property name="text">
+           <string>Require Precision Muon hits:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QSpinBox" name="spinBox_cut_nprecisionhits_muon"/>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>ID requirements only apply to tracks with ID hits (i.e. not MS standalone tracks)</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer_2">

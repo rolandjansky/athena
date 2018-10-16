@@ -37,6 +37,7 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/AnnulusBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/DiamondBounds.h"
 #include "TrkSurfaces/NoBounds.h"
@@ -79,14 +80,25 @@ SoNode*    SurfaceToSoNode::translateSurface(const Trk::Surface& sf, const bool&
 
     // place and transform them
     SoSeparator* sosep = new SoSeparator();
-    SoTransform* sotra = VP1LinAlgUtils::toSoTransform(sf.transform());
+    
+    // Horrible hack for ITK annulus bounds. What should really happen is we draw the surface where the bounds are. But this was never done before.
+    Amg::Transform3D transform = sf.transform();
+    if (cpsf) {
+      const Trk::AnnulusBounds* cannulus = dynamic_cast<const Trk::AnnulusBounds*>(&(cpsf->bounds()));
+      if (cannulus){
+        Amg::Vector3D vec(0.0,0.5*(cannulus->maxR()+cannulus->minR()),0.0);
+        transform.translate(vec);
+      }
+    }
+  
+    SoTransform* sotra = VP1LinAlgUtils::toSoTransform(transform);
     sosep->addChild(sotra);
     sosep->addChild(sono);
 
     return sosep;
 }
 
-SoNode*    SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf ) const
+SoNode*     SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf ) const
 {
    const Trk::RectangleBounds* crecbo = dynamic_cast<const Trk::RectangleBounds*>(&(psf.bounds()));
    if (crecbo){
@@ -122,21 +134,33 @@ SoNode*    SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf )
    }
    const Trk::DiamondBounds* cdiabo = dynamic_cast<const Trk::DiamondBounds*>(&(psf.bounds()));
    if (cdiabo){
-     double _dz=0.25;
-     std::vector<double> _x,_y;
-     _x.push_back(cdiabo->minHalflengthX());_y.push_back( -2*cdiabo->halflengthY1());
-     _x.push_back(cdiabo->medHalflengthX());_y.push_back( 0.);
+     double dz=0.25;
+     std::vector<double> x,y;
+     x.push_back(cdiabo->minHalflengthX());y.push_back( -2*cdiabo->halflengthY1());
+     x.push_back(cdiabo->medHalflengthX());y.push_back( 0.);
      if (cdiabo->halflengthY2()>0.) {
-       _x.push_back(cdiabo->maxHalflengthX()); _y.push_back( 2*cdiabo->halflengthY2()); 
-       _x.push_back(-cdiabo->maxHalflengthX());_y.push_back( 2*cdiabo->halflengthY2()); 
+       x.push_back(cdiabo->maxHalflengthX()); y.push_back( 2*cdiabo->halflengthY2()); 
+       x.push_back(-cdiabo->maxHalflengthX());y.push_back( 2*cdiabo->halflengthY2()); 
      }
-     _x.push_back(-cdiabo->medHalflengthX());_y.push_back( 0.);
-     _x.push_back(-cdiabo->minHalflengthX());_y.push_back( -2*cdiabo->halflengthY1());
+     x.push_back(-cdiabo->medHalflengthX());y.push_back( 0.);
+     x.push_back(-cdiabo->minHalflengthX());y.push_back( -2*cdiabo->halflengthY1());
 
-     SbPolyhedronPolygonXSect _sbPoly(_x,_y,_dz);
-     return new SoPolyhedron(_sbPoly);;
+     SbPolyhedronPolygonXSect sbPoly(x,y,dz);
+     return new SoPolyhedron(sbPoly);
    }
    
+   const Trk::AnnulusBounds* cannulus = dynamic_cast<const Trk::AnnulusBounds*>(&(psf.bounds()));
+   if (cannulus){
+     SoGenericBox * gb = new SoGenericBox;
+     const double hminphi = 0.5*cannulus->minR()*cannulus->phi();
+     const double hmaxphi = 0.5*cannulus->maxR()*cannulus->phi();
+     const double heta    = 0.5 * (cannulus->maxR() - cannulus->minR());
+     gb->setParametersForTrapezoid( 0.5*surfaceThickness/*dz*/, 0/*theta*/, 0/*phi*/, heta/*dy1*/,
+				    hminphi/*dx1*/, hmaxphi/*dx2*/, heta/*dy2*/, hminphi/*dx3*/,
+				    hmaxphi/*dx4*/, 0/*alp1*/, 0/*alp2*/ );
+     gb->drawEdgeLines.setValue(true);
+     return gb;
+   }   
    const Trk::NoBounds* nobo = dynamic_cast<const Trk::NoBounds*>(&(psf.bounds()));
    if (nobo){
     SoGenericBox * gb = new SoGenericBox;
