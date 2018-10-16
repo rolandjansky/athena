@@ -13,12 +13,13 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
 // for debugging
 // #define XXX std::cout << "I am here: " << __FILE__ << ":" << __LINE__ << std::endl;
 
 // this function is adapted from René Brun's $ROOTSYS/tutorials/io/copyFiles.C macro
-void CopyDirToNewDir(TDirectory *source, TDirectory * outFile, TString prefix="") {
+void CopyDirToNewDir(std::shared_ptr<TDirectory> source, std::shared_ptr<TDirectory> outFile, TString prefix="") {
     //copy all objects and subdirs of directory source as a subdir of the current directory
 //     source->ls();
     outFile->cd();
@@ -27,22 +28,22 @@ void CopyDirToNewDir(TDirectory *source, TDirectory * outFile, TString prefix=""
     TIter nextkey(source->GetListOfKeys());
     while ((key = (TKey*)nextkey())) {
         const char *classname = key->GetClassName();
-        TClass *cl = gROOT->GetClass(classname);
+        TClass* cl = gROOT->GetClass(classname);
         if (!cl) continue;
         if (cl->InheritsFrom(TDirectory::Class())) {
             source->cd(key->GetName());
-            TDirectory *subdir = gDirectory;
+            std::shared_ptr<TDirectory> subdir(gDirectory);
             TString name = prefix;
             if (prefix != "") name.Append("_");
             name+=subdir->GetName();
-            TDirectory *adir = outFile->mkdir(name);
+            std::shared_ptr<TDirectory> adir{outFile->mkdir(name)};
             outFile->cd();
             CopyDirToNewDir(subdir,adir); // no prefix for sub-directories
             outFile->cd();
         } else if (cl->InheritsFrom(TTree::Class())) {
-            TTree *T = (TTree*)source->Get(key->GetName());
+            std::unique_ptr<TTree> T{(TTree*)source->Get(key->GetName())};
             outFile->cd();
-            TTree *newT = T->CloneTree(-1,"fast");
+            std::unique_ptr<TTree> newT{T->CloneTree(-1,"fast")};
             TString name = prefix;
             if (prefix != "") name.Append("_");
             name+=newT->GetName();
@@ -50,13 +51,12 @@ void CopyDirToNewDir(TDirectory *source, TDirectory * outFile, TString prefix=""
             newT->Write();
         } else {
             source->cd();
-            TObject *obj = key->ReadObj();
+            std::unique_ptr<TObject>obj{key->ReadObj()};
             outFile->cd();
             TString name = prefix;
             if (prefix != "") name.Append("_");
             name+=obj->GetName();
             obj->Write(name);
-            delete obj;
         }
     }
 }
@@ -120,11 +120,11 @@ int main(int argc, char** argv) {
     }
     
     // the output file
-    TFile * fout = new TFile(argv[1],"create");
+    std::shared_ptr<TFile> fout{TFile::Open(argv[1],"create")};
     
     // now looping on the input files
     for (unsigned int i = 0; i<inFileNames.size(); i++) {
-        TFile * f = new TFile(inFileNames[i].c_str(),"read");
+        std::shared_ptr<TFile> f{TFile::Open(inFileNames[i].c_str(),"read")};
         std::cout<<"Copy content of file "<<inFileNames[i]<<" in file "<<argv[1]<<" with prefix "<<prefixes[i]<<std::endl;
         CopyDirToNewDir(f, fout, TString(prefixes[i]));
         f->Close();
