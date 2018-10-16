@@ -67,27 +67,28 @@ class Pad(object):
             # Handle situation when self.lines list is empty
             pass
 
-    def draw_structure(self, structure, y):
-        if y >= self.MAX_PAD_HEIGHT:
+    def draw_structure(self, structure, start_y):
+        """start_y - starting vertical position where elements will be drawn"""
+        if start_y >= self.MAX_PAD_HEIGHT:
             return
         style = self.styles['marked' if structure.is_marked() else 'normal']
-        self.pad.addstr(y, structure.x_pos,
+        self.pad.addstr(start_y, structure.x_pos,
                         '[{}] {}'.format(structure.get_mark_character(),
                                          structure.get_name()), style)
-        self.lines.insert(y, structure)
-        y += 1
+        self.lines.insert(start_y, structure)
+        start_y += 1
         if structure.type == 'GROUP' and structure.show_children:
             for child in structure.children:
-                y = self.draw_structure(child, y)
-        return y
+                start_y = self.draw_structure(child, start_y)
+        return start_y
 
     def draw_all_structures(self):
         self.lines = []
-        y = 0
+        start_y = 0
         for i in self.structure_list:
-            if y >= self.MAX_PAD_HEIGHT:
+            if start_y >= self.MAX_PAD_HEIGHT:
                 break
-            y = self.draw_structure(i, y)
+            start_y = self.draw_structure(i, start_y)
         self.refresh()
 
     def refresh(self):
