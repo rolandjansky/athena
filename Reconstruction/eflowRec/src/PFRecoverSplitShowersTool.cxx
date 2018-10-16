@@ -28,12 +28,9 @@ using namespace eflowSubtract;
 PFRecoverSplitShowersTool::PFRecoverSplitShowersTool(const std::string& type,const std::string& name,const IInterface* parent):
   base_class(type, name, parent),
   m_eflowCaloObjectContainer(0),
-  m_rCell(0.75),
-  m_windowRms(0.032),
   m_binnedParameters(std::make_unique<eflowEEtaBinnedParameters>()),
   m_nTrackClusterMatches(0)
 {
-  eflowRingSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
 }
 
 PFRecoverSplitShowersTool::~PFRecoverSplitShowersTool() {}

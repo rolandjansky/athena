@@ -35,10 +35,6 @@ class eflowRingSubtractionManager {
   eflowRingSubtractionManager();
   ~eflowRingSubtractionManager() {}
 
-  static void setRMaxAndWeightRange(double rMax, double weightRange) {
-    m_rMax = rMax;
-    m_weightRange = weightRange;
-  }
   double fudgeMean() const    {return m_fudgeMean;}
   double fudgeStdDev() const  {return m_fudgeStdDev;}
   /* for eflowTauTool */
@@ -66,7 +62,7 @@ class eflowRingSubtractionManager {
   double m_fudgeMean;
   double m_fudgeStdDev;
 
-  static double m_rMax;
-  static double m_weightRange;
+  static constexpr double m_rMax = 0.75;
+  static constexpr double m_weightRange = 1.0e6;
 };
 #endif

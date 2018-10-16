@@ -23,10 +23,6 @@ CREATED:  18th Aug, 2005
 
 using std::vector;
 
-double eflowRingSubtractionManager::m_rMax = 0.75;
-double eflowRingSubtractionManager::m_weightRange = 1.0e6;
-
-
 eflowRingSubtractionManager::eflowRingSubtractionManager() : m_ringThickness(eflowCalo::nRegions), m_fudgeMean(0), m_fudgeStdDev(-1) {}
 
 double eflowRingSubtractionManager::ringMeanRank(const vector<double>& p, double rMin, double rMax) const {

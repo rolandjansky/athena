@@ -56,9 +56,6 @@ private:
   std::vector<eflowRecCluster*> m_clustersToConsider;
   std::vector<eflowRecTrack*> m_tracksToRecover;
 
-  double m_rCell;
-  double m_windowRms;
-
   /* Tool for getting e/p values and hadronic shower cell ordering principle parameters */
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool{this,"eflowCellEOverPTool","eflowCellEOverPTool","Energy Flow E/P Values and Shower Parameters Tool"};
 
