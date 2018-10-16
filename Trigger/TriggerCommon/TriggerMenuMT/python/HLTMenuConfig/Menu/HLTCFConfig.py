@@ -23,26 +23,6 @@ def makeSummary(name, flatDecisions):
     summary.HLTSummary = "MonitoringSummary"+name
     return summary
 
-# def makeMonitor(name, decisions, EnabledChainNames):
-#     from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-#     mon = TrigSignatureMoniMT(name, OutputLevel = 2)
-#     flatDecisions=[]
-#     for step in decisions: flatDecisions.extend (step)
-#     mon.FinalDecisions = flatDecisions
-#     mon.L1Decisions = "HLTChainsResult" # connection with L1Decoder
-#     from TrigUpgradeTest.TestUtils import MenuTest
-#     mon.ChainsList = EnabledChainNames
-#     tools=[]
-#     for step in range (0, len(decisions)):
-#         print "adding collector ",step
-#         print decisions[step]
-#         collect = DecisionCollectorTool("StepCollector%d"%step)
-#         collect.Decisions = decisions[step]
-#         print collect
-#         tools.append(collect)
-#     mon.CollectorTools=tools
-#     print mon
-#     return mon
 
 def makeStreamESD(name, flatDecisions):
     import AthenaPoolCnvSvc.WriteAthenaPool
