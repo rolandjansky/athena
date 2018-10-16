@@ -798,7 +798,8 @@ def defineMenu():
         'L1_RD0_FILLED' : 17,
         'L1_RD0_FIRSTEMPTY' : 18,
         'L1_RD0_UNPAIRED_ISO' : 19,
-        'L1_MBTS_4_4_UNPAIRED_ISO': 20,        
+        'L1_MBTS_4_4_UNPAIRED_ISO': 20,
+        'L1_J400': 21,        
 
         'L1_ZDC_AND_VTE50' : 27,
         #'L1_EM3_VTE20': 28,

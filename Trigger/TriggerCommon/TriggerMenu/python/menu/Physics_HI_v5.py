@@ -122,8 +122,8 @@ def setupMenu():
 	['j120_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j130_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j150_ion_L1J30',         'L1_J30',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j180_ion_L1J30',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j200_ion_L1J30',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],		
+	['j180_ion_L1J50',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j200_ion_L1J50',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],		
 	['j30_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j40_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j50_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -730,7 +730,7 @@ def setupMenu():
 	['noalg_L1J50',   'L1_J50', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
 	['noalg_L1J75',   'L1_J75', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
 	#['noalg_L1J175',   'L1_J175', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
-	['noalg_L1J400',   'L1_J400', [], [HardProbesStream], ["BW:Jet", "RATE:Jets"], 1],
+	['noalg_L1J400',   'L1_J400', [], [HardProbesStream, 'express'], ["BW:Jet", "RATE:Jets"], 1],
 
 	#egamma
 	#['noalg_L1EM7',    'L1_EM7',  [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
