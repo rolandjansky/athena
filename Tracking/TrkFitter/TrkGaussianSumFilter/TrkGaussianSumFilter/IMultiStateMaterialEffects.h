@@ -45,6 +45,7 @@ class IMultiStateMaterialEffects : virtual public IAlgTool{
     std::vector<double> weights;
     std::vector<double> deltaPs;
     std::vector<const AmgSymMatrix(5)*> deltaCovariances;
+    ~Cache(){ reset(); };
     void reset();   
   };
 
