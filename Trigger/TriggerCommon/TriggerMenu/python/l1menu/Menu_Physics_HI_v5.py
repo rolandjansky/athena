@@ -767,6 +767,8 @@ def defineMenu():
                        #TOPO
                        'L1_LAR-EM',
                        'L1_LAR-J',
+                       #ATR-18899 L1 ZDC simulation workaround
+                       'L1_TE20_VTE200', 'L1_VTE200', 'L1_MU4_VTE200', 'L1_TE3.0ETA49_VTE200', 'L1_TE7.0ETA49_VTE200',
 		
 		
 
@@ -1091,7 +1093,7 @@ def defineMenu():
         'L1_EM15HI_2TAU12IM_J25_3J12': 323,
         'L1_EM15HI_2TAU12IM_XE35': 324, 
         #'L1_EM15HI_TAU40_2TAU15': 325,
-        
+                
         'L1_XE60': 357,
         'L1_XE70': 358,
         'L1_XE80': 359,
@@ -1141,6 +1143,12 @@ def defineMenu():
     'L1_2TAU3_VTE100' : 354,
     'L1_2TAU2_VTE200' : 355,
     'L1_2TAU3_VTE200' : 356,
+    
+    'L1_TE20_VTE200' : 465,
+    'L1_VTE200' : 466,
+    'L1_MU4_VTE200' : 467,
+    'L1_TE3.0ETA49_VTE200' : 468,
+    'L1_TE7.0ETA49_VTE200' : 469,
     
     'L1_MBTS_1_ZDC_A_VZDC_C_VTE200' : 470,
 	'L1_MBTS_1_ZDC_C_VZDC_A_VTE200' : 471,
