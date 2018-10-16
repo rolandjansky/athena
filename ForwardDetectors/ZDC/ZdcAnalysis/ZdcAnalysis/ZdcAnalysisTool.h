@@ -63,7 +63,9 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   bool  sideFailed(int side);
   unsigned int getModuleMask();
 
-  float getTriggerEfficiency(int side);
+  double getTriggerEfficiency(int side);
+  double getTriggerEfficiencyUncertainty(int side);
+  bool m_doTimeCalib;
 
   const ZDCDataAnalyzer* getDataAnalyzer() {return m_zdcDataAnalyzer;}
 
@@ -72,6 +74,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   //
   ZDCDataAnalyzer* initializeDefault();
   ZDCDataAnalyzer* initializepPb2016();
+  ZDCDataAnalyzer* initializePbPb2018();
 
   StatusCode configureNewRun(unsigned int runNumber);
 
