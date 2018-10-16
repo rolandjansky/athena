@@ -24,6 +24,7 @@ namespace CP
     , m_jvtTool ("", this)
   {
     declareProperty ("jvtTool", m_jvtTool, "the jvt tool we apply");
+    declareProperty ("decorationName", m_decorationName, "the decoration name to use");
   }
 
 
@@ -31,6 +32,14 @@ namespace CP
   StatusCode JvtUpdateAlg ::
   initialize ()
   {
+    if (m_decorationName.empty())
+    {
+      ANA_MSG_ERROR ("decoration name set to empty string, not allowed");
+      return StatusCode::FAILURE;
+    }
+    m_decorationAccessor = std::make_unique
+      <SG::AuxElement::Accessor<float> > (m_decorationName);
+
     ANA_CHECK (m_jvtTool.retrieve());
     m_systematicsList.addHandle (m_jetHandle);
     ANA_CHECK (m_systematicsList.initialize());
@@ -42,8 +51,6 @@ namespace CP
   StatusCode JvtUpdateAlg ::
   execute ()
   {
-    static const SG::AuxElement::Accessor<float> jvtAccessor ("Jvt");
-
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         xAOD::JetContainer *jets = nullptr;
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
@@ -51,7 +58,7 @@ namespace CP
         {
           // manually update jvt decoration using the tool
           const float jvt = m_jvtTool->updateJvt (*jet);
-          jvtAccessor (*jet) = jvt;
+          (*m_decorationAccessor) (*jet) = jvt;
         }
         return StatusCode::SUCCESS;
       });
