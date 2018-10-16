@@ -9,6 +9,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 import DerivationFrameworkJetEtMiss.ExtendedJetCommon
 
 if globalflags.DataSource()=='geant4':
@@ -120,6 +121,7 @@ EXOT21SlimmingHelper.SmartCollections = EXOT21SmartContent
 EXOT21SlimmingHelper.AllVariables = EXOT21AllVariablesContent 
 EXOT21SlimmingHelper.StaticContent = EXOT21UnslimmedContent 
 EXOT21SlimmingHelper.ExtraVariables = EXOT21ExtraVariables
+EXOT21SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 if globalflags.DataSource()=='geant4':
     EXOT21SlimmingHelper.ExtraVariables += EXOT21ExtraTruth
 EXOT21SlimmingHelper.IncludeEGammaTriggerContent = True
