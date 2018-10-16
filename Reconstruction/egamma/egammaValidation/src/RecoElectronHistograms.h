@@ -26,11 +26,12 @@ namespace egammaMonitoring{
 
     // Electron Plot(s)
     using ParticleHistograms::ParticleHistograms;   
-    using ParticleHistograms::initializePlots;
+    
     StatusCode initializePlots();
 
     using ParticleHistograms::fill;
-    void fill(const xAOD::Electron& elrec);
+    
+    void fill(const xAOD::Electron& elrec) override;
 
   private:    
 
