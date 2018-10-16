@@ -19,7 +19,7 @@ def _setupAtlasUnixStandardJob():
     svcMgr += GaudiSvcConf.EvtPersistencySvc( "EventPersistencySvc" )
     svcMgr += GaudiSvcConf.HistogramSvc( "HistogramDataSvc" )
     svcMgr += GaudiSvcConf.NTupleSvc()
-    svcMgr += GaudiSvcConf.ToolSvc()
+    # ToolSvc is already added in AppMgr.py.
     svcMgr += GaudiSvcConf.RndmGenSvc()
     svcMgr += GaudiSvcConf.ChronoStatSvc()
 
