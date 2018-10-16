@@ -39,3 +39,4 @@ atlas_add_component( ISF_FatrasToolsG4
 # Install files from the package:
 atlas_install_headers( ISF_FatrasToolsG4 )
 
+atlas_install_python_modules( python/*.py )
