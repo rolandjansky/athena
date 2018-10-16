@@ -32,7 +32,7 @@ namespace VKalVrtAthena {
   //__________________________________________________________________________
   SoftBtagTrackSelector::~SoftBtagTrackSelector()
   {
-    ATH_MSG_DEBUG("destructor called");
+
   }
 
 
@@ -40,7 +40,7 @@ namespace VKalVrtAthena {
   //__________________________________________________________________________
   StatusCode SoftBtagTrackSelector::beginRun()  {
 
-    ATH_MSG_DEBUG("beginRun()");
+
 
     return StatusCode::SUCCESS;
   }
@@ -66,9 +66,7 @@ namespace VKalVrtAthena {
     m_trackSelectionAlgs["minJetDeltaR"]   =  &SoftBtagTrackSelector::selectTrack_JetDeltaRCut;
     m_trackSelectionAlgs["pixelHits"]      =  &SoftBtagTrackSelector::selectTrack_pixelHits;
     m_trackSelectionAlgs["sctHits"]        =  &SoftBtagTrackSelector::selectTrack_sctHits;
-    // m_trackSelectionAlgs["trtHits"]        =  &SoftBtagTrackSelector::selectTrack_trtHits;
     m_trackSelectionAlgs["bLayHits"]       =  &SoftBtagTrackSelector::selectTrack_bLayHits;
-    // m_trackSelectionAlgs["siShare"]        =  &SoftBtagTrackSelector::selectTrack_sharedHits;
 
     // now make histograms/ntuples
     if( m_jp.FillHist ) {
@@ -95,9 +93,7 @@ namespace VKalVrtAthena {
 	m_hists["minJetDeltaR_"+ conf]    = new TH1F(Form("minJetDeltaR_%s",conf.c_str()) , ";min dR(track,jet);",             100,    0,     4  );
 	m_hists["pixelHits_"+ conf]       = new TH1F(Form("pixelHits_%s",conf.c_str()) ,    ";Pixel Hits;",                     21,  -0.5,  20.5 );
 	m_hists["sctHits_"+ conf]         = new TH1F(Form("sctHits_%s",conf.c_str()) ,      ";SCT Hits;",                       21,  -0.5,  20.5 );
-	// m_hists["trtHits_"+ conf]         = new TH1F(Form("trtHits_%s",conf.c_str()) ,      ";TRT Hits;",                       51,  -0.5,  50.5 );
 	m_hists["bLayHits_"+ conf]        = new TH1F(Form("bLayHits_%s",conf.c_str()) ,     ";BLayer Hits;",                    11,  -0.5,  10.5 );
-	m_hists["siShare_"+ conf]         = new TH1F(Form("siShare_%s",conf.c_str()) ,      ";Silicon shared hits;",            11,  -0.5,  10.5 );
 	m_hists["siHits_"+ conf]          = new TH1F(Form("siHits_%s",conf.c_str()) ,       ";Silicon hits;",                   21,  -0.5,  20.5 );
 
       }
@@ -262,9 +258,7 @@ namespace VKalVrtAthena {
 
     declareProperty("CutPixelHits",           m_jp.CutPixelHits           = 3            );
     declareProperty("CutSctHits",             m_jp.CutSctHits             = 1            );
-    // declareProperty("CutSiHits",              m_jp.CutSiHits              = 9             );
     declareProperty("CutBLayHits",            m_jp.CutBLayHits             = 1           );
-    // declareProperty("CutSharedHits",          m_jp.CutSharedHits          = 0             );
 
     declareProperty("truthSVMinDist",         m_jp.truthSVMinDist          = 0.2         );
     declareProperty("UseTruthMatchedTrack",   m_jp.useTruthMatchedTrack   = false        );
@@ -409,34 +403,6 @@ namespace VKalVrtAthena {
     return ( bLayHits >= m_jp.CutBLayHits);
   }
 
-  // bool SoftBtagTrackSelector::selectTrack_trtHits( const xAOD::TrackParticle* trk ) {
-  //   uint8_t trtHits;
-  //   if( !(trk->summaryValue( trtHits, xAOD::numberOfTRTHits ) ) ) trtHits =0;
-  //   m_trackVariables["trtHits"] = trtHits;
-  //   return ( trtHits	>=  m_jp.CutTRTHits);
-  // }
-  
-  // bool SoftBtagTrackSelector::selectTrack_siHits( const xAOD::TrackParticle* trk ) {
-  //   uint8_t siHits,pixelHits,sctHits;
-
-  //   if( !(trk->summaryValue( pixelHits, xAOD::numberOfPixelHits ) ) ) pixelHits =0;
-  //   if( !(trk->summaryValue( sctHits, xAOD::numberOfSCTHits ) ) ) sctHits =0;
-
-  //   siHits = pixelHits + sctHits;
-  //   m_trackVariables["siHits"] = siHits;
-  //   return ( siHits >=  m_jp.CutSiHits);
-  // }
-
-  // bool SoftBtagTrackSelector::selectTrack_sharedHits( const xAOD::TrackParticle* trk ) {
-  //   uint8_t pixelShare,sctShare,siShare;
-  //   if( !(trk->summaryValue( pixelShare,  xAOD::numberOfPixelSharedHits         ) ) ) pixelShare  =0;
-  //   if( !(trk->summaryValue( sctShare,  xAOD::numberOfSCTSharedHits           ) ) ) sctShare  =0;
-    
-  //   siShare = pixelShare + sctShare;
-  //   m_trackVariables["sharedHits"] = siShare;
-  //   return ( siShare <= m_jp.CutSharedHits);
-  // }
-
   StatusCode SoftBtagTrackSelector::processJets() {
 
     ATH_CHECK( evtStore()->retrieve( m_jets, m_jp.jetContainer) );
@@ -480,14 +446,14 @@ namespace VKalVrtAthena {
 
     if(!m_isMC) return 0;
 
-    const xAOD::TruthParticle* TruthTrack = NULL;
+    const xAOD::TruthParticle* TruthTrack = nullptr;
 
     if(track->isAvailable<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink")) {
       ElementLink<xAOD::TruthParticleContainer> link = track->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink");
       if(link.isValid() && track->auxdataConst<float>("truthMatchProbability") > 0.7) TruthTrack = *link;
     }
 
-    if(TruthTrack != NULL) {
+    if(TruthTrack != nullptr) {
       if(TruthTrack->nParents() > 0) {
 	if(TruthTrack->parent(0)) return TruthTrack->parent(0)->absPdgId();
       }
@@ -502,14 +468,14 @@ namespace VKalVrtAthena {
     if(!m_isMC) return false;
     if(!m_truthPV) return false;
 
-    const xAOD::TruthParticle* TruthTrack = NULL;
+    const xAOD::TruthParticle* TruthTrack = nullptr;
 
     if(track->isAvailable<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink")) {
       ElementLink<xAOD::TruthParticleContainer> link = track->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink");
       if(link.isValid() && track->auxdataConst<float>("truthMatchProbability") > 0.7) TruthTrack = *link;
     }
 
-    if(TruthTrack == NULL) return false;
+    if(TruthTrack == nullptr) return false;
     if(TruthTrack->nParents() == 0) return false;
     if(!TruthTrack->parent(0)) return false;
 
