@@ -48,15 +48,9 @@ namespace xAOD {
       /// Hide the copy-constructor
       TDestructorRegistry( const TDestructorRegistry& ) = delete;
 
-      /// Type used internally to clean up memory at the end of the process
-      class TDestructorHolder {
-      public:
-         /// The managed object
-         std::unique_ptr< TVirtualDestructor > m_destructor;
-      };
-
       /// Type of the internal map
-      typedef std::map< const std::type_info*, TDestructorHolder > Map_t;
+      typedef std::map< const std::type_info*,
+                        std::unique_ptr< TVirtualDestructor > > Map_t;
       /// Internal map of known destructor objects
       Map_t m_types;
       /// Mutex for the destructor map

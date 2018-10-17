@@ -29,7 +29,7 @@ namespace xAOD {
       // Look for this type:
       Map_t::const_iterator itr = m_types.find( &ti );
       if( itr != m_types.end() ) {
-         return itr->second.m_destructor.get();
+         return itr->second.get();
       }
 
       // We didn't find it:

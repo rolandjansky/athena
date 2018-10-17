@@ -39,7 +39,7 @@ namespace xAOD {
       std::unique_lock< std::shared_timed_mutex > lock( m_mutex );
 
       // Create a new destructor object.
-      m_types[ &ti ].m_destructor = std::make_unique< TDestructor< T > >();
+      m_types[ &ti ] = std::make_unique< TDestructor< T > >();
 
       return;
    }
