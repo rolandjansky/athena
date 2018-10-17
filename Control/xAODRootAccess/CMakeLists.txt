@@ -41,7 +41,7 @@ atlas_add_root_dictionary( xAODRootAccess xAODRootAccessDictSource
 atlas_add_library( xAODRootAccess
    xAODRootAccess/*.h xAODRootAccess/*.icc
    xAODRootAccess/tools/*.h xAODRootAccess/tools/*.icc
-   Root/*.cxx ${xAODRootAccessDictSource}
+   Root/*.h Root/*.cxx ${xAODRootAccessDictSource}
    PUBLIC_HEADERS xAODRootAccess
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODEventFormat
