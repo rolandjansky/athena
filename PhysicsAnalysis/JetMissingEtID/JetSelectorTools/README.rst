@@ -70,7 +70,7 @@ The tool can be constructed in C++ or python using one of three constructors:
   - A constructor taking both the name and the level
 
 The level can also be explicitly set in job options via the CutLevel property.  The
-levels available levels are: VeryLooseBad , LooseBad , MediumBad , and TightBad .  Each
+levels available levels are: VeryLooseBadLLP , LooseBad , LooseBadLLP , and TightBad .  Each
 level is described on the TWiki.  There are three interface functions that help you
 clean your jets:
 
