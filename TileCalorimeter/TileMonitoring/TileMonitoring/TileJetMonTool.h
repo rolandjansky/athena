@@ -17,16 +17,11 @@
 #include "xAODJet/Jet.h"
 
 #include "TileMonitoring/TileFatherMonTool.h"
-// to use JVT
 #include "AsgTools/ToolHandle.h"
-//#include "JetMomentTools/JetVertexTaggerTool.h"
-#define JVT
-#ifdef JVT
+// JVT
 #include "JetInterface/IJetUpdateJvt.h"
-#endif
 // Jet cleaning
 #include "JetInterface/IJetSelector.h"
-//#include "JetSelectorTools/JetCleaningTool.h"
 // Event cleaning
 #include "JetSelectorTools/IEventCleaningTool.h"
 
@@ -74,10 +69,6 @@ class TileJetMonTool: public TileFatherMonTool {
       LooseBad, MediumBad, TightBad
     } BadJetCategory;
 
-    bool isBad(BadJetCategory criteria, double quality, double NegE, double emf, double hecf,
-        double time, double fmax, double eta, double chf, double HecQ);
-  
-  
   private:
 
     float m_jetPtMin;
@@ -136,14 +127,11 @@ class TileJetMonTool: public TileFatherMonTool {
     float m_jet_jvt_threshold;
     bool m_first_event;
     // JVT
-#ifdef JVT
     ToolHandle<IJetUpdateJvt> m_jvt;
     std::string m_JvtDecorator;
     std::string m_OrDecorator;
-#endif
     // event/jet cleaning
     ToolHandle<IJetSelector> m_cleaningTool;
-    //  JetCleaningTool* m_cleaningTool;
     ToolHandle<ECUtils::IEventCleaningTool> m_ECTool;
 };
 
