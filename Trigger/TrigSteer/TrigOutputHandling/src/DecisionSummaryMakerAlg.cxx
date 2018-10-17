@@ -18,7 +18,7 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   for ( auto& pair: m_lastStepForChain ) {
     struct { std::string chain, collection; } conf { pair.first, pair.second };    
     m_collectionFilter[ conf.collection ].insert( HLT::Identifier( conf.chain).numeric() );
-    ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be red from " << conf.collection );
+    ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
   }
   
   return StatusCode::SUCCESS;
