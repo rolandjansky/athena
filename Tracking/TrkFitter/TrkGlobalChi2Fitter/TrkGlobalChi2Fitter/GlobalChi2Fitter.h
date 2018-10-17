@@ -171,7 +171,7 @@ private:
 
   void errors1(double (*jac)[5],AmgSymMatrix(5) &prevcov,AmgSymMatrix(5) &trackerrmat,bool onlylocal) const;
 
-  void errors2(CLHEP::HepMatrix &derivatives,AmgSymMatrix(5) &trackerrmat, double *myarray,std::vector<int> *rowindices,int &maxl,int *minm,bool onlylocal,int nfitpars) const;
+  void errors2(Amg::MatrixX &derivatives,AmgSymMatrix(5) &trackerrmat, double *myarray,std::vector<int> *rowindices,int &maxl,int *minm,bool onlylocal,int nfitpars) const;
 
   void cleanup() const;
 
@@ -201,7 +201,7 @@ private:
 
   bool m_signedradius;
   mutable bool m_calomat,m_extmat,m_idmat;
-  bool m_fillderivmatrix; 
+  bool m_fillderivmatrix;
   double m_outlcut;
   double m_maxoutliers;
   bool m_printderivs;
@@ -218,19 +218,19 @@ private:
   const AtlasDetectorID *m_DetID;
   bool m_decomposesegments;
   mutable bool m_getmaterialfromtrack;
-  mutable bool m_domeastrackpar;
+  bool m_domeastrackpar;
   bool m_storemat;
   double m_chi2cut;
-  mutable double m_scalefactor;
-  mutable bool m_redoderivs;
+  double m_scalefactor;
+  bool m_redoderivs;
   mutable bool m_reintoutl;
   mutable bool m_matfilled;
   TrackFitInputPreparator*      m_inputPreparator;
   int m_maxit;
-  mutable int m_nfits,m_nsuccessfits,m_matrixinvfailed,m_notenoughmeas,m_propfailed,m_invalidangles,m_notconverge,m_highchi2,m_lowmomentum;
+  mutable std::atomic<int> m_nfits,m_nsuccessfits,m_matrixinvfailed,m_notenoughmeas,m_propfailed,m_invalidangles,m_notconverge,m_highchi2,m_lowmomentum;
   mutable FitterStatusCode m_fittercode;
   mutable bool m_acceleration;
-  mutable bool m_numderiv;
+  bool m_numderiv;
   mutable int m_lastiter;
   mutable int m_miniter;
   mutable bool m_fiteloss;
@@ -238,7 +238,7 @@ private:
   MagneticFieldProperties *m_fieldpropnofield;
   MagneticFieldProperties *m_fieldpropfullfield;
   mutable MagneticFieldProperties *m_fieldprop;
-  static std::vector<CLHEP::HepMatrix> m_derivpool;
+  static std::vector<Amg::MatrixX> m_derivpool;
   mutable TMatrixDSym m_a,m_ainv;
   ParticleMasses   m_particleMasses;
   mutable std::vector<double> m_residuals;
@@ -269,8 +269,10 @@ private:
 
   mutable int m_barcode;
 #endif
-  mutable int m_hitcount;
-  mutable int m_energybalance;
+  mutable int m_hitcount; //can be removed
+  mutable std::atomic<int> m_energybalance;
+
+
 
   mutable std::vector<double> m_phiweight;
   mutable std::vector<int> m_firstmeasurement;

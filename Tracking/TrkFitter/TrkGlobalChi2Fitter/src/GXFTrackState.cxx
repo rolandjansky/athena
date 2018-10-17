@@ -20,10 +20,6 @@
 // #include <string>
 
 
-using CLHEP::HepVector;
-using CLHEP::HepMatrix;
-
-
 namespace Trk {
   GXFTrackState::GXFTrackState()
     :
@@ -246,7 +242,7 @@ namespace Trk {
   }
 
   void
-  GXFTrackState::setDerivatives(HepMatrix &deriv) {
+  GXFTrackState::setDerivatives(Amg::MatrixX& deriv) {
     m_derivs = &deriv;
   }
 

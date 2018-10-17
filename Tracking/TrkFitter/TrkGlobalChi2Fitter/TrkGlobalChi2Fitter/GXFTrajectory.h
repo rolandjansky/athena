@@ -15,7 +15,7 @@ class CylinderLayer;
 class DiscLayer;
 
 /**
-   * @brief Internal representation of the track, used in the track fit.  
+   * @brief Internal representation of the track, used in the track fit.
 
    @author thijs.cornelissen@cern.ch
   */
@@ -118,7 +118,7 @@ private:
   double m_mass;
   bool m_ownrefpar;
   int m_prefit;
-  GXFTrackState *m_caloelossstate;  
+  GXFTrackState *m_caloelossstate;
   std::vector<std::pair<const Layer*,const Layer*> > m_upstreammat;
 };
 }

@@ -76,17 +76,12 @@
 #include "TrkAlgebraUtils/AlSymMat.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 
-using CLHEP::Hep3Vector;
-using CLHEP::HepVector;
-using CLHEP::HepMatrix;
-using CLHEP::HepRotation;
-using CLHEP::HepSymMatrix;
 using CLHEP::MeV;
 using CLHEP::mm;
 
 
 namespace Trk {
-  std::vector<HepMatrix> GlobalChi2Fitter::m_derivpool;
+  std::vector<Amg::MatrixX> GlobalChi2Fitter::m_derivpool;
 
   GlobalChi2Fitter::GlobalChi2Fitter(const std::string &t, const std::string &n,
                                      const IInterface *p) :
@@ -215,7 +210,8 @@ namespace Trk {
       GlobalChi2Fitter::m_derivpool.resize(100);
     }
     for (int i = 0; i < 100; i++) {
-      m_derivpool[i] = HepMatrix(5, 50, 0);
+      m_derivpool[i] = Amg::MatrixX(5, 50);
+      m_derivpool[i].setZero();
     }
 
     m_fastmat = true;
@@ -1044,13 +1040,12 @@ namespace Trk {
       delete jac1;
       delete jac2;
       jac1 = jac2 = 0;
-      HepMatrix jac4(2, 2, 0);
-      jac4[0][0] = jac3[0][2];
-      jac4[1][1] = jac3[1][3];
-      jac4[0][1] = jac3[0][3];
-      jac4[1][0] = jac3[1][2];
-      int ierr = 0;
-      jac4.invert(ierr);
+      Amg::MatrixX jac4(2, 2);
+      jac4(0,0) = jac3[0][2];
+      jac4(1,1) = jac3[1][3];
+      jac4(0,1) = jac3[0][3];
+      jac4(1,0) = jac3[1][2];
+      jac4 = jac4.inverse();
       double dloc1 = idscatpar->parameters()[Trk::loc1] - scat2->parameters()[Trk::loc1];
       double dloc2 = idscatpar->parameters()[Trk::loc2] - scat2->parameters()[Trk::loc2];
       const Trk::CylinderSurface *cylsurf = dynamic_cast<const Trk::CylinderSurface *>(&scat2->associatedSurface());
@@ -1075,8 +1070,8 @@ namespace Trk {
           }
         }
       }
-      double dphi = jac4[0][0] * dloc1 + jac4[0][1] * dloc2;
-      double dtheta = jac4[1][0] * dloc1 + jac4[1][1] * dloc2;
+      double dphi = jac4(0,0) * dloc1 + jac4(0,1) * dloc2;
+      double dtheta = jac4(1,0) * dloc1 + jac4(1,1) * dloc2;
       // std::cout << "i: " << i << " dphi: " << dphi << " dtheta: " << dtheta << " distance: " <<
       // (idscatpar->position()-scat2->position()).mag() << " loc1: " << idscatpar->parameters()[Trk::loc1] << " " <<
       // scat2->parameters()[Trk::loc1] << " " << dloc1 << " loc2: " << idscatpar->parameters()[Trk::loc2] << " " <<
@@ -4453,9 +4448,10 @@ public:
         m_derivpool.push_back(*m_derivpool.begin());
       }
     }
-    if (nfitpar > m_derivpool.begin()->num_col()) {
+    if (nfitpar > m_derivpool.begin()->cols()) {
       for (int i = 0; i < (int) m_derivpool.size(); i++) {
-        m_derivpool[i] = HepMatrix(5, nfitpar + 50, 0);
+        m_derivpool[i] = Amg::MatrixX(5, nfitpar + 50);
+        m_derivpool[i].setZero();
       }
     }
     for (int i = 0; i < (int) trajectory.trackStates().size(); i++) {
@@ -4464,7 +4460,7 @@ public:
       }
       for (int j = 0; j < 5; j++) {
         for (int k = 0; k < nfitpar; k++) {
-          m_derivpool[i][j][k] = 0;
+          m_derivpool[i](j,k) = 0;
         }
       }
       trajectory.trackStates()[i]->setDerivatives(m_derivpool[i]);
@@ -4475,9 +4471,7 @@ public:
     for (; it < m_maxit; it++) {
       m_lastiter = it;
       if (it >= m_maxit - 1) {
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "Fit did not converge" << endmsg;
-        }
+        ATH_MSG_DEBUG( "Fit did not converge" );
         m_fittercode = FitterStatusCode::NoConvergence;
         m_notconverge++;
         gErrorIgnoreLevel = originalErrorLevel;
@@ -5015,7 +5009,7 @@ public:
       int bremmax = (bremno < nbremupstream) ? nbremupstream : bremno;
 
       if (statetype == TrackState::Fittable) {
-        HepMatrix &derivatives = state->derivatives();
+        Amg::MatrixX &derivatives = state->derivatives();
         double sinstereo = 0;
         if (hittype == TrackState::SCT || hittype == TrackState::TGC) {
           sinstereo = state->sinStereo();
@@ -5028,21 +5022,21 @@ public:
           }
           if (trajectory.numberOfPerigeeParameters() > 0) {
             if (i == 0 && sinstereo != 0) {
-              weightderiv[measno][0] = (derivatives[0][0] * cosstereo + sinstereo * derivatives[1][0]) / error[measno];
-              weightderiv[measno][1] = (derivatives[0][1] * cosstereo + sinstereo * derivatives[1][1]) / error[measno];
-              weightderiv[measno][2] = (derivatives[0][2] * cosstereo + sinstereo * derivatives[1][2]) / error[measno];
-              weightderiv[measno][3] = (derivatives[0][3] * cosstereo + sinstereo * derivatives[1][3]) / error[measno];
+              weightderiv[measno][0] = (derivatives(0,0) * cosstereo + sinstereo * derivatives(1,0)) / error[measno];
+              weightderiv[measno][1] = (derivatives(0,1) * cosstereo + sinstereo * derivatives(1,1)) / error[measno];
+              weightderiv[measno][2] = (derivatives(0,2) * cosstereo + sinstereo * derivatives(1,2)) / error[measno];
+              weightderiv[measno][3] = (derivatives(0,3) * cosstereo + sinstereo * derivatives(1,3)) / error[measno];
               if (!m_straightline) {
-                weightderiv[measno][4] = (derivatives[0][4] * cosstereo + sinstereo * derivatives[1][4]) /
+                weightderiv[measno][4] = (derivatives(0,4) * cosstereo + sinstereo * derivatives(1,4)) /
                                          error[measno];
               }
             }else {
-              weightderiv[measno][0] = derivatives[i][0] / error[measno];
-              weightderiv[measno][1] = derivatives[i][1] / error[measno];
-              weightderiv[measno][2] = derivatives[i][2] / error[measno];
-              weightderiv[measno][3] = derivatives[i][3] / error[measno];
+              weightderiv[measno][0] = derivatives(i,0) / error[measno];
+              weightderiv[measno][1] = derivatives(i,1) / error[measno];
+              weightderiv[measno][2] = derivatives(i,2) / error[measno];
+              weightderiv[measno][3] = derivatives(i,3) / error[measno];
               if (!m_straightline) {
-                weightderiv[measno][4] = derivatives[i][4] / error[measno];
+                weightderiv[measno][4] = derivatives(i,4) / error[measno];
               }
             }
           }
@@ -5052,17 +5046,17 @@ public:
             double sign = (j < nscatupstream) ? -1 : 1;
             sign = 1;
             if (i == 0 && sinstereo != 0) {
-              thisderiv = sign * (derivatives[0][index] * cosstereo + sinstereo * derivatives[1][index]);
+              thisderiv = sign * (derivatives(0,index) * cosstereo + sinstereo * derivatives(1,index));
             } else {
-              thisderiv = sign * derivatives[i][index];
+              thisderiv = sign * derivatives(i,index);
             }
             weightderiv[measno][index] = thisderiv / error[measno];
             if (trajectory.prefit() != 1) {
               index++;
               if (i == 0 && sinstereo != 0) {
-                thisderiv = sign * (derivatives[0][index] * cosstereo + sinstereo * derivatives[1][index]);
+                thisderiv = sign * (derivatives(0,index) * cosstereo + sinstereo * derivatives(1,index));
               } else {
-                thisderiv = sign * derivatives[i][index];
+                thisderiv = sign * derivatives(i,index);
               }
               weightderiv[measno][index] = thisderiv / error[measno];
             }
@@ -5071,9 +5065,9 @@ public:
             double thisderiv = 0;
             int index = j + nperparams + 2 * nscat;
             if (i == 0 && sinstereo != 0) {
-              thisderiv = derivatives[0][index] * cosstereo + sinstereo * derivatives[1][index];
+              thisderiv = derivatives(0,index) * cosstereo + sinstereo * derivatives(1,index);
             } else {
-              thisderiv = derivatives[i][index];
+              thisderiv = derivatives(i,index);
             }
             weightderiv[measno][index] = thisderiv / error[measno];
           }
@@ -7001,10 +6995,10 @@ public:
             jacscat[scatindex](4, 4) = jac[4][4] * jacscat[scatindex](4, 4);
           }
           if (fillderivmat) {
-            HepMatrix &derivmat = state->derivatives();
+            Amg::MatrixX &derivmat = state->derivatives();
             for (int i = 0; i < 4; i++) {
-              derivmat[i][nperpars + 2 * scatindex] = -jacscat[scatindex](i, 2);
-              derivmat[i][nperpars + 2 * scatindex + 1] = -jacscat[scatindex](i, 3);
+              derivmat(i,nperpars + 2 * scatindex) = -jacscat[scatindex](i, 2);
+              derivmat(i,nperpars + 2 * scatindex + 1) = -jacscat[scatindex](i, 3);
             }
           }
         }
@@ -7036,12 +7030,12 @@ public:
              state->materialEffects()->momentumJacobians()[bremindex+1]=jacbrem[bremindex](4,4)*ploc*ploc/(jac[4][4]*pbrem[bremindex]*pbrem[bremindex]);
              } */
           if (fillderivmat) {
-            HepMatrix &derivmat = state->derivatives();
+            Amg::MatrixX &derivmat = state->derivatives();
             // double p=pbrem[bremindex];
             // for (int i=0;i<5;i++)
             // derivmat[i][nperpars+2*nscats+bremindex]=0.001*jacbrem[bremindex](i,4)*(sign/(p*p));
             for (int i = 0; i < 5; i++) {
-              derivmat[i][nperpars + 2 * nscats + bremindex] = -0.001 * jacbrem[bremindex](i, 4);
+              derivmat(i,nperpars + 2 * nscats + bremindex) = -0.001 * jacbrem[bremindex](i, 4);
             }
           }
         }
@@ -7066,17 +7060,17 @@ public:
          state->materialEffects()->momentumJacobians()[0]=jacvertex(4,4)/jac[4][4];
          } */
       if (fillderivmat) {
-        HepMatrix &derivmat = state->derivatives();
+        Amg::MatrixX &derivmat = state->derivatives();
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < nperpars; j++) {
-            derivmat[i][j] = jacvertex(i, j);
+            derivmat(i,j) = jacvertex(i, j);
           }
           if (nperpars == 5) {
-            derivmat[i][4] *= .001;
+            derivmat(i,4) *= .001;
           }
         }
         if (nperpars == 5) {
-          derivmat[4][4] = .001 * jacvertex(4, 4);
+          derivmat(4,4) = .001 * jacvertex(4, 4);
         }
       }
 
@@ -7160,10 +7154,10 @@ public:
             jacscat[scatindex](4, 4) = jacscat[scatindex](4, 4) * jac[4][4];
           }
           if (fillderivmat) {
-            HepMatrix &derivmat = state->derivatives();
+            Amg::MatrixX &derivmat = state->derivatives();
             for (int i = 0; i <= imax; i++) {
-              derivmat[i][nperpars + 2 * scatindex] = jacscat[scatindex](i, 2);
-              derivmat[i][nperpars + 2 * scatindex + 1] = jacscat[scatindex](i, 3);
+              derivmat(i,nperpars + 2 * scatindex) = jacscat[scatindex](i, 2);
+              derivmat(i,nperpars + 2 * scatindex + 1) = jacscat[scatindex](i, 3);
             }
           }
         }
@@ -7197,11 +7191,11 @@ public:
              } */
 
           if (fillderivmat) {
-            HepMatrix &derivmat = state->derivatives();
+            Amg::MatrixX &derivmat = state->derivatives();
             // double p=pbrem[bremindex];
             for (int i = 0; i <= 4; i++) {
               // derivmat[i][nperpars+2*nscats+bremindex]=.001*jacbrem[bremindex](i,4)*(-sign/(p*p));
-              derivmat[i][nperpars + 2 * nscats + bremindex] = .001 * jacbrem[bremindex](i, 4);
+              derivmat(i,nperpars + 2 * nscats + bremindex) = .001 * jacbrem[bremindex](i, 4);
             }
           }
         }
@@ -7226,17 +7220,17 @@ public:
          } */
 
       if (fillderivmat) {
-        HepMatrix &derivmat = state->derivatives();
+        Amg::MatrixX &derivmat = state->derivatives();
         for (int i = 0; i <= imax; i++) {
           for (int j = 0; j < nperpars; j++) {
-            derivmat[i][j] = jacvertex(i, j);
+            derivmat(i,j) = jacvertex(i, j);
           }
           if (nperpars == 5) {
-            derivmat[i][4] *= .001;
+            derivmat(i,4) *= .001;
           }
         }
         if (nperpars == 5) {
-          derivmat[4][4] = 0.001 * jacvertex(4, 4);
+          derivmat(4,4) = 0.001 * jacvertex(4, 4);
         }
       }
 
@@ -7347,7 +7341,7 @@ public:
             minm[1] = 1;
           }
         }
-        HepMatrix &derivatives = state->derivatives();
+        Amg::MatrixX &derivatives = state->derivatives();
         // Only consider scatterers and brems which give non-zero derivatives
         int scatmin = (scatno < nscatupstream) ? scatno : nscatupstream;
         int scatmax = (scatno < nscatupstream) ? nscatupstream : scatno;
@@ -7638,7 +7632,7 @@ public:
   }
 
   void
-  GlobalChi2Fitter::errors2(HepMatrix &derivatives, AmgSymMatrix(5) &trackerrmat, double *myarray,
+  GlobalChi2Fitter::errors2(Amg::MatrixX &derivatives, AmgSymMatrix(5) &trackerrmat, double *myarray,
                             std::vector<int> *rowindices, int &maxl, int *minm, bool onlylocal, int nfitpars) const {
     // Project global error matrix onto current state
 
@@ -7656,7 +7650,7 @@ public:
           rowindex = j * nfitpars;
           for (int k2 = 0; k2 < (int) rowindices[m].size(); k2++) {
             k = rowindices[m][k2];
-            tmp3 += derivatives[l][j] * myarray[rowindex + k] * derivatives[m][k];
+            tmp3 += derivatives(l,j) * myarray[rowindex + k] * derivatives(m,k);
           }
         }
         trackerrmat(l, m) = trackerrmat(m, l) = tmp3;
@@ -7671,9 +7665,9 @@ public:
         rowindex = j * nfitpars;
         for (int k2 = 0; k2 < j2; k2++) {
           k = rowindices[l][k2];
-          tmp3 += 2 * derivatives[l][j] * myarray[rowindex + k] * derivatives[l][k];
+          tmp3 += 2 * derivatives(l,j) * myarray[rowindex + k] * derivatives(l,k);
         }
-        tmp3 += derivatives[l][j] * myarray[rowindex + j] * derivatives[l][j];
+        tmp3 += derivatives(l,j) * myarray[rowindex + j] * derivatives(l,j);
       }
       trackerrmat(l, l) = tmp3;
     }
