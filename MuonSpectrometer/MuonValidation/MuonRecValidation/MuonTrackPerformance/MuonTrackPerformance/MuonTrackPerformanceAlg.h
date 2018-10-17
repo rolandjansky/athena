@@ -20,6 +20,13 @@
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 
+#include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonSimData/CscSimDataCollection.h"
+#include "TrackRecord/TrackRecordCollection.h"
+#include "TrkTrack/TrackCollection.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "GeneratorObjects/McEventCollection.h"
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -272,6 +279,12 @@ private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","EventInfo key"};
   const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
 
+  //truth readHandles
+  SG::ReadHandleKey<McEventCollection> m_mcEventColl{this,"McEventCollectionKey","TruthEvent","McEventCollection"};
+  SG::ReadHandleKeyArray<MuonSimDataCollection> m_muonSimData{this,"MuonSimDataNames",{ "MDT_SDO", "RPC_SDO", "TGC_SDO", "sTGC_SDO", "MM_SDO" },"Muon SDO maps"};
+  SG::ReadHandleKey<CscSimDataCollection> m_cscSimData{this,"CSC_SDO_Container","CSC_SDO","CSC SDO"};
+  SG::ReadHandleKey<TrackRecordCollection> m_trackRecord{this,"TrackRecord","MuonEntryLayerFilter","Track Record Collection"};
+
   // member set by Joboptions 
   int  m_doSummary;
   int  m_doHitResiduals;
@@ -284,6 +297,7 @@ private:
   bool m_isCombined;
   bool m_doSegments;
   bool m_writeToFile;
+  bool m_doNSW;
 
   ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
