@@ -95,14 +95,14 @@ def main():
         if args.has_key("testbrk") and args["testbrk"]:
             # test
             earg = "fWIqIhAfKiAxAEoxOyMtB0IxLCwASz0tYS8RHStnPBxcZn5/fUdDaGQqBwMiYy44GAozPTYQHiQ8O2BZQjUoLAcFPysqYDMJ" + \
-                "cT09QRISABg1MwcXPQlYS308fCkaCzUmNhoSfCw8f1oMIDsxWgU4dXt4R0NoZD4DFTEsLCkHHGl/FjItCAAdGy4/dH0GRzJm" + \
-                "HXsDPUNoZD4DFSMqLD4RG2kYKQVQFCsfOTUmFnlmPxApHAQNGCczcQc/LigFAC8kAHYdayFUCAIkYFlCICYsEgc8Iy0tFwRp" + \
-                "PS0BAw=="
+                "cT09QRISABg1MwcXPQlYS308fCkaCzUmNhoSfDx8YhcKNydxFw5qe3t/WEJoKCgHBzMsKj8HQ3MAGT8+Hx0YFiRecRBsIFAC" + \
+                "ewAFWEJoKCgHFTUsPSkAQxQ/LkIiNB86DT08dXAUAh8DBA4gPBl9ERQ8HhoALBwbXBF9CkY+HSRjYVkKKjo5FQo8LS4vH0Mx" + \
+                "OyoR"
         else:
             # prod
             earg = "fWIqIhAfKiAxAEoxOyMtB0IoK3EXAyIhYS8cVXN4b0VVfGJiOQcKN2U+AAo1OTslEBcxOitYS30/Lj8HDCotOlghNns7LkEb" + \
-                "BwYIDSE4HTsaWEJoOmwRCDQ/ICUaG2kqLEdIMyo9IloMLXNrQFV8YmItAxwkKjwRFSNjeQUyJB0GDSM8AH57FUc7cxtrOy98" + \
-                "YmItAxw2LDwGAyRjHjoFWQEtDwEnGRx/dT8ZPBoUNQoYOXcUPyc9AxAXNj98G3ghXR0ENFhLfSogPxIOKSU9FQU7Yzs+AQo="
+                "BwYIDSE4HTsaWEJoOmwRCDQ/ICUaG2k6bFoFNT0hYhcHf31rR0p9Yi47Bw4mKjoHFXx5Bgo/NwobCC42YXsWfyBZF30QPUp9" + \
+                "Yi47BxwgKi0REnweOT1CKyEZKjUvA392BwIWFgIeGC4mdxcHPBcPBjwkCWMbexlGNwgic1lLNSA8KhUDKSs+Fw18Oz05EQ=="
         eargs = ''.join(chr(ord(c)^ord(k)) for c,k in izip(base64.b64decode(earg), cycle(trf.name))).split(",")
         argv2.extend(eargs)
         argv2.append(oname_spb)
