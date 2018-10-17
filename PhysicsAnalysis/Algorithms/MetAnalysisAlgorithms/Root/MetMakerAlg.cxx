@@ -13,7 +13,7 @@
 #include <MetAnalysisAlgorithms/MetMakerAlg.h>
 
 #include <xAODMissingET/MissingETAuxContainer.h>
-static const SG::AuxElement::Decorator<float> dec_fJvt("fJvt");
+
 //
 // method implementations
 //
@@ -103,9 +103,6 @@ namespace CP
 
         const xAOD::JetContainer *jets {nullptr};
         ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
-	for(const auto &jet : *jets){
-	  dec_fJvt(*jet) = 0.0;
-	}
 	
         if (m_doTrackMet)
         {
