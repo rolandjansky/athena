@@ -16,7 +16,16 @@ REGISTER_ALG_TCS(MuonSort)
 
 bool SortByEtLargestM(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
 {
-   return tob1->Et() > tob2->Et();
+  //Order the TOBs according to Et (high to low) or octant index (low to high) or side (first A, then C)
+  if( tob1->Et() != tob2->Et() ) return tob1->Et() > tob2->Et();
+  else if ( tob1->phiDouble()  != tob2->phiDouble()  )
+    {
+      if( tob1->phiDouble() >=0. && tob2->phiDouble() >=0. ) return tob1->phiDouble() < tob2->phiDouble();
+      else  if( tob1->phiDouble() <=0. && tob2->phiDouble() <=0. ) return tob1->phiDouble() < tob2->phiDouble();
+      else  if( tob1->phiDouble() >=0. && tob2->phiDouble() <=0. ) return true;
+      else return false;
+    }							   
+  else  return tob1->etaDouble() > tob2->etaDouble();
 }
 
 
