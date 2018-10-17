@@ -46,6 +46,14 @@ namespace CP
   private:
     SysCopyHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "AntiKt4EMTopoJets", "the jet collection to run on"};
+
+    /// \brief the name of the decoration we create
+  private:
+    std::string m_decorationName {"Jvt"};
+
+    /// \brief the decoration accessor we use
+  private:
+    std::unique_ptr<SG::AuxElement::Accessor<float> > m_decorationAccessor;
   };
 }
 
