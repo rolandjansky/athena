@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from GeneratorModules.EvgenAlg import EvgenAlg
 from ParticleGun.samplers import *
 from ParticleGun.histsampling import TH1, TH2
-from AthenaPython.PyAthena import HepMC, StatusCode
-import McParticleEvent.Pythonizations
+from AthenaPython.PyAthena import StatusCode
 
 __author__ = "Andy Buckley <andy.buckley@cern.ch>"
 
@@ -36,6 +35,7 @@ class ParticleGun(EvgenAlg):
         """
         Pass the AtRndmGenSvc seed to Python's random module, or use a fixed value set via pg.randomSeed.
         """
+        import McParticleEvent.Pythonizations
         seed = None
         ## Use self.randomSeed directly, or if it's None find a seed string from the ATLAS random number service
         if self.randomSeed is not None:
@@ -67,6 +67,7 @@ class ParticleGun(EvgenAlg):
         """
         ## Set event weight(s)
         # TODO: allow weighted sampling?
+        from AthenaPython.PyAthena import HepMC
         evt.weights().push_back(1.0)
 
         ## Make and fill particles
