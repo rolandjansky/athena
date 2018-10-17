@@ -814,7 +814,10 @@ private:
     std::vector<float> m_mc_eta;
     std::vector<float> m_mc_phi;
     std::vector<float> m_mc_e;
+    std::vector<double> m_mc_charge;
     std::vector<int> m_mc_pdgId;
+    std::vector<int> m_mc_status;
+    std::vector<int> m_mc_barcode;
 
     //PDFInfo
     std::vector<float> m_PDFinfo_X1;
@@ -1352,7 +1355,10 @@ protected:
   const std::vector<float>& mc_eta() const { return m_mc_eta;}
   const std::vector<float>& mc_phi() const { return m_mc_phi;}
   const std::vector<float>& mc_e() const { return m_mc_e;}
+  const std::vector<double>& mc_charge() const { return m_mc_charge;}
   const std::vector<int>& mc_pdgId() const { return m_mc_pdgId;}
+  const std::vector<int>& mc_status() const { return m_mc_status;}
+  const std::vector<int>& mc_barcode() const { return m_mc_barcode;}
 
   //PDFInfo
   const std::vector<float>& PDFinfo_X1() const { return m_PDFinfo_X1;}

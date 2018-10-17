@@ -277,6 +277,10 @@ namespace top {
                 m_truthTreeManager->makeOutputVariable(m_mc_phi, "mc_phi");
                 m_truthTreeManager->makeOutputVariable(m_mc_e, "mc_e");
                 m_truthTreeManager->makeOutputVariable(m_mc_pdgId, "mc_pdgId");
+		m_truthTreeManager->makeOutputVariable(m_mc_charge,  "mc_charge");
+		m_truthTreeManager->makeOutputVariable(m_mc_status,  "mc_status");
+		m_truthTreeManager->makeOutputVariable(m_mc_barcode, "mc_barcode");
+
             }
 
             // PDF information
@@ -3071,6 +3075,10 @@ namespace top {
                 m_mc_phi.resize(truthSize);
                 m_mc_e.resize(truthSize);
                 m_mc_pdgId.resize(truthSize);
+		m_mc_charge.resize(truthSize);
+		m_mc_status.resize(truthSize);
+		m_mc_barcode.resize(truthSize);
+		
                 for (const auto* const mcPtr : *truth) {
 
                     // Fix for
@@ -3087,6 +3095,10 @@ namespace top {
                     m_mc_phi[i] = mcPtr->phi();
                     m_mc_e[i] = mcPtr->e();
                     m_mc_pdgId[i] = mcPtr->pdgId();
+		    m_mc_charge[i] = mcPtr->charge();
+		    m_mc_status[i] = mcPtr->status();
+		    m_mc_barcode[i] = mcPtr->barcode();
+
                     ++i;
                 }
             }
