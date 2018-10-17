@@ -93,11 +93,6 @@ class AthConfigFlags(object):
     def hasFlag(self, name):
         return name in self._flagdict
 
-    def set(self,name,value):
-        import warnings
-        warnings.warn("The flags should be set with programatic syntax: flag."+name, stacklevel=2 )
-        self._set(name,value)
-
     def _set(self,name,value):
         if (self._locked):
             raise RuntimeError("Attempt to set a flag of an already-locked container")
@@ -110,12 +105,6 @@ class AthConfigFlags(object):
             if len(closestMatch)>0:
                 errString+=". Did you mean \'%s\'?" %  closestMatch[0] 
             raise KeyError(errString)
-
-    def get(self,name):
-        import warnings
-        warnings.warn("The flags should be red with programatic syntax: flag."+name, stacklevel=2 )
-        return self._get(name)
-
     
     def _get(self,name):
         try:
