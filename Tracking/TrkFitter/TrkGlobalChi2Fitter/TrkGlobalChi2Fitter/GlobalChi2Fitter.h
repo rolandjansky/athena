@@ -56,11 +56,11 @@ namespace Trk{
   class CylinderLayer;
   class DiscLayer;
   class MagneticFieldProperties;
-  class TrackingGeometry; 
-  class TrackingVolume; 
-  class Volume; 
+  class TrackingGeometry;
+  class TrackingVolume;
+  class Volume;
   class ITrkMaterialProviderTool;
-  
+
 class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
 public:
   GlobalChi2Fitter(const std::string&,const std::string&,const IInterface*);
@@ -129,9 +129,9 @@ private:
 
   bool processTrkVolume(const Trk::TrackingVolume* tvol) const;
 
-  void addIDMaterialFast(GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const; 
+  void addIDMaterialFast(GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const;
 
-  void addMaterial(GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const; 
+  void addMaterial(GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const;
 
   const TrackParameters *makePerigee(const TrackParameters &, const ParticleHypothesis) const;
 
@@ -144,7 +144,7 @@ private:
   void fillDerivatives(GXFTrajectory &traj, bool onlybrem=false) const;
 
   FitterStatusCode runIteration(GXFTrajectory &,int,TMatrixDSym &,TVectorD &,TDecompChol &,bool &) const;
-  
+
   FitterStatusCode updateFitParameters(GXFTrajectory &,TVectorD &,TDecompChol &) const;
 
   GXFTrajectory *runTrackCleanerSilicon(GXFTrajectory&, TMatrixDSym&, TMatrixDSym&, TVectorD&, bool) const;
@@ -154,7 +154,7 @@ private:
   void runTrackCleanerTRT(GXFTrajectory&, TMatrixDSym&, TVectorD&, TDecompChol &, bool, bool, int) const;
 
   FitterStatusCode calculateTrackParameters(GXFTrajectory &,bool) const;
-  
+
   void calculateDerivatives(GXFTrajectory&) const;
 
   void calculateTrackErrors(GXFTrajectory&,TMatrixDSym &,bool) const;
@@ -195,21 +195,16 @@ private:
   ToolHandle< IMaterialEffectsOnTrackProvider > m_calotoolparam;
 
   ServiceHandle< MagField::IMagFieldSvc > m_fieldService;
- 
-  mutable ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc; 
-  //mutable ServiceHandle<ITrackingVolumesSvc>              m_trackingVolumesSvc;
 
-  mutable const TrackingGeometry*  m_trackingGeometry; 
-  mutable const TrackingVolume*    m_caloEntrance; 
-  // mutable const Volume*    m_caloEntrance2; 
-  mutable const TrackingVolume*    m_msEntrance; 
+  ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc;
+
 
   bool m_signedradius;
   mutable bool m_calomat,m_extmat,m_idmat;
   bool m_fillderivmatrix; 
-  double m_outlcut; 
+  double m_outlcut;
   double m_maxoutliers;
-  bool m_printderivs;  
+  bool m_printderivs;
   double m_p;  // momentum (for estimating multiple scattering)
   //std::vector<double> radlengths;
   bool m_straightlineprop;
@@ -235,7 +230,7 @@ private:
   mutable int m_nfits,m_nsuccessfits,m_matrixinvfailed,m_notenoughmeas,m_propfailed,m_invalidangles,m_notconverge,m_highchi2,m_lowmomentum;
   mutable FitterStatusCode m_fittercode;
   mutable bool m_acceleration;
-  mutable bool m_numderiv; 
+  mutable bool m_numderiv;
   mutable int m_lastiter;
   mutable int m_miniter;
   mutable bool m_fiteloss;
@@ -254,11 +249,11 @@ private:
   bool m_rejectLargeNScat;
 
 #ifdef GXFDEBUGCODE
-  
+
   bool m_truth;
-  mutable const PRD_MultiTruthCollection *m_truthCollectionPixel;  
-  mutable const PRD_MultiTruthCollection *m_truthCollectionSCT;  
-  mutable const PRD_MultiTruthCollection *m_truthCollectionTRT;  
+  mutable const PRD_MultiTruthCollection *m_truthCollectionPixel;
+  mutable const PRD_MultiTruthCollection *m_truthCollectionSCT;
+  mutable const PRD_MultiTruthCollection *m_truthCollectionTRT;
   mutable const PRD_MultiTruthCollection *m_truthCollectionMDT;
   mutable const PRD_MultiTruthCollection *m_truthCollectionRPC;
   mutable const PRD_MultiTruthCollection *m_truthCollectionTGC;
@@ -274,7 +269,7 @@ private:
 
   mutable int m_barcode;
 #endif
-  mutable int m_hitcount;  
+  mutable int m_hitcount;
   mutable int m_energybalance;
 
   mutable std::vector<double> m_phiweight;

@@ -106,9 +106,6 @@ namespace Trk {
     m_fieldService("AtlasFieldSvc", n),
     m_trackingGeometrySvc("", n),
     // m_trackingVolumesSvc    ("TrackingVolumesSvc/TrackingVolumesSvc",n),
-    m_trackingGeometry(nullptr),
-    m_caloEntrance(nullptr),
-    m_msEntrance(nullptr),
     m_signedradius{},
     m_calomat{}, m_extmat{}, m_idmat{},
     m_derivmat(nullptr),
@@ -551,16 +548,6 @@ namespace Trk {
     bool firstfitwasattempted = false;
 
     GXFTrajectory trajectory;
-    if (!m_caloEntrance) {
-      m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-      if (m_trackingGeometry) {
-        m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
-      }
-      if (!m_caloEntrance) {
-        msg(MSG::ERROR) << "calo entrance not available" << endmsg;
-        return 0;
-      }
-    }
 
     if ((!m_fieldService->toroidOn() && !m_fieldService->solenoidOn()) ||
         (m_getmaterialfromtrack && !muonisstraight && measphi &&
@@ -675,6 +662,26 @@ namespace Trk {
       msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::mainCombinationStrategy" << endmsg;
     }
 
+    const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+    const TrackingVolume*   caloEntrance = 0;
+    const TrackingVolume*   msEntrance = 0;
+    if (trackingGeometry) {
+      caloEntrance = trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
+      msEntrance   = trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
+    } else {
+      ATH_MSG_ERROR( "Tracking Geometry not available" );
+    }
+
+    if (!caloEntrance) {
+      ATH_MSG_ERROR( "calo entrance not available" );
+      return 0;
+    }
+
+    if (!msEntrance) {
+      ATH_MSG_ERROR( "MS entrance not available" );
+    }
+
+
     bool firstismuon = false;
     double mass = m_particleMasses.mass[muon];
 
@@ -754,17 +761,9 @@ namespace Trk {
 
     PropDirection propdir = firstismuon ? Trk::alongMomentum : oppositeMomentum;
     const TrackParameters *tmppar = 0;
-    if (!m_msEntrance) {
-      m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-      if (m_trackingGeometry) {
-        m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
-      }
-      if (!m_msEntrance) {
-        msg(MSG::ERROR) << "MS entrance not available" << endmsg;
-      }
-    }
-    if (tp_closestmuon && m_msEntrance) {
-      tmppar = m_extrapolator->extrapolateToVolume(*tp_closestmuon, *m_msEntrance, propdir, nonInteracting);
+
+    if (tp_closestmuon && msEntrance) {
+      tmppar = m_extrapolator->extrapolateToVolume(*tp_closestmuon, *msEntrance, propdir, nonInteracting);
     }
     const std::vector<const TrackStateOnSurface *> *matvec = 0;
     if (tmppar) {
@@ -909,7 +908,7 @@ namespace Trk {
                                                                            newqoverpid, 0);
       }
       // else newqoverpid=idscatpar->parameters()[Trk::qOverP];
-      lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *m_caloEntrance, alongMomentum, Trk::muon);
+      lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *caloEntrance, alongMomentum, Trk::muon);
     }
 
     if (!lastidpar) {
@@ -1125,7 +1124,7 @@ namespace Trk {
         delete idscatpar;
         idscatpar = firstscatpar = tmpidpar;
 
-        startPar = m_extrapolator->extrapolateToVolume(*idscatpar, *m_caloEntrance, oppositeMomentum,
+        startPar = m_extrapolator->extrapolateToVolume(*idscatpar, *caloEntrance, oppositeMomentum,
                                                        Trk::nonInteracting);
         if (startPar) {
           Amg::Vector3D trackdir = startPar->momentum().unit();
@@ -1291,6 +1290,19 @@ namespace Trk {
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::backupCombinationStrategy" << endmsg;
     }
+
+    const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+    const TrackingVolume*   caloEntrance = 0;
+    if (trackingGeometry) {
+      caloEntrance = trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
+    } else {
+      ATH_MSG_ERROR( "Tracking Geometry not available" );
+    }
+    if (!caloEntrance) {
+      ATH_MSG_ERROR( "calo entrance not available" );
+      return 0;
+    }
+
     // std::cout << "intrk1: " << intrk1 << " intrk2: " << intrk2 << std::endl;
     bool firstismuon = false;
     const Track *indettrack = &intrk1;
@@ -1331,7 +1343,7 @@ namespace Trk {
 
     const TrackParameters *firstidpar = (*indettrack->trackParameters())[1];
     // const TrackParameters *lastidpar=indettrack->trackParameters()->back();
-    const TrackParameters *lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *m_caloEntrance, alongMomentum,
+    const TrackParameters *lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *caloEntrance, alongMomentum,
                                                                            Trk::muon);
     if (!lastidpar) {
       lastidpar = indettrack->trackParameters()->back()->clone();
@@ -2248,7 +2260,7 @@ namespace Trk {
 	      m_MMCorrectionStatus = 1;
 	      break;
             }
-          } 
+          }
         }
       }
     }
@@ -2893,19 +2905,24 @@ public:
   void
   GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory, const TrackParameters *refpar2,
                                       ParticleHypothesis matEffects) const {
-    if (!m_caloEntrance) {
-      m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-      // if (m_trackingGeometry) m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::EntryVolume");
-      if (m_trackingGeometry) {
-        m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
-      }
-      if (!m_caloEntrance) {
-        msg(MSG::ERROR) << "calo entrance not available" << endmsg;
-        return;
-      }
+    const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+    const TrackingVolume*   caloEntrance = 0;
+    if (trackingGeometry) {
+      caloEntrance = trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
+    } else {
+      ATH_MSG_ERROR( "Tracking Geometry not available" );
     }
-    if (m_negdiscs.empty() && m_posdiscs.empty() && m_barrelcylinders.empty()) {
-      bool ok = processTrkVolume(m_caloEntrance);
+    if (!caloEntrance) {
+      ATH_MSG_ERROR( "calo entrance not available" );
+      return;
+    }
+
+
+
+
+
+   if (m_negdiscs.empty() && m_posdiscs.empty() && m_barrelcylinders.empty()) {
+      bool ok = processTrkVolume(caloEntrance);
       if (!ok) {
         ATH_MSG_DEBUG("Falling back to slow material collection");
         m_fastmat = false;
@@ -3454,17 +3471,17 @@ public:
         const Surface *destsurf = &firstidhit->associatedSurface();
         const TrackParameters *tmppar = 0;
         if (firstmuonhit) {
-          if (!m_caloEntrance) {
-            m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-            if (m_trackingGeometry) {
-              m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
-            }
-            if (!m_caloEntrance) {
-              msg(MSG::ERROR) << "calo entrance not available" << endmsg;
-            }
+          const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+          const TrackingVolume*   caloEntrance = 0;
+          if (trackingGeometry) {
+            caloEntrance = trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
+          } else {
+            ATH_MSG_ERROR( "Tracking Geometry not available" );
           }
-          if (m_caloEntrance) {
-            tmppar = m_extrapolator->extrapolateToVolume(*startmatpar1, *m_caloEntrance, oppositeMomentum,
+          if (!caloEntrance) {
+            ATH_MSG_ERROR( "calo entrance not available" );
+          } else {
+            tmppar = m_extrapolator->extrapolateToVolume(*startmatpar1, *caloEntrance, oppositeMomentum,
                                                          Trk::nonInteracting);
             if (tmppar) {
               destsurf = &tmppar->associatedSurface();
@@ -3509,21 +3526,19 @@ public:
         const TrackParameters *tmppar = 0;
         Surface *calosurf = 0;
         if (firstmuonhit) {
-          if (!m_caloEntrance) {
-            m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-            if (m_trackingGeometry) {
-              m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
-            }
-            if (!m_caloEntrance) {
-              msg(MSG::ERROR) << "calo entrance not available" << endmsg;
-            }
+          const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+          const TrackingVolume*   caloEntrance = 0;
+          if (trackingGeometry) {
+            caloEntrance = trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
+          } else {
+            ATH_MSG_ERROR( "Tracking Geometry not available" );
           }
-          /* if (!m_caloEntrance2){
-             m_caloEntrance2=new Trk::Volume(m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-             if (!m_caloEntrance2) msg(MSG::ERROR) << "calo entrance not available" << endmsg;
-             } */
-          if (m_caloEntrance) {
-            tmppar = m_extrapolator->extrapolateToVolume(*startmatpar2, *m_caloEntrance, Trk::alongMomentum,
+          if (!caloEntrance) {
+            ATH_MSG_ERROR( "calo entrance not available" );
+            return;
+          }
+          if (caloEntrance) {
+            tmppar = m_extrapolator->extrapolateToVolume(*startmatpar2, *caloEntrance, Trk::alongMomentum,
                                                          Trk::nonInteracting);
           }
           if (tmppar) {
@@ -3576,14 +3591,7 @@ public:
                 }
 
                 matstates.push_back(new GXFTrackState(meff, (*matvec)[i]->trackParameters()));
-                // if (m_caloEntrance) std::cout << "tp inside calo: " <<
-                // m_caloEntrance->inside((*matvec)[i]->trackParameters()->position()) << " ref point inside calo: " <<
-                // m_caloEntrance->inside((*matvec)[i]->trackParameters()->associatedSurface()->globalReferencePoint())
-                // << std::endl;
-                // if (m_caloEntrance2) std::cout << "tp inside calo: " <<
-                // m_caloEntrance2->inside((*matvec)[i]->trackParameters()->position()) << " ref point inside calo: " <<
-                // m_caloEntrance2->inside((*matvec)[i]->trackParameters()->associatedSurface()->globalReferencePoint())
-                // << std::endl;
+
               }
             }
           }
@@ -3688,7 +3696,7 @@ public:
             matstates.insert(matstates.begin(), new GXFTrackState(meff, layerpar));
           }
         }
-      }else {
+      } else {
         msg(MSG::WARNING) << "No material layers collected in calorimeter" << endmsg;
         for (int i = 0; i < (int) matstates.size(); i++) {
           delete matstates[i];
@@ -3701,17 +3709,18 @@ public:
     if (lasthit == lastmuonhit && m_extmat) {
       const Trk::TrackParameters *muonpar1 = 0;
       if (lastcalopar) {
-        if (!m_msEntrance) {
-          m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-          if (m_trackingGeometry) {
-            m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
-          }
-          if (!m_msEntrance) {
-            msg(MSG::ERROR) << "MS entrance not available" << endmsg;
-          }
+
+        const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+        const TrackingVolume*   msEntrance = 0;
+        if (trackingGeometry) {
+          msEntrance = trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
+        } else {
+          ATH_MSG_ERROR( "Tracking Geometry not available" );
         }
-        if (m_msEntrance && m_msEntrance->inside(lastcalopar->position())) {
-          muonpar1 = m_extrapolator->extrapolateToVolume(*lastcalopar, *m_msEntrance, Trk::alongMomentum,
+        if (!msEntrance) {
+          ATH_MSG_ERROR( "MS entrance not available" );
+        } else if ( msEntrance->inside(lastcalopar->position())) {
+          muonpar1 = m_extrapolator->extrapolateToVolume(*lastcalopar, *msEntrance, Trk::alongMomentum,
                                                          Trk::nonInteracting);
           if (muonpar1) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
@@ -3738,7 +3747,7 @@ public:
         }else {
           muonpar1 = lastcalopar;
         }
-      }else {
+      } else {
         muonpar1 = refpar;
       }
 
@@ -3817,18 +3826,18 @@ public:
 
     if (firsthit == firstmuonhit && m_extmat && firstcalopar) {
       const Trk::TrackParameters *muonpar1 = 0;
-      if (firstcalopar) {
-        if (!m_msEntrance) {
-          m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-          if (m_trackingGeometry) {
-            m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
-          }
-          if (!m_msEntrance) {
-            msg(MSG::ERROR) << "MS entrance not available" << endmsg;
-          }
+        if (firstcalopar) {
+        const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+        const TrackingVolume*   msEntrance = 0;
+        if (trackingGeometry) {
+          msEntrance = trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
+        } else {
+          ATH_MSG_ERROR( "Tracking Geometry not available" );
         }
-        if (m_msEntrance && m_msEntrance->inside(firstcalopar->position())) {
-          muonpar1 = m_extrapolator->extrapolateToVolume(*firstcalopar, *m_msEntrance, Trk::oppositeMomentum,
+        if (!msEntrance) {
+          ATH_MSG_ERROR( "MS entrance not available" );
+        } else if ( msEntrance->inside(firstcalopar->position())) {
+          muonpar1 = m_extrapolator->extrapolateToVolume(*firstcalopar, *msEntrance, Trk::oppositeMomentum,
                                                          Trk::nonInteracting);
           if (muonpar1) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
@@ -4261,6 +4270,19 @@ public:
       const TrackParameters *nearestpar = 0;
       double mindist = 99999;
       std::vector<GXFTrackState *> mymatvec;
+
+      const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+      const TrackingVolume*   caloEntrance = 0;
+      if (trackingGeometry) {
+        caloEntrance = trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
+      } else {
+        ATH_MSG_ERROR( "Tracking Geometry not available" );
+      }
+      if (!caloEntrance) {
+        ATH_MSG_ERROR( "calo entrance not available" );
+      }
+
+
       for (std::vector<GXFTrackState *>::iterator it = trajectory.trackStates().begin();
            it != trajectory.trackStates().end(); it++) {
         if (!(**it).trackParameters()) {
@@ -4268,7 +4290,7 @@ public:
         }
         double distance = persurf.straightLineDistanceEstimate(
           (**it).trackParameters()->position(), (**it).trackParameters()->momentum().unit()).first();
-        bool insideid = (!m_caloEntrance || m_caloEntrance->inside((**it).trackParameters()->position()));
+        bool insideid = (!caloEntrance || caloEntrance->inside((**it).trackParameters()->position()));
         // if ((**it).materialEffects()) std::cout << "mat: " << (**it).materialEffects() << " distance: " << distance
         // << " dE: " << (**it).materialEffects()->deltaE() << " sigdphi: " << (**it).materialEffects()->sigmaDeltaPhi()
         // << " dphi: " << (**it).materialEffects()->deltaPhi() << std::endl;
@@ -4658,9 +4680,20 @@ public:
   GlobalChi2Fitter::fillResiduals(GXFTrajectory &trajectory, int it, TMatrixDSym &a, TVectorD &b, TDecompChol &lu,
                                   bool &doderiv) const {
     ATH_MSG_DEBUG("fillResiduals");
+
+    const TrackingGeometry* trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+    const TrackingVolume*   msEntrance = 0;
+    if (trackingGeometry) {
+      msEntrance = trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
+    } else {
+      ATH_MSG_ERROR( "Tracking Geometry not available" );
+    }
+    if (!msEntrance) {
+      ATH_MSG_ERROR( "MS entrance not available" );
+    }
+
     std::vector<GXFTrackState *> &states = trajectory.trackStates();
     double chi2 = 0;
-
     int scatno = 0, bremno = 0, measno = 0;
 
     int nbrem = trajectory.numberOfBrems();
@@ -4754,7 +4787,7 @@ public:
         double sigmadeltatheta = state->materialEffects()->sigmaDeltaTheta();
         // if (trajectory.prefit()==1) sigmadeltatheta*=5;
         if (m_updatescat && (sigmadeltaphi >= 0.001 || (sigmadeltaphi >= 0.0001 && !trajectory.prefit())) &&
-            (state->materialEffects()->deltaE() == 0 || !m_msEntrance->inside(state->trackParameters()->position())) &&
+            (state->materialEffects()->deltaE() == 0 || (msEntrance && !msEntrance->inside(state->trackParameters()->position()))) &&
             it >= 2) {
           state->materialEffects()->setMeasuredDeltaPhi(deltaphi);
           measdeltaphi = state->materialEffects()->measuredDeltaPhi();
