@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -102,6 +102,7 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "MinBadDMU",    m_minBadDMU = 4);      // min number of bad DMUs to accept event
   declareProperty( "MaxBadDMU",    m_maxBadDMU = 15);     // max number of bad DMUs to accept event
   declareProperty( "MinBadMB",     m_minBadMB = 4);       // min number of bad motherboards in a drawer to accept event
+  declareProperty( "SkipEmpty",    m_skipEmpty = true);   // ignore empty channels in selection or not
   declareProperty( "SkipMasked",   m_skipMasked = true);  // ignore masked channels in selection or not
   declareProperty( "SkipMBTS",     m_skipMBTS = true);    // ignore MBTS channels in selection or not
   declareProperty( "CheckDCS",     m_checkDCS = true);    // additional check for DCS status
@@ -153,6 +154,7 @@ StatusCode TileCellSelector::initialize() {
   ATH_MSG_INFO( "CheckOverLG " << ((m_checkOverLG) ? "true" : "false"));
   ATH_MSG_INFO( "CheckOverHG " << ((m_checkOverHG) ? "true" : "false"));
 
+  ATH_MSG_INFO( "SkipEmpty " << ((m_skipEmpty) ? "true" : "false"));
   ATH_MSG_INFO( "SkipMasked " << ((m_skipMasked) ? "true" : "false"));
   ATH_MSG_INFO( "SkipMBTS " << ((m_skipMBTS) ? "true" : "false"));
   ATH_MSG_INFO( "CheckDCS " << ((m_checkDCS) ? "true" : "false"));
@@ -815,11 +817,19 @@ StatusCode TileCellSelector::execute() {
         int ros = frag >> 8;
         int drawer = frag & 0x3F;
         unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-        HWIdentifier drawer_id = m_tileHWID->drawer_id(frag);
 
-        HWIdentifier ch_id = m_tileHWID->channel_id(drawer_id,0);
-        /*Identifier cell_id =*/ m_cabling->h2s_cell_id_index(ch_id,index,pmt);
-        bool MBTS = (index == -2); // check if first channel belongs to MBTS
+        int chMBTS = -1;
+        if (eb) {
+          for (int ch: {12,4,0}) {
+            m_cabling->h2s_cell_id_index(ros,drawer,ch,index,pmt);
+            if (index == -2) {
+              chMBTS = ch;
+              break;
+            }
+          }
+        }
+
+        HWIdentifier ch_id = m_tileHWID->channel_id(ros,drawer,0);
         m_tileHWID->get_hash(ch_id, hash, &chan_context);
         int hashNext = index = (int)hash + 48; // hash ID of the channel after current drawer
 
@@ -1034,7 +1044,7 @@ StatusCode TileCellSelector::execute() {
             }
           }
         }
-        //if (MBTS) m_chanBad[index] = true; // ingnore completerly MBTS channel
+        //if (chMBTS>=0) m_chanBad[index+chMBTS] = true; // ignore completerly MBTS channel
         int nbad = ((ebsp) ? nerr-5 : ((eb) ? nerr-4 : nerr));
 
         if (nbad >= m_minBadDMU && nerr <= m_maxBadDMU) {
@@ -1063,7 +1073,7 @@ StatusCode TileCellSelector::execute() {
             m_tileHWID->get_hash(chId, hash, &chan_context);
             int channel = m_tileHWID->channel(adcId);
             int ch_type = 0;
-            if (MBTS && channel == 0) {
+            if (channel == chMBTS) {
               ch_type = 2;
             } else if ( (ebsp && (channel == 18 || channel == 19 || channel == 12 || channel == 13) )
                         || (eb && (channel == 0 || channel == 1  || channel == 12 || channel == 13) ) ) {
@@ -1089,8 +1099,10 @@ StatusCode TileCellSelector::execute() {
                 m_chanTDsp[hash] = time;
               }
 
-              if (m_skipMasked && m_chanBad[hash]) continue;
-              if (MBTS && m_skipMBTS && m_tileHWID->channel(adcId) == 0) continue;
+              if ( (m_skipMasked && m_chanBad[hash]) ||
+                   (m_skipMBTS && channel == chMBTS) ||
+                   (m_skipEmpty && TileDQstatus::isChEmpty(ros, drawer, channel) > 0) )
+                continue;
 
               bool ampOk = false;
               if (amp < m_minEneChan[ch_type] ) {
@@ -1253,11 +1265,17 @@ StatusCode TileCellSelector::execute() {
         int ros = frag >> 8;
         int drawer = frag & 0x3F;
         unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-        HWIdentifier drawer_id = m_tileHWID->drawer_id(frag);
 
-        HWIdentifier ch_id = m_tileHWID->channel_id(drawer_id,0);
-        /*Identifier cell_id =*/ m_cabling->h2s_cell_id_index(ch_id,index,pmt);
-        bool MBTS = (index == -2); // check if first channel belongs to MBTS
+        int chMBTS = -1;
+        if (eb) {
+          for (int ch: {12,4,0}) {
+            m_cabling->h2s_cell_id_index(ros,drawer,ch,index,pmt);
+            if (index == -2) {
+              chMBTS = ch;
+              break;
+            }
+          }
+        }
 
         int nChBadDB = 0;
         int nChBadNC = 0;
@@ -1280,19 +1298,23 @@ StatusCode TileCellSelector::execute() {
           int channel = m_tileHWID->channel(adcId);
           int dmu = channel/3;
           ++nChDmu[dmu];
-          bool isConnected = (TileDQstatus::isChEmpty(ros, drawer, channel) < 2);
+          int chEmpty = TileDQstatus::isChEmpty(ros, drawer, channel);
+          bool isConnected = (chEmpty < 2);
           if (!isConnected) ++nChBadNC;
           int adc = m_tileHWID->adc(adcId);
           const char *cellname = "";
           int ch_type = 0;
-          if (MBTS && channel == 0) {
+          if (channel == chMBTS) {
             cellname = " MBTS";
             ch_type = 2;
           } else if ( (ebsp && (channel == 18 || channel == 19 || channel == 12 || channel == 13) )
                       || (eb && (channel == 0 || channel == 1  || channel == 12 || channel == 13) ) ) {
             cellname = " GAP";
             ch_type = 1;
+          } else if (chEmpty > 0) {
+            cellname = " EMPTY";
           }
+
           const char *badname = "";
           if (DQstatus && !DQstatus->isAdcDQgood(ros,drawer,channel,adc)) {
             badname = " BADDQ";
@@ -1348,12 +1370,16 @@ StatusCode TileCellSelector::execute() {
           int nSamp = fdigits.size();
           if (nSamp > 6) {
 
+            bool useCh= !( (m_skipMBTS && channel == chMBTS) ||
+                           (m_skipEmpty && chEmpty > 0) );
+            bool checkCh = !( (m_skipMasked && m_chanBad[hash]) ) && useCh && m_checkJumps;
+
             int err = TileRawChannelBuilder::CorruptedData(ros,drawer,channel,adc,fdigits,dmin,dmax);
 
             if (badname[0]==0) {
               if (err && err>-3) { // do not consider all zeros in empty samples as error
                 if (isConnected || err != -2) {
-                  m_chanSel[hash] = m_checkJumps;
+                  if (checkCh) m_chanSel[hash] = true;
                   badname = badnm;
                   ++nChBad;
                   ++nChBadDmu[dmu];
@@ -1373,7 +1399,7 @@ StatusCode TileCellSelector::execute() {
                 // expect to see only warningE7 and warningE8 for gap/crack
                 int warn = Are3FF(fdigits, adc, ch_type);
                 if (warn) {
-                  m_chanSel[hash] = m_checkJumps;
+                  if (checkCh) m_chanSel[hash] = true;
                   sprintf(badnm," warningE%d%s",warn,badname);
                   badname = badnm;
                 }
@@ -1381,7 +1407,7 @@ StatusCode TileCellSelector::execute() {
             }
 
             if (dmax > 1022.99 && (!err)  // overflow without bad patterns
-                && (!(ch_type == 2 && m_skipMBTS)) // not MBTS (if it should be skipped)
+                && (useCh)                // normal connected channel
                 && (badname[0] == 0 || badname[1] == 'w' // no digital error
                 || (badname[4] == 'Q' && !m_skipMasked))) { // error from TileCell but it is ignored
 
@@ -1400,10 +1426,7 @@ StatusCode TileCellSelector::execute() {
 
             bool someSampErrors = false;
 
-            if (m_checkJumps
-                && (m_chanSel[hash]
-                    || !((m_skipMasked && m_chanBad[hash])
-                        || (MBTS && m_skipMBTS && channel == 0)))) {
+            if (m_checkJumps && (checkCh || m_chanSel[hash])) {
 
               float pedDelta = (adc ? m_pedDeltaHG : m_pedDeltaLG);
               float jumpDelta = (adc ? m_jumpDeltaHG : m_jumpDeltaLG);
@@ -1646,15 +1669,18 @@ StatusCode TileCellSelector::execute() {
               if (!m_chanSel[hash] && fdigits.size()>6) {
                 int channel = m_tileHWID->channel(adcId);
                 int adc = m_tileHWID->adc(adcId);
+                int chEmpty = TileDQstatus::isChEmpty(ros, drawer, channel);
                 const char *cellname = "";
                 int ch_type = 0;
-                if (MBTS && channel == 0) {
+                if (channel == chMBTS) {
                   cellname = " MBTS";
                   ch_type = 2;
                 } else if ( (ebsp && (channel == 18 || channel == 19 || channel == 12 || channel == 13) )
                             || (eb && (channel == 0 || channel == 1  || channel == 12 || channel == 13) ) ) {
                   cellname = " GAP";
                   ch_type = 1;
+                } else if (chEmpty > 0) {
+                  cellname = " EMPTY";
                 }
                 const char *badname = "";
                 if (m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad()) {
@@ -1682,8 +1708,7 @@ StatusCode TileCellSelector::execute() {
                     channel, adc, fdigits, dmin, dmax);
 
                 if (err) {
-                  bool isConnected = (TileDQstatus::isChEmpty(ros, drawer,
-                      channel) < 2);
+                  bool isConnected = (chEmpty < 2);
                   if (isConnected || err != -2) {
                     badname = badnm;
                   }
