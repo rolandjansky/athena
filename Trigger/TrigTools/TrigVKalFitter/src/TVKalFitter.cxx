@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -409,7 +409,7 @@ StatusCode TrigVKalFitter::VKalGetTrkCov(const long int iTrk,const long int NTrk
    if(!m_FitStatus) return StatusCode::FAILURE;
 
    int i,j,ik,jk;
-   double ErrMtx[ (3*NTRMAXTRIG+3)*(3*NTRMAXTRIG+4)/2 ];
+   double ErrMtx[ (3*NTRMAXTRIG+3)*(3*NTRMAXTRIG+4)/2 ] = {0};
    double CovMtxOld[6][6];
    double CovMtx   [6][6];
 
