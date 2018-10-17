@@ -93,7 +93,6 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("JvtDecorator",m_JvtDecorator = "passJvt");
   declareProperty("OrDecorator",m_OrDecorator = "passOR");
 #endif
-  declareProperty("jet_tracking_eta_limit",m_jet_tracking_eta_limit = 2.4);
   declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.59);
   m_path = "/Tile/Jet";
 
@@ -759,13 +758,6 @@ bool TileJetMonTool::isGoodEvent() {
 #ifdef JVT
     jet->auxdecor<char>(m_JvtDecorator) = passesJvt(*jet);
     jet->auxdecor<char>(m_OrDecorator) = true;
-    // if (jet->pt() > 50000) {
-    //   if (m_cleaningTool->keep(*jet) == 0) return false;
-    // } else if ((jet->pt() > 20000) && (fabs(jet->eta()) < m_jet_tracking_eta_limit)) {
-    //   float jvt = m_jvt->updateJvt(*jet);
-    //   ATH_MSG_DEBUG("... jvt = " << jvt);
-    //   if ((jvt > m_jet_jvt_threshold) && (m_cleaningTool->keep(*jet) == 0)) return false;
-    // }
 #endif
     ATH_MSG_DEBUG("... done with jet " << ijet);
     ijet++;
