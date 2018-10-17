@@ -268,11 +268,6 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     else:
         svcMgr.EventSelector.FirstEvent = 0
 
-## Set max RDO output file size to 15 GB
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
-
-
 ## Post-include
 if hasattr(runArgs, "postInclude"):
     for fragment in runArgs.postInclude:

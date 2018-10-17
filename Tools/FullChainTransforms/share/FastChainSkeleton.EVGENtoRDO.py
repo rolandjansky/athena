@@ -980,10 +980,6 @@ if hasattr(runArgs, 'AMITag'):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
-## Set max RDO output file size to 15 GB
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
-
 ### Changing to post-sim include/exec
 ## Post-include
 if hasattr(runArgs, "postSimInclude"):
@@ -1381,7 +1377,7 @@ ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 
 
-
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
