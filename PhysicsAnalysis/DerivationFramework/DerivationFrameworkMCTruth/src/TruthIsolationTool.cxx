@@ -40,7 +40,7 @@ DerivationFramework::TruthIsolationTool::TruthIsolationTool(const std::string& t
         "List of the pdgIDs of particles to exclude from the cone when calculating isolation");
     declareProperty ("IsolationVarNamePrefix", m_isoVarNamePrefix,
             "Prefix of name of the variable to add to output xAOD");
-    declareProperty ("IncludeNonInteracting", m_includeNonInteracting=False,
+    declareProperty ("IncludeNonInteracting", m_includeNonInteracting=false,
             "Include non-interacting particles in the isolation definition");
 
     m_coneSizes2 = new std::vector<float>();
