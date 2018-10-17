@@ -41,7 +41,7 @@ class SCT_CablingToolCB: public extends<AthAlgTool, ISCT_CablingTool, IIncidentL
  public:
 
   ///Incident listener method
-  virtual void handle(const Incident& beginRunIncident);
+  virtual void handle(const Incident& beginRunIncident) override;
     
   //@name Service methods, reimplemented
   //@{
