@@ -16,7 +16,7 @@ REGISTER_ALG_TCS(MuonSort)
 
 bool SortByEtLargestM(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
 {
-  //Order the TOBs according to Et (high to low) or octant index (low to high) or side (first A, then C)
+  //Order the TOBs according to Et (high to low) or octant index (low to high) or side (first A, then C), geometry here /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TrigConfMuctpi/TestMioctGeometry2016.dat 
   if( tob1->Et() != tob2->Et() ) return tob1->Et() > tob2->Et();
   else if ( tob1->phiDouble()  != tob2->phiDouble()  )
     {
