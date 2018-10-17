@@ -3,11 +3,9 @@
 
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-import copy
+import logging
 
-from utils import logger as logging
-
-logger = logging.get_logger()
+logger = logging.getLogger('iconfTool.' + __name__)
 
 INDENT = 3
 

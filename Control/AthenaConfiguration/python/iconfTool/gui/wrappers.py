@@ -4,12 +4,12 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import curses
+import logging
 
 from gui.modals import SearchModal
 from gui.pad import Pad
-from utils import logger as logging
 
-logger = logging.get_logger()
+logger = logging.getLogger('iconfTool.' + __name__)
 
 
 class GuiLoader(object):
@@ -21,21 +21,21 @@ class GuiLoader(object):
         self.actual_offset = 0
         self.screen = None
 
-    def __initialize_window(self):
+    def _initialize_window(self):
         self.height, self.width = self.screen.getmaxyx()
         self.window = curses.newwin(self.height, self.width, 0, 0)
         self.pad = Pad(self.data_structure, self.width, self.height)
         self.pad_height = self.height - 1
         self.pad.refresh()
 
-    def __initialize(self, stdscreen):
+    def _initialize(self, stdscreen):
         self.screen = stdscreen
         self.screen.refresh()
-        self.__initialize_window()
-        self.__start_event_loop()
+        self._initialize_window()
+        self._start_event_loop()
 
     def load_gui(self):
-        curses.wrapper(self.__initialize)
+        curses.wrapper(self._initialize)
 
     def search(self, strict=False):
         search_size = 50
@@ -53,7 +53,7 @@ class GuiLoader(object):
         self.window.refresh()
         self.pad.refresh()
 
-    def __start_event_loop(self):
+    def _start_event_loop(self):
         while True:
             event = self.screen.getch()
             if event == ord('q'):
@@ -82,7 +82,7 @@ class DoublePad(object):
         self.screen = None
         self.show_diff_only = False
 
-    def __initialize_window(self):
+    def _initialize_window(self):
         self.height, self.width = self.screen.getmaxyx()
         self.window = curses.newwin(self.height, self.width, 0, 0)
         self.pad = Pad(self.data_structure, self.width / 2 - 1, self.height)
@@ -94,14 +94,14 @@ class DoublePad(object):
         self.diff_pad.refresh()
         self.pad.refresh()
 
-    def __initialize(self, stdscreen):
+    def _initialize(self, stdscreen):
         self.screen = stdscreen
         self.screen.refresh()
-        self.__initialize_window()
-        self.__start_event_loop()
+        self._initialize_window()
+        self._start_event_loop()
 
     def load_gui(self):
-        curses.wrapper(self.__initialize)
+        curses.wrapper(self._initialize)
 
     def search(self, strict=False):
         search_size = 50
@@ -141,7 +141,7 @@ class DoublePad(object):
             self.inactive_pad.show_diff_only()
             self.show_diff_only = True
 
-    def __start_event_loop(self):
+    def _start_event_loop(self):
         while True:
             event = self.screen.getch()
             if event == ord('q'):

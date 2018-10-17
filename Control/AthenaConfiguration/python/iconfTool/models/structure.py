@@ -6,12 +6,11 @@
 import ast
 import copy
 import sys
+import logging
 
 from models.element import SingleElement, GroupingElement, ValueElement
-from utils import logger as logging
 
-logger = logging.get_logger()
-
+logger = logging.getLogger('iconfTool.' + __name__)
 INDENT = 3
 
 

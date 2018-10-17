@@ -5,9 +5,9 @@
 
 import curses
 
-from utils import logger as logging
+import logging
 
-logger = logging.get_logger()
+logger = logging.getLogger('iconfTool.' + __name__)
 
 
 class Pad(object):

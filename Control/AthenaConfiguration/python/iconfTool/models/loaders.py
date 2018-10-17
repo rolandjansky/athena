@@ -4,11 +4,11 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import pickle
+import logging
 
 from models.structure import ComponentsStructure
-from utils import logger as logging
 
-logger = logging.get_logger()
+logger = logging.getLogger('iconfTool.' + __name__)
 
 
 class ComponentsFileLoader(object):
@@ -17,14 +17,14 @@ class ComponentsFileLoader(object):
         self.no_replace = no_replace
         self.checked_elements = checked_elements
 
-    def __load_file_data(self):
+    def _load_file_data(self):
         f = open(self.file_path, 'rb')
         st = pickle.load(f)
         f.close()
         return dict(st)
 
     def load_structure(self):
-        data = self.__load_file_data()
+        data = self._load_file_data()
         structure = ComponentsStructure(data, self.no_replace,
                                         self.checked_elements)
         structure.generate()

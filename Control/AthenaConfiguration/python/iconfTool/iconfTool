@@ -4,15 +4,30 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import argparse
+import logging
+
+
+# Logging configuration
+logging_file = 'run.log'
+# Creating or cleaning log file
+with open(logging_file, 'w'):
+    pass
+handler = logging.FileHandler(logging_file)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('iconfTool')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)
+
 
 from gui.wrappers import GuiLoader, DoublePad
 from models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader
-from utils import logger as logger_config, serialization
+from utils import serialization
+
 
 if __name__ == '__main__':
-
-    logger_config.setup()
-    logger = logger_config.get_logger()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str, help='Input file path')
