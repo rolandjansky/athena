@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileAccessTracer.cxx 781356 2016-10-31 14:03:28Z krasznaa $
-
 // System include(s):
+#include <atomic>
 #include <memory>
 #include <cstdlib>
 
@@ -28,7 +27,7 @@
 namespace xAOD {
 
    // Initialise the static variable(s):
-   ::Bool_t TFileAccessTracer::m_enableDataSumbission = kTRUE;
+   static std::atomic_bool s_enableDataSumbission( true );
 
    TFileAccessTracer::TFileAccessTracer()
    : m_accessedFiles(),
@@ -52,7 +51,7 @@ namespace xAOD {
    TFileAccessTracer::~TFileAccessTracer() {
 
       // If the user turned off the data submission, then stop already here...
-      if( ! m_enableDataSumbission ) {
+      if( ! s_enableDataSumbission ) {
          return;
       }
 
@@ -284,11 +283,7 @@ namespace xAOD {
    ///
    void TFileAccessTracer::enableDataSubmission( ::Bool_t value ) {
 
-      // Protect this call:
-      static std::mutex s_mutex;
-      std::lock_guard< std::mutex > lock( s_mutex );
-
-      m_enableDataSumbission = value;
+      s_enableDataSumbission = value;
       return;
    }
 
