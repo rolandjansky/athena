@@ -31,7 +31,8 @@ namespace xAOD {
          return cache;
       }
 
-      ::TClass* THolderCache::getClass( const std::type_info& ti ) const {
+      std::pair< bool, ::TClass* >
+      THolderCache::getClass( const std::type_info& ti ) const {
 
          // Get a "read lock":
          shared_lock_t lock( m_typeMapMutex );
@@ -39,9 +40,9 @@ namespace xAOD {
          // Look for the type in the cache:
          auto itr = m_typeMap.find( &ti );
          if( itr != m_typeMap.end() ) {
-            return itr->second;
+            return std::pair< bool, ::TClass* >( true, itr->second );
          } else {
-            return nullptr;
+            return std::pair< bool, ::TClass* >( false, nullptr );
          }
       }
 

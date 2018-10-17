@@ -252,15 +252,15 @@ namespace xAOD {
       }
 
       // Check if we already know about this type:
-      ::TClass* userClass = Internal::THolderCache::instance().getClass( tid );
+      auto userClass = Internal::THolderCache::instance().getClass( tid );
       // If not, look for it now:
-      if( ! userClass ) {
-         userClass = ::TClass::GetClass( tid );
-         Internal::THolderCache::instance().addClass( tid, userClass );
+      if( ! userClass.first ) {
+         userClass.second = ::TClass::GetClass( tid );
+         Internal::THolderCache::instance().addClass( tid, userClass.second );
       }
 
       // If we still don't have a dictionary, that's an issue:
-      if( ! userClass ) {
+      if( ! userClass.second ) {
          if( ! silent ) {
             ::Error( "xAOD::THolder::getAs",
                      XAOD_MESSAGE( "Couldn't access the dictionary for user "
@@ -271,7 +271,7 @@ namespace xAOD {
       }
 
       // Check if the user requested a valid base class for the held type:
-      const Int_t offset = m_type->GetBaseClassOffset( userClass );
+      const Int_t offset = m_type->GetBaseClassOffset( userClass.second );
       if( offset < 0 ) {
          if( ! silent ) {
             ::Warning( "xAOD::THolder::getAs",

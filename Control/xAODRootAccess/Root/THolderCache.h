@@ -10,6 +10,7 @@
 // System include(s):
 #include <map>
 #include <shared_mutex>
+#include <utility>
 
 // Forward declaration(s):
 namespace std {
@@ -36,7 +37,8 @@ namespace xAOD {
          static THolderCache& instance();
 
          /// Get the dictionary for a given type info
-         ::TClass* getClass( const std::type_info& ti ) const;
+         std::pair< bool, ::TClass* >
+         getClass( const std::type_info& ti ) const;
          /// Add the dictionary for a given type
          void addClass( const std::type_info& ti, ::TClass* cl );
 
