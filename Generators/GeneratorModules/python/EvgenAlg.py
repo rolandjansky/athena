@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaPython import PyAthena
-from AthenaPython.PyAthena import StatusCode, McEventCollection, HepMC, CLHEP
-import McParticleEvent.Pythonizations
+from AthenaPython.PyAthena import StatusCode
 import ROOT
 
 
@@ -28,11 +27,14 @@ class EvgenAlg(PyAthena.Alg):
 
 
     def initialize(self):
+        import McParticleEvent.Pythonizations
         self.msg.debug("Initializing [%s]", self.name())
         return self.genInitialize()
 
 
     def execute(self):
+        from AthenaPython.PyAthena import McEventCollection, HepMC
+
         self.msg.debug("Executing [%s]", self.name())
 
         ## Retrieve MC event collection or create a new one
