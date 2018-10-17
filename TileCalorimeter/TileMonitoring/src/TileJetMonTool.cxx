@@ -786,27 +786,6 @@ bool TileJetMonTool::passesJvt(const xAOD::Jet& jet) {
 }
 
 bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
-  /* Run-1 stuff
-  double hecf = jet.getAttribute<float>(xAOD::JetAttribute::HECFrac);
-
-  //double tileGap3f = tileGap3F(&jet);
-
-  double quality = jet.getAttribute<float>(xAOD::JetAttribute::LArQuality);
-  double HecQ = jet.getAttribute<float>(xAOD::JetAttribute::HECQuality);
-  double NegE = jet.getAttribute<float>(xAOD::JetAttribute::NegativeE);
-  double emf = jet.getAttribute<float>(xAOD::JetAttribute::EMFrac);
-  double time = jet.getAttribute<float>(xAOD::JetAttribute::Timing);
-  double pt = jet.pt();
-  const std::vector<float>& sumPtTrk = jet.getAttribute<std::vector<float> >(xAOD::JetAttribute::SumPtTrkPt1000);
-  double chf = (pt != 0 && !sumPtTrk.empty()) ? sumPtTrk[0] / pt : 0;
-
-  double em_eta = jet.jetP4(xAOD::JetEMScaleMomentum).eta();
-
-  double fmax = jet.getAttribute<float>(xAOD::JetAttribute::FracSamplingMax);
-
-  bool isBadJet = isBad(MediumBad, quality, NegE, emf, hecf, time, fmax, em_eta, chf, HecQ);
-  return (!isBadJet);
-  */
 #ifdef JVT
   if (! m_do_jet_cleaning) return true;
   if (jet.pt() < 20000) return false;
@@ -814,19 +793,6 @@ bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
   if (! m_cleaningTool->keep(jet)) return false;
   return true;
 
-  // double pt = jet.pt();
-  // if (pt > 50000) {
-  //   return(m_cleaningTool->keep(jet));
-  // } else if (pt > 20000) {
-  //   if (fabs(jet.eta()) < m_jet_tracking_eta_limit) {
-  //     float jvt = m_jvt->updateJvt(jet);
-  //     return(m_cleaningTool->keep(jet) && (jvt > m_jet_jvt_threshold));
-  //   } else {
-  //     return(true);
-  //   }
-  // } else {
-  //   return(true);
-  // }
 #else
   return(true);
 #endif
