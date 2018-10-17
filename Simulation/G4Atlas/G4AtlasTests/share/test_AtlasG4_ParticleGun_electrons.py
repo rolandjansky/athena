@@ -101,6 +101,7 @@ job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("HECHitsTestTool", check
 from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
 g4AtlasAlg = G4AtlasAlg()
 g4AtlasAlg.RandomGenerator = "athena"
+g4AtlasAlg.InputTruthCollection='GEN_EVENT'
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaServices.AthenaServicesConf import AtRndmGenSvc
 atRndmGenSvc = AtRndmGenSvc()
