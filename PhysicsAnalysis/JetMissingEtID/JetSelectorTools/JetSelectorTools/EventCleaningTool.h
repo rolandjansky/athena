@@ -52,7 +52,13 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     virtual StatusCode initialize() override;
 
      /** Initialize method */
-    virtual StatusCode finalize() override;
+    virtual StatusCode finalize()
+    // Well this is truly annoying, but does solve the error
+#ifdef XAOD_STANDALONE
+    ;
+#else
+    override;
+#endif
 
     virtual bool acceptEvent(const xAOD::JetContainer* jets) const override;
 
