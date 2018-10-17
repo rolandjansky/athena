@@ -14,7 +14,16 @@
 #define ATHENAKERNEL_RECYCLABLEDATAOBJECT_H
 
 
+// Work around a warning in tbb, found by gcc8.
+// Fixed in TBB 2018 U5.
+#if defined(__GNUC__) && __GNUC__ >= 8
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
 #include "tbb/concurrent_queue.h"
+#if defined(__GNUC__) && __GNUC__ >= 8
+# pragma GCC diagnostic pop
+#endif
 
 
 namespace Athena {
