@@ -130,6 +130,7 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
   
   if ( componentDeterminantR.size() != predictedState.size() || componentChi2.size() != predictedState.size() ){
     ATH_MSG_WARNING("Inconsistent number of components in chi2 and detR vectors... Exiting!" );
+    delete returnMultiComponentState;
     return 0;
   }
   
@@ -146,8 +147,6 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
       
     // Extract common factor to avoid numerical problems during exponentiation
     double chi2 = componentChi2[index] - minimumChi2;
-    
-
   
     double updatedWeight(0.);
     // Determinant can not be belowe 1e-19 in CLHEP .... rather ugly but protect against 0 determinants
@@ -165,6 +164,7 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
   
   if ( returnMultiComponentState->size() != predictedState.size() ){
     ATH_MSG_WARNING( "Inconsistent number of components between initial and final states... Exiting!" );
+    delete returnMultiComponentState;
     return 0;
   }
   

@@ -439,6 +439,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateImpl(Cache& cac
   if (msgLvl(MSG::DEBUG)){
     combinedState = m_stateCombiner->combine( *destinationState );
     if ( !combinedState ){
+      delete destinationState;
       ATH_MSG_ERROR( "State combination failed... exiting" );
       return 0;
     }
