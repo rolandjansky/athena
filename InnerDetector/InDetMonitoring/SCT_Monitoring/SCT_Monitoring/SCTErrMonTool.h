@@ -14,7 +14,6 @@
 #define SCTERRMONTOOL_H
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -61,7 +60,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //First element of pair is minimum second is maximum.
   typedef std::pair< std::pair<double, double>, std::pair<double, double> > moduleGeo_t;
   typedef std::map< IdentifierHash, moduleGeo_t > geoContainer_t;
-  typedef std::map< Identifier, moduleGeo_t > geoContainerPure_t;
 
  public:
   SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent);
@@ -262,8 +260,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   Prof2_t
     prof2Factory(const std::string & name, const std::string & title, const unsigned int&, VecProf2_t & storageVector);
 
-  bool SyncDisabledSCT();
-  bool SyncErrorSCT();
+  bool syncDisabledSCT();
+  bool syncErrorSCT();
   bool summarySCT();
   bool psTripDCSSCT();
   bool eventVsWafer();
@@ -274,6 +272,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
   enum ProblemForCoverage {
+    disabled,//Disable
     badLinkError, //link bad
     badRODError, // ROD bad
     badError, // link bad + ROD bad = bad error
@@ -284,8 +283,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   std::vector<moduleGeo_t> m_geo;
   std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
-  geoContainerPure_t m_disabledGeoSCT;
-  TH2F * m_disabledModulesMapSCT;//disabled SCT
   TH2F * m_mapSCT[numberOfProblemForCoverage];
 
   const unsigned int m_nBinsEta;

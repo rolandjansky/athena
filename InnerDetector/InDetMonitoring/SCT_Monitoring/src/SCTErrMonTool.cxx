@@ -196,8 +196,6 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_sctManager( 0 ),
   m_geo{},
   m_SCTHash{{}},
-  m_disabledGeoSCT(),
-  m_disabledModulesMapSCT(nullptr),
   m_mapSCT{nullptr},
   m_nBinsEta( 100 ),
   m_rangeEta( 2.5 ),
@@ -460,15 +458,9 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 
   if (ManagedMonitorToolBase::newRunFlag()){
 
-    m_disabledModulesMapSCT   = new TH2F( "disabledModulesMapSCT", "Map of disabled modules for SCT",
-					  m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    m_disabledModulesMapSCT->GetXaxis()->SetTitle("#eta");
-    m_disabledModulesMapSCT->GetYaxis()->SetTitle("#phi");
-
-    status &= monGr_shift.regHist( m_disabledModulesMapSCT ).isSuccess();//disabled modules
-    m_disabledModulesMapSCT->SetStats(0);
-
-
+    //Disabled
+    m_mapSCT[disabled]   = new TH2F( "disabledModulesMapSCT", "Map of disabled modules for SCT",
+				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     //Link Bad                                                                                        
     m_mapSCT[badLinkError]   = new TH2F( "errorModulesMapSCTlink", "Map of link error modules for SCT",
 					 m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
@@ -979,26 +971,15 @@ SCTErrMonTool::fillByteStreamErrors() {
   if ( m_CoverageCheck ){
     ATH_MSG_INFO("Detector Coverage calculation starts" );
 
-    m_disabledModulesMapSCT->Reset("ICE");
     for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++)
       {
 	m_mapSCT[iProblem]->Reset("ICE");
       }
 
-    SyncDisabledSCT();
-    SyncErrorSCT();
+    syncDisabledSCT();
+    syncErrorSCT();
     summarySCT();
     psTripDCSSCT();
-
-    {
-      geoContainerPure_t::iterator currIt = m_disabledGeoSCT.begin();
-      geoContainerPure_t::iterator currEnd = m_disabledGeoSCT.end();
-      while (currIt != currEnd)
-	{
-	  fillModule( (*currIt).second, m_disabledModulesMapSCT );
-	  ++currIt;
-	}
-    }
     
     for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++)
       {
@@ -2071,7 +2052,7 @@ void SCTErrMonTool::fillModule( moduleGeo_t module, TH2F * histo )
 //====================================================================================================
 //                          SCTErrMonTool :: SyncSCT, Keisuke Kouda 12.09.2016
 //====================================================================================================
-bool SCTErrMonTool::SyncErrorSCT()
+bool SCTErrMonTool::syncErrorSCT()
 {
   m_SCTHash[badLinkError].clear();
   m_SCTHash[badRODError].clear();
@@ -2111,33 +2092,19 @@ bool SCTErrMonTool::SyncErrorSCT()
 }
 
 
-bool SCTErrMonTool::SyncDisabledSCT()
+bool SCTErrMonTool::syncDisabledSCT()
 {
   bool altered = false;
-  double rz = 0;
-  double deltaZ = 0;
-
-  m_disabledGeoSCT.clear();
+  m_SCTHash[disabled].clear();
   std::set<Identifier>* badModules = m_ConfigurationSvc->badModules();
-  std::set<Identifier>::iterator fit = badModules->begin();
-  std::set<Identifier>::iterator fitEnd = badModules->end();
 
-  // Check that all modules are registered
-  for (; fit != fitEnd; ++fit){
-    if ( m_disabledGeoSCT.count( (*fit) ) )
-      continue;
-    else
-      {
-	altered = true;
-	moduleGeo_t moduleGeo;
-
-	InDetDD::SiDetectorElement * newElement = m_sctManager->getDetectorElement( (*fit) );
-	newElement->getEtaPhiRegion( deltaZ,
-				     moduleGeo.first.first,  moduleGeo.first.second,
-				     moduleGeo.second.first, moduleGeo.second.second,
-				     rz );
-	m_disabledGeoSCT.insert( std::pair<Identifier, moduleGeo_t>( (*fit), moduleGeo ) );
-      }
+  for (const Identifier& badModule: *badModules) {
+    altered = true;
+    IdentifierHash hashSide0 = m_pSCTHelper->wafer_hash(badModule);
+    IdentifierHash hashSide1;
+    m_pSCTHelper->get_other_side(hashSide0, hashSide1);
+    m_SCTHash[disabled].insert(hashSide0);
+    m_SCTHash[disabled].insert(hashSide1);
   }
   return altered;
 }
