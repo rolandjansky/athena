@@ -85,7 +85,10 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
     if (m_is_on_DAOD || (acc_Decorated.isAvailable(*particle) && acc_Decorated(*particle) == 1) ) {
         eta = acc_Eta(*particle);
         phi = acc_Phi(*particle);
-    } else if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for track with pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
+    } else {
+        if (!m_is_on_DAOD && particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for track with pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
+        eta = phi = -5;
+    } 
     
     return true;
 }
