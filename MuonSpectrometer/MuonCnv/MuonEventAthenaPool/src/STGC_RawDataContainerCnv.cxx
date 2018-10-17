@@ -20,7 +20,7 @@ StatusCode STGC_RawDataContainerCnv::initialize() {
   if( !STGC_RawDataContainerCnvBase::initialize().isSuccess() )
     return StatusCode::FAILURE;
     
-  msgSvc()->setOutputLevel( "STGC_RawDataContainerCnv", MSG::DEBUG );
+  //msgSvc()->setOutputLevel( "STGC_RawDataContainerCnv", MSG::DEBUG );
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "STGC_RawDataContainerCnv");
