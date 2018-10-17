@@ -19,7 +19,7 @@ echo $AtlasVersion
 if [ ${AtlasVersion:0:4} == "22.0" ]; then
     ValOption=""
 else
-    ValOption="--outputNTUP_PHYSVALFile valid1.424100.Pythia8B_A14_CTEQ6L1_Jpsimu4mu4_no_pileup.PHYSVAL.root --validationFlags noExample doMuon"
+    ValOption="--outputNTUP_PHYSVALFile valid1.424100.Pythia8B_A14_CTEQ6L1_Jpsimu4mu4_with_pileup.PHYSVAL.root --validationFlags noExample doMuon"
 fi
 echo "ValOption=", $ValOption
 
@@ -47,7 +47,7 @@ case $ArtProcess in
      unset  ATHENA_PROC_NUMBER
 
 
-     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.424100.Pythia8B_A14_CTEQ6L1_Jpsimu4mu4_no_pileup.AOD.pool.root $ValOption --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
+     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.424100.Pythia8B_A14_CTEQ6L1_Jpsimu4mu4_with_pileup.AOD.pool.root $ValOption --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
 
      echo  "art-result: $? reco_${ArtProcess}"
      ls -lR
