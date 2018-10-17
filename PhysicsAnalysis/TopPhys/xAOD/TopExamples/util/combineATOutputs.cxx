@@ -14,6 +14,7 @@
 #include <iostream>
 #include <algorithm>
 #include <memory>
+#include <cstdio>
 
 // for debugging
 // #define XXX std::cout << "I am here: " << __FILE__ << ":" << __LINE__ << std::endl;
@@ -113,6 +114,11 @@ int main(int argc, char** argv) {
             std::cout<<"Error: can't use twice the same prefix "<<tmp_prefix<<std::endl;
             exit(1);
         }
+        // checking if the file is not also the name of the output file
+        if (std::find(inFileNames.begin(), inFileNames.end(), argv[1]) != inFileNames.end()) {
+            std::cout<<"Error: can't use the input file "<<argv[1]<<" as name for the output file"<<std::endl;
+            exit(1);
+        }
         
         // now adding the input files and prefixed in the vectors
         inFileNames.push_back(tmp_fileName);
@@ -120,17 +126,42 @@ int main(int argc, char** argv) {
     }
     
     // the output file
-    std::shared_ptr<TFile> fout{TFile::Open(argv[1],"create")};
+    std::string tempOutFileName(argv[1]);
+    tempOutFileName+=".tmp";
+    std::shared_ptr<TFile> fout{TFile::Open(tempOutFileName.c_str(),"recreate")};
     
     // now looping on the input files
     for (unsigned int i = 0; i<inFileNames.size(); i++) {
         std::shared_ptr<TFile> f{TFile::Open(inFileNames[i].c_str(),"read")};
-        std::cout<<"Copy content of file "<<inFileNames[i]<<" in file "<<argv[1]<<" with prefix "<<prefixes[i]<<std::endl;
-        CopyDirToNewDir(f, fout, TString(prefixes[i]));
-        f->Close();
+        if (f == nullptr) {
+            std::cout<<"Error: impossible to open input file"<<inFileNames[i]<<std::endl;
+            fout->Close();
+            exit(1);
+        }
+        else if (f->TestBit(TFile::kWriteError)) {
+            fout->Close();
+            exit(1);
+        }
+        else {
+            std::cout<<"Copy content of file "<<inFileNames[i]<<" in file "<<argv[1]<<" with prefix "<<prefixes[i]<<std::endl;
+            CopyDirToNewDir(f, fout, TString(prefixes[i]));
+            f->Close();
+        }
+    }
+    
+    // check if output file is buggy
+    if (fout->TestBit(TFile::kWriteError)) {
+        std::cout<<"Error: output file looks buggy"<<std::endl;
+        fout->Close();
+        exit(1);
     }
     fout->Close();
-
+    
+    // rename output file with its final name - crash if we can't do that
+    if (std::rename(fout->GetName(), argv[1]) != 0) {
+        std::cout<<"Error: impossible to rename output file"<<std::endl;
+        exit(1);
+    }
     
     return 0;
 }
