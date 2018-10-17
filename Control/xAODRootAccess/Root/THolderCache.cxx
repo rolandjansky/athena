@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -8,6 +8,17 @@
 namespace xAOD {
 
    namespace Internal {
+
+      // These mutex and lock types were chosen to provide good performance for
+      // reading the "type map" and "reference map" variables very often, while
+      // only writing to them sparingly.
+      //
+      // This is especially true for the "type map", which is not modified in
+      // a typical job after the first event. The "reference map" is a bit
+      // different, that does get modified throughout the whole job. It just
+      // seemed easier to use the same mutex/lock types for both variable. But
+      // The mutex/lock for the "reference map" could be re-visited if
+      // performance tests show contention for it.
 
       /// Helper type definition
       typedef std::shared_lock< std::shared_timed_mutex > shared_lock_t;
