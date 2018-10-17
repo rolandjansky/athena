@@ -2,17 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SCTRawDataProviderTool.cxx
-//   Implementation file for class SCTRawDataProviderTool
-///////////////////////////////////////////////////////////////////
-
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "SCTRawDataProviderTool.h"
 #include "StoreGate/ReadHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-// -------------------------------------------------------
 // Constructor
 
 SCTRawDataProviderTool::SCTRawDataProviderTool
@@ -24,7 +19,6 @@ SCTRawDataProviderTool::SCTRawDataProviderTool
 {
 }
 
-// -------------------------------------------------------
 // Initialize
 
 StatusCode SCTRawDataProviderTool::initialize()
@@ -40,15 +34,14 @@ StatusCode SCTRawDataProviderTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// -------------------------------------------------------
 // Convert method
 
-StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs,
-                                           ISCT_RDO_Container& rdoIdc,
+StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
+                                           ISCT_RDO_Container& rdoIdCont,
                                            InDetBSErrContainer* errs,
                                            SCT_ByteStreamFractionContainer* bsFracCont) const
 {
-  if (vecRobs.empty()) return StatusCode::SUCCESS;
+  if (vecROBFrags.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
   StatusCode sc{StatusCode::SUCCESS};
@@ -57,9 +50,9 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 
   std::set<uint32_t> tmpRobIdSet;
 
-  for (const ROBFragment* rob_it : vecRobs) {
+  for (const ROBFragment* robFrag : vecROBFrags) {
     // get the ID of this ROB/ROD
-    uint32_t robid{(rob_it)->rod_source_id()};
+    uint32_t robid{(robFrag)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
     if (m_robIdSet.count(robid) or tmpRobIdSet.count(robid)) {
       ATH_MSG_DEBUG(" ROB Fragment with ID  "
@@ -71,7 +64,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     // Insert the new ROBID to the set.
     tmpRobIdSet.insert(robid);
 
-    sc = m_decoder->fillCollection(*rob_it, rdoIdc, errs, bsFracCont);
+    sc = m_decoder->fillCollection(*robFrag, rdoIdCont, errs, bsFracCont);
     if (sc==StatusCode::FAILURE) {
       if (m_decodeErrCount <= 100) {
         if (100 == m_decodeErrCount) {
@@ -97,7 +90,6 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   return sc;
 }
 
-// -------------------------------------------------------
 // beginNewEvent method
 
 void SCTRawDataProviderTool::beginNewEvent() const {
