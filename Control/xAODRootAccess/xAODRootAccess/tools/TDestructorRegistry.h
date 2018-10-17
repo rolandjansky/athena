@@ -60,6 +60,11 @@ namespace xAOD {
       /// Internal map of known destructor objects
       Map_t m_types;
       /// Mutex for the destructor map
+      ///
+      /// This type is used because the registry is filled mostly at the very
+      /// beginning of a job, and is just read from there on. For the reading
+      /// the clients don't need exclusive locks on the store.
+      ///
       mutable std::shared_timed_mutex m_mutex;
 
    }; // class TDestructorRegistry
