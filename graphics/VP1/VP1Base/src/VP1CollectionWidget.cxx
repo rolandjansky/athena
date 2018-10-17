@@ -16,13 +16,14 @@
 #include "VP1Base/VP1StdCollection.h"
 #include "VP1Base/VP1MaterialButton.h"
 #include "VP1Base/VP1Msg.h"
-#include <QtGui/QSpacerItem>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QCheckBox>
-#include <QtCore/QSet>
-#include <QtCore/QList>
-#include <QtCore/QRegExp>
+
+#include <QSpacerItem>
+#include <QGridLayout>
+#include <QLabel>
+#include <QCheckBox>
+#include <QSet>
+#include <QList>
+#include <QRegExp>
 
 //____________________________________________________________________
 class VP1CollectionWidget::Imp {
@@ -46,20 +47,20 @@ public:
 
 //____________________________________________________________________
 VP1CollectionWidget::VP1CollectionWidget(QWidget * parent)
-  : QWidget(parent), VP1HelperClassBase(0,"VP1CollectionWidget"), d(new Imp(this))
+  : QWidget(parent), VP1HelperClassBase(0,"VP1CollectionWidget"), m_d(new Imp(this))
 {
 }
 
 //____________________________________________________________________
 VP1CollectionWidget::~VP1CollectionWidget()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 QList<VP1Collection*> VP1CollectionWidget::collections() const
 {
-  return d->collections;
+  return m_d->collections;
 }
 
 //____________________________________________________________________
@@ -79,17 +80,17 @@ void VP1CollectionWidget::Imp::clearGui(bool deleteGuiElements)
 //____________________________________________________________________
 void VP1CollectionWidget::clear(bool deleteCollections,bool deleteGuiElements)
 {
-  d->updateStatesWithCurrentInfo();
-  d->clearGui(deleteGuiElements);
-  d->widgetsFromCollections.clear();
+  m_d->updateStatesWithCurrentInfo();
+  m_d->clearGui(deleteGuiElements);
+  m_d->widgetsFromCollections.clear();
 
   if (deleteCollections)
-    foreach(VP1Collection*col, d->collections)
+    foreach(VP1Collection*col, m_d->collections)
       delete col;
-  d->collections.clear();
+  m_d->collections.clear();
 
   //Fixme: update report-on-width
-  d->appropriateFixedWidth = 0;
+  m_d->appropriateFixedWidth = 0;
 
   possibleChange_visibleStdCollections();
   visibleContentsChanged();
@@ -236,12 +237,12 @@ void VP1CollectionWidget::addCollections(QList<VP1Collection*> cols, bool applyS
 {
   messageVerbose("addCollections called with "+str(cols.count())+" new collections");
 
-  d->collections << cols;//FIXME: Test not already there.
+  m_d->collections << cols;//FIXME: Test not already there.
 
-  d->repopulateGUIFromCollections();
+  m_d->repopulateGUIFromCollections();
 
   if (applySavedStates)
-    VP1Collection::applyStates(d->collections, d->states);
+    VP1Collection::applyStates(m_d->collections, m_d->states);
 
   possibleChange_visibleStdCollections();
   foreach(VP1Collection* col,cols) {
@@ -255,12 +256,12 @@ void VP1CollectionWidget::addCollections(QList<VP1Collection*> cols, bool applyS
 //____________________________________________________________________
 void VP1CollectionWidget::setCollections(QList<VP1Collection*> cols,bool applySavedStates)
 {
-  d->collections = cols;
+  m_d->collections = cols;
 
-  d->repopulateGUIFromCollections();
+  m_d->repopulateGUIFromCollections();
 
   if (applySavedStates)
-    VP1Collection::applyStates(d->collections, d->states);
+    VP1Collection::applyStates(m_d->collections, m_d->states);
 
   possibleChange_visibleStdCollections();
   foreach(VP1Collection* col,cols) {
@@ -273,7 +274,7 @@ void VP1CollectionWidget::setCollections(QList<VP1Collection*> cols,bool applySa
 //____________________________________________________________________
 int VP1CollectionWidget::appropriateFixedWidth() const
 {
-  return d->appropriateFixedWidth;
+  return m_d->appropriateFixedWidth;
 }
 
 //____________________________________________________________________
@@ -286,23 +287,23 @@ void VP1CollectionWidget::Imp::updateStatesWithCurrentInfo()
 //____________________________________________________________________
 void VP1CollectionWidget::addStateInfo(const VP1CollStates& newinfo, bool overwritesExisting )
 {
-  d->updateStatesWithCurrentInfo();
+  m_d->updateStatesWithCurrentInfo();
   QMapIterator<QByteArray,QByteArray> it(newinfo);
   while (it.hasNext()) {
     it.next();
-    if (!overwritesExisting&&d->states.contains(it.key()))
+    if (!overwritesExisting&&m_d->states.contains(it.key()))
       continue;
-    d->states.insert(it.key(),it.value());
+    m_d->states.insert(it.key(),it.value());
   }
   if (overwritesExisting)
-    VP1Collection::applyStates(d->collections, newinfo);
+    VP1Collection::applyStates(m_d->collections, newinfo);
 }
 
 //____________________________________________________________________
 VP1CollStates VP1CollectionWidget::states() const
 {
-  d->updateStatesWithCurrentInfo();
-  return d->states;
+  m_d->updateStatesWithCurrentInfo();
+  return m_d->states;
 }
 
 
@@ -321,7 +322,7 @@ QList<qint32> VP1CollectionWidget::Imp::visibleStdCollectionTypesFromVisStdCols(
 //____________________________________________________________________
 QList<qint32> VP1CollectionWidget::visibleStdCollectionTypes() const
 {
-  return d->visibleStdCollectionTypesFromVisStdCols(visibleStdCollections());
+  return m_d->visibleStdCollectionTypesFromVisStdCols(visibleStdCollections());
 }
 
 //____________________________________________________________________
@@ -339,15 +340,15 @@ QList<VP1StdCollection*> VP1CollectionWidget::visibleStdCollections() const
 void VP1CollectionWidget::possibleChange_visibleStdCollections()
 {
   QList<VP1StdCollection*> visstdcols = visibleStdCollections();
-  QList<qint32> vistypes = d->visibleStdCollectionTypesFromVisStdCols(visstdcols);
+  QList<qint32> vistypes = m_d->visibleStdCollectionTypesFromVisStdCols(visstdcols);
 
-  if ( d->last_visibleStdCollections != visstdcols ) {
-    d->last_visibleStdCollections = visstdcols;
+  if ( m_d->last_visibleStdCollections != visstdcols ) {
+    m_d->last_visibleStdCollections = visstdcols;
     visibleStdCollectionsChanged(visstdcols);
   }
 
-  if ( d->last_visibleStdCollectionTypes != vistypes ) {
-    d->last_visibleStdCollectionTypes = vistypes;
+  if ( m_d->last_visibleStdCollectionTypes != vistypes ) {
+    m_d->last_visibleStdCollectionTypes = vistypes;
     visibleStdCollectionTypesChanged(vistypes);
   }
 

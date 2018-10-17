@@ -77,7 +77,7 @@ public:
 
 private:
   class Imp;
-  Imp *d;
+  Imp *m_d;
   SoSeparator *getSceneGraph() const;
   void create(StoreGateSvc* detstore);
   void refresh(StoreGateSvc* storegate);

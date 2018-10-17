@@ -14,15 +14,16 @@
 
 #include "VP1Base/VP1ColorSelectButton.h"
 #include "VP1Base/VP1Msg.h"
-#include <QtGui/QColor>
-#include <QtGui/QColorDialog>
-#include <QtCore/QTimer>
-#include <QtGui/QShortcut>
+
+#include <QColor>
+#include <QColorDialog>
+#include <QTimer>
+#include <QShortcut>
 
 //____________________________________________________________________
 class VP1ColorSelectButton::Imp {
 public:
-  Imp(const QColor& _col, VP1ColorSelectButton*_but,int _dim) : presentcolor(_col),button(_but),dim(_dim) {}
+  Imp(const QColor& col, VP1ColorSelectButton* but,int the_dim) : presentcolor(col),button(but),dim(the_dim) {}
   QColor presentcolor;
   VP1ColorSelectButton* button;
   int dim;
@@ -30,7 +31,7 @@ public:
 
 //____________________________________________________________________
 VP1ColorSelectButton::VP1ColorSelectButton(QWidget*parent,const QColor& initialcolor,int dim)
-  : QPushButton(parent), d(new Imp(initialcolor,this,dim))
+  : QPushButton(parent), m_d(new Imp(initialcolor,this,dim))
 {
   connect (this,SIGNAL(clicked()),this,SLOT(launchColorChooser()));
   QTimer::singleShot(0, this, SLOT(updateButton()));
@@ -41,21 +42,25 @@ void VP1ColorSelectButton::updateButton()
 {
   if (objectName().isEmpty())
     setObjectName("VP1ColorSelectButton");
-  setColButtonProperties(this,d->presentcolor,d->dim);
+  setColButtonProperties(this,m_d->presentcolor,m_d->dim);
 }
 
 //____________________________________________________________________
 void VP1ColorSelectButton::setColButtonProperties(QPushButton* pb,const QColor& col,int dim) {
-  if (VP1Msg::verbose())
-    VP1Msg::messageVerbose("setColButtonProperties: button="+VP1Msg::str(pb)+", color="+VP1Msg::str(col));
+
+//  if (VP1Msg::verbose())
+//    VP1Msg::messageVerbose("setColButtonProperties: button="+VP1Msg::str(pb)+", color="+VP1Msg::str(col));
+
   if (pb->objectName().isEmpty()) {
     VP1Msg::messageDebug("VP1ColorSelectButton::setColButtonProperties() WARNING: Empty objectName()!!");
     pb->setObjectName("VP1ColorSelectButton_setColButtonProperties");
   }
+
   if (!pb->text().isEmpty()) {
     VP1Msg::messageDebug("VP1ColorSelectButton::setColButtonProperties() WARNING: Noticed non-empty text field. Clearing!");
     pb->QPushButton::setText("");
   }
+
   pb->setStyleSheet("QPushButton#"+pb->objectName()+" { background-color: "
 		+col.name()+"; border-color: "+col.name()+"; }");
   pb->setFocusPolicy(Qt::NoFocus);
@@ -74,7 +79,7 @@ void VP1ColorSelectButton::setColButtonProperties(QPushButton* pb,const QColor& 
 //____________________________________________________________________
 VP1ColorSelectButton::~VP1ColorSelectButton()
 {
-  delete d; d=0;
+  delete m_d; m_d=0;
 }
 
 //____________________________________________________________________
@@ -82,7 +87,7 @@ void VP1ColorSelectButton::launchColorChooser()
 {
   VP1Msg::messageVerbose("VP1ColorSelectButton emitting aboutToShowColorDialog()");
   emit aboutToShowColorDialog();
-  QColor color = QColorDialog::getColor(d->presentcolor, this);
+  QColor color = QColorDialog::getColor(m_d->presentcolor, this);
   setColor(color);
 }
 
@@ -91,9 +96,9 @@ void VP1ColorSelectButton::setColor(const QColor&col)
 {
   if (!col.isValid())
     return;
-  if (d->presentcolor==col)
+  if (m_d->presentcolor==col)
     return;
-  d->presentcolor=col;
+  m_d->presentcolor=col;
   updateButton();
   VP1Msg::messageVerbose("VP1ColorSelectButton emitting colorChanged("+col.name()+")");
   emit colorChanged(col);
@@ -102,7 +107,7 @@ void VP1ColorSelectButton::setColor(const QColor&col)
 //____________________________________________________________________
 QColor VP1ColorSelectButton::color() const
 {
-  return d->presentcolor;
+  return m_d->presentcolor;
 }
 
 //____________________________________________________________________
@@ -113,10 +118,10 @@ void VP1ColorSelectButton::setText( const QString & s )
 }
 
 //____________________________________________________________________
-void VP1ColorSelectButton::setDimension(int _dim)
+void VP1ColorSelectButton::setDimension(int dim)
 {
-  if (d->dim == _dim)
+  if (m_d->dim == dim)
     return;
-  d->dim = _dim;
+  m_d->dim = dim;
   updateButton();
 }

@@ -45,7 +45,7 @@
 //
 // Any change of selection or occurrence of picks/events makes the GV ask the appropriate IC to emit a signal.
 
-#include <QtCore/QObject>
+#include <QObject>
 
 class VP1GraphicsView;
 class QGraphicsItem;
@@ -99,7 +99,7 @@ private:
   VP1GraphicsItemCollection( const VP1GraphicsItemCollection & );
   VP1GraphicsItemCollection & operator= ( const VP1GraphicsItemCollection & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 private:
   friend class VP1GraphicsView;
   void attachToView(VP1GraphicsView*);

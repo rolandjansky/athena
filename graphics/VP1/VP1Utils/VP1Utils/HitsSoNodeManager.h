@@ -38,7 +38,7 @@ private:
   HitsSoNodeManager & operator= ( const HitsSoNodeManager & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

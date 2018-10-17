@@ -53,11 +53,11 @@ private:
   static void separatorAction(SoAction*,SoNode*);
   static void drawStyleAction(SoAction*,SoNode*);
 private:
-  Format fFileFormat;
-  SbString fFileName;
-  FILE* fFile;
-  int fPageOptions;
-  static bool didInit;
+  Format m_fileFormat;
+  SbString m_fileName;
+  FILE* m_file;
+  int m_pageOptions;
+  static bool s_didInit;
 };
 
 #endif

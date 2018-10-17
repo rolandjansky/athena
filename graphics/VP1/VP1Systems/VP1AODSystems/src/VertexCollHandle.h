@@ -114,7 +114,7 @@ private slots:
 	void resetCachedValuesCuts();
   
 public slots:
-  void rerandomiseRandomVertexColours();
+  // void rerandomiseRandomVertexColours();
 
 
   // setters
@@ -134,13 +134,15 @@ public slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   int m_nshownhandles;
 
+  VP1Interval m_cut_allowedY;
   VP1Interval m_cut_allowedR;
   VP1Interval m_cut_allowedY;
   VP1Interval m_cut_allowedZ;
+  bool m_cut_y_allowall;
   bool m_cut_r_allowall;
   bool m_cut_y_allowall;
   bool m_cut_z_allowall;

@@ -37,7 +37,7 @@ public:
 
 //____________________________________________________________________
 AODSysCommonData::AODSysCommonData(VP1AODSystem * sys,AODSystemController * controller)
-  : VP1HelperClassBase(sys,"AODSysCommonData"), d(new Imp), m_3dsystem(sys),
+  : VP1HelperClassBase(sys,"AODSysCommonData"), m_d(new Imp), m_3dsystem(sys),
     m_controller(controller), m_extrapolator(0)
 {
   m_singlePoint = new SoPointSet;
@@ -47,40 +47,40 @@ AODSysCommonData::AODSysCommonData(VP1AODSystem * sys,AODSystemController * cont
   m_singlePoint->numPoints=1;
   m_singlePoint->vertexProperty.setValue(vertices);
   
-  d->last_selectedHandle=0;
+  m_d->last_selectedHandle=0;
 }
 
 //____________________________________________________________________
 AODSysCommonData::~AODSysCommonData()
 {
   m_singlePoint->unref();
-  delete d;
+  delete m_d;
 }
 
 void AODSysCommonData::registerHandle( AODHandleBase* h ){
-  // if (d->nodeToHandle.find(node)!=d->nodeToHandle.end()){
+  // if (m_d->nodeToHandle.find(node)!=m_d->nodeToHandle.end()){
   //   messageVerbose("AODSysCommonData::registerHandle - handle already registered.");
   // }
-  d->nodeToHandle[h->nodes()]=h;
+  m_d->nodeToHandle[h->nodes()]=h;
 }
 
 void AODSysCommonData::deregisterHandle( AODHandleBase* h ){
-  // if (d->nodeToTrackHandle.find(node)==d->nodeToHandle.end()){
+  // if (m_d->nodeToTrackHandle.find(node)==m_d->nodeToHandle.end()){
   //   message("AODSysCommonData::deregisterHandle - handle not registered!");
   // }
   
-  for (auto it : d->nodeToHandle) {
+  for (auto it : m_d->nodeToHandle) {
     if (it.second == h) {
-      d->nodeToHandle.erase(it.first);
+      m_d->nodeToHandle.erase(it.first);
       break;
     }
   }
 }
 AODHandleBase* AODSysCommonData::getHandleFromNode( SoNode* node ) {
-  auto it = d->nodeToHandle.find(node);
-  if (it==d->nodeToHandle.end()){
+  auto it = m_d->nodeToHandle.find(node);
+  if (it==m_d->nodeToHandle.end()){
     message("AODSysCommonData::getHandleFromNode - handle not registered!");
-    message("AODSysCommonData::getHandleFromNode - have this many handles:"+str(d->nodeToHandle.size()));
+    message("AODSysCommonData::getHandleFromNode - have this many handles:"+str(m_d->nodeToHandle.size()));
     
     return 0;
   }
@@ -102,10 +102,10 @@ AODHandleBase* AODSysCommonData::getHandleFromNode(const SoPath*path) {
 }
 
 SoNode* AODSysCommonData::getNodeFromBrowser( QTreeWidgetItem* item ){
-  message("AODSysCommonData::getNodeFromBrowser - about to loop over this many handles:"+str(d->nodeToHandle.size()));
+  message("AODSysCommonData::getNodeFromBrowser - about to loop over this many handles:"+str(m_d->nodeToHandle.size()));
   if (!item)
     return 0;
-  std::map<SoNode*,AODHandleBase*>::iterator it = d->nodeToHandle.begin(), itEnd=d->nodeToHandle.end();
+  std::map<SoNode*,AODHandleBase*>::iterator it = m_d->nodeToHandle.begin(), itEnd=m_d->nodeToHandle.end();
   for (; it!=itEnd;++it)
     if (it->second->browserTreeItem()==item) return it->first;
   return 0;
@@ -114,5 +114,5 @@ SoNode* AODSysCommonData::getNodeFromBrowser( QTreeWidgetItem* item ){
 
 
 void AODSysCommonData::setLastSelectedHandle(AODHandleBase* h) {
-  d->last_selectedHandle=h;
+  m_d->last_selectedHandle=h;
 }

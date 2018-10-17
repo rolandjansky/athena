@@ -17,10 +17,10 @@
 #ifndef VP1CUSTOMSTEREOEDITOR_H
 #define VP1CUSTOMSTEREOEDITOR_H
 
-#include <QtGui/QWidget>
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbBasic.h>
 
+#include <QWidget>
 
 class VP1ExaminerViewer;
 
@@ -68,17 +68,17 @@ private slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   // arrays to store the anaglyph filters
-  SbBool leftEyeFilter[3];
-  SbBool rightEyeFilter[3];
+  SbBool m_leftEyeFilter[3];
+  SbBool m_rightEyeFilter[3];
 
   // default values for normal Anaglyph red-cyan view filters
 //  SbBool leftEyeFilter_def[3] = {true, false, false};
 //  SbBool rightEyeFilter_def[3] = {false, true, true};
-  SbBool leftEyeFilter_def[3];
-  SbBool rightEyeFilter_def[3];
+  SbBool m_leftEyeFilter_def[3];
+  SbBool m_rightEyeFilter_def[3];
 };
 
 #endif

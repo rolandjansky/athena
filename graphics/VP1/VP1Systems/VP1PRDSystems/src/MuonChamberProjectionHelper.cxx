@@ -114,7 +114,7 @@ public:
 
 //____________________________________________________________________
 MuonChamberProjectionHelper::MuonChamberProjectionHelper( StoreGateSvc * detectorStore )
- : VP1HelperClassBase(0,"MuonChamberProjectionHelper"), d(new Imp(this,detectorStore))
+: VP1HelperClassBase(0,"MuonChamberProjectionHelper"), m_d(new Imp(this,detectorStore))
 {
   if (!detectorStore)
     message("ERROR: Received NULL detectorstore");
@@ -122,21 +122,21 @@ MuonChamberProjectionHelper::MuonChamberProjectionHelper( StoreGateSvc * detecto
 
 //____________________________________________________________________
 MuonChamberProjectionHelper::MuonChamberProjectionHelper( IVP1System * sys )
-  : VP1HelperClassBase(0,"MuonChamberProjectionHelper"), d(new Imp(this,(sys?sys->detectorStore():0)))
+  : VP1HelperClassBase(0,"MuonChamberProjectionHelper"), m_d(new Imp(this,(sys?sys->detectorStore():0)))
 {
   if (!sys)
     message("ERROR: Received NULL system pointer (and thus can't get detector store pointer");
-  else if (!d->detectorStore)
+  else if (!m_d->detectorStore)
     message("ERROR: Could not get detectorStore pointer from system pointer");
 }
 
 //____________________________________________________________________
 MuonChamberProjectionHelper::~MuonChamberProjectionHelper()
 {
-  Imp::ChamberInfoMapItr itMDT, itMDTE(d->mdtchambervolinfo.end());
-  for ( itMDT = d->mdtchambervolinfo.begin(); itMDT!=itMDTE; ++itMDT )
+  Imp::ChamberInfoMapItr itMDT, itMDTE(m_d->mdtchambervolinfo.end());
+  for ( itMDT = m_d->mdtchambervolinfo.begin(); itMDT!=itMDTE; ++itMDT )
     itMDT->second.trd->unref();
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -268,7 +268,7 @@ bool MuonChamberProjectionHelper::Imp::init()
 bool MuonChamberProjectionHelper::isKnownMDTChamber( const GeoPVConstLink& mdtChamber )
 {
   Imp::ChamberInfoMapItr itChamberInfo;
-  return d->getMDTChamberVolInfo( mdtChamber, itChamberInfo, true );
+  return m_d->getMDTChamberVolInfo( mdtChamber, itChamberInfo, true );
 }
 
 //____________________________________________________________________
@@ -278,7 +278,7 @@ bool MuonChamberProjectionHelper::getDistancesToMDTChamberWallsAlongLine( const 
 									  const double& radius )
 {
   Imp::ChamberInfoMapItr itChamberInfo;
-  if (!d->getMDTChamberVolInfo( mdtChamber, itChamberInfo ))
+  if (!m_d->getMDTChamberVolInfo( mdtChamber, itChamberInfo ))
     return false;
 
   const GeoTrd * trd = itChamberInfo->second.trd;
@@ -293,11 +293,11 @@ bool MuonChamberProjectionHelper::getDistancesToMDTChamberWallsAlongLine( const 
   const Amg::Vector3D p1(itChamberInfo->second.localToGlobal * Amg::Vector3D(0,y1,-z) );
   const Amg::Vector3D p2(itChamberInfo->second.localToGlobal * Amg::Vector3D(0,-y1,-z) );
 
-  distanceToFirstEndPlane = d->pointToPlaneDistAlongLine(point,lineDirection,p1,n1);
+  distanceToFirstEndPlane = m_d->pointToPlaneDistAlongLine(point,lineDirection,p1,n1);
   if (distanceToFirstEndPlane < 0.0 )
     return false;
 
-  distanceToSecondEndPlane = d->pointToPlaneDistAlongLine(point,lineDirection,p2,n2);
+  distanceToSecondEndPlane = m_d->pointToPlaneDistAlongLine(point,lineDirection,p2,n2);
   if (distanceToSecondEndPlane < 0.0 )
     return false;
 
@@ -377,11 +377,11 @@ bool MuonChamberProjectionHelper::projectAndConstrainLineSegmentToMDTChamberEndW
 										      bool& outsidechamber )
 {
   Imp::ChamberInfoMapItr itChamberInfo;
-  if (!d->getMDTChamberVolInfo( mdtChamber, itChamberInfo ))
+  if (!m_d->getMDTChamberVolInfo( mdtChamber, itChamberInfo ))
     return false;
 
   double trdX, trdZ;
-  d->getMDTChamberXAndZ(itChamberInfo, trdX, trdZ );
+  m_d->getMDTChamberXAndZ(itChamberInfo, trdX, trdZ );
 
   //Get local chamber coordinates, A and B, of pointA and pointB:
   itChamberInfo->second.ensureInitGlobalToLocal();
@@ -392,13 +392,13 @@ bool MuonChamberProjectionHelper::projectAndConstrainLineSegmentToMDTChamberEndW
   //(x,z)-plane, and then constrain it to the rectangle given by
   //x_i<|trdX|, z_i<|trdZ|.
 
-  outsidechamber = !(d->clip2DLineSegmentToRectangle( trdX, trdZ, ax, az, bx, bz ));
+  outsidechamber = !(m_d->clip2DLineSegmentToRectangle( trdX, trdZ, ax, az, bx, bz ));
   if (outsidechamber)
     return true;
 
   //Project the points to the end of the Trd:
-  d->projectXZPointToTrdAlongYAxis( ax, az,itChamberInfo->second.trd, firstEndWall_pointA, secondEndWall_pointA );
-  d->projectXZPointToTrdAlongYAxis( bx, bz,itChamberInfo->second.trd, firstEndWall_pointB, secondEndWall_pointB );
+  m_d->projectXZPointToTrdAlongYAxis( ax, az,itChamberInfo->second.trd, firstEndWall_pointA, secondEndWall_pointA );
+  m_d->projectXZPointToTrdAlongYAxis( bx, bz,itChamberInfo->second.trd, firstEndWall_pointB, secondEndWall_pointB );
 
   //Put points in global coordinates:
 //  firstEndWall_pointA.transform(itChamberInfo->second.localToGlobal);
@@ -484,11 +484,11 @@ bool MuonChamberProjectionHelper::clipLineSegmentToMDTChamber( const GeoPVConstL
 							       const double & extradist )
 {
   Imp::ChamberInfoMapItr itChamberInfo;
-  if (!d->getMDTChamberVolInfo( mdtChamber, itChamberInfo ))
+  if (!m_d->getMDTChamberVolInfo( mdtChamber, itChamberInfo ))
     return false;
 
   double trdX, trdZ;
-  d->getMDTChamberXAndZ(itChamberInfo, trdX, trdZ );
+  m_d->getMDTChamberXAndZ(itChamberInfo, trdX, trdZ );
 
   trdX += extradist;
   trdZ += extradist;
@@ -502,7 +502,7 @@ bool MuonChamberProjectionHelper::clipLineSegmentToMDTChamber( const GeoPVConstL
   double ax(A.x()), az(A.z()), bx(B.x()), bz(B.z());
 
   //Clip x and z dimensions:
-  outsidechamber = !(d->clip2DLineSegmentToRectangle( trdX, trdZ, ax, az, bx, bz ));
+  outsidechamber = !(m_d->clip2DLineSegmentToRectangle( trdX, trdZ, ax, az, bx, bz ));
   if (outsidechamber)
     return true;
 

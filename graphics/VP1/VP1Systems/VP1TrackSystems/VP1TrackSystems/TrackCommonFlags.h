@@ -15,8 +15,8 @@
 #ifndef TRACKCOMMONFLAGS_H
 #define TRACKCOMMONFLAGS_H
 
-#include <QtCore/QFlags>
-#include <QtCore/QString>
+#include <QFlags>
+#include <QString>
 
 class TrackCommonFlags {
 public:

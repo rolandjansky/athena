@@ -16,7 +16,8 @@
 #define IVP12DSYSTEM_H
 
 #include "VP1Base/IVP1System.h"
-#include <QtCore/QSet>
+
+#include <QSet>
 
 class VP1GraphicsItemCollection;
 class QGraphicsItem;
@@ -61,7 +62,7 @@ private:
   IVP12DSystem( const IVP12DSystem & );
   IVP12DSystem & operator= ( const IVP12DSystem & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 private slots:
   void itemPickedPrivate(QGraphicsItem*);

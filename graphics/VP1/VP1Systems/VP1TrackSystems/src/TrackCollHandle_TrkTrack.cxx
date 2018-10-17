@@ -25,7 +25,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 //____________________________________________________________________
 class TrackCollHandle_TrkTrack::Imp {
@@ -99,16 +99,16 @@ QStringList TrackCollHandle_TrkTrack::availableCollections(IVP1System*sys)
 TrackCollHandle_TrkTrack::TrackCollHandle_TrkTrack( TrackSysCommonData * cd,
 						    const QString& name,
 						    TrackType::Type type )
-  : TrackCollHandleBase(cd,name,type), d(new Imp)
+  : TrackCollHandleBase(cd,name,type), m_d(new Imp)
 {
-  d->theclass = this;
-  d->detailLevel = TrackCommonFlags::AUTO;
+  m_d->theclass = this;
+  m_d->detailLevel = TrackCommonFlags::AUTO;
 }
 
 //____________________________________________________________________
 TrackCollHandle_TrkTrack::~TrackCollHandle_TrkTrack()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

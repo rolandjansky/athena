@@ -15,10 +15,10 @@
 #ifndef VP1TABMANAGER_H
 #define VP1TABMANAGER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QMultiMap>
-#include <QtCore/QPair>
+#include <QObject>
+#include <QStringList>
+#include <QMultiMap>
+#include <QPair>
 class VP1TabWidget;
 class VP1ChannelManager;
 class VP1DockWidget;
@@ -95,7 +95,7 @@ signals:
 
 protected:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   bool eventFilter ( QObject *, QEvent * );
   typedef QPair<QByteArray,QMultiMap<QString,QByteArray> > ChanState;

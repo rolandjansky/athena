@@ -19,7 +19,7 @@
 #define VP1RAWDATACOMMONDATA_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 class VP1RawDataHandleBase;
 class VP1RawDataSysController;
@@ -57,7 +57,7 @@ private:
   HitsSoNodeManager * m_nodeManager;
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

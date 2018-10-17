@@ -33,7 +33,7 @@
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoMaterial.h>
 
-#include <QtCore/QPair>
+#include <QPair>
 
 #include <map>
 

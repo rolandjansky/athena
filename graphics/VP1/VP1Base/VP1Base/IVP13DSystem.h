@@ -18,7 +18,7 @@
 #include "VP1Base/IVP1System.h"
 #include <vector>//fixme
 #include <set>
-#include <QtCore/QSet>
+#include <QSet>
 
 class SoPath;
 class SoNode;
@@ -114,7 +114,7 @@ private:
   IVP13DSystem( const IVP13DSystem & );
   IVP13DSystem & operator= ( const IVP13DSystem & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

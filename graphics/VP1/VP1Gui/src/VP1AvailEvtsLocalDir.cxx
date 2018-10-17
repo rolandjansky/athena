@@ -14,7 +14,8 @@
 
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
 #include "VP1LocalEvtRetriever.h"
-#include <QtCore/QStringList>
+
+#include <QStringList>
 
 //____________________________________________________________________
 class VP1AvailEvtsLocalDir::Imp {
@@ -35,7 +36,7 @@ VP1AvailEvtsLocalDir::VP1AvailEvtsLocalDir(int timeCutForNew,
 					   int maxLocalFilesToKeep,
 					   QObject * parent )
   : VP1AvailEvents(timeCutForNew,tmpcopydir,maxLocalFilesToKeep,parent),
-    d(new Imp(sourcedir+(sourcedir.endsWith("/")?"":"/")))
+    m_d(new Imp(sourcedir+(sourcedir.endsWith("/")?"":"/")))
 {
 }
 
@@ -43,40 +44,38 @@ VP1AvailEvtsLocalDir::VP1AvailEvtsLocalDir(int timeCutForNew,
 //____________________________________________________________________
 void VP1AvailEvtsLocalDir::init()
 {
-  d->retriever = new VP1LocalEvtRetriever(this,d->sourcedir); // Memleak
-  d->retriever->start();
+  m_d->retriever = new VP1LocalEvtRetriever(this,m_d->sourcedir); // Memleak
+  m_d->retriever->start();
 }
 
 //____________________________________________________________________
 VP1AvailEvtsLocalDir::~VP1AvailEvtsLocalDir()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 QString VP1AvailEvtsLocalDir::currentSourceDir() const
 {
-  return d->sourcedir;
+  return m_d->sourcedir;
 }
 
 //____________________________________________________________________
 void VP1AvailEvtsLocalDir::setSourceDir(QString dir)
 {
-  d->retriever->setSourceDir(dir);
-  d->sourcedir = dir;
+  m_d->retriever->setSourceDir(dir);
+  m_d->sourcedir = dir;
 }
 
 //____________________________________________________________________
 void VP1AvailEvtsLocalDir::setAvailableSourceDirectories(QStringList l)
 {
-  d->availablesourcedirs = l;
+  m_d->availablesourcedirs = l;
 }
 
 
 //____________________________________________________________________
 QStringList VP1AvailEvtsLocalDir::availableSourceDirectories() const
 {
-  return d->availablesourcedirs;
+  return m_d->availablesourcedirs;
 }
-
-

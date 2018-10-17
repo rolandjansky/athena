@@ -8,7 +8,7 @@
 #include "VP1Base/VP1Interval.h"
 #include <vector>
 #include <string>
-#include <QtCore/QObject>
+#include <QObject>
 
 class StoreGateSvc;
 class SoSeparator;
@@ -41,7 +41,7 @@ class VP1MbtsHelper : public QObject
 
  private:
   class Clockwork;
-  Clockwork* _clockwork;
+  Clockwork* m_clockwork;
 
   bool m_outline;
   double m_clipRadius;

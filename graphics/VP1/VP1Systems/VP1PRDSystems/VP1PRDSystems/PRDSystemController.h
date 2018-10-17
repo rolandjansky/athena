@@ -25,7 +25,7 @@
 #include "VP1PRDSystems/PRDCommonFlags.h"
 #include "VP1PRDSystems/PRDDetTypes.h"
 #include "VP1Utils/InDetProjFlags.h"
-#include <QtCore/QByteArray>
+#include <QByteArray>
 #include <set>
 class VP1CollectionWidget;
 class SoMaterial;
@@ -159,7 +159,7 @@ signals:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //For verbose output:
   template <class T> static QString toString( const T& t ) { return VP1Controller::toString(t); }//unhide base methods

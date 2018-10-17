@@ -18,12 +18,12 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 #include <QTreeWidgetItem>
 #include <vector>
 #include <set>
 #include <QList>
-#include <QtCore/QFlags>
+#include <QFlags>
 #include "xAODTracking/Vertex.h"
 #include "AODHandleBase.h"
 
@@ -80,7 +80,7 @@ private:
 
   friend class AssocObjAttachmentHandle;
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 

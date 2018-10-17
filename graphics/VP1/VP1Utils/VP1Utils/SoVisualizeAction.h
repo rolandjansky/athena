@@ -48,15 +48,15 @@ public:
 
   virtual void handleGenericTrap (const GeoGenericTrap *);
 
-  SoShape * getShape() { return _shape; }
-  void reset() { _shape = 0; }
+  SoShape * getShape() { return m_shape; }
+  void reset() { m_shape = 0; }
 
 private:
 
   SoVisualizeAction(const SoVisualizeAction &);
   const SoVisualizeAction & operator=(const SoVisualizeAction &);
 
-  SoShape *_shape;
+  SoShape *m_shape;
 };
 
 

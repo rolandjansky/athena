@@ -32,14 +32,15 @@
 
 
 StoreGateGeometryReader::StoreGateGeometryReader()
-  : newDetector(0),
-    m_pixel_manager(0),
-    m_silicon_manager(0),
-    m_trt_manager(0),
-    m_calo_manager(0),
-    m_tile_manager(0),
-    m_lar_manager(0),
-    m_detStore(0)
+  : newDetector(nullptr),
+    m_pixel_manager(nullptr),
+    m_silicon_manager(nullptr),
+    m_trt_manager(nullptr),
+    m_calo_manager(nullptr),
+    m_tile_manager(nullptr),
+    m_lar_manager(nullptr),
+    m_muon_manager(nullptr),
+    m_detStore(nullptr)
 {}
 
 const double StoreGateGeometryReader::m_smallAngle    = 0.05;

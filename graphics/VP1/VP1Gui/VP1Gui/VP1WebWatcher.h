@@ -20,7 +20,10 @@
 #ifndef VP1WEBWATCHER_H
 #define VP1WEBWATCHER_H
 
-#include <QtCore/QObject>
+#include <QObject>
+#include <QStringList>
+
+
 class QDateTime;
 
 class VP1WebWatcher : public QObject {
@@ -62,7 +65,7 @@ protected:
   void timerEvent(QTimerEvent*);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

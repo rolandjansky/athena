@@ -18,11 +18,11 @@
 #define VP1CUSTOMTOUREDITOR_H
 
 #include "VP1Gui/VP1EventDisplaySceneView.h"
+
 #include "VP1Base/IVP1ChannelWidget.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtGui/QWidget>
-
+#include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
@@ -69,22 +69,22 @@ private:
 	void addTextLabel(QString text, QFont font);
 
 	class Imp;
-	Imp * d;
-	QGraphicsScene* scene;
+	Imp * m_d;
+	QGraphicsScene* m_scene;
 //	QGraphicsScene* scene_preview;
-	QList< QGraphicsItem* > sceneItems;
+	QList< QGraphicsItem* > m_sceneItems;
 //	QGraphicsItem *itemPreview;
 
-	VP1EventDisplaySceneView* preview;
+	VP1EventDisplaySceneView* m_preview;
 
-	QStringList _listTabNames;
-	QList<IVP1ChannelWidget*> _allTabs;
+	QStringList m_listTabNames;
+	QList<IVP1ChannelWidget*> m_allTabs;
 
-	VP1MainWindow* _mainWindow;
+	VP1MainWindow* m_mainWindow;
 
-	int _runNumber;
-	unsigned long long _eventNumber;
-	unsigned _eventTimestamp;
+	int m_runNumber;
+	unsigned long long m_eventNumber;
+	unsigned m_eventTimestamp;
 
 //	QSplitter *h1Splitter;
 //	QSplitter *h2Splitter;

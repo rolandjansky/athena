@@ -21,25 +21,22 @@
 #include "VP1Base/VP1EtaPhiCutWidget.h"
 #include "VP1Base/VP1DrawOptionsWidget.h"
 #include "VP1Base/VP1CollectionSettingsButtonBase.h"
-//#include "VP1AODSystems/JetCollectionSettingsButton.h"
-
 
 #include <Inventor/nodes/SoMaterial.h>
 
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QDataStream>
-#include <QtCore/QSet>
-
-#include <QtGui/QCheckBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QLineEdit>
-#include <QtGui/QDoubleSpinBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QSlider>
-#include <QtGui/QToolBox>
-#include <QtGui/QRadioButton>
+#include <QBuffer>
+#include <QByteArray>
+#include <QDataStream>
+#include <QSet>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QSlider>
+#include <QToolBox>
+#include <QRadioButton>
 
 //____________________________________________________________________
 class VP1Serialise::Imp {
@@ -86,57 +83,57 @@ void VP1Serialise::decrementNumberOfInstantiations()
 
 //____________________________________________________________________
 VP1Serialise::VP1Serialise(qint32 version, IVP1System * sys)
-  : VP1HelperClassBase(sys,"VP1Serialise"), d(new Imp(this))
+  : VP1HelperClassBase(sys,"VP1Serialise"), m_d(new Imp(this))
 {
   ++(Imp::numberOfInstantiations);
 
-  d->byteArray.clear();
-  d->buffer = new QBuffer(&d->byteArray);
-  d->buffer->open(QIODevice::WriteOnly);
-  d->state = new QDataStream(d->buffer);
-  d->version = version;
+  m_d->byteArray.clear();
+  m_d->buffer = new QBuffer(&m_d->byteArray);
+  m_d->buffer->open(QIODevice::WriteOnly);
+  m_d->state = new QDataStream(m_d->buffer);
+  m_d->version = version;
   save(version);
 }
 
 //____________________________________________________________________
 VP1Serialise::~VP1Serialise()
 {
-  if (!d->checkedUnused)
+  if (!m_d->checkedUnused)
     message("WARNING: warnUnsaved(..) was never called!");
 
-  d->buffer->close();
-  delete d->state;
-  d->state = 0;
-  delete d->buffer;
-  d->buffer = 0;
-  delete d;
+  m_d->buffer->close();
+  delete m_d->state;
+  m_d->state = 0;
+  delete m_d->buffer;
+  m_d->buffer = 0;
+  delete m_d;
 }
 
 //____________________________________________________________________
 QDataStream * VP1Serialise::stream()
 {
-  return d->state;
+  return m_d->state;
 }
 
 
 //____________________________________________________________________
 qint32 VP1Serialise::version() const
 {
-  return d->version;
+  return m_d->version;
 }
 
 
 //____________________________________________________________________
 QByteArray VP1Serialise::result()
 {
-  return d->byteArray;
+  return m_d->byteArray;
 }
 
 //____________________________________________________________________
 void VP1Serialise::save(QCheckBox*cb)
 {
 	messageDebug("VP1Serialise::save(QCheckBox) - name: " + cb->objectName());
-  d->handle(cb);
+  m_d->handle(cb);
   save(cb->isChecked());
 }
 
@@ -146,7 +143,7 @@ void VP1Serialise::save(QGroupBox*gb)
 	messageDebug("VP1Serialise::save(QGroupBox) - name: " + gb->objectName());
   if (!gb->isCheckable())
     message("WARNING: Asked to handled GroupBox which is not checkable: "+gb->objectName());
-  d->handle(gb);
+  m_d->handle(gb);
   save(gb->isChecked());
 }
 
@@ -154,7 +151,7 @@ void VP1Serialise::save(QGroupBox*gb)
 void VP1Serialise::save(QComboBox*cb)
 {
 	messageDebug("VP1Serialise::save(QComboBox) - name: " + cb->objectName());
-  d->handle(cb);
+  m_d->handle(cb);
   save( cb->count() > 0 ? cb->currentText() : QString() );
 }
 
@@ -162,7 +159,7 @@ void VP1Serialise::save(QComboBox*cb)
 void VP1Serialise::save(QLineEdit* le)
 {
 	messageDebug("\nVP1Serialise::save(QLineEdit) - name: " + le->objectName());
-  d->handle(le);
+  m_d->handle(le);
   save( le->text() );
 }
 
@@ -170,7 +167,7 @@ void VP1Serialise::save(QLineEdit* le)
 void VP1Serialise::save(QDoubleSpinBox*sb,const double& unit)
 {
 	messageDebug("\nVP1Serialise::save(QDoubleSpinBox) - name: " + sb->objectName());
-  d->handle(sb);
+  m_d->handle(sb);
   save(unit==1.0 ? sb->value() : sb->value() * unit );
 }
 
@@ -178,7 +175,7 @@ void VP1Serialise::save(QDoubleSpinBox*sb,const double& unit)
 void VP1Serialise::save(QSpinBox*sb)
 {
 	messageDebug("\nVP1Serialise::save(QSpinBox) - name: " + sb->objectName());
-  d->handle(sb);
+  m_d->handle(sb);
   save(sb->value());
 }
 
@@ -186,7 +183,7 @@ void VP1Serialise::save(QSpinBox*sb)
 void VP1Serialise::save(QSlider*s)
 {
 	messageDebug("\nVP1Serialise::save(QSlider) - name: " + s->objectName());
-  d->handle(s);
+  m_d->handle(s);
   save(s->value());
 }
 
@@ -195,7 +192,7 @@ void VP1Serialise::save(bool b)
 {
   if (verbose())
     messageVerbose("Saving bool "+str(b));
-  (*d->state) << b;
+  (*m_d->state) << b;
 }
 
 //____________________________________________________________________
@@ -203,7 +200,7 @@ void VP1Serialise::save(qint32 i)
 {
   if (verbose())
     messageVerbose("Saving int "+str(i));
-  (*d->state) << i;
+  (*m_d->state) << i;
 }
 
 //____________________________________________________________________
@@ -211,7 +208,7 @@ void VP1Serialise::save(const double& dbl)
 {
   if (verbose())
     messageVerbose("Saving double "+str(dbl));
-  (*(d->state)) << dbl;
+  (*(m_d->state)) << dbl;
 }
 
 //____________________________________________________________________
@@ -219,7 +216,7 @@ void VP1Serialise::save(const QString& s)
 {
   if (verbose())
     messageVerbose("Saving string "+s);
-  (*(d->state)) << s;
+  (*(m_d->state)) << s;
 }
 
 //____________________________________________________________________
@@ -227,14 +224,14 @@ void VP1Serialise::save(const QByteArray& ba)
 {
   if (verbose())
     messageVerbose("Saving byte array (length = "+QString::number(ba.count())+")");
-  (*(d->state)) << ba;
+  (*(m_d->state)) << ba;
 }
 
 //____________________________________________________________________
 void VP1Serialise::save(QToolBox*tb)
 {
 	messageDebug("\nVP1Serialise::save(QToolBox) - name: " + tb->objectName());
-  d->handle(tb);
+  m_d->handle(tb);
   save( tb && tb->count() > 0 ? tb->currentIndex() : -1 );
 }
 
@@ -242,7 +239,7 @@ void VP1Serialise::save(QToolBox*tb)
 void VP1Serialise::saveByTitle(QToolBox* tb)
 {
 	messageDebug("\nVP1Serialise::save(QToolBox) - name: " + tb->objectName());
-  d->handle(tb);
+  m_d->handle(tb);
   int i = tb ? tb->currentIndex() : -1;
   save( i>=0 && i<tb->count() ? tb->itemText(i) : QString() );
 }
@@ -264,7 +261,7 @@ void VP1Serialise::save(SoMaterial* m)
 void VP1Serialise::save(const VP1MaterialButton*mb)
 {
 	messageDebug("\nVP1Serialise::save(VP1MaterialButton) - name: " + mb->objectName());
-  d->handle(mb);
+  m_d->handle(mb);
   QList<SoMaterial*> mats = mb ? mb->handledMaterials() : QList<SoMaterial*>();
   save(mats.isEmpty() ? 0 : mats.at(0));
 }
@@ -275,14 +272,14 @@ void VP1Serialise::save(const QColor& c)
 	messageDebug("\nVP1Serialise::save(QColor) - name: " + c.name());
   if (verbose())
     messageVerbose("Saving color "+str(c));
-  (*d->state) << c;
+  (*m_d->state) << c;
 }
 
 //____________________________________________________________________
 void VP1Serialise::save(VP1ColorSelectButton* cb)
 {
 	messageDebug("\nVP1Serialise::save(VP1ColorSelectButton) - name: " + cb->objectName());
-  d->handle(cb);
+  m_d->handle(cb);
   save(cb ? cb->color() : QColor());
 }
 
@@ -290,10 +287,10 @@ void VP1Serialise::save(VP1ColorSelectButton* cb)
 void VP1Serialise::save(const PhiSectionWidget*phi)
 {
 	messageDebug("\nVP1Serialise::save(PhiSectionWidget) - name: " + phi->objectName());
-  d->handle(phi);
+  m_d->handle(phi);
   if (verbose())
     messageVerbose("Saving phisection widget state");
-  (*(d->state)) << (phi ? phi->state() : QByteArray());
+  (*(m_d->state)) << (phi ? phi->state() : QByteArray());
 }
 
 //____________________________________________________________________
@@ -313,7 +310,7 @@ void VP1Serialise::save( QRadioButton * rb0,
   for (qint32 i = 0; i < l.count(); ++i) {
     if (l.at(i)) {
       messageDebug("\nVP1Serialise::save(QRadioButton) - name: " + l.at(i)->objectName());
-      d->handle(l.at(i));
+      m_d->handle(l.at(i));
     }
   }
   qint32 ichecked(-1);
@@ -331,7 +328,7 @@ void VP1Serialise::save(const VP1CollectionWidget*cw)
 {
 	messageDebug("\nVP1Serialise::save(VP1CollectionWidget) - name: " + cw->objectName());
 	messageDebug("VP1Serialise::save(VP1CollectionWidget)- start...");
-  d->handle(cw);
+  m_d->handle(cw);
   ignoreWidget(cw);//To ignore all children of the collection widget.
   QByteArray ba;
   QBuffer buffer(&ba);
@@ -347,7 +344,7 @@ void VP1Serialise::save(const VP1CollectionWidget*cw)
 ////____________________________________________________________________
 //void VP1Serialise::save(const JetCollectionSettingsButton* jcb)
 //{
-//  d->handle(jcb);
+//  m_d->handle(jcb);
 //  ignoreWidget(jcb);//To ignore all children of the etaphicut widget.
 //  save(jcb ? jcb->saveState() : QByteArray());
 //}
@@ -356,7 +353,7 @@ void VP1Serialise::save(const VP1CollectionSettingsButtonBase* jcb)
 {
 	messageDebug("\nVP1Serialise::save(VP1CollectionSettingsButtonBase) - name: " + jcb->objectName());
 	messageDebug("VP1Serialise::save(VP1CollectionSettingsButtonBase)- start...");
-  d->handle(jcb);
+  m_d->handle(jcb);
   ignoreWidget(jcb);//To ignore all children of the etaphicut widget.
   save(jcb ? jcb->saveState() : QByteArray());
   messageDebug("VP1Serialise::save(VP1CollectionSettingsButtonBase)- end.");
@@ -367,7 +364,7 @@ void VP1Serialise::save(const VP1CollectionSettingsButtonBase* jcb)
 void VP1Serialise::save(const VP1EtaPhiCutWidget*w)
 {
 	messageDebug("\nVP1Serialise::save(VP1EtaPhiCutWidget) - name: " + w->objectName());
-  d->handle(w);
+  m_d->handle(w);
   ignoreWidget(w);//To ignore all children of the etaphicut widget.
   save(w ? w->saveState() : QByteArray());
 }
@@ -376,7 +373,7 @@ void VP1Serialise::save(const VP1EtaPhiCutWidget*w)
 void VP1Serialise::save(const VP1DrawOptionsWidget*w)
 {
 	messageDebug("\nVP1Serialise::save(VP1DrawOptionsWidget) - name: " + w->objectName());
-  d->handle(w);
+  m_d->handle(w);
   ignoreWidget(w);//To ignore all children of the draw options widget.
   save(w ? w->state() : QByteArray());
 }
@@ -386,13 +383,13 @@ void VP1Serialise::ignoreWidget(const QWidget*w)
 {
 	messageDebug("\nVP1Serialise::ignoreWidget(QWidget) - name: " + w->objectName());
   if (w)
-    d->ignoredWidgets.insert(w);
+    m_d->ignoredWidgets.insert(w);
 }
 
 //____________________________________________________________________
 void VP1Serialise::widgetHandled(const QWidget*w)
 {
-  d->handle(w);
+  m_d->handle(w);
 }
 
 //____________________________________________________________________
@@ -424,7 +421,7 @@ bool VP1Serialise::Imp::expectsPersistification(const QWidget*w)
 //____________________________________________________________________
 void VP1Serialise::disableUnsavedChecks()
 {
-  d->checkedUnused = true;
+  m_d->checkedUnused = true;
 }
 
 //____________________________________________________________________
@@ -432,18 +429,18 @@ void VP1Serialise::warnUnsaved(const QObject* object)
 {
   //NB: Same code as in VP1Deserialise::warnUnrestored
 
-  if (!d->checkedUnused)
-    d->checkedUnused = true;
+  if (!m_d->checkedUnused)
+    m_d->checkedUnused = true;
 
   if (!object)
     return;
 
-  if (object->isWidgetType()&&d->ignoredWidgets.contains(static_cast<const QWidget*>(object)))
+  if (object->isWidgetType()&&m_d->ignoredWidgets.contains(static_cast<const QWidget*>(object)))
 	  return;
 
   if (object->isWidgetType()&&!object->objectName().startsWith("qt_")) {
 	  const QWidget * wid = static_cast<const QWidget*>(object);
-	  if (!d->handledWidgets.contains(wid)&&d->expectsPersistification(wid)) {
+	  if (!m_d->handledWidgets.contains(wid)&&m_d->expectsPersistification(wid)) {
 		  QString s("WARNING Unsaved widget of type: "+QString(wid->metaObject()->className())+" and object name = "+wid->objectName());
 		  if (verbose())
 			  message(s);

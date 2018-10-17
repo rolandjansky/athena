@@ -44,19 +44,19 @@
 SO_NODE_SOURCE(SoPolyhedron)
 
 //____________________________________________________________________
-bool SoPolyhedron::didInit = false;
+bool SoPolyhedron::s_didInit = false;
 void SoPolyhedron::initClass()
 {
-  if ( !didInit ) {
+  if ( !s_didInit ) {
     SO_NODE_INIT_CLASS(SoPolyhedron,SoShape,"Shape");
-    didInit = true;
+    s_didInit = true;
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 SoPolyhedron::SoPolyhedron(
 )
-:fPolyhedron(0), m_vertices(0), m_indices(0), m_vcount(0), m_icount(0)
+:m_polyhedron(0), m_vertices(0), m_indices(0), m_vcount(0), m_icount(0)
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
@@ -70,7 +70,7 @@ SoPolyhedron::SoPolyhedron(
 SoPolyhedron::SoPolyhedron(
  const SbPolyhedron& aPolyhedron
 )
-:fPolyhedron(0), m_vertices(0), m_indices(0), m_vcount(0), m_icount(0)
+:m_polyhedron(0), m_vertices(0), m_indices(0), m_vcount(0), m_icount(0)
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
@@ -79,15 +79,15 @@ SoPolyhedron::SoPolyhedron(
   //  SO_NODE_ADD_FIELD(reducedWireFrame,(TRUE));
   SO_NODE_ADD_FIELD(alternateRep,(NULL));
 
-  fPolyhedron = new SbPolyhedron(aPolyhedron);
+  m_polyhedron = new SbPolyhedron(aPolyhedron);
   setNodeType(EXTENSION);
-  makeShape(fPolyhedron);
+  makeShape(m_polyhedron);
 }
 //////////////////////////////////////////////////////////////////////////////
 SoPolyhedron::SoPolyhedron(
  const SbPolyhedron* aPolyhedron
 )
-:fPolyhedron(0), m_vertices(0), m_indices(0), m_vcount(0), m_icount(0)
+:m_polyhedron(0), m_vertices(0), m_indices(0), m_vcount(0), m_icount(0)
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
@@ -96,9 +96,9 @@ SoPolyhedron::SoPolyhedron(
   //  SO_NODE_ADD_FIELD(reducedWireFrame,(TRUE));
   SO_NODE_ADD_FIELD(alternateRep,(NULL));
 
-  fPolyhedron = new SbPolyhedron(*aPolyhedron);
+  m_polyhedron = new SbPolyhedron(*aPolyhedron);
   setNodeType(EXTENSION);
-  makeShape(fPolyhedron);
+  makeShape(m_polyhedron);
 }
 //////////////////////////////////////////////////////////////////////////////
 SoPolyhedron::~SoPolyhedron(
@@ -106,7 +106,7 @@ SoPolyhedron::~SoPolyhedron(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  delete fPolyhedron;
+  delete m_polyhedron;
   if(m_vertices)
    delete [] m_vertices;
   if(m_indices)
@@ -119,8 +119,8 @@ void SoPolyhedron::generatePrimitives(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if(!fPolyhedron) return;
-  if(fPolyhedron->GetNoFacets()<=0) return; // Abnormal polyhedron.
+  if(!m_polyhedron) return;
+  if(m_polyhedron->GetNoFacets()<=0) return; // Abnormal polyhedron.
 
   SoState *state = aAction->getState();
   if (!state)
@@ -166,14 +166,14 @@ void SoPolyhedron::generatePrimitives(
     bool notLastFace;
     do {
       HVNormal3D unitNormal;
-      notLastFace = fPolyhedron->GetNextUnitNormal(unitNormal);
+      notLastFace = m_polyhedron->GetNextUnitNormal(unitNormal);
 
       beginShape(aAction,POLYGON);
       bool notLastEdge;
       int edgeFlag = 1;
       do {
         HVPoint3D vertex;
-        notLastEdge = fPolyhedron->GetNextVertex(vertex,edgeFlag);
+        notLastEdge = m_polyhedron->GetNextVertex(vertex,edgeFlag);
         GEN_VERTEX(pv,
                    vertex[0],
                    vertex[1],
@@ -219,7 +219,7 @@ void SoPolyhedron::generatePrimitives(
 //     bool notLastFace;
 //     do {
 //       HVNormal3D unitNormal;
-//       notLastFace = fPolyhedron->GetNextUnitNormal(unitNormal);
+//       notLastFace = m_polyhedron->GetNextUnitNormal(unitNormal);
 
 //       SbVec3f normal;
 //       if( false ) {
@@ -235,7 +235,7 @@ void SoPolyhedron::generatePrimitives(
 //       SbBool firstEdge = TRUE;
 //       do {
 //         HVPoint3D vertex;
-//         notLastEdge = fPolyhedron->GetNextVertex(vertex,edgeFlag);
+//         notLastEdge = m_polyhedron->GetNextVertex(vertex,edgeFlag);
 //         if(reducedWireFrame.getValue()==FALSE) edgeFlag = 1;
 //         if(firstEdge) {
 //           if(edgeFlag) {
@@ -295,8 +295,8 @@ void SoPolyhedron::computeBBox(
 //////////////////////////////////////////////////////////////////////////////
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
 {
-  if(!fPolyhedron) return;
-  if(fPolyhedron->GetNoFacets()<=0) { // Abnormal polyhedron.
+  if(!m_polyhedron) return;
+  if(m_polyhedron->GetNoFacets()<=0) { // Abnormal polyhedron.
     SbVec3f vmin(-1,-1,-1);
     SbVec3f vmax( 1, 1, 1);
     aBox.setBounds(vmin,vmax);
@@ -314,12 +314,12 @@ void SoPolyhedron::computeBBox(
     bool notLastFace;
     do {
       HVNormal3D unitNormal;
-      notLastFace = fPolyhedron->GetNextUnitNormal(unitNormal);
+      notLastFace = m_polyhedron->GetNextUnitNormal(unitNormal);
       bool notLastEdge;
       do {
         HVPoint3D vertex;
         int edgeFlag = 1;
-        notLastEdge = fPolyhedron->GetNextVertex(vertex,edgeFlag);
+        notLastEdge = m_polyhedron->GetNextVertex(vertex,edgeFlag);
         point.setValue(vertex[0],vertex[1],vertex[2]);
         //DONOTHING projector.project(1,&point);
         if(first==TRUE) {
@@ -379,26 +379,26 @@ void SoPolyhedron::generateAlternateRep()
 {
  if (alternateRep.getValue())
   clearAlternateRep();
- if( fPolyhedron && ( fPolyhedron->GetNoFacets() > 0 ) ){
+ if( m_polyhedron && ( m_polyhedron->GetNoFacets() > 0 ) ){
   //SoSeparator *sep = new SoSeparator;
   SoVertexProperty *vertices = new SoVertexProperty();
 
   //Retreive geometry from polyhedron
-  int vno = fPolyhedron->GetNoVertices();
+  int vno = m_polyhedron->GetNoVertices();
   for(int i = 0; i < vno; i++){
    HVPoint3D vertex;
-   vertex = fPolyhedron->GetVertex(i + 1);
+   vertex = m_polyhedron->GetVertex(i + 1);
    vertices->vertex.set1Value (i, vertex[0], vertex[1], vertex[2]);
   }
 
-  int  fno = fPolyhedron->GetNoFacets();
+  int  fno = m_polyhedron->GetNoFacets();
   int  fcr = 0;
   int* aface = new int[8 * fno];
   for(int i = 0; i < fno; i++){
 	  int n, inodes[4];
-	  //SbVec3d nr = fPolyhedron->GetNormal(i + 1); // not used, gives warning, commenting out:
+	  //SbVec3d nr = m_polyhedron->GetNormal(i + 1); // not used, gives warning, commenting out:
 	  //---
-	  fPolyhedron->GetFacet(i + 1, n, inodes);
+	  m_polyhedron->GetFacet(i + 1, n, inodes);
 	  aface[fcr] = (inodes[0] <= vno) ? (inodes[0] - 1) : (0); fcr++;
 	  aface[fcr] = (inodes[1] <= vno) ? (inodes[1] - 1) : (0); fcr++;
 	  aface[fcr] = (inodes[2] <= vno) ? (inodes[2] - 1) : (0); fcr++;
@@ -442,7 +442,7 @@ inline long SoPolyhedron::hasVertex(Vertex* vertices, long len, Vertex& v){
 /*
 void SoPolyhedron::makeShape(SbPolyhedron* sp)
 {
- if(!sp || (fPolyhedron->GetNoFacets() < 1))
+ if(!sp || (m_polyhedron->GetNoFacets() < 1))
   return;
 
  if(m_vertices){
@@ -457,11 +457,11 @@ void SoPolyhedron::makeShape(SbPolyhedron* sp)
   m_icount = 0;
  }
 
- int   fno = fPolyhedron->GetNoFacets();
+ int   fno = m_polyhedron->GetNoFacets();
  long  faces = 0;	//this is primitive face(triangle)
  for(int i = 0; i < fno; i++){
   int n, inodes[4];
-  fPolyhedron->GetFacet(i + 1, n, inodes);
+  m_polyhedron->GetFacet(i + 1, n, inodes);
   if(n == 3)
    faces += 1;
   else if(n == 4)
@@ -479,12 +479,12 @@ void SoPolyhedron::makeShape(SbPolyhedron* sp)
  long    vidx = 0;
  for(int i = 0; i < fno; i++){
   int n, inodes[4];
-  SbVec3f nor = fPolyhedron->GetNormal(i + 1);
-  fPolyhedron->GetFacet(i + 1, n, inodes);
+  SbVec3f nor = m_polyhedron->GetNormal(i + 1);
+  m_polyhedron->GetFacet(i + 1, n, inodes);
 
   for(int j = 0; j < n; j++){
    Vertex v;
-   SbVec3f pos = fPolyhedron->GetVertex(inodes[j]);
+   SbVec3f pos = m_polyhedron->GetVertex(inodes[j]);
    v.pos[0] = pos[0], v.pos[1] = pos[1], v.pos[2] = pos[2];
    v.nor[0] = nor[0], v.nor[1] = nor[1], v.nor[2] = nor[2];
    long iarr = hasVertex(varr, vidx, v);
@@ -521,7 +521,7 @@ void SoPolyhedron::makeShape(SbPolyhedron* sp)
 ///*
 void SoPolyhedron::makeShape(SbPolyhedron* sp)
 {
- if(!sp || (fPolyhedron->GetNoFacets() < 1))
+ if(!sp || (m_polyhedron->GetNoFacets() < 1))
   return;
 
  if(m_vertices){
@@ -536,11 +536,11 @@ void SoPolyhedron::makeShape(SbPolyhedron* sp)
   m_icount = 0;
  }
 
- int   fno = fPolyhedron->GetNoFacets();
+ int   fno = m_polyhedron->GetNoFacets();
  long  faces = 0;	//this is primitive face(triangle)
  for(int i = 0; i < fno; i++){
   int n, inodes[4];
-  fPolyhedron->GetFacet(i + 1, n, inodes);
+  m_polyhedron->GetFacet(i + 1, n, inodes);
   if(n == 3)
    faces += 1;
   else if(n == 4)
@@ -551,7 +551,7 @@ void SoPolyhedron::makeShape(SbPolyhedron* sp)
   return;
 
  long fcr = 0;
- long vno = fPolyhedron->GetNoVertices();
+ long vno = m_polyhedron->GetNoVertices();
  m_vcount = 3 * faces;
  m_vertices = new Vertex[m_vcount];
  for(int i = 0; i < fno; i++){
@@ -559,15 +559,15 @@ void SoPolyhedron::makeShape(SbPolyhedron* sp)
   HVPoint3D  pos[4];
 
   // rbianchi
-  //  SbVec3f nor = fPolyhedron->GetNormal(i + 1);
-  HVNormal3D nor = fPolyhedron->GetNormal(i + 1);
+  //  SbVec3f nor = m_polyhedron->GetNormal(i + 1);
+  HVNormal3D nor = m_polyhedron->GetNormal(i + 1);
   //---
-  fPolyhedron->GetFacet(i + 1, n, inodes);
-  pos[0] = (inodes[0] <= vno) ? (fPolyhedron->GetVertex(inodes[0])) : (fPolyhedron->GetVertex(1));
-  pos[1] = (inodes[1] <= vno) ? (fPolyhedron->GetVertex(inodes[1])) : (fPolyhedron->GetVertex(1));
-  pos[2] = (inodes[2] <= vno) ? (fPolyhedron->GetVertex(inodes[2])) : (fPolyhedron->GetVertex(1));
+  m_polyhedron->GetFacet(i + 1, n, inodes);
+  pos[0] = (inodes[0] <= vno) ? (m_polyhedron->GetVertex(inodes[0])) : (m_polyhedron->GetVertex(1));
+  pos[1] = (inodes[1] <= vno) ? (m_polyhedron->GetVertex(inodes[1])) : (m_polyhedron->GetVertex(1));
+  pos[2] = (inodes[2] <= vno) ? (m_polyhedron->GetVertex(inodes[2])) : (m_polyhedron->GetVertex(1));
   if(n == 4)
-   pos[3] = (inodes[3] <= vno) ? (fPolyhedron->GetVertex(inodes[3])) : (fPolyhedron->GetVertex(1));
+   pos[3] = (inodes[3] <= vno) ? (m_polyhedron->GetVertex(inodes[3])) : (m_polyhedron->GetVertex(1));
 
   if(n >= 3){
    m_vertices[fcr].pos[0] = pos[0][0]; m_vertices[fcr].nor[0] = nor[0];

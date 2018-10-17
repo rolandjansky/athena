@@ -18,7 +18,7 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 #include <vector>
 #include <map>
@@ -74,7 +74,7 @@ private slots:
 private:
     
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

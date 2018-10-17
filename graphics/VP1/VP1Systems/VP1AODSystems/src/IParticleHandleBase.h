@@ -18,12 +18,12 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 #include <QTreeWidgetItem>
 #include <vector>
 #include <set>
 #include <QList>
-#include <QtCore/QFlags>
+#include <QFlags>
 #include "AODHandleBase.h"
 
 class AssocObjAttachmentHandle;
@@ -68,7 +68,7 @@ private:
   IParticleHandleBase & operator= (const IParticleHandleBase & );
 
   class Imp;
-  Imp * d;  
+  Imp * m_d;
 };
 
 

@@ -65,7 +65,7 @@ private:
   void fillSiValues(Identifier& id, const Trk::TrkDetElementBase* baseDetEl, double& striplength, double& stripWidth, double& stripThickness,   Amg::Vector2D*& localposStrip);
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

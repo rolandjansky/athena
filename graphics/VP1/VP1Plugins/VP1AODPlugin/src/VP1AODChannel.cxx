@@ -17,3 +17,4 @@ void VP1AODChannel::init()
   VP1GuideLineSystem * guidelinesystem = new VP1GuideLineSystem;
   addSystem(guidelinesystem);
 }
+

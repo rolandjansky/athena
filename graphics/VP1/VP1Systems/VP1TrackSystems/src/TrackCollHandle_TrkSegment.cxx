@@ -85,14 +85,14 @@ QStringList TrackCollHandle_TrkSegment::availableCollections(IVP1System*sys)
 //____________________________________________________________________
 TrackCollHandle_TrkSegment::TrackCollHandle_TrkSegment(TrackSysCommonData * cd,
 						       const QString& name)
-  : TrackCollHandleBase(cd,name,TrackType::TrkSegment), d(new Imp)
+  : TrackCollHandleBase(cd,name,TrackType::TrkSegment), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 TrackCollHandle_TrkSegment::~TrackCollHandle_TrkSegment()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

@@ -38,7 +38,7 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 
-#include <QtCore/QPair>
+#include <QPair>
 #include <map>
 
 

@@ -15,7 +15,7 @@
 #ifndef IVP1CHANNELWIDGETFACTORY_H
 #define IVP1CHANNELWIDGETFACTORY_H
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 class QString;
 class QStringList;

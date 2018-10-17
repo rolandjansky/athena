@@ -111,7 +111,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
     
   private slots:
   //	void updateTrackDrawStyle();
@@ -141,7 +141,9 @@ private:
   void enableRandomColours(bool);
 
   void emitRerandomise();
-  //	void emitMaxR();
+
+  void checkSelection();
+
     
 };
 

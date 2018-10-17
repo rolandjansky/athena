@@ -130,20 +130,20 @@ QStringList PRDHandle_RPC::clicked() const
     const RpcIdHelper * idhelper = VP1DetInfo::rpcIDHelper();
     if (!idhelper)
       return QStringList("Null PRD");
-      std::ostringstream os;
-      Identifier id = m_rpc->identify();
+    std::ostringstream os;
+    Identifier id = m_rpc->identify();
 
-      os << "RpcPrepData with Identifier ["<<id.get_compact()  ;
-      os << "] = [" << (idhelper->print_to_string(id)).c_str()  ;
-      os << "]\n at global position = [" << m_rpc->globalPosition()<<"], local position = ["<<m_rpc->localPosition()<<"].";
-      os <<"\nTime: "<<m_rpc->time();
-      os <<", Trigger info: "<<m_rpc->triggerInfo();
-      os <<", Ambiguity Flag: 0x"<<std::hex<<m_rpc->ambiguityFlag()<<std::dec;
-      os << ". Rdo list= [";
-      for( unsigned int i=0;i<m_rpc->rdoList().size();++i) os << m_rpc->rdoList()[i] << " , ";
-      os << "].";
-      QStringList l(QString(os.str().c_str()));
-      //    if (detailed) l << PRDHandleBase::clicked() ;
+    os << "RpcPrepData with Identifier ["<<id.get_compact()  ;
+    os << "] = [" << (idhelper->print_to_string(id)).c_str()  ;
+    os << "]\n at global position = [" << m_rpc->globalPosition()<<"], local position = ["<<m_rpc->localPosition()<<"].";
+    os <<"\nTime: "<<m_rpc->time();
+    os <<", Trigger info: "<<m_rpc->triggerInfo();
+    os <<", Ambiguity Flag: 0x"<<std::hex<<m_rpc->ambiguityFlag()<<std::dec;
+    os << ". Rdo list= [";
+    for( unsigned int i=0;i<m_rpc->rdoList().size();++i) os << m_rpc->rdoList()[i] << " , ";
+    os << "].";
+    QStringList l(QString(os.str().c_str()));
+    //    if (detailed) l << PRDHandleBase::clicked() ;
 
-      return l;
+    return l;
 }

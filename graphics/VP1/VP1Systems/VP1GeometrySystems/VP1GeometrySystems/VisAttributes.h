@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GEOVISATTRIBUTES_H_
-#define _GEOVISATTRIBUTES_H_
+#ifndef VP1GEOMETRYSYSTEMS_GEOVISATTRIBUTES_H
+#define VP1GEOMETRYSYSTEMS_GEOVISATTRIBUTES_H
 
 #include <string>
-#include <QtCore/QByteArray>
-#include <QtCore/QMap>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QMap>
+#include <QString>
 class SoMaterial;
 
 class VisAttributes {
@@ -17,6 +17,10 @@ class VisAttributes {
 
   // Constructor:
   VisAttributes();
+  //delete copy
+  VisAttributes(const VisAttributes &) = delete;
+  //delete assignment
+  VisAttributes & operator=(const VisAttributes &)=delete;
   void init();//Call at end of constructor in derived classes.
   // Destructor:
   virtual ~VisAttributes();
@@ -38,7 +42,7 @@ class VisAttributes {
  private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 
 };

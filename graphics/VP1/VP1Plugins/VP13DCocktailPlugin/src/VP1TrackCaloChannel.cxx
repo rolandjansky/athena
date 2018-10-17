@@ -11,13 +11,15 @@
 #include "VP1PRDSystems/VP1PrepRawDataSystem.h"
 //#include "VP1FatrasSystems/VP1FatrasSingleTrackSimSystem.h" // TODO: to be updated when the new Fatras will be available
 
-#include "VP1CaloClusterSystems/VP1CaloClusterSystem.h"
+//#include "VP1CaloClusterSystems/VP1CaloClusterSystem.h" // it's now in the xAOD/VP1AODSystems
+#include "VP1AODSystems/VP1AODSystem.h"
+
 #include "VP1PlugUtils/VP1SysConf.h"
 
 VP1TrackCaloChannel::VP1TrackCaloChannel()
   : IVP13DStandardChannelWidget(VP1CHANNELNAMEINPLUGIN(VP1TrackCaloChannel,"TrackCalo"),
                 "This channel displays various systems related to Tracking and Calo.",
-                "Thomas.Kittelmann@cern.ch, Edward.moyse@cern.ch, Vakhtang.Tsulaia@cern.ch")
+                "Riccardo.Maria.Bianchi@cern.ch, Thomas.Kittelmann@cern.ch, Edward.moyse@cern.ch, Vakhtang.Tsulaia@cern.ch")
 {
 }
 
@@ -44,7 +46,9 @@ void VP1TrackCaloChannel::init()
   addSystem(prdsys);
 
   addSystem(new VP1CaloCellSystem());
-  addSystem(new VP1CaloClusterSystem,IVP13DStandardChannelWidget::StartDisabled);
+
+//  addSystem(new VP1CaloClusterSystem,IVP13DStandardChannelWidget::StartDisabled);
+  addSystem(new VP1AODSystem,IVP13DStandardChannelWidget::StartDisabled);
 
   foreach(QString n,VP1SysConf::extraGeometrySystems())
     addSystem(new VP1GeometrySystem(VP1GeoFlags::None,n),IVP13DStandardChannelWidget::StartDisabled);

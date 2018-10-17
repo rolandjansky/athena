@@ -58,7 +58,7 @@ VP1TrackingVolumes::VP1TrackingVolumes(		SoMaterial * materialID,SoMaterial * ma
              bool showID, bool showCalo, bool showMS,
 				     SoSeparator * attachsep,
 				     IVP1System * sys,QObject * parent)
-  : QObject(parent), VP1HelperClassBase(sys,"VP1TrackingVolumes"), d(new Imp(this,materialID, materialCalo, materialMS, attachsep, showID, showCalo, showMS))
+  : QObject(parent), VP1HelperClassBase(sys,"VP1TrackingVolumes"), m_d(new Imp(this,materialID, materialCalo, materialMS, attachsep, showID, showCalo, showMS))
 {
 }
 
@@ -67,19 +67,19 @@ VP1TrackingVolumes::~VP1TrackingVolumes()
 {
 
   setShown(false);
-  if (d->sepID)
-    d->sepID->unref();
-  if (d->sepCalo)
-    d->sepCalo->unref();
-  if (d->sepMS)
-    d->sepMS->unref();
+  if (m_d->sepID)
+    m_d->sepID->unref();
+  if (m_d->sepCalo)
+    m_d->sepCalo->unref();
+  if (m_d->sepMS)
+    m_d->sepMS->unref();
 
-  if (d->sep)
-    d->sep->unref();
-  std::cout<<"d->attachSep"<<std::endl;
+  if (m_d->sep)
+    m_d->sep->unref();
+  std::cout<<"m_d->attachSep"<<std::endl;
 
-  d->attachSep->unref();
-  delete d;
+  m_d->attachSep->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -173,15 +173,15 @@ void VP1TrackingVolumes::Imp::updateFields()
 void VP1TrackingVolumes::setShown(bool b)
 {
   messageVerbose("Signal received: setShown("+str(b)+")");
-  if (d->shown==b)
+  if (m_d->shown==b)
     return;
-  d->shown=b;
-  if (d->shown) {
-    d->updateFields();
-    if (d->attachSep->findChild(d->sep)<0)
-      d->attachSep->addChild(d->sep);
+  m_d->shown=b;
+  if (m_d->shown) {
+    m_d->updateFields();
+    if (m_d->attachSep->findChild(m_d->sep)<0)
+      m_d->attachSep->addChild(m_d->sep);
   } else {
-    d->attachSep->removeChild(d->sep);
+    m_d->attachSep->removeChild(m_d->sep);
   }
 }
 
@@ -189,31 +189,31 @@ void VP1TrackingVolumes::setShown(bool b)
 void VP1TrackingVolumes::setShownID(bool b)
 {
   messageVerbose("Signal received: setShownID("+str(b)+")");
-  if (d->shownID==b)
+  if (m_d->shownID==b)
     return;
-  d->shownID=b;
-  if (d->shown)
-    d->updateFields();
+  m_d->shownID=b;
+  if (m_d->shown)
+    m_d->updateFields();
 }
 
 //____________________________________________________________________
 void VP1TrackingVolumes::setShownCalo(bool b)
 {
   messageVerbose("Signal received: setShownCalo("+str(b)+")");
-  if (d->shownCalo==b)
+  if (m_d->shownCalo==b)
     return;
-  d->shownCalo=b;
-  if (d->shown)
-    d->updateFields();
+  m_d->shownCalo=b;
+  if (m_d->shown)
+    m_d->updateFields();
 }
 
 //____________________________________________________________________
 void VP1TrackingVolumes::setShownMS(bool b)
 {
   messageVerbose("Signal received: setShownMS("+str(b)+")");
-  if (d->shownMS==b)
+  if (m_d->shownMS==b)
     return;
-  d->shownMS=b;
-  if (d->shown)
-    d->updateFields();
+  m_d->shownMS=b;
+  if (m_d->shown)
+    m_d->updateFields();
 }

@@ -154,7 +154,7 @@ signals:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 private slots:
   void updateProjPartsCheckboxStates_Pixel();

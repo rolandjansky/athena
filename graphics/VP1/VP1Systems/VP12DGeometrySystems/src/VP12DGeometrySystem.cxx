@@ -17,9 +17,9 @@
 #include "VP1Base/VP1GraphicsItemCollection.h"
 //TK: include when needed #include "ui_2dgeometrycontroller.h"
 
-#include <QtGui/QGraphicsRectItem>
-#include <QtGui/QBrush>
-#include <QtGui/QPen>
+#include <QGraphicsRectItem>
+#include <QBrush>
+#include <QPen>
 #include <cmath>
 
 // #include "StoreGate/StoreGate.h"

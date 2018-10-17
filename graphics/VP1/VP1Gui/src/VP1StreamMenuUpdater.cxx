@@ -3,13 +3,14 @@
 */
 
 #include "VP1StreamMenuUpdater.h"
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QTimer>
-#include <QtCore/QDateTime>
-#include <QtCore/QMutexLocker>
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QTimer>
+#include <QDateTime>
+#include <QMutexLocker>
 
 VP1StreamMenuUpdater::VP1StreamMenuUpdater(VP1DirStatuses& diractions
 					   ,QMutex* mutex
@@ -51,7 +52,7 @@ void VP1StreamMenuUpdater::updateInputDirectoriesStatus()
       dirstatus.enabled = false;
       dirstatus.dirStatus = "not found";
     } else {
-      // Access the latest_vp1event file in order to get the name of the latest vp1 event file 
+      // Access the latest_vp1event file in order to get the name of the latest vp1 event file
       // in the directory
       QFile latestFileRef(dirstatus.inputDir + "/latest_vp1event");
       if(latestFileRef.exists()
@@ -59,7 +60,7 @@ void VP1StreamMenuUpdater::updateInputDirectoriesStatus()
 	QTextStream textStream(&latestFileRef);
 	QString latestFileName = textStream.readLine();
 	latestFileRef.close();
-	
+
 	QFileInfo latestFile(latestFileName);
 	if(latestFile.exists()) {
 	  int secondswithoutupdate = latestFile.lastModified().secsTo(QDateTime::currentDateTime());
@@ -75,5 +76,3 @@ void VP1StreamMenuUpdater::updateInputDirectoriesStatus()
     }
   }
 }
-
-

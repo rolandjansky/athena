@@ -48,19 +48,19 @@ HEPVis::SbRotation::SbRotation()
 //WARNING : Inventor/SbRotation()::quad is not initialized !
 //          So that the HEPVis::SbRotation() does not the same than
 //          the Inventor::SbRotation().
-:quat(0,0,0,1)
+:m_quat(0,0,0,1)
 {
 }
 
 HEPVis::SbRotation::SbRotation(const SbVec3d& axis,double radians) {
   //FIXME : if(axis.length()==0) //throw
-  quat[3] = ::cos(radians/2);
+  m_quat[3] = ::cos(radians/2);
   double sineval = ::sin(radians/2);
   SbVec3d a = axis;
   a.normalize();
-  quat[0] = a[0] * sineval;
-  quat[1] = a[1] * sineval;
-  quat[2] = a[2] * sineval;
+  m_quat[0] = a[0] * sineval;
+  m_quat[1] = a[1] * sineval;
+  m_quat[2] = a[2] * sineval;
 }
 
 // from SbRotation& SbRotation::setValue(const SbMatrix & m)
@@ -81,12 +81,12 @@ HEPVis::SbRotation::SbRotation(
 
   if (scalerow > 0.0) {
     double s = ::sqrt(scalerow + m[3][3]);
-    quat[3] = s * 0.5;
+    m_quat[3] = s * 0.5;
     s = 0.5 / s;
 
-    quat[0] = (m[1][2] - m[2][1]) * s;
-    quat[1] = (m[2][0] - m[0][2]) * s;
-    quat[2] = (m[0][1] - m[1][0]) * s;
+    m_quat[0] = (m[1][2] - m[2][1]) * s;
+    m_quat[1] = (m[2][0] - m[0][2]) * s;
+    m_quat[2] = (m[0][1] - m[1][0]) * s;
   }
   else {
     int i = 0;
@@ -98,21 +98,21 @@ HEPVis::SbRotation::SbRotation(
 
     double s = ::sqrt((m[i][i] - (m[j][j] + m[k][k])) + m[3][3]);
 
-    quat[i] = s * 0.5;
+    m_quat[i] = s * 0.5;
     s = 0.5 / s;
 
-    quat[3] = (m[j][k] - m[k][j]) * s;
-    quat[j] = (m[i][j] + m[j][i]) * s;
-    quat[k] = (m[i][k] + m[k][i]) * s;
+    m_quat[3] = (m[j][k] - m[k][j]) * s;
+    m_quat[j] = (m[i][j] + m[j][i]) * s;
+    m_quat[k] = (m[i][k] + m[k][i]) * s;
   }
 
   if (m[3][3] != 1.0) {
-    quat *= (1.0/::sqrt(m[3][3]));
+    m_quat *= (1.0/::sqrt(m[3][3]));
   }
 }
 
 //HEPVis::SbRotation& HEPVis::SbRotation::operator*=(const double s){
-//  quat *= s;
+//  m_quat *= s;
 //  return *this;
 //}
 
@@ -120,10 +120,10 @@ void HEPVis::SbRotation::multVec(const SbVec3d& src,SbVec3d& dst) const {
   //SbMatrix mat;
   //mat.setRotate(*this);
 
-  double x = quat[0];
-  double y = quat[1];
-  double z = quat[2];
-  double w = quat[3];
+  double x = m_quat[0];
+  double y = m_quat[1];
+  double z = m_quat[2];
+  double w = m_quat[3];
 
   double matrix[4][4];
   matrix[0][0] = w*w + x*x - y*y - z*z;

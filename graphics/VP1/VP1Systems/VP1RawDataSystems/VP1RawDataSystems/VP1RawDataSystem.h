@@ -37,7 +37,7 @@ class VP1RawDataSystem : public IVP13DSystemSimple {
 
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

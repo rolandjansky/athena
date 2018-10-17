@@ -66,12 +66,12 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
     
   private slots:
   void updateVertexDrawStyle();
   void updateVertexLightModel(bool);
-  void possibleChange_vertexSize();
+  // void possibleChange_vertexSize();
   void possibleChange_cutAllowedR();
   void possibleChange_cutAllowedY();
   void possibleChange_cutAllowedZ();

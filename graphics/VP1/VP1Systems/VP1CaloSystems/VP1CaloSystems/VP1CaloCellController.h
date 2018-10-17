@@ -7,7 +7,7 @@
 
 #include "VP1Base/VP1Controller.h"
 #include "VP1CaloSystems/VP1CaloCells.h"
-#include <QtCore/QByteArray>
+#include <QByteArray>
 #include <QString>
 #include <map>
 
@@ -17,7 +17,7 @@ class TileHWID;
 class TileInfo;
 class TileCablingService;
 
-class QwtPlot;
+//class QwtPlot; // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 class QLabel;
 class SoGroup;
 
@@ -45,9 +45,9 @@ class VP1CaloCellController : public VP1Controller
 
   // -------------- Digits display ----------------
   // We need these pointers for displaying Tile Pulse
-  void initTilePulse(const TileHWID* _tile_hw_id,
-		     const TileInfo* _tile_info,
-		     const TileCablingService* _tile_cabling);
+  void initTilePulse(const TileHWID* tile_hw_id,
+		     const TileInfo* tile_info,
+		     const TileCablingService* tile_cabling);
 
   // If digits cannot be displayed by whatever reason, then hide both of the digit forms and say they have no data
   void ClearHideDigitForms();
@@ -104,11 +104,11 @@ class VP1CaloCellController : public VP1Controller
 
  private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
-  const TileHWID*            tile_hw_id;
-  const TileInfo*            tile_info;
-  const TileCablingService*  tile_cabling;
+  const TileHWID*            m_tile_hw_id;
+  const TileInfo*            m_tile_info;
+  const TileCablingService*  m_tile_cabling;
 
   //For verbose output:
   template <class T> static QString toString( const T& t ) { return VP1Controller::toString(t); }//unhide base methods
@@ -116,15 +116,17 @@ class VP1CaloCellController : public VP1Controller
   static QString toString(const QPair<bool,double>& par) { return "<"+QString(par.first?"log":"linear")+", "+QString::number(par.second/(CLHEP::cm/CLHEP::GeV))+" cm/GeV>"; }
   static QString toString(const VP1CC_GlobalCuts& cuts) { return "VP1CC global cuts: sideA=" + QString(cuts.sideA?"True":"False") + ", sideC=" + QString(cuts.sideC?"True":"False") + ", allowedEta=" + VP1Controller::toString(cuts.allowedEta) + ", allowedPhi="  + VP1Controller::toString(cuts.allowedEta); }
 
-  void DrawTileDigits(QwtPlot* plot,
-		      int n_samples,
-		      std::vector<float> samples);
+//  // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//  void DrawTileDigits(QwtPlot* plot,
+//		      int n_samples,
+//		      std::vector<float> samples);
 
-  void DrawTilePulse(QwtPlot* plot,
-		     QLabel* gainlabel,
-		     const TileRawChannel* rawchannel,
-		     const TileRawChannelContainer* rawchannel_cont,
-		     size_t digitsize);
+//  // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//  void DrawTilePulse(QwtPlot* plot,
+//		     QLabel* gainlabel,
+//		     const TileRawChannel* rawchannel,
+//		     const TileRawChannelContainer* rawchannel_cont,
+//		     size_t digitsize);
 
  private slots:
   void possibleChange_selectionIntervals();

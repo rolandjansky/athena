@@ -17,8 +17,8 @@
 #ifndef VP1EVENTFILE_H
 #define VP1EVENTFILE_H
 
-#include <QtCore/QString>
-#include <QtCore/QDateTime>
+#include <QString>
+#include <QDateTime>
 
 class VP1EventFile {
 public:
@@ -49,7 +49,7 @@ public:
   VP1EventFile(const QString&, const QString& md5sum = 0);//will attempt to decode from file name (e.g. vp1_234_123_1321334.pool.root). Instance becomes invalid if not succesful.
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _AnimationSequencer_h_
-#define _AnimationSequencer_h_
+#ifndef VP1BASE_ANIMATIONSEQUENCER_H
+#define VP1BASE_ANIMATIONSEQUENCER_H
 //____________________________________________________________
 //
 // A sequencer for animating the camera...
@@ -11,7 +11,8 @@
 // Joe Boudreau May 2008
 //____________________________________________________________
 #include "VP1Base/AnimationSequence.h"
-#include <QtCore/QObject>
+
+#include <QObject>
 
 class VP1ExaminerViewer;
 
@@ -53,7 +54,7 @@ private slots:
 private:
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 

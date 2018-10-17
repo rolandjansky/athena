@@ -213,9 +213,11 @@ TrkObjToString::shortInfo(const Trk::MeasurementBase& mb)
       {
         info+="Contains ";
         const Trk::CompetingRIOsOnTrack* tmpCROT = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(&mb);
-        if (tmpCROT) info+=QString::number(tmpCROT->numberOfContainedROTs());
-        info+=QString::number(dynamic_cast<const Trk::CompetingRIOsOnTrack*>(&mb)->numberOfContainedROTs());
-        info+=" ROTs";
+        if (tmpCROT){
+          info+=QString::number(tmpCROT->numberOfContainedROTs());
+          info+=QString::number(tmpCROT->numberOfContainedROTs());
+          info+=" ROTs";
+        }
         break;
       }
       case PseudoMeasurement:

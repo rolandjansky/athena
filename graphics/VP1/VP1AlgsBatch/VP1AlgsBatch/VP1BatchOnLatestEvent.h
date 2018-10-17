@@ -20,7 +20,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "PoolSvc/IPoolSvc.h"
 #include <string>
 
 // FWD
@@ -62,7 +61,7 @@ private:
 	bool m_isGetRandomFile;
 
 	bool m_evtInfoDone;
-	const EventInfo* eventInfo;
+	const EventInfo* m_eventInfo;
 
 	//  int m_maxProducedFiles;
 	int m_nEvent; // Internal counter for the number of processed events
@@ -73,9 +72,6 @@ private:
 	unsigned long m_runNumber = 0;
 	unsigned long m_timeStamp = 0;
 	std::string m_humanTimestamp;
-
-	// service handle
-	ServiceHandle<IPoolSvc> m_poolSvc;
 };
 
 #endif

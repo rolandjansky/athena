@@ -49,9 +49,11 @@ bool VP1QtApplication::notify(QObject *rec, QEvent *ev)
    }
    catch (std::exception &e) {
 	   VP1Msg::message("VP1QtApplication: std::exception: ");
-	   qWarning("Error '%s' sending event '%s' to object '%s' ('%s')",
+	   qWarning("VP1QtApplication: Error '%s' sending event '%s' to object '%s' ('%s')",
 		   e.what(), typeid(*ev).name(), qPrintable(rec->objectName()),
 		   typeid(*rec).name());
+       qWarning("throwing the exception again...");
+       throw e;
 	   return false;
    }
    catch (char const *str) {
@@ -65,8 +67,3 @@ bool VP1QtApplication::notify(QObject *rec, QEvent *ev)
    //VP1Msg::message("VP1QtApplication: outside catch..."); // only for DEBUG
    return false;
 }
-
-
-
-
-

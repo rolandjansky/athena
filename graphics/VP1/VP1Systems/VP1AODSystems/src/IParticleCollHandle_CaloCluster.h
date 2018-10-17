@@ -20,7 +20,7 @@
 #include "IParticleCollHandleBase.h"
 
 // Qt
-#include <QtCore/QPair>
+#include <QPair>
 
 // xAOD
 #include "xAODBase/ObjectType.h"
@@ -113,7 +113,7 @@ private slots:
 private:
 
 	class Imp;
-	Imp * d;
+	Imp * m_d;
 
 //	void updateBTaggingAllJets();
 //	void updateBTaggingSwitchAllJets();

@@ -14,8 +14,8 @@
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include <QtCore/QFlags>
-#include <QtCore/QStringList>
+#include <QFlags>
+#include <QStringList>
 
 
 
@@ -80,7 +80,7 @@ private:
   PRDHandleBase & operator= (const PRDHandleBase & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   PRDSysCommonData * m_common;
 //   inline void registerTransform(SoTransform*);
   bool m_visible;//Here for inlining

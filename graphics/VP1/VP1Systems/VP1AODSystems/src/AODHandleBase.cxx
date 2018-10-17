@@ -71,7 +71,7 @@ int AODHandleBase::Imp::nobjhandles = 0;
 
 //____________________________________________________________________
 AODHandleBase::AODHandleBase(AODCollHandleBase*ch)
-  : d(new Imp(this)), m_visible(false),m_collhandle(ch),m_currentmaterial(0)
+  : m_d(new Imp(this)), m_visible(false),m_collhandle(ch),m_currentmaterial(0)
 {
   ++Imp::nobjhandles;
 }
@@ -79,7 +79,7 @@ AODHandleBase::AODHandleBase(AODCollHandleBase*ch)
 //____________________________________________________________________
 AODHandleBase::~AODHandleBase()
 {
-  delete d;
+  delete m_d;
   --Imp::nobjhandles;
 }
 
@@ -289,27 +289,27 @@ void AODHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) {
 
   VP1Msg::messageDebug("AODHandleBase::fillObjectBrowser()");
 
-  if (d->m_objBrowseTree){
+  if (m_d->m_objBrowseTree){
     VP1Msg::message("ERROR: AODHandleBase::fillObjectBrowser - already have m_objBrowseTree. Aborting.");
     return;
   }
 	
-  d->m_objBrowseTree = new QTreeWidgetItem();
+  m_d->m_objBrowseTree = new QTreeWidgetItem();
 
   QString l = shortInfo();
 
-  d->m_objBrowseTree->setText(0, type()+QString(QString::number(listOfItems.size())) );
-  d->m_objBrowseTree->setText(1, l );    
+  m_d->m_objBrowseTree->setText(0, type()+QString(QString::number(listOfItems.size())) );
+  m_d->m_objBrowseTree->setText(1, l );    
 
   if (!visible()) {
-    d->m_objBrowseTree->setFlags(0); // not selectable, not enabled
+    m_d->m_objBrowseTree->setFlags(0); // not selectable, not enabled
   }
   listOfItems << browserTreeItem();
 }
 
 //____________________________________________________________________
 QTreeWidgetItem* AODHandleBase::browserTreeItem() const {
-  return d->m_objBrowseTree;
+  return m_d->m_objBrowseTree;
 }
 
 //____________________________________________________________________

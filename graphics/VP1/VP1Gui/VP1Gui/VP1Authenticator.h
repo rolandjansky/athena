@@ -14,11 +14,13 @@
 #ifndef VP1AUTHENTICATOR_H
 #define VP1AUTHENTICATOR_H
 
-#include <QtCore/QObject>
-#include <QtGui/QDialog>
-#include "ui_vp1authenticator.h"
+#include "../src/ui_vp1authenticator.h"
 
-#include <QtNetwork/QNetworkReply>
+#include <QObject>
+#include <QDialog>
+#include <QNetworkReply>
+
+
 class QNetworkAccessManager;
 
 class VP1Authenticator : public QDialog, public Ui::dlgAuthentication
@@ -48,7 +50,7 @@ private slots:
 
 private:
   class Imp;
-  Imp*  d;
+  Imp*  m_d;
 };
 
 #endif

@@ -54,7 +54,7 @@ public:
 //____________________________________________________________________
 VP1EtaCone::VP1EtaCone(SoMaterial * mat,SoSeparator * attachsep,
 		       IVP1System * sys,QObject * parent)
-  : QObject(parent), VP1HelperClassBase(sys,"VP1EtaCone"), d(new Imp(this,mat,attachsep))
+  : QObject(parent), VP1HelperClassBase(sys,"VP1EtaCone"), m_d(new Imp(this,mat,attachsep))
 {
 }
 
@@ -62,11 +62,11 @@ VP1EtaCone::VP1EtaCone(SoMaterial * mat,SoSeparator * attachsep,
 VP1EtaCone::~VP1EtaCone()
 {
   setShown(false);
-  if (d->sep)
-    d->sep->unref();
-  d->material->unref();
-  d->attachSep->unref();
-  delete d;
+  if (m_d->sep)
+    m_d->sep->unref();
+  m_d->material->unref();
+  m_d->attachSep->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -175,16 +175,16 @@ void VP1EtaCone::Imp::updateFields()
 void VP1EtaCone::setShown(bool b)
 {
   messageVerbose("Signal received: setShown("+str(b)+")");
-  if (d->shown==b)
+  if (m_d->shown==b)
     return;
-  d->shown=b;
-  if (d->shown) {
-    d->updateFields();
-    if (d->attachSep->findChild(d->sep)<0)
-      d->attachSep->addChild(d->sep);
+  m_d->shown=b;
+  if (m_d->shown) {
+    m_d->updateFields();
+    if (m_d->attachSep->findChild(m_d->sep)<0)
+      m_d->attachSep->addChild(m_d->sep);
   } else {
-    if (d->sep&&d->attachSep->findChild(d->sep)>=0)
-      d->attachSep->removeChild(d->sep);
+    if (m_d->sep&&m_d->attachSep->findChild(m_d->sep)>=0)
+      m_d->attachSep->removeChild(m_d->sep);
   }
 }
 
@@ -192,20 +192,20 @@ void VP1EtaCone::setShown(bool b)
 void VP1EtaCone::setExtent(const double&p)
 {
   messageVerbose("Signal received: setExtent("+str(p)+")");
-  if (d->extent==p)
+  if (m_d->extent==p)
     return;
-  d->extent=p;
-  if (d->shown)
-    d->updateFields();
+  m_d->extent=p;
+  if (m_d->shown)
+    m_d->updateFields();
 }
 
 //____________________________________________________________________
 void VP1EtaCone::setEtaValue(const double&p)
 {
   messageVerbose("Signal received: setEtaValue("+str(p)+")");
-  if (d->etaval==p)
+  if (m_d->etaval==p)
     return;
-  d->etaval=p;
-  if (d->shown)
-    d->updateFields();
+  m_d->etaval=p;
+  if (m_d->shown)
+    m_d->updateFields();
 }

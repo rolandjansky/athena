@@ -15,7 +15,7 @@
 #ifndef VP1PRIORITISER_H
 #define VP1PRIORITISER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 class IVP1System;
 class IVP1ChannelWidget;
 
@@ -43,7 +43,7 @@ public slots:
   void channelUncreated(IVP1ChannelWidget*);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void setupSysItr(IVP1ChannelWidget*cw);
 };
 

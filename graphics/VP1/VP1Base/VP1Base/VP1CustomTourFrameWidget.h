@@ -17,8 +17,8 @@
 #ifndef VP1CUSTOMTOURFRAMEWIDGET_H
 #define VP1CUSTOMTOURFRAMEWIDGET_H
 
-#include <QtGui/QFrame>
-#include <QtCore/QByteArray>
+#include <QFrame>
+#include <QByteArray>
 
 class VP1CustomTourFrameWidget : public QFrame {
 
@@ -71,7 +71,7 @@ private:
   VP1CustomTourFrameWidget( const VP1CustomTourFrameWidget & );
   VP1CustomTourFrameWidget & operator= ( const VP1CustomTourFrameWidget & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

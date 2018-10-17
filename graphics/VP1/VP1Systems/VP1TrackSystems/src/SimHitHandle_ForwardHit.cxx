@@ -42,58 +42,58 @@ public:
 
 //____________________________________________________________________
 SimHitHandle_ForwardHit::SimHitHandle_ForwardHit(const SimulationHit * h)
-  : SimHitHandleBase(), d(new Imp(h))
+  : SimHitHandleBase(), m_d(new Imp(h))
 {
   if (!h)
     VP1Msg::message("SimHitHandle_ForwardHit constructor ERROR: Received null hit pointer");
 
-  link =  HepMcParticleLink(d->thehit->trackID());
+  m_link =  HepMcParticleLink(m_d->thehit->trackID());
 }
 
 //____________________________________________________________________
 SimHitHandle_ForwardHit::~SimHitHandle_ForwardHit()
 {
-  delete d;
+  delete m_d;
 }
 
 //Trk::GlobalMomentum SimHitHandle_ForwardHit::momentumDirection() const
 Amg::Vector3D SimHitHandle_ForwardHit::momentumDirection() const
 {
-  return Amg::Hep3VectorToEigen(d->thehit->pre().direction);
+  return Amg::Hep3VectorToEigen(m_d->thehit->pre().direction);
 }
 
 double SimHitHandle_ForwardHit::actualMomentum() const
 {
-  return d->thehit->pre().momentum.mag();
+  return m_d->thehit->pre().momentum.mag();
 }
 //____________________________________________________________________
 Amg::Vector3D SimHitHandle_ForwardHit::posStart() const
 {
-  return Amg::Hep3VectorToEigen(d->thehit->pre().position);
+  return Amg::Hep3VectorToEigen(m_d->thehit->pre().position);
 }
 
 //____________________________________________________________________
 Amg::Vector3D SimHitHandle_ForwardHit::posEnd() const
 {
-  return Amg::Hep3VectorToEigen(d->thehit->post().position);
+  return Amg::Hep3VectorToEigen(m_d->thehit->post().position);
 }
 
 //____________________________________________________________________
 double SimHitHandle_ForwardHit::hitTime() const
 {
-  return d->thehit->pre().time;
+  return m_d->thehit->pre().time;
 }
 
 //____________________________________________________________________
 const HepMcParticleLink& SimHitHandle_ForwardHit::particleLink() const
 {
-   return link;
+   return m_link;
 }
 
 //____________________________________________________________________
 int SimHitHandle_ForwardHit::actualPDGCodeFromSimHit() const
 {
-  return d->thehit->particleEncoding();
+  return m_d->thehit->particleEncoding();
 }
 
 //____________________________________________________________________
@@ -113,14 +113,14 @@ Trk::TrackParameters * SimHitHandle_ForwardHit::createTrackParameters() const
   double c;
   if ( !hasCharge() ) {
     bool ok;
-    c = VP1ParticleData::particleCharge(d->thehit->particleEncoding(),ok);
+    c = VP1ParticleData::particleCharge(m_d->thehit->particleEncoding(),ok);
     if (!ok) {
       VP1Msg::message("SimHitHandle_ForwardHit::createTrackParameters ERROR: Could not find particle charge (pdg="
-		      +QString::number(d->thehit->particleEncoding())+"). Assuming charge=+1.");
+		      +QString::number(m_d->thehit->particleEncoding())+"). Assuming charge=+1.");
       c = +1.0;
     } else {
       if (VP1Msg::verbose())
-	VP1Msg::messageVerbose("Looked up particle charge for trt simhit with pdg code "+VP1Msg::str(d->thehit->particleEncoding())+": "+VP1Msg::str(c));
+	VP1Msg::messageVerbose("Looked up particle charge for trt simhit with pdg code "+VP1Msg::str(m_d->thehit->particleEncoding())+": "+VP1Msg::str(c));
     }
     const_cast<SimHitHandle_ForwardHit*>(this)->setCharge(c);
   } else {

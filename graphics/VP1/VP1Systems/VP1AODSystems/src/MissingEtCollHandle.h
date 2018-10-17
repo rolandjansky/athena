@@ -92,7 +92,7 @@ private slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   QList<VP1Interval> m_cut_allowedPhi;
   bool m_cut_phi_allowall;

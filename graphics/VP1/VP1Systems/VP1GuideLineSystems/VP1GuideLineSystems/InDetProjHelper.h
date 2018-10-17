@@ -77,24 +77,24 @@ public:
 
 private:
 
-  InDetProjHelper( const double& surfacethickness,
-		   const double& data_disttosurface_epsilon,
-		   const double& barrel_inner_radius,
-		   const double& barrel_outer_radius,
-		   const double& barrel_posneg_z,
-		   const double& endcap_surface_z,
-		   const double& endcap_surface_length,
-		   const double& endcap_inner_radius,
-		   const double& endcap_outer_radius,
-		   const double& endcap_zasr_innerradius,
-		   const double& endcap_zasr_endcapz_begin,
-		   const double& endcap_zasr_squeezefact,
+  InDetProjHelper( double surfacethickness,
+		   double data_disttosurface_epsilon,
+		   double barrel_inner_radius,
+		   double barrel_outer_radius,
+		   double barrel_posneg_z,
+		   double endcap_surface_z,
+		   double endcap_surface_length,
+		   double endcap_inner_radius,
+		   double endcap_outer_radius,
+		   double endcap_zasr_innerradius,
+		   double endcap_zasr_endcapz_begin,
+		   double endcap_zasr_squeezefact,
 		   IVP1System* sys );
 
 
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

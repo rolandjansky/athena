@@ -35,7 +35,7 @@ void PRDHandle_SCT::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
   shape_simple=common()->nodeManager()->getShapeNode_Strip(striplength);
 
   const Amg::Vector2D& localpos = m_cluster->localPosition();
-  const Amg::Vector2D& localposHIT = m_cluster->detectorElement()->localPositionOfCell( m_cluster->identify() );
+  const Amg::Vector2D& localposHIT = m_cluster->detectorElement()->rawLocalPositionOfCell( m_cluster->identify() ); // Lorentz shift is not corrected because this class cannot use SiLorentzAngleTool
   SoTranslation * localtrans0 = new SoTranslation;
   localtrans0->translation.setValue(localposHIT[Trk::locX]-localpos[Trk::locX],localposHIT[Trk::locY]-localpos[Trk::locY],0);
 
@@ -75,7 +75,7 @@ void PRDHandle_SCT::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
       if (*it == m_cluster->identify() )
         continue;
 
-      const Amg::Vector2D& localposRDO = m_cluster->detectorElement()->localPositionOfCell(*it);
+      const Amg::Vector2D& localposRDO = m_cluster->detectorElement()->rawLocalPositionOfCell(*it); // Lorentz shift is not corrected because this class cannot use SiLorentzAngleTool
 
       SoTranslation * localtrans = new SoTranslation;
       localtrans->translation.setValue(localposRDO[Trk::locX]-localposOLD[Trk::locX],localposRDO[Trk::locY]-localposOLD[Trk::locY],0);

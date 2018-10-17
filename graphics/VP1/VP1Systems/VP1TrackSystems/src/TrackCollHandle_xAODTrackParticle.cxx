@@ -21,7 +21,7 @@
 #include "VP1Base/IVP1System.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 #include "VP1Utils/VP1SGContentsHelper.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 //____________________________________________________________________
 QStringList TrackCollHandle_xAODTrackParticle::availableCollections( IVP1System*sys )
@@ -45,16 +45,16 @@ public:
 //____________________________________________________________________
 TrackCollHandle_xAODTrackParticle::TrackCollHandle_xAODTrackParticle(TrackSysCommonData * cd,
 							     const QString& name)
-  : TrackCollHandleBase(cd,name,TrackType::xAOD), d(new Imp)
+  : TrackCollHandleBase(cd,name,TrackType::xAOD), m_d(new Imp)
 {
-  d->theclass = this;
-  d->updateGUICounter = 0;
+  m_d->theclass = this;
+  m_d->updateGUICounter = 0;
 }
 
 //____________________________________________________________________
 TrackCollHandle_xAODTrackParticle::~TrackCollHandle_xAODTrackParticle()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -84,7 +84,7 @@ bool TrackCollHandle_xAODTrackParticle::load()
   hintNumberOfTracksInEvent(coll->size());
   xAOD::TrackParticleContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
     if (!*it) {
       messageDebug("WARNING: Ignoring null xAODTrackParticle pointer.");
       continue;

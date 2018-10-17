@@ -48,7 +48,7 @@ public:
 //____________________________________________________________________
 VP1CylindricalGrid::VP1CylindricalGrid(SoSeparator * attachsep,
 		   IVP1System * sys,QObject * parent)
-  : QObject(parent), VP1HelperClassBase(sys,"VP1CylindricalGrid"), d(new Imp(this,attachsep))
+  : QObject(parent), VP1HelperClassBase(sys,"VP1CylindricalGrid"), m_d(new Imp(this,attachsep))
 {
 }
 
@@ -56,12 +56,12 @@ VP1CylindricalGrid::VP1CylindricalGrid(SoSeparator * attachsep,
 VP1CylindricalGrid::~VP1CylindricalGrid()
 {
   setShown(false);
-  if (d->sep)
-    d->sep->unref();
-  if (d->circlecol)
-    d->circlecol->unref();
-  d->attachSep->unref();
-  delete d;
+  if (m_d->sep)
+    m_d->sep->unref();
+  if (m_d->circlecol)
+    m_d->circlecol->unref();
+  m_d->attachSep->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -188,16 +188,16 @@ void VP1CylindricalGrid::Imp::updateColour()
 void VP1CylindricalGrid::setShown(bool b)
 {
   messageVerbose("Signal received: setShown("+str(b)+")");
-  if (d->shown==b)
+  if (m_d->shown==b)
     return;
-  d->shown=b;
-  if (d->shown) {
-    d->rebuild3DObjects();
-    if (d->attachSep->findChild(d->sep)<0)
-      d->attachSep->addChild(d->sep);
+  m_d->shown=b;
+  if (m_d->shown) {
+    m_d->rebuild3DObjects();
+    if (m_d->attachSep->findChild(m_d->sep)<0)
+      m_d->attachSep->addChild(m_d->sep);
   } else {
-    if (d->sep&&d->attachSep->findChild(d->sep)>=0)
-      d->attachSep->removeChild(d->sep);
+    if (m_d->sep&&m_d->attachSep->findChild(m_d->sep)>=0)
+      m_d->attachSep->removeChild(m_d->sep);
   }
 }
 
@@ -205,31 +205,31 @@ void VP1CylindricalGrid::setShown(bool b)
 void VP1CylindricalGrid::setColourAndTransp(const SbColor4f&ct)
 {
   messageVerbose("Signal received in setColourAndTransp slot.");
-  if (d->colourAndTransp==ct)
+  if (m_d->colourAndTransp==ct)
     return;
-  d->colourAndTransp=ct;
-  if (d->shown)
-    d->updateColour();
+  m_d->colourAndTransp=ct;
+  if (m_d->shown)
+    m_d->updateColour();
 }
 
 //____________________________________________________________________
 void VP1CylindricalGrid::setExtent(const double& e)
 {
   messageVerbose("Signal received: setExtent("+str(e)+")");
-  if (d->extent==e)
+  if (m_d->extent==e)
     return;
-  d->extent=e;
-  if (d->shown)
-    d->rebuild3DObjects();
+  m_d->extent=e;
+  if (m_d->shown)
+    m_d->rebuild3DObjects();
 }
 
 //____________________________________________________________________
 void VP1CylindricalGrid::setSpacing(const double&s)
 {
   messageVerbose("Signal received: setSpacing("+str(s)+")");
-  if (d->spacing==s)
+  if (m_d->spacing==s)
     return;
-  d->spacing=s;
-  if (d->shown)
-    d->rebuild3DObjects();
+  m_d->spacing=s;
+  if (m_d->shown)
+    m_d->rebuild3DObjects();
 }

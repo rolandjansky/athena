@@ -18,7 +18,8 @@
 #ifndef VP1DRAWOPTIONSWIDGET_H
 #define VP1DRAWOPTIONSWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
+
 class SoGroup;
 
 class VP1DrawOptionsWidget : public QWidget {
@@ -56,7 +57,7 @@ signals:
   void complexityChanged(const double&);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 private slots:
   void updateNodes();
 };

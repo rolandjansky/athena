@@ -17,7 +17,7 @@
 #ifndef VP1QTUTILS_H
 #define VP1QTUTILS_H
 
-#include <QtCore/QString>
+#include <QString>
 //NB: Keep includes very few here!
 class QImage;
 
