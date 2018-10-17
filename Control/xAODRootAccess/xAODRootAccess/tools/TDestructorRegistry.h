@@ -1,16 +1,16 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDestructorRegistry.h 599851 2014-06-02 12:32:51Z krasznaa $
 #ifndef XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_H
 #define XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_H
 
 // System include(s):
 #include <map>
 #include <shared_mutex>
+#include <memory>
 
 // Forward declaration(s):
 namespace std {
@@ -29,9 +29,6 @@ namespace xAOD {
    /// available for them.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 599851 $
-   /// $Date: 2014-06-02 14:32:51 +0200 (Mon, 02 Jun 2014) $
    ///
    class TDestructorRegistry {
 
@@ -54,13 +51,8 @@ namespace xAOD {
       /// Type used internally to clean up memory at the end of the process
       class TDestructorHolder {
       public:
-         /// Constructor with a new TVirtualDestructor pointer
-         TDestructorHolder( TVirtualDestructor* d = 0 );
-         /// Destructor
-         ~TDestructorHolder();
-
          /// The managed object
-         TVirtualDestructor* m_destructor;
+         std::unique_ptr< TVirtualDestructor > m_destructor;
       };
 
       /// Type of the internal map
