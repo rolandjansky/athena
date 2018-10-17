@@ -80,7 +80,7 @@ def defineMenu():
         'JJ15.23ETA49','J20.28ETA31','J40.0ETA25', 
 
         # 6 Jets
-        'J40', 'J50', 'J75', 'J85', 'J100', 'J175',
+        'J40', 'J50', 'J75', 'J85', 'J100', 'J400',
 
         # 6 x FJ              
         'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', 'J100.31ETA49',
@@ -441,7 +441,7 @@ def defineMenu():
 		       #'L1_J35',
                        'L1_J50',
                        'L1_J75',
-                       'L1_J175',
+                       'L1_J400',
                        #jet energy
                        'L1_2J15',
                        #'L1_JE200',
@@ -798,7 +798,8 @@ def defineMenu():
         'L1_RD0_FILLED' : 17,
         'L1_RD0_FIRSTEMPTY' : 18,
         'L1_RD0_UNPAIRED_ISO' : 19,
-        'L1_MBTS_4_4_UNPAIRED_ISO': 20,        
+        'L1_MBTS_4_4_UNPAIRED_ISO': 20,
+        'L1_J400': 21,        
 
         'L1_ZDC_AND_VTE50' : 27,
         #'L1_EM3_VTE20': 28,
