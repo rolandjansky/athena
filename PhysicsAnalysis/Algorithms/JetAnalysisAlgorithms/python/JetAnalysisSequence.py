@@ -112,9 +112,9 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         alg.modifierTool.OutputDec = "passFJvt" #Output decoration
         # fJVT WPs depend on the MET WP
         # see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
-        alg.modifierTool.UseTightOP = 1 # 1 = Tight, 0 = Loose
-        # alg.modifierTool.EtaThresh = fwdjetEtaMin # Eta dividing central from forward jets
-        # alg.modifierTool.ForwardMaxPt = fwdjetPtMax #Max Pt to define fwdJets for JVT
+        alg.modifierTool.UseTightOP = 0 # 1 = Tight, 0 = Loose
+        alg.modifierTool.EtaThresh = 2.5 # Eta dividing central from forward jets
+        alg.modifierTool.ForwardMaxPt = 120.0e3 #Max Pt to define fwdJets for JVT
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
         pass
 
