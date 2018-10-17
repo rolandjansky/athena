@@ -54,14 +54,15 @@ class ZdcModuleGetter ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon import CfgMgr
         mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
-        #ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   
-        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
+        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")  # restored for 2015 reproc, use postExec to set these
+        #ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016") # used for 2016 Tier 0  
         
-        ToolSvc.ZdcAnalysisTool.FixTau1=True
-        ToolSvc.ZdcAnalysisTool.FixTau2=True
-        ToolSvc.ZdcAnalysisTool.Tau1=5
-        ToolSvc.ZdcAnalysisTool.Tau2=21
-        ToolSvc.ZdcAnalysisTool.Peak2ndDerivThresh=15
+        # mods for 2016
+        #ToolSvc.ZdcAnalysisTool.FixTau1=True
+        #ToolSvc.ZdcAnalysisTool.FixTau2=True
+        #ToolSvc.ZdcAnalysisTool.Tau1=5
+        #ToolSvc.ZdcAnalysisTool.Tau2=21
+        #ToolSvc.ZdcAnalysisTool.Peak2ndDerivThresh=15
 
         try:
             from ZdcRec.ZdcRecConf import ZdcRecV3
