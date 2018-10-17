@@ -42,7 +42,7 @@ atlas_add_test( ClassIDSvc_test
 
 atlas_add_test( clid
                 SCRIPT test/_clid_unittest.py
-                EXTRA_PATTERNS "Ran 2 tests in" )
+                EXTRA_PATTERNS "Ran 3 tests in" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ## @file clid_unittest.py
 # @brief Unit tests for clidGenerator
 """Unit tests for clidGenerator."""
 
 
-import os, sys, unittest
+import os, sys, unittest, subprocess
 from CLIDComps.clidGenerator import clidGenerator
 
 
@@ -37,6 +37,14 @@ class CLIDTestCase( TestFixture ):
       
       self.assertEqual( 245732527, self.cgen.genClidFromName("DataObject") )
       self.assertEqual( 205083834, self.cgen.genClidFromName("Data<Foo23_45___Bar_, dsfl__>") )
+
+## test the 'clid' command line script
+class CLIDScriptTest( unittest.TestCase ):
+   def testScript( self ):
+      self.assertEqual( 245732527, int(subprocess.check_output(['clid','-s','DataObject'])))
+      self.assertEqual( subprocess.check_output(['clid','-sc','DataObject']),
+                        subprocess.check_output(['clid','-s','CondCont<DataObject>']) )
+
 
 ## run tests if in standalone mode
 if __name__ == '__main__':
