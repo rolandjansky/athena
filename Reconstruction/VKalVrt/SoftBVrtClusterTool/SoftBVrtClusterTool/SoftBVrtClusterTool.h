@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef SOFTBTAG_CLUSTERING_H
 #define SOFTBTAG_CLUSTERING_H
 
@@ -16,12 +20,13 @@ namespace SoftBVrt {
     SoftBVrtClusterTool( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~SoftBVrtClusterTool();
 
-    virtual StatusCode  initialize();
-    virtual StatusCode  initializeTools();
-    virtual StatusCode  execute();
-    virtual StatusCode  finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode initializeTools();
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
+    const std::string m_VX_COUNT_KEY = "BTaggingNumberOfPrimaryVertices";
     std::string m_jetCollectionName;
     std::string m_trackjetCollectionName;
     std::string m_operatingPoint;

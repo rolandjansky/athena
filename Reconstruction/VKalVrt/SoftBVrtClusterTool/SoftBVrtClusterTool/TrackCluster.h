@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TRACK_CLUSTER_H
 #define TRACK_CLUSTER_H
 
@@ -12,23 +16,23 @@ namespace SoftBVrt {
   public:
 
     TLorentzVector m_sumTrack;  
-    const xAOD::IParticle* m_seed = 0;
+    const xAOD::IParticle* m_seed = nullptr;
     std::vector<const xAOD::IParticle*> m_cluster_tracks;  
     std::vector<const xAOD::IParticle*> m_cluster_matched_tracks;  
 
     static bool trackptsorter(const xAOD::IParticle *p1, const xAOD::IParticle *p2);    
 
-    size_t getNTracks();
+    size_t getNTracks() const;
    
     void addSeed(const xAOD::IParticle *track);
     void addTrack(const xAOD::IParticle *track);
     void replaceTracks(std::vector<const xAOD::IParticle*> newTracks);
   
-    float getSharedTrackFraction(TrackCluster cluster);
+    float getSharedTrackFraction(TrackCluster cluster) const;
 
-    std::vector<const xAOD::IParticle*> getTracks();
-    std::vector<const xAOD::IParticle*> getTrackUnion(TrackCluster cluster);
-    std::vector<const xAOD::IParticle*> getTrackIntersection(TrackCluster cluster);
+    std::vector<const xAOD::IParticle*> getTracks() const;
+    std::vector<const xAOD::IParticle*> getTrackUnion(TrackCluster cluster) const;
+    std::vector<const xAOD::IParticle*> getTrackIntersection(TrackCluster cluster) const;
   
   };
 

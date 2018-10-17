@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////////////////////
 // SoftBVrtClusterToolAlg.cxx
 ///////////////////////////////////////
@@ -16,12 +20,6 @@
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-
-using xAOD::IParticle;
-
-// this is the key we use to keep track of how many primary vertices
-// we found if it's missing we didn't run the BTagVertexAugmenter.
-const std::string VX_COUNT_KEY = "BTaggingNumberOfPrimaryVertices";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace SoftBVrt {
@@ -70,7 +68,7 @@ namespace SoftBVrt {
   StatusCode SoftBVrtClusterTool::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "..."); 
 
-    CHECK( initializeTools() );
+    ATH_CHECK( initializeTools() );
   
     ATH_MSG_INFO ("Operating point initialised to " << m_operatingPoint << ", all track cuts will be overridden..." );
 
@@ -113,12 +111,12 @@ namespace SoftBVrt {
     // used for reconstructing vertices in track clusters
     m_secVertexFinderTool.setTypeAndName("InDet::InDetVKalVxInJetTool/BJetSVFinder");    
 
-    CHECK( m_secVertexFinderTool.retrieve() );
+    ATH_CHECK( m_secVertexFinderTool.retrieve() );
 
     // used for determining 3D track-track distance
     m_trkDistanceFinderTool.setTypeAndName("Trk::SeedNewtonTrkDistanceFinder/TrkDistanceFinder"); 
 
-    CHECK( m_trkDistanceFinderTool.retrieve() );
+    ATH_CHECK( m_trkDistanceFinderTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -142,19 +140,19 @@ namespace SoftBVrt {
     //-------------------------
     // Event information
     //---------------------------
-    const xAOD::EventInfo* eventInfo = 0;
+    const xAOD::EventInfo* eventInfo = nullptr;
   
     ATH_MSG_DEBUG(" Retrieving Event Info " );
   
-    CHECK( evtStore()->retrieve(eventInfo) ); 
+    ATH_CHECK( evtStore()->retrieve(eventInfo) ); 
 
     auto *RecoVertices = new xAOD::VertexContainer;
     auto *RecoVerticesAux = new xAOD::VertexAuxContainer;
   
     RecoVertices->setStore( RecoVerticesAux);
   
-    CHECK( evtStore()->record( RecoVertices, "SoftBVrtClusterTool_Vertices") );
-    CHECK( evtStore()->record( RecoVerticesAux, "SoftBVrtClusterTool_VerticesAux.") );  
+    ATH_CHECK( evtStore()->record( RecoVertices, "SoftBVrtClusterTool_Vertices") );
+    ATH_CHECK( evtStore()->record( RecoVerticesAux, "SoftBVrtClusterTool_VerticesAux.") );  
   
     typedef ElementLink<xAOD::TrackParticleContainer> TrackLink;
     typedef std::vector<TrackLink> TrackLinks;
@@ -162,25 +160,28 @@ namespace SoftBVrt {
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 
     // to reject tracks associated to calo jets (configurable)
-    const xAOD::JetContainer *jets = 0;
-    CHECK( evtStore()->retrieve(jets, m_jetCollectionName) );
+    const xAOD::JetContainer *jets = nullptr;
+    ATH_CHECK( evtStore()->retrieve(jets, m_jetCollectionName) );
 
     // to reject tracks associated to track jets (configurable)
-    const xAOD::JetContainer *trackjets = 0;
-    CHECK( evtStore()->retrieve(trackjets, m_trackjetCollectionName) );
+    const xAOD::JetContainer *trackjets = nullptr;
+    ATH_CHECK( evtStore()->retrieve(trackjets, m_trackjetCollectionName) );
   
     // primary vertex
-    const xAOD::VertexContainer *Primary_vertices = 0;
+    const xAOD::VertexContainer *Primary_vertices = nullptr;
   
     ATH_MSG_DEBUG( " retrieve  PrimaryVertices " );
-    CHECK( evtStore()->retrieve(Primary_vertices, "PrimaryVertices") );
+    ATH_CHECK( evtStore()->retrieve(Primary_vertices, "PrimaryVertices") );
   
     int* npv_p = 0;
   
-    StatusCode vx_count_status = evtStore()->retrieve(npv_p, VX_COUNT_KEY);
+    // m_VX_COUNT_KEY is the key we use to keep track of how many primary vertices
+    // we found if it's missing we didn't run the BTagVertexAugmenter.
+
+    StatusCode vx_count_status = evtStore()->retrieve(npv_p, m_VX_COUNT_KEY);
   
     if (vx_count_status.isFailure()) {
-      ATH_MSG_FATAL("could not find " + VX_COUNT_KEY + " in file");
+      ATH_MSG_FATAL("could not find " + m_VX_COUNT_KEY + " in file");
       return StatusCode::FAILURE;
     }
   
@@ -193,18 +194,18 @@ namespace SoftBVrt {
   
     ATH_MSG_DEBUG( " get the vertex index (stored in BTaggingVertexAugmenter) " );
     int* indexPV_ptr = 0;
-    CHECK(evtStore()->retrieve(indexPV_ptr, "BTaggingVertexIndex"));
+    ATH_CHECK(evtStore()->retrieve(indexPV_ptr, "BTaggingVertexIndex"));
   
     size_t indexPV = *indexPV_ptr;
   
     const xAOD::Vertex *myVertex = Primary_vertices->at(indexPV);
   
-    try{
+    if (myVertex ){
       m_PV_x = myVertex->x();
       m_PV_y = myVertex->y();
       m_PV_z = myVertex->z();  
     
-    } catch (...) {
+    } else {
       ATH_MSG_DEBUG( " missing primary vertex! " );
       m_PV_x = -999;
       m_PV_y = -999;
@@ -215,7 +216,7 @@ namespace SoftBVrt {
     const xAOD::TrackParticleContainer* tracks(nullptr);
   
     ATH_MSG_DEBUG( " retrieve TrackParticles " );
-    CHECK( evtStore()->retrieve( tracks, "InDetTrackParticles") );
+    ATH_CHECK( evtStore()->retrieve( tracks, "InDetTrackParticles") );
   
     // to hold the track clusters
     std::vector<SoftBVrt::TrackCluster> clusterVec;

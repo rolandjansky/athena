@@ -1,12 +1,16 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "SoftBVrtClusterTool/TrackCluster.h"
 
 namespace SoftBVrt {
 
-  bool TrackCluster::trackptsorter(const xAOD::IParticle *p1, const xAOD::IParticle *p2) {
+  bool TrackCluster::trackptsorter (const xAOD::IParticle *p1, const xAOD::IParticle *p2){
     return p1->pt() > p2->pt();
   }
   
-  size_t TrackCluster::getNTracks() {return m_cluster_tracks.size();}
+  size_t TrackCluster::getNTracks() const {return m_cluster_tracks.size();}
    
   void TrackCluster::addSeed(const xAOD::IParticle *track)  {
     
@@ -19,7 +23,6 @@ namespace SoftBVrt {
     m_cluster_tracks.push_back(track);
     m_sumTrack+=track->p4();
 
-    //std::sort (m_cluster_tracks.begin(), m_cluster_tracks.end(), this->trackptsorter);
     std::sort (m_cluster_tracks.begin(), m_cluster_tracks.end(), TrackCluster::trackptsorter);
 
   }
@@ -31,13 +34,13 @@ namespace SoftBVrt {
 
   }
 
-  std::vector<const xAOD::IParticle*> TrackCluster::getTracks() {
+  std::vector<const xAOD::IParticle*> TrackCluster::getTracks() const {
 
     return m_cluster_tracks;
 
   }  
   
-  float TrackCluster::getSharedTrackFraction(TrackCluster cluster) {    
+  float TrackCluster::getSharedTrackFraction(TrackCluster cluster) const {    
     
     int nshared = 0;
     
@@ -61,7 +64,7 @@ namespace SoftBVrt {
 
   }
 
-  std::vector<const xAOD::IParticle*> TrackCluster::getTrackUnion(TrackCluster cluster) {    
+  std::vector<const xAOD::IParticle*> TrackCluster::getTrackUnion(TrackCluster cluster) const {    
   
     std::vector<const xAOD::IParticle*> trackUnion;
     std::vector<const xAOD::IParticle*> clusterTracks = cluster.getTracks();
@@ -72,7 +75,7 @@ namespace SoftBVrt {
 
   }
 
-  std::vector<const xAOD::IParticle*> TrackCluster::getTrackIntersection(TrackCluster cluster) {    
+  std::vector<const xAOD::IParticle*> TrackCluster::getTrackIntersection(TrackCluster cluster) const {    
   
     std::vector<const xAOD::IParticle*> trackIntersection;
     std::vector<const xAOD::IParticle*> clusterTracks = cluster.getTracks();
