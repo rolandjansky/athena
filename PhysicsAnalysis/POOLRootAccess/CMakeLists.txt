@@ -53,3 +53,7 @@ atlas_add_executable( ut_basicAlg_test
 # Install files from the package:
 atlas_install_joboptions( share/*.opts share/*.py )
 atlas_install_scripts( scripts/*.py )
+
+if( XAOD_ANALYSIS )
+    atlas_install_scripts( scripts/analysis/*.py )
+endif()
