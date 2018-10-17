@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -67,6 +67,10 @@ void filter (char* buf)
     }
 
     else if (buf[0] == '.' && buf[1] == '.') {
+      buf = snip (buf, buf+2);
+    }
+
+    else if (buf[0] == '(' && buf[1] == ')') {
       buf = snip (buf, buf+2);
     }
 
