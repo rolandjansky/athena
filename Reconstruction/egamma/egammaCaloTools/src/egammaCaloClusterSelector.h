@@ -57,10 +57,10 @@ private:
       "Optional tool that performs cuts on middle shape variables"};
 
   Gaudi::Property<double>  m_ClusterEtCut {this,
-      "ClusterEtCut", 0.0, "Cut on cluster Et"};
+      "ClusterEtCut", 0.0, "Cut on cluster EM+Had Et"};
 
   Gaudi::Property<std::vector<double> > m_EMEtRanges {this,
-      "EMEtRanges", {1*GeV, 3*GeV}, 
+      "EMEtRanges", {}, 
       "EM Et Ranges to consider, with different cuts; Low limit of ranges given"};
 
   /// For the cuts below, the size must be 0 (meaning not applied)
@@ -73,10 +73,10 @@ private:
       "Cut on cluster LATERAL, i.e., the second transverse moment normalized, per EM Et bin"};
 
   Gaudi::Property<std::vector<double> >  m_RetaCuts {this,
-      "RetaCut", 0.0, "Cut on cluster Reta"};
+      "RetaCut", {}, "Cut on cluster Reta"};
 
   // this variable is set at initialize based on the configuration
-  bool m_runMiddleShapes;
+  bool m_runMiddleShapes{false};
 
 };
 
