@@ -16,16 +16,16 @@ REGISTER_ALG_TCS(MuonSort)
 
 bool SortByEtLargestM(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
 {
-  //Order the TOBs according to Et (high to low) or octant index (low to high) or side (first A, then C), geometry here /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TrigConfMuctpi/TestMioctGeometry2016.dat 
-  if( tob1->Et() != tob2->Et() ) return tob1->Et() > tob2->Et();
-  else if ( tob1->phiDouble()  != tob2->phiDouble()  )
-    {
-      if( tob1->phiDouble() >=0. && tob2->phiDouble() >=0. ) return tob1->phiDouble() < tob2->phiDouble();
-      else  if( tob1->phiDouble() <=0. && tob2->phiDouble() <=0. ) return tob1->phiDouble() < tob2->phiDouble();
-      else  if( tob1->phiDouble() >=0. && tob2->phiDouble() <=0. ) return true;
-      else return false;
-    }							   
-  else  return tob1->etaDouble() > tob2->etaDouble();
+  //Order the TOBs according to Et (high to low) or side (first A, then C) or octant index (low to high), geometry here /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TrigConfMuctpi/TestMioctGeometry2016.dat 
+
+  if( tob1->Et() != tob2->Et()  ) return tob1->Et() > tob2->Et();                                                                          
+  else if( tob1->etaDouble() != tob2->etaDouble() ) return tob1->etaDouble() > tob2->etaDouble();            
+  else 
+    {  
+      if( (tob1->phiDouble() >=0. && tob2->phiDouble() >=0.) || (tob1->phiDouble() <=0. && tob2->phiDouble() <=0.) ) return tob1->phiDouble() < tob2->phiDouble();             
+      else  if( tob1->phiDouble() >=0. && tob2->phiDouble() <=0. ) return true;                                                              
+      else return false;                                                                                                                   
+    }                                                                                                                                       
 }
 
 
