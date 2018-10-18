@@ -464,9 +464,9 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
           unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
           // AS 19.11.09 - note minus sign here - time in DB is opposite to best phase 
           phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
-          msg(MSG::VERBOSE) << "Best phase: " << phase
+          ATH_MSG_VERBOSE( "Best phase: " << phase
                            << " drawerIdx " << drawerIdx
-                           << " channel " << channel << endmsg;
+                           << " channel " << channel );
         }
       
         chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
@@ -479,8 +479,8 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
             && time < m_timeMaxThresh) {
 
           amplitude *= correctAmp(time, m_of2);
-          msg(MSG::VERBOSE) << "Amplitude corrected by " << correctAmp(time, m_of2)
-                           << " new amplitude is " << amplitude << endmsg;
+          ATH_MSG_VERBOSE( "Amplitude corrected by " << correctAmp(time, m_of2)
+                           << " new amplitude is " << amplitude );
         }
 
         if(m_notTestBeamCabling) {
