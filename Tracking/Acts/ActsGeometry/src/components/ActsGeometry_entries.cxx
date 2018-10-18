@@ -14,6 +14,8 @@
 #include "ActsGeometry/NominalAlignmentCondAlg.h"
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
+#include "ActsGeometry/ActsPropStepRootWriterSvc.h"
+
 DECLARE_COMPONENT( ActsExtrapolationAlg )
 DECLARE_COMPONENT( ActsWriteTrackingGeometry )
 DECLARE_COMPONENT( ActsTrackingGeometrySvc )
@@ -25,3 +27,5 @@ DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
 DECLARE_COMPONENT( GeomShiftCondAlg )
 DECLARE_COMPONENT( NominalAlignmentCondAlg )
 DECLARE_COMPONENT( ActsTrackingGeometryTool )
+
+DECLARE_COMPONENT( ActsPropStepRootWriterSvc )

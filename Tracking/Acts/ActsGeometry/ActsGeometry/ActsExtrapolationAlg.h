@@ -49,6 +49,7 @@ class EventContext;
 class IAthRNGSvc;
 class IActsExCellWriterSvc;
 class ActsExtrapolationTool;
+class IActsPropStepRootWriterSvc;
 
 class ActsExtrapolationAlg : public AthReentrantAlgorithm {
 public:
@@ -59,6 +60,7 @@ public:
   
 private:
   ServiceHandle<IActsExCellWriterSvc> m_exCellWriterSvc;
+  ServiceHandle<IActsPropStepRootWriterSvc> m_propStepWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
 
   ToolHandle<ActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};

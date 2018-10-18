@@ -17,6 +17,7 @@
 #include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
+#include "ActsGeometry/IActsPropStepRootWriterSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
@@ -36,6 +37,7 @@ ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
       m_exCellWriterSvc("ActsExCellWriterSvc", name),
+      m_propStepWriterSvc("ActsPropStepRootWriterSvc", name),
       m_rndmGenSvc("AthRNGSvc", name),
       m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
 {
@@ -48,6 +50,7 @@ StatusCode ActsExtrapolationAlg::initialize() {
   ATH_CHECK( m_exCellWriterSvc.retrieve() );
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_extrapolationTool.retrieve() );
+  ATH_CHECK( m_propStepWriterSvc.retrieve() );
 
   if (m_writeMaterialTracks) {
     ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
@@ -109,6 +112,7 @@ StatusCode ActsExtrapolationAlg::execute_r(const EventContext& ctx) const
           std::move(cov), std::move(pars), surface);
       steps = m_extrapolationTool->propagate(startParameters);
       writeStepsObj(steps);
+      m_propStepWriterSvc->write(steps);
   }
 
 

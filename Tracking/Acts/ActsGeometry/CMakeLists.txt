@@ -54,6 +54,7 @@ atlas_add_component( ActsGeometry
                      src/GeomShiftCondAlg.cxx
                      src/NominalAlignmentCondAlg.cxx
                      src/ActsTrackingGeometryTool.cxx
+                     src/ActsPropStepRootWriterSvc.cxx
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsGeometry
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
