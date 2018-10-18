@@ -32,6 +32,9 @@ namespace SoftBVrt {
     m_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
   {
   
+    m_secVertexFinderTool.setTypeAndName("InDet::InDetVKalVxInJetTool/BJetSVFinder");    
+    m_trkDistanceFinderTool.setTypeAndName("Trk::SeedNewtonTrkDistanceFinder/TrkDistanceFinder"); 
+
     declareProperty( "JetCollectionName", m_jetCollectionName = "AntiKt4EMTopoJets" );
     declareProperty( "TrackJetCollectionName", m_trackjetCollectionName = "AntiKtVR30Rmax4Rmin02TrackJets" );
   
@@ -108,14 +111,7 @@ namespace SoftBVrt {
 
   StatusCode SoftBVrtClusterTool::initializeTools(){
 
-    // used for reconstructing vertices in track clusters
-    m_secVertexFinderTool.setTypeAndName("InDet::InDetVKalVxInJetTool/BJetSVFinder");    
-
     ATH_CHECK( m_secVertexFinderTool.retrieve() );
-
-    // used for determining 3D track-track distance
-    m_trkDistanceFinderTool.setTypeAndName("Trk::SeedNewtonTrkDistanceFinder/TrkDistanceFinder"); 
-
     ATH_CHECK( m_trkDistanceFinderTool.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -221,9 +217,9 @@ namespace SoftBVrt {
     // to hold the track clusters
     std::vector<SoftBVrt::TrackCluster> clusterVec;
   
-    std::vector<const xAOD::TrackParticle*>* seedtracks = new std::vector<const xAOD::TrackParticle*>;
-    std::vector<const xAOD::TrackParticle*>* clustertracks = new std::vector<const xAOD::TrackParticle*>;
-  
+    auto seedtracks = std::make_unique<std::vector<const xAOD::TrackParticle*>> ();
+    auto clustertracks = std::make_unique<std::vector<const xAOD::TrackParticle*>> ();
+
     // build the vectors of seed / cluster track candidates
     for (const xAOD::TrackParticle *track : *tracks)
       {     
@@ -239,7 +235,7 @@ namespace SoftBVrt {
 	// hard-scatter are labelled as pileup
 	int ispu = 0;
             
-	for( auto pv : *Primary_vertices ) {
+	for( const xAOD::Vertex *pv : *Primary_vertices ) {
 	
 	  for (unsigned int i = 0; i < pv->nTrackParticles(); i++) {
 	  
@@ -264,7 +260,7 @@ namespace SoftBVrt {
 
 	  // find tracks associated to
 	  // calo / track jets
-	  for (const auto* jet : *jets) {	  
+	  for (const xAOD::Jet *jet : *jets) {	  
 	  
 	    //Get ghost associated tracks
 	    std::vector<const xAOD::TrackParticle*> jet_tracks;
@@ -274,7 +270,7 @@ namespace SoftBVrt {
 	    float dr = track->p4().DeltaR(jet->p4());
 	    if (dr < seedIso) seedIso = dr;
 	  
-	    for (const auto* tjet : *trackjets) {	      	            
+	    for (const xAOD::Jet *tjet : *trackjets) {	      	            
 	    
 	      if (tjet->pt() < m_trackjet_pt_threshold)
 		continue;
@@ -315,12 +311,12 @@ namespace SoftBVrt {
 	
 	  // find tracks associated to
 	  // calo / track jets
-	  for (const auto* jet : *jets) {
+	  for (const xAOD::Jet *jet: *jets) {
 	  
 	    float dr = track->p4().DeltaR(jet->p4());
 	    if (dr < clusterIso) clusterIso = dr;
 	  
-	    for (const auto* tjet : *trackjets) {
+	    for (const xAOD::Jet *tjet : *trackjets) {
 	    
 	      if (tjet->pt() < m_trackjet_pt_threshold)
 		continue;
@@ -359,7 +355,7 @@ namespace SoftBVrt {
     // pt seed are selected in case of overlap
     std::sort (seedtracks->begin(), seedtracks->end(), TrackCluster::trackptsorter);
 
-    if (seedtracks->size() > 0)
+    if (seedtracks->size() > 0) {
       for (size_t j = 0; j < seedtracks->size(); ++j)
 	{ 
 	
@@ -370,18 +366,18 @@ namespace SoftBVrt {
 	  cluster.addSeed(track);
 	  cluster.addTrack(track);     
       
-	  if (clustertracks->size() > 0)
+	  if (clustertracks->size() > 0) {
 	    for (size_t k = 0; k < clustertracks->size(); ++k)  
 	      {	  	    	   
-	  
+		
 		const xAOD::TrackParticle* track2 = (*clustertracks)[k];
-
+		
 		// calculate 3D track-track distance
 		bool distance_valid = m_trkDistanceFinderTool->CalculateMinimumDistance(track->perigeeParameters(), track2->perigeeParameters());
-	  
+		
 		TLorentzVector trackVec = track2->p4();	 	      
 		TLorentzVector seed = cluster.m_seed->p4();
-
+		
 		if (distance_valid) {
 	    
 		  float distance = m_trkDistanceFinderTool->GetDistance();
@@ -391,6 +387,7 @@ namespace SoftBVrt {
 	      	      
 		}	      
 	      }
+	  }
 
 	  // no hope of reconstructing a secondary
 	  // vertex if less than two tracks
@@ -409,7 +406,7 @@ namespace SoftBVrt {
 
 	    }
 	  	  
-	    else
+	    else {
 	      for (size_t p = 0; p < clusterVec.size(); p++) {
 	      
 		double frac = cluster.getSharedTrackFraction(clusterVec[p]);	    	      
@@ -423,6 +420,7 @@ namespace SoftBVrt {
 		}
 
 	      }
+	    }
 	
 	    if (fillcluster) {	 
 	    
@@ -432,19 +430,21 @@ namespace SoftBVrt {
 	    }       
 	  }
 	}
+    }
   
     // loop through all track clusters
-    for (size_t p = 0; p < clusterVec.size(); p++) {
+    //for (size_t p = 0; p < clusterVec.size(); p++) {
+    for (TrackCluster cluster : clusterVec) {
 
       TLorentzVector direction;
 
-      direction = clusterVec[p].m_sumTrack;
+      direction = cluster.m_sumTrack;
     
       // apply vertexing tool
-      const Trk::VxSecVertexInfo* myVertexInfo = m_secVertexFinderTool->findSecVertex( *myVertex, direction, clusterVec[p].getTracks() );   
+      const Trk::VxSecVertexInfo* myVertexInfo = m_secVertexFinderTool->findSecVertex( *myVertex, direction, cluster.getTracks() );   
       const std::vector<xAOD::Vertex*> vertices = myVertexInfo->vertices();       
     
-      for (auto *vertex : vertices) 
+      for (xAOD::Vertex *vertex : vertices) 
 	RecoVertices->push_back( vertex );
       	    
     }    

@@ -312,6 +312,7 @@
 + Reconstruction/RecTPCnv
 + Reconstruction/RecAthenaPool
 + Reconstruction/MissingETEvent
++ Reconstruction/VKalVrt/SoftBVrtClusterTool
 + Reconstruction/VKalVrt/VrtSecInclusive
 
 # Simulation package(s):

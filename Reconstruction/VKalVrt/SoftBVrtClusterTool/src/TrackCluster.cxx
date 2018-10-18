@@ -44,12 +44,9 @@ namespace SoftBVrt {
     
     int nshared = 0;
     
-    for(size_t i=0; i< m_cluster_tracks.size(); i++){
-      
-      for(size_t j=0; j< cluster.getNTracks(); j++){
-	
-	const xAOD::IParticle* trk1 =  m_cluster_tracks.at(i);
-	const xAOD::IParticle* trk2 =  cluster.getTracks().at(j);
+    for(const xAOD::IParticle* trk1 : m_cluster_tracks){
+
+      for(const xAOD::IParticle* trk2 : cluster.getTracks() ){       
 
 	if (abs(trk1->pt() - trk2->pt()) < 1) {
 
