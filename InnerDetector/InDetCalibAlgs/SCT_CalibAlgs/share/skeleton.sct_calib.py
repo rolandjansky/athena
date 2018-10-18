@@ -365,7 +365,7 @@ rec.__dict__.get('projectName').set_Value(projectName)
 from IOVDbSvc.CondDB import conddb
 conddb.dbdata = 'CONDBR2'
 conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>") 
-#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>340030</forceRunNumber>") 
+#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>350803</forceRunNumber>") 
 
 # GeoModel & MagneticFieldSvc
 #--------------------------------------------------------------
