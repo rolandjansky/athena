@@ -66,7 +66,9 @@ StatusCode TrigT1CaloEFex::finalize(){
 StatusCode TrigT1CaloEFex::execute(){
 	
         MsgStream msg(msgSvc(), name());
+#ifndef NDEBUG
 	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endreq;
+#endif
 
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
@@ -81,6 +83,7 @@ StatusCode TrigT1CaloEFex::execute(){
 	xAOD::TrigEMClusterContainer* clusters = new xAOD::TrigEMClusterContainer();
 	xAOD::TrigEMClusterAuxContainer* auxclusters = new xAOD::TrigEMClusterAuxContainer();
 	clusters->setStore(auxclusters);
+	clusters->reserve(100);
 	std::string clusterName(m_outputClusterName);
 	if ( evtStore()->record(clusters,clusterName).isFailure() ){
 		msg << MSG::ERROR  << "recording was not possible" << endreq;
@@ -111,8 +114,10 @@ StatusCode TrigT1CaloEFex::execute(){
 		if ( fabsf(clusterTimeWeight) > 0.1 )
 		clusterTime /=clusterTimeWeight;
 		else clusterTime = -999.99;
+#ifndef NDEBUG
 		msg << MSG::DEBUG << "CELL versus CLUSTER : " << cellAbove->eta() << " " << cellAbove->phi() << " " << etaCluster << " " << phiCluster << 
  " " << cellAbove->eta()-etaCluster << " " << cellAbove->phi()-phiCluster << endreq;
+#endif
 		// if find the cluster position fails, etaCluster=999.0
 		if ( etaCluster > 998.0 ) continue;
 		// other cluster sizes for some of the shower shapes
@@ -168,6 +173,11 @@ StatusCode TrigT1CaloEFex::execute(){
 		cl->setWstot( wstot );
 		
 	}
+	// avoid memory leak
+	if ( scells ) {scells->clear(); delete scells;}
+	m_cellsAround.clear();
+	m_cellsAround2.clear();
+	m_TTsAround.clear();
 	return StatusCode::SUCCESS;
 }
 

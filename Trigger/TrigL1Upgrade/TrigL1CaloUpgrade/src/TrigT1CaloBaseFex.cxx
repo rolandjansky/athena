@@ -56,17 +56,20 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 	}
 
 	if ( m_useProvenance ) {
-		if ( !scells ) scells = new CaloCellContainer();
+		if ( !scells ) scells = new CaloCellContainer(SG::VIEW_ELEMENTS);
+		scells->reserve( scells_from_sg->size() ); // max possible size
         	for(auto scell : *scells_from_sg) {
 			if ( scell->provenance() & 0x40 ) scells->push_back( scell );
 		}
 	}
 	else {
-		if ( !scells ) scells = new CaloCellContainer();
+		if ( !scells ) scells = new CaloCellContainer(SG::VIEW_ELEMENTS);
+		scells->reserve( scells_from_sg->size() ); // max possible size
         	for(auto scell : *scells_from_sg) {
 			scells->push_back( scell );
 		}
 	}
+#ifndef NDEBUG
         for(auto scell : *scells) {
 		if ( scell->et() < 3e3 ) continue;
 		msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endreq;
@@ -75,6 +78,7 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 		if ( TT->pt() < 3 ) continue;
 		msg << MSG::DEBUG << "TT : " << TT->pt() << " " << TT->eta() << " " << TT->phi() << endreq;
 	}
+#endif
 	return StatusCode::SUCCESS;
 }
 
@@ -82,7 +86,7 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 
         MsgStream msg(msgSvc(), name());
         const CaloCellContainer* scells_from_sg;
-        if ( evtStore()->retrieve(scells_from_sg,"SCell").isFailure() ){
+        if ( evtStore()->retrieve(scells_from_sg,m_inputCellsName).isFailure() ){
                 msg << MSG::WARNING << "did not find cell container" << endreq;
                 return StatusCode::SUCCESS;
         }
@@ -92,19 +96,22 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
         }
 
         if ( m_useProvenance ) {
-                if ( !scells ) scells = new CaloCellContainer();
+                if ( !scells ) scells = new CaloCellContainer(SG::VIEW_ELEMENTS);
+		scells->reserve( scells_from_sg->size() ); // max possible size
                 for(auto scell : *scells_from_sg) {
                         if ( scell->provenance() & 0x40 ) scells->push_back( scell );
                 }
         }
         else {
-                if ( !scells ) scells = new CaloCellContainer();
+                if ( !scells ) scells = new CaloCellContainer(SG::VIEW_ELEMENTS);
+		scells->reserve( scells_from_sg->size() ); // max possible size
                 for(auto scell : *scells_from_sg) {
                         scells->push_back( scell );
                 }
         }
 	// TODO: add more quality cuts? ...
 
+#ifndef NDEBUG
         for(auto scell : *scells) {
                 if ( scell->et() < etThresholdGeV*1e3 ) continue;
                 msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endreq;
@@ -113,6 +120,7 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
                 if ( TT->pt() < etThresholdGeV ) continue;
                 msg << MSG::DEBUG << "TT : " << TT->pt() << " " << TT->eta() << " " << TT->phi() << endreq;
         }
+#endif
         return StatusCode::SUCCESS;
 }
 
