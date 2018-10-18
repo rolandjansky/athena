@@ -29,6 +29,7 @@ class TileDetectorTool : public GeoModelTool
   bool isTestBeam() const { return m_testBeam; }
   bool isAddPlates() const { return m_addPlates; }
   int uShape() const { return m_uShape; }
+  int csTube() const { return m_csTube; }
   int glue() const { return m_glue; }
 
  private:
@@ -45,6 +46,7 @@ class TileDetectorTool : public GeoModelTool
       1: simulation with glue,
       2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
   int m_glue;
+  int m_csTube;
 
   bool m_not_locked;
   bool m_useNewFactory;
