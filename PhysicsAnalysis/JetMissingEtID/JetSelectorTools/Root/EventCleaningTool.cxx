@@ -129,15 +129,6 @@ int EventCleaningTool::keepJet(const xAOD::Jet& jet) const
 	return m_jetCleaningTool->keep(jet);
 }
 
-//=============================================================================
-// Finalize
-//=============================================================================
-StatusCode EventCleaningTool::finalize()
-{
-	return StatusCode::SUCCESS;
-
-}
-
 }//ECUtils
 
 
