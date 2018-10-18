@@ -947,7 +947,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_egammaCalibTool.isUserConfigured()) {
     m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool");
     ATH_MSG_DEBUG( "Initialising EgcalibTool " );
-    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2017_R21_v0") ); //used for analysis using data processed with 21.0
+    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2017_R21_v1") ); //used for analysis using data processed with 21.0
     ATH_CHECK( m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1") );
     ATH_CHECK( m_egammaCalibTool.setProperty("useAFII", isAtlfast()?1:0) );
     ATH_CHECK( m_egammaCalibTool.retrieve() );
@@ -1235,10 +1235,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   if (!m_metSignif.isUserConfigured()) {
-    m_metSignif.setTypeAndName("met::METSignificance/metSignificance");
+    m_metSignif.setTypeAndName("met::METSignificance/metSignificance_"+jetname);
     ATH_CHECK( m_metSignif.setProperty("SoftTermParam", m_softTermParam) );
     ATH_CHECK( m_metSignif.setProperty("TreatPUJets", m_treatPUJets) );
     ATH_CHECK( m_metSignif.setProperty("DoPhiReso", m_doPhiReso) );
+    if(jetname == "AntiKt4EMTopo" || jetname =="AntiKt4EMPFlow"){
+      ATH_CHECK( m_metSignif.setProperty("JetCollection", jetname) );
+    } else {
+      ATH_MSG_WARNING("Object-based METSignificance recommendations only exist for EMTopo and PFlow, falling back to AntiKt4EMTopo");
+      ATH_CHECK( m_metSignif.setProperty("JetCollection", "AntiKt4EMTopo") );
+    }
     ATH_CHECK( m_metSignif.retrieve() );
   }
 

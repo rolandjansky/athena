@@ -17,7 +17,7 @@ from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerD
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 singleMuTriggers = TriggerLists.single_mu_Trig()
-cutExpression = "(count(Muons.DFCommonMuonsPreselection && Muons.pt > (24*GeV) && abs(Muons.eta) < 2.47) ) >= 2"
+cutExpression = "(count(Muons.DFCommonMuonsPreselection && Muons.pt > (20*GeV) && abs(Muons.eta) < 2.47) ) >= 2"
 JETM14StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
     name       = "JETM14StringSkimmingTool",
     expression = cutExpression)
@@ -36,7 +36,7 @@ fileName = buildFileName( derivationFlags.WriteDAOD_JETM14Stream )
 JETM14Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM14Stream.AcceptAlgs(['JETM14Kernel'])
 
-contentManager = METTriggerDerivationContentManager("JETM14", JETM14Stream, trackThreshold=10)
+contentManager = METTriggerDerivationContentManager("JETM14", JETM14Stream, trackThreshold=1)
 
 for tool in contentManager.thinningTools:
   ToolSvc += tool

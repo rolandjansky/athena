@@ -22,7 +22,7 @@ namespace CP {
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
     declareProperty("CorrFile",                    m_corr_file            = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
-    declareProperty("CorrFile_ddshift",            m_corr_ddshift_file    = "IsolationCorrections/v2/isolation_ddcorrection_shift.root");
+    declareProperty("CorrFile_ddshift",            m_corr_ddshift_file    = "IsolationCorrections/v3/isolation_ddcorrection_shift.root");
     declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file = ""); //Obsolete, kept for compatibility
     declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file      = ""); //Obsolete, kept for compatibility
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root", "a run I smearing for MC calo iso"); 

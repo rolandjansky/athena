@@ -14,6 +14,7 @@
 #include "PATCore/TSelectorToolBase.h"
 #include "PATCore/TResult.h"
 #include "PATCore/TCalculatorToolBase.h"
+#include "PATCore/PATCoreEnums.h"
 
 #ifdef __CINT__
 
@@ -22,6 +23,10 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace Root ;
+
+#pragma link C++ namespace PATCore ;
+#pragma link C++ namespace PATCore::ParticleDataType ;
+#pragma link C++ enum PATCore::ParticleDataType::DataType ;
 
 #pragma link C++ class Root::TAccept+ ;
 #pragma link C++ class Root::TSelectorToolBase+ ;

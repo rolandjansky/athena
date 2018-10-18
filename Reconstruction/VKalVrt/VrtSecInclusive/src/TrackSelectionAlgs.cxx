@@ -102,7 +102,7 @@ namespace VKalVrtAthena {
     if( !m_decor_isSelected ) m_decor_isSelected = std::make_unique< SG::AuxElement::Decorator< char > >( "is_selected" + m_jp.augVerString );
     
     // Setup cut functions
-    if( 0 == m_trackSelectionFuncs.size() ) {
+    if( 0 == m_trackSelectionFuncs.size() && !m_jp.passThroughTrackSelection ) {
       
       // These cuts are optional. Specified by JobProperty
       if( m_jp.do_PVvetoCut )   m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_notPVassociated );

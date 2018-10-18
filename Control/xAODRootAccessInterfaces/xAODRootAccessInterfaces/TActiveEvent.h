@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TActiveEvent.h 594923 2014-04-30 13:28:05Z krasznaa $
 #ifndef XAODROOTACCESSINTERFACES_TACTIVEEVENT_H
 #define XAODROOTACCESSINTERFACES_TACTIVEEVENT_H
 
@@ -25,9 +24,6 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 594923 $
-   /// $Date: 2014-04-30 15:28:05 +0200 (Wed, 30 Apr 2014) $
-   ///
    class TActiveEvent {
 
       /// Allow the TEvent class to register itself at the right time
@@ -38,8 +34,8 @@ namespace xAOD {
       static TVirtualEvent* event();
 
    private:
-      /// Pointer to the currently active TVirtualEvent object
-      static TVirtualEvent* s_event;
+      /// Set the active event pointer
+      static void setEvent( TVirtualEvent* ptr );
 
    }; // class TActiveEvent
 
