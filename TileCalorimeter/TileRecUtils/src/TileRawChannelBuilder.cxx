@@ -76,7 +76,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_RChSumL(0.0)
   , m_RChSumH(0.0)
   , m_notUpgradeCabling(true)
-  , m_notTestbeamCabling(true)
+  , m_notTestBeamCabling(true)
 {
   resetDrawer();
   memset(s_error, 0, sizeof(s_error));
