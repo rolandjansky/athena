@@ -32,6 +32,9 @@ from TrigCaloRec.TrigCaloClusterMakerMonitoring import TrigL1BSTowerHypoOnlineMo
 from CaloClusterCorrection.common import *
 from CaloUtils.CaloUtilsConf import *
 
+# MT stuff
+from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker as _HLTCaloCellMaker
+
 
 from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 from AthenaCommon.SystemOfUnits import GeV,MeV,deg
@@ -1983,4 +1986,10 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
         self += emtoposplitter
         self += emtopomoments
 
+
+class HLTCaloCellMaker (_HLTCaloCellMaker):
+    __slots__ = []
+    def __init__(self, name):
+        super( HLTCaloCellMaker, self ).__init__(name)
+        self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale')]
 
