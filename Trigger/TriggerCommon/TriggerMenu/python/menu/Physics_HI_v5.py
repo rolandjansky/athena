@@ -115,13 +115,20 @@ def setupMenu():
 	['j150_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j50_ion_L1J12',         'L1_J12',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j60_ion_L1J15',         'L1_J15',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j60_ion_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j75_ion_L1J20',         'L1_J20',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_L1J30',         'L1_J30',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j85_ion_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j85_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j100_ion_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j100_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j110_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j110_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j120_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j120_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j130_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j150_ion_L1J30',         'L1_J30',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j150_ion_L1J50',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j180_ion_L1J50',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j200_ion_L1J50',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],		
 	['j30_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -144,6 +151,8 @@ def setupMenu():
     ['j50_320eta490_ion',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
     ['j60_320eta490_ion',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
     ['j70_320eta490_ion',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+    ['j100_320eta490_ion',         'L1_J30.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+    ['j170_320eta490_ion',         'L1_J50.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 
 	#multijets
@@ -322,6 +331,8 @@ def setupMenu():
 	['mu6_j20_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j20_ion'] ]],
 	['mu6_j25_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j25_ion'] ]],
 	['mu6_j30_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream, 'express'], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
+	['mu6_j40_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j40_ion'] ]],
+	['mu6_j50_ion_dr05', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j50_ion'] ]],
 
 	#supporting triggers
 	['mu4_j30_a2_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j30_a2_ion'] ]],
@@ -335,6 +346,8 @@ def setupMenu():
     ['mu6_j20_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j20_ion'] ]],
     ['mu6_j25_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j25_ion'] ]],
     ['mu6_j30_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
+    ['mu6_j40_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j40_ion'] ]],
+    ['mu6_j50_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j50_ion'] ]],
             
      #UPC:Supporting
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L12TAU1_VTE50',        'L1_2TAU1_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
