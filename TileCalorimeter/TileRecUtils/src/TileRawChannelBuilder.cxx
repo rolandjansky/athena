@@ -76,6 +76,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_RChSumL(0.0)
   , m_RChSumH(0.0)
   , m_notUpgradeCabling(true)
+  , m_notTestbeamCabling(true)
 {
   resetDrawer();
   memset(s_error, 0, sizeof(s_error));
@@ -176,6 +177,7 @@ StatusCode TileRawChannelBuilder::initialize() {
   }
   
   m_notUpgradeCabling = (cabling->getCablingType() != TileCablingService::UpgradeABC);
+  m_notTestBeamCabling = (cabling->getCablingType() != TileCablingService::TestBeam);
 
   ATH_CHECK( m_rawChannelContainerKey.initialize() );
 
