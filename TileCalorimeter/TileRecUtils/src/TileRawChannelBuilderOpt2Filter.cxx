@@ -240,11 +240,12 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
                  time,
                  chi2,
                  pedestal);
-
+  //FIXME
   if (m_correctTime
-      && (time != 0
+          && (!m_notTestBeamCabling 
+          || (time != 0
           && time < m_maxTime
-          && time > m_minTime)) {
+          && time > m_minTime))) {
 
     rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
@@ -459,7 +460,40 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
 
         chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
+        if (m_bestPhase) {
+          unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+          // AS 19.11.09 - note minus sign here - time in DB is opposite to best phase 
+          phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+          msg(MSG::VERBOSE) << "Best phase: " << phase
+                           << " drawerIdx " << drawerIdx
+                           << " channel " << channel << endmsg;
+        }
+      
+        chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
+
+        // If weights for tau=0 are used, deviations are seen in the amplitude =>
+        // function to correct the amplitude
+        if (m_correctAmplitude
+            && amplitude > m_ampMinThresh
+            && time > m_timeMinThresh
+            && time < m_timeMaxThresh) {
+
+          amplitude *= correctAmp(time, m_of2);
+          msg(MSG::VERBOSE) << "Amplitude corrected by " << correctAmp(time, m_of2)
+                           << " new amplitude is " << amplitude << endmsg;
+        }
+        //FIXME 
+        if(m_notTestBeamCabling) {
+        if (time > m_maxTime) time = m_maxTime;
+        if (time < m_minTime) time = m_minTime;
+        }
+
+        if (m_bestPhase) {
+          time = -phase;
+          chi2 = -chi2;
+        } else {
         time = 0.;
+        }
         m_nCenter++;
 
       }
@@ -511,11 +545,12 @@ int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, i
                     << " chi2=" << chi2
                     << "  Amp=" << amplitude );
   }
-  
+ //FIXME 
   time -= savePhase;
+  if (m_notTestBeamCabling) {
   if (time > m_maxTime) time = m_maxTime;
   if (time < m_minTime) time = m_minTime;
-  
+  } 
   ATH_MSG_VERBOSE( "OptFilterEne=" << amplitude
                   << " Phase=" << savePhase
                   << " Absolute Time=" << time );
