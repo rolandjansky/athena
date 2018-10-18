@@ -1295,7 +1295,6 @@ namespace Trk {
     }
     if (!caloEntrance) {
       ATH_MSG_ERROR( "calo entrance not available" );
-      return 0;
     }
 
     // std::cout << "intrk1: " << intrk1 << " intrk2: " << intrk2 << std::endl;
@@ -1337,8 +1336,9 @@ namespace Trk {
 
 
     const TrackParameters *firstidpar = (*indettrack->trackParameters())[1];
-    // const TrackParameters *lastidpar=indettrack->trackParameters()->back();
-    const TrackParameters *lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *caloEntrance, alongMomentum,
+    const TrackParameters *lastidpar = 0;
+    if(caloEntrance) 
+      lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *caloEntrance, alongMomentum,
                                                                            Trk::muon);
     if (!lastidpar) {
       lastidpar = indettrack->trackParameters()->back()->clone();
@@ -3530,7 +3530,6 @@ public:
           }
           if (!caloEntrance) {
             ATH_MSG_ERROR( "calo entrance not available" );
-            return;
           }
           if (caloEntrance) {
             tmppar = m_extrapolator->extrapolateToVolume(*startmatpar2, *caloEntrance, Trk::alongMomentum,
