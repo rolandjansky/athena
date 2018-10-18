@@ -170,23 +170,6 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-
-
-  //  extractPFO for W precision-type measurements (same as current extractPFO)
-  StatusCode METTauAssociator::GetPFOWana(const xAOD::IParticle* obj,
-               std::vector<const xAOD::IParticle*>& pfolist,
-               const met::METAssociator::ConstitHolder& constits,
-               std::map<const IParticle*,MissingETBase::Types::constvec_t> & momenta,
-               std::vector<double>& vPhiRnd,
-               unsigned int& lept_count,
-               float& UEcorr) const
-  {
-    // use the standard extractPFO method
-    return this->METTauAssociator::extractPFO(obj, pfolist, constits, momenta);
-
-  }
-
-
 }
 
 

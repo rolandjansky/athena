@@ -232,15 +232,14 @@ namespace met {
 
 
   // extractPFO for W precision-type measurements
-  StatusCode METEgammaAssociator::GetPFOWana(const xAOD::IParticle* obj,
-               std::vector<const xAOD::IParticle*>& pfolist,
-               const met::METAssociator::ConstitHolder& constits,
-               std::map<const IParticle*,MissingETBase::Types::constvec_t> & momenta,
-               std::vector<double>& vPhiRnd,
-               unsigned int& lept_count,
-               float& UEcorr) const
+  StatusCode METEgammaAssociator::extractPFOHR(const xAOD::IParticle* obj,
+                                              std::vector<const xAOD::IParticle*> hardObjs,
+                                              std::vector<const xAOD::IParticle*>& pfolist,
+                                              const met::METAssociator::ConstitHolder& constits,
+                                              std::map<const IParticle*,MissingETBase::Types::constvec_t> & /*momenta*/,
+                                              float& UEcorr) const
   {
-    // Step 1. Cnstructing association electron-PFO map
+    // Constructing association electron-PFO map
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
     const xAOD::IParticle* swclus = eg->caloCluster();
 
@@ -275,108 +274,49 @@ namespace met {
       pfolist.push_back(pfo);
     }
 
-    // Step 2. Calculating UE energy correction for given lepton
+    // Step 2. Calculating Uncorrected HR and UE energy correction
     if(swclus){
-      TLorentzVector tv_UEcorr;  // vector of UE correction 
-      std::pair <double, double> eta_rndphi;
-      eta_rndphi.first = swclus->eta();
-      eta_rndphi.second = vPhiRnd[lept_count];
-      lept_count++;
-  
-      for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
-        if( pfo_itr->e() < 0)
+      // Vectoral sum of all PFOs 
+      TLorentzVector HR;  // uncorrected HR (initialized with 0,0,0,0 automatically)
+      for(const auto& pfo_itr : *constits.pfoCont) {
+        if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
           continue;
-        double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
-        if( dR < m_Drcone ){          
-          float dphi_angle = std::fabs( swclus->phi() - pfo_itr->phi() );
-          if (dphi_angle > TMath::Pi()) 
-            dphi_angle = 2*TMath::Pi() - dphi_angle;
-          if( swclus->phi() <  pfo_itr->phi() )
-            dphi_angle = -1. * dphi_angle;
+        HR += pfo_itr->p4();
+      }
 
-          TLorentzVector tv_pfo = pfo_itr->p4();
-          tv_pfo.RotateZ(dphi_angle);
-          tv_UEcorr += tv_pfo;  // summing PFOs of UE for correction
-        } // m_Drcone requirement   
-      } // loop over PFOs
-      UEcorr = tv_UEcorr.Pt();  // Pt of UE correction
+      // Create a vector of swclus form hardObjs (all electrons)
+      std::vector<const xAOD::IParticle*> v_swclus;
+      for(const auto& obj_i : hardObjs){
+        const xAOD::Egamma* eg_curr = static_cast<const xAOD::Egamma*>(obj_i); // current egamma object
+        if( eg_curr->caloCluster() )
+          v_swclus.push_back( eg_curr->caloCluster() );       
+      }
+  
+      // Subtruct PFOs which are in the cone around swclus (gives uncorrected HR)
+      for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
+        if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
+          continue;  
+        for(const auto& swclus_i : v_swclus) { // loop over swclus
+          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), swclus_i->eta(), swclus_i->phi() );
+          if( dR < m_Drcone )
+            HR -= pfo_i->p4();
+        } // over swclus
+      } // over PFOs
+
+      // Save v_swclus as a vector TLV (as commonn type for electrons and muons)
+      std::vector<TLorentzVector> v_swclusTLV;  
+      for(const auto& swclus_i : v_swclus) // loop over v_swclus
+        v_swclusTLV.push_back( swclus_i->p4() );
+
+      // Save current swclus as TLV
+      TLorentzVector swclusTLV = swclus->p4();
+
+      // Get UE correction
+      ATH_CHECK( GetUEcorr(constits, v_swclusTLV, swclusTLV, HR, m_Drcone, m_MinDistCone, UEcorr) );
     } // swclus existance requirement
 
     return StatusCode::SUCCESS;
   }
-
-  StatusCode METEgammaAssociator::hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
-                                                const met::METAssociator::ConstitHolder& constits, 
-                                                TLorentzVector& HR,
-                                                std::vector<double>& vPhiRnd) const
-  {
-    // 1. Summing all PFOs
-    for(const auto& pfo_itr : *constits.pfoCont) {
-      if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
-        continue;
-      HR += pfo_itr->p4();
-    }
-
-    // 2. Subtracting PFOs mathed to electrons from HR 
-    // std::vector<const xAOD::Egamma*> eg = static_cast<std::vector<const xAOD::Egamma*>>(hardObjs);
-    std::vector<const xAOD::Egamma*> eg;
-    for(const auto& obj_i : hardObjs){
-      if(obj_i->pt()<5e3 && obj_i->type() != xAOD::Type::Muon) // similar to METAssociator.cxx, probaly xAOD::Type::Muon part should be removed
-        continue;
-      eg.push_back( static_cast<const xAOD::Egamma*>(obj_i) );
-    }
- 
-    std::vector<const xAOD::IParticle*> swclus;
-    for(const auto& eg_i : eg)
-      if( eg_i->caloCluster() )
-        swclus.push_back( eg_i->caloCluster() );
-
-    for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
-      if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
-        continue;
-  
-      for(const auto& swclus_i : swclus) {
-        double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), swclus_i->eta(), swclus_i->phi() );
-        if( dR < m_Drcone )
-          HR -= pfo_i->p4();
-      } // over swclus
-    } // over PFOs
-
-    // 3. Get random phi
-    unsigned int seed = 0;
-    TRandom3 hole;
-    if( !swclus.empty() ){
-      seed = floor( swclus.back()->pt() * 1.e3 );     
-      hole.SetSeed(seed);
-    }
-  
-    for(const auto& swclus_i : swclus) {
-      bool isNextToPart(true);
-      bool isNextToHR(true);
-      double Rnd;
-  
-      while(isNextToPart || isNextToHR ){
-        isNextToPart = false; 
-        isNextToHR = true;
-  
-        Rnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
-        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), swclus_i->eta(), Rnd );
-  
-        if(dR > m_MinDistCone) 
-          isNextToHR = false;
-  
-        for(const auto& swclus_j : swclus) {
-          dR = P4Helpers::deltaR( swclus_i->eta(), Rnd, swclus_j->eta(), swclus_j->phi() );
-          if(dR < m_MinDistCone)
-            isNextToPart = true;
-        } // swclus_j
-      } // while isNextToPart, isNextToHR
-      vPhiRnd.push_back(Rnd);
-    } // swclus_i
-
-    return StatusCode::SUCCESS;
-  }
-
 
   //**********************************************************************
   // Select Egamma tracks & clusters

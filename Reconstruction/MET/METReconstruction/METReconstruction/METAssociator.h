@@ -118,20 +118,21 @@ namespace met {
 				  const met::METAssociator::ConstitHolder& constits,
 				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
 
-    virtual StatusCode GetPFOWana(const xAOD::IParticle* obj,
-          std::vector<const xAOD::IParticle*>& pfolist,
-          const met::METAssociator::ConstitHolder& constits,
-          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-          std::vector<double>& vPhiRnd,
-          unsigned int& lept_count,
-          float& UEcorr) const
+    virtual StatusCode extractPFOHR(const xAOD::IParticle* obj,
+                                    std::vector<const xAOD::IParticle*> hardObjs,
+                                    std::vector<const xAOD::IParticle*>& pfolist,
+                                    const met::METAssociator::ConstitHolder& constits,
+                                    std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+                                    float& UEcorr) const
     {return StatusCode::FAILURE;}
 
-    virtual StatusCode hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
-                                    const met::METAssociator::ConstitHolder& constits, 
-                                    TLorentzVector& HR, 
-                                    std::vector<double>& vPhiRnd) const
-    {return StatusCode::SUCCESS;}  
+    StatusCode GetUEcorr(const met::METAssociator::ConstitHolder& constits,  
+                         std::vector<TLorentzVector>& v_clus,
+                         TLorentzVector& clus, 
+                         TLorentzVector& HR,
+                         const float Drcone,
+                         const float MinDistCone,
+                         float& UEcorr) const;
 
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
 				     std::vector<const xAOD::IParticle*>& constlist,

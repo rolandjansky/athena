@@ -64,18 +64,12 @@ namespace met{
 			  const met::METAssociator::ConstitHolder& constits,
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
 
-    StatusCode GetPFOWana(const xAOD::IParticle* obj,
-                         std::vector<const xAOD::IParticle*>& pfolist,
-                         const met::METAssociator::ConstitHolder& constits,
-                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-                         std::vector<double>& vPhiRnd,
-                         unsigned int& lept_count,
-                         float& UEcorr) const final;
-
-    StatusCode hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
-                             const met::METAssociator::ConstitHolder& constits, 
-                             TLorentzVector& HR,
-                             std::vector<double>& vPhiRnd) const final;                                
+    StatusCode extractPFOHR(const xAOD::IParticle* obj,
+                            std::vector<const xAOD::IParticle*> hardObjs,
+                            std::vector<const xAOD::IParticle*>& pfolist,
+                            const met::METAssociator::ConstitHolder& constits,
+                            std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+                            float& UEcorr) const final;
 
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,

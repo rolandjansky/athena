@@ -243,15 +243,6 @@ namespace met {
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
-    // HR and random Phi calculation
-    unsigned int lept_count = 0;  // Lepton counter
-    std::vector<double> vPhiRnd;  // vector of random phi for UE correction   
-    if (m_pflow && m_useTracks && m_recoil) {
-      TLorentzVector HR;            // uncorrected had. recoil  
-      constlist.clear();
-      ATH_CHECK( this->hadrecoil_PFO(hardObjs_tmp, constits, HR, vPhiRnd) ); // get HR and vPhiRnd
-    }
-
     // Loop over leptons in the event
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
@@ -265,7 +256,7 @@ namespace met {
           std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;          
           if(m_recoil){ // HR part:
             float UEcorr_Pt = 0.; // Underlying event correction for HR
-            ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr_Pt) );
+            ATH_CHECK( this->extractPFOHR(obj,hardObjs_tmp,constlist,constits,momentumOverride, UEcorr_Pt) );
             dec_UEcorr(*obj) = UEcorr_Pt;
           } 
           else{ // MET part: 
@@ -366,6 +357,70 @@ namespace met {
     }
     return true;
   }
+
+
+  StatusCode METAssociator::GetUEcorr(const met::METAssociator::ConstitHolder& constits,  // all PFOs
+                                      std::vector<TLorentzVector>& v_clus, // TLV vector of all clusters of hard objects
+                                      TLorentzVector& clus,                // TLV of current cluster 
+                                      TLorentzVector& HR,                  // uncorrected HR
+                                      const float Drcone,                       // Cone size for el-pfo association
+                                      const float MinDistCone,                  // Cone size for getting random Phi
+                                      float& UEcorr) const                 // UE correction (result)
+  {
+      // 1. Get random phi
+      unsigned int seed = 0;
+      TRandom3 hole;
+      if( !v_clus.empty() ){
+        seed = floor( v_clus.back().Pt() * 1.e3 );     
+        hole.SetSeed(seed);
+      }
+
+      bool isNextToPart(true);
+      bool isNextToHR(true);
+      double phiRnd(0.);  
+      while(isNextToPart || isNextToHR ){
+        isNextToPart = false; 
+        isNextToHR = true;
+    
+        phiRnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
+        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), clus.Eta(), phiRnd );
+    
+        if(dR > MinDistCone) 
+          isNextToHR = false;
+    
+        for(const auto& clus_j : v_clus) {
+           dR = P4Helpers::deltaR( clus.Eta(), phiRnd, clus_j.Eta(), clus_j.Phi() );
+           if(dR < MinDistCone)
+             isNextToPart = true;
+         } // swclus_j
+      } // while isNextToPart, isNextToHR
+  
+      // 2. Calculete UE correction
+      TLorentzVector tv_UEcorr; // TLV of UE correction (initialized with 0,0,0,0 automatically)     
+      std::pair <double, double> eta_rndphi; // pair of current cluser eta and random phi
+      eta_rndphi.first  = clus.Eta();
+      eta_rndphi.second = phiRnd;  
+      for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
+        if( pfo_itr->e() < 0)
+          continue;
+        double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
+        if( dR < Drcone ){
+          // Calculate delta phi
+          float dphi_angle = std::fabs( clus.Phi() - pfo_itr->phi() );
+          if( dphi_angle > TMath::Pi() ) 
+            dphi_angle = 2*TMath::Pi() - dphi_angle;
+          if( clus.Phi() <  pfo_itr->phi() )
+            dphi_angle = -1. * dphi_angle;
+          // Rotate on dphi_angle
+          TLorentzVector tv_pfo = pfo_itr->p4();
+          tv_pfo.RotateZ(dphi_angle);
+          tv_UEcorr += tv_pfo;  // summing PFOs of UE for correction
+        } // cone requirement        
+      } // loop over PFOs
+      UEcorr = tv_UEcorr.Pt();  // Pt of UE correction
+  
+      return StatusCode::SUCCESS;
+  } 
   
 
 }

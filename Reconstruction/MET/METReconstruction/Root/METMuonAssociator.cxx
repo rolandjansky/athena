@@ -207,19 +207,20 @@ namespace met {
 
 
   // extractPFO for W precision-type measurements
-  StatusCode METMuonAssociator::GetPFOWana(const xAOD::IParticle* obj,
-             std::vector<const xAOD::IParticle*>& pfolist,
-             const met::METAssociator::ConstitHolder& constits,
-             std::map<const IParticle*,MissingETBase::Types::constvec_t>& /*momenta*/,
-             std::vector<double>& vPhiRnd,
-             unsigned int& lept_count,
-             float& UEcorr) const
+  StatusCode METMuonAssociator::extractPFOHR(const xAOD::IParticle* obj,
+                                            std::vector<const xAOD::IParticle*> hardObjs,
+                                            std::vector<const xAOD::IParticle*>& pfolist,
+                                            const met::METAssociator::ConstitHolder& constits,
+                                            std::map<const IParticle*,MissingETBase::Types::constvec_t> & /*momenta*/,
+                                            float& UEcorr) const
   {
+
+
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle); 
     const CaloCluster* muclus = mu->cluster();
 
-    // Loop over all PFOs
+    // Get PFOs associated to muons
     for(const auto& pfo : *constits.pfoCont) {      
       if( fabs(pfo->charge()) > FLT_MIN ) { // Fill list with charged PFOs (using muon tracks)
         const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
@@ -235,128 +236,65 @@ namespace met {
     } // loop over all PFOs
 
 
-    // Step 2. Calculating UE energy correction for a given lepton (using muclus only)
+    // Calculating UE energy correction for a given lepton (using muclus only)
     if(muclus){
-      TLorentzVector tv_UEcorr; // vector of UE correction       
-      std::pair <double, double> eta_rndphi;
-      eta_rndphi.first = muclus->eta();
-      eta_rndphi.second = vPhiRnd[lept_count];
-      lept_count++;
-  
-      for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
-        if( pfo_itr->e() < 0)
+      // Vectoral sum of all PFOs 
+      TLorentzVector HR;  // uncorrected HR (initialized with 0,0,0,0 automatically)
+      for(const auto& pfo_itr : *constits.pfoCont) {
+        if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
           continue;
-        double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
-        if( dR < m_Drcone ){
-          float dphi_angle = std::fabs( muclus->phi() - pfo_itr->phi() );
-          if( dphi_angle > TMath::Pi() ) 
-            dphi_angle = 2*TMath::Pi() - dphi_angle;
-          if( muclus->phi() <  pfo_itr->phi() )
-            dphi_angle = -1. * dphi_angle;
+        HR += pfo_itr->p4();
+      }
 
-          TLorentzVector tv_pfo = pfo_itr->p4();
-          tv_pfo.RotateZ(dphi_angle);
-          tv_UEcorr += tv_pfo;  // summing PFOs of UE for correction
-        } // cone requirement        
-      } // loop over PFOs
-      UEcorr = tv_UEcorr.Pt();  // Pt of UE correction
-    }  // available muclus requirement
+      // Create vectors of idtrack and muclus of muons
+      std::vector<const TrackParticle*> v_idtrack;
+      std::vector<const CaloCluster*>   v_muclus;
+
+      for(const auto& obj_i : hardObjs){
+        if(obj_i->pt()<5e3 && obj_i->type() != xAOD::Type::Muon) // sanity check
+          continue;
+        const xAOD::Muon* mu_curr = static_cast<const xAOD::Muon*>(obj_i); // current muon
+        if( mu_curr->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) ) // ID track of current muon
+           v_idtrack.push_back( (static_cast<const xAOD::Muon*>(obj_i))->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) );
+        if( mu_curr->cluster() ) // calo cluster of current muon
+          v_muclus.push_back( mu_curr->cluster() );
+      }
+
+      // Subtracting PFOs matched to muons from HR
+      for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
+        if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
+          continue;
+        if( fabs(pfo_i->charge()) > FLT_MIN ) { // charged PFOs
+          for(const auto& idtrack_i : v_idtrack) { // loop over muon id tracks
+            double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), idtrack_i->eta(), idtrack_i->phi() );
+            if( dR < m_Drcone ) // if cPFO is in a cone around the id track
+              HR -= pfo_i->p4();
+          } // over muon v_idtrack
+        } // charged PFOs 
+        else{ // neutral PFOs
+          for(const auto& muclus_i : v_muclus) {
+            double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), muclus_i->eta(), muclus_i->phi() );
+            if( dR < m_Drcone )  // if nPFO is in a cone around muon calo cluster
+              HR -= pfo_i->p4();
+          } // over muon v_muclus
+        } // neutral PFOs       
+      } // over all PFOs
+
+      // Save v_muclus as a vector TLV (as commonn type for electrons and muons)
+      std::vector<TLorentzVector> v_muclusTLV;  
+      for(const auto& muclus_i : v_muclus) // loop over v_muclus
+        v_muclusTLV.push_back( muclus_i->p4() );
+
+      // Save current muclus as TLV
+      TLorentzVector muclusTLV = muclus->p4();
+
+      // Get UE correction
+      ATH_CHECK( GetUEcorr(constits, v_muclusTLV, muclusTLV, HR, m_Drcone, m_MinDistCone, UEcorr) );
+    }// available muclus requirement
+
 
     return StatusCode::SUCCESS;
   }
-
-
-  StatusCode METMuonAssociator::hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
-                                              const met::METAssociator::ConstitHolder& constits, 
-                                              TLorentzVector& HR,
-                                              std::vector<double>& vPhiRnd) const
-  {
-    // 1. Summing all PFOs
-    for(const auto& pfo_itr : *constits.pfoCont) {
-      if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
-        continue;
-      HR += pfo_itr->p4();
-    }
-
-    // 2. Subtracting PFOs matched to muons from HR 
-    std::vector<const xAOD::Muon*> mu;
-    for(const auto& obj_i : hardObjs){
-      if(obj_i->pt()<5e3 && obj_i->type() != xAOD::Type::Muon) // similar to METAssociator
-        continue;
-      mu.push_back( static_cast<const xAOD::Muon*>(obj_i) );
-    }
-
-    std::vector<const TrackParticle*> idtrack;  
-    for(const auto& mu_i : mu){
-      if( mu_i->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) )
-        idtrack.push_back( mu_i->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) );     
-    }
-
-    std::vector<const CaloCluster*> muclus;
-    for(const auto& mu_i : mu){
-      if( mu_i->cluster() )
-        muclus.push_back( mu_i->cluster() );
-    }
-    
-    for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
-      if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
-        continue;
-
-      // charged PFOs 
-      if( fabs(pfo_i->charge()) > FLT_MIN ) {
-        for(const auto& idtrack_i : idtrack) {
-          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), idtrack_i->eta(), idtrack_i->phi() );
-          if( dR < m_Drcone ) 
-            HR -= pfo_i->p4();
-        } // over muon idtrack
-      } // charged PFOs 
-      else{ // neutral PFOs
-        for(const auto& muclus_i : muclus) {
-          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), muclus_i->eta(), muclus_i->phi() );
-          if( dR < m_Drcone ) 
-            HR -= pfo_i->p4();
-        } // over muon muclus
-      } // neutral PFOs       
-    } // over all PFOs
-
-    
-    // 3. Get random phi based on muclus
-    unsigned int seed = 0;
-    TRandom3 hole;
-    if( !muclus.empty() ) {   
-      seed = floor( muclus.back()->pt() * 1.e3 );     
-      hole.SetSeed(seed);
-    }
-  
-    for(const auto& muclus_i : muclus) {
-      bool isNextToPart(true);
-      bool isNextToHR(true);
-      double Rnd;
-  
-      while(isNextToPart || isNextToHR ){
-        isNextToPart = false; 
-        isNextToHR = true;
-  
-        Rnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
-        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), muclus_i->eta(), Rnd );
-  
-        if(dR > m_MinDistCone) 
-          isNextToHR = false;
-  
-        for(const auto& muclus_j : muclus) {
-          dR = P4Helpers::deltaR( muclus_i->eta(), Rnd, muclus_j->eta(), muclus_j->phi() );
-          if(dR < m_MinDistCone)
-            isNextToPart = true;
-        } // muclus_j
-      } // while isNextToPart, isNextToHR
-      vPhiRnd.push_back(Rnd);
-    } // muclus_i 
-  
-    return StatusCode::SUCCESS;
-
-  }
-  
-
   // **********************************
 
 
