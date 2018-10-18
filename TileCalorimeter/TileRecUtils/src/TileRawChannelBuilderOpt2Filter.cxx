@@ -240,7 +240,7 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
                  time,
                  chi2,
                  pedestal);
-  //FIXME
+
   if (m_correctTime
           && (!m_notTestBeamCabling 
           || (time != 0
@@ -482,7 +482,7 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
           msg(MSG::VERBOSE) << "Amplitude corrected by " << correctAmp(time, m_of2)
                            << " new amplitude is " << amplitude << endmsg;
         }
-        //FIXME 
+
         if(m_notTestBeamCabling) {
         if (time > m_maxTime) time = m_maxTime;
         if (time < m_minTime) time = m_minTime;
@@ -545,7 +545,7 @@ int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, i
                     << " chi2=" << chi2
                     << "  Amp=" << amplitude );
   }
- //FIXME 
+
   time -= savePhase;
   if (m_notTestBeamCabling) {
   if (time > m_maxTime) time = m_maxTime;
