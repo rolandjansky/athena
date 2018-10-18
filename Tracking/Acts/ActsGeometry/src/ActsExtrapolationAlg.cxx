@@ -16,6 +16,7 @@
 // ACTS
 #include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Propagator/detail/SteppingLogger.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
@@ -28,6 +29,7 @@
 
 // STL
 #include <string>
+#include <fstream>
 
 
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
@@ -50,6 +52,8 @@ StatusCode ActsExtrapolationAlg::initialize() {
   if (m_writeMaterialTracks) {
     ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
   }
+
+  m_objOut = std::make_unique<std::ofstream>("steps.obj");
 
   return StatusCode::SUCCESS;
 }
@@ -92,61 +96,24 @@ StatusCode ActsExtrapolationAlg::execute_r(const EventContext& ctx) const
     
   Acts::PerigeeSurface surface(Acts::Vector3D(0, 0, 0));
 
-  std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>> ecells;
 
   Acts::ActsVectorD<5> pars;
   pars << d0, z0, phi, theta, qop;
   std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+      
+  std::vector<Acts::detail::Step> steps;
 
   if(charge != 0.) {
       // charged extrapolation - with hit recording
       Acts::BoundParameters startParameters(
           std::move(cov), std::move(pars), surface);
-      Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
-
-      ecc.searchMode = m_searchMode;
-
-      if (m_stopAtBoundary) {
-      ATH_MSG_VERBOSE("StopAtBoundary set");
-      ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
-      }
-
-      if (m_FATRAS) {
-      ATH_MSG_VERBOSE("FATRAS set");
-      ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
-      }
-
-      if (m_collectSensitive) {
-      ATH_MSG_VERBOSE("CollectSensitive set");
-      ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
-      }
-
-      if (m_collectPassive) {
-        ATH_MSG_VERBOSE("CollectPassive set");
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
-      }
-
-      if (m_collectBoundary) {
-        ATH_MSG_VERBOSE("CollectBoundary set");
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
-      }
-
-      if (m_collectMaterial) {
-        ATH_MSG_VERBOSE("CollectMaterial set");
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
-      }
-
-      m_extrapolationTool->extrapolate(ecc);
-
-      if (m_writeMaterialTracks) {
-        Acts::MaterialTrack mTrack = makeMaterialTrack(ecc);
-        m_materialTrackWriterSvc->write(std::move(mTrack));
-      }
-
-      ecells.push_back(std::move(ecc));
+      steps = m_extrapolationTool->propagate(startParameters);
+      writeStepsObj(steps);
   }
 
-  m_exCellWriterSvc->store(ecells);
+
+  
+
 
   ATH_MSG_VERBOSE(name() << " execute done");
 
@@ -155,5 +122,24 @@ StatusCode ActsExtrapolationAlg::execute_r(const EventContext& ctx) const
 
 StatusCode ActsExtrapolationAlg::finalize() {
   return StatusCode::SUCCESS;
+}
+
+void ActsExtrapolationAlg::writeStepsObj(std::vector<Acts::detail::Step> steps) const
+{
+  std::lock_guard<std::mutex> lock(m_writeMutex);
+
+  std::ofstream& out = *m_objOut;
+  std::stringstream lstr;
+  lstr << "l";
+  for(const auto& step : steps) {
+    const auto& pos = step.position;
+    out << "v " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
+    lstr << " " << m_objVtxCount;
+    m_objVtxCount++;
+  }
+
+  lstr << std::endl;
+
+  out << lstr.str() << std::endl;
 }
 

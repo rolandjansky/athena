@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
+find_package( Boost )
 
 if(NOT ATH_ACTS_BUILD_SUBDIR)
   find_package( Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin )
@@ -35,7 +36,7 @@ atlas_add_library( ActsGeometryLib
                    src/ActsStrawLayerBuilder.cxx
                    src/util/*.cxx
                    PUBLIC_HEADERS ActsGeometry
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
                    ActsInteropLib
                    ActsCore
@@ -55,7 +56,7 @@ atlas_add_component( ActsGeometry
                      src/ActsTrackingGeometryTool.cxx
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsGeometry
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} 
                      EventInfo
                      ActsInteropLib 

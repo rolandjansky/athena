@@ -26,6 +26,8 @@
 // STL
 #include <memory>
 #include <vector>
+#include <fstream>
+#include <mutex>
 
 
 namespace Acts {
@@ -33,6 +35,10 @@ namespace Acts {
   
   template<typename>
   class ExtrapolationCell;
+
+  namespace detail {
+    class Step;
+  }
 }
 
 class IActsMaterialTrackWriterSvc;
@@ -76,6 +82,12 @@ private:
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
   ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
   
+  mutable std::mutex m_writeMutex{};
+  mutable std::unique_ptr<std::ofstream> m_objOut;
+  mutable size_t m_objVtxCount{0};
+
+  void writeStepsObj(std::vector<Acts::detail::Step> steps) const;
+
   template <class T>
   Acts::MaterialTrack
   makeMaterialTrack(const T& ecell) const
