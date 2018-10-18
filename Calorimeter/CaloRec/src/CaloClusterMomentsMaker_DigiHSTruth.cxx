@@ -459,7 +459,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	  }
 	}
 	else {
-	  if ( myCDDE && ! (myCDDE->is_tile()) 
+	  if ( ! (myCDDE->is_tile()) 
 	       && ((pCell->provenance() & 0x2000) == 0x2000) 
 	       && !((pCell->provenance() & 0x0800) == 0x0800)) {
 	    if ( pCell->quality() > m_minBadLArQuality ) {
@@ -468,7 +468,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	    eLAr2  += ene*weight*ene*weight;
 	    eLAr2Q += ene*weight*ene*weight*pCell->quality();
 	  }
-	  if ( myCDDE && myCDDE->is_tile() ) {
+	  if ( myCDDE->is_tile() ) {
 	    uint16_t tq = pCell->quality();
 	    uint8_t tq1 = (0xFF00&tq)>>8; // quality in channel 1
 	    uint8_t tq2 = (0xFF&tq); // quality in channel 2
@@ -513,7 +513,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	  double Sig = (sigma>0?ene*weight/sigma:0);
 	  if ( fabs(Sig) > fabs(maxAbsSig) ) {
 	    maxAbsSig = Sig;
-	    nSigSampl = myCDDE->getSampling();
+            nSigSampl = myCDDE->getSampling();
 	  }
 	}
 	if ( m_calculateIsolation ) {
@@ -541,7 +541,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	  }
 	}
 
-	if ( myCDDE && ene > 0. && weight > 0) {
+	if ( ene > 0. && weight > 0) {
 	  // get all geometric information needed ...
           CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[ncell];
 	  ci.x      = myCDDE->x();
