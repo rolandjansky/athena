@@ -209,6 +209,9 @@ if not 'doTileTMDBDigitsMon' in dir():
 
 if not 'doTileTMDBMon' in dir():
     doTileTMDBMon = True
+
+if not 'doTileTMDBMonVerbose' in dir():
+    doTileTMDBMonVerbose = False
     
 if not 'doTileTMDBRawChannelMon' in dir():
     doTileTMDBRawChannelMon = True

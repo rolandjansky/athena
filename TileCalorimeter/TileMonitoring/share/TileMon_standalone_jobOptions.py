@@ -54,12 +54,12 @@ if doTileTMDBMon:
     from TileConditions.TileCondToolConf import getTileCondToolTMDB
     tileCondToolTMDB = getTileCondToolTMDB('COOL')
     if tileCondToolTMDB:
-        ToolSvc += tileCondToolTMDB
+        toolSvc += tileCondToolTMDB
         toolSvc += CfgMgr.TileTMDBMonTool( name                = 'TileTMDBMon'
                                          , OutputLevel         = INFO
-                                         , TileDigitsContainer = "MuRcvDigitsCnt"
                                          , TileCondToolTMDB    = tileCondToolTMDB
-                                         , histoPathBase       = "Tile/TMDB"      )
+                                         , doAllPlots          = doTileTMDBMonVerbose
+                                         , histoPathBase       = "Tile/TMDB"          )
         if (athenaCommonFlags.isOnline()):
             toolSvc.TileTMDBMon.SummaryUpdateFrequency = 1000
         ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileTMDBMon ]

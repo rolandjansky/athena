@@ -52,6 +52,8 @@ class TileTMDBMonTool : public TileFatherMonTool {
         bool m_doAllPlots;
         // bool m_isPhysics;
         // bool m_isPedestal;
+        
+        bool m_hasDsp;
 
         int m_summaryUpdateFrequency;
         int m_nEventsProcessed;

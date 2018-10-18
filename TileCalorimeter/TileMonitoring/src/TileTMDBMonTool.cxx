@@ -56,7 +56,7 @@ TileTMDBMonTool::TileTMDBMonTool(const std::string & type, const std::string & n
 
     declareProperty("TileDigitsContainer", m_digitsContainerName = "MuRcvDigitsCnt");
     declareProperty("TileRawChannelContainer", m_dspContainerName = "TileRawChannelCnt");
-    declareProperty("TileMuonRacwChannelContainer", m_energyContainerName = "MuRcvRawChCnt");
+    declareProperty("TileMuonRawChannelContainer", m_energyContainerName = "MuRcvRawChCnt");
     declareProperty("SummaryUpdateFrequency", m_summaryUpdateFrequency = 0);
     declareProperty("TileCondToolTMDB", m_tileToolTMDB);
     declareProperty("doAllPlots", m_doAllPlots = false);
@@ -64,6 +64,7 @@ TileTMDBMonTool::TileTMDBMonTool(const std::string & type, const std::string & n
     // declareProperty("isPedestal", m_isPedestal = false);
 
     m_path = "/Tile/TMDB"; //ROOT File relative directory
+    m_hasDsp = true;
 }
 
 
@@ -130,88 +131,92 @@ StatusCode TileTMDBMonTool::fillHistograms()
     float eDspValues[5][64][8];
 
     const TileRawChannelContainer* dspContainer;
-    CHECK( evtStore()->retrieve(dspContainer, m_dspContainerName) );
+    if ( evtStore()->retrieve(dspContainer, m_dspContainerName).isFailure() ){
+        m_hasDsp = false;
+        ATH_MSG_WARNING( "Could not get DSP values. Plots that require this data won't be filled" );
+    } else {
+        m_hasDsp = true;
+        TileRawChannelUnit::UNIT rChUnitDsp = dspContainer->get_unit();
+        ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnitDsp );
+        if (rChUnitDsp != TileRawChannelUnit::OnlineMegaElectronVolts)
+            ATH_MSG_WARNING( "eDsp is not in MeV! Pulse plots won't be correctly adjusted!" );
 
-    TileRawChannelUnit::UNIT rChUnit = dspContainer->get_unit();
-    ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit );
-    if (rChUnit != TileRawChannelUnit::OnlineMegaElectronVolts)
-        ATH_MSG_WARNING( "eDsp is not in MeV! Pulse plots won't be correctly adjusted!" );
+        TileRawChannelContainer::const_iterator itColl = (*dspContainer).begin();
+        TileRawChannelContainer::const_iterator itCollEnd = (*dspContainer).end();
+        TileRawChannelCollection::const_iterator it, itEnd;
 
-    TileRawChannelContainer::const_iterator itColl = (*dspContainer).begin();
-    TileRawChannelContainer::const_iterator itCollEnd = (*dspContainer).end();
-    TileRawChannelCollection::const_iterator it, itEnd;
+        for(; itColl != itCollEnd; ++itColl) {
+            int fragId = (*itColl)->identify();
+            int drawer = fragId & 0x3F;
+            int ros = (fragId>>8);
 
-    for(; itColl != itCollEnd; ++itColl) {
-        int fragId = (*itColl)->identify();
-        int drawer = fragId & 0x3F;
-        int ros = (fragId>>8);
+            it = (*itColl)->begin();
+            itEnd = (*itColl)->end();
 
-        it = (*itColl)->begin();
-        itEnd = (*itColl)->end();
+            for(; it != itEnd; ++it) {
+                const TileRawChannel* rch = (*it);
 
-        for(; it != itEnd; ++it) {
-            const TileRawChannel* rch = (*it);
+                HWIdentifier hwid = rch->adc_HWID();
+                int channel = m_tileHWID->channel(hwid);
 
-            HWIdentifier hwid = rch->adc_HWID();
-            int channel = m_tileHWID->channel(hwid);
+                float energy = rch->amplitude();
 
-            float energy = rch->amplitude();
-
-            switch (channel){
-                case 0: // D0 cell
-                    if (ros > 0 && ros < 3){
-                        if (drawer % 2 == 0) eDspValues[ros][drawer][1] = energy;
-                        else eDspValues[ros][drawer][0] = energy;
-                    }
-                    break;
-                case 13: // D1L cell
-                    if (ros > 0 && ros < 3){
-                        if (drawer % 2 == 0) eDspValues[ros][drawer][2] = energy;
-                        else eDspValues[ros][drawer][1] = energy;
-                    }
-                    break;
-                case 14: // D1R cell
-                    if (ros > 0 && ros < 3){
-                        if (drawer % 2 == 0) eDspValues[ros][drawer][3] = energy;
-                        else eDspValues[ros][drawer][2] = energy;
-                    }
-                    break;
-                case 25: // D2L cell
-                    if (ros > 0 && ros < 3){
-                        if (drawer % 2 == 0) eDspValues[ros][drawer][4] = energy;
-                        else eDspValues[ros][drawer][3] = energy;
-                    }
-                    break;
-                case 24: // D2R cell
-                    if (ros > 0 && ros < 3){
-                        if (drawer % 2 == 0) eDspValues[ros][drawer][5] = energy;
-                        else eDspValues[ros][drawer][4] = energy;
-                    }
-                    break;
-                case 41: // D3L cell
-                    if (ros > 0 && ros < 3){
-                        if (drawer % 2 == 0) eDspValues[ros][drawer][6] = energy;
-                        else eDspValues[ros][drawer][5] = energy;
-                    }
-                    break;
-                case 44: // D3R cell
-                    if (ros > 0 && ros < 3){
-                        if (drawer % 2 == 0) eDspValues[ros][drawer][7] = energy;
-                        else eDspValues[ros][drawer][6] = energy;
-                    }
-                    break;
-                case 17: // D5L cell
-                    if (ros > 2) eDspValues[ros][drawer][0] = energy;
-                    break;
-                case 16: // D5R cell
-                    if (ros > 2) eDspValues[ros][drawer][1] = energy;
-                    break;
-                case 37: // D6L cell
-                    if (ros > 2) eDspValues[ros][drawer][2] = energy;
-                    break;
-                case 38: // D6R cell
-                    if (ros > 2) eDspValues[ros][drawer][3] = energy;
-                    break;
+                switch (channel){
+                    case 0: // D0 cell
+                        if (ros > 0 && ros < 3){
+                            if (drawer % 2 == 0) eDspValues[ros][drawer][1] = energy;
+                            else eDspValues[ros][drawer][0] = energy;
+                        }
+                        break;
+                    case 13: // D1L cell
+                        if (ros > 0 && ros < 3){
+                            if (drawer % 2 == 0) eDspValues[ros][drawer][2] = energy;
+                            else eDspValues[ros][drawer][1] = energy;
+                        }
+                        break;
+                    case 14: // D1R cell
+                        if (ros > 0 && ros < 3){
+                            if (drawer % 2 == 0) eDspValues[ros][drawer][3] = energy;
+                            else eDspValues[ros][drawer][2] = energy;
+                        }
+                        break;
+                    case 25: // D2L cell
+                        if (ros > 0 && ros < 3){
+                            if (drawer % 2 == 0) eDspValues[ros][drawer][4] = energy;
+                            else eDspValues[ros][drawer][3] = energy;
+                        }
+                        break;
+                    case 24: // D2R cell
+                        if (ros > 0 && ros < 3){
+                            if (drawer % 2 == 0) eDspValues[ros][drawer][5] = energy;
+                            else eDspValues[ros][drawer][4] = energy;
+                        }
+                        break;
+                    case 41: // D3L cell
+                        if (ros > 0 && ros < 3){
+                            if (drawer % 2 == 0) eDspValues[ros][drawer][6] = energy;
+                            else eDspValues[ros][drawer][5] = energy;
+                        }
+                        break;
+                    case 44: // D3R cell
+                        if (ros > 0 && ros < 3){
+                            if (drawer % 2 == 0) eDspValues[ros][drawer][7] = energy;
+                            else eDspValues[ros][drawer][6] = energy;
+                        }
+                        break;
+                    case 17: // D5L cell
+                        if (ros > 2) eDspValues[ros][drawer][0] = energy;
+                        break;
+                    case 16: // D5R cell
+                        if (ros > 2) eDspValues[ros][drawer][1] = energy;
+                        break;
+                    case 37: // D6L cell
+                        if (ros > 2) eDspValues[ros][drawer][2] = energy;
+                        break;
+                    case 38: // D6R cell
+                        if (ros > 2) eDspValues[ros][drawer][3] = energy;
+                        break;
+                }
             }
         }
     }
@@ -234,33 +239,35 @@ StatusCode TileTMDBMonTool::fillHistograms()
 
         if (m_TMDB_names[ros].empty()) CHECK(bookTMDBHistograms(digitsCollection));
 
-        for (const TileDigits* tile_digits : *digitsCollection) {
+        if (m_hasDsp) {
+            for (const TileDigits* tile_digits : *digitsCollection) {
 
-            adc_id = tile_digits->adc_HWID();
-            int channel = m_tileHWID->channel(adc_id);
+                adc_id = tile_digits->adc_HWID();
+                int channel = m_tileHWID->channel(adc_id);
 
-            std::vector<float> digits = tile_digits->samples();
+                std::vector<float> digits = tile_digits->samples();
 
-            unsigned int n_digits = digits.size();
+                unsigned int n_digits = digits.size();
 
-            bool savePulse = (eDspValues[ros][drawer][channel] > 1000) && (eDspValues[ros][drawer][channel] < 5000);
+                bool savePulse = (eDspValues[ros][drawer][channel] > 1000) && (eDspValues[ros][drawer][channel] < 5000);
 
-            if ( savePulse ){
-                int dig_idx = 0;
-                for (double digit : digits) { 
-                    m_mPulseDig[ros][drawer][channel][dig_idx]->Fill(digit);
-                    m_mPulse[ros][drawer][channel]->SetBinContent( dig_idx+1, m_mPulseDig[ros][drawer][channel][dig_idx]->GetMean() );
-                    dig_idx++;
+                if ( savePulse ){
+                    int dig_idx = 0;
+                    for (double digit : digits) { 
+                        m_mPulseDig[ros][drawer][channel][dig_idx]->Fill(digit);
+                        m_mPulse[ros][drawer][channel]->SetBinContent( dig_idx+1, m_mPulseDig[ros][drawer][channel][dig_idx]->GetMean() );
+                        dig_idx++;
+                    }
                 }
-            }
 
-            if (n_digits > 0) {
-                if (m_mPulse[ros][drawer][channel]->GetEntries() != 0) {
-                    int binmax = m_mPulse[ros][drawer][channel]->GetMaximumBin();
-                    m_peakPos_map[ros]->Fill(drawer + 1, channel, binmax);
+                if (n_digits > 0) {
+                    if (m_mPulse[ros][drawer][channel]->GetEntries() != 0) {
+                        int binmax = m_mPulse[ros][drawer][channel]->GetMaximumBin();
+                        m_peakPos_map[ros]->Fill(drawer + 1, channel, binmax);
+                    }
                 }
-            }
-        } // digits
+            } // digits
+        }
     }
     // -------------------------------------------------------------
 
@@ -269,13 +276,14 @@ StatusCode TileTMDBMonTool::fillHistograms()
     // -------------------------------------------------------------
     // Getting eTMDB value for the entry
     const TileRawChannelContainer* energyContainer;
-    CHECK( evtStore()->retrieve(energyContainer, m_energyContainerName) );
-    
-    rChUnit = dspContainer->get_unit();
+    CHECK( evtStore()->retrieve(energyContainer, m_energyContainerName) ); 
+
+    TileRawChannelUnit::UNIT rChUnit = energyContainer->get_unit();
     ATH_MSG_VERBOSE( "TMDBRawChannel unit is " << rChUnit );
 
-    itColl = (*energyContainer).begin();
-    itCollEnd = (*energyContainer).end();
+    TileRawChannelContainer::const_iterator itColl = (*energyContainer).begin();
+    TileRawChannelContainer::const_iterator itCollEnd = (*energyContainer).end();
+    TileRawChannelCollection::const_iterator it, itEnd;
 
     for(; itColl != itCollEnd; ++itColl) {
         int fragId = (*itColl)->identify();
@@ -317,20 +325,24 @@ StatusCode TileTMDBMonTool::fillHistograms()
                 
                 float a, b;
                 m_tileToolTMDB->getCalib(rosdrawerIdx, chName, a, b);
-                double noise_MeV = (b) + (a)*(energy); 
+                double noise_MeV = (b) + (a)*(energy);
                 m_chanNoiseEn[ros][drawer][channel]->Fill(noise_MeV);
+   
+                if (m_aux_coef[ros][drawer][channel][0] == 0){
+                    m_aux_coef[ros][drawer][channel][0] = a;
+                    m_aux_coef[ros][drawer][channel][1] = b;
+                }
 
-                m_aux_coef[ros][drawer][channel][0] = a;
-                m_aux_coef[ros][drawer][channel][1] = b;
+                if (m_hasDsp){
+                    if (m_doAllPlots)
+                        m_calibError[ros][drawer][channel]->Fill(eDspValues[ros][drawer][channel] - noise_MeV);
 
-                if (m_doAllPlots)
-                    m_calibError[ros][drawer][channel]->Fill(eDspValues[ros][drawer][channel] - noise_MeV);
-
-                bool saveEvent = (eDspValues[ros][drawer][channel] > 100) && (eDspValues[ros][drawer][channel] < 10000);
-                if (saveEvent){
-                    m_aux_eTMDB[ros][drawer][channel].push_back( energy );
-                    m_aux_eDsp[ros][drawer][channel].push_back( eDspValues[ros][drawer][channel] );
-                    m_aux_Nevents[ros][drawer][channel]++;
+                    bool saveEvent = (eDspValues[ros][drawer][channel] > 100) && (eDspValues[ros][drawer][channel] < 10000);
+                    if (saveEvent){
+                        m_aux_eTMDB[ros][drawer][channel].push_back( energy );
+                        m_aux_eDsp[ros][drawer][channel].push_back( eDspValues[ros][drawer][channel] );
+                        m_aux_Nevents[ros][drawer][channel]++;
+                    }
                 }
             } 
         }
@@ -338,12 +350,7 @@ StatusCode TileTMDBMonTool::fillHistograms()
     // -------------------------------------------------------------
 
 
-
     ++m_nEventsProcessed;
-    for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-        if (m_TMDB_names[ros].empty()) continue;
-        m_peakPos_map[ros]->SetEntries(m_nEventsProcessed);
-    }
 
     if ((m_summaryUpdateFrequency > 0) && (m_nEvents % m_summaryUpdateFrequency == 0)) return updateSummaryHistograms();
 
@@ -370,6 +377,7 @@ StatusCode TileTMDBMonTool::updateSummaryHistograms()
                         if (m_doAllPlots)
                             m_noiseEnergy_summ[ros]->Fill( m_chanNoiseEn[ros][drawer][channel]->GetRMS() );
                         m_noiseEnergy_map[ros]->Fill(drawer + 1, channel, m_chanNoiseEn[ros][drawer][channel]->GetRMS());
+                        m_noiseEnergy_map[ros]->SetEntries(m_nEventsProcessed);
 
                 } // channnel loop for (int channel = 0; channel < 48; ++channel) {
             } //loop over drawer
@@ -519,52 +527,54 @@ StatusCode TileTMDBMonTool::finalize()
             for (int channel = 0; channel < 4; channel++){
 
                 std::string fullTMDBname( ros_names[ros] + std::to_string(drawer+1) + "_" + getTMDBCellName(ros, channel) ); 
-                float* e_dsp_singleCh = m_aux_eDsp[ros][drawer][channel].data();
-                float* e_tmdb_singleCh = m_aux_eTMDB[ros][drawer][channel].data(); 
+                if ( m_aux_Nevents[ros][drawer][channel] != 0 ){
+                    float* e_dsp_singleCh = m_aux_eDsp[ros][drawer][channel].data();
+                    float* e_tmdb_singleCh = m_aux_eTMDB[ros][drawer][channel].data(); 
 
-                float angCoef_ref = m_aux_coef[ros][drawer][channel][0];
-                float linCoef_ref = m_aux_coef[ros][drawer][channel][1];
+                    float angCoef_ref = m_aux_coef[ros][drawer][channel][0];
+                    float linCoef_ref = m_aux_coef[ros][drawer][channel][1];
 
-                float angCoef_old = 1/angCoef_ref;
-                float linCoef = -linCoef_ref/angCoef_ref;
+                    float angCoef_old = 1/angCoef_ref;
+                    float linCoef = -linCoef_ref/angCoef_ref;
 
-                float aux_up = 0, aux_down = 0; 
-                for (int i=0; i<m_aux_Nevents[ros][drawer][channel]; i++){
-                    aux_up += e_dsp_singleCh[i]*(e_tmdb_singleCh[i] - linCoef);
-                    aux_down += e_dsp_singleCh[i]*e_dsp_singleCh[i];
-                }
-                float angCoef_new = aux_up/aux_down;
-                ATH_MSG_VERBOSE( "Calculated calibration for " << fullTMDBname << ": angular coeficient = " << angCoef_new << "(database value = " << angCoef_old << ")" );
+                    float aux_up = 0, aux_down = 0; 
+                    for (int i=0; i<m_aux_Nevents[ros][drawer][channel]; i++){
+                        aux_up += e_dsp_singleCh[i]*(e_tmdb_singleCh[i] - linCoef);
+                        aux_down += e_dsp_singleCh[i]*e_dsp_singleCh[i];
+                    }
+                    float angCoef_new = aux_up/aux_down;
+                    ATH_MSG_VERBOSE( "Calculated calibration for " << fullTMDBname << ": angular coeficient = " << angCoef_new << "(database value = " << angCoef_old << ")" );
 
-                double relDiff = fabs((angCoef_old - angCoef_new)/angCoef_old);
-                m_coefCalib_map[ros]->Fill(drawer + 1, channel, relDiff);
+                    double relDiff = fabs((angCoef_old - angCoef_new)/angCoef_old);
+                    m_coefCalib_map[ros]->Fill(drawer + 1, channel, relDiff);
 
-                if (m_doAllPlots) {
-                    std::stringstream ss;
-                    ss << std::fixed << std::setprecision(4) << angCoef_new << " (ref " << angCoef_old << ")";
-                    std::string title( "Ang Coef " + ss.str() );
-                    m_calibPlots[ros][drawer][channel] = bookGraph( "Calibration", 
-                                                                    "TMDB_" + fullTMDBname + "_calibration", 
-                                                                    "Calibration of " + fullTMDBname + ". " + title, 
-                                                                    m_aux_Nevents[ros][drawer][channel], 
-                                                                    e_dsp_singleCh,
-                                                                    e_tmdb_singleCh );
-                    m_calibPlots[ros][drawer][channel]->GetXaxis()->SetTitle("eDsp (MeV)");
-                    m_calibPlots[ros][drawer][channel]->GetYaxis()->SetTitle("eTMDB (ADC counts)");
-                    m_calibPlots[ros][drawer][channel]->SetLineWidth(0);
-                    m_calibPlots[ros][drawer][channel]->SetMarkerSize(3);
-                    m_calibPlots[ros][drawer][channel]->SetMarkerStyle(3);
-                    m_calibPlots[ros][drawer][channel]->SetMarkerColor(2);
+                    if (m_doAllPlots) {
+                        std::stringstream ss;
+                        ss << std::fixed << std::setprecision(4) << angCoef_new << " (ref " << angCoef_old << ")";
+                        std::string title( "Ang Coef " + ss.str() );
+                        m_calibPlots[ros][drawer][channel] = bookGraph( "Calibration", 
+                                                                        "TMDB_" + fullTMDBname + "_calibration", 
+                                                                        "Calibration of " + fullTMDBname + ". " + title, 
+                                                                        m_aux_Nevents[ros][drawer][channel], 
+                                                                        e_dsp_singleCh,
+                                                                        e_tmdb_singleCh );
+                        m_calibPlots[ros][drawer][channel]->GetXaxis()->SetTitle("eDsp (MeV)");
+                        m_calibPlots[ros][drawer][channel]->GetYaxis()->SetTitle("eTMDB (ADC counts)");
+                        m_calibPlots[ros][drawer][channel]->SetLineWidth(0);
+                        m_calibPlots[ros][drawer][channel]->SetMarkerSize(3);
+                        m_calibPlots[ros][drawer][channel]->SetMarkerStyle(3);
+                        m_calibPlots[ros][drawer][channel]->SetMarkerColor(2);
 
-                    std::string strTitle( "TMDB_" + fullTMDBname + "_fit" );
-                    TF1* f = new TF1(strTitle.c_str(), "[0] + [1]*x", 0, 220000);
-                    f->SetLineColor(1);
-                    f->SetLineWidth(2);
-                    f->SetParameter(0,linCoef);
-                    f->SetParLimits(0,linCoef,linCoef);
-                    m_calibPlots[ros][drawer][channel]->Fit(f);
+                        std::string strTitle( "TMDB_" + fullTMDBname + "_fit" );
+                        TF1* f = new TF1(strTitle.c_str(), "[0] + [1]*x", 0, 220000);
+                        f->SetLineColor(1);
+                        f->SetLineWidth(2);
+                        f->SetParameter(0,linCoef);
+                        f->SetParLimits(0,linCoef,linCoef);
+                        m_calibPlots[ros][drawer][channel]->Fit(f);
 
-                    delete f;
+                        delete f;
+                    }
                 }
 
             }
