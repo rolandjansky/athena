@@ -448,17 +448,10 @@ namespace Analysis {
     /** give information to the info class. */
     if(m_runModus=="analysis") {
 
-      if (m_taggerNameBase.find("MV2c")!=std::string::npos) {
+      if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) {
         //MV2cXX
         BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
       }
-     else if(m_taggerNameBase.find("MV2r")!=std::string::npos) {
-
-        BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
- 
-
-      }
-
       else {
         //MV2m
         BTag->setVariable<double>(m_xAODBaseName, "pb", mv2m_pb);
