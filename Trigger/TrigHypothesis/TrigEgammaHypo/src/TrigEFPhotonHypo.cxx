@@ -35,6 +35,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/EventContext.h"
 
 #include "TrigEgammaHypo/TrigEFPhotonHypo.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -251,6 +252,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_NofPassedCutsIsEMTrig=-1; 
   
 
+  const EventContext ctx = Gaudi::Hive::currentContext();
 
   
   // Time total TrigEFPhotonHypo execution time.
@@ -355,13 +357,13 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
               msg() << MSG::ERROR << m_egammaPhotonCutIDTool << " null, hypo continues but no isEM cut applied" << endmsg;
           }else{
               if (timerSvc()) m_timerPIDTool_Pho->start(); //timer
-              if ( (bool) m_egammaPhotonCutIDTool->accept(egIt) ) {
+              if ( (bool) m_egammaPhotonCutIDTool->accept(ctx, egIt) ) {
                   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                       << "passes PID egammaPhotonCutIDTool with TAccept"
                           << endmsg;
               } 
               // Get isEM value from m_egammaPhotonCutIDTool->IsemValue(), not from (*egIt)->isem()
-              if (m_egammaPhotonCutIDTool->execute(egIt, isEMTrig).isFailure()) 
+              if (m_egammaPhotonCutIDTool->execute(ctx, egIt, isEMTrig).isFailure()) 
                   ATH_MSG_DEBUG("REGTEST Could not get isEM value ");
               ATH_MSG_DEBUG(" isEMTrig = " << std::hex << isEMTrig);
               if (timerSvc()) m_timerPIDTool_Pho->stop(); //timer

@@ -60,7 +60,7 @@ public:
     /** @brief initialize method*/
     virtual StatusCode initialize() override;
     /** @brief standard execute method */
-    virtual StatusCode execute(xAOD::Egamma*) const override final ;
+    virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma*) const override final ;
     /** @brief method to calculate shower shapes from a CaloCellContainer */
     virtual StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const override final;
     /** @brief finalize method*/

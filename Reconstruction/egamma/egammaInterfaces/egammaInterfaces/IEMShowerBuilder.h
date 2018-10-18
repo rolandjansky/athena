@@ -20,6 +20,7 @@ MODIFIED :
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h" 
 #include "xAODTracking/VertexContainerFwd.h" 
+#include "GaudiKernel/EventContext.h"
 
 // Forward declarations
 class CaloCellContainer;
@@ -39,7 +40,7 @@ class IEMShowerBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode execute(xAOD::Egamma*) const = 0;
+  virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma*) const = 0;
   /** @brief execute method*/
   virtual  StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const = 0;
   /** @brief finalize method*/

@@ -284,11 +284,15 @@ const asg::AcceptInfo& AsgElectronIsEMSelector::getAcceptInfo() const
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
+asg::AcceptData AsgElectronIsEMSelector::accept(const xAOD::IParticle* part) const {
+  return accept(Gaudi::Hive::currentContext(), part);
+}
+
+asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const xAOD::IParticle* part ) const{
 
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if(part->type()==xAOD::Type::Electron || part->type()==xAOD::Type::Photon){
-    return accept(static_cast<const xAOD::Egamma*> (part));
+    return accept(ctx, static_cast<const xAOD::Egamma*> (part));
   }
   else{
     ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Electron/Photon");
@@ -296,12 +300,12 @@ asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) c
   }
 }
 
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
+asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const xAOD::Egamma* eg ) const{
 
   ATH_MSG_DEBUG("Entering accept( const Egamma* part )");  
   if ( eg ){
     unsigned int isEM = ~0;
-    StatusCode sc = execute(eg, isEM);
+    StatusCode sc = execute(ctx, eg, isEM);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("could not calculate isEM");
       return m_rootTool->accept();
@@ -314,14 +318,14 @@ asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
   }
 }
 
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Electron* el) const{
+asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Electron* el) const{
   ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
-  return accept(static_cast<const xAOD::Egamma*> (el));
+  return accept(ctx, static_cast<const xAOD::Egamma*> (el));
 }
 
-asg::AcceptData AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
+asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Photon* ph) const{
   ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
-  return accept(static_cast<const xAOD::Egamma*> (ph));  
+  return accept(ctx, static_cast<const xAOD::Egamma*> (ph));  
 }
 
 //=============================================================================
@@ -348,13 +352,12 @@ std::string AsgElectronIsEMSelector::getOperatingPointName() const{
   }
 }
 
-///==========================================================================================//
-
 // ==============================================================
-StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM ) const{
+StatusCode AsgElectronIsEMSelector::execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM ) const{
   //
   // Particle identification for electrons based on cuts
   //
+  (void)ctx;
   ATH_MSG_DEBUG("entering execute(const Egamma* eg...)");
   // initialisation
   isEM = 0; 
