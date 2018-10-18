@@ -2,19 +2,26 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TActiveEvent.cxx 594923 2014-04-30 13:28:05Z krasznaa $
+// ROOT include(s):
+#include <ThreadLocalStorage.h>
 
 // Local include(s):
 #include "xAODRootAccessInterfaces/TActiveEvent.h"
 
 namespace xAOD {
 
-   // Initialize the event pointer:
-   TVirtualEvent* TActiveEvent::s_event = 0;
+   /// Pointer to the currently active TVirtualEvent object of the thread
+   TTHREAD_TLS( TVirtualEvent* ) s_event;
 
    TVirtualEvent* TActiveEvent::event() {
 
       return s_event;
+   }
+
+   void TActiveEvent::setEvent( TVirtualEvent* ptr ) {
+
+      s_event = ptr;
+      return;
    }
 
 } // namespace xAOD
