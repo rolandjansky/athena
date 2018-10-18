@@ -225,7 +225,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
     } else {  // ENDCAP
       Acts::ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
-      pl.envZ    = {30, 30};
+      pl.envZ    = {10, 10};
 
       // copied from layercreator
       double layerZ
@@ -237,7 +237,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       double layerZInner = layerZ - layerThickness/2.;
       double layerZOuter = layerZ + layerThickness/2.;
 
-      if (layerZInner > layerZOuter) std::swap(layerZInner, layerZOuter);
+      if (std::abs(layerZInner) > std::abs(layerZOuter)) std::swap(layerZInner, layerZOuter);
 
       auto transformNominal
         = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZ));
