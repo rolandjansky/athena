@@ -382,7 +382,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
           // The efficiency is different for Xe, Kr and Ar. Avoid fudging non-TR photons (TR is < 30 keV).
           // Also: for |eta|<0.5 apply parabolic scale; see "Parabolic Fudge" https://indico.cern.ch/event/304066/
           if ( energyDeposit<30.0 ) {
-
+	    // Improved scaling for argon emulation see https://cds.cern.ch/record/2643784
 	    double ArEmulationScaling_BA = 0.05;
 	    double ArEmulationScaling_EC = 0.20;
 
