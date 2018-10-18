@@ -757,6 +757,7 @@ def defineMenu():
                        'L1_J100_FIRSTEMPTY',
                        'L1_J30.31ETA49',
                        'L1_J30.31ETA49_EMPTY',
+                       'L1_J50.31ETA49',
                        'L1_J40_XE60',
                        'L1_J75.31ETA49',
                        'L1_J75_XE40',
@@ -1095,6 +1096,7 @@ def defineMenu():
         'L1_EM15HI_2TAU12IM_J25_3J12': 323,
         'L1_EM15HI_2TAU12IM_XE35': 324, 
         #'L1_EM15HI_TAU40_2TAU15': 325,
+        'L1_J50.31ETA49': 325,
         
         'L1_XE60': 357,
         'L1_XE70': 358,
