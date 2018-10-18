@@ -29,16 +29,6 @@ class ILArCaliPulseParams {
   virtual const float& Offset(const HWIdentifier& id , int gain )  const = 0 ;
   virtual const float& dTimeCal(const HWIdentifier& id , int gain )  const = 0 ;
   virtual const short& nCB(const HWIdentifier& id , int gain )  const = 0 ;
-  
-  /*
-  // offline ID 
-  virtual const float& Tcal(const Identifier& id , int gain )  const=0;
-  virtual const float& Fstep(const Identifier& id , int gain )  const=0;
-  virtual const float& Offset(const Identifier& id , int gain )  const=0;
-  virtual const float& dTimeCal(const Identifier& id , int gain )  const=0;
-  virtual const short& nCB(const Identifier& id , int gain )  const=0;
-  */
-
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 
 } ;

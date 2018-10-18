@@ -62,7 +62,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
             if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
                 from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
                 pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-                pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data'))
+                pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
                 pixelConditionsSummaryToolSetup.setUseBS((globalflags.DataSource=='data'))
                 pixelConditionsSummaryToolSetup.setup()
 

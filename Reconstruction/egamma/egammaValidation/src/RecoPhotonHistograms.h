@@ -24,7 +24,7 @@ namespace egammaMonitoring {
 
     using ParticleHistograms::fill;
 
-    void fill(const xAOD::IParticle&);
+    void fill(const xAOD::Photon&) override;
 
   private:
 

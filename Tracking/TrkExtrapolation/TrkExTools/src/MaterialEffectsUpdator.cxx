@@ -272,7 +272,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
         // Trick to keep using existing MultipleScatteringUpdator interface
         // Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
         // and create a dummy materialProperties with the properties we are interested in
-        MaterialProperties mprop(meff.thicknessInX0(), 1., 0., 0., 0., 0.);
+        MaterialProperties mprop(meff.thicknessInX0(), 1., 1., 0., 0., 0.);
         angularVariation = m_msUpdator->sigmaSquare(mprop, updateMomentum, pathcorrection, Trk::muon);
         // sigmaDeltaPhiSq = angularVariation/(parm->sinTheta()*parm->sinTheta());
         sigmaDeltaPhiSq = angularVariation /

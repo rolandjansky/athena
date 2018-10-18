@@ -9,7 +9,6 @@
 #include "CLIDSvc/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
 class HWIdentifier;
-class Identifier;
 
 class ILArCableLength {
 /** This class defines the interface for accessing CableLength
@@ -26,10 +25,7 @@ class ILArCableLength {
 
   // online ID
   virtual const float& CableLength(const HWIdentifier& id)  const = 0 ;
-  
-  // offline ID 
-  virtual const float& CableLength(const Identifier& id)  const=0;
-
+ 
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 
 } ;

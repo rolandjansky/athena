@@ -26,6 +26,26 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
 #
+# --- Setup BeamSpot data
+#
+try:
+   from RecExConfig.RecFlags import rec
+   # If express processing, point beam spot to online folder results
+   if (rec.doExpressProcessing()):
+        conddb.addFolder('INDET_ONL', '/Indet/Onl/Beampos <key>/Indet/Beampos</key>', className="AthenaAttributeList")
+   else:
+        conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+
+except ImportError:
+    # Protection for AthSimulationBase release which does not contain RecExConfig
+    conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+
+
+from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
+
+#
 # --- Load PixelConditionsServices
 #
 if DetFlags.haveRIO.pixel_on():
@@ -34,7 +54,7 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
         from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
         pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseDCS(isData)
+        pixelConditionsSummaryToolSetup.setUseDCS(isData  and InDetFlags.usePixelDCS())
         pixelConditionsSummaryToolSetup.setUseBS(isData)
         pixelConditionsSummaryToolSetup.setup()
 

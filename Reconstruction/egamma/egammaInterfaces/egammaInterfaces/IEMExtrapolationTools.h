@@ -6,6 +6,7 @@
 #define EGAMMAINTERFACES_IEMEXTRAPOLATIONTOOLS_H
 
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
@@ -51,7 +52,8 @@ public:
    *   returns true for good match, and the values for eta/phi, 
    *     deltaEta/deltaPhi for sampling 2
    */
-  virtual bool  matchesAtCalo(const xAOD::CaloCluster*      cluster, 
+  virtual bool  matchesAtCalo(const EventContext&           ctx,
+                              const xAOD::CaloCluster*      cluster, 
                               const xAOD::TrackParticle*    trkPB, 
                               bool                          isTRT, 
                               Trk::PropDirection            direction,
@@ -67,8 +69,9 @@ public:
    *    layers given the Trk::ParametersBase.  
    *    whether or not to extrapolate to each calo sample
    */
-  virtual StatusCode getMatchAtCalo (const xAOD::CaloCluster*            cluster, 
-                                     const xAOD::TrackParticle* trkPB,
+  virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
+                                     const xAOD::CaloCluster*      cluster, 
+                                     const xAOD::TrackParticle*    trkPB,
                                      bool                          isTRT,                         
                                      Trk::PropDirection            direction,
                                      std::vector<double>&          eta,

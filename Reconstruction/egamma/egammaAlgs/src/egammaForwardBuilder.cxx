@@ -139,6 +139,9 @@ StatusCode egammaForwardBuilder::execute()
   //
   // athena execute method
   //
+  
+  // This we can drop once the Alg becomes re-entrant
+  const EventContext ctx = Gaudi::Hive::currentContext();
 
   ATH_MSG_DEBUG("Executing egammaForwardBuilder ");
 
@@ -199,17 +202,17 @@ StatusCode egammaForwardBuilder::execute()
     el->setCaloClusterLinks(linksToClusters);    
 
     //do  Four Momentum
-    CHECK(m_fourMomBuilder->execute(el));
+    CHECK(m_fourMomBuilder->execute(ctx, el));
     
     // do object quality 
-    CHECK( ExecObjectQualityTool(el) );
+    CHECK( ExecObjectQualityTool(ctx, el) );
     
   
     // FwdSelectors:
     size_t size = m_forwardelectronIsEMselectors.size();
     
     for (size_t i = 0; i<size;++i) {
-      asg::AcceptData accept = m_forwardelectronIsEMselectors[i]->accept(el);
+      asg::AcceptData accept = m_forwardelectronIsEMselectors[i]->accept(ctx, el);
       //save the bool result
       el->setPassSelection(static_cast<bool>(accept), m_forwardelectronIsEMselectorResultNames[i]);
       //save the isem
@@ -233,7 +236,7 @@ StatusCode egammaForwardBuilder::execute()
 }  
   
 // ===========================================================
-StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
+StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, xAOD::Egamma *eg)
 {
   //
   // execution of the object quality tools
@@ -249,7 +252,7 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
   if (m_doChrono) m_timingProfile->chronoStart(chronoName);
 
   // execute the tool
-  StatusCode sc = m_objectqualityTool->execute(eg);
+  StatusCode sc = m_objectqualityTool->execute(ctx, eg);
   if ( sc.isFailure() ) {
     ATH_MSG_DEBUG("failure returned by object quality tool"); 
   }

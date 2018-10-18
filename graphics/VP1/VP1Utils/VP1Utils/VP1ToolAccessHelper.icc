@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -40,7 +40,7 @@ inline toolT * VP1ToolAccessHelper::getToolPointer( const QString& tooltypeandna
     try {
       retrieveok = !toolhandle.retrieve().isFailure();
       exception = false;
-    } catch (std::runtime_error e) {
+    } catch (const std::runtime_error& e) {
       exception = true;
     }
     if (exception) {

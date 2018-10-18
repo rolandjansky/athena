@@ -28,18 +28,18 @@ def addPhysValAODContent(algseq,doJets,doTopoCluster):
     if doTopoCluster and (requiresLCOriginTC or requiresEMOriginTC):
         jettools_PhysVal += addOriginCorrectedClusters(algseq,requiresLCOriginTC,requiresEMOriginTC)
 
+    from AthenaCommon import CfgMgr
     # Only add the algorithm if there is a need for it
     if jettools_PhysVal:  
         from JetRec.JetRecStandard import jtm
-        from JetRec.JetRecConf import JetToolRunner
-        jtm += JetToolRunner("jetrun_PhysVal",
+        jtm += CfgMgr.JetToolRunner("jetrun_PhysVal",
                              EventShapeTools=[],
                              Tools=jettools_PhysVal,
                              Timer=0 # No timing information
                              )
 
         from JetRec.JetRecConf import JetAlgorithm
-        algseq += JetAlgorithm("jetalgPhysVal",Tools=[jtm.jetrun_PhysVal])
+        algseq += CfgMgr.JetAlgorithm("jetalgPhysVal",Tools=[jtm.jetrun_PhysVal])
 
     logger.info( '******************              Done              *****************' )
     
@@ -52,17 +52,19 @@ def addAntiKt4TruthJets(algseq):
     '''
     logger.info( 'Configuring AntiKt4TruthJets' )
     
-    jtools = []
+    truthtools = []
     from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
-    jtools += scheduleCopyTruthParticles()
+    truthtools += scheduleCopyTruthParticles()
     from JetRec.JetRecStandard import jtm
-    jtools.append( jtm.truthpartcopy )
+    truthtools.append( jtm.truthpartcopy )
+    from AthenaCommon import CfgMgr
+    algseq += CfgMgr.JetAlgorithm("jetalgTruthPartCopy",Tools=truthtools)
+
+    for getter in jtm.gettersMap["truth"]:
+        algseq += CfgMgr.PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
 
     from JetRec.JetRecStandard import jtm
-    jtools.append( jtm.addJetFinder("AntiKt4TruthJets",
-                                    "AntiKt", 0.4, "truth", ptmin= 5000) )
-
-    return jtools
+    return [ jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", ptmin= 5000) ]
 
 ################################################################################################
 

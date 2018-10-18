@@ -607,6 +607,9 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesISFSftkAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetContainer#HLT_a4tcemsubjesISFSftkrefit',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesISFSftkrefitAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+
+    # 2018 HI Calo noise suppresion calibration
+    ('xAOD::CaloClusterContainer#HLT_CaloCalTopoCluster',                'BS ESD AODFULL', 'Calo'),
  
     #btagging
     ('xAOD::BTaggingContainer#HLT_HLTBjetFex',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),

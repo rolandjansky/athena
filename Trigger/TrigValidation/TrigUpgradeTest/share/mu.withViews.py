@@ -441,13 +441,11 @@ if TriggerFlags.doMuon:
                                                               ConvertTracks = True)
 
 
-    thetrkbuilder = getPublicToolClone("CombinedMuonTrackBuilder_SA", "CombinedMuonTrackBuilder", MuonHoleRecovery="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool')
-
-    theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder=thetrkbuilder)
+    theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder="",ExtrapolationStrategy=1)
     theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg",MuonCandidateTool=theCandidateTool)
 
-
-    thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="",  MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, OutputLevel=DEBUG)
+    muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
+    thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator, OutputLevel=DEBUG)
 
     themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MuonContainerLocation="Muons", MakeClusters=False, TagMaps=[])
 

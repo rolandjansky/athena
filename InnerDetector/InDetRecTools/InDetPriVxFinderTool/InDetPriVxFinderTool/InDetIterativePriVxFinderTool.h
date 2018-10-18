@@ -25,6 +25,9 @@
  *   even when using a TrackCollection or a TrackParticleBaseCollection
  *   as input.
  *
+ * Dave Casper <dcasper@uci.edu> (2018-03-28)
+ *   Migrate beam spot service to conditions handle
+ *
  ***************************************************************************/
 
 //implemented using as template the InDetPriVxFinderTool class of A. Wildauer and F. Akesson
@@ -35,10 +38,11 @@
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "TrkTrack/TrackCollection.h" // type def ...
 #include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
 #include "TrkParameters/TrackParameters.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 /**
  * Forward declarations 
  */
@@ -120,13 +124,10 @@ public:
    ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
    ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
-//   ToolHandle< Trk::ITrkDistanceFinder > m_distFinder;
    ToolHandle< Trk::IImpactPoint3dEstimator > m_ImpactPoint3dEstimator;
-//   ToolHandle< Trk::IVertexTrackCompatibilityEstimator > m_TrackCompatibilityEstimator;
-//   ToolHandle< Trk::ImpactPoint3dAtaPlaneFactory > m_ImpactPoint3dAtaPlaneFactory;
    ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinearizedTrackFactory;
    
-   ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
    bool m_useBeamConstraint;
    double m_significanceCutSeeding;

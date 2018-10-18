@@ -165,7 +165,7 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   declareProperty("UseMuonMatApproximation", m_useMuonMatApprox);
   declareProperty("UseDenseVolumeDescription", m_useDenseVolumeDescription);
   declareProperty("CheckForCompoundLayers", m_checkForCompundLayers);
-  declareProperty("ResolveMuonStation", m_resolveActive);
+  declareProperty("ResolveMuonStation", m_resolveActive = false);
   declareProperty("ResolveMultilayers", m_resolveMultilayers);
   declareProperty("ConsiderMuonStationOverlaps", m_activeOverlap);
   declareProperty("RobustSampling", m_robustSampling);
@@ -475,468 +475,6 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
    Cache cache{};
    return extrapolateImpl(cache,prop,parm,sf,dir,bcheck,particle,matupmode);
 }
-/* Heavy lifting implementation method*/
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolateImpl(Cache& cache,
-                                   const IPropagator &prop,
-                                   const Trk::TrackParameters &parm,
-                                   const Trk::Surface &sf,
-                                   Trk::PropDirection dir,
-                                   Trk::BoundaryCheck bcheck,
-                                   Trk::ParticleHypothesis particle,
-                                   MaterialUpdateMode matupmode) const {
-  // set the model action of the material effects updators
-  for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-    m_subUpdators[imueot]->modelAction();
-  }
-
-  // reset the destination surface
-  cache.m_destinationSurface = 0;
-  cache.m_lastValidParameters = 0;
-  // skip rest of navigation if particle hypothesis is nonInteracting
-  if (particle == Trk::nonInteracting || int(dir) > 5) {
-    return extrapolateDirectly(prop, parm, sf, dir, bcheck, particle);
-  }
-
-  // statistics && sequence output ----------------------------------------
-  ++m_extrapolateCalls;
-  ++m_methodSequence;
-  // the resultParameters
-  const Trk::TrackParameters *resultParameters = 0;
-  // prepare the values for the startup and call the initialization ------------------------------------------
-  const Trk::TrackingVolume *startVolume = 0;
-  const Trk::TrackingVolume *destVolume = 0;
-  const Trk::Layer *nextLayer = 0;
-  const Trk::TrackingVolume *nextVolume = 0;
-  const Trk::TrackingVolume *lastVolume = 0;
-  const Trk::TrackParameters *refParameters = 0;
-  const Trk::TrackParameters *lastParameters = 0;
-  const Trk::TrackParameters *navParameters = 0;
-  const Trk::TrackParameters *nextParameters = (&parm);
-  // initialize Navigation (calls as well initialize on garbe collection) -------------------------------------
-  Trk::PropDirection navDir = initializeNavigation(cache,
-                                                   prop,
-                                                   parm,
-                                                   sf,
-                                                   dir,
-                                                   particle,
-                                                   refParameters,
-                                                   nextLayer,
-                                                   nextVolume,
-                                                   destVolume);
-  // ----------------------------------------------------------------------------------------------------------
-  // if anyDirection has been chosen as a start directive:
-  //   -> overwrite the dir with the navigation direction
-  dir = (dir == Trk::anyDirection) ? navDir : dir;
-  // check for consistency
-  if (dir == Trk::anyDirection || navDir != dir) {
-    // navigation could not be resolved
-    ATH_MSG_VERBOSE("  [!] Navigation direction could not be resolved, switching to extrapolateDirectly()");
-    // the extrapolate directly call
-    resultParameters = extrapolateDirectly(prop, parm, sf, navDir, bcheck, particle);
-    // return and cleanup
-    return returnResult(cache,resultParameters, refParameters);
-  }
-  // ----------------------------------------------------------------------------------------------------------
-  startVolume = nextVolume;
-  // fallback setup  ------------------------------------------------------------------------------------------
-  bool fallback = false;
-  // ------- initial distance estimation ----------------------------------------------------------------------
-  double currentDistance = 0.;
-  double previousDistance = 0.;
-  // reference parameters and distance solution: use consistently one of each
-  if (refParameters) {
-    ATH_MSG_VERBOSE("  [+] Reference Parameters       -   at " << positionOutput(refParameters->position()));
-    currentDistance = (refParameters->position() - parm.position()).mag();
-  } else {
-    // using fast but accureate sl distance from surface
-    Trk::DistanceSolution distSol =
-      sf.straightLineDistanceEstimate(parm.position(), dir * parm.momentum().normalized());
-    if (distSol.numberOfSolutions() > 0) {
-      currentDistance = distSol.absClosest();
-    } else {
-      currentDistance = fabs(distSol.toPointOfClosestApproach());
-    }
-    // VERBOSE output
-  }
-  ATH_MSG_VERBOSE("  [+] Initial 3D-distance to destination - d3 = " << currentDistance);
-  // and for oscillation protection ---------------------------------------------------------------------------
-  const Trk::TrackingVolume *previousVolume = 0;
-  // ----------------------------------------------------------------------------------------------------------
-  std::string startVolumeName = (nextVolume) ? nextVolume->volumeName() : "Unknown (ERROR)";
-  std::string destVolumeName = destVolume ? destVolume->volumeName() : "Unknown (blind extrapolation)";
-  if (msgLvl(MSG::VERBOSE)) {
-    ATH_MSG_VERBOSE("  [" << m_methodSequence << "] extrapolate() " << startVolumeName << " ->  " << destVolumeName);
-    ATH_MSG_VERBOSE("  [+] Starting position determined - at " << positionOutput(parm.position()));
-    if (nextLayer) {
-      ATH_MSG_VERBOSE("  [+] Starting layer determined  - with " << layerRZoutput(*nextLayer));
-    }
-  }
-
-  // ----------------------------------------------------------------------------------------------------------
-  const IPropagator *currentPropagator = 0;
-  // ----------------- extrapolation from One Volume to the next Volume  --------------------------------------
-  // the loop continues while:
-  //       - nextVolume extists
-  //       - nextVolume is different from lastVolume (prevent infinite loops)
-  //       - nextVolume is different from destinationVolume (change to extrapolateInsideVolume)
-  //       - nextParameters exist
-  //       - lastVolume is different from previousVolume (prevent oscillation loop, one-time-punch-through allowed)
-  //       - the reinforced navigation can find destination parameters
-  //       - the maximum method sequence is not met
-
-  // best starting parameters
-  bool updateLastValid = true;
-  // one-time-punch-through allows for volume2 - volume1 - volume2 (cosmics)
-  bool punchThroughDone = false;
-
-  auto navigationBreakOscillation=m_navigationBreakOscillation.buffer();
-  auto navigationBreakNoVolume= m_navigationBreakNoVolume.buffer();
-  auto navigationBreakDistIncrease=m_navigationBreakDistIncrease.buffer();
-  auto navigationBreakVolumeSignature=m_navigationBreakVolumeSignature.buffer();
-
-  while (nextVolume &&
-         nextVolume != destVolume &&
-         nextVolume != lastVolume &&
-         nextParameters &&
-         m_methodSequence.value() < m_maxMethodSequence) {
-    // chose the propagtor type
-    currentPropagator = subPropagator(*nextVolume);
-    if (!currentPropagator) {
-      // [0] Navigation break : configuration problem or consistency problem of TrackingGeometry
-      // output
-      ATH_MSG_DEBUG("  [X] Navigation break [X]");
-      ATH_MSG_DEBUG("          - Reason      : No Propagator found for Volume '" << nextVolume->volumeName() << "'");
-      // debug statistics
-      ++m_navigationBreakVolumeSignature;
-      if (m_navigationBreakDetails) {
-        counterMapHelper(m_volSignatureVolumes,nextVolume);  
-      }
-      // trigger the fallback solution
-      fallback = true;
-      break;
-    }
-
-    // check for the distance to destination
-    // ------------------------------------------------------------------------------------
-    if (updateLastValid) {
-      cache.m_lastValidParameters = nextParameters;
-    }
-    // re-initialize (will only overwrite destVolume)
-    if (nextVolume->redoNavigation()) {
-      delete refParameters;
-      refParameters = 0;
-      dir = initializeNavigation(cache,
-                                 *currentPropagator,
-                                 *nextParameters,
-                                 sf,
-                                 dir,
-                                 particle,
-                                 refParameters,
-                                 nextLayer,
-                                 nextVolume,
-                                 destVolume);
-    }
-    // avoid the oszillation
-    previousVolume = lastVolume;
-    // for the next step to termine if infinite loop occurs
-    lastVolume = nextVolume;
-    // for memory cleanup and backup
-    lastParameters = nextParameters;
-
-    // MS specific code ------------------
-    // extrapolation within detached volumes - returns parameters on destination surfaces, or boundary solution
-    // handles also dense volume description in Calo and beam pipe
-    if ( nextVolume->geometrySignature()>1 ) {
-      if (cache.m_parametersAtBoundary.navParameters &&
-          cache.m_parametersAtBoundary.navParameters != cache.m_parametersAtBoundary.nextParameters) {
-        // extrapolate to volume boundary to avoid navigation break
-        const Trk::TrackParameters *nextPar = currentPropagator->propagate(*cache.m_parametersAtBoundary.nextParameters,
-                                                                           cache.m_parametersAtBoundary.navParameters->associatedSurface(),
-                                                                           dir,
-                                                                           bcheck,
-                                                                           // *previousVolume,
-                                                                           m_fieldProperties,
-                                                                           particle, false, previousVolume);
-        // propagation to boundary
-        if (nextPar) {
-          throwIntoGarbageBin(cache,nextPar);
-        }
-        // set boundary and next parameters
-        cache.m_parametersAtBoundary.boundaryInformation(nextVolume, nextPar, nextPar);
-        nextParameters = cache.m_parametersAtBoundary.nextParameters;
-        navParameters = cache.m_parametersAtBoundary.navParameters;
-      }
-      // start from the nextParameter (which are at volume boundary)
-      if (nextParameters) {
-        if (!m_stepPropagator) { 
-          ATH_MSG_ERROR("extrapolation in Calo/MS called without configured STEP propagator, aborting"); 
-          return 0;  
-        }  
-        resultParameters = extrapolateWithinDetachedVolumes(cache,
-                                                            *m_stepPropagator,
-                                                            *nextParameters,
-                                                            sf,
-                                                            *nextVolume,
-                                                            dir,
-                                                            bcheck,
-                                                            particle,
-                                                            matupmode);
-      }
-      if (resultParameters){
-        // destination reached : indicated through result parameters
-        // set the model action of the material effects updators
-        for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-          m_subUpdators[imueot]->modelAction();
-        }
-        // return the parameters at destination
-        ATH_MSG_DEBUG("  [+] Destination surface successfully hit.");
-        // return the result (succesful)
-        return returnResult(cache,resultParameters, refParameters);
-      } else if (!cache.m_parametersAtBoundary.nextParameters || !cache.m_parametersAtBoundary.nextVolume) {
-        ATH_MSG_DEBUG("  [-] Destination surface could not be hit.");
-        return returnResult(cache,resultParameters, refParameters);
-      }
-    } else {
-      // ------------------------------------------------------------------------------------------------
-      // standard loop over volumes (but last one)
-      // extrapolate to volume boundary - void method as 'cache.m_parametersAtBoundary' hold the information
-      extrapolateToVolumeBoundary(cache,
-                                  *currentPropagator,
-                                  *nextParameters,
-                                  nextLayer,
-                                  *nextVolume,
-                                  dir,
-                                  bcheck,
-                                  particle,
-                                  matupmode);
-    }
-    // go on with the next volume / get next Volume and Boundary from the private member
-    nextVolume = cache.m_parametersAtBoundary.nextVolume;
-    nextParameters = cache.m_parametersAtBoundary.nextParameters;
-    navParameters = cache.m_parametersAtBoundary.navParameters;
-    // new distance estimation ( after step to next volume ) ------------------------------------------------
-    previousDistance = currentDistance;
-    // make it either from the navParmaters (if the exist) or the nextParameters
-    const Trk::TrackParameters *distParameters = cache.m_parametersAtBoundary.navParameters ?
-      cache.m_parametersAtBoundary.navParameters : nextParameters;
-
-    if (distParameters) {
-      // use consistently either the:
-      // (A) reference parameters or the
-      if (refParameters) {
-        currentDistance = (refParameters->position() - distParameters->position()).mag();
-      } else {
-        // (B) distance solution to surface
-        Trk::DistanceSolution newDistSol = sf.straightLineDistanceEstimate(distParameters->position(),
-                                                                           dir *
-                                                                           distParameters->momentum().normalized());
-        currentDistance = newDistSol.numberOfSolutions() > 0 ? newDistSol.absClosest() : fabs(
-                                                                                              newDistSol.toPointOfClosestApproach());
-      }
-    }
-    ATH_MSG_VERBOSE("  [+] New 3D-distance to destination     - d3 = " << currentDistance << " (from " <<
-                    (cache.m_parametersAtBoundary.navParameters ? "boundary parameters" : "last parameters within volume ") <<
-                    ")");
-
-    // -------------------------------------------------------------------------------------------------------
-    // (1) NAVIGATION BREAK : next Volume is identical to last volume -- LOOP
-    if (nextVolume == lastVolume && nextVolume) {
-      // ST false when crossing beam pipe : additional check on step distance    
-      if (nextParameters && lastParameters && 
-          (nextParameters->position()-lastParameters->position()).dot(lastParameters->momentum().normalized())*dir > 0.001 ) { 
-      } else {
-        // output
-        ATH_MSG_DEBUG( "  [X] Navigation break [X]"  );
-        if (nextParameters && lastParameters) ATH_MSG_DEBUG("last step:"<<(nextParameters->position()-lastParameters->position()).mag());
-        ATH_MSG_DEBUG( "          - Reason      : Loop detected in TrackingVolume '"<< nextVolume->volumeName() << "'"  );         
-        // statistics
-        ++m_navigationBreakLoop;
-        // record the oscillation volume -- increase the counter for the volume
-        if (m_navigationBreakDetails) {
-          counterMapHelper(m_loopVolumes,nextVolume);
-        }
-        // fallback flag
-        fallback = true;
-        // break it
-        break;
-      }
-    }
-    // (2) NAVIGATION BREAK : Oscillation
-    else if (nextVolume == previousVolume && nextVolume) {
-      // one time the loop oscillation has been allowed already
-      if (punchThroughDone) {
-        // output
-        ATH_MSG_DEBUG("  [X] Navigation break [X]");
-        ATH_MSG_DEBUG(
-                      "          - Reason      : Oscillation detected in TrackingVolume '" << nextVolume->volumeName() << "'");
-        // statistics
-        ++navigationBreakOscillation;
-        // record the oscillation volume -- increase the counter for the volume
-        if (m_navigationBreakDetails) {
-          counterMapHelper(m_oscillationVolumes,nextVolume);  
-        }
-        // fallback flag
-        fallback = true;
-        // break it
-        break;
-      } else {
-        // set the punch-through to true
-        punchThroughDone = true;
-        ATH_MSG_DEBUG("  [!] One time punch-through a volume done.");
-      }
-    }
-    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
-    // (3) NAVIGATION BREAK : no nextVolume found - but not in extrapolateBlindly() mode
-    else if (!nextVolume && !cache.m_parametersOnDetElements && lastVolume && !m_stopWithUpdateZero) {
-      // output
-      ATH_MSG_VERBOSE("  [X] Navigation break [X]");
-      ATH_MSG_VERBOSE(
-                      "          - Reason      : No next volume found of TrackingVolume '" << lastVolume->volumeName() << "'");
-      // statistics
-      ++navigationBreakNoVolume;
-      // record the "no next" volume -- increase the counter for the (last) volume
-      if (m_navigationBreakDetails) {
-        counterMapHelper(m_noNextVolumes,lastVolume);
-      }
-      // fallback flag
-      fallback = true;
-      // break it
-      break;
-    }
-    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
-    // (4) NAVIGATION BREAK : // nextParameters found but distance to surface increases
-    else if (nextParameters
-             && !cache.m_parametersOnDetElements
-             && navParameters
-             && nextVolume
-             && currentDistance > s_distIncreaseTolerance + previousDistance) {
-      // output
-      ATH_MSG_DEBUG("  [X] Navigation break [X]");
-      ATH_MSG_DEBUG("          - Reason      : Distance increase [ " << previousDistance << " to "
-                    << currentDistance
-                    << "] in TrackingVolume '" << nextVolume->volumeName() <<
-                    "'");
-      // statistics
-      ++navigationBreakDistIncrease;
-      // record the "dist increase" volume -- increase the counter for the volume
-      if (m_navigationBreakDetails) { 
-        counterMapHelper(m_distIncreaseVolumes,nextVolume);  
-      }
-      // fallback flag
-      fallback = true;
-      break;
-    }
-    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
-    // (+) update killed track
-    else if ((!nextParameters && m_stopWithUpdateZero) || !nextVolume) {
-      ATH_MSG_DEBUG(
-                    "  [+] Navigation stop : either the update killed the track, or end of detector/boundary volume reached");
-      return returnResult(cache,resultParameters, refParameters);
-    }
-    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
-    // (+) end of extrapolate blindly(volume*)
-    else if (cache.m_boundaryVolume
-             && navParameters
-             && !(cache.m_boundaryVolume->inside(navParameters->position()))) {
-      ATH_MSG_DEBUG("  [+] Navigation stop : next navigation step would lead outside given boundary volume");
-      return returnResult(cache,resultParameters, refParameters);
-    }
-    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
-    // (5) NAVIGATION BREAK : // nextParameters found but distance to surface increases
-    else if (nextVolume) {
-      ATH_MSG_DEBUG("  [+] next Tracking Volume = " << nextVolume->volumeName());
-    }
-    // set validity of last parameters to cache -----------------------------------------------------------------
-    if (nextParameters
-        && !cache.m_parametersOnDetElements
-        && navParameters
-        && nextVolume
-        && currentDistance > previousDistance) {
-      updateLastValid = false;
-    } else {
-      updateLastValid = true;
-    }
-    // reset
-    nextParameters = nextParameters ? nextParameters : lastParameters;
-    // one volume step invalidates the nextLayer information
-    nextLayer = 0;
-  }
-
-  // ------------------- fallback was triggered in volume to volume loop --------------------------------------
-  if (fallback) {
-    // continue with the output
-    ATH_MSG_DEBUG("          - Consequence : "
-                  << (m_stopWithNavigationBreak ? "return 0 (configured) " : "switch to extrapolateDirectly() "));
-    // stop with navigaiton break or zero update
-    if (m_stopWithNavigationBreak || m_stopWithUpdateZero) {
-      emptyGarbageBin(cache);
-      return 0;
-    }
-    // cleanup the garbage
-    if (cache.m_lastValidParameters && lastVolume) {
-      currentPropagator = subPropagator(*lastVolume);
-    }
-    if (!currentPropagator) {
-      return returnResult(cache,resultParameters, refParameters);
-    }
-    // create the result now
-    resultParameters = currentPropagator->propagate(*cache.m_lastValidParameters, sf, Trk::anyDirection, bcheck,
-                                                    m_fieldProperties, particle, false, lastVolume);
-    // desperate try
-    resultParameters = resultParameters ? resultParameters : currentPropagator->propagate(parm, sf, dir, bcheck,
-                                                                                          m_fieldProperties, particle,
-                                                                                          false, startVolume);
-    return returnResult(cache,resultParameters, refParameters);
-  }
-
-  // ----------------- this is the exit of the extrapolateBlindly() call --------------------------------------
-  if ((&sf) == (m_referenceSurface)) {
-    return returnResult(cache,resultParameters, refParameters);
-  }
-
-  // ---------------- extrapolation inside the Volume ----------------------------------------------------------
-  Trk::TrackParameters* finalNextParameters=nextParameters->clone();
-  ATH_MSG_DEBUG("create finalNextParameters "<<*finalNextParameters);
-  if (nextVolume) {
-    // chose the propagator fromt he geometry signature
-    currentPropagator = subPropagator(*nextVolume);
-    // extrapolate inside the volume
-    if (currentPropagator) {
-      resultParameters = extrapolateInsideVolume(cache,
-                                                 *currentPropagator,
-                                                 *nextParameters,
-                                                 sf,
-                                                 nextLayer,
-                                                 *nextVolume,
-                                                 dir,
-                                                 bcheck,
-                                                 particle,
-                                                 matupmode);
-    }
-  }
-  // ------------------------------------------------------------------------------------------------------------
-  // the final - desperate backup --- just try to hit the surface
-  if (!resultParameters && !m_stopWithNavigationBreak && !m_stopWithUpdateZero) {
-    if(finalNextParameters) ATH_MSG_DEBUG("propagate using parameters "<<*finalNextParameters);
-    else{
-      ATH_MSG_DEBUG("no finalNextParameters, bailing out of extrapolateDirectly");
-      return returnResult(cache,nullptr,refParameters);
-    }
-    ATH_MSG_DEBUG("  [-] Fallback to extrapolateDirectly triggered ! ");
-    resultParameters = prop.propagate(*finalNextParameters,
-                                      sf,
-                                      dir,
-                                      bcheck,
-                                      // *startVolume,
-                                      m_fieldProperties,
-                                      particle, false, startVolume);
-  }
-  // return whatever you have
-  delete finalNextParameters;
-  return returnResult(cache,resultParameters, refParameters);
-}
-
 
 
 
@@ -1012,58 +550,6 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
  Cache cache{};
  return extrapolateImpl(cache,prop,parm,sfMeff,tvol,dir,particle,matupmode);
 }
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolateImpl(Cache& cache,
-                                   const IPropagator &prop,
-                                   const TrackParameters &parm,
-                                   const std::vector< MaterialEffectsOnTrack > &sfMeff,
-                                   const TrackingVolume &tvol,
-                                   PropDirection dir,
-                                   ParticleHypothesis particle,
-                                   MaterialUpdateMode matupmode) const {
-  // statistics && sequence output ----------------------------------------
-  if (m_methodSequence.value()) {
-    ++m_methodSequence;
-  }
-  ATH_MSG_DEBUG(
-    "D-[" << m_methodSequence << "] extrapolate with given MaterialEffectsOnTrack in Volume '" << tvol.volumeName() <<
-    "'.");
-
-  const Trk::TrackParameters *fallbackParameters = 0;
-  const Trk::TrackParameters *nextParameters = &parm;
-
-  // loop over the provided material effects on track
-  std::vector< MaterialEffectsOnTrack >::const_iterator sfMeffI = sfMeff.begin();
-  std::vector< MaterialEffectsOnTrack >::const_iterator sfMeffE = sfMeff.end();
-
-  for (; sfMeffI != sfMeffE; ++sfMeffI) {
-    // first propagate to the given surface
-    // nextParameters = prop.propagate(*nextParameters, sfMeffI->associatedSurface(),dir,true,tvol, particle);
-    nextParameters = prop.propagate(*nextParameters,
-                                    sfMeffI->associatedSurface(), dir, true, m_fieldProperties, particle, false, &tvol);
-    // user might have not calculated well which surfaces are intersected ... break if break
-    if (!nextParameters) {
-      return fallbackParameters;
-    }
-    throwIntoGarbageBin(cache,nextParameters);
-    // the fallback parameters
-    fallbackParameters = nextParameters;
-    // then update
-    const IMaterialEffectsUpdator *currentUpdator = subMaterialEffectsUpdator(tvol);
-    const Trk::TrackParameters *upnext = currentUpdator ? currentUpdator->update(nextParameters, *sfMeffI, particle,
-                                                                                 matupmode) : 0;
-    if (!upnext) {
-      // update killed the track or config problem. Return
-      ATH_MSG_VERBOSE("  [+] Update killed track.");
-      break;
-    } else if (upnext != nextParameters) {
-      throwIntoGarbageBin(cache,upnext);
-    }
-    nextParameters = upnext;
-  }
-  return fallbackParameters;
-}
-
 const Trk::TrackParametersVector*
 Trk::Extrapolator::extrapolateBlindly(
   const IPropagator &prop,
@@ -1075,40 +561,6 @@ Trk::Extrapolator::extrapolateBlindly(
  
   Cache cache{};
   return extrapolateBlindlyImpl(cache,prop,parm,dir,bcheck,particle,boundaryVol);
-}
-
-const Trk::TrackParametersVector*
-Trk::Extrapolator::extrapolateBlindlyImpl(
-  Cache& cache,
-  const IPropagator &prop,
-  const Trk::TrackParameters &parm,
-  Trk::PropDirection dir,
-  Trk::BoundaryCheck bcheck,
-  Trk::ParticleHypothesis particle,
-  const Trk::Volume *boundaryVol) const {
-  // statistics && sequence output ----------------------------------------
-  ++m_extrapolateBlindlyCalls;
-  ++m_methodSequence;
-  ATH_MSG_DEBUG("F-[" << m_methodSequence << "] extrapolateBlindly() ");
-  // assign the boundaryVolume
-  cache.m_boundaryVolume = boundaryVol;
-  // initialize the return parameters vector
-  Trk::TrackParametersVector *returnParameters = 0;
-  // create a new internal helper vector
-  cache.m_parametersOnDetElements = new std::vector<const Trk::TrackParameters *>;
-  // run the extrapolation
-  const Trk::TrackParameters *parameterOnSf = extrapolateImpl(cache,prop, parm, *m_referenceSurface, dir, bcheck, particle);
-  // delete them if necessary
-  if (parameterOnSf && parameterOnSf != (&parm)) {
-    delete parameterOnSf;
-  }
-  // assign the return parameter and set cache.m_parametersOnDetElements = 0;
-  returnParameters = cache.m_parametersOnDetElements;
-  cache.m_parametersOnDetElements = 0;
-  // reset the boundary Volume
-  cache.m_boundaryVolume = 0;
-  // return what you have
-  return returnParameters;
 }
 
 std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextActiveLayer(
@@ -2759,38 +2211,6 @@ Cache cache{};
 return extrapolateImpl(cache,parm,sf,dir,bcheck,particle,matupmode,extrapolationCache);
 }
  
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolateImpl(Cache& cache,
-                                   const TrackParameters &parm,
-                                   const Surface &sf,
-                                   PropDirection dir,
-                                   BoundaryCheck bcheck,
-                                   ParticleHypothesis particle,
-                                   MaterialUpdateMode matupmode,
-                                   Trk::ExtrapolationCache *extrapolationCache) const {
-  
-  cache.m_extrapolationCache = extrapolationCache;
-  cache.m_cacheEloss = extrapolationCache ? dynamic_cast<const Trk::EnergyLoss *>(extrapolationCache->eloss()) : 0;
-
-  if (extrapolationCache && m_dumpCache) {
-    ATH_MSG_DEBUG("  In extrapolate cache pointer input: " << extrapolationCache << " cache.m_extrapolationCache " <<
-      cache.m_extrapolationCache);
-    if (cache.m_extrapolationCache) {
-      dumpCache(cache," In extrapolate ");
-    }
-  }
-
-  if (m_configurationLevel < 10) {
-    // chose the propagator fromt he geometry signature -- start with default
-    const IPropagator *currentPropagator = m_subPropagators.size() ? m_subPropagators[Trk::Global] : 0;
-    if (currentPropagator) {
-      return(extrapolateImpl(cache,(*currentPropagator), parm, sf, dir, bcheck, particle, matupmode));
-    }
-  }
-  ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return 0;
-}
-
 const std::vector<const Trk::TrackParameters *> *
 Trk::Extrapolator::extrapolateStepwise(
   const Trk::TrackParameters &parm,
@@ -3015,6 +2435,596 @@ Trk::Extrapolator::validationAction() const {
   m_navigator->validationAction();
 }
 
+/* Private methods
+ *
+ * Most accept a Cache struct  as an argument. 
+ * This is passed to them from the public/interface methods.
+ * Then it is also propagated in-between the private methods.
+ *
+ * Start with the extrapolate Implementation ones
+ */
+
+const Trk::TrackParameters *
+Trk::Extrapolator::extrapolateImpl(Cache& cache,
+                                   const IPropagator &prop,
+                                   const Trk::TrackParameters &parm,
+                                   const Trk::Surface &sf,
+                                   Trk::PropDirection dir,
+                                   Trk::BoundaryCheck bcheck,
+                                   Trk::ParticleHypothesis particle,
+                                   MaterialUpdateMode matupmode) const {
+  // set the model action of the material effects updators
+  for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
+    m_subUpdators[imueot]->modelAction();
+  }
+
+  // reset the destination surface
+  cache.m_destinationSurface = 0;
+  cache.m_lastValidParameters = 0;
+  // skip rest of navigation if particle hypothesis is nonInteracting
+  if (particle == Trk::nonInteracting || int(dir) > 5) {
+    return extrapolateDirectly(prop, parm, sf, dir, bcheck, particle);
+  }
+
+  // statistics && sequence output ----------------------------------------
+  ++m_extrapolateCalls;
+  ++m_methodSequence;
+  // the resultParameters
+  const Trk::TrackParameters *resultParameters = 0;
+  // prepare the values for the startup and call the initialization ------------------------------------------
+  const Trk::TrackingVolume *startVolume = 0;
+  const Trk::TrackingVolume *destVolume = 0;
+  const Trk::Layer *nextLayer = 0;
+  const Trk::TrackingVolume *nextVolume = 0;
+  const Trk::TrackingVolume *lastVolume = 0;
+  const Trk::TrackParameters *refParameters = 0;
+  const Trk::TrackParameters *lastParameters = 0;
+  const Trk::TrackParameters *navParameters = 0;
+  const Trk::TrackParameters *nextParameters = (&parm);
+  // initialize Navigation (calls as well initialize on garbe collection) -------------------------------------
+  Trk::PropDirection navDir = initializeNavigation(cache,
+                                                   prop,
+                                                   parm,
+                                                   sf,
+                                                   dir,
+                                                   particle,
+                                                   refParameters,
+                                                   nextLayer,
+                                                   nextVolume,
+                                                   destVolume);
+  // ----------------------------------------------------------------------------------------------------------
+  // if anyDirection has been chosen as a start directive:
+  //   -> overwrite the dir with the navigation direction
+  dir = (dir == Trk::anyDirection) ? navDir : dir;
+  // check for consistency
+  if (dir == Trk::anyDirection || navDir != dir) {
+    // navigation could not be resolved
+    ATH_MSG_VERBOSE("  [!] Navigation direction could not be resolved, switching to extrapolateDirectly()");
+    // the extrapolate directly call
+    resultParameters = extrapolateDirectly(prop, parm, sf, navDir, bcheck, particle);
+    // return and cleanup
+    return returnResult(cache,resultParameters, refParameters);
+  }
+  // ----------------------------------------------------------------------------------------------------------
+  startVolume = nextVolume;
+  // fallback setup  ------------------------------------------------------------------------------------------
+  bool fallback = false;
+  // ------- initial distance estimation ----------------------------------------------------------------------
+  double currentDistance = 0.;
+  double previousDistance = 0.;
+  // reference parameters and distance solution: use consistently one of each
+  if (refParameters) {
+    ATH_MSG_VERBOSE("  [+] Reference Parameters       -   at " << positionOutput(refParameters->position()));
+    currentDistance = (refParameters->position() - parm.position()).mag();
+  } else {
+    // using fast but accureate sl distance from surface
+    Trk::DistanceSolution distSol =
+      sf.straightLineDistanceEstimate(parm.position(), dir * parm.momentum().normalized());
+    if (distSol.numberOfSolutions() > 0) {
+      currentDistance = distSol.absClosest();
+    } else {
+      currentDistance = fabs(distSol.toPointOfClosestApproach());
+    }
+    // VERBOSE output
+  }
+  ATH_MSG_VERBOSE("  [+] Initial 3D-distance to destination - d3 = " << currentDistance);
+  // and for oscillation protection ---------------------------------------------------------------------------
+  const Trk::TrackingVolume *previousVolume = 0;
+  // ----------------------------------------------------------------------------------------------------------
+  std::string startVolumeName = (nextVolume) ? nextVolume->volumeName() : "Unknown (ERROR)";
+  std::string destVolumeName = destVolume ? destVolume->volumeName() : "Unknown (blind extrapolation)";
+  if (msgLvl(MSG::VERBOSE)) {
+    ATH_MSG_VERBOSE("  [" << m_methodSequence << "] extrapolate() " << startVolumeName << " ->  " << destVolumeName);
+    ATH_MSG_VERBOSE("  [+] Starting position determined - at " << positionOutput(parm.position()));
+    if (nextLayer) {
+      ATH_MSG_VERBOSE("  [+] Starting layer determined  - with " << layerRZoutput(*nextLayer));
+    }
+  }
+
+  // ----------------------------------------------------------------------------------------------------------
+  const IPropagator *currentPropagator = 0;
+  // ----------------- extrapolation from One Volume to the next Volume  --------------------------------------
+  // the loop continues while:
+  //       - nextVolume extists
+  //       - nextVolume is different from lastVolume (prevent infinite loops)
+  //       - nextVolume is different from destinationVolume (change to extrapolateInsideVolume)
+  //       - nextParameters exist
+  //       - lastVolume is different from previousVolume (prevent oscillation loop, one-time-punch-through allowed)
+  //       - the reinforced navigation can find destination parameters
+  //       - the maximum method sequence is not met
+
+  // best starting parameters
+  bool updateLastValid = true;
+  // one-time-punch-through allows for volume2 - volume1 - volume2 (cosmics)
+  bool punchThroughDone = false;
+
+  auto navigationBreakOscillation=m_navigationBreakOscillation.buffer();
+  auto navigationBreakNoVolume= m_navigationBreakNoVolume.buffer();
+  auto navigationBreakDistIncrease=m_navigationBreakDistIncrease.buffer();
+  auto navigationBreakVolumeSignature=m_navigationBreakVolumeSignature.buffer();
+
+  while (nextVolume &&
+         nextVolume != destVolume &&
+         nextVolume != lastVolume &&
+         nextParameters &&
+         m_methodSequence.value() < m_maxMethodSequence) {
+    // chose the propagtor type
+    currentPropagator = subPropagator(*nextVolume);
+    if (!currentPropagator) {
+      // [0] Navigation break : configuration problem or consistency problem of TrackingGeometry
+      // output
+      ATH_MSG_DEBUG("  [X] Navigation break [X]");
+      ATH_MSG_DEBUG("          - Reason      : No Propagator found for Volume '" << nextVolume->volumeName() << "'");
+      // debug statistics
+      ++m_navigationBreakVolumeSignature;
+      if (m_navigationBreakDetails) {
+        counterMapHelper(m_volSignatureVolumes,nextVolume);  
+      }
+      // trigger the fallback solution
+      fallback = true;
+      break;
+    }
+
+    // check for the distance to destination
+    // ------------------------------------------------------------------------------------
+    if (updateLastValid) {
+      cache.m_lastValidParameters = nextParameters;
+    }
+    // re-initialize (will only overwrite destVolume)
+    if (nextVolume->redoNavigation()) {
+      delete refParameters;
+      refParameters = 0;
+      dir = initializeNavigation(cache,
+                                 *currentPropagator,
+                                 *nextParameters,
+                                 sf,
+                                 dir,
+                                 particle,
+                                 refParameters,
+                                 nextLayer,
+                                 nextVolume,
+                                 destVolume);
+    }
+    // avoid the oszillation
+    previousVolume = lastVolume;
+    // for the next step to termine if infinite loop occurs
+    lastVolume = nextVolume;
+    // for memory cleanup and backup
+    lastParameters = nextParameters;
+
+    // MS specific code ------------------
+    // extrapolation within detached volumes - returns parameters on destination surfaces, or boundary solution
+    // handles also dense volume description in Calo and beam pipe
+    if ( nextVolume->geometrySignature()>1 ) {
+      if (cache.m_parametersAtBoundary.navParameters &&
+          cache.m_parametersAtBoundary.navParameters != cache.m_parametersAtBoundary.nextParameters) {
+        // extrapolate to volume boundary to avoid navigation break
+        const Trk::TrackParameters *nextPar = currentPropagator->propagate(*cache.m_parametersAtBoundary.nextParameters,
+                                                                           cache.m_parametersAtBoundary.navParameters->associatedSurface(),
+                                                                           dir,
+                                                                           bcheck,
+                                                                           // *previousVolume,
+                                                                           m_fieldProperties,
+                                                                           particle, false, previousVolume);
+        // propagation to boundary
+        if (nextPar) {
+          throwIntoGarbageBin(cache,nextPar);
+        }
+        // set boundary and next parameters
+        cache.m_parametersAtBoundary.boundaryInformation(nextVolume, nextPar, nextPar);
+        nextParameters = cache.m_parametersAtBoundary.nextParameters;
+        navParameters = cache.m_parametersAtBoundary.navParameters;
+      }
+      // start from the nextParameter (which are at volume boundary)
+      if (nextParameters) {
+        if (!m_stepPropagator) { 
+          ATH_MSG_ERROR("extrapolation in Calo/MS called without configured STEP propagator, aborting"); 
+          return 0;  
+        }  
+        resultParameters = extrapolateWithinDetachedVolumes(cache,
+                                                            *m_stepPropagator,
+                                                            *nextParameters,
+                                                            sf,
+                                                            *nextVolume,
+                                                            dir,
+                                                            bcheck,
+                                                            particle,
+                                                            matupmode);
+      }
+      if (resultParameters){
+        // destination reached : indicated through result parameters
+        // set the model action of the material effects updators
+        for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
+          m_subUpdators[imueot]->modelAction();
+        }
+        // return the parameters at destination
+        ATH_MSG_DEBUG("  [+] Destination surface successfully hit.");
+        // return the result (succesful)
+        return returnResult(cache,resultParameters, refParameters);
+      } else if (!cache.m_parametersAtBoundary.nextParameters || !cache.m_parametersAtBoundary.nextVolume) {
+        ATH_MSG_DEBUG("  [-] Destination surface could not be hit.");
+        return returnResult(cache,resultParameters, refParameters);
+      }
+    } else {
+      // ------------------------------------------------------------------------------------------------
+      // standard loop over volumes (but last one)
+      // extrapolate to volume boundary - void method as 'cache.m_parametersAtBoundary' hold the information
+      extrapolateToVolumeBoundary(cache,
+                                  *currentPropagator,
+                                  *nextParameters,
+                                  nextLayer,
+                                  *nextVolume,
+                                  dir,
+                                  bcheck,
+                                  particle,
+                                  matupmode);
+    }
+    // go on with the next volume / get next Volume and Boundary from the private member
+    nextVolume = cache.m_parametersAtBoundary.nextVolume;
+    nextParameters = cache.m_parametersAtBoundary.nextParameters;
+    navParameters = cache.m_parametersAtBoundary.navParameters;
+    // new distance estimation ( after step to next volume ) ------------------------------------------------
+    previousDistance = currentDistance;
+    // make it either from the navParmaters (if the exist) or the nextParameters
+    const Trk::TrackParameters *distParameters = cache.m_parametersAtBoundary.navParameters ?
+      cache.m_parametersAtBoundary.navParameters : nextParameters;
+
+    if (distParameters) {
+      // use consistently either the:
+      // (A) reference parameters or the
+      if (refParameters) {
+        currentDistance = (refParameters->position() - distParameters->position()).mag();
+      } else {
+        // (B) distance solution to surface
+        Trk::DistanceSolution newDistSol = sf.straightLineDistanceEstimate(distParameters->position(),
+                                                                           dir *
+                                                                           distParameters->momentum().normalized());
+        currentDistance = newDistSol.numberOfSolutions() > 0 ? newDistSol.absClosest() : fabs(
+                                                                                              newDistSol.toPointOfClosestApproach());
+      }
+    }
+    ATH_MSG_VERBOSE("  [+] New 3D-distance to destination     - d3 = " << currentDistance << " (from " <<
+                    (cache.m_parametersAtBoundary.navParameters ? "boundary parameters" : "last parameters within volume ") <<
+                    ")");
+
+    // -------------------------------------------------------------------------------------------------------
+    // (1) NAVIGATION BREAK : next Volume is identical to last volume -- LOOP
+    if (nextVolume == lastVolume && nextVolume) {
+      // ST false when crossing beam pipe : additional check on step distance    
+      if (nextParameters && lastParameters && 
+          (nextParameters->position()-lastParameters->position()).dot(lastParameters->momentum().normalized())*dir > 0.001 ) { 
+      } else {
+        // output
+        ATH_MSG_DEBUG( "  [X] Navigation break [X]"  );
+        if (nextParameters && lastParameters) ATH_MSG_DEBUG("last step:"<<(nextParameters->position()-lastParameters->position()).mag());
+        ATH_MSG_DEBUG( "          - Reason      : Loop detected in TrackingVolume '"<< nextVolume->volumeName() << "'"  );         
+        // statistics
+        ++m_navigationBreakLoop;
+        // record the oscillation volume -- increase the counter for the volume
+        if (m_navigationBreakDetails) {
+          counterMapHelper(m_loopVolumes,nextVolume);
+        }
+        // fallback flag
+        fallback = true;
+        // break it
+        break;
+      }
+    }
+    // (2) NAVIGATION BREAK : Oscillation
+    else if (nextVolume == previousVolume && nextVolume) {
+      // one time the loop oscillation has been allowed already
+      if (punchThroughDone) {
+        // output
+        ATH_MSG_DEBUG("  [X] Navigation break [X]");
+        ATH_MSG_DEBUG(
+                      "          - Reason      : Oscillation detected in TrackingVolume '" << nextVolume->volumeName() << "'");
+        // statistics
+        ++navigationBreakOscillation;
+        // record the oscillation volume -- increase the counter for the volume
+        if (m_navigationBreakDetails) {
+          counterMapHelper(m_oscillationVolumes,nextVolume);  
+        }
+        // fallback flag
+        fallback = true;
+        // break it
+        break;
+      } else {
+        // set the punch-through to true
+        punchThroughDone = true;
+        ATH_MSG_DEBUG("  [!] One time punch-through a volume done.");
+      }
+    }
+    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
+    // (3) NAVIGATION BREAK : no nextVolume found - but not in extrapolateBlindly() mode
+    else if (!nextVolume && !cache.m_parametersOnDetElements && lastVolume && !m_stopWithUpdateZero) {
+      // output
+      ATH_MSG_VERBOSE("  [X] Navigation break [X]");
+      ATH_MSG_VERBOSE(
+                      "          - Reason      : No next volume found of TrackingVolume '" << lastVolume->volumeName() << "'");
+      // statistics
+      ++navigationBreakNoVolume;
+      // record the "no next" volume -- increase the counter for the (last) volume
+      if (m_navigationBreakDetails) {
+        counterMapHelper(m_noNextVolumes,lastVolume);
+      }
+      // fallback flag
+      fallback = true;
+      // break it
+      break;
+    }
+    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
+    // (4) NAVIGATION BREAK : // nextParameters found but distance to surface increases
+    else if (nextParameters
+             && !cache.m_parametersOnDetElements
+             && navParameters
+             && nextVolume
+             && currentDistance > s_distIncreaseTolerance + previousDistance) {
+      // output
+      ATH_MSG_DEBUG("  [X] Navigation break [X]");
+      ATH_MSG_DEBUG("          - Reason      : Distance increase [ " << previousDistance << " to "
+                    << currentDistance
+                    << "] in TrackingVolume '" << nextVolume->volumeName() <<
+                    "'");
+      // statistics
+      ++navigationBreakDistIncrease;
+      // record the "dist increase" volume -- increase the counter for the volume
+      if (m_navigationBreakDetails) { 
+        counterMapHelper(m_distIncreaseVolumes,nextVolume);  
+      }
+      // fallback flag
+      fallback = true;
+      break;
+    }
+    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
+    // (+) update killed track
+    else if ((!nextParameters && m_stopWithUpdateZero) || !nextVolume) {
+      ATH_MSG_DEBUG(
+                    "  [+] Navigation stop : either the update killed the track, or end of detector/boundary volume reached");
+      return returnResult(cache,resultParameters, refParameters);
+    }
+    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
+    // (+) end of extrapolate blindly(volume*)
+    else if (cache.m_boundaryVolume
+             && navParameters
+             && !(cache.m_boundaryVolume->inside(navParameters->position()))) {
+      ATH_MSG_DEBUG("  [+] Navigation stop : next navigation step would lead outside given boundary volume");
+      return returnResult(cache,resultParameters, refParameters);
+    }
+    // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
+    // (5) NAVIGATION BREAK : // nextParameters found but distance to surface increases
+    else if (nextVolume) {
+      ATH_MSG_DEBUG("  [+] next Tracking Volume = " << nextVolume->volumeName());
+    }
+    // set validity of last parameters to cache -----------------------------------------------------------------
+    if (nextParameters
+        && !cache.m_parametersOnDetElements
+        && navParameters
+        && nextVolume
+        && currentDistance > previousDistance) {
+      updateLastValid = false;
+    } else {
+      updateLastValid = true;
+    }
+    // reset
+    nextParameters = nextParameters ? nextParameters : lastParameters;
+    // one volume step invalidates the nextLayer information
+    nextLayer = 0;
+  }
+
+  // ------------------- fallback was triggered in volume to volume loop --------------------------------------
+  if (fallback) {
+    // continue with the output
+    ATH_MSG_DEBUG("          - Consequence : "
+                  << (m_stopWithNavigationBreak ? "return 0 (configured) " : "switch to extrapolateDirectly() "));
+    // stop with navigaiton break or zero update
+    if (m_stopWithNavigationBreak || m_stopWithUpdateZero) {
+      emptyGarbageBin(cache);
+      return 0;
+    }
+    // cleanup the garbage
+    if (cache.m_lastValidParameters && lastVolume) {
+      currentPropagator = subPropagator(*lastVolume);
+    }
+    if (!currentPropagator) {
+      return returnResult(cache,resultParameters, refParameters);
+    }
+    // create the result now
+    resultParameters = currentPropagator->propagate(*cache.m_lastValidParameters, sf, Trk::anyDirection, bcheck,
+                                                    m_fieldProperties, particle, false, lastVolume);
+    // desperate try
+    resultParameters = resultParameters ? resultParameters : currentPropagator->propagate(parm, sf, dir, bcheck,
+                                                                                          m_fieldProperties, particle,
+                                                                                          false, startVolume);
+    return returnResult(cache,resultParameters, refParameters);
+  }
+
+  // ----------------- this is the exit of the extrapolateBlindly() call --------------------------------------
+  if ((&sf) == (m_referenceSurface)) {
+    return returnResult(cache,resultParameters, refParameters);
+  }
+
+  // ---------------- extrapolation inside the Volume ----------------------------------------------------------
+  Trk::TrackParameters* finalNextParameters=nextParameters->clone();
+  ATH_MSG_DEBUG("create finalNextParameters "<<*finalNextParameters);
+  if (nextVolume) {
+    // chose the propagator fromt he geometry signature
+    currentPropagator = subPropagator(*nextVolume);
+    // extrapolate inside the volume
+    if (currentPropagator) {
+      resultParameters = extrapolateInsideVolume(cache,
+                                                 *currentPropagator,
+                                                 *nextParameters,
+                                                 sf,
+                                                 nextLayer,
+                                                 *nextVolume,
+                                                 dir,
+                                                 bcheck,
+                                                 particle,
+                                                 matupmode);
+    }
+  }
+  // ------------------------------------------------------------------------------------------------------------
+  // the final - desperate backup --- just try to hit the surface
+  if (!resultParameters && !m_stopWithNavigationBreak && !m_stopWithUpdateZero) {
+    if(finalNextParameters) ATH_MSG_DEBUG("propagate using parameters "<<*finalNextParameters);
+    else{
+      ATH_MSG_DEBUG("no finalNextParameters, bailing out of extrapolateDirectly");
+      return returnResult(cache,nullptr,refParameters);
+    }
+    ATH_MSG_DEBUG("  [-] Fallback to extrapolateDirectly triggered ! ");
+    resultParameters = prop.propagate(*finalNextParameters,
+                                      sf,
+                                      dir,
+                                      bcheck,
+                                      // *startVolume,
+                                      m_fieldProperties,
+                                      particle, false, startVolume);
+  }
+  // return whatever you have
+  delete finalNextParameters;
+  return returnResult(cache,resultParameters, refParameters);
+}
+
+const Trk::TrackParameters *
+Trk::Extrapolator::extrapolateImpl(Cache& cache,
+                                   const IPropagator &prop,
+                                   const TrackParameters &parm,
+                                   const std::vector< MaterialEffectsOnTrack > &sfMeff,
+                                   const TrackingVolume &tvol,
+                                   PropDirection dir,
+                                   ParticleHypothesis particle,
+                                   MaterialUpdateMode matupmode) const {
+  // statistics && sequence output ----------------------------------------
+  if (m_methodSequence.value()) {
+    ++m_methodSequence;
+  }
+  ATH_MSG_DEBUG(
+    "D-[" << m_methodSequence << "] extrapolate with given MaterialEffectsOnTrack in Volume '" << tvol.volumeName() <<
+    "'.");
+
+  const Trk::TrackParameters *fallbackParameters = 0;
+  const Trk::TrackParameters *nextParameters = &parm;
+
+  // loop over the provided material effects on track
+  std::vector< MaterialEffectsOnTrack >::const_iterator sfMeffI = sfMeff.begin();
+  std::vector< MaterialEffectsOnTrack >::const_iterator sfMeffE = sfMeff.end();
+
+  for (; sfMeffI != sfMeffE; ++sfMeffI) {
+    // first propagate to the given surface
+    // nextParameters = prop.propagate(*nextParameters, sfMeffI->associatedSurface(),dir,true,tvol, particle);
+    nextParameters = prop.propagate(*nextParameters,
+                                    sfMeffI->associatedSurface(), dir, true, m_fieldProperties, particle, false, &tvol);
+    // user might have not calculated well which surfaces are intersected ... break if break
+    if (!nextParameters) {
+      return fallbackParameters;
+    }
+    throwIntoGarbageBin(cache,nextParameters);
+    // the fallback parameters
+    fallbackParameters = nextParameters;
+    // then update
+    const IMaterialEffectsUpdator *currentUpdator = subMaterialEffectsUpdator(tvol);
+    const Trk::TrackParameters *upnext = currentUpdator ? currentUpdator->update(nextParameters, *sfMeffI, particle,
+                                                                                 matupmode) : 0;
+    if (!upnext) {
+      // update killed the track or config problem. Return
+      ATH_MSG_VERBOSE("  [+] Update killed track.");
+      break;
+    } else if (upnext != nextParameters) {
+      throwIntoGarbageBin(cache,upnext);
+    }
+    nextParameters = upnext;
+  }
+  return fallbackParameters;
+}
+
+
+const Trk::TrackParameters *
+Trk::Extrapolator::extrapolateImpl(Cache& cache,
+                                   const TrackParameters &parm,
+                                   const Surface &sf,
+                                   PropDirection dir,
+                                   BoundaryCheck bcheck,
+                                   ParticleHypothesis particle,
+                                   MaterialUpdateMode matupmode,
+                                   Trk::ExtrapolationCache *extrapolationCache) const {
+  
+  cache.m_extrapolationCache = extrapolationCache;
+  cache.m_cacheEloss = extrapolationCache ? dynamic_cast<const Trk::EnergyLoss *>(extrapolationCache->eloss()) : 0;
+
+  if (extrapolationCache && m_dumpCache) {
+    ATH_MSG_DEBUG("  In extrapolate cache pointer input: " << extrapolationCache << " cache.m_extrapolationCache " <<
+      cache.m_extrapolationCache);
+    if (cache.m_extrapolationCache) {
+      dumpCache(cache," In extrapolate ");
+    }
+  }
+
+  if (m_configurationLevel < 10) {
+    // chose the propagator fromt he geometry signature -- start with default
+    const IPropagator *currentPropagator = m_subPropagators.size() ? m_subPropagators[Trk::Global] : 0;
+    if (currentPropagator) {
+      return(extrapolateImpl(cache,(*currentPropagator), parm, sf, dir, bcheck, particle, matupmode));
+    }
+  }
+  ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
+  return 0;
+}
+
+const Trk::TrackParametersVector*
+Trk::Extrapolator::extrapolateBlindlyImpl(
+  Cache& cache,
+  const IPropagator &prop,
+  const Trk::TrackParameters &parm,
+  Trk::PropDirection dir,
+  Trk::BoundaryCheck bcheck,
+  Trk::ParticleHypothesis particle,
+  const Trk::Volume *boundaryVol) const {
+  // statistics && sequence output ----------------------------------------
+  ++m_extrapolateBlindlyCalls;
+  ++m_methodSequence;
+  ATH_MSG_DEBUG("F-[" << m_methodSequence << "] extrapolateBlindly() ");
+  // assign the boundaryVolume
+  cache.m_boundaryVolume = boundaryVol;
+  // initialize the return parameters vector
+  Trk::TrackParametersVector *returnParameters = 0;
+  // create a new internal helper vector
+  cache.m_parametersOnDetElements = new std::vector<const Trk::TrackParameters *>;
+  // run the extrapolation
+  const Trk::TrackParameters *parameterOnSf = extrapolateImpl(cache,prop, parm, *m_referenceSurface, dir, bcheck, particle);
+  // delete them if necessary
+  if (parameterOnSf && parameterOnSf != (&parm)) {
+    delete parameterOnSf;
+  }
+  // assign the return parameter and set cache.m_parametersOnDetElements = 0;
+  returnParameters = cache.m_parametersOnDetElements;
+  cache.m_parametersOnDetElements = 0;
+  // reset the boundary Volume
+  cache.m_boundaryVolume = 0;
+  // return what you have
+  return returnParameters;
+}
+
+
 // ----------------------- The private Volume extrapolation methods -------------------------------------------------
 const Trk::TrackParameters *
 Trk::Extrapolator::extrapolateInsideVolume(Cache& cache,
@@ -3202,24 +3212,6 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(
     }
     nextParameters = onNextLayer;
   }  // end loop over material layers
-
-//   const Trk::Layer* nextLayer = 0;
-//
-//   if (nextParameters) {
-//     nextLayer = m_navigator->trackingGeometry()->associatedLayer(nextParameters->position());
-//     // propagate to the destination surface, final step
-//     currVol = m_navigator->trackingGeometry()->lowestTrackingVolume(nextParameters->position()) ;
-//     const Trk::TrackParameters* finalStep = 0;
-//     if (&sf == nextParameters->associatedSurface()) {
-//       if (!bcheck || sf.isOnSurface(nextParameters->position(),true,m_tolerance,m_tolerance)) finalStep =
-// nextParameters->clone();
-//     } else if ( loopOverLayers && nextLayer == destinationLayer) {
-//       finalStep = prop.propagate(*nextParameters,sf,Trk::anyDirection,bcheck,*currVol,particle);
-//     } else {
-//       finalStep = prop.propagate(*nextParameters,sf,dir,bcheck,*currVol,particle);
-//     }
-//     return finalStep;
-//   }
 
   // boundary reached , return to the main loop
   ATH_MSG_DEBUG("  [+] extrapolateWithinDetachedVolumes(...) reached static boundary, return to the main loop.");

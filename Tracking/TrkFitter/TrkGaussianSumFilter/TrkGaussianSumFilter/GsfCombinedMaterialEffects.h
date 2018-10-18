@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -16,17 +16,16 @@ decription           : Class definition for consideration of multiple scatter an
 #define TrkGsfCombinedMaterialEffects_H
 
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-#include "TrkGaussianSumFilter/MultiStateMaterialEffects.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
 
 namespace Trk{
 
-class MultiStateMaterialEffectsAdapter;
 class IMaterialEffectsUpdator;
 
-class GsfCombinedMaterialEffects : public MultiStateMaterialEffects, virtual public IMultiStateMaterialEffects {
+class GsfCombinedMaterialEffects : public AthAlgTool, virtual public IMultiStateMaterialEffects {
  public:
 
   /** Constructor with AlgTool parameters*/
@@ -41,33 +40,22 @@ class GsfCombinedMaterialEffects : public MultiStateMaterialEffects, virtual pub
   /** AlgTool finalise method */
   StatusCode finalize();
 
-  /** Reset method to clear the cache */
-  virtual void reset() const;
 
- private:
-  virtual void compute ( const ComponentParameters&,
+  virtual void compute ( IMultiStateMaterialEffects::Cache&,
+                         const ComponentParameters&,
                          const MaterialProperties&,
                          double,
                          PropDirection = anyDirection,
                          ParticleHypothesis = nonInteracting ) const;
 
   private:
-  
-  ToolHandle<IMaterialEffectsUpdator> m_multipleScatterEffects;
 
-  PublicToolHandle<IMultiStateMaterialEffects> m_multiStateMultipleScatteringEffects
-     {this,"MultipleScatteringEffectsAdapter","Trk::MultiStateMaterialEffectsAdapter/MultipleScatteringEffectsAdapter",""};
+  ToolHandle<IMaterialEffectsUpdator> m_multipleScatterEffects;
 
   ToolHandle<IMaterialEffectsUpdator> m_energyLossEffects;
 
   ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects;
 
-  PublicToolHandle<IMultiStateMaterialEffects> m_multiStateEnergyLossEffects
-     {this,"EnergyLossEffectsAdapter","Trk::MultiStateMaterialEffectsAdapter/EnergyLossEffectsAdapter",""};
-
-  const MultiStateMaterialEffectsAdapter* m_multiStateMultipleScatteringAdapter;
-  const MultiStateMaterialEffectsAdapter* m_multiStateEnergyLossAdapter;
-  
 };
 
 } // end Trk namespace

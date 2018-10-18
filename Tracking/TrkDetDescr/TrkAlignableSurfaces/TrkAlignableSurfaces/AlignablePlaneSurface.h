@@ -90,13 +90,13 @@ namespace Trk {
     const Amg::Transform3D& nominalTransform() const;
 
     /** Add an alignment correction on top of the actual one */
-    void addAlignmentCorrection(Amg::Transform3D& corr) const;
+    void addAlignmentCorrection(Amg::Transform3D& corr) ;
 
     /** Set an alignment correction on top of the nominal one */
-    void setAlignmentCorrection(Amg::Transform3D& corr) const;
+    void setAlignmentCorrection(Amg::Transform3D& corr) ;
 
     /** Set an alignment correction on top of the nominal one */
-    void setAlignableTransform(Amg::Transform3D& trans) const;
+    void setAlignableTransform(Amg::Transform3D& trans) ;
 
    protected:
     /** The pointer ro the nominal Surface */

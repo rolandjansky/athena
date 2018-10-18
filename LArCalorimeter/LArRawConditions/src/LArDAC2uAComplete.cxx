@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArDAC2uAComplete.h" 
@@ -19,12 +19,6 @@ void LArDAC2uAComplete::set(const HWIdentifier& chid, const float DAC2uA ) {
 const float& LArDAC2uAComplete::DAC2UA(const HWIdentifier& chid) const {  
   return this->get(chid).m_data;
 }
-
-const float& LArDAC2uAComplete::DAC2UA(const Identifier&  id) const {
-  const HWIdentifier chid = larCablingSvc()->createSignalChannelID(id); 
-  return DAC2UA(chid);
-}
-
 
   
 

@@ -17,6 +17,7 @@ Most of the informations are given separately for each layer of the EM calorimet
 // INCLUDE HEADER FILES: 
 #include "egammaBaseTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -50,7 +51,7 @@ class egammaOQFlagsBuilder : public egammaBaseTool
   /** @brief initialize method*/
   StatusCode initialize();
   /** @brief standard execute method */
-  virtual StatusCode execute(xAOD::Egamma*) const;
+  virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma*) const;
   /** @brief finalize method*/
   StatusCode finalize();
 

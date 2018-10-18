@@ -27,18 +27,13 @@ class LArRampCompleteBase: public ILArRamp,
   public LArConditionsContainer<LArRampP1> 
 {  
  public: 
-  
   LArRampCompleteBase();
-  
   virtual ~LArRampCompleteBase( );
   
   typedef LArConditionsContainer<LArRampP1> CONTAINER ; 
 
   // retrieving Ramp using online ID
-  
-  virtual  RampRef_t ADC2DAC(const HWIdentifier&  CellID, int gain) const ;
-  
-  virtual  RampRef_t ADC2DAC(const Identifier&  CellID, int gain) const;
+  virtual RampRef_t ADC2DAC(const HWIdentifier&  CellID, int gain) const override;
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)

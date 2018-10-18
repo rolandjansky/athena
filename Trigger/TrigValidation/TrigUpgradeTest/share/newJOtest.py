@@ -59,36 +59,30 @@ from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
 def menu( mf ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import HLTMenuAccumulator
-    menuAcc = HLTMenuAccumulator()
-
-    # here menu generation starts
+    menuAcc = ComponentAccumulator()
+    menuAcc.addSequence( seqAND("HLTAllSteps") )
 
 
     from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
-    accElectrons, steps = generateElectronsCfg( flags ) 
-    if len( steps ) != 0:
-        menuAcc.setupSteps( steps )         
-        menuAcc.merge( accElectrons )
-
+    electronAcc, electronChains = generateElectronsCfg( mf )
+    menuAcc.merge( electronAcc )
 
     from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
-    accPhotons, steps = generatePhotonsCfg( flags ) 
-    if len( steps ) != 0:
-        menuAcc.setupSteps( steps )         
-        menuAcc.merge( accPhotons )
-
-
-
-
-    # here setting of the Summary + top level Monitoring algs should be done
-    menuAcc.printConfig()    
+    photonsAcc, photonChains = generatePhotonsCfg( mf )
+    menuAcc.merge( photonsAcc )
     
-    return menuAcc, menuAcc.steps()
+    allChains =   photonChains + electronChains
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains       
+    decisionTree_From_Chains( menuAcc.getSequence("HLTAllSteps"), allChains )
+    menuAcc.printConfig()
+    
+    return menuAcc
+
 
 
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 acc.merge( triggerRunCfg( flags, menu ) )
+
 
 
 from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
@@ -99,6 +93,7 @@ acc.addService( tagInfoMgr )
 acc.getService("EventPersistencySvc").CnvServices += [ tagInfoMgr.getName() ]
 acc.getService("ProxyProviderSvc").ProviderNames  += [ tagInfoMgr.getName() ]
 acc.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
+
 
 
 # setup algorithm sequences here, need few additional components
@@ -112,10 +107,10 @@ print acc.getEventAlgo( "TrigSignatureMoniMT" )
 
 # from TrigUpgradeTest.TestUtils import applyMenu
 # applyMenu( acc.getEventAlgo( "L1Decoder" ) )
-acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
-acc.getEventAlgo( "L2ElectronCaloHypo" ).OutputLevel=DEBUG
-acc.getEventAlgo( "FastEMCaloAlgo" ).OutputLevel=DEBUG
-
+#acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
+#acc.getEventAlgo( "L2ElectronCaloHypo" ).OutputLevel=DEBUG
+#acc.getEventAlgo( "FastEMCaloAlgo" ).OutputLevel=DEBUG
+#acc.getEventAlgo( "Filter_for_L2PhotonCaloHypo" ).OutputLevel=DEBUG
 
 acc.printConfig()
 
@@ -125,5 +120,6 @@ print "Storing config in the config", fname
 with file(fname, "w") as p:
     acc.store( p )
     p.close()
+
 
 

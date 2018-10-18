@@ -220,8 +220,7 @@ def decisionTree_From_Chains(HLTNode, chains):
                 continue
 
             chain_step=chain.steps[nstep]
-            if log.isEnabledFor(logging.DEBUG):
-                log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
+            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)            
             
             # one filter per step_chain
             # one filter input per previous menusequence output (the L1Seed for first step)
@@ -232,9 +231,9 @@ def decisionTree_From_Chains(HLTNode, chains):
                 previous_sequence="".join(chain.group_seed)              
                 seeds=chain.group_seed
                 filter_input.extend( seeds )
-                if log.isEnabledFor(logging.DEBUG):
-                    log.debug("Found these seeds from the sequence: %s", seeds)
-                    log.debug("Seeds from this chain: %s", filter_input)
+
+                log.debug("Found these seeds from the sequence: %s", seeds)
+                log.debug("Seeds from this chain: %s", filter_input)
                 previous_seeds=seeds  
                                       
             else:
@@ -244,16 +243,16 @@ def decisionTree_From_Chains(HLTNode, chains):
                 previous_seeds=[]
                 for seq in prev:
                     filter_input.extend(seq.outputs)
-                    previous_seeds.append( seq.seed)
+                    previous_seeds.append( seq.seed )
 
-                if log.isEnabledFor(logging.DEBUG):    
-                    log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+                log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
                 if len(filter_input) != len(previous_seeds):
                     log.error("found %d filter inputs and %d seeds", len(filter_input), len(previous_seeds))
                     sys.exit("ERROR, in size")
                     
           
-            (sfilter, alreadyFoundFilter) = buildFilter(stepCF_name,previous_sequence, CFseq_list, chain, filter_input, previous_seeds)
+            (sfilter, alreadyFoundFilter) = buildFilter(chain_step.name, previous_sequence, CFseq_list, chain, filter_input, previous_seeds)
+            #(sfilter, alreadyFoundFilter) = buildFilter(stepCF_name, previous_sequence, CFseq_list, chain, filter_input, previous_seeds)
              
             if not alreadyFoundFilter:
                 CF_seq = CFSequence( ChainStep=chain_step, FilterAlg=sfilter)
@@ -272,8 +271,8 @@ def decisionTree_From_Chains(HLTNode, chains):
             #end of loop over menu sequences
                 
         #end of loop over chains for this step, now implement CF:
-        if log.isEnabledFor(logging.DEBUG):
-            log.debug("\n******** Create CF Tree %s with AthSequencers", stepCF_name)        
+    
+        log.debug("\n******** Create CF Tree %s with AthSequencers", stepCF_name)        
         #first make the filter step
         stepFilter = create_step_filter_node(stepCF_name, CFseq_list, dump=False)
         HLTNode += stepFilter
@@ -288,57 +287,60 @@ def decisionTree_From_Chains(HLTNode, chains):
         summary=makeSummary("TriggerSummary"+ stepCF_name, step_decisions)
         HLTNode += summary
 
-        if log.isEnabledFor(logging.DEBUG):
-            log.debug("Now Draw...")
+
+        log.debug("Now Draw...")
         stepCF_DataFlow_to_dot("%s_%s"%(HLTNodeName,stepCF_name), CFseq_list)
         stepCF_ControlFlow_to_dot(stepCF)
 
-        if log.isEnabledFor(logging.DEBUG):
-            log.info("************* End of step %d, %s", nstep+1, stepCF_name)
+        log.info("************* End of step %d, %s", nstep+1, stepCF_name)
         # end of steps
 
 
-    if log.isEnabledFor(logging.DEBUG):
-        log.debug("finalDecisions: %s" %str( finalDecisions) )
+
+    log.debug("finalDecisions: %s" %str( finalDecisions) )
     all_DataFlow_to_dot(HLTNodeName, allSeq_list)
     return finalDecisions
 
 
 
 ## This can be simplified!
-def buildFilter(stepCF_name,previous_sequence, CFseq_list, chain, filter_input, previous_seeds):
-        from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode
-#### Build the FILTER
-# one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
-# if the previous hypo has more than one output, try to get all of them
-# one filter per previous sequence: 1 input/previous seq, 1 output/next seq 
-        filter_name="Filter%s_on_%s"%(stepCF_name,previous_sequence)
-        findFilter= [cfseq.filter for cfseq in CFseq_list if filter_name in cfseq.filter.algname]
-        n_filters = len(findFilter)
-        if n_filters == 1:
-            sfilter=findFilter[0]
-            sfilter.setChains(chain.name)
-            if log.isEnabledFor(logging.DEBUG):
-                log.debug("Filter %s already exists", filter_name)
-                log.debug("Adding chain %s to %s", chain.name,sfilter.algname)
-                log.debug(sfilter.getChains())
+def buildFilter(stepCF_name, previous_sequence, CFseq_list, chain, filter_input, previous_seeds):
+    """
+     Build the FILTER
+    
+     one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
+     if the previous hypo has more than one output, try to get all of them
+     one filter per previous sequence: 1 input/previous seq, 1 output/next seq 
+    """
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode
+    #filter_name="Filter%s_on_%s"%( stepCF_name, previous_sequence )
+    filter_name="Filter_%s" % stepCF_name
+    log.debug( "Trying to create filter of name %s" % filter_name )
+    foundFilters = [cfseq.filter for cfseq in CFseq_list if filter_name in cfseq.filter.algname]
+
+    if len(foundFilters) > 1:
+        log.error("found %d filters  with name %s", len( foundFilters ), filter_name)
+        sys.exit("ERROR, in filter configuration")
+
+    if foundFilters:
+        sfilter=foundFilters[0]
+        sfilter.setChains(chain.name)
+        log.debug("Filter %s already exists", filter_name)
+        log.debug("Adding chain %s to %s", chain.name,sfilter.algname)
+        log.debug(sfilter.getChains())
+
+    else:
+        sfilter = RoRSequenceFilterNode(name=filter_name)
+        for i in previous_seeds: sfilter.addSeed(i)
+        for i in filter_input: sfilter.addInput(i)                        
+        filter_out=["%s_from_%s"%(filter_name,i) for i in filter_input]
+        for o in filter_out: sfilter.addOutput(o)            
+        sfilter.setChains(chain.name)    
+        log.debug("Adding these seeds to filter: %s", previous_seeds)
+        log.debug("Filter Done: %s", sfilter.name)
 
 
-        elif n_filters == 0:
-            sfilter = RoRSequenceFilterNode(name=filter_name)
-            for i in previous_seeds: sfilter.addSeed(i)
-            for i in filter_input: sfilter.addInput(i)                        
-            filter_out=["%s_from_%s"%(filter_name,i) for i in filter_input]
-            for o in filter_out: sfilter.addOutput(o)            
-            sfilter.setChains(chain.name)
-            if log.isEnabledFor(logging.DEBUG):
-                log.debug("Adding these seeds to filter: %s", previous_seeds)
-                log.debug("Filter Done: %s", sfilter.name)
-        else:
-            log.error("found %d filters  with name %s", n_filters, filter_name)
-            sys.exit("ERROR, in filter configuration")
-
-        return (sfilter,n_filters)
+    return (sfilter, bool(foundFilters) )
 
 
 

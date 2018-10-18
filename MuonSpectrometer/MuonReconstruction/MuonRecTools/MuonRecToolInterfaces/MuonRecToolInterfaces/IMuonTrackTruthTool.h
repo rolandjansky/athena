@@ -12,6 +12,7 @@
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "TrkTrack/TrackCollection.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 #include <set>
 #include <vector>
@@ -110,7 +111,8 @@ namespace Muon {
     virtual SegmentResultVec match(const std::vector<const MuonSegment*>& segments ) const = 0;
 
     /** create truth tree from sim data */
-    virtual const TruthTree& createTruthTree() const = 0;
+    virtual const TruthTree createTruthTree(const TrackRecordCollection* truthTrackCol, const McEventCollection* mcEventCollection,
+					    std::vector<const MuonSimDataCollection*> muonSimData, const CscSimDataCollection* cscSimDataMap) const = 0;
 
     /** @brief get track truth */
     virtual MuonTrackTruth getTruth( const Trk::Track& track, bool restrictedTruth = false ) const = 0;

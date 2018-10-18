@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -16,7 +16,7 @@ decription           : Converter class for single component material effects to
 #define TrkMultiStateMaterialEffectsAdapter_H
 
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-#include "TrkGaussianSumFilter/MultiStateMaterialEffects.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //class ISvcLocator;
 
@@ -24,35 +24,23 @@ namespace Trk{
 
 class IMaterialEffectsUpdator;
 
-class MultiStateMaterialEffectsAdapter :  public MultiStateMaterialEffects, virtual public IMultiStateMaterialEffects 
+namespace MultiStateMaterialEffectsAdapter
 {
 
- public:
-
-  MultiStateMaterialEffectsAdapter(const std::string&, const std::string&, const IInterface*);
-
-  virtual ~MultiStateMaterialEffectsAdapter();
-
-  /** Service initialise method */
-  StatusCode initialize();
-
-  /** Service finalise method */
-  StatusCode finalize();
-
- private:
-  //int                                m_outputlevel;                      //!< to cache current output level
-  
-  virtual void compute ( const ComponentParameters&, 
+  void compute (
+       IMultiStateMaterialEffects::Cache&,
+       const ToolHandle<IMaterialEffectsUpdator>&,
+       const ComponentParameters&,
        const MaterialProperties&,
        double,
        PropDirection = anyDirection,
-       ParticleHypothesis = nonInteracting ) const;
+       ParticleHypothesis = nonInteracting );
 
-  double extractDeltaP ( const TrackParameters& updatedParameters, const TrackParameters& originalParameters ) const;
+  double extractDeltaP ( const TrackParameters& updatedParameters, const TrackParameters& originalParameters );
 
-  const AmgSymMatrix(5)* extractDeltaCovariance ( const TrackParameters& updatedParameters, const TrackParameters& originalParameters ) const;
+  const AmgSymMatrix(5)* extractDeltaCovariance ( const TrackParameters& updatedParameters, const TrackParameters& originalParameters );
 
-};
+} // end namespace MultiStateMaterialEffectsAdapter
 
 } // end namespace Trk
 

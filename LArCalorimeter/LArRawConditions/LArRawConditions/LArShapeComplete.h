@@ -11,8 +11,6 @@
 
 #include <vector>
 
-class LArCablingService ;
-
 /** This class implements the ILArShape interface
  *
  * @author S. Laplace
@@ -40,33 +38,21 @@ class LArShapeComplete: public ILArShape,
   virtual ShapeRef_t Shape   (const HWIdentifier&  CellID,
                               int gain,
                               int tbin=0,
-                              int mode=0) const ;
+                              int mode=0) const override;
   virtual ShapeRef_t ShapeDer(const HWIdentifier&  CellID,
                               int gain,
                               int tbin=0,
-                              int mode=0) const ;
+                              int mode=0) const override;
   
-  // retrieving Shape using offline ID ('mode' is still here, but ignored)
-  virtual ShapeRef_t Shape   (const Identifier&  CellID,
-                              int gain,
-                              int tbin=0,
-                              int mode=0) const;
-  virtual ShapeRef_t ShapeDer(const Identifier&  CellID,
-                              int gain,
-                              int tbin=0,
-                              int mode=0) const;
 
-  // retrieving time offset using online/offline ID
-  virtual  float timeOffset(const Identifier&  CellID, int gain) const;
+  // retrieving time offset using onlineID
   virtual  float timeOffset(const HWIdentifier&  CellID, int gain) const;
 
   //For the TB / cosmic case: retrieve the number of time-bins (aka "phases")
   virtual unsigned nTimeBins(const HWIdentifier&  CellID, int gain) const;
-  virtual unsigned nTimeBins(const Identifier&  CellID, int gain) const;
  
   //For the TB / cosmic case: retrieve the witdth of the time bin (default 24 bins in 25 ns)
   virtual float timeBinWidth(const HWIdentifier&  CellID, int gain) const;
-  virtual float timeBinWidth(const Identifier&  CellID, int gain) const;
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)  

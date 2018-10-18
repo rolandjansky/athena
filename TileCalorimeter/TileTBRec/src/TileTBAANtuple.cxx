@@ -37,6 +37,7 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileInfo.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
@@ -45,6 +46,8 @@
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileByteStream/TileLaserObjByteStreamCnv.h"
+#include "TileEvent/TileHitContainer.h"
+#include "TileSimEvent/TileHitVector.h"
 #include "TileTBRec/TileTBAANtuple.h"
 
 #include <fstream>
@@ -222,6 +225,7 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_adderFilterAlgTool("TileRawChannelBuilderFlatFilter/TileAdderFlatFilter",this)
   , m_tileID(0)
   , m_tileHWID(0)
+  , m_tileInfo(0)
   , m_cabling(0)
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
@@ -230,6 +234,7 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_eventsPerFile(0)
 
 {
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
   declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
@@ -251,6 +256,11 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("CommitNtuple", m_commitNtuple = true);
   declareProperty("BSInput", m_bsInput = true);
   declareProperty("PMTOrder", m_pmtOrder = true);
+
+  m_hitVector = "TileHitVec";
+  m_hitContainer="TileHitCnt";
+  declareProperty("TileHitVector", m_hitVector);
+  declareProperty("TileHitContainer", m_hitContainer);
 
   declareProperty("TBperiod", m_TBperiod = 2016); // tuned for 2016 testbeam by default
 
@@ -370,6 +380,7 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
 
   CHECK( detStore()->retrieve(m_tileHWID) );
 
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
 
@@ -762,6 +773,8 @@ StatusCode TileTBAANtuple::execute() {
     empty &= (storeRawChannels(m_flatRawChannelContainer, &m_eneVec, &m_timeVec, &m_chi2FlatVec, &m_pedFlatVec, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0).isFailure());
     empty &= (storeRawChannels(m_optRawChannelContainer, &m_eOptVec, &m_tOptVec, &m_chi2OptVec, &m_pedOptVec, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0).isFailure());
 
+    empty &= (storeHitVector().isFailure());
+    empty &= (storeHitContainer().isFailure());
   }
 
 
@@ -1003,7 +1016,7 @@ StatusCode TileTBAANtuple::storeBeamElements() {
                 case 0: m_s1cou = amplitude; break;
                 case 1: m_s2cou = amplitude; break;
                 case 2: m_s3cou = amplitude; break;
-	      case 3: m_cher1 = amplitude; break; // ATH_MSG_VERBOSE("load beam adc " << m_cher1); break;
+	        case 3: m_cher1 = amplitude; break; // ATH_MSG_VERBOSE("load beam adc " << m_cher1); break;
                 case 4: m_cher2 = amplitude; break;
                 case 5: m_muTag = amplitude; break;
                 case 6: m_muHalo= amplitude; break;
@@ -1941,6 +1954,170 @@ StatusCode TileTBAANtuple::storeDigits() {
     return StatusCode::SUCCESS;
 }
 
+/**
+/// Fill Ntuple with MC truth info from simulation
+/// Namely, hit energies directly from Geant4
+ */
+StatusCode TileTBAANtuple::storeHitVector() {
+
+  if (m_hitVector.size() == 0) return StatusCode::FAILURE;
+  ATH_MSG_DEBUG( "Event# " << m_evtNr << " reading Hit Vector");
+
+  // Read Hit Vector from TDS
+  const TileHitVector *hitVec;
+  CHECK( evtStore()->retrieve(hitVec, m_hitVector) );
+
+  // Get iterator for all hits in hit vector
+  TileHitVecConstIterator it = hitVec->begin();
+  TileHitVecConstIterator itEnd = hitVec->end();
+  bool emptyColl = (it==itEnd);
+
+  // Go through all TileHit
+  for(; it != itEnd; it++) {
+
+    // get hits
+    const TileHit * cinp = &(*it);
+    HWIdentifier hwid = cinp->pmt_HWID();
+
+    // determine type of frag
+    int fragId = m_tileHWID->frag(hwid);
+    drawerMap_iterator itr = m_drawerMap.find(fragId);
+    int type = ( itr != m_drawerMap.end() ) ? (*itr).second : -1;
+
+    if (type < 0) {
+      ATH_MSG_WARNING( "frag id 0x" << MSG::hex << fragId << MSG::dec <<" was not found among valid frag IDs when storing HITS!" );
+
+    } else {
+      int fragType = m_drawerType[type];
+      storeHit(cinp,fragType,fragId,m_ehitVec.at(type),m_thitVec.at(type));
+    }
+  }
+
+  if (emptyColl)
+    return StatusCode::FAILURE;
+  else
+    return StatusCode::SUCCESS;
+}
+
+
+/**
+/// Fill Ntuple with MC truth info from simulation
+/// Namely, hit energies corrected by photoelectron statistics and Birks' law
+ */
+StatusCode TileTBAANtuple::storeHitContainer() {
+
+  if (m_hitContainer.size() == 0) return StatusCode::FAILURE;
+  ATH_MSG_DEBUG( "Event# " << m_evtNr << " reading Hit Container");
+
+  // Read Hit Container from TDS
+  const TileHitContainer *hitCnt;
+  CHECK( evtStore()->retrieve(hitCnt, m_hitContainer) );
+
+  // Get iterator for all collections in container
+  TileHitContainer::const_iterator itColl = (*hitCnt).begin();
+  TileHitContainer::const_iterator itCollEnd = (*hitCnt).end();
+  bool emptyColl = true;
+
+  // Go through all TileHitCollections
+  for(; itColl != itCollEnd; itColl++) {
+
+    // determine type of frag
+    int fragId = (*itColl)->identify();
+    drawerMap_iterator itr = m_drawerMap.find(fragId);
+    int type = ( itr != m_drawerMap.end() ) ? (*itr).second : -1;
+
+    if (type < 0) {
+      if ( (*itColl)->begin() != (*itColl)->end() )
+        ATH_MSG_WARNING( "frag id 0x" << MSG::hex << fragId << MSG::dec <<" was not found among valid frag IDs when storing HITS!" );
+
+    } else {
+      int fragType = m_drawerType[type];
+
+      ATH_MSG_DEBUG( "Event# " << m_evtNr
+                     << " Frag id 0x" << MSG::hex << fragId << MSG::dec
+                     << " index " << type );
+
+      // go through all TileHit in collection
+      TileHitCollection::const_iterator it = (*itColl)->begin();
+      TileHitCollection::const_iterator itEnd = (*itColl)->end();
+      if (emptyColl) emptyColl = (it==itEnd);
+
+      for (; it != itEnd; it++) {
+        // get hits
+        const TileHit * cinp = (*it);
+        storeHit(cinp,fragType,fragId,m_ehitCnt.at(type),m_thitCnt.at(type));
+      }
+    }
+  }
+
+  if (emptyColl)
+    return StatusCode::FAILURE;
+  else
+    return StatusCode::SUCCESS;
+}
+
+void TileTBAANtuple::storeHit(const TileHit *cinp, int fragType, int fragId, float* ehitVec, float* thitVec) {
+
+  // determine channel
+  HWIdentifier hwid = cinp->pmt_HWID();
+  int channel = m_tileHWID->channel(hwid);
+
+  int size = cinp->size();
+  if (msgLvl(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "hit hwid="
+                      << m_tileHWID->to_string(hwid, -1) << " ener=";
+
+    for (int i = 0; i < size; ++i)
+      msg(MSG::VERBOSE) << cinp->energy(i) << " ";
+
+    msg(MSG::VERBOSE) << "time=";
+    for (int i = 0; i < size; ++i)
+      msg(MSG::VERBOSE) << cinp->time(i) << " ";
+
+    msg(MSG::VERBOSE) << endmsg;
+  }
+
+  double ehit=0.0, thit=0.0;
+  for(int i=0;i<size;++i) {
+
+    double e = cinp->energy(i);
+    double t = cinp->time(i);
+
+    if (-75.<t && t<75.) {
+      ehit += e;
+      thit += e*t;
+    }
+  }
+
+  if (ehit!=0) {
+    thit /= ehit;
+    // conversion factor from hit energy to final energy units 
+    Identifier pmt_id = cinp->pmt_ID();
+    ehit *= m_tileInfo->HitCalib(pmt_id);
+    if (m_rchUnit != TileRawChannelUnit::MegaElectronVolts) {
+      ehit /= m_tileToolEmscale->channelCalib(TileCalibUtils::getDrawerIdxFromFragId(fragId), channel, 
+                                              TileID::HIGHGAIN, 1., m_rchUnit, TileRawChannelUnit::MegaElectronVolts);
+    }
+  } else {
+    thit=0.0;
+  }
+
+  // cabling for testbeam
+  if ((m_TBperiod < 2015 || 
+       (m_TBperiod==2015 && fragType<3) ||
+       (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ) 
+      && fragType > 0 && m_pmtOrder)
+    channel = digiChannel2PMT(fragType, channel);
+
+  ehitVec[channel] = ehit;
+  thitVec[channel] = thit;
+
+  ATH_MSG_DEBUG( "HIT ene=" << ehit
+                 << " time=" << thit
+                 << " pmt-1=" << channel
+                 << " index " << m_drawerMap.find(fragId)->second );
+
+}
 StatusCode TileTBAANtuple::ntuple_clear() {
 
   TRIGGER_clearBranch();
@@ -1980,6 +2157,7 @@ StatusCode TileTBAANtuple::ntuple_clear() {
 
   DIGI_clearBranch(); // working now
 
+  HIT_clearBranch();
   ATH_MSG_DEBUG( "clear() successfully" );
 
   return StatusCode::SUCCESS;
@@ -2072,6 +2250,7 @@ StatusCode TileTBAANtuple::initNTuple(void) {
   BEAM_addBranch();
   DIGI_addBranch(); //working now
 
+  HIT_addBranch();
 
   return StatusCode::SUCCESS;
 }
@@ -3474,7 +3653,111 @@ void TileTBAANtuple::DIGI_clearBranch(void)
   }
 
 }
+/**
+//////////////////////////////////////////////////////////////////////////////
+///Add Tree HIT variables Tree
+//
+//////////////////////////////////////////////////////////////////////////////
+*/
+void TileTBAANtuple::HIT_addBranch(void)
+{
+  m_ehitVec.clear();
+  m_thitVec.clear();
+  m_ehitCnt.clear();
+  m_thitCnt.clear();
 
+  m_ehitVec.reserve(MAX_DRAWERS);
+  m_thitVec.reserve(MAX_DRAWERS);
+  m_ehitCnt.reserve(MAX_DRAWERS);
+  m_thitCnt.reserve(MAX_DRAWERS);
+
+  unsigned int listSize = std::min (m_nDrawers, static_cast<unsigned int>(m_drawerMap.size()) );
+
+  if (listSize > 0) {
+
+    std::string digit[10] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+    std::vector<std::string> suffixArr;
+    unsigned int length;
+    bool testbeam = TileCablingService::getInstance()->getTestBeam();
+
+    length = m_nDrawers;
+    suffixArr.resize(length);
+
+    for (unsigned int i = 0; i < listSize; ++i) {
+      unsigned int ros = m_drawerType[i];
+      unsigned int drawer = strtol(m_drawerList[i].data(), NULL, 0) & 0x3F;
+      std::string digits;
+      if (m_TBperiod >= 2010) {
+        ++drawer; // count modules from 1
+        digits = digit[drawer / 10] + digit[drawer % 10];
+      } else if (testbeam) {
+        digits = digit[drawer & 7];
+      } else {
+        ++drawer; // count modules from 1
+        digits = digit[drawer / 10] + digit[drawer % 10];
+      }
+
+      if (ros == 0) {
+        std::string suff = m_drawerList[i];
+        suff.replace(suff.find("0x"), 2, "");
+        suffixArr[i] = suff;
+      } else {
+        suffixArr[i] = m_rosName[ros] + digits;
+      }
+    }
+
+    for (unsigned int i = 0; i < length; i++) {
+      
+      if (i % m_nDrawers < listSize)
+        ATH_MSG_DEBUG( "Adding items for " << suffixArr[i] );
+      
+      float *ehitVec = new float[N_CHANS];
+      float *thitVec = new float[N_CHANS];
+      float *ehitCnt = new float[N_CHANS];
+      float *thitCnt = new float[N_CHANS];
+
+      m_ehitVec.push_back( ehitVec );
+      m_thitVec.push_back( thitVec );
+      m_ehitCnt.push_back( ehitCnt );
+      m_thitCnt.push_back( thitCnt );
+
+
+      if (i%m_nDrawers < listSize) {
+
+        if (m_hitVector.size() > 0) {
+
+          if (i % m_nDrawers < listSize)
+            ATH_MSG_DEBUG( "Adding G4 hit info for " << suffixArr[i] );
+      
+          m_ntuplePtr->Branch(("EhitG4"+suffixArr[i]).c_str(),m_ehitVec.back(),("eHitG4"+suffixArr[i]+"[48]/F").c_str());
+          m_ntuplePtr->Branch(("ThitG4"+suffixArr[i]).c_str(),m_thitVec.back(),("tHitG4"+suffixArr[i]+"[48]/F").c_str());
+        }
+
+        if (m_hitContainer.size() > 0) {
+
+          if (i % m_nDrawers < listSize)
+            ATH_MSG_DEBUG( "Adding G4 corrected hit info for " << suffixArr[i] );
+      
+          m_ntuplePtr->Branch(("EhitSim"+suffixArr[i]).c_str(),m_ehitCnt.back(),("eHitSim"+suffixArr[i]+"[48]/F").c_str());
+          m_ntuplePtr->Branch(("ThitSim"+suffixArr[i]).c_str(),m_thitCnt.back(),("tHitSim"+suffixArr[i]+"[48]/F").c_str());
+        }
+      }
+    }
+  }
+}
+
+/**
+//////////////////////////////////////////////////////////////////////////////
+///Clear Tree HIT variables
+//////////////////////////////////////////////////////////////////////////////
+*/
+void TileTBAANtuple::HIT_clearBranch(void)
+{
+  clear_float(m_ehitVec);
+  clear_float(m_thitVec);
+  clear_float(m_ehitCnt);
+  clear_float(m_thitCnt);
+}
 void TileTBAANtuple::clear_short(std::vector<short*> & vec, int nchan)
 {
   for (std::vector<short*>::iterator it=vec.begin(); it!=vec.end(); ++it) {

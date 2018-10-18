@@ -36,11 +36,11 @@ MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string &n,ISvcLocator *sl)
     m_corDataLocation("CorKey")
 {
   declareProperty("DBTool", m_dbTool,
-		  "the Tool to be used to retreive the constants");
+		  "the Tool to be used to retrieve the constants");
   declareProperty("AccessTubeConstants", m_getTubeConstants = true,
 		  "configure the Tool to retrieve the constants per tube (t0)");
   declareProperty("AccessCorrections", m_getCorrections = true,
-		  "configure the Tool to retreive the parameters of the correction functions");
+		  "configure the Tool to retrieve the parameters of the correction functions");
   declareProperty("CreateBFieldFunctions", m_create_b_field_function = false,
 		  "If set to true, the B-field correction functions are initialized for each rt-relation that is loaded.");
   declareProperty("CreateWireSagFunctions", m_createWireSagFunction = false,

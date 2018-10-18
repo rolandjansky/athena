@@ -54,7 +54,7 @@ bool Trk::AlignablePlaneSurface::operator==(const Trk::Surface& sf) const
   return boundsEqual;
 }
 
-void Trk::AlignablePlaneSurface::addAlignmentCorrection(Amg::Transform3D& corr) const
+void Trk::AlignablePlaneSurface::addAlignmentCorrection(Amg::Transform3D& corr) 
 {
     Amg::Transform3D* delTransform = Trk::Surface::m_transform ;
     Trk::Surface::m_transform = new Amg::Transform3D((*Trk::Surface::m_transform)*corr);
@@ -65,7 +65,7 @@ void Trk::AlignablePlaneSurface::addAlignmentCorrection(Amg::Transform3D& corr) 
     m_normal =0;
 }
 
-void Trk::AlignablePlaneSurface::setAlignmentCorrection(Amg::Transform3D& corr) const
+void Trk::AlignablePlaneSurface::setAlignmentCorrection(Amg::Transform3D& corr) 
 {
   Amg::Transform3D* delTransform = Trk::Surface::m_transform ;
   Trk::Surface::m_transform = new Amg::Transform3D((m_nominalSurface->transform())*corr);
@@ -76,7 +76,7 @@ void Trk::AlignablePlaneSurface::setAlignmentCorrection(Amg::Transform3D& corr) 
   m_normal =0;
 }
 
-void Trk::AlignablePlaneSurface::setAlignableTransform(Amg::Transform3D& trans) const
+void Trk::AlignablePlaneSurface::setAlignableTransform(Amg::Transform3D& trans) 
 {
   delete Trk::Surface::m_transform ;
   Trk::Surface::m_transform  = new Amg::Transform3D(trans);

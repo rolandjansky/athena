@@ -23,6 +23,7 @@ from AthenaCommon import CfgMgr
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
+from AthenaCommon.AppMgr import ToolSvc
 
 muonRecFlags.setDefaults()
 
@@ -133,13 +134,16 @@ if muonRecFlags.doStandalone():
         col =  "MuonSpectrometerTracks" 
         topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col] )
         topSequence += TrackTruthSelector(name= col + "Selector", 
-                                          DetailedTrackTruthName = col + "Truth",
+                                          DetailedTrackTruthName = col + "DetailedTruth",
                                           OutputName             = col + "Truth") 
         topSequence += TrackParticleTruthAlg(name = col+"TruthAlg",
                                              TrackTruthName=col+"Truth",
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
 
         topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
+
+        if muonRecFlags.doNSWNewThirdChain():
+            topSequence.MuonSegmentTruthAssociationAlg.doNSW=True
 
         try:
             from RecExConfig.InputFilePeeker import inputFileSummary
