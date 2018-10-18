@@ -102,6 +102,10 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 {
   ATH_MSG_DEBUG(" ***************** Start of process MM Collection");
 
+  bool merge = m_merge;
+// protect for large splashes 
+  if(rdoColl->size()>100) merge = true; 
+
   const IdentifierHash hash = rdoColl->identifierHash();
 
   MMPrepDataCollection* prdColl = nullptr;
@@ -138,7 +142,6 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
   std::vector<MMPrepData> MMprds;
   std::vector<int> MMflag;
-
   // convert the RDO collection to a PRD collection
   MM_RawDataCollection::const_iterator it = rdoColl->begin();
   for ( ; it != rdoColl->end() ; ++it ) {
@@ -151,15 +154,19 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     ATH_MSG_DEBUG(" dump rdo " << m_idHelperTool->toString(rdoId ));
     const int time = rdo->time();
     const int charge = rdo->charge();
+    int channel = rdo->channel();
     std::vector<Identifier> rdoList;
-    rdoList.push_back(rdoId);
     Identifier parentID = m_mmIdHelper->parentID(rdoId);
     Identifier layid = m_mmIdHelper->channelID(parentID, m_mmIdHelper->multilayer(rdoId), m_mmIdHelper->gasGap(rdoId),1);
+    Identifier prdId = m_mmIdHelper->channelID(parentID, m_mmIdHelper->multilayer(rdoId), m_mmIdHelper->gasGap(rdoId),channel);
+    ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_mmIdHelper->channel(rdoId));
+    rdoList.push_back(prdId);
+
     // get the local and global positions
     const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(layid);
     Amg::Vector2D localPos;
 
-    bool getLocalPos = detEl->stripPosition(rdoId,localPos);
+    bool getLocalPos = detEl->stripPosition(prdId,localPos);
     if ( !getLocalPos ) {
       ATH_MSG_ERROR("Could not get the local strip position for MM");
       return StatusCode::FAILURE;
@@ -167,7 +174,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     int stripNumberRDOId = detEl->stripNumber(localPos,layid);
     ATH_MSG_DEBUG(" check strip nr RDOId " << stripNumberRDOId );
     Amg::Vector3D globalPos;
-    bool getGlobalPos = detEl->stripGlobalPosition(rdoId,globalPos);
+    bool getGlobalPos = detEl->stripGlobalPosition(prdId,globalPos);
     if ( !getGlobalPos ) {
       ATH_MSG_ERROR("Could not get the global strip position for MM");
       return StatusCode::FAILURE;
@@ -207,15 +214,15 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     cov->setIdentity();
     (*cov)(0,0) = resolution*resolution;  
 
-    if(!m_merge) {
-      prdColl->push_back(new MMPrepData(rdoId,hash,localPos,rdoList,cov,detEl,time,charge));
+    if(!merge) {
+      prdColl->push_back(new MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
     } else {
-       MMprds.push_back(MMPrepData(rdoId,hash,localPos,rdoList,cov,detEl,time,charge));
+       MMprds.push_back(MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
        MMflag.push_back(0);
     } 
   }
 
-  if(m_merge) {
+  if(merge) {
      for (unsigned int i=0; i<MMprds.size(); ++i){
          // skip the merged prds
          if(MMflag[i]==1) continue;
