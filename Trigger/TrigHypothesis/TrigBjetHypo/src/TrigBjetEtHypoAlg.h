@@ -13,6 +13,9 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+
 #include "TrigBjetEtHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
 
@@ -46,6 +49,8 @@ class TrigBjetEtHypoAlg
   Gaudi::Property< float > m_etaHalfWidth {this,"EtaHalfWidth",0.4,"Eta Half Width"};
   Gaudi::Property< float > m_phiHalfWidth {this,"PhiHalfWidth",0.4,"Phi Half Width"};
   Gaudi::Property< float > m_zHalfWidth {this,"ZHalfWidth",10.0,"Z Half Width in mm"};
+  Gaudi::Property< float > m_minJetEt {this,"JetMinEt",15000,"Minimum of Output Jet Et in GeV"};
+  Gaudi::Property< float > m_maxJetEta {this,"JetMaxEta",3.2,"Maximum eta acceptance of output Jet"};
   //=========== Handles
   SG::ReadHandleKey< xAOD::JetContainer > m_jetsKey {this,"Jets","Jets","Input Jet Container Key"};
   SG::WriteHandleKey< xAOD::JetContainer > m_outputJetsKey {this,"OutputJets","SplitJets","Output Jet Container Key"};

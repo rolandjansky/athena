@@ -24,6 +24,8 @@ StatusCode TrigBjetEtHypoAlg::initialize()
   ATH_MSG_DEBUG(  "   " << m_etaHalfWidth     );
   ATH_MSG_DEBUG(  "   " << m_phiHalfWidth     );
   ATH_MSG_DEBUG(  "   " << m_zHalfWidth       );
+  ATH_MSG_DEBUG(  "   " << m_minJetEt         );
+  ATH_MSG_DEBUG(  "   " << m_maxJetEta        );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
@@ -85,6 +87,22 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   for ( const xAOD::Jet *jet : * jetCollection ) 
     ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
+  // Retrieve Primary Vertex
+  // Right now vertexing is not available. Using dummy vertex at (0,0,0) // TMP
+  const xAOD::VertexContainer *vertexContainer = nullptr; // TMP
+  const Amg::Vector3D *primaryVertex = nullptr; // TMP
+
+  if ( m_imposeZconstraint ) {
+    ATH_MSG_DEBUG( "Retrieving primary vertex." );
+    // Here we should retrieve the primary vertex // TO-DO
+    primaryVertex = new Amg::Vector3D( 0,0,0 ); // TMP
+    // Add protection against failure during primary vertex retrieval. // TO-DO
+    ATH_MSG_DEBUG( "  ** PV = (" << primaryVertex->x() <<   
+		   "," << primaryVertex->y() << 
+		   "," << primaryVertex->z() << ")" ); 
+  }
+
+
   // Prepare Output 
   // RoIs -- WILL CHANGE -- TMP
   std::unique_ptr< TrigRoiDescriptorCollection > roiContainer( new TrigRoiDescriptorCollection() ); // TMP
@@ -97,7 +115,7 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   // Taken from Jet Code here 
   const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
   TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
-  // Link Jet Collection to decision so that I can use it in the following b-jet trigger steps
+  // Link Jet Collection to decision so that I can use it in the following b-jet trigger steps (?)
   newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_jetsKey.key(),0 ) );
   ATH_MSG_DEBUG( "Linking 'SplitJets' to output decisions" );
 
@@ -125,8 +143,28 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   std::unique_ptr< xAOD::JetContainer > outputJets( new xAOD::JetContainer() );
   std::unique_ptr< xAOD::JetAuxContainer > outputJetsAux( new xAOD::JetAuxContainer() );
   outputJets->setStore( outputJetsAux.get() );
+
+  // ****************************************************************************************
   // Make a copy of the jet containers
   for ( const xAOD::Jet *jet : *jetCollection ) {
+    // We select Jets above a specific eta and pt range
+    if ( jet->p4().Et() < m_minJetEt ) {
+      ATH_MSG_DEBUG( "** Jet below the " << m_minJetEt.value() << " GeV threshold; Et " << jet->p4().Et() <<"; Skipping this Jet."  );
+      continue;
+    }
+    if ( fabs( jet->eta() ) < m_maxJetEta ) {
+      ATH_MSG_DEBUG( "** Jet outside the |eta| < " << m_maxJetEta.value() << " requirement; Eta = " << jet->eta() << "; Skipping this Jet." );
+      continue;
+    }
+    ATH_MSG_DEBUG( "** Jet :: Et " << jet->p4().Et() <<"; Eta " << jet->eta() << "; Phi " << jet->phi() );
+
+    // Protection in case there is not a Primary vertex but the Z contraint option is set to True
+    if ( m_imposeZconstraint && primaryVertex == nullptr ) {
+      // Not sure here what the best solution is. We can't change the m_imposeZconstraint value being const (and not thread safe)
+      ATH_MSG_ERROR( "Option for imposing Z constraint is set to True, but no primary vertex has been found." );
+      return StatusCode::FAILURE;
+    }
+
     // Copy Jet
     xAOD::Jet *toBeAdded = new xAOD::Jet();
     outputJets->push_back( toBeAdded );
@@ -139,10 +177,31 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
     double etaMinus = jet->eta() - m_etaHalfWidth;
     double etaPlus  = jet->phi() + m_etaHalfWidth;
 
-    TrigRoiDescriptor *newRoI = new TrigRoiDescriptor( jet->eta(),etaMinus, etaPlus,
-						       jet->phi(), phiMinus, phiPlus );
+    // Impose Z matching (if enabled)
+    ATH_MSG_DEBUG( "Building RoI" );
+    TrigRoiDescriptor *newRoI = nullptr;
+    if ( not m_imposeZconstraint ) {
+      newRoI = new TrigRoiDescriptor( jet->eta(),etaMinus, etaPlus,
+				      jet->phi(), phiMinus, phiPlus );
+    } else {
+      ATH_MSG_DEBUG( "  ** Imposing Z constraint while building RoI" );
+      double zMinus = primaryVertex->z() - m_zHalfWidth; 
+      double zPlus  = primaryVertex->z() + m_zHalfWidth; 
+      
+      newRoI = new TrigRoiDescriptor( jet->eta(),etaMinus, etaPlus,
+				      jet->phi(), phiMinus, phiPlus,
+				      primaryVertex->z(),zMinus,zPlus ); 
+    }
+    ATH_MSG_DEBUG( "  -- RoI : eta=" << newRoI->eta() << " phi=" << newRoI->phi() );
+
+    // Put protection against nullpointer // TO-DO
     roiContainer->push_back( newRoI );
   }
+  // ****************************************************************************************
+
+
+
+
 
   SG::WriteHandle< xAOD::JetContainer > outputJetHandle = SG::makeHandle( m_outputJetsKey,context );
   ATH_MSG_DEBUG( "Saving jet collection " << m_outputJetsKey.key() << " with " << outputJets->size() << " elements " );
