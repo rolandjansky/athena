@@ -59,6 +59,10 @@ def _createCfgFlags():
     from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
     acf.join( createTriggerFlags() )
 
+# Muon 
+    from MuonConfig.MuonConfigFlags import createMuonConfigFlags
+    acf.join( createMuonConfigFlags() )
+
     return acf
 
 
