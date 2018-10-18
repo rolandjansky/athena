@@ -23,7 +23,10 @@ namespace HLT {
     /// Standard constructor
     HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags = {},
                 std::vector<uint32_t> hltBits = {},
-                std::unordered_map<uint16_t, std::vector<uint32_t> > data = {});
+                std::unordered_map<uint16_t, std::vector<uint32_t> > data = {},
+                std::vector<uint32_t> status = {});
+    /// Copy constructor
+    HLTResultMT(const HLTResultMT& other);
     /// Standard destructor
     virtual ~HLTResultMT();
 
@@ -50,6 +53,13 @@ namespace HLT {
     /// Append serialised data for a given module ID
     void addSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>& data);
 
+    /// Status words getter
+    const std::vector<uint32_t>& getStatus() const;
+    /// Status words setter
+    void setStatus(const std::vector<uint32_t>& status);
+    /// Append a status word
+    void addStatusWord(const uint32_t& word);
+
   private:
     /// Stream tags of the event
     std::vector<eformat::helper::StreamTag> m_streamTags;
@@ -57,6 +67,8 @@ namespace HLT {
     std::vector<uint32_t> m_hltBits;
     /// Serialised result (ROBFragment payload) for each module ID (0 for full result, >0 for data scouting)
     std::unordered_map<uint16_t, std::vector<uint32_t> > m_data;
+    /// Event status words (used to indicate processing errors)
+    std::vector<uint32_t> m_status;
   };
 } // namespace HLT
 

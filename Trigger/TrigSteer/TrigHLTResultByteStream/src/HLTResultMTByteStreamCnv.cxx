@@ -89,6 +89,9 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   }
   ATH_MSG_VERBOSE("Obtained RawEventWrite pointer = " << re);
 
+  // Fill the status words (error code)
+  re->status(hltResult->getStatus().size(), hltResult->getStatus().data());
+
   // Clear the stream tag buffer - we need to keep the serialised StreamTag data cached because
   // its lifetime has to be at least as long as the lifetime of RawEventWrite which points to the StreamTag data
   delete m_streamTagData.release();

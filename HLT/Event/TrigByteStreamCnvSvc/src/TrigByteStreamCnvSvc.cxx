@@ -8,7 +8,6 @@
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // TDAQ includes
@@ -75,7 +74,12 @@ StatusCode TrigByteStreamCnvSvc::connectOutput(const std::string& /*outputFile*/
   ATH_MSG_DEBUG("Creating new RawEventWrite for EventContext = " << *eventContext);
   // Create a new RawEventWrite and copy the header from the input RawEvent
   m_rawEventWrite = new RawEventWrite;
-  m_rawEventWrite->copy_header( m_robDataProviderSvc->getEvent(*eventContext)->start() );
+  const uint32_t* inputRawEvent = m_robDataProviderSvc->getEvent(*eventContext)->start();
+  if (!inputRawEvent) {
+    ATH_MSG_ERROR("Input RawEvent is nullptr, cannot create output");
+    return StatusCode::FAILURE;
+  }
+  m_rawEventWrite->copy_header(inputRawEvent);
 
   ATH_MSG_VERBOSE("Created RawEventWrite pointer = " << m_rawEventWrite);
 
