@@ -7,6 +7,12 @@ from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
 
 def collectHypos( steps ):
+    """ 
+    Method iterating over the CF and picking all the Hypothesis algorithms
+
+    Returned is a map with the step name and list of all instances of hypos in that step.
+    Input is top HLT sequencer.
+    """
     __log.info("Collecting hypos")
     from collections import defaultdict
     hypos = defaultdict( list )
@@ -27,17 +33,62 @@ def collectHypos( steps ):
                     hypos[stepSeq.name()].append( alg )
     return hypos
 
+
+def collectFilters( steps ):
+    """
+    Similarly to collectHypos but works for filter algorithms    
+
+    The logic is simpler as all filters are grouped in step filter sequences    
+    Returns map: step name -> list of all filters of that step
+    """    
+    __log.info("Collecting hypos")
+    from collections import defaultdict
+    filters = defaultdict( list )
+
+    for stepSeq in steps.getChildren():
+        if "filter" in stepSeq.name():
+            filters[stepSeq.name()] = stepSeq.getChildren()
+    return filters
+
+
+def collectDecisionObjects( steps, l1decoder ):
+    """
+    Returns the set of all decision objects of HLT
+    """
+    decisionObjects = set()
+    __log.info("Collecting decision obejcts from L1 decoder instance")
+    decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
+    decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ]) 
+
+    
+    __log.info("Collecting decision obejcts from hypos")
+    hypos = collectHypos( steps )
+    __log.info(hypos)
+    for s, sh in hypos.iteritems():
+        for hypo in sh:
+            print hypo
+            decisionObjects.add( hypo.HypoInputDecisions )
+            decisionObjects.add( hypo.HypoOutputDecisions )
+        
+    __log.info("Collecting decision obejcts from filters")
+    filters = collectFilters( steps )
+    for step, stepFilters in filters.iteritems():
+        for filt in stepFilters:
+            decisionObjects.update( filt.Input )
+            decisionObjects.update( filt.Output )
+    
+    return decisionObjects
+    
 def triggerSummaryCfg(flags, hypos):
     """ 
     Configures an algorithm(s) that should be run after the slection process
     Returns: ca, algorithm
     """
-    acc = ComponentAccumulator()
-    
+    acc = ComponentAccumulator()    
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
     summaryAlg = TriggerSummaryAlg()
     summaryAlg.InputDecision = "HLTChains"
-        
+    
     return acc, summaryAlg
 
 def triggerMonitoringCfg(flags, hypos, l1Decoder):
@@ -127,10 +178,16 @@ def triggerRunCfg(flags, menu=None):
     
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
     acc.merge( monitoringAcc )
+
+    decObj = collectDecisionObjects( HLTSteps, l1DecoderAlg )
+    __log.info( "Number of decision objects found in HLT CF %d" % len( decObj ) )
+    __log.info( str( decObj ) )
     
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )
     acc.addSequence( HLTTop )
 
+    
+    
     acc.merge( menuAcc )
     
     return acc
