@@ -50,7 +50,13 @@ if( XAOD_STANDALONE )
    atlas_add_test( testJobFastSim
       SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test )
 else()
-   atlas_add_test( testJob
+   atlas_add_test( testJobData
       SCRIPT athena.py
-      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py )
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type data )
+   atlas_add_test( testJobFullSim
+      SCRIPT athena.py
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type mc )
+   atlas_add_test( testJobFastSim
+      SCRIPT athena.py
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type afii )
 endif()
