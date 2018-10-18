@@ -10,7 +10,7 @@
 #include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
 
-#include "ActsGeometry/GeomShiftCondAlg.h"
+//#include "ActsGeometry/GeomShiftCondAlg.h"
 #include "ActsGeometry/NominalAlignmentCondAlg.h"
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
@@ -24,7 +24,7 @@ DECLARE_COMPONENT( ActsObjWriterTool )
 DECLARE_COMPONENT( ActsExCellWriterSvc )
 DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
 
-DECLARE_COMPONENT( GeomShiftCondAlg )
+//DECLARE_COMPONENT( GeomShiftCondAlg )
 DECLARE_COMPONENT( NominalAlignmentCondAlg )
 DECLARE_COMPONENT( ActsTrackingGeometryTool )
 
