@@ -48,12 +48,6 @@ print "Printing input.txt"
 print f.read()
 f.close()
 
-# -- Write the input file path to a temporary file --
-inputfilepath = open("input.txt","w")
-for filename in inputfilenames:
-    inputfilepath.write(filename+"\n")
-inputfilepath.close()
-
 # -- Run top-xaod --
 cmd  = "top-xaod %s input.txt"%(cutfilename)
 proc = subprocess.Popen(shlex.split(cmd))
