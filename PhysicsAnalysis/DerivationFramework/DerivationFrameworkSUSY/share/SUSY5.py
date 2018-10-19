@@ -82,6 +82,15 @@ SUSY5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
 ToolSvc += SUSY5TauTPThinningTool
 thinningTools.append(SUSY5TauTPThinningTool)
 
+# TrackParticles associated with SV
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+SUSY5VertexTPThinningTool = DerivationFramework__VertexParticleThinning( name                = "SUSY5VertexTPThinningTool",
+                                                                      ThinningService        = SUSY5ThinningHelper.ThinningSvc(),
+                                                                      VertexKey              = "VrtSecInclusive_SoftBtagCandidateVertices",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles")
+ToolSvc += SUSY5VertexTPThinningTool
+thinningTools.append(SUSY5VertexTPThinningTool)
+
 # TrackParticles associated with LC jets: useful when the global track thinning has a pT threshold ~1-2 GeV
 #from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 #SUSY5LCJetsTrackThinningTool = DerivationFramework__JetTrackParticleThinning( name            = "SUSY5LCJetsTrackThinningTool",
@@ -205,10 +214,12 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY5)
 
 #==============================================================================
 OutputJets["SUSY5"] = [] 
-reducedJetList = [ "AntiKt2PV0TrackJets" ]
+reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets" ]
 
 replaceAODReducedJets(reducedJetList, SeqSUSY5, "SUSY5")
 
+# AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+addDefaultTrimmedJets(SeqSUSY5, "SUSY5")
 
 #==============================================================================
 # Tau truth building/matching
@@ -216,6 +227,12 @@ replaceAODReducedJets(reducedJetList, SeqSUSY5, "SUSY5")
 # now part of MCTruthCommon
 if DerivationFrameworkIsMonteCarlo:
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+
+#==============================================================================
+# Soft b-tag
+#==============================================================================
+from DerivationFrameworkFlavourTag.SoftBtagCommon import *
+applySoftBtagging("softBtag", SeqSUSY5 )
 
 #==============================================================================
 # Augment after skim
@@ -256,8 +273,8 @@ SUSY5SlimmingHelper.SmartCollections = ["Electrons",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
-                                        # As SUSY1
-                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                                        ]
 
 SUSY5SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
@@ -273,9 +290,11 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
                                       "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
                                       "BTagging_AntiKt2Track.MV2c10_discriminant",
-#As SUSY1
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
-                                        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m"]
+                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
+                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
+                                      "PrimaryVertices.covariance",
+                                      "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
+                                      ]
 
 
 # Saves BDT and input variables for light lepton algorithms. 
@@ -291,6 +310,12 @@ SUSY5SlimmingHelper.IncludeJetTriggerContent    = False
 SUSY5SlimmingHelper.IncludeTauTriggerContent    = False
 SUSY5SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY5SlimmingHelper.IncludeBJetTriggerContent   = False
+
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
+
+SUSY5SlimmingHelper.StaticContent = StaticContent
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
