@@ -120,7 +120,9 @@ StatusCode TrigT1CaloTauFex::finalize(){
 StatusCode TrigT1CaloTauFex::execute(){
 	
         MsgStream msg(msgSvc(), name());
+#ifndef NDEBUG
 	msg << MSG::DEBUG << "execute TrigT1CaloTauFex" << endreq;
+#endif
 
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
@@ -175,10 +177,12 @@ StatusCode TrigT1CaloTauFex::execute(){
 		///float et = sumEmCells( m_cellsAround )/TMath::CosH(cellAbove->eta());
 		///msg << MSG::INFO << "Tau found at (eta,phi)=(" << etaCluster << "," << phiCluster << ") with ET of : " << et << endreq;
 	}
+#ifndef NDEBUG
 	for (unsigned int i=0; i<m_RoI.size(); i++) {
 	//for( auto RoI : m_RoI ) {
 	  msg << MSG::INFO << "RoI in the loop=" << m_RoI.at(0).at(0) << endreq;
 	}
+#endif
 	return StatusCode::SUCCESS;
 }
 
