@@ -123,10 +123,7 @@ del PileUpConfigOverride
 #--------------------------------------------------------------
 # Test Pile-up configuration
 #--------------------------------------------------------------
-def pileUpCalc(nSignalEvts, refreshRate, nSubEvtPerBunch,nBunches):
-    totalSubEvts  = nBunches*nSubEvtPerBunch
-    totalSubEvts += totalSubEvts*refreshRate*nSignalEvts
-    return totalSubEvts
+from SimuJobTransforms.SimTransformUtils import pileUpCalc
 if hasattr(runArgs,"testPileUpConfig"):
     nSignalEvts=1000
     if (athenaCommonFlags.EvtMax>0):

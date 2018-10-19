@@ -457,6 +457,7 @@ def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossi
     if correctForEmptyBunchCrossings:
         nbunches = int(math.ceil(float(nbunches) * float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value())))
     fast_chain_log.info('Simulating a maximum of %s colliding-bunch crossings (%s colliding+non-colliding total) per signal event', nbunches, Nbunches)
+    from SimuJobTransforms.SimTransformUtils import pileUpCalc
     nBkgEventsForJob = pileUpCalc(float(nSignalEvts), 1.0, float(nBkgEvtsPerCrossing), nbunches)
     fast_chain_log.info('Number of background events required: %s. Number of background events in input files: %s', nBkgEventsForJob, (nBkgEventsPerFile*len(initialList)) )
     numberOfRepetitionsRequired =float(nBkgEventsForJob)/float(nBkgEventsPerFile*len(initialList))

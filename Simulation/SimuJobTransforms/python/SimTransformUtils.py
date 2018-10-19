@@ -9,6 +9,12 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfExe import athenaExecutor
 
+### Returns the toal number of needed events
+def pileUpCalc(nSignalEvts, refreshRate, nSubEvtPerBunch,nBunches):
+    totalSubEvts  = nBunches*nSubEvtPerBunch
+    totalSubEvts += totalSubEvts*refreshRate*nSignalEvts
+    return totalSubEvts
+
 ### Add Argument Methods
 def addCommonSimDigArguments(parser):
     from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addCommonSimDigTrfArgs
