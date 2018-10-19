@@ -151,22 +151,17 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   }
 
   // retrieve vertex container, exit if not found
-  const xAOD::VertexContainer* vxContainer = 0;
   SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
   if (!vertexInHandle.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " <<vertexInHandle.key());
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("No vertex container found. Skipping secondary vertex fitting.");
+    return StatusCode::SUCCESS;
   }
-  vxContainer = vertexInHandle.cptr();
-
   // retrieve track particle container, exit if not found 
-  const xAOD::TrackParticleContainer* trackParticleCont = 0;
   SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
   if (!trackPartInHandle.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " <<trackPartInHandle.key());
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("No track particle container found. Skipping secondary vertex fitting.");
+    return StatusCode::SUCCESS;
   }
-  trackParticleCont = trackPartInHandle.cptr();
 
   // get xAOD TrackParticles and Trk::Tracks
   std::vector<const xAOD::TrackParticle*> xaodTracks;

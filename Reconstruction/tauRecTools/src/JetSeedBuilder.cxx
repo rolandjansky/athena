@@ -91,7 +91,7 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 	if(inTrigger)
 		ATH_MSG_DEBUG("inTrigger read properly");
 
-	const xAOD::JetContainer *pJetColl;
+	const xAOD::JetContainer *pJetColl = 0;
 
 	ATH_MSG_DEBUG("Pulling out the seed");
 
