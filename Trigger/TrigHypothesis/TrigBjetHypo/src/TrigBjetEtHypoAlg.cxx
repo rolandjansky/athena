@@ -127,11 +127,12 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
   // Decide (Hypo Tool)
   for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
     const HLT::Identifier  decisionId = tool->getId();
-    if ( TrigCompositeUtils::passed( decisionId.numeric() , previousDecisionIDs ) ) {
-      bool pass = false;
-      CHECK( tool->decide( jetCollection,pass ) );
-      if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
-    }
+    // Check previous decision is 'passed'
+    if ( not TrigCompositeUtils::passed( decisionId.numeric() , previousDecisionIDs ) )
+      continue;
+    bool pass = false;
+    CHECK( tool->decide( jetCollection,pass ) );
+    if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
   }
 
   // Save Output Decisions
