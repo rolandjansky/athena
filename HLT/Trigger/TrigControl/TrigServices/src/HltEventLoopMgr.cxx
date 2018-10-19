@@ -622,7 +622,9 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
     ATH_MSG_DEBUG("Free processing slots = " << m_schedulerSvc->freeSlots());
     ATH_MSG_DEBUG("Free event data slots = " << m_whiteboard->freeSlots());
     if (m_schedulerSvc->freeSlots() != m_whiteboard->freeSlots()) {
-      // Starvation detected - try to recover and return FAILURE if the recovery fails
+      // Starvation detected - try to recover and return FAILURE if the recovery fails. This can only happen if there
+      // is an unhandled error after popping an event from the scheduler and before clearing the event data slot for
+      // this finished event. It's an extra protection in the unlikely case that failedEvent doesn't cover all errors.
       ATH_CHECK(recoverFromStarvation());
     }
     // Normal event processing
@@ -1251,8 +1253,9 @@ void HltEventLoopMgr::runEventTimer()
 
 // =============================================================================
 /**
- * @brief Processes output of finished events and cleans up the slots
- * @return -1 on failure; 0 if no more events left in the scheduler; otherwise number of popped and finalised events
+ * @brief Retrieves finished events from the scheduler, processes their output and cleans up the slots
+ * @return SUCCESS if at least one event was finished, SCHEDULER_EMPTY if there are no events being processed,
+ * RECOVERABLE if there was an error which was handled correctly, FAILURE if the error should break the event loop
  **/
 HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
 {
