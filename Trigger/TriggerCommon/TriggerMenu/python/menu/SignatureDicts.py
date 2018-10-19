@@ -621,7 +621,7 @@ HeavyIonChainParts = {
     'hypoEFsumEtInfo': ['fcalet3000', 'fcalet3306', 'fcalet3391', 'fcalet3516',],
     'recoAlg'        : ['ucc', 'upc'],
     'addInfo'        : ['hipeb','noiseSup'],
-    'gap'            : [ 'FgapA', 'FgapC', 'FgapAC', 'FgapA5', 'FgapC5', 'FgapA10', 'FgapC10',  'L2FgapA', 'L2FgapC', 'L2FgapAC',   'EFFgapA', 'EFFgapC', 'EFFgapAC' ],
+    'gap'            : [ 'FgapA', 'FgapC', 'FgapAC', 'FgapAC3' , 'FgapA5', 'FgapC5', 'FgapA10', 'FgapC10',  'L2FgapA', 'L2FgapC', 'L2FgapAC',   'EFFgapA', 'EFFgapC', 'EFFgapAC' ],
     }
 
 # ---- HeavyIonDictinary of default Values ----

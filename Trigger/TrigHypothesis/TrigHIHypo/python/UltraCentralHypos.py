@@ -38,9 +38,9 @@ class UltraCentral_PT(UltraCentralHypo):
         self.AthenaMonTools += [UltraCentralMonitoring(name="UltraCentralMonitoring")]
 
 
-UCC_th = {"th1": UltraCentral("UCCHypo_th1", 3610*GeV, 5200*GeV), 
-          "th2": UltraCentral("UCCHypo_th2", 4080*GeV, 5200*GeV), 
-          "th3": UltraCentral("UCCHypo_th3", 4500*GeV, 5200*GeV) }
+UCC_th = {"th1": UltraCentral("UCCHypo_th1", 3610*GeV, 4080*GeV), 
+          "th2": UltraCentral("UCCHypo_th2", 4080*GeV, 4450*GeV), 
+          "th3": UltraCentral("UCCHypo_th3", 4450*GeV, 5200*GeV) }
 
 
 
