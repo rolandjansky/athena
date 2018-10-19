@@ -284,6 +284,17 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   if(m_doUgly && fmaxIndex==17) return m_accept;
 
   //=============================================================
+  //Run-II very loose LLP cuts
+  // From https://indico.cern.ch/event/642438/contributions/2704590/attachments/1514445/2362870/082117a_HCW_NCB_LLP.pdf
+  //=============================================================
+  if (VeryLooseBadLLP == m_cutLevel){
+    if (fmax>0.80) return m_accept;
+    if (emf>0.96) return m_accept;
+    m_accept.setCutResult( "Cleaning", true );
+    return m_accept;
+  }
+
+  //=============================================================
   //Run-II loose cuts
   //=============================================================
   //Non-collision background & cosmics
@@ -295,12 +306,9 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   }
   if(fmax>0.99 && std::fabs(eta)<2)                       return m_accept;
   //HEC spike-- gone as of 2017! 
-  //if(std::fabs(negE*0.001)>60)                            return m_accept;
   if(hecf>0.5 && std::fabs(hecq)>0.5 && AverageLArQF/65535>0.8)                     return m_accept;
   //EM calo noise
   if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8 && AverageLArQF/65535>0.8)    return m_accept;
-  //// New pre-sampler topoclustering algorithm cut
-  //if(fmaxIndex==0 && fmax>0.6) return m_accept;
   // LLP cleaning uses negative energy cut
   // (https://indico.cern.ch/event/472320/contribution/8/attachments/1220731/1784456/JetTriggerMeeting_20160102.pdf)
   if (useLLP && std::fabs(negE*0.001)>4 && fmax >0.85) return m_accept;
@@ -310,15 +318,6 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
     return m_accept;
   }
 
-  //=============================================================
-  //Run-II medium cuts
-  //=============================================================
-  // Medium == loose right now
-  //if(MediumBad==m_cutLevel){
-  //  m_accept.setCutResult( "Cleaning", true );
-  //  return m_accept;
-  //}
-  
   //=============================================================
   //Run-II tight cuts
   //=============================================================
@@ -403,7 +402,6 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
               HECFrac,
               LArQuality,
               HECQuality,
-              //jet.getAttribute<float>(xAOD::JetAttribute::Timing),
               sumpttrk,
               jet.eta(),
               jet.pt(),
@@ -414,11 +412,6 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 }
 
 /** Hot cell checks */
-//const bool containsHotCells( const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
-//{
-//    return containsHotCells(jet,eInfo.runNumber());
-//}
-
 bool JetCleaningTool::containsHotCells( const xAOD::Jet& jet, const unsigned int runNumber) const
 {
     // Check if the runNumber contains bad cells
@@ -437,11 +430,10 @@ bool JetCleaningTool::containsHotCells( const xAOD::Jet& jet, const unsigned int
 /** Helpers for cut names */
 JetCleaningTool::CleaningLevel JetCleaningTool::getCutLevel( const std::string s ) const
 {
-  //if (s=="VeryLooseBad") return VeryLooseBad;
+  if (s=="VeryLooseBadLLP") return VeryLooseBadLLP;
   if (s=="LooseBad")     return LooseBad;
   if (s=="LooseBadLLP")     return LooseBadLLP;
   if (s=="LooseBadTrigger")     return LooseBadTrigger;
-  //if (s=="MediumBad")    return MediumBad;
   if (s=="TightBad")     return TightBad;
   ATH_MSG_ERROR( "Unknown cut level requested: " << s );
   return UnknownCut;  
@@ -449,11 +441,10 @@ JetCleaningTool::CleaningLevel JetCleaningTool::getCutLevel( const std::string s
 
 std::string JetCleaningTool::getCutName( const CleaningLevel c) const
 {
-  //if (c==VeryLooseBad) return "VeryLooseBad";
+  if (c==VeryLooseBadLLP) return "VeryLooseBadLLP";
   if (c==LooseBad)     return "LooseBad";
   if (c==LooseBadLLP)     return "LooseBadLLP";
   if (c==LooseBadTrigger)     return "LooseBadTrigger";
-  //if (c==MediumBad)    return "MediumBad";
   if (c==TightBad)     return "TightBad";
   return "UnknownCut";
 }
@@ -534,6 +525,3 @@ StatusCode JetCleaningTool::readHotCells()
     // Done
     return StatusCode::SUCCESS;
 }
-
-
-
