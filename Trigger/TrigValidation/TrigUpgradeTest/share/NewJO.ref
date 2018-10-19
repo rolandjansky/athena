@@ -1,8 +1,3 @@
-Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.ToolSvc) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.ProxyProviderSvc) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.EventPersistencySvc) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.ProxyProviderSvc) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.PoolSvc) ... dupe ignored
 Storing config in the config newJOtest.pkl
 Py:Athena            INFO now loading newJOtest.pkl  ... 
 TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output

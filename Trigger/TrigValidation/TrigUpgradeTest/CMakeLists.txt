@@ -146,7 +146,7 @@ atlas_add_test( EmuStepProcessing
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO
 		SCRIPT test/test_newJO.sh
-		EXTRA_PATTERNS "-s .*ERROR.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
+		EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*INFO.*"
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
 		)
