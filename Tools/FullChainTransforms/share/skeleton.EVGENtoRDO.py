@@ -407,65 +407,13 @@ digitizationFlags.overrideMetadata=['ALL']
 #--------------------------------------------------------------
 # Pileup configuration
 #--------------------------------------------------------------
+from SimuJobTransforms.SimTransformUtils import makeBkgInputCol
 def HasInputFiles(runArgs, key):
     if hasattr(runArgs, key):
         cmd='runArgs.%s' % key
         if eval(cmd):
             return True
     return False
-
-def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossings):
-    uberList = []
-    refreshrate = 1.0
-
-    nSignalEvts = 1000
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if (athenaCommonFlags.EvtMax.get_Value()>0):
-        nSignalEvts = int(athenaCommonFlags.EvtMax.get_Value())
-        fast_chain_log.info('Number of signal events (from athenaCommonFlags.EvtMax) = %s.', nSignalEvts )
-    else:
-        nSignalEvts = 0
-        import PyUtils.AthFile as athFile
-        for inFile in athenaCommonFlags.PoolEvgenInput.get_Value():
-            try:
-                inputFile = athFile.fopen(inFile)
-                nSignalEvts += int(inputFile.nentries)
-                del inputFile
-            except:
-                fast_chain_log.warning("Unable to open file [%s]"%inFile)
-                fast_chain_log.warning('caught:\n%s',err)
-                import traceback
-                traceback.print_exc()
-        fast_chain_log.info('Number of signal events (read from files) = %s.', nSignalEvts )
-
-    nBkgEventsPerFile = 5000
-    try:
-        import PyUtils.AthFile as athFile
-        inputFile = athFile.fopen(initialList[0])
-        nBkgEventsPerFile = int(inputFile.nentries)
-        fast_chain_log.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile )
-        del inputFile
-    except:
-        import traceback
-        traceback.print_exc()
-        fast_chain_log.warning('Failed to count the number of background events in %s. Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
-
-    from Digitization.DigitizationFlags import digitizationFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    Nbunches = 1 + digitizationFlags.finalBunchCrossing.get_Value() - digitizationFlags.initialBunchCrossing.get_Value()
-    nbunches = int(Nbunches)
-    if correctForEmptyBunchCrossings:
-        nbunches = int(math.ceil(float(nbunches) * float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value())))
-    fast_chain_log.info('Simulating a maximum of %s colliding-bunch crossings (%s colliding+non-colliding total) per signal event', nbunches, Nbunches)
-    from SimuJobTransforms.SimTransformUtils import pileUpCalc
-    nBkgEventsForJob = pileUpCalc(float(nSignalEvts), 1.0, float(nBkgEvtsPerCrossing), nbunches)
-    fast_chain_log.info('Number of background events required: %s. Number of background events in input files: %s', nBkgEventsForJob, (nBkgEventsPerFile*len(initialList)) )
-    numberOfRepetitionsRequired =float(nBkgEventsForJob)/float(nBkgEventsPerFile*len(initialList))
-    NumberOfRepetitionsRequired = 1 + int(math.ceil(numberOfRepetitionsRequired))
-    for i in range(0, NumberOfRepetitionsRequired):
-        uberList+=initialList
-    fast_chain_log.info('Expanding input list from %s to %s', len(initialList), len(uberList))
-    return uberList
 
 ## Low Pt minbias set-up
 bkgArgName="LowPtMinbiasHitsFile"
@@ -474,7 +422,7 @@ if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
     digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(bkgArg,
-                                                              digitizationFlags.numberOfLowPtMinBias.get_Value(), True)
+                                                              digitizationFlags.numberOfLowPtMinBias.get_Value(), True, fast_chain_log)
 if digitizationFlags.LowPtMinBiasInputCols.statusOn:
     digitizationFlags.doLowPtMinBias = True
 else:
@@ -487,7 +435,7 @@ if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
     digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
-                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True)
+                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, fast_chain_log)
 if digitizationFlags.HighPtMinBiasInputCols.statusOn:
     digitizationFlags.doHighPtMinBias = True
 else:
@@ -500,7 +448,7 @@ if hasattr(runArgs, "inputCavernHitsFile"):
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
     digitizationFlags.cavernInputCols = makeBkgInputCol(bkgArg,
-                                                        digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()))
+                                                        digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()), fast_chain_log)
 if digitizationFlags.cavernInputCols.statusOn:
     digitizationFlags.doCavern = True
 else:
@@ -513,7 +461,7 @@ if hasattr(runArgs, "inputBeamHaloHitsFile"):
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
     digitizationFlags.beamHaloInputCols = makeBkgInputCol(bkgArg,
-                                                          digitizationFlags.numberOfBeamHalo.get_Value(), True)
+                                                          digitizationFlags.numberOfBeamHalo.get_Value(), True, fast_chain_log)
 if digitizationFlags.beamHaloInputCols.statusOn:
     digitizationFlags.doBeamHalo = True
 else:
@@ -526,7 +474,7 @@ if hasattr(runArgs, "inputBeamGasHitsFile"):
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
     digitizationFlags.beamGasInputCols = makeBkgInputCol(bkgArg,
-                                                         digitizationFlags.numberOfBeamGas.get_Value(), True)
+                                                         digitizationFlags.numberOfBeamGas.get_Value(), True, fast_chain_log)
 if digitizationFlags.beamGasInputCols.statusOn:
     digitizationFlags.doBeamGas = True
 else:
