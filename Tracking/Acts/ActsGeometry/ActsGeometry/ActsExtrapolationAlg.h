@@ -33,9 +33,6 @@
 namespace Acts {
   class TrackingGeometry;
   
-  template<typename>
-  class ExtrapolationCell;
-
   namespace detail {
     class Step;
   }
@@ -47,7 +44,6 @@ template<typename>
 class RootExCellWriter;
 class EventContext;
 class IAthRNGSvc;
-class IActsExCellWriterSvc;
 class ActsExtrapolationTool;
 class IActsPropStepRootWriterSvc;
 
@@ -59,7 +55,6 @@ public:
   StatusCode finalize() override;
   
 private:
-  ServiceHandle<IActsExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IActsPropStepRootWriterSvc> m_propStepWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
 
@@ -68,19 +63,11 @@ private:
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>> m_exCells;
   std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
   
-  Gaudi::Property<int> m_searchMode{this, "SearchMode", 1, ""};
-  Gaudi::Property<bool> m_collectSensitive{this, "CollectSensitive", true, ""};
-  Gaudi::Property<bool> m_collectPassive{this, "CollectPassive", true, ""};
-  Gaudi::Property<bool> m_collectBoundary{this, "CollectBoundary", true, ""};
-  Gaudi::Property<bool> m_collectMaterial{this, "CollectMaterial", true, ""};
-  Gaudi::Property<bool> m_stopAtBoundary{this, "StopAtBoundary", true, ""};
-  Gaudi::Property<bool> m_FATRAS{this, "FATRAS", true, ""};
-  Gaudi::Property<size_t> m_nParticles{this, "nParticles", 1, ""};
-
   // poor-mans Particle Gun is included here right now
   Gaudi::Property<std::vector<double>> m_etaRange{this, "EtaRange", {-3, 3}, ""};
   Gaudi::Property<std::vector<double>> m_ptRange{this, "PtRange", {0.1, 1000}, ""};
 
+  // this does not work right now
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
   ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
   

@@ -21,7 +21,6 @@
 
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
-#include "ActsGeometry/IActsExCellWriterSvc.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
@@ -36,7 +35,6 @@
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
-      m_exCellWriterSvc("ActsExCellWriterSvc", name),
       m_propStepWriterSvc("ActsPropStepRootWriterSvc", name),
       m_rndmGenSvc("AthRNGSvc", name),
       m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
@@ -47,7 +45,6 @@ StatusCode ActsExtrapolationAlg::initialize() {
 
   ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
 
-  ATH_CHECK( m_exCellWriterSvc.retrieve() );
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_extrapolationTool.retrieve() );
   ATH_CHECK( m_propStepWriterSvc.retrieve() );
@@ -72,7 +69,7 @@ StatusCode ActsExtrapolationAlg::execute_r(const EventContext& ctx) const
   CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
 
   // one particle per event for now
-  // since the ATLAS ParticleGun seems not to working on MT, we roll
+  // since the ATLAS ParticleGun seems not to work on MT, we roll
   // our own for now.
   double d0 = 0;
   double z0 = 0;

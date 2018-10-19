@@ -7,7 +7,7 @@
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsGeometry/ActsObjWriterTool.h"
-#include "ActsGeometry/ActsExCellWriterSvc.h"
+//#include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
 
 //#include "ActsGeometry/GeomShiftCondAlg.h"
@@ -21,7 +21,7 @@ DECLARE_COMPONENT( ActsWriteTrackingGeometry )
 DECLARE_COMPONENT( ActsTrackingGeometrySvc )
 DECLARE_COMPONENT( ActsExtrapolationTool )
 DECLARE_COMPONENT( ActsObjWriterTool )
-DECLARE_COMPONENT( ActsExCellWriterSvc )
+//DECLARE_COMPONENT( ActsExCellWriterSvc )
 DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
 
 //DECLARE_COMPONENT( GeomShiftCondAlg )

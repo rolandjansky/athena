@@ -15,8 +15,6 @@
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // ACTS
-#include "Acts/Extrapolation/ExtrapolationCell.hpp"
-#include "Acts/Extrapolation/IExtrapolationEngine.hpp" // for ExCell*
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
@@ -38,10 +36,8 @@ namespace MagField {
 }
 
 namespace Acts {
-class ExtrapolationCode;
 class Surface;
 class BoundaryCheck;
-class ExtrapolationEngine;
 }
 
 static const InterfaceID IID_ActsExtrapolationTool("ActsExtrapolationTool", 1, 0);
@@ -55,16 +51,6 @@ public:
   ActsExtrapolationTool(const std::string& type, const std::string& name,
 	           const IInterface* parent);
 
-  Acts::ExtrapolationCode
-  extrapolate(Acts::ExCellCharged&       ecCharged,
-              const Acts::Surface*       sf = nullptr,
-              const Acts::BoundaryCheck& bcheck = true) const;
-
-  Acts::ExtrapolationCode
-  extrapolate(Acts::ExCellNeutral&       ecNeutral,
-              const Acts::Surface*       sf = nullptr,
-              const Acts::BoundaryCheck& bcheck = true) const;
-            
   template <typename parameters_t>
   std::vector<Acts::detail::Step>
   propagate(const parameters_t& startParameters,
@@ -98,9 +84,6 @@ public:
 
     return steps;
   }
-
-
-  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine() const;
 
   void
   prepareAlignment() const;
@@ -153,7 +136,6 @@ private:
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   ToolHandle<ActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
-  std::shared_ptr<Acts::ExtrapolationEngine> m_exEngine;
   Options m_propagationOptions;
 
   Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS"};

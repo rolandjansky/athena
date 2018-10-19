@@ -69,12 +69,6 @@ trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.OutputLevel = INFO
 ServiceMgr += trkGeomSvc
 
-# Shared writing svc. This allows the extrapolation
-# algorithm to run in MT. The service handles synchronization
-# and IO.
-exCellWriterSvc = CfgMgr.ActsExCellWriterSvc("ExCellWriterSvc")
-exCellWriterSvc.FilePath = "excells_charged.root"
-ServiceMgr += exCellWriterSvc
 
 # We need the Magnetic fiels
 import MagFieldServices.SetupField
@@ -128,7 +122,6 @@ if alg.WriteMaterialTracks == True:
 exTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
 exTool.OutputLevel = INFO
 exTool.FieldMode = "ATLAS"
-exTool.MatEngineDoELossCorrection = False
 
 # The extrapolation tool accesses the trackinggeometry service
 # through this tool. This tool has the conditions dependencies

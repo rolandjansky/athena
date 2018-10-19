@@ -14,13 +14,6 @@
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // ACTS
-#include "Acts/Extrapolation/ExtrapolationCell.hpp" // for excell and ecode
-#include "Acts/Extrapolation/IExtrapolationEngine.hpp" // for the parameters
-#include "Acts/Extrapolation/ExtrapolationEngine.hpp"
-#include "Acts/Extrapolation/RungeKuttaEngine.hpp"
-#include "Acts/Extrapolation/MaterialEffectsEngine.hpp"
-#include "Acts/Extrapolation/StaticNavigationEngine.hpp"
-#include "Acts/Extrapolation/StaticEngine.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/BoundaryCheck.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
@@ -83,29 +76,6 @@ ActsExtrapolationTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-Acts::ExtrapolationCode
-ActsExtrapolationTool::extrapolate(Acts::ExCellCharged&       ecCharged,
-              const Acts::Surface*       sf,
-              const Acts::BoundaryCheck& bcheck) const 
-{
-  return m_exEngine->extrapolate(ecCharged, sf, bcheck);
-}
-
-
-
-Acts::ExtrapolationCode
-ActsExtrapolationTool::extrapolate(Acts::ExCellNeutral&       ecNeutral,
-              const Acts::Surface*       sf,
-              const Acts::BoundaryCheck& bcheck) const 
-{
-  return m_exEngine->extrapolate(ecNeutral, sf, bcheck);
-}
-
-std::shared_ptr<Acts::IExtrapolationEngine>
-ActsExtrapolationTool::extrapolationEngine() const 
-{
-  return std::dynamic_pointer_cast<Acts::IExtrapolationEngine>(m_exEngine);
-}
 
 void
 ActsExtrapolationTool::prepareAlignment() const 
