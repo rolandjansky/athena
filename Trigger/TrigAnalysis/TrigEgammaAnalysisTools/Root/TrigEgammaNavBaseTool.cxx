@@ -131,6 +131,7 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
         if(ApplyElectronPid(eg,"LHLoose")) hist1(m_anatype+"_electrons")->AddBinContent(4);
         if(ApplyElectronPid(eg,"LHMedium")) hist1(m_anatype+"_electrons")->AddBinContent(5);
         if(ApplyElectronPid(eg,"LHTight")) hist1(m_anatype+"_electrons")->AddBinContent(6); 
+        if(ApplyElectronPid(eg,"LHMediumHI")) hist1(m_anatype+"_electrons")->AddBinContent(7); 
     }
    
     //Calculate number of vertex 
@@ -154,6 +155,7 @@ StatusCode TrigEgammaNavBaseTool::executeNavigation( const TrigInfo info ){
 
 bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
     
+    ATH_MSG_DEBUG("Applying Electron PID with pidname =  " << pidname);
     if (pidname == "Tight"){
         const Root::TAccept& accept=m_electronIsEMTool[0]->accept(eg);
         return static_cast<bool>(accept);
@@ -178,6 +180,10 @@ bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std
         const Root::TAccept& accept=m_electronLHTool[2]->accept(eg);
         return static_cast<bool>(accept);
     }
+    else if (pidname == "LHMediumHI"){
+        const Root::TAccept& accept=m_electronLHTool[3]->accept(eg);
+        return static_cast<bool>(accept);
+    }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
 }
@@ -187,6 +193,7 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
   clearList(); //Clear Probe list before each execution -- not in derived class
   ATH_MSG_DEBUG("Apply navigation selection "); 
+
 
 
   const std::string decor="is"+pidname;
@@ -210,7 +217,11 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
       }
 
       if(m_forcePidSelection){///default is true
-        if(!ApplyElectronPid(eg,pidname)) continue;
+        if(!ApplyElectronPid(eg,pidname)){
+	    ATH_MSG_DEBUG("Fails ElectronID "<< pidname);
+	    continue;
+	}
+	ATH_MSG_DEBUG("Passes ElectronID "<< pidname);
       }
 
       if (m_forceProbeIsolation) {///default is false
