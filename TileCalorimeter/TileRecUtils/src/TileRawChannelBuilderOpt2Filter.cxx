@@ -65,8 +65,6 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   , m_nConst(0)
   , m_nSamples(0)
   , m_t0SamplePosition(0)
-  , m_maxTime(0.0)
-  , m_minTime(0.0)
 {
   //declare interfaces
   declareInterface< TileRawChannelBuilder >( this );
@@ -90,6 +88,8 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   declareProperty("EmulateDSP",m_emulateDsp = false);
   declareProperty("NoiseThresholdHG",m_noiseThresholdHG = 5);
   declareProperty("NoiseThresholdLG",m_noiseThresholdLG = 3);
+  declareProperty("MinTime",m_minTime =  0.0);
+  declareProperty("MaxTime",m_maxTime = -1.0);
 }
 
 
@@ -124,10 +124,15 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
                  << " TimeCorrection=" << m_correctTimeNI
                  << " Best Phase " << m_bestPhase );
 
+  ATH_MSG_DEBUG( " NoiseThresholdHG=" << m_noiseThresholdHG
+                 << " NoiseThresholdLG=" << m_noiseThresholdLG);
+
   m_nSamples = m_tileInfo->NdigitSamples();
   m_t0SamplePosition = m_tileInfo->ItrigSample();
-  m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
-  m_minTime = -25 * m_t0SamplePosition;
+  if (m_maxTime < m_minTime) { // set time window if it was not set from jobOptions
+    m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
+    m_minTime = -25 * m_t0SamplePosition;
+  }
   ATH_MSG_DEBUG(" NSamples=" << m_nSamples
                 << " T0Sample=" << m_t0SamplePosition
                 << " minTime=" << m_minTime
@@ -242,10 +247,9 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
                  pedestal);
 
   if (m_correctTime
-          && (!m_notTestBeamCabling 
-          || (time != 0
+      && (time != 0
           && time < m_maxTime
-          && time > m_minTime))) {
+          && time > m_minTime)) {
 
     rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
@@ -456,9 +460,6 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
                             << m_digits[0] - minDigit
                             << endmsg;
         }
-        //	OptFilterTime=-100.;
-
-        chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
         if (m_bestPhase) {
           unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -483,17 +484,13 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
                            << " new amplitude is " << amplitude );
         }
 
-        if(m_notTestBeamCabling) {
-        if (time > m_maxTime) time = m_maxTime;
-        if (time < m_minTime) time = m_minTime;
-        }
-
         if (m_bestPhase) {
           time = -phase;
           chi2 = -chi2;
         } else {
-        time = 0.;
+          time = 0.;
         }
+
         m_nCenter++;
 
       }
@@ -545,12 +542,11 @@ int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, i
                     << " chi2=" << chi2
                     << "  Amp=" << amplitude );
   }
-
+  
   time -= savePhase;
-  if (m_notTestBeamCabling) {
   if (time > m_maxTime) time = m_maxTime;
   if (time < m_minTime) time = m_minTime;
-  } 
+  
   ATH_MSG_VERBOSE( "OptFilterEne=" << amplitude
                   << " Phase=" << savePhase
                   << " Absolute Time=" << time );

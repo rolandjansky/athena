@@ -200,7 +200,6 @@ class TileRawChannelBuilder: public AthAlgTool {
     static bool s_badDrawer;
     
     bool m_notUpgradeCabling;
-    bool m_notTestBeamCabling;
 };
 
 #endif
