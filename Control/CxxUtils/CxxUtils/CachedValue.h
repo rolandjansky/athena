@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -16,6 +16,7 @@
 
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/stall.h"
 #include <atomic>
 #include <utility>
 
@@ -42,7 +43,8 @@ enum CacheState {
  * store() method; however, this is not atomic and should not be done while
  * other threads may be accessing the value.)  The validity of the value
  * may be tested with isValid(), and ptr() will get back a pointer to the value.
- * ptr() should not be called until isValid() has returned true.
+ * ptr() should not be called until isValid() has returned true or set()
+ * returned.
  *
  * The state of the cached value is given by m_cacheState, which can have the values:
  *   INVALID:  No value has been cached.
@@ -94,11 +96,13 @@ public:
     
   /// Set the value, assuming it is currently invalid.
   /// Otherwise, this method will do nothing.
+  /// The value will be valid once this returns.
   void set (const T& val) const;
  
 
   /// Set the value by move, assuming it is currently invalid.
   /// Otherwise, this method will do nothing.
+  /// The value will be valid once this returns.
   void set (T&& val) const;
  
 
@@ -108,7 +112,8 @@ public:
     
 
   /// Return a pointer to the cached value.
-  /// Should not be called unless isValid() has returned true.
+  /// Should not be called unless isValid() has returned true or set()
+  /// has returned.
   const T* ptr() const;
 
 
