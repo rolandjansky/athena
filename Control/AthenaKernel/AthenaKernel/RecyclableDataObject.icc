@@ -1,0 +1,82 @@
+// $Id$
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file AthenaKernel/RecyclableDataObject.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2018
+ * @brief Helper for recycling objects from event to event.
+ */
+
+
+namespace Athena {
+
+
+/**
+ * @brief Constructor.
+ * @param queue Queue on which this object will be entered when it is released.
+ * @param args... Additional arguments to pass to the @c DOBJ constructor.
+ */
+template <class DOBJ>
+template <typename... ARGS>
+RecyclableDataObject<DOBJ>::RecyclableDataObject (queue_t& queue, ARGS&&... args)
+  : DOBJ (std::forward<ARGS>(args)...),
+    m_queue (queue)
+{
+  // Bump reference count by one so that these objects won't be deleted by StoreGate.
+  this->addRef();
+}
+
+
+/**
+ * @brief DataObject release method.
+ *
+ * This overrides the @c release() method of @c DataObject.
+ * Once the reference count falls back to 1 (meaning that the object is no longer
+ * referenced from StoreGate), we recycle the object back to the queue.
+ */
+template <class DOBJ>
+unsigned long RecyclableDataObject<DOBJ>::release()
+{
+  unsigned long cnt = DOBJ::release();
+  if (cnt == 1) {
+    this->recycle();
+    m_queue.push (this);
+  }
+  return cnt;
+}
+
+
+/**
+ * @brief Get an object, either a new one or one recycled from a previous event.
+ * @param args... Arguments to pass to the @c DOBJ constructor if we make a new one.
+ */
+template <class DOBJ>
+template <typename... ARGS>
+DOBJ* RecyclableDataQueue<DOBJ>::get (ARGS&&... args)
+{
+  DOBJ* obj = nullptr;
+  if (this->try_pop (obj)) {
+    return obj;
+  }
+  return new RecyclableDataObject<DOBJ> (*this, std::forward<ARGS>(args)...);
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * Free all objects in the queue.
+ */
+template <class DOBJ>
+RecyclableDataQueue<DOBJ>::~RecyclableDataQueue()
+{
+  DOBJ* obj = nullptr;
+  while (this->try_pop (obj)) {
+    delete obj;
+  }
+}
+
+
+} // namespace Athena

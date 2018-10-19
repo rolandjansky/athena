@@ -21,6 +21,7 @@ find_package( Boost COMPONENTS program_options regex filesystem thread )
 find_package( ROOT COMPONENTS Core )
 find_package( UUID )
 find_package(CLHEP)
+find_package( TBB )
 # Only link agains the RT library on Linux:
 set( rt_library )
 if( UNIX AND NOT APPLE )
@@ -134,3 +135,8 @@ atlas_add_test( MetaContDataBucket_test
 atlas_add_test( TopBase_test
    SOURCES test/TopBase_test.cxx
    LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( RecyclableDataObject_test
+  SOURCES test/RecyclableDataObject_test.cxx
+  INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
+  LINK_LIBRARIES AthenaKernel TestTools ${TBB_LIBRARIES} )
