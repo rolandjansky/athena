@@ -44,7 +44,7 @@ SuperCellBCIDAlg::execute()
         }
 	int bcid = evt->bcid();
 	
-	CaloCellContainer* new_scell_cont = new CaloCellContainer();
+	CaloCellContainer* new_scell_cont = new CaloCellContainer(SG::OWN_ELEMENTS);
 	ATH_CHECK( evtStore()->record(new_scell_cont, "SCellBCID") );
 	new_scell_cont->reserve( scells_from_sg->size() );
 	for(auto sc : *scells_from_sg){
