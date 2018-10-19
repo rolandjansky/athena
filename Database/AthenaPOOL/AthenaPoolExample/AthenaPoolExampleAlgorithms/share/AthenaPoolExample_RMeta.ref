@@ -194,6 +194,10 @@ POOLContainer(D...  DEBUG    attributes# = 1
 POOLContainer(D...  DEBUG Branch container 'DataHeader'
 POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
 ApplicationMgr       INFO Application Manager Started successfully
+RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG File name SimplePoolFile5.root
+RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
+RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
 MetaDataSvc         DEBUG handle() BeginInputFile for SimplePoolFile5.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name SimplePoolFile5.root
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)

@@ -236,6 +236,10 @@ MetaDataSvc         DEBUG handle() EndInputFile for eventless EmptyPoolFile.root
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
 ApplicationMgr       INFO Application Manager Started successfully
+RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG File name SimplePoolFile1.root
+RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
+RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
 RootDatabase.se...  DEBUG TREE_CACHE_LEARN_EVENTS = 6
 RootDatabase.se...  DEBUG Request tree cache 
 RootDatabase.se...  DEBUG File name SimplePoolFile1.root
@@ -741,8 +745,12 @@ SimplePoolFile2...  DEBUG --->Reading Param:PFN=[SimplePoolFile2.root]
 SimplePoolFile2...  DEBUG --->Reading Param:POOL_VSN=[1.1]
 SimplePoolFile2...  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
+RootDatabase.se...  DEBUG Request tree cache
+RootDatabase.se...  DEBUG File name SimplePoolFile2.root
+RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
+RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
 RootDatabase.se...  DEBUG TREE_CACHE_LEARN_EVENTS = 6
-RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG Request tree cache
 RootDatabase.se...  DEBUG File name SimplePoolFile2.root
 RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
 RootDatabase.se...  DEBUG Using Tree cache. Size: 100000 Nevents to learn with: 6
@@ -1974,6 +1982,10 @@ SimplePoolFile3...  DEBUG --->Reading Param:PFN=[SimplePoolFile3.root]
 SimplePoolFile3...  DEBUG --->Reading Param:POOL_VSN=[1.1]
 SimplePoolFile3...  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
+RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG File name SimplePoolFile3.root
+RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
+RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
 RootDatabase.se...  DEBUG TREE_CACHE_LEARN_EVENTS = 6
 RootDatabase.se...  DEBUG Request tree cache 
 RootDatabase.se...  DEBUG File name SimplePoolFile3.root

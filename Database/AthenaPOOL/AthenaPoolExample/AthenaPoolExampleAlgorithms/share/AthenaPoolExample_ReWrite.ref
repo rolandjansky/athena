@@ -193,6 +193,11 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
 ApplicationMgr       INFO Application Manager Started successfully
+RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG File name SimplePoolFile1.root
+RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
+RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_CACHE to -1 for db: SimplePoolFile1.root and cont: CollectionTree
 MetaDataSvc         DEBUG handle() BeginInputFile for SimplePoolFile1.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name SimplePoolFile1.root
 MetaDataSvc         DEBUG Loaded input meta data store proxies

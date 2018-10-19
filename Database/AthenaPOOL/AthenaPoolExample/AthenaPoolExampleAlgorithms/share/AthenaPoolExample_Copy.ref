@@ -154,9 +154,14 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
 ApplicationMgr       INFO Application Manager Started successfully
+RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG File name SimplePoolFile1.root
+RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
+RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_CACHE to -1 for db: SimplePoolFile1.root and cont: CollectionTree
+ClassIDSvc           INFO  getRegistryEntries: read 339 CLIDRegistry entries for module ALL
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-ClassIDSvc           INFO  getRegistryEntries: read 1681 CLIDRegistry entries for module ALL
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000]
