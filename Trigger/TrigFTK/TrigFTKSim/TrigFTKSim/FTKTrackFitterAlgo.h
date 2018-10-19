@@ -64,6 +64,7 @@ private:
   bool m_doAuxFW;
  
   int m_HitWarrior;
+  bool m_AuxDoctor;
   int m_KeepRejected; 
   int m_FitRemoved;
   int m_DoMajority;

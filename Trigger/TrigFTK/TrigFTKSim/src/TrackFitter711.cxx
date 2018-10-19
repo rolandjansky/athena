@@ -3132,7 +3132,12 @@ void TrackFitter711::extrapolateIncompleteTrack(const FTKRoad &road) {
   gatherConnections();
   printConnections();
   bool * iblhits = new bool[conn_subregs.size()];
-  
+
+  newtrk.setNPlanesIgnored(m_nplanes-m_nplanes_incomplete);
+  for (int ic=0;ic!=m_ncoords;++ic) {
+    combtrack[ic].setNPlanesIgnored(m_nplanes-m_nplanes_incomplete);
+  }
+
   for (setIConn(0); cur_iconn < (int) conn_subregs.size(); setIConn(cur_iconn+1)) {
     prepareTrack();
     performExtrapolation();
@@ -3378,8 +3383,6 @@ void TrackFitter711::guessedHitsToSSID() {
        cout<<"guessed_hit: "<< m_ssid[ip]<<":"<<moduleID
            <<","<<tmphit[0]<<","<<tmphit[1]<<"\n";
     }
-
-    //    std::cout << "SSID current " << m_ssid[ip] << std::endl;
 
     if (ndim == 2) {
 
@@ -3670,6 +3673,9 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
       //newtrk.setTrackID(m_comb_id++);
       newtrk.setTrackID(newtrkI.getTrackID());
       newtrk.setExtrapolationID(icomb_more);
+
+      for (int ip=0; ip!=m_nplanes_ignored; ++ip) newtrk.setSSID(ip,m_ssid[ip]);
+
       conn_gcbanks.at(cur_iconn)->linfit(conn_sectors.at(cur_iconn),newtrk);
       //std::cout << " Chi2 " <<newtrk.getChi2() << std::endl;
       newtrk.setOrigChi2(newtrk.getChi2());
@@ -3733,7 +3739,6 @@ void TrackFitter711::saveCompleteTracks() {
       }
     }
   }
-
 
   // -------------------------------------------------------------------------
   // N-TRACKS -> SAVE GOOD ONES
@@ -3843,6 +3848,12 @@ void TrackFitter711::saveCompleteTracks() {
           (newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
         newtrk.getChi2() != 0 )
     {
+
+      // Aux Doctor (Remove extrapolated Aux tracks with the same SSIDs)
+      int accepted_AuxDoctor(0);
+      // Disable Aux Doctor, auto-accept every track
+      if (m_AuxDoctor) accepted_AuxDoctor = doAuxDoctor(newtrk,m_tracks);
+
       // to append the found track go trought the HW filter
       // add this track to track list only if
       // don't have common hits with another track,
@@ -3860,12 +3871,12 @@ void TrackFitter711::saveCompleteTracks() {
       if (m_HitWarrior!=0)
         accepted = doHitWarriorFilter(newtrk,m_tracks);
 
-      // track accepted, no hits shared with already fitted tracks
-      if (accepted>=0) {
+      // track accepted, no hits or no SSIDs shared with already fitted tracks
+      if (accepted>=0 && accepted_AuxDoctor==0) {
         if (getDiagnosticMode())
           fillDiagnosticPlotsPerAcceptedTrack();
 
-        // copy newtrkI after truth assignment.
+        // copy newtrk after truth assignment.
         m_tracks.push_back(newtrk);
 
         // removed an existing track

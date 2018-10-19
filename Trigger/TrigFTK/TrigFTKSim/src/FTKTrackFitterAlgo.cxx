@@ -39,6 +39,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_chi2dofcutSSB(4),
   m_doAuxFW(false),
   m_HitWarrior(2),
+  m_AuxDoctor(false),
   m_KeepRejected(0), 
   m_FitRemoved(0),
   m_DoMajority(1),
@@ -85,6 +86,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("Chi2DofCutSSB",m_chi2dofcutSSB);
   declareProperty("doAuxFW", m_doAuxFW);
   declareProperty("HitWarrior", m_HitWarrior);
+  declareProperty("AuxDoctor", m_AuxDoctor);
   declareProperty("KeepRejected", m_KeepRejected);
   declareProperty("FitRemoved", m_FitRemoved);
   declareProperty("DoMajority",m_DoMajority);
@@ -346,6 +348,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   // set parameter object to TrackFitter
   m_tfpobj->setChi2Cut(m_chi2cut);
   m_tfpobj->setHitWarrior(m_HitWarrior);
+  m_tfpobj->setAuxDoctor(m_AuxDoctor);
   m_tfpobj->setChi2Cut_maj(m_chi2cut_maj);
   m_tfpobj->setChi2Cut_vetomaj(m_chi2cut_vetmaj);
   m_tfpobj->setChi2DofCutAux(m_chi2dofcutAux);

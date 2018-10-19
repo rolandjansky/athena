@@ -220,6 +220,9 @@ def addTrigFTKSimTFOptions(parser):
     parser.add_argument('--HitWarriorMerger', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior Merger (merge) type", group='TrigFTKTrackFitter')
 
+    parser.add_argument('--AuxDoctor', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Enables Aux Doctor Overlap Removal", group='TrigFTKTrackFitter')
+
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')
 

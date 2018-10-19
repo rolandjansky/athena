@@ -48,6 +48,9 @@ private:
   int m_nplanes; // number of layer planes used
   FTKHit *m_hits; //[m_nplanes] hits associated to the track
 
+  int m_nplanes_ignored; // number of planes to extrapolate the 7L tracks
+  int *m_ssid; // [m_nplanes_ignored] SSIDs associated to the extrapolated AUX tracks
+
   int m_HF_rejected; /* 0 if the track is accepted, >0 if rejected by hit filter
 			if negative, belongs to a HF rejected road
 		     */
@@ -107,6 +110,8 @@ public:
   const int& getNPlanes() const { return m_nplanes; }
   const float& getCoord(int i) const { return m_coord[i]; }
   float *getCoords() { return m_coord; };
+  const int& getNPlanesIgnored() const { return m_nplanes_ignored; }
+  const int& getSSID(int i) const { return m_ssid[i]; }
   const int& getHFRejected() const { return m_HF_rejected; }
   const int& getHWRejected() const { return m_HW_rejected; }
   const int& getHWTrackID() const { return m_HW_track; }
@@ -160,6 +165,8 @@ public:
   void setHWTrackID(int v) { m_HW_track = v; }
   void setNPlanes(int);
   void setFTKHit(int i,const FTKHit &hit) const { m_hits[i] = hit; }
+  void setNPlanesIgnored(int);
+  void setSSID(int i, int v) { m_ssid[i] = v; }
 
   // Function used by the HW to compare similar combinations
   unsigned int getNCommonHits(const FTKTrack &, const float*) const;
