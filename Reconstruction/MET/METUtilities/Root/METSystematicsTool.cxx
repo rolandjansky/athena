@@ -359,30 +359,29 @@ namespace met {
     if( MissingETBase::Source::isSoftTerm(met.source())){
       xAOD::MissingETContainer const * METcont = dynamic_cast<xAOD::MissingETContainer const*>(met.container());
       if(METcont == nullptr){
-	ATH_MSG_WARNING("MissingET object not owned by a container. Unable to apply correction, returning output MET object as null" );
-	outputmet = nullptr;
-	return CP::CorrectionCode::Error;
+        ATH_MSG_WARNING("MissingET object not owned by a container. Unable to apply correction, returning output MET object as null" );
+        outputmet = nullptr;
+        return CP::CorrectionCode::Error;
       }
       copy = new xAOD::MissingET(met);
 
       if(internalSoftTermApplyCorrection(*copy, METcont,  *getDefaultEventInfo()) != CP::CorrectionCode::Ok ){
-	outputmet = nullptr; delete copy;
-	return CP::CorrectionCode::Error;
+        outputmet = nullptr; delete copy;
+        return CP::CorrectionCode::Error;
       }
     }//soft term source
     if( //MissingETBase::Source::isTrackTerm(met.source()) &&
-	MissingETBase::Source::isJetTerm  (met.source())
-	){
+	   MissingETBase::Source::isJetTerm  (met.source())){
       if( helper->map() == nullptr) {
-	ATH_MSG_WARNING("MissingETAssociationHelper contained a null MissingETAssociationMap pointer");
-	outputmet = nullptr;
-	return CP::CorrectionCode::Error;
+        ATH_MSG_WARNING("MissingETAssociationHelper contained a null MissingETAssociationMap pointer");
+        outputmet = nullptr; delete copy;
+        return CP::CorrectionCode::Error;
       }
-
+      delete copy;
       copy = new xAOD::MissingET(met);
       if(getCorrectedJetTrackMET(*copy, helper) != CP::CorrectionCode::Ok){
-	outputmet = nullptr; delete copy;
-	return CP::CorrectionCode::Error;
+        outputmet = nullptr; delete copy;
+        return CP::CorrectionCode::Error;
       }
     }//jet track term source
 
