@@ -227,7 +227,11 @@ void Analysis_Tier0::initialise() {
   addHistogram( h_nsihits_lb );
   addHistogram( h_nsihits_lb_rec );
 
+  m_h_layer_rec  = new TH1F("layer_rec" , "hit layers", 32,   -0.5,  31.5  );
+  m_h_layer      = new TH1F("layer",      "hit layers", 32,   -0.5,  31.5  );
 
+  addHistogram(m_h_layer);
+  addHistogram(m_h_layer_rec);
 
 
 
@@ -477,7 +481,10 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
  
     h_chain->Fill(2.5);
 
-
+    for ( size_t ilayer=0 ; ilayer<32 ; ilayer++ ) { 
+      if ( (*reference)->hitPattern()&(1<<ilayer) ) m_h_layer_rec->Fill( ilayer );
+    } 
+    
     if (test) {
 
       h_chain->Fill(3.5);
@@ -504,6 +511,10 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_trkvtx_x_lb->Fill( event()->lumi_block(), beamTestx() );
       h_trkvtx_y_lb->Fill( event()->lumi_block(), beamTesty() );
       h_trkvtx_z_lb->Fill( event()->lumi_block(), beamTestz() );
+
+      for ( size_t ilayer=0 ; ilayer<32 ; ilayer++ ) { 
+	if ( test->hitPattern()&(1<<ilayer) ) m_h_layer_rec->Fill( ilayer );
+      } 
 
       //      std::cout << "SUTT beam x " << beamTestx() << " " << "\tx " << beamTesty() << " " <<  "\ty " << beamTestz() << std::endl;
 

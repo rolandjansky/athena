@@ -154,7 +154,7 @@ public:
   TH1F* h_nsihits;
   TH1F* h_ntrt;
 
-  TH1F* h_ntrk_rec;
+  TH1F* m_h_layer;
 
 
   TH1F* h_trkpT_rec;
@@ -172,6 +172,10 @@ public:
   TH1F* h_nsct_rec;
   TH1F* h_nsihits_rec;
   TH1F* h_ntrt_rec;
+
+  TH1F* h_ntrk_rec;
+
+  TH1F* m_h_layer_rec;
 
 
   TH1F* h_trkpT_residual;
