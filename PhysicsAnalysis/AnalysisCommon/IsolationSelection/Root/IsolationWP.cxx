@@ -6,8 +6,6 @@
 
 namespace CP {
     IsolationWP::~IsolationWP() {
-        for (auto c : m_cuts)
-            if (c) delete c;
     }
 
     std::string IsolationWP::name() const {
@@ -34,14 +32,19 @@ namespace CP {
         return m_accept;
     }
 
-    void IsolationWP::addCut(IsolationCondition* i) {
+    
+    void IsolationWP::addCut(IsolationCondition* cut){
+        addCut(std::shared_ptr<IsolationCondition>(cut));
+    }
+      
+    void IsolationWP::addCut(std::shared_ptr<IsolationCondition> i) {
         m_cuts.push_back(i);
         m_accept.addCut(i->name(), i->name());
     }
     const Root::TAccept& IsolationWP::getAccept() const {
         return m_accept;
     }
-    const std::vector<IsolationCondition*>& IsolationWP::conditions() const{
+    const std::vector<std::shared_ptr<IsolationCondition>>& IsolationWP::conditions() const{
         return m_cuts;
     }
 

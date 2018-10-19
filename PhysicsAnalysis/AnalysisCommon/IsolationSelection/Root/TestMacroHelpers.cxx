@@ -54,8 +54,15 @@ namespace CP {
         }        
         //Retrieve the isolaiton accessors directly from the WP
         for (const auto& W : WPs) {
-            for (auto& C : W->conditions()) {
-                m_iso_branches.push_back(IsolationBranches(C->type(),"default"));                
+            for (auto& C : W->conditions()) {                
+                for (unsigned int t = 0 ; t< C->num_types(); ++t){
+                    bool add = true;
+                    for (const auto& known : m_iso_branches){
+                        if (known.Accessor->isotype() == C->type(t)) add = false;
+                        if (!add) break;
+                    }
+                    if (add) m_iso_branches.push_back(IsolationBranches(C->type(t),"default"));                
+                }
             }
             //Assume only 1 WP
             break;

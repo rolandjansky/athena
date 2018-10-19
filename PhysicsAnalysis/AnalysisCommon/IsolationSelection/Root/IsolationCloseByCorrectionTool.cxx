@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
@@ -81,13 +81,18 @@ namespace CP {
 
     StatusCode IsolationCloseByCorrectionTool::initialize() {
 
-printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
+        printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
                 //set default properties of track selection tool, if the user hasn't configured it
         if (!m_trkselTool.isUserConfigured()) {
             m_trkselTool.setTypeAndName("InDet::InDetTrackSelectionTool/TrackParticleSelectionTool");
             ATH_MSG_INFO("No TrackSelectionTool provided, so I will create and configure my own, called: " << m_trkselTool.name());
+            // The z0 cut is checked in any case either by the
+            // track to vertex association tool or by the tracking tool 
             ATH_CHECK(m_trkselTool.setProperty("maxZ0SinTheta", 3.));
-            ATH_CHECK(m_trkselTool.setProperty("minPt", 1000.));
+            // The minimum Pt requirement is lowered to 500 MeV because
+            // the Loose ttva cone variables accept very low-pt tracks
+            // https://gitlab.cern.ch/atlas/athena/blob/21.2/Reconstruction/RecoAlgs/IsolationAlgs/python/IsoUpdatedTrackCones.py#L21
+            ATH_CHECK(m_trkselTool.setProperty("minPt", 500.));
             ATH_CHECK(m_trkselTool.setProperty("CutLevel", "Loose"));
         }
         if (!m_ttvaTool.isUserConfigured()){
@@ -128,14 +133,15 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
         types.clear();
         for (const auto& W : WPs) {
             for (auto& C : W->conditions()) {
-                if (!isElementInList(types, C->type())) types.push_back(C->type());
-                if (m_isohelpers.find(C->type()) == m_isohelpers.end()) {
-                    m_isohelpers.insert(IsoHelperPair(C->type(), IsoHelperPtr(new IsoVariableHelper(C->type(), m_backup_prefix))));
+                for (unsigned int t = 0; t < C->num_types(); ++t){
+                    if (!isElementInList(types, C->type(t))) types.push_back(C->type(t));
+                    if (m_isohelpers.find(C->type(t)) == m_isohelpers.end()) {
+                        m_isohelpers.insert(IsoHelperPair(C->type(t), IsoHelperPtr(new IsoVariableHelper(C->type(t), m_backup_prefix))));
+                    }
                 }
             }
         }
     }
-
     CorrectionCode IsolationCloseByCorrectionTool::getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons, xAOD::MuonContainer* Muons, xAOD::PhotonContainer* Photons, int topoetconeModel) const {
         if (!m_isInitialised) {
             ATH_MSG_ERROR("The IsolationCloseByCorrectionTool was not initialised!!!");
@@ -194,13 +200,6 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
         else if (particle->type() == xAOD::Type::ObjectType::Photon) return &m_photon_isoTypes;
         return nullptr;
     }
-    CorrectionCode IsolationCloseByCorrectionTool::performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer* Cont2) const {
-        if (!Cont1 || !Cont2) {
-            ATH_MSG_VERBOSE("One of the containers is empty");
-            return CorrectionCode::Ok;
-        }
-        return CorrectionCode::Ok;
-    }
     CorrectionCode IsolationCloseByCorrectionTool::subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel) const {
         TrackCollection Tracks;
         ClusterCollection Clusters;
@@ -225,7 +224,9 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
                     return CorrectionCode::Error;
                 }
             }
-            if (isTopoEtIso(t)) {
+            // For particle flow it's a good approximation
+            // to subtract the close-by topological clusters from the cone
+            if (isTopoEtIso(t) || isPFlowIso(t)) {
                 if (getCloseByCorrectionTopoIso(Cone, par, t, AssocClusters) == CorrectionCode::Error) { 
                     ATH_MSG_ERROR("Failed to apply topo cluster correction");
                     return CorrectionCode::Error;
@@ -242,8 +243,9 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         }
         corrections = std::vector<float>(types.size(), 0);
+        m_Vtx = retrieveIDBestPrimaryVertex();
         TrackCollection Tracks;
-        getTrackCandidates(&closePar, retrieveIDBestPrimaryVertex(), Tracks);
+        getTrackCandidates(&closePar, m_Vtx, Tracks);
         ClusterCollection Clusters;
         if (topoetconeModel == TopoConeCorrectionModel::DirectCaloClusters) getClusterCandidates(&closePar, Clusters);
         std::vector<float>::iterator Cone = corrections.begin();
@@ -423,7 +425,7 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
     CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, IsoType type, const ClusterCollection& clusters) const {
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
-        } else if (!isTopoEtIso(type)) {
+        } else if (!(isTopoEtIso(type) || isPFlowIso(type))) {
             ATH_MSG_ERROR("Invalid isolation type");
             return CorrectionCode::Error;
         }
@@ -543,7 +545,7 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
                 eta = cluster->eta();
             }
         }
-    }
+    }   
     Root::TAccept IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel) const {
         Root::TAccept accept;
         if (!m_isInitialised) {
@@ -563,7 +565,6 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
         }
 
         if (closePar.empty()) return m_selectorTool->accept(x);
-
         accept.clear();
         strObj strPar;
         strPar.isolationValues.resize(xAOD::Iso::numIsolationTypes);
@@ -588,6 +589,7 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
     }
 
     Root::TAccept IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
+        ATH_MSG_WARNING("This method is depreciated and will be removed in the near future. Please consider not using it");
         xAOD::IParticleContainer Container(SG::VIEW_ELEMENTS);
         for (auto&P : closePar)
             Container.push_back(const_cast<xAOD::IParticle*>(P));
@@ -611,7 +613,7 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
 
     double IsolationCloseByCorrectionTool::coneSize(const xAOD::IParticle* P, IsoType Cone) const {
         double ConeDR = xAOD::Iso::coneSize(Cone);
-        if (isVarTrackIso(Cone)) {
+        if (isVarTrackIso(Cone) || isVarTrackIsoTTVA(Cone)) {
             const xAOD::IParticle* Reference = trackIsoRefPart(P);
             double MiniIso = m_ptvarconeRadius / unCalibPt(Reference);
             if (MiniIso < ConeDR) return MiniIso;
@@ -669,39 +671,28 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
         return (P == P1);
     }
 
-    double IsolationCloseByCorrectionTool::deltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1, bool /*AvgCalo*/) const {
+    double IsolationCloseByCorrectionTool::deltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1, bool AvgCalo) const {
         if (!P || !P1) {
             ATH_MSG_WARNING("IsolationCloseByCorrectionTool::deltaR2(): One of the given Particles points to nullptr return 1.e4");
             return 1.e4;
         }
         if (isSame(P, P1)) return 0.;
         //Check if one of the objects is a CaloCluster or the Averaging over the clusters is requested.
-//        if (AvgCalo || (P->type() != P1->type() && (P->type() == xAOD::Type::ObjectType::CaloCluster || P1->type() == xAOD::Type::ObjectType::CaloCluster))) {
-//            float phi1(0), eta1(0), eta2(0), phi2(0);
-//            getExtrapEtaPhi(P, eta1, phi1);
-//            getExtrapEtaPhi(P1, eta2, phi2);
-//            double dPhi = xAOD::P4Helpers::deltaPhi(phi1, phi2);
-//            double dEta = eta1 - eta2;
-//            return dEta * dEta + dPhi * dPhi;
-//        }
+        if (AvgCalo || (P->type() != P1->type() && (P->type() == xAOD::Type::ObjectType::CaloCluster || P1->type() == xAOD::Type::ObjectType::CaloCluster))) {
+            float phi1(0), eta1(0), eta2(0), phi2(0);
+            getExtrapEtaPhi(P, eta1, phi1);
+            getExtrapEtaPhi(P1, eta2, phi2);
+            double dPhi = xAOD::P4Helpers::deltaPhi(phi1, phi2);
+            double dEta = eta1 - eta2;
+            return dEta * dEta + dPhi * dPhi;
+            
+        }
         double dPhi = xAOD::P4Helpers::deltaPhi(P, P1);
         double dEta = P->eta() - P1->eta();
         return dEta * dEta + dPhi * dPhi;
     }
     bool IsolationCloseByCorrectionTool::overlap(const xAOD::IParticle* P, const xAOD::IParticle* P1, double dR) const {
         return (!isSame(P, P1) && deltaR2(P, P1) < (dR * dR));
-    }
-    bool IsolationCloseByCorrectionTool::isFixedTrackIso(xAOD::Iso::IsolationType Iso) const {
-        return xAOD::Iso::IsolationFlavour::ptcone == xAOD::Iso::isolationFlavour(Iso);
-    }
-    bool IsolationCloseByCorrectionTool::isVarTrackIso(xAOD::Iso::IsolationType Iso) const {
-        return xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(Iso);
-    }
-    bool IsolationCloseByCorrectionTool::isTrackIso(xAOD::Iso::IsolationType Iso) const {
-        return isVarTrackIso(Iso) || isFixedTrackIso(Iso) || isTrackIsoTTVA(Iso);
-    }
-    bool IsolationCloseByCorrectionTool::isTopoEtIso(xAOD::Iso::IsolationType Iso) const {
-        return xAOD::Iso::IsolationFlavour::topoetcone == xAOD::Iso::isolationFlavour(Iso);
     }
     float IsolationCloseByCorrectionTool::getOriginalIsolation(const xAOD::IParticle* particle, IsoType isoVariable) const {
         IsoHelperMap::const_iterator itr = m_isohelpers.find(isoVariable);
@@ -758,9 +749,6 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
             ATH_MSG_WARNING("topoEtIsoRefPart(): Nullptr given");
             return nullptr;
         }
-        //Use for Muons the associated track particle
-//        if (particle->type() == xAOD::Type::ObjectType::Muon) return getTrackParticle(P);
-        //Electrons and photons shall use the cluster as reference
         if (isEgamma(particle)) return getCluster(particle);
         return particle;
     }
@@ -777,31 +765,44 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
         ATH_MSG_WARNING("No cluster was found");
         return nullptr;
     }
-    bool IsolationCloseByCorrectionTool::isFixedTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const {
-        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(Iso);
+    bool IsolationCloseByCorrectionTool::isFixedTrackIso(xAOD::Iso::IsolationType type) const {
+        return xAOD::Iso::IsolationFlavour::ptcone == xAOD::Iso::isolationFlavour(type);
+    }
+    bool IsolationCloseByCorrectionTool::isVarTrackIso(xAOD::Iso::IsolationType type) const {
+        return xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(type);
+    }
+    bool IsolationCloseByCorrectionTool::isTrackIso(xAOD::Iso::IsolationType type) const {
+        return isVarTrackIso(type) || isFixedTrackIso(type) || isTrackIsoTTVA(type);
+    }
+    bool IsolationCloseByCorrectionTool::isTopoEtIso(xAOD::Iso::IsolationType type) const {
+        return xAOD::Iso::IsolationFlavour::topoetcone == xAOD::Iso::isolationFlavour(type);
+    }
+    bool IsolationCloseByCorrectionTool::isFixedTrackIsoTTVA(xAOD::Iso::IsolationType type) const {
+        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(type);
         return xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt1000 == flavour;        
     }
-    bool IsolationCloseByCorrectionTool::isVarTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const {
-        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(Iso);
+    bool IsolationCloseByCorrectionTool::isVarTrackIsoTTVA(xAOD::Iso::IsolationType type) const {
+        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(type);
         return xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt1000 == flavour;        
     }
-    bool IsolationCloseByCorrectionTool::isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const {
-        return isFixedTrackIsoTTVA(Iso) || isVarTrackIsoTTVA(Iso);
+    bool IsolationCloseByCorrectionTool::isTrackIsoTTVA(xAOD::Iso::IsolationType type) const {
+        return isFixedTrackIsoTTVA(type) || isVarTrackIsoTTVA(type);
     }
     void IsolationCloseByCorrectionTool::printIsolationCones(const IsoVector & types, xAOD::Type::ObjectType T) const {
-        ATH_MSG_INFO("The following cones are considered for "<<particleName(T));
+        ATH_MSG_INFO("The following isolation cones are considered for "<<particleName(T));
         for (const auto& cone : types) {
             ATH_MSG_INFO("     --- "<<xAOD::Iso::toString(cone));
         }
     }
-    float IsolationCloseByCorrectionTool::trackPtCut(xAOD::Iso::IsolationType Iso) const {
-        if (!isTrackIsoTTVA(Iso)) return -1;        
-        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(Iso);
+    float IsolationCloseByCorrectionTool::trackPtCut(xAOD::Iso::IsolationType type) const {
+        if (!isTrackIso(type)) return -1;        
+        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(type);
         if (flavour == xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt500) return 500;
         else if (flavour == xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt500) return 500;
-        else if (flavour == xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt1000) return 1000;
-        else if (flavour == xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt1000) return 1000;
-        return -1;
-    }
-            
+        return 1000;
+    } 
+    bool IsolationCloseByCorrectionTool::isPFlowIso(xAOD::Iso::IsolationType type) const{
+        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(type);
+        return flavour == xAOD::Iso::IsolationFlavour::neflowisol;
+    }       
 }

@@ -155,8 +155,6 @@ namespace CP {
         std::string varname(xAOD::Iso::toString(isoCutRemap));
         key += varname;
 
-        // Stupid ROOT, this is silly, why do I need to do this????? why????
-        // Create a unique directory in memory to hold the histograms:
         TDirectory* tempDir = getTemporaryDirectory();
         tempDir->cd();
 
@@ -292,7 +290,7 @@ namespace CP {
         } else if (phWPname == "FixedCutLoose") {
             wp->addCut(new IsolationConditionFormula("PhFixedCut_calo20", xAOD::Iso::topoetcone20, "0.065*x"));
             wp->addCut(new IsolationConditionFormula("PhFixedCut_track20", xAOD::Iso::ptcone20, "0.05*x"));
-	} else {
+        } else {
             ATH_MSG_ERROR("Unknown photon isolation WP: " << phWPname);
             delete wp;
             return StatusCode::FAILURE;
@@ -345,11 +343,11 @@ namespace CP {
         } else if (elWPname == "FixedCutLoose") {
             wp->addCut(new IsolationConditionFormula("FixedCutLoose_track", xAOD::Iso::ptvarcone20, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("FixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
-	}else if(elWPname == "FixedCutHighPtCaloOnly"){
-	    wp->addCut(new IsolationConditionFormula("topoetcone20_3p5",    xAOD::Iso::topoetcone20, "3.5E03")); //units are MeV!
-	}else if(elWPname == "FCHighPtCaloOnly"){
-	    wp->addCut(new IsolationConditionFormula("FCHighPtCaloOnly_calo",    xAOD::Iso::topoetcone20, "std::max(0.015*x,3.5E3)")); //units are MeV!
-	}else if(elWPname == "FixedCutTrackCone40"){
+        }else if(elWPname == "FixedCutHighPtCaloOnly"){
+            wp->addCut(new IsolationConditionFormula("topoetcone20_3p5",    xAOD::Iso::topoetcone20, "3.5E03")); //units are MeV!
+        }else if(elWPname == "FCHighPtCaloOnly"){
+            wp->addCut(new IsolationConditionFormula("FCHighPtCaloOnly_calo",    xAOD::Iso::topoetcone20, "std::max(0.015*x,3.5E3)")); //units are MeV!
+        }else if(elWPname == "FixedCutTrackCone40"){
 	    wp->addCut(new IsolationConditionFormula("FixedCutTC40_track",  xAOD::Iso::ptvarcone40,  "0.06*x"));
 	    wp->addCut(new IsolationConditionFormula("FixedCutTC40_calo",   xAOD::Iso::topoetcone20, "0.11*x"));
         } else if (elWPname == "FCTightTrackOnly_FixedRad") {

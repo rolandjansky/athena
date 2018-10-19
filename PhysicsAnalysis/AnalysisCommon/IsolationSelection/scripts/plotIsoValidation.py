@@ -3,6 +3,18 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 import os, sys, re, ROOT, argparse
 from math import fabs
+
+
+def DrawTLatex(x, y, text, size=18, font=43, align=11):
+    tex = ROOT.TLatex()
+    tex.SetTextAlign(align)
+    tex.SetTextSize(size)
+    tex.SetTextFont(font)
+    tex.SetNDC()
+    tex.DrawLatex(x, y, text)
+
+
+
 def saveHisto(plot_options, histo):
     if not histo.GetEntries(): return False
     
@@ -11,8 +23,13 @@ def saveHisto(plot_options, histo):
     c1 = ROOT.TCanvas(Canvas_Name, "canvas", 800 , 600)
     
     c1.cd()
+    c1.SetTopMargin(0.15)
+    c1.SetRightMargin(0.18)
+    c1.SetLeftMargin(0.12)
     if histo.GetDimension() == 1: histo.Draw()
     else: histo.Draw("colz")
+    DrawTLatex(c1.GetLeftMargin(), 0.92,"%s (%s)" %(histo.GetTitle(), "corrected" if plot_options.useCorrectedCones else "vanilla") )
+    
     c1.SaveAs("%s/%s.pdf"%(options.outDir, Canvas_Name))
     c1.SaveAs("%s/AllIsolationPlots_%s.pdf"%(options.outDir, "Corr" if options.useCorrectedCones else "Orig" ))
     
@@ -45,9 +62,9 @@ if __name__ == '__main__':
     ###################################################################
     # Prepare the histograms to be filled in the simple analysis.
     ###################################################################
-    Elec_Track_Iso = ROOT.TH1D("ele_track_iso", "track isolation", 55, -5, 50)
+    Elec_Track_Iso = ROOT.TH1D("elec_track_iso", "track isolation", 55, -5, 50)
     Elec_Track_Iso.GetXaxis().SetTitle(" p_{T}^{TrackIsolation} (electrons) [GeV]")
-    Elec_Calo_Iso = ROOT.TH1D("ele_calo_iso", "calorimeter isolation", 55, -5, 50)
+    Elec_Calo_Iso = ROOT.TH1D("elec_calo_iso", "calorimeter isolation", 55, -5, 50)
     Elec_Calo_Iso.GetXaxis().SetTitle(" E_{T}^{CaloIsolation} (electrons) [GeV]")
     
     Muon_Track_Iso = ROOT.TH1D("muon_track_iso", "track isolation", 55, -5, 50)
@@ -56,9 +73,9 @@ if __name__ == '__main__':
     Muon_Calo_Iso.GetXaxis().SetTitle(" E_{T}^{CaloIsolation} (muons) [GeV]")
 
     ### Isolation / pt of the particles
-    Elec_RelTrack_Iso = ROOT.TH1D("ele_rel_track_iso", "track isolation", 52, -0.04, 1)
+    Elec_RelTrack_Iso = ROOT.TH1D("elec_rel_track_iso", "track isolation", 52, -0.04, 1)
     Elec_RelTrack_Iso.GetXaxis().SetTitle("p_{T}^{TrackIsolation} / p_{T} (electrons)")
-    Elec_RelCalo_Iso = ROOT.TH1D("ele_rel_calo_iso", "track isolation", 52, -0.04, 1)
+    Elec_RelCalo_Iso = ROOT.TH1D("elec_rel_calo_iso", "track isolation", 52, -0.04, 1)
     Elec_RelCalo_Iso.GetXaxis().SetTitle("E_{T}^{CaloIsolation} / p_{T} (electrons)")
     
     Muon_RelTrack_Iso = ROOT.TH1D("muon_rel_track_iso", "track isolation", 52, -0.04, 1)
@@ -71,7 +88,7 @@ if __name__ == '__main__':
     Elec_Track_polution_dR.GetXaxis().SetTitle("#Delta R (e, #it{l})")
     Elec_Track_polution_dR.GetYaxis().SetTitle("p_{T}^{TrackIsolation}(electrons) / p_{T}( Associated close-by track)")
     
-    Elec_Topo_polution_dR = ROOT.TH2D("elec_topo_polution_dR", "calorimeter isolation against dR",50, 0, 0.5, 100, -1.5, 1.5)
+    Elec_Topo_polution_dR = ROOT.TH2D("elec_calo_polution_dR", "calorimeter isolation against dR",50, 0, 0.5, 100, -1.5, 1.5)
     Elec_Topo_polution_dR.GetXaxis().SetTitle("#Delta R (e, #it{l})")
     Elec_Topo_polution_dR.GetYaxis().SetTitle("E_{T}^{CaloIsolation} (electrons) / E_{T}( Associated close-by cluster)")
     
@@ -79,14 +96,18 @@ if __name__ == '__main__':
     Muon_Track_polution_dR.GetXaxis().SetTitle("#Delta R (#mu, #it{l})")
     Muon_Track_polution_dR.GetYaxis().SetTitle("p_{T}^{TrackIsolation}(muons) / p_{T}( Associated close-by track)")
     
-    Muon_Topo_polution_dR = ROOT.TH2D("muon_topo_polution_dR", "calorimeter isolation against dR", 50, 0, 0.5, 100, -1.5, 1.5)
+    Muon_Topo_polution_dR = ROOT.TH2D("muon_calo_polution_dR", "calorimeter isolation against dR", 50, 0, 0.5, 100, -1.5, 1.5)
     Muon_Topo_polution_dR.GetXaxis().SetTitle("#Delta R (#mu, #it{l})")
     Muon_Topo_polution_dR.GetYaxis().SetTitle("E_{T}^{CaloIsolation} (muons) / E_{T}( Associated close-by cluster)")
     
-    AllHistos = [Elec_Track_Iso, Elec_Calo_Iso ,  
-                 Muon_Track_Iso, Muon_Calo_Iso, 
-                 Elec_RelTrack_Iso, Muon_RelTrack_Iso,
-                 Elec_RelCalo_Iso, Muon_RelCalo_Iso,
+    AllHistos = [Elec_Track_Iso, 
+                 Elec_Calo_Iso ,  
+                 Muon_Track_Iso, 
+                 Muon_Calo_Iso, 
+                 Elec_RelTrack_Iso, 
+                 Muon_RelTrack_Iso,
+                 Elec_RelCalo_Iso, 
+                 Muon_RelCalo_Iso,
                  Elec_Track_polution_dR, 
                  Elec_Topo_polution_dR,
                  Muon_Track_polution_dR,
@@ -94,35 +115,45 @@ if __name__ == '__main__':
                  ]
     treeReader = ROOT.TTreeReader("IsoCorrTest", inFile)
     branch_names = [ B.GetName() for B in anaTree.GetListOfBranches() ]
+    ### Find the isolation variables in the list of branches
+    mu_trk_cone_names = [b [ b.find("Corr" if options.useCorrectedCones else "Orig") + 5 :] for b in branch_names if b.find("Muons_%s_pt"%("Corr" if options.useCorrectedCones else "Orig")) != -1]
+    mu_calo_cone_names =  [ b [ b.find("Corr" if options.useCorrectedCones else "Orig") + 5 :] for b in branch_names if b.find("Muons_%s_topo"%("Corr" if options.useCorrectedCones else "Orig")) != -1 or
+                                                       b.find("Muons_%s_neflow"%("Corr" if options.useCorrectedCones else "Orig")) != -1 
+                                                    ]
+   
+    el_trk_cone_names = [ b [ b.find("Corr" if options.useCorrectedCones else "Orig") + 5 :] for b in branch_names if b.find("Electrons_%s_pt"%("Corr" if options.useCorrectedCones else "Orig")) != -1]
+    el_calo_cone_names =  [ b [ b.find("Corr" if options.useCorrectedCones else "Orig") + 5 :] for b in branch_names if b.find("Electrons_%s_topo"%("Corr" if options.useCorrectedCones else "Orig")) != -1 or
+                                                       b.find("Electrons_%s_neflow"%("Corr" if options.useCorrectedCones else "Orig")) != -1 
+                          ]
+   
+    if len (el_calo_cone_names) > 0:
+        for H in [H for H in AllHistos if H.GetName().find("elec") != -1 and H.GetName().find("calo") != -1]: H.SetTitle(el_calo_cone_names[0])
+    if len (el_trk_cone_names) > 0:
+        for H in [H for H in AllHistos if H.GetName().find("elec") != -1 and H.GetName().find("track") != -1]: H.SetTitle(el_trk_cone_names[0])
+    if len (mu_calo_cone_names) > 0:
+        for H in [H for H in AllHistos if H.GetName().find("muon") != -1 and H.GetName().find("calo") != -1]: H.SetTitle(mu_calo_cone_names[0])
+    if len (mu_trk_cone_names) > 0:
+        for H in [H for H in AllHistos if H.GetName().find("muon") != -1 and H.GetName().find("track") != -1]: H.SetTitle(mu_trk_cone_names[0])
+   
+   
     mu_pt = ROOT.TTreeReaderArray(float)(treeReader,  "Muons_pt")
     mu_eta = ROOT.TTreeReaderArray(float)(treeReader, "Muons_eta")
     mu_phi = ROOT.TTreeReaderArray(float)(treeReader, "Muons_phi")
     mu_trk = ROOT.TTreeReaderArray(float)(treeReader, "Muons_trackPt")
-    print [b for b in branch_names if b.find("Muons_%s_topo"%("Corr" if options.useCorrectedCones else "Orig")) != -1 or
-                                                       b.find("Muons_%s_neflow"%("Corr" if options.useCorrectedCones else "Orig")) != -1 
     
-                                                    ]
-    
-    try:
-        mu_trk_iso =  ROOT.TTreeReaderArray(float)(treeReader, [b for b in branch_names if b.find("Muons_%s_pt"%("Corr" if options.useCorrectedCones else "Orig")) != -1][0])
-    except: mu_trk_iso = None
-    try:
-        mu_calo_iso =  ROOT.TTreeReaderArray(float)(treeReader, [b for b in branch_names 
-                                                    if b.find("Muons_%s_topo"%("Corr" if options.useCorrectedCones else "Orig")) != -1 or
-                                                       b.find("Muons_%s_neflow"%("Corr" if options.useCorrectedCones else "Orig")) != -1 
-                                                    ][0])
-    except:
-        mu_calo_iso = None
+    mu_trk_iso =  ROOT.TTreeReaderArray(float)(treeReader,  "Muons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig", mu_trk_cone_names[0])) if len(mu_trk_cone_names) > 0 else None
+    mu_calo_iso =  ROOT.TTreeReaderArray(float)(treeReader, "Muons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig",mu_calo_cone_names[0])) if len (mu_calo_cone_names) > 0 else None
             
     el_pt = ROOT.TTreeReaderArray(float)(treeReader,  "Electrons_pt")
     el_eta = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_eta")
     el_phi = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_phi")
     el_trk = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_trackPt")
     el_clu = ROOT.TTreeReaderArray(float)(treeReader, "Electrons_clusterEt")
-    try:
-       el_trk_iso =  ROOT.TTreeReaderArray(float)(treeReader, [b for b in branch_names if b.find("Electrons_%s_pt"%("Corr" if options.useCorrectedCones else "Orig")) != -1][0])
-    except:
-        el_trk_iso = None
+    
+    el_trk_iso =  ROOT.TTreeReaderArray(float)(treeReader,  "Electrons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig", el_trk_cone_names[0])) if len(el_trk_cone_names) > 0 else None
+    el_calo_iso =  ROOT.TTreeReaderArray(float)(treeReader, "Electrons_%s_%s"%("Corr" if options.useCorrectedCones else "Orig",el_calo_cone_names[0])) if len(el_calo_cone_names) > 0 else None
+    
+        
     
     while treeReader.Next():
         muon_t_vec = []
@@ -142,23 +173,28 @@ if __name__ == '__main__':
             if mu_trk_iso:
                 Muon_Track_Iso.Fill(mu_trk_iso[m] / 1.e3)
                 Muon_RelTrack_Iso.Fill( mu_trk_iso[m]/ mu.Pt())
+            if mu_calo_iso:
+                Muon_Calo_Iso.Fill(mu_calo_iso[m] / 1.e3)
+                Muon_RelTrack_Iso.Fill(mu_calo_iso[m] / mu.Pt())
+                
             for m1 in range(m):
-                if mu_trk_iso: Muon_Track_polution_dR.Fill( mu.DeltaR(muon_t_vec[m1]), mu_trk_iso[m] / mu_trk[m1]  if fabs(mu_trk_iso[m]) > 1.e3 else 0)
+                if mu_trk_iso: Muon_Track_polution_dR.Fill( mu.DeltaR(muon_t_vec[m1]), mu_trk_iso[m] / mu_trk[m1] )
                     
             for e, el  in enumerate(elec_t_vec):
-                if mu_trk_iso: Muon_Track_polution_dR.Fill( mu.DeltaR(el), mu_trk_iso[m] / el_trk[e]  if fabs(mu_trk_iso[m]) > 1.e3 else 0 )
-            
+                if mu_trk_iso: Muon_Track_polution_dR.Fill( mu.DeltaR(el), mu_trk_iso[m] / el_trk[e]  )
+                if mu_calo_iso: Muon_Topo_polution_dR.Fill( mu.DeltaR(el), mu_calo_iso[m] / el_clu[e] )
         ### Fill the muon histogram
         for e, el in enumerate(elec_t_vec):
             if el_trk_iso:
                 Elec_Track_Iso.Fill(el_trk_iso[e] / 1.e3)
                 Elec_RelTrack_Iso.Fill( el_trk_iso[e]/ el.Pt())
             for e1 in range(e):
-                if el_trk_iso: Elec_Track_polution_dR.Fill( el.DeltaR(elec_t_vec[e1]), el_trk_iso[e] / el_trk[e1]  if fabs(el_trk_iso[e]) > 1.e3 else 0)
-                    
+                if el_trk_iso: Elec_Track_polution_dR.Fill( el.DeltaR(elec_t_vec[e1]), el_trk_iso[e] / el_trk[e1] )
+                if el_calo_iso: Elec_Topo_polution_dR.Fill( el.DeltaR(elec_t_vec[e1]), el_calo_iso[e] / el_clu[e1] )
+       
             for m, mu  in enumerate(muon_t_vec):
-                if el_trk_iso: Elec_Track_polution_dR.Fill( mu.DeltaR(el), el_trk_iso[e] / mu_trk[m] if fabs(el_trk_iso[e]) > 1.e3 else 0)
- 
+                if el_trk_iso: Elec_Track_polution_dR.Fill( mu.DeltaR(el), el_trk_iso[e] / mu_trk[m])
+                
 
     # do this here, since before it destroys the argparse
     ROOT.gROOT.Macro("rootlogon.C")

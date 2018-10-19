@@ -72,10 +72,10 @@ namespace CP {
             template<typename T> bool isElementInList(const std::set<T> &List, const T& Element) const;
 
             CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
-            CorrectionCode performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer* Cont2) const;
 
             const IsoVector* getIsolationTypes(const xAOD::IParticle*  particle) const;
             //Functions to  perfrom  the isolation correction  directly
+           
             CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
             CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle*  particlear, IsoType type, const TrackCollection& tracks) const;
             CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle*  particlear, IsoType type, const ClusterCollection& clusters) const;
@@ -101,21 +101,29 @@ namespace CP {
 
             float caloCorrectionFraction(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, float ConeSize, int Model) const;
             float caloCorrectionFromDecorator(const xAOD::IParticle* ToCorrect, const xAOD::IParticle* CloseBy, float ConeSize, int Model) const;
-
-            bool isFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
-            bool isVarTrackIso(xAOD::Iso::IsolationType Iso) const;
             
-            bool isFixedTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            // Fixed cone size isolation variables
+            bool isFixedTrackIso(xAOD::Iso::IsolationType type) const;
+            // Any trackisolation variable with variable con size
+            bool isVarTrackIso(xAOD::Iso::IsolationType type) const;
+                        
+            bool isFixedTrackIsoTTVA(xAOD::Iso::IsolationType type) const;
+            // PtVarcones of the pile-up robust isolation variables
             bool isVarTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            //  Any track isolation variable
+            bool isTrackIso(xAOD::Iso::IsolationType type) const;
+            // Pileup robust track isolation variables
+            bool isTrackIsoTTVA(xAOD::Iso::IsolationType type) const;
+            // The pile-up robust isolation cones only accept
+            // tracks with a minimum pt requirement
+            float trackPtCut(xAOD::Iso::IsolationType type) const;
             
-            bool isTrackIso(xAOD::Iso::IsolationType Iso) const;
-            bool isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            bool isTopoEtIso(xAOD::Iso::IsolationType type) const;
             
-            float trackPtCut(xAOD::Iso::IsolationType Iso) const;
+            bool isPFlowIso(xAOD::Iso::IsolationType type) const;
             
-            bool isTopoEtIso(xAOD::Iso::IsolationType Iso) const;
 
-            bool isEgamma(const xAOD::IParticle*  particle) const;
+            bool isEgamma(const xAOD::IParticle* particle) const;
 
             const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle*  particle, bool force_id = false) const;
             const xAOD::IParticle* trackIsoRefPart(const xAOD::IParticle*  particle) const;
