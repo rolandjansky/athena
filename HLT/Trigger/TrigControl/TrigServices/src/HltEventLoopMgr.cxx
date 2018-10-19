@@ -113,7 +113,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
                   "Fraction of the hard timeout to be set as the soft timeout");
   declareProperty("MaxFrameworkErrors",       m_maxFrameworkErrors=0,
                   "Tolerable number of recovered framework errors before exiting (<0 means all are tolerated)");
-  declareProperty("DebugStreamName",          m_debugStreamName="HLTMissingData");
+  declareProperty("FwkErrorDebugStreamName",  m_fwkErrorDebugStreamName="HLTMissingData");
+  declareProperty("AlgErrorDebugStreamName",  m_algErrorDebugStreamName="HLTError");
   declareProperty("EventContextWHKey",        m_eventContextWHKey="EventContext");
   declareProperty("EventInfoRHKey",           m_eventInfoRHKey="ByteStreamEventInfo");
 
@@ -171,24 +172,25 @@ StatusCode HltEventLoopMgr::initialize()
   }
 
   // print properties
-  ATH_MSG_INFO(" ---> ApplicationName        = " << m_applicationName);
-  ATH_MSG_INFO(" ---> PartitionName          = " << m_partitionName);
-  ATH_MSG_INFO(" ---> JobOptionsType         = " << m_jobOptionsType);
-  ATH_MSG_INFO(" ---> HardTimeout            = " << m_hardTimeout);
-  ATH_MSG_INFO(" ---> SoftTimeoutFraction    = " << m_softTimeoutFraction);
-  ATH_MSG_INFO(" ---> MaxFrameworkErrors     = " << m_maxFrameworkErrors);
-  ATH_MSG_INFO(" ---> DebugStreamName        = " << m_debugStreamName);
-  ATH_MSG_INFO(" ---> EventContextWHKey      = " << m_eventContextWHKey.key());
-  ATH_MSG_INFO(" ---> EventInfoRHKey         = " << m_eventInfoRHKey.key());
+  ATH_MSG_INFO(" ---> ApplicationName         = " << m_applicationName);
+  ATH_MSG_INFO(" ---> PartitionName           = " << m_partitionName);
+  ATH_MSG_INFO(" ---> JobOptionsType          = " << m_jobOptionsType);
+  ATH_MSG_INFO(" ---> HardTimeout             = " << m_hardTimeout);
+  ATH_MSG_INFO(" ---> SoftTimeoutFraction     = " << m_softTimeoutFraction);
+  ATH_MSG_INFO(" ---> MaxFrameworkErrors      = " << m_maxFrameworkErrors);
+  ATH_MSG_INFO(" ---> FwkErrorDebugStreamName = " << m_fwkErrorDebugStreamName);
+  ATH_MSG_INFO(" ---> AlgErrorDebugStreamName = " << m_algErrorDebugStreamName);
+  ATH_MSG_INFO(" ---> EventContextWHKey       = " << m_eventContextWHKey.key());
+  ATH_MSG_INFO(" ---> EventInfoRHKey          = " << m_eventInfoRHKey.key());
   if (jobOptionsSvc.isValid()) {
     const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
     if (prop)
-      ATH_MSG_INFO(" ---> NumConcurrentEvents    = " << *prop);
+      ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << *prop);
     else
       ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property EventDataSvc.NSlots";
     prop = jobOptionsSvc->getClientProperty("AvalancheSchedulerSvc","ThreadPoolSize");
     if (prop)
-      ATH_MSG_INFO(" ---> NumThreads             = " << *prop);
+      ATH_MSG_INFO(" ---> NumThreads              = " << *prop);
     else
       ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize";
   }
@@ -1139,13 +1141,15 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   //----------------------------------------------------------------------------
   hltResultWH->addStatusWord( static_cast<uint32_t>(errorCode) );
   bool debugStreamAdded = false;
+  std::string debugStreamName = (errorCode==hltonl::PSCErrorCode::PROCESSING_FAILURE) ?
+                                m_algErrorDebugStreamName.value() : m_fwkErrorDebugStreamName.value();
   for (const auto& st : hltResultWH->getStreamTags()) {
-    if (st.name==m_debugStreamName.value() && eformat::helper::string_to_tagtype(st.type)==eformat::DEBUG_TAG) {
+    if (st.name==debugStreamName && eformat::helper::string_to_tagtype(st.type)==eformat::DEBUG_TAG) {
       debugStreamAdded = true;
       break;
     }
   }
-  if (!debugStreamAdded) hltResultWH->addStreamTag({m_debugStreamName.value(),eformat::DEBUG_TAG,true});
+  if (!debugStreamAdded) hltResultWH->addStreamTag({debugStreamName,eformat::DEBUG_TAG,true});
 
   //----------------------------------------------------------------------------
   // Try to build and send the output

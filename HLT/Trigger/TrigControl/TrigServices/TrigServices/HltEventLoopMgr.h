@@ -223,8 +223,10 @@ private:
 
   /// Tolerable number of recovered framework errors
   IntegerProperty m_maxFrameworkErrors;
-  /// Name of the debug stream for events with HLT errors
-  StringProperty m_debugStreamName;
+  /// Name of the debug stream for events with HLT framework errors
+  StringProperty m_fwkErrorDebugStreamName;
+  /// Name of the debug stream for events with HLT algorithm errors
+  StringProperty m_algErrorDebugStreamName;
 
   /// StoreGate key for recording EventContext
   SG::WriteHandleKey<EventContext> m_eventContextWHKey;
