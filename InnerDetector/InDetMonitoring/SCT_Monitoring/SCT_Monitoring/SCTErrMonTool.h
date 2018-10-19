@@ -14,7 +14,6 @@
 #define SCTERRMONTOOL_H
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -44,8 +43,11 @@ class StatusCode;
 class SCT_ID;
 class SCT_ModuleStatistics;
 class ISCT_ByteStreamErrorsSvc;
+class ISCT_DCSConditionsSvc;
+class IInDetConditionsSvc;
 class TString;
-namespace InDetDD//11.09.2016
+
+namespace InDetDD
 {
   class SCT_DetectorManager;
 }
@@ -58,7 +60,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //First element of pair is minimum second is maximum.
   typedef std::pair< std::pair<double, double>, std::pair<double, double> > moduleGeo_t;
   typedef std::map< IdentifierHash, moduleGeo_t > geoContainer_t;
-  typedef std::map< Identifier, moduleGeo_t > geoContainerPure_t;
+
  public:
   SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent);
   virtual ~SCTErrMonTool();
@@ -236,7 +238,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   /** a handle on the Hist/TTree registration service */
   ServiceHandle<ITHistSvc> m_thistSvc;
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
-  //  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+  ServiceHandle<ISCT_DCSConditionsSvc> m_dcsSvc;
+  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
   bool                                     m_checkBadModules;
   bool                                     m_ignore_RDO_cut_online;
   bool                                     m_CoverageCheck;
@@ -257,31 +260,44 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   Prof2_t
     prof2Factory(const std::string & name, const std::string & title, const unsigned int&, VecProf2_t & storageVector);
 
-  bool SyncDisabledSCT();
-  bool SyncErrorSCT();
+  bool syncDisabledSCT();
+  bool syncErrorSCT();
+  bool summarySCT();
+  bool psTripDCSSCT();
+  bool eventVsWafer();
 
   void fillModule( moduleGeo_t module,  TH2F* histo );
   double calculateDetectorCoverage(const TH2F * histo );
 
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
-  geoContainerPure_t m_disabledGeoSCT;
-  geoContainer_t m_errorGeoSCT;
+  enum ProblemForCoverage {
+    disabled,//Disable
+    badLinkError, //link bad
+    badRODError, // ROD bad
+    badError, // link bad + ROD bad = bad error
+    psTripDCS, // power supply trip DCS
+    summary, //total coverage using SCT_ConditionsSummarySvc
+    numberOfProblemForCoverage
+  };
 
-  TH2F * m_disabledModulesMapSCT;
-  TH2F * m_errorModulesMapSCT;
-  TH2F * m_totalModulesMapSCT;
+  std::vector<moduleGeo_t> m_geo;
+  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
+  TH2F * m_mapSCT[numberOfProblemForCoverage];
 
   const unsigned int m_nBinsEta;
   const double 		 m_rangeEta;
   const unsigned int m_nBinsPhi;
-  const double m_ModulesThreshold;
+  const double m_WafersThreshold;
 
   //TProfile * m_DisabledDetectorCoverageVsLB;
   //TProfile * m_ErrorDetectorCoverageVsLB;
-  TProfile * m_TotalDetectorCoverageVsLB;
+  TProfile * m_RODoutDetectorCoverageVsLB;
+  TProfile * m_pstripDCSDetectorCoverageVsLB;
+  TProfile * m_summaryDetectorCoverageVsLB;
+  TProfile * m_pstripWaferVsLB;
 
-
+  int  m_pswafer;
 };
 
 #endif
