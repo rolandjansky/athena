@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -260,12 +260,12 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
     i=0;
     string tag_n_r;
     string peak_tag = "-Peak";
-    char numb_n_r[3];
+    char numb_n_r[4];
 
     result->tags_["00-Number_of_found_peaks"] = peak.size();
     for(i=0;i<peak.size();i++){
-      if(i<10) sprintf(numb_n_r,"0%d",(i+1));
-      if(i>=10) sprintf(numb_n_r,"%d",(i+1));
+      if(i<10) snprintf(numb_n_r,sizeof(numb_n_r),"0%d",(i+1));
+      if(i>=10) snprintf(numb_n_r,sizeof(numb_n_r),"%d",(i+1));
       tag_n_r=(std::string)numb_n_r+peak_tag;
       result->tags_[tag_n_r] = peak[i];
     };
@@ -300,21 +300,21 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
     string run_tag ="a-";
     string ref_tag ="b-";
     string multi = "Peak";
-    char numb[3];
+    char numb[4];
 
     result->tags_["a-00-Number_of_found_peaks"] = peak.size();
     result->tags_["b-00-Number_of_found_peaks_ref"] = peak_ref.size();
 
     for(i=0;i<peak.size();i++){
-      if(i<10) sprintf(numb,"0%d",(i+1));
-      if(i>=10) sprintf(numb,"%d",(i+1));
+      if(i<10) snprintf(numb,sizeof(numb),"0%d",(i+1));
+      if(i>=10) snprintf(numb,sizeof(numb),"%d",(i+1));
       tag=run_tag+(std::string)numb+multi;
       result->tags_[tag] = peak[i];
     };
     i=0;
     for(i=0;i<peak_ref.size();i++){
-      if(i<10) sprintf(numb,"0%d",(i+1));
-      if(i>=10) sprintf(numb,"%d",(i+1));
+      if(i<10) snprintf(numb,sizeof(numb),"0%d",(i+1));
+      if(i>=10) snprintf(numb,sizeof(numb),"%d",(i+1));
       tag=ref_tag+(std::string)numb+multi;
       result->tags_[tag] = peak_ref[i];
     };
