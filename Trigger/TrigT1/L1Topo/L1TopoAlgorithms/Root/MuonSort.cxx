@@ -22,7 +22,7 @@ bool SortByEtLargestM(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
   else if( tob1->etaDouble() != tob2->etaDouble() ) return tob1->etaDouble() > tob2->etaDouble();            
   else 
     {  
-      if( (tob1->phiDouble() >=0. && tob2->phiDouble() >=0.) || (tob1->phiDouble() <=0. && tob2->phiDouble() <=0.) ) return tob1->phiDouble() < tob2->phiDouble();             
+      if( tob1->phiDouble() * tob2->phiDouble() >=0. ) return tob1->phiDouble() < tob2->phiDouble();             
       else  if( tob1->phiDouble() >=0. && tob2->phiDouble() <=0. ) return true;                                                              
       else return false;                                                                                                                   
     }                                                                                                                                       
