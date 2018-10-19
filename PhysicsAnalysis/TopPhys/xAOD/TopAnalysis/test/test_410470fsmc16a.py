@@ -17,6 +17,12 @@ os.system('art.py createpoolfile')
 cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace(".py",".txt")
 #inputfilenames = glob.glob("*.root*")
 
+try:  
+   inputfilenames=os.environ["ArtInFile"]
+except KeyError: 
+   print "Please set the environment variable ArtInFile"
+   sys.exit(1)
+
 # -- Get the validation file path from the most recent location --
 cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
                                             "DATAPATH", 
