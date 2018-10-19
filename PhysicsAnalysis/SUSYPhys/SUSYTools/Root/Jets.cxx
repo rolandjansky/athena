@@ -93,9 +93,8 @@ namespace ST {
       ATH_CHECK( this->FillJet(*jet, true) );
     }
     // Tool requires a loop over all jets
-    if (m_doFwdJVT){
-      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-    }
+    m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
+
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
       if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
@@ -267,9 +266,7 @@ namespace ST {
       ATH_CHECK( this->FillJet(*jet, false) );
     }
     // Tool requires a loop over all jets
-    if (m_doFwdJVT){
-      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-    }
+    m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
       if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){

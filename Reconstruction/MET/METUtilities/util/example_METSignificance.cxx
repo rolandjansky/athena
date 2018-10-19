@@ -30,6 +30,7 @@ int main() {
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -146,6 +147,9 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   for(size_t ievent = 0;  ievent < std::min(size_t(event->getEntries()), evtmax); ++ievent){
     if(ievent % 10 == 0) std::cout << "event number: " << ievent << std::endl;
     ANA_CHECK( event->getEntry(ievent) >= 0 );
+
+    const xAOD::EventInfo* eventinfo = 0;
+    ANA_CHECK( event->retrieve( eventinfo, "EventInfo" ) );    
 
     //retrieve the original containers
     const xAOD::MissingETContainer* coreMet  = nullptr;
@@ -276,7 +280,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
 
     // Run MET significance    
-    ANA_CHECK( metSignif->varianceMET(newMetContainer, "RefJet", "PVSoftTrk","FinalTrk"));
+    ANA_CHECK( metSignif->varianceMET(newMetContainer, eventinfo->averageInteractionsPerCrossing(), "RefJet", "PVSoftTrk","FinalTrk"));
 
     if(debug){
       if(newMetContainer->find("Muons")!=newMetContainer->end())

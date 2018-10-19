@@ -231,7 +231,8 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
 
 StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
                                       double &metSignificance, 
-                                      bool doTST, bool doJVTCut) {
+                                      bool doTST, bool doJVTCut,
+				      const float avgmu) {
 
   std::string softTerm = "SoftClus";
   if (doTST) {
@@ -240,7 +241,7 @@ StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
     ATH_MSG_WARNING( "Requested CST MET and a JVT cut.  This is not a recommended configuration - please consider switching to TST." );
   }
 
-  ATH_CHECK( m_metSignif->varianceMET( &met, m_jetTerm, softTerm, m_outMETTerm) );
+  ATH_CHECK( m_metSignif->varianceMET( &met, avgmu, m_jetTerm, softTerm, m_outMETTerm) );
   metSignificance = m_metSignif->GetSignificance();
   ATH_MSG_VERBOSE( "Obtained MET Significance: " << metSignificance  );
 

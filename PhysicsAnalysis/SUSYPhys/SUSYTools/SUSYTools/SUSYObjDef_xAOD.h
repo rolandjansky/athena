@@ -179,7 +179,7 @@ namespace ST {
 
     StatusCode GetMETSig(xAOD::MissingETContainer& met,
                          double& metSignificance,
-                         bool doTST = true, bool doJVTCut = true
+                         bool doTST = true, bool doJVTCut = true, const float avgmu = 0
 		         ) override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;

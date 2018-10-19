@@ -1171,7 +1171,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 // Initialise MET tools
 
   if (!m_metMaker.isUserConfigured()) {
-    m_metMaker.setTypeAndName("met::METMaker/METMaker_SUSYTools");
+    m_metMaker.setTypeAndName("met::METMaker/METMaker_SUSYTools_"+m_metJetSelection);
 
     ATH_CHECK( m_metMaker.setProperty("ORCaloTaggedMuons", m_metRemoveOverlappingCaloTaggedMuons) );
     ATH_CHECK( m_metMaker.setProperty("DoSetMuonJetEMScale", m_metDoSetMuonJetEMScale) );
