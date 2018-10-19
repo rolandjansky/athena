@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
@@ -47,7 +47,6 @@ StatusCode HiveMgrSvc::clearStore(size_t slotIndex) {
   if (slotIndex < m_nSlots) {
     rc=m_slots[slotIndex].pEvtStore->clearStore();
     if (rc.isSuccess()) debug() << "cleared store " << slotIndex << endmsg;
-    m_freeSlots++;
   }    
   if (!rc.isSuccess()) error() << "could not clear store " << slotIndex << endmsg;
   return rc;
@@ -111,8 +110,14 @@ size_t HiveMgrSvc::allocateStore( int evtNumber ) {
  */
 StatusCode HiveMgrSvc::freeStore( size_t slotIndex ) {
   if (slotIndex < m_nSlots) {
-    m_slots[slotIndex].eventNumber = -1;
-    debug() << "Freed slot " << slotIndex << endmsg;
+    if (m_slots[slotIndex].eventNumber == -1) {
+      debug() << "Slot " << slotIndex << " is already free" << endmsg;
+    }
+    else {
+      m_slots[slotIndex].eventNumber = -1;
+      m_freeSlots++;
+      debug() << "Freed slot " << slotIndex << endmsg;
+    }
     return StatusCode::SUCCESS;
   } else {
     error() << "no slot at " << slotIndex << endmsg;
