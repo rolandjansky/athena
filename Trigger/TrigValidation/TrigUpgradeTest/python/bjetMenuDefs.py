@@ -82,9 +82,9 @@ def bJetStep1Sequence():
     bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence] )
 
     # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
-    hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg")
+    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
     hypo.OutputJets = "SplitJets"

@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGBJETHYPO_TRIGBJETETHYPOALG_H
-#define TRIGBJETHYPO_TRIGBJETETHYPOALG_H 1
+#ifndef TRIGBJETHYPO_TRIGBJETETHYPOALGMT_H
+#define TRIGBJETHYPO_TRIGBJETETHYPOALGMT_H 1
 
 #include <string>
 
@@ -26,21 +26,19 @@
  * @brief 
  **/
 
-class TrigBjetEtHypoAlg
-  : public ::HypoBase
-{ 
+class TrigBjetEtHypoAlgMT : public ::HypoBase { 
  public: 
 
-  TrigBjetEtHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigBjetEtHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigBjetEtHypoAlg(); 
+  virtual ~TrigBjetEtHypoAlgMT(); 
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute_r( const EventContext& context ) const override;
   virtual StatusCode  finalize() override;
  
  private: 
-  TrigBjetEtHypoAlg();
+  TrigBjetEtHypoAlgMT();
   ToolHandleArray< TrigBjetEtHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
  private:

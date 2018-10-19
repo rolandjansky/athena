@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGBJETHYPO_TRIGBJETHYPOALG_H
-#define TRIGBJETHYPO_TRIGBJETHYPOALG_H 1
+#ifndef TRIGBJETHYPO_TRIGBJETHYPOALGMT_H
+#define TRIGBJETHYPO_TRIGBJETHYPOALGMT_H 1
 
 #include <string>
 
@@ -26,21 +26,19 @@
  * @brief 
  **/
 
-class TrigBjetHypoAlg
-  : public ::HypoBase
-{ 
+class TrigBjetHypoAlgMT : public ::HypoBase { 
  public: 
 
-  TrigBjetHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigBjetHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigBjetHypoAlg(); 
+  virtual ~TrigBjetHypoAlgMT(); 
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute_r( const EventContext& context ) const override;
   virtual StatusCode  finalize() override;
  
  private: 
-  TrigBjetHypoAlg();
+  TrigBjetHypoAlgMT();
   ToolHandleArray< TrigBjetHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
  private:
@@ -52,4 +50,4 @@ class TrigBjetHypoAlg
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
 
-#endif //> !TRIGBJETHYPO_TRIGBJETHYPOALG_H
+#endif //> !TRIGBJETHYPO_TRIGBJETHYPOALGMT_H
