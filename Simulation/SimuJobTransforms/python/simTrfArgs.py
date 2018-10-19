@@ -80,19 +80,19 @@ def addPileUpTrfArgs(parser):
                         type=argFactory(argBool),
                         help='Calculates the number of background events that will be require for a given pile-up configuration.', group='PileUp')
     parser.add_argument('--inputLowPtMinbiasHitsFile','--LowPtMinbiasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for low pT minimum bias pile-up sub-events', group='PileUp')
     parser.add_argument('--inputHighPtMinbiasHitsFile','--HighPtMinbiasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for high pT minimum bias pile-up sub-events', group='PileUp')
     parser.add_argument('--inputCavernHitsFile', '--cavernHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for cavern background sub-events', group='PileUp')
     parser.add_argument('--inputBeamHaloHitsFile', '--beamHaloHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for beam halo sub-events', group='PileUp'),
     parser.add_argument('--inputBeamGasHitsFile', '--beamGasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for beam gas sub-events', group='PileUp')
     parser.add_argument('--numberOfLowPtMinBias',
                         type=argFactory(argFloat),
