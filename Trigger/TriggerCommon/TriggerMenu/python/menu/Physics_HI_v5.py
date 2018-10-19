@@ -896,10 +896,18 @@ def setupMenu():
         ["noalg_l1topo_L1SC111-CJ15",                   "L1_SC111-CJ15",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         #ATR-18734 TLA
         ["noalg_l1topo_L1J50_DETA20-J50J",                    "L1_J50_DETA20-J50J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
-        
-
 
         ]
+
+    if TriggerFlags.doFTK():
+        TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
+            ['noalg_ftk_L1TE4_VTE200',   'L1_TE4_VTE200', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
+            ['noalg_ftk_L1TE5_VTE200',   'L1_TE5_VTE200', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
+            ['noalg_ftk_L1TE50_VTE200',   'L1_TE50_VTE200', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
+            ['noalg_ftk_L1TE50_VTE600.0ETA49_PEBX',   'L1_TE50_VTE600.0ETA49_PEB', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
+
+            ]
+
 
     TriggerFlags.BeamspotSlice.signatures = [
         ['beamspot_activeTE_trkfast_peb',           'L1_J12_VTE100', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
