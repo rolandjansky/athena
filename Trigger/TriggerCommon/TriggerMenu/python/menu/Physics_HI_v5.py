@@ -356,8 +356,8 @@ def setupMenu():
     ['mu6_j50_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j50_ion'] ]],
             
      #UPC:Supporting
-    ['hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU1_VTE50',        'L1_2TAU1_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC3','mb_sptrk_exclusiveloose2'],False]],
-    ['hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU2_VTE200',        'L1_2TAU2_VTE200',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC3','mb_sptrk_exclusiveloose2'],False]],
+    ['hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU1_VTE50',        'L1_2TAU1_VTE50',   ['', ''], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC3','mb_sptrk_exclusiveloose2'],False]],
+    ['hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU2_VTE200',        'L1_2TAU2_VTE200',   ['', ''], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC3','mb_sptrk_exclusiveloose2'],False]],
     ['hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC3','mb_sptrk_exclusiveloose1'],False]],
     ['hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC3','mb_sptrk_exclusiveloose2'],False]],
     ['hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC3','mb_sptrk_exclusiveloose1'],False]],
@@ -471,15 +471,15 @@ def setupMenu():
  	    ['hi_upc_FgapAC3_hi_gg_upc_L1TE50_VTE200',        'L1_TE50_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
  	    
  	    #nois suppresion ATR-18764: noise supression chains
- 	    ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE200',        'L1_TE4_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
+ 	    ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE200',        'L1_TE4_VTE200',   [], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
  	    ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE50',        'L1_TE4_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
-        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE200',        'L1_TE5_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
+        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE200',        'L1_TE5_VTE200',   [], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
         ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE50',        'L1_TE5_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
         ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L12TAU1_VTE50',        'L1_2TAU1_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
         ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE200_EMPTY',        'L1_TE4_VTE200_EMPTY',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
         ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE200_EMPTY',        'L1_TE5_VTE200_EMPTY',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
-        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE4_VTE200',        'L1_TAU1_TE4_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
-        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE5_VTE200',        'L1_TAU1_TE4_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
+        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE4_VTE200',        'L1_TAU1_TE4_VTE200',   [], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
+        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE5_VTE200',        'L1_TAU1_TE4_VTE200',   [], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
  	    ['hi_upc_FgapAC3_hi_gg_upc_L12TAU2_VTE200',        'L1_2TAU2_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc"]]],
  	    ['hi_upc_FgapAC3_hi_gg_upc_L12TAU3_VTE200',        'L1_2TAU3_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc"]]],
  	    ['hi_upc_FgapAC3_hi_gg_upc_L12TAU2_VTE100',        'L1_2TAU2_VTE100',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc"]]],
