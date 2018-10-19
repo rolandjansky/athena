@@ -52,7 +52,6 @@ AthenaSharedMemoryTool::AthenaSharedMemoryTool(const std::string& type,
 AthenaSharedMemoryTool::~AthenaSharedMemoryTool() {
    delete m_payload; m_payload = nullptr;
    delete m_status; m_status = nullptr;
-   delete m_decompressionBuffer; m_decompressionBuffer = nullptr;
 }
 
 //___________________________________________________________________________
@@ -351,15 +350,15 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
          ATH_MSG_WARNING("Object is compressed, size  = " << nbytes - m_maxSize);
          uLongf bufSize = m_maxSize * 16;
          if (m_decompressionBuffer == nullptr) {
-            m_decompressionBuffer = new Bytef[bufSize];
+            m_decompressionBuffer.reset(new Bytef[bufSize]);
          }
-         int ret = uncompress(m_decompressionBuffer, &bufSize, static_cast<Bytef*>(*target), nbytes - m_maxSize);
+         int ret = uncompress(m_decompressionBuffer.get(), &bufSize, static_cast<Bytef*>(*target), nbytes - m_maxSize);
          if (ret != Z_OK) {
             ATH_MSG_ERROR("inflate failed: " << ret << ", with " << bufSize);
             return(StatusCode::FAILURE);
          }
          evtH->evtCursor += nbytes - m_maxSize;
-         *target = m_decompressionBuffer;
+         *target = m_decompressionBuffer.get();
          nbytes = bufSize;
          ATH_MSG_DEBUG("Object is de-compressed, size = " << nbytes);
       } else {
