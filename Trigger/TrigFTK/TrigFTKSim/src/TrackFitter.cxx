@@ -344,11 +344,9 @@ void TrackFitter::processor_init(int /*ibank*/)
 void TrackFitter::processor_end(int ibank)
 {
   list<FTKTrack>::iterator itrack2 = m_tracks.begin();
-  int m_tracks_size = m_tracks.size();
   for (;itrack2!=m_tracks.end();itrack2 = m_tracks.erase(itrack2)) {
     m_trackoutput->addTrack(ibank,*itrack2);
   }
-  if (m_tracks_size != 0 ) cout << "=======================" << endl;
 
   if (m_saveStepByStepTracks) {
     itrack2 = m_tracks_pre_hw.begin();
