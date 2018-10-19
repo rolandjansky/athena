@@ -65,9 +65,9 @@ HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE,
 	}
 	//For UCC chains
 	else{	
-		if ( fabs(etaMin) < m_Eta_min ) continue;
-		//float eta=(sh->etaMin()+sh->etaMax())/2.0;
-		//if(fabs(eta)<3.2) continue;//FCal Only
+		//if ( fabs(etaMin) < m_Eta_min ) continue;
+		float eta=(etaMin+etaMax)/2.0;
+		if(fabs(eta)<m_Eta_min) continue;//FCal Only
     }
     m_Tot_Et+=Et;
   }

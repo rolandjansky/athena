@@ -415,6 +415,7 @@ def defineMenu():
 	               'L1_EM22',
                        'L1_2EM10',
                        'L1_2EM16',
+                       'L1_2EM22',
 		       'L1_2EM7',
                        # tau beam items
                        #'L1_TAU8',
@@ -768,6 +769,8 @@ def defineMenu():
                        'L1_XE60',
                        'L1_XE70',
                        'L1_XE80',
+                       'L1_MU4_J12',
+                       'L1_MU4_J15',
                        #TOPO
                        'L1_LAR-EM',
                        'L1_LAR-J',
@@ -800,7 +803,10 @@ def defineMenu():
         'L1_RD0_FIRSTEMPTY' : 18,
         'L1_RD0_UNPAIRED_ISO' : 19,
         'L1_MBTS_4_4_UNPAIRED_ISO': 20,
-        'L1_J400': 21,        
+        'L1_J400': 21,
+        'L1_2EM22' : 22,
+        'L1_MU4_J12' : 23,
+        'L1_MU4_J15' : 24,        
 
         'L1_ZDC_AND_VTE50' : 27,
         #'L1_EM3_VTE20': 28,

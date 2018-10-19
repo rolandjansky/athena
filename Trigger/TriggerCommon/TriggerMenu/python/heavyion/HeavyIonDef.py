@@ -300,7 +300,7 @@ class L2EFChain_HI(L2EFChainDef):
             chainSuffix = 'tight_upc'
         if 'gg' in self.chainPart['hypoL2Info']:
             minPixel=0
-            maxPixel=10
+            maxPixel=15
             chainSuffix = 'gg_upc'
 
         theL2PixelHypo  = L2MbSpUPC("MbPixelSpUPC_min"+str(minPixel)+'_max'+str(maxPixel), minPixel, maxPixel)
@@ -367,7 +367,7 @@ class L2EFChain_HI(L2EFChainDef):
         theL1BSFex = TrigL1FCALTTSumFex('TrigL1FCALTTSumFex')
 
         from TrigHIHypo.UE import theUEMaker, theFSCellMaker
-        from TrigHIHypo.GapHypos import ttFgapA, ttFgapC, cellFgapA, cellFgapC, ttFgapA5, ttFgapC5, cellFgapA5, cellFgapC5, ttFgapA10, ttFgapC10, cellFgapA10, cellFgapC10, cellFgapAPerf, cellFgapCPerf
+        from TrigHIHypo.GapHypos import ttFgapA, ttFgapC, cellFgapA, cellFgapC, ttFgapA3, ttFgapC3, cellFgapA3, cellFgapC3, ttFgapA5, ttFgapC5, cellFgapA5, cellFgapC5, ttFgapA10, ttFgapC10, cellFgapA10, cellFgapC10, cellFgapAPerf, cellFgapCPerf
             
         # L2 sel (TT) is used when The chain is sither L2Fgap* or Fgap*, and not used when EFGap, similarily for EF (cells) part
         gap  = self.chainPart['gap']
@@ -392,8 +392,14 @@ class L2EFChain_HI(L2EFChainDef):
             self.L2sequenceList += [["L2_upc_step2",
                                      [ttFgapC],
                                      'L2_upc_step3_C']] 
+        elif int(gapthX)==3:                
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapA3],
+                                     'L2_upc_step3_A']] 
+            self.L2sequenceList += [["L2_upc_step2",
+                                     [ttFgapC3],
+                                     'L2_upc_step3_C']]
         elif int(gapthX)==5:                
-            print 'Adding ttFgapA5'
             self.L2sequenceList += [["L2_upc_step2",
                                      [ttFgapA5],
                                      'L2_upc_step3_A']] 
@@ -412,7 +418,7 @@ class L2EFChain_HI(L2EFChainDef):
             self.L2signatureList += [ [['L2_upc_step3_A']] ]
         if gap in [ 'FgapC', 'FgapC5', 'FgapC10', 'L2FgapC']:
             self.L2signatureList += [ [['L2_upc_step3_C']] ]
-        if gap in [ 'FgapAC', 'L2FgapAC']:
+        if gap in [ 'FgapAC', 'FgapAC3', 'L2FgapAC']:
             self.L2signatureList += [ [['L2_upc_step3_A']] ]
             self.L2signatureList += [ [['L2_upc_step3_C']] ]
 
@@ -445,6 +451,14 @@ class L2EFChain_HI(L2EFChainDef):
                 self.EFsequenceList += [["EF_upc_step2",
                                          [cellFgapA ],
                                          'EF_upc_step3_A']] 
+            elif int(gapthX)==3:
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapC3 ],
+                                         'EF_upc_step3_C']] 
+                    
+                self.EFsequenceList += [["EF_upc_step2",
+                                         [cellFgapA3 ],
+                                         'EF_upc_step3_A']]
             elif int(gapthX)==5:
                 self.EFsequenceList += [["EF_upc_step2",
                                          [cellFgapC5 ],
@@ -472,7 +486,7 @@ class L2EFChain_HI(L2EFChainDef):
             self.EFsignatureList += [ [['EF_upc_step3_C']] ]
         if gap =='EFFgapC':
             self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
-        if  gap ==  'FgapAC':
+        if gap in [ 'FgapAC', 'FgapAC3']:
             self.EFsignatureList += [ [['EF_upc_step3_A']] ]
             self.EFsignatureList += [ [['EF_upc_step3_C']] ]
         if  gap ==  'EFFgapAC':
