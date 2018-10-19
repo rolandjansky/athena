@@ -10,6 +10,7 @@
 #include "FileCatalog/IFileCatalog.h"
 #include "TH1.h"
 #include "TH2.h"
+#include <TObjString.h>
 #include "TObject.h"
 #include <TString.h>
 #include "TTree.h"
@@ -427,11 +428,11 @@ namespace Analysis {
 
   void JetTagCalibCondAlg::initializeDL1(std::string taggerNameBase)
   {
-    std::string file_name = "net_configuration"; // directory of NN calibration (starting from specific jet collection directory) in COOL db
-    this->registerHistogram(taggerNameBase, file_name);  //register the calibration file for later access
+    m_DL1_file_name = "net_configuration"; // directory of NN calibration (starting from specific jet collection directory) in COOL db
+    this->registerHistogram(taggerNameBase, m_DL1_file_name);  //register the calibration file for later access
 
     ATH_MSG_DEBUG(" #BTAG# Registered NN histograms with directory: " << taggerNameBase);
-  }    
+  }
 
   void JetTagCalibCondAlg::registerHistogram(const std::string& tagger, const std::string& hname) {
     std::string dir(tagger);
@@ -536,18 +537,31 @@ namespace Analysis {
           TObject* hPointer = nullptr;
           if (getTObject(hFullName, pfile, hPointer)) {
             if(hPointer) {
-              ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " << hPointer);
-              if (tagger == "IP2D" || tagger == "IP3D" || tagger == "SV1") {
-                ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
-                smoothAndNormalizeHistogram(hPointer, hname);
+              ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram or string: " << hPointer);
+              if (tagger.find("DL1")!=std::string::npos ) {
+                ATH_MSG_DEBUG("#BTAG# Build DL1 NN config for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
+                TObjString* cal_string = dynamic_cast<TObjString*>(hPointer);
+                std::istringstream nn_config_sstream(cal_string->GetString().Data());
+                lwt::JSONConfig nn_config = lwt::parse_json(nn_config_sstream);
+                ATH_MSG_DEBUG("#BTAG# Layers size << " << nn_config.layers.size());
+
+                writeCdo->addDL1NN(tagger, channel, nn_config);
               }
+              else {
+                if (tagger == "IP2D" || tagger == "IP3D" || tagger == "SV1") {
+                  ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
+                  smoothAndNormalizeHistogram(hPointer, hname);
+                }
+
+                writeCdo->addHisto(i,fname,hPointer);
+              }
+
               const TString rootClassName=hPointer->ClassName();
               if (rootClassName=="TTree") {
                 ((TTree*)hPointer)->LoadBaskets();
                 ((TTree*)hPointer)->SetDirectory(0);
               } 
             
-            writeCdo->addHisto(i,fname,hPointer);
             } else {
               ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " << fname );
             }
@@ -559,7 +573,7 @@ namespace Analysis {
         } //end loop mapped alias
       } //end loop histograms
     } //end loop tagger
-          
+
     if(histoWriteHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
       ATH_MSG_ERROR("#BTAG# Could not record vector of histograms maps " << histoWriteHandle.key()
          		  << " with EventRange " << rangeW

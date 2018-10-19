@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # destination package settings
-INC_DIR=JetTagTools
+INC_DIR=JetTagCalibration
 
 # do the stuff!
 cd ../
@@ -47,7 +47,7 @@ for HEADER in ${HEADERS[@]}; do
 done
 
 # copy over src files (change headers to match)
-SEDSTR='s:^#include "lwtnn/(.*)\.hh":#include "JetTagTools/\1\.h":'
+SEDSTR='s:^#include "lwtnn/(.*)\.hh":#include "JetTagCalibration/\1\.h":'
 for SRC_FILE in ${SRC_FILES[@]}; do
     NEWSRC=$SRC/$SRC_FILE
     echo -e $BANNER >| $NEWSRC

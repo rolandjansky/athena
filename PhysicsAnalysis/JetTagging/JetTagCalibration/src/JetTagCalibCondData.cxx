@@ -44,6 +44,15 @@ void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::st
   m_histos[indexTagger].insert(std::make_pair(name, obj));
 }
 
+void JetTagCalibCondData::addDL1NN(const std::string&tagger, const std::string& channel, const lwt::JSONConfig& obj) {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::WARNING << "#BTAG# JSONConfig in cond data with " << obj.layers.size() << " layers" << endmsg;
+  log << MSG::WARNING << "#BTAG# JSONConfig in cond data for tagger " << tagger << endmsg;
+  log << MSG::WARNING << "#BTAG# JSONConfig in cond data for channel " << channel << endmsg;
+  m_DL1_NNConfig[tagger].insert(std::make_pair(channel, obj));
+  log << MSG::WARNING << "#BTAG# m_DL1_NNConfig size " << m_DL1_NNConfig.size();
+}
+
 void JetTagCalibCondData::addChannelAlias(const std::string& channel, const std::string& alias) {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
   log << MSG::DEBUG << "#BTAG# addChannelAlias : map size" << m_channelAliasesMap.size() << endmsg;
@@ -87,7 +96,28 @@ TH1* JetTagCalibCondData::retrieveHistogram(const std::string& folder, const std
   return this->retrieveTObject<TH1>(folder,channel,hname);
 }
 
+lwt::JSONConfig JetTagCalibCondData::retrieveDL1NN(std::string& tagger, const std::string& channel) const {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  lwt::JSONConfig  config;
+  std::map< std::string , std::map<std::string, lwt::JSONConfig>>::const_iterator mI;
+  mI = m_DL1_NNConfig.find(tagger);
+  if (mI != m_DL1_NNConfig.end()) {
+    log << MSG::DEBUG << "#BTAG# " << tagger << " NN config found"<< endmsg;
+    std::map<std::string, lwt::JSONConfig>::const_iterator mJ = mI->second.find(channel);
+    if (mJ != mI->second.end()) {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " NN config found for jet collection " << channel << endmsg;
+      config = mJ->second;
+    }
+    else {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " NN config not found for jet collection " << channel << endmsg;
+    }
+  }
+  else {
+    log << MSG::DEBUG << "#BTAG# " << tagger << " NN config not found"<< endmsg;
+  }
 
+  return config;
+}
 
 std::vector<std::string> JetTagCalibCondData::tokenize(std::string str, std::string delim){
   std::vector<std::string> tokens;

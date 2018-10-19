@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/RNNIPTag.h"
-#include "JetTagTools/LightweightNeuralNetwork.h"
-#include "JetTagTools/parse_json.h"
-#include "JetTagTools/Exceptions.h"
+#include "JetTagCalibration/LightweightNeuralNetwork.h"
+#include "JetTagCalibration/parse_json.h"
+#include "JetTagCalibration/Exceptions.h"
 
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/GradedTrack.h"
