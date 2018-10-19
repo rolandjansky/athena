@@ -3,18 +3,18 @@
 */
 
 #include "GaudiKernel/Property.h"
-#include "TrigBjetHypoAlg.h"
+#include "TrigBjetHypoAlgMT.h"
 
 using namespace TrigCompositeUtils;
 
-TrigBjetHypoAlg::TrigBjetHypoAlg( const std::string& name, 
+TrigBjetHypoAlgMT::TrigBjetHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigBjetHypoAlg::~TrigBjetHypoAlg()
+TrigBjetHypoAlgMT::~TrigBjetHypoAlgMT()
 {}
 
-StatusCode TrigBjetHypoAlg::initialize()
+StatusCode TrigBjetHypoAlgMT::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
@@ -28,7 +28,7 @@ StatusCode TrigBjetHypoAlg::initialize()
 
   CHECK( m_decisionsKey.initialize() );
 
-  ATH_MSG_INFO("Initializing TrigBjetHypoAlg");
+  ATH_MSG_INFO("Initializing TrigBjetHypoAlgMT");
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_roisKey          );
@@ -38,11 +38,11 @@ StatusCode TrigBjetHypoAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlg::finalize() {
+StatusCode TrigBjetHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const {  
+StatusCode TrigBjetHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );

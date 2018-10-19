@@ -3,17 +3,17 @@
 */
 
 #include "GaudiKernel/Property.h"
-#include "TrigBjetEtHypoAlg.h"
+#include "TrigBjetEtHypoAlgMT.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
-TrigBjetEtHypoAlg::TrigBjetEtHypoAlg( const std::string& name, 
-				      ISvcLocator* pSvcLocator ) : 
+TrigBjetEtHypoAlgMT::TrigBjetEtHypoAlgMT( const std::string& name, 
+					  ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigBjetEtHypoAlg::~TrigBjetEtHypoAlg()
+TrigBjetEtHypoAlgMT::~TrigBjetEtHypoAlgMT()
 {}
 
-StatusCode TrigBjetEtHypoAlg::initialize()
+StatusCode TrigBjetEtHypoAlgMT::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
@@ -41,11 +41,11 @@ StatusCode TrigBjetEtHypoAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetEtHypoAlg::finalize() {
+StatusCode TrigBjetEtHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {  
+StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_INFO ( "Executing " << name() << "..." );
 
   // In case I need it (not sure). Taken from Jet code
@@ -104,11 +104,9 @@ StatusCode TrigBjetEtHypoAlg::execute_r( const EventContext& context ) const {
 
 
 
-
   // Prepare Output 
   // RoIs -- WILL CHANGE -- TMP
   std::unique_ptr< TrigRoiDescriptorCollection > roiContainer( new TrigRoiDescriptorCollection() ); // TMP
-
 
   // Output Jet Collection
   std::unique_ptr< xAOD::JetContainer > outputJets( new xAOD::JetContainer() );
