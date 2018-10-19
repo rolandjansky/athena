@@ -124,7 +124,7 @@ def defineMenu():
         #------------------------
         
         # 6 x MU (TODO can we still use MU0?)
-        'MU4', 'MU6', 'MU10', 'MU11', 'MU15', 'MU20', 
+        'MU4', 'MU6', 'MU10', 'MU11', 'MU20', 'MU21', 
         # MU10 is needed for monitoring 
         
         #------------------------
@@ -422,7 +422,7 @@ def defineMenu():
                        #muons
                        #'L1_MU0',
                        'L1_MU11',
-                       'L1_MU15',
+                       #'L1_MU15',
                        'L1_MU20',
                        'L1_MU4',
                        'L1_MU6',
@@ -865,7 +865,7 @@ def defineMenu():
         'L1_EM16' : 85,
         'L1_MBTSC0' : 86,
         'L1_J30_UNPAIRED' : 87,
-        'L1_MU15' : 88,
+        #'L1_MU15' : 88,
         #'L1_MU0' : 89,
         'L1_MU6' : 90,
         'L1_MU11' : 91,
