@@ -27,7 +27,7 @@ def getBJetSequence( step ):
     if step == "j":
         return bJetStep1Sequence()
     if step == "gsc":
-        return bJetStep1Sequence()
+        return bJetStep2Sequence()
     if step == "bTag":
         return bJetStep1Sequence()
     return None
@@ -44,7 +44,7 @@ def bJetStep1Sequence():
     # input maker
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step1")
-    InputMakerAlg.OutputLevel = DEBUG
+#    InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
     InputMakerAlg.Output = "FSJETRoIs"
 
@@ -57,7 +57,7 @@ def bJetStep1Sequence():
     # WILL BE REMOVED IN THE FUTURE 
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
     RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
-    RoIBuilder.OutputLevel = DEBUG
+#    RoIBuilder.OutputLevel = DEBUG
     RoIBuilder.JetInputKey = sequenceOut
     RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
 
@@ -67,7 +67,7 @@ def bJetStep1Sequence():
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
-    theFTF_Jet.OutputLevel = DEBUG
+#    theFTF_Jet.OutputLevel = DEBUG
     theFTF_Jet.isRoI_Seeded = True
     theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
     viewAlgs.append( theFTF_Jet )
@@ -84,7 +84,7 @@ def bJetStep1Sequence():
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
-    hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg")
+    hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg_step1")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
     hypo.OutputJets = "SplitJets"
@@ -93,7 +93,7 @@ def bJetStep1Sequence():
     hypo.RoiKey = RoIBuilder.RoIOutputKey
 
     # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
+    BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
@@ -104,6 +104,50 @@ def bJetStep1Sequence():
 # ==================================================================================================== 
 #    step 2: precision tracking, gsc calibration and cut on gsc-corrected threshold
 # ==================================================================================================== 
+
+def bJetStep2Sequence():
+    # menu components
+    from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+
+    # Event View Creator Algorithm
+#    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+#    InputMakerAlg = EventViewCreatorAlgorithm("l2ElectronViewsMaker")
+#    InputMakerAlg.OutputLevel = DEBUG
+#    InputMakerAlg.ViewFallThrough = True
+#    InputMakerAlg.RoIsLink = "roi"
+#    InputMakerAlg.InViewRoIs = "BJetStep2RoI"
+#    InputMakerAlg.Views = "BJetViews"
+
+    # input maker
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step2")
+    InputMakerAlg.OutputLevel = DEBUG
+    InputMakerAlg.LinkName = "initialRoI"
+    InputMakerAlg.Output = "SplitJet"
+
+    # gsc correction
+    from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
+    theGSC = getGSCFexSplitInstance("EF","2012","EFID")
+    theGSC.OutputLevel = DEBUG
+    theGSC.JetKey = "SplitJet"
+    theGSC.JetOutputKey = "GSCJet"
+
+    # hypo
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
+    hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg_step2")
+    hypo.OutputLevel = DEBUG
+    hypo.Jets = theGSC.JetOutputKey
+    hypo.RoiKey = theGSC.JetOutputKey
+
+    # Sequence
+    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,theGSC])
+
+    return MenuSequence( Sequence    = BjetAthSequence,
+                         Maker       = InputMakerAlg,
+                         Hypo        = hypo,
+                         HypoToolGen = TrigBjetEtHypoToolFromName )
 
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging

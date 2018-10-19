@@ -52,7 +52,7 @@ class TrigBjetEtHypoAlg
   Gaudi::Property< float > m_minJetEt {this,"JetMinEt",15000,"Minimum of Output Jet Et in GeV"};
   Gaudi::Property< float > m_maxJetEta {this,"JetMaxEta",3.2,"Maximum eta acceptance of output Jet"};
   //=========== Handles
-  SG::ReadHandleKey< xAOD::JetContainer > m_jetsKey {this,"Jets","Jets","Input Jet Container Key"};
+  SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Jets","Input Jet Container Key"};
   SG::WriteHandleKey< xAOD::JetContainer > m_outputJetsKey {this,"OutputJets","SplitJets","Output Jet Container Key"};
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_outputRoiKey {this,"OutputRoi","SplitJet","Output RoI Container Key -- Same as OutputJets"};
 

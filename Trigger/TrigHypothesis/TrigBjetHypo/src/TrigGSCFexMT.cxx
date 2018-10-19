@@ -57,6 +57,7 @@ StatusCode TrigGSCFexMT::initialize() {
   ATH_MSG_DEBUG( "   "     << m_jetOutputKey              );
 
   ATH_MSG_DEBUG( "Initializing ReadHandleKeys" );
+  ATH_CHECK( m_roiContainerKey.initialize()           );
   ATH_CHECK( m_JetContainerKey.initialize()           );
   ATH_CHECK( m_VertexContainerKey.initialize()        );
   ATH_CHECK( m_TrackParticleContainerKey.initialize() );
@@ -78,9 +79,20 @@ StatusCode TrigGSCFexMT::execute() {
   // RETRIEVE INPUT CONTAINERS
   const EventContext& ctx = getContext();
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_JetContainerKey,ctx );
-  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
-  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
+  CHECK( jetContainerHandle.isValid() );
+  const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " input Jets for GSC correction : " << m_JetContainerKey );
+  for ( const xAOD::Jet *jet : *jetContainer )
+    ATH_MSG_DEBUG( "  ** Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta()<< " phi="<< jet->phi() );
 
+  //  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
+  //  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
+
+  
+
+  return StatusCode::SUCCESS;
+
+  /*
   // PREPARE PROCESSING AND OUTPUT CONTAINERS
   //
   // get primary vertex 
@@ -181,6 +193,7 @@ StatusCode TrigGSCFexMT::execute() {
   ATH_CHECK( OutputjetContainerHandle.record( std::move(jc),std::move(trigJetTrigAuxContainer) ) );
 
   return StatusCode::SUCCESS;
+  */
 }
 
 
