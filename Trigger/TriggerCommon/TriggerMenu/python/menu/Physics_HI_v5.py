@@ -868,7 +868,7 @@ def setupMenu():
             ['noalg_ftk_L1TE4_VTE200',   'L1_TE4_VTE200', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
             ['noalg_ftk_L1TE5_VTE200',   'L1_TE5_VTE200', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
             ['noalg_ftk_L1TE50_VTE200',   'L1_TE50_VTE200', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
-            ['noalg_ftk_L1TE50_VTE600.0ETA49_PEB',   'L1_TE50_VTE600.0ETA49_PEB', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
+            ['noalg_ftk_L1TE50_VTE600.0ETA49_PEBX',   'L1_TE50_VTE600.0ETA49_PEB', [], ['FTK'], ["RATE:SeededStreamers", "BW:Detector"], -1 ],
 
             ]
 
