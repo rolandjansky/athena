@@ -205,6 +205,7 @@ LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 GeoModelSvc.Til...   INFO  U-shape parameter from database is: 1
 GeoModelSvc.Til...   INFO  Glue parameter from database is: 1
+GeoModelSvc.Til...   INFO  Cs Tube parameter from database is: 0
 GeoModelSvc.Til...   INFO  Entering TileAtlasFactory::create()
 GeoModelSvc.Til...   INFO  Tile Geometry with Saddle supports, starting from TileCal-CSC-02 xxx
 GeoModelSvc.Til...   INFO  => New BFingerLengthPos 430.5
