@@ -86,6 +86,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   TOPQElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = TOPQname + "ElectronTPThinningTool",
                                                                                  ThinningService         = TOPQThinningSvc,
                                                                                  SGKey                   = "Electrons",
+                                                                                 BestMatchOnly           = False,
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                  ApplyAnd                = False )
   ToolSvc += TOPQElectronTPThinningTool
