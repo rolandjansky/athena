@@ -4,7 +4,7 @@
 # art-type: grid                                                                                              
 # art-output: output.root                                                                                     
 # art-input: user.iconnell.410470.DAOD_TOPQ1.e6337_a875_r9364_p3554.ART.v2
-# art-input-nfiles: 5
+# art-input-nfiles: 2
 # art-include: 21.2/AnalysisTop
 
 import ROOT
@@ -16,7 +16,7 @@ os.system('art.py createpoolfile')
 
 # -- Settings --
 cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace(".py",".txt")
-inputfilenames = glob.glob("*.root*")
+#inputfilenames = glob.glob("*.root*")
 
 # -- Get the validation file path from the most recent location --
 cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
@@ -30,6 +30,18 @@ print "Running on full statistics"
 
 # -- Copy the cutfile locally to be updated -- 
 shutil.copyfile(cutfilepath, cutfilename)
+
+ # -- Write the input file path to a temporary file --
+lines = inputfilenames.split(",")
+with open('input.txt', 'w') as inputfilepath:
+    for line in lines:
+       print "line : ", line
+       inputfilepath.write(line+'\n')
+
+f = open('input.txt', 'r')
+print "Printing input.txt"
+print f.read()
+f.close()
 
 # -- Write the input file path to a temporary file --
 inputfilepath = open("input.txt","w")
