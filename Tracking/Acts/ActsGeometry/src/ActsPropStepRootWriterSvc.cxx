@@ -25,16 +25,6 @@ ActsPropStepRootWriterSvc::ActsPropStepRootWriterSvc( const std::string& name, I
 StatusCode
 ActsPropStepRootWriterSvc::initialize()
 {
-  //RootPropStepWriter<Acts::TrackParameters>::Config reccWriterConfig;
-  //reccWriterConfig.filePath       = m_filePath;
-  //reccWriterConfig.treeName       = m_treeName;
-  //reccWriterConfig.writeBoundary  = m_writeBoundary;
-  //reccWriterConfig.writeMaterial  = m_writeMaterial;
-  //reccWriterConfig.writeSensitive = m_writeSensitive;
-  //reccWriterConfig.writePassive   = m_writePassive;
-  //m_rootEccWriter
-      //= std::make_shared<RootPropStepWriter<Acts::TrackParameters>>(
-          //reccWriterConfig);
 
   ATH_MSG_INFO("Starting writer thread");
   m_doEnd = false;
