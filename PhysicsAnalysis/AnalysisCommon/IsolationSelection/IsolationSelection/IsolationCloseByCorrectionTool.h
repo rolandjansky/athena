@@ -67,17 +67,21 @@ namespace CP {
         private:
 
             void isoTypesFromWP(const std::vector<IsolationWP*> &WP, IsoVector & types);
-            //Helper function to check whether an element is in the vector
+            //Helper function to check whether an element is in the data container or not
             template<typename T> bool isElementInList(const std::vector<T> &List, const T& Element) const;
             template<typename T> bool isElementInList(const std::set<T> &List, const T& Element) const;
 
-            CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
+            //Function to pipe each container given by the interfaces through. It loops over all 
+            //particles and removes the isolation overlap between the objects
+            CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters, const xAOD::Vertex* vtx) const;
 
+            //Helper function to obtain the isolation cones to use for a given particle
             const IsoVector* getIsolationTypes(const xAOD::IParticle*  particle) const;
+            
+            
             //Functions to  perfrom  the isolation correction  directly
-           
-            CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
-            CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle*  particlear, IsoType type, const TrackCollection& tracks) const;
+            CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters, const xAOD::Vertex* vtx) const;
+            CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle*  particlear, IsoType type, const TrackCollection& tracks, const xAOD::Vertex* vtx) const;
             CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle*  particlear, IsoType type, const ClusterCollection& clusters) const;
             CorrectionCode getCloseByCaloCorrection(float& correction, const xAOD::IParticle*  particlear, const xAOD::IParticleContainer* CloseByPars, IsoType type, int Model) const;
 
@@ -90,8 +94,14 @@ namespace CP {
             double coneSize(const xAOD::IParticle*  particle, IsoType Cone) const;
             //Retrieves the uncalibrated pt from the particle
             double unCalibPt(const xAOD::IParticle*  particle) const;
-            //Which particles shall actually be corrected
+            
+            //Clusters and tracks of particles surviving the selection quality 
+            //are considered for corrections
             bool passSelectionQuality(const xAOD::IParticle*  particle) const;
+            
+            // Optionally the user can parse another set of particles
+            // whose variables should be corrected but their clusters
+            // & tracks do not contribute
             bool considerForCorrection(const xAOD::IParticle*  particle) const;
 
             //Some helper functions for Overlap and DeltaR
@@ -189,8 +199,6 @@ namespace CP {
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
             asg::AnaToolHandle<CP::ITrackVertexAssociationTool> m_ttvaTool;
             mutable IsoHelperMap m_isohelpers;
-            mutable const xAOD::Vertex* m_Vtx;
-
     };
 
 }
