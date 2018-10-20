@@ -22,19 +22,19 @@ JetStandardAux = \
 
 BTaggingStandardAux = \
     [ "MV2c10_discriminant"
-    , "MV2c10mu_discriminant"
-    , "MV2c10rnn_discriminant"
+    , "MV2rmu_discriminant"
+    , "MV2r_discriminant"
     , "MV2c100_discriminant"
     , "MV2cl100_discriminant"
     , "DL1_pu"
     , "DL1_pc"
     , "DL1_pb"
-    , "DL1mu_pu"
-    , "DL1mu_pc"
-    , "DL1mu_pb"
-    , "DL1rnn_pu"
-    , "DL1rnn_pc"
-    , "DL1rnn_pb"
+    , "DL1r_pu"
+    , "DL1r_pc"
+    , "DL1r_pb"
+    , "DL1rmu_pu"
+    , "DL1rmu_pc"
+    , "DL1rmu_pb"
     ]
 
 # These are roughly the inputs to MV2 or DL1

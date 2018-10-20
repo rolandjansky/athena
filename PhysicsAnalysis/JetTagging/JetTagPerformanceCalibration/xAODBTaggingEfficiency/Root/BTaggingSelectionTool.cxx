@@ -87,12 +87,17 @@ StatusCode BTaggingSelectionTool::initialize() {
 
   // The tool supports only these taggers and jet collections:
   if ("DL1"!=m_taggerName&&
-        "DL1mu"!=m_taggerName&&
-        "DL1rnn"!=m_taggerName&&
+        "DL1r"!=m_taggerName&&
+        "DL1rmu"!=m_taggerName&&
         "MV2c10"!=m_taggerName&&
-        "MV2c10mu"!=m_taggerName&&
-        "MV2c10rnn"!=m_taggerName&&
+        "MV2r"!=m_taggerName&&
+        "MV2rmu"!=m_taggerName&&
         "MV2cl100_MV2c100"!=m_taggerName){
+
+    if(m_taggerName=="MV2c10mu" || m_taggerName=="MV2c10rnn" ||  m_taggerName=="DL1mu" || m_taggerName=="DL1rnn"){
+      ATH_MSG_ERROR( "BTaggingSelectionTool: the tagger "+m_taggerName+" has been deprecated." );
+      return StatusCode::FAILURE;
+    }
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName );
     return StatusCode::FAILURE;
   }
@@ -403,7 +408,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     ATH_MSG_VERBOSE( "MV2c100 " <<  weight_mv2c100 );
     return accept(pT, eta, weight_mv2cl100, weight_mv2c100 );
 
-  }else if(m_taggerName.find("DL1") != string::npos || m_taggerName.find("MV2c10") != string::npos){
+  }else if(m_taggerName.find("DL1") != string::npos || m_taggerName.find("MV2") != string::npos){
 
 
     //for all other taggers, use the same method

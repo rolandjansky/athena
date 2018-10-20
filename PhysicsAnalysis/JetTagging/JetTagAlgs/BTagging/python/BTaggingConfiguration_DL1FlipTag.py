@@ -5,6 +5,6 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration_DL1Tag import buildDL1
 
-toolDL1muFlipTag, metaDL1muFlipTag = buildDL1("DL1muFlip","DL1mu")
+toolDL1rmuFlipTag, metaDL1rmuFlipTag = buildDL1("DL1rmuFlip","DL1rmu")
 toolDL1FlipTag, metaDL1FlipTag = buildDL1("DL1Flip", "DL1")
-toolDL1rnnFlipTag, metaDL1rnnFlipTag = buildDL1("DL1rnnFlip", "DL1rnn")
+toolDL1rFlipTag, metaDL1rFlipTag = buildDL1("DL1rFlip", "DL1r")

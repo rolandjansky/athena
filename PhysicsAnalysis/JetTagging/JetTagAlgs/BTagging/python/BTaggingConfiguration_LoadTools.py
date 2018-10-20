@@ -19,7 +19,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 # =================================================
 
 # list of taggers that use MultivariateTagManager
-mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2c10mu','MV2c10rnn','MV2m','MV2c10hp','DL1','DL1mu','DL1rnn']
+mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2rmu','MV2r','MV2m','MV2c10hp','DL1','DL1r','DL1rmu']
 mvtm_flip_taggers = [x+'Flip' for x in mvtm_taggers]
 
 
@@ -55,13 +55,13 @@ def Initiate(ConfInstance=None):
     BTaggingFlags.SV2    =True
     BTaggingFlags.JetVertexCharge=False
     BTaggingFlags.SoftMu=False
-    BTaggingFlags.MV2c10mu=False
-    BTaggingFlags.MV2c10rnn=False
+    BTaggingFlags.MV2rmu=False
+    BTaggingFlags.MV2r=False
     BTaggingFlags.MV2cl100=False
     BTaggingFlags.RNNIP=False
     BTaggingFlags.DL1=False
-    BTaggingFlags.DL1mu=False
-    BTaggingFlags.DL1rnn=False
+    BTaggingFlags.DL1rmu=False
+    BTaggingFlags.DL1r=False
   else:
     print ConfInstance.BTagTag()+' - INFO - Setting up Run 2 configuration'
 

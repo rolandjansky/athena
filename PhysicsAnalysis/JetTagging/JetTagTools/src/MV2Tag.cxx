@@ -390,7 +390,7 @@ namespace Analysis {
       } else {
         it_mb = m_tmvaMethod.find(alias);
         if( (it_mb->second)!=0 ){
-          if(m_taggerNameBase.find("MV2c")!=std::string::npos) mv2 = pos->second->EvaluateMVA( it_mb->second );//this gives back double
+          if(m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) mv2 = pos->second->EvaluateMVA( it_mb->second );//this gives back double
           else {
             std::vector<float> outputs= pos->second->EvaluateMulticlass( it_mb->second );//this gives back float
             if (outputs.size()==m_nClasses){
@@ -417,7 +417,7 @@ namespace Analysis {
         
 	it_egammaBDT->second->SetPointers(*m_inputPointers);
 
-	if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
+	if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
 	        else { //if it is MV2m
       	    std::vector<float> outputs= GetMulticlassResponse(it_egammaBDT->second);//this gives back float
       	    //vector size is checked in the function above
@@ -428,14 +428,14 @@ namespace Analysis {
       }
     }
 
-    if (m_taggerNameBase.find("MV2c")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
+    if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
     else ATH_MSG_DEBUG("#BTAG# MV2 pb, pu, pc= " << mv2m_pb<<"\t"<<mv2m_pu<<"\t"<<mv2m_pc<<", "<<alias<<", "<<author);
 
     // #4: Fill MVA output variable(s) into xAOD
     /** give information to the info class. */
     if(m_runModus=="analysis") {
 
-      if (m_taggerNameBase.find("MV2c")!=std::string::npos) {
+      if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) {
         //MV2cXX
         BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
       }else {

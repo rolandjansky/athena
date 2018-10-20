@@ -258,7 +258,7 @@ def buildVRJets(sequence, do_ghost, logger):
         },
         SetupScheme = "",
         TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
-                      'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
+                      'MV2c10', 'MV2rmu', 'MV2r', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1r', 'DL1rmu', 'RNNIP'],
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
     )
 
@@ -405,7 +405,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
                           },
                  SetupScheme = "",
                  TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
-                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                               'MV2c10', 'MV2rmu', 'MV2r', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1rmu', 'DL1r', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                  )
 
     if VRJetAlgName in DFJetAlgs:
