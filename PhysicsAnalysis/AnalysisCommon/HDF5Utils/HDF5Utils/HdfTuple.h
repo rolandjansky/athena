@@ -216,6 +216,7 @@ namespace H5Utils {
     void fillWhileIncrementing(
       std::vector<size_t>& indices = WriterXd::NONE);
     void flush();
+    size_t size() const;
   private:
     static std::vector<size_t> NONE;
     hsize_t buffer_size() const;

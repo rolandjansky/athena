@@ -209,6 +209,10 @@ namespace H5Utils {
     m_buffer.clear();
   }
 
+  size_t WriterXd::size() const {
+    return m_offset + buffer_size();
+  }
+
   hsize_t WriterXd::buffer_size() const {
     size_t n_entries = m_buffer.size() / m_fillers.size();
     assert(n_entries % m_dim_stride.front() == 0);
