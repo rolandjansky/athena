@@ -243,6 +243,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   bool                                     m_checkBadModules;
   bool                                     m_ignore_RDO_cut_online;
   bool                                     m_CoverageCheck;
+  bool                                     m_useDCS;
 
   float m_errThreshold;
   float m_effThreshold;
