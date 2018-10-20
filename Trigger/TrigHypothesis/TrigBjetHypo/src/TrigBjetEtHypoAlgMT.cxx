@@ -56,6 +56,8 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // Read in previous Decisions made before running this Hypo Alg.
   // The container should have only one such Decision in case we are cutting on 'j' threshold (for L1)
   SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );
+  CHECK( prevDecisionHandle.isValid() );
+
   const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
 
@@ -65,6 +67,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // Retrieve ROIs from RoIBuilder // TMP
   SG::ReadHandle< TrigRoiDescriptorCollection > superRoiHandle = SG::makeHandle( m_roiKey,context ); // TMP
   CHECK( superRoiHandle.isValid() ); // TMP
+
   const TrigRoiDescriptorCollection *superRoi = superRoiHandle.get(); // TMP
   ATH_MSG_DEBUG( "Retrieved Super RoI Container with size " << superRoi->size() ); // TMP
   for ( auto *roi : *superRoi ) // TMP
@@ -73,6 +76,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // Retrieve Track Particles // TMP
   SG::ReadHandle< xAOD::TrackParticleContainer > recoTracksContainerHandle = SG::makeHandle( m_trackParticleContainerKey,context ); // TMP
   CHECK( recoTracksContainerHandle.isValid() ); // TMP
+
   const xAOD::TrackParticleContainer *recoTracksContainer = recoTracksContainerHandle.get(); // TMP
   ATH_MSG_DEBUG( "Retrieved " << recoTracksContainer->size() << " Track Particles from FTF step" ); // TMP
   for ( auto *particle : *recoTracksContainer ) // TMP
@@ -187,9 +191,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // Taken from Jet Code here 
   const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
   TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
-  // Link Jet Collection to decision so that I can use it in the following b-jet trigger steps (?)
-  newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking 'SplitJets' to output decisions" );
 
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs { 
     TrigCompositeUtils::decisionIDs( prevDecision ).begin(),
@@ -226,6 +227,9 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Sabing roi collection " << m_outputRoiKey.key() << " with " << roiContainer->size() <<" elements " ); // TMP
   CHECK( roiContainerHandle.record( std::move( roiContainer ) ) ); // TMP
 
+  // ==========================================================================================================================  
+  //    ** Linking objects to decision 
+  // ==========================================================================================================================  
 
   newDecision->setObjectLink( "roi",ElementLink< TrigRoiDescriptorCollection >( m_outputRoiKey.key(),0 ) );
   ATH_MSG_DEBUG( "Linking 'roi' to output decisions" );

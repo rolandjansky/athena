@@ -44,7 +44,7 @@ def bJetStep1Sequence():
     # input maker
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step1")
-#    InputMakerAlg.OutputLevel = DEBUG
+    InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
     InputMakerAlg.Output = "FSJETRoIs"
 
@@ -57,7 +57,7 @@ def bJetStep1Sequence():
     # WILL BE REMOVED IN THE FUTURE 
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
     RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
-#    RoIBuilder.OutputLevel = DEBUG
+    RoIBuilder.OutputLevel = DEBUG
     RoIBuilder.JetInputKey = sequenceOut
     RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
 
@@ -67,7 +67,7 @@ def bJetStep1Sequence():
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
-#    theFTF_Jet.OutputLevel = DEBUG
+    theFTF_Jet.OutputLevel = DEBUG
     theFTF_Jet.isRoI_Seeded = True
     theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
     viewAlgs.append( theFTF_Jet )
@@ -87,7 +87,7 @@ def bJetStep1Sequence():
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
-    hypo.OutputJets = "SplitJets"
+    hypo.OutputJets = "myJets" #"SplitJets"
     # These two are only for temporary debug. Will be removed 
     hypo.TrackParticleContainerKey = TrackParticlesName
     hypo.RoiKey = RoIBuilder.RoIOutputKey
@@ -111,26 +111,19 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
     # Event View Creator Algorithm
-#    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-#    InputMakerAlg = EventViewCreatorAlgorithm("l2ElectronViewsMaker")
-#    InputMakerAlg.OutputLevel = DEBUG
-#    InputMakerAlg.ViewFallThrough = True
-#    InputMakerAlg.RoIsLink = "roi"
-#    InputMakerAlg.InViewRoIs = "BJetStep2RoI"
-#    InputMakerAlg.Views = "BJetViews"
-
-    # input maker
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step2")
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    InputMakerAlg = EventViewCreatorAlgorithm("BJetInputMaker_step2")
     InputMakerAlg.OutputLevel = DEBUG
-    InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = "SplitJet"
+    InputMakerAlg.ViewFallThrough = True
+    InputMakerAlg.RoIsLink = "roi"
+    InputMakerAlg.InViewRoIs = "BJetStep2RoI"
+    InputMakerAlg.Views = "BJetViews"
 
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
-    theGSC.JetKey = "SplitJet"
+    theGSC.JetKey = "myJets"
     theGSC.JetOutputKey = "GSCJet"
 
     # hypo
