@@ -37,6 +37,9 @@
 #include <map>
 #include <list>
 #include <math.h>       /* hypot */
+#include <iostream>
+#include <sstream>
+
 
 using Athena::Units::GeV;
 
@@ -296,6 +299,7 @@ namespace Analysis {
   SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,*m_inputPointers);
 
 
+
    ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<m_inputPointers->size() );
 
@@ -305,9 +309,15 @@ namespace Analysis {
 	  return;
 	}
 
+
+
 	//tmvaReader->BookMVA("BDT", xmlFileName);
 	TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, str.data() );
 	kl = dynamic_cast<TMVA::MethodBase*>(method);
+
+
+
+
 
 	// add it or overwrite it in the map of readers:
 	pos = m_tmvaReaders.find(alias);
@@ -345,6 +355,8 @@ namespace Analysis {
   CreateLocalVariables( inputs );
 
   SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,*m_inputPointers);
+
+
 
   ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<m_inputPointers->size() );
@@ -438,7 +450,8 @@ namespace Analysis {
       if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) {
         //MV2cXX
         BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
-      }else {
+      }
+      else {
         //MV2m
         BTag->setVariable<double>(m_xAODBaseName, "pb", mv2m_pb);
         BTag->setVariable<double>(m_xAODBaseName, "pu", mv2m_pu);
