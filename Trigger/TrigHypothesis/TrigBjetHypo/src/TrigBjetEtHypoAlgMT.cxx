@@ -105,14 +105,9 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 		   "," << primaryVertex->z() << ")" ); 
   }
 
-
-<<<<<<< HEAD
-
-=======
   // ========================================================================================================================== 
   //    ** Prepare Outputs
   // ========================================================================================================================== 
->>>>>>> ATR_18838_AddingFastTracking
 
   // Prepare Output 
   // Output RoIs -- WILL CHANGE -- TMP
@@ -193,7 +188,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
   TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
   // Link Jet Collection to decision so that I can use it in the following b-jet trigger steps (?)
-  newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_jetsKey.key(),0 ) );
+  newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
   ATH_MSG_DEBUG( "Linking 'SplitJets' to output decisions" );
 
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs { 
@@ -209,55 +204,12 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
       continue;
     bool pass = false;
     CHECK( tool->decide( outputJets.get(),pass ) );
-    //    CHECK( tool->decide( jetCollection,pass ) );
     if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
   }
 
-<<<<<<< HEAD
-  // Decisions
-  std::unique_ptr< TrigCompositeUtils::DecisionContainer > decisions = std::make_unique< TrigCompositeUtils::DecisionContainer >();
-  std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > aux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer >();
-  decisions->setStore( aux.get() );
-
-  // Taken from Jet Code here 
-  const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
-  TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
-
-  for ( auto i: *prevDecisionHandle.cptr() ) {
-    ATH_MSG_DEBUG( "Linking initialRoI to output decisions." ); // TMP // do we need it ?
-    auto roiLink = i->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    CHECK( roiLink.isValid() );
-    ATH_MSG_DEBUG( "  ** Link is VALID !" );
-    newDecision->setObjectLink( "initialRoI",roiLink);
-  }
-
-  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs { 
-    TrigCompositeUtils::decisionIDs( prevDecision ).begin(),
-      TrigCompositeUtils::decisionIDs( prevDecision ).end() 
-      };
-
-  // Decide (Hypo Tool)
-  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
-    const HLT::Identifier  decisionId = tool->getId();
-    // Check previous decision is 'passed'
-    if ( not TrigCompositeUtils::passed( decisionId.numeric() , previousDecisionIDs ) )
-      continue;
-    bool pass = false;
-    CHECK( tool->decide( jetCollection,pass ) );
-    if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
-  }
-
-  // Save Output Decisions
-  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
-  CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
-  ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
-
-  // **************************************************************************************** 
-=======
   // ==========================================================================================================================
   //    ** Store Output
   // ==========================================================================================================================
->>>>>>> ATR_18838_AddingFastTracking
 
   // Save Output Decisions
   SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );

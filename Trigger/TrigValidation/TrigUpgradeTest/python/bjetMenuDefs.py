@@ -84,7 +84,7 @@ def bJetStep1Sequence():
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
-    hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlgMT_step1")
+    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
     hypo.OutputJets = "SplitJets"
@@ -134,9 +134,9 @@ def bJetStep2Sequence():
     theGSC.JetOutputKey = "GSCJet"
 
     # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
-    hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg_step2")
+    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
     hypo.RoiKey = theGSC.JetOutputKey
