@@ -479,7 +479,7 @@ def setupMenu():
         ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE200_EMPTY',        'L1_TE4_VTE200_EMPTY',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
         ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE200_EMPTY',        'L1_TE5_VTE200_EMPTY',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
         ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE4_VTE200',        'L1_TAU1_TE4_VTE200',   [], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
-        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE5_VTE200',        'L1_TAU1_TE4_VTE200',   [], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
+        ['hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE5_VTE200',        'L1_TAU1_TE5_VTE200',   [], [UPCStream, 'express'],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc_noiseSup"]]],
  	    ['hi_upc_FgapAC3_hi_gg_upc_L12TAU2_VTE200',        'L1_2TAU2_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc"]]],
  	    ['hi_upc_FgapAC3_hi_gg_upc_L12TAU3_VTE200',        'L1_2TAU3_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc"]]],
  	    ['hi_upc_FgapAC3_hi_gg_upc_L12TAU2_VTE100',        'L1_2TAU2_VTE100',   [], [UPCStream],["BW:UPC", "RATE:UPC"], -1, ['serial',-1,["hi_upc_FgapAC3","hi_gg_upc"]]],
