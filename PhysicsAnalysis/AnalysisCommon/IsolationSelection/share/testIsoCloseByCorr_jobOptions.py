@@ -23,12 +23,6 @@ ROOTFiles = []
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-#import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-#job += isoCones.GetUpdatedIsoTrackCones()
-
-
-
-
 ServiceMgr.MessageSvc.debugLimit = 2000000
 ServiceMgr.MessageSvc.verboseLimit = 2000000
 
