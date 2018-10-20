@@ -10,19 +10,26 @@ from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
+    log = logging.getLogger( 'TriggerMenu.api.TriggerAPI.py' )
     centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180925.pickle")
-    if not centralPickleFile: centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180904.pickle")
-    if centralPickleFile: centralPickleFile = os.path.realpath(centralPickleFile)
+    if not centralPickleFile: 
+        log.warning("Couldn't find primary pickle file, try backup")
+        centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180904.pickle")
+    if centralPickleFile: 
+        log.info("Found pickle file:"+centralPickleFile)
+        centralPickleFile = os.path.realpath(centralPickleFile)
+    else: log.error("Couldn't find backup pickle file")
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = {}
     privatedbQueries = {}
     customGRL = None
     release   = None
-    log = logging.getLogger( 'TriggerMenu.api.TriggerAPI.py' )
+    pickleread = False
 
     @classmethod
     def init(cls):
-        if cls.dbQueries: return
+        if cls.pickleread: return
+        cls.pickleread = True
         if cls.centralPickleFile:
             try:
                 with open(cls.centralPickleFile, 'r') as f:
