@@ -127,3 +127,8 @@ PoolSvc.WriteCatalog = "file:Catalog1.xml"
 #CondProxyProvider.InputCollections = ["LArRawCond_dc2_a.pool.root"]
 
 conddb.setGlobalTag("OFLCOND-CSC-00-01-00")
+
+# Suppress useless GeoModelSvc messages.
+from AthenaCommon import Constants
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc().OutputLevel=Constants.WARNING
