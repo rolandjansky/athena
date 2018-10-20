@@ -31,7 +31,7 @@ monitoring_muonLowpt = ["HLT_mu14"]
 ### TE name of the hypos for the L2
 #L2 standalone
 monitoring_muonNonIso_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
-monitoring_muonNonIso_HI_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU6','L2_mu_SAhyp_Muon4GeV_v15a_MU4','L2_mu_SAhyp_Muon4GeV_v15a_MU4']#8TeV
+monitoring_muonNonIso_HI_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU6','L2_mu_SAhyp_Muon3GeV_v15a_MU4','L2_mu_SAhyp_Muon4GeV_v15a_MU4']#8TeV
 monitoring_muonNonIso_pp_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 
 monitoring_muonIso_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
@@ -39,7 +39,7 @@ monitoring_muonIso_HI_L2SAHypo = ['']
 monitoring_muonIso_pp_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 
 monitoring_MSonly_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
-monitoring_MSonly_HI_L2SAHypo = ['HLT_mu15_msonly']
+monitoring_MSonly_HI_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU11']
 monitoring_MSonly_pp_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 
 monitoring_muonEFFS_L2SAHypo = ['']

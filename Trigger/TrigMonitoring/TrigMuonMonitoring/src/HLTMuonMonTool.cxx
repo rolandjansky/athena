@@ -159,6 +159,7 @@ StatusCode HLTMuonMonTool::init()
   //(*m_log).setLevel(MSG::DEBUG); // YY: not yet used
   // this->msg().setLevel(MSG::DEBUG);  // YY tried this, worked fine
   ATH_MSG_DEBUG("init being called");
+  ATH_MSG_DEBUG("HI_pp_mode:" << m_HI_pp_mode);
   // some switches and flags
   m_requestESchains = true;
   //initialization for common tools
@@ -255,13 +256,15 @@ StatusCode HLTMuonMonTool::init()
   // v5 primary
   //m_histChainEFFS.push_back("muChainEFFS");
   //m_chainsEFFS.push_back("mu18_mu8noL1");
+
   if(!m_HI_pp_mode){
     m_FS_pre_trigger = "HLT_mu4";
-    m_FS_pre_trigger = "HLT_mu10";
+    m_FS_pre_trigger_second = "HLT_mu8";
   }else{
     m_FS_pre_trigger = "HLT_mu24_ivarmedium";
+    m_FS_pre_trigger_second = "HLT_mu26_ivarmedium";
   }
-  m_FS_pre_trigger_second = "HLT_mu26_ivarmedium";
+
   for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
 	if(ich > 0) continue;
 	m_histChainEFFS.push_back("muChainEFFS");
@@ -1063,7 +1066,10 @@ const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const
       hypote = te2;
     }
   }
-
+  if(!hypote){
+      ATH_MSG_DEBUG("[" << chainname<< "] HypoTE not found. Assigning alg TE.");
+      hypote = te;
+  }
 
   return hypote;
 }
