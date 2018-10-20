@@ -238,6 +238,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
     declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
     //Detector Coverage Tool switch
     declareProperty("CoverageCheck",m_CoverageCheck= true);
+    declareProperty("UseDCS", m_useDCS = true);
 
   }
 
@@ -440,6 +441,8 @@ SCTErrMonTool::bookHistograms() {
   }
 
   ATH_CHECK(m_byteStreamErrSvc.retrieve());
+  if (m_useDCS) ATH_CHECK(m_dcsSvc.retrieve());
+  ATH_CHECK(m_pSummarySvc.retrieve());
   m_initialize = true;
   return StatusCode::SUCCESS;
 }
@@ -2136,7 +2139,7 @@ bool SCTErrMonTool::psTripDCSSCT()
   for (unsigned int i=0; i<maxHash; i++)
     {
       IdentifierHash hash(i);
-      if (!m_dcsSvc->isGood(hash))
+      if (m_useDCS and !m_dcsSvc->isGood(hash))
         {
           npsw++; //Counting the number of PS sides
               altered = true;
