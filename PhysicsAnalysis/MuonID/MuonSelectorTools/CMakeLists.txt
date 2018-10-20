@@ -60,6 +60,15 @@ if( XAOD_STANDALONE )
       xAODTracking xAODCore MuonSelectorToolsLib )
 endif()
 
+
+# Test(s) in the package: 
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_MuonSelectorToolsTester_data
+      SOURCES test/ut_MuonSelectorToolsTester_data.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools )
+endif()
+
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )

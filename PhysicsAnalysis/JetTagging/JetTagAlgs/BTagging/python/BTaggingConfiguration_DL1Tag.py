@@ -52,7 +52,5 @@ def buildDL1(basename, calibrationName=''):
   return DL1Instance, metaInstance
 
 toolDL1rTag, metaDL1rTag = buildDL1("DL1r")
-#toolDL1muTag, metaDL1muTag = buildDL1("DL1r")
 toolDL1Tag, metaDL1Tag = buildDL1("DL1")
 toolDL1rmuTag, metaDL1rmuTag = buildDL1("DL1rmu")
-#toolDL1rnnTag, metaDL1rnnTag = buildDL1("DL1rmu")

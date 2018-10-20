@@ -31,7 +31,11 @@ HIGG3D1Stream.AcceptAlgs(["HIGG3D1Kernel_skimming"])
 ## Prepare thinning service and add trigger chains for TrigNavigation thinning
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 HIGG3D1ThinningHelper = ThinningHelper( "HIGG3D1ThinningHelper" )
-HIGG3D1ThinningHelper.TriggerChains = "HLT_mu.* | HLT_e.* | HLT_2e.* | HLT_2mu.*"
+
+## Use the trigger lists in order to thin away all other trigger information
+from DerivationFrameworkHiggs.HIGG3D1TriggerList import triggersNavThin
+HIGG3D1ThinningHelper.TriggerChains = ' | '.join(triggersNavThin)
+
 HIGG3D1ThinningHelper.AppendToStream( HIGG3D1Stream )
 
 #====================================================================
@@ -280,6 +284,8 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
 HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
 HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
 HIGG3D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+HIGG3D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 HIGG3D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
                                             'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
                                             'AntiKtVR30Rmax4Rmin02Track':'xAOD::JetContainer',
@@ -293,16 +299,18 @@ if globalflags.DataSource()=='geant4':
                                                "AntiKt4TruthWZJets"]
 
     # Add special truth containers
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBSMAndDownstreamParticles
     addStandardTruthContents()
-    HIGG3D1SlimmingHelper.StaticContent = [ "xAOD::TruthParticleContainer#TruthMuons",
-                                            "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",
-                                            "xAOD::TruthParticleContainer#TruthElectrons",
-                                            "xAOD::TruthParticleAuxContainer#TruthElectronsAux.",
-                                            "xAOD::TruthParticleContainer#TruthPhotons",
-                                            "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
-                                            "xAOD::TruthParticleContainer#TruthNeutrinos",
-                                            "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." ]
+    addBSMAndDownstreamParticles()
+
+    HIGG3D1SlimmingHelper.AppendToDictionary = {
+                                                'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                                #'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                               }
     HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
 

@@ -73,6 +73,9 @@ StatusCode MuonCPTools::setupCalibration() {
   else {
     IMuCalibSmearTool* muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name);
    
+    // 2015+2016
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "Year", "Data16"),
+	       "Unable to change Year property in  " + mu_calib_smearing_name);
     // StatComb recommended to be false in R21
     top::check(asg::setProperty(muonCalibrationAndSmearingTool, "StatComb", false),
 	       "Unable to change StatComb property in " + mu_calib_smearing_name);    
@@ -102,16 +105,19 @@ StatusCode MuonCPTools::setupCalibration() {
   else {
     IMuCalibSmearTool* muonCalibrationAndSmearingTool2017 = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name_2017);
 
+    // 2017
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "Year", "Data17"),
+	       "Unable to change Year property in  " + mu_calib_smearing_name_2017);
     // StatComb recommended to be false in R21                                                                  
     top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "StatComb", false),
 	       "Unable to change StatComb property in " + mu_calib_smearing_name_2017);
     // Sagitta bias file                                                                                        
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaRelease", "sagittaBiasDataAll_25_07_17"),
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaRelease", "sagittaBiasDataAll_30_07_18"),
 	       "Unable to set SagittaBiasFile in " +  mu_calib_smearing_name_2017);
     // Sagitta correction (apply to data)                                                                       
     top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaCorr", false ),
 	       "Unable to set Sagitta correction in " + mu_calib_smearing_name_2017);
-    // Sagitta MC distortion (apply to MC) - Recommendation true->false 23/3/18                                                                      
+    // Sagitta MC distortion (apply to MC) - Recommendation true->false 23/3/18                                   
     top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "doSagittaMCDistortion", false ),
 	       "Unable to set Sagitta MC distortion in " + mu_calib_smearing_name_2017);
     // Initialise the tool                                                                                      

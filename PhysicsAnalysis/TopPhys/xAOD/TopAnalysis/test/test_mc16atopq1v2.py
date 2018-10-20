@@ -3,6 +3,7 @@
 # art-description: DxAOD MC16a TOPQ1 - top-xaod-v2 validation-cuts.txt - Provide a test for comparing our two exectuables and move towards a switch
 # art-type: grid
 # art-output: output.root
+# art-include: 21.2/AnalysisTop
 
 import ROOT
 from PathResolver import PathResolver

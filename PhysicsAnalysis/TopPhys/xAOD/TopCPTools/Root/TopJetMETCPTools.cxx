@@ -455,10 +455,10 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
   const std::string jvt_tool_name = "JetJvtEfficiencyTool";
   const std::string JVT_SFFile =
     (m_config->sgKeyJets()=="AntiKt4LCTopoJets")?
-    "JetJvtEfficiency/Moriond2017/JvtSFFile_LC.root":      // LC jets
+    "JetJvtEfficiency/Moriond2018/JvtSFFile_LC.root":      // LC jets
     (m_config->useParticleFlowJets())? 
-    "JetJvtEfficiency/Moriond2017/JvtSFFile_EMPFlow.root": // pflow jets
-    "JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root";      // default is EM jets
+    "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root": // pflow jets
+    "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root";      // default is EM jets
 
   if (asg::ToolStore::contains<CP::IJetJvtEfficiency>(jvt_tool_name)) {
     m_jetJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(jvt_tool_name);

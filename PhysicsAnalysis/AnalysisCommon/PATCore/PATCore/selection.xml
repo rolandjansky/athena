@@ -10,4 +10,7 @@
     <class name="IAthHistogramTool" />
     <class name="IAsgSelectionTool" />
     <class name="IAsgSelectionWithVertexTool" />
+    <namespace name="PATCore" />
+    <namespace name="PATCore::ParticleDataType" />
+    <enum name="PATCore::ParticleDataType::DataType" />
 </lcgdict>

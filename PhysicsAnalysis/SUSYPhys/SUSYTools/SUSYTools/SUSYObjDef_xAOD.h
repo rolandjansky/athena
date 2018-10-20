@@ -130,6 +130,9 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
+    bool eleIsoSFExist(std::string eleWP);
+    bool muIsoSFExist(std::string muWP);
+
     bool isData() const override final {return m_dataSource == Data;}
     bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
@@ -176,7 +179,7 @@ namespace ST {
 
     StatusCode GetMETSig(xAOD::MissingETContainer& met,
                          double& metSignificance,
-                         bool doTST = true, bool doJVTCut = true
+                         bool doTST = true, bool doJVTCut = true, const float avgmu = 0
 		         ) override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
@@ -493,7 +496,6 @@ namespace ST {
     std::string m_prwActualMu2017File;
     std::string m_prwActualMu2018File;
 
-    double m_muUncert;
     double m_prwDataSF;
     double m_prwDataSF_UP;
     double m_prwDataSF_DW;
@@ -513,6 +515,7 @@ namespace ST {
     std::string m_eleIdBaseline;
     std::string m_eleConfig;
     std::string m_eleConfigBaseline;
+    std::string m_eleBaselineIso_WP;
     bool        m_eleIdExpert;
     int         m_muId;
     int         m_muIdBaseline;
@@ -520,19 +523,21 @@ namespace ST {
     std::string m_photonIdBaseline;
     std::string m_tauId;
     std::string m_tauIdBaseline;
-    bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix)
     std::string m_eleIso_WP;
     std::string m_eleIsoHighPt_WP;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
+    std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
     std::string m_photonTriggerName;
+    std::string m_muBaselineIso_WP;
     std::string m_muIso_WP;
     std::string m_BtagWP;
     std::string m_BtagTagger;
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
+    double m_BtagMinPt_trkJet;  
 
     //configurable cuts here
     double m_eleBaselinePt;
@@ -575,7 +580,6 @@ namespace ST {
     std::string m_tauConfigPath;
     std::string m_tauConfigPathBaseline;
     bool   m_tauDoTTM;
-    bool   m_tauRecalcOLR;
 
     double m_jetPt;
     double m_jetEta;
@@ -754,6 +758,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
     //
@@ -805,6 +810,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
+  const static SG::AuxElement::ConstAccessor<float> acc_DetEta("DetectorEta");
 
 
 } // namespace ST

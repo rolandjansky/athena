@@ -22,8 +22,8 @@ JetStandardAux = \
 
 BTaggingStandardAux = \
     [ "MV2c10_discriminant"
-    , "MV2r_discriminant"
     , "MV2rmu_discriminant"
+    , "MV2r_discriminant"
     , "MV2c100_discriminant"
     , "MV2cl100_discriminant"
     , "DL1_pu"
@@ -59,8 +59,11 @@ BTaggingExtendedAux = [
 
 JetExtendedAux = [
     "GhostBHadronsFinalCount",
+    "GhostBHadronsFinalPt",
     "GhostCHadronsFinalCount",
+    "GhostCHadronsFinalPt",
     "GhostTausFinalCount",
+    "GhostTausFinalPt",
     "GhostTrack",
 ]
 

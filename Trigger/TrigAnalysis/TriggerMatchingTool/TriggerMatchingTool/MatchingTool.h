@@ -36,9 +36,9 @@ public:
 protected:
   MatchingImplementation* impl();
 
-  bool matchSingleType(const std::vector<const xAOD::IParticle*>& subRecoObjects, Trig::Combination& comb);
+  bool matchSingleType(const std::vector<const xAOD::IParticle*>& subRecoObjects, Trig::Combination& comb, const std::string& chain);
 
-  bool matchCombination(const std::vector<const xAOD::IParticle*>& recoObjects, Trig::Combination& comb);
+  bool matchCombination(const std::vector<const xAOD::IParticle*>& recoObjects, Trig::Combination& comb, const std::string& chain);
 
 
 #ifndef XAOD_STANDALONE

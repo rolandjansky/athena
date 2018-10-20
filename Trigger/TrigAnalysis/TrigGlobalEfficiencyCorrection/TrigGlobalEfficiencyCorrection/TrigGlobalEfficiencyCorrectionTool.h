@@ -43,14 +43,6 @@ public:
 
 	virtual StatusCode  initialize() override;
 
-	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyScaleFactor) override;
-	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyScaleFactor) override;
-	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) override;
-	virtual CP::CorrectionCode getEfficiency(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) override;
-	
-	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::Photon*>& photons, double& efficiencyScaleFactor) override;
-	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::Photon*>& photons, double& efficiencyData, double& efficiencyMc) override;
-	
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) override;
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) override;
 	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::IParticle*>& particles, double& efficiencyData, double& efficiencyMc) override;
@@ -62,8 +54,7 @@ public:
 	virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
 
 	virtual CP::CorrectionCode checkTriggerMatching(bool& matched, const std::vector<const xAOD::IParticle*>& particles) override;
-	virtual CP::CorrectionCode checkTriggerMatching(bool& matched, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons) override;
-	virtual CP::CorrectionCode checkTriggerMatching(bool& matched, const std::vector<const xAOD::Photon*>& photons) override;
+	virtual CP::CorrectionCode getRelevantTriggers(std::vector<std::string>& triggers) override;
 	
 	static CP::CorrectionCode suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination,
 		const std::string& version, std::map<std::string,std::string>& legsPerKey);
@@ -188,9 +179,6 @@ private:
 		{ return *m_suppliedElectronEfficiencyTools[index]; }
 	IAsgPhotonEfficiencyCorrectionTool& GetEfficiencyTool(const xAOD::Photon*, std::size_t index)
 		{ return *m_suppliedPhotonEfficiencyTools[index]; }
-	CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const LeptonList& leptons, double& efficiencyScaleFactor);
-	CP::CorrectionCode getEfficiency(unsigned runNumber, const LeptonList& leptons, double& efficiencyData, double& efficiencyMc);
-	CP::CorrectionCode checkTriggerMatching(bool& matched, const LeptonList& leptons);
 	std::size_t getCombinedHash(const flat_set<std::size_t>& legs);
 	std::size_t getCombinedHash(std::size_t leg1, std::size_t leg2);
 	static inline constexpr const flat_set<std::size_t>& forwardLegs(const flat_set<std::size_t>& legs);

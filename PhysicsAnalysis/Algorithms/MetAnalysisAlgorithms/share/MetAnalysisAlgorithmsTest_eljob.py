@@ -9,9 +9,16 @@
 # extend the list of arguments with your private ones later on.
 import optparse
 parser = optparse.OptionParser()
+parser.add_option( '-d', '--data-type', dest = 'data_type',
+                   action = 'store', type = 'string', default = 'data',
+                   help = 'Type of data to run over. Valid options are data, mc, afii' )
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
+parser.add_option( '-u', '--unit-test', dest='unit_test',
+                   action = 'store_true', default = False,
+                   help = 'Run the job in "unit test mode"' )
+
 ( options, args ) = parser.parse_args()
 
 # Set up (Py)ROOT.
@@ -23,9 +30,8 @@ from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
+
+dataType = options.data_type
 
 if not dataType in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
@@ -58,6 +64,18 @@ sysLoader = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
 job.algsAdd( sysLoader )
 
+# Include, and then set up the jet analysis algorithm sequence:
+from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
+jetContainer = 'AntiKt4EMTopoJets'
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
+jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+print( jetSequence ) # For debugging
+
+# Add all algorithms to the job:
+for alg in jetSequence:
+    job.algsAdd( alg )
+    pass
+
 # Set up a selection alg for demonstration purposes
 # Also to avoid warnings from building MET with very soft electrons
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
@@ -83,12 +101,12 @@ print( viewalg ) # For debugging
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-metSequence = makeMetAnalysisSequence( dataType, metSuffix = 'AntiKt4EMTopo' )
-metSequence.configure( inputName = { 'jets'      : 'AntiKt4EMTopoJets',
+metSequence = makeMetAnalysisSequence( dataType, metSuffix = jetContainer[:-4] )
+metSequence.configure( inputName = { 'jets'      : 'AnalysisJets_%SYS%',
                                      'muons'     : 'Muons',
                                      'electrons' : 'METElectrons_%SYS%' },
                        outputName = 'AnalysisMET_%SYS%',
-                       affectingSystematics = { 'jets'      : '(^$)',
+                       affectingSystematics = { 'jets'      : jetSequence.affectingSystematics(),
                                                 'muons'     : '(^$)',
                                                 'electrons' : '(^$)' } )
 print( metSequence ) # For debugging
@@ -111,6 +129,15 @@ ntupleMaker.systematicsRegex = '.*'
 job.algsAdd( ntupleMaker )
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
 
+# Find the right output directory:                                                                                      
+submitDir = options.submission_dir
+if options.unit_test:
+    import os
+    import tempfile
+    submitDir = tempfile.mkdtemp( prefix = 'metTest_'+dataType+'_', dir = os.getcwd() )
+    os.rmdir( submitDir )
+    pass
+
 # Run the job using the direct driver.
 driver = ROOT.EL.DirectDriver()
-driver.submit( job, options.submission_dir )
+driver.submit( job, submitDir )

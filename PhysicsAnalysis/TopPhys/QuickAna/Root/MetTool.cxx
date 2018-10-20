@@ -379,8 +379,8 @@ namespace ana
     }
 
     ATH_CHECK( m_metutil->buildMETSum("Final", met, (*met)[softTerm]->source()) );
-
-    ATH_CHECK( m_metSigni->varianceMET(met, "RefJet", softTerm, "Final"));
+    
+    ATH_CHECK( m_metSigni->varianceMET(met, objects.eventinfo()->averageInteractionsPerCrossing(), "RefJet", softTerm, "Final"));
 
     std::string met_signi = "met_signi_"+m_jetSelection;
     objects.eventinfo()->auxdata<float>(met_signi) = m_metSigni->GetSignificance();

@@ -49,6 +49,12 @@ namespace ST {
 
   const static SG::AuxElement::Decorator<double> dec_btag_weight("btag_weight");
 
+  const static SG::AuxElement::Decorator<float> dec_VRradius("VRradius");
+  const static SG::AuxElement::ConstAccessor<float> acc_VRradius("VRradius");
+
+  const static SG::AuxElement::Decorator<char> dec_passDRcut("passDRcut");
+  const static SG::AuxElement::ConstAccessor<char> acc_passDRcut("passDRcut");
+  
   StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
   {
     if (!m_tool_init) {
@@ -87,12 +93,11 @@ namespace ST {
       ATH_CHECK( this->FillJet(*jet, true) );
     }
     // Tool requires a loop over all jets
-    if (m_doFwdJVT){
-      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-    }
+    m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
+
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
@@ -152,6 +157,20 @@ namespace ST {
     for (const auto& jet : *copy) {
       ATH_CHECK( this->FillTrackJet(*jet) );
     }
+
+    if (m_defaultTrackJets == "AntiKtVR30Rmax4Rmin02TrackJets") {
+      for (const auto& jet1 : *copy) {
+        if (!acc_signal(*jet1)) continue;
+        for (const auto& jet2 : *copy) {
+          if (!acc_baseline(*jet2)) continue;
+          if (jet1 == jet2) continue;
+          float dr_jets = sqrt( ((*jet1).eta()-(*jet2).eta())*((*jet1).eta()-(*jet2).eta()) + ((*jet1).phi()-(*jet2).phi())*((*jet1).phi()-(*jet2).phi()) );
+          float smaller_radius = std::min(acc_VRradius(*jet1),acc_VRradius(*jet2));
+          if ( dr_jets < smaller_radius) dec_passDRcut(*jet1) = false;
+        }
+      }
+    }
+
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
       ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
@@ -247,12 +266,10 @@ namespace ST {
       ATH_CHECK( this->FillJet(*jet, false) );
     }
     // Tool requires a loop over all jets
-    if (m_doFwdJVT){
-      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-    }
+    m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
@@ -392,16 +409,27 @@ namespace ST {
 
     ATH_MSG_VERBOSE( "Starting FillTrackJet on jet with pt=" << input.pt() );
 
-    dec_signal(input) = false;
     dec_btag_weight(input) = -999.;
     dec_effscalefact(input) = 1.;
+
+    if (m_defaultTrackJets == "AntiKtVR30Rmax4Rmin02TrackJets") {
+      // VR recommendation
+      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalib2017#Recommendations_for_variable_rad
+      dec_baseline(input) = input.pt() >= 5e3 && input.numConstituents() >= 2;
+      if (m_trkJetPt < 10e3)
+        ATH_MSG_WARNING ("The pt threshold of VR jets you set is: " << m_trkJetPt/1000. << " GeV. But VR jets with pt < 10GeV are uncalibrated.");
+      dec_signal(input) = acc_baseline(input) && input.pt() >= m_trkJetPt && fabs(input.eta()) <= m_trkJetEta;
+      dec_VRradius(input) = std::max(0.02,std::min(0.4,30000./input.pt()));
+      dec_passDRcut(input) = acc_signal(input);
+    } else {
+      dec_baseline(input) = input.pt() >= m_trkJetPt && fabs(input.eta()) <= m_trkJetEta;
+      dec_signal(input) = acc_baseline(input);
+    }
 
     if (m_useBtagging) {
       if (m_BtagWP != "Continuous") this->IsTrackBJet(input);
       else this->IsTrackBJetContinuous(input);
     }
-
-    dec_signal(input) = input.pt() >= m_trkJetPt && fabs(input.eta()) <= m_trkJetEta;
 
     if (m_debug) {
       ATH_MSG_INFO( "TRK JET pt: " << input.pt() );

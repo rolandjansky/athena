@@ -9,7 +9,7 @@ This is a short README of the TPhotonEfficiencyCorrection class, this class inhe
 
 Up-to-date information about the tool. can be found on its dedicated twiki pages:
 * [PhotonEfficiencyRun2](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2)
-* [IsolationFeb2018RecomRel21](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/IsolationFeb2018RecomRel21)
+* [IsolationOctober2018RecomRel21](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/IsolationOctober2018RecomRel21)
 
 In case you feel that some piece of information is missing, please feel free to contact the author (Michael.Pitt@cern.ch).
 

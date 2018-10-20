@@ -234,4 +234,4 @@ SingleLepton_Combined=list(set(SingleLepton_2015+SingleLepton_2016+SingleLepton_
 Dilepton_Combined=list(set(DiLepton_2015+DiLepton_2016+DiLepton_2017+DiLepton_2018))
 
 #Alternative TriggerSkimming for TrigNavigation
-triggersNavThin=SingleLepton_2015+DiLepton_2015+SingleLepton_2016+DiLepton_2016+SingleLepton_2017+DiLepton_2017+SingleLepton_2018+DiLepton_2018
+triggersNavThin=list(set(SingleLepton_2015+DiLepton_2015+SingleLepton_2016+DiLepton_2016+SingleLepton_2017+DiLepton_2017+SingleLepton_2018+DiLepton_2018))

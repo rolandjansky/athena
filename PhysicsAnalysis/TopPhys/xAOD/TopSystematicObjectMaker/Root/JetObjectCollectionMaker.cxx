@@ -101,36 +101,32 @@ StatusCode JetObjectCollectionMaker::initialize() {
                 "Failed to retrieve JetUncertaintiesToolLargeR_Weak" );
   }
 
-  // If we are using particle flow jets then we
-  // don't have any uncertainties so skip the retrieval.
-  if (!m_config->useParticleFlowJets()) {
-    ///-- JER uncertainties model --///
-    if (m_config->jetJERSmearingModel() == "Full" || m_config->jetJERSmearingModel() == "All")
-      m_doFull_JER = true;
-    if (m_config->jetJERSmearingModel() == "Simple")
-      m_doFull_JER = false;
+  ///-- JER uncertainties model --///
+  if (m_config->jetJERSmearingModel() == "Full" || m_config->jetJERSmearingModel() == "All")
+    m_doFull_JER = true;
+  if (m_config->jetJERSmearingModel() == "Simple")
+    m_doFull_JER = false;
 
-    ///-- Are we doing JER? Let's not repeat this logic over and over --///
-    if (m_config->isMC())
-      m_doJER = true;
-    if (!m_config->isMC() && m_doFull_JER)
-      m_doJER = true;
-    /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
+  ///-- Are we doing JER? Let's not repeat this logic over and over --///
+  if (m_config->isMC())
+    m_doJER = true;
+  if (!m_config->isMC() && m_doFull_JER)
+    m_doJER = true;
+  /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
 
 
-    if (m_config->isMC()) {
-      if (!m_config->doMultipleJES()) {
-        top::check( m_jetUncertaintiesTool.retrieve() , "Failed to retrieve JetUncertaintiesTool" );
-	if ( m_config->jetCalibSequence() == "JMS" ){
-	  top::check( m_jetUncertaintiesToolFrozenJMS.retrieve() , "Failed to retrieve JetUncertaintiesTool (FrozenJMS)" );
-	}
+  if (m_config->isMC()) {
+    if (!m_config->doMultipleJES()) {
+      top::check( m_jetUncertaintiesTool.retrieve() , "Failed to retrieve JetUncertaintiesTool" );
+      if ( m_config->jetCalibSequence() == "JMS" ){
+	top::check( m_jetUncertaintiesToolFrozenJMS.retrieve() , "Failed to retrieve JetUncertaintiesTool (FrozenJMS)" );
       }
-      if (m_config->doMultipleJES()) {
-        top::check( m_jetUncertaintiesToolReducedNPScenario1.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario1" );
-        top::check( m_jetUncertaintiesToolReducedNPScenario2.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario2" );
-        top::check( m_jetUncertaintiesToolReducedNPScenario3.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario3" );
-        top::check( m_jetUncertaintiesToolReducedNPScenario4.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario4" );
-      }
+    }
+    if (m_config->doMultipleJES()) {
+      top::check( m_jetUncertaintiesToolReducedNPScenario1.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario1" );
+      top::check( m_jetUncertaintiesToolReducedNPScenario2.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario2" );
+      top::check( m_jetUncertaintiesToolReducedNPScenario3.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario3" );
+      top::check( m_jetUncertaintiesToolReducedNPScenario4.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario4" );
     }
   }
 
@@ -162,39 +158,36 @@ StatusCode JetObjectCollectionMaker::initialize() {
     }
   }
 
-  // If we are using particle flow jets then we
-  // don't have any uncertainties so skip
-  // trying to use the tools
-  if (!m_config->useParticleFlowJets()) {
-    ///-- JES systematics --///
-    if (m_config->isMC()) {
-      std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),
-	np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
-      std::string allNP_FrozenJMS("JET_"+m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
-      std::string largeR_strong("LARGERJET_Strong_"),
-        largeR_medium("LARGERJET_Medium_"),
-        largeR_weak("LARGERJET_Weak_");
+  
+  ///-- JES systematics --///
+  if (m_config->isMC()) {
+    std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),
+      np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
+    std::string allNP_FrozenJMS("JET_"+m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
+    std::string largeR_strong("LARGERJET_Strong_"),
+      largeR_medium("LARGERJET_Medium_"),
+      largeR_weak("LARGERJET_Weak_");
 
-      if (!m_config->doMultipleJES()) {
-        specifiedSystematics( syst , m_jetUncertaintiesTool , m_systMap_AllNP , allNP );
-	if ( m_config->jetCalibSequence() == "JMS" ){
-	  specifiedSystematics( syst , m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS , allNP_FrozenJMS );
-	}
-      }
-      if (m_config->doMultipleJES()) {
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 , np1 );
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario2 , m_systMap_ReducedNPScenario2 , np2 );
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario3 , m_systMap_ReducedNPScenario3 , np3 );
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 , np4 );
-      }
-      if (m_config->useLargeRJets()) {
-        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
-        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
-        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
+    if (!m_config->doMultipleJES()) {
+      specifiedSystematics( syst , m_jetUncertaintiesTool , m_systMap_AllNP , allNP );
+      if ( m_config->jetCalibSequence() == "JMS" ){
+	specifiedSystematics( syst , m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS , allNP_FrozenJMS );
       }
     }
-
+    if (m_config->doMultipleJES()) {
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 , np1 );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario2 , m_systMap_ReducedNPScenario2 , np2 );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario3 , m_systMap_ReducedNPScenario3 , np3 );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 , np4 );
+    }
+    if (m_config->useLargeRJets()) {
+      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
+      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
+      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
+    }
   }
+
+  
 
   // See http://cern.ch/go/nHF6 for more information
   if (m_config->doLargeRSmallRCorrelations()) {

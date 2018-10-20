@@ -75,7 +75,6 @@ Photon.Iso: ${PH_ISO}
 Tau.Pt: 20000.
 Tau.Eta: 2.5
 Tau.Id: Medium
-Tau.IDRedecorate: False
 #
 Jet.Pt: 20000.
 Jet.Eta: 2.8
@@ -149,12 +148,6 @@ MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
 #
 METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
-#
-#METSig.SoftTermParam: met::Random
-METSig.TreatPUJets: true
-METSig.DoPhiReso: true
-#
-PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
 Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0

@@ -44,6 +44,11 @@ ContainersOnTheFly = [
                         ["AntiKt10LCTopoJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10TrackCaloClusterJets","xAOD::JetContainer"],
                         ["AntiKt10TrackCaloClusterJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets","xAOD::JetContainer"],
+                        ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10LCTopoCSSKJets","xAOD::JetContainer"],
+                        ["AntiKt10LCTopoCSSKJetsAux","xAOD::JetAuxContainer"],
+
                         ["TrackCaloClustersCombinedAndNeutral","xAOD::TrackCaloClusterContainer"],
                         ["TrackCaloClustersCombinedAndNeutralAux","xAOD::TrackCaloClusterAuxContainer"],
                         ["BTagging_AntiKt4LCTopo","xAOD::BTaggingContainer"],

@@ -34,8 +34,9 @@ namespace top{
     m_isolationTool_FixedCutTight("CP::IsolationTool_FixedCutTight"),
     m_isolationTool_FixedCutTightTrackOnly("CP::IsolationTool_FixedCutTightTrackOnly"),
     m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
-    m_isolationTool_FixedCutHighMuTight("CP::IsolationTool_FixedCutHighMuTight"),
-    m_isolationTool_FixedCutHighMuLoose("CP::IsolationTool_FixedCutHighMuLoose"),
+    m_isolationTool_FCTight("CP::IsolationTool_FCTight"),
+    m_isolationTool_FCLoose("CP::IsolationTool_FCLoose"),
+    m_isolationTool_FCTightTrackOnly("CP::IsolationTool_FCTightTrackOnly"),
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto")
   {
     declareProperty( "config" , m_config );  
@@ -49,8 +50,9 @@ namespace top{
     declareProperty( "IsolationTool_FixedCutTight" ,          m_isolationTool_FixedCutTight );
     declareProperty( "IsolationTool_FixedCutTightTrackOnly" , m_isolationTool_FixedCutTightTrackOnly );
     declareProperty( "IsolationTool_FixedCutLoose" ,          m_isolationTool_FixedCutLoose );
-    declareProperty( "IsolationTool_FixedCutHighMuTight" ,    m_isolationTool_FixedCutHighMuTight );
-    declareProperty( "IsolationTool_FixedCutHighMuLoose" ,    m_isolationTool_FixedCutHighMuLoose );
+    declareProperty( "IsolationTool_FCTight" ,                m_isolationTool_FCTight );
+    declareProperty( "IsolationTool_FCLoose" ,                m_isolationTool_FCLoose );
+    declareProperty( "IsolationTool_FCTightTrackOnly" ,       m_isolationTool_FCTightTrackOnly );
     declareProperty( "MuonSelectionToolVeryLooseVeto" ,       m_muonSelectionToolVeryLooseVeto );
   }
 
@@ -68,8 +70,9 @@ namespace top{
     top::check( m_isolationTool_FixedCutTight.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_FixedCutTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_FixedCutLoose.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FixedCutHighMuTight.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FixedCutHighMuLoose.retrieve() , "Failed to retrieve Isolation Tool" );
+    top::check( m_isolationTool_FCTight.retrieve() , "Failed to retrieve Isolation Tool" );
+    top::check( m_isolationTool_FCLoose.retrieve() , "Failed to retrieve Isolation Tool" );
+    top::check( m_isolationTool_FCTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_muonSelectionToolVeryLooseVeto.retrieve() , "Failed to retrieve Selection Tool" );
 
     ///-- Set Systematics Information --///
@@ -99,8 +102,9 @@ namespace top{
   {
 
     static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt1000("ptvarcone30_TightTTVA_pt1000");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuTight("AnalysisTop_Isol_FixedCutHighMuTight");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuLoose("AnalysisTop_Isol_FixedCutHighMuLoose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTight("AnalysisTop_Isol_FCTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTightTrackOnly("AnalysisTop_Isol_FCTightTrackOnly");
 
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
@@ -192,8 +196,9 @@ namespace top{
 	muon->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose") = passIsol_FixedCutLoose;
 
         if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon)) {
-          AnalysisTop_Isol_FixedCutHighMuTight(*muon) = (m_isolationTool_FixedCutHighMuTight->accept(*muon) ? 1 : 0);
-          AnalysisTop_Isol_FixedCutHighMuLoose(*muon) = (m_isolationTool_FixedCutHighMuLoose->accept(*muon) ? 1 : 0);
+          AnalysisTop_Isol_FCTight(*muon) = (m_isolationTool_FCTight->accept(*muon) ? 1 : 0);
+          AnalysisTop_Isol_FCLoose(*muon) = (m_isolationTool_FCLoose->accept(*muon) ? 1 : 0);
+          AnalysisTop_Isol_FCTightTrackOnly(*muon) = (m_isolationTool_FCTightTrackOnly->accept(*muon) ? 1 : 0);
         }
 
 	// PromptLeptonIsolation - Some protection incase things change in R21

@@ -20,6 +20,8 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string name)
     , m_interpType(InterpType::UNKNOWN)
     , m_smearResolutionMC()
     , m_smearResolutionData()
+    , m_cachedProjResMC()
+    , m_cachedProjResData()
 { }
 
 JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool dev)
@@ -36,6 +38,8 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* conf
     , m_interpType(InterpType::UNKNOWN)
     , m_smearResolutionMC()
     , m_smearResolutionData()
+    , m_cachedProjResMC()
+    , m_cachedProjResData()
 { }
  
 JetSmearingCorrection::~JetSmearingCorrection()
@@ -215,6 +219,15 @@ StatusCode JetSmearingCorrection::initializeTool(const std::string&)
             return StatusCode::FAILURE;
     }
 
+    // Pre-cache the histogram file in 1D projections if relevant (depends on InterpType)
+    if (m_interpType == InterpType::OnlyX || m_interpType == InterpType::OnlyY)
+    {
+        if (cacheProjections(m_smearResolutionMC.get(),  m_cachedProjResMC,"mc").isFailure())
+            return StatusCode::FAILURE;
+        if (cacheProjections(m_smearResolutionData.get(),m_cachedProjResData,"data").isFailure())
+            return StatusCode::FAILURE;
+    }
+
     return StatusCode::SUCCESS;
 }
 
@@ -262,7 +275,7 @@ StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, dou
     return StatusCode::SUCCESS;
 }
 
-StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, double x, double y) const
+StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, const std::vector< std::unique_ptr<TH1> >& projections, double x, double y) const
 {
     // Ensure that the histogram exists
     if (!histo)
@@ -293,10 +306,6 @@ StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, dou
         y = minY + 1.e-6;
 
     // Get the result, interpolating as appropriate
-    // We need to use this as a 2D histogram to have access to the projection methods
-    // We also need a histogram to project into
-    TH2* localHist  = NULL;
-    TH1* projection = NULL;
     switch (m_interpType)
     {
         case InterpType::Full:
@@ -308,27 +317,13 @@ StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, dou
             break;
 
         case InterpType::OnlyX:
-            localHist = dynamic_cast<TH2*>(histo);
-            if (!localHist)
-            {
-                ATH_MSG_ERROR("Could not convert the histogram to a TH2, please check inputs");
-                return StatusCode::FAILURE;
-            }
-            projection = localHist->ProjectionX("projx_2D",histo->GetYaxis()->FindBin(y),histo->GetYaxis()->FindBin(y));
-            returnValue = projection->Interpolate(x);
-            delete projection;
+            // Determine the y-bin and use the cached projection to interpolate x
+            returnValue = projections.at(histo->GetYaxis()->FindBin(y))->Interpolate(x);
             break;
 
         case InterpType::OnlyY:
-            localHist = dynamic_cast<TH2*>(histo);
-            if (!localHist)
-            {
-                ATH_MSG_ERROR("Could not convert the histogram to a TH2, please check inputs");
-                return StatusCode::FAILURE;
-            }
-            projection = localHist->ProjectionY("projy_2D",histo->GetXaxis()->FindBin(x),histo->GetXaxis()->FindBin(x));
-            returnValue = projection->Interpolate(y);
-            delete projection;
+            // Determine the x-bin and use the cached projection to interpolate y
+            returnValue = projections.at(histo->GetXaxis()->FindBin(x))->Interpolate(y);
             break;
 
         default:
@@ -339,88 +334,6 @@ StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, dou
     return StatusCode::SUCCESS;
 }
 
-StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, double x, double y, double z) const
-{
-    // Ensure that the histogram exists
-    if (!histo)
-    {
-        ATH_MSG_ERROR("Unable to read histogram - address is NULL");
-        return StatusCode::FAILURE;
-    }
-
-    // Check dimensionality just to be safe
-    if (histo->GetDimension() != 3)
-    {
-        ATH_MSG_ERROR("Blocking reading of a " << histo->GetDimension() << "D histogram as a 3D histogram");
-        return StatusCode::FAILURE;
-    }
-
-    // Ensure we are within boundaries
-    const double minX = histo->GetXaxis()->GetBinLowEdge(1);
-    const double maxX = histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1);
-    if ( x >= maxX )
-        x = maxX - 1.e-6;
-    else if ( x <= minX )
-        x = minX + 1.e-6;
-    const double minY = histo->GetYaxis()->GetBinLowEdge(1);
-    const double maxY = histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1);
-    if ( y >= maxY )
-        y = maxY - 1.e-6;
-    else if ( y <= minY )
-        y = minY + 1.e-6;
-    const double minZ = histo->GetZaxis()->GetBinLowEdge(1);
-    const double maxZ = histo->GetZaxis()->GetBinLowEdge(histo->GetNbinsZ()+1);
-    if ( z >= maxZ )
-        z = maxZ - 1.e-6;
-    else if ( z <= minZ )
-        z = minZ + 1.e-6;
-
-    // Get the result, interpolating as appropriate
-    // We need to use this as a 3D histogram to have access to the projection methods
-    // We also need a histogram to project into
-    TH3* localHist  = NULL;
-    TH1* projection = NULL;
-    switch (m_interpType)
-    {
-        case InterpType::Full:
-            returnValue = histo->Interpolate(x,y,z);
-            break;
-        
-        case InterpType::None:
-            returnValue = histo->GetBinContent(histo->GetXaxis()->FindBin(x),histo->GetYaxis()->FindBin(y),histo->GetZaxis()->FindBin(z));
-            break;
-
-        case InterpType::OnlyX:
-            localHist = dynamic_cast<TH3*>(histo);
-            if (!localHist)
-            {
-                ATH_MSG_ERROR("Could not convert the histogram to a TH3, please check inputs");
-                return StatusCode::FAILURE;
-            }
-            projection = localHist->ProjectionX("projx_3D",histo->GetYaxis()->FindBin(y),histo->GetYaxis()->FindBin(y),histo->GetZaxis()->FindBin(z),histo->GetZaxis()->FindBin(z));
-            returnValue = projection->Interpolate(x);
-            delete projection;
-            break;
-
-        case InterpType::OnlyY:
-            localHist = dynamic_cast<TH3*>(histo);
-            if (!localHist)
-            {
-                ATH_MSG_ERROR("Could not convert the histogram to a TH3, please check inputs");
-                return StatusCode::FAILURE;
-            }
-            projection = localHist->ProjectionY("projy_3D",histo->GetXaxis()->FindBin(x),histo->GetXaxis()->FindBin(x),histo->GetZaxis()->FindBin(z),histo->GetZaxis()->FindBin(z));
-            returnValue = projection->Interpolate(y);
-            delete projection;
-            break;
-
-        default:
-            ATH_MSG_ERROR("Unsupported interpolation type for a 3D histogram");
-            return StatusCode::FAILURE;
-    }
-
-    return StatusCode::SUCCESS;
-}
 
 StatusCode JetSmearingCorrection::getSigmaSmear(xAOD::Jet& jet, double& sigmaSmear) const
 {
@@ -457,23 +370,23 @@ StatusCode JetSmearingCorrection::getSigmaSmear(xAOD::Jet& jet, double& sigmaSme
     return StatusCode::SUCCESS;
 }
 
-StatusCode JetSmearingCorrection::getNominalResolution(const xAOD::Jet& jet, TH1* histo, double& resolution) const
+StatusCode JetSmearingCorrection::getNominalResolution(const xAOD::Jet& jet, TH1* histo, const std::vector< std::unique_ptr<TH1> >& projections, double& resolution) const
 {
     double localRes = 0;
     switch (m_histType)
     {
         case HistType::Pt:
-            if (readHisto(localRes,histo,jet.pt()).isFailure())
+            if (readHisto(localRes,histo,jet.pt()/m_GeV).isFailure())
                 return StatusCode::FAILURE;
             break;
 
         case HistType::PtEta:
-            if (readHisto(localRes,histo,jet.pt(),jet.eta()).isFailure())
+            if (readHisto(localRes,histo,projections,jet.pt()/m_GeV,jet.eta()).isFailure())
                 return StatusCode::FAILURE;
             break;
 
         case HistType::PtAbsEta:
-            if (readHisto(localRes,histo,jet.pt(),fabs(jet.eta())).isFailure())
+            if (readHisto(localRes,histo,projections,jet.pt()/m_GeV,fabs(jet.eta())).isFailure())
                 return StatusCode::FAILURE;
             break;
 
@@ -491,12 +404,12 @@ StatusCode JetSmearingCorrection::getNominalResolution(const xAOD::Jet& jet, TH1
 
 StatusCode JetSmearingCorrection::getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const
 {
-    return getNominalResolution(jet,m_smearResolutionData.get(),resolution);
+    return getNominalResolution(jet,m_smearResolutionData.get(),m_cachedProjResData,resolution);
 }
 
 StatusCode JetSmearingCorrection::getNominalResolutionMC(const xAOD::Jet& jet, double& resolution) const
 {
-    return getNominalResolution(jet,m_smearResolutionMC.get(),resolution);
+    return getNominalResolution(jet,m_smearResolutionMC.get(),m_cachedProjResMC,resolution);
 }
 
 
@@ -543,6 +456,98 @@ StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) c
     jet.setJetP4(calibP4);
 
 
+    return StatusCode::SUCCESS;
+}
+
+StatusCode JetSmearingCorrection::cacheProjections(TH1* fullHistogram, std::vector< std::unique_ptr<TH1> >& cacheLocation, const std::string& type)
+{
+    // Ensure the histogram exists
+    if (!fullHistogram)
+    {
+        ATH_MSG_FATAL("Cannot cache histogram as it doesn't exist: " << type);
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure the number of dimensions is sane
+    if (fullHistogram->GetDimension() < 1 || fullHistogram->GetDimension() > 2)
+    {
+        ATH_MSG_FATAL("Unsupported histogram dimensionality for projection caching: " << fullHistogram->GetDimension());
+        return StatusCode::FAILURE;
+    }
+
+    // Protect vs InterpType
+    switch (m_interpType)
+    {
+        case InterpType::OnlyX:
+            // Simple case of 1D
+            if (fullHistogram->GetDimension() == 1)
+                return StatusCode::SUCCESS;
+            break;
+
+        case InterpType::OnlyY:
+            //  Failure case of 1D
+            if (fullHistogram->GetDimension() == 1)
+            {
+                ATH_MSG_FATAL("Cannot project in Y for a 1D histogram: " << type);
+                return StatusCode::FAILURE;
+            }
+            break;
+
+        default:
+            ATH_MSG_FATAL("The interpolation type is not supported for caching: " << type);
+            return StatusCode::FAILURE;
+    }
+    
+    // If we got here, then the request makes sense
+    // Start the projections
+    // Intentionally include underflow and overflow bins
+    // This keeps the same indexing scheme as root
+    // Avoids confusion and problems later at cost of a small amount of RAM
+    if (fullHistogram->GetDimension() == 2)
+    {
+        TH2* localHist = dynamic_cast<TH2*>(fullHistogram);
+        if (!localHist)
+        {
+            ATH_MSG_FATAL("Failed to convert histogram to a TH2, please check inputs: " << type);
+            return StatusCode::FAILURE;
+        }
+        if (m_interpType == InterpType::OnlyX)
+        {
+            for (Long64_t binY = 0; binY < localHist->GetNbinsY()+1; ++binY)
+            {
+                // Single bin of Y, interpolate across X
+                cacheLocation.emplace_back(localHist->ProjectionX(Form("projx_%s_%lld",type.c_str(),binY),binY,binY));
+            }
+        }
+        else if (m_interpType == InterpType::OnlyY)
+        {
+            for (Long64_t binX = 0; binX < localHist->GetNbinsX()+1; ++binX)
+            {
+                // Single bin of X, interpolate across Y
+                cacheLocation.emplace_back(localHist->ProjectionY(Form("projy_%s_%lld",type.c_str(),binX),binX,binX));
+            }
+        }
+        else
+        {
+            // We shouldn't make it here due to earlier checks
+            ATH_MSG_FATAL("Unexpected interpolation type, somehow escaped earlier checks: " << type);
+            return StatusCode::FAILURE;
+        }
+    }
+    else
+    {
+        // We shouldn't make it here due to earlier checks
+        ATH_MSG_FATAL("Unexpected dimensionality: " << fullHistogram->GetDimension());
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure that ROOT doesn't try to take posession
+    for (auto& hist : cacheLocation)
+    {
+        hist->SetDirectory(nullptr);
+    }
+
+    // All done
     return StatusCode::SUCCESS;
 }
 

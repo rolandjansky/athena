@@ -247,7 +247,7 @@ def FlavorTagInit(DoReduceInfo = False,
 def applyBTagging(jetalg,algname,sequence):
     btagWPlist = [ 'FixedCutBEff_60', 'FixedCutBEff_70', 'FixedCutBEff_77', 'FixedCutBEff_85',
                    'HybBEff_60', 'HybBEff_70', 'HybBEff_77', 'HybBEff_85' ]
-    btagAlglist = [ 'MV2c10', 'MV2r', 'MV2rmu', 'DL1', 'DL1rmu', 'DL1r' ]
+    btagAlglist = [ 'MV2c10', 'MV2r', 'MV2rmu', 'DL1', 'DL1r', 'DL1rmu' ]
 
     btagtooldict = {}
     from AthenaCommon.AppMgr import ToolSvc
@@ -266,8 +266,7 @@ def applyBTagging(jetalg,algname,sequence):
                 btagtool.OperatingPoint = btagWP
                 btagtool.JetAuthor = jetalg+"Jets"
                 btagtool.ErrorOnTagWeightFailure = False #avoid an error when the jets tagweight cannot be retrived, and only print a warning
-                btagtool.FlvTagCutDefinitionsFileName = "/afs/cern.ch/work/f/fdibello/DERITION_REL21_git/run/2017-21-13TeV-MC16-CDI.root"
-#                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"
+                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root"
             btagKey = btagWP+'_'+btagAlg
             btagtooldict[btagKey] = btagtool
 

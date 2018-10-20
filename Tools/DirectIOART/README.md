@@ -11,13 +11,14 @@ Detailed lists of the tests that are performed within the particular software re
 ##### Tests:
 * **TFile::Open** (using an AOD input file)
   * master/Athena
+  * master/AthSimulation
   * 21.0/Athena
+  * 21.0/AthSimulation
   * 21.2/AthAnalysis
   * 21.2/AthDerivation
   * 21.2/AnalysisBase
   * 21.2/AnalysisTop
   * 21.3/Athena
-  * 21.3/AthSimulation
   * 21.9/Athena
 * **`Reco_tf.py`** with RAW input file:
   * 21.0/Athena

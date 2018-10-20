@@ -11,6 +11,8 @@ import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
+from DerivationFrameworkFlavourTag.HbbCommon import (
+    buildVRJets, linkVRJetsToLargeRJets)
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -61,7 +63,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag = 0):
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags
 
-        if(extendedFlag == 0) : 
+        if(extendedFlag == 0) :
            Full_TaggerList = BTaggingFlags.StandardTaggers
         if(extendedFlag == 1) :
            Full_TaggerList = BTaggingFlags.ExpertTaggers
@@ -92,7 +94,7 @@ def addAntiKt4PV0TrackJets(sequence, outputlist, extendedFlag = 0):
            Full_TaggerList = BTaggingFlags.StandardTaggers
         if(extendedFlag == 1) :
            Full_TaggerList = BTaggingFlags.ExpertTaggers
- 
+
         btag_akt4trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt4track",
@@ -157,7 +159,7 @@ def replaceAODReducedJets(jetlist,sequence,outputlist, extendedFlag = 0):
 # Jet helpers for adding low-pt jets needed for calibration
 ##################################################################
 
-
+# 2 GeV cut after pileup suppression for in-situ Z
 def addAntiKt4LowPtJets(sequence,outputlist):
     addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
                     mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
@@ -167,6 +169,18 @@ def addAntiKt4LowPtJets(sequence,outputlist):
     addCHSPFlowObjects()
     addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
                     mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar:pflow")
+
+
+# 1 MeV cut at constituent level for MCJES
+def addAntiKt4NoPtCutJets(sequence,outputlist):
+    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
+                    mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
+    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
+                    mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
+    # Commented for now because of problems with underlying PFlow collections
+    addCHSPFlowObjects()
+    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
+                    mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
 
 ##################################################################
 
@@ -257,7 +271,7 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
         if isMC:
             isAF2 = 'ATLFASTII' in inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour'].upper()
         if isMC and isAF2:
-            configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015_rel21.config', 
+            configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015_rel21.config',
                                            'JetArea_Residual_EtaJES_GSC')
 
         config,calibseq = configdict[jetalg]
@@ -379,7 +393,7 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
-    bJetLabel = '' #default 
+    bJetLabel = '' #default
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
     algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
 			    OverlapLabel=outputLabel,
@@ -395,7 +409,7 @@ def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolLoose = EventCleaningTool('EventCleaningTool_Loose',CleaningLevel='LooseBad')
     ecToolLoose.JetCleanPrefix = prefix
     ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
-    algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_loose',
+    algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_Loose',
                             EventCleaningTool=ecToolLoose,
                             JetCollectionName="AntiKt4EMTopoJets",
 			    EventCleanPrefix=prefix)
@@ -409,13 +423,47 @@ def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolTight = EventCleaningTool('EventCleaningTool_Tight',CleaningLevel='TightBad')
     ecToolTight.JetCleanPrefix = prefix
     ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
-    algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_tight',
+    algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_Tight',
                             EventCleaningTool=ecToolTight,
                             JetCollectionName="AntiKt4EMTopoJets",
 			    EventCleanPrefix=prefix,
 			    CleaningLevel="TightBad",
 		  	    doEvent=False)
     sequence += algCleanTight
+
+def eventCleanLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    jetcleaningtoolname = "EventCleaningTool_LooseLLP"
+    prefix = "DFCommonJets_"
+    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
+    ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP', DoDecorations=False)
+    ecToolLooseLLP.JetCleanPrefix = prefix
+    ecToolLooseLLP.JetCleaningTool = getJetCleaningTool("LooseBadLLP")
+    algCleanLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_LooseLLP',
+                            EventCleaningTool=ecToolLooseLLP,
+                            JetCollectionName="AntiKt4EMTopoJets",
+			    EventCleanPrefix=prefix,
+			    CleaningLevel="LooseBadLLP",
+		  	    doEvent=True) #Save the event level decoration
+    sequence += algCleanLooseLLP
+
+def eventCleanVeryLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    jetcleaningtoolname = "EventCleaningTool_VeryLooseLLP"
+    prefix = "DFCommonJets_"
+    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
+    ecToolVeryLooseLLP = EventCleaningTool('EventCleaningTool_VeryLooseLLP',CleaningLevel='VeryLooseBadLLP', DoDecorations=False)
+    ecToolVeryLooseLLP.JetCleanPrefix = prefix
+    ecToolVeryLooseLLP.JetCleaningTool = getJetCleaningTool("VeryLooseBadLLP")
+    algCleanVeryLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_VeryLooseLLP',
+                            EventCleaningTool=ecToolVeryLooseLLP,
+                            JetCollectionName="AntiKt4EMTopoJets",
+                EventCleanPrefix=prefix,
+                CleaningLevel="VeryLooseBadLLP",
+                doEvent=True) #Save the event level decoration
+    sequence += algCleanVeryLooseLLP
 
 def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
     jetname = "{0}{1}{2}Jets".format(jetalg,int(radius*10),inputtype)
@@ -431,7 +479,7 @@ def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
                             ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
 def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
-                    **kwargs):
+                    addGetters=None, **kwargs):
     extjetlog.info("Building jet collection with modifier sequence {0}".format(constmods))
     constmodstr = "".join(constmods)
     jetname = "{0}{1}{2}{3}Jets".format(jetalg,int(radius*10),constmodstr,inputtype)
@@ -470,9 +518,11 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
     # Generate the getter list including ghosts from that for the standard list for the input type
     getterbase = inputtype.lower()
     getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
+    if addGetters:
+        getters += addGetters
 
     # Pass the configuration to addStandardJets
-    # The modifiers will be taken from the 
+    # The modifiers will be taken from the
     jetfindargs = {"jetalg":        jetalg,
                    "rsize":         radius,
                    "inputtype":     inputtype,
@@ -485,6 +535,20 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
 
     addStandardJets(**jetfindargs)
 
+def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
+    vrJetName, vrGhostLabel = buildVRJets(
+        sequence, do_ghost=True, logger=logger)
+
+    linkVRJetsToLargeRJets(sequence, vrJetName, vrGhostLabel)
+
+    addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], sequence, seq_name,
+                    ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed",
+                    addGetters=[vrGhostLabel.lower()])
+    addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
+                    algseq=sequence, outputGroup=seq_name,
+                    writeUngroomed=True, mods="lctopo_groomed",
+                    constmods=["CS", "SK"])
+
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
@@ -492,6 +556,8 @@ applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
+eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
 
 ##################################################################
 # Helper to add origin corrected clusters

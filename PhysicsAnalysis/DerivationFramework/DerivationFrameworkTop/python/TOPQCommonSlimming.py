@@ -179,6 +179,7 @@ def setup(TOPQname, stream):
                 ["AntiKt4EMTopoJets", # smart list
                  "AntiKt4EMPFlowJets",
                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                 "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                  ],
                 ["AntiKt3PV0TrackJets",
                  "AntiKt4PV0TrackJets",

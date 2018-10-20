@@ -32,6 +32,13 @@ AugmentationTools   = []
 SeqSUSY16 = CfgMgr.AthSequencer("SeqSUSY16")
 DerivationFrameworkJob += SeqSUSY16
 
+# used both for thinning and for skimming
+muonsRequirements = '(Muons.pt > 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+electronsRequirements = '(Electrons.pt > 4.0*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
+photonsRequirements = '(abs(Photons.eta)<2.6) && (Photons.pt > 20*GeV)'
+if not DerivationFrameworkIsMonteCarlo:
+  muonsRequirements = '(Muons.pt > 3.0*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+  
 
 #====================================================================
 # Trigger navigation thinning
@@ -45,34 +52,80 @@ SUSY16ThinningHelper.AppendToStream( SUSY16Stream )
 # THINNING TOOLS 
 #====================================================================
 
+# -------------------------------------------------------------------
+# TrackParticle thinning
+
+# ------------------------------------
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+#
+# this one is for just the muon itself.  need this to be more inclusive to be able to study standalone objects.
 SUSY16MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY16MuonTPThinningTool",
                                                                           ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
                                                                           MuonKey                 = "Muons",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY16MuonTPThinningTool
 thinningTools.append(SUSY16MuonTPThinningTool)
+#
+# this one is for tracks around skim-level muons
+SUSY16MuonNearbyTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY16MuonNearbyTPThinningTool",
+                                                                                ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
+                                                                                MuonKey                 = "Muons",
+                                                                                ConeSize                = 0.4,
+                                                                                SelectionString         = muonsRequirements,
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY16MuonNearbyTPThinningTool
+thinningTools.append(SUSY16MuonNearbyTPThinningTool)
+# ------------------------------------
 
+# ------------------------------------
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-SUSY16ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    	= "SUSY16ElectronTPThinningTool",
-                                                                                ThinningService        = SUSY16ThinningHelper.ThinningSvc(),
+#
+# this one is for just the electron itself.  need this to be more inclusive to be able to study standalone objects.
+SUSY16ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "SUSY16ElectronTPThinningTool",
+                                                                                ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
                                                                                 SGKey             	= "Electrons",
-                                                                                InDetTrackParticlesKey = "InDetTrackParticles")
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY16ElectronTPThinningTool
 thinningTools.append(SUSY16ElectronTPThinningTool)
+#
+# this one is for tracks around skim-level electrons
+SUSY16ElectronNearbyTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "SUSY16ElectronNearbyTPThinningTool",
+                                                                                      ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
+                                                                                      SGKey                   = "Electrons",
+                                                                                      ConeSize                = 0.4,
+                                                                                      SelectionString         = electronsRequirements,
+                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY16ElectronNearbyTPThinningTool
+thinningTools.append(SUSY16ElectronNearbyTPThinningTool)
+# ------------------------------------
 
+# ------------------------------------
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+#
+# this one is for just the photon itself.  need this to be more inclusive to be able to study standalone objects.
 SUSY16PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY16PhotonTPThinningTool",
-                                                                              ThinningService	 = SUSY16ThinningHelper.ThinningSvc(),
+                                                                              ThinningService	         = SUSY16ThinningHelper.ThinningSvc(),
                                                                               SGKey			 = "Photons",
-                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                              InDetTrackParticlesKey     = "InDetTrackParticles")
 ToolSvc += SUSY16PhotonTPThinningTool
 thinningTools.append(SUSY16PhotonTPThinningTool)
+#
+# this one is for tracks around skim-level photons
+SUSY16PhotonNearbyTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY16PhotonNearbyTPThinningTool",
+                                                                                    ThinningService	         = SUSY16ThinningHelper.ThinningSvc(),
+                                                                                    SGKey			 = "Photons",
+                                                                                    ConeSize                   = 0.4,
+                                                                                    SelectionString            = photonsRequirements,
+                                                                                    InDetTrackParticlesKey     = "InDetTrackParticles")
+ToolSvc += SUSY16PhotonNearbyTPThinningTool
+thinningTools.append(SUSY16PhotonNearbyTPThinningTool)
+# ------------------------------------
 
-# TrackParticles associated with taus
+# ------------------------------------
+# TrackParticles associated with taus, not keeping tracks in a full cone around the taus (yet)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 SUSY16TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "SUSY16TauTPThinningTool",
                                                                          ThinningService = SUSY16ThinningHelper.ThinningSvc(),
@@ -80,29 +133,34 @@ SUSY16TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name   
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY16TauTPThinningTool
 thinningTools.append(SUSY16TauTPThinningTool)
+# ------------------------------------
+# -------------------------------------------------------------------
 
+# -------------------------------------------------------------------
 # Cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 
-# Keep clusters associated to electrons
+# Keep clusters associated to electrons.
 SUSY16ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
     name                    = 'SUSY16ElectronCCThinningTool',
     ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
     SGKey                   = 'Electrons',
     CaloClCollectionSGKey   = 'egammaClusters',
     TopoClCollectionSGKey   = 'CaloCalTopoClusters',
+    SelectionString         = electronsRequirements,
     ConeSize                = 0.4)
 ToolSvc += SUSY16ElectronCCThinningTool
 thinningTools.append(SUSY16ElectronCCThinningTool)
 
-# Keep clusters associated to photons
+# Keep clusters associated to photons, but only in a very small cone so we get the photon cluster itself.
+# Don't currently keep clusters assocuated with photons far away from the photons, e.g. to recalc isolation.
 SUSY16PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(
     name                    = 'SUSY16PhotonCCThinningTool',
     ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
     SGKey                   = 'Photons',
     CaloClCollectionSGKey   = 'egammaClusters',
     TopoClCollectionSGKey   = 'CaloCalTopoClusters',
-    ConeSize                = 0.4)
+    ConeSize                = 0.1)
 ToolSvc += SUSY16PhotonCCThinningTool
 thinningTools.append(SUSY16PhotonCCThinningTool)
 
@@ -113,10 +171,11 @@ SUSY16MuonCCThinningTool = DerivationFramework__CaloClusterThinning(
     ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
     SGKey                   = "Muons",
     TopoClCollectionSGKey   = "CaloCalTopoClusters",
-    SelectionString         = "Muons.pt > 2.5*GeV",
+    SelectionString         = muonsRequirements,
     ConeSize                = 0.4)
 ToolSvc += SUSY16MuonCCThinningTool
 thinningTools.append(SUSY16MuonCCThinningTool)
+# -------------------------------------------------------------------
 
 
 #====================================================================
@@ -163,18 +222,9 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-# now done in ExtendedJetCommon 
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY16)
-
-# jet_prefab = 'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > XPT*GeV && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < XETA))'
-# count_jet_hard = jet_prefab.replace("XPT", "150.").replace("XETA", "2.8")
-# count_jet_soft = jet_prefab.replace("XPT", "80.").replace("XETA", "2.8")
-# jetSelection= '('+count_jet_soft+'>=1)'
 
 # ------------------------------------------------------------
 # Lepton selection
-muonsRequirements = '(Muons.pt > 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-electronsRequirements = '(Electrons.pt > 3*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 leptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 2)'
 expression='('+leptonSelection+')'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -413,26 +463,22 @@ SUSY16SlimmingHelper.SmartCollections = ["Electrons",
                                          "Muons",
                                          "TauJets",
                                          "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
-
+                                         "AntiKt4EMPFlowJets",
                                          "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-
+                                         "MET_Reference_AntiKt4EMPFlow",
                                          "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
-
+                                         "BTagging_AntiKt4EMPFlow",
                                          "InDetTrackParticles",
                                          "PrimaryVertices"]
 SUSY16SlimmingHelper.AllVariables = ["TruthParticles", 
                                      "TruthEvents", 
                                      "TruthVertices", 
-                                     #"AntiKt4TruthJets",
                                      "MET_Track",
                                      "MET_LocHadTopo",
                                      "MuonSegments",
                                      "MET_Truth"]					
 SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-                                      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.eta_sampl.phi_sampl",
+                                      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.eta_sampl.phi_sampl.etcone20.ptconecoreTrackPtrCorrection",
                                       "MuonClusterCollection.eta_sampl.phi_sampl",
                                       "Photons.author.Loose.Tight",
                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
@@ -443,7 +489,7 @@ SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m",
                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
                                       "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                      "Electrons.bkgTruthType.bkgTruthOrigin.firstEgMotherPdgId.truthPdgId.bkgTruthParticleLink.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink",
+                                      "Electrons.bkgTruthType.bkgTruthOrigin.firstEgMotherPdgId.truthPdgId.bkgTruthParticleLink.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink.etcone20.ptconecoreTrackPtrCorrection",
                                       "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
                                       "BTagging_AntiKt2Track.MV2c10_discriminant",
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl"

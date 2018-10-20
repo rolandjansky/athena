@@ -84,6 +84,30 @@ namespace EL
 
 
   StatusCode AnaAlgorithmWrapper ::
+  fileExecute ()
+  {
+    ANA_CHECK_SET_TYPE (EL::StatusCode);
+    RCU_READ_INVARIANT (this);
+    if (m_algorithm->hasFileExecute())
+      ANA_CHECK (m_algorithm->sysFileExecute());
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AnaAlgorithmWrapper ::
+  changeInput (bool)
+  {
+    ANA_CHECK_SET_TYPE (EL::StatusCode);
+    RCU_READ_INVARIANT (this);
+    if (m_algorithm->hasBeginInputFile())
+      ANA_CHECK (m_algorithm->sysBeginInputFile());
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AnaAlgorithmWrapper ::
   execute ()
   {
     ANA_CHECK_SET_TYPE (EL::StatusCode);

@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TStore.cxx 660301 2015-04-13 16:04:18Z krasznaa $
-
 // ROOT include(s):
 #include <TError.h>
 #include <TClass.h>
@@ -34,14 +32,14 @@ namespace xAOD {
       // If this object is set up as the active store at the moment,
       // notify the active store object that this object will no longer
       // be available.
-      if( TActiveStore::s_store == this ) {
-         TActiveStore::s_store = 0;
+      if( TActiveStore::store() == this ) {
+         TActiveStore::setStore( nullptr );
       }
    }
 
    void TStore::setActive() {
 
-      TActiveStore::s_store = this;
+      TActiveStore::setStore( this );
       return;
    }
 

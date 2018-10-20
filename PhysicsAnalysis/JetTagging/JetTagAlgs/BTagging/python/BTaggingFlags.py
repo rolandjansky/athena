@@ -6,13 +6,13 @@ class _BTaggingFlags:
     StandardTaggers = \
       [ 'IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN',
         'SoftMu', 'MV2c10', 'MV2r', 'MV2rmu', 'JetVertexCharge',
-        'MV2c100', 'MV2cl100', 'MVb', 'DL1', 'DL1rmu', 'DL1r',  'RNNIP' ]
+        'MV2c100', 'MV2cl100', 'MVb', 'DL1', 'DL1r', 'DL1rmu',  'RNNIP' ]
 
     ExpertTaggers = \
       StandardTaggers + \
       [ 'SV1Flip', 'JetFitterNNFlip', 'IP2DNeg', 'IP3DNeg',
         'MV2c10Flip', 'MV2c100Flip', 'DL1Flip', 'RNNIPFlip', 'RNNIPNeg',
-        'DL1rnnFlip', 'MV2c10rnnFlip']
+        'DL1rFlip', 'MV2rFlip']
       # do we have these already?
       # 'DL1muFlip', 'RNNIPFlip', 'DL1rnnFlip'
 
@@ -42,11 +42,11 @@ class _BTaggingFlags:
               'TrackCounting', 'TrackCountingFlip',
               'QGTag',
               'MV1', 'MV1c', 'MV2', 'MV2c10', 'MV2c20', 'MV2c00', 'MV2c10hp', 'MV2m',
-              'MV2r','MV2rmu','MV2c100','MV2cl100',
+              'MV2rmu','MV2r','MV2c100','MV2cl100',
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
-              'MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip',
+              'MV2c10Flip','MV2rFlip','MV2rmuFlip','MV2c100Flip','MV2cl100Flip',
               'RNNIP', 'RNNIPNeg', 'RNNIPFlip',
-              'DL1', 'DL1Flip','DL1r', 'DL1muFlip','DL1rmu', 'DL1rnnFlip',
+              'DL1', 'DL1Flip','DL1r', 'DL1rmuFlip','DL1rmu', 'DL1rFlip',
               'TagNtupleDumper',
               'JetVertexCharge']
 
@@ -163,11 +163,11 @@ class _BTaggingFlags:
       self.DL1 = True
       self.DL1Flip = False
 
-      self.DL1r = True
-      self.DL1muFlip = False
-
       self.DL1rmu = True
-      self.DL1rnnFlip = False
+      self.DL1rmuFlip = False
+
+      self.DL1r = True
+      self.DL1rFlip = False
 
       self.TagNtupleDumper = False
       self.TagNtupleStream = 'FTAG'
@@ -318,9 +318,9 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'MV2c10Flip':
           setattr(self, attr, False)
-        if attr == 'MV2c10muFlip':
+        if attr == 'MV2rmuFlip':
           setattr(self, attr, False)
-        if attr == 'MV2c10rnnFlip':
+        if attr == 'MV2rFlip':
           setattr(self, attr, False)
         if attr == 'MV2c20Flip':
           setattr(self, attr, False)
@@ -348,7 +348,7 @@ class _BTaggingFlags:
           setattr(self, attr, 'MV1')
 
       for attr in self._HighPriorityTaggers:
-        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV2c10','MV2r','MV2c100','MV2rmu','MV2cl100', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip','JetVertexCharge', 'DL1', 'DL1Flip','DL1r', 'DL1muFlip','DL1rmu', 'DL1rnnFlip', 'SoftMu'])
+        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV2c10','MV2r','MV2c100','MV2rmu','MV2cl100', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c10Flip','MV2rmuFlip','MV2rFlip','MV2c100Flip','MV2cl100Flip','JetVertexCharge', 'DL1', 'DL1Flip','DL1rmu', 'DL1rmuFlip','DL1r', 'DL1rFlip', 'SoftMu'])
       for attr in self._MediumPriorityTaggers:
         setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:

@@ -31,7 +31,7 @@ class EventCleaningTestAlg : public AthAlgorithm
 
     /// Initialize the algorithm
     virtual StatusCode initialize();
-    
+
     /// Finalize the algorithm
     virtual StatusCode finalize();
 
@@ -42,17 +42,13 @@ class EventCleaningTestAlg : public AthAlgorithm
 
     /// Handle to the tool
     asg::AnaToolHandle<ECUtils::IEventCleaningTool> m_ecTool;
-    
+
     /// Configuration
-    double m_pt;
-    double m_eta;
-    std::string m_or;
-    std::string m_jvt;
     std::string m_prefix;
     std::string m_cleaningLevel;
     std::string m_collection;
-    bool m_doEvent;
-    std::unique_ptr<SG::AuxElement::Decorator<char>> m_dec_eventClean; 
+    bool m_doEvent; //boolean to save event-level decoration
+    std::unique_ptr<SG::AuxElement::Decorator<char>> m_dec_eventClean;
 };
 
 #endif

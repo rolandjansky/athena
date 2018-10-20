@@ -16,6 +16,7 @@ namespace DerivationFramework {
 const static SG::AuxElement::Decorator<char> dec_PVmatched("DFCommonPFlow_PVMatched");
 const static SG::AuxElement::Decorator<float> dec_corrP4_pt("DFCommonPFlow_CaloCorrectedPt");
 const static SG::AuxElement::Decorator<float> dec_z0("DFCommonPFlow_z0");
+const static SG::AuxElement::Decorator<float> dec_vz("DFCommonPFlow_vz");
 const static SG::AuxElement::Decorator<float> dec_d0("DFCommonPFlow_d0");
 const static SG::AuxElement::Decorator<float> dec_theta("DFCommonPFlow_theta");
 const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWeight");
@@ -90,6 +91,7 @@ const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWe
 
       // decorate the track properties	
       dec_z0(*cpfo) = ptrk->z0();
+      dec_vz(*cpfo) = ptrk->vz();
       dec_d0(*cpfo) = ptrk->d0();
       dec_theta(*cpfo) = ptrk->theta();
 

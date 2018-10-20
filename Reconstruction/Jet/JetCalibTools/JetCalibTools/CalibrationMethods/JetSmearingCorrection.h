@@ -10,6 +10,7 @@
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
 #include <memory>
+#include <vector>
 
 #include "TRandom3.h"
 
@@ -35,10 +36,10 @@ class JetSmearingCorrection
     private:
         // Helper methods
         StatusCode getSigmaSmear(xAOD::Jet& jet, double& sigmaSmear) const;
-        StatusCode getNominalResolution(const xAOD::Jet& jet, TH1* histo, double& resolution) const;
+        StatusCode getNominalResolution(const xAOD::Jet& jet, TH1* histo, const std::vector< std::unique_ptr<TH1> >& projections, double& resolution) const;
         StatusCode readHisto(double& returnValue, TH1* histo, double x) const;
-        StatusCode readHisto(double& returnValue, TH1* histo, double x, double y) const;
-        StatusCode readHisto(double& returnValue, TH1* histo, double x, double y, double z) const;
+        StatusCode readHisto(double& returnValue, TH1* histo, const std::vector< std::unique_ptr<TH1> >& projections, double x, double y) const;
+        StatusCode cacheProjections(TH1* fullHistogram, std::vector< std::unique_ptr<TH1> >& cacheLocation, const std::string& type);
 
         // Private enums
         enum class SmearType
@@ -79,6 +80,10 @@ class JetSmearingCorrection
         InterpType m_interpType;
         std::unique_ptr<TH1> m_smearResolutionMC;
         std::unique_ptr<TH1> m_smearResolutionData;
+
+        // Variables to cache projections in case of 1-D interpolaton in 2-D or 3-D histograms
+        std::vector< std::unique_ptr<TH1> > m_cachedProjResMC;
+        std::vector< std::unique_ptr<TH1> > m_cachedProjResData;
 };
 
 

@@ -10,6 +10,7 @@
 
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
+#include "TopConfiguration/ConfigurationSettings.h"
 #include "TopConfiguration/TopConfig.h"
 #include "AthContainers/AuxElement.h"
 #include "xAODRootAccess/TStore.h"
@@ -19,7 +20,8 @@ namespace top {
 
   ScaleFactorRetriever::ScaleFactorRetriever(const std::string& name):
     asg::AsgTool(name),
-    m_config(nullptr) {
+    m_config(nullptr),
+    m_preferGlobalTriggerSF(ConfigurationSettings::get()->feature("PreferGlobalTriggerSF")) {
     declareProperty("config", m_config);
   }
 
@@ -116,20 +118,22 @@ namespace top {
     case top::topSFSyst::MU_SF_Trigger_SYST_DOWN:
       sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigSystUncertainty__1down");
       break;
-    case top::topSFSyst::nominal:
+    default:
       // Nominal weight
       sf = eventInfo->auxdecor<float>(prefix);
       break;
-    default:
-      ATH_MSG_INFO("Failed to retrieve a weight");
-      break;
-    
     }
     return sf;
   }
 
 
   float ScaleFactorRetriever::triggerSF(const top::Event& event,
+                                        const top::topSFSyst SFSyst) const {
+    return (m_preferGlobalTriggerSF && m_config->useGlobalTrigger() ? globalTriggerSF(event, SFSyst) : oldTriggerSF(event, SFSyst));
+  }
+
+
+  float ScaleFactorRetriever::oldTriggerSF(const top::Event& event,
                                         const top::topSFSyst SFSyst) const {
     std::string electronID = m_config->electronID();
     if (event.m_isLoose) {

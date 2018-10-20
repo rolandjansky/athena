@@ -221,6 +221,8 @@ FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "MET_Truth",
                                     "MET_TruthRegions",
                                     "TruthParticles",
+                                    "TruthHFWithDecayParticles",
+                                    "TruthHFWithDecayVertices",
                                     "TruthVertices",
                                     "CaloCalTopoClusters",
                                     "HLT_xAOD__BTaggingContainer_HLTBjetFex",
@@ -243,6 +245,7 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
                                        "InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits",
                                        "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit",
+                                       "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
                                        "PrimaryVertices.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights",
                                        "CombinedMuonTrackParticles.vx.vy.vz",
                                        "ExtrapolatedMuonTrackParticles.vx.vy.vz",
@@ -272,6 +275,10 @@ for FT1_bjetTriggerTracks in FTExtraVars_bjetTriggerTracks:
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG1SlimmingHelper.AppendToDictionary = {
+  "TruthHFWithDecayParticles"                  :   "xAOD::TruthParticleContainer",
+  "TruthHFWithDecayParticlesAux"               :   "xAOD::TruthParticleAuxContainer",
+  "TruthHFWithDecayVertices"                   :   "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux"                :   "xAOD::TruthVertexAuxContainer",
   FTAG1DstarAug                                    :   "xAOD::VertexContainer",
   FTAG1DstarAug+"Aux"                              :   "xAOD::VertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,

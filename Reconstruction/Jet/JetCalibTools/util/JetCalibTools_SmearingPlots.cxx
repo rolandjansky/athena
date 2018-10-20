@@ -14,11 +14,13 @@
 #include "AsgTools/AnaToolHandle.h"
 
 #include <vector>
+#include <ctime>
 #include "TString.h"
 #include "TH1D.h"
 #include "TF1.h"
 #include "TCanvas.h"
 #include "TLatex.h"
+#include "TRandom3.h"
 
 
 namespace jet
@@ -41,9 +43,9 @@ namespace jet
 int main (int argc, char* argv[])
 {
     // Check argument usage
-    if (argc != 5 && argc != 6)
+    if (argc < 5 || argc > 7)
     {
-        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> <isData> (dev mode switch)" << std::endl;
+        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> <isData> (dev mode switch) (timing test switch)" << std::endl;
         return 1;
     }
 
@@ -53,6 +55,7 @@ int main (int argc, char* argv[])
     const TString outFile = argv[3];
     const bool isData     = (TString(argv[4]) == "true");
     const bool isDevMode  = ( argc > 5 && (TString(argv[5]) == "true" || TString(argv[5]) == "dev") ) ? true : false;
+    const bool isTimeTest = ( argc > 6 && TString(argv[6]) == "true" ) ? true : false;
 
     // Derived information
     const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps");
@@ -61,10 +64,11 @@ int main (int argc, char* argv[])
     // Assumed constants
     const TString calibSeq = "Smear"; // only want to apply the smearing correction here
     const std::vector<float> ptVals = {20, 40, 60, 100, 400, 1000};
-    const float eta = 0;
+    const float eta = 0.202;
     const float phi = 0;
-    const float mass = 100;
+    const float mass = 10;
     const int maxNumIter = 1e5;
+    const int numTimeIter = 100;
 
     // Accessor strings
     const TString startingScaleString = "JetGSCScaleMomentum";
@@ -133,7 +137,46 @@ int main (int argc, char* argv[])
     {
         const TString baseName = Form("Smear_%.0f",pt);
         hists_pt.push_back(new TH1D(baseName+"_pT",baseName+"_pT",100,0.25*pt,1.75*pt));
-        hists_m.push_back(new TH1D(baseName+"_mass",baseName+"_pT",100,0.25*mass,1.75*mass));
+        hists_m.push_back(new TH1D(baseName+"_mass",baseName+"_mass",100,0.25*mass,1.75*mass));
+    }
+
+    // Run the timing test if specified
+    if (isTimeTest)
+    {
+        TRandom3 rand;
+        rand.SetSeed(0); // Deterministic random test
+
+        for (int numTest = 0; numTest < numTimeIter; ++numTest)
+        {
+            // Make a new calibration tool each time
+            JetCalibrationTool* jetCalibTool = new JetCalibrationTool(Form("mytool_%d",numTest));
+            if (jetCalibTool->setProperty("JetCollection",jetAlgo.Data()).isFailure())
+                exit(1);
+            if (jetCalibTool->setProperty("ConfigFile",config.Data()).isFailure())
+                exit(1);
+            if (jetCalibTool->setProperty("CalibSequence",calibSeq.Data()).isFailure())
+                exit(1);
+            if (jetCalibTool->setProperty("IsData",isData).isFailure())
+                exit(1);
+            if (isDevMode && jetCalibTool->setProperty("DEVmode",isDevMode).isFailure())
+                exit(1);
+            if (jetCalibTool->initialize().isFailure())
+                exit(1);
+
+            clock_t startTime = clock();
+            for (int numIter = 0; numIter < maxNumIter; ++numIter)
+            {
+                xAOD::JetFourMom_t fourvec(rand.Uniform(20.e3,1000.e3),rand.Uniform(-2,2),rand.Uniform(-3.14,3.14),10.e3);
+                jet->setJetP4(fourvec);
+                startingScale.setAttribute(*jet,fourvec);
+                xAOD::Jet* smearedJet = nullptr;
+                jetCalibTool->calibratedCopy(*jet,smearedJet);
+                //calibTool->calibratedCopy(*jet,smearedJet);
+                delete smearedJet;
+            }
+            delete jetCalibTool;
+            printf("Iteration %d: %f seconds\n",numTest+1,(clock()-startTime)/((double)CLOCKS_PER_SEC));
+        }
     }
 
     // Fill the histograms
@@ -147,12 +190,12 @@ int main (int argc, char* argv[])
         hist_m->Sumw2();
 
 
-        printf("Running for pT of %.0f GeV\n",pt);
+        printf("Running for pT of %.0f\n",pt);
 
         for (int numIter = 0; numIter < maxNumIter; ++numIter)
         {
             // Set the jet four-vector
-            xAOD::JetFourMom_t fourvec(pt,eta,phi,mass);
+            xAOD::JetFourMom_t fourvec(pt*1.e3,eta,phi,mass*1.e3);
             jet->setJetP4(fourvec);
             startingScale.setAttribute(*jet,fourvec);
 
@@ -173,8 +216,8 @@ int main (int argc, char* argv[])
             }
 
             // Fill the histograms
-            hist_pt->Fill(smearedJet->pt());
-            hist_m->Fill(smearedJet->m());
+            hist_pt->Fill(smearedJet->pt()/1.e3);
+            hist_m->Fill(smearedJet->m()/1.e3);
 
             // Clean up
             delete smearedJet;
@@ -190,7 +233,7 @@ int main (int argc, char* argv[])
     {
         //  Set the jet four-vector
         const float pt = nominalResData.GetXaxis()->GetBinCenter(binX);
-        xAOD::JetFourMom_t fourvec(pt,eta,phi,mass);
+        xAOD::JetFourMom_t fourvec(pt*1.e3,eta,phi,mass*1.e3);
         jet->setJetP4(fourvec);
 
         // Jet kinematics set, now get the nominal resolutions
