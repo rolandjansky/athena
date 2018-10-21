@@ -17,7 +17,7 @@ public:
   typedef MyBase::ID ID;
   typedef TileBeamElem _TElement;
 
-  TileBeamElemCollection (  ID& id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  ) 
+  TileBeamElemCollection (  ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  ) 
     : MyBase(id,ownPolicy) { }
   TileBeamElemCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(ownPolicy) { }
