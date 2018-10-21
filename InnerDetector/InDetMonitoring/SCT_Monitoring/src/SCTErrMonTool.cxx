@@ -494,6 +494,9 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 						NBINS_LBs,0.5,NBINS_LBs+0.5);
     m_RODoutDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
     m_RODoutDetectorCoverageVsLB->GetYaxis()->SetTitle("ROD OUT Detector Coverage [%]");
+    if ( monGr_shift.regHist(m_RODoutDetectorCoverageVsLB).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTRODoutDetectorCoverageConf" );
+    }
 
     //ps trip DCS coverage vs lb
     m_pstripDCSDetectorCoverageVsLB = new TProfile("SCTPStripDCSDetectorCoverageVsLbs",
@@ -501,6 +504,9 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 						   NBINS_LBs,0.5,NBINS_LBs+0.5);
     m_pstripDCSDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
     m_pstripDCSDetectorCoverageVsLB->GetYaxis()->SetTitle("PS trip Detector Coverage [%]");
+    if ( monGr_shift.regHist(m_pstripDCSDetectorCoverageVsLB).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTpstripDetectorCoverageConDCS" );
+    }
 
     //total coverage vs lb
     m_summaryDetectorCoverageVsLB = new TProfile("SCTsummaryDetectorCoverageVsLbs",
@@ -508,6 +514,9 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 						 NBINS_LBs,0.5,NBINS_LBs+0.5);
     m_summaryDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
     m_summaryDetectorCoverageVsLB->GetYaxis()->SetTitle("Total Detector Coverage [%]");
+    if ( monGr_shift.regHist(m_summaryDetectorCoverageVsLB).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTTotalDetectorCoverageConf" );
+    }
 
     //ps trip number of wafer vs lb
     m_pstripWaferVsLB = new TProfile("SCTNumOfPStripWaferVsLbs",
@@ -515,19 +524,9 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 				     NBINS_LBs,0.5,NBINS_LBs+0.5);
     m_pstripWaferVsLB->GetXaxis()->SetTitle("LumiBlock");
     m_pstripWaferVsLB->GetYaxis()->SetTitle("Num. of PS trip wafer");
-  }
-
-  if ( monGr_shift.regHist(m_RODoutDetectorCoverageVsLB).isFailure() ){
-    ATH_MSG_WARNING("Cannot book Histogram:SCTRODoutDetectorCoverageConf" );
-  }
-  if ( monGr_shift.regHist(m_pstripDCSDetectorCoverageVsLB).isFailure() ){
-    ATH_MSG_WARNING("Cannot book Histogram:SCTpstripDetectorCoverageConDCS" );
-  }
-  if ( monGr_shift.regHist(m_summaryDetectorCoverageVsLB).isFailure() ){
-    ATH_MSG_WARNING("Cannot book Histogram:SCTTotalDetectorCoverageConf" );
-  }
-  if ( monGr_shift.regHist(m_pstripWaferVsLB).isFailure() ){
-    ATH_MSG_WARNING("Cannot book Histogram:SCTpstripWafer" );
+    if ( monGr_shift.regHist(m_pstripWaferVsLB).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTpstripWafer" );
+    }
   }
 
   return ( status ) ? StatusCode::SUCCESS : StatusCode::FAILURE;
