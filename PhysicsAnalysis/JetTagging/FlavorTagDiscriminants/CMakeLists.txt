@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
 atlas_add_library( FlavorTagDiscriminants
   Root/BTagJetAugmenter.cxx
   Root/BTagTrackAugmenter.cxx
+  Root/DL2.cxx
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES xAODBase xAODJet xAODEventInfo)
 
