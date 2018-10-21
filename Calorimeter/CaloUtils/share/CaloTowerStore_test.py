@@ -38,4 +38,6 @@ topSequence += CaloTowerStoreTestAlg ('towertest')
 
 theApp.EvtMax = 1
 
-#theApp.getHandle().Dlls += [ 'CaloUtils' ]
+# Suppress useless GeoModelSvc messages.
+from AthenaCommon import Constants
+GeoModelSvc().OutputLevel=Constants.WARNING
