@@ -209,7 +209,7 @@ namespace H5Utils {
     m_buffer.clear();
   }
 
-  size_t WriterXd::size() const {
+  size_t WriterXd::index() const {
     return m_offset + buffer_size();
   }
 
