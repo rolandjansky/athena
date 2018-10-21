@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -13,6 +13,7 @@
 #ifndef TILELASEROBJECT_H
 #define TILELASEROBJECT_H
 
+#include <string>
 #include <vector>
 #include <time.h>
 
@@ -143,6 +144,12 @@ public:
   
   void setDaqType(const unsigned int daqtype);
   enum daqType {daqPedestal=0x10, daqAlpha, daqLed, daqLinearity, daqLaser}; 
+
+  
+  /** Convertion operator to a std::string,
+   * can be used in a cast operation : (std::string) TileLaserPmt */
+  operator std::string() const;
+
 
 private:
   
