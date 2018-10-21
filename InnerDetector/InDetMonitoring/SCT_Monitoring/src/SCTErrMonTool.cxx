@@ -200,6 +200,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_nBinsEta( 100 ),
   m_rangeEta( 2.5 ),
   m_nBinsPhi( 100 ),
+
   m_WafersThreshold( 6.0 ),
   m_RODoutDetectorCoverageVsLB{},
   m_pstripDCSDetectorCoverageVsLB{},
