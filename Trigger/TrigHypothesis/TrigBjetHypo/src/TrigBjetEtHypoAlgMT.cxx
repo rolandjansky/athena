@@ -34,9 +34,6 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   CHECK( m_inputJetsKey.initialize() );
   CHECK( m_outputJetsKey.initialize() );
   CHECK( m_outputRoiKey.initialize() );
-  // FOLLOWING WILL CHANGE -- JUST FOR TEMPORARY DEBUGGING
-  CHECK( m_trackParticleContainerKey.initialize() ); // TMP
-  CHECK( m_roiKey.initialize() ); // TMP
 
   return StatusCode::SUCCESS;
 }
@@ -60,29 +57,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
-
-  // =============================================================  
-  // Just for debugging -- WILL BE REMOVED
-
-  // Retrieve ROIs from RoIBuilder // TMP
-  SG::ReadHandle< TrigRoiDescriptorCollection > superRoiHandle = SG::makeHandle( m_roiKey,context ); // TMP
-  CHECK( superRoiHandle.isValid() ); // TMP
-
-  const TrigRoiDescriptorCollection *superRoi = superRoiHandle.get(); // TMP
-  ATH_MSG_DEBUG( "Retrieved Super RoI Container with size " << superRoi->size() ); // TMP
-  for ( auto *roi : *superRoi ) // TMP
-    ATH_MSG_DEBUG( "   ** roi : eta=" << roi->eta() <<" phi="<< roi->phi() ); // TMP
-
-  // Retrieve Track Particles // TMP
-  SG::ReadHandle< xAOD::TrackParticleContainer > recoTracksContainerHandle = SG::makeHandle( m_trackParticleContainerKey,context ); // TMP
-  CHECK( recoTracksContainerHandle.isValid() ); // TMP
-
-  const xAOD::TrackParticleContainer *recoTracksContainer = recoTracksContainerHandle.get(); // TMP
-  ATH_MSG_DEBUG( "Retrieved " << recoTracksContainer->size() << " Track Particles from FTF step" ); // TMP
-  for ( auto *particle : *recoTracksContainer ) // TMP
-    ATH_MSG_DEBUG( "   ** pt=" << particle->p4().Et()<<" eta="<< particle->eta() <<" phi="<< particle->phi()  ); // TMP
-
-  // =============================================================
 
   // Retrieve Jet Container
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_inputJetsKey,context );
@@ -131,6 +105,69 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   //    ** Creating ShortList of Jet Container
   // ==========================================================================================================================
   
+  CHECK( shortListJets( jetCollection,outputJets,roiContainer,primaryVertex ) );
+
+  // ==========================================================================================================================
+  //    ** Compute Decisions
+  // ==========================================================================================================================
+
+  // Taken from Jet Code here 
+  const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
+  TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
+
+  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs { 
+    TrigCompositeUtils::decisionIDs( prevDecision ).begin(),
+      TrigCompositeUtils::decisionIDs( prevDecision ).end() 
+      };
+
+  // Decide (Hypo Tool)
+  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
+    const HLT::Identifier  decisionId = tool->getId();
+    // Check previous decision is 'passed'
+    if ( not TrigCompositeUtils::passed( decisionId.numeric() , previousDecisionIDs ) )
+      continue;
+    bool pass = false;
+    CHECK( tool->decide( outputJets.get(),pass ) );
+    if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
+  }
+
+  // ==========================================================================================================================
+  //    ** Store Output
+  // ==========================================================================================================================
+
+  // Save Output Decisions
+  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
+  CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
+  ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
+
+  // Save Output Jet Contaienr
+  SG::WriteHandle< xAOD::JetContainer > outputJetHandle = SG::makeHandle( m_outputJetsKey,context );
+  ATH_MSG_DEBUG( "Saving jet collection " << m_outputJetsKey.key() << " with " << outputJets->size() << " elements " );
+  CHECK( outputJetHandle.record( std::move( outputJets ), std::move( outputJetsAux ) ) );
+
+  // Output RoI Container -- WILL CHANGE -- TMP
+  SG::WriteHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_outputRoiKey,context ); // TMP
+  ATH_MSG_DEBUG( "Sabing roi collection " << m_outputRoiKey.key() << " with " << roiContainer->size() <<" elements " ); // TMP
+  CHECK( roiContainerHandle.record( std::move( roiContainer ) ) ); // TMP
+
+  // ==========================================================================================================================  
+  //    ** Linking objects to decision 
+  // ==========================================================================================================================  
+
+  newDecision->setObjectLink( "roi",ElementLink< TrigRoiDescriptorCollection >( m_outputRoiKey.key(),0 ) );
+  ATH_MSG_DEBUG( "Linking 'roi' to output decisions" );
+  newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_outputJetsKey.key(),0 ) );
+  ATH_MSG_DEBUG( "Linking 'SplitJets' to output decisions" );
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode TrigBjetEtHypoAlgMT::shortListJets( const xAOD::JetContainer* jetCollection,
+					       std::unique_ptr< xAOD::JetContainer >& outputJets,
+					       std::unique_ptr< TrigRoiDescriptorCollection >& roiContainer,
+					       const Amg::Vector3D* primaryVertex ) const {
+
   // Make a copy of the jet containers
   for ( const xAOD::Jet *jet : *jetCollection ) {
     // We select Jets above a specific eta and pt range
@@ -184,61 +221,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     roiContainer->push_back( newRoI );
   }
 
-  // ==========================================================================================================================
-  //    ** Compute Decisions
-  // ==========================================================================================================================
-
-  // Taken from Jet Code here 
-  const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
-  TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
-
-  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs { 
-    TrigCompositeUtils::decisionIDs( prevDecision ).begin(),
-      TrigCompositeUtils::decisionIDs( prevDecision ).end() 
-      };
-
-  // Decide (Hypo Tool)
-  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
-    const HLT::Identifier  decisionId = tool->getId();
-    // Check previous decision is 'passed'
-    if ( not TrigCompositeUtils::passed( decisionId.numeric() , previousDecisionIDs ) )
-      continue;
-    bool pass = false;
-    CHECK( tool->decide( outputJets.get(),pass ) );
-    if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
-  }
-
-  // ==========================================================================================================================
-  //    ** Store Output
-  // ==========================================================================================================================
-
-  // Save Output Decisions
-  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
-  CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
-  ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
-
-  // Save Output Jet Contaienr
-  SG::WriteHandle< xAOD::JetContainer > outputJetHandle = SG::makeHandle( m_outputJetsKey,context );
-  ATH_MSG_DEBUG( "Saving jet collection " << m_outputJetsKey.key() << " with " << outputJets->size() << " elements " );
-  CHECK( outputJetHandle.record( std::move( outputJets ), std::move( outputJetsAux ) ) );
-
-  // Output RoI Container -- WILL CHANGE -- TMP
-  SG::WriteHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_outputRoiKey,context ); // TMP
-  ATH_MSG_DEBUG( "Sabing roi collection " << m_outputRoiKey.key() << " with " << roiContainer->size() <<" elements " ); // TMP
-  CHECK( roiContainerHandle.record( std::move( roiContainer ) ) ); // TMP
-
-  // ==========================================================================================================================  
-  //    ** Linking objects to decision 
-  // ==========================================================================================================================  
-
-  newDecision->setObjectLink( "roi",ElementLink< TrigRoiDescriptorCollection >( m_outputRoiKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking 'roi' to output decisions" );
-  newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking 'SplitJets' to output decisions" );
-
   return StatusCode::SUCCESS;
 }
-
-
-
 

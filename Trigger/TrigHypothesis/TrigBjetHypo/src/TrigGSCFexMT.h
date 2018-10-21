@@ -27,6 +27,8 @@
 #include "TrigInterfaces/FexAlgo.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 class MsgStream;
 

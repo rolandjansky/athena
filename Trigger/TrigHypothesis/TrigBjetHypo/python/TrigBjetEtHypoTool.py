@@ -28,6 +28,7 @@ def TrigBjetEtHypoToolFromName( name, conf ):
         if conf_dict[k] == None: conf_dict[k] = v
         
     tool = getBjetEtHypoConfiguration( name,conf_dict )
+    tool.OutputLevel = DEBUG
     print "TrigBjetEtHypoToolFromName: name = %s, cut_j = %s, cut_gsc = %s "%(name,tool.EtThreshold,tool.GscThreshold )
     return tool
     

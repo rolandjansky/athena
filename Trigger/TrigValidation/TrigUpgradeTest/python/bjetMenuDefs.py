@@ -87,7 +87,7 @@ def bJetStep1Sequence():
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
-    hypo.OutputJets = "myJets" #"SplitJets"
+    hypo.OutputJets = "SplitJets"
     # These two are only for temporary debug. Will be removed 
     hypo.TrackParticleContainerKey = TrackParticlesName
     hypo.RoiKey = RoIBuilder.RoIOutputKey
@@ -123,19 +123,24 @@ def bJetStep2Sequence():
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
-    theGSC.JetKey = "myJets"
+    theGSC.JetKey = "SplitJets"
     theGSC.JetOutputKey = "GSCJet"
 
+    step2Sequence = parOR("step2Sequence",theGSC);
+    InputMakerAlg.ViewNodeName = "step2Sequence"
+    
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
-    hypo.RoiKey = theGSC.JetOutputKey
+#    hypo.RoiKey = InputMakerAlg.RoIsLink
+    hypo.RoiKey = InputMakerAlg.InViewRoIs
+    hypo.OutputJets = "GSCJets"
 
     # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,theGSC])
+    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,

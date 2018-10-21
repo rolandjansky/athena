@@ -56,14 +56,14 @@ StatusCode TrigGSCFexMT::initialize() {
   ATH_MSG_DEBUG( "   "     << m_TrackParticleContainerKey );
   ATH_MSG_DEBUG( "   "     << m_jetOutputKey              );
 
-  ATH_MSG_DEBUG( "Initializing ReadHandleKeys" );
+  ATH_MSG_DEBUG( "Initializing ReadHandleKeys"        );
   ATH_CHECK( m_roiContainerKey.initialize()           );
   ATH_CHECK( m_JetContainerKey.initialize()           );
   ATH_CHECK( m_VertexContainerKey.initialize()        );
   ATH_CHECK( m_TrackParticleContainerKey.initialize() );
-  ATH_CHECK( m_jetOutputKey.initialize() );
+  ATH_CHECK( m_jetOutputKey.initialize()              );
 
-  ATH_MSG_DEBUG( "Retrieving Tools" );
+  ATH_MSG_DEBUG( "Retrieving Tools"        );
   ATH_CHECK( m_jetGSCCalib_tool.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -76,10 +76,14 @@ StatusCode TrigGSCFexMT::initialize() {
 StatusCode TrigGSCFexMT::execute() {
   ATH_MSG_DEBUG( "Executing TrigGSCFexMT" );
 
-  // RETRIEVE INPUT CONTAINERS
+  // ==============================================================================================================================
+  //    ** Retrieve Ingredients
+  // ==============================================================================================================================
+
   const EventContext& ctx = getContext();
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_JetContainerKey,ctx );
   CHECK( jetContainerHandle.isValid() );
+
   const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " input Jets for GSC correction : " << m_JetContainerKey );
   for ( const xAOD::Jet *jet : *jetContainer )
@@ -88,37 +92,20 @@ StatusCode TrigGSCFexMT::execute() {
   //  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
   //  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
 
-  
 
-  return StatusCode::SUCCESS;
+  // ==============================================================================================================================
+  //    ** Prepare Output
+  // ==============================================================================================================================
+
+  std::unique_ptr< xAOD::JetContainer > calibrateJets( new xAOD::JetContainer() );
+  std::unique_ptr< xAOD::JetAuxContainer > calibratedJetsAux( new xAOD::JetAuxContainer() );
+  calibrateJets->setStore( calibratedJetsAux.get() );
+
+  // ==============================================================================================================================
+  //    ** Calibrate Jets
+  // ==============================================================================================================================
 
   /*
-  // PREPARE PROCESSING AND OUTPUT CONTAINERS
-  //
-  // get primary vertex 
-  //  
-  xAOD::VertexContainer::const_iterator prmVtxIter = prmVtxContainerHandle->begin();
-  const xAOD::Vertex *primaryVertex = *prmVtxIter;
-
-  // Prepare jet tagging - create temporary jet copy 
-  xAOD::Jet jet;
-  jet.makePrivateStore( **jetContainerHandle->begin() );
-
-  //=======================================================  
-
-  //std::cout << "TrigGSCFex: jet"
-  //	    << " pt: "  << jet.p4().Pt()
-  //	    << " eta: " << jet.p4().Eta()
-  //	    << " phi: " << jet.p4().Phi()
-  //	    << " m: "   << jet.p4().M()
-  //	    << std::endl;
-  //
-  //std::cout << "primaryVertex z" << primaryVertex->z() << std::endl;  
-
-  //=======================================================  
-
-  // Compute and store GSC moments from precision tracks
-
   unsigned int nTrk(0);
   double       width(0);
   double       ptsum(0);
@@ -184,16 +171,26 @@ StatusCode TrigGSCFexMT::execute() {
   //	    << " m: "   << calJet->p4().M()
   //	    << std::endl;
 
-  std::unique_ptr< xAOD::JetContainer > jc( new xAOD::JetContainer() );
-  std::unique_ptr< xAOD::JetTrigAuxContainer > trigJetTrigAuxContainer( new xAOD::JetTrigAuxContainer() );
-  jc->setStore( trigJetTrigAuxContainer.get() );
-  jc->push_back ( calJet );
+  */
 
-  SG::WriteHandle< xAOD::JetContainer > OutputjetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
-  ATH_CHECK( OutputjetContainerHandle.record( std::move(jc),std::move(trigJetTrigAuxContainer) ) );
+  for ( const xAOD::Jet *inJet : *jetContainer ) {
+    /*
+    xAOD::Jet *outJet = nullptr;
+    m_jetGSCCalib_tool->calibratedCopy( inJet,outJet ); 
+    */
+    xAOD::Jet *outJet = new xAOD::Jet();
+    calibrateJets->push_back( outJet );
+    *outJet = *inJet;
+  }
+
+  // ==============================================================================================================================
+  //    ** Store Output
+  // ==============================================================================================================================
+
+  SG::WriteHandle< xAOD::JetContainer > outputJetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
+  ATH_CHECK( outputJetContainerHandle.record( std::move(calibrateJets),std::move(calibratedJetsAux) ) ); 
 
   return StatusCode::SUCCESS;
-  */
 }
 
 

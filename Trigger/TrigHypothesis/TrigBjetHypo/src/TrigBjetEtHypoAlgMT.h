@@ -39,6 +39,12 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
  
  private: 
   TrigBjetEtHypoAlgMT();
+  StatusCode shortListJets( const xAOD::JetContainer*,
+			    std::unique_ptr< xAOD::JetContainer >&,
+			    std::unique_ptr< TrigRoiDescriptorCollection >&,
+			    const Amg::Vector3D* primaryVertex = nullptr ) const; // TMP
+
+ private:
   ToolHandleArray< TrigBjetEtHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
  private:
