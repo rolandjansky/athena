@@ -119,7 +119,7 @@ FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simuls
   
   float searchRand = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   int chosenBin=TMath::BinarySearch(n_bins()+1, m_pdgid_Ebin_probability[pdgid].data(), searchRand)+1;
-  if(chosenBin<1 || chosenBin>n_bins()) {
+  if(chosenBin<0 || chosenBin>n_bins()) {
     ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate bin="<<chosenBin);
     ATH_MSG_ERROR("  This error could probably be retried.");
     if(msgLvl(MSG::ERROR)) {
