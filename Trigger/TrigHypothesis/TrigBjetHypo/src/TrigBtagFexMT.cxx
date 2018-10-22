@@ -101,6 +101,8 @@ StatusCode TrigBtagFexMT::execute() {
 
   return StatusCode::SUCCESS;
 
+  // Commenting everything here while waiting for b-taggging to be ready. 
+  // This needs to be rewritten.
   /*
   // RETRIEVE INPUT CONTAINERS
   const EventContext& ctx = getContext();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Property.h"
@@ -49,15 +49,7 @@ StatusCode TrigBjetHypoAlgMT::execute_r( const EventContext& context ) const {
   CHECK( prevDecisionHandle.isValid() );
   const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
-  /*
-  // Let's retrieve Jets, just to check we can access the 'Split Jets'
-  SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_jetKey,context );
-  CHECK( jetContainerHandle.isValid() );
-  const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
-  ATH_MSG_DEBUG( "Retrieving " << jetContainer->size() << " Jets from previous step" );
-  for ( const xAOD::Jet *jet : *jetContainer )
-    ATH_MSG_DEBUG("   ** pt=" << jet->p4().Et()<<" eta="<< jet->eta()<<" phi="<<jet->phi());
-  */
+
   return StatusCode::SUCCESS;
 
   SG::ReadHandle< xAOD::BTaggingContainer > bTagHandle = SG::makeHandle( m_bTagKey, context );
