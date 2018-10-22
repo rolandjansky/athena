@@ -1,19 +1,22 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
+# Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getPrivateTool
+# Local
+from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
+
 
 def MuonReconstructionCfg(flags):
     # TODO - add lots! 
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
-    from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
     result.merge( MuonSegmentFindingCfg(flags) )
     return result
     
 if __name__=="__main__":
+    # To run this, do e.g. 
+    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonReconstructionConfig.py
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
@@ -22,20 +25,25 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     log.setLevel(DEBUG)
-
-    ConfigFlags.Input.isMC=False
+    from AthenaCommon.Logging import log
+    log.debug('About to set up Segment Finding.')
+    
     ConfigFlags.Input.Files = ["myESD.pool.root"]
+    ConfigFlags.Muon.doCSCs = False 
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()
 
+    # This is a temporary fix! Should be private!
+    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperTool
+    muon_edm_helper_tool = Muon__MuonEDMHelperTool("MuonEDMHelperTool", MuonExtrapolator=None) # Don't bring in this dependency yet!
+    cfg.addPublicTool( muon_edm_helper_tool )
+
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
-    
-    acc=MuonReconstructionCfg(ConfigFlags)
-    
-    cfg.merge(acc)
+
+    cfg.merge(MuonReconstructionCfg(ConfigFlags))
               
-    f=open("MuonReconstruction.pkl","w")
+    f=open("MuonSegmentFinding.pkl","w")
     cfg.store(f)
     f.close()
