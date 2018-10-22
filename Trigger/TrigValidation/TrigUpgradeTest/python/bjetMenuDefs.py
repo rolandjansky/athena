@@ -106,10 +106,11 @@ def bJetStep2Sequence():
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     InputMakerAlg = EventViewCreatorAlgorithm("BJetInputMaker_step2")
     InputMakerAlg.OutputLevel = DEBUG
-    InputMakerAlg.ViewFallThrough = True
-    InputMakerAlg.RoIsLink = "roi"
-    InputMakerAlg.InViewRoIs = "SplitJets" #"InViewRoIs" # ???
-    InputMakerAlg.Views = "BJetViews"
+    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
+    InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
+    InputMakerAlg.RoIsLink = "roi" # RoIs linked to previous decision
+    InputMakerAlg.InViewRoIs = "SplitJets" #"InViewRoIs" # Name RoIs are inserted in the view
+    InputMakerAlg.Views = "BJetViews" # Name of output view
 
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
@@ -118,7 +119,7 @@ def bJetStep2Sequence():
     theGSC.JetKey = InputMakerAlg.InViewRoIs
     theGSC.JetOutputKey = "GSCJets"
 
-    step2Sequence = parOR("step2Sequence",theGSC);
+    step2Sequence = seqAND("step2Sequence",[theGSC]);
     InputMakerAlg.ViewNodeName = "step2Sequence"
     
     # hypo

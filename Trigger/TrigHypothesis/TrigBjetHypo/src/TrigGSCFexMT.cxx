@@ -172,7 +172,7 @@ StatusCode TrigGSCFexMT::execute() {
   //	    << std::endl;
 
   */
-
+  ATH_MSG_DEBUG( "Ready to perform calibration" );
   for ( const xAOD::Jet *inJet : *jetContainer ) {
     /*
     xAOD::Jet *outJet = nullptr;
@@ -182,13 +182,15 @@ StatusCode TrigGSCFexMT::execute() {
     calibrateJets->push_back( outJet );
     *outJet = *inJet;
   }
-
+  ATH_MSG_DEBUG( "  ** Calibration performed" );
   // ==============================================================================================================================
   //    ** Store Output
   // ==============================================================================================================================
 
+  ATH_MSG_DEBUG( "Saving Output" );
   SG::WriteHandle< xAOD::JetContainer > outputJetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
   ATH_CHECK( outputJetContainerHandle.record( std::move(calibrateJets),std::move(calibratedJetsAux) ) ); 
+  ATH_MSG_DEBUG( "Done" );
 
   return StatusCode::SUCCESS;
 }
