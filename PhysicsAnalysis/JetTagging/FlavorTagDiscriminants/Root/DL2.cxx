@@ -73,7 +73,7 @@ namespace FlavorTagDiscriminants {
       // don't currently have any.
       auto out_vals = m_graph->compute(nodes, {}, dec.first);
       for (const auto& node: dec.second) {
-        node.second(jet) = out_vals.at(node.first);
+        node.second(*jet.btagging()) = out_vals.at(node.first);
       }
     }
   }

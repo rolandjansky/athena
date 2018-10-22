@@ -13,7 +13,7 @@
 
 namespace {
   // define a regex literal operator
-  std::regex operator "" _r(const char* c, size_t /* length */) {
+  std::regex operator""_r(const char* c, size_t /* length */) {
     return std::regex(c);
   }
 }
@@ -35,7 +35,7 @@ namespace FlavorTagDiscriminants {
     TypeRegexes type_regexes{
       {"(IP[23]D_|SV[12]_|rnnip_)p(b|c|u|tau)"_r, EDMType::DOUBLE},
       {"(JetFitter_|SV1_)[Nn].*"_r, EDMType::INT},
-      {"(JetFitter_|SV1_)"_r, EDMType::FLOAT}};
+      {"(JetFitter_|SV1_).*"_r, EDMType::FLOAT}};
     StringRegexes default_flag_regexes{
       {"IP2D_.*"_r, "IP2D_isDefaults"},
       {"IP3D_.*"_r, "IP3D_isDefaults"},
@@ -48,6 +48,8 @@ namespace FlavorTagDiscriminants {
       input_names, type_regexes, default_flag_regexes);
     m_dl2.reset(new DL2(config, input_config));
   }
+
+  DL2Tool::~DL2Tool() = default;
 
   void DL2Tool::decorate(const xAOD::Jet& jet) const {
     m_dl2->decorate(jet);

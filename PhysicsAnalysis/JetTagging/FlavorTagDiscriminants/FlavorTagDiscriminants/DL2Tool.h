@@ -15,6 +15,7 @@ namespace FlavorTagDiscriminants {
   {
   public:
     DL2Tool(const std::string& nn_file_name);
+    ~DL2Tool();
     void decorate(const xAOD::Jet& jet) const;
   private:
     std::unique_ptr<DL2> m_dl2;
