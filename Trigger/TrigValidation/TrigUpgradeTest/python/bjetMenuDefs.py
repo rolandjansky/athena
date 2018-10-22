@@ -74,15 +74,25 @@ def bJetStep1Sequence():
         if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
             TrackParticlesName = viewAlg.TrackParticlesName
 
+    # Shortlis of jets
+    from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
+    jetSplitter = TrigJetSplitterMT("jetSplitter")
+    jetSplitter.OutputLevel = DEBUG
+    jetSplitter.ImposeZconstraint = False
+    jetSplitter.Jets = sequenceOut
+    jetSplitter.OutputJets = "SplitJet"
+    jetSplitter.OutputRoi = "SplitJet"
+
     fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
-    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence] )
+    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,jetSplitter] )
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
-    hypo.Jets = sequenceOut
-    hypo.OutputJets = "SplitJets"
+    hypo.Jets = jetSplitter.OutputJets
+    hypo.RoILink = "roi" # To be used in following steps
+    hypo.RoIs = jetSplitter.OutputRoi
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -128,8 +138,6 @@ def bJetStep2Sequence():
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
-#    hypo.RoiKey = InputMakerAlg.RoIsLink
-#    hypo.RoiKey = InputMakerAlg.InViewRoIs
     hypo.OutputJets = "myJets"
 
     # Sequence

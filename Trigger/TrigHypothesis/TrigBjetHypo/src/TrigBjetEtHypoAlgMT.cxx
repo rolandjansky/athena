@@ -18,22 +18,15 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
+  ATH_MSG_DEBUG(  "   " << m_roiLink          );
   ATH_MSG_DEBUG(  "   " << m_inputJetsKey     );
-  ATH_MSG_DEBUG(  "   " << m_outputJetsKey    );
-  ATH_MSG_DEBUG(  "   " << m_imposeZconstraint);
-  ATH_MSG_DEBUG(  "   " << m_etaHalfWidth     );
-  ATH_MSG_DEBUG(  "   " << m_phiHalfWidth     );
-  ATH_MSG_DEBUG(  "   " << m_zHalfWidth       );
-  ATH_MSG_DEBUG(  "   " << m_minJetEt         );
-  ATH_MSG_DEBUG(  "   " << m_maxJetEta        );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
-  ATH_CHECK( m_hypoTools.retrieve() );
+  ATH_CHECK( m_hypoTools.retrieve()   );
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
-  CHECK( m_inputJetsKey.initialize() );
-  CHECK( m_outputJetsKey.initialize() );
-  CHECK( m_outputRoiKey.initialize() );
+  CHECK( m_inputJetsKey.initialize()       );
+  CHECK( m_inputRoIKey.initialize()        );
 
   return StatusCode::SUCCESS;
 }
@@ -68,44 +61,18 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   for ( const xAOD::Jet *jet : * jetCollection ) 
     ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
-  // Retrieve Primary Vertex
-  // Right now vertexing is not available. Using dummy vertex at (0,0,0) // TMP
-  const xAOD::VertexContainer *vertexContainer = nullptr; // TMP
-  const Amg::Vector3D *primaryVertex = nullptr; // TMP
-
-  if ( m_imposeZconstraint ) {
-    ATH_MSG_DEBUG( "Retrieving primary vertex." );
-    // Here we should retrieve the primary vertex // TO-DO
-    primaryVertex = new Amg::Vector3D( 0,0,0 ); // TMP
-    // Add protection against failure during primary vertex retrieval. // TO-DO
-    ATH_MSG_DEBUG( "  ** PV = (" << primaryVertex->x() <<   
-		   "," << primaryVertex->y() << 
-		   "," << primaryVertex->z() << ")" ); 
-  }
+  // Retrieve RoI to be linked to the output decision
+  SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_inputRoIKey,context );
+  CHECK( roiContainerHandle.isValid() );
 
   // ========================================================================================================================== 
   //    ** Prepare Outputs
   // ========================================================================================================================== 
 
-  // Prepare Output 
-  // Output RoIs -- WILL CHANGE -- TMP
-  std::unique_ptr< TrigRoiDescriptorCollection > roiContainer( new TrigRoiDescriptorCollection() ); // TMP
-
-  // Output Jet Collection
-  std::unique_ptr< xAOD::JetContainer > outputJets( new xAOD::JetContainer() );
-  std::unique_ptr< xAOD::JetAuxContainer > outputJetsAux( new xAOD::JetAuxContainer() );
-  outputJets->setStore( outputJetsAux.get() );
-
   // Decisions
   std::unique_ptr< TrigCompositeUtils::DecisionContainer > decisions = std::make_unique< TrigCompositeUtils::DecisionContainer >();
   std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > aux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer >();
   decisions->setStore( aux.get() );
-
-  // ==========================================================================================================================
-  //    ** Creating ShortList of Jet Container
-  // ==========================================================================================================================
-  
-  CHECK( shortListJets( jetCollection,outputJets,roiContainer,primaryVertex ) );
 
   // ==========================================================================================================================
   //    ** Compute Decisions
@@ -127,7 +94,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     if ( not TrigCompositeUtils::passed( decisionId.numeric() , previousDecisionIDs ) )
       continue;
     bool pass = false;
-    CHECK( tool->decide( outputJets.get(),pass ) );
+    CHECK( tool->decide( jetCollection,pass ) );
     if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
   }
 
@@ -140,86 +107,12 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
 
-  // Save Output Jet Contaienr
-  SG::WriteHandle< xAOD::JetContainer > outputJetHandle = SG::makeHandle( m_outputJetsKey,context );
-  ATH_MSG_DEBUG( "Saving jet collection " << m_outputJetsKey.key() << " with " << outputJets->size() << " elements " );
-  CHECK( outputJetHandle.record( std::move( outputJets ), std::move( outputJetsAux ) ) );
-
-  // Output RoI Container -- WILL CHANGE -- TMP
-  SG::WriteHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_outputRoiKey,context ); // TMP
-  ATH_MSG_DEBUG( "Sabing roi collection " << m_outputRoiKey.key() << " with " << roiContainer->size() <<" elements " ); // TMP
-  CHECK( roiContainerHandle.record( std::move( roiContainer ) ) ); // TMP
-
   // ==========================================================================================================================  
   //    ** Linking objects to decision 
   // ==========================================================================================================================  
 
-  newDecision->setObjectLink( "roi",ElementLink< TrigRoiDescriptorCollection >( m_outputRoiKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking 'roi' to output decisions" );
-  newDecision->setObjectLink( "SplitJets", ElementLink< xAOD::JetContainer >( m_outputJetsKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking 'SplitJets' to output decisions" );
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigBjetEtHypoAlgMT::shortListJets( const xAOD::JetContainer* jetCollection,
-					       std::unique_ptr< xAOD::JetContainer >& outputJets,
-					       std::unique_ptr< TrigRoiDescriptorCollection >& roiContainer,
-					       const Amg::Vector3D* primaryVertex ) const {
-
-  // Make a copy of the jet containers
-  for ( const xAOD::Jet *jet : *jetCollection ) {
-    // We select Jets above a specific eta and pt range
-    if ( jet->p4().Et() < m_minJetEt ) {
-      ATH_MSG_DEBUG( "** Jet below the " << m_minJetEt.value() << " GeV threshold; Et " << jet->p4().Et() <<"; Skipping this Jet."  );
-      continue;
-    }
-    if ( fabs( jet->eta() ) > m_maxJetEta ) {
-      ATH_MSG_DEBUG( "** Jet outside the |eta| < " << m_maxJetEta.value() << " requirement; Eta = " << jet->eta() << "; Skipping this Jet." );
-      continue;
-    }
-    ATH_MSG_DEBUG( "** Jet :: Et " << jet->p4().Et() <<"; Eta " << jet->eta() << "; Phi " << jet->phi() );
-
-    // Protection in case there is not a Primary vertex but the Z contraint option is set to True
-    if ( m_imposeZconstraint && primaryVertex == nullptr ) {
-      // Not sure here what the best solution is. We can't change the m_imposeZconstraint value being const (and not thread safe)
-      ATH_MSG_ERROR( "Option for imposing Z constraint is set to True, but no primary vertex has been found." );
-      return StatusCode::FAILURE;
-    }
-
-    // Copy Jet
-    xAOD::Jet *toBeAdded = new xAOD::Jet();
-    outputJets->push_back( toBeAdded );
-    *toBeAdded = *jet;
-
-    // Create RoI (we may require here PVz constraint)
-    double phiMinus = HLT::wrapPhi(jet->phi() - m_phiHalfWidth);
-    double phiPlus  = HLT::wrapPhi(jet->phi() + m_phiHalfWidth);
-
-    double etaMinus = jet->eta() - m_etaHalfWidth;
-    double etaPlus  = jet->phi() + m_etaHalfWidth;
-
-    // Impose Z matching (if enabled)
-    ATH_MSG_DEBUG( "Building RoI" );
-    TrigRoiDescriptor *newRoI = nullptr;
-    if ( not m_imposeZconstraint ) {
-      newRoI = new TrigRoiDescriptor( jet->eta(),etaMinus, etaPlus,
-				      jet->phi(), phiMinus, phiPlus );
-    } else {
-      ATH_MSG_DEBUG( "  ** Imposing Z constraint while building RoI" );
-      double zMinus = primaryVertex->z() - m_zHalfWidth; 
-      double zPlus  = primaryVertex->z() + m_zHalfWidth; 
-      
-      newRoI = new TrigRoiDescriptor( jet->eta(),etaMinus, etaPlus,
-				      jet->phi(), phiMinus, phiPlus,
-				      primaryVertex->z(),zMinus,zPlus ); 
-    }
-    ATH_MSG_DEBUG( "  -- RoI : eta=" << newRoI->eta() << " phi=" << newRoI->phi() );
-
-    // Put protection against nullpointer // TO-DO
-    roiContainer->push_back( newRoI );
-  }
+  newDecision->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),0 ) );
+  ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision" );
 
   return StatusCode::SUCCESS;
 }
