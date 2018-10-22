@@ -15,7 +15,9 @@ class EnergyCorrelatorRatiosTool :
       // Constructor and destructor
       EnergyCorrelatorRatiosTool(std::string name);
 
-      int modifyJet(xAOD::Jet &jet) const;
+      StatusCode initialize() override;
+
+      int modifyJet(xAOD::Jet &jet) const override; // Is the override necessary?
 
     private:
       bool m_includeBeta2;
