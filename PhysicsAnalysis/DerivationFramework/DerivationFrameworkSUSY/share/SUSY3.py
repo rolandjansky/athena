@@ -159,8 +159,8 @@ except:
 
 # the autodetection must be extended if RNN is deployed via an AODFix
 if not useRNN:
-  from tauRec.tauRecFlags import tauAODFlags
-  if tauAODFlags.doTauIDAODFix:
+  from AODFix import AODFix
+  if AODFix_willDoAODFix() and "tauid" in AODFix._aodFixInstance.latestAODFixVersion():
     susy3log.info("Tau ID AODFix is scheduled. Allow JetRNNSigLoose taus in the skimming!")
     useRNN = True
 
