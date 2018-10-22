@@ -289,12 +289,20 @@ def getHLTmap_fromDB(period, customGRL):
 
     return hltMap, lbCount
 
-def getHLTmap_fromTM(period):
+def getHLTmap_fromTM(period, release):
     ''' Return a map of HLT chain: (L1 seed, active LBs, is-rerun) for a given period
         Only "Future" periods make sense here
         The format is the same as for TriggerDBAccess for compatibility but rerun is always false
     '''
-    from TriggerMenu.menu import Physics_pp_v7
+
+    from os import getenv
+    asetupversion = getenv('AtlasVersion','')
+    forceRel21 = not (asetupversion.startswith("21.1") or asetupversion.startswith("22."))
+    if forceRel21 or release:
+        sys.path.insert(0, getMenuPathFromRelease(release))
+        import Physics_pp_v7
+    else:
+        from TriggerMenu.menu import Physics_pp_v7
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     
     Physics_pp_v7.setupMenu()
@@ -322,7 +330,14 @@ def getHLTmap_fromTM(period):
         
     return hltMap, dummyfutureLBs
 
-def getHLTlist(period, customGRL):
+def getMenuPathFromRelease(release):
+    if release: #already format-proofed in TriggerAPI
+        return "/cvmfs/atlas.cern.ch/repo/sw/software/21.1/AthenaP1/%s/InstallArea/x86_64-slc6-gcc62-opt/python/TriggerMenu/menu"%release
+    #21.1.43 contains the final menu, no need to find the last release
+    return "/cvmfs/atlas.cern.ch/repo/sw/software/21.1/AthenaP1/21.1.43/InstallArea/x86_64-slc6-gcc62-opt/python/TriggerMenu/menu"
+
+
+def getHLTlist(period, customGRL, release):
     ''' For a given period it returns: [HLT chain, L1 seed, average livefraction, active LB, is-rerun], total LB
         The average livefraction is an approximation weighting the PS by number of lumiblocks.
         *** Don't use this number in analysis!!! ***
@@ -331,7 +346,7 @@ def getHLTlist(period, customGRL):
     if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
         hltmap, totalLB = getHLTmap_fromDB(period, customGRL)
     else:
-        hltmap, totalLB = getHLTmap_fromTM(period)
+        hltmap, totalLB = getHLTmap_fromTM(period, release)
     
     hltlist = cleanHLTmap(hltmap, totalLB)
     return (hltlist, totalLB)

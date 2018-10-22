@@ -40,6 +40,7 @@
 #include "dqm_algorithms/BinHeight_Equal_Threshold.h"
 #include "dqm_algorithms/BinsDiffByStrips.h"
 #include "dqm_algorithms/BinsDiffFromStripMedian.h"
+#include "dqm_algorithms/BinsDiffFromPreviousLBs.h"
 #include "dqm_algorithms/BinsDiffFromStripMedianOnline.h"
 #include "dqm_algorithms/BinsFilledOutRange.h"
 #include "dqm_algorithms/BinsOutOfRange.h"
