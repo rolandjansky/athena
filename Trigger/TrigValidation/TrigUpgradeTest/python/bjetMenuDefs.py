@@ -44,7 +44,6 @@ def bJetStep1Sequence():
     # input maker
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step1")
-    InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
     InputMakerAlg.Output = "FSJETRoIs"
 
@@ -54,10 +53,8 @@ def bJetStep1Sequence():
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
-    # WILL BE REMOVED IN THE FUTURE 
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
     RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
-    RoIBuilder.OutputLevel = DEBUG
     RoIBuilder.JetInputKey = sequenceOut
     RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
 
@@ -67,7 +64,6 @@ def bJetStep1Sequence():
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
-    theFTF_Jet.OutputLevel = DEBUG
     theFTF_Jet.isRoI_Seeded = True
     theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
     viewAlgs.append( theFTF_Jet )
@@ -85,12 +81,8 @@ def bJetStep1Sequence():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
-    hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
     hypo.OutputJets = "SplitJets"
-    # These two are only for temporary debug. Will be removed 
-    hypo.TrackParticleContainerKey = TrackParticlesName
-    hypo.RoiKey = RoIBuilder.RoIOutputKey
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -116,15 +108,15 @@ def bJetStep2Sequence():
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.ViewFallThrough = True
     InputMakerAlg.RoIsLink = "roi"
-    InputMakerAlg.InViewRoIs = "BJetStep2RoI"
+    InputMakerAlg.InViewRoIs = "SplitJets" #"InViewRoIs" # ???
     InputMakerAlg.Views = "BJetViews"
 
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
-    theGSC.JetKey = "SplitJets"
-    theGSC.JetOutputKey = "GSCJet"
+    theGSC.JetKey = InputMakerAlg.InViewRoIs
+    theGSC.JetOutputKey = "GSCJets"
 
     step2Sequence = parOR("step2Sequence",theGSC);
     InputMakerAlg.ViewNodeName = "step2Sequence"
@@ -136,8 +128,8 @@ def bJetStep2Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
 #    hypo.RoiKey = InputMakerAlg.RoIsLink
-    hypo.RoiKey = InputMakerAlg.InViewRoIs
-    hypo.OutputJets = "GSCJets"
+#    hypo.RoiKey = InputMakerAlg.InViewRoIs
+    hypo.OutputJets = "myJets"
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])
