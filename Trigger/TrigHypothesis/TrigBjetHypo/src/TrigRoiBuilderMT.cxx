@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -9,10 +9,6 @@
 //
 //            Creates a ROI from a jet collection
 //                   
-//  
-//   Katharine (dot) Leney (at cern dot ch)
-//
-//   20th October 2014
 
 
 #include "src/TrigRoiBuilderMT.h"
