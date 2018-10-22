@@ -37,6 +37,11 @@ namespace FlavorTagDiscriminants {
       auto filler = get_filler(input.name, input.type, input.default_flag);
       m_getters.push_back(filler);
     }
+    // can add other getters here
+    m_getters.push_back([](const xAOD::Jet& j) -> Variable {
+        return {"pt", j.pt()};});
+    m_getters.push_back([](const xAOD::Jet& j) -> Variable {
+        return {"abs_eta", std::abs(j.eta())};});
 
     for (const auto& out_node: graph_config.outputs) {
       std::string node_name = out_node.first;
