@@ -38,7 +38,7 @@ std::unique_ptr<eflowRecClusterContainer> PFClusterCollectionTool::retrieve(cons
 }
 
 
-std::unique_ptr<xAOD::CaloClusterContainer> PFClusterCollectionTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters, xAOD::CaloClusterContainer& theCaloClusterContainer) {
+std::unique_ptr<xAOD::CaloClusterContainer> PFClusterCollectionTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters) {
 
   std::unique_ptr<xAOD::CaloClusterContainer> result = std::make_unique<xAOD::CaloClusterContainer>(SG::VIEW_ELEMENTS);
 
@@ -55,7 +55,7 @@ std::unique_ptr<xAOD::CaloClusterContainer> PFClusterCollectionTool::execute(con
         continue;
       }
 
-      xAOD::CaloCluster* thisCluster = thisEfRecCluster->getClusterForModification(&theCaloClusterContainer);
+      xAOD::CaloCluster* thisCluster = thisEfRecCluster->getCluster();
       result->push_back(thisCluster);
 
       ATH_MSG_DEBUG("Adding cluster with E, eta and phi to moments maker " << thisCluster->e() << ", " << thisCluster->eta() << " and " << thisCluster->phi());

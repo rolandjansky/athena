@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
-                          Control/CLIDSvc
                           Control/SGTools
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/AthenaPOOL/RootConversions )

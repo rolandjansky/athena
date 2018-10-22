@@ -131,3 +131,8 @@ OutputConditionsAlg.ObjectList += [ "LArRampMC#/LArCalorimeter/LArTests/LArRamps
 #IOVDbSvc.dbConnection  = "impl=cool;techno=oracle;devdb10:LARNOREG:ATLAS_COOLTEST:cool4devdb"
 
 conddb.setGlobalTag("OFLCOND-CSC-00-01-00")
+
+# Suppress useless GeoModelSvc messages.
+from AthenaCommon import Constants
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc().OutputLevel=Constants.WARNING

@@ -134,7 +134,7 @@ StatusCode Pythia8_i::genInitialize() {
         }
       }
         
-    }catch(Pythia8_i::CommandException err){
+    }catch(const Pythia8_i::CommandException& err){
       ATH_MSG_ERROR(err.what());
       return StatusCode::FAILURE;
     }
@@ -184,7 +184,7 @@ StatusCode Pythia8_i::genInitialize() {
           return StatusCode::FAILURE;
         }
       }
-    }catch(CommandException err){
+    }catch(const CommandException& err){
       ATH_MSG_ERROR(err.what());
       return StatusCode::FAILURE;
     }

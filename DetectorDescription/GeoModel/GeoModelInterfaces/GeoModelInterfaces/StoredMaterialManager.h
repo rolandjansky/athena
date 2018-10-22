@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _STOREDMATERIALMANAGER_H_
-#define _STOREDMATERIALMANAGER_H_
+#ifndef GEOMODELINTERFACES_STOREDMATERIALMANAGER_H
+#define GEOMODELINTERFACES_STOREDMATERIALMANAGER_H
 //---------------------------------------------------------//
 //                                                         //
 // class StoredMaterialManager  This class hold one or more//
@@ -14,7 +14,7 @@
 //                                                         //
 //---------------------------------------------------------//
 #include "GeoModelInterfaces/AbsMaterialManager.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <map>
 class StoredMaterialManager:public AbsMaterialManager 
 {

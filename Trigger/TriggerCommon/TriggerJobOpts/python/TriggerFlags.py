@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -778,23 +778,6 @@ class readMenuFromTriggerDb(JobProperty):
 #            TriggerFlags.readLVL1configFromXML = True
 #            TriggerFlags.readHLTconfigFromXML = True
 _flags.append(readMenuFromTriggerDb)
-
-# trigger configuration source list
-class readConfigFromTriggerDb(JobProperty):
-    """ define the TriggerDb to be the source of the LVL1 and HLT trigger menu"""
-    statusOn=False
-    allowedType=['bool']
-    StoredValue=False
-
-    def _do_action(self):
-        """ setup reading from DB requires menu readingFromXML """
-        if self.get_Value() is True:
-            # readMenuFromTriggerDb dumps only the HLTMenu to an XML file - it is of no use since HLTConfigSvc is set for the DB
-            TriggerFlags.readMenuFromTriggerDb = False
-            TriggerFlags.readLVL1configFromXML = False
-            TriggerFlags.readHLTconfigFromXML = False
-
-_flags.append(readConfigFromTriggerDb)
 
 class triggerDbKeys(JobProperty):
     """ define the keys [Configuration, LVL1Prescale, HLTPrescale, L1BunchGroupSet] in that order!"""

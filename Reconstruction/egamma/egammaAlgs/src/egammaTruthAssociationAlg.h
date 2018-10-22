@@ -15,6 +15,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -36,8 +38,7 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
 
 public:
 
-  typedef  std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>> Cache;
-
+  typedef Trk::IParticleCaloExtensionTool::Cache Cache;
 
   /** @brief constructor */
   egammaTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -58,7 +59,6 @@ private:
     MCTruthPartClassifier::ParticleType first;
     MCTruthPartClassifier::ParticleOrigin second;
     const xAOD::TruthParticle* genPart;
-    Cache *extrapolationCache;
   };
   
   /** @brief helper class to contain write docoration handle keys */

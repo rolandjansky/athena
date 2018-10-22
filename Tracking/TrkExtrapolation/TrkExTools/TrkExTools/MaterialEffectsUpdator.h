@@ -18,10 +18,13 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
+
 #include <vector>
 #include <string>
-#define TRKEXTOOLS_MAXUPDATES 100
 
+#include <boost/thread/tss.hpp>
+
+#define TRKEXTOOLS_MAXUPDATES 100
 #ifndef COVARIANCEUPDATEWITHCHECK
 #define COVARIANCEUPDATEWITHCHECK(cov, sign, value) cov += ( sign > 0 ? value : ( value > cov ? 0 : sign*value ) )
 #endif
@@ -65,9 +68,9 @@ class MaterialEffectsUpdator : public AthAlgTool,
     virtual ~MaterialEffectsUpdator();
 
     /** AlgTool initailize method.*/
-    StatusCode initialize() override;
+    virtual StatusCode initialize() override ;
     /** AlgTool finalize method */
-    StatusCode finalize()  override;
+    StatusCode finalize()  override ;
 
     /*
      * The concrete cache class for this specialization of the IMaterialEffectsUpdator
@@ -90,7 +93,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
 
     virtual std::unique_ptr<ICache> getCache() const override {
       return std::make_unique<Cache>();
-    }
+  }
 
     /** Updator interface (full update for a layer)
       ---> ALWAYS the same pointer is returned
@@ -101,7 +104,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            const Layer& sf,
                                            PropDirection dir=alongMomentum,
                                            ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
@@ -116,7 +119,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
                                            const MaterialEffectsOnTrack& meff,
                                            Trk::ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = updateImpl(cache,parm,meff,particle,matupmode);
@@ -132,7 +135,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                const Layer& sf,
                                                PropDirection dir=alongMomentum,
                                                ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const override{
+                                               MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = preUpdateImpl(cache,parm,sf,dir,particle,matupmode);
@@ -159,7 +162,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                double pathcorrection,
                                                PropDirection dir=alongMomentum,
                                                ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const override{
+                                               MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       const TrackParameters* outparam = updateImpl(cache,parm,mprop,pathcorrection,dir,particle,matupmode);
@@ -167,7 +170,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     }
 
     /** Validation Action - calls the writing and resetting of the TTree variables */
-    virtual void validationAction(ICache& icache) const override{
+    virtual void validationAction(ICache& icache) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       validationActionImpl(cache);
@@ -177,52 +180,11 @@ class MaterialEffectsUpdator : public AthAlgTool,
     /** Only has an effect if m_landauMode == true.
       Resets mutable variables used for non-local calculation of energy loss if
       parm == 0. Otherwise, modifies parm with the final update of the covariance matrix*/
-    virtual void modelAction(ICache& icache, const TrackParameters* parm = 0) const override{
+    virtual void modelAction(ICache& icache, const TrackParameters* parm = 0) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       modelActionImpl(cache,parm);
       return;
-    }
-
-  private:
-    /*
-     * Each instance (out of N) needs a have cache in order to accumulate calculation 
-     * between calls to its methods. In a Multi Thread environment we will 
-     * have pontially M threads running. So we need MxN cache instance.
-     *
-     * The solution adopted here is an effort to implement 
-     * "Schmidt, Douglas & Pryce, Nat & H. Harrison, Timothy. (1998). 
-     * Thread-Specific Storage for C/C++ - An Object
-     * Behavioral Pattern for Accessing per-Thread State Efficiently."
-     * Published in "More C++ Gems (SIGS Reference Library)".
-     * The solution in Figure 5 is adopted here. One could also adopt Figure 4 as 
-     * an alternative
-     *
-     * We have  M thread_local ptr to vectors. So one vector for each thread.  
-     * For the lookup each object needs a uniqueID. This is created in the initialize 
-     * by hashing the unique's instance full name. 
-     *
-     * Following https://google.github.io/styleguide/cppguide.html#thread_local
-     * the thread local is only exposed from inside a function. 
-     *
-     * Using thread_local unique_ptr<T>  achieves 
-     * the same behaviour as boost::thread_specific_ptr<T>
-     */
-
-    Cache& getTLSCache() const{ 
-
-      typedef std::vector<Cache> TLSCollection;
-      /* Initialize a unique ptr to default constructed TLSCollection*/
-      thread_local std::unique_ptr<TLSCollection> s_cacheStore= std::make_unique<TLSCollection>();        
-      
-      /* Resize the vector, to the requested number of Caches
-       * Default constructs elements
-       */
-      if (m_uniqueID>s_cacheStore->size()) {
-        s_cacheStore->resize(m_uniqueID);
-      } 
-      size_t index= m_uniqueID-1;
-      return s_cacheStore->operator[](index); 
     }
 
   public:
@@ -233,7 +195,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                             const Layer& sf,
                                             PropDirection dir=alongMomentum,
                                             ParticleHypothesis particle=pion,
-                                            MaterialUpdateMode matupmode=addNoise) const override{
+                                            MaterialUpdateMode matupmode=addNoise) const override {
 
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
@@ -243,7 +205,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
     virtual const TrackParameters*  update(const TrackParameters* parm,
                                            const MaterialEffectsOnTrack& meff,
                                            Trk::ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,meff,particle,matupmode);
       return outparam;
@@ -253,7 +215,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                                 const Layer& sf,
                                                 PropDirection dir=alongMomentum,
                                                 ParticleHypothesis particle=pion,
-                                                MaterialUpdateMode matupmode=addNoise) const override{
+                                                MaterialUpdateMode matupmode=addNoise) const override {
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = preUpdateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
@@ -274,7 +236,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            double pathcorrection,
                                            PropDirection dir=alongMomentum,
                                            ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
+                                           MaterialUpdateMode matupmode=addNoise) const override {
       Cache& cache = getTLSCache();
       const TrackParameters* outparam = updateImpl(cache,parm,mprop,pathcorrection,dir,particle,matupmode);
       return outparam;
@@ -286,7 +248,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
       return;
     }
 
-    virtual void modelAction(const TrackParameters* parm = 0) const override{
+    virtual void modelAction(const TrackParameters* parm = 0) const override {
       Cache& cache = getTLSCache();
       modelActionImpl(cache,parm);  
       return;
@@ -359,7 +321,6 @@ class MaterialEffectsUpdator : public AthAlgTool,
     bool                         m_landauMode;                         //!< If in Landau mode, error propagation is done as for landaus 
     int                          m_validationDirection;                //!< validation direction
     //  ------------------------------
-    std::size_t                  m_uniqueID;              //!< UniqueID Hash based on the unique instance name
     double                       m_momentumCut;           //!< Minimal momentum cut for update
     double                       m_momentumMax;           //!< Maximal momentum cut for update
     double                       m_forcedMomentum;        //!< Forced momentum value
@@ -368,7 +329,26 @@ class MaterialEffectsUpdator : public AthAlgTool,
     ToolHandle< IMultipleScatteringUpdator > m_msUpdator; //!< AlgoTool for MultipleScatterin effects
     // the material mapper for the validation process
     ToolHandle< IMaterialMapper > m_materialMapper;            //!< the material mapper for recording the layer material 
+    
+    /*
+     * TLS part
+     * The solution adopted here is an effort to implement 
+     * "Schmidt, Douglas & Pryce, Nat & H. Harrison, Timothy. (1998). 
+     * Thread-Specific Storage for C/C++ - An Object
+     * Behavioral Pattern for Accessing per-Thread State Efficiently."
+     * Published in "More C++ Gems (SIGS Reference Library)".
+     * Done here via boost::thread_specific_ptr
+     */
 
+    mutable boost::thread_specific_ptr<Cache> m_cache_tls;
+    Cache& getTLSCache() const{ 
+      Cache* cache = m_cache_tls.get();
+      if (!cache) {
+        cache = new Cache();
+        m_cache_tls.reset( cache );
+      }
+      return *cache; 
+    }
   };
 } // end of namespace
 

@@ -460,6 +460,15 @@ namespace Analysis {
 
   StatusCode JetTagCalibCondAlg::execute() {
     ATH_MSG_DEBUG("execute " << name());
+
+    // Write Cond Handle
+    SG::WriteCondHandle<JetTagCalibCondData > histoWriteHandle{m_writeKey};
+    //For serial Athena. Execute() should not be called in AthenaMT
+    if (histoWriteHandle.isValid()) {
+      ATH_MSG_DEBUG("#BTAG# Write CondHandle "<< histoWriteHandle.fullKey() << " is already valid");
+      return StatusCode::SUCCESS;
+    }
+
     m_mappedAlias.clear();
 
     // Read Cond Handle - GUID
@@ -551,8 +560,6 @@ namespace Analysis {
       } //end loop histograms
     } //end loop tagger
           
-    // Write Cond Handle
-    SG::WriteCondHandle<JetTagCalibCondData > histoWriteHandle{m_writeKey};
     if(histoWriteHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
       ATH_MSG_ERROR("#BTAG# Could not record vector of histograms maps " << histoWriteHandle.key()
          		  << " with EventRange " << rangeW

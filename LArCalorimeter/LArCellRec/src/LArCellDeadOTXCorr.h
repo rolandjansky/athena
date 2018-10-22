@@ -31,18 +31,22 @@
 // Headerfile
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+//#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
-#include "StoreGate/StoreGateSvc.h"
+//#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+//#include "AthenaKernel/IOVSvcDefs.h"
 #include "Identifier/Identifier.h"
 #include "CaloConditions/Array.h"
 #include "CaloRec/ToolWithConstantsMixin.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "tbb/concurrent_unordered_map.h"
+
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include <string>
 #include <vector>
@@ -84,6 +88,7 @@ class LArCellDeadOTXCorr
 
 		virtual StatusCode initialize() override;
 		virtual StatusCode process( CaloCellContainer * CellCont) override;
+		virtual StatusCode process( CaloCellContainer * CellCont, const EventContext& ctx ) const;
 		virtual StatusCode finalize() override;
 
 		using AthAlgTool::setProperty;
@@ -98,9 +103,11 @@ class LArCellDeadOTXCorr
 
 		// get a handle to the tool helper 
 
-		ToolHandle<ILArBadChanTool> m_badChannelTool;
-		ToolHandle<LArCablingService> m_cablingService;
+		//ToolHandle<ILArBadChanTool> m_badChannelTool;
+		//ToolHandle<LArCablingService> m_cablingService;
 
+		SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this,"BadFebKey","LArBadFeb","Key of Bad-Feb object"};
+		SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
                 //std::string m_TTLocation;
                 SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_TTLocation;
 		std::vector<double> m_triggerNoiseCut;
@@ -135,7 +142,8 @@ class LArCellDeadOTXCorr
 
 
 		L1CaloCondSvc* m_l1CondSvc;
-		CaloTriggerTowerService*      m_ttSvc;
+		//CaloTriggerTowerService*      m_ttSvc;
+		ToolHandle<CaloTriggerTowerService> m_ttSvc;
 		// L1CaloTTIdTools* m_l1CaloTTIdTools;
 
 		double TTID_etaWidth(double eta) const;

@@ -69,7 +69,6 @@ if ('sampleList' in dir()) or ('sampleFile' in dir()):
   try:
     svcMgr = theApp.serviceMgr()
     svcMgr.EventSelector.InputCollections = ic
-    #svcMgr.EventSelector.SkipBadFiles = True
   except Exception,inst:
     pass
   

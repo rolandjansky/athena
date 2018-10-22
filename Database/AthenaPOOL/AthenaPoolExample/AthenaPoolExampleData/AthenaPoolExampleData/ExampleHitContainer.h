@@ -25,6 +25,6 @@ public: // Constructor and Destructor
    /// Destructor
    virtual ~ExampleHitContainer() {};
 };
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ExampleHitContainer, 9102, 1)
 #endif

@@ -23,10 +23,14 @@ namespace {
 static const int NTRMAXTRIG=300;
 }
 
+namespace Trk {
+ class VKalVrtControl;
+}
+
+
 typedef std::vector<double> dvect;
 class VTrack;
 class TrigAtlasMagFld;
-
 
 class TrigInDetTrack;
 
@@ -222,8 +226,8 @@ private:
    //      double m_loc_chi2f;
 
 
-   TrigAtlasMagFld*  m_fitField;
-
+   TrigAtlasMagFld *  m_fitField;
+   Trk::VKalVrtControl  *  m_vkalFitControl;
 
    //      
    // Private functions (technicalities)
@@ -246,6 +250,11 @@ private:
 
 public:
    virtual StatusCode initialize();
+
+//
+// Array for full error matrix
+//
+   double * m_ErrMtx;
 
 };
 

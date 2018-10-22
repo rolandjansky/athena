@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILARPEDESTAL_H
 #define LARELECCALIB_ILARPEDESTAL_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
-#include "Identifier/Identifier.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
 
 class ILArPedestal {
@@ -39,18 +38,11 @@ public:
   // online ID
   virtual float pedestal(const HWIdentifier& id, int gain ) const =0 ;
   
-  // offline ID
-  virtual float pedestal(const Identifier& id, int gain) const = 0 ;
-  
-
   /** access to RMS of Pedestal 
       index by Identifier, and gain setting
   */ 
   // online ID
   virtual float pedestalRMS(const HWIdentifier& id, int gain ) const =0;
-
-  // offline ID
-  virtual float pedestalRMS(const Identifier& id, int gain) const = 0 ;
 
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 

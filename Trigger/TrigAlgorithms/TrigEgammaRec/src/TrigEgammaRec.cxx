@@ -588,6 +588,9 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // Time total TrigEgammaRec execution time.
     if (timerSvc()) m_timerTotal->start();
 
+    //This needs to be changed when the Alg becomes reentrant
+    const EventContext ctx = Gaudi::Hive::currentContext();
+
     m_eg_container = 0;
     m_electron_container = 0;
     m_photon_container = 0;
@@ -871,7 +874,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             if (timerSvc()) m_timerTool1->start(); //timer
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
                 << "REGTEST:: Running TrackMatchBuilder" << endmsg;
-            if(m_trackMatchBuilder->trackExecute(egRec,pTrackParticleContainer).isFailure())
+            if(m_trackMatchBuilder->trackExecute(Gaudi::Hive::currentContext(),egRec,pTrackParticleContainer).isFailure())
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
                     << "REGTEST: no Track matched to this cluster" << endmsg;
             if (timerSvc()) m_timerTool1->stop(); //timer
@@ -1058,7 +1061,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         } //Photon
     }//end loop of egRec
 
-
+    
     //Dress the Electron objects
     for (const auto& eg : *m_electron_container){
         // EMFourMomentum
@@ -1125,11 +1128,11 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         //     }
         //     if (timerSvc()) m_timerIsoTool1->stop(); //timer       
         // }
-     
+        
         // PID
         ATH_MSG_DEBUG("about to run execute(eg) for PID");
         if (timerSvc()) m_timerPIDTool1->start(); //timer
-        if( m_electronPIDBuilder->execute(eg)){
+        if( m_electronPIDBuilder->execute(ctx, eg)){
             ATH_MSG_DEBUG("Computed PID and dressed");
             m_lhval.push_back(eg->likelihoodValue("LHValue"));
         }
@@ -1138,7 +1141,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // PID
         ATH_MSG_DEBUG("about to run execute(eg) for Calo LH PID");
         if (timerSvc()) m_timerPIDTool2->start(); //timer
-        if( m_electronCaloPIDBuilder->execute(eg)){
+        if( m_electronCaloPIDBuilder->execute(ctx, eg)){
             ATH_MSG_DEBUG("Computed PID and dressed");
             m_lhcaloval.push_back(eg->likelihoodValue("LHCaloValue"));
         }
@@ -1197,7 +1200,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     
         // Particle ID
         if (timerSvc()) m_timerPIDTool3->start(); //timer
-        if( m_photonPIDBuilder->execute(eg)){
+        if( m_photonPIDBuilder->execute(ctx, eg)){
             ATH_MSG_DEBUG("Computed PID and dressed");
         }
         else ATH_MSG_DEBUG("Problem in photon PID");

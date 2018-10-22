@@ -13,7 +13,17 @@
 #undef NDEBUG
 #include <cassert>
 #include <iostream>
+// Suppress a gcc8 warning from boost.
+// (Binaries apparently include boost with -I rather than -isystem.)
+// Fixed in boost 1.68 (see https://github.com/boostorg/mpl/issues/31)
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wparentheses"
+#endif
 #include "boost/filesystem/operations.hpp"
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 #include "GaudiKernel/DirSearchPath.h"
 
 using namespace std;

@@ -82,13 +82,18 @@ StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, 
     if (lumi<0) {
       SG::ReadCondHandle<CondAttrListCollection> lumiHdl(m_lumiFolderName,ctx);
       const CondAttrListCollection* attrListColl=(*lumiHdl);
-      const coral::AttributeList& attrList=attrListColl->attributeList(0); //Get channel number 0
-      if (attrList["LBAvInstLumi"].isNull()) {
-	ATH_MSG_WARNING("No valid luminosity information in folder " << m_lumiFolderName.key() << ", attribute LBAvInstLumi");
-	lumi=0;
+      if (attrListColl->size() == 0) {
+        lumi = 0;
       }
       else {
-	lumi=attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
+        const coral::AttributeList& attrList=attrListColl->attributeList(0); //Get channel number 0
+        if (attrList["LBAvInstLumi"].isNull()) {
+          ATH_MSG_WARNING("No valid luminosity information in folder " << m_lumiFolderName.key() << ", attribute LBAvInstLumi");
+          lumi=0;
+        }
+        else {
+          lumi=attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
+        }
       }
     }
 

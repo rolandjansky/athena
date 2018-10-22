@@ -16,6 +16,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
+#include "GaudiKernel/EventContext.h"
 
 namespace Root{
   class TElectronLikelihoodTool;
@@ -51,53 +52,71 @@ public:
 
   /** The main accept method: using the generic interface */
   asg::AcceptData accept( const xAOD::IParticle* part ) const;
+  asg::AcceptData accept( const EventContext& ctx, const xAOD::IParticle* part ) const;
 
   /** The main accept method: the actual cuts are applied here */
   asg::AcceptData accept( const xAOD::Electron* eg ) const {
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  }
+  asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* eg ) const {
+    return accept (ctx, eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main accept method: the actual cuts are applied here */
   asg::AcceptData accept( const xAOD::Egamma* eg ) const {
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
+  asg::AcceptData accept(const EventContext& ctx, const xAOD::Egamma* eg ) const {
+    return accept (ctx, eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  }
 
   /** The main accept method: in case mu not in EventInfo online */
   asg::AcceptData accept( const xAOD::Electron* eg, double mu ) const;
+  asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* eg, double mu ) const;
 
   /** The main accept method: in case mu not in EventInfo online */
   asg::AcceptData accept( const xAOD::Egamma* eg, double mu ) const;
-  
+  asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* eg, double mu ) const;
+
   // Main methods for IAsgCalculatorTool interface
 public:
   /** The main result method: the actual likelihood is calculated here */
   double calculate( const xAOD::IParticle* part ) const;
+  double calculate( const EventContext &ctx, const xAOD::IParticle* part ) const;  
 
   /** The main result method: the actual likelihood is calculated here */
   double calculate( const xAOD::Electron* eg ) const {
     return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  }
+  double calculate( const EventContext &ctx, const xAOD::Electron* eg ) const {
+    return calculate (ctx, eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
   double calculate( const xAOD::Egamma* eg ) const {
     return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
+  double calculate( const EventContext &ctx, const xAOD::Egamma* eg ) const {
+    return calculate (ctx, eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  }
 
   /** The main result method: the actual likelihood is calculated here */
   double calculate( const xAOD::Electron* eg, double mu ) const;
+  double calculate( const EventContext &ctx, const xAOD::Electron* eg, double mu ) const;
 
   /** The main result method: the actual likelihood is calculated here */
   double calculate( const xAOD::Egamma* eg, double mu ) const; 
+  double calculate( const EventContext &ctx, const xAOD::Egamma* eg, double mu ) const;
 
   virtual std::string getOperatingPointName( ) const;
 
   // Private methods
 private:
   /// Get the number of primary vertices
-  unsigned int getNPrimVertices() const;
+  unsigned int getNPrimVertices(const EventContext &ctx) const;
 
   /// Get the FCal ET for centrality determination (for HI collisions)
-  double getFcalEt() const;
+  double getFcalEt(const EventContext &ctx) const;
 
   /// Get the name of the current operating point
 

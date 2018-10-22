@@ -22,26 +22,52 @@
 
 static const InterfaceID IID_IAthSelectionTool("IAthSelectionTool",1,0);
 
+
 /// IAthSelectionTool is a virtual baseclass for selection methods
 class IAthSelectionTool:virtual public IAlgTool{
 public:
+
+  class CutResult {
+  public:
+    CutResult(unsigned int missing_cuts) : m_missingCuts(missing_cuts) {}
+
+    unsigned int missingCuts() const {
+      return m_missingCuts;
+    }
+
+    operator bool() const {
+      return m_missingCuts==0;
+    }
+
+  private:
+    unsigned int m_missingCuts = 0;
+  };
+
   ///interfaceID reimplemented from base
   static const InterfaceID & interfaceID();
   ///virtual destructor, does nothing
   virtual ~IAthSelectionTool(){ }
+
+  /** @brief The most important method to determine whether the particle is accepted
+   * @param p Pointer to particle baseclass, will be cast to truth or track
+   * @return true if particle passes cuts
+   */
+  virtual IAthSelectionTool::CutResult
+  testAllCuts(const xAOD::IParticle * p, std::vector<unsigned int> &counter) const = 0;
+
   /** @brief The most important method to determine whether the particle is accepted
     * @param p Pointer to particle baseclass, will be cast to truth or track
-    * @return true if particle passes cuts
-    */ 
-  virtual bool accept(const xAOD::IParticle * p) = 0;
-  ///Clear internal counters for each cut
-  virtual void clearCounters()=0;
-  ///Gives a vector of unsigned int counters; relies on return-value-optimisation to be efficient
-  virtual std::vector<unsigned int> counters() const =0;
+    * @return the number of cuts which are not passed or tested
+    */
+  virtual IAthSelectionTool::CutResult accept(const xAOD::IParticle * p) const = 0;
+
+  /** @brief return the number of cuts.
+   * @return the number of cuts
+   */
+  virtual unsigned int nCuts() const = 0;
+
   ///return the names of the cuts as a vector<string>
   virtual std::vector<std::string> names() const = 0;
-  ///Returns a formatted text string reporting the cuts' results
-  virtual std::string str() const =0;
 };
 
 inline const InterfaceID & IAthSelectionTool::interfaceID(){

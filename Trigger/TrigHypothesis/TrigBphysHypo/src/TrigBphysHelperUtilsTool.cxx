@@ -333,11 +333,12 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         result->setFitz        (-9999);
         
     } else {
-        std::vector<int> trkIndices(particles.size(),1);
+        //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        std::vector<double> masses(particles.size(), m_massMuon);
-        m_VKVFitter->setMassInputParticles(masses); // give input tracks muon mass
-        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        //std::vector<double> masses(particles.size(), m_massMuon);
+        //m_VKVFitter->setMassInputParticles(masses); // give input tracks muon mass. Pointless after the fit
+        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
             if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
         } // if
         
@@ -424,10 +425,11 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         result->setPhi         (-9999);
     
     } else {
-        std::vector<int> trkIndices(particles.size(),1);
+        //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
-        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        //m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass. Pointless after the fit
+        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
             if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
             invariantMass = -9999.;
         } // if
@@ -500,10 +502,11 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         result->setPhi         (-9999);
 
     } else {
-        std::vector<int> trkIndices(trks.size(),1);
+        //std::vector<int> trkIndices(trks.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
-        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        //m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass. Pointless after the fit
+        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
             if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
             invariantMass = -9999.;
         } // if

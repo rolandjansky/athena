@@ -5,15 +5,11 @@
 #include "LArRawConditions/LArAutoCorrComplete.h" 
 
 
-LArAutoCorrComplete::LArAutoCorrComplete():LArConditionsContainer<LArAutoCorrP1>() 
-{
-
-}
+LArAutoCorrComplete::LArAutoCorrComplete():LArConditionsContainer<LArAutoCorrP1>() {}
 
 LArAutoCorrComplete::~LArAutoCorrComplete() {}
 
-/* Fill transient object in ATHENA *****************************************
- */
+// Fill transient object in ATHENA *********************************
 void LArAutoCorrComplete::set(const HWIdentifier& CellID, int gain,
 			 const std::vector<float>& vAutoCorr ) {
 
@@ -29,18 +25,8 @@ void LArAutoCorrComplete::set(const HWIdentifier& CellID, int gain,
 
 }
 
-/* retrieve AutoCorr ******************************************************
- */
-ILArAutoCorr::AutoCorrRef_t LArAutoCorrComplete::autoCorr(const Identifier&  CellID, int gain) const 
-{ 
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID);
-  const LArAutoCorrP1& t = get(OnId,gain) ;
-  return t.m_vAutoCorr;
-}
-  
-
-ILArAutoCorr::AutoCorrRef_t LArAutoCorrComplete::autoCorr(const HWIdentifier&  CellID, int gain) const 
-{ 
+//retrieve AutoCorr *****************************************************
+ILArAutoCorr::AutoCorrRef_t LArAutoCorrComplete::autoCorr(const HWIdentifier&  CellID, int gain) const { 
   const LArAutoCorrP1& t = get(CellID,gain) ;
   return t.m_vAutoCorr;
 }

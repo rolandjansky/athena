@@ -12,6 +12,8 @@
 #include "SCT_ConditionsData/SCT_MonitorCondData.h"
 #include "GaudiKernel/ICondSvc.h"
 
+class SCT_ID;
+
 class SCT_MonitorCondAlg : public AthAlgorithm 
 {  
  public:
@@ -24,6 +26,7 @@ class SCT_MonitorCondAlg : public AthAlgorithm
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/Derived/Monitoring", "Key of input (raw) noisy strip conditions folder"};
   SG::WriteCondHandleKey<SCT_MonitorCondData> m_writeKey{this, "WriteKey", "SCT_MonitorCondData", "Key of output (derived) noisy strip conditions data"};
+  const SCT_ID* m_helper;
   ServiceHandle<ICondSvc> m_condSvc; 
 };
 

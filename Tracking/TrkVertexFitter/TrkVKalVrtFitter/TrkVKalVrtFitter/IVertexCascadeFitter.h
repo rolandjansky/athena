@@ -9,8 +9,8 @@
 // Normal STL and physical vectors
 #include <vector>
 // Gaudi includes
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+//#include "GaudiKernel/IToolSvc.h"
 //
 #include  "TrkVKalVrtFitter/VxCascadeInfo.h"
 #include  "xAODTracking/TrackParticle.h" 

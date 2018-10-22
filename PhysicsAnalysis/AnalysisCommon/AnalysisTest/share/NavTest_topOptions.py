@@ -6,9 +6,6 @@ EventSelector = Service( "EventSelector" )
 # The AOD input file
 EventSelector.InputCollections = [ "AOD.pool.root" ]
 
-# enable Back Navigation
-EventSelector.BackNavigation = True
-
 # POOL converters
 include( "LArAthenaPool/LArAthenaPool_joboptions.py" )
 include( "TrkEventAthenaPool/TrkEventAthenaPool_joboptions.py" )

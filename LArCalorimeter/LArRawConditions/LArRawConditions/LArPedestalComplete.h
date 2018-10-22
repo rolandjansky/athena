@@ -11,7 +11,6 @@
 #include "LArRawConditions/LArPedestalP1.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 
-class LArCablingService ;
 
 /** This class implements the ILArPedestal interface
  *
@@ -27,24 +26,16 @@ class LArPedestalComplete: public ILArPedestal,
  {
   
  public: 
-  
   LArPedestalComplete();
-  
-  //typedef LArConditionsContainer<LArPedestalP1> CONTAINER ;
   virtual ~LArPedestalComplete( );
   
   // retrieving Pedestal using online ID
   
-  virtual float pedestal(const HWIdentifier&  CellID, int gain) const {
+  virtual float pedestal(const HWIdentifier&  CellID, int gain) const override{
     return this->get(CellID, gain).m_Pedestal;}
   
-  virtual float pedestalRMS(const HWIdentifier&  CellID, int gain) const {
+  virtual float pedestalRMS(const HWIdentifier&  CellID, int gain) const override{
     return this->get(CellID, gain).m_PedestalRMS;}
-  
-  virtual float pedestal(const Identifier&  CellID, int gain) const;
-  
-  virtual float pedestalRMS(const Identifier&  CellID, int gain) const;
-  
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)

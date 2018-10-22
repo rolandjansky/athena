@@ -19,6 +19,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 #include "xAODJet/JetContainer.h"
 
 namespace met {
@@ -78,10 +79,10 @@ class IMETSystematicsTool : virtual public asg::IAsgTool,
 
   //we don't inherit from CorrectionTool directly, but we are something close to that
   virtual CP::CorrectionCode applyCorrection(xAOD::MissingET& met,
-					     const xAOD::MissingETAssociationMap * map=nullptr
+					     const xAOD::MissingETAssociationHelper * helper=nullptr
 					     ) const = 0;
   virtual CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-					   const xAOD::MissingETAssociationMap * map=nullptr
+					   const xAOD::MissingETAssociationHelper * helper=nullptr
 					   ) const = 0;
 
   // virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set) = 0;

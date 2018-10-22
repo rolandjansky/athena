@@ -206,7 +206,6 @@ class ReadTrigDecisionFromFile ( object ) :
         import AthenaPoolCnvSvc.ReadAthenaPool
 
         svcMgr.EventSelector.InputCollections = [ fileName ]
-        svcMgr.EventSelector.BackNavigation = TRUE; # // switch on BackNavigation of AddressProvider
         svcMgr.PoolSvc.ReadCatalog = [ catalog ]
 
 

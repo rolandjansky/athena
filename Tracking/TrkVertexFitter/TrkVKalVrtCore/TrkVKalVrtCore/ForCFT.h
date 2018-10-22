@@ -20,13 +20,12 @@ namespace Trk {
     int usePassNear;
     int usePlaneCnst;
 
-// Summary charge at vertex
-    long int icht;
 //
 // For several(up to 8) mass constraints
     int nmcnst;
-    double wm[NTrkM];
-    double wmfit[8], localbmag;
+    double wm[vkalNTrkM];
+    double wmfit[vkalMaxNMassCnst];
+    double localbmag;
 // Since 20/09/2009 - Vertex in plane constraint 
     double Ap,Bp,Cp,Dp;
 
@@ -40,22 +39,30 @@ namespace Trk {
     double vrt[3], covvrt[6], wgtvrt[6];
 //
 // temporary vertex in global ref.frame
-    double vrtstp[3];        
-    long int irob;
+    double vrtstp[3];
+    int irob;
     double RobustScale;
-    double robres[NTrkM];
-    short int indtrkmc[NTrkM*8];	/* was [300][8] */
-    short int IterationNumber;
+    double robres[vkalNTrkM];
+    int indtrkmc[vkalMaxNMassCnst][vkalNTrkM];
+    int IterationNumber;
     double IterationPrecision;
  
     ForCFT(){
       nmcnst=0;
       useMassCnst=0; usePhiCnst=0; useThetaCnst=0; usePointingCnst=0; usePlaneCnst=0;
-      useAprioriVrt=0; usePassNear=0; icht=0; Ap=Bp=Dp=Cp=0.;
-      IterationNumber = 100; IterationPrecision=1.e-3; RobustScale = 1.; irob=0;
-      localbmag=2.0;   // Safety: standard magnetic field in ID 
+      useAprioriVrt=0; usePassNear=0;
+      Ap=Bp=Dp=Cp=0.;
+      IterationNumber = 50;
+      IterationPrecision=1.e-3;
+      RobustScale = 1.; irob=0;
+      for (int ic=0; ic<vkalMaxNMassCnst; ++ic) wmfit[ic] = -10000.;
+      for (int it=0; it<vkalNTrkM; ++it) {
+         wm[it] = 139.57018;
+         for(int ic=0; ic<vkalMaxNMassCnst; ic++) indtrkmc[ic][it]=0;
+      }
+      localbmag=1.997;   // Safety: standard magnetic field in ID 
     };
-    ~ForCFT(){};
+    ~ForCFT() {};
   };
 
 }

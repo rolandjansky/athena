@@ -10,12 +10,14 @@
 #include "TFile.h"
 #include "TH2F.h"
 #include "TF1.h"
-#include "TRandom3.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class TFCSSimpleLateralShapeParametrization:public TFCSLateralShapeParametrizationHitBase {
 public:
   TFCSSimpleLateralShapeParametrization(const char* name=nullptr, const char* title=nullptr);
-  ~TFCSSimpleLateralShapeParametrization();
 
   // simulated one hit position with weight that should be put into simulstate
   // sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
@@ -27,7 +29,7 @@ public:
 
   bool Initialize(float input_sigma_x, float input_sigma_y);
 
-  void getHitXY(double &x, double &y);
+  void getHitXY(CLHEP::HepRandomEngine *engine, double &x, double &y);
 
   float getSigma_x(){return m_sigmaX;};
   float getSigma_y(){return m_sigmaY;};
@@ -36,14 +38,6 @@ private:
 
   float m_sigmaX;
   float m_sigmaY;
-
-  //float sigma2_x;
-  //float sigma2_y;
-
-  //float gaus_ratio;
-
-  TRandom3 *m_rnd;
-
 
   ClassDefOverride(TFCSSimpleLateralShapeParametrization,1)  //TFCSSimpleLateralShapeParametrization
 };

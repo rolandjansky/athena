@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARSHAPE_H
 #define LARCONDITIONS_ILARSHAPE_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/LArVectorProxy.h"
-class Identifier;
 class HWIdentifier;
 
 
@@ -37,17 +36,6 @@ class ILArShape {
                               int gain,
                               int tbin = 0,
                               int mode = 0 )  const = 0 ;
-  
-  // offline ID
-  virtual ShapeRef_t Shape   (const Identifier& id,
-                              int gain,
-                              int tbin = 0,
-                              int mode = 0 )  const = 0 ;  
-  virtual ShapeRef_t ShapeDer(const Identifier& id,
-                              int gain,
-                              int tbin = 0,
-                              int mode = 0 )  const = 0 ;
-  
   
 } ;
 

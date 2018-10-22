@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -15,11 +15,16 @@ decription           : Bethe-Heitler material effects for the GSF
 #define Trk_GsfBetheHeitlerEffects_H
 
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-#include "TrkGaussianSumFilter/MultiStateMaterialEffects.h"
+
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/PropDirection.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 
 namespace Trk{
 
-class GsfBetheHeitlerEffects : public MultiStateMaterialEffects, virtual public IMultiStateMaterialEffects {
+class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMaterialEffects {
 
  private:
 
@@ -37,15 +42,15 @@ class GsfBetheHeitlerEffects : public MultiStateMaterialEffects, virtual public 
 
     // Evaluation of the polynomial for given material thickness (t)
     double operator () (const double& t) const
-      {
-  double sum(0.);
-  std::vector<double>::const_iterator coefficient = m_coefficients.begin();
-
-  for ( ; coefficient != m_coefficients.end(); ++coefficient)
-    sum = t * sum + (*coefficient);
-
-  return sum;
-      }
+    {
+      double sum(0.);
+      std::vector<double>::const_iterator coefficient = m_coefficients.begin();
+    
+      for ( ; coefficient != m_coefficients.end(); ++coefficient)
+        sum = t * sum + (*coefficient);
+    
+      return sum;
+    }
 
   private:
     std::vector<double> m_coefficients;
@@ -68,15 +73,16 @@ class GsfBetheHeitlerEffects : public MultiStateMaterialEffects, virtual public 
   /** AlgTool finalise method */
   StatusCode finalize();
 
- private:
-  typedef std::vector<ComponentValues> MixtureParameters;
-
- private:
-  virtual void compute ( const ComponentParameters&,
+  virtual void compute ( Cache&,
+       const ComponentParameters&,
        const MaterialProperties&,
        double,
        PropDirection direction = anyDirection,
        ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
+
+ private:
+  typedef std::vector<ComponentValues> MixtureParameters;
 
   // Read polynomial fit parameters from a specified file
   bool readParameters();
@@ -86,7 +92,7 @@ class GsfBetheHeitlerEffects : public MultiStateMaterialEffects, virtual public 
 
   // Get mixture parameters
   void getMixtureParameters(const double, MixtureParameters&) const;
-  
+
   // Get mixture parameters
   void getMixtureParametersHighX0(const double, MixtureParameters&) const;
 
@@ -126,7 +132,7 @@ class GsfBetheHeitlerEffects : public MultiStateMaterialEffects, virtual public 
 
 
   int m_correctionFlag;
-  
+
   std::string m_parameterisationFileNameHighX0;
 
   int m_numberOfComponentsHighX0;
@@ -139,15 +145,8 @@ class GsfBetheHeitlerEffects : public MultiStateMaterialEffects, virtual public 
   double m_lowerRange;
   double m_xOverRange;
   double m_upperRange;
-  bool   m_useHighX0; 
+  bool   m_useHighX0;
   double m_componentMeanCut;
-
-
-  //mutable double m_lastDz;
-  //mutable double m_lastP;
-  //mutable PropDirection m_lastPropDirection;
-  //mutable double m_lastRadLength;
-       
 
 
 };

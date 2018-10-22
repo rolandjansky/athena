@@ -29,6 +29,7 @@ int main() {
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
@@ -194,8 +195,8 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       xAOD::MissingETAuxContainer* newMetAuxContainer = new xAOD::MissingETAuxContainer();
       newMetContainer->setStore(newMetAuxContainer);
 
-      // It is necessary to reset the selected objects before every MET calculation
-      metMap->resetObjSelectionFlags();
+      // A MET Association Helper is needed to keep track of selected objects
+      xAOD::MissingETAssociationHelper metHelper(metMap);
 
       //here we apply some basic cuts and rebuild the met at each step
       //Electrons
@@ -207,7 +208,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Electron,       //telling the rebuilder that this is electron met
 				 newMetContainer,            //filling this met container
 				 metElectrons.asDataVector(),//using these metElectrons that accepted our cuts
-				 metMap)                     //and this association map
+				 &metHelper)                     //and this association map
 	     );
 
       //Photons
@@ -219,7 +220,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Photon,
 				 newMetContainer,
 				 metPhotons.asDataVector(),
-				 metMap)
+				 &metHelper)
 	     );
 
       //Taus
@@ -231,7 +232,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Tau,
 				 newMetContainer,
 				 metTaus.asDataVector(),
-				 metMap)
+				 &metHelper)
 	     );
 
       //Muons
@@ -243,7 +244,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Muon,
 				 newMetContainer,
 				 metMuons.asDataVector(),
-				 metMap)
+				 &metHelper)
 	     );
 
       //Now time to rebuild jetMet and get the soft term
@@ -255,7 +256,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				     newMetContainer, //adding to this new met container
 				     calibJets,       //using this jet collection to calculate jet met
 				     coreMet,         //core met container
-				     metMap,          //with this association map
+				     &metHelper,          //with this association map
 				      false            //don't apply jet jvt cut
 				     )
 	     );

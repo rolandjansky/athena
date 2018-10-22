@@ -17,11 +17,10 @@
 
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"
-#include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
 #include "ElectronPhotonFourMomentumCorrection/get_MaterialResolutionEffect.h"
 #include "ElectronPhotonFourMomentumCorrection/e1hg_systematics.h"
 #include "ElectronPhotonFourMomentumCorrection/GainUncertainty.h"
-
+#include "egammaUtils/eg_resolution.h"
 
 #include "PathResolver/PathResolver.h"
 

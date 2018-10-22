@@ -177,7 +177,6 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                           MakePerigee             = True,
                                           RefitOnMeasurementBase  = True,
                                           DoHitSorting            = True,
-                                          ValidationMode          = False,
                                           OutputLevel = 3)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter

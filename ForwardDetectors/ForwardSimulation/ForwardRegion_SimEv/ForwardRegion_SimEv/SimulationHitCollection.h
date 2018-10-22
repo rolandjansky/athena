@@ -10,7 +10,7 @@
 #include "HitManagement/AtlasHitsVector.h"
 
 #ifndef __CINT__
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #endif //__CINT__
 
 typedef AtlasHitsVector<SimulationHit> SimulationHitCollection;

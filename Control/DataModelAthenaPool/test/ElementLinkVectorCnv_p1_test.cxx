@@ -16,7 +16,7 @@
 #undef NDEBUG
 #include "AthLinks/ElementLinkVector.h"
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <cassert>
 #include <iostream>

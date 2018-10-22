@@ -25,9 +25,9 @@ namespace met {
     ~METReaderAlg(); 
 
     /// Athena algorithm's Hooks
-    StatusCode  initialize();
-    StatusCode  execute_r (const EventContext& ctx) const override;
-    StatusCode  finalize();
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute_r (const EventContext& ctx) const override;
+    virtual StatusCode  finalize() override;
 
   private: 
 

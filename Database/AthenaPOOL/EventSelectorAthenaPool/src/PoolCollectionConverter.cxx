@@ -37,8 +37,8 @@ PoolCollectionConverter::PoolCollectionConverter(const std::string& collectionTy
 	m_inputCollection(inputCollection),
 	m_query(query),
 	m_poolSvc(svc),
-	m_poolCollection(0),
-	m_collectionQuery(0),
+	m_poolCollection(nullptr),
+	m_collectionQuery(nullptr),
 	m_inputContainer() {
    // Find out if the user specified a container
    std::string::size_type p_colon = collectionType.rfind(':');
@@ -59,8 +59,8 @@ PoolCollectionConverter::PoolCollectionConverter(const std::string& collectionTy
 PoolCollectionConverter::~PoolCollectionConverter() {
    if (m_poolCollection) {
       m_poolCollection->close();
-      delete m_collectionQuery; m_collectionQuery = 0;
-      delete m_poolCollection; m_poolCollection = 0;
+      delete m_collectionQuery; m_collectionQuery = nullptr;
+      delete m_poolCollection; m_poolCollection = nullptr;
    }
 }
 //______________________________________________________________________________
@@ -87,18 +87,18 @@ StatusCode PoolCollectionConverter::initialize() {
       try {
          m_poolCollection = m_poolSvc->createCollection("RootCollection", m_connection, m_inputCollection);
       } catch (std::exception &e) {
-         m_poolCollection = 0;
+         m_poolCollection = nullptr;
       }
-      if (m_poolCollection == 0) {
+      if (m_poolCollection == nullptr) {
          // Now set where to look in the implicit file
          m_inputCollection = m_inputContainer + "(DataHeader)";
       }
    }
    try {
-      if (m_poolCollection == 0) {
+      if (m_poolCollection == nullptr) {
          m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
       }
-      if (m_poolCollection == 0 && collectionTypeString == "ImplicitCollection") {
+      if (m_poolCollection == nullptr && collectionTypeString == "ImplicitCollection") {
          m_inputCollection = m_inputContainer + "_DataHeader";
          m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
       }
@@ -109,7 +109,7 @@ StatusCode PoolCollectionConverter::initialize() {
 }
 //______________________________________________________________________________
 StatusCode PoolCollectionConverter::disconnectDb() {
-   if (m_poolCollection == 0) {
+   if (m_poolCollection == nullptr) {
       return(StatusCode::SUCCESS);
    }
    if (m_poolCollection->description().type() == "ImplicitCollection") {
@@ -119,20 +119,20 @@ StatusCode PoolCollectionConverter::disconnectDb() {
 }
 //______________________________________________________________________________
 StatusCode PoolCollectionConverter::isValid() const {
-   return(m_poolCollection != 0 ? StatusCode::SUCCESS : StatusCode::FAILURE);
+   return(m_poolCollection != nullptr ? StatusCode::SUCCESS : StatusCode::FAILURE);
 }
 //______________________________________________________________________________
-pool::ICollectionCursor& PoolCollectionConverter::selectAll() const {
+pool::ICollectionCursor& PoolCollectionConverter::selectAll() {
    assert(m_poolCollection);
-   delete m_collectionQuery; m_collectionQuery = 0;
+   delete m_collectionQuery; m_collectionQuery = nullptr;
    m_collectionQuery = m_poolCollection->newQuery();
    m_collectionQuery->setRowCacheSize(100);   //MN: FIXME - just an arbitrary number
    return(m_collectionQuery->execute());
 }
 //______________________________________________________________________________
-pool::ICollectionCursor& PoolCollectionConverter::executeQuery() const {
+pool::ICollectionCursor& PoolCollectionConverter::executeQuery() {
    assert(m_poolCollection);
-   delete m_collectionQuery; m_collectionQuery = 0;
+   delete m_collectionQuery; m_collectionQuery = nullptr;
    m_collectionQuery = m_poolCollection->newQuery();
    m_collectionQuery->selectAll();
    m_collectionQuery->setCondition(m_query);
@@ -162,11 +162,4 @@ std::string PoolCollectionConverter::retrieveToken(const pool::ICollectionCursor
       tokenStr = cursor->eventRef().toString();
    }
    return(tokenStr);
-}
-//______________________________________________________________________________
-pool::ICollectionMetadata* PoolCollectionConverter::retrieveMetadata() const {
-   if (m_collectionType != "ExplicitROOT" && m_collectionType != "ImplicitROOT") {
-      return(0);
-   }
-   return(&m_poolCollection->metadata());
 }

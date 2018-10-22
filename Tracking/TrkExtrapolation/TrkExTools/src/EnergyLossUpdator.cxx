@@ -18,10 +18,9 @@
 
 namespace{
 // static particle masses
-Trk::ParticleMasses  s_particleMasses{};
+const Trk::ParticleMasses  s_particleMasses{};
 // statics doubles
 constexpr double s_ka_BetheBloch = 30.7075 * Gaudi::Units::MeV;
-constexpr double s_eulerConstant = 0.577215665; // as given by google.com ;-)
 
 // from full with at half maximum to sigma for a gaussian
 constexpr double s_fwhmToSigma = 0.424;  //   1./(2.*sqrt(2.*log(2.)));
@@ -35,11 +34,11 @@ constexpr double s_mpv_p2 = -4.85133e-01;
 // constructor
 Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
+  m_stragglingErrorScale(1.),
+  m_mpvScale(0.98),
   m_useTrkUtils(true),
   m_gaussianVavilovTheory(false),
   m_useBetheBlochForElectrons(true),
-  m_stragglingErrorScale(1.),
-  m_mpvScale(0.98),
   m_mpvSigmaParametric(false),
   m_detailedEloss(true),
   m_optimalRadiation(true) {

@@ -9,10 +9,6 @@
 #include "TileConditions/TileCablingService.h"
 
 // For Gaudi
-#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/IService.h"
-//#include "GaudiKernel/IToolSvc.h"
-//#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -63,8 +59,8 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
     m_UseLAr(true),m_UseTile(true),m_UseSymmetry(true),
     m_DumpDatabaseHG(false),m_DumpDatabaseMG(false),m_DumpDatabaseLG(false),
     m_isMC(true),
-    m_keyNoise("LArNoise"), m_keyPedestal("LArPedestal"), m_keyADC2GeV("LArADC2MeV"), 
-    m_keyOFShape("LArOFC_Shape"), m_keyAutoCorr("LArAutoCorr"),
+    m_keyNoise("LArNoise"), m_keyPedestal("LArPedestal"),
+    m_keyAutoCorr("LArAutoCorr"),
     m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBias("LArMinBias"),
     m_Nmessages_forTilePileUp(0),
     m_noiseOK(false),
@@ -98,12 +94,10 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
   declareProperty("IsMC",m_isMC);
   declareProperty("keyAutoCorr",m_keyAutoCorr); 
   declareProperty("keyPedestal",m_keyPedestal); 
-  declareProperty("keyOFC",m_keyOFShape); 
   declareProperty("keyShape",m_keyShape); 
   declareProperty("keyfSampl",m_keyfSampl); 
   declareProperty("keyMinBias",m_keyMinBias); 
   declareProperty("keyNoise",m_keyNoise); 
-  declareProperty("keyADC2GeV",m_keyADC2GeV); 
   declareProperty("LoadAtBegin",m_loadAtBegin=true);
   declareProperty("deltaBunch",m_deltaBunch);
   declareProperty("firstSample",m_firstSample);
@@ -281,32 +275,6 @@ CaloNoiseTool::initialize()
       } else {
 	ATH_MSG_ERROR( "Cannot register callback function for key " 
                        << m_keyPedestal  );
-      }
-    }
-
-    if(m_WorkMode==0)
-    {      
-
-      StatusCode sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
-			     dynamic_cast<ICaloNoiseTool*>(this),
-			     m_dd_adc2gev,m_keyADC2GeV,true);
-      if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyADC2GeV  );
-      } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyADC2GeV  );
-      }
-
-      sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
-                            dynamic_cast<ICaloNoiseTool*>(this),
-			     m_detDHOFC,m_keyOFShape,true);
-      if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyOFShape  );
-      } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyOFShape  );
       }
     }
 
@@ -680,17 +648,7 @@ CaloNoiseTool::initAdc2MeV()
     CaloCell_ID::SUBCALO iCalo = this->caloNum(m_idSymmCaloHashContainer[it]);
     Identifier id=m_calocell_id->cell_id(m_idSymmCaloHashContainer[it]);
     //::::::::::::::::::::::::::::::::::::::
-    if(m_WorkMode==0)    
-    {
-      if(iCalo==CaloCell_ID::LAREM || iCalo==CaloCell_ID::LARHEC) 
-      { //only for EM and HEC
-	m_adc2mevContainer[it]=m_dd_adc2gev->AllFactors(id);
-	for(float & fac : m_adc2mevContainer[it])
-	  fac *= GeV;
-      }
-    }
-    //::::::::::::::::::::::::::::::::::::::
-    else if(m_WorkMode==1)  
+    if(m_WorkMode==1)  
     {
       if(iCalo!=CaloCell_ID::TILE) 
       {
@@ -1098,18 +1056,13 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //ADC2MEV
+
+  HWIdentifier hwid=m_cablingService->createSignalChannelID(id);
+
   if(m_retrieve[iADC2MEV])
   {
-    if(m_WorkMode==0) 
-    {
-      const std::vector<float>& vAdc2MeVFactor = m_dd_adc2gev->AllFactors(id);
-      m_Adc2MeVFactor = vAdc2MeVFactor[igain]*GeV;
-    }
-    else 
-    {      
-      int index=this->index(idCaloHash);
-      m_Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
-    } 
+    int index=this->index(idCaloHash);
+    m_Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
     if(PRINT) std::cout<<"m_Adc2MeVFactor="<<m_Adc2MeVFactor<<std::endl;
   }
 
@@ -1118,10 +1071,10 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   if(m_retrieve[iSIGMANOISE])
   {
     if(m_isMC)
-      m_SigmaNoise = m_dd_noise->noise(id,igain);
+      m_SigmaNoise = m_dd_noise->noise(hwid,igain);
     else          
     {
-      m_RMSpedestal = m_dd_pedestal->pedestalRMS(id,igain);
+      m_RMSpedestal = m_dd_pedestal->pedestalRMS(hwid,igain);
       if(m_RMSpedestal>(1.0+LArElecCalib::ERRORCODE)) 
 	m_SigmaNoise = m_RMSpedestal;
       else
@@ -1140,7 +1093,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //AUTOCORR
   if(m_retrieve[iAUTOCORR])
   {
-    m_AutoCorr = m_dd_acorr->autoCorr(id,igain);
+    m_AutoCorr = m_dd_acorr->autoCorr(hwid,igain);
     ////////// 
     if(PRINT) {
       std::cout<<"AutoCorr= ";
@@ -1154,8 +1107,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //OFC
   if(m_retrieve[iOFC])
   {
-    if(m_WorkMode==0) m_OFC = m_detDHOFC->OFC_a(id, igain, 0) ;
-    else              m_OFC = m_OFCTool->OFC_a(id, igain) ;
+    m_OFC = m_OFCTool->OFC_a(hwid, igain) ;
     /////////
     if(PRINT) {
       std::cout<<"OFC= ";
@@ -1169,7 +1121,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //SHAPE
   if(m_retrieve[iSHAPE])
   {
-    m_Shape = m_dd_shape->Shape(id,0);
+    m_Shape = m_dd_shape->Shape(hwid,0);
     //////////
     if(PRINT) {
       std::cout<<"Shape= ";
@@ -1183,7 +1135,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //MinimumBias RMS 
   if(m_retrieve[iMINBIASRMS])
   {
-    m_MinBiasRMS = m_dd_minbias->minBiasRMS(id);
+    m_MinBiasRMS = m_dd_minbias->minBiasRMS(hwid);
     if(PRINT) std::cout<<"MinBiasRMS="<<m_MinBiasRMS<<std::endl;
   }
 
@@ -1191,7 +1143,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //SAMPLING FRACTION
   if(m_retrieve[iFSAMPL])
   {
-    m_fSampl = m_dd_fsampl->FSAMPL(id);
+    m_fSampl = m_dd_fsampl->FSAMPL(hwid);
     if(PRINT) std::cout<<"fSampl="<<m_fSampl<<std::endl;
   }
 

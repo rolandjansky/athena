@@ -32,7 +32,7 @@ class ZDC_DetManager : public GeoVDetectorManager
 };
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ZDC_DetManager, 9886, 1)
 #endif
 

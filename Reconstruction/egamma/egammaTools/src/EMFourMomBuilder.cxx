@@ -23,7 +23,7 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTools
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "FourMom/EigenP5Jacobiand0z0PhiThetaqOverP2d0z0PhiEtaP.h"
-#include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
+#include "egammaUtils/eg_resolution.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 //  END OF HEADER FILES INCLUDE
@@ -57,8 +57,9 @@ StatusCode EMFourMomBuilder::initialize(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode EMFourMomBuilder::execute(xAOD::Egamma* eg) const {
+StatusCode EMFourMomBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const {
     
+    (void)ctx;
     if (!eg){
         ATH_MSG_WARNING("Null pointer to egamma object ");
         return StatusCode::SUCCESS;
@@ -95,7 +96,7 @@ StatusCode EMFourMomBuilder::execute(xAOD::Egamma* eg) const {
 }
 
 StatusCode EMFourMomBuilder::hltExecute(xAOD::Egamma* eg) const{
-    return execute(eg);
+    return execute(Gaudi::Hive::currentContext(), eg);
 }
 
 StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron& el) const {

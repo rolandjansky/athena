@@ -61,8 +61,9 @@ StatusCode STGC_DigitToRDO::execute()
       for (const sTgcDigit* digit : *digitColl ){
         Identifier id = digit->identify();
 	uint16_t bcTag = digit->bcTag();
+	// keep the time as a float for now, but it should also become an int
 	float time   = digit->time();
-	float charge = digit->charge();
+	uint16_t charge = (uint16_t) digit->charge_10bit();
 	bool isDead = digit->isDead();
         STGC_RawData* rdo = new STGC_RawData(id, bcTag, time, charge, isDead);
         coll->push_back(rdo);

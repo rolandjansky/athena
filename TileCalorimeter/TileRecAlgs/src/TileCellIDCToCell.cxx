@@ -16,6 +16,10 @@
 //
 //*****************************************************************************
 
+
+#include "TileCellIDCToCell.h"
+
+
 // access all Cells inside container
 #include "AthenaKernel/errorcheck.h"
 #include "EventContainers/SelectAllObject.h" 
@@ -29,7 +33,6 @@
 #include "TileConditions/TileInfo.h"
 #include "TileEvent/TileCellIDC.h"
 #include "TileEvent/TileCell.h"
-#include "TileRecAlgs/TileCellIDCToCell.h"
 
 
 //

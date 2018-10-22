@@ -8,27 +8,25 @@ namespace Trk {
 
 extern vkalPropagator  myPropagator;
 
-void cfpest(long int *ntrk, double *xyz, long int *ich, 
-	double *parst, double *parf)
+void cfpest(int ntrk, double *xyz, long int *ich, double (*parst)[5], double (*parf)[3])
 {
-    long int i;
-    double partmp[5];
-
 /* --------------------------------------------------- */
 /*    Subroutine for primary estimation of Theta,Phi   */
 /*     and 1/R at point XYZ if they aren't known       */
 /* Author: V.Kostyukhin                                */
 /* --------------------------------------------------- */
 
+    double partmp[5];
     double Ref0[3]={0.,0.,0.};
 
-    for (i = 0; i < (*ntrk); ++i) {
+    for (int i = 0; i < ntrk; ++i) {
 
-        myPropagator.Propagate(i, ich[i], &parst[i*5], 0, Ref0, xyz, partmp, 0);
+        long int TrkID=i;
+        myPropagator.Propagate( TrkID, ich[i], &parst[i][0], 0, Ref0, xyz, partmp, 0);
 
-	parf[i*3    ] = partmp[2];
-	parf[i*3 + 1] = partmp[3];
-	parf[i*3 + 2] = partmp[4];
+	parf[i][0] = partmp[2];
+	parf[i][1] = partmp[3];
+	parf[i][2] = partmp[4];
     }
 }
 

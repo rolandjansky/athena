@@ -17,7 +17,6 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.BackNavigation = True
 
 # Particle Properties
 from PartPropSvc.PartPropSvcConf import PartPropSvc

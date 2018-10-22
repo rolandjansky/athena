@@ -89,10 +89,10 @@ def getTileCondToolEmscale(source = 'FILE', name = 'TileCondToolEmscale', **kwar
             oflLasFibProxy = getTileCondProxy('FILE','Flt','TileDefault.lasFib'   ,'TileCondProxyFile_OflLasFib')
             oflCesProxy    = getTileCondProxy('FILE','Flt','TileDefault.ces'      ,'TileCondProxyFile_OflCes'   )
             oflEmsProxy    = getTileCondProxy('FILE','Flt','TileDefault.ems'      ,'TileCondProxyFile_OflEms'   )
-            onlCisProxy    = None
-            onlLasProxy    = None
-            onlCesProxy    = None
-            onlEmsProxy    = None
+            onlCisProxy    = getTileCondProxy('FILE','Flt','TileDefault.cisFitLin','TileCondProxyFile_OflCisLin')
+            onlLasProxy    = getTileCondProxy('FILE','Flt','TileDefault.lasLin'   ,'TileCondProxyFile_OflLasLin')
+            onlCesProxy    = getTileCondProxy('FILE','Flt','TileDefault.ces'      ,'TileCondProxyFile_OflCes'   )
+            onlEmsProxy    = getTileCondProxy('FILE','Flt','TileDefault.ems'      ,'TileCondProxyFile_OflEms'   )
 
 
         from TileConditions.TileConditionsConf import TileEMScaleCondAlg

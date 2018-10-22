@@ -16,8 +16,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-
-#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloClusterMatching/TopoClusterMap.h"
 #include "CaloClusterMatching/ICaloClusterMatchingTool.h"
 
 
@@ -30,7 +29,7 @@ namespace ClusterMatching {
   ////////////////
   CaloClusterMatchLinkAlg::CaloClusterMatchLinkAlg( const std::string& name, 
 						    ISvcLocator* pSvcLocator ) : 
-    ::AthAlgorithm( name, pSvcLocator ),
+    ::AthReentrantAlgorithm( name, pSvcLocator ),
     m_clusterMatch("ClusterMatching::CaloClusterMatchingTool/CaloClusterMatch")
   {
     //
@@ -38,7 +37,6 @@ namespace ClusterMatching {
     // 
     //declareProperty( "Property", m_nProperty );
 
-    declareProperty( "ClustersToDecorate",  m_clustersToDecorate         );
     declareProperty( "ClusterMatchTool",    m_clusterMatch               );
     declareProperty( "UseLeadCellEtaPhi",   m_useLeadCellEtaPhi=false    );
     declareProperty( "ClusterSortMethod",   m_clusterSortMethod=MatchedE );
@@ -56,10 +54,8 @@ namespace ClusterMatching {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
-    if(m_clustersToDecorate.empty()) {
-      ATH_MSG_ERROR("No container specified for decoration -- abort initialisation");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_clusterKey.initialize() );
+
     ATH_CHECK( m_clusterMatch.retrieve() );
 
     if(m_clusterSortMethod<0 || m_clusterSortMethod>ClusterMatching::MatchedEFrac) {
@@ -77,13 +73,14 @@ namespace ClusterMatching {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode CaloClusterMatchLinkAlg::execute()
+  StatusCode CaloClusterMatchLinkAlg::execute_r(const EventContext& ctx) const
   {  
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-    const xAOD::CaloClusterContainer* clustersToDecorate(0);
-  
-    ATH_CHECK( evtStore()->retrieve( clustersToDecorate, m_clustersToDecorate ) );
+    SG::ReadHandle<xAOD::CaloClusterContainer> clustersToDecorate (m_clusterKey, ctx);
+
+    TopoClusterMap tcmap;
+    ATH_CHECK( m_clusterMatch->fillClusterMap(ctx,tcmap) );
 
     bool (*gtrthan)(const tcmatch_pair& a, const tcmatch_pair& b)=0;
     switch(m_clusterSortMethod) {
@@ -99,7 +96,7 @@ namespace ClusterMatching {
     }
 
     for(const auto& cl : *clustersToDecorate) {
-      ATH_CHECK( m_clusterMatch->linkMatchedClusters(*cl,m_useLeadCellEtaPhi, gtrthan) );
+      ATH_CHECK( m_clusterMatch->linkMatchedClusters(*cl, tcmap, m_useLeadCellEtaPhi, gtrthan) );
     }
 
     return StatusCode::SUCCESS;

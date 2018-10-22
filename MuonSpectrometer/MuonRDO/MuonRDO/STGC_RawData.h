@@ -17,12 +17,13 @@ class STGC_RawData {
  private:
 
  // offline identifier
-   Identifier m_id;
+   const Identifier m_id;
 
-   // readout data ( not sure whether time and charge should be float )
-   uint16_t m_bcTag;
+   // readout data
+   // keeping time as a float for now, but it should also become an int
    float m_time;
-   float m_charge;
+   uint16_t m_charge;
+   uint16_t m_bcTag;
    
    bool m_isDead;
    
@@ -31,15 +32,16 @@ class STGC_RawData {
    STGC_RawData (const Identifier id);
    STGC_RawData () {} //!< TODO remove this. Currently have problems with convertor if I do though.
 
-   STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const float charge, 
+   STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const uint16_t charge, 
 		 const bool isDead );
  
    virtual ~STGC_RawData() {}
-   const Identifier& identify() const { return m_id; }
+
+   const Identifier identify() const { return m_id; }
 
    // access functions
    float time() const {return m_time;}
-   float charge() const {return m_charge;}
+   uint16_t charge() const {return m_charge;}
    uint16_t bcTag() const {return m_bcTag;}
 
    bool isDead() const {return m_isDead;}

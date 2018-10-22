@@ -206,7 +206,8 @@ for unpack in l1Decoder.roiUnpackers:
 
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer, dumpSequence
 topSequence = AlgSequence()
-topSequence += L1UnpackingSeq
+#topSequence += L1UnpackingSeq
+topSequence += l1Decoder
 ##### Make all HLT #######
 makeHLTTree(HLTChains)
    

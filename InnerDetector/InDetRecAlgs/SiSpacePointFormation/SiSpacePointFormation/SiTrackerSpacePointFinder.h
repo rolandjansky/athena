@@ -62,21 +62,18 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
 
-class Event;
 class SpacePointCollection; 
 class SpacePointOverlapCollection; 
 class SpacePointContainer; 
-class SvcLocator;
-class SCT_NeighboursTable;
 class SCT_ID;
 class PixelID;
-class IBeamCondSvc;
 
 namespace InDet {
 
@@ -153,7 +150,7 @@ namespace InDet {
     float m_xVertex;
     float m_yVertex;
     float m_zVertex;
-    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; 
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
     mutable std::atomic<int> m_numberOfEvents;
     mutable std::atomic<int> m_numberOfPixel;

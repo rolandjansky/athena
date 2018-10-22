@@ -12,7 +12,7 @@
  *
  * This implements the algorithm described in this reference:
  *
- *   Gopal, et. al, ``Fast CRC Computation for Generic Polynomials
+ *   Gopal, et al., ``Fast CRC Computation for Generic Polynomials
  *   Using PCLMULQDQ Instruction,'' Intel White Paper 323102 (2009).
  *   <http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/fast-crc-computation-generic-polynomials-pclmulqdq-paper.pdf>
  *   <https://github.com/intel/soft-crc>
@@ -91,9 +91,9 @@
  * The way a CRC calculation works is by iteratively reducing the length
  * of the message in such a way that the CRC does not change.  For example,
  * suppose we have a message M that is split into two parts, A of T bits,
- * and B of U bits.  This, M = 2^U A + B.  Then suppose we find a shorter
+ * and B of U bits.  Thus, M = 2^U A + B.  Then suppose we find a shorter
  * string A' with T' bits, such that A mod P = A' mod P.  It is then easy
- * to show that the string M' = 2U A' + B has the same CRC:
+ * to show that the string M' = 2^U A' + B has the same CRC:
  *
  *   M  mod P = [(x^U mod P)(A  mod P)] mod P + B mod P
  *   M' mod P = [(x^U mod P)(A' mod P)] mod P + B mod P

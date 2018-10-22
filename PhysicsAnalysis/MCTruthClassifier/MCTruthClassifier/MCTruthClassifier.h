@@ -129,7 +129,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    //
    static double partCharge(const xAOD::TruthParticle*);
 #ifndef XAOD_ANALYSIS
-   bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool&, Cache * ) const;
+   bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool&, Cache* cache) const;
    const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool,
                                               Info* info) const;
 #endif

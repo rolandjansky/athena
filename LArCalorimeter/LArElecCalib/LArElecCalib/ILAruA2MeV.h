@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARUA2MEV_H
 #define LARCONDITIONS_ILARUA2MEV_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/Identifier.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
@@ -31,9 +31,6 @@ class ILAruA2MeV {
   virtual ~ILAruA2MeV() {};
 
   virtual const float& UA2MEV(const HWIdentifier& id )  const = 0 ;
-  
-  // offline ID 
-  virtual const float& UA2MEV(const Identifier& id )  const =0;
   
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 

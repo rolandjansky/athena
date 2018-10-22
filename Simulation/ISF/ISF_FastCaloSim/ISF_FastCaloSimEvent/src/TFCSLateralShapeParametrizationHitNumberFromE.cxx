@@ -2,6 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandPoisson.h"
+
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
@@ -19,11 +21,19 @@ TFCSLateralShapeParametrizationHitNumberFromE::TFCSLateralShapeParametrizationHi
 
 int TFCSLateralShapeParametrizationHitNumberFromE::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
+  if (!simulstate.randomEngine()) {
+    return -1;
+  }
+
   int cs=calosample();
   double energy=simulstate.E(cs);
 
+  if (energy < 0) {
+    return 1;
+  }
+
   double sigma_stochastic=m_stochastic/sqrt(energy/1000.0);
-  int hits = gRandom->Poisson(1.0 / (sigma_stochastic*sigma_stochastic + m_constant*m_constant));
+  int hits = CLHEP::RandPoisson::shoot(simulstate.randomEngine(), 1.0 / (sigma_stochastic*sigma_stochastic + m_constant*m_constant));
 
   ATH_MSG_DEBUG("#hits="<<hits);
   

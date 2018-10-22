@@ -6,7 +6,6 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-#EventSelector.BackNavigation = True
 
 # Import relevant libs
 import os
@@ -69,7 +68,6 @@ ServiceMgr.EventSelector.InputCollections = [ #"/unix/atlas2/paw/mc09_7TeV.10840
 #    from RecExConfig.InputFilePeeker import inputFileSummary
 
 #    import AthenaPoolCnvSvc.ReadAthenaPool
-#    ServiceMgr.EventSelector.BackNavigation = True
 
 #    if istart==0:
 #        ServiceMgr.EventSelector.InputCollections = [ ESDfile ]
@@ -86,7 +84,6 @@ ServiceMgr.EventSelector.InputCollections = [ #"/unix/atlas2/paw/mc09_7TeV.10840
 #from RecExConfig.InputFilePeeker import inputFileSummary
 
 #import AthenaPoolCnvSvc.ReadAthenaPool
-#ServiceMgr.EventSelector.BackNavigation = True
 
 #ServiceMgr.EventSelector.InputCollections = [ "/unix/atlas2/paw/mc08.108407.Pythia_directJpsimu4mu4.recon.ESD.e347_s462_s520_r809_tid092535/ESD.092535._000051.pool.root.1" ]
 

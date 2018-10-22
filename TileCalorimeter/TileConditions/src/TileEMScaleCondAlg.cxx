@@ -83,12 +83,6 @@ StatusCode TileEMScaleCondAlg::initialize() {
       return StatusCode::FAILURE;
     }
 
-    ATH_CHECK( m_onlCisProxy.retrieve() );
-    ATH_CHECK( m_onlLasProxy.retrieve() );
-    ATH_CHECK( m_onlCesProxy.retrieve() );
-    ATH_CHECK( m_onlEmsProxy.retrieve() );
-
-
     //=== Resize onlCache to desired size
     ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
     ATH_CHECK( cablingSvc.retrieve());
@@ -105,13 +99,40 @@ StatusCode TileEMScaleCondAlg::initialize() {
 
   } else {
 
-    ATH_MSG_INFO( "Loading of online calibration constants is not requested, "
+    ATH_MSG_INFO( "Undoing online calibration is not requested, "
                   << "since OnlCacheUnit=" << m_onlCacheUnitString  );
+  }
+
+  if (m_onlCisProxy.empty()) {
+    ATH_MSG_INFO( "Loading of online CIS calibration constants is not requested" );
 
     m_onlCisProxy.disable();
+  } else {
+    ATH_CHECK( m_onlCisProxy.retrieve() );
+  }
+
+  if (m_onlLasProxy.empty()) {
+    ATH_MSG_INFO( "Loading of online Laser calibration constants is not requested" );
+
     m_onlLasProxy.disable();
+  } else {
+    ATH_CHECK( m_onlLasProxy.retrieve() );
+  }
+
+  if (m_onlCesProxy.empty()) {
+    ATH_MSG_INFO( "Loading of online Cesium calibration constants is not requested" );
+
     m_onlCesProxy.disable();
+  } else {
+    ATH_CHECK( m_onlCesProxy.retrieve() );
+  }
+
+  if (m_onlEmsProxy.empty()) {
+    ATH_MSG_INFO( "Loading of online EM scale calibration constants is not requested" );
+
     m_onlEmsProxy.disable();
+  } else {
+    ATH_CHECK( m_onlEmsProxy.retrieve() );
   }
 
 
@@ -134,7 +155,7 @@ StatusCode TileEMScaleCondAlg::execute() {
   SG::WriteCondHandle<TileEMScale> calibEms{m_calibEmsKey};
 
   if (calibEms.isValid()) {
-    ATH_MSG_DEBUG("Found valid TileCalibEms: " << calibEms.key());
+    ATH_MSG_DEBUG("Found valid TileEMScale: " << calibEms.key());
     return StatusCode::SUCCESS;
   }
 
@@ -209,8 +230,7 @@ StatusCode TileEMScaleCondAlg::execute() {
     eventRange = EventIDRange::intersect(eventRange, oflLasFibRange);
   }
 
-
-  if (m_onlCacheUnit != TileRawChannelUnit::Invalid) {
+  if (!m_onlCisProxy.empty()) {
     // Get online CIS calibration constants
     EventIDRange onlCisRange;
     std::unique_ptr<TileCalibDataFlt> calibOnlCis = std::make_unique<TileCalibDataFlt>();
@@ -218,6 +238,10 @@ StatusCode TileEMScaleCondAlg::execute() {
     ATH_CHECK( m_onlCisProxy->fillCalibData(*calibOnlCis, onlCisRange) );
     emsData->setCalibOnlCis(std::move(calibOnlCis));
 
+    eventRange = EventIDRange::intersect(eventRange, onlCisRange);
+  }
+
+  if (!m_onlLasProxy.empty()) {
     // Get online Laser calibration constants
     EventIDRange onlLasRange;
     std::unique_ptr<TileCalibDataFlt> calibOnlLas = std::make_unique<TileCalibDataFlt>();
@@ -225,7 +249,10 @@ StatusCode TileEMScaleCondAlg::execute() {
     ATH_CHECK( m_onlLasProxy->fillCalibData(*calibOnlLas, onlLasRange) );
     emsData->setCalibOnlLas(std::move(calibOnlLas));
 
+    eventRange = EventIDRange::intersect(eventRange, onlLasRange);
+  }
 
+  if (!m_onlCesProxy.empty()) {
     // Get online Ces calibration constants
     EventIDRange onlCesRange;
     std::unique_ptr<TileCalibDataFlt> calibOnlCes = std::make_unique<TileCalibDataFlt>();
@@ -233,7 +260,10 @@ StatusCode TileEMScaleCondAlg::execute() {
     ATH_CHECK( m_onlCesProxy->fillCalibData(*calibOnlCes, onlCesRange) );
     emsData->setCalibOnlCes(std::move(calibOnlCes));
 
+    eventRange = EventIDRange::intersect(eventRange, onlCesRange);
+  }
 
+  if (!m_onlEmsProxy.empty()) {
     // Get online Ems calibration constants
     EventIDRange onlEmsRange;
     std::unique_ptr<TileCalibDataFlt> calibOnlEms = std::make_unique<TileCalibDataFlt>();
@@ -241,8 +271,7 @@ StatusCode TileEMScaleCondAlg::execute() {
     ATH_CHECK( m_onlEmsProxy->fillCalibData(*calibOnlEms, onlEmsRange) );
     emsData->setCalibOnlEms(std::move(calibOnlEms));
 
-    eventRange = EventIDRange::intersect(eventRange, onlCisRange, onlLasRange,
-                                         onlCesRange, onlEmsRange);
+    eventRange = EventIDRange::intersect(eventRange, onlEmsRange);
   }
 
 
@@ -252,21 +281,21 @@ StatusCode TileEMScaleCondAlg::execute() {
   }
 
   if (emsData->initialize()) {
-    ATH_MSG_DEBUG("TileCalibEms object is initialized successfully.");
+    ATH_MSG_DEBUG("TileEMScale object is initialized successfully.");
   } else {
-    ATH_MSG_ERROR("Impossible to inizialize TileCalibEms object!");
+    ATH_MSG_ERROR("Impossible to inizialize TileEMScale object!");
     return StatusCode::FAILURE;
   }
 
   if(calibEms.record(eventRange, emsData.release()).isFailure()) {
-    ATH_MSG_ERROR("Could not record TileCalibEms object with "
+    ATH_MSG_ERROR("Could not record TileEMScale object with "
                   << calibEms.key()
                   << " with EventRange " << eventRange
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   } else {
 
-    ATH_MSG_VERBOSE("Recorded TileCalibEms object with "
+    ATH_MSG_VERBOSE("Recorded TileEMScale object with "
                    << calibEms.key()
                    << " with EventRange " << eventRange
                    << " into Conditions Store");

@@ -172,7 +172,7 @@ StatusCode photonSuperClusterBuilder::execute(){
   //Redo conversion matching given the super cluster
   if (m_doConversions) {
     for (auto egRec : *newEgammaRecs) {
-      if (m_conversionBuilder->executeRec(egRec).isFailure()){
+      if (m_conversionBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
 	ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
 	return StatusCode::FAILURE;
       }

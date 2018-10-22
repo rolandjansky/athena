@@ -15,7 +15,8 @@ namespace HLTTest {
   StatusCode TestHypoAlg::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
     ATH_MSG_DEBUG("Link name is "<<m_linkName.value());
-    CHECK( m_recoInput.initialize() );
+    if ( not m_recoInput.key().empty() )
+      CHECK( m_recoInput.initialize() );
     CHECK( m_tools.retrieve() );  
     return StatusCode::SUCCESS;
   }
@@ -28,6 +29,11 @@ namespace HLTTest {
 
   StatusCode TestHypoAlg::execute_r( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
+    if ( m_recoInput.key().empty() ) {
+      ATH_MSG_DEBUG( "No input configured, not producing the output" );
+      return StatusCode::SUCCESS;      
+    }
+
     auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
     if( not previousDecisionsHandle.isValid() ) {//implicit
       ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );

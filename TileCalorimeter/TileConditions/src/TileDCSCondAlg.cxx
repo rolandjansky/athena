@@ -22,8 +22,7 @@
 TileDCSCondAlg::TileDCSCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_condSvc("CondSvc", name),
-  m_cabling(nullptr),
-  m_unknownValue(-30) // should be negative
+  m_cabling(nullptr)
 {
 
 }

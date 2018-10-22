@@ -12,5 +12,6 @@ def getSCTLorentzAngleTool(name="SCTLorentzAngleTool", **kwargs):
 
 def getPixelLorentzAngleTool(name="PixelLorentzAngleTool", **kwargs):
     kwargs.setdefault("DetectorName", "Pixel")
+    kwargs.setdefault("SiLorentzAngleCondData","PixelSiLorentzAngleCondData")
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
     return CfgMgr.SiLorentzAngleTool(name, **kwargs)

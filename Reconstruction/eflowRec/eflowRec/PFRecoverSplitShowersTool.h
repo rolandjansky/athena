@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "eflowRec/IPFSubtractionTool.h"
 
 class eflowCaloObjectContainer;
@@ -35,7 +34,7 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
   static const InterfaceID& interfaceID();
 
   virtual StatusCode initialize();
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*);
   virtual StatusCode finalize();
 
  private:
@@ -44,12 +43,12 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
   void getClustersToConsider();
   void getTracksToRecover();
   int matchAndCreateEflowCaloObj();
-  void performRecovery(int const nOriginalObj,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void performRecovery(int const nOriginalObj);
   void subtractTrackFromClusters(const eflowTrackCaloPoints& trackCalo, eflowRingSubtractionManager& ranking, eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList);
   double getSumEnergy(const std::vector<xAOD::CaloCluster*>& clusters);
 
   void printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix);
-  void performSubtraction(eflowCaloObject* thisEflowCaloObject,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void performSubtraction(eflowCaloObject* thisEflowCaloObject);
 
 private:
 

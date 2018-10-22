@@ -9,10 +9,6 @@
 #include "LArRawConditions/LArCableLengthP.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 
-#include <vector>
-
-class LArCablingService ;
-
 /** This class implements the ILArCableLength interface
  *
  * @author M. Fanti
@@ -40,15 +36,10 @@ class LArCableLengthComplete: public ILArCableLength,
   
   virtual const float& CableLength(const HWIdentifier&  CellID) const ;
   
-  virtual const float& CableLength(const Identifier&  CellID) const;
-  
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, float vCableLength);
   
- protected: 
-  
-
 };
 
 CLASS_DEF( LArCableLengthComplete,205539859,1)

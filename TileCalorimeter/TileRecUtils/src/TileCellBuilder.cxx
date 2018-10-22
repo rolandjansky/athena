@@ -30,12 +30,10 @@
 // Atlas includes
 #include "AthAllocators/DataPool.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-//using xAOD::EventInfo;
 using CLHEP::MeV;
  
 // uncomment line below for debug output
@@ -186,6 +184,8 @@ StatusCode TileCellBuilder::initialize() {
       m_mbtsMgr = nullptr;
     }
   }
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   CHECK( detStore()->retrieve(m_tileMgr) );
   CHECK( detStore()->retrieve(m_tileID) );
@@ -631,13 +631,11 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   ++m_eventErrorCounter[error]; // error index is 0 or 1 or 2 here
   ++m_eventErrorCounter[3]; // count separately total number of events
   
-  // retrieve EventInfo
-  const xAOD::EventInfo* eventInfo = 0;
-  if (evtStore()->retrieve(eventInfo).isFailure()) {
-    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
-  }
 
-  if (eventInfo) {
+  // retrieve EventInfo
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+
+  if (eventInfo.isValid()) {
 
     if (flag != 0) {
       ATH_MSG_DEBUG( " set eventInfo for Tile for this event to 0x" << MSG::hex << flag << MSG::dec );
@@ -653,6 +651,8 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       }
     }
 
+  } else {
+    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
   }
   
   // Execution completed.
@@ -1005,12 +1005,6 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 
 template<class ITERATOR, class COLLECTION>
 void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
-
-  // disable checks for TileID and remember previous state
-  bool do_checks = m_tileID->do_checks();
-  m_tileID->set_do_checks(false);
-  bool do_checks_tb = m_tileID->do_checks();
-  m_tileTBID->set_do_checks(false);
 
   // Now retrieve the TileDQStatus
   if(m_notUpgradeCabling) m_DQstatus = m_beamInfo->getDQstatus();
@@ -1425,9 +1419,4 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     msg(MSG::DEBUG) << endmsg;
   }
-
-  m_tileID->set_do_checks(do_checks);
-  // set back this flag to TileID
-  m_tileTBID->set_do_checks(do_checks_tb);
-
 }

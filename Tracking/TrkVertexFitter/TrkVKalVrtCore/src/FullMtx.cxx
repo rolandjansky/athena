@@ -3,7 +3,7 @@
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
 
 namespace Trk {
@@ -14,13 +14,13 @@ namespace Trk {
 /* Author: V.Kostyukhin                                */
 /* --------------------------------------------------- */
 
-#define ader_ref(a_1,a_2) ader[(a_2)*(NTrkM*3+3) + a_1]
+#define ader_ref(a_1,a_2) ader[(a_2)*(vkalNTrkM*3+3) + a_1]
 
 void FullMTXfill(VKVertex * vk, double * ader)
 {
     int i,j,it;
 
-    long int NTRK = vk->TrackList.size();
+    int NTRK = vk->TrackList.size();
     int NPar=3*NTRK+3;
 
     for (i=0; i<NPar; i++) { for (j=0; j<NPar; j++) { ader_ref(i, j)=0.;} }
@@ -82,11 +82,11 @@ int FullMCNSTfill(VKVertex * vk, double * ader, double * LSide)
 {
     int i,j,k,l,ii,ic,it,jt;
 
-    long int totNC=0;  //total number of constraints
+    int totNC=0;  //total number of constraints
     for(i=0; i<(int)vk->ConstraintList.size();i++)totNC += vk->ConstraintList[i]->NCDim;
  
-    long int NTRK = vk->TrackList.size();
-    long int NPar=3*NTRK+3+totNC;
+    int NTRK = vk->TrackList.size();
+    int NPar = 3*NTRK+3+totNC;
 //    int NPar=3*NTrkM+3;
 
     for (i=0; i<NPar; i++) { for (j=0; j<NPar; j++) ader[i+j*NPar]=0.; }

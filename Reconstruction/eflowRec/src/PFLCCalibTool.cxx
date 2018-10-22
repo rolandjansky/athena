@@ -40,7 +40,7 @@ StatusCode PFLCCalibTool::initialize() {
 
 }
 
-void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) {
 
   if (m_useLocalWeight) {
     std::unique_ptr<eflowRecClusterContainer> theEFRecClusterContainer = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);
@@ -48,7 +48,7 @@ void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectCo
     for (auto thisEFlowRecCluster : *theEFRecClusterContainer) applyLocalWeight(thisEFlowRecCluster);
   } else {
     /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
-    std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, true, theCaloClusterContainer);
+    std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, true);
 
     /* Calibrate each cluster */
     for (auto thisCaloCluster : *tempClusterContainer){
@@ -81,8 +81,7 @@ void PFLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTool,
 }
 
 void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {
-  xAOD::CaloCluster* theCluster = theEFRecClusters->getClusterForModification(
-      eflowCaloObject::getClusterContainerPtr());
+  xAOD::CaloCluster* theCluster = theEFRecClusters->getCluster();
 
   /* Iterate over cells of old cluster and replicate them with energy weighted by -1 if negative and add it to the new cluster */
   const std::map<IdentifierHash, double> weightMap = theEFRecClusters->getCellsWeight();

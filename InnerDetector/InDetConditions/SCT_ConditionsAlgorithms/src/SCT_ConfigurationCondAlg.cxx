@@ -215,7 +215,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
 
     // Get link status 
     // Can maybe be smarter if both links are bad (but the module will probably be bad then)
-    std::pair<bool, bool> linkResults{writeCdo->areBadLinks(moduleId)};
+    std::pair<bool, bool> linkResults{writeCdo->areBadLinks(hash)};
     bool link0ok{linkResults.first};
     bool link1ok{linkResults.second};
     // Loop over chips within module
@@ -255,9 +255,11 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
         thisChip->appendBadStripsToVector(badStripsVec);
         // Loop over bad strips and insert strip ID into set
         for (const auto& thisBadStrip:badStripsVec) {
-          Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip, elements)};
+          const Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip, elements)};
           // If in rough order, may be better to call with itr of previous insertion as a suggestion    
-          if (stripId.is_valid()) writeCdo->setBadStripId(stripId);
+          if (stripId.is_valid()) writeCdo->setBadStripId(stripId, // strip Identifier
+                                                          thisChip->id()<6 ? hash : oppWaferHash, // wafer IdentifierHash
+                                                          m_pHelper->strip(stripId)); // strip number from 0 to 768
         }
       }
       // Bad chips (= all strips bad) bitpacked
@@ -413,14 +415,12 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
     const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(serialNumber.to_uint())};
     if (not hash.is_valid()) continue;
 
-    Identifier waferId{m_pHelper->wafer_id(hash)};
-    Identifier moduleId{m_pHelper->module_id(waferId)};
     int link0{run1 ? (itr->second[link0Index].data<int>()) : static_cast<int>(itr->second[link0Index].data<unsigned char>())};
     int link1{run1 ? (itr->second[link1Index].data<int>()) : static_cast<int>(itr->second[link1Index].data<unsigned char>())};
 
     // Store the modules with bad links, represented by badLink (enum in header) = 255 = 0xFF 
     if (link0==badLink or link1==badLink) {
-      writeCdo->setBadLinks(moduleId, (link0!=badLink), (link1!=badLink));
+      writeCdo->setBadLinks(hash, (link0!=badLink), (link1!=badLink));
     }
   }
 

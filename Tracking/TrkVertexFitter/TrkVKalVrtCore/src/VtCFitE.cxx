@@ -3,76 +3,12 @@
 */
 
 #include <math.h>
-#include "TrkVKalVrtCore/Derivt.h"
-#include "TrkVKalVrtCore/WorkArray.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include "TrkVKalVrtCore/Derivt.h"
 #include <iostream>
 
 namespace Trk {
-
-
-extern WorkArray workarray_;
-extern DerivT derivt_;
-
-
-#define derivt_1 derivt_
-#define workarray_1 workarray_
-
-
-#define ader_ref(a_1,a_2) workarray_1.ader[(a_2)*(NTrkM*3+3) + (a_1) - (NTrkM*3+4)]
-
-
-/* -------------------------------------------------------------- */
-/*  RETURN FULL ERROR MATRIX AFTER THE FIT                        */
-/*  ERRMTX SHOULD HAVE AT LEAST (3*NTRK+3)*(3*NTRK+4)/2. ELEMENTS */
-
-
-int fiterm(long int NTRK, double  *errmtx)
-{
-    int ii=0, i, j;
-    int lim = (NTRK+1)*3;
-    if(workarray_.existFullCov){
-      for (j = 1; j <= lim; ++j) {          /* COLUMN */
-	 for (i = 1; i <= j; ++i) {        /* ROW */
-	    errmtx[ii] = ader_ref(i, j);
-	    ++ii;
-	 }
-      }
-      return 0;
-    }else{
-      return -1;
-    }
-}
-
-
-/* ------------------------------------------------------- */
-/*  RETURN ERROR OF ANY VARIABLE AFTER THE FIT */
-
-void cferrany_(long int *ntrk, double  *deriv, double  *covar)
-{
-    (*covar) = 0.;
-
-    if (deriv==0) return;
-    --deriv;
-
-    int lim, ic, jc;
-
-    lim = ((*ntrk) + 1) * 3;
-    for (ic = 1; ic <= lim; ++ic) {
-	for (jc = 1; jc <= lim; ++jc) {
-	    (*covar) += deriv[ic] * ader_ref(ic, jc) * deriv[jc];
-	}
-    }
-} 
-
-#undef ader_ref
-
-
-
-
-
-
 
 /* ---------------------------------------------------------- */
 /* Entry for error matrix calculation after successful fit    */
@@ -80,14 +16,13 @@ void cferrany_(long int *ntrk, double  *deriv, double  *covar)
 /* ADER - full covariance matrix after fit in form            */
 /*        (x,y,z,track1(1:3),track2(1:3),......)              */
 
-#define ader_ref(a_1,a_2) ader[(a_2)*(NTrkM*3+3) + (a_1) - (NTrkM*3+4)]
-#define verr_ref(a_1,a_2) verr[(a_2)*6 + (a_1) - 7]
+#define ader_ref(a_1,a_2) ader[(a_2)*(vkalNTrkM*3+3) + (a_1) - (vkalNTrkM*3+4)]
 #define dcv_ref(a_1,a_2)  dcv[(a_2)*6 + (a_1) - 7]
 
 
 #define useWeightScheme 1
 
-int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
+int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 {
     extern void scaleg(double *, double *, long int  ,long int );
 
@@ -182,10 +117,10 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
 //}
 //-------------------------------------------------------------------------
 /* weight matrix ready.Invert */
-        double * Scale=new double[NVar]; scaleg(ader, Scale, NVar, NTrkM*3+3);                  // Balance matrix
+        double * Scale=new double[NVar]; scaleg(ader, Scale, NVar, vkalNTrkM*3+3);              // Balance matrix
         double **ta = new double*[NVar+1]; for(i=0; i<NVar+1; i++) ta[i] = new double[NVar+1];  // Make a copy 
  	for (i=1; i<=NVar; ++i) for (j = i; j<=NVar; ++j) ta[i][j] = ta[j][i] = ader_ref(i,j);  // for failure treatment
-	dsinv(&NVar, ader, NTrkM*3+3, &IERR);
+	dsinv(&NVar, ader, vkalNTrkM*3+3, &IERR);
 	if ( IERR != 0) {
           double **tv = new double*[NVar+1]; for(i=0; i<NVar+1; i++) tv[i] = new double[NVar+1];
           double **tr = new double*[NVar+1]; for(i=0; i<NVar+1; i++) tr[i] = new double[NVar+1];
@@ -254,8 +189,8 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
 	                           - vcov[2] * t_trk->wbci[7] 
 				   - vcov[4] * t_trk->wbci[8];
 	    ader_ref(3, it*3 + 3) = -vcov[3] * t_trk->wbci[6]  
-		                   - vcov[4] * t_trk->wbci[7] 
-				   - vcov[5] * t_trk->wbci[8];
+		                   			- vcov[4] * t_trk->wbci[7] 
+				   			- vcov[5] * t_trk->wbci[8];
 	    ader_ref(it*3 + 1, 1) = ader_ref(1, it*3 + 1);
 	    ader_ref(it*3 + 1, 2) = ader_ref(2, it*3 + 1);
 	    ader_ref(it*3 + 1, 3) = ader_ref(3, it*3 + 1);
@@ -295,7 +230,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
 		}
 	    }
 	}
-//for(int ii=1; ii<=9; ii++)std::cout<<ader_ref(ii,ii)<<", "; std::cout<<" fast full m NEW"<<'\n';        
+//for(int ii=1; ii<=9; ii++)std::cout<<ader_ref(ii,ii)<<", "; std::cout<<__func__<<" fast full m NEW"<<'\n';        
         if( vk->ConstraintList.size()>0  && !useWeightScheme ){
 //---------------------------------------------------------------------
 // Covariance matrix with constraints a la Avery.
@@ -363,7 +298,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
          for(ic=0; ic<totNC; ic++) delete[] RC[ic];
          delete[] RC;
 	 delete[] RCRt;
-//for(int ii=1; ii<=9; ii++)std::cout<<ader_ref(ii,ii)<<", "; std::cout<<" avery full m NEW"<<'\n';        
+//for(int ii=1; ii<=9; ii++)std::cout<<ader_ref(ii,ii)<<", "; std::cout<<__func__<<" avery full m NEW"<<'\n';        
        }  //end of Avery matrix
 
 
@@ -371,29 +306,28 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
     }  // End of global IF() for matrix type selection
     
 //if(NTRK==2){
-//  for(i=1; i<=NVar; i++){std::cout<<" new covfull=";
+//  for(i=1; i<=NVar; i++){std::cout<<__func__" new covfull=";
 //    for(j=1; j<=NVar; j++)std::cout<<ader_ref(j,i)<<", "; std::cout<<'\n';}
 //}
 
 /* --Conversion to (X,Y,Z,Px,Py,Pz) form */
     for (i = 1; i <= 6; ++i) {
 	for (j = 1; j <= 6; ++j) {
-	    verr_ref(i,j) = 0.;
+	    verr[i-1][j-1] = 0.;
 	    for (ic=1; ic<=NVar; ++ic) {
 	        if(dcv_ref(i, ic)==0.) continue;
 		for (jc=1; jc<=NVar; ++jc) {
 	            if(dcv_ref(j, jc)==0.) continue;
-		    verr_ref(i, j) += dcv_ref(i, ic) * ader_ref(ic, jc) * dcv_ref(j, jc);
+		    verr[i-1][j-1] += dcv_ref(i, ic) * ader_ref(ic, jc) * dcv_ref(j, jc);
 		}
 	    }
 	}
     }
-//for(int ii=1; ii<=6; ii++)std::cout<<verr_ref(ii,ii)<<", "; std::cout<<" final m NEW"<<'\n';        
-    workarray_.existFullCov = 1;
+//for(int ii=1; ii<=6; ii++)std::cout<<verr[ii-1][ii-1]<<", "; std::cout<<" final m NEW"<<'\n';        
+    vk->existFullCov = 1;
     return 0;
 } 
 #undef dcv_ref
-#undef verr_ref
 #undef ader_ref
 
 #undef useWeightScheme

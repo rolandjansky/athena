@@ -141,7 +141,9 @@ class Factory:
   def copy(self, name, **kw):
     "copy(self, name, **kw) --> return a new instance of the factory with new name and defaults"
     kw['name'] = name
-    return self.__class__(self.iclass, **dict(self.defaults, **kw) )
+    deflt = self.defaults.copy()
+    deflt.update(kw) 
+    return self.__class__(self.iclass, **deflt )
 
   def __call__(self, name = '', **kw ):
     """Call preInit functions, instantiate tool (alg), call postInit functions and add

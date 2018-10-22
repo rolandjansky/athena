@@ -197,11 +197,12 @@ SCT_DCSConditionsTool::getCondDataState(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheState.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheState.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheState[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_DCSStatCondData> condData{m_condKeyState};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyState.key());
@@ -217,11 +218,12 @@ SCT_DCSConditionsTool::getCondDataHV(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheHV.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheHV.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheHV[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyHV.key());
@@ -237,11 +239,12 @@ SCT_DCSConditionsTool::getCondDataTemp0(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheTemp0.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheTemp0.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheTemp0[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyTemp0.key());

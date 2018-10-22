@@ -17,8 +17,8 @@
 //*****************************************************************************
 
 // Tile includes
+#include "TileCellVerify.h"
 #include "TileEvent/TileCell.h"
-#include "TileRecAlgs/TileCellVerify.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"

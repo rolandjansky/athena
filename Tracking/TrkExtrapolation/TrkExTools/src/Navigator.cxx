@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,16 +51,16 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_useStraightLineApproximation(false),
   m_searchWithDistance(true),
   m_fastField(false),
-  m_forwardCalls{0},
-  m_forwardFirstBoundSwitch{0},
-  m_forwardSecondBoundSwitch{0},
-  m_forwardThirdBoundSwitch{0},
-  m_backwardCalls{0},
-  m_backwardFirstBoundSwitch{0},
-  m_backwardSecondBoundSwitch{0},
-  m_backwardThirdBoundSwitch{0},
-  m_outsideVolumeCase{0},
-  m_sucessfulBackPropagation{0}
+  m_forwardCalls{},
+  m_forwardFirstBoundSwitch{},
+  m_forwardSecondBoundSwitch{},
+  m_forwardThirdBoundSwitch{},
+  m_backwardCalls{},
+  m_backwardFirstBoundSwitch{},
+  m_backwardSecondBoundSwitch{},
+  m_backwardThirdBoundSwitch{},
+  m_outsideVolumeCase{},
+  m_sucessfulBackPropagation{}
   {
   declareInterface<INavigator>(this);
   // steering of algorithms
@@ -244,12 +244,12 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
   int tryBoundary = 0;
 
   /* local counted to increment in the loop*/ 
-  int forwardFirstBoundSwitch{0};
-  int forwardSecondBoundSwitch{0};
-  int forwardThirdBoundSwitch{0};
-  int backwardFirstBoundSwitch{0};
-  int backwardSecondBoundSwitch{0};
-  int backwardThirdBoundSwitch{0};
+  auto forwardFirstBoundSwitch=m_forwardFirstBoundSwitch.buffer();
+  auto forwardSecondBoundSwitch=m_forwardSecondBoundSwitch.buffer();
+  auto forwardThirdBoundSwitch=m_forwardThirdBoundSwitch.buffer();
+  auto backwardFirstBoundSwitch=m_backwardFirstBoundSwitch.buffer();
+  auto backwardSecondBoundSwitch=m_backwardSecondBoundSwitch.buffer();
+  auto backwardThirdBoundSwitch=m_backwardThirdBoundSwitch.buffer();
 
   for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
     ++tryBoundary;
@@ -323,14 +323,6 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
     }
     // ---------------------------------------------------
   }
-  /* update the object level atomic ones*/
-  m_forwardFirstBoundSwitch+=forwardFirstBoundSwitch;
-  m_forwardSecondBoundSwitch+=forwardSecondBoundSwitch;
-  m_forwardThirdBoundSwitch+=forwardThirdBoundSwitch;
-  m_backwardFirstBoundSwitch+=backwardFirstBoundSwitch;
-  m_backwardSecondBoundSwitch+=backwardSecondBoundSwitch;
-  m_backwardThirdBoundSwitch+=backwardThirdBoundSwitch;
-
   // return what you have : no idea
   return Trk::NavigationCell(0, 0);
 }

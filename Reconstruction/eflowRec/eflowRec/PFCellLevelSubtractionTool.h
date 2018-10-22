@@ -32,14 +32,14 @@ public:
   ~PFCellLevelSubtractionTool();
 
   StatusCode initialize();
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer);
   StatusCode finalize();
 
  private:
 
-  void calculateRadialEnergyProfiles(xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void calculateRadialEnergyProfiles();
   void calculateAverageEnergyDensity();
-  void performSubtraction(xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void performSubtraction();
   bool runInGoldenMode() { return ((m_goldenModeString == "golden1") || (m_goldenModeString == "golden2")); }
   bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode);
   bool canAnnihilated(double expectedEnergy, double sigma, double clusterEnergy);

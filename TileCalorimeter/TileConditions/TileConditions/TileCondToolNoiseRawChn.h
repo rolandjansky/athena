@@ -34,8 +34,10 @@ class TileCondToolNoiseRawChn: public AthAlgTool
 
     float getPileUpNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
 
+    virtual
     float getNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                   TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const {
+                   TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts) const override
+    {
       return getElectronicNoise(drawerIdx, channel, adc, unit);
     }
 

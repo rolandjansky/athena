@@ -27,6 +27,7 @@
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/SbBox.h>
 
+#include <QAction>
 #include <QShortcut>
 #include <QCloseEvent>
 #include <QScrollBar>

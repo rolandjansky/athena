@@ -29,36 +29,18 @@
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 
-
+#include "BTagging/IBTagTool.h"
+#include "BTagging/IBTagTrackAssociation.h"
+#include "BTagging/IBTagSecVertexing.h"
 
 class MsgStream;
-//class TrigEFBjetContainer;
-//class TriggerElement;
-
-//class TrigInDetTrackCollection;
-//class TrackParticleContainer;
-//class TrigVertexCollection;
-//class VxContainer;
-//class TrigBjetTagger;
-//class TrigRoiDescriptor;
-
-//class TaggerHelper;
-//class TrigBjetTrackInfo;
-//class TrigBjetPrmVtxInfo;
-//class TrigBjetSecVtxInfo;
-//class TrigBjetJetInfo;
-
-namespace Rec {
-  //class TrackParticleContainer;
-  //class TrackParticle;
-}
-
+/*
 namespace Analysis {
   class IBTagTool;
   class IBTagTrackAssociation;
   class IBTagSecVertexing;
 }
-
+*/
 /**
  * @brief FEX class for the b-jet weight construction using offline tools
  *

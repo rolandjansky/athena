@@ -15,7 +15,6 @@ rec.doAOD.set_Value_and_Lock(True)
 
 
 import AthenaPoolCnvSvc.ReadAthenaPool
-#EventSelector.BackNavigation = True
 
 #don't need to set Geometry tags anymore. They are read from the file itself.
 from RecExConfig.RecFlags import rec

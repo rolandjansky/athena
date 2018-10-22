@@ -88,7 +88,7 @@ std::istream& operator>>(std::istream& is, FloatArrayStore& store){
                   return is;
                 }
     		is >> size ;
-                if (size>=0){
+                if ((size>=0) and (size<maxSize)){
     			data.resize(size) ;
     			for(int i=0; i<size; ++i) is >> (data[i]) ;
                 }

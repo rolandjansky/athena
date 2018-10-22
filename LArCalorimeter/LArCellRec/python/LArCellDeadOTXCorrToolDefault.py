@@ -10,19 +10,7 @@ def LArCellDeadOTXCorrToolDefault(name='LArCellDeadOTXCorr'):
         mlog.error("could not get handle to LArCellDeadOTXCorr Quit")
         print traceback.format_exc()
         return False 
-    try : 
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-        theLArBadChannelTool=LArBadChanTool()
-    except:
-        mlog.error("could not access bad channel tool Quit")
-        print traceback.format_exc()
-        return False 
-
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc+=theLArBadChannelTool
-    theLArCellDeadOTXCorr.badChannelTool = theLArBadChannelTool
     from AthenaCommon.GlobalFlags import globalflags
-
 
     ignoredTTs = []
     deadOTXCorrDbFolder = "/LAR/CellCorrOfl/deadOTX"

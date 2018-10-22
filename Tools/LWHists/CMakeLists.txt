@@ -6,7 +6,7 @@
 # Declare the package name:
 atlas_subdir( LWHists )
 
-atlas_depends_on_subdirs( PUBLIC CxxUtils )
+atlas_depends_on_subdirs( PUBLIC Control/CxxUtils )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist RIO Core MathCore )

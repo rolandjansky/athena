@@ -44,7 +44,6 @@ static const std::string TILE_SAMPLE_NOISE("TileSampleNoiseTest");
 static const std::string TILE_ONLINE_SAMPLE_NOISE("TileOnlineSampleNoiseTest");
 static const std::string TILE_RAW_CHANNEL_NOISE("TileRawChannelNoiseTest");
 
-static const unsigned int OBJ_VERSION(0);
 static const unsigned int DEF_DRAWER_IDX(0);
 static const unsigned int MAX_CHANNEL(1);
 

@@ -102,8 +102,7 @@ class TrigBjetHypoTool : virtual public ::AthAlgTool {
   /** @brief DeclareProperty: list of likelihood methods to be effectively used to perform the selection. */
   Gaudi::Property< std::string > m_methodTag {this,"MethodTag","","list of likelihood methods to be effectively used to perform the selection"};
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
-  Gaudi::Property< float > m_xcutMV2c20 {this,"CutMV2c20",-20,"lower bound of the discriminant variable to be selected for MV2 tagger"};
-  Gaudi::Property< float > m_xcutMV2c10 {this,"CutMV2c10",-20,"lower bound of the discriminant variable to be selected for MV2 tagger"};
+  Gaudi::Property< float > m_bTaggingCut {this,"BTaggingCut",-20,"lower bound of the discriminant variable to be selected for b-tagging"};
 
   // Not sure if needed
   /** @brief to check the beam spot flag status. */

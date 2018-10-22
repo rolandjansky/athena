@@ -27,8 +27,6 @@ TileCondToolOfcCool::TileCondToolOfcCool(const std::string& type, const std::str
     , m_weights(0)
     , m_NPhases(0)
     , m_NFields(0)
-    , m_Phamin(0)
-    , m_Phamax(0)
     , m_NSamples(0)
     , m_first(true)
 {

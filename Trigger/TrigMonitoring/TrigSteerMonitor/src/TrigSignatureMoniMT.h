@@ -35,14 +35,15 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   TrigSignatureMoniMT();
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "HLTChainsResult", "Chains activated after the L1" };
 
-  
-  
+    
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionsKey{ this, "FinalDecisions", {}, "Final stage of all decisions" };
 
-  //  typedef std::map<std::string, std::vector<std::string> > StringToStringVectorMap;
-  //Gaudi::Property< StringToStringVectorMap > m_steps{ this, "FinalDecisionToStepsMap", {}, "Mapping from each final decision object in FinalDecisions to the decisions at earlier steps" };
+
+  Gaudi::Property< std::map<std::string, std::string> > m_finalChainStep{ this, "FinalChainStep", {}, "Mapping from chain name to the decision container having the last step decision for that chain" };
+  std::map<std::string, std::set<unsigned int>> m_lastStepsMap; //!< a map from the decision container key to the set of chains which have there the last step
+
   Gaudi::Property<std::vector<std::string> > m_allChains{ this, "ChainsList", {}, "List of all configured chains" };
-  
+ 
   std::map<unsigned int, int> m_chainIDToBinMap;
   
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };

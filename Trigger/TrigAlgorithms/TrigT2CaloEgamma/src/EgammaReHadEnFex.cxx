@@ -152,46 +152,26 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   // MS       phimin=check_tilemin(phimin);
   // MS       phimax=check_tilemax(phimax);
 	
-#ifdef DONTDO
-  
-     if ( !context ) {
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->resume();
 
-        // Region Selector, no sample needed
-        // Get detector offline ID's for Collections
-	// MS m_data->RegionSelector(0,etamin,etamax,phimin,phimax,TILE);
-	m_data->RegionSelector(0,roi,TILE);
-
-        if (!m_timersvc.empty()) m_timer[1]->pause();
-
-  for (unsigned int iR=0;iR<m_data->TileContSize();iR++) {
-
-        // Time to access Collection (and ByteStreamCnv ROBs)
-        if (!m_timersvc.empty()) m_timer[2]->resume();
-	// For the first sample you will create the containers
-	// For the others no
-        if ( m_data->LoadCollections(m_itBegin,m_itEnd,iR,!iR).isFailure() ){
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-	}
-        m_error|=m_data->report_error();
-/*
-        if ( m_error ) {
-                if (!m_timersvc.empty()) m_timer[2]->stop();
-                return StatusCode::SUCCESS;
-        }
-*/
+	
+        TileCellCollection seltile;
+	TileCellCollection::const_iterator itBegin, itEnd, itt;
+        m_dataSvc->loadCollections( *context, roi, seltile );
+        itBegin = seltile.begin();
+        itt = itBegin;
+        itEnd = seltile.end();
 
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
         // Algorithmic time
         if (!m_timersvc.empty()) m_timer[3]->resume();
 
-   for(m_itt = m_itBegin;m_itt != m_itEnd; ++m_itt) { //loop over cells
+   for(;itt != itEnd; ++itt) { //loop over cells
     
     ncells++;
-    const TileCell* tilecell = (*m_itt);
+    const TileCell* tilecell = (*itt);
     double etaCell = tilecell->eta();
     double phiCell = tilecell->phi();
     double energyCell = tilecell->energy();
@@ -213,12 +193,9 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
     }
 
    } // end of loop over cells 
-   } // end of if context
    // Algorithmic time
    if (!m_timersvc.empty()) m_timer[3]->pause();
    
-  } // End of loop over TileCal drawers
-#endif // DONTDO for the moment
   rtrigEmCluster.setNCells(ncells+rtrigEmCluster.nCells() );
   if (!m_timersvc.empty())  m_timer[0]->propVal(rtrigEmCluster.nCells() );
 

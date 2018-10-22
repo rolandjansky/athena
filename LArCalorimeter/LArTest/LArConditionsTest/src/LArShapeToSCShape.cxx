@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArShapeToSCShape.cxx 
@@ -39,7 +39,8 @@ LArShapeToSCShape::LArShapeToSCShape( const std::string& name,
 				      ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_scidTool("CaloSuperCellIDTool"),
-  m_scCablingTool("LArSuperCellCablingTool")
+  m_scCablingTool("LArSuperCellCablingTool"),
+  m_cablingService("LArCablingService")
 {
   //
   // Property declaration
@@ -47,7 +48,7 @@ LArShapeToSCShape::LArShapeToSCShape( const std::string& name,
   //declareProperty( "Property", m_nProperty );
   declareProperty("CaloSuperCellIDTool",m_scidTool);
   declareProperty("LArSuperCellCablingTool",m_scCablingTool);
-
+  declareProperty("LArCablingService",m_cablingService);
 }
 
 // Destructor
@@ -62,6 +63,7 @@ StatusCode LArShapeToSCShape::initialize()
 
   CHECK(m_scidTool.retrieve());
   CHECK(m_scCablingTool.retrieve());
+  CHECK(m_cablingService.retrieve());
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
 
@@ -163,6 +165,8 @@ StatusCode LArShapeToSCShape::execute()
     //Get online hash (via online identifier):
     const HWIdentifier scOnlId=m_scCablingTool->createSignalChannelID(scId);
     const IdentifierHash scOnlHash=onlSCID->channel_Hash(scOnlId);
+    
+    const HWIdentifier hwid=m_cablingService->createSignalChannelID(cellId);
 
     //std::cout << "SuperCellSummary onl: 0x" << std::hex << scOnlId.get_identifier32().get_compact() 
     //	      << ", ofl: 0x" << scId.get_identifier32().get_compact() 
@@ -173,8 +177,8 @@ StatusCode LArShapeToSCShape::execute()
 
 
     //ILArShape::ShapeRef_t 
-    auto shape=cellShape->Shape(cellId,0);
-    auto shapeDer=cellShape->ShapeDer(cellId,0);
+    auto shape=cellShape->Shape(hwid,0);
+    auto shapeDer=cellShape->ShapeDer(hwid,0);
     //consistency check
     if (nSamples!=shape.size() || nSamples!=shapeDer.size()) {
       msg(MSG::ERROR) << "Inconsistent number of samples!" << endmsg;

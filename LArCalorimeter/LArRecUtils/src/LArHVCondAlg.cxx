@@ -102,7 +102,7 @@ StatusCode LArHVCondAlg::execute_r(const EventContext& ctx) const {
   SG::WriteCondHandle<LArHVData> writeHandle{m_hvDataKey};
 
   if (writeHandle.isValid()) {
-    ATH_MSG_WARNING("Found valid write handle");
+    ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   } 
 

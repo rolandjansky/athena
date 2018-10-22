@@ -32,7 +32,8 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    Event/xAOD/xAODMetaData
    Reconstruction/egamma/egammaLayerRecalibTool
-   Reconstruction/egamma/egammaMVACalib
+   Reconstruction/egamma/egammaUtils
+   PhysicsAnalysis/ElectronPhotonID/egammaMVACalibAnalysis
    Event/xAOD/xAODTruth
    Tools/PathResolver
    ${extra_dep} )
@@ -47,7 +48,8 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    PUBLIC_HEADERS ElectronPhotonFourMomentumCorrection
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
-   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreLib egammaMVACalibLib xAODTruth
+   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreLib egammaUtils
+   egammaMVACalibAnalysisLib xAODTruth
    PRIVATE_LINK_LIBRARIES xAODTracking xAODMetaData egammaLayerRecalibTool
    PathResolver )
 

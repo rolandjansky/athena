@@ -61,8 +61,7 @@ atlas_add_dictionary( TileConditionsDict
 # Test(s) in the package:
 atlas_add_test( TileCondToolTMDB_test
                 SOURCES test/TileCondToolTMDB_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
+                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
 
 atlas_add_test( TileCablingService_test
                 SOURCES test/TileCablingService_test.cxx
@@ -74,23 +73,19 @@ atlas_add_test( TileCablingService_UpgradeABC_test
 
 atlas_add_test( TileConditionTools_test
                 SOURCES test/TileConditionTools_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
+                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES} )
 
 atlas_add_test( TileEMScaleComponents_test
                 SOURCES test/TileEMScaleComponents_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileIdentifier TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
+                LINK_LIBRARIES TileConditionsLib TileIdentifier TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES} )
 
 atlas_add_test( TileNoiseTools_test
                 SOURCES test/TileNoiseTools_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
+                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES} )
 
 atlas_add_test( TileDCSComponents_test
                 SOURCES test/TileDCSComponents_test.cxx
-                LINK_LIBRARIES TileConditionsLib AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
+                LINK_LIBRARIES TileConditionsLib AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES} )
 
 
 # Install files from the package:

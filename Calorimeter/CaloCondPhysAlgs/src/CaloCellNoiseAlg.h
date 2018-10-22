@@ -28,6 +28,10 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
+
   class CaloCellNoiseAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
@@ -110,6 +114,7 @@
    std::string  m_triggerChainProp;
    FloatArrayProperty m_cuts;
    ToolHandle<ICaloNoiseTool> m_noiseToolDB;
+   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    std::string m_lumiFolderName;
    int m_addlumiblock;
    float m_deltaLumi;

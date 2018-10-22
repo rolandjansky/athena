@@ -8,16 +8,21 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.DetFlags import DetFlags
 
+TriggerFlags.doID   = False;
+TriggerFlags.doMuon = True;
 
 ### Set muon sequence ###
 if not 'doL2SA' in dir():
-  doL2SA=True
+  doL2SA = True
 if not 'doL2CB' in dir():
-  doL2CB=True
+  doL2CB = True
+  TriggerFlags.doID = True
 if not 'doL2ISO' in dir():
   doL2ISO = True 
 if not 'doEFSA' in dir():
-  doEFSA=True
+  doEFSA = True
+if not 'doEFISO' in dir():
+  doEFISO=True
 
 ### workaround to prevent online trigger folders to be enabled ###
 if doL2CB or doL2ISO:
@@ -73,20 +78,6 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
-
-TriggerFlags.doID   = False;
-TriggerFlags.doMuon = True;
-
-### Set muon sequence ###
-if not 'doL2SA' in dir():
-  doL2SA = True
-if not 'doL2CB' in dir():
-  doL2CB = True
-  TriggerFlags.doID = True
-if not 'doL2ISO' in dir():
-  doL2ISO = True 
-if not 'doEFSA' in dir():
-  doEFSA = True
 
 ### muon thresholds ###
 CTPToChainMapping = {"HLT_mu6":       "L1_MU6",
@@ -428,20 +419,13 @@ if TriggerFlags.doMuon:
                                                               ConvertTracks = True)
 
 
-    thetrkbuilder = getPublicToolClone("CombinedMuonTrackBuilder_SA", "CombinedMuonTrackBuilder", MuonHoleRecovery="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool')
-
-    theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder=thetrkbuilder)
+    theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder="",ExtrapolationStrategy=1)
     theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg",MuonCandidateTool=theCandidateTool)
 
+    muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
+    thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator, OutputLevel=DEBUG)
 
-    thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, OutputLevel=DEBUG)
-
-    themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
-    themuoncreatoralg.MuonCreatorTool=thecreatortool
-    themuoncreatoralg.CreateSAmuons=True
-    themuoncreatoralg.MuonContainerLocation="Muons"
-    themuoncreatoralg.MakeClusters=False
-    themuoncreatoralg.MuonContainerLocation = "Muons"
+    themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MuonContainerLocation="Muons", MakeClusters=False, TagMaps=[])
 
     #Algorithms to views
     efMuViewNode += theSegmentFinderAlg

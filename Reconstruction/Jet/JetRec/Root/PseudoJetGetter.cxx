@@ -74,7 +74,6 @@ const PseudoJetVector* PseudoJetGetter::get() const {
 
 const PseudoJetContainer* PseudoJetGetter::getC() const {
   ATH_MSG_DEBUG("Getting PseudoJetContainer...");
-
   // build and record the container
   const xAOD::IParticleContainer* cont;
   auto handle_in = SG::makeHandle(m_incoll);
@@ -100,6 +99,8 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
   IParticleExtractor* extractor = new IParticleExtractor(cont,
                                                          m_label,
                                                          isGhost);
+  ATH_MSG_DEBUG("New  extractor: "  << extractor->toString(0));
+  
   // ghostify the pseudojets if necessary
   if(isGhost){
     for(PseudoJet& pj : vpj) {pj *= 1e-40;}
@@ -109,10 +110,11 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
   std::unique_ptr<const PseudoJetContainer> uppjcont(new PseudoJetContainer(extractor, vpj));
 
   // record
-  SG::WriteHandle<PseudoJetContainer> handle_out(m_outcoll);
-  ATH_MSG_DEBUG("New PseudoJetContainer in event store with extractor: " 
-                << extractor->toString(0));
   
+  SG::WriteHandle<PseudoJetContainer> handle_out(m_outcoll);
+
+
+  ATH_MSG_DEBUG("New PseudoJetContainer size " << uppjcont->size());
   // notify
   const PseudoJetContainer* ppjcont = handle_out.put(std::move(uppjcont));
   if (!ppjcont) {

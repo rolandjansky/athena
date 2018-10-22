@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.diff_root_files
 # @purpose check that 2 ROOT files have same content (containers and sizes).
@@ -11,8 +11,6 @@ __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
-import PyUtils.RootUtils as ru
-ROOT = ru.import_root()
 
 ### globals -------------------------------------------------------------------
 g_ALLOWED_MODES = ('summary', 'detailed')

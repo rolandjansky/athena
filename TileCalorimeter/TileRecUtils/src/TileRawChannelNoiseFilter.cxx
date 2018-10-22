@@ -17,17 +17,12 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 
-static const InterfaceID IID_ITileRawChannelNoiseFilter("TileRawChannelNoiseFilter", 1, 0);
-
-const InterfaceID& TileRawChannelNoiseFilter::interfaceID() {
-  return IID_ITileRawChannelNoiseFilter;
-}
 
 //========================================================
 // constructor
 TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent)
+    : base_class(type, name, parent)
     , m_tileHWID(0)
     , m_tileToolEmscale("TileCondToolEmscale")
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
@@ -38,9 +33,6 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
     , m_useGapCells(false) // use gap cells for noise filter as all normal cells
 {
-  declareInterface<ITileRawChannelTool>(this);
-  declareInterface<TileRawChannelNoiseFilter>(this);
-
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
@@ -88,9 +80,9 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileRawChannelNoiseFilter::process(
-    TileRawChannelContainer *rchCont) {
-
+StatusCode TileRawChannelNoiseFilter::process (
+    TileRawChannelContainer *rchCont) const
+{
   ATH_MSG_DEBUG("in process()");
 
   TileRawChannelUnit::UNIT rChUnit = rchCont->get_unit();
@@ -111,6 +103,7 @@ StatusCode TileRawChannelNoiseFilter::process(
   ATH_MSG_VERBOSE( "Units in container is " << units[rChUnit] );
 
   // Now retrieve the TileDQStatus
+  // FIXME: const violation
   const TileDQstatus* DQstatus = m_beamInfo->getDQstatus();
 
   TileRawChannelContainer::const_iterator collItr = rchCont->begin();

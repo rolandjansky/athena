@@ -243,7 +243,7 @@ namespace JiveXML {
         int FT = onlineId->feedthrough(LArHardwareId);
         int slot = onlineId->slot(LArHardwareId);
         int larchan = onlineId->channel(LArHardwareId);
-        float pedestal=larPedestal->pedestal(LArId,largain);
+        float pedestal=larPedestal->pedestal(LArHardwareId,largain);
         float pedvalue=0;
         if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) pedvalue = pedestal;
           else pedvalue = LArSamples[0];
@@ -415,7 +415,7 @@ namespace JiveXML {
           cellGain.push_back(DataType((*it1)->gain())); 
           int largain = (*it1)->gain();
           float pedvalue=0; 
-          float pedestal=larPedestal->pedestal(cellid,largain);
+          float pedestal=larPedestal->pedestal(LArhwid,largain);
           if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) pedvalue = pedestal;
             else pedvalue = 0;
           cellPedestal.push_back(DataType(pedvalue));

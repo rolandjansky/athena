@@ -342,18 +342,7 @@ namespace xAOD {
      double et() const;
 
      ///}
-  // Cint has trouble with the types of these members.
-  // Just hide them from reflex for now.
-     /*
-#ifndef __REFLEX__
-   private:
-     typedef flt_t (CaloCluster_v1::*GET_VALUE)() const;
-     mutable GET_VALUE m_getE;
-     mutable GET_VALUE m_getEta;
-     GET_VALUE m_getPhi;
-     GET_VALUE m_getM;
-#endif
-     */
+  
    public:
 
      /// @name Energy/Eta/Phi per sampling
@@ -554,8 +543,8 @@ namespace xAOD {
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
    private:
 #endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
-     /// Switch signal state (mutable)
-     bool setSignalState(const State s) const;
+     /// Switch signal state 
+     bool setSignalState(const State s) ;
    public:
      /// Get the current signal state
      State signalState() const {return m_signalState;}
@@ -569,8 +558,12 @@ namespace xAOD {
      /// eta with a given signal state
      double eta(const State s) const;
 
-     /// eta with a given signal state
+     /// phi with a given signal state
      double phi(const State s) const;
+
+     /// m with a given signal state
+     double m(const State s) const;
+
 
      ///  @}
 
@@ -600,8 +593,8 @@ namespace xAOD {
      /// bit-pattern describing the calo samplings contributing to this cluster
      unsigned m_samplingPattern;
 
-     /// Current signal state *** NEED TO UPDATE FOR ATHENAMT ***
-     mutable State m_signalState;
+     /// Current signal state 
+     State m_signalState;
      ///Non-const ptr to cell links (for cluster building, transient-only)
      CaloClusterCellLink* m_cellLinks;
 

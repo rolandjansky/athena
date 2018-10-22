@@ -12,6 +12,7 @@ from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr as CfgMgr
 import AthenaCommon.CfgGetter as CfgGetter
 
+
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
@@ -39,7 +40,7 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
@@ -51,6 +52,7 @@ doL2ISO = True
 
 TriggerFlags.doID   = True;
 TriggerFlags.doMuon = True;
+
 
 # ===========================================
 #          SET PREPARATOR DATA               
@@ -77,7 +79,7 @@ viewAlgs.append(ViewVerify)
 
 ### Used the algorithms as Step1 "muFast step" ###
 ### Load data from Muon detectors ###
-import MuonRecExample.MuonRecStandaloneOnlySetup
+#import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
@@ -99,6 +101,7 @@ from TrigUpgradeTest.MuonSetup import makeMuonPrepDataAlgs
 ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
 ### set the EVCreator ###
+
 l2MuViewNode = parOR("l2MuViewNode")
 
 l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
@@ -147,7 +150,6 @@ if muonRecFlags.doMDTs():
   
   muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
 
-l2MuViewNode += muFastAlg
 
 ### RPCRDO ###
 if muonRecFlags.doRPCs():
@@ -324,18 +326,14 @@ xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandalone
                                                           ConvertTracks = True)
 
 
-thetrkbuilder = getPublicToolClone("CombinedMuonTrackBuilder_SA", "CombinedMuonTrackBuilder", MuonHoleRecovery="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool')
 
-theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder=thetrkbuilder)
+theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder="",ExtrapolationStrategy=1)
 theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg",MuonCandidateTool=theCandidateTool)
 
+muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
+thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator, OutputLevel=DEBUG)
 
-thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, OutputLevel=DEBUG)
-
-themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
-themuoncreatoralg.MuonCreatorTool=thecreatortool
-themuoncreatoralg.CreateSAmuons=True
-themuoncreatoralg.MakeClusters=False
+themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[])
 
 #Algorithms to views
 efMuViewNode += theSegmentFinderAlg

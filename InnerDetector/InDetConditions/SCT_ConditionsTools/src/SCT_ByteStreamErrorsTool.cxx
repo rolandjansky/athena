@@ -326,7 +326,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
    */
   ATH_MSG_DEBUG("size of error container is " << errCont->size());
   for (const auto* elt : *errCont) {
-    addError(elt->first,elt->second, ctx);
+    addError(elt->first, elt->second, ctx);
     Identifier wafer_id{m_sct_id->wafer_id(elt->first)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
     int side{m_sct_id->side(m_sct_id->wafer_id(elt->first))};
@@ -335,7 +335,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     } else if (elt->second>=SCT_ByteStreamErrors::TempMaskedChip0 and elt->second<=SCT_ByteStreamErrors::TempMaskedChip5) {
       m_tempMaskedChips[slot][module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::TempMaskedChip0 + side*6));
     } else {
-      std::pair<bool, bool> badLinks{m_config->badLinks(module_id)};
+      std::pair<bool, bool> badLinks{m_config->badLinks(elt->first)};
       bool result{(side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
       if (result) {
         /// error in a module using RX redundancy - add an error for the other link as well!!
@@ -420,11 +420,12 @@ const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(c
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheElements.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheElements[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());

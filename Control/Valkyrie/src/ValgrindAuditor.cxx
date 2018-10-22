@@ -92,7 +92,7 @@ StatusCode ValgrindAuditor::initialize()
     try {
       m_algsRegEx.push_back( boost::regex(re) );
     }
-    catch ( boost::regex_error ) {
+    catch ( const boost::regex_error& ) {
       msgStream() << MSG::ERROR << "Ignoring invalid regular expression: " << re << endmsg;
     }
   }
@@ -276,7 +276,7 @@ namespace {
     try {
       nameEvt.first = boost::regex(s.substr(0,loc));
     }
-    catch ( boost::regex_error ) {
+    catch ( const boost::regex_error& ) {
       return StatusCode::FAILURE;
     }
     
