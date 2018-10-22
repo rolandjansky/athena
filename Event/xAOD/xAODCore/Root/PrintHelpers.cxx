@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PrintHelpers.cxx 780624 2016-10-26 22:41:13Z ssnyder $
@@ -11,9 +11,41 @@
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/tools/AtomicConstAccessor.h"
 
 // Local include(s):
 #include "xAODCore/tools/PrintHelpers.h"
+
+namespace PrintHelpers {
+
+template <class T> struct VecPrintType {
+  typedef T type;
+};
+
+template <> struct VecPrintType<char> {
+  typedef int type;
+};
+
+template <> struct VecPrintType<int8_t> {
+  typedef int type;
+};
+
+template <> struct VecPrintType<uint8_t> {
+  typedef unsigned int type;
+};
+
+} // namespace PrintHelpers
+
+
+template< typename T, typename U >
+std::ostream& operator<< ( std::ostream& out, const std::pair< T, U >& p ) {
+  out << "(";
+  out << static_cast<typename PrintHelpers::VecPrintType<T>::type> (p.first);
+  out << ", ";
+  out << static_cast<typename PrintHelpers::VecPrintType<U>::type> (p.second);
+  out << ")";
+  return out;
+}
 
 /// Helper operator to pretty-print the values of vectors
 template< typename T >
@@ -21,7 +53,7 @@ std::ostream& operator<< ( std::ostream& out, const std::vector< T >& vec ) {
 
    out << "[";
    for( size_t i = 0; i < vec.size(); ++i ) {
-      out << vec[ i ];
+      out << static_cast<typename PrintHelpers::VecPrintType<T>::type> (vec[ i ]);
       if( i < vec.size() - 1 ) {
          out << ", ";
       }
@@ -85,10 +117,24 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
 
       // The type of the variable:
       const std::type_info* ti = reg.getType( auxid );
-      if( *ti == typeid( int8_t ) ) {
-         out << static_cast< int >( obj.auxdata< int8_t >( reg.getName( auxid ) ) );
+      if( reg.getFlags( auxid ) & SG::AuxTypeRegistry::Atomic ) {
+        if( *ti == typeid( unsigned int ) ) {
+          SG::AtomicConstAccessor<unsigned int> acc( reg.getName( auxid ) );
+          if ( acc.isAvailable( obj )) {
+            out << acc (obj);
+          }
+        }
+        else {
+          out << "(Unsupported atomic type)\n";
+        }
+      } else if( *ti == typeid( int8_t ) ) {
+         if( obj.isAvailable< int8_t >( reg.getName( auxid ) ) ) {
+           out << static_cast< int >( obj.auxdata< int8_t >( reg.getName( auxid ) ) );
+         }
       } else if( *ti == typeid( uint8_t ) ) {
-         out << static_cast< int >( obj.auxdata< uint8_t >( reg.getName( auxid ) ) );
+         if( obj.isAvailable< uint8_t >( reg.getName( auxid ) ) ) {
+           out << static_cast< int >( obj.auxdata< uint8_t >( reg.getName( auxid ) ) );
+         }
       } else if( *ti == typeid( int16_t ) ) {
          PRINTER( int16_t );
       } else if( *ti == typeid( uint16_t ) ) {
@@ -105,6 +151,8 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
          PRINTER( long );
       } else if( *ti == typeid( unsigned long ) ) {
          PRINTER( unsigned long );
+      } else if( *ti == typeid( unsigned long long ) ) {
+         PRINTER( unsigned long long );
       } else if( *ti == typeid( float ) ) {
          PRINTER( float );
       } else if( *ti == typeid( double ) ) {
@@ -113,6 +161,12 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
          PRINTER( std::vector< float > );
       } else if( *ti == typeid( std::vector< double > ) ) {
          PRINTER( std::vector< double > );
+      } else if( *ti == typeid( std::vector< char > ) ) {
+         PRINTER( std::vector< char > );
+      } else if( *ti == typeid( std::vector< int8_t > ) ) {
+         PRINTER( std::vector< int8_t > );
+      } else if( *ti == typeid( std::vector< uint8_t > ) ) {
+         PRINTER( std::vector< uint8_t > );
       } else if( *ti == typeid( std::vector< int16_t > ) ) {
          PRINTER( std::vector< int16_t > );
       } else if( *ti == typeid( std::vector< uint16_t > ) ) {
@@ -125,6 +179,11 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
          PRINTER( std::vector< int64_t > );
       } else if( *ti == typeid( std::vector< uint64_t > ) ) {
          PRINTER( std::vector< uint64_t > );
+      } else if( *ti == typeid( std::vector< std::string > ) ) {
+         PRINTER( std::vector< std::string > );
+      } else if( *ti == typeid( std::vector< std::pair<std::string, std::string> > ) ) {
+         typedef std::pair<std::string, std::string> Stringpair_t;
+         PRINTER( std::vector< Stringpair_t > );
       } else {
          out << "N/A";
       }
