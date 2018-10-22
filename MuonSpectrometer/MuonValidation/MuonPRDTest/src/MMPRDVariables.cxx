@@ -46,12 +46,15 @@ StatusCode MMPRDVariables::fillVariables()
                       << " GasGap ["       << gas_gap         << "]"
                       << " ChNr ["         << channel         << "]" );
 
+     ATH_MSG_DEBUG(  " MM channel " << channel << " prd->time() " << prd->time() );
+
       m_NSWMM_prd_stationName->push_back(stName);
       m_NSWMM_prd_stationEta->push_back(stationEta);
       m_NSWMM_prd_stationPhi->push_back(stationPhi);
       m_NSWMM_prd_multiplet->push_back(multiplet);
       m_NSWMM_prd_gas_gap->push_back(gas_gap);
       m_NSWMM_prd_channel->push_back(channel);
+      m_NSWMM_prd_time->push_back(prd->time());
 
       const MuonGM::MMReadoutElement* det = prd->detectorElement();
       Amg::Vector3D pos    = prd->globalPosition();
@@ -87,6 +90,7 @@ void MMPRDVariables::deleteVariables()
   delete m_NSWMM_prd_multiplet;
   delete m_NSWMM_prd_gas_gap;
   delete m_NSWMM_prd_channel;
+  delete m_NSWMM_prd_time;
 
   delete m_NSWMM_prd_globalPosX;
   delete m_NSWMM_prd_globalPosY;
@@ -104,6 +108,7 @@ void MMPRDVariables::deleteVariables()
   m_NSWMM_prd_multiplet  = nullptr;
   m_NSWMM_prd_gas_gap    = nullptr;
   m_NSWMM_prd_channel    = nullptr;
+  m_NSWMM_prd_time       = nullptr;
 
   m_NSWMM_prd_globalPosX = nullptr;
   m_NSWMM_prd_globalPosY = nullptr;
@@ -126,6 +131,7 @@ StatusCode MMPRDVariables::clearVariables()
   m_NSWMM_prd_multiplet->clear();
   m_NSWMM_prd_gas_gap->clear();
   m_NSWMM_prd_channel->clear();
+  m_NSWMM_prd_time->clear();
 
   m_NSWMM_prd_globalPosX->clear();
   m_NSWMM_prd_globalPosY->clear();
@@ -148,6 +154,7 @@ StatusCode MMPRDVariables::initializeVariables()
   m_NSWMM_prd_multiplet  = new std::vector<int>();
   m_NSWMM_prd_gas_gap    = new std::vector<int>();
   m_NSWMM_prd_channel    = new std::vector<int>();
+  m_NSWMM_prd_time       = new std::vector<int>();
 
   m_NSWMM_prd_globalPosX = new std::vector<double>();
   m_NSWMM_prd_globalPosY = new std::vector<double>();
@@ -165,6 +172,7 @@ StatusCode MMPRDVariables::initializeVariables()
     m_tree->Branch("PRD_MM_multiplet",     &m_NSWMM_prd_multiplet);
     m_tree->Branch("PRD_MM_gas_gap",       &m_NSWMM_prd_gas_gap);
     m_tree->Branch("PRD_MM_channel",       &m_NSWMM_prd_channel);
+    m_tree->Branch("PRD_MM_time",          &m_NSWMM_prd_time);
 
     m_tree->Branch("PRD_MM_globalPosX",    &m_NSWMM_prd_globalPosX);
     m_tree->Branch("PRD_MM_globalPosY",    &m_NSWMM_prd_globalPosY);
