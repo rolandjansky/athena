@@ -61,7 +61,7 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
     
     nThreads=1
-
+    
     from StoreGate.StoreGateConf import SG__HiveMgrSvc
     eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
     eventDataSvc.NSlots = nThreads
@@ -78,23 +78,18 @@ if __name__=="__main__":
                             NeededResources = [])
     
     cfg.addEventAlgo( inputLoader)
-
+    
+    # Seem to need this to read BS properly
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
     # Schedule Rpc data decoding
     cfg.merge( RpcRawDataDecodeConfig( ConfigFlags ) )
 
-    from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
-    tagInfoMgr = TagInfoMgr()
-    tagInfoMgr.ExtraTagValuePairs    = ['AtlasRelease', 'Athena-22.0.1'] # this has to come from somewhere else
-    cfg.addService( tagInfoMgr )
-    
-    cfg.getService("EventPersistencySvc").CnvServices += [ tagInfoMgr.getName() ]
-    cfg.getService("ProxyProviderSvc").ProviderNames  += [ tagInfoMgr.getName() ]
-    cfg.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
-
-    cfg.getService("IOVDbSvc").OutputLevel=DEBUG
+    # Need to add POOL converter  - may be a better way of doing this?
+    from AthenaCommon import CfgMgr
+    cfg.addService( CfgMgr.AthenaPoolCnvSvc() )
+    cfg.getService("EventPersistencySvc").CnvServices += [ "AthenaPoolCnvSvc" ]
 
     log.debug('Print Config')
     cfg.printConfig(withDetails=True)
