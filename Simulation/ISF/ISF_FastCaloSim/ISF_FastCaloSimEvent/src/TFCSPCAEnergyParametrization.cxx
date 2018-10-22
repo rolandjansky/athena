@@ -170,6 +170,27 @@ void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValu
     }
 }
 
+bool TFCSPCAEnergyParametrization::loadPCAbinProb(TFile* file)
+{
+ 
+ file->cd();
+ 
+ TVectorD* pcabinprobvector=(TVectorD*)gDirectory->Get("PCAbinprob");
+ 
+ if(!pcabinprobvector)
+ {
+  ATH_MSG_WARNING("TFCSPCAEnergyParametrization::PCAbinprob is null");
+  return false;
+ }
+ 
+ double* prob  =pcabinprobvector->GetMatrixArray();
+ for(int i=0;i<pcabinprobvector->GetNoElements();i++)
+  m_pcabinprob.push_back(prob[i]);
+
+ return true;
+ 
+}
+
 bool TFCSPCAEnergyParametrization::loadInputs(TFile* file)
 {
   return loadInputs(file, "");
