@@ -173,6 +173,8 @@ sub main(){
     google.charts.load('current', {packages: ['corechart', 'line']});
     google.charts.setOnLoadCallback(drawCrosshairs17000);
     google.charts.setOnLoadCallback(drawCrosshairs9000);
+    google.charts.setOnLoadCallback(drawCrosshairs17000Data);
+    google.charts.setOnLoadCallback(drawCrosshairs9000Data);
 
     function drawCrosshairs17000() {
                 var data = new google.visualization.DataTable();
@@ -234,6 +236,69 @@ sub main(){
         chart.draw(data, options);
 
     }
+
+    function drawCrosshairs17000Data() {
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Nightly');
+
+                <?php
+                        
+                        \$nightlies = glob(dirname(__FILE__) . '/../../*');
+                        \$nightlies = array_values(\$nightlies);
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ATLASros2rob2018.py');
+                        //echo \$content;
+                        preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
+                        \$ROSes = array_values(\$ROSes);
+                        foreach(\$ROSes as \$ros){
+                                \$ros = array_values(\$ros);
+                                foreach(\$ros as \$ros1){
+                                        echo \"                data.addColumn('number', '\$ros1'); \\n\";
+                                }
+                        }
+
+                        echo \"                data.addRows([\";
+                        foreach(\$nightlies as \$nightly){
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ROStest.reference.new');
+                                //echo \$content.'\\n';                           
+                                echo \"                ['\".basename(\$nightly).\"',\";
+                                foreach(\$ROSes as \$ros){
+                                        \$ros = array_values(\$ros);
+                                        foreach(\$ros as \$ros1){
+                                                //echo \$ros1.'\\n';
+						\$matched = preg_match_all('/'.\$ros1.'.[ \\t]+[|].[ \\t]+.[0-9]+.[ \t]+[|](.[.0-9]+).[ \\t]+,(.[.0-9]+).[ \\t]+,.[ \\t]+(.[.0-9]+)/', \$content, \$data);
+                                                if(\$matched) echo \$data[3][0].\",\";
+                                                else echo \"0.,\";
+                                                //print_r(\$data);
+                                        }
+                                }
+                                echo \"],\";
+                        }
+                        echo \"                ]);\";
+                ?>
+
+        var options = {
+                title: 'ROS request rates in rejected events for lumi 1.7e34',
+                hAxis: {
+                        title: 'Nightly'
+                },
+                        vAxis: {
+                        title: 'ROS request rate'
+                },
+                //colors: ['#a52714', '#097138'],
+                crosshair: {
+                        color: '#000',
+                        trigger: 'selection'
+                }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div17000Data'));
+
+        chart.draw(data, options);
+
+    }
+
+
     
     function drawCrosshairs9000() {
                 var data = new google.visualization.DataTable();
@@ -295,6 +360,68 @@ sub main(){
         chart.draw(data, options);
 
     }
+
+    function drawCrosshairs9000Data() {
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Nightly');
+
+                <?php
+                        
+                        \$nightlies = glob(dirname(__FILE__) . '/../../*');
+                        \$nightlies = array_values(\$nightlies);
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ATLASros2rob2018.py');
+                        //echo \$content;
+                        preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
+                        \$ROSes = array_values(\$ROSes);
+                        foreach(\$ROSes as \$ros){
+                                \$ros = array_values(\$ros);
+                                foreach(\$ros as \$ros1){
+                                        echo \"                data.addColumn('number', '\$ros1'); \\n\";
+                                }
+                        }
+
+                        echo \"                data.addRows([\";
+                        foreach(\$nightlies as \$nightly){
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ROStest.reference.new');
+                                //echo \$content.'\\n';                           
+                                echo \"                ['\".basename(\$nightly).\"',\";
+                                foreach(\$ROSes as \$ros){
+                                        \$ros = array_values(\$ros);
+                                        foreach(\$ros as \$ros1){
+                                                //echo \$ros1.'\\n';
+                                                \$matched = preg_match_all('/'.\$ros1.'.[ \\t]+[|].[ \\t]+.[0-9]+.[ \t]+[|](.[.0-9]+).[ \\t]+,(.[.0-9]+).[ \\t]+,.[ \\t]+(.[.0-9]+)/', \$content, \$data);
+                                                if(\$matched) echo \$data[3][0].\",\";
+                                                else echo \"0.,\";
+                                                //print_r(\$data);
+                                        }
+                                }
+                                echo \"],\";
+                        }
+                        echo \"                ]);\";
+                ?>
+
+        var options = {
+                title: 'ROS request rates in rejected events for lumi 0.9e34',
+                hAxis: {
+                        title: 'Nightly'
+                },
+                        vAxis: {
+                        title: 'ROS request rate'
+                },
+                //colors: ['#a52714', '#097138'],
+                crosshair: {
+                        color: '#000',
+                        trigger: 'selection'
+                }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div9000Data'));
+
+        chart.draw(data, options);
+
+    }
+
 
 </script>
 <script type=\"text/javascript\">
@@ -631,6 +758,8 @@ function showBuildFailures(failures,link) {
     print HTMLOUT '<iframe onload="highlightDiffs(false)" id="DiffFrame" style="visibility:hidden;display:none;"></iframe>';
     print HTMLOUT '<div id="chart_div17000" style="float: left; width: 50%; height: 500px"></div>';
     print HTMLOUT '<div id="chart_div9000"  style="float: right; width: 50%; height: 500px"></div>';
+    print HTMLOUT '<div id="chart_div17000Data" style="float: left; width: 50%; height: 500px"></div>';
+    print HTMLOUT '<div id="chart_div9000Data"  style="float: right; width: 50%; height: 500px"></div>';
     print HTMLOUT '</body></html>';
     close HTMLOUT;
     
