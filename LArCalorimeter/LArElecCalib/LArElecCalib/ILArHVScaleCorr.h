@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARHVSCALRCORR_H
 #define LARCONDITIONS_ILARHVSCALRCORR_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/Identifier.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
