@@ -394,27 +394,31 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
       }
       runnumber = randomrunnumber(*(eventInfo));
     }
-    ATH_MSG_DEBUG("Number of RunNumbers: " << m_RunNumbers.size() );
+    ATH_MSG_VERBOSE("Number of RunNumbers in file: " << m_RunNumbers.size() );
     for ( std::size_t r=0; r<m_RunNumbers.size(); r++ ){
-      ATH_MSG_DEBUG(  m_RunNumbers.at(r) );
+      ATH_MSG_VERBOSE(  " - " << m_RunNumbers.at(r) );
     }
 
 
-    for ( std::size_t r=0; r<m_RunNumbers.size()-1; r++ ){
-      ATH_MSG_VERBOSE(m_RunNumbers.size()-1 << "  " << m_RunNumbers.at(r) << "  " << m_RunNumbers.at(r+1) << "  " << runnumber);
-      if ( runnumber > (unsigned int)m_RunNumbers.at(r) && runnumber <= (unsigned int)m_RunNumbers.at(r+1) ) {
+    bool isInRunNumberRange = false;
+    for ( std::size_t r=0; r<m_RunNumbers.size()-1; r+=2 ){ // increment by two, run numbers always come in pairs (upper and lower bound specified in the histogram name)
+      if ( runnumber >= (unsigned int)m_RunNumbers.at(r) && runnumber <= (unsigned int)m_RunNumbers.at(r+1) ) {
         cutRunNumber.clear();
         cutRunNumber = Form("RunNumber%d_%d",m_RunNumbers.at(r) ,m_RunNumbers.at(r+1));
-        ATH_MSG_DEBUG(m_RunNumbers.at(r));
+        ATH_MSG_DEBUG("Random run number lies in range " << m_RunNumbers.at(r) << " " << m_RunNumbers.at(r+1));
+	isInRunNumberRange = true;
       }
     }
     
     if (runnumber<m_RunNumbers.at(0) || (runnumber>m_RunNumbers.at(m_RunNumbers.size()-1) )) {
-      ATH_MSG_DEBUG("RunNumber not in valid RunNumber Range ");
+      ATH_MSG_DEBUG("RunNumber " << runnumber << " is not in valid RunNumber Range ");
       sf = 1.0;
-      return CP::CorrectionCode::OutOfValidityRange;
+      isInRunNumberRange = false;
     }
     
+    if ( !isInRunNumberRange ) {
+      return CP::CorrectionCode::OutOfValidityRange;
+    }
   }
 
   // Determine WHICH histograms to use here
