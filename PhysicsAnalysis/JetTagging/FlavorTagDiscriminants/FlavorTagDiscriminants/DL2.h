@@ -4,6 +4,9 @@
 // EDM includes
 #include "xAODJet/Jet.h"
 
+// external libraries
+#include "lwtnn/lightweight_network_config.hh"
+
 // STL includes
 #include <string>
 #include <vector>
@@ -11,37 +14,40 @@
 #include <functional>
 #include <exception>
 
+// forward declarations
+namespace lwt {
+  class NanReplacer;
+  class LightweightGraph;
+}
+
 namespace FlavorTagDiscriminants {
 
   enum class EDMType {INT, FLOAT, DOUBLE};
 
-  // these regexes are used to figure out what type the b-tagging
-  // inputs are
-  struct InputRegex
-  {
-    std::regex regex;
-    EDMType type;
-  };
+  // we define a few structures to map variable names to type, default
+  // value, etc.
+  typedef std::vector<std::pair<std::regex, EDMType> > TypeRegexes;
+  typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
 
-  // Most b-tagging variables have "default" flags defined.
-  struct DefaultRegex
+  // Structure to define a DL2 input.
+  struct DL2InputConfig
   {
-    std::regex regex;
+    std::string name;
+    EDMType type;
     std::string default_flag;
   };
 
-  // All the code here should just be a thin wrapper on lwtnn plus
-  // some stuff to pull variables out of the EDM
-  struct DL2Config
-  {
-    std::string nn_file_path;
-    std::vector<InputRegex> input_regexes;
-    std::vector<DefaultRegex> defatul_regexes;
-  };
+  // Function to map the regular expressions + the list of inputs to a
+  // list of variable configurations.
+  std::vector<DL2InputConfig> get_input_config(
+    const std::vector<std::string>& variable_names,
+    const TypeRegexes& type_regexes,
+    const StringRegexes& default_flag_regexes);
 
   // internally we want a bunch of std::functions that return pairs to
   // populate the lwtnn input map. We define a functor here to deal
   // with the b-tagging cases.
+  //
   template <typename T>
   class BVarGetter
   {
@@ -64,46 +70,23 @@ namespace FlavorTagDiscriminants {
     }
   };
 
-  // now we define some additional helper functions
-  //
-  // Matcher
-  template <typename T>
-  class Matcher
-  {
-  private:
-    std::vector<std::pair<std::regex, T> > m_regexes;
-  public:
-    Matcher(const std::vector<std::pair<std::regex, T> >& regexes):
-      m_regexes(regexes)
-      {}
-    T operator()(const std::string& var_name) const {
-      for (const auto& pair: m_regexes) {
-        if (std::regex_match(var_name, pair.first)) {
-          return pair.second;
-        }
-      }
-      throw std::logic_error("no match found for " + var_name);
-    }
-  };
-  //
-  // Type finder
-  class TypeFinder
+  class DL2
   {
   public:
-    TypeFinder(std::vector<InputRegex>);
-    EDMType operator()(const std::string&) const;
+    DL2(const lwt::GraphConfig&, const std::vector<DL2InputConfig>&);
+    void decorate(const xAOD::Jet& jet) const;
   private:
-    std::vector<InputRegex> m_regexes;
+    typedef std::pair<std::string, double> Variable;
+    typedef std::function<Variable(const xAOD::Jet&)> Getter;
+    typedef SG::AuxElement::Decorator<float> OutputDecorator;
+    typedef std::vector<std::pair<std::string, OutputDecorator > > OutNode;
+    std::string m_input_node_name;
+    std::unique_ptr<lwt::LightweightGraph> m_graph;
+    std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;
+    std::vector<Getter> m_getters;
+    std::map<std::string, OutNode> m_decorators;
   };
-  // Default finder
-  class DefaultFinder
-  {
-  public:
-    DefaultFinder(std::vector<DefaultRegex>);
-    std::string operator()(const std::string&) const;
-  private:
-    std::vector<DefaultRegex> m_regexes;
-  };
+
   //
   // Filler function
   std::function<std::pair<std::string, double>(const xAOD::Jet&)>

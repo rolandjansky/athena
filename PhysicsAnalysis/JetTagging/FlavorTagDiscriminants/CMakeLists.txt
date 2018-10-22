@@ -12,6 +12,9 @@
 # Declare the package name:
 atlas_subdir( FlavorTagDiscriminants )
 
+# we use lwtnn in here a bit
+find_package( lwtnn )
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
   PUBLIC
@@ -25,7 +28,8 @@ atlas_add_library( FlavorTagDiscriminants
   Root/BTagJetAugmenter.cxx
   Root/BTagTrackAugmenter.cxx
   Root/DL2.cxx
+  INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
-  LINK_LIBRARIES xAODBase xAODJet xAODEventInfo)
+  LINK_LIBRARIES xAODBase xAODJet xAODEventInfo ${LWTNN_LIBRARIES})
 
 atlas_install_python_modules( python/*.py )
