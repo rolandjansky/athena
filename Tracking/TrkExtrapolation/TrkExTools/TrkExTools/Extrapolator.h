@@ -452,7 +452,7 @@ class Extrapolator : public AthAlgTool,
       std::vector<Trk::TransportJacobian*>*                    m_jacs=nullptr;                     //!< cache of Transport Jacobians 
       std::unique_ptr<identifiedParameters_t>                  m_identifiedParameters;             // for active volumes 
 
-      double                                                   m_path;    
+      double                                                   m_path{};    
 
       std::pair<unsigned int, unsigned int>                     m_denseResolved;
       std::vector<DestSurf>                                     m_staticBoundaries;

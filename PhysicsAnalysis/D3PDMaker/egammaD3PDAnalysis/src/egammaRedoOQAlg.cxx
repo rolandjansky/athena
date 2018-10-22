@@ -71,7 +71,7 @@ StatusCode egammaRedoOQAlgBase::execute()
     xAOD::Egamma* neweg = this->cloneEG(eg);
     // This only works if the cluster has cells available.
     if (clusterHasCells (neweg->caloCluster()))
-      CHECK( m_egammaOQFlagsBuilder->execute (neweg) );
+      CHECK( m_egammaOQFlagsBuilder->execute (Gaudi::Hive::currentContext(),neweg) );
   }
   CHECK (this->commit());
 

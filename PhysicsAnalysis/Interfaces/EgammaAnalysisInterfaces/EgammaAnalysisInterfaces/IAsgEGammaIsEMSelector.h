@@ -22,6 +22,7 @@
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
+#include "GaudiKernel/EventContext.h"
 
 class IAsgEGammaIsEMSelector : virtual public CP::ISelectionTool
 {
@@ -35,19 +36,19 @@ public:
 
   /// accept with pointer to  IParticle  so as to not hide the ISelectionTool one
   virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
-
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::IParticle* part ) const = 0;
 
   /// accept with pointer to Egamma object 
-  virtual asg::AcceptData accept( const xAOD::Egamma* part) const = 0;
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* part) const = 0;
 
   /// accept with Photon pointer
-  virtual asg::AcceptData accept( const xAOD::Photon* part ) const = 0;
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Photon* part ) const = 0;
 
   /// accept with Electron reference
-  virtual asg::AcceptData accept( const xAOD::Electron* part ) const = 0;
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* part ) const = 0;
 
   ///Add a legacy execute method - return isEM value
-  virtual StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const =0;
+  virtual StatusCode execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const =0;
 
   /// Report the current operating point
   virtual std::string getOperatingPointName( ) const =0;

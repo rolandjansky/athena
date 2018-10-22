@@ -127,7 +127,9 @@ Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters
   const Amg::Vector3D& globalMomentum = trackParameters.momentum();
   double p = globalMomentum.mag();
 
-  double pathcorrection = pathLength/materialProperties.thickness();
+  double pathcorrection = 1.;
+  if(materialProperties.thickness() != 0) 
+    pathcorrection = pathLength/materialProperties.thickness();
 
   //Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
   //and create a dummy materialProperties with the properties we are interested in

@@ -28,6 +28,7 @@
 // Identifier
 #include "Identifier/Identifier.h"
 
+#include <atomic>
 
 class MsgStream;
 class SurfaceCnv_p1;
@@ -297,11 +298,10 @@ namespace Trk {
       virtual std::string name() const = 0;   
 
       /**return number of surfaces currently created - needed for EDM monitor */
-      static unsigned int numberOfInstantiations(); 
-      
+      unsigned int numberOfInstantiations();  
       /**return number of free surfaces currently created (i.e. those not belonging to a DE) - needed for EDM monitor */
-      static unsigned int numberOfFreeInstantiations(); 
-
+      unsigned int numberOfFreeInstantiations(); 
+    
       /** method to associate the associated Trk::Layer which is alreay owned
          - only allowed by LayerBuilder
          - only done if no Layer is set already  */
@@ -335,13 +335,14 @@ namespace Trk {
       mutable SurfaceOwner                      m_owner;
          
       /**Tolerance for being on Surface */
-      static double                             s_onSurfaceTolerance;
-      
+      const static double                       s_onSurfaceTolerance;
+#ifndef NDEBUG 
       /** number of objects of this type in memory - needed for EDM monitor*/
-      static unsigned int                       s_numberOfInstantiations; 
+      static std::atomic<unsigned int>          s_numberOfInstantiations; 
       
       /** number of objects of this type in memory which do not belong to a detector element - needed for EDM monitor*/
-      static unsigned int                       s_numberOfFreeInstantiations; 
+      static std::atomic<unsigned int>          s_numberOfFreeInstantiations; 
+#endif 
   };
 
 

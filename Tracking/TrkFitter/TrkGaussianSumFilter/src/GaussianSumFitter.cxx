@@ -414,7 +414,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
   const FitQuality* fitQuality = buildFitQuality( *smoothedTrajectory );
 
   if ( !fitQuality ){
-    if (msgLvl(MSG::DEBUG)) msg() << "Chi squared could not be calculated... Bailing" << endmsg;
+    ATH_MSG_DEBUG("Chi squared could not be calculated... Bailing" );
     ++m_fitQualityFailure;
     delete forwardTrajectory;
     delete smoothedTrajectory;
@@ -423,19 +423,20 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
 
   Track* fittedTrack = 0;
 
-  if (outlierRemoval && msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "Outlier removal not yet implemented for the Gaussian Sum Filter" << endmsg;
+  if (outlierRemoval)
+    ATH_MSG_DEBUG( "Outlier removal not yet implemented for the Gaussian Sum Filter" );
 
 
   if ( m_makePerigee ){
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface = this->makePerigee( smoothedTrajectory, particleHypothesis );
-    if (msgLvl(MSG::DEBUG)) msg() << "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface << endmsg;
+    ATH_MSG_DEBUG( "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface );
     if ( perigeeMultiStateOnSurface ) smoothedTrajectory->push_back( perigeeMultiStateOnSurface );
     else {
-      if (msgLvl(MSG::DEBUG)) msg() << "Perigee asked to be created but failed.....Exiting" << endmsg;
+      ATH_MSG_DEBUG( "Perigee asked to be created but failed.....Exiting" );
       ++m_PerigeeFailure;
       delete smoothedTrajectory;
       delete forwardTrajectory;
+      delete fitQuality;
       return 0;
     }
   }
@@ -823,7 +824,8 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
 
   if (fabs(combinedPerigee->parameters()[Trk::qOverP])>1e8) { //GC: protection against 0-momentum track .. this check should NEVER be needed.
                                                               //    actual cutoff is 0.01eV track
-    msg(MSG::ERROR) <<"makePerigee() about to return with 0 momentum!! Returning null instead"<<endmsg;
+    ATH_MSG_ERROR("makePerigee() about to return with 0 momentum!! Returning null instead");
+    delete stateExtrapolatedToPerigee;
     delete combinedPerigee;
     return 0;
   }
@@ -837,7 +839,7 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
                                                                                   pattern,
                                                                                   modeQoverP );
 
-  msg(MSG::DEBUG) << "makePerigee() returning sucessfully!"<<endmsg;
+  ATH_MSG_DEBUG( "makePerigee() returning sucessfully!" );
 
   return perigeeMultiStateOnSurface;
 }

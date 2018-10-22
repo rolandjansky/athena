@@ -57,13 +57,15 @@ public:
    * Set vector of extra words for this collection
    * @param extra - all words from frag trailer
    */
-  void setFragExtraWords(std::vector<uint32_t> & extra) { m_FragExtraWords = extra;
+  void setFragExtraWords(const std::vector<uint32_t> & extra) { m_FragExtraWords = extra;
                                   if (extra.size() < 2) m_FragExtraWords.resize(2); }
+  void setFragExtraWords(std::vector<uint32_t> && extra) { m_FragExtraWords = std::move(extra);
+                                  if (m_FragExtraWords.size() < 2) m_FragExtraWords.resize(2); }
   /**
    * Get Frag extra words for this collection
    * @return vector with all words
    */
-  inline std::vector<uint32_t> getFragExtraWords() const { return m_FragExtraWords; }
+  inline const std::vector<uint32_t>& getFragExtraWords() const { return m_FragExtraWords; }
   inline uint32_t              getFragExtraWord(unsigned int i) const { 
     if (i<m_FragExtraWords.size()) return m_FragExtraWords[i]; else return 0; }
   /**
@@ -93,14 +95,20 @@ public:
    * If calib mode, this must be LOW gain headers
    * @param chipHWords Reference to vector filled with 16 Chip header words
    */
-  void setFragChipHeaderWords(std::vector<uint32_t>& chipHWords) {
+  void setFragChipHeaderWords(const std::vector<uint32_t>& chipHWords) {
         m_FragChipHeaderWords = chipHWords;
+  }
+  void setFragChipHeaderWords(std::vector<uint32_t>&& chipHWords) {
+        m_FragChipHeaderWords = std::move(chipHWords);
   }
   /**
    * Header words in calib mode
    */
-  void setFragChipHeaderWordsHigh(std::vector<uint32_t>& chipHWordsH) {
+  void setFragChipHeaderWordsHigh(const std::vector<uint32_t>& chipHWordsH) {
         m_FragChipHeaderWordsHIGH = chipHWordsH;
+  }
+  void setFragChipHeaderWordsHigh(std::vector<uint32_t>&& chipHWordsH) {
+        m_FragChipHeaderWordsHIGH = std::move(chipHWordsH);
   }
   
   /**
@@ -108,13 +116,13 @@ public:
    * If calib mode, this is LOW gain headers
    * @return Vector with 16 Frag chip header words
    */
-  inline std::vector<uint32_t> getFragChipHeaderWords() const {
+  inline const std::vector<uint32_t>& getFragChipHeaderWords() const {
                          return m_FragChipHeaderWords;
   }
   /**
    * High gain headers
    */
-  std::vector<uint32_t> getFragChipHeaderWordsHigh() const {
+  const std::vector<uint32_t>& getFragChipHeaderWordsHigh() const {
                   return m_FragChipHeaderWordsHIGH;
   }
 
@@ -123,14 +131,20 @@ public:
    * If calib mode, this is LOW gain CRC
    * @param chipCRCWords Reference to vector filled with 16 chip CRC words
    */
-  void setFragChipCRCWords(std::vector<uint32_t>& chipCRCWords) {
+  void setFragChipCRCWords(const std::vector<uint32_t>& chipCRCWords) {
        m_FragChipCRCWords = chipCRCWords;
+  }
+  void setFragChipCRCWords(std::vector<uint32_t>&& chipCRCWords) {
+       m_FragChipCRCWords = std::move(chipCRCWords);
   }
   /**
    * High gain CRC
    */
-  void setFragChipCRCWordsHigh(std::vector<uint32_t>& chipCRCWordsH) {
+  void setFragChipCRCWordsHigh(const std::vector<uint32_t>& chipCRCWordsH) {
        m_FragChipCRCWordsHIGH = chipCRCWordsH;
+  }
+  void setFragChipCRCWordsHigh(std::vector<uint32_t>&& chipCRCWordsH) {
+       m_FragChipCRCWordsHIGH = std::move(chipCRCWordsH);
   }
 
   /**
@@ -138,13 +152,13 @@ public:
    * If calib mode, LOW gain CRC
    * @return vector with 16 Frag chip CRC words
    */
-  inline std::vector<uint32_t> getFragChipCRCWords() const {
+  inline const std::vector<uint32_t>& getFragChipCRCWords() const {
                          return m_FragChipCRCWords;
   }
   /**
    * High gain CRC
    */
-  inline std::vector<uint32_t> getFragChipCRCWordsHigh() const {
+  inline const std::vector<uint32_t>& getFragChipCRCWordsHigh() const {
                          return m_FragChipCRCWordsHIGH;
   }
   

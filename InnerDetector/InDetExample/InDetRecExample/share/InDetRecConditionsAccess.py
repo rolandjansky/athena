@@ -54,7 +54,7 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
         from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
         pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseDCS(isData)
+        pixelConditionsSummaryToolSetup.setUseDCS(isData  and InDetFlags.usePixelDCS())
         pixelConditionsSummaryToolSetup.setUseBS(isData)
         pixelConditionsSummaryToolSetup.setup()
 

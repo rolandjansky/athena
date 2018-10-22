@@ -412,15 +412,15 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
   
   // check all vectors have the same size
   if ( cache.weights.size() != cache.deltaPs.size() ){
-    msg(MSG::ERROR) << "Inconsistent number of components in the updator... returning original component" << endmsg;
-    if (m_outputlevel <= 0)
-      msg(MSG::DEBUG) << "Number of weights components: " << cache.weights.size() << " Number of deltaP entries: " << cache.deltaPs.size()
-	          << " number of deltaCovariance entries: " << cache.deltaCovariances.size() << endmsg;
-    return new Trk::MultiComponentState( *( componentParameters.clone() ) );
+    ATH_MSG_ERROR( "Inconsistent number of components in the updator... returning original component" );
+    ATH_MSG_DEBUG( "Number of weights components: " << cache.weights.size() 
+                   << " Number of deltaP entries: " << cache.deltaPs.size()
+	                 << " number of deltaCovariance entries: " << cache.deltaCovariances.size() );
+   delete computedState;
+   return new Trk::MultiComponentState( *( componentParameters.clone() ) );
   }
   
-  if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Updator found: " << cache.weights.size() << " components" << endmsg;
+  ATH_MSG_VERBOSE( "Updator found: " << cache.weights.size() << " components" );
   
   // Prepare  an output state
   unsigned int componentIndex = 0;
@@ -448,7 +448,8 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
     
     // Adjust the momentum of the component's parameters vector here. Check to make sure update is good.
     if ( !updateP( updatedStateVector, cache.deltaPs[componentIndex] ) ){
-      msg(MSG::ERROR) << "Cannot update state vector momentum... returning original component" << endmsg;
+      ATH_MSG_ERROR( "Cannot update state vector momentum... returning original component");
+      delete computedState;
       return new Trk::MultiComponentState( *(componentParameters.clone() ) );
     }
     

@@ -25,6 +25,8 @@
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
+
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -47,7 +49,7 @@ public:
     /** @brief initialize method*/
     StatusCode initialize();
     /** @brief execute method*/
-    virtual StatusCode execute(xAOD::Egamma* eg) const;
+    virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma* eg) const;
     /** @brief execute method*/
     virtual StatusCode hltExecute(xAOD::Egamma* eg) const;
 
