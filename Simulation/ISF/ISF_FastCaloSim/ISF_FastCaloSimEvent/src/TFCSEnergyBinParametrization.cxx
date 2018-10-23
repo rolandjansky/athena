@@ -7,7 +7,8 @@
 #include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
-
+#include "TFile.h"
+#include "TVectorF.h"
 #include "TMath.h"
 
 //=============================================
@@ -78,7 +79,32 @@ void TFCSEnergyBinParametrization::set_pdgid_Ekin_bin_probability(int id,std::ve
     m_pdgid_Ebin_probability[id][iEbin]=p;
   }
 }
+
+
+
+void TFCSEnergyBinParametrization::load_pdgid_Ekin_bin_probability_from_file(int id, TFile* file, std::string prob_object_name)
+{
+  add_pdgid(id);
   
+  file->cd();
+  TVectorF* pcabinprobvector=(TVectorF*)gDirectory->Get(prob_object_name.c_str());
+  if(!pcabinprobvector)
+  {
+   ATH_MSG_ERROR("TFCSEnergyBinParametrization::"<<prob_object_name<<" is null");
+  }
+  
+  float* prob  =pcabinprobvector->GetMatrixArray();
+  
+  float ptot=0;
+  for(int iEbin=0;iEbin<=n_bins();++iEbin) ptot+=prob[iEbin];
+  float p=0;
+  for(int iEbin=0;iEbin<=n_bins();++iEbin) {
+    p+=prob[iEbin]/ptot;
+    m_pdgid_Ebin_probability[id][iEbin]=p;
+  }
+  
+}
+
 void TFCSEnergyBinParametrization::Print(Option_t *option) const
 {
   TString opt(option);

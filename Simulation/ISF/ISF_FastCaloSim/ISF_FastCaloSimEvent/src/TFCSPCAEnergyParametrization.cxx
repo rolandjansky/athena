@@ -112,13 +112,13 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
    for(unsigned int l=0;l<=layerNr.size();l++)
    {
     double simdata_uniform=(TMath::Erf(output_data[l]/1.414213562)+1)/2.f;
-   
+    
     simdata[l]=cumulative[l]->rnd_to_fct(simdata_uniform);
    
     if(l!=layerNr.size()) //sum up the fractions, but not the totalE
      sum_fraction+=simdata[l];
    }
-  
+   
    double scalefactor=1.0/sum_fraction;
    if(!do_rescale) scalefactor=1.0;
   
@@ -126,7 +126,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
    {
     simdata[l]*=scalefactor;
    }
-  
+   
    double total_energy=simdata[layerNr.size()]*simulstate.E()/Ekin_nominal();
    simulstate.set_E(total_energy);
    ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
@@ -168,27 +168,6 @@ void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValu
           x[i] += p[j] * gSigmaValues[i] * (double)(gEigenVectors[i *  gNVariables + j]);
         }
     }
-}
-
-bool TFCSPCAEnergyParametrization::loadPCAbinProb(TFile* file)
-{
- 
- file->cd();
- 
- TVectorD* pcabinprobvector=(TVectorD*)gDirectory->Get("PCAbinprob");
- 
- if(!pcabinprobvector)
- {
-  ATH_MSG_WARNING("TFCSPCAEnergyParametrization::PCAbinprob is null");
-  return false;
- }
- 
- double* prob  =pcabinprobvector->GetMatrixArray();
- for(int i=0;i<pcabinprobvector->GetNoElements();i++)
-  m_pcabinprob.push_back(prob[i]);
-
- return true;
- 
 }
 
 bool TFCSPCAEnergyParametrization::loadInputs(TFile* file)

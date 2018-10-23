@@ -33,9 +33,6 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
   bool loadInputs(TFile* file);
   bool loadInputs(TFile* file,std::string);
-  bool loadPCAbinProb(TFile* file);
-  
-  virtual std::vector<float> pcabinprob() const override {return m_pcabinprob;};
   
   void clean();
   

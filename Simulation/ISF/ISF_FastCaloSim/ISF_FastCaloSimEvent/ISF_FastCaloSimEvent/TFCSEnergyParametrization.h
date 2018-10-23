@@ -16,8 +16,6 @@ public:
 
   // return number of energy parametrization bins
   virtual int n_bins() const {return 0;};
-  
-  virtual std::vector<float> pcabinprob() const {return {0};};
 
 private:
 
