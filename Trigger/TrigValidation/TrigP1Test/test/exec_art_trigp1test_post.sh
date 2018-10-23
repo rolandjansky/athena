@@ -59,7 +59,7 @@ fi
 
 if [ -f trig_cost.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CostMon"
-  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode > costMon.log 2>&1
+  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --ratesMode > costMon.log 2>&1
 else 
   echo $(date "+%FT%H:%M %Z")"     file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
 fi
