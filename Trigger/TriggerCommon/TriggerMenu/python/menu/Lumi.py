@@ -13,11 +13,11 @@ def lumi(triggerPythonConfig):
     
     menu_name = TriggerFlags.triggerMenuSetup()
     ## Do some aliasing here
-    if menu_name == 'Physics_default': menu_name = 'Physics_pp_v6'
-    elif menu_name == 'MC_loose_default': menu_name = 'MC_pp_v6_loose_mc_prescale'
-    elif menu_name == 'MC_tight_default': menu_name = 'MC_pp_v6_tight_mc_prescale'
-    elif menu_name == 'default_loose': menu_name = 'MC_pp_v6_loose_mc_prescale'
-    elif menu_name == 'default_tight': menu_name = 'MC_pp_v6_tight_mc_prescale'
+    if menu_name == 'Physics_default': menu_name = 'Physics_pp_v7'
+    elif menu_name == 'MC_loose_default': menu_name = 'MC_pp_v7_loose_mc_prescale'
+    elif menu_name == 'MC_tight_default': menu_name = 'MC_pp_v7_tight_mc_prescale'
+    elif menu_name == 'default_loose': menu_name = 'MC_pp_v7_loose_mc_prescale'
+    elif menu_name == 'default_tight': menu_name = 'MC_pp_v7_tight_mc_prescale'
 
     log.info( 'Menu name: '+ menu_name)
 
