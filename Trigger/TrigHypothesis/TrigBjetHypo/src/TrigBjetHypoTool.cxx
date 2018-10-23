@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -7,8 +7,8 @@
 // NAME:     TrigBjetHypoTool.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypoTool
 //
-// AUTHOR:   Lidija Zivkovic
-// EMAIL:    Lidija.Zivkovic@cern.ch
+// AUTHOR:   Carlo Varni
+// EMAIL:    carlo.varni@cern.ch
 // 
 // ************************************************
 
