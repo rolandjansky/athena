@@ -200,8 +200,10 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_nBinsEta( 100 ),
   m_rangeEta( 2.5 ),
   m_nBinsPhi( 100 ),
-
-  m_WafersThreshold( 6.0 ),
+  m_WafersThreshold( 3.0 ),
+  m_DisabledDetectorCoverageVsLB{},
+  m_ErrorDetectorCoverageVsLB{},
+  m_LinkDetectorCoverageVsLB{},
   m_RODoutDetectorCoverageVsLB{},
   m_pstripDCSDetectorCoverageVsLB{},
   m_summaryDetectorCoverageVsLB{},
@@ -462,9 +464,12 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 
   if (ManagedMonitorToolBase::newRunFlag()){
 
+    //all
+    m_mapSCT[all]   = new TH2F( "allModulesMapSCT", "Map of all modules for SCT",
+				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     //Disabled
     m_mapSCT[disabled]   = new TH2F( "disabledModulesMapSCT", "Map of disabled modules for SCT",
-				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     //Link Bad                                                                                        
     m_mapSCT[badLinkError]   = new TH2F( "errorModulesMapSCTlink", "Map of link error modules for SCT",
 					 m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
@@ -489,6 +494,26 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 	m_mapSCT[iProblem]->SetStats(0);
       }
 
+    //Disabled coverage vs lb
+    m_DisabledDetectorCoverageVsLB = new TProfile("SCTDisabledDetectorCoverageVsLbs",
+						"Ave. Disabled detector coverage per event in Lumi Block",
+						NBINS_LBs,0.5,NBINS_LBs+0.5);
+    m_DisabledDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
+    m_DisabledDetectorCoverageVsLB->GetYaxis()->SetTitle("Disabled Detector Coverage [%]");
+    if ( monGr_shift.regHist(m_DisabledDetectorCoverageVsLB).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTDisabledDetectorCoverageConf" );
+    }
+
+    //Link error coverage vs lb
+    m_LinkDetectorCoverageVsLB = new TProfile("SCTLinkDetectorCoverageVsLbs",
+						"Ave. Link error detector coverage per event in Lumi Block",
+						NBINS_LBs,0.5,NBINS_LBs+0.5);
+    m_LinkDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
+    m_LinkDetectorCoverageVsLB->GetYaxis()->SetTitle("Link Error Detector Coverage [%]");
+    if ( monGr_shift.regHist(m_LinkDetectorCoverageVsLB).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTLinkDetectorCoverageConf" );
+    }
+
     //RODout coverage vs lb
     m_RODoutDetectorCoverageVsLB = new TProfile("SCTRODoutDetectorCoverageVsLbs",
 						"Ave. ROD OUT detector coverage per event in Lumi Block",
@@ -497,6 +522,16 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
     m_RODoutDetectorCoverageVsLB->GetYaxis()->SetTitle("ROD OUT Detector Coverage [%]");
     if ( monGr_shift.regHist(m_RODoutDetectorCoverageVsLB).isFailure() ){
       ATH_MSG_WARNING("Cannot book Histogram:SCTRODoutDetectorCoverageConf" );
+    }
+
+    //Bad error coverage vs lb
+    m_ErrorDetectorCoverageVsLB = new TProfile("SCTErrorDetectorCoverageVsLbs",
+						"Ave. Bad error detector coverage per event in Lumi Block",
+						NBINS_LBs,0.5,NBINS_LBs+0.5);
+    m_ErrorDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
+    m_ErrorDetectorCoverageVsLB->GetYaxis()->SetTitle("Bad Error Detector Coverage [%]");
+    if ( monGr_shift.regHist(m_ErrorDetectorCoverageVsLB).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTErrorDetectorCoverageConf" );
     }
 
     //ps trip DCS coverage vs lb
@@ -991,6 +1026,24 @@ SCTErrMonTool::fillByteStreamErrors() {
 	}
       }
     
+    //disabled
+    double dis_detector_coverage = calculateDetectorCoverage(m_mapSCT[disabled]);
+    m_DisabledDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), dis_detector_coverage);
+    double disabled_detector_coverage = m_DisabledDetectorCoverageVsLB->GetBinContent(current_lb);
+    ATH_MSG_INFO("Detector Coverage : " << disabled_detector_coverage);
+
+    //bad error
+    double bad_detector_coverage = calculateDetectorCoverage(m_mapSCT[badError]);
+    m_ErrorDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), bad_detector_coverage);
+    double baderror_detector_coverage = m_ErrorDetectorCoverageVsLB->GetBinContent(current_lb);
+    ATH_MSG_INFO("Detector Coverage : " << baderror_detector_coverage);
+
+    //link
+    double link_detector_coverage = calculateDetectorCoverage(m_mapSCT[badLinkError]);
+    m_LinkDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), link_detector_coverage);
+    double linkerror_detector_coverage = m_LinkDetectorCoverageVsLB->GetBinContent(current_lb);
+    ATH_MSG_INFO("Detector Coverage : " << linkerror_detector_coverage);
+
     //rodout
     double rod_detector_coverage = calculateDetectorCoverage(m_mapSCT[badRODError]);
     m_RODoutDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), rod_detector_coverage);
@@ -1998,57 +2051,99 @@ SCTErrMonTool::isEndcapA(const int moduleNumber) {
 void SCTErrMonTool::fillModule( moduleGeo_t module, TH2F * histo )
 //void SCTErrMonTool::fillModule( moduleGeo_t module, TProfile2D * profile )
 {
-  unsigned int lowX  = 0;
-  unsigned int highX = 0;
-  unsigned int lowY  = 0;
-  unsigned int highY = 0;
-  double area = 0.;
-
-  double widthEta = 2. * m_rangeEta / m_nBinsEta;
-  double widthPhi = 2. * M_PI / m_nBinsPhi;
-
-  double edgesEta[100], centerEta[100],
-    edgesPhi[100], centerPhi[100];
-
-  histo->GetXaxis()->GetLowEdge(edgesEta); 
-  histo->GetXaxis()->GetCenter(centerEta); 
-  histo->GetYaxis()->GetLowEdge(edgesPhi); 
-  histo->GetYaxis()->GetCenter(centerPhi); 
-  for ( unsigned int i = 0; i < m_nBinsEta; i++)
-    if ( edgesEta[i] + widthEta > module.first.first )
-      {
-	lowX = i;
-	break;
+  double etaMin(module.first.first), etaMax(module.first.second);
+  double phiMin(module.second.first), phiMax(module.second.second);
+  unsigned int nRep{1};
+  if (etaMin<-2.5) { etaMin = -2.5; }
+  if (etaMax>2.5) { etaMax = 2.5; }
+  if (phiMin>phiMax) {
+    phiMin = -M_PI;
+    nRep=2;
+  }
+  for (unsigned int iRep{0}; iRep<nRep; iRep++) {
+    if (iRep==1) {
+      phiMin = module.second.first;
+      phiMax = M_PI;
+    }
+    const int ixMin{static_cast<int>((etaMin/m_rangeEta+1.)*m_nBinsEta/2)+1};
+    const int ixMax{static_cast<int>((etaMax/m_rangeEta+1.)*m_nBinsEta/2)};
+    const int iyMin{static_cast<int>((phiMin/M_PI+1.)*m_nBinsPhi/2)+1};
+    const int iyMax{static_cast<int>((phiMax/M_PI+1.)*m_nBinsPhi/2)};
+    const double xMin{(static_cast<double>(ixMin)/m_nBinsEta*2-1.)*m_rangeEta};
+    const double xMax{(static_cast<double>(ixMax)/m_nBinsEta*2-1.)*m_rangeEta};
+    const double yMin{(static_cast<double>(iyMin)/m_nBinsPhi*2-1.)*M_PI};
+    const double yMax{(static_cast<double>(iyMax)/m_nBinsPhi*2-1.)*M_PI};
+    const double wxMin{(xMin-etaMin)/m_rangeEta*m_nBinsEta/2};
+    const double wxMax{(etaMax-xMax)/m_rangeEta*m_nBinsEta/2};
+    const double wxOne{(etaMax-etaMin)/m_rangeEta*m_nBinsEta/2};
+    const double wyMin{(yMin-phiMin)/M_PI*m_nBinsPhi/2};
+    const double wyMax{(phiMax-yMax)/M_PI*m_nBinsPhi/2};
+    const double wyOne{(phiMax-phiMin)/M_PI*m_nBinsPhi/2};
+    for (int ix{ixMin}; ix<=ixMax+1; ix++) {
+      double weightx{1.};
+      if (ixMin==ixMax+1) weightx = wxOne;
+      else if (ix==ixMin) weightx = wxMin;
+      else if (ix==ixMax+1) weightx = wxMax;
+      for (int iy{iyMin}; iy<=iyMax+1; iy++) {
+	double weight{weightx};
+	if (iyMin==iyMax+1) weight *= wyOne;
+	else if (iy==iyMin) weight *= wyMin;
+	else if (iy==iyMax+1) weight *= wyMax;
+	histo->SetBinContent(ix,iy,histo->GetBinContent(ix,iy)+weight);//Fill(ix, iy, weight);//
       }
-  for ( unsigned int i = lowX; i < m_nBinsEta; i++)
-    if ( edgesEta[i] > module.first.second )
-      {
-	highX = i;
-	break;
-      }
-  for ( unsigned int i = 0; i < m_nBinsPhi; i++)
-    if ( edgesPhi[i] + widthPhi > module.second.first )
-      {
-	lowY = i;
-	break;
-      }
-  for ( unsigned int i = lowY; i < m_nBinsPhi; i++)
-    if ( edgesPhi[i] > module.second.second )
-      {
-	highY = i;
-	break;
-      }
-  for ( unsigned int i = lowX; i < highX; i++ ){
-    for ( unsigned int j = lowY; j < highY; j++ ){
-      area = (
-	      ((( module.first.second < edgesEta[i] + widthEta ) ? module.first.second : (edgesEta[i] + widthEta) )  - 
-	       ( ( module.first.first > edgesEta[i] ) ? module.first.first : edgesEta[i] ) ) *
-	      ((( module.second.second < edgesPhi[j] + widthPhi ) ? module.second.second : (edgesPhi[j] + widthPhi) )  - 
-	       ( ( module.second.first > edgesPhi[j] ) ? module.second.first : edgesPhi[j] ) ) 
-	      ) /  ( widthEta * widthPhi ); 
-      histo->Fill( centerEta[i], centerPhi[j], area );
     }
   }
+  // unsigned int lowX  = 0;
+  // unsigned int highX = 0;
+  // unsigned int lowY  = 0;
+  // unsigned int highY = 0;
+  // double area = 0.;
+
+  // double widthEta = 2. * m_rangeEta / m_nBinsEta;
+  // double widthPhi = 2. * M_PI / m_nBinsPhi;
+
+  // double edgesEta[100], centerEta[100],
+  //   edgesPhi[100], centerPhi[100];
+
+  // histo->GetXaxis()->GetLowEdge(edgesEta); 
+  // histo->GetXaxis()->GetCenter(centerEta); 
+  // histo->GetYaxis()->GetLowEdge(edgesPhi); 
+  // histo->GetYaxis()->GetCenter(centerPhi); 
+  // for ( unsigned int i = 0; i < m_nBinsEta; i++)
+  //   if ( edgesEta[i] + widthEta > module.first.first )
+  //     {
+  // 	lowX = i;
+  // 	break;
+  //     }
+  // for ( unsigned int i = lowX; i < m_nBinsEta; i++)
+  //   if ( edgesEta[i] > module.first.second )
+  //     {
+  // 	highX = i;
+  // 	break;
+  //     }
+  // for ( unsigned int i = 0; i < m_nBinsPhi; i++)
+  //   if ( edgesPhi[i] + widthPhi > module.second.first )
+  //     {
+  // 	lowY = i;
+  // 	break;
+  //     }
+  // for ( unsigned int i = lowY; i < m_nBinsPhi; i++)
+  //   if ( edgesPhi[i] > module.second.second )
+  //     {
+  // 	highY = i;
+  // 	break;
+  //     }
+  // for ( unsigned int i = lowX; i < highX; i++ ){
+  //   for ( unsigned int j = lowY; j < highY; j++ ){
+  //     area = (
+  // 	      ((( module.first.second < edgesEta[i] + widthEta ) ? module.first.second : (edgesEta[i] + widthEta) )  - 
+  // 	       ( ( module.first.first > edgesEta[i] ) ? module.first.first : edgesEta[i] ) ) *
+  // 	      ((( module.second.second < edgesPhi[j] + widthPhi ) ? module.second.second : (edgesPhi[j] + widthPhi) )  - 
+  // 	       ( ( module.second.first > edgesPhi[j] ) ? module.second.first : edgesPhi[j] ) ) 
+  // 	      ) /  ( widthEta * widthPhi ); 
+  //     histo->Fill( centerEta[i], centerPhi[j], area );
+  //   }
+  //  }
   return;
 }
 
@@ -2115,12 +2210,14 @@ bool SCTErrMonTool::syncDisabledSCT()
 bool SCTErrMonTool::summarySCT()
 {
   bool altered = false;
+  m_SCTHash[all].clear();
   m_SCTHash[summary].clear();
 
   const unsigned int maxHash = m_pSCTHelper->wafer_hash_max(); // 8176                                             
   for (unsigned int i=0; i<maxHash; i++) 
     {
       IdentifierHash hash(i);
+      m_SCTHash[all].insert(hash);
       if (!m_pSummarySvc->isGood(hash)) 
 	{
 	  m_SCTHash[summary].insert(hash);
@@ -2163,18 +2260,18 @@ double SCTErrMonTool::calculateDetectorCoverage( const TH2F * histo )
     {
       for ( unsigned int j = 0; j < m_nBinsPhi; j++)
 	{
-	  waferCell = histo->GetBinContent(i+1,j+1);
+	  waferCell = m_mapSCT[all]->GetBinContent(i+1,j+1) - histo->GetBinContent(i+1,j+1);
 
-	  if (waferCell < m_WafersThreshold -1.0 )
+	  if (waferCell >= m_WafersThreshold )
 	    {
 	      occupancy ++;
 	    }
-	  else if (waferCell < m_WafersThreshold  )
+	  else if (waferCell > m_WafersThreshold - 1.0 )
 	    {
-	      occupancy = occupancy + m_WafersThreshold - waferCell;
+	      occupancy = occupancy - m_WafersThreshold + waferCell + 1.0;
 //Calculating the bin occupancy which has less than 1. 
-//For example, bin have a 5.3. In this case, we can understand that 30% of the bin is coverd by 6 sides/wafers and 70% of the bin is coverd by 5 sides/wafers.
-//And it means that occupancy of the bin is 0.7. So, in this line, I take difference between m_WafersThreshold(6) and waferCell, and add it to the occupancy.
+//For example, bin have a 2.3. In this case, we can understand that 30% of the bin is coverd by 3 sides/wafers and 70% of the bin is coverd by 2 sides/wafers.
+//And it means that occupancy of the bin is 0.3 So, in this line, I take difference between m_WafersThreshold(3)-1 and waferCell, and add it to the occupancy.
 	    }
 	}
     }

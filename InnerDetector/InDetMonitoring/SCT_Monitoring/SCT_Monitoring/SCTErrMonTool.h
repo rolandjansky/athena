@@ -273,6 +273,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
   enum ProblemForCoverage {
+    all,//all SCT module for counting good module
     disabled,//Disable
     badLinkError, //link bad
     badRODError, // ROD bad
@@ -291,8 +292,9 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const unsigned int m_nBinsPhi;
   const double m_WafersThreshold;
 
-  //TProfile * m_DisabledDetectorCoverageVsLB;
-  //TProfile * m_ErrorDetectorCoverageVsLB;
+  TProfile * m_DisabledDetectorCoverageVsLB;
+  TProfile * m_ErrorDetectorCoverageVsLB;
+  TProfile * m_LinkDetectorCoverageVsLB;
   TProfile * m_RODoutDetectorCoverageVsLB;
   TProfile * m_pstripDCSDetectorCoverageVsLB;
   TProfile * m_summaryDetectorCoverageVsLB;
