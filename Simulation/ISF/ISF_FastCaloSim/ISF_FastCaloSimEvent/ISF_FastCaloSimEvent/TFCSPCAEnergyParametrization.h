@@ -51,8 +51,6 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   std::vector<TVectorD*>    m_Gauss_rms;
   std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
   
-  std::vector<float> m_pcabinprob;
-  
   int m_numberpcabins;
   
   ClassDefOverride(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
