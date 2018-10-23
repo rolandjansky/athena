@@ -36,11 +36,8 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "HLTChainsResult", "Chains activated after the L1" };
 
     
-  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionsKey{ this, "FinalDecisions", {}, "Final stage of all decisions" };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTFinalDecisions", "Final stage of all decisions" };
 
-
-  Gaudi::Property< std::map<std::string, std::string> > m_finalChainStep{ this, "FinalChainStep", {}, "Mapping from chain name to the decision container having the last step decision for that chain" };
-  std::map<std::string, std::set<unsigned int>> m_lastStepsMap; //!< a map from the decision container key to the set of chains which have there the last step
 
   Gaudi::Property<std::vector<std::string> > m_allChains{ this, "ChainsList", {}, "List of all configured chains" };
  
