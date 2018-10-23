@@ -48,7 +48,7 @@ namespace MuonGM {
   class MdtReadoutElement;
   class MuonClusterReadoutElement;
   class MuonStation;
-  // for nSW
+  // New Small Wheel
   class sTgcReadoutElement;
   class MMReadoutElement;
     
@@ -108,19 +108,22 @@ namespace MuonGM {
     const RpcReadoutElement* getRpcReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
     const TgcReadoutElement* getTgcReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
     const CscReadoutElement* getCscReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
+    // New Small Wheel
     const MMReadoutElement*  getMMReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
     const sTgcReadoutElement* getsTgcReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
 
     const MuonClusterReadoutElement* getMuonClusterReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
 
+
     const MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4) const;
     //!< access via internally defined array indices; not friendly to users
 
+    // FIX: New Small Wheel ? No equivalent in .cxx file
     const sTgcReadoutElement* getsTgcReadoutElement(int i1, int i2, int i3, int i4) const;
     //!< access via internally defined array indices; not friendly to users
-
     const MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4) const;
     //!< access via internally defined array indices; not friendly to users
+    //
 
     const RpcReadoutElement* getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5) const;
     //!< access via internally defined array indices; not friendly to users
@@ -130,6 +133,7 @@ namespace MuonGM {
 
     const CscReadoutElement* getCscReadoutElement(int i1, int i2, int i3, int i4) const;
     //!< access via internally defined array indices; not friendly to users
+
 
     const MdtReadoutElement* getMdtRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
     //!< access via extended identifier field (no unpacking)
@@ -153,6 +157,7 @@ namespace MuonGM {
     inline const RpcReadoutElement* getRpcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
     inline const TgcReadoutElement* getTgcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
     inline const CscReadoutElement* getCscReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
+    // TODO: New Small Wheel
 
     //    void addMdtDetectorElement(MdtDetectorElement*);   
     //    void addRpcDetectorElement(RpcDetectorElement*);   
@@ -165,18 +170,22 @@ namespace MuonGM {
     inline const RpcDetectorElement* getRpcDetectorElement(IdentifierHash id) const;     
     inline const TgcDetectorElement* getTgcDetectorElement(IdentifierHash id) const;
     inline const CscDetectorElement* getCscDetectorElement(IdentifierHash id) const;
+    // TODO: New Small Wheel
 
     inline unsigned int nMuonStation() const; //!< Number of MuonStations
+
     inline unsigned int nMdtRE() const;//!< Number of Mdt ReadoutElements 
-    inline unsigned int nsTgcRE() const;//!< Number of Mdt ReadoutElements 
-    inline unsigned int nMMRE() const;//!< Number of Mdt ReadoutElements 
+    inline unsigned int nsTgcRE() const;//!< Number of sTgc ReadoutElements 
+    inline unsigned int nMMRE() const;//!< Number of MM ReadoutElements 
     inline unsigned int nCscRE() const;//!< Number of Csc ReadoutElements 
     inline unsigned int nRpcRE() const;//!< Number of Rpc ReadoutElements 
     inline unsigned int nTgcRE() const;//!< Number of Tgc ReadoutElements 
+
     inline unsigned int nMdtDE() const;//!< Number of Mdt DetectorElements 
     inline unsigned int nCscDE() const;//!< Number of Csc DetectorElements 
     inline unsigned int nRpcDE() const;//!< Number of Rpc DetectorElements 
     inline unsigned int nTgcDE() const;//!< Number of Tgc DetectorElements 
+    // TODO: New Small Wheel
     
     // Geometry versioning    
     inline std::string geometryVersion() const; //!< it can be Rome-Initial or P03, or ... it's the name of the layout 
@@ -189,7 +198,7 @@ namespace MuonGM {
     inline const CscIdHelper*  cscIdHelper() const;
     inline const RpcIdHelper*  rpcIdHelper() const;
     inline const TgcIdHelper*  tgcIdHelper() const;
-    // for nSW
+    // New Small Wheel
     inline const sTgcIdHelper*  stgcIdHelper() const;
     inline const MmIdHelper*  mmIdHelper() const;
       
@@ -198,7 +207,7 @@ namespace MuonGM {
     inline void set_cscIdHelper(const CscIdHelper* idh);
     inline void set_rpcIdHelper(const RpcIdHelper* idh);
     inline void set_tgcIdHelper(const TgcIdHelper* idh);
-    // for nSW
+    // New Small Wheel
     inline void set_stgcIdHelper(const sTgcIdHelper* idh);
     inline void set_mmIdHelper(const MmIdHelper* idh);    
 
@@ -211,6 +220,7 @@ namespace MuonGM {
     inline const GenericCSCCache*  getGenericCscDescriptor() const;
     inline void setGenericTgcDescriptor(const GenericTGCCache& tc);
     inline const GenericTGCCache* getGenericTgcDescriptor() const;
+    // TODO: New Small Wheel
 
     inline void setCachingFlag(int value);
     inline int cachingFlag() const;
@@ -244,6 +254,7 @@ namespace MuonGM {
         CscRElMaxHash = 130,
         RpcRElMaxHash = 1200,
         TgcRElMaxHash = 1600
+        // TODO: New Small Wheel
       };
     
     enum detElementHashMax
@@ -252,6 +263,7 @@ namespace MuonGM {
         CscDetElMaxHash = 65,
         RpcDetElMaxHash = 650,
         TgcDetElMaxHash = 1600
+        // TODO: New Small Wheel
       };
     
     
@@ -326,6 +338,7 @@ namespace MuonGM {
     void clearRpcCache() const;
     void clearCscCache() const;
     void clearTgcCache() const;
+    // New Small Wheel
     void clearsTgcCache() const;
     void clearMMCache() const;
 
@@ -333,6 +346,7 @@ namespace MuonGM {
     void refreshRpcCache() const;
     void refreshCscCache() const;
     void refreshTgcCache() const;
+    // New Small Wheel
     void refreshsTgcCache() const;
     void refreshMMCache() const;
 
@@ -340,6 +354,7 @@ namespace MuonGM {
     void fillRpcCache() const;
     void fillCscCache() const;
     void fillTgcCache() const;
+    // New Small Wheel
     void fillsTgcCache() const;
     void fillMMCache() const;
 
@@ -388,6 +403,7 @@ namespace MuonGM {
     GenericMDTCache m_genericMDT;
     GenericRPCCache m_genericRPC;
     GenericTGCCache m_genericTGC;
+    // TODO: New Small Wheel
 
     // Geometry versioning
     
@@ -399,7 +415,7 @@ namespace MuonGM {
     const CscIdHelper* m_cscIdHelper;
     const RpcIdHelper* m_rpcIdHelper;
     const TgcIdHelper* m_tgcIdHelper;
-    //for nSW
+    // New Small Wheel
     const sTgcIdHelper* m_stgcIdHelper;
     const MmIdHelper* m_mmIdHelper;
 
@@ -422,6 +438,7 @@ namespace MuonGM {
     unsigned int m_n_cscRE;
     unsigned int m_n_rpcRE;
     unsigned int m_n_tgcRE;
+    // New Small Wheel
     unsigned int m_n_stgRE;    
     unsigned int m_n_mmcRE;
     
@@ -429,6 +446,7 @@ namespace MuonGM {
     unsigned int m_n_cscDE;
     unsigned int m_n_rpcDE;
     unsigned int m_n_tgcDE;
+    // TODO: New Small Wheel
 
     // pointers to the XxxDetectorElements (with granularity a la EDM)
     std::vector<TgcReadoutParams*> m_TgcReadoutParamsVec;
@@ -438,6 +456,7 @@ namespace MuonGM {
     RpcDetectorElement* m_rpcDEArray[RpcDetElMaxHash];
     TgcDetectorElement* m_tgcDEArray[TgcDetElMaxHash];
     CscDetectorElement* m_cscDEArray[CscDetElMaxHash];
+    // TODO: New Small Wheel
 
     mutable  ALineMapContainer * m_aLineContainer;
     mutable  BLineMapContainer * m_bLineContainer;
@@ -456,7 +475,7 @@ namespace MuonGM {
   const CscIdHelper*  MuonDetectorManager::cscIdHelper() const {return m_cscIdHelper;}
   const RpcIdHelper*  MuonDetectorManager::rpcIdHelper() const {return m_rpcIdHelper;}
   const TgcIdHelper*  MuonDetectorManager::tgcIdHelper() const {return m_tgcIdHelper;}
-  //for nSW
+  // New Small Wheel
   const sTgcIdHelper*  MuonDetectorManager::stgcIdHelper() const {return m_stgcIdHelper;}
   const MmIdHelper*  MuonDetectorManager::mmIdHelper() const {return m_mmIdHelper;}
 
@@ -464,7 +483,7 @@ namespace MuonGM {
   void MuonDetectorManager::set_cscIdHelper(const CscIdHelper* idh) {m_cscIdHelper = idh;}
   void MuonDetectorManager::set_rpcIdHelper(const RpcIdHelper* idh) {m_rpcIdHelper = idh;}
   void MuonDetectorManager::set_tgcIdHelper(const TgcIdHelper* idh) {m_tgcIdHelper = idh;}
-  //for nSW
+  // New Small Wheel
   void MuonDetectorManager::set_stgcIdHelper(const sTgcIdHelper* idh) {m_stgcIdHelper = idh;}
   void MuonDetectorManager::set_mmIdHelper(const MmIdHelper* idh) {m_mmIdHelper = idh;}
 
@@ -534,10 +553,12 @@ namespace MuonGM {
   unsigned int MuonDetectorManager::nTgcRE() const  {return m_n_tgcRE;}    
   unsigned int MuonDetectorManager::nsTgcRE() const {return m_n_stgRE;}
   unsigned int MuonDetectorManager::nMMRE() const   {return m_n_mmcRE;}
+
   unsigned int MuonDetectorManager::nMdtDE() const  {return m_n_mdtDE;}
   unsigned int MuonDetectorManager::nCscDE() const  {return m_n_cscDE;}    
   unsigned int MuonDetectorManager::nRpcDE() const  {return m_n_rpcDE;}    
-  unsigned int MuonDetectorManager::nTgcDE() const  {return m_n_tgcDE;}    
+  unsigned int MuonDetectorManager::nTgcDE() const  {return m_n_tgcDE;}  
+  // TODO: New Small Wheel  
 
   ALineMapContainer* 
     MuonDetectorManager::ALineContainer() const
@@ -689,6 +710,7 @@ namespace MuonGM {
 #endif 
       return m_rpcDEArray[id];
     }
+// TODO: New Small Wheel (missing all the above functions)
     
 } // namespace MuonGM
 
