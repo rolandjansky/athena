@@ -45,11 +45,11 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("ph"): # for interactive production
-        generateL1TopoMenu(menu="Physics_pp_v6")
+        generateL1TopoMenu(menu="Physics_pp_v7")
         return 0
 
     if sys.argv[1].lower().startswith("mc"):
-        generateL1TopoMenu(menu="MC_pp_v6")
+        generateL1TopoMenu(menu="MC_pp_v7")
         return 0
 
     if sys.argv[1].lower().startswith("hiph"):
