@@ -233,6 +233,8 @@ StatusCode JetObjectCollectionMaker::initialize() {
   top::check(m_btagSelToolsDL1Decor["DL1rmu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
   // Store a lightweight flag to limit error messages if the DL1 weights are not present                                                                                           
   m_DL1Possible = true;
+  m_DL1rPossible = true;
+  m_DL1rmuPossible = true;
 
   return StatusCode::SUCCESS;
 }
@@ -638,27 +640,31 @@ StatusCode JetObjectCollectionMaker::decorateDL1() {
   static const SG::AuxElement::Decorator<float> DL1r("AnalysisTop_DL1r");
   static const SG::AuxElement::Decorator<float> DL1rmu("AnalysisTop_DL1rmu");
 
-  // Default value
-  double DL1_weight, DL1r_weight, DL1rmu_weight = -999;
-
   // retrieve small-R jets collection
   const xAOD::JetContainer* jets(nullptr);
   top::check( evtStore()->retrieve( jets , m_config->sgKeyJets() ) , "Failed to retrieve small-R jet collection"+m_config->sgKeyJets() );
 
   for(const auto& jet : *jets) {
+    // Default value
+    double DL1_weight, DL1r_weight, DL1rmu_weight = -999;
+
     // Suppress warnings if the DL1 weights do not exist and avoid repeated failed computation
-    if(m_DL1Possible){
+    if(m_DL1Possible) { 
       if(! m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight) ){
 	DL1_weight = -999;
 	m_DL1Possible = false;
       }
+    }
+    if(m_DL1rPossible) { 
       if(! m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(*jet, DL1r_weight) ){
 	DL1r_weight = -999;
-	m_DL1Possible = false;
+	m_DL1rPossible = false;
       }
+    }
+    if(m_DL1rmuPossible) {
       if(! m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(*jet, DL1rmu_weight) ){
 	DL1rmu_weight = -999;
-	m_DL1Possible = false;
+	m_DL1rmuPossible = false;
       }
     }
     DL1(*jet)    = DL1_weight;
