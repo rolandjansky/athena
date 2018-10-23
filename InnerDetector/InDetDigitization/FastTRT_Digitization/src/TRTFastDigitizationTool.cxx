@@ -54,7 +54,7 @@ static constexpr unsigned int crazyParticleBarcode( std::numeric_limits< int32_t
 // Barcodes at the HepMC level are int
 
 // select the High threshold bits of TRT RDO words
-statis const unsigned int maskHT=0x04020100;
+static const unsigned int maskHT=0x04020100;
 
 TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
                                                   const std::string &name,
