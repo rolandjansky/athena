@@ -28,7 +28,6 @@ namespace Simulation
                                                         const std::string& n,
                                                         const IInterface* p )
     : base_class(t,n,p),
-      m_beamCondSvc("BeamCondSvc", n),
       m_rndGenSvc("AthRNGSvc", n),
       m_randomEngine(0),
       m_randomEngineName("BEAM"),
@@ -50,7 +49,6 @@ namespace Simulation
       m_beam2ParticleMass(CLHEP::proton_mass_c2)
   {
     // declare properties for the configuration
-    declareProperty( "BeamCondSvc"      , m_beamCondSvc      );
     declareProperty( "RandomSvc"        , m_rndGenSvc        );
     declareProperty( "RandomStream"     , m_randomEngineName );
     declareProperty( "ApplyBoost"       , m_applyBoost       );
@@ -77,8 +75,6 @@ namespace Simulation
   StatusCode GenEventBeamEffectBooster::initialize()
   {
     ATH_MSG_VERBOSE("Initializing ...");
-    // retrieve the BeamCondService
-    ATH_CHECK(m_beamCondSvc.retrieve());
     // prepare the RandonNumber generation
     ATH_CHECK(m_rndGenSvc.retrieve());
     m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
@@ -202,7 +198,7 @@ namespace Simulation
                                                 const CLHEP::HepLorentzRotation& transform) const
   {
     // Apply the same transformation for EVERY HepMC::GenParticle
-    const HepMC::FourVector mom = p->momentum();
+    const HepMC::FourVector &mom = p->momentum();
     CLHEP::HepLorentzVector hv(mom.px(), mom.py(), mom.pz(), mom.e()); //TODO check units
     ATH_MSG_VERBOSE("BEAMBOOST initial momentum " << hv );
     hv.transform(transform);
