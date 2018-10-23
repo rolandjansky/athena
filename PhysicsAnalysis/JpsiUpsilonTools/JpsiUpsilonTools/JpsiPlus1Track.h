@@ -72,7 +72,8 @@ namespace Analysis {
         double m_jpsiMassLower;
         std::string m_TrkParticleCollection;
         std::string m_MuonsUsedInJpsi;
-	bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
+        bool m_excludeJpsiMuonsOnly;
+        bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
         std::vector<Trk::VxCandidate*> m_vxc;
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
@@ -85,7 +86,7 @@ namespace Analysis {
         double m_trkTrippletMassLower;
         double m_trkTrippletPt       ;
         double m_trkDeltaZ           ;
-        
+        int m_requiredNMuons;
     };
 } // end of namespace
 #endif
