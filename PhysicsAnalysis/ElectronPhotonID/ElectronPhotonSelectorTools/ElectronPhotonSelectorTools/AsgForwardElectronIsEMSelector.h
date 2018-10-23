@@ -105,9 +105,6 @@ private:
   // defualt nPV (when not using PVCont)
   unsigned int m_nPVdefault;
 
-  // The primary vertex container name
-  std::string m_primVtxContName;
-
   ///  read handle key to primary vertex container
   SG::ReadHandleKey<xAOD::VertexContainer> m_primVtxContKey;
 
