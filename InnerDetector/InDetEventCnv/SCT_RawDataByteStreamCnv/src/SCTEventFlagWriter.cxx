@@ -26,10 +26,10 @@ StatusCode SCTEventFlagWriter::initialize() {
 /// Execute
 StatusCode SCTEventFlagWriter::execute()
 {
-  long unsigned int nLVL1ID{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)->size()};
-  long unsigned int nROBFragment{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError)->size()};
+  long unsigned int nLVL1IDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)->size()};
+  long unsigned int nROBFragmentErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError)->size()};
 
-  if ((nLVL1ID > 500) or (nROBFragment > 1000)) {
+  if ((nLVL1IDErrors > 500) or (nROBFragmentErrors > 1000)) {
     //// retrieve EventInfo.  
     /// First the xAOD one
     bool setOK_xAOD{false};
