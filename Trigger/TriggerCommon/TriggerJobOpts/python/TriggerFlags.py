@@ -1028,7 +1028,7 @@ class triggerMenuSetup(JobProperty):
         'Physics_HI_v2', 'Physics_HI_v2_no_prescale', 
         'MC_HI_v2',  'MC_HI_v2_no_prescale', 'MC_HI_v2_pPb_mc_prescale',
         #
-        'Physics_default', 'MC_loose_default', 'MC_tight_default',
+        'Physics_default', 'MC_loose_default', 'MC_tight_default', 'default_loose', 'default_tight',
         # -----------------------------------------------------------------
         # Run 2
         'MC_pp_v5', 'MC_pp_v5_no_prescale', 'MC_pp_v5_tight_mc_prescale', 'MC_pp_v5_loose_mc_prescale','MC_pp_v5_special_mc_prescale', # for development and simulation
