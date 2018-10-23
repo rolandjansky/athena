@@ -50,9 +50,11 @@
 #include "Identifier/IdentifierHash.h"
 #include "CxxUtils/make_unique.h"
 
-
 static constexpr unsigned int crazyParticleBarcode( std::numeric_limits< int32_t >::max() );
 // Barcodes at the HepMC level are int
+
+// select the High threshold bits of TRT RDO words
+statis const unsigned int maskHT=0x04020100;
 
 TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
                                                   const std::string &name,
@@ -303,7 +305,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
         double position = ( fabs(BEC) == 1 ? hitGlobalPosition.z() : hitGlobalPosition.perp() );
         // double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, driftRadiusLoc, position );
         double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position);
-        if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
+        if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= maskHT;
       }
       else {
 
@@ -314,11 +316,11 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 
         if ( abs( particleEncoding ) == 11 && p > 5000. ) {  // electron
           double probability = ( p < 20000. ? HTProbabilityElectron_low_pt( eta ) : HTProbabilityElectron_high_pt( eta ) );
-          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
+          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= maskHT;
         }
         else if ( abs( particleEncoding ) == 13 || abs( particleEncoding ) > 100 ) {  // muon or other particle
           double probability = ( p < 20000. ? HTProbabilityMuon_5_20( eta ) : HTProbabilityMuon_60( eta ) );
-          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
+          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= maskHT;
         }
 
       }
@@ -455,6 +457,10 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
   typedef std::multimap< IdentifierHash, InDet::TRT_DriftCircle * >::iterator HashMapItr;
 
   // empiric parameterization of the probability to merge to LT hits into a HT hit as a function of the number of collisions
+  // TL - I first determined the value of highTRMergeProb which gives a good
+  // agreeement with full simulation as being 0.04 for mu=10 and 0.12 for mu=60;
+  // I decided to use the functional form a*pow(mu,b) to describe the mu
+  // dependence; solving the 2x2 system gives a=0.01 and b=0.61. 
   float highTRMergeProb = 0.01*pow(m_NCollPerEvent,0.61);
 
   std::multimap< IdentifierHash, InDet::TRT_DriftCircle * > idHashMap;
@@ -470,13 +476,13 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
     bool isHT = false;
     for ( DriftCircleMapItr itr2 = ++( hitsInOneStraw.first ); itr2 != hitsInOneStraw.second; ++itr2 ) {
       InDet::TRT_DriftCircle *trtDriftCircle2 = itr2->second;
-      if(trtDriftCircle2->getWord() & 0x04020100) isHT = true;
+      if(trtDriftCircle2->getWord() & maskHT) isHT = true;
       delete trtDriftCircle2;
     }
 
 
     // set the word of the first hit to high threshold with some probability, unless any of the hits is HT already
-    if( !(trtDriftCircle->getWord() & 0x04020100) && !isHT && numberOfHitsInOneStraw > 1) {
+    if( !(trtDriftCircle->getWord() & maskHT) && !isHT && numberOfHitsInOneStraw > 1) {
       unsigned int newword = 0;
       if(highTRMergeProb*(numberOfHitsInOneStraw-1) > CLHEP::RandFlat::shoot( m_randomEngine )) newword += 1 << (26-9); 
       const unsigned int newword2 = newword;
