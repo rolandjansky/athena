@@ -267,7 +267,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   bool psTripDCSSCT();
   bool eventVsWafer();
 
-  void fillModule( moduleGeo_t module,  TH2F* histo );
+  void fillWafer( moduleGeo_t module,  TH2F* histo );
   double calculateDetectorCoverage(const TH2F * histo );
 
   const InDetDD::SCT_DetectorManager * m_sctManager;
@@ -292,12 +292,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const unsigned int m_nBinsPhi;
   const double m_WafersThreshold;
 
-  TProfile * m_DisabledDetectorCoverageVsLB;
-  TProfile * m_ErrorDetectorCoverageVsLB;
-  TProfile * m_LinkDetectorCoverageVsLB;
-  TProfile * m_RODoutDetectorCoverageVsLB;
-  TProfile * m_pstripDCSDetectorCoverageVsLB;
-  TProfile * m_summaryDetectorCoverageVsLB;
+  TProfile * m_detectorCoverageVsLB[numberOfProblemForCoverage];
   TProfile * m_pstripWaferVsLB;
 
   int  m_pswafer;

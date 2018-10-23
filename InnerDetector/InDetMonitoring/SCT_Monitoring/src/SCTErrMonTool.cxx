@@ -201,12 +201,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_rangeEta( 2.5 ),
   m_nBinsPhi( 100 ),
   m_WafersThreshold( 3.0 ),
-  m_DisabledDetectorCoverageVsLB{},
-  m_ErrorDetectorCoverageVsLB{},
-  m_LinkDetectorCoverageVsLB{},
-  m_RODoutDetectorCoverageVsLB{},
-  m_pstripDCSDetectorCoverageVsLB{},
-  m_summaryDetectorCoverageVsLB{},
+  m_detectorCoverageVsLB{nullptr},
   m_pstripWaferVsLB{}{
     /**
      *  sroe 3 Sept 2015:
@@ -486,6 +481,7 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
     m_mapSCT[summary]   = new TH2F( "summaryModulesMapSCT", "Map of all error and disabled modules for SCT",
 				    m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     
+    //detector coverage vs lh
     for (int iProblem=0; iProblem<numberOfProblemForCoverage ; iProblem++)
       {
 	m_mapSCT[iProblem]->GetXaxis()->SetTitle("#eta");
@@ -494,64 +490,33 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 	m_mapSCT[iProblem]->SetStats(0);
       }
 
-    //Disabled coverage vs lb
-    m_DisabledDetectorCoverageVsLB = new TProfile("SCTDisabledDetectorCoverageVsLbs",
-						"Ave. Disabled detector coverage per event in Lumi Block",
-						NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_DisabledDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_DisabledDetectorCoverageVsLB->GetYaxis()->SetTitle("Disabled Detector Coverage [%]");
-    if ( monGr_shift.regHist(m_DisabledDetectorCoverageVsLB).isFailure() ){
-      ATH_MSG_WARNING("Cannot book Histogram:SCTDisabledDetectorCoverageConf" );
-    }
+    std::string profNames[numberOfProblemForCoverage] = {
+      "", // all
+      "SCTDisabledDetectorCoverageVsLbs", // disabled
+      "SCTLinkDetectorCoverageVsLbs", // badLinkError
+      "SCTRODoutDetectorCoverageVsLbs", // badRODError
+      "SCTErrorDetectorCoverageVsLbs", // badError
+      "SCTPStripDCSDetectorCoverageVsLbs", // psTripDCS
+      "SCTsummaryDetectorCoverageVsLbs" // summary
+    };
+    std::string profTitles[numberOfProblemForCoverage] = {
+      "", // all
+      "Ave. Disabled detector coverage per event in Lumi Block", // disabled
+      "Ave. Link error detector coverage per event in Lumi Block", // badLinkError
+      "Ave. ROD OUT detector coverage per event in Lumi Block", // badRODError
+      "Ave. Bad error detector coverage per event in Lumi Block", // badError
+      "Ave. PS trip detector coverage per event in Lumi Block <DCS>", //psTripDCS
+      "Ave. total detector coverage per event in Lumi Block" //summary
+    };
+    for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++) {
+      if (iProblem==all) continue;
 
-    //Link error coverage vs lb
-    m_LinkDetectorCoverageVsLB = new TProfile("SCTLinkDetectorCoverageVsLbs",
-						"Ave. Link error detector coverage per event in Lumi Block",
-						NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_LinkDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_LinkDetectorCoverageVsLB->GetYaxis()->SetTitle("Link Error Detector Coverage [%]");
-    if ( monGr_shift.regHist(m_LinkDetectorCoverageVsLB).isFailure() ){
-      ATH_MSG_WARNING("Cannot book Histogram:SCTLinkDetectorCoverageConf" );
-    }
-
-    //RODout coverage vs lb
-    m_RODoutDetectorCoverageVsLB = new TProfile("SCTRODoutDetectorCoverageVsLbs",
-						"Ave. ROD OUT detector coverage per event in Lumi Block",
-						NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_RODoutDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_RODoutDetectorCoverageVsLB->GetYaxis()->SetTitle("ROD OUT Detector Coverage [%]");
-    if ( monGr_shift.regHist(m_RODoutDetectorCoverageVsLB).isFailure() ){
-      ATH_MSG_WARNING("Cannot book Histogram:SCTRODoutDetectorCoverageConf" );
-    }
-
-    //Bad error coverage vs lb
-    m_ErrorDetectorCoverageVsLB = new TProfile("SCTErrorDetectorCoverageVsLbs",
-						"Ave. Bad error detector coverage per event in Lumi Block",
-						NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_ErrorDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_ErrorDetectorCoverageVsLB->GetYaxis()->SetTitle("Bad Error Detector Coverage [%]");
-    if ( monGr_shift.regHist(m_ErrorDetectorCoverageVsLB).isFailure() ){
-      ATH_MSG_WARNING("Cannot book Histogram:SCTErrorDetectorCoverageConf" );
-    }
-
-    //ps trip DCS coverage vs lb
-    m_pstripDCSDetectorCoverageVsLB = new TProfile("SCTPStripDCSDetectorCoverageVsLbs",
-						   "Ave. PS trip detector coverage per event in Lumi Block <DCS>",
-						   NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_pstripDCSDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_pstripDCSDetectorCoverageVsLB->GetYaxis()->SetTitle("PS trip Detector Coverage [%]");
-    if ( monGr_shift.regHist(m_pstripDCSDetectorCoverageVsLB).isFailure() ){
-      ATH_MSG_WARNING("Cannot book Histogram:SCTpstripDetectorCoverageConDCS" );
-    }
-
-    //total coverage vs lb
-    m_summaryDetectorCoverageVsLB = new TProfile("SCTsummaryDetectorCoverageVsLbs",
-						 "Ave. total detector coverage per event in Lumi Block",
-						 NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_summaryDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_summaryDetectorCoverageVsLB->GetYaxis()->SetTitle("Total Detector Coverage [%]");
-    if ( monGr_shift.regHist(m_summaryDetectorCoverageVsLB).isFailure() ){
-      ATH_MSG_WARNING("Cannot book Histogram:SCTTotalDetectorCoverageConf" );
+      m_detectorCoverageVsLB[iProblem] = new TProfile(profNames[iProblem].c_str(), profTitles[iProblem].c_str(), NBINS_LBs,0.5,NBINS_LBs+0.5);
+      m_detectorCoverageVsLB[iProblem]->GetXaxis()->SetTitle("LumiBlock");
+      m_detectorCoverageVsLB[iProblem]->GetYaxis()->SetTitle("Total Detector Coverage [%]");
+      if (monGr_shift.regHist(m_detectorCoverageVsLB[iProblem]).isFailure()) {
+	ATH_MSG_WARNING("Cannot book " << profNames[iProblem] << ", " << profTitles[iProblem]);
+      }
     }
 
     //ps trip number of wafer vs lb
@@ -1022,46 +987,19 @@ SCTErrMonTool::fillByteStreamErrors() {
     for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++)
       {
 	for (const IdentifierHash& hash: m_SCTHash[iProblem]) {
-	  fillModule( m_geo[hash], m_mapSCT[iProblem] );
+	  fillWafer( m_geo[hash], m_mapSCT[iProblem] );
 	}
       }
     
-    //disabled
-    double dis_detector_coverage = calculateDetectorCoverage(m_mapSCT[disabled]);
-    m_DisabledDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), dis_detector_coverage);
-    double disabled_detector_coverage = m_DisabledDetectorCoverageVsLB->GetBinContent(current_lb);
-    ATH_MSG_INFO("Detector Coverage : " << disabled_detector_coverage);
+    //detector coverage
+    for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++) {
+      if (iProblem==all) continue;
 
-    //bad error
-    double bad_detector_coverage = calculateDetectorCoverage(m_mapSCT[badError]);
-    m_ErrorDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), bad_detector_coverage);
-    double baderror_detector_coverage = m_ErrorDetectorCoverageVsLB->GetBinContent(current_lb);
-    ATH_MSG_INFO("Detector Coverage : " << baderror_detector_coverage);
-
-    //link
-    double link_detector_coverage = calculateDetectorCoverage(m_mapSCT[badLinkError]);
-    m_LinkDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), link_detector_coverage);
-    double linkerror_detector_coverage = m_LinkDetectorCoverageVsLB->GetBinContent(current_lb);
-    ATH_MSG_INFO("Detector Coverage : " << linkerror_detector_coverage);
-
-    //rodout
-    double rod_detector_coverage = calculateDetectorCoverage(m_mapSCT[badRODError]);
-    m_RODoutDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), rod_detector_coverage);
-    //    double roderror_detector_coverage = m_RODoutDetectorCoverageVsLB->GetBinContent(current_lb);
-    double roderror_detector_coverage = m_RODoutDetectorCoverageVsLB->GetBinContent(current_lb);
-    ATH_MSG_INFO("Detector Coverage : " << roderror_detector_coverage);
-
-    //pstrip DCS
-    double ps_detector_DCS_coverage = calculateDetectorCoverage(m_mapSCT[psTripDCS]);
-    m_pstripDCSDetectorCoverageVsLB ->Fill(static_cast<double>(current_lb), ps_detector_DCS_coverage);
-    double pstrip_detector_DCS_coverage = m_pstripDCSDetectorCoverageVsLB->GetBinContent(current_lb);
-    ATH_MSG_INFO("Detector Coverage : " << pstrip_detector_DCS_coverage);
-
-    //total coverage                                                                                     
-    double total_detector_coverage = calculateDetectorCoverage(m_mapSCT[summary]);
-    m_summaryDetectorCoverageVsLB->Fill(static_cast<double>(current_lb), total_detector_coverage);
-    double detector_coverage = m_summaryDetectorCoverageVsLB->GetBinContent(current_lb);
-    ATH_MSG_INFO("Detector Coverage : " << detector_coverage);
+    double detector_coverage = calculateDetectorCoverage(m_mapSCT[iProblem]);
+    m_detectorCoverageVsLB[iProblem]->Fill(static_cast<double>(current_lb), detector_coverage);
+    double good_detector_coverage = m_detectorCoverageVsLB[iProblem]->GetBinContent(current_lb);
+    ATH_MSG_INFO("Detector Coverage : " << good_detector_coverage);
+    }
 
     //PStirp Wafer
     m_pstripWaferVsLB ->Fill(static_cast<double>(current_lb), m_pswafer);
@@ -2046,10 +1984,10 @@ SCTErrMonTool::isEndcapA(const int moduleNumber) {
   return moduleinEndcapA;
 }
 //====================================================================================================
-//                          SCTErrMonTool :: fillModule, Keisuke Kouda 12.09.2016
+//                          SCTErrMonTool :: fillWafer, Keisuke Kouda 12.09.2016
 //====================================================================================================
-void SCTErrMonTool::fillModule( moduleGeo_t module, TH2F * histo )
-//void SCTErrMonTool::fillModule( moduleGeo_t module, TProfile2D * profile )
+void SCTErrMonTool::fillWafer( moduleGeo_t module, TH2F * histo )
+//void SCTErrMonTool::fillWafer( moduleGeo_t module, TProfile2D * profile )
 {
   double etaMin(module.first.first), etaMax(module.first.second);
   double phiMin(module.second.first), phiMax(module.second.second);
@@ -2268,7 +2206,7 @@ double SCTErrMonTool::calculateDetectorCoverage( const TH2F * histo )
 	    }
 	  else if (waferCell > m_WafersThreshold - 1.0 )
 	    {
-	      occupancy = occupancy - m_WafersThreshold + waferCell + 1.0;
+	      occupancy += waferCell - (m_WafersThreshold - 1.0);
 //Calculating the bin occupancy which has less than 1. 
 //For example, bin have a 2.3. In this case, we can understand that 30% of the bin is coverd by 3 sides/wafers and 70% of the bin is coverd by 2 sides/wafers.
 //And it means that occupancy of the bin is 0.3 So, in this line, I take difference between m_WafersThreshold(3)-1 and waferCell, and add it to the occupancy.
