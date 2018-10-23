@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -298,9 +298,9 @@ namespace Trk {
       virtual std::string name() const = 0;   
 
       /**return number of surfaces currently created - needed for EDM monitor */
-      unsigned int numberOfInstantiations();  
+      static unsigned int numberOfInstantiations();  
       /**return number of free surfaces currently created (i.e. those not belonging to a DE) - needed for EDM monitor */
-      unsigned int numberOfFreeInstantiations(); 
+      static unsigned int numberOfFreeInstantiations(); 
     
       /** method to associate the associated Trk::Layer which is alreay owned
          - only allowed by LayerBuilder

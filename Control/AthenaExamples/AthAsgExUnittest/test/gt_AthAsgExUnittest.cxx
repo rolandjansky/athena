@@ -1,6 +1,6 @@
 
 //
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 //
 
 #include "GoogleTestTools/InitGaudiGoogleTest.h"
@@ -58,6 +58,7 @@ namespace Athena_test {
 
     MyPackageAlgTest() 
     //  : InitGaudiGoogleTest( MSG::INFO ) // get usual message blurb
+      : myAlg(nullptr)
     {}
 
     virtual void SetUp() override {

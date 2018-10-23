@@ -182,7 +182,7 @@ if dimuonmon == True:
                                doSaveFits = False,
 #                               setDebug = True,
                                OutputLevel = INFO)
-    ToolSvc += ZmumuMon
+    #ToolSvc += ZmumuMon
 
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager

@@ -18,7 +18,7 @@ from JetTagMonitoring.JetTagMonitoringConf import JetTagMonitoring
 jetTagMonTool = JetTagMonitoring (
     name           = "jetTagMonTool",
     )
-ToolSvc += jetTagMonTool
+#ToolSvc += jetTagMonTool
 monManJetTag.AthenaMonTools += [ jetTagMonTool ]
 
 # remove events with non-collision BCIDs from your monitoring tools 

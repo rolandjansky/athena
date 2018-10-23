@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def TrigEgammaMonTool():
-    from AthenaCommon.AppMgr import ToolSvc
+    #from AthenaCommon.AppMgr import ToolSvc
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaPlotTool
     from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_mam, monitoring_electron, monitoring_photon 
@@ -92,4 +92,4 @@ def TrigEgammaMonTool():
                 "TrigEgammaNavAnalysisTool/NavElectronAnalysis",
                 "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
                 "TrigEgammaNavTPAnalysisTool/NavTPJpsieeAnalysis"])
-    ToolSvc += TrigEgammaMonTool
+    #ToolSvc += TrigEgammaMonTool

@@ -824,7 +824,7 @@ def TrigJetMonitoringTool():
  # HLTMonFlags.doEgamma.set_Value_and_Lock(False)
 
   
-  ToolSvc += HLTJetMon;
+  #ToolSvc += HLTJetMon;
 
   # Set up the trigger configuration tool:
   #ToolSvc += CfgMgr.TrigConf__xAODConfigTool( "xAODConfigTool",
@@ -836,7 +836,7 @@ def TrigJetMonitoringTool():
                                           #ConfigTool = ToolSvc.xAODConfigTool,
                                           #TrigDecisionKey = "xTrigDecision" )
 
-  list = [ "HLTJetMonTool/HLTJetMon" ];
+  list = [ HLTJetMon ];
   return list
 
 

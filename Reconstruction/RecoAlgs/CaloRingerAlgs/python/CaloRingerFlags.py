@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:  CaloRingerAlgs/python/CaloRingerFlags.py
@@ -43,13 +43,13 @@ class CaloRingerFlagsJobProperty(JobProperty):
         return False
 jobproperties.CaloRingerFlags.add_JobProperty(CaloRingerFlagsJobProperty)
 
-from AthenaCommon.Logging import logging
+from AthenaCommon import Constants
 class OutputLevel(CaloRingerFlagsJobProperty):
     """ switch for all CaloRinger algorithms and tools
     """
     statusOn        = True
     allowedTypes    = ['int']
-    StoredValue     = logging.INFO
+    StoredValue     = Constants.INFO
 jobproperties.CaloRingerFlags.add_JobProperty(OutputLevel)
 
 #=======================================================================

@@ -87,7 +87,7 @@ akt4Filler.HistoTools += [
 
 
 jetMonTool = JetMonitoringTool(HistoTools = [akt4Filler])
-ToolSvc += jetMonTool
+#ToolSvc += jetMonTool
 monMan.AthenaMonTools += [  jetMonTool ]
 
 
