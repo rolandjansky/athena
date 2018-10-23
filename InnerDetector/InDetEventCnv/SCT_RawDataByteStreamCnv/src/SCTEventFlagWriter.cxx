@@ -17,7 +17,7 @@ SCTEventFlagWriter::SCTEventFlagWriter(const std::string& name,
 /// Initialize
 StatusCode SCTEventFlagWriter::initialize() {
   ATH_CHECK(m_bsErrTool.retrieve());
-  ATH_CHECK(m_xevtInfoKey.initialize());
+  ATH_CHECK(m_xAODEvtInfoKey.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -33,9 +33,9 @@ StatusCode SCTEventFlagWriter::execute()
     //// retrieve EventInfo.  
     /// First the xAOD one
     bool setOK_xAOD{false};
-    SG::ReadHandle<xAOD::EventInfo> xevtInfo{m_xevtInfoKey};
-    if (xevtInfo.isValid()) {
-      setOK_xAOD = xevtInfo->updateErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
+    SG::ReadHandle<xAOD::EventInfo> xAODEvtInfo{m_xAODEvtInfoKey};
+    if (xAODEvtInfo.isValid()) {
+      setOK_xAOD = xAODEvtInfo->updateErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
     } 
     if (not setOK_xAOD) {
       ATH_MSG_ERROR("Failed to retrieve EventInfo containers or to update error state");

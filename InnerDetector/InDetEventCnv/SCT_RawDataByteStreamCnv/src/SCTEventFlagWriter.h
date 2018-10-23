@@ -43,7 +43,7 @@ class SCTEventFlagWriter : public AthAlgorithm
 
   ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrTool{this, "ErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_xevtInfoKey{this, "xAODEventInfoKey", "EventInfo", "xAOD event info key"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_xAODEvtInfoKey{this, "xAODEventInfoKey", "EventInfo", "xAOD event info key"};
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
