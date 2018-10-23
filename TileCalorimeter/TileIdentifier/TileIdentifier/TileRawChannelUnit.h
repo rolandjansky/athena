@@ -1,9 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILECONDITIONS_TILERAWCHANNELUNIT__H
-#define TILECONDITIONS_TILERAWCHANNELUNIT__H
+#ifndef TILECONDITIONS_TILERAWCHANNELUNIT_H
+#define TILECONDITIONS_TILERAWCHANNELUNIT_H
+
+
+#include <string>
+
 
 class TileRawChannelUnit
 {
@@ -21,6 +25,10 @@ class TileRawChannelUnit
       OnlineOffset             = 4,
       Invalid                  = 99
     };
+
+
+  /** Printable representation of a unit. */
+  static std::string unitToString (UNIT type);
 };
 
 #endif

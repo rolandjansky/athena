@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -10,9 +10,7 @@ PACKAGE:  offline/Calorimeter/CaloRec
 ********************************************************************/
 
 #include "LArCellMaskingTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "LArCabling/LArCablingService.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -25,8 +23,7 @@ LArCellMaskingTool::LArCellMaskingTool(
 			     const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_onlineID(nullptr),
-    m_offlineID(nullptr),
-    m_larCablingSvc(nullptr)
+    m_offlineID(nullptr)
 {
   declareInterface<ICaloCellMakerTool>(this); 
   //List of strings to determine detector parts to be masked.
@@ -48,11 +45,8 @@ StatusCode LArCellMaskingTool::initialize()
 {
   ATH_CHECK( detStore()->retrieve(m_offlineID) );
   ATH_CHECK( detStore()->retrieve(m_onlineID) );
-
-  IToolSvc*     p_toolSvc = 0;
-  ATH_CHECK( service("ToolSvc", p_toolSvc) );
-  ATH_CHECK( p_toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
-
+  ATH_CHECK( m_cablingKey.initialize());
+  
  // Get hash ranges
   m_offlinehashMax=m_offlineID->calo_cell_hash_max();
   ATH_MSG_DEBUG ("CaloCell Hash Max: " << m_offlinehashMax);
@@ -63,16 +57,14 @@ StatusCode LArCellMaskingTool::initialize()
   //Fill the bit map
   m_includedCellsMap.set(); // By default include all cells
   
-  StatusCode sc=fillIncludedCellsMap();
-
   ATH_MSG_INFO (" Will exclude " << m_includedCellsMap.size() - m_includedCellsMap.count() << " cells from CaloCellContainer");
   
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 
-StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
+StatusCode LArCellMaskingTool::fillIncludedCellsMap(const LArOnOffIdMapping* cabling) {
 
   std::vector<std::string>::const_iterator it=m_rejLArChannels.begin();
   std::vector<std::string>::const_iterator it_e= m_rejLArChannels.end();
@@ -130,8 +122,8 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
 	  nChannels++;
 	  try {
 	    chanId=m_onlineID->channel_Id(bec,pn,FT,slot,channel);
-	    if (m_larCablingSvc->isOnlineConnected(chanId)) {
-	      const Identifier cellId=m_larCablingSvc->cnvToIdentifier(chanId);
+	    if (cabling->isOnlineConnected(chanId)) {
+	      const Identifier cellId=cabling->cnvToIdentifier(chanId);
 	      const IdentifierHash cellhash=m_offlineID->calo_cell_hash(cellId);
 	      m_includedCellsMap.reset(cellhash);
 	      //std::cout << "Block channel: bec="<< bec << " pn=" << pn 
@@ -163,6 +155,15 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
 
 StatusCode LArCellMaskingTool::process(CaloCellContainer * theCont )
 {
+  if (! m_mapInitialized) {
+    //To make this (practically never used) method re-entrant, 
+    //protect the following with a mutex
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    const LArOnOffIdMapping* cabling=*cablingHdl;
+    ATH_CHECK(fillIncludedCellsMap(cabling));
+    m_mapInitialized=true;
+  }
+
   //Build bitmap to keep track which cells have been added to reducedCellContainer;
   unsigned cnt=0;
   CaloCellContainer::iterator it=theCont->begin();

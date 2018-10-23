@@ -214,7 +214,7 @@ InDetPhysValMonitoringTool.TruthParticleContainerName = "TruthParticles"
 # this will run over hardscatter tracks only: 
 #InDetPhysValMonitoringTool.PileupSwitch = "HardScatter"
 InDetPhysValMonitoringTool.OutputLevel = INFO
-ToolSvc += InDetPhysValMonitoringTool
+#ToolSvc += InDetPhysValMonitoringTool
 
 monMan.AthenaMonTools += [InDetPhysValMonitoringTool]
 

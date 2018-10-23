@@ -29,8 +29,6 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArCabling
    PRIVATE
    Calorimeter/CaloInterface
-   Control/CLIDSvc
-   Control/SGTools
    DetectorDescription/AtlasDetDescr
    DetectorDescription/Identifier
    Event/ByteStreamCnvSvc
@@ -49,7 +47,7 @@ atlas_add_library( LArByteStreamLib
    LArRecConditions LArRecEvent CaloDetDescrLib CaloUtilsLib StoreGateLib
    ByteStreamCnvSvcBaseLib LArRODLib LArRawUtilsLib LArRecUtilsLib LArCablingLib
    ByteStreamCnvSvcLib
-   PRIVATE_LINK_LIBRARIES SGTools AtlasDetDescr Identifier LArRawConditions )
+   PRIVATE_LINK_LIBRARIES AtlasDetDescr Identifier LArRawConditions )
 
 atlas_add_component( LArByteStream
    src/components/*.cxx

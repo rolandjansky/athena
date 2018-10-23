@@ -25,7 +25,7 @@ Calo_LArNoisyAlg  = TRUE,
 photonPTCut = 20*GeV,
 )
 
-ToolSvc += CaloTransverseBalanceMonNoTA 
+#ToolSvc += CaloTransverseBalanceMonNoTA 
 
 CaloMon.AthenaMonTools += [ CaloTransverseBalanceMonNoTA ]
 

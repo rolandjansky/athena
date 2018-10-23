@@ -37,7 +37,7 @@ if not 'jobpostprocsteps' in jobConfig:              jobConfig['jobpostprocsteps
 if not jobConfig['doMonitoringGlobal']:
     # Beam spot monitoring tool from GlobalMonitoring
     #from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBeamSpotMonTool
-    ToolSvc += CfgMgr.InDetGlobalBeamSpotMonTool(name = "InDetGlobalBeamSpotMonTool",
+    InDetGlobalBeamSpotMonTool = CfgMgr.InDetGlobalBeamSpotMonTool(name = "InDetGlobalBeamSpotMonTool",
                                                  trackContainerName = jobConfig['TrackContainer'],
                                                  vxContainerName = jobConfig['VertexContainer'],
                                                  vxContainerWithBeamConstraint = jobConfig['VertexContainerWithBeamConstraint'],
@@ -56,8 +56,8 @@ if not jobConfig['doMonitoringGlobal']:
         from AthenaMonitoring.AthenaMonitoringConf import DQFilledBunchFilterTool
         monFilledBunchFilterTool = DQFilledBunchFilterTool()
         monFilledBunchFilterTool.bunchCrossingTool  = bunchCrossingTool
-        ToolSvc += monFilledBunchFilterTool
-        ToolSvc.InDetGlobalBeamSpotMonTool.FilterTools.append(monFilledBunchFilterTool)
+        #ToolSvc += monFilledBunchFilterTool
+        InDetGlobalBeamSpotMonTool.FilterTools.append(monFilledBunchFilterTool)
 
 
     print ToolSvc.InDetGlobalBeamSpotMonTool
@@ -74,7 +74,7 @@ if not jobConfig['doMonitoringGlobal']:
                                            Run                 = 1,
                                            LumiBlock           = 1)
     #topSequence.BeamSpotMonManager.AthenaMonTools += [ ToolSvc.InDetAlignMonBeamSpot ]
-    topSequence.BeamSpotMonManager.AthenaMonTools += [ ToolSvc.InDetGlobalBeamSpotMonTool ]
+    topSequence.BeamSpotMonManager.AthenaMonTools += [ InDetGlobalBeamSpotMonTool ]
     print topSequence.BeamSpotMonManager
 
 

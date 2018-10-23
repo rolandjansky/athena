@@ -488,21 +488,21 @@ ServiceMgr += CfgMgr.MessageSvc( Format = "% F%50W%S%7W%R%T %0W%M",
 # NEED A REAL FIX 
 #--------------------------------------------------------------------------- 
 if MuonDQAFlags.doMuonHitMon:
-    ToolSvc += CfgMgr.MDTRawDataValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.RPCRawDataValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MDTvsRPCRawDataValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.RPCLV1RawDataValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.TGCRawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MDTRawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.RPCRawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MDTvsRPCRawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.RPCLV1RawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.TGCRawDataValAlg(OutputLevel = INFO)
     if MuonDQAFlags.doCSCMon:
-        ToolSvc += CfgMgr.CSCPRDMonTool(OutputLevel = INFO)
-        ToolSvc += CfgMgr.CSCRDOMonTool(OutputLevel = INFO)
+        #ToolSvc += CfgMgr.CSCPRDMonTool(OutputLevel = INFO)
+        #ToolSvc += CfgMgr.CSCRDOMonTool(OutputLevel = INFO)
     
 if MuonDQAFlags.doMuonSegmMon:
-    ToolSvc += CfgMgr.MuonSegmValidation(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonSegmValidation(OutputLevel = INFO)
 
 if MuonDQAFlags.doMuonTrackMon:
-    ToolSvc += CfgMgr.MuonTrackValidation(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MuonAlignMonGenericTracks(OutputLevel = INFO) 
+    #ToolSvc += CfgMgr.MuonTrackValidation(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonAlignMonGenericTracks(OutputLevel = INFO) 
      
 Service( "THistSvc" ).OutputLevel = WARNING 
 #--------------------------------------------------------------------------- 
