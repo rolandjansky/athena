@@ -226,11 +226,11 @@ StatusCode JetObjectCollectionMaker::initialize() {
 
   ///-- DL1 Decoration --///
   m_btagSelToolsDL1Decor["DL1"]    = "BTaggingSelectionTool_forEventSaver_DL1_"+m_config->sgKeyJets();
-  m_btagSelToolsDL1Decor["DL1mu"]  = "BTaggingSelectionTool_forEventSaver_DL1mu_"+m_config->sgKeyJets();
-  m_btagSelToolsDL1Decor["DL1rnn"] = "BTaggingSelectionTool_forEventSaver_DL1rnn_"+m_config->sgKeyJets();
+  m_btagSelToolsDL1Decor["DL1r"]  = "BTaggingSelectionTool_forEventSaver_DL1r_"+m_config->sgKeyJets();
+  m_btagSelToolsDL1Decor["DL1rmu"] = "BTaggingSelectionTool_forEventSaver_DL1rmu_"+m_config->sgKeyJets();
   top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-  top::check(m_btagSelToolsDL1Decor["DL1mu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-  top::check(m_btagSelToolsDL1Decor["DL1rnn"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+  top::check(m_btagSelToolsDL1Decor["DL1r"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+  top::check(m_btagSelToolsDL1Decor["DL1rmu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
   // Store a lightweight flag to limit error messages if the DL1 weights are not present                                                                                           
   m_DL1Possible = true;
 
@@ -635,11 +635,11 @@ StatusCode JetObjectCollectionMaker::decorateHSJets() {
 StatusCode JetObjectCollectionMaker::decorateDL1() {
   // initialise decorators
   static const SG::AuxElement::Decorator<float> DL1("AnalysisTop_DL1");
-  static const SG::AuxElement::Decorator<float> DL1mu("AnalysisTop_DL1mu");
-  static const SG::AuxElement::Decorator<float> DL1rnn("AnalysisTop_DL1rnn");
+  static const SG::AuxElement::Decorator<float> DL1r("AnalysisTop_DL1r");
+  static const SG::AuxElement::Decorator<float> DL1rmu("AnalysisTop_DL1rmu");
 
   // Default value
-  double DL1_weight, DL1mu_weight, DL1rnn_weight = -999;
+  double DL1_weight, DL1r_weight, DL1rmu_weight = -999;
 
   // retrieve small-R jets collection
   const xAOD::JetContainer* jets(nullptr);
@@ -652,18 +652,18 @@ StatusCode JetObjectCollectionMaker::decorateDL1() {
 	DL1_weight = -999;
 	m_DL1Possible = false;
       }
-      if(! m_btagSelToolsDL1Decor["DL1mu"]->getTaggerWeight(*jet, DL1mu_weight) ){
-	DL1mu_weight = -999;
+      if(! m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(*jet, DL1r_weight) ){
+	DL1r_weight = -999;
 	m_DL1Possible = false;
       }
-      if(! m_btagSelToolsDL1Decor["DL1rnn"]->getTaggerWeight(*jet, DL1rnn_weight) ){
-	DL1rnn_weight = -999;
+      if(! m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(*jet, DL1rmu_weight) ){
+	DL1rmu_weight = -999;
 	m_DL1Possible = false;
       }
     }
     DL1(*jet)    = DL1_weight;
-    DL1mu(*jet)  = DL1mu_weight;    
-    DL1rnn(*jet) = DL1rnn_weight;
+    DL1r(*jet)  = DL1r_weight;    
+    DL1rmu(*jet) = DL1rmu_weight;
   }
 
   return StatusCode::SUCCESS;
