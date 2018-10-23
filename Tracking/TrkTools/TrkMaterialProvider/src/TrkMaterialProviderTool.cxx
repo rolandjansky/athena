@@ -34,21 +34,25 @@
 // for line-by-line debugging
 #define MYDEBUG() std::cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<std::endl
 
-void myLocal_resetTrack( const Trk::Track& ctrack ){
+void myLocal_resetTrack(Trk::Track& track ){
 
-  Trk::Track& track = const_cast<Trk::Track&>(ctrack);
-  if( track.m_cachedParameterVector ){
-    delete track.m_cachedParameterVector;
-    track.m_cachedParameterVector = 0;
+  /* C.A this is kind of weird piece of code
+   * Actually the issue starts from the 
+   * define private public in the header
+   * then somehow this helpers can access the 
+   * guts of a Trk::Track
+   * Needs understanding of client and usage
+   */
+  if( track.m_cachedParameterVector.isValid() ){
+    track.m_cachedParameterVector.reset();
   }
 
-  if( track.m_cachedMeasurementVector ){
-    delete track.m_cachedMeasurementVector;
-    track.m_cachedMeasurementVector = 0;
+  if( track.m_cachedMeasurementVector.isValid() ){
+    track.m_cachedMeasurementVector.reset();
+    
   }
-  if( track.m_cachedOutlierVector ){
-    delete track.m_cachedOutlierVector;
-    track.m_cachedOutlierVector = 0;
+  if( track.m_cachedOutlierVector.isValid() ){
+    track.m_cachedOutlierVector.reset();
   }
 }
 
