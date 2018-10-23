@@ -157,7 +157,7 @@ def TrigBphysMonitoringTool():
                                   )
     
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += HLTBphysMon
-    items = [ "HLTXAODBphysMonTool/HLTBphysMon" ]
+    #ToolSvc += HLTBphysMon
+    items = [ HLTBphysMon ]
     return items
 

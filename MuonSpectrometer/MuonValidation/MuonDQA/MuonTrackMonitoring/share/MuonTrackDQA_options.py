@@ -21,8 +21,8 @@ MuonGenericTracksMon_NoTrig = MuonGenericTracksMon(name        = "MuonGenericTra
 	                                               MuonTriggerChainName = "NoTrig/",
 	                                               OutputLevel = WARNING,
 	                                               )
-ToolSvc += MuonGenericTracksMon_NoTrig
-muTrackMonMan.AthenaMonTools.append(MuonGenericTracksMon_NoTrig)
+#ToolSvc += MuonGenericTracksMon_NoTrig
+muTrackMonMan.AthenaMonTools += [MuonGenericTracksMon_NoTrig]
 
 # L1_Trig part is intended to only select events passing L1_MU triggers
 MuonGenericTracksMon_L1Trig = MuonGenericTracksMon(name        = "MuonGenericTracksMon_L1Trig",
@@ -36,8 +36,8 @@ else:
 	MuonGenericTracksMon_L1Trig.TriggerChain = "L1_MU4, L1_MU6, L1_MU10, L1_MU11, L1_MU15, L1_MU20, L1_2MU4, L1_2MU6, L1_2MU10"
 	MuonGenericTracksMon_L1Trig.MuonTriggerChainName = ""
 	MuonGenericTracksMon_L1Trig.TrigDecisionTool = monTrigDecTool
-	ToolSvc += MuonGenericTracksMon_L1Trig
-	muTrackMonMan.AthenaMonTools.append(MuonGenericTracksMon_L1Trig)
+	#ToolSvc += MuonGenericTracksMon_L1Trig
+	muTrackMonMan.AthenaMonTools += [MuonGenericTracksMon_L1Trig]
 
 #for Muon Quality Selection
 if not hasattr(ToolSvc,"MuonSelectorTool"):        

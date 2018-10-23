@@ -12,7 +12,7 @@ theLArFEBMon = LArFEBMon(name="LArFEBMon",
                          IgnoreMissingHeaderPS = False,
                          IgnoreMissingHeaderEMB = False
                          )
-ToolSvc += theLArFEBMon
+#ToolSvc += theLArFEBMon
 LArMon.AthenaMonTools+=[ theLArFEBMon ] 
 
 # BadChannelTool configuration
@@ -20,7 +20,7 @@ from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
 theLArBadChannelTool=LArBadChanTool()
 theLArBadChannelTool.ReadFromASCII=False
 ToolSvc+=theLArBadChannelTool
-ToolSvc.LArFEBMon.LArBadChannelTool=theLArBadChannelTool
+LArFEBMon.LArBadChannelTool=theLArBadChannelTool
 
 #to change an option later, do e.g
 #ToolSvc.LArFEBMon.maxOfTimingHisto =100

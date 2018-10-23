@@ -266,31 +266,33 @@ class TrigEgammaMonToolBuilder:
         return tool 
         
     def configureMonTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        toolList=['TrigEgammaMonTool/HLTEgammaMon'];
+        #from AthenaCommon.AppMgr import ToolSvc
+        #toolList=['TrigEgammaMonTool/HLTEgammaMon'];
         if self.mc_mode == True or self.pp_mode == True:
             if(self.derivation == True):
                 tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                         histoPathBase=self.basePath,
                         IgnoreTruncationCheck=True,
                         Tools=["TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis"])
-                ToolSvc += tool        
+                #ToolSvc += tool        
             else:
-                ToolSvc += self.configureDefaultMonTool()
+                tool = self.configureDefaultMonTool()
+                #ToolSvc += self.configureDefaultMonTool()
         elif self.HI_mode == True or self.pPb_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                     histoPathBase=self.basePath,
                     IgnoreTruncationCheck=True,
                     Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-            ToolSvc += tool        
+            #ToolSvc += tool        
         elif self.cosmic_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                     histoPathBase=self.basePath,
                     IgnoreTruncationCheck=True,
                     Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-            ToolSvc += tool
+            #ToolSvc += tool
         else:
-            ToolSvc += self.configureDefaultMonTool()
-        return toolList    
+            tool = self.configureDefaultMonTool()
+            #ToolSvc += self.configureDefaultMonTool()
+        return [ tool ]

@@ -254,7 +254,7 @@ TileJetMonTool = TileJetMonTool(name              = 'TileJetMonTool',
                                 useJetCleaning    = cleaning,
                                 jet_JVT_threshold = 0.64,
                                 OutputLevel       = INFO);
-ToolSvc += TileJetMonTool;    
+#ToolSvc += TileJetMonTool;    
 ManagedAthenaTileMon.AthenaMonTools += [ TileJetMonTool ];
 
 

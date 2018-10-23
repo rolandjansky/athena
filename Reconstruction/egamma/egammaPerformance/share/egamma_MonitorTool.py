@@ -37,8 +37,8 @@ phMonTool = photonMonTool(name= "phMonTool",
                           Photon_Selection_Items = ["all","tight"])
                           
 
-ToolSvc+=phMonTool
-monMan.AthenaMonTools += [ "photonMonTool/phMonTool" ]
+#ToolSvc+=phMonTool
+monMan.AthenaMonTools += [ phMonTool ]
 
 from egammaPerformance.egammaPerformanceConf import electronMonTool
 elMonTool = electronMonTool(name= "elMonTool",
@@ -49,16 +49,16 @@ elMonTool = electronMonTool(name= "elMonTool",
                             Electron_Trigger_Items = ["EF_e10_medium"],
                             Electron_Selection_Items = ["all","loose","medium","tight"])
                           
-ToolSvc+=elMonTool
-monMan.AthenaMonTools += [ "electronMonTool/elMonTool" ]
+#ToolSvc+=elMonTool
+monMan.AthenaMonTools += [ elMonTool ]
 
 
 from egammaPerformance.egammaPerformanceConf import forwardEgammaMonTool
 fwdMonTool = forwardEgammaMonTool(name= "fwdMonTool",
                                   ElectronContainer        ="ElectronAODCollection",
                                   Electron_Selection_Items = ["all","tight","loose"])
-ToolSvc+=fwdMonTool
-monMan.AthenaMonTools += [ "forwardEgammaMonTool/fwdMonTool" ]
+#ToolSvc+=fwdMonTool
+monMan.AthenaMonTools += [ fwdMonTool ]
 
 
 from egammaPerformance.egammaPerformanceConf import physicsMonTool
@@ -73,8 +73,8 @@ ZeeMonTool = physicsMonTool(name= "ZeeMonTool",
                             massLowerCut = 70000,
                             massUpperCut = 110000)
                           
-ToolSvc+=ZeeMonTool
-monMan.AthenaMonTools += [ "physicsMonTool/ZeeMonTool" ]
+#ToolSvc+=ZeeMonTool
+monMan.AthenaMonTools += [ ZeeMonTool ]
 
 from egammaPerformance.egammaPerformanceConf import physicsMonTool
 JPsiMonTool = physicsMonTool(name= "JPsiMonTool",
@@ -88,8 +88,8 @@ JPsiMonTool = physicsMonTool(name= "JPsiMonTool",
                             massLowerCut = 1000,
                             massUpperCut = 5000)
                           
-ToolSvc+=JPsiMonTool
-monMan.AthenaMonTools += [ "physicsMonTool/JPsiMonTool" ]
+#ToolSvc+=JPsiMonTool
+monMan.AthenaMonTools += [ JPsiMonTool ]
 
 from egammaPerformance.egammaPerformanceConf import physicsMonTool
 Upsilon1SMonTool = physicsMonTool(name= "Upsilon1SMonTool",
@@ -103,8 +103,8 @@ Upsilon1SMonTool = physicsMonTool(name= "Upsilon1SMonTool",
                                 massLowerCut = 5000,
                                 massUpperCut = 15000)
         
-ToolSvc+=Upsilon1SMonTool
-monMan.AthenaMonTools += [ "physicsMonTool/Upsilon1SMonTool" ]
+#ToolSvc+=Upsilon1SMonTool
+monMan.AthenaMonTools += [ Upsilon1SMonTool ]
 
 
 from egammaPerformance.egammaPerformanceConf import physicsMonTool
@@ -119,8 +119,8 @@ Upsilon2SMonTool = physicsMonTool(name= "Upsilon2SMonTool",
                                 massLowerCut = 5000,
                                 massUpperCut = 15000)
 
-ToolSvc+=Upsilon2SMonTool
-monMan.AthenaMonTools += [ "physicsMonTool/Upsilon2SMonTool" ]
+#ToolSvc+=Upsilon2SMonTool
+monMan.AthenaMonTools += [ Upsilon2SMonTool ]
 
 
 
@@ -143,8 +143,8 @@ WenuMonTool = ephysicsMonTool(name= "WenuMonTool",
                                 JetEnergyCut = 30000,
                                 DeltaRCut = 1)
 				
-ToolSvc+=WenuMonTool
-monMan.AthenaMonTools += [ "ephysicsMonTool/WenuMonTool" ]
+#ToolSvc+=WenuMonTool
+monMan.AthenaMonTools += [ WenuMonTool ]
 
 
 

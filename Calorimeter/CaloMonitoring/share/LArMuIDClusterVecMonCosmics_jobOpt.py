@@ -65,5 +65,5 @@ LArCosmicsClusterMon = CaloClusterVecMon(
   hiEthresh = 5.0,
 )
 
-ToolSvc += LArCosmicsClusterMon
+#ToolSvc += LArCosmicsClusterMon
 CaloMon.AthenaMonTools += [ LArCosmicsClusterMon]
