@@ -54,9 +54,18 @@ namespace Trk
   {
   public:
     static constexpr int dim = DIM;
-    
+   
+    /*
+     * Rule of 5 
+     */
+
     /** virtual Destructor */
-    virtual ~ParametersBase() {}
+    virtual ~ParametersBase()=default;
+    /** default copy ctors and assignment operators*/
+     ParametersBase(const ParametersBase&)=default;
+     ParametersBase& operator=(const ParametersBase&)=default;
+     ParametersBase(ParametersBase&&)=default;
+     ParametersBase& operator=(ParametersBase&&)=default;  
 
     //** equality operator */
     virtual bool operator==(const ParametersBase<DIM,T>&) const = 0;
