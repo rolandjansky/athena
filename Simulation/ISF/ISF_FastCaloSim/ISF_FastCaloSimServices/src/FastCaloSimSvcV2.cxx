@@ -212,6 +212,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate(m_randomEngine);
 
+  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " eta: " << particle_position.eta());
   FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);
   if (status != FCSSuccess) {
     return StatusCode::FAILURE;
