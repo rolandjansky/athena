@@ -29,7 +29,7 @@ def RpcRawDataDecodeConfig(flags):
     # Setup the RAW data provider algorithm
     from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
     RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
-                                                  ProviderTool = MuonRpcRawDataProviderTool, OutputLevel=DEBUG )
+                                                  ProviderTool = MuonRpcRawDataProviderTool )
 
     
     acc.addEventAlgo( RpcRawDataProvider )
@@ -53,10 +53,10 @@ if __name__=="__main__":
     ConfigFlags.dump()
 
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
+    from AthenaCommon.Constants import DEBUG, INFO
 
     log.setLevel(DEBUG)
-    log.debug('About to setup Rpc Raw data decoding')
+    log.info('About to setup Rpc Raw data decoding')
 
     cfg=ComponentAccumulator()
     
@@ -91,10 +91,12 @@ if __name__=="__main__":
     cfg.addService( CfgMgr.AthenaPoolCnvSvc() )
     cfg.getService("EventPersistencySvc").CnvServices += [ "AthenaPoolCnvSvc" ]
 
-    log.debug('Print Config')
+    log.info('Print Config')
     cfg.printConfig(withDetails=True)
 
-    log.debug('Save Config')
+    # Store config as pickle
+    log.info('Save Config')
     with open('MuonRpcDataDecode.pkl','w') as f:
         cfg.store(f)
         f.close()
+
