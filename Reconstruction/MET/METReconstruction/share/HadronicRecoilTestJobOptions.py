@@ -9,13 +9,10 @@ from glob import glob
 
 #ServiceMgr.StoreGateSvc.Dump = True
 
-# For tests can be used raw AOD data/MC
-#filelist = glob("/atlas/data1/userdata/khoo/Data16/AOD_r21/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = filelist
-#athenaCommonFlags.FilesInput = [Inputfile]
-ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
+filelist = os.environ['ASG_TEST_FILE_DATA'] #test input file
+ServiceMgr.EventSelector.InputCollections = [ filelist ] #specify input files here, takes a list
+
 
 
 ############################################################################
