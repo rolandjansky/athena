@@ -259,7 +259,7 @@ namespace Analysis {
         std::vector<double> massCuts;
 
         TrackBag muonTracks;
-        if (m_excludeJpsiMuonsOnly) {
+        if (importedMuonCollection != NULL && m_excludeJpsiMuonsOnly) {
           for(auto muon : *importedMuonCollection){
             if(!muon->inDetTrackParticleLink().isValid()) continue;
             auto track = muon->inDetTrackParticleLink().cachedElement();
