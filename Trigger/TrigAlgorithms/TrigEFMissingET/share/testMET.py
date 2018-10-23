@@ -24,8 +24,9 @@ svcMgr.TrigCaloDataAccessSvc.OutputLevel=INFO
 from L1Decoder.L1DecoderConf import CreateFullScanRoI
 topSequence += CreateFullScanRoI()
 
-from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker
-cellMakerAlgo =  HLTCaloCellMaker("CellMakerMT", roiMode=True)
+from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+cellMakerAlgo =  HLTCaloCellMaker("CellMakerMT")
+cellMakerAlgo.roiMode=True
 cellMakerAlgo.RoIs="FullScanRoIs" 
 
 cellMakerAlgo.OutputLevel=VERBOSE
