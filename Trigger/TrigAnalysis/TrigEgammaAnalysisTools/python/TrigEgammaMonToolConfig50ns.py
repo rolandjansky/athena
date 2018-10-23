@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def TrigEgammaMonTool():
-    from AthenaCommon.AppMgr import ToolSvc
+    #from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr
     from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
     from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
@@ -109,4 +109,4 @@ def TrigEgammaMonTool():
             Tools=["TrigEgammaNavAnalysisTool/NavAnalysis",
                 "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
                 "TrigEgammaNavTPAnalysisTool/NavTPJpsieeAnalysis"])
-    ToolSvc += TrigEgammaMonTool
+    #ToolSvc += TrigEgammaMonTool

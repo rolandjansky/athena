@@ -55,7 +55,7 @@ name           = "HIElectronsMonTool",
 
 
 if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'tier0': 
-    ToolSvc += HIEventShapeMonTool
+    #ToolSvc += HIEventShapeMonTool
     HIEventShapeMonMan = AthenaMonManager( "HIEventShapeManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
                                    ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True
@@ -67,7 +67,7 @@ if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment ==
                                    AthenaMonTools      = [ HIEventShapeMonTool ])
     topSequence += HIEventShapeMonMan
     
-    ToolSvc += HIPhotonsMonTool
+    #ToolSvc += HIPhotonsMonTool
     HIPhotonsMonMan = AthenaMonManager( "HIPhotonsMonManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
                                    ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True
@@ -79,7 +79,7 @@ if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment ==
                                    AthenaMonTools      = [ HIPhotonsMonTool ])
     topSequence += HIPhotonsMonMan
 
-    ToolSvc += HIMuonsMonTool
+    #ToolSvc += HIMuonsMonTool
     HIMuonsMonMan = AthenaMonManager( "HIMuonsMonManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
                                    ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True
@@ -91,7 +91,7 @@ if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment ==
                                    AthenaMonTools      = [ HIMuonsMonTool ])
     topSequence += HIMuonsMonMan
         
-    ToolSvc += HIElectronsMonTool
+    #ToolSvc += HIElectronsMonTool
     HIElectronsMonMan = AthenaMonManager( "HIElectronsMonManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
                                    ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True
@@ -104,7 +104,7 @@ if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment ==
     topSequence += HIElectronsMonMan
 
 if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'tier0' or DQMonFlags.monManEnvironment == 'online':
-    ToolSvc += HIZdcMonTool
+    #ToolSvc += HIZdcMonTool
     HIZdcMonMan = AthenaMonManager( "HIZdcMonManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
                                    ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True

@@ -77,6 +77,6 @@ CaloClusterMonNoTA = CaloClusterVecMon(
    hiEthresh = 20.0,
 )
 
-ToolSvc += CaloClusterMonNoTA
+#ToolSvc += CaloClusterMonNoTA
 CaloMon.AthenaMonTools += [ CaloClusterMonNoTA ]
 

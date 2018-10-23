@@ -464,47 +464,47 @@ if MuonDQAFlags.doCallgrind:
 # -------------------------------------------------------------
 # --------------For RawData Monitoring----------------------------
 if MuonDQAFlags.doMuonHitMon:
-    ToolSvc += CfgMgr.MDTRawDataBSValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MDTRawDataESDValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.RPCRawDataValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MDTvsRPCRawDataValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.RPCLV1RawDataValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.TGCRawDataESDValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.TGCLV1RawDataESDValAlg(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MDTvsTGCRawDataESDValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MDTRawDataBSValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MDTRawDataESDValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.RPCRawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MDTvsRPCRawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.RPCLV1RawDataValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.TGCRawDataESDValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.TGCLV1RawDataESDValAlg(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MDTvsTGCRawDataESDValAlg(OutputLevel = INFO)
     if MuonDQAFlags.doCSCMon:
-        ToolSvc += CfgMgr.CSCPrdValAlg(OutputLevel = INFO)
-        ToolSvc += CfgMgr.CSCRdoValAlg(OutputLevel = INFO)
-        ToolSvc += CfgMgr.CSCClusterTree(OutputLevel = INFO)
-        ToolSvc += CfgMgr.CSCClusterValAlg(OutputLevel = INFO)
+        #ToolSvc += CfgMgr.CSCPrdValAlg(OutputLevel = INFO)
+        #ToolSvc += CfgMgr.CSCRdoValAlg(OutputLevel = INFO)
+        #ToolSvc += CfgMgr.CSCClusterTree(OutputLevel = INFO)
+        #ToolSvc += CfgMgr.CSCClusterValAlg(OutputLevel = INFO)
 # --------------For MuonSegment Monitoring------------------------    
 if MuonDQAFlags.doMuonSegmMon:
-    ToolSvc += CfgMgr.MuonSegmValidation(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonSegmValidation(OutputLevel = INFO)
 # --------------For MuonTrk Alignment Monitoring------------------------    
 if MuonDQAFlags.doMuonTrkAlignMon:
-    ToolSvc += CfgMgr.MuonAlignValidation(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonAlignValidation(OutputLevel = INFO)
 # --------------For MuonTrk Monitoring----------------------------
 # --------------For No Trigger MuonTrk Monitoring-----------------
 if MuonDQAFlags.doMuonTrackMon and not MuonDQAFlags.MuonTrkMonDoTrigger:
-    ToolSvc += CfgMgr.MuonSelectedTracksMon(OutputLevel = INFO) 
-    ToolSvc += CfgMgr.MuonGenericTracksMon(OutputLevel = INFO) 
+    #ToolSvc += CfgMgr.MuonSelectedTracksMon(OutputLevel = INFO) 
+    #ToolSvc += CfgMgr.MuonGenericTracksMon(OutputLevel = INFO) 
 # --------------For TriggerAware MuonTrk Monitoring---------------
 if MuonDQAFlags.doMuonTrackMon and MuonDQAFlags.MuonTrkMonDoTrigger:
     ### UseTriggerVector =True
-    ToolSvc += CfgMgr.MuonSelectedTracksMon_Trig(OutputLevel = INFO) 
-    ToolSvc += CfgMgr.MuonGenericTracksMon_Trig(OutputLevel = INFO)     
+    #ToolSvc += CfgMgr.MuonSelectedTracksMon_Trig(OutputLevel = INFO) 
+    #ToolSvc += CfgMgr.MuonGenericTracksMon_Trig(OutputLevel = INFO)     
     ### UseTriggerVector = False
-    ToolSvc += CfgMgr.MuonSelectedTracksMon_trigmu10(OutputLevel = INFO) 
-    ToolSvc += CfgMgr.MuonSelectedTracksMon_trigmu20(OutputLevel = INFO)         
-    ToolSvc += CfgMgr.MuonSelectedTracksMon_trigmu40(OutputLevel = INFO) 
-    ToolSvc += CfgMgr.MuonSelectedTracksMon_trig2mu10(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MuonGenericTracksMon_trigmu10(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MuonGenericTracksMon_trigmu20(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MuonGenericTracksMon_trigmu40(OutputLevel = INFO)
-    ToolSvc += CfgMgr.MuonGenericTracksMon_trig2mu10(OutputLevel = INFO)     
+    #ToolSvc += CfgMgr.MuonSelectedTracksMon_trigmu10(OutputLevel = INFO) 
+    #ToolSvc += CfgMgr.MuonSelectedTracksMon_trigmu20(OutputLevel = INFO)         
+    #ToolSvc += CfgMgr.MuonSelectedTracksMon_trigmu40(OutputLevel = INFO) 
+    #ToolSvc += CfgMgr.MuonSelectedTracksMon_trig2mu10(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonGenericTracksMon_trigmu10(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonGenericTracksMon_trigmu20(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonGenericTracksMon_trigmu40(OutputLevel = INFO)
+    #ToolSvc += CfgMgr.MuonGenericTracksMon_trig2mu10(OutputLevel = INFO)     
 # --------------For MuonEventInfo Monitoring----------------------------
 if MuonDQAFlags.doMuonEvtMon:
-    ToolSvc += CfgMgr.MuonDQA__MuonEventInfoMonTool(OutputLevel = INFO)  
+    #ToolSvc += CfgMgr.MuonDQA__MuonEventInfoMonTool(OutputLevel = INFO)  
 #--------------------------------------------------------------------------- 
 Service( "THistSvc" ).OutputLevel = WARNING
 #--------------------------------------------------------------------------- 
@@ -522,5 +522,5 @@ print theApp.TopAlg
 #--------------------------------------------------------------------------- 
 print topSequence
 print ServiceMgr
-print ToolSvc
+print #ToolSvc
 #======================================================================

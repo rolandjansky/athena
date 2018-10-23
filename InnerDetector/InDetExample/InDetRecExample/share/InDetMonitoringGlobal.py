@@ -37,9 +37,9 @@ if InDetFlags.doMonitoringGlobal():
                                                     checkRate     = 2000)
   
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetGlobalSynchMonTool.FilterTools.append(monFilledBunchFilterTool)
+    InDetGlobalSynchMonTool.FilterTools += [monFilledBunchFilterTool]
   
-  ToolSvc += InDetGlobalSynchMonTool
+  #ToolSvc += InDetGlobalSynchMonTool
   if (InDetFlags.doPrintConfigurables()):
       print InDetGlobalSynchMonTool
 
@@ -52,7 +52,7 @@ if InDetFlags.doMonitoringGlobal():
       from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalErrorMonTool
       InDetGlobalErrorMonTool=InDetGlobalErrorMonTool( name = "InDetGlobalErrorMonTool" )
   
-      ToolSvc += InDetGlobalErrorMonTool
+      #ToolSvc += InDetGlobalErrorMonTool
       if (InDetFlags.doPrintConfigurables()):
           print InDetGlobalErrorMonTool
 
@@ -86,8 +86,8 @@ if InDetFlags.doMonitoringGlobal():
                                                                                  TrackSummaryTool    = InDetTrackSummaryTool,
                                                                                  Extrapolator        = InDetExtrapolator)
 
-  ToolSvc += InDetTrackSelectionToolGlobalMon_Baseline
-  ToolSvc += InDetTrackSelectionToolGlobalMon_TightPrimary
+  #ToolSvc += InDetTrackSelectionToolGlobalMon_Baseline
+  #ToolSvc += InDetTrackSelectionToolGlobalMon_TightPrimary
   
   InDetGlobalTrackMonTool.Baseline_SelTool = InDetTrackSelectionToolGlobalMon_Baseline
   InDetGlobalTrackMonTool.Tight_SelTool = InDetTrackSelectionToolGlobalMon_TightPrimary
@@ -101,9 +101,9 @@ if InDetFlags.doMonitoringGlobal():
     InDetGlobalTrackMonTool.trackBin = 10
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetGlobalTrackMonTool.FilterTools.append(monFilledBunchFilterTool)
+    InDetGlobalTrackMonTool.FilterTools += [monFilledBunchFilterTool]
       
-  ToolSvc += InDetGlobalTrackMonTool
+  #ToolSvc += InDetGlobalTrackMonTool
   if (InDetFlags.doPrintConfigurables()):
       print InDetGlobalTrackMonTool
   
@@ -117,8 +117,8 @@ if InDetFlags.doMonitoringGlobal():
       InDetGlobalPixelTool=InDetGlobalPixelTool( name          = "InDetGlobalPixelTool")
 
       if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-        InDetGlobalPixelTool.FilterTools.append(monFilledBunchFilterTool)
-      ToolSvc += InDetGlobalPixelTool
+        InDetGlobalPixelTool.FilterTools += [monFilledBunchFilterTool]
+      #ToolSvc += InDetGlobalPixelTool
       if (InDetFlags.doPrintConfigurables()):
           print InDetGlobalPixelTool
   
@@ -131,7 +131,7 @@ if InDetFlags.doMonitoringGlobal():
   # InDetGlobalBCMTool=InDetGlobalBCMTool( name          = "InDetGlobalBCMTool")
 
   # if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  #   InDetGlobalBCMTool.FilterTools.append(monFilledBunchFilterTool)
+  #   InDetGlobalBCMTool.FilterTools += [monFilledBunchFilterTool]
   # ToolSvc += InDetGlobalBCMTool
   # if (InDetFlags.doPrintConfigurables()):
   #     print InDetGlobalBCMTool
@@ -150,8 +150,8 @@ if InDetFlags.doMonitoringGlobal():
                                                              useBeamspot = InDetFlags.useBeamConstraint()) 
       
       if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-        InDetGlobalBeamSpotMonTool.FilterTools.append(monFilledBunchFilterTool)
-      ToolSvc += InDetGlobalBeamSpotMonTool
+        InDetGlobalBeamSpotMonTool.FilterTools += [monFilledBunchFilterTool]
+      #ToolSvc += InDetGlobalBeamSpotMonTool
       if (InDetFlags.doPrintConfigurables()):
           print InDetGlobalBeamSpotMonTool
 
@@ -190,9 +190,9 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
                                                                    vxContainerNameSplit = InDetKeys.PrimaryVerticesSplitStream(),
                                                                    doEnhancedMonitoring = InDetFlags.doMonitoringPrimaryVertexingEnhanced())
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-     InDetGlobalPrimaryVertexMonTool.FilterTools.append(monFilledBunchFilterTool)
+     InDetGlobalPrimaryVertexMonTool.FilterTools += [monFilledBunchFilterTool]
 
-  ToolSvc += InDetGlobalPrimaryVertexMonTool
+  #ToolSvc += InDetGlobalPrimaryVertexMonTool
   if (InDetFlags.doPrintConfigurables()):
           print InDetGlobalPrimaryVertexMonTool
 
@@ -219,13 +219,13 @@ if InDetFlags.doMonitoringGlobal():
                                             OutputLevel=ERROR,
                                             PublicChainGroups = {"EFRandom": "EF_rd0_filled_NoAlg"}
                                             )
-    ToolSvc += monTrigDecTool
+    #ToolSvc += monTrigDecTool
   
   if rec.doTrigger == True:
     InDetVertexMonitoring.TrigDecisionTool = monTrigDecTool
     InDetVertexMonitoring.TriggerChain = "EF_rd0_filled_NoAlg"
   
-  ToolSvc += InDetVertexMonitoring
+  #ToolSvc += InDetVertexMonitoring
   InDetGlobalManager.AthenaMonTools += [ InDetVertexMonitoring]
 
 

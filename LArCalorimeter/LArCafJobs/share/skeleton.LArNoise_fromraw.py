@@ -313,7 +313,7 @@ if hasattr(runArgs,"outputHIST_LARNOISEFile"):
    theLArNoisyROMon.doHisto = True
    #theLArNoisyROMon.OutputLevel = DEBUG
    
-   ToolSvc += theLArNoisyROMon
+   #ToolSvc += theLArNoisyROMon
    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
    larRawMon=False
    larESDMon=True

@@ -97,10 +97,10 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
 
             phMonTool.FilterTools += [ monbadlb ]
 
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                phMonTool.FilterTools.append(monFilledBunchFilterTool)
-            ToolSvc+=phMonTool
-            monManEgamma.AthenaMonTools += [ "photonMonTool/phMonTool" ]
+            if jobproperties.Beam.beamType()=='collisions' and hasattr(#ToolSvc, 'DQFilledBunchFilterTool'):
+                phMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=phMonTool
+            monManEgamma.AthenaMonTools += [ phMonTool ]
 
         if(egammaMonitorElectrons):
             from egammaPerformance.egammaPerformanceConf import electronMonTool
@@ -118,10 +118,10 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
 
             elMonTool.FilterTools += [ monbadlb ]
 
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                elMonTool.FilterTools.append(monFilledBunchFilterTool)
-            ToolSvc+=elMonTool
-            monManEgamma.AthenaMonTools += [ "electronMonTool/elMonTool" ]
+            if jobproperties.Beam.beamType()=='collisions' and hasattr(#ToolSvc, 'DQFilledBunchFilterTool'):
+                elMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=elMonTool
+            monManEgamma.AthenaMonTools += [ elMonTool ]
 
 
         if(egammaMonitorFwdEg):
@@ -135,10 +135,10 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
 
             fwdMonTool.FilterTools += [ monbadlb ]
 
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                fwdMonTool.FilterTools.append(monFilledBunchFilterTool)
-            ToolSvc+=fwdMonTool
-            monManEgamma.AthenaMonTools += [ "forwardEgammaMonTool/fwdMonTool" ]    
+            if jobproperties.Beam.beamType()=='collisions' and hasattr(#ToolSvc, 'DQFilledBunchFilterTool'):
+                fwdMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=fwdMonTool
+            monManEgamma.AthenaMonTools += [ fwdMonTool ]    
 
         if(egammaMonitorSoftEg):
             from egammaPerformance.egammaPerformanceConf import softEMonTool
@@ -155,10 +155,10 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
 
             sfMonTool.FilterTools += [ monbadlb ]
 
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                sfMonTool.FilterTools.append(monFilledBunchFilterTool) 
-            ToolSvc+=sfMonTool
-            monManEgamma.AthenaMonTools += [ "softEMonTool/sfMonTool" ]
+            if jobproperties.Beam.beamType()=='collisions' and hasattr(#ToolSvc, 'DQFilledBunchFilterTool'):
+                sfMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=sfMonTool
+            monManEgamma.AthenaMonTools += [ sfMonTool ]
 
 
         if(egammaMonitorZee):
@@ -177,8 +177,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                         TrigDecisionTool = MyTrigDecisionTool,
                                         UseTrigger = DQMonFlags.useTrigger())
         
-            ToolSvc+=ZeeMonTool
-            monManEgamma.AthenaMonTools += [ "physicsMonTool/ZeeMonTool" ]
+            #ToolSvc+=ZeeMonTool
+            monManEgamma.AthenaMonTools += [ ZeeMonTool ]
 
         if(egammaMonitorJPsi):
             from egammaPerformance.egammaPerformanceConf import physicsMonTool
@@ -196,8 +196,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                          TrigDecisionTool = MyTrigDecisionTool,
                                          UseTrigger = DQMonFlags.useTrigger())
         
-            ToolSvc+=JPsiMonTool
-            monManEgamma.AthenaMonTools += [ "physicsMonTool/JPsiMonTool" ]
+            #ToolSvc+=JPsiMonTool
+            monManEgamma.AthenaMonTools += [ JPsiMonTool ]
 
 
         if(egammaMonitorUpsilon1S):
@@ -216,8 +216,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = DQMonFlags.useTrigger())
             
-            ToolSvc+=Upsilon1SMonTool
-            monManEgamma.AthenaMonTools += [ "physicsMonTool/Upsilon1SMonTool" ]
+            #ToolSvc+=Upsilon1SMonTool
+            monManEgamma.AthenaMonTools += [ Upsilon1SMonTool ]
 
 
         if(egammaMonitorUpsilon2S):
@@ -236,8 +236,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = DQMonFlags.useTrigger())
             
-            ToolSvc+=Upsilon2SMonTool
-            monManEgamma.AthenaMonTools += [ "physicsMonTool/Upsilon2SMonTool" ]
+            #ToolSvc+=Upsilon2SMonTool
+            monManEgamma.AthenaMonTools += [ Upsilon2SMonTool ]
 
         if(egammaMonitorWenu):
             from egammaPerformance.egammaPerformanceConf import ephysicsMonTool
@@ -261,8 +261,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                           TrigDecisionTool = MyTrigDecisionTool,
                                           UseTrigger = DQMonFlags.useTrigger())
             
-            ToolSvc+=WenuMonTool
-            monManEgamma.AthenaMonTools += [ "ephysicsMonTool/WenuMonTool" ]
+            #ToolSvc+=WenuMonTool
+            monManEgamma.AthenaMonTools += [ WenuMonTool ]
 
 
         if(egammaMonitorTop):
@@ -287,8 +287,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                           TrigDecisionTool = MyTrigDecisionTool,
                                           UseTrigger = DQMonFlags.useTrigger())
             
-            ToolSvc+=TopMonTool
-            monManEgamma.AthenaMonTools += [ "TopphysicsMonTool/TopMonTool" ]
+            #ToolSvc+=TopMonTool
+            monManEgamma.AthenaMonTools += [ TopMonTool ]
         
             
 
