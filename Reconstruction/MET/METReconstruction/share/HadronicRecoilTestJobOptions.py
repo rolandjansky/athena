@@ -9,10 +9,8 @@ from glob import glob
 
 #ServiceMgr.StoreGateSvc.Dump = True
 
-
+# For tests can be used raw AOD data/MC
 #filelist = glob("/atlas/data1/userdata/khoo/Data16/AOD_r21/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
-#filelist = glob("/sps/atlas/a/atrofymo/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
-filelist = glob("/sps/atlas/a/atrofymo/lowmu_AOD_mc_zee/mc16_13TeV/AOD.13048120._000001.pool.root.1")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = filelist
@@ -117,12 +115,11 @@ associators = [AssocConfig(JetType),
                AssocConfig('Ele'),
                AssocConfig('Gamma'),
                AssocConfig('Soft')]
-cfg_akt4pf = METAssocConfig('NewAntiKt4EMPFlow',
+cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
 #cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
                             associators,
                             doPFlow=True,
                             doRecoil=False,
-                            #modConstKey="JetETMissNeutralParticleFlowObjects"
                             modConstKey="CHSParticleFlowObjects"
                             )
 

@@ -256,13 +256,6 @@ STDM4Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 DerivationFrameworkJob += STDM4Sequence
 
 
-
-# PFlow jets
-#addCHSPFlowObjects()
-#addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="CHS", ptmin=5000, ptminFilter=10000, mods="pflow_ungroomed", algseq=STDM4Sequence, outputGroup="STDM4",calibOpt="ar:pflow")
-
-
-
 ##############
 # PFlow augmentation
 applyPFOAugmentation(STDM4Sequence)

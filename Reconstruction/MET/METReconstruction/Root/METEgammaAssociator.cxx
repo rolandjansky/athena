@@ -269,8 +269,9 @@ namespace met {
 
     // Fill neutral PFOs from nearbyPFO to pfolist
     for(const auto& pfo : nearbyPFO) {
-      if( fabs(pfo->charge()) > FLT_MIN )
+      if( fabs(pfo->charge()) > FLT_MIN ){
         continue;
+      }
       pfolist.push_back(pfo);
     }
 
@@ -279,8 +280,9 @@ namespace met {
       // Vectoral sum of all PFOs 
       TLorentzVector HR;  // uncorrected HR (initialized with 0,0,0,0 automatically)
       for(const auto& pfo_itr : *constits.pfoCont) {
-        if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
+        if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) { // sanity check
           continue;
+        }
         HR += pfo_itr->p4();
       }
 
@@ -288,25 +290,29 @@ namespace met {
       std::vector<const xAOD::IParticle*> v_swclus;
       for(const auto& obj_i : hardObjs){
         const xAOD::Egamma* eg_curr = static_cast<const xAOD::Egamma*>(obj_i); // current egamma object
-        if( eg_curr->caloCluster() )
+        if( eg_curr->caloCluster() ) {
           v_swclus.push_back( eg_curr->caloCluster() );       
+        }
       }
   
       // Subtruct PFOs which are in the cone around swclus (gives uncorrected HR)
       for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
-        if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
-          continue;  
+        if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) { // sanity check
+          continue;
+        }  
         for(const auto& swclus_i : v_swclus) { // loop over swclus
           double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), swclus_i->eta(), swclus_i->phi() );
-          if( dR < m_Drcone )
+          if( dR < m_Drcone ) {
             HR -= pfo_i->p4();
+          }
         } // over swclus
       } // over PFOs
 
       // Save v_swclus as a vector TLV (as commonn type for electrons and muons)
       std::vector<TLorentzVector> v_swclusTLV;  
-      for(const auto& swclus_i : v_swclus) // loop over v_swclus
+      for(const auto& swclus_i : v_swclus) { // loop over v_swclus
         v_swclusTLV.push_back( swclus_i->p4() );
+      }
 
       // Save current swclus as TLV
       TLorentzVector swclusTLV = swclus->p4();

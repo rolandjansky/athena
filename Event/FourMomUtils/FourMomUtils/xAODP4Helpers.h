@@ -171,8 +171,9 @@ namespace xAOD
   
       // delta phi
       float dphi = std::fabs(phi1 - phi2);
-      if (dphi > TMath::Pi()) 
+      if (dphi > TMath::Pi()) { 
         dphi = 2*TMath::Pi() - dphi;
+      }
     
       // dR
       return std::sqrt(deta*deta + dphi*dphi);  

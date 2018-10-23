@@ -37,6 +37,9 @@
 // For DeltaR
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+using CLHEP::GeV;
+
 namespace met {
 
   using namespace xAOD;
@@ -371,7 +374,7 @@ namespace met {
       unsigned int seed = 0;
       TRandom3 hole;
       if( !v_clus.empty() ){
-        seed = floor( v_clus.back().Pt() * 1.e3 );     
+        seed = floor( v_clus.back().Pt() * GeV );     
         hole.SetSeed(seed);
       }
 
@@ -383,16 +386,16 @@ namespace met {
         isNextToHR = true;
     
         phiRnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
-        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), clus.Eta(), phiRnd );
-    
-        if(dR > MinDistCone) 
+        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), clus.Eta(), phiRnd );    
+        if(dR > MinDistCone){
           isNextToHR = false;
-    
+        }    
         for(const auto& clus_j : v_clus) {
-           dR = P4Helpers::deltaR( clus.Eta(), phiRnd, clus_j.Eta(), clus_j.Phi() );
-           if(dR < MinDistCone)
+          dR = P4Helpers::deltaR( clus.Eta(), phiRnd, clus_j.Eta(), clus_j.Phi() );
+          if(dR < MinDistCone){
              isNextToPart = true;
-         } // swclus_j
+          }
+        } // swclus_j
       } // while isNextToPart, isNextToHR
   
       // 2. Calculete UE correction
@@ -400,17 +403,20 @@ namespace met {
       std::pair <double, double> eta_rndphi; // pair of current cluser eta and random phi
       eta_rndphi.first  = clus.Eta();
       eta_rndphi.second = phiRnd;  
-      for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
-        if( pfo_itr->e() < 0)
+      for(const auto& pfo_itr : *constits.pfoCont){ // loop over PFOs
+        if( pfo_itr->e() < 0){
           continue;
+        }
         double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
         if( dR < Drcone ){
           // Calculate delta phi
           float dphi_angle = std::fabs( clus.Phi() - pfo_itr->phi() );
-          if( dphi_angle > TMath::Pi() ) 
+          if( dphi_angle > TMath::Pi() ){ 
             dphi_angle = 2*TMath::Pi() - dphi_angle;
-          if( clus.Phi() <  pfo_itr->phi() )
+          }
+          if( clus.Phi() <  pfo_itr->phi() ) {
             dphi_angle = -1. * dphi_angle;
+          }
           // Rotate on dphi_angle
           TLorentzVector tv_pfo = pfo_itr->p4();
           tv_pfo.RotateZ(dphi_angle);
