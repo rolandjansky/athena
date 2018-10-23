@@ -219,7 +219,9 @@ std::string strToLower( const std::string& str );
 
 AthenaMonManager::
 AthenaMonManager( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthAlgorithm( name, pSvcLocator ), m_THistSvc(0), m_d(new Imp(this, name))
+  : AthAlgorithm( name, pSvcLocator ), m_THistSvc(0)
+  , m_monTools( this )
+  , m_d(new Imp(this, name))
 {
     declareProperty( "AthenaMonTools", m_monTools );
     declareProperty( "CheckEveryNoEvents", m_d->m_everyNevents );

@@ -143,12 +143,12 @@ if 'DOTIER0' in dir():
                    histoPathBase      = "HLT");
 
 
-    ToolSvc += HLTMon;
-    HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+    #ToolSvc += HLTMon;
+    HLTMonManager.AthenaMonTools += [ HLTMon ];
     
     from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig
-    TrigEgammaMonToolConfig.TrigEgammaMonTool()
-    HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool" ]
+    TrigEgammaMonTool = TrigEgammaMonToolConfig.TrigEgammaMonTool()
+    HLTMonManager.AthenaMonTools += [ TrigEgammaMonTool ]
     HLTMonManager.FileKey = "GLOBAL"
 
 elif 'DO50ns' in dir():
@@ -172,12 +172,12 @@ elif 'DO50ns' in dir():
                    histoPathBase      = "HLT");
 
 
-    ToolSvc += HLTMon;
-    HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+    #ToolSvc += HLTMon;
+    HLTMonManager.AthenaMonTools += [ HLTMon ];
     
     from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig50ns
-    TrigEgammaMonToolConfig50ns.TrigEgammaMonTool()
-    HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool" ]
+    TrigEgammaMonTool = TrigEgammaMonToolConfig50ns.TrigEgammaMonTool()
+    HLTMonManager.AthenaMonTools += [ TrigEgammaMonTool ]
     HLTMonManager.FileKey = "GLOBAL"
 elif 'DOPHYSVAL' in dir():
     from AthenaCommon.AlgSequence import AlgSequence

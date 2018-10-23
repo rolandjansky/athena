@@ -10,17 +10,18 @@
 
 // Definition of different error codes for the PSC
 namespace hltonl {
-  enum PSCErrorCode {
-    PSC_ERROR_UNCLASSIFIED = 0x0,
-    PSC_ERROR_NO_L1_RESULT = 0x1,
-    PSC_ERROR_SG_CLEAR_FAILED = 0x2,
-    PSC_ERROR_NO_EVENTINFO = 0x3,
-    PSC_ERROR_NO_VALID_EVENT = 0x4,
-    PSC_ERROR_NO_HLTRESULT_FOUND = 0x10, 
-    PSC_ERROR_NO_HLTRESULT_RETRIEVED = 0x11,
-    PSC_ERROR_INVALID_CTP_RESULT = 0x101,
-    PSC_ERROR_ROB_BUILD_FAILED = 0x102,
-    NUM_PSC_ERROR_CODES = 9
+  enum class PSCErrorCode : uint32_t {
+    UNCLASSIFIED          = 0,
+    BEFORE_NEXT_EVENT     = 1,
+    CANNOT_RETRIEVE_EVENT = 2,
+    NO_EVENT_INFO         = 3,
+    SCHEDULING_FAILURE    = 4,
+    CANNOT_ACCESS_SLOT    = 5,
+    PROCESSING_FAILURE    = 6,
+    NO_HLT_RESULT         = 7,
+    OUTPUT_BUILD_FAILURE  = 8,
+    OUTPUT_SEND_FAILURE   = 9,
+    AFTER_RESULT_SENT     = 10
   };
 
   /// helper class to map HLT PSC error code on a string name or a int index
@@ -36,15 +37,17 @@ namespace hltonl {
 
 inline hltonl::MapPscErrorCode::MapPscErrorCode() {
   // add error codes and description
-  add(hltonl::PSC_ERROR_UNCLASSIFIED          ,"PSC_ERROR_UNCLASSIFIED") ;
-  add(hltonl::PSC_ERROR_NO_L1_RESULT          ,"PSC_ERROR_NO_L1_RESULT") ;
-  add(hltonl::PSC_ERROR_SG_CLEAR_FAILED       ,"PSC_ERROR_SG_CLEAR_FAILED") ;
-  add(hltonl::PSC_ERROR_NO_EVENTINFO          ,"PSC_ERROR_NO_EVENTINFO") ;
-  add(hltonl::PSC_ERROR_NO_VALID_EVENT        ,"PSC_ERROR_NO_VALID_EVENT") ;
-  add(hltonl::PSC_ERROR_NO_HLTRESULT_FOUND    ,"PSC_ERROR_NO_HLTRESULT_FOUND") ;
-  add(hltonl::PSC_ERROR_NO_HLTRESULT_RETRIEVED,"PSC_ERROR_NO_HLTRESULT_RETRIEVED") ;
-  add(hltonl::PSC_ERROR_INVALID_CTP_RESULT    ,"PSC_ERROR_INVALID_CTP_RESULT") ;
-  add(hltonl::PSC_ERROR_ROB_BUILD_FAILED      ,"PSC_ERROR_ROB_BUILD_FAILED") ;
+  add(hltonl::PSCErrorCode::UNCLASSIFIED,          "PSCErrorCode::UNCLASSIFIED");
+  add(hltonl::PSCErrorCode::BEFORE_NEXT_EVENT,     "PSCErrorCode::BEFORE_NEXT_EVENT");
+  add(hltonl::PSCErrorCode::CANNOT_RETRIEVE_EVENT, "PSCErrorCode::CANNOT_RETRIEVE_EVENT");
+  add(hltonl::PSCErrorCode::NO_EVENT_INFO,         "PSCErrorCode::NO_EVENT_INFO");
+  add(hltonl::PSCErrorCode::SCHEDULING_FAILURE,    "PSCErrorCode::SCHEDULING_FAILURE");
+  add(hltonl::PSCErrorCode::CANNOT_ACCESS_SLOT,    "PSCErrorCode::CANNOT_ACCESS_SLOT");
+  add(hltonl::PSCErrorCode::PROCESSING_FAILURE,    "PSCErrorCode::PROCESSING_FAILURE");
+  add(hltonl::PSCErrorCode::NO_HLT_RESULT,         "PSCErrorCode::NO_HLT_RESULT");
+  add(hltonl::PSCErrorCode::OUTPUT_BUILD_FAILURE,  "PSCErrorCode::OUTPUT_BUILD_FAILURE");
+  add(hltonl::PSCErrorCode::OUTPUT_SEND_FAILURE,   "PSCErrorCode::OUTPUT_SEND_FAILURE");
+  add(hltonl::PSCErrorCode::AFTER_RESULT_SENT,     "PSCErrorCode::AFTER_RESULT_SENT");
   // return values in case of invalid code
   invalidCode("UNDEFINED",-1);
 }

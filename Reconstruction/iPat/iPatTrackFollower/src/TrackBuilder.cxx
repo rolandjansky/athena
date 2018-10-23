@@ -15,6 +15,14 @@
 #include "iPatTrack/Track.h"
 #include "iPatTrackFollower/TrackBuilder.h"
 
+namespace{
+  template <class ContainerPtr>
+  void deleteContainedPointers(ContainerPtr * c){
+    for (auto & p:*c) delete p;
+    return;
+  }
+}
+
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 TrackBuilder::TrackBuilder(const std::string&	type,
@@ -85,8 +93,8 @@ TrackBuilder::trackFromHits (TrackStatus status,
 					 hits->begin(),
 					 hits->end()))
     {
-	for (std::list<HitOnTrack*>::const_iterator h = hits->begin(); h != hits->end(); ++h)
-	    delete *h;
+    deleteContainedPointers(hits);
+
 	delete hits;
 	delete hitQuality;
 	ATH_MSG_DEBUG( "trackFromHits: FAIL with insufficient hits" );
@@ -172,19 +180,16 @@ TrackBuilder::trackFromHits (TrackStatus status,
     else
     {
 	delete hitQuality;
-	for (std::list<HitOnTrack*>::const_iterator h = hits->begin(); h != hits->end(); ++h)
-	    delete *h;
+	deleteContainedPointers(hits);
+
 	hits->clear();
 	delete hits;
 	delete fitQuality;
 	delete perigeeParameters;
 	if (scattererParameters)
 	{
-	    for (parameter_iterator s = scattererParameters->begin();
-		 s != scattererParameters->end();
-		 ++s)
-		delete *s;
-	    delete scattererParameters;
+	  deleteContainedPointers(scattererParameters);
+	  delete scattererParameters;
 	}
 	ATH_MSG_DEBUG( "trackFromHitsFAIL with bad fit quality" );
 	return 0;
@@ -223,7 +228,7 @@ TrackBuilder::trackRefit (const Track& track) const
 				    hits->begin(),
 				    hits->end());
 
-    if (m_trackQuality->goodTrack(track.status(),*fitQuality,*hitQuality))
+    if (scattererParameters and m_trackQuality->goodTrack(track.status(),*fitQuality,*hitQuality))
     {
 	builtTrack	= new Track(track.status(),
 				    hits,
@@ -239,18 +244,14 @@ TrackBuilder::trackRefit (const Track& track) const
     {
 	// TODO: the plan is to build last-layers SCT + trt secondary tracks here
 	delete hitQuality;
-	for (std::list<HitOnTrack*>::const_iterator h = hits->begin(); h != hits->end(); ++h)
-	    delete *h;
+	deleteContainedPointers(hits);
 	hits->clear();
 	delete hits;
 	delete fitQuality;
 	delete perigeeParameters;
 	if (scattererParameters)
 	{
-	    for (parameter_iterator s = scattererParameters->begin();
-		 s != scattererParameters->end();
-		 ++s)
-		delete *s;
+	    deleteContainedPointers(scattererParameters);
 	    delete scattererParameters;
 	}
 	ATH_MSG_DEBUG( "trackRefit: FAIL with bad fit quality" );

@@ -71,7 +71,7 @@ mdtRawDataValAlg_main = MdtRawDataValAlg(name='mdtRawDataValAlg_main',
 					 nHits_NoiseThreshold = 10000
                                          )
 
-ToolSvc += mdtRawDataValAlg_main
+#ToolSvc += mdtRawDataValAlg_main
 mdtRawMonMan.AthenaMonTools += [ mdtRawDataValAlg_main ]
 
 if( isTier0Flag ) :
@@ -124,7 +124,7 @@ if( isTier0Flag ) :
             mdtRawDataValAlg_express.TriggerChain = "L1_MU0, L1_MU6, L1_MU10, L1_MU15, L1_MU20"
     #end if useTrigger
     
-    ToolSvc += mdtRawDataValAlg_express
+    #ToolSvc += mdtRawDataValAlg_express
     mdtRawMonMan.AthenaMonTools += [ mdtRawDataValAlg_express ]
 #end if( isTier0Flag )
 

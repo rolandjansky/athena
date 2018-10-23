@@ -34,18 +34,7 @@ StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::Se
 			    m_configSvc->ctpConfig()->menu().itemVector(),
 			    seeding ) );
 
-  m_jetThresholds.clear();
-  const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::JET ) ) {
-    if ( th != nullptr ) {
-      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
-      m_jetThresholds.push_back( th );    
-    }
-  }
-  //
-  
-
-  //  m_jetThresholds.clear();
+  m_jetThresholds.clear();  
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JET ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JF ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JB ), m_jetThresholds ) );

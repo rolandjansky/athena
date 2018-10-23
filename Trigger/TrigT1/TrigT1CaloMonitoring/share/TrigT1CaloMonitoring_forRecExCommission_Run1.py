@@ -35,7 +35,7 @@ if l1caloRawMon:
     L1CaloMan = AthenaMonManager( "L1CaloMonManager" )
     
     ## get a handle on the ToolSvc
-    from AthenaCommon.AppMgr import ToolSvc
+    #from AthenaCommon.AppMgr import ToolSvc
     
     if globalflags.InputFormat() == "bytestream":
         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
@@ -83,7 +83,7 @@ if l1caloRawMon:
             PathInRootFile = "L1Calo/PPrStabilityMon",
             #OutputLevel = DEBUG
             )
-        ToolSvc += L1PPrStabilityMonTool
+        #ToolSvc += L1PPrStabilityMonTool
         L1CaloMan.AthenaMonTools += [ L1PPrStabilityMonTool ]
     
     else:
@@ -104,7 +104,7 @@ if l1caloRawMon:
                 PathInRootFile = "L1Calo/PPM/Stability",
                 #OutputLevel = DEBUG
                 )
-            ToolSvc += L1PPrStabilityMonTool
+            #ToolSvc += L1PPrStabilityMonTool
             L1CaloMan.AthenaMonTools += [ L1PPrStabilityMonTool ]
     
         #=================================================================================
@@ -127,14 +127,14 @@ if l1caloRawMon:
             #OnlineTest = True,
             #OutputLevel = DEBUG
             )
-        ToolSvc += L1PPrMonTool
+        #ToolSvc += L1PPrMonTool
         L1CaloMan.AthenaMonTools += [ L1PPrMonTool ]
 
         if isData:
                 
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPMSimBSMon
             PPMSimBSMonTool = LVL1__PPMSimBSMon("PPMSimBSMonTool")
-            ToolSvc += PPMSimBSMonTool
+            #ToolSvc += PPMSimBSMonTool
             L1CaloMan.AthenaMonTools += [ PPMSimBSMonTool ]
             #ToolSvc.PPMSimBSMonTool.OutputLevel = DEBUG
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1TriggerTowerTool
@@ -152,7 +152,7 @@ if l1caloRawMon:
                 ErrorPathInRootFile = "L1Calo/PPM/SpareChannels/Errors",
                 #OutputLevel = DEBUG
                 )
-            ToolSvc += L1PPrSpareMonTool
+            #ToolSvc += L1PPrSpareMonTool
             L1CaloMan.AthenaMonTools += [ L1PPrSpareMonTool ]
     
         #=================================================================================
@@ -172,7 +172,7 @@ if l1caloRawMon:
             ErrorPathInRootFile = "L1Calo/JEM/Errors/Hardware",
             #OutputLevel = DEBUG
             )
-        ToolSvc += L1JEMMonTool
+        #ToolSvc += L1JEMMonTool
         L1CaloMan.AthenaMonTools += [ L1JEMMonTool ]
     
         #----------------------------------- CMM ------------------------------------------
@@ -186,7 +186,7 @@ if l1caloRawMon:
             ErrorPathInRootFile = "L1Calo/JEM_CMM/Errors/Hardware",
             #OutputLevel = DEBUG
             )
-        ToolSvc += L1CMMMonTool
+        #ToolSvc += L1CMMMonTool
         L1CaloMan.AthenaMonTools += [ L1CMMMonTool ]
     
         
@@ -201,7 +201,7 @@ if l1caloRawMon:
         #         JetTool = "LVL1::L1JetTools/L1JetTools_Mon",
         #         JEPEtSumsTool = "LVL1::L1JEPEtSumsTools/L1JEPEtSumsTools_Mon",
         #         )
-        #     ToolSvc += JEPSimBSMonTool
+        #     #ToolSvc += JEPSimBSMonTool
         #     L1CaloMan.AthenaMonTools += [ JEPSimBSMonTool ]
         #     #ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
     
@@ -238,7 +238,7 @@ if l1caloRawMon:
             MaxEnergyRange = 256,
             #OutputLevel = DEBUG,
             )
-        ToolSvc += L1BSCPMMonTool
+        #ToolSvc += L1BSCPMMonTool
         L1CaloMan.AthenaMonTools += [ L1BSCPMMonTool ]
     
         if isData:
@@ -247,9 +247,9 @@ if l1caloRawMon:
             CPMSimBSMonTool = LVL1__CPMSimBSMon("CPMSimBSMonTool",
                                       EmTauTool = "LVL1::L1EmTauTools/L1EmTauTools_Mon",
                                       )
-            ToolSvc += CPMSimBSMonTool
+            #ToolSvc += CPMSimBSMonTool
             L1CaloMan.AthenaMonTools += [ CPMSimBSMonTool ]
-            #ToolSvc.CPMSimBSMonTool.OutputLevel = DEBUG
+            ##ToolSvc.CPMSimBSMonTool.OutputLevel = DEBUG
     
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EmTauTools
             L1EmTauTools = LVL1__L1EmTauTools("L1EmTauTools_Mon")
@@ -265,7 +265,7 @@ if l1caloRawMon:
                 #OnlineTest = True,
                 #OutputLevel = DEBUG,
                 )
-            ToolSvc += L1BSRODMonTool
+            #ToolSvc += L1BSRODMonTool
             L1CaloMan.AthenaMonTools += [ L1BSRODMonTool ]
     
             #=================================================================================
@@ -281,7 +281,7 @@ if l1caloRawMon:
     						        #OnlineTest = True,
     						        #OutputLevel = DEBUG
                                                       )
-            ToolSvc += L1GlobalMonTool
+            #ToolSvc += L1GlobalMonTool
             L1CaloMan.AthenaMonTools += [ L1GlobalMonTool ]
     
         # if isData and isCalo and Offline and (rec.triggerStream() == "JetTauEtmiss"
@@ -296,7 +296,7 @@ if l1caloRawMon:
         #     L1EmEfficienciesMonTool = LVL1__EmEfficienciesMonTool ( name = "EmEfficienciesMonTool",
         #                                                           TriggerStrings = trigstring
         #                                                     )
-        #     ToolSvc += L1EmEfficienciesMonTool
+        #     #ToolSvc += L1EmEfficienciesMonTool
         #     L1CaloMan.AthenaMonTools += [ L1EmEfficienciesMonTool ]
         #     if not hasattr( ToolSvc, "TrigDecisionTool" ):
         #         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
@@ -319,17 +319,17 @@ if l1caloRawMon:
         #     L1JetEfficienciesMonTool = LVL1__JetEfficienciesMonTool ( name = "JetEfficienciesMonTool",
         #                                                           TriggerStrings = trigstring
         #                                                       )
-        #     from AthenaCommon.AppMgr import ToolSvc
+        #     #from AthenaCommon.AppMgr import ToolSvc
         #     ToolSvc += JetCleaningTool('JetCleaningLooseTool')
-        #     # ToolSvc += JetCleaningTool('JetCleaningMediumTool')
+        #      #ToolSvc += JetCleaningTool('JetCleaningMediumTool')
         #     ToolSvc += JetCleaningTool('JetCleaningTightTool')
         #     L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredJetCleaningTool_Loose("JetCleaningLooseTool")       
         #     # L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredJetCleaningTool_Medium("JetCleaningMediumTool")
         #     L1JetEfficienciesMonTool.JetCleaningTightTool = ConfiguredJetCleaningTool_Tight("JetCleaningTightTool") 
 
-        #     ToolSvc += L1JetEfficienciesMonTool
+        #     #ToolSvc += L1JetEfficienciesMonTool
         #     L1CaloMan.AthenaMonTools += [ L1JetEfficienciesMonTool ]
-        #     if not hasattr( ToolSvc, "TrigDecisionTool" ):
+        #     if not hasattr( #ToolSvc, "TrigDecisionTool" ):
         #         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
         #         tdt = Trig__TrigDecisionTool('TrigDecisionTool')
         #         ToolSvc += tdt

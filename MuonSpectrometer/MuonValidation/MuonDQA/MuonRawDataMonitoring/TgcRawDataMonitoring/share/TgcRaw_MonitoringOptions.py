@@ -19,7 +19,7 @@ tgcLv1RawMonMan = AthenaMonManager(name="TgcLv1RawMonManager",
 from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcRawDataValAlg
 tgcRawDataValAlg = TgcRawDataValAlg(name='tgcRawDataValAlg',
                                     TgcPrepDataContainer="TGC_Measurements")
-ToolSvc += tgcRawDataValAlg
+#ToolSvc += tgcRawDataValAlg
 tgcRawMonMan.AthenaMonTools += [ tgcRawDataValAlg ]
 topSequence += tgcRawMonMan
 print tgcRawMonMan
@@ -28,7 +28,7 @@ from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcLv1RawDataValAlg
 tgcLv1RawDataValAlg = TgcLv1RawDataValAlg(name='tgcLv1RawDataValAlg')
 
 if DQMonFlags.useTrigger():
-    ToolSvc += tgcLv1RawDataValAlg
+    #ToolSvc += tgcLv1RawDataValAlg
     tgcLv1RawMonMan.AthenaMonTools += [ tgcLv1RawDataValAlg  ]
     topSequence += tgcLv1RawMonMan
     print tgcLv1RawMonMan

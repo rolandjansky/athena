@@ -17,7 +17,7 @@ theLArCosmicsMonTool = LArCosmicsMonTool(name="LArCosmicsMonTool",
 theLArCosmicsMonTool.LArPedestalKey='LArPedestal'
    
     
-ToolSvc += theLArCosmicsMonTool
+#ToolSvc += theLArCosmicsMonTool
 LArMon.AthenaMonTools+=[ theLArCosmicsMonTool ]
 
                                     
