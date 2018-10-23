@@ -47,7 +47,7 @@ namespace Trk {
     m_tsType(rhs.m_tsType),
     m_trackpar(rhs.m_trackpar), // ? (rhs.m_owntp ? rhs.m_trackpar->clone() : rhs.m_trackpar) : 0),
     m_materialEffects(rhs.m_materialEffects ? new GXFMaterialEffects(*rhs.m_materialEffects) : 0),
-    m_derivs(rhs.m_derivs),
+    m_derivs(rhs.m_derivs ? new Amg::MatrixX( *rhs.m_derivs ): nullptr ),
     m_covariancematrix(rhs.m_covariancematrix ? (rhs.m_owncov ? new AmgSymMatrix(5)(*rhs.m_covariancematrix) : rhs.
                                                   m_covariancematrix) : 0),
     m_fitqual(rhs.m_fitqual ? (rhs.m_ownfq ? new FitQualityOnSurface(*rhs.m_fitqual) : rhs.m_fitqual) : 0),
@@ -145,6 +145,7 @@ namespace Trk {
     if (m_ownfq) {
       delete m_fitqual;
     }
+    delete m_derivs;
   }
 
   GXFTrackState &
@@ -160,7 +161,7 @@ namespace Trk {
       m_tsType = rhs.m_tsType;
       m_trackpar = rhs.m_trackpar;// ? (rhs.m_owntp ? rhs.m_trackpar->clone() : rhs.m_trackpar ) : 0;
       m_materialEffects = rhs.m_materialEffects ? new GXFMaterialEffects(*rhs.m_materialEffects) : 0;
-      m_derivs = rhs.m_derivs;
+      m_derivs = rhs.m_derivs ? new Amg::MatrixX( *rhs.m_derivs ): nullptr ;
       delete m_covariancematrix;
       m_covariancematrix =
         rhs.m_covariancematrix ? (rhs.m_owncov ? new AmgSymMatrix(5)(*rhs.m_covariancematrix) : rhs.m_covariancematrix)
@@ -243,7 +244,10 @@ namespace Trk {
 
   void
   GXFTrackState::setDerivatives(Amg::MatrixX& deriv) {
-    m_derivs = &deriv;
+    if(m_derivs)
+      delete  m_derivs;
+
+    m_derivs = new Amg::MatrixX(deriv);
   }
 
   void

@@ -128,6 +128,7 @@ namespace Trk {
     bool m_ownmb;
     bool m_ownfq;
     bool m_owncov;
+    bool m_ownder;
     bool m_measphi;
     Amg::Vector3D m_globpos;
   };

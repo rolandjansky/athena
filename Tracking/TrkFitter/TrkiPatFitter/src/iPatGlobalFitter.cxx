@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////
 // iPatGlobalFitter.cxx
-//   access full derivative and covariance matrices 
+//   access full derivative and covariance matrices
 //
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -18,9 +18,9 @@
 #include "TrkiPatFitter/iPatGlobalFitter.h"
 
 namespace Trk
-{ 
+{
 
-iPatGlobalFitter::iPatGlobalFitter (const std::string&	type, 
+iPatGlobalFitter::iPatGlobalFitter (const std::string&	type,
 				    const std::string&	name,
 				    const IInterface*	parent)
     :	iPatFitter			(type, name, parent),
@@ -37,6 +37,33 @@ iPatGlobalFitter::~iPatGlobalFitter (void)
     delete m_derivativeMatrix;
 }
 
+Track* iPatGlobalFitter::alignmentFit ( AlignmentCache& alignCache,
+											const Track& trk,
+											const RunOutlierRemoval  runOutlier,
+											const ParticleHypothesis matEffects) const
+{
+  //  @TODO ensure the number of iterations is passed through to the fitter
+	//setMinIterations (alignCache.m_minIterations);
+  if(alignCache.m_derivMatrix != nullptr)
+	  delete alignCache.m_derivMatrix;
+	alignCache.m_derivMatrix = nullptr;
+
+	if(alignCache.m_fullCovarianceMatrix != nullptr)
+	 delete alignCache.m_fullCovarianceMatrix;
+	alignCache.m_fullCovarianceMatrix =  nullptr;
+  alignCache.m_iterationsOfLastFit = 0;
+
+	Trk::Track* refittedTrack  = fit( trk, runOutlier, matEffects );
+
+  if(refittedTrack){
+		alignCache.m_derivMatrix = DerivMatrix();
+	  alignCache.m_fullCovarianceMatrix = FullCovarianceMatrix();
+	  alignCache.m_iterationsOfLastFit = iterationsOfLastFit();
+	}
+	return refittedTrack;
+}
+
+
 Amg::MatrixX*
 iPatGlobalFitter::DerivMatrix() const
 {
@@ -44,7 +71,7 @@ iPatGlobalFitter::DerivMatrix() const
     delete m_derivativeMatrix;
     m_derivativeMatrix		= 0;
     if (! m_measurements || ! m_parameters)	return 0;
-    
+
     int numberParameters	= 5;
     if (m_allParameters) numberParameters = m_parameters->numberParameters();
     int rows	= 0;
@@ -52,15 +79,15 @@ iPatGlobalFitter::DerivMatrix() const
          m != m_measurements->end();
 	 ++m)
     {
-	if (! (**m).isPositionMeasurement())	continue;
-	rows += (**m).numberDoF();
+			if (! (**m).isPositionMeasurement())	continue;
+			rows += (**m).numberDoF();
     }
-    
+
     if (! numberParameters || ! rows)		return 0;
-    
+
     ATH_MSG_VERBOSE ( " DerivMatrix : " << m_measurements->size() << " measurement objects giving "
 		      << rows << " rows and " << numberParameters << " columns (parameters)" );
-    
+
     m_derivativeMatrix = new Amg::MatrixX(rows,numberParameters);
     int row	= 0;
     for (std::vector<FitMeasurement*>::iterator m = m_measurements->begin();
@@ -70,7 +97,7 @@ iPatGlobalFitter::DerivMatrix() const
 	if (! (**m).numberDoF() || ! (**m).isPositionMeasurement())	continue;
 	double norm	= 0.;
 	if ((**m).weight() > 0.) norm = 1./(**m).weight();
-	
+
 	for (int col = 0; col < numberParameters; ++col)
 	{
 	    (*m_derivativeMatrix)(row,col) = norm*(**m).derivative(col);
@@ -98,7 +125,7 @@ iPatGlobalFitter::DerivMatrix() const
 
     return m_derivativeMatrix;
 }
-    
+
 Amg::MatrixX*
 iPatGlobalFitter::FullCovarianceMatrix() const
 {
@@ -113,11 +140,11 @@ int
 iPatGlobalFitter::iterationsOfLastFit() const
 { return m_iterations; }
 
-  
+
 void
 iPatGlobalFitter::setMinIterations(int minIterations)
 {
     m_fitProcedure->setMinIterations(minIterations);
 }
-  
+
 } // end of namespace
