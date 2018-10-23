@@ -12,6 +12,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TTree.h"
+#include <vector>
 
 namespace DerivationFramework {
 
@@ -37,6 +38,41 @@ namespace DerivationFramework {
       TH1F  *hcl_pt;
       TH1F  *hcl_e;
       TH1F  *hcl_dr;
+
+      TTree *tree_muon;
+      TTree *tree_NOTmuon;
+
+      std::vector<float> *m_mu_pt;
+      std::vector<float> *m_mu_eta;
+      std::vector<float> *m_mu_phi;
+
+      std::vector<float> *m_cl_pt;
+      std::vector<float> *m_cl_eta;
+      std::vector<float> *m_cl_phi;
+      std::vector<float> *m_cl_e;
+      std::vector<float> *m_cl_dr;
+      std::vector<int>   *m_cl_nSample;
+      std::vector<int>   *m_cl_sizePhi;
+      std::vector<int>   *m_cl_sizeEta;
+      std::vector<int>   *m_cl_calo;
+      std::vector<float> *m_cl_layer0;
+      std::vector<float> *m_cl_layer1;
+      std::vector<float> *m_cl_layer2;
+      std::vector<float> *m_cl_layer3;
+
+      std::vector<float> *o_cl_pt;
+      std::vector<float> *o_cl_eta;
+      std::vector<float> *o_cl_phi;
+      std::vector<float> *o_cl_e;
+      std::vector<float> *o_cl_dr;
+      std::vector<int>   *o_cl_nSample;
+      std::vector<int>   *o_cl_sizePhi;
+      std::vector<int>   *o_cl_sizeEta;
+      std::vector<int>   *o_cl_calo;
+      std::vector<float> *o_cl_layer0;
+      std::vector<float> *o_cl_layer1;
+      std::vector<float> *o_cl_layer2;
+      std::vector<float> *o_cl_layer3;
   }; 
 
 }
