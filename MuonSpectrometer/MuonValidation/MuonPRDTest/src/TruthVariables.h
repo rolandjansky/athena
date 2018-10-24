@@ -17,8 +17,9 @@ class TruthVariables : public ValAlgVariables
   TruthVariables(StoreGateSvc* evtStore,
                      const MuonGM::MuonDetectorManager* detManager,
                      TTree* tree,
-                     std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "TruthVariables"),
+                     std::string containername,
+                     MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_Truth_nVertices(0),
     m_Truth_vertexX(0),
     m_Truth_vertexY(0),
