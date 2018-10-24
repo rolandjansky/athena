@@ -28,7 +28,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/BTagJetAugmenter.cxx
   Root/BTagTrackAugmenter.cxx
   Root/DL2.cxx
-  Root/DL2Tool.cxx
+  Root/DL2HighLevel.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES xAODBase xAODJet xAODEventInfo ${LWTNN_LIBRARIES})

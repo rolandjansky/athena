@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FlavorTagDiscriminants/DL2Tool.h"
+#include "FlavorTagDiscriminants/DL2HighLevel.h"
 #include "FlavorTagDiscriminants/DL2.h"
 
 #include "lwtnn/parse_json.hh"
@@ -24,7 +24,7 @@ namespace {
 
 namespace FlavorTagDiscriminants {
 
-  DL2Tool::DL2Tool(const std::string& nn_file_name):
+  DL2HighLevel::DL2HighLevel(const std::string& nn_file_name):
     m_dl2(nullptr)
   {
     std::ifstream input_stream(nn_file_name);
@@ -53,9 +53,9 @@ namespace FlavorTagDiscriminants {
     m_dl2.reset(new DL2(config, input_config));
   }
 
-  DL2Tool::~DL2Tool() = default;
+  DL2HighLevel::~DL2HighLevel() = default;
 
-  void DL2Tool::decorate(const xAOD::Jet& jet) const {
+  void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
     m_dl2->decorate(jet);
   }
 

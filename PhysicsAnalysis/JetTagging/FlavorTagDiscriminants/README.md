@@ -23,5 +23,5 @@ There are several user-level tools here:
      lower-level manipulation, for example reading in the
      configuration from a stream rather than a file.
 
-   - `DL2Tool`: higher-level implementation of the DL2 tagger. Takes
+   - `DL2HighLevel`: higher-level implementation of the DL2 tagger. Takes
      only one argument to construct: the path to the saved NN file.
