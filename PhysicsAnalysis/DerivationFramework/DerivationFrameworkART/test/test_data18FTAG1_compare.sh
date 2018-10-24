@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include
+# art-include: 21.2/AthDerivation
 # art-description: DAOD compare to ref FTAG1 data18
 # art-type: grid
 # art-output: *.pool.root
