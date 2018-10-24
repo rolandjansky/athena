@@ -23,11 +23,6 @@
 
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
-// BS access
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
-
 #include "MuonPrepRawData/MdtTwinPrepData.h"    // TWIN TUBES
 
 using namespace MuonGM;
@@ -47,7 +42,6 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   m_invSpeed(1./299.792458),
   //m_mdtPrepDataContainer("MDT_DriftCircles"),
   m_calibratePrepData(true),
-  m_rawDataProviderTool("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool", this),
   m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder", this),
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool", this),
   m_fullEventDone(false),
@@ -58,15 +52,10 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
-  // tools
-  declareProperty ("RawDataProviderTool",      m_rawDataProviderTool);
-  
   //  template for property decalration
   declareProperty("CalibratePrepData",   m_calibratePrepData = true );
   declareProperty("DecodeData",          m_decodeData = true ); 
   declareProperty("SortPrepData",        m_sortPrepData = false );
-  
-  declareProperty("useBStoRdoTool",      m_useBStoRdoTool=false );
   
   // + TWIN TUBE
   declareProperty("UseTwin",                 m_useTwin = true);
@@ -108,10 +97,6 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
     ATH_MSG_ERROR(" Could not initialize MDT Calibration service Service");
     return StatusCode::FAILURE;
   }
-  
-  
-  // Get MdtRawDataProviderTool
-  ATH_CHECK(m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool } ));
   
   /// create an empty MDT PrepData container for filling
   m_mdtHelper = m_muonMgr->mdtIdHelper();
@@ -183,7 +168,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::finalize()
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {    
   const std::vector<IdentifierHash>& chamberHashInRobs = m_mdtCabling->getChamberHashVec(robIds);
-  return decode(robIds,chamberHashInRobs);
+  return decode(chamberHashInRobs);
 }
 
 Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer() {
@@ -214,7 +199,7 @@ const MdtCsmContainer* Muon::MdtRdoToPrepDataTool::getRdoContainer() {
   return nullptr;
 }
 
-StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs )
+StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<IdentifierHash>& chamberHashInRobs )
 {
   // setup output container
   SetupMdtPrepDataContainerStatus containerRecordStatus = setupMdtPrepDataContainer();
@@ -225,11 +210,6 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
   if( !m_decodeData ) {
     ATH_MSG_DEBUG("Stored empty container. Decoding MDT RDO into MDT PrepRawData is switched off");
     return StatusCode::SUCCESS;
-  }
-  
-  if (m_useBStoRdoTool && m_rawDataProviderTool->convert(robIds).isFailure()) {
-    ATH_MSG_FATAL("BS conversion into RDOs failed");
-    return StatusCode::FAILURE;
   }
   
   //left unused, needed by other decode function and further down the code.
@@ -383,15 +363,6 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   // if requesting full event, set the full event done flag to true
   if (sizeVectorRequested == 0) m_fullEventDone=true;
 
-  // ask MdtRawDataProviderTool to decode the list of robs and to fill the rdo IDC
-  if (m_useBStoRdoTool) {
-    StatusCode sc = (sizeVectorRequested == 0 ) ? m_rawDataProviderTool->convert() : m_rawDataProviderTool->convert(idVect);
-    if( sc.isFailure()) {
-      ATH_MSG_FATAL("BS conversion into RDOs failed");
-      return StatusCode::FAILURE;
-    }
-  }
-  
   // seeded or unseeded decoding
   if (sizeVectorRequested != 0) {
     processPRDHashes(idVect,idWithDataVect);

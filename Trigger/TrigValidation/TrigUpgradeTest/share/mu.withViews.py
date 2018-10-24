@@ -221,7 +221,8 @@ if TriggerFlags.doMuon:
       from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
       L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(OutputLevel = DEBUG,
                                                             MdtPrepDataProvider = viewAlgs_MuL2SA[1],
-                                                            MDT_RawDataProvider = viewAlgs_MuL2SA[2])
+                                                            MDT_RawDataProvider = viewAlgs_MuL2SA[2],
+                                                            DecodeBS = DetFlags.readRDOBS.MDT_on())
       ToolSvc += L2MdtDataPreparator
       
       muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
