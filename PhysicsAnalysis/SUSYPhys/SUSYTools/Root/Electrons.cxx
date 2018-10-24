@@ -93,7 +93,7 @@ StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::S
 
   //apply close-by corrections to isolation if requested
   if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
+    // store electrons in a vector
     std::vector<const xAOD::IParticle*> pVec;
     for(auto pobj: *copy) {
       pVec.push_back((const xAOD::IParticle*) pobj);

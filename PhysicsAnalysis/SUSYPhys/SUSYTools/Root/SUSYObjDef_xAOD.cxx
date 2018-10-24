@@ -472,7 +472,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "PhotonBaselineCrackVeto", m_photonBaselineCrackVeto);
   declareProperty( "PhotonCrackVeto", m_photonCrackVeto);
   declareProperty( "PhotonAllowLate", m_photonAllowLate);
-  declareProperty( "PhotonEffMapFilePath", m_photonEffMapFilePath);
 
   //TAUS
   declareProperty( "TauBaselineId", m_tauIdBaseline);
@@ -603,7 +602,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   el_id_support.push_back("TightLLH");
 
   ph_id_support.push_back("Loose");
-  ph_id_support.push_back("Medium");
   ph_id_support.push_back("Tight");
 
   mu_id_support = 4; //maximum value supported
@@ -758,12 +756,13 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
+StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfilesDir, bool usePathResolver) {
 
   std::string prwConfigFile("");
   if ( !isData() && m_autoconfigPRW ) {
 
-    prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONFIG_SIM/files/");
+    prwConfigFile = usePathResolver ? PathResolverFindCalibDirectory(PRWfilesDir) : PRWfilesDir;
+
     float dsid = -999;
     std::string amiTag("");
     std::string mcCampaignMD("");
@@ -1115,7 +1114,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_photonTriggerName, "Photon.TriggerName", rEnv, "HLT_g20_tight_icalovloose_L1EM15VHI"); // how is it changed across years?
   configFromFile(m_photonCrackVeto, "Photon.CrackVeto", rEnv, true);
   configFromFile(m_photonAllowLate, "Photon.AllowLate", rEnv, false);
-  configFromFile(m_photonEffMapFilePath, "Photon.EffMapFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v2/map2.txt");
   //
   configFromFile(m_tauPrePtCut, "Tau.PrePtCut", rEnv, 0.);
   configFromFile(m_tauPt, "Tau.Pt", rEnv, 20000.);
@@ -1164,7 +1162,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
@@ -2439,7 +2437,7 @@ int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
   int theRunNumber = runNumber>0?runNumber:GetRunNumber();
   if (theRunNumber<290000) return 2015;
   else if (theRunNumber<320000) return 2016;
-  else if (theRunNumber<350000) return 2017;
+  else if (theRunNumber<342000) return 2017;
   return 2018;
 }
 

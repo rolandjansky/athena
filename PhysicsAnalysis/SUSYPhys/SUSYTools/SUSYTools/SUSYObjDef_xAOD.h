@@ -406,7 +406,7 @@ namespace ST {
   protected:
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool();
+    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/SUSYTools/PRW_AUTOCONFIG_SIM/files/", bool usePathResolver = true);
 
     StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
@@ -572,7 +572,6 @@ namespace ST {
     bool   m_photonBaselineCrackVeto;
     bool   m_photonCrackVeto;
     bool   m_photonAllowLate;
-    std::string m_photonEffMapFilePath;
 
     double m_tauPrePtCut;
     double m_tauPt;
