@@ -246,7 +246,7 @@ summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTResultCreatorByteStream
+from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 egammaViewsMerger.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
@@ -267,16 +267,8 @@ egammaViewsMerger.OutputLevel = VERBOSE
 
 svcMgr.StoreGateSvc.OutputLevel = INFO
 
-streamingTool = HLTResultCreatorByteStream(OutputLevel=VERBOSE)
 
-
-
-streamingTool.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
-                                         "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.",
-                                         "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
-                                         "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
-
-summary.OutputTools = [ egammaViewsMerger, streamingTool ]
+summary.OutputTools = [ egammaViewsMerger ]
 
 
 summary.OutputLevel = DEBUG
@@ -343,7 +335,7 @@ StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
 print "ESD file content " 
 print StreamESD.ItemList
 
-from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool
+from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool, TriggerEDMSerialiserTool
 summMaker = DecisionSummaryMakerAlg()
 summMaker.FinalDecisionKeys = [ theElectronHypo.HypoOutputDecisions ]
 summMaker.FinalStepDecisions =  dict( [ ( tool.getName(), theElectronHypo.HypoOutputDecisions ) for tool in theElectronHypo.HypoTools ] )
@@ -352,6 +344,13 @@ print summMaker
 
 ################################################################################
 # test online HLT Result maker
+
+serialiser = TriggerEDMSerialiserTool(OutputLevel=VERBOSE)
+
+serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
+                                      "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.",
+                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
@@ -364,7 +363,7 @@ bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testCh
 bitsmaker.OutputLevel = DEBUG
 
 hltResultMaker =  HLTResultMTMakerAlg()
-hltResultMaker.MakerTools = [ stmaker, bitsmaker ]
+hltResultMaker.MakerTools = [ stmaker, bitsmaker, serialiser ]
 hltResultMaker.OutputLevel = DEBUG
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
