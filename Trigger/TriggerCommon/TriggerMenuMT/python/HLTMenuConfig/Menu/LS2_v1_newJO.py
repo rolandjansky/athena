@@ -12,7 +12,8 @@ def setupMenu():
 
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
-    # ['chainName',  'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep], OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
+    # ['chainName',  'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep],
+    #   OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
     #---------------------------------------------------------------------
 
     #---------------------------------------------------------------------
@@ -23,18 +24,18 @@ def setupMenu():
 
     flags = createMenuFlags()
 
-    flags._set('Trigger.menu.muons', [
+    flags.Trigger.menu.muons = [
         get_flag_item('mu20', 'L1_MU10', ['RATE:SingleMuon', 'BW:Muon']),
         get_flag_item('mu8', 'L1_MU6', ['RATE:SingleMuon', 'BW:Muon'])
-        ])
+    ]
 
-    flags._set('Trigger.menu.egamma', [
+    flags.Trigger.menu.egamma = [
         get_flag_item('e20', 'L1_EM10', ['RATE:SingleElectron', 'BW:Electron'])
-        ])
+    ]
 
-    flags._set('Trigger.menu.combined', [
+    flags.Trigger.menu.combined = [
         get_flag_item('e8_mu8', 'L1_EM6_MU6', ['RATE:SingleMuon', 'BW:Muon'])
-        ])
+    ]
 
     return flags
 
