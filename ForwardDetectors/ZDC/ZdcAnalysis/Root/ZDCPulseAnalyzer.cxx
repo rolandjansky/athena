@@ -22,6 +22,7 @@ std::string ZDCPulseAnalyzer::s_fitOptions = "";
 TH1* ZDCPulseAnalyzer::s_undelayedFitHist = 0;
 TH1* ZDCPulseAnalyzer::s_delayedFitHist = 0;
 TF1* ZDCPulseAnalyzer::s_combinedFitFunc = 0;
+float ZDCPulseAnalyzer::s_combinedFitTMax = 1000;
 
 void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, double* par, int flag)
 {
@@ -48,6 +49,8 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
     double histError = std::max(s_undelayedFitHist->GetBinError(isample + 1), 1.0);
     double t = s_undelayedFitHist->GetBinCenter(isample + 1);
     
+    if (t > s_combinedFitTMax) break;
+
     double funcVal = s_combinedFitFunc->EvalPar(&t, &par[1]);
 
     //    std::cout << "Calculating chis^2, undelayed sample " << isample << "t = " << t << ", data = " << histValue << ", func = " << funcVal << std::endl;
@@ -207,6 +210,18 @@ void ZDCPulseAnalyzer::SetTauT0Values(bool fixTau1, bool fixTau2, float tau1, fl
   m_nominalT0LG = t0LG;
 
   m_initializedFits = false;
+}
+
+void ZDCPulseAnalyzer::SetFitTimeMax(float tmax)
+{
+  if (tmax < m_tmin) {
+    std::cout << "ZDCPulseAnalyzer::SetFitTimeMax:: invalid FitTimeMax: " << tmax << std::endl;
+    return;
+  }
+
+  //  std::cout << "Setting FitTMax to " << tmax << std::endl; 
+
+  m_fitTMax = tmax;
 }
 
 void ZDCPulseAnalyzer::SetADCOverUnderflowValues(int HGOverflowADC, int HGUnderflowADC, int LGOverflowADC)
@@ -570,6 +585,8 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   m_maxADCValue = *maxIter;
   m_minADCValue = *minIter;
 
+  float maxMinADCDiff = m_maxADCValue - m_minADCValue;
+
   m_maxSampl = std::distance(m_samplesSub.cbegin(), maxIter);
   m_minSampl = std::distance(m_samplesSub.cbegin(), minIter);
 
@@ -730,11 +747,11 @@ void ZDCPulseAnalyzer::DoFit()
   if (QuietFits()) options += "Q0";
   options += "s";
 
-  TFitResultPtr result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1(), options.c_str());
+  TFitResultPtr result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1(), options.c_str(), "", m_tmin, m_fitTMax);
 
   int fitStatus = result_ptr;
   if (fitStatus != 0) {
-    TFitResultPtr try2Result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1(), options.c_str());
+    TFitResultPtr try2Result_ptr = m_fitHist->Fit(fitWrapper->GetWrapperTF1(), options.c_str(), "", m_tmin, m_fitTMax);
     if ((int) try2Result_ptr != 0) m_fitFailed = true;
   }
   else m_fitFailed = false;
@@ -743,7 +760,7 @@ void ZDCPulseAnalyzer::DoFit()
   m_bkgdMaxFraction = fitWrapper->GetBkgdMaxFraction();
   if (std::abs(m_bkgdMaxFraction) > 0.25) {
     std::string tempOptions = options + "e";
-    m_fitHist->Fit(fitWrapper->GetWrapperTF1(), tempOptions.c_str());
+    m_fitHist->Fit(fitWrapper->GetWrapperTF1(), tempOptions.c_str(), "", m_tmin, m_fitTMax);
     m_bkgdMaxFraction = fitWrapper->GetBkgdMaxFraction();
   }
 
@@ -803,39 +820,14 @@ void ZDCPulseAnalyzer::DoFitCombined()
   s_undelayedFitHist = m_fitHist;
   s_delayedFitHist = m_delayedHist;
   s_combinedFitFunc = fitWrapper->GetWrapperTF1();
+  s_combinedFitTMax = m_fitTMax;
 
   size_t numFitPar = theFitter->GetNumberTotalParameters();
 
   theFitter->GetMinuit()->fISW[4] = -1;
 
-  double arglist[100];
-  // arglist[0] = 1;
-  // arglist[1] = 0;
-
-  // theFitter->ExecuteCommand("SET PAR ", arglist, 2);
-  
-  theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, 0, 0);
-
-  for (size_t ipar = 0; ipar < numFitPar - 1; ipar++) {
-    double parLimitLow, parLimitHigh;
-
-    s_combinedFitFunc->GetParLimits(ipar, parLimitLow, parLimitHigh);
-
-    // std::cout << "Setting minuit parameter " << ipar + 1 << " to value " << s_combinedFitFunc->GetParameter(ipar) << ", limits = " 
-    // 	      << parLimitLow << " to " << parLimitHigh << std::endl;
-
-    theFitter->SetParameter(ipar + 1, s_combinedFitFunc->GetParName(ipar), s_combinedFitFunc->GetParameter(ipar), 0.01, parLimitLow, parLimitHigh);
-
-    // arglist[0] = ipar + 2;;
-    // arglist[1] = s_combinedFitFunc->GetParameter(ipar);
-    // theFitter->ExecuteCommand("SET PAR ", arglist, 2);
-
-    //    theFitter->GetMinuit()->Command(("SET PAR " + std::to_string(ipar + 2) + " " + std::to_string(s_combinedFitFunc->GetParameter(ipar))).c_str() );
-  }
-
   // Now perform the fit
   //
-  //  double arglist[100];
 
   if (s_quietFits) {
     theFitter->GetMinuit()->fISW[4] = -1;
@@ -845,6 +837,7 @@ void ZDCPulseAnalyzer::DoFitCombined()
   }
   else theFitter->GetMinuit()->fISW[4] = 0;
 
+  double arglist[100];
   arglist[0] = 2000; // number of function calls
   arglist[1] = 0.01; // tolerance
   int status = theFitter->ExecuteCommand("MIGRAD",arglist,2);
@@ -854,18 +847,9 @@ void ZDCPulseAnalyzer::DoFitCombined()
     
     // We first fit with no baseline adjust
     //
-    theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, 0, 0);
+    //    theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -25, 25);
     theFitter->FixParameter(0);
 
-    for (size_t ipar = 0; ipar < numFitPar - 1; ipar++) {
-      double parLimitLow, parLimitHigh;
-      
-      s_combinedFitFunc->GetParLimits(ipar, parLimitLow, parLimitHigh);
-      theFitter->SetParameter(ipar + 1, s_combinedFitFunc->GetParName(ipar), s_combinedFitFunc->GetParameter(ipar), 0.01, parLimitLow, parLimitHigh); 
-    }
-
-    arglist[0] = 2000; // number of function calls
-    arglist[1] = 0.01; // tolerance
     status = theFitter->ExecuteCommand("MIGRAD",arglist,2);
     if (!status) {
       theFitter->ReleaseParameter(0);
@@ -956,19 +940,27 @@ TFitter* ZDCPulseAnalyzer::MakeCombinedFitter(TF1* func)
   TFitter* fitter = new TFitter(nFitParams);
   
   fitter->GetMinuit()->fISW[4] = -1;
-  fitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, 0, 0);
+  fitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -25,25);
   
   for (size_t ipar = 0; ipar < nFitParams - 1; ipar++) {
     double parLimitLow, parLimitHigh;
 
     func->GetParLimits(ipar, parLimitLow, parLimitHigh);
-    fitter->SetParameter(ipar + 1, func->GetParName(ipar), func->GetParameter(ipar), 0.01, parLimitLow, parLimitHigh);
+
+    if (fabs(parLimitHigh/parLimitLow - 1) < 1e-6) {
+      fitter->SetParameter(ipar + 1, func->GetParName(ipar), func->GetParameter(ipar), 0.01, parLimitLow, parLimitHigh*1.1);
+      fitter->FixParameter(ipar + 1);
+    }
+    else 
+      {
+	fitter->SetParameter(ipar + 1, func->GetParName(ipar), func->GetParameter(ipar), 0.01, parLimitLow, parLimitHigh);
+      }
+    //    fitter->SetParameter(ipar + 1, func->GetParName(ipar), func->GetParameter(ipar), 0.01, parLimitLow, parLimitHigh);
+
+
   }
   
   fitter->SetFCN(ZDCPulseAnalyzer::CombinedPulsesFCN);
-
-  //double arglist[100];
-  //arglist[0] = -1;
 
   return fitter;
 }

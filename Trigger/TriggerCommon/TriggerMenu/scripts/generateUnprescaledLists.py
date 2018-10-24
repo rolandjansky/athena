@@ -19,7 +19,7 @@ def main(outfolder):
             outfile.write( to_nice_list( TriggerAPI.getUnprescaled(TriggerPeriod.future2e34, triggerType), triggerType.name ) )
 
 def to_nice_list( alist, name ):
-    thestr = "list_%s = [\n"%name
+    thestr = "%s = [\n"%name
     for i in alist:
         thestr += "\t'%s',\n"%i
     thestr += "]\n\n"
