@@ -44,7 +44,7 @@ public:
     // constructor
     TileContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) : DataVector < _TElement > (ownPolicy) { }
 
-    // desctructor
+    // destructor
     virtual ~TileContainer() { }
 
     // insert a Tile element into a collection.

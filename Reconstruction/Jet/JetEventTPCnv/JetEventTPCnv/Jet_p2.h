@@ -54,6 +54,9 @@ public:
   /** Destructor: 
    */
   ~Jet_p2();
+  
+  //assignment defaulted
+  Jet_p2 & operator=(const Jet_p2 &) = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -74,7 +77,7 @@ private:
   /// the 4-mom part
   P4PxPyPzE_p1 m_momentum;
   
-  unsigned int m_author;
+  unsigned int m_author{};
   
   /// combined likelihoods
   std::vector<double> m_combinedLikelihood;

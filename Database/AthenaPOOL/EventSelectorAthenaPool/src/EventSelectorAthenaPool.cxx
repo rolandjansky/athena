@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -489,12 +489,12 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          return(StatusCode::FAILURE);
       }
       // Remove any old AttributeList
-      const DataHandle<AthenaAttributeList> oldAttrList;
-      if (eventStore()->contains<AthenaAttributeList>(m_attrListKey.value()) &&
-	      eventStore()->retrieve(oldAttrList, m_attrListKey.value()).isSuccess()) {
-         if (!eventStore()->removeDataAndProxy(oldAttrList.cptr()).isSuccess()) {
-            ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
-            return(StatusCode::FAILURE);
+      if (const AthenaAttributeList* oldAttrList =
+          eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
+      {
+         if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
+           ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
+           return(StatusCode::FAILURE);
          }
       }
       AthenaAttributeList* athAttrList = new AthenaAttributeList();
@@ -1002,10 +1002,10 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
 //__________________________________________________________________________
 StatusCode EventSelectorAthenaPool::recordAttributeList() const {
    // Remove any old AttributeList
-   const DataHandle<AthenaAttributeList> oldAttrList;
-   if (eventStore()->contains<AthenaAttributeList>(m_attrListKey.value()) &&
-	   eventStore()->retrieve(oldAttrList, m_attrListKey.value()).isSuccess()) {
-      if (!eventStore()->removeDataAndProxy(oldAttrList.cptr()).isSuccess()) {
+   if (const AthenaAttributeList* oldAttrList =
+       eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
+   {
+      if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
          return(StatusCode::FAILURE);
       }

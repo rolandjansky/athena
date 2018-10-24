@@ -65,8 +65,6 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   , m_nConst(0)
   , m_nSamples(0)
   , m_t0SamplePosition(0)
-  , m_maxTime(0.0)
-  , m_minTime(0.0)
 {
   //declare interfaces
   declareInterface< TileRawChannelBuilder >( this );
@@ -90,6 +88,8 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   declareProperty("EmulateDSP",m_emulateDsp = false);
   declareProperty("NoiseThresholdHG",m_noiseThresholdHG = 5);
   declareProperty("NoiseThresholdLG",m_noiseThresholdLG = 3);
+  declareProperty("MinTime",m_minTime =  0.0);
+  declareProperty("MaxTime",m_maxTime = -1.0);
 }
 
 
@@ -124,10 +124,15 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
                  << " TimeCorrection=" << m_correctTimeNI
                  << " Best Phase " << m_bestPhase );
 
+  ATH_MSG_DEBUG( " NoiseThresholdHG=" << m_noiseThresholdHG
+                 << " NoiseThresholdLG=" << m_noiseThresholdLG);
+
   m_nSamples = m_tileInfo->NdigitSamples();
   m_t0SamplePosition = m_tileInfo->ItrigSample();
-  m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
-  m_minTime = -25 * m_t0SamplePosition;
+  if (m_maxTime < m_minTime) { // set time window if it was not set from jobOptions
+    m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
+    m_minTime = -25 * m_t0SamplePosition;
+  }
   ATH_MSG_DEBUG(" NSamples=" << m_nSamples
                 << " T0Sample=" << m_t0SamplePosition
                 << " minTime=" << m_minTime
@@ -455,11 +460,37 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
                             << m_digits[0] - minDigit
                             << endmsg;
         }
-        //	OptFilterTime=-100.;
 
+        if (m_bestPhase) {
+          unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+          // AS 19.11.09 - note minus sign here - time in DB is opposite to best phase 
+          phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+          ATH_MSG_VERBOSE( "Best phase: " << phase
+                           << " drawerIdx " << drawerIdx
+                           << " channel " << channel );
+        }
+      
         chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
-        time = 0.;
+        // If weights for tau=0 are used, deviations are seen in the amplitude =>
+        // function to correct the amplitude
+        if (m_correctAmplitude
+            && amplitude > m_ampMinThresh
+            && time > m_timeMinThresh
+            && time < m_timeMaxThresh) {
+
+          amplitude *= correctAmp(time, m_of2);
+          ATH_MSG_VERBOSE( "Amplitude corrected by " << correctAmp(time, m_of2)
+                           << " new amplitude is " << amplitude );
+        }
+
+        if (m_bestPhase) {
+          time = -phase;
+          chi2 = -chi2;
+        } else {
+          time = 0.;
+        }
+
         m_nCenter++;
 
       }

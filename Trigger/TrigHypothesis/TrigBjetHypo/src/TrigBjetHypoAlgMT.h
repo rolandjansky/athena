@@ -1,14 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGBJETHYPO_TRIGBJETHYPOALG_H
-#define TRIGBJETHYPO_TRIGBJETHYPOALG_H 1
+#ifndef TRIGBJETHYPO_TRIGBJETHYPOALGMT_H
+#define TRIGBJETHYPO_TRIGBJETHYPOALGMT_H 1
 
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
@@ -23,28 +26,28 @@
  * @brief 
  **/
 
-class TrigBjetHypoAlg
-  : public ::HypoBase
-{ 
+class TrigBjetHypoAlgMT : public ::HypoBase { 
  public: 
 
-  TrigBjetHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigBjetHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigBjetHypoAlg(); 
+  virtual ~TrigBjetHypoAlgMT(); 
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute_r( const EventContext& context ) const override;
   virtual StatusCode  finalize() override;
  
  private: 
-  TrigBjetHypoAlg();
+  TrigBjetHypoAlgMT();
   ToolHandleArray< TrigBjetHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
  private:
+  SG::ReadHandleKey< xAOD::JetContainer > m_jetKey {this,"Jets","SplitJet","Input Jet Collection"};
+
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey {this,"RoIsKey","RoIs","Key for RoIs"};
   SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
 
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
 
-#endif //> !TRIGBJETHYPO_TRIGBJETHYPOALG_H
+#endif //> !TRIGBJETHYPO_TRIGBJETHYPOALGMT_H

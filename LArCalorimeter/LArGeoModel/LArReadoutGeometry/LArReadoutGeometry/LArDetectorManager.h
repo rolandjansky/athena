@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArDetectorManager_h
 #define LArDetectorManager_h 1
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
 class EMBDetectorManager;
 class EMECDetectorManager;

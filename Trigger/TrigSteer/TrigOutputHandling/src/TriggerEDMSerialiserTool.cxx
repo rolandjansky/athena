@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,21 +11,19 @@
 #include "AthenaKernel/StorableConversions.h"
 #include "TrigSerializeResult/StringSerializer.h"
 
-#include "HLTResultCreatorByteStream.h"
+#include "TriggerEDMSerialiserTool.h"
 
-HLTResultCreatorByteStream::HLTResultCreatorByteStream( const std::string& type, 
+TriggerEDMSerialiserTool::TriggerEDMSerialiserTool( const std::string& type, 
 		      const std::string& name, 
 		      const IInterface* parent ) : 
   base_class( type, name, parent ) {
 }
 
-HLTResultCreatorByteStream::~HLTResultCreatorByteStream() {}
+TriggerEDMSerialiserTool::~TriggerEDMSerialiserTool() {}
 
-StatusCode HLTResultCreatorByteStream::initialize() {
+StatusCode TriggerEDMSerialiserTool::initialize() {
   
-  ATH_CHECK( m_hltResultKey.initialize() );
   ATH_CHECK( m_serializerSvc.retrieve() );
-
 
   for ( std::string typeAndKey: m_collectionsToSerialize ) {
     const std::string type = typeAndKey.substr( 0, typeAndKey.find('#') );
@@ -55,7 +53,7 @@ StatusCode HLTResultCreatorByteStream::initialize() {
 }
 
 
-StatusCode HLTResultCreatorByteStream::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) const {
+StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) const {
   buffer.push_back(0); // fragment size placeholder
   buffer.push_back( address.clid ); // type info via CLID
   
@@ -67,7 +65,7 @@ StatusCode HLTResultCreatorByteStream::makeHeader(const Address& address, std::v
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTResultCreatorByteStream::fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const {
+StatusCode TriggerEDMSerialiserTool::fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const {
   ATH_CHECK( sz != 0 );
   ATH_CHECK( data != nullptr );
     
@@ -84,11 +82,8 @@ StatusCode HLTResultCreatorByteStream::fillPayload( void* data, size_t sz, std::
 }
 
 
+StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
 
-
-StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context ) const {
-
-  auto result = std::make_unique<HLT::HLTResult>();
     
   for ( const Address& address: m_toSerialize ) {
     ATH_MSG_DEBUG( "Streaming " << address.type << "#" << address.key  );
@@ -124,16 +119,12 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
     ATH_CHECK( makeHeader( address, fragment ) );
     ATH_CHECK( fillPayload( mem, sz, fragment ) );
     fragment[0] = fragment.size();
-    
-    std::vector<uint32_t>& place = result->getNavigationResult();
-    place.insert( place.end(), fragment.begin(), fragment.end() );
+
+    resultToFill.addSerialisedData( m_moduleID, fragment );
 
     if ( mem ) delete [] static_cast<const char*>( mem );
-    ATH_MSG_DEBUG( "Navigation size after inserting " << address.type << "#" << address.key << " " << place.size()*sizeof(uint32_t) << " bytes" );
+    ATH_MSG_DEBUG( "Navigation size after inserting " << address.type << "#" << address.key << " " << resultToFill.getSerialisedData( m_moduleID ).size()*sizeof(uint32_t) << " bytes" );
   }
-
-  auto resultHandle = SG::makeHandle( m_hltResultKey, context );
-  ATH_CHECK( resultHandle.record( std::move( result ) ) );
   
   return StatusCode::SUCCESS;
 }

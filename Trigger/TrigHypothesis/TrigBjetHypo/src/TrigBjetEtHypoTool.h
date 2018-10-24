@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -50,7 +50,7 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
     return m_id;
   }
 
-  bool decide(  const xAOD::JetContainer*,bool& ) const;
+  StatusCode decide(  const xAOD::JetContainer*,bool& ) const;
 
  private:
   HLT::Identifier m_id;
@@ -63,7 +63,6 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
   Gaudi::Property< float > m_etThreshold {this,"EtThreshold",0.0,"Et threshold cut"};
   /** @brief DeclareProperty: Gsc threshold cut. */
   Gaudi::Property< float > m_gscThreshold {this,"GscThreshold",0.0,"Gsc threshold cut"};
-
 };
 
 inline const InterfaceID& TrigBjetEtHypoTool::interfaceID()
