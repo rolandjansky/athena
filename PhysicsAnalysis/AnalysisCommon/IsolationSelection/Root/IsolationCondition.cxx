@@ -9,39 +9,33 @@
 
 namespace CP{
 
-    IsolationCondition::IsolationCondition(std::string name, xAOD::Iso::IsolationType isoType) :
+    IsolationCondition::IsolationCondition(const std::string& name, const std::vector<xAOD::Iso::IsolationType> &isoTypes) :
                 m_name(name),
-                m_isolationType(isoType),
+                m_isolationType(isoTypes),
                 m_cutValue(-999.) {
-        m_acc = xAOD::getIsolationAccessor(m_isolationType);
+        for (auto iso_type : m_isolationType){
+            m_acc.push_back(xAOD::getIsolationAccessor(iso_type));
+        }        
     }
+    IsolationCondition::IsolationCondition(const std::string &name, xAOD::Iso::IsolationType isoType) :
+        IsolationCondition(name, std::vector<xAOD::Iso::IsolationType> {isoType}){
+        }
 
+    unsigned int IsolationCondition::num_types() const {
+        return m_isolationType.size();
+    }
+            
     IsolationCondition::~IsolationCondition() {
-    }
-
-    IsolationCondition::IsolationCondition() :
-                m_name(""),
-                m_isolationType(xAOD::Iso::numIsolationTypes),
-                m_acc(0),
-                m_cutValue(-999) {
-    }
-     void IsolationCondition::setName(const std::string &name) {
-        m_name = name;
-    }
-   void IsolationCondition::setCut(xAOD::Iso::IsolationType isoType) {
-        m_isolationType = isoType;
-        m_acc = xAOD::getIsolationAccessor(m_isolationType);
     }
     std::string IsolationCondition::name() const{
         return m_name;
     }
-    xAOD::Iso::IsolationType  IsolationCondition::type() const{
-        return  m_isolationType;
+    xAOD::Iso::IsolationType  IsolationCondition::type(unsigned int n) const{
+        return  m_isolationType[n];
     }
-    SG::AuxElement::Accessor<float>* IsolationCondition::accessor() const{
-        return m_acc;
+    SG::AuxElement::Accessor<float>* IsolationCondition::accessor(unsigned int n) const{
+        return m_acc[n];
     }
-
 }
 
 

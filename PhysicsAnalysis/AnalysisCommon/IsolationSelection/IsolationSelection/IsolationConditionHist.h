@@ -28,10 +28,9 @@ namespace CP {
 
             IsolationConditionHist(const IsolationConditionHist& rhs) = delete;
             IsolationConditionHist& operator=(const IsolationConditionHist& rhs) = delete;
-            void setCut(xAOD::Iso::IsolationType isoType, const std::string& isolationFunction, const std::shared_ptr<TH3F> efficiencyHisto3D = nullptr);
-
-            bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
-            bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
+         
+            virtual bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) override;
+            virtual bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) override;
             void getCutValue(const float pt, const float eta);
 
             void setInterp(Interp3D* interp) {
@@ -43,7 +42,6 @@ namespace CP {
             std::shared_ptr<TH3F> m_efficiencyHisto3D;
             std::shared_ptr<TF1> m_isolationFunction;
             bool m_ptGeV;
-
             Interp3D* m_interp;
     };
 }

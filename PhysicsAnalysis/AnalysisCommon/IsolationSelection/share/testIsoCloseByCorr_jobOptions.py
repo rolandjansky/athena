@@ -23,12 +23,8 @@ ROOTFiles = []
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-job += isoCones.GetUpdatedIsoTrackCones()
-
-
-
-
+ServiceMgr.MessageSvc.debugLimit = 2000000
+ServiceMgr.MessageSvc.verboseLimit = 2000000
 
 
 if "inputFile" in globals():
@@ -51,7 +47,7 @@ if "nevents" in globals():
     print "Only run on %i events"%( int(nevents))
     theApp.EvtMax = int (nevents)
 ## Configure an isolation selection tool with your desired working points
-ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutHighMuTight", ElectronWP = "Loose", PhotonWP = "FixedCutTightCaloOnly")
+ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutPflowTight", ElectronWP = "FCLoose", PhotonWP = "FixedCutTightCaloOnly")
 
 
 ## Configure CorrectionTool, feeding it our selection tool
@@ -61,12 +57,15 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
 #                                                      PassOverlapDecorator = "passOR",
                                                       IsolationSelectionDecorator = "correctedIsol" ,
                                                       CorrectIsolationOf = "considerInCorrection" ,
-                                                      BackupPrefix = "default"
+                                                      BackupPrefix = "default",
                                                       )
 
 
 from IsolationSelection.IsolationSelectionConf import CP__TestIsolationCloseByCorrAthenaAlg 
 job += CfgMgr.CP__TestIsolationCloseByCorrAthenaAlg("TestAlg",IsoSelectorTool = ToolSvc.MySelectionTool, 
-                                                       IsoCloseByCorrTool=ToolSvc.IsolationCloseByCorrectionTool)
+                                                    IsoCloseByCorrTool=ToolSvc.IsolationCloseByCorrectionTool,
+                                                    considerPhotons = False,
+                                               
+                                                       )
 
 
