@@ -251,14 +251,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   //xsec DB
   SUSY::CrossSectionDB *my_XsecDB(0);
   if (!isData) {
-    //my_XsecDB = new SUSY::CrossSectionDB(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc15_13TeV/"));
-    my_XsecDB = new SUSY::CrossSectionDB(PathResolverFindCalibDirectory("SUSYTools/mc15_13TeV/"));
-    //my_XsecDB = new SUSY::CrossSectionDB("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/mc15_13TeV/");
-
+    my_XsecDB = new SUSY::CrossSectionDB(PathResolverFindCalibFile("dev/PMGTools/PMGxsecDB_mc16.txt"));
     Info(APP_NAME, "xsec DB initialized" );
-
-    // In case you want to overwrite the default with your local values
-    // my_XsecDB->loadFile( <PATH_TO_YOUR_XSECTION_FILE> );
   }
 
   // Create the tool(s) to test:
