@@ -10,15 +10,11 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
 
-/** Base class */
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-/** Gaudi */
-#include "GaudiKernel/ToolHandle.h"
-
-/** other */
-#include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class ISCT_ByteStreamErrorsTool;
 
