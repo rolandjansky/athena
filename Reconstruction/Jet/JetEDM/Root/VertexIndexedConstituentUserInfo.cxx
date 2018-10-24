@@ -6,11 +6,12 @@
 
 namespace jet {
 
-  VertexIndexedConstituentUserInfo::VertexIndexedConstituentUserInfo()  : IndexedConstituentUserInfo() {} 
+  VertexIndexedConstituentUserInfo::VertexIndexedConstituentUserInfo()  : IndexedConstituentUserInfo(), m_vertex{} {
+    //nop
+  } 
 
   
-  VertexIndexedConstituentUserInfo::VertexIndexedConstituentUserInfo(const xAOD::IParticle& par, Index idx, const LabelIndex* pli, const xAOD::Vertex* vtx) : IndexedConstituentUserInfo(par, idx, pli) , m_vertex(vtx) {}
-
-
-
+  VertexIndexedConstituentUserInfo::VertexIndexedConstituentUserInfo(const xAOD::IParticle& par, Index idx, const LabelIndex* pli, const xAOD::Vertex* vtx) : IndexedConstituentUserInfo(par, idx, pli) , m_vertex(vtx) {
+    //nop
+  }
 }
