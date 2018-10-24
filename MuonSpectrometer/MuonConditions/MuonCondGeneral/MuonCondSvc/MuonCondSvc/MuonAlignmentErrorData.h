@@ -49,7 +49,7 @@ private:
     
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( MuonAlignmentErrorData, 115867308, 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<MuonAlignmentErrorData>, 265772564, 0)
