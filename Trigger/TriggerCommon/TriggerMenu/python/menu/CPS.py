@@ -160,11 +160,11 @@ def defineCPSGroups():
 
         'RATE:CPS:HLT_j35b' : [ 'j35_boffperf_split',
                                ],
-        'RATE:CPS:HLT_j35b' : [ 'j55_boffperf_split',
+        'RATE:CPS:HLT_j55b' : [ 'j55_boffperf_split',
                                   ],
-        'RATE:CPS:HLT_j35b' : [ 'j150_boffperf_split',
+        'RATE:CPS:HLT_j150b' : [ 'j150_boffperf_split',
                                 ],
-        'RATE:CPS:HLT_j35b' : [ 'j320_boffperf_split',
+        'RATE:CPS:HLT_j320b' : [ 'j320_boffperf_split',
                                 ],
          #Bphys	
  
@@ -802,15 +802,14 @@ def defineCPSGroups():
                                                  'j460_a10r_L1SC111',
                                                  'j460_a10t_lcw_jes_L1SC111',],
 
-         'RATE:CPS:HLT_j480_a10_L1J100': [   'j480_a10_sub_L1J100',
+         'RATE:CPS:HLT_j480_a10_sub_L1J100': [   'j480_a10_sub_L1J100',
                                              'j480_a10_nojcalib_L1J100',
                                              'j480_a10_lcw_subjes_L1J100',
                                              'j480_a10_lcw_sub_L1J100',
                                              'j480_a10_lcw_nojcalib_L1J100',
-                                             ],
-         'RATE:CPS:HLT_j480_a10_L1J100': [   'j480_a10_lcw_subjes_L1J100',
                                              'j480_a10t_lcw_nojcalib_L1J100',
                                              ],
+
          'RATE:CPS:HLT_j375_a10t_SMC_L1J100' : [ 'j375_a10t_lcw_jes_30smcINF_L1J100',
                                                  'j375_a10t_lcw_jes_L1J100',
                                              ],

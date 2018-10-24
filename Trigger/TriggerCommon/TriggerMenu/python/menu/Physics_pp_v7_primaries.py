@@ -17,13 +17,13 @@ def setupMenu():
     PhysicsStream="Main"
 
     # stream, BW and RATE tags for Bphysics items that appear in Muon and Bphysics slice.signatures
-    BPhysicsStream     = "BphysLS"
-    BMultiMuonStream   = "Main"  
-    RATE_BphysTag      = 'RATE:Bphysics'
-    RATE_BMultiMuonTag = 'RATE:BMultiMuon'  # can become RATE:BMultiMuon' with one letter change 
-    BW_BphysTag        = 'BW:Bphys'
-    RATE_DYTag         = 'RATE:Muon'   
-    BW_DYTag           = 'BW:Muon'   
+    #BPhysicsStream     = "BphysLS"
+    #BMultiMuonStream   = "Main"  
+    #RATE_BphysTag      = 'RATE:Bphysics'
+    #RATE_BMultiMuonTag = 'RATE:BMultiMuon'  # can become RATE:BMultiMuon' with one letter change 
+    #BW_BphysTag        = 'BW:Bphys'
+    #RATE_DYTag         = 'RATE:Muon'   
+    #BW_DYTag           = 'BW:Muon'   
 
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
