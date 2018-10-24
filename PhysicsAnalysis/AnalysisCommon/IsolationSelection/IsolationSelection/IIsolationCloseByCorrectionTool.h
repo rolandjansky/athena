@@ -33,7 +33,7 @@ namespace CP {
             virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const = 0;
             
             ASG_DEPRECATED ("Please use the accepCorrected(const xAOD::IParticle&x, const xAOD::IParticleContainer& closePar, , int topoetconeModel ) instead \n" 
-                            "However, also this method is quite computationally expensive. You Should consider the getCloseByIsoCorrection() where the isolation cones are corrected on top ");
+                            "However, also this method is quite computationally expensive. You Should consider the getCloseByIsoCorrection() where the isolation cones are corrected on top ")
             virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const = 0;
 
             // This function calculates the values of the corrections for close-by objects to be applied to the isolation variables (without redecorating the particles).

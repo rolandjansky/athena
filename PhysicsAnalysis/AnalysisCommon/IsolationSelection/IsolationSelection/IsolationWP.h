@@ -22,14 +22,14 @@ namespace CP {
             const Root::TAccept& accept(const xAOD::IParticle& p) const;
             const Root::TAccept& accept(const strObj& p) const;
             void addCut(IsolationCondition* cut);
-            void addCut(std::shared_ptr<IsolationCondition> cut);
+            void addCut(std::unique_ptr<IsolationCondition>& cut);
       
             const Root::TAccept& getAccept() const;
-            const std::vector<std::shared_ptr<IsolationCondition>>& conditions() const;
+            const std::vector<std::unique_ptr<IsolationCondition>>& conditions() const;
            
         private:
             std::string m_name;
-            std::vector<std::shared_ptr<IsolationCondition>> m_cuts;
+            std::vector<std::unique_ptr<IsolationCondition>> m_cuts;
             std::map<xAOD::Iso::IsolationType, float>* m_cutValues;
             mutable Root::TAccept m_accept;
     };
