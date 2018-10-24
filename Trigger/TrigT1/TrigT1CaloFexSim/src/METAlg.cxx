@@ -4,7 +4,7 @@
 
 #include "TrigT1CaloFexSim/METAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
-StatusCode METAlg::BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise, METAlg::MET* met){
+StatusCode METAlg::BuildMET(const xAOD::JGTowerContainer*towers, METAlg::MET* met,std::vector<float> noise){
   float met_x=0;
   float met_y=0;
   for(unsigned t=0; t<towers->size(); t++){
