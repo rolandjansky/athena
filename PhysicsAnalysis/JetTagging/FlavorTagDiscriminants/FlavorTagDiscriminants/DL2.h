@@ -69,7 +69,7 @@ namespace FlavorTagDiscriminants {
       }
     std::pair<std::string, double> operator()(const xAOD::Jet& jet) const {
       const xAOD::BTagging* btag = jet.btagging();
-      if (!btag) throw std::logic_error("can't find btagging object");
+      if (!btag) throw std::runtime_error("can't find btagging object");
       return {m_name, m_default_flag(*btag) ? NAN : m_getter(*btag)};
     }
   };
