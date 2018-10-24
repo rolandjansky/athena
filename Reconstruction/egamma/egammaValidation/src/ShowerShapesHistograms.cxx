@@ -59,8 +59,9 @@ void ShowerShapesHistograms::fill(const xAOD::Egamma& egamma) {
   
   const std::vector<const xAOD::CaloCluster*> topoclusters = xAOD::EgammaHelpers::getAssociatedTopoClusters(egamma.caloCluster());
 
-  topoclusters.at(0)->retrieveMoment(xAOD::CaloCluster::LATERAL,lateral);
-  histoMap["lateral"]->Fill(lateral);
+  if (topoclusters.at(0)->retrieveMoment(xAOD::CaloCluster::LATERAL,lateral)) {
+    histoMap["lateral"]->Fill(lateral);
+  }
 
   if(egamma.showerShapeValue(rhad, xAOD::EgammaParameters::Rhad)) histoMap["rhad"]->Fill(rhad);
   if(egamma.showerShapeValue(Reta, xAOD::EgammaParameters::Reta)) histoMap["reta"]->Fill(Reta);
