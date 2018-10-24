@@ -11,7 +11,10 @@ atlas_depends_on_subdirs( PUBLIC
 			  LArCalorimeter/LArIdentifier
                           Control/AthenaKernel
                           DetectorDescription/Identifier
-                          GaudiKernel )
+                          GaudiKernel
+                          PRIVATE
+			  LArCalorimeter/LArElecCalib
+			  LArCalorimeter/LArCabling )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
