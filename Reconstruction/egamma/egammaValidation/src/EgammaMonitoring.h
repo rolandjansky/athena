@@ -43,6 +43,9 @@
 #include "ShowerShapesHistograms.h"
 #include "EfficiencyPlot.h"
 
+#include "IsolationHistograms.h"
+#include "IsolationSelection/IIsolationSelectionTool.h"
+
 #include "TFile.h"
 #include "TH1.h"
 
@@ -56,14 +59,15 @@ class EgammaMonitoring : public AthAlgorithm
 
   /// Tools and services ///
   ITHistSvc*   rootHistSvc ;
- 
+
 //  egammaMonitoring::EffIDPlots  Eff_ID  ;
 //  egammaMonitoring::EffRecPlots Eff_Reco;
-  
+
 
 
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapesAll;
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapes10GeV;
+  std::unique_ptr<egammaMonitoring::IsolationHistograms> isolationAll;
 
   std::unique_ptr<egammaMonitoring::IHistograms> truthElectronAll;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronAll;
@@ -75,6 +79,9 @@ class EgammaMonitoring : public AthAlgorithm
   std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronLooseLH;
   std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronMediumLH;
   std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronTightLH;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutTight;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutTightTrackOnly;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutLoose;
 
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonAll;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonRecoPhoton        ;
@@ -89,21 +96,27 @@ class EgammaMonitoring : public AthAlgorithm
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvPhoton        ;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoConv      ;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonUnconvRecoUnconv    ;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutTight;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutTightCaloOnly;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonUnconvIsoFixedCutLoose;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvIsoFixedCutTight;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvIsoFixedCutTightCaloOnly;
+  std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonConvIsoFixedCutLoose;
 
   // Histos
   // General Info
   TH1D *evtNmb = nullptr; //!
-  
+
   EgammaMonitoring (const std::string& name, ISvcLocator* pSvcLocator);
   ~EgammaMonitoring(){};
 
-  
+
   virtual StatusCode initialize ();
   virtual StatusCode beginInputFile();
   virtual StatusCode firstExecute();
   virtual StatusCode execute ();
   virtual StatusCode finalize ();
- 
+
 
 
 private:
@@ -114,7 +127,10 @@ private:
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_LooseLH ; //!
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_MediumLH; //!
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_TightLH ; //!
-  
+  asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTight; //!
+  asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightTrackOnly; //!
+  asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightCaloOnly; //!
+  asg::AnaToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutLoose; //!
 
   ToolHandle<IMCTruthClassifier>  m_mcTruthClassifier;
 

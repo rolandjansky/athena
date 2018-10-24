@@ -2,11 +2,13 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandFlat.h"
+
 #include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+
 #include "TMath.h"
-#include "TRandom.h"
 
 //=============================================
 //======= TFCSSelectEnergyBin =========
@@ -101,12 +103,21 @@ void TFCSEnergyBinParametrization::Print(Option_t *option) const
 
 FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* /*extrapol*/)
 {
-  int pdgid=truth->pdgid();
-  if(!is_match_pdgid(pdgid)) {
-    ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate pdgid="<<pdgid);
+  if (!simulstate.randomEngine()) {
     return FCSFatal;
   }
-  float searchRand=gRandom->Rndm();
+
+  int truth_pdgid = truth->pdgid();
+  int pdgid = -99;
+
+  if (is_match_pdgid(truth_pdgid)) pdgid = truth_pdgid;
+  else if (is_match_pdgid(0)) pdgid = 0;
+  else {
+    ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate pdgid=" << truth_pdgid);
+    return FCSFatal;
+  }
+  
+  float searchRand = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   int chosenBin=TMath::BinarySearch(n_bins()+1, m_pdgid_Ebin_probability[pdgid].data(), searchRand)+1;
   if(chosenBin<1 || chosenBin>n_bins()) {
     ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate bin="<<chosenBin);

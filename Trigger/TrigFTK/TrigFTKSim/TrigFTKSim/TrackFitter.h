@@ -42,6 +42,8 @@ protected:
 
   float *m_HW_dev; //[m_ncoords] tolerances for the HW
 
+  bool m_AuxDoctor; // true means enabling Aux Doctor, false means disabling it
+
   int m_keep_rejected; // >0 keep rejected roads (1 HW rej, 2 bad quality)
 
   int m_fit_removed; /* if >0 fit the hit combinations in the removed road.
@@ -122,6 +124,7 @@ protected:
   virtual void processor_end(int);
   virtual void compute_truth(const unsigned int&,const FTKRoad &,FTKTrack&) const;
   int doHitWarriorFilter(FTKTrack&,std::list<FTKTrack>&);
+  int doAuxDoctor(FTKTrack&,std::list<FTKTrack>&);
   std::list<FTKTrack>::iterator removeTrack(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
 
 public:
@@ -153,6 +156,9 @@ public:
 
   void setHWNDiff(int v) { m_HW_ndiff = v; }
   int getHWNDiff() const { return m_HW_ndiff; }
+
+  void setAuxDoctor(bool v) { m_AuxDoctor = v; }
+  bool getAuxDoctor() const { return m_AuxDoctor; }
 
   void setMaxNcomb(int v) { m_max_ncomb = v; }
   void setMaxNhitsPerPlane(int v) { m_max_nhitsperplane = v; }

@@ -70,6 +70,7 @@ TileBchPrbs::initPrbDesc()
   m_prbNames[TileBchPrbs::TrigNoGain             ] = "LV1 channel no gain";
   m_prbNames[TileBchPrbs::TrigHalfGain           ] = "LV1 channel half gain";
   m_prbNames[TileBchPrbs::TrigNoisy              ] = "LV1 channel noisy";
+  m_prbNames[TileBchPrbs::DisableForL1           ] = "Channel disabled for LV1";
 
   //=== online channel
   m_prbNames[TileBchPrbs::OnlineBadTiming        ] = "Online bad timing";

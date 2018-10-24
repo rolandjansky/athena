@@ -24,3 +24,4 @@ addTool("G4UserActions.G4UserActionsConfig.getFluxRecorderTool", "G4UA::FluxReco
 addTool("G4UserActions.G4UserActionsConfig.getScoringPlaneTool", "G4UA::ScoringPlaneTool")
 addTool("G4UserActions.G4UserActionsConfig.getRadiationMapsMakerTool", "G4UA::RadiationMapsMakerTool")
 addTool("G4UserActions.G4UserActionsConfig.getStoppedParticleActionTool", "G4UA::StoppedParticleActionTool")
+addTool("G4UserActions.G4UserActionsConfig.getRadLengthActionTool", "G4UA::RadLengthActionTool")

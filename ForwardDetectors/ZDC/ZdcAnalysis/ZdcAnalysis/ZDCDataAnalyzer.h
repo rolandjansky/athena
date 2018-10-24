@@ -111,6 +111,8 @@ public:
 
   void SetPeak2ndDerivMinTolerances(size_t tolerance);
 
+  void SetFitTimeMax(float tmax);
+
   void SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOverflowADC, const ZDCModuleFloatArray& HGUnderflowADC, 
 				 const ZDCModuleFloatArray& LGOverflowADC);
 
