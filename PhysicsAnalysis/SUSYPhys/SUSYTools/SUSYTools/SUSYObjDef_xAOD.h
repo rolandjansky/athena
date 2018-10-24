@@ -632,7 +632,6 @@ namespace ST {
     bool m_doPhIsoSignal;
     bool m_doMuIsoSignal;
     
-    bool m_doIsoCloseByOR;
     bool m_useSigLepForIsoCloseByOR;
     std::string m_IsoCloseByORpassLabel;
     

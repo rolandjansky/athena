@@ -237,7 +237,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doPhIsoSignal(true),
     m_doMuIsoSignal(true),
     
-    m_doIsoCloseByOR(true),
     m_useSigLepForIsoCloseByOR(false),
     m_IsoCloseByORpassLabel(),
 
@@ -491,7 +490,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "SigPhRequireIso", m_doPhIsoSignal );
 
   //Isolation correction for leptons and photons
-  declareProperty( "SigLepPhIsoCloseByOR", m_doIsoCloseByOR );
   declareProperty( "UseSigLepForIsoCloseByOR", m_useSigLepForIsoCloseByOR );
   declareProperty( "IsoCloseByORpassLabel", m_IsoCloseByORpassLabel );
  
@@ -1209,7 +1207,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doElIsoSignal, "SigEl.RequireIso", rEnv, m_doIsoSignal);
   configFromFile(m_doMuIsoSignal, "SigMu.RequireIso", rEnv, m_doIsoSignal);
   configFromFile(m_doPhIsoSignal, "SigPh.RequireIso", rEnv, m_doIsoSignal);
-  configFromFile(m_doIsoCloseByOR, "SigLepPh.IsoCloseByOR", rEnv, false);
   configFromFile(m_useSigLepForIsoCloseByOR, "SigLepPh.UseSigLepForIsoCloseByOR", rEnv, false);
   configFromFile(m_IsoCloseByORpassLabel, "SigLepPh.IsoCloseByORpassLabel", rEnv, "");
  

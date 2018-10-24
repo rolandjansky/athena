@@ -1345,6 +1345,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoCloseByTool.setProperty("SelectionDecorator", m_useSigLepForIsoCloseByOR ? "signal" : "baseline") );
     // Make this propery configurable as well?
     ATH_CHECK(m_isoCloseByTool.setProperty("BackupPrefix", "ORIG"));
+    // The isolation selection decorator is updated as well by the tool
+    ATH_CHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "isol"));
+         
     ATH_CHECK( m_isoCloseByTool.retrieve() );
   }
 
