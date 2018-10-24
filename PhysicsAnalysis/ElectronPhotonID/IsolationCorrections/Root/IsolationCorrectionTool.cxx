@@ -20,7 +20,7 @@
 namespace CP {
 
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
-    : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
+    : asg::AsgMetadataTool(name),  m_apply_dd(false), m_metadata_retrieved(false), m_systDDonoff("PH_Iso_DDonoff") {
     declareProperty("CorrFile",                    m_corr_file                    = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
     declareProperty("CorrFile_ddshift_2015",       m_corr_ddshift_2015_file       = "IsolationCorrections/v1/isolation_ddcorrection_shift_2015_v3.root");
     declareProperty("CorrFile_ddshift",            m_corr_ddshift_file            = "IsolationCorrections/v1/isolation_ddcorrection_shift.root");
@@ -162,13 +162,11 @@ namespace CP {
       ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
       return StatusCode::FAILURE;    
     }
-    else {
-      boost::to_upper(simType);
-      result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
-      return StatusCode::SUCCESS;    
-    }
-    //
+
+    boost::to_upper(simType);
+    result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
     return StatusCode::SUCCESS;    
+  
   }
   
   StatusCode IsolationCorrectionTool::beginInputFile() {
