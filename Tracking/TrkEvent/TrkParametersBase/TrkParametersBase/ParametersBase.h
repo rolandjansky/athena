@@ -61,11 +61,12 @@ namespace Trk
 
     /** virtual Destructor */
     virtual ~ParametersBase()=default;
-    /** default copy ctors and assignment operators*/
-     ParametersBase(const ParametersBase&)=default;
-     ParametersBase& operator=(const ParametersBase&)=default;
-     ParametersBase(ParametersBase&&)=default;
-     ParametersBase& operator=(ParametersBase&&)=default;  
+    /** default ctor , copy ctors, and assignment operators*/
+    ParametersBase()=default; 
+    ParametersBase(const ParametersBase&)=default;
+    ParametersBase& operator=(const ParametersBase&)=default;
+    ParametersBase(ParametersBase&&)=default;
+    ParametersBase& operator=(ParametersBase&&)=default;  
 
     //** equality operator */
     virtual bool operator==(const ParametersBase<DIM,T>&) const = 0;
