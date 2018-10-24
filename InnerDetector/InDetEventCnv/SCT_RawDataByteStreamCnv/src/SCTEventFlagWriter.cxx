@@ -4,6 +4,8 @@
 
 #include "SCTEventFlagWriter.h"
 
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+
 /// --------------------------------------------------------------------
 /// Constructor
 

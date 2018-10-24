@@ -17,9 +17,10 @@
 #include "GaudiKernel/ToolHandle.h"
 
 /** other */
-#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+
+class ISCT_ByteStreamErrorsTool;
 
 class SCTEventFlagWriter : public AthAlgorithm
 {
