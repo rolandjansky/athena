@@ -140,7 +140,7 @@ HLTMonManager = topSequence.HLTMonManager
 from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
 HLTMon = HLTMonTool(name  = 'HLTMon', histoPathBase = "HLT");
 ToolSvc += HLTMon;
-HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+HLTMonManager.AthenaMonTools += [ HLTMon ];
 
 ####################################################################################################
 #Define the base path for all histograms
@@ -221,8 +221,8 @@ AnalysisTool = TrigEgammaNavTPAnalysisTool( name = "TrigEgammaNavTPAnalysisTool"
 Tools=['TrigEgammaNavTPAnalysisTool/TrigEgammaNavTPAnalysisTool']
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
 TrigEgammaMonTool = TrigEgammaMonTool( name = "HLTEgammaMon", histoPathBase=basePath, Tools=Tools)
-ToolSvc += TrigEgammaMonTool
-HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool/HLTEgammaMon" ]
+#ToolSvc += TrigEgammaMonTool
+HLTMonManager.AthenaMonTools += [ TrigEgammaMonTool ]
 HLTMonManager.FileKey = "GLOBAL"
-ToolSvc.TrigDecisionTool.Navigation.OutputLevel = WARNING
+#ToolSvc.TrigDecisionTool.Navigation.OutputLevel = WARNING
 ####################################################################################################

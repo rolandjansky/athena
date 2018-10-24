@@ -24,9 +24,8 @@ namespace Muon {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_muonTrackTruthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool")
   {  
-    declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments","muon truth segment container name" );
-    declareProperty("MuonSegmentLocation", m_muonSegmentCollectionName = "MuonSegments" ,"muon segment container name");
     declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 ,"barcode offset for matching truth particles");
+    declareProperty("doNSW",m_useNSW=false,"NSW flag");
   }
 
   // Initialize method:
@@ -39,6 +38,11 @@ namespace Muon {
     m_muonSegmentCollectionName=m_muonSegmentCollectionName.key()+".truthSegmentLink";
     ATH_CHECK(m_muonTruthSegmentContainerName.initialize());
     ATH_CHECK(m_muonSegmentCollectionName.initialize());
+    ATH_CHECK(m_mcEventColl.initialize());
+    if(m_useNSW) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
+    ATH_CHECK(m_muonSimData.initialize());
+    ATH_CHECK(m_cscSimData.initialize(!m_useNSW));
+    ATH_CHECK(m_trackRecord.initialize());
     return StatusCode::SUCCESS;
   }
   // Finalize method:
@@ -94,8 +98,30 @@ namespace Muon {
         }
       }
       ++segIndex;
-    }     
-    m_muonTrackTruthTool->createTruthTree();
+    }
+
+    SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord);
+    SG::ReadHandle<McEventCollection> mcEventCollection(m_mcEventColl);
+    std::vector<const MuonSimDataCollection*> muonSimData;
+    for(SG::ReadHandle<MuonSimDataCollection>& simDataMap : m_muonSimData.makeHandles()){
+      if(!simDataMap.isValid()){
+        ATH_MSG_WARNING(simDataMap.key()<<" not valid");
+        continue;
+      }
+      if(!simDataMap.isPresent()) continue;
+      muonSimData.push_back(simDataMap.cptr());
+    }
+    if(!m_useNSW){
+      SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
+      if(!cscSimDataMap.isValid()){
+        ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");
+	m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,NULL);
+      }
+      else{
+	m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,cscSimDataMap.cptr());
+      }
+    }
+    else m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,NULL);
     ATH_MSG_DEBUG("Matching reconstructed segments " << muonSegments.size() );
     IMuonTrackTruthTool::SegmentResultVec segmentMatchResult = m_muonTrackTruthTool->match(muonSegments);
 

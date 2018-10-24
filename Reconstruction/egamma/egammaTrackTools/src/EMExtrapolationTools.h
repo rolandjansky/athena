@@ -22,6 +22,7 @@ PURPOSE:  Tool which propagate track to
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include "egammaInterfaces/IEMExtrapolationTools.h"
@@ -67,7 +68,8 @@ public:
    * returns true for good match using sampling 2, and
    *  the values for eta/phi, deltaEta/deltaPhi 
    */
-  virtual bool  matchesAtCalo(const xAOD::CaloCluster*      cluster, 
+  virtual bool  matchesAtCalo(const EventContext&           ctx,
+                              const xAOD::CaloCluster*      cluster, 
                               const xAOD::TrackParticle*    trkPB, 
                               bool                          isTRT, 
                               Trk::PropDirection            direction,
@@ -81,7 +83,8 @@ public:
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  */
-  virtual StatusCode getMatchAtCalo (const xAOD::CaloCluster*      cluster, 
+  virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
+                                     const xAOD::CaloCluster*      cluster, 
                                      const xAOD::TrackParticle*    trkPB,
                                      bool                          isTRT, 
                                      Trk::PropDirection            direction,

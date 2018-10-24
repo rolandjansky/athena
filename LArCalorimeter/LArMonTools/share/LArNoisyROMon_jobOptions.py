@@ -63,5 +63,5 @@ if rec.doTrigger or LArNoisyROMonForceTrigger:
 else:
     theLArNoisyROMon.doTrigger = False
 
-ToolSvc += theLArNoisyROMon
+#ToolSvc += theLArNoisyROMon
 LArMon.AthenaMonTools += [theLArNoisyROMon]

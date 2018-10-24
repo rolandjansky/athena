@@ -123,6 +123,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nActive_mod, 0, sizeof(m_nActive_mod));
   m_pixelid = 0;
   m_event = 0;
+  m_event5min = 0;
   m_startTime = 0;
   m_majorityDisabled = 0;
   m_lumiBlockNum = 0;
@@ -710,10 +711,12 @@ StatusCode PixelMainMon::fillHistograms() {
   if(!(thisEventInfo.isValid())) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
   } else {
+
     m_currentTime = thisEventInfo->timeStamp();
     m_currentBCID = thisEventInfo->bcid();
-    unsigned int currentdiff = (m_currentTime - m_firstBookTime) / 100;
-    unsigned int currentdiff5min = (m_currentTime - m_firstBookTime) / 300;
+    int currentdiff = (int)(m_currentTime - m_firstBookTime) / 100;
+    int currentdiff5min = (int)(m_currentTime - m_firstBookTime) / 300;
+
     // for 100 sec
     if (currentdiff > m_nRefresh) {
       m_doRefresh = true;
@@ -725,8 +728,10 @@ StatusCode PixelMainMon::fillHistograms() {
     if (currentdiff5min > m_nRefresh5min) {
       m_doRefresh5min = true;
       m_nRefresh5min = currentdiff5min;
+      m_event5min = 1;
     } else {
       m_doRefresh5min = false;
+      m_event5min++;
     }
   }
 

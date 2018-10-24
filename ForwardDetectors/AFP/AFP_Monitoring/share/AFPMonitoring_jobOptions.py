@@ -19,7 +19,7 @@ PreScale       = 0,
 EnableLumi = True
 )
 
-ToolSvc += AFPSiHitsMonTool
+#ToolSvc += AFPSiHitsMonTool
 AFPMonManager.AthenaMonTools += [ AFPSiHitsMonTool ]
 
 from AFP_Monitoring.AFP_MonitoringConf import AFPTechnicalMonitorTool
@@ -29,5 +29,5 @@ PreScale       = 0,
 EnableLumi = True
 )
 
-ToolSvc += AFPTechnicalMonTool
+#ToolSvc += AFPTechnicalMonTool
 AFPMonManager.AthenaMonTools += [ AFPTechnicalMonTool ]

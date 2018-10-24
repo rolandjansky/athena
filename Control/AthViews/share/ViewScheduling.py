@@ -18,6 +18,7 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.EnableConditions( True )
 
 # Control flow
 from AthenaCommon.AlgSequence import AthSequencer

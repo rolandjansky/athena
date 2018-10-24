@@ -164,7 +164,7 @@ theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() #LArNoisyROFEBCutHelper
 theLArNoisyROMon.doTrigger = False
 theLArNoisyROMon.doHisto = False
 
-ToolSvc += theLArNoisyROMon
+#ToolSvc += theLArNoisyROMon
 LArMon.AthenaMonTools += [theLArNoisyROMon]
 
 #########

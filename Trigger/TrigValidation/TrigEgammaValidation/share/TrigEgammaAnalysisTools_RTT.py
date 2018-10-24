@@ -114,6 +114,6 @@ TrigEgammaPhysValMonTool = TrigEgammaPhysValMonTool( name = "TrigEgammaPhysValMo
             "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
             ])
 
-ToolSvc += TrigEgammaPhysValMonTool
-monMan.AthenaMonTools += [ "TrigEgammaPhysValMonTool" ]
+#ToolSvc += TrigEgammaPhysValMonTool
+monMan.AthenaMonTools += [ TrigEgammaPhysValMonTool ]
     

@@ -103,7 +103,8 @@ private:
             xAOD::PhotonContainer *photonContainer);
 
     /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-    StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
+    StatusCode CallTool(const EventContext& ctx,
+            ToolHandle<IegammaBaseTool>& tool, 
             xAOD::ElectronContainer *electronContainer = 0, 
             xAOD::PhotonContainer *photonContainer = 0);
 

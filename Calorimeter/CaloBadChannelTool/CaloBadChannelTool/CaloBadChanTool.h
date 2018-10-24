@@ -28,8 +28,8 @@ public:
 
 private:
 
-  ToolHandle<ICaloBadChanTool> m_larBCT;
-  ToolHandle<ICaloBadChanTool> m_tileBCT;
+  ToolHandle<ICaloBadChanTool> m_larBCT{this, "LArBadChanTool", "LArBadChanTool", "LAr bad channel tool"};
+  ToolHandle<ICaloBadChanTool> m_tileBCT{this, "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
   const CaloCell_ID* m_caloID;
 };
 

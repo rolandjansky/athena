@@ -209,7 +209,7 @@ StatusCode electronSuperClusterBuilder::execute(){
   //Redo track matching given the super cluster
   if (m_doTrackMatching){
     for (auto egRec : *newEgammaRecs) {
-      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+      if (m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
 	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
 	return StatusCode::FAILURE;
       }

@@ -24,6 +24,7 @@ MODIFIED :
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h" 
+#include "GaudiKernel/EventContext.h"
 
 class egammaRec;
 static const InterfaceID IID_IEMTrackMatchBuilder("IEMTrackMatchBuilder", 1, 0);
@@ -41,9 +42,9 @@ class IEMTrackMatchBuilder : virtual public IAlgTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg) const = 0;
+  virtual StatusCode executeRec(const EventContext& ctx, egammaRec* eg) const = 0;
   /** @brief execute method*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) const = 0;
+  virtual StatusCode trackExecute(const EventContext& ctx, egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) const = 0;
 };
 
 inline const InterfaceID& IEMTrackMatchBuilder::interfaceID()
