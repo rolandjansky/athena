@@ -74,7 +74,6 @@ namespace Analysis {
         std::string m_MuonsUsedInJpsi;
         bool m_excludeJpsiMuonsOnly;
         bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
-        std::vector<Trk::VxCandidate*> m_vxc;
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
