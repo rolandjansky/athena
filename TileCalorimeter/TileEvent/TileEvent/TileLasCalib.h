@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Marius Cornelis van Woerden*/
@@ -9,6 +9,8 @@
 #ifndef TILELASCALIB_H
 #define TILELASCALIB_H
 
+
+#include <string>
 #include <math.h>
 
 
@@ -100,7 +102,13 @@ class TileLasCalib {
       return false;
     } // isSet
     
-  private:
+
+  /** Convertion operator to a std::string,
+   * can be used in a cast operation : (std::string) TileLaserDiode */
+  operator std::string() const;
+
+
+private:
     
     static const int HG = 1;
     static const int LG = 0;

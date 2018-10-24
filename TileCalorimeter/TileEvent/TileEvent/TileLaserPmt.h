@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -8,6 +8,10 @@
 
 #ifndef TILELASERPMT_H
 #define TILELASERPMT_H
+
+
+#include <string>
+
 
 class TileLaserPmt {
 
@@ -36,7 +40,13 @@ class TileLaserPmt {
       m_pmSigmaPedestal = pmSigmaPedestal;
   }
 
- private:
+
+  /** Convertion operator to a std::string,
+   * can be used in a cast operation : (std::string) TileLaserPmt */
+  operator std::string() const;
+
+
+private:
 
   int m_PMADC;
   int m_TDC;
