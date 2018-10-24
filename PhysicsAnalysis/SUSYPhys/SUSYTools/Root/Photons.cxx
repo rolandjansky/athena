@@ -19,8 +19,7 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
-
+I
 // Helper for object quality
 #include "EgammaAnalysisHelpers/PhotonHelpers.h"
 
@@ -56,30 +55,9 @@ StatusCode SUSYObjDef_xAOD::GetPhotons(xAOD::PhotonContainer*& copy, xAOD::Shall
     photons=copy;
   }  
 
-  bool cached_doIsoSig = m_doPhIsoSignal;
   for (const auto& photon : *copy) {
     ATH_CHECK( this->FillPhoton(*photon, m_photonBaselinePt, m_photonBaselineEta) );
-    if(m_doIsoCloseByOR) //switch off isolation for now if close-by OR corrections were requested
-      m_doPhIsoSignal = false;
     this->IsSignalPhoton(*photon, m_photonPt, m_photonEta);
-  }
-
-  //apply close-by corrections to isolation if requested
-  if(m_doIsoCloseByOR){
-    // store photons in a vector
-    std::vector<const xAOD::IParticle*> pVec;
-    for(auto pobj: *copy) {
-      pVec.push_back((const xAOD::IParticle*) pobj);
-    }
-
-    //restore isSignal settings
-    m_doPhIsoSignal = cached_doIsoSig;
-
-    //correct isolation and propagate to signal deco
-    for (const auto& photon : *copy) {
-      dec_isol(*photon) = m_isoCloseByTool->acceptCorrected(*photon, pVec);
-      if(m_doPhIsoSignal) dec_signal(*photon) &= dec_isol(*photon); //add isolation to signal deco if requested
-    }
   }
 
   if (recordSG) {
