@@ -6,7 +6,7 @@
 // https://github.com/lwtnn/lwtnn.git (rev v2.0)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
-// from JetTagTools/share
+// from JetTagCalibration/share
 
 #ifndef STACK_HH
 #define STACK_HH
