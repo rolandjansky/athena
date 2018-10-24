@@ -10,8 +10,6 @@ Generate_tf.py --ecmEnergy=13000 --runNumber=429722 --maxEvents=10 \
     --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID429xxx/MC15.429722.Herwig7_H7UE_MMHT2014lo68cl_Wjets.py  \
     --outputEVNTFile=test_herwig7_wjets_inelastic.EVNT.pool.root \
 
-rm -fr _joproxy15
-
 echo "art-result: $? generate"
 
-
+rm -fr _joproxy15

@@ -2,6 +2,7 @@
 
 from AthenaCommon import Logging
 from configurable import Configurable
+from ..utility import check_svn_revision
 import math
 import os
 
@@ -15,6 +16,7 @@ class PowhegBase(Configurable):
     All process types inherit from this class.
 
     @author James Robinson  <james.robinson@cern.ch>
+    @author Stefan Richter  <stefan.richter@cern.ch>
     """
 
     def __init__(self, base_directory, version, executable_name, cores, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
@@ -28,6 +30,19 @@ class PowhegBase(Configurable):
 
         ## Powheg executable that will be used
         self.executable = os.path.join(base_directory, version, executable_name, powheg_executable)
+
+        ## SVN revision of process code
+        self.process_revision = check_svn_revision(os.path.dirname(self.executable))
+
+        ## Log the PowhegBox version and process-code revision for AMI etc.
+        ## Also set environment variable POWHEGVER to this contain this information
+        one_character_version = self.powheg_version.replace('V', '')[0]
+        POWHEGVER = '{v}_r{rev}'.format(v=one_character_version, rev=self.process_revision)
+        logger.info('MetaData: POWHEGVER = {0}'.format(POWHEGVER))
+        os.environ["POWHEGVER"] = POWHEGVER # does not export to parent shell, but might be sufficient inside job?
+
+        ## SVN revision of PowhegBox code
+        self.powhegbox_revision = check_svn_revision(os.path.dirname(os.path.dirname(self.executable)))
 
         ## Number of cores to use
         self.cores = cores
