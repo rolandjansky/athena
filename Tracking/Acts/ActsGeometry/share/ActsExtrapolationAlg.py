@@ -96,26 +96,16 @@ job = AlgSequence()
 from ActsGeometry.ActsGeometryConf import ActsExtrapolationAlg
 alg = ActsExtrapolationAlg()
 alg.OutputLevel = INFO
-# these options will move to the ExtrapolationTool at some point
-alg.SearchMode = 1
-alg.CollectSensitive = True
-alg.CollectPassive = True
-alg.CollectBoundary = True
-alg.CollectMaterial = True
-alg.StopAtBoundary = True
-alg.FATRAS = True
-alg.nParticles = 1
-alg.Cardinality = 0
 
-# not really needed right now
+# not really needed right now (also not working)
 # this can be used to test an input material map file
-alg.WriteMaterialTracks = False
-# we only need this if the extrap alg is set up to write mat tracks
-if alg.WriteMaterialTracks == True:
-  mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
-  mTrackWriterSvc.OutputLevel = DEBUG
-  mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
-  ServiceMgr += mTrackWriterSvc
+# alg.WriteMaterialTracks = False
+# # we only need this if the extrap alg is set up to write mat tracks
+# if alg.WriteMaterialTracks == True:
+  # mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
+  # mTrackWriterSvc.OutputLevel = DEBUG
+  # mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
+  # ServiceMgr += mTrackWriterSvc
 
 # sets up the extrapolation tool
 # this sets up the tracking geometry svc through the tracking geometry tool
