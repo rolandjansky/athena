@@ -108,3 +108,7 @@ if( XAOD_ANALYSIS )
       ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_transtree2_test.py
       PROPERTIES TIMEOUT 600 )
 endif()
+
+if( NOT XAOD_STANDALONE )
+   _add_test( ut_xaodrootaccess_proxydict_test )
+endif()
