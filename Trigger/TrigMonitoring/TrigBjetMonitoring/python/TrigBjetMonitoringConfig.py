@@ -14,9 +14,9 @@ def TrigBjetMonitoringConfig():
 	HLTBjetMon.monitoring_bjet = hltmonList.monitoring_bjet
 
 
-	from AthenaCommon.AppMgr import ToolSvc
-	ToolSvc += HLTBjetMon;
-	list = [ "HLTBjetMonTool/HLTBjetMon" ];
+	#from AthenaCommon.AppMgr import ToolSvc
+	#ToolSvc += HLTBjetMon;
+	list = [ HLTBjetMon ];
 	
 	return list
 

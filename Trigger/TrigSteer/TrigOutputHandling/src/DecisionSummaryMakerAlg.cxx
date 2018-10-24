@@ -18,18 +18,17 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   for ( auto& pair: m_lastStepForChain ) {
     struct { std::string chain, collection; } conf { pair.first, pair.second };    
     m_collectionFilter[ conf.collection ].insert( HLT::Identifier( conf.chain).numeric() );
+    ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
   }
   
   return StatusCode::SUCCESS;
 }
 
-StatusCode DecisionSummaryMakerAlg::finalize()
-{
+StatusCode DecisionSummaryMakerAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const
-{
+StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const {
   auto outputHandle{ SG::makeHandle( m_summaryKey, context) };
   auto container = std::make_unique<TrigCompositeUtils::DecisionContainer>();
   auto aux = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
@@ -44,7 +43,7 @@ StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const
       ATH_MSG_DEBUG("missing input " <<  key.key() << " likely rejected");
       continue;
     }
-    auto thisCollFilter = m_collectionFilter.find(key.key() );
+    const auto thisCollFilter = m_collectionFilter.find( key.key() );
     if ( thisCollFilter == m_collectionFilter.end() ) {
       ATH_MSG_WARNING( "The colleciton " << key.key() << " is not configured to contain any final decision, remove it from the configuration of " << name() << " to save time" );
       continue;
@@ -55,13 +54,13 @@ StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const
       sum.insert( TrigCompositeUtils::decisionIDs(decisionObject).begin(), TrigCompositeUtils::decisionIDs(decisionObject).end() );  // copy from vector
     }
     
-    TrigCompositeUtils::DecisionIDContainer final;
+    TrigCompositeUtils::DecisionIDContainer finalIDs;
     std::set_intersection(  sum.begin(), sum.end(),
 			    thisCollFilter->second.begin(), thisCollFilter->second.end(), 
-			    std::inserter(final, final.begin() ) ); // should be faster than remove_if
+			    std::inserter(finalIDs, finalIDs.begin() ) ); // should be faster than remove_if
     
     TrigCompositeUtils::decisionIDs( output ).insert( TrigCompositeUtils::decisionIDs( output ).end(), 
-						    sum.begin(), sum.end() );
+						      finalIDs.begin(), finalIDs.end() );
     
   }
   if ( msgLvl( MSG::DEBUG ) ) {

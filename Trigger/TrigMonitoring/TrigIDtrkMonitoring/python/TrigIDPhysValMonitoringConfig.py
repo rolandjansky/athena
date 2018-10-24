@@ -56,10 +56,10 @@ def TrigIDPhysValMonitoringTool():
       TestIDPhysValMon.ntupleChainNames += chainnames
       TestIDPhysValMon.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
 
-      from AthenaCommon.AppMgr import ToolSvc
-      ToolSvc += TestIDPhysValMon
-      Monname = "TrigTestPhysValMon/" + Monname
-      return Monname
+      #from AthenaCommon.AppMgr import ToolSvc
+      #ToolSvc += TestIDPhysValMon
+      #Monname = "TrigTestPhysValMon/" + Monname
+      return TestIDPhysValMon
 
     ############### Electrons ###############
     name = "Electron"

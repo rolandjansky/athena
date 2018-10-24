@@ -55,60 +55,60 @@ if tileESDMon:
         TileCellMon.FillTimeHistograms = True
         TileCellMon.energyThresholdForTime = 150.0
         
-    ToolSvc += TileCellMon;    
+    #ToolSvc += TileCellMon;    
     ManagedAthenaTileMon.AthenaMonTools += [ TileCellMon ];
 
 
     include ("TileMonitoring/TileMonTower_jobOptions.py")
 
-    ToolSvc += CfgMgr.TileTowerMonTool(name                  = 'TileTowerMon'
+    TileTowerMon = CfgMgr.TileTowerMonTool(name                  = 'TileTowerMon'
                                        , OutputLevel         = INFO
                                        , towersContainerName = "TileTower"
                                        , FillHistogramsForL1Triggers = []
                                        , histoPathBase       = "/Tile/Tower");
 
-    ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileTowerMon ];
+    ManagedAthenaTileMon.AthenaMonTools += [ TileTowerMon ];
 
 
     include ("TileMonitoring/TileMonTopoCluster_jobOptions.py")
 
-    ToolSvc += CfgMgr.TileClusterMonTool(name                    = 'TileClusterMon'
+    TileClusterMon = CfgMgr.TileClusterMonTool(name                    = 'TileClusterMon'
                                          , OutputLevel           = INFO
                                          , clustersContainerName = "TileTopoCluster"
                                          , FillHistogramsForL1Triggers = []
                                          , histoPathBase         = "/Tile/Cluster");
 
-    ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileClusterMon ];
+    ManagedAthenaTileMon.AthenaMonTools += [ TileClusterMon ];
     
     if (jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam'):
 
-        ToolSvc += CfgMgr.TileMuonFitMonTool(name                  = 'TileMuonFitMon'
+        TileMuonFitMon = CfgMgr.TileMuonFitMonTool(name                  = 'TileMuonFitMon'
                                              , OutputLevel         = INFO
                                              , UseLVL1             = DQMonFlags.useTrigger()
                                              , FillHistogramsForL1Triggers = []
                                              , histoPathBase       = "/Tile/MuonFit")
 
-        ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileMuonFitMon ]
+        ManagedAthenaTileMon.AthenaMonTools += [ TileMuonFitMon ]
 
 
-    ToolSvc += CfgMgr.TileMuIdMonTool(name                  = 'TileMuIdMon'
+    TileMuIdMon = CfgMgr.TileMuIdMonTool(name                  = 'TileMuIdMon'
                                       , OutputLevel         = INFO
                                       , FillHistogramsForL1Triggers = []
                                       , histoPathBase       = "/Tile/Muid")
 
-    ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileMuIdMon ];
+    ManagedAthenaTileMon.AthenaMonTools += [ TileMuIdMon ];
 
 
-    ToolSvc += CfgMgr.TileL2MonTool(name                  = 'TileL2MuMon'
+    TileL2MuMon = CfgMgr.TileL2MonTool(name                  = 'TileL2MuMon'
                                     , OutputLevel         = INFO
                                     , FillHistogramsForL1Triggers = []
                                     , histoPathBase       = "/Tile/L2Muon")
 
-    ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileL2MuMon ];
+    ManagedAthenaTileMon.AthenaMonTools += [ TileL2MuMon ];
 
 
     if (jobproperties.Beam.beamType() == 'collisions'):
-        ToolSvc += CfgMgr.TileJetMonTool(name                = 'TileJetMonTool'
+        TileJetMonTool = CfgMgr.TileJetMonTool(name                = 'TileJetMonTool'
                                          , OutputLevel       = INFO
                                          , jetPtMin          = 20000.0
                                          , jetEtaMax         = 1.6
@@ -135,31 +135,31 @@ if tileESDMon:
             cleaning.CutLevel = "LooseBad"
             cleaning.DoUgly = False
             ToolSvc += cleaning
-            ToolSvc.TileJetMonTool.do_jet_cleaning   = True
-            ToolSvc.TileJetMonTool.useJVTTool        = jvt
-            ToolSvc.TileJetMonTool.useJetCleaning    = cleaning
+            TileJetMonTool.do_jet_cleaning   = True
+            TileJetMonTool.useJVTTool        = jvt
+            TileJetMonTool.useJetCleaning    = cleaning
 
         if DQMonFlags.monManDataType == 'heavyioncollisions':
             if not rec.doHIP(): 
-                ToolSvc.TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
-            ToolSvc.TileJetMonTool.do_event_cleaning = False
-            ToolSvc.TileJetMonTool.do_jet_cleaning   = False
+                TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
+            TileJetMonTool.do_event_cleaning = False
+            TileJetMonTool.do_jet_cleaning   = False
         
-        ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
+        ManagedAthenaTileMon.AthenaMonTools += [ TileJetMonTool ]
 
     if (not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon)  and (DQMonFlags.useTrigger() and rec.doTrigger()):
         from TileConditions.TileCondToolConf import getTileCondToolTMDB
         tileCondToolTMDB = getTileCondToolTMDB('COOL')
         if tileCondToolTMDB:
             ToolSvc += tileCondToolTMDB
-            ToolSvc += CfgMgr.TileTMDBRawChannelMonTool(name            = 'TileTMDBRawChannelDspMon'
+            TileTMDBRawChannelDspMon = CfgMgr.TileTMDBRawChannelMonTool(name            = 'TileTMDBRawChannelDspMon'
                                                         , OutputLevel   = INFO
                                                         , NotDSP        = False
                                                         , Efficiency    = True
                                                         , TileRawChannelContainer = "MuRcvRawChCnt"
                                                         , TileCondToolTMDB = tileCondToolTMDB
                                                         , histoPathBase = "/Tile/TMDBRawChannel/Dsp")
-            ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileTMDBRawChannelDspMon ];
+            ManagedAthenaTileMon.AthenaMonTools += [ TileTMDBRawChannelDspMon ];
 
 
 
@@ -180,21 +180,21 @@ if  tileRawMon:
     if globalflags.InputFormat() == 'pool':
         TileMBTSMon.TileDigitsContainerName = 'TileDigitsFlt'
 
-    ToolSvc += TileMBTSMon;
+    #ToolSvc += TileMBTSMon;
     ManagedAthenaTileMon.AthenaMonTools += [ TileMBTSMon ]
 
     from TileRecUtils.TileRecFlags import jobproperties
     if jobproperties.TileRecFlags.readDigits():
         if 'doTileRODMon' in dir() and doTileRODMon:
-            ToolSvc += CfgMgr.TileRODMonTool( name              = 'TileRODMon'
+            TileRODMon = CfgMgr.TileRODMonTool( name              = 'TileRODMon'
                                               , OutputLevel     = INFO
                                               , histoPathBase   = "/Tile/ROD"
                                               , FillHistogramsForL1Triggers = []
                                               , doOnline        = athenaCommonFlags.isOnline())
 
-            ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileRODMon ]
+            ManagedAthenaTileMon.AthenaMonTools += [ TileRODMon ]
 
-        ToolSvc += CfgMgr.TileDigiNoiseMonTool(name                  = 'TileDigiNoiseMon'
+        TileDigiNoiseMon = CfgMgr.TileDigiNoiseMonTool(name                  = 'TileDigiNoiseMon'
                                                , OutputLevel         = INFO
                                                , TileDigitsContainer = "TileDigitsCnt"
                                                , histoPathBase       = "/Tile/DigiNoise" 
@@ -203,12 +203,12 @@ if  tileRawMon:
                                                , TriggerTypes        = [ 0x82 ]);
 
         if globalflags.InputFormat() == 'pool':
-            ToolSvc.TileDigiNoiseMon.TileDigitsContainer = 'TileDigitsFlt'
+            TileDigiNoiseMon.TileDigitsContainer = 'TileDigitsFlt'
 
-        ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileDigiNoiseMon ]
+        ManagedAthenaTileMon.AthenaMonTools += [ TileDigiNoiseMon ]
 
 
-    ToolSvc += CfgMgr.TileDQFragLWMonTool(name                       = 'TileDQFragMon'
+    TileDQFragMon = CfgMgr.TileDQFragLWMonTool(name                       = 'TileDQFragMon'
                                           , OutputLevel              = INFO
                                           , TileRawChannelContainer  = jobproperties.TileRecFlags.TileRawChannelContainer()
                                           , TileDigitsContainer      = "TileDigitsCnt"
@@ -222,9 +222,9 @@ if  tileRawMon:
 
 
     if globalflags.InputFormat() == 'pool':
-        ToolSvc.TileDQFragMon.TileDigitsContainer = 'TileDigitsFlt'
+        TileDQFragMon.TileDigitsContainer = 'TileDigitsFlt'
 
-    ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileDQFragMon ]
+    ManagedAthenaTileMon.AthenaMonTools += [ TileDQFragMon ]
 
 topSequence += ManagedAthenaTileMon;
 print ManagedAthenaTileMon;

@@ -6,7 +6,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 
-def RPCCablingConfig(flags):
+def RPCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
     
     # TODO check if we actually need this here?
@@ -50,7 +50,7 @@ def RPCCablingConfig(flags):
 
     return acc, rpcCablingSvc
 
-def TGCCablingConfig(flags):
+def TGCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
     
     # TODO check if we actually need this here?
@@ -81,8 +81,10 @@ if __name__ == '__main__':
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
-    acc.merge(RPCCablingConfig(ConfigFlags ))
-    acc.merge(TGCCablingConfig(ConfigFlags ))
+    result,svc = RPCCablingConfigCfg(ConfigFlags)
+    acc.merge( result )
+    result,svc = TGCCablingConfigCfg(ConfigFlags)
+    acc.merge( result )
 
     f=open('MuonCabling.pkl','w')
     acc.store(f)

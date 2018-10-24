@@ -105,7 +105,7 @@ for trackCollection in trackCollections:
         )
         print InDetAlignMonResiduals
 
-        ToolSvc += InDetAlignMonResiduals
+        #ToolSvc += InDetAlignMonResiduals
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
 
         InDetAlignMonGenericTracks = IDAlignMonGenericTracks(
@@ -116,7 +116,7 @@ for trackCollection in trackCollections:
                 triggerChainName = "all",
                 VxPrimContainerName = InDetKeys.PrimaryVertices()
         )
-        ToolSvc += InDetAlignMonGenericTracks
+        #ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
 
         InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
@@ -129,7 +129,7 @@ for trackCollection in trackCollections:
                 SCT_Manager = InDetKeys.SCT_Manager(),
                 TRT_Manager = InDetKeys.TRT_Manager()
         )
-        ToolSvc += InDetAlignMonSelectedTracksEfficiencies
+        #ToolSvc += InDetAlignMonSelectedTracksEfficiencies
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonSelectedTracksEfficiencies ]
 
 
@@ -143,7 +143,7 @@ InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name  = "InDetAlignMonBeam
                                                                                                          vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint(),
 						                                    #                     vxContainerWithBeamConstraint  = False,
 						                                                          OutputLevel= 1)
-ToolSvc += InDetAlignMonBeamSpot_noTrig
+#ToolSvc += InDetAlignMonBeamSpot_noTrig
 InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonBeamSpot_noTrig ]
 
 # write out BS info

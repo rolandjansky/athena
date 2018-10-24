@@ -127,7 +127,7 @@ monMan = AthenaMonManager( "PixelMonManager" )
 
 from PixelMonitoring.PixelMonitoringConf import *
 PixelMainsMon=PixelMainMon()
-ToolSvc += PixelMainsMon
+#ToolSvc += PixelMainsMon
 monMan.AthenaMonTools += [ PixelMainsMon ]
 print PixelMainsMon
 

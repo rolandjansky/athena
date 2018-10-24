@@ -708,3 +708,8 @@ def selindex (fname):
             idx = (ros - 3) * 64 + drawer
             print (iid, idx, addr(iid), lcoll, l)
     return
+
+
+# Suppress useless GeoModelSvc messages.
+from AthenaCommon import Constants
+GeoModelSvc().OutputLevel=Constants.WARNING

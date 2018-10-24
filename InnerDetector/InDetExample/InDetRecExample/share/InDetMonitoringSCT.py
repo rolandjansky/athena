@@ -25,7 +25,7 @@ InDetSCTHitsTool = SCTHitsNoiseMonTool ( name                         = "InDetSC
 
 InDetSCTHitsTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
-ToolSvc += InDetSCTHitsTool
+#ToolSvc += InDetSCTHitsTool
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTHitsTool
 
@@ -41,9 +41,9 @@ InDetSCTTracksMonTool = SCTTracksMonTool ( name             = "InDetSCTTracksMon
 InDetSCTTracksMonTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTTracksMonTool.FilterTools.append(monFilledBunchFilterTool)
+  InDetSCTTracksMonTool.FilterTools += [monFilledBunchFilterTool]
 
-ToolSvc += InDetSCTTracksMonTool
+#ToolSvc += InDetSCTTracksMonTool
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTTracksMonTool
 
@@ -57,9 +57,9 @@ InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
                                      doNegativeEndcap = True)
 
 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTErrMonTool.FilterTools.append(monFilledBunchFilterTool)
+  InDetSCTErrMonTool.FilterTools += [monFilledBunchFilterTool]
   
-ToolSvc += InDetSCTErrMonTool
+#ToolSvc += InDetSCTErrMonTool
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTErrMonTool
                
@@ -92,9 +92,9 @@ InDetSCTHitEffMonTool = SCTHitEffMonTool(name = "InDetSCTHitEffMonTool",
 InDetSCTHitEffMonTool.TrackName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTHitEffMonTool.FilterTools.append(monFilledBunchFilterTool)
+  InDetSCTHitEffMonTool.FilterTools += [monFilledBunchFilterTool]
   
-ToolSvc += InDetSCTHitEffMonTool
+#ToolSvc += InDetSCTHitEffMonTool
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTHitEffMonTool
 
@@ -110,9 +110,9 @@ InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentz
 InDetSCTLorentzMonTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTLorentzMonTool.FilterTools.append(monFilledBunchFilterTool)
+  InDetSCTLorentzMonTool.FilterTools += [monFilledBunchFilterTool]
   
-ToolSvc += InDetSCTLorentzMonTool
+#ToolSvc += InDetSCTLorentzMonTool
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTLorentzMonTool
 
@@ -127,7 +127,7 @@ from RecExConfig.RecFlags import rec
 if not rec.doTrigger():
   InDetSCTRatioNoiseMonTool.doTrigger=False
 
-ToolSvc += InDetSCTRatioNoiseMonTool
+#ToolSvc += InDetSCTRatioNoiseMonTool
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTRatioNoiseMonTool
            

@@ -9,10 +9,21 @@
 // =============================================================================
 HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags,
                          std::vector<uint32_t> hltBits,
-                         std::unordered_map<uint16_t, std::vector<uint32_t> > data)
+                         std::unordered_map<uint16_t, std::vector<uint32_t> > data,
+                         std::vector<uint32_t> status)
 : m_streamTags(streamTags),
   m_hltBits(hltBits),
-  m_data(data) {}
+  m_data(data),
+  m_status(status) {}
+
+// =============================================================================
+// Copy constructor
+// =============================================================================
+HLT::HLTResultMT::HLTResultMT(const HLT::HLTResultMT& other)
+: m_streamTags(other.m_streamTags),
+  m_hltBits(other.m_hltBits),
+  m_data(other.m_data),
+  m_status(other.m_status) {}
 
 // =============================================================================
 // Standard destructor
@@ -83,4 +94,22 @@ void HLT::HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vec
   else {
     m_data[moduleId] = data;
   }
+}
+
+// =============================================================================
+// Getter/setter methods for status words
+// =============================================================================
+const std::vector<uint32_t>& HLT::HLTResultMT::getStatus() const {
+  return m_status;
+}
+
+// -----------------------------------------------------------------------------
+void HLT::HLTResultMT::setStatus(const std::vector<uint32_t>& status) {
+  // copy assignment
+  m_status = status;
+}
+
+// -----------------------------------------------------------------------------
+void HLT::HLTResultMT::addStatusWord(const uint32_t& word) {
+  m_status.push_back(word);
 }

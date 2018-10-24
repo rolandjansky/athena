@@ -42,9 +42,9 @@ HLTMon = HLTMonTool(name               = 'HLTMon',
                    histoPathBase      = "/Trigger/HLT",
                    TrigConfigTool=cfgtool);
 
-ToolSvc += HLTMon;
+#ToolSvc += HLTMon;
 
-HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+HLTMonManager.AthenaMonTools += [ HLTMon ];
 
 HLTMonManager.FileKey = "GLOBAL"
 

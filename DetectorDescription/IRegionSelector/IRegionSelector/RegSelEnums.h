@@ -34,7 +34,9 @@ enum DETID{
   CSC,
   FCALEM,
   FCALHAD,
-  FTK
+  FTK,
+  MM,
+  STGC
 };
 
 

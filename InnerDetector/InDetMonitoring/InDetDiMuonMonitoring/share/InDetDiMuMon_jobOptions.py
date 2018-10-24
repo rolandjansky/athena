@@ -55,7 +55,7 @@ if not rec.doHeavyIon():
     #                              OutputLevel = 1)
     
     
-        ToolSvc += JpsiMon_NoTrig
+        #ToolSvc += JpsiMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
             print JpsiMon_NoTrig
         InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_NoTrig ]
@@ -75,7 +75,7 @@ if not rec.doHeavyIon():
                                 doSaveFits = doSaveFits)
     #                               OutputLevel = 1)
     
-        ToolSvc += ZmumuMon_NoTrig
+        #ToolSvc += ZmumuMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
             print ZmumuMon_NoTrig
         InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_NoTrig ]
@@ -100,7 +100,7 @@ if not rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             JpsiMon_XpressTrig_idperf.TriggerChain = "HLT_mu4_mu4_idperf_bJpsimumu_noid"
             JpsiMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
-            ToolSvc += JpsiMon_XpressTrig_idperf
+            #ToolSvc += JpsiMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
                 print JpsiMon_XpressTrig_idperf
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_idperf ]
@@ -119,7 +119,7 @@ if not rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             JpsiMon_XpressTrig_2mu.TriggerChain = "HLT_2mu4"
             JpsiMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
-            ToolSvc += JpsiMon_XpressTrig_2mu
+            #ToolSvc += JpsiMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
                 print JpsiMon_XpressTrig_2mu
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_2mu ]
@@ -140,7 +140,7 @@ if not rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             ZmumuMon_XpressTrig_idperf.TriggerChain = "HLT_mu13_mu13_idperf_Zmumu"
             ZmumuMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
-            ToolSvc += ZmumuMon_XpressTrig_idperf
+            #ToolSvc += ZmumuMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
                 print ZmumuMon_XpressTrig_idperf
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_idperf ]
@@ -160,7 +160,7 @@ if not rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             ZmumuMon_XpressTrig_2mu.TriggerChain = "HLT_2mu14"
             ZmumuMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
-            ToolSvc += ZmumuMon_XpressTrig_2mu
+            #ToolSvc += ZmumuMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
                 print ZmumuMon_XpressTrig_2mu
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_2mu ]
@@ -216,7 +216,7 @@ if rec.doHeavyIon():
     #                              OutputLevel = 1)
     
     
-        ToolSvc += JpsiMon_NoTrig
+        #ToolSvc += JpsiMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
             print JpsiMon_NoTrig
         InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_NoTrig ]
@@ -236,7 +236,7 @@ if rec.doHeavyIon():
                                 doSaveFits = doSaveFits)
     #                               OutputLevel = 1)
     
-        ToolSvc += ZmumuMon_NoTrig
+        #ToolSvc += ZmumuMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
             print ZmumuMon_NoTrig
         InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_NoTrig ]
@@ -261,7 +261,7 @@ if rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             JpsiMon_XpressTrig_idperf.TriggerChain = "HLT_mu4_mu4_idperf_bJpsimumu_noid"
             JpsiMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
-            ToolSvc += JpsiMon_XpressTrig_idperf
+            #ToolSvc += JpsiMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
                 print JpsiMon_XpressTrig_idperf
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_idperf ]
@@ -280,7 +280,7 @@ if rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             JpsiMon_XpressTrig_2mu.TriggerChain = "HLT_mu4_mu4noL1"
             JpsiMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
-            ToolSvc += JpsiMon_XpressTrig_2mu
+            #ToolSvc += JpsiMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
                 print JpsiMon_XpressTrig_2mu
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_2mu ]
@@ -301,7 +301,7 @@ if rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             ZmumuMon_XpressTrig_idperf.TriggerChain = "HLT_mu13_mu13_idperf_Zmumu"
             ZmumuMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
-            ToolSvc += ZmumuMon_XpressTrig_idperf
+            #ToolSvc += ZmumuMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
                 print ZmumuMon_XpressTrig_idperf
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_idperf ]
@@ -321,7 +321,7 @@ if rec.doHeavyIon():
                                         doSaveFits = doSaveFits)
             ZmumuMon_XpressTrig_2mu.TriggerChain = "HLT_mu4_mu4noL1"
             ZmumuMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
-            ToolSvc += ZmumuMon_XpressTrig_2mu
+            #ToolSvc += ZmumuMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
                 print ZmumuMon_XpressTrig_2mu
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_2mu ]

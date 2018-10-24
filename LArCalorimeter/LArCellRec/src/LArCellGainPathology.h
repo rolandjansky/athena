@@ -16,15 +16,13 @@
 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
-class LArCablingService;
-class StoreGateSvc;
+
 class CaloCell_ID;
 class LArOnlineID;
-class ILArBadChanTool;
 class HWIdentifier;
 class CaloCell;
 
@@ -52,15 +50,17 @@ public:
  private:
   /** method to apply pathology between a couple of cells
   */
-  void ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id2);
+  void ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id,
+		      const LArOnOffIdMapping* cabling);
 
   /** method to find cell from hardware id
   */
-  CaloCell* GetCell(CaloCellContainer* theCont, HWIdentifier id);
+  CaloCell* GetCell(CaloCellContainer* theCont, HWIdentifier id, 
+		    const LArOnOffIdMapping* cabling);
 
   /** handle to LAr cabling service
   */
-  ToolHandle<LArCablingService> m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   /** pointers to storegateSvc and identifier helpers
   */

@@ -28,8 +28,8 @@ from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping      import Electro
 #ToolSvc += EgammaMatchTool
   
 #*****************************************************************************
-from egammaMVACalib.egammaMVACalibConf import egammaMVATool
-mvatool = egammaMVATool("mvatool",folder="egammaMVACalib/v1")
+from egammaMVACalib.egammaMVACalibConf import egammaMVACalibTool
+mvatool = egammaMVACalibTool("mvatool",folder="egammaMVACalib/v1")
 ToolSvc += mvatool
 
 #*****************************************************************************

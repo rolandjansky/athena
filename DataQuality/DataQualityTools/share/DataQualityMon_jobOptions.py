@@ -57,12 +57,6 @@ from AthenaCommon.JobProperties import jobproperties
 if not 'InDetKeys' in dir():
     from InDetRecExample.InDetKeys import InDetKeys
     
-#if (jobproperties.Beam.beamType()=="collisions"):
-#    IDTrkContNames = [ InDetKeys.UnslimmedTracks() ]
-#
-#else:
-#    IDTrkContNames = [ InDetKeys.TRTTracks() ]
-
 IDTrkContNames = [ InDetKeys.Tracks() ]
 
 isCosmics=False
@@ -73,44 +67,6 @@ if jobproperties.Beam.beamType()=='cosmics':
     isBeam=False
 
 if DQMonFlags.monManEnvironment != 'tier0ESD':
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    DefaultExtrapolator = AtlasExtrapolator()
-    ToolSvc += DefaultExtrapolator
-
-    # Import Muon Trk Eff tool ---> Obsolete
-    #from DataQualityTools.DataQualityToolsConf import DQTMuTrkEff
-    #DQTMuTrkMon = DQTMuTrkEff(name                    = 'DQTMuTrkMon',
-    #                    doInDet                 = rec.doInDet(),
-    #                    doMuons                 = rec.doMuon(),
-    #                    doTile                  = rec.doTile(),
-    #                    doCalo                  = muonCombinedRecFlags.doCaloTrkMuId(),
-    #                    applyCaloCuts           = True,
-    #                    caloCutOpen             = 0.0,
-    #                    caloCutLow              = 25.0,
-    #                    caloCutNormal           = 50.0,
-    #                    trackName               = IDTrkContNames,
-    #                    trackTag                = ["indet"            ],
-    #                    trackPostfix            = ["" ], #eventually it can be "Up" "Low"
-    #                    mooreMuContainerNameVec = ["MooreTracks", "ConvertedMBoyTracks"],
-    #                    caloMuContainerNameVec  = ["CaloESDMuonCollection"],
-    #                    tileMuContainerName     = "TileCosmicMuonHT",
-    #                    setVertexLimit          = True,
-    #                    maxD0                   = 100.0,
-    #                    maxZ0                   = 200.0,
-    #                    histoPathBase           = "/GLOBAL/DQTEff",
-    #                    maxConeSize             = 0.01,
-    #                    doRunCosmics            = isCosmics,
-    #                    doRunBeam               = isBeam,
-    #                    doOfflineHists          = isOffline,
-    #                    doOnlineHists           = isOnline                    
-    #                    );
-    #
-    #
-    #DQTMuTrkMon.extrapolator = DefaultExtrapolator
-    #
-    #ToolSvc += DQTMuTrkMon;
-    #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTMuTrkMon ];
-
      # Import Det Synch tool
     if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0') and globalflags.DataSource.get_Value() != 'geant4':
         from DataQualityTools.DataQualityToolsConf import  DQTDetSynchMonTool
@@ -122,7 +78,7 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
                                             doOnlineHists           = isOnline
                                             );
 
-        ToolSvc += DQTDetSynchMon;
+        #ToolSvc += DQTDetSynchMon;
         ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDetSynchMon ];
 
     if rec.doCalo and CALOCLUSTER:
@@ -136,22 +92,9 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
                                           doOnlineHists           = isOnline
                                           );
         
-        ToolSvc += DQTCaloClusterTool;
+        #ToolSvc += DQTCaloClusterTool;
         ManagedAthenaGlobalMon.AthenaMonTools += [ DQTCaloClusterTool ];
 
-
-    # Import GlobalWFinder tool ---> Obsolete
-    #from DataQualityTools.DataQualityToolsConf import DQTGlobalWFinderTool
-    #DQTGlobalWFinderTool = DQTGlobalWFinderTool(name            = 'DQTGlobalWFinderTool',
-    #                                 histoPathBase   = "/GLOBAL/DQTGlobalWFinder",
-    #                                 doOfflineHists          = isOffline,
-    #                                 doOnlineHists           = isOnline,
-    #                                 doRunCosmics            = isCosmics,
-    #                                 doRunBeam               = isBeam 
-    #                                );
-    #
-    #ToolSvc += DQTGlobalWFinderTool;
-    #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTGlobalWFinderTool ];
 
     # Import BackgroundMon tool
 
@@ -168,7 +111,7 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
                                             doTrigger = rec.doTrigger()
                                             );
         
-        ToolSvc += DQTBackgroundMon;
+        #ToolSvc += DQTBackgroundMon;
         ManagedAthenaGlobalMon.AthenaMonTools += [ DQTBackgroundMon ];
     
 
@@ -180,54 +123,6 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
     if athenaCommonFlags.isOnline==True:
         MinSCTHits=0
         MinPtCut=500
-
-    # Import MuonID tool
-    #from DataQualityTools.DataQualityToolsConf import DQTMuonIDTrackTool
-    #DQTMuonIDTrackMon = DQTMuonIDTrackTool(name            = 'DQTMuonIDTrackMon',
-    #                                 histoPathBase   = "/GLOBAL/DQTMuonVsInDet",
-    #                                 doOfflineHists          = isOffline,
-    #                                 doOnlineHists           = isOnline,
-    #                                 doRunCosmics            = isCosmics,
-    #                                 doRunBeam               = isBeam,
-    #                                 MinSCTHits              = MinSCTHits,
-    #                                 MinPtCut                = MinPtCut
-    #                                );
-
-    #DQTMuonIDTrackMon.ExtrapolationTool = DefaultExtrapolator
-    #ToolSvc += DQTMuonIDTrackMon;
-    #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTMuonIDTrackMon ];
-
-    # Import ElectronQuality Tool ---> Obsolete
-    #from DataQualityTools.DataQualityToolsConf import  DQTElectronQualityTool
-    #DQTElectronQualityTool = DQTElectronQualityTool(name            = 'DQTElectronQualityTool',
-    #                                          histoPathBase   = "/GLOBAL/DQTElectronQuality",
-    #                                          doRunCosmics            = isCosmics,
-    #                                          doRunBeam               = isBeam,
-    #                                          doOfflineHists          = isOffline,
-    #                                          doOnlineHists           = isOnline
-    #                                          );
-    #
-    #ToolSvc += DQTElectronQualityTool;
-    #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTElectronQualityTool ];
-
-    # Import Rate Mon Tool ---> Obsolete
-    #from DataQualityTools.DataQualityToolsConf import DQTRateMonTool
-    #DQTRateMonTool = DQTRateMonTool(name            = 'DQTRateMonTool',
-    #                                 histoPathBase   = "/GLOBAL/DQTRateMon",
-    #                                 doOfflineHists          = isOffline,
-    #                                 doOnlineHists           = isOnline,
-    #                                 doRunCosmics            = isCosmics,
-    #                                 doRunBeam               = isBeam,
-    #                                 doTrigger               = rec.doTrigger(),
-    #                                 JetCollectionName       = JetCollectionKey,
-    #                                 triggerList             = listOfTriggers
-    #                                );
-    #ToolSvc += DQTRateMonTool;
-    #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTRateMonTool ];
-
-
-    #This does not seem needed anymore
-    #include( "MuonCommRecExample/ReadMuCTPI_jobOptions.py" )
 
     if not rec.doMuon:
         try:
@@ -246,11 +141,9 @@ DQTDataFlowMon = DQTDataFlowMonTool(name = 'DQTDataFlowMon',
                                     histoPathBase = '/GLOBAL/DQTDataFlow',
                                     releaseString = releaseString
                                     );
-ToolSvc += DQTDataFlowMon
+#ToolSvc += DQTDataFlowMon
 ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDataFlowMon ]
-#print ManagedAthenaGlobalMon;
 
-#if isBeam==True and (DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'online' or DQMonFlags.monManEnvironment == 'tier0' or DQMonFlags.monManEnvironment == 'tier0Raw' ) and rec.doInDet():
 if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and DQMonFlags.useTrigger():
 
     topSequence += AthenaMonManager( "GlobalMonPhysicsManager" )
@@ -277,7 +170,7 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
         MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
         IsolationSelectionTool = ToolSvc.DQTIsoGradientTool
     )
-    ToolSvc += MyDQTGlobalWZFinderTool;
+    #ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
     from DataQualityTools.DataQualityToolsConf import DQTLumiMonTool
@@ -297,6 +190,6 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
         TriggerChain = 'CATEGORY_primary_single_ele',
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
     )
-    ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
+    #ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
 

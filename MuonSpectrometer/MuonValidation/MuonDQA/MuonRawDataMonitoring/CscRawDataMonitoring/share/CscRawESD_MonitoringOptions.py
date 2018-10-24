@@ -42,7 +42,7 @@ cscPrdESDValAlg = CscPrdValAlg ( name = 'cscPrdESDValAlg',
                                  NoiseCutADC = 100,
                                  CSCStripFitter = ToolSvc.CalibCscStripFitter
                                  )
-ToolSvc += cscPrdESDValAlg
+#ToolSvc += cscPrdESDValAlg
 cscprdRawMonMan.AthenaMonTools += [ cscPrdESDValAlg ]
 
 topSequence += cscprdRawMonMan
@@ -75,7 +75,7 @@ cscClusterESDValAlg = CscClusterValAlg( name = 'cscClusterESDValAlg',
                                         CSCEventSelTriggers = csc_evtSelectionTriggers                                    
                                         )
 
-ToolSvc += cscClusterESDValAlg
+#ToolSvc += cscClusterESDValAlg
 cscesdRawMonMan.AthenaMonTools += [cscClusterESDValAlg]
 
 topSequence += cscesdRawMonMan
@@ -113,7 +113,7 @@ CSCSegmESDValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg",
                                    ClusterStatus = clusStatWords
                                    )
 
-ToolSvc += CSCSegmESDValAlg
+#ToolSvc += CSCSegmESDValAlg
 cscesdSegmMonMan.AthenaMonTools += [ CSCSegmESDValAlg ]
 
 topSequence += cscesdSegmMonMan

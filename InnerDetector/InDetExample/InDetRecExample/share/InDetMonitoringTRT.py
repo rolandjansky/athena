@@ -92,9 +92,9 @@ InDetTRT_Monitoring_Tool = TRT_Monitoring_Tool (name                         = "
                                                 )
 
 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetTRT_Monitoring_Tool.FilterTools.append(monFilledBunchFilterTool)
+  InDetTRT_Monitoring_Tool.FilterTools += [monFilledBunchFilterTool]
   
-ToolSvc += InDetTRT_Monitoring_Tool
+#ToolSvc += InDetTRT_Monitoring_Tool
 if (InDetFlags.doPrintConfigurables()):
   print InDetTRT_Monitoring_Tool
 

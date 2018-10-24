@@ -151,7 +151,7 @@ for i in range(5):
                                                            trackSelection = InDetAlignMonTrackSelectionTool,
                                                            TRT_Manager = InDetKeys.TRT_Manager())  )
     
-    ToolSvc += InDetAlignMonResidualsList[i]
+    #ToolSvc += InDetAlignMonResidualsList[i]
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonResidualsList[i]
 
@@ -164,7 +164,7 @@ for i in range(5):
                                                                  trackSelection = InDetAlignMonTrackSelectionTool,
                                                                  TRT_Manager = InDetKeys.TRT_Manager())    )
 
-    ToolSvc += InDetAlignMonEfficienciesList[i]
+    #ToolSvc += InDetAlignMonEfficienciesList[i]
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonEfficienciesList[i]
 
@@ -174,7 +174,7 @@ for i in range(5):
                                                                    trackSelection = InDetAlignMonTrackSelectionTool,
                                                                    VxPrimContainerName = InDetKeys.PrimaryVertices())   )
 
-    ToolSvc += InDetAlignMonGenericTracksList[i]
+    #ToolSvc += InDetAlignMonGenericTracksList[i]
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonGenericTracksList[i]
 
@@ -185,7 +185,7 @@ for i in range(5):
                                                                     OutputLowerTracksName = m_trkSplitterName[i]+"_Lower",
                                                                     OutputLevel = ERROR) )
                                            
-    ToolSvc += InDetTrackSplitterToolList[i]
+    #ToolSvc += InDetTrackSplitterToolList[i]
     if (InDetFlags.doPrintConfigurables()):
         print InDetTrackSplitterToolList[i]
         
@@ -204,7 +204,7 @@ for i in range(5):
                                                                     DeltaQoverPtRange = m_deltaQoverPt[i],
                                                                     OutputLevel = ERROR,
                                                                     D0Range = m_d0Range[i] ))
-    ToolSvc += InDetAlignMonTrackSegmentsList[i]
+    #ToolSvc += InDetAlignMonTrackSegmentsList[i]
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonTrackSegmentsList[i]
 #==============================================================
@@ -237,7 +237,7 @@ for i in range(5):
 
 if InDetAlignMonDoTruth:
     InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonTruthComparison ]
-if not hasattr(ToolSvc, 'monTrigDecTool'):
+if not hasattr(#ToolSvc, 'monTrigDecTool'):
     print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring" 
 elif jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     print "singlebeam or cosmics: don't run trigger-aware monitoring"

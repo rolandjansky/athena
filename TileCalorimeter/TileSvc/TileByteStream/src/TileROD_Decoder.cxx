@@ -2906,7 +2906,12 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
       if ((m_WarningCounter++) < m_maxWarningPrint)
         ATH_MSG_WARNING("fillCollectionL2( corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
     }
-    if (V3format) ++p; // skip frag marker
+    if (V3format) {
+      ++p; // skip frag marker
+      m_sizeOverhead = 3;
+    } else {
+      m_sizeOverhead = 2;
+    }
   }
   
   while (wc < size) { // iterator over all words in a ROD

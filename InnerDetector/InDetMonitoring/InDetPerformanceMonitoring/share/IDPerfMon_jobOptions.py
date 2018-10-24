@@ -4,14 +4,14 @@ IDPerfMonDoOutput = False
 from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZee
 IDPerfMonZee_noTrig = IDPerfMonZee (name = "IDPerfMonZee_noTrig",
                                    tracksName=InDetKeys.xAODTrackParticleContainer())# tracksName = "InDetTrackParticles")#InDetKeys.TrackParticles())
-ToolSvc += IDPerfMonZee_noTrig
+#ToolSvc += IDPerfMonZee_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print IDPerfMonZee_noTrig
 
 from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonWenu
 IDPerfMonWenu_noTrig = IDPerfMonWenu (name = "IDPerfMonWenu_noTrig",
                                       tracksName=InDetKeys.xAODTrackParticleContainer()) #     tracksName = "InDetTrackParticles")#InDetKeys.TrackParticles())
-ToolSvc += IDPerfMonWenu_noTrig
+#ToolSvc += IDPerfMonWenu_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print IDPerfMonWenu_noTrig
 
@@ -59,17 +59,17 @@ else:
         IDPerfMonWenu_e24_tight_L1EM20VH.TriggerChain             = "HLT_e24_tight_L1EM20VH"
 
     
-        ToolSvc += IDPerfMonZee_e24_medium_L1EM18VH
+        #ToolSvc += IDPerfMonZee_e24_medium_L1EM18VH
         if (InDetFlags.doPrintConfigurables()):
             print IDPerfMonZee_e24_medium_L1EM18VH
-        ToolSvc += IDPerfMonZee_e24_tight_L1EM20VH
+        #ToolSvc += IDPerfMonZee_e24_tight_L1EM20VH
         if (InDetFlags.doPrintConfigurables()):
             print IDPerfMonZee_e24_tight_L1EM20VH
     
-        ToolSvc += IDPerfMonWenu_e24_medium_L1EM18VH
+        #ToolSvc += IDPerfMonWenu_e24_medium_L1EM18VH
         if (InDetFlags.doPrintConfigurables()):
             print IDPerfMonWenu_e24_medium_L1EM18VH
-        ToolSvc += IDPerfMonWenu_e24_tight_L1EM20VH
+        #ToolSvc += IDPerfMonWenu_e24_tight_L1EM20VH
         if (InDetFlags.doPrintConfigurables()):
             print IDPerfMonWenu_e24_tight_L1EM20VH
     
@@ -107,14 +107,14 @@ else:
         IDPerfMonWenu_e15_loose_ion.TriggerChain             = "HLT_e15_loose_ion"
 
         
-        ToolSvc += IDPerfMonZee_e15_loose_ion
+        #ToolSvc += IDPerfMonZee_e15_loose_ion
         if (InDetFlags.doPrintConfigurables()):
             print IDPerfMonZee_e15_loose_ion
-        ToolSvc += IDPerfMonZee_2e10_loose_ion
+        #ToolSvc += IDPerfMonZee_2e10_loose_ion
         if (InDetFlags.doPrintConfigurables()):
             print IDPerfMonZee_2e10_loose_ion
 
-        ToolSvc += IDPerfMonWenu_e15_loose_ion
+        #ToolSvc += IDPerfMonWenu_e15_loose_ion
         if (InDetFlags.doPrintConfigurables()):
             print IDPerfMonWenu_e15_loose_ion
 
