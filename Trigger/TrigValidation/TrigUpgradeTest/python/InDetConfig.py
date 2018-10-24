@@ -220,6 +220,10 @@ def TrigInDetConfig( flags ):
   acc.addEventAlgo(InDetSiTrackerSpacePointFinder)
 
 
+  #from IOVSvc.IOVSvcConf import CondSvc
+  #acc.addService(CondSvc())
+
+
   #from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   #from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 
@@ -246,7 +250,9 @@ if __name__ == "__main__":
 
     acc = ComponentAccumulator()
 
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     acc.merge( TrigInDetConfig( ConfigFlags ))
+    acc.merge( MainServicesSerialCfg( ))
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
