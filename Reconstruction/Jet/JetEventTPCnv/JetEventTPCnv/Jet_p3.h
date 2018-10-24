@@ -54,6 +54,8 @@ public:
   /** Destructor: 
    */
   ~Jet_p3();
+  
+  Jet_p3 & operator=(const Jet_p3 &) = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
