@@ -81,31 +81,47 @@ void TFCSEnergyBinParametrization::set_pdgid_Ekin_bin_probability(int id,std::ve
 }
 
 
-
 void TFCSEnergyBinParametrization::load_pdgid_Ekin_bin_probability_from_file(int id, TFile* file, std::string prob_object_name)
 {
   add_pdgid(id);
   
+  float* prob;
+  
   file->cd();
   TVectorF* pcabinprobvector=(TVectorF*)gDirectory->Get(prob_object_name.c_str());
+  
   if(!pcabinprobvector)
   {
-   ATH_MSG_ERROR("TFCSEnergyBinParametrization::"<<prob_object_name<<" is null");
-   return;
+   ATH_MSG_INFO("TFCSEnergyBinParametrization::"<<prob_object_name<<" is null. Using equal PCA probabilities.");
+   
+   prob=new float[m_pdgid_Ebin_probability[id].size()];
+   
+   prob[0]=0.0;
+   
+   for(unsigned int i=1;i<m_pdgid_Ebin_probability[id].size();i++)
+   {
+    prob[i]=1.0;
+   }
+   
   }
   
-  if((unsigned int)pcabinprobvector->GetNoElements()!=m_pdgid_Ebin_probability[id].size())
+  if(pcabinprobvector)
   {
+   if((unsigned int)pcabinprobvector->GetNoElements()!=m_pdgid_Ebin_probability[id].size())
+   {
     ATH_MSG_ERROR("TFCSEnergyBinParametrization::set_pdgid_Ekin_bin_probability(): size of prob array does not match! in.size()="<<pcabinprobvector->GetNoElements()<<" instance="<<m_pdgid_Ebin_probability[id].size());
     return;
+   }
+   
+   prob=pcabinprobvector->GetMatrixArray();
+   
   }
-  
-  float* prob  =pcabinprobvector->GetMatrixArray();
   
   float ptot=0;
   for(int iEbin=0;iEbin<=n_bins();++iEbin) ptot+=prob[iEbin];
   float p=0;
-  for(int iEbin=0;iEbin<=n_bins();++iEbin) {
+  for(int iEbin=0;iEbin<=n_bins();++iEbin)
+  {
     p+=prob[iEbin]/ptot;
     m_pdgid_Ebin_probability[id][iEbin]=p;
   }
