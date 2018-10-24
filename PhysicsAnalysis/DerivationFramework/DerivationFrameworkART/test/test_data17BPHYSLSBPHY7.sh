@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include
+# art-include: 21.2/AthDerivation
 # art-description: DAOD building BPHY7 data17BPHYSLS
 # art-type: grid
 # art-output: *.pool.root

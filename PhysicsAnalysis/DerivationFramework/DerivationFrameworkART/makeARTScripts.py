@@ -1,8 +1,8 @@
 import os
 
 makeDataDAODs=True
-makeMCDAODs=False
-makeTruthDAODs=False
+makeMCDAODs=True
+makeTruthDAODs=True
 makeTrains=True
 
 formatList = ['PHYSVAL',
@@ -72,7 +72,7 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFile = open(outputFileName,"w")
    outputFile.write("#!/bin/sh"+"\n")
    outputFile.write("\n")
-   outputFile.write("# art-include"+"\n")
+   outputFile.write("# art-include: 21.2/AthDerivation"+"\n")
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
@@ -124,7 +124,8 @@ if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
          if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
-            generateText(formatName,dataLabel,dataFileRPVLL,False,False,"-1")
+            generateText(formatName,dataLabel+"RPVLL",dataFileRPVLL,False,False,"-1")
+            if formatName == "SUSY6": generateText(formatName,dataLabel,dataFile,False,False,"-1") 
          elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
          elif formatName in ['BPHY7']:
@@ -146,7 +147,8 @@ if (makeDataDAODs or makeMCDAODs):
          else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
          if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
-            generateText(formatName,mcLabel,mcFileEXOT23,False,True,"-1")
+            generateText(formatName,mcLabel+"RPVLL",mcFileEXOT23,False,True,"-1")
+            if formatName == "SUSY6":generateText(formatName,mcLabel,mcFile,False,True,"-1") 
          elif formatName=="BPHY3":
             generateText(formatName,mcLabel,mcFile,False,True,"500")
          elif formatName=="BPHY8":
