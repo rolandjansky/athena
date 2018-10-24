@@ -19,7 +19,7 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-I
+
 // Helper for object quality
 #include "EgammaAnalysisHelpers/PhotonHelpers.h"
 
