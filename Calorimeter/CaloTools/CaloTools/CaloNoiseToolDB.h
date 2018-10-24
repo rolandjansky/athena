@@ -264,8 +264,8 @@ private:
   float m_lumi0;
 
 //Functions
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
   
 // private methods to access database
   float getA(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain) const;
