@@ -164,16 +164,13 @@ namespace xAOD
 
     /** delta R, float-type parameters */
     inline
-    double deltaR(const double& eta1, const double& phi1, const double& eta2, const double& phi2)
+    double deltaR(double eta1, double phi1, double eta2, double phi2)
     {
       // delta eta
-      float deta = eta1 - eta2;  
+      double deta = eta1 - eta2;  
   
       // delta phi
-      float dphi = std::fabs(phi1 - phi2);
-      if (dphi > TMath::Pi()) { 
-        dphi = 2*TMath::Pi() - dphi;
-      }
+      double dphi = xAOD::P4Helpers::deltaPhi(phi1, phi2);
     
       // dR
       return std::sqrt(deta*deta + dphi*dphi);  
