@@ -909,7 +909,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     int FFset = 22;
     ATH_CHECK( m_electronPhotonShowerShapeFudgeTool.setProperty("Preselection", FFset));
-    ATH_CHECK( m_electronPhotonShowerShapeFudgeTool.setProperty("FFCalibFile", "ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root"));
     ATH_CHECK( m_electronPhotonShowerShapeFudgeTool.retrieve());
   }
 
@@ -1115,7 +1114,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   // Set MCshowerType for FTAG MC/MC SFs
-  std::string MCshowerID = "410501";                 // Powheg+Pythia8 (default)
+  std::string MCshowerID = "410470";                 // Powheg+Pythia8 (default)
   if (m_showerType == 1) MCshowerID = "410558";      // Powheg+Herwig7
   else if (m_showerType == 2) MCshowerID = "426131"; // Sherpa 2.1
   else if (m_showerType == 3) MCshowerID = "410250"; // Sherpa 2.2
@@ -1127,8 +1126,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         return StatusCode::FAILURE;
     }
 
-    // Fall-back option for AntiKt4EMPFlowJets KY, Aug8 2018
-    if (jetcollBTag == "AntiKt4EMPFlowJets" && MCshowerID != "410501") {
+    // AntiKt4EMPFlowJets MC/MC SF isn't complete yet
+    if (jetcollBTag == "AntiKt4EMPFlowJets" && MCshowerID == "426131") { // sherpa 2.1 isn't available
       ATH_MSG_WARNING ("MC/MC SFs for AntiKt4EMPFlowJets are not available yet! Falling back to AntiKt4EMTopoJets for the SFs.");
       jetcollBTag = "AntiKt4EMTopoJets";
     }

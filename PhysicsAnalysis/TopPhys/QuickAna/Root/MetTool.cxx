@@ -69,6 +69,7 @@ namespace ana
       m_accessor ("dummy")
   {
     // Note: these are only used with METMaker
+    declareProperty("DoPUmetsig", m_doPUmetsig=true);
     declareProperty("DoPFlow", m_doPFlow=false);
     declareProperty("IncludeTauTerm", m_includeTauTerm=true);
     declareProperty("DoTST", m_doTST=true);
@@ -158,12 +159,19 @@ namespace ana
 
     if (m_jetSelection!="passFJVT"){
       ATH_CHECK( m_metutil.setProperty("JetSelection", m_jetSelection) );
+ 
+      if (m_doPUmetsig) {
+        ATH_CHECK( ASG_MAKE_ANA_TOOL( m_fjvtTool, JetForwardJvtTool) );
+        ATH_CHECK( m_fjvtTool.setProperty("CentralMaxPt",60e3) );
+        ATH_CHECK( m_fjvtTool.initialize() );
+      }
     } else {
       // Special forward JVT working point - requires the forward JVT tool to be enabled!
       m_doFJVT = true;
       ATH_CHECK( m_metutil.setProperty("JetRejectionDec", m_jetSelection) );
       ATH_CHECK( ASG_MAKE_ANA_TOOL( m_fjvtTool, JetForwardJvtTool) );
       ATH_CHECK( m_fjvtTool.setProperty("CentralMaxPt",60e3) );
+      ATH_CHECK( m_fjvtTool.initialize() );
     }
 
     if (m_uniqueFrac>=0.) ATH_CHECK( m_metutil.setProperty("JetMinEFrac", m_uniqueFrac) );
@@ -208,7 +216,7 @@ namespace ana
 
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_metSigni, met::METSignificance) );   
     ATH_CHECK( m_metSigni.setProperty("SoftTermParam", 0) );
-    ATH_CHECK( m_metSigni.setProperty("TreatPUJets",   true) );
+    ATH_CHECK( m_metSigni.setProperty("TreatPUJets",  m_doPUmetsig) );
     // ATH_CHECK( m_metSigni.setProperty("IsData",   true) );
     // ATH_CHECK( m_metSigni.setProperty("IsAFII",   m_isAF2) );
     ATH_CHECK( m_metSigni.retrieve() ); 
@@ -304,7 +312,7 @@ namespace ana
       xAOD::PhotonContainer metphotons(SG::VIEW_ELEMENTS);
       for (auto ph : *objects.photons())
       {
-        if (m_accessor (*ph))
+        if (m_accessor (*ph) && ph->pt()>20e3 && fabs(ph->eta())<2.47)
         {
           metphotons.push_back(ph);
         }
@@ -380,6 +388,7 @@ namespace ana
 
     ATH_CHECK( m_metutil->buildMETSum("Final", met, (*met)[softTerm]->source()) );
     
+    if (m_doPUmetsig) m_fjvtTool->modify( *objects.jets() );
     ATH_CHECK( m_metSigni->varianceMET(met, objects.eventinfo()->averageInteractionsPerCrossing(), "RefJet", softTerm, "Final"));
 
     std::string met_signi = "met_signi_"+m_jetSelection;
@@ -392,6 +401,7 @@ namespace ana
 
   // Function for instantiating a MetTool
   StatusCode makeMetTool (DefinitionArgs& args,
+                          const bool doPUmetsig=true,
                           const bool doPFlow=false,
                           const bool includeTauTerm=true,
                           const bool doTST=true,
@@ -407,6 +417,7 @@ namespace ana
 
     std::unique_ptr<MetTool> metTool
       (new MetTool (args.prefix()));
+    ANA_CHECK( metTool->setProperty("DoPUmetsig", doPUmetsig) );
     ANA_CHECK( metTool->setProperty("DoPFlow", doPFlow) );
     ANA_CHECK( metTool->setProperty("IncludeTauTerm", includeTauTerm) );
     ANA_CHECK( metTool->setProperty("DoTST", doTST) );
@@ -424,15 +435,15 @@ namespace ana
 
   // Macro for creating a MetTool using the provided function
   QUICK_ANA_MET_DEFINITION_MAKER( "default",   makeMetTool(args) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "pflow",     makeMetTool(args,true,true,true,true,false,true,true,"PFlow") )
-  QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,false,false) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,false,true,true,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,false,true,true,true,false,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,false,false,false) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,false,true,false,false) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "pflow",     makeMetTool(args,false,true,true,true,true,false,true,true,"PFlow") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,true,false,false) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,false,true,true,true,true) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,false,true,true,true,false,true,true) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,true,false,false,false) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,true,false,true,false,false) )
 
-  QUICK_ANA_MET_DEFINITION_MAKER( "loose",    makeMetTool(args,false,true,true,true,false,true,true,"Loose") )
-  QUICK_ANA_MET_DEFINITION_MAKER( "Tight",    makeMetTool(args,false,true,true,true,false,true,false,"Tight") )
-  QUICK_ANA_MET_DEFINITION_MAKER( "passFJVT",    makeMetTool(args,true,true,true,false,true,false,"passFJVT") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "loose",    makeMetTool(args,true,false,true,true,true,false,true,true,"Loose") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "Tight",    makeMetTool(args,true,false,true,true,true,false,true,false,"Tight") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "passFJVT",    makeMetTool(args,false,true,true,true,false,true,false,"passFJVT") )
 
 }

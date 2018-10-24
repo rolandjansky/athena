@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include
+# art-include: 21.2/AthDerivation
 # art-description: DAOD building TRUTH0 mc15
 # art-type: grid
 # art-output: *.pool.root
