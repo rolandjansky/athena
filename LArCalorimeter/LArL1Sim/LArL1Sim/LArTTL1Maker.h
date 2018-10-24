@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARL1SIM_LARTTL1MAKER_H
@@ -22,8 +22,12 @@
 #include "LArDigitization/LArHitEMap.h"
 #include "LArElecCalib/ILArfSampl.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
-class StoreGateSvc;
+#include "LArSimEvent/LArHitContainer.h"
+#include "LArRawEvent/LArTTL1Container.h"
 class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class ITriggerTime;
@@ -81,7 +85,6 @@ class LArTTL1Maker : public AthAlgorithm,
 //
 // >>>>>>>> private algorithm parts
 //
-  StatusCode retrieveDatabase();
 
   /** initialize hit map 
    */
@@ -115,16 +118,14 @@ class LArTTL1Maker : public AthAlgorithm,
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;
   /** Alorithm property: name of the TriggerTimeTool*/
-  StringProperty m_triggerTimeToolName;
-  /** pointer to the TriggerTimeTool */
-  ITriggerTime* p_triggerTimeTool;
-  /** use HitEmap from detector store or no */
+  ToolHandle<ITriggerTime> m_triggerTimeTool;
+
+  /** use HitEmap from detector store or no */   
   bool m_useMapfromStore;
- 
+
   int m_BeginRunPriority;
 
-  LArCablingService*           m_cablingSvc;
-  CaloTriggerTowerService*      m_ttSvc;
+  ToolHandle<CaloTriggerTowerService>  m_ttSvc;
   /** pointer to the offline TT helper */
   const CaloLVL1_ID*           m_lvl1Helper;
   /** pointer to the offline EM helper */
@@ -134,7 +135,8 @@ class LArTTL1Maker : public AthAlgorithm,
   /** pointer to the offline FCAL helper */
   const LArFCAL_ID*            m_fcalHelper;
   /** Sampling fractions retrieved from DB */
-  const DataHandle<ILArfSampl>    m_dd_fSampl;
+  //const DataHandle<ILArfSampl>    m_dd_fSampl;
+  SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey;
 
   /** number of sampling (in depth) */
   static const short s_NBDEPTHS = 4 ;          
@@ -211,26 +213,13 @@ class LArTTL1Maker : public AthAlgorithm,
 
   /** hit map */
   LArHitEMap* m_hitmap; // map of hits in cell 
-  /** list of hit containers */
-  std::vector <std::string> m_HitContainer;
 
-
-/** algorithm property: sub-detectors to be simulated */
-  std::string m_SubDetectors;          
 /** algorithm property: container name for the EM TTL1s */
-  std::string m_EmTTL1ContainerName;   
+  SG::WriteHandleKey<LArTTL1Container> m_EmTTL1ContainerName;   
 /** algorithm property: container name for the HAD TTL1s */
-  std::string m_HadTTL1ContainerName;  
+  SG::WriteHandleKey<LArTTL1Container> m_HadTTL1ContainerName;  
 
-/** algorithm property: container name of the EMB hits */
-  std::string m_EmBarrelHitContainerName;
-/** algorithm property: container name of the EMEC hits */
-  std::string m_EmEndCapHitContainerName;
-/** algorithm property: container name of the HEC hits */
-  std::string m_HecHitContainerName;
-/** algorithm property: container name of the FCAL hits */
-  std::string m_ForWardHitContainerName;
-
+  std::array<SG::ReadHandleKey<LArHitContainer>,4> m_xxxHitContainerName; 
 
 /** algorithm property: noise (in all sub-detectors) is on if true         */
   bool m_NoiseOnOff;               
@@ -244,8 +233,6 @@ class LArTTL1Maker : public AthAlgorithm,
   float m_debugThresh;              
 /** algorithm property: switch chrono on */
   bool m_chronoTest;               
-/** key to access of fSamplKey */
-  std::string m_fSamplKey;
 
 /** key for saving truth */
    std::string m_truthHitsContainer;
@@ -253,15 +240,3 @@ class LArTTL1Maker : public AthAlgorithm,
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
