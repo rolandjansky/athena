@@ -278,12 +278,12 @@ sub main(){
                 ?>
 
         var options = {
-                title: 'ROS request rates in rejected events for lumi 1.7e34',
+                title: 'ROS request data volume (in words) in rejected events for lumi 1.7e34',
                 hAxis: {
                         title: 'Nightly'
                 },
                         vAxis: {
-                        title: 'ROS request rate'
+                        title: 'ROS request data volume (words)'
                 },
                 //colors: ['#a52714', '#097138'],
                 crosshair: {
@@ -402,12 +402,12 @@ sub main(){
                 ?>
 
         var options = {
-                title: 'ROS request rates in rejected events for lumi 0.9e34',
+                title: 'ROS request data volume (in words) in rejected events for lumi 0.9e34',
                 hAxis: {
                         title: 'Nightly'
                 },
                         vAxis: {
-                        title: 'ROS request rate'
+                        title: 'ROS request data volume (in words)'
                 },
                 //colors: ['#a52714', '#097138'],
                 crosshair: {
