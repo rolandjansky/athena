@@ -448,7 +448,7 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
             *phiHits += chit->nphiHits();
             *phiHoles += chit->phiProjection().nholes;
           }
-          if ( etaHits && !isCsc && !issTgc ) {
+          if ( etaHits && !isCsc ) {
             *etaHits += chit->netaHits();
             *etaHoles += chit->etaProjection().nholes;
           }
