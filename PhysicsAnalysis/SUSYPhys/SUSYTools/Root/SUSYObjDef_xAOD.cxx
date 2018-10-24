@@ -236,7 +236,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doElIsoSignal(true),
     m_doPhIsoSignal(true),
     m_doMuIsoSignal(true),
+    
     m_doIsoCloseByOR(true),
+    m_useSigLepForIsoCloseByOR(false),
+    m_IsoCloseByORpassLabel(),
+
     m_metJetSelection(""),
     //
     m_currentSyst(),
@@ -489,7 +493,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   //Isolation correction for leptons and photons
   declareProperty( "SigLepPhIsoCloseByOR", m_doIsoCloseByOR );
-
+  declareProperty( "UseSigLepForIsoCloseByOR", m_useSigLepForIsoCloseByOR );
+  declareProperty( "IsoCloseByORpassLabel", m_IsoCloseByORpassLabel );
+ 
   //--- Tools configuration
   //PRW
   declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
@@ -1206,6 +1212,9 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doMuIsoSignal, "SigMu.RequireIso", rEnv, m_doIsoSignal);
   configFromFile(m_doPhIsoSignal, "SigPh.RequireIso", rEnv, m_doIsoSignal);
   configFromFile(m_doIsoCloseByOR, "SigLepPh.IsoCloseByOR", rEnv, false);
+  configFromFile(m_useSigLepForIsoCloseByOR, "SigLepPh.UseSigLepForIsoCloseByOR", rEnv, false);
+  configFromFile(m_IsoCloseByORpassLabel, "SigLepPh.IsoCloseByORpassLabel", rEnv, "");
+ 
   //
   configFromFile(m_eleTerm, "MET.EleTerm", rEnv, "RefEle");
   configFromFile(m_gammaTerm, "MET.GammaTerm", rEnv, "RefGamma");
@@ -2328,31 +2337,12 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
 }
 
 
-StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons) const
-{
-  //apply close-by corrections to isolation
-  // stores the electrons in a vector
-  std::vector<const xAOD::IParticle*> pVec;
-  for(auto pobj: *electrons) {
-    pVec.push_back((const xAOD::IParticle*) pobj);
+StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(xAOD::ElectronContainer *electrons, xAOD::MuonContainer *muons) const {  
+  // This getCloseByIsoCorrection is computationally less expensive and actually corrects the isoaltion
+  // variables from the contribution of the close by leptons
+  if (m_isoCloseByTool->getCloseByIsoCorrection(electrons,muons) != CP::CorrectionCode::Ok) {
+        return StatusCode::FAILURE;
   }
-  // stores the muons in a vector
-  for(auto pobj: *muons) {
-    pVec.push_back((const xAOD::IParticle*) pobj);
-  }
-
-  //correct isolation and propagate to signal deco for electrons
-  for (const auto& electron : *electrons) {
-    dec_isol(*electron) = m_isoCloseByTool->acceptCorrected(*electron, pVec);
-    if(m_doElIsoSignal) dec_signal(*electron) &= acc_isol(*electron); //add isolation to signal deco if requested
-  }
-
-  //correct isolation and propagate to signal deco for electrons
-  for (const auto& muon : *muons) {
-    dec_isol(*muon) = m_isoCloseByTool->acceptCorrected(*muon, pVec);
-    if(m_doMuIsoSignal) dec_signal(*muon) &= acc_isol(*muon); //add isolation to signal deco if requested
-  }
-
   // All done, all good :-)
   return StatusCode::SUCCESS;
 }
