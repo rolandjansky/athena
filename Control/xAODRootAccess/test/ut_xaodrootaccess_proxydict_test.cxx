@@ -43,7 +43,7 @@
 int main() {
 
    // Set the name of the application.
-   const char* APP_NAME = "ut_xaodrootaccess_athenaMode_test";
+   const char* APP_NAME = "ut_xaodrootaccess_proxydict_test";
 
    // Set up the environment.
    RETURN_CHECK( APP_NAME, xAOD::Init() );
