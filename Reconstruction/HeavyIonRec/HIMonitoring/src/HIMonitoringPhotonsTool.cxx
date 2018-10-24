@@ -2,19 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <sstream>
 
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "PATCore/AcceptData.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "HIMonitoring/HIMonitoringPhotonsTool.h"
-
-//#include "LWHists/TH1D_LW.h"
+#include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+#include "xAODHIEvent/HIEventShapeContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
 #include "LWHists/TH2D_LW.h"
-#include "LWHists/TProfile_LW.h"
 
 HIMonitoringPhotonsTool::
 HIMonitoringPhotonsTool( const std::string & type, const std::string & name,
