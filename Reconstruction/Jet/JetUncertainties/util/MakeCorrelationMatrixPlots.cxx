@@ -385,7 +385,7 @@ int main (int argc, char* argv[])
         for (size_t iEta = 0; iEta < fixedEtaS.size(); ++iEta)
         {
             std::vector<double> temp = jet::utils::vectorize<double>(fixedEtaS.at(iEta),",");
-            if (temp.size() == 1 && !makeGrid)
+            if (temp.size() == 1 /*&& !makeGrid*/)
                 fixedEta.push_back(std::make_pair(temp.at(0),temp.at(0)));
             else if (temp.size() == 2)
                 fixedEta.push_back(std::make_pair(temp.at(0),temp.at(1)));
