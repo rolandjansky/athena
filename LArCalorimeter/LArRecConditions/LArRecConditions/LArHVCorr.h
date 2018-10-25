@@ -41,9 +41,8 @@ class LArHVCorr : public ILArHVScaleCorr {
   const float              m_badCorr;
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
-CLASS_DEF( LArHVCorr, 52206080, 1)
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArHVCorr>, 24667986, 1) 
+CLASS_DEF( LArHVCorr, 52206080, 1)
+CONDCONT_DEF( LArHVCorr, 24667986 );
 
 #endif
