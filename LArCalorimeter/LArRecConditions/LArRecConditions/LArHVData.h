@@ -60,7 +60,7 @@ const std::set<Identifier>&  LArHVData::getUpdatedCells() {
    return m_updatedCells;
 }
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArHVData, 94850034, 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArHVData>, 35533232, 1) 

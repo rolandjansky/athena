@@ -51,7 +51,7 @@ theLArDigitMon = LArDigitMon(name="LArDigitMon",
 theLArDigitMon.LArPedestalKey='LArPedestal'
                 
 
-ToolSvc += theLArDigitMon
+#ToolSvc += theLArDigitMon
 LArMon.AthenaMonTools+=[ theLArDigitMon ] 
 
 

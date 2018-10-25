@@ -18,7 +18,7 @@ public:
 
   // ATTENTION !!!
   // TileCollection is not owner of TileCells by default !!!
-  TileCellCollection ( ID& id, SG::OwnershipPolicy ownPolicy=SG::VIEW_ELEMENTS )
+  TileCellCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::VIEW_ELEMENTS )
     : MyBase(id,ownPolicy) { }
   TileCellCollection ( SG::OwnershipPolicy ownPolicy=SG::VIEW_ELEMENTS )
     : MyBase(ownPolicy) { }

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRECCONDITIONS_LARFEBRODMAPPING_H
@@ -47,7 +47,7 @@ inline const std::vector<HWIdentifier>& LArFebRodMapping::getLArRoModIDvec() con
   return m_readoutModuleIDVec;
 }
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArFebRodMapping, 204177791 , 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArFebRodMapping>, 244452853 , 1)

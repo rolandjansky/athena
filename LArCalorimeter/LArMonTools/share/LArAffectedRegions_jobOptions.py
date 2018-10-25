@@ -11,5 +11,5 @@ theLArAffectedRegions = LArAffectedRegions(name="LArAffectedRegions",
                              ProcessNEvents = EventBlockSize,
                              IsOnline       = athenaCommonFlags.isOnline()      
                          )
-ToolSvc += theLArAffectedRegions
+#ToolSvc += theLArAffectedRegions
 LArMon.AthenaMonTools+=[ theLArAffectedRegions ]

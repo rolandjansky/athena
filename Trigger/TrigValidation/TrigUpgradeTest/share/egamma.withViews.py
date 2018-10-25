@@ -294,7 +294,6 @@ steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step2filter
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
-mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
 mon.ChainsList = list( set( topSequence.L1DecoderTest.ChainToCTPMapping.keys() ) )
 #mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
@@ -386,7 +385,7 @@ hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPER
 ################################################################################
 # assemble top list of algorithms
 
-hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD, summMaker, hltResultMaker ] )
+hltTop = seqOR( "hltTop", [ steps, summMaker, mon, hltResultMaker, summary, StreamESD ] )
 topSequence += hltTop
 
 ###### Begin Cost Monitoring block

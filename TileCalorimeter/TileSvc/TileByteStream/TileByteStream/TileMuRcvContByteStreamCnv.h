@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEMURCVCONTBYTESTREAMCNV_H
@@ -7,7 +7,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/Converter.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -42,7 +41,6 @@ extern long ByteStream_StorageType;
 
 class TileMuRcvContByteStreamCnv
   : public Converter
-  , public IIncidentListener
   , public ::AthMessaging
 {
  public:
@@ -54,9 +52,6 @@ class TileMuRcvContByteStreamCnv
   virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
    virtual StatusCode finalize();
-
-  /// Incident listener
-  virtual void handle( const Incident& incident );
 
   /// Storage type and class ID
   virtual long repSvcType() const  { return ByteStream_StorageType; }
@@ -81,10 +76,6 @@ class TileMuRcvContByteStreamCnv
 
   /** Pointer to TileROD_Decoder */
   ToolHandle<TileROD_Decoder> m_decoder;
-
-  /** Pointer to TileMuRcvContainer */
-  TileMuonReceiverContainer* m_container;
-
 };
 #endif
 

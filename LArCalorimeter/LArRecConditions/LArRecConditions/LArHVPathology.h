@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHVPATHOLOGY_H
@@ -42,7 +42,7 @@ inline LArHVPathology::LArHVPathology(const LArHVPathologiesDb* in) {
    }
 }
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArHVPathology, 180546408, 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArHVPathology>, 24283336, 1) 

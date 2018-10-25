@@ -68,7 +68,7 @@ if DQMonFlags.useTrigger() and not athenaCommonFlags.isOnline():
                if StreamFromFile=='express':
                   theLArOddCellsMonTool.monitoredStreams=["RNDM"]  
 
-ToolSvc += theLArOddCellsMonTool
+#ToolSvc += theLArOddCellsMonTool
 LArMon.AthenaMonTools+=[ theLArOddCellsMonTool ]
 
 
@@ -93,7 +93,7 @@ if (MaskBadChannel) :
       "highNoiseHG","highNoiseMG","highNoiseLG"
       ]
    ToolSvc+=theLArOddCellsMasker
-   ToolSvc.LArOddCellsMonTool.LArBadChannelMask=theLArOddCellsMasker
+   LArOddCellsMonTool.LArBadChannelMask=theLArOddCellsMasker
 
 
 #ToolSvc.LArOddCellsMonTool.OutputLevel = DEBUG

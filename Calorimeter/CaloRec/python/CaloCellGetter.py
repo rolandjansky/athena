@@ -404,9 +404,6 @@ class CaloCellGetter (Configured)  :
                 mlog.error("could not access bad channel tool Quit")
                 print traceback.format_exc()
                 return False
-            ToolSvc += theLArBadChannelTool
-
-            theLArBadFebMaskingTool.badChannelTool = theLArBadChannelTool
             theCaloCellMaker.CaloCellMakerToolNames += [theLArBadFebMaskingTool]
 
         #

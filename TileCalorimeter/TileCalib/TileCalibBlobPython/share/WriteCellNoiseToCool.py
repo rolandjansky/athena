@@ -147,6 +147,9 @@ if len(outTag)<1:     raise Exception("Please, provide outtag (e.g. --outtag=Til
 if len(folderPath)<1: raise Exception("Please, provide folder (e.g. --folder=/TILE/OFL02/NOISE/CELL)")
 if len(dbName)<1:     raise Exception("Please, provide dbname (e.g. --dbname=OFLP200 or --dbname=CONDBR2)")
 
+if inTag=="HEAD": inTag=""
+if outTag=="HEAD": outTag=""
+
 if os.path.isfile(inFile):
   ischema = 'sqlite://;schema='+inFile+';dbname='+dbName
 else:
@@ -216,7 +219,7 @@ dbr = CaloCondTools.openDbConn(ischema,'READONLY')
 #dbw = CaloCondTools.openDbConn(oschema,'RECREATE')
 dbw = CaloCondTools.openDbConn(oschema,'UPDATE')
 reader = CaloCondTools.CaloBlobReader(dbr,folderPath,inTag)
-writer = CaloCondTools.CaloBlobWriter(dbw,folderPath,'Flt',True)
+writer = CaloCondTools.CaloBlobWriter(dbw,folderPath,'Flt',(outTag!="" and outTag!="HEAD"))
 
 from TileCalibBlobPython.TileCalibTools import MAXRUN, MAXLBK
 from math import sqrt

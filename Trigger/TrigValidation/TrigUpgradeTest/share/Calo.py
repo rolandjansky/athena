@@ -40,18 +40,16 @@ if TriggerFlags.doCalo:
      #l1DecoderTest=L1DecoderTest()
      #topSequence+=l1DecoderTest
     
-     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
+     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
+
      algo1=HLTCaloCellMaker("testFastAlgo1")
      algo1.RoIs="StoreGateSvc+EMRoIs"
-     # temporary fix for Tile
-     algo1.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale')]
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-     #algo1.roiMode=False
      algo1.OutputLevel=VERBOSE
      topSequence += algo1
      algo2=HLTCaloCellSumMaker("testSumFastAlgo")
      algo2.OutputLevel=VERBOSE
-     #algo2.roiMode=False
      topSequence += algo2
 
 

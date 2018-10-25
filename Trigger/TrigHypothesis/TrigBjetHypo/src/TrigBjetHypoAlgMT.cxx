@@ -1,48 +1,57 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Property.h"
-#include "TrigBjetHypoAlg.h"
+#include "TrigBjetHypoAlgMT.h"
 
 using namespace TrigCompositeUtils;
 
-TrigBjetHypoAlg::TrigBjetHypoAlg( const std::string& name, 
+TrigBjetHypoAlgMT::TrigBjetHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigBjetHypoAlg::~TrigBjetHypoAlg()
+TrigBjetHypoAlgMT::~TrigBjetHypoAlgMT()
 {}
 
-StatusCode TrigBjetHypoAlg::initialize()
+StatusCode TrigBjetHypoAlgMT::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
-  //  ATH_CHECK( m_etHypoTools.retrieve() );
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_bTagKey.initialize() );
   CHECK( m_roisKey.initialize() );
+  CHECK( m_jetKey.initialize()  );
 
   CHECK( m_decisionsKey.initialize() );
 
-  ATH_MSG_INFO("Initializing TrigBjetHypoAlg");
+  ATH_MSG_INFO("Initializing TrigBjetHypoAlgMT");
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_roisKey          );
   ATH_MSG_DEBUG(  "   " << m_bTagKey          );
+  ATH_MSG_DEBUG(  "   " << m_jetKey           );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlg::finalize() {
+StatusCode TrigBjetHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const {  
+StatusCode TrigBjetHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
+
+  SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );
+  CHECK( prevDecisionHandle.isValid() );
+  const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
+  ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
+
+  return StatusCode::SUCCESS;
+
   SG::ReadHandle< xAOD::BTaggingContainer > bTagHandle = SG::makeHandle( m_bTagKey, context );
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roisKey, context );
   

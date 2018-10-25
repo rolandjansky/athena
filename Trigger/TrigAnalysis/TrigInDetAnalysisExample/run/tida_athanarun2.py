@@ -157,8 +157,8 @@ if ( False ) :
   d = release_metadata()
   TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
   TestMonTool.outputFileName="TrkNtuple.root"
-  ToolSvc += TestMonTool
-  HLTMonManager.AthenaMonTools += [ "TrigTestMonToolAC/TestMonToolAC" ]
+  #ToolSvc += TestMonTool
+  HLTMonManager.AthenaMonTools += [ TestMonTool ]
   print TestMonTool
 
 

@@ -69,7 +69,7 @@ class LArHVIdMapping {
 
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArHVIdMapping, 260112632 , 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArHVIdMapping>, 92552832 , 1)

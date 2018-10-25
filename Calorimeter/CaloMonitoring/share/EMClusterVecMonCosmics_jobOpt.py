@@ -85,6 +85,6 @@ EMCaloClusterMonCosmicsNoTA = CaloClusterVecMon(
    hiEthresh = 20.0,
 )
 
-ToolSvc +=  EMCaloClusterMonCosmicsNoTA 
+#ToolSvc +=  EMCaloClusterMonCosmicsNoTA 
 CaloMon.AthenaMonTools += [  EMCaloClusterMonCosmicsNoTA ]
 
