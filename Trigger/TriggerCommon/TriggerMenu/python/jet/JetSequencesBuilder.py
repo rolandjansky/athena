@@ -101,7 +101,12 @@ class JetSequencesBuilder(object):
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'jh_tla': self.make_jh_tla,  # TLA hypo
+<<<<<<< HEAD
                        'jh_dijet': self.make_jh_dijet,  # TLA hypo
+=======
+                       'jh_dijet': self.make_jh_dijet,  # dijet hypo
+                       'jh_jetattrs': self.make_jh_jetattrs, #jet attributes, including moments
+>>>>>>> 4b7f3c10ca... Instantiatable JSS hypo (with debug print statements - to remove later)
                        'jh_dimass_deta': self.make_jh_dimass_deta, # dijets
                        'jh_dimass_deta_dphi': self.make_jh_dimass_deta_dphi, # dijets
                        'ps': self.make_ps,  # partial scan Roi maker
