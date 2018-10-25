@@ -28,6 +28,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         UncertaintyComponent(const ComponentHelper& component, const size_t numHist = 1);
         UncertaintyComponent(const UncertaintyComponent& toCopy);
         virtual UncertaintyComponent* clone() const = 0;
+        UncertaintyComponent & operator = (const UncertaintyComponent &) = delete;
         virtual ~UncertaintyComponent();
         virtual StatusCode initialize(TFile* histFile);
         
