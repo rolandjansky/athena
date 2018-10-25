@@ -28,10 +28,6 @@ namespace SG {
    *    internally create WriteDecorHandleKeys with those initializers
    *    SG::WriteDecorHandleKeyArray<foo> m_foo { "key1", "key2", "key3" };
    *
-   * Additionally, a propery configuration can be done with just a std::string that's the base
-   *    container name. This then allows for the right decor handles to be added in the alg/tool's
-   *    initilize stage.
-   *
    * Note: makeHandles only works if the type is the same; otherwise have do do individually
    *
    */

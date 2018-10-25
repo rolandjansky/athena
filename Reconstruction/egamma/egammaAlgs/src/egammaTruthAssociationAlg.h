@@ -65,7 +65,8 @@ private:
   };
   
   /// A function that initializes the decor handles, but also checks the naming convention
-  template<class T> StatusCode initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys);
+  template<class T> StatusCode initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys, 
+						   std::string name);
     
   /** @brief helper class to contain write decoration handles */
   template<class T> struct writeDecorHandles {
@@ -125,21 +126,41 @@ private:
   
   /** @brief The egamma cluster decor handle key array **/
   SG::WriteDecorHandleKeyArray<xAOD::CaloClusterContainer> m_clusterDecKeys {this,
+      "DoNotSet_ClusterContainerName", {}, 
+      "Do not set; configuration via the string property"};
+
+  /** @brief The egamma cluster name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_clusterDecName {this,
       "ClusterContainerName", "",
       "Name of the egamma cluster container"};
   
   /** @brief The electron container decor handle key array **/
   SG::WriteDecorHandleKeyArray<xAOD::ElectronContainer> m_electronDecKeys {this,
+      "DoNotSet_ElectronContainerName", {},
+      "Do not set; configuration via the string property"};
+
+  /** @brief The electron container name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_electronDecName {this,
       "ElectronContainerName", "",
       "Name of the input electron container"};  
 
   /** @brief The fwd electron container decor handle key array **/
   SG::WriteDecorHandleKeyArray<xAOD::ElectronContainer> m_fwdElectronDecKeys {this,
+      "DoNotSet_FwdElectronContainerName", {},
+      "Do not set; configuration via the string property"};
+
+  /** @brief The fwd electron name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_fwdElectronDecName {this,
       "FwdElectronContainerName", "",
       "Name of the input fwd electron container"};    
  
   /** @brief The photon container decor handle key array **/
   SG::WriteDecorHandleKeyArray<xAOD::PhotonContainer> m_photonDecKeys {this,
+      "DoNotSet_PhotonContainerName", {},
+      "Do not set; configuration via the string property"};
+
+  /** @brief The photon container name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_photonDecName {this,
       "PhotonContainerName", "",
       "Name of the input photon container"};     
   

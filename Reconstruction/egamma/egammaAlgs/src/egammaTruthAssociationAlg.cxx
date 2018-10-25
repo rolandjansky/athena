@@ -40,15 +40,15 @@ StatusCode egammaTruthAssociationAlg::initialize() {
   ATH_CHECK(m_truthParticleContainerKey.initialize());
 
   // Now the standard decoration handles
-  ATH_CHECK(initializeDecorKeys(m_electronDecKeys));
-  ATH_CHECK(initializeDecorKeys(m_photonDecKeys));
+  ATH_CHECK(initializeDecorKeys(m_electronDecKeys, m_electronDecName));
+  ATH_CHECK(initializeDecorKeys(m_photonDecKeys, m_photonDecName));
   if (m_matchClusters) {
-    ATH_CHECK(initializeDecorKeys(m_clusterDecKeys));
+    ATH_CHECK(initializeDecorKeys(m_clusterDecKeys, m_clusterDecName));
   } else {
     m_clusterDecKeys.clear();
   }
   if (m_matchForwardElectrons){
-    ATH_CHECK(initializeDecorKeys(m_fwdElectronDecKeys));
+    ATH_CHECK(initializeDecorKeys(m_fwdElectronDecKeys, m_fwdElectronDecName));
   } else {
     m_fwdElectronDecKeys.clear();
   }
@@ -217,28 +217,19 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
 // ==========================================================================
 template<class T> 
 StatusCode 
-egammaTruthAssociationAlg::initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys)
+egammaTruthAssociationAlg::initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys, 
+					       std::string name)
 {
-  if (keys.size() == 0) {
-    return StatusCode::SUCCESS;
-  } else if (keys.size() == 1) {
-    // This should be the default, with just one key defined
-    // that's just the base name. It should not have any . in it;
-    std::string baseName = keys[0].key();
-    if (baseName.find('.') != std::string::npos) {
-      ATH_MSG_FATAL("Only the input container name is expeted, without extensions. Given: " << baseName);
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("The base container name is " << baseName);
-    keys[0] = baseName + ".truthParticleLink";
-    keys.emplace_back(baseName + ".truthType");
-    keys.emplace_back(baseName + ".truthOrigin");
-    ATH_CHECK(keys.initialize());
-    return StatusCode::SUCCESS;
-  } else {
-    ATH_MSG_FATAL("Must specify only the base container name as a string");
+  if (keys.size() != 0) {
+    ATH_MSG_FATAL("The WriteDecorHandle should not be configured directly.");
     return StatusCode::FAILURE;
   }
+  
+  keys.emplace_back(name + ".truthParticleLink");
+  keys.emplace_back(name + ".truthType");
+  keys.emplace_back(name + ".truthOrigin");
+  ATH_CHECK(keys.initialize());
+  return StatusCode::SUCCESS;
 }
 
 // ==========================================================================   
