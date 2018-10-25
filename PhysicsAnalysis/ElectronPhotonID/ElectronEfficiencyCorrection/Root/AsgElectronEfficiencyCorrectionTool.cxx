@@ -77,6 +77,8 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
         declareProperty("NumberOfToys", m_number_of_toys = 100,"Number of ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only.");
         declareProperty("MCToySeed", m_seed_toys = 0,"Seed for ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only." );
         declareProperty("MCToyScale", m_scale_toys = 1,"Scales Toy systematics up by this factor, affecting MCTOYS and COMBMCTOYS correlation models only." );
+        declareProperty("UncorrEtaBinsUser", m_uncorrEtaBinsUser,"Custom Eta/Pt binning for the SIMPLIFIED correlation model.");
+        declareProperty("UncorrEtBinsUser" , m_uncorrEtBinsUser ,"Custom Eta/Pt binning for the SIMPLIFIED correlation model.");
         declareProperty("EventInfoCollectionName",  m_eventInfoCollectionName= "EventInfo", "The EventInfo Collection Name");
         declareProperty("UseRandomRunNumber",  m_useRandomRunNumber = true);
         declareProperty("DefaultRandomRunNumber",  m_defaultRandomRunNumber = 999999);
@@ -147,8 +149,9 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         }
         if (m_corrFileNameList.at(i).find("efficiencySF.offline.Fwd") != std::string::npos) {
             m_sysSubstring = "FwdID_";
-	    if ( m_correlation_model_name == "SIMPLIFIED" ) {
-	      ATH_MSG_ERROR("The SIMPLIFIED correlation model is not implemented for fwd electrons");
+	    if ( m_correlation_model_name == "SIMPLIFIED" && m_uncorrEtaBinsUser.empty() && m_uncorrEtBinsUser.empty() ) {
+	      ATH_MSG_ERROR("The bins for the SIMPLIFIED correlation model are not hardcoded for fwd electrons");
+	      ATH_MSG_ERROR("You need to specify them by hand. Please, have a look at our twiki ");
 	      return StatusCode::FAILURE;
 	    }
         }
@@ -179,6 +182,10 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     }
     else if(m_correlation_model_name == "SIMPLIFIED"){
         m_correlation_model= correlationModel::SIMPLIFIED;
+	if ( m_uncorrEtaBinsUser.empty() != m_uncorrEtBinsUser.empty() ) {
+	  ATH_MSG_ERROR("Something went wrong when specifying bins for the SIMPLIFIED correlation model ");
+	  return StatusCode::FAILURE;
+	}
     }
     else if(m_correlation_model_name == "TOTAL"){
         m_correlation_model= correlationModel::TOTAL;
@@ -194,13 +201,26 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
 
     //Finish the preaparation of the underlying tool
     if (m_correlation_model == correlationModel::SIMPLIFIED) {
-        // cretate uncorrelated eta/pt bins
-        static const std::vector<float> eta{0.0,1.37,2.47};
-        static const std::vector<float> pt {4500,7000,10000,15000,20000,25000,30000,60000,80000,13000000};
-        m_UncorrRegions = new TH2F("UncorrRegions", "UncorrRegions", pt.size() - 1, &(pt[0]), eta.size() - 1, &(eta[0]));
-        m_UncorrRegions->SetDirectory(0);
-        // bins not entries here
-        m_nSimpleUncorrSyst = (eta.size() - 1) * (pt.size() - 1);
+      // cretate uncorrelated eta/pt bins
+      std::vector<float> eta{0.0,1.37,2.47};
+      std::vector<float> pt {4500,7000,10000,15000,20000,25000,30000,60000,80000,13000000};
+
+	// the custom binning for the SIMPLIFIED model, if specified by the user with setProperty
+      if ( m_uncorrEtaBinsUser.size()>=2 && m_uncorrEtBinsUser.size()>=2 ) { 
+	ATH_MSG_DEBUG( " using custom binning with " << m_uncorrEtaBinsUser.size() << " eta, and " << m_uncorrEtBinsUser.size() << " Et bins in the SIMPLIFIED model " );
+        eta = m_uncorrEtaBinsUser;
+        pt  = m_uncorrEtBinsUser;
+	// make sure the user doesn't do anything stupid and assign some over/underflow values
+	pt.front()  = 4500.; // make sure the first Et bin is an underflow
+	pt.back()   = 13000000.; // make sure the last Et bin goes to 13 TeV
+	eta.front() = 0.; // make sure the first eta bin starts from 0
+	eta.back()  = 4.9; // make sure the last eta bin goes to 4.9
+      }
+      m_UncorrRegions = new TH2F("UncorrRegions", "UncorrRegions", pt.size() - 1, &(pt[0]), eta.size() - 1, &(eta[0]));
+      m_UncorrRegions->SetDirectory(0);
+
+      // bins not entries here
+      m_nSimpleUncorrSyst = (eta.size() - 1) * (pt.size() - 1);
     }
     //
     if (m_seed_toys != 0) {
