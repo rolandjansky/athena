@@ -1,6 +1,6 @@
 #********************************************************************
 # SUSY3.py
-# reductionConf flag SUSY3 in Reco_tf.py   
+# reductionConf flag SUSY3 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -41,7 +41,7 @@ from DerivationFrameworkSUSY.SUSY3TriggerList import triggerRegEx, triggerRegExT
 SUSY3ThinningHelper.TriggerChains = '|'.join(triggerRegExThinning)
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-SUSY3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( 
+SUSY3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(
     name          = "SUSY3TriggerSkimmingTool",
     TriggerListOR = triggerRegEx )
 ToolSvc += SUSY3TriggerSkimmingTool
@@ -50,7 +50,7 @@ SUSY3ThinningHelper.AppendToStream( SUSY3Stream ) # needs to go after SUSY3Thinn
 
 
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
 
 # TrackParticles associated with Muons
@@ -119,7 +119,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 
   # Decorate Electron with bkg electron type/origin
-  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier
   from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification
   BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool", MCTruthClassifierTool = BkgElectronMCTruthClassifier)
   ToolSvc += BkgElectronClassificationTool
@@ -130,7 +130,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
 TauRequirements = '(abs(TauJets.eta) < 2.6) && (TauJets.ptFinalCalib >= 15.*GeV)'
@@ -182,7 +182,7 @@ ToolSvc += SUSY3SkimmingTool
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -195,12 +195,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel("SUSY3KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY3")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -250,7 +250,7 @@ SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel(
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY3SlimmingHelper = SlimmingHelper("SUSY3SlimmingHelper")
@@ -262,7 +262,7 @@ SUSY3SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "Electrons.author.charge.ptcone20.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                       "Photons.author.Loose.Tight",
-                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width",
+                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "InDetTrackParticles.truthOrigin.truthType",
                                       "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -277,7 +277,7 @@ SUSY3SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 
 SUSY3SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY3SlimmingHelper.IncludeEGammaTriggerContent = True
-#SUSY3SlimmingHelper.IncludeBPhysTriggerContent = True 
+#SUSY3SlimmingHelper.IncludeBPhysTriggerContent = True
 #SUSY3SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 SUSY3SlimmingHelper.IncludeJetTriggerContent = True
 SUSY3SlimmingHelper.IncludeTauTriggerContent = True
@@ -292,7 +292,7 @@ if DerivationFrameworkIsMonteCarlo:
   SUSY3SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
-  SUSY3SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
- 
+
+  SUSY3SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+
 SUSY3SlimmingHelper.AppendContentToStream(SUSY3Stream)

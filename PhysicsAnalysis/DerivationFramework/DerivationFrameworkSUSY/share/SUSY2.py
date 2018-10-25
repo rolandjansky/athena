@@ -181,7 +181,7 @@ if DerivationFrameworkIsMonteCarlo:
   BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool", MCTruthClassifierTool = BkgElectronMCTruthClassifier)
   ToolSvc += BkgElectronClassificationTool
   AugmentationTools.append(BkgElectronClassificationTool)
-   
+
 
 #====================================================================
 # SKIMMING TOOL
@@ -214,12 +214,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY2 += CfgMgr.DerivationFramework__DerivationKernel("SUSY2KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY2")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -294,17 +294,17 @@ SUSY2SlimmingHelper.SmartCollections = ["Electrons",
 
                                         "AntiKt4EMTopoJets",
 "AntiKt4EMPFlowJets",
- 
-                                        #"AntiKt4LCTopoJets", 
+
+                                        #"AntiKt4LCTopoJets",
                                         "BTagging_AntiKt4EMTopo",
 "BTagging_AntiKt4EMPFlow",
- 
-                                        "InDetTrackParticles", 
+
+                                        "InDetTrackParticles",
                                         "PrimaryVertices"]
 SUSY2SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
 					"Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
-					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500",
+					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_jetClean_VeryLooseBadLLP",
 					"GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 					"InDetTrackParticles.truthOrigin.truthType",
 					"CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -313,11 +313,11 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
 					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
 					"Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.deltaPhi1",
-                                      "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
-                                      "MuonClusterCollection.eta_sampl.phi_sampl",
-                                      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
+          "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
+          "MuonClusterCollection.eta_sampl.phi_sampl",
+          "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
 
-# Saves BDT and input variables for light lepton algorithms. 
+# Saves BDT and input variables for light lepton algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
 SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
@@ -341,7 +341,7 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
-  SUSY2SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
+  SUSY2SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 
 SUSY2SlimmingHelper.AppendContentToStream(SUSY2Stream)

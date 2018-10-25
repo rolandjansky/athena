@@ -1,6 +1,6 @@
 #********************************************************************
-# SUSY16.py 
-# reductionConf flag SUSY16 in Reco_tf.py   
+# SUSY16.py
+# reductionConf flag SUSY16 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -38,7 +38,7 @@ electronsRequirements = '(Electrons.pt > 4.0*GeV) && (abs(Electrons.eta) < 2.6) 
 photonsRequirements = '(abs(Photons.eta)<2.6) && (Photons.pt > 20*GeV)'
 if not DerivationFrameworkIsMonteCarlo:
   muonsRequirements = '(Muons.pt > 3.0*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-  
+
 
 #====================================================================
 # Trigger navigation thinning
@@ -47,9 +47,9 @@ from DerivationFrameworkSUSY.SUSY16TriggerList import triggersNavThin
 SUSY16ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
 
 SUSY16ThinningHelper.AppendToStream( SUSY16Stream )
-     
+
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
 
 # -------------------------------------------------------------------
@@ -166,7 +166,7 @@ thinningTools.append(SUSY16PhotonCCThinningTool)
 
 
 # Calo Clusters associated with Muons
-SUSY16MuonCCThinningTool = DerivationFramework__CaloClusterThinning( 
+SUSY16MuonCCThinningTool = DerivationFramework__CaloClusterThinning(
     name = "SUSYxMuonCCThinningTool",
     ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
     SGKey                   = "Muons",
@@ -207,20 +207,20 @@ if DerivationFrameworkIsMonteCarlo:
                                                                      PreserveGeneratorDescendants = False,
                                                                      SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
 
-   
-    # Decorate Electron with bkg electron type/origin 
-    from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
-    from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification 
+
+    # Decorate Electron with bkg electron type/origin
+    from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier
+    from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification
     BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool",MCTruthClassifierTool = BkgElectronMCTruthClassifier)
     ToolSvc += BkgElectronClassificationTool
     AugmentationTools.append(BkgElectronClassificationTool)
-    
+
     ToolSvc += SUSY16TruthThinningTool
     thinningTools.append(SUSY16TruthThinningTool)
 
-	
+
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
 # ------------------------------------------------------------
@@ -252,14 +252,14 @@ if DerivationFrameworkIsMonteCarlo:
     SUSY16SoftOneMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY16OneMuonTriggerSkimmingTool",
                                                                                      TriggerListAND = ['HLT_mu4','HLT_xe50_mht','HLT_j110'])
     ToolSvc += SUSY16SoftOneMuonTriggerSkimmingTool
-    
+
     # dimuon + jet + met trigger
     SUSY16SoftTwoMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY16TwoMuonTriggerSkimmingTool",
                                                                                      TriggerListAND = ['HLT_2mu4','HLT_j85'])
     ToolSvc += SUSY16SoftTwoMuonTriggerSkimmingTool
 
     # OR of soft muon stuff or inclusive MET triggers
-    SUSY16TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16TriggerSkimmingTool", 
+    SUSY16TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16TriggerSkimmingTool",
                                                                          FilterList = [SUSY16InclusiveTriggerSkimmingTool,
                                                                                        SUSY16SoftOneMuonTriggerSkimmingTool,
                                                                                        SUSY16SoftTwoMuonTriggerSkimmingTool])
@@ -271,17 +271,17 @@ else:
     ToolSvc += SUSY16SoftMuonTriggerSkimmingTool
 
     # OR of soft muon stuff or inclusive MET triggers
-    SUSY16TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16TriggerSkimmingTool", 
+    SUSY16TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16TriggerSkimmingTool",
                                                                          FilterList = [SUSY16InclusiveTriggerSkimmingTool,
                                                                                        SUSY16SoftMuonTriggerSkimmingTool])
     ToolSvc += SUSY16TriggerSkimmingTool
-    
+
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # Final MET-based skim selection, with trigger selection and lepton selection
-SUSY16SkimmingTool_MET = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_MET", 
-                                                                   FilterList = [SUSY16LeptonSkimmingTool, 
+SUSY16SkimmingTool_MET = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_MET",
+                                                                   FilterList = [SUSY16LeptonSkimmingTool,
                                                                                  SUSY16TriggerSkimmingTool])
 ToolSvc += SUSY16SkimmingTool_MET
 
@@ -301,14 +301,14 @@ if includeTrileptonEvents:
     ToolSvc += SUSY16TriLepTriggerSkimmingTool
 
     # Trilepton trigger+lepton selection
-    SUSY16SkimmingTool_TriLep = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_TriLep", 
-                                                                          FilterList = [SUSY16TriLeptonSkimmingTool, 
+    SUSY16SkimmingTool_TriLep = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_TriLep",
+                                                                          FilterList = [SUSY16TriLeptonSkimmingTool,
                                                                                         SUSY16TriLepTriggerSkimmingTool])
     ToolSvc += SUSY16SkimmingTool_TriLep
 
     # and the final-final selection is an OR of the trilepton selection and the inclusive-MET selection:
-    SUSY16SkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16SkimmingTool", 
-                                                                  FilterList = [SUSY16SkimmingTool_MET, 
+    SUSY16SkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16SkimmingTool",
+                                                                  FilterList = [SUSY16SkimmingTool_MET,
                                                                                 SUSY16SkimmingTool_TriLep])
     ToolSvc += SUSY16SkimmingTool
 else:
@@ -331,7 +331,7 @@ ToolSvc += SUSY16_MaxCellDecoratorTool
 # May want to add this in at some point for isolated-track selection studies?
 if False:
     #====================================================================
-    # ISOLATION TOOL 
+    # ISOLATION TOOL
     #====================================================================
     #Track selection
     from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
@@ -372,7 +372,7 @@ if False:
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -386,7 +386,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-    
+
     from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
     SeqSUSY16 += CfgMgr.DerivationFramework__DerivationKernel("SUSY16KernelSigAug",
                                                               AugmentationTools = DecorateSUSYProcess("SUSY16")
@@ -427,7 +427,7 @@ replaceAODReducedJets(reducedJetList, SeqSUSY16, "SUSY16")
 #if DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
-    
+
 
 #==============================================================================
 # Augment after skim
@@ -453,7 +453,7 @@ SeqSUSY16 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 # This might be the kind of set-up one would have for a muon based analysis
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
@@ -470,18 +470,18 @@ SUSY16SlimmingHelper.SmartCollections = ["Electrons",
                                          "BTagging_AntiKt4EMPFlow",
                                          "InDetTrackParticles",
                                          "PrimaryVertices"]
-SUSY16SlimmingHelper.AllVariables = ["TruthParticles", 
-                                     "TruthEvents", 
-                                     "TruthVertices", 
+SUSY16SlimmingHelper.AllVariables = ["TruthParticles",
+                                     "TruthEvents",
+                                     "TruthVertices",
                                      "MET_Track",
                                      "MET_LocHadTopo",
                                      "MuonSegments",
-                                     "MET_Truth"]					
+                                     "MET_Truth"]
 SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.eta_sampl.phi_sampl.etcone20.ptconecoreTrackPtrCorrection",
                                       "MuonClusterCollection.eta_sampl.phi_sampl",
                                       "Photons.author.Loose.Tight",
-                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
+                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix","CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased",
@@ -495,7 +495,7 @@ SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl"
 ]
 
-# Saves BDT and input variables for light lepton algorithms. 
+# Saves BDT and input variables for light lepton algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
 SUSY16SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
@@ -518,8 +518,8 @@ if DerivationFrameworkIsMonteCarlo:
 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
-  SUSY16SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
+
+  SUSY16SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 
 SUSY16SlimmingHelper.AppendContentToStream(SUSY16Stream)

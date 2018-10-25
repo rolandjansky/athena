@@ -1,6 +1,6 @@
 #********************************************************************
-# SUSY7.py 
-# reductionConf flag SUSY7 in Reco_tf.py   
+# SUSY7.py
+# reductionConf flag SUSY7 in Reco_tf.py
 #********************************************************************
 
 from AthenaCommon import Logging
@@ -39,7 +39,7 @@ DerivationFrameworkJob += SeqSUSY7
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-from DerivationFrameworkSUSY.SUSY7TriggerList import * 
+from DerivationFrameworkSUSY.SUSY7TriggerList import *
 SUSY7ThinningHelper.TriggerChains = '|'.join(SUSY7ThinTriggers) #SingleLepton + DiLepton + Photon + Tau
 SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
 
@@ -86,7 +86,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #====================================================================
-# THINNING TOOL 
+# THINNING TOOL
 #====================================================================\
 
 # B.M.: likely not used
@@ -229,7 +229,7 @@ muonsRequirements = '(Muons.pt >= 6.*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DF
 electronsRequirements = '(Electrons.pt > 7.*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
 diLepExpr = '(count(%s) + count (%s)) > 1' % (muonsRequirements, electronsRequirements)
 
-#btagging selection 
+#btagging selection
 bfix77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
 bfix85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
 bhyb77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
@@ -257,7 +257,7 @@ isrBFixExpr  = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" 
 isrBHybExpr = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" % (bhyb77,jetpt,bhyb85,jetpt)
 isrExpr = "(%s || %s)" % (isrBFixExpr, isrBHybExpr)
 
-### skimming 
+### skimming
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY7diLepSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7diLepSkimmingTool",
                                                                       expression = diLepExpr)
@@ -279,7 +279,7 @@ ToolSvc += SUSY7isrSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 SUSY7SkimmingORTool = DerivationFramework__FilterCombinationOR(name = "SUSY7SkimmingORTool",
                                                                FilterList = [SUSY7diLepSkimmingTool, SUSY7btagSkimmingTool, SUSY7multibSkimmingTool, SUSY7isrSkimmingTool])
-ToolSvc += SUSY7SkimmingORTool   
+ToolSvc += SUSY7SkimmingORTool
 
 #add AND with Trigger skimming criteria
 trigExpr = '('+' || '.join(SUSY7AllTriggers)+')'
@@ -287,9 +287,9 @@ trigExpr = '('+' || '.join(SUSY7AllTriggers)+')'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 SUSY7trigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY7trigSkimmingTool",
                                                                   TriggerListOR = SUSY7AllTriggers)
-   
+
 ToolSvc += SUSY7trigSkimmingTool
-   
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 SUSY7SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY7SkimmingTool",
                                                               FilterList = [SUSY7SkimmingORTool, SUSY7trigSkimmingTool])
@@ -297,7 +297,7 @@ ToolSvc += SUSY7SkimmingTool
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -310,12 +310,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY7 += CfgMgr.DerivationFramework__DerivationKernel("SUSY7KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY7")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -368,7 +368,7 @@ SeqSUSY7 += CfgMgr.DerivationFramework__DerivationKernel(
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY7SlimmingHelper = SlimmingHelper("SUSY7SlimmingHelper")
@@ -377,7 +377,7 @@ SUSY7SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVerti
 SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
 				      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
 				      "Photons.author.Loose.Tight",
-              "AntiKt4EMTopoJets.DFCommonJets_Calib_pt",
+              "AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_jetClean_VeryLooseBadLLP",
 				      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
 				      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 				      "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -411,9 +411,9 @@ SUSY7SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContain
                                           'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                           'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
-# All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py) 
-if DerivationFrameworkIsMonteCarlo:   
-  SUSY7SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
+# All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
+if DerivationFrameworkIsMonteCarlo:
+  SUSY7SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 
 SUSY7SlimmingHelper.AppendContentToStream(SUSY7Stream)

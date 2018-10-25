@@ -1,6 +1,6 @@
 #********************************************************************
-# SUSY13.py 
-# reductionConf flag SUSY13 in Reco_tf.py   
+# SUSY13.py
+# reductionConf flag SUSY13 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -41,9 +41,9 @@ SUSY13ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
 
 SUSY13ThinningHelper.AppendToStream( SUSY13Stream )
 
-     
+
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
 
 # B.M.: likely not used
@@ -100,38 +100,38 @@ if DerivationFrameworkIsMonteCarlo:
                                                        ThinningService              = SUSY13ThinningHelper.ThinningSvc(),
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
-                                                       WriteBHadrons                = True,                                                                                               
+                                                       WriteBHadrons                = True,
                                                        WriteGeant                   = False,
                                                        GeantPhotonPtThresh          = 20000,
                                                        WriteTauHad                  = True,
                                                        PartonPtThresh               = -1.0,
                                                        WriteBSM                     = True,
                                                        WriteBosons                  = True,
-                                                       WriteBosonProducts           = True,                                                                                                      
+                                                       WriteBosonProducts           = True,
                                                        WriteBSMProducts             = True,
-                                                       WriteTopAndDecays            = True,                                                                                               
+                                                       WriteTopAndDecays            = True,
                                                        WriteEverything              = False,
                                                        WriteAllLeptons              = False,
                                                        WriteLeptonsNotFromHadrons   = False,
                                                        WriteStatus3                 = False,
                                                        WriteFirstN                  = -1,
-                                                       PreserveAncestors            = True,                                                                                             
+                                                       PreserveAncestors            = True,
                                                        PreserveGeneratorDescendants = False,
                                                        SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
 
-  
-  # Decorate Electron with bkg electron type/origin 
-  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
-  from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification 
+
+  # Decorate Electron with bkg electron type/origin
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier
+  from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification
   BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool",MCTruthClassifierTool = BkgElectronMCTruthClassifier)
   ToolSvc += BkgElectronClassificationTool
   AugmentationTools.append(BkgElectronClassificationTool)
 
   ToolSvc += SUSY13TruthThinningTool
   thinningTools.append(SUSY13TruthThinningTool)
-	
+
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
 #=======
@@ -140,7 +140,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 photonRequirements = '(count((DFCommonPhotons_et > 100*GeV) && (abs(DFCommonPhotons_eta) < 2.6)) > 0)'
 from DerivationFrameworkSUSY.SUSY13TriggerList import triggersNavThin
-trig_expression = '(' + ' || '.join(triggersNavThin) + ')' 
+trig_expression = '(' + ' || '.join(triggersNavThin) + ')'
 expression = '('+photonRequirements+'&&'+trig_expression+')'
 print "DEBUG PPPPP full", expression
 
@@ -151,7 +151,7 @@ SUSY13SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY13
 ToolSvc += SUSY13SkimmingTool
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 # now done in ExtendedJetCommon
 #applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY13)
@@ -166,12 +166,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY13 += CfgMgr.DerivationFramework__DerivationKernel("SUSY13KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY13")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -220,7 +220,7 @@ SeqSUSY13 += CfgMgr.DerivationFramework__DerivationKernel(
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 # This might be the kind of set-up one would have for a muon based analysis
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
@@ -236,7 +236,7 @@ SUSY13SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVert
 SUSY13SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                 "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                 "Photons.author.Loose.Tight",
-                "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
+                "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
                 "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix","CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                 "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                 "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
@@ -269,8 +269,8 @@ if DerivationFrameworkIsMonteCarlo:
 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
-  SUSY13SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
+
+  SUSY13SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 
 SUSY13SlimmingHelper.AppendContentToStream(SUSY13Stream)
