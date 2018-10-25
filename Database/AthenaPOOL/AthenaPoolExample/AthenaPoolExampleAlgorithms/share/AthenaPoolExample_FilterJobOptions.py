@@ -66,8 +66,6 @@ svcMgr.EventSelector.Query = "EventNumber > 5"
 svcMgr.PoolSvc.ReadCatalog = [ "file:Catalog.xml" ]
 svcMgr.PoolSvc.WriteCatalog = "file:Catalog1.xml"
 
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__QueryTag
 QueryTag = AthPoolEx__QueryTag("QueryTag")
 svcMgr.EventSelector.HelperTools = [ QueryTag ]

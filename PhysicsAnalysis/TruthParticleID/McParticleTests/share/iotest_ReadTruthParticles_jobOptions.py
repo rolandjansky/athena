@@ -99,9 +99,6 @@ outStream.ItemList += [ "TruthParticleContainer#SpclMC" ]
 outStream.ItemList += [ "TruthEtIsolationsContainer#TruthEtIsol_GEN_EVENT" ]
 outStream.ItemList += [ "TruthEtIsolationsContainer#TruthEtIsol_GEN_AOD" ]
 
-## tweak the default commit interval
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 100
-
 svcMgr.MessageSvc.defaultLimit = 4000000
 svcMgr.MessageSvc.OutputLevel  = ERROR
 

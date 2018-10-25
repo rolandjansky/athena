@@ -87,7 +87,6 @@ outStreams[1].OutputFile = os.path.join(
    os.path.dirname(OUTPUT),
    'non.%s' % os.path.basename(OUTPUT)
    )
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 ###############################
 # Load thinning service
