@@ -6,6 +6,14 @@
 # removed cosmics, beam gas/halo and pileup configuration
 # trigger will not be run
 
+from AthenaCommon.Logging import *
+#from AthenaCommon.Logging import logging
+fast_chain_log = logging.getLogger('FastChainSkeleton')
+digilog = fast_chain_log
+#logDigitization_flags = logging.getLogger( 'Digitization' )
+#digilog = logging.getLogger('Digi_trf')
+#logConfigDigitization = logging.getLogger( 'ConfigDigitization' )
+
 
 
 from AthenaCommon.DetFlags import DetFlags
@@ -115,10 +123,6 @@ DetFlags.digitize.ALFA_setOff()
 #DetFlags.detdescr.AFP_setOff()
 #DetFlags.detdescr.ALFA_setOff()
 
-
-
-
-logDigitization_flags = logging.getLogger( 'Digitization' )
 #--------------------------------------------------------------
 # Set Detector flags for this run
 #--------------------------------------------------------------
@@ -246,8 +250,6 @@ if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
 
 ## Get the logger
-from AthenaCommon.Logging import *
-fast_chain_log = logging.getLogger('ISF')
 fast_chain_log.info('****************** STARTING ISF ******************')
 
 ### Force trigger to be off
@@ -903,10 +905,6 @@ if hasattr(runArgs,"geometryVersion"):
     else:
         globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
 
-### Do not invoke another logger
-# get the logger
-#from AthenaCommon.Logging import logging
-digilog = logging.getLogger('Digi_trf')
 fast_chain_log.info( '****************** STARTING DIGITIZATION *****************' )
 
 
@@ -1182,8 +1180,6 @@ except:
 #
 # Author: Sven Vahsen and John Chapman
 #==============================================================
-from AthenaCommon.Logging import logging
-logDigitization_flags = logging.getLogger( 'Digitization' )
 
 #--------------------------------------------------------------
 # Get Digitization Flags (This sets Global and Det Flags)
@@ -1208,7 +1204,7 @@ globalflags.InputFormat = 'pool'
 # Set Detector flags for this run
 #--------------------------------------------------------------
 if 'DetFlags' in dir():
-    logDigitization_flags.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+    fast_chain_log.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
     DetFlags.Print()
 else :
     # include DetFlags
@@ -1239,9 +1235,9 @@ DetFlags.Print()
 
 
 
-logDigitization_flags.info("Global jobProperties values:")
+fast_chain_log.info("Global jobProperties values:")
 globalflags.print_JobProperties()
-logDigitization_flags.info("Digitization jobProperties values:")
+fast_chain_log.info("Digitization jobProperties values:")
 digitizationFlags.print_JobProperties()
 
 #--------------------------------------------------------------
@@ -1254,7 +1250,7 @@ athenaCommonFlags.FilesInput=athenaCommonFlags.PoolHitsInput.get_Value()
 # Read Simulation MetaData (unless override flag set to True)
 #--------------------------------------------------------------
 if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
-    logDigitization_flags.info("Skipping input file MetaData check.")
+    fast_chain_log.info("Skipping input file MetaData check.")
 else :
     from Digitization.DigitizationReadMetaData import readHITSFileMetadata
     readHITSFileMetadata()
@@ -1266,10 +1262,6 @@ else :
 #include("Digitization/ConfigDigitization.py")
 
 ####### Digitization/ConfigDigitization.py
-
-from AthenaCommon.Logging import logging
-logConfigDigitization = logging.getLogger( 'ConfigDigitization' )
-
 
 #check job configuration
 from Digitization.DigiConfigCheckers import checkDetFlagConfiguration
@@ -1326,7 +1318,7 @@ if digitizationFlags.RunAndLumiOverrideList.statusOn:
         AthError( "This job will try to override pile-up luminosity configuration, but no pile-up will be set up!" )
     include("Digitization/LumiBlockOverrides.py")
     if digitizationFlags.dataRunNumber.statusOn:
-        logDigitization_flags.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
+        fast_chain_log.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
 else:
     include("Digitization/RunNumberOverride.py")
 
@@ -1346,9 +1338,9 @@ if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
         raise RuntimeError("SteppingCache is incompatible with PileUpTools. Please switch off either digitizationFlags.SignalPatternForSteppingCache or digitizationFlags.doXingByXingPileUp.")
     include( "Digitization/ConfigPileUpEventLoopMgr.py" )
 if DetFlags.pileup.any_on():
-    logConfigDigitization.info("PILEUP CONFIGURATION:")
-    logConfigDigitization.info(" -----> Luminosity = %s cm^-2 s^-1", jobproperties.Beam.estimatedLuminosity())
-    logConfigDigitization.info(" -----> Bunch Spacing = %s ns", digitizationFlags.bunchSpacing.get_Value())
+    fast_chain_log.info("PILEUP CONFIGURATION:")
+    fast_chain_log.info(" -----> Luminosity = %s cm^-2 s^-1", jobproperties.Beam.estimatedLuminosity())
+    fast_chain_log.info(" -----> Bunch Spacing = %s ns", digitizationFlags.bunchSpacing.get_Value())
 
 # in any case we need the PileUpMergeSvc for the digitize algos
 if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
@@ -1448,7 +1440,7 @@ if digitizationFlags.readSeedsFromFile.get_Value():
     rndmSvc.Seeds=[]
     rndmSvc.ReadFromFile=True
     rndmSvc.FileToRead=digitizationFlags.rndmSeedInputFile.get_Value()
-    logConfigDigitization.info("Random seeds for Digitization will be read from the file %s",digitizationFlags.rndmSeedInputFile.get_Value())
+    fast_chain_log.info("Random seeds for Digitization will be read from the file %s",digitizationFlags.rndmSeedInputFile.get_Value())
 
 # write out a summary of the time spent
 from AthenaCommon.AppMgr import theAuditorSvc
@@ -1470,7 +1462,7 @@ if not 'MemStatAuditor/MemStatAuditor' in theAuditorSvc.Auditors:
 
 #include("Digitization/ConfigDigitization.py")
 
-logDigitization_flags.info("Digitization Configured Successfully.")
+fast_chain_log.info("Digitization Configured Successfully.")
 
 #--------------------------------------------------------------
 # jobproperties should not be changed after this point
@@ -1494,7 +1486,7 @@ if DetFlags.writeRDOPool.any_on():
     streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True)
     streamRDO.ForceRead = True
     from Digitization.DigiOutput import getStreamRDO_ItemList
-    streamRDO.ItemList = getStreamRDO_ItemList(logDigitization_flags)
+    streamRDO.ItemList = getStreamRDO_ItemList(fast_chain_log)
     streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]
     streamRDO.OutputFile = athenaCommonFlags.PoolRDOOutput()
     if athenaCommonFlags.UseLZMA():
