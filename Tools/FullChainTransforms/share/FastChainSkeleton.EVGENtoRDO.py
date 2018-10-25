@@ -487,6 +487,15 @@ simFlags.EventFilter.set_Off()
 # --- metadata passed by the evgen stage (move earlier?)
 from ISF_Example.ISF_Metadata import checkForSpecialConfigurationMetadata
 checkForSpecialConfigurationMetadata()
+#--------------------------------------------------------------
+# Read Simulation MetaData (unless override flag set to True)
+#--------------------------------------------------------------
+#if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
+#    fast_chain_log.info("Skipping input file MetaData check.")
+#else :
+#    from Digitization.DigitizationReadMetaData import readHITSFileMetadata
+#    readHITSFileMetadata()
+
 
 # all det description
 include('ISF_Config/AllDet_detDescr.py')
@@ -689,14 +698,6 @@ if not simFlags.RandomSeedList.checkForExistingSeed('VERTEX'):
 simFlags.RandomSeedList.addtoService()
 simFlags.RandomSeedList.printSeeds()
 
-#--------------------------------------------------------------
-# Setup the ISF Output
-#--------------------------------------------------------------
-from ISF_Example.ISF_Output import ISF_HITSStream
-from ISF_Example.ISF_Metadata import createSimulationParametersMetadata, configureRunNumberOverrides
-createSimulationParametersMetadata()
-configureRunNumberOverrides()
-
 if ISF_Flags.HITSMergingRequired():
     topSequence += collection_merger_alg
 
@@ -773,6 +774,9 @@ if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+
+from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
+patch_mc_channel_numberMetadata()
 
 ## Increase max RDO output file size to 10 GB
 ## NB. We use 10GB since Athena complains that 15GB files are not supported
@@ -929,9 +933,6 @@ if hasattr(runArgs,"conditionsTag"):
 if hasattr(runArgs,"PileUpPremixing"):
     fast_chain_log.info("Doing pile-up premixing")
     digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
-
-### Avoid meta data reading
-digitizationFlags.overrideMetadata=['ALL']
 
 #--------------------------------------------------------------
 # Pileup configuration
@@ -1092,15 +1093,6 @@ fast_chain_log.info("Digitization jobProperties values:")
 digitizationFlags.print_JobProperties()
 
 #--------------------------------------------------------------
-# Read Simulation MetaData (unless override flag set to True)
-#--------------------------------------------------------------
-if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
-    fast_chain_log.info("Skipping input file MetaData check.")
-else :
-    from Digitization.DigitizationReadMetaData import readHITSFileMetadata
-    readHITSFileMetadata()
-
-#--------------------------------------------------------------
 # Configure the job using jobproperties
 #--------------------------------------------------------------
 
@@ -1111,6 +1103,9 @@ else :
 #check job configuration
 from Digitization.DigiConfigCheckers import checkDetFlagConfiguration
 checkDetFlagConfiguration()
+
+from FullChainTransforms.FastChainConfigCheckers import syncDigitizationAndSimulationJobProperties
+syncDigitizationAndSimulationJobProperties()
 
 #Pool input
 from AthenaCommon.AppMgr import ServiceMgr
@@ -1311,7 +1306,12 @@ if digitizationFlags.simRunNumber.statusOn or not digitizationFlags.dataRunNumbe
 #--------------------------------------------------------------
 # Write Digitization MetaData
 #--------------------------------------------------------------
-from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
+#--------------------------------------------------------------
+# Setup the ISF Output
+#--------------------------------------------------------------
+from ISF_Example.ISF_Output import ISF_HITSStream
+from FullChainTransforms.FastChainWriteMetadata import createSimulationParametersMetadata, writeDigitizationMetadata
+createSimulationParametersMetadata()
 writeDigitizationMetadata()
 
 #--------------------------------------------------------------
