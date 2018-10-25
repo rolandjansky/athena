@@ -387,7 +387,7 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
    m_persistencySvcVec.push_back( pool::IPersistencySvc::create(*m_catalog).release() );
    m_pers_mut.push_back(new CallMutex);
    if (!connect(pool::ITransaction::READ).isSuccess()) {
-      ATH_MSG_WARNIND("Failed to connect Input PersistencySvc: " << id);
+      ATH_MSG_WARNING("Failed to connect Input PersistencySvc: " << id);
       return(IPoolSvc::kInputStream);
    }
    if (!label.empty()) {
