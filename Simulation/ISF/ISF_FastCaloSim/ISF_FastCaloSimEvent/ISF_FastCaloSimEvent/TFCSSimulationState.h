@@ -12,10 +12,18 @@
 
 class CaloDetDescrElement;
 
+namespace CLHEP
+{
+ class HepRandomEngine;
+}
+
 class TFCSSimulationState:public TObject
 {
   public:
-    TFCSSimulationState();
+    TFCSSimulationState(CLHEP::HepRandomEngine* randomEngine = nullptr);
+
+    CLHEP::HepRandomEngine* randomEngine() { return m_randomEngine; }
+    void   setRandomEngine(CLHEP::HepRandomEngine *engine) { m_randomEngine = engine; }
 
     bool   is_valid() const {return m_Ebin>=0;};
     double E() const {return m_Etot;};
@@ -41,6 +49,8 @@ class TFCSSimulationState:public TObject
 
     void clear();
   private:
+    CLHEP::HepRandomEngine* m_randomEngine;
+      
     int    m_Ebin;
     double m_Etot;
     // TO BE CLEANED UP! SHOULD ONLY STORE EITHER E OR EFRAC!!!

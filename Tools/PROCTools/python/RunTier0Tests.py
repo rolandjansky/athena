@@ -25,6 +25,56 @@ formatter = logging.Formatter('%(levelname)-8s %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
+def RunCleanOTest(otest,input_file,bkg_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
+
+    if "maxEvents" not in extraArg:
+        extraArg += " --maxEvents=10 "
+
+    o=otest.split('-')[-1]
+    logging.info("Running clean in rel "+release)
+    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+
+    CleanDirName="clean_run_"+otest+"_"+UniqID
+
+    cmd = ( " mkdir -p " + CleanRunHeadDir +" ;" +
+            " cd "       + CleanRunHeadDir +" ;" +
+            " mkdir -p " + CleanDirName    +" ;" +
+            " cd "       + CleanDirName    +" ;" +
+            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
+            " Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1" )
+    subprocess.call(cmd,shell=True)
+
+    logging.info("Finished clean in rel "+release)
+    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    pass
+
+def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False):
+
+    if "maxEvents" not in extraArg:
+        extraArg += " --maxEvents=10 "
+
+    o=otest.split('-')[-1]
+    logging.info("Running patched in rel "+release)
+    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+
+    cmd = " cd "+pwd+" ;"
+    if nosetup:
+        pass
+    elif 'WorkDir_DIR' in os.environ:
+        cmake_build_dir = (os.environ['WorkDir_DIR'])
+        cmd += ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" +
+                 " source "+cmake_build_dir+"/setup.sh ;" )
+    else :
+        cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
+    cmd += " mkdir -p run_"+otest+"; cd run_"+otest+";"
+    cmd += " Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
+
+    subprocess.call(cmd,shell=True)
+
+    logging.info("Finished patched in rel "+release)
+    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    pass
+
 def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
 
     if "maxEvents" not in extraArg:
@@ -516,6 +566,12 @@ def main():
                       dest="sim_flag",
                       default=False,
                       help="sim will run the Sim_tf.py test")
+    parser.add_option("-o",
+                      "--overlay",
+                      action="store_true",
+                      dest="overlay_flag",
+                      default=False,
+                      help="overlay will run the Digi_tf.py overlay test")
     parser.add_option("-p",
                       "--patched",
                       action="store_true",
@@ -543,6 +599,7 @@ def main():
         extraArg = options.extraArgs
 
     RunSim          = options.sim_flag
+    RunOverlay      = options.overlay_flag
     RunFast         = options.fast_flag
     RunPatchedOnly  = options.patched_flag
     CleanRunHeadDir = options.cleanDir
@@ -612,6 +669,10 @@ def main():
             qTestsToRun = { 
             's3126':[ 'EVNTtoHITS' ]
             }
+        elif RunOverlay:
+            qTestsToRun = {
+            'overlay-r10767':[ 'OverlayPool' ]
+            }
         elif r2aMode:
             qTestsToRun = { 
             'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
@@ -648,6 +709,8 @@ def main():
         logging.info("------------------ Run Athena q-test jobs---------------"                )
 
         sim_input_file = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root" # For sim test
+        overlay_hit_f  = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.424000.ParticleGun_single_mu_Pt100.simul.HITS.e3580_s3126/HITS.11330296._000376.pool.root.1" # For overlay test
+        overlay_bkg_f  = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/RDO.merged-pileup.100events.pool.root" # For overlay test
 
         if RunFast:
             for qtest in qTestsToRun:
@@ -656,6 +719,8 @@ def main():
                 def mycleanqtest(q=q):
                     if RunSim:
                         RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                    elif RunOverlay:
+                        RunCleanOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
@@ -663,6 +728,8 @@ def main():
                 def mypatchedqtest(q=q):
                     if RunSim:
                         RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                    elif RunOverlay:
+                        RunPatchedOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg)
                     else:
                         RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
@@ -683,6 +750,8 @@ def main():
                 def mypatchedqtest(q=q):
                     if RunSim:
                         RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
+                    elif RunOverlay:
+                        RunPatchedOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
                         RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config, nosetup=ciMode)
                     pass
@@ -702,6 +771,8 @@ def main():
                 def mycleanqtest(q=q):
                     if RunSim:
                         RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                    elif RunOverlay:
+                        RunCleanOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,trigConfig=trigRun2Config)
                     pass
@@ -709,6 +780,8 @@ def main():
                 def mypatchedqtest(q=q):
                     if RunSim:
                         RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                    elif RunOverlay:
+                        RunPatchedOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg)
                     else:   
                         RunPatchedQTest(q,mypwd,mysetup,extraArg,trigConfig=trigRun2Config)
                     pass
@@ -738,6 +811,9 @@ def main():
 
             if RunSim:
                 if not RunFrozenTier0PolicyTest(q,"HITS",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                    All_Tests_Passed = False
+            elif RunOverlay:
+                if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
             else:
                 if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):

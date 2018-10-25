@@ -28,10 +28,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 
-
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
-
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -143,7 +139,14 @@ StatusCode ISF::FastCaloSimSvcV2::setupEvent()
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerToolsSetup.end();
   for (; itrTool != endTool; ++itrTool)
   {
+    std::string chronoName=this->name()+"_"+ itrTool->name();
+    if (m_chrono) m_chrono->chronoStart(chronoName);
     StatusCode sc = (*itrTool)->process(m_theContainer);
+    if (m_chrono) {
+      m_chrono->chronoStop(chronoName);
+      ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER) * CLHEP::microsecond / CLHEP::second << " second " );
+    }
+
     if (sc.isFailure())
     {
       ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
@@ -185,28 +188,26 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 {
 
   ATH_MSG_VERBOSE("NEW PARTICLE! FastCaloSimSvcV2 called with ISFParticle: " << isfp);
-
-  int pdgid = fabs(isfp.pdgCode());
-  
-  //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
-  // float eta_isfp = particle_position.eta();  
-  // float phi_isfp = particle_position.phi();  
-
+ 
   Amg::Vector3D particle_position =  isfp.position();  
   
+  
+   //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
+  // float eta_isfp = particle_position.eta();  
+  // float phi_isfp = particle_position.phi(); 
 
-  if(!(pdgid==22 || pdgid==11))
-  {
-    ATH_MSG_VERBOSE("ISF particle has pdgid "<<pdgid<<", that's not supported yet");
-    return StatusCode::SUCCESS; 
-  } 
+  //Don't simulate particles with total energy below 10 MeV
+  if(isfp.ekin() < 10) {
+    ATH_MSG_VERBOSE("Skipping particle with Ekin: " << isfp.ekin() <<" MeV. Below the 10 MeV threshold.");
+    return StatusCode::SUCCESS;
+  }
 
-  TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(pow(isfp.ekin(),2)+pow(isfp.mass(),2)),isfp.pdgCode());
+  TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   TFCSExtrapolationState extrapol;
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
-  TFCSSimulationState simulstate;
+  TFCSSimulationState simulstate(m_randomEngine);
 
   FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);
   if (status != FCSSuccess) {
@@ -214,9 +215,9 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   }
 
   ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
-  ATH_MSG_DEBUG("Energy fraction for layer: ");
+  ATH_MSG_VERBOSE("Energy fraction for layer: ");
   for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-  ATH_MSG_DEBUG(" Sampling " << s << " energy " << simulstate.E(s));
+  ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
 
   //Now deposit all cell energies into the CaloCellContainer
   for(const auto& iter : simulstate.cells()) {

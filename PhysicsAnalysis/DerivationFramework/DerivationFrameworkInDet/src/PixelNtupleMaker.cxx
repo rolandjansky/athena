@@ -197,12 +197,18 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
 
                 int eta = (*clus_itr)->auxdata<std::vector<int>>("rdo_eta_pixel_index")[i];
                 if ((*clus_itr)->auxdata<int>("layer")==0 && (*clus_itr)->auxdata<int>("bec")==0) {  // IBL
-                  if (eta<5)  { checkEdge=true; }
-                  if (eta>70) { checkEdge=true; }
+                  if ((*clus_itr)->auxdata<int>("eta_module")>-7 && (*clus_itr)->auxdata<int>("eta_module")<6) { // IBL Planar                                                       
+                    if (eta<5)   { checkEdge=true; }
+                    if (eta>154) { checkEdge=true; }
+                  }
+                  else {  // IBL 3D
+                    if (eta<5)  { checkEdge=true; }
+                    if (eta>74) { checkEdge=true; }
+                  }
                 }
                 else {
-                  if (eta<5)  { checkEdge=true; }
-                  if (eta>140) { checkEdge=true; }
+                  if (eta<5)   { checkEdge=true; }
+                  if (eta>154) { checkEdge=true; }
                 }
 
                 int tot = (*clus_itr)->auxdata<std::vector<int>>("rdo_tot")[i];
