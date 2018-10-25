@@ -13,6 +13,7 @@
 // AUTHOR:   Amanda Camacho  (largely based on TileTMDBDigitsMonTool.cxx)
 //
 // TODO
+// -- Fix TileCondToolTMDB automatic calibration
 // -- Add flags "isPhysics" and "isPedestal"
 //
 // ********************************************************************
@@ -318,6 +319,9 @@ StatusCode TileTMDBMonTool::fillHistograms()
                 }
                 
                 int rosdrawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
+                // FIXME: Automatic calibration is not correct (as of 9/10/18)! Must change coeficients in channelCalib function
+                // double noise_MeV = m_tileToolTMDB->channelCalib(rosdrawerIdx, chName, energy);
                 
                 float a, b;
                 m_tileToolTMDB->getCalib(rosdrawerIdx, chName, a, b);
