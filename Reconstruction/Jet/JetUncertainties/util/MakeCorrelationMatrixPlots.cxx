@@ -14,6 +14,7 @@
 #include "TFile.h"
 
 #include <vector>
+#include <limits>
 
 const double fixedRangeDiff = 0;
 const bool addExtremumInfo = true;
@@ -219,7 +220,11 @@ void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vec
                 }
             }
         //meanDiff /= histo->GetNbinsX()*histo->GetNbinsY();
-        meanDiff /= numValidBins;
+        if (numValidBins !=0){
+          meanDiff /= numValidBins;
+        } else {
+          meanDiff = std::numeric_limits<double>::max();
+        }
         
         // Set the range to the maximum (rounded up to nearest multiple of 5) if requested
         if (fixedRangeDiff < 1.e-3)
