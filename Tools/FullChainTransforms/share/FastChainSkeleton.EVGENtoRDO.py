@@ -349,10 +349,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
         not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
-# Avoid command line preInclude for event service
-if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
-
 from ISF_Config.ISF_jobProperties import ISF_Flags
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
@@ -820,10 +816,6 @@ if hasattr(runArgs, "postSimExec"):
 #                                                                    #
 ######################################################################
 #from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
-
-# Avoid command line preInclude for event service
-if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
 
 ## autoConfiguration keywords triggering pre-defined functions
 ## if hasattr(runArgs,"autoConfiguration"):
