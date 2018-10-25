@@ -1,12 +1,12 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import DEBUG
+from AthenaCommon.Constants import DEBUG, INFO
 
-def RpcRawDataDecodeConfig(flags):
+def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # We need the RPC cabling to be setup
-    from MuonConfig.MuonCablingConfig import RPCCablingConfig
-    acc.merge( RPCCablingConfig(flags)[0] )
+    from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
+    acc.merge( RPCCablingConfigCfg(flags)[0] )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -24,21 +24,23 @@ def RpcRawDataDecodeConfig(flags):
     # Setup the RAW data provider tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
-                                                               Decoder = RPCRodDecoder, OutputLevel=DEBUG )
+                                                               Decoder = RPCRodDecoder )
     
     # Setup the RAW data provider algorithm
     from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
     RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
                                                   ProviderTool = MuonRpcRawDataProviderTool )
 
-    
-    acc.addEventAlgo( RpcRawDataProvider )
+    if forTrigger:
+        # Configure the RAW data provider for ROI access
+        RpcRawDataProvider.DoSeededDecoding = True
+        RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
 
-    return acc
+    return acc, RpcRawDataProvider
 
 if __name__=="__main__":
     # To run this, do e.g. 
-    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonRpcDataDecodeConfig.py
+    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonBytestreamDecodeCfg.py
 
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -53,38 +55,20 @@ if __name__=="__main__":
     ConfigFlags.dump()
 
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG, INFO
 
     log.setLevel(DEBUG)
     log.info('About to setup Rpc Raw data decoding')
 
     cfg=ComponentAccumulator()
     
-    nThreads=1
-    
-    from StoreGate.StoreGateConf import SG__HiveMgrSvc
-    eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
-    eventDataSvc.NSlots = nThreads
-    eventDataSvc.OutputLevel = DEBUG
-    cfg.addService( eventDataSvc )
-    
-    from SGComps.SGCompsConf import SGInputLoader
-    inputLoader = SGInputLoader(DetStore = 'StoreGateSvc/DetectorStore',
-                                EvtStore = 'StoreGateSvc',
-                                ExtraInputs = [],
-                                ExtraOutputs = [],
-                                FailIfNoProxy = False,
-                                Load = [],
-                            NeededResources = [])
-    
-    cfg.addEventAlgo( inputLoader)
-    
     # Seem to need this to read BS properly
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
-    # Schedule Rpc data decoding
-    cfg.merge( RpcRawDataDecodeConfig( ConfigFlags ) )
+    # Schedule Rpc data decoding - once mergeAll is working can simplify these lines
+    rpcdecodingAcc, rpcdecodingAlg = RpcBytestreamDecodeCfg( ConfigFlags ) 
+    cfg.merge( rpcdecodingAcc )
+    cfg.addEventAlgo( rpcdecodingAlg )
 
     # Need to add POOL converter  - may be a better way of doing this?
     from AthenaCommon import CfgMgr
@@ -96,7 +80,7 @@ if __name__=="__main__":
 
     # Store config as pickle
     log.info('Save Config')
-    with open('MuonRpcDataDecode.pkl','w') as f:
+    with open('MuonBytestreamDecode.pkl','w') as f:
         cfg.store(f)
         f.close()
 

@@ -29,10 +29,11 @@ def RPCCablingConfigCfg(flags):
     rpcCablingSvc.CosmicConfiguration     = True  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
+    dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
     acc.merge(addFolders(flags, 
-                   [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI', 
-                     '/RPC/TRIGGER/CM_THR_PHI', '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ], 
-                   'RPC' ))
+                   [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI', 
+                     '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ], 
+                   dbName ))
 
     # that should not be here???
     acc.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps']
