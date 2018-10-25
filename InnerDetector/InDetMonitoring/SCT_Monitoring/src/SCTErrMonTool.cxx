@@ -201,8 +201,8 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_rangeEta( 2.5 ),
   m_nBinsPhi( 100 ),
   m_WafersThreshold( 3.0 ),
-  m_detectorCoverageVsLB{nullptr},
-  m_pstripWaferVsLB{}{
+  m_detectorCoverageVsLbs{nullptr},
+  m_PSTripModulesVsLbs{}{
     /**
      *  sroe 3 Sept 2015:
      *  histoPathBase is declared as a property in the base class, assigned to m_path
@@ -459,29 +459,29 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 
   if (ManagedMonitorToolBase::newRunFlag()){
 
-    //all
-    m_mapSCT[all]   = new TH2F( "allModulesMapSCT", "Map of all modules for SCT",
+    //All
+    m_mapSCT[all]   = new TH2F( "SCT_AllRegion", "Map of All Region",
 				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     //Disabled
-    m_mapSCT[disabled]   = new TH2F( "disabledModulesMapSCT", "Map of disabled modules for SCT",
+    m_mapSCT[disabled]   = new TH2F( "SCT_MapOfDisabledLinks", "Map of Disabled Links",
     				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //Link Bad                                                                                        
-    m_mapSCT[badLinkError]   = new TH2F( "errorModulesMapSCTlink", "Map of link error modules for SCT",
+    //Bad Link Level Error                                                                                       
+    m_mapSCT[badLinkError]   = new TH2F( "SCT_MapOfLinksWithBadLinkLevelErrors", "Map of Links with bad LinkLevelErrors",
 					 m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //ROD Bad
-    m_mapSCT[badRODError]   = new TH2F( "errorModulesMapSCTrod", "Map of rod error modules for SCT",
+    //Bad ROD Level Error
+    m_mapSCT[badRODError]   = new TH2F( "SCT_MapOfLinksWithBadRODLevelErrors", "Map of Links with Bad RODLevelErrors",
 					m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     //Bad Error
-    m_mapSCT[badError]   = new TH2F( "errorModulesMapSCT", "Map of bad error modules for SCT",
+    m_mapSCT[badError]   = new TH2F( "SCT_MapOfLinksWithBadErrors", "Map of Links with Bad Errors",
 				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //pstrip DCS
-    m_mapSCT[psTripDCS]  = new TH2F( "pstripDCSModulesMapSCT", "Map of PS trip modules for SCT",
+    //PS Trip (DCS)
+    m_mapSCT[psTripDCS]  = new TH2F( "SCT_MapOfLinksWithPSTrip", "Map of Links Affected by PS Trip",
 				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //total
-    m_mapSCT[summary]   = new TH2F( "summaryModulesMapSCT", "Map of all error and disabled modules for SCT",
+    //Total (Summary)
+    m_mapSCT[summary]   = new TH2F( "SCT_MapOfLinksWithAnyProbelm", "Map of Links with Any Bad Problem",
 				    m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     
-    //detector coverage vs lh
+    //Detector Coverage vs LumiBlock
     for (int iProblem=0; iProblem<numberOfProblemForCoverage ; iProblem++)
       {
 	m_mapSCT[iProblem]->GetXaxis()->SetTitle("#eta");
@@ -491,41 +491,41 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
       }
 
     std::string profNames[numberOfProblemForCoverage] = {
-      "", // all
-      "SCTDisabledDetectorCoverageVsLbs", // disabled
-      "SCTLinkDetectorCoverageVsLbs", // badLinkError
-      "SCTRODoutDetectorCoverageVsLbs", // badRODError
-      "SCTErrorDetectorCoverageVsLbs", // badError
-      "SCTPStripDCSDetectorCoverageVsLbs", // psTripDCS
-      "SCTsummaryDetectorCoverageVsLbs" // summary
+      "", // All
+      "SCT_CoverageOfEnabledLinksVsLbs", // All - Disabled
+      "SCT_CoverageWithNoBadLinkLevelErrorVsLbs", // All - BadLinkLevelError
+      "SCT_CoverageWithNoBadRODLevelErrorVsLbs", // All - BadRODLevelError
+      "SCT_CoverageWithNoBadErrorVsLbs", // All - BadError
+      "SCT_CoverageWithNoPSTripVsLbs", // All - PSTrip(DCS)
+      "SCT_CoverageOfLinksWithNoBadProblemVsLbs" // All - Summary
     };
     std::string profTitles[numberOfProblemForCoverage] = {
-      "", // all
-      "Ave. Disabled detector coverage per event in Lumi Block", // disabled
-      "Ave. Link error detector coverage per event in Lumi Block", // badLinkError
-      "Ave. ROD OUT detector coverage per event in Lumi Block", // badRODError
-      "Ave. Bad error detector coverage per event in Lumi Block", // badError
-      "Ave. PS trip detector coverage per event in Lumi Block <DCS>", //psTripDCS
-      "Ave. total detector coverage per event in Lumi Block" //summary
+      "", // All
+      "Ave. Coverage of Enabled Links per LB", // All - Disabled
+      "Ave. Coverage of Links with No Bad LinkLevelError per LB", // All - BadLinkLevelError
+      "Ave. Coverage of Links with No Bad RODLevelError per LB", // All - BadRODLevelError
+      "Ave. Coverage of Links with No Bad Error per LB", // All - BadError
+      "Ave. Coverage of links Not Affected by PS Trip", // All - PSTrip(DCS)
+      "Ave. Coverage of Links With No Bad Problem per LB" // All - Summary
     };
     for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++) {
       if (iProblem==all) continue;
 
-      m_detectorCoverageVsLB[iProblem] = new TProfile(profNames[iProblem].c_str(), profTitles[iProblem].c_str(), NBINS_LBs,0.5,NBINS_LBs+0.5);
-      m_detectorCoverageVsLB[iProblem]->GetXaxis()->SetTitle("LumiBlock");
-      m_detectorCoverageVsLB[iProblem]->GetYaxis()->SetTitle("Total Detector Coverage [%]");
-      if (monGr_shift.regHist(m_detectorCoverageVsLB[iProblem]).isFailure()) {
+      m_detectorCoverageVsLbs[iProblem] = new TProfile(profNames[iProblem].c_str(), profTitles[iProblem].c_str(), NBINS_LBs,0.5,NBINS_LBs+0.5);
+      m_detectorCoverageVsLbs[iProblem]->GetXaxis()->SetTitle("LumiBlock");
+      m_detectorCoverageVsLbs[iProblem]->GetYaxis()->SetTitle("Detector Coverage [%]");
+      if (monGr_shift.regHist(m_detectorCoverageVsLbs[iProblem]).isFailure()) {
 	ATH_MSG_WARNING("Cannot book " << profNames[iProblem] << ", " << profTitles[iProblem]);
       }
     }
 
-    //ps trip number of wafer vs lb
-    m_pstripWaferVsLB = new TProfile("SCTNumOfPStripWaferVsLbs",
-				     "Ave. Num. of PS trip wafer per event in Lumi Block",
+    //Number of Modules affected by PS Trip vs LumiBlock
+    m_PSTripModulesVsLbs = new TProfile("SCT_ModulesWithPSTripVsLbs",
+				     "Ave. Num of Modules Affected by PS Trip per LB in All Region",
 				     NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_pstripWaferVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_pstripWaferVsLB->GetYaxis()->SetTitle("Num. of PS trip wafer");
-    if ( monGr_shift.regHist(m_pstripWaferVsLB).isFailure() ){
+    m_PSTripModulesVsLbs->GetXaxis()->SetTitle("LumiBlock");
+    m_PSTripModulesVsLbs->GetYaxis()->SetTitle("Num. of Modules Affected by PS Trip");
+    if ( monGr_shift.regHist(m_PSTripModulesVsLbs).isFailure() ){
       ATH_MSG_WARNING("Cannot book Histogram:SCTpstripWafer" );
     }
   }
@@ -996,13 +996,13 @@ SCTErrMonTool::fillByteStreamErrors() {
       if (iProblem==all) continue;
 
     double detector_coverage = calculateDetectorCoverage(m_mapSCT[iProblem]);
-    m_detectorCoverageVsLB[iProblem]->Fill(static_cast<double>(current_lb), detector_coverage);
-    double good_detector_coverage = m_detectorCoverageVsLB[iProblem]->GetBinContent(current_lb);
+    m_detectorCoverageVsLbs[iProblem]->Fill(static_cast<double>(current_lb), detector_coverage);
+    double good_detector_coverage = m_detectorCoverageVsLbs[iProblem]->GetBinContent(current_lb);
     ATH_MSG_INFO("Detector Coverage : " << good_detector_coverage);
     }
 
-    //PStirp Wafer
-    m_pstripWaferVsLB ->Fill(static_cast<double>(current_lb), m_pswafer);
+    //Modules affected by PS Tirp
+    m_PSTripModulesVsLbs ->Fill(static_cast<double>(current_lb), m_PSTripModules);
     
   }
 
@@ -2031,57 +2031,7 @@ void SCTErrMonTool::fillWafer( moduleGeo_t module, TH2F * histo )
       }
     }
   }
-  // unsigned int lowX  = 0;
-  // unsigned int highX = 0;
-  // unsigned int lowY  = 0;
-  // unsigned int highY = 0;
-  // double area = 0.;
 
-  // double widthEta = 2. * m_rangeEta / m_nBinsEta;
-  // double widthPhi = 2. * M_PI / m_nBinsPhi;
-
-  // double edgesEta[100], centerEta[100],
-  //   edgesPhi[100], centerPhi[100];
-
-  // histo->GetXaxis()->GetLowEdge(edgesEta); 
-  // histo->GetXaxis()->GetCenter(centerEta); 
-  // histo->GetYaxis()->GetLowEdge(edgesPhi); 
-  // histo->GetYaxis()->GetCenter(centerPhi); 
-  // for ( unsigned int i = 0; i < m_nBinsEta; i++)
-  //   if ( edgesEta[i] + widthEta > module.first.first )
-  //     {
-  // 	lowX = i;
-  // 	break;
-  //     }
-  // for ( unsigned int i = lowX; i < m_nBinsEta; i++)
-  //   if ( edgesEta[i] > module.first.second )
-  //     {
-  // 	highX = i;
-  // 	break;
-  //     }
-  // for ( unsigned int i = 0; i < m_nBinsPhi; i++)
-  //   if ( edgesPhi[i] + widthPhi > module.second.first )
-  //     {
-  // 	lowY = i;
-  // 	break;
-  //     }
-  // for ( unsigned int i = lowY; i < m_nBinsPhi; i++)
-  //   if ( edgesPhi[i] > module.second.second )
-  //     {
-  // 	highY = i;
-  // 	break;
-  //     }
-  // for ( unsigned int i = lowX; i < highX; i++ ){
-  //   for ( unsigned int j = lowY; j < highY; j++ ){
-  //     area = (
-  // 	      ((( module.first.second < edgesEta[i] + widthEta ) ? module.first.second : (edgesEta[i] + widthEta) )  - 
-  // 	       ( ( module.first.first > edgesEta[i] ) ? module.first.first : edgesEta[i] ) ) *
-  // 	      ((( module.second.second < edgesPhi[j] + widthPhi ) ? module.second.second : (edgesPhi[j] + widthPhi) )  - 
-  // 	       ( ( module.second.first > edgesPhi[j] ) ? module.second.first : edgesPhi[j] ) ) 
-  // 	      ) /  ( widthEta * widthPhi ); 
-  //     histo->Fill( centerEta[i], centerPhi[j], area );
-  //   }
-  //  }
   return;
 }
 
@@ -2094,7 +2044,7 @@ bool SCTErrMonTool::syncErrorSCT()
   m_SCTHash[badRODError].clear();
   m_SCTHash[badError].clear();
  
-  ///Link Bad
+  ///Bad Link Error
   for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors)
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( linkLevelBadErrors );
@@ -2104,7 +2054,7 @@ bool SCTErrMonTool::syncErrorSCT()
 	}
     }
 
-  ///ROD Bad                                                                                                       
+  ///Bad ROD Error                                  
   for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors)
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( RodLevelBadErrors );
@@ -2115,7 +2065,7 @@ bool SCTErrMonTool::syncErrorSCT()
 	}
     }
 
-  ///Bad Error = ROD bad + Link bad
+  ///Bad Error = Bad Link + Bad ROD
   for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors)       
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( tmpBadError );
@@ -2126,7 +2076,6 @@ bool SCTErrMonTool::syncErrorSCT()
     }
  return true;
 }
-
 
 bool SCTErrMonTool::syncDisabledSCT()
 {
@@ -2181,7 +2130,7 @@ bool SCTErrMonTool::psTripDCSSCT()
 	      m_SCTHash[psTripDCS].insert(hash);
         }
     }
-  m_pswafer = npsw;
+  m_PSTripModules = npsw/2;
   return altered;
 }
 

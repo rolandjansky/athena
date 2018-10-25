@@ -273,12 +273,12 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
   enum ProblemForCoverage {
-    all,//all SCT module for counting good module
+    all,//All SCT module for counting good module
     disabled,//Disable
-    badLinkError, //link bad
-    badRODError, // ROD bad
-    badError, // link bad + ROD bad = bad error
-    psTripDCS, // power supply trip DCS
+    badLinkError, //Bad LinkLevelError
+    badRODError, //Bad RODLevelError
+    badError, //Bad Error (Link+ROD)
+    psTripDCS, //power supply trip (DCS)
     summary, //total coverage using SCT_ConditionsSummarySvc
     numberOfProblemForCoverage
   };
@@ -292,10 +292,10 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const unsigned int m_nBinsPhi;
   const double m_WafersThreshold;
 
-  TProfile * m_detectorCoverageVsLB[numberOfProblemForCoverage];
-  TProfile * m_pstripWaferVsLB;
+  TProfile * m_detectorCoverageVsLbs[numberOfProblemForCoverage];
+  TProfile * m_PSTripModulesVsLbs;
 
-  int  m_pswafer;
+  float m_PSTripModules;
 };
 
 #endif
