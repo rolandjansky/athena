@@ -36,7 +36,7 @@ class LArHVData {
     float weight; 
   }; 
 
-  const std::set<Identifier>& getUpdatedCells();
+  const std::set<Identifier>& getUpdatedCells() const;
 
   /** brief  Given a Offline Readout ID, return values of HV and Weight 
    */
@@ -56,7 +56,7 @@ class LArHVData {
 };
 
 inline 
-const std::set<Identifier>&  LArHVData::getUpdatedCells() { 
+const std::set<Identifier>&  LArHVData::getUpdatedCells() const { 
    return m_updatedCells;
 }
 

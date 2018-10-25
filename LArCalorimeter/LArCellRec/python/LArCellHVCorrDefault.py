@@ -18,6 +18,6 @@ def LArCellHVCorrDefault(name="LArCellHVCorrDefault"):
     from LArCellRec.LArCellRecConf import LArCellHVCorr
     theLArCellHVCorr = LArCellHVCorr(name)
     theLArCellHVCorr.HVCorrTool = theLArHVCorrTool
-    
+
     svcMgr.ToolSvc += theLArCellHVCorr
     return theLArCellHVCorr

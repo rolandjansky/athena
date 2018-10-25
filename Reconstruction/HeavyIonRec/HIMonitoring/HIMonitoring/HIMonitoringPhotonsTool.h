@@ -5,28 +5,12 @@
 #ifndef HIMONITORINGPHOTONSTOOL_H
 #define HIMONITORINGPHOTONSTOOL_H
 
-#include <vector>
-#include <string>
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TRandom3.h"
 
-#include <xAODHIEvent/HIEventShape.h>
-#include <xAODHIEvent/HIEventShapeContainer.h>
-
-#include <xAODEgamma/Photon.h>
-#include <xAODEgamma/PhotonContainer.h>
-
-#include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
-
-class TH1;
-class TGraph;
-class TTree;
 class TH1D;
-//class TH1D_LW;
 class TH2D_LW;
-class TProfile_LW;
+class AsgPhotonIsEMSelector;
 
 class HIMonitoringPhotonsTool : public ManagedMonitorToolBase
 {

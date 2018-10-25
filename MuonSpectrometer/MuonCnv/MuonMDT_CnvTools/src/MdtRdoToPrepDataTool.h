@@ -75,8 +75,7 @@ namespace Muon
       
     /** Decode method - declared in Muon::IMuonRdoToPrepDataTool*/
     StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
-    //new decode methods for Rob based readout
-    StatusCode decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs );
+    //new decode method for Rob based readout
     StatusCode decode( const std::vector<uint32_t>& robIds );
      
     StatusCode processCsm(const MdtCsm *rdoColl, std::vector<IdentifierHash>& idWithDataVect);
@@ -102,7 +101,10 @@ namespace Muon
     enum SetupMdtPrepDataContainerStatus {
       FAILED = 0, ADDED, ALREADYCONTAINED
     };
-    
+
+    // decode method for Rob based readout
+    StatusCode decode( const std::vector<IdentifierHash>& chamberHashInRobs );
+
     SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer();
 
     void processRDOContainer( std::vector<IdentifierHash>& idWithDataVect );
@@ -136,10 +138,7 @@ namespace Muon
     bool m_decodeData; //!< toggle on/off the decoding of MDT RDO into MdtPrepData
     bool m_sortPrepData; //!< Toggle on/off the sorting of the MdtPrepData
 
-    bool m_useBStoRdoTool;
 
-    // handle tp the MDT_RawDataProviderTool
-    ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
     ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder;
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
     

@@ -5,22 +5,15 @@
 #ifndef HIMONITORINGEVENTSHAPETOOL_H
 #define HIMONITORINGEVENTSHAPETOOL_H
 
-#include <vector>
-#include <string>
+
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TRandom3.h"
 
-#include <xAODHIEvent/HIEventShape.h>
 #include <xAODHIEvent/HIEventShapeContainer.h>
-#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
-#include "xAODTrigMinBias/TrigT2ZdcSignalsAuxContainer.h"
+
 #include "xAODTrigMinBias/TrigT2ZdcSignalsContainer.h"
 
 
-class TH1;
-class TGraph;
-class TTree;
 class TH1D;
 class TH1D_LW;
 class TH2D_LW;
@@ -69,7 +62,7 @@ class HIMonitoringEventShapeTool : public ManagedMonitorToolBase
 	  static const int s_num_of_eta_bins = 100; 
 	    
 	        
-          const std::string m_side_id[2] = { "A", "C" };
+    const std::string m_side_id[2] = { "A", "C" };
 	  const std::string m_sqn_num[s_num_of_harm] = {"1","2","3","4","5","6","7"};    
 	    
 	  double m_FCalEt; 
@@ -98,30 +91,30 @@ class HIMonitoringEventShapeTool : public ManagedMonitorToolBase
 	   
       /// histograms 
     
-      TH1D* m_h_FCalEt; 
-	  TH1D* m_h_FCalEt_sides[2];
-      TProfile_LW* m_h_FCalEt_vs_eta; 
-	  TH2D_LW* m_h_FCalEt_A_vs_C; 
+    TH1D* m_h_FCalEt{}; 
+	  TH1D* m_h_FCalEt_sides[2]{};
+    TProfile_LW* m_h_FCalEt_vs_eta{}; 
+	  TH2D_LW* m_h_FCalEt_A_vs_C{}; 
 	  
-	  TProfile_LW* m_h_qnx_vs_FCalEt[s_num_of_harm];
-	  TProfile_LW* m_h_qny_vs_FCalEt[s_num_of_harm];
-	  TH2D_LW* m_h_qn_vs_FCalEt[s_num_of_harm]; 
+	  TProfile_LW* m_h_qnx_vs_FCalEt[s_num_of_harm]{};
+	  TProfile_LW* m_h_qny_vs_FCalEt[s_num_of_harm]{};
+	  TH2D_LW* m_h_qn_vs_FCalEt[s_num_of_harm]{}; 
 	  
-	  TProfile_LW* m_h_qnx_A_vs_FCalEt[s_num_of_harm];
-	  TProfile_LW* m_h_qny_A_vs_FCalEt[s_num_of_harm];
-	  TProfile_LW* m_h_qnx_C_vs_FCalEt[s_num_of_harm];
-	  TProfile_LW* m_h_qny_C_vs_FCalEt[s_num_of_harm];
+	  TProfile_LW* m_h_qnx_A_vs_FCalEt[s_num_of_harm]{};
+	  TProfile_LW* m_h_qny_A_vs_FCalEt[s_num_of_harm]{};
+	  TProfile_LW* m_h_qnx_C_vs_FCalEt[s_num_of_harm]{};
+	  TProfile_LW* m_h_qny_C_vs_FCalEt[s_num_of_harm]{};
 	  
-	  TProfile_LW* m_h_qnx_vs_eta[s_num_of_harm];
-	  TProfile_LW* m_h_qny_vs_eta[s_num_of_harm];
+	  TProfile_LW* m_h_qnx_vs_eta[s_num_of_harm]{};
+	  TProfile_LW* m_h_qny_vs_eta[s_num_of_harm]{};
 	  
-	  TH2D_LW* m_h_psin_A_vs_FCalEt[s_num_of_harm]; 
-	  TH2D_LW* m_h_psin_C_vs_FCalEt[s_num_of_harm]; 
-	  TH2D_LW* m_h_psin_ACdiff_vs_FCalEt[s_num_of_harm]; 
-	  TProfile_LW* m_h_psin_R_vs_FCalEt[s_num_of_harm]; 
+	  TH2D_LW* m_h_psin_A_vs_FCalEt[s_num_of_harm]{}; 
+	  TH2D_LW* m_h_psin_C_vs_FCalEt[s_num_of_harm]{}; 
+	  TH2D_LW* m_h_psin_ACdiff_vs_FCalEt[s_num_of_harm]{}; 
+	  TProfile_LW* m_h_psin_R_vs_FCalEt[s_num_of_harm]{}; 
 	  
-	  TH2D_LW* m_h_FCalEt_vs_ZDC_HG;
-	  TH2D_LW* m_h_FCalEt_vs_ZDC_LG;  
+	  TH2D_LW* m_h_FCalEt_vs_ZDC_HG{};
+	  TH2D_LW* m_h_FCalEt_vs_ZDC_LG{};  
 	  
 	  /// histograms ranges and bining 
 	  int m_FCalEt_nbins; 

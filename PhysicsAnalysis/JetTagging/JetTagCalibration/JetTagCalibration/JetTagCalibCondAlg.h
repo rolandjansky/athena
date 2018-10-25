@@ -68,7 +68,6 @@ class JetTagCalibCondAlg : public AthAlgorithm {
   std::vector<std::string> tokenize(std::string str, std::string delim);
   void smoothAndNormalizeHistogram(TObject*& h, const std::string& hname);
   void smoothASH2D(TH2* input2D, int m1, int m2); 
-  
   void initializeIPTag();
   void initializeIP2D();
   void initializeIP3D();
@@ -123,6 +122,9 @@ class JetTagCalibCondAlg : public AthAlgorithm {
   std::string m_JetFitterNN_calibrationSubDirectory;
   bool m_JetFitterNN_useCombinedIPNN;
   int m_JetFitterNN_maximumRegisteredLayers;
+
+  //for DL1Tag
+  std::string m_DL1_file_name; // directory of DL1 NN calibration (starting from specific jet collection directory) in COOL db
 
   //for RNNIP
   // Initalize with a config name and path to a network If the
