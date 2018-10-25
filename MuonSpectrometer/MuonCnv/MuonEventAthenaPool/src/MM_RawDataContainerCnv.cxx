@@ -20,8 +20,6 @@ StatusCode MM_RawDataContainerCnv::initialize() {
   if( !MM_RawDataContainerCnvBase::initialize().isSuccess() )
     return StatusCode::FAILURE;  
     
-  //msgSvc()->setOutputLevel( "MM_RawDataContainerCnv", MSG::DEBUG );
-
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "MM_RawDataContainerCnv");
   if (log.level() <= MSG::INFO) log << MSG::INFO << "MM_RawDataContainerCnv::initialize()" << endmsg;
