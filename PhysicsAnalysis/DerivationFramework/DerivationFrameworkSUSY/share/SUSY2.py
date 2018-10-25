@@ -36,8 +36,12 @@ DerivationFrameworkJob += SeqSUSY2
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-from DerivationFrameworkSUSY.SUSY2TriggerList import triggersNavThin
+
+from DerivationFrameworkSUSY.SUSY2TriggerList import LeptonTriggers, PhotonTriggers
+triggersNavThin = LeptonTriggers + PhotonTriggers
 SUSY2ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
+#from DerivationFrameworkSUSY.SUSY2TriggerList import triggersNavThin
+#SUSY2ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
 
 SUSY2ThinningHelper.AppendToStream( SUSY2Stream )
 
@@ -188,15 +192,29 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 muonsRequirements = '(Muons.pt >= 9.0*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 9.0*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
+photonRequirements = '(DFCommonPhotons_et > 40*GeV) && (abs(DFCommonPhotons_eta) < 2.6) && (Photons.DFCommonPhotonsIsEMTight)'
+TightMuRequirements = '(Muons.pt >= 25.0*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
+TightEleRequirements = '(Electrons.pt >= 25.0*GeV) && (abs(Electrons.eta) < 2.6) &&((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
+
+
 objectSelection = 'count('+electronsRequirements+') + count('+muonsRequirements+') >= 2'
+objectSelectionPHMu =  'count('+photonRequirements+') > 0 && count('+TightMuRequirements+') >0'
+objectSelectionPHEle =  'count('+photonRequirements+') > 0 && count('+TightEleRequirements+') >0'
+objectSelectionPH = '(%s) || (%s)' % (objectSelectionPHEle, objectSelectionPHMu)
 
-alltriggers = ' || '.join(triggersNavThin)
+#Defults SUSY2
+#alltriggers = ' || '.join(triggersNavThin) 
 
-expression = '(' + alltriggers + ') && '+objectSelection
+#expression = '(' + alltriggers + ') && '+objectSelection 
+
+
+trig_PHexpression = '(' + ' || '.join(PhotonTriggers)+')'
+trig_Lepexpression = '(' + ' || '.join(LeptonTriggers)+')'
+LepTrigexpression = '('+'('+trig_Lepexpression+'&&'+objectSelection+')'+'||'+'('+trig_PHexpression+ '&&'+objectSelectionPH+')'+')'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY2SkimmingTool",
-                                                                expression = expression)
+                                                                expression = LepTrigexpression)
 
 ToolSvc += SUSY2SkimmingTool
 
