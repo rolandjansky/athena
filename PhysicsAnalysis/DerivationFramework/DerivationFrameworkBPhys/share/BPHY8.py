@@ -654,7 +654,9 @@ for BPHY8_reco in BPHY8_recoList:
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
             # This JO should rather be named Chi2byNdfCut
             Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
-            UseMassConstraint           = True)
+            UseMassConstraint           = True,
+            ExcludeJpsiMuonsOnly        = True,
+            ExcludeCrossJpsiTracks      = False)
     
 # c) for BsJpsiPhi
     if BPHY8_reco == "BsJpsiPhi":
@@ -680,7 +682,9 @@ for BPHY8_reco in BPHY8_recoList:
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
             # This JO should rather be named Chi2byNdfCut
             Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
-            UseMassConstraint           = True)
+            UseMassConstraint           = True,
+            ExcludeJpsiMuonsOnly        = True,
+            ExcludeCrossJpsiTracks      = False)
         
 ToolSvc += BPHY8_FinderTools.values()
 for BPHY8_name in BPHY8_FinderTools.keys():
