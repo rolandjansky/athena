@@ -37,11 +37,9 @@ DerivationFrameworkJob += SeqSUSY2
 # Trigger navigation thinning
 #====================================================================
 
-from DerivationFrameworkSUSY.SUSY2TriggerList import LeptonTriggers, PhotonTriggers
-triggersNavThin = LeptonTriggers + PhotonTriggers
+
+from DerivationFrameworkSUSY.SUSY2TriggerList import triggersNavThin
 SUSY2ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
-#from DerivationFrameworkSUSY.SUSY2TriggerList import triggersNavThin
-#SUSY2ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
 
 SUSY2ThinningHelper.AppendToStream( SUSY2Stream )
 
@@ -210,11 +208,11 @@ objectSelectionPH = '(%s) || (%s)' % (objectSelectionPHEle, objectSelectionPHMu)
 
 trig_PHexpression = '(' + ' || '.join(PhotonTriggers)+')'
 trig_Lepexpression = '(' + ' || '.join(LeptonTriggers)+')'
-LepTrigexpression = '('+'('+trig_Lepexpression+'&&'+objectSelection+')'+'||'+'('+trig_PHexpression+ '&&'+objectSelectionPH+')'+')'
+LepPh_expression = '('+'('+trig_Lepexpression+'&&'+objectSelection+')'+'||'+'('+trig_PHexpression+ '&&'+objectSelectionPH+')'+')'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY2SkimmingTool",
-                                                                expression = LepTrigexpression)
+                                                                expression = LepPh_expression)
 
 ToolSvc += SUSY2SkimmingTool
 
