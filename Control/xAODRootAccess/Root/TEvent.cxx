@@ -2926,7 +2926,8 @@ namespace xAOD {
          auto dynAuxMgr = objects.find( dynAuxKey );
 
          if( ( dynAuxMgr != objects.end() ) &&
-             ( readBytes || ( m_auxMode == kAthenaAccess ) ) ) {
+             ( readBytes || ( m_auxMode == kAthenaAccess ) ||
+               ( auxMgr == &mgr ) ) ) {
             // Do different things based on the access mode:
             if( m_auxMode != kAthenaAccess ) {
                // In "normal" access modes just tell the dynamic store object
