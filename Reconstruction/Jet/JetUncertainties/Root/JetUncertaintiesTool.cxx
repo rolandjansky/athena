@@ -1012,9 +1012,18 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             CombinedMassUncertaintyComponent* cmuc = new CombinedMassUncertaintyComponent(combComp);
             
             // Set the weights
-            if (cmuc->setCaloWeights(m_caloMassWeight).isFailure()) return NULL;
-            if (cmuc->setTAWeights(m_TAMassWeight).isFailure())     return NULL;
-            if (cmuc->setCombWeightMassDefs(m_combMassWeightCaloMassDef,m_combMassWeightTAMassDef).isFailure()) return NULL;
+            if (cmuc->setCaloWeights(m_caloMassWeight).isFailure()) {
+              delete cmuc;
+              return NULL;
+            }
+            if (cmuc->setTAWeights(m_TAMassWeight).isFailure()){
+              delete cmuc;
+              return NULL;
+            }
+            if (cmuc->setCombWeightMassDefs(m_combMassWeightCaloMassDef,m_combMassWeightTAMassDef).isFailure()){
+              delete cmuc;
+              return NULL;
+            }
             if (component.combMassType == CombMassComp::Calo || component.combMassType == CombMassComp::Both)
             {
                 // Define the calorimeter group if applicable
@@ -1038,6 +1047,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 if (caloComps.size() != caloMassDefs.size())
                 {
                     ATH_MSG_ERROR("Unbalanced number of calo mass terms and calo mass definitions, " << caloComps.size() << " vs " << caloMassDefs.size() << " for combined mass component: " << component.name.Data());
+                    delete cmuc;
+                    delete caloGroup;
                     return NULL;
                 }
                 
@@ -1054,6 +1065,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                     if (caloCompH.massDef == CompMassDef::UNKNOWN)
                     {
                         ATH_MSG_ERROR("Failed to parse calo mass definition " << iComp << " (" << caloMassDefs.at(iComp).Data() << ") for combined mass component: " << component.name.Data());
+                        delete cmuc;
+                        delete caloGroup;
                         return NULL;
                     }
 
@@ -1093,6 +1106,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 if (TAComps.size() != TAMassDefs.size())
                 {
                     ATH_MSG_ERROR("Unbalanced number of TA mass terms and TA mass definitions, " << TAComps.size() << " vs " << TAMassDefs.size() << " for combined mass component: " << component.name.Data());
+                    delete TAGroup;
+                    delete cmuc;
                     return NULL;
                 }
 
@@ -1109,6 +1124,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                     if (TACompH.massDef == CompMassDef::UNKNOWN)
                     {
                         ATH_MSG_ERROR("Failed to parse TA mass definition " << iComp << " (" << TAMassDefs.at(iComp).Data() << ") for combined mass component: " << component.name.Data());
+                        delete cmuc;
+                        delete TAGroup;
                         return NULL;
                     }
 
