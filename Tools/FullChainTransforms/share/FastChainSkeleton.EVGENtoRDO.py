@@ -1411,19 +1411,7 @@ theApp.EvtMax = athenaCommonFlags.EvtMax()
 ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 
-
-
 ######## Back to MyCustomSkeleton#####################
-
-
-
-
-
-
-
-if hasattr(runArgs,"AMITag"):
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
 
 ### No RDO output to increase file size of
 # Increase max RDO output file size to 10 GB
