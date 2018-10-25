@@ -265,10 +265,16 @@ from ISF_Config.ISF_jobProperties import ISF_Flags
 ## Set simulation geometry tag
 if hasattr(runArgs, 'geometryVersion'):
     simFlags.SimLayout.set_Value_and_Lock(runArgs.geometryVersion)
-    globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
     fast_chain_log.debug('SimLayout set to %s' % simFlags.SimLayout)
+    if runArgs.geometryVersion.endswith("_VALIDATION"):
+        pos=runArgs.geometryVersion.find("_VALIDATION")
+        globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion[:pos] )
+    else:
+        globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
+    fast_chain_log.debug('DetDescrVersion set to %s' % globalflags.DetDescrVersion)
 else:
     raise RuntimeError("No geometryVersion provided.")
+
 
 ## AthenaCommon flags
 # Jobs should stop if an include fails.
@@ -278,8 +284,6 @@ else:
     athenaCommonFlags.AllowIgnoreConfigError = False
 
 athenaCommonFlags.DoFullChain=True
-
-from AthenaCommon.BeamFlags import jobproperties
 
 ## Input Files
 def setInputEvgenFileJobProperties(InputEvgenFile):
@@ -470,11 +474,12 @@ import AthenaCommon.SystemOfUnits as Units
 
 from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be finalised before these functons are called
 
-from AthenaCommon.GlobalFlags import globalflags
 # --- set globalflags
 globalflags.DataSource.set_Value_and_Lock('geant4')
-globalflags.InputFormat.set_Value_and_Lock('pool')
-globalflags.DetGeo.set_Value_and_Lock('atlas')
+if jobproperties.Beam.beamType == "cosmics" :
+    globalflags.DetGeo.set_Value_and_Lock('commis')
+else:
+    globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Off()
 
 # --- set SimLayout (synchronised to globalflags)
@@ -516,24 +521,8 @@ if ISF_Flags.UsingGeant4():
     ## Import extra flags if it hasn't already been done
     if "atlas_flags" not in simFlags.extra_flags:
         simFlags.load_atlas_flags()
-    from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType() == "cosmics" and "cosmics_flags" not in simFlags.extra_flags:
         simFlags.load_cosmics_flags()
-
-
-
-
-
-    ## Global flags needed by externals
-    from AthenaCommon.GlobalFlags import globalflags
-    globalflags.DataSource = 'geant4'
-    if jobproperties.Beam.beamType() == 'cosmics':
-        globalflags.DetGeo = 'commis'
-    else:
-        globalflags.DetGeo = 'atlas'
-
-    ## At this point we can set the global job properties flag
-    globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
 
     # Switch off GeoModel Release in the case of parameterization
     if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
@@ -661,7 +650,6 @@ ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
 #--------------------------------------------------------------
 
 # Note: automatically adds generator to TopSequence if applicable
-from AthenaCommon.BeamFlags import jobproperties
 # if an input sting identifier was given, use ISF input definitions
 if ISF_Flags.Input()!="NONE":
     getAlgorithm('ISF_Input_' + ISF_Flags.Input())
@@ -831,25 +819,7 @@ if hasattr(runArgs, "postSimExec"):
 # Creation: David Cote (September 2009)                              #
 #                                                                    #
 ######################################################################
-from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.BeamFlags import jobproperties
 #from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
-
-if hasattr(runArgs,"conditionsTag"):
-    if runArgs.conditionsTag != 'NONE':
-        globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag ) #make this one compulsory?
-if hasattr(runArgs,"beamType"):
-    if runArgs.beamType != 'NONE':
-        # Setting beamType='cosmics' keeps cavern in world volume for g4sim also with non-commissioning geometries
-        jobproperties.Beam.beamType.set_Value_and_Lock( runArgs.beamType )
-## if hasattr(runArgs,"AMITag"): rec.AMITag=runArgs.AMITag
-## if hasattr(runArgs,"userExec"): rec.UserExecs=runArgs.userExec
-## if hasattr(runArgs,"RunNumber"): rec.RunNumber=runArgs.RunNumber
-## if hasattr(runArgs,"projectName"): rec.projectName=runArgs.projectName
-## if hasattr(runArgs,"trigStream"): rec.triggerStream=runArgs.trigStream
-## if hasattr(runArgs,"triggerConfig"):
-##     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-##     tf.triggerConfig=runArgs.triggerConfig
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
@@ -870,16 +840,6 @@ pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 if hasattr(runArgs, "jobNumber"):
     if runArgs.jobNumber < 1:
         raise ValueError('jobNumber must be a postive integer. %s lies outside this range', str(runArgs.jobNumber))
-
-from AthenaCommon.GlobalFlags import globalflags
-if hasattr(runArgs,"geometryVersion"):
-    # strip _VALIDATION
-    print "stripping _VALIDATION"
-    if runArgs.geometryVersion.endswith("_VALIDATION"):
-        pos=runArgs.geometryVersion.find("_VALIDATION")
-        globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion[:pos] )
-    else:
-        globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
 
 fast_chain_log.info( '****************** STARTING DIGITIZATION *****************' )
 
@@ -947,7 +907,6 @@ if hasattr(runArgs,"bunchSpacing"):
     digitizationFlags.bunchSpacing = 25
     digitizationFlags.BeamIntensityPattern.createConstBunchSpacingPattern(int(runArgs.bunchSpacing)) #FIXME This runArg should probably inherit from argInt rather than argFloat
     fast_chain_log.info( "New bunch-structure = %s", digitizationFlags.BeamIntensityPattern.get_Value())
-    from AthenaCommon.BeamFlags import jobproperties
     jobproperties.Beam.bunchSpacing = int(runArgs.bunchSpacing) #FIXME This runArg should probably inherit from argInt rather than argFloat
     PileUpConfigOverride=True
 if hasattr(runArgs,"pileupInitialBunch"):
@@ -1161,20 +1120,6 @@ except:
 # Get Digitization Flags (This sets Global and Det Flags)
 #--------------------------------------------------------------
 from Digitization.DigitizationFlags import digitizationFlags
-from AthenaCommon.BeamFlags import jobproperties
-
-#--------------------------------------------------------------
-# Set Global flags for this run
-#--------------------------------------------------------------
-from AthenaCommon.GlobalFlags import globalflags
-if jobproperties.Beam.beamType == "cosmics" :
-    globalflags.DetGeo = 'commis'
-#else:
-#    globalflags.DetGeo = 'atlas'
-# These should be set anyway, but just to make sure
-globalflags.DataSource = 'geant4'
-globalflags.InputFormat = 'pool'
-
 
 #--------------------------------------------------------------
 # Set Detector flags for this run
@@ -1204,13 +1149,7 @@ else :
 #-------------------------------------------
 # Print Job Configuration
 #-------------------------------------------
-
-
 DetFlags.Print()
-
-
-
-
 fast_chain_log.info("Global jobProperties values:")
 globalflags.print_JobProperties()
 fast_chain_log.info("Digitization jobProperties values:")
@@ -1345,7 +1284,6 @@ if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
 from AthenaCommon import CfgGetter
 
 # Set up ComTimeRec for cosmics digitization
-from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType == "cosmics" :
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
