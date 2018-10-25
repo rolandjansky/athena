@@ -97,11 +97,11 @@ namespace ViewHelper
       for ( SG::View* view : *ViewVector )
       {
         //Make a context with the view attached
-        EventContext * viewContext = new EventContext( SourceContext );
+        auto viewContext = std::make_unique< EventContext >( SourceContext );
         viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext->conditionsRun() ) );
 
         //Attach the view to the named node
-        StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, viewContext );
+        StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, std::move( viewContext ) );
         if ( !sc.isSuccess() )
         {
           return StatusCode::FAILURE;

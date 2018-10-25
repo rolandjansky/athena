@@ -222,7 +222,7 @@ void JetCnv_p6::transToPers( const Jet* trans,
 
   //momentMapCnv.transToPers( &trans->m_momentMapLink, &pers->m_moments ,msg);  
 
-  pers->m_dataType = pers->m_dataType;
+  pers->m_dataType = trans->dataType();
   vxCnv.transToPers( &trans->m_part.m_origin, &pers->m_origin, msg );
 
   pers->m_constituentSigState = trans->m_constituentSigState;

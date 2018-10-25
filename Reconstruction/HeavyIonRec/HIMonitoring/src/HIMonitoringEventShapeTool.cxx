@@ -2,14 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <sstream>
 
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "HIMonitoring/HIMonitoringEventShapeTool.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
 
 #include "LWHists/TH1D_LW.h"
 #include "LWHists/TH2D_LW.h"

@@ -14,7 +14,7 @@ class JetAssociationBase_p1
   ~JetAssociationBase_p1() {};
   
   /// Stored in the base class
-  unsigned int m_keyIndex;
+  unsigned int m_keyIndex{};
 };
 
 #endif

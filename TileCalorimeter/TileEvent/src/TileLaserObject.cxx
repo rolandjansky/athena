@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -11,6 +11,7 @@
 /*Marco van Woerden <mvanwoer@cern.ch>*/
 
 #include "TileEvent/TileLaserObject.h"
+#include <sstream>
 
 
 TileLaserObject::TileLaserObject()
@@ -334,3 +335,41 @@ void TileLaserObject::setDaqType(const unsigned int daqtype){
   m_daqtype = daqtype;
 }
 
+
+TileLaserObject::operator std::string() const
+{
+  std::ostringstream text;
+  text << "TileLaserObject:\n";
+  text << "  ";
+  text << "version: " << m_version << " ";
+  text << "BCID: " << m_BCID << " ";
+  text << "daqtype: " << m_daqtype << " ";
+  text << "calibtype: " << m_calibtype << "\n";
+  text << "  " << static_cast<std::string> (m_slowCtrl) << "\n";
+  text << "  " << static_cast<std::string> (m_laserParameter) << "\n";
+  text << "  " << static_cast<std::string> (m_plc) << "\n";
+  text << "  LG diodes\n";
+  for (const TileLaserDiode& d : m_diodesLG) {
+    text << "    " << static_cast<std::string> (d) << "\n";
+  }
+  text << "  HG diodes\n";
+  for (const TileLaserDiode& d : m_diodesHG) {
+    text << "    " << static_cast<std::string> (d) << "\n";
+  }
+  text << "  LG PMTs\n";
+  for (const TileLaserPmt& p : m_pmtsLG) {
+    text << "    " << static_cast<std::string> (p) << "\n";
+  }
+  text << "  HG PMTs\n";
+  for (const TileLaserPmt& p : m_pmtsHG) {
+    text << "    " << static_cast<std::string> (p) << "\n";
+  }
+  text << "  Calib\n";
+  for (const std::vector<TileLasCalib>& v : m_lascalib) {
+    text << "    " << v.size() << "calibs\n";
+    for (const TileLasCalib& c : v) {
+      text << "      " << static_cast<std::string> (c) << "\n";
+    }
+  }
+  return text.str();
+}

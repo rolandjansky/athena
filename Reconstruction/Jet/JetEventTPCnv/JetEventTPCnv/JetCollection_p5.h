@@ -38,7 +38,7 @@ class JetCollection_p5 : public std::vector<TPObjRef>
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
 private:
-  short m_ordered;
+  short m_ordered{};
   DataLink_p1 m_keyStore;
 };
 
