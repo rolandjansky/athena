@@ -271,7 +271,6 @@ else:
     raise RuntimeError("No geometryVersion provided.")
 
 ## AthenaCommon flags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 # Jobs should stop if an include fails.
 if hasattr(runArgs, "IgnoreConfigError"):
     athenaCommonFlags.AllowIgnoreConfigError = runArgs.IgnoreConfigError
@@ -449,7 +448,6 @@ from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicT
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixStandardJob
 from AthenaCommon import AthenaCommonFlags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AlgSequence import AlgSequence
@@ -493,11 +491,6 @@ simFlags.EventFilter.set_Off()
 # --- metadata passed by the evgen stage (move earlier?)
 from ISF_Example.ISF_Metadata import checkForSpecialConfigurationMetadata
 checkForSpecialConfigurationMetadata()
-
-#--------------------------------------------------------------
-# Job setup
-#--------------------------------------------------------------
-theApp.EvtMax = athenaCommonFlags.EvtMax()
 
 # all det description
 include('ISF_Config/AllDet_detDescr.py')
@@ -557,7 +550,6 @@ if ISF_Flags.UsingGeant4():
 
     ## Enable floating point exception handling
     ## FIXME! This seems to cause the jobs to crash in the FpeControlSvc, so commenting this out for now...
-    #from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     #athenaCommonFlags.RuntimeStrictness = 'abort'
 
     from AthenaCommon.JobProperties import jobproperties
@@ -642,13 +634,6 @@ if ISF_Flags.UsingGeant4():
 
     ## Add configured GeoModelSvc to service manager
     ServiceMgr += gms
-
-    ## _PyG4AtlasComp.initialize
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.EvtMax.statusOn:# and theApp.EvtMax == -1:
-        theApp.EvtMax = athenaCommonFlags.EvtMax()
-
-
 
 
     ###################Back to ISF_ConfigJobInclude.py################
@@ -848,16 +833,7 @@ if hasattr(runArgs, "postSimExec"):
 ######################################################################
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
-
-## Max/skip events
-if hasattr(runArgs,"skipEvents"):
-    athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
-if hasattr(runArgs,"maxEvents"):
-    athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
-else:
-    athenaCommonFlags.EvtMax=-1
 
 if hasattr(runArgs,"conditionsTag"):
     if runArgs.conditionsTag != 'NONE':
@@ -1241,12 +1217,6 @@ fast_chain_log.info("Digitization jobProperties values:")
 digitizationFlags.print_JobProperties()
 
 #--------------------------------------------------------------
-# Ensure AthenaCommonFlags.FilesInput is set.
-#--------------------------------------------------------------
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=athenaCommonFlags.PoolHitsInput.get_Value()
-
-#--------------------------------------------------------------
 # Read Simulation MetaData (unless override flag set to True)
 #--------------------------------------------------------------
 if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
@@ -1273,9 +1243,6 @@ if not hasattr(ServiceMgr, 'EventSelector'):
     import AthenaPoolCnvSvc.ReadAthenaPool
 if hasattr(ServiceMgr, 'PoolSvc'):
     ServiceMgr.PoolSvc.MaxFilesOpen = 0 # Never close Input Files
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-if not athenaCommonFlags.DoFullChain:
-    ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
 #Settings the following attributes reduces the job size slightly
 #ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [  "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
 #ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '2048'" ]
@@ -1481,7 +1448,6 @@ writeDigitizationMetadata()
 # Pool Output (Change this to use a different file)
 #--------------------------------------------------------------
 if DetFlags.writeRDOPool.any_on():
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
     streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True)
     streamRDO.ForceRead = True
