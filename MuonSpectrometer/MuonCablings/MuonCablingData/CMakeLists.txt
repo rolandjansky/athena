@@ -7,8 +7,7 @@ atlas_subdir( MuonCablingData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate
@@ -18,5 +17,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( MuonCablingData
                    src/*.cxx
                    PUBLIC_HEADERS MuonCablingData
-                   LINK_LIBRARIES SGTools GaudiKernel StoreGateLib SGtests MuonIdHelpersLib )
+                   LINK_LIBRARIES AthenaKernel GaudiKernel StoreGateLib SGtests MuonIdHelpersLib )
 

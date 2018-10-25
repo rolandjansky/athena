@@ -12,8 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
                           Control/StoreGate
                           Event/ByteStreamCnvSvcBase
                           MuonSpectrometer/MuonCablings/RPCcablingInterface
@@ -37,7 +35,7 @@ atlas_add_component( MuonRPC_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib RPCcablingInterfaceLib MuonContainerManager MuonCondInterface MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces TrigT1RPChardwareLib RPChardware )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib RPCcablingInterfaceLib MuonContainerManager MuonCondInterface MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces TrigT1RPChardwareLib RPChardware )
 
 # Install files from the package:
 atlas_install_headers( MuonRPC_CnvTools )

@@ -68,9 +68,8 @@ def makeMuonPrepDataAlgs():
   ToolSvc += MuonMdtRawDataProviderTool
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool",
-                                                       RawDataProviderTool = MuonMdtRawDataProviderTool,
-                                                       useBStoRdoTool      = True)
+  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool")
+                                                       #OutputLevel         = INFO )
   ToolSvc += MdtRdoToMdtPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
@@ -86,6 +85,7 @@ def makeMuonPrepDataAlgs():
                                                 ProviderTool = MuonMdtRawDataProviderTool )
 
   eventAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
+  viewAlgs_MuonPRD.append( MdtRawDataProvider )
   viewAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
 
 
@@ -233,15 +233,16 @@ def makeMuFastAlgs():
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
   MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool_L2SA",
-                                                       RawDataProviderTool = MuonMdtRawDataProviderTool,
+                                                       #RawDataProviderTool = MuonMdtRawDataProviderTool,
+                                                       #useBStoRdoTool      = True,
                                                        RDOContainer        = MuonMdtRawDataProviderTool.RdoLocation,
-                                                       OutputCollection    = "MDT_DriftCircles_L2SA",
-                                                       useBStoRdoTool      = True)
+                                                       OutputCollection    = "MDT_DriftCircles_L2SA")
   ToolSvc += MdtRdoToMdtPrepDataTool
 
  
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
   L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(#OutputLevel = DEBUG,
+                                                        DecodeBS = DetFlags.readRDOBS.MDT_on(),
                                                         MdtPrepDataProvider  = MdtRdoToMdtPrepDataTool,
                                                         MDTPrepDataContainer = MdtRdoToMdtPrepDataTool.OutputCollection,
                                                         MDT_RawDataProvider  = MuonMdtRawDataProviderTool,

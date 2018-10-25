@@ -6,9 +6,9 @@
 // https://github.com/lwtnn/lwtnn.git (rev v2.0)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
-// from JetTagTools/share
+// from JetTagCalibration/share
 
-#include "JetTagTools/parse_json.h"
+#include "JetTagCalibration/parse_json.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
