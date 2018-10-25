@@ -132,7 +132,7 @@
     </TEST>
     
     <TEST name="RECOSHIFT_esdzpileup" type="athena" suite="esdpileup">
-      <options_atn>-c "jp.AthenaCommonFlags.EvtMax=2; jp.AthenaCommonFlags.SkipEvents=3 ; rec.AutoConfiguration=['everything']; rec.doDetailedAuditor=True ; rec.doNameAuditor=True ; jp.AthenaCommonFlags.PoolRDOInput=['root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7011/RDO.06336725._000001.pool.root.1']" AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_esdlowlumi.py</options_atn>
+      <options_atn>-c "jp.AthenaCommonFlags.EvtMax=2; jp.AthenaCommonFlags.SkipEvents=3 ; rec.AutoConfiguration=['everything']; rec.doDetailedAuditor=True ; rec.doNameAuditor=True ; jp.AthenaCommonFlags.PoolRDOInput=['root://eosatlas.cern.ch//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7011/RDO.06336725._000001.pool.root.1']" AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_esdlowlumi.py</options_atn>
       <timelimit>30</timelimit>
       <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
@@ -168,7 +168,7 @@
       <athena userJobId="mc12_emptyReco">
 	<doc>Test almost empty event loop on default MC12 </doc>
 	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
 	<options>RecExRecoTest_RTT_empty</options>
 	<group>RecExCommon</group>
@@ -178,7 +178,7 @@
       <athena userJobId="mc12_idReco">
 	<doc>Test reco only ID only on default MC12 </doc>
 	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
 	<options>RecExRecoTest_RTT_id</options>
 	<group>RecExCommon</group>
@@ -188,7 +188,7 @@
       <athena userJobId="mc12_caloReco">
 	<doc>Test reco only calo only on default MC12 </doc>
 	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
 	<options>RecExRecoTest_RTT_calo</options>
 	<group>RecExCommon</group>
@@ -198,7 +198,7 @@
       <athena userJobId="mc12_muonReco">
 	<doc>Test reco only muon only on default MC12 </doc>
 	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+          jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
 	<options>RecExRecoTest_RTT_muon</options>
 	<group>RecExCommon</group>
@@ -208,7 +208,7 @@
       <athena userJobId="mc12_outputlevel_debugReco">
 	<doc>Test reco with outputlevel debug to check length of logfile and number of messages</doc>
 	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=DEBUG;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+          jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=DEBUG;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
 	<options>RecExRecoTest_RTT_esd</options>
 	<group>RecExCommon</group>
@@ -243,7 +243,7 @@
       <athena userJobId="mc12_outputlevel_verboseReco">
 	<doc>Test reco with outputlevel verbose to check length of logfile and number of messages</doc>
 	<commandLineFlags>
-          jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=VERBOSE;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+          jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=VERBOSE;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
         </commandLineFlags>
 	<options>RecExRecoTest_RTT_esd</options>
 	<group>RecExCommon</group>
