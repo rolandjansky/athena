@@ -16,135 +16,7 @@ digilog = fast_chain_log
 
 
 
-from AthenaCommon.DetFlags import DetFlags
 from G4AtlasApps.SimFlags import simFlags
-
-#Trial block: Set off tasks at start
-## Switch off tasks
-#    DetFlags.pileup.all_setOff()
-#    DetFlags.simulateLVL1.all_setOff()
-#    DetFlags.digitize.all_setOff()
-#if not simFlags.IsEventOverlayInputSim():
-#DetFlags.overlay.all_setOff()
-
-#    DetFlags.readRDOPool.all_setOff()
-#    DetFlags.makeRIO.all_setOff()
-#    DetFlags.writeBS.all_setOff()
-#    DetFlags.readRDOBS.all_setOff()
-#    DetFlags.readRIOBS.all_setOff()
-#    DetFlags.readRIOPool.all_setOff()
-#    DetFlags.writeRIOPool.all_setOff()
-#    DetFlags.writeRDOPool.all_setOff()
-
-
-#set flags ON:
-
-#Tasks we want switched ON (write RDOPool) - want this for all detectors that we want ON:
-#DetFlags.writeRDOPool.all_setOn()
-
-#### this flag turns all the detectors ON that we want for simulation.
-try:
-    from ISF_Config import FlagSetters
-    FlagSetters.configureFlagsBase()
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    ## Check for any simulator-specific configuration
-    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
-    if configureFlags is not None:
-        configureFlags()
-    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
-    for subdet in possibleSubDetectors:
-        simattr = subdet+"_on"
-        simcheck = getattr(DetFlags.simulate, simattr, None)
-        if simcheck is not None and simcheck():
-            attrname = subdet+"_setOn"
-            checkfn = getattr(DetFlags, attrname, None)
-            if checkfn is not None:
-                checkfn()
-
-except:
-    ## Select detectors
-    if 'DetFlags' not in dir():
-        # from AthenaCommon.DetFlags import DetFlags
-        ## If you configure one det flag, you're responsible for configuring them all!
-        DetFlags.all_setOn()
-
-
-#DetFlags.all_setOn()
-DetFlags.LVL1_setOff()
-DetFlags.Truth_setOn()
-DetFlags.Forward_setOff() # Forward dets are off by default
-DetFlags.Micromegas_setOff()
-DetFlags.sTGC_setOff()
-DetFlags.FTK_setOff()
-checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-if checkHGTDOff is not None:
-    checkHGTDOff() #Default for now
-
-# from AthenaCommon.DetFlags import DetFlags
-
-# from AthenaCommon.DetFlags import DetFlags
-    ## Tidy up DBM DetFlags: temporary measure
-DetFlags.DBM_setOff()
-
-
-
-if hasattr(simFlags, 'SimulateNewSmallWheel'):
-    if simFlags.SimulateNewSmallWheel():
-        DetFlags.sTGC_setOn()
-        DetFlags.Micromegas_setOn()
-
-#if simFlags.ForwardDetectors.statusOn:
-#    if DetFlags.geometry.FwdRegion_on():
-#        from AthenaCommon.CfgGetter import getPublicTool
-#        from AthenaCommon.AppMgr import ToolSvc
-#        ToolSvc += getPublicTool("ForwardRegionProperties")
-
-
-
-### Set digitize all except forward detectors
-DetFlags.digitize.all_setOn()
-DetFlags.digitize.LVL1_setOff()
-DetFlags.digitize.ZDC_setOff()
-DetFlags.digitize.Micromegas_setOff()
-DetFlags.digitize.sTGC_setOff()
-DetFlags.digitize.Forward_setOff()
-DetFlags.digitize.Lucid_setOff()
-DetFlags.digitize.AFP_setOff()
-DetFlags.digitize.ALFA_setOff()
-
-#set all detdescr on except fwd.
-#DetFlags.detdescr.all_setOn()
-#DetFlags.detdescr.LVL1_setOff()
-#DetFlags.detdescr.ZDC_setOff()
-#DetFlags.detdescr.Micromegas_setOff()
-#DetFlags.detdescr.sTGC_setOff()
-#DetFlags.detdescr.Forward_setOff()
-#DetFlags.detdescr.Lucid_setOff()
-#DetFlags.detdescr.AFP_setOff()
-#DetFlags.detdescr.ALFA_setOff()
-
-#--------------------------------------------------------------
-# Set Detector flags for this run
-#--------------------------------------------------------------
-if 'DetFlags' in dir():
-
-    DetFlags.Print()
-    DetFlags.overlay.all_setOff()
-
-#DetFlags.simulate.all_setOff()
-DetFlags.makeRIO.all_setOff()
-DetFlags.writeBS.all_setOff()
-DetFlags.readRDOBS.all_setOff()
-DetFlags.readRIOBS.all_setOff()
-DetFlags.readRIOPool.all_setOff()
-DetFlags.writeRIOPool.all_setOff()
-
-
-
-
-
-
-
 
 ### Start of Sim
 
@@ -357,6 +229,129 @@ elif hasattr(runArgs, 'simulator'):
 else:
     ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
 
+from AthenaCommon.DetFlags import DetFlags
+
+#Trial block: Set off tasks at start
+## Switch off tasks
+#    DetFlags.pileup.all_setOff()
+#    DetFlags.simulateLVL1.all_setOff()
+#    DetFlags.digitize.all_setOff()
+#if not simFlags.IsEventOverlayInputSim():
+#DetFlags.overlay.all_setOff()
+
+#    DetFlags.readRDOPool.all_setOff()
+#    DetFlags.makeRIO.all_setOff()
+#    DetFlags.writeBS.all_setOff()
+#    DetFlags.readRDOBS.all_setOff()
+#    DetFlags.readRIOBS.all_setOff()
+#    DetFlags.readRIOPool.all_setOff()
+#    DetFlags.writeRIOPool.all_setOff()
+#    DetFlags.writeRDOPool.all_setOff()
+
+
+#set flags ON:
+
+#Tasks we want switched ON (write RDOPool) - want this for all detectors that we want ON:
+#DetFlags.writeRDOPool.all_setOn()
+
+#### this flag turns all the detectors ON that we want for simulation.
+try:
+    from ISF_Config import FlagSetters
+    FlagSetters.configureFlagsBase()
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ## Check for any simulator-specific configuration
+    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
+    if configureFlags is not None:
+        configureFlags()
+    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+    for subdet in possibleSubDetectors:
+        simattr = subdet+"_on"
+        simcheck = getattr(DetFlags.simulate, simattr, None)
+        if simcheck is not None and simcheck():
+            attrname = subdet+"_setOn"
+            checkfn = getattr(DetFlags, attrname, None)
+            if checkfn is not None:
+                checkfn()
+
+except:
+    ## Select detectors
+    if 'DetFlags' not in dir():
+        # from AthenaCommon.DetFlags import DetFlags
+        ## If you configure one det flag, you're responsible for configuring them all!
+        DetFlags.all_setOn()
+
+
+#DetFlags.all_setOn()
+DetFlags.LVL1_setOff()
+DetFlags.Truth_setOn()
+DetFlags.Forward_setOff() # Forward dets are off by default
+DetFlags.Micromegas_setOff()
+DetFlags.sTGC_setOff()
+DetFlags.FTK_setOff()
+checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+if checkHGTDOff is not None:
+    checkHGTDOff() #Default for now
+
+# from AthenaCommon.DetFlags import DetFlags
+
+# from AthenaCommon.DetFlags import DetFlags
+    ## Tidy up DBM DetFlags: temporary measure
+DetFlags.DBM_setOff()
+
+
+
+if hasattr(simFlags, 'SimulateNewSmallWheel'):
+    if simFlags.SimulateNewSmallWheel():
+        DetFlags.sTGC_setOn()
+        DetFlags.Micromegas_setOn()
+
+#if simFlags.ForwardDetectors.statusOn:
+#    if DetFlags.geometry.FwdRegion_on():
+#        from AthenaCommon.CfgGetter import getPublicTool
+#        from AthenaCommon.AppMgr import ToolSvc
+#        ToolSvc += getPublicTool("ForwardRegionProperties")
+
+
+
+### Set digitize all except forward detectors
+DetFlags.digitize.all_setOn()
+DetFlags.digitize.LVL1_setOff()
+DetFlags.digitize.ZDC_setOff()
+DetFlags.digitize.Micromegas_setOff()
+DetFlags.digitize.sTGC_setOff()
+DetFlags.digitize.Forward_setOff()
+DetFlags.digitize.Lucid_setOff()
+DetFlags.digitize.AFP_setOff()
+DetFlags.digitize.ALFA_setOff()
+
+#set all detdescr on except fwd.
+#DetFlags.detdescr.all_setOn()
+#DetFlags.detdescr.LVL1_setOff()
+#DetFlags.detdescr.ZDC_setOff()
+#DetFlags.detdescr.Micromegas_setOff()
+#DetFlags.detdescr.sTGC_setOff()
+#DetFlags.detdescr.Forward_setOff()
+#DetFlags.detdescr.Lucid_setOff()
+#DetFlags.detdescr.AFP_setOff()
+#DetFlags.detdescr.ALFA_setOff()
+
+#--------------------------------------------------------------
+# Set Detector flags for this run
+#--------------------------------------------------------------
+if 'DetFlags' in dir():
+
+    DetFlags.Print()
+    DetFlags.overlay.all_setOff()
+
+#DetFlags.simulate.all_setOff()
+DetFlags.makeRIO.all_setOff()
+DetFlags.writeBS.all_setOff()
+DetFlags.readRDOBS.all_setOff()
+DetFlags.readRIOBS.all_setOff()
+DetFlags.readRIOPool.all_setOff()
+DetFlags.writeRIOPool.all_setOff()
+
+
 # temporary fix to ensure TRT will record hits if using FATRAS
 # this should eventually be removed when it is configured properly in ISF
 if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
@@ -415,12 +410,6 @@ try:
     topSeq+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
 except:
     fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
-
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator = runArgs.simulator
-else:
-    ISF_Flags.Simulator = 'MC12G4'
 
 #### *********** import ISF_Example code here **************** ####
 
@@ -1112,31 +1101,6 @@ except:
 # Get Digitization Flags (This sets Global and Det Flags)
 #--------------------------------------------------------------
 from Digitization.DigitizationFlags import digitizationFlags
-
-#--------------------------------------------------------------
-# Set Detector flags for this run
-#--------------------------------------------------------------
-if 'DetFlags' in dir():
-    fast_chain_log.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
-    DetFlags.Print()
-else :
-    # include DetFlags
-    # by default everything is off
-    from AthenaCommon.DetFlags import DetFlags
-    DetFlags.ID_setOn()
-    DetFlags.Lucid_setOn()
-    #DetFlags.ZDC_setOn()
-    #DetFlags.ALFA_setOn()
-    #DetFlags.AFP_setOn()
-    #DetFlags.FwdRegion_setOn()
-    DetFlags.Calo_setOn()
-    if hasattr(DetFlags, 'HGTD_setOff'):
-        DetFlags.HGTD_setOff()
-    DetFlags.Muon_setOn()
-    DetFlags.Truth_setOn()
-    DetFlags.LVL1_setOn()
-
-
 
 #-------------------------------------------
 # Print Job Configuration
