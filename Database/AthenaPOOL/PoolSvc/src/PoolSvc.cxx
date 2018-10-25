@@ -414,8 +414,7 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
       }
    }
    std::lock_guard<CallMutex> lock(m_pool_mut);
-   if (openMode != pool::ICollection::READ && contextId != IPoolSvc::kOutputStream) {
-      //ATH_MSG_WARNING("createCollection: Using default output Stream instead of id = " << contextId);
+   if (openMode != pool::ICollection::READ) {
       contextId = IPoolSvc::kOutputStream;
    } else {
       if (contextId > m_persistencySvcVec.size()) {
