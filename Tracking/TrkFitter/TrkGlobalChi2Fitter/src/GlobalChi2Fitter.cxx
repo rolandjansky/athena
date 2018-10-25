@@ -564,7 +564,10 @@ namespace Trk {
 
 
     if (!track && !firstfitwasattempted && (m_fieldService->toroidOn() || m_fieldService->solenoidOn())) {
+      // Reset the trajectory
       GXFTrajectory trajectory2;
+      trajectory2.m_straightline = trajectory.m_straightline;
+      trajectory2.m_fieldprop    = trajectory.m_fieldprop;
       trajectory = trajectory2;
       track = backupCombinationStrategy(cache,intrk1, intrk2, trajectory, calomeots);
     }
