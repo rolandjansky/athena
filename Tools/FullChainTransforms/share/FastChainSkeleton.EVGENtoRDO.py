@@ -9,8 +9,8 @@
 
 
 from AthenaCommon.DetFlags import DetFlags
-
 from G4AtlasApps.SimFlags import simFlags
+
 #Trial block: Set off tasks at start
 ## Switch off tasks
 #    DetFlags.pileup.all_setOff()
@@ -85,7 +85,6 @@ if hasattr(simFlags, 'SimulateNewSmallWheel'):
         DetFlags.sTGC_setOn()
         DetFlags.Micromegas_setOn()
 
-from G4AtlasApps.SimFlags import simFlags
 #if simFlags.ForwardDetectors.statusOn:
 #    if DetFlags.geometry.FwdRegion_on():
 #        from AthenaCommon.CfgGetter import getPublicTool
@@ -214,9 +213,6 @@ if hasattr(runArgs, "jobNumber"):
         raise ValueError('jobNumber must be a postive integer. %s lies outside this range', str(runArgs.jobNumber))
 
 
-
-from G4AtlasApps.SimFlags import simFlags
-
 if hasattr(runArgs, "inputTXT_EVENTIDFile"):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     overlayFlags.EventIDTextFile = runArgs.inputTXT_EVENTIDFile[0]
@@ -260,7 +256,6 @@ rec.doTrigger.set_Value_and_Lock(False)
 
 
 ## Simulation flags need to be imported first
-from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 simFlags.ISFRun=True
 from ISF_Config.ISF_jobProperties import ISF_Flags
@@ -483,7 +478,6 @@ globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Off()
 
 # --- set SimLayout (synchronised to globalflags)
-from G4AtlasApps.SimFlags import simFlags
 if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
     print "ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!"
     print "Please correct your job options."
@@ -521,12 +515,10 @@ if ISF_Flags.UsingGeant4():
 
     ## _PyG4AtlasComp.__init__
     ## If the random number service hasn't been set up already, do it now.
-    from G4AtlasApps.SimFlags import simFlags
     simFlags.RandomSeedList.useDefaultSeeds()
 
     ## AtlasSimSkeleton._do_jobproperties
     ## Import extra flags if it hasn't already been done
-    from G4AtlasApps.SimFlags import simFlags
     if "atlas_flags" not in simFlags.extra_flags:
         simFlags.load_atlas_flags()
     from AthenaCommon.BeamFlags import jobproperties
@@ -590,7 +582,6 @@ if ISF_Flags.UsingGeant4():
 
     ## Forward Region Twiss files - needed before geometry setup!
 
-    from G4AtlasApps.SimFlags import simFlags
     if simFlags.ForwardDetectors.statusOn:
         if DetFlags.geometry.FwdRegion_on():
             from AthenaCommon.CfgGetter import getPublicTool
@@ -650,7 +641,6 @@ if ISF_Flags.UsingGeant4():
     ## Add configured GeoModelSvc to service manager
     ServiceMgr += gms
 
-    from G4AtlasApps.SimFlags import simFlags
     ## _PyG4AtlasComp.initialize
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if athenaCommonFlags.EvtMax.statusOn:# and theApp.EvtMax == -1:
@@ -690,7 +680,6 @@ if ISF_Flags.Input()!="NONE":
     getAlgorithm('ISF_Input_' + ISF_Flags.Input())
 # cosmics input
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    from G4AtlasApps.SimFlags import simFlags
     simFlags.load_cosmics_flags()
     if simFlags.ReadTR.statusOn:
         getAlgorithm('TrackRecordCosmicGenerator')
