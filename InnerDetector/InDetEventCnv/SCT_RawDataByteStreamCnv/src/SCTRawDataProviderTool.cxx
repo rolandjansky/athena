@@ -2,8 +2,9 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "SCTRawDataProviderTool.h"
+
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
