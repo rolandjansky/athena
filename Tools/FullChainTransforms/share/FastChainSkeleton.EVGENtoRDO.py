@@ -11,7 +11,7 @@
 from AthenaCommon.DetFlags import DetFlags
 
 from G4AtlasApps.SimFlags import simFlags
-#Trial block: Set off tasks at start    
+#Trial block: Set off tasks at start
 ## Switch off tasks
 #    DetFlags.pileup.all_setOff()
 #    DetFlags.simulateLVL1.all_setOff()
@@ -31,7 +31,7 @@ from G4AtlasApps.SimFlags import simFlags
 
 #set flags ON:
 
-#Tasks we want switched ON (write RDOPool) - want this for all detectors that we want ON: 
+#Tasks we want switched ON (write RDOPool) - want this for all detectors that we want ON:
 #DetFlags.writeRDOPool.all_setOn()
 
 #### this flag turns all the detectors ON that we want for simulation.
@@ -1059,7 +1059,7 @@ if 'AthSequencer/EvgenGenSeq' in topSeq.getSequence():
     OutputPileupTruthCollection='TruthEvent_PU'
     # ToolSvc.ISF_StackFiller.OutputLevel=DEBUG
 
-    
+
     ###############Back to MyCustomSkeleton######################
 
 ## Add AMITag MetaData to TagInfoMgr
@@ -1816,6 +1816,6 @@ if hasattr(runArgs,"postExec"):
         exec(cmd)
 
 ### End of Digi
- 
+
 #from AthenaCommon.ConfigurationShelve import saveToAscii
 #saveToAscii('config.txt')
