@@ -55,7 +55,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         const bool m_interpolate;
         const int m_splitNumber;
         
-        int m_numExpectedHist;
+        int m_numExpectedHist{};
         UncertaintyHistogram* m_uncHist;
         UncertaintyHistogram* m_validHist;
 
