@@ -2,11 +2,6 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-/// This algorithm flags an event bad if it has 
-/// >500 LVL1ID errors or >1000 ROBFragment errors
-///////////////////////////////////////////////////////////////////
-
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
 
@@ -18,23 +13,30 @@
 
 class ISCT_ByteStreamErrorsTool;
 
+/** @class SCTEventFlagWriter
+ *
+ * @brief Athena Algorithm to flag an event bad if number of error exceed threshold. 
+ *
+ * This algorithm flags an event bad if it has >500 LVL1ID errors or 
+ * >1000 ROBFragment errors.
+ */
 class SCTEventFlagWriter : public AthAlgorithm
 {
  public:
 
-  //! Constructor.
+  /** Constructor */
   SCTEventFlagWriter(const std::string &name, ISvcLocator *pSvcLocator);
 
-  //! Destructur
+  /** Destructur */
   virtual ~SCTEventFlagWriter() = default;
 
-  //! Initialize
+  /** Initialize */
   virtual StatusCode initialize() override;
 
-  //! Execute
+  /** Execute */
   virtual StatusCode execute() override;
 
-  //! Finalize empty, no need to override
+  // Finalize empty, no need to override
 
  private:
 

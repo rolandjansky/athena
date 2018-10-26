@@ -26,7 +26,7 @@ class SCT_ByteStreamFractionContainer;
 
 /** @class SCTRawDataProvider
  *
- * @brief Athena Algorithm Tool to decode the SCT Byte Stream
+ * @brief Athena Algorithm to decode the SCT Byte Stream
  *
  * Gets vector of ROBFragments from the ROBDataProviderSvc
  * and uses AlgTools (SCTRawDataProviderTool and SCT_RodDecoder
