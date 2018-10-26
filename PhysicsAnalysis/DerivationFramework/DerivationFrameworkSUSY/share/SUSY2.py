@@ -36,10 +36,10 @@ DerivationFrameworkJob += SeqSUSY2
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-
-
-from DerivationFrameworkSUSY.SUSY2TriggerList import triggersNavThin
+from DerivationFrameworkSUSY.SUSY2TriggerList import LeptonTriggers, PhotonTriggers
+triggersNavThin = LeptonTriggers + PhotonTriggers
 SUSY2ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
+
 
 SUSY2ThinningHelper.AppendToStream( SUSY2Stream )
 
