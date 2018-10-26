@@ -108,9 +108,10 @@ if tileESDMon:
 
 
     if (jobproperties.Beam.beamType() == 'collisions'):
+        jetPtMin = 20000.
         ToolSvc += CfgMgr.TileJetMonTool(name                = 'TileJetMonTool'
                                          , OutputLevel       = INFO
-                                         , jetPtMin          = 20000.0
+                                         , jetPtMin          = jetPtMin
                                          , jetEtaMax         = 1.6
                                          , jetCollectionName = 'AntiKt4EMTopoJets'
                                          , do_1dim_histos    = False
@@ -129,16 +130,25 @@ if tileESDMon:
 
         from JetRec.JetRecFlags import jetFlags
         if jetFlags.useTracks():
+            jet_tracking_eta_limit = 2.4
             jvt = CfgMgr.JetVertexTaggerTool('JVT')
             ToolSvc += jvt
             cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
             cleaning.CutLevel = "LooseBad"
             cleaning.DoUgly = False
             ToolSvc += cleaning
-            ToolSvc.TileJetMonTool.do_jet_cleaning   = True
-            ToolSvc.TileJetMonTool.useJVTTool        = jvt
-            ToolSvc.TileJetMonTool.useJetCleaning    = cleaning
-
+            ecTool               = CfgMgr.EventCleaningTool("MyEventCleaningTool") #CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
+            ecTool.PtCut         = jetPtMin
+            ecTool.EtaCut        = jet_tracking_eta_limit
+            ecTool.JvtDecorator  = "passJvt"
+            ecTool.OrDecorator   = "passOR"
+            ecTool.CleaningLevel = cleaning.CutLevel
+            ToolSvc += ecTool
+            ToolSvc.TileJetMonTool.do_jet_cleaning        = True
+            ToolSvc.TileJetMonTool.useJVTTool             = jvt
+            ToolSvc.TileJetMonTool.useJetCleaning         = cleaning
+            ToolSvc.TileJetMonTool.useEventCleaning       = ecTool
+            ToolSvc.TileJetMonTool.jet_tracking_eta_limit = jet_tracking_eta_limit
         if DQMonFlags.monManDataType == 'heavyioncollisions':
             if not rec.doHIP(): 
                 ToolSvc.TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
