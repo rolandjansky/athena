@@ -78,11 +78,11 @@ namespace Muon {
     ATH_CHECK( m_printer.retrieve() );
 
     ATH_CHECK(m_key_mdt.initialize());
-    ATH_CHECK(m_key_csc.initialize());
+    if(m_key_csc.key()!="") ATH_CHECK(m_key_csc.initialize());
     ATH_CHECK(m_key_tgc.initialize());
     ATH_CHECK(m_key_rpc.initialize());
-    ATH_CHECK(m_key_stgc.initialize());
-    ATH_CHECK(m_key_mm.initialize());
+    if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
+    if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -337,6 +337,11 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractCscPrdCols( const std::set<IdentifierHash>& chIdHs,
 						   std::vector<const CscPrepDataCollection*>& target ) const {
 
+    if(m_key_csc.key()==""){
+      ATH_MSG_DEBUG("No CSC collection");
+      return;
+    }
+
     SG::ReadHandle<Muon::CscPrepDataContainer> h_cscPrdCont(m_key_csc);
     const Muon::CscPrepDataContainer *cscPrdContainer;
     if(h_cscPrdCont.isValid()) {
@@ -373,6 +378,11 @@ namespace Muon {
   // sTGC                                                                                                                                                                                                
   void MuonSeededSegmentFinder::extractsTgcPrdCols( const std::set<IdentifierHash>& chIdHs,
 						    std::vector<const sTgcPrepDataCollection*>& target ) const {
+
+    if(m_key_stgc.key()==""){
+      ATH_MSG_DEBUG("no sTGC collection");
+      return;
+    }
 
     SG::ReadHandle<Muon::sTgcPrepDataContainer> h_stgcPrdCont(m_key_stgc);
     const Muon::sTgcPrepDataContainer *stgcPrdContainer;
@@ -422,6 +432,11 @@ namespace Muon {
   // MM
   void MuonSeededSegmentFinder::extractMMPrdCols( const std::set<IdentifierHash>& chIdHs,
 						  std::vector<const MMPrepDataCollection*>& target ) const {
+
+    if(m_key_mm.key()==""){
+      ATH_MSG_DEBUG("no MM collection");
+      return;
+    }
 
     SG::ReadHandle<Muon::MMPrepDataContainer> h_mmPrdCont(m_key_mm);
     const Muon::MMPrepDataContainer *mmPrdContainer;
