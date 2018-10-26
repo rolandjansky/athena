@@ -236,12 +236,13 @@ cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
 cleaning.CutLevel = "LooseBad"
 cleaning.DoUgly = False
 ToolSvc += cleaning
-ecTool               = CfgMgr.EventCleaningTool("MyEventCleaningTool") #CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
-ecTool.PtCut         = 20000.0
-ecTool.EtaCut        = 2.4
-ecTool.JvtDecorator  = "passJvt"
-ecTool.OrDecorator   = "passOR"
-ecTool.CleaningLevel = cleaning.CutLevel
+ecTool                 = CfgMgr.EventCleaningTool("MyEventCleaningTool") #CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
+ecTool.JetCleaningTool = cleaning
+ecTool.PtCut           = 20000.0
+ecTool.EtaCut          = 2.4
+ecTool.JvtDecorator    = "passJvt"
+ecTool.OrDecorator     = "passOR"
+ecTool.CleaningLevel   = cleaning.CutLevel
 ToolSvc += ecTool
 
 from TileMonitoring.TileMonitoringConf import TileJetMonTool
