@@ -51,6 +51,5 @@ triphotonelectron_trigger = [
 singleLeptonTriggers = SingleLepton_2018+SingleLepton_2017+SingleLepton_2016+SingleLepton_2015
 diLeptonTriggers = DiLepton_2018+DiLepton_2017+DiLepton_2016+DiLepton_2015
 SUSY2AllTriggers = trielectron_trigger + trimuon_trigger + trielemuon_trigger + singleLeptonTriggers + diLeptonTriggers + triphotonmuon_trigger + triphotonelectron_trigger
-triggersNavThin = trielectron_trigger+trimuon_trigger+trielemuon_trigger+singleLeptonTriggers+diLeptonTriggers+triphotonmuon_trigger + triphotonelectron_trigger
 LeptonTriggers =  trielectron_trigger+trimuon_trigger+trielemuon_trigger+singleLeptonTriggers+diLeptonTriggers
 PhotonTriggers =  triphotonmuon_trigger+triphotonelectron_trigger
