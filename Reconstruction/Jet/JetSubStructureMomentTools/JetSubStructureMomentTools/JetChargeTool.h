@@ -17,7 +17,7 @@ public:
   // Constructor and destructor
   JetChargeTool(std::string name);
 
-  int modifyJet(xAOD::Jet &jet) const;
+  int modifyJet(xAOD::Jet & ) const;
 
 private:
   double m_k;

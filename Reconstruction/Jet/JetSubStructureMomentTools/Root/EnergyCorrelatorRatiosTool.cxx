@@ -9,26 +9,17 @@
 using namespace std;
 using fastjet::PseudoJet;
 
-EnergyCorrelatorRatiosTool::EnergyCorrelatorRatiosTool(std::string name) : 
+EnergyCorrelatorRatiosTool::EnergyCorrelatorRatiosTool(std::string name) :
   JetSubStructureMomentToolsBase(name)
 {
   declareProperty("IncludeBeta2", m_includeBeta2 = false);
   declareProperty("IncludeECF4",  m_includeECF4  = false);
-  declareProperty("Prefix"     ,  m_prefix       = "");
-}
-
-StatusCode EnergyCorrelatorRatiosTool::initialize()
-{
-
-  if(!m_prefix.empty() && m_prefix.find_last_of("_")+1 != m_prefix.size()) m_prefix += "_";
-
-  return StatusCode::SUCCESS;
 }
 
 int EnergyCorrelatorRatiosTool::modifyJet(xAOD::Jet &jet) const {
   
   if (!jet.isAvailable<float>(m_prefix+"ECF1") || !jet.isAvailable<float>(m_prefix+"ECF2") || !jet.isAvailable<float>(m_prefix+"ECF3")) {
-    ATH_MSG_WARNING("Energy correlation fractions are not all available. Exiting..");
+    ATH_MSG_WARNING("Energy correlation fractions "<<m_prefix <<"are not all available. Exiting..");
     return 1;
   }
   

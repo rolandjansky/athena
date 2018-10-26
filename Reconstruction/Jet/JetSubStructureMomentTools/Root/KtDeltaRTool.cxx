@@ -12,15 +12,26 @@ KtDeltaRTool::KtDeltaRTool(const std::string& myname)
   declareProperty("JetRadius", m_jetrad =0.4);
 }
 
+/*
 StatusCode KtDeltaRTool::initialize() {
   return StatusCode::SUCCESS;
 }
+*/
 
-int KtDeltaRTool::modifyJet(xAOD::Jet& jet) const {
-  if(checkForConstituents(jet) == false) return 1;
+int KtDeltaRTool::modifyJet(xAOD::Jet& injet) const {
 
-  JetSubStructureUtils::KtDeltaR ktdr(m_jetrad);
-  jet.setAttribute("KtDR", ktdr.result(jet));
+  fastjet::PseudoJet jet;
+  bool decorate = SetupDecoration(jet,injet);
+
+  float ktdr_value = -999;
+
+  if (decorate) {
+    JetSubStructureUtils::KtDeltaR ktdr(m_jetrad);
+    ktdr_value = ktdr.result(jet);
+  }
+
+  injet.setAttribute(m_prefix+"KtDR",ktdr_value);
+    
   return 0;
 }
 

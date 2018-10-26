@@ -15,20 +15,40 @@ EnergyCorrelatorGeneralizedRatiosTool::EnergyCorrelatorGeneralizedRatiosTool(std
 }
 
 int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
-  float ecfg_2_1 = jet.getAttribute<float>("ECFG_2_1");
-  float ecfg_3_2 = jet.getAttribute<float>("ECFG_3_2");
 
-  float ecfg_4_2 = jet.getAttribute<float>("ECFG_4_2");
-  float ecfg_3_1 = jet.getAttribute<float>("ECFG_3_1");
+  
+  if (!jet.isAvailable<float>(m_prefix+"EFG_2_1") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_3_2") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_4_2") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_3_1") ||
+      
+
+      !jet.isAvailable<float>(m_prefix+"EFG_2_1_2") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_3_1_1") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_3_2_1") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_3_2_2") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_4_2_2") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_3_3_1") ||
+      !jet.isAvailable<float>(m_prefix+"EFG_4_4_1")) {
+    ATH_MSG_WARNING("Energy correlation fractions are not all available. Exiting..");
+    return 1;
+  }
+  
+  
+  float ecfg_2_1 = jet.getAttribute<float>(m_prefix+"ECFG_2_1");
+  float ecfg_3_2 = jet.getAttribute<float>(m_prefix+"ECFG_3_2");
+
+  float ecfg_4_2 = jet.getAttribute<float>(m_prefix+"ECFG_4_2");
+  float ecfg_3_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_1");
 
   // these ones for t/H discrimination
-  float ecfg_2_1_2 = jet.getAttribute<float>("ECFG_2_1_2");
-  float ecfg_3_1_1 = jet.getAttribute<float>("ECFG_3_1_1");
-  float ecfg_3_2_1 = jet.getAttribute<float>("ECFG_3_2_1");  
-  float ecfg_3_2_2 = jet.getAttribute<float>("ECFG_3_2_2");
-  float ecfg_4_2_2 = jet.getAttribute<float>("ECFG_4_2_2");
-  float ecfg_3_3_1 = jet.getAttribute<float>("ECFG_3_3_1");
-  float ecfg_4_4_1 = jet.getAttribute<float>("ECFG_4_4_1");
+  float ecfg_2_1_2 = jet.getAttribute<float>(m_prefix+"ECFG_2_1_2");
+  float ecfg_3_1_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_1_1");
+  float ecfg_3_2_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_2_1");  
+  float ecfg_3_2_2 = jet.getAttribute<float>(m_prefix+"ECFG_3_2_2");
+  float ecfg_4_2_2 = jet.getAttribute<float>(m_prefix+"ECFG_4_2_2");
+  float ecfg_3_3_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_3_1");
+  float ecfg_4_4_1 = jet.getAttribute<float>(m_prefix+"ECFG_4_4_1");
 
   // N2
   if(fabs(ecfg_2_1) > 1e-8) // Prevent div-0

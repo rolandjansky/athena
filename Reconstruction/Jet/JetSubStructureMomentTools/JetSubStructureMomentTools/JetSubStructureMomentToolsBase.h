@@ -19,11 +19,19 @@ namespace fastjet {
 
 class JetSubStructureMomentToolsBase :
   public JetModifierBase {
+
     public:
       // Constructor and destructor
       JetSubStructureMomentToolsBase(std::string name);
 
+      StatusCode initialize();
+
     protected:
+      std::string m_inputContainer;
+      std::string m_prefix;
+      
+
+      bool SetupDecoration(fastjet::PseudoJet& pseudojet,const  xAOD::Jet& jet) const;
       bool checkForConstituents(const xAOD::Jet &jet) const {
         if(jet.numConstituents() == 0) {
           ATH_MSG_WARNING("Attempting to use a substructure tool on a jet that has no constituent");

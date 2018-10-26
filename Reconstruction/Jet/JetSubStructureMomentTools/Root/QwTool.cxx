@@ -13,10 +13,18 @@ QwTool::QwTool(const std::string& myname)
 //   return StatusCode::SUCCESS;
 // }
 
-int QwTool::modifyJet(xAOD::Jet& jet) const {
+int QwTool::modifyJet(xAOD::Jet& injet) const {
   //if(checkForConstituents(jet) == false) return 1;
 
-  static JetSubStructureUtils::Qw qw;
-  jet.setAttribute("Qw", qw.result(jet));
+  fastjet::PseudoJet jet;
+  bool decorate = SetupDecoration(jet,injet);
+  float qw_value = -999;
+
+  if (decorate) {
+    static JetSubStructureUtils::Qw qw;
+    qw_value = qw.result(jet);
+  }
+    
+  injet.setAttribute("Qw", qw_value);
   return 0;
 }

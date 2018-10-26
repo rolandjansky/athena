@@ -14,12 +14,20 @@ AngularityTool::AngularityTool(std::string name) :
   ATH_MSG_DEBUG("Initializing angularity tool.");
 }
 
-int AngularityTool::modifyJet(xAOD::Jet &jet) const {
-  if(checkForConstituents(jet) == false) return 1;
+int AngularityTool::modifyJet(xAOD::Jet &injet) const {
+  //if(checkForConstituents(jet) == false) return 1;
 
-  JetSubStructureUtils::Angularity angularity;
-  double val = angularity.result(jet);
-  ATH_MSG_VERBOSE("Adding jet angularity: " << val);
-  jet.setAttribute("Angularity", val);
+  fastjet::PseudoJet jet;
+  bool decorate = SetupDecoration(jet,injet);
+
+  float Angularity_value = -999;
+  
+  if (decorate) {
+    JetSubStructureUtils::Angularity angularity;
+    Angularity_value = angularity.result(jet);
+    ATH_MSG_VERBOSE("Adding jet angularity: " << Angularity_value);
+  }
+  
+  injet.setAttribute(m_prefix+"Angularity", Angularity_value);
   return 0;
 }
