@@ -31,8 +31,9 @@
 //=============================================================================
 AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(std::string myname) :
   AsgTool(myname),
-  m_configFile(""),
-  m_rootForwardTool(0)
+  m_configFile{""},
+  m_rootForwardTool{nullptr},
+  m_primVtxContKey{"PrimaryVertices"}
 {
   m_rootForwardTool = new Root::TForwardElectronIsEMSelector(myname.c_str());
 
