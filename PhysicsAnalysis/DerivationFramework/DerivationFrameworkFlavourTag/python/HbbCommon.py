@@ -249,6 +249,7 @@ def buildVRJets(sequence, do_ghost, logger):
     from AthenaCommon.AppMgr import ToolSvc
 
     #make the btagging tool for VR jets
+    BTagging.BTaggingFlags import BTaggingFlags
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
@@ -257,8 +258,7 @@ def buildVRJets(sequence, do_ghost, logger):
                  "BTagSVName"   : "SecVtx",
         },
         SetupScheme = "",
-        TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
-                      'MV2c10', 'MV2rmu', 'MV2r', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1r', 'DL1rmu', 'RNNIP'],
+        TaggerList = BTaggingFlags.StandardTaggers,
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
     )
 
@@ -397,6 +397,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
     VRJetBTagName = "BTagging_%s" % (VRJetName)
 
     #make the btagging tool for VR jets
+    from BTagging.BTaggingFlags import BTaggingFlags
     btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
                  options={"name"         : VRJetBTagName.lower(),
                           "BTagName"     : VRJetBTagName,
@@ -404,8 +405,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
                           "BTagSVName"   : "SecVtx",
                           },
                  SetupScheme = "",
-                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
-                               'MV2c10', 'MV2rmu', 'MV2r', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1rmu', 'DL1r', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                 TaggerList = BTaggingFlags.StandardTaggers
                  )
 
     if VRJetAlgName in DFJetAlgs:
