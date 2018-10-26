@@ -70,7 +70,7 @@ void TileDQstatus::setAllGood() {
 TileDQstatus::~TileDQstatus() {
 }
 
-// Fucntion to fill error arrays from DQ fragment stores in DSP RawChannelContainer
+// Function to fill error arrays from DQ fragment stores in DSP RawChannelContainer
 // If monogain run, both gains contain the same results
 void TileDQstatus::fillArrays(const TileRawChannelCollection *coll,
                               const TileDigitsContainer* digitsCnt,
