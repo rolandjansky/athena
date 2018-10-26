@@ -330,7 +330,7 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       m_streamClientFiles.push_back(outputConnectionSpec);
    }
    try {
-      if (!m_poolSvc->connect(pool::ITransaction::UPDATE).isSuccess()) {
+      if (!m_poolSvc->connect(pool::ITransaction::UPDATE, IPoolSvc::kOutputStream).isSuccess()) {
          ATH_MSG_ERROR("connectOutput FAILED to open an UPDATE transaction.");
          return(StatusCode::FAILURE);
       }
