@@ -2,6 +2,7 @@
 #
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
+import AthenaCommon.CfgMgr as CfgMgr
 
 # Set InDet Flags
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -74,10 +75,11 @@ def bJetStep1Sequence():
         if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
             TrackParticlesName = viewAlg.TrackParticlesName
 
+    # Primary Vertex goes here
+
     # Shortlis of jets
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
     jetSplitter = TrigJetSplitterMT("jetSplitter")
-    jetSplitter.OutputLevel = DEBUG
     jetSplitter.ImposeZconstraint = False
     jetSplitter.Jets = sequenceOut
     jetSplitter.OutputJets = "SplitJet"
@@ -88,7 +90,7 @@ def bJetStep1Sequence():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoILink = "roi" # To be used in following steps
@@ -100,7 +102,7 @@ def bJetStep1Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName )
+                         HypoToolGen = TrigBjetEtHypoToolFromName_j )
 
 
 # ==================================================================================================== 
@@ -119,14 +121,16 @@ def bJetStep2Sequence():
     InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
     InputMakerAlg.RoIsLink = "roi" # RoIs linked to previous decision
-    InputMakerAlg.InViewRoIs = "SplitJets" #"InViewRoIs" # Name RoIs are inserted in the view
+    InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
     InputMakerAlg.Views = "BJetViews" # Name of output view
+
+    # Precision Tracking
 
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
-    theGSC.JetKey = InputMakerAlg.InViewRoIs
+    theGSC.JetKey = "SplitJets" #InputMakerAlg.InViewRoIs
     theGSC.JetOutputKey = "GSCJets"
 
     step2Sequence = seqAND("step2Sequence",[theGSC]);
@@ -134,11 +138,10 @@ def bJetStep2Sequence():
     
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
-    hypo.OutputJets = "myJets"
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])
@@ -146,7 +149,7 @@ def bJetStep2Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromName )
+                         HypoToolGen = TrigBjetEtHypoToolFromName_gsc )
 
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging

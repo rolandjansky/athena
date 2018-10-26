@@ -113,7 +113,10 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   newDecision->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),0 ) );
   ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision" );
-
+  /*
+  newDecision->setObjectLink( "SplitJets",ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
+  ATH_MSG_DEBUG( "Linking SplitJets to output decision" );
+  */
   return StatusCode::SUCCESS;
 }
 

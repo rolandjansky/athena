@@ -31,9 +31,7 @@ StatusCode TrigBjetEtHypoTool::initialize()  {
  
    ATH_MSG_DEBUG(  "declareProperty review:"          );
    ATH_MSG_DEBUG(  "    "   <<     m_acceptAll        ); 
-   ATH_MSG_DEBUG(  "    "   <<     m_etCalibration    );
    ATH_MSG_DEBUG(  "    "   <<     m_etThreshold      );
-   ATH_MSG_DEBUG(  "    "   <<     m_gscThreshold     );
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_id  );
   return StatusCode::SUCCESS;
@@ -46,7 +44,7 @@ StatusCode TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,b
   // Right now only considering single b-jet chains. 
   // Will be revised with higher multeplicity
 
-  ATH_MSG_INFO( "Executing TrigBjetEtHypoTool " ); // DEBUG
+  ATH_MSG_DEBUG( "Executing "<< name() );
   ATH_MSG_DEBUG( "Evaluating 'decide' on " << jetCollection->size() << " input jets " );
 
   pass = false;
@@ -54,8 +52,7 @@ StatusCode TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,b
   // Run on Jet Collection
   for ( const xAOD::Jet* jet : *jetCollection ) {
     ATH_MSG_DEBUG( "EtHypo on Jet " << jet->p4().Et() );
-    ATH_MSG_DEBUG( "  Threshold 'j' "   << m_etThreshold  );
-    ATH_MSG_DEBUG( "  Threshold 'gsc '"   << m_gscThreshold  );
+    ATH_MSG_DEBUG( "  Et Threshold "   << m_etThreshold  );
 
     float et = jet->p4().Et(); 
     
@@ -67,7 +64,6 @@ StatusCode TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,b
       ATH_MSG_DEBUG( "REGTEST: AcceptAll property not set: applying the selection" );
       ATH_MSG_DEBUG( "REGTEST: EF jet with et = " << et );
       ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy 'j' Et > " << m_etThreshold );
-      ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy 'gsc' Et > " << m_gscThreshold );
       
       if (et >= m_etThreshold)
 	pass = true;
@@ -87,9 +83,7 @@ StatusCode TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,b
   return StatusCode::SUCCESS;
 }
 
-
 // ----------------------------------------------------------------------------------------------------------------- 
-
 
 StatusCode TrigBjetEtHypoTool::finalize()  {
   ATH_MSG_INFO( "Finalizing TrigBjetEtHypoTool" );

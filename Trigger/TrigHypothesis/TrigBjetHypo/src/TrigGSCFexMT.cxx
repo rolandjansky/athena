@@ -81,6 +81,7 @@ StatusCode TrigGSCFexMT::execute() {
   // ==============================================================================================================================
 
   const EventContext& ctx = getContext();
+  ATH_MSG_DEBUG( "Ready to retrieve jets : " << m_JetContainerKey.key() );
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_JetContainerKey,ctx );
   CHECK( jetContainerHandle.isValid() );
 
