@@ -6,7 +6,6 @@
 #define KTJET_KTLORENTZVECTOR_H
 
 #include <vector>
-#include <cmath>
 #include "KtJet/KtUtil.h"
 
 
@@ -59,7 +58,7 @@ namespace KtJet {
     /** rapidity, only valid if haven't called other methods since last call to add() */
     inline KtFloat crapidity() const;
     /** rapidity, only valid if haven't called other methods since last call to add() */
-    KtFloat m_crapidity;
+    KtFloat m_crapidity{};
     /** calculate rapidity */
     inline void calcRapidity();
     /** private method to help add constituents to vector */
