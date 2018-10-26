@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #####################################
 ##     Test PileUpTool methods     ##
@@ -29,7 +30,8 @@ def getStandardTruthPileUpTools():
     if DetFlags.pileup.Truth_on():
         from Digitization.DigitizationFlags import digitizationFlags
         if 'NewMerge' in digitizationFlags.experimentalDigi():
-            PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
+            if not athenaCommonFlags.DoFullChain():
+                PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
             if digitizationFlags.doLowPtMinBias.get_Value():
                 PileUpToolsList += [ "NewMergeMcEventCollTool_MinBias" ]
             if digitizationFlags.doHighPtMinBias.get_Value():
@@ -53,11 +55,12 @@ def getStandardSignalOnlyTruthPileUpTools():
     if DetFlags.pileup.Truth_on():
         from Digitization.DigitizationFlags import digitizationFlags
         if 'NewMerge' in digitizationFlags.experimentalDigi():
-            PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
+            if not athenaCommonFlags.DoFullChain():
+                PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
         else:
             PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
-        if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
+        if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeTrackRecordCollTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
             PileUpToolsList += [ "MergeCalibHitsTool" ]
@@ -69,7 +72,8 @@ def getStandardInTimeOnlyTruthPileUpTools():
     if DetFlags.pileup.Truth_on():
         from Digitization.DigitizationFlags import digitizationFlags
         if 'NewMerge' in digitizationFlags.experimentalDigi():
-            PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
+            if not athenaCommonFlags.DoFullChain():
+                PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
             if digitizationFlags.doLowPtMinBias.get_Value():
                 PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_MinBias" ]
             if digitizationFlags.doHighPtMinBias.get_Value():
@@ -81,7 +85,7 @@ def getStandardInTimeOnlyTruthPileUpTools():
         else:
             PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
-        if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
+        if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeTrackRecordCollTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
             PileUpToolsList += [ "MergeCalibHitsTool" ]

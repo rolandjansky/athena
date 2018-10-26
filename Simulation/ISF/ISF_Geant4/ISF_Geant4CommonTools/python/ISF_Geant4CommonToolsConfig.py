@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
@@ -11,6 +11,10 @@ def getEntryLayerTool(name="ISF_EntryLayerTool", **kwargs):
     kwargs.setdefault('GeoIDSvc'        , 'ISF_GeoIDSvc')
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault('ParticleFilters' , [ simFlags.TruthStrategy.EntryLayerFilterName() ] )
+    from AthenaCommon.DetFlags import DetFlags
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.DoFullChain() and DetFlags.pileup.any_on():
+        kwargs.setdefault('EvtStore', 'OriginalEvent_SG') # For Fast Chain
     return CfgMgr.ISF__EntryLayerTool(name, **kwargs)
 
 def getAFIIEntryLayerTool(name="ISF_AFIIEntryLayerTool", **kwargs):

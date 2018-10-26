@@ -37,8 +37,6 @@ from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doMonitoring=True
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
-
-
 ######################################################################
 #                                                                    #
 # Place holder for numerous common job options of skeleton.XXX files #
