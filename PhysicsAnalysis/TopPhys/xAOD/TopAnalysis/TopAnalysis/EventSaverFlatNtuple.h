@@ -466,6 +466,8 @@ private:
     std::vector<float> m_el_faketype;
     std::vector<float> m_el_topoetcone20;
     std::vector<float> m_el_ptvarcone20;
+    std::vector<float> m_el_etcone20;
+    std::vector<float> m_el_ptcone30;
     std::vector<char>  m_el_isTight;
     std::vector<char>  m_el_CF; // pass charge ID selector (has no charge flip)
     std::unordered_map<std::string, std::vector<char> > m_el_trigMatched;
@@ -485,6 +487,8 @@ private:
     std::vector<float> m_mu_charge;
     std::vector<float> m_mu_topoetcone20;
     std::vector<float> m_mu_ptvarcone30;
+    std::vector<float> m_mu_etcone20;
+    std::vector<float> m_mu_ptcone30;
     std::vector<char>  m_mu_isTight;
     std::unordered_map<std::string, std::vector<char> > m_mu_trigMatched;
     std::vector<float> m_mu_d0sig;
