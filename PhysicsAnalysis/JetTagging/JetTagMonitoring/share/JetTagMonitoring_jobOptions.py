@@ -4,7 +4,6 @@ monManJetTag = AthenaMonManager(name="JetTagMonManager",
                                 Environment         = DQMonFlags.monManEnvironment(),
                                 ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
                                 DataType            = DQMonFlags.monManDataType())
-topSequence += monManJetTag
 
 from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
 trackSelectorTool = Analysis__TrackSelector (
@@ -18,9 +17,6 @@ from JetTagMonitoring.JetTagMonitoringConf import JetTagMonitoring
 jetTagMonTool = JetTagMonitoring (
     name           = "jetTagMonTool",
     )
-#ToolSvc += jetTagMonTool
-monManJetTag.AthenaMonTools += [ jetTagMonTool ]
-
 # remove events with non-collision BCIDs from your monitoring tools 
 # see https://indico.cern.ch/getFile.py/access?contribId=1&resId=1&materialId=slides&confId=135968
 jetTagMonTool.FilterTools += [ monFilledBunchFilterTool ]
@@ -81,3 +77,6 @@ jetTagMonTool.ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose"; # added b
 jetTagMonTool.MuonTrigger_2017 = "HLT_mu26_ivarmedium"; # added by SARA
 jetTagMonTool.JetTrigger_2017 = "HLT_j15"; # added by SARA
 
+#ToolSvc += jetTagMonTool
+monManJetTag.AthenaMonTools += [ jetTagMonTool ]
+topSequence += monManJetTag

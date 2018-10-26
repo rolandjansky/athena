@@ -204,7 +204,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
       return(StatusCode::FAILURE);
    }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
-   if (!connect(pool::ITransaction::READ).isSuccess()) {
+   if (!connect(pool::ITransaction::READ, IPoolSvc::kInputStream).isSuccess()) {
       ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
       return(StatusCode::FAILURE);
    }
@@ -329,6 +329,7 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token) const {
          contextId = const_cast<PoolSvc*>(this)->getInputContext(auxString);
       }
       if (contextId >= m_persistencySvcVec.size()) {
+         ATH_MSG_WARNING("setObjPtr: Using default input Stream instead of id = " << contextId);
          contextId = IPoolSvc::kInputStream;
       }
    }
@@ -386,7 +387,7 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
    const unsigned int id = m_persistencySvcVec.size();
    m_persistencySvcVec.push_back( pool::IPersistencySvc::create(*m_catalog).release() );
    m_pers_mut.push_back(new CallMutex);
-   if (!connect(pool::ITransaction::READ).isSuccess()) {
+   if (!connect(pool::ITransaction::READ, id).isSuccess()) {
       ATH_MSG_WARNING("Failed to connect Input PersistencySvc: " << id);
       return(IPoolSvc::kInputStream);
    }
@@ -458,6 +459,7 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (openMode == pool::ICollection::READ) {
       if (contextId > m_persistencySvcVec.size()) {
+         ATH_MSG_WARNING("createCollection: Using default input Stream instead of id = " << contextId);
          contextId = IPoolSvc::kInputStream;
       } else if (contextId == m_persistencySvcVec.size()) {
          contextId = const_cast<PoolSvc*>(this)->getInputContext("");
@@ -704,6 +706,7 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
 		long tech,
 		unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
+      ATH_MSG_WARNING("getAttribute: Using default input Stream instead of id = " << contextId);
       contextId = IPoolSvc::kInputStream;
    }
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
@@ -777,6 +780,7 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		long tech,
 		unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
+      ATH_MSG_WARNING("setAttribute: Using default output Stream instead of id = " << contextId);
       contextId = IPoolSvc::kOutputStream;
    }
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
@@ -802,6 +806,7 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		const std::string& contName,
 		unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
+      ATH_MSG_WARNING("setAttribute: Using default output Stream instead of id = " << contextId);
       contextId = IPoolSvc::kOutputStream;
    }
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
@@ -994,6 +999,7 @@ PoolSvc::~PoolSvc() {
 std::unique_ptr<pool::IDatabase> PoolSvc::getDbHandle(unsigned int contextId, const std::string& dbName) const {
    pool::IDatabase* dbH = nullptr;
    if (contextId >= m_persistencySvcVec.size()) {
+      ATH_MSG_WARNING("getDbHandle: Using default input Stream instead of id = " << contextId);
       contextId = IPoolSvc::kInputStream;
    }
    pool::ISession& sesH = m_persistencySvcVec[contextId]->session();
