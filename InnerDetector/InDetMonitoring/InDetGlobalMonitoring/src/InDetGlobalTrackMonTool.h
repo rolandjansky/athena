@@ -169,6 +169,7 @@ private:
     TH1I * m_Trk_Base;
     ///Distribution of eta vs phi for combined tracks
     TH2F  * m_Trk_eta_phi_Base;
+    TH2F  * m_Trk_eta_phi_Tight;
     TProfile2D  * m_Trk_eta_phi_Tight_ratio;
     TProfile2D  * m_Trk_eta_phi_noIBLhit_ratio;
     TProfile2D  * m_Trk_eta_phi_noBLhit_ratio;

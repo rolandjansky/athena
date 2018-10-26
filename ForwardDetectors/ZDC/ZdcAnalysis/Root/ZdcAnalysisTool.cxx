@@ -80,11 +80,13 @@ namespace ZDC
   {
     if (!m_zdcTriggerEfficiency)
       {
+	ATH_MSG_INFO("Creating new ZDCTriggerEfficiency");
 	m_zdcTriggerEfficiency = new ZDCTriggerEfficiency();
       }
     
     std::string filename = PathResolverFindCalibFile( ("ZdcAnalysis/"+m_zdcTriggerEffParamsFileName) );
     //std::cout << "Found trigger config file " << filename << std::endl;
+    ATH_MSG_INFO("Opening trigger efficiency file " << filename);
     
     TFile* file = TFile::Open(filename.c_str());
     if (!file->IsOpen()) 
@@ -94,7 +96,9 @@ namespace ZDC
       }
     
     //file->Print();
-    
+
+    ATH_MSG_INFO("Reading in trigger efficiencies");
+
     std::stringstream Aalpha_name;
     Aalpha_name<<"A_alpha_"<<runNumber;
     TSpline3* par_A_alpha = (TSpline3*)file->GetObjectChecked(Aalpha_name.str().c_str(),"TSpline3");
@@ -173,7 +177,9 @@ namespace ZDC
     effparamErrors[1] = {parErr_A_alpha, parErr_A_beta, parErr_A_theta};
     effparamsCorrCoeffs[0] = {cov_C_alpha_beta, cov_C_alpha_theta, cov_C_beta_theta};
     effparamsCorrCoeffs[1] = {cov_A_alpha_beta, cov_A_alpha_theta, cov_A_beta_theta};
-    
+
+    ATH_MSG_INFO("Trying to set parameters and errors at " << m_zdcTriggerEfficiency);
+
     m_zdcTriggerEfficiency->SetEffParamsAndErrors(effparams, effparamErrors);
     m_zdcTriggerEfficiency->SetEffParamCorrCoeffs(effparamsCorrCoeffs);
     

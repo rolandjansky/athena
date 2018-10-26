@@ -1201,6 +1201,8 @@ void AnalysisConfig_Ntuple::loop() {
 		//		std::cout << "decidion type " << decisiontype << std::endl;
 #endif
 
+		/// if the chain did not pass, skip this chain completely 
+		if ( !(*m_tdt)->isPassed( chainName, _decisiontype ) ) continue;
 
 		// Get chain combinations and loop on them
 		// - loop made on chain selected as the one steering RoI creation

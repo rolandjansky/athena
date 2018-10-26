@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PRIVATE
         PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
         PhysicsAnalysis/AnalysisCommon/PATCore
 	PhysicsAnalysis/MCTruthClassifier
+	PhysicsAnalysis/IsolationSelection
 	TestPolicy 
 	Tracking/TrkValidation/TrkValHistUtils ) 
 
