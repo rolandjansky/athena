@@ -273,48 +273,56 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 StatusCode JGTowerReader::ProcessObjects(){
 
   // Ouptut Jets
-  xAOD::JetRoIAuxContainer* jFexJetContAux = new xAOD::JetRoIAuxContainer();
-  xAOD::JetRoIContainer* jFexJetCont = new xAOD::JetRoIContainer(); 
-  jFexJetCont->setStore(jFexJetContAux);
-  xAOD::JetRoIAuxContainer* jFexRoundJetContAux = new xAOD::JetRoIAuxContainer();
-  xAOD::JetRoIContainer* jFexRoundJetCont = new xAOD::JetRoIContainer(); 
-  jFexRoundJetCont->setStore(jFexRoundJetContAux);
+  if(m_makeSquareJets) {
+    xAOD::JetRoIAuxContainer* jFexJetContAux = new xAOD::JetRoIAuxContainer();
+    xAOD::JetRoIContainer* jFexJetCont = new xAOD::JetRoIContainer(); 
+    jFexJetCont->setStore(jFexJetContAux);
+    for(unsigned j=0;j<jL1Jets.size();j++  ){
+      JetAlg::L1Jet jet = jL1Jets.at(j);
+      CHECK(HistBookFill("jJet_et",50,0,500,jet.et/1000.,1.));
+      CHECK(HistBookFill("jJet_eta",49,-4.9,4.9,jet.eta,1.));
+      CHECK(HistBookFill("jJet_phi",31,-3.1416,3.1416,jet.phi,1.));
+      xAOD::JetRoI* jFexJet = new xAOD::JetRoI();     
+      jFexJetCont->push_back(jFexJet);
+      jFexJet->initialize(0x0,jet.eta,jet.phi);
+      jFexJet->setEt8x8(jet.et);
+    }
+    CHECK(evtStore()->record(jFexJetCont,"jFexJets"));
+    CHECK(evtStore()->record(jFexJetContAux,"jFexJetsAux."));
+  }
 
-  for(unsigned j=0;j<jL1Jets.size();j++  ){
-     JetAlg::L1Jet jet = jL1Jets.at(j);
-     CHECK(HistBookFill("jJet_et",50,0,500,jet.et/1000.,1.));
-     CHECK(HistBookFill("jJet_eta",49,-4.9,4.9,jet.eta,1.));
-     CHECK(HistBookFill("jJet_phi",31,-3.1416,3.1416,jet.phi,1.));
-     xAOD::JetRoI* jFexJet = new xAOD::JetRoI();     
-     jFexJetCont->push_back(jFexJet);
-     jFexJet->initialize(0x0,jet.eta,jet.phi);
-     jFexJet->setEt8x8(jet.et);
+  if(m_makeRoundJets) {
+    xAOD::JetRoIAuxContainer* jFexRoundJetContAux = new xAOD::JetRoIAuxContainer();
+    xAOD::JetRoIContainer* jFexRoundJetCont = new xAOD::JetRoIContainer(); 
+    jFexRoundJetCont->setStore(jFexRoundJetContAux);
+    for(unsigned j=0;j<jJet_L1Jets.size();j++  ){
+      JetAlg::L1Jet jet = jJet_L1Jets.at(j);
+      CHECK(HistBookFill("jJet_round_et",50,0,500,jet.et/1000.,1.));
+      CHECK(HistBookFill("jJet_round_eta",49,-4.9,4.9,jet.eta,1.));
+      CHECK(HistBookFill("jJet_round_phi",31,-3.1416,3.1416,jet.phi,1.));
+      xAOD::JetRoI* jFexRoundJet = new xAOD::JetRoI();     
+      jFexRoundJetCont->push_back(jFexRoundJet);
+      jFexRoundJet->initialize(0x0,jet.eta,jet.phi);
+      jFexRoundJet->setEt8x8(jet.et);
+    }
+    CHECK(evtStore()->record(jFexRoundJetCont,"jFexRoundJets"));
+    CHECK(evtStore()->record(jFexRoundJetContAux,"jFexRoundJetsAux."));
   }
-  for(unsigned j=0;j<jJet_L1Jets.size();j++  ){
-     JetAlg::L1Jet jet = jJet_L1Jets.at(j);
-     CHECK(HistBookFill("jJet_round_et",50,0,500,jet.et/1000.,1.));
-     CHECK(HistBookFill("jJet_round_eta",49,-4.9,4.9,jet.eta,1.));
-     CHECK(HistBookFill("jJet_round_phi",31,-3.1416,3.1416,jet.phi,1.));
-     xAOD::JetRoI* jFexRoundJet = new xAOD::JetRoI();     
-     jFexRoundJetCont->push_back(jFexRoundJet);
-     jFexRoundJet->initialize(0x0,jet.eta,jet.phi);
-     jFexRoundJet->setEt8x8(jet.et);
-  }
+
   for(unsigned j=0;j<gL1Jets.size();j++  ){
      JetAlg::L1Jet jet = gL1Jets.at(j);
      CHECK(HistBookFill("gJet_et",50,0,500,jet.et/1000.,1.));
      CHECK(HistBookFill("gJet_eta",49,-4.9,4.9,jet.eta,1.));
      CHECK(HistBookFill("gJet_phi",31,-3.1416,3.1416,jet.phi,1.));
   }
-  CHECK(evtStore()->record(jFexJetCont,"jFexJets"));
-  CHECK(evtStore()->record(jFexJetContAux,"jFexJetsAux."));
+
   //output MET
+  CHECK(HistBookFill("jMet_et",50,0,500,jMET->et/1000.,1.));
+  CHECK(HistBookFill("jMet_phi",31,-3.1416,-3.1416,jMET->phi,1.));
   xAOD::EnergySumRoIAuxInfo* jFexMETContAux = new xAOD::EnergySumRoIAuxInfo();
   xAOD::EnergySumRoI* jFexMETCont = new xAOD::EnergySumRoI();
   jFexMETCont->setStore(jFexMETContAux);
 
-  CHECK(HistBookFill("jMet_et",50,0,500,jMET->et/1000.,1.));
-  CHECK(HistBookFill("jMet_phi",31,-3.1416,-3.1416,jMET->phi,1.));
   jFexMETCont->setEnergyX(jMET->et*cos(jMET->phi));
   jFexMETCont->setEnergyY(jMET->et*sin(jMET->phi));  
   CHECK(evtStore()->record(jFexMETCont,"jFexMET"));
