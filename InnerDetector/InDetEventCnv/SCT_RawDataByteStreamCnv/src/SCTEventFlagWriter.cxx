@@ -17,7 +17,8 @@ SCTEventFlagWriter::SCTEventFlagWriter(const std::string& name,
 
 /// --------------------------------------------------------------------
 /// Initialize
-StatusCode SCTEventFlagWriter::initialize() {
+StatusCode SCTEventFlagWriter::initialize() 
+{
   ATH_CHECK(m_bsErrTool.retrieve());
   ATH_CHECK(m_xAODEvtInfoKey.initialize());
   

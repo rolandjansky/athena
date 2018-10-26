@@ -29,7 +29,8 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
 
 // Initialize
 
-StatusCode SCTRawDataProvider::initialize() {
+StatusCode SCTRawDataProvider::initialize()
+{
   // Get ROBDataProviderSvc
   ATH_CHECK(m_robDataProvider.retrieve());
   // Get the SCT ID helper
@@ -63,16 +64,15 @@ typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawD
 
 StatusCode SCTRawDataProvider::execute()
 {
-
   m_rawDataTool->beginNewEvent();
 
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
   bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
-  if (!externalCacheRDO){
+  if (!externalCacheRDO) {
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max())));
     ATH_MSG_DEBUG("Created container for " << m_sctID->wafer_hash_max());
   }
-  else{
+  else {
     SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey);
     ATH_CHECK(update.isValid());
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(update.ptr())));
@@ -120,11 +120,10 @@ StatusCode SCTRawDataProvider::execute()
   ATH_CHECK(bcIDCollection.isValid());
 
   for (const ROBFragment* robFrag : vecROBFrags) {
-    
-    uint32_t robID{(robFrag)->rod_source_id()};
     // Store LVL1ID and BCID information in InDetTimeCollection 
     // to be stored in StoreGate at the end of the loop.
     // We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
+    uint32_t robID{(robFrag)->rod_source_id()};
     
     unsigned int lvl1ID{(robFrag)->rod_lvl1_id()};
     auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robID, lvl1ID)};
@@ -135,7 +134,6 @@ StatusCode SCTRawDataProvider::execute()
     bcIDCollection->push_back(std::move(bcIDPair));
     
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1ID << " and BCID " << bcID << " in InDetTimeCollections");
-    
   }
 
   std::unique_ptr<dummySCTRDO_t> dummyRDO;

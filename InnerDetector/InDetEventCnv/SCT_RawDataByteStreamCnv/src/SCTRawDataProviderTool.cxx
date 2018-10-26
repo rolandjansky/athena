@@ -93,7 +93,8 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 
 // beginNewEvent method
 
-void SCTRawDataProviderTool::beginNewEvent() const {
+void SCTRawDataProviderTool::beginNewEvent() const 
+{
   // reset list of known robIDs
   std::lock_guard<std::mutex> lock(m_mutex);
   m_robIDSet.clear();
