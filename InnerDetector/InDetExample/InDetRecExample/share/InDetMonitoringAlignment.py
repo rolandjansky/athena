@@ -160,7 +160,7 @@ else:
                                                                           CutLevel               = "LoosePrimary",
                                                                           TrackSummaryTool       = InDetTrackSummaryTool,
                                                                           Extrapolator           = InDetExtrapolator))
-        #ToolSvc += m_alignMonTrackSelectorTool[i]
+        ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
             print m_alignMonTrackSelectorTool[i]
             
@@ -283,7 +283,7 @@ if jobproperties.Beam.beamType()=='cosmics':
                                                              OutputUpperTracksName = m_upperTracksName[i],
                                                              OutputLowerTracksName = m_lowerTracksName[i]))
         
-        #ToolSvc += m_trackSplitter[i]
+        ToolSvc += m_trackSplitter[i]
         if (InDetFlags.doPrintConfigurables()):
             print m_trackSplitter[i]
 
