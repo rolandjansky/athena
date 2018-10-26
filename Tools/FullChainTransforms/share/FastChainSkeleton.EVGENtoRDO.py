@@ -26,8 +26,6 @@
 #####################CommonSkeletonJobOptions.py##########################
 
 
-
-
 ######################################################################
 #                                                                    #
 # Place holder for numerous common job options of skeleton.XXX files #
