@@ -254,9 +254,10 @@ ln -s ../../${hltmenu1}   hlt.xml
 ls -alhtr
 
 # RB configured to ingnore errors and leave unprescaled any new chain not yet defined in RB. It won't try to copy keys to P1
-sed -i -e 's/ignoreErrors = False/ignoreErrors = True/g' runOptions.py
-sed -i -e 's/doUnprescaledIfUndefined = False/doUnprescaledIfUndefined = True/g' runOptions.py
-sed -i -e 's/doUseOnline = True/doUseOnline = False/g' runOptions.py
+sed -i -e 's/ignoreErrors\s*=\s*False/ignoreErrors = True/g' runOptions.py
+sed -i -e 's/doUnprescaledIfUndefined\s*=\s*False/doUnprescaledIfUndefined = True/g' runOptions.py
+sed -i -e 's/doUseOnline\s*=\s*True/doUseOnline = False/g' runOptions.py
+sed -i -e 's/doPbPb\s*=\s*True/doPbPb = False/g' runOptions.py
 
 ./runRuleBook.py 17000
 cd ../..
