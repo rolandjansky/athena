@@ -13,9 +13,10 @@ class MaterialEffectsBase;
 class Layer;
 class CylinderLayer;
 class DiscLayer;
+class MagneticFieldProperties;
 
 /**
-   * @brief Internal representation of the track, used in the track fit.  
+   * @brief Internal representation of the track, used in the track fit.
 
    @author thijs.cornelissen@cern.ch
   */
@@ -85,6 +86,9 @@ public:
 
   std::vector<std::pair<const Layer*,const Layer*> > &upstreamMaterialLayers();
 
+  bool m_straightline;
+  MagneticFieldProperties *m_fieldprop;
+
 private:
   std::vector<GXFTrackState*> m_states; //!< The vector of track states, i.e. measurements, scatterers, brem points, and holes
   int m_ndof;
@@ -118,7 +122,7 @@ private:
   double m_mass;
   bool m_ownrefpar;
   int m_prefit;
-  GXFTrackState *m_caloelossstate;  
+  GXFTrackState *m_caloelossstate;
   std::vector<std::pair<const Layer*,const Layer*> > m_upstreammat;
 };
 }
