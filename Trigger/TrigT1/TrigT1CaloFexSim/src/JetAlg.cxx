@@ -76,9 +76,10 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*se
 
 //To find the seeds as local maxima
 StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds,  float seed_size,float range, std::vector<float> noise){
-  
+  bool m_debug = false;
   // get the energy of each seeds which is defined as 2x2 towers in barrel and endcap, and single tower in fcal
-  std::cout << "JetAlg::SeedFinding: getting seeds with " << seed_size << " and " << range << std::endl;
+  if(m_debug)
+    std::cout << "JetAlg::SeedFinding: getting seeds with " << seed_size << " and " << range << std::endl;
   for(unsigned i=0; i<seeds->eta.size(); i++){
     std::vector<float> tmp_et;
     tmp_et.clear();
@@ -95,14 +96,15 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed
           return StatusCode::FAILURE;
         }
         if( tower->et() > 5*noise.at(t) ) {
-          std::cout << "found a tower with high et = " << tower->et() << " at " << tower->eta() << ", " << tower->phi() << std::endl;
+          if(m_debug)
+            std::cout << "found a tower with high et = " << tower->et() << " at " << tower->eta() << ", " << tower->phi() << std::endl;
           et+= tower->et();
         }
         thr += noise.at(t);
       }
       if(et<thr*6) et = 0;
       tmp_et.push_back(et);
-      if (et > 0)
+      if (et > 0 && m_debug)
         std::cout << eta << ", " << phi << " - pushed back tmp_et " << i << " with et = " << et << " after thr = " << thr << std::endl;
     }
     seeds->et.push_back(tmp_et);
@@ -169,13 +171,14 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed
 
 
 StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r,std::vector<float> noise){
-
+  bool m_debug = false;
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
         if(!seeds->local_max.at(eta_ind).at(phi_ind)) continue;
         float eta = seeds->eta.at(eta_ind);
         float phi = seeds->phi.at(eta_ind).at(phi_ind);
-        std::cout << "BuildJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
+        if(m_debug)
+          std::cout << "BuildJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
         float j_et = 0;
         for(unsigned t=0; t<towers->size(); t++){
            const xAOD::JGTower* tower = towers->at(t);
@@ -192,23 +195,26 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*see
 }
 
 
-StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, std::vector<float> noise, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r){
-
+StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r, std::vector<float> noise){
+  bool m_debug = false;
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
         if(!seeds->local_max.at(eta_ind).at(phi_ind)) continue;
         float eta = seeds->eta.at(eta_ind);
         float phi = seeds->phi.at(eta_ind).at(phi_ind);
         float j_et = 0;
-        std::cout << "BuildRoundJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
+        if(m_debug)
+          std::cout << "BuildRoundJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
         for(unsigned t=0; t<towers->size(); t++){
            const xAOD::JGTower* tower = towers->at(t);
            if(fabs(tower->et())<noise.at(t)) continue;
            if(!withinRadius(eta, tower->eta(), phi, tower->phi(), jet_r)) continue;
            j_et += tower->et();
-           std::cout << "   adding tower at (eta,phi)=("<<tower->eta()<<","<<tower->phi()<<")" << std::endl;
+           if(m_debug)
+             std::cout << "   adding tower at (eta,phi)=("<<tower->eta()<<","<<tower->phi()<<")" << std::endl;
         }
-        std::cout << "   final jet has et = " << j_et << std::endl;
+        if(m_debug)
+          std::cout << "   final jet has et = " << j_et << std::endl;
         if(j_et<10000) continue;
         JetAlg::L1Jet j = JetAlg::L1Jet(eta,phi,j_et);
         js.push_back(j);

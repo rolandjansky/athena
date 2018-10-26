@@ -224,18 +224,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     ATH_MSG_DEBUG("jJetSeeds: m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
     CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr));
   }
-
-  // compare jSeeds and jJetSeeds - they should be identical
-  // but they are not.......
-  if(m_makeSquareJets && m_makeRoundJets) {
-    for(unsigned iseed_eta=0; iseed_eta<jSeeds->eta.size(); iseed_eta++){
-      for(unsigned iseed_phi=0; iseed_phi<jSeeds->phi.at(iseed_eta).size(); iseed_phi++){
-        if(jSeeds->local_max.at(iseed_eta).at(iseed_phi) || jJetSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
-          std::cout << iseed_eta << ", " << iseed_phi << " = " << jSeeds->eta.at(iseed_eta) << ", " << jSeeds->phi.at(iseed_eta).at(iseed_phi) << " - pt: " << jSeeds->et.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->et.at(iseed_eta).at(iseed_phi) << "; local max: " << jSeeds->local_max.at(iseed_eta).at(iseed_phi) << " and " << jJetSeeds->local_max.at(iseed_eta).at(iseed_phi) << std::endl;
-        }
-      }
-    }
-  }
   
   // build initial JFexjet
   if(m_makeSquareJets) {
@@ -288,14 +276,17 @@ StatusCode JGTowerReader::ProcessObjects(){
   xAOD::JetRoIAuxContainer* jFexJetContAux = new xAOD::JetRoIAuxContainer();
   xAOD::JetRoIContainer* jFexJetCont = new xAOD::JetRoIContainer(); 
   jFexJetCont->setStore(jFexJetContAux);
+  xAOD::JetRoIAuxContainer* jFexRoundJetContAux = new xAOD::JetRoIAuxContainer();
+  xAOD::JetRoIContainer* jFexRoundJetCont = new xAOD::JetRoIContainer(); 
+  jFexRoundJetCont->setStore(jFexRoundJetContAux);
 
   for(unsigned j=0;j<jL1Jets.size();j++  ){
-     xAOD::JetRoI* jFexJet = new xAOD::JetRoI();     
-     jFexJetCont->push_back(jFexJet);
      JetAlg::L1Jet jet = jL1Jets.at(j);
      CHECK(HistBookFill("jJet_et",50,0,500,jet.et/1000.,1.));
      CHECK(HistBookFill("jJet_eta",49,-4.9,4.9,jet.eta,1.));
      CHECK(HistBookFill("jJet_phi",31,-3.1416,3.1416,jet.phi,1.));
+     xAOD::JetRoI* jFexJet = new xAOD::JetRoI();     
+     jFexJetCont->push_back(jFexJet);
      jFexJet->initialize(0x0,jet.eta,jet.phi);
      jFexJet->setEt8x8(jet.et);
   }
@@ -304,13 +295,17 @@ StatusCode JGTowerReader::ProcessObjects(){
      CHECK(HistBookFill("jJet_round_et",50,0,500,jet.et/1000.,1.));
      CHECK(HistBookFill("jJet_round_eta",49,-4.9,4.9,jet.eta,1.));
      CHECK(HistBookFill("jJet_round_phi",31,-3.1416,3.1416,jet.phi,1.));
+     xAOD::JetRoI* jFexRoundJet = new xAOD::JetRoI();     
+     jFexRoundJetCont->push_back(jFexRoundJet);
+     jFexRoundJet->initialize(0x0,jet.eta,jet.phi);
+     jFexRoundJet->setEt8x8(jet.et);
   }
   for(unsigned j=0;j<gL1Jets.size();j++  ){
      JetAlg::L1Jet jet = gL1Jets.at(j);
      CHECK(HistBookFill("gJet_et",50,0,500,jet.et/1000.,1.));
      CHECK(HistBookFill("gJet_eta",49,-4.9,4.9,jet.eta,1.));
      CHECK(HistBookFill("gJet_phi",31,-3.1416,3.1416,jet.phi,1.));
-
+  }
   CHECK(evtStore()->record(jFexJetCont,"jFexJets"));
   CHECK(evtStore()->record(jFexJetContAux,"jFexJetsAux."));
   //output MET
