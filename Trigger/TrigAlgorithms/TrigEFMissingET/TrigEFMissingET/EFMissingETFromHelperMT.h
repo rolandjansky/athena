@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEFMISSINGET_EFMISSINGETFROMHELPERMT_H
@@ -10,10 +10,10 @@
 NAME:     EFMissingETFromHelperMT.h
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Diego Casadei, Gabriel Gallardo
-CREATED:  March 12, 2008
+AUTHORS:  Gabriel Gallardo, Manfredi Ronzani
+CREATED:  September 27, 2018
 
-PURPOSE:  Updates TrigMissingET using TrigMissingETHelper info
+PURPOSE:  Updates TrigMissingET using TrigMissingETHelper info for AthenaMT
 
  ********************************************************************/
 
@@ -48,11 +48,8 @@ class EFMissingETFromHelperMT : public extends<EFMissingETBaseTool, IMissingETTo
     virtual StatusCode execute();
 
     virtual StatusCode execute(xAOD::TrigMissingET *met,
-                               TrigEFMissingEtHelper *metHelper,
-                               const xAOD::CaloClusterContainer *caloCluster,
-                               const xAOD::JetContainer *jets,
-                               const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex) const;
+                               TrigEFMissingEtHelper *metHelper) const;
+
     virtual StatusCode update( xAOD::TrigMissingET *met,
            TrigEFMissingEtHelper *metHelper ) const override;
 };

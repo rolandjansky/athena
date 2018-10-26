@@ -7,17 +7,13 @@
 NAME:     EFMissingETFromHelperMT.cxx
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Diego Casadei, Gabriel Gallardo
-CREATED:  March 12, 2008
+AUTHORS:  Gabriel Gallardo, Manfredi Ronzani
+CREATED:  September 27, 2018
 
 PURPOSE:  Updates TrigMissingET using TrigEFMissingETHelper info.
 
 Components are left uncorrected when saved into
 TrigMissingET as auxiliary information.
-
-On the other hand, basic info stored in TrigMissingET
-is computed from components using the DK calibration
-(by R. Djilkibaev and R. Konoplich).
 
  ********************************************************************/
 
@@ -82,68 +78,48 @@ StatusCode EFMissingETFromHelperMT::execute()
 
 StatusCode EFMissingETFromHelperMT::update(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper ) const
 {
-  return EFMissingETFromHelperMT::execute(met, metHelper, nullptr, nullptr, nullptr, nullptr);
+  return EFMissingETFromHelperMT::execute(met, metHelper);
 }
 
 StatusCode EFMissingETFromHelperMT::execute(xAOD::TrigMissingET *met ,
-    TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer * /* caloCluster */, const xAOD::JetContainer * /* jets */,
-                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
-                                        const xAOD::VertexContainer * /*vertexContainer*/ ) const
+    TrigEFMissingEtHelper *metHelper) const
 {
   ATH_MSG_DEBUG( "EFMissingETFromHelperMT::execute() called" );
-
+  
   if (met==0 || metHelper==0) {
     ATH_MSG_ERROR( "ERROR: null pointers as input!" );
     return StatusCode::FAILURE;
   }
-
+  
   ATH_MSG_DEBUG( "Found this info in the helper class: " << metHelper->getFormattedValues() );
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
-
+  
   met->setFlag( metHelper->GetStatus() );
-
+  
   unsigned int comp = met->getNumberOfComponents(); // final no. of aux. compon.
   unsigned char elem = metHelper->GetElements(); // no. of transient aux. compon.
   if (elem!=42) {
     ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class.  Not supported!" );
   }
-
+  
   bool skipAuxInfo=false;
-  bool save9comp=false;
-  bool save6comp=false;
-  bool save5comp=false;
-  bool save3comp=false;
-  bool save2comp=false;
-  bool save1comp=false;
-  switch (comp) {
-    case 25: // default: do nothing
-      break;
-    case 9:
-      save9comp=true;
-      break;
-    case 6:
-      save6comp=true;
-      break;
-    case 5:
-      save5comp=true;
-      break;
-    case 3:
-      save3comp=true;
-      break;
-    case 2:
-      save2comp=true;
-      break;
-    case 1:
-      save1comp=true;
-      break;
-    default:
-      ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
-      skipAuxInfo=true;
-  }
+  bool save9comp = (comp == 9) ? true : false;
+  bool save6comp = (comp == 6) ? true : false;
+  bool save5comp = (comp == 5) ? true : false;
+  bool save3comp = (comp == 3) ? true : false;
+  bool save2comp = (comp == 2) ? true : false;
+  bool save1comp = (comp == 1) ? true : false;
 
+  switch (comp) {
+  case 25: // default: do nothing
+    break;
+  default:
+    ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
+    skipAuxInfo=true;
+  }
+  
   // Initialize EDM by setting all components to zero
   met->setEx(0.); met->setEy(0.); met->setEz(0.);
   met->setSumE(0.); met->setSumEt(0.);
@@ -164,31 +140,7 @@ StatusCode EFMissingETFromHelperMT::execute(xAOD::TrigMissingET *met ,
     unsigned short Ntot = metComp->m_usedChannels;
 
     // basic info - DK calibration
-    if (i<elem-18){  // skip muon or Had Topo granular or EM Topo correction for all quantities
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
-    }
-
-    if(save9comp && i == 24) { // Save summed HAD MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
-    }
-
-    if( (save2comp || save6comp) && i == 34) { // Save JET MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
-    }
-
-    if(save3comp && i == 39) { // Save PUC MET
+    if ( (i<elem-18) || (save9comp && i == 24) ||   ( (save2comp || save6comp) && i == 34) || (save3comp && i == 39) ){  // skip muon or Had Topo granular or EM Topo correction for all quantities / Save summed HAD MET / Save JET MET / Save PUC MET 
       met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
       met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
       met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
@@ -476,17 +428,15 @@ StatusCode EFMissingETFromHelperMT::execute(xAOD::TrigMissingET *met ,
   }
 
   unsigned int Nc = met->getNumberOfComponents();
-
+  
   if (Nc > 0) {
     if(msgLvl(MSG::DEBUG)){
-        s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
-			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        ATH_MSG_DEBUG( s );
-     }
-   }
-
-   for(uint j = 0; j < Nc; j++) {
-
+      s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
+      s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
+      ATH_MSG_DEBUG( s );
+      
+      for(uint j = 0; j < Nc; j++) {
+	
 	const char* name =               met->nameOfComponent(j).c_str();
 	const short status =             met->statusComponent(j);
 	const unsigned short usedChan =  met->usedChannelsComponent(j);
@@ -498,17 +448,17 @@ StatusCode EFMissingETFromHelperMT::execute(xAOD::TrigMissingET *met ,
 	const float ez =                 met->ezComponent(j);
 	const float sumE =               met->sumEComponent(j);
 	const float sumEt =              met->sumEtComponent(j);
-
-     if(msgLvl(MSG::DEBUG)){
-        message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-			   name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
-        ATH_MSG_DEBUG( message );
+	
+	message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
+			     name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
+	ATH_MSG_DEBUG( message );
       }
-
+      
     }
-
-
-
+    
+  }
+  
+  
   return StatusCode::SUCCESS;
 }
 

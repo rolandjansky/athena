@@ -6,6 +6,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 // TrigEFMissingET includes
+#include "TrigEFMissingET/IMissingETTool.h"
 #include "TrigEFMissingET/EFMissingETFromCellsMT.h"
 
 
@@ -68,11 +69,11 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
 
     countUsedCells = countUsedCells + 1;
     
-    double E = cell->e(); if(E<1e-6) nZeroCells++;
-    double et  = E * cDDE->sinTh();
-    double ez  = E * cDDE->cosTh();
-    double sinPhi = cDDE->sinPhi();
-    double cosPhi = cDDE->cosPhi();
+    const double E = cell->e(); if(E<1e-6) nZeroCells++;
+    const double et  = E * cDDE->sinTh();
+    const double ez  = E * cDDE->cosTh();
+    const double sinPhi = cDDE->sinPhi();
+    const double cosPhi = cDDE->cosPhi();
     metComp->m_ex -= et*cosPhi;
     metComp->m_ey -= et*sinPhi;
     metComp->m_ez -= ez;
@@ -94,7 +95,7 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
     //   continue;
     // }
 
-    float time = cell->time() * 1e-3;  // ns
+    const float time = cell->time() * 1e-3;  // ns
     float quality = cell->quality();
     if (time < metComp->m_minTime) metComp->m_minTime = time;
     if (time > metComp->m_maxTime) metComp->m_maxTime = time;
@@ -109,8 +110,8 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
     // ATH_MSG_INFO("metComp->m_sumE" << metComp->m_sumE);
        
   }
-  ATH_MSG_INFO("Number of cells considered: " << nCells);
-  ATH_MSG_INFO("Number of cells with E==0: " << nZeroCells);
+  ATH_MSG_DEBUG("Number of cells considered: " << nCells);
+  ATH_MSG_DEBUG("Number of cells with E==0: " << nZeroCells);
 
       
   return StatusCode::SUCCESS;

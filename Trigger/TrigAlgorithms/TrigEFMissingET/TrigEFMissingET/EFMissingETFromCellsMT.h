@@ -12,7 +12,7 @@
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 
 // TrigEFMissingET includes
-#include "TrigEFMissingET/IMissingETTool.h"
+//#include "TrigEFMissingET/IMissingETTool.h"
 
 
 
