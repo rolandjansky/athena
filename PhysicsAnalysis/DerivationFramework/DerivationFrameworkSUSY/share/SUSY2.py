@@ -276,7 +276,7 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY2, "SUSY2")
 
 # add decoration
-SeqSUSY2 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY2 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY2 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
@@ -319,7 +319,7 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 
 # Saves BDT and input variables for light lepton algorithms. 
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
-SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 # add missing branches needed by Charge Flip Killer Tool

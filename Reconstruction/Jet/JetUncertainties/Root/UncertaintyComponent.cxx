@@ -33,8 +33,9 @@ UncertaintyComponent::UncertaintyComponent(const std::string& name)
     , m_uncHistName("")
     , m_validHistName("")
     , m_scaleVar(CompScaleVar::UNKNOWN)
+    , m_topology(JetTopology::UNKNOWN)
     , m_energyScale(1)
-    , m_interpolate(true)
+    , m_interpolate(Interpolate::UNKNOWN)
     , m_splitNumber(0)
     , m_uncHist(NULL)
     , m_validHist(NULL)
@@ -48,6 +49,7 @@ UncertaintyComponent::UncertaintyComponent(const ComponentHelper& component, con
     , m_uncHistName(component.uncNames.size()!=0?component.uncNames.at(0):"NONE")
     , m_validHistName(component.validName)
     , m_scaleVar(component.scaleVar)
+    , m_topology(component.topology)
     , m_energyScale(component.energyScale)
     , m_interpolate(component.interpolate)
     , m_splitNumber(component.splitNum)
@@ -69,6 +71,7 @@ UncertaintyComponent::UncertaintyComponent(const UncertaintyComponent& toCopy)
     , m_uncHistName(toCopy.m_uncHistName)
     , m_validHistName(toCopy.m_validHistName)
     , m_scaleVar(toCopy.m_scaleVar)
+    , m_topology(toCopy.m_topology)
     , m_energyScale(toCopy.m_energyScale)
     , m_interpolate(toCopy.m_interpolate)
     , m_splitNumber(toCopy.m_splitNumber)
@@ -107,7 +110,7 @@ StatusCode UncertaintyComponent::initialize(TFile* histFile)
     }
     if (m_validHistName != "")
     {
-        m_validHist = new UncertaintyHistogram(m_validHistName,false);
+        m_validHist = new UncertaintyHistogram(m_validHistName,Interpolate::None);
         if (!m_validHist)
         {
             ATH_MSG_ERROR("Failed to create validity histogram of name \"" << getValidName().Data() << "\" for component: " << getName().Data());

@@ -43,8 +43,8 @@ namespace top{
     m_isolationTool_FixedCutTightCaloOnly("CP::IsolationTool_FixedCutTightCaloOnly"),
     m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
     m_isolationTool_FixedCutHighPtCaloOnly("CP::IsolationTool_FixedCutHighPtCaloOnly"),
-    m_isolationTool_FixedCutHighMuTight("CP::IsolationTool_FixedCutHighMuTight"),
-    m_isolationTool_FixedCutHighMuLoose("CP::IsolationTool_FixedCutHighMuLoose"),
+    m_isolationTool_FCTight("CP::IsolationTool_FCTight"),
+    m_isolationTool_FCLoose("CP::IsolationTool_FCLoose"),
     m_isolationCorr("CP::IsolationCorrectionTool")
   {
     declareProperty( "config" , m_config ); 
@@ -60,8 +60,8 @@ namespace top{
     declareProperty( "IsolationTool_FixedCutTightCaloOnly" , m_isolationTool_FixedCutTightCaloOnly );
     declareProperty( "IsolationTool_FixedCutLoose" , m_isolationTool_FixedCutLoose );
     declareProperty( "IsolationTool_FixedCutHighPtCaloOnly", m_isolationTool_FixedCutHighPtCaloOnly );
-    declareProperty( "IsolationTool_FixedCutHighMuTight" , m_isolationTool_FixedCutHighMuTight );
-    declareProperty( "IsolationTool_FixedCutHighMuLoose" , m_isolationTool_FixedCutHighMuLoose );
+    declareProperty( "IsolationTool_FCTight" , m_isolationTool_FCTight );
+    declareProperty( "IsolationTool_FCLoose" , m_isolationTool_FCLoose );
     declareProperty( "IsolationCorrectionTool", m_isolationCorr );
   } 
   
@@ -94,8 +94,8 @@ namespace top{
       top::check( m_isolationTool_FixedCutTight.retrieve() , "Failed to retrieve Isolation Tool" );
       top::check( m_isolationTool_FixedCutTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
       top::check( m_isolationTool_FixedCutLoose.retrieve() , "Failed to retrieve Isolation Tool" );
-      top::check( m_isolationTool_FixedCutHighMuTight.retrieve() , "Failed to retrieve Isolation Tool" );
-      top::check( m_isolationTool_FixedCutHighMuLoose.retrieve() , "Failed to retrieve Isolation Tool" );
+      top::check( m_isolationTool_FCTight.retrieve() , "Failed to retrieve Isolation Tool" );
+      top::check( m_isolationTool_FCLoose.retrieve() , "Failed to retrieve Isolation Tool" );
     }
     
     top::check( m_isolationCorr.retrieve() , "Failed to retrieve Isolation Correction Tool" );
@@ -216,8 +216,8 @@ namespace top{
   StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal)
   {
     static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt1000("ptvarcone30_TightTTVA_pt1000");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuTight("AnalysisTop_Isol_FixedCutHighMuTight");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuLoose("AnalysisTop_Isol_FixedCutHighMuLoose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTight("AnalysisTop_Isol_FCTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
 
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
@@ -294,8 +294,8 @@ namespace top{
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutHighPtCaloOnly") = passIsol_FixedCutHighPtCaloOnly;
 
         if (ptvarcone30_TightTTVA_pt1000.isAvailable(*electron)) {
-          AnalysisTop_Isol_FixedCutHighMuTight(*electron) = (m_isolationTool_FixedCutHighMuTight->accept(*electron) ? 1 : 0);
-          AnalysisTop_Isol_FixedCutHighMuLoose(*electron) = (m_isolationTool_FixedCutHighMuLoose->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_FCTight(*electron) = (m_isolationTool_FCTight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_FCLoose(*electron) = (m_isolationTool_FCLoose->accept(*electron) ? 1 : 0);
         }
 
 	// For electron prompt isolation tagger, check a cut on the tagger and also loose isolation

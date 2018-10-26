@@ -11,10 +11,11 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <xAODBase/IParticleContainer.h>
-#include <SelectionHelpers/SelectionHelpers.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysWriteHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <limits>
 
 namespace CP
 {
@@ -61,9 +62,24 @@ namespace CP
   private:
     std::vector<SelectionType> m_ignore;
 
+    /// \brief Sort the output (view) container by pT
+  private:
+    bool m_sortPt {false};
+
+    /// \brief Allow the input container to be missing
+  private:
+    bool m_allowMissing {false};
+
+    /// \brief Perform a deep copy for creating the output container
+  private:
+    bool m_deepCopy {false};
+
+  private:
+    std::size_t m_sizeLimit {std::numeric_limits<std::size_t>::max()};
+
     /// the list of accessors and cut ignore list
   private:
-    std::vector<std::pair<std::unique_ptr<const SG::AuxElement::ConstAccessor<SelectionType> >,SelectionType> > m_accessors;
+    std::vector<std::pair<std::unique_ptr<ISelectionAccessor>,SelectionType> > m_accessors;
 
     /// \brief the templated version of execute for a single systematic
   private:
@@ -73,6 +89,10 @@ namespace CP
     /// \brief the version of execute to find the type
   private:
     StatusCode executeFindType (const CP::SystematicSet& sys);
+
+    /// \brief The version of execute for missing input containers
+  private:
+    StatusCode executeMissing (const CP::SystematicSet& sys);
 
   private:
     StatusCode (AsgViewFromSelectionAlg::* m_function) (const CP::SystematicSet& sys) {&AsgViewFromSelectionAlg::executeFindType};

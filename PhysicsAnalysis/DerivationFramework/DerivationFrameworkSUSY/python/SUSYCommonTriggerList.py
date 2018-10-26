@@ -10,17 +10,25 @@
 ################################################################ 
 
 # 2018 menu (covering 1.5e34 to 2.3e34 menus)
+BJetMET_2018 = [
+    'HLT_j85_gsc100_bmv2c1050_split_xe85_pufit_xe50_L1XE55',
+    'HLT_2j35_gsc45_bmv2c1070_split_xe85_pufit_xe50_L12J15_XE55',
+    'HLT_3j35_bmv2c1077_split_xe70_pufit_xe50_L13J15.0ETA25_XE40',
+]
+
 MET_2018 = [
     'HLT_xe100_pufit_xe75_L1XE60',
     'HLT_xe110_pufit_L1XE55',
     'HLT_xe110_pufit_L1XE60',
     'HLT_xe110_pufit_L1XE70',
     'HLT_xe110_pufit_wEFMu_L1XE55',
+    'HLT_xe110_pufit_xe65_L1XE50',
     'HLT_xe110_pufit_xe65_L1XE55',
     'HLT_xe110_pufit_xe65_L1XE60',
     'HLT_xe110_pufit_xe70_L1XE50',
     'HLT_xe120_mht_xe80_L1XE55',
     'HLT_xe120_mht_xe80_L1XE60',
+    'HLT_xe120_pufit_L1XE50',
     'HLT_xe120_pufit_L1XE55',
     'HLT_xe120_pufit_L1XE60',
     'HLT_xe120_pufit_L1XE70',
@@ -30,8 +38,11 @@ MET_2018 = [
 
 
 SingleLepton_2018 = [
+    'HLT_e140_lhloose_nod0',
     'HLT_e140_lhloose_nod0_L1EM24VHI',
     'HLT_e140_lhloose_nod0_L1EM24VHIM',
+    'HLT_e26_lhtight_nod0_ivarloose',
+    'HLT_e26_lhtight_nod0',
     'HLT_e28_lhtight_nod0_ivarloose',
     'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
     'HLT_e28_lhtight_nod0_noringer_ivarloose',
@@ -39,12 +50,14 @@ SingleLepton_2018 = [
     'HLT_e300_etcut',
     'HLT_e300_etcut_L1EM24VHIM',
     'HLT_e32_lhtight_nod0_ivarloose',
+    'HLT_e60_lhmedium_nod0',
     'HLT_e60_lhmedium_nod0_L1EM24VHI',
     'HLT_e60_lhmedium_nod0_L1EM24VHIM',
     'HLT_e80_lhmedium_nod0_L1EM24VHI',
     'HLT_e80_lhmedium_nod0_L1EM24VHIM',
     'HLT_mu26_ivarmedium',
     'HLT_mu28_ivarmedium',
+    'HLT_mu50',
     'HLT_mu60',
     'HLT_mu60_0eta105_msonly',
     'HLT_mu60_msonly_3layersEC',
@@ -57,16 +70,32 @@ MultiBJet_2018 = [
     'HLT_2j45_gsc55_bmv2c1060_split_2j45_gsc55_boffperf_split_L14J15.0ETA25',
     'HLT_2j35_bmv2c1040_split_2j35_L14J15.0ETA25',
     'HLT_2j35_gsc45_bmv2c1050_split_2j35_gsc45_boffperf_split_L14J15.0ETA25',
+    'HLT_j150_gsc175_bmv2c1060_split_j45_gsc60_bmv2c1060_split',
+    'HLT_j110_gsc150_boffperf_split_2j45_gsc55_bmv2c1070_split_L1J85_3J30',
+    'HLT_2j35_bmv2c1060_split_3j35',
+    'HLT_2j35_gsc45_bmv2c1060_split_3j35_gsc45_boffperf_split',
+    'HLT_3j50_gsc65_bmv2c1077_split_L13J35.0ETA23',
+    'HLT_3j35_bmv2c1070_split_j35_L14J15.0ETA25',
+    'HLT_4j35_bmv2c1077_split_L14J15.0ETA25',
+    'HLT_2j35_bmv2c1070_split_2j35_bmv2c1085_split_L14J15.0ETA25',
+    'HLT_j175_gsc225_bmv2c1040_split',
+    'HLT_j225_gsc275_bmv2c1060_split',
+    'HLT_j225_gsc300_bmv2c1070_split',
+    'HLT_j225_gsc360_bmv2c1077_split',
+    'HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split',
+    'HLT_j60_gsc85_bmv2c1050_split_3j60_gsc85_boffperf_split',
 ]
 
 
 SinglePhoton_2018 = [
+    'HLT_g140_loose',
     'HLT_g140_tight',
     'HLT_g140_tight_L1EM24VHIM',
     'HLT_g200_loose',
     'HLT_g200_loose_L1EM24VHIM',
     'HLT_g300_etcut_L1EM24VHI',
     'HLT_g300_etcut_L1EM24VHIM',
+    'HLT_g300_etcut',
 ]
 
 
@@ -75,17 +104,16 @@ DiLepton_2018 = [
     'HLT_e28_lhmedium_nod0_L1EM24VHIM_mu8noL1',
     'HLT_e17_lhloose_nod0_mu14',
     'HLT_e7_lhmedium_nod0_mu24',
-    
     'HLT_2e17_lhvloose_nod0_L12EM15VHI',
     'HLT_2e19_lhvloose_nod0',
     'HLT_2e24_lhvloose_nod0',
-    
+    'HLT_e26_lhmedium_nod0_mu8noL1',
     'HLT_e28_lhtight_nod0_L1EM24VHIM_e15_etcut_L1EM7_Zee',
     'HLT_e28_lhtight_nod0_e15_etcut_L1EM7_Zee',
-    
     'HLT_2mu14',
     'HLT_2mu15_L12MU10',
-    
+    'HLT_mu22_mu8noL1',
+    'HLT_mu20_ivarmedium_mu8noL1',   
     'HLT_mu24_mu12noL1',
     'HLT_mu24_mu10noL1',
     'HLT_mu24_mu8noL1',
@@ -95,6 +123,12 @@ DiLepton_2018 = [
 ]
 
 # 2017 menu (covering 1.5e34 to 2.0e34 menus)
+BJetMET_2017 = [
+    'HLT_j60_gsc100_bmv2c1050_split_xe80_mht_L1XE60',
+    'HLT_2j25_gsc45_bmv2c1070_split_xe80_mht_L12J15_XE55',
+    'HLT_3j15_gsc35_bmv2c1077_split_xe60_mht_L13J15.0ETA25_XE40',
+]
+
 MET_2017 = [
     'HLT_xe90_pufit_L1XE50',
     'HLT_xe100_pufit_L1XE50',
@@ -150,6 +184,14 @@ MultiBJet_2017 = [
     'HLT_2j25_gsc45_bmv2c1050_split_2j25_gsc45_boffperf_split_L14J15.0ETA25',
     'HLT_2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25',
     'HLT_2j35_gsc55_bmv2c1060_split_2j35_gsc55_boffperf_split_L14J15.0ETA25',
+    'HLT_j150_gsc175_bmv2c1070_split_j45_gsc60_bmv2c1070_split ',
+    'HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1077_split_L1J85_3J30',
+    'HLT_2j15_gsc35_bmv2c1060_split_3j15_gsc35_boffperf_split',
+    'HLT_2j25_gsc45_bmv2c1070_split_3j25_gsc45_boffperf_split',
+    'HLT_3j15_gsc35_bmv2c1070_split_j15_gsc35_boffperf_split_L14J15.0ETA25',
+    'HLT_4j15_gsc35_bmv2c1077_split_L14J15.0ETA25',
+    'HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25',
+    'HLT_3j50_gsc65_bmv2c1077_split_L13J35.0ETA23',
 ]
 
 
@@ -217,6 +259,13 @@ JetTrigger_2016 = [
 MultiBJet_2016 = [
     'HLT_2j35_bmv2c2050_split_2j35_L14J15.0ETA25',
     'HLT_2j35_bmv2c2060_split_2j35_L14J15.0ETA25',
+    'HLT_2j45_bmv2c2077_split_3j45_L14J15.0ETA25',
+    'HLT_2j55_bmv2c2060_split_ht300_L14J15',
+    'HLT_2j70_bmv2c2060_split_j70',
+    'HLT_2j75_bmv2c2070_split_j75',
+    'HLT_j100_2j55_bmv2c2060_split',
+    'HLT_j150_bmv2c2060_split_j50_bmv2c2060_split',
+    'HLT_j175_bmv2c2060_split_j50_bmv2c2050_split',
 ]
 
 # 2015 menu
@@ -249,4 +298,9 @@ SinglePhoton_2015 = [
 
 MultiBJet_2015 = [
     'HLT_2j35_btight_2j35_L13J25.0ETA23',
+    'HLT_2j45_bmedium_2j45_L13J25.0ETA23',
+    'HLT_j100_2j55_bmedium',
+    'HLT_j150_bmedium_j50_bmedium',
+    'HLT_2j65_btight_j65',
+    'HLT_2j70_bmedium_j70',
 ]

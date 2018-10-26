@@ -37,8 +37,8 @@ def makeTauAnalysisSequence( dataType ):
                            'TauEfficiencyCorrectionsAlg' )
     addPrivateTool( alg, 'efficiencyCorrectionsTool',
                     'TauAnalysisTools::TauEfficiencyCorrectionsTool' )
-    selTool = createPublicTool( 'TauSelectionTool',
-                                'TauAnalysisTools::TauSelectionTool' )
+    selTool = createPublicTool( 'TauAnalysisTools::TauSelectionTool',
+                                'TauSelectionTool')
     alg.efficiencyCorrectionsTool.TauSelectionTool = '%s/%s' % \
         ( selTool.getType(), selTool.getName() )
     seq.addPublicTool( selTool )

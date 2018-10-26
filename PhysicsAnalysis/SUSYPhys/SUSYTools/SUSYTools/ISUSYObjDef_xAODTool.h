@@ -88,6 +88,7 @@ namespace ST {
     namespace Jet {
       static const unsigned int Btag = 1001;
       static const unsigned int JVT = 1002;
+      static const unsigned int Btag_Track = 1003;
     }
     
     namespace Muon {
@@ -212,6 +213,7 @@ namespace ST {
     // Apply the correction on a modifyable object
     virtual StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) = 0;
     virtual StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, const bool isFat = false) = 0;
+    virtual StatusCode FillTrackJet(xAOD::Jet& input) = 0;
     virtual StatusCode FillTau(xAOD::TauJet& input) = 0;
     virtual StatusCode FillElectron(xAOD::Electron& input, const float etcut, const float etacut) = 0;
     virtual StatusCode FillPhoton(xAOD::Photon& input, const float ptcut, const float etacut) = 0;
@@ -219,6 +221,7 @@ namespace ST {
     virtual const xAOD::Vertex* GetPrimVtx() const = 0;
 		
     virtual StatusCode GetJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
+    virtual StatusCode GetTrackJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets,xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, const bool recordSG=true, const std::string& jetkey="") = 0;
     virtual StatusCode GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = false, const std::string& jetkey = "", const bool doLargeRdecorations = false, const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetTaus(xAOD::TauJetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& taukey="TauJets", const xAOD::TauJetContainer* containerToBeCopied = 0) = 0;
@@ -244,7 +247,7 @@ namespace ST {
 
     virtual StatusCode GetMETSig(xAOD::MissingETContainer& met,
 			      	 double& metSignificance,
-                      	         bool doTST = true, bool doJVTCut = true
+                      	         bool doTST = true, bool doJVTCut = true, const float avgmu = 0
 				 ) = 0;
 
     virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) const = 0;
@@ -270,9 +273,13 @@ namespace ST {
 
     virtual bool IsBJet(const xAOD::Jet& input) const = 0;
 
+    virtual bool IsTrackBJet(const xAOD::Jet& input) const = 0;
+
     virtual bool IsTruthBJet(const xAOD::Jet& input) const = 0;
 
     virtual int IsBJetContinuous(const xAOD::Jet& input) const = 0;
+
+    virtual int IsTrackBJetContinuous(const xAOD::Jet& input) const = 0;
 
     virtual double JVT_SF(const xAOD::JetContainer* jets) = 0;
 
@@ -281,6 +288,10 @@ namespace ST {
     virtual float BtagSF(const xAOD::JetContainer* jets) const = 0;
 
     virtual float BtagSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) = 0;
+
+    virtual float BtagSF_trkJet(const xAOD::JetContainer* trkjets) const = 0;
+
+    virtual float BtagSFsys_trkJet(const xAOD::JetContainer* trkjets, const CP::SystematicSet& systConfig) = 0;
 
     virtual float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true, const bool doBadMuonHP = true, const bool warnOVR = true) = 0;
 

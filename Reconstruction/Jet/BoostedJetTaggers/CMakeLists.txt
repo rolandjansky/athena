@@ -120,6 +120,20 @@ if( XAOD_STANDALONE )
       xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
    )
+   atlas_add_executable( test_JSSWTopTaggerBDT
+      util/test_JSSWTopTaggerBDT.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
+   atlas_add_executable( test_JSSWTopTaggerDNN
+      util/test_JSSWTopTaggerDNN.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
 endif()
 
 # Install files from the package:

@@ -145,7 +145,6 @@ from AthenaCommon import Logging
 susy3log = Logging.logging.getLogger('SUSY3')
 useRNN = False
 # RNN ID present in offline reconstruction for Athena-21.0.63 or higher
-# the autodetection will have to be extended if RNN is deployed via an AODFix for older data/MC
 try:
   fileinfo = PyUtils.AthFile.fopen(athenaCommonFlags.FilesInput()[0])
   release = fileinfo.infos['metadata']['/TagInfo']['AtlasRelease']
@@ -157,6 +156,13 @@ try:
     useRNN = True
 except:
   susy3log.info("Could not retrieve AtlasRelease from metadata: {}".format(sys.exc_info()[0]))
+
+# the autodetection must be extended if RNN is deployed via an AODFix
+if not useRNN:
+  from AODFix import AODFix
+  if AODFix_willDoAODFix() and "tauid" in AODFix._aodFixInstance.latestAODFixVersion():
+    susy3log.info("Tau ID AODFix is scheduled. Allow JetRNNSigLoose taus in the skimming!")
+    useRNN = True
 
 if useRNN:
   TauRequirements += ' && ( (' + TauBDT + ') || (' + TauRNN + ') )'

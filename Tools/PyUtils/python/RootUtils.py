@@ -21,10 +21,24 @@ import os
 import sys
 import re
 from pprint import pprint
+from array import array
+import ROOT
 
 from .Decorators import memoize
 
 ### functions -----------------------------------------------------------------
+# Set buffer size, in bytes.
+# The argument to SetSize is in elements, not bytes.
+def _set_byte_size (buf, sz):
+    if ROOT.gROOT.GetVersionInt() >= 61400:
+        eltsz = array(buf.typecode).itemsize
+        buf.SetSize (sz / eltsz)
+    else:
+        #in older versions of ROOT (6.08) the above causes issues 
+        #so do old thing instead ..
+        buf.SetSize( sz )
+    return
+
 def import_root(batch=True):
     """a helper method to wrap the 'import ROOT' statement to prevent ROOT
     from screwing up the display or loading graphics libraries when in batch
@@ -149,7 +163,7 @@ def _pythonize_tfile():
                 #self.seek(c_buf.sz+self.tell())
                 #print "-->2",self.tell()
                 buf = c_buf.buffer()
-                buf.SetSize(c_buf.sz)
+                _set_byte_size (buf, c_buf.sz)
                 return str(buf[:])
             return ''
         else:
@@ -160,7 +174,7 @@ def _pythonize_tfile():
                 c_buf = read_root_file(self, size)
                 if c_buf and c_buf.sz:
                     buf = c_buf.buffer()
-                    buf.SetSize(c_buf.sz)
+                    _set_byte_size (buf, c_buf.sz)
                     out.append(str(buf[:]))
                 else:
                     break
@@ -187,7 +201,10 @@ def _getLeaf (l):
     if tname in ['Float_t', 'Double_t']:
         return [l.GetValue(i) for i in range(ndat)]
     if tname in ['Char_t']:
-        return l.GetValueString()
+        try:
+            return l.GetValueString() # TLeafC for variable size string
+        except:
+            return [l.GetValue(i) for i in range(ndat)] # TLeafB for 8-bit integers
     return None
 
 class RootFileDumper(object):

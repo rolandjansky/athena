@@ -29,6 +29,9 @@ namespace CP
   StatusCode TightTrackVertexAssociationTool::initialize()
   {
     //    dz_cut=2;
+
+    ATH_MSG_WARNING("TightTrackVertexAssociationTool is being depricated. Please use the new TrackVertexAssociationTool instead.");
+
     return StatusCode::SUCCESS;
   }
 

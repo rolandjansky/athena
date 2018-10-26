@@ -4,6 +4,8 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #include "TrigBtagValidationTest.h"
 #include "GaudiKernel/Property.h"
+#include <AsgTools/MessageCheck.h>
+#include "PathResolver/PathResolver.h"
 
 using std::string;
 
@@ -15,20 +17,26 @@ namespace Trig{
     : ::AthAlgorithm( name, pSvcLocator ),
       m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
       m_emulationTool("Trig::TrigBtagEmulationTool/TrigBtagEmulationTool",this),
+      m_performEmulation(true),
       m_errorAtMismatch(false),
       m_retrieveRetaggedJets(false),
+      m_checkDefinitions(false),
       m_chain("HLT_j15_gsc35_boffperf_split"),
       m_eventCount(0),
       m_min_eventCount(-1),
-      m_max_eventCount(-1)
+      m_max_eventCount(-1),
+      m_verbosity(0)
   {
     declareProperty("TrigBtagEmulationTool",m_emulationTool        );
     declareProperty("ToBeEmulatedTriggers" ,m_toBeEmulatedTriggers );
     declareProperty("ErrorAtMismatch"      ,m_errorAtMismatch      );
+    declareProperty("PerformEmulation"     ,m_performEmulation     );
     declareProperty("RetrieveRetaggedJets" ,m_retrieveRetaggedJets );
+    declareProperty("CheckDefinitions"     ,m_checkDefinitions     );
     declareProperty("InputChain"           ,m_chain                );
     declareProperty("MinEvent"             ,m_min_eventCount       );
     declareProperty("MaxEvent"             ,m_max_eventCount       );
+    declareProperty("Verbosity"            ,m_verbosity            );
   }
   
   //**********************************************************************
@@ -63,7 +71,7 @@ namespace Trig{
     }
 
     for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
-      std::string triggerName = m_toBeEmulatedTriggers.at(index);
+      std::string triggerName = m_toBeEmulatedTriggers.at(index).at(0);
       m_counters[ triggerName.c_str() ] = std::make_tuple( 0,0,0,0,0 );
     }
     
@@ -79,7 +87,7 @@ namespace Trig{
 
     long int TotalMismatches = 0;
     for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
-      std::string triggerName = m_toBeEmulatedTriggers.at(index);
+      std::string triggerName = m_toBeEmulatedTriggers.at(index).at(0);
       std::string message = Form("  --- Trigger %s : TDT = %ld [EMUL = %ld] : mismatches = %ld [TDT=1;EMUL=0 = %ld] [TDT=0;EMUL=1 = %ld]",
 				 triggerName.c_str(),
 				 std::get<TDT>( m_counters[ triggerName.c_str() ] ),
@@ -107,36 +115,19 @@ namespace Trig{
     ATH_MSG_INFO( "Processing Event n. " << m_eventCount );
     m_eventCount++;
 
-    // CHECK RESUT FOR INDIVIDUAL CHAINS
-    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
-      std::string triggerName = m_toBeEmulatedTriggers.at(index);
-      std::string message = Form( "TRIGGER=%s ",triggerName.c_str() );	
-      
-      bool passTDT  = m_trigdec->isPassed( triggerName );
-      bool passEmul = m_emulationTool->isPassed( triggerName );
+    // CHECK CHAINS HAVE BEEN CORRECTLY INTERPRETED
+    if ( m_checkDefinitions )
+      ANA_CHECK( checkChainDefinitions() );
 
-      if (passTDT) std::get<TDT>( m_counters[ triggerName.c_str() ] )++;
-      if (passEmul) std::get<EMUL>( m_counters[ triggerName.c_str() ] )++;
-      if (passTDT != passEmul) std::get<mismatchesTOT>( m_counters[ triggerName.c_str() ] )++;
-      if (passTDT && !passEmul) std::get<mismatchesTDT1EMUL0>( m_counters[ triggerName.c_str() ] )++;
-      if (!passTDT && passEmul) std::get<mismatchesTDT0EMUL1>( m_counters[ triggerName.c_str() ] )++;
-       
-      message += Form("TDT=%d EMUL=%d MISMATCH=%d",passTDT?1:0,passEmul?1:0,passTDT != passEmul?1:0);
-      ATH_MSG_INFO( message.c_str() );
-
-      if (m_errorAtMismatch && passTDT != passEmul) {
-	ATH_MSG_ERROR( "Observed Mismatch for trigger chain ['" << triggerName << "']" );
-	return StatusCode::FAILURE;
-      }
+    if ( m_performEmulation ) {
+      ANA_CHECK( performEmulation() );
     }
-    
-    ATH_MSG_INFO( "" );
 
     if ( !m_retrieveRetaggedJets ) return StatusCode::SUCCESS;
 
 
     // RETRIEVE ORIGINAL JETS VIA NAVIGATION
-    ATH_MSG_INFO( "Retrieving GSC original Jets" );
+    ATH_MSG_VERBOSE( "Retrieving GSC original Jets" );
     std::vector< const xAOD::Jet* > originalJets;
     std::vector< const xAOD::BTagging* > originalBtagging;
 
@@ -149,11 +140,11 @@ namespace Trig{
     }
 
     // RETRIEVE RETAGGED JETS
-    ATH_MSG_INFO( "Retrieving GSC retagged Jets" );
+    ATH_MSG_VERBOSE( "Retrieving GSC retagged Jets" );
     const xAOD::JetContainer *retaggedJets = m_emulationTool->retaggedJets("GSC");
 
     // *** Check size of the jets we are going to compare.
-    ATH_MSG_INFO( "Retrieved " << originalJets.size() << " original GSC jets and "<< retaggedJets->size() << " retagged GSC jets" );
+    ATH_MSG_VERBOSE( "Retrieved " << originalJets.size() << " original GSC jets and "<< retaggedJets->size() << " retagged GSC jets" );
     if (originalJets.size() != retaggedJets->size()) {
       ATH_MSG_ERROR( "Original and Retagged jets have different sizes." );
       if (retaggedJets->size() == 0) {
@@ -170,8 +161,8 @@ namespace Trig{
 
     for ( const xAOD::Jet* jet : *retaggedJets ) {
       std::unique_ptr< const xAOD::BTagging > bjet( jet->btagging() );
-      ATH_MSG_INFO( "Dumping ORIGINAL and RETAGGED jet collections" );
-      ATH_MSG_INFO( "  -- GSC Jet : pt="<< jet->p4().Et()*1e-03 << " eta="<< jet->eta() <<" phi="<< jet->phi() );
+      ATH_MSG_VERBOSE( "Dumping ORIGINAL and RETAGGED jet collections" );
+      ATH_MSG_VERBOSE( "  -- GSC Jet : pt="<< jet->p4().Et()*1e-03 << " eta="<< jet->eta() <<" phi="<< jet->phi() );
 
       double value_mv2c10  = -1;
       double value_mv2c20  = -1;
@@ -183,16 +174,18 @@ namespace Trig{
       bjet->variable< double >("IP3DSV1" ,"discriminant" ,value_ip3dsv1);
       bjet->variable< double >("COMB"    ,"discriminant" ,value_comb   );
 
-      ATH_MSG_INFO( "    ** MV2C10  = " << value_mv2c10  );
-      ATH_MSG_INFO( "    ** MV2C20  = " << value_mv2c20  );
-      ATH_MSG_INFO( "    ** IP3DSV1 = " << value_ip3dsv1 );
-      ATH_MSG_INFO( "    ** COMB    = " << value_comb    );
+      if ( m_verbosity > 1 ) {
+	ATH_MSG_INFO( "    ** MV2C10  = " << value_mv2c10  );
+	ATH_MSG_INFO( "    ** MV2C20  = " << value_mv2c20  );
+	ATH_MSG_INFO( "    ** IP3DSV1 = " << value_ip3dsv1 );
+	ATH_MSG_INFO( "    ** COMB    = " << value_comb    );
+      }
 
       // *** 
 
       const xAOD::Jet *referenceJet = *itJet;
       const xAOD::BTagging *referenceBTagging = *itBtagging;
-      ATH_MSG_INFO( "  -- ORIGINAL GSC Jet : pt="<< referenceJet->p4().Et()*1e-03 << " eta="<< referenceJet->eta() <<" phi="<< referenceJet->phi() );
+      ATH_MSG_VERBOSE( "  -- ORIGINAL GSC Jet : pt="<< referenceJet->p4().Et()*1e-03 << " eta="<< referenceJet->eta() <<" phi="<< referenceJet->phi() );
 
       double reference_mv2c10  = -1;
       double reference_mv2c20  = -1;
@@ -206,13 +199,15 @@ namespace Trig{
       if( reference_comb/(1+reference_comb) < 1 ) 
 	reference_comb = -1.0*TMath::Log10(1-(reference_comb/(1+reference_comb)) );
 
-      ATH_MSG_INFO( "    ** MV2C10  = " << reference_mv2c10  );
-      ATH_MSG_INFO( "    ** MV2C20  = " << reference_mv2c20  );
-      ATH_MSG_INFO( "    ** IP3DSV1 = " << reference_ip3dsv1 );
-      ATH_MSG_INFO( "    ** COMB    = " << reference_comb    );
+      if ( m_verbosity > 1 ) {
+	ATH_MSG_INFO( "    ** MV2C10  = " << reference_mv2c10  );
+	ATH_MSG_INFO( "    ** MV2C20  = " << reference_mv2c20  );
+	ATH_MSG_INFO( "    ** IP3DSV1 = " << reference_ip3dsv1 );
+	ATH_MSG_INFO( "    ** COMB    = " << reference_comb    );
+      }
 
       // *** Compare jets
-      ATH_MSG_INFO( "Comparing ORIGINAL and RETAGGED jet collections" );
+      if ( m_verbosity > 1 ) ATH_MSG_INFO( "Comparing ORIGINAL and RETAGGED jet collections" );
       bool passes = true;
       if ( referenceJet->p4().Et() != jet->p4().Et() ) passes = false;
       else if ( referenceJet->eta() != jet->eta() ) passes = false;
@@ -229,12 +224,12 @@ namespace Trig{
 	ATH_MSG_ERROR( "RETAGGED and ORIGINAL GSC jets are dissimilar." );
 	delete retaggedJets;
 	return StatusCode::FAILURE;
-      } else { ATH_MSG_INFO( "  ** SUCCESS" ); }
+      } else if ( m_verbosity > 1 ) { ATH_MSG_INFO( "  ** SUCCESS" ); }
 
 
     }
     
-    ATH_MSG_INFO( "" );
+    if ( m_verbosity > 1 ) ATH_MSG_INFO( "" );
 
     delete retaggedJets;
     return StatusCode::SUCCESS;
@@ -253,6 +248,90 @@ namespace Trig{
   
     output.push_back( (*tmpContainer)[0] );
     return true;
+  }
+
+  StatusCode TrigBtagValidationTest::checkChainDefinitions() const {
+
+    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++ ) {
+      const std::string chainName = m_toBeEmulatedTriggers.at(index).at(0);
+      ATH_MSG_INFO( "Checking definition of trigger chains : " << chainName );
+
+      // Convert vector of strings in vector of vector of strings
+      std::vector< std::vector< std::string > > chainDefinition_userProvided(1);
+      for ( unsigned int i(1); i < m_toBeEmulatedTriggers.at(index).size(); i++ ) {
+	std::string chainComponent = m_toBeEmulatedTriggers.at(index).at(i);
+	if ( chainComponent == "AND" ) continue;
+	if ( chainComponent == "OR"  ) {
+	  chainDefinition_userProvided.push_back( std::vector< std::string >() );
+	  continue;
+	}
+	chainDefinition_userProvided.at( chainDefinition_userProvided.size() - 1 ).push_back( chainComponent );
+      }
+
+      // retrieve definition from the TrigBtagEmulationTool
+      std::vector< std::vector< std::string > > chainDefinition_emulationTool =  m_emulationTool->definition( chainName.c_str() );
+      if ( chainDefinition_userProvided.size() != chainDefinition_emulationTool.size() ) {
+	ATH_MSG_ERROR( "The definition retrieved by the emulation tool has different size (" << 
+		       chainDefinition_emulationTool.size() << ") w.r.t. the one provided by the user (" << 
+		       chainDefinition_userProvided.size() << ")" );
+	return StatusCode::FAILURE;
+      }
+      
+      // Time to compare definitions  
+      for ( unsigned int i(0); i < chainDefinition_userProvided.size(); i++ ) {
+	if ( chainDefinition_userProvided.at(i).size() != chainDefinition_emulationTool.at(i).size() ) {
+	  ATH_MSG_ERROR( "The definition retrieved by the emulation tool has different sub-component size (" <<
+			 chainDefinition_emulationTool.at(i).size() << ") w.r.t. the one provided by the user (" <<
+			 chainDefinition_userProvided.at(i).size() << ")" );
+	  return StatusCode::FAILURE;
+	}
+
+	sort( chainDefinition_userProvided.at(i).begin() ,chainDefinition_userProvided.at(i).end()  );
+	sort( chainDefinition_emulationTool.at(i).begin(),chainDefinition_emulationTool.at(i).end() );
+
+	for ( unsigned int j(0); j < chainDefinition_userProvided.at(i).size(); j++ ) {
+	  if ( chainDefinition_userProvided.at(i).at(j) != chainDefinition_emulationTool.at(i).at(j) ) {
+	    ATH_MSG_ERROR( "  --  Checking " << chainDefinition_userProvided.at(i).at(j)  << " :: FAILURE" );
+	    ATH_MSG_ERROR( "Wrong Configuration for trigger " << chainName );
+	    return StatusCode::FAILURE;
+	  }
+	  ATH_MSG_INFO( "  --  Checking " << chainDefinition_userProvided.at(i).at(j)  << " :: OK" );
+	}
+
+      }
+
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode TrigBtagValidationTest::performEmulation() {
+
+    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
+      std::string triggerName = m_toBeEmulatedTriggers.at(index).at(0);
+      std::string message = Form( "TRIGGER=%s ",triggerName.c_str() );
+
+      bool passTDT  = m_trigdec->isPassed( triggerName );
+      bool passEmul = m_emulationTool->isPassed( triggerName );
+
+      if (passTDT) std::get<TDT>( m_counters[ triggerName.c_str() ] )++;
+      if (passEmul) std::get<EMUL>( m_counters[ triggerName.c_str() ] )++;
+      if (passTDT != passEmul) std::get<mismatchesTOT>( m_counters[ triggerName.c_str() ] )++;
+      if (passTDT && !passEmul) std::get<mismatchesTDT1EMUL0>( m_counters[ triggerName.c_str() ] )++;
+      if (!passTDT && passEmul) std::get<mismatchesTDT0EMUL1>( m_counters[ triggerName.c_str() ] )++;
+
+      message += Form("TDT=%d EMUL=%d MISMATCH=%d",passTDT?1:0,passEmul?1:0,passTDT != passEmul?1:0);
+      if ( m_verbosity > 1 ) ATH_MSG_INFO( message.c_str() );
+
+      if (m_errorAtMismatch && passTDT != passEmul) {
+        ATH_MSG_ERROR( "Observed Mismatch for trigger chain ['" << triggerName << "']" );
+        return StatusCode::FAILURE;
+      }
+    }
+
+    if ( m_verbosity > 1 ) ATH_MSG_INFO( "" );
+
+    return StatusCode::SUCCESS;
   }
 
 }///namespace

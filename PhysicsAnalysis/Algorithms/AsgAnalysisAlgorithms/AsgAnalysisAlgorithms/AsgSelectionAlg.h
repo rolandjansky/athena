@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <PATCore/IAsgSelectionTool.h>
-#include <SelectionHelpers/SelectionHelpers.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 
@@ -81,7 +81,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_selectionDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> > m_selectionAccessor;
+    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
   };
 }
 

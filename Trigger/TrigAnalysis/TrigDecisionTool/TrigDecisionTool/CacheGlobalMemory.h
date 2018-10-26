@@ -21,9 +21,9 @@
 #include<list>
 #include<set>
 #include<map>
+#include<unordered_map>
 #include<string>
 #include "boost/foreach.hpp"
-#include <unordered_map>
 
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTChainList.h"
@@ -182,9 +182,9 @@ namespace Trig {
     //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_l2chains; //!< chains keyed by chain counter (chainging every event)
     //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_efchains;
     
-    std::map<std::string, const LVL1CTP::Lvl1Item*>  m_itemsByName;     //!< items keyed by configuration name (chainging every event)
-    std::map<std::string, const HLT::Chain*>         m_l2chainsByName;  //!< L2 chains keyed by chain name (chainging every event)
-    std::map<std::string, const HLT::Chain*>         m_efchainsByName;  //!< L2 chains keyed by chain name (chainging every event)
+    std::unordered_map<std::string, const LVL1CTP::Lvl1Item*> m_itemsByName;     //!< items keyed by configuration name (chainging every event)
+    std::unordered_map<std::string, const HLT::Chain*> m_l2chainsByName;  //!< L2 chains keyed by chain name (chainging every event)
+    std::unordered_map<std::string, const HLT::Chain*> m_efchainsByName;  //!< L2 chains keyed by chain name (chainging every event)
     
     typedef unsigned CTPID;
     typedef unsigned CHAIN_COUNTER;

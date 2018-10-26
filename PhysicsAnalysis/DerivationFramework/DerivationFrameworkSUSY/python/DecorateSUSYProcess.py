@@ -26,7 +26,9 @@ def IsSUSYSignal():
     mc_channel_number = fileinfo.mc_channel_number[0]
     if mc_channel_number==0: mc_channel_number = fileinfo.run_number[0]
 
-    issusy = (370000 <= mc_channel_number < 405000) or (406000 <= mc_channel_number < 410000) # https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/share/Blocks.list
+    # https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/share/Blocks.list
+    issusy = (370000 <= mc_channel_number < 405000) or (406000 <= mc_channel_number < 410000) \
+             or (436000 <= mc_channel_number < 439000) or (448000 <= mc_channel_number < 449000)
     print "DecorateSUSYProcess: fileinfo.mc_channel_number", mc_channel_number, "is SUSY:", issusy
     return issusy
   else:

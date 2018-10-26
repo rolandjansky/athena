@@ -15,7 +15,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
 addStandardTruthContents()
 # Extra classifiers for the Higgs group
-import DerivationFrameworkHiggs.TruthCategories import
+import DerivationFrameworkHiggs.TruthCategories
 
 #==============================================================================
 # Build hard truth HepMC

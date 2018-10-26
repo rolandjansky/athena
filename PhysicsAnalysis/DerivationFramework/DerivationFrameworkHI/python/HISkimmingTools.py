@@ -87,6 +87,11 @@ def GetConditionsFromMetaData() :
           print 'WARNING: Can not change locked project tag to pPb' 
         HIDerivationFlags.isPPb = True
         print "Dataset Type: proton-Ion 5.02TeV 2016" 
+      elif project_tag=='data17_5TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp' 
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 2017"   
       else:
         print "Unknown Dataset: Quitting" 
         exit()
@@ -109,7 +114,7 @@ def IsMC() :
 	af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
 	containers=af.fileinfos['eventdata_items']
 	for c in containers:
-		if "Truth" in c[0] : return True
+		if c[0] is not None and "Truth" in c[0] : return True
 	return False
 	
 def IsHIMC(project_tag="") :    

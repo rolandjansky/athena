@@ -54,6 +54,9 @@ class JSSWTopTaggerDNN :  public JSSTaggerBase {
     std::string m_name;
     std::string m_APP_NAME;
 
+    // for the tagging type
+    enum TAGCLASS{Unknown, WBoson, TopQuark};
+
     // DNN tools
     std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
     std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
@@ -64,6 +67,9 @@ class JSSWTopTaggerDNN :  public JSSTaggerBase {
     std::string m_kerasConfigFileName;
     std::string m_kerasConfigFilePath;
     std::string m_kerasConfigOutputName;
+
+    // for internal usage
+    mutable TAGCLASS m_TagClass;
 
     // bool to check whether variables are corrupt
     mutable bool m_undefInput;

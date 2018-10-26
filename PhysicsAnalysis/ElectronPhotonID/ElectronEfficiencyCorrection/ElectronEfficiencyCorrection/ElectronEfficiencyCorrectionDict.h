@@ -8,4 +8,5 @@
 #define __ELECTRONEFFICIENCYCORRECTIONDICT__
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/ElectronEfficiencyHelpers.h"
 #endif

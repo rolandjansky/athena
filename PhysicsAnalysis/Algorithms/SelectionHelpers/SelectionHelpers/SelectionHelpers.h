@@ -8,6 +8,7 @@
 #ifndef SELECTION_HELPERS__SELECTION_HELPERS_H
 #define SELECTION_HELPERS__SELECTION_HELPERS_H
 
+#include <AsgTools/MessageCheck.h>
 #include <cstdint>
 
 namespace Root
@@ -52,6 +53,9 @@ namespace CP
   /// \brief the selection decoration made from the given TAccept
   /// object
   SelectionType selectionFromAccept (const Root::TAccept& accept);
+
+
+  ANA_MSG_HEADER (msgSelectionHelpers)
 }
 
 #endif

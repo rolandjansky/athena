@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# art-description: DirectIOART Athena inputFile:RDO protocol=HTTPS
+# art-description: DirectIOART Athena Reco_tf.py inputFile:RDO protocol=HTTPS
 # art-type: grid
 # art-output: *.pool.root
 # art-include: 21.0/Athena
+# art-include: master/Athena
 
 set -e
 

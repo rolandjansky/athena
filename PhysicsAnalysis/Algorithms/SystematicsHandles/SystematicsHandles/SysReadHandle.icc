@@ -52,6 +52,22 @@ namespace CP
 
 
 
+  template<typename T> bool SysReadHandle<T> ::
+  empty () const noexcept
+  {
+    return m_inputName.empty();
+  }
+
+
+
+  template<typename T> SysReadHandle<T> ::
+  operator bool () const noexcept
+  {
+    return !m_inputName.empty();
+  }
+
+
+
   template<typename T> const std::string& SysReadHandle<T> ::
   getName (const CP::SystematicSet& sys) const
   {

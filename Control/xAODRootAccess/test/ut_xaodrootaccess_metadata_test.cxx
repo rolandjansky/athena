@@ -62,13 +62,7 @@ int main() {
    xAOD::TEvent event;
 
    // First, test the reading of metadata from an input file.
-   const char* ref = getenv( "ATLAS_REFERENCE_DATA" );
-   const std::string FPATH =
-      ref ? ref : "/afs/cern.ch/atlas/project/PAT";
-   const std::string FNAME = FPATH + "/xAODs/r5597/"
-      "data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/"
-      "AOD.01495682._003054.pool.root.1";
-
+   const std::string FNAME = "${ASG_TEST_FILE_DATA}";
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME.c_str(),
                                                     "READ" ) );
    if( ! ifile.get() ) {

@@ -5,6 +5,8 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+    addCSSKSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 
@@ -15,14 +17,30 @@ from DerivationFrameworkJetEtMiss import TriggerLists
 triggers = TriggerLists.jetTrig()
 
 # NOTE: need to be able to OR isSimulated as an OR with the trigger
-orstr =' || '
-trigger = '('+orstr.join(triggers)+')'
-expression = trigger+' || (EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
+expression = ' (EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+JETM1TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "JETM1TrigSkimmingTool1",
+                                                                TriggerListOR          = triggers )
+ToolSvc += JETM1TrigSkimmingTool
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1SkimmingTool1",
+JETM1OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1OfflineSkimmingTool1",
                                                                     expression = expression)
-ToolSvc += JETM1SkimmingTool
+ToolSvc += JETM1OfflineSkimmingTool
+
+# OR of the above two selections
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
+ToolSvc+=JETM1ORTool
+
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+
+jetm1Seq = CfgMgr.AthSequencer("JETM1Sequence")
+DerivationFrameworkJob += jetm1Seq
 
 #====================================================================
 # SET UP STREAM
@@ -32,12 +50,14 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_JETM1Stream )
 JETM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM1Stream.AcceptAlgs(["JETM1Kernel"])
 
+
 #=======================================
 # ESTABLISH THE THINNING HELPER
 #=======================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM1ThinningHelper = ThinningHelper( "JETM1ThinningHelper" )
 JETM1ThinningHelper.AppendToStream( JETM1Stream )
+
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -60,6 +80,17 @@ JETM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM1ElectronTPThinningTool
 thinningTools.append(JETM1ElectronTPThinningTool)
+
+
+
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM
+#=======================================
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
+                                                         SkimmingTools = [JETM1ORTool],
+                                                         ThinningTools = thinningTools)
 
 # Truth particle thinning
 doTruthThinning = True
@@ -86,22 +117,6 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     ToolSvc += JETM1TruthThinningTool
     thinningTools.append(JETM1TruthThinningTool)
 
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-
-jetm1Seq = CfgMgr.AthSequencer("JETM1Sequence")
-DerivationFrameworkJob += jetm1Seq
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
-                                                         SkimmingTools = [JETM1SkimmingTool],
-                                                         ThinningTools = thinningTools)
-
 #====================================================================
 # Special jets
 #====================================================================
@@ -126,6 +141,7 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
 addTCCTrimmedJets(jetm1Seq,"JETM1")
+addCSSKSoftDropJets(jetm1Seq, "JETM1")
 
 if DerivationFrameworkIsMonteCarlo:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
@@ -149,14 +165,14 @@ addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
 #=======================================
 
 if DerivationFrameworkIsMonteCarlo:
-    addAntiKt4LowPtJets(jetm1Seq,"JETM1")
+    addAntiKt4NoPtCutJets(jetm1Seq,"JETM1")
     ## Add GhostTruthAssociation information ##
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgLowPt")
-    addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgLowPt")
-    addJetPtAssociation(jetalg="AntiKt4EMPFlowLowPt", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgLowPt")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
+    addJetPtAssociation(jetalg="AntiKt4LCTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlowNoPtCut", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
     addJetPtAssociation(jetalg="AntiKt4EMTopoCSSK",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
     addJetPtAssociation(jetalg="AntiKt4EMPFlowCSSK", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
 

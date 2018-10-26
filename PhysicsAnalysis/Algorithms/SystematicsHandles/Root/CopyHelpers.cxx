@@ -34,21 +34,21 @@ namespace CP
       // this is probably not the best way to do this, but doing this
       // the proper way will require an xAOD expert to do it.
 
+      // Set up a lambda for providing a msg(...) function.
+      const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl; return msgStream;};
+
       // using a macro is a bit awkward, but doing this as a template
       // is not practical either
-#define COPY( TYPE )                                                    \
-       do {                                                             \
-          const TYPE *in = dynamic_cast< const TYPE* >( inputObject );  \
-          if( in ) {                                                    \
-             TYPE *out = nullptr;                                       \
-             if( ! ShallowCopy<TYPE>::getCopy( msgStream, store, out, in, \
-                                               outputName,              \
-                                               auxName ).isSuccess() ) { \
-                return StatusCode::FAILURE;                             \
-             }                                                          \
-             object = out;                                              \
-             return StatusCode::SUCCESS;                                \
-          }                                                             \
+#define COPY(TYPE)                                                             \
+       do {                                                                    \
+          const TYPE *in = dynamic_cast< const TYPE* >( inputObject );         \
+          if( in ) {                                                           \
+             TYPE *out = nullptr;                                              \
+             ANA_CHECK( ShallowCopy<TYPE>::getCopy( msgStream, store, out, in, \
+                                                    outputName, auxName ) );   \
+             object = out;                                                     \
+             return StatusCode::SUCCESS;                                       \
+          }                                                                    \
        } while( false )
 
       COPY( xAOD::JetContainer );
@@ -59,7 +59,6 @@ namespace CP
 
 #undef COPY
 
-      const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl; return msgStream;};
       ANA_MSG_ERROR ("could not determine type to create shallow copy " << outputName);
       ANA_MSG_ERROR ("please extend CopyHelpers.cxx with the appropriate type");
       return StatusCode::FAILURE;

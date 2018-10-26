@@ -76,7 +76,8 @@ namespace top {
                                                                              new top::StandardIsolation(
                                                                                topConfig->electronIsolation() ,
                                                                                topConfig->electronIsolationLoose() ),
-									     topConfig->applyTTVACut()
+									     topConfig->applyTTVACut(),
+									     topConfig->useElectronChargeIDSelection()
                                                                             ) );
 
       } else {

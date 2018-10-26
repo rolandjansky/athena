@@ -49,14 +49,37 @@ SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
 #==============================================================================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
+# these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
-  SUSY7tthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("SUSY7TTbarPlusHeavyFlavorFilterTool")
-  ToolSvc += SUSY7tthffiltertool
+
+  SUSY7ttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("SUSY7TTbarPlusBFilterTool")
+  SUSY7ttbarBfiltertool.SelectB = True
+  SUSY7ttbarBfiltertool.BpTMinCut = 5000
+  SUSY7ttbarBfiltertool.BMultiplicityCut = 1 # >=
+  ToolSvc += SUSY7ttbarBfiltertool
+
+  SUSY7ttbarBBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("SUSY7TTbarPlusBBFilterTool")
+  SUSY7ttbarBBfiltertool.SelectB = True
+  SUSY7ttbarBBfiltertool.BpTMinCut = 15000
+  SUSY7ttbarBBfiltertool.BMultiplicityCut = 2 # >=
+  ToolSvc += SUSY7ttbarBBfiltertool
+
+  SUSY7ttbarCfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("SUSY7TTbarPlusCFilterTool")
+  SUSY7ttbarCfiltertool.SelectC = True
+  SUSY7ttbarCfiltertool.CpTMinCut = 15000
+  SUSY7ttbarCfiltertool.CMultiplicityCut = 1 # >=
+  # these two are the default values
+  # B-hadrons have precedence; if one B is found, it won't pass the CFilter
+  SUSY7ttbarCfiltertool.BpTMinCut = 5000
+  SUSY7ttbarCfiltertool.BMultiplicityCut = 1 # >=
+  ToolSvc += SUSY7ttbarCfiltertool
 
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
   SUSY7TopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "SUSY7TopHFFilterAugmentation")
-  SUSY7TopHFFilterAugmentation.FilterTool = SUSY7tthffiltertool
+  SUSY7TopHFFilterAugmentation.BFilterTool = SUSY7ttbarBfiltertool
+  SUSY7TopHFFilterAugmentation.BBFilterTool = SUSY7ttbarBBfiltertool
+  SUSY7TopHFFilterAugmentation.CFilterTool = SUSY7ttbarCfiltertool
   ToolSvc += SUSY7TopHFFilterAugmentation
   AugmentationTools.append(SUSY7TopHFFilterAugmentation)
   susy7log.info("SUSY7TopHFFilterAugmentationTool: {!s}".format(SUSY7TopHFFilterAugmentation))

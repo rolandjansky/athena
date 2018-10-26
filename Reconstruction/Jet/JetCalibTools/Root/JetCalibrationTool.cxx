@@ -21,7 +21,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
     m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
-    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
+    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL)
 { 
 
   declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
@@ -48,6 +48,7 @@ JetCalibrationTool::~JetCalibrationTool() {
   if (m_globalSequentialCorr) delete m_globalSequentialCorr;
   if (m_insituDataCorr) delete m_insituDataCorr;
   if (m_jetMassCorr) delete m_jetMassCorr;
+  if (m_jetSmearCorr) delete m_jetSmearCorr;
 
 }
 
@@ -272,7 +273,9 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
         ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
         return StatusCode::FAILURE; 
       } else { 
-        m_calibClasses.push_back(m_insituDataCorr); 
+        m_calibClasses.push_back(m_insituDataCorr);
+	m_relInsituPtMax.push_back(m_insituDataCorr->getRelHistoPtMax());
+	m_absInsituPtMax.push_back(m_insituDataCorr->getAbsHistoPtMax());
         return StatusCode::SUCCESS; 
       }
     } else{
@@ -286,11 +289,34 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
           ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
           return StatusCode::FAILURE; 
         } else {     		
-          m_insituTimeDependentCorr.push_back(insituTimeDependentCorr_Tmp); 
+          m_insituTimeDependentCorr.push_back(insituTimeDependentCorr_Tmp);
+	  m_relInsituPtMax.push_back(insituTimeDependentCorr_Tmp->getRelHistoPtMax());
+	  m_absInsituPtMax.push_back(insituTimeDependentCorr_Tmp->getAbsHistoPtMax());
         }
       }
       return StatusCode::SUCCESS; 
     }
+  } else if ( calibration.EqualTo("Smear") ) {
+    if (m_isData)
+    {
+      ATH_MSG_FATAL("Asked for smearing of data, which is not supported.  Aborting.");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_INFO("Initializing jet smearing correction");
+    suffix = "_Smear";
+    if (m_devMode) suffix += "_DEV";
+    
+    m_jetSmearCorr = new JetSmearingCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_jetSmearCorr->msg().setLevel(this->msg().level());
+
+    if (m_jetSmearCorr->initializeTool(name+suffix).isFailure())
+    {
+      ATH_MSG_FATAL("Couldn't initialize the jet smearing correction.  Aborting.");
+      return StatusCode::FAILURE;
+    }
+    m_calibClasses.push_back(m_jetSmearCorr);
+    return StatusCode::SUCCESS;
   }
   ATH_MSG_FATAL("Calibration string not recognized: " << calibration << ", aborting.");
   //ATH_MSG_INFO("Initializing of sub tools is complete.");
@@ -533,3 +559,25 @@ StatusCode JetCalibrationTool::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEv
   }
   return StatusCode::SUCCESS; 
 }
+
+
+StatusCode JetCalibrationTool::getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const
+{
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal data resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionData(jet,resolution);
+}
+
+StatusCode JetCalibrationTool::getNominalResolutionMC(const xAOD::Jet& jet, double& resolution) const
+{
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal MC resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionMC(jet,resolution);
+}
+

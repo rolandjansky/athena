@@ -62,8 +62,9 @@ enum SelectionCuts
   CutEleBDTScore  = 1<<7,	// 000010000000
   CutEleBDTWP     = 1<<8,	// 000100000000
   CutMuonVeto     = 1<<9,	// 001000000000
-  CutEleOLR       = 1<<10,	// 010000000000
-  CutMuonOLR      = 1<<11	// 100000000000
+  CutEleOLR       = 1<<10,    // 010000000000
+  CutMuonOLR      = 1<<11,    // 100000000000
+  CutJetBDTScoreSigTrans = 1<<12  // 1000000000000
 };
   
 class TauSelectionTool : public virtual IAsgSelectionTool,
@@ -78,6 +79,7 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutAbsCharge;
   friend class SelectionCutNTracks;
   friend class SelectionCutBDTJetScore;
+  friend class SelectionCutBDTJetScoreSigTrans;
   friend class SelectionCutJetIDWP;
   friend class SelectionCutBDTEleScore;
   friend class SelectionCutEleBDTWP;
@@ -103,7 +105,7 @@ public:
   virtual StatusCode initialize();
 
   /// Function initialising the tool
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
+  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst")));
 
   /// Get an object describing the "selection steps" of the tool
   virtual const Root::TAccept& getTAccept() const;
@@ -150,6 +152,8 @@ private:
   std::vector<size_t> m_vNTracks;
   // vector of JetBDT cut regions
   std::vector<float> m_vJetBDTRegion;
+  // vector of JetBDTSigTrans cut regions
+  std::vector<float> m_vJetBDTSigTransRegion;
   // JetID working point
   std::string m_sJetIDWP;
   int m_iJetIDWP;
@@ -176,6 +180,8 @@ private:
   float m_iNTrack;
   float m_dJetBDTMin;
   float m_dJetBDTMax;
+  float m_dJetBDTSigTransMin;
+  float m_dJetBDTSigTransMax;
   float m_dEleBDTMin;
   float m_dEleBDTMax;
 

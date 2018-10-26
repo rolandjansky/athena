@@ -9,6 +9,9 @@
 # extend the list of arguments with your private ones later on.
 import optparse
 parser = optparse.OptionParser()
+parser.add_option( '-d', '--data-type', dest = 'data_type',
+                   action = 'store', type = 'string', default = 'data',
+                   help = 'Type of data to run over. Valid options are data, mc, afii' )
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
@@ -29,9 +32,8 @@ ROOT.CP.TauSmearingAlg ("dummy", None)
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
+
+dataType = options.data_type
 
 if not dataType in ["data", "mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)
@@ -81,7 +83,7 @@ submitDir = options.submission_dir
 if options.unit_test:
     import os
     import tempfile
-    submitDir = tempfile.mkdtemp( prefix = 'tauTest_', dir = os.getcwd() )
+    submitDir = tempfile.mkdtemp( prefix = 'tauTest_'+dataType+'_', dir = os.getcwd() )
     os.rmdir( submitDir )
     pass
 

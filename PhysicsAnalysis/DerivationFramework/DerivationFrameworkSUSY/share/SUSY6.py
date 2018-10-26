@@ -140,13 +140,24 @@ deco_prefix = ''  #'SUSY6_'
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TrackParametersKVU
 SUSY6DFCommonKVU = DerivationFramework__TrackParametersKVU(name = "SUSY6DFCommonKVU",
                                                              TrackParticleContainerName = "InDetPixelPrdAssociationTrackParticles",
-                                                             VertexContainerName = "PrimaryVertices", 
-                                                             KVUSGEntryName = "DFCommonInDetTrackKVU" )
-
-
+                                                             VertexContainerName = "PrimaryVertices")
 
 ToolSvc += SUSY6DFCommonKVU
 DecorationTools.append(SUSY6DFCommonKVU)
+
+SUSY6DFThreeKVU = DerivationFramework__TrackParametersKVU(name = "SUSY6DFThreeKVU",
+                                                          TrackParticleContainerName = "InDetPixelThreeLayerTrackParticles",
+                                                          VertexContainerName = "PrimaryVertices")
+
+ToolSvc += SUSY6DFThreeKVU
+DecorationTools.append(SUSY6DFThreeKVU)
+
+SUSY6DFFourKVU = DerivationFramework__TrackParametersKVU(name = "SUSY6DFFourKVU",
+                                                         TrackParticleContainerName = "InDetPixelFourLayerTrackParticles",
+                                                         VertexContainerName = "PrimaryVertices")
+
+ToolSvc += SUSY6DFFourKVU
+DecorationTools.append(SUSY6DFFourKVU)
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__CaloIsolationDecorator
 SUSY6IDTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY6IDTrackDecorator",
@@ -173,6 +184,28 @@ SUSY6PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "S
                                                                        )
 ToolSvc += SUSY6PixelTrackDecorator
 DecorationTools.append(SUSY6PixelTrackDecorator)
+
+SUSY6ThreeLayerTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY6ThreeLayerTrackDecorator",
+                                                                       TrackIsolationTool = TrackIsoTool,
+                                                                       CaloIsolationTool = CaloIsoTool,
+                                                                       TargetContainer = "InDetPixelThreeLayerTrackParticles",
+                                                                       ptcones = deco_ptcones,
+                                                                       topoetcones = deco_topoetcones,
+                                                                       Prefix = deco_prefix,
+                                                                       )
+ToolSvc += SUSY6ThreeLayerTrackDecorator
+DecorationTools.append(SUSY6ThreeLayerTrackDecorator)
+
+SUSY6FourLayerTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY6FourLayerTrackDecorator",
+                                                                       TrackIsolationTool = TrackIsoTool,
+                                                                       CaloIsolationTool = CaloIsoTool,
+                                                                       TargetContainer = "InDetPixelFourLayerTrackParticles",
+                                                                       ptcones = deco_ptcones,
+                                                                       topoetcones = deco_topoetcones,
+                                                                       Prefix = deco_prefix,
+                                                                       )
+ToolSvc += SUSY6FourLayerTrackDecorator
+DecorationTools.append(SUSY6FourLayerTrackDecorator)
 
 
 #====================================================================
@@ -337,16 +370,14 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSUSY.SUSY6ContentList import *
 SUSY6SlimmingHelper = SlimmingHelper("SUSY6SlimmingHelper")
 SUSY6SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
- "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
+ "AntiKt4EMPFlowJets",
  "PrimaryVertices",
  "MET_Reference_AntiKt4EMTopo",
  "MET_Reference_AntiKt4EMPFlow",
  "InDetTrackParticles"
  ]
 SUSY6SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
- "MET_Core_AntiKt4EMTopo","METAssoc_AntiKt4EMTopo", "InDetPixelPrdAssociationTrackParticles"]
+ "MET_Core_AntiKt4EMTopo","METAssoc_AntiKt4EMTopo", "InDetPixelPrdAssociationTrackParticles", "InDetPixelThreeLayerTrackParticles","InDetPixelFourLayerTrackParticles"]
 SUSY6SlimmingHelper.ExtraVariables = SUSY6ExtraVariables
 SUSY6SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY6SlimmingHelper.IncludeEGammaTriggerContent = True

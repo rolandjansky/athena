@@ -8,6 +8,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
@@ -60,7 +61,7 @@ MUON1AugmentTool1a = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            Mu1Types = [0],
                                                            Mu1Trigs = [],
                                                            Mu1IsoCuts = {},
-                                                           Mu2PtMin = 4*Units.GeV,
+                                                           Mu2PtMin = 2.5*Units.GeV,
                                                            Mu2AbsEtaMax = 9999.,
                                                            Mu2Types = [],
                                                            Mu2Trigs = [],
@@ -70,7 +71,7 @@ MUON1AugmentTool1a = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = False,
                                                            InvariantMassLow = 60*Units.GeV,
                                                            InvariantMassHigh = -1,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1a
                                                            )
 
@@ -105,7 +106,7 @@ MUON1AugmentTool1b = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = False,
                                                            InvariantMassLow = 2.0*Units.GeV,
                                                            InvariantMassHigh = 4.8*Units.GeV,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1b
                                                           )
 
@@ -140,7 +141,7 @@ MUON1AugmentTool1c = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = True,
                                                            InvariantMassLow = 2.0*Units.GeV,
                                                            InvariantMassHigh = 4.8*Units.GeV,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1c
                                                            )
 
@@ -163,7 +164,7 @@ MUON1AugmentTool1d = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            Mu1Types = [0],
                                                            Mu1Trigs = [],
                                                            Mu1IsoCuts = {}, #ptcone20<10 GeV, etcone40<20 GeV
-                                                           Mu2PtMin = 5.*Units.GeV,
+                                                           Mu2PtMin = 2.*Units.GeV,
                                                            Mu2AbsEtaMax = 999.,
                                                            Mu2Types = [0],
                                                            Mu2Trigs = [],
@@ -173,7 +174,7 @@ MUON1AugmentTool1d = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = True,
                                                            InvariantMassLow = 7.0*Units.GeV,
                                                            InvariantMassHigh = 13.*Units.GeV,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1d
                                                            )
 
@@ -212,6 +213,29 @@ ToolSvc += MUON1SkimmingTool1
 #====================================================================
 MUON1ThinningTools = []
 
+thinning_expression = "( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+MUON1TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "MUON1TPThinningTool",
+                                                                  ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                  SelectionString         = thinning_expression,
+                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                  ApplyAnd                = True)
+ToolSvc += MUON1TPThinningTool
+MUON1ThinningTools.append(MUON1TPThinningTool)
+
+# keep tracks around muons
+thinning_expression2 = ""
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+MUON1ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON1ThinningTool2",
+                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                    MuonKey                 = "Muons",
+                                                                    SelectionString         = thinning_expression2,
+                                                                    ConeSize                = 0.4,
+                                                                    ApplyAnd                = True,
+                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += MUON1ThinningTool2
+MUON1ThinningTools.append(MUON1ThinningTool2)
+
 # keep tracks marked in augmentation
 thinning_expression1 = '||'.join(thinningORs)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
@@ -222,20 +246,6 @@ MUON1ThinningTool1 = DerivationFramework__TrackParticleThinning(name            
                                                                 ApplyAnd                = False)
 ToolSvc += MUON1ThinningTool1
 MUON1ThinningTools.append(MUON1ThinningTool1)
-
-# keep tracks around muons
-thinning_expression2 = ""
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-MUON1ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON1ThinningTool2",
-                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
-                                                                    MuonKey                 = "Muons",
-                                                                    SelectionString         = thinning_expression2,
-                                                                    ConeSize                = 0.5,
-                                                                    ApplyAnd                = False,
-                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += MUON1ThinningTool2
-MUON1ThinningTools.append(MUON1ThinningTool2)
-
 
 # keep topoclusters around muons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning

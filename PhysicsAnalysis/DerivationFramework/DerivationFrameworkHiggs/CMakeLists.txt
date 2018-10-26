@@ -30,7 +30,8 @@ atlas_depends_on_subdirs(
    Generators/TruthUtils
    Tools/PathResolver
    PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces )
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+   Reconstruction/egamma/egammaInterfaces)
 
 # External dependencies:
 find_package( CLHEP )

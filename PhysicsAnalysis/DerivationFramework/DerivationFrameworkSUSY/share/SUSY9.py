@@ -254,6 +254,19 @@ if IsSUSYSignal():
 
     from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
+#====================================================================
+# Prompt Lepton Tagger
+#====================================================================
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY2, "SUSY2")
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY9, "SUSY9")
+
+# add decoration
+SeqSUSY9 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
+SeqSUSY9 += JetTagConfig.GetDecoratePromptTauAlgs()
+
 #==============================================================================
 # SUSY skimming selection
 #==============================================================================
@@ -270,13 +283,13 @@ SeqSUSY9 += CfgMgr.DerivationFramework__DerivationKernel(
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY9)
 
 #==============================================================================
-OutputJets["SUSY9"] = []
-reducedJetList = [ "AntiKt2PV0TrackJets" ]
+#OutputJets["SUSY9"] = []
+#reducedJetList = [ "AntiKt2PV0TrackJets" ]
 #if DerivationFrameworkIsMonteCarlo:
 #  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
-replaceAODReducedJets(reducedJetList, SeqSUSY9, "SUSY9")
+#replaceAODReducedJets(reducedJetList, SeqSUSY9, "SUSY9")
 
 
 #==============================================================================
@@ -344,6 +357,16 @@ SUSY9SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                       "MuonClusterCollection.eta_sampl.phi_sampl"
 ]
+
+
+# Saves BDT and input variables for light lepton algorithms. 
+# Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
+SUSY9SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
+# Saves BDT and input variables tau algorithm
+SUSY9SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+# add missing branches needed by Charge Flip Killer Tool
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+SUSY9SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
 SUSY9SlimmingHelper.IncludeMuonTriggerContent   = True
 SUSY9SlimmingHelper.IncludeEGammaTriggerContent = True

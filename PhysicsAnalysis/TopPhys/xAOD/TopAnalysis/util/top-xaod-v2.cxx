@@ -567,6 +567,7 @@ std::shared_ptr<top::TopEventMaker> CreateTopEventMaker(std::shared_ptr<top::Top
   // make top::Event objects
   std::shared_ptr<top::TopEventMaker> topEventMaker( new top::TopEventMaker( "top::TopEventMaker" ) );
   top::check(topEventMaker->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopEventMaker");
+  top::check(topEventMaker->initialize(), "Failed to initialise top::TopEventMaker");
   // Debug messages?
   // topEventMaker.msg().setLevel(MSG::DEBUG);
   return topEventMaker;

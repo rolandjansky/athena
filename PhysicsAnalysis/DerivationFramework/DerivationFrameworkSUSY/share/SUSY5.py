@@ -36,7 +36,8 @@ DerivationFrameworkJob += SeqSUSY5
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-from DerivationFrameworkSUSY.SUSY5TriggerList import triggersNavThin
+from DerivationFrameworkSUSY.SUSY5TriggerList import METorPhoton_triggers, Lepton_triggers
+triggersNavThin = METorPhoton_triggers + Lepton_triggers
 SUSY5ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
 
 SUSY5ThinningHelper.AppendToStream( SUSY5Stream )
@@ -44,15 +45,6 @@ SUSY5ThinningHelper.AppendToStream( SUSY5Stream )
 #====================================================================
 # THINNING TOOLS 
 #====================================================================
-
-# B.M.: likely not used
-# TrackParticles directly
-#SUSY5TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY5TPThinningTool",
-#                                                                 ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
-#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY5TPThinningTool
-#thinningTools.append(SUSY5TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -89,6 +81,15 @@ SUSY5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY5TauTPThinningTool
 thinningTools.append(SUSY5TauTPThinningTool)
+
+# TrackParticles associated with SV
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+SUSY5VertexTPThinningTool = DerivationFramework__VertexParticleThinning( name                = "SUSY5VertexTPThinningTool",
+                                                                      ThinningService        = SUSY5ThinningHelper.ThinningSvc(),
+                                                                      VertexKey              = "VrtSecInclusive_SoftBtagCandidateVertices",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles")
+ToolSvc += SUSY5VertexTPThinningTool
+thinningTools.append(SUSY5VertexTPThinningTool)
 
 # TrackParticles associated with LC jets: useful when the global track thinning has a pT threshold ~1-2 GeV
 #from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
@@ -144,46 +145,33 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL 
 #====================================================================
 
-muonsRequirementsSL = '(Muons.pt >= 3.5*GeV) && (Muons.pt <= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-electronsRequirementsSL = '(Electrons.pt > 4.5*GeV) && (Electrons.pt <= 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
+muonsRequirementsSL = '(Muons.pt >= 2.5*GeV) && (Muons.pt <= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+electronsRequirementsSL = '(Electrons.pt > 4.*GeV) && (Electrons.pt <= 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 objectSelectionSL = '(count('+electronsRequirementsSL+') + count('+muonsRequirementsSL+') >= 1)'
 
 muonsRequirementsHL = '(Muons.pt >= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirementsHL = '(Electrons.pt > 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 objectSelectionHL = '(count('+electronsRequirementsHL+') + count('+muonsRequirementsHL+') >= 1)'
 
-muonsRequirements = '(Muons.pt >= 3.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-electronsRequirements = '(Electrons.pt > 4.5*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
+muonsRequirements = '(Muons.pt >= 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+electronsRequirements = '(Electrons.pt > 4.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 1)'
 
-expression = objectSelection
-
-# now done in ExtendedJetCommon
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY5)
-
-from DerivationFrameworkSUSY.SUSY5TriggerList import triggersNavThin
-from DerivationFrameworkSUSY.SUSY5TriggerList import METorPhoton_triggers
-from DerivationFrameworkSUSY.SUSY5TriggerList import Lepton_triggers
-from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledLowPtTriggers
-from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledHighPtTriggers
 
 trig_expression = '(' + ' || '.join(METorPhoton_triggers+Lepton_triggers) + ')' 
 MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')' 
 
 if not DerivationFrameworkIsMonteCarlo:
-  Prestrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers + PrescaledHighPtTriggers) + ')' 
-  PresLowPttrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers) + ')' 
   JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-  JetEleLooseExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>10*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+'||'+'('+PresLowPttrig_expression +'&&'+ JetEleLooseExpression +'&&'+ objectSelectionSL+')'+')'
-else :
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')' 
+  JetEleHighExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>200*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelection+'&&'+JetEleHighExpression+')'+' )'
 
-expression = LepTrigexpression
+else :
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY5SkimmingTool",
-                                                                expression = expression)
+                                                                 expression = LepTrigexpression)
 
 ToolSvc += SUSY5SkimmingTool
 
@@ -226,23 +214,25 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY5)
 
 #==============================================================================
 OutputJets["SUSY5"] = [] 
-reducedJetList = [ "AntiKt2PV0TrackJets" ]
-
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets" ]
 
 replaceAODReducedJets(reducedJetList, SeqSUSY5, "SUSY5")
 
+# AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+addDefaultTrimmedJets(SeqSUSY5, "SUSY5")
 
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
 # now part of MCTruthCommon
 if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+
+#==============================================================================
+# Soft b-tag
+#==============================================================================
+from DerivationFrameworkFlavourTag.SoftBtagCommon import *
+applySoftBtagging("softBtag", SeqSUSY5 )
 
 #==============================================================================
 # Augment after skim
@@ -262,7 +252,7 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
 
 # add decoration
-SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY5 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 #====================================================================
@@ -276,17 +266,16 @@ SUSY5SlimmingHelper.SmartCollections = ["Electrons",
                                         "Muons",
                                         "TauJets",
                                         "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
-
-                                        #"AntiKt4LCTopoJets",
+                                        "AntiKt4EMPFlowJets",
                                         "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
-
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices"]
+                                        "PrimaryVertices",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                                        ]
+
 SUSY5SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
@@ -299,14 +288,18 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
                                       "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
                                       "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
- #P. Pani removed 20/06/16                                     "AntiKt3PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
- #P. Pani removed 20/06/16                                     "BTagging_AntiKt3Track.MV2c20_discriminant",
                                       "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
-                                      "BTagging_AntiKt2Track.MV2c10_discriminant"]
+                                      "BTagging_AntiKt2Track.MV2c10_discriminant",
+                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
+                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
+                                      "PrimaryVertices.covariance",
+                                      "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
+                                      ]
+
 
 # Saves BDT and input variables for light lepton algorithms. 
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument. 
-SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 
@@ -318,16 +311,17 @@ SUSY5SlimmingHelper.IncludeTauTriggerContent    = False
 SUSY5SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY5SlimmingHelper.IncludeBJetTriggerContent   = False
 
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
 
-# Remove 03/06/2016 P.Pani
-#addJetOutputs(SUSY5SlimmingHelper,["LargeR", "SUSY5"], [], ["CamKt12LCTopoJets","AntiKt10LCTopoJets","AntiKt10TruthJets","CamKt12TruthWZJets","CamKt12TruthJets","AntiKt10TruthWZJets"])
+SUSY5SlimmingHelper.StaticContent = StaticContent
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY5SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY5SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   

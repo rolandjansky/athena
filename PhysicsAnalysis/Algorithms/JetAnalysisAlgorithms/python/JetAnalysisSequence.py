@@ -68,7 +68,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     if runJetSmearing:
         alg = createAlgorithm( 'CP::JetSmearingAlg', 'JetSmearingAlg' )
         addPrivateTool( alg, 'smearingTool', 'JERSmearingTool' )
-        JERTool = createPublicTool( 'MyJERTool', 'JERTool' )
+        JERTool = createPublicTool( 'JERTool', 'MyJERTool' )
         JERTool.PlotFileName = \
             'JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root'
         JERTool.CollectionName = jetCollection
@@ -105,6 +105,16 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         alg = createAlgorithm( 'CP::JvtUpdateAlg', 'JvtUpdateAlg' )
         addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
         alg.jvtTool.JVTFileName = 'JetMomentTools/JVTlikelihood_20140805.root'
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+
+        alg = createAlgorithm( 'CP::JetModifierAlg', 'JetModifierAlg' )
+        addPrivateTool( alg, 'modifierTool', 'JetForwardJvtTool')
+        alg.modifierTool.OutputDec = "passFJvt" #Output decoration
+        # fJVT WPs depend on the MET WP
+        # see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
+        alg.modifierTool.UseTightOP = 0 # 1 = Tight, 0 = Loose
+        alg.modifierTool.EtaThresh = 2.5 # Eta dividing central from forward jets
+        alg.modifierTool.ForwardMaxPt = 120.0e3 #Max Pt to define fwdJets for JVT
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
         pass
 

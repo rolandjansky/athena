@@ -1,5 +1,8 @@
 theApp.EvtMax=-1                                         #says how many events to run over. Set to -1 for all events
 
+#Include error handler for safety purposes
+theApp.CreateSvc += ["AthROOTErrorHandlerSvc"]
+
 #import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POOL files (e.g. xAODs)
 import AthenaRootComps.ReadAthenaxAODHybrid
 svcMgr.EventSelector.AccessMode=1 #use class access mode ... I know it's wrong, but it should be ok just for the EventInfo information
@@ -11,7 +14,7 @@ if len(svcMgr.EventSelector.InputCollections)==0:
    
 
 #instantiate a tool without a config file, so that it's in config file making mode ...
-ToolSvc += CfgMgr.CP__PileupReweightingTool("auto",ConfigFiles=[],LumiCalcFiles=[],DataScaleFactor=1.0,DataScaleFactorUP=0.,DataScaleFactorDOWN=0.)
+ToolSvc += CfgMgr.CP__PileupReweightingTool("auto",ConfigFiles=[],LumiCalcFiles=[],DataScaleFactor=1.0,DataScaleFactorUP=0.,DataScaleFactorDOWN=0.,PeriodAssignments=[])
 
 #need to configure the weighttool to use TruthEvents, because of ATLASSIM-2989 bug in 20.7
 ToolSvc += CfgMgr.McEventWeight("MyWeights",UseTruthEvents=True)

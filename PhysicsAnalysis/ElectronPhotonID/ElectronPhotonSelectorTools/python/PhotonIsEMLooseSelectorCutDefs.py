@@ -17,9 +17,12 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
-def PhotonIsEMLooseSelectorConfigDC14(theTool) :
+#
+# The "current" Loose ID menu, to be picked up by the rest of Athena.
+#
+def PhotonIsEMLooseSelectorConfig(theTool) :
     '''
-    These are the photon isEM definitions *DC14* Loose 
+    These are the photon isEM definitions for Loose
     '''
     
     theTool = GetTool(theTool)

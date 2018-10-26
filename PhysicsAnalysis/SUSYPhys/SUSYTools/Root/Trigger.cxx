@@ -29,17 +29,17 @@ namespace ST {
 
 bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) const {
 
-  //Returns MET trigger decision for recommended lowest unprescaled evolution described in 
-  //https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled#Jets_MET_Jet_MET_HT
-  //Note: _mht triggers are taken as default, as have shown better turn-on performance (a combined mht+cell trigger is planned for the next transition ~1.5E34)
+  // Returns MET trigger decision for recommended lowest unprescaled evolution described in 
+  // https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled
+  // For period vs run number, see https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_Period_Report.php
 
-  //if no runNumber specified, just read it from the current event
+  // if no runNumber specified, just read it from the current event
   unsigned int rn;
   if(runnumber>0){
     rn = runnumber;
   }
   else{
-    rn = GetRunNumber(); //it takes care of dealing with data and MC
+    rn = GetRunNumber(); // it takes care of dealing with data and MC
   }
   
   int year = treatAsYear(rn);
@@ -47,9 +47,11 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) cons
   if (year == 2015)                                      return IsMETTrigPassed("HLT_xe70_mht",j400_OR); //2015
   else if(year == 2016 && rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50",j400_OR); //2016 A-D3
   else if(year == 2016 && rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
-  else if(year == 2016 && rn >= 303943)                  return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) . Fallback to previous chain for simulation, as xe110 is not in the menu
-  else if(year == 2017)                                  return IsMETTrigPassed("HLT_xe110_pufit_L1XE55", false); // no need for j400_OR things
-
+  else if(year == 2016 && rn >= 303943)                  return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) 
+  else if(year == 2017 && rn >= 325713 && rn <= 331975 ) return IsMETTrigPassed("HLT_xe110_pufit_L1XE55", false); // 2017 B1-D5
+  else if(year == 2017 && rn >= 332304 )                 return IsMETTrigPassed("HLT_xe110_pufit_L1XE50", false); // 2017 D6-(open)
+  else if(year == 2018 && rn >= 348885 && rn <= 350013 ) return IsMETTrigPassed("HLT_xe110_pufit_xe70_L1XE50", false); // 2018 B-C5
+  else if(year == 2018 && rn >= 350067 )                 return IsMETTrigPassed("HLT_xe110_pufit_xe65_L1XE50", false); // 2018 C5-(open)
   return false; 
 }
 
@@ -374,8 +376,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
     return trig_sf;
   }
 
-  unsigned runNumber = (unsigned) this->GetRandomRunNumber();
-
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
@@ -405,10 +405,10 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
 
   CP::CorrectionCode result;
   if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( runNumber, elec_trig, muon_trig, trig_sf);
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
   }
   else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_multiLep->getEfficiencyScaleFactor( runNumber, elec_trig, muon_trig, trig_sf);
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
   }
  
   switch (result) {
@@ -436,8 +436,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
     return trig_eff;
   }
 
-  unsigned runNumber = (unsigned) this->GetRandomRunNumber();
-
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
@@ -467,10 +465,10 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   CP::CorrectionCode result;
   if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
   }
   else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
-    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
   }
  
   switch (result) {

@@ -135,26 +135,26 @@ namespace CP {
     }
     bool EfficiencyScaleFactor::ReadFromFile(const std::string& file, const std::string& time_unit) {
         // open the file
-        TFile* f = TFile::Open(file.c_str(), "READ");
-        if (!f) {
+        std::unique_ptr<TFile> f (TFile::Open(file.c_str(), "READ"));
+        if (!f || !f->IsOpen()) {
             Error("EfficiencyScaleFactor", "Unable to open file %s", file.c_str());
             return false;
         }
         // now we can read our six Histos
-        m_eff = ReadHistFromFile("Eff", f, time_unit);
-        m_eff_sys = ReadHistFromFile("Eff_sys", f, time_unit);
+        m_eff = ReadHistFromFile("Eff", f.get(), time_unit);
+        m_eff_sys = ReadHistFromFile("Eff_sys", f.get(), time_unit);
 
-        m_mc_eff = ReadHistFromFile("MC_Eff", f, time_unit);
-        m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f, time_unit);
+        m_mc_eff = ReadHistFromFile("MC_Eff", f.get(), time_unit);
+        m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f.get(), time_unit);
 
-        m_sf = ReadHistFromFile("SF", f, time_unit);
-        m_sf_sys = ReadHistFromFile("SF_sys", f, time_unit);
+        m_sf = ReadHistFromFile("SF", f.get() ,time_unit);
+        m_sf_sys = ReadHistFromFile("SF_sys", f.get(), time_unit);
 
         // for high pt eff, we also load the pt dependent part
         if (m_respond_to_kineDepSyst) {
             if (m_Type != CP::MuonEfficiencyType::BadMuonVeto) {
-                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f, time_unit)));
-                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f, time_unit)));
+                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit)));
+                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f.get(), time_unit)));
             } else {
                 TDirectory* SystDir = nullptr;
                 f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
@@ -163,9 +163,6 @@ namespace CP {
             }
 
         }
-        // and don't forget to close the file again!
-        f->Close();
-        delete f;
         return true;
     }
     bool EfficiencyScaleFactor::CheckConsistency() const {

@@ -7,6 +7,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #include <cassert>
 #include <iostream>             // for printing errors in the destructor
+#include <set>
 
 namespace H5Utils {
   namespace internal {
@@ -79,9 +80,15 @@ namespace H5Utils {
     }
     H5::CompType build_type(const VariableFillers& fillers) {
       using internal::data_buffer_t;
+      std::set<std::string> inserted; // check for repeat names
       H5::CompType type(fillers.size() * sizeof(data_buffer_t));
       size_t dt_offset = 0;
       for (const auto& filler: fillers) {
+        const std::string& name = filler->name();
+        if (inserted.count(name)) {
+          throw std::logic_error(name + " inserted twice");
+        }
+        inserted.insert(name);
         type.insertMember(filler->name(), dt_offset, filler->get_type());
         dt_offset += sizeof(data_buffer_t);
       }
@@ -200,6 +207,10 @@ namespace H5Utils {
     m_ds.write(m_buffer.data(), m_type, mem_space, file_space);
     m_offset += buffer_size();
     m_buffer.clear();
+  }
+
+  size_t WriterXd::index() const {
+    return m_offset + buffer_size();
   }
 
   hsize_t WriterXd::buffer_size() const {

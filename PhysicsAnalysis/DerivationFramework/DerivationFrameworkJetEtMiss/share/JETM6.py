@@ -229,8 +229,9 @@ addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm6Se
 if DerivationFrameworkIsMonteCarlo:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=True)
 
-addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm6Seq, "JETM6", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addCSSKSoftDropJets(jetm6Seq, "JETM6")
+
+addSoftDropJets("AntiKt", 1.0, "PV0Track", beta=1.0, zcut=0.1, algseq=jetm6Seq, outputGroup="JETM6")
 
 #====================================================================
 # SET UP STREAM

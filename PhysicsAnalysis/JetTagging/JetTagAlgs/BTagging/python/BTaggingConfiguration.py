@@ -391,7 +391,7 @@ class Configuration:
       if JetCollection in self._BTaggingConfig_JetBTaggerTools:
           self.setupJetBTaggerTools(JetCollections=JetCollection)
 
-  def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True):
+  def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True, TrackAssociatorName="MatchedTracks"):
       """Convenience function which takes only a single jet collection and returns an instance instead
       of a list; see setupJetBTaggerTools for more info. This function is mainly here for easy calling for BTagging from JetRec.
 
@@ -403,10 +403,10 @@ class Configuration:
           elif Verbose:
               print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
           JetCollection = JetCollection[:-4]
-      btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme)
+      btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme, TrackAssociatorName)
       return btagger[0]
 
-  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = ""):
+  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = "", TrackAssociatorName="MatchedTracks"):
       """Sets up JetBTaggerTool tools and adds them to the topSequence (one per jet collection). This function just updates
       the tool if such a tool already exists for the specified jet collections. This function should only be used for
       jet collections that one need reconstruction. Note that it is allowed to set topSequence to None,
@@ -479,7 +479,7 @@ class Configuration:
           assoc = \
                   Analysis__BTagTrackAssociation(
                           'thisBTagTrackAssociation_'+jetcol+self.GeneralToolSuffix(),
-                          AssociatedTrackLinks = "MatchedTracks",
+                          AssociatedTrackLinks = TrackAssociatorName,
                           AssociatedMuonLinks = "MatchedMuons",
                           TrackContainerName = "InDetTrackParticles",
                           MuonContainerName = "Muons",

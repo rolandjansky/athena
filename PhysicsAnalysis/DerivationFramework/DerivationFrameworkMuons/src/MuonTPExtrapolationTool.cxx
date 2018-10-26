@@ -41,9 +41,7 @@ MuonTPExtrapolationTool::~MuonTPExtrapolationTool() {
 //**********************************************************************
 
 StatusCode MuonTPExtrapolationTool::initialize() {
-#ifndef XAOD_ANALYSIS
-    ATH_CHECK(m_extrapolator.retrieve());
-#endif
+    if (!m_is_on_DAOD) ATH_CHECK(m_extrapolator.retrieve());
 
     return StatusCode::SUCCESS;
 }
@@ -62,7 +60,6 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
     static SG::AuxElement::Accessor<float> acc_Phi("PhiTriggerPivot");
     
     if (!acc_Decorated.isAvailable(*particle) || !acc_Decorated(*particle)) {
-#ifndef XAOD_ANALYSIS
         if (!m_is_on_DAOD) {
             // in the athena release, we can run the extrapolation if needed
             const Trk::TrackParameters* pTag = extrapolateToTriggerPivotPlane(*particle);
@@ -83,17 +80,15 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
             if (particle->pt() > 3500) ATH_MSG_WARNING("Pivot plane extrapolation not decorated to a track particle at pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
             return true;
         }
-#else
-        // in AthAnalysis, we can only give up if the decoration is missing...
-        ATH_MSG_WARNING("Pivot plane extrapolation not decorated to a track particle at pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
-        return false;
-#endif
     }
     
-    if (acc_Decorated.isAvailable(*particle) && acc_Decorated(*particle) == 1) {
+    if (m_is_on_DAOD || (acc_Decorated.isAvailable(*particle) && acc_Decorated(*particle) == 1) ) {
         eta = acc_Eta(*particle);
         phi = acc_Phi(*particle);
-    } else if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for track with pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
+    } else {
+        if (!m_is_on_DAOD && particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for track with pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
+        eta = phi = -5;
+    } 
     
     return true;
 }

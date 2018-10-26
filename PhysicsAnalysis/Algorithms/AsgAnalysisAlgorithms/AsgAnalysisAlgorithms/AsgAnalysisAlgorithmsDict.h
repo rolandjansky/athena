@@ -10,6 +10,7 @@
 
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
+#include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>

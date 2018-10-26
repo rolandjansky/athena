@@ -13,6 +13,9 @@ parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
 parser.add_option('-t', '--type', dest = 'type',
                   action = 'store', type = 'string', default = 'MC',
                   help = 'Job type. (MC, AFII, DATA)' )
+parser.add_option('-d', '--daod', dest = 'daod',
+                  action = 'store', type = 'int', default = '0',
+                  help = 'input DAOD type. Do not specify for xAOD input' )
 parser.add_option('-m', '--maxEvts', dest = 'maxEvts',
                   action = 'store', type = 'int', default = '500',
                   help = 'Max events (-1 is all)' )
@@ -28,15 +31,19 @@ import os
 sh = ROOT.SH.SampleHandler()
 sh.setMetaString( 'nc_tree', 'CollectionTree' )
 
+cvmfsInputArea = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ART/ARTInput'
 inputFile = ''
 
-if options.type == "AFII":
-    inputFile = os.getenv( 'ASG_TEST_FILE_MC_AFII' )
-elif options.type == "DATA":
-    inputFile = os.getenv( 'ASG_TEST_FILE_DATA' )
+if options.daod == 0:
+    if options.type == "AFII":
+        inputFile = os.getenv( 'ASG_TEST_FILE_MC_AFII' )
+    elif options.type == "DATA":
+        inputFile = os.getenv( 'ASG_TEST_FILE_DATA' )
+    else:
+        inputFile = os.getenv( 'ASG_TEST_FILE_MC' )
 else:
-    inputFile = os.getenv( 'ASG_TEST_FILE_MC' )
-
+    inputFile = '%s/DAOD_%sSUSY%s.art.merge.root' % (cvmfsInputArea, options.type == "DATA" and "data18" or "mc16", options.daod)
+    
 basePath = os.path.basename(inputFile)
 sample_dir = os.path.dirname(os.path.abspath(inputFile))
 mother_dir = os.path.dirname(sample_dir)       
@@ -56,23 +63,38 @@ config = AnaAlgorithmConfig( 'SUSYToolsAlg' )
 
 config.DoSyst = True
 config.DataSource = 1
-config.PRWLumiCalc = [
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20170720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-009.root"
-    ]
-
+config.PRWLumiCalc = []
 config.PRWConfigs = []
-if options.type == "AFII":
-    config.PRWConfigs = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root"]
-    config.DataSource = 2
-elif options.type == "DATA":
-    config.PRWConfigs = [
-        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
-        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"
+
+
+# Running over DAOD_PHYSVAL
+if options.daod == 0:
+    config.PRWLumiCalc = [
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20170720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-009.root"
         ]
-    config.DataSource = 0
+
+    if options.type == "AFII":
+        config.DataSource = 2
+        config.PRWConfigs = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root"]
+    elif options.type == "DATA":
+        config.DataSource = 0
+        config.PRWConfigs = [
+            "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
+            "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"
+            ]
+    else:
+        config.PRWConfigs = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root"]
+
+# Running over SUSY DAOD (uses data18/mc16e inputs)
 else:
-    config.PRWConfigs = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root"]
+    config.PRWLumiCalc = [
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20180924/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"
+        ]
+    if options.type == "DATA":
+        config.DataSource = 0
+    else:
+        config.UsePRWAutoconfig = True
 
 job.algsAdd( config )
 # Run the job using the direct driver.

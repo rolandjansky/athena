@@ -45,7 +45,7 @@ namespace CP
     ANA_CHECK (m_outOfValidity.initialize());
 
     if (!m_selection.empty())
-      m_selectionAccessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_selection);
+      ANA_CHECK (makeSelectionAccessor (m_selection, m_selectionAccessor));
 
     if (!m_efficiency.empty())
       m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiency);
@@ -76,7 +76,7 @@ namespace CP
           {
             goodJet = m_efficiencyTool->passesJvtCut (*jet);
             if (m_selectionAccessor)
-              (*m_selectionAccessor) (*jet) = selectionFromBool (goodJet);
+              m_selectionAccessor->setBool (*jet, goodJet);
           }
           if (m_efficiencyAccessor && (goodJet || !m_skipBadEfficiency))
           {

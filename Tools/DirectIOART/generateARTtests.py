@@ -79,7 +79,8 @@ def write_RecoTF(opts):
 # art-description: DirectIOART Athena Reco_tf.py inputFile:RDO protocol={protocol}
 # art-type: grid
 # art-output: *.pool.root
-# art-include: 21.0/Athena\n
+# art-include: 21.0/Athena
+# art-include: master/Athena\n
 set -e\n
 Reco_tf.py --AMI q221 --inputRDOFile {turl} --outputRDO_TRIGFile art.pool.root\n
 echo \"art-result: $? DirectIOART_Athena_RecoTF_inputRDO_protocol_{protocol}\"""".format(turl=item.values()[0], protocol=item.keys()[0])
@@ -96,7 +97,8 @@ echo \"art-result: $? DirectIOART_Athena_RecoTF_inputRDO_protocol_{protocol}\"""
 # art-description: DirectIOART AthenaMP Reco_tf.py inputFile:RDO protocol={protocol}
 # art-type: grid
 # art-output: *.pool.root
-# art-include: 21.0/Athena\n
+# art-include: 21.0/Athena
+# art-include: master/Athena\n
 set -e\n
 export ATHENA_PROC_NUMBER=2
 Reco_tf.py --AMI q221 --inputRDOFile {turl} --outputRDO_TRIGFile art.pool.root\n
@@ -115,7 +117,8 @@ echo \"art-result: $? DirectIOART_AthenaMP_RecoTF_inputRDO_protocol_{protocol}\"
 # art-description: DirectIOART Athena Reco_tf.py inputFile:RAW protocol={protocol}
 # art-type: grid
 # art-output: *.pool.root
-# art-include: 21.0/Athena\n
+# art-include: 21.0/Athena
+# art-include: master/Athena\n
 set -e\n
 Reco_tf.py --AMI q431 --inputBSFile {turl} --outputESDFile art.pool.root\n
 echo \"art-result: $? DirectIOART_Athena_RecoTF_inputBS_protocol_{protocol}\"""".format(turl=item.values()[0], protocol=item.keys()[0])
@@ -132,7 +135,8 @@ echo \"art-result: $? DirectIOART_Athena_RecoTF_inputBS_protocol_{protocol}\""""
 # art-description: DirectIOART AthenaMP Reco_tf.py inputFile:RAW protocol={protocol}
 # art-type: grid
 # art-output: *.pool.root
-# art-include: 21.0/Athena\n
+# art-include: 21.0/Athena
+# art-include: master/Athena\n
 set -e\n
 export ATHENA_PROC_NUMBER=2
 Reco_tf.py --AMI q431 --inputBSFile {turl} --outputESDFile art.pool.root\n
@@ -220,6 +224,7 @@ def writeTFileOpen():
 # art-description: DirectIOART TFile::Open
 # art-type: grid
 # art-include master/Athena
+# art-include master/AthSimulation
 # art-include 21.0/Athena
 # art-include 21.0/AthSimulation
 # art-include 21.2/AthAnalysis

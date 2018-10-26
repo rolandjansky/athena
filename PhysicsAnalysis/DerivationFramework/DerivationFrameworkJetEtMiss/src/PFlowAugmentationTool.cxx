@@ -5,7 +5,7 @@
 ///////////////////////////////////////////////////////////////////
 // PFlowAugmentationTool.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// Author: Fabrice Balli (fabrice.balli@cern.ch)
+// Author: Fabrice Balli (fabrice.balli@cern.ch), Chris Young (christopher.young@cern.ch)
 //
 
 #include "PFlowAugmentationTool.h"
@@ -15,6 +15,11 @@ namespace DerivationFramework {
 
 const static SG::AuxElement::Decorator<char> dec_PVmatched("DFCommonPFlow_PVMatched");
 const static SG::AuxElement::Decorator<float> dec_corrP4_pt("DFCommonPFlow_CaloCorrectedPt");
+const static SG::AuxElement::Decorator<float> dec_z0("DFCommonPFlow_z0");
+const static SG::AuxElement::Decorator<float> dec_vz("DFCommonPFlow_vz");
+const static SG::AuxElement::Decorator<float> dec_d0("DFCommonPFlow_d0");
+const static SG::AuxElement::Decorator<float> dec_theta("DFCommonPFlow_theta");
+const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWeight");
 
   PFlowAugmentationTool::PFlowAugmentationTool(const std::string& t,
 					       const std::string& n,
@@ -84,7 +89,11 @@ const static SG::AuxElement::Decorator<float> dec_corrP4_pt("DFCommonPFlow_CaloC
 	continue;
       }
 
-      float weight = 1.0;
+      // decorate the track properties	
+      dec_z0(*cpfo) = ptrk->z0();
+      dec_vz(*cpfo) = ptrk->vz();
+      dec_d0(*cpfo) = ptrk->d0();
+      dec_theta(*cpfo) = ptrk->theta();
 
       bool matchedToPrimaryVertex = false;
       //vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0). Thus we correct the track z0 to be w.r.t z = 0
@@ -97,15 +106,17 @@ const static SG::AuxElement::Decorator<float> dec_corrP4_pt("DFCommonPFlow_CaloC
 	}
       }// if pv available
 
+      //find the weights from the tool
       int isInDenseEnvironment = false;
-      bool gotVariable = cpfo->attribute(xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment,isInDenseEnvironment);
-      if(gotVariable && isInDenseEnvironment){
+      float weight = 1.0;
+      if(cpfo->attribute(xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment,isInDenseEnvironment)){
 	ATH_CHECK( m_weightPFOTool->fillWeight( *cpfo, weight ) );
       }
 
-      // generate static decorators to avoid multiple lookups	
+      // decorate the computed variables	
       dec_PVmatched(*cpfo) = matchedToPrimaryVertex;
       dec_corrP4_pt(*cpfo) = weight*cpfo->pt();
+      dec_envWeight(*cpfo) = weight;
     }
 
     return StatusCode::SUCCESS;

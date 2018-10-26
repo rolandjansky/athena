@@ -324,7 +324,7 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 )
 
 # Add VR jets
-addVRJets(SeqSUSY1, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+addVRJets(SeqSUSY1)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
@@ -363,6 +363,7 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
                                       "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
+              "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
                                       # TODO: .DFCommonJets_Jvt",
 				      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
 				      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",

@@ -101,7 +101,7 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-				"ESModel", "es2017_R21_v0"),
+				"ESModel", "es2017_R21_v1"),
 	       "Failed to set ESModel for " + egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                 "decorrelationModel",
@@ -267,7 +267,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Charge ID cannot use maps at the moment so we defualt to the old method
   // for the moment only for MediumLH and FixedCutTight isolation
   // either at Tight or Loose level
-  if ( ( electronIDLoose == "MediumLLH" && electronIsolationLoose == "FixedCutTight" ) || ( electronID == "MediumLLH" && electronIsolation == "FixedCutTight" ) ) {
+  if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
     m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH");
     // The tools want the files in vectors: remove this with function
@@ -377,20 +377,20 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map5.txt";
+      file_path = "map0.txt";
     }
     else if(type == "ID"){
-      file_path = "map5.txt";
+      file_path = "map0.txt";
     }
     else if(type == "isolation"){
-      file_path = "map5.txt";
+      file_path = "map0.txt";
     }
     else if(type == "trigger"){
-      file_path = "map5.txt";
+      file_path = "map0.txt";
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

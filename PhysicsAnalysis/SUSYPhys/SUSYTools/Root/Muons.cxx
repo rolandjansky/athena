@@ -86,7 +86,7 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
 
   //apply close-by corrections to isolation if requested
   if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
+    // store muons in a vector
     std::vector<const xAOD::IParticle*> pVec;
     for(auto pobj: *copy) {
       pVec.push_back((const xAOD::IParticle*) pobj);
@@ -213,6 +213,9 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
 
   if (m_mubaselinez0>0. && fabs(acc_z0sinTheta(input))>m_mubaselinez0) return StatusCode::SUCCESS;
   if (m_mubaselined0sig>0. && fabs(acc_d0sig(input))>m_mubaselined0sig) return StatusCode::SUCCESS;
+
+  //--- Do baseline isolation check
+  if ( !( m_muBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;

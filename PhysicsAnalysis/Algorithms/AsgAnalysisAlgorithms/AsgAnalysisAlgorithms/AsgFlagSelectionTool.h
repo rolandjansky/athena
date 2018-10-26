@@ -11,7 +11,9 @@
 
 #include <AsgTools/AsgTool.h>
 #include <PATCore/IAsgSelectionTool.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <xAODBase/IParticle.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -73,7 +75,7 @@ namespace CP
 
     std::vector<std::string> m_selFlags;
     std::vector<bool> m_invertFlags;
-    std::vector<SG::AuxElement::ConstAccessor<char> > m_acc_selFlags;
+    std::vector<std::unique_ptr<ISelectionAccessor> > m_acc_selFlags;
 
     /// \}
 
@@ -85,4 +87,3 @@ namespace CP
 }
 
 #endif
-

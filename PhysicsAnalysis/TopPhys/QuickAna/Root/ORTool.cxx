@@ -38,6 +38,7 @@ namespace ana
     declareProperty("JVTPriorities", m_jvtPriorities=false);
     declareProperty("ApplyRelPt", m_applyRelPt=false);
     declareProperty("OnlyRejJets", m_onlyRejJets=false);
+    declareProperty("OnlyVBS4l", m_onlyVBS4l=false);
   }
 
   //---------------------------------------------------------------------------
@@ -79,8 +80,9 @@ namespace ana
     ATH_CHECK( m_orToolBox.muJetORT.setProperty("ApplyRelPt", m_applyRelPt) );
 
     // only remove jets, in early RUN2, this only works for HIGG2DX derivation
-    if(m_onlyRejJets) {
-      ATH_CHECK( m_orToolBox.eleEleORT.setProperty("UseClusterMatch", true) );
+    if (m_onlyRejJets) {
+      if (m_onlyVBS4l) ATH_CHECK( m_orToolBox.eleEleORT.setProperty("UseClusterMatch", false) );
+      else             ATH_CHECK( m_orToolBox.eleEleORT.setProperty("UseClusterMatch", true) );
       ATH_CHECK( m_orToolBox.eleJetORT.setProperty("OuterDR", 0.) );
       ATH_CHECK( m_orToolBox.muJetORT.setProperty("OuterDR", 0.) );
     }
@@ -214,7 +216,8 @@ namespace
                         const std::string& boostedLeptons = "",
                         const bool useJVT = false,
                         const bool applyRelPt = false,
-                        const bool onlyRejJets = false)
+                        const bool onlyRejJets = false,
+                        const bool onlyVBS4l   = false)
   {
     using namespace ana::msgObjectDefinition;
 
@@ -231,6 +234,7 @@ namespace
     ANA_CHECK( orTool->setProperty("JVTPriorities", useJVT) );
     ANA_CHECK( orTool->setProperty("ApplyRelPt", applyRelPt) );
     ANA_CHECK( orTool->setProperty("OnlyRejJets", onlyRejJets) );
+    ANA_CHECK( orTool->setProperty("OnlyVBS4l", onlyVBS4l) );
     args.add( std::move(orTool) );
 
     return StatusCode::SUCCESS;
@@ -247,5 +251,6 @@ namespace
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv", makeORTool(args, "", "", true, true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv_nojvt", makeORTool(args, "", "", false, true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllll", makeORTool(args, "", "", true, true, true) )
+  QUICK_ANA_OR_DEFINITION_MAKER( "vbs_4l", makeORTool(args, "", "", true, true, true, true) )
 
 } // anonymous namespace

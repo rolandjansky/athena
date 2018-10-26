@@ -83,17 +83,10 @@ if( NOT XAOD_STANDALONE )
       ${extra_libs} )
 endif()
 
-if( XAOD_STANDALONE )
-   atlas_add_dictionary( JetMomentToolsDict
-	JetMomentTools/JetMomentToolsDict.h
-	JetMomentTools/selection_standalone.xml
-	LINK_LIBRARIES JetMomentToolsLib )
-else()
-    atlas_add_dictionary( JetMomentToolsDict
+atlas_add_dictionary( JetMomentToolsDict
 	JetMomentTools/JetMomentToolsDict.h
 	JetMomentTools/selection.xml
 	LINK_LIBRARIES JetMomentToolsLib )
-endif()
 
 if( XAOD_ANALYSIS )
     atlas_add_executable( JetJvtTools_Example
@@ -109,4 +102,3 @@ endif()
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/*.root )
 atlas_install_data( share/*.root )
-

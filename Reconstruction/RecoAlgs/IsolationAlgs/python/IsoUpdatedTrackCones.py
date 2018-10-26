@@ -15,7 +15,7 @@ def GetUpdatedIsoTrackCones(name=""):
   from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
   from AthenaCommon import CfgMgr
 
-  tighttrackvertexassotool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=3, doPV=True) 
+  tighttrackvertexassotool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool", WorkingPoint="Loose") 
   ToolSvc+=tighttrackvertexassotool 
 
   from IsolationAlgs.IsolationAlgsConf import IsolationBuilder

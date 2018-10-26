@@ -17,7 +17,8 @@ complex_jet_discriminants = [
     "min_trk_flightDirRelEta",
     "max_trk_flightDirRelEta",
     "avg_trk_flightDirRelEta",
-    "rnnip_isDefaults"
+    "rnnip_isDefaults",
+    "IP2D_nTrks", "IP3D_nTrks",
 ]
 trivial_jet_discriminants = [
     "IP2D_cu",

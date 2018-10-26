@@ -50,7 +50,7 @@ RootDatabase::RootDatabase(IOODatabase* idb)
   m_defBufferSize(16*1024),
   m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
   m_branchOffsetTabLen(0),
-  m_defTreeCacheLearnEvents(5),
+  m_defTreeCacheLearnEvents(-1),
   m_fileMgr(0)
 {
   m_version = "1.1";
@@ -649,7 +649,14 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
            else log << DbPrintLvl::Debug << "Got tree " << tr->GetName() 
                     << " read entry " << tr->GetReadEntry() << DbPrint::endmsg;
            tr->SetCacheSize(cacheSize);
-           TTreeCache::SetLearnEntries(m_defTreeCacheLearnEvents);
+           if (m_defTreeCacheLearnEvents < 0) {
+              long long int autoFlush = tr->GetAutoFlush();
+              if (autoFlush > 0) { // Tree was written flushing on number of events
+                 TTreeCache::SetLearnEntries(-m_defTreeCacheLearnEvents * autoFlush);
+              }
+           } else {
+              TTreeCache::SetLearnEntries(m_defTreeCacheLearnEvents);
+           }
            TTreeCache* cache = (TTreeCache*)m_file->GetCacheRead();
            if (cache) {
                cache->SetEntryRange(0, tr->GetEntries());

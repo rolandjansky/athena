@@ -58,7 +58,7 @@ StatusCode MatchingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-bool MatchingTool::matchCombination(const std::vector<const xAOD::IParticle*>& recoObjects, Trig::Combination& comb){
+bool MatchingTool::matchCombination(const std::vector<const xAOD::IParticle*>& recoObjects, Trig::Combination& comb, const std::string& chain){
   std::map<xAOD::Type::ObjectType,std::vector<const xAOD::IParticle*> > type_separated;
   
   for(const auto& obj : recoObjects){
@@ -77,7 +77,7 @@ bool MatchingTool::matchCombination(const std::vector<const xAOD::IParticle*>& r
   bool overall_status = true;
   std::map<xAOD::Type::ObjectType,bool> status;
   for(auto& type_vec : type_separated){
-    auto single_status =  matchSingleType(type_vec.second, comb);
+    auto single_status =  matchSingleType(type_vec.second, comb, chain);
     ATH_MSG_DEBUG("type: " << type_vec.first << " status: " << single_status);
     status[type_vec.first] = single_status;
     overall_status = overall_status && single_status;
@@ -86,7 +86,7 @@ bool MatchingTool::matchCombination(const std::vector<const xAOD::IParticle*>& r
   return overall_status;
 }
 
-bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& recoObjects, Trig::Combination& comb){
+bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& recoObjects, Trig::Combination& comb, const std::string& chain){
   ATH_MSG_DEBUG("matching combination with " << comb.tes().size() << " TEs");
   
   auto recoType = recoObjects.at(0)->type();
@@ -95,8 +95,16 @@ bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& re
   HLT::class_id_type clid = 0;
   std::string container_typename("");
 
+  // This hack is to make Offline electrons to be matched to online HLT CaloClusters if HLT chain is _etcut type
+  if (recoType == xAOD::Type::Electron && chain.find("etcut") != std::string::npos && chain.find("trkcut") == std::string::npos){
+     ATH_MSG_DEBUG("Electron offline and matching electron etcut chain. Try to match to cluster instead!: " );
+     recoType=xAOD::Type::CaloCluster;
+  }
+
   if(m_typeMap.isKnown(recoType)){
+    
     auto clid_container = m_typeMap.get(recoType);
+
     clid = clid_container.first;
     container_typename = clid_container.second;
     ATH_MSG_DEBUG("getting trigger features (clid: " << clid << " and type: " << container_typename << ")");
@@ -169,7 +177,7 @@ bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& re
   
   bool result = false;
   for(auto& comb : combinations){
-    bool combResult = matchCombination(recoObjects,comb);
+    bool combResult = matchCombination(recoObjects,comb, chain);
     ATH_MSG_DEBUG("matching result for this combination: " << combResult);
     result = result || combResult;
     if(result) break; //no need to continue if result is true

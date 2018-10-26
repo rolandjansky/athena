@@ -18,7 +18,9 @@
 
 // Local include(s):
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include "xAODEventInfo/EventInfoContainer.h"
+#include "xAODEventInfo/EventInfoAuxContainer.h"
 #include "xAODEventInfo/versions/EventInfo_v1.h"
 #include "xAODEventInfo/versions/EventAuxInfo_v1.h"
 #include "xAODEventInfo/versions/EventInfoContainer_v1.h"

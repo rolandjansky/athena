@@ -107,7 +107,10 @@ def main():
         ntupDatasetName = ntupDatasetName.replace("merge","%")
         #remove everything after first rtag of ami tag .. replace with wildcard
         first_rtag_pos = ntupDatasetName.index("_r",ntupDatasetName.index("NTUP_PILEUP"))
-        next_underscore_pos = ntupDatasetName.index("_",first_rtag_pos+1)
+        try:
+            next_underscore_pos = ntupDatasetName.index("_",first_rtag_pos+1)
+        except ValueError:
+            next_underscore_pos = len(ntupDatasetName)
         ntupDatasetName = ntupDatasetName[:next_underscore_pos]+"%"
         res = atlasAPI.list_datasets(client, ntupDatasetName,fields='ldn,prodsys_status')
         foundNTUP=False

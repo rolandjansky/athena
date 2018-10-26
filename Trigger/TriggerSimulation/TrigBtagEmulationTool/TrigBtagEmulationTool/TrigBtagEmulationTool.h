@@ -79,7 +79,9 @@ namespace Trig {
     StatusCode addEmulatedChain(const std::vector<std::string>&);
     std::vector<std::string> addEmulatedChain(const std::string);
     bool isPassed(const std::string&);
+
     const xAOD::JetContainer* retaggedJets(const std::string&) const;
+    std::vector< std::vector< std::string > >definition(const std::string&) const;
 
   private:
 
@@ -88,6 +90,9 @@ namespace Trig {
     StatusCode initTriggerChainsMenu(const int);
 
     StatusCode retrieve( std::unique_ptr< Trig::JetManager >&,bool );
+
+    template<typename T> 
+      StatusCode retrieveTool( T& );
 
     // *** Attributes ** //
   private:

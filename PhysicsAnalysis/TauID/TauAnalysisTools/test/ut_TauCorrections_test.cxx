@@ -158,8 +158,8 @@ int main()
     {"TauScaleFactorReconstructionHadTau",      1.        },
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.00885311},
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
-    {"TauScaleFactorJetIDHadTau",               0.970     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",    0.039     },
+    {"TauScaleFactorJetIDHadTau",               1.030     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.053000  },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
   });
 
@@ -174,8 +174,8 @@ int main()
     {"TauScaleFactorReconstructionHadTau",      1.        },
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.0155508 },
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
-    {"TauScaleFactorJetIDHadTau",               1.050     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",    0.077     },
+    {"TauScaleFactorJetIDHadTau",               1.150     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.097     },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
   });
   
@@ -190,8 +190,8 @@ int main()
     {"TauScaleFactorReconstructionHadTau",       1.        },
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",      0.00591177},
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",     0.        },
-    {"TauScaleFactorJetIDHadTau",                0.970     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",     0.039     },
+    {"TauScaleFactorJetIDHadTau",                1.094     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",      0.069     },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",    0.0282150 }
   });
 
@@ -250,10 +250,10 @@ int main()
     CHECKSAME( (sfVar-sfNominalReco)/sfNominalReco, mVals["TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up"] );
 
     // check ID uncertainties
-    CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up"]) );
+    CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_SYST__1up"]) );
     CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
     sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
-    CHECKSAME( (sfVar-sfNominalID)/sfNominalID, mVals["TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up"] );
+    CHECKSAME( (sfVar-sfNominalID)/sfNominalID, mVals["TAUS_TRUEHADTAU_EFF_JETID_SYST__1up"] );
 
     CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up"]) );
     CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );

@@ -170,10 +170,17 @@ from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledHighPtTriggers
 trig_expression = '(' + ' || '.join(METorPhoton_triggers+Lepton_triggers) + ')' 
 MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')' 
 Prestrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers + PrescaledHighPtTriggers) + ')' 
+PresLowPttrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers) + ')'
 
 JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
+JetEleLooseExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>10*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
 
-LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
+if DerivationFrameworkIsMonteCarlo:
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
+else:
+  # prescaled triggers originally from SUSY5
+  LepTrigexpression = '(' + '('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+'||'+ '('+PresLowPttrig_expression +'&&'+ JetEleLooseExpression +'&&'+ objectSelectionSL+')'+ ')'
+  
 
 expression = LepTrigexpression
 
@@ -235,10 +242,11 @@ replaceAODReducedJets(reducedJetList, SeqSUSY17, "SUSY17")
 # Tau truth building/matching
 #==============================================================================
 # now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
-
+  # modify tool from MCTruthCommon, following SUSY5
+  ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim
@@ -258,7 +266,7 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY17, "SUSY17")
 
 # add decoration
-SeqSUSY17 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY17 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY17 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
@@ -305,7 +313,7 @@ SUSY17SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
 
 # Saves BDT and input variables for light lepton algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
-SUSY17SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+SUSY17SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY17SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 

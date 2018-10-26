@@ -11,10 +11,12 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <SystematicsHandles/SysReadHandle.h>
-#include <SystematicsHandles/SysReadHandleArray.h>
 #include <SystematicsHandles/SysWriteHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <METInterface/IMETMaker.h>
+
+#include <xAODBase/IParticleContainer.h>
+#include <xAODMissingET/MissingETContainer.h>
 #include <xAODMissingET/MissingETAuxContainer.h>
 
 namespace CP
@@ -61,32 +63,54 @@ namespace CP
   private:
     SysListHandle m_systematicsList {this};
 
-    /// \brief the input IParticleContainer collections we run on
+    /// \brief the electron container to use
   private:
-    SysReadHandleArray<xAOD::IParticleContainer> m_particlesHandle {
-      this, "particles", "the particle collections we use"};
+    SysReadHandle<xAOD::IParticleContainer> m_electronsHandle {
+      this, "electrons", "", "the electron container to use" };
 
-    /// \brief the type of the containers in particles
+    /// \brief the key for \ref m_electronsHandle
   private:
-    std::vector<unsigned> m_particlesType;
+    std::string m_electronsKey {"RefEle"};
 
-    /// \brief the name of the terms for the containers in particles
+    /// \brief the photon container to use
   private:
-    std::vector<std::string> m_particlesKey;
+    SysReadHandle<xAOD::IParticleContainer> m_photonsHandle {
+      this, "photons", "", "the photon container to use" };
 
+    /// \brief the key for \ref m_photonsHandle
+  private:
+    std::string m_photonsKey {"RefGamma"};
+
+    /// \brief the muon container to use
+  private:
+    SysReadHandle<xAOD::IParticleContainer> m_muonsHandle {
+      this, "muons", "", "the muon container to use" };
+
+    /// \brief the key for \ref m_muonsHandle
+  private:
+    std::string m_muonsKey {"Muons"};
+
+    /// \brief the electron container to use
+  private:
+    SysReadHandle<xAOD::IParticleContainer> m_tausHandle {
+      this, "taus", "", "the tau container to use" };
+
+    /// \brief the key for \ref m_tausHandle
+  private:
+    std::string m_tausKey {"RefTau"};
 
     /// \brief the input jet collection we run on
   private:
     SysReadHandle<xAOD::JetContainer> m_jetsHandle {
       this, "jets", "", "the jet collection we use"};
 
-    /// \brief the key for \ref jetsHandle
+    /// \brief the key for \ref m_jetsHandle
   private:
-    std::string m_metJetKey {"RefJet"};
+    std::string m_jetsKey {"RefJet"};
 
     /// \brief the soft term key
   private:
-    std::string m_softTerm {"PVSoftTrk"};
+    std::string m_softTermKey {"PVSoftTrk"};
 
     /// \brief whether to use track-met instead of jet-met
   private:

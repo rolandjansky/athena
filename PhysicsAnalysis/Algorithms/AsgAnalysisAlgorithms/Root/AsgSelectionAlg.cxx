@@ -40,7 +40,7 @@ namespace CP
       ANA_MSG_ERROR ("no selection decoration name set");
       return StatusCode::FAILURE;
     }
-    m_selectionAccessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_selectionDecoration);
+    ANA_CHECK (makeSelectionAccessor (m_selectionDecoration, m_selectionAccessor));
 
     ANA_CHECK (m_selectionTool.retrieve());
     m_systematicsTool = dynamic_cast<ISystematicsTool*>(&*m_selectionTool);
@@ -65,8 +65,8 @@ namespace CP
         ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
         for (xAOD::IParticle *particle : *particles)
         {
-          (*m_selectionAccessor) (*particle)
-            = selectionFromAccept (m_selectionTool->accept (particle));
+          m_selectionAccessor->setBits
+            (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
         }
         return StatusCode::SUCCESS;
       });

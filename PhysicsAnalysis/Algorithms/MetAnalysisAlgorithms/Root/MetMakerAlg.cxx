@@ -29,10 +29,12 @@ namespace CP
     declareProperty ("makerTool", m_makerTool, "the METMaker tool we apply");
     declareProperty ("metCore", m_metCoreName, "the name of the core MissingETContainer");
     declareProperty ("metAssociation", m_metAssociationName, "the name of the core MissingETContainer");
-    declareProperty ("particlesType", m_particlesType, "the type of the particle container in particles");
-    declareProperty ("particlesKey", m_particlesKey, "the key of the particle container in particles");
-    declareProperty ("metJetKey", m_metJetKey, "the key for jets");
-    declareProperty ("softTerm", m_softTerm, "the soft term key");
+    declareProperty ("electronsKey", m_electronsKey, "the key for the electrons");
+    declareProperty ("photonsKey", m_photonsKey, "the key for the photons");
+    declareProperty ("muonsKey", m_muonsKey, "the key for the muons");
+    declareProperty ("tausKey", m_tausKey, "the key for the taus");
+    declareProperty ("jetsKey", m_jetsKey, "the key for jets");
+    declareProperty ("softTermKey", m_softTermKey, "the soft term key");
     declareProperty ("doTrackMet", m_doTrackMet, "whether to use track-met instead of jet-met");
     declareProperty ("doJetJVT", m_doJetJVT, "whether to do jet JVT");
   }
@@ -43,22 +45,16 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_makerTool.retrieve());
-    ANA_CHECK (m_particlesHandle.initialize());
-    m_systematicsList.addHandle (m_particlesHandle);
+    for (auto* handle : {&m_electronsHandle, &m_photonsHandle,
+                         &m_muonsHandle, &m_tausHandle}) {
+      if (*handle) {
+        m_systematicsList.addHandle (*handle);
+      }
+    }
     m_systematicsList.addHandle (m_jetsHandle);
     m_systematicsList.addHandle (m_metHandle);
     ANA_CHECK (m_systematicsList.initialize());
 
-    if (m_particlesType.size() != m_particlesHandle.size())
-    {
-      ANA_MSG_ERROR ("size mismatch between particles ( " << m_particlesHandle.size() << ") and particlesType (" << m_particlesType.size() << ") properties");
-      return StatusCode::FAILURE;
-    }
-    if (m_particlesKey.size() != m_particlesHandle.size())
-    {
-      ANA_MSG_ERROR ("size mismatch between particles ( " << m_particlesHandle.size() << ") and particlesKey (" << m_particlesKey.size() << ") properties");
-      return StatusCode::FAILURE;
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -80,22 +76,40 @@ namespace CP
 
         metMap->resetObjSelectionFlags();
 
-        for (std::size_t iter = 0, end = m_particlesHandle.size();
-             iter != end; ++ iter)
-        {
-          const xAOD::IParticleContainer *particles {nullptr};
-          ANA_CHECK (m_particlesHandle.retrieve (particles, sys, iter));
-          ANA_CHECK (m_makerTool->rebuildMET (m_particlesKey[iter], xAOD::Type::ObjectType (m_particlesType[iter]), met.get(), particles, metMap));
-        }
+        // Lambda helping with calculating the MET terms coming from the leptons
+        // (and photons).
+        auto processParticles =
+          [&] (SysReadHandle<xAOD::IParticleContainer>& handle,
+               xAOD::Type::ObjectType type,
+               const std::string& term) -> StatusCode {
+            if (!handle) {
+              return StatusCode::SUCCESS;
+            }
+            const xAOD::IParticleContainer* particles = nullptr;
+            ANA_CHECK (handle.retrieve (particles, sys));
+            ANA_CHECK (m_makerTool->rebuildMET (term, type, met.get(),
+                                                particles, metMap));
+            return StatusCode::SUCCESS;
+          };
+
+        // Calculate the terms coming from the user's selected objects.
+        ANA_CHECK (processParticles (m_electronsHandle, xAOD::Type::Electron,
+                                     m_electronsKey));
+        ANA_CHECK (processParticles (m_photonsHandle, xAOD::Type::Photon,
+                                     m_photonsKey));
+        ANA_CHECK (processParticles (m_muonsHandle, xAOD::Type::Muon,
+                                     m_muonsKey));
+        ANA_CHECK (processParticles (m_tausHandle, xAOD::Type::Tau, m_tausKey));
 
         const xAOD::JetContainer *jets {nullptr};
         ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
+	
         if (m_doTrackMet)
         {
-          ANA_CHECK (m_makerTool->rebuildTrackMET (m_metJetKey, m_softTerm, met.get(), jets, metcore, metMap, m_doJetJVT));
+          ANA_CHECK (m_makerTool->rebuildTrackMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metMap, m_doJetJVT));
         } else
         {
-          ANA_CHECK (m_makerTool->rebuildJetMET (m_metJetKey, m_softTerm, met.get(), jets, metcore, metMap, m_doJetJVT));
+          ANA_CHECK (m_makerTool->rebuildJetMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metMap, m_doJetJVT));
         }
 
         ANA_CHECK (m_metHandle.record (std::move (met), std::move (aux), sys));

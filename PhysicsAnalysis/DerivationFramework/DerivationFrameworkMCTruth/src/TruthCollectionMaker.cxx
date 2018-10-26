@@ -185,14 +185,14 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
             if (m_partString.find("23") != std::string::npos && m_do_sherpa && is_sherpa) {
                 SherpaZ = true;
             }
-            if (SherpaW or SherpaZ && is_sherpa){
+            if ((SherpaW or SherpaZ) && is_sherpa){
                 if (std::accumulate(entries.begin(),entries.end(),0) > 0){ //We actually have some W and Z bosons in there.
                     SherpaW = false;
                     SherpaZ = false;
                 }
             }
             
-            if (SherpaW || SherpaZ && is_sherpa){
+            if ((SherpaW || SherpaZ) && is_sherpa){
                 // Currently only handles un-ambiguous cases
                 std::vector<const xAOD::TruthParticle*> status20, status3;
                 for (unsigned int i=0; i<nParticles; ++i) {

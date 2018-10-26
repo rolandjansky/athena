@@ -34,7 +34,6 @@ atlas_depends_on_subdirs( PUBLIC
                           JetInterface
                           JetMomentTools
                           JetSelectorTools
-                          JetResolution
                           METInterface
                           METUtilities
                           IsolationSelection
@@ -94,7 +93,6 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   JetInterface
                                   JetMomentToolsLib
                                   JetSelectorToolsLib
-                                  JetResolutionLib
                                   METInterface
                                   METUtilitiesLib
                                   IsolationSelectionLib

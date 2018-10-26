@@ -57,7 +57,8 @@ namespace CP
         ANA_MSG_ERROR ("entries in selectionNCuts need to be less or equal to " << (8 * sizeof (SelectionType)));
         return StatusCode::FAILURE;
       }
-      auto accessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_selection[iter]);
+      std::unique_ptr<ISelectionAccessor> accessor;
+      ANA_CHECK (makeSelectionAccessor (m_selection[iter], accessor));
       m_accessors.push_back (std::make_pair (std::move (accessor), ncuts));
       m_allCutsNum += ncuts;
     }
@@ -94,7 +95,7 @@ namespace CP
           histIter->second->Fill (0);
           for (const auto& accessor : m_accessors)
           {
-            const auto selection = (*accessor.first) (*particle);
+            const auto selection = accessor.first->getBits (*particle);
             for (unsigned index = 0, end = accessor.second;
                  index != end; ++ index, ++ cutIndex)
             {

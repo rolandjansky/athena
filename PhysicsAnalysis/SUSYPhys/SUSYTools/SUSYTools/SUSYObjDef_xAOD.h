@@ -130,6 +130,9 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
+    bool eleIsoSFExist(std::string eleWP);
+    bool muIsoSFExist(std::string muWP);
+
     bool isData() const override final {return m_dataSource == Data;}
     bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
@@ -141,6 +144,7 @@ namespace ST {
 
     // Apply the correction on a modifyable object
     StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false) override final;
+    StatusCode FillTrackJet(xAOD::Jet& input) override final;
     StatusCode FillTau(xAOD::TauJet& input) override final;
     StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) override final;
     StatusCode FillElectron(xAOD::Electron& input, const float etcut, const float etacut) override final;
@@ -149,6 +153,7 @@ namespace ST {
     const xAOD::Vertex* GetPrimVtx() const override final;
 
     StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
+    StatusCode GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "") override final;
     StatusCode GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = false, const std::string& jetkey = "", const bool doLargeRdecorations = false, const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& taukey = "TauJets", const xAOD::TauJetContainer* containerToBeCopied = 0) override final;
@@ -174,7 +179,7 @@ namespace ST {
 
     StatusCode GetMETSig(xAOD::MissingETContainer& met,
                          double& metSignificance,
-                         bool doTST = true, bool doJVTCut = true
+                         bool doTST = true, bool doJVTCut = true, const float avgmu = 0
 		         ) override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
@@ -202,13 +207,21 @@ namespace ST {
 
     bool IsBJet(const xAOD::Jet& input) const override final;
 
+    bool IsTrackBJet(const xAOD::Jet& input) const override final;
+
     bool IsTruthBJet(const xAOD::Jet& input) const override final;
 
     int IsBJetContinuous(const xAOD::Jet& input) const override final;
 
+    int IsTrackBJetContinuous(const xAOD::Jet& input) const override final;
+
     float BtagSF(const xAOD::JetContainer* jets) const override final;
 
     float BtagSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) override final;
+
+    float BtagSF_trkJet(const xAOD::JetContainer* trkjets) const override final;
+
+    float BtagSFsys_trkJet(const xAOD::JetContainer* trkjets, const CP::SystematicSet& systConfig) override final;
 
     double JVT_SF(const xAOD::JetContainer* jets) override final;
 
@@ -393,7 +406,7 @@ namespace ST {
   protected:
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool();
+    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/SUSYTools/PRW_AUTOCONFIG_SIM/files/", bool usePathResolver = true);
 
     StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
@@ -480,9 +493,9 @@ namespace ST {
 
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
-    std::string m_prwActualMuFile;
+    std::string m_prwActualMu2017File;
+    std::string m_prwActualMu2018File;
 
-    double m_muUncert;
     double m_prwDataSF;
     double m_prwDataSF_UP;
     double m_prwDataSF_DW;
@@ -500,6 +513,9 @@ namespace ST {
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
+    std::string m_eleConfig;
+    std::string m_eleConfigBaseline;
+    std::string m_eleBaselineIso_WP;
     bool        m_eleIdExpert;
     int         m_muId;
     int         m_muIdBaseline;
@@ -507,17 +523,21 @@ namespace ST {
     std::string m_photonIdBaseline;
     std::string m_tauId;
     std::string m_tauIdBaseline;
-    bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix)
     std::string m_eleIso_WP;
     std::string m_eleIsoHighPt_WP;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
+    std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
     std::string m_photonTriggerName;
+    std::string m_muBaselineIso_WP;
     std::string m_muIso_WP;
     std::string m_BtagWP;
     std::string m_BtagTagger;
     std::string m_BtagSystStrategy;
+    std::string m_BtagWP_trkJet;
+    std::string m_BtagTagger_trkJet;
+    double m_BtagMinPt_trkJet;  
 
     //configurable cuts here
     double m_eleBaselinePt;
@@ -552,7 +572,6 @@ namespace ST {
     bool   m_photonBaselineCrackVeto;
     bool   m_photonCrackVeto;
     bool   m_photonAllowLate;
-    std::string m_photonEffMapFilePath;
 
     double m_tauPrePtCut;
     double m_tauPt;
@@ -560,12 +579,14 @@ namespace ST {
     std::string m_tauConfigPath;
     std::string m_tauConfigPathBaseline;
     bool   m_tauDoTTM;
-    bool   m_tauRecalcOLR;
 
     double m_jetPt;
     double m_jetEta;
     double m_jetJvt;
     std::string m_JVT_WP;
+
+    double m_trkJetPt;
+    double m_trkJetEta;
 
     bool   m_doFwdJVT;
     double m_fwdjetEtaMin;
@@ -617,6 +638,7 @@ namespace ST {
     int  m_showerType;
 
     std::string m_defaultJets;
+    std::string m_defaultTrackJets;
     std::string m_fatJets;
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
@@ -631,8 +653,6 @@ namespace ST {
 
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
-    asg::AnaToolHandle<IJERTool> m_jerTool;
-    asg::AnaToolHandle<IJERSmearingTool> m_jerSmearingTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;
@@ -713,6 +733,8 @@ namespace ST {
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool_OR;
+    asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool_trkJet;
+    asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool_trkJet;
     //
     asg::AnaToolHandle<IMETMaker> m_metMaker;
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
@@ -735,6 +757,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
     //
@@ -786,6 +809,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
+  const static SG::AuxElement::ConstAccessor<float> acc_DetEta("DetectorEta");
 
 
 } // namespace ST

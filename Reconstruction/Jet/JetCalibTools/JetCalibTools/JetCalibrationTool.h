@@ -31,6 +31,7 @@
 #include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
 #include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
+#include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
 
 class JetPileupCorrection;
 class ResidualOffsetCorrection;
@@ -38,6 +39,7 @@ class EtaJESCorrection;
 class GlobalSequentialCorrection;
 class InsituDataCorrection;
 class JMSCorrection;
+class JetSmearingCorrection;
 
 class JetCalibrationTool
   : public ::JetCalibrationToolBase {
@@ -69,6 +71,14 @@ public:
 
   virtual int modify(xAOD::JetContainer&) const;
   virtual int modifyJet(xAOD::Jet&) const;
+
+  // Retrieve pTmax from in situ corrections
+  virtual VecD retrieveEtaIntercalPtMax(){return m_relInsituPtMax;}
+  virtual VecD retrieveAbsoluteInsituPtMax(){return m_absInsituPtMax;}
+
+  // Get the nominal resolution
+  virtual StatusCode getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const;
+  virtual StatusCode getNominalResolutionMC(  const xAOD::Jet& jet, double& resolution) const;
   
 protected:
   /// This is where the actual calibration code goes.
@@ -111,6 +121,9 @@ private:
   bool m_doOrigin;
   bool m_doGSC;
 
+  // vector with pTmax of each in situ correction
+  VecD m_relInsituPtMax, m_absInsituPtMax;
+
   //Class objects for each calibration step
   std::vector<JetCalibrationToolBase*> m_calibClasses;
   JetPileupCorrection * m_jetPileupCorr;
@@ -119,6 +132,7 @@ private:
   InsituDataCorrection * m_insituDataCorr;
   std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
+  JetSmearingCorrection* m_jetSmearCorr;
 
 }; 
 

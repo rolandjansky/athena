@@ -65,17 +65,13 @@ def addDAODArguments(parser, mergerTrf=True):
     if mergerTrf:
         parser.defineArgGroup('Input DAOD', 'Input DAOD files to be merged')
         parser.defineArgGroup('Output DAOD', 'Output merged DAOD files')
-        parser.defineArgGroup('Input Logs', 'Input Log files to be merged')
-        parser.defineArgGroup('Output Archive', 'Output Archive file')        
+        parser.defineArgGroup('Archiver', 'Options')
         parser.add_argument('--inputDataFile','--inputLogFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='input', type='misc'),
-                        help='Input log file(s)', group='Input Logs')
+                        help='Input file(s)', group='Archiver')
         parser.add_argument('--outputArchFile', 
                             type=trfArgClasses.argFactory(trfArgClasses.argFile, io='output', type='misc'),
-                            help='Output archive file', group='Output Archive')
-        parser.add_argument('--compressionType', group='Output Archive',
-                        help='Underlying compression type', choices=['gzip', 'bzip2', 'none'],
-                        default='none')
+                            help='Output archive file', group='Archiver')
         for DAOD in DAODTypes:
             parser.add_argument("--input" + DAOD + "File", nargs="+",
                                 type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io="input", type="AOD", subtype=DAOD),
@@ -97,7 +93,7 @@ def addDAODMergerSubsteps(executorSet):
         executorSet.add(hybridPOOLMergeExecutor(name = DAOD.lstrip("DAOD_") + 'Merge', skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
                         inData = [DAOD], outData = [DAOD+'_MRG'])
                         )
-    executorSet.add(archiveExecutor(name = 'Archiver',inData = ['Data'], outData = ['Arch'], exe='tar'))
+    executorSet.add(archiveExecutor(name = 'Archiver',inData = ['Data'], outData = ['Arch'], exe='zip'))
 
 def knownDAODTypes():
     DAODTypes = []

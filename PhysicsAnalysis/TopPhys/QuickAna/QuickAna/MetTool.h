@@ -114,6 +114,7 @@ namespace ana
     double m_uniqueFrac;
     double m_jetCut;
     bool m_doFJVT;
+    bool m_doPUmetsig;
 
   private:
 

@@ -62,12 +62,11 @@ def buildTOPQCA15jets(algseq):
 #================
 def addSoftDropJetsForTop(algseq, outputGroup):
   from DerivationFrameworkJetEtMiss.JetCommon import addSoftDropJets
-  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addConstModJets
+  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCSSKSoftDropJets
   if (globalflags.DataSource()=='geant4'):
     addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=algseq, outputGroup=outputGroup, writeUngroomed=True)
 
-  addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], algseq, outputGroup, ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
-  addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=algseq, outputGroup=outputGroup, writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+  addCSSKSoftDropJets(algseq, outputGroup)
 
 #================
 # JET CALIBRATION

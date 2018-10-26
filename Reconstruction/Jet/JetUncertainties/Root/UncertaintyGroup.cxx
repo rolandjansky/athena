@@ -268,6 +268,60 @@ std::set<CompScaleVar::TypeEnum> UncertaintyGroup::getScaleVars() const
 
 //////////////////////////////////////////////////
 //                                              //
+//  Specialty methods                           //
+//                                              //
+//////////////////////////////////////////////////
+
+JetTopology::TypeEnum UncertaintyGroup::getTopology(const CompScaleVar::TypeEnum scaleVar) const
+{
+    // The topology is not normally needed
+    // Most variables are topology-independent, and thus are listed as "UNKNOWN"
+    // Mixing topology-agnostic and topology-specific variables is expected
+    // Mixing topology-specific variables of different topologies is not expected
+
+    // Furthermore, the user can specify either a specific scale variable or not
+    // If the user doesn't specify (or specifies UNKNOWN, the default), then it checks all
+
+    JetTopology::TypeEnum result = JetTopology::UNKNOWN;
+
+    // First check subgroups
+    for (const UncertaintyGroup* subgroup : m_subgroups)
+    {
+        if (subgroup->getTopology() != JetTopology::UNKNOWN)
+        {
+            if (result == JetTopology::UNKNOWN)
+                result = subgroup->getTopology();
+            else if (result != subgroup->getTopology(scaleVar))
+                result = JetTopology::MIXED;
+        }
+        if (result == JetTopology::MIXED)
+            return result; // If it's mixed, it won't change any further
+    }
+
+    // Now check direct components
+    for (const UncertaintyComponent* component : m_components)
+    {
+        // Skip components that don't match our desired scale var (if appropriate)
+        if (scaleVar != CompScaleVar::UNKNOWN && scaleVar != component->getScaleVar())
+            continue;
+        
+        if (component->getTopology() != JetTopology::UNKNOWN)
+        {
+            if (result == JetTopology::UNKNOWN)
+                result = component->getTopology();
+            else if (result != component->getTopology())
+                result = JetTopology::MIXED;
+        }
+        if (result == JetTopology::MIXED)
+            return result; // If it's mixed, it won't change any further
+    }
+
+    return result; // If we got here, it's not a mixed topology, so return what it is
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
 //  Methods to test for special cases           //
 //                                              //
 //////////////////////////////////////////////////

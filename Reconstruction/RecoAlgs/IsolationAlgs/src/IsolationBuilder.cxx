@@ -798,8 +798,14 @@ StatusCode IsolationBuilder::runLeakage() {
       ATH_MSG_ERROR("Couldn't retrieve photon container with key: " << m_PhotonContainerName);
       return StatusCode::FAILURE;
     }
-    for (auto ph : *photons)           
-      m_leakTool->applyCorrection(*ph);
+    xAOD::PhotonContainer::iterator it = photons->begin(), itE = photons->end();
+    for (; it != itE; ++it) {           
+        CP::CorrectionCode code = m_leakTool->applyCorrection(**it);
+        if (code == CP::CorrectionCode::Error){
+            ATH_MSG_ERROR("Failed to apply the photon leakage correction");
+            return StatusCode::FAILURE;
+        }
+    }
   }
     
   if (m_ElectronContainerName.size()) {
@@ -808,8 +814,14 @@ StatusCode IsolationBuilder::runLeakage() {
       ATH_MSG_ERROR("Couldn't retrieve electron container with key: " << m_ElectronContainerName);
       return StatusCode::FAILURE;
     }
-    for (auto el : *electrons)
-      m_leakTool->applyCorrection(*el);
+    xAOD::ElectronContainer::iterator it = electrons->begin(), itE = electrons->end();
+    for (; it != itE; ++it) {           
+        CP::CorrectionCode code = m_leakTool->applyCorrection(**it);
+        if (code == CP::CorrectionCode::Error){
+            ATH_MSG_ERROR("Failed to apply the electron leakage correction");
+            return StatusCode::FAILURE;
+        }    
+    }
   }
 
   return StatusCode::SUCCESS;

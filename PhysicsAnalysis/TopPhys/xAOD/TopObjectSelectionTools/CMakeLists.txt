@@ -20,6 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TrigDecisionTool
                           TriggerMatchingTool
                           TrigTauMatching
+                          TriggerAnalysisInterfaces
+                          TrigGlobalEfficiencyCorrection
                           GoodRunsLists
                           JetAnalysisInterfaces
                           JetSubStructureMomentTools
@@ -31,11 +33,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-
-# Need fast jet for the RC jet substructure code
-find_package( FastJet COMPONENTS fastjetplugins fastjettools )
-find_package( FastJetContrib COMPONENTS EnergyCorrelator Nsubjettiness )
 
 # Custom definitions needed for this package:
 add_definitions( -g )
@@ -65,6 +62,7 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TrigDecisionToolLib
                                   TriggerMatchingToolLib
                                   TrigTauMatchingLib
+                                  TrigGlobalEfficiencyCorrectionLib
                                   GoodRunsListsLib
                                   JetAnalysisInterfacesLib
                                   JetSubStructureMomentToolsLib
@@ -74,8 +72,6 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
 				  MuonAnalysisInterfacesLib
 				  FTagAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}		  
-                                  ${FASTJET_LIBRARIES}
-                                  ${FASTJETCONTRIB_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 
 # Install data files from the package:

@@ -38,10 +38,11 @@ def import_skeleton(discarded_blocks = []):
                 discard = will_discard
                 continue
             if discard: continue
-            if 'DATA2015' in blocks and 'DATA2016' in discarded_blocks:
-                tokens = line.split('/')
-                tokens[0] = tokens[0][::-1].replace(',','',1)[::-1]
-                line = '/'.join(tokens)
+            if 'DATA2015' in blocks: comma = ',' if ('DATA2016' not in discarded_blocks or 'DATA2017' not in discarded_blocks) else ''
+            elif 'DATA2016' in blocks: comma = ',' if ('DATA2017' not in discarded_blocks) else ''
+            elif 'DATA2017' in blocks: comma = ''
+            else: comma = None
+            if comma is not None: line = line.replace(' MAYBE_COMMA', comma)
             buffer += line
     return buffer
 
@@ -130,7 +131,7 @@ r = copy.deepcopy(replacements)
 r['head_comments'] = import_comments('1')
 r['example_number'] = '1'
 r['electron_extraproperties_declare'] = import_cptools_config('1and2:electron_extraproperties_declare')
-r['electron_toolconfigs'] = import_cptools_config('1and2:electron_toolconfigs')
+r['electron_toolconfigs'] = import_cptools_config('1:electron_toolconfigs')
 r['electron_tools_properties_set'] = import_cptools_config('1and2:electron_properties_set')
 r['electron_extraproperties_fill'] = import_cptools_config('1and2:electron_extraproperties_fill')
 r['trigglob_properties_set'] = import_trigglob_config('1')
@@ -145,7 +146,7 @@ r = copy.deepcopy(replacements)
 r['head_comments'] = import_comments('2')
 r['example_number'] = '2'
 r['electron_extraproperties_declare'] = import_cptools_config('1and2:electron_extraproperties_declare')
-r['electron_toolconfigs'] = import_cptools_config('1and2:electron_toolconfigs')
+r['electron_toolconfigs'] = import_cptools_config('2:electron_toolconfigs')
 r['electron_tools_properties_set'] = import_cptools_config('1and2:electron_properties_set')
 r['electron_extraproperties_fill'] = import_cptools_config('1and2:electron_extraproperties_fill')
 r['trigglob_properties_set'] = import_trigglob_config('2')
@@ -165,7 +166,7 @@ r['electron_extraproperties_fill'] = import_cptools_config('3:electron_extraprop
 r['trigglob_properties_set'] = import_trigglob_config('3a')
 r['eventloop_electron_selection'] = import_eventloop('3a3b3c:electron_selection')
 r['trigger_matching_requirements'] = import_eventloop('3a:trigger_matching')
-write_example(r,['MUONS','DATA2016'])
+write_example(r,['MUONS','DATA2016','DATA2017'])
 
 r = copy.deepcopy(replacements)
 r['head_comments'] = import_comments('3com') + '\n' + import_comments('3b')
@@ -177,7 +178,7 @@ r['electron_extraproperties_fill'] = import_cptools_config('3:electron_extraprop
 r['trigglob_properties_set'] = import_trigglob_config('3b3c')
 r['eventloop_electron_selection'] = import_eventloop('3a3b3c:electron_selection')
 r['trigger_matching_requirements'] = import_eventloop('3b:trigger_matching')
-write_example(r,['MUONS','DATA2016'])
+write_example(r,['MUONS','DATA2016','DATA2017'])
 
 r = copy.deepcopy(replacements)
 r['head_comments'] = import_comments('3com') + '\n' + import_comments('3c')
@@ -189,7 +190,7 @@ r['electron_extraproperties_fill'] = import_cptools_config('3:electron_extraprop
 r['trigglob_properties_set'] = import_trigglob_config('3b3c')
 r['eventloop_electron_selection'] = import_eventloop('3a3b3c:electron_selection')
 r['trigger_matching_requirements'] = import_eventloop('3c:trigger_matching')
-write_example(r,['MUONS','DATA2016'])
+write_example(r,['MUONS','DATA2016','DATA2017'])
 
 r = copy.deepcopy(replacements)
 r['head_comments'] = import_comments('3com') + '\n' + import_comments('3d')
@@ -203,7 +204,7 @@ r['eventloop_trigcounters'] = import_eventloop('3d3e:trigcounters')
 r['eventloop_electron_selection'] = import_eventloop('3d3e:electron_selection')
 r['eventloop_muon_selection'] = import_eventloop('3d3e:muon_selection')
 r['trigger_matching_requirements'] = import_eventloop('3d:trigger_matching')
-write_example(r,['DATA2015'])
+write_example(r,['DATA2015','DATA2017'])
 
 r = copy.deepcopy(replacements)
 r['head_comments'] = import_comments('3com') + '\n' + import_comments('3e')
@@ -217,4 +218,4 @@ r['eventloop_trigcounters'] = import_eventloop('3d3e:trigcounters')
 r['eventloop_electron_selection'] = import_eventloop('3d3e:electron_selection')
 r['eventloop_muon_selection'] = import_eventloop('3d3e:muon_selection')
 r['trigger_matching_requirements'] = import_eventloop('3e:trigger_matching')
-write_example(r,['DATA2015'])
+write_example(r,['DATA2015','DATA2017'])

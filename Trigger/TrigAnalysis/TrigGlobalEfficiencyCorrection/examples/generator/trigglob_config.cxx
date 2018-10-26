@@ -3,10 +3,11 @@
         "mu20_iloose_L1MU15_OR_mu50"
         "|| e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose";
     myTool.setProperty("TriggerCombination2015", triggers2015).ignore();
-    const char* triggers2016 = 
+    const char* triggers2016and2017 = 
         "mu26_ivarmedium_OR_mu50"
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
-    myTool.setProperty("TriggerCombination2016", triggers2016).ignore();
+    myTool.setProperty("TriggerCombination2016", triggers2016and2017).ignore();
+    myTool.setProperty("TriggerCombination2017", triggers2016and2017).ignore();
 
 [example1] #####################################################################
     const char* triggers2015 = 
@@ -21,6 +22,12 @@
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e17_lhvloose_nod0";
     myTool.setProperty("TriggerCombination2016", triggers2016).ignore();
+    const char* triggers2017 = 
+        "mu26_ivarmedium_OR_mu50"
+        "|| mu22_mu8noL1"
+        "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
+        "|| 2e24_lhvloose_nod0";
+    myTool.setProperty("TriggerCombination2017", triggers2017).ignore();
     myTool.setProperty("ListOfLegsPerTool", legsPerTool).ignore();
         
 [example2] #####################################################################
@@ -36,12 +43,17 @@
         "|| mu22_mu8noL1"
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e17_lhvloose_nod0";
-    triggers["303638-311481"] = /// (that's 2016 periods E-L)
+    triggers["303638-311481"] = /// (change triggers for fun in 2016 periods E-L)
         "mu22_mu8noL1"
         "|| 2e17_lhvloose_nod0";
+    triggers["2017"] = 
+        "mu26_ivarmedium_OR_mu50"
+        "|| mu22_mu8noL1"
+        "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
+        "|| 2e24_lhvloose_nod0";
     myTool.setProperty("TriggerCombination", triggers).ignore();
     myTool.setProperty("ListOfLegsPerTool", legsPerTool).ignore();
-    /// Change pT thresholds used by the tool for mu18 and mu22
+    /// Change for fun the pT thresholds used by the tool for mu18 and mu22
     std::map<string, string> thresholds;
     thresholds["mu18"] = "25e3";
     thresholds["mu22"] = "25e3";

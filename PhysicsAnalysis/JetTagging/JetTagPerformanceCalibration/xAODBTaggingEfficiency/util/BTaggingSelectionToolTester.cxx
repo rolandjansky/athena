@@ -66,7 +66,7 @@ int main() {
   if (!event.retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess() ){ std::cout << " error retrieving jets " << std::endl; return -1;}
 
   int jet_index = 0;
-  for (auto jet : *jets) {
+  for (const xAOD::Jet* jet : *jets) {
 
     //getting a tagging decision, is the jet tagged or not
     bool tagged = tool->accept(*jet);
@@ -111,17 +111,54 @@ int main() {
 
   }
 
+  //Continuous working points
+  //*************************
+  //with a selection tool using the Continuous working point,
+  //you can get the jets tag weight bin (between the different fixedcutBEff working points, 60,70,77,85)
+  taggerName = "DL1";
+  workingPointName = "Continuous";
+  asg::AnaToolHandle<IBTaggingSelectionTool> tool_Continuous("BTaggingSelectionTool/BTagSelContinuousTest");
+  code1 = tool_Continuous.setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" );
+  code2 = tool_Continuous.setProperty("TaggerName",    taggerName  );
+  code3 = tool_Continuous.setProperty("OperatingPoint", workingPointName );
+  code4 = tool_Continuous.setProperty("JetAuthor",      "AntiKt4EMTopoJets" );
+  code5 = tool_Continuous.initialize();
+
+  if (code1 != StatusCode::SUCCESS || code2 != StatusCode::SUCCESS || code3 != StatusCode::SUCCESS || code4 != StatusCode::SUCCESS || code5 != StatusCode::SUCCESS) {
+    std::cout << "Initialization of tool " << tool_Continuous->name() << " failed! " << std::endl;
+    return -1;
+  }
+  else {
+    std::cout << "Initialization of tool " << tool_Continuous->name() << " finished." << std::endl;
+  }
+
+  jet_index = 0;
+  for (const xAOD::Jet* jet : *jets) {
+
+    double tagweight;
+    if( tool->getTaggerWeight( *jet ,tagweight)!=CorrectionCode::Ok ){ 
+      std::cout << " error retrieving tagger weight " << std::endl; return -1; 
+    }
+    int quantile = tool_Continuous->getQuantile(*jet);
+    
+
+    std::cout << "jet " << jet_index << " " <<  taggerName  << "  " << workingPointName << " tag weight " << tagweight <<  " quantile " << quantile << std::endl;
+
+    jet_index++;
+
+  }
+
 
   //Veto working points
   //**************************
-  //by setting the OperatingPoint to a string with the format WP1-Tagger2-WP2
-  //for example, FixedCutBEff_70-DL1-CTag_Loose
+  //by setting the OperatingPoint to a string with the format WP1_Veto_Tagger2_WP2
+  //for example, FixedCutBEff_70_Veto_DL1_CTag_Loose
   //the selection tool will require the jet to be
   //tagged by the standard working point
   //and to not be tagged by the secondary tagger and working point
 
   taggerName = "MV2c10";
-  workingPointName = "FixedCutBEff_70-Veto-DL1-CTag_Loose";
+  workingPointName = "FixedCutBEff_70_Veto_DL1_CTag_Loose";
 
   asg::AnaToolHandle<IBTaggingSelectionTool> tool_veto("BTaggingSelectionTool/BTagSelecVetoTest");
   code1 = tool_veto.setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" );
@@ -140,7 +177,7 @@ int main() {
 
 
   jet_index = 0;
-  for (auto jet : *jets) {
+  for (const xAOD::Jet* jet : *jets) {
 
     //getting a tagging decision, is the jet tagged or not
     bool tagged = tool_veto->accept(*jet);

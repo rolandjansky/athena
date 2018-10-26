@@ -40,22 +40,26 @@ svcMgr += createThinningSvc( svcName="JETM13ThinningSvc", outStreams=[evtStream]
 #====================================================================
 # Retain only stable truth particles, remove G4
 # We want to keep all constituents
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-JETM13ThinningHelper = ThinningHelper( "JETM13ThinningHelper" )
-JETM13ThinningHelper.AppendToStream( JETM13Stream )
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-TruthThinningTool = DerivationFramework__MenuTruthThinning(name               = "JETM13TruthThinning",
-                                                           ThinningService    = JETM13ThinningHelper.ThinningSvc(),
-                                                           WriteAllStable     = True,
-                                                           # Disable the flags that have been annoyingly
-                                                           # defaulted to True
-                                                           WritePartons       = False,
-                                                           WriteHadrons       = False,
-                                                           WriteBHadrons      = True,
-                                                           WriteCHadrons      = False,
-                                                           WriteGeant         = False,
-                                                           WriteFirstN        = -1)
-ToolSvc += TruthThinningTool
+jetm13thin = []
+if DerivationFrameworkIsMonteCarlo:
+
+  from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+  JETM13ThinningHelper = ThinningHelper( "JETM13ThinningHelper" )
+  JETM13ThinningHelper.AppendToStream( JETM13Stream )
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+  TruthThinningTool = DerivationFramework__MenuTruthThinning(name               = "JETM13TruthThinning",
+                                                             ThinningService    = JETM13ThinningHelper.ThinningSvc(),
+                                                             WriteAllStable     = True,
+                                                             # Disable the flags that have been annoyingly
+                                                             # defaulted to True
+                                                             WritePartons       = False,
+                                                             WriteHadrons       = False,
+                                                             WriteBHadrons      = True,
+                                                             WriteCHadrons      = False,
+                                                             WriteGeant         = False,
+                                                             WriteFirstN        = -1)
+  ToolSvc += TruthThinningTool
+  jetm13thin.append(TruthThinningTool)
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -71,18 +75,13 @@ runTCCReconstruction(jetm13Seq,ToolSvc)
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
+OutputJets["JETM13"] = []
 reducedJetList = ["AntiKt4TruthJets","AntiKt10TruthJets",]
 replaceAODReducedJets(reducedJetList,jetm13Seq,"JETM13")
 
 jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKernel",
                                                           SkimmingTools = [],
-                                                          ThinningTools = [TruthThinningTool])
-
-#====================================================================
-# Special jets
-#====================================================================
-
-OutputJets["JETM13"] = []
+                                                          ThinningTools = jetm13thin)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -103,6 +102,15 @@ JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                      "TruthParticles",
                                      "TruthEvents",
                                      ]
+JETM13SlimmingHelper.ExtraVariables = [
+  "InDetTrackParticles.particleHypothesis.vx.vy.vz",
+  "GSFTrackParticles.particleHypothesis.vx.vy.vz",
+  "PrimaryVertices.x.y.z",
+  "TauJets.clusterLinks",
+  "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus.clusterLinks.FSR_CandidateEnergy",
+  "MuonSegments.x.y.z.px.py.pz",
+  "AntiKt4LCTopoJets.pt.eta.phi.m",
+  ]
 
 for truthc in [
   "TruthMuons",

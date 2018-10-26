@@ -203,8 +203,9 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
             ("prodVtxLink");
           if(prodVtxLink.isValid()) {
             const xAOD::TruthVertex *tvtx = *prodVtxLink;
-            muon->auxdata<float>("prodVtx_z") = tvtx->z();
+            muon->auxdata<float>("prodVtx_z")    = tvtx->z();
             muon->auxdata<float>("prodVtx_perp") = tvtx->perp();
+            muon->auxdata<float>("prodVtx_phi")  = tvtx->phi();
           }
           break;
         }

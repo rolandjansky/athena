@@ -61,23 +61,40 @@ StatusCode IsolationCPTools::setupIsolation() {
   }
 
   // Muon Isolation WPs
-  std::set<std::string> muon_isolations = {"LooseTrackOnly", "Loose",
-                                            "Gradient", "GradientLoose",
-                                            "FixedCutTight",
-                                            "FixedCutTightTrackOnly",
-                                            "FixedCutLoose",
-                                            "FixedCutHighMuTight",
-                                            "FixedCutHighMuLoose"};
+  std::set<std::string> muon_isolations{{
+      "LooseTrackOnly",
+      "Loose",
+      "Gradient",
+      "GradientLoose",
+      "FixedCutTight",
+      "FixedCutTightTrackOnly",
+      "FixedCutLoose",
+      "FCTight",
+      "FCLoose",
+      "FCTightTrackOnly",
+    }};
+
   // Electron Isolation WPs include all of those defined for
   // muons + FixedCutHighPtCaloOnly
-  std::set<std::string> electron_isolations;
-  electron_isolations.insert(muon_isolations.begin(), muon_isolations.end());
-  electron_isolations.insert("FixedCutHighPtCaloOnly");
+  std::set<std::string> electron_isolations{{
+      "LooseTrackOnly",
+      "Loose",
+      "Gradient",
+      "GradientLoose",
+      "FixedCutTight",
+      "FixedCutTightTrackOnly",
+      "FixedCutHighPtCaloOnly",
+      "FixedCutLoose",
+      "FCTight",
+      "FCLoose",
+    }};
 
   // Photon Isolation WPs
-  std::set<std::string> photon_isolations = {"FixedCutTightCaloOnly",
-                                              "FixedCutTight",
-                                              "FixedCutLoose"};
+  std::set<std::string> photon_isolations{{
+      "FixedCutTightCaloOnly",
+      "FixedCutTight",
+      "FixedCutLoose",
+    }};
 
   std::set<std::string> all_isolations;
   all_isolations.insert(muon_isolations.begin(), muon_isolations.end());

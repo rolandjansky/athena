@@ -73,6 +73,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "PATCore/PATCoreEnums.h"
+#include "AthContainers/AuxElement.h"
 
 // stdlib include(s):
 #include <sstream>
@@ -148,15 +149,15 @@ int main(int argc, char* argv[])
     std::vector<std::array<std::string,5> > toolConfigs = {
         /// <list of legs>, <list of tags>, <key in map file>, <PID WP>, <iso WP>
         /// Single electron trigger, only for the leading electron ("Signal")
-        {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Signal", "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "Tight", "Tight"}, 
+        {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Signal", "2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Tight", "FixedCutTightTrackOnly"}, 
         /// Dielectron trigger, for the leading electron ("Signal")
-        {"e12_lhloose_L1EM10VH", "Signal", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "Tight", "Tight"}, 
+        {"e12_lhloose_L1EM10VH", "Signal", "2015_e12_lhloose_L1EM10VH", "Tight", "FixedCutTightTrackOnly"}, 
         /// Dielectron trigger, for subleading electron(s) (not tagged => "*")
-        {"e12_lhloose_L1EM10VH", "*", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""}
+        {"e12_lhloose_L1EM10VH", "*", "2015_e12_lhloose_L1EM10VH", "LooseBLayer", ""}
      };
 
-    const char* mapPath = "ElectronEfficiencyCorrection/2015_2016/"
-            "rel20.7/Moriond_February2017_v3/map1.txt";
+    const char* mapPath = "ElectronEfficiencyCorrection/2015_2017/"
+            "rel21.2/Moriond_February2018_v2/map6.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
@@ -221,11 +222,15 @@ int main(int argc, char* argv[])
     /// Uniform random run number generation spanning the target dataset.
     /// In real life, use the PileupReweightingTool instead!
     const unsigned periodRuns[] = {
-        276073, 278727, 279932, 280423, 281130, 282625 /// 2015 periods D-H, J
+        /// 2015 periods D-H, J
+        276073, 278727, 279932, 280423, 281130, 282625
     };
     std::uniform_int_distribution<unsigned> uniformPdf(0,
             sizeof(periodRuns)/sizeof(*periodRuns) - 1);
     std::default_random_engine randomEngine;
+    
+    SG::AuxElement::ConstAccessor<int> truthType("truthType");
+    SG::AuxElement::ConstAccessor<int> truthOrigin("truthOrigin");
     
     /* ********************************************************************** */
     
@@ -250,8 +255,9 @@ int main(int argc, char* argv[])
             float eta = fabs(electron->caloCluster()->etaBE(2));
             float pt = electron->pt();
             if(pt<10e3f || eta>=2.47) continue;
-            int t = electron->auxdata<int>("truthType");
-            int o = electron->auxdata<int>("truthOrigin");
+            if(!truthType.isAvailable(*electron)) continue;
+            if(!truthOrigin.isAvailable(*electron)) continue;
+            int t = truthType(*electron), o = truthOrigin(*electron);
             if(t!=2 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
             /// electron must be above softest trigger threshold (e12 here)
             if(pt < 13e3f) continue;

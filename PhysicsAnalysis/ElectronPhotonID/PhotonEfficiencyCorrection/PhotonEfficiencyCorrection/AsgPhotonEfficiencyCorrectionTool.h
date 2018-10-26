@@ -120,10 +120,11 @@ private:
   std::string getFileName(std::string isoWP, std::string trigWP, bool isConv);
   
   // Set prefix of the corresponding calibration filenames:
-  std::string file_prefix_ID="offline.Tight";
-  std::string file_prefix_ISO="Isolation.isolFixedCut";
-  std::string file_prefix_Trig="HLT";
-  
+  std::string file_prefix_ID="efficiencySF.offline.";
+  std::string file_prefix_ISO="efficiencySF.Isolation.";
+  std::string file_prefix_Trig="efficiencySF.";
+  std::string file_prefix_TrigEff="efficiency.";
+   
   // Properties
   
   /// The prefix string for the result

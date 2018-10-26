@@ -64,12 +64,10 @@ class SUSY18Triggers(object):
             "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo", 
             "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwoEF",
             "HLT_e24_lhmedium_nod0_ivarloose_tau35_mediumRNN_tracktwoMVA",
-            "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwoMVA"
             ]
 	#Notes: 
-        # To be re-adjusted in May2018
         # For the 2018 startup, 2 versions: the 2017 one (medium1_tracktwo) and the 2018 version without MVA (medium1_tracktwoEF).
-        # Deploy the rest in May 2018: either mediumRNN_tracktwoMVA only, OR (mediumRNN_tracktwoMVA and medium1_tracktwoMVA )
+        # For 2018 data after TS1, the mediumRNN_tracktwoMVA version was deployed
 
         #muon tau
         self.__muon_tau_triggers_2015_2016 = [ #MTT
@@ -88,10 +86,7 @@ class SUSY18Triggers(object):
             "HLT_mu14_ivarloose_tau35_medium1_tracktwo",
             "HLT_mu14_ivarloose_tau35_medium1_tracktwoEF",
             "HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA",
-            "HLT_mu14_ivarloose_tau35_medium1_tracktwoMVA"
             ]
-	#Notes: 
-        # To be re-adjusted in May2018
 
         #tau+electron+MET
         self.__electron_tau_met_triggers_2016_A = [ #ETMT
@@ -107,10 +102,7 @@ class SUSY18Triggers(object):
             "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50",
             "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwoEF_xe50",
             "HLT_e17_lhmedium_nod0_tau25_mediumRNN_tracktwoMVA_xe50",
-            "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwoMVA_xe50"
             ]
-	#Notes: 
-        # To be re-adjusted in May2018
 
         #tau+muon+MET
         self.__muon_tau_met_triggers_2016_A = [ #MTMT
@@ -127,10 +119,7 @@ class SUSY18Triggers(object):
             "HLT_mu14_tau25_medium1_tracktwo_xe50",
             "HLT_mu14_tau25_medium1_tracktwoEF_xe50",
             "HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50",
-            "HLT_mu14_tau25_medium1_tracktwoMVA_xe50"
             ]
-	#Notes: 
-        # To be re-adjusted in May2018
 
         # lepton tau triggers
         self.__muon_tau_triggers          = (self.__muon_tau_triggers_2015_2016 + \

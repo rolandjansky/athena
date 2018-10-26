@@ -1,9 +1,7 @@
 from AthenaCommon import CfgMgr
 
-import cppyy
-try: cppyy.loadDictionary('xAODBaseDict')
-except: pass
 from ROOT import xAOD
+xAOD.Type.ObjectType
 
 from JetRecTools.JetRecToolsConfig import ctm
 from GaudiKernel.Constants import VERBOSE, DEBUG, INFO

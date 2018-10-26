@@ -14,7 +14,7 @@
 #include <xAODMuon/MuonContainer.h>
 #include <xAODBase/IParticleContainer.h>
 #include <AsgTools/IAsgTool.h>
-
+#include <AsgTools/Deprecated.h>
 
 namespace CP {
     class IIsolationCloseByCorrectionTool: public virtual asg::IAsgTool {
@@ -26,11 +26,15 @@ namespace CP {
                 DirectCaloClusters = -1, ParticleCaloCorrection = 0, CaloCorrectionExtCore = 1, CaloCorrectionVarAnulus = 2
             };
 
+
             // This function calculates and applies (the particle is not redecorated) the corrections for close-by objects for each isolation variables and tests whether the particle passes the isolation working point after the corrections.
             // Note that to use this functionality, a IsolationSelectionTool must have been passed to the tool (which must have been intialised indicating which isolation working point to use).
             // The result returned is a TAccept object which is the decision made by the tool with respect to the particle passing the working point.
-            virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const = 0;
             virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const = 0;
+            
+            ASG_DEPRECATED ("Please use the accepCorrected(const xAOD::IParticle&x, const xAOD::IParticleContainer& closePar, , int topoetconeModel ) instead \n" 
+                            "However, also this method is quite computationally expensive. You Should consider the getCloseByIsoCorrection() where the isolation cones are corrected on top ")
+            virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const = 0;
 
             // This function calculates the values of the corrections for close-by objects to be applied to the isolation variables (without redecorating the particles).
             // The corrections are returned in a vector (one correction per isolation type provided).

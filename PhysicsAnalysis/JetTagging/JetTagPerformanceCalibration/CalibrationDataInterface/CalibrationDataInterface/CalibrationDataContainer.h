@@ -87,6 +87,9 @@ namespace Analysis {
     /** @brief retrieve the 'hadronisation reference' entered for this calibration, if any */
     std::string getHadronisation() const;
 
+    /** @brief retrieve the (semicolon-separated) set of uncertainties that are recommended for removal from the eigenvector decomposition */
+    std::string getExcludedUncertainties() const;
+
     /**
        retrieve the calibration result.
        @param  x           user-supplied (kinematic or other) variables
@@ -139,6 +142,11 @@ namespace Analysis {
 
     /** @brief insert the given text as the 'hadronisation reference' for this calibration */
     void setHadronisation(const std::string& text);
+
+    /** insert the set of uncertainties that are recommended for removal from the eigenvector decomposition.
+	@param text   semicolon-separated list of uncertainties
+    */
+    void setExcludedUncertainties(const std::string& text);
 
     /** @brief insert the relevant object for the requested source of 'uncertainty' */
     void setUncertainty(const std::string& unc, TObject* obj);

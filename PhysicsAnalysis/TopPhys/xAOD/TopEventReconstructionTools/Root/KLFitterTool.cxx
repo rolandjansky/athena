@@ -199,6 +199,8 @@ namespace top{
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoNoFitLight;
     else if (BTaggingMethod == "kVetoNoFitBoth" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoNoFitBoth;
+    else if (BTaggingMethod == "kVetoHybridNoFit" )
+      m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoHybridNoFit;
     else if (BTaggingMethod == "kWorkingPoint" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kWorkingPoint;
     else if (BTaggingMethod == "kVeto" )
@@ -248,24 +250,24 @@ namespace top{
 
     // 5) tell the fitter which likelihood to use
     if(m_LHType == "ttbar")
-      m_myFitter->SetLikelihood(m_myLikelihood.get());  
+      top::check(m_myFitter->SetLikelihood(m_myLikelihood.get()), "KLFitterTool::initialize() ERROR setting likelihood for KLFitter");
     else if (m_LHType == "ttH")
-      m_myFitter->SetLikelihood(m_myLikelihood_TTH.get());
+      top::check(m_myFitter->SetLikelihood(m_myLikelihood_TTH.get()), "KLFitterTool::initialize() ERROR setting likelihood for KLFitter");
     else if (m_LHType == "ttbar_JetAngles")
-      m_myFitter->SetLikelihood(m_myLikelihood_JetAngles.get());
+      top::check(m_myFitter->SetLikelihood(m_myLikelihood_JetAngles.get()), "KLFitterTool::initialize() ERROR setting likelihood for KLFitter");
     else if (m_LHType == "ttZTrilepton" && (m_leptonType == "kTriElectron" || m_leptonType == "kTriMuon")) {
       // For ttZ->trilepton, we can have difficult combinations of leptons in the
       // final state (3x same flavour, or mixed case). The latter is trivial, for
       // which we can default back to the ljets likelihood. So we distinguish here:
       //  - kTriMuon, kTriElectron: dedicated TTZ->trilepton likelihood,
       //  - kMuon, kElectron: standard ttbar->l+jets likelihood.
-      m_myFitter->SetLikelihood(m_myLikelihood_TTZ.get());
+      top::check(m_myFitter->SetLikelihood(m_myLikelihood_TTZ.get()), "KLFitterTool::initialize() ERROR setting likelihood for KLFitter");
     } else if (m_LHType == "ttZTrilepton") {
-      m_myFitter->SetLikelihood(m_myLikelihood.get());
+      top::check(m_myFitter->SetLikelihood(m_myLikelihood.get()), "KLFitterTool::initialize() ERROR setting likelihood for KLFitter");
     } else if (m_LHType == "ttbar_AllHadronic"){
-      m_myFitter->SetLikelihood(m_myLikelihood_AllHadronic.get());
+      top::check(m_myFitter->SetLikelihood(m_myLikelihood_AllHadronic.get()), "KLFitterTool::initialize() ERROR setting likelihood for KLFitter");
     } else if (m_LHType == "ttbar_BoostedLJets"){
-      m_myFitter->SetLikelihood(m_myLikelihood_BoostedLJets.get());
+      top::check(m_myFitter->SetLikelihood(m_myLikelihood_BoostedLJets.get()), "KLFitterTool::initialize() ERROR setting likelihood for KLFitter");
     }
 
     else{
@@ -682,15 +684,26 @@ namespace top{
     // First loop
     for (auto x : *resultContainer) {
       float prob = x->eventProbability();
+      short minuitDidNotConverge = x->minuitDidNotConverge();
+      short fitAbortedDueToNaN = x->fitAbortedDueToNaN();
+      short atLeastOneFitParameterAtItsLimit = x->atLeastOneFitParameterAtItsLimit();
+      short invalidTransferFunctionAtConvergence = x->invalidTransferFunctionAtConvergence();
       sumEventProbability += prob;
+      ++iPerm;
+
+      // check if the best value has the highest event probability AND converged
+      if (minuitDidNotConverge) continue;
+      if (fitAbortedDueToNaN) continue;
+      if (atLeastOneFitParameterAtItsLimit) continue;
+      if (invalidTransferFunctionAtConvergence) continue;
       
       if (prob > bestEventProbability) {
         bestEventProbability = prob;
-        bestPermutation = iPerm;
+        // Using iPerm -1 because it has already been incremented before
+        bestPermutation = iPerm-1;
       }
-      ++iPerm;
     }
-    
+
     // Second loop
     iPerm = 0;
     for (auto x : *resultContainer) {
@@ -703,8 +716,6 @@ namespace top{
       }
       ++iPerm;
     }
-    
-    
 
     // Save to StoreGate / TStore
     

@@ -41,7 +41,8 @@ HFORSelectionTool::HFORSelectionTool( const std::string& name )
     m_sampleRunNumber (0),
     m_sampleName ("unknown"),
     m_evtCounterAll (0),
-    m_evtCounterKilled (0) {
+    m_evtCounterKilled (0),
+    m_isConfigured (false) {
   declareProperty( "MatchCone",     m_matchCone = 0.4 );
   declareProperty( "runConfigFile", m_runConfigFile = "HFORTools/mc15_AlpgenPythia_2016.cfg" ) ;
   declareProperty( "HFORStrategy", m_HFORStrategy  = "DRBased" );
@@ -84,9 +85,9 @@ StatusCode HFORSelectionTool::initialize() {
   m_hforTruth.readRunConfig(filename) ;
 
   ATH_MSG_INFO( BOOST_CURRENT_FUNCTION << ": Initialization done.");
-  return StatusCode::SUCCESS ;
   m_isConfigured = false ;
 
+  return StatusCode::SUCCESS ;
 }
 //==============================================================================
 
@@ -144,7 +145,10 @@ StatusCode HFORSelectionTool::endInputFile() {
 bool HFORSelectionTool::isSelected()  {
 
   if (! m_isConfigured) {
-    ATH_CHECK( setSampleType() ) ;
+    if( setSampleType().isFailure() ) {
+      ATH_MSG_ERROR( "Failed to set sample type" );
+      return false;
+    }
     m_isConfigured = true ;
   }
 
@@ -271,6 +275,7 @@ HFORType HFORSelectionTool::getSampleType() {
   if (! m_isConfigured){
     if (setSampleType().isFailure()) {
       ATH_MSG_ERROR("Did not configure correctly - results could be incorrect");
+      return HFORType::noType;
     }
     m_isConfigured = true;
   }
@@ -286,6 +291,7 @@ std::string HFORSelectionTool::getSampleName() {
   if (! m_isConfigured){
     if (setSampleType().isFailure()) {
       ATH_MSG_ERROR("Did not configure correctly - results could be incorrect");
+      return "unknown";
     }
     m_isConfigured = true;
   }

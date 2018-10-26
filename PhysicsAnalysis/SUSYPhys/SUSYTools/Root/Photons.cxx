@@ -66,7 +66,7 @@ StatusCode SUSYObjDef_xAOD::GetPhotons(xAOD::PhotonContainer*& copy, xAOD::Shall
 
   //apply close-by corrections to isolation if requested
   if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
+    // store photons in a vector
     std::vector<const xAOD::IParticle*> pVec;
     for(auto pobj: *copy) {
       pVec.push_back((const xAOD::IParticle*) pobj);
@@ -156,6 +156,9 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     passBaseID = m_photonSelIsEMBaseline->accept(&input);
   }
   if (!passBaseID) return StatusCode::SUCCESS;
+
+  //--- Do baseline isolation check
+  if ( !( m_photonBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;

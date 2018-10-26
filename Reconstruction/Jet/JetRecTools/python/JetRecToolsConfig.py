@@ -61,23 +61,13 @@ class ConstituentToolManager(object):
     # map of named standard list of modifiers
     standardModifierLists = dict()
 
-    ### FIXME ###
-    # This dictionary load appears to cause crashes downstream in configuration
-    # import cppyy
-    # try: cppyy.loadDictionary('xAODBaseDict')
-    # except: pass
-    # from ROOT import xAOD
-    #
-    # map of known input collection to their type
-    # inputContainerMap = dict( CaloCalTopoClusters = xAOD.Type.CaloCluster, CaloTopoClusters = xAOD.Type.CaloCluster,
-    #                           EMOriginTopoClusters = xAOD.Type.CaloCluster, LCOriginTopoClusters = xAOD.Type.CaloCluster, 
-    #                           InDetTrackParticles = xAOD.Type.TrackParticle, JetETMiss = xAOD.Type.ParticleFlow )
-    #
-    # Hardcode the values from xAODBase/ObjectType.h for now
-    inputContainerMap = dict( CaloCalTopoClusters = 1, CaloTopoClusters = 1,
-                              EMOriginTopoClusters = 1, LCOriginTopoClusters = 1, 
-                              InDetTrackParticles = 4, JetETMiss = 3 )
-    ### FIXME ###
+    import ROOT
+    from ROOT import xAOD
+    xAOD.Type.ObjectType # Trigger dict load
+    # map of known input collections to their type
+    inputContainerMap = dict( CaloCalTopoClusters = xAOD.Type.CaloCluster, CaloTopoClusters = xAOD.Type.CaloCluster,
+                              EMOriginTopoClusters = xAOD.Type.CaloCluster, LCOriginTopoClusters = xAOD.Type.CaloCluster, 
+                              InDetTrackParticles = xAOD.Type.TrackParticle, JetETMiss = xAOD.Type.ParticleFlow )
 
     log = Logging.logging.getLogger("ConstituentToolManager")
 

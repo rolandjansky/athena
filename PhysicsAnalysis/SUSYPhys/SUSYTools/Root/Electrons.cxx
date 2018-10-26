@@ -53,6 +53,9 @@ namespace ST {
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
 
+  const static SG::AuxElement::ConstAccessor<float> acc_topoetcone20("topoetcone20");
+  const static SG::AuxElement::ConstAccessor<char> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
+
 StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& elekey, const xAOD::ElectronContainer* containerToBeCopied)
 {
   if (!m_tool_init) {
@@ -90,7 +93,7 @@ StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::S
 
   //apply close-by corrections to isolation if requested
   if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
+    // store electrons in a vector
     std::vector<const xAOD::IParticle*> pVec;
     for(auto pobj: *copy) {
       pVec.push_back((const xAOD::IParticle*) pobj);
@@ -214,17 +217,27 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   if (m_elebaselinez0>0. && fabs(acc_z0sinTheta(input))>m_elebaselinez0) return StatusCode::SUCCESS;
   if (m_elebaselined0sig>0. && fabs(acc_d0sig(input))>m_elebaselined0sig) return StatusCode::SUCCESS;
 
+  //--- Do baseline isolation check
+  if ( !( m_eleBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
+
   dec_baseline(input) = true;
   dec_selected(input) = 2;
   dec_isol(input) = m_isoTool->accept(input);
-  dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
+  if (m_eleIsoHighPt_WP == "FixedCutHighPtCaloOnly" && acc_topoetcone20.isAvailable(input)) {
+    dec_isolHighPt(input) = acc_topoetcone20(input)/input.pt() < 0.015 || m_isoHighPtTool->accept(input);
+  } else {
+    dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
+  }
 
   //ChargeIDSelector
   if( m_runECIS ){
-    ATH_MSG_WARNING( "ChargeIDSelector tool is not available in R21 yet.");
-    dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
-    double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
-    dec_ecisBDT(input) = bdt;
+    if (acc_passECIDS.isAvailable(input)) {
+      dec_passChID(input) = acc_passECIDS(input); // Loose 97% WP!
+    } else {
+      dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
+      double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
+      dec_ecisBDT(input) = bdt;
+    }
 
     //get ElectronChargeEfficiencyCorrectionTool decorations in this case
     if( !isData() ) {
@@ -286,7 +299,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
   if (acc_isol(input) || !m_doElIsoSignal) {
-    if (acc_isolHighPt(input) || input.pt()<400e3) { // patch for removing the high-pt electron fakes /KY
+    if (acc_isolHighPt(input) || input.pt()<200e3) { // patch for removing the high-pt electron fakes /KY
       ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
     } else return false;
   } else return false; //isolation selection with IsoTool
@@ -314,8 +327,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("I will now die messily.");
   }
 
-  if (chfSF) 
-    ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
+  if (chfSF) ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
 
   //shortcut keys for trigger SF config
   std::string singleLepStr = "singleLepton";
@@ -396,7 +408,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
   if (isoSF) {
     double iso_sf(1.);
     CP::CorrectionCode result;
-    if (acc_isolHighPt(el) && el.pt()>400e3)
+    if (acc_isolHighPt(el) && el.pt()>200e3)
       result = m_elecEfficiencySFTool_isoHighPt->getEfficiencyScaleFactor(el, iso_sf);
     else 
       result = m_elecEfficiencySFTool_iso->getEfficiencyScaleFactor(el, iso_sf);
@@ -418,6 +430,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
   // new : charge flip SF 
   if (chfSF){
+    ATH_MSG_WARNING ("Be aware that charge mis-ID SF is not provided in R21 yet. Use at your own risk!");
     double chf_sf(1.);
 
     //ECIS SF 
@@ -453,7 +466,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }   
 
   }
-
   
   dec_effscalefact(el) = sf;
   return sf;

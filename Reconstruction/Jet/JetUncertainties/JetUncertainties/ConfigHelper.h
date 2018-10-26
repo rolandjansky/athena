@@ -31,6 +31,7 @@ class ComponentHelper
         TString param;
         TString massDefStr;
         TString scale;
+        TString topologyStr;
         TString interpolStr;
         TString special;
         TString uncNameList;
@@ -49,11 +50,12 @@ class ComponentHelper
         CompParametrization::TypeEnum parametrization;
         CompMassDef::TypeEnum massDef;
         CompScaleVar::TypeEnum scaleVar;
+        JetTopology::TypeEnum topology;
         bool isSpecial;
         PileupComp::TypeEnum pileupType;
         FlavourComp::TypeEnum flavourType;
         CombMassComp::TypeEnum combMassType;
-        bool interpolate;
+        Interpolate::TypeEnum interpolate;
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
         std::vector<int> truthLabels;

@@ -44,7 +44,7 @@ int Root::TPhotonEfficiencyCorrectionTool::initialize(){
 }
 
 int Root::TPhotonEfficiencyCorrectionTool::finalize(){
-    return Root::TElectronEfficiencyCorrectionTool::finalize();
+    return 1;
 }
 
 const Root::TResult& Root::TPhotonEfficiencyCorrectionTool::calculate( const PATCore::ParticleDataType::DataType dataType,
@@ -69,10 +69,9 @@ const Root::TResult& Root::TPhotonEfficiencyCorrectionTool::calculate( const PAT
      * From the TResult comments
      * Get the zeroth entry, by convention, this is the efficiency or scale factor or MVA response or..
      * Get the first entry, by convention, this is the total uncertainty
+     *  The underlying tool always fills these 2. If invalid return this will be SF=-999, Total 1
      */
-    if(result.size()>static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)){
-        m_result.setResult(0, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::SF)]);
-        m_result.setResult(1, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)]);
-    }
+    m_result.setResult(0, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::SF)]);
+    m_result.setResult(1, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)]);
     return m_result;
 }
