@@ -29,6 +29,8 @@ def getBJetSequence( step ):
         return bJetStep1Sequence()
     if step == "gsc":
         return bJetStep2Sequence()
+    if step == "gscALLTE":
+        return bJetStep2SequenceALLTE()
     if step == "bTag":
         return bJetStep1Sequence()
     return None
@@ -82,8 +84,8 @@ def bJetStep1Sequence():
     jetSplitter = TrigJetSplitterMT("jetSplitter")
     jetSplitter.ImposeZconstraint = False
     jetSplitter.Jets = sequenceOut
-    jetSplitter.OutputJets = "SplitJet"
-    jetSplitter.OutputRoi = "SplitJet"
+    jetSplitter.OutputJets = "SplitJets"
+    jetSplitter.OutputRoi = "SplitJets"
 
     fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
     bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,jetSplitter] )
@@ -93,7 +95,7 @@ def bJetStep1Sequence():
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.Jets = jetSplitter.OutputJets
-    hypo.RoILink = "roi" # To be used in following steps
+    hypo.RoILink = "initialRoI" # "roi" # To be used in following steps
     hypo.RoIs = jetSplitter.OutputRoi
 
     # Sequence     
@@ -145,6 +147,41 @@ def bJetStep2Sequence():
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])
+
+    return MenuSequence( Sequence    = BjetAthSequence,
+                         Maker       = InputMakerAlg,
+                         Hypo        = hypo,
+                         HypoToolGen = TrigBjetEtHypoToolFromName_gsc )
+
+def bJetStep2SequenceALLTE():
+    # menu components
+    from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+
+    # input maker
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step2_ALLTE")
+    InputMakerAlg.LinkName = "initialRoI"
+    InputMakerAlg.Output = "SplitJets"
+    
+    # gsc correction
+    from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
+    theGSC = getGSCFexSplitInstance("EF","2012","EFID")
+    theGSC.OutputLevel = DEBUG
+    theGSC.JetKey = "SplitJets"
+    theGSC.JetOutputKey = "GSCJets"
+
+    # hypo
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
+    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
+    hypo.OutputLevel = DEBUG
+    hypo.Jets = theGSC.JetOutputKey
+    hypo.RoILink = "initialRoI"
+    hypo.RoIs = InputMakerAlg.Output
+
+    # Sequence
+    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,theGSC])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,

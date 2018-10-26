@@ -62,6 +62,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
   // Retrieve RoI to be linked to the output decision
+  ATH_MSG_DEBUG( "Retrieving input TrigRoiDescriptorCollection with key: " << m_inputRoIKey );
   SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_inputRoIKey,context );
   CHECK( roiContainerHandle.isValid() );
 
@@ -113,10 +114,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   newDecision->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),0 ) );
   ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision" );
-  /*
-  newDecision->setObjectLink( "SplitJets",ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking SplitJets to output decision" );
-  */
+
   return StatusCode::SUCCESS;
 }
 
