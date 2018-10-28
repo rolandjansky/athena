@@ -249,7 +249,7 @@ def buildVRJets(sequence, do_ghost, logger):
     from AthenaCommon.AppMgr import ToolSvc
 
     #make the btagging tool for VR jets
-    BTagging.BTaggingFlags import BTaggingFlags
+    from BTagging.BTaggingFlags import BTaggingFlags
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
