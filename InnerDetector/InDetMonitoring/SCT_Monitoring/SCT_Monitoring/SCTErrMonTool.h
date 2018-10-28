@@ -275,10 +275,10 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   enum ProblemForCoverage {
     all,//All SCT module for counting good module
     disabled,//Disable
-    badLinkError, //Bad LinkLevelError
-    badRODError, //Bad RODLevelError
-    badError, //Bad Error (Link+ROD)
-    psTripDCS, //power supply trip (DCS)
+    badLinkError, //link bad
+    badRODError, // ROD bad
+    badError, // link bad + ROD bad = bad error
+    psTripDCS, // power supply trip DCS
     summary, //total coverage using SCT_ConditionsSummarySvc
     numberOfProblemForCoverage
   };

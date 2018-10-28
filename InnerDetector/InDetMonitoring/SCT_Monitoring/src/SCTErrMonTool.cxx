@@ -2031,7 +2031,6 @@ void SCTErrMonTool::fillWafer( moduleGeo_t module, TH2F * histo )
       }
     }
   }
-
   return;
 }
 
@@ -2044,7 +2043,7 @@ bool SCTErrMonTool::syncErrorSCT()
   m_SCTHash[badRODError].clear();
   m_SCTHash[badError].clear();
  
-  ///Bad Link Error
+  ///Link Bad
   for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors)
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( linkLevelBadErrors );
@@ -2054,7 +2053,7 @@ bool SCTErrMonTool::syncErrorSCT()
 	}
     }
 
-  ///Bad ROD Error                                  
+  ///ROD Bad
   for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors)
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( RodLevelBadErrors );
@@ -2065,7 +2064,7 @@ bool SCTErrMonTool::syncErrorSCT()
 	}
     }
 
-  ///Bad Error = Bad Link + Bad ROD
+  ///Bad Error = ROD bad + Link bad
   for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors)       
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( tmpBadError );
@@ -2093,6 +2092,7 @@ bool SCTErrMonTool::syncDisabledSCT()
   }
   return altered;
 }
+
 
 bool SCTErrMonTool::summarySCT()
 {
