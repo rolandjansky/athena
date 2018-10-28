@@ -203,9 +203,9 @@ private:
         int m_nUncorrSyst ;
         std::map<float, std::vector<float> > m_pteta_bins;
 
-        // custom simplified binning
-	std::vector<float> m_uncorrEtaBinsUser;
-	std::vector<float> m_uncorrEtBinsUser;
+        // custom binning for SIMPLIFIED model
+	std::vector<float> m_uncorrSimplfEtaBinsUser;
+	std::vector<float> m_uncorrSimplfEtBinsUser;
         // simplified uncorrelation regions
         TH2F * m_UncorrRegions;
         int m_nSimpleUncorrSyst;

@@ -80,7 +80,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   ATH_MSG_DEBUG("initializing");
 
   // initialize the random number generator (used in case of charge flip approach)
-  //m_Rndm = new TRandom3(1);
+  // m_Rndm = new TRandom3(1);
 
   if(m_sfDec) delete m_sfDec;
   m_sfDec = new SG::AuxElement::Decorator< float>(m_sf_decoration_name);//xxxx
@@ -322,6 +322,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::finalize()
 
 CP::CorrectionCode
 CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electron& part, double& sf) const {
+
   ATH_MSG_DEBUG("In CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::IParticle& part, double& sf) const");
   if ( part.type() != xAOD::Type::Electron ){
     ATH_MSG_ERROR("This function requires an electron to be passed. Failing!");
@@ -420,6 +421,20 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
       return CP::CorrectionCode::OutOfValidityRange;
     }
   }
+
+  // check if electron is within recommendations in eta/Et
+  if ( ele_eta < m_eta_lowlimit || ele_eta > m_eta_uplimit ) {
+
+    ATH_MSG_DEBUG("Got an electron outside of the range of eta validity " << ele_eta);
+    return CP::CorrectionCode::OutOfValidityRange;
+  }
+
+  if ( ele_pt < m_pt_lowlimit ) {
+
+    ATH_MSG_DEBUG("Got an electron outside of the range of pt validity: pt lower than lower limit");
+    return CP::CorrectionCode::OutOfValidityRange;
+  }
+
 
   // Determine WHICH histograms to use here
   const std::vector<TH2D*>& SShistograms = m_SF_SS.at(cutRunNumber.c_str());
@@ -551,27 +566,14 @@ float CP::ElectronChargeEfficiencyCorrectionTool::getChargeFlipRate( double eta,
 {
   ATH_MSG_VERBOSE(" -> in: getChargeFlipRate(" << pt <<", " << eta << " TH2D, double&)");
 
-  if ( eta < m_eta_lowlimit || eta > m_eta_uplimit ) {
-
-    ATH_MSG_ERROR("Got an electron outside of the range of ETA validity " << eta);
-    return 1;
-  }
-
-  if ( pt < m_pt_lowlimit ) {
-
-    ATH_MSG_ERROR("Got an electron outside of the range of pt validity: pt lower than lower limit");
-    return 2;
-  }
-
   if ( pt > m_pt_uplimit ) pt=m_pt_uplimit*0.999;
 
   int bin2D = hrates->FindBin(pt, eta);
   flipRate  = hrates->GetBinContent(bin2D);
 
   ATH_MSG_VERBOSE(" -> flipRate is " << flipRate <<", for histogram " << hrates->GetName() );
-
-
   return 0;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
