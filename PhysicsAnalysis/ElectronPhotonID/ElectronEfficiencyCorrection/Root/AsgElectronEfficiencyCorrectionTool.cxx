@@ -180,7 +180,9 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
       
       // a few checks on the binning that the user might have specified
       if ( m_uncorrSimplfEtaBinsUser.empty() ||
-	   m_uncorrSimplfEtaBinsUser.empty() != m_uncorrSimplfEtBinsUser.empty() ) {
+	   m_uncorrSimplfEtBinsUser.empty()  ||
+	   m_uncorrSimplfEtBinsUser.size()  < 2 ||
+	   m_uncorrSimplfEtaBinsUser.size() < 2 ) {
 	ATH_MSG_ERROR("Something went wrong when specifying bins for the SIMPLIFIED correlation model ");
 	return StatusCode::FAILURE;
       }
