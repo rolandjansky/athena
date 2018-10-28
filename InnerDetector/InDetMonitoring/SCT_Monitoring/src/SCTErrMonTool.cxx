@@ -2076,6 +2076,7 @@ bool SCTErrMonTool::syncErrorSCT()
  return true;
 }
 
+
 bool SCTErrMonTool::syncDisabledSCT()
 {
   bool altered = false;
@@ -2092,7 +2093,6 @@ bool SCTErrMonTool::syncDisabledSCT()
   }
   return altered;
 }
-
 
 bool SCTErrMonTool::summarySCT()
 {
