@@ -459,25 +459,25 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
 
   if (ManagedMonitorToolBase::newRunFlag()){
 
-    //All
+    //All SCT module for counting good module
     m_mapSCT[all]   = new TH2F( "SCT_AllRegion", "Map of All Region",
 				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     //Disabled
     m_mapSCT[disabled]   = new TH2F( "SCT_MapOfDisabledLinks", "Map of Disabled Links",
     				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //Bad Link Level Error                                                                                       
+    //BadLinkLevelError
     m_mapSCT[badLinkError]   = new TH2F( "SCT_MapOfLinksWithBadLinkLevelErrors", "Map of Links with bad LinkLevelErrors",
 					 m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //Bad ROD Level Error
+    //BadRODLevelError
     m_mapSCT[badRODError]   = new TH2F( "SCT_MapOfLinksWithBadRODLevelErrors", "Map of Links with Bad RODLevelErrors",
 					m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //Bad Error
+    //BadError = BadLinkLevelError + BadRODLevelError
     m_mapSCT[badError]   = new TH2F( "SCT_MapOfLinksWithBadErrors", "Map of Links with Bad Errors",
 				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //PS Trip (DCS)
+    //Power supply trip (SCT_DCSConditionsSvc)
     m_mapSCT[psTripDCS]  = new TH2F( "SCT_MapOfLinksWithPSTrip", "Map of Links Affected by PS Trip",
 				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    //Total (Summary)
+    //Total (SCT_ConditionsSummarySvc)
     m_mapSCT[summary]   = new TH2F( "SCT_MapOfLinksWithAnyProbelm", "Map of Links with Any Bad Problem",
 				    m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
     
@@ -2043,7 +2043,7 @@ bool SCTErrMonTool::syncErrorSCT()
   m_SCTHash[badRODError].clear();
   m_SCTHash[badError].clear();
  
-  ///Link Bad
+  //BadLinkLevelError
   for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors)
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( linkLevelBadErrors );
@@ -2053,7 +2053,7 @@ bool SCTErrMonTool::syncErrorSCT()
 	}
     }
 
-  ///ROD Bad
+  //BadRODLevelError
   for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors)
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( RodLevelBadErrors );
@@ -2064,7 +2064,7 @@ bool SCTErrMonTool::syncErrorSCT()
 	}
     }
 
-  ///Bad Error = ROD bad + Link bad
+  //BadError = BadLinkLevelError + BadRODLevelError
   for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors)       
     {
       std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( tmpBadError );
@@ -2076,7 +2076,7 @@ bool SCTErrMonTool::syncErrorSCT()
  return true;
 }
 
-
+//Disabled
 bool SCTErrMonTool::syncDisabledSCT()
 {
   bool altered = false;
@@ -2094,17 +2094,18 @@ bool SCTErrMonTool::syncDisabledSCT()
   return altered;
 }
 
+//Total (SCT_ConditionsSummarySvc) //All
 bool SCTErrMonTool::summarySCT()
 {
   bool altered = false;
-  m_SCTHash[all].clear();
+  m_SCTHash[all].clear();//All
   m_SCTHash[summary].clear();
 
   const unsigned int maxHash = m_pSCTHelper->wafer_hash_max(); // 8176                                             
   for (unsigned int i=0; i<maxHash; i++) 
     {
       IdentifierHash hash(i);
-      m_SCTHash[all].insert(hash);
+      m_SCTHash[all].insert(hash);//All
       if (!m_pSummarySvc->isGood(hash)) 
 	{
 	  m_SCTHash[summary].insert(hash);
@@ -2113,6 +2114,7 @@ bool SCTErrMonTool::summarySCT()
   return altered;
 }
 
+//Power supply trip (SCT_DCSConditionsSvc)
 bool SCTErrMonTool::psTripDCSSCT()
 {
   bool altered = false;

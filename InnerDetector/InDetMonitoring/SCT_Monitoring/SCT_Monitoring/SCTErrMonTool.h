@@ -273,13 +273,13 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
   enum ProblemForCoverage {
-    all,//All SCT module for counting good module
-    disabled,//Disable
-    badLinkError, //link bad
-    badRODError, // ROD bad
-    badError, // link bad + ROD bad = bad error
-    psTripDCS, // power supply trip DCS
-    summary, //total coverage using SCT_ConditionsSummarySvc
+    all, //All SCT module for counting good module
+    disabled, //Disabled
+    badLinkError, //BadLinkLevelError
+    badRODError, //BadRODLevelError
+    badError, //BadError = BadLinkLevelError + BadRODLevelError
+    psTripDCS, //Power supply trip using SCT_DCSConditionsSvc
+    summary, //Total coverage using SCT_ConditionsSummarySvc
     numberOfProblemForCoverage
   };
 
