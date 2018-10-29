@@ -2,12 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigSteering/ResultBuilderMT.h"
+#include "TrigOutputHandling/HLTResultMTMaker.h"
 
 // =============================================================================
 // Standard constructor
 // =============================================================================
-HLT::ResultBuilderMT::ResultBuilderMT(const std::string& type, const std::string& name, const IInterface* parent)
+HLTResultMTMaker::HLTResultMTMaker(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent) {
   declareProperty("HLTResultWHKey", m_hltResultWHKey="HLTResult");
 }
@@ -15,12 +15,12 @@ HLT::ResultBuilderMT::ResultBuilderMT(const std::string& type, const std::string
 // =============================================================================
 // Standard destructor
 // =============================================================================
-HLT::ResultBuilderMT::~ResultBuilderMT() {}
+HLTResultMTMaker::~HLTResultMTMaker() {}
 
 // =============================================================================
 // Implementation of IStateful::initialize
 // =============================================================================
-StatusCode HLT::ResultBuilderMT::initialize() {
+StatusCode HLTResultMTMaker::initialize() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   ATH_CHECK(m_hltResultWHKey.initialize());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
@@ -30,7 +30,7 @@ StatusCode HLT::ResultBuilderMT::initialize() {
 // =============================================================================
 // Implementation of IStateful::finalize
 // =============================================================================
-StatusCode HLT::ResultBuilderMT::finalize() {
+StatusCode HLTResultMTMaker::finalize() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -39,10 +39,10 @@ StatusCode HLT::ResultBuilderMT::finalize() {
 // =============================================================================
 // The main method of the tool
 // =============================================================================
-StatusCode HLT::ResultBuilderMT::buildResult(const EventContext& eventContext) const {
+StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   auto hltResult = SG::makeHandle(m_hltResultWHKey,eventContext);
-  ATH_CHECK( hltResult.record(std::make_unique<HLT::HLTResultMT>()) );
+  ATH_CHECK( hltResult.record(std::make_unique<HLTResultMT>()) );
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
 
   // Dummy data for testing

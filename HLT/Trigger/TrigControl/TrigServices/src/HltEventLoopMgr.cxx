@@ -7,8 +7,8 @@
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
 #include "TrigSORFromPtreeHelper.h"
-#include "TrigSteering/ResultBuilderMT.h"
-#include "TrigSteeringEvent/HLTResultMT.h"
+#include "TrigOutputHandling/HLTResultMT.h"
+#include "TrigOutputHandling/HLTResultMTMaker.h"
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
@@ -81,7 +81,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_evtSelector("EvtSel", name),
   m_outputCnvSvc("OutputCnvSvc", name),
   m_coolHelper("TrigCOOLUpdateHelper", this),
-  m_hltResultBuilder("HLT::ResultBuilderMT/ResultBuilder", this),
+  m_hltResultMaker("HLTResultMTMaker", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_localEventNumber(0),
   m_threadPoolSize(-1),
@@ -100,7 +100,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("EvtSel",                   m_evtSelector);
   declareProperty("OutputCnvSvc",             m_outputCnvSvc);
   declareProperty("CoolUpdateTool",           m_coolHelper);
-  declareProperty("ResultBuilder",            m_hltResultBuilder);
+  declareProperty("ResultMaker",              m_hltResultMaker);
   declareProperty("SchedulerSvc",             m_schedulerName="AvalancheSchedulerSvc",
                   "Name of the scheduler to be used");
   declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
@@ -281,7 +281,7 @@ StatusCode HltEventLoopMgr::initialize()
   // COOL helper
   ATH_CHECK(m_coolHelper.retrieve());
   // HLT result builder
-  ATH_CHECK(m_hltResultBuilder.retrieve());
+  ATH_CHECK(m_hltResultMaker.retrieve());
 
   //----------------------------------------------------------------------------
   // Initialise data handle keys
@@ -291,7 +291,7 @@ StatusCode HltEventLoopMgr::initialize()
   // EventInfo ReadHandle
   ATH_CHECK(m_eventInfoRHKey.initialize());
   // HLTResultMT ReadHandle (created dynamically from the result builder property)
-  m_hltResultRHKey = m_hltResultBuilder->resultName();
+  m_hltResultRHKey = m_hltResultMaker->resultName();
   ATH_CHECK(m_hltResultRHKey.initialize());
 
   //----------------------------------------------------------------------------
@@ -400,7 +400,7 @@ StatusCode HltEventLoopMgr::finalize()
                  m_outputCnvSvc);
 
   releaseTool(m_coolHelper,
-              m_hltResultBuilder);
+              m_hltResultMaker);
 
   releaseSmartIF(m_whiteboard,
                  m_algResourcePool,
@@ -431,8 +431,8 @@ StatusCode HltEventLoopMgr::finalize()
   // Release tool handles
   if (m_coolHelper.release().isFailure())
     ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release tool " << m_coolHelper.typeAndName();
-  if (m_hltResultBuilder.release().isFailure())
-    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release tool " << m_hltResultBuilder.typeAndName();
+  if (m_hltResultMaker.release().isFailure())
+    ATH_REPORT_MESSAGE(MSG::WARNING) << "Failed to release tool " << m_hltResultMaker.typeAndName();
 
   // Release SmartIFs
   m_whiteboard.reset();
@@ -1115,16 +1115,16 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   auto hltResultRH = SG::makeHandle(m_hltResultRHKey,eventContext);
   if (!hltResultRH.isValid()) {
     // Try to build a result if not available
-    m_hltResultBuilder->buildResult(eventContext).ignore();
+    m_hltResultMaker->makeResult(eventContext).ignore();
   }
 
-  std::unique_ptr<HLT::HLTResultMT> hltResultPtr;
+  std::unique_ptr<HLTResultMT> hltResultPtr;
   if (!hltResultRH.isValid())
-    hltResultPtr = std::make_unique<HLT::HLTResultMT>();
+    hltResultPtr = std::make_unique<HLTResultMT>();
   else
-    hltResultPtr = std::make_unique<HLT::HLTResultMT>(*hltResultRH);
+    hltResultPtr = std::make_unique<HLTResultMT>(*hltResultRH);
 
-  SG::WriteHandleKey<HLT::HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
+  SG::WriteHandleKey<HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
   hltResultWHK.initialize();
   auto hltResultWH = SG::makeHandle(hltResultWHK,eventContext);
   if (hltResultWH.record(std::move(hltResultPtr)).isFailure()) {
@@ -1327,7 +1327,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     // HLT output handling
     //--------------------------------------------------------------------------
     // Call the result builder to record HLTResultMT in SG
-    sc = m_hltResultBuilder->buildResult(*thisFinishedEvtContext);
+    sc = m_hltResultMaker->makeResult(*thisFinishedEvtContext);
     if (sc.isFailure()) atLeastOneFailed = true;
     HLT_DRAINSCHED_CHECK(sc, "Failed to create the HLT result object",
                          hltonl::PSCErrorCode::NO_HLT_RESULT, *thisFinishedEvtContext);

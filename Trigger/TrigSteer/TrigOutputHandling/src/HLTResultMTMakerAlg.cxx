@@ -21,7 +21,7 @@ StatusCode HLTResultMTMakerAlg::finalize() {
 
 StatusCode HLTResultMTMakerAlg::execute_r(const EventContext& context) const {
   using namespace Monitored;
-  auto hltResult = std::make_unique<HLT::HLTResultMT>();
+  auto hltResult = std::make_unique<HLTResultMT>();
   
   auto time =  MonitoredTimer::declare( "TIME_build" );
   for ( auto& maker: m_makerTools ) {

@@ -32,7 +32,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 	     const IInterface* parent );
 
   virtual ~TriggerEDMSerialiserTool(); 
-  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
+  virtual StatusCode fill( HLTResultMT& resultToFill ) const override;
 
   virtual StatusCode  initialize() override;
 

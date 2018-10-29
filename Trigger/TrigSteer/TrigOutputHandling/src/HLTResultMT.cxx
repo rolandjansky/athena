@@ -2,12 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigSteeringEvent/HLTResultMT.h"
+#include "TrigOutputHandling/HLTResultMT.h"
 
 // =============================================================================
 // Standard constructor
 // =============================================================================
-HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags,
+HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags,
                          std::vector<uint32_t> hltBits,
                          std::unordered_map<uint16_t, std::vector<uint32_t> > data,
                          std::vector<uint32_t> status)
@@ -19,7 +19,7 @@ HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags
 // =============================================================================
 // Copy constructor
 // =============================================================================
-HLT::HLTResultMT::HLTResultMT(const HLT::HLTResultMT& other)
+HLTResultMT::HLTResultMT(const HLTResultMT& other)
 : m_streamTags(other.m_streamTags),
   m_hltBits(other.m_hltBits),
   m_data(other.m_data),
@@ -28,41 +28,42 @@ HLT::HLTResultMT::HLTResultMT(const HLT::HLTResultMT& other)
 // =============================================================================
 // Standard destructor
 // =============================================================================
-HLT::HLTResultMT::~HLTResultMT() {}
+HLTResultMT::~HLTResultMT() {}
 
 // =============================================================================
 // Getter/setter methods for stream tags
 // =============================================================================
-const std::vector<eformat::helper::StreamTag>& HLT::HLTResultMT::getStreamTags() const {
+const std::vector<eformat::helper::StreamTag>& HLTResultMT::getStreamTags() const {
   return m_streamTags;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setStreamTags(const std::vector<eformat::helper::StreamTag>& streamTags) {
+void HLTResultMT::setStreamTags(const std::vector<eformat::helper::StreamTag>& streamTags) {
   // copy assignment
   m_streamTags = streamTags;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::addStreamTag(const eformat::helper::StreamTag& streamTag) {
+void HLTResultMT::addStreamTag(const eformat::helper::StreamTag& streamTag) {
+  //TODO: handle duplicates
   m_streamTags.push_back(streamTag);
 }
 
 // =============================================================================
 // Getter/setter methods for trigger bits
 // =============================================================================
-const std::vector<uint32_t>& HLT::HLTResultMT::getHltBits() const {
+const std::vector<uint32_t>& HLTResultMT::getHltBits() const {
   return m_hltBits;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setHltBits(const std::vector<uint32_t>& bits) {
+void HLTResultMT::setHltBits(const std::vector<uint32_t>& bits) {
   // copy assignment
   m_hltBits = bits;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::addHltBitsWord(const uint32_t& word) {
+void HLTResultMT::addHltBitsWord(const uint32_t& word) {
   m_hltBits.push_back(word);
 }
 
@@ -70,24 +71,24 @@ void HLT::HLTResultMT::addHltBitsWord(const uint32_t& word) {
 // Getter/setter methods for serialised data
 // =============================================================================
 /// Serialised data getter
-const std::unordered_map<uint16_t, std::vector<uint32_t> >& HLT::HLTResultMT::getSerialisedData() const {
+const std::unordered_map<uint16_t, std::vector<uint32_t> >& HLTResultMT::getSerialisedData() const {
   return m_data;
 }
 
 // -----------------------------------------------------------------------------
-const std::vector<uint32_t>& HLT::HLTResultMT::getSerialisedData(uint16_t moduleId) const {
+const std::vector<uint32_t>& HLTResultMT::getSerialisedData(uint16_t moduleId) const {
   // this can throw std::out_of_range - implement messaging (std::cerr or ATH_MSG_ERR) to avoid exception
   return m_data.at(moduleId);
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setSerialisedData(const std::unordered_map<uint16_t, std::vector<uint32_t> >& data) {
+void HLTResultMT::setSerialisedData(const std::unordered_map<uint16_t, std::vector<uint32_t> >& data) {
   // copy assignment (WARNING, data may be large!)
   m_data = data;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>& data) {
+void HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>& data) {
   if (m_data.find(moduleId)!=m_data.cend()) {
     // implement error printout and handling here !!! use either std::cerr or ATH_MSG_ERR
   }
@@ -99,17 +100,17 @@ void HLT::HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vec
 // =============================================================================
 // Getter/setter methods for status words
 // =============================================================================
-const std::vector<uint32_t>& HLT::HLTResultMT::getStatus() const {
+const std::vector<uint32_t>& HLTResultMT::getStatus() const {
   return m_status;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setStatus(const std::vector<uint32_t>& status) {
+void HLTResultMT::setStatus(const std::vector<uint32_t>& status) {
   // copy assignment
   m_status = status;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::addStatusWord(const uint32_t& word) {
+void HLTResultMT::addStatusWord(const uint32_t& word) {
   m_status.push_back(word);
 }
