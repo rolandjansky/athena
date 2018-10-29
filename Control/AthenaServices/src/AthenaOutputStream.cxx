@@ -385,67 +385,6 @@ void AthenaOutputStream::handle(const Incident& inc) {
    if (inc.type() == "MetaDataStop") {
       // Moved preFinalize of helper tools to stop - want to optimize the
       // output file in finalize RDS 12/2009
-/*
-      for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-           iter != m_helperTools.end(); iter++) {
-         if (!(*iter)->preFinalize().isSuccess()) {
-             ATH_MSG_ERROR("Cannot finalize helper tool");
-         }
-      }
-      FileIncident fileInc(name(),"MetaDataStop","","Serial");
-      ServiceHandle<MetaDataSvc> mdsvc("MetaDataSvc", name());
-      if (mdsvc.retrieve().isFailure()) {
-         ATH_MSG_ERROR("Could not retrieve MetaDataSvc for stop actions");
-      }
-      else {
-         if(mdsvc->prepareOutput(fileInc).isFailure()) {
-           ATH_MSG_ERROR("MetaDataStop prepareOutput failed");
-         }
-      }
-      // Always force a final commit in stop - mainly applies to AthenaPool
-      if (m_writeOnFinalize) {
-         if (write().isFailure()) {  // true mean write AND commit
-            ATH_MSG_ERROR("Cannot write on finalize");
-         }
-         ATH_MSG_INFO("Records written: " << m_events);
-      }
-      if (!m_metadataItemList.value().empty()) {
-         m_currentStore = &m_metadataStore;
-         StatusCode status = m_streamer->connectServices(m_metadataStore.type(), m_persName, false);
-         if (status.isFailure()) {
-            throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
-         }
-         m_checkNumberOfWrites = false;
-         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
-         m_p2BWritten->clear();
-         IProperty *pAsIProp(nullptr);
-         if ((m_p2BWritten.retrieve()).isFailure() ||
-                        nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
-                        (pAsIProp->setProperty("ItemList", m_metadataItemList.toString())).isFailure()) {
-            throw GaudiException("Folder property [metadataItemList] not found", name(), StatusCode::FAILURE);
-         }
-         if (write().isFailure()) {  // true mean write AND commit
-            ATH_MSG_ERROR("Cannot write metadata");
-         }
-         m_outputAttributes.clear();
-         m_currentStore = &m_dataStore;
-         status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
-         if (status.isFailure()) {
-            throw GaudiException("Unable to re-connect services", name(), StatusCode::FAILURE);
-         }
-         m_p2BWritten->clear();
-         if ((pAsIProp->setProperty(m_itemList)).isFailure()) {
-            throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
-         }
-         ATH_MSG_INFO("Records written: " << m_events);
-         for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
-             iter != m_helperTools.end(); iter++) {
-            if (!(*iter)->postInitialize().isSuccess()) {
-                ATH_MSG_ERROR("Cannot initialize helper tool");
-            }
-         }
-      }
-*/
    } else if (inc.type() == "UpdateOutputFile") {
      const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
      if(fileInc!=nullptr) {

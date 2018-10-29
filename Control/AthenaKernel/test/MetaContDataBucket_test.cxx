@@ -112,10 +112,10 @@ void test1()
   assert (bucket.cast (ClassID_traits<TestPayload>::ID()) == nullptr);
 
   p = bucket.cast (typeid (TestCont));
-  //assert (typeid (*reinterpret_cast<TestCont*>(p)) == typeid (TestCont));
+  assert (typeid (*reinterpret_cast<TestCont*>(p)) == typeid (TestCont));
   p = bucket.cast (typeid (TestContBase));
-  //assert (typeid (*reinterpret_cast<TestContBase*>(p)) == typeid (TestCont));
-  //assert (bucket.cast (typeid (TestPayload)) == nullptr);
+  assert (typeid (*reinterpret_cast<TestContBase*>(p)) == typeid (TestCont));
+  assert (bucket.cast (typeid (TestPayload)) == nullptr);
 
   proxyDict.source = "source";
   p = bucket.cast (ClassID_traits<TestPayload>::ID());

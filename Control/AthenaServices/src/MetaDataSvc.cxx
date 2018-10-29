@@ -206,13 +206,6 @@ StatusCode MetaDataSvc::stop() {
       }
    }
 
-   // Set to be listener for end of event
-   //Incident metaDataStopIncident(name(), "MetaDataStop");
-   //m_incSvc->fireIncident(metaDataStopIncident);
-
-   // finalizing tools via metaDataStop
-   //ATH_CHECK(this->prepareOutput(metaDataStopIncident));
-
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________

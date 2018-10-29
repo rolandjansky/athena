@@ -103,7 +103,7 @@ namespace asg {
       /// @name Callback functions helping in metadata reading/writing
       /// @{
       
-      virtual void setUseIncidents(const bool& flag);
+      void setUseIncidents(const bool flag);
 
       /// Function receiving incidents from IncidentSvc/TEvent
       virtual void handle( const Incident& inc );
@@ -137,7 +137,7 @@ namespace asg {
 
    }; // class AsgMetadataTool
 
-   inline void AsgMetadataTool::setUseIncidents(const bool& flag) 
+   inline void AsgMetadataTool::setUseIncidents(const bool flag) 
    {
       m_useIncidents = flag;
    }
