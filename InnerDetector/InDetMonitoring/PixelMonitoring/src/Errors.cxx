@@ -479,10 +479,12 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
               if (bit == 2 || bit == 7)                error_type = 7;  // Timeout error           (2:Trailer timeout error, 7:readout timeout
             }
 
-            if (error_type) {  // if there were any errors we care about
-              if (error_type == 1) error_cat = ErrorCategory::kSync;
-              if (error_type == 3) error_cat = ErrorCategory::kTrunc;
+            if (error_type) {
+              if (error_type == 1 || error_type == 2) error_cat = ErrorCategory::kSync;
+              if (error_type == 3 || error_type == 4) error_cat = ErrorCategory::kTrunc;
+              if (error_type == 5) error_cat = ErrorCategory::kOpt;
               if (error_type == 6) error_cat = ErrorCategory::kSeu;
+              if (error_type == 7) error_cat = ErrorCategory::kTout;
 
               if (m_errors) m_errors->fill(error_type, WaferID, m_pixelid);
 
