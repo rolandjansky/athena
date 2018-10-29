@@ -67,6 +67,11 @@ public:
   double minDistance(const Amg::Vector2D& locpo) const override;
   double r() const override;
 
+  double rMin() const { return m_minR; }
+  double rMax() const { return m_maxR; }
+  double phiMin() const { return m_phiMin + m_phiAvg; }
+  double phiMax() const { return m_phiMax + m_phiAvg; }
+
   // returns moduleOrigin, but rotated out, so avgPhi is already considered.
   Amg::Vector2D moduleOrigin() const;
 

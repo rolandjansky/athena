@@ -163,18 +163,27 @@ bool Trk::DiscSurface::operator==(const Trk::Surface& sf) const
 const Amg::Vector3D& Trk::DiscSurface::globalReferencePoint() const
 { 
   if (!m_referencePoint){
-    const Trk::DiscBounds* dbo = dynamic_cast<const Trk::DiscBounds*>(&(bounds()));
+    const auto* dbo = dynamic_cast<const Trk::DiscBounds*>(&(bounds()));
+    const auto* dtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(bounds()));
+    const auto* annbopc = dynamic_cast<const Trk::AnnulusBoundsPC*>(&(bounds()));
     if (dbo) {
       double rMedium = bounds().r();
       double phi     = dbo ? dbo->averagePhi() : 0.;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
       m_referencePoint = new Amg::Vector3D(transform()*gp);
-    } else {
-      const Trk::DiscTrapezoidalBounds* dtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(bounds()));
+    } else if(dtbo) {
       double rMedium = dtbo ? bounds().r() : dtbo->rCenter() ;
       double phi     = dtbo ? dtbo->averagePhi() : 0.;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
       m_referencePoint = new Amg::Vector3D(transform()*gp);
+    } else if (annbopc) {
+      double rMid = (annbopc->rMin() + annbopc->rMax()) / 2.;
+      double phiMid = std::abs(annbopc->phiMax() - annbopc->phiMin())/2. + annbopc->phiMin();
+      Amg::Vector3D pos(rMid * std::cos(phiMid), rMid * std::sin(phiMid), 0.);
+      m_referencePoint = new Amg::Vector3D(transform() * pos);
+      
+    } else {
+      throw std::logic_error("Invalid bounds type for DiscSurface");
     }
   }
   return (*m_referencePoint);
