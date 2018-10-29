@@ -125,7 +125,7 @@ namespace xAOD {
        *  @returns: true on success
        */
       
-      bool setMass(const std::vector<double> trkMasses);
+      bool setMass(const std::vector<double> &trkMasses);
       
       /** @} */
       /************************************************************************/
