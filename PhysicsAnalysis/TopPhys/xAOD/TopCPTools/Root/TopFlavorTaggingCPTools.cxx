@@ -49,7 +49,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
   
   // List of algorithms in R21
   m_tagger_algorithms = {"MV2c10", "MV2r", "MV2rmu", 
-			 "DL1",    "DL1r",    "DL1rmu",
+			 "DL1",    "DL1r", "DL1rmu",
 			 "MV2cl100_MV2c100"};
 
   // Configure all tagger/WP/calibration with helper function touching member variables
