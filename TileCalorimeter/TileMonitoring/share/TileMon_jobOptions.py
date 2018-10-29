@@ -137,7 +137,7 @@ if tileESDMon:
             cleaning.CutLevel = "LooseBad"
             cleaning.DoUgly = False
             ToolSvc += cleaning
-            ecTool                 = CfgMgr.EventCleaningTool("MyEventCleaningTool") #CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
+            ecTool                 = CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
             ecTool.JetCleaningTool = cleaning
             ecTool.PtCut           = jetPtMin
             ecTool.EtaCut          = jet_tracking_eta_limit
