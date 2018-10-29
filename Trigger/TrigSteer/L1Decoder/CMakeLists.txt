@@ -51,4 +51,3 @@ atlas_install_headers( L1Decoder )
 atlas_install_joboptions( share/*.py )
 
 atlas_add_test( L1DecoderTest SCRIPT python -m L1Decoder.L1DecoderConfig ) 
-atlas_add_test( L1MuonTest SCRIPT python -m L1Decoder.L1MuonConfig ) 
