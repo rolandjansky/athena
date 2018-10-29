@@ -14,15 +14,12 @@
 #include <vector>
 
 class CaloCell_ID;
-class MsgStream;
 
 class LArHVCorr : public ILArHVScaleCorr {
  
-  friend class LArHVCondAlg; //The conditions alg filling this object 
-
   public: 
-   LArHVCorr(const std::vector<float>& vVec, const LArOnOffIdMapping* cabling, const CaloCell_ID*       caloidhelper);
-   ~LArHVCorr () { if(m_log) delete m_log; } 
+   LArHVCorr(std::vector<float>&& vVec, const LArOnOffIdMapping* cabling, const CaloCell_ID*       caloidhelper);
+   ~LArHVCorr () {};
 
 
    // retrieving HVScaleCorr using online ID  
@@ -35,10 +32,9 @@ class LArHVCorr : public ILArHVScaleCorr {
   private:
   const LArOnOffIdMapping* m_larCablingSvc;
   const CaloCell_ID*       m_calo_id;
-  MsgStream*               m_log;
 
   std::vector<float>       m_hvCorr;
-  const float              m_badCorr;
+  const float              m_noCorr;
 };
 
 #include "AthenaKernel/CondCont.h"
