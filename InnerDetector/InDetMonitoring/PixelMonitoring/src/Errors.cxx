@@ -471,7 +471,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
               if (bit == 4  || bit == 12 || bit == 13) error_type = 3; // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
               if (bit >= 5  && bit <= 7)               error_type = 6; // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
             } else {
-              if (bit == 3 || bit == 4 || bit == 8)    error_type = 1;  // synchronization error   (3:LVL1ID, 4:BCID, 8:BCID counter error)
+              if (bit == 3 || bit == 4 || bit == 8)    error_type = 2;  // synchronization error   (3:LVL1ID, 4:BCID, 8:BCID counter error)
               if (bit == 0 || bit == 18)               error_type = 3;  // module truncation error (0:Row/Column error, 18:Truncated event)
               if (bit == 1)                            error_type = 4;  // ROD truncation error    (1:Limit error)
               if (bit == 5)                            error_type = 5;  // optical error           (5:Preable error)
