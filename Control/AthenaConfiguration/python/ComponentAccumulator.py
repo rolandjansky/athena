@@ -348,7 +348,9 @@ class ComponentAccumulator(object):
                 elif isinstance (other,ConfigurableService):
                     self.addService(other)
                 elif isinstance(other,ConfigurableAlgorithm):
-                    self.addAlgorithm(other)
+                    self.addEventAlgorithm(other)
+                    #FIXME: At this point we can't distingush event algos from conditions algos.
+                    #Might become possible with new Gaudi configurables
                 elif isinstance(other,ConfigurableAlgTool):
                     self.addPublicTool(other)
                 else:
