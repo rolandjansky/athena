@@ -4,8 +4,6 @@
 # scripts in this directory.
 #
 
-_time_="/usr/bin/time -f time::\t%C::\treal:\t%E\tuser:\t%U\tsys:\t%S\n "
-
 # Function printing the usage information for the script
 usage() {
     echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a] [-x] [-N]"
@@ -114,7 +112,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    { $_time_ cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    { time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         ${EXTRACMAKE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthSimulationSrcDir}; } 2>&1 | tee cmake_config.log
@@ -134,17 +132,17 @@ if [ -n "$EXE_MAKE" ]; then
     # the build_env.sh script.
     rm -f ${platform}/share/clid.db
     # Build the project.
-    { $_time_ ${BUILDTOOL}; } 2>&1 | tee cmake_build.log
+    { time ${BUILDTOOL}; } 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    { $_time_ DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE}; } \
+    { time DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE}; } \
 	 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    { $_time_ cpack; } 2>&1 | tee cmake_cpack.log
+    { time cpack; } 2>&1 | tee cmake_cpack.log
     cp AthSimulation*.rpm ${BUILDDIR}/
 fi
