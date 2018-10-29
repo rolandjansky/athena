@@ -456,7 +456,7 @@ class TileROD_Decoder: public AthAlgTool {
     bool m_suppressDummyFragments;
     // next three are needed to handle automatic conversion digits->channels->cells,
     // when HLT request for cells, and finds only digits.
-    TileRawChannelBuilder* m_RCBuilder;
+    //TileRawChannelBuilder* m_RCBuilder;
     std::string m_TileDefaultChannelBuilder;
     bool m_calibrateEnergy;
     // next two are needed to handle automatic conversion channels->cells,

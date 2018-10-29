@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEvent/TileCell.h"
@@ -180,12 +180,12 @@ StatusCode TileROD_Decoder::initialize() {
   CHECK( m_tileToolEmscale.retrieve() );
  
   // Get Tool to TileChannelBuilder, to be used to convert automatically digits->channels.
-  ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
-  ListItem algRC(m_TileDefaultChannelBuilder);
-  CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
+  //ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
+  //ListItem algRC(m_TileDefaultChannelBuilder);
+  //CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
   
-  ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
-  CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
+  //ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
+  //CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
   
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
