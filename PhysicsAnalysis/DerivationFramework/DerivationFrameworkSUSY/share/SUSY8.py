@@ -1,6 +1,6 @@
 #====================================================================
 # Derivation targeting searches for charged stable massive particles
-# reductionConf flag SUSY8 in Reco_tf.py    
+# reductionConf flag SUSY8 in Reco_tf.py
 #====================================================================
 
 from AthenaCommon import Logging
@@ -159,7 +159,7 @@ ToolSvc += SUSY8_TrackParticleCaloCellDecorator
 AugmentationTools.append(SUSY8_TrackParticleCaloCellDecorator)
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -193,7 +193,7 @@ SeqSUSY8 += CfgMgr.DerivationFramework__DerivationKernel(
   ThinningTools = thinningTools)
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
@@ -239,7 +239,7 @@ SUSY8SlimmingHelper.AllVariables = [
 SUSY8SlimmingHelper.ExtraVariables = [
   "Muons.CaloLRLikelihood.CaloMuonIDTag.charge.InnerDetectorPt.MuonSpectrometerPt.ptcone20.ptcone30.quality",
   "Photons.author.Loose.Tight",
-  "AntiKt4EMTopoJets.NumTrkPt500.NumTrkPt1000.TrackWidthPt1000",
+  "AntiKt4EMTopoJets.NumTrkPt500.NumTrkPt1000.TrackWidthPt1000.DFCommonJets_jetClean_VeryLooseBadLLP",
   "InDetTrackParticles.numberOfIBLOverflowsdEdx.numberOfPixelSplitHits.numberOfUsedHitsdEdx.pixeldEdx.SUSY8_CaloCelldEta.SUSY8_CaloCelldPhi.SUSY8_CaloCelldR.SUSY8_CaloCelldX.SUSY8_CaloCelldY.SUSY8_CaloCelldZ.SUSY8_CaloCellE.SUSY8_CaloCellEta.SUSY8_CaloCellGain.SUSY8_CaloCellID.SUSY8_CaloCellPhi.SUSY8_CaloCellProvenance.SUSY8_CaloCellQuality.SUSY8_CaloCellR.SUSY8_CaloCellSampling.SUSY8_CaloCellTime.SUSY8_CaloCellX.SUSY8_CaloCellY.SUSY8_CaloCellZ.TRTdEdx.TRTdEdxUsedHits.truthOrigin.truthType",
   # "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",

@@ -1,6 +1,6 @@
 #********************************************************************
-# SUSY4.py 
-# reductionConf flag SUSY4 in Reco_tf.py   
+# SUSY4.py
+# reductionConf flag SUSY4 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -38,7 +38,7 @@ SUSY4ThinningHelper.AppendToStream( SUSY4Stream )
 
 
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
 
 # B.M.: likely not used
@@ -128,9 +128,9 @@ if DerivationFrameworkIsMonteCarlo:
   AugmentationTools.append(SUSY4TRUTH3SherpaMETool)
 
 
-	
+
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
 # now done in ExtendedJetCommon
@@ -162,7 +162,7 @@ ToolSvc += SUSY4SkimmingTool
 from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
 
 #====================================================================
-# ISOLATION TOOL 
+# ISOLATION TOOL
 #====================================================================
 #Track selection
 from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
@@ -202,7 +202,7 @@ AugmentationTools.append(Pt1000IsoTrackDecorator)
 AugmentationTools.append(Pt500IsoTrackDecorator)
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -214,12 +214,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY4 += CfgMgr.DerivationFramework__DerivationKernel("SUSY4KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY4")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 #==============================================================================
@@ -292,7 +292,7 @@ SeqSUSY4 += CfgMgr.DerivationFramework__DerivationKernel(
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 # This might be the kind of set-up one would have for a muon based analysis
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
@@ -303,7 +303,7 @@ SUSY4SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "Electrons.Loose.Medium.Tight",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                       "Photons.author.Loose.Tight",
-                                      "AntiKt4EMTopoJets.JvtJvfcorr.JvtRpt.Jvt.TruthLabelID.BchCorrCell.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000.TrackWidthPt1000.TrackWidthPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
+                                      "AntiKt4EMTopoJets.JvtJvfcorr.JvtRpt.Jvt.TruthLabelID.BchCorrCell.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000.TrackWidthPt1000.TrackWidthPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "AntiKt4EMPFlowJets.JvtJvfcorr.JvtRpt.Jvt.BchCorrCell.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000.TrackWidthPt1000.TrackWidthPt500",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
                                       "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -319,7 +319,7 @@ SUSY4SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "AntiKt10LCTopoJets.GhostTQuarksFinal.GhostTQuarksFinalCount.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostWBosons.GhostWBosonsCount.GhostZBosons.GhostZBosonsCount.GhostHBosons.GhostHBosonsCount"]
 SUSY4SlimmingHelper.IncludeMuonTriggerContent   = False
 SUSY4SlimmingHelper.IncludeEGammaTriggerContent = False
-SUSY4SlimmingHelper.IncludeBPhysTriggerContent  = False 
+SUSY4SlimmingHelper.IncludeBPhysTriggerContent  = False
 SUSY4SlimmingHelper.IncludeJetTriggerContent    = False
 SUSY4SlimmingHelper.IncludeTauTriggerContent    = False
 SUSY4SlimmingHelper.IncludeEtMissTriggerContent = False
@@ -336,6 +336,6 @@ SUSY4SlimmingHelper.AppendToDictionary = {'AntiKt10LCTopoTrimmedPtFrac5SmallR20J
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY4SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson", "SUSY4TRUTHSherpaME"] 
+  SUSY4SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson", "SUSY4TRUTHSherpaME"]
 
 SUSY4SlimmingHelper.AppendContentToStream(SUSY4Stream) # AppendContentToStream must always go last

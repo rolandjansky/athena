@@ -1,6 +1,6 @@
 #********************************************************************
 # SUSY12.py
-# reductionConf flag SUSY12 in Reco_tf.py  
+# reductionConf flag SUSY12 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -13,7 +13,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
- 
+
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY12Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_SUSY12Stream )
@@ -210,17 +210,17 @@ expression_lep = "(" + count_ele_soft + " + " + count_muon_soft + " >= 2 && " + 
 expression_leptrig = "(" + expression_trigger_lep + " && " + expression_lep + ")"
 
 expression_trigger_photon = "(" + " || ".join(triggers_photon) + ")"
-expression_photon = "(" + count_photon_hard + " >= 1 && " + count_jet_soft + " >= 1)" 
+expression_photon = "(" + count_photon_hard + " >= 1 && " + count_jet_soft + " >= 1)"
 expression_photontrig = "(" + expression_trigger_photon + " && " + expression_photon + ")"
 
-expression = expression_jeteletrig + " || " + expression_leptrig + " || " + expression_photontrig 
+expression = expression_jeteletrig + " || " + expression_leptrig + " || " + expression_photontrig
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY12SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY12SkimmingTool", expression = expression)
 ToolSvc += SUSY12SkimmingTool
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM  
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -232,12 +232,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY12 += CfgMgr.DerivationFramework__DerivationKernel("SUSY12KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY12")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -283,7 +283,7 @@ SeqSUSY12 += CfgMgr.DerivationFramework__DerivationKernel(
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 # About SmartCollections and AllVariables:
 #   If you want to use CP tools on a container, you MUST include that container as a SmartCollection.
@@ -292,15 +292,15 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY12SlimmingHelper = SlimmingHelper("SUSY12SlimmingHelper")
 
 SUSY12SlimmingHelper.SmartCollections = [
-                                         "AntiKt4EMTopoJets", 
+                                         "AntiKt4EMTopoJets",
                                          #"AntiKt4EMPFlowJets",
                                          #"AntiKt4LCTopoJets",
                                          "Electrons",
                                          "Photons",
                                          "Muons",
                                          "TauJets",
-                                         "PrimaryVertices", 
-                                         "MET_Reference_AntiKt4EMTopo", 
+                                         "PrimaryVertices",
+                                         "MET_Reference_AntiKt4EMTopo",
                                          "BTagging_AntiKt4EMTopo",
                                          "InDetTrackParticles"
                                          ] #,  "BTagging_AntiKt4Track"
@@ -313,19 +313,20 @@ SUSY12SlimmingHelper.AllVariables = [
                                      #"MET_LocHadTopo",
                                      #"TopoClusterIsoCentralEventShape",
                                      #"CaloCalTopoClusters"
-                                     ] 
+                                     ]
 
 if DerivationFrameworkIsMonteCarlo:
-    
+
     SUSY12SlimmingHelper.AllVariables += [
                                      "MET_Truth",
-                                     "TruthEvents", 
+                                     "TruthEvents",
                                      "TruthVertices"
                                      ]
 
 SUSY12SlimmingHelper.ExtraVariables = [
                                        "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelID.Width.HadronConeExclTruthLabelID.PartonTruthLabelID.N90Constituents.Charge",
                                        "AntiKt4PV0TrackJets.eta.m.phi.pt.Width",
+                                       "AntiKt4EMTopoJets.DFCommonJets_jetClean_VeryLooseBadLLP",
                                        "CaloCalTopoClusters.calEta.calPhi.calE.calM",
                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink",
                                        "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
@@ -366,6 +367,6 @@ if DerivationFrameworkIsMonteCarlo:
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
-  SUSY12SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthTop", "TruthBSM", "TruthBoson"]   
+  SUSY12SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthTop", "TruthBSM", "TruthBoson"]
 
 SUSY12SlimmingHelper.AppendContentToStream(SUSY12Stream)

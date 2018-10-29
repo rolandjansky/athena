@@ -1,6 +1,6 @@
 #********************************************************************
 # SUSY15.py
-# reductionConf flag SUSY15 in Reco_tf.py  
+# reductionConf flag SUSY15 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -108,23 +108,23 @@ doDissolvedVertexing = False
 
 #------------------------------------------------------------------------------
 if doDissolvedVertexing:
-  
+
   for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
     randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
     vsi        = VrtSecInclusive("VrtSecInclusive_Random_" + suffix)
-    
+
     randomizer.outputContainerName = suffix
     randomizer.shuffleStrength = sigma
-    
+
     setupVSI( vsi )
     vsi.TrackLocation           = "InDetTrackParticlesRandomized" + suffix
     vsi.AugmentingVersionString = "_Randomized" + suffix
     vsi.VertexFitterTool        = InclusiveVxFitterTool
     vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
-    
+
     SeqSUSY15 += randomizer
     SeqSUSY15 += vsi
-        
+
   MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
                                                   'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
                                                   'xAOD::VertexContainer#VrtSecInclusive*',
@@ -204,14 +204,14 @@ thinningTools.append(SUSY15TauTPThinningTool)
 #====================================================================
 # THINNING FOR RANDOMIZED TRACKS
 #====================================================================
-# Set up your thinning tools (you can have as many as you need). 
+# Set up your thinning tools (you can have as many as you need).
 # Note how the thinning service (which must be passed to the tools) is accessed
 
 
 if doDissolvedVertexing:
-  
+
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VsiTrackThinningTool
-  
+
   #-----
   SUSY15ThinningTools = []
   for suffix in TrackRandomizingSuffices:
@@ -272,7 +272,7 @@ if DerivationFrameworkIsMonteCarlo:
   from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValTruthDecoratorTool
   IDPV_TruthDecoratorTool = InDetPhysValTruthDecoratorTool()
   ToolSvc += IDPV_TruthDecoratorTool
-  # --- and the augmentation tool 
+  # --- and the augmentation tool
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles as TrkParam4TruthPart
   TrkParam4Truth = TrkParam4TruthPart(
                                       name="TrkParam4Truth",
@@ -284,7 +284,7 @@ if DerivationFrameworkIsMonteCarlo:
   #ToolSvc += TrkParam4Truth
   #AugmentationTools.append(TrkParam4Truth)
 
-  
+
   from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
   TruthJetKinematicsToolRHadron = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsRHadron",
     OutputContainer = "AntiKt4LLP_RHadronTruthJets",
@@ -324,7 +324,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #=============================================================================================
-# SKIMMING - skimming on triggers listed in python/SUSY15TriggerList.py 
+# SKIMMING - skimming on triggers listed in python/SUSY15TriggerList.py
 #=============================================================================================
 
 expression_trigger = "(" + " || ".join(triggers) + ")"
@@ -341,7 +341,7 @@ ToolSvc += SUSY15SkimmingTool
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM  
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -354,12 +354,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel("SUSY15KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY15")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -455,7 +455,7 @@ SUSY15SlimmingHelper.AllVariables = [
 
 SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                         "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
-					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing",
+					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
 					"GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY",
 					"InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY.radiusOfFirstHit",
 					"CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -497,7 +497,7 @@ if DerivationFrameworkIsMonteCarlo:
                                              'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
-  SUSY15SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
+
+  SUSY15SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 SUSY15SlimmingHelper.AppendContentToStream(SUSY15Stream)

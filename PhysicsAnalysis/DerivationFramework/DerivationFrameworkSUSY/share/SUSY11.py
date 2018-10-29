@@ -92,7 +92,7 @@ if DerivationFrameworkIsMonteCarlo:
   truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))"		# Leptons
 
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-  SUSY11TruthThinningTool = DerivationFramework__GenericTruthThinning( 
+  SUSY11TruthThinningTool = DerivationFramework__GenericTruthThinning(
                       name                         = "SUSY11TruthThinningTool",
                       ThinningService	             = SUSY11ThinningHelper.ThinningSvc(),
                       ParticleSelectionString      = truth_cond_Lepton,
@@ -136,12 +136,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY11 += CfgMgr.DerivationFramework__DerivationKernel("SUSY11KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY11")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -205,7 +205,7 @@ SUSY11SlimmingHelper.SmartCollections = ["Electrons", "Photons", "MET_Reference_
 SUSY11SlimmingHelper.AllVariables = [ "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                        "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
-                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width",
+                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
                                        "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
                                        "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                        "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -226,7 +226,7 @@ SUSY11SlimmingHelper.IncludeEGammaTriggerContent = False
 SUSY11SlimmingHelper.IncludeJetTriggerContent = True
 SUSY11SlimmingHelper.IncludeTauTriggerContent = True
 SUSY11SlimmingHelper.IncludeEtMissTriggerContent = False
-SUSY11SlimmingHelper.IncludeBJetTriggerContent = False 
+SUSY11SlimmingHelper.IncludeBJetTriggerContent = False
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
@@ -236,7 +236,7 @@ if DerivationFrameworkIsMonteCarlo:
 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
+
   SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 #SUSY11Stream.RemoveItem("xAOD::TrigNavigation#*")

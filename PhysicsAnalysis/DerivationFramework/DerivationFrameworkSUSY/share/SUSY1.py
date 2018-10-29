@@ -1,6 +1,6 @@
 #********************************************************************
-# SUSY1.py 
-# reductionConf flag SUSY1 in Reco_tf.py   
+# SUSY1.py
+# reductionConf flag SUSY1 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -44,7 +44,7 @@ SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 
 
 #====================================================================
-# THINNING TOOL 
+# THINNING TOOL
 #====================================================================\
 
 #from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
@@ -209,7 +209,7 @@ ToolSvc += SUSY1SkimmingTool
 from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
 
 #====================================================================
-# ISOLATION TOOL 
+# ISOLATION TOOL
 #====================================================================
 #Track selection
 from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
@@ -249,7 +249,7 @@ AugmentationTools.append(Pt1000IsoTrackDecorator)
 AugmentationTools.append(Pt500IsoTrackDecorator)
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 # now done in ExtendedJetCommon
 #applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY1) # default: sequence=DerivationFrameworkJob
@@ -329,10 +329,10 @@ addVRJets(SeqSUSY1)
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 # About SmartCollections and AllVariables:
-#   If you want to use CP tools on a container, you MUST include that container as a SmartCollection. 
+#   If you want to use CP tools on a container, you MUST include that container as a SmartCollection.
 #   You are then free to include it as AllVariables in addition, to pick up variables not needed by the CP tools but needed by your analysis.
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY1SlimmingHelper = SlimmingHelper("SUSY1SlimmingHelper")
@@ -359,22 +359,22 @@ SUSY1SlimmingHelper.AllVariables = [
   "MET_Track"
 ]
 SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
-				      "Photons.author.Loose.Tight",
-				      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing",
+				                              "Photons.author.Loose.Tight",
+				                              "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
                                       "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
-              "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
+                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
                                       # TODO: .DFCommonJets_Jvt",
-				      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
-				      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-				      "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-				      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
-				      "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-				      "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
+				                              "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
+				                              "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+				                              "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+				                              "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
+				                              "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
+				                              "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                                       "InDetTrackParticles.TrkIsoPt1000_ptcone20.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone40.TrkIsoPt500_ptcone20.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone40",
                                       "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB",
                                       "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
-                                    ]	      
+                                    ]
 
 SUSY1SlimmingHelper.IncludeMuonTriggerContent   = True
 SUSY1SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -385,7 +385,7 @@ SUSY1SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
 
 appendToDictDict = {
-  "BTagging_AntiKt4EMPFlow":"xAOD::BTaggingContainer", 
+  "BTagging_AntiKt4EMPFlow":"xAOD::BTaggingContainer",
   "BTagging_AntiKt4EMPFlowAux":"xAOD::BTaggingAuxContainer",
   "AntiKtVR30Rmax4Rmin02TrackJets" : "xAOD::JetContainer" ,
   "AntiKtVR30Rmax4Rmin02TrackJetsAux" : "xAOD::JetAuxContainer" ,
@@ -403,7 +403,7 @@ if DerivationFrameworkIsMonteCarlo:
 
   appendToDictDict['TruthBoson']='xAOD::TruthParticleContainer';
   appendToDictDict['TruthBosonAux']='xAOD::TruthParticleAuxContainer'
-  
+
   # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
   SUSY1SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
