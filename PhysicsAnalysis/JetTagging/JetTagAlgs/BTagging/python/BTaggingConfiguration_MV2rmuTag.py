@@ -1,27 +1,28 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-# Configuration functions for MV2c10FlipTag
+# Configuration functions for MV2c10Tag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMV2c10FlipTag = { 'IsATagger'          : False,#True,
-                  'xAODBaseName'       : 'MV2c10Flip',
+metaMV2rmuTag = { 'IsATagger'          : False,#True,
+                  'xAODBaseName'       : 'MV2rmu',
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
+                                          'SoftMuonTag',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c10',],
+                  'CalibrationFolders' : ['MV2rmu',],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-                  'ToolCollection'     : 'MV2c10FlipTag'}
+                  'ToolCollection'     : 'MV2rmuTag'}
 
-def toolMV2c10FlipTag(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a MV2c10Tag tool and returns it.
+def toolMV2rmuTag(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a MV2rmuTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "MV2c10Flip"
-    taggerNameBase                      default: "MV2c10"
+    taggerName                          default: "MV2rmu"
+    taggerNameBase                      default: "MV2rmu"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
     MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
 
@@ -32,11 +33,12 @@ def toolMV2c10FlipTag(name, useBTagFlagsDefaults = True, **options):
     from BTagging.MV2defaultValues import default_values
     from BTagging.MV2defaultValues import MVTM_varNames
 
+
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'taggerName'                       : 'MV2c10Flip',
-                     'taggerNameBase'                   : 'MV2c10',
+                     'taggerName'                       : 'MV2rmu',
+                     'taggerNameBase'                   : 'MV2rmu',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
                      'defaultvals'                      : default_values,

@@ -37,6 +37,9 @@
 #include <map>
 #include <list>
 #include <math.h>       /* hypot */
+#include <iostream>
+#include <sstream>
+
 
 using Athena::Units::GeV;
 
@@ -296,6 +299,7 @@ namespace Analysis {
   SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,*m_inputPointers);
 
 
+
    ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<m_inputPointers->size() );
 
@@ -305,9 +309,15 @@ namespace Analysis {
 	  return;
 	}
 
+
+
 	//tmvaReader->BookMVA("BDT", xmlFileName);
 	TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, str.data() );
 	kl = dynamic_cast<TMVA::MethodBase*>(method);
+
+
+
+
 
 	// add it or overwrite it in the map of readers:
 	pos = m_tmvaReaders.find(alias);
@@ -345,6 +355,8 @@ namespace Analysis {
   CreateLocalVariables( inputs );
 
   SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,*m_inputPointers);
+
+
 
   ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<m_inputPointers->size() );
@@ -390,7 +402,7 @@ namespace Analysis {
       } else {
         it_mb = m_tmvaMethod.find(alias);
         if( (it_mb->second)!=0 ){
-          if(m_taggerNameBase.find("MV2c")!=std::string::npos) mv2 = pos->second->EvaluateMVA( it_mb->second );//this gives back double
+          if(m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) mv2 = pos->second->EvaluateMVA( it_mb->second );//this gives back double
           else {
             std::vector<float> outputs= pos->second->EvaluateMulticlass( it_mb->second );//this gives back float
             if (outputs.size()==m_nClasses){
@@ -417,7 +429,7 @@ namespace Analysis {
         
 	it_egammaBDT->second->SetPointers(*m_inputPointers);
 
-	if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
+	if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
 	        else { //if it is MV2m
       	    std::vector<float> outputs= GetMulticlassResponse(it_egammaBDT->second);//this gives back float
       	    //vector size is checked in the function above
@@ -428,17 +440,18 @@ namespace Analysis {
       }
     }
 
-    if (m_taggerNameBase.find("MV2c")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
+    if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
     else ATH_MSG_DEBUG("#BTAG# MV2 pb, pu, pc= " << mv2m_pb<<"\t"<<mv2m_pu<<"\t"<<mv2m_pc<<", "<<alias<<", "<<author);
 
     // #4: Fill MVA output variable(s) into xAOD
     /** give information to the info class. */
     if(m_runModus=="analysis") {
 
-      if (m_taggerNameBase.find("MV2c")!=std::string::npos) {
+      if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) {
         //MV2cXX
         BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
-      }else {
+      }
+      else {
         //MV2m
         BTag->setVariable<double>(m_xAODBaseName, "pb", mv2m_pb);
         BTag->setVariable<double>(m_xAODBaseName, "pu", mv2m_pu);
