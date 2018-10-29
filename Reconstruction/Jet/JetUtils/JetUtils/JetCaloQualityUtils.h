@@ -18,7 +18,8 @@
 
 #include "JetUtils/JetCaloCalculations.h"
 #include "xAODJet/Jet.h"
-#include "xAODJet/JetAttributes.h"
+#include <vector>
+//#include "xAODJet/JetAttributes.h"
 
 
 namespace jet {
@@ -83,8 +84,8 @@ namespace jet {
   class JetCalcnLeadingCells: virtual public JetCaloCalculator {
   protected:
     std::vector<double> m_cell_energies;
-    double m_sumE_cells;
-    double m_threshold;
+    double m_sumE_cells{};
+    double m_threshold{};
 
     JETCALCFUNCDECL( JetCalcnLeadingCells, JetAttribute::N90Constituents, m_threshold = 0.9;);
   };
@@ -93,7 +94,7 @@ namespace jet {
   /* @brief Compute Out-Of-Time energy fraction */
   class JetCalcOutOfTimeEnergyFraction: virtual public JetCaloCalculator {
   protected:
-    double m_sumE,m_sumE_OOT;
+    double m_sumE{},m_sumE_OOT{};
   public:
     double timecut;
     bool onlyPosEnergy;
@@ -104,7 +105,7 @@ namespace jet {
 
   class JetCalcTimeCells: virtual public JetCaloCalculator {
   protected:
-    double m_time,m_norm;
+    double m_time{},m_norm{};
 
     JETCALCFUNCDECL( JetCalcTimeCells, JetAttribute::Timing, m_norm=0; );
 
@@ -114,7 +115,7 @@ namespace jet {
   /* @brief Compute the jet average quality factor */
   class JetCalcAverageLArQualityF: virtual public JetCaloCalculator {
   protected:  
-    double m_qf,m_norm;
+    double m_qf{},m_norm{};
     bool m_useTile;
     JETCALCFUNCDECL( JetCalcAverageLArQualityF, JetAttribute::AverageLArQF, m_useTile=false; m_norm=0;);
 
@@ -123,7 +124,7 @@ namespace jet {
   /* @brief Compute the jet quality factor information*/
   class JetCalcQuality: virtual public JetCaloCalculator {
   protected:
-    double m_totE, m_badE;
+    double m_totE{}, m_badE{};
 
   public:
     int LArQualityCut;
@@ -152,7 +153,7 @@ namespace jet {
   /* @brief total negative energy in a jet*/
   class JetCalcNegativeEnergy: virtual public JetCaloCalculator {
   protected:
-    double m_totE;
+    double m_totE{};
 
     JETCALCFUNCDECL( JetCalcNegativeEnergy, JetAttribute::NegativeE, m_totE=0; );
   };
@@ -160,7 +161,7 @@ namespace jet {
   /* @brief total negative energy in a jet*/
   class JetCalcCentroid: virtual public JetCaloCalculator {
   protected:
-    double m_totE, m_centroid_x, m_centroid_y, m_centroid_z;
+    double m_totE{}, m_centroid_x{}, m_centroid_y{}, m_centroid_z{};
 
 
     JETCALCFUNCDECL( JetCalcCentroid, JetAttribute::CentroidR, m_totE=0; );
@@ -169,8 +170,8 @@ namespace jet {
   /// Fraction of Bad energy in jet. From cluster moment ENG_BAD_CELLS
   class JetCalcBadCellsFrac : virtual public JetCaloCalculator {
   protected:
-    double m_totE;
-    double m_badE;
+    double m_totE{};
+    double m_badE{};
     JETCALCFUNCDECL( JetCalcBadCellsFrac, JetAttribute::BchCorrCell, setName("BchCorrCell"););
     
   };
