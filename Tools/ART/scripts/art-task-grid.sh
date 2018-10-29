@@ -5,9 +5,9 @@
 #
 # Example command lines for three types:
 #
-# art-task-grid.sh [--no-action] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_type> <number_of_tests>
+# art-task-grid.sh [--no-action --run-all-tests] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_type> <number_of_tests>
 #
-# art-task-grid.sh [--no-action] single [--inds <input_file> --n-files <number_of_files> --split <split>] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_name>
+# art-task-grid.sh [--no-action --run-all-tests] single [--inds <input_file> --n-files <number_of_files> --split <split>] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_name>
 #
 # env: ART_GRID_OPTIONS
 #
@@ -25,6 +25,13 @@ if [ "$1" == "--no-action" ]; then
     NO_ACTION=1
     shift
     echo "NO_ACTION=${NO_ACTION}"
+fi
+
+RUN_ALL_TESTS=""
+if [ "$1" == "--run-all-tests" ]; then
+    RUN_ALL_TESTS="--run-all-tests"
+    shift
+    echo "RUN_ALL_TESTS=${RUN_ALL_TESTS}"
 fi
 
 TYPE=$1
@@ -122,7 +129,7 @@ case ${TYPE} in
         echo "JOB_TYPE=${JOB_TYPE}"
 
         NUMBER_OF_TESTS=$1
-        SPLIT="--split ${NUMBER_OF_TESTS}"
+        SPLIT="--split ${NUMBER_OF_TESTS} --nEventsPerJob 1"
         shift
         echo "NUMBER_OF_TESTS=${NUMBER_OF_TESTS}"
         echo "SPLIT=${SPLIT}"
@@ -149,7 +156,7 @@ case ${TYPE} in
     'batch')
         # <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
         INTERNAL_COMMAND="grid batch"
-        JOB_INDEX="%RNDM:0"
+        JOB_INDEX="%FIRSTEVENT:0"
         ARGS="${JOB_TYPE} ${JOB_INDEX}"
         echo "JOB_INDEX=${JOB_INDEX}"
         echo "ARGS=${ARGS}"
@@ -167,7 +174,7 @@ esac
 
 # NOTE: for art-internal.py the current dir can be used as it is copied there
 cd "${SUBMIT_DIRECTORY}"/"${PACKAGE}"/run
-SUBCOMMAND="./art-internal.py ${INTERNAL_COMMAND} ${IN_FILE} ${SCRIPT_DIRECTORY} ${SEQUENCE_TAG} ${PACKAGE} ${OUT} ${INFORM_PANDA} ${ARGS}"
+SUBCOMMAND="./art-internal.py ${INTERNAL_COMMAND} ${RUN_ALL_TESTS} ${IN_FILE} ${SCRIPT_DIRECTORY} ${SEQUENCE_TAG} ${PACKAGE} ${OUT} ${INFORM_PANDA} ${ARGS}"
 CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json"
 
 #--disableAutoRetry
