@@ -152,14 +152,16 @@ jhm.addTool( HIJetUEMonitoring("centrality",
                                HistoDef = [
             hdef('FCalET', "FCalET; FCal ET [TeV]; entries",50,0,10),
             hdef('SubtractedET_Centrality', "UnsubScMomentum-SubScMomentum vs FCalET; FCal ET [TeV]; SubtractedET [GeV]",50,0,10),
-            hdef('2dSubtractedET_Centrality', "UnsubScMomentum-SubScMomentum vs FCalET; FCal ET [TeV]; SubtractedET [GeV]",50,0,10,40,0,200 ),
+            hdef('2dSubtractedET_Centrality', "UnsubScMomentum-SubScMomentum vs FCalET; FCal ET [TeV]; SubtractedET [GeV]",50,0,10,50,0,250 ),
+
+            hdef('2dSubtractedET_pT', "UnsubScMomentum-SubScMomentum vs pT; jet pT [GeV]; SubtractedET [GeV]",100,0,1000,50,0,250 ),
             
             hdef('2dSubtractedET_Expected_Centrality', "(UnsubScMomentum-SubScMomentum)/Expected vs FCalET; FCal ET [TeV]; (A^{Jet}/A^{FCal})xSubtractedET/FCalET",50,0,10,100,0,5 ),
 
             hdef('2dSubtractedET_Expected_eta', "(UnsubScMomentum-SubScMomentum)/Expected vs #eta; #eta; (A^{Jet}/A^{FCal})xSubtractedET/FCalET",50,-6,6,100,0,5 ),
             hdef('SubtractedET_Expected_eta', "(UnsubScMomentum-SubScMomentum)/Expected vs #eta; #eta; (A^{Jet}/A^{FCal})xSubtractedET/FCalET",50,-6,6 ),
 
-            hdef('2dSubtractedET_2Dphi', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}|; 2|#phi-#Psi_{2}|; SubtractedET [GeV]",25,0,3.3, 40,0,200 ),
+            hdef('2dSubtractedET_2Dphi', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}|; 2|#phi-#Psi_{2}|; SubtractedET [GeV]",25,0,3.3, 50,0,250 ),
 
             hdef('SubtractedET_eta', "UnsubScMomentum-SubScMomentum vs #eta; #eta; SubtractedET [GeV]",50,-6,6 ),
             hdef('SubtractedET_pt', "UnsubScMomentum-SubScMomentum vs p_{T}; p_{T} [GeV]; SubtractedET [GeV]",100,0,1000 ),
