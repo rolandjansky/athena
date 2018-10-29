@@ -21,7 +21,7 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},
-  m_sctId{nullptr},
+  m_sctID{nullptr},
   m_rdoContainerCacheKey{""}
 {
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
@@ -29,11 +29,12 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
 
 // Initialize
 
-StatusCode SCTRawDataProvider::initialize() {
+StatusCode SCTRawDataProvider::initialize()
+{
   // Get ROBDataProviderSvc
   ATH_CHECK(m_robDataProvider.retrieve());
   // Get the SCT ID helper
-  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_sctID, "SCT_ID"));
   if (m_roiSeeded.value()) {
     // Don't need SCT cabling if running in RoI-seeded mode
     ATH_CHECK(m_roiCollectionKey.initialize());
@@ -47,7 +48,7 @@ StatusCode SCTRawDataProvider::initialize() {
   //Initialize 
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_lvl1CollectionKey.initialize());
-  ATH_CHECK(m_bcIdCollectionKey.initialize());
+  ATH_CHECK(m_bcIDCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
   ATH_CHECK(m_bsFracContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
@@ -63,16 +64,15 @@ typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawD
 
 StatusCode SCTRawDataProvider::execute()
 {
-
   m_rawDataTool->beginNewEvent();
 
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
   bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
-  if (!externalCacheRDO){
-    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctId->wafer_hash_max())));
-    ATH_MSG_DEBUG("Created container for " << m_sctId->wafer_hash_max());
+  if (!externalCacheRDO) {
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max())));
+    ATH_MSG_DEBUG("Created container for " << m_sctID->wafer_hash_max());
   }
-  else{
+  else {
     SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey);
     ATH_CHECK(update.isValid());
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(update.ptr())));
@@ -115,27 +115,25 @@ StatusCode SCTRawDataProvider::execute()
   lvl1Collection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
   ATH_CHECK(lvl1Collection.isValid());
 
-  SG::WriteHandle<InDetTimeCollection> bcIdCollection{m_bcIdCollectionKey};
-  bcIdCollection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
-  ATH_CHECK(bcIdCollection.isValid());
+  SG::WriteHandle<InDetTimeCollection> bcIDCollection{m_bcIDCollectionKey};
+  bcIDCollection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
+  ATH_CHECK(bcIDCollection.isValid());
 
   for (const ROBFragment* robFrag : vecROBFrags) {
-    
-    uint32_t robId{(robFrag)->rod_source_id()};
     // Store LVL1ID and BCID information in InDetTimeCollection 
     // to be stored in StoreGate at the end of the loop.
     // We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
+    uint32_t robID{(robFrag)->rod_source_id()};
     
-    unsigned int lvl1Id{(robFrag)->rod_lvl1_id()};
-    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robId, lvl1Id)};
+    unsigned int lvl1ID{(robFrag)->rod_lvl1_id()};
+    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robID, lvl1ID)};
     lvl1Collection->push_back(std::move(lvl1Pair));
     
-    unsigned int bcId{(robFrag)->rod_bc_id()};
-    auto bcIdPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robId, bcId)};
-    bcIdCollection->push_back(std::move(bcIdPair));
+    unsigned int bcID{(robFrag)->rod_bc_id()};
+    auto bcIDPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robID, bcID)};
+    bcIDCollection->push_back(std::move(bcIDPair));
     
-    ATH_MSG_DEBUG("Stored LVL1ID " << lvl1Id << " and BCID " << bcId << " in InDetTimeCollections");
-    
+    ATH_MSG_DEBUG("Stored LVL1ID " << lvl1ID << " and BCID " << bcID << " in InDetTimeCollections");
   }
 
   std::unique_ptr<dummySCTRDO_t> dummyRDO;
