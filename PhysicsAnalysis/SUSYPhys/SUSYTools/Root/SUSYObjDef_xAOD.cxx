@@ -120,6 +120,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_treatPUJets(true),
     m_doPhiReso(true),
     m_autoconfigPRW(false),
+    m_autoconfigPRWPath(""),
     m_mcCampaign(""),
     m_prwDataSF(-99.),
     m_prwDataSF_UP(-99.),
@@ -492,6 +493,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //--- Tools configuration
   //PRW
   declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
+  declareProperty( "AutoconfigurePRWToolPath", m_autoconfigPRWPath );
   declareProperty( "mcCampaign",           m_mcCampaign );
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
@@ -744,8 +746,12 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_acc_photonId = m_photonIdDFName;
 
   // autoconfigure PRW tool if m_autoconfigPRW==true
-  ATH_CHECK( autoconfigurePileupRWTool() );
-
+  if (m_autoconfigPRWPath == "dev/PileupReweighting/mc16_13TeV/")
+    ATH_CHECK( autoconfigurePileupRWTool() );
+  else 
+    // need to set a full path if you don't use the one in CVMFS
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false) );
+    
   ATH_CHECK( this->SUSYToolsInit() );
 
   ATH_MSG_VERBOSE("Done with tool retrieval");
@@ -1233,6 +1239,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
+  configFromFile(m_autoconfigPRWPath, "PRW.autoconfigPRWPath", rEnv, "dev/PileupReweighting/mc16_13TeV/"); 
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 

@@ -406,7 +406,7 @@ namespace ST {
   protected:
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/SUSYTools/PRW_AUTOCONFIG_SIM/files/", bool usePathResolver = true);
+    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/mc16_13TeV/", bool usePathResolver = true);
 
     StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
@@ -489,6 +489,7 @@ namespace ST {
     bool m_doPhiReso;
 
     bool m_autoconfigPRW;
+    std::string m_autoconfigPRWPath;
     std::string m_mcCampaign;
 
     std::vector<std::string> m_prwConfFiles;
