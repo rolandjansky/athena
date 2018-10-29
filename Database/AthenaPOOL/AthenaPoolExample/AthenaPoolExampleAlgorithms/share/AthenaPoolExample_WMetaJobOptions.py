@@ -36,8 +36,6 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 #Explicitly specify the output file catalog
 svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalog2.xml"
 
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1", "ROOTTREE:SimplePoolFile5.root", noTag=True )
 Stream1.ItemList += [ "ExampleHitContainer#MyHits" ]

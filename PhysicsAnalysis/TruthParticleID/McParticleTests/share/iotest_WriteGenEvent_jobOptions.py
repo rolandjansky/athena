@@ -105,9 +105,6 @@ if not 'OUTPUT' in dir():
   pass
 outStream.OutputFile = OUTPUT
 
-## tweak the default commit interval
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 100
-
 svcMgr.MessageSvc.defaultLimit = 4000000
 svcMgr.MessageSvc.OutputLevel  = INFO
 

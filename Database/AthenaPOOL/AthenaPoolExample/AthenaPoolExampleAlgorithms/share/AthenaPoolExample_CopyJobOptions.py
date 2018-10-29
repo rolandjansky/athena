@@ -63,10 +63,6 @@ from PoolSvc.PoolSvcConf import PoolSvc
 svcMgr += PoolSvc()
 svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalog1.xml"
 
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-svcMgr += AthenaPoolCnvSvc()
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------

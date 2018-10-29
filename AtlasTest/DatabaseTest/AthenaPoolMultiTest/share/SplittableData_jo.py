@@ -83,7 +83,6 @@ svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:SplittableData.xml"
 
 from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
 svcMgr += AthenaPoolCnvSvc()
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 
 include( "AthenaPoolMultiTest/ExampleStreamConfig.py" )
 
