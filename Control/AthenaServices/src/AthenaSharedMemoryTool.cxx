@@ -39,6 +39,7 @@ AthenaSharedMemoryTool::AthenaSharedMemoryTool(const std::string& type,
 		m_dataClients(),
 		m_payload(nullptr),
 		m_status(nullptr),
+		m_decompressionBuffer(nullptr),
 		m_fileSeqNumber(0),
 		m_isServer(false),
 		m_isClient(false),
@@ -269,10 +270,6 @@ StatusCode AthenaSharedMemoryTool::lockEvent(long eventNumber) const {
 
 //___________________________________________________________________________
 StatusCode AthenaSharedMemoryTool::putObject(const void* source, size_t nbytes, int num) const {
-   if (nbytes > m_maxSize) {
-      ATH_MSG_ERROR("Object size = " << nbytes << " greater than maximum for client = " << num);
-      return(StatusCode::FAILURE);
-   }
    void* status = static_cast<char*>(m_status->get_address()) + num * sizeof(ShareEventHeader);
    ShareEventHeader* evtH = static_cast<ShareEventHeader*>(status);
    ShareEventHeader::ProcessStatus evtStatus = evtH->evtProcessStatus; // read only once
@@ -287,18 +284,33 @@ StatusCode AthenaSharedMemoryTool::putObject(const void* source, size_t nbytes, 
       m_status->flush(num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
       evtH->evtProcessStatus = ShareEventHeader::FILLED;
    } else {
-      if (evtH->evtOffset + sizeof(size_t) + nbytes > m_maxSize) {
-         ATH_MSG_ERROR("Object location = " << evtH->evtOffset << " greater than maximum for client = " << num);
-         return(StatusCode::FAILURE);
-      }
-      bool first = (evtH->evtOffset == 0);
-      std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, &nbytes, sizeof(size_t));
-      evtH->evtOffset += sizeof(size_t);
-      std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, source, nbytes);
-      evtH->evtOffset += nbytes;
       if (evtH->evtSize == m_maxSize) {
          evtH->evtSize = evtH->evtOffset;
          evtH->evtProcessStatus = ShareEventHeader::PARTIAL;
+      }
+      bool first = (evtH->evtOffset == 0);
+      Bytef* buf = nullptr;
+      if (evtH->evtOffset + sizeof(size_t) + nbytes > m_maxSize) {
+         uLongf bufSize = m_maxSize - evtH->evtOffset - sizeof(size_t);
+         ATH_MSG_WARNING("Compressing object greater than maximum size = " << nbytes);
+         buf = new Bytef[bufSize];
+         int ret = compress(buf, &bufSize, static_cast<const Bytef*>(source), nbytes);
+         if (ret != Z_OK) {
+            ATH_MSG_ERROR("deflate failed: " << ret << ", with " << bufSize);
+            return(StatusCode::FAILURE);
+         }
+         ATH_MSG_DEBUG("Object location = " << evtH->evtOffset << " compressed size = " << bufSize);
+         nbytes = bufSize + m_maxSize;
+      }
+      std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, &nbytes, sizeof(size_t));
+      evtH->evtOffset += sizeof(size_t);
+      if (buf != nullptr) nbytes -= m_maxSize;
+      std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, (buf != nullptr) ? buf : source, nbytes);
+      delete [] buf; buf = nullptr;
+      evtH->evtOffset += nbytes;
+      if (evtH->evtOffset > m_maxSize) {
+         ATH_MSG_ERROR("Object location = " << evtH->evtOffset << " greater than maximum for client = " << num);
+         return(StatusCode::FAILURE);
       }
       if (first) {
          evtH->evtSize = m_maxSize;
@@ -334,10 +346,27 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
       std::memcpy(&nbytes, static_cast<char*>(m_payload->get_address()) + evtH->evtCursor, sizeof(size_t));
       evtH->evtCursor += sizeof(size_t);
       *target = static_cast<char*>(m_payload->get_address()) + evtH->evtCursor;
+      if (nbytes > m_maxSize) {
+         ATH_MSG_WARNING("Object is compressed, size  = " << nbytes - m_maxSize);
+         uLongf bufSize = m_maxSize * 16;
+         if (m_decompressionBuffer == nullptr) {
+            m_decompressionBuffer.reset(new Bytef[bufSize]);
+         }
+         int ret = uncompress(m_decompressionBuffer.get(), &bufSize, static_cast<Bytef*>(*target), nbytes - m_maxSize);
+         if (ret != Z_OK) {
+            ATH_MSG_ERROR("inflate failed: " << ret << ", with " << bufSize);
+            return(StatusCode::FAILURE);
+         }
+         evtH->evtCursor += nbytes - m_maxSize;
+         *target = m_decompressionBuffer.get();
+         nbytes = bufSize;
+         ATH_MSG_DEBUG("Object is de-compressed, size = " << nbytes);
+      } else {
+         evtH->evtCursor += nbytes;
+      }
       if (evtStatus != ShareEventHeader::PARTIAL) {
          evtH->evtProcessStatus = ShareEventHeader::SHARED;
       }
-      evtH->evtCursor += nbytes;
    } else {
       nbytes = 0;
    }

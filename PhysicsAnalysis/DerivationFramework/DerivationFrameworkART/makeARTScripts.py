@@ -1,9 +1,9 @@
 import os
 
 makeDataDAODs=True
-makeMCDAODs=False
+makeMCDAODs=True
 makeTruthDAODs=False
-makeTrains=True
+makeTrains=False
 
 formatList = ['PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
@@ -25,7 +25,8 @@ formatList = ['PHYSVAL',
               'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12', 'BPHY14','BPHY15','BPHY16',
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4',
               'TCAL1',
-              'HION3'
+              'HION3',
+              'SUSY19'
               #'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
 ]
 
@@ -72,7 +73,7 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFile = open(outputFileName,"w")
    outputFile.write("#!/bin/sh"+"\n")
    outputFile.write("\n")
-   outputFile.write("# art-include"+"\n")
+   outputFile.write("# art-include: 21.2/AthDerivation"+"\n")
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
@@ -124,7 +125,8 @@ if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
          if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
-            generateText(formatName,dataLabel,dataFileRPVLL,False,False,"-1")
+            generateText(formatName,dataLabel+"RPVLL",dataFileRPVLL,False,False,"-1")
+            if formatName == "SUSY6": generateText(formatName,dataLabel,dataFile,False,False,"-1") 
          elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
          elif formatName in ['BPHY7']:
@@ -146,7 +148,8 @@ if (makeDataDAODs or makeMCDAODs):
          else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
          if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
-            generateText(formatName,mcLabel,mcFileEXOT23,False,True,"-1")
+            generateText(formatName,mcLabel+"RPVLL",mcFileEXOT23,False,True,"-1")
+            if formatName == "SUSY6":generateText(formatName,mcLabel,mcFile,False,True,"-1") 
          elif formatName=="BPHY3":
             generateText(formatName,mcLabel,mcFile,False,True,"500")
          elif formatName=="BPHY8":

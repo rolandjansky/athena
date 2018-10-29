@@ -174,7 +174,9 @@ TrackParticleCollection         = "InDetTrackParticles",
 MuonsUsedInJpsi			= "Muons",
 TrkVertexFitterTool		= BplKplVertexFit,
 TrackSelectorTool		= BPHY5_VertexTools.InDetTrackSelectorTool,
-UseMassConstraint		= True)
+UseMassConstraint		= True,
+ExcludeCrossJpsiTracks              = False,
+ExcludeJpsiMuonsOnly                = True)
         
 ToolSvc += BPHY5BplJpsiKpl
 print      BPHY5BplJpsiKpl    
@@ -200,7 +202,9 @@ TrackParticleCollection     = "InDetTrackParticles",
 MuonsUsedInJpsi			    = "Muons",
 TrkVertexFitterTool		    = BpipiXVertexFit,
 TrackSelectorTool		    = BPHY5_VertexTools.InDetTrackSelectorTool,
-UseMassConstraint		    = True)
+UseMassConstraint		    = True,
+ExcludeCrossJpsiTracks              = False,
+ExcludeJpsiMuonsOnly                = True)
 
 ToolSvc += BPHY5BJpsipipiX
 print      BPHY5BJpsipipiX

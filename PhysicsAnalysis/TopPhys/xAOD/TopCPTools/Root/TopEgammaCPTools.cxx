@@ -377,20 +377,20 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "ID"){
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "isolation"){
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "trigger"){
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

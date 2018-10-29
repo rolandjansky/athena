@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# art-include
-# art-description: DAOD building SUSY6 data18
+# art-include: 21.2/AthDerivation
+# art-description: DAOD building SUSY6 data18RPVLL
 # art-type: grid
 # art-output: *.pool.root
 # art-output: checkFile.txt
