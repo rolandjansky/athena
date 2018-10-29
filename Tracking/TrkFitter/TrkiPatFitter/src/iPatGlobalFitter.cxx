@@ -34,6 +34,33 @@ namespace Trk
     delete m_derivativeMatrix;
   }
 
+  Track* iPatGlobalFitter::alignmentFit ( AlignmentCache& alignCache,
+  											const Track& trk,
+  											const RunOutlierRemoval  runOutlier,
+  											const ParticleHypothesis matEffects) const
+  {
+    //  @TODO ensure the number of iterations is passed through to the fitter
+  	//setMinIterations (alignCache.m_minIterations);
+    if(alignCache.m_derivMatrix != nullptr)
+  	  delete alignCache.m_derivMatrix;
+  	alignCache.m_derivMatrix = nullptr;
+  
+  	if(alignCache.m_fullCovarianceMatrix != nullptr)
+  	 delete alignCache.m_fullCovarianceMatrix;
+  	alignCache.m_fullCovarianceMatrix =  nullptr;
+    alignCache.m_iterationsOfLastFit = 0;
+  
+  	Trk::Track* refittedTrack  = fit( trk, runOutlier, matEffects );
+  
+    if(refittedTrack){
+  		alignCache.m_derivMatrix = DerivMatrix();
+  	  alignCache.m_fullCovarianceMatrix = FullCovarianceMatrix();
+  	  alignCache.m_iterationsOfLastFit = iterationsOfLastFit();
+  	}
+  	return refittedTrack;
+  }
+
+
   Amg::MatrixX*
   iPatGlobalFitter::DerivMatrix() const {
     // copy derivatives to a new HepMatrix

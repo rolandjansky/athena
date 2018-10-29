@@ -93,7 +93,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   // Retrieve Primary Vertex
   // Right now vertexing is not available. Using dummy vertex at (0,0,0) // TMP
-  const xAOD::VertexContainer *vertexContainer = nullptr; // TMP
   const Amg::Vector3D *primaryVertex = nullptr; // TMP
 
   if ( m_imposeZconstraint ) {

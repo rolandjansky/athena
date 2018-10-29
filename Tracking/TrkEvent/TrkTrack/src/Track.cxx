@@ -138,7 +138,11 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
         if(tsos!=nullptr){
           if(!m_perigeeParameters.isValid()){//should be invalid from above
             //Now will contain a ptr and be valid
-            m_perigeeParameters.store(dynamic_cast<const Trk::Perigee*>( tsos->trackParameters())) ;
+            if (const Trk::Perigee* perigee = 
+                dynamic_cast<const Trk::Perigee*>( tsos->trackParameters()))
+            {
+              m_perigeeParameters.store(perigee);
+            }
           }
         }
       }
@@ -207,7 +211,9 @@ void Trk :: Track :: findPerigee() const
     }
   }
   //set to value and valid
-  m_perigeeParameters.set(tmpPerigeeParameters);
+  if (tmpPerigeeParameters) {
+    m_perigeeParameters.set(tmpPerigeeParameters);
+  }
   return;
 }
 

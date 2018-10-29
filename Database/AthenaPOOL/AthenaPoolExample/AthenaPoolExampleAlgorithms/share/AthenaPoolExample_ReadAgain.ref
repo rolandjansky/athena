@@ -297,7 +297,7 @@ RootDatabase.se...  DEBUG File name SimplePoolReplica1.root
 RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
 RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
 RootDatabase.se...  DEBUG TREE_CACHE_LEARN_EVENTS = 6
-RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG Request tree cache
 RootDatabase.se...  DEBUG File name SimplePoolReplica1.root
 RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
 RootDatabase.se...  DEBUG Using Tree cache. Size: 100000 Nevents to learn with: 6
@@ -2049,7 +2049,7 @@ RootDatabase.se...  DEBUG File name SimplePoolFile4.root
 RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
 RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
 RootDatabase.se...  DEBUG TREE_CACHE_LEARN_EVENTS = 6
-RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG Request tree cache
 RootDatabase.se...  DEBUG File name SimplePoolFile4.root
 RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
 RootDatabase.se...  DEBUG Using Tree cache. Size: 100000 Nevents to learn with: 6

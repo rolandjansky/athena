@@ -12,7 +12,7 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include <stdexcept>
 
-class GeoAlignmentStore final : public GeoVAlignmentStore
+class GeoAlignmentStore : public GeoVAlignmentStore
 {
  public:
   GeoAlignmentStore() {}
