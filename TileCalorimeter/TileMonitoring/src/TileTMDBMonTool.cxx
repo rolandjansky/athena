@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // ********************************************************************
 //
@@ -60,8 +63,6 @@ TileTMDBMonTool::TileTMDBMonTool(const std::string & type, const std::string & n
     declareProperty("SummaryUpdateFrequency", m_summaryUpdateFrequency = 0);
     declareProperty("TileCondToolTMDB", m_tileToolTMDB);
     declareProperty("doAllPlots", m_doAllPlots = false);
-    // declareProperty("isPhysics", m_isPhysics = false);
-    // declareProperty("isPedestal", m_isPedestal = false);
 
     m_path = "/Tile/TMDB"; //ROOT File relative directory
     m_hasDsp = true;
@@ -79,7 +80,7 @@ StatusCode TileTMDBMonTool::initialize()
 {
     ATH_MSG_INFO( "in initialize()" );
 
-    CHECK(m_tileToolTMDB.retrieve());
+    ATH_CHECK(m_tileToolTMDB.retrieve());
 
     return TileFatherMonTool::initialize();
 }
@@ -227,7 +228,7 @@ StatusCode TileTMDBMonTool::fillHistograms()
     // -------------------------------------------------------------
     // Getting sampleTMDB value for the entry
     const TileDigitsContainer* digitsContainer;
-    CHECK( evtStore()->retrieve(digitsContainer, m_digitsContainerName) );
+    ATH_CHECK( evtStore()->retrieve(digitsContainer, m_digitsContainerName) );
 
     for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
 
@@ -237,7 +238,7 @@ StatusCode TileTMDBMonTool::fillHistograms()
         int ros = m_tileHWID->ros(adc_id);
         int drawer = m_tileHWID->drawer(adc_id);
 
-        if (m_TMDB_names[ros].empty()) CHECK(bookTMDBHistograms(digitsCollection));
+        if (m_TMDB_names[ros].empty()) ATH_CHECK(bookTMDBHistograms(digitsCollection));
 
         if (m_hasDsp) {
             for (const TileDigits* tile_digits : *digitsCollection) {
@@ -276,7 +277,7 @@ StatusCode TileTMDBMonTool::fillHistograms()
     // -------------------------------------------------------------
     // Getting eTMDB value for the entry
     const TileRawChannelContainer* energyContainer;
-    CHECK( evtStore()->retrieve(energyContainer, m_energyContainerName) ); 
+    ATH_CHECK( evtStore()->retrieve(energyContainer, m_energyContainerName) ); 
 
     TileRawChannelUnit::UNIT rChUnit = energyContainer->get_unit();
     ATH_MSG_VERBOSE( "TMDBRawChannel unit is " << rChUnit );
@@ -408,7 +409,7 @@ StatusCode TileTMDBMonTool::bookTMDBHistograms(const TileDigitsCollection* digit
 
         m_TMDB_names[ros].push_back(TMDB_name);
 
-        for (int mod=0; mod<64; mod++){
+        for (int mod=0; mod < TMDB_DRAWERS; mod++){
 
             std::string fullTMDBname( ros_names[ros] + std::to_string(mod+1) + "_" + getTMDBCellName(ros, channel) );
             if ( (ros == 1 || ros == 2) && (mod < 16 || mod > 27) ) { // There are no TMDBs outside of mod 16-27 for the LB
@@ -441,7 +442,7 @@ StatusCode TileTMDBMonTool::bookTMDBHistograms(const TileDigitsCollection* digit
 
             }
 
-            for (int samp=0; samp<7; samp++){
+            for (int samp=0; samp < TMDB_SAMPLES; samp++){
                 std::string plotTitle( "TMDB_" + fullTMDBname + "_" + std::to_string(samp) + "_meanPulse" );
                 std::string plotName( "Sample[" + std::to_string(samp) + "] in " + fullTMDBname );
                 m_mPulseDig[ros][mod][channel][samp] = new TH1F( plotTitle.c_str(), plotName.c_str(), 200, -0.5, 200 );
@@ -451,7 +452,7 @@ StatusCode TileTMDBMonTool::bookTMDBHistograms(const TileDigitsCollection* digit
         }
     }
 
-    if (!m_TMDB_names[ros].empty()) CHECK( bookTMDBSummaryHistograms(ros) );
+    if (!m_TMDB_names[ros].empty()) ATH_CHECK( bookTMDBSummaryHistograms(ros) );
 
     return StatusCode::SUCCESS;
 }
@@ -522,9 +523,10 @@ StatusCode TileTMDBMonTool::finalize()
     std::vector<std::string> ros_names = {"AUX", "LBA", "LBC", "EBA", "EBC"};
 
     // Getting calibration plots
-    for (int ros = 3; ros < 5; ros++){ // As of yet we only have calibration for EB (ros 3 ad 4)
-        for (int drawer = 0; drawer < 64; drawer++){
+    for (int ros = 3; ros < TMDB_ROS; ros++){ // As of yet we only have calibration for EB (ros 3 ad 4)
+        for (int drawer = 0; drawer < TMDB_DRAWERS; drawer++){
             for (int channel = 0; channel < 4; channel++){
+                // In the EB (ros 3 and 4), one only has 4 instead of 8 channels in TMDB_CHANNELS
 
                 std::string fullTMDBname( ros_names[ros] + std::to_string(drawer+1) + "_" + getTMDBCellName(ros, channel) ); 
                 if ( m_aux_Nevents[ros][drawer][channel] != 0 ){

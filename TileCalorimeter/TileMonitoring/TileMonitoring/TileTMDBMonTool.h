@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // ********************************************************************
 //
@@ -29,6 +32,17 @@ class TileCondToolTMDB;
  *  @brief Class for Tile TMDB general performance monitoring
  */
 
+// Macros for TileTMDBMonTool
+#define TMDB_ROS               5   // Stands for how many ROS we have in the detector 
+                                   // (one auxiliar and the 4 TileCal partitions
+#define TMDB_DRAWERS          64   // Stands for the (maximum) number of drawers in each
+                                   // partition
+#define TMDB_CHANNELS          8   // Stands for the maximum amount of TMDB channels in
+                                   // each drawer
+#define TMDB_SAMPLES           7   // Number of samples acquired by the TMDB
+#define TMDB_CALIB_COEF        2   // Number of calibration coefficients used by the TMDB
+
+
 class TileTMDBMonTool : public TileFatherMonTool {
     public:
         TileTMDBMonTool(const std::string & type, const std::string & name, const IInterface* parent);
@@ -50,8 +64,6 @@ class TileTMDBMonTool : public TileFatherMonTool {
 
         // Flags
         bool m_doAllPlots;
-        // bool m_isPhysics;
-        // bool m_isPedestal;
         
         bool m_hasDsp;
 
@@ -63,24 +75,24 @@ class TileTMDBMonTool : public TileFatherMonTool {
         std::string m_dspContainerName;
         std::string m_energyContainerName;
 
-        std::vector<std::string> m_TMDB_names[5];
+        std::vector<std::string> m_TMDB_names[TMDB_ROS];
 
-        TH1F* m_mPulseDig[5][64][8][7];
-        std::vector<TH1F*> m_mPulse[5][64];
-        std::vector<TH1F*> m_chanNoiseEn[5][64];
-        std::vector<TH1F*> m_calibError[5][64];
+        TH1F* m_mPulseDig[TMDB_ROS][TMDB_DRAWERS][TMDB_CHANNELS][TMDB_SAMPLES];
+        std::vector<TH1F*> m_mPulse[TMDB_ROS][TMDB_DRAWERS];
+        std::vector<TH1F*> m_chanNoiseEn[TMDB_ROS][TMDB_DRAWERS];
+        std::vector<TH1F*> m_calibError[TMDB_ROS][TMDB_DRAWERS];
 
-        int m_aux_Nevents[5][64][8];
-        std::vector<float> m_aux_eTMDB[5][64][8];
-        std::vector<float> m_aux_eDsp[5][64][8];
-        float m_aux_coef[5][64][8][2];
-        TGraph* m_calibPlots[5][64][8];
+        int m_aux_Nevents[TMDB_ROS][TMDB_DRAWERS][TMDB_CHANNELS];
+        std::vector<float> m_aux_eTMDB[TMDB_ROS][TMDB_DRAWERS][TMDB_CHANNELS];
+        std::vector<float> m_aux_eDsp[TMDB_ROS][TMDB_DRAWERS][TMDB_CHANNELS];
+        float m_aux_coef[TMDB_ROS][TMDB_DRAWERS][TMDB_CHANNELS][TMDB_CALIB_COEF];
+        TGraph* m_calibPlots[TMDB_ROS][TMDB_DRAWERS][TMDB_CHANNELS];
 
-        TH1F* m_noiseEnergy_summ[5];
+        TH1F* m_noiseEnergy_summ[TMDB_ROS];
         
-        TProfile2D* m_peakPos_map[5];
-        TProfile2D* m_coefCalib_map[5];
-        TProfile2D* m_noiseEnergy_map[5];
+        TProfile2D* m_peakPos_map[TMDB_ROS];
+        TProfile2D* m_coefCalib_map[TMDB_ROS];
+        TProfile2D* m_noiseEnergy_map[TMDB_ROS];
 
 };
 
