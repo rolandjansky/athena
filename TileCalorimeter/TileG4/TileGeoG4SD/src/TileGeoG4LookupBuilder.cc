@@ -250,7 +250,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
     CaloDetDescrElement * caloDDE = m_theManager->get_cell_element(cell_id);
     cell->sinTh = caloDDE->sinTh();
     cell->r = caloDDE->r();
-    if (m_verboseLevel > 5)
+    if (m_verboseLevel >= 5)
       G4cout << "  Cell " << nameCell
              << ": cell_id=" << m_tileID->to_string(cell_id, -2)
              << "  r=" << cell->r
@@ -281,7 +281,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
       double z = (cell->zMin2 + cell->zMax2) / 2.;
       cell->sinTh = sin(theta);
       cell->r = z * tan(theta);
-      if (m_verboseLevel > 5)
+      if (m_verboseLevel >= 5)
         G4cout << "  Cell " << nameCell << " corrected values: "
                << "  r=" << cell->r
                << "  sinTh=" << cell->sinTh
@@ -380,7 +380,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
         cellName = makeCellName (cellPrefix, j);
         sectionCells.push_back(m_cellMap->operator[](cellName));
       }
-      if (m_verboseLevel>5)
+      if (m_verboseLevel >= 5)
         G4cout << " TILE_BARREL: samples A, BC, D are filled" << G4endl;
       break;
     }
@@ -406,7 +406,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
         cellName = makeCellName (cellPrefix, j);
         sectionCells.push_back(m_cellMap->operator[](cellName));
       }
-      if (m_verboseLevel>5)
+      if (m_verboseLevel >= 5)
         G4cout << " TILE_EBARREL: samples A, B, D are filled" << G4endl;
       break;
     }
@@ -418,7 +418,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
 
       // filling PMT array for D4 Cells
       MakeTileGeoG4npmtD4();
-      if (m_verboseLevel>5)
+      if (m_verboseLevel >= 5)
         G4cout << " TILE_PLUG1: cell D4 is filled" << G4endl;
       break;
     }
@@ -430,7 +430,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
 
       // filling PMT array for C10 Cells
       MakeTileGeoG4npmtC10();
-      if (m_verboseLevel>5)
+      if (m_verboseLevel >= 5)
         G4cout << " TILE_PLUG2: cell C10 is filled" << G4endl;
       break;
     }
@@ -441,7 +441,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
       sectionCells.push_back(m_cellMap->operator[](cellName));
       cellName = "E1";
       sectionCells.push_back(m_cellMap->operator[](cellName));
-      if (m_verboseLevel>5)
+      if (m_verboseLevel >= 5)
         G4cout << " TILE_PLUG3: cells E2, E1 are filled" << G4endl;
       break;
     }
@@ -452,7 +452,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
       sectionCells.push_back(m_cellMap->operator[](cellName));
       cellName = "E3";
       sectionCells.push_back(m_cellMap->operator[](cellName));
-      if (m_verboseLevel>5)
+      if (m_verboseLevel >= 5)
         G4cout << " TILE_PLUG4: cells E4, E3 are filled" << G4endl;
 
       // filling PMT array for E4' Cells
@@ -460,14 +460,14 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
       if (m_isE5) {
         cellName = "E5";  //E4' cells
         sectionCells.push_back(m_cellMap->operator[](cellName));
-        if (m_verboseLevel>5)
+        if (m_verboseLevel >= 5)
           G4cout << " TILE_PLUG4: special cells E5(E4') are filled" << G4endl;
       }
 
       break;
     }
     default: { // Don't do anything
-      if (m_verboseLevel > 5)
+      if (m_verboseLevel >= 5)
         G4cout << " counter=" << counter << "  key=" << key << "  Default: Don't do anything" << G4endl;
       continue;
     }
@@ -483,7 +483,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
     section->nrOfPeriods = m_dbManager->TILBnperiod();
     section->nrOfScintillators = m_dbManager->TILBnscin();
 
-    if (m_verboseLevel > 5)
+    if (m_verboseLevel >= 5)
       G4cout << " counter=" << counter
              << "  key=" << key
              << "  nrOfModules=" << section->nrOfModules

@@ -36,7 +36,7 @@ if not 'EvtMax' in dir():
     EvtMax = -1
 
 if not 'RunNumber' in dir():
-    RunNumber = 222222
+    RunNumber = 310000
 
 if not 'FileSuffix' in dir():
     FileSuffix = ''
@@ -89,7 +89,7 @@ if not 'D3PDOutput' in dir():
     D3PDOutput = 'tile%s.d3pd.root' % FileSuffix
 
 if not 'ConddbTag' in dir():
-    ConddbTag = 'OFLCOND-RUN12-SDR-23'
+    ConddbTag = 'OFLCOND-MC16-SDR-25'
 
 if not 'DetGeo' in dir():
     DetGeo = 'atlas'

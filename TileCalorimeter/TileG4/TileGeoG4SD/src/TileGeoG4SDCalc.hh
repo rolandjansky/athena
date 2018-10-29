@@ -66,6 +66,8 @@ public:
   virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const override final;
   ///
   virtual TileGeoG4LookupBuilder* GetLookupBuilder() const override final;
+  /// pointer to class with all options
+  virtual const TileSDOptions* GetOptions() const override final;
 
   /// Method used by TileFastCaloSim/TileFCSmStepToTileHitVec
   virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int uShape) const override final;
