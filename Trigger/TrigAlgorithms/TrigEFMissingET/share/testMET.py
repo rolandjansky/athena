@@ -33,17 +33,21 @@ cellMakerAlgo.OutputLevel=VERBOSE
 cellMakerAlgo.CellsName="cells"
 topSequence += cellMakerAlgo
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromCellsMT
-
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromCellsMT, EFMissingETFromHelper
 
 cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
 cellTool.CellsCollection = "cells"
+
+helperTool = EFMissingETFromHelper("theHelperTool") 
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
 
 
 metAlg.METTools=[ cellTool ]
+metAlg.HelperTool= helperTool 
+
 #metAlg.OutputLevel=DEBUG
+
 metMon = GenericMonitoringTool("METMonTool")
 metMon.Histograms = [ defineHistogram( "TIME_Total", title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
                       defineHistogram( "TIME_Loop", title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
@@ -55,7 +59,6 @@ metMon.Histograms += [ hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE
 metMon.Histograms += [ hCompEt_lin, hCompSumEt_lin ]
 
 metAlg.MonTool = metMon
-#metAlg += cellTool
 topSequence += metAlg
 
 #   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
