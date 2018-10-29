@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -36,12 +36,16 @@ MuonWallTool::MuonWallTool(const std::string& type, const std::string& name, con
   : DetectorGeometryBase(type,name,parent),
     m_zLength(0.),
     m_yLength(0.),
-    m_xLength(0.)
+    m_xLength(0.),
+    m_backWall(true),
+    m_sideWall(false)
 {
   ATH_MSG_DEBUG( "MuonWallTool constructor for " << name );
   declareProperty("ZLength", m_zLength, "");
   declareProperty("YLength", m_yLength, "");
   declareProperty("XLength", m_xLength, "");
+  declareProperty("backWall", m_backWall, "");
+  declareProperty("sideWall", m_sideWall, "");
 }
 
 MuonWallTool::~MuonWallTool()
@@ -49,23 +53,31 @@ MuonWallTool::~MuonWallTool()
 }
 
 void MuonWallTool::BuildGeometry() {
+
+  ATH_MSG_DEBUG( "Building Geometry back muon wall: "
+                 << (m_backWall ? "true" : "false")
+                 << "  side muon wall: "
+                 << (m_sideWall ? "true" : "false") );
+
   // MuonWall description :
 
-  const double zScintillator = m_zLength;
-  const double yScintillator = m_yLength;
-  const double xScintillator = m_xLength;
+  // Scintillator : 400*200*20, calculating half-size
+  const double zScintillator = m_zLength / 2.;
+  const double yScintillator = m_yLength / 2.;
+  const double xScintillator = m_xLength / 2.;
   const double dzmuonwall = 750. * CLHEP::mm;
   const double dymuonwall = 425. * CLHEP::mm;
-  const double dxmuonwall = (xScintillator / 2.) * CLHEP::mm;
+  const double dxmuonwall = xScintillator;
 
   G4Box *wall = new G4Box("MuonWall", dxmuonwall, dymuonwall, dzmuonwall);
 
   // Get the materials
   const DataHandle<StoredMaterialManager> materialManager;
   if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
-    //FIXME should probably at least print an ERROR here...
+    ATH_MSG_ERROR( "Could not find Material Manager MATERIALS" );
     return;
   }
+
   const GeoMaterial *geoAir = materialManager->getMaterial("tile::Air");
   const GeoMaterial *geoScintillator = materialManager->getMaterial("tile::Scintillator");
   Geo2G4MaterialFactory theMaterialFactory;
@@ -76,63 +88,68 @@ void MuonWallTool::BuildGeometry() {
 
   // ------- Create lead layers and place them inside the mother box --------
   double zLayer, yLayer, xLayer = 0.;
-  const int nrOfLayers = 12;
 
-  for (int j = 0; j < nrOfLayers; j++) {
+  if (m_backWall) {
 
-    // Scintillator
-    G4Box *scintillatorLayer = new G4Box("ScintillatorLayer", xScintillator / 2., yScintillator / 2.,
-        zScintillator / 2.);
+    const int nrOfLayers = 12;
 
-    G4LogicalVolume *scintillatorLayerV = new G4LogicalVolume(scintillatorLayer, scintillatorMaterial,
-        "MuScintillatorLayer");
+    for (int j = 0; j < nrOfLayers; j++) {
 
-    // scintillatorLayerV->GetLogicalVolume()->SetSensitiveDetector(muonwallSD);
+      // Scintillator
+      G4Box *scintillatorLayer = new G4Box("ScintillatorLayer", xScintillator, yScintillator, zScintillator);
 
-    if (j < 6) {
-      yLayer = yScintillator / 2. + 25.;
-      zLayer = -450. + (2 * j + 1) * zScintillator / 2.;
-    } else {
-      yLayer = -yScintillator / 2. + 25.;
-      zLayer = -450. + (2 * (j - 6) + 1) * zScintillator / 2.;
-    }
+      G4LogicalVolume *scintillatorLayerV = new G4LogicalVolume(scintillatorLayer, scintillatorMaterial,
+          "MuScintillatorLayer");
 
-    G4PVPlacement* scintillatorLayerVPhys __attribute__((unused)) =
-        new G4PVPlacement(0,
-                          G4ThreeVector(xLayer,yLayer,zLayer),
-                          scintillatorLayerV,
-                          "MuScintillatorLayer",
-                          wallV,
-                          false,
-                          j+1);
-    }
+      // scintillatorLayerV->GetLogicalVolume()->SetSensitiveDetector(muonwallSD);
 
+      if (j < 6) {
+        yLayer = yScintillator + 25. * CLHEP::mm;
+        zLayer = -450. * CLHEP::mm + (2 * j + 1) * zScintillator;
+      } else {
+        yLayer = -yScintillator + 25. * CLHEP::mm;
+        zLayer = -450. * CLHEP::mm + (2 * (j - 6) + 1) * zScintillator;
+      }
 
-  const int nScintLayers = 3;
+      G4PVPlacement* scintillatorLayerVPhys __attribute__((unused)) =
+          new G4PVPlacement(0,
+                            G4ThreeVector(xLayer,yLayer,zLayer),
+                            scintillatorLayerV,
+                            "MuScintillatorLayer",
+                            wallV,
+                            false,
+                            j+1);
+      }
+  }
 
-  for (int j = 0; j < nScintLayers; j++) {
+  if (m_sideWall) {
 
     // Scintillator : 500*100*20 instead of 400*200*20
-    G4Box* scintillatorLayer = new G4Box("SideScintiLayer", xScintillator / 2., (yScintillator + 100.) / 2.,
-        (zScintillator - 100.) / 2.);
+    const double yScintillator1 = yScintillator + 50. * CLHEP::mm;
+    const double zScintillator1 = zScintillator - 50. * CLHEP::mm;
 
-    G4LogicalVolume* scintillatorLayerV = new G4LogicalVolume(scintillatorLayer, scintillatorMaterial,
-        "SideMuScintiLayer");
+    const int nScintLayers = 3;
 
-    yLayer = -175.;  // CLHEP::mm ?
-    zLayer = -750. + (2 * j + 1) * (zScintillator - 100.) / 2.;
+    for (int j = 0; j < nScintLayers; j++) {
 
-    G4PVPlacement* scintillatorLayerVPhys __attribute__((unused)) =
-        new G4PVPlacement(0,
-                          G4ThreeVector(xLayer,yLayer,zLayer),
-                          scintillatorLayerV,
-                          "SideMuScintiLayer",
-                          wallV,
-                          false,
-                          j+1);
-    }
+      G4Box* scintillatorLayer = new G4Box("SideScintiLayer", xScintillator, yScintillator1, zScintillator1);
 
+      G4LogicalVolume* scintillatorLayerV = new G4LogicalVolume(scintillatorLayer, scintillatorMaterial,
+          "SideMuScintiLayer");
 
+      yLayer = -175. * CLHEP::mm;
+      zLayer = -750. * CLHEP::mm + (2 * j + 1) * zScintillator1;
+
+      G4PVPlacement* scintillatorLayerVPhys __attribute__((unused)) =
+          new G4PVPlacement(0,
+                            G4ThreeVector(xLayer,yLayer,zLayer),
+                            scintillatorLayerV,
+                            "SideMuScintiLayer",
+                            wallV,
+                            false,
+                            j+1);
+      }
+  }
 
   // FINAL STEP
   m_envelope.theEnvelope = wallV;

@@ -2,7 +2,7 @@
 
 from AthenaCommon import CfgMgr
 def getMuonWallSD(name="MuonWallSD", **kwargs):
-    kwargs.setdefault("LogicalVolumeNames", ['MuonWall::MuScintillatorLayer'])
+    kwargs.setdefault("LogicalVolumeNames", ['MuonWall::MuScintillatorLayer','S1::S1','S2::S2','S3::S3'])
     kwargs.setdefault("OutputCollectionNames", ["TileTBHits"])
     return CfgMgr.MuonWallSDTool(name, **kwargs)
 

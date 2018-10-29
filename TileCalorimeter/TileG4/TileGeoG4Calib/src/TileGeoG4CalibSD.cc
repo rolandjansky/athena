@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -23,6 +23,7 @@
 #include "TileGeoG4DMLookupBuilder.h"
 #include "TileEscapedEnergyProcessing.h"
 #include "TileG4Interfaces/ITileCalculator.h"
+#include "TileGeoG4SD/TileSDOptions.h"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileSimEvent/TileHitVector.h"
@@ -59,15 +60,16 @@
 
 //CONSTRUCTOR
 TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& outputCollectionNames, ITileCalculator* tileCalculator,
-                                   ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts)
+                                   ServiceHandle<StoreGateSvc> &detStore)
 : G4VSensitiveDetector(name),
   m_tileActiveCellCalibHits(outputCollectionNames[1]),
   m_tileInactiveCellCalibHits(outputCollectionNames[2]),
   m_tileDeadMaterialCalibHits(outputCollectionNames[3]),
   m_tileHits(outputCollectionNames[0]),
-  m_options(opts),
-  m_rdbSvc(opts.rDBAccessSvcName, name),
-  m_geoModSvc(opts.geoModelSvcName, name),
+  m_rdbSvc(tileCalculator->GetOptions()->rDBAccessSvcName, name),
+  m_geoModSvc(tileCalculator->GetOptions()->geoModelSvcName, name),
+  m_tileTB(tileCalculator->GetOptions()->tileTB),
+  m_doCalibHitParticleID(tileCalculator->GetOptions()->doCalibHitParticleID),
 #ifdef HITSINFO    //added by Sergey
   m_ntuple("TileCalibHitNtuple/TileCalibHitNtuple"),
   m_ntupleCnt("TileCalibHitCntNtup/TileCalibHitCntNtup"),
@@ -81,10 +83,6 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   m_E_nonem(0.0),
   m_E_invisible(0.0),
   m_E_escaped(0.0),
-  m_E0(0.0),
-  m_E1(0.0),
-  m_E2(0.0),
-  m_E3(0.0),
   m_stepTouchable(0),
   m_stepPhysVol(0),
   m_cSection(0),
@@ -93,8 +91,6 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   m_gCell(0),
   m_result(),
   m_id(),
-  m_id_pmt_up(),
-  m_id_pmt_down(),
   m_calibHitType(0),
   m_subCalo(0),
   m_detector(0),
@@ -118,10 +114,11 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   m_det_side(0),
 #endif
   m_defaultHit(false),
-  m_doBirkFlag(false),
   m_isExtended(false),
   m_isNegative(false)
 {
+
+  verboseLevel = std::max(verboseLevel, m_calc->GetOptions()->verboseLevel);
 
   m_simEn = new CaloG4::SimulationEnergies();
   m_tile_eep = new TileEscapedEnergyProcessing(verboseLevel);
@@ -171,18 +168,11 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   //BUILD TILECAL ORDINARY AND CALIBRATION LOOK-UP TABLES
   m_lookup = m_calc->GetLookupBuilder();
   m_lookupDM = new TileGeoG4DMLookupBuilder(m_lookup, m_rdbSvc, m_geoModSvc, detStore, verboseLevel);
-
-  if (m_options.tileTB) {
-    m_lookup->BuildLookup(true);
-    m_lookupDM->BuildLookup(true);
-  } else {
-    m_lookup->BuildLookup();
-    m_lookupDM->BuildLookup();
-  }
-  if (verboseLevel > 5) G4cout << "Lookup built for Tile" << G4endl;
+  m_lookupDM->BuildLookup(m_tileTB,m_calc->GetOptions()->plateToCell);
+  if (verboseLevel >= 5) G4cout << "Lookup built for Tile" << G4endl;
 
   m_plateToCell = m_lookupDM->GetPlateToCell();
-  G4cout << "Using plateToCell (from DB) = " << (m_plateToCell ? "true" : "false") << G4endl;
+  G4cout << "Using plateToCell = " << (m_plateToCell ? "true" : "false") << G4endl;
 
   // current settings for AddToCell and AddToGirder are controlled just by one flag
   m_addToCell = m_plateToCell;
@@ -203,7 +193,7 @@ TileGeoG4CalibSD::~TileGeoG4CalibSD() {
 // Initialize - CALLED AT THE BEGGINING OF EACH EVENT
 //-----------------------------------------------------
 void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/) {
-  if (verboseLevel > 5) G4cout << "Initializing SD" << G4endl;
+  if (verboseLevel >= 5) G4cout << "Initializing SD" << G4endl;
 
   if (!m_tileActiveCellCalibHits.isValid()) m_tileActiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileActiveCellCalibHits.name());
   if (!m_tileInactiveCellCalibHits.isValid()) m_tileInactiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileInactiveCellCalibHits.name());
@@ -214,16 +204,57 @@ void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/) {
   m_subCalo = 3;
   m_event_info = 0;
 
+  m_E_em = 0.;
+  m_E_nonem = 0.;
+  m_E_invisible = 0.;
+  m_E_escaped = 0.;
+  m_E_tot = 0.;
+  m_tile_eep->SetEscapedFlag(false);
+  m_tile_eep->SetEnergy5(0.);
+  m_tile_eep->SetEscapedEnergy(0.);
 }
 
 //-----------------------------------------------------------------------------
 //  ProcessHits - CALLED AT EACH STEP INSIDE SENSITIVE VOLUMES
 //-----------------------------------------------------------------------------
 G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*/) {
-  if (m_options.doCalibHitParticleID && !m_event_info)
+
+  bool normalHit = !(m_tile_eep->GetEscapedFlag());
+
+  if (verboseLevel >= 10) {
+    G4TouchableHistory* theTouchable = (G4TouchableHistory*) (step->GetPreStepPoint()->GetTouchable());
+    G4cout << ((normalHit) ? "ProcessHits: new hit in " : "ProcessHits: escaped energy in ")
+           << theTouchable->GetVolume()->GetLogicalVolume()->GetName()
+           << G4endl;
+  }
+
+  if (normalHit) {
+    // Classify() can call ProcessHits() again for escaped energy processing with different G4Step
+    m_result = m_simEn->Classify(step);
+    normalHit = (step->GetTotalEnergyDeposit()!=0.);
+  } else {
+    SetEscapedEnergy(m_tile_eep->GetEscapedEnergy());
+    m_tile_eep->SetEscapedFlag(false);
+  }
+
+  if (!m_event_info)
     m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
 
-  if (verboseLevel > 10) G4cout << "Process Hits" << G4endl;
+  // Update the event information to note that this step has been dealt with
+  if ( m_event_info ) {
+      // Update the step info
+      m_event_info->SetLastProcessedBarcode( step->GetTrack()->GetTrackID() );
+      m_event_info->SetLastProcessedStep( step->GetTrack()->GetCurrentStepNumber() );
+  }
+
+  //THIS METHOD WILL CHECK WHETER ARE ALL CLASSIFIED ENERGIES
+  //ZERO OR NOT. IF THEY ARE THEN RETURN FROM ProcessHits
+  if (AreClassifiedEnergiesAllZero()) {
+    if (verboseLevel >= 10) G4cout << "All Energies at this step = 0" << G4endl;
+    return false;
+  }
+
+  // Keep pointer to current G4Step
   m_aStep = step;
 
   //FORCE DEFAULT HIT FLAG TO BE FALSE
@@ -232,46 +263,8 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
   //Reset CalibHit Type
   m_calibHitType = -999;
 
-  //CLASSIFY ENERGY LOSS IN THIS STEP.
-  //CONSIDER SPECIAL CASE WHEN THE ESCAPING
-  //OF A TILECAL SECONDARY PARTICLE HAS BEEN OCCURED
-  if (! (m_tile_eep->GetEscapedFlag())) {
-    ClassifyEnergy();
-    m_doBirkFlag = true;
-  } else {
-    if (verboseLevel > 5) G4cout << "Escaped energy processing" << G4endl;
-    SetEscapedEnergy(m_tile_eep->GetEscapedEnergy());
-    m_tile_eep->SetEscapedFlag(false);
-    m_doBirkFlag = false;
-  }
-
-  // Update the event information to note that this step has been dealt with
-  EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-  if ( event_info ) {
-      // Update the step info
-      event_info->SetLastProcessedBarcode( step->GetTrack()->GetTrackID() );
-      event_info->SetLastProcessedStep( step->GetTrack()->GetCurrentStepNumber() );
-  }
-
-  //THIS METHOD WILL CHECK WHETER ARE ALL CLASSIFIED ENERGIES
-  //ZERO OR NOT. IF THEY ARE THEN RETURN FROM ProcessHits
-  if (AreClassifiedEnergiesAllZero()) {
-    if (verboseLevel > 10) G4cout << "all Energies at this step = 0" << G4endl;
-    return false;
-  }
-
   //COUNT CLASSIFIED ENERGIES
   EnergiesSimpleCounter();
-
-  //STRING KEY INCLUDED IN STEP VOLUME NAME DEFINES
-  //THE CALCULATOR, WHICH SHOULD BE USED TO CALCULATE
-  //CALIBRATION HIT IDENTIFIER
-  //
-  //ALSO, IT DEFINES WHERE THE HIT SHOULD BE STORED (IF IT IS A NEW)
-  //OR UPDATED, IN CELL OR DEAD MATERIAL CALIBHIT VECTOR OR IN A DEFAULT HIT
-  G4TouchableHistory* theTouchable = (G4TouchableHistory*) (m_aStep->GetPreStepPoint()->GetTouchable());
-  G4VPhysicalVolume* physVol = theTouchable->GetVolume();
-  G4String nameVol = physVol->GetLogicalVolume()->GetName();
 
   //------------- H I T   I D E N T I F I E R   C A L C U L A T I O N -----------
   //FIRST OF ALL FIND A TILECAL SECTION WHERE THE STEP IS.
@@ -281,51 +274,53 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
   //THIS MEANS THAT IDENTIFIER CAN'T BE DETERMINED -> RETURN DEFAULT ID
   bool is_identifiable = this->FindTileCalibSection();
   if (!is_identifiable) {
-    if (verboseLevel > 10) G4cout << "FindTileCalibSection: The Section can't be found, RETURN DEFAULT ID" << G4endl;
+    if (verboseLevel >= 10)
+      G4cout << "ProcessHits: TileCalibSection not found for volume " << m_nameVol << G4endl;
     m_defaultHit = true;
-  } else if (nameVol.find("Scintillator") != G4String::npos) {//SENSITIVE MATERIAL CELL (SCINTILLATOR)
+  } else if (m_nameVol.find("Scintillator") != G4String::npos) {//SENSITIVE MATERIAL CELL (SCINTILLATOR)
     TileHitData hitData;
     bool is_scin = m_calc->FindTileScinSection(m_aStep, hitData);
     if (is_scin) {
       //BESIDE A CALIBRATION HIT THERE ORDINARY
       //HITS SHOULD BE ALSO CREATED OR UPDATED
-      if (m_doBirkFlag) {
+      if (normalHit) {
         m_calc->MakePmtEdepTime(m_aStep, hitData);  //calculation of pmtID, edep and scin_Time with aStep
         m_calc->ManageScintHit(hitData);//create or update ordinary hit object in the collection
       }
       this->ScintIDCalculator(hitData);
     } else {
-      if (verboseLevel>10) G4cout << "ProcessHits: FindTileScinSection returns false" << G4endl;
+      if (verboseLevel >= 10)
+        G4cout << "ProcessHits: TileCell not found for volume " << m_nameVol << G4endl;
       m_defaultHit = true;
     }
   }
 
   //CELL PASSIVE MATERIALS
-  else if((nameVol.find("Period") != G4String::npos)
-          || (nameVol.find("Glue") != G4String::npos)
-          || (nameVol.find("Wrapper") != G4String::npos)) {
+  else if((m_nameVol.find("Period") != G4String::npos)
+          || (m_nameVol.find("Glue") != G4String::npos)
+          || (m_nameVol.find("Wrapper") != G4String::npos)) {
 
     CellIDCalculator();
   }
 
   //FRONT AND END PLATES
-  else if((nameVol.find("Plate") != G4String::npos)
-          || (nameVol.find("IrUp") != G4String::npos)
-          || (nameVol.find("IrDw") != G4String::npos)
-          || (nameVol.find("IrBox") != G4String::npos)
-          || (nameVol.find("Iron1") != G4String::npos)
-          || (nameVol.find("Iron2") != G4String::npos)
-          || (nameVol.find("Iron3") != G4String::npos)
-          || (nameVol.find("Iron4") != G4String::npos)
-          /* || (nameVol.find("SaddleModule") != G4String::npos) */) {
+  else if((m_nameVol.find("Plate") != G4String::npos)
+          || (m_nameVol.find("IrUp") != G4String::npos)
+          || (m_nameVol.find("IrDw") != G4String::npos)
+          || (m_nameVol.find("IrBox") != G4String::npos)
+          || (m_nameVol.find("Iron1") != G4String::npos)
+          || (m_nameVol.find("Iron2") != G4String::npos)
+          || (m_nameVol.find("Iron3") != G4String::npos)
+          || (m_nameVol.find("Iron4") != G4String::npos)
+          /* || (m_nameVol.find("SaddleModule") != G4String::npos) */) {
 
     PlateCellIDCalculator();
-  } else if((nameVol.find("Girder") != G4String::npos)
-            || (nameVol.find("Finger") != G4String::npos)
-            || (nameVol.find("EPHole") != G4String::npos)
-            || (nameVol.find("LArCables") != G4String::npos)
-            || (nameVol.find("LArService") != G4String::npos)
-            || (nameVol.find("ExtBarrelSaddleSupport") != G4String::npos) ) {
+  } else if((m_nameVol.find("Girder") != G4String::npos)
+            || (m_nameVol.find("Finger") != G4String::npos)
+            || (m_nameVol.find("EPHole") != G4String::npos)
+            || (m_nameVol.find("LArCables") != G4String::npos)
+            || (m_nameVol.find("LArService") != G4String::npos)
+            || (m_nameVol.find("ExtBarrelSaddleSupport") != G4String::npos) ) {
 
     GirderCellIDCalculator(); //GIRDER AND FINGER MATERIALS
   }  else {
@@ -333,74 +328,42 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     //HIT IS IN THE VOLUME, WHICH  CAN'T BE IDENTIFIED
     //FLAG IT TO BE PUT IN A DEFAULT CALIBHIT
 
+    if (verboseLevel >= 10) G4cout << "ProcessHits: Use default hit for volume " << m_nameVol << G4endl;
     m_defaultHit = true;
+  }
+
+  if (m_defaultHit) {
+    if (m_tileTB) DefaultHitIDCalculatorTB(m_dm_sample,m_detector-1,0,m_module);
+    else DefaultHitIDCalculator();
+  }
+  if (!m_id.is_valid()) {
+    G4cout << "ERROR: Wrong identifier in ProcessHits() for volume " << m_nameVol << G4endl;
+    return true;
   }
 
   //-----------------------------------------------------
   // --- M A N A G E   C A L I B R A T I O N   H I T ---
+  //     (see CalibrationHitMerger.cxx for details)
   //-----------------------------------------------------
 
-  // --------------------------------------------------------------------------
-  // G.P.: now comes new hit processing (see LArCalibHitMerger.cxx for details)
-  // --------------------------------------------------------------------------
-  int primary_id = 0;
-  if (m_options.doCalibHitParticleID) {
+  double invisibleEnergy = GetInvisibleEnergy();
+  double visibleEnergy = GetVisibleEnergy();
 
-    if (m_event_info && m_event_info->GetCurrentPrimary()) primary_id = m_event_info->GetCurrentPrimary()->barcode();
-    else throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
-
-    /*
-      else {
-
-      // normal steps should have a G4Track:
-      if (step->GetTrack()) {
-      const VTrackInformation* trackInfo=dynamic_cast<const VTrackInformation*>(step->GetTrack()->GetUserInformation());
-
-      if (trackInfo && trackInfo->GetISFParticle()) {
-      const ISF::ISFParticle* isfp = trackInfo->GetISFParticle();
-      m_primary_id = isfp->barcode();
-      }
-      else
-      throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
-      }
-
-      // escaped energy have fake steps with no G4Track, so get particle from m_event_info (retrieving it first if not done already)
-      else {
-      if (NULL==m_event_info)
-      m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-
-      if (m_event_info && m_event_info->GetCurrentISFPrimary())
-      m_primary_id = m_event_info->GetCurrentISFPrimary()->barcode();
-      else
-      throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
-      }
-      }
-    */
-  }
-
-  Identifier id = m_id;
-  if (m_defaultHit) {
-    if (m_options.tileTB) id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0); //Default hit
-    else id = DefaultHitIDCalculator();
-  }
-  if (!id.is_valid()) {
-    G4cout << "ERROR: Wrong identifier in ProcessHits()!" << G4endl;
+  if (fabs(invisibleEnergy) < 0.001 * CLHEP::eV && visibleEnergy < 0.001 * CLHEP::eV) {
+    if (verboseLevel >= 10) G4cout << "Ignore hit because energy is too small " << visibleEnergy << " " << invisibleEnergy << G4endl;
     return true;
   }
 
-  CaloCalibrationHit* hit = new CaloCalibrationHit(id, m_result.energy[CaloG4::SimulationEnergies::kEm],
+  int primary_id = 0;
+  if (m_doCalibHitParticleID) {
+    if (m_event_info && m_event_info->GetCurrentPrimary()) primary_id = m_event_info->GetCurrentPrimary()->barcode();
+    else throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
+  }
+
+  CaloCalibrationHit* hit = new CaloCalibrationHit(m_id, m_result.energy[CaloG4::SimulationEnergies::kEm],
                                                    m_result.energy[CaloG4::SimulationEnergies::kNonEm],
                                                    m_result.energy[CaloG4::SimulationEnergies::kInvisible0],
                                                    m_result.energy[CaloG4::SimulationEnergies::kEscaped], primary_id);
-
-  G4double visibleEnergy = hit->energy(0) + hit->energy(1) + hit->energy(3);
-  G4double invisibleEnergy = hit->energy(2);
-
-  if (fabs(invisibleEnergy) < 0.001 * CLHEP::eV && visibleEnergy < 0.001 * CLHEP::eV) {
-    // Get rid of the hit if we are not going to use it.
-    delete hit;
-    return true;
-  }
 
   // If we haven't had a hit in this cell before, add the current hit
   // to the hit collection.
@@ -456,6 +419,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
   }
 
   //STEP IS PROCESSED SUCCESFULY
+  if (verboseLevel >= 10) G4cout << "End of ProcessHits" << G4endl;
   return true;
 }
 
@@ -463,7 +427,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
 //    EndOfEvent - CALLED AT THE END OF EACH EVENT
 //-----------------------------------------------------
 void TileGeoG4CalibSD::EndOfAthenaEvent() {
-  if (verboseLevel > 10) G4cout << "Store Hits" << G4endl;
+  if (verboseLevel >= 10) G4cout << "Store Hits" << G4endl;
 
   //CREATE CALIBHITS FROME THEIR VECTORS AND
   //STORE THEM IN THE RESPECTIEVE CONTAINERS
@@ -491,7 +455,9 @@ void TileGeoG4CalibSD::EndOfAthenaEvent() {
   m_lookup->ResetCells(&*m_tileHits);
 
 #ifdef HITSINFO  // added by Sergey
-  m_ntupleCnt->StoreCNT(&*m_tileActiveCellCalibHits,&*m_tileInactiveCellCalibHits,&*m_tileDeadMaterialCalibHits);
+    if(m_ntupleCnt->StoreCNT(&*m_tileActiveCellCalibHits,&*m_tileInactiveCellCalibHits,&*m_tileDeadMaterialCalibHits).isFailure()) {
+      G4cout << "Failed to store calib hit info in ntuple" << G4endl;
+    }
 #endif
 
   //DEBUG CALIBHITS ENERGIES CALCULATED BY SIMPLE CALCULATOR

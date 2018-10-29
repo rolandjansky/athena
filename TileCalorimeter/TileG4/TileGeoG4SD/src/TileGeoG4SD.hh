@@ -20,7 +20,6 @@
 #include "G4VSensitiveDetector.hh"
 
 // Member variables
-#include "TileGeoG4SD/TileSDOptions.h"
 #include "StoreGate/WriteHandle.h"
 #include "TileSimEvent/TileHitVector.h"
 
@@ -33,7 +32,7 @@ class G4String;
 
 class TileGeoG4SD: public G4VSensitiveDetector {
 public:
-  TileGeoG4SD(G4String name, const std::string& hitCollectionName, ITileCalculator* tileCalculator, const TileSDOptions opts);
+  TileGeoG4SD(G4String name, const std::string& hitCollectionName, ITileCalculator* tileCalculator);
   ~TileGeoG4SD();
 
   void Initialize(G4HCofThisEvent*) override final;
@@ -52,7 +51,6 @@ private:
 
   ITileCalculator* m_calc;
   TileGeoG4LookupBuilder* m_lookup;
-  const TileSDOptions m_options;
 
   SG::WriteHandle<TileHitVector> m_HitColl;
 };
