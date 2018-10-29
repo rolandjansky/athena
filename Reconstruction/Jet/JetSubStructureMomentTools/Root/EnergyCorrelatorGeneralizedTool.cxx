@@ -83,6 +83,7 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
     
   }
   
+  
   injet.setAttribute(m_prefix+"ECFG_2_1", ECFG_2_1_value);
   injet.setAttribute(m_prefix+"ECFG_3_2", ECFG_3_2_value);
   injet.setAttribute(m_prefix+"ECFG_3_1", ECFG_3_1_value);

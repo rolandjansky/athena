@@ -9,10 +9,6 @@ QwTool::QwTool(const std::string& myname)
 : JetSubStructureMomentToolsBase(myname) {
 }
 
-// StatusCode QwTool::initialize() {
-//   return StatusCode::SUCCESS;
-// }
-
 int QwTool::modifyJet(xAOD::Jet& injet) const {
   //if(checkForConstituents(jet) == false) return 1;
 
@@ -25,6 +21,6 @@ int QwTool::modifyJet(xAOD::Jet& injet) const {
     qw_value = qw.result(jet);
   }
     
-  injet.setAttribute("Qw", qw_value);
+  injet.setAttribute(m_prefix+"Qw", qw_value);
   return 0;
 }
