@@ -27,6 +27,8 @@ StatusCode HLTResultMTMakerAlg::execute_r(const EventContext& context) const {
   for ( auto& maker: m_makerTools ) {
     ATH_CHECK( maker->fill( *hltResult ) );
   }
+
+  
   time.stop();
   // // monitoring
 
