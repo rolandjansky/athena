@@ -75,7 +75,7 @@ algSeq += jetSequence
 
 # Include, and then set up the tau analysis algorithm sequence:
 from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-tauSequence = makeTauAnalysisSequence( dataType )
+tauSequence = makeTauAnalysisSequence( dataType, 'Tight' )
 tauSequence.configure( inputName = 'TauJets',
                        outputName = 'AnalysisTauJets_%SYS%' )
 algSeq += tauSequence
