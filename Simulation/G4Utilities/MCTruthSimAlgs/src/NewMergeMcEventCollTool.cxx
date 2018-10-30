@@ -105,8 +105,8 @@ StatusCode NewMergeMcEventCollTool::processAllSubEvents()
   const unsigned int nInputMcEventColls=truthList.size();
   if (0 == nInputMcEventColls)
     {
-      ATH_MSG_ERROR("TimedTruthList with key " << m_truthCollKey.value() << " is empty.");
-      return StatusCode::RECOVERABLE;
+      ATH_MSG_WARNING("TimedTruthList with key " << m_truthCollKey.value() << " is empty.");
+      return StatusCode::SUCCESS;
     }
 
   ATH_MSG_DEBUG( "execute: there are " << nInputMcEventColls << " subevents in this event.");
