@@ -69,7 +69,7 @@ job.algsAdd( config )
 
 # Include, and then set up the tau analysis algorithm sequence:
 from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-tauSequence = makeTauAnalysisSequence( dataType )
+tauSequence = makeTauAnalysisSequence( dataType, 'Tight', postfix = 'tight', deepCopyOutput = True )
 tauSequence.configure( inputName = 'TauJets', outputName = 'AnalysisTauJets' )
 print( tauSequence ) # For debugging
 
