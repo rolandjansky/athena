@@ -135,9 +135,8 @@ namespace DerivationFramework {
                 }
             }
         }else{
-            refPvContainer = const_cast<xAOD::VertexContainer*>(pvContainer);
-            if(quadContainer->size() >0)CHECK(helper.FillCandExistingVertices(quadContainer, refPvContainer, m_DoVertexType));
-            if(pairContainer->size() >0)CHECK(helper.FillCandExistingVertices(pairContainer, refPvContainer, m_DoVertexType));
+            if(quadContainer->size() >0)CHECK(helper.FillCandExistingVertices(quadContainer, pvContainer, m_DoVertexType));
+            if(pairContainer->size() >0)CHECK(helper.FillCandExistingVertices(pairContainer, pvContainer, m_DoVertexType));
         }
 
         //----------------------------------------------------

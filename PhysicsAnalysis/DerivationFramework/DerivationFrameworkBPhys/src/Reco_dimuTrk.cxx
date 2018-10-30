@@ -132,9 +132,8 @@ namespace DerivationFramework {
         }
        }
     }else{
-        refPvContainer = const_cast<xAOD::VertexContainer*>(pvContainer);
         if(jpsi1TrackContainer->size() > 0)
-            CHECK(helper.FillCandExistingVertices(jpsi1TrackContainer, refPvContainer, m_DoVertexType));
+            CHECK(helper.FillCandExistingVertices(jpsi1TrackContainer, pvContainer, m_DoVertexType));
     }
     
 

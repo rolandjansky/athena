@@ -375,7 +375,8 @@ TVector3 xAOD::BPhysHelper::totalP()
   
   // sum the momenta
   TVector3 sum(0,0,0);
-  for(int i=0; i<nRefTrks(); ++i) {
+  int n = nRefTrks();
+  for(int i=0; i<n; ++i) {
     sum += refTrk(i);
   }
   
@@ -404,14 +405,14 @@ TLorentzVector xAOD::BPhysHelper::totalP(const std::vector<double>& masses)
   // cache refitted tracks
   if( !cacheRefTracks() ) 
     return TLorentzVector(0,0,0,0);
-  
+  int n = nRefTrks();
   // input check
-  if(int(masses.size()) != nRefTrks())
+  if(int(masses.size()) != n)
     return TLorentzVector(0,0,0,0);
   
   // sum the 4-momenta
   TLorentzVector sum;
-  for(int i=0; i<nRefTrks(); ++i) {
+  for(int i=0; i<n; ++i) {
     sum += refTrk(i, masses[i]);
   }
   

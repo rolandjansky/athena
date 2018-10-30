@@ -137,8 +137,7 @@ namespace DerivationFramework {
         }
         }
     }else{
-        refPvContainer = const_cast<xAOD::VertexContainer*>(pvContainer);
-        if(jpsi2TrackContainer->size() >0) CHECK(helper.FillCandExistingVertices(jpsi2TrackContainer, refPvContainer, m_DoVertexType));
+        if(jpsi2TrackContainer->size() >0) CHECK(helper.FillCandExistingVertices(jpsi2TrackContainer, pvContainer, m_DoVertexType));
     }
     
     // save in the StoreGate
