@@ -342,15 +342,15 @@ if (hi):
   hlt_l1EtaLowThresholds        = { 'L1_J20':0.,
                                     'L1_J30':0.,
                                     'L1_TE50':0.,
-                                    'L1_J15.31ETA49':3.1.,
-                                    'L1_J20.31ETA49':3.1.}
+                                    'L1_J15.31ETA49':3.1,
+                                    'L1_J20.31ETA49':3.1}
   
   
   hlt_l1EtaHighThresholds        = { 'L1_J20':0.,
                                     'L1_J30':0.,
                                     'L1_TE50':0.,
-                                    'L1_J15.31ETA49':4.9.,
-                                    'L1_J20.31ETA49':4.9.}
+                                    'L1_J15.31ETA49':4.9,
+                                    'L1_J20.31ETA49':4.9}
   
 # HLT items
   hlt_hltEtThresholds            = { 'j85_ion_L1TE50':0.,
