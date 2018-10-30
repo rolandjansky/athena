@@ -31,6 +31,7 @@ class UncertaintyGroup : public asg::AsgMessaging
         UncertaintyGroup(const GroupHelper& group);
         UncertaintyGroup(const UncertaintyGroup& toCopy);
         //virtual UncertaintyGroup* clone() const = 0;
+        UncertaintyGroup & operator=(const UncertaintyGroup &) = delete;
         virtual ~UncertaintyGroup();
         virtual StatusCode addComponent(UncertaintyComponent* component);
         virtual StatusCode addSubgroup(UncertaintyGroup* subgroup);

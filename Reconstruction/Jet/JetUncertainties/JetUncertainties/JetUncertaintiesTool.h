@@ -43,6 +43,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         // Constructor/destructor
         JetUncertaintiesTool(const std::string& name = "JetUncertaintiesTool");
         JetUncertaintiesTool(const JetUncertaintiesTool& toCopy);
+        JetUncertaintiesTool & operator=(const JetUncertaintiesTool&) =delete;
         virtual ~JetUncertaintiesTool();
 
         // Pre-initialization methods
