@@ -38,6 +38,7 @@ namespace CP {
   class IEgammaCalibrationAndSmearingTool;
 }
 class ITauToolBase;
+class IJERTool;
 
 // Forward declaration
 namespace met {
@@ -106,6 +107,7 @@ namespace met {
     METSignificance();
 
     // tools
+    asg::AnaToolHandle<IJERTool> m_jerTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
@@ -156,10 +158,15 @@ namespace met {
     bool   m_treatPUJetsOld;
     bool   m_doPhiReso;
     bool   m_applyBias;
+    bool   m_jerRun1;
 
     bool m_isDataJet;
     bool m_isDataMuon;
     bool m_isAFII;
+
+    // set limits
+    float m_jetPtThr;
+    float m_jetEtaThr;
 
     double m_scalarBias;
     double m_significance;
