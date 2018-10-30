@@ -1,14 +1,35 @@
+// this is -*- C++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef H5_TRAITS_H
 #define H5_TRAITS_H
+
+/**
+ * HDF5 Traits
+ *
+ * This is a collection of tools to make HDF5 strongly typed
+ *
+ **/
+
 
 namespace H5 {
   class DataType;
 }
 
 namespace H5Utils {
+
+  /// @brief Internal clssses and code
+  /// @{
+
   namespace internal {
-    // buffer used by the HDF5 library to store data which is about to
-    // be written to disk
+
+    /** @brief data_buffer_t
+     *
+     * This buffer element is used by the HDF5 library to store data
+     * which is about to be written to disk.
+     **/
     union data_buffer_t
     {
       int _int;
@@ -20,11 +41,11 @@ namespace H5Utils {
       bool _bool;
     };
 
-    // traits to define the HDF5 type and buffer conversion
-    template <typename T>
-    struct H5Traits {
-      static T& ref(data_buffer_t& buf) = 0;
-    };
+    /**
+     * We have lots of code to get around HDF5's rather weak typing. Some
+     * of this is filled out more in the cxx file.
+     **/
+    template <typename T> struct H5Traits;
     template <> struct H5Traits<int> {
       static const H5::DataType type;
       static int& ref(data_buffer_t& buf) { return buf._int; }

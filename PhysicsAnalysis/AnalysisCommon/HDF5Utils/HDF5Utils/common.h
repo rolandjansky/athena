@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef H5UTILS_COMMON_H
 #define H5UTILS_COMMON_H
 

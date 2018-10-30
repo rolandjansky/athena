@@ -10,64 +10,6 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <set>
 
 namespace H5Utils {
-  namespace internal {
-
-    template<>
-    H5::DataType get_type<float>() {
-      return H5::PredType::NATIVE_FLOAT;
-    }
-    template<>
-    H5::DataType get_type<int>() {
-      return H5::PredType::NATIVE_INT;
-    }
-    template<>
-    H5::DataType get_type<long long>() {
-      return H5::PredType::NATIVE_LLONG;
-    }
-    template<>
-    H5::DataType get_type<unsigned int>() {
-      return H5::PredType::NATIVE_UINT;
-    }
-    template<>
-    H5::DataType get_type<unsigned char>() {
-      return H5::PredType::NATIVE_UCHAR;
-    }
-    template<>
-    H5::DataType get_type<double>() {
-      return H5::PredType::NATIVE_DOUBLE;
-    }
-    template<>
-    H5::DataType get_type<bool>() {
-      bool TRUE = true;
-      bool FALSE = false;
-      H5::EnumType btype(sizeof(bool));
-      btype.insert("TRUE", &TRUE);
-      btype.insert("FALSE", &FALSE);
-      return btype;
-    }
-
-    template<> int& get_ref<int>(data_buffer_t& buf) {
-      return buf._int;
-    }
-    template<> long long& get_ref<long long>(data_buffer_t& buf) {
-      return buf._llong;
-    }
-    template<> unsigned int& get_ref<unsigned int>(data_buffer_t& buf) {
-      return buf._uint;
-    }
-    template<> unsigned char& get_ref<unsigned char>(data_buffer_t& buf) {
-      return buf._uchar;
-    }
-    template<> float& get_ref<float>(data_buffer_t& buf) {
-      return buf._float;
-    }
-    template<> double& get_ref<double>(data_buffer_t& buf) {
-      return buf._double;
-    }
-    template<> bool& get_ref<bool>(data_buffer_t& buf) {
-      return buf._bool;
-    }
-  }
 
   namespace {
     // packing utility

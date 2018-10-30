@@ -1,3 +1,7 @@
+// this is -*- C++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "HDF5Utils/Writer.h"
 
 #include "H5Cpp.h"

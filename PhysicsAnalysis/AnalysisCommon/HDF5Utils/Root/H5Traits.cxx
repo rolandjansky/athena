@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "HDF5Utils/H5Traits.h"
 
 #include "H5Cpp.h"

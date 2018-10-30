@@ -1,3 +1,7 @@
+// this is -*- C++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef HDF_TUPLE_HH
 #define HDF_TUPLE_HH
 
