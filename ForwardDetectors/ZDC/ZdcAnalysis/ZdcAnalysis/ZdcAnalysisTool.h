@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ZDCANALYSISTOOL_H__
-#define __ZDCANALYSISTOOL_H__
+#ifndef ZDCANALYSIS_ZDCANALYSISTOOL_H
+#define ZDCANALYSIS_ZDCANALYSISTOOL_H
 
 #include "AsgTools/AsgTool.h"
 #include "xAODForward/ZdcModuleContainer.h"
@@ -63,7 +63,9 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   bool  sideFailed(int side);
   unsigned int getModuleMask();
 
-  float getTriggerEfficiency(int side);
+  double getTriggerEfficiency(int side);
+  double getTriggerEfficiencyUncertainty(int side);
+  bool m_doTimeCalib;
 
   const ZDCDataAnalyzer* getDataAnalyzer() {return m_zdcDataAnalyzer;}
 
@@ -72,6 +74,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   //
   ZDCDataAnalyzer* initializeDefault();
   ZDCDataAnalyzer* initializepPb2016();
+  ZDCDataAnalyzer* initializePbPb2018();
 
   StatusCode configureNewRun(unsigned int runNumber);
 
@@ -93,7 +96,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   unsigned int m_lumiBlock;
 
   // internal functions
-  TF1* tf1SincInterp;
+  TF1* m_tf1SincInterp;
 
   std::string m_zdcModuleContainerName;
   const xAOD::ZdcModuleContainer* m_zdcModules;
@@ -125,9 +128,9 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   ZDCDataAnalyzer* m_zdcDataAnalyzer;
   ZDCDataAnalyzer* m_zdcDataAnalyzer_40MHz;
   ZDCDataAnalyzer* m_zdcDataAnalyzer_80MHz;
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinSamples;
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinThresholdsHG;
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinThresholdsLG;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinSamples;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsHG;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsLG;
 
 
   ZDCTriggerEfficiency* m_zdcTriggerEfficiency;
