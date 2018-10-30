@@ -171,16 +171,10 @@ class L2EFChain_met(L2EFChainDef):
             if EFrecoAlg=='pufittrack':
                 calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
                 #MET fex
-                #print "PUFITTRACK XXXXXXXXXX"
-                #print calibCorr
                 theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC("EFMissingET_Fex_topoClustersTracksPUC{0}".format(calibCorr), extraCalib=calibCorr)
-                #print "PUFITTRACK XXXXXXXXXX"
-                #print theEFMETFex
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
-                #print theEFMETMuonFex
                 mucorr= '_wMu' if EFmuon else ''
-                #theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
 
             ##MET based on trigger jets
