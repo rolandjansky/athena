@@ -268,7 +268,7 @@ multibExpr  = "count(%s && (%s>20.*GeV))>1" % (bjet85, jetpt)
 #ISR-selection (non-btagged high-pt + btagged low-pt)
 isrBFixExpr  = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" % (bfix77,jetpt,bfix85,jetpt)
 isrBHybExpr = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" % (bhyb77,jetpt,bhyb85,jetpt)
-isrExpr = "(%s || %s || %s)" % (isrBFixExpr, isrBHybExpr, onesofttagExpr)
+isrExpr = "(%s || %s)" % (isrBFixExpr, isrBHybExpr)
 
 ### skimming 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -288,10 +288,14 @@ SUSY7isrSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY
                                                                     expression = isrExpr)
 ToolSvc += SUSY7isrSkimmingTool
 
+SUSY7softBSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7softBSkimmingTool",
+                                                                      expression = onesofttagExpr)
+ToolSvc += SUSY7softBSkimmingTool
+
 #make selections OR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 SUSY7SkimmingORTool = DerivationFramework__FilterCombinationOR(name = "SUSY7SkimmingORTool",
-                                                               FilterList = [SUSY7diLepSkimmingTool, SUSY7btagSkimmingTool, SUSY7multibSkimmingTool, SUSY7isrSkimmingTool])
+                                                               FilterList = [SUSY7diLepSkimmingTool, SUSY7btagSkimmingTool, SUSY7multibSkimmingTool, SUSY7isrSkimmingTool, SUSY7softBSkimmingTool])
 ToolSvc += SUSY7SkimmingORTool   
 
 #add AND with Trigger skimming criteria
@@ -307,7 +311,6 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 SUSY7SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY7SkimmingTool",
                                                               FilterList = [SUSY7SkimmingORTool, SUSY7trigSkimmingTool])
 ToolSvc += SUSY7SkimmingTool
-
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
