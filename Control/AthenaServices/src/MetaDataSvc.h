@@ -15,6 +15,7 @@
 #include "GaudiKernel/Property.h"  // no forward decl: typedef
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
+#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
@@ -75,7 +76,7 @@ public: // Non-static members
 
    /// Function called when the current state of metadata must be made 
    /// ready for output
-   StatusCode prepareOutput();
+   StatusCode prepareOutput(const Incident&);
    StatusCode proxyIncident(const Incident&);
               
    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
@@ -97,7 +98,7 @@ public: // Non-static members
    void handle(const Incident& incident);
 
    /// Transition output metadata file - fire MeteDataStop incident to transition OutputStream
-   StatusCode transitionMetaDataFile(bool ignoreInputFile = false);
+   StatusCode transitionMetaDataFile(const FileIncident&, bool ignoreInputFile = false);
 
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    StatusCode io_reinit();

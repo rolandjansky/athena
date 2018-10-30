@@ -27,9 +27,12 @@ rec.doWriteAOD.set_Value_and_Lock( False )
 include( "RecExCommon/RecExCommon_topOptions.py" )
 
 # Configure the metadata tool:
-ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
-                                                      OutputLevel = 1 )
-svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+#ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
+#                                                      OutputLevel = 1 )
+tmdt = xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
+                                     OutputLevel = 1 )
+svcMgr.MetaDataSvc.MetaDataTools += [ tmdt ]
+#svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 # Set up an output file:
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr

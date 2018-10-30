@@ -44,6 +44,7 @@ def GetCurrentStreamName( msg, athFile=None ):
 
 
 def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True, SGkey="CutBookkeepers" ):
+    print "CreateCutFlowSvc"
     """
     Helper to create the CutFlowSvc, extract the needed information from
     the input file, and also schedule all the needed stuff.
@@ -63,8 +64,6 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
     svcMgr.CutFlowSvc.InputStream   = inputStreamName
-    #if not hasattr(svcMgr,"FileCutFlowSvc"): svcMgr += CfgMgr.FileCutFlowSvc()
-    #svcMgr.FileCutFlowSvc.InputStream   = inputStreamName
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
@@ -80,23 +79,23 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     cutflowtool = BookkeeperTool(outname+"Tool",
                                  InputCollName = inname,
                                  OutputCollName= outname) 
-    svcMgr.ToolSvc += cutflowtool
+    #svcMgr.ToolSvc += cutflowtool
+
 
     # Add tool to MetaDataSvc
     svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+    for x in svcMgr.MetaDataSvc.MetaDataTools:
+        print x
 
     # Add pdf sum of weights counts if appropriate
     from AthenaCommon.GlobalFlags  import globalflags
     if globalflags.DataSource() == 'geant4':
-        #from PyUtils import AthFile
-        #afc = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
-
         # PDF
         name = "PDFSumOfWeights"
         pdfweighttool = BookkeeperTool(name,
                                        OutputCollName= name, 
                                        InputCollName = name)
-        svcMgr.ToolSvc += pdfweighttool
+        #svcMgr.ToolSvc += pdfweighttool
 
         # Add tool to MetaDataSvc
         svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
@@ -167,9 +166,9 @@ def CreateBookkeeperTool( name="CutBookkeepers" ):
   cutflowtool = BookkeeperTool(name,
                                InputCollName=name,
                                OutputCollName = name)
-  svcMgr.ToolSvc += cutflowtool
+  #svcMgr.ToolSvc += cutflowtool
 
   # Add tool to MetaDataSvc
-  #svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+  svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
   return
