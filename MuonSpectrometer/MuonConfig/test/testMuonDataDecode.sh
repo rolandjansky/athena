@@ -1,20 +1,6 @@
 #!/bin/sh
 
-python MuonBytestreamDecodeConfig.py # generate pickle
-status=$?
-if [ ${status} -ne 0 ] 
-then
-    echo "ERROR in configuration generation stage, stopping"
-    exit -1
-else
-    echo
-    echo "JOs reading stage finished, launching Athena from pickle file"
-    echo 
-    athena --threads=1 --evtMax=20 MuonBytestreamDecode.pkl
-fi
-
-
-python MuonRdoDecodeConfig.py # generate pickle
+python -c 'from MuonConfig.MuonRdoDecodeConfig import muonRdoDecodeTestData; muonRdoDecodeTestData()'# generate pickle
 status=$?
 if [ ${status} -ne 0 ] 
 then

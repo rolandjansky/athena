@@ -1,6 +1,13 @@
+#
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import DEBUG, INFO
 
+## This configuration function sets up everything for decoding RPC bytestream data into RDOs
+#
+# The forTrigger paramater is used to put the algorithm in RoI mode
+# The function returns a ComponentAccumulator and the data-decoding algorithm, which should be added to the right sequence by the user
 def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
