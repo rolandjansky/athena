@@ -37,7 +37,6 @@
 class CondAttrListCollection;
 class EventContext;
 class EventInfo;
-class HLTResultMT;
 class HLTResultMTMaker;
 class IAlgExecStateSvc;
 class IAlgorithm;
@@ -52,6 +51,9 @@ class StoreGateSvc;
 class TrigCOOLUpdateHelper;
 namespace coral {
   class AttributeList;
+}
+namespace HLT {
+  class HLTResultMT;
 }
 
 /** @class HltEventLoopMgr
@@ -231,7 +233,7 @@ private:
   /// StoreGate key for reading EventInfo
   SG::ReadHandleKey<EventInfo> m_eventInfoRHKey;
   /// StoreGate key for reading the HLT result
-  SG::ReadHandleKey<HLTResultMT> m_hltResultRHKey;
+  SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields

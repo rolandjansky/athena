@@ -23,7 +23,7 @@ StatusCode TriggerBitsMakerTool::initialize() {
 }
 
 
-StatusCode TriggerBitsMakerTool::fill( HLTResultMT& resultToFill ) const {
+StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   std::vector<uint32_t> bits;
   ATH_CHECK( fill( bits ) );
   resultToFill.setHltBits( bits );

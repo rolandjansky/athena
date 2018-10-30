@@ -4,7 +4,7 @@
 
 // Trigger includes
 #include "TrigHLTResultByteStream/HLTResultMTByteStreamCnv.h"
-#include "TrigOutputHandling/HLTResultMT.h"
+#include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthCheckMacros.h"
@@ -74,7 +74,7 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   // Cast the DataObject to HLTResultMT
-  HLTResultMT* hltResult = nullptr;
+  HLT::HLTResultMT* hltResult = nullptr;
   bool castSuccessful = SG::fromStorable(pObj, hltResult);
   if (!castSuccessful || !hltResult) {
     ATH_MSG_ERROR("Failed to convert DataObject to HLTResultMT");
@@ -155,6 +155,6 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
 // CLID
 // =============================================================================
 const CLID& HLT::HLTResultMTByteStreamCnv::classID() {
-  return ClassID_traits<HLTResultMT>::ID();
+  return ClassID_traits<HLT::HLTResultMT>::ID();
 }
 

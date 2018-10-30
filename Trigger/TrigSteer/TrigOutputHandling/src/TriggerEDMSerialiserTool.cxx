@@ -82,7 +82,7 @@ StatusCode TriggerEDMSerialiserTool::fillPayload( void* data, size_t sz, std::ve
 }
 
 
-StatusCode TriggerEDMSerialiserTool::fill( HLTResultMT& resultToFill ) const {
+StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
 
     
   for ( const Address& address: m_toSerialize ) {

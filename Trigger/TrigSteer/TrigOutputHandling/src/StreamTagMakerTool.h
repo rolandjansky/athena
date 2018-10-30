@@ -21,7 +21,7 @@ public:
   StreamTagMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~StreamTagMakerTool() override;
 
-  virtual StatusCode fill( HLTResultMT& resultToFill ) const override;
+  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;

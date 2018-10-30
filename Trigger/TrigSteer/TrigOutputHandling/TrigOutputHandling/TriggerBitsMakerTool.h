@@ -19,7 +19,7 @@ public:
   TriggerBitsMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~TriggerBitsMakerTool() override;
 
-  virtual StatusCode fill( HLTResultMT& resultToFill ) const override;
+  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
   StatusCode fill( std::vector<uint32_t>& place ) const;
   
   virtual StatusCode initialize() override;

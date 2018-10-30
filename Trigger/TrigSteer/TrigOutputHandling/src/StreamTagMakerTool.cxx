@@ -28,7 +28,7 @@ StatusCode StreamTagMakerTool::finalize() {
 }
 
 
-StatusCode StreamTagMakerTool::fill( HLTResultMT& resultToFill ) const {
+StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   // obtain chain decisions, 
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
 

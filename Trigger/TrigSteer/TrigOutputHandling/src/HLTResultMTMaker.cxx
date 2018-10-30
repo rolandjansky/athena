@@ -40,7 +40,7 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 
   // Create and record the HLTResultMT object
   auto hltResult = SG::makeHandle(m_hltResultWHKey,eventContext);
-  ATH_CHECK( hltResult.record(std::make_unique<HLTResultMT>()) );
+  ATH_CHECK( hltResult.record(std::make_unique<HLT::HLTResultMT>()) );
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
 
   // Fill the object using the result maker tools

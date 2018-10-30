@@ -14,8 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           GaudiKernel
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigOutputHandling )
+                          Trigger/TrigEvent/TrigSteeringEvent )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write )
@@ -25,10 +24,10 @@ atlas_add_library( TrigHLTResultByteStreamLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigHLTResultByteStream
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps SGTools ByteStreamData GaudiKernel TrigSteeringEvent TrigOutputHandlingLib StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData_test )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps SGTools ByteStreamData GaudiKernel TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData_test )
 
 atlas_add_component( TrigHLTResultByteStream
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TrigSteeringEvent TrigOutputHandlingLib TrigHLTResultByteStreamLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TrigSteeringEvent TrigHLTResultByteStreamLib )
 

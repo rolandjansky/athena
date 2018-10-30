@@ -6,9 +6,9 @@
 #include "TrigServices/HltEventLoopMgr.h"
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
-#include "TrigSORFromPtreeHelper.h"
-#include "TrigOutputHandling/HLTResultMT.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
+#include "TrigSORFromPtreeHelper.h"
+#include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
@@ -1118,13 +1118,13 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     m_hltResultMaker->makeResult(eventContext).ignore();
   }
 
-  std::unique_ptr<HLTResultMT> hltResultPtr;
+  std::unique_ptr<HLT::HLTResultMT> hltResultPtr;
   if (!hltResultRH.isValid())
-    hltResultPtr = std::make_unique<HLTResultMT>();
+    hltResultPtr = std::make_unique<HLT::HLTResultMT>();
   else
-    hltResultPtr = std::make_unique<HLTResultMT>(*hltResultRH);
+    hltResultPtr = std::make_unique<HLT::HLTResultMT>(*hltResultRH);
 
-  SG::WriteHandleKey<HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
+  SG::WriteHandleKey<HLT::HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
   hltResultWHK.initialize();
   auto hltResultWH = SG::makeHandle(hltResultWHK,eventContext);
   if (hltResultWH.record(std::move(hltResultPtr)).isFailure()) {
