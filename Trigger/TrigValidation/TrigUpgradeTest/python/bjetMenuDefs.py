@@ -94,8 +94,10 @@ def bJetStep1Sequence():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
+    hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
-    hypo.RoILink = "initialRoI" # "roi" # To be used in following steps
+    hypo.RoILink = "initialRoI" # To be used in following step EventView
+    hypo.JetLink = "jets" # To be used in following step with EventView
     hypo.RoIs = jetSplitter.OutputRoi
 
     # Sequence     
@@ -117,14 +119,18 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
     # Event View Creator Algorithm
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-    InputMakerAlg = EventViewCreatorAlgorithm("BJetInputMaker_step2")
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmForBjet
+    InputMakerAlg = EventViewCreatorAlgorithmForBjet("BJetInputMaker_step2")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.RoIsLink = "roi" # RoIs linked to previous decision
-    InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
     InputMakerAlg.Views = "BJetViews" # Name of output view
+    # RoIs
+    InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
+    InputMakerAlg.RoIsLink = "initialRoI" # RoIs linked to previous decision
+    # Jets
+    InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
+    InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
 
     # Precision Tracking
 
@@ -132,7 +138,8 @@ def bJetStep2Sequence():
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
-    theGSC.JetKey = "SplitJets" #InputMakerAlg.InViewRoIs
+    theGSC.RoIs = InputMakerAlg.InViewRoIs
+    theGSC.JetKey = InputMakerAlg.InViewJets
     theGSC.JetOutputKey = "GSCJets"
 
     step2Sequence = seqAND("step2Sequence",[theGSC]);
@@ -144,6 +151,7 @@ def bJetStep2Sequence():
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
+    hypo.RoIs = InputMakerAlg.InViewRoIs
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])
@@ -174,14 +182,14 @@ def bJetStep2SequenceALLTE():
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
-    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
+    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
     hypo.RoILink = "initialRoI"
     hypo.RoIs = InputMakerAlg.Output
 
     # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,theGSC])
+    BjetAthSequence = seqAND("BjetAthSequence_step2ALLTE",[InputMakerAlg,theGSC])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,

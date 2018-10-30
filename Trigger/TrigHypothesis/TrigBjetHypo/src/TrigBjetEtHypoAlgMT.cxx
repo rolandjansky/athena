@@ -19,7 +19,7 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_roiLink          );
-  ATH_MSG_DEBUG(  "   " << m_inputJetsKey     );
+  ATH_MSG_DEBUG(  "   " << m_jetLink          );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve()   );
@@ -45,6 +45,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // Taken from Jet code
   // Read in previous Decisions made before running this Hypo Alg.
   // The container should have only one such Decision in case we are cutting on 'j' threshold (for L1)
+  ATH_MSG_DEBUG( "Retrieving Previous Decision" );
   SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );
   CHECK( prevDecisionHandle.isValid() );
 
@@ -65,6 +66,10 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Retrieving input TrigRoiDescriptorCollection with key: " << m_inputRoIKey );
   SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_inputRoIKey,context );
   CHECK( roiContainerHandle.isValid() );
+  const TrigRoiDescriptorCollection *roiContainer = roiContainerHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << roiContainer->size() <<" input RoIs" );
+  for ( const TrigRoiDescriptor *roi : *roiContainer )
+    ATH_MSG_DEBUG( "   ** eta="<< roi->eta() << " phi=" << roi->phi() );
 
   // ========================================================================================================================== 
   //    ** Prepare Outputs
@@ -99,6 +104,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
   }
 
+
   // ==========================================================================================================================
   //    ** Store Output
   // ==========================================================================================================================
@@ -113,7 +119,10 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // ==========================================================================================================================  
 
   newDecision->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision" );
+  ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision." );
+
+  newDecision->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
+  ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
 
   return StatusCode::SUCCESS;
 }

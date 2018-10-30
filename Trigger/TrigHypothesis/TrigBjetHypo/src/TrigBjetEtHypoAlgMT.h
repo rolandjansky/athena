@@ -45,6 +45,7 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
 
  private:
   Gaudi::Property< std::string > m_roiLink {this,"RoILink","roi","RoI link to attach to the output decision"};
+  Gaudi::Property< std::string > m_jetLink {this,"JetLink","jets","Jets link to attach to the output decision"};
 
   SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Undefined","Input Jet Container Key"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_inputRoIKey {this,"RoIs","Undefined","Input RoIs that will be linked to the output decision"};

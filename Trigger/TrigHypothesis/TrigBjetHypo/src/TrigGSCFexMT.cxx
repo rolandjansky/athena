@@ -81,6 +81,19 @@ StatusCode TrigGSCFexMT::execute() {
   // ==============================================================================================================================
 
   const EventContext& ctx = getContext();
+  /*
+  // RoIs
+  ATH_MSG_DEBUG( "Ready to retrieve rois : " << m_roiContainerKey.key() );
+  auto roiContainerHandle = SG::makeHandle( m_roiContainerKey,ctx );
+  CHECK( roiContainerHandle.isValid() );
+
+  auto roiContainer = roiContainerHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << roiContainer->size() <<" input RoIs" );
+  for ( auto el : *roiContainer ) {
+    ATH_MSG_DEBUG( "   ** RoI : eta=" << el->eta() <<" phi=" << el->phi() );
+  }
+  */
+  // Jets
   ATH_MSG_DEBUG( "Ready to retrieve jets : " << m_JetContainerKey.key() );
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_JetContainerKey,ctx );
   CHECK( jetContainerHandle.isValid() );
@@ -191,7 +204,6 @@ StatusCode TrigGSCFexMT::execute() {
   ATH_MSG_DEBUG( "Saving Output" );
   SG::WriteHandle< xAOD::JetContainer > outputJetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
   ATH_CHECK( outputJetContainerHandle.record( std::move(calibrateJets),std::move(calibratedJetsAux) ) ); 
-  ATH_MSG_DEBUG( "Done" );
 
   return StatusCode::SUCCESS;
 }
