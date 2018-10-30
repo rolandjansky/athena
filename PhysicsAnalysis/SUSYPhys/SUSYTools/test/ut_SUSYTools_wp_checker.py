@@ -130,7 +130,6 @@ OR.EleFatJetDR: 1.
 OR.JetFatJetDR: 1.
 #
 SigLep.RequireIso: true
-SigLepPh.IsoCloseByOR: false
 #
 MET.EleTerm: RefEle
 MET.GammaTerm: RefGamma
