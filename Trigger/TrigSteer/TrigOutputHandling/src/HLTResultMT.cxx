@@ -3,6 +3,7 @@
 */
 
 #include "TrigOutputHandling/HLTResultMT.h"
+#include <algorithm>
 
 // =============================================================================
 // Standard constructor
@@ -45,8 +46,24 @@ void HLTResultMT::setStreamTags(const std::vector<eformat::helper::StreamTag>& s
 
 // -----------------------------------------------------------------------------
 void HLTResultMT::addStreamTag(const eformat::helper::StreamTag& streamTag) {
-  //TODO: handle duplicates
-  m_streamTags.push_back(streamTag);
+  // Check if a stream tag with the same type and name is already in the result
+  auto compareTypeName = [&streamTag](const eformat::helper::StreamTag& existingStreamTag) {
+    return streamTag.type == existingStreamTag.type && streamTag.name == existingStreamTag.name;
+  };
+  auto p = std::find_if(m_streamTags.begin(), m_streamTags.end(), compareTypeName);
+
+  // In case of duplicate, merge ROBs and SubDets, otherwise just append the tag to the result
+  if (p != m_streamTags.end()) {
+    if (streamTag.obeys_lumiblock != p->obeys_lumiblock) {
+      // This shouldn't happen, but in case it does, true takes precedence
+      p->obeys_lumiblock = true;
+    }
+    p->robs.insert(streamTag.robs.begin(), streamTag.robs.end());
+    p->dets.insert(streamTag.dets.begin(), streamTag.dets.end());
+  }
+  else {
+    m_streamTags.push_back(streamTag);
+  }
 }
 
 // =============================================================================
