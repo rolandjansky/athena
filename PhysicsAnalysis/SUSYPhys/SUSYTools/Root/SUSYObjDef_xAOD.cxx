@@ -238,7 +238,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doMuIsoSignal(true),
     
     m_useSigLepForIsoCloseByOR(false),
-    m_IsoCloseByORpassLabel(),
+    m_IsoCloseByORpassLabel(""),
 
     m_metJetSelection(""),
     //
