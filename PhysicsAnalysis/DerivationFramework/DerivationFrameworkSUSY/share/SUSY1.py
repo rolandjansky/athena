@@ -57,6 +57,16 @@ SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 #ToolSvc += SUSY1TPThinningTool
 #thinningTools.append(SUSY1TPThinningTool)
 
+# TrackParticles associated with Vertices from soft tagging
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+
+SUSY1VertexTPThinningTool = DerivationFramework__VertexParticleThinning(name			 = "SUSY1VertexTPThinningTool",
+									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+									 VertexKey		 = "SoftBVrtClusterTool_Vertices",
+									 InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY1VertexTPThinningTool
+thinningTools.append(SUSY1VertexTPThinningTool)
+
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name			 = "SUSY1MuonTPThinningTool",
@@ -306,6 +316,26 @@ replaceAODReducedJets(reducedJetList, SeqSUSY1, "SUSY1")
 addDefaultTrimmedJets(SeqSUSY1, "SUSY1")
 
 #==============================================================================
+# Soft Tagging
+#==============================================================================
+from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
+
+SeqSUSY1 += CfgMgr.BTagVertexAugmenter()
+
+BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
+ToolSvc += BJetSVFinderTool
+BJetSVFinderTool.ConeForTag = 0.6
+
+softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+
+SeqSUSY1 += softTagAlg
+
+#==============================================================================
 # Tau truth building/matching
 #==============================================================================
 # now part of MCTruthCommon
@@ -383,6 +413,14 @@ SUSY1SlimmingHelper.IncludeJetTriggerContent    = True
 SUSY1SlimmingHelper.IncludeTauTriggerContent    = True
 SUSY1SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
+
+excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+
+SUSY1SlimmingHelper.StaticContent = StaticContent
 
 appendToDictDict = {
   "BTagging_AntiKt4EMPFlow":"xAOD::BTaggingContainer",
