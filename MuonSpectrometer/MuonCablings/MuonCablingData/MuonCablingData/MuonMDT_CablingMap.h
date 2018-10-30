@@ -124,6 +124,9 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 
 };
 
+//#include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( MuonMDT_CablingMap , 51038731 , 1 )
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<MuonMDT_CablingMap>, 34552845, 0 )
 
 #endif
