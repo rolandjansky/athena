@@ -1208,7 +1208,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doMuIsoSignal, "SigMu.RequireIso", rEnv, m_doIsoSignal);
   configFromFile(m_doPhIsoSignal, "SigPh.RequireIso", rEnv, m_doIsoSignal);
   configFromFile(m_useSigLepForIsoCloseByOR, "SigLepPh.UseSigLepForIsoCloseByOR", rEnv, false);
-  configFromFile(m_IsoCloseByORpassLabel, "SigLepPh.IsoCloseByORpassLabel", rEnv, "");
+  configFromFile(m_IsoCloseByORpassLabel, "SigLepPh.IsoCloseByORpassLabel", rEnv, "None");
  
   //
   configFromFile(m_eleTerm, "MET.EleTerm", rEnv, "RefEle");
