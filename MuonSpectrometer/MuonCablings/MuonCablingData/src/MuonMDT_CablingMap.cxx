@@ -423,7 +423,7 @@ uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode)
   return rodId;
 }
 
-const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const uint32_t ROBId)
+const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const uint32_t ROBId) const
 {
   RODToChamberMap::const_iterator Rob_it = m_RODToChamber->find(ROBId);
   if(Rob_it != m_RODToChamber->end()) {
@@ -435,7 +435,7 @@ const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const u
   }
 }
 
-const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const std::vector< uint32_t> &ROBId_list)
+const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const
 {
    std::vector<IdentifierHash> HashVec;
   
