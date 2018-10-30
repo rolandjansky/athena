@@ -22,7 +22,8 @@ egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloCluste
 # --- get the builder tool
 #
 from InDetCaloClusterROIBuilder.InDetCaloClusterROIBuilderConf import InDet__CaloClusterROI_Builder
-InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder")
+InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder",
+                                                           EMEnergyOnly = True)
 
 if (InDetFlags.doPrintConfigurables()):
     print InDetCaloClusterROIBuilder
