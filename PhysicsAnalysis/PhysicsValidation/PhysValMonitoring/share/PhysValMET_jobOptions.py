@@ -49,7 +49,5 @@ tauseltool = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool")
 ToolSvc += tauseltool
 tool1.TauSelectionTool = tauseltool
 
-ToolSvc += tool1
-
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]
