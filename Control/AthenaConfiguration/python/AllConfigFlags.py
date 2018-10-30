@@ -27,8 +27,13 @@ def _createCfgFlags():
 
 
     acf.addFlag('Output.doESD', False) # produce ESD containers
-    acf.addFlag('Output.writeESD', False) # configure ESD output writing
-        
+
+    acf.addFlag('Output.HITFileName','myHIT.pool.root')
+    acf.addFlag('Output.RDOFileName','myROD.pool.root')
+    acf.addFlag('Output.ESDFileName','myESD.pool.root')
+    acf.addFlag('Output.AODFileName','myAOD.pool.root')
+
+
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #
