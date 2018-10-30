@@ -144,18 +144,6 @@ size_t HiveMgrSvc::freeSlots() {
   return m_freeSlots;
 }
 
-
-DataObjIDColl HiveMgrSvc::getNewDataObjects() {
-  // FIXME: to be removed
-  DataObjIDColl products;
-  return products;
-}
-
-void HiveMgrSvc::addNewDataObjects( DataObjIDColl& /*products*/ ){
-  // FIXME
-  error() << "addNewDataObjects(...) not implemented!" << endmsg;
-}
-
 bool HiveMgrSvc::exists( const DataObjID& id) {
   // this should only get called in error situations, so we
   // don't care if it's slow
