@@ -1158,7 +1158,7 @@ namespace TrigCostRootAnalysis {
     Info("TrigXMLService::parseEnhancedBiasXML", "Loading Enhanced Bias Weighting XML for %i. This could take a little time. (Run #%i)", runNumber, runLoadNumber);
 
     // Try one. Use the external (AFS) data path
-    Config::config().set(kEBXMLName, "/EnhancedBiasWeights_" + intToString(runNumber) + ".xml", "EBXMLName", kUnlocked);
+    Config::config().set(kEBXMLName, "/EnhancedBiasWeights_" + intToString(runNumber) + ".xml", "EBXMLName", kLocked);
     Config::config().set(kEBXMLPath, Config::config().getStr(kAFSDataDir) + "/" + Config::config().getStr(kEBXMLName), "EBXMLPath", kUnlocked);
 
     XMLDocPointer_t xmlDoc = xml->ParseFile(Config::config().getStr(kEBXMLPath).c_str());
@@ -1176,8 +1176,8 @@ namespace TrigCostRootAnalysis {
           Error("TrigXMLService::parseEnhancedBiasXML", "Athena cannot find Enhanced Bias weighting file %s. Critical error.", Config::config().getStr(kEBXMLName).c_str());
           abort();
         } else {
-          Config::config().set(kEBXMLName, locAthena);
-          Info("TrigXMLService::parseEnhancedBiasXML", "Athena has found the file: %s", Config::config().getStr(kEBXMLName).c_str());
+          Config::config().set(kEBXMLPath, locAthena);
+          Info("TrigXMLService::parseEnhancedBiasXML", "Athena has found the file: %s", Config::config().getStr(kEBXMLPath).c_str());
         }
 #endif // not ROOTCORE
       }
