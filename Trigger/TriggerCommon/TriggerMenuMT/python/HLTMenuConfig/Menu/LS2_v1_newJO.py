@@ -4,9 +4,11 @@ def get_flag_item(chainName, L1itemforchain, groups):
     PhysicsStream = 'Main'
     return [chainName, L1itemforchain, [], [PhysicsStream], groups, -1]
 
-def setupMenu():
+def setupMenu(flags):
+    """ 
+    Assign chains for LS2_v1 to menu flags
+    """
 
-    from TriggerJobOpts.MenuConfigFlags import createMenuFlags
     from AthenaCommon.Logging import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO.py' )
 
@@ -22,7 +24,6 @@ def setupMenu():
     # otherwise athenaHLT will seg-fault 
     #---------------------------------------------------------------------
 
-    flags = createMenuFlags()
 
     flags.Trigger.menu.muons = [
         get_flag_item('mu20', 'L1_MU10', ['RATE:SingleMuon', 'BW:Muon']),
@@ -37,6 +38,15 @@ def setupMenu():
         get_flag_item('e8_mu8', 'L1_EM6_MU6', ['RATE:SingleMuon', 'BW:Muon'])
     ]
 
-    return flags
 
 
+if __name__ == "__main__":
+    print "Hello"
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags    
+    setupMenu(ConfigFlags)
+    ConfigFlags.lock()
+    ConfigFlags.dump()
+    
+    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu    
+    menu = generateMenu( ConfigFlags )
+    

@@ -116,6 +116,11 @@ atlas_add_test( generateMenuMT SCRIPT scripts/testMenuMT.sh
               )
 
 
+atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
+                PROPERTIES TIMEOUT 500 
+              )
+
+
 
 #----------------------------------
 # List of menus to be created:
