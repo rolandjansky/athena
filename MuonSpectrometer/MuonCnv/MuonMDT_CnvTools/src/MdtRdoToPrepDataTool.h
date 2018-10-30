@@ -18,6 +18,9 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonRDO/MdtCsmContainer.h"
 
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <string>
 class AtlasDetectorID;
 class Identifier;
@@ -166,6 +169,8 @@ namespace Muon
 
     std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
     void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
+
+    SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
   }; 
 } // end of namespace

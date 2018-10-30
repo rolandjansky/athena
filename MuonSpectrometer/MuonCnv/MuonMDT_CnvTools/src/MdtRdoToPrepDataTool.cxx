@@ -153,8 +153,8 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() ); 
-
   ATH_CHECK( m_mdtPrepDataContainerKey.initialize() );
+  ATH_CHECK( m_readKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
