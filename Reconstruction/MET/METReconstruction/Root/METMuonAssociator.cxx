@@ -214,31 +214,27 @@ namespace met {
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> & /*momenta*/,
                                             float& UEcorr) const
   {
-
-
-    const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
-    const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle); 
-    const CaloCluster* muclus = mu->cluster();
+    const xAOD::Muon* mu = static_cast<const xAOD::Muon*>(obj);
 
     // Get PFOs associated to muons
     for(const auto& pfo : *constits.pfoCont) {      
       if( fabs(pfo->charge()) > FLT_MIN ) { // Fill list with charged PFOs (using muon tracks)
         const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
-        if( idtrack && P4Helpers::isInDeltaR(*pfo, *idtrack, m_Drcone, m_useRapidity) && PVMatchedAcc(*pfo) &&
+        if( mu && P4Helpers::isInDeltaR(*pfo, *mu, m_Drcone, m_useRapidity) && PVMatchedAcc(*pfo) &&
           ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ){
           pfolist.push_back(pfo);
         }
       } 
       else{ // Fill list with neutral PFOs (using muon clusters)
-        if( muclus && P4Helpers::isInDeltaR(*pfo, *muclus, m_Drcone, m_useRapidity) ){
+        if( mu && P4Helpers::isInDeltaR(*pfo, *mu, m_Drcone, m_useRapidity) ){
           pfolist.push_back(pfo);
         }
       } // neutral PFO condition
     } // loop over all PFOs
 
 
-    // Calculating UE energy correction for a given lepton (using muclus only)
-    if(muclus){
+    // Calculating UE energy correction for a given lepton (using mu)
+    if(mu){
       // Vectoral sum of all PFOs 
       TLorentzVector HR;  // uncorrected HR (initialized with 0,0,0,0 automatically)
       for(const auto& pfo_itr : *constits.pfoCont) {
@@ -248,58 +244,41 @@ namespace met {
         HR += pfo_itr->p4();
       }
 
-      // Create vectors of idtrack and muclus of muons
-      std::vector<const TrackParticle*> v_idtrack;
-      std::vector<const CaloCluster*>   v_muclus;
-
+      // Create vectors of muons     
+      std::vector<const xAOD::Muon*> v_mu;
       for(const auto& obj_i : hardObjs) {
         if(obj_i->pt()<5e3 && obj_i->type() != xAOD::Type::Muon) { // sanity check
           continue;
         }
         const xAOD::Muon* mu_curr = static_cast<const xAOD::Muon*>(obj_i); // current muon
-        if( mu_curr->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) ) { // ID track of current muon
-           v_idtrack.push_back( (static_cast<const xAOD::Muon*>(obj_i))->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) );
-        }
-        if( mu_curr->cluster() ) { // calo cluster of current muon
-          v_muclus.push_back( mu_curr->cluster() );
-        }
+        v_mu.push_back(mu_curr);
       }
 
       // Subtracting PFOs matched to muons from HR
-      for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
+      for(const auto& pfo_i : *constits.pfoCont) { // charged and neutral PFOs
         if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) { // sanity check
           continue;
         }
-        if( fabs(pfo_i->charge()) > FLT_MIN ) { // charged PFOs
-          for(const auto& idtrack_i : v_idtrack) { // loop over muon id tracks
-            double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), idtrack_i->eta(), idtrack_i->phi() );
-            if( dR < m_Drcone ) { // if cPFO is in a cone around the id track
-              HR -= pfo_i->p4();
-            }
-          } // over muon v_idtrack
-        } // charged PFOs 
-        else{ // neutral PFOs
-          for(const auto& muclus_i : v_muclus) {
-            double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), muclus_i->eta(), muclus_i->phi() );
-            if( dR < m_Drcone ) { // if nPFO is in a cone around muon calo cluster
-              HR -= pfo_i->p4();
-            }
-          } // over muon v_muclus
-        } // neutral PFOs       
-      } // over all PFOs
+        for(const auto& mu_i : v_mu) { // loop over muons
+          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), mu_i->eta(), mu_i->phi() );
+          if( dR < m_Drcone ) { // if PFO is in a cone around muon
+            HR -= pfo_i->p4();
+          } // cone requirement
+        } // over v_mu
+      } // over PFOs
 
-      // Save v_muclus as a vector TLV (as commonn type for electrons and muons)
-      std::vector<TLorentzVector> v_muclusTLV;  
-      for(const auto& muclus_i : v_muclus) { // loop over v_muclus
-        v_muclusTLV.push_back( muclus_i->p4() );
+      // Save v_mu as a vector TLV (as commonn type for electrons and muons)
+      std::vector<TLorentzVector> v_muTLV;  
+      for(const auto& mu_i : v_mu) { // loop over v_mu
+        v_muTLV.push_back( mu_i->p4() );
       }
 
-      // Save current muclus as TLV
-      TLorentzVector muclusTLV = muclus->p4();
+      // Save current mu as TLV
+      TLorentzVector muTLV = mu->p4();
 
       // Get UE correction
-      ATH_CHECK( GetUEcorr(constits, v_muclusTLV, muclusTLV, HR, m_Drcone, m_MinDistCone, UEcorr) );
-    } // available muclus requirement
+      ATH_CHECK( GetUEcorr(constits, v_muTLV, muTLV, HR, m_Drcone, m_MinDistCone, UEcorr) );
+    } // available mu requirement
 
 
     return StatusCode::SUCCESS;
