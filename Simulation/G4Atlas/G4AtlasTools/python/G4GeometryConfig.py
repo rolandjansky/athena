@@ -73,7 +73,13 @@ def getIDETEnvelope(name="IDET", **kwargs):
     if isRUN2:
         innerRadius = 28.9*mm #29.15*mm
     if isUpgrade:
-        innerRadius = 32.15*mm
+      from AthenaCommon.GlobalFlags import globalflags
+      from AtlasGeoModel.AtlasGeoDBInterface import AtlasGeoDBInterface
+      dbGeomCursor=AtlasGeoDBInterface(globalflags.DetDescrVersion(),False)
+      dbGeomCursor.ConnectAndBrowseGeoDB()
+      dbId,dbMother,dbParam = dbGeomCursor.GetCurrentLeafContent("AtlasMother")
+      rin=dbMother[dbId[0]][dbParam.index("IDETIR")]
+      innerRadius = rin*mm #
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
     kwargs.setdefault("dZ", 347.5*cm)
