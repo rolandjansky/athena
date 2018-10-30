@@ -14,7 +14,10 @@ digilog = fast_chain_log
 #digilog = logging.getLogger('Digi_trf')
 #logConfigDigitization = logging.getLogger( 'ConfigDigitization' )
 
+fast_chain_log.info( '****************** STARTING EVNTtoRDO *****************' )
 
+fast_chain_log.info( '**** Transformation run arguments' )
+fast_chain_log.info( str(runArgs) )
 
 from G4AtlasApps.SimFlags import simFlags
 
@@ -821,12 +824,6 @@ pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 if hasattr(runArgs, "jobNumber"):
     if runArgs.jobNumber < 1:
         raise ValueError('jobNumber must be a postive integer. %s lies outside this range', str(runArgs.jobNumber))
-
-fast_chain_log.info( '****************** STARTING DIGITIZATION *****************' )
-
-
-fast_chain_log.info( '**** Transformation run arguments' )
-fast_chain_log.info( str(runArgs) )
 
 #==============================================================
 # Job Configuration parameters:
