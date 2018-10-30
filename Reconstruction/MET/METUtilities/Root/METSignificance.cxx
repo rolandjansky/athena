@@ -32,7 +32,6 @@
 #include "xAODMuon/MuonContainer.h"
 
 // Tools
-#include "JetResolution/JERTool.h"
 #include "JetResolution/IJERTool.h"
 #include "JetCalibTools/JetCalibrationTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"

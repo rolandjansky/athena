@@ -139,9 +139,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
-  ANA_CHECK( metSignif.setProperty("IsDataJet",     true) );
-  //ANA_CHECK( metSignif.setProperty("DoRun1JER",     true) );
-  ANA_CHECK( metSignif.setProperty("JetEtaThr",     2.5) );
+  ANA_CHECK( metSignif.setProperty("IsDataJet",     false) );
   ANA_CHECK( metSignif.setProperty("JetCollection", jetType) );
   if(jetAux!="")
     ANA_CHECK( metSignif.setProperty("JetResoAux", jetAux) );
