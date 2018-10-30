@@ -3,14 +3,13 @@
 */
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 // =============================================================================
 // Standard constructor
 // =============================================================================
 HLTResultMTMaker::HLTResultMTMaker(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type, name, parent) {
-  declareProperty("HLTResultWHKey", m_hltResultWHKey="HLTResult");
-}
+  : AthAlgTool(type, name, parent) {}
 
 // =============================================================================
 // Standard destructor
@@ -21,9 +20,8 @@ HLTResultMTMaker::~HLTResultMTMaker() {}
 // Implementation of IStateful::initialize
 // =============================================================================
 StatusCode HLTResultMTMaker::initialize() {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   ATH_CHECK(m_hltResultWHKey.initialize());
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -31,8 +29,7 @@ StatusCode HLTResultMTMaker::initialize() {
 // Implementation of IStateful::finalize
 // =============================================================================
 StatusCode HLTResultMTMaker::finalize() {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  ATH_CHECK(m_monTool.release());
   return StatusCode::SUCCESS;
 }
 
@@ -40,19 +37,30 @@ StatusCode HLTResultMTMaker::finalize() {
 // The main method of the tool
 // =============================================================================
 StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+
+  // Create and record the HLTResultMT object
   auto hltResult = SG::makeHandle(m_hltResultWHKey,eventContext);
   ATH_CHECK( hltResult.record(std::make_unique<HLTResultMT>()) );
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
 
-  // Dummy data for testing
-  hltResult->addStreamTag({"DummyStreamTag1",eformat::TagType::PHYSICS_TAG,true});
-  hltResult->addStreamTag({"DummyStreamTag2",eformat::TagType::CALIBRATION_TAG,true});
-  hltResult->addHltBitsWord(0x00000002);
-  hltResult->addHltBitsWord(0x00000020);
-  hltResult->addSerialisedData(0,{0x01234567,0x89ABCDEF});
-  hltResult->addSerialisedData(5,{0xFEDCBA98,0x76543210});
+  // Fill the object using the result maker tools
+  using namespace Monitored;
+  auto time =  MonitoredTimer::declare("TIME_build" );
+  for (auto& maker: m_makerTools) {
+    ATH_CHECK(maker->fill(*hltResult));
+  }
+  time.stop();
 
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  // Fill monitoring histograms
+  auto nstreams = MonitoredScalar::declare("nstreams", hltResult->getStreamTags().size());
+  auto bitWords = MonitoredScalar::declare("bitWords", hltResult->getHltBits().size());
+  auto nfrags   = MonitoredScalar::declare("nfrags",   hltResult->getSerialisedData().size());
+  auto sizeMain = MonitoredScalar::declare("sizeMain", -1.);
+  auto iter = hltResult->getSerialisedData().find(0); // this is the main fragment of the HLT result
+  if (iter != hltResult->getSerialisedData().end())
+    sizeMain = double(iter->second.size()*sizeof(uint32_t))/1024;
+
+  MonitoredScope::declare(m_monTool, time, nstreams, nfrags, sizeMain, bitWords);
+
   return StatusCode::SUCCESS;
 }

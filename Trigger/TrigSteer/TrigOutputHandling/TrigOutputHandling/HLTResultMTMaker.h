@@ -6,7 +6,10 @@
 #define TRIGOUTPUTHANDLING_HLTRESULTMTMAKER_H
 
 #include "TrigOutputHandling/HLTResultMT.h"
+#include "TrigOutputHandling/HLTResultMTMakerTool.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "StoreGate/WriteHandle.h"
 
 /** @class HLTResultMTMaker
@@ -31,7 +34,14 @@ public:
 
 private:
   /// StoreGate key for the HLTResultMT
-  SG::WriteHandleKey<HLTResultMT> m_hltResultWHKey;
+  SG::WriteHandleKey<HLTResultMT> m_hltResultWHKey {this, "HLTResultWHKey", "HLTResultMT",
+                                                    "Key of the output HLTResultMT object"};
+  /// Tools filling the HLTResultMT object
+  ToolHandleArray<HLTResultMTMakerTool> m_makerTools {this, "MakerTools", {},
+                                                      "Set of tools that fill content of the HLTResultMT"};
+  /// Monitoring tool
+  ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "",
+                                               "Monitoring tool"};
 };
 
 #endif // TRIGOUTPUTHANDLING_HLTRESULTMTMAKER_H
