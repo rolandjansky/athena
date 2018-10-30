@@ -36,7 +36,7 @@ public:
   { std::abort(); }
   virtual IPoolSvc* getPoolSvc() override
   { std::abort(); }
-  virtual const Token* registerForWrite(const Placement* /*placement*/,
+  virtual const Token* registerForWrite(Placement* /*placement*/,
                                         const void* /*obj*/,
                                         const RootType& /*classDesc*/) const override
   { std::abort(); }

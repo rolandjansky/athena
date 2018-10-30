@@ -22,7 +22,14 @@ def lumi(triggerPythonConfig):
     log.info( 'Menu name: '+ menu_name)
 
 
-    if menu_name.startswith('Physics_pp_v7') :
+    if menu_name.startswith('Physics_pp_v7_primaries') :
+        log.info('In physics pp v7 primaries menu setup')
+        from TriggerMenu.menu.Physics_pp_v7_primaries import setupMenu, Prescales
+        setupMenu()
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales
+    
+    elif menu_name.startswith('Physics_pp_v7') :
         log.info('In physics pp v7 menu setup')
         from TriggerMenu.menu.Physics_pp_v7 import setupMenu, Prescales
         setupMenu()

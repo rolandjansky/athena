@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONWALL_MUONWALLTOOL_H
@@ -29,6 +29,8 @@ class MuonWallTool final : public DetectorGeometryBase {
     double m_zLength;
     double m_yLength;
     double m_xLength;
+    bool m_backWall;
+    bool m_sideWall;
 };
 
 #endif //MUONWALL_MUONWALLTOOL_H

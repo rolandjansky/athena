@@ -2,7 +2,7 @@
 #include "../StreamTagMakerTool.h"
 #include "../HLTResultMTMakerAlg.h"
 #include "../DecisionSummaryMakerAlg.h"
-#include "../TriggerBitsMakerTool.h"
+#include "TrigOutputHandling/TriggerBitsMakerTool.h"
 #include "../TriggerEDMSerialiserTool.h"
 
 

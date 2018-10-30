@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -7,17 +7,13 @@
 NAME:     EFMissingETFromHelper.cxx
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Diego Casadei
-CREATED:  March 12, 2008
+AUTHORS:  Gabriel Gallardo, Manfredi Ronzani
+CREATED:  September 27, 2018
 
-PURPOSE:  Updates TrigMissingET using TrigEFMissingETHelper info.
+PURPOSE:  Updates TrigMissingET using TrigEFMissingETHelper info for AthenaMT.
 
 Components are left uncorrected when saved into
 TrigMissingET as auxiliary information.
-
-On the other hand, basic info stored in TrigMissingET
-is computed from components using the DK calibration
-(by R. Djilkibaev and R. Konoplich).
 
  ********************************************************************/
 

@@ -75,7 +75,6 @@ outStream.ItemList  = [ "EventInfo#*" ]
 outStream.ItemList += [ "AthExParticles#*" ]
 outStream.ItemList += [ "AthExDecay#*" ]
 outStream.ItemList += [ "AthExElephantino#*" ]
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 ##############################################################
 #

@@ -111,11 +111,6 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalogue1.xml"
 
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-svcMgr += AthenaPoolCnvSvc()
-#svcMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
 stream = createOutputStream( "Stream1" )
 

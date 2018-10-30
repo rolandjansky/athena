@@ -29,7 +29,7 @@ TileCalibHitNtuple::TileCalibHitNtuple(const std::string& type, const std::strin
       m_ntupleID("TileCalibHit"),
       m_treeSize(16000000000LL),
       m_ntuplePtr(0),
-      m_level(1),
+      m_level(0),
       m_det(0),
       m_mod(0),
       m_tow(0),
@@ -133,13 +133,16 @@ void TileCalibHitNtuple::storeHit(int det, int mod, int tow, int samp, int reg, 
   m_yPos = y;
   m_zPos = z;
   m_ener = e;
-  strncpy(m_volume, volume, 99);
-  m_pid = pid;
-  m_ekine = ekine;
-  m_xLocal = xLocal;
-  m_yLocal = yLocal;
-  m_zLocal = zLocal;
-  m_phiLocal = phiLocal;
+  if (m_level != 0) {
+    if (volume) strncpy(m_volume, volume, 99);
+    else m_volume[0] = 0;
+    m_pid = pid;
+    m_ekine = ekine;
+    m_xLocal = xLocal;
+    m_yLocal = yLocal;
+    m_zLocal = zLocal;
+    m_phiLocal = phiLocal;
+  }
 
   m_ntuplePtr->Fill();
 }

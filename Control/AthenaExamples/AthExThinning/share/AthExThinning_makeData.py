@@ -61,7 +61,6 @@ if not 'OUTPUT' in dir():
   OUTPUT = "my.data.pool"
   pass
 outStream.OutputFile = OUTPUT
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 if not hasattr (svcMgr, 'AthenaSealSvc'):
     svcMgr += CfgMgr.AthenaSealSvc()

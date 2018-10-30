@@ -899,7 +899,7 @@ std::string CaloGeometry::SamplingName(int sample)
   return CaloSampling::getSamplingName(sample);
 }
 
-void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3){
+bool CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3){
 
   vector<ifstream*> electrodes(3);
 
@@ -969,6 +969,30 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
   for(int imodule=1;imodule<=3;imodule++) delete electrodes[imodule-1];
   electrodes.clear();
 
+  this->calculateFCalRminRmax();
+  return this->checkFCalGeometryConsistency();
+
+}
+
+void  CaloGeometry::calculateFCalRminRmax(){
+   
+   m_FCal_rmin.resize(3,FLT_MAX);
+   m_FCal_rmax.resize(3,0.);
+
+   double x(0.),y(0.),r(0.);
+   for(int imap=1;imap<=3;imap++)for(auto it=m_FCal_ChannelMap.begin(imap);it!=m_FCal_ChannelMap.end(imap);it++){
+      x=it->second.x();
+      y=it->second.y();
+      r=sqrt(x*x+y*y);
+      if(r<m_FCal_rmin[imap-1])m_FCal_rmin[imap-1]=r;
+      if(r>m_FCal_rmax[imap-1])m_FCal_rmax[imap-1]=r;
+   }
+   
+}
+
+
+bool CaloGeometry::checkFCalGeometryConsistency(){
+  
   unsigned long long phi_index,eta_index;
   float x,y,dx,dy;
   long id;
@@ -988,6 +1012,7 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
       cout << "Error: Incompatibility between FCalChannel map and GEO file: Different number of cells in m_cells_in_sampling and FCal_ChannelMap" << endl;
       cout << "m_cells_in_sampling: " << m_cells_in_sampling[sampling].size() << endl;
       cout << "FCal_ChannelMap: " << 2*std::distance(m_FCal_ChannelMap.begin(imap), m_FCal_ChannelMap.end(imap)) << endl;
+      return false;
     }
 
     for(auto it=m_FCal_ChannelMap.begin(imap);it!=m_FCal_ChannelMap.end(imap);it++){
@@ -999,19 +1024,11 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
       y=it->second.y();
       m_FCal_ChannelMap.tileSize(imap, eta_index, phi_index,dx,dy);
 
-
-      double r=sqrt(x*x+y*y);
-      
-      if(r<m_FCal_rmin[imap-1])m_FCal_rmin[imap-1]=r;
-      if(r>m_FCal_rmax[imap-1])m_FCal_rmax[imap-1]=r;
-
       id=(mask1[imap-1]<<12) + (eta_index << 5) +2*phi_index;
 
       if(imap==2) id+= (8<<8);
 
-      //cout << phi_index << " " << eta_index << " " << (id<<44) << " " << hex << (id<<44) << dec << endl ;
-
-  		Identifier id1((unsigned long long)(id<<44));
+      Identifier id1((unsigned long long)(id<<44));
       const CaloDetDescrElement *DDE1 =getDDE(id1);
 
       id=(mask2[imap-1]<<12) + (eta_index << 5) +2*phi_index;
@@ -1019,21 +1036,17 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
   		Identifier id2((unsigned long long)(id<<44));
       const CaloDetDescrElement *DDE2=getDDE(id2);
 
-      if(!TMath::AreEqualRel(x, DDE1->x(),1.E-8) || !TMath::AreEqualRel(y, DDE1->y(),1.E-8) ||
-    !TMath::AreEqualRel(x, DDE2->x(),1.E-8) || !TMath::AreEqualRel(y, DDE2->y(),1.E-8)
-       ){
-    cout << "Error: Incompatibility between FCalChannel map and GEO file \n"
-    << x << " " << DDE1->x() << " " << DDE2->x()
-    << y << " " << DDE1->y() << " " << DDE2->y() << endl;
-
+      if(!TMath::AreEqualRel(x, DDE1->x(),1.E-8) || !TMath::AreEqualRel(y, DDE1->y(),1.E-8) || !TMath::AreEqualRel(x, DDE2->x(),1.E-8) || !TMath::AreEqualRel(y, DDE2->y(),1.E-8) ){
+	 cout << "Error: Incompatibility between FCalChannel map and GEO file \n" << x << " " << DDE1->x() << " " << DDE2->x() << y << " " << DDE1->y() << " " << DDE2->y() << endl;
+	 return false;   
       }
     }
 
 
 
   }
-
-
+   
+  return true;
 }
 
 

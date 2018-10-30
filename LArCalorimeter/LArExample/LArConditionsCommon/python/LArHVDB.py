@@ -29,7 +29,6 @@ if not conddb.isMC and not conddb.isOnline:
     from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg
     hvscale = LArHVScaleCorrCondAlg(keyHVdata="LArHVData",keyOutputCorr="LArHVScaleCorrRecomputed")
     hvscale.UndoOnlineHVCorr=True
-    hvscale.OutputLevel=DEBUG
     condseq += hvscale
 
 if conddb.isMC:

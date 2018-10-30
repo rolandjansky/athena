@@ -62,6 +62,10 @@ public: // Non-static members
    /// @param token [IN] token of the Data Object for which a Pool Ref is filled.
    void setObjPtr(void*& obj, const Token* token) const;
 
+   /// @return an Id for an output context (POOL persistency service) and create it if needed.
+   /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
+   unsigned int getOutputContext(const std::string& label);
+
    /// @return an Id for an input context (POOL persistency service) and create it if needed.
    /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
    /// @param maxFile [IN] maximum number of open input files.
@@ -183,6 +187,7 @@ private: // data
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
    mutable std::vector<CallMutex*>                   m_pers_mut;
    std::map<std::string, unsigned int>               m_contextLabel;
+   std::string                                       m_mainOutputLabel;
    std::map<unsigned int, unsigned int>              m_contextMaxFile;
    // Cache for open file guids for each m_persistencySvcVec member, protected by m_pers_mut
    mutable std::map<unsigned int, std::list<Guid> >  m_guidLists;

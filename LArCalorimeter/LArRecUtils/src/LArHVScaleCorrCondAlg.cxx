@@ -229,7 +229,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
      ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
      return StatusCode::FAILURE;
   }
-  std::unique_ptr<LArHVCorr> hvCorr = std::make_unique<LArHVCorr>(vScale, cabling, m_calocell_id );
+  std::unique_ptr<LArHVCorr> hvCorr = std::make_unique<LArHVCorr>(std::move(vScale), cabling, m_calocell_id );
   //LArHVScaleCorrFlat * hvCorr = new LArHVScaleCorrFlat(vScale);
   const EventIDRange crangeW(rangeW);
   if(writeHandle.record(crangeW,hvCorr.release()).isFailure()) {

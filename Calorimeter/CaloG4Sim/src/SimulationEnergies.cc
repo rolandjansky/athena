@@ -128,6 +128,8 @@
 
 static std::once_flag warning1OnceFlag;
 static std::once_flag warning2OnceFlag;
+static std::once_flag warning3OnceFlag;
+static std::once_flag warning4OnceFlag;
 
 namespace CaloG4
 {
@@ -545,7 +547,21 @@ namespace CaloG4
                  << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
                  << "   will be recorded." << G4endl;
         });
-      return false;
+
+      eep = registry->GetProcessing( "Tile::" );
+      if (ATH_LIKELY(eep)) {
+        std::call_once(warning3OnceFlag, [](){
+            G4cout << "  Using TileGeoG4CalibSD for escaped energy processing," << G4endl
+                   << "  since LAr SD is not available" << G4endl;
+            });
+        return eep->Process( fakeStep );
+      } else {
+        std::call_once(warning3OnceFlag, [](){
+            G4cout << "  WARNING! TileGeoG4CalibSD was never initialized as well," << G4endl
+                   << "  escaped energies will be definitely lost" << G4endl;
+            });
+        return false;
+      }
     }
     else {
       // If we reach here, we're in an area with geometry problem
@@ -566,7 +582,21 @@ namespace CaloG4
                  << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
                  << "   will be recorded." << G4endl;
         });
-      return false;
+
+      eep = registry->GetProcessing( "Tile::" );
+      if (ATH_LIKELY(eep)) {
+        std::call_once(warning4OnceFlag, [](){
+            G4cout << "  Using TileGeoG4CalibSD for escaped energy processing," << G4endl
+                   << "  since LAr SD is not available" << G4endl;
+            });
+        return eep->Process( fakeStep );
+      } else {
+        std::call_once(warning4OnceFlag, [](){
+            G4cout << "  WARNING! TileGeoG4CalibSD was never initialized as well," << G4endl
+                   << "  escaped energies will be definitely lost" << G4endl;
+            });
+        return false;
+      }
     }
   }
 

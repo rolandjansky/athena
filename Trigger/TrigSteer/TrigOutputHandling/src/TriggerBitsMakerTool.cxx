@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "DecisionHandling/HLTIdentifier.h"
-#include "TriggerBitsMakerTool.h"
+#include "TrigOutputHandling/TriggerBitsMakerTool.h"
 
 TriggerBitsMakerTool::TriggerBitsMakerTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent){}
@@ -22,10 +22,18 @@ StatusCode TriggerBitsMakerTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
-  auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
-  
   std::vector<uint32_t> bits;
+  ATH_CHECK( fill( bits ) );
+  resultToFill.setHltBits( bits );
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode TriggerBitsMakerTool::fill( std::vector<uint32_t>& bits ) const {
+  auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
 
   for ( TrigCompositeUtils::DecisionID chain: TrigCompositeUtils::decisionIDs( chainsHandle->at( 0 )) ) {
     auto mappingIter = m_mapping.find( chain );
@@ -42,7 +50,7 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     bits[word] |= mask;    
   }
 
-  resultToFill.setHltBits( bits );
+
   if ( msgLvl( MSG::DEBUG ) ) {
     ATH_MSG_DEBUG("Prepared " << bits.size() << " words with trigger bits");
     for ( auto w: bits )
@@ -51,6 +59,7 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   return StatusCode::SUCCESS;
 
 }
+
 
 
 StatusCode TriggerBitsMakerTool::finalize() {

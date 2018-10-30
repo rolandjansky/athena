@@ -26,7 +26,7 @@ class SCT_ByteStreamFractionContainer;
 
 /** @class SCTRawDataProvider
  *
- * @brief Athena Algorithm Tool to decode the SCT Byte Stream
+ * @brief Athena Algorithm to decode the SCT Byte Stream
  *
  * Gets vector of ROBFragments from the ROBDataProviderSvc
  * and uses AlgTools (SCTRawDataProviderTool and SCT_RodDecoder
@@ -72,7 +72,7 @@ class SCTRawDataProvider : public AthAlgorithm
                                          "SCT_CablingTool", 
                                          "Tool to retrieve SCT Cabling"};
 
-  const SCT_ID* m_sctId; 
+  const SCT_ID* m_sctID; 
 
   BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};
 
@@ -91,7 +91,7 @@ class SCTRawDataProvider : public AthAlgorithm
                                                               "SCT_LVL1ID", 
                                                               "SCT LVL1ID key"};
 
-  SG::WriteHandleKey<InDetTimeCollection> m_bcIdCollectionKey{this, 
+  SG::WriteHandleKey<InDetTimeCollection> m_bcIDCollectionKey{this, 
                                                               "BCIDKey", 
                                                               "SCT_BCID", 
                                                               "SCT BCID key"};

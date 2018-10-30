@@ -97,7 +97,6 @@ outStreams.Stream1.ItemList = [
 ## repeat 10 times the same event
 ## jobproperties.PerfMonFlags.installEvtSelector = True
 ## svcMgr.PerfMonEventSelector.NbrReplays = 10-1
-## svcMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 #==============================================================
 #
