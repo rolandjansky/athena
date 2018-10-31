@@ -98,7 +98,7 @@ class TauValidationPlots:public PlotBase {
       Tau::EfficiencyPtPlots m_oFakeTauEffPlotsNom;
       Tau::EfficiencyPtPlots m_oFakeTauEff1PPlotsNom;
       Tau::EfficiencyPtPlots m_oFakeTauEff3PPlotsNom;
-      Tau::GeneralTauPlots m_oFakePFOsNom;
+      Tau::RecoTauPlots m_oFakeTauRecoTauPlotsNom;
       Tau::NewCorePlots m_oNewCoreFakePlotsNom;
       
       Tau::GeneralTauPlots m_oRecoGeneralNom;
@@ -107,7 +107,7 @@ class TauValidationPlots:public PlotBase {
       Tau::EfficiencyPtPlots m_oRecTauEffPlotsNom;
       Tau::EfficiencyPtPlots m_oRecTauEff1PPlotsNom;
       Tau::EfficiencyPtPlots m_oRecTauEff3PPlotsNom;
-      Tau::GeneralTauPlots m_oRecTauPFOsNom;
+      Tau::RecoTauPlots m_oRecTauRecoTauPlotsNom;
       Tau::NewCorePlots m_oNewCoreRecTauPlotsNom;
       
       Tau::GeneralTauPlots m_oMatchedGeneralNom;
@@ -116,7 +116,7 @@ class TauValidationPlots:public PlotBase {
       Tau::EfficiencyPtPlots m_oMatchedTauEffPlotsNom;
       Tau::EfficiencyPtPlots m_oMatchedTauEff1PPlotsNom;
       Tau::EfficiencyPtPlots m_oMatchedTauEff3PPlotsNom;
-      Tau::GeneralTauPlots m_oMatchedTauPFOsNom;
+      Tau::RecoTauPlots m_oMatchedTauRecoTauPlotsNom;
       Tau::Migration m_oMigrationPlotsNom;
       Tau::NewCorePlots m_oNewCoreMatchedPlotsNom;
 

@@ -15,7 +15,7 @@ TauValidationPlots::TauValidationPlots(PlotBase* pParent, std::string sDir, std:
   m_oFakeGeneralTauAllProngsPlots(this,"NoCuts/Fake/", sTauJetContainerName),  // general tau all fake prongs plots
   m_oFakeHad1ProngPlots(this,"NoCuts/Fake/Jet1P/", sTauJetContainerName), 		     // tau1P fake plots : variables for tau ID
   m_oFakeHad3ProngPlots(this,"NoCuts/Fake/Jet3P/", sTauJetContainerName),  	       // tau3P fake plots : variables for tau ID
-  m_oRecoGeneralTauAllProngsPlots(this,"NoCuts/RecTau/All/",sTauJetContainerName),// "recTau_General"),  // general tau all fake prongs plots
+  m_oRecoGeneralTauAllProngsPlots(this,"NoCuts/RecTau/",sTauJetContainerName),// "recTau_General"),  // general tau all fake prongs plots
   m_oRecoHad1ProngPlots(this,"NoCuts/RecTau/1P/", sTauJetContainerName),//"recTau_1P"), 		     // tau1P fake plots : variables for tau ID
   m_oRecoHad3ProngPlots(this,"NoCuts/RecTau/3P/", sTauJetContainerName),// "recTau_3P"),  	       // tau3P fake plots : variables for tau ID
   m_oRecoTauAllProngsPlots(this,"NoCuts/RecTau/PFOs/", sTauJetContainerName),             // all tau reco, no match to truth
@@ -42,7 +42,7 @@ TauValidationPlots::TauValidationPlots(PlotBase* pParent, std::string sDir, std:
   m_oFakeTauEffPlotsNom(this, "Nominal/Fake/Eff/All/", sTauJetContainerName),
   m_oFakeTauEff1PPlotsNom(this, "Nominal/Fake/Eff/Jet1P/", sTauJetContainerName),
   m_oFakeTauEff3PPlotsNom(this, "Nominal/Fake/Eff/Jet3P/", sTauJetContainerName),
-  m_oFakePFOsNom(this, "Nominal/Fake/PFOs/", sTauJetContainerName),
+  m_oFakeTauRecoTauPlotsNom(this, "Nominal/Fake/PFOs/", sTauJetContainerName),
   m_oNewCoreFakePlotsNom(this, "Nominal/Fake/All/", sTauJetContainerName),
 
   m_oRecoGeneralNom(this,"Nominal/RecTau/", sTauJetContainerName),
@@ -51,7 +51,7 @@ TauValidationPlots::TauValidationPlots(PlotBase* pParent, std::string sDir, std:
   m_oRecTauEffPlotsNom(this, "Nominal/RecTau/Eff/All/", sTauJetContainerName),
   m_oRecTauEff1PPlotsNom(this, "Nominal/RecTau/Eff/1P/", sTauJetContainerName),
   m_oRecTauEff3PPlotsNom(this, "Nominal/RecTau/Eff/3P/", sTauJetContainerName),
-  m_oRecTauPFOsNom(this, "Nominal/RecTau/PFOs/", sTauJetContainerName),
+  m_oRecTauRecoTauPlotsNom(this, "Nominal/RecTau/PFOs/", sTauJetContainerName),
   m_oNewCoreRecTauPlotsNom(this, "Nominal/RecTau/All/", sTauJetContainerName),
 
   m_oMatchedGeneralNom(this,"Nominal/Matched/", sTauJetContainerName),
@@ -60,7 +60,7 @@ TauValidationPlots::TauValidationPlots(PlotBase* pParent, std::string sDir, std:
   m_oMatchedTauEffPlotsNom(this, "Nominal/Matched/Eff/All/", sTauJetContainerName),
   m_oMatchedTauEff1PPlotsNom(this, "Nominal/Matched/Eff/1P/", sTauJetContainerName),
   m_oMatchedTauEff3PPlotsNom(this, "Nominal/Matched/Eff/3P/", sTauJetContainerName),
-  m_oMatchedTauPFOsNom(this, "Nominal/Matched/PFOs/", sTauJetContainerName),
+  m_oMatchedTauRecoTauPlotsNom(this, "Nominal/Matched/PFOs/", sTauJetContainerName),
   m_oMigrationPlotsNom(this, "Nominal/Matched/Migration/", sTauJetContainerName),
   m_oNewCoreMatchedPlotsNom(this, "Nominal/Matched/All/", sTauJetContainerName)
 {}	

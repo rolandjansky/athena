@@ -148,7 +148,7 @@ StatusCode PhysValTau::fillHistograms()
       if ( nominal ) {
 	 m_oTauValidationPlots->m_oRecoGeneralNom.fill(*tau);
 	 m_oTauValidationPlots->m_oRecTauEffPlotsNom.fill(*tau);
-	 m_oTauValidationPlots->m_oRecTauPFOsNom.fill(*tau);
+	 m_oTauValidationPlots->m_oRecTauRecoTauPlotsNom.fill(*tau);
 	 m_oTauValidationPlots->m_oNewCoreRecTauPlotsNom.fill(*tau);
       }
       int recProng = tau->nTracks();
@@ -190,7 +190,7 @@ StatusCode PhysValTau::fillHistograms()
 	       if ( nominal ) {
 		  m_oTauValidationPlots->m_oMatchedGeneralNom.fill(*tau);
 		  m_oTauValidationPlots->m_oMatchedTauEffPlotsNom.fill(*tau);
-		  m_oTauValidationPlots->m_oMatchedTauPFOsNom.fill(*tau);
+		  m_oTauValidationPlots->m_oMatchedTauRecoTauPlotsNom.fill(*tau);
 		  m_oTauValidationPlots->m_oNewCoreMatchedPlotsNom.fill(*tau);
 	       }
 	       if ( recProng == 1 ) {
@@ -246,7 +246,7 @@ StatusCode PhysValTau::fillHistograms()
 	    if ( nominal ) {
 	       m_oTauValidationPlots->m_oFakeGeneralNom.fill(*tau);
 	       m_oTauValidationPlots->m_oFakeTauEffPlotsNom.fill(*tau);
-	       m_oTauValidationPlots->m_oFakePFOsNom.fill(*tau);
+	       m_oTauValidationPlots->m_oFakeTauRecoTauPlotsNom.fill(*tau);
 	       m_oTauValidationPlots->m_oNewCoreFakePlotsNom.fill(*tau);
 	    }
 	    if ( recProng == 1 ) {
