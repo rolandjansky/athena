@@ -12,8 +12,5 @@ tool1.ElectronContainerName = "Electrons"
 tool1.ElectronContainerFrwdName = "ForwardElectrons"
 tool1.TruthParticleContainerName = "TruthParticles"
         
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += tool1
-
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]
