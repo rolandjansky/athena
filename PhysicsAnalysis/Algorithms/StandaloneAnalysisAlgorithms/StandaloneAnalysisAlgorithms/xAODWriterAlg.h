@@ -70,6 +70,8 @@ namespace CP {
          std::string name;
          /// Type of the written object
          const std::type_info* type;
+         /// Type name of the written object
+         std::string typeName;
       }; // struct Item
 
       /// Object to write the output file with
