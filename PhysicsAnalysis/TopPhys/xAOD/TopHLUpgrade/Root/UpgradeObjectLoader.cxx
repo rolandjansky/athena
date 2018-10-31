@@ -137,9 +137,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
 
   std::vector<int> pdgId = {11,13,22};
 
-  for (xAOD::TruthParticleContainer::const_iterator pItr=importedAllTruthParticles->begin(); pItr!=importedAllTruthParticles->end(); ++pItr) {
-    const xAOD::TruthParticle *particle = *pItr;
-                
+  for (const xAOD::TruthParticle *particle : *importedAllTruthParticles) {
     if (particle->status() != 1) continue;
                  
     if (find(pdgId.begin(), pdgId.end(), abs(particle->pdgId())) == pdgId.end()) continue;
@@ -216,7 +214,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   }
 
   // loop over the selected muons
-  for (auto particle : *m_selectedMuons) {
+  for (xAOD::TruthParticle *particle : *m_selectedMuons) {
     double ptcone30 = 0;
     double etcone20 = 0;
 
@@ -328,7 +326,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   }
 
   // loop over the selected electrons
-  for (auto particle : *m_selectedElectrons) {
+  for (xAOD::TruthParticle *particle : *m_selectedElectrons) {
     double ptcone30 = 0;
     double etcone20 = 0;
 
