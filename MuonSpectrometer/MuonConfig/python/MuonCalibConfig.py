@@ -6,22 +6,8 @@ from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbSvc, MdtCalibrationSvc
 from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MuonCalib__MdtCalibDbCoolStrTool
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber, mdtCalibWindowName, specialAddFolderSplitOnline # TODO should maybe shift this elsewhere?
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders, addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-
-# Probably shouldn't be here:
-def addFoldersSplitOnline(flags, db, online_folders, offline_folders, className=None, addMCString="_OFL"):
-    "Add access to given folder, using online_folder online, offline_folder offline"
-    result=ComponentAccumulator()
-    
-    if flags.Common.isOnline and not configFlags.Input.isMC:
-        folders = online_folders
-    else:
-        # MC, so add addMCString
-        db = db+addMCString
-        folders = offline_folders
-    result.merge( addFolders(flags, folders, className=className, detDb=db) )
-    return result, None
         
 
 ################################################################################
