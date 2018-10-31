@@ -9,7 +9,7 @@
 //
 // ************************************************
 
-#include "src/TrigGSCFexMT.h"
+#include "src/TrigGSCFexMT_ALLTE.h"
 
 // ONLINE INFRASTRUCTURE
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -35,19 +35,19 @@
 // ----------------------------------------------------------------------------------------------------------------- 
 
 
-TrigGSCFexMT::TrigGSCFexMT(const std::string& name, ISvcLocator* pSvcLocator) :
+TrigGSCFexMT_ALLTE::TrigGSCFexMT_ALLTE(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator) {}
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
-TrigGSCFexMT::~TrigGSCFexMT() {}
+TrigGSCFexMT_ALLTE::~TrigGSCFexMT_ALLTE() {}
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
-StatusCode TrigGSCFexMT::initialize() {
+StatusCode TrigGSCFexMT_ALLTE::initialize() {
 
   // Get message service 
-  ATH_MSG_INFO( "Initializing TrigGSCFexMT, version " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initializing TrigGSCFexMT_ALLTE, version " << PACKAGE_VERSION );
 
   // declareProperty overview 
   ATH_MSG_DEBUG( "declareProperty review:"                );
@@ -73,15 +73,15 @@ StatusCode TrigGSCFexMT::initialize() {
 // ----------------------------------------------------------------------------------------------------------------- 
 
 
-StatusCode TrigGSCFexMT::execute() {
-  ATH_MSG_DEBUG( "Executing TrigGSCFexMT" );
+StatusCode TrigGSCFexMT_ALLTE::execute() {
+  ATH_MSG_DEBUG( "Executing TrigGSCFexMT_ALLTE" );
 
   // ==============================================================================================================================
   //    ** Retrieve Ingredients
   // ==============================================================================================================================
 
   const EventContext& ctx = getContext();
-
+  /*
   // RoIs
   ATH_MSG_DEBUG( "Ready to retrieve rois : " << m_roiContainerKey.key() );
   auto roiContainerHandle = SG::makeHandle( m_roiContainerKey,ctx );
@@ -92,7 +92,7 @@ StatusCode TrigGSCFexMT::execute() {
   for ( auto el : *roiContainer ) {
     ATH_MSG_DEBUG( "   ** RoI : eta=" << el->eta() <<" phi=" << el->phi() );
   }
-
+  */
   // Jets
   ATH_MSG_DEBUG( "Ready to retrieve jets : " << m_JetContainerKey.key() );
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_JetContainerKey,ctx );
@@ -213,12 +213,12 @@ StatusCode TrigGSCFexMT::execute() {
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
-StatusCode TrigGSCFexMT::finalize() {
+StatusCode TrigGSCFexMT_ALLTE::finalize() {
   return StatusCode::SUCCESS;
 }
 
 
-bool TrigGSCFexMT::trkIsGood(const xAOD::TrackParticle *trk){
+bool TrigGSCFexMT_ALLTE::trkIsGood(const xAOD::TrackParticle *trk){
 
   uint8_t numberOfPixelHits=0;
   if( ! trk->summaryValue (numberOfPixelHits, xAOD::SummaryType::numberOfPixelHits) )

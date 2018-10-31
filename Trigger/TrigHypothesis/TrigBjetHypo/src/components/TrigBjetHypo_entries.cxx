@@ -13,8 +13,10 @@
 #include "../TrigBjetHypoAlgMT.h"
 #include "../TrigBjetHypoTool.h"
 #include "../TrigBjetEtHypoAlgMT.h"
+#include "../TrigBjetEtHypoAlgMT_View.h"
 #include "../TrigBjetEtHypoTool.h"
 #include "../TrigGSCFexMT.h"
+#include "../TrigGSCFexMT_ALLTE.h"
 #include "../TrigBtagFexMT.h"
 #include "../TrigRoiBuilderMT.h"
 #include "../TrigJetSplitterMT.h"
@@ -34,8 +36,10 @@ DECLARE_COMPONENT( TrigFarawayJetFinderAllTE )
 DECLARE_COMPONENT( TrigBjetHypoAlgMT )
 DECLARE_COMPONENT( TrigBjetHypoTool )
 DECLARE_COMPONENT( TrigBjetEtHypoAlgMT )
+DECLARE_COMPONENT( TrigBjetEtHypoAlgMT_View )
 DECLARE_COMPONENT( TrigBjetEtHypoTool )
 DECLARE_COMPONENT( TrigGSCFexMT )
+DECLARE_COMPONENT( TrigGSCFexMT_ALLTE )
 DECLARE_COMPONENT( TrigBtagFexMT )
 DECLARE_COMPONENT( TrigRoiBuilderMT )
 DECLARE_COMPONENT( TrigJetSplitterMT )
