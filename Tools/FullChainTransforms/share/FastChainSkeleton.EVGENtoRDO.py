@@ -20,6 +20,7 @@ fast_chain_log.info( '**** Transformation run arguments' )
 fast_chain_log.info( str(runArgs) )
 
 from G4AtlasApps.SimFlags import simFlags
+from AthenaCommon import CfgGetter
 
 ### Start of Sim
 
@@ -318,9 +319,8 @@ if hasattr(simFlags, 'SimulateNewSmallWheel'):
 
 #if simFlags.ForwardDetectors.statusOn:
 #    if DetFlags.geometry.FwdRegion_on():
-#        from AthenaCommon.CfgGetter import getPublicTool
 #        from AthenaCommon.AppMgr import ToolSvc
-#        ToolSvc += getPublicTool("ForwardRegionProperties")
+#        ToolSvc += CfgGetter.getPublicTool("ForwardRegionProperties")
 
 
 
@@ -409,435 +409,6 @@ elif hasattr(runArgs,'jobNumber'):
         fast_chain_log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
 
 ## removed code block for handling cosmics track record
-
-## Set Overall per-Algorithm time-limit on the AlgSequence
-topSequence.TimeOut = 43200 * Units.s
-
-try:
-    from RecAlgs.RecAlgsConf import TimingAlg
-    topSequence+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
-except:
-    fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
-
-#### *********** import ISF_Example code here **************** ####
-
-#include("ISF_Config/ISF_ConfigJobInclude.py")
-
-
-
-
-########## ISF_ConfigJobInclude.py #################
-
-
-
-
-"""
-Common configurations for ISF
-KG Tan, 17/06/2012
-"""
-
-#include.block('ISF_Config/ISF_ConfigJobInclude.py')
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-        getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
-#--------------------------------------------------------------
-# Set to monte carlo
-#--------------------------------------------------------------
-import AthenaCommon.AtlasUnixStandardJob
-from AthenaCommon import AthenaCommonFlags
-from AthenaCommon.AppMgr import theApp
-from AthenaCommon.AppMgr import ServiceMgr
-
-# TODO: ELLI: remove this once the envelopes are stored in the DDDB
-#             -> currently a fallback python definition is used
-#import shutil
-#import os.path
-#if os.path.exists('geomDB') and os.path.islink('geomDB'):
-    #os.unlink('geomDB')
-#os.symlink('/afs/cern.ch/atlas/groups/Simulation/ISF/Envelopes_geomDB', 'geomDB')
-
-
-#--------------------------------------------------------------
-# Set the flags automatically here
-# (move it to the job options if not meant to be automatic!)
-#--------------------------------------------------------------
-import AthenaCommon.SystemOfUnits as Units
-
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be finalised before these functons are called
-
-# --- set globalflags
-globalflags.DataSource.set_Value_and_Lock('geant4')
-if jobproperties.Beam.beamType == "cosmics" :
-    globalflags.DetGeo.set_Value_and_Lock('commis')
-else:
-    globalflags.DetGeo.set_Value_and_Lock('atlas')
-globalflags.Luminosity.set_Off()
-
-# --- set SimLayout (synchronised to globalflags)
-if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
-    print "ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!"
-    print "Please correct your job options."
-    # TODO: theApp.exit(1)?
-    import sys
-    sys.exit(1)
-simFlags.load_atlas_flags()
-simFlags.EventFilter.set_Off()
-
-# --- Read in special simulation job option fragments based on
-# --- metadata passed by the evgen stage (move earlier?)
-from ISF_Example.ISF_Metadata import checkForSpecialConfigurationMetadata
-checkForSpecialConfigurationMetadata()
-#--------------------------------------------------------------
-# Read Simulation MetaData (unless override flag set to True)
-#--------------------------------------------------------------
-#if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
-#    fast_chain_log.info("Skipping input file MetaData check.")
-#else :
-#    from Digitization.DigitizationReadMetaData import readHITSFileMetadata
-#    readHITSFileMetadata()
-
-
-# all det description
-include('ISF_Config/AllDet_detDescr.py')
-
-DetFlags.Print()
-
-if len(globalflags.ConditionsTag()):
-    from IOVDbSvc.CondDB import conddb
-    conddb.setGlobalTag(globalflags.ConditionsTag())
-
-# Temporary work-around - see ATLASSIM-2351
-if ISF_Flags.UsingGeant4():
-    #include("G4AtlasApps/G4Atlas.flat.configuration.py") #HACK
-
-    ####################G4Atlas.flat.configuration.py#################
-
-
-    ## _PyG4AtlasComp.__init__
-    ## If the random number service hasn't been set up already, do it now.
-    simFlags.RandomSeedList.useDefaultSeeds()
-
-    ## AtlasSimSkeleton._do_jobproperties
-    ## Import extra flags if it hasn't already been done
-    if "atlas_flags" not in simFlags.extra_flags:
-        simFlags.load_atlas_flags()
-    if jobproperties.Beam.beamType() == "cosmics" and "cosmics_flags" not in simFlags.extra_flags:
-        simFlags.load_cosmics_flags()
-
-    # Switch off GeoModel Release in the case of parameterization
-    if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
-        simFlags.ReleaseGeoModel = False
-
-    ## Translate conditions tag into IOVDbSvc global tag: must be done before job properties are locked!!!
-    from AthenaCommon.AppMgr import ServiceMgr
-    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
-    ServiceMgr += IOVDbSvc()
-    if not hasattr(globalflags, "ConditionsTag") or not globalflags.ConditionsTag.get_Value():
-        raise SystemExit("AtlasSimSkeleton._do_jobproperties :: Global ConditionsTag not set")
-    if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
-        ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
-
-    ## Enable floating point exception handling
-    ## FIXME! This seems to cause the jobs to crash in the FpeControlSvc, so commenting this out for now...
-    #athenaCommonFlags.RuntimeStrictness = 'abort'
-
-    from AthenaCommon.JobProperties import jobproperties
-
-    DetFlags.Print()
-
-
-    jobproperties.print_JobProperties('tree&value')
-
-    ## AtlasSimSkeleton._do_external
-    from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
-    from Geo2G4.Geo2G4Conf import Geo2G4Svc
-    geo2G4Svc = Geo2G4Svc()
-    theApp.CreateSvc += ["Geo2G4Svc"]
-    ServiceMgr += geo2G4Svc
-    ## Enable top transforms for the ATLAS geometry
-    geo2G4Svc.GetTopTransform = True
-
-    ## GeoModel stuff
-    ## TODO: Tidy imports etc.
-    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-    from AthenaCommon.GlobalFlags import jobproperties
-    from AtlasGeoModel import SetGeometryVersion
-
-    ## Forward Region Twiss files - needed before geometry setup!
-
-    if simFlags.ForwardDetectors.statusOn:
-        if DetFlags.geometry.FwdRegion_on():
-            from AthenaCommon.CfgGetter import getPublicTool
-            from AthenaCommon.AppMgr import ToolSvc
-            ToolSvc += getPublicTool("ForwardRegionProperties")
-
-
-    from AtlasGeoModel import GeoModelInit
-    from AtlasGeoModel import SimEnvelopes
-    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-    gms = GeoModelSvc()
-    ## Cosmics GeoModel tweaks
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-            (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
-        from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
-        gms.DetectorTools += [ CavernInfraDetectorTool() ]
-    ## Protects GeoModelSvc in the simulation from the AlignCallbacks
-    gms.AlignCallbacks = False
-    ## Muon GeoModel tweaks
-    if DetFlags.Muon_on():
-        ## Turn off caching in the muon system
-        from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-        MuonDetectorTool = MuonDetectorTool()
-        MuonDetectorTool.FillCacheInitTime = 0 # default is 1
-        if hasattr(simFlags, 'SimulateNewSmallWheel'):
-            if simFlags.SimulateNewSmallWheel():
-                MuonDetectorTool.StationSelection  = 2
-                MuonDetectorTool.SelectedStations  = [ "EIL1" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL2" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL6" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL7" ]
-                MuonDetectorTool.SelectedStations  += [ "EIS*" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL10" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL11" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL12" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL17" ]
-                MuonDetectorTool.SelectedStations  += [ "CSS*" ]
-                MuonDetectorTool.SelectedStations  += [ "CSL*" ]
-                MuonDetectorTool.SelectedStations  += [ "T4E*" ]
-                MuonDetectorTool.SelectedStations  += [ "T4F*" ]
-
-        ## Additional material in the muon system
-        from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
-        AGDD2Geo = AGDDtoGeoSvc()
-        from AthenaCommon import CfgGetter
-        if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
-            ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
-            AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-        if hasattr(simFlags, 'SimulateNewSmallWheel'):
-            if simFlags.SimulateNewSmallWheel():
-                if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
-                    ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
-                    AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
-        theApp.CreateSvc += ["AGDDtoGeoSvc"]
-        ServiceMgr += AGDD2Geo
-
-    ## Add configured GeoModelSvc to service manager
-    ServiceMgr += gms
-
-
-    ###################Back to ISF_ConfigJobInclude.py################
-
-#--------------------------------------------------------------
-# Setup the ISF Services
-#--------------------------------------------------------------
-# --- load AuditorSvc
-from AthenaCommon.ConfigurableDb import getConfigurable
-# --- write out summary of the memory usage
-#   | number of events to be skip to detect memory leak
-#   | 20 is default. May need to be made larger for complete jobs.
-ServiceMgr.AuditorSvc += getConfigurable("ChronoAuditor")()
-# --- write out a short message upon entering or leaving each algorithm
-# ServiceMgr.AuditorSvc += getConfigurable("NameAuditor")()
-#
-theApp.AuditAlgorithms = True
-theApp.AuditServices   = True
-#
-# --- Display detailed size and timing statistics for writing and reading
-ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
-
-#--------------------------------------------------------------
-# ISF input
-#--------------------------------------------------------------
-
-# Note: automatically adds generator to TopSequence if applicable
-# if an input sting identifier was given, use ISF input definitions
-if ISF_Flags.Input()!="NONE":
-    getAlgorithm('ISF_Input_' + ISF_Flags.Input())
-# cosmics input
-elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    simFlags.load_cosmics_flags()
-    if simFlags.ReadTR.statusOn:
-        getAlgorithm('TrackRecordCosmicGenerator')
-    else:
-        getAlgorithm('EvgenCosmicGenerator')
-# non of the above
-
-elif not athenaCommonFlags.PoolEvgenInput.statusOn:
-    print "ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude"
-# non of the above -> input via ISF_Flags
-else :
-    if ISF_Flags.OverrideInputFiles():
-        athenaCommonFlags.PoolEvgenInput = ISF_Flags.OverrideInputFiles()
-    getAlgorithm('ISF_Input_GenericFiles')
-
-from ISF_Example.ISF_Input import ISF_Input
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSequence += getAlgorithm("BeamEffectsAlg")
-
-#--------------------------------------------------------------
-# ISF kernel configuration
-#--------------------------------------------------------------
-
-# keep reference to collection merger algorithm to guarantee that
-# any subsequent simulator configuration gets a reference to the same
-# instance when calling confgetter's getAlgorithm
-collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
-
-SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
-
-#--------------------------------------------------------------
-# Setup the random number streams
-#--------------------------------------------------------------
-from G4AtlasApps.SimFlags import SimFlags,simFlags;
-if not athenaCommonFlags.PoolEvgenInput.statusOn:
-    if not simFlags.RandomSeedList.checkForExistingSeed('SINGLE'):
-        simFlags.RandomSeedList.addSeed( "SINGLE", 43657613, 78935670 )
-if not simFlags.RandomSeedList.checkForExistingSeed('VERTEX'):
-  simFlags.RandomSeedList.addSeed( 'VERTEX', 9123448, 829143 )
-simFlags.RandomSeedList.addtoService()
-simFlags.RandomSeedList.printSeeds()
-
-if ISF_Flags.HITSMergingRequired():
-    topSequence += collection_merger_alg
-
-#--------------------------------------------------------------
-# Post kernel configuration
-#--------------------------------------------------------------
-
-# proper GeoModel initialization
-from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-GeoModelSvc = GeoModelSvc()
-if ( DetFlags.detdescr.LAr_on() ):
-    GeoModelSvc.DetectorTools["LArDetectorToolNV"].GeometryConfig = "FULL"
-if ( DetFlags.detdescr.Tile_on() ):
-    GeoModelSvc.DetectorTools["TileDetectorTool"].GeometryConfig = "FULL"
-
-
-if ISF_Flags.DumpStoreGate() :
-    StoreGateSvc.Dump = True
-
-
-if ISF_Flags.RunVP1() :
-    # VP1 part (better switch off PerMon when using VP1)
-    from VP1Algs.VP1AlgsConf import VP1Alg
-    topSequence += VP1Alg()
-
-elif ISF_Flags.DoPerfMonStats() :
-    # Performance Monitoring (VP1 does not like this)
-    # https://twiki.cern.ch/twiki/bin/viewauth/Atlas/PerfMonSD
-    from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-    pmon_properties.PerfMonFlags.doMonitoring=True
-    pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
-
-
-if ISF_Flags.DumpMcEvent() :
-    # McEventCollection Dumper
-    DumpMC = CfgMgr.DumpMC("DumpMC")
-    DumpMC.McEventKey = "TruthEvent"
-    topSequence += DumpMC
-
-
-if ISF_Flags.RunValgrind() :
-    # code profiling with valgrind
-    from Valkyrie.JobOptCfg import ValgrindSvc
-    valgrindSvc = ValgrindSvc ( OutputLevel = DEBUG )
-    valgrindSvc.ProfiledAlgs +=  SimKernel
-    #valgrindSvc.IgnoreFirstNEvents
-    ServiceMgr += valgrindSvc
-
-# useful for debugging:
-print topSequence
-
-
-#########Back to MyCustomSkeleton.py##############
-
-
-## check to see if  pileup emulation is being used, if so do post-ISF-config
-## actions to enable simulation of pileup collection
-if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
-    fast_chain_log.info("Pileup emulation enabled - setup GenEventStackFiller")
-    #include("FastChainPileup/FastPileupSimConfig.py")
-
-    ################FastPileupSimConfig.py#########################
-    # configure simulation to read in pileup events with GenEventStackFiller
-    # Richard Hawkings 23/4/15
-    InputPileupCollection='GEN_EVENT_PU'
-    OutputPileupTruthCollection='TruthEvent_PU'
-    # ToolSvc.ISF_StackFiller.OutputLevel=DEBUG
-
-
-    ###############Back to MyCustomSkeleton######################
-
-## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
-
-from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
-patch_mc_channel_numberMetadata()
-
-## Increase max RDO output file size to 10 GB
-## NB. We use 10GB since Athena complains that 15GB files are not supported
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ]
-
-### Changing to post-sim include/exec
-## Post-include
-if hasattr(runArgs, "postSimInclude"):
-    for fragment in runArgs.postSimInclude:
-        include(fragment)
-
-if hasattr(runArgs, "outputEVNT_TRFile"):
-    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
-        include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
-
-## Post-exec
-if hasattr(runArgs, "postSimExec"):
-    fast_chain_log.info("transform post-sim exec")
-    for cmd in runArgs.postSimExec:
-        fast_chain_log.info(cmd)
-        exec(cmd)
-
-### End of Sim
-
-
-### Start of Digi
-
-#include("SimuJobTransforms/CommonSkeletonJobOptions.py")
-################CommonSkeletonJobOptions.py again############################
-
-######################################################################
-#                                                                    #
-# Place holder for numerous common job options of skeleton.XXX files #
-# Creation: David Cote (September 2009)                              #
-#                                                                    #
-######################################################################
-#from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
-
-## autoConfiguration keywords triggering pre-defined functions
-## if hasattr(runArgs,"autoConfiguration"):
-##     for key in runArgs.autoConfiguration:
-##         rec.AutoConfiguration.append(key)
-
-#################Back to MyCustomSkeleton##################################
-
-#==============================================================
-# Job Configuration parameters:
-#==============================================================
-### Changing pre-exec to pre-digi exec
-## Pre-exec
-if hasattr(runArgs,"preDigiExec"):
-    fast_chain_log.info("transform pre-digi exec")
-    for cmd in runArgs.preDigiExec:
-        fast_chain_log.info(cmd)
-        exec(cmd)
-
-## Pre-include
-if hasattr(runArgs,"preDigiInclude"):
-    for fragment in runArgs.preDigiInclude:
-        include(fragment)
 
 #--------------------------------------------------------------
 # Override pile-up configuration on the command-line
@@ -1047,6 +618,443 @@ if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"tmpRDO"):
 else:
     fast_chain_log.info("no output file (outputRDOFile or tmpRDO) specified - switching off output StreamRDO")
 
+## Set Overall per-Algorithm time-limit on the AlgSequence
+topSequence.TimeOut = 43200 * Units.s
+
+try:
+    from RecAlgs.RecAlgsConf import TimingAlg
+    topSequence+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
+except:
+    fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
+
+#### *********** import ISF_Example code here **************** ####
+
+#include("ISF_Config/ISF_ConfigJobInclude.py")
+
+
+
+
+########## ISF_ConfigJobInclude.py #################
+
+
+
+
+"""
+Common configurations for ISF
+KG Tan, 17/06/2012
+"""
+
+#include.block('ISF_Config/ISF_ConfigJobInclude.py')
+
+#--------------------------------------------------------------
+# Set to monte carlo
+#--------------------------------------------------------------
+import AthenaCommon.AtlasUnixStandardJob
+from AthenaCommon import AthenaCommonFlags
+from AthenaCommon.AppMgr import theApp
+from AthenaCommon.AppMgr import ServiceMgr
+
+# TODO: ELLI: remove this once the envelopes are stored in the DDDB
+#             -> currently a fallback python definition is used
+#import shutil
+#import os.path
+#if os.path.exists('geomDB') and os.path.islink('geomDB'):
+    #os.unlink('geomDB')
+#os.symlink('/afs/cern.ch/atlas/groups/Simulation/ISF/Envelopes_geomDB', 'geomDB')
+
+
+#--------------------------------------------------------------
+# Set the flags automatically here
+# (move it to the job options if not meant to be automatic!)
+#--------------------------------------------------------------
+import AthenaCommon.SystemOfUnits as Units
+
+from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be finalised before these functons are called
+
+# --- set globalflags
+globalflags.DataSource.set_Value_and_Lock('geant4')
+if jobproperties.Beam.beamType == "cosmics" :
+    globalflags.DetGeo.set_Value_and_Lock('commis')
+else:
+    globalflags.DetGeo.set_Value_and_Lock('atlas')
+globalflags.Luminosity.set_Off()
+
+# --- set SimLayout (synchronised to globalflags)
+if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
+    print "ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!"
+    print "Please correct your job options."
+    # TODO: theApp.exit(1)?
+    import sys
+    sys.exit(1)
+simFlags.load_atlas_flags()
+simFlags.EventFilter.set_Off()
+
+# --- Read in special simulation job option fragments based on
+# --- metadata passed by the evgen stage (move earlier?)
+from ISF_Example.ISF_Metadata import checkForSpecialConfigurationMetadata
+checkForSpecialConfigurationMetadata()
+#--------------------------------------------------------------
+# Read Simulation MetaData (unless override flag set to True)
+#--------------------------------------------------------------
+#if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
+#    fast_chain_log.info("Skipping input file MetaData check.")
+#else :
+#    from Digitization.DigitizationReadMetaData import readHITSFileMetadata
+#    readHITSFileMetadata()
+
+
+# all det description
+include('ISF_Config/AllDet_detDescr.py')
+
+DetFlags.Print()
+
+#check job configuration
+from Digitization.DigiConfigCheckers import checkDetFlagConfiguration
+checkDetFlagConfiguration()
+
+from FullChainTransforms.FastChainConfigCheckers import syncDigitizationAndSimulationJobProperties
+syncDigitizationAndSimulationJobProperties()
+
+#--------------------------------------------------------------
+# Pileup configuration
+#--------------------------------------------------------------
+from Digitization.DigiConfigCheckers import syncDetFlagsAndDigitizationJobProperties
+syncDetFlagsAndDigitizationJobProperties()
+DetFlags.Print()
+
+if len(globalflags.ConditionsTag()):
+    from IOVDbSvc.CondDB import conddb
+    conddb.setGlobalTag(globalflags.ConditionsTag())
+
+# Temporary work-around - see ATLASSIM-2351
+if ISF_Flags.UsingGeant4():
+    #include("G4AtlasApps/G4Atlas.flat.configuration.py") #HACK
+
+    ####################G4Atlas.flat.configuration.py#################
+
+
+    ## _PyG4AtlasComp.__init__
+    ## If the random number service hasn't been set up already, do it now.
+    simFlags.RandomSeedList.useDefaultSeeds()
+
+    ## AtlasSimSkeleton._do_jobproperties
+    ## Import extra flags if it hasn't already been done
+    if "atlas_flags" not in simFlags.extra_flags:
+        simFlags.load_atlas_flags()
+    if jobproperties.Beam.beamType() == "cosmics" and "cosmics_flags" not in simFlags.extra_flags:
+        simFlags.load_cosmics_flags()
+
+    # Switch off GeoModel Release in the case of parameterization
+    if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
+        simFlags.ReleaseGeoModel = False
+
+    ## Translate conditions tag into IOVDbSvc global tag: must be done before job properties are locked!!!
+    from AthenaCommon.AppMgr import ServiceMgr
+    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
+    ServiceMgr += IOVDbSvc()
+    if not hasattr(globalflags, "ConditionsTag") or not globalflags.ConditionsTag.get_Value():
+        raise SystemExit("AtlasSimSkeleton._do_jobproperties :: Global ConditionsTag not set")
+    if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
+        ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
+
+    ## Enable floating point exception handling
+    ## FIXME! This seems to cause the jobs to crash in the FpeControlSvc, so commenting this out for now...
+    #athenaCommonFlags.RuntimeStrictness = 'abort'
+
+    from AthenaCommon.JobProperties import jobproperties
+
+    DetFlags.Print()
+
+
+    jobproperties.print_JobProperties('tree&value')
+
+    ## AtlasSimSkeleton._do_external
+    from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
+    from Geo2G4.Geo2G4Conf import Geo2G4Svc
+    geo2G4Svc = Geo2G4Svc()
+    theApp.CreateSvc += ["Geo2G4Svc"]
+    ServiceMgr += geo2G4Svc
+    ## Enable top transforms for the ATLAS geometry
+    geo2G4Svc.GetTopTransform = True
+
+    ## GeoModel stuff
+    ## TODO: Tidy imports etc.
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    from AthenaCommon.GlobalFlags import jobproperties
+    from AtlasGeoModel import SetGeometryVersion
+
+    ## Forward Region Twiss files - needed before geometry setup!
+
+    if simFlags.ForwardDetectors.statusOn:
+        if DetFlags.geometry.FwdRegion_on():
+            from AthenaCommon.AppMgr import ToolSvc
+            ToolSvc += CfgGetter.getPublicTool("ForwardRegionProperties")
+
+
+    from AtlasGeoModel import GeoModelInit
+    from AtlasGeoModel import SimEnvelopes
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    gms = GeoModelSvc()
+    ## Cosmics GeoModel tweaks
+    if jobproperties.Beam.beamType() == 'cosmics' or \
+            (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+        from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
+        gms.DetectorTools += [ CavernInfraDetectorTool() ]
+    ## Protects GeoModelSvc in the simulation from the AlignCallbacks
+    gms.AlignCallbacks = False
+    ## Muon GeoModel tweaks
+    if DetFlags.Muon_on():
+        ## Turn off caching in the muon system
+        from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
+        MuonDetectorTool = MuonDetectorTool()
+        MuonDetectorTool.FillCacheInitTime = 0 # default is 1
+        if hasattr(simFlags, 'SimulateNewSmallWheel'):
+            if simFlags.SimulateNewSmallWheel():
+                MuonDetectorTool.StationSelection  = 2
+                MuonDetectorTool.SelectedStations  = [ "EIL1" ]
+                MuonDetectorTool.SelectedStations  += [ "EIL2" ]
+                MuonDetectorTool.SelectedStations  += [ "EIL6" ]
+                MuonDetectorTool.SelectedStations  += [ "EIL7" ]
+                MuonDetectorTool.SelectedStations  += [ "EIS*" ]
+                MuonDetectorTool.SelectedStations  += [ "EIL10" ]
+                MuonDetectorTool.SelectedStations  += [ "EIL11" ]
+                MuonDetectorTool.SelectedStations  += [ "EIL12" ]
+                MuonDetectorTool.SelectedStations  += [ "EIL17" ]
+                MuonDetectorTool.SelectedStations  += [ "CSS*" ]
+                MuonDetectorTool.SelectedStations  += [ "CSL*" ]
+                MuonDetectorTool.SelectedStations  += [ "T4E*" ]
+                MuonDetectorTool.SelectedStations  += [ "T4F*" ]
+
+        ## Additional material in the muon system
+        from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+        AGDD2Geo = AGDDtoGeoSvc()
+        if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
+            ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
+            AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+        if hasattr(simFlags, 'SimulateNewSmallWheel'):
+            if simFlags.SimulateNewSmallWheel():
+                if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
+                    ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
+                    AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
+        theApp.CreateSvc += ["AGDDtoGeoSvc"]
+        ServiceMgr += AGDD2Geo
+
+    ## Add configured GeoModelSvc to service manager
+    ServiceMgr += gms
+
+
+    ###################Back to ISF_ConfigJobInclude.py################
+
+#--------------------------------------------------------------
+# Setup the ISF Services
+#--------------------------------------------------------------
+# --- load AuditorSvc
+from AthenaCommon.ConfigurableDb import getConfigurable
+# --- write out summary of the memory usage
+#   | number of events to be skip to detect memory leak
+#   | 20 is default. May need to be made larger for complete jobs.
+ServiceMgr.AuditorSvc += getConfigurable("ChronoAuditor")()
+# --- write out a short message upon entering or leaving each algorithm
+# ServiceMgr.AuditorSvc += getConfigurable("NameAuditor")()
+#
+theApp.AuditAlgorithms = True
+theApp.AuditServices   = True
+#
+# --- Display detailed size and timing statistics for writing and reading
+ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
+
+#--------------------------------------------------------------
+# ISF input
+#--------------------------------------------------------------
+
+# Note: automatically adds generator to TopSequence if applicable
+# if an input sting identifier was given, use ISF input definitions
+if ISF_Flags.Input()!="NONE":
+    CfgGetter.getAlgorithm('ISF_Input_' + ISF_Flags.Input())
+# cosmics input
+elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    simFlags.load_cosmics_flags()
+    if simFlags.ReadTR.statusOn:
+        CfgGetter.getAlgorithm('TrackRecordCosmicGenerator')
+    else:
+        CfgGetter.getAlgorithm('EvgenCosmicGenerator')
+# non of the above
+
+elif not athenaCommonFlags.PoolEvgenInput.statusOn:
+    print "ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude"
+# non of the above -> input via ISF_Flags
+else :
+    if ISF_Flags.OverrideInputFiles():
+        athenaCommonFlags.PoolEvgenInput = ISF_Flags.OverrideInputFiles()
+    CfgGetter.getAlgorithm('ISF_Input_GenericFiles')
+
+from ISF_Example.ISF_Input import ISF_Input
+
+topSequence += CfgGetter.getAlgorithm("BeamEffectsAlg")
+
+#--------------------------------------------------------------
+# ISF kernel configuration
+#--------------------------------------------------------------
+
+# keep reference to collection merger algorithm to guarantee that
+# any subsequent simulator configuration gets a reference to the same
+# instance when calling confgetter's getAlgorithm
+collection_merger_alg = CfgGetter.getAlgorithm('ISF_CollectionMerger')
+
+SimKernel = CfgGetter.getAlgorithm(ISF_Flags.Simulator.KernelName())
+
+#--------------------------------------------------------------
+# Setup the random number streams
+#--------------------------------------------------------------
+from G4AtlasApps.SimFlags import SimFlags,simFlags;
+if not athenaCommonFlags.PoolEvgenInput.statusOn:
+    if not simFlags.RandomSeedList.checkForExistingSeed('SINGLE'):
+        simFlags.RandomSeedList.addSeed( "SINGLE", 43657613, 78935670 )
+if not simFlags.RandomSeedList.checkForExistingSeed('VERTEX'):
+  simFlags.RandomSeedList.addSeed( 'VERTEX', 9123448, 829143 )
+simFlags.RandomSeedList.addtoService()
+simFlags.RandomSeedList.printSeeds()
+
+if ISF_Flags.HITSMergingRequired():
+    topSequence += collection_merger_alg
+
+#--------------------------------------------------------------
+# Post kernel configuration
+#--------------------------------------------------------------
+
+# proper GeoModel initialization
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+if ( DetFlags.detdescr.LAr_on() ):
+    GeoModelSvc.DetectorTools["LArDetectorToolNV"].GeometryConfig = "FULL"
+if ( DetFlags.detdescr.Tile_on() ):
+    GeoModelSvc.DetectorTools["TileDetectorTool"].GeometryConfig = "FULL"
+
+
+if ISF_Flags.DumpStoreGate() :
+    StoreGateSvc.Dump = True
+
+
+if ISF_Flags.RunVP1() :
+    # VP1 part (better switch off PerMon when using VP1)
+    from VP1Algs.VP1AlgsConf import VP1Alg
+    topSequence += VP1Alg()
+
+elif ISF_Flags.DoPerfMonStats() :
+    # Performance Monitoring (VP1 does not like this)
+    # https://twiki.cern.ch/twiki/bin/viewauth/Atlas/PerfMonSD
+    from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
+    pmon_properties.PerfMonFlags.doMonitoring=True
+    pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
+
+
+if ISF_Flags.DumpMcEvent() :
+    # McEventCollection Dumper
+    DumpMC = CfgMgr.DumpMC("DumpMC")
+    DumpMC.McEventKey = "TruthEvent"
+    topSequence += DumpMC
+
+
+if ISF_Flags.RunValgrind() :
+    # code profiling with valgrind
+    from Valkyrie.JobOptCfg import ValgrindSvc
+    valgrindSvc = ValgrindSvc ( OutputLevel = DEBUG )
+    valgrindSvc.ProfiledAlgs +=  SimKernel
+    #valgrindSvc.IgnoreFirstNEvents
+    ServiceMgr += valgrindSvc
+
+# useful for debugging:
+print topSequence
+
+
+#########Back to MyCustomSkeleton.py##############
+
+
+## check to see if  pileup emulation is being used, if so do post-ISF-config
+## actions to enable simulation of pileup collection
+if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
+    fast_chain_log.info("Pileup emulation enabled - setup GenEventStackFiller")
+    #include("FastChainPileup/FastPileupSimConfig.py")
+
+    ################FastPileupSimConfig.py#########################
+    # configure simulation to read in pileup events with GenEventStackFiller
+    # Richard Hawkings 23/4/15
+    InputPileupCollection='GEN_EVENT_PU'
+    OutputPileupTruthCollection='TruthEvent_PU'
+    # ToolSvc.ISF_StackFiller.OutputLevel=DEBUG
+
+
+    ###############Back to MyCustomSkeleton######################
+
+## Add AMITag MetaData to TagInfoMgr
+if hasattr(runArgs, 'AMITag'):
+    if runArgs.AMITag != "NONE":
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+
+from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
+patch_mc_channel_numberMetadata()
+
+## Increase max RDO output file size to 10 GB
+## NB. We use 10GB since Athena complains that 15GB files are not supported
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ]
+
+### Changing to post-sim include/exec
+## Post-include
+if hasattr(runArgs, "postSimInclude"):
+    for fragment in runArgs.postSimInclude:
+        include(fragment)
+
+if hasattr(runArgs, "outputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
+
+## Post-exec
+if hasattr(runArgs, "postSimExec"):
+    fast_chain_log.info("transform post-sim exec")
+    for cmd in runArgs.postSimExec:
+        fast_chain_log.info(cmd)
+        exec(cmd)
+
+### End of Sim
+
+
+### Start of Digi
+
+#include("SimuJobTransforms/CommonSkeletonJobOptions.py")
+################CommonSkeletonJobOptions.py again############################
+
+######################################################################
+#                                                                    #
+# Place holder for numerous common job options of skeleton.XXX files #
+# Creation: David Cote (September 2009)                              #
+#                                                                    #
+######################################################################
+#from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
+
+## autoConfiguration keywords triggering pre-defined functions
+## if hasattr(runArgs,"autoConfiguration"):
+##     for key in runArgs.autoConfiguration:
+##         rec.AutoConfiguration.append(key)
+
+#################Back to MyCustomSkeleton##################################
+
+#==============================================================
+# Job Configuration parameters:
+#==============================================================
+### Changing pre-exec to pre-digi exec
+## Pre-exec
+if hasattr(runArgs,"preDigiExec"):
+    fast_chain_log.info("transform pre-digi exec")
+    for cmd in runArgs.preDigiExec:
+        fast_chain_log.info(cmd)
+        exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preDigiInclude"):
+    for fragment in runArgs.preDigiInclude:
+        include(fragment)
 
 #--------------------------------------------------------------
 # Go for it
@@ -1081,7 +1089,6 @@ except:
 #--------------------------------------------------------------
 # Get Digitization Flags (This sets Global and Det Flags)
 #--------------------------------------------------------------
-from Digitization.DigitizationFlags import digitizationFlags
 
 #-------------------------------------------
 # Print Job Configuration
@@ -1099,13 +1106,6 @@ digitizationFlags.print_JobProperties()
 #include("Digitization/ConfigDigitization.py")
 
 ####### Digitization/ConfigDigitization.py
-
-#check job configuration
-from Digitization.DigiConfigCheckers import checkDetFlagConfiguration
-checkDetFlagConfiguration()
-
-from FullChainTransforms.FastChainConfigCheckers import syncDigitizationAndSimulationJobProperties
-syncDigitizationAndSimulationJobProperties()
 
 #Pool input
 from AthenaCommon.AppMgr import ServiceMgr
@@ -1139,12 +1139,6 @@ try:
 except:
     #fall-back for 19.0.X releases.
     include( "BFieldAth/BFieldAth_jobOptions.py" )
-
-#--------------------------------------------------------------
-# Pileup configuration
-#--------------------------------------------------------------
-from Digitization.DigiConfigCheckers import syncDetFlagsAndDigitizationJobProperties
-syncDetFlagsAndDigitizationJobProperties()
 
 #--------------------------------------------------------------
 # Configure Run and Lumi Block and Pile-Up Lumi overriding
@@ -1181,7 +1175,6 @@ if DetFlags.pileup.any_on():
 
 # in any case we need the PileUpMergeSvc for the digitize algos
 if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
-    from AthenaCommon import CfgGetter
     ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
 
 
@@ -1212,7 +1205,6 @@ if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
 
 # Set up PileupMergeSvc used by subdetectors
 #from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon import CfgGetter
 
 # Set up ComTimeRec for cosmics digitization
 if jobproperties.Beam.beamType == "cosmics" :
