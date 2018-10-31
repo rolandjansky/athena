@@ -94,8 +94,7 @@ namespace CP {
          }
 
          // Record it to the output for the current event.
-         ANA_CHECK( m_event.record( const_cast< void* >( obj ),
-                                    SG::normalizedTypeinfoName( *( item.type ) ),
+         ANA_CHECK( m_event.record( const_cast< void* >( obj ), item.typeName,
                                     item.name, m_basketSize, m_splitLevel ) );
       }
 
@@ -174,6 +173,7 @@ namespace CP {
                               << itemMatch[ 1 ] << "\"" );
                return StatusCode::FAILURE;
             }
+            item.typeName = SG::normalizedTypeinfoName( *( item.type ) );
 
             // Check if the item is available.
             static const bool SILENT = true;
