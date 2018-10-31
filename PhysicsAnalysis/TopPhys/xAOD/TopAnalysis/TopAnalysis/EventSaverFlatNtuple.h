@@ -585,6 +585,7 @@ private:
     bool m_useRCAdditionalJSS; // write RCJSS additional variables
     bool m_useVarRCJSS; // write Variable-R RCJSS variables
     bool m_useVarRCAdditionalJSS; // write Variable-R RCJSS additional variables
+    bool m_useElectronChargeIDSelection; // write ECID tool output variables
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;

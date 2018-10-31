@@ -665,7 +665,6 @@ namespace top{
       std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
-    if( m_useElectronChargeIDSelection )throw std::runtime_error{"TopConfig: UseElectronChargeIDSelection True \n Electron Charge ID selection not available in this release."};
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 

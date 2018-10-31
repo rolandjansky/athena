@@ -19,7 +19,6 @@
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
-#include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
 #include "PhotonEfficiencyCorrection/AsgPhotonEfficiencyCorrectionTool.h"
@@ -117,18 +116,6 @@ StatusCode EgammaCPTools::setupCalibration() {
 	       "Failed to initialize " + egamma_calib_name);
     m_egammaCalibrationAndSmearingTool = egammaCalibrationAndSmearingTool;
   }
-
-  // - Electron Charge ID Selector Tool
-  // The only supported working point is Medium with 97% integrated efficiency
-  // Note: this working point is to be applied on top of MediumLLH + d0z0 cuts + isolFixedCutTight
-  // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ElectronChargeFlipTaggerTool
-  std::string toolName="ECIDS_medium";
-  AsgElectronChargeIDSelectorTool* electronChargeIDSelectorTool = new AsgElectronChargeIDSelectorTool(toolName);
-  std::string trainingfile="ElectronPhotonSelectorTools/ChargeID/ECIDS_20161125for2017Moriond.root";
-  float BDT_OP=-0.28087; //Set your operating point with the table above.
-  top::check( electronChargeIDSelectorTool->setProperty("TrainingFile",trainingfile) , "Failed to setProperty" );
-  top::check( electronChargeIDSelectorTool->setProperty("CutOnBDT",BDT_OP) , "Failed to setProperty" );
-  top::check( electronChargeIDSelectorTool->initialize() , "Failed to initialize" );
 
   // The terribly named ElectronPhotonShowerShapeFudgeTool...
   // We apply this only to photons to correct the shower shape
@@ -264,9 +251,10 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffSFIso          = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType);
   m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
 
-  // Charge ID cannot use maps at the moment so we defualt to the old method
+  // Charge ID cannot use maps at the moment so we default to the old method
   // for the moment only for MediumLH and FixedCutTight isolation
   // either at Tight or Loose level
+  // Scale factors are still from 20.7!
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
     m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH");
