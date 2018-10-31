@@ -59,16 +59,6 @@ namespace H5Utils {
       }
     }
 
-    // DS parameters
-    DSParameters::DSParameters(const H5::CompType type_,
-                               std::vector<hsize_t> extent_,
-                               hsize_t batch_size_):
-      type(type_),
-      extent(extent_),
-      dim_stride(getStriding(extent_)),
-      batch_size(batch_size_)
-    {
-    }
 
 
   }

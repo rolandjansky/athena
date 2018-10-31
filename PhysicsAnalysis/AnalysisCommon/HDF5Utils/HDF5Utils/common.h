@@ -34,17 +34,6 @@ namespace H5Utils {
     void throwIfExists(const std::string& name, const H5::Group& in_group);
     void printDistructorError(const std::string& msg);
 
-    // constant parameters used by the writer
-    struct DSParameters {
-      DSParameters(const H5::CompType type,
-                   std::vector<hsize_t> max_length,
-                   hsize_t batch_size);
-      H5::CompType type;
-      std::vector<hsize_t> extent;
-      std::vector<hsize_t> dim_stride;
-      hsize_t batch_size;
-    };
-
   }
 }
 

@@ -150,11 +150,13 @@ namespace H5Utils {
     struct DataFlattener {
       std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
-      DataFlattener(const F& filler, T args):
+      DataFlattener(const F& filler, T args, const std::array<size_t,N>& dims):
         buffer() {
         hsize_t offset = 0;
         for (const auto& arg: args) {
-          DataFlattener<N-1, F, decltype(arg)> in(filler, arg);
+          const size_t this_dim_max = dims.at(N);
+          if (offset > this_dim_max) return;
+          DataFlattener<N-1, F, decltype(arg)> in(filler, arg, dims);
           buffer.insert(buffer.end(), in.buffer.begin(), in.buffer.end());
           for (const auto& in_ele: in.element_offsets){
             std::array<hsize_t, N> element_pos;
@@ -170,7 +172,7 @@ namespace H5Utils {
     struct DataFlattener<0, F, T> {
       std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, 0> > element_offsets;
-      DataFlattener(const F& f, T args):
+      DataFlattener(const F& f, T args, const std::array<size_t,0>& dims):
         buffer(),
         element_offsets(1) {
         for (const auto& filler: f) {
@@ -179,8 +181,7 @@ namespace H5Utils {
       }
     };
 
-
-    /// Adapters to translate configuration info into the objects
+    /// Adapter to translate configuration info into the objects
     /// needed by the writer.
     template<typename I>
     H5::CompType buildType(const Consumers<I>& fillers) {
@@ -192,6 +193,30 @@ namespace H5Utils {
       }
       return type;
     }
+
+    /// Constant parameters for the writer
+    template <typename I, size_t N>
+    struct DSParameters {
+      DSParameters(const Consumers<I>& fillers,
+                   std::array<hsize_t,N> extent,
+                   hsize_t batch_size);
+      H5::CompType type;
+      std::vector<hsize_t> extent;
+      hsize_t batch_size;
+    };
+
+    // DS parameters
+    template <typename I, size_t N>
+    DSParameters<I,N>::DSParameters(const Consumers<I>& consumers,
+                                    std::array<hsize_t,N> extent_,
+                                    hsize_t batch_size_):
+      type(buildType(consumers)),
+      extent(extent_),
+      batch_size(batch_size_)
+    {
+    }
+
+
     template<typename I>
     std::vector<traits::data_buffer_t> buildDefault(const Consumers<I>& f) {
       std::vector<traits::data_buffer_t> def;
@@ -241,7 +266,7 @@ namespace H5Utils {
     void flush();
     size_t index() const;
   private:
-    const common::DSParameters m_par;
+    const internal::DSParameters<I,N> m_par;
     hsize_t m_offset;
     hsize_t m_buffer_rows;
     std::vector<traits::data_buffer_t> m_buffer;
@@ -252,13 +277,13 @@ namespace H5Utils {
 
   template <size_t N, typename I>
   Writer<N, I>::Writer(H5::Group& group, const std::string& name,
-                       const Consumers<I>& con,
+                       const Consumers<I>& consumers,
                        const std::array<size_t,N>& extent,
                        hsize_t batch_size):
-    m_par(internal::buildType(con), internal::vec(extent), batch_size),
+    m_par(consumers, extent, batch_size),
     m_offset(0),
     m_buffer_rows(0),
-    m_consumers(con),
+    m_consumers(consumers),
     m_file_space(H5S_SIMPLE)
   {
     using common::packed;
@@ -271,7 +296,7 @@ namespace H5Utils {
     // create params
     H5::DSetCreatPropList params = common::getChunckedDatasetParams(
       vec(extent), batch_size);
-    auto default_value = internal::buildDefault(con);
+    auto default_value = internal::buildDefault(consumers);
     params.setFillValue(m_par.type, default_value.data());
 
     // create ds
@@ -299,7 +324,8 @@ namespace H5Utils {
     if (m_buffer_rows == m_par.batch_size) {
       flush();
     }
-    internal::DataFlattener<N, decltype(m_consumers), T> buf(m_consumers, arg);
+    internal::DataFlattener<N, decltype(m_consumers), T> buf(
+      m_consumers, arg, m_par.extent);
     hsize_t n_el = buf.element_offsets.size();
     std::vector<hsize_t> elements;
     for (const auto& el_local: buf.element_offsets) {
