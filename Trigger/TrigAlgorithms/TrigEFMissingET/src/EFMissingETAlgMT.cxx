@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include <cmath>
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
@@ -63,7 +63,7 @@ StatusCode EFMissingETAlgMT::execute_r( const EventContext& context ) const {
   }
   loopTimer.stop();
 
-  m_helperTool->execute(met, &metHelper, nullptr, nullptr, nullptr, nullptr);  
+  ATH_CHECK( m_helperTool->executeMT(met, &metHelper) );
 
   auto EF_MEx_log = MonitoredScalar::declare( "EF_MEx_log", toLogGeV( met->ex() ) );
   auto EF_MEy_log = MonitoredScalar::declare( "EF_MEy_log", toLogGeV( met->ey() ) );
