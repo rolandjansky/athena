@@ -17,8 +17,9 @@ class sTGCPRDVariables : public ValAlgVariables
                        const MuonGM::MuonDetectorManager* detManager,
                        const MuonIdHelper* idhelper,
                        TTree* tree,
-                       std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "sTGCPRDVariables"),
+						  	  std::string containername,
+						 	  MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_sTgcIdHelper(0),
     m_NSWsTGC_nPRDs(0),
     m_NSWsTGC_prd_stationName(0),

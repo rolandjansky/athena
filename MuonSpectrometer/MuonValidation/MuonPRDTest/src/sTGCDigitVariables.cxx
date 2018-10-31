@@ -20,10 +20,7 @@
 /** ---------- to be called on each evt i.e. execute level of main alg */
 StatusCode sTGCDigitVariables::fillVariables()
 {
-  ATH_MSG_INFO(" do fillNSWsTGCDigitVariables()");
-  MSG::Level msgLevel = MSG::VERBOSE;
-  m_msg.get().setLevel(msgLevel);
-
+  ATH_MSG_DEBUG(" do fillNSWsTGCDigitVariables()");
   CHECK( this->clearVariables() );
 
   const sTgcDigitContainer* nsw_sTgcDigitContainer = nullptr;
