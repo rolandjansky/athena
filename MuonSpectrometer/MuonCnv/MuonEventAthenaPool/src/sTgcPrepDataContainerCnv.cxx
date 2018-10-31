@@ -33,8 +33,6 @@ StatusCode sTgcPrepDataContainerCnv::initialize() {
     if( !sTgcPrepDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
     
-    msgSvc()->setOutputLevel( "sTgcPrepDataContainerCnv", MSG::DEBUG );
-
    // Get the messaging service, print where you are
     MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv");
     if (log.level() <= MSG::INFO) log << MSG::INFO << "sTgcPrepDataContainerCnv::initialize()" << endmsg;

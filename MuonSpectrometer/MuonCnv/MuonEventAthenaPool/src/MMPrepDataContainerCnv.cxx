@@ -33,8 +33,6 @@ StatusCode MMPrepDataContainerCnv::initialize() {
     if( !MMPrepDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
     
-    msgSvc()->setOutputLevel( "MMPrepDataContainerCnv", MSG::DEBUG );
-
    // Get the messaging service, print where you are
     MsgStream log(msgSvc(), "MMPrepDataContainerCnv");
     if (log.level() <= MSG::INFO) log << MSG::INFO << "MMPrepDataContainerCnv::initialize()" << endmsg;
