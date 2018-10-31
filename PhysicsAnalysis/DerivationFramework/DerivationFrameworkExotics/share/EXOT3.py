@@ -447,7 +447,7 @@ EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets",
 
 # Save certain b-tagging variables for VR track-jet
 EXOT3SlimmingHelper.ExtraVariables += [
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.DL1_pb.DL1_pu.DL1_pc.DL1mu_pb.DL1mu_pu.DL1mu_pc.DL1rnn_pb.DL1rnn_pu.DL1rnn_pc",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.DL1_pb.DL1_pu.DL1_pc.DL1rmu_pb.DL1rmu_pu.DL1rmu_pc.DL1r_pb.DL1r_pu.DL1r_pc",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
@@ -457,7 +457,7 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
     "Muons.EnergyLoss.energyLossType",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.ExCoM2SubJets",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.DL1_pb.DL1_pu.DL1_pc.DL1mu_pb.DL1mu_pu.DL1mu_pc.DL1rnn_pb.DL1rnn_pu.DL1rnn_pc",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.DL1_pb.DL1_pu.DL1_pc.DL1rmu_pb.DL1rmu_pu.DL1rmu_pc.DL1r_pb.DL1r_pu.DL1r_pc",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
