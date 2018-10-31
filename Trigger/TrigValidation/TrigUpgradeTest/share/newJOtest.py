@@ -14,6 +14,15 @@ Configurable.configurableRun3Behavior=1
 #theApp.setup()
 
 flags = ConfigFlags
+# TODO move to the new (real menu like contqent for this flags )
+flags.addFlag('Trigger.menu.electrons', [ "HLT_e3_etcut L1_EM3",        
+	                                  "HLT_e5_etcut L1_EM3",        	                          
+	                                  "HLT_e7_etcut L1_EM7"])
+flags.addFlag('Trigger.menu.photons', ['HLT_g10_etcut L1_EM7', 
+	                               'HLT_g15_etcut L1_EM12' ])
+
+
+
 
 flags.Input.isMC = False
 flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] 
