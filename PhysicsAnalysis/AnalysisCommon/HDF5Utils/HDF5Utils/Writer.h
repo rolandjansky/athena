@@ -22,6 +22,7 @@
 #include <vector>
 #include <memory>
 #include <cassert>
+#include <set>
 
 namespace H5Utils {
 
@@ -126,6 +127,9 @@ namespace H5Utils {
     void add(const std::string& name, const F func, const T& def = T()) {
       add(name, std::function<T(I)>(func), def);
     }
+
+  private:
+    std::set<std::string> m_used;
   };
   ///@}
 
@@ -135,8 +139,12 @@ namespace H5Utils {
                          const std::function<T(I)>& fun,
                          const T& def_val)
   {
+    if (m_used.count(name)) {
+      throw std::logic_error("tried to insert '" + name + "' twice");
+    }
     this->push_back(
       std::make_shared<internal::DataConsumer<T, I> >(name, fun, def_val));
+    m_used.insert(name);
   }
 
 
@@ -336,7 +344,9 @@ namespace H5Utils {
       std::copy(el_local.begin(), el_local.end(), el_global.begin() + 1);
       elements.insert(elements.end(), el_global.begin(), el_global.end());
     }
-    m_file_space.selectElements(H5S_SELECT_APPEND, n_el, elements.data());
+    if (n_el > 0) {
+      m_file_space.selectElements(H5S_SELECT_APPEND, n_el, elements.data());
+    }
     m_buffer.insert(m_buffer.end(), buf.buffer.begin(), buf.buffer.end());
     m_buffer_rows++;
   }
