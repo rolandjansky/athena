@@ -135,6 +135,7 @@ if isMC:
 # add algorithms in the sequence that calculate the b-tagging variables
 # for the el-subtracted jets
 from AthenaCommon.AppMgr import ToolSvc
+from BTagging.BTaggingFlags import BTaggingFlags
 btag_jetnoel = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4EMTopoNoEl", AddToToolSvc=True,
                                                      Verbose=True,
                                                      options={"name"         : "btagging_antikt4emtoponoel",
@@ -143,8 +144,7 @@ btag_jetnoel = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4EMTop
                                                               "BTagSVName"   : "SecVtx",
                                                               },
                                                      SetupScheme = "",
-                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
-                                                     )
+                                                     TaggerList = BTaggingFlags.StandardTaggers)
 btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4TrackNoEl", AddToToolSvc=True,
                                                      Verbose=True,
                                                      options={"name"         : "btagging_antikt4tracknoel",
@@ -153,8 +153,8 @@ btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt
                                                               "BTagSVName"   : "SecVtx",
                                                               },
                                                      SetupScheme = "",
-                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
-                                                     )
+                                                     TaggerList = BTaggingFlags.StandardTaggers)
+
 jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["track"] + [defaultTrackAssoc, defaultMuonAssoc, btag_jetnoel_track]
 jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_jetnoel]
 
