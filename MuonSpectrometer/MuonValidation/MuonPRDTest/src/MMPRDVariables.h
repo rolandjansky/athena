@@ -17,8 +17,9 @@ class MMPRDVariables : public ValAlgVariables
                        const MuonGM::MuonDetectorManager* detManager,
                        const MuonIdHelper* idhelper,
                        TTree* tree,
-                       std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MMPRDVariables"),
+							  std::string containername,
+							  MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
     m_NSWMM_nPRDs(0), 
     m_NSWMM_prd_stationName(0),
