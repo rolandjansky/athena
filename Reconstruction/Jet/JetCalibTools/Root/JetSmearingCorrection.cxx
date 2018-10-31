@@ -363,7 +363,7 @@ StatusCode JetSmearingCorrection::getSigmaSmear(xAOD::Jet& jet, double& sigmaSme
     // This is because we want to smear the MC to match the data
     // if MC is larger than data, don't make the nominal data worse, so smear is 0
     if (resolutionMC < resolutionData)
-        sigmaSmear = sqrt(resolutionData - resolutionMC);
+        sigmaSmear = sqrt(resolutionData*resolutionData - resolutionMC*resolutionMC);
     else
         sigmaSmear = 0;
 
@@ -427,7 +427,11 @@ StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) c
     m_rand.SetSeed(1.e+5*fabs(jet.phi()));
 
     // Get the Gaussian-distributed random number
-    const double smearingFactor = m_rand.Gaus(1.,sigmaSmear);
+    // Force this to be a positive value
+    // Negative values should be extraordinarily rare, but they do exist
+    double smearingFactor = -1;
+    while (smearingFactor < 0)
+        smearingFactor = m_rand.Gaus(1.,sigmaSmear);
 
     // Apply the smearing factor to the jet as appropriate
     xAOD::JetFourMom_t calibP4 = jet.jetP4();
