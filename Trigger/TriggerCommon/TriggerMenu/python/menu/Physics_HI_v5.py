@@ -137,6 +137,13 @@ def setupMenu():
 	['j60_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j75_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
+	#Large R jets
+	['j120_a10_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j120_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j150_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j180_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j200_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],		
+	
 
 	#forward jets ATR-12623
 	['j25_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -450,9 +457,9 @@ def setupMenu():
         #['hi_th3_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
     
 	#performance/calibration
-	    ['hi_perf_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-	    ['hi_perf_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_perf_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+	    ['hi_perf_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+	    ['hi_perf_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_perf_ucc_L1All',    '',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         #['hi_perfzdc_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         #['hi_perfzdc_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         
