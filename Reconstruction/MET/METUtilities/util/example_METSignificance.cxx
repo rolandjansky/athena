@@ -38,6 +38,7 @@ int main() {
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODBase/IParticleHelpers.h"
+#include "JetInterface/IJetModifier.h"
 
 #include <memory>
 #undef NDEBUG
@@ -106,6 +107,15 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
 
+  asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
+  m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/JetForwardJvtTool");
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
+  // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", true) ); // Tight
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", 2.5) );   //Eta dividing central from forward jets
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", 120.0e3) ); //Max Pt to define fwdJets for JVT
+  ANA_CHECK( m_jetFwdJvtTool.retrieve() );
+
   //this test file should work.  Feel free to contact me if there is a problem with the file.
   std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   assert( ifile.get() );
@@ -129,7 +139,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
-  ANA_CHECK( metSignif.setProperty("IsDataJet",     true) );
+  ANA_CHECK( metSignif.setProperty("IsDataJet",     false) );
   ANA_CHECK( metSignif.setProperty("JetCollection", jetType) );
   if(jetAux!="")
     ANA_CHECK( metSignif.setProperty("JetResoAux", jetAux) );
@@ -192,6 +202,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       if(debug) std::cout << " jet: " << ij << " pt: " << jet->pt() << " eta: "<< jet->eta() << std::endl;
       ++ij;
     }
+    m_jetFwdJvtTool->modify(*calibJets); //compute FwdJVT for all jets
 
     //retrieve the MET association map
     const xAOD::MissingETAssociationMap* metMap = nullptr;
