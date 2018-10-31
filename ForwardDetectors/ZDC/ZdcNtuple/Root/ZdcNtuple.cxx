@@ -20,8 +20,8 @@
 
 ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator) 
   : EL::AnaAlgorithm(name,pSvcLocator),  
-    m_trigConfigTool("TrigConf::xAODConfigTool/xAODConfigTool"),
     m_trigDecisionTool ("Trig::TrigDecisionTool/TrigDecisionTool"),
+    m_trigConfigTool("TrigConf::xAODConfigTool/xAODConfigTool"),
     m_grl ("GoodRunsListSelectionTool/grl", this),
     m_jetCleaning ("JetCleaningTool/JetCleaning", this),
     m_muonSelection ("CP::MuonSelectionTool", this),
@@ -29,7 +29,8 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
     m_electronLooseEMSelector ("AsgElectronIsEMSelector/ElectronLooseEMSelector",this),
     m_electronMediumEMSelector ("AsgElectronIsEMSelector/ElectronMediumEMSelector",this),
     m_electronLooseLHSelector ("AsgElectronLikelihoodTool/ElectronLooseLHSelector",this),
-    m_electronMediumLHSelector ("AsgElectronLikelihoodTool/ElectronMediumLHSelector",this)
+    m_electronMediumLHSelector ("AsgElectronLikelihoodTool/ElectronMediumLHSelector",this)//,
+    //m_zdcAnalysisTool("ZdcAnalysisTool",this)
     //m_photonLooseIsEMSelector ("AsgPhotonIsEMSelector/PhotonLooseEMSelector",this),
     //m_photonMediumIsEMSelector ("AsgPhotonIsEMSelector/PhotonMediumEMSelector",this)
     //m_isoTool("CP::IsolationSelectionTool/IsolationSelector",this);
@@ -68,6 +69,7 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   declareProperty("outputTreeScaledown",  outputTreeScaledown = 1, "comment");
   declareProperty("flipDelay",  flipDelay = 0, "comment");
   declareProperty("reprocZdc",  reprocZdc = 0, "comment");
+  declareProperty("auxSuffix",  auxSuffix = "", "comment");
   declareProperty("nsamplesZdc",  nsamplesZdc = 7, "comment");
   declareProperty("hion4",  hion4 = false, "comment");
   declareProperty("upc2015",  upc2015 = false, "comment");
@@ -597,6 +599,9 @@ StatusCode ZdcNtuple :: initialize ()
   ANA_MSG_INFO("enableMuons = " << enableMuons);
   ANA_MSG_INFO("trackLimit = " << trackLimit);
   ANA_MSG_INFO("trackLimitReject = " << trackLimitReject);
+  ANA_MSG_INFO("auxSuffix = " << auxSuffix );
+  
+  if (auxSuffix != "") auxSuffix = "_" + auxSuffix; // prepend "_"
 
   //xAOD::TEvent* event = wk()->xaodEvent();
   if (debug) ANA_MSG_INFO("initialize: Initialize!");
@@ -822,13 +827,14 @@ StatusCode ZdcNtuple :: initialize ()
       m_zdcAnalysisTool->setProperty("FlipEMDelay",flipDelay);
       m_zdcAnalysisTool->setProperty("LowGainOnly",zdcLowGainOnly);
       m_zdcAnalysisTool->setProperty("ForceCalibRun",-1);
+      m_zdcAnalysisTool->setProperty("AuxSuffix",auxSuffix);
       if (flipDelay) 
 	ANA_MSG_INFO("FLIP ZDC DELAY IN EM MODULES");
       else
 	ANA_MSG_INFO("NO FLIP ZDC DELAY IN EM MODULES");
       
       ANA_CHECK(m_zdcAnalysisTool->initialize());
-      std::cout << "ZDC analysis tool initialized?" << std::endl;
+      ANA_MSG_INFO( "ZDC analysis tool initialized?");
     }
 
 
@@ -867,7 +873,12 @@ StatusCode ZdcNtuple :: execute ()
       return StatusCode::SUCCESS;
     }
 
-  if (!(zdcCalib||zdcLaser))
+  ANA_CHECK(evtStore()->retrieve( m_eventInfo, "EventInfo"));  
+  processEventInfo();
+ 
+  if (!m_setupTrigHist) setupTriggerHistos();
+
+ if (!(zdcCalib||zdcLaser))
     {
       ANA_MSG_INFO("Trying to extract InDetTrackParticles from evtStore()=" << evtStore());
       ANA_CHECK(evtStore()->retrieve( m_trackParticles, "InDetTrackParticles") );
@@ -876,10 +887,6 @@ StatusCode ZdcNtuple :: execute ()
       if (n>trackLimit && trackLimitReject)  return StatusCode::SUCCESS;
     }
 
-  if (!m_setupTrigHist) setupTriggerHistos();
-
-  ANA_CHECK(evtStore()->retrieve( m_eventInfo, "EventInfo"));  
-  processEventInfo();
 
   bool passTrigger = true;
 
@@ -889,27 +896,33 @@ StatusCode ZdcNtuple :: execute ()
       passTrigger = processTriggerDecision();
     }
 
-
   if (!m_isMC)
     {
-      ANA_CHECK(evtStore()->retrieve( m_zdcModules, "ZdcModules") );
       if (reprocZdc) 
-	m_zdcAnalysisTool->reprocessZdc();
+	{
+	  m_zdcAnalysisTool->reprocessZdc();
+	}
       else
 	if (debug) std::cout << "No reprocessing" << std::endl;
 
       m_zdcSums=0;
-      if ( (!upc2015 && !upcL2015 && !mb2015) || reprocZdc)
-	{
-	  ANA_CHECK( evtStore()->retrieve( m_zdcSums, "ZdcSums") );      
-	}
+      ANA_CHECK( evtStore()->retrieve( m_zdcSums, "ZdcSums"+auxSuffix) );      
+
+      m_zdcModules;
+      ANA_CHECK(evtStore()->retrieve( m_zdcModules, "ZdcModules" ) ); // ZDC modules keep same name, but the aux data get different suffix during reprocessing
 
       processModules();
+      processZdcNtupleFromModules(); // same model in both cases -- processZdcNtuple() goes straight to the anlaysis tool, which is good for debugging
 
+      /*
       if (reprocZdc) 
-	processZdcNtuple();
+	{
+	  processZdcNtuple();
+	}
       else
 	processZdcNtupleFromModules();
+      */
+
     }
 
   if (!(zdcCalib||zdcLaser))
@@ -1052,31 +1065,38 @@ void ZdcNtuple::processZdcNtupleFromModules()
     }
 
   if (debug) ANA_MSG_INFO(  "accessing ZdcModules" );
-  for (const auto zdcMod : *m_zdcModules)
+  if (m_zdcModules)
     {
-      int iside = 0;
-      if (zdcMod->side()>0) iside=1;
-      int imod = zdcMod->zdcModule();
-      
-      //if (debug) std::cout << "Module " << zdcMod->side() << " " << zdcMod->zdcModule() << " amp:" << zdcMod->auxdataConst<float>("Amplitude") << std::endl;
-
-      if (zdcMod->type()!=0) continue;
-
-      t_ZdcModuleCalibAmp[iside][imod] = zdcMod->auxdataConst<float>("CalibEnergy");
-      t_ZdcModuleCalibTime[iside][imod] = zdcMod->auxdataConst<float>("CalibTime"); 
-      t_ZdcModuleStatus[iside][imod] = zdcMod->auxdataConst<unsigned int>("Status");
-      if (t_ZdcModuleAmp[iside][imod]!=0.) 
-	Warning("processZdcNtupleFromModules","overwriting side %d module %d!",iside,imod);
-      t_ZdcModuleAmp[iside][imod] = zdcMod->auxdataConst<float>("Amplitude");
-      t_ZdcModuleTime[iside][imod] = zdcMod->auxdataConst<float>("Time");
-      
-      t_ZdcModuleChisq[iside][imod] = zdcMod->auxdataConst<float>("Chisq");
-      t_ZdcModuleFitAmp[iside][imod] =zdcMod->auxdataConst<float>("FitAmp");
-      t_ZdcModuleAmpError[iside][imod] = zdcMod->auxdataConst<float>("FitAmpError");
-      t_ZdcModuleFitT0[iside][imod] = zdcMod->auxdataConst<float>("FitT0");
-      t_ZdcModuleBkgdMaxFraction[iside][imod] = zdcMod->auxdataConst<float>("BkgdMaxFraction");
-
-      
+      for (const auto zdcMod : *m_zdcModules)
+	{
+	  int iside = 0;
+	  if (zdcMod->side()>0) iside=1;
+	  int imod = zdcMod->zdcModule();
+	  
+	  //if (debug) std::cout << "Module " << zdcMod->side() << " " << zdcMod->zdcModule() << " amp:" << zdcMod->auxdataConst<float>("Amplitude") << std::endl;
+	  
+	  if (zdcMod->type()!=0) continue;
+	  
+	  t_ZdcModuleCalibAmp[iside][imod] = zdcMod->auxdataConst<float>("CalibEnergy"+auxSuffix);
+	  t_ZdcModuleCalibTime[iside][imod] = zdcMod->auxdataConst<float>("CalibTime"+auxSuffix); 
+	  t_ZdcModuleStatus[iside][imod] = zdcMod->auxdataConst<unsigned int>("Status"+auxSuffix);
+	  if (t_ZdcModuleAmp[iside][imod]!=0.) 
+	    Warning("processZdcNtupleFromModules","overwriting side %d module %d!",iside,imod);
+	  t_ZdcModuleAmp[iside][imod] = zdcMod->auxdataConst<float>("Amplitude"+auxSuffix);
+	  t_ZdcModuleTime[iside][imod] = zdcMod->auxdataConst<float>("Time"+auxSuffix);
+	  
+	  t_ZdcModuleChisq[iside][imod] = zdcMod->auxdataConst<float>("Chisq"+auxSuffix);
+	  t_ZdcModuleFitAmp[iside][imod] =zdcMod->auxdataConst<float>("FitAmp"+auxSuffix);
+	  t_ZdcModuleAmpError[iside][imod] = zdcMod->auxdataConst<float>("FitAmpError"+auxSuffix);
+	  t_ZdcModuleFitT0[iside][imod] = zdcMod->auxdataConst<float>("FitT0"+auxSuffix);
+	  t_ZdcModuleBkgdMaxFraction[iside][imod] = zdcMod->auxdataConst<float>("BkgdMaxFraction"+auxSuffix);
+	  
+	  
+	}
+    }
+  else
+    {
+      ANA_MSG_INFO("No ZdcModules" << auxSuffix << " when expected!");
     }
 
   /*
@@ -1096,8 +1116,11 @@ void ZdcNtuple::processZdcNtupleFromModules()
 
 }
 
+/*
 void ZdcNtuple::processZdcNtuple()
 {
+  // this processes from the newly produced ZDC info
+  // need to access ZDC sums if they have just been made
   
   if (m_zdcSums)
     {
@@ -1125,7 +1148,7 @@ void ZdcNtuple::processZdcNtuple()
     }
 
   t_ZdcModuleMask=0;
-  
+
   const ZDCDataAnalyzer* zdcAnalyzer = m_zdcAnalysisTool->getDataAnalyzer();
   
   if (zdcAnalyzer)
@@ -1165,6 +1188,7 @@ void ZdcNtuple::processZdcNtuple()
 
   if (debug) std::cout << "Tool Sum 0 = " << t_ZdcEnergy[0] << " Sum 1 = " << t_ZdcEnergy[1] << std::endl;
 }
+*/
 
 bool ZdcNtuple::processTriggerDecision()
 {
@@ -1260,9 +1284,9 @@ void ZdcNtuple::processEventInfo()
     }   
 
 
-  if ( !(m_eventCounter++%1000) )
+  if ( !(m_eventCounter++%1000) || debug)
     {
-      ANA_MSG_INFO("Run " << m_eventInfo->runNumber() << " Event " << m_eventInfo->eventNumber() << " LB " << m_eventInfo->lumiBlock() );
+      ANA_MSG_INFO("Event# " << m_eventCounter << "Run " << m_eventInfo->runNumber() << " Event " << m_eventInfo->eventNumber() << " LB " << m_eventInfo->lumiBlock() );
     }
 
 }

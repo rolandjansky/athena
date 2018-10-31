@@ -138,7 +138,7 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
   if (enableStr.find("noflipdelay")!=std::string::npos) { zdcAna.setProperty("flipDelay", false); }
   if (enableStr.find("doflipdelay")!=std::string::npos) { zdcAna.setProperty("flipDelay", true); }
   if (enableStr.find("trackLimitReject")!=std::string::npos) { zdcAna.setProperty("trackLimitReject", true); }
-  if (enableStr.find("reprocZdc")!=std::string::npos) { zdcAna.setProperty("reprocZdc", true); }
+  if (enableStr.find("reprocZdc")!=std::string::npos) { zdcAna.setProperty("reprocZdc", true);zdcAna.setProperty("auxSuffix","RP"); }
   if (enableStr.find("7samp")!=std::string::npos) { zdcAna.setProperty("nsamplesZdc", 7); }
   if (enableStr.find("15samp")!=std::string::npos) { zdcAna.setProperty("nsamplesZdc", 15); }
   if (enableStr.find("noGRL")!=std::string::npos) { zdcAna.setProperty("useGRL", false);}

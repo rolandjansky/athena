@@ -102,6 +102,7 @@ public:
   bool trackLimitReject; //
   bool flipDelay; // whether or not to flip un/delay for EM ZDC modules
   bool reprocZdc; // use ZdcAnalysisTool to reprocess ZDC, otherwise use what is there 
+  std::string auxSuffix; // what to add to name the new data, when reprocessing
   size_t nsamplesZdc; // nsamples expected by ZDC tool
   bool hion4; // derivation (limited variables)
   bool upc2015; //
@@ -610,8 +611,8 @@ public:
   bool processTriggerDecision();
   uint32_t acceptEvent();
   void processModules();
-  void processZdcNtuple();
-  void processZdcNtupleFromModules();
+  //void processZdcNtuple(); // old version directly from ZdcAnalysisTool
+  void processZdcNtupleFromModules(); // new version directly from output of ZdcAnalysisTool - which is much cleaner
   void processFCal();
   void processMBTS();
   void processInDet();

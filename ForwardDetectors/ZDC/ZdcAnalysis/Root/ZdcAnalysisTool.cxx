@@ -637,9 +637,6 @@ namespace ZDC
 
     // If an aux suffix is provided, prepend it with "_" so we don't have to do so at each use
     //
-    if (m_writeAux && m_auxSuffix != "") {
-      m_auxSuffix = "_" + m_auxSuffix;
-    }
 
     ATH_MSG_INFO("Configuration: "<<m_configuration);
     ATH_MSG_INFO("FlipEMDelay: "<<m_flipEMDelay);
@@ -667,6 +664,11 @@ namespace ZDC
     ATH_MSG_INFO("FixTau2: "<<m_fixTau2);
     ATH_MSG_INFO("DeltaTCut: "<<m_deltaTCut);
     ATH_MSG_INFO("ChisqRatioCut: "<<m_ChisqRatioCut);
+
+    if (m_writeAux && m_auxSuffix != "") {
+      //m_auxSuffix = "_" + m_auxSuffix;
+      ATH_MSG_INFO("suffix string = " << m_auxSuffix);
+    }
 
     m_init = true;
     return StatusCode::SUCCESS;
@@ -925,6 +927,7 @@ namespace ZDC
 	zdc_sum->auxdecor<unsigned int>("ModuleMask") = (getModuleMask()>>(4*iside)) & 0xF;
       }
 
+    //ATH_MSG_INFO("Recording sums called ZdcSums" << m_auxSuffix);
     ATH_CHECK( evtStore()->record( newModuleContainer.release() , "ZdcSums" + m_auxSuffix) ) ;
     ATH_CHECK( evtStore()->record( newModuleAuxContainer.release() , "ZdcSums"  + m_auxSuffix +"Aux.") );
 
