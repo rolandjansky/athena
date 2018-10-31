@@ -84,6 +84,7 @@ StatusCode IsolationCPTools::setupIsolation() {
       "FixedCutTight",
       "FixedCutTightTrackOnly",
       "FixedCutHighPtCaloOnly",
+      "FCHighPtCaloOnly",
       "FixedCutLoose",
       "FCTight",
       "FCLoose",
