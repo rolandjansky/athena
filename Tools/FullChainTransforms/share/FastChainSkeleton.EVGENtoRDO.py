@@ -31,6 +31,9 @@ from G4AtlasApps.SimFlags import simFlags
 
 #####################CommonSkeletonJobOptions.py##########################
 
+from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
+pmon_properties.PerfMonFlags.doMonitoring=True
+pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
 
 
@@ -813,11 +816,6 @@ if hasattr(runArgs, "postSimExec"):
 ## if hasattr(runArgs,"autoConfiguration"):
 ##     for key in runArgs.autoConfiguration:
 ##         rec.AutoConfiguration.append(key)
-
-from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-pmon_properties.PerfMonFlags.doMonitoring=True
-pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
-
 
 #################Back to MyCustomSkeleton##################################
 
