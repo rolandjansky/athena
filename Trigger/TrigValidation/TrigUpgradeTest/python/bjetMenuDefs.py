@@ -146,14 +146,15 @@ def bJetStep2Sequence():
     InputMakerAlg.ViewNodeName = "step2Sequence"
     
     # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT_View
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
-    hypo = TrigBjetEtHypoAlgMT_View("TrigBjetEtHypoAlg_step2")
+    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
     hypo.RoIs = "initialRoI" #InputMakerAlg.InViewRoIs
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
+    hypo.UseView = True
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])

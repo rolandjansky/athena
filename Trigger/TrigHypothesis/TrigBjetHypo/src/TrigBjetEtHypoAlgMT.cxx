@@ -5,6 +5,7 @@
 #include "GaudiKernel/Property.h"
 #include "TrigBjetEtHypoAlgMT.h"
 #include "TrigSteeringEvent/PhiHelper.h"
+#include "AthViews/ViewHelper.h"
 
 TrigBjetEtHypoAlgMT::TrigBjetEtHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
@@ -18,6 +19,7 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
+  ATH_MSG_DEBUG(  "   " << m_useView          );
   ATH_MSG_DEBUG(  "   " << m_roiLink          );
   ATH_MSG_DEBUG(  "   " << m_jetLink          );
 
@@ -27,6 +29,9 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_inputJetsKey.initialize()       );
   CHECK( m_inputRoIKey.initialize()        );
+
+  // Deal with what is stored into View
+  if ( m_useView ) renounce( m_inputJetsKey ); 
 
   return StatusCode::SUCCESS;
 }
@@ -52,24 +57,25 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
 
-  // Retrieve Jet Container
-  SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_inputJetsKey,context );
-  ATH_MSG_DEBUG( "Retrieved jets from : " << m_inputJetsKey.key() );
-  CHECK( jetContainerHandle.isValid() );
+  const xAOD::JetContainer *jetCollection = nullptr;
+  if ( not m_useView ) CHECK( retrieveJetsFromStoreGate( context,jetCollection ) );
+  else CHECK( retrieveJetsFromEventView( context,jetCollection,prevDecisionHandle ) );
 
-  const xAOD::JetContainer *jetCollection = jetContainerHandle.get();
   ATH_MSG_DEBUG( "Found " << jetCollection->size()<< " jets."  );
   for ( const xAOD::Jet *jet : * jetCollection ) 
     ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
   // Retrieve RoI to be linked to the output decision
-  ATH_MSG_DEBUG( "Retrieving input TrigRoiDescriptorCollection with key: " << m_inputRoIKey );
-  SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_inputRoIKey,context );
-  CHECK( roiContainerHandle.isValid() );
-  const TrigRoiDescriptorCollection *roiContainer = roiContainerHandle.get();
-  ATH_MSG_DEBUG( "Retrieved " << roiContainer->size() <<" input RoIs" );
-  for ( const TrigRoiDescriptor *roi : *roiContainer )
-    ATH_MSG_DEBUG( "   ** eta="<< roi->eta() << " phi=" << roi->phi() );
+  if ( not m_useView ) {
+    ATH_MSG_DEBUG( "Retrieving input TrigRoiDescriptorCollection with key: " << m_inputRoIKey );
+    SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_inputRoIKey,context );
+    CHECK( roiContainerHandle.isValid() );
+    
+    const TrigRoiDescriptorCollection *roiContainer = roiContainerHandle.get();
+    ATH_MSG_DEBUG( "Retrieved " << roiContainer->size() <<" input RoIs" );
+    for ( const TrigRoiDescriptor *roi : *roiContainer )
+      ATH_MSG_DEBUG( "   ** eta="<< roi->eta() << " phi=" << roi->phi() );
+  }
 
   // ========================================================================================================================== 
   //    ** Prepare Outputs
@@ -118,12 +124,59 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   //    ** Linking objects to decision 
   // ==========================================================================================================================  
 
-  newDecision->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision." );
+  if ( not m_useView ) {
+    newDecision->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),0 ) );
+    ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision." );
+    
+    newDecision->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
+    ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
+  }
 
-  newDecision->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
-  ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
+  return StatusCode::SUCCESS;
+}
 
+StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromStoreGate( const EventContext& context,
+							   const xAOD::JetContainer*& jetCollection ) const {
+  SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_inputJetsKey,context );
+  ATH_MSG_DEBUG( "Retrieved jets from : " << m_inputJetsKey.key() );
+  CHECK( jetContainerHandle.isValid() );
+  jetCollection = jetContainerHandle.get();
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& context,
+							   const xAOD::JetContainer*& jetCollection, 
+							   SG::ReadHandle< TrigCompositeUtils::DecisionContainer >& prevDecisionHandle ) const {
+  xAOD::JetContainer *output = new xAOD::JetContainer();
+  std::unique_ptr< xAOD::JetAuxContainer > outputAux( new xAOD::JetAuxContainer() );
+  output->setStore( outputAux.release() );
+
+  for ( auto previousDecision: *prevDecisionHandle ) {
+    //get RoI
+    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    ATH_CHECK( roiEL.isValid() );
+    const TrigRoiDescriptor* roi = *roiEL;
+    ATH_MSG_DEBUG( "Retrieved RoI from previous decision " );
+    ATH_MSG_DEBUG( "   ** eta=" << roi->eta() <<" phi="<< roi->phi() );
+
+    // get View
+    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
+    ATH_CHECK( viewEL.isValid() );
+    ATH_MSG_DEBUG( "Retrieved View" );
+    SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = ViewHelper::makeHandle( *viewEL, m_inputJetsKey, context);
+    ATH_CHECK( jetContainerHandle.isValid() );
+    ATH_MSG_DEBUG ( "jet container handle size: " << jetContainerHandle->size() << "..." );
+    const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
+    for ( const xAOD::Jet *jet : *jetContainer ) {
+      ATH_MSG_DEBUG( "   *** pt=" << jet->p4().Et() << " eta="<< jet->eta()<< " phi=" << jet->phi() );
+
+      xAOD::Jet *copyJet = new xAOD::Jet();
+      output->push_back( copyJet );
+      *copyJet = *jet;
+    }
+  }
+
+  jetCollection = new xAOD::JetContainer( *output );
   return StatusCode::SUCCESS;
 }
 
