@@ -316,6 +316,8 @@ namespace ST {
 
     float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) override final;
 
+    float GetCorrectedActualInteractionsPerCrossing(bool includeDataSF=false) override final;
+
     double GetSumOfWeights(int channel) override final;
 
     unsigned int GetRandomRunNumber(bool muDependentRRN = true) override final;

@@ -372,6 +372,8 @@ namespace ST {
  
     virtual float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) = 0;
 
+    virtual float GetCorrectedActualInteractionsPerCrossing(bool includeDataSF=false) = 0;
+
     virtual double GetSumOfWeights(int channel) = 0;
     
     virtual unsigned int GetRandomRunNumber(bool muDependentRRN = true) = 0;
