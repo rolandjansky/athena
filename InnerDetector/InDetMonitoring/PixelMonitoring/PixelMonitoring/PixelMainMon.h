@@ -399,6 +399,20 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH2F_LW* m_npixhits_per_track_lumi;
   TH2F* m_npixhits_per_track_lastXlb;
 
+  // zoomed clusterToTxcosAlpha peak region
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_IBL;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_IBL;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B0;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B0;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B1;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B1;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B2;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B2;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_ECA;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_ECA;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_ECC;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_ECC;
+
   // cluster size
   TH1F_LW* m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_clusize_offtrack_mod[PixLayerIBL2D3D::COUNT];

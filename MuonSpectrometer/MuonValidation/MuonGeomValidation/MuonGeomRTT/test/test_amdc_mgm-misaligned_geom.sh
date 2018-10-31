@@ -10,7 +10,11 @@
 #
 # art-output: *.txt
 
+# Create empty PoolFileCatalog
+art.py createpoolfile
+
 set -x
+
 
 athena.py -c 'DetDescrVersion="ATLAS-R2-2015-03-01-00"' MuonGeoModelTest/runAmdcMGM.py
 

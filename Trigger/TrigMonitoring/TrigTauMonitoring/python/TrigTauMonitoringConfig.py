@@ -31,10 +31,8 @@ def TrigTauMonitoringTool():
 	ditau_topo_chains = [
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo', # 2tau non-L1TOPO
-        			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J
         			#'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30', # no longer in physics menu?
-        			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J
         			'tau80_medium1_tracktwo_L1TAU60_tau35_medium1_tracktwo_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I', # 2tau L1TOPO
                                 # 2018 chains  
@@ -62,21 +60,16 @@ def TrigTauMonitoringTool():
 	MVA_chains = [
 			'tau25_idperf_tracktwoMVA',
 			'tau25_perf_tracktwoMVA',
-			'tau25_verylooseRNN_tracktwoMVA',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
-			'tau25_tightRNN_tracktwoMVA',
 	]
 
 	RNN_chains = [
-			'tau25_verylooseRNN_tracktwo',
 			'tau25_looseRNN_tracktwo',
 			'tau25_mediumRNN_tracktwo',
 			'tau25_tightRNN_tracktwo',
-			'tau25_verylooseRNN_tracktwoMVA',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
-			'tau25_tightRNN_tracktwoMVA',
 	]
 
 	BDTRNN_chains = [
@@ -99,8 +92,11 @@ def TrigTauMonitoringTool():
 #		'tau25_medium1_tracktwo_ptmin_no0reject_emulate'
 #	]
 
-	ztt_tau = [
-		'tau25_medium1_tracktwo',
+	ztt_RNN_tau = [
+		'tau25_mediumRNN_tracktwoMVA',
+	]
+	ztt_BDT_tau = [
+		'tau25_medium1_tracktwoEF',
 	]
 	# removed ztt_tau chains
 	# 'tau25_idperf_tracktwo',
@@ -143,10 +139,11 @@ def TrigTauMonitoringTool():
 				monitoring_tau		= hltmonList.monitoring_tau,
 				primary_tau		= full_tau, #[]
 				prescaled_tau		= [], #tau_track_test, #[],
-				LowestSingleTau		= hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
-				LowestSingleTauMVA	= "tau25_medium1_tracktwoEF",
+				LowestSingleTauRNN		= "tau25_mediumRNN_tracktwoMVA", #hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
+				LowestSingleTauBDT	= "tau25_medium1_tracktwoEF",
 				Highpt_tau		= highpt_tau,
-				Ztt_tau		 	= ztt_tau,
+				Ztt_RNN_tau		 	= ztt_RNN_tau,
+				Ztt_BDT_tau		 	= ztt_BDT_tau,
 				EffOffTauPtCut	 	= 25000.,  #MeV
 				TurnOnCurves		= True,
 				TurnOnCurvesDenom	= "Reco", # combined string with combination of "Truth", "Reco" and "Presel". For Truth doTruth=True!
@@ -163,7 +160,6 @@ def TrigTauMonitoringTool():
 #				doTestTracking		= False,
 				doL1JetPlots		= False,
 				doEFTProfiles		= False,
-				doFailTrackFilterBitMonitoring = False,
 				domuCut40		= False,
 				doEfficiencyRatioPlots = True, #False
 				doL1TopoLeptonsMonitoringWarnings = False,
@@ -185,7 +181,6 @@ def TrigTauMonitoringTool():
 				AbsEtaMin			= -1.,
 				AbsPhiMax			= -1.,
 				AbsPhiMin			= -1.,
-				BDTMedium			= True,
                                 isData                          = (globalflags.DataSource == 'data'));
 
 	#from AthenaCommon.AppMgr import ToolSvc

@@ -36,9 +36,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
                           Calorimeter/CaloEvent
+                          Calorimeter/CaloGeoHelpers
+                          Calorimeter/CaloUtils
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DataQuality/DataQualityUtils
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODCaloEvent
                           Event/NavFourMom
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArCondUtils
@@ -76,6 +79,7 @@ atlas_add_library( LArCafJobsLib
                    src/SimpleShape.cxx
                    src/LArNoiseBursts.cxx
                    src/LArHECNoise.cxx
+                   src/LArReadCells.cxx
                    PUBLIC_HEADERS LArCafJobs
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    LINK_LIBRARIES CaloIdentifier AthenaBaseComps SGTools GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent TrigSteeringEvent McParticleEvent StoreGateLib SGtests LArRecUtilsLib LArToolsLib TrigDecisionToolLib CaloDetDescrLib

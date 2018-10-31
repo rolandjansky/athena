@@ -31,6 +31,7 @@ TrackFitter::TrackFitter() :
   m_goodRegion(0),
   m_noconstants_errlevel(ftk::sevr), m_pmap(0),
   m_ntracks(0),
+  m_ntracks_pre_hw(0),
   m_ncombs(0),
   m_nfits(0),
   m_nfits_maj(0),
@@ -49,7 +50,8 @@ TrackFitter::TrackFitter() :
   m_position(0),
   m_endlist(0),
   m_hitcnt(0),
-  m_identify_badhit(false)
+  m_identify_badhit(false),
+  m_saveStepByStepTracks(false)
 {
   // nothing to do
 #ifdef DEBUG_HITEXTRAPOLATION
@@ -316,6 +318,9 @@ void TrackFitter::processor_init(int /*ibank*/)
     m_ntracks = 0;
     m_comb_id = 0;
     m_tracks.clear();
+    m_tracks_pre_hw.clear();
+    m_tracks_hits.clear();
+    m_tracks_pattern.clear();
 
     // reset counters
     m_ncombs = 0;
@@ -341,6 +346,24 @@ void TrackFitter::processor_end(int ibank)
   for (;itrack2!=m_tracks.end();itrack2 = m_tracks.erase(itrack2)) {
     m_trackoutput->addTrack(ibank,*itrack2);
   }
+
+  if (m_saveStepByStepTracks) {
+    itrack2 = m_tracks_pre_hw.begin();
+    for (;itrack2!=m_tracks_pre_hw.end();itrack2 = m_tracks_pre_hw.erase(itrack2)) {
+      m_trackoutput->addTrack_pre_hw(ibank,*itrack2);
+    }
+
+    // itrack2 = m_tracks_hits.begin();
+    // for (;itrack2!=m_tracks_hits.end();itrack2 = m_tracks_hits.erase(itrack2)) {
+    //   m_trackoutput->addTrack_hits(ibank,*itrack2);
+    // }
+
+    // itrack2 = m_tracks_pattern.begin();
+    // for (;itrack2!=m_tracks_pattern.end();itrack2 = m_tracks_pattern.erase(itrack2)) {
+    //   m_trackoutput->addTrack_pattern(ibank,*itrack2);
+    // }
+  }
+
   // itrack2 = m_tracks_pre_hw.begin();
   // for (;itrack2!=m_tracks_pre_hw.end();itrack2 = m_tracks.erase(itrack2)) {
   //   m_trackoutput_pre_hw->addTrack(ibank,*itrack2);

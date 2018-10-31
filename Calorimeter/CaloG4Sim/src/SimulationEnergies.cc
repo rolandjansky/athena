@@ -602,7 +602,7 @@ std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(G4Track* a_track, G4d
   // The total energy deposit in the step is actually irrelevant.
   fakeStep->SetTotalEnergyDeposit(a_energy);
   fakeStep->SetTrack(a_track);
-  return std::move(fakeStep);
+  return fakeStep;
 }
 
 

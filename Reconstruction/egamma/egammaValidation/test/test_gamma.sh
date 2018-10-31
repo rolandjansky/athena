@@ -65,7 +65,7 @@ case $ArtProcess in
 	unset  ATHENA_NUM_PROC
 	unset  ATHENA_PROC_NUMBER
 	
-	Reco_tf.py --inputRDOFile=$x --outputAODFile=Nightly_AOD_gamma.pool.root --maxEvents=2000 --autoConfiguration="everything" --preExec="rec.doTrigger=False; rec.doMuon=False; rec.doTau=False ; from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doMuonSpShower=False ; rec.doBTagging=False ; recAlgs.doEFlow=False ; recAlgs.doEFlowJet=False ; recAlgs.doMissingET=False ; recAlgs.doMissingETSig=False ; from JetRec.JetRecFlags import jetFlags ; jetFlags.Enabled=False ; "
+	Reco_tf.py --inputRDOFile=$x --outputAODFile=Nightly_AOD_gamma.pool.root --maxEvents=2000 --autoConfiguration="everything" --preExec="from ParticleBuilderOptions.AODFlags import AODFlags; AODFlags.ThinGeantTruth.set_Value_and_Lock(False); rec.doTrigger=False; rec.doMuon=False; rec.doTau=False ; from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doMuonSpShower=False ; rec.doBTagging=False ; recAlgs.doEFlow=False ; recAlgs.doEFlowJet=False ; recAlgs.doMissingET=False ; recAlgs.doMissingETSig=False ; from JetRec.JetRecFlags import jetFlags ; jetFlags.Enabled=False ; "
 	
 	echo  "art-result: $? reconstruction"
 

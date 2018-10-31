@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandomEngine.h"
+
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include <iostream>
 
@@ -9,7 +11,8 @@
 //======= TFCSSimulationState =========
 //=============================================
 
-TFCSSimulationState::TFCSSimulationState()
+TFCSSimulationState::TFCSSimulationState(CLHEP::HepRandomEngine* randomEngine)
+  : m_randomEngine(randomEngine)
 {
   clear();
 }
@@ -47,5 +50,3 @@ void TFCSSimulationState::Print(Option_t *) const
     std::cout<<"  E"<<i<<"("<<CaloSampling::getSamplingName(i)<<")="<<E(i)<<" E"<<i<<"/E="<<Efrac(i)<<std::endl;
   }
 }
-
-

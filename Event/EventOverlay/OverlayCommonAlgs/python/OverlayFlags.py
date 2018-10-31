@@ -57,6 +57,13 @@ class outputStore(JobProperty):
     allowedTypes=['str']
     StoredValue = 'StoreGateSvc'
 
+class extraTagInfoPairs(JobProperty):
+    """ workaround to correctly populate the /TagInfo metadata container
+    """
+    statusOn=False
+    allowedTypes=['dict']
+    StoredValue=dict()
+
 ## Definition and registration of the simulation flag container
 
 class Overlay_Flags(JobPropertyContainer):

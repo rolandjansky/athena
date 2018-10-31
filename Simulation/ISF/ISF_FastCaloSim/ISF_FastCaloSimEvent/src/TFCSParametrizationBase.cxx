@@ -10,6 +10,7 @@
 //=============================================
 
 std::set< int > TFCSParametrizationBase::s_no_pdgid;
+std::vector< TFCSParametrizationBase* > TFCSParametrizationBase::s_cleanup_list;
 
 #ifndef __FastCaloSimStandAlone__
 //Initialize only in constructor to make sure the needed services are ready
@@ -75,3 +76,14 @@ void TFCSParametrizationBase::Print(Option_t *option) const
     ATH_MSG_INFO(optprint<<GetTitle());
   }
 }
+
+void TFCSParametrizationBase::DoCleanup()
+{
+  //Do cleanup only at the end of read/write operations
+  for(auto ptr:s_cleanup_list) if(ptr) {
+    delete ptr;
+  }  
+  s_cleanup_list.resize(0);
+}
+
+

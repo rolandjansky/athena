@@ -2,6 +2,7 @@
 
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
+from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
 
 #################################################################################
 # Material for the Geometry

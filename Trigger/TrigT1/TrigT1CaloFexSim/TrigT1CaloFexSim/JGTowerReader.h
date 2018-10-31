@@ -7,6 +7,7 @@
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloTriggerTool/JTowerSCMap.h"
@@ -33,12 +34,13 @@ class JGTowerReader: public ::AthAlgorithm {
  public: 
   JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~JGTowerReader(); 
-
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
   virtual StatusCode  beginInputFile();
-  virtual StatusCode  ProcessObject();
+  virtual StatusCode  ProcessObjects();
+  virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue, float wei);
+  virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei);
  private: 
   bool m_outputNoise;
   float m_jJet_thr;
@@ -62,7 +64,8 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<float> jJet_thr;
   std::vector<float> gT_noise;
   std::vector<float> gJet_thr;
-
+  ServiceHandle<ITHistSvc> histSvc;
+  std::vector<TString> hists;
 
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   gSeeds=new JetAlg::Seed;

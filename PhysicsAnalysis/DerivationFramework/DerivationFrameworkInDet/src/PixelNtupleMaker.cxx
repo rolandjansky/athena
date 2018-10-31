@@ -104,6 +104,11 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       std::vector<float> moduleTemperature;
       std::vector<float> moduleLorentzShift;
 
+      std::vector<std::vector<int>> rdoToT;
+      std::vector<std::vector<float>> rdoCharge;
+      std::vector<std::vector<int>> rdoPhi;
+      std::vector<std::vector<int>> rdoEta;
+
       const MeasurementsOnTrack& measurementsOnTrack = acc_MeasurementsOnTrack(*(*trk));
       for (MeasurementsOnTrackIter msos_iter=measurementsOnTrack.begin(); msos_iter!=measurementsOnTrack.end(); ++msos_iter) {  
         if (!(*msos_iter).isValid()) { continue; }
@@ -192,12 +197,18 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
 
                 int eta = (*clus_itr)->auxdata<std::vector<int>>("rdo_eta_pixel_index")[i];
                 if ((*clus_itr)->auxdata<int>("layer")==0 && (*clus_itr)->auxdata<int>("bec")==0) {  // IBL
-                  if (eta<5)  { checkEdge=true; }
-                  if (eta>70) { checkEdge=true; }
+                  if ((*clus_itr)->auxdata<int>("eta_module")>-7 && (*clus_itr)->auxdata<int>("eta_module")<6) { // IBL Planar                                                       
+                    if (eta<5)   { checkEdge=true; }
+                    if (eta>154) { checkEdge=true; }
+                  }
+                  else {  // IBL 3D
+                    if (eta<5)  { checkEdge=true; }
+                    if (eta>74) { checkEdge=true; }
+                  }
                 }
                 else {
-                  if (eta<5)  { checkEdge=true; }
-                  if (eta>140) { checkEdge=true; }
+                  if (eta<5)   { checkEdge=true; }
+                  if (eta>154) { checkEdge=true; }
                 }
 
                 int tot = (*clus_itr)->auxdata<std::vector<int>>("rdo_tot")[i];
@@ -214,6 +225,31 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
             }
             isEdge.push_back(checkEdge);
             isOverflow.push_back(checkOverflow);
+
+            // rdo information 
+            std::vector<int> tmpToT;
+            std::vector<float> tmpCharge;
+            std::vector<int> tmpPhi;
+            std::vector<int> tmpEta;
+            if ((*trk)->pt()>2000.0) {
+              if ((*clus_itr)->isAvailable<std::vector<int>>("rdo_phi_pixel_index")) {
+                for (int i=0; i<(int)(*clus_itr)->auxdata<std::vector<int>>("rdo_phi_pixel_index").size(); i++) {
+                  int phi = (*clus_itr)->auxdata<std::vector<int>>("rdo_phi_pixel_index")[i];
+                  int eta = (*clus_itr)->auxdata<std::vector<int>>("rdo_eta_pixel_index")[i];
+                  int tot = (*clus_itr)->auxdata<std::vector<int>>("rdo_tot")[i];
+                  float charge = (*clus_itr)->auxdata<std::vector<float>>("rdo_charge")[i];
+
+                  tmpToT.push_back(tot);
+                  tmpCharge.push_back(charge);
+                  tmpPhi.push_back(phi);
+                  tmpEta.push_back(eta);
+                }
+              }
+            }
+            rdoToT.push_back(tmpToT);
+            rdoCharge.push_back(tmpCharge);
+            rdoPhi.push_back(tmpPhi);
+            rdoEta.push_back(tmpEta);
 
             break;
           }
@@ -254,6 +290,10 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<std::vector<float>> ModuleBiasVoltage("ModuleBiasVoltage");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleTemperature("ModuleTemperature");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleLorentzShift("ModuleLorentzShift");
+      static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoToT("RdoToT");
+      static SG::AuxElement::Decorator<std::vector<std::vector<float>>> RdoCharge("RdoCharge");
+      static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoPhi("RdoPhi");
+      static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoEta("RdoEta");
       d0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(0);
       z0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(2);
       HoleIndex(*tp)         = holeIndex;
@@ -288,6 +328,10 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       ModuleBiasVoltage(*tp)  = moduleBiasVoltage;
       ModuleTemperature(*tp)  = moduleTemperature;
       ModuleLorentzShift(*tp) = moduleLorentzShift;
+      RdoToT(*tp)    = rdoToT;
+      RdoCharge(*tp) = rdoCharge;
+      RdoPhi(*tp)    = rdoPhi;
+      RdoEta(*tp)    = rdoEta;
 
       PixelMonitoringTrack->push_back(tp);
     }

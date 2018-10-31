@@ -2,9 +2,11 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandFlat.h"
+
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
-#include "TRandom3.h"
+
 #include "TVector2.h"
 #include "TMath.h"
 
@@ -27,7 +29,7 @@ TFCSHitCellMappingWiggleEMB::TFCSHitCellMappingWiggleEMB(const char* name, const
   }
 }
 
-double TFCSHitCellMappingWiggleEMB::doWiggle()
+double TFCSHitCellMappingWiggleEMB::doWiggle(double searchRand)
 {
  int layer=calosample();
  
@@ -44,10 +46,7 @@ double TFCSHitCellMappingWiggleEMB::doWiggle()
  {
   return 0.0;
  }
- 
- //Set random numbers
- double searchRand = gRandom->Rndm();
-  
+
  //Now for layer dependant approach
  if(layer == 1)
  {
@@ -75,10 +74,14 @@ double TFCSHitCellMappingWiggleEMB::doWiggle()
 
 FCSReturnCode TFCSHitCellMappingWiggleEMB::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
+  if (!simulstate.randomEngine()) {
+    return FCSFatal;
+  }
+
   int cs=calosample();
 
   double wiggle = 0.0;
-  if(cs < 4 && cs > 0) wiggle = doWiggle();
+  if(cs < 4 && cs > 0) wiggle = doWiggle(CLHEP::RandFlat::shoot(simulstate.randomEngine()));
 
   ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" wiggle="<<wiggle);
 

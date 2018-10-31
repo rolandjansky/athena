@@ -1092,7 +1092,7 @@ double LArCellDeadOTXCorr::getEnergyCalibration(double eta, int type, double ene
 
 double LArCellDeadOTXCorr::getMaxOverSumRatio(const std::vector<uint_least16_t>& ADCsamples, int pedestal)
 {
-	uint_least16_t max = -9999;
+	int max = -9999;
 	int sum = 0;
 	double ratio = -9999.;
 	unsigned int maxIndex = 0;

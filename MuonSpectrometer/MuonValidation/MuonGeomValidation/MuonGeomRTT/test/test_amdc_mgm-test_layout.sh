@@ -10,6 +10,9 @@
 #
 # art-output: *.txt
 
+# Create empty PoolFileCatalog
+art.py createpoolfile
+
 set -x
 
 echo $AtlasVersion

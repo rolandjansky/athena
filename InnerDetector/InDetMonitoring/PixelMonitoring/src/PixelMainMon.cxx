@@ -879,6 +879,11 @@ StatusCode PixelMainMon::procHistograms() {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
       }
     }
+    if (m_doCluster) {
+      if (procClustersMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Cluster histograms" << endmsg;
+      }
+    }
     if (m_doTrack) {
       if (procTrackMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Track histograms" << endmsg;
