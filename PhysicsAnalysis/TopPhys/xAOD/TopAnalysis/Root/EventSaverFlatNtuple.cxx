@@ -1400,6 +1400,8 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_el_charge, "el_charge");
        m_upgradeTreeManager->makeOutputVariable(m_el_true_type,      "el_true_type");
        m_upgradeTreeManager->makeOutputVariable(m_el_true_origin,    "el_true_origin");
+       m_upgradeTreeManager->makeOutputVariable(m_el_etcone20, "el_etcone20");
+       m_upgradeTreeManager->makeOutputVariable(m_el_ptcone30, "el_ptcone30");
        //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
        //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
        //m_upgradeTreeManager->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
@@ -1413,6 +1415,8 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_mu_charge, "mu_charge");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_type,   "mu_true_type");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_etcone20, "mu_etcone20");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_ptcone30, "mu_ptcone30");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
        m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z,    "mu_prodVtx_z");
        m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_perp, "mu_prodVtx_perp");
@@ -3848,6 +3852,8 @@ namespace top {
        m_el_eta.resize(upgradeEvent.m_electrons->size());
        m_el_phi.resize(upgradeEvent.m_electrons->size());
        m_el_e.resize(upgradeEvent.m_electrons->size());
+       m_el_etcone20.resize(upgradeEvent.m_electrons->size());
+       m_el_ptcone30.resize(upgradeEvent.m_electrons->size());
        m_el_charge.resize(upgradeEvent.m_electrons->size());
        m_el_true_type.resize(upgradeEvent.m_electrons->size());
        m_el_true_origin.resize(upgradeEvent.m_electrons->size());
@@ -3868,6 +3874,18 @@ namespace top {
 	 //m_el_true_firstEgMotherTruthType[i] = 0;
 	 //m_el_true_firstEgMotherTruthOrigin[i] = 0;
 	 //m_el_true_isPrompt[i] = 0;
+
+     if (elPtr->isAvailable<float>("etcone20")) {
+         m_el_etcone20[i] = elPtr->auxdata<float>("etcone20");
+     } else {
+         m_el_etcone20[i] = -999;
+     }
+     if (elPtr->isAvailable<float>("ptcone30")) {
+         m_el_ptcone30[i] = elPtr->auxdata<float>("ptcone30");
+     } else {
+         m_el_ptcone30[i] = -999;
+     }
+
 	 if (!m_config->HLLHCFakes()) {
 	     if (elPtr->isAvailable<unsigned int>("particleType")) {
 	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
@@ -3938,6 +3956,8 @@ namespace top {
        m_mu_eta.resize(upgradeEvent.m_muons->size());
        m_mu_phi.resize(upgradeEvent.m_muons->size());
        m_mu_e.resize(upgradeEvent.m_muons->size());
+       m_mu_etcone20.resize(upgradeEvent.m_muons->size());
+       m_mu_ptcone30.resize(upgradeEvent.m_muons->size());
        m_mu_charge.resize(upgradeEvent.m_muons->size());
        m_mu_true_type.resize(upgradeEvent.m_muons->size());
        m_mu_true_origin.resize(upgradeEvent.m_muons->size());
@@ -3978,7 +3998,17 @@ namespace top {
            m_mu_prodVtx_z[i] = muPtr->auxdata<float>("prodVtx_z");
          }
          if (muPtr->isAvailable<float>("prodVtx_perp")) {
-           m_mu_prodVtx_perp[i] = muPtr->auxdata<float>("prodVtx_perp");
+             m_mu_prodVtx_perp[i] = muPtr->auxdata<float>("prodVtx_perp");
+         }
+         if (muPtr->isAvailable<float>("etcone20")) {
+             m_mu_etcone20[i] = muPtr->auxdata<float>("etcone20");
+         } else {
+             m_mu_etcone20[i] = -999;
+         }
+         if (muPtr->isAvailable<float>("ptcone30")) {
+             m_mu_ptcone30[i] = muPtr->auxdata<float>("ptcone30");
+         } else {
+             m_mu_ptcone30[i] = -999;
          }
          if (muPtr->isAvailable<float>("prodVtx_phi")) {
            m_mu_prodVtx_phi[i] = muPtr->auxdata<float>("prodVtx_phi");
