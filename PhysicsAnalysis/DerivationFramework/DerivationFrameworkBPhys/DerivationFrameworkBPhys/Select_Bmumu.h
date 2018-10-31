@@ -75,7 +75,7 @@ namespace DerivationFramework {
       bool massInBlindedRegion(float mass) const;
 
       bool pass(const SG::AuxElement& em, std::string hypo) const;
-      bool setPass(SG::AuxElement& em, std::string hypo, bool passVal) const;
+      bool setPass(const SG::AuxElement& em, std::string hypo, bool passVal) const;
       bool setPassIfNotAvailable(SG::AuxElement& em, std::string hypo,
 				 bool passVal) const;
       // std::vector<xAOD::Vertex*> getPrecedingVertices(const xAOD::Vertex* vtx);

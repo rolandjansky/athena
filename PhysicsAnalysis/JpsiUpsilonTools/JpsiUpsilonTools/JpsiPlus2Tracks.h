@@ -81,8 +81,7 @@ namespace Analysis {
         std::string m_TrkParticleCollection;
         std::string m_MuonsUsedInJpsi;
         bool m_excludeJpsiMuonsOnly; //Add by Matt Klein
-	bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
-        std::vector<xAOD::Vertex*> m_vxc;
+        bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;

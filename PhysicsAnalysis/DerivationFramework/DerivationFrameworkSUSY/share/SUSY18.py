@@ -42,7 +42,7 @@ trig = SUSY18Triggers()
 SUSY18ThinningHelper.TriggerChains = trig.AllTrig_BitwiseOR
 
 # needs to go after SUSY18ThinningHelper.TriggerChains = ... but before accesses to SUSY18ThinningHelper.ThinningSvc()
-SUSY18ThinningHelper.AppendToStream( SUSY18Stream ) 
+SUSY18ThinningHelper.AppendToStream( SUSY18Stream )
 
 #====================================================================
 # THINNING TOOLS
@@ -140,7 +140,7 @@ if DerivationFrameworkIsMonteCarlo:
                                                                      PreserveGeneratorDescendants = False,
                                                                      PreserveAncestors            = True,
                                                                      TauHandling                  = False)
-    
+
     ToolSvc += SUSY18TruthTool_COMB
     thinningTools.append(SUSY18TruthTool_COMB)
 
@@ -212,7 +212,7 @@ tauProngs = "abs(TauJets.charge) == 1.0 && (TauJets.nTracks == 1 || TauJets.nTra
 tau18p0  = '(count( TauJets.ptFinalCalib >= 18.0*GeV && '+tauProngs+' ) >= 1)'
 tau22p5  = '(count( TauJets.ptFinalCalib >= 22.5*GeV && '+tauProngs+' ) >= 1)'
 
-### Muon triggers: 
+### Muon triggers:
 # pT offline  = pT online x 1.05
 # conservative pT offline derivations = pT online x 0.9
 MuTau_SMT_2015        = mu18p0+' && '+tau18p0+' && ('+trig.SMT_OR_2015+')'
@@ -399,7 +399,7 @@ ExtraMuons = ["Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectr
 
 ExtraPhotons = ["Photons.author.Loose.Tight"]
 
-ExtraJets = [ "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width"]
+ExtraJets = [ "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP"]
 
 ExtraMuonTrks = [ "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
                   "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix",
@@ -432,18 +432,18 @@ if DerivationFrameworkIsMonteCarlo:
                                              'TruthBoson':'xAOD::TruthParticleContainer',
                                              'TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
-  SUSY18SlimmingHelper.AllVariables += ["TruthElectrons", 
-                                        "TruthMuons", 
-                                        "TruthTaus", 
-                                        "TruthPhotons", 
-                                        "TruthNeutrinos", 
-                                        "TruthTop", 
-                                        "TruthBSM", 
+  SUSY18SlimmingHelper.AllVariables += ["TruthElectrons",
+                                        "TruthMuons",
+                                        "TruthTaus",
+                                        "TruthPhotons",
+                                        "TruthNeutrinos",
+                                        "TruthTop",
+                                        "TruthBSM",
                                         "TruthBoson",
                                         "TruthParticles",
                                         "TruthEvents",
                                         "TruthVertices",
                                         "MET_Truth"
-                                        ]   
+                                        ]
 
 SUSY18SlimmingHelper.AppendContentToStream(SUSY18Stream)

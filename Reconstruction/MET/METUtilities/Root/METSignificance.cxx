@@ -32,6 +32,7 @@
 #include "xAODMuon/MuonContainer.h"
 
 // Tools
+#include "JetResolution/IJERTool.h"
 #include "JetCalibTools/JetCalibrationTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
@@ -82,12 +83,16 @@ namespace met {
     ////////////////
     METSignificance::METSignificance(const std::string& name) :
       AsgTool(name),
+      m_jerTool(""),
       m_jetCalibTool(""),
       m_muonCalibrationAndSmearingTool(""),
       m_egammaCalibTool(""),
       m_tCombinedP4FromRecoTaus(""),
       m_GeV(1.0e3),
       m_softTermParam(met::Random),
+      m_jerRun1(false),
+      m_jetPtThr(-1.0),
+      m_jetEtaThr(-1.0),
       m_significance(0.0),
       m_rho(0.0),
       m_VarL(0.0),
@@ -115,12 +120,15 @@ namespace met {
       declareProperty("DoPhiReso",            m_doPhiReso     = false       );
       declareProperty("ApplyBias",            m_applyBias     = false       );
       declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
+      declareProperty("JetPtThr",             m_jetPtThr      = -1.0        );
+      declareProperty("JetEtaThr",            m_jetEtaThr     = -1.0        );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
       declareProperty("JetResoAux",           m_JetResoAux            = "" ); // relative pT resolution in addition to normal JES
       declareProperty("JetCollection",        m_JetCollection         = "AntiKt4EMTopo" );
 
       // properties to delete eventually
+      declareProperty("DoRun1JER",   m_jerRun1       = false   );
       declareProperty("IsDataJet",   m_isDataJet     = true    );
       declareProperty("IsDataMuon",  m_isDataMuon    = false   );
       declareProperty("IsAFII",      m_isAFII        = false   );
@@ -152,29 +160,40 @@ namespace met {
     {
         ATH_MSG_INFO ("Initializing " << name() << "...");
 
+	ATH_MSG_INFO("Set up JER tools");
+	std::string toolName;
+	std::string jetcoll = "AntiKt4EMTopoJets";
+	if(m_jerRun1){
+	  toolName = "JERTool_" + jetcoll;
 
-	std::string toolName = "JetCalibrationTool/jetCalibTool_"+m_JetCollection;
-	ATH_MSG_INFO("Set up jet resolution tool");
-	m_jetCalibTool.setTypeAndName(toolName);
+	  m_jerTool.setTypeAndName("JERTool/METSigAutoConf_"+toolName);
+	  ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
+	  ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
+	  ATH_CHECK(m_jerTool.retrieve());
+	}else{
+	  toolName = "JetCalibrationTool/jetCalibTool_"+m_JetCollection;
+	  ATH_MSG_INFO("Set up jet resolution tool");
+	  m_jetCalibTool.setTypeAndName(toolName);
 	
-	if( !m_jetCalibTool.isUserConfigured() ){
-
-	  std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
-	  std::string calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
-	  std::string calibArea = "00-04-81";
-	  if(m_JetCollection=="AntiKt4EMPFlow"){
-	    config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
-	    calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
-	    calibArea = "00-04-81";	    
+	  if( !m_jetCalibTool.isUserConfigured() ){
+	    
+	    std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
+	    std::string calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
+	    std::string calibArea = "00-04-81";
+	    if(m_JetCollection=="AntiKt4EMPFlow"){
+	      config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
+	      calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
+	      calibArea = "00-04-81";	    
+	    }
+	    
+	    ANA_CHECK( ASG_MAKE_ANA_TOOL(m_jetCalibTool, JetCalibrationTool) );
+	    ANA_CHECK( m_jetCalibTool.setProperty("JetCollection",m_JetCollection) );
+	    ANA_CHECK( m_jetCalibTool.setProperty("ConfigFile",config) );
+	    ANA_CHECK( m_jetCalibTool.setProperty("CalibSequence",calibSeq) );
+	    ANA_CHECK( m_jetCalibTool.setProperty("CalibArea",calibArea) );
+	    ANA_CHECK( m_jetCalibTool.setProperty("IsData",false) ); // configure for MC due to technical reasons. Both data and MC smearing are available with this setting.
+	    ANA_CHECK( m_jetCalibTool.retrieve() );
 	  }
-
-	  ANA_CHECK( ASG_MAKE_ANA_TOOL(m_jetCalibTool, JetCalibrationTool) );
-	  ANA_CHECK( m_jetCalibTool.setProperty("JetCollection",m_JetCollection) );
-	  ANA_CHECK( m_jetCalibTool.setProperty("ConfigFile",config) );
-	  ANA_CHECK( m_jetCalibTool.setProperty("CalibSequence",calibSeq) );
-	  ANA_CHECK( m_jetCalibTool.setProperty("CalibArea",calibArea) );
-	  ANA_CHECK( m_jetCalibTool.setProperty("IsData",false) ); // configure for MC due to technical reasons. Both data and MC smearing are available with this setting.
-	  ANA_CHECK( m_jetCalibTool.retrieve() );
 	}
 
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
@@ -526,10 +545,19 @@ namespace met {
     const xAOD::Jet* jet(static_cast<const xAOD::Jet*>(obj));
     double pt_reso_dbl_data=0.0, pt_reso_dbl_mc=0.0, pt_reso_dbl_max=0.0;
 
-    ATH_CHECK(m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data));
-    ATH_CHECK(m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc));
-    pt_reso_dbl_max = std::max(pt_reso_dbl_data,pt_reso_dbl_mc);
-    pt_reso = pt_reso_dbl_max; 
+    // setting limits on jets if requested
+    if(m_jetPtThr>0.0 && m_jetPtThr>jet->pt())          return StatusCode::SUCCESS;
+    if(m_jetEtaThr>0.0 && m_jetEtaThr>fabs(jet->eta())) return StatusCode::SUCCESS;
+
+    if(m_jerRun1){
+      if(m_isDataJet) pt_reso = m_jerTool->getRelResolutionData(jet);
+      else            pt_reso = m_jerTool->getRelResolutionMC(jet);
+    }else{
+      ATH_CHECK(m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data));
+      ATH_CHECK(m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc));
+      pt_reso_dbl_max = std::max(pt_reso_dbl_data,pt_reso_dbl_mc);
+      pt_reso = pt_reso_dbl_max; 
+    }
 
     ATH_MSG_VERBOSE("jet: " << pt_reso  << " jetpT: " << jet->pt() << " " << jet->p4().Eta() << " " << jet->p4().Phi());
     //

@@ -23,10 +23,9 @@ namespace CP {
 
             IsolationConditionFormula(const IsolationConditionFormula& rhs) = delete;
             IsolationConditionFormula& operator=(const IsolationConditionFormula& rhs) = delete;
-            void setCut(xAOD::Iso::IsolationType isoType, const std::string& cutFunction);
-
-            bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
-            bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
+       
+            virtual bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) override;
+            virtual bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) override;
             void getCutValue(const float pt);
 
         private:

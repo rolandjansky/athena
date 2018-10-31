@@ -99,6 +99,16 @@ if DerivationFrameworkIsMonteCarlo:
 #ToolSvc += SUSY7TPThinningTool
 #thinningTools.append(SUSY7TPThinningTool)
 
+# TrackParticles associated with Vertices from soft tagging
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+
+SUSY7VertexTPThinningTool = DerivationFramework__VertexParticleThinning(name			 = "SUSY7VertexTPThinningTool",
+									 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
+									 VertexKey		 = "SoftBVrtClusterTool_Vertices",
+									 InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY7VertexTPThinningTool
+thinningTools.append(SUSY7VertexTPThinningTool)
+
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY7MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name			 = "SUSY7MuonTPThinningTool",
@@ -230,6 +240,7 @@ electronsRequirements = '(Electrons.pt > 7.*GeV) && (abs(Electrons.eta) < 2.6) &
 diLepExpr = '(count(%s) + count (%s)) > 1' % (muonsRequirements, electronsRequirements)
 
 #btagging selection 
+softb='SoftBVrtClusterTool_Vertices.x'
 bfix77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
 bfix85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
 bhyb77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
@@ -247,6 +258,8 @@ bhyb85='(%s || %s)' % (bhyb85_MV2c10, bhyb85_DL1)
 
 bjet77='(%s || %s)' % (bfix77, bhyb77)
 bjet85='(%s || %s)' % (bfix85, bhyb85)
+
+onesofttagExpr = "(count(%s && (%s>20.*GeV))==0 && count(%s)>0)" % (bjet77, jetpt, softb)
 
 onebtagExpr = "count(%s && (%s>50.*GeV))>0" % (bjet77, jetpt)
 
@@ -275,10 +288,14 @@ SUSY7isrSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY
                                                                     expression = isrExpr)
 ToolSvc += SUSY7isrSkimmingTool
 
+SUSY7softBSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7softBSkimmingTool",
+                                                                      expression = onesofttagExpr)
+ToolSvc += SUSY7softBSkimmingTool
+
 #make selections OR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 SUSY7SkimmingORTool = DerivationFramework__FilterCombinationOR(name = "SUSY7SkimmingORTool",
-                                                               FilterList = [SUSY7diLepSkimmingTool, SUSY7btagSkimmingTool, SUSY7multibSkimmingTool, SUSY7isrSkimmingTool])
+                                                               FilterList = [SUSY7diLepSkimmingTool, SUSY7btagSkimmingTool, SUSY7multibSkimmingTool, SUSY7isrSkimmingTool, SUSY7softBSkimmingTool])
 ToolSvc += SUSY7SkimmingORTool   
 
 #add AND with Trigger skimming criteria
@@ -294,7 +311,6 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 SUSY7SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY7SkimmingTool",
                                                               FilterList = [SUSY7SkimmingORTool, SUSY7trigSkimmingTool])
 ToolSvc += SUSY7SkimmingTool
-
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -318,16 +334,6 @@ if IsSUSYSignal():
    
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
-
-#==============================================================================
-# SUSY skimming selection
-#==============================================================================
-SeqSUSY7 += CfgMgr.DerivationFramework__DerivationKernel(
-   "SUSY7KernelSkim",
-   SkimmingTools = [SUSY7SkimmingTool]
-   )
-
-
 #==============================================================================
 # Jet building
 #==============================================================================
@@ -349,6 +355,26 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(SeqSUSY7, "SUSY7")
 
 #==============================================================================
+# Soft Tagging
+#==============================================================================
+from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
+
+SeqSUSY7 += CfgMgr.BTagVertexAugmenter()
+
+BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
+ToolSvc += BJetSVFinderTool
+BJetSVFinderTool.ConeForTag = 0.6
+
+softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+
+SeqSUSY7 += softTagAlg
+
+#==============================================================================
 # Tau truth building/matching
 #==============================================================================
 # now part of MCTruthCommon
@@ -356,6 +382,13 @@ addDefaultTrimmedJets(SeqSUSY7, "SUSY7")
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
 
+#==============================================================================
+# SUSY skimming selection
+#==============================================================================
+SeqSUSY7 += CfgMgr.DerivationFramework__DerivationKernel(
+   "SUSY7KernelSkim",
+   SkimmingTools = [SUSY7SkimmingTool]
+   )
 
 #==============================================================================
 # Augment after skim
@@ -394,7 +427,9 @@ SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 				      "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
 				      "MuonClusterCollection.eta_sampl.phi_sampl",
               "AntiKt4EMPFlowJets.btagging.btaggingLink.TruthLabelID.constituentLinks.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.GhostTruthAssociationLink.HighestJVFVtx.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.HighestJVFLooseVtx.GhostAntiKt2TrackJet.JvtJvfcorr.SumPtTrkPt1000.TrackWidthPt500.NegativeE",
-				      "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb"]
+				      "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb",
+                                      "SoftBVrtClusterTool_Vertices",
+]
 
 SUSY7SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY7SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -405,6 +440,14 @@ SUSY7SlimmingHelper.IncludeEtMissTriggerContent = True
 
 #addJetOutputs(SUSY7SlimmingHelper,["LargeR", "SUSY7"], [], ["CamKt12LCTopoJets","AntiKt10LCTopoJets","AntiKt10TruthJets","CamKt12TruthWZJets","CamKt12TruthJets","AntiKt10TruthWZJets",
 #                                                            "AntiKt4TruthWZJets","AntiKt4TruthJets","AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"])
+
+excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+
+SUSY7SlimmingHelper.StaticContent = StaticContent
 
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 SUSY7SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',

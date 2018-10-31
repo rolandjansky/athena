@@ -35,6 +35,7 @@ DerivationFrameworkJob += thinHard
 # Need to set TruthLinks to avoid conflict with standard name
 # Need to set xAODTruthPileupEventContainerName
 # No need for truth metadata here; it comes from the other converter
+from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg(
                           "GEN_HARD2xAOD",
                           AODContainerName="GEN_HARD",

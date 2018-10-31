@@ -185,79 +185,81 @@ TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
       ATH_MSG_ERROR("currentFile(): Couldn't find the service: " << evtSelName);return 0;
       }*/
 
-   StringArrayProperty inputCollectionsName;
    try {
-     //get the list of input files - use this to determine which open file is the current input file
-     inputCollectionsName = dynamic_cast<const StringArrayProperty&>(evtSelector->getProperty("InputCollections"));
-   } catch(...) {
-     ATH_MSG_ERROR("currentFile(): Couldn't load InputCollections property of " << evtSelName); return 0;
-   }
-   ATH_MSG_VERBOSE("nOpenFile=" << gROOT->GetListOfFiles()->GetSize() << ". nFilesInInputCollection=" << inputCollectionsName.value().size());
-   if(msgLvl(MSG::VERBOSE)) {
-      for(int i=0;i<gROOT->GetListOfFiles()->GetSize();i++) {
-         ATH_MSG_VERBOSE("Open file: " << gROOT->GetListOfFiles()->At(i)->GetName());
+      //get the list of input files - use this to determine which open file is the current input file
+      const StringArrayProperty& inputCollectionsName = dynamic_cast<const StringArrayProperty&>(evtSelector->getProperty("InputCollections"));
+   
+      ATH_MSG_VERBOSE("nOpenFile=" << gROOT->GetListOfFiles()->GetSize() << ". nFilesInInputCollection=" << inputCollectionsName.value().size());
+      if(msgLvl(MSG::VERBOSE)) {
+          for(int i=0;i<gROOT->GetListOfFiles()->GetSize();i++) {
+            ATH_MSG_VERBOSE("Open file: " << gROOT->GetListOfFiles()->At(i)->GetName());
+          }
       }
-   }
-
-   //look through list of files and find the one from the input collection that is currently open
-
-   for(int i=0;i<gROOT->GetListOfFiles()->GetSize();i++) {
-         TFile *g = (TFile*)gROOT->GetListOfFiles()->At(i);
-         //see if this file is in the input file list
-         //strip everything except stuff either side of last /
-         TString s(g->GetName());
-         TObjArray* tokens = s.Tokenize("/");
-         TObjString* lastToken = dynamic_cast<TObjString*>(tokens->Last());
-         TString sToCompare("");
-         bool shortComparison(false);
-         if(tokens->GetEntries()>1) {
-            TString beforeSlash((dynamic_cast<TObjString*>(tokens->At(tokens->GetEntries()-2)))->GetString());
-            if(beforeSlash.Length()>0) sToCompare += beforeSlash;
-            sToCompare += "/";
-         } else {
-            shortComparison=true;
-         }
-         sToCompare += lastToken->GetString();
-         TString sToCompare_short(lastToken->GetString()); //short versions search
-         delete tokens;
-//         ATH_MSG_VERBOSE("Look at " << sToCompare);
-         for(unsigned int j=0;j<inputCollectionsName.value().size();j++) {
-            TString t(inputCollectionsName.value()[j].c_str());
-            //try perfect match first
-            if(s.EqualTo(t)) {
-               ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
-               m_currentFile = g;
-               return g;
-            }
-            TObjArray* tokens = t.Tokenize("/");
+    
+      //look through list of files and find the one from the input collection that is currently open
+    
+      for(int i=0;i<gROOT->GetListOfFiles()->GetSize();i++) {
+            TFile *g = (TFile*)gROOT->GetListOfFiles()->At(i);
+            //see if this file is in the input file list
+            //strip everything except stuff either side of last /
+            TString s(g->GetName());
+            TObjArray* tokens = s.Tokenize("/");
             TObjString* lastToken = dynamic_cast<TObjString*>(tokens->Last());
-            TString tToCompare = "";
-            bool shortComparison2(false);
+            TString sToCompare("");
+            bool shortComparison(false);
             if(tokens->GetEntries()>1) {
-               TString beforeSlash((dynamic_cast<TObjString*>(tokens->At(tokens->GetEntries()-2)))->GetString());
-               if(beforeSlash.Length()>0) tToCompare += beforeSlash;
-               tToCompare += "/";
+                TString beforeSlash((dynamic_cast<TObjString*>(tokens->At(tokens->GetEntries()-2)))->GetString());
+                if(beforeSlash.Length()>0) sToCompare += beforeSlash;
+                sToCompare += "/";
             } else {
-               shortComparison2=true;
+                shortComparison=true;
             }
-            tToCompare += lastToken->GetString();
-            TString tToCompare_short(lastToken->GetString());
+            sToCompare += lastToken->GetString();
+            TString sToCompare_short(lastToken->GetString()); //short versions search
             delete tokens;
-            //ATH_MSG_VERBOSE("cf with : " << inputCollectionsName.value()[j]);
-            if(shortComparison || shortComparison2) { //doing short version search, no directories to distinguish files!
-               if(sToCompare_short.EqualTo(tToCompare_short)) {
+    //         ATH_MSG_VERBOSE("Look at " << sToCompare);
+            for(unsigned int j=0;j<inputCollectionsName.value().size();j++) {
+                TString t(inputCollectionsName.value()[j].c_str());
+                //try perfect match first
+                if(s.EqualTo(t)) {
                   ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
                   m_currentFile = g;
                   return g;
-               }
-            } else
-            if(sToCompare.EqualTo(tToCompare)) {
-               ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
-               m_currentFile=g;
-               return g;
+                }
+                TObjArray* tokens = t.Tokenize("/");
+                TObjString* lastToken = dynamic_cast<TObjString*>(tokens->Last());
+                TString tToCompare = "";
+                bool shortComparison2(false);
+                if(tokens->GetEntries()>1) {
+                  TString beforeSlash((dynamic_cast<TObjString*>(tokens->At(tokens->GetEntries()-2)))->GetString());
+                  if(beforeSlash.Length()>0) tToCompare += beforeSlash;
+                  tToCompare += "/";
+                } else {
+                  shortComparison2=true;
+                }
+                tToCompare += lastToken->GetString();
+                TString tToCompare_short(lastToken->GetString());
+                delete tokens;
+                //ATH_MSG_VERBOSE("cf with : " << inputCollectionsName.value()[j]);
+                if(shortComparison || shortComparison2) { //doing short version search, no directories to distinguish files!
+                  if(sToCompare_short.EqualTo(tToCompare_short)) {
+                      ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
+                      m_currentFile = g;
+                      return g;
+                  }
+                } else
+                if(sToCompare.EqualTo(tToCompare)) {
+                  ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
+                  m_currentFile=g;
+                  return g;
+                }
             }
-         }
-   } 
+      } 
+
+   } catch(...) {
+     ATH_MSG_ERROR("currentFile(): Couldn't load InputCollections property of " << evtSelName); return 0;
+   }
+
    ATH_MSG_ERROR("currentFile(): Could not find the current file!");
    return 0; //something went wrong :-(
 

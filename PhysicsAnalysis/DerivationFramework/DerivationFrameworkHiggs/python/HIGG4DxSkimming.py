@@ -58,7 +58,7 @@ def setup(HIGG4DxName, ToolSvc):
         tauTrks = '( (TauJets.nTracks + TauJets.nTracksIsolation >= 1) && (TauJets.nTracks + TauJets.nTracksIsolation <= 8) )'
         tauLead = '(TauJets.pt > 33.0*GeV)'
         tauSubl = '(TauJets.pt > 23.0*GeV)'
-        tauId   = 'HIGG4DxJetBDTSigLoose'
+        tauId   = '(HIGG4DxJetBDTSigLoose || HIGG4DxJetRNNSigLoose)'
         tauReq0 = '(count( '+tauSubl+' && '+tauTrks+' ) >= 2)'
         tauReq1 = '(count( '+tauSubl+' && '+tauTrks+' && '+tauId+' ) >= 1)'
         tauReq2 = '(count( '+tauLead+' && '+tauTrks+' ) >= 1)'
@@ -79,7 +79,7 @@ def setup(HIGG4DxName, ToolSvc):
 
     elif HIGG4DxName == 'HIGG4D5':
         tau = '(count('+tauTracks123+' && TauJets.pt > 30.0*GeV) >= 1)'
-        trigger_main = trigger_main = '( HLT_xe70 || HLT_xe70_mht || HLT_xe90_L1XE50 || HLT_xe90_mht_L1XE50 || HLT_xe110_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_j360 || HLT_j380 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_noalg_L1J400 || HLT_xe110_pufit_L1XE55 || HLT_j400 || HLT_j420 || HLT_j450 ||  HLT_tau160_medium1_tracktwo_L1TAU100 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_tau35_medium1_tracktwo_xe70_L1XE45 || HLT_tau35_medium1_tracktwo_xe70_L1XE45 || HLT_mu50 ||  HLT_mu26_ivarmedium )'
+        trigger_main = '( HLT_xe70 || HLT_xe70_mht || HLT_xe90_L1XE50 || HLT_xe90_mht_L1XE50 || HLT_xe110_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_j360 || HLT_j380 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_noalg_L1J400 || HLT_xe110_pufit_L1XE55 || HLT_j400 || HLT_j420 || HLT_j450 ||  HLT_tau160_medium1_tracktwo_L1TAU100 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_tau35_medium1_tracktwo_xe70_L1XE45 || HLT_mu50 ||  HLT_mu26_ivarmedium || HLT_xe110_pufit_xe65_L1XE50 || HLT_xe110_pufit_xe70_L1XE50 || HLT_xe120_pufit_L1XE50 || HLT_tau35_medium1_tracktwoEF_xe70_L1XE45 || HLT_tau35_mediumRNN_tracktwoMVA_xe70_L1XE45 || HLT_tau160_medium1_tracktwoEF_L1TAU100 || HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100) '
         trigger_aux = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 )'
         DFisMC = (globalflags.DataSource()=='geant4')
         if not DFisMC:
@@ -87,7 +87,7 @@ def setup(HIGG4DxName, ToolSvc):
         else:
             monotau = '('+tau+' && '+trigger_main+')'
         skim_expression = monotau + "&&" + lepVeto
-    
+
     elif HIGG4DxName == 'HIGG4D6':
         # here we only apply selection based on trigger and DiTau. After this skim, fat jet building is called. Second DerivationKernel will then apply selection based on jat jets (see below the skimming tool setup)
         ditaujet = '(count((DiTauJets.pt > 300.0*GeV)) >= 1)'

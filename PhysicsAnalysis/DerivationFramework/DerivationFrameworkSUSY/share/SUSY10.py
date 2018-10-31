@@ -2,7 +2,7 @@
 ##  Modified on top of proposed version by Vangelis @ https://its.cern.ch/jira/browse/ATLSUSYDPD-417
 #
 #********************************************************************
-# SUSY10.py 
+# SUSY10.py
 # reductionConf flag SUSY10 in Reco_tf.py (Gtt/Gbb multi-b analysis)
 #********************************************************************
 
@@ -40,14 +40,14 @@ DerivationFrameworkJob += SeqSUSY10
 # Trigger navigation thinning
 #====================================================================
 #triggerRegEx = ['HLT_xe.*','HLT_e.*','HLT_mu.*']
-from DerivationFrameworkSUSY.SUSY10TriggerList import * 
+from DerivationFrameworkSUSY.SUSY10TriggerList import *
 
 SUSY10ThinningHelper.TriggerChains = '|'.join( SUSY10ThinTriggers )
 SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 
 
 #====================================================================
-# THINNING TOOL 
+# THINNING TOOL
 #====================================================================
 
 # B.M.: likely not used
@@ -177,7 +177,7 @@ SUSY10SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "SUSY10S
 ToolSvc += SUSY10SkimmingTool
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -189,12 +189,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY10 += CfgMgr.DerivationFramework__DerivationKernel("SUSY10KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY10")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -247,7 +247,7 @@ SeqSUSY10 += CfgMgr.DerivationFramework__DerivationKernel(
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 
 #Variables
@@ -259,13 +259,13 @@ SUSY10SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_An
 "AntiKt4EMPFlowJets",
  "BTagging_AntiKt4EMTopo",
 "BTagging_AntiKt4EMPFlow",
- "InDetTrackParticles", "PrimaryVertices", 
+ "InDetTrackParticles", "PrimaryVertices",
                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 # BTagging_AntiKt4Track no longer supported in R21, replaced with BTagging_AntiKt2Track for now
 SUSY10SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt2PV0TrackJets", "BTagging_AntiKt2Track", "MET_Track"]
 SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                        "Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
-                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.HadronConeExclTruthLabelID.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
+                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.HadronConeExclTruthLabelID.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
                                        "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
                                        "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                        "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",

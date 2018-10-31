@@ -530,22 +530,22 @@ private:
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
     // R21 b-tagging
-    std::vector<float> m_jet_MV2c10mu;
-    std::vector<float> m_jet_MV2c10rnn;
+    std::vector<float> m_jet_MV2r;
+    std::vector<float> m_jet_MV2rmu;
     std::vector<float> m_jet_DL1;
-    std::vector<float> m_jet_DL1mu;
-    std::vector<float> m_jet_DL1rnn;
+    std::vector<float> m_jet_DL1r;
+    std::vector<float> m_jet_DL1rmu;
     std::vector<float> m_jet_MV2cl100;
     std::vector<float> m_jet_MV2c100;
     std::vector<float> m_jet_DL1_pu;
     std::vector<float> m_jet_DL1_pc;
     std::vector<float> m_jet_DL1_pb;
-    std::vector<float> m_jet_DL1mu_pu;
-    std::vector<float> m_jet_DL1mu_pc;
-    std::vector<float> m_jet_DL1mu_pb;
-    std::vector<float> m_jet_DL1rnn_pu;
-    std::vector<float> m_jet_DL1rnn_pc;
-    std::vector<float> m_jet_DL1rnn_pb;
+    std::vector<float> m_jet_DL1r_pu;
+    std::vector<float> m_jet_DL1r_pc;
+    std::vector<float> m_jet_DL1r_pb;
+    std::vector<float> m_jet_DL1rmu_pu;
+    std::vector<float> m_jet_DL1rmu_pc;
+    std::vector<float> m_jet_DL1rmu_pb;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -585,6 +585,7 @@ private:
     bool m_useRCAdditionalJSS; // write RCJSS additional variables
     bool m_useVarRCJSS; // write Variable-R RCJSS variables
     bool m_useVarRCAdditionalJSS; // write Variable-R RCJSS additional variables
+    bool m_useElectronChargeIDSelection; // write ECID tool output variables
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;

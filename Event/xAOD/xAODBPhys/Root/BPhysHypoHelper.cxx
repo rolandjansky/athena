@@ -56,7 +56,7 @@ bool xAOD::BPhysHypoHelper::setMassErr(const float val)
   SET_FLOAT( m_hypo+"_massErr", val );  
 }
 /*****************************************************************************/
-bool xAOD::BPhysHypoHelper::setMass(const std::vector<double> trkMasses)
+bool xAOD::BPhysHypoHelper::setMass(const std::vector<double> &trkMasses)
 {
   // get 4-vector
   TLorentzVector P = totalP(trkMasses);

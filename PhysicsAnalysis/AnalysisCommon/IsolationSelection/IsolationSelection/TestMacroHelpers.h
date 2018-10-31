@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ISOLATIONSELECTION_TESTMARCOHELPERS_H
@@ -25,7 +25,7 @@ namespace CP {
     
     class IsoCorrectionTestHelper {
         public:
-            IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WP);
+            IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WP, int part_type = -1);
             StatusCode Fill(xAOD::IParticleContainer* Particles);
             void BackupPreFix(const std::string &PreFix);
             void DefaultIsolation(const std::string &DecorName);
@@ -50,6 +50,9 @@ namespace CP {
             std::vector<bool> m_orig_passIso;
             std::vector<bool> m_corr_passIso;
             
+            std::vector<float> m_assoc_track_pt;
+            std::vector<float> m_assoc_cluster_et;
+            
             struct IsolationBranches {
                 std::vector<float> original_cones;
                 std::vector<float> corrected_cones;                
@@ -66,8 +69,7 @@ namespace CP {
             SelectionAccessor m_acc_used_for_corr;
             SelectionAccessor m_acc_passDefault;
             SelectionAccessor m_acc_passCorrected;
-            
-
+         
     };
 
 }

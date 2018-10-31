@@ -1,5 +1,5 @@
-SUSY19ExtraVariables = [ 
-    "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500",
+SUSY19ExtraVariables = [
+    "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_jetClean_VeryLooseBadLLP",
     "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.eta_sampl.phi_sampl",
     "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
     "InDetTrackParticles.TRTdEdx.TRTdEdxUsedHits.hitPattern.numberOfContribPixelLayers.numberOfGangedFlaggedFakes.numberOfIBLOverflowsdEdx.numberOfPixelOutliers.numberOfPixelSplitHits.numberOfPixelSpoiltHits.numberOfSCTOutliers.numberOfSCTSpoiltHits.numberOfTRTDeadStraws.numberOfTRTHits.numberOfTRTHoles.numberOfTRTOutliers.numberOfTRTSharedHits.numberOfUsedHitsdEdx.pixeldEdx.truthMatchProbability.truthOrigin.truthType",

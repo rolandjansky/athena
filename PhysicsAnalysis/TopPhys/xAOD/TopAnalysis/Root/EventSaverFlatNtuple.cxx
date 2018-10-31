@@ -144,6 +144,7 @@ namespace top {
 	m_useRCAdditionalJSS(false),
 	m_useVarRCJSS(false),
 	m_useVarRCAdditionalJSS(false),
+	m_useElectronChargeIDSelection(false),
 	m_met_met(0.),
         m_met_phi(0.)
     {
@@ -224,6 +225,9 @@ namespace top {
 	  m_useVarRCAdditionalJSS=config->useVarRCJetAdditionalSubstructure();
 	} // end make VarRC jets
 
+	if (config->useElectronChargeIDSelection()){
+	  m_useElectronChargeIDSelection = true;
+	}
 
         //make a tree for each systematic
         std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
@@ -626,8 +630,10 @@ namespace top {
                 systematicTree->makeOutputVariable(m_el_CF, "el_CF");
                 systematicTree->makeOutputVariable(m_el_d0sig, "el_d0sig");
                 systematicTree->makeOutputVariable(m_el_delta_z0_sintheta, "el_delta_z0_sintheta");
-		systematicTree->makeOutputVariable(m_el_ECIDS,"m_el_ECIDS");
-		systematicTree->makeOutputVariable(m_el_ECIDSResult,"m_el_ECIDSResult");
+		if (m_useElectronChargeIDSelection) {
+		  systematicTree->makeOutputVariable(m_el_ECIDS,"el_ECIDS");
+		  systematicTree->makeOutputVariable(m_el_ECIDSResult,"el_ECIDSResult");
+		}
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_el_true_type,      "el_true_type");
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
@@ -701,22 +707,22 @@ namespace top {
                 }
 		// R21 - new b-tagging variables
 		if(m_config->getReleaseSeries() == 25){
-		  systematicTree->makeOutputVariable(m_jet_MV2c10mu, "jet_MV2c10mu");
-		  systematicTree->makeOutputVariable(m_jet_MV2c10rnn, "jet_MV2c10rnn");
+		  systematicTree->makeOutputVariable(m_jet_MV2r, "jet_MV2r");
+		  systematicTree->makeOutputVariable(m_jet_MV2rmu, "jet_MV2rmu");
 		  systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu, "jet_DL1mu");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn, "jet_DL1rnn");
+		  systematicTree->makeOutputVariable(m_jet_DL1r, "jet_DL1r");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu, "jet_DL1rmu");
 		  systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
 		  systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
 		  systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
 		  systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
 		  systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu_pu, "jet_DL1mu_pu");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu_pc, "jet_DL1mu_pc");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu_pb, "jet_DL1mu_pb");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pu, "jet_DL1rnn_pu");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pc, "jet_DL1rnn_pc");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pb, "jet_DL1rnn_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1r_pu, "jet_DL1r_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1r_pc, "jet_DL1r_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1r_pb, "jet_DL1r_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu_pu, "jet_DL1rmu_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu_pc, "jet_DL1rmu_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu_pb, "jet_DL1rmu_pb");
 		}
 
             }
@@ -1804,8 +1810,10 @@ namespace top {
                 m_el_trigMatched[trigger.first].resize(n_electrons);
             m_el_d0sig.resize(n_electrons);
             m_el_delta_z0_sintheta.resize(n_electrons);
-	    m_el_ECIDS.resize(n_electrons);
-	    m_el_ECIDSResult.resize(n_electrons);
+	    if (m_useElectronChargeIDSelection) {
+	      m_el_ECIDS.resize(n_electrons);
+	      m_el_ECIDSResult.resize(n_electrons);
+	    }
             if (m_config->isMC()) {
               m_el_true_type.resize(n_electrons);
               m_el_true_origin.resize(n_electrons);
@@ -1818,7 +1826,6 @@ namespace top {
 
 	    static SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
 	    static SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
-
 
             for (const auto* const elPtr : event.m_electrons) {
                 m_el_pt[i] = elPtr->pt();
@@ -1845,8 +1852,10 @@ namespace top {
                 if( elPtr->isAvailable<float>("delta_z0_sintheta") )
                     m_el_delta_z0_sintheta[i] = elPtr->auxdataConst<float>("delta_z0_sintheta");
 
-		m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
-		m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
+		if (m_useElectronChargeIDSelection) {
+		  m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
+		  m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
+		}
 
                 //retrieve the truth-matching variables from MCTruthClassifier
                 if (m_config->isMC()) {
@@ -1988,22 +1997,22 @@ namespace top {
             m_jet_passfjvt.resize(event.m_jets.size());
 	    // R21 b-tagging
 	    if(m_config->getReleaseSeries() == 25){
-	      m_jet_MV2c10mu.resize(event.m_jets.size());
-	      m_jet_MV2c10rnn.resize(event.m_jets.size());
+	      m_jet_MV2r.resize(event.m_jets.size());
+	      m_jet_MV2rmu.resize(event.m_jets.size());
 	      m_jet_DL1.resize(event.m_jets.size());
-	      m_jet_DL1mu.resize(event.m_jets.size());
-	      m_jet_DL1rnn.resize(event.m_jets.size());
+	      m_jet_DL1r.resize(event.m_jets.size());
+	      m_jet_DL1rmu.resize(event.m_jets.size());
 	      m_jet_MV2cl100.resize(event.m_jets.size());
 	      m_jet_MV2c100.resize(event.m_jets.size());
 	      m_jet_DL1_pu.resize(event.m_jets.size());
 	      m_jet_DL1_pc.resize(event.m_jets.size());
 	      m_jet_DL1_pb.resize(event.m_jets.size());
-	      m_jet_DL1mu_pu.resize(event.m_jets.size());
-	      m_jet_DL1mu_pc.resize(event.m_jets.size());
-	      m_jet_DL1mu_pb.resize(event.m_jets.size());
-	      m_jet_DL1rnn_pu.resize(event.m_jets.size());
-	      m_jet_DL1rnn_pc.resize(event.m_jets.size());
-	      m_jet_DL1rnn_pb.resize(event.m_jets.size());
+	      m_jet_DL1r_pu.resize(event.m_jets.size());
+	      m_jet_DL1r_pc.resize(event.m_jets.size());
+	      m_jet_DL1r_pb.resize(event.m_jets.size());
+	      m_jet_DL1rmu_pu.resize(event.m_jets.size());
+	      m_jet_DL1rmu_pc.resize(event.m_jets.size());
+	      m_jet_DL1rmu_pb.resize(event.m_jets.size());
 	    }
             if (m_config->isMC()) {
               m_jet_truthflav.resize(event.m_jets.size());
@@ -2083,33 +2092,33 @@ namespace top {
 		// BTagging variables supported for R21 but method is only in newer version so preprocessor requirement
 		#if ROOTCORE_RELEASE_SERIES >= 25
 		if(m_config->getReleaseSeries() == 25){
-		  m_jet_MV2c10mu[i] = -999;
-		  m_jet_MV2c10rnn[i] = -999;
+		  m_jet_MV2r[i] = -999;
+		  m_jet_MV2rmu[i] = -999;
 		  // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
 		  m_jet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
-		  m_jet_DL1mu[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1mu");
-		  m_jet_DL1rnn[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rnn");
+		  m_jet_DL1r[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1r");
+		  m_jet_DL1rmu[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rmu");
 		  m_jet_MV2cl100[i] = -999;
 		  m_jet_MV2c100[i] = -999;
 		  m_jet_DL1_pu[i] = -999;
 		  m_jet_DL1_pc[i] = -999;
 		  m_jet_DL1_pb[i] = -999;
-		  m_jet_DL1mu_pu[i] = -999;
-		  m_jet_DL1mu_pc[i] = -999;
-		  m_jet_DL1mu_pb[i] = -999;
-		  m_jet_DL1rnn_pu[i] = -999;
-                  m_jet_DL1rnn_pc[i] = -999;
-		  m_jet_DL1rnn_pb[i] = -999;
+		  m_jet_DL1r_pu[i] = -999;
+		  m_jet_DL1r_pc[i] = -999;
+		  m_jet_DL1r_pb[i] = -999;
+		  m_jet_DL1rmu_pu[i] = -999;
+                  m_jet_DL1rmu_pc[i] = -999;
+		  m_jet_DL1rmu_pb[i] = -999;
 
 		  if(btag){
 		    // MVX
 		    mvx = -999;
-		    btag->MVx_discriminant("MV2c10mu", mvx);
-		    m_jet_MV2c10mu[i] = mvx;
+		    btag->MVx_discriminant("MV2r", mvx);
+		    m_jet_MV2r[i] = mvx;
 		    
 		    mvx = -999;
-		    btag->MVx_discriminant("MV2c10rnn", mvx);
-		    m_jet_MV2c10rnn[i] = mvx;
+		    btag->MVx_discriminant("MV2rmu", mvx);
+		    m_jet_MV2rmu[i] = mvx;
 		    
 		    mvx = -999;
                     btag->MVx_discriminant("MV2cl100", mvx);
@@ -2122,21 +2131,21 @@ namespace top {
 		    // DL1
 		    double _pu, _pc, _pb = -999;
 
-		    // DL1rnnCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
-		    // so just providing the DL1rnn weights to construct tagger offline
-		    btag->pu("DL1rnn",_pu);
-		    btag->pb("DL1rnn",_pb);
-                    btag->pc("DL1rnn",_pc);
-		    m_jet_DL1rnn_pu[i] = _pu;
-                    m_jet_DL1rnn_pc[i] = _pc;
-                    m_jet_DL1rnn_pb[i] = _pb;		    
-		    // DL1mu - as above
-		    btag->pu("DL1mu",_pu);
-                    btag->pb("DL1mu",_pb);
-                    btag->pc("DL1mu",_pc);
-		    m_jet_DL1mu_pu[i] = _pu;
-		    m_jet_DL1mu_pc[i] = _pc;
-		    m_jet_DL1mu_pb[i] = _pb;
+		    // DL1rmuCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
+		    // so just providing the DL1rmu weights to construct tagger offline
+		    btag->pu("DL1rmu",_pu);
+		    btag->pb("DL1rmu",_pb);
+                    btag->pc("DL1rmu",_pc);
+		    m_jet_DL1rmu_pu[i] = _pu;
+                    m_jet_DL1rmu_pc[i] = _pc;
+                    m_jet_DL1rmu_pb[i] = _pb;		    
+		    // DL1r - as above
+		    btag->pu("DL1r",_pu);
+                    btag->pb("DL1r",_pb);
+                    btag->pc("DL1r",_pc);
+		    m_jet_DL1r_pu[i] = _pu;
+		    m_jet_DL1r_pc[i] = _pc;
+		    m_jet_DL1r_pb[i] = _pb;
 		    // DL1 - as above
 		    btag->pu("DL1",_pu);
                     btag->pb("DL1",_pb);

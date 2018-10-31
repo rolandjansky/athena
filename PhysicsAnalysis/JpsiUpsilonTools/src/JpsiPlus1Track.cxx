@@ -61,7 +61,12 @@ namespace Analysis {
         } else {
             m_particleDataTable = partPropSvc->PDT();
         }
-        
+
+        if (m_requiredNMuons > 0 && !m_excludeJpsiMuonsOnly) {
+          ATH_MSG_FATAL("Invalid configuration");
+          return StatusCode::FAILURE;
+        }
+
         ATH_MSG_INFO("Initialize successful");
         
         return StatusCode::SUCCESS;
@@ -89,7 +94,8 @@ namespace Analysis {
     m_jpsiMassLower(0.0),
     m_TrkParticleCollection("TrackParticleCandidate"),
     m_MuonsUsedInJpsi("NONE"),
-    m_excludeCrossJpsiTracks(true),
+    m_excludeJpsiMuonsOnly(true), 
+    m_excludeCrossJpsiTracks(false),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_trkSelector("InDet::TrackSelectorTool"),
     m_vertexEstimator("InDet::VertexPointEstimator"),
@@ -99,7 +105,8 @@ namespace Analysis {
     m_trkTrippletMassUpper(-1.0),
     m_trkTrippletMassLower(-1.0),
     m_trkTrippletPt(-1.0),
-    m_trkDeltaZ(-1.0)
+    m_trkDeltaZ(-1.0),
+    m_requiredNMuons(0)
     {
         declareInterface<JpsiPlus1Track>(this);
         declareProperty("pionHypothesis",m_piMassHyp);
@@ -114,6 +121,7 @@ namespace Analysis {
         declareProperty("JpsiMassLower",m_jpsiMassLower);
         declareProperty("TrackParticleCollection",m_TrkParticleCollection);
         declareProperty("MuonsUsedInJpsi",m_MuonsUsedInJpsi);
+        declareProperty("ExcludeJpsiMuonsOnly",m_excludeJpsiMuonsOnly);
         declareProperty("ExcludeCrossJpsiTracks",m_excludeCrossJpsiTracks); //Essential when trying to make vertices out of multiple muons (set to false)
         declareProperty("TrkVertexFitterTool",m_iVertexFitter);
         declareProperty("TrackSelectorTool", m_trkSelector);
@@ -127,6 +135,7 @@ namespace Analysis {
         declareProperty("TrkTrippletMassLower"  ,m_trkTrippletMassLower);
         declareProperty("TrkQuadrupletPt"       ,m_trkTrippletPt       );
         declareProperty("TrkDeltaZ"             ,m_trkDeltaZ           );
+        declareProperty("RequireNMuonTracks"    ,m_requiredNMuons      );
 
     }
     
@@ -200,7 +209,7 @@ namespace Analysis {
             const xAOD::TrackParticle* tp (*trkPBItr);
             if ( tp->pt()<m_trkThresholdPt ) continue;
             if ( fabs(tp->eta())>m_trkMaxEta ) continue;
-            if (importedMuonCollection!=NULL) {
+            if (importedMuonCollection!=NULL && !m_excludeJpsiMuonsOnly) {
                 if (JpsiUpsilonCommon::isContainedIn(tp,importedMuonCollection)) continue;
             }
             if ( m_trkSelector->decision(*tp, vx) ) theIDTracksAfterSelection.push_back(tp);
@@ -248,7 +257,17 @@ namespace Analysis {
         // Loop over J/psis
 
         std::vector<double> massCuts;
-        
+
+        TrackBag muonTracks;
+        if (importedMuonCollection != NULL && m_excludeJpsiMuonsOnly) {
+          for(auto muon : *importedMuonCollection){
+            if(!muon->inDetTrackParticleLink().isValid()) continue;
+            auto track = muon->inDetTrackParticleLink().cachedElement();
+            if(track==nullptr) continue;
+            if(!JpsiUpsilonCommon::isContainedIn(track, theIDTracksAfterSelection)) continue;
+            muonTracks.push_back(track);
+          }
+        }
 
         for(auto jpsiItr=selectedJpsiCandidates.cbegin(); jpsiItr!=selectedJpsiCandidates.cend(); ++jpsiItr) {
 
@@ -265,7 +284,17 @@ namespace Analysis {
 
             // Loop over ID tracks, call vertexing
             for (auto trkItr=theIDTracksAfterSelection.cbegin(); trkItr!=theIDTracksAfterSelection.cend(); ++trkItr) {
-                if (JpsiUpsilonCommon::isContainedIn(*trkItr,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+                if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+                int linkedMuonTrk = 0;
+                if (m_excludeJpsiMuonsOnly) {
+                  linkedMuonTrk = JpsiUpsilonCommon::isContainedIn(*trkItr, muonTracks);
+                  if (linkedMuonTrk) ATH_MSG_DEBUG("This id track is a muon track!");
+                  if (JpsiUpsilonCommon::isContainedIn(*trkItr,jpsiTracks)) {
+                    if (linkedMuonTrk) ATH_MSG_DEBUG("ID track removed: id track is slected to build Jpsi!");
+                    continue;
+                    
+                  }
+                }
                 // Convert to TrackParticleBase
                 const xAOD::TrackParticle* theThirdTP = *trkItr;
 
@@ -273,7 +302,11 @@ namespace Analysis {
                 if(m_trkDeltaZ>0 &&
                    fabs(theThirdTP->z0() + theThirdTP->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
-                    // apply mass cut on track tripplet if requested
+                if (linkedMuonTrk < m_requiredNMuons) {
+                  ATH_MSG_DEBUG("Skipping Tracks with Muons " << linkedMuonTrk << " Limited to " << m_requiredNMuons);
+                    continue;
+                }
+                // apply mass cut on track tripplet if requested
                 bool passRoughMassCuts(true);
 
                 if (m_trkTrippletMassUpper>0.0 || m_trkTrippletMassLower>0.0) {

@@ -132,7 +132,7 @@ namespace met {
     declareProperty("JetPsEMuOlap",       m_jetPsEMuOlap = 2.5e3                     );    
     declareProperty("JetEmfMuOlap",       m_jetEmfMuOlap = 0.9                       );    
     declareProperty("JetTrkPtMuPt",       m_jetTrkPtMuPt = 0.8                       );    
-    declareProperty("muIDPTJetPtRatioMuOlap", m_muIDPTJetPtRatioMuOlap = 2.0         );    
+    declareProperty("muIDPTJetPtRatioMuOlap", m_muIDPTJetPtRatioMuOlap = 2.0         );   
 
     declareProperty("TrackSelectorTool",  m_trkseltool                               );
   }
@@ -171,12 +171,20 @@ namespace met {
       m_FwdJetPtCut = m_customFwdJetPtCut;
       m_JvtCut = m_customJvtCut;
       m_JvtPtMax = m_customJvtPtMax; 
-    }
+    }  
+    else if (m_jetSelection == "HRecoil")  { 
+      ATH_MSG_INFO("Jet selection for hadronic recoil calculation is configured.");
+      m_CenJetPtCut = 9999e3;
+      m_FwdJetPtCut = 9999e3;
+      m_JetEtaMax   = 5;      
+      //m_JvtCut   = 0.;    // currently skip
+      //m_JvtPtMax = 0.;  // currently skip
+    }   
     else { 
       if (m_jetSelection == "Default") ATH_MSG_WARNING( "WARNING:  Default is now deprecated" ); 
       ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, PFlow, Expert" ); 
       return StatusCode::FAILURE; 
-    }
+    }   
 
     if (!m_jetRejectionDec.empty()) m_extraJetRejection = true;
 

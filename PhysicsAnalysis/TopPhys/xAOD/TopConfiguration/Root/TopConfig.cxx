@@ -660,12 +660,11 @@ namespace top{
       this->electronIsolationLoose(cut_wp);
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
-    // Print out a warning for FixedCutHighPtCaloOnly
-    if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
-      std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
+    // Print out a warning for FCHighPtCaloOnly
+    if (this->electronIsolation() == "FCHighPtCaloOnly" || this->electronIsolationLoose() == "FCHighPtCaloOnly"){
+      std::cout << "TopConfig - ElectronIsolation - FCHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
-    if( m_useElectronChargeIDSelection )throw std::runtime_error{"TopConfig: UseElectronChargeIDSelection True \n Electron Charge ID selection not available in this release."};
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 

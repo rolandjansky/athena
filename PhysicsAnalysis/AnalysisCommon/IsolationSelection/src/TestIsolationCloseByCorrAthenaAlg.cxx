@@ -35,12 +35,26 @@ namespace CP {
                 m_pho_helper(),
                 m_consider_ele(true),
                 m_consider_muo(true),
-                m_consider_pho(true) {
+                m_consider_pho(true),
+                m_mu_min_pt(5.e3),
+                m_mu_max_eta(2.7),
+                m_el_min_pt(7.e3),
+                m_el_max_eta(2.47),
+                m_ph_min_pt(25.e3),
+                m_ph_max_eta(2.35) {
         declareProperty("IsoCloseByCorrTool", m_isoCloseByCorrTool);
         declareProperty("IsoSelectorTool", m_isoSelectorTool);
         declareProperty("considerElectrons", m_consider_ele);
         declareProperty("considerMuons", m_consider_muo);
         declareProperty("considerPhotons", m_consider_pho);
+        
+        declareProperty("MuonPt", m_mu_min_pt);
+        declareProperty("MuonEta", m_mu_max_eta);
+        declareProperty("ElectronPt", m_el_min_pt);
+        declareProperty("ElectronEta", m_el_max_eta);
+        declareProperty("PhotonPt", m_ph_min_pt);
+        declareProperty("PhotonEta", m_ph_max_eta);
+        
     }
 
     StatusCode TestIsolationCloseByCorrAthenaAlg::initialize() {
@@ -49,9 +63,9 @@ namespace CP {
 
         m_tree = new TTree("IsoCorrTest", "Test tree for the isolaiton correction tool");
         m_tree->Branch("eventNumber" , &m_eventNumber);
-        m_ele_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Electrons", m_isoSelectorTool->getElectronWPs()));
-        m_muo_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Muons", m_isoSelectorTool->getMuonWPs()));
-        m_pho_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Photons", m_isoSelectorTool->getPhotonWPs()));
+        m_ele_helper = std::make_unique < IsoCorrectionTestHelper > (m_tree, "Electrons", m_isoSelectorTool->getElectronWPs(), xAOD::Type::ObjectType::Electron);
+        m_muo_helper = std::make_unique < IsoCorrectionTestHelper > (m_tree, "Muons", m_isoSelectorTool->getMuonWPs(), xAOD::Type::ObjectType::Muon);
+        m_pho_helper = std::make_unique < IsoCorrectionTestHelper > (m_tree, "Photons", m_isoSelectorTool->getPhotonWPs(), xAOD::Type::ObjectType::Photon);
 
         ATH_CHECK(m_histSvc->regTree("/ISOCORRECTION/IsoCorrTest", m_tree));
 
@@ -72,16 +86,16 @@ namespace CP {
             //Store if the electron passes the isolation
             dec_PassIsol(*ielec) = m_isoSelectorTool->accept(*ielec);
             //Quality criteria only baseline kinematic selection
-            dec_PassQuality(*ielec) = m_consider_ele && ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
-            dec_Consider(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
+            dec_PassQuality(*ielec) =  m_consider_ele && ielec->pt() > m_el_min_pt &&( m_el_max_eta < 0 || fabs(ielec->eta()) < m_el_max_eta);
+            dec_Consider(*ielec) = ielec->pt() > m_el_min_pt &&( m_el_max_eta < 0 || fabs(ielec->eta()) < m_el_max_eta);
         }
         ATH_CHECK(CreateContainerLinks("Photons", Photons));
         for (const auto iphot : *Photons) {
             //Store if the photon passes the isolation (only needed for later comparisons)
             dec_PassIsol(*iphot) = m_isoSelectorTool->accept(*iphot);
             //Quality criteria only baseline kinematic selection
-            dec_PassQuality(*iphot) = m_consider_pho && iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
-            dec_Consider(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
+            dec_PassQuality(*iphot) = m_consider_pho && iphot->pt() > m_ph_min_pt && (m_ph_max_eta < 0 || fabs(iphot->eta()) < m_ph_max_eta);
+            dec_Consider(*iphot) =  iphot->pt() > m_ph_min_pt && (m_ph_max_eta < 0 || fabs(iphot->eta()) < m_ph_max_eta);
         }
 
         ATH_CHECK(CreateContainerLinks("Muons", Muons));
@@ -89,8 +103,8 @@ namespace CP {
             //Store if the muon passes the isolation
             dec_PassIsol(*imuon) = m_isoSelectorTool->accept(*imuon);
             //Quality criteria only baseline kinematic selection
-            dec_PassQuality(*imuon) = m_consider_muo && imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
-            dec_Consider(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
+            dec_PassQuality(*imuon) = m_consider_muo && imuon->pt() > m_mu_min_pt && ( m_mu_max_eta < 0 || fabs(imuon->eta()) < m_mu_max_eta);
+            dec_Consider(*imuon) = imuon->pt() > m_mu_min_pt && ( m_mu_max_eta < 0 || fabs(imuon->eta()) < m_mu_max_eta);
         }
         //Okay everything is defined for the preselection of the algorithm. lets  pass the things  towards the IsoCorrectionTool
 

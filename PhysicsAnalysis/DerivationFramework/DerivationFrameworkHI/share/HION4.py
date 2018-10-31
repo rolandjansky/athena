@@ -182,7 +182,58 @@ triggers += ['HLT_mb_sptrk_exclusiveloose2_L1RD0_FILLED']
 triggers += ['HLT_mb_sptrk_exclusiveloose2_L1ZDC']
 triggers += ['HLT_mb_sptrk_exclusiveloose2_L1MU4_VTE10'] 
 
+#2018 triggers
 
+#primary and backup triggers
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE4_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TAU1_TE5_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L12TAU1_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L12TAU2_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L12TAU2_VTE100']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L12TAU2_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L12TAU3_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L12TAU3_VTE100']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L12TAU3_VTE200']
+
+# supporting triggers
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU1_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU2_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1MU4_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1MU4_VTE50']
+triggers += ['HLT_mb_sptrk_exclusiveloose2_L12TAU2_VTE50']
+triggers += ['HLT_mb_sptrk_exclusiveloose2_L12TAU2_VTE100']
+triggers += ['HLT_mb_sptrk_exclusiveloose2_L12TAU2_VTE200']
+triggers += ['HLT_mb_sptrk_vetombts2in_exclusiveloose2_L12TAU1_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1ZDC_XOR_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1ZDC_A_C_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1VZDC_A_C_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE4_VTE200_EMPTY']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_noiseSup_L1TE5_VTE200_EMPTY']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TE50_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TE4_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TE4_VTE100']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TE4_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TE5_VTE50']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TE5_VTE100']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TE5_VTE200']
+triggers += ['HLT_hi_gg_upc_L1TE4_VTE50']
+triggers += ['HLT_hi_gg_upc_L1TE4_VTE100']
+triggers += ['HLT_hi_gg_upc_L1TE4_VTE200']
+triggers += ['HLT_hi_gg_upc_L1TE5_VTE50']
+triggers += ['HLT_hi_gg_upc_L1TE5_VTE100']
+triggers += ['HLT_hi_gg_upc_L1TE5_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TAU1_TE4_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L1TAU1_TE5_VTE200']
+triggers += ['HLT_hi_upc_FgapAC3_hi_gg_upc_L12TAU1_VTE50']
+triggers += ['HLT_mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE50']
+triggers += ['HLT_mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE100']
+triggers += ['HLT_mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE200']
+triggers += ['HLT_mb_sp_L1VTE50']
 
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
 print expression
@@ -345,7 +396,9 @@ AddContent=[  "CaloSums",
               "CaloCalTopoClusters",
               "egammaClusters",
               "egammaTopoSeededClusters",
-	      "InDetPixelTrackParticles"
+	      "InDetPixelTrackParticles",
+	      "Photons",
+	      "Electrons"
 ]
 
  
