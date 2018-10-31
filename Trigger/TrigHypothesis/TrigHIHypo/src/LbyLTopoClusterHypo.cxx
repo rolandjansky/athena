@@ -59,7 +59,7 @@ HLT::ErrorCode LbyLTopoClusterHypo::hltExecute(const HLT::TriggerElement* output
       const double dPhi = HLT::deltaPhi( (*cl1Iter)->phi(), (*cl2Iter)->phi() );
       m_allDPhi.push_back( dPhi );
       
-      if ( dPhi > m_dPhiCut ) {	
+      if ( std::fabs(dPhi) > m_dPhiCut ) {	
 	pass=true;
 	ATH_MSG_DEBUG( "found pair of clusters matching criteria et/phi " 
 		       << (*cl1Iter)->et() << "/" <<  (*cl1Iter)->phi() << " and  "
