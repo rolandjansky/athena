@@ -38,9 +38,6 @@ namespace egammaMonitoring{
     std::string m_folder;
     ITHistSvc*  m_rootHistSvc =  nullptr;
 
-    float m_eta2, m_rhad, m_rhad1, m_hadrleak, m_Reta, m_Rphi, m_shweta2, m_Eratio, m_DeltaE, m_frac_f1, m_shfside, m_shwtots1, m_shws3;
-
-       
     
   };
 

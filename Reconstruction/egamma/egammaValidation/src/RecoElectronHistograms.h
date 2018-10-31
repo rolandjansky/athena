@@ -27,7 +27,6 @@ namespace egammaMonitoring{
   public:
 
     // Electron Plot(s)
-    TH1* TrkToEl; //!
     using ParticleHistograms::ParticleHistograms;   
     using ParticleHistograms::initializePlots;
     StatusCode initializePlots();
