@@ -1,0 +1,135 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{\bf Ampt\_i: An Interface Between AMPT Heavy Ion Event Generator and Athena}
+\author{ Alexandre (Sasha) Lebedev (lebedev@iastate.edu)}
+%\today
+
+\maketitle           
+
+\section{Introduction}
+
+This package runs Ampt event generator in Athena frameworkand puts the events into the
+transient store in HepMC format. Optional HepMC ascii output and original text outputs
+are also available.
+
+AMPT (A Multi-Phase Transport model) uses HIJING for generating the initial conditions, 
+Zhang's Parton Cascade (ZPC) for modeling partonic scatterings, the Lund string fragmentation 
+model or a quark coalescence model for hadronization, and A Relativistic Transport (ART) model 
+for treating hadronic scatterings. 
+
+The model is intended to give a coherent and realistic description of the dynamics of relativistic 
+heavy ion collisions. In particular, the model describes well pseudorapidity and transverse momentum 
+distributions of charged hadrons as a function of collision centrality at LHC energies. 
+Detailed description of the model was published in Z.W. Lin et al., Phys. Rev. C72, 064901 (2005). 
+The original AMPTcode is written in FORTRAN and uses text files as input and output. 
+
+\section {Running Ampt}
+
+The Ampt event generator is run from jobOptions script, see for example, 
+
+{\em Generators/Ampt\_i/share/jobOptions\_Ampt.py } as follows:
+
+\begin{verbatim}
+athena  jobOptions_Ampt.py >& logfile.txt &
+\end{verbatim}
+
+
+
+\section {Input Parameters}
+
+\subsection{Event Parameters}
+
+\begin{tabular}{lll}
+Parameter  & Meaning  & Default value \\
+%\hline
+{\bf EFRM}  &  $\sqrt{s}$   &    2560. GeV \\
+{\bf Frame} & collision frame  &     CMS \\
+{\bf Proj}   & type of projectile  &   A \\
+{\bf Targ} & type of target          &    A \\
+{\bf ATarg}  & target A number     &           197  \\
+{\bf ZTarg}  & target Z number       &   79  \\
+{\bf AProj} & projectile A number     &           197 \\
+{\bf ZProj}  & projectile Z number     &     79   \\
+{\bf Bmin}  & minimum inpact parameter  &   0. \\
+{\bf Bmax}  & maximum inpact parameter   &  14.6 fm (Min. Bias Au+Au) \\
+\end{tabular}
+
+\subsection{EventVertex Randomization}
+
+\begin{tabular}{lll}
+Parameter & Meaning & Default value \\
+{\bf randomizeVertices} &  flag to set up event vertex randomization   &    False  \\
+{\bf selectVertex} & if true, fixed vertex is used. Vertex position & False \\
+                          & is defined by Xvtx, Yvtx and Zvtx input parameters &   \\
+{\bf wide} & allow randoms off the beamline (out of the pipe &  False \\
+{\bf Xvtx} & if {\bf selectVertex} is True, this is vertex X position  & 0. \\
+{\bf Yvtx} & if {\bf selectVertex} is True, this is vertex Y position  &  0. \\
+{\bf Zvtx} & if {\bf selectVertex} is True, this is vertex Z position  &  0.  \\
+\end{tabular}
+
+\subsection{Miscellaneous Parameters}
+
+\begin{tabular}{lll}
+Parameter & Meaning & Default value \\
+{\bf stringSwitch} & Switch between standard AMPT (1) and string melting version (4)  &    4 \\
+{\bf writeHepMC}  & Switch to write out ASCII output in HepMC format            &       False \\
+{\bf writeAmpt}  & Switch to write out original AMPT text output files       &          False \\
+{\bf decayKs}  & Decay or not K-short    &    0 (do not decay) \\
+{\bf decayPhi}  & Decay or not $\phi$-meson   &     1 (yes) \\
+{\bf decayPi0}  & Decay or not $\pi^0$    &    0 (do not decay) \\
+{\bf iShadow}   & Flag to enable to modify nuclear shadowing (1=yes, 0=no)  &  0  \\
+{\bf dShadow}  & Factor used to modify nuclear shadowing   &  1.0 \\
+{\bf iPhiRP}   & Flag for random orientation of reaction plane (0=no, 1=yes) &  0 \\
+\end{tabular}
+
+\bigskip
+
+To modify, for example, collision energy ($\sqrt{s}$), use the following lines in the jobOptions sctipt:
+
+{\em topAlg.Ampt.EFRM = 1000.; }
+
+
+
+\section {Random Numbers}
+
+Ampt\_i is using the AtRndmGenSvc Athena Service to provide the necessary random numbers.
+Ampt\_i is using two streams: AMPT\_INIT and AMPT. The first stream is used to provide
+ random numbers for the initialization phase of Hijing and the second one for the event generation. The user
+ can set the initial seeds of each stream via the following option in the jobOption file.
+
+ \begin{verbatim} 
+ AtRndmGenSvc.Seeds = [``AMPT_INIT 2345533 9922199'', ``AMPT 5498921 659091'']
+ \end{verbatim}
+
+ The above sets the seeds of the AMPT\_INIT stream to 2345533 and 9922199 and of the AMPT one to
+ 5498921 and 659091. If the user will not set the seeds of a stream then the AtRndmGenSvc will use default
+ values.
+
+ The seeds of the Random number service are saved for each event in the HepMC Event record and they are printed
+ on screen by DumpMC. In this way an event can be reproduced easily. The user has to rerun the job by simply seting
+ the seeds of the HIJING stream (the seeds of the AMPT\_INIT stream should stay the same) to the seeds of that
+ event.
+
+ 
+
+
+
+
+\end{document}
+
+
+
+
+
+

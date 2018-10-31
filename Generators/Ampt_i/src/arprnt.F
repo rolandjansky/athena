@@ -1,0 +1,12 @@
+      FVOIDP FUNCTION ARPRNT_ADDRESS() 
+
+      COMMON /ARPRNT/ ARPAR1(100), IAPAR2(50), ARINT1(100), IAINT2(50)
+      SAVE /ARPRNT/
+      EXTERNAL AMPTDATA ! All that is required to force loading of BLOCK DATA
+      FVOIDP GETADDR
+
+      ARPRNT_ADDRESS = GETADDR(ARPAR1(1))
+      
+      RETURN
+      END
+

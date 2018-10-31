@@ -1,0 +1,13 @@
+      FVOIDP FUNCTION LUDAT1_ADDRESS() 
+
+        COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+      SAVE /LUDAT1/
+
+      EXTERNAL AMPTDATA ! All that is required to force loading of BLOCK DATA
+      FVOIDP GETADDR
+
+      LUDAT1_ADDRESS = GETADDR(MSTU(1))
+      
+      RETURN
+      END
+

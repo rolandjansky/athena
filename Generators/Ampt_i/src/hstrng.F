@@ -1,0 +1,13 @@
+      FVOIDP FUNCTION HSTRNG_ADDRESS() 
+
+        COMMON/HSTRNG/NFP(300,15),PP(300,15),NFT(300,15),PT(300,15)
+      SAVE /HSTRNG/
+
+      EXTERNAL AMPTDATA ! All that is required to force loading of BLOCK DATA
+      FVOIDP GETADDR
+
+      HSTRNG_ADDRESS = GETADDR(NFP(1,1))
+      
+      RETURN
+      END
+

@@ -1,0 +1,13 @@
+      FVOIDP FUNCTION HJGLBR_ADDRESS() 
+
+      COMMON/HJGLBR/NELT,NINTHJ,NELP,NINP
+      SAVE /HJGLBR/
+
+      EXTERNAL AMPTDATA ! All that is required to force loading of BLOCK DATA
+      FVOIDP GETADDR
+
+      HJGLBR_ADDRESS = GETADDR(NELT)
+      
+      RETURN
+      END
+
