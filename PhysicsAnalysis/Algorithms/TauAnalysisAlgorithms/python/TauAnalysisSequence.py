@@ -45,7 +45,7 @@ def makeTauAnalysisSequence( dataType, workingPoint,
         inputfile = 'SUSYTools/tau_selection_veryloose.conf'
         pass
     else :
-        raise ValueError ("invalid muon quality: \"" + splitWP[0] +
+        raise ValueError ("invalid tau quality: \"" + splitWP[0] +
                           "\", allowed values are Tight, Medium, Loose, " +
                           "VeryLoose")
 
