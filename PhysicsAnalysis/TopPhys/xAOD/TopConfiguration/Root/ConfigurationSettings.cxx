@@ -49,8 +49,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIDLoose", "Type of electron for background. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , 1NP_v1 (default)","1NP_v1");
-    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FCTight, FCLoose, None","Gradient");
-    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FCTight, FCLoose, None","None");
+    registerParameter("ElectronIsolation","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","Gradient");
+    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
