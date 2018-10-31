@@ -51,7 +51,7 @@ namespace Muon {
   MuPatCandidateTool::MuPatCandidateTool(const std::string& t, const std::string& n, const IInterface* p)    
     : AthAlgTool(t,n,p),
       m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
+      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
       m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
