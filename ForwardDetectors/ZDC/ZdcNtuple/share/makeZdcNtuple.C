@@ -1,49 +1,10 @@
 /*
-#include "xAODRootAccess/Init.h"
-#include "SampleHandler/SampleHandler.h"
-#include "SampleHandler/ToolsDiscovery.h"
-#include "EventLoop/Job.h"
-#include "EventLoop/DirectDriver.h"
-#include <EventLoop/OutputStream.h>
-//#include <EventLoopAlgs/NTupleSvc.h>
-#include <EventLoopAlgs/AlgSelect.h>
-#include "EventLoopGrid/PrunDriver.h"
-#include "EventLoop/LSFDriver.h"
-
-#include "SampleHandler/DiskListLocal.h"
-#include "SampleHandler/DiskListEOS.h"
-#include <TSystem.h>
-#include "SampleHandler/ScanDir.h"
-
-#include "ZdcNtuple/ZdcNtuple.h"
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+
 
 int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "file:/tmp/steinber",int nevt = -1,std::string enableStr = "",std::string vers = "0",int localTrackLimit = 1e6,std::string grlOption = "")
 {
-  //int main( int argc, char* argv[] ) {
-/*
-  // Take the submit directory from the input if provided:
-  std::string submitDir = "submitDir";
-  if( argc > 1 ) submitDir = argv[ 1 ];
-
-  std::string readDir = "file:/tmp/steinber";
-  if( argc > 2 ) readDir = argv[ 2 ];
-
-  int nevt = -1;
-  if( argc > 3 ) nevt = std::atoi(argv[ 3 ]);
-
-  std::string enableStr = "" ;
-  if ( argc > 4 ) enableStr = argv[4];
-
-  std::string vers = "0";
-  if ( argc > 5 ) vers = argv[5];
-  
-  int localTrackLimit = 1e6;
-  if ( argc > 6 ) localTrackLimit = std::atoi(argv[ 6 ]);
-
-  std::string grlOption = "";
-  if ( argc > 7 ) grlOption = argv[ 7 ];
-*/
 
   // Set up the job for xAOD access:
   xAOD::Init().ignore();

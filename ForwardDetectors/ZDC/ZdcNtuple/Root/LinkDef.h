@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <ZdcNtuple/ZdcNtuple.h>
 
 #ifdef __CINT__
