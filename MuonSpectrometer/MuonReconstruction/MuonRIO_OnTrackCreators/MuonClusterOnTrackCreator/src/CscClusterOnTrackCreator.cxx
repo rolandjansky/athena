@@ -57,9 +57,9 @@ namespace Muon {
       m_cscIdHelper(0),
       m_rpcIdHelper(0),
       m_tgcIdHelper(0),
-      m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
-      m_clusterFitter("QratCscClusterFitter/QratCscClusterFitter"),
-      m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool"),
+      m_stripFitter("CalibCscStripFitter/CalibCscStripFitter", this),
+      m_clusterFitter("QratCscClusterFitter/QratCscClusterFitter", this),
+      m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool", this),
       m_have_csc_tools(false)
   {
     // algtool interface - necessary!
