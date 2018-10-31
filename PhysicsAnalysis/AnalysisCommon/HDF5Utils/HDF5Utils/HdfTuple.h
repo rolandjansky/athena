@@ -31,6 +31,10 @@ namespace H5Utils {
 
   namespace internal {
 
+    using traits::data_buffer_t;
+    using traits::H5Traits;
+
+
     /** @brief Buffer element harvester
      *
      * This is used to buld the unions we use to build the hdf5 memory
@@ -56,7 +60,7 @@ namespace H5Utils {
     {
     public:
       virtual ~IVariableFiller() {}
-      virtual internal::data_buffer_t get_buffer() const = 0;
+      virtual data_buffer_t get_buffer() const = 0;
       virtual H5::DataType get_type() const = 0;
       virtual std::string name() const = 0;
     };
@@ -171,7 +175,7 @@ namespace H5Utils {
     std::vector<hsize_t> m_dim_stride;
     hsize_t m_batch_size;
     hsize_t m_offset;
-    std::vector<internal::data_buffer_t> m_buffer;
+    std::vector<traits::data_buffer_t> m_buffer;
     VariableFillers m_fillers;
     H5::DataSet m_ds;
   };

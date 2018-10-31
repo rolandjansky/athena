@@ -16,7 +16,7 @@ namespace H5 {
 #include <vector>
 
 namespace H5Utils {
-  namespace internal {
+  namespace common {
 
     // packing utility, to create a compact on-disk representation of
     // the HDF5 type.
@@ -27,9 +27,7 @@ namespace H5Utils {
     H5::DataSpace getUnlimitedSpace(const std::vector<hsize_t>& max_length);
     H5::DSetCreatPropList getChunckedDatasetParams(
       const std::vector<hsize_t>& max_length,
-      hsize_t batch_size,
-      const H5::CompType&,
-      const std::vector<data_buffer_t>& default_value);
+      hsize_t batch_size);
     std::vector<hsize_t> getStriding(std::vector<hsize_t> max_length);
 
     // writer error handling

@@ -11,7 +11,7 @@
 
 
 namespace H5Utils {
-  namespace internal {
+  namespace common {
   // packing utility
     H5::CompType packed(H5::CompType in) {
       // TODO: Figure out why a normal copy constructor doesn't work here.
@@ -37,14 +37,11 @@ namespace H5Utils {
     }
     H5::DSetCreatPropList getChunckedDatasetParams(
       const std::vector<hsize_t>& extent,
-      hsize_t batch_size,
-      const H5::CompType& type,
-      const std::vector<data_buffer_t>& default_value) {
+      hsize_t batch_size) {
       H5::DSetCreatPropList params;
       std::vector<hsize_t> chunk_size{batch_size};
       chunk_size.insert(chunk_size.end(), extent.begin(), extent.end());
       params.setChunk(chunk_size.size(), chunk_size.data());
-      params.setFillValue(type, default_value.data());
       params.setDeflate(7);
       return params;
     }

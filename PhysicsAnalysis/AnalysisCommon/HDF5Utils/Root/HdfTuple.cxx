@@ -1,25 +1,18 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "HDF5Utils/HdfTuple.h"
+#include "HDF5Utils/common.h"
 
 #include "H5Cpp.h"
 
 #include <cassert>
-#include <iostream>             // for printing errors in the destructor
 #include <set>
 
 namespace H5Utils {
 
   namespace {
-    // packing utility
-    H5::CompType packed(H5::CompType in) {
-      // TODO: Figure out why a normal copy constructor doesn't work here.
-      //       The normal one seems to create shallow copies.
-      auto out = H5::CompType(H5Tcopy(in.getId()));
-      out.pack();
-      return out;
-    }
+
     H5::CompType build_type(const VariableFillers& fillers) {
       using internal::data_buffer_t;
       std::set<std::string> inserted; // check for repeat names
@@ -37,11 +30,6 @@ namespace H5Utils {
       return type;
     }
 
-    void print_destructor_error(const std::string& msg) {
-      std::cerr << "ERROR: an exception was thrown in the destructor of an "
-        "HDF5 file, the output buffer may be corrupted";
-      std::cerr << " (error message: " << msg << ")" << std::endl;
-    }
   }
 
 // _______________________________________________________________________
@@ -65,39 +53,27 @@ namespace H5Utils {
       throw std::logic_error("batch size must be > 0");
     }
     // create space
-    std::vector<hsize_t> initial{0};
-    initial.insert(initial.end(), max_length.begin(), max_length.end());
-    std::vector<hsize_t> eventual{H5S_UNLIMITED};
-    eventual.insert(eventual.end(), max_length.begin(), max_length.end());
-    H5::DataSpace space(eventual.size(), initial.data(), eventual.data());
+    H5::DataSpace space = common::getUnlimitedSpace(max_length);
 
     // create params
-    H5::DSetCreatPropList params;
-    std::vector<hsize_t> chunk_size{batch_size};
-    chunk_size.insert(chunk_size.end(), max_length.begin(), max_length.end());
-    params.setChunk(chunk_size.size(), chunk_size.data());
-    params.setDeflate(7);
+    H5::DSetCreatPropList params = common::getChunckedDatasetParams(
+      max_length, batch_size);
 
     // calculate striding
-    m_dim_stride.push_back(1);
-    for (size_t iii = m_dim_stride.size(); iii - 1 != 0; iii--) {
-      m_dim_stride.at(iii-2) = m_dim_stride.at(iii-2) * m_dim_stride.at(iii-1);
-    }
+    m_dim_stride = common::getStriding(max_length);
 
     // create ds
-    if (H5Lexists(group.getLocId(), name.c_str(), H5P_DEFAULT)) {
-      throw std::logic_error("tried to overwrite '" + name + "'");
-    }
-    m_ds = group.createDataSet(name, packed(m_type), space, params);
+    common::throwIfExists(name, group);
+    m_ds = group.createDataSet(name, common::packed(m_type), space, params);
   }
 
   WriterXd::~WriterXd() {
     try {
       flush();
     } catch (H5::Exception& err) {
-      print_destructor_error(err.getDetailMsg());
+      common::printDistructorError(err.getDetailMsg());
     } catch (std::exception& err) {
-      print_destructor_error(err.what());
+      common::printDistructorError(err.what());
     }
   }
 
@@ -109,7 +85,7 @@ namespace H5Utils {
 
     // build buffer and _then_ insert it so that exceptions don't leave
     // the buffer in a weird state
-    std::vector<internal::data_buffer_t> temp;
+    std::vector<traits::data_buffer_t> temp;
 
     std::fill(indices.begin(), indices.end(), 0);
     for (size_t gidx = 0; gidx < m_dim_stride.front(); gidx++) {

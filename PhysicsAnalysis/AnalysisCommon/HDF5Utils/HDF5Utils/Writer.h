@@ -5,10 +5,13 @@
 #ifndef HDF_TUPLE_HH
 #define HDF_TUPLE_HH
 
-// HDF5 Writer
-//
-// Skip down to the `Writer` and `Consumers` classes below to
-// see the stuff that you'll have to interact with.
+/**
+ * HDF5 Writer
+ *
+ * Skip down to the `Writer` and `Consumers` classes below to see the
+ * stuff that you'll have to interact with.
+ *
+ **/
 
 #include "H5Traits.h"
 #include "common.h"
@@ -22,12 +25,22 @@
 
 namespace H5Utils {
 
-  // _________________________________________________________________________
-  // Internal structures for the Consumers class
-  //
+  /// @brief internal clssses and code
+  /// @{
+
   namespace internal {
 
-    // variable filler class header
+    using traits::data_buffer_t;
+    using traits::H5Traits;
+
+    /** @brief DataConsumer classes
+     *
+     * These are the constituents of the `Consumers` class, which is
+     * an argument to the `Writer` constructor. Each consumer is a
+     * wrapper on a std::function, which is called each time the user
+     * calls `Writer::fill(...)`.
+     *
+     **/
     template <typename I>
     class IDataConsumer
     {
@@ -39,7 +52,7 @@ namespace H5Utils {
       virtual std::string name() const = 0;
     };
 
-    // implementation for variable filler
+    /// implementation for variable filler
     template <typename T, typename I>
     class DataConsumer: public IDataConsumer<I>
     {
@@ -86,29 +99,36 @@ namespace H5Utils {
       return m_name;
     }
   }
+  /// @}
 
-
-  // _________________________________________________________________________
-  // Consumers class
-  //
+  /** @brief Consumer Class
+   *
+   * The elements added to this container each specify one element in
+   * the output HDF5 DataSet. You need to give each variable a name
+   * and a function that fills the variable.
+   *
+   **/
+  /// @{
   template <typename I>
   using SharedConsumer = std::shared_ptr<internal::IDataConsumer<I> >;
   template <typename I>
   class Consumers: public std::vector<SharedConsumer<I> >
   {
   public:
-    // This should be the only method you need in this class
+
+    /// This should be the only method you need in this class
     template <typename T>
     void add(const std::string& name, const std::function<T(I)>&,
              const T& default_value = T());
-    // overload to cast lambdas into functions
+
+    /// overload to cast lambdas into functions
     template <typename T, typename F>
     void add(const std::string& name, const F func, const T& def = T()) {
       add(name, std::function<T(I)>(func), def);
     }
   };
+  ///@}
 
-  // implementation details for Consumers
   template <typename I>
   template <typename T>
   void Consumers<I>::add(const std::string& name,
@@ -120,17 +140,15 @@ namespace H5Utils {
   }
 
 
-
-  // _________________________________________________________________________
-  // Internal structures for the Writer class
-  //
+  /// @brief internal code for the `Writer` class
+  /// @{
   namespace internal {
 
-    // Data flattener class: this is used by the writer to read in the
-    // elements one by one and put them in an internal buffer.
+    /// Data flattener class: this is used by the writer to read in the
+    /// elements one by one and put them in an internal buffer.
     template <size_t N, typename F, typename T>
     struct DataFlattener {
-      std::vector<data_buffer_t> buffer;
+      std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
       DataFlattener(const F& filler, T args):
         buffer() {
@@ -150,7 +168,7 @@ namespace H5Utils {
     };
     template <typename F, typename T>
     struct DataFlattener<0, F, T> {
-      std::vector<data_buffer_t> buffer;
+      std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, 0> > element_offsets;
       DataFlattener(const F& f, T args):
         buffer(),
@@ -162,22 +180,21 @@ namespace H5Utils {
     };
 
 
-    // Adapters to translate configuration info into the objects
-    // needed by the writer.
-    //
+    /// Adapters to translate configuration info into the objects
+    /// needed by the writer.
     template<typename I>
     H5::CompType buildType(const Consumers<I>& fillers) {
-      H5::CompType type(fillers.size() * sizeof(data_buffer_t));
+      H5::CompType type(fillers.size() * sizeof(traits::data_buffer_t));
       size_t dt_offset = 0;
       for (const auto& filler: fillers) {
         type.insertMember(filler->name(), dt_offset, filler->getType());
-        dt_offset += sizeof(data_buffer_t);
+        dt_offset += sizeof(traits::data_buffer_t);
       }
       return type;
     }
     template<typename I>
-    std::vector<data_buffer_t> buildDefault(const Consumers<I>& f) {
-      std::vector<data_buffer_t> def;
+    std::vector<traits::data_buffer_t> buildDefault(const Consumers<I>& f) {
+      std::vector<traits::data_buffer_t> def;
       for (const auto& filler: f) {
         def.push_back(filler->getDefault());
       }
@@ -200,17 +217,15 @@ namespace H5Utils {
 
 
   }
+  /// @}
 
-  // ___________________________________________________________________
-  // Writer Class
-  //
-  // This is the other thing you interact with.
-  //
-  // You'll have to specify the H5::Group to write the dataset to, the
-  // name of the new dataset, and the extent of the dataset.
-  //
-  // To fill, use the `fill` function.
-
+  /** @brief Writer
+   *
+   * You'll have to specify the H5::Group to write the dataset to, the
+   * name of the new dataset, and the extent of the dataset.
+   *
+   * To fill, use the `fill(...)` method.
+   **/
   template <size_t N, typename I>
   class Writer {
   public:
@@ -226,10 +241,10 @@ namespace H5Utils {
     void flush();
     size_t index() const;
   private:
-    const internal::DSParameters m_par;
+    const common::DSParameters m_par;
     hsize_t m_offset;
     hsize_t m_buffer_rows;
-    std::vector<internal::data_buffer_t> m_buffer;
+    std::vector<traits::data_buffer_t> m_buffer;
     Consumers<I> m_consumers;
     H5::DataSet m_ds;
     H5::DataSpace m_file_space;
@@ -246,19 +261,21 @@ namespace H5Utils {
     m_consumers(con),
     m_file_space(H5S_SIMPLE)
   {
-    using namespace internal;
+    using common::packed;
     if (batch_size < 1) {
       throw std::logic_error("batch size must be > 0");
     }
     // create space
-    H5::DataSpace space = getUnlimitedSpace(vec(extent));
+    H5::DataSpace space = common::getUnlimitedSpace(vec(extent));
 
     // create params
-    H5::DSetCreatPropList params = getChunckedDatasetParams(
-      vec(extent), batch_size, m_par.type, buildDefault(con));
+    H5::DSetCreatPropList params = common::getChunckedDatasetParams(
+      vec(extent), batch_size);
+    auto default_value = internal::buildDefault(con);
+    params.setFillValue(m_par.type, default_value.data());
 
     // create ds
-    throwIfExists(name, group);
+    common::throwIfExists(name, group);
     m_ds = group.createDataSet(name, packed(m_par.type), space, params);
     m_file_space = m_ds.getSpace();
     m_file_space.selectNone();
@@ -270,9 +287,9 @@ namespace H5Utils {
     try {
       flush();
     } catch (H5::Exception& err) {
-      internal::printDistructorError(err.getDetailMsg());
+      common::printDistructorError(err.getDetailMsg());
     } catch (std::exception& err) {
-      internal::printDistructorError(err.what());
+      common::printDistructorError(err.what());
     }
   }
 

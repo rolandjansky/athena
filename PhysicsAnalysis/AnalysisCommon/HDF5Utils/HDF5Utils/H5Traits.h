@@ -20,10 +20,10 @@ namespace H5 {
 
 namespace H5Utils {
 
-  /// @brief Internal clssses and code
+  /// @brief clssses to add type traits for H5
   /// @{
 
-  namespace internal {
+  namespace traits {
 
     /** @brief data_buffer_t
      *
@@ -76,6 +76,7 @@ namespace H5Utils {
     };
 
   }
+  /// @}
 }
 
 #endif
