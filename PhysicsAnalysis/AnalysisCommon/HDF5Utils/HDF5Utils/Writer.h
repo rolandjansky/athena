@@ -143,20 +143,22 @@ namespace H5Utils {
   /// @brief internal code for the `Writer` class
   /// @{
   namespace internal {
+    template <size_t N>
+    using DimArray = std::array<hsize_t,N>;
 
     /// Data flattener class: this is used by the writer to read in the
     /// elements one by one and put them in an internal buffer.
-    template <size_t N, typename F, typename T>
+    template <size_t N, typename F, typename T, size_t M = N>
     struct DataFlattener {
       std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
-      DataFlattener(const F& filler, T args, const std::array<size_t,N>& dims):
+      DataFlattener(const F& filler, T args, const DimArray<M>& dims):
         buffer() {
         hsize_t offset = 0;
         for (const auto& arg: args) {
-          const size_t this_dim_max = dims.at(N);
+          const size_t this_dim_max = dims.at(N-1);
           if (offset > this_dim_max) return;
-          DataFlattener<N-1, F, decltype(arg)> in(filler, arg, dims);
+          DataFlattener<N-1, F, decltype(arg), M> in(filler, arg, dims);
           buffer.insert(buffer.end(), in.buffer.begin(), in.buffer.end());
           for (const auto& in_ele: in.element_offsets){
             std::array<hsize_t, N> element_pos;
@@ -168,11 +170,11 @@ namespace H5Utils {
         }
       }
     };
-    template <typename F, typename T>
-    struct DataFlattener<0, F, T> {
+    template <typename F, typename T, size_t M>
+    struct DataFlattener<0, F, T, M> {
       std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, 0> > element_offsets;
-      DataFlattener(const F& f, T args, const std::array<size_t,0>& dims):
+      DataFlattener(const F& f, T args, const DimArray<M>& /*dims*/):
         buffer(),
         element_offsets(1) {
         for (const auto& filler: f) {
@@ -198,17 +200,17 @@ namespace H5Utils {
     template <typename I, size_t N>
     struct DSParameters {
       DSParameters(const Consumers<I>& fillers,
-                   std::array<hsize_t,N> extent,
+                   const std::array<hsize_t,N>& extent,
                    hsize_t batch_size);
       H5::CompType type;
-      std::vector<hsize_t> extent;
+      std::array<hsize_t,N> extent;
       hsize_t batch_size;
     };
 
     // DS parameters
     template <typename I, size_t N>
     DSParameters<I,N>::DSParameters(const Consumers<I>& consumers,
-                                    std::array<hsize_t,N> extent_,
+                                    const std::array<hsize_t,N>& extent_,
                                     hsize_t batch_size_):
       type(buildType(consumers)),
       extent(extent_),
@@ -228,14 +230,14 @@ namespace H5Utils {
 
     // some internal functions take a vector, others take arrays
     template <size_t N>
-    std::vector<hsize_t> vec(std::array<size_t,N> a) {
+    std::vector<hsize_t> vec(std::array<hsize_t,N> a) {
       return std::vector<hsize_t>(a.begin(),a.end());
     }
 
     // default initalizer for writers where the extent isn't specified
-    template <size_t N>
-    std::array<size_t, N> uniform(size_t val) {
-      std::array<size_t, N> ar;
+    template <hsize_t N>
+    std::array<hsize_t, N> uniform(size_t val) {
+      std::array<hsize_t, N> ar;
       ar.fill(val);
       return ar;
     }
@@ -256,7 +258,7 @@ namespace H5Utils {
   public:
     Writer(H5::Group& group, const std::string& name,
            const Consumers<I>& consumers,
-           const std::array<size_t, N>& extent = internal::uniform<N>(5),
+           const std::array<hsize_t, N>& extent = internal::uniform<N>(5),
            hsize_t chunk_size = 2048);
     Writer(const Writer&) = delete;
     Writer& operator=(Writer&) = delete;
@@ -278,7 +280,7 @@ namespace H5Utils {
   template <size_t N, typename I>
   Writer<N, I>::Writer(H5::Group& group, const std::string& name,
                        const Consumers<I>& consumers,
-                       const std::array<size_t,N>& extent,
+                       const std::array<hsize_t,N>& extent,
                        hsize_t batch_size):
     m_par(consumers, extent, batch_size),
     m_offset(0),
@@ -291,11 +293,11 @@ namespace H5Utils {
       throw std::logic_error("batch size must be > 0");
     }
     // create space
-    H5::DataSpace space = common::getUnlimitedSpace(vec(extent));
+    H5::DataSpace space = common::getUnlimitedSpace(internal::vec(extent));
 
     // create params
     H5::DSetCreatPropList params = common::getChunckedDatasetParams(
-      vec(extent), batch_size);
+      internal::vec(extent), batch_size);
     auto default_value = internal::buildDefault(consumers);
     params.setFillValue(m_par.type, default_value.data());
 
