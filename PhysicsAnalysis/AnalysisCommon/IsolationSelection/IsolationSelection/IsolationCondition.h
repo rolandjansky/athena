@@ -34,7 +34,7 @@ namespace CP {
            
             IsolationCondition(const IsolationCondition& rhs) = delete;
             IsolationCondition& operator=(const IsolationCondition& rhs) = delete;
-            ~IsolationCondition();
+            virtual ~IsolationCondition();
          
             std::string name() const;
             
