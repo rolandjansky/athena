@@ -21,8 +21,6 @@
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
-
 #include "MuonPrepRawData/MdtTwinPrepData.h"    // TWIN TUBES
 
 using namespace MuonGM;
@@ -82,11 +80,6 @@ Muon::MdtRdoToPrepDataTool::~MdtRdoToPrepDataTool()
 
 StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 {  
-  if (StatusCode::SUCCESS != serviceLocator()->service("MuonMDT_CablingSvc", m_mdtCabling)) {
-    ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
-    return StatusCode::FAILURE;
-  }
-  
   if(detStore()->retrieve( m_muonMgr ).isFailure()) {
     ATH_MSG_FATAL(" Cannot retrieve MuonDetectorManager ");
     return StatusCode::FAILURE;
@@ -167,23 +160,13 @@ StatusCode Muon::MdtRdoToPrepDataTool::finalize()
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {    
-  const std::vector<IdentifierHash>& chamberHashInRobs = m_mdtCabling->getChamberHashVec(robIds);
-  std::cout<<"ckato old robIds.size()="<<robIds.size()<<" chamberHashInRobs.size()="<<chamberHashInRobs.size()<<std::endl;
-  if ( robIds.size()!=0 && chamberHashInRobs.size()!=0 ) {
-    std::cout<<"ckato old robIds[0]="<<robIds[0]<<" chamberHashInRobs[0]="<<chamberHashInRobs[0]<<std::endl;
-  }
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
   if(readCdo==0){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  const std::vector<IdentifierHash>& chamberHashInRobs2 = readCdo->getChamberHashVec(robIds);
-
-  std::cout<<"ckato new robIds.size()="<<robIds.size()<<" chamberHashInRobs2.size()="<<chamberHashInRobs2.size()<<std::endl;
-  if ( robIds.size()!=0 && chamberHashInRobs2.size()!=0 ) {
-    std::cout<<"ckato new robIds[0]="<<robIds[0]<<" chamberHashInRobs2[0]="<<chamberHashInRobs2[0]<<std::endl;
-  }
+  const std::vector<IdentifierHash>& chamberHashInRobs = readCdo->getChamberHashVec(robIds);
   return decode(chamberHashInRobs);
 }
 

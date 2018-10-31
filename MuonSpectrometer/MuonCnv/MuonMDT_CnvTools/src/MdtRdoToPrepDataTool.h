@@ -27,10 +27,8 @@ class Identifier;
 class MdtIdHelper;
 class MdtDigit;
 class MdtCalibrationSvc;
-class MuonMDT_CablingSvc;
 class MdtCalibrationSvcSettings;
 class MdtCalibHit;
-//class MuonMDT_CablingSvc;
 //class MdtRDO_Decoder;
 class MdtCsm;
 class StoreGateSvc;
@@ -145,9 +143,6 @@ namespace Muon
     ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder;
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
     
-    //retreive the cabling svc
-    MuonMDT_CablingSvc* m_mdtCabling;
-
     //keepTrackOfFullEventDecoding
     bool m_fullEventDone;
 
