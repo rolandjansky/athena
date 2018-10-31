@@ -46,6 +46,7 @@ pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from Digitization.DigitizationFlags import digitizationFlags
 #from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
 
 ## Max/skip events
@@ -396,6 +397,7 @@ if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
         fast_chain_log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
+        digitizationFlags.dataRunNumber=runArgs.DataRunNumber
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
         fast_chain_log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
@@ -1050,11 +1052,6 @@ else:
 #--------------------------------------------------------------
 # Go for it
 #--------------------------------------------------------------
-if hasattr(runArgs,"DataRunNumber"):
-    if runArgs.DataRunNumber>0:
-        fast_chain_log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
-        digitizationFlags.dataRunNumber=runArgs.DataRunNumber
-
 print "lvl1: -14... " + str(DetFlags.digitize.LVL1_on())
 
 
