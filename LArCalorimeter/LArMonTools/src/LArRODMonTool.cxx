@@ -33,6 +33,8 @@
 
 #include "LArRawEvent/LArFebHeader.h" 
 
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
@@ -58,9 +60,7 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
     m_eventsCounter(0),
     m_histos(N_PARTITIONS),
     m_errcounters(N_PARTITIONS),
-    m_adc2mevtool("LArADC2MeVToolDefault"),
     m_calo_noise_tool("CaloNoiseTool/CaloNoiseToolDefault"),
-    m_cable_service_tool ( "LArCablingService" ),
     m_BC(0),
     m_dumpDigits(false)
 
@@ -77,7 +77,6 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   declareProperty("DumpCellsFileName",m_DumpCellsFileName = "dumpCells.txt");
   declareProperty("DoDspTestDump",m_doDspTestDump = false);
   declareProperty("DoCellsDump",m_doCellsDump = false);
-  declareProperty("ADC2MeVTool",m_adc2mevtool);
   declareProperty("LArPedestalKey",m_larpedestalkey = "LArPedestal");
   declareProperty("DoCheckSum",m_doCheckSum = true);
   declareProperty("DoRodStatus",m_doRodStatus = true);
@@ -207,23 +206,17 @@ LArRODMonTool::initialize() {
       ATH_MSG_FATAL( "Cannot register DataHandle for HVScaleCorr object with key LArHVScaleCorr" ); 
       return sc;
     }
-    // ADC2MeV Tool
-    sc = m_adc2mevtool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to find tool for LArADC2MeV" );
-      return StatusCode::FAILURE;
-    }
+
+    ATH_CHECK(m_adc2mevKey.initialize());
 
     sc = m_calo_noise_tool.retrieve();
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Unable to find calo noise tool" );
       return StatusCode::FAILURE;
     }
-    sc = m_cable_service_tool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to find cabling service tool" );
-      return StatusCode::FAILURE;
-    }
+
+    ATH_CHECK(m_cablingKey.initialize());
+
     sc = detStore()->retrieve(m_calo_description_mgr);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Unable to find CeloDetDescrManager " );
@@ -1072,6 +1065,15 @@ void LArRODMonTool::closeDumpfiles() {
 
 StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig) {
   ATH_MSG_DEBUG( " I am entering compareChannels method" );
+
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+
+  SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey};
+  const LArADC2MeV* adc2mev=*adc2MeVHdl;
+
+
   const int slot_fD = m_LArOnlineIDHelper->slot(chid);
   const  int feedthrough_fD = m_LArOnlineIDHelper->feedthrough(chid);
   const float timeOffline = rcDig.time()/m_unit_offline - m_timeOffset*m_BC;
@@ -1257,13 +1259,13 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
          os << "ShapeDer : ";
          for (unsigned int k = 0; k<this_ShapeDer_test.size(); ++k) {os << this_ShapeDer_test.at(k) << " ";}
          ATH_MSG_INFO( os.str() );
-         const std::vector<float>& ramp=m_adc2mevtool->ADC2MEV(chid,rcDig.gain());
+         const std::vector<float>& ramp=adc2mev->ADC2MEV(chid,rcDig.gain());
          const float escale = ramp[1];
          float ramp0 = ramp[0];
          if (q_gain == 0) ramp0 = 0.; // no ramp intercepts in HG
          const float ped = m_larpedestal->pedestal(chid,rcDig.gain());
          ATH_MSG_INFO( "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() );
-         const Identifier cellid=m_cable_service_tool->cnvToIdentifier(chid);
+         const Identifier cellid=cabling->cnvToIdentifier(chid);
          const CaloDetDescrElement* cellDDE = m_calo_description_mgr->get_element(cellid); 
          const float noise=m_calo_noise_tool->totalNoiseRMS(cellDDE,rcDig.gain(),20.);
          ATH_MSG_INFO( "Noise for mu=20: "<<noise);
@@ -1377,7 +1379,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
 	ILArOFC::OFCRef_t this_OFC_b_test = m_dd_ofc->OFC_b(chid,q_gain,delayIdx_test);
 	ILArShape::ShapeRef_t this_OFC_h_test = m_dd_shape->Shape(chid,q_gain,delayIdx_test);
 	ILArShape::ShapeRef_t this_OFC_d_test = m_dd_shape->ShapeDer(chid,q_gain,delayIdx_test);	
-	const std::vector<float>& ramp=m_adc2mevtool->ADC2MEV(chid,q_gain);
+	const std::vector<float>& ramp=adc2mev->ADC2MEV(chid,q_gain);
 	const std::vector<short>& samples=dig->samples();
 	const float escale = ramp[1];
 	float ramp0 = ramp[0];
