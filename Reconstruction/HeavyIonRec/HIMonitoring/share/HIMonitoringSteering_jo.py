@@ -1,12 +1,28 @@
+from RecExConfig.RecFlags import rec
+
 ## Event Shape 
 from HIMonitoring.HIMonitoringConf import HIMonitoringEventShapeTool
 
-HIEventShapeMonTool = HIMonitoringEventShapeTool (
-name = "HIEventShapeMonTool",
-EnableLumi = False,
-ZDCmon = True,
-ESmon = True,
-)
+if rec.doHeavyIon():
+    HIEventShapeMonTool = HIMonitoringEventShapeTool (
+		    name = "HIEventShapeMonTool",
+		    EnableLumi = False,
+		    ZDCmon = True,
+		    ESmon = True,
+		    FCalEt_nbins = 120, 
+		    lowFCalEt = -0.2,
+		    highFCalEt = 5.8)
+ 
+if rec.doHIP():	
+    HIEventShapeMonTool = HIMonitoringEventShapeTool (
+		    name = "HIEventShapeMonTool",
+		    EnableLumi = False,
+		    ZDCmon = True,
+		    ESmon = True,
+		    FCalEt_nbins = 96,
+		    lowFCalEt = -0.16,
+		    highFCalEt = 0.8)
+
 
 #HIEventShapeMonTool.TriggerChain = "HLT_noalg_mb_L1ZDC_A_C,HLT_noalg_mb_L1MBTS_1_1,HLT_noalg_mb_L1TE5"
 #if DQMonFlags.useTrigger():
@@ -14,9 +30,23 @@ ESmon = True,
 
 ## Photons 
 from HIMonitoring.HIMonitoringConf import HIMonitoringPhotonsTool
-HIPhotonsMonTool = HIMonitoringPhotonsTool (
-name           = "HIPhotonsMonTool",
-)
+if rec.doHeavyIon():
+    HIPhotonsMonTool = HIMonitoringPhotonsTool (
+		    name           = "HIPhotonsMonTool",
+		    FCalEt_nbins = 120,
+		    lowFCalEt = -0.2,
+		    highFCalEt = 5.8,
+		    FCalEt_peripheral = 100.0,
+		    FCalEt_central = 2000.0)
+
+if rec.doHIP():
+    HIPhotonsMonTool = HIMonitoringPhotonsTool (
+		    name           = "HIPhotonsMonTool",
+		    FCalEt_nbins = 96,
+		    lowFCalEt = -0.16,   
+		    highFCalEt = 0.8,
+		    FCalEt_peripheral = 20.0,
+		    FCalEt_central = 50.0)
 
 #HIPhotonsMonTool.TriggerChain = "HLT_g15_loose"
 #if DQMonFlags.useTrigger():
@@ -25,8 +55,8 @@ name           = "HIPhotonsMonTool",
 ## Muons 
 from HIMonitoring.HIMonitoringConf import HIMonitoringMuonsTool
 HIMuonsMonTool = HIMonitoringMuonsTool (
-name           = "HIMuonsMonTool",
-)
+		name           = "HIMuonsMonTool",)
+		
 
 #HIMuonsMonTool.TriggerChain = "HLT_mu4,HLT_mu10,HLT_mu14"
 #if DQMonFlags.useTrigger():
@@ -44,9 +74,27 @@ name           = "HIZdcMonTool",
 
 ## Electrons  
 from HIMonitoring.HIMonitoringConf import HIMonitoringElectronsTool
-HIElectronsMonTool = HIMonitoringElectronsTool (
-name           = "HIElectronsMonTool",
-)
+
+if rec.doHeavyIon():
+    HIElectronsMonTool = HIMonitoringElectronsTool (
+		    name           = "HIElectronsMonTool",
+		    FCalEt_nbins = 120,
+		    lowFCalEt = -0.2,
+		    highFCalEt = 5.8, 
+		    FCalEt_nbins_oneSide = 60,
+		    lowFCalEt_oneSide = -0.1,
+		    highFCalEt_oneSide = 3.9)
+
+if rec.doHIP():
+    HIElectronsMonTool = HIMonitoringElectronsTool (
+		    name           = "HIElectronsMonTool",
+		    FCalEt_nbins = 96,
+		    lowFCalEt = -0.16,
+		    highFCalEt = 0.8,
+		    FCalEt_nbins_oneSide = 48,
+		    lowFCalEt_oneSide = -0.08,
+		    highFCalEt_oneSide = 0.4)
+
                                       
 #HIElectronsMonTool.TriggerChain = "HLT_e15_etcut_ion,HLT_e15_loose_ion,HLT_e15_medium_ion"
 #if DQMonFlags.useTrigger():

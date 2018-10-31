@@ -23,13 +23,16 @@ const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )
 	m_FCalEt_A=0;
 	m_FCalEt_C=0;
 
-	m_FCalEt_nbins=95;
-	m_low_FCalEt=-0.15;
-	m_high_FCalEt=0.8;
+        declareProperty( "FCalEt_nbins", m_FCalEt_nbins=96);
+	declareProperty( "lowFCalEt", m_low_FCalEt=-0.16);
+	declareProperty( "highFCalEt", m_high_FCalEt=0.8);
 
-	m_FCalEt_oneSide_nbins=50;
-	m_low_FCalEt_oneSide=-0.1;
-	m_high_FCalEt_oneSide=0.4;
+	declareProperty("FCalEt_nbins_oneSide", m_FCalEt_oneSide_nbins);
+	declareProperty("lowFCalEt_oneSide", m_low_FCalEt_oneSide);
+	declareProperty("highFCalEt_oneSide",m_high_FCalEt_oneSide);
+	m_FCalEt_oneSide_nbins=m_FCalEt_nbins/2;
+	m_low_FCalEt_oneSide=m_low_FCalEt/2.0;
+	m_high_FCalEt_oneSide=m_high_FCalEt/2.0;
 
 	m_eta_nbins = 60;
 	m_low_eta = -3.0;
@@ -89,19 +92,19 @@ const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )
 
 	//LH-based selection tools
 	m_electronLooseLHTool = new AsgElectronLikelihoodTool ( "ElectronLooseLHTool" );
-	m_electronLooseLHTool->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf");
+	m_electronLooseLHTool->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf");
 	if (!m_electronLooseLHTool->initialize().isSuccess()) {
 	  Fatal("MyFunction", "Failed to initialize ElectronLooseLHTool ");
 	}
 
 	m_electronMediumLHTool = new AsgElectronLikelihoodTool ( "ElectronMediumLHTool" );
-	m_electronMediumLHTool->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf");
+	m_electronMediumLHTool->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf");
 	if (!m_electronMediumLHTool->initialize().isSuccess()) {
 	  Fatal("MyFunction", "Failed to initialize ElectronMediumLHTool ");
 	}
 
 	m_electronTightLHTool = new AsgElectronLikelihoodTool ( "ElectronTightLHTool" );
-	m_electronTightLHTool->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf");
+	m_electronTightLHTool->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf");
 	if (!m_electronTightLHTool->initialize().isSuccess()) {
 	  Fatal("MyFunction", "Failed to initialize ElectronTightLHTool ");
 	}
