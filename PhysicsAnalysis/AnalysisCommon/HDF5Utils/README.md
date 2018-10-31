@@ -1,5 +1,12 @@
-Root to HDF5 Tree Converter
-===========================
+HDF5 Utilities
+==============
+
+This package contains several tools, both to convert (simple) ROOT
+files to HDF5 and to simplify writing HDF5 directly from jobs.
+
+
+Root to HDF5 Converter
+----------------------
 
 Run `bin/ttree2hdf5` to convert your root tree to an HDF5 file.
 
@@ -15,8 +22,7 @@ this package is _not_ to provide a generic converter from ROOT to
 HDF5, but rather to convert simple ROOT files to a more widely
 supported data format.
 
-Output Format
--------------
+### Output Format ###
 
 You can specify the maximum dimensions of the HDF5 array with
 
@@ -26,9 +32,88 @@ ttree2hdf5 <root-file> -o <output-file> -l [dims..]
 
 where the `[dims..]` argument can have up to two integers.
 
-You can also filter branches with the `--branch-regex` option.
+You can also filter branches with the `--branch-regex` option, or
+apply a selection (via TCuts) with `--selection`.
 
 For more options check `ttree2hdf5 -h`.
+
+
+Writing Directly From Jobs
+--------------------------
+
+This package provides a wrapper on the HDF5 C++ bindings to simplify
+dumping data. To dump some jet information, for example, first set up
+the output file:
+
+```C++
+H5::H5File file("name.h5", H5F_ACC_TRUNC);
+```
+
+Next we need to set up a list of "consumers" which will translate
+your objects into the output data:
+
+```C++
+H5Utils::Consumers<const xAOD::Jet*> cons;
+cons.add("pt", [](const xAOD::Jet* j){ return j->pt();}, NAN);
+cons.add("index", [](const xAOD::Jet* j){ return j->index();}, -1);
+```
+
+The `add(...)` method has signature
+
+```C++
+Consumers<C>::add(string name, function<S(C)>, string default_value);
+```
+
+where `C` is the type to be consumed (i.e. `xAOD::Jet`) and `S` is the
+type which will be stored in the output file. In general the type of
+`S` can be inferred from the function (we currently support most types
+of `float` and `int`, plus `bool`). The `default_value` will be
+explained below.
+
+Next you need to set up the writer itself:
+
+```C++
+H5Utils::Writer<1,const xAOD::Jet*> writer(file, "jets", cons, {{5}});
+```
+
+The writer has a signature
+
+```C++
+Writer<N,C>::Writer(Group& group, string ds_name , Consumers, Array shape);
+```
+
+where `N` 1 in the case above because we want to write out a rank 1
+block in each event (5 jet). In general this can be any rank (think
+images, or tracks associated to jets) and the rank of the output
+dataset will be `N` + 1, since one row is added per event. The `Group`
+can be an `H5File` or a subgroup.
+
+The last argument is the `shape` array, which must be of rank
+`N`. HDF5 datasets are n-dimensional, but the shape must be a
+hypercube. In the case above, we're going to create a M x N block,
+where M is the number of entries. In cases where we have more than N
+jets, this means we'll have to truncate them, whereas in cases where
+we have fewer than N we'll pad the output dataset with
+`default_value`.
+
+Finally, we have to fill the dataset, which we'll do in your event
+loop:
+
+```C++
+const xAOD::JetContainer *jets = 0;
+event.retrieve(jets, "AntiKtWhoCaresJets");
+writer.fill(*jets);
+```
+
+That's all! Note that `fill` expects a rank 1 array here, meaning that
+any standard type (`vector`, `map`, `list`, etc) will work. If you
+want to set `N` larger than 1, you'll have to pass in nested arrays of
+the form `vector<vector<T> >`.
+
+To be safe, you should probably call `writer.flush()` to
+ensure that all jets are written before exiting the job, but this will
+also be handled by the destructor.
+
 
 Hacking This Code
 =================
