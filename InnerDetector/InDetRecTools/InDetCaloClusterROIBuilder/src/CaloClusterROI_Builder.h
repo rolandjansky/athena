@@ -6,6 +6,7 @@
 #define CALOCLUSTERROI_BUILDER_H
 
 #include "InDetRecToolInterfaces/ICaloClusterROI_Builder.h"
+#include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -17,8 +18,6 @@ namespace Trk{
   class Surface;
   class LocalParameters;
 }
-
-class ICaloSurfaceBuilder;
 
 namespace InDet{
 
@@ -48,7 +47,13 @@ class CaloClusterROI_Builder : public AthAlgTool, virtual public ICaloClusterROI
   bool   findPosition(const xAOD::CaloCluster* cluster) const;
   
   /** @brief Tool to build calorimeter layer surfaces */
-  ToolHandle<ICaloSurfaceBuilder>  m_calosurf;
+  ToolHandle<ICaloSurfaceBuilder>  m_calosurf {this,
+      "CaloSurfaceBuilder", "CaloSurfaceBuilder",
+      "Tool to build calorimeter layer surfaces"};
+
+  Gaudi::Property<bool> m_EMEnergyOnly {this,
+      "EMEnergyOnly", false, 
+      "Only use EM energy as the ROI energy"};
   
 };
 
