@@ -67,7 +67,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
-    , m_calibArea("CalibArea-05")
+    , m_calibArea("CalibArea-06")
     , m_path("")
     , m_analysisFile("")
     , m_analysisHistPattern("")
@@ -2402,7 +2402,12 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
     m_rand.SetSeed(seed);
 
     // Calculate and return the smearing factor
-    return m_rand.Gaus(1.,sigmaSmear);
+    // Force this to be a positive value
+    // Negative values should be extraordinarily rare, but they do exist
+    double smearingFactor = -1;
+    while (smearingFactor < 0)
+        smearingFactor = m_rand.Gaus(1.,sigmaSmear);
+    return smearingFactor;
 }
 
 

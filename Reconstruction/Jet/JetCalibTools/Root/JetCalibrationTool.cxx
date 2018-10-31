@@ -33,7 +33,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "EventInfoName", m_eInfoName = "EventInfo");
   declareProperty( "DEVmode", m_devMode = false);
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
-  declareProperty( "CalibArea", m_calibAreaTag = "00-04-81");
+  declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
 
 }
 
