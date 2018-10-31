@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigGSCFexMT
-from TrigBjetHypo.TrigBjetHypoConf import TrigGSCFexMT_ALLTE
 #from TrigBjetHypo.TrigGSCFexTuning import *
 
 from AthenaCommon.Logging import logging
@@ -26,9 +25,6 @@ def getGSCFexInstance( theName, instance, version, algo ):
 
 def getGSCFexSplitInstance( theName,instance, version, algo):
     return GSCFexSplit( instance=instance, version=version, algo=algo, name=theName )
-
-def getGSCFexSplitInstance_ALLTE( theName,instance, version, algo):
-    return GSCFexSplit_ALLTE( instance=instance, version=version, algo=algo, name=theName )
 
 
 class GSCFex (TrigGSCFexMT):
@@ -124,59 +120,4 @@ class GSCFexSplit (TrigGSCFexMT):
                 #   CalibSequence="JetArea_EtaJES_GSC",
                 #   JetCollection="AntiKt4EMTopo")
 
-
-class GSCFexSplit_ALLTE (TrigGSCFexMT_ALLTE):
-    __slots__ = []
-    
-    def __init__(self, instance, version, algo, name):
-        super( GSCFexSplit_ALLTE, self ).__init__( name )
-        
-        mlog = logging.getLogger('BtagHypoConfig.py')
-        
-        AllowedInstances = ["EF", "MuJetChain"]
-        AllowedVersions  = ["2012"]
-        AllowedAlgos     = ["EFID"]
-        
-        if instance not in AllowedInstances :
-            mlog.error("Instance "+instance+" is not supported!")
-            return None
-        
-        if version not in AllowedVersions :
-            mlog.error("Version "+version+" is not supported!")
-            return None
-
-        self.JetKey = "SplitJet"
-        if instance=="MuJetChain" :
-            self.JetKey = "FarawayJet"
-            instance = "EF"
-        
-        self.PriVtxKey = "xPrimVx" #"EFHistoPrmVtx"
-        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
-        
-        # IMPORT OFFLINE TOOLS
-        self.setupOfflineTools = True
-        if self.setupOfflineTools :
-            if JetConfigSetupStatus == None :
-                self.setupOfflineTools = False
-            else :
-                #self.GSCCalibrationTool = jrcf.find("AntiKt", 0.4, "EMTopo", "ajg", "reco", "Kt4")
-                #print self.GSCCalibrationTool
-                myGSCTool = JetCalibrationTool("myJCTool_trigger", 
-                                               JetCollection="AntiKt4EMTopo", 
-                                               ConfigFile="JES_data2016_data2015_Recommendation_Dec2016_rel21.config", 
-                                               CalibSequence="JetArea_EtaJES_GSC_Insitu",
-                                               RhoKey="HLTKt4EMTopoEventShape",
-                                               IsData=True,
-                                               #DoTrigger = True
-                                               )
-                from AthenaCommon.AppMgr import ToolSvc
-                ToolSvc += myGSCTool
-                self.JetGSCCalibrationTool = myGSCTool
-                print "Printing GSCCalibrationTool"
-                print self.JetGSCCalibrationTool
-                #JetCalibrationTool("myJCTool_trigger",
-                #   IsData=True,
-                #   ConfigFile="JES_2015dataset_recommendation_Feb2016.config",
-                #   CalibSequence="JetArea_EtaJES_GSC",
-                #   JetCollection="AntiKt4EMTopo")
 

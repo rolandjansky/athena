@@ -176,8 +176,8 @@ def bJetStep2SequenceALLTE():
     InputMakerAlg.Output = "SplitJets"
     
     # gsc correction
-    from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance_ALLTE
-    theGSC = getGSCFexSplitInstance_ALLTE("GSCFexSplitInstance_ALLTE","EF","2012","EFID")
+    from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
+    theGSC = getGSCFexSplitInstance("GSCFexSplitInstance_ALLTE","EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
     theGSC.JetKey = "SplitJets"
     theGSC.JetOutputKey = "GSCJets"

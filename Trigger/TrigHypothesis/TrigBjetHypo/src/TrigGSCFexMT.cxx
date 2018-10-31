@@ -76,22 +76,11 @@ StatusCode TrigGSCFexMT::initialize() {
 StatusCode TrigGSCFexMT::execute() {
   ATH_MSG_DEBUG( "Executing TrigGSCFexMT" );
 
+  const EventContext& ctx = getContext();
+
   // ==============================================================================================================================
   //    ** Retrieve Ingredients
   // ==============================================================================================================================
-
-  const EventContext& ctx = getContext();
-
-  // RoIs
-  ATH_MSG_DEBUG( "Ready to retrieve rois : " << m_roiContainerKey.key() );
-  auto roiContainerHandle = SG::makeHandle( m_roiContainerKey,ctx );
-  CHECK( roiContainerHandle.isValid() );
-
-  auto roiContainer = roiContainerHandle.get();
-  ATH_MSG_DEBUG( "Retrieved " << roiContainer->size() <<" input RoIs" );
-  for ( auto el : *roiContainer ) {
-    ATH_MSG_DEBUG( "   ** RoI : eta=" << el->eta() <<" phi=" << el->phi() );
-  }
 
   // Jets
   ATH_MSG_DEBUG( "Ready to retrieve jets : " << m_JetContainerKey.key() );
