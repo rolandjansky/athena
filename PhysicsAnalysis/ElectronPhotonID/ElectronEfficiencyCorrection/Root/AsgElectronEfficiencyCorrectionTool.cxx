@@ -177,7 +177,6 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     }
     else if(m_correlation_model_name == "SIMPLIFIED"){
       m_correlation_model= correlationModel::SIMPLIFIED;
-      
       // a few checks on the binning that the user might have specified
       if ( m_uncorrSimplfEtaBinsUser.empty() ||
 	   m_uncorrSimplfEtBinsUser.empty()  ||
@@ -186,11 +185,6 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
 	ATH_MSG_ERROR("Something went wrong when specifying bins for the SIMPLIFIED correlation model ");
 	return StatusCode::FAILURE;
       }
-      m_uncorrSimplfEtaBinsUser.front()  = 0.; // protection for removing bins by the user
-      m_uncorrSimplfEtaBinsUser.back()   = 4.5;
-      m_uncorrSimplfEtBinsUser .front()  = 4000.;
-      m_uncorrSimplfEtBinsUser .back()   = 13000000.;
-
     }
     else if(m_correlation_model_name == "TOTAL"){
         m_correlation_model= correlationModel::TOTAL;
@@ -409,7 +403,9 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     else if (m_correlation_model == correlationModel::SIMPLIFIED) {
 
         int currentSimplifiedUncorrSystReg = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-
+	if ( currentSimplifiedUncorrSystReg < 0 ) {
+	  return CP::CorrectionCode::OutOfValidityRange;
+	}
         if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                         m_correlation_model_name + "_" +
                         Form("UncorrUncertaintyNP%d",
@@ -691,7 +687,15 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
 
 int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const {
     int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
+    if ( ptbin < 0  || ptbin  >= m_UncorrRegions->GetXaxis()->GetNbins() ) {
+      ATH_MSG_WARNING( " Found electron with Et = " << et/1000. << " GeV, where you specified a boundary of " << m_UncorrRegions->GetXaxis()->GetBinLowEdge(1) << " for the SIMPLIFIED correlation model " );
+      return -1;
+    }
     int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
+    if ( etabin < 0 || etabin >= m_UncorrRegions->GetYaxis()->GetNbins() ) {
+      ATH_MSG_WARNING( " Found electron with |eta| = " << fabs(cluster_eta) << ", where you specified a boundary of " << m_UncorrRegions->GetYaxis()->GetBinLowEdge(1) << " for the SIMPLIFIED correlation model " );
+      return -1;
+    }
     int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
     return reg;
 }
