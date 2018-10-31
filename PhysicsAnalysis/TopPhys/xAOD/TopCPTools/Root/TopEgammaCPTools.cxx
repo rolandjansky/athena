@@ -320,10 +320,6 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
       top::check(asg::setProperty(tool, "ForceDataType", data_type), "Failed to set ForceDataType to " + name);
       // Set the correlation model for all tools
       top::check(asg::setProperty(tool, "CorrelationModel", "TOTAL"), "Failed to set CorrelationModel to " + name);
-      // Before settings the keys, we need to take into account FixedCutHighPtCaloOnly does not have any trigger isolation scale factors
-      if(trigger_key != "" && trigger_key != "None" && iso_key == "FixedCutHighPtCaloOnly"){
-	iso_key = ""; // Remove isolation from trigger key configuration (only valid with triggers which are not isolation dependent)
-      }
       // Set the keys which configure the tool options (empty string means we do not include this key)
       if(reco_key != "" && reco_key != "None"){
 	ATH_MSG_INFO(" Adding RecoKey    : " + reco_key);
