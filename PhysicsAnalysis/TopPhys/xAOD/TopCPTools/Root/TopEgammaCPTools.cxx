@@ -338,6 +338,13 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
 	ATH_MSG_INFO(" Adding TriggerKey : " + trigger_key);
         top::check(asg::setProperty(tool, "TriggerKey", trigger_key), "Failed to set TriggerKey to " + name);
       }
+      // temporary fix because trigger SFs haven't been updated yet
+      // see ANALYSISTO-688
+      if(trigger_key !="" && trigger_key != "None" && iso_key.find("FC") != std::string::npos) {
+	// in this case we replace "FC" by "FixedCutTight", following the old naming convention
+	iso_key = iso_key.replace(iso_key.find("FC"),2,"FixedCut");
+	top::check(asg::setProperty(tool, "IsoKey", iso_key), "Failed to set IsoKey to " + name);
+      }
       // Initialise this tool
       top::check(tool->initialize(), "Failed to initialize " + name);
   }

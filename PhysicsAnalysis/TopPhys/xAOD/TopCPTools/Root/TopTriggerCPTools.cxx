@@ -164,8 +164,15 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	  top::check(t->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)), "Failed to set TriggerKey");
 	  if (electronID != "None")
 	    top::check(t->setProperty("IdKey", electronID), "Failed to set IdKey");
-	  if (electronIsolation != "None")
+	  if (electronIsolation != "None"){
+	    // temporary fix because trigger SFs haven't been updated yet
+	    // see ANALYSISTO-688
+	    if(electronIsolation.find("FC") != std::string::npos) {
+	      // in this case we replace "FC" by "FixedCutTight", following the old naming convention
+	      electronIsolation = electronIsolation.replace(electronIsolation.find("FC"),2,"FixedCut");
+	    }
 	    top::check(t->setProperty("IsoKey", electronIsolation), "Failed to set IsoKey");
+	  }
 	  top::check(t->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
 	  top::check(t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
 	  top::check(t->setProperty("OutputLevel", MSG::INFO), "Failed to set OutputLevel");
@@ -199,8 +206,15 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	  top::check(tLoose->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)),"Failed to set TriggerKey");
 	  if (electronIDLoose != "None")
 	    top::check(tLoose->setProperty("IdKey", electronIDLoose),"Failed to set IdKey");
-	  if (electronIsolationLoose != "None")
+	  if (electronIsolationLoose != "None"){
+	    // temporary fix because trigger SFs haven't been updated yet
+	    // see ANALYSISTO-688
+	    if(electronIsolationLoose.find("FC") != std::string::npos) {
+	      // in this case we replace "FC" by "FixedCutTight", following the old naming convention
+	      electronIsolationLoose = electronIsolationLoose.replace(electronIsolationLoose.find("FC"),2,"FixedCut");
+	    }
 	    top::check(tLoose->setProperty("IsoKey", electronIsolationLoose),"Failed to set IsoKey");
+	  }
 	  top::check(tLoose->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
 	  top::check(tLoose->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
 	  top::check(tLoose->setProperty("OutputLevel", MSG::INFO), "Failed to set OutputLevel");
