@@ -102,8 +102,8 @@ def main():
   runs = good_runs
 
   if(len(runs)==0):
-     print "FATAL: no run found"
-     exit(1)
+     print " FATAL : no run found"
+    
   else:
      last_run_files = get_file_list(runs[-1] + "/*/")
      subset = []
