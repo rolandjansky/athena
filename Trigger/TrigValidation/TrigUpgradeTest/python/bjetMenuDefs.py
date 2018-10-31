@@ -136,7 +136,7 @@ def bJetStep2Sequence():
 
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
-    theGSC = getGSCFexSplitInstance("EF","2012","EFID")
+    theGSC = getGSCFexSplitInstance("GSCFexSplitInstance","EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
     theGSC.RoIs = InputMakerAlg.InViewRoIs
     theGSC.JetKey = InputMakerAlg.InViewJets
@@ -174,7 +174,7 @@ def bJetStep2SequenceALLTE():
     
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
-    theGSC = getGSCFexSplitInstance("EF","2012","EFID")
+    theGSC = getGSCFexSplitInstance("GSCFexSplitInstance_ALLTE","EF","2012","EFID")
     theGSC.OutputLevel = DEBUG
     theGSC.JetKey = "SplitJets"
     theGSC.JetOutputKey = "GSCJets"

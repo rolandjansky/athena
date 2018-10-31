@@ -19,12 +19,12 @@ JetConfigSetupStatus = True
 # johns hack
 from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
 
-def getGSCFexInstance( instance, version, algo ):
+def getGSCFexInstance( theName, instance, version, algo ):
     if instance=="EF" :
-        return GSCFex( instance=instance, version=version, algo=algo, name="EFGSCFex_"+algo )
+        return GSCFex( instance=instance, version=version, algo=algo, name=theName )
 
-def getGSCFexSplitInstance( instance, version, algo):
-    return GSCFexSplit( instance=instance, version=version, algo=algo, name=instance+"GSCFexSplit_"+algo )
+def getGSCFexSplitInstance( theName,instance, version, algo):
+    return GSCFexSplit( instance=instance, version=version, algo=algo, name=theName )
 
 
 class GSCFex (TrigGSCFexMT):
