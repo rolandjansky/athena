@@ -26,6 +26,9 @@
 // DeltaR calculation
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "TRandom3.h"
+#include <TLorentzVector.h>
+
 namespace met {
 
   using namespace xAOD;
@@ -223,6 +226,98 @@ namespace met {
     		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       pfolist.push_back(bestbadmatch);
     }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  // extractPFO for W precision-type measurements
+  StatusCode METEgammaAssociator::extractPFOHR(const xAOD::IParticle* obj,
+                                              std::vector<const xAOD::IParticle*> hardObjs,
+                                              std::vector<const xAOD::IParticle*>& pfolist,
+                                              const met::METAssociator::ConstitHolder& constits,
+                                              std::map<const IParticle*,MissingETBase::Types::constvec_t> & /*momenta*/,
+                                              float& UEcorr) const
+  {
+    // Constructing association electron-PFO map
+    const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
+
+    std::vector<const xAOD::PFO*> nearbyPFO;
+    nearbyPFO.reserve(20);
+
+    // Preselect charged and neutral PFOs, based on proximity: dR < m_Drcone
+    for(const auto& pfo : *constits.pfoCont) { 
+      if(P4Helpers::isInDeltaR(*pfo, *eg, 0.2, m_useRapidity)) {
+        const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+        if( ( fabs(pfo->charge())<FLT_MIN && pfo->e() > FLT_MIN ) ||
+        ( fabs(pfo->charge())>FLT_MIN && PVMatchedAcc(*pfo)  && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) ) {
+          nearbyPFO.push_back(pfo); 
+        } // quality cuts        
+      } // DeltaR check
+    } // PFO loop
+
+    // Fill charged PFOs from nearbyPFO to pfolist
+    for(const auto& pfo : nearbyPFO) {
+      if( fabs(pfo->charge()) > FLT_MIN ) {
+        pfolist.push_back(pfo);
+      }
+    }
+
+    // Sort elements in nearbyPFO
+    std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
+
+    // Fill neutral PFOs from nearbyPFO to pfolist
+    for(const auto& pfo : nearbyPFO) {
+      if( fabs(pfo->charge()) > FLT_MIN ){
+        continue;
+      }
+      pfolist.push_back(pfo);
+    }
+
+    // Step 2. Calculating Uncorrected HR and UE energy correction
+    if(eg){
+      // Vectoral sum of all PFOs 
+      TLorentzVector HR;  // uncorrected HR (initialized with 0,0,0,0 automatically)
+      for(const auto& pfo_itr : *constits.pfoCont) {
+        if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) { // sanity check
+          continue;
+        }
+        HR += pfo_itr->p4();
+      }
+
+      // Create a vector of egamma form hardObjs (all electrons)
+      std::vector<const xAOD::Egamma*> v_eg;
+
+      for(const auto& obj_i : hardObjs){
+        const xAOD::Egamma* eg_curr = static_cast<const xAOD::Egamma*>(obj_i); // current egamma object
+          v_eg.push_back( eg_curr );
+      }
+  
+      // Subtruct PFOs which are in the cone around egamma (gives uncorrected HR)
+      for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
+        if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) { // sanity check
+          continue;
+        }  
+        for(const auto& eg_i : v_eg) { // loop over v_eg
+          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), eg_i->eta(), eg_i->phi() );
+          if( dR < m_Drcone ) {
+            HR -= pfo_i->p4();
+          }
+        } // over v_eg
+      } // over PFOs
+
+      // Save v_eg as a vector TLV (as commonn type for electrons and muons)
+      std::vector<TLorentzVector> v_egTLV;  
+      for(const auto& eg_i : v_eg) { // loop over v_eg
+        v_egTLV.push_back( eg_i->p4() );
+      }
+
+      // Save current eg as TLV
+      TLorentzVector egTLV = eg->p4();
+
+      // Get UE correction
+      ATH_CHECK( GetUEcorr(constits, v_egTLV, egTLV, HR, m_Drcone, m_MinDistCone, UEcorr) );
+    } // eg existance requirement
 
     return StatusCode::SUCCESS;
   }

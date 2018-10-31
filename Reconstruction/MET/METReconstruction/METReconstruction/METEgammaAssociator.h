@@ -64,6 +64,13 @@ namespace met{
 			  const met::METAssociator::ConstitHolder& constits,
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
 
+    StatusCode extractPFOHR(const xAOD::IParticle* obj,
+                            std::vector<const xAOD::IParticle*> hardObjs,
+                            std::vector<const xAOD::IParticle*>& pfolist,
+                            const met::METAssociator::ConstitHolder& constits,
+                            std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+                            float& UEcorr) const final;
+
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
 			     const met::METAssociator::ConstitHolder& constits) const final;
@@ -83,6 +90,9 @@ namespace met{
     double m_extraTrkMatch_dR;
 
     private:
+
+    const float m_Drcone = 0.2;       // Cone size for el-pfo association
+    const float m_MinDistCone = 0.4;  // Cone size for getting random Phi of PFO which is not assoc to el or HR
  
     /// Default constructor: 
     METEgammaAssociator();

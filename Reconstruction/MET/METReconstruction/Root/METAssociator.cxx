@@ -37,10 +37,17 @@
 // For DeltaR
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+using CLHEP::GeV;
+
 namespace met {
 
   using namespace xAOD;
 
+  // UE correction for each lepton
+  const static SG::AuxElement::Decorator<float> dec_UEcorr("UEcorr_Pt");
+
+  
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
@@ -62,6 +69,7 @@ namespace met {
     declareProperty( "UseModifiedClus",    m_useModifiedClus = false            );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
+    declareProperty( "HRecoil",            m_recoil      = false                 );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
@@ -105,7 +113,7 @@ namespace met {
       }
     }
 
-    if(m_pfcoll == "JetETMissParticleFlowObjects") {
+    if(m_pfcoll == "JetETMissParticleFlowObjects") {      
       ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcoll << "\".");
       ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
       return StatusCode::FAILURE;
@@ -238,32 +246,42 @@ namespace met {
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
+    // Loop over leptons in the event
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
       if (m_pflow) {
-	if(!m_useTracks){
-	  ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
-	  return StatusCode::FAILURE;
-	}else{
-	  std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-	  ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
-	  MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
-	}
-      } else {
-	std::vector<const IParticle*> tclist;
-	tclist.reserve(20);
+        if(!m_useTracks){
+          ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
+          return StatusCode::FAILURE;
+        }else{
+          std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;          
+          if(m_recoil){ // HR part:
+            float UEcorr_Pt = 0.; // Underlying event correction for HR
+            ATH_CHECK( this->extractPFOHR(obj,hardObjs_tmp,constlist,constits,momentumOverride, UEcorr_Pt) );
+            dec_UEcorr(*obj) = UEcorr_Pt;
+          } 
+          else{ // MET part: 
+            ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
+          }
+          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);          
+        }
+      } 
+      else {
+        std::vector<const IParticle*> tclist;
+        tclist.reserve(20);
         ATH_CHECK( this->extractTopoClusters(obj,tclist,constits) );
-	if(m_useModifiedClus) {
-	  for(const auto& cl : tclist) {
-	    // use index-parallelism to identify shallow copied constituents
-	    constlist.push_back((*constits.tcCont)[cl->index()]);
-	  }
-	} else {
-	  constlist = tclist;
-	}
-	if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
+        if(m_useModifiedClus) {
+          for(const auto& cl : tclist) {
+          // use index-parallelism to identify shallow copied constituents
+            constlist.push_back((*constits.tcCont)[cl->index()]);
+          }
+        } 
+        else {
+          constlist = tclist;
+        }
+        if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }
@@ -342,5 +360,73 @@ namespace met {
     }
     return true;
   }
+
+
+  StatusCode METAssociator::GetUEcorr(const met::METAssociator::ConstitHolder& constits,  // all PFOs
+                                      std::vector<TLorentzVector>& v_clus, // TLV vector of all clusters of hard objects
+                                      TLorentzVector& clus,                // TLV of current cluster 
+                                      TLorentzVector& HR,                  // uncorrected HR
+                                      const float Drcone,                       // Cone size for el-pfo association
+                                      const float MinDistCone,                  // Cone size for getting random Phi
+                                      float& UEcorr) const                 // UE correction (result)
+  {
+      // 1. Get random phi
+      unsigned int seed = 0;
+      TRandom3 hole;
+      if( !v_clus.empty() ){
+        seed = floor( v_clus.back().Pt() * GeV );     
+        hole.SetSeed(seed);
+      }
+
+      bool isNextToPart(true);
+      bool isNextToHR(true);
+      double phiRnd(0.);  
+      while(isNextToPart || isNextToHR ){
+        isNextToPart = false; 
+        isNextToHR = true;
+    
+        phiRnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
+        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), clus.Eta(), phiRnd );    
+        if(dR > MinDistCone){
+          isNextToHR = false;
+        }    
+        for(const auto& clus_j : v_clus) {
+          dR = P4Helpers::deltaR( clus.Eta(), phiRnd, clus_j.Eta(), clus_j.Phi() );
+          if(dR < MinDistCone){
+             isNextToPart = true;
+          }
+        } // swclus_j
+      } // while isNextToPart, isNextToHR
+  
+      // 2. Calculete UE correction
+      TLorentzVector tv_UEcorr; // TLV of UE correction (initialized with 0,0,0,0 automatically)     
+      std::pair <double, double> eta_rndphi; // pair of current cluser eta and random phi
+      eta_rndphi.first  = clus.Eta();
+      eta_rndphi.second = phiRnd;  
+      for(const auto& pfo_itr : *constits.pfoCont){ // loop over PFOs
+        if( pfo_itr->e() < 0){
+          continue;
+        }
+        double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
+        if( dR < Drcone ){
+          // Calculate delta phi
+          float dphi_angle = std::fabs( clus.Phi() - pfo_itr->phi() );
+          if( dphi_angle > TMath::Pi() ){ 
+            dphi_angle = 2*TMath::Pi() - dphi_angle;
+          }
+          if( clus.Phi() <  pfo_itr->phi() ) {
+            dphi_angle = -1. * dphi_angle;
+          }
+          // Rotate on dphi_angle
+          TLorentzVector tv_pfo = pfo_itr->p4();
+          tv_pfo.RotateZ(dphi_angle);
+          tv_UEcorr += tv_pfo;  // summing PFOs of UE for correction
+        } // cone requirement        
+      } // loop over PFOs
+      UEcorr = tv_UEcorr.Pt();  // Pt of UE correction
+  
+      return StatusCode::SUCCESS;
+  } 
+  
 
 }
