@@ -19,8 +19,9 @@ fast_chain_log.info( '****************** STARTING EVNTtoRDO *****************' )
 fast_chain_log.info( '**** Transformation run arguments' )
 fast_chain_log.info( str(runArgs) )
 
-from G4AtlasApps.SimFlags import simFlags
 from AthenaCommon import CfgGetter
+import AthenaCommon.SystemOfUnits as Units
+
 
 ### Start of Sim
 
@@ -47,6 +48,8 @@ pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from G4AtlasApps.SimFlags import simFlags
+from ISF_Config.ISF_jobProperties import ISF_Flags
 from Digitization.DigitizationFlags import digitizationFlags
 #from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
 
@@ -61,6 +64,9 @@ else:
 if hasattr(runArgs,"conditionsTag"):
     if runArgs.conditionsTag != 'NONE':
         globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag ) #make this one compulsory?
+        digitizationFlags.IOVDbGlobalTag = runArgs.conditionsTag
+
+
 if hasattr(runArgs,"beamType"):
     if runArgs.beamType != 'NONE':
         # Setting beamType='cosmics' keeps cavern in world volume for g4sim also with non-commissioning geometries
@@ -140,7 +146,6 @@ rec.doTrigger.set_Value_and_Lock(False)
 ## Simulation flags need to be imported first
 simFlags.load_atlas_flags()
 simFlags.ISFRun=True
-from ISF_Config.ISF_jobProperties import ISF_Flags
 
 ## Set simulation geometry tag
 if hasattr(runArgs, 'geometryVersion'):
@@ -233,7 +238,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
         not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
-from ISF_Config.ISF_jobProperties import ISF_Flags
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
 elif hasattr(runArgs, 'simulator'):
@@ -270,7 +274,6 @@ from AthenaCommon.DetFlags import DetFlags
 try:
     from ISF_Config import FlagSetters
     FlagSetters.configureFlagsBase()
-    from ISF_Config.ISF_jobProperties import ISF_Flags
     ## Check for any simulator-specific configuration
     configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
     if configureFlags is not None:
@@ -497,10 +500,6 @@ if hasattr(runArgs,"samplingFractionDbTag"): #FIXME change this to PhysicsList?
 if hasattr(runArgs,"digiRndmSvc"):
     digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 
-if hasattr(runArgs,"conditionsTag"):
-    if(runArgs.conditionsTag!='NONE'):
-        digitizationFlags.IOVDbGlobalTag = runArgs.conditionsTag
-
 if hasattr(runArgs,"PileUpPremixing"):
     fast_chain_log.info("Doing pile-up premixing")
     digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
@@ -650,7 +649,6 @@ KG Tan, 17/06/2012
 # Set to monte carlo
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixStandardJob
-from AthenaCommon import AthenaCommonFlags
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
 
@@ -667,9 +665,6 @@ from AthenaCommon.AppMgr import ServiceMgr
 # Set the flags automatically here
 # (move it to the job options if not meant to be automatic!)
 #--------------------------------------------------------------
-import AthenaCommon.SystemOfUnits as Units
-
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be finalised before these functons are called
 
 # --- set globalflags
 globalflags.DataSource.set_Value_and_Lock('geant4')
@@ -726,6 +721,16 @@ if len(globalflags.ConditionsTag()):
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(globalflags.ConditionsTag())
 
+## Translate conditions tag into IOVDbSvc global tag: must be done before job properties are locked!!!
+from AthenaCommon.AppMgr import ServiceMgr
+if not hasattr(ServiceMgr, 'IOVDbSvc'):
+    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
+    ServiceMgr += IOVDbSvc()
+if not hasattr(globalflags, "ConditionsTag") or not globalflags.ConditionsTag.get_Value():
+    raise SystemExit("AtlasSimSkeleton._do_jobproperties :: Global ConditionsTag not set")
+if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
+        ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
+
 # Temporary work-around - see ATLASSIM-2351
 if ISF_Flags.UsingGeant4():
     #include("G4AtlasApps/G4Atlas.flat.configuration.py") #HACK
@@ -747,15 +752,6 @@ if ISF_Flags.UsingGeant4():
     # Switch off GeoModel Release in the case of parameterization
     if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
         simFlags.ReleaseGeoModel = False
-
-    ## Translate conditions tag into IOVDbSvc global tag: must be done before job properties are locked!!!
-    from AthenaCommon.AppMgr import ServiceMgr
-    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
-    ServiceMgr += IOVDbSvc()
-    if not hasattr(globalflags, "ConditionsTag") or not globalflags.ConditionsTag.get_Value():
-        raise SystemExit("AtlasSimSkeleton._do_jobproperties :: Global ConditionsTag not set")
-    if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
-        ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
 
     ## Enable floating point exception handling
     ## FIXME! This seems to cause the jobs to crash in the FpeControlSvc, so commenting this out for now...
@@ -939,13 +935,14 @@ if ISF_Flags.RunVP1() :
     # VP1 part (better switch off PerMon when using VP1)
     from VP1Algs.VP1AlgsConf import VP1Alg
     topSequence += VP1Alg()
-
-elif ISF_Flags.DoPerfMonStats() :
     # Performance Monitoring (VP1 does not like this)
     # https://twiki.cern.ch/twiki/bin/viewauth/Atlas/PerfMonSD
-    from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-    pmon_properties.PerfMonFlags.doMonitoring=True
-    pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
+    pmon_properties.PerfMonFlags.doMonitoring=False
+    pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=False
+
+if not ISF_Flags.DoPerfMonStats() :
+    pmon_properties.PerfMonFlags.doMonitoring=False
+    pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=False
 
 
 if ISF_Flags.DumpMcEvent() :
@@ -1118,13 +1115,6 @@ if hasattr(ServiceMgr, 'PoolSvc'):
 #ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '2048'" ]
 
 #--------------------------------------------------------------
-# Conditions Tag
-#--------------------------------------------------------------
-from Digitization.DigitizationFlags import digitizationFlags
-if (digitizationFlags.IOVDbGlobalTag.statusOn and digitizationFlags.IOVDbGlobalTag.get_Value()!='default'):
-    IOVDbSvc=theApp.service('IOVDbSvc')
-    IOVDbSvc.GlobalTag=digitizationFlags.IOVDbGlobalTag.get_Value()
-#--------------------------------------------------------------
 # GeoModel
 #--------------------------------------------------------------
 from AtlasGeoModel import SetGeometryVersion
@@ -1134,11 +1124,7 @@ from AtlasGeoModel import SetupRecoGeometry
 #--------------------------------------------------------------
 # Magnetic field service
 #--------------------------------------------------------------
-try:
-    import MagFieldServices.SetupField
-except:
-    #fall-back for 19.0.X releases.
-    include( "BFieldAth/BFieldAth_jobOptions.py" )
+import MagFieldServices.SetupField
 
 #--------------------------------------------------------------
 # Configure Run and Lumi Block and Pile-Up Lumi overriding
