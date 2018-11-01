@@ -612,7 +612,10 @@ def setupMenu():
         ['lumipeb_vdm_L1MBTS_1_1',              'L1_MBTS_1_1',              [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_vdm_L1ZDC_A_C',               'L1_ZDC_A_C',               [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
 
-        
+        ['lumipeb_vdm_L1LUCID_BGRP7',          'L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_1_1_BGRP9_LUCID_BGRP7',          'L1_MBTS_1_1_BGRP9,L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_2_BGRP9_LUCID_BGRP7',          'L1_MBTS_2_BGRP9,L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+
         # Monitoritems for saturated towers
         ['satu20em_l1satmon_L1J100_FIRSTEMPTY',  'L1_J100_FIRSTEMPTY',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
         #['satu20em_l1satmon_L1J100.31ETA49_FIRSTEMPTY',  'L1_J100.31ETA49_FIRSTEMPTY',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
