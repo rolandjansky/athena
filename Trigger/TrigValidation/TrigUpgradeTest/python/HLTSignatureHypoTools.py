@@ -18,6 +18,10 @@ def ElTestHypoTool(name,conf):
     threshold = conf.replace("HLT_e","")
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
+def GammTestHypoTool(name,conf):
+    threshold = conf.replace("HLT_g","")
+    return TestHypoTool(name,prop="et", threshold_value=threshold)
+
 
 def MuTest2HypoTool(name, conf):
     threshold = conf.replace("HLT_mu","")
