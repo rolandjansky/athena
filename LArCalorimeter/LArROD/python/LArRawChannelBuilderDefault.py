@@ -25,7 +25,7 @@ def LArRawChannelBuilderDefault():
         topSequence += theLArRawChannelBuilder
 
         #Useless here but for backward compatiblity
-        from AthenaCommon.AppMgr import ToolSvc
-        from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-        theADC2MeVTool = LArADC2MeVToolDefault()
-        ToolSvc += theADC2MeVTool
+        #from AthenaCommon.AppMgr import ToolSvc
+        #from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
+        #theADC2MeVTool = LArADC2MeVToolDefault()
+        #ToolSvc += theADC2MeVTool
