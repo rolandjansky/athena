@@ -131,12 +131,12 @@ def CscThresholdClusterBuilderTool(name="CscThresholdClusterBuilderTool",extraFl
     return CfgMgr.CscThresholdClusterBuilderTool(name,**kwargs)
 
 def CscClusterUtilTool(name = "CscClusterUtilTool",extraFlags=None,**kwargs):
-    kwargs.setdefault("strip_fitter", getPublicTool("CalibCscStripFitter") )
-    kwargs.setdefault("precision_fitter", getPublicTool("QratCscClusterFitter") )
+    kwargs.setdefault("strip_fitter", getPrivateTool("CalibCscStripFitter") )
+    kwargs.setdefault("precision_fitter", getPrivateTool("QratCscClusterFitter") )
     return CfgMgr.CscClusterUtilTool(name,**kwargs)
 
 def CalibCscStripFitter(name = "CalibCscStripFitter",extraFlags=None,**kwargs):
-    kwargs.setdefault("cscCalibTool", getPublicTool("CscCalibTool") )
+    kwargs.setdefault("cscCalibTool", getPrivateTool("CscCalibTool") )
     return CfgMgr.CalibCscStripFitter(name,**kwargs)
 
 def CscSplitClusterFitter(name="CscSplitClusterFitter",extraFlags=None,**kwargs):
@@ -169,7 +169,7 @@ def QratCscClusterFitter( name="QratCscClusterFitter",extraFlags=None,**kwargs):
         ]
     kwargs.setdefault("qratcor_csl_eta",qratcor_csl_eta)
     kwargs.setdefault("qratcor_css_eta",qratcor_css_eta)
-    kwargs.setdefault("CscAlignmentTool", getPublicTool("CscAlignmentTool") )
+    kwargs.setdefault("CscAlignmentTool", getPrivateTool("CscAlignmentTool") )
     return CfgMgr.QratCscClusterFitter(name,**kwargs)
 
 
