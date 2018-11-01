@@ -79,7 +79,7 @@ def getIDETEnvelope(name="IDET", **kwargs):
       dbGeomCursor.ConnectAndBrowseGeoDB()
       dbId,dbMother,dbParam = dbGeomCursor.GetCurrentLeafContent("AtlasMother")
       rin=dbMother[dbId[0]][dbParam.index("IDETIR")]
-      innerRadius = rin*mm #
+      innerRadius = rin*10.*mm # The factor 10 is needed for converting in mm the DB entry
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
     kwargs.setdefault("dZ", 347.5*cm)
