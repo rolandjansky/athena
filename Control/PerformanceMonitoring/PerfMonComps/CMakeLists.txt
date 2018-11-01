@@ -25,6 +25,7 @@ find_package( AIDA )
 find_package( Boost )
 find_package( PythonLibs )
 find_package( ROOT COMPONENTS Core PyROOT )
+find_package( pytools )
 
 # Component(s) in the package:
 atlas_add_component( PerfMonComps
