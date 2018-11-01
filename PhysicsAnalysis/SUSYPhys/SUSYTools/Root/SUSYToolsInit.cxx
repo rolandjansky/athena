@@ -1339,7 +1339,15 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 // Initialise IsolationCloseByCorrectionTool Tool
   if (!m_isoCloseByTool.isUserConfigured()) {
     m_isoCloseByTool.setTypeAndName("CP::IsolationCloseByCorrectionTool/IsoCloseByTool");
-    ATH_CHECK( m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoTool) );
+    // Actually we could debate about what is the proper tool to choose if the users have different baseline & signal islation WP's
+    ATH_CHECK( m_isoCloseByTool.setProperty("IsolationSelectionTool", m_useSigLepForIsoCloseByOR ? m_isoTool : m_isoBaselineTool));
+    ATH_CHECK( m_isoCloseByTool.setProperty("PassoverlapDecorator", m_IsoCloseByORpassLabel) );
+    ATH_CHECK( m_isoCloseByTool.setProperty("SelectionDecorator", m_useSigLepForIsoCloseByOR ? "signal" : "baseline") );
+    // Make this propery configurable as well?
+    ATH_CHECK(m_isoCloseByTool.setProperty("BackupPrefix", "ORIG"));
+    // The isolation selection decorator is updated as well by the tool
+    ATH_CHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "isol"));
+         
     ATH_CHECK( m_isoCloseByTool.retrieve() );
   }
 

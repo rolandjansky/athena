@@ -23,7 +23,6 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
@@ -74,34 +73,12 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
     muons=copy;
   }
 
-  bool cached_doIsoSig = m_doMuIsoSignal;
   for (const auto& muon : *copy) {
     ATH_CHECK( this->FillMuon(*muon, m_muBaselinePt, m_muBaselineEta) );
-    if(m_doIsoCloseByOR) //switch off isolation for now if close-by OR corrections were requested
-      m_doMuIsoSignal = false;
     this->IsSignalMuon(*muon, m_muPt, m_mud0sig, m_muz0, m_muEta);
     this->IsCosmicMuon(*muon, m_muCosmicz0, m_muCosmicd0);
     this->IsBadMuon(*muon, m_badmuQoverP);
   }
-
-  //apply close-by corrections to isolation if requested
-  if(m_doIsoCloseByOR){
-    // store muons in a vector
-    std::vector<const xAOD::IParticle*> pVec;
-    for(auto pobj: *copy) {
-      pVec.push_back((const xAOD::IParticle*) pobj);
-    }
-
-    //restore isSignal settings
-    m_doMuIsoSignal = cached_doIsoSig;
-
-    //correct isolation and propagate to signal deco
-    for (const auto& muon : *copy) {
-      dec_isol(*muon) = m_isoCloseByTool->acceptCorrected(*muon, pVec);
-      if(m_doMuIsoSignal) dec_signal(*muon) &= acc_isol(*muon); //add isolation to signal deco if requested
-    }
-  }
-
   if (recordSG) {
     ATH_CHECK( evtStore()->record(copy, "STCalib" + muonkey + m_currentSyst.name()) );
     ATH_CHECK( evtStore()->record(copyaux, "STCalib" + muonkey + m_currentSyst.name() + "Aux.") );
