@@ -581,10 +581,10 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 9
       self.__minSiNotShared   = 7
       self.__maxShared        = 2 # was 1, cut is now on number of shared modules
-      self.__maxHoles         = 0 # was 1
-      self.__maxPixelHoles    = 0 # was 2
-      self.__maxSctHoles      = 0 # was 1
-      self.__maxDoubleHoles   = 0 # was 1
+      self.__maxHoles         = 0
+      self.__maxPixelHoles    = 0
+      self.__maxSctHoles      = 0
+      self.__maxDoubleHoles   = 0
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles      
       self.__Xi2max           = 6. 
@@ -600,25 +600,25 @@ class ConfiguredNewTrackingCuts :
         self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
         self.__useParameterizedTRTCuts   = False
         self.__useNewParameterizationTRT = False
-      elif self.__indetflags.cutLevel() == 4: # ==CutLevel 2 with relaxed hole cuts and chi^2 cuts
+      elif self.__indetflags.cutLevel() == 4: # ==CutLevel 2 with loosened hole cuts and chi^2 cuts
        self.__seedFilterLevel  = 2
        self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
-       self.__maxHoles               = 2 # was 1
-       self.__maxPixelHoles       = 1 # was 2
-       self.__maxSctHoles         = 1 # was 1
-       self.__maxDoubleHoles   = 0 # was 1
+       self.__maxHoles               = 2 
+       self.__maxPixelHoles       = 1 
+       self.__maxSctHoles         = 1
+       self.__maxDoubleHoles   = 0
        self.__Xi2max                   = 9. 
        self.__Xi2maxNoAdd        = 25.
-      elif self.__indetflags.cutLevel() == 5: # ==CutLevel 3 with relaxed hole cuts and chi^2 cuts
+      elif self.__indetflags.cutLevel() == 5: # ==CutLevel 3 with loosened hole cuts and chi^2 cuts
        self.__minPT            = 0.300 * Units.GeV
        self.__seedFilterLevel  = 2
        self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
        self.__useParameterizedTRTCuts   = False
        self.__useNewParameterizationTRT = False
-       self.__maxHoles               = 2 # was 1
-       self.__maxPixelHoles       = 1 # was 2
-       self.__maxSctHoles         = 1 # was 1
-       self.__maxDoubleHoles   = 0 # was 1
+       self.__maxHoles               = 2
+       self.__maxPixelHoles       = 1
+       self.__maxSctHoles         = 1
+       self.__maxDoubleHoles   = 0
        self.__Xi2max                   = 9. 
        self.__Xi2maxNoAdd        = 25.
 
