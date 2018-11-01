@@ -10,12 +10,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloEvent/CaloClusterContainer.h"
 
 
-#include <string>
+#include <vector>
 
 class TFile;
 class TH1F;
@@ -45,11 +43,10 @@ private:
   const TH1F*       m_TH1F_bkg[9][11];
   std::string       m_TH1F_key[9][11];
   int               m_numKeys[9];
-  mutable int       m_cnt_warn;
-
-  std::vector<std::string>  m_fileNames;
+  mutable int       m_cnt_warn{};
 
   ToolHandle<ITrackEnergyInCaloTool>  m_trkEnergyInCalo;
+  std::vector<std::string>  m_fileNames;
 };
 
 #endif

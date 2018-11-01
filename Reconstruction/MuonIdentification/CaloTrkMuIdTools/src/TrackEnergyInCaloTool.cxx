@@ -9,6 +9,8 @@
 // --- Calo ---
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
+//
+#include <memory> //unique_ptr
 
 ///////////////////////////////////////////////////////////////////////////////
 // TrackEnergyInCaloTool constructor
@@ -221,7 +223,7 @@ const Trk::TrackParameters* TrackEnergyInCaloTool::paramInLastSample(const Trk::
     && sample != CaloCell_ID::HEC3 )
    return param;
 
-  Trk::Surface* surf = 0;
+  std::unique_ptr<Trk::Surface> surf{};
   double trketa = 0.;
 
   // Take eta of the last measured hit as best guess and create surface :
@@ -231,7 +233,7 @@ const Trk::TrackParameters* TrackEnergyInCaloTool::paramInLastSample(const Trk::
    DataVector <const Trk::TrackParameters>::const_iterator itEnd = paramvec->end();
    --itEnd;
    trketa = (*itEnd)->eta();
-   surf = m_calosurf->CreateLastSurface(sample,offset,trketa);
+   surf.reset(m_calosurf->CreateLastSurface(sample,offset,trketa));
   } 
   if(trk){
    if (surf){
@@ -243,8 +245,6 @@ const Trk::TrackParameters* TrackEnergyInCaloTool::paramInLastSample(const Trk::
        ATH_MSG_DEBUG("Extrapolation succesful");
      else
        ATH_MSG_DEBUG("Extrapolation failed");
- 
-     delete surf;
    }
   } 
   return param;
