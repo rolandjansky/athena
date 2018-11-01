@@ -30,6 +30,11 @@ def openDatabase(dbstring):
       sys.exit(-1)
   return db
   
+#def formIov(runNumber):
+#  runNumberSave = 350803
+#  s,u=(runNumberSave << 32), ((runNumber + 1) << 32) - 1
+#  return s,u
+
 def formIov(runNumber):
   s,u=(runNumber << 32), ((runNumber + 1) << 32) - 1
   return s,u

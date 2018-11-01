@@ -31,6 +31,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "LArReadoutGeometry/FCALDetectorManager.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -77,10 +78,12 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   }
   
   const CaloDetDescrManager* calo_dd_man  = CaloDetDescrManager::instance();
+  const FCALDetectorManager * fcalManager=NULL;
+  detStore()->retrieve(fcalManager);
+  
   m_caloGeo = new CaloGeometryFromCaloDDM();
   m_caloGeo->LoadGeometryFromCaloDDM(calo_dd_man);
-  TString path_to_fcal_geo_files = "/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/";
-  m_caloGeo->LoadFCalGeometryFromFiles(path_to_fcal_geo_files + "FCal1-electrodes.sorted.HV.09Nov2007.dat", path_to_fcal_geo_files + "FCal2-electrodes.sorted.HV.April2011.dat", path_to_fcal_geo_files + "FCal3-electrodes.sorted.HV.09Nov2007.dat");
+  if(!m_caloGeo->LoadFCalChannelMapFromFCalDDM(fcalManager) )ATH_MSG_FATAL("Found inconsistency between FCal_Channel map and GEO file. Please, check if they are configured properly.");
   
   const std::string fileName = m_paramsFilename;
   std::string inputFile=PathResolverFindCalibFile(fileName);
@@ -209,6 +212,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate(m_randomEngine);
 
+  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " eta: " << particle_position.eta());
   FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);
   if (status != FCSSuccess) {
     return StatusCode::FAILURE;

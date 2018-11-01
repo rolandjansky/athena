@@ -33,7 +33,10 @@ namespace egammaMonitoring {
       m_rootHistSvc(rootHistSvc) {}
 
     virtual StatusCode initializePlots() = 0;
-    virtual void fill(const xAOD::IParticle&) { }  ;
+
+    virtual void fill(const xAOD::IParticle&) = 0;
+    virtual void fill(const xAOD::Electron&) = 0;
+    virtual void fill(const xAOD::Photon&) = 0;
 
     std::map<std::string, TH1D* > histoMap;
 
