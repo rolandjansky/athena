@@ -24,9 +24,11 @@
 #include "xAODJet/JetContainer.h"
 
 using namespace std;
-namespace InDet { class IInDetTrackSelectionTool; }
+//namespace InDet { class IInDetTrackSelectionTool; }
+//namespace InDet { class InDetTrackSelectionTool; }
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 //#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+using namespace InDet;
 
 namespace DerivationFramework {
 
@@ -94,7 +96,7 @@ namespace DerivationFramework {
     // Ntracks for QG tagging --- antonio ---
     bool m_decoratentracks;
     SG::AuxElement::Decorator<int>* dec_AssociatedNtracks;
-    //ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
     //InDet::IInDetTrackSelectionTool *m_trkSelectionTool;
 
   };

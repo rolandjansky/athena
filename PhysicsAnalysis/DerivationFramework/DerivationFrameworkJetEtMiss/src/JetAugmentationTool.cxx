@@ -12,7 +12,7 @@
 #include "xAODCore/ShallowCopy.h"
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 
-#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+//#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 //#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 
@@ -46,7 +46,8 @@ namespace DerivationFramework {
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
     dec_AssociatedNtracks(0),
-    m_decoratentracks(true)
+    m_decoratentracks(false), // antonio
+    m_trkSelectionTool("InDet::InDetTrackSelectionTool/InDetTrackSelectionTool", this )
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");
@@ -61,7 +62,7 @@ namespace DerivationFramework {
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
     declareProperty("JetPtAssociationTool", m_jetPtAssociationTool);
     declareProperty("JetOriginCorrectionTool",m_jetOriginCorrectionTool);
-    //declareProperty("TrackSelectionTool",m_trkSelectionTool);
+    declareProperty("TrackSelectionTool", m_trkSelectionTool);
   }
 
   StatusCode JetAugmentationTool::initialize()
@@ -123,17 +124,19 @@ namespace DerivationFramework {
     }
     
     // Here it for ntracks decoration --- QGTaggerTool --- antonio ---
-    dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>("NTracks");
+    //dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>("NTracks");
 
 
     // set up InDet selection tool
-    //if(!m_trkSelectionTool.empty()) {
-    //assert( m_trkSelectionTool.retrieve() );
-    //assert( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
-    //CHECK( m_trkSelectionTool.retrieve() );
-    //CHECK( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
-    m_decoratentracks = true; 
-      //} doesn't work??
+    if(!m_trkSelectionTool.empty()) {
+      CHECK( m_trkSelectionTool.retrieve() );
+      //CHECK( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
+      //CHECK( m_trkSelectionTool.setCutLevel( "Loose" ) );
+      m_decoratentracks = true; 
+      dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>(m_momentPrefix + "NTracks");
+    } //doesn't work??
+
+
     /*    
     InDet::InDetTrackSelectionTool *trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
     CHECK( trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
@@ -257,6 +260,13 @@ namespace DerivationFramework {
     }
 
 
+    // test --- antonio ---
+    //InDet::InDetTrackSelectionTool *m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
+    //m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
+    //CHECK( m_trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
+    //CHECK( m_trkSelectionTool->initialize() );
+    // --------
+
     // loop over the copies
     for(const auto& jet : *jets_copy) {
       // get the original jet so we can decorate it
@@ -344,10 +354,10 @@ namespace DerivationFramework {
 	  }
 
 	  // tesf for InDet tool ---
-	  InDet::InDetTrackSelectionTool *m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
+	  //InDet::InDetTrackSelectionTool *m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
 	  //m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
-	  CHECK( m_trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
-	  CHECK( m_trkSelectionTool->initialize() );
+	  //CHECK( m_trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
+	  //CHECK( m_trkSelectionTool->initialize() );
 	  // -----------------------
 	  
 	  for (size_t i = 0; i < jettracks.size(); i++) {
@@ -365,6 +375,8 @@ namespace DerivationFramework {
 			   (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
 			   );	    
 	    
+	    std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) << std::endl; // temp
+
 	    if (!accept) continue;
 	    
 	    nTracksCount++;
