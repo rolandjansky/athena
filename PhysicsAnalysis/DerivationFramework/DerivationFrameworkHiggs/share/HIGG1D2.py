@@ -390,6 +390,8 @@ HIGG1D2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG1D2SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+HIGG1D2SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+
 
 # Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
 # Usage of AddItem is forbidden
