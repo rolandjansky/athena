@@ -355,13 +355,13 @@ def addQGTaggerTool(jetalg, sequence, algname ):
     if hasattr(ToolSvc, QGTaggerToolName):
         jetaugtool.TrackSelectionTool = getattr(ToolSvc, QGTaggerToolName)
     else:
-        trackselectiontool = CfgMgr.TrackSelectionTool( QGTaggerToolName )
+        trackselectiontool = CfgMgr.InDet__InDetTrackSelectionTool( QGTaggerToolName )
         #trackselectiontool.setProperty( "CutLevel", "Loose" )
-        #trackselectiontool.CutLevel = "Loose"
+        trackselectiontool.CutLevel = "Loose"
         ToolSvc += trackselectiontool
         jetaugtool.TrackSelectionTool = trackselectiontool
         #jetaugtool.TrackSelectionTool.CutLevel = "Loose"
-        jetaugtool.TrackSelectionTool.setCutLevel = "Loose"
+        #jetaugtool.TrackSelectionTool.setCutLevel = "Loose"
 
     extjetlog.info('ExtendedJetCommon: Adding QGTaggerTool for jet collection: '+jetalg)
     applyJetAugmentation(jetalg, algname, sequence, jetaugtool)
