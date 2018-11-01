@@ -288,6 +288,7 @@ echo "smk=${smk}" > prescaleKeys_17000.txt
 echo "l1psk=${l1psk2}" >> prescaleKeys_17000.txt
 echo "hltpsk=${hltpsk2}" >> prescaleKeys_17000.txt
 echo "echo 'setting these keys: SMK ' \$smk ', L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk  " >> prescaleKeys_17000.txt
+echo "Successfully uploaded prescales: l1psk=${l1psk2} and hltpsk=${hltpsk2}"
 
 rm uploadPSK_prescaled.log
 
@@ -323,6 +324,7 @@ echo "smk=${smk}" > prescaleKeys_9000.txt
 echo "l1psk=${l1psk2}" >> prescaleKeys_9000.txt
 echo "hltpsk=${hltpsk2}" >> prescaleKeys_9000.txt
 echo "echo 'setting these keys: SMK ' \$smk ', L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk  " >> prescaleKeys_9000.txt
+echo "Successfully uploaded prescales: l1psk=${l1psk2} and hltpsk=${hltpsk2}"
 
 rm -rf TrigMenuRulebook
 
