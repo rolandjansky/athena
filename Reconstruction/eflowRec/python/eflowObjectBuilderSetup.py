@@ -36,27 +36,28 @@ def setup_eflowObjectBuilder(Configured, nameModifier,mlog):
 
 
 
-
-
     ## DigiTruth tests
+    doDigiTruthFlag = False
     try:
+            from Digitization.DigitizationFlags import digitizationFlags
+            doDigiTruthFlag = digitizationFlags.doDigiTruth()
+    except:
+            log = logging.getLogger('CaloClusterTopoGetter')
+            log.info('Unable to import DigitizationFlags in CaloClusterTopoGetter. Expected in AthenaP1')
+
+    if doDigiTruthFlag:
+      try:
         from eflowRec.eflowMomentCalculatorToolDefault_DigiHSTruth import eflowMomentCalculatorToolDefault_DigiHSTruth
         MomentCalculatorTool_DigiHSTruth = eflowMomentCalculatorToolDefault_DigiHSTruth("eflowMomentCalculatorTool_DigiHSTruth_"+nameModifier)
-    except:
+      except:
         mlog.error("could not import eflowRec.eflowMomentCalculatorTool")
         print traceback.format_exc()
         return False
-
-    if nameModifier == "LC":
+ 
+      if nameModifier == "LC":
         MomentCalculatorTool_DigiHSTruth.LCMode = True
 
-    ObjectBuilder.PrivateToolList += [MomentCalculatorTool_DigiHSTruth]
-
-
-
-
-
-
+      ObjectBuilder.PrivateToolList += [MomentCalculatorTool_DigiHSTruth]
 
 
 
