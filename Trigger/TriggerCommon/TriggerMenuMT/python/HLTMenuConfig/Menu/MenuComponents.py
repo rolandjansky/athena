@@ -288,8 +288,6 @@ class WrappedList:
 ##     allAlgs[name] = instance
 ##     return instance
 
-## def duplicatedHypos cacca
-##         duplicatedHypos = []
         
 ##########################################################
 # NOW sequences and chains
@@ -316,11 +314,10 @@ class MenuSequence():
         self.hypo= HypoAlgNode( Alg=HypoAlg)
     
     def connectToFilter(self,sfilter, line):
-        print "CACCA"
         new_output = "%s_from_%s"%(self.hypo.algname, line)
         self.hypo.addOutput(new_output)
-        print self.hypo.readOutputList()
-        print self.hypo.outputs
+#        print self.hypo.readOutputList()
+#        print self.hypo.outputs
         self.outputs.append(new_output)
 
         #### Connect the InputMaker

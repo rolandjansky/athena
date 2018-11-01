@@ -92,7 +92,6 @@ def create_CFTree(CFseq):
         
     filterAlg=CFseq.filter.Alg
 
-
     stepReco = parOR(CFseq.name+"_reco") # all reco algoritms from al lthe sequences in a parallel sequence
     seqAndView = seqAND(CFseq.name+"_view", [stepReco]) #include in seq:And to run in views: add here the Hypo
     seqAndWithFilter = seqAND(CFseq.name, [filterAlg, seqAndView]) # add to the main step+filter
