@@ -129,7 +129,7 @@ namespace met {
 
       // properties to delete eventually
       declareProperty("DoRun1JER",   m_jerRun1       = false   );
-      declareProperty("IsDataJet",   m_isDataJet     = true    );
+      declareProperty("IsDataJet",   m_isDataJet     = false   );
       declareProperty("IsDataMuon",  m_isDataMuon    = false   );
       declareProperty("IsAFII",      m_isAFII        = false   );
 
