@@ -285,7 +285,7 @@ namespace Analysis {
         if (importedMuonCollection != NULL && m_excludeJpsiMuonsOnly) {
           for(auto muon : *importedMuonCollection){
             if(!muon->inDetTrackParticleLink().isValid()) continue;
-            auto track = muon->inDetTrackParticleLink().cachedElement();
+            auto track = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
             if(track==nullptr) continue;
             if(!JpsiUpsilonCommon::isContainedIn(track, theIDTracksAfterSelection)) continue;
             muonTracks.push_back(track);
