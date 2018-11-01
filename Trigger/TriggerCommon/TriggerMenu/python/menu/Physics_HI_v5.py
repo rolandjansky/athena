@@ -613,7 +613,7 @@ def setupMenu():
         ['lumipeb_vdm_L1ZDC_A_C',               'L1_ZDC_A_C',               [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
 
         ['lumipeb_vdm_L1LUCID_BGRP7',          'L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
-        ['lumipeb_vdm_L1MBTS1_1_BGRP9_LUCID_BGRP7',          'L1_MBTS_1_1_BGRP9,L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_1_1_BGRP9_LUCID_BGRP7',          'L1_MBTS_1_1_BGRP9,L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_vdm_L1MBTS_2_BGRP9_LUCID_BGRP7',          'L1_MBTS_2_BGRP9,L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
 
         # Monitoritems for saturated towers
