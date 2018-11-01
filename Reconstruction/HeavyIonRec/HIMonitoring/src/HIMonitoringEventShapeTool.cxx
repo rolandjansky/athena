@@ -179,7 +179,6 @@ void HIMonitoringEventShapeTool::getFCalEt(const xAOD::HIEventShapeContainer* ev
 		{
 			m_FCalEt += sh->et();
 			m_FCalEt_eta[ES_eta_layer2bin(slice_eta)] += sh->et(); 
-			// h_FCalEt_vs_eta->Fill(slice_eta, sh->et());
 			if(slice_eta>0) m_FCalEt_A += sh->et();
 			else m_FCalEt_C += sh->et();
 		} 
@@ -414,18 +413,18 @@ void HIMonitoringEventShapeTool::bookZDC_hist()
 void HIMonitoringEventShapeTool::getZDC(const xAOD::TrigT2ZdcSignalsContainer* TrigZdc_p)
 {
 	double zdc_energies[2] = {0.0, 0.0}; // {High gain, Low gain}
-int size=TrigZdc_p->size();
+        int size=TrigZdc_p->size();
 
-for(int i=0; i<size; i++)
-{
-	const xAOD::TrigT2ZdcSignals *zdc=TrigZdc_p->at(i);
-	std::vector<float> triggerEnergies = zdc->triggerEnergies();
-	for(int j=0; j<(int)triggerEnergies.size(); j++) 
-		zdc_energies[i]+=triggerEnergies.at(j); 
-}
+	for(int i=0; i<size; i++)
+	{
+		const xAOD::TrigT2ZdcSignals *zdc=TrigZdc_p->at(i);
+		std::vector<float> triggerEnergies = zdc->triggerEnergies();
+		for (auto & zdc_towers  : triggerEnergies)
+			zdc_energies[i]+= zdc_towers; 
+	}
 
-m_ZDC_HG = zdc_energies[0]*1e-3;  
-m_ZDC_LG = zdc_energies[1]*1e-3;
+	m_ZDC_HG = zdc_energies[0]*1e-3;  
+	m_ZDC_LG = zdc_energies[1]*1e-3;
 }
 
 void HIMonitoringEventShapeTool::fillZDC_hist()
