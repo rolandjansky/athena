@@ -247,7 +247,7 @@ namespace ST {
 
     virtual StatusCode GetMETSig(xAOD::MissingETContainer& met,
 			      	 double& metSignificance,
-                      	         bool doTST = true, bool doJVTCut = true, const float avgmu = 0
+                      	         bool doTST = true, bool doJVTCut = true
 				 ) = 0;
 
     virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) const = 0;

@@ -511,7 +511,7 @@ StatusCode SUSYToolsAlg::execute() {
 
   ATH_CHECK( m_SUSYTools->GetMETSig(*metcst_nominal,
 				    metsig_cst,
-				    false, false, evtInfo->averageInteractionsPerCrossing()) );
+				    false, false) );
 
   ATH_MSG_DEBUG("METSignificance = " << metsig_cst);
 

@@ -887,8 +887,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  ANA_CHECK( objTool.GetMETSig(*metcst,
 				       metsig_cst,
 				       false,
-				       false,
-				       ei->averageInteractionsPerCrossing()) );
+				       false) );
 
 	  if (debug) Info(APP_NAME, "METTST?");
 	  ANA_CHECK( objTool.GetMET(*mettst,
@@ -904,8 +903,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  ANA_CHECK( objTool.GetMETSig(*mettst,
 				       metsig_tst,
 				       true,
-				       true,
-				       ei->averageInteractionsPerCrossing()) );
+				       true) );
 
 	}
 	else{
@@ -923,8 +921,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  ANA_CHECK( objTool.GetMETSig(*metcst,
 				       metsig_cst,
 				       false,
-				       false,
-				       ei->averageInteractionsPerCrossing()) );
+				       false) );
 
           if (debug) Info(APP_NAME, "METTST?");
           ANA_CHECK( objTool.GetMET(*mettst,
@@ -940,8 +937,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  ANA_CHECK( objTool.GetMETSig(*mettst,
 				       metsig_tst,
 				       true,
-				       true,
-				       ei->averageInteractionsPerCrossing()) );
+				       true) );
 
         }
 
