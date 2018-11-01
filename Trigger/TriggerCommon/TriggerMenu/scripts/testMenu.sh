@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-athena.py -c "TriggerMenuSetup='MC_pp_v7'" TriggerMenuXML/runHLT_forXMLgeneration.py
+athena.py -c "TriggerMenuSetup='Physics_pp_v7_primaries'" TriggerMenuXML/runHLT_forXMLgeneration.py
