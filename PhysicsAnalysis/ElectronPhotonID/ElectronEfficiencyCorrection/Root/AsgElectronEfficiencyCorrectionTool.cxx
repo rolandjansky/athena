@@ -688,12 +688,12 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
 int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const {
     int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
     if ( ptbin < 0  || ptbin  >= m_UncorrRegions->GetXaxis()->GetNbins() ) {
-      ATH_MSG_WARNING( " Found electron with Et = " << et/1000. << " GeV, where you specified a boundary of " << m_UncorrRegions->GetXaxis()->GetBinLowEdge(1) << " for the SIMPLIFIED correlation model " );
+      ATH_MSG_WARNING( " Found electron with Et = " << et/1000. << " GeV, where you specified boundaries of [" << m_UncorrRegions->GetXaxis()->GetBinLowEdge(1) << "," << m_UncorrRegions->GetXaxis()->GetBinUpEdge(m_UncorrRegions->GetXaxis()->GetNbins()) << "] for the SIMPLIFIED correlation model " );
       return -1;
     }
     int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
     if ( etabin < 0 || etabin >= m_UncorrRegions->GetYaxis()->GetNbins() ) {
-      ATH_MSG_WARNING( " Found electron with |eta| = " << fabs(cluster_eta) << ", where you specified a boundary of " << m_UncorrRegions->GetYaxis()->GetBinLowEdge(1) << " for the SIMPLIFIED correlation model " );
+      ATH_MSG_WARNING( " Found electron with |eta| = " << fabs(cluster_eta) << ", where you specified boundaries of [" << m_UncorrRegions->GetYaxis()->GetBinLowEdge(1) << "," << m_UncorrRegions->GetYaxis()->GetBinUpEdge(m_UncorrRegions->GetYaxis()->GetNbins()) << "] for the SIMPLIFIED correlation model " );
       return -1;
     }
     int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
