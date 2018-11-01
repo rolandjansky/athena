@@ -25,6 +25,8 @@
 
 #include "MuonPrepRawData/MdtTwinPrepData.h"    // TWIN TUBES
 
+#include "GaudiKernel/ThreadLocalContext.h"
+
 using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
@@ -171,7 +173,14 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
   return decode(chamberHashInRobs);
 }
 
-Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer() {
+Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer()
+{
+  // FIXME: This needs to be redone to work properly with MT.
+  if (Gaudi::Hive::currentContext().slot() > 1) {
+    ATH_MSG_ERROR ( "MdtRdoToPrepDataTool doesn't yet work with MT." );
+    return FAILED;
+  }
+
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
 
@@ -184,6 +193,14 @@ Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDa
     }
     m_mdtPrepDataContainer = handle.ptr();
     return ADDED;
+  }
+  else {
+    const Muon::MdtPrepDataContainer* outputCollection_c = 0;
+    if (evtStore()->retrieve (outputCollection_c, m_mdtPrepDataContainerKey.key()).isFailure())
+    {
+      return FAILED;
+    }
+    m_mdtPrepDataContainer = const_cast<Muon::MdtPrepDataContainer*> (outputCollection_c);
   }
   return ALREADYCONTAINED;
 }
