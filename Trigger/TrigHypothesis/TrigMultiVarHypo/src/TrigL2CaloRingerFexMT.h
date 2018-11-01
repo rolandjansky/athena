@@ -28,6 +28,8 @@
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 
 #include "TrigTimeAlgs/TrigTimer.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+
 
 class TrigL2CaloRingerFexMT : public AthAlgorithm  {
 
@@ -77,27 +79,28 @@ class TrigL2CaloRingerFexMT : public AthAlgorithm  {
     unsigned  m_nPreproc;
     float     m_output;
 
-    SG::ReadHandleKey<xAOD::TrigRingerRings> m_ringsKey { 
+   SG::ReadHandleKey<xAOD::TrigRingerRings> m_ringsKey { 
 	this,
         "CaloRingsKey",
         "CaloRings",
         ""
     };
   
-  SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_clustersKey { 
+   SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_clustersKey { 
 	this,
         "ClustersKey",
         "CaloClusters",
         ""
     };
 
-    SG::WriteHandleKey<xAOD::TrigRNNOutput> m_outputKey {
+   SG::WriteHandleKey<xAOD::TrigRNNOutput> m_outputKey {
 	this,
         "RNNOutputKey",
 	"CaloRNNOutput",
 	""
     };
-  ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "GenericMonitoringTool/RingerFexMon", "Monitoring" };
+
+   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "GenericMonitoringTool/RingerFexMon", "Monitoring" };
 
 };
 

@@ -18,16 +18,18 @@
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
 
 //#include "LArRawEvent/LArRawChannel.h"
 class LArRawChannel;
 class HWIdentifier;
+class LArOnOffIdMapping;
 
 #include "TH2I.h"
 #include "TH2F.h"
@@ -38,7 +40,6 @@ class HWIdentifier;
 #include <set>
 
 class LArEM_ID;
-class LArOnlineID;
 //class LArCablingService;
 class TH1F;
 class TH2F;
@@ -203,14 +204,13 @@ private:
   const DataHandle<ILArShape>    m_dd_shape;
   const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
 
-  ToolHandle<ILArADC2MeVTool>   m_adc2mevtool;
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey{this,"LArADC2MeVKey","LArADC2MeV","SG Key of the LArADC2MeV CDO"};
 
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
 
   ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;
 
-  ToolHandle<LArCablingService>    m_cable_service_tool;
-
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
   const CaloDetDescrManager *m_calo_description_mgr;
 
   const DataHandle<ILArPedestal> m_larpedestal;

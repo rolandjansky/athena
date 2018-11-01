@@ -364,15 +364,15 @@ class ComponentAccumulator(object):
         if other is None: 
             return
 
-        if isinstance(other,collections.Sequence): #Check if we got more than one argument
-            if len(other)==0: 
-                raise ConfigurationError("Merge called with empty sequence as argument")
-            for par in other[1:]:
-                if par is not None: #possible improvment: Check type of par and try to merge if applicable (service, public tool)
-                    self._msg.warning("Merge called with a sequence of potentially un-merged components")
-                    raise RuntimeError()
-            other=other[0]
-
+        if isinstance(other,collections.Sequence):
+            self._msg.error("Merge called with a: %s "  % str(type(other)) + " of length: %d " % len(other))
+            self._msg.error("where elements are of type : " + ", ".join([ str(type(x).__name__) for x in other]) )
+            if len(other) > 1 and isinstance(other[0], ComponentAccumulator):
+                self._msg.error("Try calling mergeAll")
+                raise RuntimeError("Merge can not handle a sequence: " + ", ".join([ str(type(x).__name__) for x in other]) +", call mergeAll instead" )
+            else:
+                raise RuntimeError("Merge can not handle a sequence: " + ", ".join([ str(type(x).__name__) for x in other]) +"" )
+            
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)
                 
@@ -863,3 +863,14 @@ class MultipleParrentsInSequences( unittest.TestCase ):
             self.assertEquals( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
             self.assertEquals( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
             self.assertEquals( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
+
+class FailedMerging( unittest.TestCase ):
+    def runTest( self ):
+        topCA = ComponentAccumulator()
+        
+        def badMerge():
+            someCA = ComponentAccumulator()
+            topCA.merge(  (someCA, 1, "hello")  )
+        self.assertRaises(RuntimeError, badMerge )
+    
+    

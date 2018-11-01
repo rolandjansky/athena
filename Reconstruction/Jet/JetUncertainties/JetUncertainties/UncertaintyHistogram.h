@@ -24,6 +24,7 @@ class UncertaintyHistogram : public asg::AsgMessaging
         UncertaintyHistogram(const TString histName, const bool interpolate);
         UncertaintyHistogram(const char* histName, const bool interpolate);
         UncertaintyHistogram(const UncertaintyHistogram& toCopy);
+        UncertaintyHistogram & operator=(const UncertaintyHistogram &) =delete;
         virtual ~UncertaintyHistogram();
         virtual StatusCode initialize(TFile* histFile);
 

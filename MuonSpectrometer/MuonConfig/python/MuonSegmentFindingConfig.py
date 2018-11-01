@@ -814,6 +814,7 @@ if __name__=="__main__":
     log.debug('About to set up Segment Finding.')
     
     ConfigFlags.Input.Files = ["myESD.pool.root"]
+    ConfigFlags.Input.isMC = True
     ConfigFlags.Muon.doCSCs = False 
     ConfigFlags.lock()
 
