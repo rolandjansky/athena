@@ -110,8 +110,8 @@ unsigned int TileCondToolTMDB::getWeights(unsigned int drawerIdx, TMDB::CHANNEL 
 float TileCondToolTMDB::channelCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, float amplitude) const {
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibData(m_calibDataKey);
-  return calibData->getCalibDrawer(drawerIdx)->getData(channel, 0, 0)
-    + amplitude * calibData->getCalibDrawer(drawerIdx)->getData(channel, 0, 1);
+  return amplitude * calibData->getCalibDrawer(drawerIdx)->getData(channel, 0, 0)
+    + calibData->getCalibDrawer(drawerIdx)->getData(channel, 0, 1);
 
 }
 
