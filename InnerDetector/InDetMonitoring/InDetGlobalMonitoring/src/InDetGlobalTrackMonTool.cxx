@@ -96,6 +96,7 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       holes_quality(nullptr),
       holes_quality_profile(nullptr),
       m_Trk_eta_phi_Base(nullptr),
+      m_Trk_eta_phi_Tight(nullptr),
       m_Trk_eta_phi_Tight_ratio(nullptr),
       m_Trk_eta_phi_noIBLhit_ratio(nullptr),
       m_Trk_eta_phi_noBLhit_ratio(nullptr),
@@ -230,6 +231,12 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
                      m_nBinsEta, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
+
+    registerManHist( m_Trk_eta_phi_Tight, "InDetGlobal/Track", detailsInterval,
+		     "Trk_Tight_eta_phi","Distribution of eta vs phi for combined tracks passing monitoring selection",
+		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsPhi, -M_PI, M_PI,
+		     "eta", "#phi_{0}" ).ignore();
 
     registerManHist( m_Trk_eta_phi_Tight_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Tight_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Tight selection",
@@ -866,7 +873,9 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const std::un
 	else
 	    m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 0 );
     }
-    
+ 
+    m_Trk_eta_phi_Tight->Fill( eta, phi);
+
     /// TRACKSEL: Tight
     if ( m_tight_selTool->accept(*track) )
     {
