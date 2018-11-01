@@ -130,18 +130,6 @@ StatusCode NSWPRDValAlg::initialize() {
      m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_detManager,
                                                 m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName, msgLevel());
      ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
-  }
-
-  if (m_doSTGCRDO){
-     m_sTgcRdoVar = new sTGCRDOVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_RDOContainerName);
-     ATH_CHECK( m_sTgcRdoVar->initializeVariables() );
-  }
-
-  if (m_doSTGCDigit){
-     m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName);
-     ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
 
   	  // Take SDO conainer
      m_sTgcSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_detManager,
@@ -188,13 +176,6 @@ StatusCode NSWPRDValAlg::initialize() {
      ATH_CHECK( m_MmSdoVar->initializeVariables() );
   }
 
-  if (m_doMMRDO) {
-
-    m_MmRdoVar = new MMRDOVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_RDOContainerName);
-    ATH_CHECK( m_MmRdoVar->initializeVariables() );
-  }
-
   if (m_doMMFastDigit){
   	  // Take the "fast_SDO" instead of the SDOs from full sim
      m_MmFastSdoVar = new MMSDOVariables(&(*(evtStore())), m_detManager,
@@ -215,12 +196,6 @@ StatusCode NSWPRDValAlg::initialize() {
  if (m_doMMPRD){
      m_MmPrdVar = new MMPRDVariables(&(*(evtStore())), m_detManager,
                                                 m_MmIdHelper, m_tree, m_NSWMM_PRDContainerName, msgLevel());
-     ATH_CHECK( m_MmPrdVar->initializeVariables() );
-  }
-
- if (m_doMMPRD){
-     m_MmPrdVar = new MMPRDVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_PRDContainerName);
      ATH_CHECK( m_MmPrdVar->initializeVariables() );
   }
 
