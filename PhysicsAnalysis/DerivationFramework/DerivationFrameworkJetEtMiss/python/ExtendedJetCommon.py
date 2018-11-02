@@ -341,7 +341,7 @@ def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
     extjetlog.info('ExtendedJetCommon: Adding OriginCorrection for jet collection: '+jetalg)
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-### antonio #####
+### Schedule Q/G-tagging decorations ### antonio #####
 def addQGTaggerTool(jetalg, sequence, algname ):
     jetaugtool = getJetAugmentationTool(jetalg)
     if(jetaugtool==None):
