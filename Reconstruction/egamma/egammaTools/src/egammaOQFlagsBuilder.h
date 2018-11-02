@@ -29,10 +29,12 @@ Most of the informations are given separately for each layer of the EM calorimet
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class IToolSvc;
 class CaloCellContainer;
-class ILArBadChanTool;
 class HWIdentifier;
 class LArEM_ID;
 class CaloCell_ID;
@@ -56,13 +58,10 @@ class egammaOQFlagsBuilder : public egammaBaseTool
   StatusCode finalize();
 
  private:
-  /** Handle to bad-channel tools */
-  ToolHandle<ILArBadChanTool> m_badChannelTool {this,
-      "LArBadChannelTool", "LArBadChanTool", "This is the larBadChannelTool"};
-
-  ToolHandle<LArCablingService> m_larCablingSvc {this,
-      "LArCablingService", "LArCablingService", "LArCablingService"};
-
+  /** Handle to bad-channel CDO */
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey{this,
+      "LArBadChannelKey","LArBadChannel","Key of the LArBadChannelCont CDO"};
+  
   ToolHandle<ICaloAffectedTool> m_affectedTool {this,
       "affectedTool", "CaloAffectedTool", "CaloAffectedTool"};
 
