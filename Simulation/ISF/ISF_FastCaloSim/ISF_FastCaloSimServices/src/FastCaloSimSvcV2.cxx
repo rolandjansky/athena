@@ -79,7 +79,7 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   
   const CaloDetDescrManager* calo_dd_man  = CaloDetDescrManager::instance();
   const FCALDetectorManager * fcalManager=NULL;
-  detStore()->retrieve(fcalManager);
+  ATH_CHECK(detStore()->retrieve(fcalManager));
   
   m_caloGeo = new CaloGeometryFromCaloDDM();
   m_caloGeo->LoadGeometryFromCaloDDM(calo_dd_man);
