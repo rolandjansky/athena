@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CTP_Decision.h,v 1.10 2008-05-20 16:59:50 efeld Exp $
@@ -16,7 +16,7 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
  *   @short Legacy data class representing the LVL1 CTP trigger decision
