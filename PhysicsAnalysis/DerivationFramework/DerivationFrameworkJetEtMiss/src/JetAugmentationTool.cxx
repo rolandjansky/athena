@@ -134,6 +134,15 @@ namespace DerivationFramework {
       //CHECK( m_trkSelectionTool.setCutLevel( "Loose" ) );
       m_decoratentracks = true; 
       dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>(m_momentPrefix + "NTracks");
+
+      dec_Track_pt = new SG::AuxElement::Decorator<vector<float>>("Track_pt");
+      dec_Track_eta = new SG::AuxElement::Decorator<vector<float>>("Track_eta");
+      dec_Track_phi = new SG::AuxElement::Decorator<vector<float>>("Track_phi");
+      dec_Track_E = new SG::AuxElement::Decorator<vector<float>>("Track_E");
+      dec_Track_passCount1 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount1");
+      dec_Track_passCount2 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount2");
+      dec_Track_passCount3 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount3");
+
     } //doesn't work??
 
 
@@ -324,7 +333,7 @@ namespace DerivationFramework {
       // QGTaggerTool --- antonio ---
       if(m_decoratentracks)
 	{
-	  ATH_MSG_INFO("Test Decorate QG ");
+	  //ATH_MSG_INFO("Test Decorate QG ");
 	  std::vector<const xAOD::IParticle*> jettracks;
 	  jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks);
 	  
@@ -359,12 +368,26 @@ namespace DerivationFramework {
 	  //CHECK( m_trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
 	  //CHECK( m_trkSelectionTool->initialize() );
 	  // -----------------------
-	  
+
+	  vector<float> track_pt;
+	  vector<float> track_eta;
+	  vector<float> track_phi;
+	  vector<float> track_E;
+
+	  vector<int> track_passCount1;
+	  vector<int> track_passCount2;
+	  vector<int> track_passCount3;
+
 	  for (size_t i = 0; i < jettracks.size(); i++) {
 	    
 	    if(invalidJet) continue;
 	    
 	    const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
+
+	    track_pt.push_back( trk->pt() );
+	    track_eta.push_back( trk->eta() );
+	    track_phi.push_back( trk->phi() );
+	    track_E.push_back( trk->e() );
 
 	    // only count tracks with selections
 	    // 1) pt>500 MeV
@@ -375,7 +398,18 @@ namespace DerivationFramework {
 			   (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
 			   );	    
 	    
-	    std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) << std::endl; // temp
+	    //std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) << std::endl; // temp
+
+
+	    if(   trk->pt()>500  ) track_passCount1.push_back(1);
+	    if( !(trk->pt()>500) ) track_passCount1.push_back(0);
+
+	    if(   m_trkSelectionTool->accept(*trk)  ) track_passCount2.push_back(1);
+	    if( !(m_trkSelectionTool->accept(*trk)) ) track_passCount2.push_back(0);
+
+	    if(  (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(1);
+	    if( !(trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(0);
+
 
 	    if (!accept) continue;
 	    
@@ -384,6 +418,15 @@ namespace DerivationFramework {
 	  }// end loop over jettracks
 	  
 	  (*dec_AssociatedNtracks)(jet_orig) = nTracksCount;
+
+	  (*dec_Track_pt)(jet_orig) = track_pt;  
+	  (*dec_Track_eta)(jet_orig) = track_eta;  
+	  (*dec_Track_phi)(jet_orig) = track_phi;  
+	  (*dec_Track_E)(jet_orig) = track_E;  
+	  (*dec_Track_passCount1)(jet_orig) = track_passCount1;  
+	  (*dec_Track_passCount2)(jet_orig) = track_passCount2;  
+	  (*dec_Track_passCount3)(jet_orig) = track_passCount3;  
+
 
 	}// end if m_decoratentracks
 

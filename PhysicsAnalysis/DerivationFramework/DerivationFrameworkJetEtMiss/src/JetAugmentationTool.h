@@ -99,6 +99,14 @@ namespace DerivationFramework {
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
     //InDet::IInDetTrackSelectionTool *m_trkSelectionTool;
 
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_pt;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_eta;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_phi;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_E;
+    SG::AuxElement::Decorator<vector<int>>* dec_Track_passCount1;
+    SG::AuxElement::Decorator<vector<int>>* dec_Track_passCount2;
+    SG::AuxElement::Decorator<vector<int>>* dec_Track_passCount3;
+
   };
 }
 

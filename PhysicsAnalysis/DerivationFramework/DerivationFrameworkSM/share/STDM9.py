@@ -26,6 +26,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 stdm9Seq = CfgMgr.AthSequencer("STDM9Sequence")
 
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -264,6 +265,9 @@ stdm9Seq += CfgMgr.DerivationFramework__DerivationKernel("STDM9Kernel", Thinning
 # augStream = MSMgr.GetStream( streamName )
 # evtStream = augStream.GetEventStream()
 # svcMgr += createThinningSvc( svcName="STDM9ThinningSvc", outStreams=[evtStream] )
+
+# antonio ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=stdm9Seq, algname="QGTaggerToolAlg")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
