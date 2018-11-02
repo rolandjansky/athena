@@ -137,14 +137,13 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 	  p4_pos.SetX(radius*std::cos(phi0)-origin->x());
 	  p4_pos.SetY(radius*std::sin(phi0)-origin->y());
 	  p4_pos.SetZ(radius*std::sinh(eta0)-origin->z());
-
-
+	  	
 	  double deta=p4_pos.Eta()-eta0;
 	  double dphi=p4_pos.Phi()-phi0;
 	  //adjust in case eta/phi are flipped in case of neg E clusters
 	  //this method is agnostic wrt convention
 	  if(p4_cl.Eta()*eta0 <0.) deta*=-1;
-
+	  
 	  double eta_prime=p4_cl.Eta()+deta;
 	  double phi_prime=p4_cl.Phi()+dphi;
 	  double e_subtr=p4_cl.E();
