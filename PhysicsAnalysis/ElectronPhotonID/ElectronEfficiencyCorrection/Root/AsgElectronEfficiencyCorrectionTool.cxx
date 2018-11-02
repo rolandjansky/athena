@@ -201,9 +201,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     //Finish the preaparation of the underlying tool
     if (m_correlation_model == correlationModel::SIMPLIFIED) {
 
-      std::vector<float> eta = m_uncorrSimplfEtaBinsUser;
-      std::vector<float> pt  = m_uncorrSimplfEtBinsUser;
-      m_UncorrRegions = new TH2F("UncorrRegions", "UncorrRegions", pt.size() - 1, &(pt[0]), eta.size() - 1, &(eta[0]));
+      m_UncorrRegions = new TH2F("UncorrRegions", "UncorrRegions", m_uncorrSimplfEtBinsUser.size() - 1, &(m_uncorrSimplfEtBinsUser[0]), m_uncorrSimplfEtaBinsUser.size() - 1, &(m_uncorrSimplfEtaBinsUser[0]));
       m_UncorrRegions->SetDirectory(0);
 
       // bins not entries here
