@@ -206,7 +206,7 @@ void test1() {
 
   std::vector<float> samples = {10, 20, 40, 80, 40, 20, 10};
   amplitude = tool->channelCalib(TMF_DRAWER_IDX, TMDB::D5L, samples);
-  assert(Athena_test::isEqual(amplitude, 2121.0));
+  assert(Athena_test::isEqual(amplitude, 1062.0));
 
 }
 
