@@ -88,7 +88,7 @@ class AntiKtRValues(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['list']
-    StoredValue  = [0.2,0.3,0.4,1.0]
+    StoredValue  = [0.2,0.3,0.4]
 
 class DoCellBasedSubtraction(JobProperty):
     """ option to use cell based subtraction
@@ -131,7 +131,7 @@ class DoHIBTagging(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 
 class HIClusterKey(JobProperty):
