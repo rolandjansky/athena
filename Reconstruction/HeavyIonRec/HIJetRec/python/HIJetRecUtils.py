@@ -353,12 +353,9 @@ def GetSubtractorTool(**kwargs) :
 
     
 def GetHIModifierList(coll_name='AntiKt4HIJets',prepend_tools=[],append_tools=[]) :
-    print 'In modifier', jtm.HICalibMap.keys()
-    print coll_name
     if coll_name not in jtm.HICalibMap.keys() :
         print 'Calibration for R=%d not available using default R=0.4 calibration'
         coll_name='AntiKt4HIJets'
-    print coll_name
     mod_list=prepend_tools
     mod_list+=[jtm.HICalibMap[coll_name]]
     mod_list+=jtm.modifiersMap['HI']
