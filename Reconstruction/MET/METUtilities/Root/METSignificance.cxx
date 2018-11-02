@@ -547,7 +547,7 @@ namespace met {
 
     // setting limits on jets if requested
     if(m_jetPtThr>0.0 && m_jetPtThr>jet->pt())          return StatusCode::SUCCESS;
-    if(m_jetEtaThr>0.0 && m_jetEtaThr>fabs(jet->eta())) return StatusCode::SUCCESS;
+    if(m_jetEtaThr>0.0 && m_jetEtaThr<fabs(jet->eta())) return StatusCode::SUCCESS;
 
     if(m_jerRun1){
       if(m_isDataJet) pt_reso = m_jerTool->getRelResolutionData(jet);
