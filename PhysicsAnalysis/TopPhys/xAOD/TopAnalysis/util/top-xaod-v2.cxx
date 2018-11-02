@@ -690,7 +690,7 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
     // However, at least for data, this is causing problems with the trigger menu
     // skip the file, after the meta data access above
     const TTree* const collectionTree = dynamic_cast<TTree* > (inputFile->Get("CollectionTree"));
-    if (!collectionTree && !topConfig->isMC()) {
+    if (!collectionTree && !topConfig->isMC() && settings->feature("SkipInputFilesWithoutCollectionTree")) {
       std::cout << "No CollectionTree found, skipping file\n";
       continue;
     }
