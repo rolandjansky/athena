@@ -79,9 +79,6 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 {
   ATH_MSG_DEBUG("initializing");
 
-  // initialize the random number generator (used in case of charge flip approach)
-  // m_Rndm = new TRandom3(1);
-
   if(m_sfDec) delete m_sfDec;
   m_sfDec = new SG::AuxElement::Decorator< float>(m_sf_decoration_name);//xxxx
 
