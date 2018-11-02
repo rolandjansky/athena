@@ -24,7 +24,6 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingGeometry.h"
-// #include "TrkGeometry/EntryLayerProvider.h"
 
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
@@ -75,6 +74,7 @@
 #include "TDecompChol.h"
 #include "TrkAlgebraUtils/AlSymMat.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
+#include <exception>
 
 using CLHEP::MeV;
 using CLHEP::mm;
@@ -2341,6 +2341,7 @@ namespace Trk {
             const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(*itSet);
             if (rot && m_DetID->is_mm(rot->identify())) {
               const PlaneSurface* surf = dynamic_cast<const PlaneSurface *>(&rot->associatedSurface());
+              if (not surf) throw std::runtime_error("dynamic cast to PlaneSurface failed in GlobalChi2Fitter::fit");
               AtaPlane atapl(surf->center(), param.parameters()[Trk::phi], param.parameters()[Trk::theta], param.parameters()[Trk::qOverP], *surf);
               rot = m_ROTcreator->correct(*(rot->prepRawData()), atapl);
               rots_tbd.push_back(rot);

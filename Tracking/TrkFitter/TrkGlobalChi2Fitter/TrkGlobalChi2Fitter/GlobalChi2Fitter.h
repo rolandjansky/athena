@@ -65,7 +65,7 @@ class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
 
   struct Cache
   {
-    //Currnetly the information about what type of fit is being passed by the
+    //Currently the information about what type of fit is being passed by the
     // presence of a TrackingVolume
     const TrackingGeometry*  m_trackingGeometry = nullptr;
     const TrackingVolume*    m_caloEntrance = nullptr;
@@ -107,7 +107,12 @@ class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
 
     void cleanup();
     ~Cache(){ cleanup(); };
-
+    //default constructor is defaulted
+    Cache() = default;
+    //assignment is deleted
+    Cache & operator=(const Cache &) = delete;
+    //copy is deleted
+    Cache(const Cache &) = delete;
 
   };
 
