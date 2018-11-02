@@ -33,7 +33,6 @@
 #include <cmath>
 
 namespace CP {
-    //static const double commonSystMTSG = 0.01;
     static const double muon_barrel_endcap_boundary = 1.05;
     unsigned int MuonTriggerScaleFactors::getFallBackRunNumber() const{
       return 340453;
@@ -86,7 +85,7 @@ namespace CP {
         std::string fileName = m_fileName;
         if (fileName.empty() && !m_useRel207) {
             if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v02.root";
-            else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v02.root";
+            else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v03.root";
 	    else if (year == 2017){
 	      if(m_useMC16c)
 		fileName = "muontrigger_sf_2017_mc16c_v02.root";
@@ -165,7 +164,6 @@ namespace CP {
                         bool isData = itype.find("data") != std::string::npos;
                         std::string histname = ("_MuonTrigEff_" + periodName + "_" + triggerName + "_" + quality + "_" + "_EtaPhi_" + m_binning + "_" + iregion + "_" + itype);
                         for (const auto& isys : systematic) {
-//                            if (itype.find("data") != std::string::npos && isys.find("nominal") == std::string::npos) continue;
                             if (itype.find("data") != std::string::npos && isys.find("syst") != std::string::npos) continue;
                             std::string path = "eff_etaphi_" + m_binning + "_" + iregion + "_" + itype + "_" + isys;
                             TH2* hist = dynamic_cast<TH2*>(triggerDirectory->Get(path.c_str()));
