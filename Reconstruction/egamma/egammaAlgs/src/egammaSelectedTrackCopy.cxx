@@ -35,7 +35,15 @@ UPDATE : 25/06/2018
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, 
                                                  ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_AllClusters{},
+  m_SelectedClusters{},
+  m_AllTracks{},
+  m_SelectedTracks{},
+  m_AllSiTracks{},
+  m_SelectedSiTracks{},
+  m_AllTRTTracks{},
+  m_SelectedTRTTracks{}
 {
 }
 
@@ -58,12 +66,16 @@ StatusCode egammaSelectedTrackCopy::initialize() {
 
 StatusCode egammaSelectedTrackCopy::egammaSelectedTrackCopy::finalize(){ 
 
-  ATH_MSG_INFO ("AllTracks " << m_AllTracks);
-  ATH_MSG_INFO ("AllSiTracks " << m_AllSiTracks);
-  ATH_MSG_INFO ("AllTRTTracks " << m_AllTRTTracks);
-  ATH_MSG_INFO ("SelectedTracks " << m_SelectedTracks);
-  ATH_MSG_INFO ("SelectedSiTracks " << m_SelectedSiTracks);
-  ATH_MSG_INFO ("SelectedTRTTracks " << m_SelectedTRTTracks);
+  ATH_MSG_INFO ("--- egamma Selected Track Copy Statistics ---");
+  ATH_MSG_INFO ("--- All Clusters: " << m_AllClusters);
+  ATH_MSG_INFO ("--- Selected Clusters: " << m_SelectedClusters);
+  ATH_MSG_INFO ("--- All Tracks: " << m_AllTracks);
+  ATH_MSG_INFO ("--- Selected Tracks: " << m_SelectedTracks);
+  ATH_MSG_INFO ("--- All Si Tracks: " << m_AllSiTracks);
+  ATH_MSG_INFO ("--- Selected Si Tracks: " << m_SelectedSiTracks);
+  ATH_MSG_INFO ("--- All TRT Tracks: " << m_AllTRTTracks);
+  ATH_MSG_INFO ("--- Selected TRT Tracks: " << m_SelectedTRTTracks);
+  ATH_MSG_INFO ("----------------------------------------- ---");
   return StatusCode::SUCCESS;
 }
 
@@ -92,12 +104,14 @@ StatusCode egammaSelectedTrackCopy::execute()
   ATH_MSG_DEBUG ("Track Particle  container  size: "  <<trackTES->size() );
 
   //Local counters
-  unsigned int allTracks(0);
-  unsigned int allTRTTracks(0);
-  unsigned int allSiTracks(0);  
-  unsigned int selectedTracks(0);
-  unsigned int selectedTRTTracks(0); 
-  unsigned int selectedSiTracks(0);  
+  auto allClusters= m_AllClusters.buffer();
+  auto selectedClusters = m_SelectedClusters.buffer();
+  auto allTracks = m_AllTracks.buffer();
+  auto selectedTracks = m_SelectedTracks.buffer()  ;
+  auto allSiTracks = m_AllSiTracks.buffer();  
+  auto selectedSiTracks = m_SelectedSiTracks.buffer();  
+  auto allTRTTracks =  m_AllTRTTracks.buffer()  ;
+  auto selectedTRTTracks = m_SelectedTRTTracks.buffer(); 
 
   // // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster *> passingClusters;
@@ -107,6 +121,9 @@ StatusCode egammaSelectedTrackCopy::execute()
     }
   }
 
+  allClusters+=(*clusterTES).size();
+  selectedClusters+=passingClusters.size();
+  allTracks+=(*trackTES).size();
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
@@ -120,7 +137,6 @@ StatusCode egammaSelectedTrackCopy::execute()
     if( track->summaryValue(dummy,xAOD::numberOfSCTHits) ){
       nhits+= dummy;
     }
-    ++allTracks;    
     if(nhits<4){
       isTRT = true;
       ++allTRTTracks;
@@ -159,18 +175,6 @@ StatusCode egammaSelectedTrackCopy::execute()
 
   ATH_MSG_DEBUG ("Selected Track container size: "  << viewCopy->size() );
   ATH_CHECK( outputTrkPartContainer.record(std::move(viewCopy)) );
-
-  /*
-   * Typical use for relaxed memory ordering is incrementing counters, 
-   * (such as the reference counters of std::shared_ptr) 
-   * since this only requires atomicity, but not ordering or synchronization.
-   */
-  m_AllTracks.fetch_add(allTracks, std::memory_order_relaxed);
-  m_AllTRTTracks.fetch_add(allTRTTracks, std::memory_order_relaxed);
-  m_AllSiTracks.fetch_add(allSiTracks,std::memory_order_relaxed);
-  m_SelectedTracks.fetch_add(selectedTracks,std::memory_order_relaxed);
-  m_SelectedTRTTracks.fetch_add(selectedTRTTracks,std::memory_order_relaxed);
-  m_SelectedSiTracks.fetch_add(selectedSiTracks,std::memory_order_relaxed);
 
   return StatusCode::SUCCESS;
 }
