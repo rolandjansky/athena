@@ -12,8 +12,6 @@
 #include "xAODCore/ShallowCopy.h"
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 
-//#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
-//#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 
 namespace DerivationFramework {
@@ -45,8 +43,8 @@ namespace DerivationFramework {
     dec_originm(0),
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
-    dec_AssociatedNtracks(0),
-    m_decoratentracks(false), // antonio
+    dec_AssociatedNtracks(0), // antonio --- QGT ---
+    m_decoratentracks(false), 
     m_trkSelectionTool("InDet::InDetTrackSelectionTool/InDetTrackSelectionTool", this )
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -62,7 +60,7 @@ namespace DerivationFramework {
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
     declareProperty("JetPtAssociationTool", m_jetPtAssociationTool);
     declareProperty("JetOriginCorrectionTool",m_jetOriginCorrectionTool);
-    declareProperty("TrackSelectionTool", m_trkSelectionTool);
+    declareProperty("TrackSelectionTool", m_trkSelectionTool); // antonio --- QGT ---
   }
 
   StatusCode JetAugmentationTool::initialize()
@@ -124,36 +122,13 @@ namespace DerivationFramework {
     }
     
     // Here it for ntracks decoration --- QGTaggerTool --- antonio ---
-    //dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>("NTracks");
-
-
     // set up InDet selection tool
     if(!m_trkSelectionTool.empty()) {
       CHECK( m_trkSelectionTool.retrieve() );
-      //CHECK( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
-      //CHECK( m_trkSelectionTool.setCutLevel( "Loose" ) );
       m_decoratentracks = true; 
       dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>(m_momentPrefix + "NTracks");
+    } // now works
 
-      dec_Track_pt = new SG::AuxElement::Decorator<vector<float>>("Track_pt");
-      dec_Track_eta = new SG::AuxElement::Decorator<vector<float>>("Track_eta");
-      dec_Track_phi = new SG::AuxElement::Decorator<vector<float>>("Track_phi");
-      dec_Track_E = new SG::AuxElement::Decorator<vector<float>>("Track_E");
-      dec_Track_passCount1 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount1");
-      dec_Track_passCount2 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount2");
-      dec_Track_passCount3 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount3");
-
-    } //doesn't work??
-
-
-    /*    
-    InDet::InDetTrackSelectionTool *trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
-    CHECK( trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
-    CHECK( trkSelectionTool->initialize() );
-    m_trkSelectionTool = ToolHandle<InDet::IInDetTrackSelectionTool>(trkSelectionTool);
-    //m_trkSelectionTool = new InDet::IInDetTrackSelectionTool(trkSelectionTool);
-    CHECK( m_trkSelectionTool.retrieve() );
-    */
 
     if(!m_jetOriginCorrectionTool.empty()) {
       CHECK(m_jetOriginCorrectionTool.retrieve());
@@ -269,13 +244,6 @@ namespace DerivationFramework {
     }
 
 
-    // test --- antonio ---
-    //InDet::InDetTrackSelectionTool *m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
-    //m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
-    //CHECK( m_trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
-    //CHECK( m_trkSelectionTool->initialize() );
-    // --------
-
     // loop over the copies
     for(const auto& jet : *jets_copy) {
       // get the original jet so we can decorate it
@@ -362,32 +330,11 @@ namespace DerivationFramework {
 	    }
 	  }
 
-	  // tesf for InDet tool ---
-	  //InDet::InDetTrackSelectionTool *m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
-	  //m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
-	  //CHECK( m_trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
-	  //CHECK( m_trkSelectionTool->initialize() );
-	  // -----------------------
-
-	  vector<float> track_pt;
-	  vector<float> track_eta;
-	  vector<float> track_phi;
-	  vector<float> track_E;
-
-	  vector<int> track_passCount1;
-	  vector<int> track_passCount2;
-	  vector<int> track_passCount3;
-
 	  for (size_t i = 0; i < jettracks.size(); i++) {
 	    
 	    if(invalidJet) continue;
 	    
 	    const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
-
-	    track_pt.push_back( trk->pt() );
-	    track_eta.push_back( trk->eta() );
-	    track_phi.push_back( trk->phi() );
-	    track_E.push_back( trk->e() );
 
 	    // only count tracks with selections
 	    // 1) pt>500 MeV
@@ -400,17 +347,6 @@ namespace DerivationFramework {
 	    
 	    //std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) << std::endl; // temp
 
-
-	    if(   trk->pt()>500  ) track_passCount1.push_back(1);
-	    if( !(trk->pt()>500) ) track_passCount1.push_back(0);
-
-	    if(   m_trkSelectionTool->accept(*trk)  ) track_passCount2.push_back(1);
-	    if( !(m_trkSelectionTool->accept(*trk)) ) track_passCount2.push_back(0);
-
-	    if(  (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(1);
-	    if( !(trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(0);
-
-
 	    if (!accept) continue;
 	    
 	    nTracksCount++;
@@ -418,15 +354,6 @@ namespace DerivationFramework {
 	  }// end loop over jettracks
 	  
 	  (*dec_AssociatedNtracks)(jet_orig) = nTracksCount;
-
-	  (*dec_Track_pt)(jet_orig) = track_pt;  
-	  (*dec_Track_eta)(jet_orig) = track_eta;  
-	  (*dec_Track_phi)(jet_orig) = track_phi;  
-	  (*dec_Track_E)(jet_orig) = track_E;  
-	  (*dec_Track_passCount1)(jet_orig) = track_passCount1;  
-	  (*dec_Track_passCount2)(jet_orig) = track_passCount2;  
-	  (*dec_Track_passCount3)(jet_orig) = track_passCount3;  
-
 
 	}// end if m_decoratentracks
 
