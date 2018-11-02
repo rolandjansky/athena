@@ -750,7 +750,7 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll, int gain,
   }
 
   unsigned short fragBCID = coll->getFragBCID();
-  unsigned short existingDMUs = 0;
+  unsigned short existingDMUs = 0xFFFF;
   if (eb) { // do not count non-existing DMUs in EB
     existingDMUs = (ebsp) ? 0x3cfe : 0x3cff;
   }
