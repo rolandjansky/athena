@@ -73,7 +73,7 @@ StatusCode ConditionTestAlg::execute()
   const EventContext& ctx = *getContext();
 #endif
 
-  ATH_MSG_INFO( name() << " running with store " << ctx.getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
+  ATH_MSG_INFO( name() << " running with store " << ctx.getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
 
   // Make a (large) validity range
   EventIDBase begin (0,
