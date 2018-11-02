@@ -146,27 +146,8 @@ GeoVPhysVol* GeoPixelTMT::Build() {
     } 
   }
   // Return the assembly
-
-<<<<<<< HEAD
-  if(lastShape==0) {
-
-     gmt_mgr->msg(MSG::ERROR) << "There is no shape for GeoPixelTMT in "<<__FILE__<<":"<<__LINE__<<endmsg;
-     exit(EXIT_FAILURE);
-  }
-  const GeoShape * tmtShape = lastShape;
-  // don't trust boolean volume
-  // double totVolume = tmtShape->volume();
-  //std::cout << "TMT volume " << totVolume/CLHEP::cm3 << std::endl;
-  std::string matName = gmt_mgr->getMaterialName("TMT", gmt_mgr->GetLD());
-  const GeoMaterial* trapMat = mat_mgr->getMaterialForVolume(matName,totVolume);
-  GeoLogVol* theTMT = new GeoLogVol("TMT",tmtShape,trapMat);
-
-  // No need to set m_transform as default transform is OK.
-
-  return new GeoPhysVol(theTMT);
-=======
   return theTMT;
->>>>>>> ATLASSIM-3557 for pixel TMT: Moving TMT geometry from boolean unit to assembly
+
 }
 
 const GeoShape * 
