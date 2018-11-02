@@ -205,7 +205,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
       m_UncorrRegions->SetDirectory(0);
 
       // bins not entries here
-      m_nSimpleUncorrSyst = (eta.size() - 1) * (pt.size() - 1);
+      m_nSimpleUncorrSyst = (m_uncorrSimplfEtaBinsUser.size() - 1) * (m_uncorrSimplfEtBinsUser.size() - 1);
     }
     //
     if (m_seed_toys != 0) {
