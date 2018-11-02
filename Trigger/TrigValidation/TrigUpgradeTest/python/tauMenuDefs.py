@@ -37,54 +37,74 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 # theFastCaloAlgo.ClustersName="L2CaloClusters"
 # svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
+# ================
+#      CellMaker
+# ================
+
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMakerMT_tau
 cellMaker = TrigCaloCellMakerMT_tau("CaloCellMakerTau")
 cellMaker.OutputLevel=DEBUG
+
+from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
+clusMaker = TrigCaloClusterMakerMT_topo("CaloClusMakerTopo")
+clusMaker.OutputLevel=VERBOSE
  
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-fastCaloInViewAlgs = seqAND("fastCaloInViewAlgsTau", [cellMaker])
+fastCaloInViewAlgs = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker])
 
-
-
-fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMakerTau", OutputLevel=DEBUG)
+fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMakerTau", OutputLevel=VERBOSE)
 fastCaloViewsMaker.ViewFallThrough = True
 fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
 fastCaloViewsMaker.InViewRoIs = "TAUCaloRoIs" # contract with the fastCalo
 fastCaloViewsMaker.Views = "TAUCaloViews"
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgsTau"
-cellMaker.RoIs=fastCaloViewsMaker.InViewRoIs
-
+cellMaker.RoIs = fastCaloViewsMaker.InViewRoIs
 
 # are these needed?
 CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
 CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
 
-
-
-
-
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-theFastCaloHypo = TrigL2CaloHypoAlgMT("L2CaloHypo")
-theFastCaloHypo.OutputLevel = DEBUG
-
-
-
 fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+#from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+#from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 
 
-def genCaloHypoToolTau( name, conf ):
-    return HLTTest__TestHypoTool("name")
+#def genCaloHypoToolTau( name, conf ):
+#    return HLTTest__TestHypoTool("name")
+
+#def tauCaloSequence():
+#    return  MenuSequence( Sequence    = fastCaloAthSequence,
+#                          Maker       = fastCaloViewsMaker,
+#                          Hypo        = HLTTest__TestHypoAlg("L2TauCaloHypoAlg", Input=""),
+#                          HypoToolGen = genCaloHypoToolTau )
+
+from TrigTauHypo.TrigTauHypoConf import TrigL2TauCaloHypoAlgMT
+fastCaloHypo = TrigL2TauCaloHypoAlgMT("L2TauCaloHypo")
+fastCaloHypo.OutputLevel = DEBUG
+#fastCaloHypo.CaloClusters = 
+
+
+fastCaloAthSequence =  seqAND("fastCaloAthSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
+
+from TrigTauHypo.TrigL2TauHypoTool import TrigL2TauHypoToolFromName
+#from TrigTauHypo.TrigTauHypoBase import 
+#from TrigTauHypo.L2TauHypoTool import TrigL2TauHypoTool
+#from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+
+#def genCaloHypoToolTau( name, conf ):
+#    return HLTTest__TestHypoTool("name")
+
+#from TrigTauHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
 
 def tauCaloSequence():
     return  MenuSequence( Sequence    = fastCaloAthSequence,
                           Maker       = fastCaloViewsMaker,
-                          Hypo        = HLTTest__TestHypoAlg("DummyTauCaloHypo", Input=""),
-                          HypoToolGen = genCaloHypoToolTau )
+                          Hypo        = fastCaloHypo,
+                          HypoToolGen = TrigL2TauHypoToolFromName )
+
 
 # #########################################
 # # second step:  tracking.....
