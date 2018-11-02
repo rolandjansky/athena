@@ -32,4 +32,8 @@ bool CaloGeometryFromCaloDDM::LoadGeometryFromCaloDDM(const CaloDetDescrManager*
 
   return PostProcessGeometry();
 }
-
+bool CaloGeometryFromCaloDDM::LoadFCalChannelMapFromFCalDDM(const FCALDetectorManager* fcal_dd_man){
+   this->SetFCal_ChannelMap( fcal_dd_man->getChannelMap() );
+   this->calculateFCalRminRmax();
+   return this->checkFCalGeometryConsistency();
+}

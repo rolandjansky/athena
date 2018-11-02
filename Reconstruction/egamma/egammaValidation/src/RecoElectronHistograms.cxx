@@ -14,7 +14,7 @@ using namespace egammaMonitoring;
 StatusCode RecoElectronHistograms::initializePlots() {
   
   ATH_CHECK(ParticleHistograms::initializePlots());
-  
+
   return StatusCode::SUCCESS;
 
 
@@ -24,6 +24,6 @@ StatusCode RecoElectronHistograms::initializePlots() {
 void RecoElectronHistograms::fill(const xAOD::Electron& elrec) {
 
   ParticleHistograms::fill(elrec);
-  
+
 }
   
