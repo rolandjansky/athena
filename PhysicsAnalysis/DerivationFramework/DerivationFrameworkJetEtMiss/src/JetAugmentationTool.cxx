@@ -45,7 +45,8 @@ namespace DerivationFramework {
     m_decorateptassociation(false),
     dec_AssociatedNtracks(0), // antonio --- QGT ---
     m_decoratentracks(false), 
-    m_trkSelectionTool("InDet::InDetTrackSelectionTool/InDetTrackSelectionTool", this )
+    //m_trkSelectionTool("InDet::InDetTrackSelectionTool/InDetTrackSelectionTool", this )
+    m_trkSelectionTool("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");
