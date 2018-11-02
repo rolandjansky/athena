@@ -140,6 +140,14 @@ public:
     /// Get access to ROB prefetching information from steering
     virtual HLT::RobRequestInfo* robRequestInfo() const override { return m_RobRequestInfo; };
 
+    /// --- Implementation of ITrigROBDataProviderSvcPrefetch interface ---
+
+    /// Set access to ROB prefetching information from steering
+    virtual void setRobRequestInfo(HLT::RobRequestInfo* robInfo) { m_RobRequestInfo = robInfo; } ;
+
+    /// Get access to ROB prefetching information from steering
+    virtual HLT::RobRequestInfo* robRequestInfo() const { return m_RobRequestInfo; };
+
     /// --- Implementation of IIncidentListener interface ---
 
     // handler for BeginRun actions
