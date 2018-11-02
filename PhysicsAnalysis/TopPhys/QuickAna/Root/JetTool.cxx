@@ -136,7 +136,7 @@ namespace ana
     const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
                                           : "JetArea_Residual_EtaJES_GSC_Smear";
 
-    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-81") );
+    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-82") );
 #endif
     ATH_CHECK( m_calibration_tool.setProperty("JetCollection", jetCollection) );
     ATH_CHECK( m_calibration_tool.setProperty("ConfigFile", configFile) );
@@ -520,7 +520,7 @@ namespace ana
                  "FixedCutBEff_77"))
 
   QUICK_ANA_JET_DEFINITION_MAKER ("antikt04_HZZ",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
+    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MANUAL,
                  "FixedCutBEff_85"))
 
   QUICK_ANA_JET_DEFINITION_MAKER( "AntiKt4EMTopo_SUSY",
