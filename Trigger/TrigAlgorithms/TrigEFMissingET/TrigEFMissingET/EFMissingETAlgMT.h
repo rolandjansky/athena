@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEFMISSINGET_EFMISSINGETALGMT_H
 #define TRIGEFMISSINGET_EFMISSINGETALGMT_H 1
@@ -11,7 +11,7 @@
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
-#include "TrigEFMissingET/EFMissingETFromHelper.h"
+#include "TrigEFMissingET/EFMissingETFromHelperMT.h"
 #include "TrigEFMissingET/IMissingETTool.h"
 
 
@@ -39,8 +39,8 @@ class EFMissingETAlgMT : public ::AthReentrantAlgorithm
   SG::WriteHandleKey<xAOD::TrigMissingETContainer> m_metContainerKey { this, "METContainerKey", "HLT_MET", "Name of the output collection" };
   ToolHandleArray<IMissingETTool> m_metTools { this, "METTools", {}, "Tools to fille MET object" };
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
-  ToolHandle<EFMissingETFromHelper> m_helperTool{ this, "HelperTool", "EFMissingETFromHelper/HelperTool", "Helper tool" };
+  ToolHandle<EFMissingETFromHelperMT> m_helperTool{ this, "HelperTool", "EFMissingETFromHelper/HelperTool", "Helper tool" };
 }; 
 
 
-#endif //> !TRIGEFMISSINGET_EFMISSINGETMT_H
+#endif //> !TRIGEFMISSINGET_EFMISSINGETALGMT_H
