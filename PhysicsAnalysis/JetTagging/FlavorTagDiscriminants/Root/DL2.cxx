@@ -16,7 +16,8 @@ namespace {
         return pair.second;
       }
     }
-    throw std::logic_error("no match found for " + var_name);
+    throw std::logic_error(
+      "no regex match found for input variable " + var_name);
   }
 }
 
@@ -41,11 +42,6 @@ namespace FlavorTagDiscriminants {
       auto filler = get_filler(input.name, input.type, input.default_flag);
       m_getters.push_back(filler);
     }
-    // can add other getters here
-    m_getters.push_back([](const xAOD::Jet& j) -> Variable {
-        return {"pt", j.pt()};});
-    m_getters.push_back([](const xAOD::Jet& j) -> Variable {
-        return {"abs_eta", std::abs(j.eta())};});
 
     for (const auto& out_node: graph_config.outputs) {
       std::string node_name = out_node.first;
@@ -104,6 +100,7 @@ namespace FlavorTagDiscriminants {
     case EDMType::INT: return BVarGetter<int>(name, default_flag);
     case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
     case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
+    case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
     default: {
       throw std::logic_error("Unknown EDM type");
     }

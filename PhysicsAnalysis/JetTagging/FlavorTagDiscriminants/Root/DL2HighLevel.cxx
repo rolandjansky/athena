@@ -17,7 +17,7 @@
 
 namespace {
   // define a regex literal operator
-  std::regex operator""_r(const char* c, size_t /* length */) {
+  std::regex operator "" _r(const char* c, size_t /* length */) {
     return std::regex(c);
   }
 }
@@ -39,14 +39,16 @@ namespace FlavorTagDiscriminants {
     TypeRegexes type_regexes{
       {"(IP[23]D_|SV[12]_|rnnip_)p(b|c|u|tau)"_r, EDMType::DOUBLE},
       {"(JetFitter_|SV1_)[Nn].*"_r, EDMType::INT},
-      {"(JetFitter_|SV1_).*"_r, EDMType::FLOAT}};
+      {"(JetFitter_|SV1_).*"_r, EDMType::FLOAT},
+      {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER}};
     StringRegexes default_flag_regexes{
       {"IP2D_.*"_r, "IP2D_isDefaults"},
       {"IP3D_.*"_r, "IP3D_isDefaults"},
       {"SV1_.*"_r, "SV1_isDefaults"},
       {"JetFitter_.*"_r, "JetFitter_isDefaults"},
       {"secondaryVtx_.*"_r, "secondaryVtx_isDefaults"},
-      {"rnnip_.*"_r, "rnnip_isDefaults"}};
+      {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
     std::vector<DL2InputConfig> input_config = get_input_config(
       input_names, type_regexes, default_flag_regexes);

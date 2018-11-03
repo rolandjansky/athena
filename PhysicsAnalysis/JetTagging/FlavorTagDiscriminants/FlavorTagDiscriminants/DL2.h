@@ -5,6 +5,9 @@
 #ifndef DL2_H
 #define DL2_H
 
+// local includes
+#include "FlavorTagDiscriminants/customGetter.h"
+
 // EDM includes
 #include "xAODJet/Jet.h"
 
@@ -26,7 +29,7 @@ namespace lwt {
 
 namespace FlavorTagDiscriminants {
 
-  enum class EDMType {INT, FLOAT, DOUBLE};
+  enum class EDMType {INT, FLOAT, DOUBLE, CUSTOM_GETTER};
 
   // we define a few structures to map variable names to type, default
   // value, etc.
