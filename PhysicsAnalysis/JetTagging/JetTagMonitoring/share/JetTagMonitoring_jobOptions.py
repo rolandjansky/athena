@@ -35,6 +35,7 @@ jetTagMonTool.OutputLevel = INFO
 #Properties defined in the jobOptions
 #START
 jetTagMonTool.JetContainer = "AntiKt4EMTopoJets" #nominal jet collection
+#jetTagMonTool.JetContainer = "AntiKtHIJets" #Heavy Ion runs jet collection
 jetTagMonTool.TrackParticleContainer = "InDetTrackParticles"
 jetTagMonTool.PrimaryVertexContainer = "PrimaryVertices"
 jetTagMonTool.ElectronContainer = "Electrons"
@@ -119,10 +120,9 @@ else:
 if (rec.triggerStream()=='express'): # don't require trigger if running on express stream
      jetTagMonTool.UseTrigDecisionTool = False
 
-jetTagMonTool.UseTrigDecisionTool = False #Disable triggers for Heavy Ion runs
-jetTagMonTool.JetContainer = "AntiKt4HIJets" #Enable Heavy Ion jet collection
+#jetTagMonTool.UseTrigDecisionTool = False #disable triggers for HI events
 
 jetTagMonTool.ElectronTrigger_201X = "HLT_e[2-9][0-9]_.*"; # electrons 20-99 GeV
-jetTagMonTool.MuonTrigger_201X = "HLT_mu[2-9][0-9].*"; # muons 20-99 Ge
-#jetTagMonTool.MuonTrigger_201X = "HLT_mu.*"; # muons *all* GeV
+jetTagMonTool.MuonTrigger_201X = "HLT_mu.*"; # muons *all* GeV
 #jetTagMonTool.JetTrigger_201X = "HLT_j15"; # jets (disabled)
+
