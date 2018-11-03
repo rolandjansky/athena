@@ -12,29 +12,21 @@ class ObjectAccessor
 {
 public:
   typedef int value_type;
-  using const_iterator = std::array<value_type, 99>::const_iterator ; // 99 is a dummy dimension. For all N the type of
-                                                                      // std::array<int, N>::const_iterator is the same
+  // @TODO ideally would use "using const_iterator std::array_base<value_type>::const_iterator" if it existed
+  typedef  const value_type * const_iterator;
 
   template <size_t DIM>
-  ObjectAccessor( const std::array<int, DIM> &a, bool is_reverse=false)
+  ObjectAccessor( const std::array<value_type, DIM> &a, bool is_reverse=false)
     : m_begin(a.begin()),
       m_end(a.end()),
       m_inverseRetrieval(is_reverse)
   {}
 
   template <size_t DIM>
-  ObjectAccessor( const std::pair<std::array<int, DIM> , bool>  &a)
+  ObjectAccessor( const std::pair<std::array<value_type, DIM> , bool>  &a)
     : m_begin(a.first.begin()),
       m_end(a.first.end()),
       m_inverseRetrieval(a.second)
-  {}
-
-  ObjectAccessor(ObjectAccessor::const_iterator the_begin,
-                 ObjectAccessor::const_iterator the_end,
-                 bool inverse_retrieval=false)
-    : m_begin(the_begin),
-      m_end(the_end),
-      m_inverseRetrieval(inverse_retrieval)
   {}
 
   ObjectAccessor::const_iterator begin() const { return m_begin; }
