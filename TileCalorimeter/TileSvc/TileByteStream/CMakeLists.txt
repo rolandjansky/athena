@@ -21,8 +21,6 @@ atlas_depends_on_subdirs(
    AtlasTest/TestTools
    Calorimeter/CaloDetDescr
    Calorimeter/CaloIdentifier
-   Control/CLIDSvc
-   Control/SGTools
    Control/StoreGate
    DetectorDescription/IdDictParser
    Event/ByteStreamCnvSvc
@@ -44,7 +42,7 @@ atlas_add_library( TileByteStreamLib
    ByteStreamData GaudiKernel TileEvent TileIdentifier ByteStreamCnvSvcBaseLib
    CaloDetDescrLib StoreGateLib ByteStreamCnvSvcLib TileConditionsLib
    TileL2AlgsLib TileRecUtilsLib
-   PRIVATE_LINK_LIBRARIES CaloIdentifier SGTools TileCalibBlobObjs
+   PRIVATE_LINK_LIBRARIES CaloIdentifier TileCalibBlobObjs
    TileDetDescr )
 
 atlas_add_component( TileByteStream
