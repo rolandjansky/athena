@@ -17,8 +17,9 @@ class MMSimHitVariables : public ValAlgVariables
                     const MuonGM::MuonDetectorManager* detManager,
                     const MuonIdHelper* idhelper,
                     TTree* tree,
-                    std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MMSimHitVariables"),
+						  std::string containername,
+						  MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
     m_NSWMM_nSimHits(0), 
     m_NSWMM_trackId(0),

@@ -17,8 +17,9 @@ class MuEntryVariables : public ValAlgVariables
   MuEntryVariables(StoreGateSvc* evtStore,
                      const MuonGM::MuonDetectorManager* detManager,
                      TTree* tree,
-                     std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MuEntryVariables"),
+							std::string containername,
+							MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MuEntry_nParticles(0), 
     m_MuEntry_particlePt(0), 
     m_MuEntry_particleEta(0), 
