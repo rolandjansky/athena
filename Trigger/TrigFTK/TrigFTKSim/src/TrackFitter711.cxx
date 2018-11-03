@@ -657,12 +657,18 @@ void TrackFitter711::processor(const FTKRoad &road) {
       for (;itrack!=road_tracks.end();++itrack) {
         m_trackoutput->addTrackI(region,*itrack);
       }
+      if (m_saveStepByStepTracks) {
+        itrack = road_tracks_pre_hw.begin();
+        for (;itrack!=road_tracks_pre_hw.end();++itrack) {
+          m_trackoutput->addTrackI_pre_hw(region,*itrack);
+        }
+      }
       // itrack = road_tracks_pre_hw.begin();
       // for (;itrack!=road_tracks_pre_hw.end();++itrack) {
       //   m_trackoutput_pre_hw->addTrackI(region,*itrack);
       //      }
     }
-    // extrapolate and complete the  fit
+    // extrapolate and complete the fit
     if (!m_super_extrapolate){
       processor_Extrapolate(road,road_tracks);
     }
@@ -853,6 +859,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        newtrkI.setHWRejected(HWbase);
        newtrkI.setHWTrackID(-1);
 
+       if (m_saveStepByStepTracks) m_tracks_hits.push_back(newtrkI);
+
        // add one fit in the counters
        if (nmissing==0) m_nfitsI += 1;
        if (nmissing>0) m_nfits_majI += 1;
@@ -866,8 +874,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        bool toAdd(true);
 
        // exact 0 means no valid constants, skipped
-       if( newtrkI.getChi2() == 0.)
-         toAdd = false;
+       if( newtrkI.getChi2() == 0.) toAdd = false;
+       else if (m_saveStepByStepTracks) m_tracks_pattern.push_back(newtrkI);
 
        // majority track with bad chisq have no reason to be kept, recovery is not possible
        if (newtrkI.getNMissing() > 0) {
@@ -1019,7 +1027,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
          newtrkI.getChi2() != 0 ) {
 
        // appending pre-HW tracks to dump
-       //       road_tracks_pre_hw.push_back(newtrkI);
+       road_tracks_pre_hw.push_back(newtrkI);
 
        // to append the found track go trought the HW filter
        // add this track to track list only if
@@ -3839,6 +3847,9 @@ void TrackFitter711::saveCompleteTracks() {
       // add this track to track list only if
       // don't have common hits with another track,
       // in this case keep the best
+
+      // appending pre-HW tracks to dump
+      m_tracks_pre_hw.push_back(newtrk);
 
       // remains 0 if the track has to be added
       // -1 means is worse than an old track (duplicated)

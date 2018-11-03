@@ -175,9 +175,17 @@ validation_photon.extend(monitoring_photon)
 validation_mam=monitoring_mam
 
 # Heavy Ion items
-monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_loose','HLT_e15_lhloose','HLT_e15_lhloose_nod0','HLT_e17_lhloose','HLT_e17_lhloose_nod0']
-monitoring_photon_hi=['HLT_g13_etcut','HLT_g18_etcut','HLT_g15_loose','HLT_g20_loose']
-monitoring_mam_hi = {'primary_single_ele_cutbased':'HLT_e15_loose',
-                     'primary_single_ele':'HLT_e15_lhloose_nod0',
-                     'primary_single_pho':'HLT_g15_loose'}
+#Previous HI config
+#monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_loose','HLT_e15_lhloose','HLT_e15_lhloose_nod0','HLT_e17_lhloose','HLT_e17_lhloose_nod0']
+#monitoring_photon_hi=['HLT_g13_etcut','HLT_g18_etcut','HLT_g15_loose','HLT_g20_loose']
+monitoring_mam_hi = {'primary_single_ele_cutbased':'HLT_e15_loose_ion',
+                     'primary_single_ele':'HLT_e15_lhloose_ion_L1EM12',
+                     'primary_single_pho':'HLT_g20_loose_ion'}
+monitoring_electron_hi=["HLT_e15_etcut_ion", "HLT_e15_loose_ion",
+"HLT_e15_medium_ion", "HLT_e15_lhloose_ion_L1EM12",
+"HLT_e15_lhmedium_ion_L1EM12", "HLT_e18_etcut_ion", "HLT_e18_loose_ion",
+"HLT_e18_medium_ion", "HLT_e18_lhloose_ion", "HLT_e18_lhmedium_ion",
+"HLT_e20_loose_ion"]
 
+monitoring_photon_hi=["HLT_g20_loose_ion", "HLT_g18_etcut_ion",
+"HLT_g15_loose_ion", "HLT_g13_etcut_ion"]

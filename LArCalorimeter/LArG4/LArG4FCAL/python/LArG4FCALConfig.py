@@ -1,25 +1,27 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm,deg,ns
 import math
 
+def getFCALCalculatorBase(name="FCALCalculatorBase", **kwargs):
+    kwargs.setdefault("OOTcut",2.5*ns)
+    return CfgMgr.LArFCALCalculatorBase(name, **kwargs)
+
+
 def getFCAL1Calculator(name="FCAL1Calculator", **kwargs):
-       kwargs.setdefault("OOTcut",2.5*ns)
-       kwargs.setdefault("FCALSampling",1);
-       return CfgMgr.LArFCALCalculatorBase(name, **kwargs)
+    kwargs.setdefault("FCALSampling",1);
+    return getFCALCalculatorBase(name, **kwargs)
 
 
 def getFCAL2Calculator(name="FCAL2Calculator", **kwargs):
-       kwargs.setdefault("OOTcut",2.5*ns)
-       kwargs.setdefault("FCALSampling",2);
-       return CfgMgr.LArFCALCalculatorBase(name, **kwargs)
+    kwargs.setdefault("FCALSampling",2);
+    return getFCALCalculatorBase(name, **kwargs)
 
 
 def getFCAL3Calculator(name="FCAL3Calculator", **kwargs):
-       kwargs.setdefault("OOTcut",2.5*ns)
-       kwargs.setdefault("FCALSampling",3);
-       return CfgMgr.LArFCALCalculatorBase(name, **kwargs)
+    kwargs.setdefault("FCALSampling",3);
+    return getFCALCalculatorBase(name, **kwargs)
 
 
 def getFCAL1CalibCalculator(name="FCAL1CalibCalculator", **kwargs):

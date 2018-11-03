@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,9 +50,11 @@
 #include "Identifier/IdentifierHash.h"
 #include "CxxUtils/make_unique.h"
 
-
 static constexpr unsigned int crazyParticleBarcode( std::numeric_limits< int32_t >::max() );
 // Barcodes at the HepMC level are int
+
+// select the High threshold bits of TRT RDO words
+static const unsigned int maskHT=0x04020100;
 
 TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
                                                   const std::string &name,
@@ -75,7 +77,7 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
     m_HardScatterSplittingMode( 0 ),
     m_HardScatterSplittingSkipper( false ),
     m_vetoThisBarcode( crazyParticleBarcode ),
-    m_useEventInfo( false ),
+    m_useEventInfo( true ),
     m_EventInfoKey( "McEventInfo" ),
     m_NCollPerEvent( 30 )
 {
@@ -300,10 +302,10 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 
       if ( m_useTrtElectronPidTool ) {
 
-        double position = ( BEC == 1 ? hitGlobalPosition.z() : hitGlobalPosition.perp() );
+        double position = ( fabs(BEC) == 1 ? hitGlobalPosition.z() : hitGlobalPosition.perp() );
         // double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, driftRadiusLoc, position );
-        double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position );
-        if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
+        double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position);
+        if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= maskHT;
       }
       else {
 
@@ -314,11 +316,11 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 
         if ( abs( particleEncoding ) == 11 && p > 5000. ) {  // electron
           double probability = ( p < 20000. ? HTProbabilityElectron_low_pt( eta ) : HTProbabilityElectron_high_pt( eta ) );
-          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
+          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= maskHT;
         }
         else if ( abs( particleEncoding ) == 13 || abs( particleEncoding ) > 100 ) {  // muon or other particle
           double probability = ( p < 20000. ? HTProbabilityMuon_5_20( eta ) : HTProbabilityMuon_60( eta ) );
-          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
+          if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= maskHT;
         }
 
       }
@@ -454,41 +456,68 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
   typedef std::multimap< Identifier, InDet::TRT_DriftCircle * >::iterator DriftCircleMapItr;
   typedef std::multimap< IdentifierHash, InDet::TRT_DriftCircle * >::iterator HashMapItr;
 
-  std::multimap< IdentifierHash, InDet::TRT_DriftCircle * > idHashMap;
+  // empiric parameterization of the probability to merge to LT hits into a HT hit as a function of the number of collisions
+  // TL - I first determined the value of highTRMergeProb which gives a good
+  // agreeement with full simulation as being 0.04 for mu=10 and 0.12 for mu=60;
+  // I decided to use the functional form a*pow(mu,b) to describe the mu
+  // dependence; solving the 2x2 system gives a=0.01 and b=0.61. 
+  float highTRMergeProb = 0.01*pow(m_NCollPerEvent,0.61);
 
+  std::multimap< IdentifierHash, InDet::TRT_DriftCircle * > idHashMap;
   for ( DriftCircleMapItr itr = m_driftCircleMap.begin() ; itr != m_driftCircleMap.end(); itr = m_driftCircleMap.upper_bound( itr->first ) ) {
 
+    const Identifier trtid = itr->first;
     std::pair< DriftCircleMapItr, DriftCircleMapItr > hitsInOneStraw = m_driftCircleMap.equal_range( itr->first );
-    // unsigned int numberOfHitsInOneStraw = m_driftCircleMap.count( itr->first );
+    unsigned int numberOfHitsInOneStraw = m_driftCircleMap.count( itr->first );
     InDet::TRT_DriftCircle *trtDriftCircle = ( hitsInOneStraw.first )->second;
     IdentifierHash hash = trtDriftCircle->detectorElement()->identifyHash();
-    idHashMap.insert( std::multimap<IdentifierHash, InDet::TRT_DriftCircle * >::value_type( hash, trtDriftCircle ) );
+    //idHashMap.insert( std::multimap<IdentifierHash, InDet::TRT_DriftCircle * >::value_type( hash, trtDriftCircle ) );
     // delete all driftCircles in TRT straw excert the first one, see ATLPHYSVAL-395
+    bool isHT = false;
     for ( DriftCircleMapItr itr2 = ++( hitsInOneStraw.first ); itr2 != hitsInOneStraw.second; ++itr2 ) {
-      InDet::TRT_DriftCircle *trtDriftCircle = itr2->second;
-      delete trtDriftCircle;
-    } 
+      InDet::TRT_DriftCircle *trtDriftCircle2 = itr2->second;
+      if(trtDriftCircle2->getWord() & maskHT) isHT = true;
+      delete trtDriftCircle2;
+    }
+
+
+    // set the word of the first hit to high threshold with some probability, unless any of the hits is HT already
+    if( !(trtDriftCircle->getWord() & maskHT) && !isHT && numberOfHitsInOneStraw > 1) {
+      unsigned int newword = 0;
+      if(highTRMergeProb*(numberOfHitsInOneStraw-1) > CLHEP::RandFlat::shoot( m_randomEngine )) newword += 1 << (26-9); 
+      const unsigned int newword2 = newword;
+      const Amg::Vector2D locpos = trtDriftCircle->localPosition();
+      std::vector<Identifier> rdolist = trtDriftCircle->rdoList();
+      Amg::MatrixX* errRadius =  new Amg::MatrixX(trtDriftCircle->localCovariance());
+      const InDetDD::TRT_BaseElement* detEl = trtDriftCircle->detectorElement();
+      InDet::TRT_DriftCircle *trtDriftCircle2 = new InDet::TRT_DriftCircle( trtid, locpos, 
+									    rdolist, errRadius, 
+                                                                            detEl, newword2 );
+      idHashMap.insert( std::multimap<IdentifierHash, InDet::TRT_DriftCircle * >::value_type( hash, trtDriftCircle2 ) ); 
+      delete trtDriftCircle;  
+    }
+    else{
+      idHashMap.insert( std::multimap<IdentifierHash, InDet::TRT_DriftCircle * >::value_type( hash, trtDriftCircle ) );
+    }
+
   }
 
   for ( HashMapItr itr = idHashMap.begin(); itr != idHashMap.end(); itr = idHashMap.upper_bound( itr->first ) ) {
 
     std::pair< HashMapItr, HashMapItr > itrPair = idHashMap.equal_range( itr->first );
-
     const InDetDD::TRT_BaseElement *trtBaseElement = ( itrPair.first )->second->detectorElement();
     IdentifierHash hash = trtBaseElement->identifyHash();
-
     InDet::TRT_DriftCircleCollection *trtDriftCircleCollection = new InDet::TRT_DriftCircleCollection( hash );
     trtDriftCircleCollection->setIdentifier( trtBaseElement->identify() );
-
     for ( HashMapItr itr2 = itrPair.first; itr2 != itrPair.second; ++itr2 ) {
       InDet::TRT_DriftCircle *trtDriftCircle = itr2->second;
       trtDriftCircle->setHashAndIndex( trtDriftCircleCollection->identifyHash(), trtDriftCircleCollection->size() );
       trtDriftCircleCollection->push_back( trtDriftCircle );
     }
-
     if ( m_trtDriftCircleContainer->addCollection( trtDriftCircleCollection, hash ).isFailure() ) {
       ATH_MSG_WARNING( "Could not add collection to Identifyable container" );
     }
+     
   }
 
   idHashMap.clear();
@@ -715,22 +744,21 @@ double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEn
   const double hitGlobalPositionMin[] = {   0.,  630.,  630. };
   const double hitGlobalPositionMax[] = { 720., 1030., 1030. };
 
-  if ( hitGlobalPosition < hitGlobalPositionMin[ trtPart ] ) {
+  if ( fabs(hitGlobalPosition) < hitGlobalPositionMin[ trtPart ] ) {
     ATH_MSG_WARNING( "hitGlobalPosition was below allowed range (will be adjusted): trtPart = " << trtPart << ", hitGlobalPosition = " << hitGlobalPosition );
-    hitGlobalPosition = hitGlobalPositionMin[ trtPart ] + 0.001;
+    hitGlobalPosition = copysign(hitGlobalPositionMin[ trtPart ] + 0.001,hitGlobalPosition);
   }
-  if ( hitGlobalPosition > hitGlobalPositionMax[ trtPart ] ) {
+  if ( fabs(hitGlobalPosition) > hitGlobalPositionMax[ trtPart ] ) {
     ATH_MSG_WARNING( "hitGlobalPosition was above allowed range (will be adjusted): trtPart = " << trtPart << ", hitGlobalPosition = " << hitGlobalPosition );
-    hitGlobalPosition = hitGlobalPositionMax[ trtPart ] - 0.001;
+    hitGlobalPosition = copysign(hitGlobalPositionMax[ trtPart ] - 0.001,hitGlobalPosition);
   }
 
   if ( rTrkWire > 2.2 ) rTrkWire = 2.175;
 
-  double Occupancy = 0.1;
+  double Occupancy = 0.1+0.014*m_NCollPerEvent;
 
   double probHT = m_trtElectronPidTool->probHTRun2( pTrk, hypothesis, trtPart, gasType( straw_id ), strawLayer, hitGlobalPosition, rTrkWire, Occupancy );
-  if ( probHT == 0.5 || probHT == 1. ) probHT = 0.;
-  probHT /= correctionHT( pTrk, hypothesis );
+  if( probHT == 0.5 || probHT == 1. ) probHT = 0.;
 
   return probHT;
 }

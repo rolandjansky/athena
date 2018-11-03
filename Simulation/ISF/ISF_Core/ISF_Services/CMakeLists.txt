@@ -117,6 +117,5 @@ atlas_add_test( TruthSvc_test
                 )
 
 # Install files from the package:
-atlas_install_headers( ISF_Services )
 atlas_install_python_modules( python/*.py )
 

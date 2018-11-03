@@ -61,7 +61,6 @@ bool fulldbg = false;
 template<typename T=TH1F>
 T* Get( TFile& f, const std::string& n, const std::string& dir="", std::vector<std::string>* saved=0  ) { 
 
-
   std::string name;
 
   size_t pos = n.find("+");
@@ -81,6 +80,8 @@ T* Get( TFile& f, const std::string& n, const std::string& dir="", std::vector<s
       else     saved->push_back( name );
     }
   }
+
+  if ( h ) h->SetDirectory(0);
 
   return h;
 }

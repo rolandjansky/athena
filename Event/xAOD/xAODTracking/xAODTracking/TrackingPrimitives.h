@@ -35,7 +35,7 @@ namespace xAOD {
   enum TrackFitter
   {
       ///Track fitter not defined.
-    Unknown        = 0,
+      Unknown        = 0,
       ///tracks produced by iPat
       iPatTrackFitter      = 1,
       ///tracks produced by xKalman
@@ -181,7 +181,7 @@ namespace xAOD {
     // SLHCConversion Track flag
     SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
     // Pseudotracking
-    Pseudotracking			   = 51,
+    Pseudotracking         = 51,
      ///maximum number of enums
     NumberOfTrackRecoInfo                  = 52
   };
@@ -433,7 +433,7 @@ namespace xAOD {
     /// reconstruction.
     ///
     enum VertexType {
-      NoVtx   = 0, ///< Dummy vertex. TrackParticle was not used in vertex fit
+        NoVtx   = 0, ///< Dummy vertex. TrackParticle was not used in vertex fit
         PriVtx  = 1, ///< Primary vertex
         SecVtx  = 2, ///< Secondary vertex
         PileUp  = 3, ///< Pile-up vertex

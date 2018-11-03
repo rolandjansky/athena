@@ -37,18 +37,18 @@ namespace xAOD {
    private:
       /// @name iParticle values
       /// @{                          
-     std::vector< float >             pt;
-     std::vector< float >             eta;
-     std::vector< float >             phi;
-     std::vector< float >             charge;
-     /// @}  
-			                       	
-     /// @name Muon summary information
-     /// @{                                      	
-     std::vector< uint16_t >          allAuthors;
-     std::vector< uint16_t>           author;
-     std::vector< uint16_t>           muonType;
-     std::vector< uint8_t>            quality; //quality, passesIDCuts and passesHighPtCuts are packed in here.
+      std::vector< float >            pt;
+      std::vector< float >            eta;
+      std::vector< float >            phi;
+      std::vector< float >            charge;
+      /// @}  
+                              
+      /// @name Muon summary information
+      /// @{                                       
+      std::vector< uint16_t >         allAuthors;
+      std::vector< uint16_t>          author;
+      std::vector< uint16_t>          muonType;
+      std::vector< uint8_t>           quality; //quality, passesIDCuts and passesHighPtCuts are packed in here.
 
       /// @}  
 

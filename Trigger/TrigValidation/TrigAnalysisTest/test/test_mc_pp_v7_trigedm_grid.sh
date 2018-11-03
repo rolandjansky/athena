@@ -32,4 +32,6 @@ export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/
 athena.py -c "RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=${DS};DetDescrVersion='ATLAS-R2-2015-03-01-00'" -b TrigAnalysisTest/testAthenaTrigAOD_TrigEDMCheck.py | tee ${JOB_LOG}
 echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}"
 
+export SKIP_CHAIN_DUMP=1
+echo "trigedm SKIP_CHAIN_DUMP" $[SKIP_CHAIN_DUMP]
 source exec_art_triggertest_post.sh

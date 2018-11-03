@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
 
 #include "G4ThreeVector.hh"
 #include "globals.hh"
-
-#include "LArG4Code/LArG4BirksLaw.h"
 
 #include "EnergyCalculator.h"
 

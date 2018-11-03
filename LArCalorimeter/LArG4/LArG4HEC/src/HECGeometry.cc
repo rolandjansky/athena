@@ -285,7 +285,7 @@ namespace LArG4 {
 
             G4Tubs *tubs = dynamic_cast<G4Tubs *> (sliceSolid);
             if (tubs) {
-              double dz = tubs->GetDz()/Units::mm;
+              double dz = tubs->GetZHalfLength()/Units::mm;
               if (sliceZ > 0) {
                 if (fabs(sliceZ)>dz/2.0) {
                   (*subgap) = 0;
