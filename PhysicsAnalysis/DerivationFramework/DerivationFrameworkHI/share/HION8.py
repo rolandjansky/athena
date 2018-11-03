@@ -37,12 +37,12 @@ DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=4000 #in MeV
 #Thinning threshods for jets is applied only in data and the cut is set to be the 99% point of the lowest trigger threshold
 JetThinningThreshold = {'DFAntiKt4HIJets': HI18TriggerDict['HLT_j50_ion_L1J12'] , 'DFAntiKt2HIJets': HI18TriggerDict['HLT_j50_ion_L1J12'] , 'AntiKt4HIJets': HI18TriggerDict['HLT_j50_ion_L1J12'] , 'AntiKt2HIJets': HI18TriggerDict['HLT_j50_ion_L1J12']} #in GeV
-if project_tag=='data18_hi':
+if project_tag=='data15_hi':
 	expression='(HLT_j50_ion_L1TE20 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j60_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1)' % (HITriggerDict['HLT_j50_ion_L1TE20'],HITriggerDict['HLT_j60_ion_L1TE50'],HITriggerDict['HLT_j75_ion_L1TE50']) 
 #TODO to be changed to DF when their performance is understood
 if HIDerivationFlags.isPP() : expression='(HLT_j30_L1TE5 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j40_L1TE10 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j50_L1J12 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j60_L1J15 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_L1J20 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j85 && count(AntiKt4HIJets.pt > %d*GeV) >=1) ' % (ppTriggerDict['HLT_j30_L1TE5'],ppTriggerDict['HLT_j40_L1TE10'],ppTriggerDict['HLT_j50_L1J12'],ppTriggerDict['HLT_j60_L1J15'],ppTriggerDict['HLT_j75_L1J20'],ppTriggerDict['HLT_j85'])
 if HIDerivationFlags.doMinBiasSelection() : expression = 'HLT_noalg_mb_L1TE50 || HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50'
-if project_tag=='data15_hi':
+if project_tag=='data18_hi':
 	expression=''
 	for i, key in enumerate(HI18TriggerDict):
 		expression = expression + '(' + key + ' && (count(AntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1 || count(DFAntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1) ) '
