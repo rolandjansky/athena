@@ -53,6 +53,8 @@ elif not HIDerivationFlags.isPP():
         triggers += ['HLT_e15_loose_ion_L1EM12']
         triggers += ['HLT_mu8']
         triggers += ['HLT_g20_loose_ion']
+	triggers += ['HLT_e15_lhloose_ion_L1EM12']
+	triggers += ['HLT_e15_loose_ion']
     else :
         triggers += ['HLT_noalg_mb_L1TE50']
         triggers += ['HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50']    
