@@ -422,8 +422,10 @@ int main(int argc, char** argv) {
 	// skip the file, after the meta data access above
         const TTree* const collectionTree = dynamic_cast<TTree* > (inputFile->Get("CollectionTree"));
         if (!collectionTree && !topConfig->isMC()) {
+          if (top::ConfigurationSettings::get()->feature("SkipInputFilesWithoutCollectionTree")) {
             std::cout << "No CollectionTree found, skipping file\n";
             continue;
+          }
         }
 
 	top::check(xaodEvent.readFrom(inputFile.get()), "xAOD::TEvent readFrom failed");
