@@ -9,8 +9,6 @@ atlas_subdir( TileDetDescr )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/Identifier
@@ -29,6 +27,6 @@ atlas_add_library( TileDetDescr
                    src/Tile*.cxx
                    PUBLIC_HEADERS TileDetDescr
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier SGTools GeoModelKernel Identifier CaloDetDescrLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaKernel GeoModelKernel Identifier CaloDetDescrLib
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr GaudiKernel TileIdentifier )
 
