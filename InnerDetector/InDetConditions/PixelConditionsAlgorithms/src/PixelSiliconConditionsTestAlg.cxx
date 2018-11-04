@@ -17,6 +17,9 @@ StatusCode PixelSiliconConditionsTestAlg::initialize()
   ATH_MSG_INFO("Calling initialize");
 
   ATH_CHECK(m_siliconTool.retrieve());
+
+  ATH_CHECK(m_moduleDataKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -27,6 +30,11 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
   for (int i=0; i<2048; i++) {
     std::cout << "Hash ID=" << IdentifierHash(i) << " Bias Voltage=" << m_siliconTool->biasVoltage(IdentifierHash(i)) << " Temperature=" << m_siliconTool->temperature(IdentifierHash(i)) << " Depletion V=" << m_siliconTool->depletionVoltage(IdentifierHash(i)) << " FSM state=" << m_siliconTool->PixelFSMState(IdentifierHash(i)) << " FSM status=" << m_siliconTool->PixelFSMStatus(IdentifierHash(i)) <<  std::endl;
   }
+
+
+  int hitDiscConfig = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getIBLHitDiscConfig();
+  std::cout << "STSTST PixelModuleData " << hitDiscConfig << std::endl;
+
 
   return StatusCode::SUCCESS;
 }

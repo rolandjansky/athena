@@ -115,7 +115,7 @@ class PixelConditionsServicesSetup:
     self.summaryTool = TrigPixelConditionsSummaryTool
 
     if self._print: print TrigPixelConditionsSummaryTool
-   
+  
     #####################
     # Calibration Setup #
     #####################
@@ -132,33 +132,18 @@ class PixelConditionsServicesSetup:
 
       svcMgr += PixelCalibSvc
 
-      #only when inputsource=1
-      #if not conddb.folderRequested("/PIXEL/PixReco"):
-      #  conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
-
     if not conddb.folderRequested("/PIXEL/PixReco"):
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco") 
+      conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
 
-    #Configure PixelRecoDbTool
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
-    PixelRecoDbTool = PixelRecoDbTool(name=self.instanceName('PixelRecoDbTool'))
-    ToolSvc += PixelRecoDbTool
-    PixelRecoDbTool.InputSource = 2
-    # if self.onlineMode:
-    #   PixelRecoDbTool.InputSource = 1      #after change of run1 conditions
-    # else:
-    #   PixelRecoDbTool.InputSource = 2
+    if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
+      condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
+      PixelOfflineCalibCondAlg.InputSource = 2
 
-    if self._print:  print PixelRecoDbTool
 
-    #use corresponding PixelRecoDBTool
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
-    PixelOfflineCalibSvc = PixelOfflineCalibSvc(self.instanceName('PixelOfflineCalibSvc'))
-    PixelOfflineCalibSvc.PixelRecoDbTool = PixelRecoDbTool
-    ServiceMgr += PixelOfflineCalibSvc
-
-    if self._print:  print PixelOfflineCalibSvc
-                                                
+    if not hasattr(condSeq, 'PixelConfigCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
 
     ### configure the special pixel map service
     if not (conddb.folderRequested("/PIXEL/PixMapShort") or conddb.folderRequested("/PIXEL/Onl/PixMapShort")):

@@ -23,11 +23,13 @@ atlas_depends_on_subdirs(
    DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/GeoModel/GeoModelUtilities
    DetectorDescription/Identifier
+   DetectorDescription/DetDescrCond/DetDescrConditions
    InnerDetector/InDetConditions/PixelConditionsTools
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
-   InnerDetector/InDetDetDescr/PixelGeoModel )
+   InnerDetector/InDetDetDescr/PixelGeoModel 
+   Tools/PathResolver)
 
 # External dependencies:
 find_package( CLHEP )
@@ -40,8 +42,8 @@ atlas_add_library( PixelConditionsAlgorithmsLib
    PixelConditionsAlgorithms/*.h
    INTERFACE
    PUBLIC_HEADERS PixelConditionsAlgorithms
-   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData
-   AthenaPoolUtilities )
+   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData DetDescrConditions
+   AthenaPoolUtilities PathResolver )
 
 atlas_add_component( PixelConditionsAlgorithms
    src/*.h src/*.cxx src/components/*.cxx
@@ -51,7 +53,7 @@ atlas_add_component( PixelConditionsAlgorithms
    ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities
    GaudiKernel PixelConditionsData SGTools StoreGateLib CoralDB
    GeoModelUtilities Identifier InDetIdentifier InDetReadoutGeometry
-   PixelGeoModelLib PixelCablingLib PixelConditionsAlgorithmsLib )
+   PixelGeoModelLib PixelCablingLib PixelConditionsAlgorithmsLib PathResolver )
 
 # Install files from the package:
 #atlas_install_joboptions( share/*.py )

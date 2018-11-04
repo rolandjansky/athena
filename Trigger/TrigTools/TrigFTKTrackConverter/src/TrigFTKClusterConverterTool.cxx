@@ -55,7 +55,6 @@ TrigFTKClusterConverterTool::TrigFTKClusterConverterTool(const std::string& t,
 					   const std::string& n,
 					   const IInterface*  p ): 
   AthAlgTool(t,n,p), 
-  m_offlineCalibSvc("PixelOfflineCalibSvc", n),
   m_usePixelCalibSvc(true),
   m_trackFitter("Trk::DistributedKalmanFilter/InDetTrackFitter"),
   m_doFit(false),
@@ -67,7 +66,6 @@ TrigFTKClusterConverterTool::TrigFTKClusterConverterTool(const std::string& t,
   m_cacheSCTElements{} {
 
   declareInterface< ITrigFTKClusterConverterTool >( this );
-  declareProperty( "PixelOfflineCalibSvc",m_offlineCalibSvc);
   declareProperty( "UsePixelCalibSvc",m_usePixelCalibSvc); 
   declareProperty( "TrackFitter",m_trackFitter); 
   declareProperty( "DoFit",m_doFit);
@@ -81,17 +79,7 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
   StatusCode sc = AlgTool::initialize();
 
   if(m_usePixelCalibSvc) {
-
-    if ( !m_offlineCalibSvc.empty() ) { 
-      StatusCode sc = m_offlineCalibSvc.retrieve(); 
-      if (sc.isFailure() || !m_offlineCalibSvc ) { 
-        ATH_MSG_ERROR(m_offlineCalibSvc.type() << " not found! ");  
-	return sc; 
-      } 
-      else{ 
-        ATH_MSG_INFO("Retrieved tool " <<  m_offlineCalibSvc.type());
-      } 
-    } 
+    ATH_CHECK(m_clusterErrorKey.initialize());
   }
   if(m_doTruth) {
     sc = service( "StoreGateSvc", m_evtStore ); 
@@ -312,15 +300,17 @@ InDet::PixelCluster* TrigFTKClusterConverterTool::createPixelCluster(IdentifierH
     const Amg::Vector2D& colRow = siWidth.colRow();
     double averageZPitch = siWidth.z()/colRow.y();
 
-    if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer && m_offlineCalibSvc != 0){ 
+    if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){ 
 
       if(pDE->isBarrel()){ 
-	(*cov)(0,0) =  pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),int(colRow.x())),2);   
-	(*cov)(1,1) = pow(m_offlineCalibSvc->getBarrelErrorEta(eta,int(colRow.y()),int(colRow.x())),2);
+        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+ 	      (*cov)(0,0) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin),2);   
+        (*cov)(1,1) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin),2);
       } 
       else{ 
-	(*cov)(0,0) = pow(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())),2);  
-	(*cov)(1,1) =  pow(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())),2); 
+        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+        (*cov)(0,0) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin),2);
+        (*cov)(1,1) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapRError(ibin),2);
       } 
     } else { 
       (*cov)(0,0) = pow(siWidth.phiR()/colRow.x(),2)/12; 

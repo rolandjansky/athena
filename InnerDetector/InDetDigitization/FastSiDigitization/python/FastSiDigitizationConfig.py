@@ -34,7 +34,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and not 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
         kwargs.setdefault("UsePixelCalibCondDB", False)
         kwargs.setdefault("PixelCalibSvc","");
-        kwargs.setdefault("PixelOfflineCalibSvc","");
     else:
         from AthenaCommon.Include import include
         include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
@@ -65,10 +64,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
             PixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
             ServiceMgr += PixelSiPropertiesSvc
-        if not hasattr(ServiceMgr, "PixelOfflineCalibSvc"):
-            from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
-            ServiceMgr +=PixelOfflineCalibSvc()
-            ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)

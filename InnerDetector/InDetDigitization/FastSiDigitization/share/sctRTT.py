@@ -84,7 +84,6 @@ StoreGateSvc.Dump = True
 #from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 #InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
 #                                                PixelCalibSvc        = None,
-#                                                PixelOfflineCalibSvc = None,
 #                                                UsePixelCalibCondDB  = FALSE)
 #ToolSvc += InDetClusterMakerTool
 

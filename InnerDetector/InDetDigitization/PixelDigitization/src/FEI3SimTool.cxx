@@ -6,12 +6,8 @@
 
 FEI3SimTool::FEI3SimTool( const std::string& type, const std::string& name,const IInterface* parent):
   FrontEndSimTool(type,name,parent),
-  m_HitDuplication({false,false,false,false,false,false,false}),
-  m_SmallHitToT({7,7,7,7,7,7,7}),
   m_timingTune(2015)
 {
-  declareProperty("HitDuplication", m_HitDuplication);
-  declareProperty("SmallHitToT",    m_SmallHitToT);
 	declareProperty("TimingTune",           m_timingTune, "Version of the timing calibration");	
 }
 
@@ -43,10 +39,12 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   if (abs(barrel_ec)!=m_BarrelEC) { return; }
 
   // Add cross-talk
-  CrossTalk(m_CrossTalk.at(layerIndex), chargedDiodes);
-
+  if (abs(barrel_ec)==0) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelCrossTalk().at(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==2) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapCrossTalk().at(layerIndex),chargedDiodes); }
+ 
   // Add thermal noise
-  ThermalNoise(m_ThermalNoise.at(layerIndex), chargedDiodes);
+  if (abs(barrel_ec)==0) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelThermalNoise().at(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==2) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapThermalNoise().at(layerIndex),chargedDiodes); }
 
   // Add random noise
   RandomNoise(chargedDiodes);
@@ -114,7 +112,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (charge<m_Analogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelAnalogThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapAnalogThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
@@ -123,9 +122,11 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     if (nToT<1) { nToT=1; }
 
-    if (nToT<=m_ToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelToTThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapToTThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
-    if (nToT>=m_Latency.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && nToT>=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelLatency().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && nToT>=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapLatency().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
@@ -149,14 +150,21 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     }
 
     // Duplication mechanism for FEI3 small hits :
-    if (m_HitDuplication.at(layerIndex)) {
-      if (nToT<=m_SmallHitToT.at(layerIndex) && bunch>0 && bunch<=m_timeBCN) {
+    bool hitDupli = false;
+    if (abs(barrel_ec)==0 && SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelHitDuplication().at(layerIndex)) { hitDupli=true; }
+    if (abs(barrel_ec)==2 && SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapHitDuplication().at(layerIndex)) { hitDupli=true; }
+
+    if (hitDupli) {
+      bool smallHitChk = false;
+      if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelSmallHitToT().at(layerIndex)) { smallHitChk=true; }
+      if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapSmallHitToT().at(layerIndex)) { smallHitChk=true; }
+
+      if (smallHitChk && bunch>0 && bunch<=m_timeBCN) {
         Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch-1,0,bunch-1);
         rdoCollection.push_back(p_rdo);
       }
     }
   }
-
   return;
 }
 

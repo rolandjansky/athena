@@ -16,10 +16,12 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "PixelToTPIDTool/dEdxID.h"
 
+#include "PixelConditionsData/PixelModuleData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class AtlasDetectorID;
 class Identifier;
 class PixelID;
-class IPixelOfflineCalibSvc;
 class IBLParameterSvc;
 
 namespace Trk {
@@ -60,7 +62,6 @@ namespace InDet
     private:
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
       mutable int                    m_overflowIBLToT;                                                                                          
-      ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
       StatusCode update( IOVSVC_CALLBACK_ARGS );  
       dEdxID *m_mydedx;
       std::string m_filename;
@@ -68,6 +69,8 @@ namespace InDet
       double m_conversionfactor;
       bool m_readfromcool;
       double m_mindedxformass;
+    
+      SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key of pixel module"};
 
     }; 
 } // end of namespace

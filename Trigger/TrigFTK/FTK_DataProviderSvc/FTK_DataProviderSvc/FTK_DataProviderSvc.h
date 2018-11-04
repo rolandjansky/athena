@@ -37,6 +37,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
+#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include <mutex>
@@ -48,7 +49,6 @@ class PixelID;
 class SCT_ID;
 class Identifier;
 class IdentifierHash;
-class IPixelOfflineCalibSvc;
 class IRoiDescriptor;
 //class IFTK_UncertaintyTool;
 class PRD_MultiTruthCollection;
@@ -164,7 +164,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
   std::string m_RDO_key;
   StoreGateSvc* m_storeGate;
-  ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
   const PixelID* m_pixelId;
   const SCT_ID*  m_sctId;
   
@@ -172,6 +171,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
   const AtlasDetectorID* m_id_helper;
 
+  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;

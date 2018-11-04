@@ -20,9 +20,7 @@ namespace PixelCalib{
 // Load defaults - real values to be loaded from database
 // the number of bins is still hardwired however
 
-void PixelClusterErrorData::Initialize(){
-
-  std::cout << "PixelClusterErrorData Initialize " << std::endl;
+void PixelClusterErrorData::Initialize() {
 
   m_version = 1;
   // number of bins of parametrizations
@@ -64,9 +62,6 @@ void PixelClusterErrorData::Initialize(){
     m_iblphierror.push_back(14.43*CLHEP::micrometer);
     m_ibletaerror.push_back(72.2*CLHEP::micrometer);
   }
-
-  std::cout << "done" << std::endl;
-  
   return;
 }
 
@@ -111,8 +106,6 @@ float PixelClusterErrorData::getPixelIBLEtaError(int ibin) const{
   return m_ibletaerror[ibin];
 }
 
-// SET METHODS
-
 int PixelClusterErrorData::setPixelEndcapPhiError(int ibin, float error){
   if(ibin<0) return 0;
   if(static_cast<unsigned int>(ibin)>m_endcapphierror.size()) return 0;
@@ -155,11 +148,7 @@ int PixelClusterErrorData::setPixelIBLEtaError(int ibin, float error){
     return 1;
 }
 
-
-// get bin of pixel barrel error parametrization
-
-int PixelClusterErrorData::getBarrelBin(double eta, int etaClusterSize, 
-    int phiClusterSize) const{
+int PixelClusterErrorData::getBarrelBin(double eta, int etaClusterSize, int phiClusterSize) const {
 
   int ieta=0;
   int neta = m_etaref.size();
@@ -174,7 +163,7 @@ int PixelClusterErrorData::getBarrelBin(double eta, int etaClusterSize,
   return m_nZ*m_nPhi*ieta+m_nZ*iphi+iz;
 }
 
-int PixelClusterErrorData::getEndcapBin(int etaClusterSize, int phiClusterSize) const{
+int PixelClusterErrorData::getEndcapBin(int etaClusterSize, int phiClusterSize) const {
 
   //  std::cout << "getting bin..." << std::endl;
   int iphi = phiClusterSize-1;
@@ -185,7 +174,6 @@ int PixelClusterErrorData::getEndcapBin(int etaClusterSize, int phiClusterSize) 
   return m_nZ*iphi+iz; 
 }
 
-// save all costants to file
 void PixelClusterErrorData::Print(std::string file) const {
 
   std::ofstream* outfile = new std::ofstream(file.c_str()); 
@@ -210,8 +198,7 @@ void PixelClusterErrorData::Print(std::string file) const {
   delete outfile; 
 }
 
-// Load costants from file
-void PixelClusterErrorData::Load(std::string file){
+void PixelClusterErrorData::Load(std::string file) {
   std::ifstream infile(file.c_str()); 
 
   // number of bins for barrel and endcap

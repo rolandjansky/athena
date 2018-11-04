@@ -11,6 +11,9 @@
 
 #include "PixelConditionsTools/IPixelDCSConditionsTool.h"
 
+#include "PixelConditionsData/PixelModuleData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class PixelSiliconConditionsTestAlg : public AthAlgorithm {
   public:
     PixelSiliconConditionsTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
@@ -22,6 +25,8 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
 
   private:
     ToolHandle<IPixelDCSConditionsTool> m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key"};
+
 };
 
-#endif // PIXELSILICONcONDITIONSTESTALG_H
+#endif

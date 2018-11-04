@@ -16,8 +16,6 @@ class ConfiguredTrigFTKTrackConverter(TrigFTKTrackConverter) :
             self.TrackFitter = myTrackFitter
             
         self.UsePixelCalibSvc = UsePixelCalibSvc
-        self.PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc')
-
 
 class ConfiguredTrigFTKTrackConverterWithGX2(TrigFTKTrackConverter) :
     def __init__(self, name = "ConfiguredTrigFTKTrackConverter", DoTrackFit = False, DoTruth = False, TrackFitter = None, UsePixelCalibSvc = True):
@@ -56,7 +54,6 @@ class ConfiguredTrigFTKTrackConverterWithGX2(TrigFTKTrackConverter) :
             self.TrackFitter = TrigFTKTrackFitter
             
         self.UsePixelCalibSvc = UsePixelCalibSvc
-        self.PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc')
             
 from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKUncertiantyTool
 

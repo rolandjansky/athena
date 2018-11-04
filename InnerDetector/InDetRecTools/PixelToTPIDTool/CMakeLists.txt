@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
    Database/RegistrationServices
    DetectorDescription/Identifier
    Event/EventInfo
+   InnerDetector/InDetConditions/PixelConditionsData
    InnerDetector/InDetConditions/PixelConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/PixelGeoModel
@@ -45,7 +46,7 @@ atlas_add_component( PixelToTPIDTool
   AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel TrkEventPrimitives
   AthenaPoolUtilities Identifier EventInfo InDetIdentifier InDetRIO_OnTrack
   Particle PathResolver TrkSurfaces TrkMeasurementBase TrkParameters
-  TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces PixelGeoModelLib )
+  TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces PixelGeoModelLib PixelConditionsData )
 
 # Install files from the package:
 atlas_install_runtime( share/*.txt )

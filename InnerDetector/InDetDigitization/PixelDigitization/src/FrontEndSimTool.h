@@ -27,8 +27,10 @@
 
 #include "CommissionEvent/ComTime.h"
 
+#include "PixelConditionsData/PixelModuleData.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 static const InterfaceID IID_IFrontEndSimTool("FrontEndSimTool", 1, 0);
 
@@ -50,11 +52,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       m_ComTimeKey("ComTime"),
       m_eventStore("StoreGateSvc", name),
       m_BarrelEC(0),
-      m_Analogthreshold({-1,-1,-1,-1,-1,-1,-1}),
-      m_ToTthreshold({-1,-1,-1,-1,-1,-1,-1}),
-      m_Latency({256,256,256,256,256,256,256}),
-      m_CrossTalk({0.06,0.06,0.06,0.06,0.06,0.06,0.06}),
-      m_ThermalNoise({160.0,160.0,160.0,160.0,160.0,160.0,160.0}),
       m_noiseShape({0.0,1.0}),
       m_noiseOccupancy(1e-8),
       m_disableProbability(9e-3)
@@ -69,11 +66,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     declareProperty("UseComTime",                m_useComTime,     "Use ComTime for timing");
 	  declareProperty("TimeJitter",                m_timeJitter,     "Time jitter");
     declareProperty("BarrelEC",                  m_BarrelEC,       "Index of barrel or endcap");
-    declareProperty("Analogthreshold",           m_Analogthreshold);
-    declareProperty("ToTthreshold",              m_ToTthreshold);
-    declareProperty("Latency",                   m_Latency);
-    declareProperty("CrossTalk",                 m_CrossTalk);
-    declareProperty("ThermalNoise",              m_ThermalNoise);
     declareProperty("NoiseShape",                m_noiseShape,           "Vector containing noise ToT shape");
     declareProperty("NoiseOccupancy",            m_noiseOccupancy);
     declareProperty("DisableProbability",        m_disableProbability);
@@ -89,6 +81,8 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       ATH_CHECK(m_pixelConditionsTool.retrieve());
 
       ATH_CHECK(m_pixelCalibSvc.retrieve());
+
+      ATH_CHECK(m_moduleDataKey.initialize());
 
       m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
       if (!m_rndmEngine) {
@@ -206,6 +200,8 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     ToolHandle<IInDetConditionsTool> m_pixelConditionsTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
     ServiceHandle<IPixelCalibSvc>        m_pixelCalibSvc;
 
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key of pixel module"};
+
     double m_timeBCN;
     double m_timeZero;
     double m_timePerBCO;
@@ -215,11 +211,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     SG::ReadHandleKey<ComTime>   m_ComTimeKey;
     ServiceHandle<StoreGateSvc>  m_eventStore;
     int m_BarrelEC;
-    std::vector<int> m_Analogthreshold;
-    std::vector<int> m_ToTthreshold;
-    std::vector<int> m_Latency;
-    std::vector<double> m_CrossTalk; 
-    std::vector<double> m_ThermalNoise;
     std::vector<double> m_noiseShape;
     double m_noiseOccupancy;
     double m_disableProbability;
@@ -249,7 +240,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       }
       return first.time();
     }
-
 
 };
 

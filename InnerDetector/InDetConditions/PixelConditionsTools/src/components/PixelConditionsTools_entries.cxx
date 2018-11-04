@@ -1,4 +1,3 @@
-#include "src/PixelRecoDbTool.h"
 #include "src/PixelCalibDbTool.h"
 #include "src/PixelDistortionsTool.h"
 #ifndef SIMULATIONBASE
@@ -6,7 +5,6 @@
 #include "src/PixelDCSConditionsTool.h"
 #endif
 
-DECLARE_COMPONENT( PixelRecoDbTool )
 DECLARE_COMPONENT( PixelCalibDbTool )
 DECLARE_COMPONENT( PixelDistortionsTool )
 #ifndef SIMULATIONBASE

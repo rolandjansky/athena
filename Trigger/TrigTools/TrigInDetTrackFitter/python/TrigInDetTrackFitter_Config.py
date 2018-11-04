@@ -77,7 +77,6 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
                                                                         ErrorStrategy      = 0,
                                                                         LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
             myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
-                                                                          PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                           ErrorStrategy = 0,
                                                                           LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
 
@@ -87,7 +86,6 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
                                                                         ErrorStrategy      = 2,
                                                                         LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
             myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
-                                                                          PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                           ErrorStrategy = 1,
                                                                           LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
 

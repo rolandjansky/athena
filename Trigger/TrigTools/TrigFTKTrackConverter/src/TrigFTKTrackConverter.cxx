@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,8 +56,6 @@ TrigFTKTrackConverter::TrigFTKTrackConverter(const std::string& t,
 					   const std::string& n,
 					   const IInterface*  p ): 
   AthAlgTool(t,n,p), 
-  m_offlineCalibSvc("PixelOfflineCalibSvc", n),
-  m_usePixelCalibSvc(true),
   m_trackFitter("Trk::DistributedKalmanFilter/InDetTrackFitter"),
   m_clusterConverterTool("TrigFTKClusterConverterTool"),
   m_doFit(false),
@@ -67,8 +65,6 @@ TrigFTKTrackConverter::TrigFTKTrackConverter(const std::string& t,
   m_mcTruthName("TruthEvent") {
 
   declareInterface< ITrigFTKTrackConverter >( this );
-  declareProperty( "PixelOfflineCalibSvc",m_offlineCalibSvc);
-  declareProperty( "UsePixelCalibSvc",m_usePixelCalibSvc); 
   declareProperty( "TrackFitter",m_trackFitter); 
   declareProperty( "DoFit",m_doFit);
   declareProperty( "DoTruth",m_doTruth);
@@ -80,19 +76,6 @@ StatusCode TrigFTKTrackConverter::initialize() {
 
   StatusCode sc = AlgTool::initialize();
 
-  if(m_usePixelCalibSvc) {
-
-    if ( !m_offlineCalibSvc.empty() ) { 
-      StatusCode sc = m_offlineCalibSvc.retrieve(); 
-      if (sc.isFailure() || !m_offlineCalibSvc ) { 
-        ATH_MSG_ERROR(m_offlineCalibSvc.type() << " not found! ");  
-	return sc; 
-      } 
-      else{ 
-        ATH_MSG_INFO("Retrieved tool " <<  m_offlineCalibSvc.type());
-      } 
-    } 
-  }
   if(m_doTruth) {
     sc = service( "StoreGateSvc", m_evtStore ); 
     if (sc.isFailure()) { 

@@ -47,7 +47,7 @@ atlas_add_library( PixelCalibAlgsLib
 
 atlas_add_component( PixelCalibAlgs
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel PixelCalibAlgsLib )
+   LINK_LIBRARIES GaudiKernel PixelConditionsData PixelCalibAlgsLib )
 
 # Executables in the package:
 atlas_add_executable( doPixelOfflineCalib

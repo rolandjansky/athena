@@ -21,7 +21,6 @@ class FEI4SimTool:public FrontEndSimTool {
   private:
     FEI4SimTool();
 
-    int m_HitDiscConfig;
 };
 
 #endif // PIXELDIGITIZATION_FEI4SimTool_H

@@ -17,7 +17,6 @@
 
 #include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkFitterUtils/FitterTypes.h" 
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 class StoreGateSvc;
 
@@ -65,10 +64,6 @@ class TrigFTKTrackConverter : public AthAlgTool, virtual public ITrigFTKTrackCon
   void createPixelTruth(Identifier,const MultiTruth&);
 
 private:
-
-  ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
-
-  bool m_usePixelCalibSvc;
 
   StoreGateSvc* m_evtStore;
 

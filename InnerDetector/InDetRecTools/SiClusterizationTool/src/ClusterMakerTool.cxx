@@ -23,7 +23,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 
 #include "EventPrimitives/EventPrimitives.h"
@@ -48,13 +47,11 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
                                    const std::string& n,
                                    const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_calibSvc("PixelCalibSvc", n),
-  m_offlineCalibSvc("PixelOfflineCalibSvc", n)
+  m_calibSvc("PixelCalibSvc", n)
 { 
   declareInterface<ClusterMakerTool>(this);
   declareProperty("UsePixelCalibCondDB",m_calibrateCharge=true,"Compute deposited charge in Pixels");
   declareProperty("PixelCalibSvc",m_calibSvc);
-  declareProperty("PixelOfflineCalibSvc",m_offlineCalibSvc);
 }
 
 //=============== Destructor =================================================
@@ -67,20 +64,6 @@ StatusCode  ClusterMakerTool::initialize(){
 
    ATH_MSG_INFO ( name() << " initialize()" );
    
-   // Protect from the situation in which the PixelOfflineCalibSvc is not 
-   // configured: that should be the case if no PixelRDO are read in.
-   // AA 01/10/2009
-   if ( !m_offlineCalibSvc.empty() ) {
-     StatusCode sc = m_offlineCalibSvc.retrieve();
-     if (sc.isFailure() || !m_offlineCalibSvc ) {
-       ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
-       return StatusCode::RECOVERABLE;
-     }
-     else{
-       ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
-     }
-   }
-
    // Protect from the situation in which the PixelCalibSvc is not configured:
    // that should be the case if no PixelRDO are read in.
    // AA 01/10/2009
@@ -106,6 +89,8 @@ StatusCode  ClusterMakerTool::initialize(){
 
    ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
    ATH_CHECK(m_sctLorentzAngleTool.retrieve());
+
+   ATH_CHECK(m_clusterErrorKey.initialize());
 
    return StatusCode::SUCCESS;
 
@@ -153,20 +138,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
          			           bool split,
                          double splitProb1,
                          double splitProb2) const{
-  // Add protection in case m_offlineCalibSvc is not configured
-  // but errorStrategy==2 is requested.
-  // That should never happen, since the m_offlineCalibSvc should be switched 
-  // off only if no pixel data are processed, and therefore no pixel cluster
-  // should be created.
-  // AA 01/10/2009 	
   static bool issueError = true;
   static bool forceErrorStrategy1 = false;
   if ( errorStrategy==2 && issueError ) {
-    if ( m_offlineCalibSvc.empty() ) {
-      ATH_MSG_ERROR ( "Asking for pixel error parameterization, without configuring PixelOfflineCalibSvc" );
-      ATH_MSG_ERROR ( "Reverting to error strategy=1" );
-      forceErrorStrategy1=true;
-    }
     issueError=false;
   }
   
@@ -232,15 +206,20 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     // use parameterization only if the cluster does not 
     // contain long pixels or ganged pixels
     // Also require calibration service is available....
-    if(!ganged && zPitch > 399*micrometer && zPitch < 401*micrometer && m_offlineCalibSvc != 0){
+    if (!ganged && zPitch>399*micrometer && zPitch<401*micrometer) {
       if(element->isBarrel()){
-	      errorMatrix->fillSymmetric(0,0,square(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),
-									       int(colRow.x()))) );  
-	      errorMatrix->fillSymmetric(1,1,square(m_offlineCalibSvc->getBarrelErrorEta(eta,
-									       int(colRow.y()),int(colRow.x()))) ); 
-      }else{
-	      errorMatrix->fillSymmetric(0,0,square(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())))); 
-	      errorMatrix->fillSymmetric(1,1,square(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())))); 
+        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
+        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
+	      errorMatrix->fillSymmetric(0,0,square(phiError));
+	      errorMatrix->fillSymmetric(1,1,square(etaError));
+      }
+      else {
+        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
+        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
+	      errorMatrix->fillSymmetric(0,0,square(phiError));
+	      errorMatrix->fillSymmetric(1,1,square(etaError));
 			}
     }else{// cluster with ganged and/or long pixels
       errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
@@ -306,20 +285,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 	
  
   if (msgLvl(MSG::VERBOSE)) msg() << "ClusterMakerTool called, number " << endmsg;
-  // Add protection in case m_offlineCalibSvc is not configured
-  // but errorStrategy==2 is requested.
-  // That should never happen, since the m_offlineCalibSvc should be switched 
-  // off only if no pixel data are processed, and therefore no pixel cluster
-  // should be created.
-  // AA 01/10/2009 	
   static bool issueError = true;
   static bool forceErrorStrategy1 = false;
   if ( errorStrategy==2 && issueError ) {
-    if ( m_offlineCalibSvc.empty() ) {
-      ATH_MSG_ERROR ( "Asking for pixel error parameterization, without configuring PixelOfflineCalibSvc" );
-      ATH_MSG_ERROR ( "Reverting to error strategy=1" );
-      forceErrorStrategy1=true;
-    }
     issueError=false;
   }
   if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
@@ -429,16 +397,21 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     // use parameterization only if the cluster does not 
     // contain long pixels or ganged pixels
     // Also require calibration service is available....
-    if(!ganged && zPitch > 399*micrometer && zPitch < 401*micrometer && m_offlineCalibSvc != 0){
+    if (!ganged && zPitch>399*micrometer && zPitch<401*micrometer) {
 	    
-      if(element->isBarrel()){
-				errorMatrix->fillSymmetric(0,0,pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),
-									       int(colRow.x())),2) );  
-				errorMatrix->fillSymmetric(1,1,pow(m_offlineCalibSvc->getBarrelErrorEta(eta,
-									       int(colRow.y()),int(colRow.x())),2) ); 
-      }else{
-				errorMatrix->fillSymmetric(0,0,square(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())))); 
-				errorMatrix->fillSymmetric(1,1,square(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())))); 
+      if (element->isBarrel()) {
+        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
+        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
+				errorMatrix->fillSymmetric(0,0,pow(phiError,2));  
+				errorMatrix->fillSymmetric(1,1,pow(etaError,2)); 
+      }
+      else {
+        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
+        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
+				errorMatrix->fillSymmetric(0,0,square(phiError)); 
+				errorMatrix->fillSymmetric(1,1,square(etaError)); 
 			}
     }else{// cluster with ganged and/or long pixels
       errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);

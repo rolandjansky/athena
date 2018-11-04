@@ -47,7 +47,6 @@ public:
     std::string setStringParameters(const std::string param,std::string paramName) {
         if (m_IBLpresent) {
 	      if (m_disableAllClusterSplitting && paramName=="clusterSplitter") return "";
-	      if (m_disableClusterMakerOfflineCalib && paramName=="PixelOfflineCalibSvc") return "";
 	      if (m_disableCalibCondDB && paramName=="PixelCalibSvc") return ""; 
         }
         return param;
@@ -98,7 +97,6 @@ private:
   bool m_disableCalibCondDB;
   bool m_disableAlignable;
   bool m_disableAllClusterSplitting;
-  bool m_disableClusterMakerOfflineCalib;
   bool m_disableDCS;
 
   StatusCode setIblParameters(); 
