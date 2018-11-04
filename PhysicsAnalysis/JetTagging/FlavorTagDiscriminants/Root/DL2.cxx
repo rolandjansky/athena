@@ -67,6 +67,13 @@ namespace FlavorTagDiscriminants {
     std::map<std::string, std::map<std::string, double> > nodes{ {
         m_input_node_name, cleaned} };
 
+    // add track sequences
+    for (const auto& getter: m_track_getters) {
+      // const auto& name = std::get<const std::string>(getter);
+      // const auto& trk_getter = std::get<const TrackGetter>(getter);
+      // const auto& sequence_getters = std::get<const pair.second.second;
+    }
+
     // save out things
     for (const auto& dec: m_decorators) {
       // the second argument to compute(...) is for sequences, we

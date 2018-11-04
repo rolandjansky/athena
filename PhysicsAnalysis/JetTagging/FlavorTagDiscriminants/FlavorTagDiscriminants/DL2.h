@@ -83,14 +83,25 @@ namespace FlavorTagDiscriminants {
     DL2(const lwt::GraphConfig&, const std::vector<DL2InputConfig>&);
     void decorate(const xAOD::Jet& jet) const;
   private:
+    typedef xAOD::Jet Jet;
     typedef std::pair<std::string, double> Variable;
-    typedef std::function<Variable(const xAOD::Jet&)> Getter;
+    typedef std::pair<std::string, std::vector<double> > Sequence;
+    typedef std::vector<const xAOD::TrackParticle*> Tracks;
+    typedef std::function<Variable(const Jet&)> Getter;
+    typedef std::function<Tracks(const Jet&)> TrackGetter;
+    typedef std::function<Sequence(const Jet&, const Tracks&)> SequenceGetter;
+    struct TrackSequenceGetter {
+      std::string name;
+      TrackGetter getter;
+      std::vector<SequenceGetter> sequence_getters;
+    };
     typedef SG::AuxElement::Decorator<float> OutputDecorator;
     typedef std::vector<std::pair<std::string, OutputDecorator > > OutNode;
     std::string m_input_node_name;
     std::unique_ptr<lwt::LightweightGraph> m_graph;
     std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;
     std::vector<Getter> m_getters;
+    std::vector<TrackSequenceGetter> m_track_getters;
     std::map<std::string, OutNode> m_decorators;
   };
 
