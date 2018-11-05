@@ -18,11 +18,11 @@ def LArBadChannelCfg(configFlags):
     else:
         dbname="LAR_OFL"
 
-    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="CondAttrListCollection")[0])
+    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="CondAttrListCollection"))
     
     theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername)
     result.addCondAlgo(theLArBadChannelCondAlgo)
-    return result,None
+    return result
 
 
 def LArBadFebCfg(configFlags):
@@ -39,13 +39,13 @@ def LArBadFebCfg(configFlags):
     else:
         dbname="LAR_OFL"
 
-    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="AthenaAttributeList")[0])
+    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="AthenaAttributeList"))
     result.addCondAlgo(LArBadFebCondAlg(ReadKey=foldername))
-    return result,None
+    return result
 
 
 def LArBadChannelMaskerCfg(configFlags,problemsToMask,doMasking=True,ToolName="LArBadChannelMasker"):
-    result=LArBadChannelCfg(configFlags)[0]
+    result=LArBadChannelCfg(configFlags)
      
     bcMasker=LArBadChannelMasker(ToolName,ProblemsToMask=problemsToMask, DoMasking=doMasking)
     return result,bcMasker
