@@ -266,7 +266,7 @@ stdm9Seq += CfgMgr.DerivationFramework__DerivationKernel("STDM9Kernel", Thinning
 # evtStream = augStream.GetEventStream()
 # svcMgr += createThinningSvc( svcName="STDM9ThinningSvc", outStreams=[evtStream] )
 
-# antonio ###
+# QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=stdm9Seq, algname="QGTaggerToolAlg")
 
 #====================================================================

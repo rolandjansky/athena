@@ -341,13 +341,11 @@ def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
     extjetlog.info('ExtendedJetCommon: Adding OriginCorrection for jet collection: '+jetalg)
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-### Schedule Q/G-tagging decorations ### antonio #####
+### Schedule Q/G-tagging decorations ### QGTaggerTool #####
 def addQGTaggerTool(jetalg, sequence, algname ):
     jetaugtool = getJetAugmentationTool(jetalg)
     if(jetaugtool==None):
         extjetlog.warning('*** addQGTaggerTool called but corresponding augmentation tool does not exist! ***')
-
-    #print 'antonioooooo'
 
     QGTaggerToolName = 'DFQGTaggerTool' + '_InDetTrackSelectionTool_' + jetalg
     from AthenaCommon.AppMgr import ToolSvc
@@ -361,7 +359,7 @@ def addQGTaggerTool(jetalg, sequence, algname ):
 
     extjetlog.info('ExtendedJetCommon: Adding QGTaggerTool for jet collection: '+jetalg)
     applyJetAugmentation(jetalg, algname, sequence, jetaugtool)
-#################
+#############################################################
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.config import recommended_tools

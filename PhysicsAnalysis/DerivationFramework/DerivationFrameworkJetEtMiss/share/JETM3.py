@@ -192,7 +192,7 @@ if DerivationFrameworkIsMonteCarlo:
     addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
 
-# antonio ###
+# QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerToolAlg")
 
 #====================================================================

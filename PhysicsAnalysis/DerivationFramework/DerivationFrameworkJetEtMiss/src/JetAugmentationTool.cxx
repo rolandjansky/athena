@@ -43,9 +43,8 @@ namespace DerivationFramework {
     dec_originm(0),
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
-    dec_AssociatedNtracks(0), // antonio --- QGT ---
+    dec_AssociatedNtracks(0), // QGTaggerTool ---
     m_decoratentracks(false), 
-    //m_trkSelectionTool("InDet::InDetTrackSelectionTool/InDetTrackSelectionTool", this )
     m_trkSelectionTool("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -61,7 +60,7 @@ namespace DerivationFramework {
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
     declareProperty("JetPtAssociationTool", m_jetPtAssociationTool);
     declareProperty("JetOriginCorrectionTool",m_jetOriginCorrectionTool);
-    declareProperty("TrackSelectionTool", m_trkSelectionTool); // antonio --- QGT ---
+    declareProperty("TrackSelectionTool", m_trkSelectionTool); // QGTaggerTool ---
   }
 
   StatusCode JetAugmentationTool::initialize()
@@ -122,12 +121,12 @@ namespace DerivationFramework {
 	dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
     }
     
-    // Here it for ntracks decoration --- QGTaggerTool --- antonio ---
+    // Here it for ntracks decoration --- QGTaggerTool ---
     // set up InDet selection tool
     if(!m_trkSelectionTool.empty()) {
       CHECK( m_trkSelectionTool.retrieve() );
       m_decoratentracks = true; 
-      dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>(m_momentPrefix + "NTracks");
+      dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTracks");
     } // now works
 
 
@@ -175,7 +174,7 @@ namespace DerivationFramework {
       delete dec_GhostTruthAssociationLink;
     }
     
-    // QGTaggerTool --- antonio ---
+    // QGTaggerTool ---
     if(m_decoratentracks)
       {
 	delete dec_AssociatedNtracks;
@@ -299,10 +298,10 @@ namespace DerivationFramework {
         ATH_MSG_VERBOSE("GhostTruthAssociationLink: " << (*dec_GhostTruthAssociationLink)(jet_orig) );
       }
 
-      // QGTaggerTool --- antonio ---
+      // QGTaggerTool ---
       if(m_decoratentracks)
 	{
-	  //ATH_MSG_INFO("Test Decorate QG ");
+	  ATH_MSG_DEBUG("Test Decorate QG ");
 	  std::vector<const xAOD::IParticle*> jettracks;
 	  jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks);
 	  
@@ -346,7 +345,7 @@ namespace DerivationFramework {
 			   (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
 			   );	    
 	    
-	    //std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) << std::endl; // temp
+	    ATH_MSG_DEBUG("Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) );
 
 	    if (!accept) continue;
 	    
