@@ -22,8 +22,14 @@ if not conddb.isMC and not conddb.isOnline:
     condseq += hvpath
 
     from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
-    hvcond = LArHVCondAlg(HVPathologies="LArHVPathology")
+    hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData")
+    hvcond.OutputLevel=DEBUG
     condseq += hvcond
+
+    from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg
+    hvscale = LArHVScaleCorrCondAlg(keyHVdata="LArHVData",keyOutputCorr="LArHVScaleCorrRecomputed")
+    hvscale.UndoOnlineHVCorr=True
+    condseq += hvscale
 
 if conddb.isMC:
     conddb.addFolderWithTag("LAR_OFL","/LAR/Identifier/HVLineToElectrodeMap","LARHVLineToElectrodeMap-001",className="AthenaAttributeList")

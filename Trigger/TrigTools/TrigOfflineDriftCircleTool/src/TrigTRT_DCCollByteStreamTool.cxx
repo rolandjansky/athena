@@ -34,7 +34,7 @@ TrigTRT_DCCollByteStreamTool::TrigTRT_DCCollByteStreamTool
   (const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type, name, parent),
     m_TRT_IdConvTool("TRT_CablingSvc",this->name()),
-    m_decoder("TRT_RodDecoder"),
+    m_decoder("TRT_RodDecoder",this),
     m_driftCircleTool("InDet::TRT_DriftCircleTool/InDetTrigTRT_DriftCircleTool")
 {
   declareInterface<TrigTRT_DCCollByteStreamTool >(this);

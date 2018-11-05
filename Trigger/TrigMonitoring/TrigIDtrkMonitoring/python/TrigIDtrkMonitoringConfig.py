@@ -32,8 +32,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 			]
-		ToolSvc += tidacos;
-		list += [ "TrigTestBase/IDCosmicTool" ]
+		#ToolSvc += tidacos;
+		list += [ tidacos ]
 
 
 		# Cosmic Shifter instance
@@ -51,8 +51,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 			]
-		ToolSvc += tidacosshift;
-		list += [ "TrigTestBase/IDCosmicShifterTool" ]
+		#ToolSvc += tidacosshift;
+		list += [ tidacosshift ]
 
 
 
@@ -72,8 +72,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
 			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
 			]
-		ToolSvc += tidaegamma;
-		list += [ "TrigTestBase/IDEgammaTool" ]
+		#ToolSvc += tidaegamma;
+		list += [ tidaegamma ]
 
 
 
@@ -97,8 +97,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_e.*_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 			"HLT_e.*_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig"
 			]
-		ToolSvc += tidaegammashift;
-		list += [ "TrigTestBase/IDEgammaShifterTool" ]
+                #ToolSvc += tidaegammashift;
+		list += [ tidaegammashift ]
 
 
 		# Shifter purity instances 
@@ -120,8 +120,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_e.*_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 			"HLT_e.*_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig"
 			]
-		ToolSvc += tidaegammapurity;
-		list += [ "TrigTestBase/IDEgammaPurityTool" ]
+		#ToolSvc += tidaegammapurity;
+		list += [ tidaegammapurity ]
 
 
 		
@@ -144,8 +144,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF",
 			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig"
 			]
-		ToolSvc += tidamuon;
-		list += [ "TrigTestBase/IDMuonTool" ]
+		#ToolSvc += tidamuon;
+		list += [ tidamuon ]
 
 
 		# Shifter instances 
@@ -166,8 +166,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_mu.*_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 			"HLT_mu.*_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig"
 			]
-		ToolSvc += tidamuonshift;
-		list += [ "TrigTestBase/IDMuonShifterTool" ]
+		#ToolSvc += tidamuonshift;
+		list += [ tidamuonshift ]
 
 
 		# Shifter purity instances 
@@ -190,8 +190,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_mu.*_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 			"HLT_mu.*_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig"
 			]
-		ToolSvc += tidamuonpurity;
-		list += [ "TrigTestBase/IDMuonPurityTool" ]
+		#ToolSvc += tidamuonpurity;
+		list += [ tidamuonpurity ]
 
 
 
@@ -215,8 +215,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_tau.*idperf.*tracktwo.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
 			"HLT_tau.*idperf.*tracktwo.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3"
 			]
-		ToolSvc += tidatau;
-		list += [ "TrigTestBase/IDTauTool" ]
+		#ToolSvc += tidatau;
+		list += [ tidatau ]
 
 		
 		# Shifter instances 
@@ -233,8 +233,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_tau.*_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 			"HLT_tau.*_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
 			]
-		ToolSvc += tidataushift;
-		list += [ "TrigTestBase/IDTauShifterTool" ]
+		#ToolSvc += tidataushift;
+		list += [ tidataushift ]
 		
 
 
@@ -254,8 +254,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_tau.*_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 			"HLT_tau.*_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
 			]
-		ToolSvc += tidataupurity;
-		list += [ "TrigTestBase/IDTauPurityTool" ]
+		#ToolSvc += tidataupurity;
+		list += [ tidataupurity ]
 		
 
 
@@ -282,8 +282,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
 			]
-		ToolSvc += tidabjet;
-		list += [ "TrigTestBase/IDBjetTool" ]
+		#ToolSvc += tidabjet;
+		list += [ tidabjet ]
 
 
                 # Shifter instances
@@ -300,8 +300,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
-		ToolSvc += tidabjetshift;
-		list += [ "TrigTestBase/IDBjetShifterTool" ]
+		#ToolSvc += tidabjetshift;
+		list += [ tidabjetshift ]
 
                 # Shifter Purity instances
 		tidabjetpurity = TrigTestBase(name = "IDBjetPurityerTool",
@@ -314,8 +314,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_j85_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j85_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
-		ToolSvc += tidabjetpurity;
-		list += [ "TrigTestBase/IDBjetPurityTool" ]
+		#ToolSvc += tidabjetpurity;
+		list += [ tidabjetpurity ]
 
 
                 # Shifter instances
@@ -333,8 +333,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx"
 			]
-		ToolSvc += tidabjetvtxshift;
-		list += [ "TrigTestBase/IDBjetVtxShifterTool" ]
+		#ToolSvc += tidabjetvtxshift;
+		list += [ tidabjetvtxshift ]
 
 
 
@@ -358,8 +358,8 @@ def TrigIDtrkMonitoringTool():
 #			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
 #			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
 			]
-		ToolSvc += tidabphys;
-		list += [ "TrigTestBase/IDBphysTool" ]
+		#ToolSvc += tidabphys;
+		list += [ tidabphys ]
 
 
 		# Shifter instances 
@@ -374,8 +374,8 @@ def TrigIDtrkMonitoringTool():
 			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_FTF",
 			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_IDTrig"
 			]
-		ToolSvc += tidabphysshift;
-		list += [ "TrigTestBase/IDBphysShifterTool" ]
+		#ToolSvc += tidabphysshift;
+		list += [ tidabphysshift ]
 
 
 
@@ -394,8 +394,8 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 			"HLT_mb_.*idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID"
 			]
-		ToolSvc += tidaminbias;
-		list += [ "TrigTestBase/IDminBiasTool" ]
+		#ToolSvc += tidaminbias;
+		list += [ tidaminbias ]
 
 
 		# Shifter instances 
@@ -407,8 +407,8 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 			"HLT_mb_.*idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID"
 			]
-		ToolSvc += tidaminbiasshift;
-		list += [ "TrigTestBase/IDminBiasShifterTool" ]
+		#ToolSvc += tidaminbiasshift;
+		list += [ tidaminbiasshift ]
 
 
                 ################################################
@@ -442,8 +442,8 @@ def TrigIDtrkMonitoringTool():
                         "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
                         "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
 			]
-		ToolSvc += tidaftk;
-		list += [ "TrigTestBase/IDFTKTool" ]
+		#ToolSvc += tidaftk;
+		list += [ tidaftk ]
 
 
 	return list

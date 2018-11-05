@@ -87,15 +87,15 @@ forwardElectronMonTool::forwardElectronMonTool(const std::string & type, const s
      m_hEta(nullptr),
      m_hPhi(nullptr),
      m_hEtaPhi(nullptr),
-     //m_hTopoEtCone40(nullptr),
      m_hTime(nullptr),
      m_hTightN(nullptr),
      m_hTightEt(nullptr),
      m_hTightEta(nullptr),
      m_hTightPhi(nullptr),
      m_hTightEtaPhi(nullptr),
-     //m_hTightTopoEtCone40(nullptr),
-     m_hTightTime(nullptr)
+     m_hTightTime(nullptr),
+     m_hLB_N(nullptr),
+     m_nForwardElectrons(0)
 {
   // Name of the electron collection
   declareProperty("ForwardElectronContainer", m_ForwardElectronContainer = "egammaForwardCollection", "Name of the forward electron collection" );

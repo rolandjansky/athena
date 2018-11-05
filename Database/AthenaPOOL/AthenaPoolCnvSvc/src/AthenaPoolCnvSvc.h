@@ -97,7 +97,7 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   const Token* registerForWrite(const Placement* placement,
+   const Token* registerForWrite(Placement* placement,
 	   const void* obj,
 	   const RootType& classDesc) const;
 
@@ -215,6 +215,7 @@ private: // properties
    std::vector<std::vector<std::string> > m_domainAttr;
    std::vector<std::vector<std::string> > m_databaseAttr;
    std::vector<std::vector<std::string> > m_containerAttr;
+   std::vector<unsigned int> m_contextAttr;
    /// Input PoolAttributes, vector with names and values of technology specific attributes for POOL
    StringArrayProperty m_inputPoolAttr;
    std::vector<std::vector<std::string> > m_inputAttr;
@@ -234,6 +235,10 @@ private: // properties
    /// CommitInterval, integer number of events to process with commitAndHold, before doing a full commit:
    /// default = 0.
    IntegerProperty m_commitInterval;
+
+   /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
+   /// default = false.
+   BooleanProperty m_persSvcPerOutput;
 
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
    /// container being committed to disk is not 'tainted' with the POOL overhead

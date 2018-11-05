@@ -8,7 +8,6 @@
 #include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
 
-class Identifier;
 class HWIdentifier;
 
 class ILArPhysCaliTdiff {
@@ -27,15 +26,8 @@ class ILArPhysCaliTdiff {
   // online ID
   virtual const float& Tdiff(const HWIdentifier& id , int gain )  const = 0 ;
   
-  // offline ID 
-  virtual const float& Tdiff(const Identifier& id , int gain )  const =0;
-  
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
-
-
-} ;
+};
 
 CLASS_DEF( ILArPhysCaliTdiff,121911021,1) 
-
-
 #endif 

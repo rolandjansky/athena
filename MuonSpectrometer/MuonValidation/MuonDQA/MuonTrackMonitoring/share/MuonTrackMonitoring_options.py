@@ -45,9 +45,9 @@ if MuonDQAFlags.doMuonTrackMon:
    TGCStandaloneTracksMon_NoTrig = TGCStandaloneTracksMon(name = "TGCStandaloneTracksMon",
                                                           TriggerAware = False,
                                                           MuonTriggerChainName = "TriggersInChain")
-   ToolSvc += MuonSelectedTracksMon
-   ToolSvc += MuonGenericTracksMon
-   ToolSvc += TGCStandaloneTracksMon
+   #ToolSvc += MuonSelectedTracksMon
+   #ToolSvc += MuonGenericTracksMon
+   #ToolSvc += TGCStandaloneTracksMon
    monMan.AthenaMonTools += [ MuonSelectedTracksMon ]
    monMan.AthenaMonTools += [ MuonGenericTracksMon ]
    monMan.AthenaMonTools += [ TGCStandaloneTracksMon ]
@@ -87,9 +87,9 @@ else:
                                                            MuonTriggerDecisionTool = "TrigDec::TrigDecisionTool",
                                                            Muon_Trigger_Items = ["MU0", "MU4", "MU6", "MU10", "MU11", "MU15", "MU20", "MU40", "MU0_TGC", "MU6_TGC", "MU0_TGC_HALO" ],
                                                            MuonTriggerChainName = "TriggersInChain")
-      ToolSvc += MuonSelectedTracksMon_Trig
-      ToolSvc += MuonGenericTracksMon_Trig
-      ToolSvc += TGCStandaloneTracksMon_Trig
+      #ToolSvc += MuonSelectedTracksMon_Trig
+      #ToolSvc += MuonGenericTracksMon_Trig
+      #ToolSvc += TGCStandaloneTracksMon_Trig
       monMan.AthenaMonTools += [ MuonSelectedTracksMon_Trig ]
       monMan.AthenaMonTools += [ MuonGenericTracksMon_Trig]
       monMan.AthenaMonTools += [ TGCStandaloneTracksMon_Trig]
@@ -187,18 +187,18 @@ else:
       MuonGenericTracksMon_trigmu40.MuonTriggerChainName   = "EF_mu40"
       MuonGenericTracksMon_trig2mu10.MuonTriggerChainName  = "EF_2mu10"
    ###################################################
-      ToolSvc += MuonSelectedTracksMon_trig2mu4
-      ToolSvc += MuonSelectedTracksMon_trig2mu6
-      ToolSvc += MuonSelectedTracksMon_trigmu10
-      ToolSvc += MuonSelectedTracksMon_trigmu20
-      ToolSvc += MuonSelectedTracksMon_trigmu40
-      ToolSvc += MuonSelectedTracksMon_trig2mu10
-      ToolSvc += MuonGenericTracksMon_trig2mu4
-      ToolSvc += MuonGenericTracksMon_trig2mu6
-      ToolSvc += MuonGenericTracksMon_trigmu10
-      ToolSvc += MuonGenericTracksMon_trigmu20
-      ToolSvc += MuonGenericTracksMon_trigmu40
-      ToolSvc += MuonGenericTracksMon_trig2mu10
+      #ToolSvc += MuonSelectedTracksMon_trig2mu4
+      #ToolSvc += MuonSelectedTracksMon_trig2mu6
+      #ToolSvc += MuonSelectedTracksMon_trigmu10
+      #ToolSvc += MuonSelectedTracksMon_trigmu20
+      #ToolSvc += MuonSelectedTracksMon_trigmu40
+      #ToolSvc += MuonSelectedTracksMon_trig2mu10
+      #ToolSvc += MuonGenericTracksMon_trig2mu4
+      #ToolSvc += MuonGenericTracksMon_trig2mu6
+      #ToolSvc += MuonGenericTracksMon_trigmu10
+      #ToolSvc += MuonGenericTracksMon_trigmu20
+      #ToolSvc += MuonGenericTracksMon_trigmu40
+      #ToolSvc += MuonGenericTracksMon_trig2mu10
    ###################################################
       monMan.AthenaMonTools += [ MuonSelectedTracksMon_trig2mu4 ]
       monMan.AthenaMonTools += [ MuonSelectedTracksMon_trig2mu6 ]

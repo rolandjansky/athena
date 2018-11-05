@@ -476,7 +476,7 @@ class TRTConditionsServicesSetup:
     if not self._isMC:
       #only needed for data
       if not (conddb.folderRequested('/TRT/Onl/ROD/Compress')):
-        conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+        conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress",className='CondAttrListCollection')
 
     if not (conddb.folderRequested('/TRT/Calib/RT') or conddb.folderRequested('/TRT/Onl/Calib/RT')):
       conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/RT','/TRT/Calib/RT',className='TRTCond::RtRelationMultChanContainer')

@@ -109,7 +109,6 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 # --- commit interval (test)
 ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
-ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
 MaterialStream.OutputFile   = outPath + "MaterStepFile.root" 
 MaterialStream.ItemList    += [ 'MaterialStepVector#*']

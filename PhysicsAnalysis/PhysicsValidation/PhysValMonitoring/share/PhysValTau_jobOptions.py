@@ -10,9 +10,6 @@ if recFlags.doTruth():
 tool1.TauContainerName = "TauJets"
 tool1.TruthParticleContainerName = "TruthParticles"
 
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += tool1
-
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]
 

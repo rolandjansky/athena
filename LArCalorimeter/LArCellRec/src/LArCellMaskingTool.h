@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LARCELLMASKINGTOOL_H
@@ -11,11 +11,10 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include <bitset>
-#include "LArCabling/LArCablingService.h"
 
-class StoreGateSvc; 
-class MsgStream;
 
 class LArCellMaskingTool: public AthAlgTool,
 			  virtual public ICaloCellMakerTool 
@@ -37,15 +36,16 @@ public:
   virtual StatusCode finalize();
 
  private:
-  StatusCode fillIncludedCellsMap();
+  StatusCode fillIncludedCellsMap(const LArOnOffIdMapping* cabling);
   const LArOnlineID* m_onlineID;
   const CaloCell_ID* m_offlineID;
-  LArCablingService* m_larCablingSvc;
+ SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   
   std::vector<std::string> m_rejLArChannels;  
   std::bitset<200000> m_includedCellsMap; //Slightly too big but who cares....
 
-
+  bool m_mapInitialized=false;
   IdentifierHash m_offlinehashMax;
   IdentifierHash m_onlinehashMax;
 };

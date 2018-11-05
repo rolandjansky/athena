@@ -115,9 +115,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
             phMonTool.FilterTools += [ monbadlb ]
 
             if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                phMonTool.FilterTools.append(monFilledBunchFilterTool)
-            ToolSvc+=phMonTool
-            monManEgamma.AthenaMonTools += [ "photonMonTool/phMonTool" ]
+                phMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=phMonTool
+            monManEgamma.AthenaMonTools += [ phMonTool ]
 
             if DQMonFlags.useTrigger():
                 phMonToolWithTrigger = photonMonTool(name= "phMonToolWithTrigger",
@@ -132,9 +132,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                 phMonToolWithTrigger.FilterTools += [ monbadlb ]
                 
                 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                    phMonToolWithTrigger.FilterTools.append(monFilledBunchFilterTool)
-                ToolSvc+=phMonToolWithTrigger
-                monManEgamma.AthenaMonTools += [ "photonMonTool/phMonToolWithTrigger" ]
+                    phMonToolWithTrigger.FilterTools += [monFilledBunchFilterTool]
+                #ToolSvc+=phMonToolWithTrigger
+                monManEgamma.AthenaMonTools += [ phMonToolWithTrigger ]
 
 
         if(egammaMonitorElectrons):
@@ -149,9 +149,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                         )
             elMonTool.FilterTools += [ monbadlb ]
             if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                elMonTool.FilterTools.append(monFilledBunchFilterTool)
-            ToolSvc+=elMonTool
-            monManEgamma.AthenaMonTools += [ "electronMonTool/elMonTool" ]
+                elMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=elMonTool
+            monManEgamma.AthenaMonTools += [ elMonTool ]
             print elMonTool
 
             if DQMonFlags.useTrigger():
@@ -165,9 +165,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                                        )
                 elMonToolWithTrigger.FilterTools += [ monbadlb ]
                 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                    elMonToolWithTrigger.FilterTools.append(monFilledBunchFilterTool)
-                ToolSvc+=elMonToolWithTrigger
-                monManEgamma.AthenaMonTools += [ "electronMonTool/elMonToolWithTrigger" ]
+                    elMonToolWithTrigger.FilterTools += [monFilledBunchFilterTool]
+                #ToolSvc+=elMonToolWithTrigger
+                monManEgamma.AthenaMonTools += [ elMonToolWithTrigger ]
                 print elMonToolWithTrigger
             
 
@@ -184,9 +184,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
             fwdMonTool.FilterTools += [ monbadlb ]
             
             if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                fwdMonTool.FilterTools.append(monFilledBunchFilterTool)
-            ToolSvc+=fwdMonTool
-            monManEgamma.AthenaMonTools += [ "forwardElectronMonTool/fwdMonTool" ]    
+                fwdMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=fwdMonTool
+            monManEgamma.AthenaMonTools += [ fwdMonTool ]    
 
         if(egammaMonitorZee):
             from egammaPerformance.egammaPerformanceConf import ZeeTaPMonTool
@@ -205,9 +205,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                        )
             
             if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                ZeeMonTool.FilterTools.append(monFilledBunchFilterTool)
-            ToolSvc+=ZeeMonTool
-            monManEgamma.AthenaMonTools += [ "ZeeTaPMonTool/ZeeMonTool" ]
+                ZeeMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=ZeeMonTool
+            monManEgamma.AthenaMonTools += [ ZeeMonTool ]
 
         if(egammaMonitorJPsi):
             from egammaPerformance.egammaPerformanceConf import ZeeTaPMonTool
@@ -225,9 +225,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                         OutputLevel = egammaMonOutputLevel,
                                         )
             if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                JPsiMonTool.FilterTools.append(monFilledBunchFilterTool)       
-            ToolSvc+=JPsiMonTool
-            monManEgamma.AthenaMonTools += [ "ZeeTaPMonTool/JPsiMonTool" ]
+                JPsiMonTool.FilterTools += [monFilledBunchFilterTool]
+            #ToolSvc+=JPsiMonTool
+            monManEgamma.AthenaMonTools += [ JPsiMonTool ]
 
         if(egammaMonitorUpsilon1S):
             from egammaPerformance.egammaPerformanceConf import physicsMonTool
@@ -245,8 +245,8 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = MyDoTrigger)
             
-            ToolSvc+=Upsilon1SMonTool
-            monManEgamma.AthenaMonTools += [ "physicsMonTool/Upsilon1SMonTool" ]
+            #ToolSvc+=Upsilon1SMonTool
+            monManEgamma.AthenaMonTools += [ Upsilon1SMonTool ]
 
 
         if(egammaMonitorUpsilon2S):
@@ -265,8 +265,8 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = MyDoTrigger)
             
-            ToolSvc+=Upsilon2SMonTool
-            monManEgamma.AthenaMonTools += [ "physicsMonTool/Upsilon2SMonTool" ]
+            #ToolSvc+=Upsilon2SMonTool
+            monManEgamma.AthenaMonTools += [ Upsilon2SMonTool ]
 
         if(egammaMonitorWenu):
             from egammaPerformance.egammaPerformanceConf import ephysicsMonTool
@@ -290,8 +290,8 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                           TrigDecisionTool = MyTrigDecisionTool,
                                           UseTrigger = MyDoTrigger)
             
-            ToolSvc+=WenuMonTool
-            monManEgamma.AthenaMonTools += [ "ephysicsMonTool/WenuMonTool" ]
+            #ToolSvc+=WenuMonTool
+            monManEgamma.AthenaMonTools += [ WenuMonTool ]
 
         if(egammaMonitorTop):
             from egammaPerformance.egammaPerformanceConf import TopphysicsMonTool
@@ -315,8 +315,8 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                           TrigDecisionTool = MyTrigDecisionTool,
                                           UseTrigger = MyDoTrigger)
 
-            ToolSvc+=TopMonTool
-            monManEgamma.AthenaMonTools += [ "TopphysicsMonTool/TopMonTool" ]
+            #ToolSvc+=TopMonTool
+            monManEgamma.AthenaMonTools += [ TopMonTool ]
         
             
 

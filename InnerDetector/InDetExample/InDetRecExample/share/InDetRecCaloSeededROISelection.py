@@ -15,14 +15,15 @@ egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloCluste
                                             name = 'caloClusterROISelector',
                                             egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
                                             EMEtRanges = [1500.,2500.,4000.],
-                                            EMFCuts = [0.9,0.85,0.8],
-                                            RetaCut = [0.7,0.65,0.6]
+                                            EMFCuts = [0.9,0.9,0.85],
+                                            RetaCut = [0.7,0.65,0.65]
                                             ) 
 #
 # --- get the builder tool
 #
 from InDetCaloClusterROIBuilder.InDetCaloClusterROIBuilderConf import InDet__CaloClusterROI_Builder
-InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder")
+InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder",
+                                                           EMEnergyOnly = True)
 
 if (InDetFlags.doPrintConfigurables()):
     print InDetCaloClusterROIBuilder

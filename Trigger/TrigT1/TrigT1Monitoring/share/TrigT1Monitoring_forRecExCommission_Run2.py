@@ -71,7 +71,7 @@ if l1caloRawMon:
             MaxEnergyRange = 256,
             #OutputLevel = VERBOSE,
             )
-        ToolSvc += CalorimeterL1CaloMonTool
+        #ToolSvc += CalorimeterL1CaloMonTool
         L1Man.AthenaMonTools += [ CalorimeterL1CaloMonTool ]
         # HV corrections
         from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
@@ -95,7 +95,7 @@ if l1caloRawMon:
             DoHVDifference = doHV,
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             )
-        ToolSvc += L1CaloHVScalesMonTool
+        #ToolSvc += L1CaloHVScalesMonTool
         L1Man.AthenaMonTools += [ L1CaloHVScalesMonTool ]
         # PMT scores
         from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloPMTScoresMon
@@ -103,7 +103,7 @@ if l1caloRawMon:
             name = "L1CaloPMTScoresMonTool",
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             )
-        ToolSvc += L1CaloPMTScoresMonTool
+        #ToolSvc += L1CaloPMTScoresMonTool
         L1Man.AthenaMonTools += [ L1CaloPMTScoresMonTool ]
 
     if isData: #and DQMonFlags.doCTPMon(): # KW this is not set in online environment!  Investigate! # GP doCTPMon() commented out for now
@@ -117,7 +117,7 @@ if l1caloRawMon:
             name = "L1CaloCTPMonTool",
             #OutputLevel = DEBUG,
         )
-        ToolSvc += L1CaloCTPMonTool
+        #ToolSvc += L1CaloCTPMonTool
         L1Man.AthenaMonTools += [ L1CaloCTPMonTool ]
 
     ####################### L1Calo->Level-2 ################################
@@ -136,7 +136,7 @@ if l1caloRawMon:
         #OutputLevel = DEBUG,
         #OutputLevel = VERBOSE,
         )
-    ToolSvc += L1CaloL1TopoMonTool
+    #ToolSvc += L1CaloL1TopoMonTool
     L1Man.AthenaMonTools += [ L1CaloL1TopoMonTool ]
 
     ##########################################################################

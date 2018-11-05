@@ -57,8 +57,8 @@ HLTMonManager = topSequence.HLTMonManager
 
 from TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConf import TrigJpsiMonTool
 TPMonTool = TrigJpsiMonTool( name="TPMonTool")
-ToolSvc += TPMonTool
-HLTMonManager.AthenaMonTools += [ "TrigJpsiMonTool/TPMonTool" ]
+#ToolSvc += TPMonTool
+HLTMonManager.AthenaMonTools += [ TPMonTool ]
 
 
 TPMonTool.matchR = 0.1

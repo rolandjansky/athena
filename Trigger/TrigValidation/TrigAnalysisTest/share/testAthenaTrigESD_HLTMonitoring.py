@@ -61,9 +61,9 @@ HLTMon = HLTMonTool(name               = 'HLTMon',
 
 #HLTMon.TrigDecisionTool = monTrigDecTool
 
-ToolSvc += HLTMon;
+#ToolSvc += HLTMon;
 
-HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+HLTMonManager.AthenaMonTools += [ HLTMon ];
 
 
 from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool

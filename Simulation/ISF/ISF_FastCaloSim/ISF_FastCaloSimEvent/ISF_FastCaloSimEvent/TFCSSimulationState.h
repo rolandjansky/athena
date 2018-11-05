@@ -44,8 +44,8 @@ class TFCSSimulationState:public TObject
     void deposit(const CaloDetDescrElement* cellele, float E);
     
     void Print(Option_t *option="") const;
-    void set_SF(double mysf) {SF=mysf;}
-    double get_SF() {return SF;}
+    void set_SF(double mysf) {m_SF = mysf;}
+    double get_SF() {return m_SF;}
 
     void clear();
   private:
@@ -54,7 +54,7 @@ class TFCSSimulationState:public TObject
     int    m_Ebin;
     double m_Etot;
     // TO BE CLEANED UP! SHOULD ONLY STORE EITHER E OR EFRAC!!!
-    double SF;
+    double m_SF;
     double m_E[CaloCell_ID_FCS::MaxSample];
     double m_Efrac[CaloCell_ID_FCS::MaxSample];
     

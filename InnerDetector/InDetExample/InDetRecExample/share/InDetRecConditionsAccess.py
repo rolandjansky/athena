@@ -340,7 +340,7 @@ if DetFlags.haveRIO.TRT_on():
     # Compression table
     if (globalflags.DataSource() == 'data'): 
         if not conddb.folderRequested('/TRT/Onl/ROD/Compress'):
-            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress",className='CondAttrListCollection')
 
     # Calibration constants
     # Block folders if they are to be read from or written to text files

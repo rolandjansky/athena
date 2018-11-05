@@ -56,12 +56,66 @@ namespace Trk{
   class CylinderLayer;
   class DiscLayer;
   class MagneticFieldProperties;
-  class TrackingGeometry; 
-  class TrackingVolume; 
-  class Volume; 
+  class TrackingGeometry;
+  class TrackingVolume;
+  class Volume;
   class ITrkMaterialProviderTool;
-  
+
 class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
+
+  struct Cache
+  {
+    //Currently the information about what type of fit is being passed by the
+    // presence of a TrackingVolume
+    const TrackingGeometry*  m_trackingGeometry = nullptr;
+    const TrackingVolume*    m_caloEntrance = nullptr;
+    const TrackingVolume*    m_msEntrance = nullptr;
+
+    bool m_calomat,m_extmat;
+    bool m_idmat = true;
+    bool m_sirecal;
+    Amg::MatrixX *m_derivmat = nullptr;
+    Amg::MatrixX *m_fullcovmat = nullptr;
+    bool m_getmaterialfromtrack;
+    bool m_reintoutl;
+    bool m_matfilled = false;
+    int m_hitcount = 0;
+    FitterStatusCode m_fittercode;
+    bool m_acceleration;
+    int m_lastiter;
+    int m_miniter;
+    bool m_fiteloss;
+    bool m_asymeloss;
+    TMatrixDSym m_a,m_ainv; //  Only used in MyFit (does this called more than once?)
+    bool m_updatescat; // Need to look at how this should be intialised
+
+    std::vector<double> m_phiweight;
+    std::vector<int> m_firstmeasurement;
+    std::vector<int> m_lastmeasurement;
+
+    std::vector<MaterialEffectsOnTrack> m_calomeots;
+    const std::vector<const TrackStateOnSurface*> *m_matvecidupstream = nullptr;
+    const std::vector<const TrackStateOnSurface*> *m_matveciddownstream = nullptr;
+    const std::vector<const TrackStateOnSurface*> *m_matvecmuonupstream = nullptr;
+    const std::vector<const TrackStateOnSurface*> *m_matvecmuondownstream = nullptr;
+    std::vector<const TrackStateOnSurface*> m_matvec;
+    std::vector<const Trk::Layer*> m_negdiscs;
+    std::vector<const Trk::Layer*> m_posdiscs;
+    std::vector<const Trk::Layer*> m_barrelcylinders;
+    bool m_fastmat = true;
+    int m_MMCorrectionStatus = 0;
+
+    void cleanup();
+    ~Cache(){ cleanup(); };
+    //default constructor is defaulted
+    Cache() = default;
+    //assignment is deleted
+    Cache & operator=(const Cache &) = delete;
+    //copy is deleted
+    Cache(const Cache &) = delete;
+
+  };
+
 public:
   GlobalChi2Fitter(const std::string&,const std::string&,const IInterface*);
   virtual ~GlobalChi2Fitter();
@@ -99,67 +153,77 @@ public:
                           const RunOutlierRemoval runOutlier=false,
                           const ParticleHypothesis matEffects=nonInteracting) const;
 
-  virtual Amg::MatrixX *DerivMatrix() const;
+  virtual Track* alignmentFit ( AlignmentCache&,
+                const Track&,
+                const RunOutlierRemoval  runOutlier=false,
+                const ParticleHypothesis matEffects=Trk::nonInteracting) const;
 
-  virtual Amg::MatrixX *FullCovarianceMatrix() const;
-
-  FitterStatusCode statusCodeOfLastFit() const;
 
 private:
 
-  Track* myfit(GXFTrajectory&,
-                          const TrackParameters&,
-                          const RunOutlierRemoval runOutlier=false,
-                          const ParticleHypothesis matEffects=nonInteracting) const;
+  Track * fitIm(Cache& cache,
+                const Track &inputTrack,
+                const RunOutlierRemoval runOutlier,
+                const ParticleHypothesis matEffects) const;
 
-  Track* mainCombinationStrategy(const Track&,
+
+  Track* myfit( Cache&,
+                GXFTrajectory&,
+                const TrackParameters&,
+                const RunOutlierRemoval runOutlier=false,
+                const ParticleHypothesis matEffects=nonInteracting) const;
+
+  Track* mainCombinationStrategy(Cache&,
+                          const Track&,
                           const Track&,
                           GXFTrajectory&,
                           std::vector<MaterialEffectsOnTrack>&) const;
 
-  Track* backupCombinationStrategy(const Track&,
+  Track* backupCombinationStrategy(Cache&,
+                          const Track&,
                           const Track&,
                           GXFTrajectory&,
                           std::vector<MaterialEffectsOnTrack>&) const;
 
 
-  void makeProtoState(GXFTrajectory &,const TrackStateOnSurface*,int index=-1,bool copytp=false) const;
+  void makeProtoState(Cache&, GXFTrajectory &,const TrackStateOnSurface*,int index=-1,bool copytp=false) const;
 
-  void makeProtoStateFromMeasurement(GXFTrajectory &,const MeasurementBase*, const TrackParameters *trackpar=0, bool isoutlier=false, int index=-1) const;
+  void makeProtoStateFromMeasurement(Cache&, GXFTrajectory &,const MeasurementBase*, const TrackParameters *trackpar=0, bool isoutlier=false, int index=-1) const;
 
-  bool processTrkVolume(const Trk::TrackingVolume* tvol) const;
+  bool processTrkVolume(Cache&, const Trk::TrackingVolume* tvol) const;
 
-  void addIDMaterialFast(GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const; 
+  void addIDMaterialFast(Cache&, GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const;
 
-  void addMaterial(GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const; 
+  void addMaterial(Cache&, GXFTrajectory &,const TrackParameters *,ParticleHypothesis) const;
 
-  const TrackParameters *makePerigee(const TrackParameters &, const ParticleHypothesis) const;
+  const TrackParameters *makePerigee(Cache&, const TrackParameters &, const ParticleHypothesis) const;
 
-  Track *makeTrack(GXFTrajectory&, const ParticleHypothesis matEffects) const;
+  Track *makeTrack(Cache&, GXFTrajectory&, const ParticleHypothesis matEffects) const;
 
   TrackStateOnSurface *makeTSOS(GXFTrackState*, const ParticleHypothesis matEffects) const;
 
-  void fillResiduals(GXFTrajectory &,int,TMatrixDSym &,TVectorD&,TDecompChol &,bool &) const;
+  void fillResiduals(Cache&, GXFTrajectory &,int,TMatrixDSym &,TVectorD&,TDecompChol &,bool &) const;
 
   void fillDerivatives(GXFTrajectory &traj, bool onlybrem=false) const;
 
-  FitterStatusCode runIteration(GXFTrajectory &,int,TMatrixDSym &,TVectorD &,TDecompChol &,bool &) const;
-  
+  FitterStatusCode runIteration(Cache&, GXFTrajectory &,int,TMatrixDSym &,TVectorD &,TDecompChol &,bool &) const;
+
   FitterStatusCode updateFitParameters(GXFTrajectory &,TVectorD &,TDecompChol &) const;
 
-  GXFTrajectory *runTrackCleanerSilicon(GXFTrajectory&, TMatrixDSym&, TMatrixDSym&, TVectorD&, bool) const;
+  GXFTrajectory *runTrackCleanerSilicon(Cache&, GXFTrajectory&, TMatrixDSym&, TMatrixDSym&, TVectorD&, bool) const;
+  //Not called
+  void runTrackCleanerMDT(Cache&, GXFTrajectory&, TMatrixDSym&, TMatrixDSym&, TVectorD&, TDecompChol &) const;
 
-  void runTrackCleanerMDT(GXFTrajectory&, TMatrixDSym&, TMatrixDSym&, TVectorD&, TDecompChol &) const;
-
-  void runTrackCleanerTRT(GXFTrajectory&, TMatrixDSym&, TVectorD&, TDecompChol &, bool, bool, int) const;
+  void runTrackCleanerTRT(Cache&, GXFTrajectory&, TMatrixDSym&, TVectorD&, TDecompChol &, bool, bool, int) const;
 
   FitterStatusCode calculateTrackParameters(GXFTrajectory &,bool) const;
-  
+
   void calculateDerivatives(GXFTrajectory&) const;
 
   void calculateTrackErrors(GXFTrajectory&,TMatrixDSym &,bool) const;
 
-  TransportJacobian *numericalDerivatives(const TrackParameters *,const Surface *, PropDirection) const;
+  //only m_fieldprop
+  TransportJacobian *numericalDerivatives(const TrackParameters *,const Surface *, PropDirection, const MagneticFieldProperties*) const;
 
   void print(GXFTrajectory&) const;
 
@@ -171,9 +235,7 @@ private:
 
   void errors1(double (*jac)[5],AmgSymMatrix(5) &prevcov,AmgSymMatrix(5) &trackerrmat,bool onlylocal) const;
 
-  void errors2(CLHEP::HepMatrix &derivatives,AmgSymMatrix(5) &trackerrmat, double *myarray,std::vector<int> *rowindices,int &maxl,int *minm,bool onlylocal,int nfitpars) const;
-
-  void cleanup() const;
+  void errors2(Amg::MatrixX &derivatives,AmgSymMatrix(5) &trackerrmat, double *myarray,std::vector<int> *rowindices,int &maxl,int *minm,bool onlylocal,int nfitpars) const;
 
 #ifdef GXFDEBUGCODE
   void printTruth(Identifier) const;
@@ -195,70 +257,60 @@ private:
   ToolHandle< IMaterialEffectsOnTrackProvider > m_calotoolparam;
 
   ServiceHandle< MagField::IMagFieldSvc > m_fieldService;
- 
-  mutable ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc; 
-  //mutable ServiceHandle<ITrackingVolumesSvc>              m_trackingVolumesSvc;
 
-  mutable const TrackingGeometry*  m_trackingGeometry; 
-  mutable const TrackingVolume*    m_caloEntrance; 
-  // mutable const Volume*    m_caloEntrance2; 
-  mutable const TrackingVolume*    m_msEntrance; 
+  ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc;
+
+
+  //Leave original memory pool for derivates here just in case it
+  // needs to replaced.
+  //static std::vector<Amg::MatrixX> m_derivpool;
+
+
 
   bool m_signedradius;
-  mutable bool m_calomat,m_extmat,m_idmat;
-  bool m_fillderivmatrix; 
-  double m_outlcut; 
+  bool m_calomat,m_extmat;
+  bool m_fillderivmatrix;
+  double m_outlcut;
   double m_maxoutliers;
-  bool m_printderivs;  
+  bool m_printderivs;
   double m_p;  // momentum (for estimating multiple scattering)
   //std::vector<double> radlengths;
   bool m_straightlineprop;
-  mutable bool m_straightline;
   bool m_extensioncuts;
-  mutable bool m_sirecal;
-  mutable bool m_trtrecal;
+  bool m_sirecal;
+  bool m_trtrecal;
   bool m_kinkfinding;
-  mutable Amg::MatrixX *m_derivmat;
-  mutable Amg::MatrixX *m_fullcovmat;
   const AtlasDetectorID *m_DetID;
   bool m_decomposesegments;
-  mutable bool m_getmaterialfromtrack;
-  mutable bool m_domeastrackpar;
+  bool m_getmaterialfromtrack;
+  bool m_domeastrackpar;
   bool m_storemat;
   double m_chi2cut;
-  mutable double m_scalefactor;
-  mutable bool m_redoderivs;
-  mutable bool m_reintoutl;
-  mutable bool m_matfilled;
+  double m_scalefactor;
+  bool m_redoderivs;
+  bool m_reintoutl;
   TrackFitInputPreparator*      m_inputPreparator;
   int m_maxit;
-  mutable int m_nfits,m_nsuccessfits,m_matrixinvfailed,m_notenoughmeas,m_propfailed,m_invalidangles,m_notconverge,m_highchi2,m_lowmomentum;
-  mutable FitterStatusCode m_fittercode;
-  mutable bool m_acceleration;
-  mutable bool m_numderiv; 
-  mutable int m_lastiter;
-  mutable int m_miniter;
-  mutable bool m_fiteloss;
-  mutable bool m_asymeloss;
+  bool m_acceleration;
+  bool m_numderiv;
+  int m_miniter;
+  bool m_fiteloss;
+  bool m_asymeloss;
+
   MagneticFieldProperties *m_fieldpropnofield;
   MagneticFieldProperties *m_fieldpropfullfield;
-  mutable MagneticFieldProperties *m_fieldprop;
-  static std::vector<CLHEP::HepMatrix> m_derivpool;
-  mutable TMatrixDSym m_a,m_ainv;
   ParticleMasses   m_particleMasses;
-  mutable std::vector<double> m_residuals;
-  mutable bool m_updatescat;
 
   bool m_useCaloTG;
   ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider;
   bool m_rejectLargeNScat;
 
 #ifdef GXFDEBUGCODE
-  
+
   bool m_truth;
-  mutable const PRD_MultiTruthCollection *m_truthCollectionPixel;  
-  mutable const PRD_MultiTruthCollection *m_truthCollectionSCT;  
-  mutable const PRD_MultiTruthCollection *m_truthCollectionTRT;  
+  mutable const PRD_MultiTruthCollection *m_truthCollectionPixel;
+  mutable const PRD_MultiTruthCollection *m_truthCollectionSCT;
+  mutable const PRD_MultiTruthCollection *m_truthCollectionTRT;
   mutable const PRD_MultiTruthCollection *m_truthCollectionMDT;
   mutable const PRD_MultiTruthCollection *m_truthCollectionRPC;
   mutable const PRD_MultiTruthCollection *m_truthCollectionTGC;
@@ -274,38 +326,15 @@ private:
 
   mutable int m_barcode;
 #endif
-  mutable int m_hitcount;  
-  mutable int m_energybalance;
 
-  mutable std::vector<double> m_phiweight;
-  mutable std::vector<int> m_firstmeasurement;
-  mutable std::vector<int> m_lastmeasurement;
+  mutable std::atomic<int> m_nfits,m_nsuccessfits,m_matrixinvfailed,m_notenoughmeas,m_propfailed,m_invalidangles,m_notconverge,m_highchi2,m_lowmomentum;
 
-  mutable std::vector<MaterialEffectsOnTrack> m_calomeots;
-  mutable const std::vector<const TrackStateOnSurface*> *m_matvecidupstream;
-  mutable const std::vector<const TrackStateOnSurface*> *m_matveciddownstream;
-  mutable const std::vector<const TrackStateOnSurface*> *m_matvecmuonupstream;
-  mutable const std::vector<const TrackStateOnSurface*> *m_matvecmuondownstream;
-  mutable std::vector<const TrackStateOnSurface*> m_matvec;
+  mutable std::atomic<int> m_energybalance;
   int m_fixbrem;
-  mutable std::vector<const Trk::Layer*> m_negdiscs;
-  mutable std::vector<const Trk::Layer*> m_posdiscs;
-  mutable std::vector<const Trk::Layer*> m_barrelcylinders;
-  mutable std::vector<const Trk::Layer*> m_othercylinders;
-  mutable bool m_fastmat;
-  mutable int m_MMCorrectionStatus;
+
+
+
 };
-
-//std::vector<CLHEP::HepMatrix> Trk::GlobalChi2Fitter::m_derivpool;
-
-inline Trk::FitterStatusCode Trk::GlobalChi2Fitter::statusCodeOfLastFit() const
-  { return m_fittercode; }
-
-inline Amg::MatrixX *Trk::GlobalChi2Fitter::DerivMatrix() const
-  { return m_derivmat; }
-
-inline Amg::MatrixX *Trk::GlobalChi2Fitter::FullCovarianceMatrix() const
-  { return m_fullcovmat; }
 
 
 }

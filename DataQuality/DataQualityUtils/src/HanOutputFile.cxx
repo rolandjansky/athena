@@ -2115,8 +2115,30 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     myC_ratiopad->cd();
     myC_ratiopad->SetTopMargin(0);
     myC_ratiopad->SetLogx(display.find("LogX")!=std::string::npos );
-    TH1F *clonehist=(TH1F*)h->Clone();
-    clonehist->Divide(hRef);
+    //TH1F *clonehist=(TH1F*)h->Clone();
+    //clonehist->Divide(hRef);
+
+    ///////
+    ///Fixing Error Bars
+    //////
+    TProfile* phRef = dynamic_cast<TProfile*>( hRef );
+    TProfile* ph    = dynamic_cast<TProfile*>( h );
+    TH1F *clonehist   ;
+    TH1F *clonehistref;
+    if( ph != 0 ) {//profile
+      std::cout<<"it is a TProfile\n";
+      clonehist=(TH1F*)ph->ProjectionX();
+      clonehistref=(TH1F*)phRef->ProjectionX();
+    }else{
+      clonehist=(TH1F*)h->Clone();
+      clonehist->Sumw2();
+      clonehistref=(TH1F*)hRef->Clone();
+      clonehistref->Sumw2();
+    }
+    clonehist->Divide(clonehistref);
+    ///Error Bars fixed
+    //////
+    
     formatTH1( myC_ratiopad, clonehist);
     clonehist->SetTitle("");
     clonehist->SetAxisRange(0.25,1.75,"Y");

@@ -148,9 +148,6 @@ include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 #PFlow
 
 include("eflowRec/PFlowMTConfig.py")
-#We are using an ESD file as input and so must change the names of the containers we create, because overwrite is not allowed in AthenaMT
-topSequence.PFOChargedCreatorAlgorithm.PFOOutputName="JetETMissChargedParticleFlowObjectsV2"
-topSequence.PFONeutralCreatorAlgorithm.PFOOutputName="JetETMissNeutralParticleFlowObjectsV2"
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
@@ -160,11 +157,11 @@ StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 
-StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissChargedParticleFlowObjectsV2"]
-StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissChargedParticleFlowObjectsV2Aux."]
+StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissChargedParticleFlowObjects"]
+StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissChargedParticleFlowObjectsAux."]
 
-StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissNeutralParticleFlowObjectsV2"]
-StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsV2Aux."]
+StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissNeutralParticleFlowObjects"]
+StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsAux."]
 
 print StreamESD.ItemList
 
@@ -199,9 +196,5 @@ if (algCardinality > 1):
          alg.Cardinality = 1
       else:
          alg.Cardinality = algCardinality
-
-#Change input and output container names
-topSequence.CaloTopoCluster.ClustersOutputName="CaloCalTopoClusterV2"
-topSequence.PFClusterSelector.calClustersName="CaloCalTopoClusterV2"
            
 

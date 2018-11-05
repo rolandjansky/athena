@@ -19,7 +19,7 @@ struct TileSDOptions {
   TileSDOptions()
     : timeCut(350.5),
       tileTB(false),
-      plateToCell(true),
+      plateToCell(-1),
       uShape(-1),
       doBirk(true),
       doTileRow(false),
@@ -50,7 +50,7 @@ struct TileSDOptions {
   /** Special flag for Calibration Hits. If true then Tile
       Plates are the parts of the adjacent Tile cells.
       If false then they are Dead Materials */
-  bool plateToCell; /// Not used anywhere?!
+  int plateToCell; /// used in TileGeoG4DMLookupBuilder only
 
   /** Flag to enable simulation of light attenuation in tiles */
   int uShape; /// used in TileGeoG4SDCalc only

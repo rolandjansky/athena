@@ -47,6 +47,6 @@ LArCluCollTimeMonTool=LArCollisionTimeMonTool(Key="ClusterCollTime",
 
 
 # --- register with toolservice ---
-ToolSvc += [LArCollisionTimeMon,LArCluCollTimeMonTool]
+#ToolSvc += [LArCollisionTimeMon,LArCluCollTimeMonTool]
 LArMon.AthenaMonTools+=[ LArCollisionTimeMon,LArCluCollTimeMonTool ]
 

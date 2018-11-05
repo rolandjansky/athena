@@ -68,8 +68,6 @@ svcMgr.PoolSvc.ReadCatalog = [ "file:Catalog.xml" ]
 svcMgr.PoolSvc.ReadCatalog += [ "file:Catalog1.xml" ]
 svcMgr.PoolSvc.WriteCatalog = "file:Catalog2.xml"
 
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 #from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import TagRemappingTool
 #TagRemappingTool = TagRemappingTool("TagRemappingTool")
 #TagRemappingTool.JoinListKey = "Stream1_ref"

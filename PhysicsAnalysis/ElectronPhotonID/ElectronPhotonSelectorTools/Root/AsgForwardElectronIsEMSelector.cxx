@@ -31,18 +31,17 @@
 //=============================================================================
 AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(std::string myname) :
   AsgTool(myname),
-  m_configFile(""),
-  m_rootForwardTool(0)
+  m_configFile{""},
+  m_rootForwardTool{nullptr},
+  m_primVtxContKey{"PrimaryVertices"}
 {
   m_rootForwardTool = new Root::TForwardElectronIsEMSelector(myname.c_str());
 
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
-  declareProperty("ConfigFile",m_configFile="",
-		  "The config file to use (if not setting cuts one by one)");
-
+  declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
-  declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
+  declareProperty("primaryVertexContainer", m_primVtxContKey="PrimaryVertices", "The primary vertex container name" );
 
   // Name of the quality to use
   declareProperty("isEMMask",
@@ -88,7 +87,7 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
-  if(!m_WorkingPoint.empty()){
+ if(!m_WorkingPoint.empty()){
     m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::ForwardElectronCutPointToConfFile);
   }
   
@@ -96,19 +95,15 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
     //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
     if(filename=="")
-      { 
-	ATH_MSG_ERROR("Could not locate " << m_configFile );
-	sc = StatusCode::FAILURE;
-	return sc;      
-      } 
+    { 
+        ATH_MSG_ERROR("Could not locate " << m_configFile );
+        sc = StatusCode::FAILURE;
+        return sc;      
+    } 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
     TEnv env(filename.c_str());
 
-    // Setup primary vertex key handle
-    m_primVtxContKey = m_primVtxContName;
-    ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
-
-    
+        
     ///------- Read in the TEnv config ------///
 
     //Override the mask via the config only if it is not set 
@@ -131,6 +126,8 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
     ATH_MSG_INFO("Conf file empty. Just user Input");
   }
 
+  ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
+ 
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootForwardTool->m_isEMMask  );
 
   // Get the message level and set the underlying ROOT tool message level accordingly

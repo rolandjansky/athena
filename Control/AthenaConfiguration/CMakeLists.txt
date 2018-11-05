@@ -11,7 +11,7 @@ atlas_subdir( AthenaConfiguration )
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime(python/*.pkl )
-atlas_install_scripts( share/confTool.py )
+atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool )
 
 atlas_add_test( ComponentAccumulatorTest
    SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulator 

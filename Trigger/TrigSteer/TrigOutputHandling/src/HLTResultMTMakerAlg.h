@@ -11,6 +11,7 @@
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 
 
+
 /**
  * @class HLTResultMTMakerAlg 
  * @brief creates HLTResult and calls tools to fill the content,
@@ -29,6 +30,7 @@ private:
   SG::WriteHandleKey<HLT::HLTResultMT> m_resultKey { this, "ResultKey", "HLTResultMT", "Key of the output object"  };
   ToolHandleArray<HLTResultMTMakerTool> m_makerTools{ this, "MakerTools", {}, "set of tools that fill content of the HLTResultMT" };
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitor" };
+  
 };
 
 #endif // TRIGOUTPUTHANDLING_HLTRESULMTMAKERALG_H

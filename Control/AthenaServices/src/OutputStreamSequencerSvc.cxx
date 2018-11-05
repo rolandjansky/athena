@@ -75,9 +75,13 @@ StatusCode OutputStreamSequencerSvc::queryInterface(const InterfaceID& riid, voi
 void OutputStreamSequencerSvc::handle(const Incident& inc) {
    ATH_MSG_INFO("handle " << name() << " incident type " << inc.type());
    if (m_fileSequenceNumber > 0 || !m_fileSequenceLabel.empty()) { // Do nothing for first call
-      if (!m_metaDataSvc->transitionMetaDataFile(m_ignoreInputFile.value()).isSuccess()) {
-         ATH_MSG_FATAL("Cannot transition MetaDataSvc.");
+      const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+      if (fileInc != nullptr) {
+         if (!m_metaDataSvc->transitionMetaDataFile(*fileInc, m_ignoreInputFile.value()).isSuccess()) {
+            ATH_MSG_FATAL("Cannot transition MetaDataSvc.");
+         }
       }
+      else ATH_MSG_FATAL("Cannot transition MetaDataSvc.");
    }
    m_fileSequenceNumber++;
    m_fileSequenceLabel.clear();

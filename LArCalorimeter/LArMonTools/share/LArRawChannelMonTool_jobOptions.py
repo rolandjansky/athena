@@ -166,5 +166,5 @@ if DQMonFlags.useTrigger() and not athenaCommonFlags.isOnline():
                   LArRawChannelMon.TriggerChain= LArRawChannelMonTool_TriggerChain
 
 # --- register with toolservice ---
-ToolSvc += LArRawChannelMon
+#ToolSvc += LArRawChannelMon
 LArMon.AthenaMonTools+=[ LArRawChannelMon ]

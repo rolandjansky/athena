@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_EDM_ASSOCIATIONOBJECTS_MUONSEGPATCOMBASSOCMAP_H
 #define MUON_EDM_ASSOCIATIONOBJECTS_MUONSEGPATCOMBASSOCMAP_H
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <map>
 
 namespace Muon {

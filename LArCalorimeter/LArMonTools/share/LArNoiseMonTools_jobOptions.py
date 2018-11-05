@@ -16,7 +16,7 @@ theLArFebNoiseMonTool = LArFebNoiseMonTool(name="LArFebNoiseMonTool",
                                            ## SingleTriggerSlot = 1
                                            )
     
-ToolSvc += theLArFebNoiseMonTool
+#ToolSvc += theLArFebNoiseMonTool
 LArMon.AthenaMonTools+=[ theLArFebNoiseMonTool ] 
     
 # ToolSvc.LArFebNoiseMonTool.OutputLevel=DEBUG
@@ -34,7 +34,7 @@ theLArFebNoiseMonToolAlt = LArFebNoiseMonTool(name="LArFebNoiseMonToolAlt",
                                               ## SingleTriggerSlot = 1
                                               )
     
-ToolSvc += theLArFebNoiseMonToolAlt
+#ToolSvc += theLArFebNoiseMonToolAlt
 LArMon.AthenaMonTools+=[ theLArFebNoiseMonToolAlt ] 
     
 # ToolSvc.LArFebNoiseMonToolAlt.OutputLevel=DEBUG

@@ -161,7 +161,7 @@ from MuonCalibMonitoring.MuonCalibMonitoringConf import CscCalibMonToolSlope
 CscCalibMonTool = CscCalibMonToolSlope (
         name = "CscCalibMonToolSlope"
         )
-ToolSvc += CscCalibMonTool
+#ToolSvc += CscCalibMonTool
 ##CscCalibMonTool.OutputLevel = DEBUG
 monMan.AthenaMonTools += [CscCalibMonTool]
 #Conditions DB service
@@ -170,7 +170,7 @@ monMan.AthenaMonTools += [CscCalibMonTool]
 from MuonCondSvc.CscCondDB import cscCondDB
 cscCondDB.addPedFolders() #Set to read pedestal and noise folders from the database
 cscCondDB.addPSlopeFolder() #Set to read slope folder from database
-#if(ToolSvc.CscRdoContByteStreamTool.IsCosmicData) :
+#if(#ToolSvc.CscRdoContByteStreamTool.IsCosmicData) :
 #    cscCondDB.overrideBaseTag('Csc-cosmic-DEFAULTCOND')
 
 

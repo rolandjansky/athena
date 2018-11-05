@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -32,7 +32,7 @@ class TileTBID;
 class MuonWallSD : public G4VSensitiveDetector
 {
 public:
-  MuonWallSD(const std::string& name, const std::string& hitCollectionName);
+  MuonWallSD(const std::string& name, const std::string& hitCollectionName, int verbose);
   ~MuonWallSD();
 
   // Called from MuonWallSDTool::SetupEvent
@@ -44,13 +44,16 @@ public:
 private:
   const TileTBID* m_tileTBID;
 
-  static const int N_CELLS = 14;
+  static const int s_nCellMu = 14;
+  static const int s_nCellS = 4;
+  static const int s_nCell = s_nCellMu+s_nCellS;
 
-  int m_nhits[N_CELLS];
-  TileSimHit* m_hit[N_CELLS];
-  Identifier m_id[N_CELLS];
+  int m_nhits[s_nCell];
+  TileSimHit* m_hit[s_nCell];
+  Identifier m_id[s_nCell];
   // The hits collections
   SG::WriteHandle<TileHitVector> m_HitColl;
+
 };
 
 #endif // MUONWALL_MUONWALLSD_H

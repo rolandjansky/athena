@@ -14,6 +14,6 @@ from LUCID_Monitoring.LUCID_MonitoringConf import LUCID_HitsMoniTool
 
 LUCID_TestTool = LUCID_HitsMoniTool (name = "LUCID_HitsMoniTool")
 
-ToolSvc += LUCID_TestTool
+#ToolSvc += LUCID_TestTool
 
 LucidMon.AthenaMonTools += [ LUCID_TestTool ]

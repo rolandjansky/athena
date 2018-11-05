@@ -321,9 +321,6 @@ if evgenConfig.findJets:
 
 ## Configure POOL streaming to the output EVNT format file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-#from PoolSvc.PoolSvcConf import PoolSvc
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
 if hasattr(runArgs, "outputEVNTFile"):
   poolFile = runArgs.outputEVNTFile
 elif hasattr(runArgs, "outputEVNT_PreFile"):

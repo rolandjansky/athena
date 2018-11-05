@@ -7,8 +7,7 @@
 
 #include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
-class Identifier;
-class HWIdentifier;
+#include "Identifier/HWIdentifier.h"
 
 class ILArTshaper {
 /** This class defines the interface for accessing Tshaper
@@ -25,9 +24,6 @@ class ILArTshaper {
 
   // online ID
   virtual const float& Tshaper(const HWIdentifier& id)  const = 0 ;
-  
-  // offline ID 
-  virtual const float& Tshaper(const Identifier& id)  const=0;
   
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 } ;

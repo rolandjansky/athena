@@ -88,7 +88,6 @@ if WriteFile :
     ServiceMgr.AthenaSealSvc.CheckDictionary   = True
     # --- commit interval (test)
     ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
-    ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 1
     MaterialStream              = AthenaPoolOutputStream ( 'TrkDetDescrTPCnv' )
     MaterialStream.OutputFile   =   'TrkDetDescrTPCnvTest.root' 
     MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#'+MaterialStepCollectionName ]

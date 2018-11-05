@@ -39,7 +39,7 @@ class JetCollection_p4 : public std::vector<TPObjRef>
   /////////////////////////////////////////////////////////////////// 
 private:
   std::string m_roiAuthor;
-  short m_ordered;
+  short m_ordered{};
   DataLink_p1 m_keyStore;
 };
 

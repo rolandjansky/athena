@@ -3,6 +3,7 @@
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "AthenaKernel/CloneService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/StoreID.h"
@@ -66,6 +67,7 @@ StatusCode HiveMgrSvc::setNumberOfStores(size_t slots) {
     m_slots.resize(slots);
     m_nSlots = slots;
     m_freeSlots.store(slots);
+    Gaudi::Concurrency::ConcurrencyFlags::setNumConcEvents( slots );
     return StatusCode::SUCCESS;
   }
 }
@@ -142,18 +144,6 @@ size_t HiveMgrSvc::freeSlots() {
   return m_freeSlots;
 }
 
-
-DataObjIDColl HiveMgrSvc::getNewDataObjects() {
-  // FIXME: to be removed
-  DataObjIDColl products;
-  return products;
-}
-
-void HiveMgrSvc::addNewDataObjects( DataObjIDColl& /*products*/ ){
-  // FIXME
-  error() << "addNewDataObjects(...) not implemented!" << endmsg;
-}
-
 bool HiveMgrSvc::exists( const DataObjID& id) {
   // this should only get called in error situations, so we
   // don't care if it's slow
@@ -217,6 +207,8 @@ StatusCode HiveMgrSvc::initialize() {
   }
   
   m_freeSlots.store( m_nSlots );
+  Gaudi::Concurrency::ConcurrencyFlags::setNumConcEvents( m_nSlots );
+
   return selectStore(0);
 }
 

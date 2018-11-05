@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <TH1F.h>
 #include <TH2F.h>
 
-Int_t testHitsTXT(Char_t* hits_file="hits.txt",Int_t det=1, Int_t Calc=0)
+Int_t testHitsTXT(const Char_t* hits_file="hits.txt",Int_t det=0, Int_t Calc=0)
     // det=0 - Z_R-Tile, det=1 - Z_R-Barrel, det=2 - Z_R-Ext.Barrel
     // det=11...17 - zoom in Barrel regions 1-7, det=21...27 - zoom in Ext.Barrel regions 1-7
     // det=-21...-27 - zoom in Negative Ext.Barrel regions 1-7
@@ -39,10 +39,11 @@ else if (abs(det)==25) { Zbin=2500; Zbeg=5100.; Zend=5600.; }
 else if (abs(det)==26) { Zbin=2500; Zbeg=5600.; Zend=6100.; }
 else if (abs(det)==27) { Zbin=2500; Zbeg=6100.; Zend=6600.; }
 
-else if (det== 0) { Zbin=3300; Zbeg=   0.; Zend=6600.; Rbin=1500; Rbeg=1300.; Rend=4300.; }  //Z_R-Tile
+else if (det== 0) { Zbin=3500; Zbeg=-7000.; Zend=7000.; Rbin=750; Rbeg=1300.; Rend=4300.; }  //Z_R-Tile
 
 if(det<0 && abs(det)>20) { double zzz= -Zbeg; Zbeg= -Zend; Zend= zzz; }
 
+if (Calc<0 || Calc>6) Calc=0;
 
 // TH1F *Energy_hits = new TH1F("Energy_hits", "hit Energy",1050, -0.005, 0.1);
 
@@ -66,7 +67,6 @@ for(Int_t et=0; et<7; et++) {
     z_R_gilder_b[et] = new TH2F(name_g,tittle_g,Zbin,Zbeg,Zend,Rbin,Rbeg,Rend);
 }
 TH2F *z_R_gilder_eb[4];
-char name_g[100], tittle_g[100];
 for(Int_t et=0; et<4; et++) {
     sprintf(name_g,"z_R_gilder_eb_%d",et);
     sprintf(tittle_g,"z_R_gilder_eb_%d",et);

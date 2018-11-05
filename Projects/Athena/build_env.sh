@@ -37,7 +37,7 @@ env_setup() {
 
     # Check if the user specified any source/build directories:
     if [ "$BUILDDIR" = "" ]; then
-	BUILDDIR=${AthenaSrcDir}/../../../build
+	    BUILDDIR=${AthenaSrcDir}/../../../build
     fi
 
     # Set up the environment for the build:
@@ -53,16 +53,16 @@ env_setup() {
     # Set up the AthenaExternals project:
     extDir=${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea
     if [ ! -d ${extDir} ]; then
-	echo "Didn't find the AthenaExternals project under ${extDir}"
+	    echo "Didn't find the AthenaExternals project under ${extDir}"
+        echo "(Hopefully this is intentional and you have done e.g. asetup AthenaExternals,master,latest)"
+    else
+        echo "Setting up AthenaExternals from: ${extDir}"
+        source ${extDir}/*/setup.sh
     fi
-    echo "Setting up AthenaExternals from: ${extDir}"
-    source ${extDir}/*/setup.sh
-
-    # Get the "platform name" from the directory created by the AthenaExternals
-    # build:
-    platform=$(cd ${extDir};ls)
 
     # Point to Gaudi:
+    # Get platform from the GAUDI build - we're assuming here that there's only one platform installed.
+    platform=$(cd ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION}/InstallArea/;ls)
     export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION}/InstallArea/${platform}
     echo "Taking Gaudi from: ${GAUDI_ROOT}"
 

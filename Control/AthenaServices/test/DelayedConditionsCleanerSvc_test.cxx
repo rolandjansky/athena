@@ -240,8 +240,6 @@ public:
   virtual StatusCode selectStore( size_t ) override { std::abort(); }
   virtual StatusCode clearStore( size_t ) override { std::abort(); }
   virtual StatusCode setNumberOfStores( size_t ) override { std::abort(); }
-  virtual void addNewDataObjects( DataObjIDColl& ) override { std::abort(); }
-  virtual DataObjIDColl getNewDataObjects() override { std::abort(); }
   virtual bool exists( const DataObjID& ) override { std::abort(); }
   virtual size_t allocateStore( int ) override { std::abort(); }
   virtual StatusCode freeStore( size_t ) override { std::abort(); }

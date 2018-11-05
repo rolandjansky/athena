@@ -236,6 +236,7 @@ StatusCode HLTBjetMonTool::book(){
       ATH_MSG_INFO("         Chain Name sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
       if ( (size_TriggerChainBjet+size_TriggerChainMujet) <= 0) {
 	ATH_MSG_INFO( " No trigger chain is configured for this run ==> Stop monitoring " );
+	// Not really a failure
 	return StatusCode::FAILURE;
       }
       for (int i =0; i<size_TriggerChainBjet; i++){

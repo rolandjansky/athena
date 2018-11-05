@@ -1,0 +1,20 @@
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::: ChapPy is launching script [PerfMonTests/atn_test_perfMonSvc_baseline_bench.py] :::
+Py:Athena            INFO including file "PerfMonTests/atn_test_perfMonSvc_baseline_bench.py"
+################################################################################
+## PerfMon test... [baseline-bench]
+################################################################################
+
+################################################################################
+## testing PerfMonSvc [PerfMonTests/test_perfMonSvc_baseline_bench.py]
+                  ==> [perfmon.baseline.root]... (1000)
+ :::running [............] ==> [OK]
+ :::running [.........] ==> [OK]
+ :::running [perfmon.py]...
+## [DONE]
+
+################################################################################
+## [All tests SUCCESSFULLY completed]
+## Bye.
+################################################################################
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

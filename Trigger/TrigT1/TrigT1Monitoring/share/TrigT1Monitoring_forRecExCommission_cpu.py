@@ -50,7 +50,7 @@ if l1caloRawMon:
     L1Man2 = topSequence.L1MonManager2
 
     ## get a handle on the ToolSvc
-    from AthenaCommon.AppMgr import ToolSvc
+    #from AthenaCommon.AppMgr import ToolSvc
 
     if globalflags.InputFormat() == "bytestream":
         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
@@ -78,7 +78,7 @@ if l1caloRawMon:
             MaxEnergyRange = 256,
             #OutputLevel = VERBOSE,
             )
-        ToolSvc += CalorimeterL1CaloMonTool
+        #ToolSvc += CalorimeterL1CaloMonTool
         L1Man0A.AthenaMonTools += [ CalorimeterL1CaloMonTool ]
         # HV corrections
         from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
@@ -102,7 +102,7 @@ if l1caloRawMon:
             DoHVDifference = doHV,
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
            )
-        ToolSvc += L1CaloHVScalesMonTool
+        #ToolSvc += L1CaloHVScalesMonTool
         L1Man0B.AthenaMonTools += [ L1CaloHVScalesMonTool ]
         # PMT scores
         from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloPMTScoresMon
@@ -110,7 +110,7 @@ if l1caloRawMon:
             name = "L1CaloPMTScoresMonTool",
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             )
-        ToolSvc += L1CaloPMTScoresMonTool
+        #ToolSvc += L1CaloPMTScoresMonTool
         L1Man0C.AthenaMonTools += [ L1CaloPMTScoresMonTool ]
 
     if isData and DQMonFlags.doCTPMon():
@@ -125,7 +125,7 @@ if l1caloRawMon:
             #OutputLevel = DEBUG,
             #OutputLevel = VERBOSE,
             )
-        ToolSvc += L1CaloCTPMonTool
+        #ToolSvc += L1CaloCTPMonTool
         L1Man1.AthenaMonTools += [ L1CaloCTPMonTool ]
 
     ####################### L1Calo->Level-2 ################################
@@ -134,7 +134,7 @@ if l1caloRawMon:
         name = "L1CaloLevel2MonTool",
         #OutputLevel = DEBUG,
         )
-    ToolSvc += L1CaloLevel2MonTool
+    #ToolSvc += L1CaloLevel2MonTool
     L1Man2.AthenaMonTools += [ L1CaloLevel2MonTool ]
 
     ##########################################################################
