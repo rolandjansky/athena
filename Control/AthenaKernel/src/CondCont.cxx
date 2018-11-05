@@ -8,6 +8,7 @@
 
 
 #include "AthenaKernel/CondCont.h"
+#include <iostream>
 
 
 /// Default name of the global conditions cleaner service.
@@ -60,6 +61,15 @@ bool CondContBase::Category::isDuplicate (StatusCode code)
 
 
 STATUSCODE_ENUM_IMPL (CondContStatusCode, CondContBase::Category)
+
+
+/**
+ * @brief Dump the container to cout.  For calling from the debugger.
+ */
+void CondContBase::print() const
+{
+  this->list (std::cout);
+}
 
 
 /**
