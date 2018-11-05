@@ -10,9 +10,9 @@
   <typedef name="xAOD::MuonSegmentContainer" />
   <typedef name="xAOD::MuonSegmentAuxContainer" />
 
-  <typedef name="xAOD::Muon" />
-  <typedef name="xAOD::MuonContainer" />
-  <typedef name="xAOD::MuonAuxContainer" />
+  <typedef name="xAOD::SlowMuon" />
+  <typedef name="xAOD::SlowMuonContainer" />
+  <typedef name="xAOD::SlowMuonAuxContainer" />
 
   <!-- MuonAux _v2 dictionaries: -->
   <class name="xAOD::MuonAuxContainer_v2"
