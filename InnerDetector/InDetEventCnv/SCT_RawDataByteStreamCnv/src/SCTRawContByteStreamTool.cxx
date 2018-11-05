@@ -66,7 +66,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
   ATH_MSG_DEBUG(" Setting Minor Version Number to " << m_rodBlockVersion);
   
   /** mapping between ROD IDs and the hits in that ROD */
-  std::map<uint32_t, std::vector<const RDO*> > rdoMap;
+  std::map<uint32_t, std::vector<const SCT_RDORawData*> > rdoMap;
 
   /** The following few lines are to make sure there is an entry in the rdoMap for 
    *  every ROD, even if there are no hits in it for a particular event 
@@ -79,7 +79,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
   }
 
   /**loop over the collections in the SCT RDO container */
-  for (const SCTRawCollection* sctRawColl: *sctRDOCont) {
+  for (const InDetRawDataCollection<SCT_RDORawData>* sctRawColl: *sctRDOCont) {
     if (sctRawColl == nullptr) {
       ATH_MSG_WARNING("Null pointer to SCT RDO collection.");
       continue;
@@ -92,11 +92,11 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
       
       /** Building the rod ID */
       eformat::helper::SourceIdentifier srcIDROB{robid};
-      eformat::helper::SourceIdentifier srcIDROD{srcIDROB.subdetector_id(), sid_rob.module_id()};
+      eformat::helper::SourceIdentifier srcIDROD{srcIDROB.subdetector_id(), srcIDROB.module_id()};
       uint32_t rodid{srcIDROD.code()};
       
       /** loop over RDOs in the collection;  */
-      for (const RDO* rdo: *sctRawColl) {
+      for (const SCT_RDORawData* rdo: *sctRawColl) {
         /** fill ROD/ RDO map */
         rdoMap[rodid].push_back(rdo);
       }
@@ -104,7 +104,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
   }  /** End loop over collections */
 
   /** now encode data for each ROD in turn */
-  for (std::pair<uint32_t, std::vector<const RDO*>> rodToRDOs: rdoMap) {
+  for (std::pair<uint32_t, std::vector<const SCT_RDORawData*>> rodToRDOs: rdoMap) {
     rod = m_fullEventAssembler.getRodData(rodToRDOs.first); /** get ROD data address */
     m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); /** encode ROD data */
   }

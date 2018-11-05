@@ -35,13 +35,6 @@ class SCT_ID;
 class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStreamTool> {
  public:
 
-  // RawData type
-  typedef SCT_RDORawData RDO;
-  // Collection type 
-  typedef InDetRawDataCollection<SCT_RDORawData> SCTRawCollection; 
-  // Container type
-  typedef SCT_RDO_Container SCTRawContainer; 
-
   //! constructor
   SCTRawContByteStreamTool(const std::string& type, const std::string& name, const IInterface* parent);
   
