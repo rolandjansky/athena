@@ -58,11 +58,6 @@ StatusCode ByteStreamMetadataTool::finalize() {
 }
 
 
-StatusCode ByteStreamMetadataTool::beginInputFile(const SG::SourceID&)
-{
-   return this->beginInputFile();
-}
-
 StatusCode ByteStreamMetadataTool::beginInputFile()
 {
    std::vector<std::string> vKeys;
@@ -148,20 +143,11 @@ StatusCode ByteStreamMetadataTool::beginInputFile()
 }
 
 
-StatusCode ByteStreamMetadataTool::endInputFile(const SG::SourceID&)
-{
-   return StatusCode::SUCCESS;
-}
-
 StatusCode ByteStreamMetadataTool::endInputFile()
 {
    return StatusCode::SUCCESS;
 }
 
-StatusCode ByteStreamMetadataTool::metaDataStop(const SG::SourceID&)
-{
-   return StatusCode::SUCCESS;
-}
 
 StatusCode ByteStreamMetadataTool::metaDataStop()
 {

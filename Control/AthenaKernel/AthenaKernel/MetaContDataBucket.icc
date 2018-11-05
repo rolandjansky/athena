@@ -73,12 +73,9 @@ template <class T>
 const SourceID MetaContDataBucket<T>::getSID() const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  if (ctx.valid()) {
-    const IProxyDict* store = 
-      ctx.getExtension<Atlas::ExtendedEventContext>()->proxy();
-    return store->sourceID();
-  }
-  return "None";
+  const IProxyDict* store = 
+    ctx.getExtension<Atlas::ExtendedEventContext>()->proxy();
+  return store->sourceID();
 }
 
 
