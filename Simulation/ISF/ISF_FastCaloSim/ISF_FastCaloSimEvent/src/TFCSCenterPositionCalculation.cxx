@@ -12,7 +12,7 @@
 //======= TFCSCenterPositionCalculation =========
 //=============================================
 
-TFCSCenterPositionCalculation::TFCSCenterPositionCalculation(const char* name, const char* title):TFCSLateralShapeParametrizationHitBase(name,title),m_extrapWeight(0.)
+TFCSCenterPositionCalculation::TFCSCenterPositionCalculation(const char* name, const char* title):TFCSLateralShapeParametrizationHitBase(name,title),m_extrapWeight(0.5)
 {
 }
 
@@ -37,5 +37,5 @@ void TFCSCenterPositionCalculation::Print(Option_t* option) const
    TString optprint=opt;optprint.ReplaceAll("short","");
    TFCSLateralShapeParametrizationHitBase::Print(option);
    
-   if(longprint) ATH_MSG_INFO(optprint << " Weight for extrapolated position: " << m_extrapWeight);
+   if(longprint) ATH_MSG_INFO(optprint << "  Weight for extrapolated position: " << m_extrapWeight);
 }
