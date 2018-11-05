@@ -1,0 +1,218 @@
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file TileEvent/TileMutableDataContainer.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2018
+ * @brief Helper for holding non-const raw data prior to recording in SG.
+ */
+
+
+/**
+ * @brief Constructor.
+ * @param createColl If true, create all collections now.
+ * @param type Hash type (from TileFragHash::TYPE).
+ * @param unit Measurement units for amplitude data.
+ * @param ownPolicy Ownership mode for collections.
+ *
+ * Call status() after this to check for errors.
+ */
+template <class BASE>
+TileMutableDataContainer<BASE>::TileMutableDataContainer
+  (bool createColl /*= false*/,
+   TYPE type /*= TileFragHash::Default*/,
+   UNIT unit /*= TileRawChannelUnit::ADCcounts*/,
+   SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+  : BASE (false, type, unit, ownPolicy),
+    m_locked (false),
+    m_sc (StatusCode::SUCCESS),
+    m_defaultType (type),
+    m_defaultUnit (unit)
+{
+  if (createColl) {
+    // Create all collections.
+    const TileFragHash& hashFunc = this->hashFunc();
+    int ncoll = hashFunc.max();
+    for (int i=0; i<ncoll;++i) {
+      TileFragHash::ID frag = hashFunc.identifier(i);
+      auto coll = std::make_unique<Collection> (frag, ownPolicy) ;
+      if (addCollection (std::move (coll),
+                         static_cast<IdentifierHash>(i)).isFailure())
+      {
+        m_sc = StatusCode::FAILURE;
+      }
+    }
+  }
+}
+
+
+/**
+ * @brief Copy constructor.
+ * @param other Container to copy.
+ *
+ * This is a deep copy; all contained collections and channels will be copied.
+ * Call status() after this to check for errors.
+ */
+template <class BASE>
+TileMutableDataContainer<BASE>::TileMutableDataContainer
+  (const BASE& other)
+    : BASE (false,
+            other.get_type(),
+            other.get_unit(),
+            SG::OWN_ELEMENTS),
+      m_locked (false),
+      m_sc (StatusCode::SUCCESS),
+      m_defaultType (other.get_type()),
+      m_defaultUnit (other.get_unit())
+{
+  this->set_bsflags (other.get_bsflags());
+  for (IdentifierHash hash : other.GetAllCurrentHashes()) {
+    const Collection* coll = other.indexFindPtr (hash);
+    auto newColl = std::make_unique<Collection> (*coll);
+    if (addCollection (std::move (newColl), hash).isFailure()) {
+      m_sc = StatusCode::FAILURE;
+    }
+  }
+}
+
+
+/**
+ * @brief Add a collection to the container.
+ * @param coll Collection ot add.
+ * @param hash Hash value for the collection.
+ *
+ * We maintain a non-const reference to the collection.
+ */
+template <class BASE>
+StatusCode
+TileMutableDataContainer<BASE>::addCollection (std::unique_ptr<Collection> coll,
+                                               IdentifierHash hash)
+{
+  if (hash >= m_mutableCollections.size()) {
+    m_mutableCollections.resize (hash+1);
+  }
+  m_mutableCollections[hash] = coll.get();
+  return BASE::addOrDelete (std::move (coll), hash);
+}
+
+
+/**
+ * @brief Add a new channel.
+ * @param rch Channel to add.
+ *
+ * This should be used for owning container (created with SG::OWN_ELEMENTS).
+ * A new collection will be created if needed.
+ * In that case, we maintain a non-const reference to it.
+ */
+template <class BASE>
+StatusCode
+TileMutableDataContainer<BASE>::push_back (std::unique_ptr<Element> rch)
+{
+  int frag = rch->frag_ID();
+  IdentifierHash hash = static_cast<IdentifierHash>(this->hashFunc()(frag));
+
+  // Find the collection; create a new one if needed.
+  Collection* coll = indexFindPtr (hash);
+  if (!coll) {
+    auto newColl = std::make_unique<Collection> (frag, SG::OWN_ELEMENTS);
+    coll = newColl.get();
+    if (addCollection (std::move (newColl), hash).isFailure()) {
+      return StatusCode::FAILURE;
+    }
+  }
+
+  coll->push_back (std::move (rch));
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Add a new channel.
+ * @param rch Channel to add.
+ *
+ * This should be used for non-owning container (created with SG::VIEW_ELEMENTS).
+ * A new collection will be created if needed.
+ * In that case, we maintain a non-const reference to it.
+ */
+template <class BASE>
+StatusCode
+TileMutableDataContainer<BASE>::push_back (Element* rch)
+{
+  int frag = rch->frag_ID();
+  IdentifierHash hash = static_cast<IdentifierHash>(this->hashFunc()(frag));
+
+  // Find the collection; create a new one if needed.
+  Collection* coll = indexFindPtr (hash);
+  if (!coll) {
+    auto newColl = std::make_unique<Collection> (frag, SG::OWN_ELEMENTS);
+    coll = newColl.get();
+    if (addCollection (std::move (newColl), hash).isFailure()) {
+      return StatusCode::FAILURE;
+    }
+  }
+
+  coll->push_back (rch);
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Look up a (non-const) collection via hash.
+ * @param hash Hash value to find.
+ */
+template <class BASE>
+typename TileMutableDataContainer<BASE>::Collection*
+TileMutableDataContainer<BASE>::indexFindPtr (IdentifierHash hash)
+{
+  if (!m_locked && hash < m_mutableCollections.size()) {
+    return m_mutableCollections[hash];
+  }
+  return nullptr;
+}
+
+
+/**
+ * @brief Return the error status from the constructors.
+ */
+template <class BASE>
+StatusCode TileMutableDataContainer<BASE>::status() const
+{
+  return m_sc;
+}
+
+
+/**
+ * @brief Lock this object.
+ *
+ * Called when this object is locked in SG.
+ * Prohibit non-const acces to this container.
+ */
+template <class BASE>
+void TileMutableDataContainer<BASE>::lock()
+{
+  m_locked = true;
+}
+
+
+/**
+ * @brief Recycle this object for use in another event.
+ *
+ * This is called from AthenaKernel/RecyclableDataObject when this object
+ * is released by StoreGate.  Unlock the object so that non-const access
+ * is again possible, and clear out the contents if the collections.
+ */
+template <class BASE>
+void TileMutableDataContainer<BASE>::recycle()
+{
+  // ??? Try to verify that this object is not in SG?  Check refcount??
+  m_locked = false;
+  for (IdentifierHash hash : this->GetAllCurrentHashes()) {
+    Collection* coll = this->indexFindPtr (hash);
+    coll->clear();
+  }
+
+  this->set_type (m_defaultType);
+  this->set_unit (m_defaultUnit);
+  this->set_bsflags (0);
+}
