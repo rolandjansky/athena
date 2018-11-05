@@ -1,6 +1,19 @@
 <!-- $Id: selection.xml 742675 2016-04-25 14:50:23Z rsmith $ -->
 <lcgdict>
 
+  <!-- Versionless typedefs: -->
+  <typedef name="xAOD::MissingET" />
+  <typedef name="xAOD::MissingETContainer" />
+  <typedef name="xAOD::MissingETAuxContainer" />
+
+  <typedef name="xAOD::MissingETComponent" />
+  <typedef name="xAOD::MissingETComponentMap" />
+  <typedef name="xAOD::MissingETAuxComponentMap" />
+
+  <typedef name="xAOD::MissingETAssociation" />
+  <typedef name="xAOD::MissingETAssociationMap" />
+  <typedef name="xAOD::MissingETAuxAssociationMap" />
+
   <!-- MissingET_v1 dictionaries: -->
   <class name="xAOD::MissingET_v1">
       <field name="m_nameHashPair" transient="true" />

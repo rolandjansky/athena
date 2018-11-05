@@ -14,12 +14,12 @@
 
 // System include(s):
 #include <bitset>
- 
+
 // EDM include(s):
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
- 
+
 // Local include(s):
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
@@ -69,7 +69,7 @@ namespace {
      std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > >                nl5;
      std::vector< ElementLinkVector< xAOD::NeutralParticleContainer_v1 > >          nl6;
      std::vector< std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > > > nl7;
-     
+
 #ifndef XAOD_ANALYSIS
      std::bitset< 11 >                                                            dummy1;
      TrackCollection                                                              c2;

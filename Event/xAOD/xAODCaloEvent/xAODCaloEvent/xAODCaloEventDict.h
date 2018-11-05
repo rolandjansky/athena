@@ -25,6 +25,7 @@
 // Local include(s):
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/versions/CaloCluster_v1.h"
 #include "xAODCaloEvent/versions/CaloClusterContainer_v1.h"
 #include "xAODCaloEvent/versions/CaloClusterAuxContainer_v1.h"
@@ -56,7 +57,7 @@ namespace {
       // Additional type(s) needed:
       std::bitset< 3 > type1; // Using 3 instead of CaloCluster::NSTATES...
 
-     //BadChannel lists 
+     //BadChannel lists
      xAOD::CaloClusterBadChannelData_v1 bcd;
      std::vector<xAOD::CaloClusterBadChannelData_v1> vbcd;
      std::vector<std::vector<xAOD::CaloClusterBadChannelData_v1> > vvbcd;

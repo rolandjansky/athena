@@ -1,6 +1,9 @@
 <!-- $Id: selection.xml 615735 2014-09-09 10:13:08Z krasznaa $ -->
 <lcgdict>
 
+  <!-- Versionless typedefs: -->
+  <typedef name="xAOD::EventShape" >
+  <typedef name="xAOD::EventShapeAuxInfo" >
 
    <class name="xAOD::EventShape_v1"
           id="E06E8747-7C16-4BBA-B648-68F64BA70B7D" >

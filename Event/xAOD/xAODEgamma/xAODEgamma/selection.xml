@@ -1,13 +1,18 @@
 <!-- $Id: selection.xml 789134 2016-12-11 02:15:53Z christos $ -->
 <lcgdict>
 
+  <!-- Versionless typedefs: -->
   <typedef name="xAOD::Egamma" />
   <typedef name="xAOD::Electron" />
   <typedef name="xAOD::Photon" />
+
   <typedef name="xAOD::EgammaContainer" />
   <typedef name="xAOD::ElectronContainer" />
   <typedef name="xAOD::PhotonContainer" />
-  
+
+  <typedef name="xAOD::EgammaAuxContainer" />
+  <typedef name="xAOD::ElectronAuxContainer" />
+  <typedef name="xAOD::PhotonAuxContainer" />
 
   <!-- Egamma_v1 dictionaries: -->
   <class name="xAOD::Egamma_v1">
@@ -32,7 +37,7 @@
   <class name="ElementLink<xAOD::EgammaContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::EgammaContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::EgammaContainer_v1> > >" />
-  <class name="SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > >"/>  
+  <class name="SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > >"/>
 
   <!-- Electron_v1 dictionaries: -->
   <class name="xAOD::Electron_v1" >
@@ -83,14 +88,14 @@
 
   <!-- Objects from the namespace -->
   <variable pattern="xAOD::EgammaParameters::*" />
-  <class name="xAOD::EgammaParameters::ROOT6_NamespaceAutoloadHook" />   
+  <class name="xAOD::EgammaParameters::ROOT6_NamespaceAutoloadHook" />
 
   <!-- Enums -->
   <enum pattern="xAOD::EgammaParameters::*" />
-  
+
   <!--Add Helper Functions -->
   <function pattern="xAOD::EgammaHelpers::*" />
-  
+
   <!--Returned by helper functions -->
   <class name="std::set<const xAOD::TrackParticle*>" />
 
@@ -109,7 +114,7 @@
     <class pattern="xAOD::CaloCluster*" />
     <class pattern="DataVector<xAOD::CaloCluster*" />
     <class pattern="ElementLink<DataVector<xAOD::CaloCluster*" />
-    <function pattern="xAOD::EgammaHelpers::getLink*" />  
+    <function pattern="xAOD::EgammaHelpers::getLink*" />
   </exclusion>
 
 </lcgdict>

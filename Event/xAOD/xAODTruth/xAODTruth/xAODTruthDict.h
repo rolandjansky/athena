@@ -16,40 +16,40 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
-#include "xAODTruth/versions/TruthParticleContainer_v1.h"
-#include "xAODTruth/versions/TruthParticleAuxContainer_v1.h"
-#include "xAODTruth/versions/TruthVertexContainer_v1.h"
-#include "xAODTruth/versions/TruthVertexAuxContainer_v1.h"
-#include "xAODTruth/versions/TruthEventBaseContainer_v1.h"
-#include "xAODTruth/versions/TruthEventContainer_v1.h"
-#include "xAODTruth/versions/TruthEventAuxContainer_v1.h"
-#include "xAODTruth/versions/TruthPileupEventContainer_v1.h"
-#include "xAODTruth/versions/TruthPileupEventAuxContainer_v1.h"
-#include "xAODTruth/versions/TruthMetaDataContainer_v1.h"
-#include "xAODTruth/versions/TruthMetaDataAuxContainer_v1.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODTruth/TruthVertexContainer.h"
+#include "xAODTruth/TruthVertexAuxContainer.h"
+#include "xAODTruth/TruthEventBaseContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEventAuxContainer.h"
+#include "xAODTruth/TruthPileupEventContainer.h"
+#include "xAODTruth/TruthPileupEventAuxContainer.h"
+#include "xAODTruth/TruthMetaDataContainer.h"
+#include "xAODTruth/TruthMetaDataAuxContainer.h"
 #include "xAODTruth/xAODTruthHelpers.h"
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODTRUTH {
       // The DataVector types:
-      xAOD::TruthParticleContainer_v1    c1;
-      xAOD::TruthVertexContainer_v1      c2;
-      xAOD::TruthEventBaseContainer_v1   c3;
-      xAOD::TruthEventContainer_v1       c4;
-      xAOD::TruthPileupEventContainer_v1 c5;
-      xAOD::TruthMetaDataContainer_v1    c6;
+      xAOD::TruthParticleContainer    c1;
+      xAOD::TruthVertexContainer      c2;
+      xAOD::TruthEventBaseContainer   c3;
+      xAOD::TruthEventContainer       c4;
+      xAOD::TruthPileupEventContainer c5;
+      xAOD::TruthMetaDataContainer    c6;
 
       // The smart pointer types:
-      DataLink< xAOD::TruthParticleContainer_v1 > dl1;
-      std::vector< DataLink< xAOD::TruthParticleContainer_v1 > > dl2;
-      DataLink< xAOD::TruthVertexContainer_v1 > dl3;
-      std::vector< DataLink< xAOD::TruthVertexContainer_v1 > > dl4;
-      ElementLink< xAOD::TruthParticleContainer_v1 > el1;
-      std::vector< ElementLink< xAOD::TruthParticleContainer_v1 > > el2;
-      std::vector< std::vector< ElementLink< xAOD::TruthParticleContainer_v1 > > > el3;
-      ElementLink< xAOD::TruthVertexContainer_v1 > el4;
-      std::vector< ElementLink< xAOD::TruthVertexContainer_v1 > > el5;
-      std::vector< std::vector< ElementLink< xAOD::TruthVertexContainer_v1 > > > el6;
+      DataLink< xAOD::TruthParticleContainer > dl1;
+      std::vector< DataLink< xAOD::TruthParticleContainer > > dl2;
+      DataLink< xAOD::TruthVertexContainer > dl3;
+      std::vector< DataLink< xAOD::TruthVertexContainer > > dl4;
+      ElementLink< xAOD::TruthParticleContainer > el1;
+      std::vector< ElementLink< xAOD::TruthParticleContainer > > el2;
+      std::vector< std::vector< ElementLink< xAOD::TruthParticleContainer > > > el3;
+      ElementLink< xAOD::TruthVertexContainer > el4;
+      std::vector< ElementLink< xAOD::TruthVertexContainer > > el5;
+      std::vector< std::vector< ElementLink< xAOD::TruthVertexContainer > > > el6;
    };
 }
 
