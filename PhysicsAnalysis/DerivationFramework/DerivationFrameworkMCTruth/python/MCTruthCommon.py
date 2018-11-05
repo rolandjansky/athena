@@ -501,7 +501,7 @@ def addLargeRJetD2(kernel=None):
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
                                                           AugmentationTools = [TruthD2Decorator] )
 
-def addMiniTruthCollectionLinks(kernel=None):
+def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, doMuons=True):
     # Sets up modifiers to move pointers to old truth collections to new mini truth collections
     # Ensure that we are adding it to something
     if kernel is None:
@@ -511,17 +511,23 @@ def addMiniTruthCollectionLinks(kernel=None):
         # Already there!  Carry on...
         return
     # Truth link setup for electrons, photons, and muons
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthLinkRepointTool
-    electron_relink = DerivationFramework__TruthLinkRepointTool("ElMiniCollectionTruthLinkTool",
-                                                                RecoCollection="Electrons", TargetCollection="TruthElectrons")
-    photon_relink = DerivationFramework__TruthLinkRepointTool("PhMiniCollectionTruthLinkTool",
-                                                                RecoCollection="Photons", TargetCollection="TruthPhotons")
-    muon_relink = DerivationFramework__TruthLinkRepointTool("MuMiniCollectionTruthLinkTool",
-                                                                RecoCollection="Muons", TargetCollection="TruthMuons")
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += electron_relink
-    ToolSvc += photon_relink
-    ToolSvc += muon_relink
+    aug_tools = []
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthLinkRepointTool
+    if doElectrons:
+        electron_relink = DerivationFramework__TruthLinkRepointTool("ElMiniCollectionTruthLinkTool",
+                                                                    RecoCollection="Electrons", TargetCollection="TruthElectrons")
+        ToolSvc += electron_relink
+        aug_tools += [ electron_relink ]
+    if doPhotons:
+        photon_relink = DerivationFramework__TruthLinkRepointTool("PhMiniCollectionTruthLinkTool",
+                                                                    RecoCollection="Photons", TargetCollection="TruthPhotons")
+        ToolSvc += photon_relink
+        aug_tools += [ photon_relink ]
+    if doMuons:
+        muon_relink = DerivationFramework__TruthLinkRepointTool("MuMiniCollectionTruthLinkTool",
+                                                                    RecoCollection="Muons", TargetCollection="TruthMuons")
+        ToolSvc += muon_relink
+        aug_tools += [ muon_relink ]
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("MiniCollectionTruthLinkKernel",
-                                                          AugmentationTools = [electron_relink,photon_relink,muon_relink] )
-
+                                                          AugmentationTools = aug_tools )
