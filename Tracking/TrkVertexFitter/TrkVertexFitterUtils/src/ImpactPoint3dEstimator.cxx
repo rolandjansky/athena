@@ -19,7 +19,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace Trk
 {
@@ -122,7 +122,7 @@ namespace Trk
       m_vertex=0;
     }
 
-    ATH_MSG_DEBUG("Neutral particle --  propergate like a straight line");
+    ATH_MSG_DEBUG("Neutral particle --  propagate like a straight line");
     return _Estimate3dIPNoCurvature(neutralPerigee, theVertex);
   }
 
@@ -137,7 +137,7 @@ namespace Trk
     double magnFieldVect[3];
     m_magFieldSvc->getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
     if(magnFieldVect[2] == 0 ){
-      ATH_MSG_DEBUG("Magnetic field in the Z dierction is 0 --  propergate like a straight line");
+      ATH_MSG_DEBUG("Magnetic field in the Z direction is 0 --  propagate like a straight line");
       return _Estimate3dIPNoCurvature(trackPerigee, theVertex);
     }
 
@@ -145,7 +145,7 @@ namespace Trk
     const Trk::Perigee* thePerigee=dynamic_cast<const Trk::Perigee*>(trackPerigee);
     if (thePerigee==0)
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " ImpactPoint3dEstimator didn't get a Perigee* as ParametersBase*: cast not possible. Need to EXTRAPOLATE..." << endmsg;
+      ATH_MSG_DEBUG( " ImpactPoint3dEstimator didn't get a Perigee* as ParametersBase*: cast not possible. Need to EXTRAPOLATE...");
       
       /* run-1 code had not been adapted for Neutral parameters:
       const TrackParameters* ch_params = dynamic_cast<const TrackParameters*>(trackPerigee);
@@ -160,7 +160,7 @@ namespace Trk
       if (thePerigee == NULL) return 0;
     }
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<< " Now running ImpactPoint3dEstimator::Estimate3dIP" << endmsg;
+    ATH_MSG_VERBOSE( " Now running ImpactPoint3dEstimator::Estimate3dIP" );
     double phi0=thePerigee->parameters()[Trk::phi0];
     double cosphi0=-sin(phi0);
     double sinphi0=cos(phi0);
@@ -240,7 +240,7 @@ namespace Trk
 
       if (secderivative<0) throw error::ImpactPoint3dEstimatorProblem("Second derivative is negative");
 
-      if (ncycle>m_maxiterations) throw error::ImpactPoint3dEstimatorProblem("Too many loops: could not find minimu distance to vertex");
+      if (ncycle>m_maxiterations) throw error::ImpactPoint3dEstimatorProblem("Too many loops: could not find minimum distance to vertex");
 
       ncycle+=1;
       if (ncycle>m_maxiterations||fabs(deltaphi)<m_precision) {
@@ -260,6 +260,7 @@ namespace Trk
 
     Amg::Vector3D DeltaR(x0-xc+Rt*cosphiactual,y0-yc+Rt*sinphiactual,z0-zc-Rt*cottheta*phiactual);
     m_distance=DeltaR.mag();
+    ATH_MSG_INFO("m_distance : " <<m_distance);
     DeltaR=DeltaR.unit();
 
 
