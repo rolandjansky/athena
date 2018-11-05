@@ -126,8 +126,8 @@ namespace Trk
     return _Estimate3dIPNoCurvature(neutralPerigee, theVertex);
   }
 
-  PlaneSurface* ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,const Amg::Vector3D* theVertex) const
-  {
+  PlaneSurface* 
+  ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,const Amg::Vector3D* theVertex) const{
     // clean up before any sanity checks so a return 0 corresponds to internal members reset too
     if (m_vertex!=0) {
       delete m_vertex;
@@ -253,14 +253,14 @@ namespace Trk
     } while (isok==false);
 
     //now you have to construct the plane with PlaneSurface
-
     //first vector at 3d impact point
-
-    Amg::Vector3D MomentumDir(cos(phiactual)*sin(theta),sin(phiactual)*sin(theta),cos(theta));
-
+    Amg::Vector3D MomentumDir(std::cos(phiactual)*std::sin(theta),std::sin(phiactual)*std::sin(theta),std::cos(theta));
     Amg::Vector3D DeltaR(x0-xc+Rt*cosphiactual,y0-yc+Rt*sinphiactual,z0-zc-Rt*cottheta*phiactual);
     m_distance=DeltaR.mag();
-    ATH_MSG_INFO("m_distance : " <<m_distance);
+    if (m_distance==0.){
+      ATH_MSG_WARNING("DeltaR is zero in ImpactPoint3dEstimator::Estimate3dIP, returning nullptr");
+      return nullptr;
+    }
     DeltaR=DeltaR.unit();
 
 
