@@ -15,8 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier
@@ -44,7 +42,7 @@ atlas_add_library( TileConditionsLib
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel SGTools AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier StoreGateLib SGtests CaloDetDescrLib
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier StoreGateLib SGtests CaloDetDescrLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TileDetDescr PathResolver )
 
 atlas_add_component( TileConditions
@@ -56,7 +54,7 @@ atlas_add_dictionary( TileConditionsDict
                       TileConditions/TileConditionsDict.h
                       TileConditions/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier CaloDetDescrLib TileDetDescr PathResolver TileConditionsLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier CaloDetDescrLib TileDetDescr PathResolver TileConditionsLib )
 
 # Test(s) in the package:
 atlas_add_test( TileCondToolTMDB_test
