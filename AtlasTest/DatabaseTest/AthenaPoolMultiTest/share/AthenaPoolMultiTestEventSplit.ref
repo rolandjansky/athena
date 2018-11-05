@@ -32,7 +32,7 @@ DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version AthenaServices-00-00-00
 Stream3.Stream3...   INFO Initializing Stream3.Stream3_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream3              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream3_MakeEventStreamInfo'])
-Stream3              INFO Data output: AthenaPoolMultiTest_Split2.root
+Stream3              INFO Data output: AthenaPoolMultiTest_Split3.root
 Stream3              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Others with no Algs
 Others.OthersTool    INFO Initializing Others.OthersTool - package version AthenaServices-00-00-00

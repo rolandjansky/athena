@@ -52,7 +52,7 @@ try:
 except:
   svcMgr.EventSelector.InputCollections  = [ "AthenaPoolMultiTest_Split1.root" ]; 
   svcMgr.EventSelector.InputCollections += [ "AthenaPoolMultiTest_Split2.root" ]; 
-#  EventSelector.InputCollections += [ "AthenaPoolMultiTest_Split3.root" ]; 
+  svcMgr.EventSelector.InputCollections += [ "AthenaPoolMultiTest_Split3.root" ]; 
   svcMgr.EventSelector.InputCollections += [ "AthenaPoolMultiTest_Missed.root" ]; 
 
 #--------------------------------------------------------------

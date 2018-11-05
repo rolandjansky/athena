@@ -348,7 +348,7 @@ StatusCode AthenaOutputStream::stop()
          throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
       }
       m_checkNumberOfWrites = false;
-      m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
+      m_outputAttributes = "[OutputCollection=ROOTTREE:MetaDataHdr][PoolContainerPrefix=ROOTTREE:MetaData][AttributeListKey=]";
       m_p2BWritten->clear();
       IProperty *pAsIProp(nullptr);
       if ((m_p2BWritten.retrieve()).isFailure() ||
