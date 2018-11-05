@@ -23,7 +23,7 @@ def _larCablingCfg(configFlags,algo,folder):
         folderwithtag=folder
 
     result.addCondAlgo(algo(ReadKey=folder))
-    result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db)[0])
+    result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db))
     return result,None
 
 
