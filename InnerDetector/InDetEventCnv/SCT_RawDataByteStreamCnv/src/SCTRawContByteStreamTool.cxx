@@ -19,10 +19,10 @@
 SCTRawContByteStreamTool::SCTRawContByteStreamTool
 (const std::string& type, const std::string& name,const IInterface* parent):
   base_class(type, name, parent),
-  m_sct_idHelper{nullptr},
+  m_sctIDHelper{nullptr},
   m_mutex{}
 {
-  declareProperty("RodBlockVersion", m_RodBlockVersion=0);
+  declareProperty("RodBlockVersion", m_rodBlockVersion=0);
   return;
 }
 
@@ -36,7 +36,7 @@ SCTRawContByteStreamTool::initialize() {
   ATH_MSG_INFO("Retrieved service " << m_cabling);
 
   /** Get the SCT Helper */
-  ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_sctIDHelper, "SCT_ID"));
 
   return StatusCode::SUCCESS;
 }
@@ -55,15 +55,15 @@ SCTRawContByteStreamTool::finalize() {
 /// ROD in turn.
 
 StatusCode
-SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) const {
+SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* rawEvtWrite, MsgStream& log) const {
   std::lock_guard<std::mutex> lock(m_mutex);
 
-  m_fea.clear();
-  FullEventAssembler<SrcIdMap>::RODDATA* theROD;
+  m_fullEventAssembler.clear();
+  FullEventAssembler<SrcIdMap>::RODDATA* rod;
   
   /** set ROD Minor version */
-  m_fea.setRodMinorVersion(m_RodBlockVersion);
-  ATH_MSG_DEBUG(" Setting Minor Version Number to " << m_RodBlockVersion);
+  m_fullEventAssembler.setRodMinorVersion(m_rodBlockVersion);
+  ATH_MSG_DEBUG(" Setting Minor Version Number to " << m_rodBlockVersion);
   
   /** mapping between ROD IDs and the hits in that ROD */
   std::map<uint32_t, std::vector<const RDO*> > rdoMap;
@@ -79,36 +79,36 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, Ms
   }
 
   /**loop over the collections in the SCT RDO container */
-  for (const SCTRawCollection* coll: *cont) {
-    if (coll == nullptr) {
+  for (const SCTRawCollection* sctRawColl: *sctRDOCont) {
+    if (sctRawColl == nullptr) {
       ATH_MSG_WARNING("Null pointer to SCT RDO collection.");
       continue;
     } else {
       /** Collection Id */
-      Identifier idColl{coll->identify()};
-      IdentifierHash idCollHash{m_sct_idHelper->wafer_hash(idColl)};
+      Identifier idColl{sctRawColl->identify()};
+      IdentifierHash idCollHash{m_sctIDHelper->wafer_hash(idColl)};
       uint32_t robid{m_cabling->getRobIdFromHash(idCollHash)};
       if (robid == 0) continue;
       
       /** Building the rod ID */
-      eformat::helper::SourceIdentifier sid_rob{robid};
-      eformat::helper::SourceIdentifier sid_rod{sid_rob.subdetector_id(), sid_rob.module_id()};
-      uint32_t rodid{sid_rod.code()};
+      eformat::helper::SourceIdentifier srcIDROB{robid};
+      eformat::helper::SourceIdentifier srcIDROD{srcIDROB.subdetector_id(), sid_rob.module_id()};
+      uint32_t rodid{srcIDROD.code()};
       
       /** loop over RDOs in the collection;  */
-      for (const RDO* theRdo: *coll) {
+      for (const RDO* rdo: *sctRawColl) {
         /** fill ROD/ RDO map */
-        rdoMap[rodid].push_back(theRdo);
+        rdoMap[rodid].push_back(rdo);
       }
     }
   }  /** End loop over collections */
 
   /** now encode data for each ROD in turn */
   for (std::pair<uint32_t, std::vector<const RDO*>> rodToRDOs: rdoMap) {
-    theROD = m_fea.getRodData(rodToRDOs.first); /** get ROD data address */
-    m_encoder->fillROD(*theROD, rodToRDOs.first, rodToRDOs.second); /** encode ROD data */
+    rod = m_fullEventAssembler.getRodData(rodToRDOs.first); /** get ROD data address */
+    m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); /** encode ROD data */
   }
-  m_fea.fill(re, log);
+  m_fullEventAssembler.fill(rawEvtWrite, log);
   
   return StatusCode::SUCCESS;
 }

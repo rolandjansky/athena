@@ -52,15 +52,15 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   virtual StatusCode finalize();
 
   //! New convert method which makes use of the encoder class (as done for other detectors)
-  StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) const;
+  StatusCode convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* rawEvtWrite, MsgStream& log) const;
   
  private: 
   
   ToolHandle<ISCT_RodEncoder> m_encoder{this, "Encoder", "SCT_RodEncoder", "SCT ROD Encoder for RDO to BS conversion"};
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-  const SCT_ID* m_sct_idHelper;
-  unsigned short m_RodBlockVersion;
-  mutable FullEventAssembler<SrcIdMap> m_fea; // This has to be data member.
+  const SCT_ID* m_sctIDHelper;
+  unsigned short m_rodBlockVersion;
+  mutable FullEventAssembler<SrcIdMap> m_fullEventAssembler; // This has to be data member.
   mutable std::mutex m_mutex;
 };
 
