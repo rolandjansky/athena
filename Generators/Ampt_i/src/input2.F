@@ -1,0 +1,13 @@
+      FVOIDP FUNCTION INPUT2_ADDRESS() 
+
+      COMMON /INPUT2/ ILAB, MANYB, NTMAX, ICOLL, INSYS, IPOT, MODE,
+     &   IMOMEN, NFREQ, ICFLOW, ICRHO, ICOU, KPOTEN, KMUL
+      SAVE /input2/
+      EXTERNAL AMPTDATA ! All that is required to force loading of BLOCK DATA
+      FVOIDP GETADDR
+
+      INPUT2_ADDRESS = GETADDR(ILAB)
+      
+      RETURN
+      END
+

@@ -1,0 +1,13 @@
+      FVOIDP FUNCTION HIMAIN2_ADDRESS() 
+
+      COMMON/HMAIN2/KATT(150001,4),PATT(150001,4)
+      SAVE /HMAIN2/
+
+      EXTERNAL AMPTDATA ! All that is required to force loading of BLOCK DATA
+      FVOIDP GETADDR
+
+      HIMAIN1_ADDRESS = GETADDR(KATT(1,1))
+      
+      RETURN
+      END
+

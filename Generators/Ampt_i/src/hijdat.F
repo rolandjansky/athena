@@ -1,0 +1,13 @@
+      FVOIDP FUNCTION HIJDAT_ADDRESS() 
+
+        COMMON/HIJDAT/HIDAT0(10,10),HIDAT(10)
+      SAVE /HIJDAT/
+
+      EXTERNAL AMPTDATA ! All that is required to force loading of BLOCK DATA
+      FVOIDP GETADDR
+
+      HIJDAT_ADDRESS = GETADDR(HIDAT0(1,1))
+      
+      RETURN
+      END
+
