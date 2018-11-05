@@ -77,11 +77,6 @@ _add_test( AthenaPoolExample_Write
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
    EXTRA_PATTERNS "BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:"
    PRE_EXEC test/pre_check.sh )
-# Append to existing file
-#_add_test( AthenaPoolExample_Append
-#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendJobOptions.py"
-#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Write_ctest
-#   EXTRA_PATTERNS "BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:" )
 # Read 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWrite
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
