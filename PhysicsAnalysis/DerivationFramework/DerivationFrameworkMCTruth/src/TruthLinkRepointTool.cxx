@@ -45,7 +45,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
   SG::AuxElement::Decorator< ElementLink<xAOD::TruthParticleContainer> > output_decorator(m_decOutput);
 
   // Handle separate cases: Photons, Electrons, Muons, Jets
-  if (std::string::npos==m_recoKey.find("Electron")){
+  if (std::string::npos!=m_recoKey.find("Electron")){
     const DataHandle<xAOD::ElectronContainer> inputCont(nullptr);
     CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
@@ -53,7 +53,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
       int index = find_match(truthPart,target);
       output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
     } // Loop over input particles
-  } else if (std::string::npos==m_recoKey.find("Photon")){
+  } else if (std::string::npos!=m_recoKey.find("Photon")){
     const DataHandle<xAOD::PhotonContainer> inputCont(nullptr);
     CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
@@ -61,7 +61,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
       int index = find_match(truthPart,target);
       output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
     } // Loop over input particles
-  } else if (std::string::npos==m_recoKey.find("Muon")){
+  } else if (std::string::npos!=m_recoKey.find("Muon")){
     const DataHandle<xAOD::MuonContainer> inputCont(nullptr);
     CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
@@ -78,7 +78,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
 const int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const
 {
   for (int i=0;i<int(c->size());++i){
-    if (p->barcode()==c->at(i)->barcode()) return i;
+    if (c->at(i) && p->barcode()==c->at(i)->barcode()) return i;
   }
   ATH_MSG_WARNING("No particle with barcode " << p->barcode() << " found in target container " << m_targetKey);
   return -1;
