@@ -14,7 +14,7 @@ EnergyCorrelatorGeneralizedTool::EnergyCorrelatorGeneralizedTool(std::string nam
   JetSubStructureMomentToolsBase(name)
 {
   ATH_MSG_DEBUG("Initializing EnergyCorrelator tool.");
-  declareProperty("Beta", m_Beta = 1.0);   //PF::un-used. Remove?
+  declareProperty("Beta", m_Beta = 1.0);  
 }
 
 int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
