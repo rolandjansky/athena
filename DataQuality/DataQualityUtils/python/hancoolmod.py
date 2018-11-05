@@ -507,7 +507,11 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
         globname = fnames[0][0]
         filename = os.path.basename(globname)    
         since, until = getLimits(filename)
-        defects += pix_defect.execute(runNumber, globname, until-1)
+        try:
+            defects += pix_defect.execute(runNumber, globname, until-1)
+        except Exception, e:
+            logging.warning('Unable to execute pixel hancool code')
+            logging.warning('--> %s: %s' % (type(e).__name__, e))
 
     from DQDefects import DefectsDB
     ddb = DefectsDB(dbConnection, read_only=False)
