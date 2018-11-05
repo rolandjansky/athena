@@ -194,10 +194,16 @@ namespace H5Utils {
     /// Adapter to translate configuration info into the objects
     /// needed by the writer.
     template<typename I>
-    H5::CompType buildType(const Consumers<I>& fillers) {
-      H5::CompType type(fillers.size() * sizeof(traits::data_buffer_t));
+    H5::CompType buildType(const Consumers<I>& consumers) {
+      if (consumers.size() < 1) {
+        throw std::logic_error(
+          "you must specify at least one consumer when initializing the HDF5"
+          "writer");
+      }
+
+      H5::CompType type(consumers.size() * sizeof(traits::data_buffer_t));
       size_t dt_offset = 0;
-      for (const auto& filler: fillers) {
+      for (const auto& filler: consumers) {
         type.insertMember(filler->name(), dt_offset, filler->getType());
         dt_offset += sizeof(traits::data_buffer_t);
       }
@@ -267,7 +273,7 @@ namespace H5Utils {
     Writer(H5::Group& group, const std::string& name,
            const Consumers<I>& consumers,
            const std::array<hsize_t, N>& extent = internal::uniform<N>(5),
-           hsize_t chunk_size = 2048);
+           hsize_t batch_size = 2048);
     Writer(const Writer&) = delete;
     Writer& operator=(Writer&) = delete;
     ~Writer();
@@ -322,9 +328,9 @@ namespace H5Utils {
     try {
       flush();
     } catch (H5::Exception& err) {
-      common::printDistructorError(err.getDetailMsg());
+      common::printDestructorError(err.getDetailMsg());
     } catch (std::exception& err) {
-      common::printDistructorError(err.what());
+      common::printDestructorError(err.what());
     }
   }
 

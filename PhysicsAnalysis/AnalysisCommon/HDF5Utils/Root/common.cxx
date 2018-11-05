@@ -21,7 +21,7 @@ namespace H5Utils {
       return out;
     }
 
-    void printDistructorError(const std::string& msg) {
+    void printDestructorError(const std::string& msg) {
       std::cerr << "ERROR: an exception was thrown in the destructor of an "
         "HDF5 file, the output buffer may be corrupted";
       std::cerr << " (error message: " << msg << ")" << std::endl;

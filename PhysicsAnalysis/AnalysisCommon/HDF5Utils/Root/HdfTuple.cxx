@@ -71,9 +71,9 @@ namespace H5Utils {
     try {
       flush();
     } catch (H5::Exception& err) {
-      common::printDistructorError(err.getDetailMsg());
+      common::printDestructorError(err.getDetailMsg());
     } catch (std::exception& err) {
-      common::printDistructorError(err.what());
+      common::printDestructorError(err.what());
     }
   }
 

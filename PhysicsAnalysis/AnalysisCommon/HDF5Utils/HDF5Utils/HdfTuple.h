@@ -86,7 +86,7 @@ namespace H5Utils {
     {
     }
     template <typename T>
-    internal::data_buffer_t VariableFiller<T>::get_buffer() const {
+    data_buffer_t VariableFiller<T>::get_buffer() const {
       return internal::get_buffer_from_func<T>(m_getter);
     }
     template <typename T>

@@ -32,7 +32,7 @@ namespace H5Utils {
 
     // writer error handling
     void throwIfExists(const std::string& name, const H5::Group& in_group);
-    void printDistructorError(const std::string& msg);
+    void printDestructorError(const std::string& msg);
 
   }
 }
