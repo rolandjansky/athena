@@ -32,7 +32,7 @@ def RPCCablingConfigCfg(flags):
     acc.merge(addFolders(flags, 
                    [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI', 
                      '/RPC/TRIGGER/CM_THR_PHI', '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ], 
-                   'RPC' ))
+                   'RPC' )[0])
 
     # that should not be here???
     acc.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps']
@@ -67,7 +67,7 @@ def TGCCablingConfigCfg(flags):
     acc.addService( TGCCablingSvc )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC'))
+    acc.merge(addFolders(flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC')[0])
     return acc, TGCCablingSvc
 
 if __name__ == '__main__':
