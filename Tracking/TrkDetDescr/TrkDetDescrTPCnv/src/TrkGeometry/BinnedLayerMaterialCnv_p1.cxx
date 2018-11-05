@@ -37,12 +37,13 @@ void BinnedLayerMaterialCnv_p1::persToTrans( const Trk::BinnedLayerMaterial_p1 *
             // create the material properties
             const Trk::MaterialProperties* mprop = createTransFromPStore( &materialCnv, persObj->materialMatrix[iid+matrixInnerDim*iod], mlog );
             // check if the entry carries material or not
-            if (mprop && mprop->thicknessInX0() > 10e-5 && mprop->averageZ() > 1 )
+            const bool carriesMaterial{mprop and not std::isnan(mprop->thicknessInX0()) and mprop->thicknessInX0()>10e-5 and mprop->averageZ() > 1};
+            if (carriesMaterial)
                 (transObj->m_fullMaterial)[iod][iid] = mprop; 
             else {
                 (transObj->m_fullMaterial)[iod][iid] = 0; 
                 delete mprop; // clear this instance and set to 0
-                
+                mprop=nullptr;
             }
         }
 }

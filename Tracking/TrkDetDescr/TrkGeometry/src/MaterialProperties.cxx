@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkGeometry/MaterialProperties.h"
-#include <climits>
+#include <iostream>
 
 Trk::MaterialProperties::MaterialProperties():
   m_material(),
