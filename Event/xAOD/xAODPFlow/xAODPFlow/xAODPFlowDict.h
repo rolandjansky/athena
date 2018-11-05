@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Class to set what goes in the dictionary  - authors M. Hodgkinson amd M. Janus */
@@ -33,12 +33,12 @@
 
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODPFLOW {
-    xAOD::PFOContainer                                                           c1;
-    DataLink< xAOD::PFOContainer >                                               l1;
-    ElementLink< xAOD::PFOContainer >                                            l2;
-    std::vector< DataLink< xAOD::PFOContainer > >                                l4;
-    std::vector< ElementLink< xAOD::PFOContainer > >                             l5;
-    std::vector< std::vector< ElementLink< xAOD::PFOContainer > > >              l6;
+    xAOD::PFOContainer_v1                                                           c1;
+    DataLink< xAOD::PFOContainer_v1 >                                               l1;
+    ElementLink< xAOD::PFOContainer_v1 >                                            l2;
+    std::vector< DataLink< xAOD::PFOContainer_v1 > >                                l4;
+    std::vector< ElementLink< xAOD::PFOContainer_v1 > >                             l5;
+    std::vector< std::vector< ElementLink< xAOD::PFOContainer_v1 > > >              l6;
 
     xAOD::IParticleContainer                                                        c2;
     ElementLink< xAOD::IParticleContainer >                                         l8;
@@ -47,14 +47,14 @@ namespace {
     std::vector< xAOD::PFODetails::PFOLeptonType >                                  l11;
     ElementLink< xAOD::VertexContainer >                                            l12;
 
-    xAOD::TrackCaloClusterContainer                                              c3;
-    DataLink< xAOD::TrackCaloClusterContainer >                                  l13;
-    ElementLink< xAOD::TrackCaloClusterContainer >                               l14;
-    ElementLinkVector< xAOD::TrackCaloClusterContainer >                         l15;
-    std::vector< DataLink< xAOD::TrackCaloClusterContainer > >                   l16;
-    std::vector< ElementLink< xAOD::TrackCaloClusterContainer > >                l17;
-    std::vector< ElementLinkVector< xAOD::TrackCaloClusterContainer > >          l18;
-    std::vector< std::vector< ElementLink< xAOD::TrackCaloClusterContainer > > > l19;
+    xAOD::TrackCaloClusterContainer_v1                                              c3;
+    DataLink< xAOD::TrackCaloClusterContainer_v1 >                                  l13;
+    ElementLink< xAOD::TrackCaloClusterContainer_v1 >                               l14;
+    ElementLinkVector< xAOD::TrackCaloClusterContainer_v1 >                         l15;
+    std::vector< DataLink< xAOD::TrackCaloClusterContainer_v1 > >                   l16;
+    std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > >                l17;
+    std::vector< ElementLinkVector< xAOD::TrackCaloClusterContainer_v1 > >          l18;
+    std::vector< std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > > > l19;
 
    };
 }

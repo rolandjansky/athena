@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODJetDict.h 796773 2017-02-12 19:01:20Z sschramm $
 #ifndef XAODJET_XAODJETDICT_H
 #define XAODJET_XAODJETDICT_H
 
@@ -22,14 +21,14 @@
 #include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODJet/JetAuxContainer.h"
+#include "xAODJet/versions/Jet_v1.h"
 #include "xAODJet/versions/JetContainer_v1.h"
 #include "xAODJet/versions/JetAuxContainer_v1.h"
 #include "xAODJet/versions/JetTrigAuxContainer_v1.h"
 #include "xAODJet/versions/JetTrigAuxContainer_v2.h"
-#include "xAODJet/versions/Jet_v1.h"
+#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 #include "xAODJet/JetTypes.h"
 
 namespace {
