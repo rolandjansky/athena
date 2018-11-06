@@ -60,6 +60,7 @@ TileBchPrbs::initPrbDesc()
   m_prbNames[TileBchPrbs::BrokenClearFibre       ] = "Broken clear fibre";
   m_prbNames[TileBchPrbs::IgnoreCs               ] = "Ignore cesium";
   m_prbNames[TileBchPrbs::UnstableCs             ] = "Unstable cesium";
+  m_prbNames[TileBchPrbs::WrongBCID              ] = "Wrong BCID";
 
   //=== DSP
   m_prbNames[TileBchPrbs::IgnoredInDsp           ] = "Ignored in DSP";
@@ -76,4 +77,5 @@ TileBchPrbs::initPrbDesc()
 
   //=== online adc
   m_prbNames[TileBchPrbs::OnlineGeneralMaskAdc   ] = "Online ADC masked (unspecified)";
+  m_prbNames[TileBchPrbs::OnlineWrongBCID        ] = "Online wrong BCID";
 }

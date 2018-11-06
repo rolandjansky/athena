@@ -24,6 +24,7 @@ const unsigned int TileCalibUtils::BAD_DEFINITION_CHAN = 0;  /**< @brief Channel
 const unsigned int TileCalibUtils::NOISY_DEFINITION_CHAN = 1; /**< @brief Channel used for storing of noisy channel definitions */
 const unsigned int TileCalibUtils::NOGAINL1_DEFINITION_CHAN = 2; /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
 const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN = 3; /**< @brief Channel used for storing of bad timing channel definitions */
+const unsigned int TileCalibUtils::WRONGBCID_DEFINITION_CHAN = 4; /**< @brief Channel used for storing of wrong BCID channel definitions */
 
 //
 //_____________________________________________________________________________
