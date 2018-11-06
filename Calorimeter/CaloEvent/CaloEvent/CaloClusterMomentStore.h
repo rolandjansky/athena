@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCLUSTERMOMENTSTORE_H
@@ -59,7 +59,11 @@ class CaloClusterMomentStore
       CaloClusterMomentIterator(moment_store_const_iter iStore)
 	ATH_CLING_BODY (: m_actual(iStore) { } )
       /*! \brief Destructor */
+#ifdef __clang__
+      ~CaloClusterMomentIterator();
+#else
       ~CaloClusterMomentIterator() ATH_CLING_BODY( { } )
+#endif
 
       /*! \brief Iterator advance method */
       CaloClusterMomentIterator next()
