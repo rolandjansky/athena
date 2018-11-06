@@ -10,10 +10,7 @@
 #define TRKVOLUMES_CYLINDERVOLUMEBOUNDARYACCESSORS_H
 
 
-#include "TrkDetDescrUtils/ThreeObjectsAccessor.h"
-#include "TrkDetDescrUtils/FourObjectsAccessor.h"
-#include "TrkDetDescrUtils/FiveObjectsAccessor.h"
-#include "TrkDetDescrUtils/SixObjectsAccessor.h"
+#include "TrkDetDescrUtils/ObjectsAccessor.h"
 
 namespace Trk {
 
@@ -90,10 +87,10 @@ namespace Trk {
 
       private:
 
-        ThreeObjectsAccessor m_cylinderAccessors[4];
-        FourObjectsAccessor  m_tubeAccessors[12];
-        FiveObjectsAccessor  m_sectoralCylinderAccessors[1];
-        SixObjectsAccessor   m_sectoralTubeAccessors[1];
+        std::array<ThreeObjectsAccessor,4> m_cylinderAccessors;
+        std::array<FourObjectsAccessor,12> m_tubeAccessors;
+        std::array<FiveObjectsAccessor,1>  m_sectoralCylinderAccessors;
+        std::array<SixObjectsAccessor,1>   m_sectoralTubeAccessors;
    
     
 
