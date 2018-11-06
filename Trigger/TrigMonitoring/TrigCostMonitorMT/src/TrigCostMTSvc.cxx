@@ -65,12 +65,12 @@ StatusCode TrigCostMTSvc::processAlg(const EventContext& context, const std::str
     ATH_CHECK( m_algStartTimes.insert(context, caller, msg(), TrigTimeStamp()) );
     ATH_CHECK( m_algThreadID.insert(context, caller, msg(), std::this_thread::get_id()) );
 
-    ATH_MSG_DEBUG("Caller '" << caller << "', '" << context.getExtension<Atlas::ExtendedEventContext>()->proxy()->name() << "' began");
+    ATH_MSG_DEBUG("Caller '" << caller << "', '" << context.getExtension<Atlas::ExtendedEventContext>().proxy()->name() << "' began");
 
   } else if (type == AuditType::After) {
 
     ATH_CHECK( m_algStopTimes.insert(context, caller, msg(), TrigTimeStamp()) );
-    ATH_MSG_DEBUG("Caller '" << caller << "', '" << context.getExtension<Atlas::ExtendedEventContext>()->proxy()->name() << "' ended");
+    ATH_MSG_DEBUG("Caller '" << caller << "', '" << context.getExtension<Atlas::ExtendedEventContext>().proxy()->name() << "' ended");
 
   }
 
