@@ -88,10 +88,10 @@ namespace CP {
             ATH_CHECK(m_calibTool_1516.setProperty("Year", "Data16"));
             ATH_CHECK(m_calibTool_1516.setProperty("Release", m_release));
             ATH_CHECK(m_calibTool_1516.setProperty("SagittaRelease", m_sagittaRelease1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("StatComb", false));
-            ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorr", true));
-            ATH_CHECK(m_calibTool_1516.setProperty("doSagittaMCDistortion", false));
-            ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorrPhaseSpace", true));
+            ATH_CHECK(m_calibTool_1516.setProperty("StatComb", m_StatComb1516));
+            ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorr", m_SagittaCorr1516));
+            ATH_CHECK(m_calibTool_1516.setProperty("doSagittaMCDistortion", m_SagittaMCDistortion1516));
+            ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorrPhaseSpace", m_SagittaCorrPhaseSpace1516));
         }
         if (!m_calibTool_17.isUserConfigured()){
             ATH_MSG_INFO("Setup the MuonMomentum calibration tool for 2017 & mc16c/d");
@@ -99,10 +99,10 @@ namespace CP {
             ATH_CHECK(m_calibTool_17.setProperty("Year", "Data17"));
             ATH_CHECK(m_calibTool_17.setProperty("Release", m_release));
             ATH_CHECK(m_calibTool_17.setProperty("SagittaRelease", m_sagittaRelease17));
-            ATH_CHECK(m_calibTool_17.setProperty("StatComb", false));
-            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorr", true));
-            ATH_CHECK(m_calibTool_17.setProperty("doSagittaMCDistortion", false));
-            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorrPhaseSpace", true));
+            ATH_CHECK(m_calibTool_17.setProperty("StatComb", m_StatComb17));
+            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorr", m_SagittaCorr17));
+            ATH_CHECK(m_calibTool_17.setProperty("doSagittaMCDistortion", m_SagittaMCDistortion17));
+            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorrPhaseSpace", m_SagittaCorrPhaseSpace17));
         }
         if (!m_calibTool_18.isUserConfigured()){
             ATH_MSG_INFO("Setup the MuonMomentum calibration tool for 2018 & mc16e");
@@ -110,10 +110,10 @@ namespace CP {
             ATH_CHECK(m_calibTool_18.setProperty("Year", "Data17"));
             ATH_CHECK(m_calibTool_18.setProperty("Release", m_release));
             ATH_CHECK(m_calibTool_18.setProperty("SagittaRelease", m_sagittaRelease18));
-            ATH_CHECK(m_calibTool_18.setProperty("StatComb", false));
-            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorr", false));
-            ATH_CHECK(m_calibTool_18.setProperty("doSagittaMCDistortion", true));
-            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorrPhaseSpace", true));
+            ATH_CHECK(m_calibTool_18.setProperty("StatComb", m_StatComb18));
+            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorr", m_SagittaCorr18));
+            ATH_CHECK(m_calibTool_18.setProperty("doSagittaMCDistortion", m_SagittaMCDistortion18));
+            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorrPhaseSpace", m_SagittaCorrPhaseSpace18));
         }
         
         ATH_CHECK(m_calibTool_1516.retrieve());
@@ -132,7 +132,23 @@ namespace CP {
         m_sagittaRelease1516("sagittaBiasDataAll_25_07_17"),
         m_sagittaRelease17("sagittaBiasDataAll_30_07_18"),
         m_sagittaRelease18("sagittaBiasDataAll_30_07_18"),
-        m_release("Recs2017_08_02"),
+        m_release("Recs2018_05_20"),
+        
+        m_StatComb1516(false),
+        m_SagittaCorr1516(true),
+        m_SagittaMCDistortion1516(false),
+        m_SagittaCorrPhaseSpace1516(true),
+        
+        m_StatComb17(false),
+        m_SagittaCorr17(true),
+        m_SagittaMCDistortion17(false),
+        m_SagittaCorrPhaseSpace17(true),        
+        
+        m_StatComb18(false),
+        m_SagittaCorr18(false),
+        m_SagittaMCDistortion18(true),
+        m_SagittaCorrPhaseSpace18(true),
+        
         m_MCperiods1516(),
         m_MCperiods17(),
         m_MCperiods18(),
@@ -141,14 +157,31 @@ namespace CP {
         m_calibTool_1516.declarePropertyFor(this, "CalibrationTool1516", "Parse the configured instance of the calibration tool for 15&16 data or mc16a");
         m_calibTool_17.declarePropertyFor(this, "CalibrationTool17", "Parse the configured instance of the calibration tool for 17 data or mc16d");
         m_calibTool_18.declarePropertyFor(this, "CalibrationTool18", "Parse the configured instance of the calibration tool for 18 data or mc16e");
+        // Properties to configure the subtools
         declareProperty("SagittaRelease1516", m_sagittaRelease1516);
         declareProperty("SagittaRelease17", m_sagittaRelease17);
         declareProperty("SagittaRelease18", m_sagittaRelease18);
         declareProperty("Release", m_release);
         
+        declareProperty("StatComb1516", m_StatComb1516);
+        declareProperty("SagittaCorr1516", m_SagittaCorr1516);
+        declareProperty("doSagittaMCDistortion1516", m_SagittaMCDistortion1516);
+        declareProperty("SagittaCorrPhaseSpace1516", m_SagittaCorrPhaseSpace1516);
+        
+        declareProperty("StatComb17", m_StatComb17);
+        declareProperty("SagittaCorr17", m_SagittaCorr17);
+        declareProperty("doSagittaMCDistortion17", m_SagittaMCDistortion17);
+        declareProperty("SagittaCorrPhaseSpace17", m_SagittaCorrPhaseSpace17);
+        
+        declareProperty("StatComb18", m_StatComb18);
+        declareProperty("SagittaCorr18", m_SagittaCorr18);
+        declareProperty("doSagittaMCDistortion18", m_SagittaMCDistortion18);
+        declareProperty("SagittaCorrPhaseSpace18", m_SagittaCorrPhaseSpace18);
+        
         declareProperty("MCperiods1516", m_MCperiods1516 = {284500});
         declareProperty("MCperiods17", m_MCperiods17 = {300000, 304000, 305000});
         declareProperty("MCperiods18", m_MCperiods18 = {310000});
+        
         declareProperty("useRandomRunNumber", m_useRndRun);
         // run 304000/305000 correspond to 13/7 TeV low-mu data in 2017
     }
