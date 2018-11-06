@@ -50,9 +50,7 @@ void EVetoPlots::fill(const xAOD::TauJet& tau) {
 
   float avariable=0;
 
-  bool test = false;
-
-  test=tau.detail(xAOD::TauJetParameters::hadRadius, avariable);
+  bool test=tau.detail(xAOD::TauJetParameters::hadRadius, avariable);
   if(test)     m_HadRadius->Fill(avariable,1.);
  
   test=tau.detail(xAOD::TauJetParameters::EMRadius, avariable);

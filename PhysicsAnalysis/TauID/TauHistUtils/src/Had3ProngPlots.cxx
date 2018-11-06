@@ -53,9 +53,7 @@ void Had3ProngPlots::fill(const xAOD::TauJet& tau) {
 
   float avariable=0;
 
-  bool test = false;
-
-  test=tau.detail(xAOD::TauJetParameters::centFrac, avariable);
+  bool test=tau.detail(xAOD::TauJetParameters::centFrac, avariable);
   if(test)     m_tauCoreFrac->Fill(avariable,1.);
  
   test=tau.detail(xAOD::TauJetParameters::etOverPtLeadTrk, avariable);

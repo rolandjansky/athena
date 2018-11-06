@@ -26,6 +26,7 @@ RecoTauPlots::RecoTauPlots(PlotBase* pParent, std::string sDir, std::string sTau
    m_pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts(nullptr),
    m_pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt(nullptr),
    m_pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts(nullptr),
+   m_pantau_CellBasedInput_BDTVar_Charged_HLV_SumM(nullptr),
    m_pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM(nullptr),
    m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1(nullptr),
    m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2(nullptr),
@@ -72,9 +73,10 @@ void RecoTauPlots::initializePlots(){
 	m_pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn = Book1D("pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn",m_sTauJetContainerName + "pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn",30,-1.,1.);
 	m_pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn = Book1D("pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn",m_sTauJetContainerName + "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn",30,-1.,1.);
 	m_pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts = Book1D("pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts",10.,-0.5,9.5);
-	m_pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt = Book1D("pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt",30,0.,6.);
+	m_pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt = Book1D("pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt", 30, 0.0, 4000.0);
 	m_pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts = Book1D("pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts",30,0.,0.6);
-	m_pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM = Book1D("pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM",30,0.,6.);
+	m_pantau_CellBasedInput_BDTVar_Charged_HLV_SumM = Book1D("pantau_CellBasedInput_BDTVar_Charged_HLV_SumM",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Charged_HLV_SumM", 30, 0.0, 4000.0);
+	m_pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM = Book1D("pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM", 30, 0.0, 4000.0);
 	m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1 = Book1D("pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1",30,-1.5,1.5);
 	m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2 = Book1D("pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2",30,-1.5,1.5);
 	m_pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts = Book1D("pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts",m_sTauJetContainerName + "pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts",30,0.,1.);
@@ -147,6 +149,8 @@ void RecoTauPlots::initializePlots(){
     m_pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt->Fill(panTauFloat);
     thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts->Fill(panTauFloat);
+    thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Charged_HLV_SumM,panTauFloat);
+    m_pantau_CellBasedInput_BDTVar_Charged_HLV_SumM->Fill(panTauFloat);
     thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_HLV_SumM,panTauFloat);
     m_pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM->Fill(panTauFloat);
     thisTau.panTauDetail( xAOD::TauJetParameters::PanTauDetails::PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1,panTauFloat);

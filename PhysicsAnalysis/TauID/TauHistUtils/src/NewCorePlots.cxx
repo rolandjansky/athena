@@ -88,9 +88,8 @@ void NewCorePlots::fill(const xAOD::TauJet& tau) {
   //  m_tauNWideTracks->Fill(tau.nWideTracks(), 1.);
     float avariable=0;
     int bvariable=0;
-    bool test = false;
-  
-  test=tau.detail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, avariable);
+    
+  bool test=tau.detail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, avariable);
   if(test)     m_ipZ0SinThetaSigLeadTrk->Fill(avariable,1.);
 
   test=tau.detail(xAOD::TauJetParameters::etOverPtLeadTrk, avariable);
