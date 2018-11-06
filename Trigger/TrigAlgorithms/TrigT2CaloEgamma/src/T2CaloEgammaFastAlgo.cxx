@@ -91,7 +91,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   m_trigEmClusterCollection = SG::WriteHandle<xAOD::TrigEMClusterContainer>( m_clusterContainerKey, getContext() );
   ATH_CHECK( m_trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
   ATH_MSG_DEBUG( "Made WriteHandle " << m_clusterContainerKey );
-  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
+  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
  
   auto roisHandle = SG::makeHandle( m_roiCollectionKey );
   CHECK( roisHandle.isValid() );

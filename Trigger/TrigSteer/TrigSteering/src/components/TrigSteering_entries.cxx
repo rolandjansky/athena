@@ -6,7 +6,6 @@
 #include "TrigSteering/LoopbackConverterFromPersistency.h"
 #include "TrigSteering/Lvl2ConverterFromPersistency.h"
 #include "TrigSteering/ResultBuilder.h"
-#include "TrigSteering/ResultBuilderMT.h"
 #include "TrigSteering/RandomScaler.h"
 //#include "TrigSteering/PeriodicScaler.h"
 #include "TrigSteering/ScalerSvc.h"
@@ -27,7 +26,6 @@ DECLARE_COMPONENT( HLT::TrigSteer )
 DECLARE_COMPONENT( HLT::ScalerSvc )
 
 DECLARE_COMPONENT( HLT::ResultBuilder )
-DECLARE_COMPONENT( HLT::ResultBuilderMT )
 DECLARE_COMPONENT( HLT::RandomScaler )
 DECLARE_COMPONENT( HLT::Lvl1ResultAccessTool )
 DECLARE_COMPONENT( HLT::HLTResultAccessTool )

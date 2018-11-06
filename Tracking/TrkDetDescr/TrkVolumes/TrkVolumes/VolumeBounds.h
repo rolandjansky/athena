@@ -16,12 +16,12 @@
 #include "GaudiKernel/MsgStream.h"
 // Trk
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkDetDescrUtils/ObjectAccessor.h"
 
 namespace Trk {
 
   class Surface;
   class Volume;
-  class ObjectAccessor;
 
   /**
    @class VolumeBounds
@@ -59,9 +59,9 @@ namespace Trk {
       virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const = 0;
       
       /** Provide accessor for BoundarySurfaces */
-      virtual const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
-                                                            const Amg::Vector3D& dir,
-                                                            bool forceInside=false) const = 0;
+      virtual ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
+                                                     const Amg::Vector3D& dir,
+                                                     bool forceInside=false) const = 0;
 
       /** Output Method for MsgStream, to be overloaded by child classes */
       virtual MsgStream& dump(MsgStream& sl) const = 0;

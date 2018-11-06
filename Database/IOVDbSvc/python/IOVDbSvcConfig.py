@@ -124,7 +124,7 @@ def addFoldersSplitOnline(flags, detDb, online_folders, offline_folders, classNa
         folders = online_folders
     else:
         # MC, so add addMCString
-        db = db+addMCString
+        detDb = detDb+addMCString
         folders = offline_folders
     result = addFolders(flags, folders, className=className, detDb=detDb) 
     return result

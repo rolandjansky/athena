@@ -12,6 +12,7 @@
 //Trk
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrUtils/ObjectAccessor.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
@@ -20,7 +21,6 @@ class MsgStream;
 namespace Trk {
 
   class VolumeBounds;
-  class ObjectAccessor;  
 
   /** @class Volume
     
@@ -66,9 +66,9 @@ namespace Trk {
         bool inside(const Amg::Vector3D& gp, double tol=0.) const ;
         
         /** Provide accessor for BoundarySurfaces */
-        const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
-                                                      const Amg::Vector3D& mom,
-                                                      bool forceInside=false) const;
+        ObjectAccessor  boundarySurfaceAccessor(const Amg::Vector3D& gp,
+                                                const Amg::Vector3D& mom,
+                                                bool forceInside=false) const;
       protected:         
         mutable Amg::Transform3D*                  m_transform;         //!< HepGeom::Transform3D
         mutable Amg::Vector3D*                     m_center;            //!< center position of the surface

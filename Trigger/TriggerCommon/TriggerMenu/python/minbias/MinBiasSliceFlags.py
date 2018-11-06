@@ -2,10 +2,8 @@
 
 """ MinBias slice specific flags  """
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
-from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = 'R. Kwee, B. Demirkoz, T.Bold, T.Kohno, W. H. Bell'
 __version__="$Revision: 1.18 $"
