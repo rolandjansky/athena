@@ -75,7 +75,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
 }
 
 // Find a match by barcode in a different container
-const int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const
+int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const
 {
   // See if it's already gone
   if (!p) return -1;

@@ -21,7 +21,7 @@ namespace DerivationFramework {
     public: 
       TruthLinkRepointTool(const std::string& t, const std::string& n, const IInterface* p);
       ~TruthLinkRepointTool();
-      virtual StatusCode addBranches() const;
+      virtual StatusCode addBranches() const override final;
 
     private:
       /// Parameter: input collection key
@@ -31,7 +31,7 @@ namespace DerivationFramework {
       /// Parameter: target collection
       std::string m_targetKey;
       // Helper function for finding matching truth particle and warning consistently
-      const int find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const;
+      int find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const;
   }; 
 }
 
