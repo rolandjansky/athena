@@ -33,7 +33,6 @@ class LArOnlineIDStrHelper;
 class LArCablingService;
 class TProfile2D_LW;
 class TProfile_LW;
-class TH1F_LW;
 class TH2F_LW;
 
 class LArNoiseCorrelationMon: public ManagedMonitorToolBase
