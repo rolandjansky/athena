@@ -327,21 +327,23 @@ def _getJetBuildTool(merge_param,
                 jtm.jetens,
                 jtm.caloqual_cluster,
                 jtm.bchcorrclus,
-                jtm.width
+                jtm.width,
+		jtm.ktdr
                 ])
 
     if do_substructure:
         # this set of moments will be reduced once we've run once to evaluate costs
 
-        # don't want to include nsubjettiness and width twice
+        # don't want to include nsubjettiness width, and ktdr twice
         if do_minimalist_setup:
             mymods.extend([
                     jtm.nsubjettiness,
-                    jtm.width
+                    jtm.width,
+		    jtm.ktdr
                     ])
         mymods.extend([
                 # jtm.nsubjettiness,
-                jtm.ktdr,
+                #jtm.ktdr,
                 jtm.ktsplitter,
                 jtm.encorr,
                 jtm.charge,
@@ -360,9 +362,10 @@ def _getJetBuildTool(merge_param,
     # mymods = []
     # DEBUG DEBUG DEBUG
 
-    # Add jet calo width always
+    # Add jet calo width and ktrd always
     if do_minimalist_setup and not do_substructure:
         mymods.append(jtm.width)
+        mymods.append(jtm.ktdr)
 
     jtm.modifiersMap["mymods"] = mymods
     
