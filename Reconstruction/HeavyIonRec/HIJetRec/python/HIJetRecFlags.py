@@ -88,7 +88,7 @@ class AntiKtRValues(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['list']
-    StoredValue  = [0.2,0.3,0.4]
+    StoredValue  = [0.2,0.3,0.4,1.0]
 
 class DoCellBasedSubtraction(JobProperty):
     """ option to use cell based subtraction
@@ -117,7 +117,7 @@ class Remodulate(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class ExtraFlowMoments(JobProperty):
     """ Calculate extra flow moments
@@ -131,7 +131,7 @@ class DoHIBTagging(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 
 class HIClusterKey(JobProperty):
