@@ -16,7 +16,7 @@ class EnergyCorrelatorTool :
       EnergyCorrelatorTool(std::string name);
 
       
-      int modifyJet(xAOD::Jet &) const;
+      int modifyJet(xAOD::Jet &injet) const;
       
 
     private:

@@ -15,7 +15,7 @@ class CenterOfMassShapesTool :
       // Constructor and destructor
       CenterOfMassShapesTool(std::string name);
 
-      int modifyJet(xAOD::Jet &) const;
+      int modifyJet(xAOD::Jet &injet) const;
 };
 
 

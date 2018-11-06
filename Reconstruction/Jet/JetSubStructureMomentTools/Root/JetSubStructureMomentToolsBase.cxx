@@ -53,7 +53,7 @@ bool JetSubStructureMomentToolsBase::SetupDecoration(PseudoJet& pseudojet,const 
       decorate = false;
     }
     ATH_MSG_VERBOSE("Found " << AssociatedParticles.size() << " associated particles");
-    if(!AssociatedParticles.size()) decorate = false; //PF::we already checked for this, but fine.
+    if(!AssociatedParticles.size()) decorate = false; 
     else pseudojet = buildPseudoJet(AssociatedParticles);
   }
 

@@ -16,8 +16,7 @@ KTSplittingScaleTool::KTSplittingScaleTool(std::string name) :
 
 int KTSplittingScaleTool::modifyJet(xAOD::Jet &injet) const
 {
-  //if(checkForConstituents(jet) == false) return 1;
-
+  
   fastjet::PseudoJet jet;
   bool decorate = SetupDecoration(jet,injet);
 

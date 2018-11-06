@@ -12,12 +12,6 @@ KtDeltaRTool::KtDeltaRTool(const std::string& myname)
   declareProperty("JetRadius", m_jetrad =0.4);
 }
 
-/*
-StatusCode KtDeltaRTool::initialize() {
-  return StatusCode::SUCCESS;
-}
-*/
-
 int KtDeltaRTool::modifyJet(xAOD::Jet& injet) const {
 
   fastjet::PseudoJet jet;

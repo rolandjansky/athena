@@ -15,7 +15,7 @@ class EnergyCorrelatorGeneralizedRatiosTool :
       // Constructor and destructor
       EnergyCorrelatorGeneralizedRatiosTool(std::string name);
 
-      int modifyJet(xAOD::Jet &) const;
+      int modifyJet(xAOD::Jet &jet) const;
 
     private:
 };
