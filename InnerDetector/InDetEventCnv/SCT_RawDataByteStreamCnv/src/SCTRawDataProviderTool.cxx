@@ -2,13 +2,6 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SCTRawDataProviderTool.cxx
-//   Implementation file for class SCTRawDataProviderTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "SCTRawDataProviderTool.h"
 
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
@@ -52,7 +45,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   if (vecROBFrags.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
-  m_decodeErrCount = 0;
+  StatusCode sc{StatusCode::SUCCESS};
 
   // loop over the ROB fragments
 
