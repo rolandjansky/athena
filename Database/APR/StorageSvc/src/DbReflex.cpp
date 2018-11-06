@@ -13,6 +13,8 @@
 #include "StorageSvc/DbTransform.h"
 #include "POOLCore/DbPrint.h"
 
+#include "TInterpreter.h"
+
 #include <cstring>
 
 #include "AthContainers/tools/threading.h"
@@ -39,7 +41,7 @@ static TypeMap& type_mapping()  {
 
 /// Access to reflection information by type name
 const TypeH DbReflex::forTypeName(const string& name)  {
-   return TypeH::ByName(name);
+   return TypeH(name);
 }
 
 /// Access to reflection information by type info
@@ -63,12 +65,6 @@ Guid DbReflex::guid(const TypeH& type)
    }
   string idstr;
   if( type )  {
-#    if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-        Reflex::PropertyList pl = type.Properties();
-        if( pl.HasProperty("ClassID") )  {
-           idstr = pl.PropertyAsString("ClassID");
-        }
-#    else
         idstr = type.Properties().PropertyAsString("id");
         /* 
         if( idstr.empty() ) {
@@ -77,7 +73,6 @@ Guid DbReflex::guid(const TypeH& type)
         }
         cout << "GUID: Class " << type.Name() << " has GUID= " << idstr << endl;
         */
-#    endif
      lock.upgrade();
      if( !idstr.empty() )  {
         Guid id(idstr);
@@ -96,6 +91,7 @@ Guid DbReflex::guid(const TypeH& type)
   }
   return Guid::null();
 }
+
 
 /// Access to reflection information by Guid
 const TypeH DbReflex::forGuid(const Guid& id)
@@ -125,6 +121,20 @@ const TypeH DbReflex::forGuid(const Guid& id)
   DbPrint log("APR:DbReflex:forGuid");
   // GUID not in the map: scan all known types. refresh the map
   log << DbPrintLvl::Warning << " doing GUID scan on ALL types for Class ID=" << id << DbPrint::endmsg;
+
+  // disable TClass autoloading/parsing, restore settings on return
+  class AutoloadGuard {
+   public:
+    int al = 0, ap = 0;
+    AutoloadGuard() {
+       al = gInterpreter->SetClassAutoloading( 0 );
+       ap = gInterpreter->SetClassAutoparsing( 0 );
+    }
+    ~AutoloadGuard() {
+       gInterpreter->SetClassAutoloading( al );
+       gInterpreter->SetClassAutoparsing( ap );
+    }
+  } ALG;
 
   for(size_t i=0; i<TypeH::TypeSize(); ++i)  { 
      TypeH t = TypeH::TypeAt(i);
