@@ -155,10 +155,7 @@ void test2()
 
   TestHolder h;
   SG::WriteDecorHandleKeyArray<MyObj> k1{"aaa.dec1", "aaa.dec2"};
-  for (auto k: k1.keys()) {
-    k->setOwner(&h);
-  }
-
+  k1.setOwner(&h);
 
   SG::ReadHandleKey<MyObj> r1 ("rrr");
   SG::WriteHandleKey<MyObj> w1 ("sss");

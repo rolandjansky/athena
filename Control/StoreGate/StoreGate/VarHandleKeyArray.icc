@@ -17,7 +17,11 @@ namespace SG {
   StatusCode VarHandleKeyArrayCommon<Base>::initialize (bool used /*= true*/) {
     StatusCode sc(StatusCode::SUCCESS);
     if (used) {
+      IDataHandleHolder* const owner = this->owner();
       for (Base& b : *this) {
+	if (owner != nullptr) {
+	  b.setOwner(owner);
+	}
         if ( b.initialize().isFailure() ) {
           sc = StatusCode::FAILURE;
         }

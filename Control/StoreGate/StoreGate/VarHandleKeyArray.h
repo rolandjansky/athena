@@ -39,6 +39,9 @@ namespace SG {
     virtual bool renounced() const = 0;
     virtual void declare(IDataHandleHolder*)  = 0;
 
+    virtual void setOwner( IDataHandleHolder* o ) = 0;
+    virtual IDataHandleHolder* owner() const = 0;
+
   };
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -127,11 +130,13 @@ namespace SG {
 
     virtual void declare( IDataHandleHolder* ) override;
 
+    virtual void setOwner( IDataHandleHolder* o ) override { m_owner = o; }
+    virtual IDataHandleHolder* owner() const override { return m_owner; }
+
   private:
     
-
-
     bool m_isRenounced{ false };
+    IDataHandleHolder* m_owner{ nullptr };
 
   };
   
