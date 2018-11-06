@@ -29,16 +29,16 @@
 #include <string>
 #include <inttypes.h>
 
-template <typename _TCollection> class TileRawDataContainer
-  : public IdentifiableContainer<_TCollection>
+template <typename TCOLLECTION> class TileRawDataContainer
+  : public IdentifiableContainer<TCOLLECTION>
 {
 public:
 
-    typedef typename _TCollection::_TElement _TElement;
-    typedef typename TileRawDataContainer<_TCollection>::const_iterator TContainer_const_iterator ; 
-    typedef typename _TCollection::TCollection_const_iterator TCollection_const_iterator ;
+    typedef typename TCOLLECTION::TElement TElement;
+    typedef typename TileRawDataContainer<TCOLLECTION>::const_iterator TContainer_const_iterator ; 
+    typedef typename TCOLLECTION::TCollection_const_iterator TCollection_const_iterator ;
 
-    typedef IdentifiableContainer<_TCollection> MyBase;
+    typedef IdentifiableContainer<TCOLLECTION> MyBase;
     typedef TileFragHash::TYPE TYPE;
     typedef TileRawChannelUnit::UNIT UNIT;
 
@@ -61,8 +61,8 @@ public:
   
     // insert a TileRawData element into a collection.
     // this is only to be used by Algorithm-builder
-    void add (_TElement* rc, bool createColl=false, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS);
-    inline void push_back(_TElement* rc) { add(rc,true); }
+    void add (TElement* rc, bool createColl=false, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS);
+    inline void push_back(TElement* rc) { add(rc,true); }
     inline TYPE get_hashType() const { return this->m_hashFunc.type(); }
     inline UNIT get_unit() const { return this->m_unit; }
     inline void set_unit(UNIT unit) { m_unit=unit; }
@@ -75,7 +75,7 @@ public:
     // print all the Collections
     virtual void print() const;
     virtual operator std::string () const;
-    virtual std::string whoami (void) const { _TCollection  coll;
+    virtual std::string whoami (void) const { TCOLLECTION  coll;
                  return "TileRawDataContainer of "+coll.whoami(); }
 
 private:
@@ -90,14 +90,14 @@ private:
 
 // Persistent representation of TileRawDataContainer for POOL
 
-template <typename _TCollection> class TileRawDataCollectionVec
-  : public DataVector<_TCollection>
+template <typename TCOLLECTION> class TileRawDataCollectionVec
+  : public DataVector<TCOLLECTION>
 {
 
 public:
 
   TileRawDataCollectionVec()
-    : DataVector<_TCollection>(SG::VIEW_ELEMENTS)
+    : DataVector<TCOLLECTION>(SG::VIEW_ELEMENTS)
     , m_type(TileFragHash::Default)
     //, m_unit(TileRawChannelUnit::ADCcounts)
     { }

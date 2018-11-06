@@ -21,7 +21,7 @@ public:
 
   typedef TileRawDataCollection<TileDigits> MyBase;
   typedef MyBase::ID ID;
-  typedef TileDigits _TElement;
+  typedef TileDigits TElement;
 
   TileDigitsCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  )
     : MyBase(id,ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
