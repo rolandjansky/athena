@@ -494,7 +494,7 @@ class L2EFChain_HI(L2EFChainDef):
             self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
         
         self.TErenamingDict = {
-            'L2_upc_step1': 'L2_TTSummation',
+            'L2_upc_step1': 'L2_dummy_sp',
             'L2_upc_step2': 'L2_TTGapCalculation',
             'L2_upc_step3_A': 'L2_TTGapA'+str(gapthX),
             'L2_upc_step3_C': 'L2_TTGapC'+str(gapthX),
