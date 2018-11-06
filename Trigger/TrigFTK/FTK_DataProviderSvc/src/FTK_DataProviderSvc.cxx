@@ -549,10 +549,12 @@ StatusCode FTK_DataProviderSvc::fillTrackParticleCache(const bool withRefit){
               ATH_MSG_VERBOSE("TrackParticle from refitted track added to cache at index " << m_refit_tp_map[ftk_track_index]
                   << "  created from FTK track at index " << ftk_track_index);
             } else {
-              ATH_MSG_ERROR ("invalid ElementLink to m_refit_refit_map["<<ftk_track_index<<"] = "<< m_refit_track_map[ftk_track_index]);
+              ATH_MSG_DEBUG ("Failed to create TrackParticle refitted track with index " << ftk_track_index);
               m_refit_tp_map[ftk_track_index]=-2;
             }
-
+	  } else {
+	    ATH_MSG_WARNING ("invalid ElementLink to m_refit_track_map["<<ftk_track_index<<"] = "<< m_refit_track_map[ftk_track_index]);
+	    m_refit_tp_map[ftk_track_index]=-2;
           }
         } else { // track==nullptr
           ATH_MSG_VERBOSE("Setting m_refit_tp_map["<<  ftk_track_index <<"]=-2");
@@ -582,7 +584,10 @@ StatusCode FTK_DataProviderSvc::fillTrackParticleCache(const bool withRefit){
               m_conv_tp_map[ftk_track_index] = (int) m_conv_tp->size()-1;
               ATH_MSG_VERBOSE("TrackParticle from converted track added to cache at index " << m_conv_tp_map[ftk_track_index]
                   << "  created from FTK track at index " << ftk_track_index);
-            }
+            } else {
+	      ATH_MSG_DEBUG("Failed to create TrackParticle for converted track with ftk_track_index" << ftk_track_index);
+	      m_conv_tp_map[ftk_track_index] = -2;
+	    }
           } else {
             ATH_MSG_ERROR ("invalid ElementLink to m_conv_track_map["<<ftk_track_index<<"] = "<< m_conv_track_map[ftk_track_index]);
             m_conv_tp_map[ftk_track_index] = -2;

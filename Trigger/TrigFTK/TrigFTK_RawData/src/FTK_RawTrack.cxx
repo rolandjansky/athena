@@ -303,7 +303,7 @@ double FTK_RawTrack::getInvPt() const{
     uint16_t invpt = (m_word_th6 & 0xffff);
     invpt_f = float(Eigen::half(__half_raw(invpt)));
   }
-  return invpt_f;
+  return ( (this->trackVersion()>1)? 2*invpt_f:invpt_f); // 1/2pt is stored in dataword from version 2 onwards
 }
 
 
