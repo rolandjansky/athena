@@ -3,14 +3,15 @@
 */
 
 #include "TrigSteeringEvent/HLTResultMT.h"
+#include <algorithm>
 
 // =============================================================================
 // Standard constructor
 // =============================================================================
 HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags,
-                         std::vector<uint32_t> hltBits,
-                         std::unordered_map<uint16_t, std::vector<uint32_t> > data,
-                         std::vector<uint32_t> status)
+                              std::vector<uint32_t> hltBits,
+                              std::unordered_map<uint16_t, std::vector<uint32_t> > data,
+                              std::vector<uint32_t> status)
 : m_streamTags(streamTags),
   m_hltBits(hltBits),
   m_data(data),
@@ -45,7 +46,24 @@ void HLT::HLTResultMT::setStreamTags(const std::vector<eformat::helper::StreamTa
 
 // -----------------------------------------------------------------------------
 void HLT::HLTResultMT::addStreamTag(const eformat::helper::StreamTag& streamTag) {
-  m_streamTags.push_back(streamTag);
+  // Check if a stream tag with the same type and name is already in the result
+  auto compareTypeName = [&streamTag](const eformat::helper::StreamTag& existingStreamTag) {
+    return streamTag.type == existingStreamTag.type && streamTag.name == existingStreamTag.name;
+  };
+  auto p = std::find_if(m_streamTags.begin(), m_streamTags.end(), compareTypeName);
+
+  // In case of duplicate, merge ROBs and SubDets, otherwise just append the tag to the result
+  if (p != m_streamTags.end()) {
+    if (streamTag.obeys_lumiblock != p->obeys_lumiblock) {
+      // This shouldn't happen, but in case it does, true takes precedence
+      p->obeys_lumiblock = true;
+    }
+    p->robs.insert(streamTag.robs.begin(), streamTag.robs.end());
+    p->dets.insert(streamTag.dets.begin(), streamTag.dets.end());
+  }
+  else {
+    m_streamTags.push_back(streamTag);
+  }
 }
 
 // =============================================================================
