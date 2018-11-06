@@ -91,6 +91,35 @@ class TauValidationPlots:public PlotBase {
       //Migration Matrix plots
       Tau::Migration m_oMigrationPlots;		
 
+      // Plots with the "nominal" tau selection
+      Tau::GeneralTauPlots m_oFakeGeneralNom;
+      Tau::Had1ProngPlots m_oFakeHad1ProngNom;
+      Tau::Had3ProngPlots m_oFakeHad3ProngNom;
+      Tau::EfficiencyPtPlots m_oFakeTauEffPlotsNom;
+      Tau::EfficiencyPtPlots m_oFakeTauEff1PPlotsNom;
+      Tau::EfficiencyPtPlots m_oFakeTauEff3PPlotsNom;
+      Tau::RecoTauPlots m_oFakeTauRecoTauPlotsNom;
+      Tau::NewCorePlots m_oNewCoreFakePlotsNom;
+      
+      Tau::GeneralTauPlots m_oRecoGeneralNom;
+      Tau::Had1ProngPlots m_oRecoHad1ProngNom;
+      Tau::Had3ProngPlots m_oRecoHad3ProngNom;
+      Tau::EfficiencyPtPlots m_oRecTauEffPlotsNom;
+      Tau::EfficiencyPtPlots m_oRecTauEff1PPlotsNom;
+      Tau::EfficiencyPtPlots m_oRecTauEff3PPlotsNom;
+      Tau::RecoTauPlots m_oRecTauRecoTauPlotsNom;
+      Tau::NewCorePlots m_oNewCoreRecTauPlotsNom;
+      
+      Tau::GeneralTauPlots m_oMatchedGeneralNom;
+      Tau::Had1ProngPlots m_oMatchedHad1ProngNom;
+      Tau::Had3ProngPlots m_oMatchedHad3ProngNom;
+      Tau::EfficiencyPtPlots m_oMatchedTauEffPlotsNom;
+      Tau::EfficiencyPtPlots m_oMatchedTauEff1PPlotsNom;
+      Tau::EfficiencyPtPlots m_oMatchedTauEff3PPlotsNom;
+      Tau::RecoTauPlots m_oMatchedTauRecoTauPlotsNom;
+      Tau::Migration m_oMigrationPlotsNom;
+      Tau::NewCorePlots m_oNewCoreMatchedPlotsNom;
+
 
 };
 
