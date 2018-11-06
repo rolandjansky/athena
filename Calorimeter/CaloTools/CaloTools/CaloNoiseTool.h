@@ -39,6 +39,10 @@ class StoreGateSvc;
 #include "LArElecCalib/ILArADC2MeVTool.h" 
 
 #include "TileConditions/TileInfo.h"
+#include "TileConditions/ITileCellNoiseTool.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondIdTransforms.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "LArRecEvent/LArCell.h"
@@ -135,6 +139,19 @@ private:
 
   std::string     m_tileInfoName;
   const TileInfo* m_tileInfo;
+
+  ToolHandle<ITileCellNoiseTool> m_tileCellNoise{this,
+      "TileCellNoiseTool", "TileCellNoiseTool", "Tile Cell noise tool"};
+
+  ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+      "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+  ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+      "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
+  ToolHandle<TileCondIdTransforms> m_tileIdTransforms{this,
+      "TileCondIdTransforms", "TileCondIdTransforms",
+      "Tile tool to tranlate hardware identifiers to the drawerIdx, channel, and adc"};
 
 //Database  
 

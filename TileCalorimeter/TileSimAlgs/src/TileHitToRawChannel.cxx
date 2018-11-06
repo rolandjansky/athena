@@ -91,16 +91,18 @@ StatusCode TileHitToRawChannel::initialize() {
 
   // retrieve TileID helper and TileInfo from det store
 
-  CHECK( detStore()->retrieve(m_tileID) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
 
-  CHECK( detStore()->retrieve(m_tileTBID) );
+  ATH_CHECK( detStore()->retrieve(m_tileTBID) );
 
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
-  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
+
+  ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
   if (m_tileNoise) {
     static const bool CREATEIFNOTTHERE_RNDM(true);
@@ -230,7 +232,9 @@ StatusCode TileHitToRawChannel::execute() {
 
       for (ch = 0; ch < nChMax; ++ch) {
         adc_gain[ch] = TileID::HIGHGAIN;
-        adc_ampl[ch] = random[ch] * m_tileInfo->ChannelNoiseSigma(TileID::HIGHGAIN, ch, idhash);
+        adc_ampl[ch] = random[ch] * m_tileToolNoiseSample->getHfn(drawerIdx, ch, TileID::HIGHGAIN)
+                                  * m_tileInfo->getNoiseScaleFactor();
+
       }
     } else {
       memset(adc_gain, -1, sizeof(adc_gain)); /* TileID::INVALID */
@@ -283,8 +287,8 @@ StatusCode TileHitToRawChannel::execute() {
                                                              , TileRawChannelUnit::MegaElectronVolts);
       double noise;
       // If high saturates, convert adc_id to low-gain value and recalculate.
-      if (adc_ampl[ch] + amp_ch + m_tileInfo->DigitsPedLevel(TileID::HIGHGAIN, ch, idhash)
-          > m_ampMaxHi) {
+      if (adc_ampl[ch] + amp_ch + m_tileToolNoiseSample->getPed(drawerIdx, ch, gain) > m_ampMaxHi) {
+
         gain = TileID::LOWGAIN;
         amp_ch = e_ch / m_tileToolEmscale->channelCalib(drawerIdx, ch, gain, 1., m_rChUnit
                                                         , TileRawChannelUnit::MegaElectronVolts);
@@ -292,7 +296,8 @@ StatusCode TileHitToRawChannel::execute() {
         // If Noise is requested, 
         // recalculate noise using the SAME random number as for high.
         if (m_tileNoise) {
-          adc_ampl[ch] = random[ch] * m_tileInfo->ChannelNoiseSigma(TileID::LOWGAIN, ch, idhash);
+          adc_ampl[ch] = random[ch] * m_tileToolNoiseSample->getHfn(drawerIdx, ch, TileID::LOWGAIN)
+                                    * m_tileInfo->getNoiseScaleFactor();
         }
       }
 

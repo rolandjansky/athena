@@ -356,9 +356,17 @@ CaloNoiseTool::initialize()
 
   }//UseLAr
 
-  if(m_UseTile)
-  {
-   //currently no database for Tile
+  if(m_UseTile) {
+    //currently no database for Tile
+    ATH_CHECK( m_tileCellNoise.retrieve() );
+    ATH_CHECK( m_tileToolEmscale.retrieve() );
+    ATH_CHECK( m_tileToolNoiseSample.retrieve() );
+    ATH_CHECK( m_tileIdTransforms.retrieve() );
+  } else {
+    m_tileCellNoise.disable();
+    m_tileToolEmscale.disable();
+    m_tileToolNoiseSample.disable();
+    m_tileIdTransforms.disable();
   }
 
   m_CNoise    = 0.456E-3;
@@ -894,7 +902,10 @@ CaloNoiseTool::calculateElecNoiseForTILE(const IdentifierHash & idCaloHash)
   for(int igain=0;igain<CaloGain::LARNGAIN;++igain)
   {
     CaloGain::CaloGain gain = static_cast<CaloGain::CaloGain>(igain);
-    float sigma = m_tileInfo->CellNoiseSigma(id,gain);
+    float sigma = m_tileCellNoise->getCellNoise(id, gain);
+    // Conversion from ADC sigma noise to OF sigma noise
+    sigma *= m_tileInfo->getNoiseScaleFactor();
+
     //the LAr gain is internally (in CellNoiseSigma) converted into Tile gain
     sigmaVector[igain]= sigma;
     //::::::::::::::::::::::::::::::::::::::
@@ -1950,42 +1961,56 @@ CaloNoiseTool::estimatedTileGain(const CaloCell* caloCell,
   //double eneTot = tileCell->energy();
 
     // threshold (1023 counts) is the same for all channels
-  double thr = m_tileInfo->ADCmax(); 
+  double threshold = m_tileInfo->ADCmax();
 
   static const TileHWID * tileHWID = TileCablingService::getInstance()->getTileHWID();
   static const IdContext chContext = tileHWID->channel_context();
-  HWIdentifier hwid;
+  HWIdentifier hwid1;
   
-  tileHWID->get_id(caloDDE->onl1(), hwid, &chContext ); // pmt id
-  hwid = tileHWID->adc_id(hwid,TileHWID::HIGHGAIN); // high gain ADC id
+  tileHWID->get_id(caloDDE->onl1(), hwid1, &chContext ); // pmt id
+  hwid1 = tileHWID->adc_id(hwid1, TileHWID::HIGHGAIN); // high gain ADC id
   
+  unsigned int drawerIdx1(0), channel1(0), adc1(0);
+  m_tileIdTransforms->getIndices(hwid1, drawerIdx1, channel1, adc1);
+
   // first PMT, convert energy to ADC counts
-  double amp = tileCell->ene1();
-  amp /= m_tileInfo->ChannelCalib(hwid,TileRawChannelUnit::ADCcounts,TileRawChannelUnit::MegaElectronVolts);
-  double ped = m_tileInfo->DigitsPedLevel(hwid); 
+  double amplitude1 = tileCell->ene1();
+  amplitude1 /= m_tileToolEmscale->channelCalib(drawerIdx1, channel1, adc1, 1.0,
+                                          TileRawChannelUnit::ADCcounts,
+                                          TileRawChannelUnit::MegaElectronVolts);
+
+  double pedestal1 = m_tileToolNoiseSample->getPed(drawerIdx1, channel1, adc1);
 
   int igain1;
 
-  if (amp + ped < thr )
+  if (amplitude1 + pedestal1 < threshold ) {
     igain1 = TileID::HIGHGAIN;
-  else
+  } else {
     igain1 = TileID::LOWGAIN;
+  }
 
   // second PMT, if it exists
-  if (caloDDE->onl2() !=  TileID::NOT_VALID_HASH ) 
-  {
-    tileHWID->get_id(caloDDE->onl2(), hwid, &chContext ); // pmt id
-    hwid = tileHWID->adc_id(hwid,TileHWID::HIGHGAIN); // high gain ADC id
+  if (caloDDE->onl2() !=  TileID::NOT_VALID_HASH ) {
 
-    amp = tileCell->ene2();
-    amp /= m_tileInfo->ChannelCalib(hwid,TileRawChannelUnit::ADCcounts,TileRawChannelUnit::MegaElectronVolts);
-    ped = m_tileInfo->DigitsPedLevel(hwid); 
+    HWIdentifier hwid2;
+    tileHWID->get_id(caloDDE->onl2(), hwid2, &chContext ); // pmt id
+    hwid2 = tileHWID->adc_id(hwid2, TileHWID::HIGHGAIN); // high gain ADC id
 
-    if (amp + ped < thr ) {
+    unsigned int drawerIdx2(0), channel2(0), adc2(0);
+    m_tileIdTransforms->getIndices(hwid2, drawerIdx2, channel2, adc2);
+
+    // first PMT, convert energy to ADC counts
+    double amplitude2 = tileCell->ene2();
+    amplitude2 /= m_tileToolEmscale->channelCalib(drawerIdx2, channel2, adc2, 1.0,
+                                            TileRawChannelUnit::ADCcounts,
+                                            TileRawChannelUnit::MegaElectronVolts);
+
+    double pedestal2 = m_tileToolNoiseSample->getPed(drawerIdx2, channel2, adc2);
+
+    if (amplitude2 + pedestal2 < threshold) {
       // igain2 high
       return igain1 == TileID::LOWGAIN ? CaloGain::TILEHIGHLOW : CaloGain::TILEHIGHHIGH;
-    }
-    else {
+    } else {
       // igain2 low
       return igain1 == TileID::LOWGAIN ? CaloGain::TILELOWLOW : CaloGain::TILEHIGHLOW;
     }
